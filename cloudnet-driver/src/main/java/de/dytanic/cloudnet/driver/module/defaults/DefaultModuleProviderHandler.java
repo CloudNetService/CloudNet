@@ -1,4 +1,4 @@
-package de.dytanic.cloudnet.driver.module;
+package de.dytanic.cloudnet.driver.module.defaults;
 
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.language.LanguageManager;
@@ -6,6 +6,10 @@ import de.dytanic.cloudnet.common.logging.ILogger;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.event.Event;
 import de.dytanic.cloudnet.driver.event.events.module.*;
+import de.dytanic.cloudnet.driver.module.IModuleProvider;
+import de.dytanic.cloudnet.driver.module.IModuleProviderHandler;
+import de.dytanic.cloudnet.driver.module.IModuleWrapper;
+import de.dytanic.cloudnet.driver.module.dependency.ModuleDependency;
 import de.dytanic.cloudnet.driver.module.repository.RepositoryModuleInfo;
 
 public class DefaultModuleProviderHandler implements IModuleProviderHandler {

@@ -23,9 +23,11 @@ public class RemoteModuleRepository implements ModuleRepository {
     private final String baseUrl = System.getProperty("cloudnet.modules.repository.url", "https://cloudnetservice.eu/api");
 
     private Collection<RepositoryModuleInfo> remoteInfos;
+    private boolean cached;
 
-    public RemoteModuleRepository() {
+    public void fillCache() {
         this.loadAvailableModules();
+        this.cached = true;
     }
 
     @Override
@@ -71,6 +73,10 @@ public class RemoteModuleRepository implements ModuleRepository {
 
     @Override
     public @NotNull Collection<RepositoryModuleInfo> getAvailableModules() {
+        if (!this.cached) {
+            return this.loadAvailableModules();
+        }
+
         return this.remoteInfos == null ? Collections.emptyList() : this.remoteInfos;
     }
 
@@ -98,6 +104,9 @@ public class RemoteModuleRepository implements ModuleRepository {
 
     @Override
     public RepositoryModuleInfo getRepositoryModuleInfo(@NotNull ModuleId moduleId) {
+        if (!this.cached) {
+            return this.loadRepositoryModuleInfo(moduleId);
+        }
         return this.remoteInfos == null ? null : this.remoteInfos.stream()
                 .filter(moduleInfo -> moduleInfo.getModuleId().equalsIgnoreVersion(moduleId))
                 .findFirst()

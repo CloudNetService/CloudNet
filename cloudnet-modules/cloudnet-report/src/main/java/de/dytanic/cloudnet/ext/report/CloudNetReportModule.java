@@ -13,6 +13,8 @@ import de.dytanic.cloudnet.common.logging.ILogHandler;
 import de.dytanic.cloudnet.common.unsafe.CPUUsageResolver;
 import de.dytanic.cloudnet.driver.event.Event;
 import de.dytanic.cloudnet.driver.module.*;
+import de.dytanic.cloudnet.driver.module.dependency.ModuleDependency;
+import de.dytanic.cloudnet.driver.module.dependency.ModuleRepository;
 import de.dytanic.cloudnet.driver.module.driver.DriverModule;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceTask;

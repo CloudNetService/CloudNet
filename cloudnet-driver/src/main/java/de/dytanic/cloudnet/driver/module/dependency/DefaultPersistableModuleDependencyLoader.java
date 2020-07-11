@@ -1,4 +1,6 @@
-package de.dytanic.cloudnet.driver.module;
+package de.dytanic.cloudnet.driver.module.dependency;
+
+import de.dytanic.cloudnet.driver.module.ModuleConfiguration;
 
 import java.io.IOException;
 import java.io.InputStream;

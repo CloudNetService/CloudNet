@@ -1,8 +1,12 @@
-package de.dytanic.cloudnet.driver.module;
+package de.dytanic.cloudnet.driver.module.defaults;
 
 import com.google.common.base.Preconditions;
 import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import de.dytanic.cloudnet.driver.module.*;
+import de.dytanic.cloudnet.driver.module.dependency.ModuleDependency;
+import de.dytanic.cloudnet.driver.module.dependency.ModuleDependencyNotFoundException;
+import de.dytanic.cloudnet.driver.module.dependency.ModuleRepository;
 import de.dytanic.cloudnet.driver.module.repository.RepositoryModuleInfo;
 
 import java.io.*;
@@ -58,9 +62,11 @@ public class DefaultModuleWrapper implements IModuleWrapper {
     private void init(URL url) throws Exception {
         this.loadConfiguration(url);
 
-        URL updatedUrl = this.installUpdate(url);
-        if (updatedUrl != null) {
-            url = updatedUrl;
+        if (this.moduleProvider.isAutoUpdateEnabled()) {
+            URL updatedUrl = this.installUpdate(url);
+            if (updatedUrl != null) {
+                url = updatedUrl;
+            }
         }
 
         Map<String, String> repositories = new HashMap<>(DEFAULT_REPOSITORIES);

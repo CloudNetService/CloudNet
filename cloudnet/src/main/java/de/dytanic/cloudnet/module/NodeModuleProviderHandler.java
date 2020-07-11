@@ -1,9 +1,9 @@
 package de.dytanic.cloudnet.module;
 
 import de.dytanic.cloudnet.CloudNet;
-import de.dytanic.cloudnet.driver.module.DefaultModuleProviderHandler;
 import de.dytanic.cloudnet.driver.module.IModuleProviderHandler;
 import de.dytanic.cloudnet.driver.module.IModuleWrapper;
+import de.dytanic.cloudnet.driver.module.defaults.DefaultModuleProviderHandler;
 
 public final class NodeModuleProviderHandler extends DefaultModuleProviderHandler implements IModuleProviderHandler {
 

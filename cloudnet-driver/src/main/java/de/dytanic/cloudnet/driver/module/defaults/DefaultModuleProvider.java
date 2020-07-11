@@ -1,6 +1,12 @@
-package de.dytanic.cloudnet.driver.module;
+package de.dytanic.cloudnet.driver.module.defaults;
 
 import com.google.common.base.Preconditions;
+import de.dytanic.cloudnet.driver.module.IModuleProvider;
+import de.dytanic.cloudnet.driver.module.IModuleProviderHandler;
+import de.dytanic.cloudnet.driver.module.IModuleWrapper;
+import de.dytanic.cloudnet.driver.module.ModuleProviderHandlerAdapter;
+import de.dytanic.cloudnet.driver.module.dependency.DefaultMemoryModuleDependencyLoader;
+import de.dytanic.cloudnet.driver.module.dependency.IModuleDependencyLoader;
 import de.dytanic.cloudnet.driver.module.repository.DefaultModuleInstaller;
 import de.dytanic.cloudnet.driver.module.repository.ModuleInstaller;
 import de.dytanic.cloudnet.driver.module.repository.ModuleRepository;
@@ -25,17 +31,32 @@ public final class DefaultModuleProvider implements IModuleProvider {
 
     protected IModuleDependencyLoader moduleDependencyLoader = new DefaultMemoryModuleDependencyLoader();
 
-    private final ModuleRepository moduleRepository = new RemoteModuleRepository();
+    private final RemoteModuleRepository moduleRepository = new RemoteModuleRepository();
     private final ModuleInstaller moduleInstaller;
+
+    private boolean autoUpdateEnabled;
 
     private File moduleDirectory = new File("modules");
 
-    public DefaultModuleProvider(UnaryOperator<InputStream> inputStreamModifier) {
+    public DefaultModuleProvider(boolean cacheModules, UnaryOperator<InputStream> inputStreamModifier) {
         this.moduleInstaller = new DefaultModuleInstaller(this, inputStreamModifier, this.moduleRepository.getBaseURL());
+        if (cacheModules) {
+            this.moduleRepository.fillCache();
+        }
     }
 
-    public DefaultModuleProvider() {
-        this(null);
+    public DefaultModuleProvider(boolean cacheModules) {
+        this(cacheModules, null);
+    }
+
+    @Override
+    public boolean isAutoUpdateEnabled() {
+        return this.autoUpdateEnabled;
+    }
+
+    @Override
+    public void setAutoUpdateEnabled(boolean autoUpdateEnabled) {
+        this.autoUpdateEnabled = autoUpdateEnabled;
     }
 
     @Override
@@ -67,7 +88,7 @@ public final class DefaultModuleProvider implements IModuleProvider {
     public Collection<IModuleWrapper> getModules(String group) {
         Preconditions.checkNotNull(group);
 
-        return this.getModules().stream().filter(defaultModuleWrapper -> defaultModuleWrapper.getModuleConfiguration().group.equals(group)).collect(Collectors.toList());
+        return this.getModules().stream().filter(defaultModuleWrapper -> defaultModuleWrapper.getModuleConfiguration().getGroup().equals(group)).collect(Collectors.toList());
     }
 
     @Override

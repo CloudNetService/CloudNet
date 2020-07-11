@@ -1,5 +1,6 @@
 package de.dytanic.cloudnet.driver.module;
 
+import de.dytanic.cloudnet.driver.module.dependency.IModuleDependencyLoader;
 import de.dytanic.cloudnet.driver.module.repository.ModuleInstaller;
 import de.dytanic.cloudnet.driver.module.repository.ModuleRepository;
 
@@ -13,6 +14,10 @@ public interface IModuleProvider {
     ModuleRepository getModuleRepository();
 
     ModuleInstaller getModuleInstaller();
+
+    boolean isAutoUpdateEnabled();
+
+    void setAutoUpdateEnabled(boolean autoUpdateEnabled);
 
     File getModuleDirectory();
 

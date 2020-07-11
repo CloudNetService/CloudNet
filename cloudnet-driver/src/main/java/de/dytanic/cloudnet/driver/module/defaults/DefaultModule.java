@@ -1,4 +1,8 @@
-package de.dytanic.cloudnet.driver.module;
+package de.dytanic.cloudnet.driver.module.defaults;
+
+import de.dytanic.cloudnet.driver.module.IModule;
+import de.dytanic.cloudnet.driver.module.IModuleWrapper;
+import de.dytanic.cloudnet.driver.module.ModuleConfiguration;
 
 public class DefaultModule implements IModule {
 

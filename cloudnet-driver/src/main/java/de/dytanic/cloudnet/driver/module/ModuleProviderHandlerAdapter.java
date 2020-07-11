@@ -1,5 +1,6 @@
 package de.dytanic.cloudnet.driver.module;
 
+import de.dytanic.cloudnet.driver.module.dependency.ModuleDependency;
 import de.dytanic.cloudnet.driver.module.repository.RepositoryModuleInfo;
 
 public class ModuleProviderHandlerAdapter implements IModuleProviderHandler {

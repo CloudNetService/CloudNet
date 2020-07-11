@@ -1,4 +1,4 @@
-package de.dytanic.cloudnet.driver.module;
+package de.dytanic.cloudnet.driver.module.defaults;
 
 import java.io.IOException;
 import java.net.URL;

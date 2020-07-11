@@ -2,8 +2,8 @@ package de.dytanic.cloudnet.driver.event.events.module;
 
 import de.dytanic.cloudnet.driver.module.IModuleProvider;
 import de.dytanic.cloudnet.driver.module.IModuleWrapper;
-import de.dytanic.cloudnet.driver.module.ModuleDependency;
 import de.dytanic.cloudnet.driver.module.ModuleLifeCycle;
+import de.dytanic.cloudnet.driver.module.dependency.ModuleDependency;
 
 /**
  * This event is being called before a dependency for a module is being downloaded.

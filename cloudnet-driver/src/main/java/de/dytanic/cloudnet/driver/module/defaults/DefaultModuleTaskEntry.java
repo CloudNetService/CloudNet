@@ -1,4 +1,9 @@
-package de.dytanic.cloudnet.driver.module;
+package de.dytanic.cloudnet.driver.module.defaults;
+
+import de.dytanic.cloudnet.driver.module.IModule;
+import de.dytanic.cloudnet.driver.module.IModuleTaskEntry;
+import de.dytanic.cloudnet.driver.module.IModuleWrapper;
+import de.dytanic.cloudnet.driver.module.ModuleTask;
 
 import java.lang.reflect.Method;
 

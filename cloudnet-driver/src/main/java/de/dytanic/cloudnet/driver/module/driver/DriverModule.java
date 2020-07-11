@@ -6,7 +6,7 @@ import de.dytanic.cloudnet.common.logging.LogLevel;
 import de.dytanic.cloudnet.common.registry.IServicesRegistry;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.event.IEventManager;
-import de.dytanic.cloudnet.driver.module.DefaultModule;
+import de.dytanic.cloudnet.driver.module.defaults.DefaultModule;
 
 import java.io.File;
 

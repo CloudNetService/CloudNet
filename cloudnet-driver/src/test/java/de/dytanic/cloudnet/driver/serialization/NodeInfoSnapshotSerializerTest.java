@@ -2,12 +2,12 @@ package de.dytanic.cloudnet.driver.serialization;
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.module.ModuleConfiguration;
-import de.dytanic.cloudnet.driver.module.ModuleDependency;
-import de.dytanic.cloudnet.driver.module.ModuleRepository;
+import de.dytanic.cloudnet.driver.module.dependency.ModuleDependency;
+import de.dytanic.cloudnet.driver.module.dependency.ModuleRepository;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
-import de.dytanic.cloudnet.driver.service.*;
+import de.dytanic.cloudnet.driver.service.ProcessSnapshot;
 import org.junit.Assert;
 import org.junit.Test;
 

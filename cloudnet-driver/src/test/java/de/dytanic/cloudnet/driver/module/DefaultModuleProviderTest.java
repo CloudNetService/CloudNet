@@ -1,5 +1,6 @@
 package de.dytanic.cloudnet.driver.module;
 
+import de.dytanic.cloudnet.driver.module.defaults.DefaultModuleProvider;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -7,7 +8,7 @@ public final class DefaultModuleProviderTest {
 
     @Test
     public void testModule() throws Throwable {
-        IModuleProvider moduleProvider = new DefaultModuleProvider();
+        IModuleProvider moduleProvider = new DefaultModuleProvider(false);
 
         IModuleWrapper moduleWrapper = moduleProvider.loadModule(DefaultModuleProviderTest.class.getClassLoader().getResource("module.jar"));
         Assert.assertNull(moduleProvider.loadModule(DefaultModuleProviderTest.class.getClassLoader().getResource("module.jar")));
