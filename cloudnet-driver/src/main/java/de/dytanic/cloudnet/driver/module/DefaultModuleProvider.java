@@ -1,14 +1,20 @@
 package de.dytanic.cloudnet.driver.module;
 
 import com.google.common.base.Preconditions;
+import de.dytanic.cloudnet.driver.module.repository.DefaultModuleInstaller;
+import de.dytanic.cloudnet.driver.module.repository.ModuleInstaller;
+import de.dytanic.cloudnet.driver.module.repository.ModuleRepository;
+import de.dytanic.cloudnet.driver.module.repository.RemoteModuleRepository;
 
 import java.io.File;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
 public final class DefaultModuleProvider implements IModuleProvider {
@@ -19,7 +25,28 @@ public final class DefaultModuleProvider implements IModuleProvider {
 
     protected IModuleDependencyLoader moduleDependencyLoader = new DefaultMemoryModuleDependencyLoader();
 
+    private final ModuleRepository moduleRepository = new RemoteModuleRepository();
+    private final ModuleInstaller moduleInstaller;
+
     private File moduleDirectory = new File("modules");
+
+    public DefaultModuleProvider(UnaryOperator<InputStream> inputStreamModifier) {
+        this.moduleInstaller = new DefaultModuleInstaller(this, inputStreamModifier, this.moduleRepository.getBaseURL());
+    }
+
+    public DefaultModuleProvider() {
+        this(null);
+    }
+
+    @Override
+    public ModuleRepository getModuleRepository() {
+        return this.moduleRepository;
+    }
+
+    @Override
+    public ModuleInstaller getModuleInstaller() {
+        return this.moduleInstaller;
+    }
 
     @Override
     public File getModuleDirectory() {

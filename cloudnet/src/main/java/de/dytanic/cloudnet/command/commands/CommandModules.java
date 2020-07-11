@@ -8,9 +8,9 @@ import de.dytanic.cloudnet.driver.module.IModuleProvider;
 import de.dytanic.cloudnet.driver.module.IModuleWrapper;
 import de.dytanic.cloudnet.driver.module.ModuleDependency;
 import de.dytanic.cloudnet.driver.module.ModuleId;
-import de.dytanic.cloudnet.module.repository.ModuleInstaller;
-import de.dytanic.cloudnet.module.repository.ModuleRepository;
-import de.dytanic.cloudnet.module.repository.RepositoryModuleInfo;
+import de.dytanic.cloudnet.driver.module.repository.ModuleInstaller;
+import de.dytanic.cloudnet.driver.module.repository.ModuleRepository;
+import de.dytanic.cloudnet.driver.module.repository.RepositoryModuleInfo;
 
 import java.io.IOException;
 import java.util.*;
@@ -26,7 +26,8 @@ public final class CommandModules extends CommandDefault implements ITabComplete
     @Override
     public void execute(ICommandSender sender, String command, String[] args, String commandLine, Properties properties) {
         IModuleProvider moduleProvider = super.getCloudNet().getModuleProvider();
-        ModuleRepository moduleRepository = super.getCloudNet().getModuleRepository();
+        ModuleRepository moduleRepository = moduleProvider.getModuleRepository();
+        ModuleInstaller moduleInstaller = moduleProvider.getModuleInstaller();
 
         Collection<IModuleWrapper> moduleWrappers = moduleProvider.getModules();
 
@@ -57,9 +58,10 @@ public final class CommandModules extends CommandDefault implements ITabComplete
                     return;
                 }
 
-                Collection<RepositoryModuleInfo> moduleInfos = moduleRepository.loadAvailableModules();
+                Collection<RepositoryModuleInfo> moduleInfos = moduleRepository.getAvailableModules();
                 for (RepositoryModuleInfo moduleInfo : moduleInfos) {
-                    if (this.matchesProperties(moduleInfo.getModuleId(), properties)) {
+                    if (!moduleInstaller.isModuleInstalled(moduleInfo.getModuleId()) &&
+                            this.matchesProperties(moduleInfo.getModuleId(), properties)) {
                         this.displayRemoteModuleInfo(sender, moduleInfo);
                     }
                 }
@@ -75,15 +77,16 @@ public final class CommandModules extends CommandDefault implements ITabComplete
                 return;
             }
 
-            ModuleInstaller moduleInstaller = super.getCloudNet().getModuleInstaller();
-
             if (moduleInstaller.isModuleInstalled(moduleId)) {
                 sender.sendMessage(LanguageManager.getMessage("command-modules-repository-module-already-installed").replace("%id%", moduleId.toString()));
                 return;
             }
 
             try {
-                moduleInstaller.installModule(super.getCloudNet().getConsole(), moduleRepository.getBaseURL(), moduleInfo);
+                if (!moduleInstaller.installModule(moduleInfo, true)) {
+                    sender.sendMessage(LanguageManager.getMessage("command-modules-install-failed").replace("%id%", moduleId.toString()));
+                    return;
+                }
 
                 sender.sendMessage(LanguageManager.getMessage("command-modules-install-success").replace("%id%", moduleId.toString()));
             } catch (IOException exception) {
@@ -93,8 +96,6 @@ public final class CommandModules extends CommandDefault implements ITabComplete
         } else if (args.length == 3 && args[0].equalsIgnoreCase("uninstall")) {
 
             ModuleId moduleId = new ModuleId(args[1], args[2]);
-
-            ModuleInstaller moduleInstaller = super.getCloudNet().getModuleInstaller();
 
             if (!moduleInstaller.isModuleInstalled(moduleId)) {
                 sender.sendMessage(LanguageManager.getMessage("command-modules-repository-module-not-installed").replace("%id%", moduleId.toString()));
@@ -119,10 +120,7 @@ public final class CommandModules extends CommandDefault implements ITabComplete
         if (properties.containsKey("name") && !moduleId.getName().contains(properties.get("name"))) {
             return false;
         }
-        if (properties.containsKey("version") && !moduleId.getVersion().contains(properties.get("version"))) {
-            return false;
-        }
-        return true;
+        return !properties.containsKey("version") || moduleId.getVersion().contains(properties.get("version"));
     }
 
     private void displayRemoteModuleInfo(ICommandSender sender, RepositoryModuleInfo moduleInfo) {

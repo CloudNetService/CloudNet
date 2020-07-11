@@ -1,11 +1,18 @@
 package de.dytanic.cloudnet.driver.module;
 
+import de.dytanic.cloudnet.driver.module.repository.ModuleInstaller;
+import de.dytanic.cloudnet.driver.module.repository.ModuleRepository;
+
 import java.io.File;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.Collection;
 
 public interface IModuleProvider {
+
+    ModuleRepository getModuleRepository();
+
+    ModuleInstaller getModuleInstaller();
 
     File getModuleDirectory();
 

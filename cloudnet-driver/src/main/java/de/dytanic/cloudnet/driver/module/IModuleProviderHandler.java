@@ -1,5 +1,7 @@
 package de.dytanic.cloudnet.driver.module;
 
+import de.dytanic.cloudnet.driver.module.repository.RepositoryModuleInfo;
+
 public interface IModuleProviderHandler {
 
     boolean handlePreModuleLoad(IModuleWrapper moduleWrapper);
@@ -21,4 +23,13 @@ public interface IModuleProviderHandler {
     void handlePreInstallDependency(IModuleWrapper moduleWrapper, ModuleDependency dependency);
 
     void handlePostInstallDependency(IModuleWrapper moduleWrapper, ModuleDependency dependency);
+
+    void handleCheckForUpdates(IModuleWrapper moduleWrapper);
+
+    void handlePreInstallUpdate(IModuleWrapper moduleWrapper, RepositoryModuleInfo moduleInfo);
+
+    void handleInstallUpdateFailed(IModuleWrapper moduleWrapper, RepositoryModuleInfo moduleInfo);
+
+    void handlePostInstallUpdate(IModuleWrapper moduleWrapper, RepositoryModuleInfo moduleInfo);
+
 }

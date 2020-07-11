@@ -1,10 +1,13 @@
 package de.dytanic.cloudnet.driver.module;
 
+import lombok.EqualsAndHashCode;
+
+@EqualsAndHashCode
 public class ModuleId {
 
-    private String group;
-    private String name;
-    private String version;
+    private final String group;
+    private final String name;
+    private final String version;
 
     public ModuleId(String group, String name, String version) {
         this.group = group;
@@ -26,6 +29,10 @@ public class ModuleId {
 
     public String getVersion() {
         return version;
+    }
+
+    public boolean equalsIgnoreVersion(ModuleId moduleId) {
+        return this.group.equals(moduleId.group) && this.name.equals(moduleId.name);
     }
 
     @Override

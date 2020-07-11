@@ -1,5 +1,7 @@
 package de.dytanic.cloudnet.driver.module;
 
+import de.dytanic.cloudnet.driver.module.repository.RepositoryModuleInfo;
+
 public class ModuleProviderHandlerAdapter implements IModuleProviderHandler {
 
     @Override
@@ -51,4 +53,25 @@ public class ModuleProviderHandlerAdapter implements IModuleProviderHandler {
     public void handlePostInstallDependency(IModuleWrapper moduleWrapper, ModuleDependency dependency) {
 
     }
+
+    @Override
+    public void handleCheckForUpdates(IModuleWrapper moduleWrapper) {
+
+    }
+
+    @Override
+    public void handlePreInstallUpdate(IModuleWrapper moduleWrapper, RepositoryModuleInfo moduleInfo) {
+
+    }
+
+    @Override
+    public void handleInstallUpdateFailed(IModuleWrapper moduleWrapper, RepositoryModuleInfo moduleInfo) {
+
+    }
+
+    @Override
+    public void handlePostInstallUpdate(IModuleWrapper moduleWrapper, RepositoryModuleInfo moduleInfo) {
+
+    }
+
 }

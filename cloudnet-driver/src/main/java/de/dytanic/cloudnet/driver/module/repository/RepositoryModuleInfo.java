@@ -1,18 +1,18 @@
-package de.dytanic.cloudnet.module.repository;
+package de.dytanic.cloudnet.driver.module.repository;
 
 import de.dytanic.cloudnet.driver.module.ModuleId;
 
 public class RepositoryModuleInfo {
 
-    private ModuleId moduleId;
-    private String[] authors;
-    private ModuleId[] depends;
-    private ModuleId[] conflicts;
-    private String requiredCloudNetVersion;
-    private String description;
-    private String website;
-    private String sourceUrl;
-    private String supportUrl;
+    private final ModuleId moduleId;
+    private final String[] authors;
+    private final ModuleId[] depends;
+    private final ModuleId[] conflicts;
+    private final String requiredCloudNetVersion;
+    private final String description;
+    private final String website;
+    private final String sourceUrl;
+    private final String supportUrl;
 
     public RepositoryModuleInfo(ModuleId moduleId, String[] authors, ModuleId[] depends, ModuleId[] conflicts, String requiredCloudNetVersion, String description, String website, String sourceUrl, String supportUrl) {
         this.moduleId = moduleId;

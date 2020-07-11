@@ -3,14 +3,18 @@ package de.dytanic.cloudnet.driver.module;
 import com.google.common.base.Preconditions;
 import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import de.dytanic.cloudnet.driver.module.repository.RepositoryModuleInfo;
 
-import java.io.File;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -52,33 +56,11 @@ public class DefaultModuleWrapper implements IModuleWrapper {
     }
 
     private void init(URL url) throws Exception {
-        try (FinalizeURLClassLoader classLoader = new FinalizeURLClassLoader(url);
-             InputStream inputStream = classLoader.getResourceAsStream(MODULE_CONFIG_PATH)) {
-            if (inputStream == null) {
-                throw new ModuleConfigurationNotFoundException(url);
-            }
+        this.loadConfiguration(url);
 
-            try (InputStreamReader reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8)) {
-                this.moduleConfigurationSource = new JsonDocument().read(reader);
-                this.moduleConfiguration = this.moduleConfigurationSource.toInstanceOf(MODULE_CONFIGURATION_TYPE);
-            }
-        }
-
-        if (this.moduleConfiguration == null) {
-            throw new ModuleConfigurationNotFoundException(url);
-        }
-
-        if (this.moduleConfiguration.getGroup() == null) {
-            throw new ModuleConfigurationPropertyNotFoundException("group");
-        }
-        if (this.moduleConfiguration.getName() == null) {
-            throw new ModuleConfigurationPropertyNotFoundException("name");
-        }
-        if (this.moduleConfiguration.getVersion() == null) {
-            throw new ModuleConfigurationPropertyNotFoundException("version");
-        }
-        if (this.moduleConfiguration.getMain() == null) {
-            throw new ModuleConfigurationPropertyNotFoundException("main");
+        URL updatedUrl = this.installUpdate(url);
+        if (updatedUrl != null) {
+            url = updatedUrl;
         }
 
         Map<String, String> repositories = new HashMap<>(DEFAULT_REPOSITORIES);
@@ -144,6 +126,72 @@ public class DefaultModuleWrapper implements IModuleWrapper {
                 this.moduleTasks.get(moduleTask.event()).add(new DefaultModuleTaskEntry(this, moduleTask, method));
             }
         }
+    }
+
+    private void loadConfiguration(URL url) throws Exception {
+        try (FinalizeURLClassLoader classLoader = new FinalizeURLClassLoader(url);
+             InputStream inputStream = classLoader.getResourceAsStream(MODULE_CONFIG_PATH)) {
+            if (inputStream == null) {
+                throw new ModuleConfigurationNotFoundException(url);
+            }
+
+            try (InputStreamReader reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8)) {
+                this.moduleConfigurationSource = new JsonDocument().read(reader);
+                this.moduleConfiguration = this.moduleConfigurationSource.toInstanceOf(MODULE_CONFIGURATION_TYPE);
+            }
+        }
+
+        if (this.moduleConfiguration == null) {
+            throw new ModuleConfigurationNotFoundException(url);
+        }
+
+        if (this.moduleConfiguration.getGroup() == null) {
+            throw new ModuleConfigurationPropertyNotFoundException("group");
+        }
+        if (this.moduleConfiguration.getName() == null) {
+            throw new ModuleConfigurationPropertyNotFoundException("name");
+        }
+        if (this.moduleConfiguration.getVersion() == null) {
+            throw new ModuleConfigurationPropertyNotFoundException("version");
+        }
+        if (this.moduleConfiguration.getMain() == null) {
+            throw new ModuleConfigurationPropertyNotFoundException("main");
+        }
+    }
+
+    private URL installUpdate(URL url) throws URISyntaxException, IOException {
+        this.moduleProvider.getModuleProviderHandler().handleCheckForUpdates(this);
+
+        RepositoryModuleInfo info = this.moduleProvider.getModuleRepository().getRepositoryModuleInfo(this.moduleConfiguration.getModuleId());
+        if (info == null) {
+            return null;
+        }
+
+        if (info.getModuleId().getVersion().equals(this.moduleConfiguration.getModuleId().getVersion())) {
+            return null;
+        }
+
+        URI uri = url.toURI();
+        URL downloadUrl = new URL(this.moduleProvider.getModuleRepository().getModuleURL(info.getModuleId()));
+
+        if (!uri.getScheme().equals("file")) {
+            return downloadUrl;
+        }
+
+        Path path = Paths.get(uri);
+
+        this.moduleProvider.getModuleProviderHandler().handlePreInstallUpdate(this, info);
+
+        try (OutputStream outputStream = Files.newOutputStream(path)) {
+            if (!this.moduleProvider.getModuleInstaller().installModule(info, outputStream)) {
+                this.moduleProvider.getModuleProviderHandler().handleInstallUpdateFailed(this, info);
+                return null;
+            }
+        }
+
+        this.moduleProvider.getModuleProviderHandler().handlePostInstallUpdate(this, info);
+
+        return path.toUri().toURL();
     }
 
     @Override

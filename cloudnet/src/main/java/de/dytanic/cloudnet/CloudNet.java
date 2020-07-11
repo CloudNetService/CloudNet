@@ -61,10 +61,6 @@ import de.dytanic.cloudnet.event.command.CommandPreProcessEvent;
 import de.dytanic.cloudnet.event.permission.PermissionServiceSetEvent;
 import de.dytanic.cloudnet.log.QueuedConsoleLogHandler;
 import de.dytanic.cloudnet.module.NodeModuleProviderHandler;
-import de.dytanic.cloudnet.module.repository.DefaultModuleInstaller;
-import de.dytanic.cloudnet.module.repository.ModuleInstaller;
-import de.dytanic.cloudnet.module.repository.ModuleRepository;
-import de.dytanic.cloudnet.module.repository.RemoteModuleRepository;
 import de.dytanic.cloudnet.network.NetworkClientChannelHandlerImpl;
 import de.dytanic.cloudnet.network.NetworkServerChannelHandlerImpl;
 import de.dytanic.cloudnet.network.NetworkUpdateType;
@@ -134,9 +130,6 @@ public final class CloudNet extends CloudNetDriver {
 
     private final QueuedConsoleLogHandler queuedConsoleLogHandler;
     private final ConsoleCommandSender consoleCommandSender;
-
-    private final ModuleRepository moduleRepository = new RemoteModuleRepository();
-    private final ModuleInstaller moduleInstaller = new DefaultModuleInstaller(super.moduleProvider);
 
     private INetworkClient networkClient;
     private INetworkServer networkServer;
@@ -369,14 +362,6 @@ public final class CloudNet extends CloudNetDriver {
         }
     }
 
-    public ModuleInstaller getModuleInstaller() {
-        return this.moduleInstaller;
-    }
-
-    public ModuleRepository getModuleRepository() {
-        return this.moduleRepository;
-    }
-  
     @Override
     public @NotNull String getComponentName() {
         return this.config.getIdentity().getUniqueId();

@@ -6,6 +6,7 @@ import de.dytanic.cloudnet.common.logging.ILogger;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.event.Event;
 import de.dytanic.cloudnet.driver.event.events.module.*;
+import de.dytanic.cloudnet.driver.module.repository.RepositoryModuleInfo;
 
 public class DefaultModuleProviderHandler implements IModuleProviderHandler {
 
@@ -76,22 +77,43 @@ public class DefaultModuleProviderHandler implements IModuleProviderHandler {
     @Override
     public void handlePreInstallDependency(IModuleWrapper moduleWrapper, ModuleDependency dependency) {
         this.callEvent(new ModulePreInstallDependencyEvent(this.getModuleProvider(), moduleWrapper, dependency));
-        this.getLogger().extended(this.replaceAll(LanguageManager.getMessage("cloudnet-pre-install-dependency-module")
-                        .replace("%group%", dependency.getGroup())
-                        .replace("%name%", dependency.getName())
-                        .replace("%version%", dependency.getVersion())
-                , this.getModuleProvider(), moduleWrapper));
+        this.getLogger().extended(this.replaceAll(LanguageManager.getMessage("cloudnet-pre-install-dependency-module"), this.getModuleProvider(), moduleWrapper, dependency));
     }
 
     @Override
     public void handlePostInstallDependency(IModuleWrapper moduleWrapper, ModuleDependency dependency) {
         this.callEvent(new ModulePostInstallDependencyEvent(this.getModuleProvider(), moduleWrapper, dependency));
-        this.getLogger().extended(this.replaceAll(LanguageManager.getMessage("cloudnet-post-install-dependency-module")
-                        .replace("%group%", dependency.getGroup())
-                        .replace("%name%", dependency.getName())
-                        .replace("%version%", dependency.getVersion())
-                , this.getModuleProvider(), moduleWrapper));
+        this.getLogger().extended(this.replaceAll(LanguageManager.getMessage("cloudnet-post-install-dependency-module"), this.getModuleProvider(), moduleWrapper, dependency));
     }
+
+    @Override
+    public void handleCheckForUpdates(IModuleWrapper moduleWrapper) {
+        this.callEvent(new ModuleUpdateCheckEvent(this.getModuleProvider(), moduleWrapper));
+
+        this.getLogger().extended(this.replaceAll(LanguageManager.getMessage("cloudnet-check-updates-module"), this.getModuleProvider(), moduleWrapper));
+    }
+
+    @Override
+    public void handlePreInstallUpdate(IModuleWrapper moduleWrapper, RepositoryModuleInfo moduleInfo) {
+        this.callEvent(new ModulePreInstallUpdateEvent(this.getModuleProvider(), moduleWrapper, moduleInfo));
+
+        this.getLogger().info(this.replaceAll(LanguageManager.getMessage("cloudnet-pre-install-update-module"), this.getModuleProvider(), moduleWrapper, moduleInfo));
+    }
+
+    @Override
+    public void handleInstallUpdateFailed(IModuleWrapper moduleWrapper, RepositoryModuleInfo moduleInfo) {
+        this.callEvent(new ModuleInstallUpdateFailedEvent(this.getModuleProvider(), moduleWrapper, moduleInfo));
+
+        this.getLogger().warning(this.replaceAll(LanguageManager.getMessage("cloudnet-install-update-failed-module"), this.getModuleProvider(), moduleWrapper, moduleInfo));
+    }
+
+    @Override
+    public void handlePostInstallUpdate(IModuleWrapper moduleWrapper, RepositoryModuleInfo moduleInfo) {
+        this.callEvent(new ModulePostInstallUpdateEvent(this.getModuleProvider(), moduleWrapper, moduleInfo));
+
+        this.getLogger().info(this.replaceAll(LanguageManager.getMessage("cloudnet-post-install-update-module"), this.getModuleProvider(), moduleWrapper, moduleInfo));
+    }
+
 
     protected ILogger getLogger() {
         return CloudNetDriver.getInstance().getLogger();
@@ -115,6 +137,17 @@ public class DefaultModuleProviderHandler implements IModuleProviderHandler {
                 .replace("%module_name%", moduleWrapper.getModuleConfiguration().getName())
                 .replace("%module_version%", moduleWrapper.getModuleConfiguration().getVersion())
                 .replace("%module_author%", moduleWrapper.getModuleConfiguration().getAuthor());
+    }
+
+    protected String replaceAll(String text, IModuleProvider moduleProvider, IModuleWrapper moduleWrapper, RepositoryModuleInfo moduleInfo) {
+        return this.replaceAll(text, moduleProvider, moduleWrapper).replace("%new_version%", moduleInfo.getModuleId().getVersion());
+    }
+
+    protected String replaceAll(String text, IModuleProvider moduleProvider, IModuleWrapper moduleWrapper, ModuleDependency dependency) {
+        return this.replaceAll(text, moduleProvider, moduleWrapper)
+                .replace("%group%", dependency.getGroup())
+                .replace("%name%", dependency.getName())
+                .replace("%version%", dependency.getVersion());
     }
 
 }

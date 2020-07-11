@@ -25,8 +25,6 @@ public class ModuleConfiguration implements SerializableObject {
             author,
             website;
 
-    //protected ModuleUpdateServiceConfiguration updateServiceConfiguration;
-
     protected ModuleRepository[] repos;
 
     protected ModuleDependency[] dependencies;
