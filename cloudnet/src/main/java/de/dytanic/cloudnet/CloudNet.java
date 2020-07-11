@@ -25,6 +25,7 @@ import de.dytanic.cloudnet.conf.IConfigurationRegistry;
 import de.dytanic.cloudnet.conf.JsonConfiguration;
 import de.dytanic.cloudnet.conf.JsonConfigurationRegistry;
 import de.dytanic.cloudnet.console.IConsole;
+import de.dytanic.cloudnet.console.animation.progressbar.ProgressBarInputStream;
 import de.dytanic.cloudnet.console.util.HeaderReader;
 import de.dytanic.cloudnet.database.AbstractDatabaseProvider;
 import de.dytanic.cloudnet.database.DefaultDatabaseHandler;
@@ -154,7 +155,7 @@ public final class CloudNet extends CloudNetDriver {
 
         logger.setLevel(this.defaultLogLevel);
 
-        super.moduleProvider = new DefaultModuleProvider(true, this.config::isAutoUpdateModulesEnabled);
+        super.moduleProvider = new DefaultModuleProvider(true, this.config::isAutoUpdateModulesEnabled, url -> ProgressBarInputStream.wrapDownload(this.getConsole(), url));
         super.cloudServiceFactory = new NodeCloudServiceFactory(this);
         super.generalCloudServiceProvider = new NodeGeneralCloudServiceProvider(this);
         super.serviceTaskProvider = new NodeServiceTaskProvider(this);

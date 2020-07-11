@@ -1,6 +1,7 @@
 package de.dytanic.cloudnet.driver.module.defaults;
 
 import com.google.common.base.Preconditions;
+import de.dytanic.cloudnet.common.concurrent.ThrowableFunction;
 import de.dytanic.cloudnet.driver.module.IModuleProvider;
 import de.dytanic.cloudnet.driver.module.IModuleProviderHandler;
 import de.dytanic.cloudnet.driver.module.IModuleWrapper;
@@ -13,6 +14,7 @@ import de.dytanic.cloudnet.driver.module.repository.ModuleRepository;
 import de.dytanic.cloudnet.driver.module.repository.RemoteModuleRepository;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -21,7 +23,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Supplier;
-import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
 public final class DefaultModuleProvider implements IModuleProvider {
@@ -39,9 +40,9 @@ public final class DefaultModuleProvider implements IModuleProvider {
 
     private File moduleDirectory = new File("modules");
 
-    public DefaultModuleProvider(boolean cacheModules, Supplier<Boolean> autoUpdateSuplier, UnaryOperator<InputStream> inputStreamModifier) {
+    public DefaultModuleProvider(boolean cacheModules, Supplier<Boolean> autoUpdateSuplier, ThrowableFunction<URL, InputStream, IOException> inputStreamProvider) {
         this.autoUpdateEnabledSupplier = autoUpdateSuplier;
-        this.moduleInstaller = new DefaultModuleInstaller(this, inputStreamModifier, this.moduleRepository.getBaseURL());
+        this.moduleInstaller = new DefaultModuleInstaller(this, inputStreamProvider, this.moduleRepository.getBaseURL());
         if (cacheModules) {
             this.moduleRepository.fillCache();
         }
