@@ -134,7 +134,6 @@ public final class CloudNet extends CloudNetDriver {
     private INetworkClient networkClient;
     private INetworkServer networkServer;
     private IHttpServer httpServer;
-    private IPermissionManagement permissionManagement;
 
     private final ICloudServiceManager cloudServiceManager = new DefaultCloudServiceManager();
 
@@ -249,10 +248,7 @@ public final class CloudNet extends CloudNetDriver {
             this.databaseProvider.init();
         }
 
-        NodePermissionManagement permissionManagement = new DefaultDatabasePermissionManagement(this::getDatabaseProvider);
-        permissionManagement.init();
-        permissionManagement.setPermissionManagementHandler(new DefaultPermissionManagementHandler());
-        this.permissionManagement = permissionManagement;
+        this.setPermissionManagement(new DefaultDatabasePermissionManagement(this::getDatabaseProvider));
 
         this.startModules();
         this.eventManager.callEvent(new PermissionServiceSetEvent(this.permissionManagement));
@@ -373,6 +369,15 @@ public final class CloudNet extends CloudNetDriver {
 
     public LogLevel getDefaultLogLevel() {
         return this.defaultLogLevel;
+    }
+
+    @Override
+    public void setPermissionManagement(@NotNull IPermissionManagement permissionManagement) {
+        super.setPermissionManagement(permissionManagement);
+        permissionManagement.init();
+        if (permissionManagement instanceof NodePermissionManagement) {
+            ((NodePermissionManagement) permissionManagement).setPermissionManagementHandler(new DefaultPermissionManagementHandler());
+        }
     }
 
     @Override
@@ -965,11 +970,6 @@ public final class CloudNet extends CloudNetDriver {
 
     public IHttpServer getHttpServer() {
         return this.httpServer;
-    }
-
-    @NotNull
-    public IPermissionManagement getPermissionManagement() {
-        return this.permissionManagement;
     }
 
     public @NotNull AbstractDatabaseProvider getDatabaseProvider() {
