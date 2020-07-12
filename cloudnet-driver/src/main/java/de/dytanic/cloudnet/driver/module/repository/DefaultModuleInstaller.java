@@ -4,6 +4,7 @@ import de.dytanic.cloudnet.common.concurrent.ThrowableFunction;
 import de.dytanic.cloudnet.driver.module.IModuleProvider;
 import de.dytanic.cloudnet.driver.module.IModuleWrapper;
 import de.dytanic.cloudnet.driver.module.ModuleId;
+import de.dytanic.cloudnet.driver.module.ModuleLifeCycle;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -69,24 +70,15 @@ public class DefaultModuleInstaller implements ModuleInstaller {
             return true;
         }
 
-        IModuleWrapper moduleWrapper = null;
-        try {
-            moduleWrapper = this.moduleProvider.loadModule(modulePath);
-            if (moduleWrapper != null) {
-                moduleWrapper.startModule();
+        IModuleWrapper moduleWrapper = this.moduleProvider.loadModule(modulePath);
+        if (moduleWrapper != null) {
+            moduleWrapper.startModule();
 
-                return true;
-            } else {
-                Files.delete(modulePath);
-
-                return false;
-            }
-        } catch (Throwable throwable) {
-            if (moduleWrapper != null) {
-                moduleWrapper.unloadModule();
-            }
+            return moduleWrapper.getModuleLifeCycle() == ModuleLifeCycle.STARTED;
+        } else {
             Files.delete(modulePath);
-            throw throwable;
+
+            return false;
         }
     }
 

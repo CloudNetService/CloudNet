@@ -83,7 +83,7 @@ public class CommandModules extends SubCommandHandler {
 
                                 sender.sendMessage(LanguageManager.getMessage("command-modules-install-success").replace("%id%", id.toString()));
                             } catch (IOException exception) {
-                                exception.printStackTrace();
+                                sender.sendMessage(LanguageManager.getMessage("command-modules-install-error").replace("%id%", id.toString()).replace("%error%", exception.getLocalizedMessage()));
                             }
                         },
                         anyStringIgnoreCase("install", "add", "a", "i"),
@@ -122,7 +122,7 @@ public class CommandModules extends SubCommandHandler {
 
                                 sender.sendMessage(LanguageManager.getMessage("command-modules-uninstall-success").replace("%id%", id.toString()));
                             } catch (IOException exception) {
-                                exception.printStackTrace();
+                                sender.sendMessage(LanguageManager.getMessage("command-modules-uninstall-error").replace("%id%", id.toString()).replace("%error%", exception.getLocalizedMessage()));
                             }
                         },
                         anyStringIgnoreCase("uninstall", "remove", "r", "u"),
