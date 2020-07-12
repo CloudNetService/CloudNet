@@ -2,6 +2,7 @@ package de.dytanic.cloudnet.driver.module.repository;
 
 import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.driver.module.ModuleId;
 import org.jetbrains.annotations.NotNull;
 
@@ -22,11 +23,10 @@ public class RemoteModuleRepository implements ModuleRepository {
     private final String baseUrl = System.getProperty("cloudnet.modules.repository.url", "https://cloudnetservice.eu/api");
 
     private Collection<RepositoryModuleInfo> remoteInfos;
-    private boolean cached;
+    private boolean cache;
 
-    public void fillCache() {
-        this.loadAvailableModules();
-        this.cached = true;
+    public void enableCache() {
+        this.cache = true;
     }
 
     @Override
@@ -37,7 +37,7 @@ public class RemoteModuleRepository implements ModuleRepository {
                 return document.getBoolean("available");
             }
         } catch (IOException exception) {
-            exception.printStackTrace();
+            System.err.println(LanguageManager.getMessage("cloudnet-module-repository-load-failed").replace("%url%", this.baseUrl).replace("%error%", exception.getLocalizedMessage()));
             return false;
         }
     }
@@ -63,18 +63,18 @@ public class RemoteModuleRepository implements ModuleRepository {
                 }
             }
         } catch (IOException exception) {
-            exception.printStackTrace();
+            System.err.println(LanguageManager.getMessage("cloudnet-module-repository-load-failed").replace("%url%", this.baseUrl).replace("%error%", exception.getLocalizedMessage()));
         }
         return this.remoteInfos = Collections.emptyList();
     }
 
     @Override
     public @NotNull Collection<RepositoryModuleInfo> getAvailableModules() {
-        if (!this.cached) {
+        if (!this.cache || this.remoteInfos == null) {
             return this.loadAvailableModules();
         }
 
-        return this.remoteInfos == null ? Collections.emptyList() : this.remoteInfos;
+        return this.remoteInfos;
     }
 
     @Override
@@ -94,17 +94,20 @@ public class RemoteModuleRepository implements ModuleRepository {
                 return document.toInstanceOf(RepositoryModuleInfo.class);
             }
         } catch (IOException exception) {
-            exception.printStackTrace();
+            System.err.println(LanguageManager.getMessage("cloudnet-module-repository-load-failed").replace("%url%", this.baseUrl).replace("%error%", exception.getLocalizedMessage()));
         }
         return null;
     }
 
     @Override
     public RepositoryModuleInfo getRepositoryModuleInfo(@NotNull ModuleId moduleId) {
-        if (!this.cached) {
+        if (!this.cache) {
             return this.loadRepositoryModuleInfo(moduleId);
         }
-        return this.remoteInfos == null ? null : this.remoteInfos.stream()
+        if (this.remoteInfos == null) {
+            this.loadAvailableModules();
+        }
+        return this.remoteInfos.stream()
                 .filter(moduleInfo -> moduleInfo.getModuleId().equalsIgnoreVersion(moduleId))
                 .findFirst()
                 .orElse(null);

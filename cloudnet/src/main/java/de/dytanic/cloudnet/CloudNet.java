@@ -310,6 +310,9 @@ public final class CloudNet extends CloudNetDriver {
         this.unloadAll();
 
         this.initServiceVersions();
+        if (this.config.isAutoUpdateModulesEnabled()) {
+            this.moduleProvider.getModuleRepository().loadAvailableModules();
+        }
 
         this.enableModules();
 

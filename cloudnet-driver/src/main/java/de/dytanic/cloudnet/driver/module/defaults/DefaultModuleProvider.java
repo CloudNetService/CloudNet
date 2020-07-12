@@ -44,7 +44,7 @@ public final class DefaultModuleProvider implements IModuleProvider {
         this.autoUpdateEnabledSupplier = autoUpdateSuplier;
         this.moduleInstaller = new DefaultModuleInstaller(this, inputStreamProvider, this.moduleRepository.getBaseURL());
         if (cacheModules) {
-            this.moduleRepository.fillCache();
+            this.moduleRepository.enableCache();
         }
     }
 
