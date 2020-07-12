@@ -1,5 +1,6 @@
 package de.dytanic.cloudnet.driver.module.dependency;
 
+import de.dytanic.cloudnet.driver.module.ModuleId;
 import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import de.dytanic.cloudnet.driver.serialization.SerializableObject;
 import lombok.EqualsAndHashCode;
@@ -52,6 +53,14 @@ public class ModuleDependency implements SerializableObject {
 
     public String getVersion() {
         return this.version;
+    }
+
+    public ModuleId asModuleId() {
+        return new ModuleId(this.group, this.name, this.version);
+    }
+
+    public ModuleDependencyType getType() {
+        return this.url != null ? ModuleDependencyType.URL : this.repo != null ? ModuleDependencyType.MAVEN : ModuleDependencyType.MODULE;
     }
 
     @Override

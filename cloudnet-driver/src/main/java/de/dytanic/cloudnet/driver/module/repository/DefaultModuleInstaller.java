@@ -102,7 +102,7 @@ public class DefaultModuleInstaller implements ModuleInstaller {
                 URI uri = optional.get().getUrl().toURI();
 
                 if (uri.getScheme().equals("file")) {
-                    Path path = Paths.get(uri.getPath());
+                    Path path = Paths.get(uri);
                     Files.deleteIfExists(path);
                 }
 

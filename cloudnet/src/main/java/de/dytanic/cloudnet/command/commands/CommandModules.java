@@ -1,14 +1,16 @@
 package de.dytanic.cloudnet.command.commands;
 
 import de.dytanic.cloudnet.command.ICommandSender;
-import de.dytanic.cloudnet.command.ITabCompleter;
+import de.dytanic.cloudnet.command.sub.SubCommandBuilder;
+import de.dytanic.cloudnet.command.sub.SubCommandHandler;
 import de.dytanic.cloudnet.common.Properties;
 import de.dytanic.cloudnet.common.language.LanguageManager;
-import de.dytanic.cloudnet.driver.module.IModuleProvider;
+import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.module.IModuleWrapper;
+import de.dytanic.cloudnet.driver.module.ModuleConfiguration;
 import de.dytanic.cloudnet.driver.module.ModuleId;
 import de.dytanic.cloudnet.driver.module.dependency.ModuleDependency;
-import de.dytanic.cloudnet.driver.module.repository.ModuleInstaller;
+import de.dytanic.cloudnet.driver.module.dependency.ModuleDependencyType;
 import de.dytanic.cloudnet.driver.module.repository.ModuleRepository;
 import de.dytanic.cloudnet.driver.module.repository.RepositoryModuleInfo;
 
@@ -16,104 +18,141 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public final class CommandModules extends CommandDefault implements ITabCompleter {
+import static de.dytanic.cloudnet.command.sub.SubCommandArgumentTypes.anyStringIgnoreCase;
+import static de.dytanic.cloudnet.command.sub.SubCommandArgumentTypes.dynamicString;
+
+public class CommandModules extends SubCommandHandler {
 
     public CommandModules() {
-        super("modules", "module");
+        super(SubCommandBuilder.create()
+
+                .prefix(anyStringIgnoreCase("list", "l"))
+                .generateCommand(
+                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
+                            Collection<IModuleWrapper> modules = CloudNetDriver.getInstance().getModuleProvider().getModules();
+
+                            for (IModuleWrapper wrapper : modules) {
+                                if (matchesProperties(wrapper.getModuleConfiguration().getModuleId(), properties)) {
+                                    displayInstalledModuleInfo(sender, wrapper);
+                                }
+                            }
+                        },
+                        subCommand -> subCommand.enableProperties().appendUsage("| group=<group> name=<name> version=<version>"),
+                        anyStringIgnoreCase("installed", "local")
+                )
+                .generateCommand(
+                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
+                            ModuleRepository repository = CloudNetDriver.getInstance().getModuleProvider().getModuleRepository();
+                            if (!repository.isReachable()) {
+                                sender.sendMessage(LanguageManager.getMessage("command-modules-repository-not-available").replace("%url%", repository.getBaseURL()));
+                                return;
+                            }
+
+                            Collection<RepositoryModuleInfo> modules = repository.getAvailableModules();
+                            for (RepositoryModuleInfo moduleInfo : modules) {
+                                if (!CloudNetDriver.getInstance().getModuleProvider().getModuleInstaller().isModuleInstalled(moduleInfo.getModuleId()) &&
+                                        matchesProperties(moduleInfo.getModuleId(), properties)) {
+                                    displayRemoteModuleInfo(sender, moduleInfo);
+                                }
+                            }
+                        },
+                        subCommand -> subCommand.enableProperties().appendUsage("| group=<group> name=<name> version=<version>"),
+                        anyStringIgnoreCase("installable", "repo", "repository")
+                )
+                .removeLastPrefix()
+
+                .generateCommand(
+                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
+                            ModuleId id = new ModuleId((String) args.argument("group").get(), (String) args.argument("name").get());
+                            RepositoryModuleInfo info = CloudNetDriver.getInstance().getModuleProvider().getModuleRepository().getRepositoryModuleInfo(id);
+                            if (info == null) {
+                                sender.sendMessage(LanguageManager.getMessage("command-modules-repository-module-not-found").replace("%id%", id.toString()));
+                                return;
+                            }
+
+                            if (CloudNetDriver.getInstance().getModuleProvider().getModuleInstaller().isModuleInstalled(id)) {
+                                sender.sendMessage(LanguageManager.getMessage("command-modules-repository-module-already-installed").replace("%id%", id.toString()));
+                                return;
+                            }
+
+                            try {
+                                if (!CloudNetDriver.getInstance().getModuleProvider().getModuleInstaller().installModule(info, true)) {
+                                    sender.sendMessage(LanguageManager.getMessage("command-modules-install-failed").replace("%id%", id.toString()));
+                                    return;
+                                }
+
+                                sender.sendMessage(LanguageManager.getMessage("command-modules-install-success").replace("%id%", id.toString()));
+                            } catch (IOException exception) {
+                                exception.printStackTrace();
+                            }
+                        },
+                        anyStringIgnoreCase("install", "add", "a", "i"),
+                        dynamicString(
+                                "group",
+                                () -> CloudNetDriver.getInstance().getModuleProvider().getModuleRepository().getAvailableModules().stream()
+                                        .map(RepositoryModuleInfo::getModuleId)
+                                        .filter(moduleId -> !CloudNetDriver.getInstance().getModuleProvider().getModuleInstaller().isModuleInstalled(moduleId))
+                                        .map(ModuleId::getGroup)
+                                        .distinct()
+                                        .collect(Collectors.toList())
+                        ),
+                        dynamicString(
+                                "name",
+                                () -> CloudNetDriver.getInstance().getModuleProvider().getModuleRepository().getAvailableModules().stream()
+                                        .map(RepositoryModuleInfo::getModuleId)
+                                        .filter(moduleId -> !CloudNetDriver.getInstance().getModuleProvider().getModuleInstaller().isModuleInstalled(moduleId))
+                                        .map(ModuleId::getName)
+                                        .distinct()
+                                        .collect(Collectors.toList())
+                        )
+                )
+                .generateCommand(
+                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
+                            ModuleId id = new ModuleId((String) args.argument("group").get(), (String) args.argument("name").get());
+                            Optional<IModuleWrapper> module = CloudNetDriver.getInstance().getModuleProvider().getModules().stream()
+                                    .filter(wrapper -> wrapper.getModuleConfiguration().getModuleId().equalsIgnoreVersion(id))
+                                    .findFirst();
+                            if (!module.isPresent()) {
+                                sender.sendMessage(LanguageManager.getMessage("command-modules-repository-module-not-installed").replace("%id%", id.toString()));
+                                return;
+                            }
+
+                            try {
+                                CloudNetDriver.getInstance().getModuleProvider().getModuleInstaller().uninstallModule(id);
+
+                                sender.sendMessage(LanguageManager.getMessage("command-modules-uninstall-success").replace("%id%", id.toString()));
+                            } catch (IOException exception) {
+                                exception.printStackTrace();
+                            }
+                        },
+                        anyStringIgnoreCase("uninstall", "remove", "r", "u"),
+                        dynamicString(
+                                "group",
+                                () -> CloudNetDriver.getInstance().getModuleProvider().getModules().stream()
+                                        .map(IModuleWrapper::getModuleConfiguration)
+                                        .map(ModuleConfiguration::getGroup)
+                                        .distinct()
+                                        .collect(Collectors.toList())
+                        ),
+                        dynamicString(
+                                "name",
+                                () -> CloudNetDriver.getInstance().getModuleProvider().getModules().stream()
+                                        .map(IModuleWrapper::getModuleConfiguration)
+                                        .map(ModuleConfiguration::getName)
+                                        .distinct()
+                                        .collect(Collectors.toList())
+                        )
+                )
+
+                .getSubCommands(), "modules", "module"
+        );
+
+        super.prefix = "cloudnet";
+        super.permission = "cloudnet.command." + names[0];
+        super.description = LanguageManager.getMessage("command-description-" + names[0]);
     }
 
-    @Deprecated
-    @Override
-    public void execute(ICommandSender sender, String command, String[] args, String commandLine, Properties properties) {
-        IModuleProvider moduleProvider = super.getCloudNet().getModuleProvider();
-        ModuleRepository moduleRepository = moduleProvider.getModuleRepository();
-        ModuleInstaller moduleInstaller = moduleProvider.getModuleInstaller();
-
-        Collection<IModuleWrapper> moduleWrappers = moduleProvider.getModules();
-
-        if (args.length == 0) {
-            sender.sendMessage(
-                    "Modules (" + moduleWrappers.size() + "): " + Arrays.toString(moduleWrappers.stream()
-                            .map(moduleWrapper -> moduleWrapper.getModule().getName()).toArray(String[]::new)),
-                    " ",
-                    "modules list installed | group=<name> name=<name> version=<version> author=<author>",
-                    "modules list installable | group=<name> name=<name> version=<version> author=<author>",
-                    "modules install <group> <name>",
-                    "modules uninstall <group> <name>"
-            );
-            return;
-        }
-
-        if (args.length >= 2 && args[0].equalsIgnoreCase("list")) {
-
-            if (args[1].equalsIgnoreCase("installed")) {
-                for (IModuleWrapper wrapper : moduleWrappers) {
-                    if (this.matchesProperties(wrapper.getModuleConfiguration().getModuleId(), properties)) {
-                        this.displayInstalledModuleInfo(sender, wrapper);
-                    }
-                }
-            } else if (args[1].equalsIgnoreCase("installable")) {
-                if (!moduleRepository.isReachable()) {
-                    sender.sendMessage(LanguageManager.getMessage("command-modules-repository-not-available").replace("%url%", moduleRepository.getBaseURL()));
-                    return;
-                }
-
-                Collection<RepositoryModuleInfo> moduleInfos = moduleRepository.getAvailableModules();
-                for (RepositoryModuleInfo moduleInfo : moduleInfos) {
-                    if (!moduleInstaller.isModuleInstalled(moduleInfo.getModuleId()) &&
-                            this.matchesProperties(moduleInfo.getModuleId(), properties)) {
-                        this.displayRemoteModuleInfo(sender, moduleInfo);
-                    }
-                }
-            }
-
-        } else if (args.length == 3 && args[0].equalsIgnoreCase("install")) {
-
-            ModuleId moduleId = new ModuleId(args[1], args[2]);
-            RepositoryModuleInfo moduleInfo = moduleRepository.loadRepositoryModuleInfo(moduleId);
-
-            if (moduleInfo == null) {
-                sender.sendMessage(LanguageManager.getMessage("command-modules-repository-module-not-found").replace("%id%", moduleId.toString()));
-                return;
-            }
-
-            if (moduleInstaller.isModuleInstalled(moduleId)) {
-                sender.sendMessage(LanguageManager.getMessage("command-modules-repository-module-already-installed").replace("%id%", moduleId.toString()));
-                return;
-            }
-
-            try {
-                if (!moduleInstaller.installModule(moduleInfo, true)) {
-                    sender.sendMessage(LanguageManager.getMessage("command-modules-install-failed").replace("%id%", moduleId.toString()));
-                    return;
-                }
-
-                sender.sendMessage(LanguageManager.getMessage("command-modules-install-success").replace("%id%", moduleId.toString()));
-            } catch (IOException exception) {
-                exception.printStackTrace();
-            }
-
-        } else if (args.length == 3 && args[0].equalsIgnoreCase("uninstall")) {
-
-            ModuleId moduleId = new ModuleId(args[1], args[2]);
-
-            if (!moduleInstaller.isModuleInstalled(moduleId)) {
-                sender.sendMessage(LanguageManager.getMessage("command-modules-repository-module-not-installed").replace("%id%", moduleId.toString()));
-                return;
-            }
-
-            try {
-                moduleInstaller.uninstallModule(moduleId);
-
-                sender.sendMessage(LanguageManager.getMessage("command-modules-uninstall-success").replace("%id%", moduleId.toString()));
-            } catch (IOException exception) {
-                exception.printStackTrace();
-            }
-
-        }
-    }
-
-    private boolean matchesProperties(ModuleId moduleId, Properties properties) {
+    private static boolean matchesProperties(ModuleId moduleId, Properties properties) {
         if (properties.containsKey("group") && !moduleId.getGroup().contains(properties.get("group"))) {
             return false;
         }
@@ -123,7 +162,7 @@ public final class CommandModules extends CommandDefault implements ITabComplete
         return !properties.containsKey("version") || moduleId.getVersion().contains(properties.get("version"));
     }
 
-    private void displayRemoteModuleInfo(ICommandSender sender, RepositoryModuleInfo moduleInfo) {
+    private static void displayRemoteModuleInfo(ICommandSender sender, RepositoryModuleInfo moduleInfo) {
         List<String> messages = new ArrayList<>();
 
         messages.add("Module: " + moduleInfo.getModuleId().getGroup() + ":" + moduleInfo.getModuleId().getName() + ":" + moduleInfo.getModuleId().getVersion());
@@ -161,73 +200,54 @@ public final class CommandModules extends CommandDefault implements ITabComplete
         sender.sendMessage(messages.toArray(new String[0]));
     }
 
-    private void displayInstalledModuleInfo(ICommandSender sender, IModuleWrapper moduleWrapper) {
+    private static void displayInstalledModuleInfo(ICommandSender sender, IModuleWrapper moduleWrapper) {
         List<String> messages = new ArrayList<>();
 
-        messages.add("* Module: " +
-                moduleWrapper.getModuleConfiguration().getGroup() + ":" +
-                moduleWrapper.getModuleConfiguration().getName() + "-" +
-                moduleWrapper.getModuleConfiguration().getVersion()
-        );
+        messages.add("* Module: " + moduleWrapper.getModuleConfiguration().getModuleId() + " by " + moduleWrapper.getModuleConfiguration().getAuthor());
 
-        messages.add("* Health status: " + moduleWrapper.getModuleLifeCycle().name());
+        messages.add("Health status: " + moduleWrapper.getModuleLifeCycle().name());
 
         if (moduleWrapper.getModuleConfiguration().getAuthor() != null) {
-            messages.add("* Author: " + moduleWrapper.getModuleConfiguration().getAuthor());
+            messages.add("Author: " + moduleWrapper.getModuleConfiguration().getAuthor());
         }
 
         if (moduleWrapper.getModuleConfiguration().getWebsite() != null) {
-            messages.add("* Website: " + moduleWrapper.getModuleConfiguration().getWebsite());
+            messages.add("Website: " + moduleWrapper.getModuleConfiguration().getWebsite());
         }
 
         if (moduleWrapper.getModuleConfiguration().getDescription() != null) {
-            messages.add("* Description: " + moduleWrapper.getModuleConfiguration().getDescription());
+            messages.add("Description: " + moduleWrapper.getModuleConfiguration().getDescription());
         }
 
         if (moduleWrapper.getModuleConfiguration().getDependencies() != null) {
             messages.add(" ");
-            messages.add("* Dependencies: ");
+            messages.add("Dependencies: ");
             for (ModuleDependency moduleDependency : moduleWrapper.getModuleConfiguration().getDependencies()) {
-                messages.addAll(Arrays.asList(
-                        "- ",
-                        "Dependency: " + moduleDependency.getGroup() + ":" + moduleDependency.getName() + ":" + moduleDependency.getVersion(),
-                        (
-                                moduleDependency.getUrl() != null ?
-                                        "Url: " + moduleDependency.getUrl()
-                                        :
-                                        "Repository: " + moduleDependency.getRepo()
-                        )
-                ));
+                String dependencyMessage = " - Dependency: " + moduleDependency.asModuleId();
+                if (moduleDependency.getType() != ModuleDependencyType.MODULE) {
+                    dependencyMessage += " - " + (moduleDependency.getUrl() != null ? "Url: " + moduleDependency.getUrl() : "Repository: " + moduleDependency.getRepo());
+                }
+                messages.add(dependencyMessage);
             }
         }
 
         if (moduleWrapper.getModuleConfiguration().getProperties() != null) {
             messages.add(" ");
-            messages.add("* Properties: ");
+            messages.add("Properties: ");
             messages.addAll(Arrays.asList(moduleWrapper.getModuleConfiguration().getProperties().toPrettyJson().split("\n")));
         }
 
         messages.add(" ");
 
-        sender.sendMessage(
-                "Module: " +
-                        moduleWrapper.getModuleConfiguration().getGroup() + ":" +
-                        moduleWrapper.getModuleConfiguration().getName() + ":" +
-                        moduleWrapper.getModuleConfiguration().getVersion(),
-                "Author: " + moduleWrapper.getModuleConfiguration().getAuthor()
-        );
         sender.sendMessage(messages.toArray(new String[0]));
     }
 
     @Override
-    public Collection<String> complete(String commandLine, String[] args, Properties properties) {
-        //todo
-        return Collections.emptyList();
-        /*if (args.length > 1)
-            return null;
-        Collection<String> response = super.getCloudNet().getModuleProvider().getModules()
-                .stream().map(moduleWrapper -> moduleWrapper.getModule().getName()).collect(Collectors.toList());
-        response.add("list");
-        return response;*/
+    protected void sendHelp(ICommandSender sender) {
+        Collection<IModuleWrapper> modules = CloudNetDriver.getInstance().getModuleProvider().getModules();
+        sender.sendMessage("Modules (" + modules.size() + ")" + modules.stream()
+                .map(moduleWrapper -> moduleWrapper.getModule().getName()).collect(Collectors.joining(", ", ": ", "")));
+        super.sendHelp(sender);
     }
+
 }
