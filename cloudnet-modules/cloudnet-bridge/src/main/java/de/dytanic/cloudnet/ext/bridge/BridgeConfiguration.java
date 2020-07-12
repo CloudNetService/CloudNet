@@ -4,6 +4,7 @@ import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.common.document.gson.BasicJsonDocPropertyable;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -19,12 +20,12 @@ public final class BridgeConfiguration extends BasicJsonDocPropertyable {
 
     private String prefix;
     private boolean onlyProxyProtection = true;
-    private Collection<String> excludedOnlyProxyWalkableGroups = new ArrayList<>(), excludedGroups;
+    private Collection<String> excludedOnlyProxyWalkableGroups, excludedGroups;
     private Collection<ProxyFallbackConfiguration> bungeeFallbackConfigurations;
     private Map<String, String> messages;
     private boolean logPlayerConnections = true;
     private boolean hubCommandEnabled = true;
-    private Collection<String> hubCommandAliases;
+    private final Collection<String> hubCommandAliases;
 
     public BridgeConfiguration(String prefix, boolean onlyProxyProtection, Collection<String> excludedOnlyProxyWalkableGroups, Collection<String> excludedGroups,
                                Collection<ProxyFallbackConfiguration> bungeeFallbackConfigurations, Map<String, String> messages,
@@ -37,9 +38,6 @@ public final class BridgeConfiguration extends BasicJsonDocPropertyable {
         this.messages = messages;
         this.hubCommandEnabled = hubCommandEnabled;
         this.hubCommandAliases = hubCommandAliases;
-    }
-
-    public BridgeConfiguration() {
     }
 
     public String getPrefix() {
@@ -98,6 +96,7 @@ public final class BridgeConfiguration extends BasicJsonDocPropertyable {
         this.logPlayerConnections = logPlayerConnections;
     }
 
+    @NotNull
     public Collection<String> getLobbyCommandAliases() {
         return hubCommandAliases;
     }
