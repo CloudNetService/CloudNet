@@ -84,7 +84,7 @@ public class ServiceTask extends ServiceConfigurationBase implements INameable, 
 
     @Override
     public Collection<String> getProcessParameters() {
-        return processConfiguration.getProcessParameters();
+        return this.processConfiguration.getProcessParameters();
     }
 
     /**

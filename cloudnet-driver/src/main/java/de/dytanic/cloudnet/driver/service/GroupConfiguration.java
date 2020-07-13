@@ -46,7 +46,7 @@ public class GroupConfiguration extends ServiceConfigurationBase implements INam
 
     @Override
     public Collection<String> getProcessParameters() {
-        return processParameters;
+        return this.processParameters;
     }
 
     public Collection<ServiceEnvironmentType> getTargetEnvironments() {

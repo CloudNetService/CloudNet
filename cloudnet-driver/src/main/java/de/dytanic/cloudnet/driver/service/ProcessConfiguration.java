@@ -59,7 +59,7 @@ public final class ProcessConfiguration implements SerializableObject {
     }
 
     public Collection<String> getProcessParameters() {
-        return processParameters;
+        return this.processParameters;
     }
 
     public void setJvmOptions(Collection<String> jvmOptions) {
