@@ -181,11 +181,11 @@ public class CommandServiceConfigurationBase extends SubCommandHandler {
                             // TODO: 13.07.2020 for the CloudNet Team: Language implementation
 
                             if (!configuration.getProcessParameters().contains(value)) {
-                                sender.sendMessage(LanguageManager.getMessage("Process Parameter not found"));
+                                sender.sendMessage("Process Parameter not found");
                                 throw new CommandInterrupt();
                             }
                             configuration.getProcessParameters().remove(value);
-                            sender.sendMessage(LanguageManager.getMessage("Parameter removed"));
+                            sender.sendMessage("Parameter removed");
                         }),
                         subCommand -> subCommand.setMinArgs(subCommand.getRequiredArguments().length).setMaxArgs(Integer.MAX_VALUE),
                         exactStringIgnoreCase("processParameter"),
