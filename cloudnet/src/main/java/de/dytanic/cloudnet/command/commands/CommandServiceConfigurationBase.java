@@ -202,6 +202,12 @@ public class CommandServiceConfigurationBase extends SubCommandHandler {
         }
 
         messages.add(" ");
+        messages.add("* Post Command Parameters");
+        for (String parameter : configurationBase.getPostCommandParameters()) {
+            messages.add(" - " + parameter);
+        }
+
+        messages.add(" ");
 
         messages.addAll(Arrays.asList(configurationBase.getProperties().toPrettyJson().split("\n")));
         messages.add(" ");

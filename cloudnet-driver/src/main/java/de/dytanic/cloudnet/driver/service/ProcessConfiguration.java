@@ -6,6 +6,7 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 @ToString
@@ -17,11 +18,18 @@ public final class ProcessConfiguration implements SerializableObject {
     protected int maxHeapMemorySize = -1;
 
     protected Collection<String> jvmOptions;
+    protected Collection<String> postCommandParameters = new ArrayList<>();
+
 
     public ProcessConfiguration(ServiceEnvironmentType environment, int maxHeapMemorySize, Collection<String> jvmOptions) {
+        this(environment, maxHeapMemorySize, jvmOptions, new ArrayList<>());
+    }
+
+    public ProcessConfiguration(ServiceEnvironmentType environment, int maxHeapMemorySize, Collection<String> jvmOptions, Collection<String> postCommandParameters) {
         this.environment = environment;
         this.maxHeapMemorySize = maxHeapMemorySize;
         this.jvmOptions = jvmOptions;
+        this.postCommandParameters = postCommandParameters;
     }
 
     public ProcessConfiguration() {
@@ -47,8 +55,16 @@ public final class ProcessConfiguration implements SerializableObject {
         return this.jvmOptions;
     }
 
+    public Collection<String> getPostCommandParameters() {
+        return postCommandParameters;
+    }
+
     public void setJvmOptions(Collection<String> jvmOptions) {
         this.jvmOptions = jvmOptions;
+    }
+
+    public void setPostCommandParameters(Collection<String> postCommandParameters) {
+        this.postCommandParameters = postCommandParameters;
     }
 
     @Override
@@ -56,6 +72,7 @@ public final class ProcessConfiguration implements SerializableObject {
         buffer.writeEnumConstant(this.environment);
         buffer.writeInt(this.maxHeapMemorySize);
         buffer.writeStringCollection(this.jvmOptions);
+        buffer.writeStringCollection(this.postCommandParameters);
     }
 
     @Override
@@ -63,5 +80,6 @@ public final class ProcessConfiguration implements SerializableObject {
         this.environment = buffer.readEnumConstant(ServiceEnvironmentType.class);
         this.maxHeapMemorySize = buffer.readInt();
         this.jvmOptions = buffer.readStringCollection();
+        this.postCommandParameters = buffer.readStringCollection();
     }
 }

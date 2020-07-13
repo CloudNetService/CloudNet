@@ -146,6 +146,7 @@ public class CommandTasks extends CommandServiceConfigurationBase {
                                         new ProcessConfiguration(
                                                 type,
                                                 type.isMinecraftProxy() ? 256 : 512,
+                                                new ArrayList<>(),
                                                 new ArrayList<>()
                                         ),
                                         type.getDefaultStartPort(),
@@ -407,6 +408,7 @@ public class CommandTasks extends CommandServiceConfigurationBase {
                 "* Environment: " + serviceTask.getProcessConfiguration().getEnvironment(),
                 "* Max HeapMemory: " + serviceTask.getProcessConfiguration().getMaxHeapMemorySize(),
                 "* JVM Options: " + serviceTask.getProcessConfiguration().getJvmOptions().toString(),
+                "* Post Command Parameters: " + serviceTask.getProcessConfiguration().getPostCommandParameters().toString(),
                 " "
         ));
 
@@ -627,6 +629,7 @@ public class CommandTasks extends CommandServiceConfigurationBase {
                     new ProcessConfiguration(
                             environmentType,
                             memory,
+                            new ArrayList<>(),
                             new ArrayList<>()
                     ),
                     startPort,
