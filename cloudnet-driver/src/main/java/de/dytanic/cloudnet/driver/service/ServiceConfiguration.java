@@ -535,6 +535,9 @@ public class ServiceConfiguration extends SerializableJsonDocPropertyable implem
             return this;
         }
 
+        /**
+         * The process parameters for the new service. This will be the last parameters that will be added to the command.
+         */
         public Builder processParameters(Collection<String> jvmOptions) {
             this.config.processConfig.processParameters = jvmOptions;
             return this;
