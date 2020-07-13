@@ -200,7 +200,7 @@ public class CommandCreate extends SubCommandHandler {
                                     processConfiguration.getJvmOptions()),
                             new ArrayList<>(properties.containsKey("processParameters") ?
                                     Arrays.asList(properties.get("processParameters").split(";")) :
-                                    processConfiguration.getJvmOptions())
+                                    processConfiguration.getProcessParameters())
                     ),
                     finalStartPort,
                     0
