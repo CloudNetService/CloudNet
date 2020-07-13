@@ -30,8 +30,9 @@ public final class ProcessConfiguration implements SerializableObject {
         this.maxHeapMemorySize = maxHeapMemorySize;
         this.jvmOptions = jvmOptions;
 
-        if(processParameters != null)
+        if (processParameters != null) {
             this.processParameters = processParameters;
+        }
     }
 
     public ProcessConfiguration() {
