@@ -408,7 +408,7 @@ public class CommandTasks extends CommandServiceConfigurationBase {
                 "* Environment: " + serviceTask.getProcessConfiguration().getEnvironment(),
                 "* Max HeapMemory: " + serviceTask.getProcessConfiguration().getMaxHeapMemorySize(),
                 "* JVM Options: " + serviceTask.getProcessConfiguration().getJvmOptions().toString(),
-                "* Post Command Parameters: " + serviceTask.getProcessConfiguration().getPostCommandParameters().toString(),
+                "* Process Parameters: " + serviceTask.getProcessConfiguration().getProcessParameters().toString(),
                 " "
         ));
 

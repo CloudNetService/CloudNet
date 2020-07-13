@@ -315,7 +315,7 @@ public class ServiceConfiguration extends SerializableJsonDocPropertyable implem
                     .environment(task.getProcessConfiguration().getEnvironment())
                     .maxHeapMemory(task.getProcessConfiguration().getMaxHeapMemorySize())
                     .jvmOptions(task.getProcessConfiguration().getJvmOptions())
-                    .postCommandParameters(task.getProcessConfiguration().getPostCommandParameters())
+                    .processParameters(task.getProcessConfiguration().getProcessParameters())
                     .startPort(task.getStartPort());
         }
 
@@ -535,8 +535,8 @@ public class ServiceConfiguration extends SerializableJsonDocPropertyable implem
             return this;
         }
 
-        public Builder postCommandParameters(Collection<String> jvmOptions) {
-            this.config.processConfig.postCommandParameters = jvmOptions;
+        public Builder processParameters(Collection<String> jvmOptions) {
+            this.config.processConfig.processParameters = jvmOptions;
             return this;
         }
 

@@ -16,7 +16,7 @@ public class GroupConfiguration extends ServiceConfigurationBase implements INam
 
     protected String name;
     protected Collection<String> jvmOptions = new ArrayList<>();
-    protected Collection<String> postCommandParameters = new ArrayList<>();
+    protected Collection<String> processParameters = new ArrayList<>();
 
     protected Collection<ServiceEnvironmentType> targetEnvironments = new ArrayList<>();
 
@@ -27,11 +27,11 @@ public class GroupConfiguration extends ServiceConfigurationBase implements INam
         this(includes, templates, deployments, name, jvmOptions, new ArrayList<>(), targetEnvironments);
     }
 
-    public GroupConfiguration(Collection<ServiceRemoteInclusion> includes, Collection<ServiceTemplate> templates, Collection<ServiceDeployment> deployments, String name, Collection<String> jvmOptions, Collection<String> postCommandParameters, Collection<ServiceEnvironmentType> targetEnvironments) {
+    public GroupConfiguration(Collection<ServiceRemoteInclusion> includes, Collection<ServiceTemplate> templates, Collection<ServiceDeployment> deployments, String name, Collection<String> jvmOptions, Collection<String> processParameters, Collection<ServiceEnvironmentType> targetEnvironments) {
         super(includes, templates, deployments);
         this.name = name;
         this.jvmOptions = jvmOptions;
-        this.postCommandParameters = postCommandParameters;
+        this.processParameters = processParameters;
         this.targetEnvironments = targetEnvironments;
     }
 
@@ -45,8 +45,8 @@ public class GroupConfiguration extends ServiceConfigurationBase implements INam
     }
 
     @Override
-    public Collection<String> getPostCommandParameters() {
-        return postCommandParameters;
+    public Collection<String> getProcessParameters() {
+        return processParameters;
     }
 
     public Collection<ServiceEnvironmentType> getTargetEnvironments() {
@@ -62,7 +62,7 @@ public class GroupConfiguration extends ServiceConfigurationBase implements INam
         super.write(buffer);
         buffer.writeString(this.name);
         buffer.writeStringCollection(this.jvmOptions);
-        buffer.writeStringCollection(this.postCommandParameters);
+        buffer.writeStringCollection(this.processParameters);
 
         buffer.writeVarInt(this.targetEnvironments.size());
         for (ServiceEnvironmentType environment : this.targetEnvironments) {
@@ -75,7 +75,7 @@ public class GroupConfiguration extends ServiceConfigurationBase implements INam
         super.read(buffer);
         this.name = buffer.readString();
         this.jvmOptions = buffer.readStringCollection();
-        this.postCommandParameters = buffer.readStringCollection();
+        this.processParameters = buffer.readStringCollection();
 
         int size = buffer.readVarInt();
         this.targetEnvironments = new ArrayList<>(size);

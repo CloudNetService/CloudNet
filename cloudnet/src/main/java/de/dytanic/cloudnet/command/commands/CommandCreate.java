@@ -198,8 +198,8 @@ public class CommandCreate extends SubCommandHandler {
                             new ArrayList<>(properties.containsKey("jvmOptions") ?
                                     Arrays.asList(properties.get("jvmOptions").split(";")) :
                                     processConfiguration.getJvmOptions()),
-                            new ArrayList<>(properties.containsKey("postCommandParameters") ?
-                                    Arrays.asList(properties.get("postCommandParameters").split(";")) :
+                            new ArrayList<>(properties.containsKey("processParameters") ?
+                                    Arrays.asList(properties.get("processParameters").split(";")) :
                                     processConfiguration.getJvmOptions())
                     ),
                     finalStartPort,

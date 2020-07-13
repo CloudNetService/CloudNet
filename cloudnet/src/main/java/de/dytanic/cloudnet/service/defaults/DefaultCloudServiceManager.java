@@ -93,7 +93,7 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
                 deployments.addAll(groupConfiguration.getDeployments());
 
                 configuration.getProcessConfig().getJvmOptions().addAll(groupConfiguration.getJvmOptions());
-                configuration.getProcessConfig().getPostCommandParameters().addAll(groupConfiguration.getPostCommandParameters());
+                configuration.getProcessConfig().getProcessParameters().addAll(groupConfiguration.getProcessParameters());
 
                 configuration.getProperties().append(groupConfiguration.getProperties());
             }

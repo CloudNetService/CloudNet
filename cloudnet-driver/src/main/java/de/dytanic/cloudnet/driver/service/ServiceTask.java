@@ -83,8 +83,8 @@ public class ServiceTask extends ServiceConfigurationBase implements INameable, 
     }
 
     @Override
-    public Collection<String> getPostCommandParameters() {
-        return processConfiguration.getPostCommandParameters();
+    public Collection<String> getProcessParameters() {
+        return processConfiguration.getProcessParameters();
     }
 
     /**
@@ -214,7 +214,7 @@ public class ServiceTask extends ServiceConfigurationBase implements INameable, 
                         this.processConfiguration.getEnvironment(),
                         this.processConfiguration.getMaxHeapMemorySize(),
                         new ArrayList<>(this.processConfiguration.getJvmOptions()),
-                        new ArrayList<>(this.processConfiguration.getPostCommandParameters())
+                        new ArrayList<>(this.processConfiguration.getProcessParameters())
                 ),
                 this.startPort,
                 this.minServiceCount

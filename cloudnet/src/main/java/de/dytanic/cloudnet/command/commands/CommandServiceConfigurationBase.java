@@ -86,6 +86,23 @@ public class CommandServiceConfigurationBase extends SubCommandHandler {
                         exactStringIgnoreCase("jvmOption"),
                         dynamicString("value")
                 )
+                .generateCommand(
+                (subCommand, sender, command, args, commandLine, properties, internalProperties) -> forEachConfigurations(configurationBaseFunction.apply(internalProperties), configuration -> {
+                    String value = (String) args.argument("value").get();
+
+                    // TODO: 13.07.2020 for the CloudNet Team: Language implementation
+
+                    if (configuration.getProcessParameters().contains(value)) {
+                        sender.sendMessage("Already exists");
+                        return;
+                    }
+                    configuration.getProcessParameters().add(value);
+                    sender.sendMessage("Parameter added");
+                }),
+                subCommand -> subCommand.setMinArgs(subCommand.getRequiredArguments().length).setMaxArgs(Integer.MAX_VALUE),
+                exactStringIgnoreCase("processParameter"),
+                dynamicString("value")
+        )
 
                 .removeLastPrefix()
                 .removeLastPostHandler();
@@ -202,8 +219,8 @@ public class CommandServiceConfigurationBase extends SubCommandHandler {
         }
 
         messages.add(" ");
-        messages.add("* Post Command Parameters");
-        for (String parameter : configurationBase.getPostCommandParameters()) {
+        messages.add("* Process Parameters");
+        for (String parameter : configurationBase.getProcessParameters()) {
             messages.add(" - " + parameter);
         }
 

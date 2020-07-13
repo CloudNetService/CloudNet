@@ -29,7 +29,7 @@ public abstract class ServiceConfigurationBase extends SerializableJsonDocProper
     }
 
     public abstract Collection<String> getJvmOptions();
-    public abstract Collection<String> getPostCommandParameters();
+    public abstract Collection<String> getProcessParameters();
 
     public Collection<ServiceRemoteInclusion> getIncludes() {
         return this.includes;
