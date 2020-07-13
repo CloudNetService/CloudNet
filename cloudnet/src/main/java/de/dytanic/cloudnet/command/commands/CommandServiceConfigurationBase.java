@@ -86,6 +86,22 @@ public class CommandServiceConfigurationBase extends SubCommandHandler {
                         exactStringIgnoreCase("jvmOption"),
                         dynamicString("value")
                 )
+                .generateCommand(
+                    (subCommand, sender, command, args, commandLine, properties, internalProperties) -> forEachConfigurations(configurationBaseFunction.apply(internalProperties), configuration -> {
+                        String value = (String) args.argument("value").get();
+
+
+                        if (configuration.getProcessParameters().contains(value)) {
+                            sender.sendMessage(LanguageManager.getMessage("command-service-base-add-process-parameters-option-already-existing"));
+                            return;
+                        }
+                        configuration.getProcessParameters().add(value);
+                        sender.sendMessage(LanguageManager.getMessage("command-service-base-add-process-parameters-option-success"));
+                    }),
+                    subCommand -> subCommand.setMinArgs(subCommand.getRequiredArguments().length).setMaxArgs(Integer.MAX_VALUE),
+                    exactStringIgnoreCase("processParameter"),
+                    dynamicString("value")
+                )
 
                 .removeLastPrefix()
                 .removeLastPostHandler();
@@ -157,6 +173,22 @@ public class CommandServiceConfigurationBase extends SubCommandHandler {
                         exactStringIgnoreCase("jvmOption"),
                         dynamicString("value")
                 )
+                .generateCommand(
+                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> forEachConfigurations(configurationBaseFunction.apply(internalProperties), configuration -> {
+                            String value = (String) args.argument("value").get();
+
+                            if (!configuration.getProcessParameters().contains(value)) {
+                                sender.sendMessage(LanguageManager.getMessage("command-service-base-remove-process-parameter-option-not-found"));
+                                throw new CommandInterrupt();
+                            }
+                            configuration.getProcessParameters().remove(value);
+                            sender.sendMessage(LanguageManager.getMessage("command-service-base-remove-process-parameter-option-success"));
+                        }),
+                        subCommand -> subCommand.setMinArgs(subCommand.getRequiredArguments().length).setMaxArgs(Integer.MAX_VALUE),
+                        exactStringIgnoreCase("processParameter"),
+                        dynamicString("value")
+                )
+
 
                 .removeLastPrefix()
 
@@ -199,6 +231,12 @@ public class CommandServiceConfigurationBase extends SubCommandHandler {
         messages.add("* JVM Options");
         for (String jvmOption : configurationBase.getJvmOptions()) {
             messages.add(" - " + jvmOption);
+        }
+
+        messages.add(" ");
+        messages.add("* Process Parameters");
+        for (String parameter : configurationBase.getProcessParameters()) {
+            messages.add(" - " + parameter);
         }
 
         messages.add(" ");

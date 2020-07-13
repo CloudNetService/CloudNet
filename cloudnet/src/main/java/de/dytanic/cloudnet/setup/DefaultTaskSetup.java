@@ -101,6 +101,7 @@ public class DefaultTaskSetup implements DefaultSetup {
                 new ProcessConfiguration(
                         environment,
                         maxHeapMemorySize,
+                        new ArrayList<>(),
                         new ArrayList<>()
                 ),
                 environment.getDefaultStartPort(),

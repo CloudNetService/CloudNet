@@ -315,6 +315,7 @@ public class ServiceConfiguration extends SerializableJsonDocPropertyable implem
                     .environment(task.getProcessConfiguration().getEnvironment())
                     .maxHeapMemory(task.getProcessConfiguration().getMaxHeapMemorySize())
                     .jvmOptions(task.getProcessConfiguration().getJvmOptions())
+                    .processParameters(task.getProcessConfiguration().getProcessParameters())
                     .startPort(task.getStartPort());
         }
 
@@ -531,6 +532,14 @@ public class ServiceConfiguration extends SerializableJsonDocPropertyable implem
          */
         public Builder jvmOptions(Collection<String> jvmOptions) {
             this.config.processConfig.jvmOptions = jvmOptions;
+            return this;
+        }
+
+        /**
+         * The process parameters for the new service. This will be the last parameters that will be added to the command.
+         */
+        public Builder processParameters(Collection<String> jvmOptions) {
+            this.config.processConfig.processParameters = jvmOptions;
             return this;
         }
 

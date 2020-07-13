@@ -82,6 +82,11 @@ public class ServiceTask extends ServiceConfigurationBase implements INameable, 
         return this.processConfiguration.getJvmOptions();
     }
 
+    @Override
+    public Collection<String> getProcessParameters() {
+        return this.processConfiguration.getProcessParameters();
+    }
+
     /**
      * Forbids this task to auto start new services for a specific time on the current node.
      * This method has no effect when executed on a wrapper instances.
@@ -208,7 +213,8 @@ public class ServiceTask extends ServiceConfigurationBase implements INameable, 
                 new ProcessConfiguration(
                         this.processConfiguration.getEnvironment(),
                         this.processConfiguration.getMaxHeapMemorySize(),
-                        new ArrayList<>(this.processConfiguration.getJvmOptions())
+                        new ArrayList<>(this.processConfiguration.getJvmOptions()),
+                        new ArrayList<>(this.processConfiguration.getProcessParameters())
                 ),
                 this.startPort,
                 this.minServiceCount

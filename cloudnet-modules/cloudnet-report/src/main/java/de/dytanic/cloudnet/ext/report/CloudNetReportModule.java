@@ -179,6 +179,7 @@ public final class CloudNetReportModule extends NodeCloudNetModule {
             builder.append("  Environment: ").append(serviceTask.getProcessConfiguration().getEnvironment()).append('\n');
             builder.append("  Max HeapMemory: ").append(serviceTask.getProcessConfiguration().getMaxHeapMemorySize()).append('\n');
             builder.append("  JVM Options: ").append(serviceTask.getProcessConfiguration().getJvmOptions().toString()).append('\n');
+            builder.append("  Process Parameters: ").append(serviceTask.getProcessConfiguration().getProcessParameters().toString()).append('\n');
             builder.append("  Json: \n");
             builder.append(JsonDocument.newDocument(serviceTask).toPrettyJson()).append('\n');
         }
