@@ -190,6 +190,8 @@ final class JVMCloudService extends DefaultMinecraftCloudService implements IClo
 
         this.postConfigureServiceEnvironmentStartParameters(commandArguments);
 
+        commandArguments.addAll(this.getServiceConfiguration().getProcessConfig().getPostCommandParameters());
+
         this.process = new ProcessBuilder()
                 .command(commandArguments)
                 .directory(this.getDirectory())
