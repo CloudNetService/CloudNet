@@ -29,7 +29,7 @@ public final class ProcessConfiguration implements SerializableObject {
         this.environment = environment;
         this.maxHeapMemorySize = maxHeapMemorySize;
         this.jvmOptions = jvmOptions;
-        this.postCommandParameters = postCommandParameters;
+        this.postCommandParameters = postCommandParameters == null ? new ArrayList<>() : postCommandParameters;
     }
 
     public ProcessConfiguration() {
