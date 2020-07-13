@@ -90,14 +90,13 @@ public class CommandServiceConfigurationBase extends SubCommandHandler {
                     (subCommand, sender, command, args, commandLine, properties, internalProperties) -> forEachConfigurations(configurationBaseFunction.apply(internalProperties), configuration -> {
                         String value = (String) args.argument("value").get();
 
-                        // TODO: 13.07.2020 for the CloudNet Team: Language implementation
 
                         if (configuration.getProcessParameters().contains(value)) {
-                            sender.sendMessage("Already exists");
+                            sender.sendMessage(LanguageManager.getMessage("command-service-base-add-process-parameters-option-already-existing"));
                             return;
                         }
                         configuration.getProcessParameters().add(value);
-                        sender.sendMessage("Parameter added");
+                        sender.sendMessage(LanguageManager.getMessage("command-service-base-add-process-parameters-option-success"));
                     }),
                     subCommand -> subCommand.setMinArgs(subCommand.getRequiredArguments().length).setMaxArgs(Integer.MAX_VALUE),
                     exactStringIgnoreCase("processParameter"),
@@ -178,14 +177,12 @@ public class CommandServiceConfigurationBase extends SubCommandHandler {
                         (subCommand, sender, command, args, commandLine, properties, internalProperties) -> forEachConfigurations(configurationBaseFunction.apply(internalProperties), configuration -> {
                             String value = (String) args.argument("value").get();
 
-                            // TODO: 13.07.2020 for the CloudNet Team: Language implementation
-
                             if (!configuration.getProcessParameters().contains(value)) {
-                                sender.sendMessage("Process Parameter not found");
+                                sender.sendMessage(LanguageManager.getMessage("command-service-base-remove-process-parameter-option-not-found"));
                                 throw new CommandInterrupt();
                             }
                             configuration.getProcessParameters().remove(value);
-                            sender.sendMessage("Parameter removed");
+                            sender.sendMessage(LanguageManager.getMessage("command-service-base-remove-process-parameter-option-success"));
                         }),
                         subCommand -> subCommand.setMinArgs(subCommand.getRequiredArguments().length).setMaxArgs(Integer.MAX_VALUE),
                         exactStringIgnoreCase("processParameter"),
