@@ -313,6 +313,13 @@ public interface IPlayerManager {
     void updateOnlinePlayer(@NotNull ICloudPlayer cloudPlayer);
 
     /**
+     * Gets the player executor which will execute the methods as every player that is online on the proxies.
+     *
+     * @return the constant {@link PlayerExecutor}
+     */
+    PlayerExecutor getGlobalPlayerExecutor();
+
+    /**
      * Creates a new player executor to interact with the given player.
      *
      * @param cloudPlayer the player to interact with
@@ -442,7 +449,9 @@ public interface IPlayerManager {
      * Broadcasts a specific message over the whole network.
      *
      * @param message the message to be sent to all online players
+     * @deprecated replace with {@link #getGlobalPlayerExecutor()}
      */
+    @Deprecated
     void broadcastMessage(@NotNull String message);
 
     /**
@@ -451,7 +460,9 @@ public interface IPlayerManager {
      *
      * @param message    the message to be sent to all online players with the given permission
      * @param permission the permission to check for
+     * @deprecated replace with {@link #getGlobalPlayerExecutor()}
      */
+    @Deprecated
     void broadcastMessage(@NotNull String message, @Nullable String permission);
 
 }

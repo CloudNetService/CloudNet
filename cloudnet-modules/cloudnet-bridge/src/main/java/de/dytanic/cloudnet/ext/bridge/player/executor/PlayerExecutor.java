@@ -1,6 +1,7 @@
 package de.dytanic.cloudnet.ext.bridge.player.executor;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 
@@ -62,6 +63,15 @@ public interface PlayerExecutor {
      * @param message the message to be sent to the player
      */
     void sendChatMessage(@NotNull String message);
+
+    /**
+     * Sends a plugin message to a specific online player only if the player has the given permission.
+     * If the permission is null, the message will be sent.
+     *
+     * @param message    the message to be sent to the player
+     * @param permission the permission which will be checked before the message is sent to the player
+     */
+    void sendChatMessage(@NotNull String message, @Nullable String permission);
 
     /**
      * Sends a message to a specific online player. The tag has to be registered in the proxy.

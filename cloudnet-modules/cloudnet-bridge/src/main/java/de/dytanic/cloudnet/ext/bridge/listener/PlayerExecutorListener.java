@@ -9,6 +9,8 @@ import de.dytanic.cloudnet.ext.bridge.proxy.BridgeProxyHelper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Predicate;
@@ -21,46 +23,48 @@ public abstract class PlayerExecutorListener<Player> {
             return;
         }
 
-        switch (event.getMessage()) {
-            case "broadcast_message": {
-                String message = event.getBuffer().readString();
-                String permission = event.getBuffer().readOptionalString();
+        if (event.getMessage().equals("broadcast_message_component")) {
+            String data = event.getBuffer().readString();
+            String permission = event.getBuffer().readOptionalString();
 
-                this.broadcastMessage(message, permission);
-            }
+            this.broadcastMessageComponent(data, permission);
             return;
-
-            case "broadcast_message_component": {
-                String data = event.getBuffer().readString();
-                String permission = event.getBuffer().readOptionalString();
-
-                this.broadcastMessageComponent(data, permission);
-            }
-            return;
-
         }
 
-        Player player = this.getPlayer(event.getBuffer().readUUID());
-        if (player == null) {
-            return;
+        UUID uniqueId = event.getBuffer().readUUID();
+
+        Collection<Player> players;
+        if (uniqueId.getLeastSignificantBits() == 0 && uniqueId.getMostSignificantBits() == 0) {
+            players = this.getOnlinePlayers();
+        } else {
+            Player player = this.getPlayer(uniqueId);
+            if (player == null) {
+                return;
+            }
+            players = Collections.singletonList(player);
         }
 
         switch (event.getMessage()) {
             case "connect_server": {
                 String service = event.getBuffer().readString();
-                this.connect(player, service);
+
+                for (Player player : players) {
+                    this.connect(player, service);
+                }
             }
             break;
 
             case "connect_type": {
                 ServerSelectorType selectorType = event.getBuffer().readEnumConstant(ServerSelectorType.class);
 
-                this.connect(player, serviceInfoSnapshot -> true, selectorType);
+                this.connect(players, serviceInfoSnapshot -> true, selectorType);
             }
             break;
 
             case "connect_fallback": {
-                this.connectToFallback(player);
+                for (Player player : players) {
+                    this.connectToFallback(player);
+                }
             }
             break;
 
@@ -68,7 +72,7 @@ public abstract class PlayerExecutorListener<Player> {
                 String group = event.getBuffer().readString();
                 ServerSelectorType selectorType = event.getBuffer().readEnumConstant(ServerSelectorType.class);
 
-                this.connect(player, serviceInfoSnapshot -> serviceInfoSnapshot.getConfiguration().hasGroup(group), selectorType);
+                this.connect(players, serviceInfoSnapshot -> serviceInfoSnapshot.getConfiguration().hasGroup(group), selectorType);
             }
             break;
 
@@ -76,37 +80,52 @@ public abstract class PlayerExecutorListener<Player> {
                 String task = event.getBuffer().readString();
                 ServerSelectorType selectorType = event.getBuffer().readEnumConstant(ServerSelectorType.class);
 
-                this.connect(player, serviceInfoSnapshot -> serviceInfoSnapshot.getServiceId().getTaskName().equalsIgnoreCase(task), selectorType);
+                this.connect(players, serviceInfoSnapshot -> serviceInfoSnapshot.getServiceId().getTaskName().equalsIgnoreCase(task), selectorType);
             }
             break;
 
             case "kick": {
                 String reason = event.getBuffer().readString();
-                this.kick(player, reason.replace('&', '§'));
+
+                for (Player player : players) {
+                    this.kick(player, reason.replace('&', '§'));
+                }
             }
             break;
 
             case "send_message": {
                 String message = event.getBuffer().readString();
-                this.sendMessage(player, message);
+
+                for (Player player : players) {
+                    this.sendMessage(player, message);
+                }
             }
             break;
             case "send_message_component": {
                 String data = event.getBuffer().readString();
-                this.sendMessageComponent(player, data);
+
+                for (Player player : players) {
+                    this.sendMessageComponent(player, data);
+                }
             }
             break;
 
             case "send_plugin_message": {
                 String tag = event.getBuffer().readString();
                 byte[] data = event.getBuffer().readArray();
-                this.sendPluginMessage(player, tag, data);
+
+                for (Player player : players) {
+                    this.sendPluginMessage(player, tag, data);
+                }
             }
             break;
 
             case "dispatch_proxy_command": {
                 String command = event.getBuffer().readString();
-                this.dispatchCommand(player, command);
+
+                for (Player player : players) {
+                    this.dispatchCommand(player, command);
+                }
             }
 
         }
@@ -114,6 +133,9 @@ public abstract class PlayerExecutorListener<Player> {
 
     @Nullable
     protected abstract Player getPlayer(@NotNull UUID uniqueId);
+
+    @NotNull
+    protected abstract Collection<Player> getOnlinePlayers();
 
     protected abstract void connect(@NotNull Player player, @NotNull String service);
 
@@ -139,8 +161,12 @@ public abstract class PlayerExecutorListener<Player> {
                 .min(selectorType.getComparator());
     }
 
-    protected void connect(@NotNull Player player, @NotNull Predicate<ServiceInfoSnapshot> filter, @NotNull ServerSelectorType selectorType) {
-        this.findService(filter, selectorType).map(ServiceInfoSnapshot::getName).ifPresent(service -> this.connect(player, service));
+    protected void connect(@NotNull Collection<Player> players, @NotNull Predicate<ServiceInfoSnapshot> filter, @NotNull ServerSelectorType selectorType) {
+        this.findService(filter, selectorType).map(ServiceInfoSnapshot::getName).ifPresent(service -> {
+            for (Player player : players) {
+                this.connect(player, service);
+            }
+        });
     }
 
 }
