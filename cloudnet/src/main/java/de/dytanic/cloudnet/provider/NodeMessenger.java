@@ -147,7 +147,9 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
     @Override
     public void sendChannelMessage(@NotNull ChannelMessage channelMessage) {
         if (channelMessage.getTargets().stream().anyMatch(target -> target.includesNode(CloudNetDriver.getInstance().getComponentName()))) {
+            channelMessage.getBuffer().markReaderIndex();
             CloudNetDriver.getInstance().getEventManager().callEvent(new ChannelMessageReceiveEvent(channelMessage, false));
+            channelMessage.getBuffer().resetReaderIndex();
         }
 
         Collection<INetworkChannel> channels = this.getTargetChannels(channelMessage.getSender(), channelMessage.getTargets(), false);
