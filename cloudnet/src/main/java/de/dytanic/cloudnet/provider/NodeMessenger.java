@@ -184,7 +184,10 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
             }
 
             if (includesSelf) {
-                result.add(CloudNetDriver.getInstance().getEventManager().callEvent(new ChannelMessageReceiveEvent(channelMessage, true)).getQueryResponse());
+                ChannelMessage queryResponse = CloudNetDriver.getInstance().getEventManager().callEvent(new ChannelMessageReceiveEvent(channelMessage, true)).getQueryResponse();
+                if (queryResponse != null) {
+                    result.add(queryResponse);
+                }
             }
 
             return result;
