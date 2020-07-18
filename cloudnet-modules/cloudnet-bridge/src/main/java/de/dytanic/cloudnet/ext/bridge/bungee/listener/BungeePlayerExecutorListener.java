@@ -74,4 +74,9 @@ public class BungeePlayerExecutorListener extends PlayerExecutorListener<Proxied
     protected void connectToFallback(@NotNull ProxiedPlayer player) {
         BungeeCloudNetHelper.connectToFallback(player, player.getServer() != null ? player.getServer().getInfo().getName() : null);
     }
+
+    @Override
+    protected void dispatchCommand(@NotNull ProxiedPlayer player, @NotNull String command) {
+        ProxyServer.getInstance().getPluginManager().dispatchCommand(player, command);
+    }
 }

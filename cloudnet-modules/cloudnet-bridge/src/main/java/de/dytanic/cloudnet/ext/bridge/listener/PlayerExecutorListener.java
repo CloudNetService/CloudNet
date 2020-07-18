@@ -104,6 +104,11 @@ public abstract class PlayerExecutorListener<Player> {
             }
             break;
 
+            case "dispatch_proxy_command": {
+                String command = event.getBuffer().readString();
+                this.dispatchCommand(player, command);
+            }
+
         }
     }
 
@@ -125,6 +130,8 @@ public abstract class PlayerExecutorListener<Player> {
     protected abstract void broadcastMessage(@NotNull String message, @Nullable String permission);
 
     protected abstract void connectToFallback(@NotNull Player player);
+
+    protected abstract void dispatchCommand(@NotNull Player player, @NotNull String command);
 
     protected Optional<ServiceInfoSnapshot> findService(@NotNull Predicate<ServiceInfoSnapshot> filter, @NotNull ServerSelectorType selectorType) {
         return BridgeProxyHelper.getCachedServiceInfoSnapshots().stream()

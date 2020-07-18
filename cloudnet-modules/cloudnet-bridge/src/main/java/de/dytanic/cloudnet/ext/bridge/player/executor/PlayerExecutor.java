@@ -71,4 +71,11 @@ public interface PlayerExecutor {
      */
     void sendPluginMessage(@NotNull String tag, @NotNull byte[] data);
 
+    /**
+     * Dispatches a command on the proxy the player is connected with as the player.
+     *
+     * @param command the command to dispatch
+     */
+    void dispatchProxyCommand(@NotNull String command);
+
 }

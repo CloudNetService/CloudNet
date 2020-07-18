@@ -79,4 +79,9 @@ public class VelocityPlayerExecutorListener extends PlayerExecutorListener<Playe
     protected void connectToFallback(@NotNull Player player) {
         VelocityCloudNetHelper.connectToFallback(player, player.getCurrentServer().map(ServerConnection::getServerInfo).map(ServerInfo::getName).orElse(null));
     }
+
+    @Override
+    protected void dispatchCommand(@NotNull Player player, @NotNull String command) {
+        this.proxyServer.getCommandManager().executeAsync(player, command);
+    }
 }

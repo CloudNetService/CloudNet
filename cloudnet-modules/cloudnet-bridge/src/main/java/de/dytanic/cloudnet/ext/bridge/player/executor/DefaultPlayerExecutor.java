@@ -78,6 +78,16 @@ public class DefaultPlayerExecutor implements PlayerExecutor {
     }
 
     @Override
+    public void dispatchProxyCommand(@NotNull String command) {
+        Preconditions.checkNotNull(command);
+
+        builder()
+                .message("dispatch_proxy_command")
+                .buffer(ProtocolBuffer.create().writeUUID(this.uniqueId).writeString(command))
+                .build().send();
+    }
+
+    @Override
     public void connect(@NotNull ServerSelectorType selectorType) {
         builder()
                 .message("connect_type")
