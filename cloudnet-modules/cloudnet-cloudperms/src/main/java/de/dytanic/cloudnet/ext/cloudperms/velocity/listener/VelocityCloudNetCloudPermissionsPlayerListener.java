@@ -7,6 +7,7 @@ import com.velocitypowered.api.event.connection.DisconnectEvent;
 import com.velocitypowered.api.event.connection.LoginEvent;
 import com.velocitypowered.api.event.permission.PermissionsSetupEvent;
 import com.velocitypowered.api.permission.PermissionProvider;
+import com.velocitypowered.api.proxy.Player;
 import de.dytanic.cloudnet.driver.permission.CachedPermissionManagement;
 import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsHelper;
 import net.kyori.text.serializer.legacy.LegacyComponentSerializer;
@@ -30,7 +31,9 @@ public final class VelocityCloudNetCloudPermissionsPlayerListener {
 
     @Subscribe
     public void handle(PermissionsSetupEvent event) {
-        event.setProvider(this.permissionProvider);
+        if (event.getSubject() instanceof Player) {
+            event.setProvider(this.permissionProvider);
+        }
     }
 
     @Subscribe
