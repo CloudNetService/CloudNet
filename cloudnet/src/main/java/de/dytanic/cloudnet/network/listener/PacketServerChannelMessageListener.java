@@ -42,14 +42,6 @@ public final class PacketServerChannelMessageListener implements IPacketListener
     }
 
     private void handleMessage(CloudMessenger messenger, Collection<ChannelMessage> response, ChannelMessage message, boolean query) {
-        for (ChannelMessageTarget target : message.getTargets()) {
-            if (this.hasReceived(target)) {
-                this.fireEvent(message, response, query);
-                break;
-            }
-        }
-
-
         if (this.redirectToCluster) {
 
             if (query) {
@@ -59,6 +51,13 @@ public final class PacketServerChannelMessageListener implements IPacketListener
             }
 
         } else if (messenger instanceof NodeMessenger) {
+            for (ChannelMessageTarget target : message.getTargets()) {
+                if (target.includesNode(CloudNetDriver.getInstance().getComponentName())) {
+                    this.fireEvent(message, response, query);
+                    break;
+                }
+            }
+
             for (ChannelMessageTarget target : message.getTargets()) {
                 Collection<INetworkChannel> channels = ((NodeMessenger) messenger).getTargetChannels(message.getSender(), target, true);
 
@@ -90,14 +89,6 @@ public final class PacketServerChannelMessageListener implements IPacketListener
         }
 
         message.getBuffer().resetReaderIndex();
-    }
-
-    private boolean hasReceived(ChannelMessageTarget target) {
-        ChannelMessageTarget.Type targetType = target.getType();
-        if (targetType.equals(ChannelMessageTarget.Type.NODE)) {
-            return target.getName() == null || CloudNetDriver.getInstance().getComponentName().equals(target.getName());
-        }
-        return targetType.equals(ChannelMessageTarget.Type.ALL);
     }
 
 }

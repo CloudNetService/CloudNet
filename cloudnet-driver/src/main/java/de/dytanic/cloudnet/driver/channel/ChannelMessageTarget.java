@@ -41,6 +41,10 @@ public class ChannelMessageTarget implements SerializableObject {
         return this.environment;
     }
 
+    public boolean includesNode(String uniqueId) {
+        return this.type.equals(Type.ALL) || (this.type.equals(Type.NODE) && (this.name == null || this.name.equals(uniqueId)));
+    }
+
     @Override
     public void write(@NotNull ProtocolBuffer buffer) {
         buffer.writeEnumConstant(this.type);

@@ -4,9 +4,11 @@ import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.cluster.IClusterNodeServer;
 import de.dytanic.cloudnet.common.concurrent.CompletedTask;
 import de.dytanic.cloudnet.common.concurrent.ITask;
+import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.driver.channel.ChannelMessageSender;
 import de.dytanic.cloudnet.driver.channel.ChannelMessageTarget;
+import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.def.packet.PacketClientServerChannelMessage;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
@@ -144,6 +146,10 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
 
     @Override
     public void sendChannelMessage(@NotNull ChannelMessage channelMessage) {
+        if (channelMessage.getTargets().stream().anyMatch(target -> target.includesNode(CloudNetDriver.getInstance().getComponentName()))) {
+            CloudNetDriver.getInstance().getEventManager().callEvent(new ChannelMessageReceiveEvent(channelMessage, false));
+        }
+
         Collection<INetworkChannel> channels = this.getTargetChannels(channelMessage.getSender(), channelMessage.getTargets(), false);
         if (channels == null || channels.isEmpty()) {
             return;
@@ -158,7 +164,9 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
     @Override
     public @NotNull ITask<Collection<ChannelMessage>> sendChannelMessageQueryAsync(@NotNull ChannelMessage channelMessage) {
         Collection<INetworkChannel> channels = this.getTargetChannels(channelMessage.getSender(), channelMessage.getTargets(), false);
-        if (channels == null || channels.isEmpty()) {
+        boolean includesSelf = channelMessage.getTargets().stream().anyMatch(target -> target.includesNode(CloudNetDriver.getInstance().getComponentName()));
+
+        if ((channels == null || channels.isEmpty()) && !includesSelf) {
             return CompletedTask.create(Collections.emptyList());
         }
 
@@ -166,11 +174,17 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
             Collection<ChannelMessage> result = new ArrayList<>();
             IPacket packet = new PacketClientServerChannelMessage(channelMessage, true);
 
-            for (INetworkChannel channel : channels) {
-                IPacket response = channel.sendQuery(packet);
-                if (response != null && response.getBuffer().readBoolean()) {
-                    result.add(response.getBuffer().readObject(ChannelMessage.class));
+            if (channels != null) {
+                for (INetworkChannel channel : channels) {
+                    IPacket response = channel.sendQuery(packet);
+                    if (response != null && response.getBuffer().readBoolean()) {
+                        result.add(response.getBuffer().readObject(ChannelMessage.class));
+                    }
                 }
+            }
+
+            if (includesSelf) {
+                result.add(CloudNetDriver.getInstance().getEventManager().callEvent(new ChannelMessageReceiveEvent(channelMessage, true)).getQueryResponse());
             }
 
             return result;
