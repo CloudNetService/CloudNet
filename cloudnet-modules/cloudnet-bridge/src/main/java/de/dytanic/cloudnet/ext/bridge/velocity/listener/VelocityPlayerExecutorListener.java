@@ -14,6 +14,7 @@ import net.kyori.text.serializer.legacy.LegacyComponentSerializer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collection;
 import java.util.UUID;
 
 public class VelocityPlayerExecutorListener extends PlayerExecutorListener<Player> {
@@ -28,6 +29,11 @@ public class VelocityPlayerExecutorListener extends PlayerExecutorListener<Playe
     @Override
     protected Player getPlayer(@NotNull UUID uniqueId) {
         return this.proxyServer.getPlayer(uniqueId).orElse(null);
+    }
+
+    @Override
+    protected @NotNull Collection<Player> getOnlinePlayers() {
+        return this.proxyServer.getAllPlayers();
     }
 
     @Override

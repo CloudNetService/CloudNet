@@ -11,6 +11,7 @@ import net.md_5.bungee.chat.ComponentSerializer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collection;
 import java.util.UUID;
 
 public class BungeePlayerExecutorListener extends PlayerExecutorListener<ProxiedPlayer> {
@@ -18,6 +19,11 @@ public class BungeePlayerExecutorListener extends PlayerExecutorListener<Proxied
     @Override
     protected ProxiedPlayer getPlayer(@NotNull UUID uniqueId) {
         return ProxyServer.getInstance().getPlayer(uniqueId);
+    }
+
+    @Override
+    protected @NotNull Collection<ProxiedPlayer> getOnlinePlayers() {
+        return ProxyServer.getInstance().getPlayers();
     }
 
     @Override
