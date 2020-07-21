@@ -20,6 +20,13 @@ final class NettyPacketDecoder extends ByteToMessageDecoder {
             return;
         }
 
+        // This weired null check is needed for the 'NettyPacketEncoderDecoderTest' which uses 'null'
+        // as 'ChannelHandlerContext' for testing reasons
+        if (ctx != null && !ctx.channel().isActive()) {
+            byteBuf.skipBytes(byteBuf.readableBytes());
+            return;
+        }
+
         try {
             ProtocolBuffer in = ProtocolBuffer.wrap(byteBuf);
 
