@@ -1,5 +1,6 @@
 package de.dytanic.cloudnet.ext.bridge.velocity.listener;
 
+import com.velocitypowered.api.proxy.server.RegisteredServer;
 import com.velocitypowered.api.proxy.server.ServerInfo;
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
@@ -45,9 +46,9 @@ public final class VelocityCloudNetListener {
         if (VelocityCloudNetHelper.isServiceEnvironmentTypeProvidedForVelocity(event.getServiceInfo())) {
             String name = event.getServiceInfo().getServiceId().getName();
 
-            if (VelocityCloudNetHelper.getProxyServer().getServer(name).isPresent()) {
-                VelocityCloudNetHelper.getProxyServer().unregisterServer(VelocityCloudNetHelper.getProxyServer().getServer(name).get().getServerInfo());
-            }
+            VelocityCloudNetHelper.getProxyServer().getServer(name)
+                    .map(RegisteredServer::getServerInfo)
+                    .ifPresent(VelocityCloudNetHelper.getProxyServer()::unregisterServer);
 
             VelocityCloudNetHelper.removeServerToVelocityPrioritySystemConfiguration(event.getServiceInfo(), name);
             BridgeProxyHelper.cacheServiceInfoSnapshot(event.getServiceInfo());
@@ -95,7 +96,7 @@ public final class VelocityCloudNetListener {
     @EventListener
     public void handle(CloudServiceUnregisterEvent event) {
         if (VelocityCloudNetHelper.isServiceEnvironmentTypeProvidedForVelocity(event.getServiceInfo())) {
-            BridgeProxyHelper.cacheServiceInfoSnapshot(event.getServiceInfo());
+            BridgeProxyHelper.removeCachedServiceInfoSnapshot(event.getServiceInfo());
         }
 
         this.velocityCall(new VelocityCloudServiceUnregisterEvent(event.getServiceInfo()));
