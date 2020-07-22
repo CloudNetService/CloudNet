@@ -281,6 +281,15 @@ public class CommandTasks extends CommandServiceConfigurationBase {
                         (subCommand, sender, command, args, commandLine, properties, internalProperties) ->
                                 forEachTasks(
                                         (ServiceConfigurationBase[]) internalProperties.get("tasks"),
+                                        task -> task.setRequiredPermission((String) args.argument(4))
+                                ),
+                        exactStringIgnoreCase("requiredPermission"),
+                        dynamicString("requiredPermission")
+                )
+                .generateCommand(
+                        (subCommand, sender, command, args, commandLine, properties, internalProperties) ->
+                                forEachTasks(
+                                        (ServiceConfigurationBase[]) internalProperties.get("tasks"),
                                         task -> task.getProcessConfiguration().setEnvironment((ServiceEnvironmentType) args.argument(4))
                                 ),
                         exactStringIgnoreCase("environment"),
