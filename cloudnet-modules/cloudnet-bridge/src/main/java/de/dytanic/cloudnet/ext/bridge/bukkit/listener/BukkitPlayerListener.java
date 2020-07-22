@@ -46,7 +46,24 @@ public final class BukkitPlayerListener implements Listener {
         String currentTaskName = Wrapper.getInstance().getServiceId().getTaskName();
         ServiceTask serviceTask = Wrapper.getInstance().getServiceTaskProvider().getServiceTask(currentTaskName);
 
-        if (serviceTask != null && serviceTask.isMaintenance() && !player.hasPermission("cloudnet.bridge.maintenance")) {
+        if(serviceTask == null) {
+            return;
+        }
+
+        // if the service has a field "requiredPermission" and the field is not null or empty and
+        // the player has the has not the permission of that field -> disconnect him
+        if (serviceTask.getProperties().contains("requiredPermission") &&
+          (serviceTask.getProperties().get("requiredPermission", String.class) != null ||
+            serviceTask.getProperties().get("requiredPermission", String.class) != "null" ||
+            serviceTask.getProperties().get("requiredPermission", String.class) != "") &&
+          !player
+            .hasPermission(serviceTask.getProperties().get("requiredPermission", String.class))) {
+            event.setResult(PlayerLoginEvent.Result.KICK_WHITELIST);
+            event.setKickMessage(ChatColor.translateAlternateColorCodes('&', this.bridgeConfiguration.getMessages().get("server-join-cancel-because-permission")));
+            return;
+        }
+
+        if (serviceTask.isMaintenance() && !player.hasPermission("cloudnet.bridge.maintenance")) {
             event.setResult(PlayerLoginEvent.Result.KICK_WHITELIST);
             event.setKickMessage(ChatColor.translateAlternateColorCodes('&', this.bridgeConfiguration.getMessages().get("server-join-cancel-because-maintenance")));
             return;
