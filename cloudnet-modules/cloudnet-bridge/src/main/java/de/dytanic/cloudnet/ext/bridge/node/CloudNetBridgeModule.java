@@ -7,8 +7,8 @@ import de.dytanic.cloudnet.ext.bridge.BridgeConfiguration;
 import de.dytanic.cloudnet.ext.bridge.ProxyFallback;
 import de.dytanic.cloudnet.ext.bridge.ProxyFallbackConfiguration;
 import de.dytanic.cloudnet.ext.bridge.listener.TaskConfigListener;
+import de.dytanic.cloudnet.ext.bridge.node.command.CommandBridge;
 import de.dytanic.cloudnet.ext.bridge.node.command.CommandPlayers;
-import de.dytanic.cloudnet.ext.bridge.node.command.CommandReloadBridge;
 import de.dytanic.cloudnet.ext.bridge.node.http.V1BridgeConfigurationHttpHandler;
 import de.dytanic.cloudnet.ext.bridge.node.listener.*;
 import de.dytanic.cloudnet.ext.bridge.node.player.NodePlayerManager;
@@ -16,10 +16,7 @@ import de.dytanic.cloudnet.ext.bridge.player.IPlayerManager;
 import de.dytanic.cloudnet.module.NodeCloudNetModule;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public final class CloudNetBridgeModule extends NodeCloudNetModule {
 
@@ -52,6 +49,7 @@ public final class CloudNetBridgeModule extends NodeCloudNetModule {
 
     @ModuleTask(order = 64, event = ModuleLifeCycle.STARTED)
     public void createConfiguration() {
+
         this.getModuleWrapper().getDataFolder().mkdirs();
 
         this.bridgeConfiguration = getConfig().get("config", BridgeConfiguration.TYPE, new BridgeConfiguration(
@@ -104,9 +102,21 @@ public final class CloudNetBridgeModule extends NodeCloudNetModule {
                 new V1BridgeConfigurationHttpHandler("cloudnet.http.v1.modules.bridge.config"));
     }
 
+    @ModuleTask(order = 17, event = ModuleLifeCycle.STARTED)
+    public void checkTaskConfigurations() {
+        // check if a service has permissions, if not add the default
+        this.getCloudNet().getServiceTaskProvider().getPermanentServiceTasks().forEach(serviceTask -> {
+            if (!serviceTask.getProperties().contains("requiredPermission")) {
+                serviceTask.getProperties().append("requiredPermission", "null");
+                this.getCloudNet().getCloudServiceManager().updatePermanentServiceTask(serviceTask);
+            }
+                }
+        );
+    }
+
     @ModuleTask(order = 16, event = ModuleLifeCycle.STARTED)
     public void registerCommands() {
-        registerCommand(new CommandReloadBridge());
+        registerCommand(new CommandBridge());
         registerCommand(new CommandPlayers(this.nodePlayerManager));
     }
 

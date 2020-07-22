@@ -171,14 +171,6 @@ public class ServiceTask extends ServiceConfigurationBase implements INameable {
         this.startPort = startPort;
     }
 
-    public String getRequiredPermission() {
-        return this.properties.get("requiredPermission", String.class);
-    }
-
-    public void setRequiredPermission(String requiredPermission) {
-        this.properties.append("requiredPermission", requiredPermission);
-    }
-
     public int getMinServiceCount() {
         return this.minServiceCount;
     }
