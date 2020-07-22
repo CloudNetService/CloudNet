@@ -48,10 +48,10 @@ public final class NukkitPlayerListener implements Listener {
 
         // if the service has a field "requiredPermission" and the field is not null or empty and
         // the player has the has not the permission of that field -> disconnect him
-        String requiredPermission = serviceTask.getProperties().get("requiredPermission", String.class);
+        String requiredPermission = serviceTask.getProperties().getString("requiredPermission");
         requiredPermission = (requiredPermission.equals("null")) ? null : requiredPermission;
         if (requiredPermission != null &&
-                !player.hasPermission(serviceTask.getProperties().get("requiredPermission", String.class))) {
+                !player.hasPermission(requiredPermission)) {
             event.setCancelled(true);
             event.setKickMessage(ChatColor.translateAlternateColorCodes('&', this.bridgeConfiguration.getMessages().get("server-join-cancel-because-permission")));
             return;
