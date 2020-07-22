@@ -6,6 +6,7 @@ import de.dytanic.cloudnet.driver.module.ModuleTask;
 import de.dytanic.cloudnet.ext.bridge.BridgeConfiguration;
 import de.dytanic.cloudnet.ext.bridge.ProxyFallback;
 import de.dytanic.cloudnet.ext.bridge.ProxyFallbackConfiguration;
+import de.dytanic.cloudnet.ext.bridge.listener.TaskConfigListener;
 import de.dytanic.cloudnet.ext.bridge.node.command.CommandPlayers;
 import de.dytanic.cloudnet.ext.bridge.node.command.CommandReloadBridge;
 import de.dytanic.cloudnet.ext.bridge.node.http.V1BridgeConfigurationHttpHandler;
@@ -113,7 +114,7 @@ public final class CloudNetBridgeModule extends NodeCloudNetModule {
     public void initListeners() {
         registerListeners(new NetworkListenerRegisterListener(), new BridgeTaskSetupListener(), new IncludePluginListener(),
                 new NodeCustomChannelMessageListener(this.nodePlayerManager), new BridgePlayerDisconnectListener(this.nodePlayerManager),
-                new BridgeDefaultConfigurationListener(), new BridgeServiceListCommandListener());
+                new BridgeDefaultConfigurationListener(), new BridgeServiceListCommandListener(), new TaskConfigListener());
     }
 
     @Override
