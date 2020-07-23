@@ -350,7 +350,7 @@ public class JsonDocument implements IDocument<JsonDocument>, Cloneable {
             return this;
         }
 
-        this.jsonObject.addProperty(key, (String) null);
+        this.jsonObject.add(key, JsonNull.INSTANCE);
         return this;
     }
 
