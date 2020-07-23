@@ -16,7 +16,10 @@ import de.dytanic.cloudnet.ext.bridge.player.IPlayerManager;
 import de.dytanic.cloudnet.module.NodeCloudNetModule;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 public final class CloudNetBridgeModule extends NodeCloudNetModule {
 
@@ -104,12 +107,13 @@ public final class CloudNetBridgeModule extends NodeCloudNetModule {
 
     @ModuleTask(order = 17, event = ModuleLifeCycle.STARTED)
     public void checkTaskConfigurations() {
-        // check if a service has permissions, if not add the default
         this.getCloudNet().getServiceTaskProvider().getPermanentServiceTasks().forEach(serviceTask -> {
-            if (!serviceTask.getProperties().contains("requiredPermission")) {
-                serviceTask.getProperties().append("requiredPermission", "null");
-                this.getCloudNet().getCloudServiceManager().updatePermanentServiceTask(serviceTask);
-            }
+            // check if a service has permissions, if not add the default
+            // also checks if the server is a minecraft server since this option is not supported in Proxys
+            if (serviceTask.getProcessConfiguration().getEnvironment().isMinecraftServer() && !serviceTask.getProperties().contains("requiredPermission")) {
+                        serviceTask.getProperties().appendNull("requiredPermission");
+                        this.getCloudNet().getCloudServiceManager().updatePermanentServiceTask(serviceTask);
+                    }
                 }
         );
     }

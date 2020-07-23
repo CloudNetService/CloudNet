@@ -79,6 +79,13 @@ public final class CommandBridge extends SubCommandHandler {
                         sender.sendMessage(LanguageManager.getMessage("command-tasks-task-not-found"));
                         return;
                     }
+                    // checks if it is a Mineraft environment
+                    if(!serviceTask.getProcessConfiguration().getEnvironment().isMinecraftServer()) {
+                        // uses tasks command because they should exists
+                        sender.sendMessage(LanguageManager.getMessage("module-bridge-command-task-execute-no-java-server").replace("%name%", serviceTask.getName()));
+                        return;
+
+                    }
                     CloudNet.getInstance().getServiceTaskProvider().addPermanentServiceTask(serviceTask);
 
                     // uses tasks command because they should exists
@@ -93,7 +100,16 @@ public final class CommandBridge extends SubCommandHandler {
                         (subCommand, sender, command, args, commandLine, properties, internalProperties) ->
                         {
                             ServiceTask serviceTask = CloudNetDriver.getInstance().getServiceTaskProvider().getServiceTask(args.argument(1).toString());
-                            Objects.requireNonNull(serviceTask).getProperties().append("requiredPermission", (String) args.argument(4));
+                            if(serviceTask == null || !serviceTask.getProcessConfiguration().getEnvironment().isMinecraftServer()) {
+                                return;
+                            }
+                            String permission = (String) args.argument(4);
+                            // checks if the permission is "null" if so insert null
+                            if(permission.equalsIgnoreCase("null")) {
+                                serviceTask.getProperties().appendNull("requiredPermission");
+                            } else {
+                                serviceTask.getProperties().append("requiredPermission", permission);
+                            }
                         },
                         exactStringIgnoreCase("requiredPermission"),
                         dynamicString("requiredPermission")
