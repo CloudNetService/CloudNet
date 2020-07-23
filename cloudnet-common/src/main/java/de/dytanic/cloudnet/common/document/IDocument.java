@@ -1,7 +1,6 @@
 package de.dytanic.cloudnet.common.document;
 
 import de.dytanic.cloudnet.common.document.gson.IJsonDocPropertyable;
-import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 
 import java.io.Serializable;
 import java.lang.reflect.Type;
