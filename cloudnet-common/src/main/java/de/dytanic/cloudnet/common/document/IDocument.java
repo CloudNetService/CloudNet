@@ -1,6 +1,7 @@
 package de.dytanic.cloudnet.common.document;
 
 import de.dytanic.cloudnet.common.document.gson.IJsonDocPropertyable;
+import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 
 import java.io.Serializable;
 import java.lang.reflect.Type;
@@ -52,6 +53,8 @@ public interface IDocument<Document extends IDocument<?>> extends IJsonDocProper
     Document append(String key, byte[] bytes);
 
     Document append(Document t);
+
+    Document appendNull(String key);
 
     Document getDocument(String key);
 
