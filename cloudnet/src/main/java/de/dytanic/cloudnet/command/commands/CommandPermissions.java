@@ -399,6 +399,7 @@ public class CommandPermissions extends SubCommandHandler {
                             String name = (String) args.argument("name").get();
                             group.getGroups().add(name);
 
+                            CloudNet.getInstance().getPermissionManagement().updateGroup(group);
                             sender.sendMessage(LanguageManager.getMessage("command-permissions-group-add-group-successful")
                                     .replace("%name%", group.getName())
                                     .replace("%group%", name)
