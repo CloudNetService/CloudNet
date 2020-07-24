@@ -59,7 +59,7 @@ public final class DefaultEventManager implements IEventManager {
         Preconditions.checkNotNull(listeners);
 
         for (Object listener : listeners) {
-            unregisterListener(listener);
+            this.unregisterListener(listener);
         }
 
         return this;
@@ -70,7 +70,7 @@ public final class DefaultEventManager implements IEventManager {
         Preconditions.checkNotNull(classes);
 
         for (Object listener : classes) {
-            unregisterListener(listener);
+            this.unregisterListener(listener);
         }
 
         return this;
@@ -89,7 +89,7 @@ public final class DefaultEventManager implements IEventManager {
         }
         Preconditions.checkNotNull(event);
 
-        fireEvent(channel, event);
+        this.fireEvent(channel, event);
         return event;
     }
 
@@ -102,10 +102,10 @@ public final class DefaultEventManager implements IEventManager {
                 listeners.addAll(entry);
             }
 
-            fireEvent0(listeners, event);
+            this.fireEvent0(listeners, event);
 
         } else if (this.registeredListeners.containsKey(channel)) {
-            fireEvent0(this.registeredListeners.get(channel), event);
+            this.fireEvent0(this.registeredListeners.get(channel), event);
         }
     }
 

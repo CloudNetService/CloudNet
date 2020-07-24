@@ -12,7 +12,7 @@ public final class CloudNetSimpleNameTagsPlugin extends JavaPlugin {
     public void onEnable() {
         Listener listener = new CloudNetSimpleNameTagsListener(this);
 
-        getServer().getPluginManager().registerEvents(listener, this);
+        this.getServer().getPluginManager().registerEvents(listener, this);
         CloudNetDriver.getInstance().getEventManager().registerListener(listener);
     }
 

@@ -55,19 +55,19 @@ public class ServiceVersion {
     }
 
     public String getName() {
-        return name;
+        return this.name;
     }
 
     public String getUrl() {
-        return url;
+        return this.url;
     }
 
     public JsonDocument getProperties() {
-        return properties;
+        return this.properties;
     }
 
     public Map<String, String> getAdditionalDownloads() {
-        return additionalDownloads;
+        return this.additionalDownloads;
     }
 
 }

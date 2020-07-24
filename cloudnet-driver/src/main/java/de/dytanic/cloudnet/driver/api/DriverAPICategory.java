@@ -1,0 +1,14 @@
+package de.dytanic.cloudnet.driver.api;
+
+public enum DriverAPICategory {
+
+    SERVICE_TASKS,
+    GROUP_CONFIGURATIONS,
+    PERMISSION_MANAGEMENT,
+    GENERAL_CLOUD_SERVICES,
+    SPECIFIC_CLOUD_SERVICE,
+    CLOUD_SERVICE_FACTORY,
+    NODE_INFO,
+    TEMPLATE_STORAGE
+
+}

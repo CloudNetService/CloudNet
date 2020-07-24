@@ -38,7 +38,7 @@ public final class UpdateNameTagsExample {
     //For developers with a NickAPI or something like this
     public void nickExample(Player player) {
         BukkitCloudNetCloudPermissionsPlugin.getInstance().updateNameTags(player, player1 -> {
-            if (isNicked(player1)) {
+            if (this.isNicked(player1)) {
                 return CloudNetDriver.getInstance().getPermissionManagement().getGroup("Default");
             }
 
@@ -49,6 +49,6 @@ public final class UpdateNameTagsExample {
     }
 
     public boolean isNicked(Player player) {
-        return nickedPlayers.contains(player.getUniqueId());
+        return this.nickedPlayers.contains(player.getUniqueId());
     }
 }

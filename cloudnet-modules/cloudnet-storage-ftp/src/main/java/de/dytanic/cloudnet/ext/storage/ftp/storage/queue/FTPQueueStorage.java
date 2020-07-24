@@ -262,18 +262,18 @@ public class FTPQueueStorage implements Runnable, ITemplateStorage {
 
     @Override
     public Collection<ServiceTemplate> getTemplates() {
-        ITask<Collection<ServiceTemplate>> ftpTask = new FTPTask<>(() -> this.executingStorage.getTemplates());
+        ITask<Collection<ServiceTemplate>> ftpTask = new FTPTask<>(this.executingStorage::getTemplates);
         this.ftpTaskQueue.add(ftpTask);
 
         return ftpTask.getDef(Collections.emptyList());
     }
 
     public AbstractFTPStorage getExecutingStorage() {
-        return executingStorage;
+        return this.executingStorage;
     }
 
     public boolean isOpened() {
-        return opened;
+        return this.opened;
     }
 
     @Override

@@ -26,7 +26,7 @@ public final class DefaultLogFormatter implements IFormatter {
             if (message != null) {
                 stringBuilder
                         .append("[")
-                        .append(dateFormat.format(logEntry.getTimeStamp()))
+                        .append(this.dateFormat.format(logEntry.getTimeStamp()))
                         .append("] ")
                         .append(logEntry.getLogLevel().getUpperName())
                         .append(": ")

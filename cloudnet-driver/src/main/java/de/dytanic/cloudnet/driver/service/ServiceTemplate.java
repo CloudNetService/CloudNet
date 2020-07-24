@@ -2,15 +2,18 @@ package de.dytanic.cloudnet.driver.service;
 
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.INameable;
+import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
+import de.dytanic.cloudnet.driver.serialization.SerializableObject;
 import lombok.EqualsAndHashCode;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
 @EqualsAndHashCode
-public class ServiceTemplate implements INameable {
+public class ServiceTemplate implements INameable, SerializableObject {
 
-    private final String prefix, name, storage;
+    private String prefix, name, storage;
     private boolean alwaysCopyToStaticServices;
 
     public ServiceTemplate(String prefix, String name, String storage) {
@@ -26,6 +29,9 @@ public class ServiceTemplate implements INameable {
     public ServiceTemplate(String prefix, String name, String storage, boolean alwaysCopyToStaticServices) {
         this(prefix, name, storage);
         this.alwaysCopyToStaticServices = alwaysCopyToStaticServices;
+    }
+
+    public ServiceTemplate() {
     }
 
     public boolean shouldAlwaysCopyToStaticServices() {
@@ -82,4 +88,19 @@ public class ServiceTemplate implements INameable {
         return result.toArray(new ServiceTemplate[0]);
     }
 
+    @Override
+    public void write(@NotNull ProtocolBuffer buffer) {
+        buffer.writeString(this.prefix);
+        buffer.writeString(this.name);
+        buffer.writeString(this.storage);
+        buffer.writeBoolean(this.alwaysCopyToStaticServices);
+    }
+
+    @Override
+    public void read(@NotNull ProtocolBuffer buffer) {
+        this.prefix = buffer.readString();
+        this.name = buffer.readString();
+        this.storage = buffer.readString();
+        this.alwaysCopyToStaticServices = buffer.readBoolean();
+    }
 }

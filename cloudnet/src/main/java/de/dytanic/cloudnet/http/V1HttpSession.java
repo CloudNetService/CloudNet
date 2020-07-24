@@ -22,8 +22,8 @@ public final class V1HttpSession {
     private final Collection<SessionEntry> entries = new CopyOnWriteArrayList<>();
 
     public boolean auth(IHttpContext context) throws Exception {
-        if (isAuthorized(context)) {
-            logout(context);
+        if (this.isAuthorized(context)) {
+            this.logout(context);
         }
 
         if (!context.request().hasHeader("Authorization")) {
@@ -55,14 +55,13 @@ public final class V1HttpSession {
         SessionEntry sessionEntry = new SessionEntry(
                 System.nanoTime(),
                 System.currentTimeMillis(),
-                context.channel().clientAddress().getHost(),
                 UUID.randomUUID().toString(),
                 permissionUser.getUniqueId().toString()
         );
 
         context.addCookie(new HttpCookie(
                 COOKIE_NAME,
-                createKey(sessionEntry, context),
+                this.createKey(sessionEntry, context),
                 null,
                 "/",
                 sessionEntry.lastUsageMillis + EXPIRE_TIME))
@@ -70,7 +69,7 @@ public final class V1HttpSession {
                 .statusCode(200)
         ;
 
-        entries.add(sessionEntry);
+        this.entries.add(sessionEntry);
         return true;
     }
 
@@ -81,13 +80,13 @@ public final class V1HttpSession {
 
         HttpCookie httpCookie = context.cookie(COOKIE_NAME);
 
-        SessionEntry sessionEntry = getValidSessionEntry(httpCookie.getValue(), context);
+        SessionEntry sessionEntry = this.getValidSessionEntry(httpCookie.getValue(), context);
         if (sessionEntry == null) {
             return false;
         }
 
         if ((sessionEntry.lastUsageMillis + EXPIRE_TIME) < System.currentTimeMillis()) {
-            logout(context);
+            this.logout(context);
             return false;
         }
 
@@ -102,7 +101,7 @@ public final class V1HttpSession {
         }
 
         for (SessionEntry entry : this.entries) {
-            if (cookieValue.equals(createKey(entry, context))) {
+            if (cookieValue.equals(this.createKey(entry, context))) {
                 return entry;
             }
         }
@@ -113,7 +112,7 @@ public final class V1HttpSession {
     public void logout(IHttpContext context) {
         Preconditions.checkNotNull(context);
 
-        SessionEntry sessionEntry = getValidSessionEntry(getCookieValue(context), context);
+        SessionEntry sessionEntry = this.getValidSessionEntry(this.getCookieValue(context), context);
         if (sessionEntry != null) {
             this.entries.remove(sessionEntry);
         }
@@ -124,9 +123,9 @@ public final class V1HttpSession {
     public IPermissionUser getUser(IHttpContext context) {
         Preconditions.checkNotNull(context);
 
-        SessionEntry sessionEntry = getValidSessionEntry(getCookieValue(context), context);
+        SessionEntry sessionEntry = this.getValidSessionEntry(this.getCookieValue(context), context);
 
-        return getUser(sessionEntry, context);
+        return this.getUser(sessionEntry, context);
     }
 
     private IPermissionUser getUser(SessionEntry sessionEntry, IHttpContext context) {
@@ -160,14 +159,13 @@ public final class V1HttpSession {
 
     public static class SessionEntry {
 
-        long creationTime, lastUsageMillis;
+        private final long creationTime;
+        private final String uniqueId, userUniqueId;
+        private long lastUsageMillis;
 
-        String host, uniqueId, userUniqueId;
-
-        public SessionEntry(long creationTime, long lastUsageMillis, String host, String uniqueId, String userUniqueId) {
+        public SessionEntry(long creationTime, long lastUsageMillis, String uniqueId, String userUniqueId) {
             this.creationTime = creationTime;
             this.lastUsageMillis = lastUsageMillis;
-            this.host = host;
             this.uniqueId = uniqueId;
             this.userUniqueId = userUniqueId;
         }

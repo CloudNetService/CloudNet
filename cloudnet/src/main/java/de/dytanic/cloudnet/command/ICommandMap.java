@@ -1,7 +1,7 @@
 package de.dytanic.cloudnet.command;
 
 import de.dytanic.cloudnet.common.Properties;
-import de.dytanic.cloudnet.common.command.CommandInfo;
+import de.dytanic.cloudnet.driver.command.CommandInfo;
 
 import java.util.Collection;
 import java.util.List;
@@ -112,7 +112,7 @@ public interface ICommandMap {
         if (commands != null) {
             for (Command command : commands) {
                 if (command != null) {
-                    registerCommand(command);
+                    this.registerCommand(command);
                 }
             }
         }
@@ -127,7 +127,7 @@ public interface ICommandMap {
         if (commands != null) {
             for (String command : commands) {
                 if (command != null) {
-                    unregisterCommand(command);
+                    this.unregisterCommand(command);
                 }
             }
         }
@@ -142,7 +142,7 @@ public interface ICommandMap {
         if (commands != null) {
             for (Class<? extends Command> c : commands) {
                 if (c != null) {
-                    unregisterCommand(c);
+                    this.unregisterCommand(c);
                 }
             }
         }

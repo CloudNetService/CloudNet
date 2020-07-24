@@ -90,7 +90,7 @@ public final class DefaultClusterNodeServerProvider implements IClusterNodeServe
 
     @Override
     public void close() throws Exception {
-        for (IClusterNodeServer clusterNodeServer : servers.values()) {
+        for (IClusterNodeServer clusterNodeServer : this.servers.values()) {
             clusterNodeServer.close();
         }
 

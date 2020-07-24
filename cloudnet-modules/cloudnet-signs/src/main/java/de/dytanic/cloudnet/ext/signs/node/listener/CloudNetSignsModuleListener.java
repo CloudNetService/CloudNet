@@ -4,7 +4,6 @@ import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
 import de.dytanic.cloudnet.event.cluster.NetworkChannelAuthClusterNodeSuccessEvent;
-import de.dytanic.cloudnet.event.network.NetworkChannelReceiveCallablePacketEvent;
 import de.dytanic.cloudnet.ext.signs.Sign;
 import de.dytanic.cloudnet.ext.signs.SignConstants;
 import de.dytanic.cloudnet.ext.signs.configuration.SignConfiguration;
@@ -27,18 +26,18 @@ public final class CloudNetSignsModuleListener {
     }
 
     @EventListener
-    public void handle(NetworkChannelReceiveCallablePacketEvent event) {
-        if (!event.getChannelName().equalsIgnoreCase(SignConstants.SIGN_CHANNEL_SYNC_CHANNEL_PROPERTY)) {
+    public void handleQuery(ChannelMessageReceiveEvent event) {
+        if (!event.getChannel().equalsIgnoreCase(SignConstants.SIGN_CHANNEL_NAME) || event.getMessage() == null || !event.isQuery()) {
             return;
         }
 
-        switch (event.getId().toLowerCase()) {
-            case SignConstants.SIGN_CHANNEL_SYNC_ID_GET_SIGNS_COLLECTION_PROPERTY: {
-                event.setCallbackPacket(new JsonDocument("signs", CloudNetSignsModule.getInstance().loadSigns()));
+        switch (event.getMessage().toLowerCase()) {
+            case SignConstants.SIGN_CHANNEL_GET_SIGNS: {
+                event.setJsonResponse(JsonDocument.newDocument("signs", CloudNetSignsModule.getInstance().loadSigns()));
             }
             break;
-            case SignConstants.SIGN_CHANNEL_SYNC_ID_GET_SIGNS_CONFIGURATION_PROPERTY: {
-                event.setCallbackPacket(new JsonDocument("signConfiguration", CloudNetSignsModule.getInstance().getSignConfiguration()));
+            case SignConstants.SIGN_CHANNEL_GET_SIGNS_CONFIGURATION: {
+                event.setJsonResponse(JsonDocument.newDocument("signConfiguration", CloudNetSignsModule.getInstance().getSignConfiguration()));
             }
             break;
         }
@@ -46,6 +45,10 @@ public final class CloudNetSignsModuleListener {
 
     @EventListener
     public void handle(ChannelMessageReceiveEvent event) {
+        if (event.getMessage() == null) {
+            return;
+        }
+
         if (event.getChannel().equalsIgnoreCase(SignConstants.SIGN_CLUSTER_CHANNEL_NAME)) {
             if (SignConstants.SIGN_CHANNEL_UPDATE_SIGN_CONFIGURATION.equals(event.getMessage().toLowerCase())) {
                 SignConfiguration signConfiguration = event.getData().get("signConfiguration", SignConfiguration.TYPE);

@@ -2,7 +2,7 @@ package eu.cloudnetservice.cloudnet.ext.npcs.node;
 
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
-import de.dytanic.cloudnet.database.IDatabase;
+import de.dytanic.cloudnet.driver.database.Database;
 import de.dytanic.cloudnet.driver.module.ModuleLifeCycle;
 import de.dytanic.cloudnet.driver.module.ModuleTask;
 import de.dytanic.cloudnet.driver.util.DefaultModuleHelper;
@@ -76,20 +76,20 @@ public class CloudNetNPCModule extends NodeCloudNetModule {
     }
 
     public Set<CloudNPC> loadNPCs() {
-        IDatabase database = super.getDatabaseProvider().getDatabase(DefaultModuleHelper.DEFAULT_CONFIGURATION_DATABASE_NAME);
+        Database database = super.getDatabaseProvider().getDatabase(DefaultModuleHelper.DEFAULT_CONFIGURATION_DATABASE_NAME);
         JsonDocument document = database.get(NPC_DOCUMENT_NAME);
 
         return document == null ? new HashSet<>() : document.get(DOCUMENT_NPC_KEY, NPCConstants.NPC_COLLECTION_TYPE);
     }
 
     public void saveNPCs(Set<CloudNPC> npcs) {
-        IDatabase database = super.getDatabaseProvider().getDatabase(DefaultModuleHelper.DEFAULT_CONFIGURATION_DATABASE_NAME);
+        Database database = super.getDatabaseProvider().getDatabase(DefaultModuleHelper.DEFAULT_CONFIGURATION_DATABASE_NAME);
 
         database.update(NPC_DOCUMENT_NAME, new JsonDocument(DOCUMENT_NPC_KEY, npcs));
     }
 
     public NPCConfiguration getNPCConfiguration() {
-        return npcConfiguration;
+        return this.npcConfiguration;
     }
 
     public void setNPCConfiguration(NPCConfiguration npcConfiguration) {
@@ -97,7 +97,7 @@ public class CloudNetNPCModule extends NodeCloudNetModule {
     }
 
     public Set<CloudNPC> getCachedNPCs() {
-        return cachedNPCs;
+        return this.cachedNPCs;
     }
 
     public void setCachedNPCs(Set<CloudNPC> cachedNPCs) {

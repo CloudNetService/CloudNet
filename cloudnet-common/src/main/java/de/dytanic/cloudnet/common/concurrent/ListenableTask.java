@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 
@@ -35,26 +36,26 @@ public class ListenableTask<V> implements ITask<V> {
 
     @Override
     public Callable<V> getCallable() {
-        return callable;
+        return this.callable;
     }
 
     @Override
     public Collection<ITaskListener<V>> getListeners() {
-        return listeners;
+        return this.listeners;
     }
 
     public V getValue() {
-        return value;
+        return this.value;
     }
 
     @Override
     public boolean isDone() {
-        return done;
+        return this.done;
     }
 
     @Override
     public boolean isCancelled() {
-        return cancelled;
+        return this.cancelled;
     }
 
     @Override
@@ -64,7 +65,7 @@ public class ListenableTask<V> implements ITask<V> {
             return this;
         }
 
-        initListenersCollectionIfNotExists();
+        this.initListenersCollectionIfNotExists();
 
         this.listeners.add(listener);
 
@@ -87,7 +88,7 @@ public class ListenableTask<V> implements ITask<V> {
 
     @Override
     public V getDef(V def) {
-        return get(5, TimeUnit.SECONDS, def);
+        return this.get(5, TimeUnit.SECONDS, def);
     }
 
     @Override
@@ -95,7 +96,7 @@ public class ListenableTask<V> implements ITask<V> {
         Preconditions.checkNotNull(timeUnit);
 
         try {
-            return get(time, timeUnit);
+            return this.get(time, timeUnit);
         } catch (Throwable ignored) {
             return def;
         }
@@ -110,29 +111,33 @@ public class ListenableTask<V> implements ITask<V> {
     @Override
     public V get() throws InterruptedException {
         synchronized (this) {
-            if (!isDone()) {
+            if (!this.isDone()) {
                 this.wait();
             }
         }
 
-        return value;
+        return this.value;
     }
 
     @Override
-    public V get(long timeout, @NotNull TimeUnit unit) throws InterruptedException {
+    public V get(long timeout, @NotNull TimeUnit unit) throws InterruptedException, TimeoutException {
         synchronized (this) {
-            if (!isDone()) {
+            if (!this.isDone()) {
                 this.wait(unit.toMillis(timeout));
             }
         }
 
-        return value;
+        if (!this.isDone()) {
+            throw new TimeoutException("Task has not been called within the given time!");
+        }
+
+        return this.value;
     }
 
 
     @Override
     public V call() {
-        if (!isCancelled()) {
+        if (!this.isCancelled()) {
             try {
                 this.value = this.callable.call();
             } catch (Throwable throwable) {
@@ -189,7 +194,7 @@ public class ListenableTask<V> implements ITask<V> {
         ListenableTask<T> task = new ListenableTask<>(reference::get);
 
         this.onComplete(v -> {
-            reference.set(function.apply(v));
+            reference.set(function == null ? null : function.apply(v));
             task.call();
         });
         this.onCancelled(viTask -> {

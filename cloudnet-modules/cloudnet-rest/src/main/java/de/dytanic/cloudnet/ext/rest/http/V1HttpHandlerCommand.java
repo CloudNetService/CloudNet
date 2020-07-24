@@ -29,9 +29,9 @@ public final class V1HttpHandlerCommand extends V1HttpHandler {
         IPermissionUser permissionUser = HTTP_SESSION.getUser(context);
 
         if (permissionUser != null) {
-            IPermissionUserCommandSender commandSender = new DefaultPermissionUserCommandSender(permissionUser, getCloudNet().getPermissionManagement());
+            IPermissionUserCommandSender commandSender = new DefaultPermissionUserCommandSender(permissionUser, this.getCloudNet().getPermissionManagement());
 
-            if (getCloudNet().getCommandMap().dispatchCommand(commandSender, commandLine)) {
+            if (this.getCloudNet().getCommandMap().dispatchCommand(commandSender, commandLine)) {
                 context
                         .response()
                         .body(new JsonDocument("receivedMessages", commandSender.getWrittenMessages().toArray(new String[0])).toByteArray())

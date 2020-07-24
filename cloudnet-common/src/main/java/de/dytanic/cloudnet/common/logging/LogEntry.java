@@ -60,26 +60,26 @@ public class LogEntry {
     }
 
     public long getTimeStamp() {
-        return timeStamp;
+        return this.timeStamp;
     }
 
     public Class<?> getClazz() {
-        return clazz;
+        return this.clazz;
     }
 
     public String[] getMessages() {
-        return messages;
+        return this.messages;
     }
 
     public LogLevel getLogLevel() {
-        return logLevel;
+        return this.logLevel;
     }
 
     public Throwable getThrowable() {
-        return throwable;
+        return this.throwable;
     }
 
     public Thread getThread() {
-        return thread;
+        return this.thread;
     }
 }

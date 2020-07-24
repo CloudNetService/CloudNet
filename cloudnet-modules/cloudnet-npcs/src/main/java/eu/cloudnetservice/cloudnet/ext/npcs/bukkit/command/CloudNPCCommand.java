@@ -226,7 +226,11 @@ public class CloudNPCCommand implements CommandExecutor, TabCompleter {
         Location location = player.getLocation();
 
         Optional<CloudNPC> optionalCloudNPC = this.npcManagement.getCloudNPCS().stream()
-                .filter(cloudNPC -> this.npcManagement.toLocation(cloudNPC.getPosition()).distance(location) <= 5D)
+                .filter(cloudNPC -> {
+                    Location npcLocation = this.npcManagement.toLocation(cloudNPC.getPosition());
+
+                    return Objects.equals(npcLocation.getWorld(), player.getWorld()) && npcLocation.distance(location) <= 5D;
+                })
                 .min(Comparator.comparingDouble(cloudNPC -> this.npcManagement.toLocation(cloudNPC.getPosition()).distance(location)));
 
         if (!optionalCloudNPC.isPresent()) {

@@ -46,7 +46,7 @@ public final class BridgeConfiguration extends BasicJsonDocPropertyable {
     }
 
     public boolean isOnlyProxyProtection() {
-        return onlyProxyProtection;
+        return this.onlyProxyProtection;
     }
 
     public void setOnlyProxyProtection(boolean onlyProxyProtection) {

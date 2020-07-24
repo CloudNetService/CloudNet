@@ -286,7 +286,7 @@ public class SFTPClient implements Closeable {
                             String path = remotePath + "/" + localPath.relativize(dir).toString();
                             path = path.replace("\\", "/");
 
-                            createDirectories(path);
+                            SFTPClient.this.createDirectories(path);
                             return FileVisitResult.CONTINUE;
                         }
 

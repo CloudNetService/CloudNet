@@ -42,6 +42,10 @@ public class BridgeProxyHelper {
         SERVICE_CACHE.put(serviceInfoSnapshot.getName(), serviceInfoSnapshot);
     }
 
+    public static void removeCachedServiceInfoSnapshot(ServiceInfoSnapshot serviceInfoSnapshot) {
+        SERVICE_CACHE.remove(serviceInfoSnapshot.getName());
+    }
+
     public static void handleConnectionFailed(UUID uniqueId, String serviceName) {
         if (PROFILES.containsKey(uniqueId)) {
             PROFILES.get(uniqueId).addKick(serviceName);
@@ -83,7 +87,7 @@ public class BridgeProxyHelper {
 
                 .flatMap(proxyFallback -> getCachedServiceInfoSnapshots(proxyFallback.getTask()).map(serviceInfoSnapshot -> new PlayerFallback(proxyFallback.getPriority(), serviceInfoSnapshot)))
 
-                .filter(fallback -> fallback.getTarget().getProperty(BridgeServiceProperty.IS_ONLINE).orElse(false))
+                .filter(fallback -> fallback.getTarget().isConnected() && fallback.getTarget().getProperty(BridgeServiceProperty.IS_ONLINE).orElse(false))
                 .filter(fallback -> !fallback.getTarget().getName().equals(currentServer))
                 .filter(fallback -> profile.canConnect(fallback.getTarget()))
 

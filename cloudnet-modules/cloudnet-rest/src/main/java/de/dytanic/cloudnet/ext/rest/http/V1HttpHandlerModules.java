@@ -39,17 +39,17 @@ public final class V1HttpHandlerModules extends V1HttpHandler {
                             .map(IModuleWrapper::getModuleConfiguration)
                             .filter(moduleConfiguration -> {
                                 if (context.request().queryParameters().containsKey("group") &&
-                                        !containsStringElementInCollection(context.request().queryParameters().get("group"), moduleConfiguration.getGroup())) {
+                                        !this.containsStringElementInCollection(context.request().queryParameters().get("group"), moduleConfiguration.getGroup())) {
                                     return false;
                                 }
 
                                 if (context.request().queryParameters().containsKey("name") &&
-                                        !containsStringElementInCollection(context.request().queryParameters().get("name"), moduleConfiguration.getName())) {
+                                        !this.containsStringElementInCollection(context.request().queryParameters().get("name"), moduleConfiguration.getName())) {
                                     return false;
                                 }
 
                                 return !context.request().queryParameters().containsKey("version") ||
-                                        containsStringElementInCollection(context.request().queryParameters().get("version"), moduleConfiguration.getVersion());
+                                        this.containsStringElementInCollection(context.request().queryParameters().get("version"), moduleConfiguration.getVersion());
                             }).collect(Collectors.toList())))
                     .context()
                     .closeAfter(true)

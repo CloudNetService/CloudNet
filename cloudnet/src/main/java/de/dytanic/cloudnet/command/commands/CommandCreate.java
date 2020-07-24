@@ -92,6 +92,7 @@ public class CommandCreate extends SubCommandHandler {
                                                 new ProcessConfiguration(
                                                         environment,
                                                         environment.isMinecraftProxy() ? 256 : 512,
+                                                        new ArrayList<>(),
                                                         new ArrayList<>()
                                                 ),
                                                 environment.getDefaultStartPort()
@@ -196,7 +197,10 @@ public class CommandCreate extends SubCommandHandler {
                                     Integer.parseInt(properties.get("memory")) : processConfiguration.getMaxHeapMemorySize(),
                             new ArrayList<>(properties.containsKey("jvmOptions") ?
                                     Arrays.asList(properties.get("jvmOptions").split(";")) :
-                                    processConfiguration.getJvmOptions())
+                                    processConfiguration.getJvmOptions()),
+                            new ArrayList<>(properties.containsKey("processParameters") ?
+                                    Arrays.asList(properties.get("processParameters").split(";")) :
+                                    processConfiguration.getProcessParameters())
                     ),
                     finalStartPort,
                     0

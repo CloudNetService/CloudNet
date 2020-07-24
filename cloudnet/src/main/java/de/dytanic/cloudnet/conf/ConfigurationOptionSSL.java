@@ -27,10 +27,10 @@ public class ConfigurationOptionSSL {
 
     public SSLConfiguration toSslConfiguration() {
         return new SSLConfiguration(
-                clientAuth,
-                trustCertificatePath == null ? null : new File(trustCertificatePath),
-                certificatePath == null ? null : new File(certificatePath),
-                privateKeyPath == null ? null : new File(privateKeyPath)
+                this.clientAuth,
+                this.trustCertificatePath == null ? null : new File(this.trustCertificatePath),
+                this.certificatePath == null ? null : new File(this.certificatePath),
+                this.privateKeyPath == null ? null : new File(this.privateKeyPath)
         );
     }
 

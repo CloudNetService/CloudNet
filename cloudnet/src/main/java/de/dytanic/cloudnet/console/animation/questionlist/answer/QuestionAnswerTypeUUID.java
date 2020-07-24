@@ -10,7 +10,7 @@ public class QuestionAnswerTypeUUID implements QuestionAnswerType<UUID> {
 
     @Override
     public boolean isValidInput(String input) {
-        return parse(input) != null;
+        return this.parse(input) != null;
     }
 
     @Override

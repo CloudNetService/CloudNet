@@ -25,19 +25,19 @@ public class ServiceVersionType {
     }
 
     public String getName() {
-        return name;
+        return this.name;
     }
 
     public ServiceEnvironment getTargetEnvironment() {
-        return targetEnvironment;
+        return this.targetEnvironment;
     }
 
     public InstallerType getInstallerType() {
-        return installerType;
+        return this.installerType;
     }
 
     public Collection<ServiceVersion> getVersions() {
-        return versions;
+        return this.versions;
     }
 
     public enum InstallerType {

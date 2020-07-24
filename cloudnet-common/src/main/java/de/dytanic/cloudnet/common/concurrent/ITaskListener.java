@@ -11,7 +11,9 @@ public interface ITaskListener<T> {
     /**
      * An default implementation that prints an error into the System.err stream, if the
      * operation wasn't successful
+     * @deprecated use {@link ITask#fireExceptionOnFailure()} instead
      */
+    @Deprecated
     ITaskListener FIRE_EXCEPTION_ON_FAILURE = new ITaskListener() {
         @Override
         public void onFailure(ITask task, Throwable th) {

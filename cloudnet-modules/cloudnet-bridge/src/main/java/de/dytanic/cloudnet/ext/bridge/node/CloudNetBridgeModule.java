@@ -55,7 +55,7 @@ public final class CloudNetBridgeModule extends NodeCloudNetModule {
 
         this.getModuleWrapper().getDataFolder().mkdirs();
 
-        this.bridgeConfiguration = getConfig().get("config", BridgeConfiguration.TYPE, new BridgeConfiguration(
+        this.bridgeConfiguration = this.getConfig().get("config", BridgeConfiguration.TYPE, new BridgeConfiguration(
                 "&7Cloud &8| &b",
                 true,
                 new ArrayList<>(),
@@ -75,8 +75,8 @@ public final class CloudNetBridgeModule extends NodeCloudNetModule {
             this.bridgeConfiguration.setMessages(new HashMap<>(DEFAULT_MESSAGES));
         }
 
-        getConfig().append("config", this.bridgeConfiguration);
-        saveConfig();
+        this.getConfig().append("config", this.bridgeConfiguration);
+        this.saveConfig();
     }
 
     public ProxyFallbackConfiguration createDefaultFallbackConfiguration(String targetGroup) {
@@ -88,20 +88,20 @@ public final class CloudNetBridgeModule extends NodeCloudNetModule {
     }
 
     public void writeConfiguration(BridgeConfiguration bridgeConfiguration) {
-        getConfig().append("config", bridgeConfiguration);
-        saveConfig();
+        this.getConfig().append("config", bridgeConfiguration);
+        this.saveConfig();
     }
 
     @ModuleTask(order = 36, event = ModuleLifeCycle.STARTED)
     public void initNodePlayerManager() {
         super.getCloudNet().getServicesRegistry().registerService(IPlayerManager.class, "NodePlayerManager", this.nodePlayerManager);
 
-        registerListener(new PlayerManagerListener(this.nodePlayerManager));
+        this.registerListener(new PlayerManagerListener(this.nodePlayerManager));
     }
 
     @ModuleTask(order = 35, event = ModuleLifeCycle.STARTED)
     public void registerHandlers() {
-        getHttpServer().registerHandler("/api/v1/modules/bridge/config",
+        this.getHttpServer().registerHandler("/api/v1/modules/bridge/config",
                 new V1BridgeConfigurationHttpHandler("cloudnet.http.v1.modules.bridge.config"));
     }
 
@@ -120,21 +120,21 @@ public final class CloudNetBridgeModule extends NodeCloudNetModule {
 
     @ModuleTask(order = 16, event = ModuleLifeCycle.STARTED)
     public void registerCommands() {
-        registerCommand(new CommandBridge());
-        registerCommand(new CommandPlayers(this.nodePlayerManager));
+        this.registerCommand(new CommandBridge());
+        this.registerCommand(new CommandPlayers(this.nodePlayerManager));
     }
 
     @ModuleTask(order = 8, event = ModuleLifeCycle.STARTED)
     public void initListeners() {
-        registerListeners(new NetworkListenerRegisterListener(), new BridgeTaskSetupListener(), new IncludePluginListener(),
+        this.registerListeners(new NetworkListenerRegisterListener(), new BridgeTaskSetupListener(), new IncludePluginListener(),
                 new NodeCustomChannelMessageListener(this.nodePlayerManager), new BridgePlayerDisconnectListener(this.nodePlayerManager),
                 new BridgeDefaultConfigurationListener(), new BridgeServiceListCommandListener(), new TaskConfigListener());
     }
 
     @Override
     public JsonDocument reloadConfig() {
-        getModuleWrapper().getDataFolder().mkdirs();
-        File file = new File(getModuleWrapper().getDataFolder(), "config.json");
+        this.getModuleWrapper().getDataFolder().mkdirs();
+        File file = new File(this.getModuleWrapper().getDataFolder(), "config.json");
 
         if (!file.exists()) {
             this.createConfiguration();

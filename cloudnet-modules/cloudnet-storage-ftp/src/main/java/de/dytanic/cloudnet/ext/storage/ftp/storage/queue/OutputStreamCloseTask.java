@@ -11,6 +11,7 @@ import java.io.OutputStream;
 import java.util.Collection;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 
 @NotNull
 public class OutputStreamCloseTask extends OutputStream implements ITask<OutputStream> {
@@ -80,6 +81,11 @@ public class OutputStreamCloseTask extends OutputStream implements ITask<OutputS
     @Override
     public OutputStream get(long time, TimeUnit timeUnit, OutputStream def) {
         return this.get();
+    }
+
+    @Override
+    public <T> ITask<T> map(Function<OutputStream, T> mapper) {
+        throw new UnsupportedOperationException();
     }
 
     @Override

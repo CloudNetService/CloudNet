@@ -27,13 +27,13 @@ public final class CommandMe extends CommandDefault {
                         + " " + CommandMe.class.getPackage().getImplementationVersion() + " by Dytanic & the CloudNet Community",
                 "Discord: https://discord.gg/CPCWr7w",
                 " ",
-                "ClusterId: " + getCloudNet().getConfig().getClusterConfig().getClusterId(),
-                "NodeId: " + getCloudNet().getConfig().getIdentity().getUniqueId(),
+                "ClusterId: " + this.getCloudNet().getConfig().getClusterConfig().getClusterId(),
+                "NodeId: " + this.getCloudNet().getConfig().getIdentity().getUniqueId(),
                 "CPU usage: (P/S) " + CPUUsageResolver.CPU_USAGE_OUTPUT_FORMAT.format(CPUUsageResolver.getProcessCPUUsage()) + "/" +
                         CPUUsageResolver.CPU_USAGE_OUTPUT_FORMAT.format(CPUUsageResolver.getSystemCPUUsage()) + "/100%",
-                "Node services memory allocation: " + getCloudNet().getCurrentNetworkClusterNodeInfoSnapshot().getUsedMemory() + "/" +
-                        getCloudNet().getCurrentNetworkClusterNodeInfoSnapshot().getReservedMemory() + "/" +
-                        getCloudNet().getCurrentNetworkClusterNodeInfoSnapshot().getMaxMemory() + "MB",
+                "Node services memory allocation: " + this.getCloudNet().getCurrentNetworkClusterNodeInfoSnapshot().getUsedMemory() + "/" +
+                        this.getCloudNet().getCurrentNetworkClusterNodeInfoSnapshot().getReservedMemory() + "/" +
+                        this.getCloudNet().getCurrentNetworkClusterNodeInfoSnapshot().getMaxMemory() + "MB",
                 "Threads: " + Thread.getAllStackTraces().keySet().size(),
                 "Heap usage: " + (memoryMXBean.getHeapMemoryUsage().getUsed() / 1048576) + "/" + (memoryMXBean.getHeapMemoryUsage().getMax() / 1048576) + "MB",
                 "Loaded classes: " + ManagementFactory.getClassLoadingMXBean().getLoadedClassCount(),

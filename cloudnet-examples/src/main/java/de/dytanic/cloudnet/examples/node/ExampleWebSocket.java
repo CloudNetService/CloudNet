@@ -20,7 +20,7 @@ public class ExampleWebSocket {
 
     @EventListener
     public void handlePostEventsToWebSocketChannels(Event event) {
-        for (IWebSocketChannel channel : channels) {
+        for (IWebSocketChannel channel : this.channels) {
             channel.sendWebSocketFrame(WebSocketFrameType.TEXT, GsonUtil.GSON.toJson(event));
         }
     }
@@ -29,7 +29,7 @@ public class ExampleWebSocket {
         CloudNet.getInstance().getHttpServer().registerHandler("/http_websocket_example_path", (path, context) -> {
             IWebSocketChannel channel = context.upgrade(); //upgraded context to WebSocket
 
-            channels.add(channel);
+            this.channels.add(channel);
 
             channel.addListener(new IWebSocketListener() { //Add a listener for received WebSocket channel messages and closing
                 @Override
@@ -49,11 +49,11 @@ public class ExampleWebSocket {
                 @Override
                 public void handleClose(IWebSocketChannel channel, AtomicInteger statusCode, AtomicReference<String> reasonText) //handle the closing output
                 {
-                    if (!channels.contains(channel)) {
+                    if (!ExampleWebSocket.this.channels.contains(channel)) {
                         statusCode.set(500);
                     }
 
-                    channels.remove(channel);
+                    ExampleWebSocket.this.channels.remove(channel);
 
                     System.out.println("I close");
                 }

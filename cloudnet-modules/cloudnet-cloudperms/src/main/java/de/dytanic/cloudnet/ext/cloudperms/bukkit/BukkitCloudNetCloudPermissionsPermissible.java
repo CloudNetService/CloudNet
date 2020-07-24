@@ -1,9 +1,9 @@
 package de.dytanic.cloudnet.ext.cloudperms.bukkit;
 
 import de.dytanic.cloudnet.driver.CloudNetDriver;
+import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
 import de.dytanic.cloudnet.driver.permission.IPermissionUser;
 import de.dytanic.cloudnet.driver.permission.PermissionCheckResult;
-import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsManagement;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissibleBase;
@@ -20,9 +20,9 @@ import java.util.function.Predicate;
 public final class BukkitCloudNetCloudPermissionsPermissible extends PermissibleBase {
 
     private final Player player;
-    private final CloudPermissionsManagement permissionsManagement;
+    private final IPermissionManagement permissionsManagement;
 
-    public BukkitCloudNetCloudPermissionsPermissible(Player player, CloudPermissionsManagement permissionsManagement) {
+    public BukkitCloudNetCloudPermissionsPermissible(Player player, IPermissionManagement permissionsManagement) {
         super(player);
 
         this.player = player;
@@ -60,17 +60,17 @@ public final class BukkitCloudNetCloudPermissionsPermissible extends Permissible
 
     @Override
     public boolean isPermissionSet(@NotNull String name) {
-        return hasPermission(name);
+        return this.hasPermission(name);
     }
 
     @Override
     public boolean isPermissionSet(Permission perm) {
-        return isPermissionSet(perm.getName());
+        return this.isPermissionSet(perm.getName());
     }
 
     @Override
     public boolean hasPermission(Permission perm) {
-        return hasPermission(perm.getName());
+        return this.hasPermission(perm.getName());
     }
 
     @Override
@@ -91,7 +91,7 @@ public final class BukkitCloudNetCloudPermissionsPermissible extends Permissible
     }
 
     private boolean testDefaultPermission(IPermissionUser permissionUser, String name) {
-        return this.permissionsManagement.getPlayerPermissionResult(permissionUser, name) != PermissionCheckResult.FORBIDDEN;
+        return this.permissionsManagement.getPermissionResult(permissionUser, name) != PermissionCheckResult.FORBIDDEN;
     }
 
     private boolean testParents(String inName, Predicate<Permission> parentAcceptor) {
@@ -129,7 +129,7 @@ public final class BukkitCloudNetCloudPermissionsPermissible extends Permissible
 
     private boolean checkPermission(IPermissionUser permissionUser, String name) {
         return this.getDefaultPermissions().stream().anyMatch(permission -> permission.getName().equalsIgnoreCase(name) && this.testDefaultPermission(permissionUser, name)) ||
-                this.permissionsManagement.hasPlayerPermission(permissionUser, name);
+                this.permissionsManagement.hasPermission(permissionUser, name);
     }
 
     public Player getPlayer() {

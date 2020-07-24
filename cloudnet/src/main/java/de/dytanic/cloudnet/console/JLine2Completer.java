@@ -22,11 +22,13 @@ public class JLine2Completer implements Completer {
     public int complete(String buffer, int cursor, List<CharSequence> candidates) {
         String[] args = buffer.split(" ");
         String testString = args.length <= 1 || buffer.endsWith(" ") ? "" : args[args.length - 1].toLowerCase().trim();
-        if (buffer.endsWith(" ")) {
-            args = Arrays.copyOfRange(args, 1, args.length + 1);
-            args[args.length - 1] = "";
-        } else {
-            args = Arrays.copyOfRange(args, 1, args.length);
+        if (args.length > 1) {
+            if (buffer.endsWith(" ")) {
+                args = Arrays.copyOfRange(args, 1, args.length + 1);
+                args[args.length - 1] = "";
+            } else {
+                args = Arrays.copyOfRange(args, 1, args.length);
+            }
         }
 
         Collection<String> responses = new ArrayList<>();

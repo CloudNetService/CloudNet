@@ -22,15 +22,15 @@ public final class V1HttpHandlerLocalTemplate extends V1HttpHandler {
     @Override
     public void handleGet(String path, IHttpContext context) {
         if (context.request().pathParameters().containsKey("prefix") && context.request().pathParameters().containsKey("name")) {
-            ServiceTemplate serviceTemplate = createLocalTemplate(context.request().pathParameters().get("prefix"), context.request().pathParameters().get("name"));
+            ServiceTemplate serviceTemplate = this.createLocalTemplate(context.request().pathParameters().get("prefix"), context.request().pathParameters().get("name"));
 
-            if (getStorage().has(serviceTemplate)) {
+            if (this.getStorage().has(serviceTemplate)) {
                 context
                         .response()
                         .statusCode(HttpResponseCode.HTTP_OK)
                         .header("Content-Type", "application/octet-stream")
                         .header("Content-Disposition", "attachment; filename=\"" + serviceTemplate.getPrefix() + "." + serviceTemplate.getName() + ".zip\"")
-                        .body(getStorage().toZipByteArray(serviceTemplate))
+                        .body(this.getStorage().toZipByteArray(serviceTemplate))
                         .context()
                         .closeAfter(true)
                         .cancelNext()
@@ -52,7 +52,7 @@ public final class V1HttpHandlerLocalTemplate extends V1HttpHandler {
                 .response()
                 .statusCode(HttpResponseCode.HTTP_OK)
                 .header("Content-Type", "application/json")
-                .body(GSON.toJson(getStorage().getTemplates()))
+                .body(GSON.toJson(this.getStorage().getTemplates()))
                 .context()
                 .closeAfter(true)
                 .cancelNext()
@@ -62,16 +62,16 @@ public final class V1HttpHandlerLocalTemplate extends V1HttpHandler {
     @Override
     public void handlePost(String path, IHttpContext context) {
         if (context.request().pathParameters().containsKey("prefix") && context.request().pathParameters().containsKey("name")) {
-            ServiceTemplate serviceTemplate = createLocalTemplate(context.request().pathParameters().get("prefix"), context.request().pathParameters().get("name"));
-            getStorage().deploy(context.request().body(), serviceTemplate);
+            ServiceTemplate serviceTemplate = this.createLocalTemplate(context.request().pathParameters().get("prefix"), context.request().pathParameters().get("name"));
+            this.getStorage().deploy(context.request().body(), serviceTemplate);
         }
     }
 
     @Override
     public void handleDelete(String path, IHttpContext context) {
         if (context.request().pathParameters().containsKey("prefix") && context.request().pathParameters().containsKey("name")) {
-            ServiceTemplate serviceTemplate = createLocalTemplate(context.request().pathParameters().get("prefix"), context.request().pathParameters().get("name"));
-            getStorage().delete(serviceTemplate);
+            ServiceTemplate serviceTemplate = this.createLocalTemplate(context.request().pathParameters().get("prefix"), context.request().pathParameters().get("name"));
+            this.getStorage().delete(serviceTemplate);
 
             context
                     .response()

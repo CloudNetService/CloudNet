@@ -11,7 +11,7 @@ import java.util.UUID;
 
 public class BungeeLabyModManagement extends AbstractLabyModManagement {
 
-    private ProxyServer proxyServer;
+    private final ProxyServer proxyServer;
 
     public BungeeLabyModManagement(ProxyServer proxyServer) {
         super(CloudNetDriver.getInstance().getServicesRegistry().getFirstService(IPlayerManager.class));

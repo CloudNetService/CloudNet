@@ -9,7 +9,7 @@ public class QuestionAnswerTypeHostAndPort implements QuestionAnswerType<HostAnd
 
     @Override
     public boolean isValidInput(String input) {
-        return !input.isEmpty() && parse(input) != null;
+        return !input.isEmpty() && this.parse(input) != null;
     }
 
     @Override

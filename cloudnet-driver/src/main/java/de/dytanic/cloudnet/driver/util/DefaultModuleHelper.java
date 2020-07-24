@@ -1,7 +1,6 @@
 package de.dytanic.cloudnet.driver.util;
 
 import com.google.common.base.Preconditions;
-import de.dytanic.cloudnet.common.annotation.UnsafeClass;
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.common.unsafe.ResourceResolver;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
@@ -17,7 +16,6 @@ import java.nio.file.Path;
 /**
  * This class is for utility methods for the base modules in this multi module project
  */
-@UnsafeClass
 public final class DefaultModuleHelper {
 
     public static final String DEFAULT_CONFIGURATION_DATABASE_NAME = "cloudNet_module_configuration";

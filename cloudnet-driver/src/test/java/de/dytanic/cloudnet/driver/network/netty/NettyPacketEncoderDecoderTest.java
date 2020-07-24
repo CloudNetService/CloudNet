@@ -40,6 +40,6 @@ public class NettyPacketEncoderDecoderTest {
         packet = (Packet) packets.get(0);
         Assert.assertTrue(packet.getHeader().getBoolean("val"));
 
-        Assert.assertEquals("Test_Nachricht", new String(((Packet) packets.get(1)).getBody(), StandardCharsets.UTF_8));
+        Assert.assertEquals("Test_Nachricht", new String(((Packet) packets.get(1)).getBodyAsArray(), StandardCharsets.UTF_8));
     }
 }

@@ -17,7 +17,7 @@ public final class BukkitCloudNetSignsPlugin extends JavaPlugin {
     @Override
     public void onEnable() {
         this.signManagement = new BukkitSignManagement(this);
-        CloudNetDriver.getInstance().getServicesRegistry().registerService(AbstractSignManagement.class, "BukkitSignManagement", signManagement);
+        CloudNetDriver.getInstance().getServicesRegistry().registerService(AbstractSignManagement.class, "BukkitSignManagement", this.signManagement);
 
         this.initListeners();
     }

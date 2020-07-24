@@ -27,12 +27,12 @@ public class BukkitCloudSignInteractEvent extends PlayerEvent implements Cancell
 
     @NotNull
     public Sign getClickedSign() {
-        return clickedSign;
+        return this.clickedSign;
     }
 
     @Nullable
     public String getTargetServer() {
-        return targetServer;
+        return this.targetServer;
     }
 
     public void setTargetServer(String targetServer) {
@@ -47,12 +47,12 @@ public class BukkitCloudSignInteractEvent extends PlayerEvent implements Cancell
 
     @Override
     public boolean isCancelled() {
-        return cancelled;
+        return this.cancelled;
     }
 
     @Override
     public void setCancelled(boolean cancel) {
-        cancelled = cancel;
+        this.cancelled = cancel;
     }
 
 }

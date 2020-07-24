@@ -73,11 +73,11 @@ public final class ApplicationPreStartEvent extends DriverEvent {
      */
     @Deprecated
     public Manifest getManifest() {
-        return manifest;
+        return this.manifest;
     }
 
     public File getApplicationFile() {
-        return applicationFile;
+        return this.applicationFile;
     }
 
     public Collection<String> getArguments() {

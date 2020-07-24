@@ -5,7 +5,6 @@ import cn.nukkit.event.Event;
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
 import de.dytanic.cloudnet.driver.event.events.network.NetworkChannelPacketReceiveEvent;
-import de.dytanic.cloudnet.driver.event.events.network.NetworkClusterNodeInfoUpdateEvent;
 import de.dytanic.cloudnet.driver.event.events.service.*;
 import de.dytanic.cloudnet.ext.bridge.event.*;
 import de.dytanic.cloudnet.ext.bridge.nukkit.NukkitCloudNetHelper;
@@ -57,12 +56,7 @@ public final class NukkitCloudNetListener {
 
     @EventListener
     public void handle(ChannelMessageReceiveEvent event) {
-        this.nukkitCall(new NukkitChannelMessageReceiveEvent(event.getChannel(), event.getMessage(), event.getData()));
-    }
-
-    @EventListener
-    public void handle(NetworkClusterNodeInfoUpdateEvent event) {
-        this.nukkitCall(new NukkitNetworkClusterNodeInfoUpdateEvent(event.getNetworkClusterNodeInfoSnapshot()));
+        this.nukkitCall(new NukkitChannelMessageReceiveEvent(event));
     }
 
     @EventListener

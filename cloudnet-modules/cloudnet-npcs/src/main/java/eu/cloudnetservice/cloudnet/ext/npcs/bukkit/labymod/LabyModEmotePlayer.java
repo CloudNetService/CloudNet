@@ -86,17 +86,19 @@ public class LabyModEmotePlayer implements Listener {
     public void handleJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
 
-        byte[] channelMessage = this.createChannelMessage(
-                this.abstractNPCManagement
-                        .getOwnNPCConfigurationEntry()
-                        .getLabyModEmotes()
-                        .getOnJoinEmoteIds()
-        );
+        int[] onJoinEmoteIds = this.abstractNPCManagement
+                .getOwnNPCConfigurationEntry()
+                .getLabyModEmotes()
+                .getOnJoinEmoteIds();
 
-        Bukkit.getScheduler().runTaskLater(this.javaPlugin, () ->
-                        this.playerManager.getPlayerExecutor(player.getUniqueId()).sendPluginMessage("LMC", channelMessage),
-                40
-        );
+        if (onJoinEmoteIds.length > 0) {
+            byte[] channelMessage = this.createChannelMessage(onJoinEmoteIds);
+
+            Bukkit.getScheduler().runTaskLater(this.javaPlugin, () ->
+                            this.playerManager.getPlayerExecutor(player.getUniqueId()).sendPluginMessage("LMC", channelMessage),
+                    40
+            );
+        }
     }
 
 }

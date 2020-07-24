@@ -64,31 +64,31 @@ final class NettyHttpServerContext implements IHttpContext {
 
     @Override
     public IWebSocketChannel upgrade() {
-        if (webSocketServerChannel == null) {
-            cancelSendResponse = true;
+        if (this.webSocketServerChannel == null) {
+            this.cancelSendResponse = true;
             WebSocketServerHandshakerFactory webSocketServerHandshakerFactory = new WebSocketServerHandshakerFactory(
-                    httpRequest.uri(),
+                    this.httpRequest.uri(),
                     null,
                     false
             );
 
-            nettyChannel.pipeline().remove("http-server-handler");
+            this.nettyChannel.pipeline().remove("http-server-handler");
 
-            WebSocketServerHandshaker webSocketServerHandshaker = webSocketServerHandshakerFactory.newHandshaker(httpRequest);
-            webSocketServerHandshaker.handshake(nettyChannel, httpRequest);
+            WebSocketServerHandshaker webSocketServerHandshaker = webSocketServerHandshakerFactory.newHandshaker(this.httpRequest);
+            webSocketServerHandshaker.handshake(this.nettyChannel, this.httpRequest);
 
-            webSocketServerChannel = new NettyWebSocketServerChannel(channel, nettyChannel, webSocketServerHandshaker);
-            nettyChannel.pipeline().addLast("websocket-server-channel-handler", new NettyWebSocketServerChannelHandler(webSocketServerChannel));
+            this.webSocketServerChannel = new NettyWebSocketServerChannel(this.channel, this.nettyChannel, webSocketServerHandshaker);
+            this.nettyChannel.pipeline().addLast("websocket-server-channel-handler", new NettyWebSocketServerChannelHandler(this.webSocketServerChannel));
 
-            closeAfter(false);
+            this.closeAfter(false);
         }
 
-        return webSocketServerChannel;
+        return this.webSocketServerChannel;
     }
 
     @Override
     public IWebSocketChannel webSocketChanel() {
-        return webSocketServerChannel;
+        return this.webSocketServerChannel;
     }
 
     @Override
@@ -129,7 +129,7 @@ final class NettyHttpServerContext implements IHttpContext {
 
     @Override
     public boolean closeAfter() {
-        return closeAfter;
+        return this.closeAfter;
     }
 
     @Override
@@ -166,7 +166,7 @@ final class NettyHttpServerContext implements IHttpContext {
     public IHttpContext addCookie(HttpCookie httpCookie) {
         Preconditions.checkNotNull(httpCookie);
 
-        HttpCookie cookie = cookie(httpCookie.getName());
+        HttpCookie cookie = this.cookie(httpCookie.getName());
 
         if (cookie != null) {
             this.removeCookie(cookie.getName());
@@ -181,7 +181,7 @@ final class NettyHttpServerContext implements IHttpContext {
     public IHttpContext removeCookie(String name) {
         Preconditions.checkNotNull(name);
 
-        HttpCookie cookie = cookie(name);
+        HttpCookie cookie = this.cookie(name);
         if (cookie != null) {
             cookie.setMaxAge(-1);
         }
@@ -198,7 +198,7 @@ final class NettyHttpServerContext implements IHttpContext {
     }
 
     private void updateHeaderResponse() {
-        if (cookies.isEmpty()) {
+        if (this.cookies.isEmpty()) {
             this.httpServerResponse.httpResponse.headers().remove("Set-Cookie");
         } else {
             this.httpServerResponse.httpResponse.headers()

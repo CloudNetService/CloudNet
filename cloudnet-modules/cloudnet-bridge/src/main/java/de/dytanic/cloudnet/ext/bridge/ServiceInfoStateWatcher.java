@@ -92,7 +92,8 @@ public abstract class ServiceInfoStateWatcher {
     }
 
     private ServiceInfoState fromServiceInfoSnapshot(@NotNull ServiceInfoSnapshot serviceInfoSnapshot) {
-        if (serviceInfoSnapshot.getLifeCycle() != ServiceLifeCycle.RUNNING || serviceInfoSnapshot.getProperty(BridgeServiceProperty.IS_IN_GAME).orElse(false)) {
+        if (serviceInfoSnapshot.getLifeCycle() != ServiceLifeCycle.RUNNING ||
+                serviceInfoSnapshot.getProperty(BridgeServiceProperty.IS_IN_GAME).orElse(false)) {
             return ServiceInfoState.STOPPED;
         }
 
@@ -112,8 +113,7 @@ public abstract class ServiceInfoStateWatcher {
             return ServiceInfoState.STARTING;
         }
 
-        if (serviceInfoSnapshot.isConnected() &&
-                serviceInfoSnapshot.getProperties().getBoolean("Online")) {
+        if (serviceInfoSnapshot.isConnected()) {
             return ServiceInfoState.ONLINE;
         } else {
             return ServiceInfoState.STOPPED;

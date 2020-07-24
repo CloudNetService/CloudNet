@@ -6,6 +6,7 @@ import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.network.http.HttpResponseCode;
 import de.dytanic.cloudnet.driver.network.http.IHttpContext;
 import de.dytanic.cloudnet.driver.service.ServiceTask;
+import de.dytanic.cloudnet.ext.rest.RestUtils;
 import de.dytanic.cloudnet.http.V1HttpHandler;
 
 import java.lang.reflect.Type;
@@ -48,7 +49,7 @@ public final class V1HttpHandlerTasks extends V1HttpHandler {
                     .header("Content-Type", "application/json")
                     .body(GSON.toJson(CloudNetDriver.getInstance().getServiceTaskProvider().getPermanentServiceTasks().stream()
                             .filter(serviceTask -> !context.request().queryParameters().containsKey("name") ||
-                                    containsStringElementInCollection(context.request().queryParameters().get("name"), serviceTask.getName()))
+                                    this.containsStringElementInCollection(context.request().queryParameters().get("name"), serviceTask.getName()))
                             .collect(Collectors.toList())))
                     .context()
                     .closeAfter(true)
@@ -62,7 +63,7 @@ public final class V1HttpHandlerTasks extends V1HttpHandler {
         ServiceTask serviceTask = GSON.fromJson(new String(context.request().body(), StandardCharsets.UTF_8), TYPE);
 
         if (serviceTask.getProcessConfiguration() == null || serviceTask.getName() == null) {
-            send400Response(context, "processConfiguration or serviceTask name not found");
+            this.send400Response(context, "processConfiguration or serviceTask name not found");
             return;
         }
 
@@ -74,17 +75,7 @@ public final class V1HttpHandlerTasks extends V1HttpHandler {
             serviceTask.setAssociatedNodes(new ArrayList<>());
         }
 
-        if (serviceTask.getTemplates() == null) {
-            serviceTask.setTemplates(new ArrayList<>());
-        }
-
-        if (serviceTask.getIncludes() == null) {
-            serviceTask.setIncludes(new ArrayList<>());
-        }
-
-        if (serviceTask.getDeployments() == null) {
-            serviceTask.setDeployments(new ArrayList<>());
-        }
+        RestUtils.replaceNulls(serviceTask);
 
         int status = !CloudNetDriver.getInstance().getServiceTaskProvider().isServiceTaskPresent(serviceTask.getName()) ?
                 HttpResponseCode.HTTP_OK
@@ -103,7 +94,7 @@ public final class V1HttpHandlerTasks extends V1HttpHandler {
     @Override
     public void handleDelete(String path, IHttpContext context) {
         if (!context.request().pathParameters().containsKey("name")) {
-            send400Response(context, "name parameter not found");
+            this.send400Response(context, "name parameter not found");
             return;
         }
 

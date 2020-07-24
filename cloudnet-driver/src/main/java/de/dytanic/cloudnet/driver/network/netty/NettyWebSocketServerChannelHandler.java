@@ -17,32 +17,32 @@ final class NettyWebSocketServerChannelHandler extends SimpleChannelInboundHandl
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, WebSocketFrame webSocketFrame) {
         if (webSocketFrame instanceof PingWebSocketFrame) {
-            invoke0(WebSocketFrameType.PING, webSocketFrame);
+            this.invoke0(WebSocketFrameType.PING, webSocketFrame);
         }
 
         if (webSocketFrame instanceof PongWebSocketFrame) {
-            invoke0(WebSocketFrameType.PONG, webSocketFrame);
+            this.invoke0(WebSocketFrameType.PONG, webSocketFrame);
         }
 
         if (webSocketFrame instanceof TextWebSocketFrame) {
-            invoke0(WebSocketFrameType.TEXT, webSocketFrame);
+            this.invoke0(WebSocketFrameType.TEXT, webSocketFrame);
         }
 
         if (webSocketFrame instanceof BinaryWebSocketFrame) {
-            invoke0(WebSocketFrameType.BINARY, webSocketFrame);
+            this.invoke0(WebSocketFrameType.BINARY, webSocketFrame);
         }
 
         if (webSocketFrame instanceof CloseWebSocketFrame) {
-            webSocketServerChannel.close(200, "client connection closed");
+            this.webSocketServerChannel.close(200, "client connection closed");
         }
     }
 
     private void invoke0(WebSocketFrameType type, WebSocketFrame webSocketFrame) {
-        byte[] bytes = readContentFromWebSocketFrame(webSocketFrame);
+        byte[] bytes = this.readContentFromWebSocketFrame(webSocketFrame);
 
-        for (IWebSocketListener listener : webSocketServerChannel.getListeners()) {
+        for (IWebSocketListener listener : this.webSocketServerChannel.getListeners()) {
             try {
-                listener.handle(webSocketServerChannel, type, bytes);
+                listener.handle(this.webSocketServerChannel, type, bytes);
             } catch (Exception exception) {
                 exception.printStackTrace();
             }

@@ -2,8 +2,6 @@ package de.dytanic.cloudnet.ext.database.mysql;
 
 import com.google.common.base.Preconditions;
 import com.zaxxer.hikari.HikariDataSource;
-import de.dytanic.cloudnet.common.collection.NetorHashMap;
-import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.concurrent.IThrowableCallback;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.database.IDatabase;
@@ -14,15 +12,16 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Random;
 import java.util.concurrent.ExecutorService;
 
 public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
 
     private static final long NEW_CREATION_DELAY = 600000;
 
-
-    protected final NetorHashMap<String, Long, MySQLDatabase> cachedDatabaseInstances = new NetorHashMap<>();
 
     protected final HikariDataSource hikariDataSource = new HikariDataSource();
 
@@ -67,22 +66,7 @@ public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
             this.cachedDatabaseInstances.add(name, System.currentTimeMillis() + NEW_CREATION_DELAY, new MySQLDatabase(this, name, super.executorService));
         }
 
-        return cachedDatabaseInstances.getSecond(name);
-    }
-
-    @Override
-    public boolean containsDatabase(String name) {
-        Preconditions.checkNotNull(name);
-
-        this.removedOutdatedEntries();
-
-        for (String database : this.getDatabaseNames()) {
-            if (database.equalsIgnoreCase(name)) {
-                return true;
-            }
-        }
-
-        return false;
+        return this.cachedDatabaseInstances.getSecond(name);
     }
 
     @Override
@@ -120,7 +104,7 @@ public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
 
     @Override
     public String getName() {
-        return config.getString("database");
+        return this.config.getString("database");
     }
 
     @Override
@@ -130,21 +114,8 @@ public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
         this.hikariDataSource.close();
     }
 
-
-    private void removedOutdatedEntries() {
-        for (Map.Entry<String, Pair<Long, MySQLDatabase>> entry : this.cachedDatabaseInstances.entrySet()) {
-            if (entry.getValue().getFirst() < System.currentTimeMillis()) {
-                this.cachedDatabaseInstances.remove(entry.getKey());
-            }
-        }
-    }
-
     public Connection getConnection() throws SQLException {
         return this.hikariDataSource.getConnection();
-    }
-
-    public NetorHashMap<String, Long, MySQLDatabase> getCachedDatabaseInstances() {
-        return this.cachedDatabaseInstances;
     }
 
     public HikariDataSource getHikariDataSource() {

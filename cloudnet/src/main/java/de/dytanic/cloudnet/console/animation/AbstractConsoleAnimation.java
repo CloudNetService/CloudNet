@@ -110,7 +110,7 @@ public abstract class AbstractConsoleAnimation implements Runnable {
     @Override
     public final void run() {
         this.startTime = System.currentTimeMillis();
-        while (!Thread.interrupted() && !handleTick()) {
+        while (!Thread.interrupted() && !this.handleTick()) {
             try {
                 Thread.sleep(this.updateInterval);
             } catch (InterruptedException exception) {
