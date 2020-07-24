@@ -345,16 +345,6 @@ public class JsonDocument implements IDocument<JsonDocument>, Cloneable {
     }
 
     @Override
-    public JsonDocument appendNull(String key) {
-        if (key == null) {
-            return this;
-        }
-
-        this.jsonObject.add(key, JsonNull.INSTANCE);
-        return this;
-    }
-
-    @Override
     public JsonDocument getDocument(String key) {
         if (!contains(key)) {
             return null;

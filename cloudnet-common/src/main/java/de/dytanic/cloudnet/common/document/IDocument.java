@@ -53,8 +53,6 @@ public interface IDocument<Document extends IDocument<?>> extends IJsonDocProper
 
     Document append(Document t);
 
-    Document appendNull(String key);
-
     Document getDocument(String key);
 
     int getInt(String key);
