@@ -10,7 +10,7 @@ public class TaskConfigListener {
     @EventListener
     public void handleTaskAdd(ServiceTaskAddEvent event) {
         ServiceTask serviceTask = event.getTask();
-        if (serviceTask.getProcessConfiguration().getEnvironment().isMinecraftJavaServer() && !serviceTask.getProperties().contains("requiredPermission")) {
+        if (serviceTask.getProcessConfiguration().getEnvironment().isMinecraftServer() && !serviceTask.getProperties().contains("requiredPermission")) {
             serviceTask.getProperties().appendNull("requiredPermission");
             CloudNet.getInstance().getCloudServiceManager().updatePermanentServiceTask(serviceTask);
         }
