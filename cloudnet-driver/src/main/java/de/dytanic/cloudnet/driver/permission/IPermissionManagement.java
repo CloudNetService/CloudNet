@@ -44,30 +44,35 @@ public interface IPermissionManagement {
 
     IPermissionGroup addGroup(@NotNull String role, int potency);
 
-    Collection<IPermissionGroup> getGroups(@Nullable IPermissionUser permissionUser);
+    @NotNull
+    Collection<IPermissionGroup> getGroups(@Nullable IPermissible permissible);
 
+    /**
+     * @deprecated Replace with {@link #getGroups(IPermissible)}
+     */
+    @Deprecated
     Collection<IPermissionGroup> getExtendedGroups(@Nullable IPermissionGroup group);
 
-    default boolean hasPermission(@NotNull IPermissionUser permissionUser, @NotNull String permission) {
-        return this.getPermissionResult(permissionUser, permission).asBoolean();
+    default boolean hasPermission(@NotNull IPermissible permissible, @NotNull String permission) {
+        return this.getPermissionResult(permissible, permission).asBoolean();
     }
 
-    default boolean hasPermission(@NotNull IPermissionUser permissionUser, @NotNull Permission permission) {
-        return this.getPermissionResult(permissionUser, permission).asBoolean();
+    default boolean hasPermission(@NotNull IPermissible permissible, @NotNull Permission permission) {
+        return this.getPermissionResult(permissible, permission).asBoolean();
     }
 
-    default boolean hasPermission(@NotNull IPermissionUser permissionUser, @NotNull String group, @NotNull Permission permission) {
-        return this.getPermissionResult(permissionUser, group, permission).asBoolean();
+    default boolean hasPermission(@NotNull IPermissible permissible, @NotNull String group, @NotNull Permission permission) {
+        return this.getPermissionResult(permissible, group, permission).asBoolean();
     }
 
     @NotNull
-    PermissionCheckResult getPermissionResult(@NotNull IPermissionUser permissionUser, @NotNull String permission);
+    PermissionCheckResult getPermissionResult(@NotNull IPermissible permissible, @NotNull String permission);
 
     @NotNull
-    PermissionCheckResult getPermissionResult(@NotNull IPermissionUser permissionUser, @NotNull Permission permission);
+    PermissionCheckResult getPermissionResult(@NotNull IPermissible permissible, @NotNull Permission permission);
 
     @NotNull
-    PermissionCheckResult getPermissionResult(@NotNull IPermissionUser permissionUser, @NotNull String group, @NotNull Permission permission);
+    PermissionCheckResult getPermissionResult(@NotNull IPermissible permissible, @NotNull String group, @NotNull Permission permission);
 
     Collection<Permission> getAllPermissions(@NotNull IPermissible permissible);
 

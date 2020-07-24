@@ -13,6 +13,8 @@ import java.util.stream.Collectors;
 
 public interface IPermissible extends INameable, IJsonDocPropertyable, Comparable<IPermissible>, SerializableObject {
 
+    Collection<String> getGroupNames();
+
     /**
      * Sets the name of this permissible.
      * <p>

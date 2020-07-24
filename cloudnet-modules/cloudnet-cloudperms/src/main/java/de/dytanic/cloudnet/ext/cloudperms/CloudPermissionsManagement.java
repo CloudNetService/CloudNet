@@ -102,43 +102,48 @@ public class CloudPermissionsManagement implements IPermissionManagement, Cached
     }
 
     @Override
-    public Collection<IPermissionGroup> getGroups(@Nullable IPermissionUser permissionUser) {
-        return wrapped.getGroups(permissionUser);
+    @NotNull
+    public Collection<IPermissionGroup> getGroups(@Nullable IPermissible permissible) {
+        return wrapped.getGroups(permissible);
     }
 
     @Override
+    @Deprecated
     public Collection<IPermissionGroup> getExtendedGroups(@Nullable IPermissionGroup group) {
         return wrapped.getExtendedGroups(group);
     }
 
     @Override
-    public boolean hasPermission(@NotNull IPermissionUser permissionUser, @NotNull String permission) {
-        return wrapped.hasPermission(permissionUser, permission);
+    public boolean hasPermission(@NotNull IPermissible permissible, @NotNull String permission) {
+        return wrapped.hasPermission(permissible, permission);
     }
 
     @Override
-    public boolean hasPermission(@NotNull IPermissionUser permissionUser, @NotNull Permission permission) {
-        return wrapped.hasPermission(permissionUser, permission);
+    public boolean hasPermission(@NotNull IPermissible permissible, @NotNull Permission permission) {
+        return wrapped.hasPermission(permissible, permission);
     }
 
     @Override
-    public boolean hasPermission(@NotNull IPermissionUser permissionUser, @NotNull String group, @NotNull Permission permission) {
-        return wrapped.hasPermission(permissionUser, group, permission);
+    public boolean hasPermission(@NotNull IPermissible permissible, @NotNull String group, @NotNull Permission permission) {
+        return wrapped.hasPermission(permissible, group, permission);
     }
 
     @Override
-    public @NotNull PermissionCheckResult getPermissionResult(@NotNull IPermissionUser permissionUser, @NotNull String permission) {
-        return wrapped.getPermissionResult(permissionUser, permission);
+    @NotNull
+    public PermissionCheckResult getPermissionResult(@NotNull IPermissible permissible, @NotNull String permission) {
+        return wrapped.getPermissionResult(permissible, permission);
     }
 
     @Override
-    public @NotNull PermissionCheckResult getPermissionResult(@NotNull IPermissionUser permissionUser, @NotNull Permission permission) {
-        return wrapped.getPermissionResult(permissionUser, permission);
+    @NotNull
+    public PermissionCheckResult getPermissionResult(@NotNull IPermissible permissible, @NotNull Permission permission) {
+        return wrapped.getPermissionResult(permissible, permission);
     }
 
     @Override
-    public @NotNull PermissionCheckResult getPermissionResult(@NotNull IPermissionUser permissionUser, @NotNull String group, @NotNull Permission permission) {
-        return wrapped.getPermissionResult(permissionUser, group, permission);
+    @NotNull
+    public PermissionCheckResult getPermissionResult(@NotNull IPermissible permissible, @NotNull String group, @NotNull Permission permission) {
+        return wrapped.getPermissionResult(permissible, group, permission);
     }
 
     @Override
