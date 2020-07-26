@@ -111,11 +111,10 @@ public final class CloudNetBridgeModule extends NodeCloudNetModule {
             // check if a service has permissions, if not add the default
             // also checks if the server is a minecraft server since this option is not supported in Proxys
             if (serviceTask.getProcessConfiguration().getEnvironment().isMinecraftServer() && !serviceTask.getProperties().contains("requiredPermission")) {
-                        serviceTask.getProperties().appendNull("requiredPermission");
-                        this.getCloudNet().getCloudServiceManager().updatePermanentServiceTask(serviceTask);
-                    }
-                }
-        );
+                serviceTask.getProperties().appendNull("requiredPermission");
+                this.getCloudNet().getServiceTaskProvider().addPermanentServiceTask(serviceTask);
+            }
+        });
     }
 
     @ModuleTask(order = 16, event = ModuleLifeCycle.STARTED)
