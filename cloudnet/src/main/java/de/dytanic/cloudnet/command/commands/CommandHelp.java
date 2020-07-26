@@ -6,6 +6,8 @@ import de.dytanic.cloudnet.command.ITabCompleter;
 import de.dytanic.cloudnet.common.Properties;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.driver.command.CommandInfo;
+import de.dytanic.cloudnet.driver.util.ColumnTextFormatter;
+import de.dytanic.cloudnet.driver.util.PrefixedMessageMapper;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,40 +23,13 @@ public final class CommandHelp extends CommandDefault implements ITabCompleter {
     public void execute(ICommandSender sender, String command, String[] args, String commandLine, Properties properties) {
         switch (args.length) {
             case 0:
-                CommandInfo[] infos = this.getCloudNet().getCommandMap().getCommandInfos().toArray(new CommandInfo[0]);
-                StringBuilder[] entries = new StringBuilder[infos.length];
+                String[] messages = ColumnTextFormatter.mapToEqual(this.getCloudNet().getCommandMap().getCommandInfos(), ' ',
+                        new PrefixedMessageMapper<>("Aliases: ", info -> Arrays.toString(info.getNames())),
+                        new PrefixedMessageMapper<>(" | Permission: ", CommandInfo::getPermission),
+                        new PrefixedMessageMapper<>(" - ", CommandInfo::getDescription)
+                );
 
-                for (int i = 0; i < entries.length; i++) {
-                    entries[i] = new StringBuilder();
-                }
-
-                for (int i = 0; i < infos.length; i++) {
-                    entries[i].append("Aliases: ").append(Arrays.toString(infos[i].getNames()));
-                }
-
-                int maxLength = Arrays.stream(entries).mapToInt(StringBuilder::length).max().orElse(0);
-
-                this.fill(maxLength, entries);
-
-                for (int i = 0; i < infos.length; i++) {
-                    if (infos[i].getPermission() != null) {
-                        entries[i].append(" | Permission: ").append(infos[i].getPermission());
-                    }
-                }
-
-                maxLength = Arrays.stream(entries).mapToInt(StringBuilder::length).max().orElse(0);
-
-                this.fill(maxLength, entries);
-
-                for (int i = 0; i < infos.length; i++) {
-                    if (infos[i].getDescription() != null) {
-                        entries[i].append(" - ").append(infos[i].getDescription());
-                    }
-                }
-
-                for (StringBuilder entry : entries) {
-                    sender.sendMessage(entry.toString());
-                }
+                sender.sendMessage(messages);
                 sender.sendMessage(LanguageManager.getMessage("command-help-info"));
 
                 break;
@@ -65,12 +40,15 @@ public final class CommandHelp extends CommandDefault implements ITabCompleter {
 
                     if (commandInfo != null) {
                         sender.sendMessage(" ", "Aliases: " + Arrays.toString(commandInfo.getNames()));
-                        if (commandInfo.getDescription() != null) {
-                            sender.sendMessage("Description: " + commandInfo.getDescription());
+                        String description = commandInfo.getDescription();
+                        String usage = commandInfo.getUsage();
+
+                        if (description != null) {
+                            sender.sendMessage("Description: " + description);
                         }
-                        if (commandInfo.getUsage() != null) {
-                            String[] usage = ("Usage: " + commandInfo.getUsage()).split("\n");
-                            for (String line : usage) {
+                        if (usage != null) {
+                            String[] usages = ("Usage: " + usage).split("\n");
+                            for (String line : usages) {
                                 sender.sendMessage(line);
                             }
                         }
@@ -79,15 +57,6 @@ public final class CommandHelp extends CommandDefault implements ITabCompleter {
                 break;
         }
 
-    }
-
-    private void fill(int maxLength, StringBuilder[] entries) {
-        for (StringBuilder entry : entries) {
-            int missing = maxLength - entry.length();
-            for (int j = 0; j < missing; j++) {
-                entry.append(' ');
-            }
-        }
     }
 
     @Override
