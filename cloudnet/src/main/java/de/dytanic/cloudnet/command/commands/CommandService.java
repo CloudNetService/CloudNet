@@ -82,7 +82,7 @@ public class CommandService extends SubCommandHandler {
                                 "name",
                                 LanguageManager.getMessage("command-service-service-not-found"),
                                 input -> {
-                                    if (WildcardUtil.anyMatch(CloudNetDriver.getInstance().getCloudServiceProvider().getCloudServices(), input)) {
+                                    if (WildcardUtil.anyMatch(CloudNetDriver.getInstance().getCloudServiceProvider().getCloudServices(), input, false)) {
                                         return true;
                                     }
                                     String[] splitName = input.split("-");
@@ -105,7 +105,8 @@ public class CommandService extends SubCommandHandler {
                             String name = (String) args.argument("name").get();
                             Collection<ServiceInfoSnapshot> serviceInfoSnapshots = WildcardUtil.filterWildcard(
                                     CloudNetDriver.getInstance().getCloudServiceProvider().getCloudServices(),
-                                    name
+                                    name,
+                                    false
                             );
                             if (serviceInfoSnapshots.isEmpty() && "start".equalsIgnoreCase(String.valueOf(args.argument(1)))) {
                                 String[] splitName = name.split("-");
