@@ -152,7 +152,7 @@ public final class NukkitCloudNetHelper extends BridgeServerHelper {
                 null,
                 player.getHealth(),
                 player.getMaxHealth(),
-                player.getFoodData().getLevel(),
+                player.getFoodData() == null ? -1 : player.getFoodData().getLevel(),
                 player.getExperienceLevel(),
                 worldPosition,
                 new HostAndPort(player.getAddress(), player.getPort()),
