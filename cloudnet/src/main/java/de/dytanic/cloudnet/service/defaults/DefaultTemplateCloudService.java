@@ -16,10 +16,7 @@ import de.dytanic.cloudnet.template.ITemplateStorage;
 import de.dytanic.cloudnet.template.LocalTemplateStorage;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.file.Files;
@@ -204,7 +201,11 @@ public abstract class DefaultTemplateCloudService extends DefaultCloudService {
                     }
 
                     if (storage instanceof LocalTemplateStorage) {
-                        CloudNet.getInstance().deployTemplateInCluster(deployment.getTemplate(), storage.toZipByteArray(deployment.getTemplate()));
+                        try {
+                            CloudNet.getInstance().deployTemplateInCluster(deployment.getTemplate(), storage.zipTemplate(deployment.getTemplate()));
+                        } catch (IOException exception) {
+                            exception.printStackTrace();
+                        }
                     }
                 }
             }

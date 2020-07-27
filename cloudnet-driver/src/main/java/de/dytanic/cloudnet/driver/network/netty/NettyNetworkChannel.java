@@ -14,6 +14,7 @@ import de.dytanic.cloudnet.driver.network.protocol.DefaultPacketListenerRegistry
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.network.protocol.IPacketListenerRegistry;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.TimeUnit;
@@ -60,6 +61,16 @@ final class NettyNetworkChannel implements INetworkChannel {
     }
 
     @Override
+    public void sendPacketSync(@NotNull IPacket packet) {
+        Preconditions.checkNotNull(packet);
+
+        ChannelFuture future = this.sendPacket0(packet);
+        if (future != null) {
+            future.syncUninterruptibly();
+        }
+    }
+
+    @Override
     public ITask<IPacket> sendQueryAsync(@NotNull IPacket packet) {
         CompletableTask<IPacket> task = new CompletableTask<>();
         InternalSyncPacketChannel.registerQueryHandler(packet.getUniqueId(), task::complete);
@@ -72,7 +83,7 @@ final class NettyNetworkChannel implements INetworkChannel {
         return this.sendQueryAsync(packet).get(5, TimeUnit.SECONDS, null);
     }
 
-    private void sendPacket0(IPacket packet) {
+    private ChannelFuture sendPacket0(IPacket packet) {
         NetworkChannelPacketSendEvent event = new NetworkChannelPacketSendEvent(this, packet);
 
         CloudNetDriver.optionalInstance().ifPresent(cloudNetDriver -> cloudNetDriver.getEventManager().callEvent(event));
@@ -95,8 +106,10 @@ final class NettyNetworkChannel implements INetworkChannel {
                 });
             }
 
-            this.channel.writeAndFlush(packet, this.channel.voidPromise());
+            return this.channel.writeAndFlush(packet);
         }
+
+        return null;
     }
 
     @Override

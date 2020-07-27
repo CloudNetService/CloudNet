@@ -13,6 +13,7 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Map;
 import java.util.Random;
 
 public class ChunkedPacketTest {
@@ -98,10 +99,9 @@ public class ChunkedPacketTest {
         }
 
         @Override
-        protected @NotNull OutputStream createOutputStream(ChunkedPacket startPacket) throws IOException {
+        protected @NotNull OutputStream createOutputStream(ChunkedPacket startPacket, Map<String, Object> properties) throws IOException {
             return Files.newOutputStream(path);
         }
-
     }
 
 }

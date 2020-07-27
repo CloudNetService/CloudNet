@@ -17,6 +17,8 @@ import de.dytanic.cloudnet.network.NetworkUpdateType;
 import de.dytanic.cloudnet.template.ITemplateStorage;
 import de.dytanic.cloudnet.template.LocalTemplateStorage;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -144,15 +146,19 @@ public final class CommandCluster extends SubCommandHandler {
     }
 
     private static void pushLocalTemplate(ICommandSender sender, ITemplateStorage storage, ServiceTemplate serviceTemplate) {
-        byte[] bytes = storage.toZipByteArray(serviceTemplate);
+        try {
+            InputStream inputStream = storage.zipTemplate(serviceTemplate);
 
-        if (bytes != null) {
-            CloudNet.getInstance().deployTemplateInCluster(serviceTemplate, bytes);
+            if (inputStream != null) {
+                CloudNet.getInstance().deployTemplateInCluster(serviceTemplate, inputStream);
 
-            sender.sendMessage(
-                    LanguageManager.getMessage("command-cluster-push-templates-from-local-success")
-                            .replace("%template%", serviceTemplate.getStorage() + ":" + serviceTemplate.getTemplatePath())
-            );
+                sender.sendMessage(
+                        LanguageManager.getMessage("command-cluster-push-templates-from-local-success")
+                                .replace("%template%", serviceTemplate.getStorage() + ":" + serviceTemplate.getTemplatePath())
+                );
+            }
+        } catch (IOException exception) {
+            exception.printStackTrace();
         }
     }
 
