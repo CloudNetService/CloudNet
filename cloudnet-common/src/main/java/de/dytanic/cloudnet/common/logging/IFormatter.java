@@ -1,5 +1,7 @@
 package de.dytanic.cloudnet.common.logging;
 
+import org.jetbrains.annotations.NotNull;
+
 /**
  * The Formatter is a simply abstract way to format a LogEntry to
  * a easy, formatted, readable message.
@@ -12,6 +14,6 @@ public interface IFormatter {
      * @param logEntry the log item which should be format
      * @return the new formatted string
      */
-    String format(LogEntry logEntry);
+    @NotNull String format(@NotNull LogEntry logEntry);
 
 }

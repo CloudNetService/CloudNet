@@ -1,6 +1,7 @@
 package de.dytanic.cloudnet.command.sub;
 
 import de.dytanic.cloudnet.console.animation.questionlist.QuestionAnswerType;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -16,17 +17,17 @@ public class QuestionAnswerTypeStaticString implements QuestionAnswerType<String
     }
 
     @Override
-    public boolean isValidInput(String input) {
+    public boolean isValidInput(@NotNull String input) {
         return (this.ignoreCase && input.equalsIgnoreCase(this.requiredValue)) || input.equals(this.requiredValue);
     }
 
     @Override
-    public String parse(String input) {
+    public @NotNull String parse(@NotNull String input) {
         return this.requiredValue;
     }
 
     @Override
-    public String getInvalidInputMessage(String input) {
+    public String getInvalidInputMessage(@NotNull String input) {
         return null;
     }
 

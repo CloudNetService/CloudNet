@@ -1,6 +1,7 @@
 package de.dytanic.cloudnet.console.animation.questionlist.answer;
 
 import de.dytanic.cloudnet.console.animation.questionlist.QuestionAnswerType;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -15,12 +16,12 @@ public class QuestionAnswerTypeEnum<E extends Enum<E>> implements QuestionAnswer
     }
 
     @Override
-    public boolean isValidInput(String input) {
+    public boolean isValidInput(@NotNull String input) {
         return Arrays.stream(this.values()).anyMatch(e -> e.name().equalsIgnoreCase(input));
     }
 
     @Override
-    public E parse(String input) {
+    public @NotNull E parse(@NotNull String input) {
         return Arrays.stream(this.values()).filter(e -> e.name().equalsIgnoreCase(input)).findFirst().orElse(null);
     }
 

@@ -4,6 +4,7 @@ import de.dytanic.cloudnet.common.logging.IFormatter;
 import de.dytanic.cloudnet.common.logging.LogEntry;
 import de.dytanic.cloudnet.common.logging.LoggingUtils;
 import de.dytanic.cloudnet.console.ConsoleColor;
+import org.jetbrains.annotations.NotNull;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -13,7 +14,7 @@ public final class ColouredLogFormatter implements IFormatter {
     private final DateFormat dateFormat = new SimpleDateFormat("dd.MM HH:mm:ss.SSS");
 
     @Override
-    public String format(LogEntry logEntry) {
+    public @NotNull String format(@NotNull LogEntry logEntry) {
         StringBuilder builder = new StringBuilder();
         LoggingUtils.printStackTraceToStringBuilder(builder, logEntry.getThrowable());
 

@@ -5,6 +5,7 @@ import de.dytanic.cloudnet.console.animation.questionlist.QuestionAnswerType;
 import de.dytanic.cloudnet.console.animation.questionlist.answer.*;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
+import org.jetbrains.annotations.NotNull;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -54,7 +55,7 @@ public class SubCommandArgumentTypes {
             }
 
             @Override
-            public String getInvalidInputMessage(String input) {
+            public String getInvalidInputMessage(@NotNull String input) {
                 return invalidMessage != null ? invalidMessage : super.getInvalidInputMessage(input);
             }
         };
@@ -124,7 +125,7 @@ public class SubCommandArgumentTypes {
             }
 
             @Override
-            public boolean isValidInput(String input) {
+            public boolean isValidInput(@NotNull String input) {
                 return tester.test(input);
             }
 
@@ -134,7 +135,7 @@ public class SubCommandArgumentTypes {
             }
 
             @Override
-            public String getInvalidInputMessage(String input) {
+            public String getInvalidInputMessage(@NotNull String input) {
                 return invalidMessage;
             }
         };
@@ -165,7 +166,7 @@ public class SubCommandArgumentTypes {
             }
 
             @Override
-            public String getInvalidInputMessage(String input) {
+            public String getInvalidInputMessage(@NotNull String input) {
                 return invalidMessage;
             }
 
@@ -175,7 +176,7 @@ public class SubCommandArgumentTypes {
             }
 
             @Override
-            public boolean isValidInput(String input) {
+            public boolean isValidInput(@NotNull String input) {
                 return super.isValidInput(input) && tester.test(Double.parseDouble(input));
             }
         };
@@ -209,7 +210,7 @@ public class SubCommandArgumentTypes {
             }
 
             @Override
-            public String getInvalidInputMessage(String input) {
+            public String getInvalidInputMessage(@NotNull String input) {
                 return invalidMessage != null ? invalidMessage : super.getInvalidInputMessage(input);
             }
         };
@@ -227,7 +228,7 @@ public class SubCommandArgumentTypes {
             }
 
             @Override
-            public String getInvalidInputMessage(String input) {
+            public String getInvalidInputMessage(@NotNull String input) {
                 return invalidMessage != null ? invalidMessage : super.getInvalidInputMessage(input);
             }
         };
@@ -266,7 +267,7 @@ public class SubCommandArgumentTypes {
             }
 
             @Override
-            public String getInvalidInputMessage(String input) {
+            public String getInvalidInputMessage(@NotNull String input) {
                 return invalidMessage != null ? invalidMessage : super.getInvalidInputMessage(input);
             }
 
@@ -276,7 +277,7 @@ public class SubCommandArgumentTypes {
             }
 
             @Override
-            public boolean isValidInput(String input) {
+            public boolean isValidInput(@NotNull String input) {
                 return super.isValidInput(input) && tester.test(Integer.parseInt(input));
             }
         };

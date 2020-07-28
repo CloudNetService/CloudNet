@@ -1,40 +1,42 @@
 package de.dytanic.cloudnet.console.animation.questionlist;
 
 import de.dytanic.cloudnet.common.language.LanguageManager;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.List;
 
 public interface QuestionAnswerType<T> {
 
-    boolean isValidInput(String input);
+    boolean isValidInput(@NotNull String input);
 
-    T parse(String input);
+    @NotNull T parse(@NotNull String input);
 
     /**
      * @return null if there are infinite possible numbers
      */
-    Collection<String> getPossibleAnswers();
+    @Nullable Collection<String> getPossibleAnswers();
 
-    default List<String> getCompletableAnswers() {
+    default @Nullable List<String> getCompletableAnswers() {
         return null;
     }
 
-    default String getRecommendation() {
+    default @Nullable String getRecommendation() {
         return null;
     }
 
-    default String getPossibleAnswersAsString() {
+    default @Nullable String getPossibleAnswersAsString() {
         Collection<String> possibleAnswers = this.getPossibleAnswers();
         return possibleAnswers != null ? String.join(", ", possibleAnswers) : null;
     }
 
-    default String getInvalidInputMessage(String input) {
-        Collection<String> possibleAnswers = this.getPossibleAnswers();
-        if (possibleAnswers != null) {
-            return LanguageManager.getMessage("ca-question-list-question-list").replace("%values%", this.getPossibleAnswersAsString());
+    default @Nullable String getInvalidInputMessage(@NotNull String input) {
+        String s = this.getPossibleAnswersAsString();
+        if (s != null) {
+            return LanguageManager.getMessage("ca-question-list-question-list").replace("%values%", s);
         }
+
         return LanguageManager.getMessage("ca-question-list-invalid-default");
     }
-
 }

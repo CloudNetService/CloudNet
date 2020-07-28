@@ -9,6 +9,7 @@ import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.template.install.ServiceVersion;
 import de.dytanic.cloudnet.template.install.ServiceVersionProvider;
 import de.dytanic.cloudnet.template.install.ServiceVersionType;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -35,7 +36,7 @@ public class QuestionAnswerTypeServiceVersion implements QuestionAnswerType<Pair
     }
 
     @Override
-    public boolean isValidInput(String input) {
+    public boolean isValidInput(@NotNull String input) {
         if (input.equalsIgnoreCase("none")) {
             return true;
         }
@@ -51,7 +52,7 @@ public class QuestionAnswerTypeServiceVersion implements QuestionAnswerType<Pair
     }
 
     @Override
-    public Pair<ServiceVersionType, ServiceVersion> parse(String input) {
+    public @NotNull Pair<ServiceVersionType, ServiceVersion> parse(@NotNull String input) {
         if (input.equalsIgnoreCase("none")) {
             return null;
         }
@@ -84,7 +85,7 @@ public class QuestionAnswerTypeServiceVersion implements QuestionAnswerType<Pair
     }
 
     @Override
-    public String getInvalidInputMessage(String input) {
+    public String getInvalidInputMessage(@NotNull String input) {
         String[] args = input.split("-");
         if (args.length == 2) {
             Optional<ServiceVersionType> optionalVersionType = this.serviceVersionProvider.getServiceVersionType(args[0]);

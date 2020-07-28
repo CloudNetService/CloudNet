@@ -10,6 +10,7 @@ import de.dytanic.cloudnet.console.animation.questionlist.answer.QuestionAnswerT
 import de.dytanic.cloudnet.console.animation.questionlist.answer.QuestionAnswerTypeInt;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
+import org.jetbrains.annotations.NotNull;
 
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -61,12 +62,12 @@ public class DefaultConfigSetup implements DefaultSetup {
                 LanguageManager.getMessage("cloudnet-init-eula"),
                 new QuestionAnswerTypeBoolean() {
                     @Override
-                    public boolean isValidInput(String input) {
+                    public boolean isValidInput(@NotNull String input) {
                         return input.equalsIgnoreCase(super.getTrueString());
                     }
 
                     @Override
-                    public String getInvalidInputMessage(String input) {
+                    public String getInvalidInputMessage(@NotNull String input) {
                         return LanguageManager.getMessage("cloudnet-init-eula-not-accepted");
                     }
                 }
@@ -114,7 +115,7 @@ public class DefaultConfigSetup implements DefaultSetup {
                 LanguageManager.getMessage("cloudnet-init-setup-memory"),
                 new QuestionAnswerTypeInt() {
                     @Override
-                    public boolean isValidInput(String input) {
+                    public boolean isValidInput(@NotNull String input) {
                         return super.isValidInput(input) && Integer.parseInt(input) >= 0;
                     }
 

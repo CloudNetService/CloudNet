@@ -1,5 +1,7 @@
 package de.dytanic.cloudnet.common.logging;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -69,7 +71,7 @@ public final class DefaultFileLogHandler extends AbstractLogHandler {
     }
 
     @Override
-    public void handle(LogEntry logEntry) {
+    public void handle(@NotNull LogEntry logEntry) {
         if (this.getFormatter() == null) {
             this.setFormatter(new DefaultLogFormatter());
         }

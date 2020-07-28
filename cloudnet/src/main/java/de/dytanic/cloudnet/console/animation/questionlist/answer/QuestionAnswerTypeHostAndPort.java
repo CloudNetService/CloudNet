@@ -2,18 +2,19 @@ package de.dytanic.cloudnet.console.animation.questionlist.answer;
 
 import de.dytanic.cloudnet.console.animation.questionlist.QuestionAnswerType;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
 
 public class QuestionAnswerTypeHostAndPort implements QuestionAnswerType<HostAndPort> {
 
     @Override
-    public boolean isValidInput(String input) {
+    public boolean isValidInput(@NotNull String input) {
         return !input.isEmpty() && this.parse(input) != null;
     }
 
     @Override
-    public HostAndPort parse(String input) {
+    public @NotNull HostAndPort parse(@NotNull String input) {
         String[] splitHostAndPort = input.split(":");
         if (splitHostAndPort.length != 2) {
             return null;
