@@ -332,28 +332,28 @@ public final class JLine3Console implements IConsole {
 
     @NotNull
     @ApiStatus.Internal
-    LineReader getLineReader() {
+    protected LineReader getLineReader() {
         return this.lineReader;
     }
 
     @NotNull
     @ApiStatus.Internal
-    Map<UUID, ConsoleHandler<Consumer<String>>> getConsoleInputHandler() {
+    protected Map<UUID, ConsoleHandler<Consumer<String>>> getConsoleInputHandler() {
         return consoleInputHandler;
     }
 
     @NotNull
     @ApiStatus.Internal
-    Collection<ITabCompleter> getTabCompletionHandler() {
+    protected Collection<ITabCompleter> getTabCompletionHandler() {
         return this.tabCompletionHandler.values().stream()
                 .filter(ConsoleHandler::isEnabled)
                 .map(ConsoleHandler::getHandler)
                 .collect(Collectors.toList());
     }
 
-    final class InternalLineReader extends LineReaderImpl {
+    private final class InternalLineReader extends LineReaderImpl {
 
-        public InternalLineReader(Terminal terminal, String appName, Map<String, Object> variables) {
+        private InternalLineReader(Terminal terminal, String appName, Map<String, Object> variables) {
             super(terminal, appName, variables);
         }
 
