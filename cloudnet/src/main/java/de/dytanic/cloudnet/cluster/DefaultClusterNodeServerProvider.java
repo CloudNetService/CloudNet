@@ -18,7 +18,6 @@ import java.io.InputStream;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.zip.ZipInputStream;
 
 public final class DefaultClusterNodeServerProvider implements IClusterNodeServerProvider {
 
@@ -102,11 +101,7 @@ public final class DefaultClusterNodeServerProvider implements IClusterNodeServe
 
     @Override
     public void deployTemplateInCluster(@NotNull ServiceTemplate serviceTemplate, @NotNull byte[] zipResource) {
-        try (ZipInputStream inputStream = new ZipInputStream(new ByteArrayInputStream(zipResource))) {
-            this.deployTemplateInCluster(serviceTemplate, inputStream);
-        } catch (IOException exception) {
-            exception.printStackTrace();
-        }
+        this.deployTemplateInCluster(serviceTemplate, new ByteArrayInputStream(zipResource));
     }
 
     @Override
