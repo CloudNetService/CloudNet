@@ -206,8 +206,7 @@ public final class JLine3Console implements IConsole {
 
     @Override
     public @NotNull IConsole writeRaw(@NotNull String rawText) {
-        rawText = ConsoleColor.toColouredString('&', rawText);
-        this.print(rawText);
+        this.print(ConsoleColor.toColouredString('&', rawText));
         return this;
     }
 
