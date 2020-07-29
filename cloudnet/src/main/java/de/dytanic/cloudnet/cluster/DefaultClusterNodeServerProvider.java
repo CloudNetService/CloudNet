@@ -1,6 +1,8 @@
 package de.dytanic.cloudnet.cluster;
 
 import com.google.common.base.Preconditions;
+import de.dytanic.cloudnet.common.concurrent.CompletedTask;
+import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkCluster;
@@ -8,6 +10,7 @@ import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
 import de.dytanic.cloudnet.driver.network.def.PacketConstants;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.network.protocol.chunk.ChunkedPacket;
+import de.dytanic.cloudnet.driver.network.protocol.chunk.server.ServerChunkedPacketSession;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -18,6 +21,7 @@ import java.io.InputStream;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 public final class DefaultClusterNodeServerProvider implements IClusterNodeServerProvider {
 
@@ -80,7 +84,7 @@ public final class DefaultClusterNodeServerProvider implements IClusterNodeServe
     }
 
     @Override
-    public void sendPacketSync(@NotNull IPacket packet) {
+    public @NotNull ITask<Void> sendPacketSync(@NotNull IPacket packet) {
         Preconditions.checkNotNull(packet);
 
         for (IClusterNodeServer server : this.servers.values()) {
@@ -88,6 +92,8 @@ public final class DefaultClusterNodeServerProvider implements IClusterNodeServe
                 server.getChannel().sendPacketSync(packet);
             }
         }
+
+        return CompletedTask.voidTask();
     }
 
     @Override
@@ -110,21 +116,24 @@ public final class DefaultClusterNodeServerProvider implements IClusterNodeServe
             return;
         }
 
-        try {
-            JsonDocument header = JsonDocument.newDocument()
-                    .append("template", serviceTemplate)
-                    .append("preClear", true);
+        Collection<ServerChunkedPacketSession> sessions = this.servers
+                .values()
+                .stream()
+                .map(IClusterNodeServer::getChannel)
+                .map(ServerChunkedPacketSession::createSession)
+                .collect(Collectors.toList());
 
+        try {
+            JsonDocument header = JsonDocument.newDocument().append("template", serviceTemplate).append("preClear", true);
             ChunkedPacket.createChunkedPackets(inputStream, header, PacketConstants.CLUSTER_TEMPLATE_DEPLOY_CHANNEL, packet -> {
-                if (packet.getChunkId() % 50 == 0) {
-                    try {
-                        Thread.sleep(50);
-                    } catch (InterruptedException exception) {
-                        exception.printStackTrace();
-                    }
+                for (ServerChunkedPacketSession session : sessions) {
+                    session.enqueue(packet);
                 }
-                this.sendPacketSync(packet);
             });
+
+            for (ServerChunkedPacketSession session : sessions) {
+                session.resume();
+            }
         } catch (IOException exception) {
             exception.printStackTrace();
         }

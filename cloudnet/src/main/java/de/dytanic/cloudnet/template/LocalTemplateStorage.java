@@ -190,7 +190,7 @@ public final class LocalTemplateStorage implements ITemplateStorage {
             return null;
         }
 
-        return Files.newInputStream(file, StandardOpenOption.DELETE_ON_CLOSE, LinkOption.NOFOLLOW_LINKS);
+        return Files.newInputStream(file, /*StandardOpenOption.DELETE_ON_CLOSE,*/ LinkOption.NOFOLLOW_LINKS);
     }
 
     @Override

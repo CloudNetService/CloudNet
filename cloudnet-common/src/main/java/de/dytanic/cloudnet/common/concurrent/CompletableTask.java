@@ -70,6 +70,14 @@ public class CompletableTask<V> implements ITask<V> {
         this.future.complete(value);
     }
 
+    public void fail(Throwable throwable) {
+        for (ITaskListener<V> listener : this.listeners) {
+            listener.onFailure(this, throwable);
+        }
+
+        this.future.completeExceptionally(throwable);
+    }
+
     @Override
     public boolean cancel(boolean b) {
         if (this.future.isCancelled()) {
