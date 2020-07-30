@@ -48,6 +48,7 @@ public final class CommandBridge extends SubCommandHandler {
                                 ),
                                 () -> CloudNet.getInstance().getServiceTaskProvider().getPermanentServiceTasks()
                                         .stream()
+                                        .filter(serviceTask -> serviceTask.getProcessConfiguration().getEnvironment().isMinecraftServer())
                                         .map(ServiceTask::getName)
                                         .collect(Collectors.toList())
                         ))
