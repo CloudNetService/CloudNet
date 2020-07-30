@@ -15,8 +15,7 @@ import de.dytanic.cloudnet.ext.bridge.node.CloudNetBridgeModule;
 
 import java.util.stream.Collectors;
 
-import static de.dytanic.cloudnet.command.sub.SubCommandArgumentTypes.dynamicString;
-import static de.dytanic.cloudnet.command.sub.SubCommandArgumentTypes.exactStringIgnoreCase;
+import static de.dytanic.cloudnet.command.sub.SubCommandArgumentTypes.*;
 
 public final class CommandBridge extends SubCommandHandler {
     public CommandBridge() {
@@ -36,7 +35,7 @@ public final class CommandBridge extends SubCommandHandler {
                                     sender.sendMessage(LanguageManager.getMessage("module-bridge-command-bridge-execute-success"));
                                 },
                                 SubCommand::onlyConsole,
-                                exactStringIgnoreCase("reload")
+                                anyStringIgnoreCase("reload", "rl")
                         )
 
                         .prefix(exactStringIgnoreCase("task"))
