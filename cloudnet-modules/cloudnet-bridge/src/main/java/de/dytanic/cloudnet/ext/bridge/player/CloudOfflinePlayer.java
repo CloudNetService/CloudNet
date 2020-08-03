@@ -2,9 +2,9 @@ package de.dytanic.cloudnet.ext.bridge.player;
 
 import com.google.common.base.Preconditions;
 import com.google.gson.reflect.TypeToken;
-import de.dytanic.cloudnet.common.document.gson.BasicJsonDocPropertyable;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
+import de.dytanic.cloudnet.driver.serialization.json.SerializableJsonDocPropertyable;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.jetbrains.annotations.NotNull;
@@ -14,7 +14,7 @@ import java.util.UUID;
 
 @ToString
 @EqualsAndHashCode(callSuper = false)
-public class CloudOfflinePlayer extends BasicJsonDocPropertyable implements ICloudOfflinePlayer {
+public class CloudOfflinePlayer extends SerializableJsonDocPropertyable implements ICloudOfflinePlayer {
 
     public static final Type TYPE = new TypeToken<CloudOfflinePlayer>() {
     }.getType();
@@ -119,6 +119,8 @@ public class CloudOfflinePlayer extends BasicJsonDocPropertyable implements IClo
         buffer.writeLong(this.firstLoginTimeMillis);
         buffer.writeLong(this.lastLoginTimeMillis);
         buffer.writeObject(this.lastNetworkConnectionInfo);
+
+        super.write(buffer);
     }
 
     @Override
@@ -129,6 +131,8 @@ public class CloudOfflinePlayer extends BasicJsonDocPropertyable implements IClo
         this.firstLoginTimeMillis = buffer.readLong();
         this.lastLoginTimeMillis = buffer.readLong();
         this.lastNetworkConnectionInfo = buffer.readObject(NetworkConnectionInfo.class);
+
+        super.read(buffer);
     }
 
 }
