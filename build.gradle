@@ -59,7 +59,7 @@ allprojects {
 
     project.ext {
 
-        cloudNetCodeName = 'Hurricane'
+        cloudNetCodeName = 'Earthquake'
 
         //Dependencies
         dependencyGuavaVersion = '28.2-jre'

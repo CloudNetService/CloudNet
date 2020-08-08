@@ -21,7 +21,7 @@ public final class ConsoleCommandSender implements ICommandSender {
      */
     @Override
     public String getName() {
-        return "Hurricane";
+        return "Earthquake";
     }
 
     @Override
