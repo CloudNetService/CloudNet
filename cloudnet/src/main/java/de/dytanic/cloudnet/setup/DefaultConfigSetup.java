@@ -11,9 +11,7 @@ import de.dytanic.cloudnet.console.animation.questionlist.answer.QuestionAnswerT
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
 
-import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.net.SocketException;
+import java.net.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -30,7 +28,9 @@ public class DefaultConfigSetup implements DefaultSetup {
             NetworkInterface networkInterface = interfaces.nextElement();
             Enumeration<InetAddress> addresses = networkInterface.getInetAddresses();
             while (addresses.hasMoreElements()) {
-                String address = addresses.nextElement().getHostAddress();
+                InetAddress inetAddress = addresses.nextElement();
+
+                String address = inetAddress instanceof Inet6Address ? String.format("[%s]", inetAddress.getHostAddress()) : inetAddress.getHostAddress();
                 if (!resultAddresses.contains(address)) {
                     resultAddresses.add(address);
                 }
@@ -140,17 +140,25 @@ public class DefaultConfigSetup implements DefaultSetup {
     @Override
     public void execute(ConsoleQuestionListAnimation animation) {
         if (animation.hasResult("internalHost")) {
-            HostAndPort defaultHost = (HostAndPort) animation.getResult("internalHost");
+            HostAndPort defaultAddress = (HostAndPort) animation.getResult("internalHost");
+            String defaultHost = defaultAddress.getHost();
 
-            CloudNet.getInstance().getConfig().setHostAddress(defaultHost.getHost());
+            boolean ipv6 = false;
+            try {
+                ipv6 = InetAddress.getByName(defaultHost) instanceof Inet6Address;
+            } catch (UnknownHostException exception) {
+                exception.printStackTrace();
+            }
+
+            CloudNet.getInstance().getConfig().setHostAddress(ipv6 ? String.format("[%s]", defaultHost) : defaultHost);
             CloudNet.getInstance().getConfig().setIdentity(new NetworkClusterNode(
                     animation.hasResult("nodeId") ? (String) animation.getResult("nodeId") : "Node-1",
-                    new HostAndPort[]{defaultHost}
+                    new HostAndPort[]{defaultAddress}
             ));
 
             CloudNet.getInstance().getConfig().getIpWhitelist().addAll(this.internalIPs);
-            if (!this.internalIPs.contains(defaultHost.getHost())) {
-                CloudNet.getInstance().getConfig().getIpWhitelist().add(defaultHost.getHost());
+            if (!this.internalIPs.contains(defaultHost)) {
+                CloudNet.getInstance().getConfig().getIpWhitelist().add(defaultHost);
             }
         }
 

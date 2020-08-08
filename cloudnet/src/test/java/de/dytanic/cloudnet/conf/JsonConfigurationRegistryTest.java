@@ -18,7 +18,7 @@ public final class JsonConfigurationRegistryTest {
                         .put("a", "Test String")
                         .put("b", "foobar".getBytes())
                         .put("c", 24)
-                        .put("d", new Person("Peter Parker", 24, new JsonDocument("address", new HostAndPort("localhost", 6533))))
+                        .put("d", new Person("Peter Parker", 24, new JsonDocument("address", new HostAndPort("127.0.0.1", 6533))))
         );
 
         Assert.assertTrue(configurationRegistry.contains("a"));
@@ -55,7 +55,7 @@ public final class JsonConfigurationRegistryTest {
         HostAndPort hostAndPort = person.properties.get("address", HostAndPort.class);
         Assert.assertNotNull(hostAndPort);
 
-        Assert.assertEquals("localhost", hostAndPort.getHost());
+        Assert.assertEquals("127.0.0.1", hostAndPort.getHost());
         Assert.assertEquals(6533, hostAndPort.getPort());
 
         Assert.assertNotNull(configurationRegistry.remove("a"));

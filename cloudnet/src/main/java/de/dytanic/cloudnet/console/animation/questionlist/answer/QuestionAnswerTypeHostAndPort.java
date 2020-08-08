@@ -1,8 +1,11 @@
 package de.dytanic.cloudnet.console.animation.questionlist.answer;
 
+import com.google.common.net.InetAddresses;
 import de.dytanic.cloudnet.console.animation.questionlist.QuestionAnswerType;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 
+import java.net.InetAddress;
+import java.net.URI;
 import java.util.Collection;
 
 public class QuestionAnswerTypeHostAndPort implements QuestionAnswerType<HostAndPort> {
@@ -12,21 +15,20 @@ public class QuestionAnswerTypeHostAndPort implements QuestionAnswerType<HostAnd
         return !input.isEmpty() && this.parse(input) != null;
     }
 
+    @SuppressWarnings("UnstableApiUsage")
     @Override
     public HostAndPort parse(String input) {
-        String[] splitHostAndPort = input.split(":");
-        if (splitHostAndPort.length != 2) {
-            return null;
-        }
-        if (splitHostAndPort[0].split("\\.").length != 4) {
-            return null;
-        }
         try {
-            return new HostAndPort(
-                    splitHostAndPort[0],
-                    Integer.parseInt(splitHostAndPort[1])
-            );
-        } catch (NumberFormatException exception) {
+            URI uri = URI.create("tcp://" + input);
+
+            String host = uri.getHost();
+            if (host == null) {
+                return null;
+            }
+
+            InetAddress inetAddress = InetAddresses.forUriString(host);
+            return new HostAndPort(inetAddress.getHostAddress(), uri.getPort());
+        } catch (IllegalArgumentException exception) {
             return null;
         }
     }
