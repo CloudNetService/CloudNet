@@ -615,7 +615,7 @@ public class ServiceConfiguration extends SerializableJsonDocPropertyable implem
         /**
          * The files that should be deleted after the service has been stopped.
          */
-        public Builder addDeleteFilesAfterStop(String... deletedFilesAfterStop) {
+        public Builder addDeletedFilesAfterStop(String... deletedFilesAfterStop) {
             List<String> deletedFiles = Arrays.asList(deletedFilesAfterStop);
             deletedFiles.addAll(Arrays.asList(this.config.deletedFilesAfterStop));
             this.config.deletedFilesAfterStop = deletedFiles.toArray(new String[0]);
@@ -625,8 +625,8 @@ public class ServiceConfiguration extends SerializableJsonDocPropertyable implem
         /**
          * The files that should be deleted after the service has been stopped.
          */
-        public Builder addDeleteFilesAfterStop(Collection<String> deletedFilesAfterStop) {
-            return this.addDeleteFilesAfterStop(deletedFilesAfterStop.toArray(new String[0]));
+        public Builder addDeletedFilesAfterStop(Collection<String> deletedFilesAfterStop) {
+            return this.addDeletedFilesAfterStop(deletedFilesAfterStop.toArray(new String[0]));
         }
 
         /**
