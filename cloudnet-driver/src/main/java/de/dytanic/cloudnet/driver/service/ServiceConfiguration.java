@@ -13,10 +13,7 @@ import lombok.ToString;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.UUID;
+import java.util.*;
 
 @ToString
 @EqualsAndHashCode(callSuper = false)
@@ -485,6 +482,25 @@ public class ServiceConfiguration extends SerializableJsonDocPropertyable implem
          */
         public Builder templates(Collection<ServiceTemplate> templates) {
             return this.templates(templates.toArray(new ServiceTemplate[0]));
+        }
+
+        /**
+         * The templates for the new service. They will be copied into the service directory before the service is started
+         * or by calling {@link SpecificCloudServiceProvider#includeWaitingServiceTemplates()}.
+         */
+        public Builder addTemplates(ServiceTemplate... templates) {
+            List<ServiceTemplate> serviceTemplates = Arrays.asList(templates);
+            serviceTemplates.addAll(Arrays.asList(this.config.templates));
+            this.config.templates = serviceTemplates.toArray(new ServiceTemplate[0]);
+            return this;
+        }
+
+        /**
+         * The templates for the new service. They will be copied into the service directory before the service is started
+         * or by calling {@link SpecificCloudServiceProvider#includeWaitingServiceTemplates()}.
+         */
+        public Builder addTemplates(Collection<ServiceTemplate> templates) {
+            return this.addTemplates(templates.toArray(new ServiceTemplate[0]));
         }
 
         /**
