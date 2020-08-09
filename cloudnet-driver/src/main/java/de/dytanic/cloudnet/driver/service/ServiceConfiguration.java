@@ -71,20 +71,23 @@ public class ServiceConfiguration extends SerializableJsonDocPropertyable implem
     public ServiceConfiguration() {
     }
 
+    @NotNull
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    @NotNull
+    public static Builder builder(@NotNull ServiceTask task) {
+        return builder().task(task);
+    }
+
+    @NotNull
     public ServiceId getServiceId() {
         return this.serviceId;
     }
 
-    public void setServiceId(ServiceId serviceId) {
+    public void setServiceId(@NotNull ServiceId serviceId) {
         this.serviceId = serviceId;
-    }
-
-    public String getRuntime() {
-        return this.runtime;
-    }
-
-    public void setRuntime(String runtime) {
-        this.runtime = runtime;
     }
 
     public boolean isAutoDeleteOnStop() {
@@ -103,11 +106,25 @@ public class ServiceConfiguration extends SerializableJsonDocPropertyable implem
         this.staticService = staticService;
     }
 
+    @NotNull
+    public String getRuntime() {
+        return this.runtime;
+    }
+
+    public void setRuntime(@NotNull String runtime) {
+        this.runtime = runtime;
+    }
+
+    @NotNull
     public String[] getGroups() {
         return this.groups;
     }
 
-    public boolean hasGroup(String group) {
+    public void setGroups(@NotNull String[] groups) {
+        this.groups = groups;
+    }
+
+    public boolean hasGroup(@NotNull String group) {
         for (String s : this.groups) {
             if (s.equalsIgnoreCase(group)) {
                 return true;
@@ -116,48 +133,40 @@ public class ServiceConfiguration extends SerializableJsonDocPropertyable implem
         return false;
     }
 
-    public void setGroups(String[] groups) {
-        this.groups = groups;
-    }
-
+    @NotNull
     public ServiceRemoteInclusion[] getIncludes() {
         return this.includes;
     }
 
-    public void setIncludes(ServiceRemoteInclusion[] includes) {
+    public void setIncludes(@NotNull ServiceRemoteInclusion[] includes) {
         this.includes = includes;
     }
 
+    @NotNull
     public ServiceTemplate[] getTemplates() {
         return this.templates;
     }
 
-    public void setTemplates(ServiceTemplate[] templates) {
+    public void setTemplates(@NotNull ServiceTemplate[] templates) {
         this.templates = templates;
     }
 
+    @NotNull
     public ServiceDeployment[] getDeployments() {
         return this.deployments;
     }
 
-    public void setDeployments(ServiceDeployment[] deployments) {
+    public void setDeployments(@NotNull ServiceDeployment[] deployments) {
         this.deployments = deployments;
     }
 
+    @NotNull
     public String[] getDeletedFilesAfterStop() {
         return this.deletedFilesAfterStop;
     }
 
-    public void setDeletedFilesAfterStop(String[] deletedFilesAfterStop) {
+    public void setDeletedFilesAfterStop(@NotNull String[] deletedFilesAfterStop) {
         this.deletedFilesAfterStop = deletedFilesAfterStop;
-    }
-
-    public ProcessConfiguration getProcessConfig() {
-        return this.processConfig;
-    }
-
-    public void setProcessConfig(ProcessConfiguration processConfig) {
-        this.processConfig = processConfig;
     }
 
     public int getPort() {
@@ -256,12 +265,13 @@ public class ServiceConfiguration extends SerializableJsonDocPropertyable implem
         super.read(buffer);
     }
 
-    public static Builder builder() {
-        return new Builder();
+    @NotNull
+    public ProcessConfiguration getProcessConfig() {
+        return this.processConfig;
     }
 
-    public static Builder builder(ServiceTask task) {
-        return builder().task(task);
+    public void setProcessConfig(@NotNull ProcessConfiguration processConfig) {
+        this.processConfig = processConfig;
     }
 
     /**
@@ -293,7 +303,8 @@ public class ServiceConfiguration extends SerializableJsonDocPropertyable implem
          * Applies every option of the given {@link ServiceTask} object except for the Properties.
          * This will override every previously set option of this builder.
          */
-        public Builder task(ServiceTask task) {
+        @NotNull
+        public Builder task(@NotNull ServiceTask task) {
             return this
                     .task(task.getName())
                     .runtime(task.getRuntime())
@@ -328,7 +339,8 @@ public class ServiceConfiguration extends SerializableJsonDocPropertyable implem
          *     <li>{@link #allowedNodes(String...)} / {@link #allowedNodes(Collection)}</li>
          * </ul>
          */
-        public Builder serviceId(ServiceId serviceId) {
+        @NotNull
+        public Builder serviceId(@NotNull ServiceId serviceId) {
             this.config.serviceId = serviceId;
             return this;
         }
@@ -337,7 +349,8 @@ public class ServiceConfiguration extends SerializableJsonDocPropertyable implem
          * The task for the new service. No permanent task with that name has to exist.
          * This will NOT use any options of the given task, to do that use {@link #task(ServiceTask)}.
          */
-        public Builder task(String task) {
+        @NotNull
+        public Builder task(@NotNull String task) {
             this.config.serviceId.taskName = task;
             return this;
         }
@@ -345,7 +358,8 @@ public class ServiceConfiguration extends SerializableJsonDocPropertyable implem
         /**
          * The environment for the new service.
          */
-        public Builder environment(ServiceEnvironmentType environment) {
+        @NotNull
+        public Builder environment(@NotNull ServiceEnvironmentType environment) {
             this.config.serviceId.environment = environment;
             this.config.processConfig.environment = environment;
             return this;
@@ -354,6 +368,7 @@ public class ServiceConfiguration extends SerializableJsonDocPropertyable implem
         /**
          * The task id for the new service (For example Lobby-1 would have the task id 1).
          */
+        @NotNull
         public Builder taskId(int taskId) {
             this.config.serviceId.taskServiceId = taskId;
             return this;
@@ -362,7 +377,8 @@ public class ServiceConfiguration extends SerializableJsonDocPropertyable implem
         /**
          * The uniqueId for the new service.
          */
-        public Builder uniqueId(UUID uniqueId) {
+        @NotNull
+        public Builder uniqueId(@NotNull UUID uniqueId) {
             this.config.serviceId.uniqueId = uniqueId;
             return this;
         }
@@ -371,7 +387,8 @@ public class ServiceConfiguration extends SerializableJsonDocPropertyable implem
          * The node where the new service will start. If the service cannot be created on this node or the node doesn't exist, it
          * will NOT be created and {@link ServiceConfiguration#createNewService()} will return {@code null}.
          */
-        public Builder node(String nodeUniqueId) {
+        @NotNull
+        public Builder node(@NotNull String nodeUniqueId) {
             this.config.serviceId.nodeUniqueId = nodeUniqueId;
             return this;
         }
@@ -380,7 +397,8 @@ public class ServiceConfiguration extends SerializableJsonDocPropertyable implem
          * A list of all allowed nodes. CloudNet will choose the node with the most free resources.
          * If a node is provided using {@link #node(String)}, this option will be ignored.
          */
-        public Builder allowedNodes(Collection<String> allowedNodes) {
+        @NotNull
+        public Builder allowedNodes(@NotNull Collection<String> allowedNodes) {
             this.config.serviceId.allowedNodes = new ArrayList<>(allowedNodes);
             return this;
         }
@@ -389,7 +407,8 @@ public class ServiceConfiguration extends SerializableJsonDocPropertyable implem
          * A list of all allowed nodes. CloudNet will choose the node with the most free resources.
          * If a node is provided using {@link #node(String)}, this option will be ignored.
          */
-        public Builder allowedNodes(String... allowedNodes) {
+        @NotNull
+        public Builder allowedNodes(@NotNull String @NotNull ... allowedNodes) {
             return this.allowedNodes(Arrays.asList(allowedNodes));
         }
 
@@ -397,8 +416,9 @@ public class ServiceConfiguration extends SerializableJsonDocPropertyable implem
          * A list of all allowed nodes. CloudNet will choose the node with the most free resources.
          * If a node is provided using {@link #node(String)}, this option will be ignored.
          */
-        public Builder addAllowedNodes(Collection<String> allowedNodes) {
-            if(this.config.serviceId.allowedNodes == null) {
+        @NotNull
+        public Builder addAllowedNodes(@NotNull Collection<String> allowedNodes) {
+            if (this.config.serviceId.allowedNodes == null) {
                 return this.allowedNodes(allowedNodes);
             }
             this.config.serviceId.allowedNodes.addAll(allowedNodes);
@@ -409,7 +429,8 @@ public class ServiceConfiguration extends SerializableJsonDocPropertyable implem
          * A list of all allowed nodes. CloudNet will choose the node with the most free resources.
          * If a node is provided using {@link #node(String)}, this option will be ignored.
          */
-        public Builder addAllowedNodes(String... allowedNodes) {
+        @NotNull
+        public Builder addAllowedNodes(@NotNull String @NotNull ... allowedNodes) {
             return this.addAllowedNodes(Arrays.asList(allowedNodes));
         }
 
@@ -417,7 +438,8 @@ public class ServiceConfiguration extends SerializableJsonDocPropertyable implem
          * The runtime of the service. If none is provided, the default "jvm" is used.
          * By default, CloudNet only provides the "jvm" runtime, you can add your own with custom modules.
          */
-        public Builder runtime(String runtime) {
+        @NotNull
+        public Builder runtime(@NotNull String runtime) {
             this.config.runtime = runtime;
             return this;
         }
@@ -426,6 +448,7 @@ public class ServiceConfiguration extends SerializableJsonDocPropertyable implem
          * Whether this service should be deleted on stop (doesn't affect files of a static service) or the life cycle
          * should be changed to {@link ServiceLifeCycle#PREPARED}.
          */
+        @NotNull
         public Builder autoDeleteOnStop(boolean autoDeleteOnStop) {
             this.config.autoDeleteOnStop = autoDeleteOnStop;
             return this;
@@ -434,6 +457,7 @@ public class ServiceConfiguration extends SerializableJsonDocPropertyable implem
         /**
          * Alias for {@code autoDeleteOnStop(true)}.
          */
+        @NotNull
         public Builder autoDeleteOnStop() {
             return this.autoDeleteOnStop(true);
         }
@@ -441,6 +465,7 @@ public class ServiceConfiguration extends SerializableJsonDocPropertyable implem
         /**
          * Whether the files should be deleted or saved on deletion of the service.
          */
+        @NotNull
         public Builder staticService(boolean staticService) {
             this.config.staticService = staticService;
             return this;
@@ -449,6 +474,7 @@ public class ServiceConfiguration extends SerializableJsonDocPropertyable implem
         /**
          * Alias for {@code staticService(true)}.
          */
+        @NotNull
         public Builder staticService() {
             return this.staticService(true);
         }
@@ -457,7 +483,8 @@ public class ServiceConfiguration extends SerializableJsonDocPropertyable implem
          * The groups for the new service. CloudNet will apply every template, deployment and inclusion of the given groups
          * to the new service.
          */
-        public Builder groups(String... groups) {
+        @NotNull
+        public Builder groups(@NotNull String @NotNull ... groups) {
             this.config.groups = groups;
             return this;
         }
@@ -466,7 +493,8 @@ public class ServiceConfiguration extends SerializableJsonDocPropertyable implem
          * The groups for the new service. CloudNet will apply every template, deployment and inclusion of the given groups
          * to the new service.
          */
-        public Builder groups(Collection<String> groups) {
+        @NotNull
+        public Builder groups(@NotNull Collection<String> groups) {
             return this.groups(groups.toArray(new String[0]));
         }
 
@@ -474,7 +502,8 @@ public class ServiceConfiguration extends SerializableJsonDocPropertyable implem
          * The groups for the new service. CloudNet will apply every template, deployment and inclusion of the given groups
          * to the new service.
          */
-        public Builder addGroups(String... groups) {
+        @NotNull
+        public Builder addGroups(@NotNull String @NotNull ... groups) {
             List<String> groupList = Arrays.asList(groups);
             groupList.addAll(Arrays.asList(this.config.groups));
             this.config.groups = groupList.toArray(new String[0]);
@@ -485,7 +514,8 @@ public class ServiceConfiguration extends SerializableJsonDocPropertyable implem
          * The groups for the new service. CloudNet will apply every template, deployment and inclusion of the given groups
          * to the new service.
          */
-        public Builder addGroups(Collection<String> groups) {
+        @NotNull
+        public Builder addGroups(@NotNull Collection<String> groups) {
             return this.addGroups(groups.toArray(new String[0]));
         }
 
@@ -493,7 +523,8 @@ public class ServiceConfiguration extends SerializableJsonDocPropertyable implem
          * The inclusions for the new service. They will be copied into the service directory before the service is started
          * or by calling {@link SpecificCloudServiceProvider#includeWaitingServiceInclusions()}.
          */
-        public Builder inclusions(ServiceRemoteInclusion... inclusions) {
+        @NotNull
+        public Builder inclusions(@NotNull ServiceRemoteInclusion @NotNull ... inclusions) {
             this.config.includes = inclusions;
             return this;
         }
@@ -502,7 +533,8 @@ public class ServiceConfiguration extends SerializableJsonDocPropertyable implem
          * The inclusions for the new service. They will be copied into the service directory before the service is started
          * or by calling {@link SpecificCloudServiceProvider#includeWaitingServiceInclusions()}.
          */
-        public Builder inclusions(Collection<ServiceRemoteInclusion> inclusions) {
+        @NotNull
+        public Builder inclusions(@NotNull Collection<ServiceRemoteInclusion> inclusions) {
             return this.inclusions(inclusions.toArray(new ServiceRemoteInclusion[0]));
         }
 
@@ -510,7 +542,8 @@ public class ServiceConfiguration extends SerializableJsonDocPropertyable implem
          * The inclusions for the new service. They will be copied into the service directory before the service is started
          * or by calling {@link SpecificCloudServiceProvider#includeWaitingServiceInclusions()}.
          */
-        public Builder addInclusions(ServiceRemoteInclusion... inclusions) {
+        @NotNull
+        public Builder addInclusions(@NotNull ServiceRemoteInclusion @NotNull ... inclusions) {
             List<ServiceRemoteInclusion> serviceRemoteInclusions = Arrays.asList(inclusions);
             serviceRemoteInclusions.addAll(Arrays.asList(this.config.includes));
             this.config.includes = serviceRemoteInclusions.toArray(new ServiceRemoteInclusion[0]);
@@ -521,7 +554,8 @@ public class ServiceConfiguration extends SerializableJsonDocPropertyable implem
          * The inclusions for the new service. They will be copied into the service directory before the service is started
          * or by calling {@link SpecificCloudServiceProvider#includeWaitingServiceInclusions()}.
          */
-        public Builder addInclusions(Collection<ServiceRemoteInclusion> inclusions) {
+        @NotNull
+        public Builder addInclusions(@NotNull Collection<ServiceRemoteInclusion> inclusions) {
             return this.addInclusions(inclusions.toArray(new ServiceRemoteInclusion[0]));
         }
 
@@ -529,7 +563,8 @@ public class ServiceConfiguration extends SerializableJsonDocPropertyable implem
          * The templates for the new service. They will be copied into the service directory before the service is started
          * or by calling {@link SpecificCloudServiceProvider#includeWaitingServiceTemplates()}.
          */
-        public Builder templates(ServiceTemplate... templates) {
+        @NotNull
+        public Builder templates(@NotNull ServiceTemplate @NotNull ... templates) {
             this.config.templates = templates;
             return this;
         }
@@ -538,7 +573,8 @@ public class ServiceConfiguration extends SerializableJsonDocPropertyable implem
          * The templates for the new service. They will be copied into the service directory before the service is started
          * or by calling {@link SpecificCloudServiceProvider#includeWaitingServiceTemplates()}.
          */
-        public Builder templates(Collection<ServiceTemplate> templates) {
+        @NotNull
+        public Builder templates(@NotNull Collection<ServiceTemplate> templates) {
             return this.templates(templates.toArray(new ServiceTemplate[0]));
         }
 
@@ -546,7 +582,8 @@ public class ServiceConfiguration extends SerializableJsonDocPropertyable implem
          * The templates for the new service. They will be copied into the service directory before the service is started
          * or by calling {@link SpecificCloudServiceProvider#includeWaitingServiceTemplates()}.
          */
-        public Builder addTemplates(ServiceTemplate... templates) {
+        @NotNull
+        public Builder addTemplates(@NotNull ServiceTemplate @NotNull ... templates) {
             List<ServiceTemplate> serviceTemplates = Arrays.asList(templates);
             serviceTemplates.addAll(Arrays.asList(this.config.templates));
             this.config.templates = serviceTemplates.toArray(new ServiceTemplate[0]);
@@ -557,7 +594,8 @@ public class ServiceConfiguration extends SerializableJsonDocPropertyable implem
          * The templates for the new service. They will be copied into the service directory before the service is started
          * or by calling {@link SpecificCloudServiceProvider#includeWaitingServiceTemplates()}.
          */
-        public Builder addTemplates(Collection<ServiceTemplate> templates) {
+        @NotNull
+        public Builder addTemplates(@NotNull Collection<ServiceTemplate> templates) {
             return this.addTemplates(templates.toArray(new ServiceTemplate[0]));
         }
 
@@ -565,7 +603,8 @@ public class ServiceConfiguration extends SerializableJsonDocPropertyable implem
          * The deployments for the new service. They will be copied into the template after the service is stopped
          * or by calling {@link SpecificCloudServiceProvider#deployResources()}.
          */
-        public Builder deployments(ServiceDeployment... deployments) {
+        @NotNull
+        public Builder deployments(@NotNull ServiceDeployment @NotNull ... deployments) {
             this.config.deployments = deployments;
             return this;
         }
@@ -574,7 +613,8 @@ public class ServiceConfiguration extends SerializableJsonDocPropertyable implem
          * The deployments for the new service. They will be copied into the template after the service is stopped
          * or by calling {@link SpecificCloudServiceProvider#deployResources()}.
          */
-        public Builder deployments(Collection<ServiceDeployment> deployments) {
+        @NotNull
+        public Builder deployments(@NotNull Collection<ServiceDeployment> deployments) {
             return this.deployments(deployments.toArray(new ServiceDeployment[0]));
         }
 
@@ -582,7 +622,8 @@ public class ServiceConfiguration extends SerializableJsonDocPropertyable implem
          * The deployments for the new service. They will be copied into the template after the service is stopped
          * or by calling {@link SpecificCloudServiceProvider#deployResources()}.
          */
-        public Builder addDeployments(ServiceDeployment... deployments) {
+        @NotNull
+        public Builder addDeployments(@NotNull ServiceDeployment @NotNull ... deployments) {
             List<ServiceDeployment> serviceDeployments = Arrays.asList(deployments);
             serviceDeployments.addAll(Arrays.asList(this.config.deployments));
             this.config.deployments = serviceDeployments.toArray(new ServiceDeployment[0]);
@@ -593,14 +634,16 @@ public class ServiceConfiguration extends SerializableJsonDocPropertyable implem
          * The deployments for the new service. They will be copied into the template after the service is stopped
          * or by calling {@link SpecificCloudServiceProvider#deployResources()}.
          */
-        public Builder addDeployments(Collection<ServiceDeployment> deployments) {
+        @NotNull
+        public Builder addDeployments(@NotNull Collection<ServiceDeployment> deployments) {
             return this.addDeployments(deployments.toArray(new ServiceDeployment[0]));
         }
 
         /**
          * The files that should be deleted after the service has been stopped.
          */
-        public Builder deleteFilesAfterStop(String... deletedFilesAfterStop) {
+        @NotNull
+        public Builder deleteFilesAfterStop(@NotNull String @NotNull ... deletedFilesAfterStop) {
             this.config.deletedFilesAfterStop = deletedFilesAfterStop;
             return this;
         }
@@ -608,14 +651,16 @@ public class ServiceConfiguration extends SerializableJsonDocPropertyable implem
         /**
          * The files that should be deleted after the service has been stopped.
          */
-        public Builder deleteFilesAfterStop(Collection<String> deletedFilesAfterStop) {
+        @NotNull
+        public Builder deleteFilesAfterStop(@NotNull Collection<String> deletedFilesAfterStop) {
             return this.deleteFilesAfterStop(deletedFilesAfterStop.toArray(new String[0]));
         }
 
         /**
          * The files that should be deleted after the service has been stopped.
          */
-        public Builder addDeletedFilesAfterStop(String... deletedFilesAfterStop) {
+        @NotNull
+        public Builder addDeletedFilesAfterStop(@NotNull String @NotNull ... deletedFilesAfterStop) {
             List<String> deletedFiles = Arrays.asList(deletedFilesAfterStop);
             deletedFiles.addAll(Arrays.asList(this.config.deletedFilesAfterStop));
             this.config.deletedFilesAfterStop = deletedFiles.toArray(new String[0]);
@@ -625,13 +670,15 @@ public class ServiceConfiguration extends SerializableJsonDocPropertyable implem
         /**
          * The files that should be deleted after the service has been stopped.
          */
-        public Builder addDeletedFilesAfterStop(Collection<String> deletedFilesAfterStop) {
+        @NotNull
+        public Builder addDeletedFilesAfterStop(@NotNull Collection<String> deletedFilesAfterStop) {
             return this.addDeletedFilesAfterStop(deletedFilesAfterStop.toArray(new String[0]));
         }
 
         /**
          * The max heap memory for the new service.
          */
+        @NotNull
         public Builder maxHeapMemory(int maxHeapMemory) {
             this.config.processConfig.setMaxHeapMemorySize(maxHeapMemory);
             return this;
@@ -640,7 +687,8 @@ public class ServiceConfiguration extends SerializableJsonDocPropertyable implem
         /**
          * The jvm options for the new service. They will be added directly before the "-Xmx" parameter in the startup command.
          */
-        public Builder jvmOptions(Collection<String> jvmOptions) {
+        @NotNull
+        public Builder jvmOptions(@NotNull Collection<String> jvmOptions) {
             this.config.processConfig.jvmOptions = new ArrayList<>(jvmOptions);
             return this;
         }
@@ -648,22 +696,25 @@ public class ServiceConfiguration extends SerializableJsonDocPropertyable implem
         /**
          * The jvm options for the new service. They will be added directly before the "-Xmx" parameter in the startup command.
          */
-        public Builder jvmOptions(String... jvmOptions) {
+        @NotNull
+        public Builder jvmOptions(@NotNull String @NotNull ... jvmOptions) {
             return this.jvmOptions(Arrays.asList(jvmOptions));
         }
 
         /**
          * The jvm options for the new service. They will be added directly before the "-Xmx" parameter in the startup command.
          */
-        public Builder addJvmOptions(String... jvmOptions) {
+        @NotNull
+        public Builder addJvmOptions(@NotNull String @NotNull ... jvmOptions) {
             return this.addJvmOptions(Arrays.asList(jvmOptions));
         }
 
         /**
          * The jvm options for the new service. They will be added directly before the "-Xmx" parameter in the startup command.
          */
-        public Builder addJvmOptions(Collection<String> jvmOptions) {
-            if(this.config.processConfig.jvmOptions == null) {
+        @NotNull
+        public Builder addJvmOptions(@NotNull Collection<String> jvmOptions) {
+            if (this.config.processConfig.jvmOptions == null) {
                 return this.jvmOptions(jvmOptions);
             }
             this.config.processConfig.jvmOptions.addAll(jvmOptions);
@@ -673,7 +724,8 @@ public class ServiceConfiguration extends SerializableJsonDocPropertyable implem
         /**
          * The process parameters for the new service. This will be the last parameters that will be added to the command.
          */
-        public Builder processParameters(Collection<String> jvmOptions) {
+        @NotNull
+        public Builder processParameters(@NotNull Collection<String> jvmOptions) {
             this.config.processConfig.processParameters = new ArrayList<>(jvmOptions);
             return this;
         }
@@ -681,14 +733,16 @@ public class ServiceConfiguration extends SerializableJsonDocPropertyable implem
         /**
          * The process parameters for the new service. This will be the last parameters that will be added to the command.
          */
-        public Builder addProcessParameters(String... jvmOptions) {
+        @NotNull
+        public Builder addProcessParameters(@NotNull String @NotNull ... jvmOptions) {
             return this.addProcessParameters(Arrays.asList(jvmOptions));
         }
 
         /**
          * The process parameters for the new service. This will be the last parameters that will be added to the command.
          */
-        public Builder addProcessParameters(Collection<String> jvmOptions) {
+        @NotNull
+        public Builder addProcessParameters(@NotNull Collection<String> jvmOptions) {
             this.config.processConfig.processParameters.addAll(jvmOptions);
             return this;
         }
@@ -697,6 +751,7 @@ public class ServiceConfiguration extends SerializableJsonDocPropertyable implem
          * The start port for the new service. CloudNet will test whether the port is used or not, it will count up 1
          * while the port is used.
          */
+        @NotNull
         public Builder startPort(int startPort) {
             this.config.port = startPort;
             return this;
@@ -706,11 +761,13 @@ public class ServiceConfiguration extends SerializableJsonDocPropertyable implem
          * The default properties of the new service. CloudNet itself completely ignores them, but they can be useful if
          * you want to transport data from the component that has created the service to the new service.
          */
-        public Builder properties(JsonDocument properties) {
+        @NotNull
+        public Builder properties(@NotNull JsonDocument properties) {
             this.config.properties = properties;
             return this;
         }
 
+        @NotNull
         public ServiceConfiguration build() {
             Preconditions.checkNotNull(this.config.serviceId.taskName, "No task provided");
             Preconditions.checkNotNull(this.config.serviceId.environment, "No environment provided");
