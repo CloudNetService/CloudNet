@@ -394,6 +394,23 @@ public class ServiceConfiguration extends SerializableJsonDocPropertyable implem
         }
 
         /**
+         * A list of all allowed nodes. CloudNet will choose the node with the most free resources.
+         * If a node is provided using {@link #node(String)}, this option will be ignored.
+         */
+        public Builder addAllowedNodes(Collection<String> allowedNodes) {
+            this.config.serviceId.allowedNodes.addAll(allowedNodes);
+            return this;
+        }
+
+        /**
+         * A list of all allowed nodes. CloudNet will choose the node with the most free resources.
+         * If a node is provided using {@link #node(String)}, this option will be ignored.
+         */
+        public Builder addAllowedNodes(String... allowedNodes) {
+            return this.addAllowedNodes(Arrays.asList(allowedNodes));
+        }
+
+        /**
          * The runtime of the service. If none is provided, the default "jvm" is used.
          * By default, CloudNet only provides the "jvm" runtime, you can add your own with custom modules.
          */
@@ -451,6 +468,25 @@ public class ServiceConfiguration extends SerializableJsonDocPropertyable implem
         }
 
         /**
+         * The groups for the new service. CloudNet will apply every template, deployment and inclusion of the given groups
+         * to the new service.
+         */
+        public Builder addGroups(String... groups) {
+            List<String> groupList = Arrays.asList(groups);
+            groupList.addAll(Arrays.asList(this.config.groups));
+            this.config.groups = groupList.toArray(new String[0]);
+            return this;
+        }
+
+        /**
+         * The groups for the new service. CloudNet will apply every template, deployment and inclusion of the given groups
+         * to the new service.
+         */
+        public Builder addGroups(Collection<String> groups) {
+            return this.addGroups(groups.toArray(new String[0]));
+        }
+
+        /**
          * The inclusions for the new service. They will be copied into the service directory before the service is started
          * or by calling {@link SpecificCloudServiceProvider#includeWaitingServiceInclusions()}.
          */
@@ -465,6 +501,25 @@ public class ServiceConfiguration extends SerializableJsonDocPropertyable implem
          */
         public Builder inclusions(Collection<ServiceRemoteInclusion> inclusions) {
             return this.inclusions(inclusions.toArray(new ServiceRemoteInclusion[0]));
+        }
+
+        /**
+         * The inclusions for the new service. They will be copied into the service directory before the service is started
+         * or by calling {@link SpecificCloudServiceProvider#includeWaitingServiceInclusions()}.
+         */
+        public Builder addInclusions(ServiceRemoteInclusion... inclusions) {
+            List<ServiceRemoteInclusion> serviceRemoteInclusions = Arrays.asList(inclusions);
+            serviceRemoteInclusions.addAll(Arrays.asList(this.config.includes));
+            this.config.includes = serviceRemoteInclusions.toArray(new ServiceRemoteInclusion[0]);
+            return this;
+        }
+
+        /**
+         * The inclusions for the new service. They will be copied into the service directory before the service is started
+         * or by calling {@link SpecificCloudServiceProvider#includeWaitingServiceInclusions()}.
+         */
+        public Builder addInclusions(Collection<ServiceRemoteInclusion> inclusions) {
+            return this.addInclusions(inclusions.toArray(new ServiceRemoteInclusion[0]));
         }
 
         /**
@@ -521,6 +576,25 @@ public class ServiceConfiguration extends SerializableJsonDocPropertyable implem
         }
 
         /**
+         * The deployments for the new service. They will be copied into the template after the service is stopped
+         * or by calling {@link SpecificCloudServiceProvider#deployResources()}.
+         */
+        public Builder addDeployments(ServiceDeployment... deployments) {
+            List<ServiceDeployment> serviceDeployments = Arrays.asList(deployments);
+            serviceDeployments.addAll(Arrays.asList(this.config.deployments));
+            this.config.deployments = serviceDeployments.toArray(new ServiceDeployment[0]);
+            return this;
+        }
+
+        /**
+         * The deployments for the new service. They will be copied into the template after the service is stopped
+         * or by calling {@link SpecificCloudServiceProvider#deployResources()}.
+         */
+        public Builder addDeployments(Collection<ServiceDeployment> deployments) {
+            return this.addDeployments(deployments.toArray(new ServiceDeployment[0]));
+        }
+
+        /**
          * The files that should be deleted after the service has been stopped.
          */
         public Builder deleteFilesAfterStop(String... deletedFilesAfterStop) {
@@ -533,6 +607,23 @@ public class ServiceConfiguration extends SerializableJsonDocPropertyable implem
          */
         public Builder deleteFilesAfterStop(Collection<String> deletedFilesAfterStop) {
             return this.deleteFilesAfterStop(deletedFilesAfterStop.toArray(new String[0]));
+        }
+
+        /**
+         * The files that should be deleted after the service has been stopped.
+         */
+        public Builder addDeleteFilesAfterStop(String... deletedFilesAfterStop) {
+            List<String> deletedFiles = Arrays.asList(deletedFilesAfterStop);
+            deletedFiles.addAll(Arrays.asList(this.config.deletedFilesAfterStop));
+            this.config.deletedFilesAfterStop = deletedFiles.toArray(new String[0]);
+            return this;
+        }
+
+        /**
+         * The files that should be deleted after the service has been stopped.
+         */
+        public Builder addDeleteFilesAfterStop(Collection<String> deletedFilesAfterStop) {
+            return this.addDeleteFilesAfterStop(deletedFilesAfterStop.toArray(new String[0]));
         }
 
         /**
@@ -552,6 +643,28 @@ public class ServiceConfiguration extends SerializableJsonDocPropertyable implem
         }
 
         /**
+         * The jvm options for the new service. They will be added directly before the "-Xmx" parameter in the startup command.
+         */
+        public Builder jvmOptions(String... jvmOptions) {
+            return this.jvmOptions(Arrays.asList(jvmOptions));
+        }
+
+        /**
+         * The jvm options for the new service. They will be added directly before the "-Xmx" parameter in the startup command.
+         */
+        public Builder addJvmOptions(String... jvmOptions) {
+            return this.addJvmOptions(Arrays.asList(jvmOptions));
+        }
+
+        /**
+         * The jvm options for the new service. They will be added directly before the "-Xmx" parameter in the startup command.
+         */
+        public Builder addJvmOptions(Collection<String> jvmOptions) {
+            this.config.processConfig.jvmOptions.addAll(jvmOptions);
+            return this;
+        }
+
+        /**
          * The process parameters for the new service. This will be the last parameters that will be added to the command.
          */
         public Builder processParameters(Collection<String> jvmOptions) {
@@ -560,10 +673,18 @@ public class ServiceConfiguration extends SerializableJsonDocPropertyable implem
         }
 
         /**
-         * The jvm options for the new service. They will be added directly before the "-Xmx" parameter in the startup command.
+         * The process parameters for the new service. This will be the last parameters that will be added to the command.
          */
-        public Builder jvmOptions(String... jvmOptions) {
-            return this.jvmOptions(Arrays.asList(jvmOptions));
+        public Builder addProcessParameters(String... jvmOptions) {
+            return this.addProcessParameters(Arrays.asList(jvmOptions));
+        }
+
+        /**
+         * The process parameters for the new service. This will be the last parameters that will be added to the command.
+         */
+        public Builder addProcessParameters(Collection<String> jvmOptions) {
+            this.config.processConfig.processParameters.addAll(jvmOptions);
+            return this;
         }
 
         /**
