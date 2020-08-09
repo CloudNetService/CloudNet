@@ -398,6 +398,9 @@ public class ServiceConfiguration extends SerializableJsonDocPropertyable implem
          * If a node is provided using {@link #node(String)}, this option will be ignored.
          */
         public Builder addAllowedNodes(Collection<String> allowedNodes) {
+            if(this.config.serviceId.allowedNodes == null) {
+                return this.allowedNodes(allowedNodes);
+            }
             this.config.serviceId.allowedNodes.addAll(allowedNodes);
             return this;
         }
@@ -660,6 +663,9 @@ public class ServiceConfiguration extends SerializableJsonDocPropertyable implem
          * The jvm options for the new service. They will be added directly before the "-Xmx" parameter in the startup command.
          */
         public Builder addJvmOptions(Collection<String> jvmOptions) {
+            if(this.config.processConfig.jvmOptions == null) {
+                return this.jvmOptions(jvmOptions);
+            }
             this.config.processConfig.jvmOptions.addAll(jvmOptions);
             return this;
         }
