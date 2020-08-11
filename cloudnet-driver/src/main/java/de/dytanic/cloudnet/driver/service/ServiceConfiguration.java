@@ -504,7 +504,7 @@ public class ServiceConfiguration extends SerializableJsonDocPropertyable implem
          */
         @NotNull
         public Builder addGroups(@NotNull String @NotNull ... groups) {
-            List<String> groupList = Arrays.asList(groups);
+            List<String> groupList = new ArrayList<>(Arrays.asList(groups));
             groupList.addAll(Arrays.asList(this.config.groups));
             this.config.groups = groupList.toArray(new String[0]);
             return this;
@@ -544,7 +544,7 @@ public class ServiceConfiguration extends SerializableJsonDocPropertyable implem
          */
         @NotNull
         public Builder addInclusions(@NotNull ServiceRemoteInclusion @NotNull ... inclusions) {
-            List<ServiceRemoteInclusion> serviceRemoteInclusions = Arrays.asList(inclusions);
+            List<ServiceRemoteInclusion> serviceRemoteInclusions = new ArrayList<>(Arrays.asList(inclusions));
             serviceRemoteInclusions.addAll(Arrays.asList(this.config.includes));
             this.config.includes = serviceRemoteInclusions.toArray(new ServiceRemoteInclusion[0]);
             return this;
@@ -584,7 +584,7 @@ public class ServiceConfiguration extends SerializableJsonDocPropertyable implem
          */
         @NotNull
         public Builder addTemplates(@NotNull ServiceTemplate @NotNull ... templates) {
-            List<ServiceTemplate> serviceTemplates = Arrays.asList(templates);
+            List<ServiceTemplate> serviceTemplates = new ArrayList<>(Arrays.asList(templates));
             serviceTemplates.addAll(Arrays.asList(this.config.templates));
             this.config.templates = serviceTemplates.toArray(new ServiceTemplate[0]);
             return this;
@@ -624,7 +624,7 @@ public class ServiceConfiguration extends SerializableJsonDocPropertyable implem
          */
         @NotNull
         public Builder addDeployments(@NotNull ServiceDeployment @NotNull ... deployments) {
-            List<ServiceDeployment> serviceDeployments = Arrays.asList(deployments);
+            List<ServiceDeployment> serviceDeployments = new ArrayList<>(Arrays.asList(deployments));
             serviceDeployments.addAll(Arrays.asList(this.config.deployments));
             this.config.deployments = serviceDeployments.toArray(new ServiceDeployment[0]);
             return this;
@@ -661,7 +661,7 @@ public class ServiceConfiguration extends SerializableJsonDocPropertyable implem
          */
         @NotNull
         public Builder addDeletedFilesAfterStop(@NotNull String @NotNull ... deletedFilesAfterStop) {
-            List<String> deletedFiles = Arrays.asList(deletedFilesAfterStop);
+            List<String> deletedFiles = new ArrayList<>(Arrays.asList(deletedFilesAfterStop));
             deletedFiles.addAll(Arrays.asList(this.config.deletedFilesAfterStop));
             this.config.deletedFilesAfterStop = deletedFiles.toArray(new String[0]);
             return this;
