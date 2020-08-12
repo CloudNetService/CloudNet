@@ -8,6 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Arrays;
 import java.util.UUID;
 import java.util.function.Consumer;
 
@@ -62,7 +63,7 @@ public class ChunkedPacket extends Packet {
         int read;
         byte[] buffer = new byte[chunkSize];
         while ((read = stream.read(buffer)) != -1) {
-            consumer.accept(createSegment(channel, uniqueId, chunkId++, chunkSize, read, buffer));
+            consumer.accept(createSegment(channel, uniqueId, chunkId++, chunkSize, read, Arrays.copyOf(buffer, buffer.length)));
         }
 
         consumer.accept(createEndPacket(channel, uniqueId, chunkId, chunkSize));

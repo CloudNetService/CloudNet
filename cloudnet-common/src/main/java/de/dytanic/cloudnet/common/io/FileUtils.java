@@ -340,7 +340,6 @@ public final class FileUtils {
     }
 
     public static void extract0(ZipInputStream zipInputStream, Path targetDirectory) throws IOException {
-        System.out.println("EXTRACT: " + targetDirectory.toString());
         ZipEntry zipEntry;
         while ((zipEntry = zipInputStream.getNextEntry()) != null) {
             extract1(zipInputStream, zipEntry, targetDirectory);
@@ -367,31 +366,23 @@ public final class FileUtils {
 
     private static void extract1(ZipInputStream zipInputStream, ZipEntry zipEntry, Path targetDirectory) throws IOException {
         Path file = targetDirectory.resolve(zipEntry.getName());
-        System.out.println("EXTRACT1; entry: " + zipEntry.getName() + ", TO " + file.toString());
 
         if (zipEntry.isDirectory()) {
-            System.out.println("EXTRACT2; entry: " + zipEntry.getName());
             if (!Files.exists(file)) {
-                System.out.println("EXTRACT3; entry: " + zipEntry.getName());
                 Files.createDirectories(file);
             }
         } else {
-            System.out.println("EXTRACT4; entry: " + zipEntry.getName());
             Path parent = file.getParent();
             if (!Files.exists(parent)) {
-                System.out.println("EXTRACT5; entry: " + zipEntry.getName());
                 Files.createDirectories(parent);
             }
 
             if (Files.exists(file)) {
-                System.out.println("EXTRACT6; entry: " + zipEntry.getName());
                 Files.delete(file);
             }
 
-            System.out.println("EXTRACT7; entry: " + zipEntry.getName());
             Files.createFile(file);
             try (OutputStream outputStream = Files.newOutputStream(file)) {
-                System.out.println("EXTRACT8; entry: " + zipEntry.getName());
                 copy(zipInputStream, outputStream);
             }
         }

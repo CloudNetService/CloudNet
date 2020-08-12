@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
@@ -120,6 +121,7 @@ public final class DefaultClusterNodeServerProvider implements IClusterNodeServe
                 .values()
                 .stream()
                 .map(IClusterNodeServer::getChannel)
+                .filter(Objects::nonNull)
                 .map(ServerChunkedPacketSession::createSession)
                 .collect(Collectors.toList());
 

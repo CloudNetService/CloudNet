@@ -9,6 +9,7 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.Map;
 import java.util.UUID;
 
@@ -28,7 +29,7 @@ public abstract class CachedChunkedPacketListener extends ChunkedPacketListener 
         Path path = (Path) session.getProperties().get("path");
         Preconditions.checkArgument(Files.exists(path), "Path of the cache doesn't exist");
 
-        try (InputStream inputStream = Files.newInputStream(path/*, StandardOpenOption.DELETE_ON_CLOSE*/)) {
+        try (InputStream inputStream = Files.newInputStream(path, StandardOpenOption.DELETE_ON_CLOSE)) {
             this.handleComplete(session, inputStream);
         }
     }

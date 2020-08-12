@@ -8,7 +8,6 @@ import de.dytanic.cloudnet.driver.network.protocol.chunk.ChunkedPacket;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.channels.ClosedChannelException;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.PriorityQueue;
 import java.util.Queue;
@@ -32,7 +31,7 @@ public final class ServerChunkedPacketSession {
     };
 
     static {
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> THREAD_POOL.shutdownNow()));
+        Runtime.getRuntime().addShutdownHook(new Thread(THREAD_POOL::shutdownNow));
     }
 
     private final Queue<PendingChunk> queue = new PriorityQueue<>(Comparator.comparingInt(p -> p.packet.getChunkId()));
@@ -95,9 +94,6 @@ public final class ServerChunkedPacketSession {
                     ServerChunkedPacketSession.this.discard(th);
                 }
             });
-            try {
-                Thread.sleep(50);
-            } catch (InterruptedException exception) {}
         }
 
         if (this.queue.isEmpty()) { // all chunks were sent
