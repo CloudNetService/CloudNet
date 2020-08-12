@@ -5,8 +5,8 @@ import de.dytanic.cloudnet.driver.network.protocol.chunk.ChunkedPacket;
 import de.dytanic.cloudnet.driver.network.protocol.chunk.client.ChunkedPacketListener;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Assert;
+import org.junit.Test;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -19,7 +19,7 @@ import java.util.UUID;
 
 public class ChunkedPacketTest {
 
-    //@Test
+    @Test
     public void testChunkedPacket() throws IOException {
 
         Path input = Paths.get("build/chunked_packet");
@@ -29,8 +29,8 @@ public class ChunkedPacketTest {
         Files.deleteIfExists(output);
 
         try (OutputStream outputStream = Files.newOutputStream(input)) {
+            Random random = new Random();
             for (int i = 0; i < 256; i++) {
-                Random random = new Random();
                 byte[] data = new byte[1024 * 1024];
                 random.nextBytes(data);
 
@@ -46,7 +46,7 @@ public class ChunkedPacketTest {
         try (InputStream inputStream = Files.newInputStream(input)) {
             ChunkedPacket.createChunkedPackets(inputStream, header, 1, packet -> {
                 try {
-                    // TODO: see that channel is normally not-null.    listener.handle(null, packet);
+                    listener.handle(null, packet.fillBuffer());
                 } catch (Exception exception) {
                     exception.printStackTrace();
                 }
@@ -101,7 +101,7 @@ public class ChunkedPacketTest {
 
         @Override
         protected @NotNull OutputStream createOutputStream(@NotNull UUID sessionUniqueId, @NotNull Map<String, Object> properties) throws IOException {
-            return null;
+            return Files.newOutputStream(path);
         }
     }
 
