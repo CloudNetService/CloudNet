@@ -7,6 +7,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.Arrays;
 import java.util.UUID;
 import java.util.function.Consumer;
 
@@ -31,7 +33,7 @@ public class ChunkedPacket extends Packet {
         this.chunks = chunks;
     }
 
-    protected ChunkedPacket(int channel, @NotNull UUID uniqueId, @NotNull JsonDocument header, ProtocolBuffer body) {
+    public ChunkedPacket(int channel, @NotNull UUID uniqueId, @NotNull JsonDocument header, ProtocolBuffer body) {
         super(channel, uniqueId, header, body);
     }
 
@@ -51,65 +53,69 @@ public class ChunkedPacket extends Packet {
         createChunkedPackets(stream, header, channel, DEFAULT_CHUNK_SIZE, consumer);
     }
 
-    public static void createChunkedPackets(InputStream stream, JsonDocument header, int channel, int chunkSize, Consumer<ChunkedPacket> consumer) throws IOException {
+    public static boolean createChunkedPackets(InputStream stream, JsonDocument header, int channel, int chunkSize, Consumer<ChunkedPacket> consumer) throws IOException {
         UUID uniqueId = UUID.randomUUID();
 
-        consumer.accept(createStartPacket(channel, uniqueId, header, chunkSize).fillBuffer());
+        try {
+            consumer.accept(createStartPacket(channel, uniqueId, header, chunkSize));
 
-        int chunkId = 1;
+            int chunkId = 1;
 
-        byte[] buffer = new byte[chunkSize];
-        int read;
-        while ((read = stream.read(buffer)) != -1) {
-            consumer.accept(createSegment(channel, uniqueId, chunkId++, chunkSize, read, buffer).fillBuffer());
+            int read;
+            byte[] buffer = new byte[chunkSize];
+            while ((read = stream.read(buffer)) != -1) {
+                consumer.accept(createSegment(channel, uniqueId, chunkId++, chunkSize, read, Arrays.copyOf(buffer, buffer.length)));
+            }
+
+            consumer.accept(createEndPacket(channel, uniqueId, chunkId, chunkSize));
+
+            return true;
+        } catch (ChunkInterrupt interrupt) {
+            return false;
         }
-
-        consumer.accept(createEndPacket(channel, uniqueId, chunkId, chunkSize).fillBuffer());
     }
 
     public ChunkedPacket fillBuffer() {
-        if (this.chunkId == 0) {
-            super.body = ProtocolBuffer.create().writeVarInt(0).writeInt(this.chunkSize);
+        if (super.body != null) { // The buffer is filled already
             return this;
         }
 
-        super.body = ProtocolBuffer.create()
-                .writeVarInt(this.chunkId)
-                .writeBoolean(this.end);
+        super.body = ProtocolBuffer.create().writeVarInt(this.chunkId);
+        if (this.chunkId == 0) {
+            super.body.writeInt(this.chunkSize);
+            return this;
+        }
+
+        super.body.writeBoolean(this.end);
         if (this.end) {
             super.body.writeVarInt(this.chunks);
             return this;
         }
 
-        boolean extraLength = this.dataLength != this.chunkSize;
-        super.body.writeBoolean(extraLength);
-        if (extraLength) {
-            super.body.writeInt(this.dataLength);
-        }
-        super.body.writeBytes(this.data, 0, this.dataLength);
-
+        super.body.writeInt(this.dataLength).writeBytes(this.data, 0, this.dataLength);
         return this;
     }
 
-    public void readBuffer(ChunkedPacket startPacket) {
+    public @NotNull ChunkedPacket readBuffer() {
         ProtocolBuffer body = super.body;
 
         this.chunkId = body.readVarInt();
         if (this.chunkId == 0) {
             this.chunkSize = body.readInt();
-            return;
+            return this;
         }
 
         this.end = body.readBoolean();
         if (this.end) {
             this.chunks = body.readVarInt();
-            return;
         }
 
-        this.dataLength = body.readBoolean() ? body.readInt() : startPacket.chunkSize;
+        return this;
+    }
 
-        this.data = new byte[this.dataLength];
-        body.readBytes(this.data);
+    public void readData(@NotNull OutputStream outputStream) throws IOException {
+        this.dataLength = body.readInt();
+        body.readBytes(outputStream, this.dataLength);
     }
 
     public int getChunks() {
@@ -133,8 +139,12 @@ public class ChunkedPacket extends Packet {
     }
 
     public void clearData() {
-        super.body.release();
-        this.data = Packet.EMPTY_PACKET_BYTE_ARRAY;
-    }
+        if (super.body != null) {
+            while (super.body.refCnt() > 0) {
+                super.body.release();
+            }
+        }
 
+        this.data = null;
+    }
 }

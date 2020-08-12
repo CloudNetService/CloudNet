@@ -55,4 +55,7 @@ public interface INetworkChannel extends IPacketSender, AutoCloseable {
 
     IPacket sendQuery(@NotNull IPacket packet);
 
+    boolean isWriteable();
+
+    boolean isActive();
 }

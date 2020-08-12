@@ -1,4 +1,4 @@
-package de.dytanic.cloudnet.driver.network.protocol.chunk;
+package de.dytanic.cloudnet.driver.network.protocol.chunk.client;
 
 import com.google.common.base.Preconditions;
 import org.jetbrains.annotations.NotNull;
@@ -11,20 +11,21 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.Map;
+import java.util.UUID;
 
 public abstract class CachedChunkedPacketListener extends ChunkedPacketListener {
+
     @Override
-    protected @NotNull OutputStream createOutputStream(ChunkedPacket startPacket, Map<String, Object> properties) throws IOException {
-        Path path = Paths.get(System.getProperty("cloudnet.tempDir", "temp"), startPacket.getUniqueId().toString());
+    protected @NotNull OutputStream createOutputStream(@NotNull UUID sessionUniqueId, @NotNull Map<String, Object> properties) throws IOException {
+        Path path = Paths.get(System.getProperty("cloudnet.tempDir", "temp"), sessionUniqueId.toString());
         Files.createDirectories(path.getParent());
 
         properties.put("path", path);
-
         return Files.newOutputStream(path);
     }
 
     @Override
-    protected void handleComplete(ChunkedPacketSession session) throws IOException {
+    protected void handleComplete(@NotNull ClientChunkedPacketSession session) throws IOException {
         Path path = (Path) session.getProperties().get("path");
         Preconditions.checkArgument(Files.exists(path), "Path of the cache doesn't exist");
 
@@ -33,6 +34,5 @@ public abstract class CachedChunkedPacketListener extends ChunkedPacketListener 
         }
     }
 
-    protected abstract void handleComplete(ChunkedPacketSession session, InputStream inputStream) throws IOException;
-
+    protected abstract void handleComplete(@NotNull ClientChunkedPacketSession session, @NotNull InputStream inputStream) throws IOException;
 }

@@ -273,6 +273,7 @@ public final class FileUtils {
     private static void zipStream(Path source, OutputStream buffer) throws IOException {
         try (ZipOutputStream zipOutputStream = new ZipOutputStream(buffer, StandardCharsets.UTF_8)) {
             zipDir(source, zipOutputStream);
+            zipOutputStream.finish();
         }
     }
 
@@ -338,10 +339,8 @@ public final class FileUtils {
         return targetDirectory;
     }
 
-    public static void extract0(ZipInputStream zipInputStream, Path targetDirectory)
-            throws IOException {
+    public static void extract0(ZipInputStream zipInputStream, Path targetDirectory) throws IOException {
         ZipEntry zipEntry;
-
         while ((zipEntry = zipInputStream.getNextEntry()) != null) {
             extract1(zipInputStream, zipEntry, targetDirectory);
             zipInputStream.closeEntry();
@@ -365,9 +364,8 @@ public final class FileUtils {
         return bytes;
     }
 
-    private static void extract1(ZipInputStream zipInputStream, ZipEntry zipEntry,
-                                 Path targetDirectory) throws IOException {
-        Path file = Paths.get(targetDirectory.toString(), zipEntry.getName());
+    private static void extract1(ZipInputStream zipInputStream, ZipEntry zipEntry, Path targetDirectory) throws IOException {
+        Path file = targetDirectory.resolve(zipEntry.getName());
 
         if (zipEntry.isDirectory()) {
             if (!Files.exists(file)) {
