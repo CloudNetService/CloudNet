@@ -45,9 +45,9 @@ public final class BungeeSyncProxyPlayerListener implements Listener {
                 int onlinePlayers = this.syncProxyManagement.getSyncProxyOnlineCount();
 
                 int maxPlayers = syncProxyMotd.isAutoSlot() ? Math.min(
-                        this.syncProxyManagement.getLoginConfiguration().getMaxPlayers(),
+                        syncProxyProxyLoginConfiguration.getMaxPlayers(),
                         onlinePlayers + syncProxyMotd.getAutoSlotMaxPlayersDistance()
-                ) : this.syncProxyManagement.getLoginConfiguration().getMaxPlayers();
+                ) : syncProxyProxyLoginConfiguration.getMaxPlayers();
 
                 ServerPing.PlayerInfo[] playerInfo = new ServerPing.PlayerInfo[syncProxyMotd.getPlayerInfo() != null ? syncProxyMotd.getPlayerInfo().length : 0];
                 for (int i = 0; i < playerInfo.length; i++) {
@@ -101,7 +101,7 @@ public final class BungeeSyncProxyPlayerListener implements Listener {
                 return;
             }
 
-            if (this.syncProxyManagement.getSyncProxyOnlineCount() >= this.syncProxyManagement.getLoginConfiguration().getMaxPlayers() &&
+            if (this.syncProxyManagement.getSyncProxyOnlineCount() >= syncProxyProxyLoginConfiguration.getMaxPlayers() &&
                     !loginProxiedPlayer.hasPermission("cloudnet.syncproxy.fulljoin")) {
                 event.setCancelled(true);
                 event.setCancelReason(TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', this.syncProxyManagement.getSyncProxyConfiguration().getMessages()
