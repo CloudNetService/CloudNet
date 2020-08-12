@@ -16,7 +16,13 @@ import java.util.stream.Collectors;
 
 @ToString
 @EqualsAndHashCode
+/**
+ * A snapshot of a process in the Cloud which provides information about the cpu and memory usage, the running threads
+ * and the pid.
+ */
 public class ProcessSnapshot implements SerializableObject {
+
+    private static final ProcessSnapshot EMPTY = new ProcessSnapshot(-1, -1, -1, -1, -1, -1, Collections.emptyList(), -1, -1);
 
     private static final int ownPID;
 
@@ -126,11 +132,21 @@ public class ProcessSnapshot implements SerializableObject {
         this.cpuUsage = buffer.readDouble();
         this.pid = buffer.readInt();
     }
-  
+
+    /**
+     * Gets an empty snapshot without any information about the process.
+     *
+     * @return an empty constant {@link ProcessSnapshot}
+     */
     public static ProcessSnapshot empty() {
-        return new ProcessSnapshot(-1, -1, -1, -1, -1, -1, Collections.emptyList(), -1, -1);
+        return EMPTY;
     }
 
+    /**
+     * Creates a new snapshot with information about the current process.
+     *
+     * @return a new {@link ProcessSnapshot}
+     */
     public static ProcessSnapshot self() {
         MemoryMXBean memoryMXBean = ManagementFactory.getMemoryMXBean();
         ClassLoadingMXBean classLoadingMXBean = ManagementFactory.getClassLoadingMXBean();
@@ -150,6 +166,9 @@ public class ProcessSnapshot implements SerializableObject {
         );
     }
 
+    /**
+     * Gets the PID of the current process or -1 if it couldn't be fetched.
+     */
     public static int getOwnPID() {
         return ProcessSnapshot.ownPID;
     }

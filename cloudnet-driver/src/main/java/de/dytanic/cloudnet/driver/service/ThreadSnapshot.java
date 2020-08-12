@@ -8,6 +8,9 @@ import org.jetbrains.annotations.NotNull;
 
 @ToString
 @EqualsAndHashCode
+/**
+ * The information of a thread running on any process in the Cloud.
+ */
 public class ThreadSnapshot implements SerializableObject {
 
     private long id;
