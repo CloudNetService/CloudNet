@@ -41,6 +41,12 @@ public abstract class AbstractSyncProxyManagement {
 
     protected abstract void broadcastServiceStateChange(String key, ServiceInfoSnapshot serviceInfoSnapshot);
 
+    protected String getServiceStateChangeMessage(String key, ServiceInfoSnapshot serviceInfoSnapshot) {
+        return this.syncProxyConfiguration.getMessages().get(key)
+                .replace("%service%", serviceInfoSnapshot.getServiceId().getName())
+                .replace("%node%", serviceInfoSnapshot.getServiceId().getNodeUniqueId());
+    }
+
     protected void updateServiceOnlineCount(ServiceInfoSnapshot serviceInfoSnapshot) {
         this.onlineCountCache.put(
                 serviceInfoSnapshot.getServiceId().getUniqueId(),

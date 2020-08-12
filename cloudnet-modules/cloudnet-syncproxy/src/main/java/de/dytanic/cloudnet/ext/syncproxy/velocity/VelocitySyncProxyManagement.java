@@ -76,7 +76,7 @@ public class VelocitySyncProxyManagement extends AbstractSyncProxyManagement {
     @Override
     public void broadcastServiceStateChange(String key, ServiceInfoSnapshot serviceInfoSnapshot) {
         if (super.syncProxyConfiguration != null && super.syncProxyConfiguration.showIngameServicesStartStopMessages()) {
-            String message = super.syncProxyConfiguration.getMessages().get(key).replace("%service%", serviceInfoSnapshot.getServiceId().getName()).replace("&", "§");
+            String message = super.getServiceStateChangeMessage(key, serviceInfoSnapshot);
 
             for (Player player : this.proxyServer.getAllPlayers()) {
                 if (player.hasPermission("cloudnet.syncproxy.notify")) {

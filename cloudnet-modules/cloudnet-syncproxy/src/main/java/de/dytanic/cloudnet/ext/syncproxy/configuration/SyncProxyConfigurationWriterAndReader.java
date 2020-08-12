@@ -15,8 +15,8 @@ public final class SyncProxyConfigurationWriterAndReader {
     private static final Map<String, String> DEFAULT_MESSAGES = new HashMap<>(ImmutableMap.of(
             "player-login-not-whitelisted", "&cThe network is currently in maintenance!",
             "player-login-full-server", "&cThe network is currently full. You need extra permissions to enter the network",
-            "service-start", "&7The service &e%service% &7is &astarting...",
-            "service-stop", "&7The service &e%service% &7is &cstopping..."
+            "service-start", "&7The service &e%service% &7is &astarting &7on node &e%node%&7...",
+            "service-stop", "&7The service &e%service% &7is &cstopping &7on node &e%node%&7..."
     ));
 
     private SyncProxyConfigurationWriterAndReader() {
