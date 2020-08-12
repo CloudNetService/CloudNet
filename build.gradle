@@ -233,6 +233,7 @@ task allJavadoc(type: Javadoc) {
     options.encoding = 'UTF-8'
     options.windowTitle = 'CloudNet Javadocs'
     options.memberLevel = JavadocMemberLevel.PRIVATE
+    options.addBooleanOption "-no-module-directories", true
 
     options.addStringOption('Xdoclint:none', '-quiet')
 
