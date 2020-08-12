@@ -41,7 +41,6 @@ public final class CommandMe extends CommandDefault {
                 "Total loaded classes: " + ManagementFactory.getClassLoadingMXBean().getTotalLoadedClassCount(),
                 " "
         ));
-        messages.add(" ");
         sender.sendMessage(messages.toArray(new String[0]));
     }
 }

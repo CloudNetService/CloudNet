@@ -12,12 +12,12 @@ import java.util.function.Consumer;
 
 public class ConsoleReadThread extends Thread {
 
+    private final JLine3Console console;
+    private CompletableTask<String> currentTask;
+
     public ConsoleReadThread(JLine3Console console) {
         this.console = console;
     }
-
-    private final JLine3Console console;
-    private CompletableTask<String> currentTask;
 
     @Override
     public void run() {
@@ -51,7 +51,7 @@ public class ConsoleReadThread extends Thread {
         return null;
     }
 
-    @NotNull ITask<String> getCurrentTask() {
+    protected @NotNull ITask<String> getCurrentTask() {
         if (this.currentTask == null) {
             this.currentTask = new CompletableTask<>();
         }

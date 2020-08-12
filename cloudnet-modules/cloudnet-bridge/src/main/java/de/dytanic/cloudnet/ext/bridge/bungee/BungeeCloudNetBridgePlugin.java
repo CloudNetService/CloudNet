@@ -66,8 +66,8 @@ public final class BungeeCloudNetBridgePlugin extends Plugin {
                 String name = serviceInfoSnapshot.getServiceId().getName();
 
                 super.getProxy().getServers().put(name, BungeeCloudNetHelper.createServerInfo(name, new InetSocketAddress(
-                        serviceInfoSnapshot.getAddress().getHost(),
-                        serviceInfoSnapshot.getAddress().getPort()
+                        serviceInfoSnapshot.getConnectAddress().getHost(),
+                        serviceInfoSnapshot.getConnectAddress().getPort()
                 )));
 
                 BridgeProxyHelper.cacheServiceInfoSnapshot(serviceInfoSnapshot);

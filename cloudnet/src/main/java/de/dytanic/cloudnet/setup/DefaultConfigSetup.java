@@ -12,50 +12,57 @@ import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
 import org.jetbrains.annotations.NotNull;
 
-import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.net.SocketException;
+import java.net.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class DefaultConfigSetup implements DefaultSetup {
 
-    private List<String> internalIPs;
+    private final List<String> suggestionIPs = new ArrayList<>();
+
+    private final List<String> whitelistDefaultIPs = new ArrayList<>();
+
     private String preferredIP;
 
-    private List<String> detectAllIPAddresses() throws SocketException {
-        List<String> resultAddresses = new ArrayList<>();
+    private void detectAllIPAddresses() throws SocketException {
+        this.whitelistDefaultIPs.add("127.0.1.1");
+        this.whitelistDefaultIPs.add("127.0.1.1");
+
+        this.suggestionIPs.add("127.0.0.1");
+        this.suggestionIPs.add("127.0.1.1");
 
         Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
         while (interfaces.hasMoreElements()) {
             NetworkInterface networkInterface = interfaces.nextElement();
             Enumeration<InetAddress> addresses = networkInterface.getInetAddresses();
             while (addresses.hasMoreElements()) {
-                String address = addresses.nextElement().getHostAddress();
-                if (!resultAddresses.contains(address)) {
-                    resultAddresses.add(address);
+                InetAddress inetAddress = addresses.nextElement();
+
+                String address = inetAddress.getHostAddress();
+                if (!this.whitelistDefaultIPs.contains(address)) {
+                    this.whitelistDefaultIPs.add(address);
+                }
+
+                String formattedAddress = inetAddress instanceof Inet6Address ? String.format("[%s]", address) : address;
+                if (!this.suggestionIPs.contains(formattedAddress)) {
+                    this.suggestionIPs.add(formattedAddress);
                 }
             }
         }
-
-        return resultAddresses;
     }
 
-    private String detectPreferredIP(List<String> internalIPs) {
+    private String detectPreferredIP() {
         try {
             return InetAddress.getLocalHost().getHostAddress();
         } catch (Exception exception) {
-            return internalIPs.get(0);
+            return this.suggestionIPs.get(0);
         }
     }
 
     @Override
     public void applyQuestions(ConsoleQuestionListAnimation animation) throws Exception {
-        this.internalIPs = this.detectAllIPAddresses();
-        this.internalIPs.add("127.0.0.1");
-        this.internalIPs.add("127.0.1.1");
-
-        this.preferredIP = this.detectPreferredIP(this.internalIPs);
+        this.detectAllIPAddresses();
+        this.preferredIP = this.detectPreferredIP();
 
         animation.addEntry(new QuestionListEntry<>(
                 "eula",
@@ -85,7 +92,7 @@ public class DefaultConfigSetup implements DefaultSetup {
 
                     @Override
                     public List<String> getCompletableAnswers() {
-                        return DefaultConfigSetup.this.internalIPs.stream()
+                        return DefaultConfigSetup.this.suggestionIPs.stream()
                                 .map(internalIP -> internalIP + ":1410")
                                 .collect(Collectors.toList());
                     }
@@ -103,9 +110,25 @@ public class DefaultConfigSetup implements DefaultSetup {
 
                     @Override
                     public List<String> getCompletableAnswers() {
-                        return DefaultConfigSetup.this.internalIPs.stream()
+                        return DefaultConfigSetup.this.suggestionIPs.stream()
                                 .map(internalIP -> internalIP + ":2812")
                                 .collect(Collectors.toList());
+                    }
+                }
+        ));
+
+        animation.addEntry(new QuestionListEntry<>(
+                "hostAddress",
+                LanguageManager.getMessage("cloudnet-init-setup-host-address"),
+                new QuestionAnswerTypeHostAndPort() {
+                    @Override
+                    public String getRecommendation() {
+                        return DefaultConfigSetup.this.preferredIP;
+                    }
+
+                    @Override
+                    public List<String> getCompletableAnswers() {
+                        return DefaultConfigSetup.this.suggestionIPs;
                     }
                 }
         ));
@@ -141,25 +164,33 @@ public class DefaultConfigSetup implements DefaultSetup {
     @Override
     public void execute(ConsoleQuestionListAnimation animation) {
         if (animation.hasResult("internalHost")) {
-            HostAndPort defaultHost = (HostAndPort) animation.getResult("internalHost");
+            HostAndPort internalAddress = (HostAndPort) animation.getResult("internalHost");
 
-            CloudNet.getInstance().getConfig().setHostAddress(defaultHost.getHost());
             CloudNet.getInstance().getConfig().setIdentity(new NetworkClusterNode(
                     animation.hasResult("nodeId") ? (String) animation.getResult("nodeId") : "Node-1",
-                    new HostAndPort[]{defaultHost}
+                    new HostAndPort[]{
+                            new HostAndPort(this.whiteListAndFormatHost(internalAddress.getHost()), internalAddress.getPort())
+                    }
             ));
+        }
 
-            CloudNet.getInstance().getConfig().getIpWhitelist().addAll(this.internalIPs);
-            if (!this.internalIPs.contains(defaultHost.getHost())) {
-                CloudNet.getInstance().getConfig().getIpWhitelist().add(defaultHost.getHost());
-            }
+        if (animation.hasResult("hostAddress")) {
+            String hostAddress = ((HostAndPort) animation.getResult("hostAddress")).getHost();
+            String formattedHostAddress = this.whiteListAndFormatHost(hostAddress);
+
+            CloudNet.getInstance().getConfig().setHostAddress(formattedHostAddress);
+            CloudNet.getInstance().getConfig().setConnectHostAddress(formattedHostAddress);
         }
 
         if (animation.hasResult("webHost")) {
+            HostAndPort webAddress = (HostAndPort) animation.getResult("webHost");
+
             CloudNet.getInstance().getConfig().setHttpListeners(new ArrayList<>(Collections.singletonList(
-                    (HostAndPort) animation.getResult("webHost")
+                    new HostAndPort(this.whiteListAndFormatHost(webAddress.getHost()), webAddress.getPort())
             )));
         }
+
+        CloudNet.getInstance().getConfig().getIpWhitelist().addAll(this.whitelistDefaultIPs);
 
         if (animation.hasResult("memory")) {
             CloudNet.getInstance().getConfig().setMaxMemory((int) animation.getResult("memory"));
@@ -170,4 +201,20 @@ public class DefaultConfigSetup implements DefaultSetup {
     public boolean shouldAsk(boolean configFileAvailable) {
         return !configFileAvailable;
     }
+
+    private String whiteListAndFormatHost(String host) {
+        if (!this.whitelistDefaultIPs.contains(host)) {
+            CloudNet.getInstance().getConfig().getIpWhitelist().add(host);
+        }
+
+        boolean ipv6 = false;
+        try {
+            ipv6 = InetAddress.getByName(host) instanceof Inet6Address;
+        } catch (UnknownHostException exception) {
+            exception.printStackTrace();
+        }
+
+        return ipv6 ? String.format("[%s]", host) : host;
+    }
+
 }

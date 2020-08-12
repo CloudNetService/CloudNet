@@ -24,7 +24,7 @@ final class NettyNetworkClientHandler extends SimpleChannelInboundHandler<Packet
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         this.channel = new NettyNetworkChannel(ctx.channel(), this.nettyNetworkClient.getPacketRegistry(),
-                this.nettyNetworkClient.networkChannelHandler.call(), this.connectedAddress, new HostAndPort(ctx.channel().localAddress()), true);
+                this.nettyNetworkClient.networkChannelHandler.call(), this.connectedAddress, HostAndPort.fromSocketAddress(ctx.channel().localAddress()), true);
 
         this.nettyNetworkClient.channels.add(this.channel);
 

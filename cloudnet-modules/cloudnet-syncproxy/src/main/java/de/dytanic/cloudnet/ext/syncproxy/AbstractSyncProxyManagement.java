@@ -8,6 +8,7 @@ import de.dytanic.cloudnet.ext.bridge.BridgeServiceProperty;
 import de.dytanic.cloudnet.ext.bridge.player.IPlayerManager;
 import de.dytanic.cloudnet.ext.syncproxy.configuration.*;
 import de.dytanic.cloudnet.wrapper.Wrapper;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -41,6 +42,12 @@ public abstract class AbstractSyncProxyManagement {
 
     protected abstract void broadcastServiceStateChange(String key, ServiceInfoSnapshot serviceInfoSnapshot);
 
+    protected String getServiceStateChangeMessage(String key, ServiceInfoSnapshot serviceInfoSnapshot) {
+        return this.syncProxyConfiguration.getMessages().get(key)
+                .replace("%service%", serviceInfoSnapshot.getServiceId().getName())
+                .replace("%node%", serviceInfoSnapshot.getServiceId().getNodeUniqueId());
+    }
+
     protected void updateServiceOnlineCount(ServiceInfoSnapshot serviceInfoSnapshot) {
         this.onlineCountCache.put(
                 serviceInfoSnapshot.getServiceId().getUniqueId(),
@@ -60,7 +67,12 @@ public abstract class AbstractSyncProxyManagement {
                 .sum();
     }
 
+    @Nullable
     public SyncProxyMotd getRandomMotd() {
+        if (this.loginConfiguration == null) {
+            return null;
+        }
+
         List<SyncProxyMotd> motds = this.loginConfiguration.isMaintenance() ? this.loginConfiguration.getMaintenanceMotds() : this.loginConfiguration.getMotds();
 
         if (motds == null || motds.isEmpty()) {
@@ -72,9 +84,16 @@ public abstract class AbstractSyncProxyManagement {
 
     public boolean inGroup(ServiceInfoSnapshot serviceInfoSnapshot) {
         Preconditions.checkNotNull(serviceInfoSnapshot);
-        Preconditions.checkNotNull(this.loginConfiguration, "There is no configuration for this proxy group!");
 
-        return Arrays.asList(serviceInfoSnapshot.getConfiguration().getGroups()).contains(this.loginConfiguration.getTargetGroup());
+        String targetGroup = this.loginConfiguration != null
+                ? this.loginConfiguration.getTargetGroup()
+                : this.tabListConfiguration != null
+                ? this.tabListConfiguration.getTargetGroup()
+                : null;
+
+        Preconditions.checkNotNull(targetGroup, "There is no configuration for this proxy group!");
+
+        return Arrays.asList(serviceInfoSnapshot.getConfiguration().getGroups()).contains(targetGroup);
     }
 
     protected void scheduleTabList() {
@@ -108,31 +127,33 @@ public abstract class AbstractSyncProxyManagement {
     }
 
     public void setSyncProxyConfiguration(SyncProxyConfiguration syncProxyConfiguration) {
-        if (syncProxyConfiguration != null) {
-            this.syncProxyConfiguration = syncProxyConfiguration;
+        Preconditions.checkNotNull(syncProxyConfiguration, "SyncProxyConfiguration is null!");
 
-            this.loginConfiguration = syncProxyConfiguration.getLoginConfigurations().stream()
-                    .filter(loginConfiguration -> loginConfiguration.getTargetGroup() != null &&
-                            Arrays.asList(Wrapper.getInstance().getServiceConfiguration().getGroups()).contains(loginConfiguration.getTargetGroup()))
-                    .findFirst().orElse(null);
+        this.syncProxyConfiguration = syncProxyConfiguration;
 
-            this.tabListConfiguration = syncProxyConfiguration.getTabListConfigurations().stream()
-                    .filter(tabListConfiguration -> tabListConfiguration.getTargetGroup() != null &&
-                            Arrays.asList(Wrapper.getInstance().getServiceConfiguration().getGroups()).contains(tabListConfiguration.getTargetGroup()))
-                    .findFirst().orElse(null);
+        this.loginConfiguration = syncProxyConfiguration.getLoginConfigurations().stream()
+                .filter(loginConfiguration -> loginConfiguration.getTargetGroup() != null &&
+                        Arrays.asList(Wrapper.getInstance().getServiceConfiguration().getGroups()).contains(loginConfiguration.getTargetGroup()))
+                .findFirst().orElse(null);
 
-            this.checkWhitelist();
-        }
+        this.tabListConfiguration = syncProxyConfiguration.getTabListConfigurations().stream()
+                .filter(tabListConfiguration -> tabListConfiguration.getTargetGroup() != null &&
+                        Arrays.asList(Wrapper.getInstance().getServiceConfiguration().getGroups()).contains(tabListConfiguration.getTargetGroup()))
+                .findFirst().orElse(null);
+
+        this.checkWhitelist();
     }
 
     public SyncProxyConfiguration getSyncProxyConfiguration() {
         return this.syncProxyConfiguration;
     }
 
+    @Nullable
     public SyncProxyProxyLoginConfiguration getLoginConfiguration() {
         return this.loginConfiguration;
     }
 
+    @Nullable
     public SyncProxyTabListConfiguration getTabListConfiguration() {
         return this.tabListConfiguration;
     }
@@ -141,10 +162,12 @@ public abstract class AbstractSyncProxyManagement {
         return this.tabListEntryIndex;
     }
 
+    @Nullable
     public String getTabListHeader() {
         return this.tabListHeader;
     }
 
+    @Nullable
     public String getTabListFooter() {
         return this.tabListFooter;
     }

@@ -21,10 +21,13 @@ public class ProxySPExample {
      */
     public void changeLocalMaintenance() {
         SyncProxyProxyLoginConfiguration loginConfiguration = this.syncProxyManagement.getLoginConfiguration();
-        loginConfiguration.setMaintenance(true);
 
-        // updating in cluster
-        SyncProxyConfiguration.updateSyncProxyConfigurationInNetwork(this.syncProxyManagement.getSyncProxyConfiguration());
+        if (loginConfiguration != null) {
+            loginConfiguration.setMaintenance(true);
+
+            // updating in cluster
+            SyncProxyConfiguration.updateSyncProxyConfigurationInNetwork(this.syncProxyManagement.getSyncProxyConfiguration());
+        }
     }
 
     /**
@@ -33,18 +36,20 @@ public class ProxySPExample {
     public void changeLocalMOTD() {
         SyncProxyProxyLoginConfiguration loginConfiguration = this.syncProxyManagement.getLoginConfiguration();
 
-        loginConfiguration.setMotds(Collections.singletonList(
-                new SyncProxyMotd("Welcome to my server!",
-                        "You'll connect to %proxy%",
-                        true,
-                        1,
-                        new String[0],
-                        null
-                )
-        ));
+        if (loginConfiguration != null) {
+            loginConfiguration.setMotds(Collections.singletonList(
+                    new SyncProxyMotd("Welcome to my server!",
+                            "You'll connect to %proxy%",
+                            true,
+                            1,
+                            new String[0],
+                            null
+                    )
+            ));
 
-        // updating in cluster
-        SyncProxyConfiguration.updateSyncProxyConfigurationInNetwork(this.syncProxyManagement.getSyncProxyConfiguration());
+            // updating in cluster
+            SyncProxyConfiguration.updateSyncProxyConfigurationInNetwork(this.syncProxyManagement.getSyncProxyConfiguration());
+        }
     }
 
 

@@ -11,7 +11,7 @@ public interface QuestionAnswerType<T> {
 
     boolean isValidInput(@NotNull String input);
 
-    @NotNull T parse(@NotNull String input);
+    @Nullable T parse(@NotNull String input);
 
     /**
      * @return null if there are infinite possible numbers
