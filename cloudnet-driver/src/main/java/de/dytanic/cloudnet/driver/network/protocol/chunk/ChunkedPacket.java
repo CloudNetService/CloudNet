@@ -53,20 +53,26 @@ public class ChunkedPacket extends Packet {
         createChunkedPackets(stream, header, channel, DEFAULT_CHUNK_SIZE, consumer);
     }
 
-    public static void createChunkedPackets(InputStream stream, JsonDocument header, int channel, int chunkSize, Consumer<ChunkedPacket> consumer) throws IOException {
+    public static boolean createChunkedPackets(InputStream stream, JsonDocument header, int channel, int chunkSize, Consumer<ChunkedPacket> consumer) throws IOException {
         UUID uniqueId = UUID.randomUUID();
 
-        consumer.accept(createStartPacket(channel, uniqueId, header, chunkSize));
+        try {
+            consumer.accept(createStartPacket(channel, uniqueId, header, chunkSize));
 
-        int chunkId = 1;
+            int chunkId = 1;
 
-        int read;
-        byte[] buffer = new byte[chunkSize];
-        while ((read = stream.read(buffer)) != -1) {
-            consumer.accept(createSegment(channel, uniqueId, chunkId++, chunkSize, read, Arrays.copyOf(buffer, buffer.length)));
+            int read;
+            byte[] buffer = new byte[chunkSize];
+            while ((read = stream.read(buffer)) != -1) {
+                consumer.accept(createSegment(channel, uniqueId, chunkId++, chunkSize, read, Arrays.copyOf(buffer, buffer.length)));
+            }
+
+            consumer.accept(createEndPacket(channel, uniqueId, chunkId, chunkSize));
+
+            return true;
+        } catch (ChunkInterrupt interrupt) {
+            return false;
         }
-
-        consumer.accept(createEndPacket(channel, uniqueId, chunkId, chunkSize));
     }
 
     public ChunkedPacket fillBuffer() {

@@ -9,8 +9,8 @@ import de.dytanic.cloudnet.driver.network.cluster.NetworkCluster;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
 import de.dytanic.cloudnet.driver.network.def.PacketConstants;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
+import de.dytanic.cloudnet.driver.network.protocol.chunk.ChunkInterrupt;
 import de.dytanic.cloudnet.driver.network.protocol.chunk.ChunkedPacket;
-import de.dytanic.cloudnet.driver.network.protocol.chunk.server.ServerChunkedPacketSession;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -117,25 +117,32 @@ public final class DefaultClusterNodeServerProvider implements IClusterNodeServe
             return;
         }
 
-        Collection<ServerChunkedPacketSession> sessions = this.servers
+        Collection<INetworkChannel> channels = this.servers
                 .values()
                 .stream()
                 .map(IClusterNodeServer::getChannel)
                 .filter(Objects::nonNull)
-                .map(ServerChunkedPacketSession::createSession)
                 .collect(Collectors.toList());
 
         try {
             JsonDocument header = JsonDocument.newDocument().append("template", serviceTemplate).append("preClear", true);
             ChunkedPacket.createChunkedPackets(inputStream, header, PacketConstants.CLUSTER_TEMPLATE_DEPLOY_CHANNEL, packet -> {
-                for (ServerChunkedPacketSession session : sessions) {
-                    session.enqueue(packet);
+                for (INetworkChannel channel : channels) {
+                    while (!channel.isWriteable()) {
+                        try {
+                            Thread.sleep(1);
+                        } catch (InterruptedException exception) {
+                            throw ChunkInterrupt.INSTANCE;
+                        }
+                    }
+
+                    channel.sendPacketSync(packet.fillBuffer());
                 }
+
+                packet.clearData();
             });
 
-            for (ServerChunkedPacketSession session : sessions) {
-                session.resume();
-            }
+            System.gc();
         } catch (IOException exception) {
             exception.printStackTrace();
         }
