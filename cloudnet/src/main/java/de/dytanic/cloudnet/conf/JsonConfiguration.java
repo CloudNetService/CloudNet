@@ -316,6 +316,7 @@ public final class JsonConfiguration implements IConfiguration {
     @Override
     public void setHostAddress(String hostAddress) {
         this.hostAddress = hostAddress;
+        this.save();
     }
 
     @Override
@@ -326,6 +327,7 @@ public final class JsonConfiguration implements IConfiguration {
     @Override
     public void setConnectHostAddress(String connectHostAddress) {
         this.connectHostAddress = connectHostAddress;
+        this.save();
     }
 
     public ConfigurationOptionSSL getClientSslConfig() {
