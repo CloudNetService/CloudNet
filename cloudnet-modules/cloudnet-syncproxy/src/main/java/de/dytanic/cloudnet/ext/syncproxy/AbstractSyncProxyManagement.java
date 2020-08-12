@@ -67,6 +67,7 @@ public abstract class AbstractSyncProxyManagement {
                 .sum();
     }
 
+    @Nullable
     public SyncProxyMotd getRandomMotd() {
         if (this.loginConfiguration == null) {
             return null;
@@ -161,10 +162,12 @@ public abstract class AbstractSyncProxyManagement {
         return this.tabListEntryIndex;
     }
 
+    @Nullable
     public String getTabListHeader() {
         return this.tabListHeader;
     }
 
+    @Nullable
     public String getTabListFooter() {
         return this.tabListFooter;
     }
