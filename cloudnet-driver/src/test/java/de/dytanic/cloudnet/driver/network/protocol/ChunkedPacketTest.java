@@ -1,7 +1,7 @@
 package de.dytanic.cloudnet.driver.network.protocol;
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
-import de.dytanic.cloudnet.driver.network.protocol.chunk.ChunkedPacket;
+import de.dytanic.cloudnet.driver.network.protocol.chunk.ChunkedPacketFactory;
 import de.dytanic.cloudnet.driver.network.protocol.chunk.client.ChunkedPacketListener;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Assert;
@@ -44,7 +44,7 @@ public class ChunkedPacketTest {
         Assert.assertEquals(0, listener.getSessions().size());
 
         try (InputStream inputStream = Files.newInputStream(input)) {
-            ChunkedPacket.createChunkedPackets(inputStream, header, 1, packet -> {
+            ChunkedPacketFactory.createChunkedPackets(inputStream, header, 1, packet -> {
                 try {
                     listener.handle(null, packet.fillBuffer());
                 } catch (Exception exception) {

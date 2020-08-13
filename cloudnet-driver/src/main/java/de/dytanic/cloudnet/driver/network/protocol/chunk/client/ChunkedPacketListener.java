@@ -28,7 +28,7 @@ public abstract class ChunkedPacketListener implements IPacketListener {
                 this.sessions.put(packet.getUniqueId(), this.createSession(packet.getUniqueId(), new HashMap<>()));
             }
 
-            this.sessions.get(packet.getUniqueId()).handlePacket(chunk);
+            this.sessions.get(packet.getUniqueId()).handleIncomingChunk(chunk);
         } finally {
             this.lock.unlock();
         }

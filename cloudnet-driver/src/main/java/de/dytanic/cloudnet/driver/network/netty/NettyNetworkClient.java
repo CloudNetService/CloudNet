@@ -1,9 +1,7 @@
 package de.dytanic.cloudnet.driver.network.netty;
 
 import com.google.common.base.Preconditions;
-import de.dytanic.cloudnet.common.concurrent.CompletedTask;
 import de.dytanic.cloudnet.common.concurrent.DefaultTaskScheduler;
-import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.concurrent.ITaskScheduler;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
@@ -167,14 +165,12 @@ public final class NettyNetworkClient implements INetworkClient {
     }
 
     @Override
-    public @NotNull ITask<Void> sendPacketSync(@NotNull IPacket packet) {
+    public void sendPacketSync(@NotNull IPacket packet) {
         Preconditions.checkNotNull(packet);
 
         for (INetworkChannel channel : this.channels) {
             channel.sendPacketSync(packet);
         }
-
-        return CompletedTask.voidTask();
     }
 
     @Override

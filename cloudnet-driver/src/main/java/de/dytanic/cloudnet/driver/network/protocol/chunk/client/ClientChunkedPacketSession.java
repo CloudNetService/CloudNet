@@ -28,7 +28,7 @@ public class ClientChunkedPacketSession {
         this.properties = properties;
     }
 
-    public void handlePacket(@NotNull ChunkedPacket packet) throws IOException {
+    public void handleIncomingChunk(@NotNull ChunkedPacket packet) throws IOException {
         if (this.closed) {
             packet.clearData();
             throw new IllegalStateException(String.format("Session is already closed but received packet %d, %b", packet.getChunkId(), packet.isEnd()));
@@ -42,14 +42,14 @@ public class ClientChunkedPacketSession {
             if (this.chunkId != packet.getChunkId()) {
                 this.pendingPackets.add(packet);
             } else {
-                this.handlePacket0(packet);
+                this.storeChunk(packet);
             }
         } finally {
             this.checkPendingPackets();
         }
     }
 
-    private void handlePacket0(ChunkedPacket packet) throws IOException {
+    private void storeChunk(ChunkedPacket packet) throws IOException {
         if (this.closed) {
             return;
         }
@@ -81,7 +81,7 @@ public class ClientChunkedPacketSession {
                 ChunkedPacket pending = iterator.next();
                 if (this.chunkId == pending.getChunkId() || (pending.isEnd() && this.chunkId - 1 == pending.getChunks())) {
                     iterator.remove();
-                    this.handlePacket0(pending);
+                    this.storeChunk(pending);
                 }
             }
         }
@@ -96,7 +96,7 @@ public class ClientChunkedPacketSession {
         this.closed = true;
         this.outputStream.close();
 
-        System.gc(); // Cleanup please!
+        System.gc();
 
         this.listener.getSessions().remove(this.sessionUniqueId);
         this.listener.handleComplete(this);

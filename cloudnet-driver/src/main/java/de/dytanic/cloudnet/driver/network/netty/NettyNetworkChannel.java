@@ -2,8 +2,8 @@ package de.dytanic.cloudnet.driver.network.netty;
 
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.concurrent.CompletableTask;
-import de.dytanic.cloudnet.common.concurrent.CompletedTask;
 import de.dytanic.cloudnet.common.concurrent.ITask;
+import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.logging.LogLevel;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.event.events.network.NetworkChannelPacketSendEvent;
@@ -14,12 +14,14 @@ import de.dytanic.cloudnet.driver.network.def.internal.InternalSyncPacketChannel
 import de.dytanic.cloudnet.driver.network.protocol.DefaultPacketListenerRegistry;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.network.protocol.IPacketListenerRegistry;
+import de.dytanic.cloudnet.driver.network.protocol.chunk.ChunkedPacketProvider;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.concurrent.ExecutionException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -57,26 +59,20 @@ final class NettyNetworkChannel implements INetworkChannel {
         Preconditions.checkNotNull(packet);
 
         if (this.channel.eventLoop().inEventLoop()) {
-            this.sendPacket0(packet);
+            this.writePacket(packet);
         } else {
-            this.channel.eventLoop().execute(() -> this.sendPacket0(packet));
+            this.channel.eventLoop().execute(() -> this.writePacket(packet));
         }
     }
 
     @Override
-    public @NotNull ITask<Void> sendPacketSync(@NotNull IPacket packet) {
+    public void sendPacketSync(@NotNull IPacket packet) {
         Preconditions.checkNotNull(packet);
 
-        CompletableTask<Void> future = this.sendPacket0(packet);
+        ChannelFuture future = this.writePacket(packet);
         if (future != null) {
-            try {
-                future.get();
-            } catch (InterruptedException | ExecutionException exception) {
-                future.fail(exception);
-            }
+            future.syncUninterruptibly();
         }
-
-        return future == null ? CompletedTask.voidTask() : future;
     }
 
     @Override
@@ -93,6 +89,11 @@ final class NettyNetworkChannel implements INetworkChannel {
     }
 
     @Override
+    public boolean sendChunkedPackets(@NotNull JsonDocument header, @NotNull InputStream inputStream, int channel) throws IOException {
+        return ChunkedPacketProvider.sendChunkedPackets(inputStream, header, channel, Collections.singletonList(this));
+    }
+
+    @Override
     public boolean isWriteable() {
         return this.channel.isWritable();
     }
@@ -102,7 +103,7 @@ final class NettyNetworkChannel implements INetworkChannel {
         return this.channel.isActive();
     }
 
-    private CompletableTask<Void> sendPacket0(IPacket packet) {
+    private ChannelFuture writePacket(IPacket packet) {
         NetworkChannelPacketSendEvent event = new NetworkChannelPacketSendEvent(this, packet);
 
         CloudNetDriver.optionalInstance().ifPresent(cloudNetDriver -> cloudNetDriver.getEventManager().callEvent(event));
@@ -125,30 +126,10 @@ final class NettyNetworkChannel implements INetworkChannel {
                 });
             }
 
-            CompletableTask<Void> task = new CompletableTask<>();
-            if (this.channel.eventLoop().inEventLoop()) {
-                this.sendPacket1(packet, task);
-            } else {
-                this.channel.eventLoop().execute(() -> this.sendPacket1(packet, task));
-            }
-
-            return task;
+            return this.channel.writeAndFlush(packet);
         }
 
         return null;
-    }
-
-    private void sendPacket1(IPacket packet, CompletableTask<Void> task) {
-        this.channel.writeAndFlush(packet).addListener(new ChannelFutureListener() {
-            @Override
-            public void operationComplete(@NotNull ChannelFuture future) {
-                if (future.isSuccess()) {
-                    task.complete(null);
-                } else {
-                    task.fail(future.cause());
-                }
-            }
-        });
     }
 
     @Override

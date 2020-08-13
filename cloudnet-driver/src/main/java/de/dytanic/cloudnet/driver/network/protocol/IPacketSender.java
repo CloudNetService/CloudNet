@@ -1,6 +1,5 @@
 package de.dytanic.cloudnet.driver.network.protocol;
 
-import de.dytanic.cloudnet.common.concurrent.ITask;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -19,7 +18,7 @@ public interface IPacketSender {
      */
     void sendPacket(@NotNull IPacket packet);
 
-    @NotNull ITask<Void> sendPacketSync(@NotNull IPacket packet);
+    void sendPacketSync(@NotNull IPacket packet);
 
     /**
      * Transport packet instances into the network to the receiver. The receiver will
