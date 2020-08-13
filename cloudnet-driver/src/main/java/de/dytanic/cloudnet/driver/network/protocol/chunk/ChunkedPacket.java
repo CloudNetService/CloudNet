@@ -28,8 +28,12 @@ public class ChunkedPacket extends Packet {
         this.chunks = chunks;
     }
 
-    public ChunkedPacket(int channel, @NotNull UUID uniqueId, @NotNull JsonDocument header, ProtocolBuffer body) {
+    protected ChunkedPacket(int channel, @NotNull UUID uniqueId, @NotNull JsonDocument header, ProtocolBuffer body) {
         super(channel, uniqueId, header, body);
+    }
+
+    public static ChunkedPacket createIncomingPacket(int channel, @NotNull UUID uniqueId, @NotNull JsonDocument header, ProtocolBuffer body) {
+        return new ChunkedPacket(channel, uniqueId, header, body);
     }
 
     public ChunkedPacket fillBuffer() {

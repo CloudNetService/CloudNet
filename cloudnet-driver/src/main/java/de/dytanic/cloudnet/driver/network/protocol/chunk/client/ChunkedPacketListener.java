@@ -17,13 +17,13 @@ import java.util.concurrent.locks.ReentrantLock;
 public abstract class ChunkedPacketListener implements IPacketListener {
 
     private final Lock lock = new ReentrantLock();
-    private final Map<UUID, ClientChunkedPacketSession> sessions = new HashMap<>();
+    private final Map<UUID, ChunkedPacketSession> sessions = new HashMap<>();
 
     @Override
     public void handle(INetworkChannel channel, IPacket packet) throws Exception {
         this.lock.lock();
         try {
-            ChunkedPacket chunk = new ChunkedPacket(packet.getChannel(), packet.getUniqueId(), packet.getHeader(), packet.getBuffer()).readBuffer();
+            ChunkedPacket chunk = ChunkedPacket.createIncomingPacket(packet.getChannel(), packet.getUniqueId(), packet.getHeader(), packet.getBuffer()).readBuffer();
             if (!this.sessions.containsKey(packet.getUniqueId())) {
                 this.sessions.put(packet.getUniqueId(), this.createSession(packet.getUniqueId(), new HashMap<>()));
             }
@@ -34,18 +34,18 @@ public abstract class ChunkedPacketListener implements IPacketListener {
         }
     }
 
-    public @NotNull Map<UUID, ClientChunkedPacketSession> getSessions() {
+    public @NotNull Map<UUID, ChunkedPacketSession> getSessions() {
         return this.sessions;
     }
 
     @NotNull
-    protected ClientChunkedPacketSession createSession(@NotNull UUID sessionUniqueId, @NotNull Map<String, Object> properties) throws IOException {
-        return new ClientChunkedPacketSession(this, sessionUniqueId, this.createOutputStream(sessionUniqueId, properties), properties);
+    protected ChunkedPacketSession createSession(@NotNull UUID sessionUniqueId, @NotNull Map<String, Object> properties) throws IOException {
+        return new ChunkedPacketSession(this, sessionUniqueId, this.createOutputStream(sessionUniqueId, properties), properties);
     }
 
     @NotNull
     protected abstract OutputStream createOutputStream(@NotNull UUID sessionUniqueId, @NotNull Map<String, Object> properties) throws IOException;
 
-    protected void handleComplete(@NotNull ClientChunkedPacketSession session) throws IOException {
+    protected void handleComplete(@NotNull ChunkedPacketSession session) throws IOException {
     }
 }

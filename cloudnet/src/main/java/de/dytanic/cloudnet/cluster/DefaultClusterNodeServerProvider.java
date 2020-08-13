@@ -7,7 +7,7 @@ import de.dytanic.cloudnet.driver.network.cluster.NetworkCluster;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
 import de.dytanic.cloudnet.driver.network.def.PacketConstants;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
-import de.dytanic.cloudnet.driver.network.protocol.chunk.ChunkedPacketProvider;
+import de.dytanic.cloudnet.driver.network.protocol.chunk.ChunkedPacketBuilder;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -122,7 +122,10 @@ public final class DefaultClusterNodeServerProvider implements IClusterNodeServe
         try {
             JsonDocument header = JsonDocument.newDocument().append("template", serviceTemplate).append("preClear", true);
 
-            ChunkedPacketProvider.sendChunkedPackets(inputStream, header, PacketConstants.CLUSTER_TEMPLATE_DEPLOY_CHANNEL, channels);
+            ChunkedPacketBuilder.newBuilder(PacketConstants.CLUSTER_TEMPLATE_DEPLOY_CHANNEL, inputStream)
+                    .header(header)
+                    .target(channels)
+                    .complete();
         } catch (IOException exception) {
             exception.printStackTrace();
         }

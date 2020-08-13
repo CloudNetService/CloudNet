@@ -14,14 +14,13 @@ import de.dytanic.cloudnet.driver.network.def.internal.InternalSyncPacketChannel
 import de.dytanic.cloudnet.driver.network.protocol.DefaultPacketListenerRegistry;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.network.protocol.IPacketListenerRegistry;
-import de.dytanic.cloudnet.driver.network.protocol.chunk.ChunkedPacketProvider;
+import de.dytanic.cloudnet.driver.network.protocol.chunk.ChunkedPacketBuilder;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -90,7 +89,11 @@ final class NettyNetworkChannel implements INetworkChannel {
 
     @Override
     public boolean sendChunkedPackets(@NotNull JsonDocument header, @NotNull InputStream inputStream, int channel) throws IOException {
-        return ChunkedPacketProvider.sendChunkedPackets(inputStream, header, channel, Collections.singletonList(this));
+        return ChunkedPacketBuilder.newBuilder(channel, inputStream)
+                .header(header)
+                .target(this)
+                .complete()
+                .isSuccess();
     }
 
     @Override

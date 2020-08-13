@@ -25,7 +25,7 @@ public abstract class CachedChunkedPacketListener extends ChunkedPacketListener 
     }
 
     @Override
-    protected void handleComplete(@NotNull ClientChunkedPacketSession session) throws IOException {
+    protected void handleComplete(@NotNull ChunkedPacketSession session) throws IOException {
         Path path = (Path) session.getProperties().get("path");
         Preconditions.checkArgument(Files.exists(path), "Path of the cache doesn't exist");
 
@@ -34,5 +34,5 @@ public abstract class CachedChunkedPacketListener extends ChunkedPacketListener 
         }
     }
 
-    protected abstract void handleComplete(@NotNull ClientChunkedPacketSession session, @NotNull InputStream inputStream) throws IOException;
+    protected abstract void handleComplete(@NotNull ChunkedPacketSession session, @NotNull InputStream inputStream) throws IOException;
 }

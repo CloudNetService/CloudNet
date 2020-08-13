@@ -9,7 +9,7 @@ import java.io.OutputStream;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class ClientChunkedPacketSession {
+public class ChunkedPacketSession {
 
     private final ChunkedPacketListener listener;
     private final OutputStream outputStream;
@@ -21,7 +21,7 @@ public class ClientChunkedPacketSession {
     private JsonDocument header = JsonDocument.EMPTY;
     private volatile boolean closed;
 
-    public ClientChunkedPacketSession(ChunkedPacketListener listener, UUID sessionUniqueId, OutputStream outputStream, Map<String, Object> properties) {
+    public ChunkedPacketSession(ChunkedPacketListener listener, UUID sessionUniqueId, OutputStream outputStream, Map<String, Object> properties) {
         this.listener = listener;
         this.sessionUniqueId = sessionUniqueId;
         this.outputStream = outputStream;
@@ -34,7 +34,7 @@ public class ClientChunkedPacketSession {
             throw new IllegalStateException(String.format("Session is already closed but received packet %d, %b", packet.getChunkId(), packet.isEnd()));
         }
 
-        if (this.header.isEmpty() && !packet.getHeader().isEmpty()) {
+        if (packet.getChunkId() == 0 && this.header.isEmpty() && !packet.getHeader().isEmpty()) {
             this.header = packet.getHeader();
         }
 
