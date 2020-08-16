@@ -223,37 +223,51 @@ public class SFTPTemplateStorage extends AbstractFTPStorage {
         String filename = path;
 
         int index = path.lastIndexOf('/');
-        if (index != -1) {
-            filename = path.substring(index); // TODO not tested
+        if (index != -1 && index < path.length() - 1) {
+            filename = path.substring(index + 1);
         }
 
         return this.asInfo(path, filename, attrs);
     }
 
+    private String removeLeadingSlash(String input) {
+        if (input.startsWith("/")) {
+            input = input.substring(1);
+        }
+        if (input.endsWith("/")) {
+            input = input.substring(0, input.length() - 1);
+        }
+        return input;
+    }
+
     @Override
     public FileInfo[] listFiles(@NotNull ServiceTemplate template, @NotNull String dir) {
         Collection<FileInfo> files = new ArrayList<>();
-        if (!this.listFiles(this.getPath(template) + "/" + dir, files)) {
+        dir = this.removeLeadingSlash(dir);
+
+        if (!this.listFiles(this.getPath(template) + "/" + dir, dir, files)) {
             return null;
         }
         return files.toArray(new FileInfo[0]);
     }
 
-    private boolean listFiles(String directory, Collection<FileInfo> files) {
+    private boolean listFiles(String directory, String relativeDirectory, Collection<FileInfo> files) {
+        relativeDirectory = this.removeLeadingSlash(relativeDirectory);
+
         Collection<ChannelSftp.LsEntry> entries = this.ftpClient.listFiles(directory);
         if (entries == null) {
             return false;
         }
 
         for (ChannelSftp.LsEntry entry : entries) {
+            String relativePath = relativeDirectory.isEmpty() ? entry.getFilename() : relativeDirectory + "/" + entry.getFilename();
+
             if (entry.getAttrs().isDir()) {
-                String currentDirectory = directory.endsWith("/") || entry.getFilename().startsWith("/") ? directory : directory + "/";
-                System.out.println(currentDirectory + entry.getFilename() + " ||| " + entry.getLongname());
-                this.listFiles(currentDirectory + entry.getFilename(), files); // TODO can't we just use getLongname?
+                this.listFiles(directory + "/" + entry.getFilename(), relativePath, files);
                 continue;
             }
 
-            files.add(this.asInfo(entry.getLongname(), entry.getFilename(), entry.getAttrs()));
+            files.add(this.asInfo(relativePath, entry.getFilename(), entry.getAttrs()));
         }
 
         return true;
