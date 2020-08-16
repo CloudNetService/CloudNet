@@ -103,6 +103,11 @@ public class DefaultSpecificTemplateStorage implements SpecificTemplateStorage {
     }
 
     @Override
+    public @Nullable InputStream zipTemplate() throws IOException {
+        return this.storage.zipTemplate(this.template);
+    }
+
+    @Override
     public boolean delete() {
         return this.storage.delete(this.template);
     }
@@ -220,6 +225,11 @@ public class DefaultSpecificTemplateStorage implements SpecificTemplateStorage {
     @Override
     public @NotNull ITask<ZipInputStream> asZipInputStreamAsync() {
         return this.storage.asZipInputStreamAsync(this.template);
+    }
+
+    @Override
+    public @NotNull ITask<InputStream> zipTemplateAsync() {
+        return this.storage.zipTemplateAsync(this.template);
     }
 
     @Override

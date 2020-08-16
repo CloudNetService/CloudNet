@@ -68,7 +68,13 @@ public interface TemplateStorage extends AutoCloseable, INameable {
     byte[] toZipByteArray(@NotNull ServiceTemplate template);
 
     @Nullable
-    ZipInputStream asZipInputStream(@NotNull ServiceTemplate template) throws IOException;
+    default ZipInputStream asZipInputStream(@NotNull ServiceTemplate template) throws IOException {
+        InputStream inputStream = this.zipTemplate(template);
+        return inputStream == null ? null : new ZipInputStream(inputStream);
+    }
+
+    @Nullable
+    InputStream zipTemplate(@NotNull ServiceTemplate template) throws IOException;
 
     boolean delete(@NotNull ServiceTemplate template);
 
@@ -174,7 +180,12 @@ public interface TemplateStorage extends AutoCloseable, INameable {
     ITask<byte[]> toZipByteArrayAsync(@NotNull ServiceTemplate template);
 
     @NotNull
-    ITask<ZipInputStream> asZipInputStreamAsync(@NotNull ServiceTemplate template);
+    default ITask<ZipInputStream> asZipInputStreamAsync(@NotNull ServiceTemplate template) {
+        return this.zipTemplateAsync(template).map(inputStream -> inputStream == null ? null : new ZipInputStream(inputStream));
+    }
+
+    @NotNull
+    ITask<InputStream> zipTemplateAsync(@NotNull ServiceTemplate template);
 
     @NotNull
     ITask<Boolean> deleteAsync(@NotNull ServiceTemplate template);

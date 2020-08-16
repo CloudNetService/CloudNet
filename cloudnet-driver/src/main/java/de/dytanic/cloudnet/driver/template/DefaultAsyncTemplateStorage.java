@@ -14,6 +14,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.zip.ZipInputStream;
 
+// TODO IOExceptions out of the tasks should be thrown if present
 public abstract class DefaultAsyncTemplateStorage implements TemplateStorage {
     @Override
     public boolean deploy(@NotNull byte[] zipInput, @NotNull ServiceTemplate target) {
@@ -73,6 +74,11 @@ public abstract class DefaultAsyncTemplateStorage implements TemplateStorage {
     @Override
     public @Nullable ZipInputStream asZipInputStream(@NotNull ServiceTemplate template) {
         return this.asZipInputStreamAsync(template).get(5, TimeUnit.SECONDS, null);
+    }
+
+    @Override
+    public @Nullable InputStream zipTemplate(@NotNull ServiceTemplate template) {
+        return this.zipTemplateAsync(template).get(5, TimeUnit.SECONDS, null);
     }
 
     @Override

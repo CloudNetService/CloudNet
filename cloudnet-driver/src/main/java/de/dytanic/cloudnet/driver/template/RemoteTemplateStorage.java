@@ -100,6 +100,11 @@ public class RemoteTemplateStorage extends DefaultAsyncTemplateStorage implement
     }
 
     @Override
+    public @NotNull ITask<InputStream> zipTemplateAsync(@NotNull ServiceTemplate template) {
+        return null;
+    }
+
+    @Override
     public @NotNull ITask<Boolean> deleteAsync(@NotNull ServiceTemplate template) {
         return this.executeWithTemplate(DriverAPIRequestType.DELETE_TEMPLATE, template);
     }

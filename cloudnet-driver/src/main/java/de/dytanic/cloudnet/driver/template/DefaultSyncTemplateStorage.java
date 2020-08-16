@@ -82,6 +82,15 @@ public abstract class DefaultSyncTemplateStorage implements TemplateStorage {
     }
 
     @Override
+    public @NotNull ITask<InputStream> zipTemplateAsync(@NotNull ServiceTemplate template) {
+        try {
+            return CompletedTask.create(this.zipTemplate(template));
+        } catch (IOException exception) {
+            return CompletedTask.createFailed(exception);
+        }
+    }
+
+    @Override
     public @NotNull ITask<Boolean> deleteAsync(@NotNull ServiceTemplate template) {
         return CompletedTask.create(this.delete(template));
     }

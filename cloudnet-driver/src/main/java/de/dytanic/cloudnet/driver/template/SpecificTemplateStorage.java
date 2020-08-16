@@ -80,6 +80,9 @@ public interface SpecificTemplateStorage extends INameable {
     @Nullable
     ZipInputStream asZipInputStream() throws IOException;
 
+    @Nullable
+    InputStream zipTemplate() throws IOException;
+
     boolean delete();
 
     boolean create();
@@ -173,6 +176,9 @@ public interface SpecificTemplateStorage extends INameable {
 
     @NotNull
     ITask<ZipInputStream> asZipInputStreamAsync();
+
+    @NotNull
+    ITask<InputStream> zipTemplateAsync();
 
     @NotNull
     ITask<Boolean> deleteAsync();
