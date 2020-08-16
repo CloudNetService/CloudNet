@@ -168,7 +168,7 @@ public class RemoteTemplateStorage extends DefaultAsyncTemplateStorage implement
         return this.executeDriverAPIMethod(
                 DriverAPIRequestType.LIST_FILES,
                 buffer -> this.writeDefaults(buffer, template).writeString(dir),
-                packet -> packet.getBuffer().readObjectArray(FileInfo.class)
+                packet -> packet.getBuffer().readBoolean() ? packet.getBuffer().readObjectArray(FileInfo.class) : null
         );
     }
 

@@ -2,7 +2,10 @@ package de.dytanic.cloudnet.driver.template;
 
 import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import de.dytanic.cloudnet.driver.serialization.SerializableObject;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
@@ -10,6 +13,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 
+@ToString
+@EqualsAndHashCode
 public class FileInfo implements SerializableObject {
 
     private String path;
@@ -38,23 +43,36 @@ public class FileInfo implements SerializableObject {
 
     @NotNull
     public static FileInfo of(@NotNull Path path) throws IOException {
-        return of(path, Files.readAttributes(path, BasicFileAttributes.class));
+        return of(path, (Path) null);
     }
 
     @NotNull
-    public static FileInfo of(@NotNull Path path, @NotNull BasicFileAttributes attributes) throws IOException {
+    public static FileInfo of(@NotNull Path fullPath, @NotNull BasicFileAttributes attributes) throws IOException {
+        return of(fullPath, null, attributes);
+    }
+
+    @NotNull
+    public static FileInfo of(@NotNull Path path, @Nullable Path relativePath) throws IOException {
+        return of(path, relativePath, Files.readAttributes(path, BasicFileAttributes.class));
+    }
+
+    @NotNull
+    public static FileInfo of(@NotNull Path fullPath, @Nullable Path relativePath, @NotNull BasicFileAttributes attributes) throws IOException {
+        if (relativePath == null) {
+            relativePath = fullPath;
+        }
         return new FileInfo(
-                path.toString(), path.getFileName().toString(),
-                attributes.isDirectory(), Files.isHidden(path),
+                relativePath.toString().replace(File.separatorChar, '/'), relativePath.getFileName().toString(),
+                attributes.isDirectory(), Files.isHidden(fullPath),
                 attributes.creationTime().toMillis(), attributes.lastModifiedTime().toMillis(), attributes.lastAccessTime().toMillis(),
-                Files.isReadable(path), Files.isWritable(path),
+                Files.isReadable(fullPath), Files.isWritable(fullPath),
                 attributes.size()
         );
     }
 
     @NotNull
     public static FileInfo of(@NotNull File file) throws IOException {
-        return of(file.toPath());
+        return of(file.toPath(), file.toPath());
     }
 
     @NotNull
@@ -127,3 +145,4 @@ public class FileInfo implements SerializableObject {
         this.size = buffer.readLong();
     }
 }
+

@@ -8,6 +8,7 @@ import de.dytanic.cloudnet.driver.api.DriverAPICategory;
 import de.dytanic.cloudnet.driver.api.DriverAPIRequestType;
 import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
+import de.dytanic.cloudnet.driver.template.FileInfo;
 import de.dytanic.cloudnet.driver.template.SpecificTemplateStorage;
 import de.dytanic.cloudnet.driver.template.TemplateStorage;
 import de.dytanic.cloudnet.driver.template.TemplateStorageResponse;
@@ -30,7 +31,15 @@ public class DriverTemplateStorageListener extends CategorizedDriverAPIListener 
             return TemplateStorageResponse.SUCCESS;
         }));
 
-        super.registerHandler(DriverAPIRequestType.LIST_FILES, this.throwableHandler(input -> ProtocolBuffer.create().writeEnumConstant(TemplateStorageResponse.SUCCESS).writeObjectArray(this.readSpecific(input).listFiles(input.readString()))));
+        super.registerHandler(DriverAPIRequestType.LIST_FILES, this.throwableHandler(input -> {
+            FileInfo[] files = this.readSpecific(input).listFiles(input.readString());
+            ProtocolBuffer buffer = ProtocolBuffer.create().writeEnumConstant(TemplateStorageResponse.SUCCESS);
+            buffer.writeBoolean(files != null);
+            if (files != null) {
+                buffer.writeObjectArray(files);
+            }
+            return buffer;
+        }));
 
         super.registerHandler(DriverAPIRequestType.CREATE_FILE, this.throwableResponseHandler(input -> TemplateStorageResponse.of(this.readSpecific(input).createFile(input.readString()))));
         super.registerHandler(DriverAPIRequestType.CREATE_DIRECTORY, this.throwableResponseHandler(input -> TemplateStorageResponse.of(this.readSpecific(input).createDirectory(input.readString()))));
@@ -44,6 +53,15 @@ public class DriverTemplateStorageListener extends CategorizedDriverAPIListener 
         super.registerHandler(DriverAPIRequestType.DELETE_FILE, this.throwableResponseHandler(input -> TemplateStorageResponse.of(this.readSpecific(input).deleteFile(input.readString()))));
 
         super.registerHandler(DriverAPIRequestType.LOAD_TEMPLATE_ARRAY, this.throwableHandler(input -> ProtocolBuffer.create().writeEnumConstant(TemplateStorageResponse.SUCCESS).writeArray(this.readSpecific(input).toZipByteArray())));
+
+        // TODO
+        super.registerHandler(DriverAPIRequestType.DEPLOY_TEMPLATE_BYTE_ARRAY, (channel, packet, buffer) -> ProtocolBuffer.EMPTY);
+        super.registerHandler(DriverAPIRequestType.DEPLOY_TEMPLATE_STREAM, (channel, packet, buffer) -> ProtocolBuffer.EMPTY);
+        super.registerHandler(DriverAPIRequestType.LOAD_TEMPLATE_ARRAY, (channel, packet, buffer) -> ProtocolBuffer.EMPTY);
+        super.registerHandler(DriverAPIRequestType.LOAD_TEMPLATE_STREAM, (channel, packet, buffer) -> ProtocolBuffer.EMPTY);
+        super.registerHandler(DriverAPIRequestType.APPEND_FILE_CONTENT, (channel, packet, buffer) -> ProtocolBuffer.EMPTY);
+        super.registerHandler(DriverAPIRequestType.SET_FILE_CONTENT, (channel, packet, buffer) -> ProtocolBuffer.EMPTY);
+        super.registerHandler(DriverAPIRequestType.SHOULD_SYNC_IN_CLUSTER, (channel, packet, buffer) -> ProtocolBuffer.EMPTY);
 
         super.registerHandler(
                 DriverAPIRequestType.GET_TEMPLATE_STORAGES,

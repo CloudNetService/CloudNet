@@ -10,10 +10,8 @@ import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import de.dytanic.cloudnet.driver.template.FileInfo;
 import de.dytanic.cloudnet.ext.storage.ftp.client.FTPCredentials;
 import de.dytanic.cloudnet.ext.storage.ftp.client.FTPType;
-import org.apache.commons.net.ftp.FTP;
-import org.apache.commons.net.ftp.FTPClient;
-import org.apache.commons.net.ftp.FTPFile;
-import org.apache.commons.net.ftp.FTPSClient;
+import org.apache.commons.net.MalformedServerReplyException;
+import org.apache.commons.net.ftp.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -475,24 +473,60 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
 
     @Override
     public @Nullable FileInfo getFileInfo(@NotNull ServiceTemplate template, @NotNull String path) throws IOException {
-        FTPFile file = this.ftpClient.mlistFile(template.getTemplatePath() + "/" + path);
-        return file == null ? null : this.asInfo(path, file);
+        FTPFile file = this.ftpClient.mdtmFile(template.getTemplatePath() + "/" + path);
+        return file == null ? null : this.asInfo(file.getName(), file);
     }
 
     @Override
     public FileInfo[] listFiles(@NotNull ServiceTemplate template, @NotNull String dir) throws IOException {
-        FTPFile[] fileList = this.ftpClient.mlistDir(template.getTemplatePath() + "/" + dir); // TODO does this also contain every sub directory? the local/sftp template storage includes the sub directories
-        return fileList == null ? new FileInfo[0] : Arrays.stream(fileList)
-                .map(file -> this.asInfo(dir + "/" + file.getName(), file))
-                .toArray(FileInfo[]::new);
+        if (dir.endsWith("/")) {
+            dir = dir.substring(0, dir.length() - 1);
+        }
+
+        Collection<FileInfo> files = new ArrayList<>();
+        try {
+            this.listFiles(template.getTemplatePath() + "/" + dir, dir, files);
+        } catch (MalformedServerReplyException exception) {
+            if (this.ftpClient.getReplyCode() == FTPReply.FILE_UNAVAILABLE) {
+                return null;
+            }
+            throw exception;
+        }
+        return files.toArray(new FileInfo[0]);
+    }
+
+    private void listFiles(@NotNull String dir, @NotNull String pathPrefix, Collection<FileInfo> files) throws IOException {
+        FTPFile[] list = this.ftpClient.listFiles(dir);
+        if (list == null) {
+            return;
+        }
+
+        for (FTPFile file : list) {
+            String path = pathPrefix + "/" + file.getName();
+            files.add(this.asInfo(path, file));
+
+            if (file.isDirectory()) {
+                this.listFiles(dir + "/" + file.getName(), pathPrefix + "/" + file.getName(), files);
+            }
+        }
     }
 
     private FileInfo asInfo(String path, FTPFile file) {
+        if (path.startsWith("/")) {
+            path = path.substring(1);
+        }
+
+        String filename = file.getName();
+        int slash = filename.lastIndexOf('/');
+        if (slash != -1 && slash < filename.length() - 1) {
+            filename = filename.substring(slash + 1);
+        }
+
         return new FileInfo(
-                path, file.getName(), file.isDirectory(),
+                path, filename, file.isDirectory(),
                 false, -1, file.getTimestamp().getTimeInMillis(), -1,
-                file.hasPermission(FTPFile.USER_ACCESS, FTPFile.READ_PERMISSION), // TODO not tested
-                file.hasPermission(FTPFile.USER_ACCESS, FTPFile.WRITE_PERMISSION), // TODO not tested
+                file.hasPermission(FTPFile.USER_ACCESS, FTPFile.READ_PERMISSION), // TODO read and write are always false
+                file.hasPermission(FTPFile.USER_ACCESS, FTPFile.WRITE_PERMISSION),
                 file.getSize()
         );
     }

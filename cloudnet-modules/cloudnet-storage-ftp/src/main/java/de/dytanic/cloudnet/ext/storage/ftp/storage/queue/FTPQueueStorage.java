@@ -17,6 +17,7 @@ import java.io.OutputStream;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Optional;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -65,6 +66,17 @@ public class FTPQueueStorage extends DefaultSyncTemplateStorage implements Runna
 
         }
 
+    }
+
+    private <T, E extends Throwable> T getOrThrow(FTPTask<T> task, Class<E> exceptionClass, T defaultValue) throws E {
+        Optional<T> optional = task.getOptionalValue(defaultValue);
+        if (!optional.isPresent()) {
+            if (task.getException() != null) {
+                throw (E) task.getException();
+            }
+            return null;
+        }
+        return optional.get();
     }
 
     @Override
@@ -269,7 +281,7 @@ public class FTPQueueStorage extends DefaultSyncTemplateStorage implements Runna
         FTPTask<FileInfo> ftpTask = new FTPTask<>(() -> this.executingStorage.getFileInfo(template, path));
         this.ftpTaskQueue.add(ftpTask);
 
-        return ftpTask.getOptionalValue(null).orElseThrow(() -> (IOException) ftpTask.getException());
+        return this.getOrThrow(ftpTask, IOException.class, null);
     }
 
     @Override
@@ -277,7 +289,7 @@ public class FTPQueueStorage extends DefaultSyncTemplateStorage implements Runna
         FTPTask<FileInfo[]> ftpTask = new FTPTask<>(() -> this.executingStorage.listFiles(template, dir));
         this.ftpTaskQueue.add(ftpTask);
 
-        return ftpTask.getOptionalValue(new FileInfo[0]).orElseThrow(() -> (IOException) ftpTask.getException());
+        return this.getOrThrow(ftpTask, IOException.class, null);
     }
 
     @Override

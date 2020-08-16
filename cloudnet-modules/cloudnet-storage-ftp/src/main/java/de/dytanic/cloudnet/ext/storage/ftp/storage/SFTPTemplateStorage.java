@@ -232,25 +232,31 @@ public class SFTPTemplateStorage extends AbstractFTPStorage {
 
     @Override
     public FileInfo[] listFiles(@NotNull ServiceTemplate template, @NotNull String dir) {
-        return this.listFiles(this.getPath(template) + "/" + dir).toArray(new FileInfo[0]);
+        Collection<FileInfo> files = new ArrayList<>();
+        if (!this.listFiles(this.getPath(template) + "/" + dir, files)) {
+            return null;
+        }
+        return files.toArray(new FileInfo[0]);
     }
 
-    // TODO not tested
-    private List<FileInfo> listFiles(String directory) {
-        List<FileInfo> files = new ArrayList<>();
+    private boolean listFiles(String directory, Collection<FileInfo> files) {
         Collection<ChannelSftp.LsEntry> entries = this.ftpClient.listFiles(directory);
-        if (entries != null) {
-            for (ChannelSftp.LsEntry entry : entries) {
-                if (entry.getAttrs().isDir()) {
-                    String currentDirectory = directory.endsWith("/") || entry.getFilename().startsWith("/") ? directory : directory + "/";
-                    files.addAll(this.listFiles(currentDirectory + entry.getFilename())); // TODO can't we just use getLongname?
-                    continue;
-                }
-
-                files.add(this.asInfo(entry.getLongname(), entry.getFilename(), entry.getAttrs()));
-            }
+        if (entries == null) {
+            return false;
         }
-        return files;
+
+        for (ChannelSftp.LsEntry entry : entries) {
+            if (entry.getAttrs().isDir()) {
+                String currentDirectory = directory.endsWith("/") || entry.getFilename().startsWith("/") ? directory : directory + "/";
+                System.out.println(currentDirectory + entry.getFilename() + " ||| " + entry.getLongname());
+                this.listFiles(currentDirectory + entry.getFilename(), files); // TODO can't we just use getLongname?
+                continue;
+            }
+
+            files.add(this.asInfo(entry.getLongname(), entry.getFilename(), entry.getAttrs()));
+        }
+
+        return true;
     }
 
     private FileInfo asInfo(String path, String name, SftpATTRS attrs) {

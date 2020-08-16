@@ -109,10 +109,10 @@ public interface SpecificTemplateStorage extends INameable {
     @Nullable
     FileInfo getFileInfo(@NotNull String path) throws IOException;
 
-    @NotNull
+    @Nullable
     FileInfo[] listFiles(@NotNull String dir) throws IOException;
 
-    @NotNull
+    @Nullable
     default FileInfo[] listFiles() throws IOException {
         return this.listFiles("");
     }

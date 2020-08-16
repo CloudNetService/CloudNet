@@ -102,9 +102,10 @@ public interface TemplateStorage extends AutoCloseable, INameable {
     @Nullable
     FileInfo getFileInfo(@NotNull ServiceTemplate template, @NotNull String path) throws IOException;
 
-    @NotNull
+    @Nullable
     FileInfo[] listFiles(@NotNull ServiceTemplate template, @NotNull String dir) throws IOException;
 
+    @Nullable
     default FileInfo[] listFiles(@NotNull ServiceTemplate template) throws IOException {
         return this.listFiles(template, "");
     }
