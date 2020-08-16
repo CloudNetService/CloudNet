@@ -140,7 +140,7 @@ public class SFTPTemplateStorage extends AbstractFTPStorage {
 
     @Override
     @Nullable
-    public ZipInputStream asZipInputStream(@NotNull ServiceTemplate template) throws IOException {
+    public InputStream zipTemplate(@NotNull ServiceTemplate template) throws IOException {
         if (!this.has(template)) {
             return null;
         }
@@ -149,7 +149,7 @@ public class SFTPTemplateStorage extends AbstractFTPStorage {
 
         try (OutputStream stream = Files.newOutputStream(tempFile, StandardOpenOption.CREATE)) {
             this.ftpClient.zipDirectory(this.getPath(template), stream);
-            return new ZipInputStream(Files.newInputStream(tempFile, StandardOpenOption.DELETE_ON_CLOSE, LinkOption.NOFOLLOW_LINKS), StandardCharsets.UTF_8);
+            return Files.newInputStream(tempFile, StandardOpenOption.DELETE_ON_CLOSE, LinkOption.NOFOLLOW_LINKS);
         }
     }
 
