@@ -11,8 +11,8 @@ import de.dytanic.cloudnet.http.V1HttpHandler;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.InputStream;
+import java.io.OutputStream;
 
 // TODO not tested
 public final class V1HttpHandlerLocalTemplateFileSystem extends V1HttpHandler {
@@ -91,7 +91,7 @@ public final class V1HttpHandlerLocalTemplateFileSystem extends V1HttpHandler {
                 FileUtils.copy(new ByteArrayInputStream(context.request().body()), outputStream);
             }
 
-            InputStream inputStream = serviceTemplate.storage().zipTemplate(serviceTemplate);
+            InputStream inputStream = serviceTemplate.storage().zipTemplate();
             if (inputStream == null) {
                 context
                         .response()
@@ -137,7 +137,11 @@ public final class V1HttpHandlerLocalTemplateFileSystem extends V1HttpHandler {
             }
 
             serviceTemplate.storage().deleteFile(filePath);
-            this.getCloudNet().deployTemplateInCluster(serviceTemplate, serviceTemplate.storage().toZipByteArray()); // TODO add a method to delete the template in the cluster
+            try (InputStream inputStream = serviceTemplate.storage().zipTemplate()) {
+                if (inputStream != null) {
+                    this.getCloudNet().deployTemplateInCluster(serviceTemplate, inputStream); // TODO add a method to delete the template in the cluster
+                }
+            }
 
             context
                     .response()
