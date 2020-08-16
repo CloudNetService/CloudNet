@@ -478,14 +478,14 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
     }
 
     @Override
-    public FileInfo[] listFiles(@NotNull ServiceTemplate template, @NotNull String dir) throws IOException {
+    public FileInfo[] listFiles(@NotNull ServiceTemplate template, @NotNull String dir, boolean deep) throws IOException {
         if (dir.endsWith("/")) {
             dir = dir.substring(0, dir.length() - 1);
         }
 
         Collection<FileInfo> files = new ArrayList<>();
         try {
-            this.listFiles(template.getTemplatePath() + "/" + dir, dir, files);
+            this.listFiles(template.getTemplatePath() + "/" + dir, dir, files, deep);
         } catch (MalformedServerReplyException exception) {
             if (this.ftpClient.getReplyCode() == FTPReply.FILE_UNAVAILABLE) {
                 return null;
@@ -495,7 +495,7 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
         return files.toArray(new FileInfo[0]);
     }
 
-    private void listFiles(@NotNull String dir, @NotNull String pathPrefix, Collection<FileInfo> files) throws IOException {
+    private void listFiles(@NotNull String dir, @NotNull String pathPrefix, Collection<FileInfo> files, boolean deep) throws IOException {
         FTPFile[] list = this.ftpClient.listFiles(dir);
         if (list == null) {
             return;
@@ -505,8 +505,8 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
             String path = pathPrefix + "/" + file.getName();
             files.add(this.asInfo(path, file));
 
-            if (file.isDirectory()) {
-                this.listFiles(dir + "/" + file.getName(), pathPrefix + "/" + file.getName(), files);
+            if (deep && file.isDirectory()) {
+                this.listFiles(dir + "/" + file.getName(), pathPrefix + "/" + file.getName(), files, true);
             }
         }
     }

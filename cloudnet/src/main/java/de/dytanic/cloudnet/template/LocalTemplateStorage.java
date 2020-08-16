@@ -306,26 +306,34 @@ public final class LocalTemplateStorage extends DefaultSyncTemplateStorage {
     }
 
     @Override
-    public FileInfo[] listFiles(@NotNull ServiceTemplate template, @NotNull String dir) throws IOException {
+    public FileInfo[] listFiles(@NotNull ServiceTemplate template, @NotNull String dir, boolean deep) throws IOException {
         List<FileInfo> files = new ArrayList<>();
         Path directory = this.storageDirectory.toPath().resolve(template.getTemplatePath()).resolve(dir);
         if (!Files.exists(directory)) {
             return null;
         }
 
-        Files.walkFileTree(directory, new SimpleFileVisitor<Path>() {
-            @Override
-            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                files.add(FileInfo.of(file, directory.relativize(file), attrs));
-                return FileVisitResult.CONTINUE;
-            }
+        if (deep) {
+            Files.walkFileTree(directory, new SimpleFileVisitor<Path>() {
+                @Override
+                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                    files.add(FileInfo.of(file, directory.relativize(file), attrs));
+                    return FileVisitResult.CONTINUE;
+                }
 
-            @Override
-            public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
-                files.add(FileInfo.of(dir, directory.relativize(dir), attrs));
-                return FileVisitResult.CONTINUE;
+                @Override
+                public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+                    files.add(FileInfo.of(dir, directory.relativize(dir), attrs));
+                    return FileVisitResult.CONTINUE;
+                }
+            });
+        } else {
+            try (DirectoryStream<Path> stream = Files.newDirectoryStream(directory)) {
+                for (Path path : stream) {
+                    files.add(FileInfo.of(path, directory.relativize(path)));
+                }
             }
-        });
+        }
         return files.toArray(new FileInfo[0]);
     }
 

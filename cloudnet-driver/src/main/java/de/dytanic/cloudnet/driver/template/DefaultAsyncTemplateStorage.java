@@ -137,13 +137,13 @@ public abstract class DefaultAsyncTemplateStorage implements TemplateStorage {
     }
 
     @Override
-    public FileInfo[] listFiles(@NotNull ServiceTemplate template, @NotNull String dir) {
-        return this.listFilesAsync(template, dir).get(5, TimeUnit.SECONDS, new FileInfo[0]);
+    public FileInfo[] listFiles(@NotNull ServiceTemplate template, @NotNull String dir, boolean deep) {
+        return this.listFilesAsync(template, dir, deep).get(5, TimeUnit.SECONDS, new FileInfo[0]);
     }
 
     @Override
-    public FileInfo[] listFiles(@NotNull ServiceTemplate template) {
-        return this.listFilesAsync(template).get(5, TimeUnit.SECONDS, new FileInfo[0]);
+    public FileInfo[] listFiles(@NotNull ServiceTemplate template, boolean deep) {
+        return this.listFilesAsync(template, deep).get(5, TimeUnit.SECONDS, new FileInfo[0]);
     }
 
     @Override

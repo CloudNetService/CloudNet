@@ -115,7 +115,7 @@ public class ServiceVersionProvider {
 
         try {
             //delete all old application files if they exist to prevent that they are used to start the server
-            for (FileInfo file : storage.listFiles()) {
+            for (FileInfo file : storage.listFiles(false)) {
                 for (ServiceEnvironment environment : ServiceEnvironment.values()) {
                     if (file.getName().toLowerCase().contains(environment.getName()) && file.getName().endsWith(".jar")) {
                         storage.deleteFile(file.getPath());

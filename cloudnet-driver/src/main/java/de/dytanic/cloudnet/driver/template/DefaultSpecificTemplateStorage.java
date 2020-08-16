@@ -163,13 +163,13 @@ public class DefaultSpecificTemplateStorage implements SpecificTemplateStorage {
     }
 
     @Override
-    public FileInfo[] listFiles(@NotNull String dir) throws IOException {
-        return this.storage.listFiles(this.template, dir);
+    public FileInfo[] listFiles(@NotNull String dir, boolean deep) throws IOException {
+        return this.storage.listFiles(this.template, dir, deep);
     }
 
     @Override
-    public FileInfo[] listFiles() throws IOException {
-        return this.storage.listFiles(this.template);
+    public FileInfo[] listFiles(boolean deep) throws IOException {
+        return this.storage.listFiles(this.template, deep);
     }
 
     @Override
@@ -288,12 +288,12 @@ public class DefaultSpecificTemplateStorage implements SpecificTemplateStorage {
     }
 
     @Override
-    public @NotNull ITask<FileInfo[]> listFilesAsync(@NotNull String dir) {
-        return this.storage.listFilesAsync(this.template, dir);
+    public @NotNull ITask<FileInfo[]> listFilesAsync(@NotNull String dir, boolean deep) {
+        return this.storage.listFilesAsync(this.template, dir, deep);
     }
 
     @Override
-    public @NotNull ITask<FileInfo[]> listFilesAsync() {
-        return this.storage.listFilesAsync(this.template);
+    public @NotNull ITask<FileInfo[]> listFilesAsync(boolean deep) {
+        return this.storage.listFilesAsync(this.template, deep);
     }
 }

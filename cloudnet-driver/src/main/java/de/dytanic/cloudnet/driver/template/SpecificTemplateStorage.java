@@ -110,11 +110,21 @@ public interface SpecificTemplateStorage extends INameable {
     FileInfo getFileInfo(@NotNull String path) throws IOException;
 
     @Nullable
-    FileInfo[] listFiles(@NotNull String dir) throws IOException;
+    FileInfo[] listFiles(@NotNull String dir, boolean deep) throws IOException;
+
+    @Nullable
+    default FileInfo[] listFiles(boolean deep) throws IOException {
+        return this.listFiles("", deep);
+    }
+
+    @Nullable
+    default FileInfo[] listFiles(@NotNull String dir) throws IOException {
+        return this.listFiles(dir, true);
+    }
 
     @Nullable
     default FileInfo[] listFiles() throws IOException {
-        return this.listFiles("");
+        return this.listFiles(true);
     }
 
     /**
@@ -214,11 +224,21 @@ public interface SpecificTemplateStorage extends INameable {
     ITask<FileInfo> getFileInfoAsync(@NotNull String path);
 
     @NotNull
-    ITask<FileInfo[]> listFilesAsync(@NotNull String dir);
+    ITask<FileInfo[]> listFilesAsync(@NotNull String dir, boolean deep);
+
+    @NotNull
+    default ITask<FileInfo[]> listFilesAsync(boolean deep) {
+        return this.listFilesAsync("", deep);
+    }
+
+    @NotNull
+    default ITask<FileInfo[]> listFilesAsync(@NotNull String dir) {
+        return this.listFilesAsync(dir, true);
+    }
 
     @NotNull
     default ITask<FileInfo[]> listFilesAsync() {
-        return this.listFilesAsync("");
+        return this.listFilesAsync(true);
     }
 
 }

@@ -241,17 +241,17 @@ public class SFTPTemplateStorage extends AbstractFTPStorage {
     }
 
     @Override
-    public FileInfo[] listFiles(@NotNull ServiceTemplate template, @NotNull String dir) {
+    public FileInfo[] listFiles(@NotNull ServiceTemplate template, @NotNull String dir, boolean deep) {
         Collection<FileInfo> files = new ArrayList<>();
         dir = this.removeLeadingSlash(dir);
 
-        if (!this.listFiles(this.getPath(template) + "/" + dir, dir, files)) {
+        if (!this.listFiles(this.getPath(template) + "/" + dir, dir, files, deep)) {
             return null;
         }
         return files.toArray(new FileInfo[0]);
     }
 
-    private boolean listFiles(String directory, String relativeDirectory, Collection<FileInfo> files) {
+    private boolean listFiles(String directory, String relativeDirectory, Collection<FileInfo> files, boolean deep) {
         relativeDirectory = this.removeLeadingSlash(relativeDirectory);
 
         Collection<ChannelSftp.LsEntry> entries = this.ftpClient.listFiles(directory);
@@ -262,12 +262,11 @@ public class SFTPTemplateStorage extends AbstractFTPStorage {
         for (ChannelSftp.LsEntry entry : entries) {
             String relativePath = relativeDirectory.isEmpty() ? entry.getFilename() : relativeDirectory + "/" + entry.getFilename();
 
-            if (entry.getAttrs().isDir()) {
-                this.listFiles(directory + "/" + entry.getFilename(), relativePath, files);
-                continue;
-            }
-
             files.add(this.asInfo(relativePath, entry.getFilename(), entry.getAttrs()));
+
+            if (deep && entry.getAttrs().isDir()) {
+                this.listFiles(directory + "/" + entry.getFilename(), relativePath, files, true);
+            }
         }
 
         return true;

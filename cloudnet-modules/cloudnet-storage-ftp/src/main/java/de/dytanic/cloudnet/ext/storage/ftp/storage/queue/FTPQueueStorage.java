@@ -285,8 +285,8 @@ public class FTPQueueStorage extends DefaultSyncTemplateStorage implements Runna
     }
 
     @Override
-    public FileInfo[] listFiles(@NotNull ServiceTemplate template, @NotNull String dir) throws IOException {
-        FTPTask<FileInfo[]> ftpTask = new FTPTask<>(() -> this.executingStorage.listFiles(template, dir));
+    public FileInfo[] listFiles(@NotNull ServiceTemplate template, @NotNull String dir, boolean deep) throws IOException {
+        FTPTask<FileInfo[]> ftpTask = new FTPTask<>(() -> this.executingStorage.listFiles(template, dir, deep));
         this.ftpTaskQueue.add(ftpTask);
 
         return this.getOrThrow(ftpTask, IOException.class, null);

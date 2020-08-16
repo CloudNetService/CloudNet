@@ -103,11 +103,21 @@ public interface TemplateStorage extends AutoCloseable, INameable {
     FileInfo getFileInfo(@NotNull ServiceTemplate template, @NotNull String path) throws IOException;
 
     @Nullable
-    FileInfo[] listFiles(@NotNull ServiceTemplate template, @NotNull String dir) throws IOException;
+    FileInfo[] listFiles(@NotNull ServiceTemplate template, @NotNull String dir, boolean deep) throws IOException;
+
+    @Nullable
+    default FileInfo[] listFiles(@NotNull ServiceTemplate template, boolean deep) throws IOException {
+        return this.listFiles(template, "", deep);
+    }
+
+    @Nullable
+    default FileInfo[] listFiles(@NotNull ServiceTemplate template, @NotNull String dir) throws IOException {
+        return this.listFiles(template, dir, true);
+    }
 
     @Nullable
     default FileInfo[] listFiles(@NotNull ServiceTemplate template) throws IOException {
-        return this.listFiles(template, "");
+        return this.listFiles(template, true);
     }
 
     @NotNull
@@ -222,11 +232,21 @@ public interface TemplateStorage extends AutoCloseable, INameable {
     ITask<FileInfo> getFileInfoAsync(@NotNull ServiceTemplate template, @NotNull String path);
 
     @NotNull
-    ITask<FileInfo[]> listFilesAsync(@NotNull ServiceTemplate template, @NotNull String dir);
+    ITask<FileInfo[]> listFilesAsync(@NotNull ServiceTemplate template, @NotNull String dir, boolean deep);
+
+    @NotNull
+    default ITask<FileInfo[]> listFilesAsync(@NotNull ServiceTemplate template, boolean deep) {
+        return this.listFilesAsync(template, "", deep);
+    }
+
+    @NotNull
+    default ITask<FileInfo[]> listFilesAsync(@NotNull ServiceTemplate template, @NotNull String dir) {
+        return this.listFilesAsync(template, dir, true);
+    }
 
     @NotNull
     default ITask<FileInfo[]> listFilesAsync(@NotNull ServiceTemplate template) {
-        return this.listFilesAsync(template, "");
+        return this.listFilesAsync(template, true);
     }
 
     @NotNull

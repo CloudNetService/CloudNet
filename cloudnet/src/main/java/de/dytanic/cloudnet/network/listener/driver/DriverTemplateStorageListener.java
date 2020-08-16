@@ -32,13 +32,17 @@ public class DriverTemplateStorageListener extends CategorizedDriverAPIListener 
         }));
 
         super.registerHandler(DriverAPIRequestType.LIST_FILES, this.throwableHandler(input -> {
-            FileInfo[] files = this.readSpecific(input).listFiles(input.readString());
+            FileInfo[] files = this.readSpecific(input).listFiles(input.readString(), input.readBoolean());
             ProtocolBuffer buffer = ProtocolBuffer.create().writeEnumConstant(TemplateStorageResponse.SUCCESS);
             buffer.writeBoolean(files != null);
             if (files != null) {
                 buffer.writeObjectArray(files);
             }
             return buffer;
+        }));
+        super.registerHandler(DriverAPIRequestType.GET_FILE_INFO, this.throwableHandler(input -> {
+            FileInfo file = this.readSpecific(input).getFileInfo(input.readString());
+            return ProtocolBuffer.create().writeEnumConstant(TemplateStorageResponse.SUCCESS).writeOptionalObject(file);
         }));
 
         super.registerHandler(DriverAPIRequestType.CREATE_FILE, this.throwableResponseHandler(input -> TemplateStorageResponse.of(this.readSpecific(input).createFile(input.readString()))));

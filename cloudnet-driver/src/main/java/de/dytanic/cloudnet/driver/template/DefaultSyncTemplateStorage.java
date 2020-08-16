@@ -178,18 +178,18 @@ public abstract class DefaultSyncTemplateStorage implements TemplateStorage {
     }
 
     @Override
-    public @NotNull ITask<FileInfo[]> listFilesAsync(@NotNull ServiceTemplate template, @NotNull String dir) {
+    public @NotNull ITask<FileInfo[]> listFilesAsync(@NotNull ServiceTemplate template, @NotNull String dir, boolean deep) {
         try {
-            return CompletedTask.create(this.listFiles(template, dir));
+            return CompletedTask.create(this.listFiles(template, dir, deep));
         } catch (IOException exception) {
             return CompletedTask.createFailed(exception);
         }
     }
 
     @Override
-    public @NotNull ITask<FileInfo[]> listFilesAsync(@NotNull ServiceTemplate template) {
+    public @NotNull ITask<FileInfo[]> listFilesAsync(@NotNull ServiceTemplate template, boolean deep) {
         try {
-            return CompletedTask.create(this.listFiles(template));
+            return CompletedTask.create(this.listFiles(template, deep));
         } catch (IOException exception) {
             return CompletedTask.createFailed(exception);
         }

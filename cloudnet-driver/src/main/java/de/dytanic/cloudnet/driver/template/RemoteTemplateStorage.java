@@ -160,14 +160,18 @@ public class RemoteTemplateStorage extends DefaultAsyncTemplateStorage implement
 
     @Override
     public @NotNull ITask<FileInfo> getFileInfoAsync(@NotNull ServiceTemplate template, @NotNull String path) {
-        return null;
+        return this.executeDriverAPIMethod(
+                DriverAPIRequestType.GET_FILE_INFO,
+                buffer -> this.writeDefaults(buffer, template).writeString(path),
+                packet -> packet.getBuffer().readOptionalObject(FileInfo.class)
+        );
     }
 
     @Override
-    public @NotNull ITask<FileInfo[]> listFilesAsync(@NotNull ServiceTemplate template, @NotNull String dir) {
+    public @NotNull ITask<FileInfo[]> listFilesAsync(@NotNull ServiceTemplate template, @NotNull String dir, boolean deep) {
         return this.executeDriverAPIMethod(
                 DriverAPIRequestType.LIST_FILES,
-                buffer -> this.writeDefaults(buffer, template).writeString(dir),
+                buffer -> this.writeDefaults(buffer, template).writeString(dir).writeBoolean(deep),
                 packet -> packet.getBuffer().readBoolean() ? packet.getBuffer().readObjectArray(FileInfo.class) : null
         );
     }
