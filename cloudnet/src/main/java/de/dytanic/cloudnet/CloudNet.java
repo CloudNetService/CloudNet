@@ -536,11 +536,11 @@ public final class CloudNet extends CloudNetDriver {
         return Thread.currentThread().getName().equals("Application-Thread");
     }
 
-    public void deployTemplateInCluster(ServiceTemplate serviceTemplate, byte[] resource) {
+    public void deployTemplateInCluster(@NotNull ServiceTemplate serviceTemplate, @NotNull InputStream inputStream) {
         Preconditions.checkNotNull(serviceTemplate);
-        Preconditions.checkNotNull(resource);
+        Preconditions.checkNotNull(inputStream);
 
-        this.getClusterNodeServerProvider().deployTemplateInCluster(serviceTemplate, resource);
+        this.getClusterNodeServerProvider().deployTemplateInCluster(serviceTemplate, inputStream);
     }
 
     public void updateServiceTasksInCluster(Collection<ServiceTask> serviceTasks, NetworkUpdateType updateType) {

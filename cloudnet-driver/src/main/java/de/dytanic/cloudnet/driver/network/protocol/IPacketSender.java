@@ -18,6 +18,8 @@ public interface IPacketSender {
      */
     void sendPacket(@NotNull IPacket packet);
 
+    void sendPacketSync(@NotNull IPacket packet);
+
     /**
      * Transport packet instances into the network to the receiver. The receiver will
      * handle the packets if he knows the channel and has listeners for the channel

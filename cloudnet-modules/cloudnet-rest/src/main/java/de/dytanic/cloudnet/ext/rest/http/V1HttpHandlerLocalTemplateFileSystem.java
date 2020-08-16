@@ -12,6 +12,7 @@ import de.dytanic.cloudnet.http.V1HttpHandler;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.InputStream;
 
 // TODO not tested
 public final class V1HttpHandlerLocalTemplateFileSystem extends V1HttpHandler {
@@ -34,7 +35,7 @@ public final class V1HttpHandlerLocalTemplateFileSystem extends V1HttpHandler {
     }
 
     @Override
-    public void handleGet(String path, IHttpContext context) throws Exception {
+    public void handleGet(String path, IHttpContext context) throws IOException {
         if (!this.validateTemplate(context)) {
             return;
         }
@@ -90,7 +91,20 @@ public final class V1HttpHandlerLocalTemplateFileSystem extends V1HttpHandler {
                 FileUtils.copy(new ByteArrayInputStream(context.request().body()), outputStream);
             }
 
-            this.getCloudNet().deployTemplateInCluster(serviceTemplate, serviceTemplate.storage().toZipByteArray());
+            InputStream inputStream = serviceTemplate.storage().zipTemplate(serviceTemplate);
+            if (inputStream == null) {
+                context
+                        .response()
+                        .statusCode(HttpResponseCode.HTTP_INTERNAL_ERROR)
+                        .header("Content-Type", "application/json")
+                        .body(new JsonDocument("success", false).toByteArray())
+                        .context()
+                        .closeAfter(true)
+                        .cancelNext();
+                return;
+            }
+
+            this.getCloudNet().deployTemplateInCluster(serviceTemplate, inputStream);
 
             context
                     .response()
@@ -123,7 +137,7 @@ public final class V1HttpHandlerLocalTemplateFileSystem extends V1HttpHandler {
             }
 
             serviceTemplate.storage().deleteFile(filePath);
-            this.getCloudNet().deployTemplateInCluster(serviceTemplate, serviceTemplate.storage().toZipByteArray());
+            this.getCloudNet().deployTemplateInCluster(serviceTemplate, serviceTemplate.storage().toZipByteArray()); // TODO add a method to delete the template in the cluster
 
             context
                     .response()

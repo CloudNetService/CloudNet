@@ -12,7 +12,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
@@ -178,7 +177,7 @@ public final class LocalTemplateStorage extends DefaultSyncTemplateStorage {
 
     @Override
     @Nullable
-    public ZipInputStream asZipInputStream(@NotNull ServiceTemplate template) throws IOException {
+    public InputStream zipTemplate(@NotNull ServiceTemplate template) throws IOException {
         if (!this.has(template)) {
             return null;
         }
@@ -191,7 +190,7 @@ public final class LocalTemplateStorage extends DefaultSyncTemplateStorage {
             return null;
         }
 
-        return new ZipInputStream(Files.newInputStream(file, StandardOpenOption.DELETE_ON_CLOSE, LinkOption.NOFOLLOW_LINKS), StandardCharsets.UTF_8);
+        return Files.newInputStream(file, StandardOpenOption.DELETE_ON_CLOSE, LinkOption.NOFOLLOW_LINKS);
     }
 
     @Override

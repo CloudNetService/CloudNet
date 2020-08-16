@@ -16,6 +16,8 @@ import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import de.dytanic.cloudnet.driver.template.TemplateStorage;
 import de.dytanic.cloudnet.network.NetworkUpdateType;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -143,15 +145,22 @@ public final class CommandCluster extends SubCommandHandler {
     }
 
     private static void pushLocalTemplate(ICommandSender sender, TemplateStorage storage, ServiceTemplate serviceTemplate) {
-        byte[] bytes = storage.toZipByteArray(serviceTemplate);
+        String template = serviceTemplate.getStorage() + ":" + serviceTemplate.getTemplatePath();
 
-        if (bytes != null) {
-            CloudNet.getInstance().deployTemplateInCluster(serviceTemplate, bytes);
+        try {
+            sender.sendMessage(LanguageManager.getMessage("command-cluster-push-template-compress").replace("%template%", template));
+            try (InputStream inputStream = storage.zipTemplate(serviceTemplate)) {
+                if (inputStream != null) {
+                    sender.sendMessage(LanguageManager.getMessage("command-cluster-push-template-compress-success").replace("%template%", template));
+                    CloudNet.getInstance().deployTemplateInCluster(serviceTemplate, inputStream);
 
-            sender.sendMessage(
-                    LanguageManager.getMessage("command-cluster-push-templates-from-local-success")
-                            .replace("%template%", serviceTemplate.getStorage() + ":" + serviceTemplate.getTemplatePath())
-            );
+                    sender.sendMessage(LanguageManager.getMessage("command-cluster-push-template-from-local-success").replace("%template%", template));
+                } else {
+                    sender.sendMessage(LanguageManager.getMessage("command-cluster-push-template-compress-failed").replace("%template%", template));
+                }
+            }
+        } catch (IOException exception) {
+            exception.printStackTrace();
         }
     }
 

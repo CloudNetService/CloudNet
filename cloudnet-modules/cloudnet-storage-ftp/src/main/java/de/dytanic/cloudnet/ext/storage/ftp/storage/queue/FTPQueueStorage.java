@@ -150,8 +150,8 @@ public class FTPQueueStorage extends DefaultSyncTemplateStorage implements Runna
     }
 
     @Override
-    public @Nullable ZipInputStream asZipInputStream(@NotNull ServiceTemplate template) {
-        ITask<ZipInputStream> ftpTask = new FTPTask<>(() -> this.executingStorage.asZipInputStream(template));
+    public @Nullable InputStream zipTemplate(@NotNull ServiceTemplate template) {
+        ITask<InputStream> ftpTask = new FTPTask<>(() -> this.executingStorage.zipTemplate(template));
         this.ftpTaskQueue.add(ftpTask);
 
         return ftpTask.getDef(null);
