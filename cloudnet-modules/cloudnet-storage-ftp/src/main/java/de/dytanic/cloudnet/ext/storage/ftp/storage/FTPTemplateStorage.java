@@ -64,6 +64,7 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
             if (this.ftpClient.login(username, password)) {
                 this.ftpClient.sendNoOp();
                 this.ftpClient.setFileType(FTP.BINARY_FILE_TYPE);
+                this.createDirectories(super.baseDirectory);
                 this.ftpClient.changeWorkingDirectory(super.baseDirectory);
 
                 return true;
@@ -526,25 +527,19 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
     }
 
     private void createDirectories(String path) throws IOException {
-        StringBuilder pathBuilder = new StringBuilder();
-
         if (this.ftpClient.changeWorkingDirectory(path)) {
             this.ftpClient.changeWorkingDirectory(super.baseDirectory);
             return;
         }
 
         for (String pathSegment : path.split("/")) {
-            pathBuilder.append(pathSegment).append('/');
-
-            String currentPath = pathBuilder.toString();
-
-            if (!this.ftpClient.changeWorkingDirectory(currentPath)) {
-                this.ftpClient.makeDirectory(currentPath);
+            if (!this.ftpClient.changeWorkingDirectory(pathSegment)) {
+                this.ftpClient.makeDirectory(pathSegment);
+                this.ftpClient.changeWorkingDirectory(pathSegment);
             }
-
-            this.ftpClient.changeWorkingDirectory(super.baseDirectory);
         }
 
+        this.ftpClient.changeWorkingDirectory(super.baseDirectory);
     }
 
 }
