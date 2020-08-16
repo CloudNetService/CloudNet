@@ -1,8 +1,10 @@
 package de.dytanic.cloudnet.ext.storage.ftp.storage;
 
 import com.jcraft.jsch.ChannelSftp;
+import com.jcraft.jsch.SftpATTRS;
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
+import de.dytanic.cloudnet.driver.template.FileInfo;
 import de.dytanic.cloudnet.ext.storage.ftp.client.FTPCredentials;
 import de.dytanic.cloudnet.ext.storage.ftp.client.FTPType;
 import de.dytanic.cloudnet.ext.storage.ftp.client.SFTPClient;
@@ -65,8 +67,8 @@ public class SFTPTemplateStorage extends AbstractFTPStorage {
     }
 
     @Override
-    public boolean deploy(@NotNull ZipInputStream inputStream, @NotNull ServiceTemplate serviceTemplate) {
-        return this.ftpClient.uploadDirectory(inputStream, this.getPath(serviceTemplate));
+    public boolean deploy(@NotNull ZipInputStream inputStream, @NotNull ServiceTemplate target) {
+        return this.ftpClient.uploadDirectory(inputStream, this.getPath(target));
     }
 
     @Override
@@ -207,31 +209,62 @@ public class SFTPTemplateStorage extends AbstractFTPStorage {
     }
 
     @Override
-    public String[] listFiles(@NotNull ServiceTemplate template, @NotNull String dir) {
-        return this.listFiles(this.getPath(template) + "/" + dir).toArray(new String[0]);
+    public @Nullable InputStream newInputStream(@NotNull ServiceTemplate template, @NotNull String path) {
+        return this.ftpClient.loadFile(this.getPath(template) + "/" + path);
     }
 
-    private List<String> listFiles(String directory) {
-        List<String> files = new ArrayList<>();
+    @Override
+    public @Nullable FileInfo getFileInfo(@NotNull ServiceTemplate template, @NotNull String path) {
+        SftpATTRS attrs = this.ftpClient.getAttrs(this.getPath(template) + "/" + path);
+        if (attrs == null) {
+            return null;
+        }
+
+        String filename = path;
+
+        int index = path.lastIndexOf('/');
+        if (index != -1) {
+            filename = path.substring(index); // TODO not tested
+        }
+
+        return this.asInfo(path, filename, attrs);
+    }
+
+    @Override
+    public FileInfo[] listFiles(@NotNull ServiceTemplate template, @NotNull String dir) {
+        return this.listFiles(this.getPath(template) + "/" + dir).toArray(new FileInfo[0]);
+    }
+
+    // TODO not tested
+    private List<FileInfo> listFiles(String directory) {
+        List<FileInfo> files = new ArrayList<>();
         Collection<ChannelSftp.LsEntry> entries = this.ftpClient.listFiles(directory);
         if (entries != null) {
             for (ChannelSftp.LsEntry entry : entries) {
                 if (entry.getAttrs().isDir()) {
-                    if (directory.endsWith("/") || entry.getFilename().startsWith("/")) {
-                        files.addAll(this.listFiles(directory + entry.getFilename()));
-                    } else {
-                        files.addAll(this.listFiles(directory + "/" + entry.getFilename()));
-                    }
-                } else {
-                    files.add(entry.getFilename());
+                    String currentDirectory = directory.endsWith("/") || entry.getFilename().startsWith("/") ? directory : directory + "/";
+                    files.addAll(this.listFiles(currentDirectory + entry.getFilename())); // TODO can't we just use getLongname?
+                    continue;
                 }
+
+                files.add(this.asInfo(entry.getLongname(), entry.getFilename(), entry.getAttrs()));
             }
         }
         return files;
     }
 
+    private FileInfo asInfo(String path, String name, SftpATTRS attrs) {
+        return new FileInfo(
+                path, name,
+                attrs.isDir(), false,
+                -1, 1000 * (long) attrs.getMTime(), 1000 * (long) attrs.getATime(),
+                (400 & attrs.getPermissions()) != 0, (200 & attrs.getPermissions()) != 0,
+                attrs.getSize()
+        );
+    }
+
     @Override
-    public Collection<ServiceTemplate> getTemplates() {
+    public @NotNull Collection<ServiceTemplate> getTemplates() {
         Collection<ChannelSftp.LsEntry> entries = this.ftpClient.listFiles(super.baseDirectory);
         if (entries == null)
             return Collections.emptyList();

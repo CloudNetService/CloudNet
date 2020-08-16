@@ -4,8 +4,6 @@ import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.console.animation.questionlist.QuestionAnswerType;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
-import de.dytanic.cloudnet.template.ITemplateStorage;
-import de.dytanic.cloudnet.template.LocalTemplateStorage;
 
 import java.util.Collection;
 import java.util.stream.Collectors;
@@ -21,7 +19,7 @@ public class QuestionAnswerTypeServiceTemplate implements QuestionAnswerType<Ser
     @Override
     public boolean isValidInput(String input) {
         ServiceTemplate template = this.parse(input);
-        return template != null && (!this.existingStorage || CloudNet.getInstance().getServicesRegistry().containsService(ITemplateStorage.class, template.getStorage()));
+        return template != null && (!this.existingStorage || template.nullableStorage() != null);
     }
 
     @Override
@@ -39,9 +37,7 @@ public class QuestionAnswerTypeServiceTemplate implements QuestionAnswerType<Ser
 
     @Override
     public Collection<String> getPossibleAnswers() {
-        return this.mapTemplates(
-                CloudNet.getInstance().getServicesRegistry().getService(ITemplateStorage.class, LocalTemplateStorage.LOCAL_TEMPLATE_STORAGE).getTemplates()
-        );
+        return this.mapTemplates(CloudNet.getInstance().getLocalTemplateStorage().getTemplates());
     }
 
     protected Collection<String> mapTemplates(Collection<ServiceTemplate> templates) {

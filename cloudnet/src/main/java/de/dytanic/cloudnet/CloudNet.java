@@ -10,10 +10,7 @@ import de.dytanic.cloudnet.command.ICommandMap;
 import de.dytanic.cloudnet.command.commands.*;
 import de.dytanic.cloudnet.common.Properties;
 import de.dytanic.cloudnet.common.collection.Pair;
-import de.dytanic.cloudnet.common.concurrent.DefaultTaskScheduler;
-import de.dytanic.cloudnet.common.concurrent.ITask;
-import de.dytanic.cloudnet.common.concurrent.ITaskScheduler;
-import de.dytanic.cloudnet.common.concurrent.ListenableTask;
+import de.dytanic.cloudnet.common.concurrent.*;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.common.language.LanguageManager;
@@ -53,6 +50,7 @@ import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
 import de.dytanic.cloudnet.driver.permission.IPermissionUser;
 import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
 import de.dytanic.cloudnet.driver.service.*;
+import de.dytanic.cloudnet.driver.template.TemplateStorage;
 import de.dytanic.cloudnet.event.CloudNetNodePostInitializationEvent;
 import de.dytanic.cloudnet.event.cluster.NetworkClusterNodeInfoConfigureEvent;
 import de.dytanic.cloudnet.event.command.CommandNotFoundEvent;
@@ -87,7 +85,6 @@ import de.dytanic.cloudnet.service.ICloudService;
 import de.dytanic.cloudnet.service.ICloudServiceManager;
 import de.dytanic.cloudnet.service.defaults.DefaultCloudServiceManager;
 import de.dytanic.cloudnet.setup.DefaultInstallation;
-import de.dytanic.cloudnet.template.ITemplateStorage;
 import de.dytanic.cloudnet.template.LocalTemplateStorage;
 import de.dytanic.cloudnet.template.install.ServiceVersionProvider;
 import org.jetbrains.annotations.NotNull;
@@ -381,6 +378,30 @@ public final class CloudNet extends CloudNetDriver {
     }
 
     @Override
+    public @NotNull TemplateStorage getLocalTemplateStorage() {
+        TemplateStorage storage = this.getTemplateStorage(ServiceTemplate.LOCAL_STORAGE);
+        if (storage == null) {
+            throw new IllegalStateException("No local TemplateStorage registered");
+        }
+        return storage;
+    }
+
+    @Override
+    public @Nullable TemplateStorage getTemplateStorage(String storage) {
+        return this.servicesRegistry.getService(TemplateStorage.class, storage);
+    }
+
+    @Override
+    public @NotNull Collection<TemplateStorage> getAvailableTemplateStorages() {
+        return this.servicesRegistry.getServices(TemplateStorage.class);
+    }
+
+    @Override
+    public @NotNull ITask<Collection<TemplateStorage>> getAvailableTemplateStoragesAsync() {
+        return CompletedTask.create(this.getAvailableTemplateStorages());
+    }
+
+    @Override
     public @NotNull SpecificCloudServiceProvider getCloudServiceProvider(@NotNull String name) {
         ServiceInfoSnapshot snapshot = this.generalCloudServiceProvider.getCloudServiceByName(name);
         return this.selectCloudServiceProvider(snapshot);
@@ -466,24 +487,6 @@ public final class CloudNet extends CloudNetDriver {
     }
 
     @Override
-    public Collection<ServiceTemplate> getLocalTemplateStorageTemplates() {
-        return this.getServicesRegistry().getService(ITemplateStorage.class, LocalTemplateStorage.LOCAL_TEMPLATE_STORAGE).getTemplates();
-    }
-
-    @Override
-    public Collection<ServiceTemplate> getTemplateStorageTemplates(@NotNull String serviceName) {
-        Preconditions.checkNotNull(serviceName);
-
-        Collection<ServiceTemplate> collection = new ArrayList<>();
-
-        if (this.servicesRegistry.containsService(ITemplateStorage.class, serviceName)) {
-            collection.addAll(this.servicesRegistry.getService(ITemplateStorage.class, serviceName).getTemplates());
-        }
-
-        return collection;
-    }
-
-    @Override
     public void setGlobalLogLevel(@NotNull LogLevel logLevel) {
         this.setGlobalLogLevel(logLevel.getLevel());
     }
@@ -508,20 +511,6 @@ public final class CloudNet extends CloudNetDriver {
         } else {
             return new Pair<>(false, new String[0]);
         }
-    }
-
-    @Override
-    @NotNull
-    public ITask<Collection<ServiceTemplate>> getLocalTemplateStorageTemplatesAsync() {
-        return this.scheduleTask(CloudNet.this::getLocalTemplateStorageTemplates);
-    }
-
-    @Override
-    @NotNull
-    public ITask<Collection<ServiceTemplate>> getTemplateStorageTemplatesAsync(@NotNull String serviceName) {
-        Preconditions.checkNotNull(serviceName);
-
-        return this.scheduleTask(() -> CloudNet.this.getTemplateStorageTemplates(serviceName));
     }
 
     @Override
@@ -872,7 +861,7 @@ public final class CloudNet extends CloudNetDriver {
     }
 
     private void registerDefaultServices() {
-        this.servicesRegistry.registerService(ITemplateStorage.class, LocalTemplateStorage.LOCAL_TEMPLATE_STORAGE,
+        this.servicesRegistry.registerService(TemplateStorage.class, ServiceTemplate.LOCAL_STORAGE,
                 new LocalTemplateStorage(new File(System.getProperty("cloudnet.storage.local", "local/templates"))));
 
         this.servicesRegistry.registerService(AbstractDatabaseProvider.class, "h2",

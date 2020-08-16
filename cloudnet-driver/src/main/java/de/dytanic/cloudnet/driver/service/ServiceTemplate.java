@@ -2,20 +2,26 @@ package de.dytanic.cloudnet.driver.service;
 
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.INameable;
+import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import de.dytanic.cloudnet.driver.serialization.SerializableObject;
+import de.dytanic.cloudnet.driver.template.SpecificTemplateStorage;
+import de.dytanic.cloudnet.driver.template.TemplateStorage;
 import lombok.EqualsAndHashCode;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
-@EqualsAndHashCode
 /**
  * Defines the location of a template for services that can either be copied into a service or filled from a service
  * by using a {@link ServiceDeployment}. CloudNet's default storage is "local".
  */
+@EqualsAndHashCode
 public class ServiceTemplate implements INameable, SerializableObject {
+
+    public static final String LOCAL_STORAGE = "local";
 
     private String prefix, name, storage;
     private boolean alwaysCopyToStaticServices;
@@ -33,6 +39,10 @@ public class ServiceTemplate implements INameable, SerializableObject {
     public ServiceTemplate(String prefix, String name, String storage, boolean alwaysCopyToStaticServices) {
         this(prefix, name, storage);
         this.alwaysCopyToStaticServices = alwaysCopyToStaticServices;
+    }
+
+    public static ServiceTemplate local(String prefix, String name) {
+        return new ServiceTemplate(prefix, name, LOCAL_STORAGE);
     }
 
     public ServiceTemplate() {
@@ -61,6 +71,17 @@ public class ServiceTemplate implements INameable, SerializableObject {
 
     public String getStorage() {
         return this.storage;
+    }
+
+    @NotNull
+    public SpecificTemplateStorage storage() {
+        return SpecificTemplateStorage.of(this);
+    }
+
+    @Nullable
+    public SpecificTemplateStorage nullableStorage() {
+        TemplateStorage storage = CloudNetDriver.getInstance().getTemplateStorage(this.storage);
+        return storage != null ? SpecificTemplateStorage.of(this, storage) : null;
     }
 
     /**

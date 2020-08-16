@@ -79,6 +79,10 @@ public interface ITask<V> extends Future<V>, Callable<V> {
 
     V get(long time, TimeUnit timeUnit, V def);
 
-    <T> ITask<T> map(@Nullable Function<V, T> mapper);
+    <T> ITask<T> mapThrowable(@Nullable ThrowableFunction<V, T, Throwable> mapper);
+
+    default <T> ITask<T> map(@Nullable Function<V, T> mapper) {
+        return this.mapThrowable(mapper == null ? null : mapper::apply);
+    }
 
 }

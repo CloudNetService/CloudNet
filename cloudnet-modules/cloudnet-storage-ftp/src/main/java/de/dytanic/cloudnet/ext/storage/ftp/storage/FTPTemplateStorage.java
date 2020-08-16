@@ -7,6 +7,7 @@ import de.dytanic.cloudnet.common.logging.ILogger;
 import de.dytanic.cloudnet.common.logging.LogLevel;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
+import de.dytanic.cloudnet.driver.template.FileInfo;
 import de.dytanic.cloudnet.ext.storage.ftp.client.FTPCredentials;
 import de.dytanic.cloudnet.ext.storage.ftp.client.FTPType;
 import org.apache.commons.net.ftp.FTP;
@@ -128,20 +129,20 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
     }
 
     @Override
-    public boolean deploy(@NotNull ZipInputStream zipInputStream, @NotNull ServiceTemplate serviceTemplate) {
+    public boolean deploy(@NotNull ZipInputStream zipInputStream, @NotNull ServiceTemplate target) {
         Preconditions.checkNotNull(zipInputStream);
-        Preconditions.checkNotNull(serviceTemplate);
+        Preconditions.checkNotNull(target);
 
-        if (this.has(serviceTemplate)) {
-            this.delete(serviceTemplate);
+        if (this.has(target)) {
+            this.delete(target);
         }
 
-        this.create(serviceTemplate);
+        this.create(target);
 
         try {
             ZipEntry zipEntry;
             while ((zipEntry = zipInputStream.getNextEntry()) != null) {
-                this.deployZipEntry(zipInputStream, zipEntry, serviceTemplate.getTemplatePath());
+                this.deployZipEntry(zipInputStream, zipEntry, target.getTemplatePath());
                 zipInputStream.closeEntry();
             }
 
@@ -467,13 +468,36 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
     }
 
     @Override
-    public String[] listFiles(@NotNull ServiceTemplate template, @NotNull String dir) throws IOException {
-        FTPFile[] fileList = this.ftpClient.mlistDir(template.getTemplatePath() + "/" + dir);
-        return fileList == null ? new String[0] : Arrays.stream(fileList).map(FTPFile::getName).toArray(String[]::new);
+    public @Nullable InputStream newInputStream(@NotNull ServiceTemplate template, @NotNull String path) throws IOException {
+        return this.ftpClient.retrieveFileStream(template.getTemplatePath() + "/" + path);
     }
 
     @Override
-    public Collection<ServiceTemplate> getTemplates() {
+    public @Nullable FileInfo getFileInfo(@NotNull ServiceTemplate template, @NotNull String path) throws IOException {
+        FTPFile file = this.ftpClient.mlistFile(template.getTemplatePath() + "/" + path);
+        return file == null ? null : this.asInfo(path, file);
+    }
+
+    @Override
+    public FileInfo[] listFiles(@NotNull ServiceTemplate template, @NotNull String dir) throws IOException {
+        FTPFile[] fileList = this.ftpClient.mlistDir(template.getTemplatePath() + "/" + dir); // TODO does this also contain every sub directory? the local/sftp template storage includes the sub directories
+        return fileList == null ? new FileInfo[0] : Arrays.stream(fileList)
+                .map(file -> this.asInfo(dir + "/" + file.getName(), file))
+                .toArray(FileInfo[]::new);
+    }
+
+    private FileInfo asInfo(String path, FTPFile file) {
+        return new FileInfo(
+                path, file.getName(), file.isDirectory(),
+                false, -1, file.getTimestamp().getTimeInMillis(), -1,
+                file.hasPermission(FTPFile.USER_ACCESS, FTPFile.READ_PERMISSION), // TODO not tested
+                file.hasPermission(FTPFile.USER_ACCESS, FTPFile.WRITE_PERMISSION), // TODO not tested
+                file.getSize()
+        );
+    }
+
+    @Override
+    public @NotNull Collection<ServiceTemplate> getTemplates() {
         Collection<ServiceTemplate> templates = new ArrayList<>();
 
         try {

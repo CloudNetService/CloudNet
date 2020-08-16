@@ -4,6 +4,7 @@ package de.dytanic.cloudnet.ext.storage.ftp.storage.queue;
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.concurrent.ITaskListener;
+import de.dytanic.cloudnet.common.concurrent.ThrowableFunction;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -11,7 +12,6 @@ import java.io.OutputStream;
 import java.util.Collection;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
 
 @NotNull
 public class OutputStreamCloseTask extends OutputStream implements ITask<OutputStream> {
@@ -84,7 +84,7 @@ public class OutputStreamCloseTask extends OutputStream implements ITask<OutputS
     }
 
     @Override
-    public <T> ITask<T> map(Function<OutputStream, T> mapper) {
+    public <T> ITask<T> mapThrowable(ThrowableFunction<OutputStream, T, Throwable> mapper) {
         throw new UnsupportedOperationException();
     }
 

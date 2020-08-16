@@ -161,7 +161,6 @@ public class SFTPClient implements Closeable {
             this.channel.get(remotePath, localPath);
             return true;
         } catch (SftpException exception) {
-            exception.printStackTrace();
             return false;
         }
     }
@@ -171,7 +170,6 @@ public class SFTPClient implements Closeable {
             this.channel.get(remotePath, outputStream);
             return true;
         } catch (SftpException exception) {
-            exception.printStackTrace();
             return false;
         }
     }
@@ -180,7 +178,6 @@ public class SFTPClient implements Closeable {
         try {
             return this.channel.get(remotePath);
         } catch (SftpException exception) {
-            exception.printStackTrace();
             return null;
         }
     }
@@ -369,6 +366,15 @@ public class SFTPClient implements Closeable {
         } catch (SftpException exception) {
             exception.printStackTrace();
             return false;
+        }
+    }
+
+    public SftpATTRS getAttrs(String path) {
+        try {
+            return this.channel.stat(path);
+        } catch (SftpException exception) {
+            // file does not exist
+            return null;
         }
     }
 

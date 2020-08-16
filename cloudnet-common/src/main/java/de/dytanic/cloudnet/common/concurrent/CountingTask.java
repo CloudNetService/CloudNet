@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Function;
 
 public class CountingTask<V> implements ITask<V> {
 
@@ -74,11 +73,8 @@ public class CountingTask<V> implements ITask<V> {
     }
 
     @Override
-    public <T> ITask<T> map(Function<V, T> mapper) {
-        CompletableTask<T> task = new CompletableTask<>();
-        this.onComplete(v -> task.complete(mapper == null ? null : mapper.apply(v)));
-        this.onCancelled(otherTask -> task.cancel(true));
-        return task;
+    public <T> ITask<T> mapThrowable(ThrowableFunction<V, T, Throwable> mapper) {
+        return CompletableTask.mapFrom(this, mapper);
     }
 
     @Override

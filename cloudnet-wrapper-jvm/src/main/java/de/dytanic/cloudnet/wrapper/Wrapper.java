@@ -21,6 +21,8 @@ import de.dytanic.cloudnet.driver.provider.service.RemoteCloudServiceFactory;
 import de.dytanic.cloudnet.driver.provider.service.RemoteSpecificCloudServiceProvider;
 import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
 import de.dytanic.cloudnet.driver.service.*;
+import de.dytanic.cloudnet.driver.template.RemoteTemplateStorage;
+import de.dytanic.cloudnet.driver.template.TemplateStorage;
 import de.dytanic.cloudnet.wrapper.conf.DocumentWrapperConfiguration;
 import de.dytanic.cloudnet.wrapper.conf.IWrapperConfiguration;
 import de.dytanic.cloudnet.wrapper.database.IDatabaseProvider;
@@ -42,13 +44,11 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.Collectors;
 
 /**
  * This class is the main class of the application wrapper, which performs the basic
@@ -203,6 +203,29 @@ public final class Wrapper extends CloudNetDriver implements DriverAPIUser {
     }
 
     @Override
+    public @NotNull TemplateStorage getLocalTemplateStorage() {
+        return this.getTemplateStorage(ServiceTemplate.LOCAL_STORAGE);
+    }
+
+    @Override
+    public @NotNull TemplateStorage getTemplateStorage(String storage) {
+        return new RemoteTemplateStorage(storage, this::getNetworkChannel);
+    }
+
+    @Override
+    public @NotNull Collection<TemplateStorage> getAvailableTemplateStorages() {
+        return this.getAvailableTemplateStoragesAsync().get(5, TimeUnit.SECONDS, Collections.emptyList());
+    }
+
+    @Override
+    public @NotNull ITask<Collection<TemplateStorage>> getAvailableTemplateStoragesAsync() {
+        return this.executeDriverAPIMethod(
+                DriverAPIRequestType.GET_TEMPLATE_STORAGES,
+                packet -> packet.getBuffer().readStringCollection()
+        ).map(names -> names.stream().map(this::getTemplateStorage).collect(Collectors.toList()));
+    }
+
+    @Override
     public @NotNull SpecificCloudServiceProvider getCloudServiceProvider(@NotNull String name) {
         return new RemoteSpecificCloudServiceProvider(this.getNetworkChannel(), this.generalCloudServiceProvider, name);
     }
@@ -215,30 +238,6 @@ public final class Wrapper extends CloudNetDriver implements DriverAPIUser {
     @Override
     public @NotNull SpecificCloudServiceProvider getCloudServiceProvider(@NotNull ServiceInfoSnapshot serviceInfoSnapshot) {
         return new RemoteSpecificCloudServiceProvider(this.getNetworkChannel(), serviceInfoSnapshot);
-    }
-
-    /**
-     * Application wrapper implementation of this method. See the full documentation at the
-     * CloudNetDriver class.
-     *
-     * @see CloudNetDriver
-     */
-    @Override
-    public Collection<ServiceTemplate> getLocalTemplateStorageTemplates() {
-        return this.getLocalTemplateStorageTemplatesAsync().get(5, TimeUnit.SECONDS, null);
-    }
-
-    /**
-     * Application wrapper implementation of this method. See the full documentation at the
-     * CloudNetDriver class.
-     *
-     * @see CloudNetDriver
-     */
-    @Override
-    public Collection<ServiceTemplate> getTemplateStorageTemplates(@NotNull String serviceName) {
-        Preconditions.checkNotNull(serviceName);
-
-        return this.getTemplateStorageTemplatesAsync(serviceName).get(5, TimeUnit.SECONDS, null);
     }
 
     @Override
@@ -263,36 +262,6 @@ public final class Wrapper extends CloudNetDriver implements DriverAPIUser {
         Preconditions.checkNotNull(commandLine);
 
         return this.sendCommandLineAsPermissionUserAsync(uniqueId, commandLine).get(5, TimeUnit.SECONDS, null);
-    }
-
-    /**
-     * Application wrapper implementation of this method. See the full documentation at the
-     * CloudNetDriver class.
-     *
-     * @see CloudNetDriver
-     */
-    @Override
-    @NotNull
-    public ITask<Collection<ServiceTemplate>> getLocalTemplateStorageTemplatesAsync() {
-        return this.getTemplateStorageTemplatesAsync("local");
-    }
-
-    /**
-     * Application wrapper implementation of this method. See the full documentation at the
-     * CloudNetDriver class.
-     *
-     * @see CloudNetDriver
-     */
-    @Override
-    @NotNull
-    public ITask<Collection<ServiceTemplate>> getTemplateStorageTemplatesAsync(@NotNull String serviceName) {
-        Preconditions.checkNotNull(serviceName);
-
-        return this.executeDriverAPIMethod(
-                DriverAPIRequestType.GET_TEMPLATE_STORAGE_TEMPLATES,
-                buffer -> buffer.writeString(serviceName),
-                packet -> packet.getBuffer().readObjectCollection(ServiceTemplate.class)
-        );
     }
 
     /**

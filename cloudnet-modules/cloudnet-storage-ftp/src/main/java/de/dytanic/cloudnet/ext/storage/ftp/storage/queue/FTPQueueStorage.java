@@ -3,13 +3,16 @@ package de.dytanic.cloudnet.ext.storage.ftp.storage.queue;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.concurrent.ListenableTask;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
+import de.dytanic.cloudnet.driver.template.DefaultSyncTemplateStorage;
+import de.dytanic.cloudnet.driver.template.FileInfo;
+import de.dytanic.cloudnet.driver.template.TemplateStorage;
 import de.dytanic.cloudnet.ext.storage.ftp.storage.AbstractFTPStorage;
-import de.dytanic.cloudnet.template.ITemplateStorage;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Path;
 import java.util.Collection;
@@ -22,7 +25,8 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
 import java.util.zip.ZipInputStream;
 
-public class FTPQueueStorage implements Runnable, ITemplateStorage {
+// TODO shouldn't this extend from the DefaultAsyncTemplateStorage?
+public class FTPQueueStorage extends DefaultSyncTemplateStorage implements Runnable, TemplateStorage {
 
     private static final long EMPTY_QUEUE_TOLERANCE_SECONDS = 5;
 
@@ -81,8 +85,8 @@ public class FTPQueueStorage implements Runnable, ITemplateStorage {
     }
 
     @Override
-    public boolean deploy(@NotNull ZipInputStream inputStream, @NotNull ServiceTemplate serviceTemplate) {
-        ITask<Boolean> ftpTask = new FTPTask<>(() -> this.executingStorage.deploy(inputStream, serviceTemplate));
+    public boolean deploy(@NotNull ZipInputStream inputStream, @NotNull ServiceTemplate target) {
+        ITask<Boolean> ftpTask = new FTPTask<>(() -> this.executingStorage.deploy(inputStream, target));
         this.ftpTaskQueue.add(ftpTask);
 
         return ftpTask.getDef(false);
@@ -253,15 +257,31 @@ public class FTPQueueStorage implements Runnable, ITemplateStorage {
     }
 
     @Override
-    public String[] listFiles(@NotNull ServiceTemplate template, @NotNull String dir) throws IOException {
-        FTPTask<String[]> ftpTask = new FTPTask<>(() -> this.executingStorage.listFiles(template, dir));
+    public @Nullable InputStream newInputStream(@NotNull ServiceTemplate template, @NotNull String path) throws IOException {
+        FTPTask<InputStream> ftpTask = new FTPTask<>(() -> this.executingStorage.newInputStream(template, path));
         this.ftpTaskQueue.add(ftpTask);
 
-        return ftpTask.getOptionalValue(new String[0]).orElseThrow(() -> (IOException) ftpTask.getException());
+        return ftpTask.getOptionalValue(null).orElseThrow(() -> (IOException) ftpTask.getException());
     }
 
     @Override
-    public Collection<ServiceTemplate> getTemplates() {
+    public @Nullable FileInfo getFileInfo(@NotNull ServiceTemplate template, @NotNull String path) throws IOException {
+        FTPTask<FileInfo> ftpTask = new FTPTask<>(() -> this.executingStorage.getFileInfo(template, path));
+        this.ftpTaskQueue.add(ftpTask);
+
+        return ftpTask.getOptionalValue(null).orElseThrow(() -> (IOException) ftpTask.getException());
+    }
+
+    @Override
+    public FileInfo[] listFiles(@NotNull ServiceTemplate template, @NotNull String dir) throws IOException {
+        FTPTask<FileInfo[]> ftpTask = new FTPTask<>(() -> this.executingStorage.listFiles(template, dir));
+        this.ftpTaskQueue.add(ftpTask);
+
+        return ftpTask.getOptionalValue(new FileInfo[0]).orElseThrow(() -> (IOException) ftpTask.getException());
+    }
+
+    @Override
+    public @NotNull Collection<ServiceTemplate> getTemplates() {
         ITask<Collection<ServiceTemplate>> ftpTask = new FTPTask<>(this.executingStorage::getTemplates);
         this.ftpTaskQueue.add(ftpTask);
 

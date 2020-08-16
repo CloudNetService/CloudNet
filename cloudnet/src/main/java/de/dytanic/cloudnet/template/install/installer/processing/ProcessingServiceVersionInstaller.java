@@ -5,7 +5,7 @@ import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.console.animation.progressbar.ProgressBarInputStream;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
-import de.dytanic.cloudnet.template.ITemplateStorage;
+import de.dytanic.cloudnet.driver.template.SpecificTemplateStorage;
 import de.dytanic.cloudnet.template.install.ServiceVersion;
 import de.dytanic.cloudnet.template.install.installer.ServiceVersionInstaller;
 
@@ -39,7 +39,7 @@ public class ProcessingServiceVersionInstaller implements ServiceVersionInstalle
     private final Collection<Process> runningBuildProcesses = new CopyOnWriteArrayList<>();
 
     @Override
-    public void install(ServiceVersion version, String fileName, Path workingDirectory, ITemplateStorage storage, ServiceTemplate targetTemplate, Path cachePath) throws Exception {
+    public void install(ServiceVersion version, String fileName, Path workingDirectory, SpecificTemplateStorage storage, ServiceTemplate targetTemplate, Path cachePath) throws Exception {
         String[] copy = version.getProperties().get("copy", String[].class);
         Collection<String> jvmOptions = version.getProperties().get("jvmOptions", STRING_LIST_TYPE);
 
@@ -90,7 +90,7 @@ public class ProcessingServiceVersionInstaller implements ServiceVersionInstalle
                             relativePath = fileName;
                         }
 
-                        try (OutputStream outputStream = storage.newOutputStream(targetTemplate, relativePath)) {
+                        try (OutputStream outputStream = storage.newOutputStream(relativePath)) {
                             Files.copy(path, outputStream);
                         }
 

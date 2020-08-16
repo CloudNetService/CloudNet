@@ -126,6 +126,11 @@ public abstract class ProtocolBuffer extends ByteBuf {
 
     public abstract <E extends Enum<E>> ProtocolBuffer writeOptionalEnumConstant(@Nullable E enumConstant);
 
+    public abstract ProtocolBuffer writeThrowable(@Nullable Throwable throwable);
+
+    @Nullable
+    public abstract Throwable readThrowable();
+
 
     @Override
     public abstract ProtocolBuffer writeBoolean(boolean value);

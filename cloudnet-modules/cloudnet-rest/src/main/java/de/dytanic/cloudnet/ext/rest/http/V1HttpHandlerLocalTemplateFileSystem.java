@@ -6,17 +6,14 @@ import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.driver.network.http.HttpResponseCode;
 import de.dytanic.cloudnet.driver.network.http.IHttpContext;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
+import de.dytanic.cloudnet.driver.template.FileInfo;
 import de.dytanic.cloudnet.http.V1HttpHandler;
-import de.dytanic.cloudnet.template.LocalTemplateStorage;
-import de.dytanic.cloudnet.template.TemplateStorageUtil;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.Collection;
+import java.io.IOException;
+import java.io.OutputStream;
 
+// TODO not tested
 public final class V1HttpHandlerLocalTemplateFileSystem extends V1HttpHandler {
 
     public V1HttpHandlerLocalTemplateFileSystem(String permission) {
@@ -42,45 +39,34 @@ public final class V1HttpHandlerLocalTemplateFileSystem extends V1HttpHandler {
             return;
         }
 
-        ServiceTemplate serviceTemplate = this.createLocalTemplate(context.request().pathParameters().get("prefix"), context.request().pathParameters().get("name"));
+        ServiceTemplate serviceTemplate = ServiceTemplate.local(context.request().pathParameters().get("prefix"), context.request().pathParameters().get("name"));
 
-        if (TemplateStorageUtil.getLocalTemplateStorage().has(serviceTemplate)) {
-            File file = this.getFileByPath(path, serviceTemplate);
+        if (serviceTemplate.storage().exists()) {
+            FileInfo info = this.getFileByPath(path, serviceTemplate);
 
-            if (!file.exists()) {
-                this.send404Response(context, "file '" + file.getName() + "' in template '" + serviceTemplate.getTemplatePath() + "' not found");
+            if (info == null) {
+                this.send404Response(context, "file '" + this.parsePath(path) + "' in template '" + serviceTemplate.getTemplatePath() + "' not found");
                 return;
             }
 
-            if (file.isDirectory()) {
-                File[] files = file.listFiles();
+            if (info.isDirectory()) {
+                FileInfo[] files = serviceTemplate.storage().listFiles(this.parsePath(path));
 
-                if (files != null) {
-                    Collection<JsonDocument> documents = new ArrayList<>(files.length);
-
-                    for (File item : files) {
-                        documents.add(this.getFileEntry(item));
-                    }
-
-                    context
-                            .response()
-                            .statusCode(HttpResponseCode.HTTP_OK)
-                            .header("Content-Type", "application/json")
-                            .body(GSON.toJson(documents))
-                            .context()
-                            .closeAfter(true)
-                            .cancelNext();
-
-                } else {
-                    this.send404Response(context, "directory is empty or not a directory");
-                }
+                context
+                        .response()
+                        .statusCode(HttpResponseCode.HTTP_OK)
+                        .header("Content-Type", "application/json")
+                        .body(GSON.toJson(files))
+                        .context()
+                        .closeAfter(true)
+                        .cancelNext();
             } else {
                 context
                         .response()
                         .statusCode(HttpResponseCode.HTTP_OK)
                         .header("Content-Type", "application/octet-stream")
-                        .header("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"")
-                        .body(Files.readAllBytes(file.toPath()))
+                        .header("Content-Disposition", "attachment; filename=\"" + info.getName() + "\"")
+                        .body(FileUtils.toByteArray(serviceTemplate.storage().newInputStream(this.parsePath(path))))
                         .context()
                         .closeAfter(true)
                         .cancelNext();
@@ -92,27 +78,19 @@ public final class V1HttpHandlerLocalTemplateFileSystem extends V1HttpHandler {
     }
 
     @Override
-    public void handlePost(String path, IHttpContext context) throws Exception {
+    public void handlePost(String path, IHttpContext context) throws IOException {
         if (!this.validateTemplate(context)) {
             return;
         }
 
-        ServiceTemplate serviceTemplate = this.createLocalTemplate(context.request().pathParameters().get("prefix"), context.request().pathParameters().get("name"));
+        ServiceTemplate serviceTemplate = ServiceTemplate.local(context.request().pathParameters().get("prefix"), context.request().pathParameters().get("name"));
 
-        if (TemplateStorageUtil.getLocalTemplateStorage().has(serviceTemplate)) {
-            File file = this.getFileByPath(path, serviceTemplate);
-
-            if (!file.exists()) {
-                file.getParentFile().mkdirs();
-                file.createNewFile();
-
-                try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(context.request().body());
-                     FileOutputStream fileOutputStream = new FileOutputStream(file)) {
-                    FileUtils.copy(byteArrayInputStream, fileOutputStream);
-                }
+        if (serviceTemplate.storage().exists()) {
+            try (OutputStream outputStream = serviceTemplate.storage().newOutputStream(this.parsePath(path))) {
+                FileUtils.copy(new ByteArrayInputStream(context.request().body()), outputStream);
             }
 
-            this.getCloudNet().deployTemplateInCluster(serviceTemplate, TemplateStorageUtil.getLocalTemplateStorage().toZipByteArray(serviceTemplate));
+            this.getCloudNet().deployTemplateInCluster(serviceTemplate, serviceTemplate.storage().toZipByteArray());
 
             context
                     .response()
@@ -129,23 +107,23 @@ public final class V1HttpHandlerLocalTemplateFileSystem extends V1HttpHandler {
     }
 
     @Override
-    public void handleDelete(String path, IHttpContext context) {
+    public void handleDelete(String path, IHttpContext context) throws IOException {
         if (!this.validateTemplate(context)) {
             return;
         }
 
-        ServiceTemplate serviceTemplate = this.createLocalTemplate(context.request().pathParameters().get("prefix"), context.request().pathParameters().get("name"));
+        ServiceTemplate serviceTemplate = ServiceTemplate.local(context.request().pathParameters().get("prefix"), context.request().pathParameters().get("name"));
 
-        if (TemplateStorageUtil.getLocalTemplateStorage().has(serviceTemplate)) {
-            File file = this.getFileByPath(path, serviceTemplate);
+        if (serviceTemplate.storage().exists()) {
+            String filePath = this.parsePath(path);
 
-            if (!file.exists()) {
-                this.send404Response(context, "file or directory '" + file.getName() + "' in template '" + serviceTemplate.getTemplatePath() + "' not found");
+            if (!serviceTemplate.storage().hasFile(filePath)) {
+                this.send404Response(context, "file or directory '" + filePath + "' in template '" + serviceTemplate.getTemplatePath() + "' not found");
                 return;
             }
 
-            FileUtils.delete(file);
-            this.getCloudNet().deployTemplateInCluster(serviceTemplate, TemplateStorageUtil.getLocalTemplateStorage().toZipByteArray(serviceTemplate));
+            serviceTemplate.storage().deleteFile(filePath);
+            this.getCloudNet().deployTemplateInCluster(serviceTemplate, serviceTemplate.storage().toZipByteArray());
 
             context
                     .response()
@@ -162,27 +140,13 @@ public final class V1HttpHandlerLocalTemplateFileSystem extends V1HttpHandler {
     }
 
 
-    private JsonDocument getFileEntry(File file) {
-        Preconditions.checkNotNull(file);
-
-        return new JsonDocument()
-                .append("name", file.getName())
-                .append("directory", file.isDirectory())
-                .append("hidden", file.isHidden())
-                .append("lastModified", file.lastModified())
-                .append("canRead", file.canRead())
-                .append("canWrite", file.canWrite())
-                .append("length", file.length());
+    private FileInfo getFileByPath(String path, ServiceTemplate serviceTemplate) throws IOException {
+        return serviceTemplate.storage().getFileInfo(this.parsePath(path));
     }
 
-    private File getFileByPath(String path, ServiceTemplate serviceTemplate) {
+    private String parsePath(String path) {
         String[] relativePathArray = path.split("/files");
-        String relativePath = relativePathArray.length == 1 ? "." : relativePathArray[1].substring(1);
-        return TemplateStorageUtil.getFile(serviceTemplate, relativePath);
-    }
-
-    private ServiceTemplate createLocalTemplate(String prefix, String name) {
-        return new ServiceTemplate(prefix, name, LocalTemplateStorage.LOCAL_TEMPLATE_STORAGE);
+        return relativePathArray.length == 1 ? "." : relativePathArray[1].substring(1);
     }
 
     private void send404Response(IHttpContext context, String reason) {

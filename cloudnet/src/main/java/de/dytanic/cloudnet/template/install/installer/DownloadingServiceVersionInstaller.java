@@ -4,7 +4,7 @@ import com.google.common.io.ByteStreams;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.console.animation.progressbar.ProgressBarInputStream;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
-import de.dytanic.cloudnet.template.ITemplateStorage;
+import de.dytanic.cloudnet.driver.template.SpecificTemplateStorage;
 import de.dytanic.cloudnet.template.install.ServiceVersion;
 
 import java.io.InputStream;
@@ -17,7 +17,7 @@ import java.util.Objects;
 public class DownloadingServiceVersionInstaller implements ServiceVersionInstaller {
 
     @Override
-    public void install(ServiceVersion version, String fileName, Path workingDirectory, ITemplateStorage storage, ServiceTemplate targetTemplate, Path cachePath) throws Exception {
+    public void install(ServiceVersion version, String fileName, Path workingDirectory, SpecificTemplateStorage storage, ServiceTemplate targetTemplate, Path cachePath) throws Exception {
         InputStream inputStream = ProgressBarInputStream.wrapDownload(CloudNet.getInstance().getConsole(), new URL(version.getUrl()));
 
         if (!version.isLatest()) {
@@ -27,7 +27,7 @@ public class DownloadingServiceVersionInstaller implements ServiceVersionInstall
             inputStream = Files.newInputStream(cachePath);
         }
 
-        try (OutputStream outputStream = storage.newOutputStream(targetTemplate, fileName)) {
+        try (OutputStream outputStream = storage.newOutputStream(fileName)) {
             ByteStreams.copy(inputStream, Objects.requireNonNull(outputStream, "OutputStream is null!"));
         }
 

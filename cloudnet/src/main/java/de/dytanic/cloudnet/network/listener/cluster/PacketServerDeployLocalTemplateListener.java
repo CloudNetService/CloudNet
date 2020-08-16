@@ -5,14 +5,13 @@ import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.network.protocol.IPacketListener;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
-import de.dytanic.cloudnet.template.ITemplateStorage;
-import de.dytanic.cloudnet.template.LocalTemplateStorage;
+import de.dytanic.cloudnet.driver.template.TemplateStorage;
 
 public final class PacketServerDeployLocalTemplateListener implements IPacketListener {
 
     @Override
     public void handle(INetworkChannel channel, IPacket packet) {
-        ITemplateStorage storage = CloudNetDriver.getInstance().getServicesRegistry().getService(ITemplateStorage.class, LocalTemplateStorage.LOCAL_TEMPLATE_STORAGE);
+        TemplateStorage storage = CloudNetDriver.getInstance().getLocalTemplateStorage();
 
         ServiceTemplate template = packet.getBuffer().readObject(ServiceTemplate.class);
         boolean preClear = packet.getBuffer().readBoolean();

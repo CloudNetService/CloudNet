@@ -9,7 +9,8 @@ import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.console.animation.progressbar.ProgressBarInputStream;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironment;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
-import de.dytanic.cloudnet.template.ITemplateStorage;
+import de.dytanic.cloudnet.driver.template.FileInfo;
+import de.dytanic.cloudnet.driver.template.SpecificTemplateStorage;
 import de.dytanic.cloudnet.template.install.installer.DownloadingServiceVersionInstaller;
 import de.dytanic.cloudnet.template.install.installer.ServiceVersionInstaller;
 import de.dytanic.cloudnet.template.install.installer.processing.ProcessingServiceVersionInstaller;
@@ -90,14 +91,6 @@ public class ServiceVersionProvider {
 
 
     public boolean installServiceVersion(ServiceVersionType serviceVersionType, ServiceVersion serviceVersion, ServiceTemplate serviceTemplate) {
-        ITemplateStorage storage = CloudNet.getInstance().getServicesRegistry().getService(ITemplateStorage.class, serviceTemplate.getStorage());
-        if (storage == null) {
-            throw new IllegalArgumentException("Storage " + serviceTemplate.getStorage() + " not found");
-        }
-        return this.installServiceVersion(serviceVersionType, serviceVersion, storage, serviceTemplate);
-    }
-
-    public boolean installServiceVersion(ServiceVersionType serviceVersionType, ServiceVersion serviceVersion, ITemplateStorage storage, ServiceTemplate serviceTemplate) {
         if (!serviceVersionType.getInstallerType().canInstall(serviceVersion)) {
             throw new IllegalStateException("Cannot run " + serviceVersionType.getName() + "-" + serviceVersion.getName() + "#" + serviceVersionType.getInstallerType() + " on " + JavaVersion.getRuntimeVersion().getName());
         }
@@ -114,16 +107,18 @@ public class ServiceVersionProvider {
             );
         }
 
-        if (!storage.has(serviceTemplate)) {
-            storage.create(serviceTemplate);
+        SpecificTemplateStorage storage = serviceTemplate.storage();
+
+        if (!storage.exists()) {
+            storage.create();
         }
 
         try {
             //delete all old application files if they exist to prevent that they are used to start the server
-            for (String file : storage.listFiles(serviceTemplate)) {
+            for (FileInfo file : storage.listFiles()) {
                 for (ServiceEnvironment environment : ServiceEnvironment.values()) {
-                    if (file.toLowerCase().contains(environment.getName()) && file.endsWith(".jar")) {
-                        storage.deleteFile(serviceTemplate, file);
+                    if (file.getName().toLowerCase().contains(environment.getName()) && file.getName().endsWith(".jar")) {
+                        storage.deleteFile(file.getPath());
                     }
                 }
             }
@@ -139,7 +134,7 @@ public class ServiceVersionProvider {
 
         try {
             if (Files.exists(versionCachePath)) {
-                try (OutputStream targetStream = storage.newOutputStream(serviceTemplate, fileName)) {
+                try (OutputStream targetStream = storage.newOutputStream(fileName)) {
                     Files.copy(versionCachePath, Objects.requireNonNull(targetStream, "OutputStream is null!"));
                 }
             } else {
@@ -156,7 +151,7 @@ public class ServiceVersionProvider {
                 String url = downloadEntry.getValue();
 
                 try (InputStream inputStream = ProgressBarInputStream.wrapDownload(CloudNet.getInstance().getConsole(), new URL(url));
-                     OutputStream outputStream = storage.newOutputStream(serviceTemplate, path)) {
+                     OutputStream outputStream = storage.newOutputStream(path)) {
                     FileUtils.copy(inputStream, outputStream);
                 }
             }
