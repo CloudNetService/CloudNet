@@ -62,12 +62,12 @@ public final class LocalTemplateStorage extends DefaultSyncTemplateStorage {
     }
 
     @Override
-    public boolean deploy(@NotNull ZipInputStream inputStream, @NotNull ServiceTemplate target) {
+    public boolean deploy(@NotNull InputStream inputStream, @NotNull ServiceTemplate target) {
         Preconditions.checkNotNull(inputStream);
         Preconditions.checkNotNull(target);
 
         try {
-            FileUtils.extract0(inputStream, new File(this.storageDirectory, target.getTemplatePath()).toPath());
+            FileUtils.extract0(new ZipInputStream(inputStream), new File(this.storageDirectory, target.getTemplatePath()).toPath());
             return true;
         } catch (IOException exception) {
             exception.printStackTrace();
@@ -197,7 +197,11 @@ public final class LocalTemplateStorage extends DefaultSyncTemplateStorage {
     public boolean delete(@NotNull ServiceTemplate template) {
         Preconditions.checkNotNull(template);
 
-        FileUtils.delete(new File(this.storageDirectory, template.getTemplatePath()));
+        File file = new File(this.storageDirectory, template.getTemplatePath());
+        if (!file.exists()) {
+            return false;
+        }
+        FileUtils.delete(file);
         return true;
     }
 
@@ -296,7 +300,7 @@ public final class LocalTemplateStorage extends DefaultSyncTemplateStorage {
     @Override
     public @Nullable InputStream newInputStream(@NotNull ServiceTemplate template, @NotNull String path) throws IOException {
         Path file = this.storageDirectory.toPath().resolve(template.getTemplatePath()).resolve(path);
-        return Files.exists(file) ? Files.newInputStream(file) : null;
+        return Files.exists(file) && !Files.isDirectory(file) ? Files.newInputStream(file) : null;
     }
 
     @Override
@@ -309,7 +313,7 @@ public final class LocalTemplateStorage extends DefaultSyncTemplateStorage {
     public FileInfo[] listFiles(@NotNull ServiceTemplate template, @NotNull String dir, boolean deep) throws IOException {
         List<FileInfo> files = new ArrayList<>();
         Path directory = this.storageDirectory.toPath().resolve(template.getTemplatePath()).resolve(dir);
-        if (!Files.exists(directory)) {
+        if (Files.notExists(directory) || !Files.isDirectory(directory)) {
             return null;
         }
 

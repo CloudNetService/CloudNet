@@ -24,7 +24,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
-import java.util.zip.ZipInputStream;
 
 // TODO shouldn't this extend from the DefaultAsyncTemplateStorage?
 public class FTPQueueStorage extends DefaultSyncTemplateStorage implements Runnable, TemplateStorage {
@@ -97,7 +96,7 @@ public class FTPQueueStorage extends DefaultSyncTemplateStorage implements Runna
     }
 
     @Override
-    public boolean deploy(@NotNull ZipInputStream inputStream, @NotNull ServiceTemplate target) {
+    public boolean deploy(@NotNull InputStream inputStream, @NotNull ServiceTemplate target) {
         ITask<Boolean> ftpTask = new FTPTask<>(() -> this.executingStorage.deploy(inputStream, target));
         this.ftpTaskQueue.add(ftpTask);
 
@@ -273,7 +272,7 @@ public class FTPQueueStorage extends DefaultSyncTemplateStorage implements Runna
         FTPTask<InputStream> ftpTask = new FTPTask<>(() -> this.executingStorage.newInputStream(template, path));
         this.ftpTaskQueue.add(ftpTask);
 
-        return ftpTask.getOptionalValue(null).orElseThrow(() -> (IOException) ftpTask.getException());
+        return this.getOrThrow(ftpTask, IOException.class, null);
     }
 
     @Override

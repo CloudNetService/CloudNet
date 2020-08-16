@@ -136,6 +136,16 @@ public class SFTPClient implements Closeable {
         }
     }
 
+    public OutputStream appendOutputStream(String remotePath) {
+        this.createParent(remotePath);
+        try {
+            return this.channel.put(remotePath, ChannelSftp.APPEND);
+        } catch (SftpException exception) {
+            exception.printStackTrace();
+        }
+        return null;
+    }
+
     public OutputStream openOutputStream(String remotePath) {
         this.createParent(remotePath);
         try {
@@ -353,7 +363,6 @@ public class SFTPClient implements Closeable {
             }
             this.channel.rmdir(path);
         } catch (SftpException exception) {
-            exception.printStackTrace();
             return false;
         }
         return true;
@@ -364,7 +373,6 @@ public class SFTPClient implements Closeable {
             this.channel.rm(path);
             return true;
         } catch (SftpException exception) {
-            exception.printStackTrace();
             return false;
         }
     }

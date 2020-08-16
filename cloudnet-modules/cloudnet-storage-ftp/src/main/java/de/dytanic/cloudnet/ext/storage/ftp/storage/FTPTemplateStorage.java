@@ -128,8 +128,8 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
     }
 
     @Override
-    public boolean deploy(@NotNull ZipInputStream zipInputStream, @NotNull ServiceTemplate target) {
-        Preconditions.checkNotNull(zipInputStream);
+    public boolean deploy(@NotNull InputStream inputStream, @NotNull ServiceTemplate target) {
+        Preconditions.checkNotNull(inputStream);
         Preconditions.checkNotNull(target);
 
         if (this.has(target)) {
@@ -137,6 +137,8 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
         }
 
         this.create(target);
+
+        ZipInputStream zipInputStream = new ZipInputStream(inputStream);
 
         try {
             ZipEntry zipEntry;
@@ -356,8 +358,7 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
         Preconditions.checkNotNull(template);
 
         try {
-            this.deleteDir(template.getTemplatePath());
-            return true;
+            return this.deleteDir(template.getTemplatePath());
         } catch (IOException exception) {
             exception.printStackTrace();
             return false;
@@ -367,6 +368,9 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
     @Override
     public boolean create(@NotNull ServiceTemplate template) {
         Preconditions.checkNotNull(template);
+        if (this.has(template)) {
+            return false;
+        }
 
         try {
             this.createDirectories(template.getTemplatePath());
@@ -377,7 +381,7 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
         }
     }
 
-    private void deleteDir(String path) throws IOException {
+    private boolean deleteDir(String path) throws IOException {
         for (FTPFile ftpFile : this.ftpClient.mlistDir(path)) {
             String filePath = path + "/" + ftpFile.getName();
 
@@ -388,7 +392,7 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
             }
         }
 
-        this.ftpClient.removeDirectory(path);
+        return this.ftpClient.removeDirectory(path);
     }
 
     @Override
@@ -461,20 +465,43 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
         return file != null;
     }
 
+    private boolean isDirectory(String fullPath) throws IOException {
+        try {
+            this.ftpClient.mdtmFile(fullPath);
+            return false;
+        } catch (MalformedServerReplyException exception) {
+            return this.ftpClient.getReplyCode() == FTPReply.FILE_UNAVAILABLE;
+        }
+    }
+
     @Override
     public boolean deleteFile(@NotNull ServiceTemplate template, @NotNull String path) throws IOException {
-        return this.ftpClient.deleteFile(template.getTemplatePath() + "/" + path);
+        String fullPath = template.getTemplatePath() + "/" + path;
+
+        return this.isDirectory(fullPath) ? this.deleteDir(fullPath) : this.ftpClient.deleteFile(fullPath);
     }
 
     @Override
     public @Nullable InputStream newInputStream(@NotNull ServiceTemplate template, @NotNull String path) throws IOException {
-        return this.ftpClient.retrieveFileStream(template.getTemplatePath() + "/" + path);
+        String fullPath = template.getTemplatePath() + "/" + path;
+        return !this.isDirectory(fullPath) ? this.ftpClient.retrieveFileStream(fullPath) : null;
     }
 
     @Override
     public @Nullable FileInfo getFileInfo(@NotNull ServiceTemplate template, @NotNull String path) throws IOException {
-        FTPFile file = this.ftpClient.mdtmFile(template.getTemplatePath() + "/" + path);
-        return file == null ? null : this.asInfo(file.getName(), file);
+        if (path.endsWith("/")) {
+            path = path.substring(0, path.length() - 1);
+        }
+
+        try {
+            FTPFile file = this.ftpClient.mdtmFile(template.getTemplatePath() + "/" + path);
+            return file == null ? null : this.asInfo(path, file);
+        } catch (MalformedServerReplyException exception) {
+            if (this.ftpClient.getReplyCode() == FTPReply.FILE_UNAVAILABLE) {
+                return this.asInfo(path, null);
+            }
+            return null;
+        }
     }
 
     @Override
@@ -483,9 +510,15 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
             dir = dir.substring(0, dir.length() - 1);
         }
 
+        String fullDir = template.getTemplatePath() + "/" + dir;
+
+        if (!this.isDirectory(fullDir)) {
+            return null;
+        }
+
         Collection<FileInfo> files = new ArrayList<>();
         try {
-            this.listFiles(template.getTemplatePath() + "/" + dir, dir, files, deep);
+            this.listFiles(fullDir, dir, files, deep);
         } catch (MalformedServerReplyException exception) {
             if (this.ftpClient.getReplyCode() == FTPReply.FILE_UNAVAILABLE) {
                 return null;
@@ -516,18 +549,18 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
             path = path.substring(1);
         }
 
-        String filename = file.getName();
+        String filename = path;
         int slash = filename.lastIndexOf('/');
         if (slash != -1 && slash < filename.length() - 1) {
             filename = filename.substring(slash + 1);
         }
 
         return new FileInfo(
-                path, filename, file.isDirectory(),
-                false, -1, file.getTimestamp().getTimeInMillis(), -1,
-                file.hasPermission(FTPFile.USER_ACCESS, FTPFile.READ_PERMISSION), // TODO read and write are always false
-                file.hasPermission(FTPFile.USER_ACCESS, FTPFile.WRITE_PERMISSION),
-                file.getSize()
+                path, filename, file == null || file.isDirectory(),
+                false, -1, file == null || file.getTimestamp() == null ? -1 : file.getTimestamp().getTimeInMillis(), -1,
+                file != null && file.hasPermission(FTPFile.USER_ACCESS, FTPFile.READ_PERMISSION), // TODO read and write are always false
+                file != null && file.hasPermission(FTPFile.USER_ACCESS, FTPFile.WRITE_PERMISSION),
+                file == null ? -1 : file.getSize()
         );
     }
 

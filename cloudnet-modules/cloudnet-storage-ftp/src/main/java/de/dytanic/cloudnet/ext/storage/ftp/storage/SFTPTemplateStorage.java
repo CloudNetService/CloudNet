@@ -67,8 +67,8 @@ public class SFTPTemplateStorage extends AbstractFTPStorage {
     }
 
     @Override
-    public boolean deploy(@NotNull ZipInputStream inputStream, @NotNull ServiceTemplate target) {
-        return this.ftpClient.uploadDirectory(inputStream, this.getPath(target));
+    public boolean deploy(@NotNull InputStream inputStream, @NotNull ServiceTemplate target) {
+        return this.ftpClient.uploadDirectory(new ZipInputStream(inputStream), this.getPath(target));
     }
 
     @Override
@@ -162,6 +162,9 @@ public class SFTPTemplateStorage extends AbstractFTPStorage {
 
     @Override
     public boolean create(@NotNull ServiceTemplate template) {
+        if (this.has(template)) {
+            return false;
+        }
         this.ftpClient.createDirectories(this.getPath(template));
         return true;
     }
@@ -174,7 +177,7 @@ public class SFTPTemplateStorage extends AbstractFTPStorage {
     @Nullable
     @Override
     public OutputStream appendOutputStream(@NotNull ServiceTemplate template, @NotNull String path) {
-        return this.ftpClient.openOutputStream(this.getPath(template) + "/" + path);
+        return this.ftpClient.appendOutputStream(this.getPath(template) + "/" + path);
     }
 
     @Nullable
@@ -205,12 +208,16 @@ public class SFTPTemplateStorage extends AbstractFTPStorage {
 
     @Override
     public boolean deleteFile(@NotNull ServiceTemplate template, @NotNull String path) {
-        return this.ftpClient.deleteFile(this.getPath(template) + "/" + path);
+        String fullPath = this.getPath(template) + "/" + path;
+        SftpATTRS attrs = this.ftpClient.getAttrs(fullPath);
+        return attrs != null && attrs.isDir() ? this.ftpClient.deleteDirectory(fullPath) : this.ftpClient.deleteFile(fullPath);
     }
 
     @Override
     public @Nullable InputStream newInputStream(@NotNull ServiceTemplate template, @NotNull String path) {
-        return this.ftpClient.loadFile(this.getPath(template) + "/" + path);
+        String fullPath = this.getPath(template) + "/" + path;
+        SftpATTRS attrs = this.ftpClient.getAttrs(fullPath);
+        return attrs != null && !attrs.isDir() ? this.ftpClient.loadFile(fullPath) : null;
     }
 
     @Override
@@ -253,6 +260,10 @@ public class SFTPTemplateStorage extends AbstractFTPStorage {
 
     private boolean listFiles(String directory, String relativeDirectory, Collection<FileInfo> files, boolean deep) {
         relativeDirectory = this.removeLeadingSlash(relativeDirectory);
+
+        if (!this.ftpClient.existsDirectory(directory)) {
+            return false;
+        }
 
         Collection<ChannelSftp.LsEntry> entries = this.ftpClient.listFiles(directory);
         if (entries == null) {

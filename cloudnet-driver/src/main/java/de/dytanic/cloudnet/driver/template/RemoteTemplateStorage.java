@@ -51,7 +51,7 @@ public class RemoteTemplateStorage extends DefaultAsyncTemplateStorage implement
     }
 
     @Override
-    public @NotNull ITask<Boolean> deployAsync(@NotNull ZipInputStream inputStream, @NotNull ServiceTemplate serviceTemplate) {
+    public @NotNull ITask<Boolean> deployAsync(@NotNull InputStream inputStream, @NotNull ServiceTemplate target) {
         return null;
     }
 

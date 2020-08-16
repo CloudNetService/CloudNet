@@ -19,9 +19,16 @@ public class DefaultSpecificTemplateStorage implements SpecificTemplateStorage {
     private final ServiceTemplate template;
     private final TemplateStorage storage;
 
-    public DefaultSpecificTemplateStorage(@NotNull ServiceTemplate template, @NotNull TemplateStorage storage) {
+    private DefaultSpecificTemplateStorage(@NotNull ServiceTemplate template, @NotNull TemplateStorage storage) {
         this.template = template;
         this.storage = storage;
+    }
+
+    public static DefaultSpecificTemplateStorage of(@NotNull ServiceTemplate template, @NotNull TemplateStorage storage) {
+        if (!storage.getName().equals(template.getStorage())) {
+            throw new IllegalArgumentException(String.format("Storage '%s' doesn't match the storage of the template ('%s')", storage.getName(), template.getStorage()));
+        }
+        return new DefaultSpecificTemplateStorage(template, storage);
     }
 
     public static DefaultSpecificTemplateStorage of(@NotNull ServiceTemplate template) {
@@ -58,7 +65,7 @@ public class DefaultSpecificTemplateStorage implements SpecificTemplateStorage {
     }
 
     @Override
-    public boolean deploy(@NotNull ZipInputStream inputStream) {
+    public boolean deploy(@NotNull InputStream inputStream) {
         return this.storage.deploy(inputStream, this.template);
     }
 
@@ -183,7 +190,7 @@ public class DefaultSpecificTemplateStorage implements SpecificTemplateStorage {
     }
 
     @Override
-    public @NotNull ITask<Boolean> deployAsync(@NotNull ZipInputStream inputStream) {
+    public @NotNull ITask<Boolean> deployAsync(@NotNull InputStream inputStream) {
         return this.storage.deployAsync(inputStream, this.template);
     }
 

@@ -33,7 +33,7 @@ public abstract class DefaultSyncTemplateStorage implements TemplateStorage {
     }
 
     @Override
-    public @NotNull ITask<Boolean> deployAsync(@NotNull ZipInputStream inputStream, @NotNull ServiceTemplate target) {
+    public @NotNull ITask<Boolean> deployAsync(@NotNull InputStream inputStream, @NotNull ServiceTemplate target) {
         return CompletedTask.create(this.deploy(inputStream, target));
     }
 

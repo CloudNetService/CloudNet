@@ -17,17 +17,40 @@ import java.util.zip.ZipInputStream;
 
 public interface SpecificTemplateStorage extends INameable {
 
+    /**
+     * Creates a new {@link SpecificTemplateStorage} for the given template.
+     *
+     * @param template the template which should be wrapped by the given storage
+     * @return a new instance of the {@link SpecificTemplateStorage}
+     * @throws IllegalArgumentException if the storage of the given template doesn't exist
+     */
+    @NotNull
     static SpecificTemplateStorage of(@NotNull ServiceTemplate template) {
         return DefaultSpecificTemplateStorage.of(template);
     }
 
+    /**
+     * Creates a new {@link SpecificTemplateStorage} for the given template.
+     *
+     * @param template the template which should be wrapped by the given storage
+     * @param storage  the {@link TemplateStorage} instance matching the name of the storage in the template
+     * @return a new instance of the {@link SpecificTemplateStorage}
+     * @throws IllegalArgumentException if the name of the storage doesn't match the name of the storage in the template
+     */
+    @NotNull
     static SpecificTemplateStorage of(@NotNull ServiceTemplate template, @NotNull TemplateStorage storage) {
-        return new DefaultSpecificTemplateStorage(template, storage);
+        return DefaultSpecificTemplateStorage.of(template, storage);
     }
 
+    /**
+     * Gets the template this class is wrapping.
+     */
     @NotNull
     ServiceTemplate getTargetTemplate();
 
+    /**
+     * Gets the storage this class is wrapping.
+     */
     @NotNull
     TemplateStorage getWrappedStorage();
 
@@ -36,103 +59,168 @@ public interface SpecificTemplateStorage extends INameable {
      *
      * @param zipInput the target zip compressed byte array within all files are included for the target template
      * @return true if the deployment was successful
-     * @deprecated Causes very high heap space (over)load. Use {@link #deploy(ZipInputStream)} instead
+     * @deprecated Causes very high heap space (over)load. Use {@link #deploy(InputStream)} instead
      */
     @Deprecated
     @ApiStatus.ScheduledForRemoval(inVersion = "3.5")
     boolean deploy(@NotNull byte[] zipInput);
 
     /**
-     * Deploys the following directory files to the target template storage.
-     *
-     * @param directory the directory to deploy
-     * @return if the deployment was successful
+     * @see TemplateStorage#deploy(File, ServiceTemplate, Predicate)
      */
     boolean deploy(@NotNull File directory, @Nullable Predicate<File> fileFilter);
 
+    /**
+     * @see TemplateStorage#deploy(File, ServiceTemplate)
+     */
     default boolean deploy(@NotNull File directory) {
         return this.deploy(directory, null);
     }
 
-    boolean deploy(@NotNull ZipInputStream inputStream);
+    /**
+     * @see TemplateStorage#deploy(InputStream, ServiceTemplate)
+     */
+    boolean deploy(@NotNull InputStream inputStream);
 
+    /**
+     * @see TemplateStorage#deploy(Path[], ServiceTemplate)
+     */
     boolean deploy(@NotNull Path[] paths);
 
+    /**
+     * @see TemplateStorage#deploy(File[], ServiceTemplate)
+     */
     boolean deploy(@NotNull File[] files);
 
+    /**
+     * @see TemplateStorage#copy(ServiceTemplate, File)
+     */
     boolean copy(@NotNull File directory);
 
+    /**
+     * @see TemplateStorage#copy(ServiceTemplate, Path)
+     */
     boolean copy(@NotNull Path directory);
 
+    /**
+     * @see TemplateStorage#copy(ServiceTemplate, File[])
+     */
     boolean copy(@NotNull File[] directories);
 
+    /**
+     * @see TemplateStorage#copy(ServiceTemplate, Path[])
+     */
     boolean copy(@NotNull Path[] directories);
 
     /**
-     * Zips a template in the current template storage and converts it to a byte array
-     *
-     * @return The byte array of the zipped template
-     * @deprecated Causes very high heap space (over)load. Use {@link #asZipInputStream()} instead
+     * @see TemplateStorage#toZipByteArray(ServiceTemplate)
      */
     @Deprecated
     byte[] toZipByteArray();
 
+    /**
+     * @see TemplateStorage#asZipInputStream(ServiceTemplate)
+     */
     @Nullable
     ZipInputStream asZipInputStream() throws IOException;
 
+    /**
+     * @see TemplateStorage#zipTemplate(ServiceTemplate)
+     */
     @Nullable
     InputStream zipTemplate() throws IOException;
 
+    /**
+     * @see TemplateStorage#delete(ServiceTemplate)
+     */
     boolean delete();
 
+    /**
+     * @see TemplateStorage#create(ServiceTemplate)
+     */
     boolean create();
 
+    /**
+     * @see TemplateStorage#has(ServiceTemplate)
+     */
     boolean exists();
 
+    /**
+     * @see TemplateStorage#appendOutputStream(ServiceTemplate, String)
+     */
     @Nullable
     OutputStream appendOutputStream(@NotNull String path) throws IOException;
 
+    /**
+     * @see TemplateStorage#newOutputStream(ServiceTemplate, String)
+     */
     @Nullable
     OutputStream newOutputStream(@NotNull String path) throws IOException;
 
+    /**
+     * @see TemplateStorage#createFile(ServiceTemplate, String)
+     */
     boolean createFile(@NotNull String path) throws IOException;
 
+    /**
+     * @see TemplateStorage#createDirectory(ServiceTemplate, String)
+     */
     boolean createDirectory(@NotNull String path) throws IOException;
 
+    /**
+     * @see TemplateStorage#hasFile(ServiceTemplate, String)
+     */
     boolean hasFile(@NotNull String path) throws IOException;
 
+    /**
+     * @see TemplateStorage#deleteFile(ServiceTemplate, String)
+     */
     boolean deleteFile(@NotNull String path) throws IOException;
 
+    /**
+     * @see TemplateStorage#newInputStream(ServiceTemplate, String)
+     */
     @Nullable
     InputStream newInputStream(@NotNull String path) throws IOException;
 
+    /**
+     * @see TemplateStorage#getFileInfo(ServiceTemplate, String)
+     */
     @Nullable
     FileInfo getFileInfo(@NotNull String path) throws IOException;
 
+    /**
+     * @see TemplateStorage#listFiles(ServiceTemplate, String, boolean)
+     */
     @Nullable
     FileInfo[] listFiles(@NotNull String dir, boolean deep) throws IOException;
 
+    /**
+     * @see TemplateStorage#listFiles(ServiceTemplate, boolean)
+     */
     @Nullable
     default FileInfo[] listFiles(boolean deep) throws IOException {
         return this.listFiles("", deep);
     }
 
+    /**
+     * @see TemplateStorage#listFiles(ServiceTemplate, String)
+     */
     @Nullable
     default FileInfo[] listFiles(@NotNull String dir) throws IOException {
         return this.listFiles(dir, true);
     }
 
+    /**
+     * @see TemplateStorage#listFiles(ServiceTemplate)
+     */
     @Nullable
     default FileInfo[] listFiles() throws IOException {
         return this.listFiles(true);
     }
 
     /**
-     * Deploys a zip compressed into a target template storage that should decompressed and deploy on the target template
-     *
-     * @param zipInput the target zip compressed byte array within all files are included for the target template
-     * @return true if the deployment was successful
-     * @deprecated Causes very high heap space (over)load. Use {@link #deploy(ZipInputStream)} instead
+     * @see TemplateStorage#deployAsync(byte[], ServiceTemplate)
      */
     @Deprecated
     @ApiStatus.ScheduledForRemoval(inVersion = "3.5")
@@ -140,102 +228,171 @@ public interface SpecificTemplateStorage extends INameable {
     ITask<Boolean> deployAsync(@NotNull byte[] zipInput);
 
     /**
-     * Deploys the following directory files to the target template storage.
-     *
-     * @param directory the directory to deploy
-     * @return if the deployment was successful
+     * @see TemplateStorage#deployAsync(File, ServiceTemplate, Predicate)
      */
     @NotNull
     ITask<Boolean> deployAsync(@NotNull File directory, @Nullable Predicate<File> fileFilter);
 
+    /**
+     * @see TemplateStorage#deployAsync(File, ServiceTemplate)
+     */
     @NotNull
     default ITask<Boolean> deployAsync(@NotNull File directory) {
         return this.deployAsync(directory, null);
     }
 
+    /**
+     * @see TemplateStorage#deployAsync(InputStream, ServiceTemplate)
+     */
     @NotNull
-    ITask<Boolean> deployAsync(@NotNull ZipInputStream inputStream);
+    ITask<Boolean> deployAsync(@NotNull InputStream inputStream);
 
+    /**
+     * @see TemplateStorage#deployAsync(Path[], ServiceTemplate)
+     */
     @NotNull
     ITask<Boolean> deployAsync(@NotNull Path[] paths);
 
+    /**
+     * @see TemplateStorage#deployAsync(File[], ServiceTemplate)
+     */
     @NotNull
     ITask<Boolean> deployAsync(@NotNull File[] files);
 
+    /**
+     * @see TemplateStorage#copyAsync(ServiceTemplate, File)
+     */
     @NotNull
     ITask<Boolean> copyAsync(@NotNull File directory);
 
+    /**
+     * @see TemplateStorage#copyAsync(ServiceTemplate, Path)
+     */
     @NotNull
     ITask<Boolean> copyAsync(@NotNull Path directory);
 
+    /**
+     * @see TemplateStorage#copyAsync(ServiceTemplate, File[])
+     */
     @NotNull
     ITask<Boolean> copyAsync(@NotNull File[] directories);
 
+    /**
+     * @see TemplateStorage#copyAsync(ServiceTemplate, Path[])
+     */
     @NotNull
     ITask<Boolean> copyAsync(@NotNull Path[] directories);
 
     /**
-     * Zips a template in the current template storage and converts it to a byte array
-     *
-     * @return The byte array of the zipped template
-     * @deprecated Causes very high heap space (over)load. Use {@link #asZipInputStream()} instead
+     * @see TemplateStorage#toZipByteArrayAsync(ServiceTemplate)
      */
     @Deprecated
     @NotNull
     ITask<byte[]> toZipByteArrayAsync();
 
+    /**
+     * @see TemplateStorage#asZipInputStreamAsync(ServiceTemplate)
+     */
     @NotNull
     ITask<ZipInputStream> asZipInputStreamAsync();
 
+    /**
+     * @see TemplateStorage#zipTemplateAsync(ServiceTemplate)
+     */
     @NotNull
     ITask<InputStream> zipTemplateAsync();
 
+    /**
+     * @see TemplateStorage#deleteAsync(ServiceTemplate)
+     */
     @NotNull
     ITask<Boolean> deleteAsync();
 
+    /**
+     * @see TemplateStorage#createAsync(ServiceTemplate)
+     */
     @NotNull
     ITask<Boolean> createAsync();
 
+    /**
+     * @see TemplateStorage#hasAsync(ServiceTemplate)
+     */
     @NotNull
     ITask<Boolean> existsAsync();
 
+    /**
+     * @see TemplateStorage#appendOutputStreamAsync(ServiceTemplate, String)
+     */
     @NotNull
     ITask<OutputStream> appendOutputStreamAsync(@NotNull String path);
 
+    /**
+     * @see TemplateStorage#newOutputStreamAsync(ServiceTemplate, String)
+     */
     @NotNull
     ITask<OutputStream> newOutputStreamAsync(@NotNull String path);
 
+    /**
+     * @see TemplateStorage#createFileAsync(ServiceTemplate, String)
+     */
     @NotNull
     ITask<Boolean> createFileAsync(@NotNull String path);
 
+    /**
+     * @see TemplateStorage#createDirectoryAsync(ServiceTemplate, String)
+     */
     @NotNull
     ITask<Boolean> createDirectoryAsync(@NotNull String path);
 
+    /**
+     * @see TemplateStorage#hasFileAsync(ServiceTemplate, String)
+     */
     @NotNull
     ITask<Boolean> hasFileAsync(@NotNull String path);
 
+    /**
+     * @see TemplateStorage#deleteFileAsync(ServiceTemplate, String)
+     */
     @NotNull
     ITask<Boolean> deleteFileAsync(@NotNull String path);
 
+    /**
+     * @see TemplateStorage#newInputStreamAsync(ServiceTemplate, String)
+     */
     @NotNull
     ITask<InputStream> newInputStreamAsync(@NotNull String path);
 
+    /**
+     * @see TemplateStorage#getFileInfoAsync(ServiceTemplate, String)
+     */
     @NotNull
     ITask<FileInfo> getFileInfoAsync(@NotNull String path);
 
+    /**
+     * @see TemplateStorage#listFilesAsync(ServiceTemplate, String, boolean)
+     */
     @NotNull
     ITask<FileInfo[]> listFilesAsync(@NotNull String dir, boolean deep);
 
+    /**
+     * @see TemplateStorage#listFilesAsync(ServiceTemplate, boolean)
+     */
     @NotNull
     default ITask<FileInfo[]> listFilesAsync(boolean deep) {
         return this.listFilesAsync("", deep);
     }
 
+    /**
+     * @see TemplateStorage#listFilesAsync(ServiceTemplate, String)
+     */
     @NotNull
     default ITask<FileInfo[]> listFilesAsync(@NotNull String dir) {
         return this.listFilesAsync(dir, true);
     }
 
+    /**
+     * @see TemplateStorage#listFilesAsync(ServiceTemplate)
+     */
     @NotNull
     default ITask<FileInfo[]> listFilesAsync() {
         return this.listFilesAsync(true);
