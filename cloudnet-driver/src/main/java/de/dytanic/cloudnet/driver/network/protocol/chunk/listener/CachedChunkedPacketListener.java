@@ -1,4 +1,4 @@
-package de.dytanic.cloudnet.driver.network.protocol.chunk.client;
+package de.dytanic.cloudnet.driver.network.protocol.chunk.listener;
 
 import com.google.common.base.Preconditions;
 import org.jetbrains.annotations.NotNull;

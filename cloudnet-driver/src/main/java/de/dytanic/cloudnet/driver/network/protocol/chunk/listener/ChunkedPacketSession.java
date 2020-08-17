@@ -1,4 +1,4 @@
-package de.dytanic.cloudnet.driver.network.protocol.chunk.client;
+package de.dytanic.cloudnet.driver.network.protocol.chunk.listener;
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.network.protocol.chunk.ChunkedPacket;
@@ -16,6 +16,9 @@ public class ChunkedPacketSession {
     private final Collection<ChunkedPacket> pendingPackets = new ArrayList<>();
     private final Map<String, Object> properties;
     private final UUID sessionUniqueId;
+
+    private ChunkedPacket firstPacket;
+    private ChunkedPacket lastPacket;
 
     private int chunkId = 0;
     private JsonDocument header = JsonDocument.EMPTY;
@@ -36,6 +39,11 @@ public class ChunkedPacketSession {
 
         if (packet.getChunkId() == 0 && this.header.isEmpty() && !packet.getHeader().isEmpty()) {
             this.header = packet.getHeader();
+            this.firstPacket = packet;
+        }
+
+        if (packet.isEnd()) {
+            this.lastPacket = packet;
         }
 
         try {
@@ -104,6 +112,14 @@ public class ChunkedPacketSession {
 
     public OutputStream getOutputStream() {
         return this.outputStream;
+    }
+
+    public ChunkedPacket getFirstPacket() {
+        return this.firstPacket;
+    }
+
+    public ChunkedPacket getLastPacket() {
+        return this.lastPacket;
     }
 
     public JsonDocument getHeader() {

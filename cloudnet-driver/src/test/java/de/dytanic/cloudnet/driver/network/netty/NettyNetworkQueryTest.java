@@ -85,7 +85,7 @@ public class NettyNetworkQueryTest {
 
         @Override
         public boolean handlePacketReceive(INetworkChannel channel, Packet packet) {
-            return !InternalSyncPacketChannel.handleIncomingChannel(packet);
+            return !InternalSyncPacketChannel.handleIncomingChannel(channel, packet);
         }
 
         @Override

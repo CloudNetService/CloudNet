@@ -1,4 +1,4 @@
-package de.dytanic.cloudnet.driver.network.protocol.chunk.client;
+package de.dytanic.cloudnet.driver.network.protocol.chunk.listener;
 
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
