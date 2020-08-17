@@ -146,13 +146,11 @@ public class FTPQueueStorage extends DefaultAsyncTemplateStorage implements Runn
 
     @Override
     public @NotNull ITask<OutputStream> appendOutputStreamAsync(@NotNull ServiceTemplate template, @NotNull String path) {
-        // TODO not tested
         return CompletableTask.supplyAsync(() -> this.createDataTransfer(() -> this.executingStorage.appendOutputStream(template, path), CloseableTask::toOutputStream));
     }
 
     @Override
     public @NotNull ITask<OutputStream> newOutputStreamAsync(@NotNull ServiceTemplate template, @NotNull String path) {
-        // TODO not tested
         return CompletableTask.supplyAsync(() -> this.createDataTransfer(() -> this.executingStorage.newOutputStream(template, path), CloseableTask::toOutputStream));
     }
 
@@ -208,7 +206,6 @@ public class FTPQueueStorage extends DefaultAsyncTemplateStorage implements Runn
 
     @Override
     public @NotNull ITask<InputStream> newInputStreamAsync(@NotNull ServiceTemplate template, @NotNull String path) {
-        // TODO not tested
         return CompletableTask.supplyAsync(() -> this.createDataTransfer(() -> this.executingStorage.newInputStream(template, path), CloseableTask::toInputStream));
     }
 

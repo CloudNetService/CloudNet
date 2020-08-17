@@ -177,7 +177,7 @@ public interface TemplateStorage extends AutoCloseable, INameable {
     /**
      * Creates a new {@link OutputStream} that will append its content to the file at the given path.
      * If the file at the given path doesn't exist, it will be created.
-     * To finish your edits, you need to close the {@link OutputStream}.
+     * To finish your modifications, you'll need to close the {@link OutputStream}.
      *
      * @param template the template where the target file is located at
      * @param path     the path to the file relative to the template
@@ -190,7 +190,7 @@ public interface TemplateStorage extends AutoCloseable, INameable {
     /**
      * Creates a new {@link OutputStream} that will override its content to the file at the given path.
      * If the file at the given path doesn't exist, it will be created.
-     * To finish your edits, you need to close the {@link OutputStream}.
+     * To finish your modifications, you'll need to close the {@link OutputStream}.
      *
      * @param template the template where the target file is located at
      * @param path     the path to the file relative to the template
@@ -510,7 +510,7 @@ public interface TemplateStorage extends AutoCloseable, INameable {
     /**
      * Creates a new {@link OutputStream} that will append its content to the file at the given path.
      * If the file at the given path doesn't exist, it will be created.
-     * To finish your edits, you need to close the {@link OutputStream}.
+     * To finish your modifications, you'll need to close the {@link OutputStream}.
      *
      * @param template the template where the target file is located at
      * @param path     the path to the file relative to the template
@@ -522,7 +522,7 @@ public interface TemplateStorage extends AutoCloseable, INameable {
     /**
      * Creates a new {@link OutputStream} that will override its content to the file at the given path.
      * If the file at the given path doesn't exist, it will be created.
-     * To finish your edits, you need to close the {@link OutputStream}.
+     * To finish your modifications, you'll need to close the {@link OutputStream}.
      *
      * @param template the template where the target file is located at
      * @param path     the path to the file relative to the template
