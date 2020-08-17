@@ -2,10 +2,12 @@ package de.dytanic.cloudnet.driver.template;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import de.dytanic.cloudnet.common.concurrent.ITask;
+import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.driver.api.DriverAPIRequestType;
 import de.dytanic.cloudnet.driver.api.DriverAPIUser;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
+import de.dytanic.cloudnet.driver.network.protocol.chunk.ChunkedQueryResponse;
 import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import de.dytanic.cloudnet.driver.template.defaults.DefaultAsyncTemplateStorage;
@@ -18,9 +20,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Path;
 import java.util.Collection;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
-import java.util.zip.ZipInputStream;
 
 public class RemoteTemplateStorage extends DefaultAsyncTemplateStorage implements DriverAPIUser {
 
@@ -58,12 +60,18 @@ public class RemoteTemplateStorage extends DefaultAsyncTemplateStorage implement
 
     @Override
     public @NotNull ITask<Boolean> copyAsync(@NotNull ServiceTemplate template, @NotNull File directory) {
-        return null;
+        return this.copyAsync(template, directory.toPath());
     }
 
     @Override
     public @NotNull ITask<Boolean> copyAsync(@NotNull ServiceTemplate template, @NotNull Path directory) {
-        return null;
+        return this.zipTemplateAsync(template).mapThrowable(inputStream -> {
+            if (inputStream == null) {
+                return false;
+            }
+
+            return FileUtils.extract(inputStream, directory) != null;
+        });
     }
 
     @Override
@@ -76,13 +84,15 @@ public class RemoteTemplateStorage extends DefaultAsyncTemplateStorage implement
     }
 
     @Override
-    public @NotNull ITask<ZipInputStream> asZipInputStreamAsync(@NotNull ServiceTemplate template) {
-        return null;
-    }
-
-    @Override
     public @NotNull ITask<InputStream> zipTemplateAsync(@NotNull ServiceTemplate template) {
-        return null;
+        return this.executeChunkedWithTemplate(
+                DriverAPIRequestType.LOAD_TEMPLATE_STREAM,
+                template
+        ).mapThrowable(chunkedResponse -> {
+            TemplateStorageResponse response = chunkedResponse.getSession().getHeader().get("response", TemplateStorageResponse.class);
+            this.throwException(response, () -> ProtocolBuffer.readAll(chunkedResponse.getInputStream()).readThrowable());
+            return chunkedResponse.getInputStream();
+        });
     }
 
     @Override
@@ -136,7 +146,15 @@ public class RemoteTemplateStorage extends DefaultAsyncTemplateStorage implement
 
     @Override
     public @NotNull ITask<InputStream> newInputStreamAsync(@NotNull ServiceTemplate template, @NotNull String path) {
-        return null;
+        return this.executeChunkedWithTemplate(
+                DriverAPIRequestType.GET_FILE_CONTENT,
+                template,
+                path
+        ).mapThrowable(chunkedResponse -> {
+            TemplateStorageResponse response = chunkedResponse.getSession().getHeader().get("response", TemplateStorageResponse.class);
+            this.throwException(response, () -> ProtocolBuffer.readAll(chunkedResponse.getInputStream()).readThrowable());
+            return chunkedResponse.getInputStream();
+        });
     }
 
     @Override
@@ -173,6 +191,15 @@ public class RemoteTemplateStorage extends DefaultAsyncTemplateStorage implement
         );
     }
 
+    @Override
+    public boolean shouldSyncInCluster() {
+        return this.executeDriverAPIMethod(
+                DriverAPIRequestType.SHOULD_SYNC_IN_CLUSTER,
+                this::writeDefaults,
+                this::readDefaultBooleanResponse
+        ).get(5, TimeUnit.SECONDS, false);
+    }
+
     @CanIgnoreReturnValue
     private ProtocolBuffer writeDefaults(ProtocolBuffer buffer, ServiceTemplate template) {
         return buffer.writeObject(template);
@@ -197,9 +224,13 @@ public class RemoteTemplateStorage extends DefaultAsyncTemplateStorage implement
     }
 
     private void throwException(TemplateStorageResponse response, ProtocolBuffer buffer) throws IOException {
+        this.throwException(response, buffer::readThrowable);
+    }
+
+    private void throwException(TemplateStorageResponse response, Supplier<Throwable> throwableSupplier) throws IOException {
         switch (response) {
             case EXCEPTION:
-                Throwable throwable = buffer.readThrowable();
+                Throwable throwable = throwableSupplier.get();
                 if (throwable instanceof IOException) {
                     throw (IOException) throwable;
                 } else if (throwable instanceof RuntimeException) {
@@ -218,6 +249,14 @@ public class RemoteTemplateStorage extends DefaultAsyncTemplateStorage implement
 
     private ITask<Boolean> executeWithTemplate(DriverAPIRequestType requestType, ServiceTemplate template, String path) {
         return this.executeDriverAPIMethod(requestType, buffer -> this.writeDefaults(buffer, template).writeString(path), this::readDefaultBooleanResponse);
+    }
+
+    private ITask<ChunkedQueryResponse> executeChunkedWithTemplate(DriverAPIRequestType requestType, ServiceTemplate template) {
+        return this.executeChunkedDriverAPIMethod(requestType, buffer -> this.writeDefaults(buffer, template));
+    }
+
+    private ITask<ChunkedQueryResponse> executeChunkedWithTemplate(DriverAPIRequestType requestType, ServiceTemplate template, String path) {
+        return this.executeChunkedDriverAPIMethod(requestType, buffer -> this.writeDefaults(buffer, template).writeString(path));
     }
 
     @Override

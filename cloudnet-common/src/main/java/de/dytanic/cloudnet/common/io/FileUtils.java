@@ -27,6 +27,8 @@ import java.util.zip.ZipOutputStream;
  */
 public final class FileUtils {
 
+    public static final InputStream EMPTY_STREAM = new ByteArrayInputStream(new byte[0]);
+
     private static final Map<String, String> zipFileSystemProperties = new HashMap<>();
 
     static {
@@ -302,8 +304,16 @@ public final class FileUtils {
         }
 
         try (InputStream inputStream = Files.newInputStream(zipPath)) {
-            extract0(new ZipInputStream(inputStream, StandardCharsets.UTF_8), targetDirectory);
+            return extract(inputStream, targetDirectory);
         }
+    }
+
+    public static Path extract(InputStream inputStream, Path targetDirectory) throws IOException {
+        if (inputStream == null || targetDirectory == null) {
+            return targetDirectory;
+        }
+
+        extract0(new ZipInputStream(inputStream, StandardCharsets.UTF_8), targetDirectory);
 
         return targetDirectory;
     }

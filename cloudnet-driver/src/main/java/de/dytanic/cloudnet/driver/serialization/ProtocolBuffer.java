@@ -1,11 +1,13 @@
 package de.dytanic.cloudnet.driver.serialization;
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import de.dytanic.cloudnet.common.io.FileUtils;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.InputStream;
 import java.util.Collection;
 import java.util.UUID;
 
@@ -15,6 +17,10 @@ public abstract class ProtocolBuffer extends ByteBuf {
 
     public static ProtocolBuffer create() {
         return wrap(Unpooled.buffer());
+    }
+
+    public static ProtocolBuffer readAll(InputStream inputStream) {
+        return wrap(FileUtils.toByteArray(inputStream));
     }
 
     public static ProtocolBuffer wrap(byte[] bytes) {

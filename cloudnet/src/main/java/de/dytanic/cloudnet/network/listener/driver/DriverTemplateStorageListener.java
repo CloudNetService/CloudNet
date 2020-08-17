@@ -2,10 +2,14 @@ package de.dytanic.cloudnet.network.listener.driver;
 
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.INameable;
+import de.dytanic.cloudnet.common.concurrent.function.ThrowableBiFunction;
 import de.dytanic.cloudnet.common.concurrent.function.ThrowableFunction;
+import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.api.DriverAPICategory;
 import de.dytanic.cloudnet.driver.api.DriverAPIRequestType;
+import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import de.dytanic.cloudnet.driver.template.FileInfo;
@@ -13,7 +17,9 @@ import de.dytanic.cloudnet.driver.template.SpecificTemplateStorage;
 import de.dytanic.cloudnet.driver.template.TemplateStorage;
 import de.dytanic.cloudnet.driver.template.TemplateStorageResponse;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
@@ -31,7 +37,7 @@ public class DriverTemplateStorageListener extends CategorizedDriverAPIListener 
             return TemplateStorageResponse.SUCCESS;
         }));
 
-        super.registerHandler(DriverAPIRequestType.LIST_FILES, this.throwableHandler(input -> {
+        super.registerHandler(DriverAPIRequestType.LIST_FILES, this.throwableHandler((channel, input) -> {
             FileInfo[] files = this.readSpecific(input).listFiles(input.readString(), input.readBoolean());
             ProtocolBuffer buffer = ProtocolBuffer.create().writeEnumConstant(TemplateStorageResponse.SUCCESS);
             buffer.writeBoolean(files != null);
@@ -40,13 +46,13 @@ public class DriverTemplateStorageListener extends CategorizedDriverAPIListener 
             }
             return buffer;
         }));
-        super.registerHandler(DriverAPIRequestType.GET_FILE_INFO, this.throwableHandler(input -> {
+        super.registerHandler(DriverAPIRequestType.GET_FILE_INFO, this.throwableHandler((channel, input) -> {
             FileInfo file = this.readSpecific(input).getFileInfo(input.readString());
             return ProtocolBuffer.create().writeEnumConstant(TemplateStorageResponse.SUCCESS).writeOptionalObject(file);
         }));
 
-        super.registerHandler(DriverAPIRequestType.CREATE_FILE, this.throwableResponseHandler(input -> TemplateStorageResponse.of(this.readSpecific(input).createFile(input.readString()))));
         super.registerHandler(DriverAPIRequestType.CREATE_DIRECTORY, this.throwableResponseHandler(input -> TemplateStorageResponse.of(this.readSpecific(input).createDirectory(input.readString()))));
+        super.registerHandler(DriverAPIRequestType.CREATE_FILE, this.throwableResponseHandler(input -> TemplateStorageResponse.of(this.readSpecific(input).createFile(input.readString()))));
         super.registerHandler(DriverAPIRequestType.CONTAINS_FILE, this.throwableResponseHandler(input -> TemplateStorageResponse.of(this.readSpecific(input).hasFile(input.readString()))));
         super.registerHandler(DriverAPIRequestType.DELETE_FILE, this.throwableResponseHandler(input -> TemplateStorageResponse.of(this.readSpecific(input).deleteFile(input.readString()))));
 
@@ -54,18 +60,19 @@ public class DriverTemplateStorageListener extends CategorizedDriverAPIListener 
         super.registerHandler(DriverAPIRequestType.CREATE_TEMPLATE, this.throwableResponseHandler(input -> TemplateStorageResponse.of(this.readSpecific(input).create())));
         super.registerHandler(DriverAPIRequestType.DELETE_TEMPLATE, this.throwableResponseHandler(input -> TemplateStorageResponse.of(this.readSpecific(input).delete())));
 
-        super.registerHandler(DriverAPIRequestType.DELETE_FILE, this.throwableResponseHandler(input -> TemplateStorageResponse.of(this.readSpecific(input).deleteFile(input.readString()))));
+        super.registerHandler(DriverAPIRequestType.SHOULD_SYNC_IN_CLUSTER, this.throwableResponseHandler(input -> TemplateStorageResponse.of(this.read(input).shouldSyncInCluster())));
 
-        super.registerHandler(DriverAPIRequestType.LOAD_TEMPLATE_ARRAY, this.throwableHandler(input -> ProtocolBuffer.create().writeEnumConstant(TemplateStorageResponse.SUCCESS).writeArray(this.readSpecific(input).toZipByteArray())));
+        super.registerHandler(DriverAPIRequestType.LOAD_TEMPLATE_ARRAY, this.throwableHandler((channel, input) ->
+                ProtocolBuffer.create().writeEnumConstant(TemplateStorageResponse.SUCCESS).writeArray(this.readSpecific(input).toZipByteArray()))
+        );
+        super.registerHandler(DriverAPIRequestType.LOAD_TEMPLATE_STREAM, this.chunkedHandler(input -> this.readSpecific(input).zipTemplate()));
+        super.registerHandler(DriverAPIRequestType.GET_FILE_CONTENT, this.chunkedHandler(input -> this.readSpecific(input).newInputStream(input.readString())));
 
-        // TODO
-        super.registerHandler(DriverAPIRequestType.DEPLOY_TEMPLATE_BYTE_ARRAY, (channel, packet, buffer) -> ProtocolBuffer.EMPTY);
-        super.registerHandler(DriverAPIRequestType.DEPLOY_TEMPLATE_STREAM, (channel, packet, buffer) -> ProtocolBuffer.EMPTY);
-        super.registerHandler(DriverAPIRequestType.LOAD_TEMPLATE_ARRAY, (channel, packet, buffer) -> ProtocolBuffer.EMPTY);
-        super.registerHandler(DriverAPIRequestType.LOAD_TEMPLATE_STREAM, (channel, packet, buffer) -> ProtocolBuffer.EMPTY);
-        super.registerHandler(DriverAPIRequestType.APPEND_FILE_CONTENT, (channel, packet, buffer) -> ProtocolBuffer.EMPTY);
-        super.registerHandler(DriverAPIRequestType.SET_FILE_CONTENT, (channel, packet, buffer) -> ProtocolBuffer.EMPTY);
-        super.registerHandler(DriverAPIRequestType.SHOULD_SYNC_IN_CLUSTER, (channel, packet, buffer) -> ProtocolBuffer.EMPTY);
+        super.registerHandler(DriverAPIRequestType.DEPLOY_TEMPLATE_BYTE_ARRAY, (channel, packet, input) -> ProtocolBuffer.EMPTY);
+        super.registerHandler(DriverAPIRequestType.DEPLOY_TEMPLATE_STREAM, (channel, packet, input) -> ProtocolBuffer.EMPTY);
+
+        super.registerHandler(DriverAPIRequestType.APPEND_FILE_CONTENT, (channel, packet, input) -> ProtocolBuffer.EMPTY);
+        super.registerHandler(DriverAPIRequestType.SET_FILE_CONTENT, (channel, packet, input) -> ProtocolBuffer.EMPTY);
 
         super.registerHandler(
                 DriverAPIRequestType.GET_TEMPLATE_STORAGES,
@@ -78,10 +85,39 @@ public class DriverTemplateStorageListener extends CategorizedDriverAPIListener 
 
     }
 
-    private DriverAPIHandler throwableHandler(ThrowableFunction<ProtocolBuffer, ProtocolBuffer, IOException> function) {
+    private DriverAPIHandler chunkedHandler(ThrowableFunction<ProtocolBuffer, InputStream, IOException> function) {
+        return (channel, packet, input) -> {
+            TemplateStorageResponse response = TemplateStorageResponse.SUCCESS;
+            InputStream inputStream = FileUtils.EMPTY_STREAM;
+
+            try {
+                inputStream = function.apply(input);
+                if (inputStream == null) {
+                    response = TemplateStorageResponse.FAILED;
+                    inputStream = FileUtils.EMPTY_STREAM;
+                }
+
+            } catch (Response thrownResponse) {
+                response = thrownResponse.getResponse();
+            } catch (IOException exception) {
+                response = TemplateStorageResponse.EXCEPTION;
+                inputStream = new ByteArrayInputStream(ProtocolBuffer.create().writeThrowable(exception).toArray());
+            }
+
+            try {
+                channel.sendChunkedPacketsResponse(packet.getUniqueId(), JsonDocument.newDocument("response", response), inputStream);
+            } catch (IOException exception) {
+                exception.printStackTrace();
+            }
+
+            return null;
+        };
+    }
+
+    private DriverAPIHandler throwableHandler(ThrowableBiFunction<INetworkChannel, ProtocolBuffer, ProtocolBuffer, IOException> function) {
         return (channel, packet, input) -> {
             try {
-                return function.apply(input);
+                return function.apply(channel, input);
             } catch (Response response) {
                 return ProtocolBuffer.create().writeEnumConstant(response.getResponse());
             } catch (IOException exception) {

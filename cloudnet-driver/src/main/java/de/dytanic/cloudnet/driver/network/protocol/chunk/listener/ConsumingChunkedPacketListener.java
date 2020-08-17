@@ -16,6 +16,6 @@ public class ConsumingChunkedPacketListener extends CachedChunkedPacketListener 
 
     @Override
     protected void handleComplete(@NotNull ChunkedPacketSession session, @NotNull InputStream inputStream) {
-        this.consumer.accept(new ChunkedQueryResponse(session.getFirstPacket(), session.getLastPacket(), inputStream));
+        this.consumer.accept(new ChunkedQueryResponse(session, session.getFirstPacket(), session.getLastPacket(), inputStream));
     }
 }
