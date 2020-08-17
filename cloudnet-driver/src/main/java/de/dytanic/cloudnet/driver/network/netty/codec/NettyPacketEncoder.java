@@ -1,4 +1,4 @@
-package de.dytanic.cloudnet.driver.network.netty;
+package de.dytanic.cloudnet.driver.network.netty.codec;
 
 import de.dytanic.cloudnet.common.logging.LogLevel;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
@@ -7,8 +7,10 @@ import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
+import org.jetbrains.annotations.ApiStatus;
 
-final class NettyPacketEncoder extends MessageToByteEncoder<IPacket> {
+@ApiStatus.Internal
+public final class NettyPacketEncoder extends MessageToByteEncoder<IPacket> {
 
     @Override
     protected void encode(ChannelHandlerContext ctx, IPacket packet, ByteBuf byteBuf) {

@@ -6,6 +6,7 @@ import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.network.http.IHttpServer;
 import de.dytanic.cloudnet.driver.network.http.websocket.IWebSocketChannel;
 import de.dytanic.cloudnet.driver.network.http.websocket.WebSocketFrameType;
+import de.dytanic.cloudnet.driver.network.netty.http.NettyHttpServer;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.*;

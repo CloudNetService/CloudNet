@@ -1,11 +1,13 @@
-package de.dytanic.cloudnet.driver.network.netty;
+package de.dytanic.cloudnet.driver.network.netty.http;
 
 import de.dytanic.cloudnet.driver.network.http.websocket.IWebSocketListener;
 import de.dytanic.cloudnet.driver.network.http.websocket.WebSocketFrameType;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.websocketx.*;
+import org.jetbrains.annotations.ApiStatus;
 
+@ApiStatus.Internal
 final class NettyWebSocketServerChannelHandler extends SimpleChannelInboundHandler<WebSocketFrame> {
 
     private final NettyWebSocketServerChannel webSocketServerChannel;

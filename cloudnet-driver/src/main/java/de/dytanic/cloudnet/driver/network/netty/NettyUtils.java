@@ -17,11 +17,12 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.util.ResourceLeakDetector;
 import io.netty.util.concurrent.FastThreadLocalThread;
+import org.jetbrains.annotations.ApiStatus;
 
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ThreadFactory;
 
-
+@ApiStatus.Internal
 public final class NettyUtils {
 
     static {

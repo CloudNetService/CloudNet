@@ -4,6 +4,8 @@ import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.concurrent.ListenableTask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.network.*;
+import de.dytanic.cloudnet.driver.network.netty.client.NettyNetworkClient;
+import de.dytanic.cloudnet.driver.network.netty.server.NettyNetworkServer;
 import de.dytanic.cloudnet.driver.network.protocol.Packet;
 import de.dytanic.cloudnet.driver.network.ssl.SSLConfiguration;
 import io.netty.handler.ssl.util.SelfSignedCertificate;

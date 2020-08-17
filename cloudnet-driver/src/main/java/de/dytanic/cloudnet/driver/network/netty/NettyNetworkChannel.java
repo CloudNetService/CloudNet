@@ -12,9 +12,11 @@ import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.network.protocol.IPacketListenerRegistry;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
-final class NettyNetworkChannel extends DefaultNetworkChannel implements INetworkChannel {
+@ApiStatus.Internal
+public final class NettyNetworkChannel extends DefaultNetworkChannel implements INetworkChannel {
 
     private final Channel channel;
 

@@ -1,32 +1,35 @@
-package de.dytanic.cloudnet.driver.network.netty;
+package de.dytanic.cloudnet.driver.network.netty.server;
 
 import de.dytanic.cloudnet.driver.network.HostAndPort;
+import de.dytanic.cloudnet.driver.network.netty.NettyNetworkChannel;
 import de.dytanic.cloudnet.driver.network.protocol.Packet;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import org.jetbrains.annotations.ApiStatus;
 
 import java.io.IOException;
 import java.util.concurrent.Callable;
 
-final class NettyNetworkClientHandler extends SimpleChannelInboundHandler<Packet> {
+@ApiStatus.Internal
+final class NettyNetworkServerHandler extends SimpleChannelInboundHandler<Packet> {
 
-    private final NettyNetworkClient nettyNetworkClient;
+    private final NettyNetworkServer nettyNetworkServer;
 
     private final HostAndPort connectedAddress;
 
     private NettyNetworkChannel channel;
 
-    public NettyNetworkClientHandler(NettyNetworkClient nettyNetworkClient, HostAndPort connectedAddress) {
-        this.nettyNetworkClient = nettyNetworkClient;
+    public NettyNetworkServerHandler(NettyNetworkServer nettyNetworkServer, HostAndPort connectedAddress) {
+        this.nettyNetworkServer = nettyNetworkServer;
         this.connectedAddress = connectedAddress;
     }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        this.channel = new NettyNetworkChannel(ctx.channel(), this.nettyNetworkClient.getPacketRegistry(),
-                this.nettyNetworkClient.networkChannelHandler.call(), this.connectedAddress, HostAndPort.fromSocketAddress(ctx.channel().localAddress()), true);
+        this.channel = new NettyNetworkChannel(ctx.channel(), this.nettyNetworkServer.getPacketRegistry(),
+                this.nettyNetworkServer.networkChannelHandler.call(), this.connectedAddress, HostAndPort.fromSocketAddress(ctx.channel().remoteAddress()), false);
 
-        this.nettyNetworkClient.channels.add(this.channel);
+        this.nettyNetworkServer.channels.add(this.channel);
 
         if (this.channel.getHandler() != null) {
             this.channel.getHandler().handleChannelInitialize(this.channel);
@@ -42,7 +45,7 @@ final class NettyNetworkClientHandler extends SimpleChannelInboundHandler<Packet
 
             ctx.channel().close();
 
-            this.nettyNetworkClient.channels.remove(this.channel);
+            this.nettyNetworkServer.channels.remove(this.channel);
         }
     }
 
@@ -60,7 +63,7 @@ final class NettyNetworkClientHandler extends SimpleChannelInboundHandler<Packet
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, Packet msg) {
-        this.nettyNetworkClient.taskScheduler.schedule((Callable<Void>) () -> {
+        this.nettyNetworkServer.taskScheduler.schedule((Callable<Void>) () -> {
             if (this.channel.getHandler() != null && !this.channel.getHandler().handlePacketReceive(this.channel, msg)) {
                 return null;
             }

@@ -1,4 +1,4 @@
-package de.dytanic.cloudnet.driver.network.netty;
+package de.dytanic.cloudnet.driver.network.netty.client;
 
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.concurrent.DefaultTaskScheduler;
@@ -7,6 +7,7 @@ import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.INetworkChannelHandler;
 import de.dytanic.cloudnet.driver.network.INetworkClient;
+import de.dytanic.cloudnet.driver.network.netty.NettyUtils;
 import de.dytanic.cloudnet.driver.network.protocol.DefaultPacketListenerRegistry;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.network.protocol.IPacketListenerRegistry;
@@ -20,6 +21,7 @@ import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
@@ -27,6 +29,7 @@ import java.util.Collections;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+@ApiStatus.Internal
 public final class NettyNetworkClient implements INetworkClient {
 
     protected final Collection<INetworkChannel> channels = new ConcurrentLinkedQueue<>();

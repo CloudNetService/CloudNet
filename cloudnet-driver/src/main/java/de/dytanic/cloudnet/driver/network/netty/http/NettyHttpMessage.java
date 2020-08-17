@@ -1,7 +1,9 @@
-package de.dytanic.cloudnet.driver.network.netty;
+package de.dytanic.cloudnet.driver.network.netty.http;
 
 import de.dytanic.cloudnet.driver.network.http.HttpVersion;
+import org.jetbrains.annotations.ApiStatus;
 
+@ApiStatus.Internal
 public class NettyHttpMessage {
 
     protected HttpVersion getCloudNetHttpVersion(io.netty.handler.codec.http.HttpVersion httpVersion) {

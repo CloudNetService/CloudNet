@@ -1,4 +1,4 @@
-package de.dytanic.cloudnet.driver.network.netty;
+package de.dytanic.cloudnet.driver.network.netty.http;
 
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.driver.network.http.HttpVersion;
@@ -7,6 +7,7 @@ import de.dytanic.cloudnet.driver.network.http.IHttpRequest;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.QueryStringDecoder;
+import org.jetbrains.annotations.ApiStatus;
 
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
@@ -14,6 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@ApiStatus.Internal
 final class NettyHttpServerRequest extends NettyHttpMessage implements IHttpRequest {
 
     protected final NettyHttpServerContext context;

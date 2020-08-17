@@ -1,14 +1,16 @@
-package de.dytanic.cloudnet.driver.network.netty;
+package de.dytanic.cloudnet.driver.network.netty.http;
 
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import io.netty.channel.*;
 import io.netty.handler.codec.DecoderResult;
 import io.netty.handler.codec.http.HttpRequest;
+import org.jetbrains.annotations.ApiStatus;
 
 import java.io.IOException;
 import java.net.URI;
 import java.util.*;
 
+@ApiStatus.Internal
 final class NettyHttpServerHandler extends SimpleChannelInboundHandler<HttpRequest> {
 
     private final NettyHttpServer nettyHttpServer;

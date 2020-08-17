@@ -1,9 +1,15 @@
-package de.dytanic.cloudnet.driver.network.netty;
+package de.dytanic.cloudnet.driver.network.netty.server;
 
 import de.dytanic.cloudnet.driver.network.HostAndPort;
+import de.dytanic.cloudnet.driver.network.netty.codec.NettyPacketDecoder;
+import de.dytanic.cloudnet.driver.network.netty.codec.NettyPacketEncoder;
+import de.dytanic.cloudnet.driver.network.netty.codec.NettyPacketLengthDeserializer;
+import de.dytanic.cloudnet.driver.network.netty.codec.NettyPacketLengthSerializer;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
+import org.jetbrains.annotations.ApiStatus;
 
+@ApiStatus.Internal
 final class NettyNetworkServerInitializer extends ChannelInitializer<Channel> {
 
     private final NettyNetworkServer nettyNetworkServer;

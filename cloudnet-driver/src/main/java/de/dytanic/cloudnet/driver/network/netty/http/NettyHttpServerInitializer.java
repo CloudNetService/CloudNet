@@ -1,11 +1,13 @@
-package de.dytanic.cloudnet.driver.network.netty;
+package de.dytanic.cloudnet.driver.network.netty.http;
 
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
+import org.jetbrains.annotations.ApiStatus;
 
+@ApiStatus.Internal
 final class NettyHttpServerInitializer extends ChannelInitializer<Channel> {
 
     private final NettyHttpServer nettyHttpServer;

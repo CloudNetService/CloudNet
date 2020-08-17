@@ -1,4 +1,4 @@
-package de.dytanic.cloudnet.driver.network.netty;
+package de.dytanic.cloudnet.driver.network.netty.http;
 
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.driver.network.http.*;
@@ -11,6 +11,7 @@ import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
 import io.netty.handler.codec.http.cookie.ServerCookieEncoder;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
+import org.jetbrains.annotations.ApiStatus;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -18,6 +19,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@ApiStatus.Internal
 final class NettyHttpServerContext implements IHttpContext {
 
     protected final Collection<HttpCookie> cookies = new ArrayList<>();

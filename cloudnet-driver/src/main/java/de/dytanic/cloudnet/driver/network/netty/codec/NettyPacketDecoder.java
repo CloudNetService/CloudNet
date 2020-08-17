@@ -1,4 +1,4 @@
-package de.dytanic.cloudnet.driver.network.netty;
+package de.dytanic.cloudnet.driver.network.netty.codec;
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.logging.LogLevel;
@@ -8,11 +8,13 @@ import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
+import org.jetbrains.annotations.ApiStatus;
 
 import java.util.List;
 import java.util.UUID;
 
-final class NettyPacketDecoder extends ByteToMessageDecoder {
+@ApiStatus.Internal
+public final class NettyPacketDecoder extends ByteToMessageDecoder {
 
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf byteBuf, List<Object> out) {

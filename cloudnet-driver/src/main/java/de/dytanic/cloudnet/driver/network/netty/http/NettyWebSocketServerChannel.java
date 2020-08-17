@@ -1,4 +1,4 @@
-package de.dytanic.cloudnet.driver.network.netty;
+package de.dytanic.cloudnet.driver.network.netty.http;
 
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.driver.network.http.IHttpChannel;
@@ -9,6 +9,7 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.handler.codec.http.websocketx.*;
+import org.jetbrains.annotations.ApiStatus;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -18,6 +19,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
+@ApiStatus.Internal
 final class NettyWebSocketServerChannel implements IWebSocketChannel {
 
     private final List<IWebSocketListener> webSocketListeners = new CopyOnWriteArrayList<>();

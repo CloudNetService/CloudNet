@@ -40,9 +40,9 @@ import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot
 import de.dytanic.cloudnet.driver.network.def.PacketConstants;
 import de.dytanic.cloudnet.driver.network.def.packet.PacketServerSetGlobalLogLevel;
 import de.dytanic.cloudnet.driver.network.http.IHttpServer;
-import de.dytanic.cloudnet.driver.network.netty.NettyHttpServer;
-import de.dytanic.cloudnet.driver.network.netty.NettyNetworkClient;
-import de.dytanic.cloudnet.driver.network.netty.NettyNetworkServer;
+import de.dytanic.cloudnet.driver.network.netty.client.NettyNetworkClient;
+import de.dytanic.cloudnet.driver.network.netty.http.NettyHttpServer;
+import de.dytanic.cloudnet.driver.network.netty.server.NettyNetworkServer;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.network.protocol.IPacketListenerRegistry;
 import de.dytanic.cloudnet.driver.permission.IPermissionGroup;

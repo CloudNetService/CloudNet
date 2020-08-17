@@ -2,12 +2,15 @@
  * Copyright (c) Tarek Hosni El Alaoui 2017
  */
 
-package de.dytanic.cloudnet.driver.network.netty;
+package de.dytanic.cloudnet.driver.network.netty.codec;
 
+import de.dytanic.cloudnet.driver.network.netty.NettyUtils;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
+import org.jetbrains.annotations.ApiStatus;
 
+@ApiStatus.Internal
 public final class NettyPacketLengthSerializer extends MessageToByteEncoder<ByteBuf> {
 
     @Override

@@ -1,9 +1,16 @@
-package de.dytanic.cloudnet.driver.network.netty;
+package de.dytanic.cloudnet.driver.network.netty.client;
 
 import de.dytanic.cloudnet.driver.network.HostAndPort;
+import de.dytanic.cloudnet.driver.network.netty.codec.NettyPacketDecoder;
+import de.dytanic.cloudnet.driver.network.netty.codec.NettyPacketEncoder;
+import de.dytanic.cloudnet.driver.network.netty.codec.NettyPacketLengthDeserializer;
+import de.dytanic.cloudnet.driver.network.netty.codec.NettyPacketLengthSerializer;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
+import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.NotNull;
 
+@ApiStatus.Internal
 final class NettyNetworkClientInitializer extends ChannelInitializer<Channel> {
 
     private final NettyNetworkClient nettyNetworkClient;
@@ -22,7 +29,7 @@ final class NettyNetworkClientInitializer extends ChannelInitializer<Channel> {
     }
 
     @Override
-    protected void initChannel(Channel ch) {
+    protected void initChannel(@NotNull Channel ch) {
         if (this.nettyNetworkClient.sslContext != null) {
             ch.pipeline()
                     .addLast(this.nettyNetworkClient.sslContext.newHandler(ch.alloc(), this.hostAndPort.getHost(), this.hostAndPort.getPort()));

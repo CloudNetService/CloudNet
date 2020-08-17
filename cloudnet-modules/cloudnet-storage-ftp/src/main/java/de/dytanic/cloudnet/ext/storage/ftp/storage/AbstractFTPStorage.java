@@ -1,7 +1,7 @@
 package de.dytanic.cloudnet.ext.storage.ftp.storage;
 
 
-import de.dytanic.cloudnet.driver.template.DefaultSyncTemplateStorage;
+import de.dytanic.cloudnet.driver.template.defaults.DefaultSyncTemplateStorage;
 import de.dytanic.cloudnet.ext.storage.ftp.client.FTPCredentials;
 import de.dytanic.cloudnet.ext.storage.ftp.client.FTPType;
 
