@@ -7,89 +7,91 @@ import de.dytanic.cloudnet.common.concurrent.ITaskListener;
 import de.dytanic.cloudnet.common.concurrent.function.ThrowableFunction;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.Closeable;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Collection;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
 @NotNull
-public class OutputStreamCloseTask extends OutputStream implements ITask<OutputStream> {
+public class CloseableTask<C extends Closeable> implements ITask<C>, Closeable {
 
-    private final OutputStream outputStream;
+    private final C closeable;
     private boolean done;
 
-    OutputStreamCloseTask(OutputStream outputStream) {
-        Preconditions.checkNotNull(outputStream, "OutputStream is null!");
+    CloseableTask(C closeable) {
+        Preconditions.checkNotNull(closeable, "OutputStream is null!");
 
-        this.outputStream = outputStream;
+        this.closeable = closeable;
     }
 
-    @Override
-    public void write(int b) throws IOException {
-        this.outputStream.write(b);
+    public OutputStream toOutputStream() {
+        return new WrappedOutputStream((OutputStream) this.closeable) {
+            @Override
+            public void close() throws IOException {
+                super.close();
+                CloseableTask.this.close();
+            }
+        };
     }
 
-    @Override
-    public void write(@NotNull byte[] b) throws IOException {
-        this.outputStream.write(b);
-    }
-
-    @Override
-    public void write(@NotNull byte[] b, int off, int len) throws IOException {
-        this.outputStream.write(b, off, len);
-    }
-
-    @Override
-    public void flush() throws IOException {
-        this.outputStream.flush();
+    public InputStream toInputStream() {
+        return new WrappedInputStream((InputStream) this.closeable) {
+            @Override
+            public void close() throws IOException {
+                super.close();
+                CloseableTask.this.close();
+            }
+        };
     }
 
     @Override
     public void close() throws IOException {
         this.call();
-        this.outputStream.close();
+        this.closeable.close();
     }
 
     @Override
     @NotNull
-    public ITask<OutputStream> addListener(ITaskListener<OutputStream> listener) {
+    public ITask<C> addListener(ITaskListener<C> listener) {
         throw new UnsupportedOperationException();
     }
 
     @Override
     @NotNull
-    public ITask<OutputStream> clearListeners() {
+    public ITask<C> clearListeners() {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public Collection<ITaskListener<OutputStream>> getListeners() {
+    public Collection<ITaskListener<C>> getListeners() {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public Callable<OutputStream> getCallable() {
-        return () -> this.outputStream;
+    public Callable<C> getCallable() {
+        return () -> this.closeable;
     }
 
     @Override
-    public OutputStream getDef(OutputStream def) {
+    public C getDef(C def) {
         return this.get();
     }
 
     @Override
-    public OutputStream get(long time, TimeUnit timeUnit, OutputStream def) {
+    public C get(long time, TimeUnit timeUnit, C def) {
         return this.get();
     }
 
     @Override
-    public <T> ITask<T> mapThrowable(ThrowableFunction<OutputStream, T, Throwable> mapper) {
+    public <T> ITask<T> mapThrowable(ThrowableFunction<C, T, Throwable> mapper) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public OutputStream call() {
+    public C call() {
         this.done = true;
 
         synchronized (this) {
@@ -100,7 +102,7 @@ public class OutputStreamCloseTask extends OutputStream implements ITask<OutputS
             }
         }
 
-        return this.outputStream;
+        return this.closeable;
     }
 
     @Override
@@ -119,7 +121,7 @@ public class OutputStreamCloseTask extends OutputStream implements ITask<OutputS
     }
 
     @Override
-    public OutputStream get() {
+    public C get() {
         synchronized (this) {
             if (!this.isDone()) {
                 try {
@@ -130,11 +132,11 @@ public class OutputStreamCloseTask extends OutputStream implements ITask<OutputS
             }
         }
 
-        return this.outputStream;
+        return this.closeable;
     }
 
     @Override
-    public OutputStream get(long timeout, @NotNull TimeUnit unit) {
+    public C get(long timeout, @NotNull TimeUnit unit) {
         return this.get();
     }
 
