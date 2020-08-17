@@ -37,16 +37,6 @@ public abstract class DefaultSyncTemplateStorage implements TemplateStorage {
     }
 
     @Override
-    public @NotNull ITask<Boolean> deployAsync(@NotNull Path[] paths, @NotNull ServiceTemplate target) {
-        return CompletableTask.supplyAsync(() -> this.deploy(paths, target));
-    }
-
-    @Override
-    public @NotNull ITask<Boolean> deployAsync(@NotNull File[] files, @NotNull ServiceTemplate target) {
-        return CompletableTask.supplyAsync(() -> this.deploy(files, target));
-    }
-
-    @Override
     public @NotNull ITask<Boolean> copyAsync(@NotNull ServiceTemplate template, @NotNull File directory) {
         return CompletableTask.supplyAsync(() -> this.copy(template, directory));
     }
@@ -54,16 +44,6 @@ public abstract class DefaultSyncTemplateStorage implements TemplateStorage {
     @Override
     public @NotNull ITask<Boolean> copyAsync(@NotNull ServiceTemplate template, @NotNull Path directory) {
         return CompletableTask.supplyAsync(() -> this.copy(template, directory));
-    }
-
-    @Override
-    public @NotNull ITask<Boolean> copyAsync(@NotNull ServiceTemplate template, @NotNull File[] directories) {
-        return CompletableTask.supplyAsync(() -> this.copy(template, directories));
-    }
-
-    @Override
-    public @NotNull ITask<Boolean> copyAsync(@NotNull ServiceTemplate template, @NotNull Path[] directories) {
-        return CompletableTask.supplyAsync(() -> this.copy(template, directories));
     }
 
     @Override

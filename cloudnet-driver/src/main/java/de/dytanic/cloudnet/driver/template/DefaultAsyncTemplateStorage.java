@@ -40,16 +40,6 @@ public abstract class DefaultAsyncTemplateStorage implements TemplateStorage {
     }
 
     @Override
-    public boolean deploy(@NotNull Path[] paths, @NotNull ServiceTemplate target) {
-        return this.deployAsync(paths, target).get(5, TimeUnit.SECONDS, false);
-    }
-
-    @Override
-    public boolean deploy(@NotNull File[] files, @NotNull ServiceTemplate target) {
-        return this.deployAsync(files, target).get(5, TimeUnit.SECONDS, false);
-    }
-
-    @Override
     public boolean copy(@NotNull ServiceTemplate template, @NotNull File directory) {
         return this.copyAsync(template, directory).get(5, TimeUnit.SECONDS, false);
     }
@@ -57,16 +47,6 @@ public abstract class DefaultAsyncTemplateStorage implements TemplateStorage {
     @Override
     public boolean copy(@NotNull ServiceTemplate template, @NotNull Path directory) {
         return this.copyAsync(template, directory).get(5, TimeUnit.SECONDS, false);
-    }
-
-    @Override
-    public boolean copy(@NotNull ServiceTemplate template, @NotNull File[] directories) {
-        return this.copyAsync(template, directories).get(5, TimeUnit.SECONDS, false);
-    }
-
-    @Override
-    public boolean copy(@NotNull ServiceTemplate template, @NotNull Path[] directories) {
-        return this.copyAsync(template, directories).get(5, TimeUnit.SECONDS, false);
     }
 
     @Override

@@ -90,16 +90,6 @@ public class FTPQueueStorage extends DefaultAsyncTemplateStorage implements Runn
     }
 
     @Override
-    public @NotNull ITask<Boolean> deployAsync(@NotNull Path[] paths, @NotNull ServiceTemplate target) {
-        return this.addTask(new FTPTask<>(() -> this.executingStorage.deploy(paths, target)));
-    }
-
-    @Override
-    public @NotNull ITask<Boolean> deployAsync(@NotNull File[] files, @NotNull ServiceTemplate target) {
-        return this.addTask(new FTPTask<>(() -> this.executingStorage.deploy(files, target)));
-    }
-
-    @Override
     public @NotNull ITask<Boolean> copyAsync(@NotNull ServiceTemplate template, @NotNull File directory) {
         return this.addTask(new FTPTask<>(() -> this.executingStorage.copy(template, directory)));
     }
@@ -107,16 +97,6 @@ public class FTPQueueStorage extends DefaultAsyncTemplateStorage implements Runn
     @Override
     public @NotNull ITask<Boolean> copyAsync(@NotNull ServiceTemplate template, @NotNull Path directory) {
         return this.addTask(new FTPTask<>(() -> this.executingStorage.copy(template, directory)));
-    }
-
-    @Override
-    public @NotNull ITask<Boolean> copyAsync(@NotNull ServiceTemplate template, @NotNull File[] directories) {
-        return this.addTask(new FTPTask<>(() -> this.executingStorage.copy(template, directories)));
-    }
-
-    @Override
-    public @NotNull ITask<Boolean> copyAsync(@NotNull ServiceTemplate template, @NotNull Path[] directories) {
-        return this.addTask(new FTPTask<>(() -> this.executingStorage.copy(template, directories)));
     }
 
     @Override

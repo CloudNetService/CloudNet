@@ -70,16 +70,6 @@ public class DefaultSpecificTemplateStorage implements SpecificTemplateStorage {
     }
 
     @Override
-    public boolean deploy(@NotNull Path[] paths) {
-        return this.storage.deploy(paths, this.template);
-    }
-
-    @Override
-    public boolean deploy(@NotNull File[] files) {
-        return this.storage.deploy(files, this.template);
-    }
-
-    @Override
     public boolean copy(@NotNull File directory) {
         return this.storage.copy(this.template, directory);
     }
@@ -87,16 +77,6 @@ public class DefaultSpecificTemplateStorage implements SpecificTemplateStorage {
     @Override
     public boolean copy(@NotNull Path directory) {
         return this.storage.copy(this.template, directory);
-    }
-
-    @Override
-    public boolean copy(@NotNull File[] directories) {
-        return this.storage.copy(this.template, directories);
-    }
-
-    @Override
-    public boolean copy(@NotNull Path[] directories) {
-        return this.storage.copy(this.template, directories);
     }
 
     @Override
@@ -195,16 +175,6 @@ public class DefaultSpecificTemplateStorage implements SpecificTemplateStorage {
     }
 
     @Override
-    public @NotNull ITask<Boolean> deployAsync(@NotNull Path[] paths) {
-        return this.storage.deployAsync(paths, this.template);
-    }
-
-    @Override
-    public @NotNull ITask<Boolean> deployAsync(@NotNull File[] files) {
-        return this.storage.deployAsync(files, this.template);
-    }
-
-    @Override
     public @NotNull ITask<Boolean> copyAsync(@NotNull File directory) {
         return this.storage.deployAsync(directory, this.template);
     }
@@ -212,16 +182,6 @@ public class DefaultSpecificTemplateStorage implements SpecificTemplateStorage {
     @Override
     public @NotNull ITask<Boolean> copyAsync(@NotNull Path directory) {
         return this.storage.copyAsync(this.template, directory);
-    }
-
-    @Override
-    public @NotNull ITask<Boolean> copyAsync(@NotNull File[] directories) {
-        return this.storage.copyAsync(this.template, directories);
-    }
-
-    @Override
-    public @NotNull ITask<Boolean> copyAsync(@NotNull Path[] directories) {
-        return this.storage.copyAsync(this.template, directories);
     }
 
     @Override

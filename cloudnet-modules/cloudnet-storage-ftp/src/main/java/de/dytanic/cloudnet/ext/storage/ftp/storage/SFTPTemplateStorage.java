@@ -2,7 +2,6 @@ package de.dytanic.cloudnet.ext.storage.ftp.storage;
 
 import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.SftpATTRS;
-import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import de.dytanic.cloudnet.driver.template.FileInfo;
 import de.dytanic.cloudnet.ext.storage.ftp.client.FTPCredentials;
@@ -14,7 +13,10 @@ import org.jetbrains.annotations.Nullable;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.UUID;
 import java.util.function.Predicate;
 import java.util.zip.ZipInputStream;
 
@@ -72,21 +74,6 @@ public class SFTPTemplateStorage extends AbstractFTPStorage {
     }
 
     @Override
-    public boolean deploy(@NotNull Path[] paths, @NotNull ServiceTemplate target) {
-        for (Path path : paths) {
-            if (!this.ftpClient.uploadFile(path, this.getPath(target) + "/" + path.toString().replace(File.separatorChar, '/'))) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    @Override
-    public boolean deploy(@NotNull File[] files, @NotNull ServiceTemplate target) {
-        return this.deploy(Arrays.stream(files).map(File::toPath).toArray(Path[]::new), target);
-    }
-
-    @Override
     public boolean copy(@NotNull ServiceTemplate template, @NotNull File directory) {
         directory.mkdirs();
         return this.ftpClient.downloadDirectory(this.getPath(template), directory.toString());
@@ -100,36 +87,6 @@ public class SFTPTemplateStorage extends AbstractFTPStorage {
             exception.printStackTrace();
         }
         return this.ftpClient.downloadDirectory(this.getPath(template), directory.toString());
-    }
-
-    @Override
-    public boolean copy(@NotNull ServiceTemplate template, @NotNull File[] directories) {
-        Path tempDirectory = Paths.get(System.getProperty("cloudnet.tempDir.ftpCache", "temp/ftpCache"));
-        try {
-            Files.createDirectories(tempDirectory);
-        } catch (IOException exception) {
-            exception.printStackTrace();
-        }
-        if (!this.ftpClient.downloadDirectory(this.getPath(template), tempDirectory.toString())) {
-            FileUtils.delete(tempDirectory.toFile());
-            return false;
-        }
-        for (File directory : directories) {
-            try {
-                FileUtils.copyFilesToDirectory(tempDirectory.toFile(), directory);
-            } catch (IOException exception) {
-                exception.printStackTrace();
-                FileUtils.delete(tempDirectory.toFile());
-                return false;
-            }
-        }
-        FileUtils.delete(tempDirectory.toFile());
-        return true;
-    }
-
-    @Override
-    public boolean copy(@NotNull ServiceTemplate template, @NotNull Path[] directories) {
-        return this.copy(template, Arrays.stream(directories).map(Path::toFile).toArray(File[]::new));
     }
 
     @Override

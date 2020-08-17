@@ -14,7 +14,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.UUID;
 import java.util.function.Predicate;
 import java.util.zip.ZipInputStream;
 
@@ -77,43 +80,6 @@ public final class LocalTemplateStorage extends DefaultSyncTemplateStorage {
     }
 
     @Override
-    public boolean deploy(@NotNull Path[] paths, @NotNull ServiceTemplate target) {
-        Preconditions.checkNotNull(paths);
-        Preconditions.checkNotNull(target);
-
-        return this.deploy(Arrays.stream(paths).map(Path::toFile).toArray(File[]::new), target);
-    }
-
-    @Override
-    public boolean deploy(@NotNull File[] files, @NotNull ServiceTemplate target) {
-        Preconditions.checkNotNull(files);
-        Preconditions.checkNotNull(target);
-
-        byte[] buffer = new byte[32768];
-
-        File templateDirectory = new File(this.storageDirectory, target.getTemplatePath());
-
-        boolean value = true;
-
-        for (File entry : files) {
-            try {
-                if (entry.isDirectory()) {
-                    FileUtils.copyFilesToDirectory(entry, new File(templateDirectory, entry.getName()), buffer);
-                } else {
-                    FileUtils.copy(entry, new File(templateDirectory, entry.getName()), buffer);
-                }
-
-            } catch (Exception ex) {
-                ex.printStackTrace();
-
-                value = false;
-            }
-        }
-
-        return value;
-    }
-
-    @Override
     public boolean copy(@NotNull ServiceTemplate template, @NotNull File directory) {
         Preconditions.checkNotNull(template);
         Preconditions.checkNotNull(directory);
@@ -138,34 +104,6 @@ public final class LocalTemplateStorage extends DefaultSyncTemplateStorage {
         Preconditions.checkNotNull(directory);
 
         return this.copy(template, directory.toFile());
-    }
-
-    @Override
-    public boolean copy(@NotNull ServiceTemplate template, @NotNull File[] directories) {
-        Preconditions.checkNotNull(directories);
-        boolean value = true;
-
-        for (File directory : directories) {
-            if (!this.copy(template, directory)) {
-                value = false;
-            }
-        }
-
-        return value;
-    }
-
-    @Override
-    public boolean copy(@NotNull ServiceTemplate template, @NotNull Path[] directories) {
-        Preconditions.checkNotNull(directories);
-        boolean value = true;
-
-        for (Path path : directories) {
-            if (!this.copy(template, path)) {
-                value = false;
-            }
-        }
-
-        return value;
     }
 
     @Override

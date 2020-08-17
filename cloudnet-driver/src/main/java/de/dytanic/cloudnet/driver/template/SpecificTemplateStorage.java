@@ -83,16 +83,6 @@ public interface SpecificTemplateStorage extends INameable {
     boolean deploy(@NotNull InputStream inputStream);
 
     /**
-     * @see TemplateStorage#deploy(Path[], ServiceTemplate)
-     */
-    boolean deploy(@NotNull Path[] paths);
-
-    /**
-     * @see TemplateStorage#deploy(File[], ServiceTemplate)
-     */
-    boolean deploy(@NotNull File[] files);
-
-    /**
      * @see TemplateStorage#copy(ServiceTemplate, File)
      */
     boolean copy(@NotNull File directory);
@@ -101,16 +91,6 @@ public interface SpecificTemplateStorage extends INameable {
      * @see TemplateStorage#copy(ServiceTemplate, Path)
      */
     boolean copy(@NotNull Path directory);
-
-    /**
-     * @see TemplateStorage#copy(ServiceTemplate, File[])
-     */
-    boolean copy(@NotNull File[] directories);
-
-    /**
-     * @see TemplateStorage#copy(ServiceTemplate, Path[])
-     */
-    boolean copy(@NotNull Path[] directories);
 
     /**
      * @see TemplateStorage#toZipByteArray(ServiceTemplate)
@@ -248,18 +228,6 @@ public interface SpecificTemplateStorage extends INameable {
     ITask<Boolean> deployAsync(@NotNull InputStream inputStream);
 
     /**
-     * @see TemplateStorage#deployAsync(Path[], ServiceTemplate)
-     */
-    @NotNull
-    ITask<Boolean> deployAsync(@NotNull Path[] paths);
-
-    /**
-     * @see TemplateStorage#deployAsync(File[], ServiceTemplate)
-     */
-    @NotNull
-    ITask<Boolean> deployAsync(@NotNull File[] files);
-
-    /**
      * @see TemplateStorage#copyAsync(ServiceTemplate, File)
      */
     @NotNull
@@ -270,18 +238,6 @@ public interface SpecificTemplateStorage extends INameable {
      */
     @NotNull
     ITask<Boolean> copyAsync(@NotNull Path directory);
-
-    /**
-     * @see TemplateStorage#copyAsync(ServiceTemplate, File[])
-     */
-    @NotNull
-    ITask<Boolean> copyAsync(@NotNull File[] directories);
-
-    /**
-     * @see TemplateStorage#copyAsync(ServiceTemplate, Path[])
-     */
-    @NotNull
-    ITask<Boolean> copyAsync(@NotNull Path[] directories);
 
     /**
      * @see TemplateStorage#toZipByteArrayAsync(ServiceTemplate)

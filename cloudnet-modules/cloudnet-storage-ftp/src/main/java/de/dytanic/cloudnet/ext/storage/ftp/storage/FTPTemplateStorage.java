@@ -19,7 +19,6 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.UUID;
 import java.util.function.Predicate;
@@ -155,19 +154,6 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
         return false;
     }
 
-    @Override
-    public boolean deploy(@NotNull Path[] paths, @NotNull ServiceTemplate target) {
-        Preconditions.checkNotNull(paths);
-        Preconditions.checkNotNull(target);
-
-        return this.deploy(Arrays.stream(paths).map(Path::toFile).toArray(File[]::new), target);
-    }
-
-    @Override
-    public boolean deploy(@NotNull File[] files, @NotNull ServiceTemplate target) {
-        return this.deploy(files, target, null);
-    }
-
     private boolean deploy(File[] files, ServiceTemplate target, Predicate<File> fileFilter) {
         Preconditions.checkNotNull(files);
         Preconditions.checkNotNull(target);
@@ -271,30 +257,6 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
         Preconditions.checkNotNull(directory);
 
         return this.copy(template, directory.toFile());
-    }
-
-    @Override
-    public boolean copy(@NotNull ServiceTemplate template, @NotNull File[] directories) {
-        Preconditions.checkNotNull(template);
-        Preconditions.checkNotNull(directories);
-
-        boolean value = true;
-
-        for (File dir : directories) {
-            if (!this.copy(template, dir)) {
-                value = false;
-            }
-        }
-
-        return value;
-    }
-
-    @Override
-    public boolean copy(@NotNull ServiceTemplate template, @NotNull Path[] directories) {
-        Preconditions.checkNotNull(template);
-        Preconditions.checkNotNull(directories);
-
-        return this.copy(template, Arrays.stream(directories).map(Path::toFile).toArray(File[]::new));
     }
 
     @Override

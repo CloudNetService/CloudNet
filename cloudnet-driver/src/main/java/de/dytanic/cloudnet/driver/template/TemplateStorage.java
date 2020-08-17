@@ -64,24 +64,6 @@ public interface TemplateStorage extends AutoCloseable, INameable {
     boolean deploy(@NotNull InputStream inputStream, @NotNull ServiceTemplate target);
 
     /**
-     * Copies the given directory into the given template.
-     *
-     * @param paths  the directories to be deployed
-     * @param target the template to be deployed to
-     * @return whether it was copied successfully
-     */
-    boolean deploy(@NotNull Path[] paths, @NotNull ServiceTemplate target);
-
-    /**
-     * Copies the given directory into the given template.
-     *
-     * @param files  the directories to be deployed
-     * @param target the template to be deployed to
-     * @return whether it was copied successfully
-     */
-    boolean deploy(@NotNull File[] files, @NotNull ServiceTemplate target);
-
-    /**
      * Copies the given template into the given directory
      *
      * @param template  the template to copy the files from
@@ -98,24 +80,6 @@ public interface TemplateStorage extends AutoCloseable, INameable {
      * @return whether it was copied successfully
      */
     boolean copy(@NotNull ServiceTemplate template, @NotNull Path directory);
-
-    /**
-     * Copies the given template into the given directories
-     *
-     * @param template    the template to copy the files from
-     * @param directories the target directories to copy the files to
-     * @return whether it was copied successfully
-     */
-    boolean copy(@NotNull ServiceTemplate template, @NotNull File[] directories);
-
-    /**
-     * Copies the given template into the given directories
-     *
-     * @param template    the template to copy the files from
-     * @param directories the target directories to copy the files to
-     * @return whether it was copied successfully
-     */
-    boolean copy(@NotNull ServiceTemplate template, @NotNull Path[] directories);
 
     /**
      * Zips a template into a byte array.
@@ -390,26 +354,6 @@ public interface TemplateStorage extends AutoCloseable, INameable {
     ITask<Boolean> deployAsync(@NotNull InputStream inputStream, @NotNull ServiceTemplate target);
 
     /**
-     * Copies the given directory into the given template.
-     *
-     * @param paths  the directories to be deployed
-     * @param target the template to be deployed to
-     * @return whether it was copied successfully
-     */
-    @NotNull
-    ITask<Boolean> deployAsync(@NotNull Path[] paths, @NotNull ServiceTemplate target);
-
-    /**
-     * Copies the given directory into the given template.
-     *
-     * @param files  the directories to be deployed
-     * @param target the template to be deployed to
-     * @return whether it was copied successfully
-     */
-    @NotNull
-    ITask<Boolean> deployAsync(@NotNull File[] files, @NotNull ServiceTemplate target);
-
-    /**
      * Copies the given template into the given directory
      *
      * @param template  the template to copy the files from
@@ -428,26 +372,6 @@ public interface TemplateStorage extends AutoCloseable, INameable {
      */
     @NotNull
     ITask<Boolean> copyAsync(@NotNull ServiceTemplate template, @NotNull Path directory);
-
-    /**
-     * Copies the given template into the given directories
-     *
-     * @param template    the template to copy the files from
-     * @param directories the target directories to copy the files to
-     * @return whether it was copied successfully
-     */
-    @NotNull
-    ITask<Boolean> copyAsync(@NotNull ServiceTemplate template, @NotNull File[] directories);
-
-    /**
-     * Copies the given template into the given directories
-     *
-     * @param template    the template to copy the files from
-     * @param directories the target directories to copy the files to
-     * @return whether it was copied successfully
-     */
-    @NotNull
-    ITask<Boolean> copyAsync(@NotNull ServiceTemplate template, @NotNull Path[] directories);
 
     /**
      * Zips a template into a byte array.
