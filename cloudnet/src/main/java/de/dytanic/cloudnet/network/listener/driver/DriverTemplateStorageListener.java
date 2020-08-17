@@ -2,7 +2,7 @@ package de.dytanic.cloudnet.network.listener.driver;
 
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.INameable;
-import de.dytanic.cloudnet.common.concurrent.ThrowableFunction;
+import de.dytanic.cloudnet.common.concurrent.function.ThrowableFunction;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.api.DriverAPICategory;
 import de.dytanic.cloudnet.driver.api.DriverAPIRequestType;

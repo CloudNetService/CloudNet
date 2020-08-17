@@ -1,7 +1,7 @@
 package de.dytanic.cloudnet.driver.api;
 
 import de.dytanic.cloudnet.common.concurrent.ITask;
-import de.dytanic.cloudnet.common.concurrent.ThrowableFunction;
+import de.dytanic.cloudnet.common.concurrent.function.ThrowableFunction;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.def.packet.PacketClientDriverAPI;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;

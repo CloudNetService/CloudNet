@@ -4,7 +4,7 @@ package de.dytanic.cloudnet.ext.storage.ftp.storage.queue;
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.concurrent.ITaskListener;
-import de.dytanic.cloudnet.common.concurrent.ThrowableFunction;
+import de.dytanic.cloudnet.common.concurrent.function.ThrowableFunction;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;

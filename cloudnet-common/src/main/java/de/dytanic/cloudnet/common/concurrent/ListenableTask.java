@@ -1,6 +1,7 @@
 package de.dytanic.cloudnet.common.concurrent;
 
 import com.google.common.base.Preconditions;
+import de.dytanic.cloudnet.common.concurrent.function.ThrowableFunction;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;

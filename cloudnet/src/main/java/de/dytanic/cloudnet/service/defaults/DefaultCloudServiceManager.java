@@ -2,7 +2,7 @@ package de.dytanic.cloudnet.service.defaults;
 
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.CloudNet;
-import de.dytanic.cloudnet.common.concurrent.ThrowableConsumer;
+import de.dytanic.cloudnet.common.concurrent.function.ThrowableConsumer;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.network.def.packet.PacketClientServerServiceInfoPublisher;

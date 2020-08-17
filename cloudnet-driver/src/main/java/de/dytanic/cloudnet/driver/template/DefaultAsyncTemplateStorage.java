@@ -1,20 +1,23 @@
 package de.dytanic.cloudnet.driver.template;
 
+import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.function.Predicate;
 import java.util.zip.ZipInputStream;
 
-// TODO IOExceptions out of the tasks should be thrown if present
 public abstract class DefaultAsyncTemplateStorage implements TemplateStorage {
     @Override
     public boolean deploy(@NotNull byte[] zipInput, @NotNull ServiceTemplate target) {
@@ -72,13 +75,13 @@ public abstract class DefaultAsyncTemplateStorage implements TemplateStorage {
     }
 
     @Override
-    public @Nullable ZipInputStream asZipInputStream(@NotNull ServiceTemplate template) {
-        return this.asZipInputStreamAsync(template).get(5, TimeUnit.SECONDS, null);
+    public @Nullable ZipInputStream asZipInputStream(@NotNull ServiceTemplate template) throws IOException {
+        return this.catchIOException(this.asZipInputStreamAsync(template), null);
     }
 
     @Override
-    public @Nullable InputStream zipTemplate(@NotNull ServiceTemplate template) {
-        return this.zipTemplateAsync(template).get(5, TimeUnit.SECONDS, null);
+    public @Nullable InputStream zipTemplate(@NotNull ServiceTemplate template) throws IOException {
+        return this.catchIOException(this.zipTemplateAsync(template), null);
     }
 
     @Override
@@ -97,53 +100,53 @@ public abstract class DefaultAsyncTemplateStorage implements TemplateStorage {
     }
 
     @Override
-    public @Nullable OutputStream appendOutputStream(@NotNull ServiceTemplate template, @NotNull String path) {
-        return this.appendOutputStreamAsync(template, path).get(5, TimeUnit.SECONDS, null);
+    public @Nullable OutputStream appendOutputStream(@NotNull ServiceTemplate template, @NotNull String path) throws IOException {
+        return this.catchIOException(this.appendOutputStreamAsync(template, path), null);
     }
 
     @Override
-    public @Nullable OutputStream newOutputStream(@NotNull ServiceTemplate template, @NotNull String path) {
-        return this.newOutputStreamAsync(template, path).get(5, TimeUnit.SECONDS, null);
+    public @Nullable OutputStream newOutputStream(@NotNull ServiceTemplate template, @NotNull String path) throws IOException {
+        return this.catchIOException(this.newOutputStreamAsync(template, path), null);
     }
 
     @Override
-    public boolean createFile(@NotNull ServiceTemplate template, @NotNull String path) {
-        return this.createFileAsync(template, path).get(5, TimeUnit.SECONDS, false);
+    public boolean createFile(@NotNull ServiceTemplate template, @NotNull String path) throws IOException {
+        return this.catchIOException(this.createFileAsync(template, path), false);
     }
 
     @Override
-    public boolean createDirectory(@NotNull ServiceTemplate template, @NotNull String path) {
-        return this.createDirectoryAsync(template, path).get(5, TimeUnit.SECONDS, false);
+    public boolean createDirectory(@NotNull ServiceTemplate template, @NotNull String path) throws IOException {
+        return this.catchIOException(this.createDirectoryAsync(template, path), false);
     }
 
     @Override
-    public boolean hasFile(@NotNull ServiceTemplate template, @NotNull String path) {
-        return this.hasFileAsync(template, path).get(5, TimeUnit.SECONDS, false);
+    public boolean hasFile(@NotNull ServiceTemplate template, @NotNull String path) throws IOException {
+        return this.catchIOException(this.hasFileAsync(template, path), false);
     }
 
     @Override
-    public boolean deleteFile(@NotNull ServiceTemplate template, @NotNull String path) {
-        return this.deleteFileAsync(template, path).get(5, TimeUnit.SECONDS, false);
+    public boolean deleteFile(@NotNull ServiceTemplate template, @NotNull String path) throws IOException {
+        return this.catchIOException(this.deleteFileAsync(template, path), false);
     }
 
     @Override
-    public @Nullable InputStream newInputStream(@NotNull ServiceTemplate template, @NotNull String path) {
-        return this.newInputStreamAsync(template, path).get(5, TimeUnit.SECONDS, null);
+    public @Nullable InputStream newInputStream(@NotNull ServiceTemplate template, @NotNull String path) throws IOException {
+        return this.catchIOException(this.newInputStreamAsync(template, path), null);
     }
 
     @Override
-    public @Nullable FileInfo getFileInfo(@NotNull ServiceTemplate template, @NotNull String path) {
-        return this.getFileInfoAsync(template, path).get(5, TimeUnit.SECONDS, null);
+    public @Nullable FileInfo getFileInfo(@NotNull ServiceTemplate template, @NotNull String path) throws IOException {
+        return this.catchIOException(this.getFileInfoAsync(template, path), null);
     }
 
     @Override
-    public FileInfo[] listFiles(@NotNull ServiceTemplate template, @NotNull String dir, boolean deep) {
-        return this.listFilesAsync(template, dir, deep).get(5, TimeUnit.SECONDS, new FileInfo[0]);
+    public FileInfo[] listFiles(@NotNull ServiceTemplate template, @NotNull String dir, boolean deep) throws IOException {
+        return this.catchIOException(this.listFilesAsync(template, dir, deep), null);
     }
 
     @Override
-    public FileInfo[] listFiles(@NotNull ServiceTemplate template, boolean deep) {
-        return this.listFilesAsync(template, deep).get(5, TimeUnit.SECONDS, new FileInfo[0]);
+    public FileInfo[] listFiles(@NotNull ServiceTemplate template, boolean deep) throws IOException {
+        return this.catchIOException(this.listFilesAsync(template, deep), null);
     }
 
     @Override
@@ -152,8 +155,22 @@ public abstract class DefaultAsyncTemplateStorage implements TemplateStorage {
     }
 
     @Override
-    public void close() {
-        this.closeAsync().get(5, TimeUnit.SECONDS, null);
+    public void close() throws IOException {
+        this.catchIOException(this.closeAsync(), null);
+    }
+
+    private <V> V catchIOException(ITask<V> task, V def) throws IOException {
+        try {
+            return task.get(5, TimeUnit.SECONDS);
+        } catch (InterruptedException | TimeoutException exception) {
+            exception.printStackTrace();
+            return def;
+        } catch (ExecutionException exception) {
+            if (exception.getCause() instanceof IOException) {
+                throw (IOException) exception.getCause();
+            }
+        }
+        return def;
     }
 
 }

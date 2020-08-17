@@ -1,5 +1,6 @@
 package de.dytanic.cloudnet.common.concurrent;
 
+import de.dytanic.cloudnet.common.concurrent.function.ThrowableFunction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

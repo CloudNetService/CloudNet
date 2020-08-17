@@ -1,5 +1,7 @@
 package de.dytanic.cloudnet.common.concurrent;
 
+import de.dytanic.cloudnet.common.concurrent.function.ThrowableFunction;
+import de.dytanic.cloudnet.common.concurrent.function.ThrowableSupplier;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -8,17 +10,36 @@ import java.util.concurrent.*;
 
 public class CompletableTask<V> implements ITask<V> {
 
+    private static final ExecutorService SERVICE = Executors.newCachedThreadPool();
+
     private final Collection<ITaskListener<V>> listeners = new ArrayList<>();
 
-    private final CompletableFuture<V> future = new CompletableFuture<>();
+    private final CompletableFuture<V> future;
 
     private Throwable throwable;
 
-    {
+    public CompletableTask() {
+        this(new CompletableFuture<>());
+    }
+
+    private CompletableTask(CompletableFuture<V> future) {
+        this.future = future;
         this.future.exceptionally(throwable -> {
             this.throwable = throwable;
             return null;
         });
+    }
+
+    public static <V> CompletableTask<V> supplyAsync(ThrowableSupplier<V, Throwable> supplier) {
+        CompletableTask<V> task = new CompletableTask<>();
+        SERVICE.execute(() -> {
+            try {
+                task.complete(supplier.get());
+            } catch (Throwable throwable) {
+                task.fail(throwable);
+            }
+        });
+        return task;
     }
 
     @Override
