@@ -343,7 +343,6 @@ public class DefaultProtocolBuffer extends ProtocolBuffer {
         return this;
     }
 
-    // TODO not tested
     @Override
     public ProtocolBuffer writeThrowable(Throwable throwable) {
         try (ByteBufOutputStream outputStream = new ByteBufOutputStream(this);
