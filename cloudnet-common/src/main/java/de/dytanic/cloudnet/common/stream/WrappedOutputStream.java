@@ -15,26 +15,26 @@ public class WrappedOutputStream extends OutputStream {
 
     @Override
     public void write(int b) throws IOException {
-        wrapped.write(b);
+        this.wrapped.write(b);
     }
 
     @Override
     public void write(@NotNull byte[] b) throws IOException {
-        wrapped.write(b);
+        this.wrapped.write(b);
     }
 
     @Override
     public void write(@NotNull byte[] b, int off, int len) throws IOException {
-        wrapped.write(b, off, len);
+        this.wrapped.write(b, off, len);
     }
 
     @Override
     public void flush() throws IOException {
-        wrapped.flush();
+        this.wrapped.flush();
     }
 
     @Override
     public void close() throws IOException {
-        wrapped.close();
+        this.wrapped.close();
     }
 }

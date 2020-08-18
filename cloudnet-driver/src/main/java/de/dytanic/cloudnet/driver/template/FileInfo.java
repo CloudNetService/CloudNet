@@ -37,6 +37,9 @@ public class FileInfo implements SerializableObject {
         this.size = size;
     }
 
+    public FileInfo() {
+    }
+
     @NotNull
     public static FileInfo of(@NotNull Path path) throws IOException {
         return of(path, (Path) null);

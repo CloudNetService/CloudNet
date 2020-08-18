@@ -15,41 +15,46 @@ public class WrappedInputStream extends InputStream {
 
     @Override
     public int read() throws IOException {
-        return wrapped.read();
+        return this.wrapped.read();
     }
 
     @Override
     public int read(@NotNull byte[] b) throws IOException {
-        return wrapped.read(b);
+        return this.wrapped.read(b);
     }
 
     @Override
     public int read(@NotNull byte[] b, int off, int len) throws IOException {
-        return wrapped.read(b, off, len);
+        return this.wrapped.read(b, off, len);
     }
 
     @Override
     public long skip(long n) throws IOException {
-        return wrapped.skip(n);
+        return this.wrapped.skip(n);
     }
 
     @Override
     public int available() throws IOException {
-        return wrapped.available();
+        return this.wrapped.available();
     }
 
     @Override
     public void close() throws IOException {
-        wrapped.close();
+        this.wrapped.close();
     }
 
     @Override
-    public void mark(int readlimit) {
-        wrapped.mark(readlimit);
+    public boolean markSupported() {
+        return this.wrapped.markSupported();
     }
 
     @Override
-    public void reset() throws IOException {
-        wrapped.reset();
+    public synchronized void mark(int readlimit) {
+        this.wrapped.mark(readlimit);
+    }
+
+    @Override
+    public synchronized void reset() throws IOException {
+        this.wrapped.reset();
     }
 }

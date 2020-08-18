@@ -13,12 +13,6 @@ import de.dytanic.cloudnet.template.ClusterSynchronizedTemplateStorage;
 
 public class PacketServerSyncTemplateStorageListener implements IPacketListener {
 
-    private final boolean redirectToCluster;
-
-    public PacketServerSyncTemplateStorageListener(boolean redirectToCluster) {
-        this.redirectToCluster = redirectToCluster;
-    }
-
     @Override
     public void handle(INetworkChannel channel, IPacket packet) throws Exception {
         ProtocolBuffer buffer = packet.getBuffer();
@@ -36,51 +30,27 @@ public class PacketServerSyncTemplateStorageListener implements IPacketListener 
 
         switch (requestType) {
             case DEPLOY_TEMPLATE_BYTE_ARRAY:
-                if (this.redirectToCluster) {
-                    storage.deploy(buffer.readArray(), template);
-                } else {
-                    storage.deployWithoutSynchronization(buffer.readArray(), template);
-                }
+                storage.deployWithoutSynchronization(buffer.readArray(), template);
                 break;
 
             case DELETE_TEMPLATE:
-                if (this.redirectToCluster) {
-                    storage.delete(template);
-                } else {
-                    storage.deleteWithoutSynchronization(template);
-                }
+                storage.deleteWithoutSynchronization(template);
                 break;
 
             case CREATE_TEMPLATE:
-                if (this.redirectToCluster) {
-                    storage.create(template);
-                } else {
-                    storage.createWithoutSynchronization(template);
-                }
+                storage.createWithoutSynchronization(template);
                 break;
 
             case CREATE_FILE:
-                if (this.redirectToCluster) {
-                    storage.createFile(template, buffer.readString());
-                } else {
-                    storage.createFileWithoutSynchronization(template, buffer.readString());
-                }
+                storage.createFileWithoutSynchronization(template, buffer.readString());
                 break;
 
             case CREATE_DIRECTORY:
-                if (this.redirectToCluster) {
-                    storage.createDirectory(template, buffer.readString());
-                } else {
-                    storage.createDirectoryWithoutSynchronization(template, buffer.readString());
-                }
+                storage.createDirectoryWithoutSynchronization(template, buffer.readString());
                 break;
 
             case DELETE_FILE:
-                if (this.redirectToCluster) {
-                    storage.deleteFile(template, buffer.readString());
-                } else {
-                    storage.deleteFileWithoutSynchronization(template, buffer.readString());
-                }
+                storage.deleteFileWithoutSynchronization(template, buffer.readString());
                 break;
 
             default:

@@ -221,6 +221,8 @@ public final class LocalTemplateStorage extends ClusterSynchronizedTemplateStora
                     return FileVisitResult.CONTINUE;
                 }
             });
+        } else {
+            Files.delete(file);
         }
         return true;
     }
@@ -242,7 +244,7 @@ public final class LocalTemplateStorage extends ClusterSynchronizedTemplateStora
     @Override
     public @Nullable FileInfo getFileInfo(@NotNull ServiceTemplate template, @NotNull String path) throws IOException {
         Path file = this.storageDirectory.toPath().resolve(template.getTemplatePath()).resolve(path);
-        return Files.exists(file) ? FileInfo.of(file) : null;
+        return Files.exists(file) ? FileInfo.of(file, Paths.get(path)) : null;
     }
 
     @Override

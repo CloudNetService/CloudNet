@@ -221,7 +221,7 @@ public class RemoteTemplateStorage extends DefaultAsyncTemplateStorage implement
         return this.executeDriverAPIMethod(
                 DriverAPIRequestType.GET_FILE_INFO,
                 buffer -> this.writeDefaults(buffer, template).writeString(path),
-                packet -> packet.getBuffer().readOptionalObject(FileInfo.class)
+                packet -> this.readDefaults(packet).getBuffer().readOptionalObject(FileInfo.class)
         );
     }
 
@@ -230,7 +230,7 @@ public class RemoteTemplateStorage extends DefaultAsyncTemplateStorage implement
         return this.executeDriverAPIMethod(
                 DriverAPIRequestType.LIST_FILES,
                 buffer -> this.writeDefaults(buffer, template).writeString(dir).writeBoolean(deep),
-                packet -> packet.getBuffer().readBoolean() ? packet.getBuffer().readObjectArray(FileInfo.class) : null
+                packet -> this.readDefaults(packet).getBuffer().readBoolean() ? packet.getBuffer().readObjectArray(FileInfo.class) : null
         );
     }
 
@@ -238,6 +238,7 @@ public class RemoteTemplateStorage extends DefaultAsyncTemplateStorage implement
     public @NotNull ITask<Collection<ServiceTemplate>> getTemplatesAsync() {
         return this.executeDriverAPIMethod(
                 DriverAPIRequestType.GET_TEMPLATES,
+                this::writeDefaults,
                 packet -> packet.getBuffer().readObjectCollection(ServiceTemplate.class)
         );
     }

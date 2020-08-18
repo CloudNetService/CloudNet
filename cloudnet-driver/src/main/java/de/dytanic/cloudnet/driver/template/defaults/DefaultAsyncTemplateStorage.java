@@ -23,32 +23,32 @@ import java.util.zip.ZipInputStream;
 public abstract class DefaultAsyncTemplateStorage implements TemplateStorage {
     @Override
     public boolean deploy(@NotNull byte[] zipInput, @NotNull ServiceTemplate target) {
-        return this.deployAsync(zipInput, target).get(5, TimeUnit.SECONDS, false);
+        return this.deployAsync(zipInput, target).get(20, TimeUnit.SECONDS, false);
     }
 
     @Override
     public boolean deploy(@NotNull File directory, @NotNull ServiceTemplate target, @Nullable Predicate<File> fileFilter) {
-        return this.deployAsync(directory, target, fileFilter).get(5, TimeUnit.SECONDS, false);
+        return this.deployAsync(directory, target, fileFilter).get(20, TimeUnit.SECONDS, false);
     }
 
     @Override
     public boolean deploy(@NotNull File directory, @NotNull ServiceTemplate target) {
-        return this.deployAsync(directory, target).get(5, TimeUnit.SECONDS, false);
+        return this.deployAsync(directory, target).get(20, TimeUnit.SECONDS, false);
     }
 
     @Override
     public boolean deploy(@NotNull InputStream inputStream, @NotNull ServiceTemplate target) {
-        return this.deployAsync(inputStream, target).get(5, TimeUnit.SECONDS, false);
+        return this.deployAsync(inputStream, target).get(20, TimeUnit.SECONDS, false);
     }
 
     @Override
     public boolean copy(@NotNull ServiceTemplate template, @NotNull File directory) {
-        return this.copyAsync(template, directory).get(5, TimeUnit.SECONDS, false);
+        return this.copyAsync(template, directory).get(20, TimeUnit.SECONDS, false);
     }
 
     @Override
     public boolean copy(@NotNull ServiceTemplate template, @NotNull Path directory) {
-        return this.copyAsync(template, directory).get(5, TimeUnit.SECONDS, false);
+        return this.copyAsync(template, directory).get(20, TimeUnit.SECONDS, false);
     }
 
     @Override
@@ -143,7 +143,7 @@ public abstract class DefaultAsyncTemplateStorage implements TemplateStorage {
 
     private <V> V catchIOException(ITask<V> task, V def) throws IOException {
         try {
-            return task.get(5, TimeUnit.SECONDS);
+            return task.get(20, TimeUnit.SECONDS);
         } catch (InterruptedException | TimeoutException exception) {
             exception.printStackTrace();
             return def;
