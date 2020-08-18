@@ -30,6 +30,19 @@ public final class DefaultClusterNodeServerProvider implements IClusterNodeServe
         return this.servers.values();
     }
 
+    @Override
+    public Collection<INetworkChannel> getConnectedChannels() {
+        return this.getNodeServers().stream()
+                .map(IClusterNodeServer::getChannel)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public boolean hasAnyConnection() {
+        return !this.servers.isEmpty() && this.servers.values().stream().anyMatch(IClusterNodeServer::isConnected);
+    }
+
     @Nullable
     @Override
     public IClusterNodeServer getNodeServer(@NotNull String uniqueId) {

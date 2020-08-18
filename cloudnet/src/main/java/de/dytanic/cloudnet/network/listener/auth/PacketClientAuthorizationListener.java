@@ -21,7 +21,6 @@ import de.dytanic.cloudnet.network.ClusterUtils;
 import de.dytanic.cloudnet.network.listener.PacketClientServiceInfoUpdateListener;
 import de.dytanic.cloudnet.network.listener.PacketServerChannelMessageListener;
 import de.dytanic.cloudnet.network.listener.PacketServerSetGlobalLogLevelListener;
-import de.dytanic.cloudnet.network.listener.cluster.*;
 import de.dytanic.cloudnet.network.listener.driver.PacketServerDriverAPIListener;
 import de.dytanic.cloudnet.network.listener.driver.PacketServerRemoteDatabaseActionListener;
 import de.dytanic.cloudnet.network.packet.PacketServerAuthorizationResponse;
@@ -45,25 +44,7 @@ public final class PacketClientAuthorizationListener implements IPacketListener 
 
                         for (IClusterNodeServer clusterNodeServer : this.getCloudNet().getClusterNodeServerProvider().getNodeServers()) {
                             if (clusterNodeServer.isAcceptableConnection(channel, clusterNode.getUniqueId())) {
-                                //- packet channel registry
-                                channel.getPacketRegistry().addListener(PacketConstants.CHANNEL_MESSAGING_CHANNEL, new PacketServerChannelMessageListener(false));
-                                channel.getPacketRegistry().addListener(PacketConstants.SERVICE_INFO_PUBLISH_CHANNEL, new PacketServerServiceInfoPublisherListener());
-                                channel.getPacketRegistry().addListener(PacketConstants.PERMISSIONS_PUBLISH_CHANNEL, new PacketServerUpdatePermissionsListener());
-
-                                channel.getPacketRegistry().addListener(PacketConstants.CLUSTER_SERVICE_INFO_LIST_CHANNEL, new PacketServerSetGlobalServiceInfoListListener());
-                                channel.getPacketRegistry().addListener(PacketConstants.CLUSTER_GROUP_CONFIG_LIST_CHANNEL, new PacketServerSetGroupConfigurationListListener());
-                                channel.getPacketRegistry().addListener(PacketConstants.CLUSTER_TASK_LIST_CHANNEL, new PacketServerSetServiceTaskListListener());
-                                channel.getPacketRegistry().addListener(PacketConstants.CLUSTER_PERMISSION_DATA_CHANNEL, new PacketServerSetPermissionDataListener());
-                                channel.getPacketRegistry().addListener(PacketConstants.CLUSTER_TEMPLATE_DEPLOY_CHANNEL, new PacketServerDeployLocalTemplateListener());
-                                channel.getPacketRegistry().addListener(PacketConstants.CLUSTER_NODE_INFO_CHANNEL, new PacketServerClusterNodeInfoUpdateListener());
-
-                                channel.getPacketRegistry().addListener(PacketConstants.INTERNAL_DRIVER_API_CHANNEL, new PacketServerDriverAPIListener());
-
-                                channel.getPacketRegistry().addListener(PacketConstants.INTERNAL_H2_DATABASE_UPDATE_MODULE, new PacketServerH2DatabaseListener());
-                                channel.getPacketRegistry().addListener(PacketConstants.INTERNAL_H2_DATABASE_UPDATE_MODULE, new PacketServerSetH2DatabaseDataListener());
-
-                                channel.getPacketRegistry().addListener(PacketConstants.INTERNAL_DEBUGGING_CHANNEL, new PacketServerSetGlobalLogLevelListener(false));
-
+                                this.getCloudNet().registerClusterPacketRegistryListeners(channel.getPacketRegistry(), false);
 
                                 channel.sendPacket(new PacketServerAuthorizationResponse(true, "successful"));
                                 channel.sendPacket(new PacketServerSetGlobalLogLevel(CloudNet.getInstance().getLogger().getLevel()));

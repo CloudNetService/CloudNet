@@ -2,7 +2,6 @@ package de.dytanic.cloudnet.template;
 
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
-import de.dytanic.cloudnet.driver.template.TemplateStorage;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -15,7 +14,8 @@ public final class LocalTemplateStorageTest {
     @Test
     public void testTemplateStorage() throws Exception {
         File directory = new File("build/local_template_storage");
-        TemplateStorage storage = new LocalTemplateStorage(directory);
+        ClusterSynchronizedTemplateStorage storage = new LocalTemplateStorage(directory);
+        storage.toggleSynchronization(false);
 
         try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
              InputStream inputStream = LocalTemplateStorageTest.class.getClassLoader().getResourceAsStream("local_template_storage.zip")) {

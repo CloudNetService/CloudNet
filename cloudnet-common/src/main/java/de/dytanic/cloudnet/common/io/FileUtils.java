@@ -1,6 +1,7 @@
 package de.dytanic.cloudnet.common.io;
 
 import de.dytanic.cloudnet.common.concurrent.IVoidThrowableCallback;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
@@ -11,6 +12,7 @@ import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.zip.ZipEntry;
@@ -217,7 +219,7 @@ public final class FileUtils {
                      StandardCharsets.UTF_8)) {
             for (Path dir : directories) {
                 if (Files.exists(dir)) {
-                    zipDir(zipOutputStream, dir);
+                    zipDir(zipOutputStream, dir, null);
                 }
             }
         }
@@ -241,7 +243,7 @@ public final class FileUtils {
             try (ZipOutputStream zipOutputStream = new ZipOutputStream(byteBuffer,
                     StandardCharsets.UTF_8)) {
                 for (Path dir : directories) {
-                    zipDir(zipOutputStream, dir);
+                    zipDir(zipOutputStream, dir, null);
                 }
             }
 
@@ -254,15 +256,36 @@ public final class FileUtils {
         return emptyZipByteArray();
     }
 
+    public static Path createTempFile() {
+        return Paths.get(System.getProperty("cloudnet.tempDir", "temp"), UUID.randomUUID().toString());
+    }
+
+    @NotNull
+    public static InputStream zipToStream(@NotNull Path directory) throws IOException {
+        return zipToStream(directory, null);
+    }
+
+    @NotNull
+    public static InputStream zipToStream(@NotNull Path directory, Predicate<Path> fileFilter) throws IOException {
+        Path target = createTempFile();
+        zipToFile(directory, target, fileFilter);
+        return Files.newInputStream(target, StandardOpenOption.DELETE_ON_CLOSE, LinkOption.NOFOLLOW_LINKS);
+    }
+
     @Nullable
     public static Path zipToFile(Path directory, Path target) {
+        return zipToFile(directory, target, null);
+    }
+
+    @Nullable
+    public static Path zipToFile(Path directory, Path target, Predicate<Path> fileFilter) {
         if (directory == null || !Files.exists(directory)) {
             return null;
         }
 
         delete(target.toFile());
         try (OutputStream outputStream = Files.newOutputStream(target, StandardOpenOption.CREATE)) {
-            zipStream(directory, outputStream);
+            zipStream(directory, outputStream, fileFilter);
             return target;
         } catch (final IOException exception) {
             exception.printStackTrace();
@@ -271,19 +294,23 @@ public final class FileUtils {
         return null;
     }
 
-    private static void zipStream(Path source, OutputStream buffer) throws IOException {
+    private static void zipStream(Path source, OutputStream buffer, Predicate<Path> fileFilter) throws IOException {
         try (ZipOutputStream zipOutputStream = new ZipOutputStream(buffer, StandardCharsets.UTF_8)) {
             if (Files.exists(source)) {
-                zipDir(zipOutputStream, source);
+                zipDir(zipOutputStream, source, fileFilter);
             }
         }
     }
 
-    private static void zipDir(ZipOutputStream zipOutputStream, Path directory) throws IOException {
+    private static void zipDir(ZipOutputStream zipOutputStream, Path directory, Predicate<Path> fileFilter) throws IOException {
         Files.walkFileTree(
                 directory,
                 new SimpleFileVisitor<Path>() {
                     public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                        if (fileFilter != null && !fileFilter.test(file)) {
+                            return FileVisitResult.CONTINUE;
+                        }
+
                         try {
                             zipOutputStream.putNextEntry(new ZipEntry(directory.relativize(file).toString().replace("\\", "/")));
                             Files.copy(file, zipOutputStream);

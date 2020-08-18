@@ -11,7 +11,6 @@ import de.dytanic.cloudnet.http.V1HttpHandler;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 
 // TODO not tested
@@ -91,21 +90,6 @@ public final class V1HttpHandlerLocalTemplateFileSystem extends V1HttpHandler {
                 FileUtils.copy(new ByteArrayInputStream(context.request().body()), outputStream);
             }
 
-            InputStream inputStream = serviceTemplate.storage().zipTemplate();
-            if (inputStream == null) {
-                context
-                        .response()
-                        .statusCode(HttpResponseCode.HTTP_INTERNAL_ERROR)
-                        .header("Content-Type", "application/json")
-                        .body(new JsonDocument("success", false).toByteArray())
-                        .context()
-                        .closeAfter(true)
-                        .cancelNext();
-                return;
-            }
-
-            this.getCloudNet().deployTemplateInCluster(serviceTemplate, inputStream);
-
             context
                     .response()
                     .statusCode(HttpResponseCode.HTTP_OK)
@@ -137,11 +121,6 @@ public final class V1HttpHandlerLocalTemplateFileSystem extends V1HttpHandler {
             }
 
             serviceTemplate.storage().deleteFile(filePath);
-            try (InputStream inputStream = serviceTemplate.storage().zipTemplate()) {
-                if (inputStream != null) {
-                    this.getCloudNet().deployTemplateInCluster(serviceTemplate, inputStream); // TODO add a method to delete the template in the cluster
-                }
-            }
 
             context
                     .response()

@@ -17,10 +17,12 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.*;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.UUID;
 import java.util.function.Predicate;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -269,7 +271,7 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
         try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
              ZipOutputStream zipOutputStream = new ZipOutputStream(byteArrayOutputStream, StandardCharsets.UTF_8)) {
 
-            this.toByteArray(zipOutputStream, template.getTemplatePath(), "");
+            this.zipToStream(zipOutputStream, template.getTemplatePath(), "");
 
             return byteArrayOutputStream.toByteArray();
 
@@ -287,23 +289,23 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
             return null;
         }
 
-        Path tempFile = Paths.get(System.getProperty("cloudnet.tempDir", "temp"), UUID.randomUUID().toString());
+        Path tempFile = FileUtils.createTempFile();
 
         try (OutputStream stream = Files.newOutputStream(tempFile, StandardOpenOption.CREATE);
              ZipOutputStream zipOutputStream = new ZipOutputStream(stream, StandardCharsets.UTF_8)) {
-            this.toByteArray(zipOutputStream, template.getTemplatePath(), "");
+            this.zipToStream(zipOutputStream, template.getTemplatePath(), "");
             return Files.newInputStream(tempFile, StandardOpenOption.DELETE_ON_CLOSE, LinkOption.NOFOLLOW_LINKS);
         }
     }
 
-    private void toByteArray(ZipOutputStream zipOutputStream, String baseDirectory, String relativeDirectory) throws IOException {
+    private void zipToStream(ZipOutputStream zipOutputStream, String baseDirectory, String relativeDirectory) throws IOException {
         FTPFile[] files = this.ftpClient.listFiles(baseDirectory);
 
         if (files != null) {
             for (FTPFile file : files) {
                 if (file != null) {
                     if (file.isDirectory()) {
-                        this.toByteArray(zipOutputStream, baseDirectory + "/" + file.getName(),
+                        this.zipToStream(zipOutputStream, baseDirectory + "/" + file.getName(),
                                 relativeDirectory + (relativeDirectory.isEmpty() ? "" : "/") + file.getName());
                     } else if (file.isFile()) {
                         zipOutputStream.putNextEntry(new ZipEntry(relativeDirectory + (relativeDirectory.isEmpty() ? "" : "/") + file.getName()));
@@ -520,8 +522,8 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
         return new FileInfo(
                 path, filename, file == null || file.isDirectory(),
                 false, -1, file == null || file.getTimestamp() == null ? -1 : file.getTimestamp().getTimeInMillis(), -1,
-                file != null && file.hasPermission(FTPFile.USER_ACCESS, FTPFile.READ_PERMISSION), // TODO read and write are always false
-                file != null && file.hasPermission(FTPFile.USER_ACCESS, FTPFile.WRITE_PERMISSION),
+                file == null || file.hasPermission(FTPFile.USER_ACCESS, FTPFile.READ_PERMISSION), // TODO read and write are always false
+                file == null || file.hasPermission(FTPFile.USER_ACCESS, FTPFile.WRITE_PERMISSION),
                 file == null ? -1 : file.getSize()
         );
     }

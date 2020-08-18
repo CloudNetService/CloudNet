@@ -1,8 +1,12 @@
 package de.dytanic.cloudnet.driver.template;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import de.dytanic.cloudnet.common.concurrent.CompletableTask;
+import de.dytanic.cloudnet.common.concurrent.CompletableTaskListener;
+import de.dytanic.cloudnet.common.concurrent.CompletedTask;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.io.FileUtils;
+import de.dytanic.cloudnet.common.stream.WrappedOutputStream;
 import de.dytanic.cloudnet.driver.api.DriverAPIRequestType;
 import de.dytanic.cloudnet.driver.api.DriverAPIUser;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
@@ -18,13 +22,18 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.Collection;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 public class RemoteTemplateStorage extends DefaultAsyncTemplateStorage implements DriverAPIUser {
+
+    private static final ExecutorService SERVICE = Executors.newFixedThreadPool(3);
 
     private final String name;
     private final Supplier<INetworkChannel> channelSupplier;
@@ -50,12 +59,22 @@ public class RemoteTemplateStorage extends DefaultAsyncTemplateStorage implement
 
     @Override
     public @NotNull ITask<Boolean> deployAsync(@NotNull File directory, @NotNull ServiceTemplate target, @Nullable Predicate<File> fileFilter) {
-        return null;
+        CompletableTask<Boolean> task = new CompletableTask<>();
+
+        SERVICE.execute(() -> {
+            try (InputStream inputStream = FileUtils.zipToStream(directory.toPath(), fileFilter != null ? path -> fileFilter.test(path.toFile()) : null)) {
+                this.deployAsync(inputStream, target).addListener(new CompletableTaskListener<>(task));
+            } catch (IOException exception) {
+                task.fail(exception);
+            }
+        });
+
+        return task;
     }
 
     @Override
     public @NotNull ITask<Boolean> deployAsync(@NotNull InputStream inputStream, @NotNull ServiceTemplate target) {
-        return null;
+        return null; // TODO
     }
 
     @Override
@@ -112,12 +131,34 @@ public class RemoteTemplateStorage extends DefaultAsyncTemplateStorage implement
 
     @Override
     public @NotNull ITask<OutputStream> appendOutputStreamAsync(@NotNull ServiceTemplate template, @NotNull String path) {
-        return null;
+        return this.createOutputStreamTask(DriverAPIRequestType.APPEND_FILE_CONTENT, template, path);
     }
 
     @Override
     public @NotNull ITask<OutputStream> newOutputStreamAsync(@NotNull ServiceTemplate template, @NotNull String path) {
-        return null;
+        return this.createOutputStreamTask(DriverAPIRequestType.SET_FILE_CONTENT, template, path);
+    }
+
+    private ITask<OutputStream> createOutputStreamTask(@NotNull DriverAPIRequestType requestType, @NotNull ServiceTemplate template, @NotNull String path) {
+        Path tempFile = FileUtils.createTempFile();
+
+        try {
+            return CompletedTask.create(this.wrapOutputStream(requestType, template, path, tempFile));
+        } catch (IOException exception) {
+            return CompletedTask.createFailed(exception);
+        }
+    }
+
+    private OutputStream wrapOutputStream(@NotNull DriverAPIRequestType requestType, @NotNull ServiceTemplate template, @NotNull String path, @NotNull Path tempFile) throws IOException {
+        return new WrappedOutputStream(Files.newOutputStream(tempFile)) {
+            @Override
+            public void close() throws IOException {
+                super.close();
+                try (InputStream inputStream = Files.newInputStream(tempFile, StandardOpenOption.DELETE_ON_CLOSE)) {
+                    // TODO
+                }
+            }
+        };
     }
 
     @Override
@@ -189,15 +230,6 @@ public class RemoteTemplateStorage extends DefaultAsyncTemplateStorage implement
                 DriverAPIRequestType.CLOSE_STORAGE,
                 this::writeDefaults
         );
-    }
-
-    @Override
-    public boolean shouldSyncInCluster() {
-        return this.executeDriverAPIMethod(
-                DriverAPIRequestType.SHOULD_SYNC_IN_CLUSTER,
-                this::writeDefaults,
-                this::readDefaultBooleanResponse
-        ).get(5, TimeUnit.SECONDS, false);
     }
 
     @CanIgnoreReturnValue

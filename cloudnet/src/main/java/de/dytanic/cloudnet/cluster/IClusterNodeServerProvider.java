@@ -23,6 +23,16 @@ public interface IClusterNodeServerProvider extends AutoCloseable, IPacketSender
     Collection<IClusterNodeServer> getNodeServers();
 
     /**
+     * Returns a list of non null channels with all connected servers.
+     */
+    Collection<INetworkChannel> getConnectedChannels();
+
+    /**
+     * Returns whether any other node is connected with this node.
+     */
+    boolean hasAnyConnection();
+
+    /**
      * Returns the node with the specific uniqueId that is configured
      *
      * @param uniqueId the uniqueId from the node, that should retrieve

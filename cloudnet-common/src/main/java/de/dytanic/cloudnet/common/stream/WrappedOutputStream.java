@@ -1,4 +1,4 @@
-package de.dytanic.cloudnet.ext.storage.ftp.storage.queue;
+package de.dytanic.cloudnet.common.stream;
 
 import org.jetbrains.annotations.NotNull;
 

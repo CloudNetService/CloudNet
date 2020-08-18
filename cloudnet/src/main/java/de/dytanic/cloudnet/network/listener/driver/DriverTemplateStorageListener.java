@@ -23,6 +23,7 @@ import java.io.InputStream;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
+// TODO cluster synchronization
 public class DriverTemplateStorageListener extends CategorizedDriverAPIListener {
     public DriverTemplateStorageListener() {
         super(DriverAPICategory.TEMPLATE_STORAGE);
@@ -60,14 +61,13 @@ public class DriverTemplateStorageListener extends CategorizedDriverAPIListener 
         super.registerHandler(DriverAPIRequestType.CREATE_TEMPLATE, this.throwableResponseHandler(input -> TemplateStorageResponse.of(this.readSpecific(input).create())));
         super.registerHandler(DriverAPIRequestType.DELETE_TEMPLATE, this.throwableResponseHandler(input -> TemplateStorageResponse.of(this.readSpecific(input).delete())));
 
-        super.registerHandler(DriverAPIRequestType.SHOULD_SYNC_IN_CLUSTER, this.throwableResponseHandler(input -> TemplateStorageResponse.of(this.read(input).shouldSyncInCluster())));
-
         super.registerHandler(DriverAPIRequestType.LOAD_TEMPLATE_ARRAY, this.throwableHandler((channel, input) ->
                 ProtocolBuffer.create().writeEnumConstant(TemplateStorageResponse.SUCCESS).writeArray(this.readSpecific(input).toZipByteArray()))
         );
         super.registerHandler(DriverAPIRequestType.LOAD_TEMPLATE_STREAM, this.chunkedHandler(input -> this.readSpecific(input).zipTemplate()));
         super.registerHandler(DriverAPIRequestType.GET_FILE_CONTENT, this.chunkedHandler(input -> this.readSpecific(input).newInputStream(input.readString())));
 
+        // TODO
         super.registerHandler(DriverAPIRequestType.DEPLOY_TEMPLATE_BYTE_ARRAY, (channel, packet, input) -> ProtocolBuffer.EMPTY);
         super.registerHandler(DriverAPIRequestType.DEPLOY_TEMPLATE_STREAM, (channel, packet, input) -> ProtocolBuffer.EMPTY);
 

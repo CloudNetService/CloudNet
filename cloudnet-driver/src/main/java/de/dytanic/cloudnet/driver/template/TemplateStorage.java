@@ -287,15 +287,6 @@ public interface TemplateStorage extends AutoCloseable, INameable {
     Collection<ServiceTemplate> getTemplates();
 
     /**
-     * Whether templates in this storage need to be synced in the cluster.
-     * For example if this is an FTP storage and every node connects to the same FTP server, there is no need for any
-     * synchronization by CloudNet.
-     */
-    default boolean shouldSyncInCluster() {
-        return false;
-    }
-
-    /**
      * Closes this storage, after it has been closed, no more interaction to this storage should be done and might
      * lead to errors.
      *

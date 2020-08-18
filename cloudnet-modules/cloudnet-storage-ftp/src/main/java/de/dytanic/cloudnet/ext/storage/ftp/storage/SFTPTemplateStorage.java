@@ -2,6 +2,7 @@ package de.dytanic.cloudnet.ext.storage.ftp.storage;
 
 import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.SftpATTRS;
+import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import de.dytanic.cloudnet.driver.template.FileInfo;
 import de.dytanic.cloudnet.ext.storage.ftp.client.FTPCredentials;
@@ -12,11 +13,13 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.*;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.UUID;
 import java.util.function.Predicate;
 import java.util.zip.ZipInputStream;
 
@@ -104,7 +107,7 @@ public class SFTPTemplateStorage extends AbstractFTPStorage {
             return null;
         }
 
-        Path tempFile = Paths.get(System.getProperty("cloudnet.tempDir", "temp"), UUID.randomUUID().toString());
+        Path tempFile = FileUtils.createTempFile();
 
         try (OutputStream stream = Files.newOutputStream(tempFile, StandardOpenOption.CREATE)) {
             this.ftpClient.zipDirectory(this.getPath(template), stream);

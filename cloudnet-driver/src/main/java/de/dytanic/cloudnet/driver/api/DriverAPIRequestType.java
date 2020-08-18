@@ -51,7 +51,6 @@ public enum DriverAPIRequestType {
     GET_FILE_INFO(DriverAPICategory.TEMPLATE_STORAGE),
     GET_TEMPLATES(DriverAPICategory.TEMPLATE_STORAGE),
     GET_FILE_CONTENT(DriverAPICategory.TEMPLATE_STORAGE),
-    SHOULD_SYNC_IN_CLUSTER(DriverAPICategory.TEMPLATE_STORAGE),
     CLOSE_STORAGE(DriverAPICategory.TEMPLATE_STORAGE),
 
     // CloudServiceFactory

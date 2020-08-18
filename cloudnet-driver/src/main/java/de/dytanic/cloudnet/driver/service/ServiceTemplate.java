@@ -73,11 +73,22 @@ public class ServiceTemplate implements INameable, SerializableObject {
         return this.storage;
     }
 
+    /**
+     * Creates a new {@link SpecificTemplateStorage} for this template.
+     *
+     * @return a new instance of the {@link SpecificTemplateStorage}
+     * @throws IllegalArgumentException if the storage in this template doesn't exist
+     */
     @NotNull
     public SpecificTemplateStorage storage() {
         return SpecificTemplateStorage.of(this);
     }
 
+    /**
+     * Creates a new {@link SpecificTemplateStorage} for the given template.
+     *
+     * @return a new instance of the {@link SpecificTemplateStorage} or null if the storage doesn't exist
+     */
     @Nullable
     public SpecificTemplateStorage nullableStorage() {
         TemplateStorage storage = CloudNetDriver.getInstance().getTemplateStorage(this.storage);

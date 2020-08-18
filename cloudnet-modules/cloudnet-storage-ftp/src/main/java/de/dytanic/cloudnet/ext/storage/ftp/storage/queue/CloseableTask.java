@@ -5,6 +5,8 @@ import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.concurrent.ITaskListener;
 import de.dytanic.cloudnet.common.concurrent.function.ThrowableFunction;
+import de.dytanic.cloudnet.common.stream.WrappedInputStream;
+import de.dytanic.cloudnet.common.stream.WrappedOutputStream;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.Closeable;
