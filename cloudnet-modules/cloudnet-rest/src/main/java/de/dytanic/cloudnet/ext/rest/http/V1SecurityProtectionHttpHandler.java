@@ -23,8 +23,7 @@ public final class V1SecurityProtectionHttpHandler extends V1HttpHandler {
                     .header("Location", "/api/v1/auth?redirect=" + context.request().uri())
                     .context()
                     .closeAfter(true)
-                    .cancelNext()
-            ;
+                    .cancelNext();
         }
     }
 }

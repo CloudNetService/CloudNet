@@ -222,7 +222,6 @@ public final class LocalTemplateStorage extends ClusterSynchronizedTemplateStora
                 }
             });
         }
-        Files.delete(file);
         return true;
     }
 

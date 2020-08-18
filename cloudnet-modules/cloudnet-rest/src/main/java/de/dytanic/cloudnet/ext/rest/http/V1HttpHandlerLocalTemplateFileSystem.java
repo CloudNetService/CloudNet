@@ -143,7 +143,7 @@ public final class V1HttpHandlerLocalTemplateFileSystem extends V1HttpHandler {
 
     private String parsePath(String path) {
         String[] relativePathArray = path.split("/files");
-        return relativePathArray.length == 1 ? "." : relativePathArray[1].substring(1);
+        return relativePathArray.length == 1 ? "" : relativePathArray[1].substring(1);
     }
 
     private void send404Response(IHttpContext context, String reason) {
