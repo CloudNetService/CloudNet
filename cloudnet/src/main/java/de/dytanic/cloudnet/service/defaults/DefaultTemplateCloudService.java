@@ -13,10 +13,12 @@ import de.dytanic.cloudnet.event.service.CloudServicePreLoadInclusionEvent;
 import de.dytanic.cloudnet.event.service.CloudServiceTemplateLoadEvent;
 import de.dytanic.cloudnet.service.ICloudServiceManager;
 import de.dytanic.cloudnet.service.handler.CloudServiceHandler;
-import de.dytanic.cloudnet.template.LocalTemplateStorage;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.file.Files;
@@ -198,14 +200,6 @@ public abstract class DefaultTemplateCloudService extends DefaultCloudService {
 
                     if (removeDeployments) {
                         this.deployments.remove(deployment);
-                    }
-
-                    if (storage instanceof LocalTemplateStorage) {
-                        try {
-                            CloudNet.getInstance().deployTemplateInCluster(deployment.getTemplate(), storage.zipTemplate(deployment.getTemplate()));
-                        } catch (IOException exception) {
-                            exception.printStackTrace();
-                        }
                     }
                 }
             }

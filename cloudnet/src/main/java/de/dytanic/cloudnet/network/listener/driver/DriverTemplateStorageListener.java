@@ -23,7 +23,6 @@ import java.io.InputStream;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
-// TODO cluster synchronization
 public class DriverTemplateStorageListener extends CategorizedDriverAPIListener {
     public DriverTemplateStorageListener() {
         super(DriverAPICategory.TEMPLATE_STORAGE);
