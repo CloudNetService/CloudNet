@@ -42,14 +42,5 @@ public final class Main {
 
         System.setOut(new AsyncPrintStream(new LogOutputStream(logger, LogLevel.INFO)));
         System.setErr(new AsyncPrintStream(new LogOutputStream(logger, LogLevel.ERROR)));
-
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            try {
-                logger.close();
-                console.close();
-            } catch (Exception exception) {
-                exception.printStackTrace();
-            }
-        }));
     }
 }
