@@ -31,8 +31,8 @@ public final class VelocityCloudNetListener {
 
             String name = event.getServiceInfo().getServiceId().getName();
             VelocityCloudNetHelper.getProxyServer().registerServer(new ServerInfo(name, new InetSocketAddress(
-                    event.getServiceInfo().getAddress().getHost(),
-                    event.getServiceInfo().getAddress().getPort()
+                    event.getServiceInfo().getConnectAddress().getHost(),
+                    event.getServiceInfo().getConnectAddress().getPort()
             )));
 
             VelocityCloudNetHelper.addServerToVelocityPrioritySystemConfiguration(event.getServiceInfo(), name);

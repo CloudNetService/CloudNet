@@ -15,8 +15,8 @@ public final class SyncProxyConfigurationWriterAndReader {
     private static final Map<String, String> DEFAULT_MESSAGES = new HashMap<>(ImmutableMap.of(
             "player-login-not-whitelisted", "&cThe network is currently in maintenance!",
             "player-login-full-server", "&cThe network is currently full. You need extra permissions to enter the network",
-            "service-start", "&7The service &e%service% &7is &astarting...",
-            "service-stop", "&7The service &e%service% &7is &cstopping..."
+            "service-start", "&7The service &e%service% &7is &astarting &7on node &e%node%&7...",
+            "service-stop", "&7The service &e%service% &7is &cstopping &7on node &e%node%&7..."
     ));
 
     private SyncProxyConfigurationWriterAndReader() {
@@ -69,7 +69,7 @@ public final class SyncProxyConfigurationWriterAndReader {
                 targetGroup,
                 Collections.singletonList(
                         new SyncProxyTabList(
-                                " \n&b&lCloud&f&lNet &7Hurricane &8■ &7next &bgeneration &7network &8➜ &f%online_players%&8/&f%max_players%&f\n &8► &7Current server &8● &b%server% &8◄ \n ",
+                                " \n&b&lCloud&f&lNet &6Earthquake &8■ &7next &bgeneration &7network &8➜ &f%online_players%&8/&f%max_players%&f\n &8► &7Current server &8● &b%server% &8◄ \n ",
                                 " \n &7Sponsored by &8» &fOpusX.io &8▎ &7Discord &8» &fdiscord.gg/CPCWr7w \n &7powered by &8» &b&b&lCloud&f&lNet \n "
                         )
                 ),
@@ -84,7 +84,7 @@ public final class SyncProxyConfigurationWriterAndReader {
                 100,
                 new ArrayList<>(),
                 Collections.singletonList(new SyncProxyMotd(
-                        "&b&lCloud&f&lNet &7Hurricane &8■ &7next &bgeneration &7cloud system",
+                        "&b&lCloud&f&lNet &6Earthquake &8■ &7next &bgeneration &7cloud system",
                         "&7Sponsored by &8» &bOpusX.io &8▎ &8» &c%proxy%",
                         false,
                         1,
@@ -98,7 +98,7 @@ public final class SyncProxyConfigurationWriterAndReader {
                         null
                 )),
                 Collections.singletonList(new SyncProxyMotd(
-                        "&b&lCloud&f&lNet &7Hurricane &8■ &7next &bgeneration &7cloud system",
+                        "&b&lCloud&f&lNet &6Earthquake &8■ &7next &bgeneration &7cloud system",
                         "      &bMaintenance &8» &7We are still in &bmaintenance",
                         false,
                         1,

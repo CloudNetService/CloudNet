@@ -343,6 +343,7 @@ public final class Wrapper extends CloudNetDriver implements DriverAPIUser {
         return new ServiceInfoSnapshot(
                 System.currentTimeMillis(),
                 this.currentServiceInfoSnapshot.getAddress(),
+                this.currentServiceInfoSnapshot.getConnectAddress(),
                 this.networkClient.getConnectedTime(),
                 ServiceLifeCycle.RUNNING,
                 ProcessSnapshot.self(),

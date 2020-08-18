@@ -247,8 +247,14 @@ public class CommandService extends SubCommandHandler {
                 "* CloudService: " + serviceInfoSnapshot.getServiceId().getUniqueId().toString(),
                 "* Name: " + serviceInfoSnapshot.getServiceId().getTaskName() + "-" + serviceInfoSnapshot.getServiceId().getTaskServiceId(),
                 "* Node: " + serviceInfoSnapshot.getServiceId().getNodeUniqueId(),
-                "* Port: " + serviceInfoSnapshot.getConfiguration().getPort()
+                "* Address: " + serviceInfoSnapshot.getAddress().getHost() + ":" + serviceInfoSnapshot.getAddress().getPort()
         ));
+
+        if (serviceInfoSnapshot.getServiceId().getEnvironment().isMinecraftServer()
+                && !serviceInfoSnapshot.getAddress().getHost().equals(serviceInfoSnapshot.getConnectAddress().getHost())) {
+            list.add("* Address for connections: " + serviceInfoSnapshot.getConnectAddress().getHost() + ":" + serviceInfoSnapshot.getConnectAddress().getPort());
+        }
+
         if (serviceInfoSnapshot.isConnected()) {
             list.add("* Connected: " + DATE_FORMAT.format(serviceInfoSnapshot.getConnectedTime()));
         } else {

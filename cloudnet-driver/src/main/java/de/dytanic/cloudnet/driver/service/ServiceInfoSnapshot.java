@@ -30,6 +30,8 @@ public class ServiceInfoSnapshot extends SerializableJsonDocPropertyable impleme
 
     protected HostAndPort address;
 
+    protected HostAndPort connectAddress;
+
     protected long connectedTime;
 
     protected ServiceLifeCycle lifeCycle;
@@ -43,8 +45,13 @@ public class ServiceInfoSnapshot extends SerializableJsonDocPropertyable impleme
     }
 
     public ServiceInfoSnapshot(long creationTime, HostAndPort address, long connectedTime, ServiceLifeCycle lifeCycle, ProcessSnapshot processSnapshot, JsonDocument properties, ServiceConfiguration configuration) {
+        this(creationTime, address, address, connectedTime, lifeCycle, processSnapshot, properties, configuration);
+    }
+
+    public ServiceInfoSnapshot(long creationTime, HostAndPort address, HostAndPort connectAddress, long connectedTime, ServiceLifeCycle lifeCycle, ProcessSnapshot processSnapshot, JsonDocument properties, ServiceConfiguration configuration) {
         this.creationTime = creationTime;
         this.address = address;
+        this.connectAddress = connectAddress;
         this.connectedTime = connectedTime;
         this.lifeCycle = lifeCycle;
         this.processSnapshot = processSnapshot;
@@ -65,6 +72,10 @@ public class ServiceInfoSnapshot extends SerializableJsonDocPropertyable impleme
 
     public HostAndPort getAddress() {
         return this.address;
+    }
+
+    public HostAndPort getConnectAddress() {
+        return this.connectAddress;
     }
 
     public boolean isConnected() {
@@ -130,6 +141,7 @@ public class ServiceInfoSnapshot extends SerializableJsonDocPropertyable impleme
     public void write(@NotNull ProtocolBuffer buffer) {
         buffer.writeLong(this.creationTime);
         buffer.writeObject(this.address);
+        buffer.writeObject(this.connectAddress);
         buffer.writeLong(this.connectedTime);
         buffer.writeEnumConstant(this.lifeCycle);
         buffer.writeObject(this.processSnapshot);
@@ -142,6 +154,7 @@ public class ServiceInfoSnapshot extends SerializableJsonDocPropertyable impleme
     public void read(@NotNull ProtocolBuffer buffer) {
         this.creationTime = buffer.readLong();
         this.address = buffer.readObject(HostAndPort.class);
+        this.connectAddress = buffer.readObject(HostAndPort.class);
         this.connectedTime = buffer.readLong();
         this.lifeCycle = buffer.readEnumConstant(ServiceLifeCycle.class);
         this.processSnapshot = buffer.readObject(ProcessSnapshot.class);

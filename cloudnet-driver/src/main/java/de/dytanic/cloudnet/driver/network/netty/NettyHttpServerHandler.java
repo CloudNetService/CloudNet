@@ -24,7 +24,7 @@ final class NettyHttpServerHandler extends SimpleChannelInboundHandler<HttpReque
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
-        this.channel = new NettyHttpChannel(ctx.channel(), this.connectedAddress, new HostAndPort(ctx.channel().remoteAddress()));
+        this.channel = new NettyHttpChannel(ctx.channel(), this.connectedAddress, HostAndPort.fromSocketAddress(ctx.channel().remoteAddress()));
     }
 
     @Override

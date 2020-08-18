@@ -177,7 +177,7 @@ public final class CommandPlayers extends SubCommandHandler {
                                         );
                                     }
                                 },
-                                subCommand -> subCommand.setMinArgs(subCommand.getRequiredArguments().length - 1).setMaxArgs(Integer.MAX_VALUE),
+                                subCommand -> subCommand.setMinArgs(subCommand.getRequiredArguments().length).setMaxArgs(Integer.MAX_VALUE),
                                 exactStringIgnoreCase("sendMessage"),
                                 dynamicString("message")
                         )

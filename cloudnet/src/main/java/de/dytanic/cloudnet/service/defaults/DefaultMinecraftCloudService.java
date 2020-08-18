@@ -18,6 +18,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.UnaryOperator;
 
 public abstract class DefaultMinecraftCloudService extends DefaultTemplateCloudService {
+
     public DefaultMinecraftCloudService(String runtime, ICloudServiceManager cloudServiceManager, ServiceConfiguration serviceConfiguration, @NotNull CloudServiceHandler handler) {
         super(runtime, cloudServiceManager, serviceConfiguration, handler);
     }

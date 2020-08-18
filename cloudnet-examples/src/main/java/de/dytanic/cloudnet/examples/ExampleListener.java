@@ -53,9 +53,10 @@ public final class ExampleListener {
         processSnapshot.getTotalLoadedClassCount();
 
         serviceInfoSnapshot.isConnected();
-        serviceInfoSnapshot.getAddress();
+        serviceInfoSnapshot.getAddress(); // The address the service is bound on
+        serviceInfoSnapshot.getConnectAddress(); // The address proxies will register this service with
 
-        serviceInfoSnapshot.getCreationTime(); //Snapshot creation time in millis
+        serviceInfoSnapshot.getCreationTime(); // Snapshot creation time in millis
 
         ServiceConfiguration serviceConfiguration = serviceInfoSnapshot.getConfiguration();
 

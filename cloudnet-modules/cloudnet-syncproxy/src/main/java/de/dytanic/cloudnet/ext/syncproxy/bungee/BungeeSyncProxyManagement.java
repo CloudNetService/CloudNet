@@ -92,7 +92,7 @@ public class BungeeSyncProxyManagement extends AbstractSyncProxyManagement {
     @Override
     public void broadcastServiceStateChange(String key, ServiceInfoSnapshot serviceInfoSnapshot) {
         if (super.syncProxyConfiguration != null && super.syncProxyConfiguration.showIngameServicesStartStopMessages()) {
-            String message = ChatColor.translateAlternateColorCodes('&', super.syncProxyConfiguration.getMessages().get(key).replace("%service%", serviceInfoSnapshot.getServiceId().getName()));
+            String message = ChatColor.translateAlternateColorCodes('&', super.getServiceStateChangeMessage(key, serviceInfoSnapshot));
 
             for (ProxiedPlayer player : ProxyServer.getInstance().getPlayers()) {
                 if (player.hasPermission("cloudnet.syncproxy.notify")) {

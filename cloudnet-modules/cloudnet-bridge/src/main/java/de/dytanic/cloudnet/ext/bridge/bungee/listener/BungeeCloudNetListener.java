@@ -32,8 +32,8 @@ public final class BungeeCloudNetListener {
             String name = event.getServiceInfo().getServiceId().getName();
 
             ProxyServer.getInstance().getServers().put(name, BungeeCloudNetHelper.createServerInfo(name, new InetSocketAddress(
-                    event.getServiceInfo().getAddress().getHost(),
-                    event.getServiceInfo().getAddress().getPort()
+                    event.getServiceInfo().getConnectAddress().getHost(),
+                    event.getServiceInfo().getConnectAddress().getPort()
             )));
         }
 
