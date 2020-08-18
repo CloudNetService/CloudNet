@@ -41,8 +41,6 @@ public final class TemplateStorageUtil {
         Preconditions.checkNotNull(storage);
         Preconditions.checkNotNull(environment);
 
-        ServiceTemplate serviceTemplate = storage.getTargetTemplate();
-
         if (!storage.exists()) {
             storage.create();
 

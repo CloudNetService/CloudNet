@@ -3,13 +3,9 @@ package de.dytanic.cloudnet.driver.network.netty.client;
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.concurrent.DefaultTaskScheduler;
 import de.dytanic.cloudnet.common.concurrent.ITaskScheduler;
-import de.dytanic.cloudnet.driver.network.HostAndPort;
-import de.dytanic.cloudnet.driver.network.INetworkChannel;
-import de.dytanic.cloudnet.driver.network.INetworkChannelHandler;
-import de.dytanic.cloudnet.driver.network.INetworkClient;
+import de.dytanic.cloudnet.driver.network.*;
 import de.dytanic.cloudnet.driver.network.netty.NettyUtils;
 import de.dytanic.cloudnet.driver.network.protocol.DefaultPacketListenerRegistry;
-import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.network.protocol.IPacketListenerRegistry;
 import de.dytanic.cloudnet.driver.network.ssl.SSLConfiguration;
 import io.netty.bootstrap.Bootstrap;
@@ -30,7 +26,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 @ApiStatus.Internal
-public final class NettyNetworkClient implements INetworkClient {
+public final class NettyNetworkClient implements DefaultNetworkComponent, INetworkClient {
 
     protected final Collection<INetworkChannel> channels = new ConcurrentLinkedQueue<>();
 
@@ -141,48 +137,13 @@ public final class NettyNetworkClient implements INetworkClient {
     }
 
     @Override
-    public void closeChannels() {
-        for (INetworkChannel channel : this.channels) {
-            try {
-                channel.close();
-            } catch (Exception exception) {
-                exception.printStackTrace();
-            }
-        }
-
-        this.channels.clear();
+    public Collection<INetworkChannel> getModifiableChannels() {
+        return this.channels;
     }
 
     @Override
     public long getConnectedTime() {
         return this.connectedTime;
-    }
-
-    @Override
-    public void sendPacket(@NotNull IPacket packet) {
-        Preconditions.checkNotNull(packet);
-
-        for (INetworkChannel channel : this.channels) {
-            channel.sendPacket(packet);
-        }
-    }
-
-    @Override
-    public void sendPacketSync(@NotNull IPacket packet) {
-        Preconditions.checkNotNull(packet);
-
-        for (INetworkChannel channel : this.channels) {
-            channel.sendPacketSync(packet);
-        }
-    }
-
-    @Override
-    public void sendPacket(@NotNull IPacket... packets) {
-        Preconditions.checkNotNull(packets);
-
-        for (INetworkChannel channel : this.channels) {
-            channel.sendPacket(packets);
-        }
     }
 
     public IPacketListenerRegistry getPacketRegistry() {

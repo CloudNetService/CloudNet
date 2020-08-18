@@ -82,6 +82,9 @@ public class PacketServerSyncTemplateStorageListener implements IPacketListener 
                     storage.deleteFileWithoutSynchronization(template, buffer.readString());
                 }
                 break;
+
+            default:
+                throw new IllegalStateException("Unexpected value: " + requestType);
         }
 
     }

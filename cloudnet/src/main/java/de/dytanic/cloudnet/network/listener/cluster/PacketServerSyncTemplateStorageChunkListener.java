@@ -48,6 +48,9 @@ public class PacketServerSyncTemplateStorageChunkListener extends CachedChunkedP
                 boolean success = storage.deployWithoutSynchronization(inputStream, template);
                 session.getChannel().sendPacket(Packet.createResponseFor(session.getFirstPacket(), ProtocolBuffer.create().writeBoolean(success)));
                 break;
+
+            default:
+                throw new IllegalStateException("Unexpected value: " + requestType);
         }
     }
 }

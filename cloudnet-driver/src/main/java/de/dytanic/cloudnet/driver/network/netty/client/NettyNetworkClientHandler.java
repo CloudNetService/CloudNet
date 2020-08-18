@@ -1,23 +1,21 @@
 package de.dytanic.cloudnet.driver.network.netty.client;
 
+import de.dytanic.cloudnet.common.concurrent.ITaskScheduler;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
+import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.netty.NettyNetworkChannel;
-import de.dytanic.cloudnet.driver.network.protocol.Packet;
+import de.dytanic.cloudnet.driver.network.netty.NettyNetworkHandler;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.SimpleChannelInboundHandler;
 import org.jetbrains.annotations.ApiStatus;
 
-import java.io.IOException;
-import java.util.concurrent.Callable;
+import java.util.Collection;
 
 @ApiStatus.Internal
-final class NettyNetworkClientHandler extends SimpleChannelInboundHandler<Packet> {
+final class NettyNetworkClientHandler extends NettyNetworkHandler {
 
     private final NettyNetworkClient nettyNetworkClient;
 
     private final HostAndPort connectedAddress;
-
-    private NettyNetworkChannel channel;
 
     public NettyNetworkClientHandler(NettyNetworkClient nettyNetworkClient, HostAndPort connectedAddress) {
         this.nettyNetworkClient = nettyNetworkClient;
@@ -26,50 +24,23 @@ final class NettyNetworkClientHandler extends SimpleChannelInboundHandler<Packet
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        this.channel = new NettyNetworkChannel(ctx.channel(), this.nettyNetworkClient.getPacketRegistry(),
+        super.channel = new NettyNetworkChannel(ctx.channel(), this.nettyNetworkClient.getPacketRegistry(),
                 this.nettyNetworkClient.networkChannelHandler.call(), this.connectedAddress, HostAndPort.fromSocketAddress(ctx.channel().localAddress()), true);
 
-        this.nettyNetworkClient.channels.add(this.channel);
+        this.nettyNetworkClient.channels.add(super.channel);
 
         if (this.channel.getHandler() != null) {
-            this.channel.getHandler().handleChannelInitialize(this.channel);
+            this.channel.getHandler().handleChannelInitialize(super.channel);
         }
     }
 
     @Override
-    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        if (!ctx.channel().isActive() || !ctx.channel().isOpen() || !ctx.channel().isWritable()) {
-            if (this.channel.getHandler() != null) {
-                this.channel.getHandler().handleChannelClose(this.channel);
-            }
-
-            ctx.channel().close();
-
-            this.nettyNetworkClient.channels.remove(this.channel);
-        }
+    protected Collection<INetworkChannel> getChannels() {
+        return this.nettyNetworkClient.channels;
     }
 
     @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        if (!(cause instanceof IOException)) {
-            cause.printStackTrace();
-        }
-    }
-
-    @Override
-    public void channelReadComplete(ChannelHandlerContext ctx) {
-        ctx.flush();
-    }
-
-    @Override
-    protected void channelRead0(ChannelHandlerContext ctx, Packet msg) {
-        this.nettyNetworkClient.taskScheduler.schedule((Callable<Void>) () -> {
-            if (this.channel.getHandler() != null && !this.channel.getHandler().handlePacketReceive(this.channel, msg)) {
-                return null;
-            }
-
-            this.channel.getPacketRegistry().handlePacket(this.channel, msg);
-            return null;
-        });
+    protected ITaskScheduler getTaskScheduler() {
+        return this.nettyNetworkClient.taskScheduler;
     }
 }

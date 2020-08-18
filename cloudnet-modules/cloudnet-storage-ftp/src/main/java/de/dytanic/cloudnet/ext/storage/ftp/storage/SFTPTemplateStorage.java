@@ -218,8 +218,8 @@ public class SFTPTemplateStorage extends AbstractFTPStorage {
         return files.toArray(new FileInfo[0]);
     }
 
-    private boolean listFiles(String directory, String relativeDirectory, Collection<FileInfo> files, boolean deep) {
-        relativeDirectory = this.removeLeadingSlash(relativeDirectory);
+    private boolean listFiles(String directory, String rawRelativeDirectory, Collection<FileInfo> files, boolean deep) {
+        String relativeDirectory = this.removeLeadingSlash(rawRelativeDirectory);
 
         if (!this.ftpClient.existsDirectory(directory)) {
             return false;

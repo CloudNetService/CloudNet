@@ -290,6 +290,9 @@ public class RemoteTemplateStorage extends DefaultAsyncTemplateStorage implement
 
             case TEMPLATE_STORAGE_NOT_FOUND:
                 throw new IllegalArgumentException(String.format("TemplateStorage '%s' not found", this.name));
+
+            default:
+                break;
         }
     }
 

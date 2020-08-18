@@ -26,7 +26,8 @@ public abstract class DefaultNetworkChannel implements INetworkChannel {
 
     private final IPacketListenerRegistry packetRegistry;
 
-    private final HostAndPort serverAddress, clientAddress;
+    private final HostAndPort serverAddress;
+    private final HostAndPort clientAddress;
 
     private final boolean clientProvidedChannel;
 
