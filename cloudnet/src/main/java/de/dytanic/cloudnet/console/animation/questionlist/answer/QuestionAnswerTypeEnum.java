@@ -22,7 +22,7 @@ public class QuestionAnswerTypeEnum<E extends Enum<E>> implements QuestionAnswer
 
     @Override
     public @NotNull E parse(@NotNull String input) {
-        return Arrays.stream(this.values()).filter(e -> e.name().equalsIgnoreCase(input)).findFirst().orElse(null);
+        return Arrays.stream(this.values()).filter(e -> e.name().equalsIgnoreCase(input)).findFirst().orElseThrow(() -> new IllegalStateException("Calling parse when isValidInput was false"));
     }
 
     @Override

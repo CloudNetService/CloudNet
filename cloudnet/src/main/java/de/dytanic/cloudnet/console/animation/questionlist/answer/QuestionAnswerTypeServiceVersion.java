@@ -52,7 +52,7 @@ public class QuestionAnswerTypeServiceVersion implements QuestionAnswerType<Pair
     }
 
     @Override
-    public @NotNull Pair<ServiceVersionType, ServiceVersion> parse(@NotNull String input) {
+    public Pair<ServiceVersionType, ServiceVersion> parse(@NotNull String input) {
         if (input.equalsIgnoreCase("none")) {
             return null;
         }
@@ -62,7 +62,7 @@ public class QuestionAnswerTypeServiceVersion implements QuestionAnswerType<Pair
     }
 
     @Override
-    public Collection<String> getPossibleAnswers() {
+    public @NotNull Collection<String> getPossibleAnswers() {
         return this.getCompletableAnswers();
     }
 
@@ -72,7 +72,7 @@ public class QuestionAnswerTypeServiceVersion implements QuestionAnswerType<Pair
     }
 
     @Override
-    public List<String> getCompletableAnswers() {
+    public @NotNull List<String> getCompletableAnswers() {
         List<String> completableAnswers = this.serviceVersionProvider.getServiceVersionTypes().values()
                 .stream()
                 .filter(serviceVersionType -> serviceVersionType.getTargetEnvironment().getEnvironmentType() == this.environmentTypeSupplier.get())

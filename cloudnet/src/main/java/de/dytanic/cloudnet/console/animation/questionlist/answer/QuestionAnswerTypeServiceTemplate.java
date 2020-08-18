@@ -26,7 +26,7 @@ public class QuestionAnswerTypeServiceTemplate implements QuestionAnswerType<Ser
     }
 
     @Override
-    public @NotNull ServiceTemplate parse(@NotNull String input) {
+    public ServiceTemplate parse(@NotNull String input) {
         return ServiceTemplate.parse(input);
     }
 

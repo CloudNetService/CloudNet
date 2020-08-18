@@ -27,7 +27,7 @@ public class QuestionAnswerTypeStaticStringArray implements QuestionAnswerType<S
 
     @Override
     public @NotNull String parse(@NotNull String input) {
-        return Arrays.stream(this.allowedValues).filter(value -> value.equalsIgnoreCase(input)).findFirst().get();
+        return Arrays.stream(this.allowedValues).filter(value -> value.equalsIgnoreCase(input)).findFirst().orElseThrow(() -> new IllegalStateException("Calling parse when isValidInput was false"));
     }
 
     @Override

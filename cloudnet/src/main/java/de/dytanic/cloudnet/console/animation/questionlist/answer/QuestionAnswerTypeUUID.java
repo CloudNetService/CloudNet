@@ -11,16 +11,17 @@ public class QuestionAnswerTypeUUID implements QuestionAnswerType<UUID> {
 
     @Override
     public boolean isValidInput(@NotNull String input) {
-        return this.parse(input) != null;
+        try {
+            UUID.fromString(input);
+            return true;
+        } catch (IllegalArgumentException ignored) {
+            return false;
+        }
     }
 
     @Override
     public @NotNull UUID parse(@NotNull String input) {
-        try {
-            return UUID.fromString(input);
-        } catch (IllegalArgumentException ignored) {
-            return null;
-        }
+        return UUID.fromString(input);
     }
 
     @Override
