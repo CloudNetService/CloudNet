@@ -39,6 +39,10 @@ public class RemoteTemplateStorage extends DefaultAsyncTemplateStorage implement
 
     private static final ExecutorService SERVICE = Executors.newFixedThreadPool(3);
 
+    static {
+        Runtime.getRuntime().addShutdownHook(new Thread(SERVICE::shutdownNow));
+    }
+
     private final String name;
     private final Supplier<INetworkChannel> channelSupplier;
 
