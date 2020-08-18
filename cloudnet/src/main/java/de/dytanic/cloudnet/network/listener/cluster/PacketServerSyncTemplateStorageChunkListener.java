@@ -4,8 +4,10 @@ import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.driver.api.DriverAPIRequestType;
+import de.dytanic.cloudnet.driver.network.protocol.Packet;
 import de.dytanic.cloudnet.driver.network.protocol.chunk.listener.CachedChunkedPacketListener;
 import de.dytanic.cloudnet.driver.network.protocol.chunk.listener.ChunkedPacketSession;
+import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import de.dytanic.cloudnet.driver.template.TemplateStorage;
 import de.dytanic.cloudnet.template.ClusterSynchronizedTemplateStorage;
@@ -43,7 +45,8 @@ public class PacketServerSyncTemplateStorageChunkListener extends CachedChunkedP
                 break;
 
             case DEPLOY_TEMPLATE_STREAM:
-                storage.deployWithoutSynchronization(inputStream, template);
+                boolean success = storage.deployWithoutSynchronization(inputStream, template);
+                session.getChannel().sendPacket(Packet.createResponseFor(session.getFirstPacket(), ProtocolBuffer.create().writeBoolean(success)));
                 break;
         }
     }

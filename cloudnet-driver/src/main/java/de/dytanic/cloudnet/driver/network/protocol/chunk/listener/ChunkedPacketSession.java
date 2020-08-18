@@ -1,6 +1,7 @@
 package de.dytanic.cloudnet.driver.network.protocol.chunk.listener;
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.protocol.chunk.ChunkedPacket;
 import org.jetbrains.annotations.NotNull;
 
@@ -11,6 +12,7 @@ import java.util.stream.Collectors;
 
 public class ChunkedPacketSession {
 
+    private final INetworkChannel channel;
     private final ChunkedPacketListener listener;
     private final OutputStream outputStream;
     private final Collection<ChunkedPacket> pendingPackets = new ArrayList<>();
@@ -24,7 +26,8 @@ public class ChunkedPacketSession {
     private JsonDocument header = JsonDocument.EMPTY;
     private volatile boolean closed;
 
-    public ChunkedPacketSession(ChunkedPacketListener listener, UUID sessionUniqueId, OutputStream outputStream, Map<String, Object> properties) {
+    public ChunkedPacketSession(INetworkChannel channel, ChunkedPacketListener listener, UUID sessionUniqueId, OutputStream outputStream, Map<String, Object> properties) {
+        this.channel = channel;
         this.listener = listener;
         this.sessionUniqueId = sessionUniqueId;
         this.outputStream = outputStream;
@@ -108,6 +111,10 @@ public class ChunkedPacketSession {
 
         this.listener.getSessions().remove(this.sessionUniqueId);
         this.listener.handleComplete(this);
+    }
+
+    public INetworkChannel getChannel() {
+        return this.channel;
     }
 
     public OutputStream getOutputStream() {

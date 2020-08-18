@@ -741,7 +741,7 @@ public final class CloudNet extends CloudNetDriver {
         registry.addListener(PacketConstants.CLUSTER_SERVICE_INFO_LIST_CHANNEL, new PacketServerSetGlobalServiceInfoListListener());
         registry.addListener(PacketConstants.CLUSTER_GROUP_CONFIG_LIST_CHANNEL, new PacketServerSetGroupConfigurationListListener());
         registry.addListener(PacketConstants.CLUSTER_TASK_LIST_CHANNEL, new PacketServerSetServiceTaskListListener());
-        registry.addListener(PacketConstants.CLUSTER_TEMPLATE_STORAGE_SYNC_CHANNEL, new PacketServerSyncTemplateStorageListener());
+        registry.addListener(PacketConstants.CLUSTER_TEMPLATE_STORAGE_SYNC_CHANNEL, new PacketServerSyncTemplateStorageListener(false));
         registry.addListener(PacketConstants.CLUSTER_TEMPLATE_STORAGE_CHUNK_SYNC_CHANNEL, new PacketServerSyncTemplateStorageChunkListener());
         registry.addListener(PacketConstants.CLUSTER_PERMISSION_DATA_CHANNEL, new PacketServerSetPermissionDataListener());
         registry.addListener(PacketConstants.CLUSTER_TEMPLATE_DEPLOY_CHANNEL, new PacketServerDeployLocalTemplateListener());

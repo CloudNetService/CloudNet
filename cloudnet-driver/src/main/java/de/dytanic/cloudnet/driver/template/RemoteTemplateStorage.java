@@ -5,12 +5,16 @@ import de.dytanic.cloudnet.common.concurrent.CompletableTask;
 import de.dytanic.cloudnet.common.concurrent.CompletableTaskListener;
 import de.dytanic.cloudnet.common.concurrent.CompletedTask;
 import de.dytanic.cloudnet.common.concurrent.ITask;
+import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.common.stream.WrappedOutputStream;
+import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.api.DriverAPIRequestType;
 import de.dytanic.cloudnet.driver.api.DriverAPIUser;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
+import de.dytanic.cloudnet.driver.network.def.PacketConstants;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
+import de.dytanic.cloudnet.driver.network.protocol.chunk.ChunkedPacketBuilder;
 import de.dytanic.cloudnet.driver.network.protocol.chunk.ChunkedQueryResponse;
 import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
@@ -74,7 +78,11 @@ public class RemoteTemplateStorage extends DefaultAsyncTemplateStorage implement
 
     @Override
     public @NotNull ITask<Boolean> deployAsync(@NotNull InputStream inputStream, @NotNull ServiceTemplate target) {
-        return null; // TODO
+        try {
+            return this.sendChunks(DriverAPIRequestType.DEPLOY_TEMPLATE_STREAM, inputStream, target, JsonDocument.newDocument(), true).map(packet -> packet.getBuffer().readBoolean());
+        } catch (IOException exception) {
+            return CompletedTask.createFailed(exception);
+        }
     }
 
     @Override
@@ -142,11 +150,17 @@ public class RemoteTemplateStorage extends DefaultAsyncTemplateStorage implement
     private ITask<OutputStream> createOutputStreamTask(@NotNull DriverAPIRequestType requestType, @NotNull ServiceTemplate template, @NotNull String path) {
         Path tempFile = FileUtils.createTempFile();
 
-        try {
-            return CompletedTask.create(this.wrapOutputStream(requestType, template, path, tempFile));
-        } catch (IOException exception) {
-            return CompletedTask.createFailed(exception);
-        }
+        CompletableTask<OutputStream> task = new CompletableTask<>();
+
+        SERVICE.execute(() -> {
+            try {
+                task.complete(this.wrapOutputStream(requestType, template, path, tempFile));
+            } catch (IOException exception) {
+                task.fail(exception);
+            }
+        });
+
+        return task;
     }
 
     private OutputStream wrapOutputStream(@NotNull DriverAPIRequestType requestType, @NotNull ServiceTemplate template, @NotNull String path, @NotNull Path tempFile) throws IOException {
@@ -155,7 +169,7 @@ public class RemoteTemplateStorage extends DefaultAsyncTemplateStorage implement
             public void close() throws IOException {
                 super.close();
                 try (InputStream inputStream = Files.newInputStream(tempFile, StandardOpenOption.DELETE_ON_CLOSE)) {
-                    // TODO
+                    sendChunks(requestType, inputStream, template, JsonDocument.newDocument("path", path), false);
                 }
             }
         };
@@ -289,6 +303,21 @@ public class RemoteTemplateStorage extends DefaultAsyncTemplateStorage implement
 
     private ITask<ChunkedQueryResponse> executeChunkedWithTemplate(DriverAPIRequestType requestType, ServiceTemplate template, String path) {
         return this.executeChunkedDriverAPIMethod(requestType, buffer -> this.writeDefaults(buffer, template).writeString(path));
+    }
+
+    private ITask<IPacket> sendChunks(DriverAPIRequestType requestType, InputStream inputStream, ServiceTemplate template, JsonDocument header, boolean query) throws IOException {
+        ChunkedPacketBuilder builder = ChunkedPacketBuilder.newBuilder(PacketConstants.CLUSTER_TEMPLATE_STORAGE_CHUNK_SYNC_CHANNEL, inputStream)
+                .header(header.append("type", requestType).append("template", template))
+                .target(CloudNetDriver.getInstance().getNetworkClient().getChannels());
+
+        ITask<IPacket> task = null;
+        if (query) {
+            task = CloudNetDriver.getInstance().getNetworkClient().getFirstChannel().registerQueryResponseHandler(builder.uniqueId());
+        }
+
+        builder.complete();
+
+        return task;
     }
 
     @Override

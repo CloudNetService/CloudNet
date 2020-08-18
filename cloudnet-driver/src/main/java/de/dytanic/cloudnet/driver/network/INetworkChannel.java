@@ -61,6 +61,8 @@ public interface INetworkChannel extends IPacketSender, AutoCloseable {
 
     IPacket sendQuery(@NotNull IPacket packet);
 
+    ITask<IPacket> registerQueryResponseHandler(UUID uniqueId);
+
     ITask<ChunkedQueryResponse> sendChunkedPacketQuery(@NotNull IPacket packet);
 
     boolean sendChunkedPacketsResponse(@NotNull UUID uniqueId, @NotNull JsonDocument header, @NotNull InputStream inputStream) throws IOException;

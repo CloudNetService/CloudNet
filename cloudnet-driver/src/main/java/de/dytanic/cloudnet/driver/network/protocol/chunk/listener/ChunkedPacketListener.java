@@ -25,7 +25,7 @@ public abstract class ChunkedPacketListener implements IPacketListener {
         try {
             ChunkedPacket chunk = ChunkedPacket.createIncomingPacket(packet.getChannel(), packet.getUniqueId(), packet.getHeader(), packet.getBuffer()).readBuffer();
             if (!this.sessions.containsKey(packet.getUniqueId())) {
-                this.sessions.put(packet.getUniqueId(), this.createSession(packet.getUniqueId(), new HashMap<>()));
+                this.sessions.put(packet.getUniqueId(), this.createSession(channel, packet.getUniqueId(), new HashMap<>()));
             }
 
             this.sessions.get(packet.getUniqueId()).handleIncomingChunk(chunk);
@@ -39,8 +39,8 @@ public abstract class ChunkedPacketListener implements IPacketListener {
     }
 
     @NotNull
-    protected ChunkedPacketSession createSession(@NotNull UUID sessionUniqueId, @NotNull Map<String, Object> properties) throws IOException {
-        return new ChunkedPacketSession(this, sessionUniqueId, this.createOutputStream(sessionUniqueId, properties), properties);
+    protected ChunkedPacketSession createSession(@NotNull INetworkChannel channel, @NotNull UUID sessionUniqueId, @NotNull Map<String, Object> properties) throws IOException {
+        return new ChunkedPacketSession(channel, this, sessionUniqueId, this.createOutputStream(sessionUniqueId, properties), properties);
     }
 
     @NotNull

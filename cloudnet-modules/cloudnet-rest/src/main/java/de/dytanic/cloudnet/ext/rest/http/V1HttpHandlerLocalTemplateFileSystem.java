@@ -13,7 +13,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
-// TODO not tested
 public final class V1HttpHandlerLocalTemplateFileSystem extends V1HttpHandler {
 
     public V1HttpHandlerLocalTemplateFileSystem(String permission) {

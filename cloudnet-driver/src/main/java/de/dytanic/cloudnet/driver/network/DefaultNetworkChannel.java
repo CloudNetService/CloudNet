@@ -51,8 +51,7 @@ public abstract class DefaultNetworkChannel implements INetworkChannel {
 
     @Override
     public ITask<IPacket> sendQueryAsync(@NotNull IPacket packet) {
-        CompletableTask<IPacket> task = new CompletableTask<>();
-        InternalSyncPacketChannel.registerQueryHandler(packet.getUniqueId(), task::complete);
+        ITask<IPacket> task = this.registerQueryResponseHandler(packet.getUniqueId());
         this.sendPacket(packet);
         return task;
     }
@@ -60,6 +59,13 @@ public abstract class DefaultNetworkChannel implements INetworkChannel {
     @Override
     public IPacket sendQuery(@NotNull IPacket packet) {
         return this.sendQueryAsync(packet).get(5, TimeUnit.SECONDS, null);
+    }
+
+    @Override
+    public ITask<IPacket> registerQueryResponseHandler(UUID uniqueId) {
+        CompletableTask<IPacket> task = new CompletableTask<>();
+        InternalSyncPacketChannel.registerQueryHandler(uniqueId, task::complete);
+        return task;
     }
 
     @Override
