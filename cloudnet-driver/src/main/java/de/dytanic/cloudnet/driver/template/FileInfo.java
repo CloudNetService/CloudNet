@@ -24,11 +24,9 @@ public class FileInfo implements SerializableObject {
     private long creationTime;
     private long lastModified;
     private long lastAccess;
-    private boolean readable;
-    private boolean writable;
     private long size;
 
-    public FileInfo(@NotNull String path, @NotNull String name, boolean directory, boolean hidden, long creationTime, long lastModified, long lastAccess, boolean readable, boolean writable, long size) {
+    public FileInfo(@NotNull String path, @NotNull String name, boolean directory, boolean hidden, long creationTime, long lastModified, long lastAccess, long size) {
         this.path = path;
         this.name = name;
         this.directory = directory;
@@ -36,8 +34,6 @@ public class FileInfo implements SerializableObject {
         this.creationTime = creationTime;
         this.lastModified = lastModified;
         this.lastAccess = lastAccess;
-        this.readable = readable;
-        this.writable = writable;
         this.size = size;
     }
 
@@ -65,7 +61,6 @@ public class FileInfo implements SerializableObject {
                 relativePath.toString().replace(File.separatorChar, '/'), relativePath.getFileName().toString(),
                 attributes.isDirectory(), Files.isHidden(fullPath),
                 attributes.creationTime().toMillis(), attributes.lastModifiedTime().toMillis(), attributes.lastAccessTime().toMillis(),
-                Files.isReadable(fullPath), Files.isWritable(fullPath),
                 attributes.size()
         );
     }
@@ -105,14 +100,6 @@ public class FileInfo implements SerializableObject {
         return this.lastAccess;
     }
 
-    public boolean isReadable() {
-        return this.readable;
-    }
-
-    public boolean isWritable() {
-        return this.writable;
-    }
-
     public long getSize() {
         return this.size;
     }
@@ -126,8 +113,6 @@ public class FileInfo implements SerializableObject {
         buffer.writeLong(this.creationTime);
         buffer.writeLong(this.lastModified);
         buffer.writeLong(this.lastAccess);
-        buffer.writeBoolean(this.readable);
-        buffer.writeBoolean(this.writable);
         buffer.writeLong(this.size);
     }
 
@@ -140,8 +125,6 @@ public class FileInfo implements SerializableObject {
         this.creationTime = buffer.readLong();
         this.lastModified = buffer.readLong();
         this.lastAccess = buffer.readLong();
-        this.readable = buffer.readBoolean();
-        this.writable = buffer.readBoolean();
         this.size = buffer.readLong();
     }
 }

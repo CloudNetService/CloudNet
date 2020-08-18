@@ -248,7 +248,6 @@ public class SFTPTemplateStorage extends AbstractFTPStorage {
                 path, name,
                 attrs.isDir(), false,
                 -1, 1000 * (long) attrs.getMTime(), 1000 * (long) attrs.getATime(),
-                (400 & attrs.getPermissions()) != 0, (200 & attrs.getPermissions()) != 0,
                 attrs.getSize()
         );
     }

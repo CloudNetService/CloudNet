@@ -522,8 +522,6 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
         return new FileInfo(
                 path, filename, file == null || file.isDirectory(),
                 false, -1, file == null || file.getTimestamp() == null ? -1 : file.getTimestamp().getTimeInMillis(), -1,
-                file == null || file.hasPermission(FTPFile.USER_ACCESS, FTPFile.READ_PERMISSION), // TODO read and write are always false
-                file == null || file.hasPermission(FTPFile.USER_ACCESS, FTPFile.WRITE_PERMISSION),
                 file == null ? -1 : file.getSize()
         );
     }
