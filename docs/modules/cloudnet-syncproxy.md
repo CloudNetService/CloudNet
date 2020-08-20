@@ -24,6 +24,7 @@ Tablist Patterns:
 %proxy% - The current proxy service name
 %proxy_uniqueId% - The current proxy service uniqueId
 %server% - The server name which the player is connected
+%task% - The task name of the server which the player is connected with
 %online_players% - The current proxy online count
 %max_players% - The max player size, which is configured is
 %proxy_task_name% - The task from the proxy, which the player is connected
