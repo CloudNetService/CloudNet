@@ -2,7 +2,7 @@ package de.dytanic.cloudnet.ext.syncproxy.bungee;
 
 
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
-import de.dytanic.cloudnet.ext.bridge.player.ICloudPlayer;
+import de.dytanic.cloudnet.ext.bridge.proxy.BridgeProxyHelper;
 import de.dytanic.cloudnet.ext.syncproxy.AbstractSyncProxyManagement;
 import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyConfiguration;
 import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyProxyLoginConfiguration;
@@ -55,10 +55,16 @@ public class BungeeSyncProxyManagement extends AbstractSyncProxyManagement {
     }
 
     private String replaceTabListItem(ProxiedPlayer proxiedPlayer, String input) {
-        ICloudPlayer cloudPlayer = super.playerManager.getOnlinePlayer(proxiedPlayer.getUniqueId());
+        String taskName = "";
+        if (proxiedPlayer.getServer() != null) {
+            ServiceInfoSnapshot serviceInfoSnapshot = BridgeProxyHelper.getCachedServiceInfoSnapshot(proxiedPlayer.getServer().getInfo().getName());
+            if (serviceInfoSnapshot != null) {
+                taskName = serviceInfoSnapshot.getServiceId().getTaskName();
+            }
+        }
         input = input
                 .replace("%server%", proxiedPlayer.getServer() != null ? proxiedPlayer.getServer().getInfo().getName() : "")
-                .replace("%task%", cloudPlayer != null ? cloudPlayer.getConnectedService().getTaskName() : "")
+                .replace("%task%", taskName)
                 .replace("%online_players%", String.valueOf(super.loginConfiguration != null ? super.getSyncProxyOnlineCount() : ProxyServer.getInstance().getOnlineCount()))
                 .replace("%max_players%", String.valueOf(super.loginConfiguration != null ? super.loginConfiguration.getMaxPlayers() : proxiedPlayer.getPendingConnection().getListener().getMaxPlayers()))
                 .replace("%name%", proxiedPlayer.getName())
