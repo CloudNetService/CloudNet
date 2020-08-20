@@ -4,6 +4,7 @@ package de.dytanic.cloudnet.ext.syncproxy.velocity;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
+import de.dytanic.cloudnet.ext.bridge.player.ICloudPlayer;
 import de.dytanic.cloudnet.ext.syncproxy.AbstractSyncProxyManagement;
 import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyConfiguration;
 import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyTabList;
@@ -47,8 +48,10 @@ public class VelocitySyncProxyManagement extends AbstractSyncProxyManagement {
     }
 
     private String replaceTabListItem(Player player, String input) {
+        ICloudPlayer cloudPlayer = super.playerManager.getOnlinePlayer(player.getUniqueId());
         input = input
                 .replace("%server%", player.getCurrentServer().isPresent() ? player.getCurrentServer().get().getServerInfo().getName() : "")
+                .replace("%task%", cloudPlayer != null ? cloudPlayer.getConnectedService().getTaskName() : "")
                 .replace("%online_players%", String.valueOf(super.loginConfiguration != null ? super.getSyncProxyOnlineCount() : this.proxyServer.getPlayerCount()))
                 .replace("%max_players%", String.valueOf(super.loginConfiguration != null ? super.loginConfiguration.getMaxPlayers() : this.proxyServer.getConfiguration().getShowMaxPlayers()))
                 .replace("%name%", player.getUsername())
