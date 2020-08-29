@@ -4,6 +4,7 @@ package de.dytanic.cloudnet.ext.syncproxy.velocity;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
+import de.dytanic.cloudnet.ext.bridge.proxy.BridgeProxyHelper;
 import de.dytanic.cloudnet.ext.syncproxy.AbstractSyncProxyManagement;
 import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyConfiguration;
 import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyTabList;
@@ -47,8 +48,14 @@ public class VelocitySyncProxyManagement extends AbstractSyncProxyManagement {
     }
 
     private String replaceTabListItem(Player player, String input) {
+        String taskName = player.getCurrentServer()
+                .map(serverConnection -> BridgeProxyHelper.getCachedServiceInfoSnapshot(serverConnection.getServerInfo().getName()))
+                .map(serviceInfoSnapshot -> serviceInfoSnapshot.getServiceId().getTaskName())
+                .orElse("");
+        String serverName = player.getCurrentServer().map(serverConnection -> serverConnection.getServerInfo().getName()).orElse("");
         input = input
-                .replace("%server%", player.getCurrentServer().isPresent() ? player.getCurrentServer().get().getServerInfo().getName() : "")
+                .replace("%server%", serverName)
+                .replace("%task%", taskName)
                 .replace("%online_players%", String.valueOf(super.loginConfiguration != null ? super.getSyncProxyOnlineCount() : this.proxyServer.getPlayerCount()))
                 .replace("%max_players%", String.valueOf(super.loginConfiguration != null ? super.loginConfiguration.getMaxPlayers() : this.proxyServer.getConfiguration().getShowMaxPlayers()))
                 .replace("%name%", player.getUsername())

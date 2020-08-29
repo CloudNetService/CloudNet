@@ -13,6 +13,7 @@ import de.dytanic.cloudnet.template.TemplateStorageUtil;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -112,7 +113,20 @@ public final class V1HttpHandlerLocalTemplateFileSystem extends V1HttpHandler {
                 }
             }
 
-            this.getCloudNet().deployTemplateInCluster(serviceTemplate, TemplateStorageUtil.getLocalTemplateStorage().toZipByteArray(serviceTemplate));
+            InputStream inputStream = TemplateStorageUtil.getLocalTemplateStorage().zipTemplate(serviceTemplate);
+            if (inputStream == null) {
+                context
+                        .response()
+                        .statusCode(HttpResponseCode.HTTP_INTERNAL_ERROR)
+                        .header("Content-Type", "application/json")
+                        .body(new JsonDocument("success", false).toByteArray())
+                        .context()
+                        .closeAfter(true)
+                        .cancelNext();
+                return;
+            }
+
+            this.getCloudNet().deployTemplateInCluster(serviceTemplate, inputStream);
 
             context
                     .response()
@@ -129,7 +143,7 @@ public final class V1HttpHandlerLocalTemplateFileSystem extends V1HttpHandler {
     }
 
     @Override
-    public void handleDelete(String path, IHttpContext context) {
+    public void handleDelete(String path, IHttpContext context) throws Exception {
         if (!this.validateTemplate(context)) {
             return;
         }
@@ -145,7 +159,20 @@ public final class V1HttpHandlerLocalTemplateFileSystem extends V1HttpHandler {
             }
 
             FileUtils.delete(file);
-            this.getCloudNet().deployTemplateInCluster(serviceTemplate, TemplateStorageUtil.getLocalTemplateStorage().toZipByteArray(serviceTemplate));
+            InputStream inputStream = TemplateStorageUtil.getLocalTemplateStorage().zipTemplate(serviceTemplate);
+            if (inputStream == null) {
+                context
+                        .response()
+                        .statusCode(HttpResponseCode.HTTP_INTERNAL_ERROR)
+                        .header("Content-Type", "application/json")
+                        .body(new JsonDocument("success", false).toByteArray())
+                        .context()
+                        .closeAfter(true)
+                        .cancelNext();
+                return;
+            }
+
+            this.getCloudNet().deployTemplateInCluster(serviceTemplate, inputStream);
 
             context
                     .response()
