@@ -30,11 +30,15 @@ public final class CloudflareStartAndStopListener {
                     cloudflareConfigurationEntry.getApiToken(),
                     cloudflareConfigurationEntry.getZoneId(),
                     new SRVRecord(
-                            "_minecraft._tcp." + cloudflareConfigurationEntry.getDomainName(),
-                            "SRV " + cloudflareGroupConfiguration.getPriority() + " " + cloudflareGroupConfiguration.getWeight() + " " +
-                                    event.getCloudService().getServiceConfiguration().getPort() + " " +
-                                    CloudNet.getInstance().getConfig().getIdentity().getUniqueId() + "." +
-                                    cloudflareConfigurationEntry.getDomainName(),
+                            String.format("_minecraft._tcp.%s", cloudflareConfigurationEntry.getDomainName()),
+                            String.format(
+                                    "SRV %s %s %s %s.%s",
+                                    cloudflareGroupConfiguration.getPriority(),
+                                    cloudflareGroupConfiguration.getWeight(),
+                                    event.getCloudService().getServiceConfiguration().getPort(),
+                                    CloudNet.getInstance().getConfig().getIdentity().getUniqueId(),
+                                    cloudflareConfigurationEntry.getDomainName()
+                            ),
                             "_minecraft",
                             "_tcp",
                             cloudflareGroupConfiguration.getSub().equals("@") ? cloudflareConfigurationEntry.getDomainName() : cloudflareGroupConfiguration.getSub(),
