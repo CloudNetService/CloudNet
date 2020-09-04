@@ -8,13 +8,9 @@ import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.provider.service.CloudServiceFactory;
 import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
-import de.dytanic.cloudnet.driver.service.*;
+import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Collection;
-import java.util.Queue;
-import java.util.UUID;
 
 public interface IClusterNodeServer extends AutoCloseable {
 
@@ -45,8 +41,6 @@ public interface IClusterNodeServer extends AutoCloseable {
     boolean isAcceptableConnection(@NotNull INetworkChannel channel, @NotNull String nodeId);
 
     String[] sendCommandLine(@NotNull String commandLine);
-
-    void deployTemplateInCluster(@NotNull ServiceTemplate serviceTemplate, @NotNull byte[] zipResource);
 
     @ApiStatus.Internal
     CloudServiceFactory getCloudServiceFactory();

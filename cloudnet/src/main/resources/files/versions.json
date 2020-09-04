@@ -12,15 +12,21 @@
           "properties": {
             "copy": [
               "cache/patched.*\\.jar"
+            ],
+            "jvmOptions": [
+              "-Dpaperclip.patchonly=true"
             ]
           }
         },
         {
-          "name": "1.15.1",
+          "name": "1.15.2",
           "url": "https://papermc.io/ci/job/Paper-1.15/lastSuccessfulBuild/artifact/paperclip.jar",
           "properties": {
             "copy": [
               "cache/patched.*\\.jar"
+            ],
+            "jvmOptions": [
+              "-Dpaperclip.patchonly=true"
             ]
           }
         },
@@ -30,6 +36,9 @@
           "properties": {
             "copy": [
               "cache/patched.*\\.jar"
+            ],
+            "jvmOptions": [
+              "-Dpaperclip.patchonly=true"
             ]
           }
         },
@@ -39,6 +48,9 @@
           "properties": {
             "copy": [
               "cache/patched.*\\.jar"
+            ],
+            "jvmOptions": [
+              "-Dpaperclip.patchonly=true"
             ]
           }
         },
@@ -48,6 +60,9 @@
           "properties": {
             "copy": [
               "cache/patched.*\\.jar"
+            ],
+            "jvmOptions": [
+              "-Dpaperclip.patchonly=true"
             ]
           }
         },
@@ -59,6 +74,9 @@
           "properties": {
             "copy": [
               "cache/patched.*\\.jar"
+            ],
+            "jvmOptions": [
+              "-Dpaperclip.patchonly=true"
             ]
           }
         },
@@ -121,19 +139,27 @@
         },
         {
           "name": "1.11.2",
-          "url": "https://cdn.getbukkit.org/spigot/spigot-1.11.2.jar"
+          "url": "https://cdn.getbukkit.org/spigot/spigot-1.11.2.jar",
+          "deprecated": true,
+          "maxJavaVersion": 8
         },
         {
           "name": "1.10.2",
-          "url": "https://cdn.getbukkit.org/spigot/spigot-1.10.2-R0.1-SNAPSHOT-latest.jar"
+          "url": "https://cdn.getbukkit.org/spigot/spigot-1.10.2-R0.1-SNAPSHOT-latest.jar",
+          "deprecated": true,
+          "maxJavaVersion": 8
         },
         {
           "name": "1.9.4",
-          "url": "https://cdn.getbukkit.org/spigot/spigot-1.9.4-R0.1-SNAPSHOT-latest.jar"
+          "url": "https://cdn.getbukkit.org/spigot/spigot-1.9.4-R0.1-SNAPSHOT-latest.jar",
+          "deprecated": true,
+          "maxJavaVersion": 8
         },
         {
           "name": "1.8.8",
-          "url": "https://cdn.getbukkit.org/spigot/spigot-1.8.8-R0.1-SNAPSHOT-latest.jar"
+          "url": "https://cdn.getbukkit.org/spigot/spigot-1.8.8-R0.1-SNAPSHOT-latest.jar",
+          "deprecated": true,
+          "maxJavaVersion": 8
         }
       ]
     },
@@ -629,7 +655,7 @@
       "versions": [
         {
           "name": "latest",
-          "url": "https://ci.velocitypowered.com/job/velocity/lastSuccessfulBuild/artifact/proxy/build/libs/velocity-proxy-1.0.6-SNAPSHOT-all.jar"
+          "url": "https://ci.velocitypowered.com/job/velocity/lastSuccessfulBuild/artifact/proxy/build/libs/velocity-proxy-1.0.9-SNAPSHOT-all.jar"
         }
       ]
     },

@@ -18,7 +18,7 @@ public final class JsonConfigurationRegistryTest {
                         .put("a", "Test String")
                         .put("b", "foobar".getBytes())
                         .put("c", 24)
-                        .put("d", new Person("Peter Parker", 24, new JsonDocument("address", new HostAndPort("localhost", 6533))))
+                        .put("d", new Person("Peter Parker", 24, new JsonDocument("address", new HostAndPort("127.0.0.1", 6533))))
         );
 
         Assert.assertTrue(configurationRegistry.contains("a"));
@@ -48,29 +48,29 @@ public final class JsonConfigurationRegistryTest {
         Assert.assertNotNull(person.properties);
 
         Assert.assertEquals("Peter Parker", person.name);
-        Assert.assertEquals(24, person.alter);
+        Assert.assertEquals(24, person.age);
 
         Assert.assertTrue(person.properties.contains("address"));
 
         HostAndPort hostAndPort = person.properties.get("address", HostAndPort.class);
         Assert.assertNotNull(hostAndPort);
 
-        Assert.assertEquals("localhost", hostAndPort.getHost());
+        Assert.assertEquals("127.0.0.1", hostAndPort.getHost());
         Assert.assertEquals(6533, hostAndPort.getPort());
 
         Assert.assertNotNull(configurationRegistry.remove("a"));
         Assert.assertFalse(configurationRegistry.contains("a"));
     }
 
-    private final class Person {
+    private static final class Person {
 
         private final JsonDocument properties;
-        private String name;
-        private int alter;
+        private final String name;
+        private final int age;
 
-        public Person(String name, int alter, JsonDocument properties) {
+        public Person(String name, int age, JsonDocument properties) {
             this.name = name;
-            this.alter = alter;
+            this.age = age;
             this.properties = properties;
         }
     }

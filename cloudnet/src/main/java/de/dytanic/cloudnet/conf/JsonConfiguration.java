@@ -52,6 +52,8 @@ public final class JsonConfiguration implements IConfiguration {
 
     private String hostAddress;
 
+    private String connectHostAddress;
+
     private Collection<HostAndPort> httpListeners;
 
     private ConfigurationOptionSSL clientSslConfig, serverSslConfig, webSslConfig;
@@ -137,6 +139,7 @@ public final class JsonConfiguration implements IConfiguration {
         );
 
         this.hostAddress = this.document.getString("hostAddress", address);
+        this.connectHostAddress = this.document.getString("connectHostAddress", this.hostAddress);
         this.httpListeners = this.document.get("httpListeners", HOST_AND_PORT_COLLECTION, Collections.singletonList(new HostAndPort("0.0.0.0", 2812)));
 
         ConfigurationOptionSSL fallback = new ConfigurationOptionSSL(
@@ -177,6 +180,7 @@ public final class JsonConfiguration implements IConfiguration {
                 .append("runBlockedServiceStartTryLaterAutomatic", this.runBlockedServiceStartTryLaterAutomatic)
                 .append("cluster", this.clusterConfig)
                 .append("hostAddress", this.hostAddress)
+                .append("connectHostAddress", this.connectHostAddress)
                 .append("httpListeners", this.httpListeners)
                 .append("clientSslConfig", this.clientSslConfig)
                 .append("serverSslConfig", this.serverSslConfig)
@@ -312,6 +316,18 @@ public final class JsonConfiguration implements IConfiguration {
     @Override
     public void setHostAddress(String hostAddress) {
         this.hostAddress = hostAddress;
+        this.save();
+    }
+
+    @Override
+    public String getConnectHostAddress() {
+        return this.connectHostAddress;
+    }
+
+    @Override
+    public void setConnectHostAddress(String connectHostAddress) {
+        this.connectHostAddress = connectHostAddress;
+        this.save();
     }
 
     public ConfigurationOptionSSL getClientSslConfig() {
@@ -337,4 +353,5 @@ public final class JsonConfiguration implements IConfiguration {
     public void setDefaultHostAddress(String defaultHostAddress) {
         this.defaultHostAddress = defaultHostAddress;
     }
+
 }

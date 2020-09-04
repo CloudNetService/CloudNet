@@ -127,7 +127,7 @@ public final class TemplateStorageUtil {
             }
 
             if (storage.shouldSyncInCluster()) {
-                CloudNet.getInstance().deployTemplateInCluster(serviceTemplate, storage.toZipByteArray(serviceTemplate));
+                CloudNet.getInstance().deployTemplateInCluster(serviceTemplate, storage.zipTemplate(serviceTemplate));
             }
             return true;
         } else {

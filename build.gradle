@@ -59,7 +59,7 @@ allprojects {
 
     project.ext {
 
-        cloudNetCodeName = 'Hurricane'
+        cloudNetCodeName = 'Earthquake'
 
         //Dependencies
         dependencyGuavaVersion = '28.2-jre'
@@ -74,7 +74,7 @@ allprojects {
         dependencyBukkitVersion = '1.15.2-R0.1-SNAPSHOT'
         dependencySpongeVersion = '7.0.0'
         dependencyBungeeCordVersion = '1.15-SNAPSHOT'
-        dependencyVelocityVersion = '1.0.0-SNAPSHOT'
+        dependencyVelocityVersion = '1.1.0-SNAPSHOT'
         dependencyNukkitXVersion = '1.0-SNAPSHOT'
 
         testJunitVersion = '4.12'
@@ -233,6 +233,7 @@ task allJavadoc(type: Javadoc) {
     options.encoding = 'UTF-8'
     options.windowTitle = 'CloudNet Javadocs'
     options.memberLevel = JavadocMemberLevel.PRIVATE
+    options.addBooleanOption "-no-module-directories", true
 
     options.addStringOption('Xdoclint:none', '-quiet')
 

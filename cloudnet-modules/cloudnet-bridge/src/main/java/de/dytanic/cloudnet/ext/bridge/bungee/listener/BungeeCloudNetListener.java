@@ -32,8 +32,8 @@ public final class BungeeCloudNetListener {
             String name = event.getServiceInfo().getServiceId().getName();
 
             ProxyServer.getInstance().getServers().put(name, BungeeCloudNetHelper.createServerInfo(name, new InetSocketAddress(
-                    event.getServiceInfo().getAddress().getHost(),
-                    event.getServiceInfo().getAddress().getPort()
+                    event.getServiceInfo().getConnectAddress().getHost(),
+                    event.getServiceInfo().getConnectAddress().getPort()
             )));
         }
 
@@ -43,8 +43,8 @@ public final class BungeeCloudNetListener {
     @EventListener
     public void handle(CloudServiceStopEvent event) {
         if (BungeeCloudNetHelper.isServiceEnvironmentTypeProvidedForBungeeCord(event.getServiceInfo())) {
-            String name = event.getServiceInfo().getServiceId().getName();
-            ProxyServer.getInstance().getServers().remove(name);
+            ProxyServer.getInstance().getServers().remove(event.getServiceInfo().getName());
+            BridgeProxyHelper.cacheServiceInfoSnapshot(event.getServiceInfo());
         }
 
         this.bungeeCall(new BungeeCloudServiceStopEvent(event.getServiceInfo()));
@@ -89,7 +89,7 @@ public final class BungeeCloudNetListener {
     @EventListener
     public void handle(CloudServiceUnregisterEvent event) {
         if (BungeeCloudNetHelper.isServiceEnvironmentTypeProvidedForBungeeCord(event.getServiceInfo())) {
-            BridgeProxyHelper.cacheServiceInfoSnapshot(event.getServiceInfo());
+            BridgeProxyHelper.removeCachedServiceInfoSnapshot(event.getServiceInfo());
         }
 
         this.bungeeCall(new BungeeCloudServiceUnregisterEvent(event.getServiceInfo()));

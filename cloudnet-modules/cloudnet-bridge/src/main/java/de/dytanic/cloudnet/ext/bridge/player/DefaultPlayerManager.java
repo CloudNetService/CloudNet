@@ -1,8 +1,6 @@
 package de.dytanic.cloudnet.ext.bridge.player;
 
-import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;
-import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import de.dytanic.cloudnet.ext.bridge.BridgeConstants;
 import de.dytanic.cloudnet.ext.bridge.player.executor.DefaultPlayerExecutor;
 import de.dytanic.cloudnet.ext.bridge.player.executor.PlayerExecutor;
@@ -13,26 +11,26 @@ import java.util.UUID;
 
 public abstract class DefaultPlayerManager implements IPlayerManager {
 
+    private static final PlayerExecutor GLOBAL_PLAYER_EXECUTOR = new DefaultPlayerExecutor(DefaultPlayerExecutor.GLOBAL_ID);
+
     @Override
     public @NotNull PlayerExecutor getPlayerExecutor(@NotNull UUID uniqueId) {
         return new DefaultPlayerExecutor(uniqueId);
     }
 
     @Override
-    public void broadcastMessage(@NotNull String message) {
-        Preconditions.checkNotNull(message);
+    public PlayerExecutor getGlobalPlayerExecutor() {
+        return GLOBAL_PLAYER_EXECUTOR;
+    }
 
-        this.broadcastMessage(message, null);
+    @Override
+    public void broadcastMessage(@NotNull String message) {
+        this.getGlobalPlayerExecutor().sendChatMessage(message);
     }
 
     @Override
     public void broadcastMessage(@NotNull String message, @Nullable String permission) {
-        Preconditions.checkNotNull(message);
-
-        DefaultPlayerExecutor.builder()
-                .message("broadcast_message")
-                .buffer(ProtocolBuffer.create().writeString(message).writeOptionalString(permission))
-                .build().send();
+        this.getGlobalPlayerExecutor().sendChatMessage(message, permission);
     }
 
     public ChannelMessage.Builder messageBuilder() {

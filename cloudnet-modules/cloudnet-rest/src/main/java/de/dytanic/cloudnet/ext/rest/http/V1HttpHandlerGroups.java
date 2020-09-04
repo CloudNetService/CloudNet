@@ -6,11 +6,11 @@ import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.network.http.HttpResponseCode;
 import de.dytanic.cloudnet.driver.network.http.IHttpContext;
 import de.dytanic.cloudnet.driver.service.GroupConfiguration;
+import de.dytanic.cloudnet.ext.rest.RestUtils;
 import de.dytanic.cloudnet.http.V1HttpHandler;
 
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.stream.Collectors;
 
 public final class V1HttpHandlerGroups extends V1HttpHandler {
@@ -66,17 +66,7 @@ public final class V1HttpHandlerGroups extends V1HttpHandler {
             return;
         }
 
-        if (groupConfiguration.getTemplates() == null) {
-            groupConfiguration.setTemplates(new ArrayList<>());
-        }
-
-        if (groupConfiguration.getIncludes() == null) {
-            groupConfiguration.setIncludes(new ArrayList<>());
-        }
-
-        if (groupConfiguration.getDeployments() == null) {
-            groupConfiguration.setDeployments(new ArrayList<>());
-        }
+        RestUtils.replaceNulls(groupConfiguration);
 
         int status = !CloudNetDriver.getInstance().getGroupConfigurationProvider().isGroupConfigurationPresent(groupConfiguration.getName()) ?
                 HttpResponseCode.HTTP_OK

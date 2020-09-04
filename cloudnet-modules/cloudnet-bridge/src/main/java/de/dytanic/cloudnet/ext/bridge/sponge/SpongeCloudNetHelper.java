@@ -9,9 +9,7 @@ import de.dytanic.cloudnet.ext.bridge.WorldInfo;
 import de.dytanic.cloudnet.ext.bridge.WorldPosition;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkConnectionInfo;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkPlayerServerInfo;
-import de.dytanic.cloudnet.ext.bridge.player.NetworkServiceInfo;
 import de.dytanic.cloudnet.ext.bridge.server.BridgeServerHelper;
-import de.dytanic.cloudnet.wrapper.Wrapper;
 import org.spongepowered.api.Platform;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.manipulator.mutable.entity.ExperienceHolderData;
@@ -101,10 +99,7 @@ public final class SpongeCloudNetHelper extends BridgeServerHelper {
                 new HostAndPort(Sponge.getServer().getBoundAddress().orElse(null)),
                 onlineMode,
                 false,
-                new NetworkServiceInfo(
-                        Wrapper.getInstance().getServiceId(),
-                        Wrapper.getInstance().getCurrentServiceInfoSnapshot().getConfiguration().getGroups()
-                )
+                BridgeHelper.createOwnNetworkServiceInfo()
         );
     }
 
@@ -136,10 +131,7 @@ public final class SpongeCloudNetHelper extends BridgeServerHelper {
                 holderData.map(experienceHolderData -> experienceHolderData.level().get()).orElse(0),
                 worldPosition,
                 new HostAndPort(player.getConnection().getAddress()),
-                new NetworkServiceInfo(
-                        Wrapper.getInstance().getServiceId(),
-                        Wrapper.getInstance().getCurrentServiceInfoSnapshot().getConfiguration().getGroups()
-                )
+                BridgeHelper.createOwnNetworkServiceInfo()
         );
     }
 

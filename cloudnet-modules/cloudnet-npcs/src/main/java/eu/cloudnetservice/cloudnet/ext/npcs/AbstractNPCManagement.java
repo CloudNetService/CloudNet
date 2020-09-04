@@ -133,7 +133,6 @@ public abstract class AbstractNPCManagement extends ServiceInfoStateWatcher {
      * @param npc the NPC to add
      */
     public void sendNPCAddUpdate(@NotNull CloudNPC npc) {
-        this.addNPC(npc);
         ChannelMessage.builder()
                 .channel(NPCConstants.NPC_CHANNEL_NAME)
                 .message(NPCConstants.NPC_CHANNEL_ADD_NPC_MESSAGE)
@@ -148,7 +147,6 @@ public abstract class AbstractNPCManagement extends ServiceInfoStateWatcher {
      * @param npc the NPC to remove
      */
     public void sendNPCRemoveUpdate(@NotNull CloudNPC npc) {
-        this.removeNPC(npc);
         ChannelMessage.builder()
                 .channel(NPCConstants.NPC_CHANNEL_NAME)
                 .message(NPCConstants.NPC_CHANNEL_REMOVE_NPC_MESSAGE)

@@ -304,7 +304,6 @@ public abstract class AbstractSignManagement extends ServiceInfoStateWatcher {
      * @param sign the sign to add
      */
     public void sendSignAddUpdate(@NotNull Sign sign) {
-        this.addSign(sign);
         ChannelMessage.builder()
                 .channel(SignConstants.SIGN_CHANNEL_NAME)
                 .message(SignConstants.SIGN_CHANNEL_ADD_SIGN_MESSAGE)
@@ -319,7 +318,6 @@ public abstract class AbstractSignManagement extends ServiceInfoStateWatcher {
      * @param sign the sign to remove
      */
     public void sendSignRemoveUpdate(@NotNull Sign sign) {
-        this.removeSign(sign);
         ChannelMessage.builder()
                 .channel(SignConstants.SIGN_CHANNEL_NAME)
                 .message(SignConstants.SIGN_CHANNEL_REMOVE_SIGN_MESSAGE)

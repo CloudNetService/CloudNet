@@ -49,24 +49,12 @@ public class NettyNetworkQueryTest {
         Assert.assertEquals(0, networkServer.getChannels().size());
     }
 
-    private final class NetworkChannelClientHandler implements INetworkChannelHandler {
+    private static final class PacketListenerImpl implements IPacketListener {
 
         @Override
-        public void handleChannelInitialize(INetworkChannel channel) {
-            NettyNetworkQueryTest.this.connectedClient = true;
-        }
-
-        @Override
-        public boolean handlePacketReceive(INetworkChannel channel, Packet packet) {
-            if (InternalSyncPacketChannel.handleIncomingChannel(packet)) {
-                return false;
-            }
-            return true;
-        }
-
-        @Override
-        public void handleChannelClose(INetworkChannel channel) {
-
+        public void handle(INetworkChannel channel, IPacket packet) {
+            Assert.assertEquals(packet.getHeader().getString("TestKey"), "TestValue");
+            channel.sendPacket(new Packet(-1, packet.getUniqueId(), JsonDocument.newDocument("test", "val"), ProtocolBuffer.create().writeInt(50)));
         }
     }
 
@@ -88,12 +76,21 @@ public class NettyNetworkQueryTest {
         }
     }
 
-    private final class PacketListenerImpl implements IPacketListener {
+    private final class NetworkChannelClientHandler implements INetworkChannelHandler {
 
         @Override
-        public void handle(INetworkChannel channel, IPacket packet) {
-            Assert.assertEquals(packet.getHeader().getString("TestKey"), "TestValue");
-            channel.sendPacket(new Packet(-1, packet.getUniqueId(), JsonDocument.newDocument("test", "val"), ProtocolBuffer.create().writeInt(50)));
+        public void handleChannelInitialize(INetworkChannel channel) {
+            NettyNetworkQueryTest.this.connectedClient = true;
+        }
+
+        @Override
+        public boolean handlePacketReceive(INetworkChannel channel, Packet packet) {
+            return !InternalSyncPacketChannel.handleIncomingChannel(packet);
+        }
+
+        @Override
+        public void handleChannelClose(INetworkChannel channel) {
+
         }
     }
 

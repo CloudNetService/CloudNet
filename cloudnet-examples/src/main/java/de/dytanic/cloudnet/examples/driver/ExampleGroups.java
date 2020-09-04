@@ -1,6 +1,5 @@
 package de.dytanic.cloudnet.examples.driver;
 
-import de.dytanic.cloudnet.common.concurrent.ITaskListener;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.service.GroupConfiguration;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;

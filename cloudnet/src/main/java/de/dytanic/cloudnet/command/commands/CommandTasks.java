@@ -146,6 +146,7 @@ public class CommandTasks extends CommandServiceConfigurationBase {
                                         new ProcessConfiguration(
                                                 type,
                                                 type.isMinecraftProxy() ? 256 : 512,
+                                                new ArrayList<>(),
                                                 new ArrayList<>()
                                         ),
                                         type.getDefaultStartPort(),
@@ -286,6 +287,15 @@ public class CommandTasks extends CommandServiceConfigurationBase {
                         exactStringIgnoreCase("environment"),
                         exactEnum(ServiceEnvironmentType.class)
                 )
+                .generateCommand(
+                        (subCommand, sender, command, args, commandLine, properties, internalProperties) ->
+                                forEachTasks(
+                                        (ServiceConfigurationBase[]) internalProperties.get("tasks"),
+                                        task -> task.setDisableIpRewrite((boolean) args.argument("value").orElse(false))
+                                ),
+                        exactStringIgnoreCase("disableIpRewrite"),
+                        bool("value")
+                )
 
                 .removeLastPostHandler();
     }
@@ -398,6 +408,7 @@ public class CommandTasks extends CommandServiceConfigurationBase {
                 "* Environment: " + serviceTask.getProcessConfiguration().getEnvironment(),
                 "* Max HeapMemory: " + serviceTask.getProcessConfiguration().getMaxHeapMemorySize(),
                 "* JVM Options: " + serviceTask.getProcessConfiguration().getJvmOptions().toString(),
+                "* Process Parameters: " + serviceTask.getProcessConfiguration().getProcessParameters().toString(),
                 " "
         ));
 
@@ -618,6 +629,7 @@ public class CommandTasks extends CommandServiceConfigurationBase {
                     new ProcessConfiguration(
                             environmentType,
                             memory,
+                            new ArrayList<>(),
                             new ArrayList<>()
                     ),
                     startPort,

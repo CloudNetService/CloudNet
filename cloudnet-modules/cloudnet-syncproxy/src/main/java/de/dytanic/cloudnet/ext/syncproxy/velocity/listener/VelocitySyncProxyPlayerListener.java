@@ -35,9 +35,9 @@ public final class VelocitySyncProxyPlayerListener {
                 int onlinePlayers = this.syncProxyManagement.getSyncProxyOnlineCount();
 
                 int maxPlayers = syncProxyMotd.isAutoSlot() ? Math.min(
-                        this.syncProxyManagement.getLoginConfiguration().getMaxPlayers(),
+                        syncProxyProxyLoginConfiguration.getMaxPlayers(),
                         onlinePlayers + syncProxyMotd.getAutoSlotMaxPlayersDistance()
-                ) : this.syncProxyManagement.getLoginConfiguration().getMaxPlayers();
+                ) : syncProxyProxyLoginConfiguration.getMaxPlayers();
 
                 event.setPing(new ServerPing(
                         syncProxyMotd.getProtocolText() != null ? new ServerPing.Version(1,
@@ -60,7 +60,7 @@ public final class VelocitySyncProxyPlayerListener {
                                                         UUID.randomUUID()
                                                 )).collect(Collectors.toList())
                                         :
-                                        Collections.EMPTY_LIST
+                                        Collections.emptyList()
                         ),
                         LegacyComponentSerializer.legacyLinking().deserialize((syncProxyMotd.getFirstLine() + "\n" + syncProxyMotd.getSecondLine())
                                 .replace("%proxy%", Wrapper.getInstance().getServiceId().getName())
@@ -92,7 +92,7 @@ public final class VelocitySyncProxyPlayerListener {
                 return;
             }
 
-            if (this.syncProxyManagement.getSyncProxyOnlineCount() >= this.syncProxyManagement.getLoginConfiguration().getMaxPlayers() &&
+            if (this.syncProxyManagement.getSyncProxyOnlineCount() >= syncProxyProxyLoginConfiguration.getMaxPlayers() &&
                     !event.getPlayer().hasPermission("cloudnet.syncproxy.fulljoin")) {
                 event.setResult(LoginEvent.ComponentResult.denied(LegacyComponentSerializer.legacyLinking().deserialize(
                         this.syncProxyManagement.getSyncProxyConfiguration().getMessages()

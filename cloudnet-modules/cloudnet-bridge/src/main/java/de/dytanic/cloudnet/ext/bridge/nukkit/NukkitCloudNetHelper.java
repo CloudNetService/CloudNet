@@ -12,9 +12,7 @@ import de.dytanic.cloudnet.ext.bridge.WorldInfo;
 import de.dytanic.cloudnet.ext.bridge.WorldPosition;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkConnectionInfo;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkPlayerServerInfo;
-import de.dytanic.cloudnet.ext.bridge.player.NetworkServiceInfo;
 import de.dytanic.cloudnet.ext.bridge.server.BridgeServerHelper;
-import de.dytanic.cloudnet.wrapper.Wrapper;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -128,10 +126,7 @@ public final class NukkitCloudNetHelper extends BridgeServerHelper {
                 new HostAndPort("0.0.0.0", Server.getInstance().getPort()),
                 true,
                 false,
-                new NetworkServiceInfo(
-                        Wrapper.getInstance().getServiceId(),
-                        Wrapper.getInstance().getCurrentServiceInfoSnapshot().getConfiguration().getGroups()
-                )
+                BridgeHelper.createOwnNetworkServiceInfo()
         );
     }
 
@@ -157,14 +152,11 @@ public final class NukkitCloudNetHelper extends BridgeServerHelper {
                 null,
                 player.getHealth(),
                 player.getMaxHealth(),
-                player.getFoodData().getLevel(),
+                player.getFoodData() == null ? -1 : player.getFoodData().getLevel(),
                 player.getExperienceLevel(),
                 worldPosition,
                 new HostAndPort(player.getAddress(), player.getPort()),
-                new NetworkServiceInfo(
-                        Wrapper.getInstance().getServiceId(),
-                        Wrapper.getInstance().getCurrentServiceInfoSnapshot().getConfiguration().getGroups()
-                )
+                BridgeHelper.createOwnNetworkServiceInfo()
         );
     }
 

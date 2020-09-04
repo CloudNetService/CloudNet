@@ -23,6 +23,10 @@ public interface IConfiguration {
 
     void setHostAddress(String hostAddress);
 
+    String getConnectHostAddress();
+
+    void setConnectHostAddress(String connectHostAddress);
+
     NetworkClusterNode getIdentity();
 
     void setIdentity(NetworkClusterNode identity);

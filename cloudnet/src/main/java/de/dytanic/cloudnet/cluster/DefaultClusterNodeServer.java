@@ -13,8 +13,6 @@ import de.dytanic.cloudnet.driver.provider.service.CloudServiceFactory;
 import de.dytanic.cloudnet.driver.provider.service.RemoteSpecificCloudServiceProvider;
 import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
-import de.dytanic.cloudnet.driver.service.ServiceTemplate;
-import de.dytanic.cloudnet.network.packet.PacketServerDeployLocalTemplate;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.TimeUnit;
@@ -79,11 +77,6 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer, Drive
         }
 
         return null;
-    }
-
-    @Override
-    public void deployTemplateInCluster(@NotNull ServiceTemplate serviceTemplate, @NotNull byte[] zipResource) {
-        this.saveSendPacket(new PacketServerDeployLocalTemplate(serviceTemplate, zipResource, true));
     }
 
     @Override

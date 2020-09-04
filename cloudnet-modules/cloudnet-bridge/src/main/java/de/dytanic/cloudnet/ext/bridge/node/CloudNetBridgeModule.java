@@ -6,8 +6,9 @@ import de.dytanic.cloudnet.driver.module.ModuleTask;
 import de.dytanic.cloudnet.ext.bridge.BridgeConfiguration;
 import de.dytanic.cloudnet.ext.bridge.ProxyFallback;
 import de.dytanic.cloudnet.ext.bridge.ProxyFallbackConfiguration;
+import de.dytanic.cloudnet.ext.bridge.listener.TaskConfigListener;
+import de.dytanic.cloudnet.ext.bridge.node.command.CommandBridge;
 import de.dytanic.cloudnet.ext.bridge.node.command.CommandPlayers;
-import de.dytanic.cloudnet.ext.bridge.node.command.CommandReloadBridge;
 import de.dytanic.cloudnet.ext.bridge.node.http.V1BridgeConfigurationHttpHandler;
 import de.dytanic.cloudnet.ext.bridge.node.listener.*;
 import de.dytanic.cloudnet.ext.bridge.node.player.NodePlayerManager;
@@ -28,6 +29,7 @@ public final class CloudNetBridgeModule extends NodeCloudNetModule {
         DEFAULT_MESSAGES.put("command-hub-no-server-found", "&7Hub server cannot be found");
         DEFAULT_MESSAGES.put("server-join-cancel-because-only-proxy", "&7You must connect from an original proxy server");
         DEFAULT_MESSAGES.put("server-join-cancel-because-maintenance", "&7This server is currently in maintenance mode");
+        DEFAULT_MESSAGES.put("server-join-cancel-because-permission", "&7You do not have the required permissions to connect to this server.");
         DEFAULT_MESSAGES.put("command-cloud-sub-command-no-permission", "&7You are not allowed to use &b%command%");
         DEFAULT_MESSAGES.put("already-connected", "§cYou are already connected to this network!");
     }
@@ -102,9 +104,20 @@ public final class CloudNetBridgeModule extends NodeCloudNetModule {
                 new V1BridgeConfigurationHttpHandler("cloudnet.http.v1.modules.bridge.config"));
     }
 
+    @ModuleTask(order = 17, event = ModuleLifeCycle.STARTED)
+    public void checkTaskConfigurations() {
+        // adding a required join permission option to all minecraft-server-based tasks, if not existing
+        this.getCloudNet().getServiceTaskProvider().getPermanentServiceTasks().forEach(serviceTask -> {
+            if (serviceTask.getProcessConfiguration().getEnvironment().isMinecraftServer() && !serviceTask.getProperties().contains("requiredPermission")) {
+                serviceTask.getProperties().appendNull("requiredPermission");
+                this.getCloudNet().getServiceTaskProvider().addPermanentServiceTask(serviceTask);
+            }
+        });
+    }
+
     @ModuleTask(order = 16, event = ModuleLifeCycle.STARTED)
     public void registerCommands() {
-        this.registerCommand(new CommandReloadBridge());
+        this.registerCommand(new CommandBridge());
         this.registerCommand(new CommandPlayers(this.nodePlayerManager));
     }
 
@@ -112,7 +125,7 @@ public final class CloudNetBridgeModule extends NodeCloudNetModule {
     public void initListeners() {
         this.registerListeners(new NetworkListenerRegisterListener(), new BridgeTaskSetupListener(), new IncludePluginListener(),
                 new NodeCustomChannelMessageListener(this.nodePlayerManager), new BridgePlayerDisconnectListener(this.nodePlayerManager),
-                new BridgeDefaultConfigurationListener(), new BridgeServiceListCommandListener());
+                new BridgeDefaultConfigurationListener(), new BridgeServiceListCommandListener(), new TaskConfigListener());
     }
 
     @Override

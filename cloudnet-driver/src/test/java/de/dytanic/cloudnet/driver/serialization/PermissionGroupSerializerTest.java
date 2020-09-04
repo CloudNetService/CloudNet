@@ -1,11 +1,12 @@
 package de.dytanic.cloudnet.driver.serialization;
 
-import de.dytanic.cloudnet.driver.permission.*;
+import de.dytanic.cloudnet.driver.permission.IPermissionGroup;
+import de.dytanic.cloudnet.driver.permission.Permission;
+import de.dytanic.cloudnet.driver.permission.PermissionGroup;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.Arrays;
-import java.util.UUID;
 
 public class PermissionGroupSerializerTest {
 

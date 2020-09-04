@@ -190,6 +190,8 @@ final class JVMCloudService extends DefaultMinecraftCloudService implements IClo
 
         this.postConfigureServiceEnvironmentStartParameters(commandArguments);
 
+        commandArguments.addAll(this.getServiceConfiguration().getProcessConfig().getProcessParameters());
+
         this.process = new ProcessBuilder()
                 .command(commandArguments)
                 .directory(this.getDirectory())
@@ -282,7 +284,4 @@ final class JVMCloudService extends DefaultMinecraftCloudService implements IClo
         return this.process;
     }
 
-    public boolean isRestartState() {
-        return this.restartState;
-    }
 }

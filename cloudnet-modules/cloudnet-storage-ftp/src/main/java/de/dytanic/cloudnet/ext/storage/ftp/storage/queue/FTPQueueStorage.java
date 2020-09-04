@@ -10,6 +10,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Path;
 import java.util.Collection;
@@ -146,8 +147,8 @@ public class FTPQueueStorage implements Runnable, ITemplateStorage {
     }
 
     @Override
-    public @Nullable ZipInputStream asZipInputStream(@NotNull ServiceTemplate template) {
-        ITask<ZipInputStream> ftpTask = new FTPTask<>(() -> this.executingStorage.asZipInputStream(template));
+    public @Nullable InputStream zipTemplate(@NotNull ServiceTemplate template) {
+        ITask<InputStream> ftpTask = new FTPTask<>(() -> this.executingStorage.zipTemplate(template));
         this.ftpTaskQueue.add(ftpTask);
 
         return ftpTask.getDef(null);
@@ -262,7 +263,7 @@ public class FTPQueueStorage implements Runnable, ITemplateStorage {
 
     @Override
     public Collection<ServiceTemplate> getTemplates() {
-        ITask<Collection<ServiceTemplate>> ftpTask = new FTPTask<>(() -> this.executingStorage.getTemplates());
+        ITask<Collection<ServiceTemplate>> ftpTask = new FTPTask<>(this.executingStorage::getTemplates);
         this.ftpTaskQueue.add(ftpTask);
 
         return ftpTask.getDef(Collections.emptyList());

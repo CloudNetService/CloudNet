@@ -312,15 +312,15 @@ public class WrapperPermissionManagement extends DefaultPermissionManagement
     }
 
     @Override
-    public @NotNull PermissionCheckResult getPermissionResult(@NotNull IPermissionUser permissionUser, @NotNull Permission permission) {
+    public @NotNull PermissionCheckResult getPermissionResult(@NotNull IPermissible permissible, @NotNull Permission permission) {
         for (String group : this.wrapper.getCurrentServiceInfoSnapshot().getConfiguration().getGroups()) {
-            PermissionCheckResult result = this.getPermissionResult(permissionUser, group, permission);
+            PermissionCheckResult result = this.getPermissionResult(permissible, group, permission);
             if (result == PermissionCheckResult.ALLOWED || result == PermissionCheckResult.FORBIDDEN) {
                 return result;
             }
         }
 
-        return super.getPermissionResult(permissionUser, permission);
+        return super.getPermissionResult(permissible, permission);
     }
 
     @Override

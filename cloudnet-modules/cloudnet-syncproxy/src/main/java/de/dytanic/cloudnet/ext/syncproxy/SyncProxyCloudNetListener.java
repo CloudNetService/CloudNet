@@ -44,7 +44,7 @@ public class SyncProxyCloudNetListener {
 
     @EventListener
     public void handleChannelMessage(ChannelMessageReceiveEvent event) {
-        if (!event.getChannel().equals(SyncProxyConstants.SYNC_PROXY_CHANNEL_NAME)) {
+        if (!event.getChannel().equals(SyncProxyConstants.SYNC_PROXY_CHANNEL_NAME) || event.getMessage() == null) {
             return;
         }
 

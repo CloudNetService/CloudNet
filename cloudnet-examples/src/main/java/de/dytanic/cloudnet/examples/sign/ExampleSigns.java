@@ -69,7 +69,7 @@ public final class ExampleSigns {
         // sending the Player to any desired service
         event.setTargetServer("PeepoHub-2");
 
-        // cancelling the event, the Player won't be send to any service
+        // cancelling the event, the Player won't be sent to any service
         event.setCancelled(true);
     }
 

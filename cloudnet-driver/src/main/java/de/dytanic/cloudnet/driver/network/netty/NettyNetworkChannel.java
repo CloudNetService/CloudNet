@@ -3,6 +3,7 @@ package de.dytanic.cloudnet.driver.network.netty;
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.concurrent.CompletableTask;
 import de.dytanic.cloudnet.common.concurrent.ITask;
+import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.logging.LogLevel;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.event.events.network.NetworkChannelPacketSendEvent;
@@ -13,9 +14,13 @@ import de.dytanic.cloudnet.driver.network.def.internal.InternalSyncPacketChannel
 import de.dytanic.cloudnet.driver.network.protocol.DefaultPacketListenerRegistry;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.network.protocol.IPacketListenerRegistry;
+import de.dytanic.cloudnet.driver.network.protocol.chunk.ChunkedPacketBuilder;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -53,9 +58,19 @@ final class NettyNetworkChannel implements INetworkChannel {
         Preconditions.checkNotNull(packet);
 
         if (this.channel.eventLoop().inEventLoop()) {
-            this.sendPacket0(packet);
+            this.writePacket(packet);
         } else {
-            this.channel.eventLoop().execute(() -> this.sendPacket0(packet));
+            this.channel.eventLoop().execute(() -> this.writePacket(packet));
+        }
+    }
+
+    @Override
+    public void sendPacketSync(@NotNull IPacket packet) {
+        Preconditions.checkNotNull(packet);
+
+        ChannelFuture future = this.writePacket(packet);
+        if (future != null) {
+            future.syncUninterruptibly();
         }
     }
 
@@ -72,7 +87,26 @@ final class NettyNetworkChannel implements INetworkChannel {
         return this.sendQueryAsync(packet).get(5, TimeUnit.SECONDS, null);
     }
 
-    private void sendPacket0(IPacket packet) {
+    @Override
+    public boolean sendChunkedPackets(@NotNull JsonDocument header, @NotNull InputStream inputStream, int channel) throws IOException {
+        return ChunkedPacketBuilder.newBuilder(channel, inputStream)
+                .header(header)
+                .target(this)
+                .complete()
+                .isSuccess();
+    }
+
+    @Override
+    public boolean isWriteable() {
+        return this.channel.isWritable();
+    }
+
+    @Override
+    public boolean isActive() {
+        return this.channel.isActive();
+    }
+
+    private ChannelFuture writePacket(IPacket packet) {
         NetworkChannelPacketSendEvent event = new NetworkChannelPacketSendEvent(this, packet);
 
         CloudNetDriver.optionalInstance().ifPresent(cloudNetDriver -> cloudNetDriver.getEventManager().callEvent(event));
@@ -95,8 +129,10 @@ final class NettyNetworkChannel implements INetworkChannel {
                 });
             }
 
-            this.channel.writeAndFlush(packet, this.channel.voidPromise());
+            return this.channel.writeAndFlush(packet);
         }
+
+        return null;
     }
 
     @Override

@@ -7,6 +7,7 @@ import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.InputStream;
 import java.util.Collection;
 
 /**
@@ -47,10 +48,21 @@ public interface IClusterNodeServerProvider extends AutoCloseable, IPacketSender
     void setClusterServers(@NotNull NetworkCluster networkCluster);
 
     /**
-     * Deploys to all online nodes a packet with an zip byte array resource.
+     * Deploys the given template to all connected nodes.
      *
      * @param serviceTemplate the specific template prefix and name configuration
-     * @param zipResource     the template data as zip archive resource
+     * @param zipResource     the template data as a zip archive
+     * @deprecated use {@link #deployTemplateInCluster(ServiceTemplate, InputStream)} instead, this method causes high heap usage
      */
+    @Deprecated
     void deployTemplateInCluster(@NotNull ServiceTemplate serviceTemplate, @NotNull byte[] zipResource);
+
+    /**
+     * Deploys the given template to all connected nodes.
+     *
+     * @param serviceTemplate the specific template prefix and name configuration
+     * @param inputStream     the template data as a zip archive
+     */
+    void deployTemplateInCluster(@NotNull ServiceTemplate serviceTemplate, @NotNull InputStream inputStream);
+
 }

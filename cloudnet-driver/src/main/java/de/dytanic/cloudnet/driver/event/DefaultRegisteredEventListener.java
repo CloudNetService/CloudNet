@@ -4,15 +4,12 @@ import java.lang.reflect.Method;
 
 public class DefaultRegisteredEventListener implements IRegisteredEventListener {
 
-    protected EventListener eventListener;
+    private final EventListener eventListener;
+    private final EventPriority priority;
 
-    protected EventPriority priority;
-
-    protected Object instance;
-
-    protected Method handlerMethod;
-
-    protected Class<? extends Event> eventClass;
+    private final Object instance;
+    private final Method handlerMethod;
+    private final Class<? extends Event> eventClass;
 
     public DefaultRegisteredEventListener(EventListener eventListener, EventPriority priority, Object instance, Method handlerMethod, Class<? extends Event> eventClass) {
         this.eventListener = eventListener;

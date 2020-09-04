@@ -13,7 +13,15 @@ public class CloudflareConfigurationEntry {
 
     protected AuthenticationMethod authenticationMethod = AuthenticationMethod.GLOBAL_KEY;
 
-    protected String hostAddress, email, apiToken, zoneId, domainName;
+    protected String hostAddress;
+
+    protected String email;
+
+    protected String apiToken;
+
+    protected String zoneId;
+
+    protected String domainName;
 
     protected Collection<CloudflareGroupConfiguration> groups;
 

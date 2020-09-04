@@ -4,9 +4,11 @@ import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.cluster.IClusterNodeServer;
 import de.dytanic.cloudnet.common.concurrent.CompletedTask;
 import de.dytanic.cloudnet.common.concurrent.ITask;
+import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.driver.channel.ChannelMessageSender;
 import de.dytanic.cloudnet.driver.channel.ChannelMessageTarget;
+import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.def.packet.PacketClientServerChannelMessage;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
@@ -47,7 +49,7 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
                 if (target.getName() == null) {
                     Collection<INetworkChannel> channels = new ArrayList<>();
                     for (IClusterNodeServer server : this.cloudNet.getClusterNodeServerProvider().getNodeServers()) {
-                        if (server.getChannel() != null && !sender.isEqual(server.getNodeInfo())) {
+                        if (server.getChannel() != null) {
                             channels.add(server.getChannel());
                         }
                     }
@@ -79,9 +81,6 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
                 if (service == null) {
                     return null;
                 }
-                if (sender.isEqual(service)) {
-                    return null;
-                }
                 ICloudService localService = this.cloudNet.getCloudServiceManager().getCloudService(service.getServiceId().getUniqueId());
                 if (localService != null) {
                     return localService.getNetworkChannel() != null ? Collections.singletonList(localService.getNetworkChannel()) : null;
@@ -106,7 +105,7 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
     private Collection<INetworkChannel> getAll(ChannelMessageSender sender, boolean serviceOnly) {
         Collection<INetworkChannel> channels = new ArrayList<>();
         for (ICloudService localService : this.cloudNet.getCloudServiceManager().getLocalCloudServices()) {
-            if (localService.getNetworkChannel() != null && !sender.isEqual(localService.getServiceInfoSnapshot())) {
+            if (localService.getNetworkChannel() != null) {
                 channels.add(localService.getNetworkChannel());
             }
         }
@@ -126,10 +125,6 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
         }
         Collection<INetworkChannel> channels = new ArrayList<>();
         for (ServiceInfoSnapshot service : services) {
-            if (sender.isEqual(service)) {
-                continue;
-            }
-
             if (service.getServiceId().getNodeUniqueId().equals(this.cloudNet.getComponentName())) {
                 ICloudService localService = this.cloudNet.getCloudServiceManager().getCloudService(service.getServiceId().getUniqueId());
                 if (localService != null && localService.getNetworkChannel() != null) {
@@ -151,6 +146,12 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
 
     @Override
     public void sendChannelMessage(@NotNull ChannelMessage channelMessage) {
+        if (channelMessage.getTargets().stream().anyMatch(target -> target.includesNode(CloudNetDriver.getInstance().getComponentName()))) {
+            channelMessage.getBuffer().markReaderIndex();
+            CloudNetDriver.getInstance().getEventManager().callEvent(new ChannelMessageReceiveEvent(channelMessage, false));
+            channelMessage.getBuffer().resetReaderIndex();
+        }
+
         Collection<INetworkChannel> channels = this.getTargetChannels(channelMessage.getSender(), channelMessage.getTargets(), false);
         if (channels == null || channels.isEmpty()) {
             return;
@@ -165,7 +166,9 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
     @Override
     public @NotNull ITask<Collection<ChannelMessage>> sendChannelMessageQueryAsync(@NotNull ChannelMessage channelMessage) {
         Collection<INetworkChannel> channels = this.getTargetChannels(channelMessage.getSender(), channelMessage.getTargets(), false);
-        if (channels == null || channels.isEmpty()) {
+        boolean includesSelf = channelMessage.getTargets().stream().anyMatch(target -> target.includesNode(CloudNetDriver.getInstance().getComponentName()));
+
+        if ((channels == null || channels.isEmpty()) && !includesSelf) {
             return CompletedTask.create(Collections.emptyList());
         }
 
@@ -173,10 +176,19 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
             Collection<ChannelMessage> result = new ArrayList<>();
             IPacket packet = new PacketClientServerChannelMessage(channelMessage, true);
 
-            for (INetworkChannel channel : channels) {
-                IPacket response = channel.sendQuery(packet);
-                if (response != null && response.getBuffer().readBoolean()) {
-                    result.add(response.getBuffer().readObject(ChannelMessage.class));
+            if (channels != null) {
+                for (INetworkChannel channel : channels) {
+                    IPacket response = channel.sendQuery(packet);
+                    if (response != null && response.getBuffer().readBoolean()) {
+                        result.add(response.getBuffer().readObject(ChannelMessage.class));
+                    }
+                }
+            }
+
+            if (includesSelf) {
+                ChannelMessage queryResponse = CloudNetDriver.getInstance().getEventManager().callEvent(new ChannelMessageReceiveEvent(channelMessage, true)).getQueryResponse();
+                if (queryResponse != null) {
+                    result.add(queryResponse);
                 }
             }
 

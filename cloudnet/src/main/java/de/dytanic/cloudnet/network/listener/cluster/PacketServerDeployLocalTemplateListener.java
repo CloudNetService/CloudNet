@@ -1,28 +1,32 @@
 package de.dytanic.cloudnet.network.listener.cluster;
 
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
-import de.dytanic.cloudnet.driver.network.INetworkChannel;
-import de.dytanic.cloudnet.driver.network.protocol.IPacket;
-import de.dytanic.cloudnet.driver.network.protocol.IPacketListener;
+import de.dytanic.cloudnet.driver.network.protocol.chunk.client.CachedChunkedPacketListener;
+import de.dytanic.cloudnet.driver.network.protocol.chunk.client.ChunkedPacketSession;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import de.dytanic.cloudnet.template.ITemplateStorage;
-import de.dytanic.cloudnet.template.LocalTemplateStorage;
+import org.jetbrains.annotations.NotNull;
 
-public final class PacketServerDeployLocalTemplateListener implements IPacketListener {
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.zip.ZipInputStream;
+
+public final class PacketServerDeployLocalTemplateListener extends CachedChunkedPacketListener {
 
     @Override
-    public void handle(INetworkChannel channel, IPacket packet) {
-        ITemplateStorage storage = CloudNetDriver.getInstance().getServicesRegistry().getService(ITemplateStorage.class, LocalTemplateStorage.LOCAL_TEMPLATE_STORAGE);
+    protected void handleComplete(@NotNull ChunkedPacketSession session, @NotNull InputStream inputStream) throws IOException {
+        ServiceTemplate template = session.getHeader().get("template", ServiceTemplate.class);
+        boolean preClear = session.getHeader().getBoolean("preClear");
 
-        ServiceTemplate template = packet.getBuffer().readObject(ServiceTemplate.class);
-        boolean preClear = packet.getBuffer().readBoolean();
-
+        ITemplateStorage storage = CloudNetDriver.getInstance().getServicesRegistry().getService(ITemplateStorage.class, template.getStorage());
+        Preconditions.checkNotNull(storage, "Storage %s not found", template.getStorage());
         if (preClear) {
             storage.delete(template);
         }
 
-        byte[] data = packet.getBuffer().readArray();
-        storage.deploy(data, template);
+        try (ZipInputStream zipInputStream = new ZipInputStream(inputStream)) {
+            storage.deploy(zipInputStream, template);
+        }
     }
-
 }

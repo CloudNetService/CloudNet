@@ -2,8 +2,8 @@ package de.dytanic.cloudnet.database.h2;
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.database.AbstractDatabaseProvider;
-import de.dytanic.cloudnet.database.IDatabase;
 import de.dytanic.cloudnet.database.IDatabaseHandler;
+import de.dytanic.cloudnet.driver.database.Database;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -24,7 +24,7 @@ public final class H2DatabaseProviderTest implements IDatabaseHandler {
 
         databaseProvider.setDatabaseHandler(this);
 
-        IDatabase database = databaseProvider.getDatabase("randomDataDatabase");
+        Database database = databaseProvider.getDatabase("randomDataDatabase");
         Assert.assertNotNull(database);
 
         Assert.assertTrue(databaseProvider.getDatabaseNames().contains("randomDataDatabase".toUpperCase()));
@@ -76,22 +76,22 @@ public final class H2DatabaseProviderTest implements IDatabaseHandler {
     }
 
     @Override
-    public void handleInsert(IDatabase database, String key, JsonDocument document) {
+    public void handleInsert(Database database, String key, JsonDocument document) {
         this.resultString = "foobar";
     }
 
     @Override
-    public void handleUpdate(IDatabase database, String key, JsonDocument document) {
+    public void handleUpdate(Database database, String key, JsonDocument document) {
         this.value = true;
     }
 
     @Override
-    public void handleDelete(IDatabase database, String key) {
+    public void handleDelete(Database database, String key) {
         this.geh = true;
     }
 
     @Override
-    public void handleClear(IDatabase database) {
+    public void handleClear(Database database) {
         this.cleared = true;
     }
 }

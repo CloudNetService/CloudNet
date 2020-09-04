@@ -32,7 +32,7 @@
 - **SSL/TLS support** for security connections between the nodes in cluster or between the services and the node with or none own certificates
 - Multi system support and synchronizing in a network cluster
 - Support for Minecraft **vanilla 1.0+**
-- Application support for [Nukkit Project for Bedrock Edition 1.7+](https://github.com/NukkitX/Nukkit)
+- Application support for [Nukkit Project for Bedrock Edition 1.7+](https://github.com/CloudburstMC/Nukkit)
 - Application support for [Bukkit based Minecraft **1.8.8+** (Spigot, PaperSpigot and more...)](https://github.com/Bukkit/Bukkit)
 - Application support for [Sponge based Minecraft servers with the SpongeAPI **7.0.0+**](https://www.spongepowered.org/)
 - Application support for [BungeeCord proxy server and forks for MC **1.8.8+**](https://github.com/SpigotMC/BungeeCord)

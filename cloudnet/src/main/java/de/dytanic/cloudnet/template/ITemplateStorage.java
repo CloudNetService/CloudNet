@@ -8,6 +8,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Path;
 import java.util.Collection;
@@ -72,7 +73,13 @@ public interface ITemplateStorage extends AutoCloseable, INameable {
     byte[] toZipByteArray(@NotNull ServiceTemplate template);
 
     @Nullable
-    ZipInputStream asZipInputStream(@NotNull ServiceTemplate template) throws IOException;
+    default ZipInputStream asZipInputStream(@NotNull ServiceTemplate template) throws IOException {
+        InputStream inputStream = this.zipTemplate(template);
+        return inputStream == null ? null : new ZipInputStream(inputStream);
+    }
+
+    @Nullable
+    InputStream zipTemplate(@NotNull ServiceTemplate template) throws IOException;
 
     boolean delete(@NotNull ServiceTemplate template);
 

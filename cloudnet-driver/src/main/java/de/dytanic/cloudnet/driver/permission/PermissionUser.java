@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * The default implementation of the IPermissionUser class. This class should use if you want to
@@ -84,5 +85,10 @@ public class PermissionUser extends AbstractPermissible implements IPermissionUs
         this.groups = buffer.readObjectCollection(PermissionUserGroupInfo.class);
 
         this.hashedPassword = buffer.readOptionalString();
+    }
+
+    @Override
+    public Collection<String> getGroupNames() {
+        return this.getGroups().stream().map(PermissionUserGroupInfo::getGroup).collect(Collectors.toList());
     }
 }

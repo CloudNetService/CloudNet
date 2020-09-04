@@ -144,4 +144,9 @@ public class PermissionGroup extends AbstractPermissible implements IPermissionG
         this.sortId = buffer.readInt();
         this.defaultGroup = buffer.readBoolean();
     }
+
+    @Override
+    public Collection<String> getGroupNames() {
+        return this.getGroups();
+    }
 }

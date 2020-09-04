@@ -6,12 +6,14 @@ import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.ext.bridge.BridgeConstants;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.UUID;
 
 public class DefaultPlayerExecutor implements PlayerExecutor {
 
+    public static final UUID GLOBAL_ID = new UUID(0, 0);
     private static final ServiceEnvironmentType[] TARGET_ENVIRONMENTS = Arrays.stream(ServiceEnvironmentType.values())
             .filter(ServiceEnvironmentType::isMinecraftProxy)
             .toArray(ServiceEnvironmentType[]::new);
@@ -58,11 +60,16 @@ public class DefaultPlayerExecutor implements PlayerExecutor {
 
     @Override
     public void sendChatMessage(@NotNull String message) {
+        this.sendChatMessage(message, null);
+    }
+
+    @Override
+    public void sendChatMessage(@NotNull String message, @Nullable String permission) {
         Preconditions.checkNotNull(message);
 
         builder()
                 .message("send_message")
-                .buffer(ProtocolBuffer.create().writeUUID(this.uniqueId).writeString(message))
+                .buffer(ProtocolBuffer.create().writeUUID(this.uniqueId).writeString(message).writeOptionalString(permission))
                 .build().send();
     }
 
@@ -74,6 +81,16 @@ public class DefaultPlayerExecutor implements PlayerExecutor {
         builder()
                 .message("send_plugin_message")
                 .buffer(ProtocolBuffer.create().writeUUID(this.uniqueId).writeString(tag).writeArray(data))
+                .build().send();
+    }
+
+    @Override
+    public void dispatchProxyCommand(@NotNull String command) {
+        Preconditions.checkNotNull(command);
+
+        builder()
+                .message("dispatch_proxy_command")
+                .buffer(ProtocolBuffer.create().writeUUID(this.uniqueId).writeString(command))
                 .build().send();
     }
 

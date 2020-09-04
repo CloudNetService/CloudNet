@@ -41,6 +41,7 @@ public class ProcessingServiceVersionInstaller implements ServiceVersionInstalle
     @Override
     public void install(ServiceVersion version, String fileName, Path workingDirectory, ITemplateStorage storage, ServiceTemplate targetTemplate, Path cachePath) throws Exception {
         String[] copy = version.getProperties().get("copy", String[].class);
+        Collection<String> jvmOptions = version.getProperties().get("jvmOptions", STRING_LIST_TYPE);
 
         if (copy == null) {
             throw new IllegalStateException(String.format("Missing copy property on service version %s!", version.getName()));
@@ -52,6 +53,9 @@ public class ProcessingServiceVersionInstaller implements ServiceVersionInstalle
 
         List<String> processArguments = new ArrayList<>();
         processArguments.add(CloudNet.getInstance().getConfig().getJVMCommand());
+        if (jvmOptions != null) {
+            processArguments.addAll(jvmOptions);
+        }
         processArguments.add("-jar");
         processArguments.add(DOWNLOAD_ARTIFACT_NAME);
         processArguments.addAll(

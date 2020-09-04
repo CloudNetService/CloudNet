@@ -1,6 +1,7 @@
 package de.dytanic.cloudnet.launcher.version.update;
 
 import de.dytanic.cloudnet.launcher.LauncherUtils;
+import de.dytanic.cloudnet.launcher.version.DefaultVersionInfo;
 
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -8,19 +9,9 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.Properties;
 
-public final class RepositoryUpdater implements Updater {
+public final class RepositoryUpdater extends DefaultVersionInfo implements Updater {
 
     private final String url;
-
-    private String repositoryVersion;
-
-    private String appVersion;
-
-    private String gitHubRepository;
-
-    private long releaseTimestamp;
-
-    private Path targetDirectory;
 
     public RepositoryUpdater(String url) {
         this.url = url.endsWith("/") ? url : url + "/";
@@ -71,31 +62,6 @@ public final class RepositoryUpdater implements Updater {
         }
 
         return false;
-    }
-
-    @Override
-    public String getRepositoryVersion() {
-        return this.repositoryVersion;
-    }
-
-    @Override
-    public String getCurrentVersion() {
-        return this.appVersion;
-    }
-
-    @Override
-    public String getGitHubRepository() {
-        return this.gitHubRepository;
-    }
-
-    @Override
-    public long getReleaseTimestamp() {
-        return this.releaseTimestamp;
-    }
-
-    @Override
-    public Path getTargetDirectory() {
-        return this.targetDirectory;
     }
 
 }
