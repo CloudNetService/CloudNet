@@ -3,6 +3,7 @@ package de.dytanic.cloudnet.ext.bridge.bungee;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
+import de.dytanic.cloudnet.ext.bridge.BridgeConfigurationProvider;
 import de.dytanic.cloudnet.ext.bridge.BridgeHelper;
 import de.dytanic.cloudnet.ext.bridge.BridgePlayerManager;
 import de.dytanic.cloudnet.ext.bridge.bungee.command.CommandCloudNet;
@@ -19,6 +20,7 @@ import net.md_5.bungee.api.config.ListenerInfo;
 import net.md_5.bungee.api.plugin.Plugin;
 
 import java.net.InetSocketAddress;
+import java.util.Collection;
 import java.util.concurrent.TimeUnit;
 
 public final class BungeeCloudNetBridgePlugin extends Plugin {
@@ -77,7 +79,12 @@ public final class BungeeCloudNetBridgePlugin extends Plugin {
 
     private void registerCommands() {
         ProxyServer.getInstance().getPluginManager().registerCommand(this, new CommandCloudNet());
-        ProxyServer.getInstance().getPluginManager().registerCommand(this, new CommandHub());
+
+        Collection<String> hubCommandNames = BridgeConfigurationProvider.load().getHubCommandNames();
+
+        if (!hubCommandNames.isEmpty()) {
+            ProxyServer.getInstance().getPluginManager().registerCommand(this, new CommandHub(hubCommandNames.toArray(new String[0])));
+        }
     }
 
     private void initListeners() {
