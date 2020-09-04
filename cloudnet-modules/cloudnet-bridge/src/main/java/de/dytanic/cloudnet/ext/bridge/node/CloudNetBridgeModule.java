@@ -52,7 +52,6 @@ public final class CloudNetBridgeModule extends NodeCloudNetModule {
 
     @ModuleTask(order = 64, event = ModuleLifeCycle.STARTED)
     public void createConfiguration() {
-
         this.getModuleWrapper().getDataFolder().mkdirs();
 
         this.bridgeConfiguration = this.getConfig().get("config", BridgeConfiguration.TYPE, new BridgeConfiguration(
@@ -107,9 +106,8 @@ public final class CloudNetBridgeModule extends NodeCloudNetModule {
 
     @ModuleTask(order = 17, event = ModuleLifeCycle.STARTED)
     public void checkTaskConfigurations() {
+        // adding a required join permission option to all minecraft-server-based tasks, if not existing
         this.getCloudNet().getServiceTaskProvider().getPermanentServiceTasks().forEach(serviceTask -> {
-            // check if a service has permissions, if not add the default
-            // also checks if the server is a minecraft server since this option is not supported in Proxys
             if (serviceTask.getProcessConfiguration().getEnvironment().isMinecraftServer() && !serviceTask.getProperties().contains("requiredPermission")) {
                 serviceTask.getProperties().appendNull("requiredPermission");
                 this.getCloudNet().getServiceTaskProvider().addPermanentServiceTask(serviceTask);

@@ -42,7 +42,6 @@ public final class BridgeConfigurationProvider {
     }
 
     private static BridgeConfiguration load0() {
-
         ChannelMessage response = BridgeHelper.messageBuilder()
                 .message(BridgeConstants.BRIDGE_NETWORK_CHANNEL_MESSAGE_GET_BRIDGE_CONFIGURATION)
                 .targetNode(Wrapper.getInstance().getServiceId().getNodeUniqueId())

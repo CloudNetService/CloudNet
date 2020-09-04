@@ -20,46 +20,39 @@ import org.bukkit.ChatColor;
 
 public final class NukkitPlayerListener implements Listener {
 
-    private final BridgeConfiguration bridgeConfiguration;
-
     private final OnlyProxyProtection onlyProxyProtection;
 
     public NukkitPlayerListener() {
-        this.bridgeConfiguration = BridgeConfigurationProvider.load();
         this.onlyProxyProtection = new OnlyProxyProtection(Server.getInstance().getPropertyBoolean("xbox-auth"));
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void handle(PlayerLoginEvent event) {
         Player player = event.getPlayer();
+        BridgeConfiguration bridgeConfiguration = BridgeConfigurationProvider.load();
 
         if (this.onlyProxyProtection.shouldDisallowPlayer(player.getAddress())) {
             event.setCancelled(true);
-            event.setKickMessage(this.bridgeConfiguration.getMessages().get("server-join-cancel-because-only-proxy").replace('&', '§'));
+            event.setKickMessage(bridgeConfiguration.getMessages().get("server-join-cancel-because-only-proxy").replace('&', '§'));
             return;
         }
 
         String currentTaskName = Wrapper.getInstance().getServiceId().getTaskName();
         ServiceTask serviceTask = Wrapper.getInstance().getServiceTaskProvider().getServiceTask(currentTaskName);
 
-        if (serviceTask == null) {
-            return;
-        }
+        if (serviceTask != null) {
+            String requiredPermission = serviceTask.getProperties().getString("requiredPermission");
+            if (requiredPermission != null && !player.hasPermission(requiredPermission)) {
+                event.setCancelled(true);
+                event.setKickMessage(ChatColor.translateAlternateColorCodes('&', bridgeConfiguration.getMessages().get("server-join-cancel-because-permission")));
+                return;
+            }
 
-        // if the service has a field "requiredPermission" and the field is not null or empty and
-        // the player has the has not the permission of that field -> disconnect him
-        String requiredPermission = serviceTask.getProperties().getString("requiredPermission");
-        if (requiredPermission != null &&
-                !player.hasPermission(requiredPermission)) {
-            event.setCancelled(true);
-            event.setKickMessage(ChatColor.translateAlternateColorCodes('&', this.bridgeConfiguration.getMessages().get("server-join-cancel-because-permission")));
-            return;
-        }
-
-        if (serviceTask.isMaintenance() && !player.hasPermission("cloudnet.bridge.maintenance")) {
-            event.setCancelled(true);
-            event.setKickMessage(this.bridgeConfiguration.getMessages().get("server-join-cancel-because-maintenance").replace('&', '§'));
-            return;
+            if (serviceTask.isMaintenance() && !player.hasPermission("cloudnet.bridge.maintenance")) {
+                event.setCancelled(true);
+                event.setKickMessage(bridgeConfiguration.getMessages().get("server-join-cancel-because-maintenance").replace('&', '§'));
+                return;
+            }
         }
 
         BridgeHelper.sendChannelMessageServerLoginRequest(NukkitCloudNetHelper.createNetworkConnectionInfo(player),
