@@ -52,26 +52,12 @@ public final class CloudNetBridgeModule extends NodeCloudNetModule {
     public void createConfiguration() {
         this.getModuleWrapper().getDataFolder().mkdirs();
 
-        this.bridgeConfiguration = this.getConfig().get("config", BridgeConfiguration.TYPE, new BridgeConfiguration(
-                "&7Cloud &8| &b",
-                true,
-                new ArrayList<>(),
-                new ArrayList<>(),
-                new ArrayList<>(),
-                DEFAULT_MESSAGES,
-                true,
-                true,
-                DEFAULT_HUB_COMMAND_ALIASES
-        ));
+        this.bridgeConfiguration = this.getConfig().get("config", BridgeConfiguration.TYPE, new BridgeConfiguration());
 
-        if (this.bridgeConfiguration.getMessages() != null) {
-            for (Map.Entry<String, String> entry : DEFAULT_MESSAGES.entrySet()) {
-                if (!this.bridgeConfiguration.getMessages().containsKey(entry.getKey())) {
-                    this.bridgeConfiguration.getMessages().put(entry.getKey(), entry.getValue());
-                }
+        for (Map.Entry<String, String> entry : BridgeConfiguration.DEFAULT_MESSAGES.entrySet()) {
+            if (!this.bridgeConfiguration.getMessages().containsKey(entry.getKey())) {
+                this.bridgeConfiguration.getMessages().put(entry.getKey(), entry.getValue());
             }
-        } else {
-            this.bridgeConfiguration.setMessages(new HashMap<>(DEFAULT_MESSAGES));
         }
 
         this.getConfig().append("config", this.bridgeConfiguration);

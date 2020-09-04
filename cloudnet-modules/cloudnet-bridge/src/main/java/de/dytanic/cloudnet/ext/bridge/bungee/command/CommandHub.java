@@ -10,10 +10,11 @@ import net.md_5.bungee.api.plugin.Command;
 
 public final class CommandHub extends Command {
 
-    String[] aliases = BridgeConfigurationProvider.load().getLobbyCommandAliases().toArray(new String[0]);
+    private final String[] aliases;
 
-    public CommandHub() {
-        super(BridgeConfigurationProvider.load().getLobbyCommandAliases().stream().findFirst().orElse("hub"));
+    public CommandHub(String[] names) {
+        super(names[0]);
+        this.aliases = names;
     }
 
     @Override
@@ -46,4 +47,5 @@ public final class CommandHub extends Command {
     public String[] getAliases() {
         return this.aliases;
     }
+
 }
