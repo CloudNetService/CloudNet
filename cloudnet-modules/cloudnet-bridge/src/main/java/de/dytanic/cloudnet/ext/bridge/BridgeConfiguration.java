@@ -20,6 +20,7 @@ public final class BridgeConfiguration extends BasicJsonDocPropertyable {
         DEFAULT_MESSAGES.put("command-hub-no-server-found", "&7Hub server cannot be found");
         DEFAULT_MESSAGES.put("server-join-cancel-because-only-proxy", "&7You must connect from an original proxy server");
         DEFAULT_MESSAGES.put("server-join-cancel-because-maintenance", "&7This server is currently in maintenance mode");
+        DEFAULT_MESSAGES.put("server-join-cancel-because-permission", "&7You do not have the required permissions to connect to this server.");
         DEFAULT_MESSAGES.put("command-cloud-sub-command-no-permission", "&7You are not allowed to use &b%command%");
         DEFAULT_MESSAGES.put("already-connected", "§cYou are already connected to this network!");
     }
@@ -37,7 +38,7 @@ public final class BridgeConfiguration extends BasicJsonDocPropertyable {
 
     private Collection<ProxyFallbackConfiguration> bungeeFallbackConfigurations = new ArrayList<>();
 
-    private List<String> hubCommandNames = Arrays.asList("hub", "lobby", "leave", "l");
+    private Collection<String> hubCommandNames = Arrays.asList("hub", "lobby", "leave", "l");
 
     private boolean logPlayerConnections = true;
 
@@ -51,10 +52,11 @@ public final class BridgeConfiguration extends BasicJsonDocPropertyable {
         this.excludedOnlyProxyWalkableGroups = excludedOnlyProxyWalkableGroups;
         this.excludedGroups = excludedGroups;
         this.bungeeFallbackConfigurations = bungeeFallbackConfigurations;
+        this.logPlayerConnections = logPlayerConnections;
         this.messages = messages;
     }
 
-    public BridgeConfiguration(String prefix, boolean onlyProxyProtection, Collection<String> excludedOnlyProxyWalkableGroups, Collection<String> excludedGroups, Collection<ProxyFallbackConfiguration> bungeeFallbackConfigurations, List<String> hubCommandNames, boolean logPlayerConnections, Map<String, String> messages) {
+    public BridgeConfiguration(String prefix, boolean onlyProxyProtection, Collection<String> excludedOnlyProxyWalkableGroups, Collection<String> excludedGroups, Collection<ProxyFallbackConfiguration> bungeeFallbackConfigurations, Collection<String> hubCommandNames, boolean logPlayerConnections, Map<String, String> messages) {
         this.prefix = prefix;
         this.onlyProxyProtection = onlyProxyProtection;
         this.excludedOnlyProxyWalkableGroups = excludedOnlyProxyWalkableGroups;
@@ -124,7 +126,7 @@ public final class BridgeConfiguration extends BasicJsonDocPropertyable {
         this.logPlayerConnections = logPlayerConnections;
     }
 
-    public List<String> getHubCommandNames() {
+    public Collection<String> getHubCommandNames() {
         return hubCommandNames;
     }
 

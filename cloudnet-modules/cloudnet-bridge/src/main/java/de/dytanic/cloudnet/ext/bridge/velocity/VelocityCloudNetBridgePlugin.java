@@ -23,7 +23,7 @@ import de.dytanic.cloudnet.ext.bridge.velocity.listener.VelocityPlayerListener;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 
 import java.net.InetSocketAddress;
-import java.util.List;
+import java.util.Collection;
 import java.util.concurrent.TimeUnit;
 
 @Plugin(id = "cloudnet_bridge_velocity")
@@ -82,7 +82,7 @@ public final class VelocityCloudNetBridgePlugin {
     private void registerCommands() {
         this.proxyServer.getCommandManager().register(new CommandCloudNet(), "cloudnet", "cloud", "cl");
 
-        List<String> hubCommandNames = BridgeConfigurationProvider.load().getHubCommandNames();
+        Collection<String> hubCommandNames = BridgeConfigurationProvider.load().getHubCommandNames();
 
         if (!hubCommandNames.isEmpty()) {
             this.proxyServer.getCommandManager().register(new CommandHub(), hubCommandNames.toArray(new String[0]));
@@ -112,4 +112,5 @@ public final class VelocityCloudNetBridgePlugin {
     public ProxyServer getProxyServer() {
         return this.proxyServer;
     }
+
 }

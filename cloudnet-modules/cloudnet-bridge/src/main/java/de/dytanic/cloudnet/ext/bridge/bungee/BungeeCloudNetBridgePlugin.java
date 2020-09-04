@@ -20,7 +20,7 @@ import net.md_5.bungee.api.config.ListenerInfo;
 import net.md_5.bungee.api.plugin.Plugin;
 
 import java.net.InetSocketAddress;
-import java.util.List;
+import java.util.Collection;
 import java.util.concurrent.TimeUnit;
 
 public final class BungeeCloudNetBridgePlugin extends Plugin {
@@ -80,7 +80,7 @@ public final class BungeeCloudNetBridgePlugin extends Plugin {
     private void registerCommands() {
         ProxyServer.getInstance().getPluginManager().registerCommand(this, new CommandCloudNet());
 
-        List<String> hubCommandNames = BridgeConfigurationProvider.load().getHubCommandNames();
+        Collection<String> hubCommandNames = BridgeConfigurationProvider.load().getHubCommandNames();
 
         if (!hubCommandNames.isEmpty()) {
             ProxyServer.getInstance().getPluginManager().registerCommand(this, new CommandHub(hubCommandNames.toArray(new String[0])));
