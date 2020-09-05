@@ -9,7 +9,6 @@ import de.dytanic.cloudnet.driver.network.def.packet.PacketClientServerServiceIn
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.network.protocol.IPacketListener;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
-import de.dytanic.cloudnet.service.ICloudService;
 
 import java.util.Map;
 import java.util.UUID;
@@ -54,7 +53,7 @@ public final class PacketServerServiceInfoPublisherListener implements IPacketLi
         }
 
         packet.getBuffer().resetReaderIndex();
-        this.sendUpdateToAllServices(packet);
+        CloudNet.getInstance().sendAlLServices(packet);
     }
 
     private void invokeEvent(Event event) {
@@ -65,11 +64,4 @@ public final class PacketServerServiceInfoPublisherListener implements IPacketLi
         return CloudNet.getInstance().getCloudServiceManager().getGlobalServiceInfoSnapshots();
     }
 
-    private void sendUpdateToAllServices(IPacket packet) {
-        for (ICloudService cloudService : CloudNet.getInstance().getCloudServiceManager().getCloudServices().values()) {
-            if (cloudService.getNetworkChannel() != null) {
-                cloudService.getNetworkChannel().sendPacket(packet);
-            }
-        }
-    }
 }

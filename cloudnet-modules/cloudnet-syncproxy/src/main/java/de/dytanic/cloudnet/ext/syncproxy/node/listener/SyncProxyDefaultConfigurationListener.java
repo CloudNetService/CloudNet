@@ -2,7 +2,7 @@ package de.dytanic.cloudnet.ext.syncproxy.node.listener;
 
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.service.ServiceTask;
-import de.dytanic.cloudnet.event.service.task.ServiceTaskAddEvent;
+import de.dytanic.cloudnet.event.service.task.LocalServiceTaskAddEvent;
 import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyConfiguration;
 import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyConfigurationWriterAndReader;
 import de.dytanic.cloudnet.ext.syncproxy.node.CloudNetSyncProxyModule;
@@ -10,7 +10,7 @@ import de.dytanic.cloudnet.ext.syncproxy.node.CloudNetSyncProxyModule;
 public class SyncProxyDefaultConfigurationListener {
 
     @EventListener
-    public void handleTaskAdd(ServiceTaskAddEvent event) {
+    public void handleTaskAdd(LocalServiceTaskAddEvent event) {
         ServiceTask task = event.getTask();
 
         if (!task.getProcessConfiguration().getEnvironment().isMinecraftJavaProxy() &&

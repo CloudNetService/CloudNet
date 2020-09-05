@@ -4,6 +4,8 @@ import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
 import de.dytanic.cloudnet.driver.event.events.network.NetworkChannelPacketReceiveEvent;
 import de.dytanic.cloudnet.driver.event.events.service.*;
+import de.dytanic.cloudnet.driver.event.events.service.task.ServiceTaskAddEvent;
+import de.dytanic.cloudnet.driver.event.events.service.task.ServiceTaskRemoveEvent;
 import de.dytanic.cloudnet.ext.bridge.bukkit.BukkitCloudNetHelper;
 import de.dytanic.cloudnet.ext.bridge.bukkit.event.*;
 import de.dytanic.cloudnet.ext.bridge.event.*;
@@ -59,6 +61,16 @@ public final class BukkitCloudNetListener {
     @EventListener
     public void handle(CloudServiceUnregisterEvent event) {
         this.bukkitCall(new BukkitCloudServiceUnregisterEvent(event.getServiceInfo()));
+    }
+
+    @EventListener
+    public void handle(ServiceTaskAddEvent event) {
+        this.bukkitCall(new BukkitServiceTaskAddEvent(event.getTask()));
+    }
+
+    @EventListener
+    public void handle(ServiceTaskRemoveEvent event) {
+        this.bukkitCall(new BukkitServiceTaskRemoveEvent(event.getTask()));
     }
 
     @EventListener

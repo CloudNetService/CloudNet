@@ -34,14 +34,12 @@ import de.dytanic.cloudnet.driver.DriverEnvironment;
 import de.dytanic.cloudnet.driver.database.Database;
 import de.dytanic.cloudnet.driver.module.DefaultPersistableModuleDependencyLoader;
 import de.dytanic.cloudnet.driver.module.IModuleWrapper;
-import de.dytanic.cloudnet.driver.network.HostAndPort;
-import de.dytanic.cloudnet.driver.network.INetworkChannel;
-import de.dytanic.cloudnet.driver.network.INetworkClient;
-import de.dytanic.cloudnet.driver.network.INetworkServer;
+import de.dytanic.cloudnet.driver.network.*;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
 import de.dytanic.cloudnet.driver.network.def.PacketConstants;
 import de.dytanic.cloudnet.driver.network.def.packet.PacketServerSetGlobalLogLevel;
+import de.dytanic.cloudnet.driver.network.def.packet.PacketServerSetServiceTaskList;
 import de.dytanic.cloudnet.driver.network.http.IHttpServer;
 import de.dytanic.cloudnet.driver.network.netty.NettyHttpServer;
 import de.dytanic.cloudnet.driver.network.netty.NettyNetworkClient;
@@ -63,13 +61,15 @@ import de.dytanic.cloudnet.log.QueuedConsoleLogHandler;
 import de.dytanic.cloudnet.module.NodeModuleProviderHandler;
 import de.dytanic.cloudnet.network.NetworkClientChannelHandlerImpl;
 import de.dytanic.cloudnet.network.NetworkServerChannelHandlerImpl;
-import de.dytanic.cloudnet.network.NetworkUpdateType;
 import de.dytanic.cloudnet.network.listener.PacketServerChannelMessageListener;
 import de.dytanic.cloudnet.network.listener.auth.PacketClientAuthorizationListener;
 import de.dytanic.cloudnet.network.listener.auth.PacketServerAuthorizationResponseListener;
 import de.dytanic.cloudnet.network.listener.cluster.*;
 import de.dytanic.cloudnet.network.listener.driver.PacketServerDriverAPIListener;
-import de.dytanic.cloudnet.network.packet.*;
+import de.dytanic.cloudnet.network.packet.PacketServerClusterNodeInfoUpdate;
+import de.dytanic.cloudnet.network.packet.PacketServerSetGroupConfigurationList;
+import de.dytanic.cloudnet.network.packet.PacketServerSetH2DatabaseData;
+import de.dytanic.cloudnet.network.packet.PacketServerSetPermissionData;
 import de.dytanic.cloudnet.permission.DefaultDatabasePermissionManagement;
 import de.dytanic.cloudnet.permission.DefaultPermissionManagementHandler;
 import de.dytanic.cloudnet.permission.NodePermissionManagement;
@@ -555,31 +555,24 @@ public final class CloudNet extends CloudNetDriver {
     }
 
     public void updateServiceTasksInCluster(Collection<ServiceTask> serviceTasks, NetworkUpdateType updateType) {
-        this.getClusterNodeServerProvider().sendPacket(new PacketServerSetServiceTaskList(serviceTasks, updateType));
+        this.sendAll(new PacketServerSetServiceTaskList(serviceTasks, updateType));
     }
 
     public void updateGroupConfigurationsInCluster(Collection<GroupConfiguration> groupConfigurations, NetworkUpdateType updateType) {
         this.getClusterNodeServerProvider().sendPacket(new PacketServerSetGroupConfigurationList(groupConfigurations, updateType));
     }
 
-    @NotNull
-    public ITask<Void> sendAllAsync(IPacket packet) {
+    public ITask<Void> sendAllServicesAsync(IPacket... packets) {
         return this.scheduleTask(() -> {
-            this.sendAll(packet);
+            this.sendAlLServices(packets);
             return null;
         });
     }
 
-    public void sendAll(IPacket packet) {
-        Preconditions.checkNotNull(packet);
-
-        for (IClusterNodeServer clusterNodeServer : this.getClusterNodeServerProvider().getNodeServers()) {
-            clusterNodeServer.saveSendPacket(packet);
-        }
-
+    public void sendAlLServices(IPacket... packets) {
         for (ICloudService cloudService : this.getCloudServiceManager().getCloudServices().values()) {
             if (cloudService.getNetworkChannel() != null) {
-                cloudService.getNetworkChannel().sendPacket(packet);
+                cloudService.getNetworkChannel().sendPacket(packets);
             }
         }
     }
@@ -603,11 +596,7 @@ public final class CloudNet extends CloudNetDriver {
             }
         }
 
-        for (ICloudService cloudService : this.getCloudServiceManager().getCloudServices().values()) {
-            if (cloudService.getNetworkChannel() != null) {
-                cloudService.getNetworkChannel().sendPacket(packets);
-            }
-        }
+        this.sendAlLServices(packets);
     }
 
     public NetworkClusterNodeInfoSnapshot createClusterNodeInfoSnapshot() {

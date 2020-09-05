@@ -88,6 +88,7 @@ public class VelocityPlayerExecutorListener extends PlayerExecutorListener<Playe
 
     @Override
     protected void dispatchCommand(@NotNull Player player, @NotNull String command) {
-        this.proxyServer.getCommandManager().executeAsync(player, command);
+        this.proxyServer.getCommandManager().execute(player, command);
     }
+
 }

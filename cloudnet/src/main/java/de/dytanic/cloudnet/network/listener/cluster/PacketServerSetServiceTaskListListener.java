@@ -3,11 +3,11 @@ package de.dytanic.cloudnet.network.listener.cluster;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
+import de.dytanic.cloudnet.driver.network.NetworkUpdateType;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.network.protocol.IPacketListener;
 import de.dytanic.cloudnet.driver.service.ServiceTask;
 import de.dytanic.cloudnet.event.network.NetworkChannelReceiveServiceTasksUpdateEvent;
-import de.dytanic.cloudnet.network.NetworkUpdateType;
 import de.dytanic.cloudnet.provider.NodeServiceTaskProvider;
 
 import java.util.ArrayList;
@@ -30,7 +30,6 @@ public final class PacketServerSetServiceTaskListListener implements IPacketList
         CloudNetDriver.getInstance().getEventManager().callEvent(event);
 
         if (!event.isCancelled()) {
-
             serviceTasks = event.getServiceTasks() != null ? event.getServiceTasks() : serviceTasks;
 
             switch (updateType) {
@@ -48,6 +47,10 @@ public final class PacketServerSetServiceTaskListListener implements IPacketList
                     }
                     break;
             }
+
+            packet.getBuffer().resetReaderIndex();
+            CloudNet.getInstance().sendAlLServices(packet);
         }
     }
+
 }

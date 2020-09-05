@@ -3,8 +3,8 @@ package de.dytanic.cloudnet.event.network;
 import de.dytanic.cloudnet.driver.event.ICancelable;
 import de.dytanic.cloudnet.driver.event.events.network.NetworkEvent;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
+import de.dytanic.cloudnet.driver.network.NetworkUpdateType;
 import de.dytanic.cloudnet.driver.service.GroupConfiguration;
-import de.dytanic.cloudnet.network.NetworkUpdateType;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 

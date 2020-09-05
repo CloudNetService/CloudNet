@@ -20,4 +20,5 @@ public final class PacketClientServerServiceInfoPublisher extends Packet {
         UNREGISTER,
         REGISTER
     }
+
 }

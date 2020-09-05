@@ -4,6 +4,8 @@ import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
 import de.dytanic.cloudnet.driver.event.events.network.NetworkChannelPacketReceiveEvent;
 import de.dytanic.cloudnet.driver.event.events.service.*;
+import de.dytanic.cloudnet.driver.event.events.service.task.ServiceTaskAddEvent;
+import de.dytanic.cloudnet.driver.event.events.service.task.ServiceTaskRemoveEvent;
 import de.dytanic.cloudnet.ext.bridge.event.*;
 import de.dytanic.cloudnet.ext.bridge.sponge.SpongeCloudNetHelper;
 import de.dytanic.cloudnet.ext.bridge.sponge.event.*;
@@ -52,6 +54,16 @@ public final class SpongeCloudNetListener {
     @EventListener
     public void handle(CloudServiceUnregisterEvent event) {
         this.spongeCall(new SpongeCloudServiceUnregisterEvent(event.getServiceInfo()));
+    }
+
+    @EventListener
+    public void handle(ServiceTaskAddEvent event) {
+        this.spongeCall(new SpongeServiceTaskAddEvent(event.getTask()));
+    }
+
+    @EventListener
+    public void handle(ServiceTaskRemoveEvent event) {
+        this.spongeCall(new SpongeServiceTaskRemoveEvent(event.getTask()));
     }
 
     @EventListener

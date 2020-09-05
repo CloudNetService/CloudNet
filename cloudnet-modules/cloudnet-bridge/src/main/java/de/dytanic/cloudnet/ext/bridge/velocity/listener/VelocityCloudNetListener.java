@@ -6,6 +6,8 @@ import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
 import de.dytanic.cloudnet.driver.event.events.network.NetworkChannelPacketReceiveEvent;
 import de.dytanic.cloudnet.driver.event.events.service.*;
+import de.dytanic.cloudnet.driver.event.events.service.task.ServiceTaskAddEvent;
+import de.dytanic.cloudnet.driver.event.events.service.task.ServiceTaskRemoveEvent;
 import de.dytanic.cloudnet.ext.bridge.event.*;
 import de.dytanic.cloudnet.ext.bridge.proxy.BridgeProxyHelper;
 import de.dytanic.cloudnet.ext.bridge.velocity.VelocityCloudNetHelper;
@@ -100,6 +102,16 @@ public final class VelocityCloudNetListener {
         }
 
         this.velocityCall(new VelocityCloudServiceUnregisterEvent(event.getServiceInfo()));
+    }
+
+    @EventListener
+    public void handle(ServiceTaskAddEvent event) {
+        this.velocityCall(new VelocityServiceTaskAddEvent(event.getTask()));
+    }
+
+    @EventListener
+    public void handle(ServiceTaskRemoveEvent event) {
+        this.velocityCall(new VelocityServiceTaskRemoveEvent(event.getTask()));
     }
 
     @EventListener

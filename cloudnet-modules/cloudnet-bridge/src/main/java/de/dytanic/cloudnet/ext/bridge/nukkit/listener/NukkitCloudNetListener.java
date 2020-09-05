@@ -6,6 +6,8 @@ import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
 import de.dytanic.cloudnet.driver.event.events.network.NetworkChannelPacketReceiveEvent;
 import de.dytanic.cloudnet.driver.event.events.service.*;
+import de.dytanic.cloudnet.driver.event.events.service.task.ServiceTaskAddEvent;
+import de.dytanic.cloudnet.driver.event.events.service.task.ServiceTaskRemoveEvent;
 import de.dytanic.cloudnet.ext.bridge.event.*;
 import de.dytanic.cloudnet.ext.bridge.nukkit.NukkitCloudNetHelper;
 import de.dytanic.cloudnet.ext.bridge.nukkit.event.*;
@@ -52,6 +54,16 @@ public final class NukkitCloudNetListener {
     @EventListener
     public void handle(CloudServiceUnregisterEvent event) {
         this.nukkitCall(new NukkitCloudServiceUnregisterEvent(event.getServiceInfo()));
+    }
+
+    @EventListener
+    public void handle(ServiceTaskAddEvent event) {
+        this.nukkitCall(new NukkitServiceTaskAddEvent(event.getTask()));
+    }
+
+    @EventListener
+    public void handle(ServiceTaskRemoveEvent event) {
+        this.nukkitCall(new NukkitServiceTaskRemoveEvent(event.getTask()));
     }
 
     @EventListener

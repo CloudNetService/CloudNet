@@ -7,11 +7,11 @@ import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
+import de.dytanic.cloudnet.driver.network.NetworkUpdateType;
 import de.dytanic.cloudnet.driver.provider.ServiceTaskProvider;
 import de.dytanic.cloudnet.driver.service.ServiceTask;
-import de.dytanic.cloudnet.event.service.task.ServiceTaskAddEvent;
-import de.dytanic.cloudnet.event.service.task.ServiceTaskRemoveEvent;
-import de.dytanic.cloudnet.network.NetworkUpdateType;
+import de.dytanic.cloudnet.event.service.task.LocalServiceTaskAddEvent;
+import de.dytanic.cloudnet.event.service.task.LocalServiceTaskRemoveEvent;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -171,7 +171,7 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
     }
 
     public boolean addServiceTaskWithoutClusterSync(ServiceTask serviceTask) {
-        ServiceTaskAddEvent event = new ServiceTaskAddEvent(serviceTask);
+        LocalServiceTaskAddEvent event = new LocalServiceTaskAddEvent(serviceTask);
         CloudNetDriver.getInstance().getEventManager().callEvent(event);
 
         if (!event.isCancelled()) {
@@ -201,7 +201,7 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
     public ServiceTask removeServiceTaskWithoutClusterSync(String name) {
         for (ServiceTask serviceTask : this.permanentServiceTasks) {
             if (serviceTask.getName().equalsIgnoreCase(name)) {
-                if (!CloudNetDriver.getInstance().getEventManager().callEvent(new ServiceTaskRemoveEvent(serviceTask)).isCancelled()) {
+                if (!CloudNetDriver.getInstance().getEventManager().callEvent(new LocalServiceTaskRemoveEvent(serviceTask)).isCancelled()) {
                     this.permanentServiceTasks.remove(serviceTask);
                     this.deleteTaskFile(name);
                     return serviceTask;

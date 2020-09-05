@@ -4,9 +4,10 @@ import de.dytanic.cloudnet.driver.service.ServiceTask;
 import de.dytanic.cloudnet.ext.bridge.BridgeConfiguration;
 import de.dytanic.cloudnet.ext.bridge.BridgeConfigurationProvider;
 import de.dytanic.cloudnet.ext.bridge.BridgeHelper;
-import de.dytanic.cloudnet.ext.bridge.OnlyProxyProtection;
 import de.dytanic.cloudnet.ext.bridge.bukkit.BukkitCloudNetBridgePlugin;
 import de.dytanic.cloudnet.ext.bridge.bukkit.BukkitCloudNetHelper;
+import de.dytanic.cloudnet.ext.bridge.bukkit.event.BukkitServiceTaskAddEvent;
+import de.dytanic.cloudnet.ext.bridge.server.OnlyProxyProtection;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -18,16 +19,53 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
+import java.util.Optional;
+
 public final class BukkitPlayerListener implements Listener {
 
     private final BukkitCloudNetBridgePlugin plugin;
 
     private final OnlyProxyProtection onlyProxyProtection;
 
+    private ServiceTask serviceTask;
+
     public BukkitPlayerListener(BukkitCloudNetBridgePlugin plugin) {
         this.plugin = plugin;
 
         this.onlyProxyProtection = new OnlyProxyProtection(Bukkit.getOnlineMode());
+
+        String currentTaskName = Wrapper.getInstance().getServiceId().getTaskName();
+        this.serviceTask = Wrapper.getInstance().getServiceTaskProvider().getServiceTask(currentTaskName);
+    }
+
+    private Optional<String> getPlayerKickMessage(Player player) {
+        if (this.serviceTask == null) {
+            return Optional.empty();
+        }
+
+        BridgeConfiguration bridgeConfiguration = BridgeConfigurationProvider.load();
+
+        if (this.serviceTask.isMaintenance() && !player.hasPermission("cloudnet.bridge.maintenance")) {
+            return Optional.of(ChatColor.translateAlternateColorCodes('&', bridgeConfiguration.getMessages().get("server-join-cancel-because-maintenance")));
+        } else {
+            String requiredPermission = this.serviceTask.getProperties().getString("requiredPermission");
+            if (requiredPermission != null && !player.hasPermission(requiredPermission)) {
+                return Optional.of(ChatColor.translateAlternateColorCodes('&', bridgeConfiguration.getMessages().get("server-join-cancel-because-permission")));
+            }
+        }
+
+        return Optional.empty();
+    }
+
+    @EventHandler
+    public void handle(BukkitServiceTaskAddEvent event) {
+        ServiceTask task = event.getTask();
+
+        if (this.serviceTask != null && this.serviceTask.getName().equals(task.getName())) {
+            this.serviceTask = task;
+
+            Bukkit.getOnlinePlayers().forEach(player -> this.getPlayerKickMessage(player).ifPresent(player::kickPlayer));
+        }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -41,22 +79,14 @@ public final class BukkitPlayerListener implements Listener {
             return;
         }
 
-        String currentTaskName = Wrapper.getInstance().getServiceId().getTaskName();
-        ServiceTask serviceTask = Wrapper.getInstance().getServiceTaskProvider().getServiceTask(currentTaskName);
+        Optional<String> kickMessageOptional = this.getPlayerKickMessage(player);
 
-        if (serviceTask != null) {
-            String requiredPermission = serviceTask.getProperties().getString("requiredPermission");
-            if (requiredPermission != null && !player.hasPermission(requiredPermission)) {
-                event.setResult(PlayerLoginEvent.Result.KICK_WHITELIST);
-                event.setKickMessage(ChatColor.translateAlternateColorCodes('&', bridgeConfiguration.getMessages().get("server-join-cancel-because-permission")));
-                return;
-            }
+        if (kickMessageOptional.isPresent()) {
+            String kickMessage = kickMessageOptional.get();
 
-            if (serviceTask.isMaintenance() && !player.hasPermission("cloudnet.bridge.maintenance")) {
-                event.setResult(PlayerLoginEvent.Result.KICK_WHITELIST);
-                event.setKickMessage(ChatColor.translateAlternateColorCodes('&', bridgeConfiguration.getMessages().get("server-join-cancel-because-maintenance")));
-                return;
-            }
+            event.setResult(PlayerLoginEvent.Result.KICK_WHITELIST);
+            event.setKickMessage(kickMessage);
+            return;
         }
 
         BridgeHelper.sendChannelMessageServerLoginRequest(BukkitCloudNetHelper.createNetworkConnectionInfo(player),

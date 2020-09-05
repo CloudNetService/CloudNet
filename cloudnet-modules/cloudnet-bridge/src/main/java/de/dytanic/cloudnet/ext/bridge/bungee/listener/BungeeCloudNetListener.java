@@ -4,6 +4,8 @@ import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
 import de.dytanic.cloudnet.driver.event.events.network.NetworkChannelPacketReceiveEvent;
 import de.dytanic.cloudnet.driver.event.events.service.*;
+import de.dytanic.cloudnet.driver.event.events.service.task.ServiceTaskAddEvent;
+import de.dytanic.cloudnet.driver.event.events.service.task.ServiceTaskRemoveEvent;
 import de.dytanic.cloudnet.ext.bridge.bungee.BungeeCloudNetHelper;
 import de.dytanic.cloudnet.ext.bridge.bungee.event.*;
 import de.dytanic.cloudnet.ext.bridge.event.*;
@@ -93,6 +95,16 @@ public final class BungeeCloudNetListener {
         }
 
         this.bungeeCall(new BungeeCloudServiceUnregisterEvent(event.getServiceInfo()));
+    }
+
+    @EventListener
+    public void handle(ServiceTaskAddEvent event) {
+        this.bungeeCall(new BungeeServiceTaskAddEvent(event.getTask()));
+    }
+
+    @EventListener
+    public void handle(ServiceTaskRemoveEvent event) {
+        this.bungeeCall(new BungeeServiceTaskRemoveEvent(event.getTask()));
     }
 
     @EventListener
