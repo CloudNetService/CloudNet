@@ -26,7 +26,7 @@ public abstract class AbstractSignManagement extends ServiceInfoStateWatcher {
 
     private static final Comparator<Pair<ServiceInfoSnapshot, ServiceInfoStateWatcher.ServiceInfoState>>
             ENTRY_NAME_COMPARATOR = Comparator.comparing(entry -> entry.getFirst().getName()),
-            ENTRY_STATE_COMPARATOR = Comparator.comparingInt(entry -> entry.getSecond().getValue());
+            ENTRY_STATE_COMPARATOR = Comparator.comparingInt(entry -> entry.getSecond().getPriority());
 
     private final AtomicInteger[] indexes = new AtomicInteger[]{
             new AtomicInteger(-1), //starting
@@ -192,7 +192,7 @@ public abstract class AbstractSignManagement extends ServiceInfoStateWatcher {
 
                     return access;
                 })
-                .min(ENTRY_STATE_COMPARATOR);
+                .max(ENTRY_STATE_COMPARATOR);
 
         if (optionalEntry.isPresent()) {
             Pair<ServiceInfoSnapshot, ServiceInfoStateWatcher.ServiceInfoState> entry = optionalEntry.get();
