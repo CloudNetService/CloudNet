@@ -45,15 +45,13 @@ public final class CommandCloudNet implements Command {
             }
         }
 
-        String[] messages = CloudNetDriver.getInstance().getNodeInfoProvider().sendCommandLine(commandLine);
-
-        if (messages != null) {
+        CloudNetDriver.getInstance().getNodeInfoProvider().sendCommandLineAsync(commandLine).onComplete(messages -> {
             for (String message : messages) {
                 if (message != null) {
                     source.sendMessage(LegacyComponentSerializer.legacyLinking().deserialize(BridgeConfigurationProvider.load().getPrefix().replace("&", "§") + message));
                 }
             }
-        }
+        });
     }
 
     @Override
