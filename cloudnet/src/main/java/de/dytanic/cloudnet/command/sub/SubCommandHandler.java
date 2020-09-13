@@ -66,28 +66,27 @@ public class SubCommandHandler extends Command implements ITabCompleter {
 
     @Override
     public void execute(ICommandSender sender, String command, String[] args, String commandLine, Properties properties) {
-        Optional<String> optionalInvalidMessage = this.subCommands.stream()
-                .map(subCommand -> subCommand.getInvalidArgumentMessage(args))
-                .filter(Objects::nonNull)
-                .filter(pair -> pair.getSecond() == 0) // all static values must match
-                .findFirst()
-                .map(Pair::getFirst);
-
         Optional<Pair<SubCommand, SubCommandArgument<?>[]>> optionalSubCommand = this.subCommands.stream()
                 .map(subCommand -> new Pair<>(subCommand, subCommand.parseArgs(args)))
                 .filter(pair -> pair.getSecond() != null && pair.getSecond().length != 0)
                 .findFirst();
 
-        if (optionalInvalidMessage.isPresent() && !optionalSubCommand.isPresent()) {
-            sender.sendMessage(optionalInvalidMessage.get());
-            return;
-        }
-
         if (!optionalSubCommand.isPresent()) {
-            this.sendHelp(sender);
+            Optional<String> optionalInvalidMessage = this.subCommands.stream()
+                    .map(subCommand -> subCommand.getInvalidArgumentMessage(args))
+                    .filter(Objects::nonNull)
+                    .filter(pair -> pair.getSecond() == 0) // all static values must match
+                    .findFirst()
+                    .map(Pair::getFirst);
+
+            if (optionalInvalidMessage.isPresent()) {
+                sender.sendMessage(optionalInvalidMessage.get());
+            } else {
+                this.sendHelp(sender);
+            }
+
             return;
         }
-
 
         Pair<SubCommand, SubCommandArgument<?>[]> subCommandPair = optionalSubCommand.get();
 
