@@ -85,6 +85,15 @@ public final class TemplateStorageUtil {
                     }
                 }
                 break;
+                case GO_MINT: {
+                    try (OutputStream outputStream = storage.newOutputStream(serviceTemplate, "server.yml");
+                         InputStream inputStream = CloudNet.class.getClassLoader().getResourceAsStream("files/gomint/server.yml")) {
+                        if (inputStream != null) {
+                            FileUtils.copy(inputStream, outputStream, buffer);
+                        }
+                    }
+                }
+                break;
                 case MINECRAFT_SERVER: {
                     try (OutputStream outputStream = storage.newOutputStream(serviceTemplate, "server.properties");
                          InputStream inputStream = CloudNet.class.getClassLoader().getResourceAsStream("files/nms/server.properties")) {

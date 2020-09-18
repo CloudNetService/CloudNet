@@ -27,6 +27,11 @@ public enum ServiceEnvironmentType {
             MinecraftServiceType.BEDROCK_SERVER,
             44955
     ),
+    GO_MINT(
+            new ServiceEnvironment[]{ServiceEnvironment.GO_MINT_DEFAULT},
+            MinecraftServiceType.BEDROCK_SERVER,
+            44955
+    ),
     BUNGEECORD(
             new ServiceEnvironment[]{
                     ServiceEnvironment.BUNGEECORD_HEXACORD,
