@@ -295,11 +295,11 @@
       "versions": [
         {
           "name": "latest",
-          "url": "https://repo.spongepowered.org/maven/org/spongepowered/spongevanilla/1.12.2-7.1.2/spongevanilla-1.12.2-7.1.2.jar"
+          "url": "https://repo.spongepowered.org/maven/org/spongepowered/spongevanilla/1.12.2-7.3.0/spongevanilla-1.12.2-7.3.0.jar"
         },
         {
           "name": "1.12.2",
-          "url": "https://repo.spongepowered.org/maven/org/spongepowered/spongevanilla/1.12.2-7.1.2/spongevanilla-1.12.2-7.1.2.jar"
+          "url": "https://repo.spongepowered.org/maven/org/spongepowered/spongevanilla/1.12.2-7.3.0/spongevanilla-1.12.2-7.3.0.jar"
         },
         {
           "name": "1.11.2",
@@ -307,10 +307,6 @@
         },
         {
           "name": "1.10.2",
-          "url": "https://repo.spongepowered.org/maven/org/spongepowered/spongevanilla/1.10.2-5.2.0-BETA-403/spongevanilla-1.10.2-5.2.0-BETA-403.jar"
-        },
-        {
-          "name": "1.8.9",
           "url": "https://repo.spongepowered.org/maven/org/spongepowered/spongevanilla/1.10.2-5.2.0-BETA-403/spongevanilla-1.10.2-5.2.0-BETA-403.jar"
         }
       ]
@@ -323,7 +319,7 @@
       "versions": [
         {
           "name": "latest",
-          "url": "https://files.minecraftforge.net/maven/net/minecraftforge/forge/1.15.1-30.0.15/forge-1.15.1-30.0.15-installer.jar",
+          "url": "https://files.minecraftforge.net/maven/net/minecraftforge/forge/1.16.3-34.0.9/forge-1.16.3-34.0.9-installer.jar",
           "maxJavaVersion": 13,
           "properties": {
             "copy": [
@@ -338,8 +334,24 @@
           }
         },
         {
-          "name": "1.15.1",
-          "url": "https://files.minecraftforge.net/maven/net/minecraftforge/forge/1.15.1-30.0.15/forge-1.15.1-30.0.15-installer.jar",
+          "name": "1.16.3",
+          "url": "https://files.minecraftforge.net/maven/net/minecraftforge/forge/1.16.3-34.0.9/forge-1.16.3-34.0.9-installer.jar",
+          "maxJavaVersion": 13,
+          "properties": {
+            "copy": [
+              "libraries/.*",
+              ".*\\.json",
+              "forge-.*\\.jar",
+              "minecraft_server.*\\.jar"
+            ],
+            "parameters": [
+              "--installServer"
+            ]
+          }
+        },
+        {
+          "name": "1.15.2",
+          "url": "https://files.minecraftforge.net/maven/net/minecraftforge/forge/1.15.2-31.2.41/forge-1.15.2-31.2.41-installer.jar",
           "maxJavaVersion": 13,
           "properties": {
             "copy": [
@@ -491,7 +503,7 @@
       "versions": [
         {
           "name": "latest",
-          "url": "https://files.minecraftforge.net/maven/net/minecraftforge/forge/1.12.2-14.23.5.2847/forge-1.12.2-14.23.5.2847-installer.jar",
+          "url": "https://files.minecraftforge.net/maven/net/minecraftforge/forge/1.12.2-14.23.5.2838/forge-1.12.2-14.23.5.2838-installer.jar",
           "maxJavaVersion": 10,
           "properties": {
             "copy": [
@@ -505,12 +517,12 @@
             ]
           },
           "additionalDownloads": {
-            "mods/spongeforge.jar": "https://repo.spongepowered.org/maven/org/spongepowered/spongeforge/1.12.2-2838-7.1.8-RC3964/spongeforge-1.12.2-2838-7.1.8-RC3964.jar"
+            "mods/spongeforge.jar": "https://repo.spongepowered.org/maven/org/spongepowered/spongeforge/1.12.2-2838-7.3.0/spongeforge-1.12.2-2838-7.3.0.jar"
           }
         },
         {
           "name": "1.12.2",
-          "url": "https://files.minecraftforge.net/maven/net/minecraftforge/forge/1.12.2-14.23.5.2847/forge-1.12.2-14.23.5.2847-installer.jar",
+          "url": "https://files.minecraftforge.net/maven/net/minecraftforge/forge/1.12.2-14.23.5.2838/forge-1.12.2-14.23.5.2838-installer.jar",
           "maxJavaVersion": 10,
           "properties": {
             "copy": [
@@ -524,12 +536,12 @@
             ]
           },
           "additionalDownloads": {
-            "mods/spongeforge.jar": "https://repo.spongepowered.org/maven/org/spongepowered/spongeforge/1.12.2-2838-7.1.8-RC3964/spongeforge-1.12.2-2838-7.1.8-RC3964.jar"
+            "mods/spongeforge.jar": "https://repo.spongepowered.org/maven/org/spongepowered/spongeforge/1.12.2-2838-7.3.0/spongeforge-1.12.2-2838-7.3.0.jar"
           }
         },
         {
           "name": "1.11.2",
-          "url": "https://files.minecraftforge.net/maven/net/minecraftforge/forge/1.11.2-13.20.1.2588/forge-1.11.2-13.20.1.2588-installer.jar",
+          "url": "https://files.minecraftforge.net/maven/net/minecraftforge/forge/1.11.2-13.20.1.2476/forge-1.11.2-13.20.1.2476-installer.jar",
           "maxJavaVersion": 8,
           "properties": {
             "copy": [
@@ -548,7 +560,7 @@
         },
         {
           "name": "1.10.2",
-          "url": "https://files.minecraftforge.net/maven/net/minecraftforge/forge/1.10.2-12.18.3.2511/forge-1.10.2-12.18.3.2511-installer.jar",
+          "url": "https://files.minecraftforge.net/maven/net/minecraftforge/forge/1.10.2-12.18.3.2477/forge-1.10.2-12.18.3.2477-installer.jar",
           "maxJavaVersion": 8,
           "properties": {
             "copy": [
@@ -596,6 +608,10 @@
         {
           "name": "latest",
           "url": "https://ci.codemc.org/job/yesdog/job/Waterdog/lastStableBuild/artifact/Waterfall-Proxy/bootstrap/target/Waterdog.jar"
+        },
+        {
+          "name": "alemiz-zlib",
+          "url": "https://jenkins.mizerak.eu/view/Alemiz-Jobs/job/WaterDog/job/alemiz-zlib/lastSuccessfulBuild/artifact/Waterfall-Proxy/bootstrap/target/Waterdog.jar"
         }
       ]
     },
@@ -655,7 +671,11 @@
       "versions": [
         {
           "name": "latest",
-          "url": "https://ci.velocitypowered.com/job/velocity/lastSuccessfulBuild/artifact/proxy/build/libs/velocity-proxy-1.0.9-SNAPSHOT-all.jar"
+          "url": "https://ci.velocitypowered.com/job/velocity/244/artifact/proxy/build/libs/velocity-proxy-1.0.10-SNAPSHOT-all.jar"
+        },
+        {
+          "name": "stable",
+          "url": "https://ci.velocitypowered.com/job/velocity/237/artifact/proxy/build/libs/velocity-proxy-1.0.9-all.jar"
         }
       ]
     },
