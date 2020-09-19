@@ -29,8 +29,7 @@ public final class GoMintCloudNetBridgePlugin extends Plugin {
         this.initListeners();
 
         BridgeHelper.updateServiceInfo();
-        getScheduler().schedule(Wrapper.getInstance()::publishServiceInfoUpdate, 1000, 1500, TimeUnit.MILLISECONDS);
-        getScheduler().schedule(this::runFirePingEvent, 500, 50, TimeUnit.MILLISECONDS);
+        super.getScheduler().schedule(this::runFirePingEvent, 500, 50, TimeUnit.MILLISECONDS);
     }
 
     @Override
@@ -41,7 +40,7 @@ public final class GoMintCloudNetBridgePlugin extends Plugin {
 
     private void initListeners() {
         //GoMint API
-        registerListener(new GoMintPlayerListener());
+        super.registerListener(new GoMintPlayerListener());
 
         //CloudNet
         CloudNetDriver.getInstance().getEventManager().registerListener(new GoMintCloudNetListener());

@@ -153,6 +153,23 @@ public abstract class DefaultMinecraftCloudService extends DefaultTemplateCloudS
                 }
             }
             break;
+            case GO_MINT: {
+                File file = new File(this.getDirectory(), "server.yml");
+                this.copyDefaultFile("files/gomint/server.yml", file);
+
+                this.rewriteServiceConfigurationFile(file, line -> {
+                    if (line.startsWith("  ip: ")) {
+                        line = "  ip: " + CloudNet.getInstance().getConfig().getHostAddress();
+                    }
+
+                    if (line.startsWith("  port: ")) {
+                        line = "  port: " + serviceConfiguration.getPort();
+                    }
+
+                    return line;
+                });
+            }
+            break;
             case GLOWSTONE: {
                 if (!rewriteIp) {
                     break;

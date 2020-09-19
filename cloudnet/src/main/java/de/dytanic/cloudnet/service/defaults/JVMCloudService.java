@@ -5,10 +5,7 @@ import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
-import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
-import de.dytanic.cloudnet.driver.service.ServiceEnvironment;
-import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
-import de.dytanic.cloudnet.driver.service.ServiceTask;
+import de.dytanic.cloudnet.driver.service.*;
 import de.dytanic.cloudnet.service.ICloudService;
 import de.dytanic.cloudnet.service.ICloudServiceManager;
 import de.dytanic.cloudnet.service.handler.CloudServiceHandler;
@@ -140,8 +137,10 @@ final class JVMCloudService extends DefaultMinecraftCloudService implements IClo
         File applicationFile = null;
         File[] files = this.getDirectory().listFiles();
 
+        ServiceEnvironmentType serviceEnvironmentType = this.getServiceConfiguration().getProcessConfig().getEnvironment();
+
         if (files != null) {
-            for (ServiceEnvironment environment : this.getServiceConfiguration().getProcessConfig().getEnvironment().getEnvironments()) {
+            for (ServiceEnvironment environment : serviceEnvironmentType.getEnvironments()) {
                 for (File file : files) {
                     String fileName = file.getName().toLowerCase();
 
@@ -157,7 +156,9 @@ final class JVMCloudService extends DefaultMinecraftCloudService implements IClo
             }
         }
 
-        if (applicationFile == null) {
+        String mainClass = serviceEnvironmentType.getMainClass(applicationFile);
+
+        if (mainClass == null) {
             CloudNetDriver.getInstance().getLogger().error(LanguageManager.getMessage("cloud-service-jar-file-not-found-error")
                     .replace("%task%", this.getServiceId().getTaskName())
                     .replace("%serviceId%", String.valueOf(this.getServiceId().getTaskServiceId()))
@@ -176,17 +177,13 @@ final class JVMCloudService extends DefaultMinecraftCloudService implements IClo
         commandArguments.addAll(this.getServiceConfiguration().getProcessConfig().getJvmOptions());
         commandArguments.addAll(Arrays.asList(
                 "-Xmx" + this.getServiceConfiguration().getProcessConfig().getMaxHeapMemorySize() + "M",
-                "-cp", wrapperFile.getAbsolutePath() + File.pathSeparator + applicationFile.getAbsolutePath())
-        );
+                "-cp", serviceEnvironmentType.getClasspath(wrapperFile, applicationFile)
+        ));
 
         try (JarFile jarFile = new JarFile(wrapperFile)) {
             commandArguments.add(jarFile.getManifest().getMainAttributes().getValue("Main-Class"));
         }
-
-        commandArguments.add(applicationFile.getAbsolutePath());
-        try (JarFile jarFile = new JarFile(applicationFile)) {
-            commandArguments.add(jarFile.getManifest().getMainAttributes().getValue("Main-Class"));
-        }
+        commandArguments.add(mainClass);
 
         this.postConfigureServiceEnvironmentStartParameters(commandArguments);
 

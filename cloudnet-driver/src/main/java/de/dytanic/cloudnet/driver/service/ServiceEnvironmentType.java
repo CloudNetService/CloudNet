@@ -1,7 +1,13 @@
 package de.dytanic.cloudnet.driver.service;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.jar.JarFile;
 
 public enum ServiceEnvironmentType {
 
@@ -31,7 +37,17 @@ public enum ServiceEnvironmentType {
             new ServiceEnvironment[]{ServiceEnvironment.GO_MINT_DEFAULT},
             MinecraftServiceType.BEDROCK_SERVER,
             44955
-    ),
+    ) {
+        @Override
+        public String getMainClass(@Nullable File applicationFile) {
+            return "io.gomint.server.Bootstrap";
+        }
+
+        @Override
+        public @NotNull String getClasspath(@NotNull File wrapperFile, @Nullable File applicationFile) {
+            return wrapperFile.getAbsolutePath() + ";modules/*";
+        }
+    },
     BUNGEECORD(
             new ServiceEnvironment[]{
                     ServiceEnvironment.BUNGEECORD_HEXACORD,
@@ -69,6 +85,22 @@ public enum ServiceEnvironmentType {
         this.type = type;
         this.defaultStartPort = defaultStartPort;
         this.ignoredConsoleLines = Arrays.asList(ignoredConsoleLines);
+    }
+
+    public @Nullable String getMainClass(@Nullable File applicationFile) {
+        if (applicationFile != null && applicationFile.exists()) {
+            try (JarFile jarFile = new JarFile(applicationFile)) {
+                return jarFile.getManifest().getMainAttributes().getValue("Main-Class");
+            } catch (IOException exception) {
+                exception.printStackTrace();
+            }
+        }
+
+        return null;
+    }
+
+    public @NotNull String getClasspath(@NotNull File wrapperFile, @Nullable File applicationFile) {
+        return wrapperFile.getAbsolutePath() + ";" + (applicationFile == null ? "" : applicationFile.getAbsolutePath());
     }
 
     public ServiceEnvironment[] getEnvironments() {
