@@ -3,12 +3,15 @@ package de.dytanic.cloudnet.ext.cloudperms.gomint.listener;
 import de.dytanic.cloudnet.driver.permission.CachedPermissionManagement;
 import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsHelper;
 import de.dytanic.cloudnet.ext.cloudperms.gomint.GoMintCloudNetCloudPermissionsPlugin;
+import io.gomint.ChatColor;
+import io.gomint.GoMint;
+import io.gomint.entity.EntityPlayer;
 import io.gomint.event.EventHandler;
 import io.gomint.event.EventListener;
+import io.gomint.event.EventPriority;
 import io.gomint.event.player.PlayerLoginEvent;
 import io.gomint.event.player.PlayerQuitEvent;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
+import io.gomint.server.GoMintServer;
 
 public final class GoMintCloudNetCloudPermissionsPlayerListener implements EventListener {
 
@@ -18,18 +21,21 @@ public final class GoMintCloudNetCloudPermissionsPlayerListener implements Event
         this.permissionsManagement = permissionsManagement;
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.LOWEST)
     public void handle(PlayerLoginEvent event) {
-        CloudPermissionsHelper.initPermissionUser(this.permissionsManagement, event.getPlayer().getUUID(), event.getPlayer().getName(), message -> {
+        EntityPlayer player = event.getPlayer();
+
+        CloudPermissionsHelper.initPermissionUser(this.permissionsManagement, player.getUUID(), event.getPlayer().getName(), message -> {
             event.setCancelled(true);
             event.setKickMessage(ChatColor.translateAlternateColorCodes('&', message));
-        }, Bukkit.getOnlineMode());
+        }, ((GoMintServer) GoMint.instance()).getEncryptionKeyFactory().isKeyGiven());
 
-        GoMintCloudNetCloudPermissionsPlugin.getInstance().injectPermissionManager(event.getPlayer());
+        GoMintCloudNetCloudPermissionsPlugin.getInstance().injectPermissionManager(player);
     }
 
     @EventHandler
     public void handle(PlayerQuitEvent event) {
         this.permissionsManagement.getCachedPermissionUsers().remove(event.getPlayer().getUUID());
     }
+
 }

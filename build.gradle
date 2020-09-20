@@ -137,8 +137,6 @@ allprojects {
 
     String hashValue = null
     ext.getCurrentCommitHash = {
-
-
         if (hashValue == null) {
             try {
                 def hashStdOut = new ByteArrayOutputStream()

@@ -7,6 +7,7 @@ import de.dytanic.cloudnet.ext.bridge.WorldInfo;
 import de.dytanic.cloudnet.ext.bridge.WorldPosition;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkConnectionInfo;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkPlayerServerInfo;
+import de.dytanic.cloudnet.ext.bridge.server.BridgeServerHelper;
 import io.gomint.GoMint;
 import io.gomint.entity.EntityPlayer;
 import io.gomint.math.Location;
@@ -20,28 +21,16 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-public final class GoMintCloudNetHelper {
-
-    private static volatile String
-            apiMotd,
-            extra = "",
-            state = "LOBBY";
-
-    private static volatile int maxPlayers = GoMint.instance().getMaxPlayers();
-
-    private static volatile GoMintCloudNetBridgePlugin plugin;
-
-    static {
-        try {
-            apiMotd = GoMint.instance().getMotd();
-        } catch (Exception ignored) {
-            apiMotd = "";
-        }
-    }
-
+public final class GoMintCloudNetHelper extends BridgeServerHelper {
 
     private GoMintCloudNetHelper() {
         throw new UnsupportedOperationException();
+    }
+
+    public static void init() {
+        BridgeServerHelper.setMotd(GoMint.instance().getMotd());
+        BridgeServerHelper.setState("LOBBY");
+        BridgeServerHelper.setMaxPlayers(GoMint.instance().getMaxPlayers());
     }
 
     public static GoMintServer getGoMintServer() {
@@ -53,10 +42,10 @@ public final class GoMintCloudNetHelper {
                 .append("Online", true)
                 .append("Version", Protocol.MINECRAFT_PE_NETWORK_VERSION)
                 .append("GoMint-Version", GoMint.instance().getVersion())
-                .append("Max-Players", maxPlayers)
-                .append("Motd", apiMotd)
-                .append("Extra", extra)
-                .append("State", state)
+                .append("Max-Players", BridgeServerHelper.getMaxPlayers())
+                .append("Motd", BridgeServerHelper.getMotd())
+                .append("Extra", BridgeServerHelper.getExtra())
+                .append("State", BridgeServerHelper.getState())
                 .append("TPS", GoMint.instance().getTPS());
 
         if (GoMint.instance().isMainThread()) {
@@ -166,45 +155,5 @@ public final class GoMintCloudNetHelper {
                 new HostAndPort(player.getConnection().getConnection().getAddress()),
                 BridgeHelper.createOwnNetworkServiceInfo()
         );
-    }
-
-    public static String getApiMotd() {
-        return GoMintCloudNetHelper.apiMotd;
-    }
-
-    public static void setApiMotd(String apiMotd) {
-        GoMintCloudNetHelper.apiMotd = apiMotd;
-    }
-
-    public static String getExtra() {
-        return GoMintCloudNetHelper.extra;
-    }
-
-    public static void setExtra(String extra) {
-        GoMintCloudNetHelper.extra = extra;
-    }
-
-    public static String getState() {
-        return GoMintCloudNetHelper.state;
-    }
-
-    public static void setState(String state) {
-        GoMintCloudNetHelper.state = state;
-    }
-
-    public static int getMaxPlayers() {
-        return GoMintCloudNetHelper.maxPlayers;
-    }
-
-    public static void setMaxPlayers(int maxPlayers) {
-        GoMintCloudNetHelper.maxPlayers = maxPlayers;
-    }
-
-    public static GoMintCloudNetBridgePlugin getPlugin() {
-        return GoMintCloudNetHelper.plugin;
-    }
-
-    public static void setPlugin(GoMintCloudNetBridgePlugin plugin) {
-        GoMintCloudNetHelper.plugin = plugin;
     }
 }
