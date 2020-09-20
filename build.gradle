@@ -136,8 +136,6 @@ allprojects {
 
     String hashValue = null
     ext.getCurrentCommitHash = {
-
-
         if (hashValue == null) {
             try {
                 def hashStdOut = new ByteArrayOutputStream()
@@ -186,6 +184,10 @@ subprojects {
         compileOnly group: 'org.projectlombok', name: 'lombok', version: dependencyLombokVersion
         testImplementation group: 'junit', name: 'junit', version: testJunitVersion
         annotationProcessor group: 'org.projectlombok', name: 'lombok', version: dependencyLombokVersion
+    }
+
+    jar {
+        from rootProject.file('LICENSE')
     }
 
     task sourcesJar(type: Jar) {
