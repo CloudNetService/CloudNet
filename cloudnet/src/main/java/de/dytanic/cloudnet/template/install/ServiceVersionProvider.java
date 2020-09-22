@@ -10,9 +10,8 @@ import de.dytanic.cloudnet.console.animation.progressbar.ProgressBarInputStream;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironment;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import de.dytanic.cloudnet.template.ITemplateStorage;
-import de.dytanic.cloudnet.template.install.installer.DownloadingServiceVersionInstaller;
-import de.dytanic.cloudnet.template.install.installer.ServiceVersionInstaller;
-import de.dytanic.cloudnet.template.install.installer.processing.ProcessingServiceVersionInstaller;
+import de.dytanic.cloudnet.template.install.run.InstallInformation;
+import de.dytanic.cloudnet.template.install.run.step.InstallStep;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,18 +21,13 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class ServiceVersionProvider {
 
-    private final Map<ServiceVersionType.InstallerType, ServiceVersionInstaller> installers = new HashMap<>();
-
     private final Map<String, ServiceVersionType> serviceVersionTypes = new HashMap<>();
-
-    public ServiceVersionProvider() {
-        this.installers.put(ServiceVersionType.InstallerType.DOWNLOAD, new DownloadingServiceVersionInstaller());
-        this.installers.put(ServiceVersionType.InstallerType.BUILD, new ProcessingServiceVersionInstaller());
-    }
 
     public boolean loadServiceVersionTypes(String url) throws IOException {
         this.serviceVersionTypes.clear();
@@ -48,12 +42,6 @@ public class ServiceVersionProvider {
         connection.disconnect();
 
         return success;
-    }
-
-    public void shutdown() {
-        for (ServiceVersionInstaller value : this.installers.values()) {
-            value.shutdown();
-        }
     }
 
     public void loadDefaultVersionTypes() {
@@ -79,6 +67,11 @@ public class ServiceVersionProvider {
         return false;
     }
 
+    public void interruptInstallSteps() {
+        for (InstallStep installStep : InstallStep.values()) {
+            installStep.interrupt();
+        }
+    }
 
     public void registerServiceVersionType(ServiceVersionType serviceVersionType) {
         this.serviceVersionTypes.put(serviceVersionType.getName().toLowerCase(), serviceVersionType);
@@ -98,14 +91,8 @@ public class ServiceVersionProvider {
     }
 
     public boolean installServiceVersion(ServiceVersionType serviceVersionType, ServiceVersion serviceVersion, ITemplateStorage storage, ServiceTemplate serviceTemplate) {
-        if (!serviceVersionType.getInstallerType().canInstall(serviceVersion)) {
-            throw new IllegalStateException("Cannot run " + serviceVersionType.getName() + "-" + serviceVersion.getName() + "#" + serviceVersionType.getInstallerType() + " on " + JavaVersion.getRuntimeVersion().getName());
-        }
-
-        ServiceVersionInstaller installer = this.installers.get(serviceVersionType.getInstallerType());
-
-        if (installer == null) {
-            throw new IllegalArgumentException("Installer for type " + serviceVersionType.getInstallerType() + " not found");
+        if (!serviceVersionType.canInstall(serviceVersion)) {
+            throw new IllegalStateException("Cannot run " + serviceVersionType.getName() + "-" + serviceVersion.getName() + " on " + JavaVersion.getRuntimeVersion().getName());
         }
 
         if (serviceVersion.isDeprecated()) {
@@ -131,24 +118,39 @@ public class ServiceVersionProvider {
             exception.printStackTrace();
         }
 
-        String fileName = serviceVersionType.getTargetEnvironment().getName() + ".jar";
         Path workingDirectory = Paths.get(System.getProperty("cloudnet.tempDir.build", "temp/build"), UUID.randomUUID().toString());
 
-        Path versionCachePath = Paths.get(System.getProperty("cloudnet.versioncache.path", "local/versioncache"),
-                serviceVersionType.getName() + "-" + serviceVersion.getName() + ".jar");
+        Path versionCacheDirectory = Paths.get(System.getProperty("cloudnet.versioncache.path", "local/versioncache"),
+                serviceVersionType.getName() + "-" + serviceVersion.getName());
+
+        InstallInformation installInformation = new InstallInformation(serviceVersionType, serviceVersion, storage, serviceTemplate);
 
         try {
-            if (Files.exists(versionCachePath)) {
-                try (OutputStream targetStream = storage.newOutputStream(serviceTemplate, fileName)) {
-                    Files.copy(versionCachePath, Objects.requireNonNull(targetStream, "OutputStream is null!"));
-                }
+            if (serviceVersion.isCacheFiles() && Files.exists(versionCacheDirectory)) {
+                InstallStep.DEPLOY.execute(installInformation, versionCacheDirectory, Files.walk(versionCacheDirectory).collect(Collectors.toSet()));
             } else {
                 Files.createDirectories(workingDirectory);
-                if (!serviceVersion.isLatest()) {
-                    Files.createDirectories(versionCachePath.getParent());
+
+                List<InstallStep> installSteps = new ArrayList<>();
+
+                installSteps.add(InstallStep.DOWNLOAD);
+                installSteps.addAll(serviceVersionType.getInstallSteps());
+                installSteps.add(InstallStep.DEPLOY);
+
+                Set<Path> lastStepResult = new HashSet<>();
+
+                for (InstallStep installStep : installSteps) {
+                    lastStepResult = installStep.execute(installInformation, workingDirectory, lastStepResult);
                 }
 
-                installer.install(serviceVersion, fileName, workingDirectory, storage, serviceTemplate, versionCachePath);
+                if (serviceVersion.isCacheFiles()) {
+                    for (Path path : lastStepResult) {
+                        Path targetPath = versionCacheDirectory.resolve(workingDirectory.relativize(path));
+                        Files.createDirectories(targetPath.getParent());
+
+                        Files.copy(path, targetPath, StandardCopyOption.REPLACE_EXISTING);
+                    }
+                }
             }
 
             for (Map.Entry<String, String> downloadEntry : serviceVersion.getAdditionalDownloads().entrySet()) {
@@ -161,14 +163,14 @@ public class ServiceVersionProvider {
                 }
             }
 
+            return true;
         } catch (Exception exception) {
             exception.printStackTrace();
-            return false;
         } finally {
             FileUtils.delete(workingDirectory.toFile());
         }
 
-        return true;
+        return false;
     }
 
     public Map<String, ServiceVersionType> getServiceVersionTypes() {

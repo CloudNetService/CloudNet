@@ -20,6 +20,7 @@ import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public final class GoMintCloudNetHelper extends BridgeServerHelper {
 
@@ -46,66 +47,62 @@ public final class GoMintCloudNetHelper extends BridgeServerHelper {
                 .append("Motd", BridgeServerHelper.getMotd())
                 .append("Extra", BridgeServerHelper.getExtra())
                 .append("State", BridgeServerHelper.getState())
-                .append("TPS", GoMint.instance().getTPS());
+                .append("TPS", GoMint.instance().getTPS())
+                .append("Online-Count", GoMint.instance().getPlayers().size())
+                .append("Players", GoMint.instance().getPlayers().stream().map(entityPlayer -> {
+                    io.gomint.server.entity.EntityPlayer player = (io.gomint.server.entity.EntityPlayer) entityPlayer;
 
-        if (GoMint.instance().isMainThread()) {
-            serviceInfoSnapshot.getProperties()
-                    .append("Online-Count", GoMint.instance().getPlayers().size())
-                    .append("Players", GoMint.instance().getPlayers().stream().map(entityPlayer -> {
-                        io.gomint.server.entity.EntityPlayer player = (io.gomint.server.entity.EntityPlayer) entityPlayer;
+                    Location location = entityPlayer.getLocation();
 
-                        Location location = entityPlayer.getLocation();
+                    return new GoMintCloudNetPlayerInfo(
+                            entityPlayer.getHealth(),
+                            entityPlayer.getMaxHealth(),
+                            entityPlayer.getSaturation(),
+                            entityPlayer.getLevel(),
+                            entityPlayer.getPing(),
+                            entityPlayer.getLocale(),
+                            new WorldPosition(
+                                    location.getX(),
+                                    location.getY(),
+                                    location.getZ(),
+                                    location.getYaw(),
+                                    location.getPitch(),
+                                    location.getWorld().getWorldName()
+                            ),
+                            new HostAndPort(player.getConnection().getConnection().getAddress()),
+                            entityPlayer.getUUID(),
+                            entityPlayer.isOnline(),
+                            entityPlayer.getName(),
+                            entityPlayer.getDeviceInfo().getDeviceName(),
+                            entityPlayer.getXboxID(),
+                            entityPlayer.getGamemode().name()
+                    );
+                }).collect(Collectors.toList()))
+                .append("Worlds", GoMint.instance().getWorlds().stream().map(world -> {
+                    Map<String, String> gameRules = new HashMap<>();
 
-                        return new GoMintCloudNetPlayerInfo(
-                                entityPlayer.getHealth(),
-                                entityPlayer.getMaxHealth(),
-                                entityPlayer.getSaturation(),
-                                entityPlayer.getLevel(),
-                                entityPlayer.getPing(),
-                                entityPlayer.getLocale(),
-                                new WorldPosition(
-                                        location.getX(),
-                                        location.getY(),
-                                        location.getZ(),
-                                        location.getYaw(),
-                                        location.getPitch(),
-                                        location.getWorld().getWorldName()
-                                ),
-                                new HostAndPort(player.getConnection().getConnection().getAddress()),
-                                entityPlayer.getUUID(),
-                                entityPlayer.isOnline(),
-                                entityPlayer.getName(),
-                                entityPlayer.getDeviceInfo().getDeviceName(),
-                                entityPlayer.getXboxID(),
-                                entityPlayer.getGamemode().name()
-                        );
-                    }))
-                    .append("Worlds", GoMint.instance().getWorlds().stream().map(world -> {
-                        Map<String, String> gameRules = new HashMap<>();
+                    for (Field field : Gamerule.class.getFields()) {
+                        if (Modifier.isStatic(field.getModifiers()) && Modifier.isFinal(field.getModifiers()) &&
+                                Modifier.isPublic(field.getModifiers()) && Gamerule.class.isAssignableFrom(field.getType())) {
+                            try {
+                                field.setAccessible(true);
+                                Gamerule<?> gameRule = (Gamerule<?>) field.get(null);
+                                gameRules.put(gameRule.getNbtName(), String.valueOf(world.getGamerule(gameRule)));
 
-                        for (Field field : Gamerule.class.getFields()) {
-                            if (Modifier.isStatic(field.getModifiers()) && Modifier.isFinal(field.getModifiers()) &&
-                                    Modifier.isPublic(field.getModifiers()) && Gamerule.class.isAssignableFrom(field.getType())) {
-                                try {
-                                    field.setAccessible(true);
-                                    Gamerule<?> gameRule = (Gamerule<?>) field.get(null);
-                                    gameRules.put(gameRule.getNbtName(), String.valueOf(world.getGamerule(gameRule)));
-
-                                } catch (IllegalAccessException exception) {
-                                    exception.printStackTrace();
-                                }
+                            } catch (IllegalAccessException exception) {
+                                exception.printStackTrace();
                             }
                         }
+                    }
 
-                        return new WorldInfo(
-                                UUID.randomUUID(),
-                                world.getLevelName(),
-                                world.getDifficulty().name(),
-                                gameRules
-                        );
-                    }))
-            ;
-        }
+                    return new WorldInfo(
+                            new UUID(0, 0),
+                            world.getLevelName(),
+                            world.getDifficulty().name(),
+                            gameRules
+                    );
+                }).collect(Collectors.toList()));
+
     }
 
     public static NetworkConnectionInfo createNetworkConnectionInfo(EntityPlayer entityPlayer) {

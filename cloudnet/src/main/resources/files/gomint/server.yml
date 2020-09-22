@@ -4,9 +4,10 @@ listener:
   useUPNP: true
 connection:
   # Root of certification chain used for JWT
-  jwtRoot: MHYwEAYHKoZIzj0CAQYFK4EEACIDYgAE8ELkixyLcwlZryUQcu1TvPOmI2B7vX83ndnWRUaXm74wFfa5f/lwQNTfrLVHa2PmenpGI6JhIMUJaWZrjmMj90NoKNFSNBuKdm8rYiXsfaz3K36x/1U26HpG0ZxK/V1V
+  # CloudNet clears this to allow joining via a proxy
+  # Mojang JWT for XBOX validation is MHYwEAYHKoZIzj0CAQYFK4EEACIDYgAE8ELkixyLcwlZryUQcu1TvPOmI2B7vX83ndnWRUaXm74wFfa5f/lwQNTfrLVHa2PmenpGI6JhIMUJaWZrjmMj90NoKNFSNBuKdm8rYiXsfaz3K36x/1U26HpG0ZxK/V1V
+  jwtRoot: ''
 maxPlayers: 10
-onlyXBOXLogin: false
 motd: §aGoMint §7Development Build
 enablePacketDumping: false
 dumpDirectory: dumps

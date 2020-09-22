@@ -1,13 +1,13 @@
-package de.dytanic.cloudnet.template.install.installer.processing;
+package de.dytanic.cloudnet.template.install.run.step;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 
-public class ProcessingInstallerOutput implements Runnable {
+public class BuildStepOutput implements Runnable {
     private final InputStream inputStream;
     private final PrintStream outputStream;
 
-    public ProcessingInstallerOutput(InputStream inputStream, PrintStream outputStream) {
+    public BuildStepOutput(InputStream inputStream, PrintStream outputStream) {
         this.inputStream = inputStream;
         this.outputStream = outputStream;
     }

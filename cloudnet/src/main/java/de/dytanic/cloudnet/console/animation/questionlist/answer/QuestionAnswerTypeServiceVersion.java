@@ -45,7 +45,7 @@ public class QuestionAnswerTypeServiceVersion implements QuestionAnswerType<Pair
             return optionalVersionType.isPresent() &&
                     optionalVersionType.get().getTargetEnvironment().getEnvironmentType() == this.environmentTypeSupplier.get() &&
                     optionalVersionType.get().getVersion(args[1]).isPresent() &&
-                    optionalVersionType.get().getInstallerType().canInstall(optionalVersionType.get().getVersion(args[1]).get());
+                    optionalVersionType.get().canInstall(optionalVersionType.get().getVersion(args[1]).get());
         }
         return false;
     }
@@ -91,9 +91,11 @@ public class QuestionAnswerTypeServiceVersion implements QuestionAnswerType<Pair
             if (optionalVersionType.isPresent()) {
                 ServiceVersionType versionType = optionalVersionType.get();
                 Optional<ServiceVersion> optionalVersion = versionType.getVersion(args[1]);
+
                 if (optionalVersion.isPresent()) {
                     ServiceVersion version = optionalVersion.get();
-                    if (!versionType.getInstallerType().canInstall(version)) {
+
+                    if (!versionType.canInstall(version)) {
                         return "&c" + LanguageManager.getMessage("command-template-install-wrong-java")
                                 .replace("%version%", versionType.getName() + "-" + version.getName())
                                 .replace("%java%", JavaVersion.getRuntimeVersion().getName());
