@@ -30,6 +30,9 @@ jobs:
           echo 'Creating CloudNet.zip file...';
           mkdir -p temp/;
           cp -r .template/* temp/;
+          
+          cp LICENSE temp/LICENSE;
+          
           mkdir temp/dev;
           mkdir temp/dev/examples;
           cp -r cloudnet-examples/src/main/java/de/dytanic/cloudnet/examples/* temp/dev/examples;
