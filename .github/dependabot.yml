@@ -1,0 +1,9 @@
+version: 2
+updates:
+  - package-ecosystem: gradle
+    directory: "/"
+    schedule:
+      interval: daily
+      time: "05:00"
+    open-pull-requests-limit: 20
+    target-branch: development
