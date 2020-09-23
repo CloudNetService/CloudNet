@@ -8,6 +8,7 @@ import de.dytanic.cloudnet.ext.bridge.OnlyProxyProtection;
 import de.dytanic.cloudnet.ext.bridge.gomint.GoMintCloudNetHelper;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import io.gomint.ChatColor;
+import io.gomint.entity.EntityPlayer;
 import io.gomint.event.EventHandler;
 import io.gomint.event.EventListener;
 import io.gomint.event.player.PlayerJoinEvent;
@@ -15,7 +16,6 @@ import io.gomint.event.player.PlayerLoginEvent;
 import io.gomint.event.player.PlayerQuitEvent;
 import io.gomint.plugin.Plugin;
 import io.gomint.server.GoMintServer;
-import io.gomint.server.entity.EntityPlayer;
 
 public final class GoMintPlayerListener implements EventListener {
 
@@ -31,10 +31,10 @@ public final class GoMintPlayerListener implements EventListener {
 
     @EventHandler
     public void handle(PlayerLoginEvent event) {
-        EntityPlayer player = (EntityPlayer) event.getPlayer();
+        EntityPlayer player = event.getPlayer();
         BridgeConfiguration bridgeConfiguration = BridgeConfigurationProvider.load();
 
-        if (this.onlyProxyProtection.shouldDisallowPlayer(player.getConnection().getConnection().getAddress().getAddress().getHostAddress())) {
+        if (this.onlyProxyProtection.shouldDisallowPlayer(player.getAddress().getAddress().getHostAddress())) {
             event.setCancelled(true);
             event.setKickMessage(ChatColor.translateAlternateColorCodes('&', bridgeConfiguration.getMessages().get("server-join-cancel-because-only-proxy")));
             return;
@@ -45,13 +45,13 @@ public final class GoMintPlayerListener implements EventListener {
 
         if (serviceTask != null) {
             String requiredPermission = serviceTask.getProperties().getString("requiredPermission");
-            if (requiredPermission != null && !player.hasPermission(requiredPermission)) {
+            if (requiredPermission != null && !player.getPermissionManager().hasPermission(requiredPermission)) {
                 event.setCancelled(true);
                 event.setKickMessage(ChatColor.translateAlternateColorCodes('&', bridgeConfiguration.getMessages().get("server-join-cancel-because-permission")));
                 return;
             }
 
-            if (serviceTask.isMaintenance() && !player.hasPermission("cloudnet.bridge.maintenance")) {
+            if (serviceTask.isMaintenance() && !player.getPermissionManager().hasPermission("cloudnet.bridge.maintenance")) {
                 event.setCancelled(true);
                 event.setKickMessage(ChatColor.translateAlternateColorCodes('&', bridgeConfiguration.getMessages().get("server-join-cancel-because-maintenance")));
                 return;
@@ -77,4 +77,5 @@ public final class GoMintPlayerListener implements EventListener {
 
         this.plugin.getScheduler().execute(BridgeHelper::updateServiceInfo);
     }
+
 }
