@@ -27,6 +27,8 @@ import java.util.stream.Collectors;
 
 public class ServiceVersionProvider {
 
+    private static final int VERSIONS_FILE_VERSION = 1;
+
     private final Map<String, ServiceVersionType> serviceVersionTypes = new HashMap<>();
 
     public boolean loadServiceVersionTypes(String url) throws IOException {
@@ -55,14 +57,19 @@ public class ServiceVersionProvider {
 
         JsonDocument document = new JsonDocument().read(inputStream);
 
-        if (document.contains("versions")) {
-            Collection<ServiceVersionType> versions = document.get("versions", TypeToken.getParameterized(Collection.class, ServiceVersionType.class).getType());
+        int fileVersion = document.getInt("fileVersion", -1);
 
-            for (ServiceVersionType serviceVersionType : versions) {
-                this.registerServiceVersionType(serviceVersionType);
+        if (VERSIONS_FILE_VERSION == fileVersion) {
+            if (document.contains("versions")) {
+                Collection<ServiceVersionType> versions = document.get("versions", TypeToken.getParameterized(Collection.class, ServiceVersionType.class).getType());
+
+                for (ServiceVersionType serviceVersionType : versions) {
+                    this.registerServiceVersionType(serviceVersionType);
+                }
+
+                return true;
             }
 
-            return true;
         }
         return false;
     }
