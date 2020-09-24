@@ -1,28 +1,19 @@
 package de.dytanic.cloudnet.ext.bridge.gomint.event;
 
-import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
+import de.dytanic.cloudnet.ext.bridge.WrappedChannelMessageReceiveEvent;
 
-public final class GoMintChannelMessageReceiveEvent extends GoMintCloudNetEvent {
+public final class GoMintChannelMessageReceiveEvent extends GoMintCloudNetEvent implements WrappedChannelMessageReceiveEvent {
 
-    private final String channel, message;
+    private final ChannelMessageReceiveEvent event;
 
-    private final JsonDocument data;
-
-    public GoMintChannelMessageReceiveEvent(String channel, String message, JsonDocument data) {
-        this.channel = channel;
-        this.message = message;
-        this.data = data;
+    public GoMintChannelMessageReceiveEvent(ChannelMessageReceiveEvent event) {
+        this.event = event;
     }
 
-    public String getChannel() {
-        return this.channel;
+    @Override
+    public ChannelMessageReceiveEvent getWrapped() {
+        return this.event;
     }
 
-    public String getMessage() {
-        return this.message;
-    }
-
-    public JsonDocument getData() {
-        return this.data;
-    }
 }

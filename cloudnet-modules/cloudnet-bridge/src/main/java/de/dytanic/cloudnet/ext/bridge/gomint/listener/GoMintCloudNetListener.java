@@ -56,7 +56,7 @@ public final class GoMintCloudNetListener {
 
     @EventListener
     public void handle(ChannelMessageReceiveEvent event) {
-        this.goMintCall(new GoMintChannelMessageReceiveEvent(event.getChannel(), event.getMessage(), event.getData()));
+        this.goMintCall(new GoMintChannelMessageReceiveEvent(event));
     }
 
     @EventListener

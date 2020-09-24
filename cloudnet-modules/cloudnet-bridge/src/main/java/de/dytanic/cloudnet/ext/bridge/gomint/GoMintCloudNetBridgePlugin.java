@@ -57,7 +57,8 @@ public final class GoMintCloudNetBridgePlugin extends Plugin {
                     GoMintCloudNetHelper.getMaxPlayers()
             );
 
-            boolean hasToUpdate = false, value = false;
+            boolean hasToUpdate = false;
+            boolean value = false;
 
             GoMint.instance().getPluginManager().callEvent(pingEvent);
             if (pingEvent.getMotd() != null && !pingEvent.getMotd().equalsIgnoreCase(GoMintCloudNetHelper.getApiMotd())) {

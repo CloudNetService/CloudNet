@@ -12,14 +12,20 @@ import java.util.UUID;
 @EqualsAndHashCode
 final class GoMintCloudNetPlayerInfo {
 
-    protected double health, maxHealth, saturation;
-    protected int level, ping;
+    protected double health;
+    protected double maxHealth;
+    protected double saturation;
+    protected int level;
+    protected int ping;
     protected Locale locale;
     protected WorldPosition location;
     protected HostAndPort address;
     private UUID uniqueId;
     private boolean online;
-    private String name, deviceName, xBoxId, gamemode;
+    private String name;
+    private String deviceName;
+    private String xBoxId;
+    private String gamemode;
 
     public GoMintCloudNetPlayerInfo(double health, double maxHealth, double saturation, int level, int ping, Locale locale, WorldPosition location, HostAndPort address, UUID uniqueId, boolean online, String name, String deviceName, String xBoxId, String gamemode) {
         this.health = health;

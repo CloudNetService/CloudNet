@@ -59,17 +59,14 @@ public class ServiceVersionProvider {
 
         int fileVersion = document.getInt("fileVersion", -1);
 
-        if (VERSIONS_FILE_VERSION == fileVersion) {
-            if (document.contains("versions")) {
-                Collection<ServiceVersionType> versions = document.get("versions", TypeToken.getParameterized(Collection.class, ServiceVersionType.class).getType());
+        if (VERSIONS_FILE_VERSION == fileVersion && document.contains("versions")) {
+            Collection<ServiceVersionType> versions = document.get("versions", TypeToken.getParameterized(Collection.class, ServiceVersionType.class).getType());
 
-                for (ServiceVersionType serviceVersionType : versions) {
-                    this.registerServiceVersionType(serviceVersionType);
-                }
-
-                return true;
+            for (ServiceVersionType serviceVersionType : versions) {
+                this.registerServiceVersionType(serviceVersionType);
             }
 
+            return true;
         }
         return false;
     }
