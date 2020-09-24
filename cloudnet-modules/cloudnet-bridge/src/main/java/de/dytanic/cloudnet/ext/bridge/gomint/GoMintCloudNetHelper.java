@@ -105,7 +105,7 @@ public final class GoMintCloudNetHelper extends BridgeServerHelper {
                 Protocol.MINECRAFT_PE_PROTOCOL_VERSION,
                 new HostAndPort(player.getAddress()),
                 new HostAndPort(getGoMintServer().getServerConfig().getListener().getIp(), GoMint.instance().getPort()),
-                true,
+                getGoMintServer().getEncryptionKeyFactory().isKeyGiven(),
                 false,
                 BridgeHelper.createOwnNetworkServiceInfo()
         );
