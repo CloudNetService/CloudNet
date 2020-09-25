@@ -114,6 +114,11 @@ public enum InstallStep {
                     ZipEntry entry;
                     while ((entry = zipInputStream.getNextEntry()) != null) {
                         Path targetPath = workingDirectory.resolve(entry.getName());
+
+                        if (!targetPath.normalize().startsWith(workingDirectory)) {
+                            throw new IllegalStateException("Zip entry path contains traversal element!");
+                        }
+
                         resultPaths.add(targetPath);
 
                         if (entry.isDirectory()) {

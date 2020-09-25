@@ -39,11 +39,13 @@ public class ServiceVersionProvider {
 
         connection.connect();
 
-        boolean success = this.loadVersionsFromInputStream(connection.getInputStream());
+        try (InputStream inputStream = connection.getInputStream()) {
+            boolean success = this.loadVersionsFromInputStream(inputStream);
 
-        connection.disconnect();
+            connection.disconnect();
 
-        return success;
+            return success;
+        }
     }
 
     public void loadDefaultVersionTypes() {

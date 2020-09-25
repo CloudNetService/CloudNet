@@ -23,7 +23,7 @@ public final class TemplateStorageUtil {
     }
 
     public static File getFile(ServiceTemplate serviceTemplate, String path) {
-        return new File(getLocalTemplateStorage().getStorageDirectory() + "/" + serviceTemplate.getTemplatePath(), path);
+        return new File(getLocalTemplateStorage().getStorageDirectory() + File.separator + serviceTemplate.getTemplatePath(), path);
     }
 
     private static void prepareProxyTemplate(ITemplateStorage storage, ServiceTemplate template, byte[] buffer, String configPath, String defaultConfigPath) throws IOException {
