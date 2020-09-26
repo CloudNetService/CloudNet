@@ -45,7 +45,7 @@ public enum ServiceEnvironmentType {
 
         @Override
         public @NotNull String getClasspath(@NotNull File wrapperFile, @Nullable File applicationFile) {
-            return wrapperFile.getAbsolutePath() + ";modules/*";
+            return wrapperFile.getAbsolutePath() + File.pathSeparator + "modules/*";
         }
     },
     BUNGEECORD(
@@ -100,7 +100,7 @@ public enum ServiceEnvironmentType {
     }
 
     public @NotNull String getClasspath(@NotNull File wrapperFile, @Nullable File applicationFile) {
-        return wrapperFile.getAbsolutePath() + ";" + (applicationFile == null ? "" : applicationFile.getAbsolutePath());
+        return wrapperFile.getAbsolutePath() + File.pathSeparator + (applicationFile == null ? "" : applicationFile.getAbsolutePath());
     }
 
     public ServiceEnvironment[] getEnvironments() {
