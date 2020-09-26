@@ -20,6 +20,7 @@ import java.util.function.Predicate;
 public final class BukkitCloudNetCloudPermissionsPermissible extends PermissibleBase {
 
     private final Player player;
+
     private final IPermissionManagement permissionsManagement;
 
     public BukkitCloudNetCloudPermissionsPermissible(Player player, IPermissionManagement permissionsManagement) {

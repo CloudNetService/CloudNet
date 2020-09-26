@@ -419,19 +419,18 @@ public final class Wrapper extends CloudNetDriver implements DriverAPIUser {
     }
 
     private boolean startApplication() throws Exception {
-        File applicationFile = new File(this.commandLineArguments.remove(0));
         String mainClass = this.commandLineArguments.remove(0);
 
-        return applicationFile.exists() && this.startApplication(applicationFile, mainClass);
+        return this.startApplication(mainClass);
     }
 
-    private boolean startApplication(@NotNull File applicationFile, @NotNull String mainClass) throws Exception {
+    private boolean startApplication(@NotNull String mainClass) throws Exception {
         Class<?> main = Class.forName(mainClass);
         Method method = main.getMethod("main", String[].class);
 
         Collection<String> arguments = new ArrayList<>(this.commandLineArguments);
 
-        this.eventManager.callEvent(new ApplicationPreStartEvent(this, main, applicationFile, arguments));
+        this.eventManager.callEvent(new ApplicationPreStartEvent(this, main, arguments));
 
         try {
             // checking if the application will be launched via the Minecraft LaunchWrapper

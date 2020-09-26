@@ -23,7 +23,7 @@ public final class TemplateStorageUtil {
     }
 
     public static File getFile(ServiceTemplate serviceTemplate, String path) {
-        return new File(getLocalTemplateStorage().getStorageDirectory() + "/" + serviceTemplate.getTemplatePath(), path);
+        return new File(getLocalTemplateStorage().getStorageDirectory() + File.separator + serviceTemplate.getTemplatePath(), path);
     }
 
     private static void prepareProxyTemplate(ITemplateStorage storage, ServiceTemplate template, byte[] buffer, String configPath, String defaultConfigPath) throws IOException {
@@ -79,6 +79,15 @@ public final class TemplateStorageUtil {
 
                     try (OutputStream outputStream = storage.newOutputStream(serviceTemplate, "nukkit.yml");
                          InputStream inputStream = CloudNet.class.getClassLoader().getResourceAsStream("files/nukkit/nukkit.yml")) {
+                        if (inputStream != null) {
+                            FileUtils.copy(inputStream, outputStream, buffer);
+                        }
+                    }
+                }
+                break;
+                case GO_MINT: {
+                    try (OutputStream outputStream = storage.newOutputStream(serviceTemplate, "server.yml");
+                         InputStream inputStream = CloudNet.class.getClassLoader().getResourceAsStream("files/gomint/server.yml")) {
                         if (inputStream != null) {
                             FileUtils.copy(inputStream, outputStream, buffer);
                         }

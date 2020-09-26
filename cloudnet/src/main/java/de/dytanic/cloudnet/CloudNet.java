@@ -319,7 +319,7 @@ public final class CloudNet extends CloudNetDriver {
 
         this.logger.info(LanguageManager.getMessage("stop-start-message"));
 
-        this.serviceVersionProvider.shutdown();
+        this.serviceVersionProvider.interruptInstallSteps();
 
         this.cloudServiceManager.deleteAllCloudServices();
         this.taskScheduler.shutdown();
@@ -432,7 +432,7 @@ public final class CloudNet extends CloudNetDriver {
                 System.err.println(LanguageManager.getMessage("versions-load-failed")
                         .replace("%url%", url)
                         .replace("%versions%", Integer.toString(this.serviceVersionProvider.getServiceVersionTypes().size()))
-                        .replace("%error%", "invalid json")
+                        .replace("%error%", "invalid json or incompatible file version")
                 );
             }
         } catch (IOException exception) {

@@ -91,7 +91,7 @@ public class CommandTemplate extends SubCommandHandler {
 
                                     ServiceVersion version = optionalVersion.get();
 
-                                    if (!versionType.getInstallerType().canInstall(version)) {
+                                    if (!versionType.canInstall(version)) {
                                         sender.sendMessage(LanguageManager.getMessage("command-template-install-wrong-java")
                                                 .replace("%version%", versionType.getName() + "-" + version.getName())
                                                 .replace("%java%", JavaVersion.getRuntimeVersion().getName())

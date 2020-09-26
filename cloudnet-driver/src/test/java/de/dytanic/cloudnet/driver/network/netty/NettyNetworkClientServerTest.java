@@ -31,7 +31,7 @@ public class NettyNetworkClientServerTest {
         Assert.assertTrue(networkServer.addListener(address));
         Assert.assertTrue(networkClient.connect(address));
 
-        Thread.sleep(50);
+        Thread.sleep(500);
         Assert.assertTrue(this.connectedClient);
         Assert.assertTrue(this.connectedServer);
 
