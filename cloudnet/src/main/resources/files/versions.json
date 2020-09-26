@@ -717,11 +717,11 @@
         "UNZIP",
         "COPY_FILTER"
       ],
-      "website": "https://github.com/gomint/gomint",
+      "website": "https://gomint.io",
       "versions": [
         {
           "name": "latest",
-          "url": "https://github.com/gomint/gomint/releases/download/latest/server.zip",
+          "url": "https://gomint-artifacts.s3.amazonaws.com/latest.zip",
           "cacheFiles": false,
           "properties": {
             "copy": {
