@@ -187,6 +187,10 @@ subprojects {
         annotationProcessor group: 'org.projectlombok', name: 'lombok', version: dependencyLombokVersion
     }
 
+    jar {
+        from rootProject.file('LICENSE')
+    }
+
     task sourcesJar(type: Jar) {
         from sourceSets.main.allJava
         archiveClassifier.set('sources')
