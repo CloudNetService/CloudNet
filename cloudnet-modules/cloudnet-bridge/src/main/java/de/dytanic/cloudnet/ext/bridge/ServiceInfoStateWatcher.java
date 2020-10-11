@@ -166,17 +166,17 @@ public abstract class ServiceInfoStateWatcher {
         STOPPED(0),
         STARTING(1),
         EMPTY_ONLINE(2),
-        ONLINE(3),
-        FULL_ONLINE(4);
+        FULL_ONLINE(3),
+        ONLINE(4);
 
-        private final int value;
+        private final int priority;
 
-        ServiceInfoState(int value) {
-            this.value = value;
+        ServiceInfoState(int priority) {
+            this.priority = priority;
         }
 
-        public int getValue() {
-            return this.value;
+        public int getPriority() {
+            return this.priority;
         }
     }
 

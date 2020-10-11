@@ -9,7 +9,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -216,7 +215,7 @@ public final class FileUtils {
                      StandardCharsets.UTF_8)) {
             for (Path dir : directories) {
                 if (Files.exists(dir)) {
-                    convert0(zipOutputStream, dir);
+                    zipDir(zipOutputStream, dir);
                 }
             }
         }
@@ -240,7 +239,7 @@ public final class FileUtils {
             try (ZipOutputStream zipOutputStream = new ZipOutputStream(byteBuffer,
                     StandardCharsets.UTF_8)) {
                 for (Path dir : directories) {
-                    zipDir(dir, zipOutputStream);
+                    zipDir(zipOutputStream, dir);
                 }
             }
 
@@ -260,8 +259,8 @@ public final class FileUtils {
         }
 
         delete(target.toFile());
-        try {
-            zipStream(directory, Files.newOutputStream(target, StandardOpenOption.CREATE));
+        try (OutputStream outputStream = Files.newOutputStream(target, StandardOpenOption.CREATE)) {
+            zipStream(directory, outputStream);
             return target;
         } catch (final IOException exception) {
             exception.printStackTrace();
@@ -272,38 +271,24 @@ public final class FileUtils {
 
     private static void zipStream(Path source, OutputStream buffer) throws IOException {
         try (ZipOutputStream zipOutputStream = new ZipOutputStream(buffer, StandardCharsets.UTF_8)) {
-            zipDir(source, zipOutputStream);
-        }
-    }
-
-    private static void zipDir(Path source, ZipOutputStream zipOutputStream) throws IOException {
-        if (Files.exists(source)) {
-            if (Files.isDirectory(source)) {
-                convert0(zipOutputStream, source);
-            } else {
-                zipOutputStream.putNextEntry(new ZipEntry(source.toFile().getName()));
-                try (InputStream inputStream = Files.newInputStream(source)) {
-                    copy(inputStream, zipOutputStream);
-                }
-
-                zipOutputStream.closeEntry();
+            if (Files.exists(source)) {
+                zipDir(zipOutputStream, source);
             }
         }
     }
 
-    private static void convert0(ZipOutputStream zipOutputStream, Path directory) throws IOException {
+    private static void zipDir(ZipOutputStream zipOutputStream, Path directory) throws IOException {
         Files.walkFileTree(
                 directory,
-                EnumSet.noneOf(FileVisitOption.class),
-                Integer.MAX_VALUE,
                 new SimpleFileVisitor<Path>() {
                     public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                        try (InputStream inputStream = Files.newInputStream(file)) {
+                        try {
                             zipOutputStream.putNextEntry(new ZipEntry(directory.relativize(file).toString().replace("\\", "/")));
-                            copy(inputStream, zipOutputStream);
+                            Files.copy(file, zipOutputStream);
                             zipOutputStream.closeEntry();
-                        } catch (Exception ex) {
+                        } catch (IOException ex) {
                             zipOutputStream.closeEntry();
+                            throw ex;
                         }
                         return FileVisitResult.CONTINUE;
                     }
@@ -311,8 +296,7 @@ public final class FileUtils {
         );
     }
 
-    public static Path extract(Path zipPath, Path targetDirectory)
-            throws IOException {
+    public static Path extract(Path zipPath, Path targetDirectory) throws IOException {
         if (zipPath == null || targetDirectory == null || !Files.exists(zipPath)) {
             return targetDirectory;
         }
@@ -324,8 +308,7 @@ public final class FileUtils {
         return targetDirectory;
     }
 
-    public static Path extract(byte[] zipData, Path targetDirectory)
-            throws IOException {
+    public static Path extract(byte[] zipData, Path targetDirectory) throws IOException {
         if (zipData == null || zipData.length == 0 || targetDirectory == null) {
             return targetDirectory;
         }
@@ -338,12 +321,10 @@ public final class FileUtils {
         return targetDirectory;
     }
 
-    public static void extract0(ZipInputStream zipInputStream, Path targetDirectory)
-            throws IOException {
+    public static void extract0(ZipInputStream zipInputStream, Path targetDirectory) throws IOException {
         ZipEntry zipEntry;
-
         while ((zipEntry = zipInputStream.getNextEntry()) != null) {
-            extract1(zipInputStream, zipEntry, targetDirectory);
+            extractEntry(zipInputStream, zipEntry, targetDirectory);
             zipInputStream.closeEntry();
         }
     }
@@ -352,8 +333,7 @@ public final class FileUtils {
         byte[] bytes = null;
 
         try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
-            ZipOutputStream zipOutputStream = new ZipOutputStream(
-                    byteArrayOutputStream, StandardCharsets.UTF_8);
+            ZipOutputStream zipOutputStream = new ZipOutputStream(byteArrayOutputStream, StandardCharsets.UTF_8);
             zipOutputStream.close();
 
             bytes = byteArrayOutputStream.toByteArray();
@@ -365,9 +345,8 @@ public final class FileUtils {
         return bytes;
     }
 
-    private static void extract1(ZipInputStream zipInputStream, ZipEntry zipEntry,
-                                 Path targetDirectory) throws IOException {
-        Path file = Paths.get(targetDirectory.toString(), zipEntry.getName());
+    private static void extractEntry(ZipInputStream zipInputStream, ZipEntry zipEntry, Path targetDirectory) throws IOException {
+        Path file = targetDirectory.resolve(zipEntry.getName());
 
         if (zipEntry.isDirectory()) {
             if (!Files.exists(file)) {

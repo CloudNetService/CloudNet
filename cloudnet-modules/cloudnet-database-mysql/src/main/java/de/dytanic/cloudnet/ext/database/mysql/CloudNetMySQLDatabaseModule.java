@@ -37,7 +37,16 @@ public final class CloudNetMySQLDatabaseModule extends NodeCloudNetModule {
 
         this.getConfig().getString("username", "root");
         this.getConfig().getString("password", "root");
-        this.getConfig().getInt("connectionPoolSize", 15);
+
+        int connectionMaxPoolSize = 20;
+
+        if (this.getConfig().contains("connectionPoolSize")) {
+            connectionMaxPoolSize = this.getConfig().getInt("connectionPoolSize");
+            this.getConfig().remove("connectionPoolSize");
+        }
+
+        this.getConfig().getInt("connectionMaxPoolSize", connectionMaxPoolSize);
+        this.getConfig().getInt("connectionMinPoolSize", 10);
         this.getConfig().getInt("connectionTimeout", 5000);
         this.getConfig().getInt("validationTimeout", 5000);
 

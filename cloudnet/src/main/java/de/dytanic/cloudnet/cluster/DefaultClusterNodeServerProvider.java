@@ -1,18 +1,25 @@
 package de.dytanic.cloudnet.cluster;
 
 import com.google.common.base.Preconditions;
+import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkCluster;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
+import de.dytanic.cloudnet.driver.network.def.PacketConstants;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
+import de.dytanic.cloudnet.driver.network.protocol.chunk.ChunkedPacketBuilder;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
-import de.dytanic.cloudnet.network.packet.PacketServerDeployLocalTemplate;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 public final class DefaultClusterNodeServerProvider implements IClusterNodeServerProvider {
 
@@ -75,6 +82,17 @@ public final class DefaultClusterNodeServerProvider implements IClusterNodeServe
     }
 
     @Override
+    public void sendPacketSync(@NotNull IPacket packet) {
+        Preconditions.checkNotNull(packet);
+
+        for (IClusterNodeServer server : this.servers.values()) {
+            if (server.getChannel() != null) {
+                server.getChannel().sendPacketSync(packet);
+            }
+        }
+    }
+
+    @Override
     public void sendPacket(@NotNull IPacket... packets) {
         Preconditions.checkNotNull(packets);
 
@@ -85,7 +103,32 @@ public final class DefaultClusterNodeServerProvider implements IClusterNodeServe
 
     @Override
     public void deployTemplateInCluster(@NotNull ServiceTemplate serviceTemplate, @NotNull byte[] zipResource) {
-        this.sendPacket(new PacketServerDeployLocalTemplate(serviceTemplate, zipResource, true));
+        this.deployTemplateInCluster(serviceTemplate, new ByteArrayInputStream(zipResource));
+    }
+
+    @Override
+    public void deployTemplateInCluster(@NotNull ServiceTemplate serviceTemplate, @NotNull InputStream inputStream) {
+        if (this.servers.values().stream().noneMatch(IClusterNodeServer::isConnected)) {
+            return;
+        }
+
+        Collection<INetworkChannel> channels = this.servers
+                .values()
+                .stream()
+                .map(IClusterNodeServer::getChannel)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+
+        try {
+            JsonDocument header = JsonDocument.newDocument().append("template", serviceTemplate).append("preClear", true);
+
+            ChunkedPacketBuilder.newBuilder(PacketConstants.CLUSTER_TEMPLATE_DEPLOY_CHANNEL, inputStream)
+                    .header(header)
+                    .target(channels)
+                    .complete();
+        } catch (IOException exception) {
+            exception.printStackTrace();
+        }
     }
 
     @Override

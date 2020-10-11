@@ -1,5 +1,6 @@
 package de.dytanic.cloudnet.ext.cloudflare;
 
+import com.google.gson.JsonObject;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.language.LanguageManager;
@@ -13,7 +14,9 @@ import de.dytanic.cloudnet.ext.cloudflare.http.V1CloudflareConfigurationHttpHand
 import de.dytanic.cloudnet.ext.cloudflare.listener.CloudflareStartAndStopListener;
 import de.dytanic.cloudnet.module.NodeCloudNetModule;
 
+import java.net.Inet6Address;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Map;
@@ -70,6 +73,17 @@ public final class CloudNetCloudflareModule extends NodeCloudNetModule {
 
         for (CloudflareConfigurationEntry cloudflareConfigurationEntry : this.getCloudflareConfiguration().getEntries()) {
             if (cloudflareConfigurationEntry.isEnabled()) {
+                String hostAddress = cloudflareConfigurationEntry.getHostAddress();
+
+                boolean ipv6Address;
+
+                try {
+                    ipv6Address = InetAddress.getByName(hostAddress) instanceof Inet6Address;
+                } catch (UnknownHostException exception) {
+                    this.getLogger().error("hostAddress of entry is invalid!", exception);
+                    continue;
+                }
+
                 Pair<Integer, JsonDocument> response = CloudflareAPI.getInstance().createRecord(
                         this.getCloudNet().getConfig().getIdentity().getUniqueId(),
                         cloudflareConfigurationEntry.getEmail(),
@@ -77,11 +91,11 @@ public final class CloudNetCloudflareModule extends NodeCloudNetModule {
                         cloudflareConfigurationEntry.getApiToken(),
                         cloudflareConfigurationEntry.getZoneId(),
                         new DefaultDNSRecord(
-                                DNSType.A,
+                                ipv6Address ? DNSType.AAAA : DNSType.A,
                                 this.getCloudNetConfig().getIdentity().getUniqueId() + "."
                                         + cloudflareConfigurationEntry.getDomainName(),
-                                cloudflareConfigurationEntry.getHostAddress(),
-                                new JsonDocument().toJsonObject()
+                                hostAddress,
+                                new JsonObject()
                         )
                 );
 

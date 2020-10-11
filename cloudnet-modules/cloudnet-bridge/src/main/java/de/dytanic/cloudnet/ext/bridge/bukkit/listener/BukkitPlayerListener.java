@@ -22,13 +22,10 @@ public final class BukkitPlayerListener implements Listener {
 
     private final BukkitCloudNetBridgePlugin plugin;
 
-    private final BridgeConfiguration bridgeConfiguration;
-
     private final OnlyProxyProtection onlyProxyProtection;
 
     public BukkitPlayerListener(BukkitCloudNetBridgePlugin plugin) {
         this.plugin = plugin;
-        this.bridgeConfiguration = BridgeConfigurationProvider.load();
 
         this.onlyProxyProtection = new OnlyProxyProtection(Bukkit.getOnlineMode());
     }
@@ -36,34 +33,30 @@ public final class BukkitPlayerListener implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void handle(PlayerLoginEvent event) {
         Player player = event.getPlayer();
+        BridgeConfiguration bridgeConfiguration = BridgeConfigurationProvider.load();
 
         if (this.onlyProxyProtection.shouldDisallowPlayer(event.getRealAddress().getHostAddress())) {
             event.setResult(PlayerLoginEvent.Result.KICK_WHITELIST);
-            event.setKickMessage(ChatColor.translateAlternateColorCodes('&', this.bridgeConfiguration.getMessages().get("server-join-cancel-because-only-proxy")));
+            event.setKickMessage(ChatColor.translateAlternateColorCodes('&', bridgeConfiguration.getMessages().get("server-join-cancel-because-only-proxy")));
             return;
         }
 
         String currentTaskName = Wrapper.getInstance().getServiceId().getTaskName();
         ServiceTask serviceTask = Wrapper.getInstance().getServiceTaskProvider().getServiceTask(currentTaskName);
 
-        if (serviceTask == null) {
-            return;
-        }
+        if (serviceTask != null) {
+            String requiredPermission = serviceTask.getProperties().getString("requiredPermission");
+            if (requiredPermission != null && !player.hasPermission(requiredPermission)) {
+                event.setResult(PlayerLoginEvent.Result.KICK_WHITELIST);
+                event.setKickMessage(ChatColor.translateAlternateColorCodes('&', bridgeConfiguration.getMessages().get("server-join-cancel-because-permission")));
+                return;
+            }
 
-        // if the service has a field "requiredPermission" and the field is not null or empty and
-        // the player has the has not the permission of that field -> disconnect him
-        String requiredPermission = serviceTask.getProperties().getString("requiredPermission");
-        if (requiredPermission != null &&
-                !player.hasPermission(requiredPermission)) {
-            event.setResult(PlayerLoginEvent.Result.KICK_WHITELIST);
-            event.setKickMessage(ChatColor.translateAlternateColorCodes('&', this.bridgeConfiguration.getMessages().get("server-join-cancel-because-permission")));
-            return;
-        }
-
-        if (serviceTask.isMaintenance() && !player.hasPermission("cloudnet.bridge.maintenance")) {
-            event.setResult(PlayerLoginEvent.Result.KICK_WHITELIST);
-            event.setKickMessage(ChatColor.translateAlternateColorCodes('&', this.bridgeConfiguration.getMessages().get("server-join-cancel-because-maintenance")));
-            return;
+            if (serviceTask.isMaintenance() && !player.hasPermission("cloudnet.bridge.maintenance")) {
+                event.setResult(PlayerLoginEvent.Result.KICK_WHITELIST);
+                event.setKickMessage(ChatColor.translateAlternateColorCodes('&', bridgeConfiguration.getMessages().get("server-join-cancel-because-maintenance")));
+                return;
+            }
         }
 
         BridgeHelper.sendChannelMessageServerLoginRequest(BukkitCloudNetHelper.createNetworkConnectionInfo(player),

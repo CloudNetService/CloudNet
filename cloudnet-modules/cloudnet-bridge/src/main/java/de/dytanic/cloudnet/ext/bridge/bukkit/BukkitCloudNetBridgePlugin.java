@@ -50,7 +50,8 @@ public final class BukkitCloudNetBridgePlugin extends JavaPlugin {
 
     private void runFireServerListPingEvent() {
         Bukkit.getScheduler().runTaskTimerAsynchronously(this, () -> {
-            boolean hasToUpdate = false, value = false;
+            boolean hasToUpdate = false;
+            boolean value = false;
 
             try {
                 ServerListPingEvent serverListPingEvent = new ServerListPingEvent(

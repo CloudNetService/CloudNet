@@ -319,7 +319,7 @@ public final class CloudNet extends CloudNetDriver {
 
         this.logger.info(LanguageManager.getMessage("stop-start-message"));
 
-        this.serviceVersionProvider.shutdown();
+        this.serviceVersionProvider.interruptInstallSteps();
 
         this.cloudServiceManager.deleteAllCloudServices();
         this.taskScheduler.shutdown();
@@ -435,7 +435,7 @@ public final class CloudNet extends CloudNetDriver {
                 System.err.println(LanguageManager.getMessage("versions-load-failed")
                         .replace("%url%", url)
                         .replace("%versions%", Integer.toString(this.serviceVersionProvider.getServiceVersionTypes().size()))
-                        .replace("%error%", "invalid json")
+                        .replace("%error%", "invalid json or incompatible file version")
                 );
             }
         } catch (IOException exception) {
@@ -550,11 +550,11 @@ public final class CloudNet extends CloudNetDriver {
         return Thread.currentThread().getName().equals("Application-Thread");
     }
 
-    public void deployTemplateInCluster(ServiceTemplate serviceTemplate, byte[] resource) {
+    public void deployTemplateInCluster(@NotNull ServiceTemplate serviceTemplate, @NotNull InputStream inputStream) {
         Preconditions.checkNotNull(serviceTemplate);
-        Preconditions.checkNotNull(resource);
+        Preconditions.checkNotNull(inputStream);
 
-        this.getClusterNodeServerProvider().deployTemplateInCluster(serviceTemplate, resource);
+        this.getClusterNodeServerProvider().deployTemplateInCluster(serviceTemplate, inputStream);
     }
 
     public void updateServiceTasksInCluster(Collection<ServiceTask> serviceTasks, NetworkUpdateType updateType) {

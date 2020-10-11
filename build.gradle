@@ -76,6 +76,7 @@ allprojects {
         dependencyBungeeCordVersion = '1.15-SNAPSHOT'
         dependencyVelocityVersion = '1.1.0-SNAPSHOT'
         dependencyNukkitXVersion = '1.0-SNAPSHOT'
+        dependencyGoMintVersion = '1.0.0-SNAPSHOT'
 
         testJunitVersion = '4.12'
 
@@ -136,8 +137,6 @@ allprojects {
 
     String hashValue = null
     ext.getCurrentCommitHash = {
-
-
         if (hashValue == null) {
             try {
                 def hashStdOut = new ByteArrayOutputStream()
