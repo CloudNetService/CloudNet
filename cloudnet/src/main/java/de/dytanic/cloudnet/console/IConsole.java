@@ -4,6 +4,9 @@ import de.dytanic.cloudnet.command.ITabCompleter;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.console.animation.AbstractConsoleAnimation;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Unmodifiable;
+import org.jetbrains.annotations.UnmodifiableView;
 
 import java.util.Collection;
 import java.util.List;
@@ -12,9 +15,11 @@ import java.util.function.Consumer;
 
 public interface IConsole extends AutoCloseable {
 
+    @NotNull
+    @UnmodifiableView
     Collection<AbstractConsoleAnimation> getRunningAnimations();
 
-    void startAnimation(AbstractConsoleAnimation animation);
+    void startAnimation(@NotNull AbstractConsoleAnimation animation);
 
     boolean isAnimationRunning();
 
@@ -26,11 +31,11 @@ public interface IConsole extends AutoCloseable {
         return this.hasColorSupport();
     }
 
-    List<String> getCommandHistory();
+    @NotNull @Unmodifiable List<String> getCommandHistory();
 
-    void setCommandHistory(List<String> history);
+    void setCommandHistory(@Nullable List<String> history);
 
-    void setCommandInputValue(String commandInputValue);
+    void setCommandInputValue(@NotNull String commandInputValue);
 
     @NotNull
     ITask<String> readLine();
@@ -47,36 +52,44 @@ public interface IConsole extends AutoCloseable {
 
     void disableAllCommandHandlers();
 
-    void addCommandHandler(UUID uniqueId, Consumer<String> inputConsumer);
+    void addCommandHandler(@NotNull UUID uniqueId, @NotNull Consumer<String> inputConsumer);
 
-    void removeCommandHandler(UUID uniqueId);
+    void removeCommandHandler(@NotNull UUID uniqueId);
 
-    void addTabCompletionHandler(UUID uniqueId, ITabCompleter completer);
+    void addTabCompletionHandler(@NotNull UUID uniqueId, @NotNull ITabCompleter completer);
 
-    void removeTabCompletionHandler(UUID uniqueId);
+    void removeTabCompletionHandler(@NotNull UUID uniqueId);
 
-    IConsole writeRaw(String rawText);
+    @NotNull IConsole writeRaw(@NotNull String rawText);
 
-    IConsole forceWrite(String text);
+    @NotNull IConsole forceWrite(@NotNull String text);
 
-    IConsole forceWriteLine(String text);
+    @NotNull IConsole forceWriteLine(@NotNull String text);
 
-    IConsole write(String text);
+    @NotNull IConsole write(@NotNull String text);
 
-    IConsole writeLine(String text);
+    @NotNull IConsole writeLine(@NotNull String text);
 
     boolean hasColorSupport();
 
-    void setPrompt(String prompt);
+    boolean isUsingMatchingHistoryComplete();
 
-    String getPrompt();
+    void setUsingMatchingHistoryComplete(boolean matchingHistoryComplete);
+
+    void setPrompt(@NotNull String prompt);
+
+    @NotNull String getPrompt();
 
     void resetPrompt();
 
+    void removePrompt();
+
+    void emptyPrompt();
+
     void clearScreen();
 
-    String getScreenName();
+    @NotNull String getScreenName();
 
-    void setScreenName(String name);
+    void setScreenName(@NotNull String name);
 
 }

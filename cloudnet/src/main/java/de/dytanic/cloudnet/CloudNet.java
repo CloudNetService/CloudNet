@@ -347,11 +347,14 @@ public final class CloudNet extends CloudNetDriver {
 
             this.networkTaskScheduler.shutdown();
 
+            FileUtils.delete(new File("temp"));
+
+            this.logger.close();
+            this.console.close();
+
         } catch (Exception exception) {
             exception.printStackTrace();
         }
-
-        FileUtils.delete(new File("temp"));
 
         if (!Thread.currentThread().getName().equals("Shutdown Thread")) {
             System.exit(0);

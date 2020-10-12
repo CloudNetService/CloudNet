@@ -22,6 +22,7 @@ import de.dytanic.cloudnet.template.LocalTemplateStorage;
 import de.dytanic.cloudnet.template.TemplateStorageUtil;
 import de.dytanic.cloudnet.template.install.ServiceVersion;
 import de.dytanic.cloudnet.template.install.ServiceVersionType;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.util.*;
@@ -442,13 +443,13 @@ public class CommandTasks extends CommandServiceConfigurationBase {
                         LanguageManager.getMessage("command-tasks-setup-question-name"),
                         new QuestionAnswerTypeString() {
                             @Override
-                            public boolean isValidInput(String input) {
+                            public boolean isValidInput(@NotNull String input) {
                                 return super.isValidInput(input) && !input.trim().isEmpty() &&
                                         !CloudNet.getInstance().getServiceTaskProvider().isServiceTaskPresent(input);
                             }
 
                             @Override
-                            public String getInvalidInputMessage(String input) {
+                            public String getInvalidInputMessage(@NotNull String input) {
                                 if (CloudNet.getInstance().getServiceTaskProvider().isServiceTaskPresent(input)) {
                                     return "&c" + LanguageManager.getMessage("command-tasks-setup-task-already-exists");
                                 }
@@ -464,7 +465,7 @@ public class CommandTasks extends CommandServiceConfigurationBase {
                         LanguageManager.getMessage("command-tasks-setup-question-memory"),
                         new QuestionAnswerTypeInt() {
                             @Override
-                            public boolean isValidInput(String input) {
+                            public boolean isValidInput(@NotNull String input) {
                                 return super.isValidInput(input) && Integer.parseInt(input) > 0;
                             }
 

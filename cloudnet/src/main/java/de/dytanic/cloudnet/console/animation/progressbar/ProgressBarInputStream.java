@@ -14,10 +14,9 @@ public class ProgressBarInputStream extends InputStream {
     private final InputStream wrapped;
 
     public ProgressBarInputStream(IConsole console, InputStream wrapped, long length) {
-        this(
-                new ConsoleDownloadProgressBarAnimation(length, 0, '|', '|', '─', "&e%percent% % ", "| %value%/%length% MB (%byps% KB/s) | %time%"),
-                wrapped
-        );
+        this(new ConsoleDownloadProgressBarAnimation(length, 0, '|', '|',
+                '─', "&e%percent% % ", "| %value%/%length% MB (%byps% KB/s) | %time%"
+        ), wrapped);
         console.startAnimation(this.progressBarAnimation);
     }
 
@@ -36,7 +35,6 @@ public class ProgressBarInputStream extends InputStream {
         long contentLength = urlConnection.getHeaderFieldLong("Content-Length", inputStream.available());
         return console.isAnimationRunning() ? inputStream : new ProgressBarInputStream(console, inputStream, contentLength);
     }
-
 
     @Override
     public int read() throws IOException {
@@ -66,11 +64,11 @@ public class ProgressBarInputStream extends InputStream {
         return length;
     }
 
-    public InputStream getWrapped() {
+    public @NotNull InputStream getWrapped() {
         return this.wrapped;
     }
 
-    public ConsoleProgressBarAnimation getProgressBarAnimation() {
+    public @NotNull ConsoleProgressBarAnimation getProgressBarAnimation() {
         return this.progressBarAnimation;
     }
 
@@ -79,5 +77,4 @@ public class ProgressBarInputStream extends InputStream {
         this.progressBarAnimation.finish();
         this.wrapped.close();
     }
-
 }
