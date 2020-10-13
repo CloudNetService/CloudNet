@@ -13,6 +13,7 @@ import de.dytanic.cloudnet.ext.bridge.BridgeConfiguration;
 import de.dytanic.cloudnet.ext.bridge.ProxyFallback;
 import de.dytanic.cloudnet.ext.bridge.ProxyFallbackConfiguration;
 import de.dytanic.cloudnet.ext.bridge.node.CloudNetBridgeModule;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -95,7 +96,7 @@ public class BridgeTaskSetupListener {
                             }
 
                             @Override
-                            public boolean isValidInput(String input) {
+                            public boolean isValidInput(@NotNull String input) {
                                 ServiceTask serviceTask = CloudNet.getInstance().getServiceTaskProvider().getServiceTask(input);
                                 return serviceTask != null &&
                                         (serviceTask.getProcessConfiguration().getEnvironment().isMinecraftJavaServer() ||
@@ -103,7 +104,7 @@ public class BridgeTaskSetupListener {
                             }
 
                             @Override
-                            public String getInvalidInputMessage(String input) {
+                            public String getInvalidInputMessage(@NotNull String input) {
                                 return LanguageManager.getMessage("module-bridge-tasks-setup-fallback-task-not-found");
                             }
 

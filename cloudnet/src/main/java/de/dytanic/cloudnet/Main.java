@@ -4,7 +4,7 @@ import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.common.logging.*;
 import de.dytanic.cloudnet.console.ConsoleLogHandler;
 import de.dytanic.cloudnet.console.IConsole;
-import de.dytanic.cloudnet.console.JLine2Console;
+import de.dytanic.cloudnet.console.JLine3Console;
 import de.dytanic.cloudnet.console.log.ColouredLogFormatter;
 
 import java.io.File;
@@ -21,7 +21,7 @@ public final class Main {
         LanguageManager.addLanguageFile("german", Main.class.getClassLoader().getResourceAsStream("lang/german.properties"));
         LanguageManager.addLanguageFile("english", Main.class.getClassLoader().getResourceAsStream("lang/english.properties"));
 
-        IConsole console = new JLine2Console();
+        IConsole console = new JLine3Console();
         ILogger logger = new DefaultAsyncLogger();
 
         logger.setLevel(LogLevel.FATAL);
@@ -42,14 +42,5 @@ public final class Main {
 
         System.setOut(new AsyncPrintStream(new LogOutputStream(logger, LogLevel.INFO)));
         System.setErr(new AsyncPrintStream(new LogOutputStream(logger, LogLevel.ERROR)));
-
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            try {
-                logger.close();
-                console.close();
-            } catch (Exception exception) {
-                exception.printStackTrace();
-            }
-        }));
     }
 }

@@ -1,6 +1,9 @@
 package de.dytanic.cloudnet.console.animation.questionlist;
 
+import org.jetbrains.annotations.NotNull;
+
 public class QuestionListEntry<T> {
+
     private final String key;
     private final String question;
     private final QuestionAnswerType<T> answerType;
@@ -11,15 +14,15 @@ public class QuestionListEntry<T> {
         this.answerType = answerType;
     }
 
-    public String getKey() {
+    public @NotNull String getKey() {
         return this.key;
     }
 
-    public String getQuestion() {
+    public @NotNull String getQuestion() {
         return this.question;
     }
 
-    public QuestionAnswerType<T> getAnswerType() {
+    public @NotNull QuestionAnswerType<T> getAnswerType() {
         return this.answerType;
     }
 }

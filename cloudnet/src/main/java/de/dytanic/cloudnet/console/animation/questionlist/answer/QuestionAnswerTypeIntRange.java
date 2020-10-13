@@ -1,6 +1,7 @@
 package de.dytanic.cloudnet.console.animation.questionlist.answer;
 
 import de.dytanic.cloudnet.common.language.LanguageManager;
+import org.jetbrains.annotations.NotNull;
 
 public class QuestionAnswerTypeIntRange extends QuestionAnswerTypeInt {
     private final int minValue;
@@ -12,7 +13,7 @@ public class QuestionAnswerTypeIntRange extends QuestionAnswerTypeInt {
     }
 
     @Override
-    public boolean isValidInput(String input) {
+    public boolean isValidInput(@NotNull String input) {
         try {
             int value = Integer.parseInt(input);
             return value >= this.minValue && value <= this.maxValue;
@@ -22,7 +23,7 @@ public class QuestionAnswerTypeIntRange extends QuestionAnswerTypeInt {
     }
 
     @Override
-    public Integer parse(String input) {
+    public @NotNull Integer parse(@NotNull String input) {
         return Integer.parseInt(input);
     }
 
@@ -32,7 +33,7 @@ public class QuestionAnswerTypeIntRange extends QuestionAnswerTypeInt {
     }
 
     @Override
-    public String getInvalidInputMessage(String input) {
+    public String getInvalidInputMessage(@NotNull String input) {
         return LanguageManager.getMessage("ca-question-list-invalid-int-range")
                 .replace("%min%", String.valueOf(this.minValue))
                 .replace("%max%", String.valueOf(this.maxValue));

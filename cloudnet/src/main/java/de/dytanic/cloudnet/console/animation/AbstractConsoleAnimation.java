@@ -2,6 +2,8 @@ package de.dytanic.cloudnet.console.animation;
 
 import de.dytanic.cloudnet.console.IConsole;
 import org.fusesource.jansi.Ansi;
+import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -17,14 +19,13 @@ public abstract class AbstractConsoleAnimation implements Runnable {
     private final Collection<Runnable> finishHandler = new ArrayList<>();
 
     public AbstractConsoleAnimation() {
-
     }
 
     public AbstractConsoleAnimation(String name) {
         this.name = name;
     }
 
-    public String getName() {
+    public @NotNull String getName() {
         return this.name;
     }
 
@@ -44,14 +45,15 @@ public abstract class AbstractConsoleAnimation implements Runnable {
         return this.staticCursor;
     }
 
-    public void setConsole(IConsole console) {
+    public void setConsole(@NotNull IConsole console) {
         if (this.console != null) {
             throw new IllegalStateException("Cannot set console twice");
         }
+
         this.console = console;
     }
 
-    public IConsole getConsole() {
+    public @NotNull IConsole getConsole() {
         return this.console;
     }
 
@@ -73,33 +75,25 @@ public abstract class AbstractConsoleAnimation implements Runnable {
         return this.updateInterval;
     }
 
-    public void addFinishHandler(Runnable finishHandler) {
+    public void addFinishHandler(@NotNull Runnable finishHandler) {
         this.finishHandler.add(finishHandler);
     }
 
-    protected void print(String... input) {
+    protected void print(@NonNls String... input) {
         if (input.length == 0) {
             return;
         }
-        Ansi ansi = Ansi
-                .ansi()
-                .saveCursorPosition()
-                .cursorUp(this.cursorUp)
-                .eraseLine(Ansi.Erase.ALL);
+
+        Ansi ansi = Ansi.ansi().saveCursorPosition().cursorUp(this.cursorUp).eraseLine(Ansi.Erase.ALL);
         for (String a : input) {
             ansi.a(a);
         }
+
         this.console.forceWrite(ansi.restoreCursorPosition().toString());
     }
 
     protected void eraseLastLine() {
-        this.console.writeRaw(
-                Ansi.ansi()
-                        .reset()
-                        .cursorUp(1)
-                        .eraseLine()
-                        .toString()
-        );
+        this.console.writeRaw(Ansi.ansi().reset().cursorUp(1).eraseLine().toString());
     }
 
     /**
@@ -117,9 +111,9 @@ public abstract class AbstractConsoleAnimation implements Runnable {
                 exception.printStackTrace();
             }
         }
+
         for (Runnable runnable : this.finishHandler) {
             runnable.run();
         }
     }
-
 }
