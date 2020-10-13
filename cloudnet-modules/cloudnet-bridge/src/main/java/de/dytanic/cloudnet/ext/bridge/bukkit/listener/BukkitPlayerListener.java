@@ -1,5 +1,7 @@
 package de.dytanic.cloudnet.ext.bridge.bukkit.listener;
 
+import de.dytanic.cloudnet.driver.channel.ChannelMessage;
+import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import de.dytanic.cloudnet.driver.service.ServiceTask;
 import de.dytanic.cloudnet.ext.bridge.BridgeConfiguration;
 import de.dytanic.cloudnet.ext.bridge.BridgeConfigurationProvider;
@@ -7,6 +9,7 @@ import de.dytanic.cloudnet.ext.bridge.BridgeHelper;
 import de.dytanic.cloudnet.ext.bridge.OnlyProxyProtection;
 import de.dytanic.cloudnet.ext.bridge.bukkit.BukkitCloudNetBridgePlugin;
 import de.dytanic.cloudnet.ext.bridge.bukkit.BukkitCloudNetHelper;
+import de.dytanic.cloudnet.ext.bridge.bukkit.event.BukkitChannelMessageReceiveEvent;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -30,6 +33,21 @@ public final class BukkitPlayerListener implements Listener {
         this.onlyProxyProtection = new OnlyProxyProtection(Bukkit.getOnlineMode());
     }
 
+    @EventHandler
+    public void handle(BukkitChannelMessageReceiveEvent event) {
+        if (event.getChannel().equals("TEST")) {
+            int count = event.getBuffer().readVarInt();
+
+            System.out.println("EVENT CALL " + count);
+
+            if (count == 1) {
+                event.setBinaryResponse(ProtocolBuffer.create().writeString("rop stinkt"));
+            } else if (count == 2) {
+                event.setBinaryResponse(ProtocolBuffer.create().writeString("rop stinkt sehr"));
+            }
+        }
+    }
+
     @EventHandler(priority = EventPriority.HIGHEST)
     public void handle(PlayerLoginEvent event) {
         Player player = event.getPlayer();
@@ -43,6 +61,21 @@ public final class BukkitPlayerListener implements Listener {
 
         String currentTaskName = Wrapper.getInstance().getServiceId().getTaskName();
         ServiceTask serviceTask = Wrapper.getInstance().getServiceTaskProvider().getServiceTask(currentTaskName);
+
+        long startTime = System.currentTimeMillis();
+
+        ChannelMessage.builder().channel("TEST").buffer(ProtocolBuffer.create().writeVarInt(1)).targetTask(currentTaskName).build().sendQueryAsync().onComplete(result -> {
+            for (ChannelMessage channelMessage : result) {
+                System.out.println(channelMessage.getBuffer().readString());
+            }
+            System.out.println("TestQuery 1 - Time: " + (System.currentTimeMillis() - startTime) + "ms");
+        });
+        /*ChannelMessage.builder().channel("TEST").buffer(ProtocolBuffer.create().writeVarInt(2)).targetTask(currentTaskName).build().sendQueryAsync().onComplete(result -> {
+            for (ChannelMessage channelMessage : result) {
+                System.out.println(channelMessage.getBuffer().readString());
+            }
+            System.out.println("TestQuery 2 - Time: " + (System.currentTimeMillis() - startTime) + "ms");
+        });*/
 
         if (serviceTask != null) {
             String requiredPermission = serviceTask.getProperties().getString("requiredPermission");

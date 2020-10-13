@@ -3,6 +3,7 @@ package de.dytanic.cloudnet.provider;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.cluster.IClusterNodeServer;
 import de.dytanic.cloudnet.common.concurrent.CompletedTask;
+import de.dytanic.cloudnet.common.concurrent.CountingTask;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;
@@ -21,6 +22,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
     private final CloudNet cloudNet;
@@ -146,13 +148,17 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
 
     @Override
     public void sendChannelMessage(@NotNull ChannelMessage channelMessage) {
+        this.sendChannelMessage(channelMessage, false);
+    }
+
+    public void sendChannelMessage(@NotNull ChannelMessage channelMessage, boolean serviceOnly) {
         if (channelMessage.getTargets().stream().anyMatch(target -> target.includesNode(CloudNetDriver.getInstance().getComponentName()))) {
             channelMessage.getBuffer().markReaderIndex();
             CloudNetDriver.getInstance().getEventManager().callEvent(new ChannelMessageReceiveEvent(channelMessage, false));
             channelMessage.getBuffer().resetReaderIndex();
         }
 
-        Collection<INetworkChannel> channels = this.getTargetChannels(channelMessage.getSender(), channelMessage.getTargets(), false);
+        Collection<INetworkChannel> channels = this.getTargetChannels(channelMessage.getSender(), channelMessage.getTargets(), serviceOnly);
         if (channels == null || channels.isEmpty()) {
             return;
         }
@@ -165,35 +171,46 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
 
     @Override
     public @NotNull ITask<Collection<ChannelMessage>> sendChannelMessageQueryAsync(@NotNull ChannelMessage channelMessage) {
-        Collection<INetworkChannel> channels = this.getTargetChannels(channelMessage.getSender(), channelMessage.getTargets(), false);
-        boolean includesSelf = channelMessage.getTargets().stream().anyMatch(target -> target.includesNode(CloudNetDriver.getInstance().getComponentName()));
+        return this.sendChannelMessageQueryAsync(channelMessage, false);
+    }
 
-        if ((channels == null || channels.isEmpty()) && !includesSelf) {
-            return CompletedTask.create(Collections.emptyList());
+    public @NotNull ITask<Collection<ChannelMessage>> sendChannelMessageQueryAsync(@NotNull ChannelMessage channelMessage, boolean serviceOnly) {
+        Collection<ChannelMessage> result = new CopyOnWriteArrayList<>();
+
+        if (channelMessage.getTargets().stream().anyMatch(target -> target.includesNode(CloudNetDriver.getInstance().getComponentName()))) {
+            channelMessage.getBuffer().markReaderIndex();
+
+            ChannelMessage queryResponse = CloudNetDriver.getInstance().getEventManager().callEvent(new ChannelMessageReceiveEvent(channelMessage, true)).getQueryResponse();
+            if (queryResponse != null) {
+                result.add(queryResponse);
+            }
+
+            channelMessage.getBuffer().resetReaderIndex();
         }
 
-        return this.cloudNet.scheduleTask(() -> {
-            Collection<ChannelMessage> result = new ArrayList<>();
+        Collection<INetworkChannel> channels = this.getTargetChannels(channelMessage.getSender(), channelMessage.getTargets(), serviceOnly);
+
+        if (channels == null || channels.isEmpty()) {
+            return CompletedTask.create(result);
+        }
+
+        CountingTask<Collection<ChannelMessage>> task = new CountingTask<>(result, channels.size());
+
+        for (INetworkChannel channel : channels) {
+            channelMessage.getBuffer().markReaderIndex();
             IPacket packet = new PacketClientServerChannelMessage(channelMessage, true);
 
-            if (channels != null) {
-                for (INetworkChannel channel : channels) {
-                    IPacket response = channel.sendQuery(packet);
-                    if (response != null && response.getBuffer().readBoolean()) {
-                        result.add(response.getBuffer().readObject(ChannelMessage.class));
-                    }
+            channel.sendQueryAsync(packet).onComplete(response -> {
+                if (response != null && response.getBuffer().readBoolean()) {
+                    // TODO: check if channel is node and read collection not object
+                    result.add(response.getBuffer().readObject(ChannelMessage.class));
                 }
-            }
+                task.countDown();
+            });
+            channelMessage.getBuffer().resetReaderIndex();
+        }
 
-            if (includesSelf) {
-                ChannelMessage queryResponse = CloudNetDriver.getInstance().getEventManager().callEvent(new ChannelMessageReceiveEvent(channelMessage, true)).getQueryResponse();
-                if (queryResponse != null) {
-                    result.add(queryResponse);
-                }
-            }
-
-            return result;
-        });
+        return task;
     }
 
 }

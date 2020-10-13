@@ -3,10 +3,7 @@ package de.dytanic.cloudnet.network.listener;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;
-import de.dytanic.cloudnet.driver.channel.ChannelMessageTarget;
-import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
-import de.dytanic.cloudnet.driver.network.def.packet.PacketClientServerChannelMessage;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.network.protocol.IPacketListener;
 import de.dytanic.cloudnet.driver.network.protocol.Packet;
@@ -14,8 +11,10 @@ import de.dytanic.cloudnet.driver.provider.CloudMessenger;
 import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import de.dytanic.cloudnet.provider.NodeMessenger;
 
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 public final class PacketServerChannelMessageListener implements IPacketListener {
 
@@ -32,63 +31,29 @@ public final class PacketServerChannelMessageListener implements IPacketListener
 
         CloudMessenger messenger = CloudNetDriver.getInstance().getMessenger();
 
-        Collection<ChannelMessage> response = query ? new ArrayList<>() : null;
-
-        this.handleMessage(messenger, response, message, query);
+        Collection<ChannelMessage> response = this.redirectMessage(messenger, message, query);
 
         if (response != null) {
             channel.sendPacket(new Packet(-1, packet.getUniqueId(), JsonDocument.EMPTY, ProtocolBuffer.create().writeObjectCollection(response)));
         }
     }
 
-    private void handleMessage(CloudMessenger messenger, Collection<ChannelMessage> response, ChannelMessage message, boolean query) {
-        if (this.redirectToCluster) {
+    private Collection<ChannelMessage> redirectMessage(CloudMessenger messenger, ChannelMessage message, boolean query) {
+        if (messenger instanceof NodeMessenger) {
+            NodeMessenger nodeMessenger = (NodeMessenger) messenger;
 
             if (query) {
-                response.addAll(messenger.sendChannelMessageQuery(message));
+                try {
+                    return nodeMessenger.sendChannelMessageQueryAsync(message, !this.redirectToCluster).get(20, TimeUnit.SECONDS);
+                } catch (InterruptedException | ExecutionException | TimeoutException exception) {
+                    exception.printStackTrace();
+                }
             } else {
-                messenger.sendChannelMessage(message);
-            }
-
-        } else if (messenger instanceof NodeMessenger) {
-            for (ChannelMessageTarget target : message.getTargets()) {
-                if (target.includesNode(CloudNetDriver.getInstance().getComponentName())) {
-                    this.fireEvent(message, response, query);
-                    break;
-                }
-            }
-
-            for (ChannelMessageTarget target : message.getTargets()) {
-                Collection<INetworkChannel> channels = ((NodeMessenger) messenger).getTargetChannels(message.getSender(), target, true);
-
-                if (channels != null && !channels.isEmpty()) {
-                    IPacket clientPacket = new PacketClientServerChannelMessage(message, query);
-                    for (INetworkChannel targetChannel : channels) {
-                        if (query) {
-                            IPacket queryResponse = targetChannel.sendQuery(clientPacket);
-                            if (queryResponse != null && queryResponse.getBuffer().readBoolean()) {
-                                response.add(queryResponse.getBuffer().readObject(ChannelMessage.class));
-                            }
-                        } else {
-                            targetChannel.sendPacket(clientPacket);
-                        }
-                    }
-                }
+                nodeMessenger.sendChannelMessage(message, !this.redirectToCluster);
             }
         }
-    }
 
-    private void fireEvent(ChannelMessage message, Collection<ChannelMessage> response, boolean query) {
-        message.getBuffer().markReaderIndex();
-
-        ChannelMessageReceiveEvent event = new ChannelMessageReceiveEvent(message, query);
-        CloudNetDriver.getInstance().getEventManager().callEvent(event);
-
-        if (event.getQueryResponse() != null && query) {
-            response.add(event.getQueryResponse());
-        }
-
-        message.getBuffer().resetReaderIndex();
+        return null;
     }
 
 }

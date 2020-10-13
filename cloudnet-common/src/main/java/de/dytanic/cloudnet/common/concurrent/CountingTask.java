@@ -18,6 +18,10 @@ public class CountingTask<V> implements ITask<V> {
     public CountingTask(V value, int initialCount) {
         this.value = value;
         this.count = new AtomicInteger(initialCount);
+
+        if (initialCount <= 0) {
+            this.countDown();
+        }
     }
 
     public void incrementCount() {

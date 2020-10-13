@@ -1,5 +1,7 @@
 package de.dytanic.cloudnet.ext.bridge.gomint.listener;
 
+import de.dytanic.cloudnet.common.concurrent.CompletableTask;
+import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
 import de.dytanic.cloudnet.driver.event.events.network.NetworkChannelPacketReceiveEvent;
@@ -10,13 +12,24 @@ import de.dytanic.cloudnet.ext.bridge.gomint.event.*;
 import de.dytanic.cloudnet.wrapper.event.service.ServiceInfoSnapshotConfigureEvent;
 import io.gomint.GoMint;
 import io.gomint.event.Event;
+import io.gomint.plugin.Plugin;
+
+import java.util.concurrent.ExecutionException;
 
 public final class GoMintCloudNetListener {
 
+    private final Plugin plugin;
+
+    public GoMintCloudNetListener(Plugin plugin) {
+        this.plugin = plugin;
+    }
+
     @EventListener
-    public void handle(ServiceInfoSnapshotConfigureEvent event) {
-        GoMintCloudNetHelper.initProperties(event.getServiceInfoSnapshot());
-        this.goMintCall(new GoMintServiceInfoSnapshotConfigureEvent(event.getServiceInfoSnapshot()));
+    public void handle(ServiceInfoSnapshotConfigureEvent event) throws ExecutionException, InterruptedException {
+        this.listenableGoMintSyncExecution(() -> {
+            GoMintCloudNetHelper.initProperties(event.getServiceInfoSnapshot());
+            GoMint.instance().getPluginManager().callEvent(new GoMintServiceInfoSnapshotConfigureEvent(event.getServiceInfoSnapshot()));
+        }).get();
     }
 
     @EventListener
@@ -55,13 +68,13 @@ public final class GoMintCloudNetListener {
     }
 
     @EventListener
-    public void handle(ChannelMessageReceiveEvent event) {
-        this.goMintCall(new GoMintChannelMessageReceiveEvent(event));
+    public void handle(ChannelMessageReceiveEvent event) throws ExecutionException, InterruptedException {
+        this.listenableGoMintCall(new GoMintChannelMessageReceiveEvent(event)).get();
     }
 
     @EventListener
-    public void handle(NetworkChannelPacketReceiveEvent event) {
-        this.goMintCall(new GoMintNetworkChannelPacketReceiveEvent(event.getChannel(), event.getPacket()));
+    public void handle(NetworkChannelPacketReceiveEvent event) throws ExecutionException, InterruptedException {
+        this.listenableGoMintCall(new GoMintNetworkChannelPacketReceiveEvent(event.getChannel(), event.getPacket())).get();
     }
 
     @EventListener
@@ -110,6 +123,33 @@ public final class GoMintCloudNetListener {
     }
 
     private void goMintCall(Event event) {
-        GoMint.instance().getPluginManager().callEvent(event);
+        this.goMintSyncExecution(() -> GoMint.instance().getPluginManager().callEvent(event));
     }
+
+    private ITask<Void> listenableGoMintCall(Event event) {
+        return this.listenableGoMintSyncExecution(() -> GoMint.instance().getPluginManager().callEvent(event));
+    }
+
+    private void goMintSyncExecution(Runnable runnable) {
+        if (GoMint.instance().isMainThread()) {
+            runnable.run();
+            return;
+        }
+
+        this.plugin.getScheduler().execute(runnable);
+    }
+
+    private ITask<Void> listenableGoMintSyncExecution(Runnable runnable) {
+        CompletableTask<Void> task = new CompletableTask<>();
+        this.goMintSyncExecution(() -> {
+            runnable.run();
+            try {
+                task.complete(null);
+            } catch (Exception exception) {
+                exception.printStackTrace();
+            }
+        });
+        return task;
+    }
+
 }

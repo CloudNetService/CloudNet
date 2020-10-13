@@ -1,5 +1,8 @@
 package de.dytanic.cloudnet.ext.bridge.bukkit.listener;
 
+import de.dytanic.cloudnet.common.concurrent.CompletableTask;
+import de.dytanic.cloudnet.common.concurrent.CompletedTask;
+import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
 import de.dytanic.cloudnet.driver.event.events.network.NetworkChannelPacketReceiveEvent;
@@ -12,6 +15,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 import org.bukkit.plugin.Plugin;
 
+import java.util.concurrent.ExecutionException;
+
 public final class BukkitCloudNetListener {
 
     private final Plugin plugin;
@@ -21,9 +26,9 @@ public final class BukkitCloudNetListener {
     }
 
     @EventListener
-    public void handle(ServiceInfoSnapshotConfigureEvent event) {
+    public void handle(ServiceInfoSnapshotConfigureEvent event) throws ExecutionException, InterruptedException {
         BukkitCloudNetHelper.initProperties(event.getServiceInfoSnapshot());
-        this.bukkitCall(new BukkitServiceInfoSnapshotConfigureEvent(event.getServiceInfoSnapshot()));
+        this.listenableBukkitCall(new BukkitServiceInfoSnapshotConfigureEvent(event.getServiceInfoSnapshot())).get();
     }
 
     @EventListener
@@ -62,13 +67,13 @@ public final class BukkitCloudNetListener {
     }
 
     @EventListener
-    public void handle(ChannelMessageReceiveEvent event) {
-        this.bukkitCall(new BukkitChannelMessageReceiveEvent(event));
+    public void handle(ChannelMessageReceiveEvent event) throws InterruptedException, ExecutionException {
+        this.listenableBukkitCall(new BukkitChannelMessageReceiveEvent(event)).get();
     }
 
     @EventListener
-    public void handle(NetworkChannelPacketReceiveEvent event) {
-        this.bukkitCall(new BukkitNetworkChannelPacketReceiveEvent(event.getChannel(), event.getPacket()));
+    public void handle(NetworkChannelPacketReceiveEvent event) throws ExecutionException, InterruptedException {
+        this.listenableBukkitCall(new BukkitNetworkChannelPacketReceiveEvent(event.getChannel(), event.getPacket())).get();
     }
 
     @EventListener
@@ -117,6 +122,35 @@ public final class BukkitCloudNetListener {
     }
 
     private void bukkitCall(Event event) {
-        Bukkit.getScheduler().runTask(this.plugin, () -> Bukkit.getPluginManager().callEvent(event));
+        this.bukkitSyncExecution(() -> Bukkit.getPluginManager().callEvent(event));
     }
+
+    private ITask<Void> listenableBukkitCall(Event event) {
+        return event.getHandlers().getRegisteredListeners().length == 0
+                ? CompletedTask.voidTask()
+                : this.listenableBukkitSyncExecution(() -> Bukkit.getPluginManager().callEvent(event));
+    }
+
+    private void bukkitSyncExecution(Runnable runnable) {
+        if (Bukkit.isPrimaryThread()) {
+            runnable.run();
+            return;
+        }
+
+        Bukkit.getScheduler().runTask(this.plugin, runnable);
+    }
+
+    private ITask<Void> listenableBukkitSyncExecution(Runnable runnable) {
+        CompletableTask<Void> task = new CompletableTask<>();
+        this.bukkitSyncExecution(() -> {
+            runnable.run();
+            try {
+                task.complete(null);
+            } catch (Exception exception) {
+                exception.printStackTrace();
+            }
+        });
+        return task;
+    }
+
 }
