@@ -20,6 +20,7 @@ public final class Main {
         LanguageManager.setLanguage(System.getProperty("cloudnet.messages.language", "english"));
         LanguageManager.addLanguageFile("german", Main.class.getClassLoader().getResourceAsStream("lang/german.properties"));
         LanguageManager.addLanguageFile("english", Main.class.getClassLoader().getResourceAsStream("lang/english.properties"));
+        LanguageManager.addLanguageFile("french", Main.class.getClassLoader().getResourceAsStream("lang/french.properties"));
 
         IConsole console = new JLine2Console();
         ILogger logger = new DefaultAsyncLogger();
