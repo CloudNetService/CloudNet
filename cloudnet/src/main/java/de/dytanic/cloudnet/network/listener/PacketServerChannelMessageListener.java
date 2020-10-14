@@ -1,5 +1,7 @@
 package de.dytanic.cloudnet.network.listener;
 
+import de.dytanic.cloudnet.common.concurrent.CompletedTask;
+import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;
@@ -12,9 +14,6 @@ import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import de.dytanic.cloudnet.provider.NodeMessenger;
 
 import java.util.Collection;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 public final class PacketServerChannelMessageListener implements IPacketListener {
 
@@ -31,29 +30,22 @@ public final class PacketServerChannelMessageListener implements IPacketListener
 
         CloudMessenger messenger = CloudNetDriver.getInstance().getMessenger();
 
-        Collection<ChannelMessage> response = this.redirectMessage(messenger, message, query);
-
-        if (response != null) {
-            channel.sendPacket(new Packet(-1, packet.getUniqueId(), JsonDocument.EMPTY, ProtocolBuffer.create().writeObjectCollection(response)));
-        }
+        this.redirectMessage(messenger, message, query).onComplete(response -> {
+            if (response != null) {
+                channel.sendPacket(new Packet(-1, packet.getUniqueId(), JsonDocument.EMPTY, ProtocolBuffer.create().writeObjectCollection(response)));
+            }
+        });
     }
 
-    private Collection<ChannelMessage> redirectMessage(CloudMessenger messenger, ChannelMessage message, boolean query) {
-        if (messenger instanceof NodeMessenger) {
-            NodeMessenger nodeMessenger = (NodeMessenger) messenger;
+    private ITask<Collection<ChannelMessage>> redirectMessage(CloudMessenger messenger, ChannelMessage message, boolean query) {
+        NodeMessenger nodeMessenger = (NodeMessenger) messenger;
 
-            if (query) {
-                try {
-                    return nodeMessenger.sendChannelMessageQueryAsync(message, !this.redirectToCluster).get(20, TimeUnit.SECONDS);
-                } catch (InterruptedException | ExecutionException | TimeoutException exception) {
-                    exception.printStackTrace();
-                }
-            } else {
-                nodeMessenger.sendChannelMessage(message, !this.redirectToCluster);
-            }
+        if (query) {
+            return nodeMessenger.sendChannelMessageQueryAsync(message, !this.redirectToCluster);
+        } else {
+            nodeMessenger.sendChannelMessage(message, !this.redirectToCluster);
+            return CompletedTask.create(null);
         }
-
-        return null;
     }
 
 }

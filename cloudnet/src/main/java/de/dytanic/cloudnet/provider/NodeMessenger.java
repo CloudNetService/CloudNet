@@ -2,7 +2,6 @@ package de.dytanic.cloudnet.provider;
 
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.cluster.IClusterNodeServer;
-import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.concurrent.CompletedTask;
 import de.dytanic.cloudnet.common.concurrent.CountingTask;
 import de.dytanic.cloudnet.common.concurrent.ITask;
@@ -32,10 +31,10 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
         this.cloudNet = cloudNet;
     }
 
-    public Collection<Pair<INetworkChannel, Boolean>> getTargetChannels(ChannelMessageSender sender, Collection<ChannelMessageTarget> targets, boolean serviceOnly) {
-        Collection<Pair<INetworkChannel, Boolean>> allChannels = new ArrayList<>();
+    public Collection<ChannelMessageTargetChannel> getTargetChannels(ChannelMessageSender sender, Collection<ChannelMessageTarget> targets, boolean serviceOnly) {
+        Collection<ChannelMessageTargetChannel> allChannels = new ArrayList<>();
         for (ChannelMessageTarget target : targets) {
-            Collection<Pair<INetworkChannel, Boolean>> channels = this.getTargetChannels(sender, target, serviceOnly);
+            Collection<ChannelMessageTargetChannel> channels = this.getTargetChannels(sender, target, serviceOnly);
             if (channels != null) {
                 allChannels.addAll(channels);
             }
@@ -43,24 +42,24 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
         return allChannels;
     }
 
-    public Collection<Pair<INetworkChannel, Boolean>> getTargetChannels(ChannelMessageSender sender, ChannelMessageTarget target, boolean serviceOnly) {
+    public Collection<ChannelMessageTargetChannel> getTargetChannels(ChannelMessageSender sender, ChannelMessageTarget target, boolean serviceOnly) {
         switch (target.getType()) {
             case NODE: {
                 if (serviceOnly) {
                     return null;
                 }
                 if (target.getName() == null) {
-                    Collection<Pair<INetworkChannel, Boolean>> channels = new ArrayList<>();
+                    Collection<ChannelMessageTargetChannel> channels = new ArrayList<>();
                     for (IClusterNodeServer server : this.cloudNet.getClusterNodeServerProvider().getNodeServers()) {
                         if (server.getChannel() != null) {
-                            channels.add(new Pair<>(server.getChannel(), true));
+                            channels.add(new ChannelMessageTargetChannel(server.getChannel(), true));
                         }
                     }
                     return channels;
                 }
 
                 IClusterNodeServer server = this.cloudNet.getClusterNodeServerProvider().getNodeServer(target.getName());
-                return server != null ? Collections.singletonList(new Pair<>(server.getChannel(), true)) : null;
+                return server != null ? Collections.singletonList(new ChannelMessageTargetChannel(server.getChannel(), true)) : null;
             }
             case TASK: {
                 if (target.getName() == null) {
@@ -86,13 +85,13 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
                 }
                 ICloudService localService = this.cloudNet.getCloudServiceManager().getCloudService(service.getServiceId().getUniqueId());
                 if (localService != null) {
-                    return localService.getNetworkChannel() != null ? Collections.singletonList(new Pair<>(localService.getNetworkChannel(), false)) : null;
+                    return localService.getNetworkChannel() != null ? Collections.singletonList(new ChannelMessageTargetChannel(localService.getNetworkChannel(), false)) : null;
                 }
                 if (serviceOnly) {
                     return null;
                 }
                 IClusterNodeServer server = this.cloudNet.getClusterNodeServerProvider().getNodeServer(service.getServiceId().getNodeUniqueId());
-                return server != null && server.getChannel() != null ? Collections.singletonList(new Pair<>(server.getChannel(), true)) : null;
+                return server != null && server.getChannel() != null ? Collections.singletonList(new ChannelMessageTargetChannel(server.getChannel(), true)) : null;
             }
             case ENVIRONMENT: {
                 Collection<ServiceInfoSnapshot> services = this.cloudNet.getCloudServiceProvider().getCloudServices(target.getEnvironment());
@@ -105,43 +104,43 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
         return null;
     }
 
-    private Collection<Pair<INetworkChannel, Boolean>> getAll(ChannelMessageSender sender, boolean serviceOnly) {
-        Collection<Pair<INetworkChannel, Boolean>> channels = new ArrayList<>();
+    private Collection<ChannelMessageTargetChannel> getAll(ChannelMessageSender sender, boolean serviceOnly) {
+        Collection<ChannelMessageTargetChannel> channels = new ArrayList<>();
         for (ICloudService localService : this.cloudNet.getCloudServiceManager().getLocalCloudServices()) {
             if (localService.getNetworkChannel() != null) {
-                channels.add(new Pair<>(localService.getNetworkChannel(), false));
+                channels.add(new ChannelMessageTargetChannel(localService.getNetworkChannel(), false));
             }
         }
         if (!serviceOnly) {
             for (IClusterNodeServer server : this.cloudNet.getClusterNodeServerProvider().getNodeServers()) {
                 if (server.getChannel() != null && !sender.isEqual(server.getNodeInfo())) {
-                    channels.add(new Pair<>(server.getChannel(), true));
+                    channels.add(new ChannelMessageTargetChannel(server.getChannel(), true));
                 }
             }
         }
         return channels;
     }
 
-    private Collection<Pair<INetworkChannel, Boolean>> getSendersFromServices(Collection<ServiceInfoSnapshot> services, boolean serviceOnly) {
+    private Collection<ChannelMessageTargetChannel> getSendersFromServices(Collection<ServiceInfoSnapshot> services, boolean serviceOnly) {
         if (services.isEmpty()) {
             return Collections.emptyList();
         }
-        Collection<Pair<INetworkChannel, Boolean>> channels = new ArrayList<>();
+        Collection<ChannelMessageTargetChannel> channels = new ArrayList<>();
         for (ServiceInfoSnapshot service : services) {
             if (service.getServiceId().getNodeUniqueId().equals(this.cloudNet.getComponentName())) {
                 ICloudService localService = this.cloudNet.getCloudServiceManager().getCloudService(service.getServiceId().getUniqueId());
                 if (localService != null && localService.getNetworkChannel() != null) {
-                    channels.add(new Pair<>(localService.getNetworkChannel(), false));
+                    channels.add(new ChannelMessageTargetChannel(localService.getNetworkChannel(), false));
                 }
             } else if (!serviceOnly) {
                 IClusterNodeServer server = this.cloudNet.getClusterNodeServerProvider().getNodeServer(service.getServiceId().getNodeUniqueId());
                 if (server == null || server.getChannel() == null) {
                     continue;
                 }
-                if (channels.stream().anyMatch(pair -> pair.getFirst().equals(server.getChannel()))) {
+                if (channels.stream().anyMatch(channel -> channel.getChannel().equals(server.getChannel()))) {
                     continue;
                 }
-                channels.add(new Pair<>(server.getChannel(), true));
+                channels.add(new ChannelMessageTargetChannel(server.getChannel(), true));
             }
         }
         return channels;
@@ -159,14 +158,14 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
             channelMessage.getBuffer().resetReaderIndex();
         }
 
-        Collection<Pair<INetworkChannel, Boolean>> channels = this.getTargetChannels(channelMessage.getSender(), channelMessage.getTargets(), serviceOnly);
+        Collection<ChannelMessageTargetChannel> channels = this.getTargetChannels(channelMessage.getSender(), channelMessage.getTargets(), serviceOnly);
         if (channels == null || channels.isEmpty()) {
             return;
         }
 
         IPacket packet = new PacketClientServerChannelMessage(channelMessage, false);
-        for (Pair<INetworkChannel, Boolean> channelPair : channels) {
-            channelPair.getFirst().sendPacket(packet);
+        for (ChannelMessageTargetChannel channel : channels) {
+            channel.getChannel().sendPacket(packet);
         }
     }
 
@@ -189,7 +188,7 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
             channelMessage.getBuffer().resetReaderIndex();
         }
 
-        Collection<Pair<INetworkChannel, Boolean>> channels = this.getTargetChannels(channelMessage.getSender(), channelMessage.getTargets(), serviceOnly);
+        Collection<ChannelMessageTargetChannel> channels = this.getTargetChannels(channelMessage.getSender(), channelMessage.getTargets(), serviceOnly);
 
         if (channels == null || channels.isEmpty()) {
             return CompletedTask.create(result);
@@ -197,16 +196,13 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
 
         CountingTask<Collection<ChannelMessage>> task = new CountingTask<>(result, channels.size());
 
-        for (Pair<INetworkChannel, Boolean> channelPair : channels) {
-            INetworkChannel channel = channelPair.getFirst();
-            boolean nodeChannel = channelPair.getSecond();
-
+        for (ChannelMessageTargetChannel channel : channels) {
             channelMessage.getBuffer().markReaderIndex();
             IPacket packet = new PacketClientServerChannelMessage(channelMessage, true);
 
-            channel.sendQueryAsync(packet).onComplete(response -> {
+            channel.getChannel().sendQueryAsync(packet).onComplete(response -> {
                 if (response != null) {
-                    if (nodeChannel) {
+                    if (channel.isNode()) {
                         result.addAll(response.getBuffer().readObjectCollection(ChannelMessage.class));
                     } else if (response.getBuffer().readBoolean()) {
                         result.add(response.getBuffer().readObject(ChannelMessage.class));
@@ -218,6 +214,27 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
         }
 
         return task;
+    }
+
+    public static class ChannelMessageTargetChannel {
+
+        private final INetworkChannel channel;
+
+        private final boolean node;
+
+        public ChannelMessageTargetChannel(INetworkChannel channel, boolean node) {
+            this.channel = channel;
+            this.node = node;
+        }
+
+        public INetworkChannel getChannel() {
+            return channel;
+        }
+
+        public boolean isNode() {
+            return node;
+        }
+
     }
 
 }
