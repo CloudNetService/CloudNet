@@ -1,5 +1,7 @@
 package de.dytanic.cloudnet.driver.permission;
 
+import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
+import de.dytanic.cloudnet.driver.serialization.SerializableObject;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.jetbrains.annotations.NotNull;
@@ -8,9 +10,9 @@ import java.util.concurrent.TimeUnit;
 
 @ToString
 @EqualsAndHashCode
-public final class Permission {
+public final class Permission implements SerializableObject {
 
-    private final String name;
+    private String name;
 
     private int potency;
 
@@ -37,6 +39,9 @@ public final class Permission {
         this.timeOutMillis = timeOutMillis;
     }
 
+    public Permission() {
+    }
+
     @NotNull
     public String getName() {
         return this.name;
@@ -58,4 +63,17 @@ public final class Permission {
         this.timeOutMillis = timeOutMillis;
     }
 
+    @Override
+    public void write(@NotNull ProtocolBuffer buffer) {
+        buffer.writeString(this.name);
+        buffer.writeInt(this.potency);
+        buffer.writeLong(this.timeOutMillis);
+    }
+
+    @Override
+    public void read(@NotNull ProtocolBuffer buffer) {
+        this.name = buffer.readString();
+        this.potency = buffer.readInt();
+        this.timeOutMillis = buffer.readLong();
+    }
 }

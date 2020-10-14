@@ -2,6 +2,9 @@ package de.dytanic.cloudnet.driver.permission;
 
 import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.common.encrypt.EncryptTo;
+import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -10,11 +13,14 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * The default implementation of the IPermissionUser class. This class should use if you want to
  * add new PermissionUsers into the IPermissionManagement implementation
  */
+@ToString
+@EqualsAndHashCode(callSuper = false)
 public class PermissionUser extends AbstractPermissible implements IPermissionUser {
 
     /**
@@ -23,9 +29,9 @@ public class PermissionUser extends AbstractPermissible implements IPermissionUs
     public static final Type TYPE = new TypeToken<PermissionUser>() {
     }.getType();
 
-    protected final UUID uniqueId;
+    protected UUID uniqueId;
 
-    protected final Collection<PermissionUserGroupInfo> groups;
+    protected Collection<PermissionUserGroupInfo> groups;
 
     private String hashedPassword;
 
@@ -35,6 +41,9 @@ public class PermissionUser extends AbstractPermissible implements IPermissionUs
         this.hashedPassword = password == null ? null : Base64.getEncoder().encodeToString(EncryptTo.encryptToSHA256(password));
         this.potency = potency;
         this.groups = new ArrayList<>();
+    }
+
+    public PermissionUser() {
     }
 
     public void changePassword(String password) {
@@ -56,5 +65,30 @@ public class PermissionUser extends AbstractPermissible implements IPermissionUs
 
     public String getHashedPassword() {
         return this.hashedPassword;
+    }
+
+    @Override
+    public void write(@NotNull ProtocolBuffer buffer) {
+        super.write(buffer);
+
+        buffer.writeUUID(this.uniqueId);
+        buffer.writeObjectCollection(this.groups);
+
+        buffer.writeOptionalString(this.hashedPassword);
+    }
+
+    @Override
+    public void read(@NotNull ProtocolBuffer buffer) {
+        super.read(buffer);
+
+        this.uniqueId = buffer.readUUID();
+        this.groups = buffer.readObjectCollection(PermissionUserGroupInfo.class);
+
+        this.hashedPassword = buffer.readOptionalString();
+    }
+
+    @Override
+    public Collection<String> getGroupNames() {
+        return this.getGroups().stream().map(PermissionUserGroupInfo::getGroup).collect(Collectors.toList());
     }
 }

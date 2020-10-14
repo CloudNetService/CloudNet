@@ -9,8 +9,11 @@ import de.dytanic.cloudnet.console.animation.questionlist.answer.QuestionAnswerT
 import de.dytanic.cloudnet.console.animation.questionlist.answer.QuestionAnswerTypeEnum;
 import de.dytanic.cloudnet.console.animation.questionlist.answer.QuestionAnswerTypeServiceVersion;
 import de.dytanic.cloudnet.driver.service.*;
+import de.dytanic.cloudnet.provider.NodeGroupConfigurationProvider;
+import de.dytanic.cloudnet.provider.NodeServiceTaskProvider;
 import de.dytanic.cloudnet.service.EmptyGroupConfiguration;
 import de.dytanic.cloudnet.template.ITemplateStorage;
+import de.dytanic.cloudnet.template.LocalTemplateStorage;
 import de.dytanic.cloudnet.template.TemplateStorageUtil;
 import de.dytanic.cloudnet.template.install.ServiceVersion;
 import de.dytanic.cloudnet.template.install.ServiceVersionType;
@@ -71,12 +74,23 @@ public class DefaultTaskSetup implements DefaultSetup {
 
     @Override
     public boolean shouldAsk(boolean configFileAvailable) {
-        return !CloudNet.getInstance().getCloudServiceManager().isFileCreated();
+        NodeServiceTaskProvider taskProvider = (NodeServiceTaskProvider) CloudNet.getInstance().getServiceTaskProvider();
+        NodeGroupConfigurationProvider groupProvider = (NodeGroupConfigurationProvider) CloudNet.getInstance().getGroupConfigurationProvider();
+        return !taskProvider.isFileCreated() && !groupProvider.isFileCreated();
     }
 
     private void installGlobalTemplate(GroupConfiguration globalGroup, String name, ServiceVersionType versionType, ServiceVersion version) {
-        ServiceTemplate globalTemplate = new ServiceTemplate(GLOBAL_TEMPLATE_PREFIX, name, "local");
+        ServiceTemplate globalTemplate = new ServiceTemplate(GLOBAL_TEMPLATE_PREFIX, name, LocalTemplateStorage.LOCAL_TEMPLATE_STORAGE);
         globalGroup.getTemplates().add(globalTemplate);
+
+        ITemplateStorage storage = CloudNet.getInstance().getServicesRegistry().getService(ITemplateStorage.class, globalTemplate.getStorage());
+        if (storage != null) {
+            try {
+                TemplateStorageUtil.createAndPrepareTemplate(storage, globalTemplate.getPrefix(), globalTemplate.getName(), versionType.getTargetEnvironment().getEnvironmentType());
+            } catch (IOException exception) {
+                exception.printStackTrace();
+            }
+        }
 
         CloudNet.getInstance().getServiceVersionProvider().installServiceVersion(versionType, version, globalTemplate);
     }
@@ -97,6 +111,7 @@ public class DefaultTaskSetup implements DefaultSetup {
                 new ProcessConfiguration(
                         environment,
                         maxHeapMemorySize,
+                        new ArrayList<>(),
                         new ArrayList<>()
                 ),
                 environment.getDefaultStartPort(),

@@ -2,6 +2,7 @@ package de.dytanic.cloudnet.wrapper.log;
 
 import de.dytanic.cloudnet.common.logging.IFormatter;
 import de.dytanic.cloudnet.common.logging.LogEntry;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -9,7 +10,7 @@ import java.io.StringWriter;
 public final class WrapperLogFormatter implements IFormatter {
 
     @Override
-    public String format(LogEntry logEntry) {
+    public @NotNull String format(@NotNull LogEntry logEntry) {
         StringBuilder builder = new StringBuilder();
         if (logEntry.getThrowable() != null) {
             StringWriter writer = new StringWriter();

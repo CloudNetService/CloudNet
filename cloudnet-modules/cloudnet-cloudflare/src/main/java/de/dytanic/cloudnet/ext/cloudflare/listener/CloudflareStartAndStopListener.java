@@ -26,14 +26,19 @@ public final class CloudflareStartAndStopListener {
             Pair<Integer, JsonDocument> response = CloudflareAPI.getInstance().createRecord(
                     event.getCloudService().getServiceId().getName(),
                     cloudflareConfigurationEntry.getEmail(),
+                    cloudflareConfigurationEntry.getAuthenticationMethod(),
                     cloudflareConfigurationEntry.getApiToken(),
                     cloudflareConfigurationEntry.getZoneId(),
                     new SRVRecord(
-                            "_minecraft._tcp." + cloudflareConfigurationEntry.getDomainName(),
-                            "SRV " + cloudflareGroupConfiguration.getPriority() + " " + cloudflareGroupConfiguration.getWeight() + " " +
-                                    event.getCloudService().getServiceConfiguration().getPort() + " " +
-                                    CloudNet.getInstance().getConfig().getIdentity().getUniqueId() + "." +
-                                    cloudflareConfigurationEntry.getDomainName(),
+                            String.format("_minecraft._tcp.%s", cloudflareConfigurationEntry.getDomainName()),
+                            String.format(
+                                    "SRV %s %s %s %s.%s",
+                                    cloudflareGroupConfiguration.getPriority(),
+                                    cloudflareGroupConfiguration.getWeight(),
+                                    event.getCloudService().getServiceConfiguration().getPort(),
+                                    CloudNet.getInstance().getConfig().getIdentity().getUniqueId(),
+                                    cloudflareConfigurationEntry.getDomainName()
+                            ),
                             "_minecraft",
                             "_tcp",
                             cloudflareGroupConfiguration.getSub().equals("@") ? cloudflareConfigurationEntry.getDomainName() : cloudflareGroupConfiguration.getSub(),
@@ -66,6 +71,7 @@ public final class CloudflareStartAndStopListener {
             if (entry != null) {
                 Pair<Integer, JsonDocument> response = CloudflareAPI.getInstance().deleteRecord(
                         cloudflareConfigurationEntry.getEmail(),
+                        cloudflareConfigurationEntry.getAuthenticationMethod(),
                         cloudflareConfigurationEntry.getApiToken(),
                         cloudflareConfigurationEntry.getZoneId(),
                         entry.getSecond().getDocument("result").getString("id")

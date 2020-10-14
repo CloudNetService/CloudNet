@@ -15,29 +15,29 @@ public class DriverModule extends DefaultModule {
     protected JsonDocument config;
 
     public final JsonDocument getConfig() {
-        if (config == null) {
-            config = reloadConfig0();
+        if (this.config == null) {
+            this.config = this.reloadConfig0();
         }
 
-        return config;
+        return this.config;
     }
 
     public JsonDocument reloadConfig() {
-        return config = reloadConfig0();
+        return this.config = this.reloadConfig0();
     }
 
     public final DriverModule saveConfig() {
-        if (config != null) {
-            config.write(new File(getModuleWrapper().getDataFolder(), "config.json"));
+        if (this.config != null) {
+            this.config.write(new File(this.getModuleWrapper().getDataFolder(), "config.json"));
         }
 
         return this;
     }
 
     private JsonDocument reloadConfig0() {
-        getModuleWrapper().getDataFolder().mkdirs();
+        this.getModuleWrapper().getDataFolder().mkdirs();
 
-        File file = new File(getModuleWrapper().getDataFolder(), "config.json");
+        File file = new File(this.getModuleWrapper().getDataFolder(), "config.json");
 
         if (!file.exists()) {
             new JsonDocument().write(file);
@@ -47,15 +47,15 @@ public class DriverModule extends DefaultModule {
     }
 
     public final ILogger log(LogLevel level, String message) {
-        return getLogger().log(level, message);
+        return this.getLogger().log(level, message);
     }
 
     public final IEventManager registerListener(Object listener) {
-        return getEventManager().registerListener(listener);
+        return this.getEventManager().registerListener(listener);
     }
 
     public final IEventManager registerListeners(Object... listeners) {
-        return getEventManager().registerListeners(listeners);
+        return this.getEventManager().registerListeners(listeners);
     }
 
     public final IServicesRegistry getRegistry() {

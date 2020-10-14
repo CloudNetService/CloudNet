@@ -8,12 +8,12 @@ import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.cluster.IClusterNodeServer;
 import de.dytanic.cloudnet.command.sub.SubCommandBuilder;
 import de.dytanic.cloudnet.command.sub.SubCommandHandler;
-import de.dytanic.cloudnet.common.command.CommandInfo;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.document.gson.JsonDocumentTypeAdapter;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.common.logging.LogEntry;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
+import de.dytanic.cloudnet.driver.command.CommandInfo;
 import de.dytanic.cloudnet.driver.module.IModuleTaskEntry;
 import de.dytanic.cloudnet.driver.module.IModuleWrapper;
 import de.dytanic.cloudnet.driver.module.ModuleLifeCycle;
@@ -166,11 +166,11 @@ public final class CommandReport extends SubCommandHandler {
             writer.println("Remote nodes: ");
             for (IClusterNodeServer clusterNodeServer : CloudNet.getInstance().getClusterNodeServerProvider().getNodeServers()) {
                 writer.println("Node: " + clusterNodeServer.getNodeInfo().getUniqueId() + " | Connected: " + clusterNodeServer.isConnected());
-                gson.toJson(clusterNodeServer.getNodeInfo(), writer);
+                this.gson.toJson(clusterNodeServer.getNodeInfo(), writer);
 
                 if (clusterNodeServer.getNodeInfoSnapshot() != null) {
                     writer.println();
-                    gson.toJson(clusterNodeServer.getNodeInfoSnapshot(), writer);
+                    this.gson.toJson(clusterNodeServer.getNodeInfoSnapshot(), writer);
                 }
 
                 writer.println();
@@ -180,7 +180,7 @@ public final class CommandReport extends SubCommandHandler {
             writer.println("Services: " + CloudNetDriver.getInstance().getCloudServiceProvider().getCloudServices().size());
             for (ServiceInfoSnapshot serviceInfoSnapshot : CloudNetDriver.getInstance().getCloudServiceProvider().getCloudServices()) {
                 writer.println("* Service " + serviceInfoSnapshot.getServiceId().getName() + " | " + serviceInfoSnapshot.getServiceId().getUniqueId());
-                gson.toJson(serviceInfoSnapshot, writer);
+                this.gson.toJson(serviceInfoSnapshot, writer);
                 writer.println();
 
                 writer.println("Console receivedMessages:");
@@ -194,7 +194,7 @@ public final class CommandReport extends SubCommandHandler {
             writer.println("###################################################################################");
             writer.println("Commands:");
             for (CommandInfo commandInfo : CloudNet.getInstance().getCommandMap().getCommandInfos()) {
-                gson.toJson(commandInfo, writer);
+                this.gson.toJson(commandInfo, writer);
                 writer.println();
             }
 
@@ -203,7 +203,7 @@ public final class CommandReport extends SubCommandHandler {
             for (IModuleWrapper moduleWrapper : CloudNetDriver.getInstance().getModuleProvider().getModules()) {
                 writer.println(moduleWrapper.getModuleConfiguration().getName() + " | " + moduleWrapper.getModuleLifeCycle());
                 writer.println();
-                gson.toJson(moduleWrapper.getModuleConfigurationSource(), writer);
+                this.gson.toJson(moduleWrapper.getModuleConfigurationSource(), writer);
                 writer.println();
                 writer.println("- ModuleTasks");
 

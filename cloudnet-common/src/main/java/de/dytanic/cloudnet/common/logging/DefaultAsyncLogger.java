@@ -19,9 +19,9 @@ public class DefaultAsyncLogger implements ILogger {
 
         @Override
         public void run() {
-            while (!isInterrupted()) {
+            while (!this.isInterrupted()) {
                 try {
-                    LogHandlerRunnable logHandlerRunnable = entries.take();
+                    LogHandlerRunnable logHandlerRunnable = DefaultAsyncLogger.this.entries.take();
                     logHandlerRunnable.call();
 
                 } catch (Throwable e) {
@@ -29,21 +29,21 @@ public class DefaultAsyncLogger implements ILogger {
                 }
             }
 
-            while (!entries.isEmpty()) {
-                entries.poll().call();
+            while (!DefaultAsyncLogger.this.entries.isEmpty()) {
+                DefaultAsyncLogger.this.entries.poll().call();
             }
         }
     };
     protected int level = -1;
 
     public DefaultAsyncLogger() {
-        logThread.setPriority(Thread.MIN_PRIORITY);
-        logThread.start();
+        this.logThread.setPriority(Thread.MIN_PRIORITY);
+        this.logThread.start();
     }
 
     @Override
     public int getLevel() {
-        return level;
+        return this.level;
     }
 
     @Override
@@ -53,7 +53,7 @@ public class DefaultAsyncLogger implements ILogger {
 
     @Override
     public ILogger log(LogEntry logEntry) {
-        handleLogEntry(logEntry);
+        this.handleLogEntry(logEntry);
 
         return this;
     }
@@ -61,7 +61,7 @@ public class DefaultAsyncLogger implements ILogger {
     @Override
     public ILogger log(LogEntry... logEntries) {
         for (LogEntry logEntry : logEntries) {
-            handleLogEntry(logEntry);
+            this.handleLogEntry(logEntry);
         }
 
         return this;
@@ -83,7 +83,7 @@ public class DefaultAsyncLogger implements ILogger {
     public synchronized ILogger addLogHandlers(ILogHandler... logHandlers) {
 
         for (ILogHandler logHandler : logHandlers) {
-            addLogHandler(logHandler);
+            this.addLogHandler(logHandler);
         }
         return this;
     }
@@ -92,7 +92,7 @@ public class DefaultAsyncLogger implements ILogger {
     public synchronized ILogger addLogHandlers(Iterable<ILogHandler> logHandlers) {
 
         for (ILogHandler logHandler : logHandlers) {
-            addLogHandler(logHandler);
+            this.addLogHandler(logHandler);
         }
         return this;
     }
@@ -108,7 +108,7 @@ public class DefaultAsyncLogger implements ILogger {
     public synchronized ILogger removeLogHandlers(ILogHandler... logHandlers) {
 
         for (ILogHandler logHandler : logHandlers) {
-            removeLogHandler(logHandler);
+            this.removeLogHandler(logHandler);
         }
         return this;
     }
@@ -117,7 +117,7 @@ public class DefaultAsyncLogger implements ILogger {
     public synchronized ILogger removeLogHandlers(Iterable<ILogHandler> logHandlers) {
 
         for (ILogHandler logHandler : logHandlers) {
-            removeLogHandler(logHandler);
+            this.removeLogHandler(logHandler);
         }
         return this;
     }
@@ -156,9 +156,9 @@ public class DefaultAsyncLogger implements ILogger {
 
 
     private void handleLogEntry(LogEntry logEntry) {
-        if (logEntry != null && (level == -1 || logEntry.getLogLevel().getLevel() <= level)) {
+        if (logEntry != null && (this.level == -1 || logEntry.getLogLevel().getLevel() <= this.level)) {
             if (logEntry.getLogLevel().isAsync()) {
-                entries.offer(new LogHandlerRunnable(logEntry));
+                this.entries.offer(new LogHandlerRunnable(logEntry));
             } else {
                 new LogHandlerRunnable(logEntry).call();
             }
@@ -176,9 +176,9 @@ public class DefaultAsyncLogger implements ILogger {
         @Override
         public Void call() {
 
-            for (ILogHandler iLogHandler : handlers) {
+            for (ILogHandler iLogHandler : DefaultAsyncLogger.this.handlers) {
                 try {
-                    iLogHandler.handle(logEntry);
+                    iLogHandler.handle(this.logEntry);
                 } catch (Exception exception) {
                     exception.printStackTrace();
                 }

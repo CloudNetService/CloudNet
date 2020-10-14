@@ -1,12 +1,11 @@
 package de.dytanic.cloudnet.ext.signs;
 
 import de.dytanic.cloudnet.common.collection.Pair;
-import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
+import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
-import de.dytanic.cloudnet.driver.network.def.PacketConstants;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
@@ -20,7 +19,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -28,7 +26,7 @@ public abstract class AbstractSignManagement extends ServiceInfoStateWatcher {
 
     private static final Comparator<Pair<ServiceInfoSnapshot, ServiceInfoStateWatcher.ServiceInfoState>>
             ENTRY_NAME_COMPARATOR = Comparator.comparing(entry -> entry.getFirst().getName()),
-            ENTRY_STATE_COMPARATOR = Comparator.comparingInt(entry -> entry.getSecond().getValue());
+            ENTRY_STATE_COMPARATOR = Comparator.comparingInt(entry -> entry.getSecond().getPriority());
 
     private final AtomicInteger[] indexes = new AtomicInteger[]{
             new AtomicInteger(-1), //starting
@@ -95,7 +93,7 @@ public abstract class AbstractSignManagement extends ServiceInfoStateWatcher {
 
     @EventListener
     public void handle(ChannelMessageReceiveEvent event) {
-        if (!event.getChannel().equals(SignConstants.SIGN_CHANNEL_NAME)) {
+        if (!event.getChannel().equals(SignConstants.SIGN_CHANNEL_NAME) || event.getMessage() == null) {
             return;
         }
 
@@ -194,7 +192,7 @@ public abstract class AbstractSignManagement extends ServiceInfoStateWatcher {
 
                     return access;
                 })
-                .min(ENTRY_STATE_COMPARATOR);
+                .max(ENTRY_STATE_COMPARATOR);
 
         if (optionalEntry.isPresent()) {
             Pair<ServiceInfoSnapshot, ServiceInfoStateWatcher.ServiceInfoState> entry = optionalEntry.get();
@@ -306,12 +304,12 @@ public abstract class AbstractSignManagement extends ServiceInfoStateWatcher {
      * @param sign the sign to add
      */
     public void sendSignAddUpdate(@NotNull Sign sign) {
-        CloudNetDriver.getInstance().getMessenger()
-                .sendChannelMessage(
-                        SignConstants.SIGN_CHANNEL_NAME,
-                        SignConstants.SIGN_CHANNEL_ADD_SIGN_MESSAGE,
-                        new JsonDocument("sign", sign)
-                );
+        ChannelMessage.builder()
+                .channel(SignConstants.SIGN_CHANNEL_NAME)
+                .message(SignConstants.SIGN_CHANNEL_ADD_SIGN_MESSAGE)
+                .json(new JsonDocument("sign", sign))
+                .build()
+                .send();
     }
 
     /**
@@ -320,12 +318,12 @@ public abstract class AbstractSignManagement extends ServiceInfoStateWatcher {
      * @param sign the sign to remove
      */
     public void sendSignRemoveUpdate(@NotNull Sign sign) {
-        CloudNetDriver.getInstance().getMessenger()
-                .sendChannelMessage(
-                        SignConstants.SIGN_CHANNEL_NAME,
-                        SignConstants.SIGN_CHANNEL_REMOVE_SIGN_MESSAGE,
-                        new JsonDocument("sign", sign)
-                );
+        ChannelMessage.builder()
+                .channel(SignConstants.SIGN_CHANNEL_NAME)
+                .message(SignConstants.SIGN_CHANNEL_REMOVE_SIGN_MESSAGE)
+                .json(new JsonDocument("sign", sign))
+                .build()
+                .send();
     }
 
     /**
@@ -335,21 +333,14 @@ public abstract class AbstractSignManagement extends ServiceInfoStateWatcher {
      */
     @Nullable
     public Collection<Sign> getSignsFromNode() {
-        ITask<Collection<Sign>> signs = CloudNetDriver.getInstance().getPacketQueryProvider().sendCallablePacket(
-                CloudNetDriver.getInstance().getNetworkClient().getChannels().iterator().next(),
-                SignConstants.SIGN_CHANNEL_SYNC_CHANNEL_PROPERTY,
-                new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, SignConstants.SIGN_CHANNEL_SYNC_ID_GET_SIGNS_COLLECTION_PROPERTY),
-                new byte[0],
-                documentPair -> documentPair.getFirst().get("signs", SignConstants.COLLECTION_SIGNS)
-        );
+        ChannelMessage response = ChannelMessage.builder()
+                .channel(SignConstants.SIGN_CHANNEL_NAME)
+                .message(SignConstants.SIGN_CHANNEL_GET_SIGNS)
+                .targetNode(Wrapper.getInstance().getServiceId().getNodeUniqueId())
+                .build()
+                .sendSingleQuery();
 
-        try {
-            return signs.get(5, TimeUnit.SECONDS);
-        } catch (Exception exception) {
-            exception.printStackTrace();
-        }
-
-        return null;
+        return response == null ? null : response.getJson().get("signs", SignConstants.COLLECTION_SIGNS);
     }
 
     /**
@@ -358,11 +349,12 @@ public abstract class AbstractSignManagement extends ServiceInfoStateWatcher {
      * @param signConfiguration the new SignConfiguration
      */
     public void updateSignConfiguration(@NotNull SignConfiguration signConfiguration) {
-        CloudNetDriver.getInstance().getMessenger().sendChannelMessage(
-                SignConstants.SIGN_CHANNEL_NAME,
-                SignConstants.SIGN_CHANNEL_UPDATE_SIGN_CONFIGURATION,
-                new JsonDocument("signConfiguration", signConfiguration)
-        );
+        ChannelMessage.builder()
+                .channel(SignConstants.SIGN_CHANNEL_NAME)
+                .message(SignConstants.SIGN_CHANNEL_UPDATE_SIGN_CONFIGURATION)
+                .json(new JsonDocument("signConfiguration", signConfiguration))
+                .build()
+                .send();
     }
 
     protected void executeStartingTask() {

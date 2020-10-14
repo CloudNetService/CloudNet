@@ -3,9 +3,7 @@ package de.dytanic.cloudnet.wrapper.event;
 import de.dytanic.cloudnet.driver.event.events.DriverEvent;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 
-import java.io.File;
 import java.util.Collection;
-import java.util.jar.Manifest;
 
 /**
  * This event is only interesting for wrapper modules.
@@ -30,32 +28,10 @@ public final class ApplicationPreStartEvent extends DriverEvent {
      * The arguments for the main method of the application
      */
     private final Collection<String> arguments;
-    /**
-     * The manifest properties of the jar archive by the original application
-     *
-     * @see Manifest
-     */
-    private Manifest manifest;
-    /**
-     * The file of the original application
-     */
-    private File applicationFile;
 
-    /**
-     * @deprecated the manifest of the application file is not available in the wrapper anymore and has been replaced by the whole application file
-     */
-    @Deprecated
-    public ApplicationPreStartEvent(Wrapper cloudNetWrapper, Class<?> clazz, Manifest manifest, Collection<String> arguments) {
+    public ApplicationPreStartEvent(Wrapper cloudNetWrapper, Class<?> clazz, Collection<String> arguments) {
         this.cloudNetWrapper = cloudNetWrapper;
         this.clazz = clazz;
-        this.manifest = manifest;
-        this.arguments = arguments;
-    }
-
-    public ApplicationPreStartEvent(Wrapper cloudNetWrapper, Class<?> clazz, File applicationFile, Collection<String> arguments) {
-        this.cloudNetWrapper = cloudNetWrapper;
-        this.clazz = clazz;
-        this.applicationFile = applicationFile;
         this.arguments = arguments;
     }
 
@@ -65,19 +41,6 @@ public final class ApplicationPreStartEvent extends DriverEvent {
 
     public Class<?> getClazz() {
         return this.clazz;
-    }
-
-    /**
-     * @deprecated the manifest of the application file is not available in the wrapper anymore,
-     * use {@link ApplicationPreStartEvent#getApplicationFile()} to get the file of the manifest
-     */
-    @Deprecated
-    public Manifest getManifest() {
-        return manifest;
-    }
-
-    public File getApplicationFile() {
-        return applicationFile;
     }
 
     public Collection<String> getArguments() {

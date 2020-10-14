@@ -8,8 +8,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
@@ -171,13 +171,13 @@ public final class LocalTemplateStorage implements ITemplateStorage {
     @Override
     @Deprecated
     public byte[] toZipByteArray(@NotNull ServiceTemplate template) {
-        File directory = new File(storageDirectory, template.getTemplatePath());
+        File directory = new File(this.storageDirectory, template.getTemplatePath());
         return directory.exists() ? FileUtils.convert(new Path[]{directory.toPath()}) : null;
     }
 
     @Override
     @Nullable
-    public ZipInputStream asZipInputStream(@NotNull ServiceTemplate template) throws IOException {
+    public InputStream zipTemplate(@NotNull ServiceTemplate template) throws IOException {
         if (!this.has(template)) {
             return null;
         }
@@ -190,7 +190,7 @@ public final class LocalTemplateStorage implements ITemplateStorage {
             return null;
         }
 
-        return new ZipInputStream(Files.newInputStream(file, StandardOpenOption.DELETE_ON_CLOSE, LinkOption.NOFOLLOW_LINKS), StandardCharsets.UTF_8);
+        return Files.newInputStream(file, StandardOpenOption.DELETE_ON_CLOSE, LinkOption.NOFOLLOW_LINKS);
     }
 
     @Override

@@ -1,29 +1,18 @@
 package de.dytanic.cloudnet.ext.bridge.velocity.listener;
 
-import com.velocitypowered.api.proxy.Player;
-import com.velocitypowered.api.proxy.messages.ChannelIdentifier;
-import com.velocitypowered.api.proxy.messages.LegacyChannelIdentifier;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
 import com.velocitypowered.api.proxy.server.ServerInfo;
-import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
 import de.dytanic.cloudnet.driver.event.events.network.NetworkChannelPacketReceiveEvent;
-import de.dytanic.cloudnet.driver.event.events.network.NetworkClusterNodeInfoUpdateEvent;
 import de.dytanic.cloudnet.driver.event.events.service.*;
-import de.dytanic.cloudnet.ext.bridge.BridgeConstants;
 import de.dytanic.cloudnet.ext.bridge.event.*;
 import de.dytanic.cloudnet.ext.bridge.proxy.BridgeProxyHelper;
 import de.dytanic.cloudnet.ext.bridge.velocity.VelocityCloudNetHelper;
 import de.dytanic.cloudnet.ext.bridge.velocity.event.*;
 import de.dytanic.cloudnet.wrapper.event.service.ServiceInfoSnapshotConfigureEvent;
-import net.kyori.text.TextComponent;
-import net.kyori.text.serializer.legacy.LegacyComponentSerializer;
 
 import java.net.InetSocketAddress;
-import java.util.Base64;
-import java.util.Optional;
-import java.util.UUID;
 
 public final class VelocityCloudNetListener {
 
@@ -42,8 +31,8 @@ public final class VelocityCloudNetListener {
 
             String name = event.getServiceInfo().getServiceId().getName();
             VelocityCloudNetHelper.getProxyServer().registerServer(new ServerInfo(name, new InetSocketAddress(
-                    event.getServiceInfo().getAddress().getHost(),
-                    event.getServiceInfo().getAddress().getPort()
+                    event.getServiceInfo().getConnectAddress().getHost(),
+                    event.getServiceInfo().getConnectAddress().getPort()
             )));
 
             VelocityCloudNetHelper.addServerToVelocityPrioritySystemConfiguration(event.getServiceInfo(), name);
@@ -57,9 +46,9 @@ public final class VelocityCloudNetListener {
         if (VelocityCloudNetHelper.isServiceEnvironmentTypeProvidedForVelocity(event.getServiceInfo())) {
             String name = event.getServiceInfo().getServiceId().getName();
 
-            if (VelocityCloudNetHelper.getProxyServer().getServer(name).isPresent()) {
-                VelocityCloudNetHelper.getProxyServer().unregisterServer(VelocityCloudNetHelper.getProxyServer().getServer(name).get().getServerInfo());
-            }
+            VelocityCloudNetHelper.getProxyServer().getServer(name)
+                    .map(RegisteredServer::getServerInfo)
+                    .ifPresent(VelocityCloudNetHelper.getProxyServer()::unregisterServer);
 
             VelocityCloudNetHelper.removeServerToVelocityPrioritySystemConfiguration(event.getServiceInfo(), name);
             BridgeProxyHelper.cacheServiceInfoSnapshot(event.getServiceInfo());
@@ -107,7 +96,7 @@ public final class VelocityCloudNetListener {
     @EventListener
     public void handle(CloudServiceUnregisterEvent event) {
         if (VelocityCloudNetHelper.isServiceEnvironmentTypeProvidedForVelocity(event.getServiceInfo())) {
-            BridgeProxyHelper.cacheServiceInfoSnapshot(event.getServiceInfo());
+            BridgeProxyHelper.removeCachedServiceInfoSnapshot(event.getServiceInfo());
         }
 
         this.velocityCall(new VelocityCloudServiceUnregisterEvent(event.getServiceInfo()));
@@ -115,83 +104,7 @@ public final class VelocityCloudNetListener {
 
     @EventListener
     public void handle(ChannelMessageReceiveEvent event) {
-        this.velocityCall(new VelocityChannelMessageReceiveEvent(event.getChannel(), event.getMessage(), event.getData()));
-
-        if (!event.getChannel().equalsIgnoreCase(BridgeConstants.BRIDGE_CUSTOM_MESSAGING_CHANNEL_PLAYER_API_CHANNEL_NAME)) {
-            return;
-        }
-
-        switch (event.getMessage().toLowerCase()) {
-            case "send_on_proxy_player_to_server": {
-                Player player = getPlayer(event.getData());
-
-                if (player != null && event.getData().getString("serviceName") != null) {
-                    Optional<RegisteredServer> serverInfo = VelocityCloudNetHelper.getProxyServer().getServer(event.getData().getString("serviceName"));
-
-                    if (serverInfo != null && serverInfo.isPresent()) {
-                        player.createConnectionRequest(serverInfo.get()).connect();
-                    }
-                }
-            }
-            break;
-            case "kick_on_proxy_player_from_network": {
-                Player player = getPlayer(event.getData());
-
-                if (player != null && event.getData().getString("kickMessage") != null) {
-                    player.disconnect(LegacyComponentSerializer.legacyLinking().deserialize((event.getData().getString("kickMessage")).replace("&", "§")));
-                }
-            }
-            break;
-            case "send_message_to_proxy_player": {
-                Player player = getPlayer(event.getData());
-
-                if (player != null && event.getData().getString("message") != null) {
-                    player.sendMessage(LegacyComponentSerializer.legacyLinking().deserialize((event.getData().getString("message")).replace("&", "§")));
-                }
-            }
-            break;
-            case "send_plugin_message_to_proxy_player": {
-                Player player = getPlayer(event.getData());
-
-                if (player != null && event.getData().contains("tag") && event.getData().contains("data")) {
-                    String tag = event.getData().getString("tag");
-
-                    ChannelIdentifier channelIdentifier = new LegacyChannelIdentifier(tag);
-                    VelocityCloudNetHelper.getProxyServer().getChannelRegistrar().register(channelIdentifier);
-
-                    byte[] data = Base64.getDecoder().decode(event.getData().getString("data"));
-
-                    player.sendPluginMessage(channelIdentifier, data);
-                }
-            }
-            break;
-            case "broadcast_message": {
-                String permission = event.getData().getString("permission");
-
-                if (event.getData().getString("message") != null) {
-                    TextComponent message = LegacyComponentSerializer.legacyLinking().deserialize(event.getData().getString("message").replace("&", "§"));
-                    for (Player player : VelocityCloudNetHelper.getProxyServer().getAllPlayers()) {
-                        if (permission == null || player.hasPermission(permission)) {
-                            player.sendMessage(message);
-                        }
-                    }
-                }
-            }
-            break;
-        }
-    }
-
-    private Player getPlayer(JsonDocument data) {
-        return VelocityCloudNetHelper.getProxyServer().getAllPlayers().stream()
-                .filter(player -> data.contains("uniqueId") && player.getUniqueId().equals(data.get("uniqueId", UUID.class))
-                        || data.contains("name") && player.getUsername().equalsIgnoreCase(data.getString("name")))
-                .findFirst()
-                .orElse(null);
-    }
-
-    @EventListener
-    public void handle(NetworkClusterNodeInfoUpdateEvent event) {
-        this.velocityCall(new VelocityNetworkClusterNodeInfoUpdateEvent(event.getNetworkClusterNodeInfoSnapshot()));
+        this.velocityCall(new VelocityChannelMessageReceiveEvent(event));
     }
 
     @EventListener

@@ -3,6 +3,7 @@ package de.dytanic.cloudnet.ext.bridge.player;
 import de.dytanic.cloudnet.common.INameable;
 import de.dytanic.cloudnet.common.document.gson.IJsonDocPropertyable;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import de.dytanic.cloudnet.driver.serialization.SerializableObject;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
@@ -11,7 +12,7 @@ import java.util.UUID;
  * Represents the data of an offlinePlayer instance that is saved on the database on CloudNet
  * The player does not need to be online for this item to be provisioned
  */
-public interface ICloudOfflinePlayer extends INameable, IJsonDocPropertyable {
+public interface ICloudOfflinePlayer extends INameable, IJsonDocPropertyable, SerializableObject {
 
     /**
      * Return the unique identifier of a player from the Minecraft Java or Bedrock Edition

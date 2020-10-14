@@ -30,6 +30,7 @@ public class DefaultDatabasePermissionManagementTest {
         System.setProperty("cloudnet.permissions.json.path", "build/group_permissions.json");
 
         IPermissionManagement permissionManagement = new DefaultDatabasePermissionManagement(() -> databaseProvider);
+        permissionManagement.init();
 
         IPermissionUser permissionUser = permissionManagement.addUser(userName, "1234", (byte) 5);
         Assert.assertNotNull(permissionUser);

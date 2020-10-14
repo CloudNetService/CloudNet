@@ -1,20 +1,26 @@
 package de.dytanic.cloudnet.template.install;
 
 import de.dytanic.cloudnet.driver.service.ServiceEnvironment;
+import de.dytanic.cloudnet.template.install.run.step.InstallStep;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 public class ServiceVersionType {
-    private final String name;
-    private final ServiceEnvironment targetEnvironment;
-    private final InstallerType installerType;
-    private final Collection<ServiceVersion> versions;
+    private String name;
+    private ServiceEnvironment targetEnvironment;
+    private List<InstallStep> installSteps = new ArrayList<>();
+    private Collection<ServiceVersion> versions;
 
-    public ServiceVersionType(String name, ServiceEnvironment targetEnvironment, InstallerType installerType, Collection<ServiceVersion> versions) {
+    public ServiceVersionType() {
+    }
+
+    public ServiceVersionType(String name, ServiceEnvironment targetEnvironment, List<InstallStep> installSteps, Collection<ServiceVersion> versions) {
         this.name = name;
         this.targetEnvironment = targetEnvironment;
-        this.installerType = installerType;
+        this.installSteps = installSteps;
         this.versions = versions;
     }
 
@@ -24,36 +30,24 @@ public class ServiceVersionType {
                 .findFirst();
     }
 
+    public boolean canInstall(ServiceVersion serviceVersion) {
+        return !this.installSteps.contains(InstallStep.BUILD) || serviceVersion.canRun();
+    }
+
     public String getName() {
-        return name;
+        return this.name;
     }
 
     public ServiceEnvironment getTargetEnvironment() {
-        return targetEnvironment;
+        return this.targetEnvironment;
     }
 
-    public InstallerType getInstallerType() {
-        return installerType;
+    public List<InstallStep> getInstallSteps() {
+        return this.installSteps;
     }
 
     public Collection<ServiceVersion> getVersions() {
-        return versions;
-    }
-
-    public enum InstallerType {
-        DOWNLOAD(false),
-        BUILD(true);
-
-        private final boolean requiresSpecificJavaVersionToExecute;
-
-        InstallerType(boolean requiresSpecificJavaVersionToExecute) {
-            this.requiresSpecificJavaVersionToExecute = requiresSpecificJavaVersionToExecute;
-        }
-
-        public boolean canInstall(ServiceVersion serviceVersion) {
-            return !this.requiresSpecificJavaVersionToExecute || serviceVersion.canRun();
-        }
-
+        return this.versions;
     }
 
 }

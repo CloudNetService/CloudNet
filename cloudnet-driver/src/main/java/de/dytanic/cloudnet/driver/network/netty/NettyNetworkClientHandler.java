@@ -24,9 +24,9 @@ final class NettyNetworkClientHandler extends SimpleChannelInboundHandler<Packet
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         this.channel = new NettyNetworkChannel(ctx.channel(), this.nettyNetworkClient.getPacketRegistry(),
-                this.nettyNetworkClient.networkChannelHandler.call(), connectedAddress, new HostAndPort(ctx.channel().localAddress()), true);
+                this.nettyNetworkClient.networkChannelHandler.call(), this.connectedAddress, HostAndPort.fromSocketAddress(ctx.channel().localAddress()), true);
 
-        this.nettyNetworkClient.channels.add(channel);
+        this.nettyNetworkClient.channels.add(this.channel);
 
         if (this.channel.getHandler() != null) {
             this.channel.getHandler().handleChannelInitialize(this.channel);
@@ -60,12 +60,12 @@ final class NettyNetworkClientHandler extends SimpleChannelInboundHandler<Packet
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, Packet msg) {
-        nettyNetworkClient.taskScheduler.schedule((Callable<Void>) () -> {
-            if (channel.getHandler() != null && !channel.getHandler().handlePacketReceive(channel, msg)) {
+        this.nettyNetworkClient.taskScheduler.schedule((Callable<Void>) () -> {
+            if (this.channel.getHandler() != null && !this.channel.getHandler().handlePacketReceive(this.channel, msg)) {
                 return null;
             }
 
-            channel.getPacketRegistry().handlePacket(channel, msg);
+            this.channel.getPacketRegistry().handlePacket(this.channel, msg);
             return null;
         });
     }

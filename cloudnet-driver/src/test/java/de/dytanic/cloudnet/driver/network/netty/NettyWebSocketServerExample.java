@@ -15,11 +15,13 @@ import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.websocketx.*;
 import io.netty.handler.codec.http.websocketx.extensions.compression.WebSocketClientCompressionHandler;
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public final class NettyWebSocketServerExample {
 
@@ -58,7 +60,9 @@ public final class NettyWebSocketServerExample {
             });
 
             context.cancelNext();
-        }).addListener(new HostAndPort("0.0.0.0", port));
+        });
+
+        assertTrue(httpServer.addListener(new HostAndPort("0.0.0.0", port)));
 
         EventLoopGroup eventLoopGroup = NettyUtils.newEventLoopGroup();
         WebSocketClientHandshaker webSocketClientHandshaker = WebSocketClientHandshakerFactory
@@ -127,7 +131,7 @@ public final class NettyWebSocketServerExample {
                 .channel()
         ;
 
-        Assert.assertEquals("Async_response_message", task.get());
+        assertEquals("Async_response_message", task.get());
         eventLoopGroup.shutdownGracefully();
         httpServer.close();
     }

@@ -1,7 +1,13 @@
 package de.dytanic.cloudnet.driver.service;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.jar.JarFile;
 
 public enum ServiceEnvironmentType {
 
@@ -15,18 +21,33 @@ public enum ServiceEnvironmentType {
                     ServiceEnvironment.MINECRAFT_SERVER_AKARIN,
                     ServiceEnvironment.MINECRAFT_SERVER_DEFAULT,
             },
-            false, false, true, false,
+            MinecraftServiceType.JAVA_SERVER,
             44955
     ),
     GLOWSTONE(new ServiceEnvironment[]{ServiceEnvironment.GLOWSTONE_DEFAULT},
-            false, false, true, false,
+            MinecraftServiceType.JAVA_SERVER,
             44955
     ),
     NUKKIT(
             new ServiceEnvironment[]{ServiceEnvironment.NUKKIT_DEFAULT},
-            false, false, false, true,
+            MinecraftServiceType.BEDROCK_SERVER,
             44955
     ),
+    GO_MINT(
+            new ServiceEnvironment[]{ServiceEnvironment.GO_MINT_DEFAULT},
+            MinecraftServiceType.BEDROCK_SERVER,
+            44955
+    ) {
+        @Override
+        public String getMainClass(@Nullable File applicationFile) {
+            return "io.gomint.server.Bootstrap";
+        }
+
+        @Override
+        public @NotNull String getClasspath(@NotNull File wrapperFile, @Nullable File applicationFile) {
+            return wrapperFile.getAbsolutePath() + File.pathSeparator + "modules/*";
+        }
+    },
     BUNGEECORD(
             new ServiceEnvironment[]{
                     ServiceEnvironment.BUNGEECORD_HEXACORD,
@@ -34,63 +55,76 @@ public enum ServiceEnvironmentType {
                     ServiceEnvironment.BUNGEECORD_WATERFALL,
                     ServiceEnvironment.BUNGEECORD_DEFAULT
             },
-            true, false, false, false,
+            MinecraftServiceType.JAVA_PROXY,
             25565,
             new String[]{">"}
     ),
     VELOCITY(
             new ServiceEnvironment[]{ServiceEnvironment.VELOCITY_DEFAULT},
-            true, false, false, false,
+            MinecraftServiceType.JAVA_PROXY,
             25565
     ),
     WATERDOG(
             new ServiceEnvironment[]{ServiceEnvironment.WATERDOG_DEFAULT},
-            false, true, false, false,
+            MinecraftServiceType.BEDROCK_PROXY,
             19132
     );
 
     private final ServiceEnvironment[] environments;
-
-    private final boolean minecraftJavaProxy;
-    private final boolean minecraftBedrockProxy;
-    private final boolean minecraftJavaServer;
-    private final boolean minecraftBedrockServer;
+    private final MinecraftServiceType type;
 
     private final int defaultStartPort;
     private final Collection<String> ignoredConsoleLines;
 
-    ServiceEnvironmentType(ServiceEnvironment[] environments, boolean minecraftJavaProxy, boolean minecraftBedrockProxy, boolean minecraftJavaServer, boolean minecraftBedrockServer, int defaultStartPort) {
-        this(environments, minecraftJavaProxy, minecraftBedrockProxy, minecraftJavaServer, minecraftBedrockServer, defaultStartPort, new String[0]);
+    ServiceEnvironmentType(ServiceEnvironment[] environments, MinecraftServiceType type, int defaultStartPort) {
+        this(environments, type, defaultStartPort, new String[0]);
     }
 
-    ServiceEnvironmentType(ServiceEnvironment[] environments, boolean minecraftJavaProxy, boolean minecraftBedrockProxy, boolean minecraftJavaServer, boolean minecraftBedrockServer, int defaultStartPort, String[] ignoredConsoleLines) {
+    ServiceEnvironmentType(ServiceEnvironment[] environments, MinecraftServiceType type, int defaultStartPort, String[] ignoredConsoleLines) {
         this.environments = environments;
-        this.minecraftJavaProxy = minecraftJavaProxy;
-        this.minecraftBedrockProxy = minecraftBedrockProxy;
-        this.minecraftJavaServer = minecraftJavaServer;
-        this.minecraftBedrockServer = minecraftBedrockServer;
+        this.type = type;
         this.defaultStartPort = defaultStartPort;
         this.ignoredConsoleLines = Arrays.asList(ignoredConsoleLines);
+    }
+
+    public @Nullable String getMainClass(@Nullable File applicationFile) {
+        if (applicationFile != null && applicationFile.exists()) {
+            try (JarFile jarFile = new JarFile(applicationFile)) {
+                return jarFile.getManifest().getMainAttributes().getValue("Main-Class");
+            } catch (IOException exception) {
+                exception.printStackTrace();
+            }
+        }
+
+        return null;
+    }
+
+    public @NotNull String getClasspath(@NotNull File wrapperFile, @Nullable File applicationFile) {
+        return wrapperFile.getAbsolutePath() + File.pathSeparator + (applicationFile == null ? "" : applicationFile.getAbsolutePath());
     }
 
     public ServiceEnvironment[] getEnvironments() {
         return this.environments;
     }
 
+    public MinecraftServiceType getMinecraftType() {
+        return this.type;
+    }
+
     public boolean isMinecraftJavaProxy() {
-        return this.minecraftJavaProxy;
+        return this.type == MinecraftServiceType.JAVA_PROXY;
     }
 
     public boolean isMinecraftBedrockProxy() {
-        return this.minecraftBedrockProxy;
+        return this.type == MinecraftServiceType.BEDROCK_PROXY;
     }
 
     public boolean isMinecraftJavaServer() {
-        return this.minecraftJavaServer;
+        return this.type == MinecraftServiceType.JAVA_SERVER;
     }
 
     public boolean isMinecraftBedrockServer() {
-        return this.minecraftBedrockServer;
+        return this.type == MinecraftServiceType.BEDROCK_SERVER;
     }
 
     public boolean isMinecraftProxy() {

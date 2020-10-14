@@ -2,7 +2,7 @@ package de.dytanic.cloudnet.command;
 
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.Properties;
-import de.dytanic.cloudnet.common.command.CommandInfo;
+import de.dytanic.cloudnet.driver.command.CommandInfo;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -77,7 +77,7 @@ public final class DefaultCommandMap implements ICommandMap {
             Command command = this.getCommandFromLine(commandLine);
 
             if (command instanceof ITabCompleter) {
-                String[] args = this.formatArgs(commandLine.split(" "));
+                String[] args = this.parseArgs(commandLine);
                 String testString = args.length <= 1 || commandLine.endsWith(" ") ? "" : args[args.length - 1].toLowerCase().trim();
                 if (commandLine.endsWith(" ")) {
                     args = Arrays.copyOfRange(args, 1, args.length + 1);
@@ -87,12 +87,7 @@ public final class DefaultCommandMap implements ICommandMap {
                 }
 
                 Collection<String> responses = ((ITabCompleter) command).complete(commandLine, args, Properties.parseLine(args));
-                if (responses != null && !responses.isEmpty()) {
-                    return responses.stream()
-                            .filter(response -> response != null && (testString.isEmpty() || response.toLowerCase().startsWith(testString)))
-                            .map(response -> response.contains(" ") ? "\"" + response + "\"" : response)
-                            .collect(Collectors.toList());
-                }
+                return this.filterResponses(testString, responses);
             }
         }
         return Collections.emptyList();
@@ -115,12 +110,20 @@ public final class DefaultCommandMap implements ICommandMap {
             String testString = args[args.length - 1].toLowerCase().trim();
 
             Collection<String> responses = ((ITabCompleter) command).complete(String.join(" ", args), Arrays.copyOfRange(args, 1, args.length), properties);
-            if (responses != null && !responses.isEmpty()) {
-                return responses.stream().filter(response -> response != null && (testString.isEmpty() || response.toLowerCase().startsWith(testString))).collect(Collectors.toList());
-            }
+            return this.filterResponses(testString, responses);
         }
 
         return Collections.emptyList();
+    }
+
+    private List<String> filterResponses(String testString, Collection<String> responses) {
+        if (responses == null || responses.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return responses.stream()
+                .filter(response -> response != null && (testString.isEmpty() || response.toLowerCase().startsWith(testString)))
+                .map(response -> response.contains(" ") ? "\"" + response + "\"" : response)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -151,8 +154,8 @@ public final class DefaultCommandMap implements ICommandMap {
             return null;
         }
 
-        String[] a = this.formatArgs(commandLine.split(" "));
-        return a.length >= 1 ? this.registeredCommands.get(a[0].toLowerCase()) : null;
+        String[] args = this.parseArgs(commandLine);
+        return args.length >= 1 ? this.registeredCommands.get(args[0].toLowerCase()) : null;
     }
 
     @Override
@@ -178,14 +181,14 @@ public final class DefaultCommandMap implements ICommandMap {
     }
 
     public boolean dispatchCommand0(ICommandSender commandSender, String commandLine) {
-        String[] args = this.formatArgs(commandLine.split(" "));
+        String[] args = this.parseArgs(commandLine);
 
-        if (!this.registeredCommands.containsKey(args[0].toLowerCase())) {
+        if (args.length == 0 || !this.registeredCommands.containsKey(args[0].toLowerCase())) {
             return false;
         }
 
-        Command command = this.registeredCommands.get(args[0].toLowerCase());
         String commandName = args[0].toLowerCase();
+        Command command = this.registeredCommands.get(commandName);
 
         if (command.getPermission() != null && !commandSender.hasPermission(command.getPermission())) {
             return false;
@@ -202,39 +205,40 @@ public final class DefaultCommandMap implements ICommandMap {
         }
     }
 
-    private String[] formatArgs(String[] args) {
-        Collection<String> newArgs = new ArrayList<>();
-        StringBuilder current = new StringBuilder();
+    private String[] parseArgs(String line) {
+        if (line.trim().isEmpty()) {
+            return new String[0];
+        }
 
-        for (String arg : args) {
-            boolean starts = arg.startsWith("\"");
-            boolean ends = arg.endsWith("\"");
+        Collection<String> args = new ArrayList<>();
+        StringBuilder builder = new StringBuilder();
+        char[] chars = line.toCharArray();
+        boolean inQuote = false;
 
-            if (starts || current.length() > 0) {
-
-                if (starts) {
-                    arg = arg.substring(1);
-                }
-
-                current.append(arg);
-
-                if (ends) {
-                    newArgs.add(current.substring(0, current.length() - 1));
-                    current.setLength(0);
-                } else {
-                    current.append(' ');
-                }
-
-            } else {
-                newArgs.add(arg);
+        for (char c : chars) {
+            if (c == '"') {
+                inQuote = !inQuote;
+                continue;
             }
+
+            if (!inQuote && c == ' ') {
+                args.add(builder.toString());
+                builder.setLength(0);
+                continue;
+            }
+
+            builder.append(c);
         }
 
-        if (current.length() > 0) {
-            newArgs.add(current.toString());
+        if (inQuote) {
+            builder.append('"');
         }
 
-        return newArgs.toArray(new String[0]);
+        if (builder.length() != 0) {
+            args.add(builder.toString());
+        }
+
+        return args.toArray(new String[0]);
     }
 
 

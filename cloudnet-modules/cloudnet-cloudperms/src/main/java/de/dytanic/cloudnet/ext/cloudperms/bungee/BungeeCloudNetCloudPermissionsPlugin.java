@@ -10,7 +10,7 @@ public final class BungeeCloudNetCloudPermissionsPlugin extends Plugin {
 
     @Override
     public void onEnable() {
-        getProxy().getPluginManager().registerListener(
+        this.getProxy().getPluginManager().registerListener(
                 this,
                 new BungeeCloudNetCloudPermissionsPlayerListener(CloudPermissionsManagement.newInstance())
         );

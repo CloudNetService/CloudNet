@@ -4,6 +4,7 @@ import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.database.h2.H2Database;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
+import de.dytanic.cloudnet.driver.database.Database;
 import de.dytanic.cloudnet.event.database.DatabaseClearEntriesEvent;
 import de.dytanic.cloudnet.event.database.DatabaseDeleteEntryEvent;
 import de.dytanic.cloudnet.event.database.DatabaseInsertEntryEvent;
@@ -13,8 +14,8 @@ import de.dytanic.cloudnet.network.packet.PacketServerH2Database;
 public final class DefaultDatabaseHandler implements IDatabaseHandler {
 
     @Override
-    public void handleInsert(IDatabase database, String key, JsonDocument document) {
-        CloudNetDriver.getInstance().getEventManager().callEvent(new DatabaseInsertEntryEvent(database, key, document));
+    public void handleInsert(Database database, String key, JsonDocument document) {
+        CloudNetDriver.getInstance().getEventManager().callEvent(new DatabaseInsertEntryEvent((IDatabase) database, key, document));
 
         if (database instanceof H2Database) {
             CloudNet.getInstance().getClusterNodeServerProvider().sendPacket(
@@ -24,8 +25,8 @@ public final class DefaultDatabaseHandler implements IDatabaseHandler {
     }
 
     @Override
-    public void handleUpdate(IDatabase database, String key, JsonDocument document) {
-        CloudNetDriver.getInstance().getEventManager().callEvent(new DatabaseUpdateEntryEvent(database, key, document));
+    public void handleUpdate(Database database, String key, JsonDocument document) {
+        CloudNetDriver.getInstance().getEventManager().callEvent(new DatabaseUpdateEntryEvent((IDatabase) database, key, document));
 
         if (database instanceof H2Database) {
             CloudNet.getInstance().getClusterNodeServerProvider().sendPacket(
@@ -35,8 +36,8 @@ public final class DefaultDatabaseHandler implements IDatabaseHandler {
     }
 
     @Override
-    public void handleDelete(IDatabase database, String key) {
-        CloudNetDriver.getInstance().getEventManager().callEvent(new DatabaseDeleteEntryEvent(database, key));
+    public void handleDelete(Database database, String key) {
+        CloudNetDriver.getInstance().getEventManager().callEvent(new DatabaseDeleteEntryEvent((IDatabase) database, key));
 
         if (database instanceof H2Database) {
             CloudNet.getInstance().getClusterNodeServerProvider().sendPacket(
@@ -46,8 +47,8 @@ public final class DefaultDatabaseHandler implements IDatabaseHandler {
     }
 
     @Override
-    public void handleClear(IDatabase database) {
-        CloudNetDriver.getInstance().getEventManager().callEvent(new DatabaseClearEntriesEvent(database));
+    public void handleClear(Database database) {
+        CloudNetDriver.getInstance().getEventManager().callEvent(new DatabaseClearEntriesEvent((IDatabase) database));
 
         if (database instanceof H2Database) {
             CloudNet.getInstance().getClusterNodeServerProvider().sendPacket(

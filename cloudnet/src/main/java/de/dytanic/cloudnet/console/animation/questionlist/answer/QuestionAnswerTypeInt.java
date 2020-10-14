@@ -3,18 +3,19 @@ package de.dytanic.cloudnet.console.animation.questionlist.answer;
 import com.google.common.primitives.Ints;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.console.animation.questionlist.QuestionAnswerType;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
 
 public class QuestionAnswerTypeInt implements QuestionAnswerType<Integer> {
 
     @Override
-    public boolean isValidInput(String input) {
+    public boolean isValidInput(@NotNull String input) {
         return Ints.tryParse(input) != null;
     }
 
     @Override
-    public Integer parse(String input) {
+    public @NotNull Integer parse(@NotNull String input) {
         return Integer.parseInt(input);
     }
 
@@ -24,7 +25,7 @@ public class QuestionAnswerTypeInt implements QuestionAnswerType<Integer> {
     }
 
     @Override
-    public String getInvalidInputMessage(String input) {
+    public String getInvalidInputMessage(@NotNull String input) {
         return LanguageManager.getMessage("ca-question-list-invalid-int");
     }
 

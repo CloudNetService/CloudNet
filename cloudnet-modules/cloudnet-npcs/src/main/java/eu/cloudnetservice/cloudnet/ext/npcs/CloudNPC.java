@@ -49,7 +49,7 @@ public class CloudNPC {
     }
 
     public UUID getUUID() {
-        return uuid;
+        return this.uuid;
     }
 
     public void setUUID(UUID uuid) {
@@ -57,7 +57,7 @@ public class CloudNPC {
     }
 
     public String getDisplayName() {
-        return displayName;
+        return this.displayName;
     }
 
     public void setDisplayName(String displayName) {
@@ -65,7 +65,7 @@ public class CloudNPC {
     }
 
     public String getInfoLine() {
-        return infoLine;
+        return this.infoLine;
     }
 
     public void setInfoLine(String infoLine) {
@@ -73,7 +73,7 @@ public class CloudNPC {
     }
 
     public Set<NPCProfileProperty> getProfileProperties() {
-        return profileProperties;
+        return this.profileProperties;
     }
 
     public void setProfileProperties(Set<NPCProfileProperty> profileProperties) {
@@ -81,7 +81,7 @@ public class CloudNPC {
     }
 
     public WorldPosition getPosition() {
-        return position;
+        return this.position;
     }
 
     public void setPosition(WorldPosition position) {
@@ -89,7 +89,7 @@ public class CloudNPC {
     }
 
     public String getTargetGroup() {
-        return targetGroup;
+        return this.targetGroup;
     }
 
     public void setTargetGroup(String targetGroup) {
@@ -97,7 +97,7 @@ public class CloudNPC {
     }
 
     public String getItemInHand() {
-        return itemInHand;
+        return this.itemInHand;
     }
 
     public void setItemInHand(String itemInHand) {
@@ -105,7 +105,7 @@ public class CloudNPC {
     }
 
     public boolean isLookAtPlayer() {
-        return lookAtPlayer;
+        return this.lookAtPlayer;
     }
 
     public void setLookAtPlayer(boolean lookAtPlayer) {
@@ -113,7 +113,7 @@ public class CloudNPC {
     }
 
     public boolean isImitatePlayer() {
-        return imitatePlayer;
+        return this.imitatePlayer;
     }
 
     public void setImitatePlayer(boolean imitatePlayer) {
@@ -121,7 +121,7 @@ public class CloudNPC {
     }
 
     public NPCAction getRightClickAction() {
-        return rightClickAction;
+        return this.rightClickAction;
     }
 
     public void setRightClickAction(NPCAction rightClickAction) {
@@ -129,7 +129,7 @@ public class CloudNPC {
     }
 
     public NPCAction getLeftClickAction() {
-        return leftClickAction;
+        return this.leftClickAction;
     }
 
     public void setLeftClickAction(NPCAction leftClickAction) {
@@ -151,15 +151,15 @@ public class CloudNPC {
         }
 
         public String getName() {
-            return name;
+            return this.name;
         }
 
         public String getValue() {
-            return value;
+            return this.value;
         }
 
         public String getSignature() {
-            return signature;
+            return this.signature;
         }
 
     }

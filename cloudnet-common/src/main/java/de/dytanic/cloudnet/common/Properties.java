@@ -75,11 +75,11 @@ public class Properties extends LinkedHashMap<String, String> {
      * @return the property parsed as boolean
      */
     public boolean getBoolean(String key) {
-        if (!containsKey(key)) {
+        if (!this.containsKey(key)) {
             return false;
         }
 
-        return Boolean.parseBoolean(get(key));
+        return Boolean.parseBoolean(this.get(key));
     }
 
 
@@ -98,7 +98,7 @@ public class Properties extends LinkedHashMap<String, String> {
 
         if (file.exists()) {
             try (InputStream inputStream = new FileInputStream(file)) {
-                load(inputStream);
+                this.load(inputStream);
             }
         }
     }
@@ -113,7 +113,7 @@ public class Properties extends LinkedHashMap<String, String> {
      */
     public void load(Path path) throws IOException {
         if (path != null) {
-            load(path.toFile());
+            this.load(path.toFile());
         }
     }
 
@@ -127,7 +127,7 @@ public class Properties extends LinkedHashMap<String, String> {
      */
     public void load(InputStream inputStream) throws IOException {
         try (InputStreamReader inputStreamReader = new InputStreamReader(inputStream, StandardCharsets.UTF_8)) {
-            load(inputStreamReader);
+            this.load(inputStreamReader);
         }
     }
 
@@ -150,7 +150,7 @@ public class Properties extends LinkedHashMap<String, String> {
 
                 int x = input.indexOf("=");
 
-                put(input.substring(0, x), input.substring(x + 1));
+                this.put(input.substring(0, x), input.substring(x + 1));
             }
         }
     }
@@ -167,7 +167,7 @@ public class Properties extends LinkedHashMap<String, String> {
             return;
         }
 
-        save(null, file.toPath());
+        this.save(null, file.toPath());
     }
 
     /**
@@ -183,7 +183,7 @@ public class Properties extends LinkedHashMap<String, String> {
             return;
         }
 
-        save(commit, file.toPath());
+        this.save(commit, file.toPath());
     }
 
     /**
@@ -194,7 +194,7 @@ public class Properties extends LinkedHashMap<String, String> {
      * @see java.util.Properties
      */
     public void save(Path path) throws IOException {
-        save(null, path);
+        this.save(null, path);
     }
 
     /**
@@ -211,7 +211,7 @@ public class Properties extends LinkedHashMap<String, String> {
         }
 
         try (OutputStream outputStream = Files.newOutputStream(path)) {
-            save(commit, outputStream);
+            this.save(commit, outputStream);
         }
     }
 
@@ -223,7 +223,7 @@ public class Properties extends LinkedHashMap<String, String> {
      * @see java.util.Properties
      */
     public void save(OutputStream outputStream) throws IOException {
-        save(null, outputStream);
+        this.save(null, outputStream);
     }
 
     /**
@@ -236,7 +236,7 @@ public class Properties extends LinkedHashMap<String, String> {
      */
     public void save(String commit, OutputStream outputStream) throws IOException {
         try (OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8)) {
-            save(commit, outputStreamWriter);
+            this.save(commit, outputStreamWriter);
         }
     }
 
@@ -247,7 +247,7 @@ public class Properties extends LinkedHashMap<String, String> {
      * @see java.util.Properties
      */
     public void save(Writer writer) {
-        save(null, writer);
+        this.save(null, writer);
     }
 
     /**
@@ -265,7 +265,7 @@ public class Properties extends LinkedHashMap<String, String> {
                 }
             }
 
-            for (Map.Entry<String, String> keys : entrySet()) {
+            for (Map.Entry<String, String> keys : this.entrySet()) {
                 if (keys.getKey() != null && keys.getValue() != null) {
                     printWriter.write(keys.getKey() + "=" + keys.getValue() + System.lineSeparator());
                 }

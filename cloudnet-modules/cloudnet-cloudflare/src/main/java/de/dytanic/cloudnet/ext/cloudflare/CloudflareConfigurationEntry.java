@@ -11,7 +11,17 @@ public class CloudflareConfigurationEntry {
 
     protected boolean enabled;
 
-    protected String hostAddress, email, apiToken, zoneId, domainName;
+    protected AuthenticationMethod authenticationMethod = AuthenticationMethod.GLOBAL_KEY;
+
+    protected String hostAddress;
+
+    protected String email;
+
+    protected String apiToken;
+
+    protected String zoneId;
+
+    protected String domainName;
 
     protected Collection<CloudflareGroupConfiguration> groups;
 
@@ -34,6 +44,14 @@ public class CloudflareConfigurationEntry {
 
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
+    }
+
+    public AuthenticationMethod getAuthenticationMethod() {
+        return authenticationMethod;
+    }
+
+    public void setAuthenticationMethod(AuthenticationMethod authenticationMethod) {
+        this.authenticationMethod = authenticationMethod;
     }
 
     public String getHostAddress() {
@@ -82,6 +100,11 @@ public class CloudflareConfigurationEntry {
 
     public void setGroups(Collection<CloudflareGroupConfiguration> groups) {
         this.groups = groups;
+    }
+
+    public enum AuthenticationMethod {
+        GLOBAL_KEY,
+        BEARER_TOKEN
     }
 
 }

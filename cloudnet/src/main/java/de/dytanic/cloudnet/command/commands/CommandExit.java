@@ -26,6 +26,6 @@ public final class CommandExit extends CommandDefault {
             return;
         }
 
-        getCloudNet().stop();
+        this.getCloudNet().stop();
     }
 }

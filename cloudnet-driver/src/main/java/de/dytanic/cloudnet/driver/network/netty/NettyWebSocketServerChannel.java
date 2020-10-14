@@ -40,7 +40,7 @@ final class NettyWebSocketServerChannel implements IWebSocketChannel {
 
         for (IWebSocketListener listener : listeners) {
             if (listener != null) {
-                webSocketListeners.add(listener);
+                this.webSocketListeners.add(listener);
             }
         }
 
@@ -51,7 +51,7 @@ final class NettyWebSocketServerChannel implements IWebSocketChannel {
     public IWebSocketChannel removeListener(IWebSocketListener... listeners) {
         Preconditions.checkNotNull(listeners);
 
-        webSocketListeners.removeIf(listener -> Arrays.stream(listeners).anyMatch(webSocketListener -> webSocketListener != null && webSocketListener.equals(listener)));
+        this.webSocketListeners.removeIf(listener -> Arrays.stream(listeners).anyMatch(webSocketListener -> webSocketListener != null && webSocketListener.equals(listener)));
 
         return this;
     }
@@ -60,14 +60,14 @@ final class NettyWebSocketServerChannel implements IWebSocketChannel {
     public IWebSocketChannel removeListener(Collection<Class<? extends IWebSocketListener>> classes) {
         Preconditions.checkNotNull(classes);
 
-        webSocketListeners.removeIf(listener -> classes.contains(listener.getClass()));
+        this.webSocketListeners.removeIf(listener -> classes.contains(listener.getClass()));
 
         return this;
     }
 
     @Override
     public IWebSocketChannel removeListener(ClassLoader classLoader) {
-        webSocketListeners.removeIf(listener -> listener.getClass().getClassLoader().equals(classLoader));
+        this.webSocketListeners.removeIf(listener -> listener.getClass().getClassLoader().equals(classLoader));
 
         return this;
     }
@@ -113,13 +113,13 @@ final class NettyWebSocketServerChannel implements IWebSocketChannel {
                 break;
         }
 
-        channel.writeAndFlush(webSocketFrame).addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
+        this.channel.writeAndFlush(webSocketFrame).addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
         return this;
     }
 
     @Override
     public IHttpChannel channel() {
-        return httpChannel;
+        return this.httpChannel;
     }
 
     @Override
@@ -127,7 +127,7 @@ final class NettyWebSocketServerChannel implements IWebSocketChannel {
         AtomicInteger statusCodeReference = new AtomicInteger(statusCode);
         AtomicReference<String> reasonTextReference = new AtomicReference<>(reasonText);
 
-        for (IWebSocketListener listener : webSocketListeners) {
+        for (IWebSocketListener listener : this.webSocketListeners) {
             listener.handleClose(this, statusCodeReference, reasonTextReference);
         }
 

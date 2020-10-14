@@ -66,20 +66,20 @@ public final class NettyNetworkClient implements INetworkClient {
     }
 
     private void init() throws Exception {
-        if (sslConfiguration != null) {
-            if (sslConfiguration.getCertificatePath() != null &&
-                    sslConfiguration.getPrivateKeyPath() != null) {
+        if (this.sslConfiguration != null) {
+            if (this.sslConfiguration.getCertificatePath() != null &&
+                    this.sslConfiguration.getPrivateKeyPath() != null) {
                 SslContextBuilder builder = SslContextBuilder.forClient();
 
-                if (sslConfiguration.getTrustCertificatePath() != null) {
-                    builder.trustManager(sslConfiguration.getTrustCertificatePath());
+                if (this.sslConfiguration.getTrustCertificatePath() != null) {
+                    builder.trustManager(this.sslConfiguration.getTrustCertificatePath());
                 } else {
                     builder.trustManager(InsecureTrustManagerFactory.INSTANCE);
                 }
 
                 this.sslContext = builder
-                        .keyManager(sslConfiguration.getCertificatePath(), sslConfiguration.getPrivateKeyPath())
-                        .clientAuth(sslConfiguration.isClientAuth() ? ClientAuth.REQUIRE : ClientAuth.OPTIONAL)
+                        .keyManager(this.sslConfiguration.getCertificatePath(), this.sslConfiguration.getPrivateKeyPath())
+                        .clientAuth(this.sslConfiguration.isClientAuth() ? ClientAuth.REQUIRE : ClientAuth.OPTIONAL)
                         .build();
             } else {
                 SelfSignedCertificate selfSignedCertificate = new SelfSignedCertificate();
@@ -93,7 +93,7 @@ public final class NettyNetworkClient implements INetworkClient {
 
     @Override
     public boolean isSslEnabled() {
-        return sslContext != null;
+        return this.sslContext != null;
     }
 
 
@@ -104,7 +104,7 @@ public final class NettyNetworkClient implements INetworkClient {
 
         try {
             new Bootstrap()
-                    .group(eventLoopGroup)
+                    .group(this.eventLoopGroup)
                     .option(ChannelOption.AUTO_READ, true)
                     .option(ChannelOption.IP_TOS, 24)
                     .option(ChannelOption.TCP_NODELAY, true)
@@ -127,9 +127,9 @@ public final class NettyNetworkClient implements INetworkClient {
 
     @Override
     public void close() {
-        taskScheduler.shutdown();
+        this.taskScheduler.shutdown();
         this.closeChannels();
-        eventLoopGroup.shutdownGracefully();
+        this.eventLoopGroup.shutdownGracefully();
     }
 
     @Override
@@ -161,6 +161,15 @@ public final class NettyNetworkClient implements INetworkClient {
 
         for (INetworkChannel channel : this.channels) {
             channel.sendPacket(packet);
+        }
+    }
+
+    @Override
+    public void sendPacketSync(@NotNull IPacket packet) {
+        Preconditions.checkNotNull(packet);
+
+        for (INetworkChannel channel : this.channels) {
+            channel.sendPacketSync(packet);
         }
     }
 

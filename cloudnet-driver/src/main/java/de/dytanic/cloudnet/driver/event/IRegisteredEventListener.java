@@ -21,7 +21,7 @@ public interface IRegisteredEventListener extends Comparable<IRegisteredEventLis
     default <T extends Event> T fireEvent(T event) {
         Preconditions.checkNotNull(event);
 
-        if (getEventClass().isAssignableFrom(event.getClass())) {
+        if (this.getEventClass().isAssignableFrom(event.getClass())) {
 
             if (event.isShowDebug()) {
                 CloudNetDriver.optionalInstance().ifPresent(cloudNetDriver -> {
@@ -36,10 +36,10 @@ public interface IRegisteredEventListener extends Comparable<IRegisteredEventLis
             }
 
             try {
-                getHandlerMethod().setAccessible(true);
-                getHandlerMethod().invoke(getInstance(), event);
+                this.getHandlerMethod().setAccessible(true);
+                this.getHandlerMethod().invoke(this.getInstance(), event);
             } catch (Exception ex) {
-                throw new EventListenerException("An error on offerTask method " + getHandlerMethod().getName() + " in class " + getInstance().getClass(), ex);
+                throw new EventListenerException("An error on offerTask method " + this.getHandlerMethod().getName() + " in class " + this.getInstance().getClass(), ex);
             }
         }
 

@@ -1,6 +1,7 @@
 package de.dytanic.cloudnet.common.concurrent;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.concurrent.Callable;
@@ -8,6 +9,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 public interface ITask<V> extends Future<V>, Callable<V> {
 
@@ -62,6 +64,10 @@ public interface ITask<V> extends Future<V>, Callable<V> {
         });
     }
 
+    default ITask<V> fireExceptionOnFailure() {
+        return this.onFailure((Consumer<Throwable>) Throwable::printStackTrace);
+    }
+
     @NotNull
     ITask<V> clearListeners();
 
@@ -72,4 +78,7 @@ public interface ITask<V> extends Future<V>, Callable<V> {
     V getDef(V def);
 
     V get(long time, TimeUnit timeUnit, V def);
+
+    <T> ITask<T> map(@Nullable Function<V, T> mapper);
+
 }

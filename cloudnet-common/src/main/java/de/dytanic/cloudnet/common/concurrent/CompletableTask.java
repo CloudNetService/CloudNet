@@ -5,6 +5,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.*;
+import java.util.function.Function;
 
 public class CompletableTask<V> implements ITask<V> {
 
@@ -12,8 +13,28 @@ public class CompletableTask<V> implements ITask<V> {
 
     private final CompletableFuture<V> future = new CompletableFuture<>();
 
+    private Throwable throwable;
+
+    {
+        this.future.exceptionally(throwable -> {
+            this.throwable = throwable;
+            return null;
+        });
+    }
+
     @Override
     public @NotNull ITask<V> addListener(ITaskListener<V> listener) {
+        if (this.future.isDone()) {
+            if (this.future.isCancelled()) {
+                listener.onCancelled(this);
+            } else if (this.throwable != null) {
+                listener.onFailure(this, this.throwable);
+            } else {
+                listener.onComplete(this, this.future.getNow(null));
+            }
+            return this;
+        }
+
         this.listeners.add(listener);
         return this;
     }
@@ -31,7 +52,7 @@ public class CompletableTask<V> implements ITask<V> {
 
     @Override
     public Callable<V> getCallable() {
-        return () -> this.future.get();
+        return this.future::get;
     }
 
     @Override
@@ -49,15 +70,35 @@ public class CompletableTask<V> implements ITask<V> {
     }
 
     @Override
+    public <T> ITask<T> map(Function<V, T> mapper) {
+        CompletableTask<T> task = new CompletableTask<>();
+        this.future.thenAccept(v -> task.complete(mapper == null ? null : mapper.apply(v)));
+        this.onFailure(task.future::completeExceptionally);
+        this.onCancelled(otherTask -> task.cancel(true));
+        return task;
+    }
+
+    @Override
     public V call() {
+        if (this.future.isDone()) {
+            return this.future.getNow(null);
+        }
         throw new UnsupportedOperationException("Use #complete in the CompletableTask");
     }
 
     public void complete(V value) {
+        this.future.complete(value);
         for (ITaskListener<V> listener : this.listeners) {
             listener.onComplete(this, value);
         }
-        this.future.complete(value);
+    }
+
+    public void fail(Throwable throwable) {
+        for (ITaskListener<V> listener : this.listeners) {
+            listener.onFailure(this, throwable);
+        }
+
+        this.future.completeExceptionally(throwable);
     }
 
     @Override
@@ -66,10 +107,13 @@ public class CompletableTask<V> implements ITask<V> {
             return false;
         }
 
-        for (ITaskListener<V> listener : this.listeners) {
-            listener.onCancelled(this);
+        if (this.future.cancel(b)) {
+            for (ITaskListener<V> listener : this.listeners) {
+                listener.onCancelled(this);
+            }
+            return true;
         }
-        return this.future.cancel(b);
+        return false;
     }
 
     @Override

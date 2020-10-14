@@ -31,7 +31,7 @@ public class NodeGeneralCloudServiceProvider implements GeneralCloudServiceProvi
 
     @Nullable
     @Override
-    public ServiceInfoSnapshot getCloudServiceByName(String name) {
+    public ServiceInfoSnapshot getCloudServiceByName(@NotNull String name) {
         return this.cloudNet.getCloudServiceManager().getGlobalServiceInfoSnapshots().values().stream()
                 .filter(serviceInfoSnapshot -> serviceInfoSnapshot.getServiceId().getName().equalsIgnoreCase(name))
                 .findFirst()
@@ -40,7 +40,7 @@ public class NodeGeneralCloudServiceProvider implements GeneralCloudServiceProvi
 
     @Override
     public Collection<ServiceInfoSnapshot> getCloudServices() {
-        return this.cloudNet.getCloudServiceManager().getServiceInfoSnapshots();
+        return this.cloudNet.getCloudServiceManager().getGlobalServiceInfoSnapshots().values();
     }
 
     @Override
@@ -49,21 +49,25 @@ public class NodeGeneralCloudServiceProvider implements GeneralCloudServiceProvi
     }
 
     @Override
-    public Collection<ServiceInfoSnapshot> getCloudServices(String taskName) {
+    public Collection<ServiceInfoSnapshot> getCloudServices(@NotNull String taskName) {
         Preconditions.checkNotNull(taskName);
 
-        return this.cloudNet.getCloudServiceManager().getServiceInfoSnapshots(taskName);
+        return this.getCloudServices().stream()
+                .filter(snapshot -> snapshot.getServiceId().getTaskName().equalsIgnoreCase(taskName))
+                .collect(Collectors.toList());
     }
 
     @Override
-    public Collection<ServiceInfoSnapshot> getCloudServices(ServiceEnvironmentType environment) {
+    public Collection<ServiceInfoSnapshot> getCloudServices(@NotNull ServiceEnvironmentType environment) {
         Preconditions.checkNotNull(environment);
 
-        return this.cloudNet.getCloudServiceManager().getServiceInfoSnapshots(serviceInfoSnapshot -> serviceInfoSnapshot.getServiceId().getEnvironment() == environment);
+        return this.getCloudServices().stream()
+                .filter(snapshot -> snapshot.getServiceId().getEnvironment() == environment)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public Collection<ServiceInfoSnapshot> getCloudServicesByGroup(String group) {
+    public Collection<ServiceInfoSnapshot> getCloudServicesByGroup(@NotNull String group) {
         Preconditions.checkNotNull(group);
 
         return this.cloudNet.getCloudServiceManager().getGlobalServiceInfoSnapshots().values()
@@ -74,10 +78,10 @@ public class NodeGeneralCloudServiceProvider implements GeneralCloudServiceProvi
 
     @Nullable
     @Override
-    public ServiceInfoSnapshot getCloudService(UUID uniqueId) {
+    public ServiceInfoSnapshot getCloudService(@NotNull UUID uniqueId) {
         Preconditions.checkNotNull(uniqueId);
 
-        return this.cloudNet.getCloudServiceManager().getServiceInfoSnapshot(uniqueId);
+        return this.cloudNet.getCloudServiceManager().getGlobalServiceInfoSnapshots().get(uniqueId);
     }
 
     @Override
@@ -86,7 +90,7 @@ public class NodeGeneralCloudServiceProvider implements GeneralCloudServiceProvi
     }
 
     @Override
-    public int getServicesCountByGroup(String group) {
+    public int getServicesCountByGroup(@NotNull String group) {
         Preconditions.checkNotNull(group);
 
         int amount = 0;
@@ -101,7 +105,7 @@ public class NodeGeneralCloudServiceProvider implements GeneralCloudServiceProvi
     }
 
     @Override
-    public int getServicesCountByTask(String taskName) {
+    public int getServicesCountByTask(@NotNull String taskName) {
         Preconditions.checkNotNull(taskName);
 
         int amount = 0;
@@ -123,7 +127,7 @@ public class NodeGeneralCloudServiceProvider implements GeneralCloudServiceProvi
 
     @Override
     @NotNull
-    public ITask<ServiceInfoSnapshot> getCloudServiceByNameAsync(String name) {
+    public ITask<ServiceInfoSnapshot> getCloudServiceByNameAsync(@NotNull String name) {
         return this.cloudNet.scheduleTask(() -> this.getCloudServiceByName(name));
     }
 
@@ -141,7 +145,7 @@ public class NodeGeneralCloudServiceProvider implements GeneralCloudServiceProvi
 
     @Override
     @NotNull
-    public ITask<Collection<ServiceInfoSnapshot>> getCloudServicesAsync(String taskName) {
+    public ITask<Collection<ServiceInfoSnapshot>> getCloudServicesAsync(@NotNull String taskName) {
         Preconditions.checkNotNull(taskName);
 
         return this.cloudNet.scheduleTask(() -> this.getCloudServices(taskName));
@@ -149,13 +153,13 @@ public class NodeGeneralCloudServiceProvider implements GeneralCloudServiceProvi
 
     @Override
     @NotNull
-    public ITask<Collection<ServiceInfoSnapshot>> getCloudServicesAsync(ServiceEnvironmentType environment) {
+    public ITask<Collection<ServiceInfoSnapshot>> getCloudServicesAsync(@NotNull ServiceEnvironmentType environment) {
         return this.cloudNet.scheduleTask(() -> this.getCloudServices(environment));
     }
 
     @Override
     @NotNull
-    public ITask<Collection<ServiceInfoSnapshot>> getCloudServicesByGroupAsync(String group) {
+    public ITask<Collection<ServiceInfoSnapshot>> getCloudServicesByGroupAsync(@NotNull String group) {
         Preconditions.checkNotNull(group);
 
         return this.cloudNet.scheduleTask(() -> this.getCloudServicesByGroup(group));
@@ -169,7 +173,7 @@ public class NodeGeneralCloudServiceProvider implements GeneralCloudServiceProvi
 
     @Override
     @NotNull
-    public ITask<Integer> getServicesCountByGroupAsync(String group) {
+    public ITask<Integer> getServicesCountByGroupAsync(@NotNull String group) {
         Preconditions.checkNotNull(group);
 
         return this.cloudNet.scheduleTask(() -> this.getServicesCountByGroup(group));
@@ -177,7 +181,7 @@ public class NodeGeneralCloudServiceProvider implements GeneralCloudServiceProvi
 
     @Override
     @NotNull
-    public ITask<Integer> getServicesCountByTaskAsync(String taskName) {
+    public ITask<Integer> getServicesCountByTaskAsync(@NotNull String taskName) {
         Preconditions.checkNotNull(taskName);
 
         return this.cloudNet.scheduleTask(() -> this.getServicesCountByTask(taskName));
@@ -185,7 +189,7 @@ public class NodeGeneralCloudServiceProvider implements GeneralCloudServiceProvi
 
     @Override
     @NotNull
-    public ITask<ServiceInfoSnapshot> getCloudServiceAsync(UUID uniqueId) {
+    public ITask<ServiceInfoSnapshot> getCloudServiceAsync(@NotNull UUID uniqueId) {
         Preconditions.checkNotNull(uniqueId);
 
         return this.cloudNet.scheduleTask(() -> this.getCloudService(uniqueId));

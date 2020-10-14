@@ -14,7 +14,7 @@ import java.util.UUID;
 
 public abstract class AbstractLabyModManagement {
 
-    private IPlayerManager playerManager;
+    private final IPlayerManager playerManager;
 
     public AbstractLabyModManagement(IPlayerManager playerManager) {
         this.playerManager = playerManager;

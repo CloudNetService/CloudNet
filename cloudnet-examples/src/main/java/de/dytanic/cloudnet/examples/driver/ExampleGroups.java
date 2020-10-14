@@ -1,6 +1,5 @@
 package de.dytanic.cloudnet.examples.driver;
 
-import de.dytanic.cloudnet.common.concurrent.ITaskListener;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.service.GroupConfiguration;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
@@ -8,9 +7,9 @@ import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 public final class ExampleGroups {
 
     public void test() {
-        addGroupConfiguration();
-        updateGroupConfiguration();
-        removeGroupConfiguration();
+        this.addGroupConfiguration();
+        this.updateGroupConfiguration();
+        this.removeGroupConfiguration();
     }
 
     public void addGroupConfiguration() {
@@ -27,7 +26,7 @@ public final class ExampleGroups {
                 ));
 
                 CloudNetDriver.getInstance().getGroupConfigurationProvider().addGroupConfiguration(result); //add or update the group configuration
-            }).addListener(ITaskListener.FIRE_EXCEPTION_ON_FAILURE);
+            }).fireExceptionOnFailure();
         }
     }
 

@@ -1,8 +1,8 @@
 package de.dytanic.cloudnet.driver.util;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.*;
 
 public class ColumnTextFormatter {
 
@@ -90,6 +90,59 @@ public class ColumnTextFormatter {
         public String[] getLines() {
             return this.lines;
         }
+    }
+
+    public static String[] appendEqual(String[] messages, char fillChar) {
+        int longest = Arrays.stream(messages).filter(Objects::nonNull).mapToInt(String::length).max().orElse(0);
+        if (longest == 0) {
+            return messages;
+        }
+
+        String[] result = new String[messages.length];
+        for (int i = 0; i < result.length; i++) {
+            String message = messages[i];
+            if (message == null) {
+                message = "";
+            }
+
+            StringBuilder builder = new StringBuilder();
+            for (int j = 0; j < longest - message.length(); j++) {
+                builder.append(fillChar);
+            }
+
+            result[i] = message + builder.toString();
+        }
+
+        return result;
+    }
+
+    public static void appendEqual(@NotNull StringBuilder[] output, String prefix, String suffix, String[] messages, char fillChar) {
+        String[] result = appendEqual(messages, fillChar);
+        for (int i = 0; i < output.length; i++) {
+            StringBuilder builder = output[i];
+            if (messages[i] != null && prefix != null) {
+                builder.append(prefix);
+            }
+            builder.append(result[i]);
+            if (messages[i] != null && suffix != null) {
+                builder.append(suffix);
+            }
+        }
+    }
+
+    @SafeVarargs
+    public static <T> String[] mapToEqual(Collection<T> values, char fillChar, @NotNull PrefixedMessageMapper<T>... mappers) {
+        StringBuilder[] output = new StringBuilder[values.size()];
+        for (int i = 0; i < output.length; i++) {
+            output[i] = new StringBuilder();
+        }
+
+        for (PrefixedMessageMapper<T> mapper : mappers) {
+            String[] messages = values.stream().map(mapper.getMessageMapper()).toArray(String[]::new);
+            appendEqual(output, mapper.getPrefix(), mapper.getSuffix(), messages, fillChar);
+        }
+
+        return Arrays.stream(output).map(StringBuilder::toString).toArray(String[]::new);
     }
 
 }

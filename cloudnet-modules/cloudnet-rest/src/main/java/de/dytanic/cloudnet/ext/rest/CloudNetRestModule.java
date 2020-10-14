@@ -10,7 +10,7 @@ public final class CloudNetRestModule extends NodeCloudNetModule {
 
     @ModuleTask(order = 127, event = ModuleLifeCycle.STARTED)
     public void initHttpHandlers() {
-        getHttpServer()
+        this.getHttpServer()
                 .registerHandler("/api/v1", IHttpHandler.PRIORITY_NORMAL, new V1HttpHandlerShowOpenAPI())
                 //HttpHandler API implementation
                 .registerHandler("/api/v1/*", IHttpHandler.PRIORITY_HIGH, new V1SecurityProtectionHttpHandler())

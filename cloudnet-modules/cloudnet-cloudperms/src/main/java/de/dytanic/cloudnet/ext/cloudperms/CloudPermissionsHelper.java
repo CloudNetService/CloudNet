@@ -1,5 +1,6 @@
 package de.dytanic.cloudnet.ext.cloudperms;
 
+import de.dytanic.cloudnet.driver.permission.CachedPermissionManagement;
 import de.dytanic.cloudnet.driver.permission.IPermissionUser;
 import de.dytanic.cloudnet.driver.permission.PermissionUser;
 
@@ -15,11 +16,11 @@ public class CloudPermissionsHelper {
         throw new UnsupportedOperationException();
     }
 
-    public static void initPermissionUser(CloudPermissionsManagement permissionsManagement, UUID uniqueId, String name, Consumer<String> disconnectHandler) {
+    public static void initPermissionUser(CachedPermissionManagement permissionsManagement, UUID uniqueId, String name, Consumer<String> disconnectHandler) {
         initPermissionUser(permissionsManagement, uniqueId, name, disconnectHandler, true);
     }
 
-    public static void initPermissionUser(CloudPermissionsManagement permissionsManagement, UUID uniqueId, String name, Consumer<String> disconnectHandler, boolean shouldUpdateName) {
+    public static void initPermissionUser(CachedPermissionManagement permissionsManagement, UUID uniqueId, String name, Consumer<String> disconnectHandler, boolean shouldUpdateName) {
         IPermissionUser permissionUser = null;
         try {
             permissionUser = permissionsManagement.getUserAsync(uniqueId).get(3, TimeUnit.SECONDS);
@@ -44,7 +45,7 @@ public class CloudPermissionsHelper {
 
         if (permissionUser != null) {
             permissionsManagement.getCachedPermissionUsers().put(permissionUser.getUniqueId(), permissionUser);
-            if (shouldUpdateName) {
+            if (shouldUpdateName && !name.equals(permissionUser.getName())) {
                 permissionUser.setName(name);
                 permissionsManagement.updateUser(permissionUser);
             }

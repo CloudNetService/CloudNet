@@ -20,8 +20,20 @@ public class LoginProxiedPlayer implements ProxiedPlayer {
 
     private final PendingConnection connection;
 
+    private final Collection<String> permissions = new ArrayList<>();
+
+    private final Collection<String> groups = new ArrayList<>();
+
     public LoginProxiedPlayer(PendingConnection connection) {
         this.connection = connection;
+
+        this.groups.addAll(ProxyServer.getInstance().getConfigurationAdapter().getGroups(connection.getName()));
+
+        for (String group : this.groups) {
+            for (String permission : ProxyServer.getInstance().getConfigurationAdapter().getPermissions(group)) {
+                this.setPermission(permission, true);
+            }
+        }
     }
 
     @Override
@@ -206,7 +218,7 @@ public class LoginProxiedPlayer implements ProxiedPlayer {
 
     @Override
     public Collection<String> getGroups() {
-        return Collections.emptyList();
+        return this.groups;
     }
 
     @Override
@@ -226,18 +238,24 @@ public class LoginProxiedPlayer implements ProxiedPlayer {
         return ProxyServer.getInstance().getPluginManager().callEvent(new PermissionCheckEvent(
                 this,
                 permission,
-                false
+                this.permissions.contains(permission.toLowerCase())
         )).hasPermission();
     }
 
     @Override
     public void setPermission(String permission, boolean value) {
+        Preconditions.checkNotNull(permission);
 
+        if (value) {
+            this.permissions.add(permission.toLowerCase());
+        } else {
+            this.permissions.remove(permission.toLowerCase());
+        }
     }
 
     @Override
     public Collection<String> getPermissions() {
-        return Collections.emptyList();
+        return this.permissions;
     }
 
     @Override

@@ -12,9 +12,9 @@ import java.util.Collections;
 public final class ExampleServiceTasks {
 
     public void test() {
-        addServiceTask();
-        updateServiceTask();
-        removeServiceTask();
+        this.addServiceTask();
+        this.updateServiceTask();
+        this.removeServiceTask();
     }
 
     public void addServiceTask() {

@@ -65,7 +65,7 @@ public final class NettyNetworkServer extends NettySSLServer implements INetwork
 
     @Override
     public boolean isSslEnabled() {
-        return sslContext != null;
+        return this.sslContext != null;
     }
 
 
@@ -82,7 +82,7 @@ public final class NettyNetworkServer extends NettySSLServer implements INetwork
         if (!this.channelFutures.containsKey(hostAndPort.getPort())) {
             try {
                 this.channelFutures.put(hostAndPort.getPort(), new Pair<>(hostAndPort, new ServerBootstrap()
-                        .group(bossEventLoopGroup, workerEventLoopGroup)
+                        .group(this.bossEventLoopGroup, this.workerEventLoopGroup)
                         .childOption(ChannelOption.TCP_NODELAY, true)
                         .childOption(ChannelOption.IP_TOS, 24)
                         .childOption(ChannelOption.AUTO_READ, true)
@@ -106,7 +106,7 @@ public final class NettyNetworkServer extends NettySSLServer implements INetwork
 
     @Override
     public void close() {
-        taskScheduler.shutdown();
+        this.taskScheduler.shutdown();
         this.closeChannels();
 
         for (Pair<HostAndPort, ChannelFuture> entry : this.channelFutures.values()) {
@@ -140,6 +140,15 @@ public final class NettyNetworkServer extends NettySSLServer implements INetwork
 
         for (INetworkChannel channel : this.channels) {
             channel.sendPacket(packet);
+        }
+    }
+
+    @Override
+    public void sendPacketSync(@NotNull IPacket packet) {
+        Preconditions.checkNotNull(packet);
+
+        for (INetworkChannel channel : this.channels) {
+            channel.sendPacketSync(packet);
         }
     }
 

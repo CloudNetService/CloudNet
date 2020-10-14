@@ -5,8 +5,8 @@ import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.cluster.IClusterNodeServer;
 import de.dytanic.cloudnet.command.Command;
 import de.dytanic.cloudnet.command.DriverCommandSender;
-import de.dytanic.cloudnet.common.command.CommandInfo;
 import de.dytanic.cloudnet.common.concurrent.ITask;
+import de.dytanic.cloudnet.driver.command.CommandInfo;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
 import de.dytanic.cloudnet.driver.provider.NodeInfoProvider;
@@ -94,7 +94,7 @@ public class NodeNodeInfoProvider implements NodeInfoProvider {
         } else {
             try {
                 this.cloudNet.runTask((Callable<Void>) () -> {
-                    sendCommandLine0(collection, commandLine);
+                    this.sendCommandLine0(collection, commandLine);
                     return null;
                 }).get();
             } catch (InterruptedException | ExecutionException exception) {

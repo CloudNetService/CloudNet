@@ -16,13 +16,13 @@ public final class ExampleModule extends DriverModule { //Defines the module cla
     @ModuleTask(event = ModuleLifeCycle.STARTED)
     public void initConfig() //Init the configurations/default configurations
     {
-        getConfig().getString("Host", "127.0.0.1");
-        getConfig().getInt("Port", 3306);
-        getConfig().getString("Database", "Network");
-        getConfig().getString("Username", "root");
-        getConfig().getString("Password", "pw123");
+        this.getConfig().getString("Host", "127.0.0.1");
+        this.getConfig().getInt("Port", 3306);
+        this.getConfig().getString("Database", "Network");
+        this.getConfig().getString("Username", "root");
+        this.getConfig().getString("Password", "pw123");
 
-        saveConfig();
+        this.saveConfig();
     }
 
     @ModuleTask(event = ModuleLifeCycle.STARTED) //important section, because on this event the module will start
@@ -32,7 +32,7 @@ public final class ExampleModule extends DriverModule { //Defines the module cla
 
     @ModuleTask(event = ModuleLifeCycle.STOPPED) //important section, because on this event the module will stop
     public void stopModule() {
-        getEventManager().callEvent("test_channel", new ExampleOwnEvent(getModuleWrapper()));
+        this.getEventManager().callEvent("test_channel", new ExampleOwnEvent(this.getModuleWrapper()));
         //call own event on a specific event channel. All listeners which listen on this channel can handle with this object
     }
 

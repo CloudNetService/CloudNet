@@ -3,7 +3,6 @@ package de.dytanic.cloudnet.ext.bridge.sponge.listener;
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
 import de.dytanic.cloudnet.driver.event.events.network.NetworkChannelPacketReceiveEvent;
-import de.dytanic.cloudnet.driver.event.events.network.NetworkClusterNodeInfoUpdateEvent;
 import de.dytanic.cloudnet.driver.event.events.service.*;
 import de.dytanic.cloudnet.ext.bridge.event.*;
 import de.dytanic.cloudnet.ext.bridge.sponge.SpongeCloudNetHelper;
@@ -57,12 +56,7 @@ public final class SpongeCloudNetListener {
 
     @EventListener
     public void handle(ChannelMessageReceiveEvent event) {
-        this.spongeCall(new SpongeChannelMessageReceiveEvent(event.getChannel(), event.getMessage(), event.getData()));
-    }
-
-    @EventListener
-    public void handle(NetworkClusterNodeInfoUpdateEvent event) {
-        this.spongeCall(new SpongeNetworkClusterNodeInfoUpdateEvent(event.getNetworkClusterNodeInfoSnapshot()));
+        this.spongeCall(new SpongeChannelMessageReceiveEvent(event));
     }
 
     @EventListener

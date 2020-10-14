@@ -301,19 +301,19 @@ public class BukkitNPCManagement extends AbstractNPCManagement {
 
 
     public NPCPool getNPCPool() {
-        return npcPool;
+        return this.npcPool;
     }
 
     public ItemStack[] getDefaultItems() {
-        return defaultItems;
+        return this.defaultItems;
     }
 
     public Map<ServiceInfoState, NPCConfigurationEntry.ItemLayout> getItemLayouts() {
-        return itemLayouts;
+        return this.itemLayouts;
     }
 
     public Map<UUID, BukkitNPCProperties> getNPCProperties() {
-        return npcProperties;
+        return this.npcProperties;
     }
 
 }

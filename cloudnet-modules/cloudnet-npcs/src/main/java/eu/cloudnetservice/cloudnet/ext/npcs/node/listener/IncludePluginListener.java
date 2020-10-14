@@ -20,7 +20,7 @@ import java.util.Arrays;
 
 public class IncludePluginListener {
 
-    private static final String PROTOCOLLIB_DOWNLOAD_URL = "https://github.com/dmulloy2/ProtocolLib/releases/latest/download/ProtocolLib.jar";
+    private static final String PROTOCOLLIB_DOWNLOAD_URL = "https://ci.dmulloy2.net/job/ProtocolLib/lastSuccessfulBuild/artifact/target/ProtocolLib.jar";
 
     private static final Path PROTOCOLLIB_CACHE_PATH = Paths.get(System.getProperty("cloudnet.tempDir", "temp"), "caches", "ProtocolLib.jar");
 
@@ -68,11 +68,15 @@ public class IncludePluginListener {
         file.delete();
 
         if (installPlugin) {
-            try {
-                Files.copy(PROTOCOLLIB_CACHE_PATH, pluginsFolder.toPath().resolve("ProtocolLib.jar"), StandardCopyOption.REPLACE_EXISTING);
-            } catch (IOException exception) {
-                CloudNetDriver.getInstance().getLogger().error("Unable to copy ProtocolLib!", exception);
-                return;
+            Path protocolLibTargetPath = pluginsFolder.toPath().resolve("ProtocolLib.jar");
+
+            if (!Files.exists(protocolLibTargetPath)) {
+                try {
+                    Files.copy(PROTOCOLLIB_CACHE_PATH, protocolLibTargetPath, StandardCopyOption.REPLACE_EXISTING);
+                } catch (IOException exception) {
+                    CloudNetDriver.getInstance().getLogger().error("Unable to copy ProtocolLib!", exception);
+                    return;
+                }
             }
 
             if (DefaultModuleHelper.copyCurrentModuleInstanceFromClass(IncludePluginListener.class, file)) {

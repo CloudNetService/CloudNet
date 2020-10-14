@@ -5,17 +5,17 @@ import cn.nukkit.event.EventHandler;
 import cn.nukkit.event.Listener;
 import cn.nukkit.event.player.PlayerLoginEvent;
 import cn.nukkit.event.player.PlayerQuitEvent;
+import de.dytanic.cloudnet.driver.permission.CachedPermissionManagement;
 import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsHelper;
-import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsManagement;
 import de.dytanic.cloudnet.ext.cloudperms.nukkit.NukkitCloudNetCloudPermissionsPlugin;
 
 public final class NukkitCloudNetCloudPermissionsPlayerListener implements Listener {
 
     private final NukkitCloudNetCloudPermissionsPlugin plugin;
 
-    private final CloudPermissionsManagement permissionsManagement;
+    private final CachedPermissionManagement permissionsManagement;
 
-    public NukkitCloudNetCloudPermissionsPlayerListener(NukkitCloudNetCloudPermissionsPlugin plugin, CloudPermissionsManagement permissionsManagement) {
+    public NukkitCloudNetCloudPermissionsPlayerListener(NukkitCloudNetCloudPermissionsPlugin plugin, CachedPermissionManagement permissionsManagement) {
         this.permissionsManagement = permissionsManagement;
         this.plugin = plugin;
     }

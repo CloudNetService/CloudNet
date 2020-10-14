@@ -4,6 +4,6 @@ jar {
 
 dependencies {
     compileOnly project(':cloudnet')
-    compileOnly group: 'commons-net', name: 'commons-net', version: '3.6'
+    compileOnly group: 'commons-net', name: 'commons-net', version: '3.7.1'
     compileOnly group: 'com.jcraft', name: 'jsch', version: '0.1.55'
 }

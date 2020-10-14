@@ -16,8 +16,7 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.util.ResourceLeakDetector;
-import io.netty.util.concurrent.DefaultThreadFactory;
-import io.netty.util.concurrent.MultithreadEventExecutorGroup;
+import io.netty.util.concurrent.FastThreadLocalThread;
 
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ThreadFactory;
@@ -28,6 +27,8 @@ public final class NettyUtils {
     static {
         ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.DISABLED);
     }
+
+    private static final ThreadFactory THREAD_FACTORY = FastThreadLocalThread::new;
 
     private NettyUtils() {
         throw new UnsupportedOperationException();
@@ -52,7 +53,7 @@ public final class NettyUtils {
     }
 
     public static ThreadFactory threadFactory() {
-        return new DefaultThreadFactory(MultithreadEventExecutorGroup.class, true, Thread.MIN_PRIORITY);
+        return THREAD_FACTORY;
     }
 
     public static byte[] toByteArray(ByteBuf byteBuf, int size) {

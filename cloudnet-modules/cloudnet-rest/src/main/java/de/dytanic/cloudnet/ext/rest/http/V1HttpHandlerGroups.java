@@ -6,11 +6,11 @@ import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.network.http.HttpResponseCode;
 import de.dytanic.cloudnet.driver.network.http.IHttpContext;
 import de.dytanic.cloudnet.driver.service.GroupConfiguration;
+import de.dytanic.cloudnet.ext.rest.RestUtils;
 import de.dytanic.cloudnet.http.V1HttpHandler;
 
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.stream.Collectors;
 
 public final class V1HttpHandlerGroups extends V1HttpHandler {
@@ -48,7 +48,7 @@ public final class V1HttpHandlerGroups extends V1HttpHandler {
                     .header("Content-Type", "application/json")
                     .body(GSON.toJson(CloudNetDriver.getInstance().getGroupConfigurationProvider().getGroupConfigurations().stream()
                             .filter(groupConfiguration -> !context.request().queryParameters().containsKey("name") ||
-                                    containsStringElementInCollection(context.request().queryParameters().get("name"), groupConfiguration.getName()))
+                                    this.containsStringElementInCollection(context.request().queryParameters().get("name"), groupConfiguration.getName()))
                             .collect(Collectors.toList())))
                     .context()
                     .closeAfter(true)
@@ -62,21 +62,11 @@ public final class V1HttpHandlerGroups extends V1HttpHandler {
         GroupConfiguration groupConfiguration = GSON.fromJson(new String(context.request().body(), StandardCharsets.UTF_8), TYPE);
 
         if (groupConfiguration.getName() == null) {
-            send400Response(context, "groupConfiguration name not found");
+            this.send400Response(context, "groupConfiguration name not found");
             return;
         }
 
-        if (groupConfiguration.getTemplates() == null) {
-            groupConfiguration.setTemplates(new ArrayList<>());
-        }
-
-        if (groupConfiguration.getIncludes() == null) {
-            groupConfiguration.setIncludes(new ArrayList<>());
-        }
-
-        if (groupConfiguration.getDeployments() == null) {
-            groupConfiguration.setDeployments(new ArrayList<>());
-        }
+        RestUtils.replaceNulls(groupConfiguration);
 
         int status = !CloudNetDriver.getInstance().getGroupConfigurationProvider().isGroupConfigurationPresent(groupConfiguration.getName()) ?
                 HttpResponseCode.HTTP_OK
@@ -90,7 +80,7 @@ public final class V1HttpHandlerGroups extends V1HttpHandler {
     @Override
     public void handleDelete(String path, IHttpContext context) {
         if (!context.request().pathParameters().containsKey("name")) {
-            send400Response(context, "name parameter not found");
+            this.send400Response(context, "name parameter not found");
             return;
         }
 

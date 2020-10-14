@@ -1,5 +1,10 @@
 package de.dytanic.cloudnet.common.document.gson;
 
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+
+@ToString
+@EqualsAndHashCode
 public class BasicJsonDocPropertyable implements IJsonDocPropertyable {
 
     protected JsonDocument properties = new JsonDocument();
@@ -17,7 +22,7 @@ public class BasicJsonDocPropertyable implements IJsonDocPropertyable {
 
     @Override
     public <E> IJsonDocPropertyable removeProperty(JsonDocProperty<E> docProperty) {
-        properties.removeProperty(docProperty);
+        this.properties.removeProperty(docProperty);
         return this;
     }
 
