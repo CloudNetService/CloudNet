@@ -1,6 +1,7 @@
 package de.dytanic.cloudnet.ext.bridge.gomint.listener;
 
 import de.dytanic.cloudnet.common.concurrent.CompletableTask;
+import de.dytanic.cloudnet.common.concurrent.CompletedTask;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
@@ -126,25 +127,15 @@ public final class GoMintCloudNetListener {
         GoMint.instance().getPluginManager().callEvent(event);
     }
 
-    private void goMintSyncExecution(Runnable runnable) {
+    private ITask<Void> listenableGoMintSyncExecution(Runnable runnable) {
         if (GoMint.instance().isMainThread()) {
             runnable.run();
-            return;
+            return CompletedTask.voidTask();
         }
 
-        this.plugin.getScheduler().execute(runnable);
-    }
-
-    private ITask<Void> listenableGoMintSyncExecution(Runnable runnable) {
         CompletableTask<Void> task = new CompletableTask<>();
-        this.goMintSyncExecution(() -> {
-            runnable.run();
-            try {
-                task.complete(null);
-            } catch (Exception exception) {
-                exception.printStackTrace();
-            }
-        });
+        this.plugin.getScheduler().execute(runnable).onComplete(() -> task.complete(null));
+
         return task;
     }
 
