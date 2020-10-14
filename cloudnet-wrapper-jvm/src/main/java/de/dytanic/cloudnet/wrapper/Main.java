@@ -21,6 +21,7 @@ public final class Main {
         LanguageManager.setLanguage(System.getProperty("cloudnet.wrapper.messages.language", "english"));
         LanguageManager.addLanguageFile("german", Main.class.getClassLoader().getResourceAsStream("lang/german.properties"));
         LanguageManager.addLanguageFile("english", Main.class.getClassLoader().getResourceAsStream("lang/english.properties"));
+        LanguageManager.addLanguageFile("french", Main.class.getClassLoader().getResourceAsStream("lang/french.properties"));
 
         ILogger logger = new DefaultAsyncLogger();
         initLogger(logger);
