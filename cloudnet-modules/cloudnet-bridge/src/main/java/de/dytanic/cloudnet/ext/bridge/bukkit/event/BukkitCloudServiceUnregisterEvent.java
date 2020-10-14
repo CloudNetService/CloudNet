@@ -4,6 +4,9 @@ import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * {@inheritDoc}
+ */
 public final class BukkitCloudServiceUnregisterEvent extends BukkitCloudNetEvent {
 
     private static final HandlerList handlerList = new HandlerList();

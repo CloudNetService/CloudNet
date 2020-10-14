@@ -2,9 +2,6 @@ package de.dytanic.cloudnet.ext.bridge.nukkit.listener;
 
 import cn.nukkit.Server;
 import cn.nukkit.event.Event;
-import cn.nukkit.plugin.Plugin;
-import de.dytanic.cloudnet.common.concurrent.CompletableTask;
-import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
 import de.dytanic.cloudnet.driver.event.events.network.NetworkChannelPacketReceiveEvent;
@@ -14,20 +11,12 @@ import de.dytanic.cloudnet.ext.bridge.nukkit.NukkitCloudNetHelper;
 import de.dytanic.cloudnet.ext.bridge.nukkit.event.*;
 import de.dytanic.cloudnet.wrapper.event.service.ServiceInfoSnapshotConfigureEvent;
 
-import java.util.concurrent.ExecutionException;
-
 public final class NukkitCloudNetListener {
 
-    private final Plugin plugin;
-
-    public NukkitCloudNetListener(Plugin plugin) {
-        this.plugin = plugin;
-    }
-
     @EventListener
-    public void handle(ServiceInfoSnapshotConfigureEvent event) throws ExecutionException, InterruptedException {
+    public void handle(ServiceInfoSnapshotConfigureEvent event) {
         NukkitCloudNetHelper.initProperties(event.getServiceInfoSnapshot());
-        this.listenableNukkitCall(new NukkitServiceInfoSnapshotConfigureEvent(event.getServiceInfoSnapshot())).get();
+        this.nukkitCall(new NukkitServiceInfoSnapshotConfigureEvent(event.getServiceInfoSnapshot()));
     }
 
     @EventListener
@@ -66,13 +55,13 @@ public final class NukkitCloudNetListener {
     }
 
     @EventListener
-    public void handle(ChannelMessageReceiveEvent event) throws ExecutionException, InterruptedException {
-        this.listenableNukkitCall(new NukkitChannelMessageReceiveEvent(event)).get();
+    public void handle(ChannelMessageReceiveEvent event) {
+        this.nukkitCall(new NukkitChannelMessageReceiveEvent(event));
     }
 
     @EventListener
-    public void handle(NetworkChannelPacketReceiveEvent event) throws ExecutionException, InterruptedException {
-        this.listenableNukkitCall(new NukkitNetworkChannelPacketReceiveEvent(event.getChannel(), event.getPacket())).get();
+    public void handle(NetworkChannelPacketReceiveEvent event) {
+        this.nukkitCall(new NukkitNetworkChannelPacketReceiveEvent(event.getChannel(), event.getPacket()));
     }
 
     @EventListener
@@ -121,33 +110,7 @@ public final class NukkitCloudNetListener {
     }
 
     private void nukkitCall(Event event) {
-        this.nukkitSyncExecution(() -> Server.getInstance().getPluginManager().callEvent(event));
-    }
-
-    private ITask<Void> listenableNukkitCall(Event event) {
-        return this.listenableNukkitSyncExecution(() -> Server.getInstance().getPluginManager().callEvent(event));
-    }
-
-    private void nukkitSyncExecution(Runnable runnable) {
-        if (Server.getInstance().isPrimaryThread()) {
-            runnable.run();
-            return;
-        }
-
-        Server.getInstance().getScheduler().scheduleTask(this.plugin, runnable);
-    }
-
-    private ITask<Void> listenableNukkitSyncExecution(Runnable runnable) {
-        CompletableTask<Void> task = new CompletableTask<>();
-        this.nukkitSyncExecution(() -> {
-            runnable.run();
-            try {
-                task.complete(null);
-            } catch (Exception exception) {
-                exception.printStackTrace();
-            }
-        });
-        return task;
+        Server.getInstance().getPluginManager().callEvent(event);
     }
 
 }

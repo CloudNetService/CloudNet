@@ -68,13 +68,13 @@ public final class GoMintCloudNetListener {
     }
 
     @EventListener
-    public void handle(ChannelMessageReceiveEvent event) throws ExecutionException, InterruptedException {
-        this.listenableGoMintCall(new GoMintChannelMessageReceiveEvent(event)).get();
+    public void handle(ChannelMessageReceiveEvent event) {
+        this.goMintCall(new GoMintChannelMessageReceiveEvent(event));
     }
 
     @EventListener
-    public void handle(NetworkChannelPacketReceiveEvent event) throws ExecutionException, InterruptedException {
-        this.listenableGoMintCall(new GoMintNetworkChannelPacketReceiveEvent(event.getChannel(), event.getPacket())).get();
+    public void handle(NetworkChannelPacketReceiveEvent event) {
+        this.goMintCall(new GoMintNetworkChannelPacketReceiveEvent(event.getChannel(), event.getPacket()));
     }
 
     @EventListener
@@ -123,11 +123,7 @@ public final class GoMintCloudNetListener {
     }
 
     private void goMintCall(Event event) {
-        this.goMintSyncExecution(() -> GoMint.instance().getPluginManager().callEvent(event));
-    }
-
-    private ITask<Void> listenableGoMintCall(Event event) {
-        return this.listenableGoMintSyncExecution(() -> GoMint.instance().getPluginManager().callEvent(event));
+        GoMint.instance().getPluginManager().callEvent(event);
     }
 
     private void goMintSyncExecution(Runnable runnable) {

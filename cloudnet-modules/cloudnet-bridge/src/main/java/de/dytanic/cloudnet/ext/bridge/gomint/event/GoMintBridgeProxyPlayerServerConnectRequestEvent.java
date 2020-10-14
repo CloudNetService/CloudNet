@@ -3,6 +3,9 @@ package de.dytanic.cloudnet.ext.bridge.gomint.event;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkConnectionInfo;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkServiceInfo;
 
+/**
+ * {@inheritDoc}
+ */
 public class GoMintBridgeProxyPlayerServerConnectRequestEvent extends GoMintBridgeEvent {
 
     private final NetworkConnectionInfo networkConnectionInfo;
