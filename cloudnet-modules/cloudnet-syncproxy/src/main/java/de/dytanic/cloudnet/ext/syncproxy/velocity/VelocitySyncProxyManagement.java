@@ -10,7 +10,6 @@ import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyConfiguration;
 import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyTabList;
 import net.kyori.text.Component;
 import net.kyori.text.serializer.legacy.LegacyComponentSerializer;
-import net.md_5.bungee.api.ChatColor;
 
 import java.util.concurrent.TimeUnit;
 
@@ -53,7 +52,7 @@ public class VelocitySyncProxyManagement extends AbstractSyncProxyManagement {
     }
 
     private Component getTabValue(Player player, String value) {
-        return value == null ? null : LegacyComponentSerializer.legacyLinking().deserialize(this.replaceTabListItem(player, ChatColor.translateAlternateColorCodes('&', value)));
+        return value == null ? null : LegacyComponentSerializer.legacyLinking().deserialize(this.replaceTabListItem(player, value));
     }
 
     private String replaceTabListItem(Player player, String input) {
