@@ -24,11 +24,10 @@ public class BungeeSyncProxyManagement extends AbstractSyncProxyManagement {
         this.plugin = plugin;
 
         super.setSyncProxyConfiguration(SyncProxyConfiguration.getConfigurationFromNode());
-        super.scheduleTabList();
     }
 
     @Override
-    protected void scheduleNative(Runnable runnable, long millis) {
+    protected void schedule(Runnable runnable, long millis) {
         ProxyServer.getInstance().getScheduler().schedule(this.plugin, runnable, millis, TimeUnit.MILLISECONDS);
     }
 
@@ -42,6 +41,10 @@ public class BungeeSyncProxyManagement extends AbstractSyncProxyManagement {
     }
 
     public void updateTabList(ProxiedPlayer proxiedPlayer) {
+        if (super.tabListEntryIndex.get() == -1) {
+            return;
+        }
+
         proxiedPlayer.setTabHeader(
                 TextComponent.fromLegacyText(super.tabListHeader != null ?
                         this.replaceTabListItem(proxiedPlayer, ChatColor.translateAlternateColorCodes('&', super.tabListHeader))

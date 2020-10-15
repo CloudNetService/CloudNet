@@ -34,7 +34,7 @@ public abstract class AbstractSyncProxyManagement {
     protected Map<UUID, Integer> onlineCountCache = new HashMap<>();
 
 
-    protected abstract void scheduleNative(Runnable runnable, long millis);
+    protected abstract void schedule(Runnable runnable, long millis);
 
     public abstract void updateTabList();
 
@@ -114,16 +114,15 @@ public abstract class AbstractSyncProxyManagement {
             this.tabListHeader = tabList.getHeader();
             this.tabListFooter = tabList.getFooter();
 
-            this.scheduleNative(
+            this.schedule(
                     this::scheduleTabList,
                     (long) (1000D / this.tabListConfiguration.getAnimationsPerSecond())
             );
+
+            this.updateTabList();
         } else {
             this.tabListEntryIndex.set(-1);
-            this.scheduleNative(this::scheduleTabList, 500);
         }
-
-        this.updateTabList();
     }
 
     public void setSyncProxyConfiguration(SyncProxyConfiguration syncProxyConfiguration) {
@@ -141,6 +140,7 @@ public abstract class AbstractSyncProxyManagement {
                         Arrays.asList(Wrapper.getInstance().getServiceConfiguration().getGroups()).contains(tabListConfiguration.getTargetGroup()))
                 .findFirst().orElse(null);
 
+        this.scheduleTabList();
         this.checkWhitelist();
     }
 
