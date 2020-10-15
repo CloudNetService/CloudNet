@@ -44,12 +44,12 @@ public class BungeeSyncProxyManagement extends AbstractSyncProxyManagement {
 
     public void updateTabList(ProxiedPlayer proxiedPlayer) {
         proxiedPlayer.setTabHeader(
-                this.asComponents(proxiedPlayer, super.tabListHeader),
-                this.asComponents(proxiedPlayer, super.tabListFooter)
+                this.getTabValues(proxiedPlayer, super.tabListHeader),
+                this.getTabValues(proxiedPlayer, super.tabListFooter)
         );
     }
 
-    private BaseComponent[] asComponents(ProxiedPlayer proxiedPlayer, String value) {
+    private BaseComponent[] getTabValues(ProxiedPlayer proxiedPlayer, String value) {
         return value == null ? null : TextComponent.fromLegacyText(this.replaceTabListItem(proxiedPlayer, ChatColor.translateAlternateColorCodes('&', value)));
     }
 
