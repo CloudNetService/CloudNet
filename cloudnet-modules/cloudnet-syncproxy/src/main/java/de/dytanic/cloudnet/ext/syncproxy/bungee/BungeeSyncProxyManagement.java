@@ -45,11 +45,11 @@ public class BungeeSyncProxyManagement extends AbstractSyncProxyManagement {
         proxiedPlayer.setTabHeader(
                 TextComponent.fromLegacyText(super.tabListHeader != null ?
                         this.replaceTabListItem(proxiedPlayer, ChatColor.translateAlternateColorCodes('&', super.tabListHeader))
-                        : ""
+                        : null
                 ),
                 TextComponent.fromLegacyText(super.tabListFooter != null ?
                         this.replaceTabListItem(proxiedPlayer, ChatColor.translateAlternateColorCodes('&', super.tabListFooter))
-                        : ""
+                        : null
                 )
         );
     }
