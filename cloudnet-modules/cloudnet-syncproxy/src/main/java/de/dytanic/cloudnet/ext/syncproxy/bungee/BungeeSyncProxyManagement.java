@@ -43,6 +43,9 @@ public class BungeeSyncProxyManagement extends AbstractSyncProxyManagement {
     }
 
     public void updateTabList(ProxiedPlayer proxiedPlayer) {
+        if(super.tabListHeader == null && super.tabListFooter == null) {
+            return;
+        }
         proxiedPlayer.setTabHeader(
                 this.getTabValues(proxiedPlayer, super.tabListHeader),
                 this.getTabValues(proxiedPlayer, super.tabListFooter)
