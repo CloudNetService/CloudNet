@@ -9,6 +9,7 @@ import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyProxyLoginConfig
 import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyTabList;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Plugin;
@@ -43,15 +44,13 @@ public class BungeeSyncProxyManagement extends AbstractSyncProxyManagement {
 
     public void updateTabList(ProxiedPlayer proxiedPlayer) {
         proxiedPlayer.setTabHeader(
-                TextComponent.fromLegacyText(super.tabListHeader != null ?
-                        this.replaceTabListItem(proxiedPlayer, ChatColor.translateAlternateColorCodes('&', super.tabListHeader))
-                        : null
-                ),
-                TextComponent.fromLegacyText(super.tabListFooter != null ?
-                        this.replaceTabListItem(proxiedPlayer, ChatColor.translateAlternateColorCodes('&', super.tabListFooter))
-                        : null
-                )
+                this.asComponents(proxiedPlayer, super.tabListHeader),
+                this.asComponents(proxiedPlayer, super.tabListFooter)
         );
+    }
+
+    private BaseComponent[] asComponents(ProxiedPlayer proxiedPlayer, String value) {
+        return value == null ? null : TextComponent.fromLegacyText(this.replaceTabListItem(proxiedPlayer, ChatColor.translateAlternateColorCodes('&', value)));
     }
 
     private String replaceTabListItem(ProxiedPlayer proxiedPlayer, String input) {
