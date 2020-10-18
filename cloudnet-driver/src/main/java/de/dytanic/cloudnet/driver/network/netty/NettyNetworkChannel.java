@@ -77,7 +77,7 @@ final class NettyNetworkChannel implements INetworkChannel {
     @Override
     public ITask<IPacket> sendQueryAsync(@NotNull IPacket packet) {
         CompletableTask<IPacket> task = new CompletableTask<>();
-        InternalSyncPacketChannel.registerQueryHandler(packet.getUniqueId(), task::complete);
+        InternalSyncPacketChannel.registerQueryHandler(packet.getUniqueId(), task);
         this.sendPacket(packet);
         return task;
     }

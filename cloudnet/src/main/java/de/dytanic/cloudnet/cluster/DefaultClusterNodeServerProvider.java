@@ -21,12 +21,12 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
-public final class DefaultClusterNodeServerProvider implements IClusterNodeServerProvider {
+public final class DefaultClusterNodeServerProvider extends DefaultNodeServerProvider implements IClusterNodeServerProvider {
 
     protected final Map<String, IClusterNodeServer> servers = new ConcurrentHashMap<>();
 
     @Override
-    public Collection<IClusterNodeServer> getNodeServers() {
+    public @NotNull Collection<IClusterNodeServer> getNodeServers() {
         return this.servers.values();
     }
 
@@ -57,7 +57,9 @@ public final class DefaultClusterNodeServerProvider implements IClusterNodeServe
             if (this.servers.containsKey(clusterNode.getUniqueId())) {
                 this.servers.get(clusterNode.getUniqueId()).setNodeInfo(clusterNode);
             } else {
-                this.servers.put(clusterNode.getUniqueId(), new DefaultClusterNodeServer(this, clusterNode));
+                IClusterNodeServer server = new DefaultClusterNodeServer(this, clusterNode);
+                super.registerNode(server);
+                this.servers.put(clusterNode.getUniqueId(), server);
             }
         }
 
@@ -68,6 +70,7 @@ public final class DefaultClusterNodeServerProvider implements IClusterNodeServe
 
             if (node == null) {
                 this.servers.remove(clusterNodeServer.getNodeInfo().getUniqueId());
+                super.unregisterNode(clusterNodeServer.getNodeInfo().getUniqueId());
             }
         }
     }

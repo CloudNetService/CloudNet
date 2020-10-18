@@ -13,7 +13,6 @@ import org.jetbrains.annotations.NotNull;
 public class NetworkClusterNode extends SerializableJsonDocPropertyable implements SerializableObject {
 
     private String uniqueId;
-
     private HostAndPort[] listeners;
 
     public NetworkClusterNode(String uniqueId, HostAndPort[] listeners) {

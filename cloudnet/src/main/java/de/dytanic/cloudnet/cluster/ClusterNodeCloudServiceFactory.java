@@ -5,11 +5,17 @@ import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.provider.service.RemoteCloudServiceFactory;
 import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Supplier;
 
+/**
+ * @deprecated This class is no longer used internally and will be removed in a further release.
+ */
+@Deprecated
+@ApiStatus.ScheduledForRemoval
 public class ClusterNodeCloudServiceFactory extends RemoteCloudServiceFactory {
 
     private final IClusterNodeServer server;

@@ -1,15 +1,16 @@
 package de.dytanic.cloudnet.cluster;
 
+import de.dytanic.cloudnet.common.concurrent.CompletedTask;
+import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.api.DriverAPIRequestType;
-import de.dytanic.cloudnet.driver.api.DriverAPIUser;
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
-import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
 import de.dytanic.cloudnet.driver.network.def.packet.PacketClientServerChannelMessage;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.provider.service.CloudServiceFactory;
+import de.dytanic.cloudnet.driver.provider.service.RemoteCloudServiceFactory;
 import de.dytanic.cloudnet.driver.provider.service.RemoteSpecificCloudServiceProvider;
 import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
@@ -17,26 +18,36 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.TimeUnit;
 
-public final class DefaultClusterNodeServer implements IClusterNodeServer, DriverAPIUser {
+public final class DefaultClusterNodeServer extends DefaultNodeServer implements IClusterNodeServer {
 
     private final DefaultClusterNodeServerProvider provider;
-
-    private final CloudServiceFactory cloudServiceFactory = new ClusterNodeCloudServiceFactory(this::getChannel, this);
-
-    private volatile NetworkClusterNodeInfoSnapshot nodeInfoSnapshot;
-
-    private NetworkClusterNode nodeInfo;
+    private final CloudServiceFactory cloudServiceFactory = new RemoteCloudServiceFactory(this::getChannel);
 
     private INetworkChannel channel;
 
     DefaultClusterNodeServer(DefaultClusterNodeServerProvider provider, NetworkClusterNode nodeInfo) {
+        super(provider, nodeInfo);
         this.provider = provider;
-        this.nodeInfo = nodeInfo;
     }
 
     @Override
     public void sendCustomChannelMessage(@NotNull ChannelMessage channelMessage) {
         this.saveSendPacket(new PacketClientServerChannelMessage(channelMessage, false));
+    }
+
+    @Override
+    public @NotNull ITask<ChannelMessage> sendChannelMessageQuery(@NotNull ChannelMessage channelMessage) {
+        if (this.channel == null) {
+            return CompletedTask.create(null);
+        }
+
+        return channel.sendQueryAsync(new PacketClientServerChannelMessage(channelMessage, true)).map(result -> {
+            if (result != null && result.getBuffer().readBoolean()) {
+                return result.getBuffer().readObject(ChannelMessage.class);
+            }
+
+            return null;
+        });
     }
 
     @Override
@@ -95,8 +106,8 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer, Drive
             this.channel.close();
         }
 
-        this.nodeInfoSnapshot = null;
         this.channel = null;
+        super.close();
     }
 
     @NotNull
@@ -104,26 +115,9 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer, Drive
         return this.provider;
     }
 
-    public NetworkClusterNodeInfoSnapshot getNodeInfoSnapshot() {
-        return this.nodeInfoSnapshot;
-    }
-
-    public void setNodeInfoSnapshot(@NotNull NetworkClusterNodeInfoSnapshot nodeInfoSnapshot) {
-        this.nodeInfoSnapshot = nodeInfoSnapshot;
-    }
-
     @Override
     public INetworkChannel getChannel() {
         return this.channel;
-    }
-
-    @NotNull
-    public NetworkClusterNode getNodeInfo() {
-        return this.nodeInfo;
-    }
-
-    public void setNodeInfo(@NotNull NetworkClusterNode nodeInfo) {
-        this.nodeInfo = nodeInfo;
     }
 
     @Override

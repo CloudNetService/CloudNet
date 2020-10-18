@@ -1,7 +1,7 @@
 package eu.cloudnetservice.cloudnet.ext.npcs.node.listener;
 
-
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
 import de.dytanic.cloudnet.event.cluster.NetworkChannelAuthClusterNodeSuccessEvent;
@@ -22,13 +22,13 @@ public class CloudNetNPCMessageListener {
 
     @EventListener
     public void handle(NetworkChannelAuthClusterNodeSuccessEvent event) {
-        event.getNode().sendCustomChannelMessage(
-                NPCConstants.NPC_CHANNEL_NAME,
-                NPCConstants.NPC_CHANNEL_UPDATE_CONFIGURATION_MESSAGE,
-                new JsonDocument()
+        event.getNode().sendCustomChannelMessage(ChannelMessage.builder()
+                .channel(NPCConstants.NPC_CHANNEL_NAME)
+                .message(NPCConstants.NPC_CHANNEL_UPDATE_CONFIGURATION_MESSAGE)
+                .json(new JsonDocument()
                         .append("npcConfiguration", this.npcModule.getNPCConfiguration())
-                        .append("npcs", this.npcModule.getCachedNPCs())
-        );
+                        .append("npcs", this.npcModule.getCachedNPCs()))
+                .build());
     }
 
     @EventListener

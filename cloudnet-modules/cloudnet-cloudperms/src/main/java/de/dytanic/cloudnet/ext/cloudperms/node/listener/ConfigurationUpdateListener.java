@@ -1,5 +1,6 @@
 package de.dytanic.cloudnet.ext.cloudperms.node.listener;
 
+import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
 import de.dytanic.cloudnet.event.cluster.NetworkChannelAuthClusterNodeSuccessEvent;
@@ -9,11 +10,11 @@ public final class ConfigurationUpdateListener {
 
     @EventListener
     public void handle(NetworkChannelAuthClusterNodeSuccessEvent event) {
-        event.getNode().sendCustomChannelMessage(
-                "cloudnet_cloudperms_update",
-                "update_configuration",
-                CloudNetCloudPermissionsModule.getInstance().getConfig()
-        );
+        event.getNode().sendCustomChannelMessage(ChannelMessage.builder()
+                .channel("cloudnet_cloudperms_update")
+                .message("update_configuration")
+                .json(CloudNetCloudPermissionsModule.getInstance().getConfig())
+                .build());
     }
 
     @EventListener

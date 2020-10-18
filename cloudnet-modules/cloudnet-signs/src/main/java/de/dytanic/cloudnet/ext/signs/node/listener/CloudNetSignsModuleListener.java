@@ -1,6 +1,7 @@
 package de.dytanic.cloudnet.ext.signs.node.listener;
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
 import de.dytanic.cloudnet.event.cluster.NetworkChannelAuthClusterNodeSuccessEvent;
@@ -16,12 +17,13 @@ public final class CloudNetSignsModuleListener {
 
     @EventListener
     public void handle(NetworkChannelAuthClusterNodeSuccessEvent event) {
-        event.getNode().sendCustomChannelMessage(
-                SignConstants.SIGN_CLUSTER_CHANNEL_NAME,
-                SignConstants.SIGN_CHANNEL_UPDATE_SIGN_CONFIGURATION,
-                new JsonDocument()
+        event.getNode().sendCustomChannelMessage(ChannelMessage.builder()
+                .channel(SignConstants.SIGN_CLUSTER_CHANNEL_NAME)
+                .message(SignConstants.SIGN_CHANNEL_UPDATE_SIGN_CONFIGURATION)
+                .json(new JsonDocument()
                         .append("signConfiguration", CloudNetSignsModule.getInstance().getSignConfiguration())
-                        .append("signs", CloudNetSignsModule.getInstance().loadSigns())
+                        .append("signs", CloudNetSignsModule.getInstance().loadSigns()))
+                .build()
         );
     }
 

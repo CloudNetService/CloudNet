@@ -45,6 +45,11 @@ public final class ServiceId implements INameable, SerializableObject {
         return this.taskName + "-" + this.taskServiceId;
     }
 
+    @ApiStatus.Internal
+    public void setUniqueId(UUID uniqueId) {
+        this.uniqueId = uniqueId;
+    }
+
     public UUID getUniqueId() {
         return this.uniqueId;
     }

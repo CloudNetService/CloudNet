@@ -2,9 +2,12 @@ package de.dytanic.cloudnet.service.defaults;
 
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.CloudNet;
+import de.dytanic.cloudnet.common.concurrent.CompletedTask;
+import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.concurrent.ThrowableConsumer;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
+import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.network.def.packet.PacketClientServerServiceInfoPublisher;
 import de.dytanic.cloudnet.driver.service.*;
 import de.dytanic.cloudnet.event.service.CloudServiceCreateEvent;
@@ -14,15 +17,13 @@ import de.dytanic.cloudnet.service.ICloudServiceManager;
 import de.dytanic.cloudnet.service.handler.CloudServiceHandler;
 import de.dytanic.cloudnet.service.handler.DefaultCloudServiceHandler;
 import de.dytanic.cloudnet.util.PortValidator;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -30,51 +31,104 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
 
     private static final CloudServiceHandler HANDLER = DefaultCloudServiceHandler.INSTANCE;
     private static final ICloudServiceFactory DEFAULT_FACTORY = new DefaultCloudServiceFactory(JVMCloudService.RUNTIME, (manager, configuration) -> new JVMCloudService(manager, configuration, HANDLER));
-    private final File
-            tempDirectory = new File(System.getProperty("cloudnet.tempDir.services", "temp/services")),
-            persistenceServicesDirectory = new File(System.getProperty("cloudnet.persistable.services.path", "local/services"));
+
+    private final File tempDirectory = new File(System.getProperty("cloudnet.tempDir.services", "temp/services"));
+    private final File persistenceServicesDirectory = new File(System.getProperty("cloudnet.persistable.services.path", "local/services"));
     private final Map<UUID, ServiceInfoSnapshot> globalServiceInfoSnapshots = new ConcurrentHashMap<>();
     private final Map<UUID, ICloudService> cloudServices = new ConcurrentHashMap<>();
     private final Map<String, ICloudServiceFactory> cloudServiceFactories = new ConcurrentHashMap<>();
 
     @Override
+    @Deprecated
+    @ApiStatus.ScheduledForRemoval
     public ICloudService runTask(@NotNull ServiceConfiguration serviceConfiguration) {
-        this.prepareServiceConfiguration(serviceConfiguration);
+        try {
+            ServiceInfoSnapshot snapshot = this.buildService(serviceConfiguration).get(10, TimeUnit.SECONDS);
+            return snapshot == null ? null : this.cloudServices.get(snapshot.getServiceId().getUniqueId());
+        } catch (InterruptedException | ExecutionException | TimeoutException exception) {
+            exception.printStackTrace();
+            return null;
+        }
+    }
 
-        CloudServiceCreateEvent event = new CloudServiceCreateEvent(serviceConfiguration);
-        CloudNetDriver.getInstance().getEventManager().callEvent(event);
+    @Override
+    @ApiStatus.Internal
+    public @NotNull ITask<ServiceInfoSnapshot> buildService(@NotNull ServiceConfiguration configuration) {
+        if (CloudNet.getInstance().isMainThread()) {
+            return CompletedTask.create(this.buildService0(configuration));
+        } else {
+            return CloudNet.getInstance().scheduleTask(() -> this.buildService0(configuration));
+        }
+    }
 
-        if (event.isCancelled()) {
+    public @Nullable ServiceInfoSnapshot buildService0(@NotNull ServiceConfiguration configuration) {
+        final boolean localStart;
+        if (configuration.getServiceId().getNodeUniqueId() == null) {
+            configuration.getServiceId().setNodeUniqueId(CloudNet.getInstance().getComponentName());
+            localStart = true;
+        } else {
+            localStart = configuration.getServiceId().getNodeUniqueId().equals(CloudNet.getInstance().getComponentName());
+        }
+
+        this.prepareServiceConfiguration(configuration);
+        if (CloudNet.getInstance().isHeadNode()) {
+            configuration.getServiceId().setTaskServiceId(this.checkAndReplaceTaskId(configuration.getServiceId()));
+            configuration.getServiceId().setUniqueId(this.checkAndReplaceUniqueId(configuration.getServiceId()));
+        }
+
+        if (localStart) {
+            CloudServiceCreateEvent event = new CloudServiceCreateEvent(configuration);
+            CloudNetDriver.getInstance().getEventManager().callEvent(event);
+            if (event.isCancelled()) {
+                return null;
+            }
+
+            configuration.setPort(this.checkAndReplacePort(configuration.getPort()));
+            ICloudService cloudService = this.getCloudServiceFactory(configuration.getRuntime())
+                    .map(factory -> factory.createCloudService(this, configuration))
+                    .orElseGet(() -> DEFAULT_FACTORY.createCloudService(this, configuration));
+            if (cloudService != null) {
+                cloudService.init();
+
+                this.cloudServices.put(cloudService.getServiceId().getUniqueId(), cloudService);
+                this.globalServiceInfoSnapshots.put(cloudService.getServiceId().getUniqueId(), cloudService.getServiceInfoSnapshot());
+
+                CloudNet.getInstance().sendAll(new PacketClientServerServiceInfoPublisher(
+                        cloudService.getServiceInfoSnapshot(),
+                        CloudNet.getInstance().isHeadNode()
+                                ? PacketClientServerServiceInfoPublisher.PublisherType.REGISTER
+                                : PacketClientServerServiceInfoPublisher.PublisherType.UPDATE
+                ));
+                CloudNet.getInstance().publishNetworkClusterNodeInfoSnapshotUpdate();
+
+                return cloudService.getServiceInfoSnapshot();
+            }
+
             return null;
         }
 
-        serviceConfiguration.setPort(this.checkAndReplacePort(serviceConfiguration.getPort()));
+        ServiceInfoSnapshot dummySnapshot = new ServiceInfoSnapshot(
+                System.currentTimeMillis(),
+                new HostAndPort("", -1),
+                new HostAndPort("", -1),
+                -1,
+                ServiceLifeCycle.DEFINED,
+                ProcessSnapshot.empty(),
+                configuration.getProperties(),
+                configuration
+        );
 
-        ICloudService cloudService = this.getCloudServiceFactory(serviceConfiguration.getRuntime())
-                .map(factory -> factory.createCloudService(this, serviceConfiguration))
-                .orElseGet(() -> DEFAULT_FACTORY.createCloudService(this, serviceConfiguration));
+        this.globalServiceInfoSnapshots.put(dummySnapshot.getServiceId().getUniqueId(), dummySnapshot);
+        CloudNet.getInstance().sendAll(new PacketClientServerServiceInfoPublisher(
+                dummySnapshot,
+                PacketClientServerServiceInfoPublisher.PublisherType.REGISTER
+        ));
 
-        if (cloudService != null) {
-            cloudService.init();
-
-            this.cloudServices.put(cloudService.getServiceId().getUniqueId(), cloudService);
-            this.globalServiceInfoSnapshots.put(cloudService.getServiceId().getUniqueId(), cloudService.getServiceInfoSnapshot());
-
-            CloudNet.getInstance().sendAll(new PacketClientServerServiceInfoPublisher(cloudService.getServiceInfoSnapshot(), PacketClientServerServiceInfoPublisher.PublisherType.REGISTER));
-            CloudNet.getInstance().publishNetworkClusterNodeInfoSnapshotUpdate();
-        }
-
-        return cloudService;
+        return dummySnapshot;
     }
 
     private void prepareServiceConfiguration(ServiceConfiguration configuration) {
-        configuration.getServiceId().setNodeUniqueId(CloudNet.getInstance().getComponentName());
-
         Collection<String> groups = new ArrayList<>(Arrays.asList(configuration.getGroups()));
-
-        if (configuration.getServiceId().getTaskServiceId() == -1) {
-            configuration.getServiceId().setTaskServiceId(this.findTaskId(configuration.getServiceId().getTaskName()));
-        }
 
         Collection<ServiceTemplate> templates = new ArrayList<>();
         Collection<ServiceDeployment> deployments = new ArrayList<>();
@@ -107,18 +161,6 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
         configuration.setTemplates(templates.toArray(new ServiceTemplate[0]));
         configuration.setDeployments(deployments.toArray(new ServiceDeployment[0]));
         configuration.setIncludes(inclusions.toArray(new ServiceRemoteInclusion[0]));
-    }
-
-    private int findTaskId(String taskName) {
-        int taskId = 1;
-
-        Collection<Integer> taskIdList = this.getReservedTaskIds(taskName);
-
-        while (taskIdList.contains(taskId)) {
-            taskId++;
-        }
-
-        return taskId;
     }
 
     @Override
@@ -205,7 +247,6 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
         Preconditions.checkNotNull(task);
 
         Collection<Integer> taskIdList = new ArrayList<>();
-
         for (ServiceInfoSnapshot serviceInfoSnapshot : this.globalServiceInfoSnapshots.values()) {
             if (serviceInfoSnapshot.getServiceId().getTaskName().equalsIgnoreCase(task)) {
                 taskIdList.add(serviceInfoSnapshot.getServiceId().getTaskServiceId());
@@ -213,6 +254,20 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
         }
 
         return taskIdList;
+    }
+
+    @Override
+    public Collection<UUID> getReservedTaskUniqueIds(@NotNull String task) {
+        Preconditions.checkNotNull(task);
+
+        Collection<UUID> taskUniqueIdList = new ArrayList<>();
+        for (ServiceInfoSnapshot serviceInfoSnapshot : this.globalServiceInfoSnapshots.values()) {
+            if (serviceInfoSnapshot.getServiceId().getTaskName().equalsIgnoreCase(task)) {
+                taskUniqueIdList.add(serviceInfoSnapshot.getServiceId().getUniqueId());
+            }
+        }
+
+        return taskUniqueIdList;
     }
 
     @Override
@@ -253,6 +308,31 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
         }
 
         return port;
+    }
+
+    private int checkAndReplaceTaskId(ServiceId serviceId) {
+        int taskId = serviceId.getTaskServiceId();
+        if (taskId <= 0) {
+            taskId = 1;
+        }
+
+        Collection<Integer> taskIdList = this.getReservedTaskIds(serviceId.getTaskName());
+        while (taskIdList.contains(taskId)) {
+            taskId++;
+        }
+
+        return taskId;
+    }
+
+    private UUID checkAndReplaceUniqueId(ServiceId serviceId) {
+        UUID uniqueId = serviceId.getUniqueId();
+
+        Collection<UUID> taskUniqueIdList = this.getReservedTaskUniqueIds(serviceId.getTaskName());
+        while (taskUniqueIdList.contains(uniqueId)) {
+            uniqueId = UUID.randomUUID();
+        }
+
+        return uniqueId;
     }
 
     @NotNull

@@ -1,5 +1,6 @@
 package de.dytanic.cloudnet.service;
 
+import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import org.jetbrains.annotations.ApiStatus;
@@ -33,8 +34,15 @@ public interface ICloudServiceManager {
     @NotNull
     Optional<ICloudServiceFactory> getCloudServiceFactory(@Nullable String runtime);
 
+    @Nullable
+    @Deprecated
     @ApiStatus.Internal
+    @ApiStatus.ScheduledForRemoval
     ICloudService runTask(@NotNull ServiceConfiguration serviceConfiguration);
+
+    @NotNull
+    @ApiStatus.Internal
+    ITask<ServiceInfoSnapshot> buildService(@NotNull ServiceConfiguration serviceConfiguration);
 
     void startAllCloudServices();
 
@@ -82,6 +90,7 @@ public interface ICloudServiceManager {
 
     Collection<Integer> getReservedTaskIds(@NotNull String task);
 
+    Collection<UUID> getReservedTaskUniqueIds(@NotNull String task);
     //-
 
     int getCurrentUsedHeapMemory();

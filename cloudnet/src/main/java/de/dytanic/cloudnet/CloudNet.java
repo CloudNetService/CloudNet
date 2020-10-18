@@ -118,7 +118,7 @@ public final class CloudNet extends CloudNetDriver {
     private final IConfiguration config = new JsonConfiguration();
     private final IConfigurationRegistry configurationRegistry = new JsonConfigurationRegistry(Paths.get(System.getProperty("cloudnet.registry.global.path", "local/registry")));
 
-    private final IClusterNodeServerProvider clusterNodeServerProvider = new DefaultClusterNodeServerProvider();
+    private final DefaultClusterNodeServerProvider clusterNodeServerProvider = new DefaultClusterNodeServerProvider();
 
     private final ITaskScheduler networkTaskScheduler = new DefaultTaskScheduler();
 
@@ -158,6 +158,8 @@ public final class CloudNet extends CloudNetDriver {
         super.groupConfigurationProvider = new NodeGroupConfigurationProvider(this);
         super.nodeInfoProvider = new NodeNodeInfoProvider(this);
         super.messenger = new NodeMessenger(this);
+
+        super.eventManager.registerListener(super.cloudServiceFactory);
 
         this.console = console;
         this.commandLineArguments = commandLineArguments;
@@ -222,6 +224,7 @@ public final class CloudNet extends CloudNetDriver {
 
         this.initPacketRegistryListeners();
         this.clusterNodeServerProvider.setClusterServers(this.config.getClusterConfig());
+        this.clusterNodeServerProvider.buildCurrentNodeServer();
 
         this.enableCommandCompleter();
         this.setDefaultRegistryEntries();
@@ -231,6 +234,7 @@ public final class CloudNet extends CloudNetDriver {
 
         this.currentNetworkClusterNodeInfoSnapshot = this.createClusterNodeInfoSnapshot();
         this.lastNetworkClusterNodeInfoSnapshot = this.currentNetworkClusterNodeInfoSnapshot;
+        this.clusterNodeServerProvider.getCurrentNodeServer().setNodeInfoSnapshot(this.currentNetworkClusterNodeInfoSnapshot);
 
         this.loadModules();
 
@@ -616,6 +620,7 @@ public final class CloudNet extends CloudNetDriver {
     public NetworkClusterNodeInfoSnapshot createClusterNodeInfoSnapshot() {
         return new NetworkClusterNodeInfoSnapshot(
                 System.currentTimeMillis(),
+                this.currentNetworkClusterNodeInfoSnapshot == null ? System.nanoTime() : this.currentNetworkClusterNodeInfoSnapshot.getStartupNanos(),
                 this.config.getIdentity(),
                 CloudNet.class.getPackage().getImplementationVersion(),
                 this.cloudServiceManager.getCloudServices().size(),
@@ -705,6 +710,7 @@ public final class CloudNet extends CloudNetDriver {
 
         this.getEventManager().callEvent(new NetworkClusterNodeInfoConfigureEvent(this.currentNetworkClusterNodeInfoSnapshot));
 
+        this.clusterNodeServerProvider.getCurrentNodeServer().setNodeInfoSnapshot(this.currentNetworkClusterNodeInfoSnapshot);
         this.clusterNodeServerProvider.sendPacket(new PacketServerClusterNodeInfoUpdate(this.currentNetworkClusterNodeInfoSnapshot));
     }
 
@@ -985,5 +991,9 @@ public final class CloudNet extends CloudNetDriver {
 
     public NetworkClusterNodeInfoSnapshot getCurrentNetworkClusterNodeInfoSnapshot() {
         return this.currentNetworkClusterNodeInfoSnapshot;
+    }
+
+    public boolean isHeadNode() {
+        return this.clusterNodeServerProvider.getHeadNode().isInstance(this.clusterNodeServerProvider.getCurrentNodeServer());
     }
 }

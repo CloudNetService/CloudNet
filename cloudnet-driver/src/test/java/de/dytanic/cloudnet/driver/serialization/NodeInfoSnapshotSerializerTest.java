@@ -20,6 +20,7 @@ public class NodeInfoSnapshotSerializerTest {
     public void serializeNodeInfoSnapshot() {
         NetworkClusterNodeInfoSnapshot original = new NetworkClusterNodeInfoSnapshot(
                 Long.MAX_VALUE,
+                System.nanoTime(),
                 new NetworkClusterNode("Node-XXX", new HostAndPort[]{new HostAndPort("127.0.0.1", 12345), new HostAndPort("123.456.789.012", 98765)}),
                 "3.3.0-RELEASE",
                 Integer.MAX_VALUE,
