@@ -13,13 +13,15 @@ import de.dytanic.cloudnet.ext.bridge.velocity.event.*;
 import de.dytanic.cloudnet.wrapper.event.service.ServiceInfoSnapshotConfigureEvent;
 
 import java.net.InetSocketAddress;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 public final class VelocityCloudNetListener {
 
     @EventListener
-    public void handle(ServiceInfoSnapshotConfigureEvent event) {
+    public void handle(ServiceInfoSnapshotConfigureEvent event) throws ExecutionException, InterruptedException {
         VelocityCloudNetHelper.initProperties(event.getServiceInfoSnapshot());
-        this.velocityCall(new VelocityServiceInfoSnapshotConfigureEvent(event.getServiceInfoSnapshot()));
+        this.velocityCall(new VelocityServiceInfoSnapshotConfigureEvent(event.getServiceInfoSnapshot())).get();
     }
 
     @EventListener
@@ -103,13 +105,13 @@ public final class VelocityCloudNetListener {
     }
 
     @EventListener
-    public void handle(ChannelMessageReceiveEvent event) {
-        this.velocityCall(new VelocityChannelMessageReceiveEvent(event));
+    public void handle(ChannelMessageReceiveEvent event) throws ExecutionException, InterruptedException {
+        this.velocityCall(new VelocityChannelMessageReceiveEvent(event)).get();
     }
 
     @EventListener
-    public void handle(NetworkChannelPacketReceiveEvent event) {
-        this.velocityCall(new VelocityNetworkChannelPacketReceiveEvent(event.getChannel(), event.getPacket()));
+    public void handle(NetworkChannelPacketReceiveEvent event) throws ExecutionException, InterruptedException {
+        this.velocityCall(new VelocityNetworkChannelPacketReceiveEvent(event.getChannel(), event.getPacket())).get();
     }
 
     @EventListener
@@ -157,8 +159,8 @@ public final class VelocityCloudNetListener {
         this.velocityCall(new VelocityBridgeServerPlayerDisconnectEvent(event.getNetworkConnectionInfo(), event.getNetworkPlayerServerInfo()));
     }
 
-    private void velocityCall(Object event) {
-        VelocityCloudNetHelper.getProxyServer().getEventManager().fire(event);
+    private <E> CompletableFuture<E> velocityCall(E event) {
+        return VelocityCloudNetHelper.getProxyServer().getEventManager().fire(event);
     }
 
 }

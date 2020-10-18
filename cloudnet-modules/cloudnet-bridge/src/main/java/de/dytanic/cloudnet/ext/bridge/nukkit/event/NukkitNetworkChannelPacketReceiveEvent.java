@@ -4,6 +4,9 @@ import cn.nukkit.event.HandlerList;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 
+/**
+ * {@inheritDoc}
+ */
 public final class NukkitNetworkChannelPacketReceiveEvent extends NukkitCloudNetEvent {
 
     private static final HandlerList handlers = new HandlerList();

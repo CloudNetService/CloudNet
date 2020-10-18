@@ -45,7 +45,7 @@ public final class GoMintCloudNetBridgePlugin extends Plugin {
         super.registerListener(new GoMintPlayerListener(this));
 
         // CloudNet
-        CloudNetDriver.getInstance().getEventManager().registerListener(new GoMintCloudNetListener());
+        CloudNetDriver.getInstance().getEventManager().registerListener(new GoMintCloudNetListener(this));
         CloudNetDriver.getInstance().getEventManager().registerListener(new BridgeCustomChannelMessageListener());
     }
 

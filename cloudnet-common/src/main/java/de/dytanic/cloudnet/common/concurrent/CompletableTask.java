@@ -135,4 +135,5 @@ public class CompletableTask<V> implements ITask<V> {
     public V get(long l, @NotNull TimeUnit timeUnit) throws InterruptedException, ExecutionException, TimeoutException {
         return this.future.get(l, timeUnit);
     }
+
 }

@@ -4,6 +4,9 @@ import cn.nukkit.event.HandlerList;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkConnectionInfo;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkServiceInfo;
 
+/**
+ * {@inheritDoc}
+ */
 public class NukkitBridgeProxyPlayerServerConnectRequestEvent extends NukkitBridgeEvent {
 
     private static final HandlerList handlers = new HandlerList();

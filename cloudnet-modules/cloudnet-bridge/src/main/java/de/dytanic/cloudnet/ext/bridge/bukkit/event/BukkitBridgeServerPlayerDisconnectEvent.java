@@ -5,6 +5,9 @@ import de.dytanic.cloudnet.ext.bridge.player.NetworkPlayerServerInfo;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * {@inheritDoc}
+ */
 public final class BukkitBridgeServerPlayerDisconnectEvent extends BukkitBridgeEvent {
 
     private static final HandlerList handlerList = new HandlerList();
