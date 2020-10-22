@@ -5,6 +5,9 @@ import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * {@inheritDoc}
+ */
 public final class BukkitNetworkChannelPacketReceiveEvent extends BukkitCloudNetEvent {
 
     private static final HandlerList handlerList = new HandlerList();

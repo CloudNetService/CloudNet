@@ -5,6 +5,9 @@ import de.dytanic.cloudnet.ext.bridge.player.NetworkServiceInfo;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * {@inheritDoc}
+ */
 public class BukkitBridgeProxyPlayerServerConnectRequestEvent extends BukkitBridgeEvent {
 
     private static final HandlerList handlerList = new HandlerList();

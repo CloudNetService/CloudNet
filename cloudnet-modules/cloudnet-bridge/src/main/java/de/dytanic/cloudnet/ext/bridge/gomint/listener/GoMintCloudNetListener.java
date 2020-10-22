@@ -1,5 +1,8 @@
 package de.dytanic.cloudnet.ext.bridge.gomint.listener;
 
+import de.dytanic.cloudnet.common.concurrent.CompletableTask;
+import de.dytanic.cloudnet.common.concurrent.CompletedTask;
+import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
 import de.dytanic.cloudnet.driver.event.events.network.NetworkChannelPacketReceiveEvent;
@@ -10,13 +13,24 @@ import de.dytanic.cloudnet.ext.bridge.gomint.event.*;
 import de.dytanic.cloudnet.wrapper.event.service.ServiceInfoSnapshotConfigureEvent;
 import io.gomint.GoMint;
 import io.gomint.event.Event;
+import io.gomint.plugin.Plugin;
+
+import java.util.concurrent.ExecutionException;
 
 public final class GoMintCloudNetListener {
 
+    private final Plugin plugin;
+
+    public GoMintCloudNetListener(Plugin plugin) {
+        this.plugin = plugin;
+    }
+
     @EventListener
-    public void handle(ServiceInfoSnapshotConfigureEvent event) {
-        GoMintCloudNetHelper.initProperties(event.getServiceInfoSnapshot());
-        this.goMintCall(new GoMintServiceInfoSnapshotConfigureEvent(event.getServiceInfoSnapshot()));
+    public void handle(ServiceInfoSnapshotConfigureEvent event) throws ExecutionException, InterruptedException {
+        this.listenableGoMintSyncExecution(() -> {
+            GoMintCloudNetHelper.initProperties(event.getServiceInfoSnapshot());
+            GoMint.instance().getPluginManager().callEvent(new GoMintServiceInfoSnapshotConfigureEvent(event.getServiceInfoSnapshot()));
+        }).get();
     }
 
     @EventListener
@@ -112,4 +126,17 @@ public final class GoMintCloudNetListener {
     private void goMintCall(Event event) {
         GoMint.instance().getPluginManager().callEvent(event);
     }
+
+    private ITask<Void> listenableGoMintSyncExecution(Runnable runnable) {
+        if (GoMint.instance().isMainThread()) {
+            runnable.run();
+            return CompletedTask.voidTask();
+        }
+
+        CompletableTask<Void> task = new CompletableTask<>();
+        this.plugin.getScheduler().execute(runnable).onComplete(() -> task.complete(null));
+
+        return task;
+    }
+
 }

@@ -2,6 +2,9 @@ package de.dytanic.cloudnet.ext.bridge.gomint.event;
 
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 
+/**
+ * {@inheritDoc}
+ */
 public final class GoMintCloudServiceInfoUpdateEvent extends GoMintCloudNetEvent {
 
     private final ServiceInfoSnapshot serviceInfoSnapshot;

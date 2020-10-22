@@ -23,11 +23,10 @@ public class VelocitySyncProxyManagement extends AbstractSyncProxyManagement {
         this.plugin = plugin;
 
         super.setSyncProxyConfiguration(SyncProxyConfiguration.getConfigurationFromNode());
-        super.scheduleTabList();
     }
 
     @Override
-    protected void scheduleNative(Runnable runnable, long millis) {
+    protected void schedule(Runnable runnable, long millis) {
         this.proxyServer.getScheduler().buildTask(this.plugin, runnable).delay(millis, TimeUnit.MILLISECONDS).schedule();
     }
 
@@ -41,6 +40,10 @@ public class VelocitySyncProxyManagement extends AbstractSyncProxyManagement {
     }
 
     public void updateTabList(Player player) {
+        if (super.tabListEntryIndex.get() == -1) {
+            return;
+        }
+
         player.getTabList().setHeaderAndFooter(
                 LegacyComponentSerializer.legacyLinking().deserialize(super.tabListHeader != null ? this.replaceTabListItem(player, super.tabListHeader) : ""),
                 LegacyComponentSerializer.legacyLinking().deserialize(super.tabListFooter != null ? this.replaceTabListItem(player, super.tabListFooter) : "")

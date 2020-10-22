@@ -3,6 +3,9 @@ package de.dytanic.cloudnet.ext.bridge.gomint.event;
 import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
 import de.dytanic.cloudnet.ext.bridge.WrappedChannelMessageReceiveEvent;
 
+/**
+ * {@inheritDoc}
+ */
 public final class GoMintChannelMessageReceiveEvent extends GoMintCloudNetEvent implements WrappedChannelMessageReceiveEvent {
 
     private final ChannelMessageReceiveEvent event;
