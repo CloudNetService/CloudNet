@@ -27,7 +27,7 @@ public final class CommandHub extends Command {
 
         ProxiedPlayer proxiedPlayer = (ProxiedPlayer) sender;
 
-        if (BungeeCloudNetHelper.isOnAFallbackInstance(proxiedPlayer)) {
+        if (BungeeCloudNetHelper.isOnMatchingFallbackInstance(proxiedPlayer)) {
             sender.sendMessage(TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', BridgeConfigurationProvider.load().getMessages().get("command-hub-already-in-hub"))));
             return;
         }

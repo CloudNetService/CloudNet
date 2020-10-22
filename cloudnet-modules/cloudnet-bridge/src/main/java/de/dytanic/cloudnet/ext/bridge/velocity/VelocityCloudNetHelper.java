@@ -143,8 +143,19 @@ public final class VelocityCloudNetHelper {
         return serviceInfoSnapshot.getServiceId().getEnvironment().isMinecraftJavaServer();
     }
 
-    public static boolean isOnAFallbackInstance(Player player) {
-        return player.getCurrentServer().isPresent() && isFallbackServer(player.getCurrentServer().get().getServerInfo());
+    public static boolean isOnMatchingFallbackInstance(Player player) {
+        if (player.getCurrentServer().isPresent()) {
+            ServerInfo currentServer = player.getCurrentServer().get().getServerInfo();
+
+            return BridgeProxyHelper.filterPlayerFallbacks(
+                    player.getUniqueId(),
+                    player.getCurrentServer().map(ServerConnection::getServerInfo).map(ServerInfo::getName).orElse(null),
+                    player::hasPermission
+            ).anyMatch(proxyFallback ->
+                    proxyFallback.getTask().equals(BridgeProxyHelper.getCachedServiceInfoSnapshot(currentServer.getName()).getServiceId().getTaskName()));
+        }
+
+        return false;
     }
 
     public static boolean isFallbackServer(ServerInfo serverInfo) {

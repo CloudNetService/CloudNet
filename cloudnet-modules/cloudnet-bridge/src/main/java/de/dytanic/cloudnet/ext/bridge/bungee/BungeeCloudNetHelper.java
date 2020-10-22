@@ -44,8 +44,19 @@ public final class BungeeCloudNetHelper {
         return lastOnlineCount;
     }
 
-    public static boolean isOnAFallbackInstance(ProxiedPlayer proxiedPlayer) {
-        return proxiedPlayer.getServer() != null && isFallbackServer(proxiedPlayer.getServer().getInfo());
+    public static boolean isOnMatchingFallbackInstance(ProxiedPlayer player) {
+        ServerInfo currentServer = player.getServer() == null ? null : player.getServer().getInfo();
+
+        if (currentServer != null) {
+            return BridgeProxyHelper.filterPlayerFallbacks(
+                    player.getUniqueId(),
+                    currentServer.getName(),
+                    player::hasPermission
+            ).anyMatch(proxyFallback ->
+                    proxyFallback.getTask().equals(BridgeProxyHelper.getCachedServiceInfoSnapshot(currentServer.getName()).getServiceId().getTaskName()));
+        }
+
+        return false;
     }
 
     public static boolean isFallbackServer(ServerInfo serverInfo) {
