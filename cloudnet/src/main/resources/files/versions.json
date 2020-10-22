@@ -752,6 +752,7 @@
         {
           "name": "latest",
           "url": "https://gomint-artifacts.s3.amazonaws.com/latest.zip",
+          "minJavaVersion": 9,
           "cacheFiles": false,
           "properties": {
             "copy": {
