@@ -47,7 +47,7 @@ public class ProxyFallback implements Comparable<ProxyFallback> {
     }
 
     public Collection<String> getAvailableOnGroups() {
-        return availableOnGroups;
+        return this.availableOnGroups;
     }
 
     public void setAvailableOnGroups(Collection<String> availableOnGroups) {

@@ -45,15 +45,19 @@ public final class BungeeCloudNetHelper {
     }
 
     public static boolean isOnMatchingFallbackInstance(ProxiedPlayer player) {
-        ServerInfo currentServer = player.getServer() == null ? null : player.getServer().getInfo();
+        String currentServer = player.getServer() == null ? null : player.getServer().getInfo().getName();
 
         if (currentServer != null) {
-            return BridgeProxyHelper.filterPlayerFallbacks(
-                    player.getUniqueId(),
-                    currentServer.getName(),
-                    player::hasPermission
-            ).anyMatch(proxyFallback ->
-                    proxyFallback.getTask().equals(BridgeProxyHelper.getCachedServiceInfoSnapshot(currentServer.getName()).getServiceId().getTaskName()));
+            ServiceInfoSnapshot currentService = BridgeProxyHelper.getCachedServiceInfoSnapshot(currentServer);
+
+            if (currentService != null) {
+                return BridgeProxyHelper.filterPlayerFallbacks(
+                        player.getUniqueId(),
+                        currentServer,
+                        player::hasPermission
+                ).anyMatch(proxyFallback ->
+                        proxyFallback.getTask().equals(currentService.getServiceId().getTaskName()));
+            }
         }
 
         return false;

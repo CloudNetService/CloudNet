@@ -144,16 +144,20 @@ public final class VelocityCloudNetHelper {
     }
 
     public static boolean isOnMatchingFallbackInstance(Player player) {
-        return player.getCurrentServer().map(serverConnection -> BridgeProxyHelper.filterPlayerFallbacks(
-                player.getUniqueId(),
-                serverConnection.getServerInfo().getName(),
-                player::hasPermission
-        ).anyMatch(proxyFallback ->
-                proxyFallback.getTask().equals(
-                        BridgeProxyHelper.getCachedServiceInfoSnapshot(serverConnection.getServerInfo().getName()).getServiceId().getTaskName()
-                )
-        )).orElse(false);
+        return player.getCurrentServer().map(serverConnection -> {
+            String currentServer = serverConnection.getServerInfo().getName();
+            ServiceInfoSnapshot currentService = BridgeProxyHelper.getCachedServiceInfoSnapshot(currentServer);
 
+            if (currentService == null) {
+                return false;
+            }
+
+            return BridgeProxyHelper.filterPlayerFallbacks(
+                    player.getUniqueId(),
+                    currentServer,
+                    player::hasPermission
+            ).anyMatch(proxyFallback -> proxyFallback.getTask().equals(currentService.getServiceId().getTaskName()));
+        }).orElse(false);
     }
 
     public static boolean isFallbackServer(ServerInfo serverInfo) {
