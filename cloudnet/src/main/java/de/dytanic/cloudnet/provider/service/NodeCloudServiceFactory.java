@@ -3,19 +3,14 @@ package de.dytanic.cloudnet.provider.service;
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.cluster.IClusterNodeServer;
-import de.dytanic.cloudnet.cluster.NodeServer;
 import de.dytanic.cloudnet.common.concurrent.CompletedTask;
 import de.dytanic.cloudnet.common.concurrent.ITask;
-import de.dytanic.cloudnet.driver.channel.ChannelMessage;
-import de.dytanic.cloudnet.driver.event.EventListener;
-import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
 import de.dytanic.cloudnet.driver.provider.service.CloudServiceFactory;
 import de.dytanic.cloudnet.driver.provider.service.DefaultCloudServiceFactory;
-import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
-import de.dytanic.cloudnet.util.Identity;
+import de.dytanic.cloudnet.network.packet.PacketServerStartServiceFromConfiguration;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -86,13 +81,7 @@ public class NodeCloudServiceFactory extends DefaultCloudServiceFactory implemen
                 }
 
                 nodeServer.getNodeInfoSnapshot().addReservedMemory(serviceConfiguration.getProcessConfig().getMaxHeapMemorySize());
-                ServiceInfoSnapshot result = nodeServer.sendChannelMessageQuery(ChannelMessage.builder()
-                        .channel(HEAD_NODE_INFO_CHANNEL)
-                        .message(START_SERVICE_MESSAGE)
-                        .buffer(ProtocolBuffer.create().writeObject(info.getConfiguration()))
-                        .targetNode(nodeServer.getNodeInfo().getUniqueId())
-                        .build()
-                ).map(response -> {
+                ServiceInfoSnapshot result = nodeServer.getNetworkChannel().sendQueryAsync(new PacketServerStartServiceFromConfiguration(serviceConfiguration)).map(response -> {
                     if (response == null) {
                         this.cloudNet.getCloudServiceManager().getGlobalServiceInfoSnapshots().remove(info.getServiceId().getUniqueId());
                         nodeServer.getNodeInfoSnapshot().removeReservedMemory(serviceConfiguration.getProcessConfig().getMaxHeapMemorySize());
@@ -109,27 +98,5 @@ public class NodeCloudServiceFactory extends DefaultCloudServiceFactory implemen
                 return result;
             }
         });
-    }
-
-    @EventListener
-    public void handleChannelMessage(ChannelMessageReceiveEvent event) {
-        if (!event.getChannel().equals(HEAD_NODE_INFO_CHANNEL) || event.getMessage() == null
-                || !event.getMessage().equals(START_SERVICE_MESSAGE) || event.getSender().getName() == null) {
-            return;
-        }
-
-        Identity<NodeServer> headNode = this.cloudNet.getClusterNodeServerProvider().getHeadNode();
-        if (headNode.instance().getNodeInfo().getUniqueId().equals(event.getSender().getName())) {
-            ServiceInfoSnapshot snapshot = this.cloudNet.getCloudServiceManager()
-                    .buildService(event.getBuffer().readObject(ServiceConfiguration.class))
-                    .get(10, TimeUnit.SECONDS, null);
-            event.setQueryResponse(ChannelMessage.buildResponseFor(event.getChannelMessage())
-                    .buffer(ProtocolBuffer.create().writeOptionalObject(snapshot))
-                    .build());
-        } else {
-            event.setQueryResponse(ChannelMessage.buildResponseFor(event.getChannelMessage())
-                    .buffer(ProtocolBuffer.create().writeOptionalObject(this.createCloudService(event.getBuffer().readObject(ServiceConfiguration.class))))
-                    .build());
-        }
     }
 }

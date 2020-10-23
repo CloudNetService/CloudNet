@@ -31,8 +31,8 @@ public class PacketServerSetGlobalLogLevelListener implements IPacketListener {
         }
         if (this.redirectToCluster) {
             for (IClusterNodeServer nodeServer : CloudNet.getInstance().getClusterNodeServerProvider().getNodeServers()) {
-                if (nodeServer.getChannel() != null) {
-                    nodeServer.getChannel().sendPacket(packet);
+                if (nodeServer.getNetworkChannel() != null) {
+                    nodeServer.getNetworkChannel().sendPacket(packet);
                 }
             }
         }

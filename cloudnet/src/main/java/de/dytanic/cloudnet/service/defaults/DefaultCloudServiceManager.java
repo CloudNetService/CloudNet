@@ -61,7 +61,7 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
         }
     }
 
-    public @Nullable ServiceInfoSnapshot buildService0(@NotNull ServiceConfiguration configuration) {
+    private @Nullable ServiceInfoSnapshot buildService0(@NotNull ServiceConfiguration configuration) {
         final boolean localStart;
         if (configuration.getServiceId().getNodeUniqueId() == null) {
             configuration.getServiceId().setNodeUniqueId(CloudNet.getInstance().getComponentName());

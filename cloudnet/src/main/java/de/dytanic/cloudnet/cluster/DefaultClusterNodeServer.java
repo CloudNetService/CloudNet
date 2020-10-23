@@ -21,7 +21,7 @@ import java.util.concurrent.TimeUnit;
 public final class DefaultClusterNodeServer extends DefaultNodeServer implements IClusterNodeServer {
 
     private final DefaultClusterNodeServerProvider provider;
-    private final CloudServiceFactory cloudServiceFactory = new RemoteCloudServiceFactory(this::getChannel);
+    private final CloudServiceFactory cloudServiceFactory = new RemoteCloudServiceFactory(this::getNetworkChannel);
 
     private INetworkChannel channel;
 

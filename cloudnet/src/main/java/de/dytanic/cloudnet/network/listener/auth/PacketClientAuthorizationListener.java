@@ -56,6 +56,7 @@ public final class PacketClientAuthorizationListener implements IPacketListener 
                                 channel.getPacketRegistry().addListener(PacketConstants.CLUSTER_PERMISSION_DATA_CHANNEL, new PacketServerSetPermissionDataListener());
                                 channel.getPacketRegistry().addListener(PacketConstants.CLUSTER_TEMPLATE_DEPLOY_CHANNEL, new PacketServerDeployLocalTemplateListener());
                                 channel.getPacketRegistry().addListener(PacketConstants.CLUSTER_NODE_INFO_CHANNEL, new PacketServerClusterNodeInfoUpdateListener());
+                                channel.getPacketRegistry().addListener(PacketConstants.CLUSTER_NODE_START_SERVICE_CHANNEL, new PacketServerStartServiceFromConfigurationListener(CloudNet.getInstance()));
 
                                 channel.getPacketRegistry().addListener(PacketConstants.INTERNAL_DRIVER_API_CHANNEL, new PacketServerDriverAPIListener());
 

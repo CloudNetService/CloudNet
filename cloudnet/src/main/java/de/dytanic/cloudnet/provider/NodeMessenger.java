@@ -51,15 +51,15 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
                 if (target.getName() == null) {
                     Collection<ChannelMessageTargetChannel> channels = new ArrayList<>();
                     for (IClusterNodeServer server : this.cloudNet.getClusterNodeServerProvider().getNodeServers()) {
-                        if (server.getChannel() != null) {
-                            channels.add(new ChannelMessageTargetChannel(server.getChannel(), true));
+                        if (server.getNetworkChannel() != null) {
+                            channels.add(new ChannelMessageTargetChannel(server.getNetworkChannel(), true));
                         }
                     }
                     return channels;
                 }
 
                 IClusterNodeServer server = this.cloudNet.getClusterNodeServerProvider().getNodeServer(target.getName());
-                return server != null ? Collections.singletonList(new ChannelMessageTargetChannel(server.getChannel(), true)) : null;
+                return server != null ? Collections.singletonList(new ChannelMessageTargetChannel(server.getNetworkChannel(), true)) : null;
             }
             case TASK: {
                 if (target.getName() == null) {
@@ -91,7 +91,7 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
                     return null;
                 }
                 IClusterNodeServer server = this.cloudNet.getClusterNodeServerProvider().getNodeServer(service.getServiceId().getNodeUniqueId());
-                return server != null && server.getChannel() != null ? Collections.singletonList(new ChannelMessageTargetChannel(server.getChannel(), true)) : null;
+                return server != null && server.getNetworkChannel() != null ? Collections.singletonList(new ChannelMessageTargetChannel(server.getNetworkChannel(), true)) : null;
             }
             case ENVIRONMENT: {
                 Collection<ServiceInfoSnapshot> services = this.cloudNet.getCloudServiceProvider().getCloudServices(target.getEnvironment());
@@ -113,8 +113,8 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
         }
         if (!serviceOnly) {
             for (IClusterNodeServer server : this.cloudNet.getClusterNodeServerProvider().getNodeServers()) {
-                if (server.getChannel() != null && !sender.isEqual(server.getNodeInfo())) {
-                    channels.add(new ChannelMessageTargetChannel(server.getChannel(), true));
+                if (server.getNetworkChannel() != null && !sender.isEqual(server.getNodeInfo())) {
+                    channels.add(new ChannelMessageTargetChannel(server.getNetworkChannel(), true));
                 }
             }
         }
@@ -134,13 +134,13 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
                 }
             } else if (!serviceOnly) {
                 IClusterNodeServer server = this.cloudNet.getClusterNodeServerProvider().getNodeServer(service.getServiceId().getNodeUniqueId());
-                if (server == null || server.getChannel() == null) {
+                if (server == null || server.getNetworkChannel() == null) {
                     continue;
                 }
-                if (channels.stream().anyMatch(channel -> channel.getChannel().equals(server.getChannel()))) {
+                if (channels.stream().anyMatch(channel -> channel.getChannel().equals(server.getNetworkChannel()))) {
                     continue;
                 }
-                channels.add(new ChannelMessageTargetChannel(server.getChannel(), true));
+                channels.add(new ChannelMessageTargetChannel(server.getNetworkChannel(), true));
             }
         }
         return channels;

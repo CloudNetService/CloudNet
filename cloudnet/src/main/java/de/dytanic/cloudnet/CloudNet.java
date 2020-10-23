@@ -159,8 +159,6 @@ public final class CloudNet extends CloudNetDriver {
         super.nodeInfoProvider = new NodeNodeInfoProvider(this);
         super.messenger = new NodeMessenger(this);
 
-        super.eventManager.registerListener(super.cloudServiceFactory);
-
         this.console = console;
         this.commandLineArguments = commandLineArguments;
         this.commandLineProperties = Properties.parseLine(commandLineArguments.toArray(new String[0]));

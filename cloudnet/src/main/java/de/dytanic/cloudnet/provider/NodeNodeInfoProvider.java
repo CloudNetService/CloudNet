@@ -116,7 +116,7 @@ public class NodeNodeInfoProvider implements NodeInfoProvider {
 
         IClusterNodeServer clusterNodeServer = this.cloudNet.getClusterNodeServerProvider().getNodeServer(nodeUniqueId);
 
-        if (clusterNodeServer != null && clusterNodeServer.isConnected() && clusterNodeServer.getChannel() != null) {
+        if (clusterNodeServer != null && clusterNodeServer.isConnected() && clusterNodeServer.getNetworkChannel() != null) {
             return clusterNodeServer.sendCommandLine(commandLine);
         }
 

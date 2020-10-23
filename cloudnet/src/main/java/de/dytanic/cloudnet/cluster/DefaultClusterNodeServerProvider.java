@@ -43,7 +43,7 @@ public final class DefaultClusterNodeServerProvider extends DefaultNodeServerPro
         Preconditions.checkNotNull(channel);
 
         for (IClusterNodeServer clusterNodeServer : this.servers.values()) {
-            if (clusterNodeServer.getChannel() != null && clusterNodeServer.getChannel().getChannelId() == channel.getChannelId()) {
+            if (clusterNodeServer.getNetworkChannel() != null && clusterNodeServer.getNetworkChannel().getChannelId() == channel.getChannelId()) {
                 return clusterNodeServer;
             }
         }
@@ -89,8 +89,8 @@ public final class DefaultClusterNodeServerProvider extends DefaultNodeServerPro
         Preconditions.checkNotNull(packet);
 
         for (IClusterNodeServer server : this.servers.values()) {
-            if (server.getChannel() != null) {
-                server.getChannel().sendPacketSync(packet);
+            if (server.getNetworkChannel() != null) {
+                server.getNetworkChannel().sendPacketSync(packet);
             }
         }
     }
@@ -118,7 +118,7 @@ public final class DefaultClusterNodeServerProvider extends DefaultNodeServerPro
         Collection<INetworkChannel> channels = this.servers
                 .values()
                 .stream()
-                .map(IClusterNodeServer::getChannel)
+                .map(IClusterNodeServer::getNetworkChannel)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
 
