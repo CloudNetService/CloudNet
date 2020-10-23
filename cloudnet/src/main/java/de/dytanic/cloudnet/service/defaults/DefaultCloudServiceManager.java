@@ -57,7 +57,7 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
         if (CloudNet.getInstance().isMainThread()) {
             return CompletedTask.create(this.buildServiceSync(configuration));
         } else {
-            return CloudNet.getInstance().scheduleTask(() -> this.buildServiceSync(configuration));
+            return CloudNet.getInstance().runTask(() -> this.buildServiceSync(configuration));
         }
     }
 

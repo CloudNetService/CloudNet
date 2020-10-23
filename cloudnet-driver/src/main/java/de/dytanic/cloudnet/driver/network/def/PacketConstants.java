@@ -22,9 +22,9 @@ public final class PacketConstants {
 
     //events
     public static final int
-            SERVICE_INFO_PUBLISH_CHANNEL = 13,
-            PERMISSIONS_PUBLISH_CHANNEL = 14,
-            CHANNEL_MESSAGING_CHANNEL = 15;
+            SERVICE_INFO_PUBLISH_CHANNEL = 14,
+            PERMISSIONS_PUBLISH_CHANNEL = 15,
+            CHANNEL_MESSAGING_CHANNEL = 16;
 
     private PacketConstants() {
         throw new UnsupportedOperationException();
