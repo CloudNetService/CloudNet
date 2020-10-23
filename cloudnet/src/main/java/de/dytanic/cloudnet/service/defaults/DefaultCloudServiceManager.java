@@ -55,13 +55,13 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
     @ApiStatus.Internal
     public @NotNull ITask<ServiceInfoSnapshot> buildService(@NotNull ServiceConfiguration configuration) {
         if (CloudNet.getInstance().isMainThread()) {
-            return CompletedTask.create(this.buildService0(configuration));
+            return CompletedTask.create(this.buildServiceSync(configuration));
         } else {
-            return CloudNet.getInstance().scheduleTask(() -> this.buildService0(configuration));
+            return CloudNet.getInstance().scheduleTask(() -> this.buildServiceSync(configuration));
         }
     }
 
-    private @Nullable ServiceInfoSnapshot buildService0(@NotNull ServiceConfiguration configuration) {
+    private @Nullable ServiceInfoSnapshot buildServiceSync(@NotNull ServiceConfiguration configuration) {
         final boolean localStart;
         if (configuration.getServiceId().getNodeUniqueId() == null) {
             configuration.getServiceId().setNodeUniqueId(CloudNet.getInstance().getComponentName());
