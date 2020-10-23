@@ -21,7 +21,7 @@ public final class CommandHub implements Command {
 
         Player player = (Player) source;
 
-        if (VelocityCloudNetHelper.isOnAFallbackInstance(player)) {
+        if (VelocityCloudNetHelper.isOnMatchingFallbackInstance(player)) {
             source.sendMessage(LegacyComponentSerializer.legacyLinking().deserialize(BridgeConfigurationProvider.load().getMessages().get("command-hub-already-in-hub").replace("&", "§")));
             return;
         }

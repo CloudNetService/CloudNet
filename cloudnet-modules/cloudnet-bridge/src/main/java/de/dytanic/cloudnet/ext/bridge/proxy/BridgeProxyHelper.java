@@ -34,15 +34,15 @@ public class BridgeProxyHelper {
                 .filter(serviceInfoSnapshot -> serviceInfoSnapshot.getServiceId().getTaskName().equals(task));
     }
 
-    public static ServiceInfoSnapshot getCachedServiceInfoSnapshot(String name) {
+    public static ServiceInfoSnapshot getCachedServiceInfoSnapshot(@NotNull String name) {
         return SERVICE_CACHE.get(name);
     }
 
-    public static void cacheServiceInfoSnapshot(ServiceInfoSnapshot serviceInfoSnapshot) {
+    public static void cacheServiceInfoSnapshot(@NotNull ServiceInfoSnapshot serviceInfoSnapshot) {
         SERVICE_CACHE.put(serviceInfoSnapshot.getName(), serviceInfoSnapshot);
     }
 
-    public static void removeCachedServiceInfoSnapshot(ServiceInfoSnapshot serviceInfoSnapshot) {
+    public static void removeCachedServiceInfoSnapshot(@NotNull ServiceInfoSnapshot serviceInfoSnapshot) {
         SERVICE_CACHE.remove(serviceInfoSnapshot.getName());
     }
 
@@ -79,12 +79,21 @@ public class BridgeProxyHelper {
                 });
     }
 
-    public static Optional<ServiceInfoSnapshot> getNextFallback(@NotNull UUID uniqueId, @Nullable String currentServer, @NotNull Predicate<String> permissionTester) {
-        PlayerFallbackProfile profile = PROFILES.computeIfAbsent(uniqueId, uuid -> new PlayerFallbackProfile());
+    public static Stream<ProxyFallback> filterPlayerFallbacks(@NotNull UUID uniqueId, @Nullable String currentServer, @NotNull Predicate<String> permissionTester) {
+        ServiceInfoSnapshot currentService = currentServer == null ? null : SERVICE_CACHE.get(currentServer);
+        Collection<String> serviceGroups = currentService == null ? new ArrayList<>() : Arrays.asList(currentService.getConfiguration().getGroups());
 
         return getFallbacks()
                 .filter(proxyFallback -> proxyFallback.getPermission() == null || permissionTester.test(proxyFallback.getPermission()))
+                .filter(proxyFallback -> proxyFallback.getAvailableOnGroups() == null
+                        || proxyFallback.getAvailableOnGroups().isEmpty()
+                        || proxyFallback.getAvailableOnGroups().stream().anyMatch(serviceGroups::contains));
+    }
 
+    public static Optional<ServiceInfoSnapshot> getNextFallback(@NotNull UUID uniqueId, @Nullable String currentServer, @NotNull Predicate<String> permissionTester) {
+        PlayerFallbackProfile profile = PROFILES.computeIfAbsent(uniqueId, uuid -> new PlayerFallbackProfile());
+
+        return filterPlayerFallbacks(uniqueId, currentServer, permissionTester)
                 .flatMap(proxyFallback -> getCachedServiceInfoSnapshots(proxyFallback.getTask()).map(serviceInfoSnapshot -> new PlayerFallback(proxyFallback.getPriority(), serviceInfoSnapshot)))
 
                 .filter(fallback -> fallback.getTarget().isConnected() && fallback.getTarget().getProperty(BridgeServiceProperty.IS_ONLINE).orElse(false))
