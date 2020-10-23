@@ -22,9 +22,6 @@ import java.util.concurrent.TimeoutException;
 
 public class NodeCloudServiceFactory extends DefaultCloudServiceFactory implements CloudServiceFactory {
 
-    private static final String HEAD_NODE_INFO_CHANNEL = "head_node_info";
-    private static final String START_SERVICE_MESSAGE = "start_service";
-
     private final CloudNet cloudNet;
 
     public NodeCloudServiceFactory(CloudNet cloudNet) {
