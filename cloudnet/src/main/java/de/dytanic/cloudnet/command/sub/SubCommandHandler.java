@@ -72,19 +72,16 @@ public class SubCommandHandler extends Command implements ITabCompleter {
                 .findFirst();
 
         if (!optionalSubCommand.isPresent()) {
-            Optional<String> optionalInvalidMessage = this.subCommands.stream()
-                    .map(subCommand -> subCommand.getInvalidArgumentMessage(args))
-                    .filter(Objects::nonNull)
-                    .filter(pair -> pair.getSecond() == 0) // all static values must match
-                    .findFirst()
-                    .map(Pair::getFirst);
+            for (SubCommand subCommand : this.subCommands) {
+                Pair<String, Integer> invalidArgumentMessage = subCommand.getInvalidArgumentMessage(args);
 
-            if (optionalInvalidMessage.isPresent()) {
-                sender.sendMessage(optionalInvalidMessage.get());
-            } else {
-                this.sendHelp(sender);
+                if (invalidArgumentMessage != null && invalidArgumentMessage.getSecond() == 0) {
+                    sender.sendMessage(invalidArgumentMessage.getFirst());
+                    return;
+                }
             }
 
+            this.sendHelp(sender);
             return;
         }
 
