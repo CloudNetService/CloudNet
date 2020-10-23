@@ -1,5 +1,6 @@
 package de.dytanic.cloudnet.ext.bridge.node.listener;
 
+import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
@@ -8,6 +9,8 @@ import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.event.cluster.NetworkChannelAuthClusterNodeSuccessEvent;
 import de.dytanic.cloudnet.ext.bridge.BridgeConstants;
+import de.dytanic.cloudnet.ext.bridge.event.BridgeUpdateCloudOfflinePlayerEvent;
+import de.dytanic.cloudnet.ext.bridge.event.BridgeUpdateCloudPlayerEvent;
 import de.dytanic.cloudnet.ext.bridge.node.player.NodePlayerManager;
 import de.dytanic.cloudnet.ext.bridge.player.CloudOfflinePlayer;
 import de.dytanic.cloudnet.ext.bridge.player.CloudPlayer;
@@ -63,12 +66,14 @@ public final class PlayerManagerListener {
                 ICloudOfflinePlayer cloudOfflinePlayer = event.getBuffer().readObject(CloudOfflinePlayer.class);
 
                 this.nodePlayerManager.updateOfflinePlayer0(cloudOfflinePlayer);
+                CloudNetDriver.getInstance().getEventManager().callEvent(new BridgeUpdateCloudOfflinePlayerEvent(cloudOfflinePlayer));
             }
             break;
             case "update_online_cloud_player": {
                 ICloudPlayer cloudPlayer = event.getBuffer().readObject(CloudPlayer.class);
 
                 this.nodePlayerManager.updateOnlinePlayer0(cloudPlayer);
+                CloudNetDriver.getInstance().getEventManager().callEvent(new BridgeUpdateCloudPlayerEvent(cloudPlayer));
             }
             break;
         }
