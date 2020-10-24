@@ -140,7 +140,10 @@ public abstract class AbstractSyncProxyManagement {
                         Arrays.asList(Wrapper.getInstance().getServiceConfiguration().getGroups()).contains(tabListConfiguration.getTargetGroup()))
                 .findFirst().orElse(null);
 
-        this.scheduleTabList();
+        if (this.tabListEntryIndex.get() == -1) {
+            this.scheduleTabList();
+        }
+
         this.checkWhitelist();
     }
 
