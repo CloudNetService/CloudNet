@@ -45,7 +45,7 @@ public interface Updater extends VersionInfo {
 
                         // avoiding the installation of manual removed modules
                         if (!modulesExist || Files.exists(modulePath)) {
-                            System.out.println(String.format("Installing module %s...", module.getName()));
+                            System.out.printf("Installing module %s...%n", module.getName());
 
                             if (!this.installFile(module.getFileName(), modulePath)) {
                                 successful = false;
