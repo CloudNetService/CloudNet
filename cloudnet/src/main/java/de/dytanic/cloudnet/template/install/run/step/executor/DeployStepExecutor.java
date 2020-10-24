@@ -29,8 +29,4 @@ public class DeployStepExecutor implements InstallStepExecutor {
         return inputPaths;
     }
 
-    @Override
-    public void interrupt() {
-    }
-
 }

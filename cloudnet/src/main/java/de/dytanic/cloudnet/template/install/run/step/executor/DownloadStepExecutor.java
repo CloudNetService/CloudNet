@@ -30,8 +30,4 @@ public class DownloadStepExecutor implements InstallStepExecutor {
         }
     }
 
-    @Override
-    public void interrupt() {
-    }
-
 }
