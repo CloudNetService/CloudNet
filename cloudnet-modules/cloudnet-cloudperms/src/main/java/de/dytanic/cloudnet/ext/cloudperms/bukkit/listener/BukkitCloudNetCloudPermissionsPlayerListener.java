@@ -19,14 +19,16 @@ public final class BukkitCloudNetCloudPermissionsPlayerListener implements Liste
         this.permissionsManagement = permissionsManagement;
     }
 
-    @EventHandler(priority = EventPriority.LOWEST)
+    @EventHandler(priority = EventPriority.LOW)
     public void handle(PlayerLoginEvent event) {
-        CloudPermissionsHelper.initPermissionUser(this.permissionsManagement, event.getPlayer().getUniqueId(), event.getPlayer().getName(), message -> {
-            event.setResult(PlayerLoginEvent.Result.KICK_OTHER);
-            event.setKickMessage(ChatColor.translateAlternateColorCodes('&', message));
-        }, Bukkit.getOnlineMode());
+        if (event.getResult() == PlayerLoginEvent.Result.ALLOWED) {
+            CloudPermissionsHelper.initPermissionUser(this.permissionsManagement, event.getPlayer().getUniqueId(), event.getPlayer().getName(), message -> {
+                event.setResult(PlayerLoginEvent.Result.KICK_OTHER);
+                event.setKickMessage(ChatColor.translateAlternateColorCodes('&', message));
+            }, Bukkit.getOnlineMode());
 
-        BukkitCloudNetCloudPermissionsPlugin.getInstance().injectCloudPermissible(event.getPlayer());
+            BukkitCloudNetCloudPermissionsPlugin.getInstance().injectCloudPermissible(event.getPlayer());
+        }
     }
 
     @EventHandler
