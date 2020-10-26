@@ -26,7 +26,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.jar.JarFile;
 import java.util.stream.Collectors;
@@ -91,10 +90,9 @@ public final class CloudNetLauncher {
 
         try {
             PRINT.accept("Starting CloudNet...");
-            Thread.sleep(TimeUnit.SECONDS.toMillis(3));
 
             this.startApplication(args, dependencyResources);
-        } catch (IOException | ClassNotFoundException | NoSuchMethodException | InterruptedException exception) {
+        } catch (IOException | ClassNotFoundException | NoSuchMethodException exception) {
             throw new RuntimeException("Failed to start the application!", exception);
         }
     }
