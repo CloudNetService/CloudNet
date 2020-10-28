@@ -91,7 +91,7 @@ public final class DefaultClusterNodeServer extends DefaultNodeServer implements
     }
 
     @Override
-    public CloudServiceFactory getCloudServiceFactory() {
+    public @NotNull CloudServiceFactory getCloudServiceFactory() {
         return this.cloudServiceFactory;
     }
 

@@ -220,11 +220,11 @@ public final class CloudNetReportModule extends NodeCloudNetModule {
                 .append(CPUUsageResolver.CPU_USAGE_OUTPUT_FORMAT.format(CPUUsageResolver.getSystemCPUUsage()))
                 .append("/100%").append('\n');
         builder.append("Node services memory allocation: ")
-                .append(CloudNet.getInstance().getCurrentNetworkClusterNodeInfoSnapshot().getUsedMemory())
+                .append(CloudNet.getInstance().getClusterNodeServerProvider().getCurrentNodeServer().getNodeInfoSnapshot().getUsedMemory())
                 .append("/")
-                .append(CloudNet.getInstance().getCurrentNetworkClusterNodeInfoSnapshot().getReservedMemory())
+                .append(CloudNet.getInstance().getClusterNodeServerProvider().getCurrentNodeServer().getNodeInfoSnapshot().getReservedMemory())
                 .append("/")
-                .append(CloudNet.getInstance().getCurrentNetworkClusterNodeInfoSnapshot().getMaxMemory())
+                .append(CloudNet.getInstance().getClusterNodeServerProvider().getCurrentNodeServer().getNodeInfoSnapshot().getMaxMemory())
                 .append("MB")
                 .append('\n');
         builder.append("Threads: ").append(Thread.getAllStackTraces().keySet().size()).append('\n');

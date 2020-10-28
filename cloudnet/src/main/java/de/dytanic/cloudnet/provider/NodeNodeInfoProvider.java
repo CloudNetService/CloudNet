@@ -69,7 +69,7 @@ public class NodeNodeInfoProvider implements NodeInfoProvider {
     @Override
     public NetworkClusterNodeInfoSnapshot getNodeInfoSnapshot(@NotNull String uniqueId) {
         if (uniqueId.equals(this.cloudNet.getConfig().getIdentity().getUniqueId())) {
-            return this.cloudNet.getCurrentNetworkClusterNodeInfoSnapshot();
+            return this.cloudNet.getClusterNodeServerProvider().getCurrentNodeServer().getNodeInfoSnapshot();
         }
 
         for (IClusterNodeServer clusterNodeServer : this.cloudNet.getClusterNodeServerProvider().getNodeServers()) {

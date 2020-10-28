@@ -31,9 +31,9 @@ public final class CommandMe extends CommandDefault {
                 "NodeId: " + this.getCloudNet().getConfig().getIdentity().getUniqueId(),
                 "CPU usage: (P/S) " + CPUUsageResolver.CPU_USAGE_OUTPUT_FORMAT.format(CPUUsageResolver.getProcessCPUUsage()) + "/" +
                         CPUUsageResolver.CPU_USAGE_OUTPUT_FORMAT.format(CPUUsageResolver.getSystemCPUUsage()) + "/100%",
-                "Node services memory allocation: " + this.getCloudNet().getCurrentNetworkClusterNodeInfoSnapshot().getUsedMemory() + "/" +
-                        this.getCloudNet().getCurrentNetworkClusterNodeInfoSnapshot().getReservedMemory() + "/" +
-                        this.getCloudNet().getCurrentNetworkClusterNodeInfoSnapshot().getMaxMemory() + "MB",
+                "Node services memory allocation: " + this.getCloudNet().getClusterNodeServerProvider().getCurrentNodeServer().getNodeInfoSnapshot().getUsedMemory() + "/" +
+                        this.getCloudNet().getClusterNodeServerProvider().getCurrentNodeServer().getNodeInfoSnapshot().getReservedMemory() + "/" +
+                        this.getCloudNet().getClusterNodeServerProvider().getCurrentNodeServer().getNodeInfoSnapshot().getMaxMemory() + "MB",
                 "Threads: " + Thread.getAllStackTraces().keySet().size(),
                 "Heap usage: " + (memoryMXBean.getHeapMemoryUsage().getUsed() / 1048576) + "/" + (memoryMXBean.getHeapMemoryUsage().getMax() / 1048576) + "MB",
                 "Loaded classes: " + ManagementFactory.getClassLoadingMXBean().getLoadedClassCount(),

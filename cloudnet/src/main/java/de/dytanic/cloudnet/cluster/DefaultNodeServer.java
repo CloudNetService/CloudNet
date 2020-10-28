@@ -7,6 +7,7 @@ import org.jetbrains.annotations.NotNull;
 public abstract class DefaultNodeServer implements NodeServer {
 
     protected final NodeServerProvider provider;
+    protected volatile NetworkClusterNodeInfoSnapshot lastInfoSnapshot;
     protected volatile NetworkClusterNodeInfoSnapshot infoSnapshot;
     protected NetworkClusterNode nodeInfo;
 
@@ -41,7 +42,13 @@ public abstract class DefaultNodeServer implements NodeServer {
     }
 
     @Override
+    public NetworkClusterNodeInfoSnapshot getLastNodeInfoSnapshot() {
+        return this.lastInfoSnapshot;
+    }
+
+    @Override
     public void setNodeInfoSnapshot(@NotNull NetworkClusterNodeInfoSnapshot nodeInfoSnapshot) {
+        this.lastInfoSnapshot = this.infoSnapshot == null ? nodeInfoSnapshot : this.infoSnapshot;
         this.infoSnapshot = nodeInfoSnapshot;
     }
 

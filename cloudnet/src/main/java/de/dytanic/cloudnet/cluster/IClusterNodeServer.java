@@ -5,9 +5,11 @@ import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.api.DriverAPIUser;
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
+import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public interface IClusterNodeServer extends DriverAPIUser, NodeServer {
 
@@ -25,6 +27,8 @@ public interface IClusterNodeServer extends DriverAPIUser, NodeServer {
 
     @NotNull
     IClusterNodeServerProvider getProvider();
+
+    @Override @Nullable NetworkClusterNodeInfoSnapshot getNodeInfoSnapshot();
 
     /**
      * @deprecated Use {@link #getNetworkChannel()} instead

@@ -90,6 +90,7 @@ import de.dytanic.cloudnet.setup.DefaultInstallation;
 import de.dytanic.cloudnet.template.ITemplateStorage;
 import de.dytanic.cloudnet.template.LocalTemplateStorage;
 import de.dytanic.cloudnet.template.install.ServiceVersionProvider;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -142,7 +143,6 @@ public final class CloudNet extends CloudNetDriver {
     private final ServiceVersionProvider serviceVersionProvider = new ServiceVersionProvider();
 
     private AbstractDatabaseProvider databaseProvider;
-    private volatile NetworkClusterNodeInfoSnapshot lastNetworkClusterNodeInfoSnapshot, currentNetworkClusterNodeInfoSnapshot;
 
     private volatile boolean running = true;
 
@@ -229,10 +229,6 @@ public final class CloudNet extends CloudNetDriver {
 
         this.registerDefaultCommands();
         this.registerDefaultServices();
-
-        this.currentNetworkClusterNodeInfoSnapshot = this.createClusterNodeInfoSnapshot();
-        this.lastNetworkClusterNodeInfoSnapshot = this.currentNetworkClusterNodeInfoSnapshot;
-        this.clusterNodeServerProvider.getCurrentNodeServer().setNodeInfoSnapshot(this.currentNetworkClusterNodeInfoSnapshot);
 
         this.loadModules();
 
@@ -618,7 +614,7 @@ public final class CloudNet extends CloudNetDriver {
     public NetworkClusterNodeInfoSnapshot createClusterNodeInfoSnapshot() {
         return new NetworkClusterNodeInfoSnapshot(
                 System.currentTimeMillis(),
-                this.currentNetworkClusterNodeInfoSnapshot == null ? System.nanoTime() : this.currentNetworkClusterNodeInfoSnapshot.getStartupNanos(),
+                this.clusterNodeServerProvider.getCurrentNodeServer().getLastNodeInfoSnapshot().getStartupNanos(),
                 this.config.getIdentity(),
                 CloudNet.class.getPackage().getImplementationVersion(),
                 this.cloudServiceManager.getCloudServices().size(),
@@ -672,7 +668,7 @@ public final class CloudNet extends CloudNetDriver {
                 .collect(Collectors.toList());
 
         if (this.canStartServices(allowedNodes)) {
-            nodes.add(this.currentNetworkClusterNodeInfoSnapshot);
+            nodes.add(this.clusterNodeServerProvider.getCurrentNodeServer().getNodeInfoSnapshot());
         }
 
         return nodes.stream()
@@ -682,9 +678,14 @@ public final class CloudNet extends CloudNetDriver {
                 )).orElse(null);
     }
 
+    /**
+     * @deprecated Not used anymore as now the head node searches the best node and starts the service on it
+     */
+    @Deprecated
+    @ApiStatus.ScheduledForRemoval
     public boolean competeWithCluster(ServiceTask serviceTask) {
         NetworkClusterNodeInfoSnapshot bestNode = this.searchLogicNode(serviceTask);
-        return bestNode != null && bestNode.getNode().getUniqueId().equals(this.currentNetworkClusterNodeInfoSnapshot.getNode().getUniqueId());
+        return bestNode != null && bestNode.getNode().getUniqueId().equals(this.clusterNodeServerProvider.getCurrentNodeServer().getNodeInfo().getUniqueId());
     }
 
     public void unregisterPacketListenersByClassLoader(ClassLoader classLoader) {
@@ -703,13 +704,13 @@ public final class CloudNet extends CloudNetDriver {
     }
 
     public void publishNetworkClusterNodeInfoSnapshotUpdate() {
-        this.lastNetworkClusterNodeInfoSnapshot = this.currentNetworkClusterNodeInfoSnapshot;
-        this.currentNetworkClusterNodeInfoSnapshot = this.createClusterNodeInfoSnapshot();
+        final NetworkClusterNodeInfoSnapshot clusterNodeInfoSnapshot = this.createClusterNodeInfoSnapshot();
+        this.clusterNodeServerProvider.getCurrentNodeServer().setNodeInfoSnapshot(clusterNodeInfoSnapshot);
 
-        this.getEventManager().callEvent(new NetworkClusterNodeInfoConfigureEvent(this.currentNetworkClusterNodeInfoSnapshot));
+        this.getEventManager().callEvent(new NetworkClusterNodeInfoConfigureEvent(clusterNodeInfoSnapshot));
 
-        this.clusterNodeServerProvider.getCurrentNodeServer().setNodeInfoSnapshot(this.currentNetworkClusterNodeInfoSnapshot);
-        this.clusterNodeServerProvider.sendPacket(new PacketServerClusterNodeInfoUpdate(this.currentNetworkClusterNodeInfoSnapshot));
+        this.clusterNodeServerProvider.getCurrentNodeServer().setNodeInfoSnapshot(clusterNodeInfoSnapshot);
+        this.clusterNodeServerProvider.sendPacket(new PacketServerClusterNodeInfoUpdate(clusterNodeInfoSnapshot));
     }
 
     public void publishPermissionGroupUpdates(Collection<IPermissionGroup> permissionGroups, NetworkUpdateType updateType) {
@@ -984,12 +985,22 @@ public final class CloudNet extends CloudNetDriver {
         return this.databaseProvider;
     }
 
+    /**
+     * @deprecated use {@link IClusterNodeServerProvider#getCurrentNodeServer()} instead
+     */
+    @Deprecated
+    @ApiStatus.ScheduledForRemoval
     public NetworkClusterNodeInfoSnapshot getLastNetworkClusterNodeInfoSnapshot() {
-        return this.lastNetworkClusterNodeInfoSnapshot;
+        return this.clusterNodeServerProvider.getCurrentNodeServer().getLastNodeInfoSnapshot();
     }
 
+    /**
+     * @deprecated use {@link IClusterNodeServerProvider#getCurrentNodeServer()} instead
+     */
+    @Deprecated
+    @ApiStatus.ScheduledForRemoval
     public NetworkClusterNodeInfoSnapshot getCurrentNetworkClusterNodeInfoSnapshot() {
-        return this.currentNetworkClusterNodeInfoSnapshot;
+        return this.clusterNodeServerProvider.getCurrentNodeServer().getNodeInfoSnapshot();
     }
 
     public boolean isHeadNode() {
