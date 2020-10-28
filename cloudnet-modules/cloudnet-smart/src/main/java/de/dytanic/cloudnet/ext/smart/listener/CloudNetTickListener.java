@@ -30,7 +30,7 @@ public final class CloudNetTickListener {
 
     @EventListener
     public void handle(CloudNetTickEvent event) {
-        if (this.ticksPerSecond.getAndIncrement() >= CloudNet.TPS) {
+        if (CloudNet.getInstance().isHeadNode() && this.ticksPerSecond.getAndIncrement() >= CloudNet.TPS) {
             this.handleSmartTasksConfigItems();
             this.handlePercentStart();
             this.handleAutoStop();
