@@ -56,7 +56,7 @@ public final class PacketServerUpdatePermissionsListener implements IPacketListe
             break;
             case DELETE_USER: {
                 IPermissionUser permissionUser = packet.getBuffer().readObject(PermissionUser.class);
-                this.invoke0(new PermissionUpdateUserEvent(this.getPermissionManagement(), permissionUser));
+                this.invoke0(new PermissionDeleteUserEvent(this.getPermissionManagement(), permissionUser));
                 if (this.getPermissionManagement() instanceof ClusterSynchronizedPermissionManagement) {
                     ((ClusterSynchronizedPermissionManagement) this.getPermissionManagement()).deleteUserWithoutClusterSyncAsync(permissionUser);
                 }
@@ -64,7 +64,7 @@ public final class PacketServerUpdatePermissionsListener implements IPacketListe
             break;
             case UPDATE_USER: {
                 IPermissionUser permissionUser = packet.getBuffer().readObject(PermissionUser.class);
-                this.invoke0(new PermissionDeleteUserEvent(this.getPermissionManagement(), permissionUser));
+                this.invoke0(new PermissionUpdateUserEvent(this.getPermissionManagement(), permissionUser));
                 if (this.getPermissionManagement() instanceof ClusterSynchronizedPermissionManagement) {
                     ((ClusterSynchronizedPermissionManagement) this.getPermissionManagement()).updateUserWithoutClusterSyncAsync(permissionUser);
                 }

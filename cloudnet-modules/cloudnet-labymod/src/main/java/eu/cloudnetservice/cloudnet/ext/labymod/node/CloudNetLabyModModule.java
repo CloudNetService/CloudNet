@@ -24,7 +24,7 @@ public class CloudNetLabyModModule extends NodeCloudNetModule {
 
         JsonDocument previousConfig = super.getConfig().clone();
         this.configuration = super.getConfig().get("config", LabyModConfiguration.class, new LabyModConfiguration(
-                true,
+                false,
                 new ServiceDisplay(true, ServiceDisplay.DisplayType.SERVICE, "Playing on %display%"),
                 new DiscordJoinMatchConfig(true, new ArrayList<>()),
                 new ServiceDisplay(true, ServiceDisplay.DisplayType.TASK, "§bCloud§fNet §8➢ §e%display%"),

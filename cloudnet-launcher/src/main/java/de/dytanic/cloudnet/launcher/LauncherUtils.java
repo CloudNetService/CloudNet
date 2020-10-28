@@ -29,7 +29,8 @@ public final class LauncherUtils {
             new CloudNetModule("cloudnet-smart", "cloudnet-smart.jar"),
             new CloudNetModule("cloudnet-cloudperms", "cloudnet-cloudperms.jar"),
             new CloudNetModule("cloudnet-storage-ftp", "cloudnet-storage-ftp.jar"),
-            new CloudNetModule("cloudnet-database-mysql", "cloudnet-database-mysql.jar")
+            new CloudNetModule("cloudnet-database-mysql", "cloudnet-database-mysql.jar"),
+            new CloudNetModule("cloudnet-labymod", "cloudnet-labymod.jar")
     );
 
     public static final String[] VERSION_FILE_NAMES = new String[]{

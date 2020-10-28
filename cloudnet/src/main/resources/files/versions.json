@@ -366,10 +366,10 @@
           "cacheFiles": false,
           "properties": {
             "copy": {
-              "libraries/.*": "libraries/%fileName%",
-              ".*\\.json": "%fileName%",
-              "forge-.*\\.jar": "%fileName%",
-              "minecraft_server.*\\.jar": "%fileName%"
+              "libraries/.*": "/",
+              ".*\\.json": "/",
+              "forge-.*\\.jar": "/",
+              "minecraft_server.*\\.jar": "/"
             },
             "parameters": [
               "--installServer"
@@ -382,10 +382,10 @@
           "maxJavaVersion": 13,
           "properties": {
             "copy": {
-              "libraries/.*": "libraries/%fileName%",
-              ".*\\.json": "%fileName%",
-              "forge-.*\\.jar": "%fileName%",
-              "minecraft_server.*\\.jar": "%fileName%"
+              "libraries/.*": "/",
+              ".*\\.json": "/",
+              "forge-.*\\.jar": "/",
+              "minecraft_server.*\\.jar": "/"
             },
             "parameters": [
               "--installServer"
@@ -398,10 +398,10 @@
           "maxJavaVersion": 13,
           "properties": {
             "copy": {
-              "libraries/.*": "libraries/%fileName%",
-              ".*\\.json": "%fileName%",
-              "forge-.*\\.jar": "%fileName%",
-              "minecraft_server.*\\.jar": "%fileName%"
+              "libraries/.*": "/",
+              ".*\\.json": "/",
+              "forge-.*\\.jar": "/",
+              "minecraft_server.*\\.jar": "/"
             },
             "parameters": [
               "--installServer"
@@ -414,10 +414,10 @@
           "maxJavaVersion": 13,
           "properties": {
             "copy": {
-              "libraries/.*": "libraries/%fileName%",
-              ".*\\.json": "%fileName%",
-              "forge-.*\\.jar": "%fileName%",
-              "minecraft_server.*\\.jar": "%fileName%"
+              "libraries/.*": "/",
+              ".*\\.json": "/",
+              "forge-.*\\.jar": "/",
+              "minecraft_server.*\\.jar": "/"
             },
             "parameters": [
               "--installServer"
@@ -430,10 +430,10 @@
           "maxJavaVersion": 13,
           "properties": {
             "copy": {
-              "libraries/.*": "libraries/%fileName%",
-              ".*\\.json": "%fileName%",
-              "forge-.*\\.jar": "%fileName%",
-              "minecraft_server.*\\.jar": "%fileName%"
+              "libraries/.*": "/",
+              ".*\\.json": "/",
+              "forge-.*\\.jar": "/",
+              "minecraft_server.*\\.jar": "/"
             },
             "parameters": [
               "--installServer"
@@ -446,10 +446,10 @@
           "maxJavaVersion": 10,
           "properties": {
             "copy": {
-              "libraries/.*": "libraries/%fileName%",
-              ".*\\.json": "%fileName%",
-              "forge-.*\\.jar": "%fileName%",
-              "minecraft_server.*\\.jar": "%fileName%"
+              "libraries/.*": "/",
+              ".*\\.json": "/",
+              "forge-.*\\.jar": "/",
+              "minecraft_server.*\\.jar": "/"
             },
             "parameters": [
               "--installServer"
@@ -462,10 +462,10 @@
           "maxJavaVersion": 8,
           "properties": {
             "copy": {
-              "libraries/.*": "libraries/%fileName%",
-              ".*\\.json": "%fileName%",
-              "forge-.*\\.jar": "%fileName%",
-              "minecraft_server.*\\.jar": "%fileName%"
+              "libraries/.*": "/",
+              ".*\\.json": "/",
+              "forge-.*\\.jar": "/",
+              "minecraft_server.*\\.jar": "/"
             },
             "parameters": [
               "--installServer"
@@ -478,10 +478,10 @@
           "maxJavaVersion": 8,
           "properties": {
             "copy": {
-              "libraries/.*": "libraries/%fileName%",
-              ".*\\.json": "%fileName%",
-              "forge-.*\\.jar": "%fileName%",
-              "minecraft_server.*\\.jar": "%fileName%"
+              "libraries/.*": "/",
+              ".*\\.json": "/",
+              "forge-.*\\.jar": "/",
+              "minecraft_server.*\\.jar": "/"
             },
             "parameters": [
               "--installServer"
@@ -494,10 +494,10 @@
           "maxJavaVersion": 8,
           "properties": {
             "copy": {
-              "libraries/.*": "libraries/%fileName%",
-              ".*\\.json": "%fileName%",
-              "forge-.*\\.jar": "%fileName%",
-              "minecraft_server.*\\.jar": "%fileName%"
+              "libraries/.*": "/",
+              ".*\\.json": "/",
+              "forge-.*\\.jar": "/",
+              "minecraft_server.*\\.jar": "/"
             },
             "parameters": [
               "--installServer"
@@ -510,10 +510,10 @@
           "maxJavaVersion": 8,
           "properties": {
             "copy": {
-              "libraries/.*": "libraries/%fileName%",
-              ".*\\.json": "%fileName%",
-              "forge-.*\\.jar": "%fileName%",
-              "minecraft_server.*\\.jar": "%fileName%"
+              "libraries/.*": "/",
+              ".*\\.json": "/",
+              "forge-.*\\.jar": "/",
+              "minecraft_server.*\\.jar": "/"
             },
             "parameters": [
               "--installServer"
@@ -526,10 +526,10 @@
           "maxJavaVersion": 8,
           "properties": {
             "copy": {
-              "libraries/.*": "libraries/%fileName%",
-              ".*\\.json": "%fileName%",
-              "forge-.*\\.jar": "%fileName%",
-              "minecraft_server.*\\.jar": "%fileName%"
+              "libraries/.*": "/",
+              ".*\\.json": "/",
+              "forge-.*\\.jar": "/",
+              "minecraft_server.*\\.jar": "/"
             },
             "parameters": [
               "--installServer"
@@ -554,10 +554,10 @@
           "cacheFiles": false,
           "properties": {
             "copy": {
-              "libraries/.*": "libraries/%fileName%",
-              ".*\\.json": "%fileName%",
-              "forge-.*\\.jar": "%fileName%",
-              "minecraft_server.*\\.jar": "%fileName%"
+              "libraries/.*": "/",
+              ".*\\.json": "/",
+              "forge-.*\\.jar": "/",
+              "minecraft_server.*\\.jar": "/"
             },
             "parameters": [
               "--installServer"
@@ -573,10 +573,10 @@
           "maxJavaVersion": 10,
           "properties": {
             "copy": {
-              "libraries/.*": "libraries/%fileName%",
-              ".*\\.json": "%fileName%",
-              "forge-.*\\.jar": "%fileName%",
-              "minecraft_server.*\\.jar": "%fileName%"
+              "libraries/.*": "/",
+              ".*\\.json": "/",
+              "forge-.*\\.jar": "/",
+              "minecraft_server.*\\.jar": "/"
             },
             "parameters": [
               "--installServer"
@@ -592,10 +592,10 @@
           "maxJavaVersion": 8,
           "properties": {
             "copy": {
-              "libraries/.*": "libraries/%fileName%",
-              ".*\\.json": "%fileName%",
-              "forge-.*\\.jar": "%fileName%",
-              "minecraft_server.*\\.jar": "%fileName%"
+              "libraries/.*": "/",
+              ".*\\.json": "/",
+              "forge-.*\\.jar": "/",
+              "minecraft_server.*\\.jar": "/"
             },
             "parameters": [
               "--installServer"
@@ -611,10 +611,10 @@
           "maxJavaVersion": 8,
           "properties": {
             "copy": {
-              "libraries/.*": "libraries/%fileName%",
-              ".*\\.json": "%fileName%",
-              "forge-.*\\.jar": "%fileName%",
-              "minecraft_server.*\\.jar": "%fileName%"
+              "libraries/.*": "/",
+              ".*\\.json": "/",
+              "forge-.*\\.jar": "/",
+              "minecraft_server.*\\.jar": "/"
             },
             "parameters": [
               "--installServer"
@@ -756,7 +756,7 @@
           "cacheFiles": false,
           "properties": {
             "copy": {
-              "modules/.*": "modules/%fileName%"
+              "modules/.*": "/"
             }
           },
           "additionalDownloads": {

@@ -37,8 +37,8 @@ public final class SpongeCloudNetHelper extends BridgeServerHelper {
 
         serviceInfoSnapshot.getProperties()
                 .append("Online", BridgeHelper.isOnline())
-                .append("Version", Sponge.getPlatform().getMinecraftVersion())
-                .append("Sponge-Version", Sponge.getPlatform().getContainer(Platform.Component.API).getVersion())
+                .append("Version", Sponge.getPlatform().getMinecraftVersion().getName())
+                .append("Sponge-Version", Sponge.getPlatform().getContainer(Platform.Component.API).getVersion().orElse(""))
                 .append("Online-Count", Sponge.getServer().getOnlinePlayers().size())
                 .append("Max-Players", BridgeServerHelper.getMaxPlayers())
                 .append("Motd", BridgeServerHelper.getMotd())
