@@ -76,7 +76,7 @@ public class NetworkClusterNodeInfoSnapshot extends SerializableJsonDocPropertya
     }
 
     public long getStartupNanos() {
-        return startupNanos;
+        return this.startupNanos;
     }
 
     public void setCreationTime(long creationTime) {
