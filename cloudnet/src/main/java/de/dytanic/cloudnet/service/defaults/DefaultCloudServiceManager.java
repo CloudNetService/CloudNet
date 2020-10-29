@@ -61,6 +61,18 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
         }
     }
 
+    @Override
+    public void removeService(@NotNull UUID uniqueId) {
+        if (CloudNet.getInstance().isHeadNode()) {
+            ServiceInfoSnapshot serviceInfoSnapshot = this.globalServiceInfoSnapshots.remove(uniqueId);
+            if (serviceInfoSnapshot != null) {
+                CloudNet.getInstance().sendAll(new PacketClientServerServiceInfoPublisher(
+                        serviceInfoSnapshot, PacketClientServerServiceInfoPublisher.PublisherType.UNREGISTER
+                ));
+            }
+        }
+    }
+
     private @Nullable ServiceInfoSnapshot buildServiceSync(@NotNull ServiceConfiguration configuration) {
         final boolean localStart;
         if (configuration.getServiceId().getNodeUniqueId() == null) {

@@ -72,15 +72,15 @@ public class NodeCloudServiceFactory extends DefaultCloudServiceFactory implemen
                 return info;
             } else {
                 IClusterNodeServer nodeServer = this.cloudNet.getClusterNodeServerProvider().getNodeServer(info.getServiceId().getNodeUniqueId());
-                if (nodeServer == null) {
-                    this.cloudNet.getCloudServiceManager().getGlobalServiceInfoSnapshots().remove(info.getServiceId().getUniqueId());
+                if (nodeServer == null || !nodeServer.isConnected() || nodeServer.getNodeInfoSnapshot() == null) {
+                    this.cloudNet.getCloudServiceManager().removeService(info.getServiceId().getUniqueId());
                     return null;
                 }
 
                 nodeServer.getNodeInfoSnapshot().addReservedMemory(serviceConfiguration.getProcessConfig().getMaxHeapMemorySize());
                 ServiceInfoSnapshot result = nodeServer.getNetworkChannel().sendQueryAsync(new PacketServerStartServiceFromConfiguration(serviceConfiguration)).map(response -> {
                     if (response == null) {
-                        this.cloudNet.getCloudServiceManager().getGlobalServiceInfoSnapshots().remove(info.getServiceId().getUniqueId());
+                        this.cloudNet.getCloudServiceManager().removeService(info.getServiceId().getUniqueId());
                         nodeServer.getNodeInfoSnapshot().removeReservedMemory(serviceConfiguration.getProcessConfig().getMaxHeapMemorySize());
                         return null;
                     }
@@ -88,7 +88,7 @@ public class NodeCloudServiceFactory extends DefaultCloudServiceFactory implemen
                     return response.getBuffer().readOptionalObject(ServiceInfoSnapshot.class);
                 }).get(30, TimeUnit.SECONDS, null);
                 if (result == null) {
-                    this.cloudNet.getCloudServiceManager().getGlobalServiceInfoSnapshots().remove(info.getServiceId().getUniqueId());
+                    this.cloudNet.getCloudServiceManager().removeService(info.getServiceId().getUniqueId());
                     nodeServer.getNodeInfoSnapshot().removeReservedMemory(serviceConfiguration.getProcessConfig().getMaxHeapMemorySize());
                 }
 

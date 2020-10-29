@@ -44,6 +44,9 @@ public interface ICloudServiceManager {
     @ApiStatus.Internal
     ITask<ServiceInfoSnapshot> buildService(@NotNull ServiceConfiguration serviceConfiguration);
 
+    @ApiStatus.Internal
+    void removeService(@NotNull UUID uniqueId);
+
     void startAllCloudServices();
 
     void stopAllCloudServices();
