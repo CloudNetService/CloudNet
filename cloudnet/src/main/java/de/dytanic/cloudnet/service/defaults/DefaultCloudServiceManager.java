@@ -74,12 +74,12 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
     }
 
     private @Nullable ServiceInfoSnapshot buildServiceSync(@NotNull ServiceConfiguration configuration) {
-        final boolean localStart;
+        final boolean localCreation;
         if (configuration.getServiceId().getNodeUniqueId() == null) {
             configuration.getServiceId().setNodeUniqueId(CloudNet.getInstance().getComponentName());
-            localStart = true;
+            localCreation = true;
         } else {
-            localStart = configuration.getServiceId().getNodeUniqueId().equals(CloudNet.getInstance().getComponentName());
+            localCreation = configuration.getServiceId().getNodeUniqueId().equals(CloudNet.getInstance().getComponentName());
         }
 
         this.prepareServiceConfiguration(configuration);
@@ -88,7 +88,7 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
             configuration.getServiceId().setUniqueId(this.checkAndReplaceUniqueId(configuration.getServiceId()));
         }
 
-        if (localStart) {
+        if (localCreation) {
             CloudServiceCreateEvent event = new CloudServiceCreateEvent(configuration);
             CloudNetDriver.getInstance().getEventManager().callEvent(event);
             if (event.isCancelled()) {

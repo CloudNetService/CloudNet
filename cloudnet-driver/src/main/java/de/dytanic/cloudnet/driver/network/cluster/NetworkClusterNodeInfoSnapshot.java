@@ -36,25 +36,42 @@ public class NetworkClusterNodeInfoSnapshot extends SerializableJsonDocPropertya
      * @deprecated Use {@link #NetworkClusterNodeInfoSnapshot(long, long, NetworkClusterNode, String, int, int, int, int, ProcessSnapshot, Collection, double)} instead
      */
     @Deprecated
-    public NetworkClusterNodeInfoSnapshot(long creationTime, NetworkClusterNode node, String version, int currentServicesCount,
-                                          int usedMemory, int reservedMemory, int maxMemory, ProcessSnapshot processSnapshot,
-                                          Collection<ModuleConfiguration> modules, double systemCpuUsage) {
-        this.creationTime = creationTime;
-        this.startupNanos = System.nanoTime();
-        this.node = node;
-        this.version = version;
-        this.currentServicesCount = currentServicesCount;
-        this.usedMemory = usedMemory;
-        this.reservedMemory = reservedMemory;
-        this.maxMemory = maxMemory;
-        this.processSnapshot = processSnapshot;
-        this.modules = modules;
-        this.systemCpuUsage = systemCpuUsage;
+    public NetworkClusterNodeInfoSnapshot(long creationTime,
+                                          NetworkClusterNode node,
+                                          String version,
+                                          int currentServicesCount,
+                                          int usedMemory,
+                                          int reservedMemory,
+                                          int maxMemory,
+                                          ProcessSnapshot processSnapshot,
+                                          Collection<ModuleConfiguration> modules,
+                                          double systemCpuUsage) {
+        this(
+                creationTime,
+                System.nanoTime(),
+                node,
+                version,
+                currentServicesCount,
+                usedMemory,
+                reservedMemory,
+                maxMemory,
+                processSnapshot,
+                modules,
+                systemCpuUsage
+        );
     }
 
-    public NetworkClusterNodeInfoSnapshot(long creationTime, long startupNanos, NetworkClusterNode node, String version, int currentServicesCount,
-                                          int usedMemory, int reservedMemory, int maxMemory, ProcessSnapshot processSnapshot,
-                                          Collection<ModuleConfiguration> modules, double systemCpuUsage) {
+    public NetworkClusterNodeInfoSnapshot(long creationTime,
+                                          long startupNanos,
+                                          NetworkClusterNode node,
+                                          String version,
+                                          int currentServicesCount,
+                                          int usedMemory,
+                                          int reservedMemory,
+                                          int maxMemory,
+                                          ProcessSnapshot processSnapshot,
+                                          Collection<ModuleConfiguration> modules,
+                                          double systemCpuUsage) {
         this.creationTime = creationTime;
         this.startupNanos = startupNanos;
         this.node = node;

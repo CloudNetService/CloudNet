@@ -5,9 +5,10 @@ import de.dytanic.cloudnet.driver.network.protocol.Packet;
 import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
 
-public final class PacketServerStartServiceFromConfiguration extends Packet {
+public final class PacketServerHeadNodeCreateService extends Packet {
 
-    public PacketServerStartServiceFromConfiguration(ServiceConfiguration serviceConfiguration) {
-        super(PacketConstants.CLUSTER_NODE_START_SERVICE_CHANNEL, ProtocolBuffer.create().writeObject(serviceConfiguration));
+    public PacketServerHeadNodeCreateService(ServiceConfiguration serviceConfiguration) {
+        super(PacketConstants.CLUSTER_NODE_CREATE_SERVICE_CHANNEL, ProtocolBuffer.create().writeObject(serviceConfiguration));
     }
+
 }

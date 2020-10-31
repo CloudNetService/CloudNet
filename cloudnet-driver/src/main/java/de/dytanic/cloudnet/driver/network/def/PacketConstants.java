@@ -18,7 +18,7 @@ public final class PacketConstants {
             CLUSTER_PERMISSION_DATA_CHANNEL = 10,
             CLUSTER_TEMPLATE_DEPLOY_CHANNEL = 11,
             CLUSTER_NODE_INFO_CHANNEL = 12,
-            CLUSTER_NODE_START_SERVICE_CHANNEL = 13;
+            CLUSTER_NODE_CREATE_SERVICE_CHANNEL = 13;
 
     //events
     public static final int

@@ -6,11 +6,12 @@ import de.dytanic.cloudnet.cluster.IClusterNodeServer;
 import de.dytanic.cloudnet.common.concurrent.CompletedTask;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
+import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.provider.service.CloudServiceFactory;
 import de.dytanic.cloudnet.driver.provider.service.DefaultCloudServiceFactory;
 import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
-import de.dytanic.cloudnet.network.packet.PacketServerStartServiceFromConfiguration;
+import de.dytanic.cloudnet.network.packet.PacketServerHeadNodeCreateService;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -72,21 +73,20 @@ public class NodeCloudServiceFactory extends DefaultCloudServiceFactory implemen
                 return info;
             } else {
                 IClusterNodeServer nodeServer = this.cloudNet.getClusterNodeServerProvider().getNodeServer(info.getServiceId().getNodeUniqueId());
+
                 if (nodeServer == null || !nodeServer.isConnected() || nodeServer.getNodeInfoSnapshot() == null) {
                     this.cloudNet.getCloudServiceManager().removeService(info.getServiceId().getUniqueId());
+
                     return null;
                 }
 
                 nodeServer.getNodeInfoSnapshot().addReservedMemory(serviceConfiguration.getProcessConfig().getMaxHeapMemorySize());
-                ServiceInfoSnapshot result = nodeServer.getNetworkChannel().sendQueryAsync(new PacketServerStartServiceFromConfiguration(serviceConfiguration)).map(response -> {
-                    if (response == null) {
-                        this.cloudNet.getCloudServiceManager().removeService(info.getServiceId().getUniqueId());
-                        nodeServer.getNodeInfoSnapshot().removeReservedMemory(serviceConfiguration.getProcessConfig().getMaxHeapMemorySize());
-                        return null;
-                    }
+                IPacket creationResponse = nodeServer.getNetworkChannel()
+                        .sendQueryAsync(new PacketServerHeadNodeCreateService(serviceConfiguration))
+                        .get(30, TimeUnit.SECONDS, null);
 
-                    return response.getBuffer().readOptionalObject(ServiceInfoSnapshot.class);
-                }).get(30, TimeUnit.SECONDS, null);
+                ServiceInfoSnapshot result = creationResponse == null ? null : creationResponse.getBuffer().readOptionalObject(ServiceInfoSnapshot.class);
+
                 if (result == null) {
                     this.cloudNet.getCloudServiceManager().removeService(info.getServiceId().getUniqueId());
                     nodeServer.getNodeInfoSnapshot().removeReservedMemory(serviceConfiguration.getProcessConfig().getMaxHeapMemorySize());

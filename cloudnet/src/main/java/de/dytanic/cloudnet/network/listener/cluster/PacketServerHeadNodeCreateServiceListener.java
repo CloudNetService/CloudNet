@@ -11,11 +11,11 @@ import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 
-public final class PacketServerStartServiceFromConfigurationListener implements IPacketListener {
+public final class PacketServerHeadNodeCreateServiceListener implements IPacketListener {
 
     private final CloudNet cloudNet;
 
-    public PacketServerStartServiceFromConfigurationListener(CloudNet cloudNet) {
+    public PacketServerHeadNodeCreateServiceListener(CloudNet cloudNet) {
         this.cloudNet = cloudNet;
     }
 
@@ -29,17 +29,19 @@ public final class PacketServerStartServiceFromConfigurationListener implements 
         }
 
         ServiceConfiguration serviceConfiguration = packet.getBuffer().readObject(ServiceConfiguration.class);
+
         if (this.cloudNet.getClusterNodeServerProvider().getHeadNode().isInstance(server)) {
-            sendResult(channel, packet, this.cloudNet.getCloudServiceManager().buildService(serviceConfiguration));
+            this.sendResult(channel, packet, this.cloudNet.getCloudServiceManager().buildService(serviceConfiguration));
         } else {
-            sendResult(channel, packet, this.cloudNet.getCloudServiceFactory().createCloudServiceAsync(serviceConfiguration));
+            this.sendResult(channel, packet, this.cloudNet.getCloudServiceFactory().createCloudServiceAsync(serviceConfiguration));
         }
     }
 
-    public static void sendResult(INetworkChannel channel, IPacket packet, ITask<ServiceInfoSnapshot> task) {
+    private void sendResult(INetworkChannel channel, IPacket packet, ITask<ServiceInfoSnapshot> task) {
         task
                 .onFailure(ignored -> channel.sendPacket(Packet.createResponseFor(packet, ProtocolBuffer.create().writeOptionalObject(null))))
                 .onComplete(info -> channel.sendPacket(Packet.createResponseFor(packet, ProtocolBuffer.create().writeOptionalObject(info))))
                 .onCancelled(ignored -> channel.sendPacket(Packet.createResponseFor(packet, ProtocolBuffer.create().writeOptionalObject(null))));
     }
+
 }
