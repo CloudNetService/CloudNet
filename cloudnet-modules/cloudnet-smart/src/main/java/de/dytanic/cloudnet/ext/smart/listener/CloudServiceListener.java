@@ -2,17 +2,14 @@ package de.dytanic.cloudnet.ext.smart.listener;
 
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.driver.event.EventListener;
+import de.dytanic.cloudnet.driver.event.events.service.CloudServiceUnregisterEvent;
 import de.dytanic.cloudnet.driver.service.ServiceTask;
 import de.dytanic.cloudnet.event.service.CloudServiceCreateEvent;
 import de.dytanic.cloudnet.event.service.CloudServicePostDeleteEvent;
 import de.dytanic.cloudnet.event.service.CloudServicePostPrepareEvent;
-import de.dytanic.cloudnet.ext.smart.CloudNetServiceSmartProfile;
 import de.dytanic.cloudnet.ext.smart.CloudNetSmartModule;
 import de.dytanic.cloudnet.ext.smart.util.SmartServiceTaskConfig;
 import de.dytanic.cloudnet.service.ICloudService;
-
-import java.util.UUID;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public final class CloudServiceListener {
 
@@ -44,18 +41,17 @@ public final class CloudServiceListener {
                 cloudService.includeInclusions();
                 cloudService.includeTemplates();
             }
-
-            UUID uniqueId = cloudService.getServiceId().getUniqueId();
-
-            CloudNetSmartModule.getInstance().getProvidedSmartServices().put(uniqueId, new CloudNetServiceSmartProfile(
-                    uniqueId,
-                    new AtomicInteger(smartTask.getAutoStopTimeByUnusedServiceInSeconds())
-            ));
         }
     }
 
     @EventListener
-    public void handle(CloudServicePostDeleteEvent event) {
-        CloudNetSmartModule.getInstance().getProvidedSmartServices().remove(event.getCloudService().getServiceId().getUniqueId());
+    public void handle(CloudServiceUnregisterEvent event) {
+        CloudNetSmartModule.getInstance().removeSmartProfile(event.getServiceInfo().getServiceId().getUniqueId());
     }
+
+    @EventListener
+    public void handle(CloudServicePostDeleteEvent event) {
+        CloudNetSmartModule.getInstance().removeSmartProfile(event.getCloudService().getServiceId().getUniqueId());
+    }
+
 }

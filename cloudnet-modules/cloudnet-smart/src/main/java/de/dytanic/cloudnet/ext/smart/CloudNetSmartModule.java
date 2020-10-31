@@ -17,6 +17,7 @@ import de.dytanic.cloudnet.module.NodeCloudNetModule;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public final class CloudNetSmartModule extends NodeCloudNetModule {
 
@@ -177,9 +178,17 @@ public final class CloudNetSmartModule extends NodeCloudNetModule {
         return maxMemory;
     }
 
+    public CloudNetServiceSmartProfile getSmartProfile(ServiceInfoSnapshot serviceInfoSnapshot) {
+        SmartServiceTaskConfig smartServiceTaskConfig = this.getSmartServiceTaskConfig(serviceInfoSnapshot);
 
-    public Map<UUID, CloudNetServiceSmartProfile> getProvidedSmartServices() {
-        return this.providedSmartServices;
+        return smartServiceTaskConfig == null
+                ? null
+                : this.providedSmartServices.computeIfAbsent(serviceInfoSnapshot.getServiceId().getUniqueId(),
+                uniqueId -> new CloudNetServiceSmartProfile(uniqueId, new AtomicInteger(smartServiceTaskConfig.getAutoStopTimeByUnusedServiceInSeconds())));
+    }
+
+    public void removeSmartProfile(UUID uniqueId) {
+        this.providedSmartServices.remove(uniqueId);
     }
 
 }
