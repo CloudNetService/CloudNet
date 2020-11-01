@@ -20,11 +20,15 @@ import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
 import de.dytanic.cloudnet.service.ICloudServiceManager;
 import de.dytanic.cloudnet.service.handler.CloudServiceHandler;
+import de.dytanic.cloudnet.util.PortValidator;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
+import java.util.Collection;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.Collectors;
 
 public abstract class DefaultCloudService extends DefaultEmptyCloudService {
 
@@ -64,8 +68,17 @@ public abstract class DefaultCloudService extends DefaultEmptyCloudService {
 
     @Override
     public void init() {
+        if (CloudNet.getInstance().isMainThread()) {
+            this.initSync();
+        } else {
+            CloudNet.getInstance().runTask(this::initSync).get(5, TimeUnit.SECONDS, null);
+        }
+    }
+
+    private void initSync() {
         Preconditions.checkArgument(!this.initialized, "Cannot initialize a service twice");
         this.initialized = true;
+        this.checkAndReplacePort();
         this.serviceInfoSnapshot = this.lastServiceInfoSnapshot = this.createServiceInfoSnapshot(ServiceLifeCycle.DEFINED);
         this.initAndPrepareService();
     }
@@ -187,7 +200,7 @@ public abstract class DefaultCloudService extends DefaultEmptyCloudService {
 
         CloudNetDriver.getInstance().getEventManager().callEvent(new CloudServiceInfoUpdateEvent(serviceInfoSnapshot));
 
-        CloudNet.getInstance().sendAll(new PacketClientServerServiceInfoPublisher(serviceInfoSnapshot, PacketClientServerServiceInfoPublisher.PublisherType.UPDATE));
+        CloudNet.getInstance().sendAllSync(new PacketClientServerServiceInfoPublisher(serviceInfoSnapshot, PacketClientServerServiceInfoPublisher.PublisherType.UPDATE));
     }
 
     @Override
@@ -273,7 +286,7 @@ public abstract class DefaultCloudService extends DefaultEmptyCloudService {
 
         this.serviceInfoSnapshot.setLifeCycle(ServiceLifeCycle.PREPARED);
         this.cloudServiceManager.getGlobalServiceInfoSnapshots().put(this.getServiceId().getUniqueId(), this.serviceInfoSnapshot);
-        CloudNet.getInstance().sendAll(new PacketClientServerServiceInfoPublisher(this.serviceInfoSnapshot, PacketClientServerServiceInfoPublisher.PublisherType.REGISTER));
+        CloudNet.getInstance().sendAllSync(new PacketClientServerServiceInfoPublisher(this.serviceInfoSnapshot, PacketClientServerServiceInfoPublisher.PublisherType.REGISTER));
 
         super.handler.handlePostPrepare(this);
     }
@@ -285,7 +298,7 @@ public abstract class DefaultCloudService extends DefaultEmptyCloudService {
     protected void postStart() {
         this.lifeCycle = ServiceLifeCycle.RUNNING;
         this.serviceInfoSnapshot.setLifeCycle(ServiceLifeCycle.RUNNING);
-        CloudNet.getInstance().sendAll(new PacketClientServerServiceInfoPublisher(this.serviceInfoSnapshot, PacketClientServerServiceInfoPublisher.PublisherType.STARTED));
+        CloudNet.getInstance().sendAllSync(new PacketClientServerServiceInfoPublisher(this.serviceInfoSnapshot, PacketClientServerServiceInfoPublisher.PublisherType.STARTED));
 
         super.handler.handlePostStart(this);
     }
@@ -322,7 +335,7 @@ public abstract class DefaultCloudService extends DefaultEmptyCloudService {
 
         this.serviceInfoSnapshot = this.createServiceInfoSnapshot(ServiceLifeCycle.STOPPED);
 
-        CloudNet.getInstance().sendAll(new PacketClientServerServiceInfoPublisher(this.serviceInfoSnapshot, PacketClientServerServiceInfoPublisher.PublisherType.STOPPED));
+        CloudNet.getInstance().sendAllSync(new PacketClientServerServiceInfoPublisher(this.serviceInfoSnapshot, PacketClientServerServiceInfoPublisher.PublisherType.STOPPED));
 
         super.handler.handlePostStop(this, exitValue);
     }
@@ -353,9 +366,28 @@ public abstract class DefaultCloudService extends DefaultEmptyCloudService {
         this.serviceInfoSnapshot.setLifeCycle(ServiceLifeCycle.DELETED);
 
         CloudNet.getInstance().publishNetworkClusterNodeInfoSnapshotUpdate();
-        CloudNet.getInstance().sendAll(new PacketClientServerServiceInfoPublisher(this.getServiceInfoSnapshot(), PacketClientServerServiceInfoPublisher.PublisherType.UNREGISTER));
+        CloudNet.getInstance().sendAllSync(new PacketClientServerServiceInfoPublisher(this.getServiceInfoSnapshot(), PacketClientServerServiceInfoPublisher.PublisherType.UNREGISTER));
 
         super.handler.handlePostDelete(this);
+    }
+
+    protected void checkAndReplacePort() {
+        Collection<Integer> ports = CloudNet.getInstance().getCloudServiceManager().getLocalCloudServices().stream()
+                .map(iCloudService -> iCloudService.getServiceConfiguration().getPort())
+                .collect(Collectors.toList());
+
+        int port = this.serviceConfiguration.getPort();
+        while (ports.contains(port)) {
+            port++;
+        }
+
+        while (!PortValidator.checkPort(port)) {
+            CloudNetDriver.getInstance().getLogger().extended(LanguageManager.getMessage("cloud-service-port-bind-retry-message")
+                    .replace("%port%", String.valueOf(port))
+                    .replace("%next_port%", String.valueOf(++port)));
+        }
+
+        this.serviceConfiguration.setPort(port);
     }
 
 }

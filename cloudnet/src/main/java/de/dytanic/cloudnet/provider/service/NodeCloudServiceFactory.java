@@ -15,6 +15,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.concurrent.TimeUnit;
 
 public class NodeCloudServiceFactory extends DefaultCloudServiceFactory implements CloudServiceFactory {
 
@@ -28,10 +29,6 @@ public class NodeCloudServiceFactory extends DefaultCloudServiceFactory implemen
     @Override
     public ServiceInfoSnapshot createCloudService(ServiceConfiguration serviceConfiguration) {
         Preconditions.checkNotNull(serviceConfiguration);
-
-        if (serviceConfiguration.getServiceId() == null) {
-            return null;
-        }
 
         String node = serviceConfiguration.getServiceId().getNodeUniqueId();
         if (node == null) {
@@ -48,7 +45,7 @@ public class NodeCloudServiceFactory extends DefaultCloudServiceFactory implemen
         }
 
         if (this.cloudNet.getConfig().getIdentity().getUniqueId().equals(node)) {
-            ICloudService cloudService = this.cloudNet.getCloudServiceManager().runTask(serviceConfiguration);
+            ICloudService cloudService = this.cloudNet.getCloudServiceManager().createCloudService(serviceConfiguration).get(5, TimeUnit.SECONDS, null);
             return cloudService != null ? cloudService.getServiceInfoSnapshot() : null;
         } else {
             IClusterNodeServer server = this.cloudNet.getClusterNodeServerProvider().getNodeServer(node);

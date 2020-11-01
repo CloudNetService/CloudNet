@@ -85,19 +85,8 @@ public final class DefaultClusterNodeServerProvider implements IClusterNodeServe
     public void sendPacketSync(@NotNull IPacket packet) {
         Preconditions.checkNotNull(packet);
 
-        for (IClusterNodeServer server : this.servers.values()) {
-            if (server.getChannel() != null) {
-                server.getChannel().sendPacketSync(packet);
-            }
-        }
-    }
-
-    @Override
-    public void sendPacket(@NotNull IPacket... packets) {
-        Preconditions.checkNotNull(packets);
-
-        for (IPacket packet : packets) {
-            this.sendPacket(packet);
+        for (IClusterNodeServer nodeServer : this.servers.values()) {
+            nodeServer.saveSendPacketSync(packet);
         }
     }
 

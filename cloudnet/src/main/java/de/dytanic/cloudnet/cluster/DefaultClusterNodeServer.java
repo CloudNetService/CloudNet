@@ -62,6 +62,13 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer, Drive
     }
 
     @Override
+    public void saveSendPacketSync(@NotNull IPacket packet) {
+        if (this.channel != null) {
+            this.channel.sendPacketSync(packet);
+        }
+    }
+
+    @Override
     public boolean isAcceptableConnection(@NotNull INetworkChannel channel, @NotNull String nodeId) {
         return this.channel == null && this.nodeInfo.getUniqueId().equals(nodeId);
     }

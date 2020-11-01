@@ -81,7 +81,7 @@ public final class NetworkServerChannelHandlerImpl implements INetworkChannelHan
                 .replace("%clientAddress%", channel.getClientAddress().getHost() + ":" + channel.getClientAddress().getPort())
         );
 
-        CloudNet.getInstance().sendAll(new PacketClientServerServiceInfoPublisher(cloudService.getServiceInfoSnapshot(), PacketClientServerServiceInfoPublisher.PublisherType.DISCONNECTED));
+        CloudNet.getInstance().sendAllSync(new PacketClientServerServiceInfoPublisher(cloudService.getServiceInfoSnapshot(), PacketClientServerServiceInfoPublisher.PublisherType.DISCONNECTED));
     }
 
     private boolean inWhitelist(INetworkChannel channel) {

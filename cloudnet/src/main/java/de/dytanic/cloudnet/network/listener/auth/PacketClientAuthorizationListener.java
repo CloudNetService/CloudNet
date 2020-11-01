@@ -121,7 +121,7 @@ public final class PacketClientAuthorizationListener implements IPacketListener 
                                     .replace("%clientAddress%", channel.getClientAddress().getHost() + ":" + channel.getClientAddress().getPort())
                             );
 
-                            this.getCloudNet().sendAll(new PacketClientServerServiceInfoPublisher(cloudService.getServiceInfoSnapshot(), PacketClientServerServiceInfoPublisher.PublisherType.CONNECTED));
+                            this.getCloudNet().sendAllSync(new PacketClientServerServiceInfoPublisher(cloudService.getServiceInfoSnapshot(), PacketClientServerServiceInfoPublisher.PublisherType.CONNECTED));
                             return;
                         }
                     }

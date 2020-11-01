@@ -161,6 +161,15 @@ public final class NettyNetworkServer extends NettySSLServer implements INetwork
         }
     }
 
+    @Override
+    public void sendPacketSync(@NotNull IPacket... packets) {
+        Preconditions.checkNotNull(packets);
+
+        for (INetworkChannel channel : this.channels) {
+            channel.sendPacketSync(packets);
+        }
+    }
+
     public IPacketListenerRegistry getPacketRegistry() {
         return this.packetRegistry;
     }

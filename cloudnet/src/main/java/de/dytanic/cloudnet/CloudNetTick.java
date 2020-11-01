@@ -62,17 +62,18 @@ public class CloudNetTick {
                     }
                 }
 
-                if (launchServicesTick++ >= TPS) {
+                // TODO: request all node snapshots instead of every node sending them
+                if (++clusterUpdateTick >= (TPS / 2)) {
+                    this.cloudNet.publishNetworkClusterNodeInfoSnapshotUpdate();
+                    clusterUpdateTick = 0;
+                }
+
+                if (++launchServicesTick >= TPS) {
                     this.launchServices();
                     launchServicesTick = 0;
                 }
 
                 this.stopDeadServices();
-
-                if (clusterUpdateTick++ >= TPS) {
-                    this.cloudNet.publishNetworkClusterNodeInfoSnapshotUpdate();
-                    clusterUpdateTick = 0;
-                }
 
                 this.updateServiceLogs();
 
@@ -95,7 +96,7 @@ public class CloudNetTick {
                         .count();
 
                 if (this.cloudNet.canStartServices(serviceTask) && serviceTask.getMinServiceCount() > runningTaskServices) {
-
+                    // TODO: this doesn't work when two nodes have prepared services of this task, they both get started then
                     // there are still less running services of this task than the specified minServiceCount, so looking for a local service which isn't started yet
                     Optional<ICloudService> nonStartedServiceOptional = this.cloudNet.getCloudServiceManager().getLocalCloudServices(serviceTask.getName())
                             .stream()
@@ -113,15 +114,15 @@ public class CloudNetTick {
                         // There is no local existing service to start and there are less services existing of this task
                         // than the specified minServiceCount, so starting a new service, because this is the best node to do so
 
-                        ICloudService cloudService = this.cloudNet.getCloudServiceManager().runTask(ServiceConfiguration.builder(serviceTask).build());
-
-                        if (cloudService != null) {
-                            try {
-                                cloudService.start();
-                            } catch (Exception exception) {
-                                exception.printStackTrace();
+                        this.cloudNet.getCloudServiceManager().createCloudService(ServiceConfiguration.builder(serviceTask).build()).onComplete(cloudService -> {
+                            if (cloudService != null) {
+                                try {
+                                    cloudService.start();
+                                } catch (Exception exception) {
+                                    exception.printStackTrace();
+                                }
                             }
-                        }
+                        });
                     }
                 }
             }

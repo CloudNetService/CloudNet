@@ -565,46 +565,22 @@ public final class CloudNet extends CloudNetDriver {
         this.getClusterNodeServerProvider().sendPacket(new PacketServerSetGroupConfigurationList(groupConfigurations, updateType));
     }
 
-    @NotNull
-    public ITask<Void> sendAllAsync(IPacket packet) {
-        return this.scheduleTask(() -> {
-            this.sendAll(packet);
-            return null;
-        });
-    }
+    public void sendAllSync(@NotNull IPacket... packets) {
+        Preconditions.checkNotNull(packets);
 
-    public void sendAll(IPacket packet) {
-        Preconditions.checkNotNull(packet);
-
-        for (IClusterNodeServer clusterNodeServer : this.getClusterNodeServerProvider().getNodeServers()) {
-            clusterNodeServer.saveSendPacket(packet);
-        }
+        this.getClusterNodeServerProvider().sendPacketSync(packets);
 
         for (ICloudService cloudService : this.getCloudServiceManager().getCloudServices().values()) {
             if (cloudService.getNetworkChannel() != null) {
-                cloudService.getNetworkChannel().sendPacket(packet);
+                cloudService.getNetworkChannel().sendPacketSync(packets);
             }
         }
     }
 
-    @NotNull
-    public ITask<Void> sendAllAsync(IPacket... packets) {
-        return this.scheduleTask(() -> {
-            this.sendAll(packets);
-            return null;
-        });
-    }
-
-    public void sendAll(IPacket... packets) {
+    public void sendAll(@NotNull IPacket... packets) {
         Preconditions.checkNotNull(packets);
 
-        for (IClusterNodeServer clusterNodeServer : this.getClusterNodeServerProvider().getNodeServers()) {
-            for (IPacket packet : packets) {
-                if (packet != null) {
-                    clusterNodeServer.saveSendPacket(packet);
-                }
-            }
-        }
+        this.getClusterNodeServerProvider().sendPacket(packets);
 
         for (ICloudService cloudService : this.getCloudServiceManager().getCloudServices().values()) {
             if (cloudService.getNetworkChannel() != null) {
