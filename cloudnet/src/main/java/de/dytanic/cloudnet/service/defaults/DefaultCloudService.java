@@ -189,7 +189,7 @@ public abstract class DefaultCloudService extends DefaultEmptyCloudService {
 
         CloudNetDriver.getInstance().getEventManager().callEvent(new CloudServiceInfoUpdateEvent(serviceInfoSnapshot));
 
-        CloudNet.getInstance().sendAllSync(new PacketClientServerServiceInfoPublisher(serviceInfoSnapshot, PacketClientServerServiceInfoPublisher.PublisherType.UPDATE));
+        CloudNet.getInstance().sendAll(new PacketClientServerServiceInfoPublisher(serviceInfoSnapshot, PacketClientServerServiceInfoPublisher.PublisherType.UPDATE));
     }
 
     @Override
@@ -275,7 +275,7 @@ public abstract class DefaultCloudService extends DefaultEmptyCloudService {
 
         this.serviceInfoSnapshot.setLifeCycle(ServiceLifeCycle.PREPARED);
         this.cloudServiceManager.getGlobalServiceInfoSnapshots().put(this.getServiceId().getUniqueId(), this.serviceInfoSnapshot);
-        CloudNet.getInstance().sendAllSync(new PacketClientServerServiceInfoPublisher(this.serviceInfoSnapshot, PacketClientServerServiceInfoPublisher.PublisherType.REGISTER));
+        CloudNet.getInstance().sendAll(new PacketClientServerServiceInfoPublisher(this.serviceInfoSnapshot, PacketClientServerServiceInfoPublisher.PublisherType.REGISTER));
 
         super.handler.handlePostPrepare(this);
     }
@@ -287,7 +287,7 @@ public abstract class DefaultCloudService extends DefaultEmptyCloudService {
     protected void postStart() {
         this.lifeCycle = ServiceLifeCycle.RUNNING;
         this.serviceInfoSnapshot.setLifeCycle(ServiceLifeCycle.RUNNING);
-        CloudNet.getInstance().sendAllSync(new PacketClientServerServiceInfoPublisher(this.serviceInfoSnapshot, PacketClientServerServiceInfoPublisher.PublisherType.STARTED));
+        CloudNet.getInstance().sendAll(new PacketClientServerServiceInfoPublisher(this.serviceInfoSnapshot, PacketClientServerServiceInfoPublisher.PublisherType.STARTED));
 
         super.handler.handlePostStart(this);
     }
@@ -324,7 +324,7 @@ public abstract class DefaultCloudService extends DefaultEmptyCloudService {
 
         this.serviceInfoSnapshot = this.createServiceInfoSnapshot(ServiceLifeCycle.STOPPED);
 
-        CloudNet.getInstance().sendAllSync(new PacketClientServerServiceInfoPublisher(this.serviceInfoSnapshot, PacketClientServerServiceInfoPublisher.PublisherType.STOPPED));
+        CloudNet.getInstance().sendAll(new PacketClientServerServiceInfoPublisher(this.serviceInfoSnapshot, PacketClientServerServiceInfoPublisher.PublisherType.STOPPED));
 
         super.handler.handlePostStop(this, exitValue);
     }
@@ -355,7 +355,7 @@ public abstract class DefaultCloudService extends DefaultEmptyCloudService {
         this.serviceInfoSnapshot.setLifeCycle(ServiceLifeCycle.DELETED);
 
         CloudNet.getInstance().publishNetworkClusterNodeInfoSnapshotUpdate();
-        CloudNet.getInstance().sendAllSync(new PacketClientServerServiceInfoPublisher(this.getServiceInfoSnapshot(), PacketClientServerServiceInfoPublisher.PublisherType.UNREGISTER));
+        CloudNet.getInstance().sendAll(new PacketClientServerServiceInfoPublisher(this.getServiceInfoSnapshot(), PacketClientServerServiceInfoPublisher.PublisherType.UNREGISTER));
 
         super.handler.handlePostDelete(this);
     }

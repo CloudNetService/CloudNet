@@ -81,7 +81,7 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
             this.cloudServices.put(cloudService.getServiceId().getUniqueId(), cloudService);
             this.globalServiceInfoSnapshots.put(cloudService.getServiceId().getUniqueId(), cloudService.getServiceInfoSnapshot());
 
-            CloudNet.getInstance().sendAllSync(new PacketClientServerServiceInfoPublisher(cloudService.getServiceInfoSnapshot(), PacketClientServerServiceInfoPublisher.PublisherType.REGISTER));
+            CloudNet.getInstance().sendAll(new PacketClientServerServiceInfoPublisher(cloudService.getServiceInfoSnapshot(), PacketClientServerServiceInfoPublisher.PublisherType.REGISTER));
             CloudNet.getInstance().publishNetworkClusterNodeInfoSnapshotUpdate();
         }
 
@@ -150,7 +150,7 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
         CountDownLatch countDownLatch = new CountDownLatch(cloudServices.size());
         ExecutorService executorService = Executors.newFixedThreadPool((cloudServices.size() / 2) + 1);
 
-        for (ICloudService cloudService : this.cloudServices.values()) {
+        for (ICloudService cloudService : cloudServices) {
             executorService.execute(() -> {
                 try {
                     consumer.accept(cloudService);
