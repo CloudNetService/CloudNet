@@ -20,15 +20,12 @@ import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
 import de.dytanic.cloudnet.service.ICloudServiceManager;
 import de.dytanic.cloudnet.service.handler.CloudServiceHandler;
-import de.dytanic.cloudnet.util.PortValidator;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
-import java.util.Collection;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.stream.Collectors;
 
 public abstract class DefaultCloudService extends DefaultEmptyCloudService {
 
@@ -67,18 +64,10 @@ public abstract class DefaultCloudService extends DefaultEmptyCloudService {
     }
 
     @Override
+    @ApiStatus.Internal
     public void init() {
-        if (CloudNet.getInstance().isMainThread()) {
-            this.initSync();
-        } else {
-            CloudNet.getInstance().runTask(this::initSync).get(5, TimeUnit.SECONDS, null);
-        }
-    }
-
-    private void initSync() {
         Preconditions.checkArgument(!this.initialized, "Cannot initialize a service twice");
         this.initialized = true;
-        this.checkAndReplacePort();
         this.serviceInfoSnapshot = this.lastServiceInfoSnapshot = this.createServiceInfoSnapshot(ServiceLifeCycle.DEFINED);
         this.initAndPrepareService();
     }
@@ -369,25 +358,6 @@ public abstract class DefaultCloudService extends DefaultEmptyCloudService {
         CloudNet.getInstance().sendAllSync(new PacketClientServerServiceInfoPublisher(this.getServiceInfoSnapshot(), PacketClientServerServiceInfoPublisher.PublisherType.UNREGISTER));
 
         super.handler.handlePostDelete(this);
-    }
-
-    protected void checkAndReplacePort() {
-        Collection<Integer> ports = CloudNet.getInstance().getCloudServiceManager().getLocalCloudServices().stream()
-                .map(iCloudService -> iCloudService.getServiceConfiguration().getPort())
-                .collect(Collectors.toList());
-
-        int port = this.serviceConfiguration.getPort();
-        while (ports.contains(port)) {
-            port++;
-        }
-
-        while (!PortValidator.checkPort(port)) {
-            CloudNetDriver.getInstance().getLogger().extended(LanguageManager.getMessage("cloud-service-port-bind-retry-message")
-                    .replace("%port%", String.valueOf(port))
-                    .replace("%next_port%", String.valueOf(++port)));
-        }
-
-        this.serviceConfiguration.setPort(port);
     }
 
 }

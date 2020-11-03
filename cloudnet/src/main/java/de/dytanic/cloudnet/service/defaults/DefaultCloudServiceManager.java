@@ -5,6 +5,7 @@ import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.concurrent.CompletedTask;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.concurrent.ThrowableConsumer;
+import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.network.def.packet.PacketClientServerServiceInfoPublisher;
 import de.dytanic.cloudnet.driver.service.*;
@@ -14,6 +15,7 @@ import de.dytanic.cloudnet.service.ICloudServiceFactory;
 import de.dytanic.cloudnet.service.ICloudServiceManager;
 import de.dytanic.cloudnet.service.handler.CloudServiceHandler;
 import de.dytanic.cloudnet.service.handler.DefaultCloudServiceHandler;
+import de.dytanic.cloudnet.util.PortValidator;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -66,6 +68,7 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
             return null;
         }
 
+        serviceConfiguration.setPort(this.checkAndReplacePort(serviceConfiguration.getPort()));
         serviceConfiguration.getServiceId().setTaskServiceId(this.checkAndReplaceTaskId(serviceConfiguration.getServiceId()));
 
         ICloudService cloudService = this.getCloudServiceFactory(serviceConfiguration.getRuntime())
@@ -74,8 +77,6 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
 
         if (cloudService != null) {
             cloudService.init();
-
-            System.out.println(Thread.currentThread().getName());
 
             this.cloudServices.put(cloudService.getServiceId().getUniqueId(), cloudService);
             this.globalServiceInfoSnapshots.put(cloudService.getServiceId().getUniqueId(), cloudService.getServiceInfoSnapshot());
@@ -241,6 +242,30 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
         }
 
         return value;
+    }
+
+    protected int checkAndReplacePort(int port) {
+        Collection<Integer> usedPorts = new HashSet<>();
+
+        for (ICloudService cloudService : this.cloudServices.values()) {
+            usedPorts.add(cloudService.getServiceConfiguration().getPort());
+        }
+
+        boolean portBindRetry = false;
+        while (usedPorts.contains(port) || (portBindRetry = !PortValidator.checkPort(port))) {
+            int oldPort = port++;
+
+            if (portBindRetry) {
+                CloudNetDriver.getInstance().getLogger().extended(LanguageManager.getMessage("cloud-service-port-bind-retry-message")
+                        .replace("%port%", String.valueOf(oldPort))
+                        .replace("%next_port%", String.valueOf(port)));
+
+                portBindRetry = false;
+            }
+
+        }
+
+        return port;
     }
 
     private int checkAndReplaceTaskId(ServiceId serviceId) {

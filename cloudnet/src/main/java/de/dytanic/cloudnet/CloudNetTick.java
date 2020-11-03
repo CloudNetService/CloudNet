@@ -11,10 +11,10 @@ import de.dytanic.cloudnet.service.ICloudService;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
-import java.util.Optional;
 import java.util.Queue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.stream.Collectors;
 
 public class CloudNetTick {
 
@@ -69,7 +69,7 @@ public class CloudNetTick {
                 }
 
                 if (++launchServicesTick >= TPS) {
-                    this.launchServices();
+                    this.startService();
                     launchServicesTick = 0;
                 }
 
@@ -85,35 +85,23 @@ public class CloudNetTick {
         }
     }
 
-    private void launchServices() {
+    private void startService() {
         for (ServiceTask serviceTask : this.cloudNet.getServiceTaskProvider().getPermanentServiceTasks()) {
             if (serviceTask.canStartServices()) {
-
                 Collection<ServiceInfoSnapshot> taskServices = this.cloudNet.getCloudServiceProvider().getCloudServices(serviceTask.getName());
 
-                long runningTaskServices = taskServices.stream()
+                long runningServicesCount = taskServices.stream()
                         .filter(taskService -> taskService.getLifeCycle() == ServiceLifeCycle.RUNNING)
                         .count();
 
-                if (this.cloudNet.canStartServices(serviceTask) && serviceTask.getMinServiceCount() > runningTaskServices) {
-                    // TODO: this doesn't work when two nodes have prepared services of this task, they both get started then
-                    // there are still less running services of this task than the specified minServiceCount, so looking for a local service which isn't started yet
-                    Optional<ICloudService> nonStartedServiceOptional = this.cloudNet.getCloudServiceManager().getLocalCloudServices(serviceTask.getName())
-                            .stream()
-                            .filter(cloudService -> cloudService.getLifeCycle() == ServiceLifeCycle.DEFINED
-                                    || cloudService.getLifeCycle() == ServiceLifeCycle.PREPARED)
-                            .findFirst();
+                if (this.cloudNet.canStartServices(serviceTask) && serviceTask.getMinServiceCount() > runningServicesCount) {
+                    // checking if there is a prepared service that can be started instead of creating a new service
+                    if (this.startPreparedService(serviceTask.getName(), taskServices)) {
+                        return;
+                    }
 
-                    if (nonStartedServiceOptional.isPresent()) {
-                        try {
-                            nonStartedServiceOptional.get().start();
-                        } catch (Exception exception) {
-                            exception.printStackTrace();
-                        }
-                    } else if (serviceTask.getMinServiceCount() > taskServices.size() && this.cloudNet.competeWithCluster(serviceTask)) {
-                        // There is no local existing service to start and there are less services existing of this task
-                        // than the specified minServiceCount, so starting a new service, because this is the best node to do so
-
+                    if (this.cloudNet.competeWithCluster(serviceTask)) {
+                        // this is the best node to create and start a new service
                         this.cloudNet.getCloudServiceManager().createCloudService(ServiceConfiguration.builder(serviceTask).build()).onComplete(cloudService -> {
                             if (cloudService != null) {
                                 try {
@@ -127,6 +115,33 @@ public class CloudNetTick {
                 }
             }
         }
+    }
+
+
+    private boolean startPreparedService(String taskName, Collection<ServiceInfoSnapshot> taskServices) {
+        Collection<String> preparedServiceNodeUniqueIds = taskServices.stream()
+                .filter(taskService -> taskService.getLifeCycle() == ServiceLifeCycle.PREPARED)
+                .map(taskService -> taskService.getServiceId().getNodeUniqueId())
+                .collect(Collectors.toSet());
+
+        boolean servicesPrepared = !preparedServiceNodeUniqueIds.isEmpty();
+
+        if (servicesPrepared && this.cloudNet.competeWithCluster(preparedServiceNodeUniqueIds)) {
+            // this is the best node to start one of the prepared services
+            this.cloudNet.getCloudServiceManager().getLocalCloudServices(taskName)
+                    .stream()
+                    .filter(cloudService -> cloudService.getLifeCycle() == ServiceLifeCycle.PREPARED)
+                    .findFirst()
+                    .ifPresent(cloudService -> {
+                        try {
+                            cloudService.start();
+                        } catch (Exception exception) {
+                            exception.printStackTrace();
+                        }
+                    });
+        }
+
+        return servicesPrepared;
     }
 
     private void stopDeadServices() {

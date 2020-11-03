@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 public abstract class DefaultCloudServiceFactory implements CloudServiceFactory {
+
     @Override
     public @Nullable ServiceInfoSnapshot createCloudService(ServiceTask serviceTask) {
         return this.createCloudService(ServiceConfiguration.builder(serviceTask).build());
@@ -66,7 +67,7 @@ public abstract class DefaultCloudServiceFactory implements CloudServiceFactory 
                     .processParameters(processConfiguration.getProcessParameters())
                     .environment(processConfiguration.getEnvironment())
                     .properties(properties)
-                    .startPort(port == null ? 44955 : port)
+                    .startPort(port == null ? processConfiguration.getEnvironment().getDefaultStartPort() : port)
                     .build());
             if (snapshot != null) {
                 snapshots.add(snapshot);
@@ -125,4 +126,5 @@ public abstract class DefaultCloudServiceFactory implements CloudServiceFactory 
 
         return task;
     }
+
 }
