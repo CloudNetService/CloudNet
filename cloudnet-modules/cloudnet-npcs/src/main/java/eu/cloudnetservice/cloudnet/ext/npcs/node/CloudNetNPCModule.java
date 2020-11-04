@@ -10,6 +10,7 @@ import de.dytanic.cloudnet.module.NodeCloudNetModule;
 import eu.cloudnetservice.cloudnet.ext.npcs.CloudNPC;
 import eu.cloudnetservice.cloudnet.ext.npcs.NPCConstants;
 import eu.cloudnetservice.cloudnet.ext.npcs.configuration.NPCConfiguration;
+import eu.cloudnetservice.cloudnet.ext.npcs.node.command.CommandNPC;
 import eu.cloudnetservice.cloudnet.ext.npcs.node.listener.CloudNetNPCMessageListener;
 import eu.cloudnetservice.cloudnet.ext.npcs.node.listener.IncludePluginListener;
 import eu.cloudnetservice.cloudnet.ext.npcs.node.listener.NPCTaskSetupListener;
@@ -49,6 +50,11 @@ public class CloudNetNPCModule extends NodeCloudNetModule {
     public void saveNPCConfiguration() {
         super.getConfig().append("config", this.npcConfiguration);
         super.saveConfig();
+    }
+
+    @ModuleTask(event = ModuleLifeCycle.STARTED, order = 125)
+    public void registerCommands() {
+        super.registerCommand(new CommandNPC(this));
     }
 
     @ModuleTask(event = ModuleLifeCycle.STARTED, order = 126)
