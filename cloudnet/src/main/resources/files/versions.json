@@ -24,7 +24,7 @@
           }
         },
         {
-          "name": "1.16.3",
+          "name": "1.16.4",
           "url": "https://papermc.io/ci/job/Paper-1.16/lastSuccessfulBuild/artifact/paperclip.jar",
           "properties": {
             "copy": {
@@ -139,12 +139,12 @@
       "versions": [
         {
           "name": "latest",
-          "url": "https://cdn.getbukkit.org/spigot/spigot-1.16.3.jar",
+          "url": "https://cdn.getbukkit.org/spigot/spigot-1.16.4.jar",
           "cacheFiles": false
         },
         {
-          "name": "1.16.3",
-          "url": "https://cdn.getbukkit.org/spigot/spigot-1.16.3.jar"
+          "name": "1.16.4",
+          "url": "https://cdn.getbukkit.org/spigot/spigot-1.16.4.jar"
         },
         {
           "name": "1.15.2",
@@ -209,7 +209,7 @@
           }
         },
         {
-          "name": "1.16.3",
+          "name": "1.16.4",
           "url": "https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar",
           "maxJavaVersion": 13,
           "properties": {
@@ -361,7 +361,7 @@
       "versions": [
         {
           "name": "latest",
-          "url": "https://files.minecraftforge.net/maven/net/minecraftforge/forge/1.16.3-34.0.9/forge-1.16.3-34.0.9-installer.jar",
+          "url": "https://files.minecraftforge.net/maven/net/minecraftforge/forge/1.16.4-35.0.3/forge-1.16.4-35.0.3-installer.jar",
           "maxJavaVersion": 13,
           "cacheFiles": false,
           "properties": {
@@ -377,8 +377,8 @@
           }
         },
         {
-          "name": "1.16.3",
-          "url": "https://files.minecraftforge.net/maven/net/minecraftforge/forge/1.16.3-34.0.9/forge-1.16.3-34.0.9-installer.jar",
+          "name": "1.16.4",
+          "url": "https://files.minecraftforge.net/maven/net/minecraftforge/forge/1.16.4-35.0.3/forge-1.16.4-35.0.3-installer.jar",
           "maxJavaVersion": 13,
           "properties": {
             "copy": {
