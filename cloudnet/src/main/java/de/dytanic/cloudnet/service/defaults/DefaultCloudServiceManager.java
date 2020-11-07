@@ -68,9 +68,6 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
             return null;
         }
 
-        serviceConfiguration.setPort(this.checkAndReplacePort(serviceConfiguration.getPort()));
-        serviceConfiguration.getServiceId().setTaskServiceId(this.checkAndReplaceTaskId(serviceConfiguration.getServiceId()));
-
         ICloudService cloudService = this.getCloudServiceFactory(serviceConfiguration.getRuntime())
                 .map(factory -> factory.createCloudService(this, serviceConfiguration))
                 .orElseGet(() -> DEFAULT_FACTORY.createCloudService(this, serviceConfiguration));
@@ -90,6 +87,9 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
 
     private void prepareServiceConfiguration(ServiceConfiguration configuration) {
         configuration.getServiceId().setNodeUniqueId(CloudNet.getInstance().getComponentName());
+
+        configuration.getServiceId().setTaskServiceId(this.checkAndReplaceTaskId(configuration.getServiceId()));
+        configuration.setPort(this.checkAndReplacePort(configuration.getPort()));
 
         Collection<String> groups = new ArrayList<>(Arrays.asList(configuration.getGroups()));
 
@@ -244,7 +244,21 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
         return value;
     }
 
-    protected int checkAndReplacePort(int port) {
+    private int checkAndReplaceTaskId(ServiceId serviceId) {
+        int taskId = serviceId.getTaskServiceId();
+        if (taskId <= 0) {
+            taskId = 1;
+        }
+
+        Collection<Integer> taskIdList = this.getReservedTaskIds(serviceId.getTaskName());
+        while (taskIdList.contains(taskId)) {
+            taskId++;
+        }
+
+        return taskId;
+    }
+
+    private int checkAndReplacePort(int port) {
         Collection<Integer> usedPorts = new HashSet<>();
 
         for (ICloudService cloudService : this.cloudServices.values()) {
@@ -266,20 +280,6 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
         }
 
         return port;
-    }
-
-    private int checkAndReplaceTaskId(ServiceId serviceId) {
-        int taskId = serviceId.getTaskServiceId();
-        if (taskId <= 0) {
-            taskId = 1;
-        }
-
-        Collection<Integer> taskIdList = this.getReservedTaskIds(serviceId.getTaskName());
-        while (taskIdList.contains(taskId)) {
-            taskId++;
-        }
-
-        return taskId;
     }
 
     @NotNull
@@ -310,4 +310,5 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
     public @NotNull Optional<ICloudServiceFactory> getCloudServiceFactory(String runtime) {
         return runtime == null ? Optional.empty() : Optional.ofNullable(this.cloudServiceFactories.get(runtime));
     }
+
 }

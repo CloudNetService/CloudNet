@@ -40,7 +40,9 @@ public class CloudNetTick {
     public void start() {
         long value = System.currentTimeMillis();
         long millis = 1000 / TPS;
-        int launchServicesTick = 0, clusterUpdateTick = 0;
+
+        int launchServicesTick = 0;
+        int clusterUpdateTick = 0;
 
         while (this.cloudNet.isRunning()) {
             try {
@@ -62,23 +64,20 @@ public class CloudNetTick {
                     }
                 }
 
-                // TODO: request all node snapshots instead of every node sending them
-                if (++clusterUpdateTick >= (TPS / 2)) {
+                if (++clusterUpdateTick >= TPS) {
                     this.cloudNet.publishNetworkClusterNodeInfoSnapshotUpdate();
                     clusterUpdateTick = 0;
                 }
 
-                if (++launchServicesTick >= TPS) {
+                if (++launchServicesTick >= TPS * 2) {
                     this.startService();
                     launchServicesTick = 0;
                 }
 
                 this.stopDeadServices();
-
                 this.updateServiceLogs();
 
                 this.cloudNet.getEventManager().callEvent(new CloudNetTickEvent());
-
             } catch (Exception exception) {
                 exception.printStackTrace();
             }
