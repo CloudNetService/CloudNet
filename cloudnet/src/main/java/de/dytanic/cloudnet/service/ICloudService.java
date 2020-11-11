@@ -13,6 +13,7 @@ import java.util.Queue;
 
 public interface ICloudService {
 
+    @ApiStatus.Internal
     void init();
 
     @NotNull

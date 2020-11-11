@@ -68,6 +68,7 @@ public final class DefaultPermissionManagementHandler implements IPermissionMana
     }
 
     private void sendAll(IPacket packet) {
-        CloudNet.getInstance().sendAllAsync(packet).fireExceptionOnFailure();
+        CloudNet.getInstance().sendAll(packet);
     }
+
 }

@@ -20,6 +20,7 @@ import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
 import de.dytanic.cloudnet.service.ICloudServiceManager;
 import de.dytanic.cloudnet.service.handler.CloudServiceHandler;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -63,6 +64,7 @@ public abstract class DefaultCloudService extends DefaultEmptyCloudService {
     }
 
     @Override
+    @ApiStatus.Internal
     public void init() {
         Preconditions.checkArgument(!this.initialized, "Cannot initialize a service twice");
         this.initialized = true;

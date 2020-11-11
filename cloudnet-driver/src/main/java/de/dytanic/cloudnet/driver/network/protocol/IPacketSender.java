@@ -18,6 +18,15 @@ public interface IPacketSender {
      */
     void sendPacket(@NotNull IPacket packet);
 
+    /**
+     * Transport packet instances into the network to the receiver synchronously. The receiver will
+     * handle the packets if he knows the channel and has listeners for the channel
+     * <p>
+     * A packet are doesn't allow to be null
+     * All elements should be checked that be not null and send after that
+     *
+     * @param packet the packets, which should transport into the network
+     */
     void sendPacketSync(@NotNull IPacket packet);
 
     /**
@@ -29,6 +38,25 @@ public interface IPacketSender {
      *
      * @param packets the packets, which should transport into the network
      */
-    void sendPacket(@NotNull IPacket... packets);
+    default void sendPacket(@NotNull IPacket... packets) {
+        for (IPacket packet : packets) {
+            this.sendPacket(packet);
+        }
+    }
+
+    /**
+     * Transport packet instances into the network to the receiver synchronously. The receiver will
+     * handle the packets if he knows the channel and has listeners for the channel
+     * <p>
+     * A packet are doesn't allow to be null
+     * All elements should be checked that be not null and send after that
+     *
+     * @param packets the packets, which should transport into the network
+     */
+    default void sendPacketSync(@NotNull IPacket... packets) {
+        for (IPacket packet : packets) {
+            this.sendPacketSync(packet);
+        }
+    }
 
 }
