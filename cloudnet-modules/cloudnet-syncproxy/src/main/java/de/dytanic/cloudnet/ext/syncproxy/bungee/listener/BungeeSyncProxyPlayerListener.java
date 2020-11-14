@@ -11,7 +11,7 @@ import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.LoginEvent;
 import net.md_5.bungee.api.event.ProxyPingEvent;
-import net.md_5.bungee.api.event.ServerConnectEvent;
+import net.md_5.bungee.api.event.ServerConnectedEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
 
@@ -111,7 +111,7 @@ public final class BungeeSyncProxyPlayerListener implements Listener {
     }
 
     @EventHandler
-    public void handleServerConnect(ServerConnectEvent event) {
+    public void handleServerConnect(ServerConnectedEvent event) {
         this.syncProxyManagement.updateTabList(event.getPlayer());
     }
 
