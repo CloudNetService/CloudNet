@@ -718,12 +718,12 @@
       "versions": [
         {
           "name": "latest",
-          "url": "https://versions.velocitypowered.com/download/1.1.x-SNAPSHOT.jar",
+          "url": "https://versions.velocitypowered.com/download/latest.jar",
           "cacheFiles": false
         },
         {
-          "name": "stable",
-          "url": "https://versions.velocitypowered.com/download/1.1.0.jar",
+          "name": "development",
+          "url": "https://versions.velocitypowered.com/download/1.1.x-SNAPSHOT.jar",
           "cacheFiles": false
         }
       ]
