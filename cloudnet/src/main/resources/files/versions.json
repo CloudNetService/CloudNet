@@ -718,12 +718,12 @@
       "versions": [
         {
           "name": "latest",
-          "url": "https://ci.velocitypowered.com/job/velocity/244/artifact/proxy/build/libs/velocity-proxy-1.0.10-SNAPSHOT-all.jar",
+          "url": "https://versions.velocitypowered.com/download/1.1.x-SNAPSHOT.jar",
           "cacheFiles": false
         },
         {
           "name": "stable",
-          "url": "https://ci.velocitypowered.com/job/velocity/237/artifact/proxy/build/libs/velocity-proxy-1.0.9-all.jar",
+          "url": "https://versions.velocitypowered.com/download/1.1.0.jar",
           "cacheFiles": false
         }
       ]
