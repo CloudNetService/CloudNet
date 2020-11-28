@@ -1,4 +1,4 @@
-package de.dytanic.cloudnet.ext.placeholderapi;
+package eu.cloudnetservice.cloudnet.v3.ext.placeholderapi;
 
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.ext.bridge.BridgeServiceProperty;
@@ -30,7 +30,7 @@ public class CloudNetPlaceholderExpansion extends PlaceholderExpansion {
 
     @Override
     public @NotNull String getAuthor() {
-        return "Dytanic";
+        return "CloudNetService";
     }
 
     @Override
