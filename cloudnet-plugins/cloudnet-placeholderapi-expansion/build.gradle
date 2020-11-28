@@ -1,0 +1,12 @@
+jar {
+    archiveFileName.set('cloudnet-placeholderapi-expansion.jar')
+}
+
+dependencies {
+    compileOnly project(':cloudnet-driver')
+    compileOnly project(':cloudnet-wrapper-jvm')
+    compileOnly project(':cloudnet-modules').project('cloudnet-cloudperms')
+    compileOnly project(':cloudnet-modules').project('cloudnet-bridge')
+    compileOnly group: 'me.clip', name: 'placeholderapi', version: dependencyPlaceholderAPIVersion
+    compileOnly group: 'org.bukkit', name: 'bukkit', version: dependencyBukkitVersion
+}

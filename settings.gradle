@@ -45,4 +45,6 @@ include 'cloudnet-modules:cloudnet-rest'
 findProject(':cloudnet-modules:cloudnet-rest')?.name = 'cloudnet-rest'
 
 include ':cloudnet-wrapper-jvm:minecraft-launchwrapper-api'
+include 'cloudnet-plugins:cloudnet-placeholderapi-expansion'
+findProject(':cloudnet-plugins:cloudnet-placeholderapi-expansion')?.name = 'cloudnet-placeholderapi-expansion'
 
