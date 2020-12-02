@@ -72,4 +72,6 @@ public interface IConfiguration {
 
     String getJVMCommand();
 
+    int getServerStopTimeout();
+
 }

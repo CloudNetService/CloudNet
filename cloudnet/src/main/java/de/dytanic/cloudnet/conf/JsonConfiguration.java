@@ -58,6 +58,8 @@ public final class JsonConfiguration implements IConfiguration {
 
     private String defaultHostAddress;
 
+    private int serverStopTimeout;
+
     @Override
     public boolean isFileExists() {
         return Files.exists(CONFIG_FILE_PATH);
@@ -150,6 +152,8 @@ public final class JsonConfiguration implements IConfiguration {
             this.clusterConfig.setClusterId(UUID.fromString(System.getProperty("cloudnet.cluster.id")));
         }
 
+        this.serverStopTimeout = this.document.getInt("serverStopTimeout", 5);
+
         this.document.write(CONFIG_FILE_PATH);
     }
 
@@ -176,6 +180,7 @@ public final class JsonConfiguration implements IConfiguration {
                 .append("clientSslConfig", this.clientSslConfig)
                 .append("serverSslConfig", this.serverSslConfig)
                 .append("webSslConfig", this.webSslConfig)
+                .append("serverStopTimeout", this.serverStopTimeout)
                 .write(CONFIG_FILE_PATH);
     }
 
@@ -330,5 +335,9 @@ public final class JsonConfiguration implements IConfiguration {
 
     public void setDefaultHostAddress(String defaultHostAddress) {
         this.defaultHostAddress = defaultHostAddress;
+    }
+
+    public int getServerStopTimeout() {
+        return serverStopTimeout;
     }
 }

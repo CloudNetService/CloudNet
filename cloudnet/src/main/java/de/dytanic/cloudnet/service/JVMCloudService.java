@@ -934,7 +934,7 @@ final class JVMCloudService implements ICloudService {
                     outputStream.write("end\n".getBytes());
                     outputStream.flush();
 
-                    if (process.waitFor(5, TimeUnit.SECONDS)) {
+                    if (process.waitFor(CloudNet.getInstance().getConfig().getServerStopTimeout(), TimeUnit.SECONDS)) {
                         return process.exitValue();
                     }
                 } catch (Exception exception) {
