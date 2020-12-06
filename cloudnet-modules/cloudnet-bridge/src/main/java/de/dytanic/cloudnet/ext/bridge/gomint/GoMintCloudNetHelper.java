@@ -40,7 +40,7 @@ public final class GoMintCloudNetHelper extends BridgeServerHelper {
 
     public static void initProperties(ServiceInfoSnapshot serviceInfoSnapshot) {
         serviceInfoSnapshot.getProperties()
-                .append("Online", true)
+                .append("Online", BridgeHelper.isOnline())
                 .append("Version", Protocol.MINECRAFT_PE_NETWORK_VERSION)
                 .append("GoMint-Version", GoMint.instance().getVersion())
                 .append("Max-Players", BridgeServerHelper.getMaxPlayers())

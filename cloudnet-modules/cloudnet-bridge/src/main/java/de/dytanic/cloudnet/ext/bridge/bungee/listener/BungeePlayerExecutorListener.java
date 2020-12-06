@@ -15,6 +15,7 @@ import java.util.Collection;
 import java.util.UUID;
 
 public class BungeePlayerExecutorListener extends PlayerExecutorListener<ProxiedPlayer> {
+
     @Nullable
     @Override
     protected ProxiedPlayer getPlayer(@NotNull UUID uniqueId) {

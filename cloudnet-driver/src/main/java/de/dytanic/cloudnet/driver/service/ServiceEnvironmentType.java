@@ -68,6 +68,11 @@ public enum ServiceEnvironmentType {
             new ServiceEnvironment[]{ServiceEnvironment.WATERDOG_DEFAULT},
             MinecraftServiceType.BEDROCK_PROXY,
             19132
+    ),
+    WATERDOG_PE(
+            new ServiceEnvironment[]{ServiceEnvironment.WATERDOG_DEFAULT},
+            MinecraftServiceType.BEDROCK_PROXY,
+            19132
     );
 
     private final ServiceEnvironment[] environments;

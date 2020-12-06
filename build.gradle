@@ -9,6 +9,12 @@ allprojects {
 
     repositories {
 
+        maven {
+            name 'waterdog'
+            url 'https://repo.waterdog.dev/artifactory/main/'
+        }
+
+        mavenLocal()
         mavenCentral()
 
         maven {
@@ -74,6 +80,7 @@ allprojects {
         dependencyBukkitVersion = '1.15.2-R0.1-SNAPSHOT'
         dependencySpongeVersion = '7.0.0'
         dependencyBungeeCordVersion = '1.15-SNAPSHOT'
+        dependencyWaterdogPEVersion = '1.0.0-SNAPSHOT'
         dependencyVelocityVersion = '1.1.0-SNAPSHOT'
         dependencyNukkitXVersion = '1.0-SNAPSHOT'
         dependencyGoMintVersion = '1.0.0-SNAPSHOT'

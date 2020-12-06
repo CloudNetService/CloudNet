@@ -8,7 +8,14 @@ import de.dytanic.cloudnet.service.ICloudServiceManager;
 import de.dytanic.cloudnet.service.handler.CloudServiceHandler;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
@@ -68,6 +75,17 @@ public abstract class DefaultMinecraftCloudService extends DefaultTemplateCloudS
 
                 File file = new File(this.getDirectory(), "config.yml");
                 this.copyDefaultFile("files/waterdog/config.yml", file);
+
+                this.rewriteBungeeConfig(file);
+            }
+            break;
+            case WATERDOG_PE: {
+                if (!rewriteIp) {
+                    break;
+                }
+
+                File file = new File(this.getDirectory(), "config.yml");
+                this.copyDefaultFile("files/waterdogpe/config.yml", file);
 
                 this.rewriteBungeeConfig(file);
             }
