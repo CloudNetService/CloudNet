@@ -90,10 +90,11 @@ public final class VelocityCloudNetHelper {
                 BridgeHelper.createOwnNetworkServiceInfo()
         );
     }
-    public static Optional<RegisteredServer> getNextFallback(Player player, RegisteredServer registeredServer) {
+
+    public static Optional<RegisteredServer> getNextFallback(Player player) {
         return BridgeProxyHelper.getNextFallback(
                 player.getUniqueId(),
-                registeredServer != null ? registeredServer.getServerInfo().getName() : null,
+                player.getCurrentServer().map(ServerConnection::getServerInfo).map(ServerInfo::getName).orElse(null),
                 player::hasPermission
         ).map(serviceInfoSnapshot -> new VelocityPlayerFallbackEvent(player, serviceInfoSnapshot, serviceInfoSnapshot.getName()))
                 .map(event -> proxyServer.getEventManager().fire(event))
@@ -107,11 +108,6 @@ public final class VelocityCloudNetHelper {
                 })
                 .map(VelocityPlayerFallbackEvent::getFallbackName)
                 .flatMap(proxyServer::getServer);
-    }
-
-    public static Optional<RegisteredServer> getNextFallback(Player player) {
-        return getNextFallback(player, player.getCurrentServer()
-                .map(ServerConnection::getServer).orElse(null));
     }
 
     public static CompletableFuture<ServiceInfoSnapshot> connectToFallback(Player player, String currentServer) {
