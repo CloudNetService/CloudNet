@@ -72,9 +72,13 @@ public final class VelocityPlayerListener {
 
     @Subscribe
     public void handle(KickedFromServerEvent event) {
-        VelocityCloudNetHelper.getNextFallback(event.getPlayer())
-                .ifPresent(registeredServer -> event.setResult(KickedFromServerEvent.RedirectPlayer.create(registeredServer)));
-        event.getOriginalReason().ifPresent(component -> event.getPlayer().sendMessage(component));
+        if (event.getPlayer().isActive()) {
+            BridgeProxyHelper.handleConnectionFailed(event.getPlayer().getUniqueId(), event.getServer().getServerInfo().getName());
+
+            VelocityCloudNetHelper.getNextFallback(event.getPlayer())
+                    .ifPresent(registeredServer -> event.setResult(KickedFromServerEvent.RedirectPlayer.create(registeredServer)));
+            event.getOriginalReason().ifPresent(component -> event.getPlayer().sendMessage(component));
+        }
     }
 
     @Subscribe
