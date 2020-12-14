@@ -50,13 +50,13 @@ public class BukkitSignManagement extends AbstractSignManagement {
     @Override
     protected void updateSignNext(@NotNull Sign sign, @NotNull SignLayout signLayout, @Nullable ServiceInfoSnapshot serviceInfoSnapshot) {
         Bukkit.getScheduler().runTask(this.plugin, () -> {
-            final Location location = this.toLocation(sign.getWorldPosition());
+            Location location = this.toLocation(sign.getWorldPosition());
             if (location != null && location.getWorld() != null) {
-                final int chunkX = (int) Math.floor(location.getX()) >> 4;
-                final int chunkZ = (int) Math.floor(location.getZ()) >> 4;
+                int chunkX = (int) Math.floor(location.getX()) >> 4;
+                int chunkZ = (int) Math.floor(location.getZ()) >> 4;
 
                 if (location.getWorld().isChunkLoaded(chunkX, chunkZ)) {
-                    final Block block = location.getBlock();
+                    Block block = location.getBlock();
                     if (block.getState() instanceof org.bukkit.block.Sign) {
                         org.bukkit.block.Sign bukkitSign = (org.bukkit.block.Sign) block.getState();
                         this.updateSign(location, sign, bukkitSign, signLayout, serviceInfoSnapshot);
@@ -164,7 +164,7 @@ public class BukkitSignManagement extends AbstractSignManagement {
     public Location toLocation(WorldPosition worldPosition) {
         Preconditions.checkNotNull(worldPosition);
 
-        final World world = Bukkit.getWorld(worldPosition.getWorld());
+        World world = Bukkit.getWorld(worldPosition.getWorld());
         return world == null ? null : new Location(world, worldPosition.getX(), worldPosition.getY(), worldPosition.getZ());
     }
 
