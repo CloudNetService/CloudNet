@@ -72,7 +72,7 @@ public final class VelocityPlayerListener {
 
     @Subscribe
     public void handle(KickedFromServerEvent event) {
-        if(event.getPlayer().isActive()) {
+        if (event.getPlayer().isActive()) {
             BridgeProxyHelper.handleConnectionFailed(event.getPlayer().getUniqueId(), event.getServer().getServerInfo().getName());
 
             VelocityCloudNetHelper.getNextFallback(event.getPlayer())
