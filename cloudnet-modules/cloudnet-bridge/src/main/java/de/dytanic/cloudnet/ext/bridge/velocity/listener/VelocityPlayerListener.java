@@ -72,7 +72,7 @@ public final class VelocityPlayerListener {
 
     @Subscribe
     public void handle(KickedFromServerEvent event) {
-        VelocityCloudNetHelper.getNextFallback(event.getPlayer())
+        VelocityCloudNetHelper.getNextFallback(event.getPlayer(), event.getServer())
                 .ifPresent(registeredServer -> event.setResult(KickedFromServerEvent.RedirectPlayer.create(registeredServer)));
         event.getOriginalReason().ifPresent(component -> event.getPlayer().sendMessage(component));
     }
