@@ -8,7 +8,14 @@ import de.dytanic.cloudnet.common.concurrent.ThrowableConsumer;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.network.def.packet.PacketClientServerServiceInfoPublisher;
-import de.dytanic.cloudnet.driver.service.*;
+import de.dytanic.cloudnet.driver.service.GroupConfiguration;
+import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
+import de.dytanic.cloudnet.driver.service.ServiceDeployment;
+import de.dytanic.cloudnet.driver.service.ServiceId;
+import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
+import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
+import de.dytanic.cloudnet.driver.service.ServiceRemoteInclusion;
+import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import de.dytanic.cloudnet.event.service.CloudServiceCreateEvent;
 import de.dytanic.cloudnet.service.ICloudService;
 import de.dytanic.cloudnet.service.ICloudServiceFactory;
@@ -21,8 +28,23 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
-import java.util.*;
-import java.util.concurrent.*;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -30,8 +52,8 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
 
     private static final CloudServiceHandler HANDLER = DefaultCloudServiceHandler.INSTANCE;
     private static final ICloudServiceFactory DEFAULT_FACTORY = new DefaultCloudServiceFactory(JVMCloudService.RUNTIME, (manager, configuration) -> new JVMCloudService(manager, configuration, HANDLER));
-    private final File tempDirectory = new File(System.getProperty("cloudnet.tempDir.services", "temp/services"));
-    private final File persistenceServicesDirectory = new File(System.getProperty("cloudnet.persistable.services.path", "local/services"));
+    private final Path tempDirectory = Paths.get(System.getProperty("cloudnet.tempDir.services", "temp/services"));
+    private final Path persistenceServicesDirectory = Paths.get(System.getProperty("cloudnet.persistable.services.path", "local/services"));
     private final Map<UUID, ServiceInfoSnapshot> globalServiceInfoSnapshots = new ConcurrentHashMap<>();
     private final Map<UUID, ICloudService> cloudServices = new ConcurrentHashMap<>();
     private final Map<String, ICloudServiceFactory> cloudServiceFactories = new ConcurrentHashMap<>();
@@ -283,12 +305,22 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
     }
 
     @NotNull
+    @Deprecated
     public File getTempDirectory() {
+        return this.tempDirectory.toFile();
+    }
+
+    public Path getTempDirectoryPath() {
         return this.tempDirectory;
     }
 
     @NotNull
+    @Deprecated
     public File getPersistenceServicesDirectory() {
+        return this.persistenceServicesDirectory.toFile();
+    }
+
+    public Path getPersistentServicesDirectoryPath() {
         return this.persistenceServicesDirectory;
     }
 

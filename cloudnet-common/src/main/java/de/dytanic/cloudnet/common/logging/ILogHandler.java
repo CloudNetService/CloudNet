@@ -16,6 +16,6 @@ public interface ILogHandler extends AutoCloseable {
      *
      * @param logEntry the new incoming log entry
      */
-    void handle(@NotNull LogEntry logEntry);
+    void handle(@NotNull LogEntry logEntry) throws Exception;
 
 }

@@ -140,6 +140,7 @@ public class JsonDocument implements IDocument<JsonDocument>, Cloneable {
         return new JsonDocument(GSON.toJsonTree(object));
     }
 
+    @Deprecated
     public static JsonDocument newDocument(File file) {
         if (file == null) {
             return null;

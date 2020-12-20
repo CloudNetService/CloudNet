@@ -1,8 +1,10 @@
 package de.dytanic.cloudnet.driver.module;
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
@@ -31,7 +33,11 @@ public interface IModuleWrapper {
 
     IModuleWrapper unloadModule();
 
+    @Deprecated
     File getDataFolder();
+
+    @NotNull
+    Path getDataDirectory();
 
     Map<String, String> getDefaultRepositories();
 

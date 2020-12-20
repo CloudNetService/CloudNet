@@ -10,22 +10,28 @@ import de.dytanic.cloudnet.ext.bridge.listener.TaskConfigListener;
 import de.dytanic.cloudnet.ext.bridge.node.command.CommandBridge;
 import de.dytanic.cloudnet.ext.bridge.node.command.CommandPlayers;
 import de.dytanic.cloudnet.ext.bridge.node.http.V1BridgeConfigurationHttpHandler;
-import de.dytanic.cloudnet.ext.bridge.node.listener.*;
+import de.dytanic.cloudnet.ext.bridge.node.listener.BridgeDefaultConfigurationListener;
+import de.dytanic.cloudnet.ext.bridge.node.listener.BridgePlayerDisconnectListener;
+import de.dytanic.cloudnet.ext.bridge.node.listener.BridgeServiceListCommandListener;
+import de.dytanic.cloudnet.ext.bridge.node.listener.BridgeTaskSetupListener;
+import de.dytanic.cloudnet.ext.bridge.node.listener.IncludePluginListener;
+import de.dytanic.cloudnet.ext.bridge.node.listener.NetworkListenerRegisterListener;
+import de.dytanic.cloudnet.ext.bridge.node.listener.NodeCustomChannelMessageListener;
+import de.dytanic.cloudnet.ext.bridge.node.listener.PlayerManagerListener;
 import de.dytanic.cloudnet.ext.bridge.node.player.NodePlayerManager;
 import de.dytanic.cloudnet.ext.bridge.player.IPlayerManager;
 import de.dytanic.cloudnet.module.NodeCloudNetModule;
 
-import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.Map;
 
 public final class CloudNetBridgeModule extends NodeCloudNetModule {
 
     private static CloudNetBridgeModule instance;
-
-    private BridgeConfiguration bridgeConfiguration;
-
     private final NodePlayerManager nodePlayerManager = new NodePlayerManager("cloudnet_cloud_players");
+    private BridgeConfiguration bridgeConfiguration;
 
     public CloudNetBridgeModule() {
         instance = this;
@@ -103,14 +109,12 @@ public final class CloudNetBridgeModule extends NodeCloudNetModule {
 
     @Override
     public JsonDocument reloadConfig() {
-        this.getModuleWrapper().getDataFolder().mkdirs();
-        File file = new File(this.getModuleWrapper().getDataFolder(), "config.json");
-
-        if (!file.exists()) {
+        Path configFile = this.getModuleWrapper().getDataDirectory().resolve("config.json");
+        if (Files.notExists(configFile)) {
             this.createConfiguration();
         }
 
-        return super.config = JsonDocument.newDocument(file);
+        return super.config = JsonDocument.newDocument(configFile);
     }
 
     public BridgeConfiguration getBridgeConfiguration() {

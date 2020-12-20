@@ -52,7 +52,11 @@ import de.dytanic.cloudnet.driver.permission.IPermissionGroup;
 import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
 import de.dytanic.cloudnet.driver.permission.IPermissionUser;
 import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
-import de.dytanic.cloudnet.driver.service.*;
+import de.dytanic.cloudnet.driver.service.GroupConfiguration;
+import de.dytanic.cloudnet.driver.service.ProcessSnapshot;
+import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
+import de.dytanic.cloudnet.driver.service.ServiceTask;
+import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import de.dytanic.cloudnet.event.CloudNetNodePostInitializationEvent;
 import de.dytanic.cloudnet.event.cluster.NetworkClusterNodeInfoConfigureEvent;
 import de.dytanic.cloudnet.event.command.CommandNotFoundEvent;
@@ -67,9 +71,22 @@ import de.dytanic.cloudnet.network.NetworkUpdateType;
 import de.dytanic.cloudnet.network.listener.PacketServerChannelMessageListener;
 import de.dytanic.cloudnet.network.listener.auth.PacketClientAuthorizationListener;
 import de.dytanic.cloudnet.network.listener.auth.PacketServerAuthorizationResponseListener;
-import de.dytanic.cloudnet.network.listener.cluster.*;
+import de.dytanic.cloudnet.network.listener.cluster.PacketServerClusterNodeInfoUpdateListener;
+import de.dytanic.cloudnet.network.listener.cluster.PacketServerDeployLocalTemplateListener;
+import de.dytanic.cloudnet.network.listener.cluster.PacketServerH2DatabaseListener;
+import de.dytanic.cloudnet.network.listener.cluster.PacketServerServiceInfoPublisherListener;
+import de.dytanic.cloudnet.network.listener.cluster.PacketServerSetGlobalServiceInfoListListener;
+import de.dytanic.cloudnet.network.listener.cluster.PacketServerSetGroupConfigurationListListener;
+import de.dytanic.cloudnet.network.listener.cluster.PacketServerSetH2DatabaseDataListener;
+import de.dytanic.cloudnet.network.listener.cluster.PacketServerSetPermissionDataListener;
+import de.dytanic.cloudnet.network.listener.cluster.PacketServerSetServiceTaskListListener;
+import de.dytanic.cloudnet.network.listener.cluster.PacketServerUpdatePermissionsListener;
 import de.dytanic.cloudnet.network.listener.driver.PacketServerDriverAPIListener;
-import de.dytanic.cloudnet.network.packet.*;
+import de.dytanic.cloudnet.network.packet.PacketServerClusterNodeInfoUpdate;
+import de.dytanic.cloudnet.network.packet.PacketServerSetGroupConfigurationList;
+import de.dytanic.cloudnet.network.packet.PacketServerSetH2DatabaseData;
+import de.dytanic.cloudnet.network.packet.PacketServerSetPermissionData;
+import de.dytanic.cloudnet.network.packet.PacketServerSetServiceTaskList;
 import de.dytanic.cloudnet.permission.DefaultDatabasePermissionManagement;
 import de.dytanic.cloudnet.permission.DefaultPermissionManagementHandler;
 import de.dytanic.cloudnet.permission.NodePermissionManagement;
@@ -97,9 +114,18 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Random;
+import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
@@ -113,7 +139,7 @@ public final class CloudNet extends CloudNetDriver {
 
     private final LogLevel defaultLogLevel = LogLevel.getDefaultLogLevel(System.getProperty("cloudnet.logging.defaultlevel")).orElse(LogLevel.FATAL);
 
-    private final File moduleDirectory = new File(System.getProperty("cloudnet.modules.directory", "modules"));
+    private final Path moduleDirectory = Paths.get(System.getProperty("cloudnet.modules.directory", "modules"));
 
     private final IConfiguration config = new JsonConfiguration();
     private final IConfigurationRegistry configurationRegistry = new JsonConfigurationRegistry(Paths.get(System.getProperty("cloudnet.registry.global.path", "local/registry")));
@@ -828,18 +854,13 @@ public final class CloudNet extends CloudNetDriver {
 
     private void loadModules() {
         this.logger.info(LanguageManager.getMessage("cloudnet-load-modules-createDirectory"));
-        this.moduleDirectory.mkdirs();
+        FileUtils.createDirectoryReported(this.moduleDirectory);
 
         this.logger.info(LanguageManager.getMessage("cloudnet-load-modules"));
-        for (File file : Objects.requireNonNull(this.moduleDirectory.listFiles(pathname -> {
-            String lowerName = pathname.getName().toLowerCase();
-            return !pathname.isDirectory() && lowerName.endsWith(".jar") ||
-                    lowerName.endsWith(".war") ||
-                    lowerName.endsWith(".zip");
-        }))) {
-            this.logger.info(LanguageManager.getMessage("cloudnet-load-modules-found").replace("%file_name%", file.getName()));
-            this.moduleProvider.loadModule(file);
-        }
+        FileUtils.walkFileTree(this.moduleDirectory, (root, current) -> {
+            this.logger.info(LanguageManager.getMessage("cloudnet-load-modules-found").replace("%file_name%", current.getFileName().toString()));
+            this.moduleProvider.loadModule(current);
+        }, false, "*.{jar,war,zip}");
     }
 
     private void startModules() {
@@ -902,7 +923,12 @@ public final class CloudNet extends CloudNetDriver {
         return this.commandMap;
     }
 
+    @Deprecated
     public File getModuleDirectory() {
+        return this.moduleDirectory.toFile();
+    }
+
+    public Path getModuleDirectoryPath() {
         return this.moduleDirectory;
     }
 

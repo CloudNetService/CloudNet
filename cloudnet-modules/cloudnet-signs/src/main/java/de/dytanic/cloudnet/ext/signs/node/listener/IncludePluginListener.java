@@ -1,11 +1,12 @@
 package de.dytanic.cloudnet.ext.signs.node.listener;
 
+import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.util.DefaultModuleHelper;
 import de.dytanic.cloudnet.event.service.CloudServicePreStartEvent;
 import de.dytanic.cloudnet.ext.signs.node.CloudNetSignsModule;
 
-import java.io.File;
+import java.nio.file.Path;
 import java.util.Arrays;
 
 public final class IncludePluginListener {
@@ -17,17 +18,22 @@ public final class IncludePluginListener {
             return;
         }
 
-        boolean installPlugin = CloudNetSignsModule.getInstance().getSignConfiguration().getConfigurations().stream()
+        boolean installPlugin = CloudNetSignsModule.getInstance().getSignConfiguration().getConfigurations()
+                .stream()
                 .anyMatch(signConfigurationEntry -> Arrays.asList(event.getCloudService().getServiceConfiguration().getGroups()).contains(signConfigurationEntry.getTargetGroup()));
 
-        new File(event.getCloudService().getDirectory(), "plugins").mkdirs();
-        File file = new File(event.getCloudService().getDirectory(), "plugins/cloudnet-signs.jar");
-        file.delete();
+        Path pluginsFolder = event.getCloudService().getDirectoryPath().resolve("plugins");
+        FileUtils.createDirectoryReported(pluginsFolder);
 
-        if (installPlugin && DefaultModuleHelper.copyCurrentModuleInstanceFromClass(IncludePluginListener.class, file)) {
-            DefaultModuleHelper.copyPluginConfigurationFileForEnvironment(IncludePluginListener.class,
-                    event.getCloudService().getServiceConfiguration().getProcessConfig().getEnvironment(), file);
+        Path targetFile = pluginsFolder.resolve("cloudnet-signs.jar");
+        FileUtils.deleteFileReported(targetFile);
+
+        if (installPlugin && DefaultModuleHelper.copyCurrentModuleInstanceFromClass(IncludePluginListener.class, targetFile)) {
+            DefaultModuleHelper.copyPluginConfigurationFileForEnvironment(
+                    IncludePluginListener.class,
+                    event.getCloudService().getServiceConfiguration().getProcessConfig().getEnvironment(),
+                    targetFile
+            );
         }
     }
-
 }

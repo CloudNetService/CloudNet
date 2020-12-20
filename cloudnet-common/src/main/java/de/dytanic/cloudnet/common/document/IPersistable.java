@@ -17,7 +17,7 @@ public interface IPersistable {
 
     default IPersistable write(Path path) {
         Path parent = path.getParent();
-        if (parent != null && !Files.exists(parent)) {
+        if (parent != null && Files.notExists(parent)) {
             try {
                 Files.createDirectories(parent);
             } catch (IOException exception) {
@@ -52,6 +52,7 @@ public interface IPersistable {
         return this;
     }
 
+    @Deprecated
     default IPersistable write(File file) {
         if (file == null) {
             return this;
@@ -60,6 +61,7 @@ public interface IPersistable {
         return this.write(file.toPath());
     }
 
+    @Deprecated
     default IPersistable write(File... files) {
         if (files == null) {
             return this;

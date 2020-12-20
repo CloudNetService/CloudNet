@@ -51,4 +51,8 @@ public final class CloudNetCloudPermissionsModule extends NodeCloudNetModule {
     public List<String> getExcludedGroups() {
         return this.getConfig().get("excludedGroups", LIST_STRING);
     }
+
+    public boolean isEnabled() {
+        return this.getConfig().getBoolean("enabled");
+    }
 }
