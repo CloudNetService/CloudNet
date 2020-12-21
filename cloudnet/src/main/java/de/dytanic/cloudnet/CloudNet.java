@@ -385,7 +385,7 @@ public final class CloudNet extends CloudNetDriver {
 
             this.networkTaskScheduler.shutdown();
 
-            FileUtils.delete(this.cloudServiceManager.getTempDirectoryPath());
+            FileUtils.delete(Paths.get(System.getProperty("cloudnet.tempDir", "temp")));
 
             this.logger.close();
             this.console.close();
