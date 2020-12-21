@@ -185,6 +185,7 @@ subprojects {
 
     jar {
         from rootProject.file('LICENSE')
+        duplicatesStrategy = DuplicatesStrategy.INCLUDE
     }
 
     task sourcesJar(type: Jar) {
