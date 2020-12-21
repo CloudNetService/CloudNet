@@ -61,7 +61,7 @@ allprojects {
         dependencyGuavaVersion = '30.1-jre'
         dependencyAnnotationsVersion = '20.1.0'
         dependencyLombokVersion = '1.18.16'
-        dependencyH2Version = '1.4.200'
+        dependencyH2Version = '1.4.197'
         dependencyGsonVersion = '2.8.6'
         dependencyNettyVersion = '4.1.56.Final'
         dependencyJLineVersion = '3.18.0'
