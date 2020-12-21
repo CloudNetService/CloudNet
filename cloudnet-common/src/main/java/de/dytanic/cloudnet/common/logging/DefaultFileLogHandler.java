@@ -74,6 +74,11 @@ public final class DefaultFileLogHandler extends AbstractLogHandler {
 
     @Override
     public void handle(@NotNull LogEntry logEntry) throws Exception {
+        if (this.outputStream == null) {
+            // handler is not available
+            return;
+        }
+
         if (this.entry == null || Files.size(this.entry) > this.maxBytes) {
             this.entry = this.init(this.selectLogFile(this.outputStream, this.pattern));
         }
