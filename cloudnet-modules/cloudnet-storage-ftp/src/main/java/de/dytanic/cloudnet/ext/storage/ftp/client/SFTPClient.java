@@ -219,7 +219,7 @@ public class SFTPClient implements Closeable {
 
             Path dir = Paths.get(localPath);
             if (Files.exists(dir)) {
-                FileUtils.delete(dir.toFile());
+                FileUtils.delete(dir);
             }
             Files.createDirectories(dir);
 

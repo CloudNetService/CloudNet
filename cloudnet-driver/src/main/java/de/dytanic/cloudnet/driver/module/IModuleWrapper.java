@@ -34,7 +34,9 @@ public interface IModuleWrapper {
     IModuleWrapper unloadModule();
 
     @Deprecated
-    File getDataFolder();
+    default File getDataFolder() {
+        return this.getDataDirectory().toFile();
+    }
 
     @NotNull
     Path getDataDirectory();

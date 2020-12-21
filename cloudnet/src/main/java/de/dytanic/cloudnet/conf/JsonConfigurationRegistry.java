@@ -2,6 +2,7 @@ package de.dytanic.cloudnet.conf;
 
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import de.dytanic.cloudnet.common.io.FileUtils;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
@@ -208,8 +209,8 @@ public final class JsonConfigurationRegistry implements IConfigurationRegistry {
 
     @Override
     public IConfigurationRegistry load() {
-        if (!Files.exists(this.path)) {
-            this.path.toFile().getParentFile().mkdirs();
+        if (Files.notExists(this.path)) {
+            FileUtils.createDirectoryReported(this.path.getParent());
             this.save();
         }
 

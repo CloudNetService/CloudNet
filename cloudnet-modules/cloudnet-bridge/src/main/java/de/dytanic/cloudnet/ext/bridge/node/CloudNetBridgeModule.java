@@ -1,6 +1,7 @@
 package de.dytanic.cloudnet.ext.bridge.node;
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.driver.module.ModuleLifeCycle;
 import de.dytanic.cloudnet.driver.module.ModuleTask;
 import de.dytanic.cloudnet.ext.bridge.BridgeConfiguration;
@@ -43,10 +44,9 @@ public final class CloudNetBridgeModule extends NodeCloudNetModule {
 
     @ModuleTask(order = 64, event = ModuleLifeCycle.STARTED)
     public void createConfiguration() {
-        this.getModuleWrapper().getDataFolder().mkdirs();
+        FileUtils.createDirectoryReported(this.getModuleWrapper().getDataDirectory());
 
         this.bridgeConfiguration = this.getConfig().get("config", BridgeConfiguration.TYPE, new BridgeConfiguration());
-
         for (Map.Entry<String, String> entry : BridgeConfiguration.DEFAULT_MESSAGES.entrySet()) {
             if (!this.bridgeConfiguration.getMessages().containsKey(entry.getKey())) {
                 this.bridgeConfiguration.getMessages().put(entry.getKey(), entry.getValue());

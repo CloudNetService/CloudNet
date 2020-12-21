@@ -7,7 +7,22 @@ import de.dytanic.cloudnet.cluster.IClusterNodeServerProvider;
 import de.dytanic.cloudnet.command.ConsoleCommandSender;
 import de.dytanic.cloudnet.command.DefaultCommandMap;
 import de.dytanic.cloudnet.command.ICommandMap;
-import de.dytanic.cloudnet.command.commands.*;
+import de.dytanic.cloudnet.command.commands.CommandClear;
+import de.dytanic.cloudnet.command.commands.CommandCluster;
+import de.dytanic.cloudnet.command.commands.CommandCopy;
+import de.dytanic.cloudnet.command.commands.CommandCreate;
+import de.dytanic.cloudnet.command.commands.CommandDebug;
+import de.dytanic.cloudnet.command.commands.CommandExit;
+import de.dytanic.cloudnet.command.commands.CommandGroups;
+import de.dytanic.cloudnet.command.commands.CommandHelp;
+import de.dytanic.cloudnet.command.commands.CommandMe;
+import de.dytanic.cloudnet.command.commands.CommandModules;
+import de.dytanic.cloudnet.command.commands.CommandPermissions;
+import de.dytanic.cloudnet.command.commands.CommandReload;
+import de.dytanic.cloudnet.command.commands.CommandScreen;
+import de.dytanic.cloudnet.command.commands.CommandService;
+import de.dytanic.cloudnet.command.commands.CommandTasks;
+import de.dytanic.cloudnet.command.commands.CommandTemplate;
 import de.dytanic.cloudnet.common.Properties;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.concurrent.DefaultTaskScheduler;
@@ -156,17 +171,12 @@ public final class CloudNet extends CloudNetDriver {
 
     private final QueuedConsoleLogHandler queuedConsoleLogHandler;
     private final ConsoleCommandSender consoleCommandSender;
-
+    private final ICloudServiceManager cloudServiceManager = new DefaultCloudServiceManager();
+    private final DefaultInstallation defaultInstallation = new DefaultInstallation();
+    private final ServiceVersionProvider serviceVersionProvider = new ServiceVersionProvider();
     private INetworkClient networkClient;
     private INetworkServer networkServer;
     private IHttpServer httpServer;
-
-    private final ICloudServiceManager cloudServiceManager = new DefaultCloudServiceManager();
-
-    private final DefaultInstallation defaultInstallation = new DefaultInstallation();
-
-    private final ServiceVersionProvider serviceVersionProvider = new ServiceVersionProvider();
-
     private AbstractDatabaseProvider databaseProvider;
     private volatile NetworkClusterNodeInfoSnapshot lastNetworkClusterNodeInfoSnapshot, currentNetworkClusterNodeInfoSnapshot;
     private long startupNanos;
@@ -213,15 +223,15 @@ public final class CloudNet extends CloudNetDriver {
 
     @Override
     public synchronized void start() throws Exception {
-        File tempDirectory = new File(System.getProperty("cloudnet.tempDir", "temp"));
-        tempDirectory.mkdirs();
+        Path tempDirectory = Paths.get(System.getProperty("cloudnet.tempDir", "temp"));
+        FileUtils.createDirectoryReported(tempDirectory);
 
-        File cachesDirectory = new File(tempDirectory, "caches");
-        cachesDirectory.mkdirs();
+        Path cachesDirectory = tempDirectory.resolve("caches");
+        FileUtils.createDirectoryReported(cachesDirectory);
 
         try (InputStream inputStream = CloudNet.class.getClassLoader().getResourceAsStream("wrapper.jar")) {
             Preconditions.checkNotNull(inputStream, "Missing wrapper.jar");
-            Files.copy(inputStream, new File(tempDirectory, "caches/wrapper.jar").toPath(), StandardCopyOption.REPLACE_EXISTING);
+            Files.copy(inputStream, cachesDirectory.resolve("wrapper.jar"), StandardCopyOption.REPLACE_EXISTING);
         }
 
         this.initServiceVersions();
@@ -375,7 +385,7 @@ public final class CloudNet extends CloudNetDriver {
 
             this.networkTaskScheduler.shutdown();
 
-            FileUtils.delete(new File("temp"));
+            FileUtils.delete(this.cloudServiceManager.getTempDirectoryPath());
 
             this.logger.close();
             this.console.close();
@@ -880,12 +890,17 @@ public final class CloudNet extends CloudNetDriver {
     }
 
     private void registerDefaultServices() {
-        this.servicesRegistry.registerService(ITemplateStorage.class, LocalTemplateStorage.LOCAL_TEMPLATE_STORAGE,
-                new LocalTemplateStorage(new File(System.getProperty("cloudnet.storage.local", "local/templates"))));
+        this.servicesRegistry.registerService(
+                ITemplateStorage.class,
+                LocalTemplateStorage.LOCAL_TEMPLATE_STORAGE,
+                new LocalTemplateStorage(Paths.get(System.getProperty("cloudnet.storage.local", "local/templates")))
+        );
 
-        this.servicesRegistry.registerService(AbstractDatabaseProvider.class, "h2",
-                new H2DatabaseProvider(System.getProperty("cloudnet.database.h2.path", "local/database/h2"),
-                        !CloudNet.getInstance().getConfig().getClusterConfig().getNodes().isEmpty()));
+        this.servicesRegistry.registerService(
+                AbstractDatabaseProvider.class,
+                "h2",
+                new H2DatabaseProvider(System.getProperty("cloudnet.database.h2.path", "local/database/h2"), !this.config.getClusterConfig().getNodes().isEmpty())
+        );
     }
 
     private void runConsole() {

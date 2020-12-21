@@ -6,6 +6,7 @@ import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -31,6 +32,11 @@ public final class LocalTemplateStorage implements ITemplateStorage {
 
     public static final String LOCAL_TEMPLATE_STORAGE = "local";
     private final Path storageDirectory;
+
+    @Deprecated
+    public LocalTemplateStorage(File storageDirectory) {
+        this(storageDirectory.toPath());
+    }
 
     public LocalTemplateStorage(Path storageDirectory) {
         this.storageDirectory = storageDirectory;

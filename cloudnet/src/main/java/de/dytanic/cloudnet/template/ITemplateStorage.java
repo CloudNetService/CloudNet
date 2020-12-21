@@ -35,7 +35,7 @@ public interface ITemplateStorage extends AutoCloseable, INameable {
      */
     @Deprecated
     @ApiStatus.ScheduledForRemoval(inVersion = "3.5")
-    boolean deploy(@NotNull byte[] zipInput, @NotNull ServiceTemplate target);
+    boolean deploy(byte[] zipInput, @NotNull ServiceTemplate target);
 
     /**
      * Deploys the following directory files to the target template storage.

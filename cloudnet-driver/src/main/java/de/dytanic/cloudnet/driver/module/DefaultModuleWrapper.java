@@ -3,6 +3,7 @@ package de.dytanic.cloudnet.driver.module;
 import com.google.common.base.Preconditions;
 import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.InputStream;
@@ -11,7 +12,14 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class DefaultModuleWrapper implements IModuleWrapper {
@@ -23,14 +31,14 @@ public class DefaultModuleWrapper implements IModuleWrapper {
 
     private static final String MODULE_CONFIG_PATH = "module.json";
     private final EnumMap<ModuleLifeCycle, List<IModuleTaskEntry>> moduleTasks = new EnumMap<>(ModuleLifeCycle.class);
-    private ModuleLifeCycle moduleLifeCycle = ModuleLifeCycle.UNLOADED;
     private final URL url;
-    private DefaultModule module;
     private final DefaultModuleProvider moduleProvider;
+    private ModuleLifeCycle moduleLifeCycle = ModuleLifeCycle.UNLOADED;
+    private DefaultModule module;
     private FinalizeURLClassLoader classLoader;
     private ModuleConfiguration moduleConfiguration;
     private JsonDocument moduleConfigurationSource;
-    private File moduleDirectory = new File("modules");
+    private Path moduleDirectory = Paths.get("modules");
 
     public DefaultModuleWrapper(DefaultModuleProvider moduleProvider, URL url) throws Exception {
         Preconditions.checkNotNull(url);
@@ -46,7 +54,12 @@ public class DefaultModuleWrapper implements IModuleWrapper {
         this.init(url);
     }
 
+    @Deprecated
     public DefaultModuleWrapper(DefaultModuleProvider moduleProvider, URL url, File moduleDirectory) throws Exception {
+        this(moduleProvider, url, moduleDirectory.toPath());
+    }
+
+    public DefaultModuleWrapper(DefaultModuleProvider moduleProvider, URL url, Path moduleDirectory) throws Exception {
         this(moduleProvider, url);
         this.moduleDirectory = moduleDirectory;
     }
@@ -233,12 +246,10 @@ public class DefaultModuleWrapper implements IModuleWrapper {
     }
 
     @Override
-    public File getDataFolder() {
-        return this.getModuleConfigurationSource() != null && this.getModuleConfigurationSource().contains("dataFolder") ?
-                new File(this.getModuleConfigurationSource().getString("dataFolder"))
-                :
-                new File(this.moduleDirectory, this.getModuleConfiguration().getName()
-                );
+    public @NotNull Path getDataDirectory() {
+        return this.getModuleConfigurationSource() != null && this.getModuleConfigurationSource().contains("dataFolder")
+                ? Paths.get(this.getModuleConfigurationSource().getString("dataFolder"))
+                : this.moduleDirectory.resolve(this.getModuleConfiguration().getName());
     }
 
     @Override

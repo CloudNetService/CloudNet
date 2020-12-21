@@ -8,14 +8,17 @@ import de.dytanic.cloudnet.service.ICloudServiceManager;
 import de.dytanic.cloudnet.service.handler.CloudServiceHandler;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.util.ArrayList;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.UnaryOperator;
+import java.util.stream.Collectors;
 
 public abstract class DefaultMinecraftCloudService extends DefaultTemplateCloudService {
 
@@ -33,14 +36,23 @@ public abstract class DefaultMinecraftCloudService extends DefaultTemplateCloudS
         }
     }
 
-    private void rewriteBungeeConfig(File config) throws IOException {
+    private void rewriteBungeeConfig(Path config) throws IOException {
         this.rewriteServiceConfigurationFile(config, line -> {
             if (line.startsWith("    host: ")) {
                 line = "    host: " + CloudNet.getInstance().getConfig().getHostAddress() + ":" + this.getServiceConfiguration().getPort();
             } else if (line.startsWith("  host: ")) {
                 line = "  host: " + CloudNet.getInstance().getConfig().getHostAddress() + ":" + this.getServiceConfiguration().getPort();
             }
+            return line;
+        });
+    }
 
+    private void rewriteVelocityConfig(Path config) throws IOException {
+        AtomicBoolean reference = new AtomicBoolean(true);
+        this.rewriteServiceConfigurationFile(config, line -> {
+            if (reference.getAndSet(false) && line.startsWith("bind =")) {
+                return "bind = \"" + CloudNet.getInstance().getConfig().getHostAddress() + ":" + this.getServiceConfiguration().getPort() + "\"";
+            }
             return line;
         });
     }
@@ -51,54 +63,35 @@ public abstract class DefaultMinecraftCloudService extends DefaultTemplateCloudS
 
         switch (this.getServiceConfiguration().getProcessConfig().getEnvironment()) {
             case BUNGEECORD: {
-                if (!rewriteIp) {
-                    break;
+                if (rewriteIp) {
+                    Path configLocation = this.getDirectoryPath().resolve("config.yml");
+                    this.copyDefaultFile("files/bungee/config.yml", configLocation);
+                    this.rewriteBungeeConfig(configLocation);
                 }
-
-                File file = new File(this.getDirectory(), "config.yml");
-                this.copyDefaultFile("files/bungee/config.yml", file);
-
-                this.rewriteBungeeConfig(file);
+                break;
             }
-            break;
             case WATERDOG: {
-                if (!rewriteIp) {
-                    break;
+                if (rewriteIp) {
+                    Path configLocation = this.getDirectoryPath().resolve("config.yml");
+                    this.copyDefaultFile("files/waterdog/config.yml", configLocation);
+                    this.rewriteBungeeConfig(configLocation);
                 }
-
-                File file = new File(this.getDirectory(), "config.yml");
-                this.copyDefaultFile("files/waterdog/config.yml", file);
-
-                this.rewriteBungeeConfig(file);
+                break;
             }
-            break;
             case VELOCITY: {
-                if (!rewriteIp) {
-                    break;
+                if (rewriteIp) {
+                    Path configLocation = this.getDirectoryPath().resolve("velocity.toml");
+                    this.copyDefaultFile("files/velocity/velocity.toml", configLocation);
+                    this.rewriteVelocityConfig(configLocation);
                 }
-
-                File file = new File(this.getDirectory(), "velocity.toml");
-                this.copyDefaultFile("files/velocity/velocity.toml", file);
-
-                AtomicBoolean reference = new AtomicBoolean(true);
-
-                this.rewriteServiceConfigurationFile(file, line -> {
-                    if (reference.get() && line.startsWith("bind =")) {
-                        reference.set(false);
-                        return "bind = \"" + CloudNet.getInstance().getConfig().getHostAddress() + ":" + this.getServiceConfiguration().getPort() + "\"";
-                    }
-
-                    return line;
-                });
+                break;
             }
-            break;
             case MINECRAFT_SERVER: {
-                File file = new File(this.getDirectory(), "server.properties");
-                this.copyDefaultFile("files/nms/server.properties", file);
+                Path path = this.getDirectoryPath().resolve("server.properties");
+                this.copyDefaultFile("files/nms/server.properties", path);
 
                 Properties properties = new Properties();
-
-                try (InputStream inputStream = new FileInputStream(file)) {
+                try (InputStream inputStream = Files.newInputStream(path)) {
                     properties.load(inputStream);
                 }
 
@@ -108,121 +101,103 @@ public abstract class DefaultMinecraftCloudService extends DefaultTemplateCloudS
                     properties.setProperty("server-ip", CloudNet.getInstance().getConfig().getHostAddress());
                 }
 
-                try (OutputStream outputStream = new FileOutputStream(file);
-                     OutputStreamWriter writer = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8)) {
-                    properties.store(writer, "Edit by CloudNet");
+                try (OutputStream outputStream = Files.newOutputStream(path)) {
+                    properties.store(outputStream, "Edit by CloudNet");
                 }
 
-                properties = new Properties();
+                properties.clear();
 
-                file = new File(this.getDirectory(), "eula.txt");
-                if (file.exists() || file.createNewFile()) {
-                    try (InputStream inputStream = new FileInputStream(file)) {
+                // eula auto agree
+                properties.setProperty("eula", "true");
+                try (OutputStream outputStream = Files.newOutputStream(this.getDirectoryPath().resolve("eula.txt"))) {
+                    properties.store(outputStream, "Auto Eula agreement by CloudNet");
+                }
+                break;
+            }
+            case NUKKIT: {
+                if (rewriteIp) {
+                    Path path = this.getDirectoryPath().resolve("server.properties");
+                    this.copyDefaultFile("files/nukkit/server.properties", path);
+
+                    Properties properties = new Properties();
+                    try (InputStream inputStream = Files.newInputStream(path)) {
                         properties.load(inputStream);
                     }
-                }
 
-                properties.setProperty("eula", "true");
+                    properties.setProperty("server-port", String.valueOf(this.getServiceConfiguration().getPort()));
+                    properties.setProperty("server-ip", CloudNet.getInstance().getConfig().getHostAddress());
 
-                try (OutputStream outputStream = new FileOutputStream(file);
-                     OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8)) {
-                    properties.store(outputStreamWriter, "Auto Eula agreement by CloudNet");
+                    try (OutputStream outputStream = Files.newOutputStream(path)) {
+                        properties.store(outputStream, "Edit by CloudNet");
+                    }
                 }
+                break;
             }
-            break;
-            case NUKKIT: {
-                if (!rewriteIp) {
-                    break;
-                }
-
-                File file = new File(this.getDirectory(), "server.properties");
-                this.copyDefaultFile("files/nukkit/server.properties", file);
-
-                Properties properties = new Properties();
-
-                try (InputStream inputStream = new FileInputStream(file)) {
-                    properties.load(inputStream);
-                }
-
-                properties.setProperty("server-port", String.valueOf(this.getServiceConfiguration().getPort()));
-                properties.setProperty("server-ip", CloudNet.getInstance().getConfig().getHostAddress());
-
-                try (OutputStream outputStream = new FileOutputStream(file);
-                     OutputStreamWriter writer = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8)) {
-                    properties.store(writer, "Edit by CloudNet");
-                }
-            }
-            break;
             case GO_MINT: {
-                File file = new File(this.getDirectory(), "server.yml");
-                this.copyDefaultFile("files/gomint/server.yml", file);
+                if (rewriteIp) {
+                    Path path = this.getDirectoryPath().resolve("server.yml");
+                    this.copyDefaultFile("files/gomint/server.yml", path);
 
-                this.rewriteServiceConfigurationFile(file, line -> {
-                    if (line.startsWith("  ip: ")) {
-                        line = "  ip: " + CloudNet.getInstance().getConfig().getHostAddress();
-                    }
+                    this.rewriteServiceConfigurationFile(path, line -> {
+                        if (line.startsWith("  ip: ")) {
+                            line = "  ip: " + CloudNet.getInstance().getConfig().getHostAddress();
+                        }
 
-                    if (line.startsWith("  port: ")) {
-                        line = "  port: " + serviceConfiguration.getPort();
-                    }
+                        if (line.startsWith("  port: ")) {
+                            line = "  port: " + serviceConfiguration.getPort();
+                        }
 
-                    return line;
-                });
-            }
-            break;
-            case GLOWSTONE: {
-                if (!rewriteIp) {
-                    break;
+                        return line;
+                    });
                 }
-
-                File file = new File(this.getDirectory(), "config/glowstone.yml");
-                file.getParentFile().mkdirs();
-
-                this.copyDefaultFile("files/glowstone/glowstone.yml", file);
-
-                this.rewriteServiceConfigurationFile(file, line -> {
-                    if (line.startsWith("    ip: ")) {
-                        line = "    ip: '" + CloudNet.getInstance().getConfig().getHostAddress() + "'";
-                    }
-
-                    if (line.startsWith("    port: ")) {
-                        line = "    port: " + this.getServiceConfiguration().getPort();
-                    }
-
-                    return line;
-                });
+                break;
             }
-            break;
+            case GLOWSTONE: {
+                if (rewriteIp) {
+                    Path path = this.getDirectoryPath().resolve("config/glowstone.yml");
+                    FileUtils.createDirectoryReported(path.getParent());
+                    this.copyDefaultFile("files/glowstone/glowstone.yml", path);
+
+                    this.rewriteServiceConfigurationFile(path, line -> {
+                        if (line.startsWith("    ip: ")) {
+                            line = "    ip: '" + CloudNet.getInstance().getConfig().getHostAddress() + "'";
+                        }
+
+                        if (line.startsWith("    port: ")) {
+                            line = "    port: " + this.getServiceConfiguration().getPort();
+                        }
+
+                        return line;
+                    });
+                }
+                break;
+            }
             default:
                 break;
         }
     }
 
-    private void copyDefaultFile(String from, File target) throws IOException {
-        if (!target.exists() && target.createNewFile()) {
-            try (InputStream inputStream = JVMCloudService.class.getClassLoader().getResourceAsStream(from);
-                 OutputStream outputStream = new FileOutputStream(target)) {
-                if (inputStream != null) {
-                    FileUtils.copy(inputStream, outputStream);
+    private void copyDefaultFile(String from, Path target) throws IOException {
+        if (Files.notExists(target)) {
+            try (InputStream stream = JVMCloudService.class.getClassLoader().getResourceAsStream(from)) {
+                if (stream != null) {
+                    try (OutputStream targetLocation = Files.newOutputStream(target)) {
+                        FileUtils.copy(stream, targetLocation);
+                    }
                 }
             }
         }
     }
 
-    private void rewriteServiceConfigurationFile(File file, UnaryOperator<String> unaryOperator) throws IOException {
-        List<String> lines = Files.readAllLines(file.toPath());
-        List<String> replacedLines = new ArrayList<>(lines.size());
-
-        for (String line : lines) {
-            replacedLines.add(unaryOperator.apply(line));
-        }
-
-        try (OutputStream outputStream = new FileOutputStream(file);
-             OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8);
-             PrintWriter printWriter = new PrintWriter(outputStreamWriter, true)) {
-            for (String replacedLine : replacedLines) {
-                printWriter.write(replacedLine + "\n");
-                printWriter.flush();
+    private void rewriteServiceConfigurationFile(Path file, UnaryOperator<String> unaryOperator) throws IOException {
+        List<String> lines = Files.readAllLines(file)
+                .stream()
+                .map(unaryOperator::apply)
+                .collect(Collectors.toList());
+        try (OutputStream outputStream = Files.newOutputStream(file)) {
+            for (String replacedLine : lines) {
+                outputStream.write((replacedLine + '\n').getBytes(StandardCharsets.UTF_8));
+                outputStream.flush();
             }
         }
     }
@@ -237,5 +212,4 @@ public abstract class DefaultMinecraftCloudService extends DefaultTemplateCloudS
                 break;
         }
     }
-
 }

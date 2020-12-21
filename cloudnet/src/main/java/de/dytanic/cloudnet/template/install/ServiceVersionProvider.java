@@ -177,7 +177,7 @@ public class ServiceVersionProvider {
         } catch (Exception exception) {
             exception.printStackTrace();
         } finally {
-            FileUtils.delete(workingDirectory.toFile());
+            FileUtils.delete(workingDirectory);
         }
 
         return false;

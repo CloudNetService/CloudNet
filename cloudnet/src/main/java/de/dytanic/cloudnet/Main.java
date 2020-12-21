@@ -1,13 +1,20 @@
 package de.dytanic.cloudnet;
 
 import de.dytanic.cloudnet.common.language.LanguageManager;
-import de.dytanic.cloudnet.common.logging.*;
+import de.dytanic.cloudnet.common.logging.AbstractLogHandler;
+import de.dytanic.cloudnet.common.logging.AsyncPrintStream;
+import de.dytanic.cloudnet.common.logging.DefaultAsyncLogger;
+import de.dytanic.cloudnet.common.logging.DefaultFileLogHandler;
+import de.dytanic.cloudnet.common.logging.DefaultLogFormatter;
+import de.dytanic.cloudnet.common.logging.ILogger;
+import de.dytanic.cloudnet.common.logging.LogLevel;
+import de.dytanic.cloudnet.common.logging.LogOutputStream;
 import de.dytanic.cloudnet.console.ConsoleLogHandler;
 import de.dytanic.cloudnet.console.IConsole;
 import de.dytanic.cloudnet.console.JLine3Console;
 import de.dytanic.cloudnet.console.log.ColouredLogFormatter;
 
-import java.io.File;
+import java.nio.file.Paths;
 import java.util.Arrays;
 
 public final class Main {
@@ -35,7 +42,7 @@ public final class Main {
 
     private static void initLoggerAndConsole(IConsole console, ILogger logger) throws Throwable {
         for (AbstractLogHandler logHandler : new AbstractLogHandler[]{
-                new DefaultFileLogHandler(new File("local/logs"), "cloudnet.log", DefaultFileLogHandler.SIZE_8MB).setEnableErrorLog(true),
+                new DefaultFileLogHandler(Paths.get("local", "logs"), "cloudnet.log", DefaultFileLogHandler.SIZE_8MB).setEnableErrorLog(true),
                 new ConsoleLogHandler(console).setFormatter(console.hasColorSupport() ? new ColouredLogFormatter() : new DefaultLogFormatter())
         }) {
             logger.addLogHandler(logHandler);

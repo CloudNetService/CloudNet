@@ -22,7 +22,8 @@ public abstract class DefaultEmptyCloudService implements ICloudService {
     private final String runtime;
     private final String connectionKey;
     protected volatile ServiceLifeCycle lifeCycle;
-    protected volatile ServiceInfoSnapshot serviceInfoSnapshot, lastServiceInfoSnapshot;
+    protected volatile ServiceInfoSnapshot serviceInfoSnapshot;
+    protected volatile ServiceInfoSnapshot lastServiceInfoSnapshot;
     private volatile INetworkChannel networkChannel;
 
     public DefaultEmptyCloudService(@NotNull String runtime, @NotNull ICloudServiceManager cloudServiceManager, @NotNull ServiceConfiguration serviceConfiguration, @NotNull CloudServiceHandler handler) {
@@ -32,7 +33,6 @@ public abstract class DefaultEmptyCloudService implements ICloudService {
         this.handler = handler;
 
         this.lifeCycle = ServiceLifeCycle.DEFINED;
-
         this.connectionKey = StringUtil.generateRandomString(256);
     }
 

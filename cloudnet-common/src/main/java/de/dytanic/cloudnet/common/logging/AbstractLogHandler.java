@@ -36,4 +36,8 @@ public abstract class AbstractLogHandler implements ILogHandler {
         this.formatter = formatter;
         return this;
     }
+
+    @Override
+    public void close() throws Exception {
+    }
 }

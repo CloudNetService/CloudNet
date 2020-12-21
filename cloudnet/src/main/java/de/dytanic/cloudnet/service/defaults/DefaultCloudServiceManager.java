@@ -305,21 +305,25 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
     }
 
     @NotNull
-    @Deprecated
+    @Override
     public File getTempDirectory() {
         return this.tempDirectory.toFile();
     }
 
+    @NotNull
+    @Override
     public Path getTempDirectoryPath() {
         return this.tempDirectory;
     }
 
     @NotNull
-    @Deprecated
+    @Override
     public File getPersistenceServicesDirectory() {
         return this.persistenceServicesDirectory.toFile();
     }
 
+    @NotNull
+    @Override
     public Path getPersistentServicesDirectoryPath() {
         return this.persistenceServicesDirectory;
     }

@@ -2,6 +2,7 @@ package eu.cloudnetservice.cloudnet.ext.npcs.node;
 
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.driver.database.Database;
 import de.dytanic.cloudnet.driver.module.ModuleLifeCycle;
 import de.dytanic.cloudnet.driver.module.ModuleTask;
@@ -31,10 +32,9 @@ public class CloudNetNPCModule extends NodeCloudNetModule {
 
     @ModuleTask(event = ModuleLifeCycle.STARTED, order = 127)
     public void loadConfiguration() {
-        super.getModuleWrapper().getDataFolder().mkdirs();
+        FileUtils.createDirectoryReported(this.getModuleWrapper().getDataDirectory());
 
         this.npcConfiguration = super.getConfig().get("config", NPCConfiguration.class, new NPCConfiguration());
-
         for (Map.Entry<String, String> entry : NPCConfiguration.DEFAULT_MESSAGES.entrySet()) {
             if (!this.npcConfiguration.getMessages().containsKey(entry.getKey())) {
                 this.npcConfiguration.getMessages().put(entry.getKey(), entry.getValue());
