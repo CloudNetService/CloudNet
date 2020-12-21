@@ -13,5 +13,5 @@ dependencies {
     compileOnly project(':cloudnet-modules').project('cloudnet-cloudperms')
     compileOnly project(':cloudnet-modules').project('cloudnet-signs')
     compileOnly project(':cloudnet-modules').project('cloudnet-npcs')
-    compileOnly group: 'org.bukkit', name: 'bukkit', version: dependencyBukkitVersion
+    compileOnly group: 'org.spigotmc', name: 'spigot-api', version: dependencySpigotApiVersion
 }
