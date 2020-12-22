@@ -10,6 +10,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 
 /**
  * A standard file logger for this LoggingAPI. All important configurations can be made in the constructor
@@ -89,10 +90,13 @@ public final class DefaultFileLogHandler extends AbstractLogHandler {
 
         if (this.writtenBytes > this.maxBytes) {
             this.entry = this.init(this.selectLogFile(this.outputStream, this.pattern));
+            this.writtenBytes = 0;
         }
 
-        this.outputStream.write(formattedBytes);
-        this.outputStream.flush();
+        if (this.writeTo(this.outputStream, formattedBytes)) {
+            this.entry = this.init(this.selectLogFile(this.outputStream, this.pattern));
+            this.writtenBytes = 0;
+        }
 
         if (this.errorWriter != null && logEntry.getLogLevel().getLevel() >= 126 && logEntry.getLogLevel().getLevel() <= 127) {
             if (this.errorFile == null || Files.size(this.errorFile) > this.maxBytes) {
@@ -102,10 +106,13 @@ public final class DefaultFileLogHandler extends AbstractLogHandler {
             this.writtenErrorBytes += formattedBytes.length;
             if (this.writtenErrorBytes > this.maxBytes) {
                 this.errorFile = this.initErrorWriter(this.selectLogFile(this.errorWriter, "error.log"));
+                this.writtenErrorBytes = 0;
             }
 
-            this.errorWriter.write(formattedBytes);
-            this.errorWriter.flush();
+            if (this.writeTo(this.errorWriter, formattedBytes)) {
+                this.errorFile = this.initErrorWriter(this.selectLogFile(this.errorWriter, "error.log"));
+                this.writtenErrorBytes = 0;
+            }
         }
     }
 
@@ -172,7 +179,7 @@ public final class DefaultFileLogHandler extends AbstractLogHandler {
 
     private Path init(Path file) {
         try {
-            this.outputStream = Files.newOutputStream(file);
+            this.outputStream = Files.newOutputStream(file, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
         } catch (IOException exception) {
             exception.printStackTrace();
         }
@@ -181,10 +188,20 @@ public final class DefaultFileLogHandler extends AbstractLogHandler {
 
     private Path initErrorWriter(Path file) {
         try {
-            this.errorWriter = Files.newOutputStream(file);
+            this.errorWriter = Files.newOutputStream(file, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
         } catch (IOException exception) {
             exception.printStackTrace();
         }
         return file;
+    }
+
+    private boolean writeTo(OutputStream target, byte[] content) {
+        try {
+            target.write(content);
+            target.flush();
+            return false;
+        } catch (IOException exception) {
+            return true;
+        }
     }
 }
