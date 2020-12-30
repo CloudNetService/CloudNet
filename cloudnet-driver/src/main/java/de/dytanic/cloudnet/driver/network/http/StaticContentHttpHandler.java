@@ -1,6 +1,7 @@
 package de.dytanic.cloudnet.driver.network.http;
 
 import com.google.common.io.ByteStreams;
+import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.util.FileMimeTypeGuesser;
 
 import java.io.IOException;
@@ -60,10 +61,11 @@ public class StaticContentHttpHandler implements IHttpHandler {
 
         try {
             byte[] content = ByteStreams.toByteArray(inputStream);
-            this.loadedFiles.put(path, content);
+            this.loadedFiles.putIfAbsent(path, content);
+            inputStream.close();
             return content;
         } catch (IOException e) {
-            e.printStackTrace();
+            CloudNetDriver.getInstance().getLogger().error(e.getMessage());
         }
 
         return null;
