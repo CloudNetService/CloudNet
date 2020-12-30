@@ -6,7 +6,7 @@ import java.io.File;
 import java.nio.file.Path;
 import java.util.Map;
 
-public class FileMimeTypeGuesser {
+public class FileMimeTypeHelper {
 
     // From Mozilla's Common MIME type list: https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types
     private static final Map<String, String> FILE_TYPE_MAP = ImmutableMap.<String, String>builder()
@@ -86,7 +86,7 @@ public class FileMimeTypeGuesser {
             .put("7z", "application/x-7z-compressed")
             .build();
 
-    private FileMimeTypeGuesser() {
+    private FileMimeTypeHelper() {
         throw new UnsupportedOperationException();
     }
 

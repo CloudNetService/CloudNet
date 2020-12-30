@@ -2,7 +2,7 @@ package de.dytanic.cloudnet.driver.network.http;
 
 import com.google.common.io.ByteStreams;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
-import de.dytanic.cloudnet.driver.util.FileMimeTypeGuesser;
+import de.dytanic.cloudnet.driver.util.FileMimeTypeHelper;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -39,7 +39,7 @@ public class StaticContentHttpHandler implements IHttpHandler {
 
         byte[] content = getContentOfFile(this.resourcesPath + filePath);
         if (content != null) {
-            String fileMimeType = FileMimeTypeGuesser.getFileType(filePath);
+            String fileMimeType = FileMimeTypeHelper.getFileType(filePath);
             fileMimeType = fileMimeType + "; charset=UTF-8";
             context.response()
                     .statusCode(HttpResponseCode.HTTP_OK)
