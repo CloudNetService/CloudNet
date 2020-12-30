@@ -40,6 +40,8 @@ final class NettyHttpServerContext implements IHttpContext {
 
     protected IHttpHandler lastHandler;
 
+    protected String pathPrefix;
+
     public NettyHttpServerContext(NettyHttpServer nettyHttpServer, NettyHttpChannel channel, URI uri, Map<String, String> pathParameters, HttpRequest httpRequest) {
         this.nettyHttpServer = nettyHttpServer;
         this.channel = channel;
@@ -195,6 +197,15 @@ final class NettyHttpServerContext implements IHttpContext {
         this.cookies.clear();
         this.updateHeaderResponse();
         return this;
+    }
+
+    @Override
+    public String pathPrefix() {
+        return this.pathPrefix;
+    }
+
+    public void setPathPrefix(String pathPrefix) {
+        this.pathPrefix = pathPrefix;
     }
 
     private void updateHeaderResponse() {

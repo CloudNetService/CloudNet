@@ -79,6 +79,7 @@ final class NettyHttpServerHandler extends SimpleChannelInboundHandler<HttpReque
                 break;
             }
             handlerPathEntries = httpHandlerEntry.path.split("/");
+            context.setPathPrefix(httpHandlerEntry.path);
 
             if (this.handleMessage0(httpHandlerEntry, context, pathParameters, fullPath, pathEntries, handlerPathEntries)) {
                 context.lastHandler = httpHandlerEntry.httpHandler;
