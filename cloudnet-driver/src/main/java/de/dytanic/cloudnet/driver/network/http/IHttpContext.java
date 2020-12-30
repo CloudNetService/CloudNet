@@ -3,7 +3,6 @@ package de.dytanic.cloudnet.driver.network.http;
 import de.dytanic.cloudnet.driver.network.http.websocket.IWebSocketChannel;
 
 import java.util.Collection;
-import java.util.Map;
 
 public interface IHttpContext {
 
