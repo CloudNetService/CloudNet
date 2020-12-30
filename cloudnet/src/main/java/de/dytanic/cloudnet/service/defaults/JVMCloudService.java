@@ -19,7 +19,6 @@ import org.jetbrains.annotations.Nullable;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -29,6 +28,7 @@ import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.jar.JarInputStream;
+import java.util.stream.Collectors;
 
 final class JVMCloudService extends DefaultMinecraftCloudService implements ICloudService {
 
@@ -143,7 +143,7 @@ final class JVMCloudService extends DefaultMinecraftCloudService implements IClo
         Path applicationFile = this.selectApplicationFile(type);
         String applicationMainClass = type.getMainClass(applicationFile);
 
-        if (applicationFile == null || applicationMainClass == null) {
+        if (applicationMainClass == null) {
             CloudNetDriver.getInstance().getLogger().error(LanguageManager.getMessage("cloud-service-jar-file-not-found-error")
                     .replace("%task%", this.getServiceId().getTaskName())
                     .replace("%serviceId%", String.valueOf(this.getServiceId().getTaskServiceId()))
@@ -268,20 +268,25 @@ final class JVMCloudService extends DefaultMinecraftCloudService implements IClo
     }
 
     @Nullable
-    private Path selectApplicationFile(ServiceEnvironmentType type) throws IOException {
-        try (DirectoryStream<Path> stream = Files.newDirectoryStream(this.getDirectoryPath())) {
-            for (Path path : stream) {
-                Path fileName = path.getFileName();
-                if (fileName != null && !Files.isDirectory(path)) {
-                    String name = fileName.toString();
-                    for (ServiceEnvironment environment : type.getEnvironments()) {
-                        if (name.endsWith(".jar") && name.contains(environment.getName())) {
-                            return path;
-                        }
-                    }
+    private Path selectApplicationFile(ServiceEnvironmentType serviceEnvironmentType) throws IOException {
+        Path applicationFile = null;
+        List<Path> files = Files.list(this.getDirectoryPath()).collect(Collectors.toList());
+
+        for (ServiceEnvironment environment : serviceEnvironmentType.getEnvironments()) {
+            for (Path file : files) {
+                String fileName = file.toString().toLowerCase();
+
+                if (fileName.endsWith(".jar") && fileName.contains(environment.getName())) {
+                    applicationFile = file;
+                    break;
                 }
             }
+
+            if (applicationFile != null) {
+                break;
+            }
         }
-        return null;
+
+        return applicationFile;
     }
 }

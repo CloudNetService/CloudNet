@@ -41,13 +41,13 @@ public enum ServiceEnvironmentType {
             44955
     ) {
         @Override
-        public String getMainClass(@Nullable File applicationFile) {
+        public String getMainClass(@Nullable Path applicationFile) {
             return "io.gomint.server.Bootstrap";
         }
 
         @Override
-        public @NotNull String getClasspath(@NotNull File wrapperFile, @Nullable File applicationFile) {
-            return wrapperFile.getAbsolutePath() + File.pathSeparator + "modules/*";
+        public @NotNull String getClasspath(@NotNull Path wrapperFile, @Nullable Path applicationFile) {
+            return wrapperFile.toAbsolutePath() + File.pathSeparator + "modules/*";
         }
     },
     BUNGEECORD(
@@ -107,11 +107,11 @@ public enum ServiceEnvironmentType {
 
     @Deprecated
     public @NotNull String getClasspath(@NotNull File wrapperFile, @Nullable File applicationFile) {
-        return wrapperFile.getAbsolutePath() + File.pathSeparator + (applicationFile == null ? "" : applicationFile.getAbsolutePath());
+        return this.getClasspath(wrapperFile.toPath(), applicationFile == null ? null : applicationFile.toPath());
     }
 
-    public @NotNull String getClasspath(@NotNull Path wrapperFile, @NotNull Path applicationFile) {
-        return wrapperFile.toAbsolutePath() + File.pathSeparator + applicationFile.toAbsolutePath();
+    public @NotNull String getClasspath(@NotNull Path wrapperFile, @Nullable Path applicationFile) {
+        return wrapperFile.toAbsolutePath() + File.pathSeparator + (applicationFile == null ? "" : applicationFile.toAbsolutePath());
     }
 
     public ServiceEnvironment[] getEnvironments() {
