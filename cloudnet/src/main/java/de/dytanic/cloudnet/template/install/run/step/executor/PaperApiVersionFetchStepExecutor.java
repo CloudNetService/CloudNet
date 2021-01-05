@@ -1,7 +1,6 @@
 package de.dytanic.cloudnet.template.install.run.step.executor;
 
 import com.google.gson.reflect.TypeToken;
-import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.template.install.ServiceVersionType;
 import de.dytanic.cloudnet.template.install.run.InstallInformation;
@@ -36,10 +35,10 @@ public class PaperApiVersionFetchStepExecutor implements InstallStepExecutor {
                     int build = newestBuild.get();
                     installInformation.getServiceVersion().setUrl(String.format(DOWNLOAD_URL, project, versionGroup, build, project, versionGroup, build));
                 } else {
-                    CloudNet.getInstance().getLogger().error("Unable to retrieve latest build for papermc project " + project + " version-group " + versionGroup);
+                    throw new IllegalStateException("Unable to retrieve latest build for papermc project " + project + " version-group " + versionGroup);
                 }
             } else {
-                CloudNet.getInstance().getLogger().error("Unable to load build information for papermc project " + project + " version-group " + versionGroup);
+                throw new IllegalStateException("Unable to load build information for papermc project " + project + " version-group " + versionGroup);
             }
         }
 
