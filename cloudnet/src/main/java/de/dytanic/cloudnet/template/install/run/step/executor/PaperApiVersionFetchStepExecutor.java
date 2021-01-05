@@ -18,6 +18,7 @@ import java.util.Set;
 
 public class PaperApiVersionFetchStepExecutor implements InstallStepExecutor {
 
+    private static final String VERSION_LIST_URL = "https://papermc.io/api/v2/projects/%s/versions/%s";
     private static final String DOWNLOAD_URL = "https://papermc.io/api/v2/projects/%s/versions/%s/builds/%d/downloads/%s-%s-%d.jar";
     private static final Type INT_SET_TYPE = TypeToken.getParameterized(Set.class, Integer.class).getType();
 
@@ -27,7 +28,7 @@ public class PaperApiVersionFetchStepExecutor implements InstallStepExecutor {
         String versionGroup = installInformation.getServiceVersion().getProperties().getString("versionGroup");
         if (enabled && versionGroup != null) {
             String project = this.decideApiProjectName(installInformation.getServiceVersionType());
-            JsonDocument versionInformation = this.makeRequest("https://papermc.io/api/v2/projects/" + project + "/versions/" + versionGroup);
+            JsonDocument versionInformation = this.makeRequest(String.format(VERSION_LIST_URL, project, versionGroup));
             if (versionInformation.contains("builds")) {
                 Set<Integer> builds = versionInformation.get("builds", INT_SET_TYPE);
                 Optional<Integer> newestBuild = builds.stream().reduce(Math::max);
