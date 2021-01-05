@@ -22,8 +22,8 @@
             "jvmOptions": [
               "-Dpaperclip.patchonly=true"
             ],
-            "fetch-over-paper-api": true,
-            "version-group": "1.16.4"
+            "fetchOverPaperApi": true,
+            "versionGroup": "1.16.4"
           }
         },
         {
@@ -35,8 +35,8 @@
             "jvmOptions": [
               "-Dpaperclip.patchonly=true"
             ],
-            "fetch-over-paper-api": true,
-            "version-group": "1.16.4"
+            "fetchOverPaperApi": true,
+            "versionGroup": "1.16.4"
           }
         },
         {
@@ -710,8 +710,8 @@
           "name": "latest",
           "cacheFiles": false,
           "properties": {
-            "fetch-over-paper-api": true,
-            "version-group": "1.16"
+            "fetchOverPaperApi": true,
+            "versionGroup": "1.16"
           }
         }
       ]
@@ -744,8 +744,8 @@
           "name": "latest",
           "cacheFiles": false,
           "properties": {
-            "fetch-over-paper-api": true,
-            "version-group": "1.16"
+            "fetchOverPaperApi": true,
+            "versionGroup": "1.16"
           }
         }
       ]

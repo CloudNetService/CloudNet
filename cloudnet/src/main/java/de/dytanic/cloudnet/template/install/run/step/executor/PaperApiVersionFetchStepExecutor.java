@@ -23,8 +23,8 @@ public class PaperApiVersionFetchStepExecutor implements InstallStepExecutor {
 
     @Override
     public @NotNull Set<Path> execute(@NotNull InstallInformation installInformation, @NotNull Path workingDirectory, @NotNull Set<Path> inputPaths) throws IOException {
-        boolean enabled = installInformation.getServiceVersion().getProperties().getBoolean("fetch-over-paper-api");
-        String versionGroup = installInformation.getServiceVersion().getProperties().getString("version-group");
+        boolean enabled = installInformation.getServiceVersion().getProperties().getBoolean("fetchOverPaperApi");
+        String versionGroup = installInformation.getServiceVersion().getProperties().getString("versionGroup");
         if (enabled && versionGroup != null) {
             String project = this.decideApiProjectName(installInformation.getServiceVersionType());
             JsonDocument versionInformation = this.makeRequest("https://papermc.io/api/v2/projects/" + project + "/versions/" + versionGroup);
