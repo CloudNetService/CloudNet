@@ -1,7 +1,13 @@
 package de.dytanic.cloudnet.template.install.run.step;
 
 import de.dytanic.cloudnet.template.install.run.InstallInformation;
-import de.dytanic.cloudnet.template.install.run.step.executor.*;
+import de.dytanic.cloudnet.template.install.run.step.executor.BuildStepExecutor;
+import de.dytanic.cloudnet.template.install.run.step.executor.CopyFilterStepExecutor;
+import de.dytanic.cloudnet.template.install.run.step.executor.DeployStepExecutor;
+import de.dytanic.cloudnet.template.install.run.step.executor.DownloadStepExecutor;
+import de.dytanic.cloudnet.template.install.run.step.executor.InstallStepExecutor;
+import de.dytanic.cloudnet.template.install.run.step.executor.PaperApiVersionFetchStepExecutor;
+import de.dytanic.cloudnet.template.install.run.step.executor.UnzipStepExecutor;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -13,7 +19,8 @@ public enum InstallStep {
     BUILD(new BuildStepExecutor()),
     UNZIP(new UnzipStepExecutor()),
     COPY_FILTER(new CopyFilterStepExecutor()),
-    DEPLOY(new DeployStepExecutor());
+    DEPLOY(new DeployStepExecutor()),
+    PAPER_API(new PaperApiVersionFetchStepExecutor());
 
     private final InstallStepExecutor executor;
 
