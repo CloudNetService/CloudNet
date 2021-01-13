@@ -63,13 +63,13 @@ allprojects {
         dependencyLombokVersion = '1.18.16'
         dependencyH2Version = '1.4.197'
         dependencyGsonVersion = '2.8.6'
-        dependencyNettyVersion = '4.1.56.Final'
+        dependencyNettyVersion = '4.1.57.Final'
         dependencyJLineVersion = '3.18.0'
         dependencyJAnsiVersion = '2.1.1'
         dependencySpigotApiVersion = '1.16.4-R0.1-SNAPSHOT'
         dependencySpongeVersion = '7.3.0'
         dependencyBungeeCordVersion = '1.16-R0.4-SNAPSHOT'
-        dependencyVelocityVersion = '1.1.0-SNAPSHOT'
+        dependencyVelocityVersion = '1.1.3'
         dependencyNukkitXVersion = '1.0-SNAPSHOT'
         dependencyGoMintVersion = '1.0.0-SNAPSHOT'
         dependencyMysqlConnectorJavaVersion = '8.0.22'
@@ -80,7 +80,7 @@ allprojects {
         dependencyCommonsNetVersion = '3.7.2'
         dependencyJschVersion = '0.1.55'
 
-        testJunitVersion = '4.12'
+        testJunitVersion = '4.13.1'
 
         //file
         cloudnetLauncherFile = 'launcher.jar'
