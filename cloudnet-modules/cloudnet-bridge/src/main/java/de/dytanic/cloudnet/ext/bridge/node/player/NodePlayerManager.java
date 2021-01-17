@@ -11,12 +11,25 @@ import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceId;
 import de.dytanic.cloudnet.ext.bridge.node.NodePlayerProvider;
-import de.dytanic.cloudnet.ext.bridge.player.*;
+import de.dytanic.cloudnet.ext.bridge.player.CloudOfflinePlayer;
+import de.dytanic.cloudnet.ext.bridge.player.CloudPlayer;
+import de.dytanic.cloudnet.ext.bridge.player.DefaultPlayerManager;
+import de.dytanic.cloudnet.ext.bridge.player.ICloudOfflinePlayer;
+import de.dytanic.cloudnet.ext.bridge.player.ICloudPlayer;
+import de.dytanic.cloudnet.ext.bridge.player.IPlayerManager;
+import de.dytanic.cloudnet.ext.bridge.player.NetworkConnectionInfo;
+import de.dytanic.cloudnet.ext.bridge.player.NetworkPlayerServerInfo;
+import de.dytanic.cloudnet.ext.bridge.player.NetworkServiceInfo;
+import de.dytanic.cloudnet.ext.bridge.player.PlayerProvider;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
@@ -273,11 +286,12 @@ public final class NodePlayerManager extends DefaultPlayerManager implements IPl
 
     public void loginPlayer(NetworkConnectionInfo networkConnectionInfo, NetworkPlayerServerInfo networkPlayerServerInfo) {
         CloudPlayer cloudPlayer = this.getOnlinePlayer(networkConnectionInfo.getUniqueId());
+        NetworkServiceInfo networkService = networkConnectionInfo.getNetworkService();
 
         if (cloudPlayer == null) {
             cloudPlayer = this.getOnlineCloudPlayers().values().stream()
                     .filter(cloudPlayer1 -> cloudPlayer1.getName().equalsIgnoreCase(networkConnectionInfo.getName()) &&
-                            cloudPlayer1.getLoginService().getUniqueId().equals(networkConnectionInfo.getNetworkService().getUniqueId()))
+                            cloudPlayer1.getLoginService().getUniqueId().equals(networkService.getUniqueId()))
                     .findFirst()
                     .orElse(null);
 
@@ -286,8 +300,8 @@ public final class NodePlayerManager extends DefaultPlayerManager implements IPl
 
                 cloudPlayer = new CloudPlayer(
                         cloudOfflinePlayer,
-                        networkConnectionInfo.getNetworkService(),
-                        networkConnectionInfo.getNetworkService(),
+                        networkService,
+                        networkService,
                         networkConnectionInfo,
                         networkPlayerServerInfo
                 );
@@ -297,17 +311,23 @@ public final class NodePlayerManager extends DefaultPlayerManager implements IPl
             }
         }
 
-        if (networkPlayerServerInfo != null) {
-            cloudPlayer.setConnectedService(networkPlayerServerInfo.getNetworkService());
-            cloudPlayer.setNetworkPlayerServerInfo(networkPlayerServerInfo);
+        ServiceEnvironmentType environmentType = networkService.getServiceId().getEnvironment();
 
-            if (networkPlayerServerInfo.getXBoxId() != null) {
-                cloudPlayer.setXBoxId(networkPlayerServerInfo.getXBoxId());
+        if (environmentType.isMinecraftServer()) {
+            cloudPlayer.setConnectedService(networkService);
+
+            if (networkPlayerServerInfo != null) {
+                cloudPlayer.setNetworkPlayerServerInfo(networkPlayerServerInfo);
+
+                if (networkPlayerServerInfo.getXBoxId() != null) {
+                    cloudPlayer.setXBoxId(networkPlayerServerInfo.getXBoxId());
+                }
             }
+        } else {
+            cloudPlayer.setLoginService(networkService);
         }
 
         cloudPlayer.setName(networkConnectionInfo.getName());
-
         this.updateOnlinePlayer0(cloudPlayer);
     }
 

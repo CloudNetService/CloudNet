@@ -10,7 +10,13 @@ import de.dytanic.cloudnet.ext.bridge.listener.TaskConfigListener;
 import de.dytanic.cloudnet.ext.bridge.node.command.CommandBridge;
 import de.dytanic.cloudnet.ext.bridge.node.command.CommandPlayers;
 import de.dytanic.cloudnet.ext.bridge.node.http.V1BridgeConfigurationHttpHandler;
-import de.dytanic.cloudnet.ext.bridge.node.listener.*;
+import de.dytanic.cloudnet.ext.bridge.node.listener.BridgeDefaultConfigurationListener;
+import de.dytanic.cloudnet.ext.bridge.node.listener.BridgeServiceListCommandListener;
+import de.dytanic.cloudnet.ext.bridge.node.listener.BridgeTaskSetupListener;
+import de.dytanic.cloudnet.ext.bridge.node.listener.IncludePluginListener;
+import de.dytanic.cloudnet.ext.bridge.node.listener.NetworkListenerRegisterListener;
+import de.dytanic.cloudnet.ext.bridge.node.listener.NodeCustomChannelMessageListener;
+import de.dytanic.cloudnet.ext.bridge.node.listener.PlayerManagerListener;
 import de.dytanic.cloudnet.ext.bridge.node.player.NodePlayerManager;
 import de.dytanic.cloudnet.ext.bridge.player.IPlayerManager;
 import de.dytanic.cloudnet.module.NodeCloudNetModule;
@@ -96,9 +102,14 @@ public final class CloudNetBridgeModule extends NodeCloudNetModule {
 
     @ModuleTask(order = 8, event = ModuleLifeCycle.STARTED)
     public void initListeners() {
-        this.registerListeners(new NetworkListenerRegisterListener(), new BridgeTaskSetupListener(), new IncludePluginListener(),
-                new NodeCustomChannelMessageListener(this.nodePlayerManager), new BridgePlayerDisconnectListener(this.nodePlayerManager),
-                new BridgeDefaultConfigurationListener(), new BridgeServiceListCommandListener(), new TaskConfigListener());
+        this.registerListeners(
+                new NetworkListenerRegisterListener(),
+                new BridgeTaskSetupListener(),
+                new IncludePluginListener(),
+                new NodeCustomChannelMessageListener(this.nodePlayerManager),
+                new BridgeDefaultConfigurationListener(),
+                new BridgeServiceListCommandListener(),
+                new TaskConfigListener());
     }
 
     @Override
