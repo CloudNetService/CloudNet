@@ -30,9 +30,9 @@ public final class PlayerManagerListener {
 
     @EventListener
     public void handle(CloudServiceStopEvent event) {
-        for (ICloudPlayer cloudPlayer : this.nodePlayerManager.getOnlineCloudPlayers().values()) {
+        for (CloudPlayer cloudPlayer : this.nodePlayerManager.getOnlineCloudPlayers().values()) {
             if (cloudPlayer.getLoginService() != null && cloudPlayer.getLoginService().getUniqueId().equals(event.getServiceInfo().getServiceId().getUniqueId())) {
-                this.nodePlayerManager.logoutPlayer((CloudPlayer) cloudPlayer);
+                this.nodePlayerManager.logoutPlayer(cloudPlayer);
             }
         }
     }
