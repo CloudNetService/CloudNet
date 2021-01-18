@@ -159,7 +159,7 @@ public final class VelocityCloudNetHelper {
             return BridgeProxyHelper.filterPlayerFallbacks(
                     player.getUniqueId(),
                     currentServer,
-                    player.getVirtualHost().map(InetSocketAddress::getHostString).orElse(""),
+                    player.getVirtualHost().map(InetSocketAddress::getHostString).orElse(null),
                     player::hasPermission
             ).anyMatch(proxyFallback -> proxyFallback.getTask().equals(currentService.getServiceId().getTaskName()));
         }).orElse(false);
