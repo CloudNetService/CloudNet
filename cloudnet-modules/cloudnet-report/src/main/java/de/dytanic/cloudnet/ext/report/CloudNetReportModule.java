@@ -61,7 +61,7 @@ public final class CloudNetReportModule extends NodeCloudNetModule {
         this.getConfig().getBoolean("savingRecords", true);
         this.getConfig().getString("recordDestinationDirectory", "records");
         this.getConfig().get("pasteServerType", PasteServerType.class, PasteServerType.HASTE);
-        this.getConfig().getString("pasteServerUrl", "https://hasteb.in");
+        this.getConfig().getString("pasteServerUrl", "https://just-paste.it");
 
         this.saveConfig();
     }
