@@ -23,11 +23,11 @@
               "-Dpaperclip.patchonly=true"
             ],
             "fetchOverPaperApi": true,
-            "versionGroup": "1.16.4"
+            "versionGroup": "1.16.5"
           }
         },
         {
-          "name": "1.16.4",
+          "name": "1.16.5",
           "properties": {
             "copy": {
               "cache/patched.*\\.jar": "paper.jar"
@@ -36,7 +36,7 @@
               "-Dpaperclip.patchonly=true"
             ],
             "fetchOverPaperApi": true,
-            "versionGroup": "1.16.4"
+            "versionGroup": "1.16.5"
           }
         },
         {
@@ -146,12 +146,12 @@
       "versions": [
         {
           "name": "latest",
-          "url": "https://cdn.getbukkit.org/spigot/spigot-1.16.4.jar",
+          "url": "https://cdn.getbukkit.org/spigot/spigot-1.16.5.jar",
           "cacheFiles": false
         },
         {
-          "name": "1.16.4",
-          "url": "https://cdn.getbukkit.org/spigot/spigot-1.16.4.jar"
+          "name": "1.16.5",
+          "url": "https://cdn.getbukkit.org/spigot/spigot-1.16.5.jar"
         },
         {
           "name": "1.15.2",
@@ -217,7 +217,7 @@
           }
         },
         {
-          "name": "1.16.4",
+          "name": "1.16.5",
           "url": "https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar",
           "maxJavaVersion": 13,
           "properties": {
@@ -373,7 +373,7 @@
       "versions": [
         {
           "name": "latest",
-          "url": "https://files.minecraftforge.net/maven/net/minecraftforge/forge/1.16.4-35.0.3/forge-1.16.4-35.0.3-installer.jar",
+          "url": "https://files.minecraftforge.net/maven/net/minecraftforge/forge/1.16.5-36.0.7/forge-1.16.5-36.0.7-installer.jar",
           "maxJavaVersion": 13,
           "cacheFiles": false,
           "properties": {
@@ -389,8 +389,8 @@
           }
         },
         {
-          "name": "1.16.4",
-          "url": "https://files.minecraftforge.net/maven/net/minecraftforge/forge/1.16.4-35.0.3/forge-1.16.4-35.0.3-installer.jar",
+          "name": "1.16.5",
+          "url": "https://files.minecraftforge.net/maven/net/minecraftforge/forge/1.16.5-36.0.7/forge-1.16.5-36.0.7-installer.jar",
           "maxJavaVersion": 13,
           "properties": {
             "copy": {
