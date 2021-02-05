@@ -14,6 +14,8 @@ public class ProxyFallback implements Comparable<ProxyFallback> {
 
     protected Collection<String> availableOnGroups = new ArrayList<>();
 
+    protected String forcedHost;
+
     private int priority;
 
     public ProxyFallback(String task, String permission, int priority) {
@@ -52,6 +54,14 @@ public class ProxyFallback implements Comparable<ProxyFallback> {
 
     public void setAvailableOnGroups(Collection<String> availableOnGroups) {
         this.availableOnGroups = availableOnGroups;
+    }
+
+    public String getForcedHost() {
+        return this.forcedHost;
+    }
+
+    public void setForcedHost(String forcedHost) {
+        this.forcedHost = forcedHost;
     }
 
     public int getPriority() {

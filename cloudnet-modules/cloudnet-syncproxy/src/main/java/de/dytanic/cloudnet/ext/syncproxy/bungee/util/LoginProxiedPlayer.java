@@ -1,8 +1,12 @@
 package de.dytanic.cloudnet.ext.syncproxy.bungee.util;
 
-
 import com.google.common.base.Preconditions;
-import net.md_5.bungee.api.*;
+import net.md_5.bungee.api.Callback;
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.ServerConnectRequest;
+import net.md_5.bungee.api.SkinConfiguration;
+import net.md_5.bungee.api.Title;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.PendingConnection;
@@ -14,7 +18,11 @@ import net.md_5.bungee.api.score.Scoreboard;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Locale;
+import java.util.Map;
+import java.util.UUID;
 
 public class LoginProxiedPlayer implements ProxiedPlayer {
 
@@ -53,6 +61,16 @@ public class LoginProxiedPlayer implements ProxiedPlayer {
 
     @Override
     public void sendMessage(ChatMessageType position, BaseComponent message) {
+
+    }
+
+    @Override
+    public void sendMessage(UUID sender, BaseComponent... message) {
+
+    }
+
+    @Override
+    public void sendMessage(UUID sender, BaseComponent message) {
 
     }
 

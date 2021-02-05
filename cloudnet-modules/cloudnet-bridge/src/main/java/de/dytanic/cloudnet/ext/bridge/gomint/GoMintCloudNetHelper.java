@@ -29,9 +29,9 @@ public final class GoMintCloudNetHelper extends BridgeServerHelper {
     }
 
     public static void init() {
-        BridgeServerHelper.setMotd(GoMint.instance().getMotd());
+        BridgeServerHelper.setMotd(GoMint.instance().motd());
         BridgeServerHelper.setState("LOBBY");
-        BridgeServerHelper.setMaxPlayers(GoMint.instance().getMaxPlayers());
+        BridgeServerHelper.setMaxPlayers(GoMint.instance().maxPlayerCount());
     }
 
     public static GoMintServer getGoMintServer() {
@@ -42,41 +42,41 @@ public final class GoMintCloudNetHelper extends BridgeServerHelper {
         serviceInfoSnapshot.getProperties()
                 .append("Online", BridgeHelper.isOnline())
                 .append("Version", Protocol.MINECRAFT_PE_NETWORK_VERSION)
-                .append("GoMint-Version", GoMint.instance().getVersion())
+                .append("GoMint-Version", GoMint.instance().version())
                 .append("Max-Players", BridgeServerHelper.getMaxPlayers())
                 .append("Motd", BridgeServerHelper.getMotd())
                 .append("Extra", BridgeServerHelper.getExtra())
                 .append("State", BridgeServerHelper.getState())
-                .append("TPS", GoMint.instance().getTPS())
-                .append("Online-Count", GoMint.instance().getPlayers().size())
-                .append("Players", GoMint.instance().getPlayers().stream().map(player -> {
-                    Location location = player.getLocation();
+                .append("TPS", GoMint.instance().tps())
+                .append("Online-Count", GoMint.instance().onlinePlayers().size())
+                .append("Players", GoMint.instance().onlinePlayers().stream().map(player -> {
+                    Location location = player.location();
 
                     return new GoMintCloudNetPlayerInfo(
-                            player.getHealth(),
-                            player.getMaxHealth(),
-                            player.getSaturation(),
-                            player.getLevel(),
-                            player.getPing(),
-                            player.getLocale(),
+                            player.health(),
+                            player.maxHealth(),
+                            player.saturation(),
+                            player.level(),
+                            player.ping(),
+                            player.locale(),
                             new WorldPosition(
-                                    location.getX(),
-                                    location.getY(),
-                                    location.getZ(),
-                                    location.getYaw(),
-                                    location.getPitch(),
-                                    location.getWorld().getWorldName()
+                                    location.x(),
+                                    location.y(),
+                                    location.z(),
+                                    location.yaw(),
+                                    location.pitch(),
+                                    location.world().name()
                             ),
-                            new HostAndPort(player.getAddress()),
-                            player.getUUID(),
-                            player.isOnline(),
-                            player.getName(),
-                            player.getDeviceInfo().getDeviceName(),
-                            player.getXboxID(),
-                            player.getGamemode().name()
+                            new HostAndPort(player.address()),
+                            player.uuid(),
+                            player.online(),
+                            player.name(),
+                            player.deviceInfo().deviceName(),
+                            player.xboxID(),
+                            player.gamemode().name()
                     );
                 }).collect(Collectors.toList()))
-                .append("Worlds", GoMint.instance().getWorlds().stream().map(world -> {
+                .append("Worlds", GoMint.instance().worlds().stream().map(world -> {
                     Map<String, String> gameRules = new HashMap<>();
 
                     for (Field field : Gamerule.class.getFields()) {
@@ -85,7 +85,7 @@ public final class GoMintCloudNetHelper extends BridgeServerHelper {
                             try {
                                 field.setAccessible(true);
                                 Gamerule<?> gameRule = (Gamerule<?>) field.get(null);
-                                gameRules.put(gameRule.getNbtName(), String.valueOf(world.getGamerule(gameRule)));
+                                gameRules.put(gameRule.name(), String.valueOf(world.gamerule(gameRule)));
 
                             } catch (IllegalAccessException exception) {
                                 exception.printStackTrace();
@@ -95,8 +95,8 @@ public final class GoMintCloudNetHelper extends BridgeServerHelper {
 
                     return new WorldInfo(
                             new UUID(0, 0),
-                            world.getLevelName(),
-                            world.getDifficulty().name(),
+                            world.name(),
+                            world.difficulty().name(),
                             gameRules
                     );
                 }).collect(Collectors.toList()));
@@ -105,12 +105,12 @@ public final class GoMintCloudNetHelper extends BridgeServerHelper {
 
     public static NetworkConnectionInfo createNetworkConnectionInfo(EntityPlayer player) {
         return BridgeHelper.createNetworkConnectionInfo(
-                player.getUUID(),
-                player.getName(),
+                player.uuid(),
+                player.name(),
                 Protocol.MINECRAFT_PE_PROTOCOL_VERSION,
-                new HostAndPort(player.getAddress()),
-                new HostAndPort(getGoMintServer().getServerConfig().getListener().getIp(), GoMint.instance().getPort()),
-                getGoMintServer().getEncryptionKeyFactory().isKeyGiven(),
+                new HostAndPort(player.address()),
+                new HostAndPort(getGoMintServer().serverConfig().listener().ip(), GoMint.instance().port()),
+                getGoMintServer().encryptionKeyFactory().isKeyGiven(),
                 false,
                 BridgeHelper.createOwnNetworkServiceInfo()
         );
@@ -122,28 +122,28 @@ public final class GoMintCloudNetHelper extends BridgeServerHelper {
         if (login) {
             worldPosition = new WorldPosition(-1, -1, -1, -1, -1, "world");
         } else {
-            Location location = player.getLocation();
+            Location location = player.location();
 
             worldPosition = new WorldPosition(
-                    location.getX(),
-                    location.getY(),
-                    location.getZ(),
-                    location.getYaw(),
-                    location.getPitch(),
-                    location.getWorld().getWorldName()
+                    location.x(),
+                    location.y(),
+                    location.z(),
+                    location.yaw(),
+                    location.pitch(),
+                    location.world().name()
             );
         }
 
         return new NetworkPlayerServerInfo(
-                player.getUUID(),
-                player.getName(),
-                player.getXboxID(),
-                player.getHealth(),
-                player.getMaxHealth(),
-                player.getSaturation(),
-                player.getLevel(),
+                player.uuid(),
+                player.name(),
+                player.xboxID(),
+                player.health(),
+                player.maxHealth(),
+                player.saturation(),
+                player.level(),
                 worldPosition,
-                new HostAndPort(player.getAddress()),
+                new HostAndPort(player.address()),
                 BridgeHelper.createOwnNetworkServiceInfo()
         );
     }

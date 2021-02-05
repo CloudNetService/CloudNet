@@ -1,6 +1,5 @@
 package de.dytanic.cloudnet.template.install.run;
 
-
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import de.dytanic.cloudnet.template.ITemplateStorage;
 import de.dytanic.cloudnet.template.install.ServiceVersion;
@@ -9,11 +8,8 @@ import de.dytanic.cloudnet.template.install.ServiceVersionType;
 public class InstallInformation {
 
     private final ServiceVersionType serviceVersionType;
-
     private final ServiceVersion serviceVersion;
-
     private final ITemplateStorage templateStorage;
-
     private final ServiceTemplate serviceTemplate;
 
     public InstallInformation(ServiceVersionType serviceVersionType, ServiceVersion serviceVersion, ITemplateStorage templateStorage, ServiceTemplate serviceTemplate) {

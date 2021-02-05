@@ -4,6 +4,6 @@ jar {
 
 dependencies {
     compileOnly project(':cloudnet')
-    compileOnly group: 'mysql', name: 'mysql-connector-java', version: '8.0.22'
-    compileOnly group: 'com.zaxxer', name: 'HikariCP', version: '3.4.5'
+    compileOnly group: 'mysql', name: 'mysql-connector-java', version: dependencyMysqlConnectorJavaVersion
+    compileOnly group: 'com.zaxxer', name: 'HikariCP', version: dependencyHikariCpVersion
 }

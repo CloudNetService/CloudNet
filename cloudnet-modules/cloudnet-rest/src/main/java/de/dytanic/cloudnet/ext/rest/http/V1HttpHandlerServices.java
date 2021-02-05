@@ -68,6 +68,16 @@ public final class V1HttpHandlerServices extends V1HttpHandler {
                         ;
                     }
                     break;
+                    case "restart": {
+                        serviceInfoSnapshot.provider().restart();
+                        context
+                                .response()
+                                .statusCode(HttpResponseCode.HTTP_OK)
+                                .header("Content-Type", "application/json")
+                                .body(GSON.toJson(serviceInfoSnapshot))
+                        ;
+                    }
+                    break;
                     case "delete": {
                         serviceInfoSnapshot.provider().delete();
                         context

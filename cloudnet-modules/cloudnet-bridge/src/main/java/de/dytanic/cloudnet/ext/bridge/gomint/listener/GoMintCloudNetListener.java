@@ -6,10 +6,41 @@ import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
 import de.dytanic.cloudnet.driver.event.events.network.NetworkChannelPacketReceiveEvent;
-import de.dytanic.cloudnet.driver.event.events.service.*;
-import de.dytanic.cloudnet.ext.bridge.event.*;
+import de.dytanic.cloudnet.driver.event.events.service.CloudServiceConnectNetworkEvent;
+import de.dytanic.cloudnet.driver.event.events.service.CloudServiceDisconnectNetworkEvent;
+import de.dytanic.cloudnet.driver.event.events.service.CloudServiceInfoUpdateEvent;
+import de.dytanic.cloudnet.driver.event.events.service.CloudServiceRegisterEvent;
+import de.dytanic.cloudnet.driver.event.events.service.CloudServiceStartEvent;
+import de.dytanic.cloudnet.driver.event.events.service.CloudServiceStopEvent;
+import de.dytanic.cloudnet.driver.event.events.service.CloudServiceUnregisterEvent;
+import de.dytanic.cloudnet.ext.bridge.event.BridgeConfigurationUpdateEvent;
+import de.dytanic.cloudnet.ext.bridge.event.BridgeProxyPlayerDisconnectEvent;
+import de.dytanic.cloudnet.ext.bridge.event.BridgeProxyPlayerLoginRequestEvent;
+import de.dytanic.cloudnet.ext.bridge.event.BridgeProxyPlayerLoginSuccessEvent;
+import de.dytanic.cloudnet.ext.bridge.event.BridgeProxyPlayerServerConnectRequestEvent;
+import de.dytanic.cloudnet.ext.bridge.event.BridgeProxyPlayerServerSwitchEvent;
+import de.dytanic.cloudnet.ext.bridge.event.BridgeServerPlayerDisconnectEvent;
+import de.dytanic.cloudnet.ext.bridge.event.BridgeServerPlayerLoginRequestEvent;
+import de.dytanic.cloudnet.ext.bridge.event.BridgeServerPlayerLoginSuccessEvent;
 import de.dytanic.cloudnet.ext.bridge.gomint.GoMintCloudNetHelper;
-import de.dytanic.cloudnet.ext.bridge.gomint.event.*;
+import de.dytanic.cloudnet.ext.bridge.gomint.event.GoMintBridgeConfigurationUpdateEvent;
+import de.dytanic.cloudnet.ext.bridge.gomint.event.GoMintBridgeProxyPlayerDisconnectEvent;
+import de.dytanic.cloudnet.ext.bridge.gomint.event.GoMintBridgeProxyPlayerLoginSuccessEvent;
+import de.dytanic.cloudnet.ext.bridge.gomint.event.GoMintBridgeProxyPlayerServerConnectRequestEvent;
+import de.dytanic.cloudnet.ext.bridge.gomint.event.GoMintBridgeProxyPlayerServerSwitchEvent;
+import de.dytanic.cloudnet.ext.bridge.gomint.event.GoMintBridgeServerPlayerDisconnectEvent;
+import de.dytanic.cloudnet.ext.bridge.gomint.event.GoMintBridgeServerPlayerLoginRequestEvent;
+import de.dytanic.cloudnet.ext.bridge.gomint.event.GoMintBridgeServerPlayerLoginSuccessEvent;
+import de.dytanic.cloudnet.ext.bridge.gomint.event.GoMintChannelMessageReceiveEvent;
+import de.dytanic.cloudnet.ext.bridge.gomint.event.GoMintCloudServiceConnectNetworkEvent;
+import de.dytanic.cloudnet.ext.bridge.gomint.event.GoMintCloudServiceDisconnectNetworkEvent;
+import de.dytanic.cloudnet.ext.bridge.gomint.event.GoMintCloudServiceInfoUpdateEvent;
+import de.dytanic.cloudnet.ext.bridge.gomint.event.GoMintCloudServiceRegisterEvent;
+import de.dytanic.cloudnet.ext.bridge.gomint.event.GoMintCloudServiceStartEvent;
+import de.dytanic.cloudnet.ext.bridge.gomint.event.GoMintCloudServiceStopEvent;
+import de.dytanic.cloudnet.ext.bridge.gomint.event.GoMintCloudServiceUnregisterEvent;
+import de.dytanic.cloudnet.ext.bridge.gomint.event.GoMintNetworkChannelPacketReceiveEvent;
+import de.dytanic.cloudnet.ext.bridge.gomint.event.GoMintServiceInfoSnapshotConfigureEvent;
 import de.dytanic.cloudnet.wrapper.event.service.ServiceInfoSnapshotConfigureEvent;
 import io.gomint.GoMint;
 import io.gomint.event.Event;
@@ -29,7 +60,7 @@ public final class GoMintCloudNetListener {
     public void handle(ServiceInfoSnapshotConfigureEvent event) throws ExecutionException, InterruptedException {
         this.listenableGoMintSyncExecution(() -> {
             GoMintCloudNetHelper.initProperties(event.getServiceInfoSnapshot());
-            GoMint.instance().getPluginManager().callEvent(new GoMintServiceInfoSnapshotConfigureEvent(event.getServiceInfoSnapshot()));
+            GoMint.instance().pluginManager().callEvent(new GoMintServiceInfoSnapshotConfigureEvent(event.getServiceInfoSnapshot()));
         }).get();
     }
 
@@ -124,17 +155,17 @@ public final class GoMintCloudNetListener {
     }
 
     private void goMintCall(Event event) {
-        GoMint.instance().getPluginManager().callEvent(event);
+        GoMint.instance().pluginManager().callEvent(event);
     }
 
     private ITask<Void> listenableGoMintSyncExecution(Runnable runnable) {
-        if (GoMint.instance().isMainThread()) {
+        if (GoMint.instance().mainThread()) {
             runnable.run();
             return CompletedTask.voidTask();
         }
 
         CompletableTask<Void> task = new CompletableTask<>();
-        this.plugin.getScheduler().execute(runnable).onComplete(() -> task.complete(null));
+        this.plugin.scheduler().execute(runnable).onComplete(() -> task.complete(null));
 
         return task;
     }

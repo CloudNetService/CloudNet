@@ -7,5 +7,5 @@ dependencies {
     compileOnly project(':cloudnet-wrapper-jvm')
     compileOnly project(':cloudnet-modules:cloudnet-bridge')
     compileOnly group: 'cn.nukkit', name: 'nukkit', version: dependencyNukkitXVersion
-    compileOnly group: 'org.bukkit', name: 'bukkit', version: dependencyBukkitVersion
+    compileOnly group: 'org.spigotmc', name: 'spigot-api', version: dependencySpigotApiVersion
 }

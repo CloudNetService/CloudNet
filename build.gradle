@@ -9,16 +9,12 @@ allprojects {
 
     repositories {
 
-        maven {
-            name 'waterdog'
-            url 'https://repo.waterdog.dev/artifactory/main/'
-        }
-
         mavenLocal()
         mavenCentral()
 
         maven {
-            url 'https://repo.dmulloy2.net/nexus/repository/public/'
+            name 'waterdog'
+            url 'https://repo.waterdog.dev/artifactory/main/'
         }
 
         maven {
@@ -68,24 +64,29 @@ allprojects {
         cloudNetCodeName = 'Earthquake'
 
         //Dependencies
-        dependencyGuavaVersion = '28.2-jre'
-        dependencyAnnotationsVersion = '19.0.0'
-        dependencyLombokVersion = '1.18.6'
+        dependencyGuavaVersion = '30.1-jre'
+        dependencyAnnotationsVersion = '20.1.0'
+        dependencyLombokVersion = '1.18.16'
         dependencyH2Version = '1.4.197'
         dependencyGsonVersion = '2.8.6'
-        dependencyNettyVersion = '4.1.36.Final'
-        dependencyJLine3Version = '3.16.0'
-        dependencyJAnsiVersion = '1.17.1'
-        dependencyNextCloudJavaAPIVersion = '11.0.3'
-        dependencyBukkitVersion = '1.15.2-R0.1-SNAPSHOT'
-        dependencySpongeVersion = '7.0.0'
-        dependencyBungeeCordVersion = '1.15-SNAPSHOT'
-        dependencyWaterdogPEVersion = '1.0.0-SNAPSHOT'
-        dependencyVelocityVersion = '1.1.0-SNAPSHOT'
+        dependencyNettyVersion = '4.1.57.Final'
+        dependencyJLineVersion = '3.18.0'
+        dependencyJAnsiVersion = '2.1.1'
+        dependencySpigotApiVersion = '1.16.4-R0.1-SNAPSHOT'
+        dependencySpongeVersion = '7.3.0'
+        dependencyBungeeCordVersion = '1.16-R0.4-SNAPSHOT'
+        dependencyVelocityVersion = '1.1.3'
         dependencyNukkitXVersion = '1.0-SNAPSHOT'
         dependencyGoMintVersion = '1.0.0-SNAPSHOT'
+        dependencyMysqlConnectorJavaVersion = '8.0.22'
+        dependencyHikariCpVersion = '3.4.5'
+        dependencyVaultVersion = '1.7'
+        dependencyProtocolLibVersion = 'master-SNAPSHOT'
+        dependencyNpcLibVersion = 'development-SNAPSHOT'
+        dependencyCommonsNetVersion = '3.7.2'
+        dependencyJschVersion = '0.1.55'
 
-        testJunitVersion = '4.12'
+        testJunitVersion = '4.13.1'
 
         //file
         cloudnetLauncherFile = 'launcher.jar'
