@@ -4,10 +4,10 @@ package de.dytanic.cloudnet.ext.bridge.waterdogpe.command;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.command.CommandInfo;
 import de.dytanic.cloudnet.ext.bridge.BridgeConfigurationProvider;
-import pe.waterdog.command.Command;
-import pe.waterdog.command.CommandSender;
-import pe.waterdog.command.CommandSettings;
-import pe.waterdog.player.ProxiedPlayer;
+import dev.waterdog.command.Command;
+import dev.waterdog.command.CommandSender;
+import dev.waterdog.command.CommandSettings;
+import dev.waterdog.player.ProxiedPlayer;
 
 public class CommandCloudNet extends Command {
 

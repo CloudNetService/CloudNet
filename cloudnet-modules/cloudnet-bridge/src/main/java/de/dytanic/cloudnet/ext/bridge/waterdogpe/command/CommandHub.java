@@ -3,10 +3,10 @@ package de.dytanic.cloudnet.ext.bridge.waterdogpe.command;
 
 import de.dytanic.cloudnet.ext.bridge.BridgeConfigurationProvider;
 import de.dytanic.cloudnet.ext.bridge.waterdogpe.WaterdogPECloudNetHelper;
-import pe.waterdog.command.Command;
-import pe.waterdog.command.CommandSender;
-import pe.waterdog.command.CommandSettings;
-import pe.waterdog.player.ProxiedPlayer;
+import dev.waterdog.command.Command;
+import dev.waterdog.command.CommandSender;
+import dev.waterdog.command.CommandSettings;
+import dev.waterdog.player.ProxiedPlayer;
 
 import java.util.Arrays;
 

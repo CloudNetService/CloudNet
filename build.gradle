@@ -75,6 +75,7 @@ allprojects {
         dependencySpigotApiVersion = '1.16.4-R0.1-SNAPSHOT'
         dependencySpongeVersion = '7.3.0'
         dependencyBungeeCordVersion = '1.16-R0.4-SNAPSHOT'
+        dependencyWaterdogPEVersion = '1.0.0-SNAPSHOT'
         dependencyVelocityVersion = '1.1.3'
         dependencyNukkitXVersion = '1.0-SNAPSHOT'
         dependencyGoMintVersion = '1.0.0-SNAPSHOT'

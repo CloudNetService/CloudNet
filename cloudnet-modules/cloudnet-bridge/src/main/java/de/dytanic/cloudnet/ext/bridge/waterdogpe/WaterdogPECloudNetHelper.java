@@ -8,11 +8,11 @@ import de.dytanic.cloudnet.ext.bridge.PluginInfo;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkConnectionInfo;
 import de.dytanic.cloudnet.ext.bridge.proxy.BridgeProxyHelper;
 import de.dytanic.cloudnet.ext.bridge.waterdogpe.event.WaterdogPEPlayerFallbackEvent;
-import pe.waterdog.ProxyServer;
-import pe.waterdog.VersionInfo;
-import pe.waterdog.network.ServerInfo;
-import pe.waterdog.network.session.LoginData;
-import pe.waterdog.player.ProxiedPlayer;
+import dev.waterdog.ProxyServer;
+import dev.waterdog.VersionInfo;
+import dev.waterdog.network.ServerInfo;
+import dev.waterdog.network.session.LoginData;
+import dev.waterdog.player.ProxiedPlayer;
 
 import java.util.Map;
 import java.util.Optional;

@@ -2,10 +2,10 @@ package de.dytanic.cloudnet.ext.bridge.waterdogpe.event;
 
 
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
+import dev.waterdog.event.Event;
+import dev.waterdog.player.ProxiedPlayer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import pe.waterdog.event.Event;
-import pe.waterdog.player.ProxiedPlayer;
 
 public class WaterdogPEPlayerFallbackEvent extends Event {
 

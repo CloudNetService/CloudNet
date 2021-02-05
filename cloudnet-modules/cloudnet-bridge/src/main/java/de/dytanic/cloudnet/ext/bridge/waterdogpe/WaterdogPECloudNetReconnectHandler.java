@@ -2,10 +2,10 @@ package de.dytanic.cloudnet.ext.bridge.waterdogpe;
 
 
 import de.dytanic.cloudnet.ext.bridge.proxy.BridgeProxyHelper;
-import pe.waterdog.network.ServerInfo;
-import pe.waterdog.player.ProxiedPlayer;
-import pe.waterdog.utils.types.IJoinHandler;
-import pe.waterdog.utils.types.IReconnectHandler;
+import dev.waterdog.network.ServerInfo;
+import dev.waterdog.player.ProxiedPlayer;
+import dev.waterdog.utils.types.IJoinHandler;
+import dev.waterdog.utils.types.IReconnectHandler;
 
 public class WaterdogPECloudNetReconnectHandler implements IJoinHandler, IReconnectHandler {
 
