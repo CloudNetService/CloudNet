@@ -50,7 +50,7 @@ public abstract class DefaultMinecraftCloudService extends DefaultTemplateCloudS
     private void rewriteVelocityConfig(Path config) throws IOException {
         AtomicBoolean reference = new AtomicBoolean(true);
         this.rewriteServiceConfigurationFile(config, line -> {
-            if (reference.getAndSet(false) && line.startsWith("bind =")) {
+            if (line.startsWith("bind =") && reference.getAndSet(false)) {
                 return "bind = \"" + CloudNet.getInstance().getConfig().getHostAddress() + ":" + this.getServiceConfiguration().getPort() + "\"";
             }
             return line;
