@@ -172,6 +172,12 @@ public class JsonDocument implements IDocument<JsonDocument>, Cloneable {
         return document;
     }
 
+    public static JsonDocument newDocument(InputStream stream) {
+        JsonDocument document = new JsonDocument();
+        document.read(stream);
+        return document;
+    }
+
     public static JsonDocument newDocument(String json) {
         try {
             return new JsonDocument(JsonParser.parseString(json));

@@ -44,11 +44,11 @@ public final class GoMintCloudNetCloudPermissionsPlugin extends Plugin {
     }
 
     private void injectEntityPlayersCloudPermissionManager() {
-        GoMint.instance().getPlayers().forEach(this::injectPermissionManager);
+        GoMint.instance().onlinePlayers().forEach(this::injectPermissionManager);
     }
 
     public void injectPermissionManager(EntityPlayer entityPlayer) {
-        entityPlayer.setPermissionManager(new GoMintCloudNetCloudPermissionsPermissionManager(entityPlayer, this.permissionsManagement));
+        entityPlayer.permissionManager(new GoMintCloudNetCloudPermissionsPermissionManager(entityPlayer, this.permissionsManagement));
     }
 
 }

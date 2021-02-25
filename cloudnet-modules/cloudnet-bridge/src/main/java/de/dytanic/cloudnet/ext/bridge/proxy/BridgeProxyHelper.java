@@ -9,7 +9,13 @@ import de.dytanic.cloudnet.wrapper.Wrapper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
@@ -79,21 +85,40 @@ public class BridgeProxyHelper {
                 });
     }
 
-    public static Stream<ProxyFallback> filterPlayerFallbacks(@NotNull UUID uniqueId, @Nullable String currentServer, @NotNull Predicate<String> permissionTester) {
+    public static Stream<ProxyFallback> filterPlayerFallbacks(@NotNull UUID uniqueId,
+                                                              @Nullable String currentServer,
+                                                              @NotNull Predicate<String> permissionTester) {
+        return filterPlayerFallbacks(uniqueId, currentServer, null, permissionTester);
+    }
+
+    public static Stream<ProxyFallback> filterPlayerFallbacks(@NotNull UUID uniqueId,
+                                                              @Nullable String currentServer,
+                                                              @Nullable String virtualHost,
+                                                              @NotNull Predicate<String> permissionTester) {
         ServiceInfoSnapshot currentService = currentServer == null ? null : SERVICE_CACHE.get(currentServer);
         Collection<String> serviceGroups = currentService == null ? new ArrayList<>() : Arrays.asList(currentService.getConfiguration().getGroups());
 
         return getFallbacks()
+                .filter(proxyFallback -> proxyFallback.getForcedHost() == null || (currentService == null && proxyFallback.getForcedHost().equalsIgnoreCase(virtualHost)))
                 .filter(proxyFallback -> proxyFallback.getPermission() == null || permissionTester.test(proxyFallback.getPermission()))
                 .filter(proxyFallback -> proxyFallback.getAvailableOnGroups() == null
                         || proxyFallback.getAvailableOnGroups().isEmpty()
                         || proxyFallback.getAvailableOnGroups().stream().anyMatch(serviceGroups::contains));
     }
 
-    public static Optional<ServiceInfoSnapshot> getNextFallback(@NotNull UUID uniqueId, @Nullable String currentServer, @NotNull Predicate<String> permissionTester) {
+    public static Optional<ServiceInfoSnapshot> getNextFallback(@NotNull UUID uniqueId,
+                                                                @Nullable String currentServer,
+                                                                @NotNull Predicate<String> permissionTester) {
+        return getNextFallback(uniqueId, currentServer, null, permissionTester);
+    }
+
+    public static Optional<ServiceInfoSnapshot> getNextFallback(@NotNull UUID uniqueId,
+                                                                @Nullable String currentServer,
+                                                                @Nullable String virtualHost,
+                                                                @NotNull Predicate<String> permissionTester) {
         PlayerFallbackProfile profile = PROFILES.computeIfAbsent(uniqueId, uuid -> new PlayerFallbackProfile());
 
-        return filterPlayerFallbacks(uniqueId, currentServer, permissionTester)
+        return filterPlayerFallbacks(uniqueId, currentServer, virtualHost, permissionTester)
                 .flatMap(proxyFallback -> getCachedServiceInfoSnapshots(proxyFallback.getTask()).map(serviceInfoSnapshot -> new PlayerFallback(proxyFallback.getPriority(), serviceInfoSnapshot)))
 
                 .filter(fallback -> fallback.getTarget().isConnected() && fallback.getTarget().getProperty(BridgeServiceProperty.IS_ONLINE).orElse(false))
@@ -114,14 +139,23 @@ public class BridgeProxyHelper {
                 .anyMatch(proxyFallback -> proxyFallback.getTask().equals(serviceInfoSnapshot.getServiceId().getTaskName()));
     }
 
-    public static CompletableFuture<ServiceInfoSnapshot> connectToFallback(UUID uniqueId, String currentServer,
+    public static CompletableFuture<ServiceInfoSnapshot> connectToFallback(UUID uniqueId,
+                                                                           String currentServer,
+                                                                           Predicate<String> permissionTester,
+                                                                           Function<ServiceInfoSnapshot, CompletableFuture<Boolean>> serverConnector) {
+        return connectToFallback(uniqueId, currentServer, null, permissionTester, serverConnector);
+    }
+
+    public static CompletableFuture<ServiceInfoSnapshot> connectToFallback(UUID uniqueId,
+                                                                           String currentServer,
+                                                                           String virtualHost,
                                                                            Predicate<String> permissionTester,
                                                                            Function<ServiceInfoSnapshot, CompletableFuture<Boolean>> serverConnector) {
         BridgeProxyHelper.startConnecting(uniqueId);
         CompletableFuture<ServiceInfoSnapshot> future = new CompletableFuture<>();
-        Optional<ServiceInfoSnapshot> optionalFallback = getNextFallback(uniqueId, currentServer, permissionTester);
+        Optional<ServiceInfoSnapshot> optionalFallback = getNextFallback(uniqueId, currentServer, virtualHost, permissionTester);
         if (optionalFallback.isPresent()) {
-            tryFallback(uniqueId, optionalFallback.get(), currentServer, future, permissionTester, serverConnector);
+            tryFallback(uniqueId, optionalFallback.get(), currentServer, virtualHost, future, permissionTester, serverConnector);
         } else {
             BridgeProxyHelper.clearFallbackProfile(uniqueId);
             future.complete(null);
@@ -129,15 +163,17 @@ public class BridgeProxyHelper {
         return future;
     }
 
-    private static void tryFallback(UUID uniqueId, ServiceInfoSnapshot serviceInfoSnapshot, String currentServer,
+    private static void tryFallback(UUID uniqueId,
+                                    ServiceInfoSnapshot serviceInfoSnapshot, String currentServer,
+                                    String virtualHost,
                                     CompletableFuture<ServiceInfoSnapshot> future,
                                     Predicate<String> permissionTester,
                                     Function<ServiceInfoSnapshot, CompletableFuture<Boolean>> serverConnector) {
         serverConnector.apply(serviceInfoSnapshot).thenAccept(success -> {
             if (!success) {
                 BridgeProxyHelper.handleConnectionFailed(uniqueId, serviceInfoSnapshot.getName());
-                Optional<ServiceInfoSnapshot> optionalNewFallback = BridgeProxyHelper.getNextFallback(uniqueId, currentServer, permissionTester);
-                optionalNewFallback.ifPresent(newFallback -> tryFallback(uniqueId, newFallback, currentServer, future, permissionTester, serverConnector));
+                Optional<ServiceInfoSnapshot> optionalNewFallback = BridgeProxyHelper.getNextFallback(uniqueId, currentServer, virtualHost, permissionTester);
+                optionalNewFallback.ifPresent(newFallback -> tryFallback(uniqueId, newFallback, currentServer, virtualHost, future, permissionTester, serverConnector));
                 if (!optionalNewFallback.isPresent()) {
                     BridgeProxyHelper.clearFallbackProfile(uniqueId);
                     future.complete(null);

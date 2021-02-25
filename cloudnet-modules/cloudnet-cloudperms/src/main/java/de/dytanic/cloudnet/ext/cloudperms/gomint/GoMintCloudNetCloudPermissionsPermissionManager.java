@@ -19,7 +19,7 @@ public final class GoMintCloudNetCloudPermissionsPermissionManager implements Pe
     }
 
     @Override
-    public boolean hasPermission(String permission) {
+    public boolean has(String permission) {
         if (permission == null) {
             return false;
         }
@@ -29,41 +29,45 @@ public final class GoMintCloudNetCloudPermissionsPermissionManager implements Pe
     }
 
     @Override
-    public boolean hasPermission(String permission, boolean defaultValue) {
-        return this.hasPermission(permission) || defaultValue;
+    public boolean has(String permission, boolean defaultValue) {
+        return this.has(permission) || defaultValue;
     }
 
     @Override
-    public void addGroup(Group group) {
-
+    public PermissionManager addGroup(Group group) {
+        return this;
     }
 
     @Override
-    public void removeGroup(Group group) {
-
+    public PermissionManager removeGroup(Group group) {
+        return this;
     }
 
     @Override
-    public void setPermission(String permission, boolean value) {
+    public PermissionManager permission(String permission, boolean value) {
         IPermissionUser permissionUser = this.getUser();
         permissionUser.addPermission(new Permission(permission, value ? 1 : -1));
         this.permissionManagement.updateUser(permissionUser);
+
+        return this;
     }
 
     @Override
-    public void removePermission(String permission) {
+    public PermissionManager remove(String permission) {
         IPermissionUser permissionUser = this.getUser();
         permissionUser.removePermission(permission);
         this.permissionManagement.updateUser(permissionUser);
+
+        return this;
     }
 
     @Override
-    public void toggleOp() {
-
+    public PermissionManager toggleOp() {
+        return this;
     }
 
     private IPermissionUser getUser() {
-        return this.permissionManagement.getUser(this.player.getUUID());
+        return this.permissionManagement.getUser(this.player.uuid());
     }
 
     public EntityPlayer getPlayer() {

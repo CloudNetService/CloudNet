@@ -23,13 +23,13 @@ public final class GoMintCloudNetCloudPermissionsPlayerListener implements Event
 
     @EventHandler(priority = EventPriority.LOW)
     public void handle(PlayerLoginEvent event) {
-        if (!event.isCancelled()) {
-            EntityPlayer player = event.getPlayer();
+        if (!event.cancelled()) {
+            EntityPlayer player = event.player();
 
-            CloudPermissionsHelper.initPermissionUser(this.permissionsManagement, player.getUUID(), event.getPlayer().getName(), message -> {
-                event.setCancelled(true);
-                event.setKickMessage(ChatColor.translateAlternateColorCodes('&', message));
-            }, ((GoMintServer) GoMint.instance()).getEncryptionKeyFactory().isKeyGiven());
+            CloudPermissionsHelper.initPermissionUser(this.permissionsManagement, player.uuid(), event.player().name(), message -> {
+                event.cancelled(true);
+                event.kickMessage(ChatColor.translateAlternateColorCodes('&', message));
+            }, ((GoMintServer) GoMint.instance()).encryptionKeyFactory().isKeyGiven());
 
             GoMintCloudNetCloudPermissionsPlugin.getInstance().injectPermissionManager(player);
         }
@@ -37,7 +37,7 @@ public final class GoMintCloudNetCloudPermissionsPlayerListener implements Event
 
     @EventHandler
     public void handle(PlayerQuitEvent event) {
-        this.permissionsManagement.getCachedPermissionUsers().remove(event.getPlayer().getUUID());
+        this.permissionsManagement.getCachedPermissionUsers().remove(event.player().uuid());
     }
 
 }
