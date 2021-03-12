@@ -8,6 +8,7 @@ import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.concurrent.ListenableTask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.database.AbstractDatabaseProvider;
+import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.database.Database;
 import de.dytanic.cloudnet.ext.database.mongodb.util.DatabaseConnectionData;
 import lombok.Getter;
@@ -67,7 +68,7 @@ public class MongoDatabaseProvider extends AbstractDatabaseProvider {
         try {
             this.client = MongoClients.create(new ConnectionString(this.databaseConnectionData.toConnectionString()));
         } catch (Exception ex) {
-            ex.printStackTrace();
+            CloudNetDriver.getInstance().getLogger().error(ex.getMessage(), ex);
         }
     }
 
@@ -114,8 +115,8 @@ public class MongoDatabaseProvider extends AbstractDatabaseProvider {
             try {
                 Thread.sleep(0, 100000);
                 task.call();
-            } catch (Exception exception) {
-                exception.printStackTrace();
+            } catch (Exception ex) {
+                CloudNetDriver.getInstance().getLogger().error(ex.getMessage(), ex);
             }
         });
         return task;

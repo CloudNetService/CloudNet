@@ -8,6 +8,7 @@ import com.mongodb.client.MongoCollection;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.concurrent.ListenableTask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.database.Database;
 import de.dytanic.cloudnet.ext.database.mongodb.util.DocumentUtil;
 import java.util.*;
@@ -257,7 +258,6 @@ public class MongoDatabase implements Database {
         if (findIterable != null) {
             AtomicInteger i = new AtomicInteger(1);
             findIterable.iterator().forEachRemaining(f -> {
-                System.out.println(i.get());
                 i.getAndIncrement();
                 Document d = (Document) f;
                 documents.add(DocumentUtil.toJsonDocument(d));
@@ -325,8 +325,8 @@ public class MongoDatabase implements Database {
             try {
                 Thread.sleep(0, 100000);
                 task.call();
-            } catch (Exception exception) {
-                exception.printStackTrace();
+            } catch (Exception ex) {
+                CloudNetDriver.getInstance().getLogger().error(ex.getMessage(), ex);
             }
         });
         return task;
