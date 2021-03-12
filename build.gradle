@@ -108,6 +108,7 @@ allprojects {
         cloudnetModuleNextCloudFileName = 'cloudnet-storage-nextcloud.jar'
         cloudnetModuleStorageFTPFileName = 'cloudnet-storage-ftp.jar'
         cloudnetModuleDatabaseMySQLFileName = 'cloudnet-database-mysql.jar'
+        cloudnetModuleDatabaseMongoDBFileName = 'cloudnet-database-mongodb.jar'
     }
 
 

@@ -45,4 +45,6 @@ include 'cloudnet-modules:cloudnet-rest'
 findProject(':cloudnet-modules:cloudnet-rest')?.name = 'cloudnet-rest'
 
 include ':cloudnet-wrapper-jvm:minecraft-launchwrapper-api'
+include 'cloudnet-modules:cloudnet-database-mongodb'
+findProject(':cloudnet-modules:cloudnet-database-mongodb')?.name = 'cloudnet-database-mongodb'
 

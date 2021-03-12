@@ -1,0 +1,8 @@
+jar {
+    archiveFileName.set(cloudnetModuleDatabaseMongoDBFileName)
+}
+
+dependencies {
+    compileOnly project(':cloudnet')
+    compileOnly "org.mongodb:mongodb-driver-sync:4.1.1"
+}
