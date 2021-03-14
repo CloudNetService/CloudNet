@@ -40,7 +40,8 @@ public final class WaterdogPECloudNetListener {
                     serviceInfoSnapshot.getConnectAddress().getPort()
             );
 
-            ProxyServer.getInstance().registerServerInfo(new ServerInfo(name, address, address));
+            ProxyServer.getInstance().getScheduler().scheduleTask(() ->
+                    ProxyServer.getInstance().registerServerInfo(new ServerInfo(name, address, address)), false);
         }
 
         // this.waterdogPECall(new WaterdogPECloudServiceStartEvent(event.getServiceInfo()));
