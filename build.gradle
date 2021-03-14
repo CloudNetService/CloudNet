@@ -69,7 +69,7 @@ allprojects {
         dependencyLombokVersion = '1.18.16'
         dependencyH2Version = '1.4.197'
         dependencyGsonVersion = '2.8.6'
-        dependencyNettyVersion = '4.1.57.Final'
+        dependencyNettyVersion = '4.1.59.Final'
         dependencyJLineVersion = '3.18.0'
         dependencyJAnsiVersion = '2.1.1'
         dependencySpigotApiVersion = '1.16.4-R0.1-SNAPSHOT'

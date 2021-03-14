@@ -5,7 +5,11 @@ import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
-import de.dytanic.cloudnet.driver.service.*;
+import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
+import de.dytanic.cloudnet.driver.service.ServiceEnvironment;
+import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
+import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
+import de.dytanic.cloudnet.driver.service.ServiceTask;
 import de.dytanic.cloudnet.service.ICloudService;
 import de.dytanic.cloudnet.service.ICloudServiceManager;
 import de.dytanic.cloudnet.service.handler.CloudServiceHandler;
@@ -122,12 +126,8 @@ final class JVMCloudService extends DefaultMinecraftCloudService implements IClo
                 // sys properties
                 "-Djline.terminal=jline.UnsupportedTerminal",
                 "-Dfile.encoding=UTF-8",
-                "-Dio.netty.noPreferDirect=true",
                 "-Dclient.encoding.override=UTF-8",
-                "-Dio.netty.maxDirectMemory=0",
-                "-Dio.netty.leakDetectionLevel=DISABLED",
-                "-Dio.netty.recycler.maxCapacity=0",
-                "-Dio.netty.recycler.maxCapacity.default=0",
+                "-Dde.dytanic.cloudnet.wrapper.relocate.io.netty.packagePrefix=de.dytanic.cloudnet.wrapper.relocate.",
                 "-DIReallyKnowWhatIAmDoingISwear=true",
                 "-Dcloudnet.wrapper.messages.language=" + LanguageManager.getLanguage()
         ));
