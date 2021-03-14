@@ -129,12 +129,8 @@ final class JVMCloudService extends DefaultMinecraftCloudService implements IClo
                 // sys properties
                 "-Djline.terminal=jline.UnsupportedTerminal",
                 "-Dfile.encoding=UTF-8",
-                "-Dio.netty.noPreferDirect=true",
                 "-Dclient.encoding.override=UTF-8",
-                "-Dio.netty.maxDirectMemory=0",
-                "-Dio.netty.leakDetectionLevel=DISABLED",
-                "-Dio.netty.recycler.maxCapacity=0",
-                "-Dio.netty.recycler.maxCapacity.default=0",
+                "-Dde.dytanic.cloudnet.wrapper.relocate.io.netty.packagePrefix=de.dytanic.cloudnet.wrapper.relocate.",
                 "-DIReallyKnowWhatIAmDoingISwear=true",
                 "-Dcloudnet.wrapper.messages.language=" + LanguageManager.getLanguage()
         ));
