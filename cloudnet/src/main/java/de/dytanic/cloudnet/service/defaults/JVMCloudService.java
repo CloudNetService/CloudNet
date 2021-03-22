@@ -122,7 +122,9 @@ final class JVMCloudService extends DefaultMinecraftCloudService implements IClo
     protected void startProcess() throws Exception {
         List<String> commandArguments = new ArrayList<>();
 
-        commandArguments.add(CloudNet.getInstance().getConfig().getJVMCommand());
+        String javaCommand = this.getJavaCommand();
+        commandArguments.add(javaCommand == null ? CloudNet.getInstance().getConfig().getJVMCommand() : javaCommand);
+
         commandArguments.addAll(CloudNet.getInstance().getConfig().getDefaultJVMFlags().getJvmFlags());
 
         commandArguments.addAll(Arrays.asList(

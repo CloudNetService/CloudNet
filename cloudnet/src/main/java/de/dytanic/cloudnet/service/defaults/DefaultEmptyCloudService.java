@@ -10,6 +10,7 @@ import de.dytanic.cloudnet.service.ICloudService;
 import de.dytanic.cloudnet.service.ICloudServiceManager;
 import de.dytanic.cloudnet.service.handler.CloudServiceHandler;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.List;
@@ -40,6 +41,11 @@ public abstract class DefaultEmptyCloudService implements ICloudService {
     @Override
     public String getRuntime() {
         return this.runtime;
+    }
+
+    @Override
+    public @Nullable String getJavaCommand() {
+        return this.serviceConfiguration.getJavaCommand();
     }
 
     @Override
