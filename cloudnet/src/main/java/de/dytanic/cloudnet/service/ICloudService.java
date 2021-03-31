@@ -16,6 +16,9 @@ public interface ICloudService {
     @ApiStatus.Internal
     void init();
 
+    @Nullable
+    String getJavaCommand();
+
     @NotNull
     String getRuntime();
 
