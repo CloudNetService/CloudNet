@@ -17,7 +17,7 @@ public class VelocityCloudNetCloudPermissionsPermissionProvider implements Permi
 
     @Override
     public @MaybePresent PermissionFunction createFunction(@MaybePresent PermissionSubject subject) {
-        return subject instanceof Player ? new VelocityCloudNetCloudPermissionsPermissionFunction(((Player) subject).getUniqueId(), this.permissionsManagement) : null;
+        return subject instanceof Player ? new VelocityCloudNetCloudPermissionsPermissionFunction(((Player) subject).getUniqueId(), this.permissionsManagement) : PermissionFunction.ALWAYS_TRUE;
     }
 
 }
