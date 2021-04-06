@@ -52,7 +52,8 @@ public final class WaterdogPECloudNetListener {
         ServiceInfoSnapshot serviceInfoSnapshot = event.getServiceInfo();
 
         if (serviceInfoSnapshot.getServiceId().getEnvironment().isMinecraftBedrockServer()) {
-            ProxyServer.getInstance().removeServerInfo(serviceInfoSnapshot.getName());
+            ProxyServer.getInstance().getScheduler().scheduleTask(() ->
+                    ProxyServer.getInstance().removeServerInfo(serviceInfoSnapshot.getName()), false);
             BridgeProxyHelper.cacheServiceInfoSnapshot(serviceInfoSnapshot);
         }
 

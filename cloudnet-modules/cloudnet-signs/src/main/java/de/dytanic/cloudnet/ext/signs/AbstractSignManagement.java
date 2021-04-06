@@ -18,7 +18,15 @@ import de.dytanic.cloudnet.wrapper.Wrapper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -215,16 +223,18 @@ public abstract class AbstractSignManagement extends ServiceInfoStateWatcher {
             case STOPPED: {
                 sign.setServiceInfoSnapshot(null);
 
-                if (!signConfiguration.getSearchLayouts().getSignLayouts().isEmpty()) {
-                    this.updateSignNext(sign, signConfiguration.getSearchLayouts().getSignLayouts().get(this.indexes[1].get()), null);
+                int searchingIndex = this.indexes[1].get();
+                if (searchingIndex != -1) {
+                    this.updateSignNext(sign, signConfiguration.getSearchLayouts().getSignLayouts().get(searchingIndex), null);
                 }
             }
             break;
             case STARTING: {
                 sign.setServiceInfoSnapshot(null);
 
-                if (!signConfiguration.getStartingLayouts().getSignLayouts().isEmpty()) {
-                    this.updateSignNext(sign, signConfiguration.getStartingLayouts().getSignLayouts().get(this.indexes[0].get()), serviceInfoSnapshot);
+                int startingIndex = this.indexes[0].get();
+                if (startingIndex != -1) {
+                    this.updateSignNext(sign, signConfiguration.getStartingLayouts().getSignLayouts().get(startingIndex), serviceInfoSnapshot);
                 }
             }
             break;
@@ -382,7 +392,8 @@ public abstract class AbstractSignManagement extends ServiceInfoStateWatcher {
             this.runTaskLater(this::executeStartingTask, 20);
         }
 
-        CloudNetDriver.getInstance().getTaskScheduler().schedule(this::updateSigns);
+        // CloudNetDriver.getInstance().getTaskScheduler().schedule(this::updateSigns);
+        this.updateSigns();
     }
 
     protected void executeSearchingTask() {
@@ -410,7 +421,8 @@ public abstract class AbstractSignManagement extends ServiceInfoStateWatcher {
             this.runTaskLater(this::executeSearchingTask, 20);
         }
 
-        CloudNetDriver.getInstance().getTaskScheduler().schedule(this::updateSigns);
+        // CloudNetDriver.getInstance().getTaskScheduler().schedule(this::updateSigns);
+        this.updateSigns();
     }
 
     public AtomicInteger[] getIndexes() {

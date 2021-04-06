@@ -35,6 +35,14 @@ public final class NukkitSignManagement extends AbstractSignManagement {
         super.updateSigns();
     }
 
+    private void runSync(Runnable runnable) {
+        if (Server.getInstance().isPrimaryThread()) {
+            runnable.run();
+        } else {
+            Server.getInstance().getScheduler().scheduleTask(this.plugin, runnable);
+        }
+    }
+
     /**
      * @deprecated SignManagement should be accessed via the {@link de.dytanic.cloudnet.common.registry.IServicesRegistry}
      */
@@ -45,7 +53,7 @@ public final class NukkitSignManagement extends AbstractSignManagement {
 
     @Override
     protected void updateSignNext(@NotNull Sign sign, @NotNull SignLayout signLayout, @Nullable ServiceInfoSnapshot serviceInfoSnapshot) {
-        Server.getInstance().getScheduler().scheduleTask(this.plugin, () -> {
+        this.runSync(() -> {
             Location location = this.toLocation(sign.getWorldPosition());
             if (location != null && location.getLevel().isChunkLoaded(location.getChunkX(), location.getChunkZ())) {
                 BlockEntity blockEntity = location.getLevel().getBlockEntity(location);
