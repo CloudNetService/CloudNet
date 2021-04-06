@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.cluster.DefaultClusterNodeServerProvider;
 import de.dytanic.cloudnet.cluster.IClusterNodeServer;
 import de.dytanic.cloudnet.cluster.IClusterNodeServerProvider;
+import de.dytanic.cloudnet.cluster.NodeServer;
 import de.dytanic.cloudnet.command.ConsoleCommandSender;
 import de.dytanic.cloudnet.command.DefaultCommandMap;
 import de.dytanic.cloudnet.command.ICommandMap;
@@ -80,7 +81,6 @@ import de.dytanic.cloudnet.provider.NodeMessenger;
 import de.dytanic.cloudnet.provider.NodeNodeInfoProvider;
 import de.dytanic.cloudnet.provider.NodeServiceTaskProvider;
 import de.dytanic.cloudnet.provider.service.EmptySpecificCloudServiceProvider;
-import de.dytanic.cloudnet.provider.service.LocalNodeSpecificCloudServiceProvider;
 import de.dytanic.cloudnet.provider.service.NodeCloudServiceFactory;
 import de.dytanic.cloudnet.provider.service.NodeGeneralCloudServiceProvider;
 import de.dytanic.cloudnet.service.ICloudService;
@@ -109,6 +109,8 @@ public final class CloudNet extends CloudNetDriver {
     public static final int TPS = 10;
     private static CloudNet instance;
 
+    private final long startupMillis = System.currentTimeMillis();
+
     private final CloudNetTick mainLoop = new CloudNetTick(this);
 
     private final LogLevel defaultLogLevel = LogLevel.getDefaultLogLevel(System.getProperty("cloudnet.logging.defaultlevel")).orElse(LogLevel.FATAL);
@@ -117,8 +119,6 @@ public final class CloudNet extends CloudNetDriver {
 
     private final IConfiguration config = new JsonConfiguration();
     private final IConfigurationRegistry configurationRegistry = new JsonConfigurationRegistry(Paths.get(System.getProperty("cloudnet.registry.global.path", "local/registry")));
-
-    private final IClusterNodeServerProvider clusterNodeServerProvider = new DefaultClusterNodeServerProvider();
 
     private final ITaskScheduler networkTaskScheduler = new DefaultTaskScheduler();
 
@@ -131,19 +131,16 @@ public final class CloudNet extends CloudNetDriver {
     private final QueuedConsoleLogHandler queuedConsoleLogHandler;
     private final ConsoleCommandSender consoleCommandSender;
 
+    private final DefaultInstallation defaultInstallation = new DefaultInstallation();
+    private final DefaultCloudServiceManager cloudServiceManager = new DefaultCloudServiceManager();
+    private final ServiceVersionProvider serviceVersionProvider = new ServiceVersionProvider();
+
     private INetworkClient networkClient;
     private INetworkServer networkServer;
     private IHttpServer httpServer;
 
-    private final ICloudServiceManager cloudServiceManager = new DefaultCloudServiceManager();
-
-    private final DefaultInstallation defaultInstallation = new DefaultInstallation();
-
-    private final ServiceVersionProvider serviceVersionProvider = new ServiceVersionProvider();
-
     private AbstractDatabaseProvider databaseProvider;
-    private volatile NetworkClusterNodeInfoSnapshot lastNetworkClusterNodeInfoSnapshot, currentNetworkClusterNodeInfoSnapshot;
-    private long startupNanos;
+    private IClusterNodeServerProvider clusterNodeServerProvider;
 
     private volatile boolean running = true;
 
@@ -153,7 +150,7 @@ public final class CloudNet extends CloudNetDriver {
 
         logger.setLevel(this.defaultLogLevel);
 
-        super.cloudServiceFactory = new NodeCloudServiceFactory(this);
+        super.cloudServiceFactory = new NodeCloudServiceFactory(this, this.cloudServiceManager);
         super.generalCloudServiceProvider = new NodeGeneralCloudServiceProvider(this);
         super.serviceTaskProvider = new NodeServiceTaskProvider(this);
         super.groupConfigurationProvider = new NodeGroupConfigurationProvider(this);
@@ -202,6 +199,8 @@ public final class CloudNet extends CloudNetDriver {
 
         boolean configFileAvailable = this.config.isFileExists();
         this.config.load();
+
+        this.clusterNodeServerProvider = new DefaultClusterNodeServerProvider(this);
         this.defaultInstallation.executeFirstStartSetup(this.console, configFileAvailable);
 
         HeaderReader.readAndPrintHeader(this.console);
@@ -229,10 +228,6 @@ public final class CloudNet extends CloudNetDriver {
 
         this.registerDefaultCommands();
         this.registerDefaultServices();
-
-        this.startupNanos = System.nanoTime();
-        this.currentNetworkClusterNodeInfoSnapshot = this.createClusterNodeInfoSnapshot();
-        this.lastNetworkClusterNodeInfoSnapshot = this.currentNetworkClusterNodeInfoSnapshot;
 
         this.loadModules();
 
@@ -407,18 +402,19 @@ public final class CloudNet extends CloudNetDriver {
         if (serviceInfoSnapshot == null) {
             return EmptySpecificCloudServiceProvider.INSTANCE;
         }
+
         if (serviceInfoSnapshot.getServiceId().getNodeUniqueId().equals(this.getComponentName())) {
-            ICloudService service = this.cloudServiceManager.getCloudService(serviceInfoSnapshot.getServiceId().getUniqueId());
-            if (service != null) {
-                return new LocalNodeSpecificCloudServiceProvider(this, service);
-            }
-            return EmptySpecificCloudServiceProvider.INSTANCE;
+            // can never be null
+            return Objects.requireNonNull(this.clusterNodeServerProvider.getSelfNode().getCloudServiceProvider(serviceInfoSnapshot));
         }
+
         IClusterNodeServer server = this.clusterNodeServerProvider.getNodeServer(serviceInfoSnapshot.getServiceId().getNodeUniqueId());
         if (server == null) {
             return EmptySpecificCloudServiceProvider.INSTANCE;
         }
-        return server.getCloudServiceProvider(serviceInfoSnapshot);
+
+        SpecificCloudServiceProvider provider = server.getCloudServiceProvider(serviceInfoSnapshot);
+        return provider == null ? EmptySpecificCloudServiceProvider.INSTANCE : provider;
     }
 
     private void initServiceVersions() {
@@ -594,7 +590,7 @@ public final class CloudNet extends CloudNetDriver {
     public NetworkClusterNodeInfoSnapshot createClusterNodeInfoSnapshot() {
         return new NetworkClusterNodeInfoSnapshot(
                 System.currentTimeMillis(),
-                this.startupNanos,
+                this.startupMillis,
                 this.config.getIdentity(),
                 CloudNet.class.getPackage().getImplementationVersion(),
                 this.cloudServiceManager.getCloudServices().size(),
@@ -626,6 +622,34 @@ public final class CloudNet extends CloudNetDriver {
         return this.searchLogicNode(serviceTask.getAssociatedNodes());
     }
 
+    @Nullable
+    public NodeServer searchLogicNodeServer(ServiceTask serviceTask) {
+        Preconditions.checkNotNull(serviceTask);
+
+        return this.searchLogicNodeServer(serviceTask.getAssociatedNodes(),
+                serviceTask.getProcessConfiguration().getMaxHeapMemorySize());
+    }
+
+    @Nullable
+    public NodeServer searchLogicNodeServer(Collection<String> allowedNodes, int maxHeapMemory) {
+        Preconditions.checkNotNull(allowedNodes);
+
+        Collection<NodeServer> nodes = new ArrayList<>(this.getValidClusterNodeServers(allowedNodes));
+        if (this.canStartServices(allowedNodes)) {
+            nodes.add(this.clusterNodeServerProvider.getSelfNode());
+        }
+
+        return nodes.stream()
+                .filter(node -> {
+                    int usedAfterStart = node.getNodeInfoSnapshot().getUsedMemory() + maxHeapMemory;
+                    return node.getNodeInfoSnapshot().getMaxMemory() >= usedAfterStart;
+                })
+                .min(Comparator.comparingDouble(node -> {
+                    NetworkClusterNodeInfoSnapshot info = node.getNodeInfoSnapshot();
+                    return info.getSystemCpuUsage() + ((double) info.getReservedMemory() / info.getMaxMemory() * 100D);
+                })).orElse(null);
+    }
+
     public boolean canStartServices(Collection<String> allowedNodes, String nodeUniqueId) {
         return allowedNodes != null && (allowedNodes.isEmpty() || allowedNodes.contains(nodeUniqueId));
     }
@@ -648,15 +672,40 @@ public final class CloudNet extends CloudNetDriver {
                 .collect(Collectors.toList());
 
         if (this.canStartServices(allowedNodes)) {
-            nodes.add(this.currentNetworkClusterNodeInfoSnapshot);
+            nodes.add(this.clusterNodeServerProvider.getSelfNode().getNodeInfoSnapshot());
         }
 
         return nodes.stream()
                 .filter(Objects::nonNull)
-                .sorted(Comparator.comparingLong(NetworkClusterNodeInfoSnapshot::getStartupNanos))
+                .sorted(Comparator.comparingLong(NetworkClusterNodeInfoSnapshot::getStartupMillis))
                 .min(Comparator.comparingDouble(node ->
                         node.getSystemCpuUsage() + ((double) node.getReservedMemory() / node.getMaxMemory() * 100D)
                 )).orElse(null);
+    }
+
+    @Nullable
+    public Pair<NodeServer, Set<ServiceInfoSnapshot>> searchLogicNodeServer(Map<String, Set<ServiceInfoSnapshot>> services) {
+        Collection<NodeServer> nodes = new ArrayList<>(this.getValidClusterNodeServers(services.keySet()));
+        if (this.canStartServices(services.keySet())) {
+            nodes.add(this.clusterNodeServerProvider.getSelfNode());
+        }
+
+        return nodes.stream()
+                .filter(Objects::nonNull)
+                .map(server -> new Pair<>(server, services.get(server.getNodeInfo().getUniqueId())))
+                .peek(pair -> pair.setSecond(pair.getSecond().stream()
+                        .filter(info -> {
+                            int usedAfterStart = pair.getFirst().getNodeInfoSnapshot().getUsedMemory()
+                                    + info.getConfiguration().getProcessConfig().getMaxHeapMemorySize();
+                            return pair.getFirst().getNodeInfoSnapshot().getMaxMemory() >= usedAfterStart;
+                        })
+                        .collect(Collectors.toSet()))
+                )
+                .filter(pair -> !pair.getSecond().isEmpty())
+                .min(Comparator.comparingDouble(pair -> {
+                    NetworkClusterNodeInfoSnapshot info = pair.getFirst().getNodeInfoSnapshot();
+                    return info.getSystemCpuUsage() + ((double) info.getReservedMemory() / info.getMaxMemory() * 100D);
+                })).orElse(null);
     }
 
     public boolean competeWithCluster(ServiceTask serviceTask) {
@@ -665,7 +714,7 @@ public final class CloudNet extends CloudNetDriver {
 
     public boolean competeWithCluster(Collection<String> allowedNodes) {
         NetworkClusterNodeInfoSnapshot bestNode = this.searchLogicNode(allowedNodes);
-        return bestNode != null && bestNode.getNode().getUniqueId().equals(this.currentNetworkClusterNodeInfoSnapshot.getNode().getUniqueId());
+        return bestNode != null && bestNode.getNode().getUniqueId().equals(this.config.getIdentity().getUniqueId());
     }
 
     public void unregisterPacketListenersByClassLoader(ClassLoader classLoader) {
@@ -684,12 +733,11 @@ public final class CloudNet extends CloudNetDriver {
     }
 
     public void publishNetworkClusterNodeInfoSnapshotUpdate() {
-        this.lastNetworkClusterNodeInfoSnapshot = this.currentNetworkClusterNodeInfoSnapshot;
-        this.currentNetworkClusterNodeInfoSnapshot = this.createClusterNodeInfoSnapshot();
+        NetworkClusterNodeInfoSnapshot snapshot = this.createClusterNodeInfoSnapshot();
 
-        this.getEventManager().callEvent(new NetworkClusterNodeInfoConfigureEvent(this.currentNetworkClusterNodeInfoSnapshot));
-
-        this.clusterNodeServerProvider.sendPacket(new PacketServerClusterNodeInfoUpdate(this.currentNetworkClusterNodeInfoSnapshot));
+        this.getEventManager().callEvent(new NetworkClusterNodeInfoConfigureEvent(snapshot));
+        this.clusterNodeServerProvider.getSelfNode().setNodeInfoSnapshot(snapshot);
+        this.clusterNodeServerProvider.sendPacket(new PacketServerClusterNodeInfoUpdate(snapshot));
     }
 
     public void publishPermissionGroupUpdates(Collection<IPermissionGroup> permissionGroups, NetworkUpdateType updateType) {
@@ -964,10 +1012,10 @@ public final class CloudNet extends CloudNetDriver {
     }
 
     public NetworkClusterNodeInfoSnapshot getLastNetworkClusterNodeInfoSnapshot() {
-        return this.lastNetworkClusterNodeInfoSnapshot;
+        return this.clusterNodeServerProvider.getSelfNode().getLastNodeInfoSnapshot();
     }
 
     public NetworkClusterNodeInfoSnapshot getCurrentNetworkClusterNodeInfoSnapshot() {
-        return this.currentNetworkClusterNodeInfoSnapshot;
+        return this.clusterNodeServerProvider.getSelfNode().getNodeInfoSnapshot();
     }
 }

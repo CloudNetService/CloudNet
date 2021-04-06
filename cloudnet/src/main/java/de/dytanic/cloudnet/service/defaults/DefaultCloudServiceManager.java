@@ -2,6 +2,7 @@ package de.dytanic.cloudnet.service.defaults;
 
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.CloudNet;
+import de.dytanic.cloudnet.cluster.NodeServer;
 import de.dytanic.cloudnet.common.concurrent.CompletedTask;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.concurrent.ThrowableConsumer;
@@ -29,10 +30,15 @@ import java.util.stream.Collectors;
 public final class DefaultCloudServiceManager implements ICloudServiceManager {
 
     private static final CloudServiceHandler HANDLER = DefaultCloudServiceHandler.INSTANCE;
-    private static final ICloudServiceFactory DEFAULT_FACTORY = new DefaultCloudServiceFactory(JVMCloudService.RUNTIME, (manager, configuration) -> new JVMCloudService(manager, configuration, HANDLER));
+    private static final ICloudServiceFactory DEFAULT_FACTORY = new DefaultCloudServiceFactory(JVMCloudService.RUNTIME,
+            (manager, configuration) -> new JVMCloudService(manager, configuration, HANDLER));
+
     private final File tempDirectory = new File(System.getProperty("cloudnet.tempDir.services", "temp/services"));
     private final File persistenceServicesDirectory = new File(System.getProperty("cloudnet.persistable.services.path", "local/services"));
+
     private final Map<UUID, ServiceInfoSnapshot> globalServiceInfoSnapshots = new ConcurrentHashMap<>();
+    private final Map<String, Set<Integer>> reservedServiceIds = new ConcurrentHashMap<>();
+
     private final Map<UUID, ICloudService> cloudServices = new ConcurrentHashMap<>();
     private final Map<String, ICloudServiceFactory> cloudServiceFactories = new ConcurrentHashMap<>();
 
@@ -86,9 +92,6 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
     }
 
     private void prepareServiceConfiguration(ServiceConfiguration configuration) {
-        configuration.getServiceId().setNodeUniqueId(CloudNet.getInstance().getComponentName());
-
-        configuration.getServiceId().setTaskServiceId(this.checkAndReplaceTaskId(configuration.getServiceId()));
         configuration.setPort(this.checkAndReplacePort(configuration.getPort()));
 
         Collection<String> groups = new ArrayList<>(Arrays.asList(configuration.getGroups()));
@@ -209,8 +212,7 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
     public Collection<Integer> getReservedTaskIds(@NotNull String task) {
         Preconditions.checkNotNull(task);
 
-        Collection<Integer> taskIdList = new ArrayList<>();
-
+        Collection<Integer> taskIdList = new ArrayList<>(this.reservedServiceIds.getOrDefault(task, Collections.emptySet()));
         for (ServiceInfoSnapshot serviceInfoSnapshot : this.globalServiceInfoSnapshots.values()) {
             if (serviceInfoSnapshot.getServiceId().getTaskName().equalsIgnoreCase(task)) {
                 taskIdList.add(serviceInfoSnapshot.getServiceId().getTaskServiceId());
@@ -311,4 +313,25 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
         return runtime == null ? Optional.empty() : Optional.ofNullable(this.cloudServiceFactories.get(runtime));
     }
 
+    @ApiStatus.Internal
+    public void prepareServiceConfiguration(NodeServer server, ServiceConfiguration configuration) {
+        Preconditions.checkArgument(!CloudNet.getInstance().isMainThread(), "Async service pre-prepare");
+
+        configuration.getServiceId().setNodeUniqueId(server.getNodeInfo().getUniqueId());
+        configuration.getServiceId().setTaskServiceId(this.checkAndReplaceTaskId(configuration.getServiceId()));
+
+        this.reservedServiceIds.computeIfAbsent(configuration.getServiceId().getTaskName(), t -> new HashSet<>())
+                .add(configuration.getServiceId().getTaskServiceId());
+    }
+
+    @ApiStatus.Internal
+    public void freeServiceId(ServiceConfiguration configuration) {
+        Set<Integer> reservedIds = this.reservedServiceIds.get(configuration.getServiceId().getTaskName());
+        if (reservedIds != null) {
+            reservedIds.remove(configuration.getServiceId().getTaskServiceId());
+            if (reservedIds.isEmpty()) {
+                this.reservedServiceIds.remove(configuration.getServiceId().getTaskName());
+            }
+        }
+    }
 }

@@ -194,7 +194,7 @@ public final class CommandCluster extends SubCommandHandler {
 
         List<String> list = new ArrayList<>(Arrays.asList(
                 " ",
-                "Id: " + node.getNodeInfo().getUniqueId(),
+                "Id: " + node.getNodeInfo().getUniqueId() + (node.isHeadNode() ? " (Head)" : ""),
                 "State: " + (node.isConnected() ? "Connected" : "Not connected"),
                 " ",
                 "Address: "
@@ -209,8 +209,9 @@ public final class CommandCluster extends SubCommandHandler {
             list.add("* ClusterNodeInfoSnapshot from " + new SimpleDateFormat("dd.MM.yyyy HH:mm:ss").format(node.getNodeInfoSnapshot().getCreationTime()));
 
             list.addAll(Arrays.asList(
-                    "CloudServices (" + node.getNodeInfoSnapshot().getCurrentServicesCount() + ") memory usage " +
-                            node.getNodeInfoSnapshot().getUsedMemory() + "/" + node.getNodeInfoSnapshot().getReservedMemory() + "/" + node.getNodeInfoSnapshot().getMaxMemory() + "MB",
+                    "CloudServices (" + node.getNodeInfoSnapshot().getCurrentServicesCount() + ") memory usage (U/R/M): "
+                            + node.getNodeInfoSnapshot().getUsedMemory() + "/" + node.getNodeInfoSnapshot().getReservedMemory()
+                            + "/" + node.getNodeInfoSnapshot().getMaxMemory() + " MB",
                     " ",
                     "CPU usage process: " + CPUUsageResolver.CPU_USAGE_OUTPUT_FORMAT.format(node.getNodeInfoSnapshot().getProcessSnapshot().getCpuUsage()) + "%",
                     "CPU usage system: " + CPUUsageResolver.CPU_USAGE_OUTPUT_FORMAT.format(node.getNodeInfoSnapshot().getSystemCpuUsage()) + "%",

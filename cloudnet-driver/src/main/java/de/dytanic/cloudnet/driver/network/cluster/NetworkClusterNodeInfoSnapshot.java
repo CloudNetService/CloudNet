@@ -21,7 +21,7 @@ public class NetworkClusterNodeInfoSnapshot extends SerializableJsonDocPropertya
     }.getType();
 
     protected long creationTime;
-    protected long startupNanos;
+    protected long startupMillis;
     protected NetworkClusterNode node;
     protected String version;
     protected int currentServicesCount;
@@ -62,7 +62,7 @@ public class NetworkClusterNodeInfoSnapshot extends SerializableJsonDocPropertya
     }
 
     public NetworkClusterNodeInfoSnapshot(long creationTime,
-                                          long startupNanos,
+                                          long startupMillis,
                                           NetworkClusterNode node,
                                           String version,
                                           int currentServicesCount,
@@ -73,7 +73,7 @@ public class NetworkClusterNodeInfoSnapshot extends SerializableJsonDocPropertya
                                           Collection<ModuleConfiguration> modules,
                                           double systemCpuUsage) {
         this.creationTime = creationTime;
-        this.startupNanos = startupNanos;
+        this.startupMillis = startupMillis;
         this.node = node;
         this.version = version;
         this.currentServicesCount = currentServicesCount;
@@ -92,12 +92,12 @@ public class NetworkClusterNodeInfoSnapshot extends SerializableJsonDocPropertya
         return this.creationTime;
     }
 
-    public long getStartupNanos() {
-        return this.startupNanos;
-    }
-
     public void setCreationTime(long creationTime) {
         this.creationTime = creationTime;
+    }
+
+    public long getStartupMillis() {
+        return this.startupMillis;
     }
 
     public NetworkClusterNode getNode() {
@@ -175,7 +175,7 @@ public class NetworkClusterNodeInfoSnapshot extends SerializableJsonDocPropertya
     @Override
     public void write(@NotNull ProtocolBuffer buffer) {
         buffer.writeLong(this.creationTime);
-        buffer.writeLong(this.startupNanos);
+        buffer.writeLong(this.startupMillis);
         buffer.writeObject(this.node);
         buffer.writeString(this.version);
         buffer.writeInt(this.currentServicesCount);
@@ -192,7 +192,7 @@ public class NetworkClusterNodeInfoSnapshot extends SerializableJsonDocPropertya
     @Override
     public void read(@NotNull ProtocolBuffer buffer) {
         this.creationTime = buffer.readLong();
-        this.startupNanos = buffer.readLong();
+        this.startupMillis = buffer.readLong();
         this.node = buffer.readObject(NetworkClusterNode.class);
         this.version = buffer.readString();
         this.currentServicesCount = buffer.readInt();

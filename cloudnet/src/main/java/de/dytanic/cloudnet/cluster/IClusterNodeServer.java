@@ -3,32 +3,17 @@ package de.dytanic.cloudnet.cluster;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
-import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
-import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
-import de.dytanic.cloudnet.driver.provider.service.CloudServiceFactory;
-import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
-import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
-public interface IClusterNodeServer extends AutoCloseable {
+public interface IClusterNodeServer extends NodeServer, AutoCloseable {
 
     void sendCustomChannelMessage(@NotNull String channel, @NotNull String message, @NotNull JsonDocument data);
 
     void sendCustomChannelMessage(@NotNull ChannelMessage channelMessage);
 
-    @NotNull
-    IClusterNodeServerProvider getProvider();
-
-    @NotNull
-    NetworkClusterNode getNodeInfo();
-
-    void setNodeInfo(@NotNull NetworkClusterNode nodeInfo);
-
-    NetworkClusterNodeInfoSnapshot getNodeInfoSnapshot();
-
-    void setNodeInfoSnapshot(@NotNull NetworkClusterNodeInfoSnapshot nodeInfoSnapshot);
+    @Override
+    @NotNull IClusterNodeServerProvider getProvider();
 
     INetworkChannel getChannel();
 
@@ -42,12 +27,8 @@ public interface IClusterNodeServer extends AutoCloseable {
 
     boolean isAcceptableConnection(@NotNull INetworkChannel channel, @NotNull String nodeId);
 
-    String[] sendCommandLine(@NotNull String commandLine);
-
-    @ApiStatus.Internal
-    CloudServiceFactory getCloudServiceFactory();
-
-    @ApiStatus.Internal
-    SpecificCloudServiceProvider getCloudServiceProvider(@NotNull ServiceInfoSnapshot serviceInfoSnapshot);
-
+    @Override
+    default boolean isAvailable() {
+        return this.getChannel() != null;
+    }
 }

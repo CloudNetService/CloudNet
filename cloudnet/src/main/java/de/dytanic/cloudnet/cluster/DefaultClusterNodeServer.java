@@ -17,21 +17,18 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.TimeUnit;
 
-public final class DefaultClusterNodeServer implements IClusterNodeServer, DriverAPIUser {
+public class DefaultClusterNodeServer extends DefaultNodeServer implements IClusterNodeServer, DriverAPIUser {
 
     private final DefaultClusterNodeServerProvider provider;
-
-    private final CloudServiceFactory cloudServiceFactory = new ClusterNodeCloudServiceFactory(this::getChannel, this);
-
-    private volatile NetworkClusterNodeInfoSnapshot nodeInfoSnapshot;
-
-    private NetworkClusterNode nodeInfo;
+    private final CloudServiceFactory cloudServiceFactory;
 
     private INetworkChannel channel;
 
-    DefaultClusterNodeServer(DefaultClusterNodeServerProvider provider, NetworkClusterNode nodeInfo) {
+    protected DefaultClusterNodeServer(DefaultClusterNodeServerProvider provider, NetworkClusterNode nodeInfo) {
         this.provider = provider;
-        this.nodeInfo = nodeInfo;
+        this.cloudServiceFactory = new ClusterNodeCloudServiceFactory(this::getChannel, this);
+
+        this.setNodeInfo(nodeInfo);
     }
 
     @Override
@@ -86,6 +83,7 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer, Drive
         return null;
     }
 
+    @NotNull
     @Override
     public CloudServiceFactory getCloudServiceFactory() {
         return this.cloudServiceFactory;
@@ -102,21 +100,16 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer, Drive
             this.channel.close();
         }
 
-        this.nodeInfoSnapshot = null;
         this.channel = null;
+        this.currentSnapshot = this.lastSnapshot = null;
+
+        super.close();
     }
 
     @NotNull
+    @Override
     public DefaultClusterNodeServerProvider getProvider() {
         return this.provider;
-    }
-
-    public NetworkClusterNodeInfoSnapshot getNodeInfoSnapshot() {
-        return this.nodeInfoSnapshot;
-    }
-
-    public void setNodeInfoSnapshot(@NotNull NetworkClusterNodeInfoSnapshot nodeInfoSnapshot) {
-        this.nodeInfoSnapshot = nodeInfoSnapshot;
     }
 
     @Override
@@ -124,13 +117,9 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer, Drive
         return this.channel;
     }
 
-    @NotNull
-    public NetworkClusterNode getNodeInfo() {
-        return this.nodeInfo;
-    }
-
-    public void setNodeInfo(@NotNull NetworkClusterNode nodeInfo) {
-        this.nodeInfo = nodeInfo;
+    @Override
+    public void setChannel(@NotNull INetworkChannel channel) {
+        this.channel = channel;
     }
 
     @Override
@@ -138,7 +127,13 @@ public final class DefaultClusterNodeServer implements IClusterNodeServer, Drive
         return this.channel;
     }
 
-    public void setChannel(@NotNull INetworkChannel channel) {
-        this.channel = channel;
+    @Override
+    public void setNodeInfoSnapshot(@NotNull NetworkClusterNodeInfoSnapshot nodeInfoSnapshot) {
+        if (this.currentSnapshot == null) {
+            super.setNodeInfoSnapshot(nodeInfoSnapshot);
+            this.getProvider().refreshHeadNode();
+        } else {
+            super.setNodeInfoSnapshot(nodeInfoSnapshot);
+        }
     }
 }
