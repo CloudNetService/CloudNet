@@ -38,7 +38,6 @@ public final class VelocityCloudNetHelper {
     public static final Map<String, ServiceInfoSnapshot> SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION = BridgeProxyHelper.SERVICE_CACHE;
 
     private static int lastOnlineCount = -1;
-    private static volatile int maxPlayers;
 
     private static ProxyServer proxyServer;
 
@@ -174,7 +173,7 @@ public final class VelocityCloudNetHelper {
     }
 
     public static void init() {
-        VelocityCloudNetHelper.setMaxPlayers(proxyServer.getConfiguration().getShowMaxPlayers());
+        BridgeProxyHelper.setMaxPlayers(proxyServer.getConfiguration().getShowMaxPlayers());
     }
 
     public static void initProperties(ServiceInfoSnapshot serviceInfoSnapshot) {
@@ -187,7 +186,7 @@ public final class VelocityCloudNetHelper {
                 .append("Velocity-Name", proxyServer.getVersion().getName())
                 .append("Online-Count", proxyServer.getPlayerCount())
                 .append("Online-Mode", proxyServer.getConfiguration().isOnlineMode())
-                .append("Max-Players", proxyServer.getConfiguration().getShowMaxPlayers())
+                .append("Max-Players", BridgeProxyHelper.getMaxPlayers())
                 .append("Compression-Level", proxyServer.getConfiguration().getCompressionLevel())
                 .append("Connection-Timeout", proxyServer.getConfiguration().getConnectTimeout())
                 .append("Players", proxyServer.getAllPlayers().stream().map(player -> new VelocityCloudNetPlayerInfo(
@@ -217,13 +216,5 @@ public final class VelocityCloudNetHelper {
 
     public static void setProxyServer(ProxyServer proxyServer) {
         VelocityCloudNetHelper.proxyServer = proxyServer;
-    }
-
-    public static int getMaxPlayers() {
-        return maxPlayers;
-    }
-
-    public static void setMaxPlayers(int maxPlayers) {
-        VelocityCloudNetHelper.maxPlayers = maxPlayers;
     }
 }

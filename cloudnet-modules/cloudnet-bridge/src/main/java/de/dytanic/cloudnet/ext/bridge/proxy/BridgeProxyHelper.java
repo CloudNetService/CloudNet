@@ -9,13 +9,7 @@ import de.dytanic.cloudnet.wrapper.Wrapper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
@@ -26,6 +20,8 @@ public class BridgeProxyHelper {
 
     public static final Map<String, ServiceInfoSnapshot> SERVICE_CACHE = new ConcurrentHashMap<>();
     private static final Map<UUID, PlayerFallbackProfile> PROFILES = new ConcurrentHashMap<>();
+
+    private static volatile int maxPlayers;
 
     private BridgeProxyHelper() {
         throw new UnsupportedOperationException();
@@ -184,4 +180,11 @@ public class BridgeProxyHelper {
         });
     }
 
+    public static int getMaxPlayers() {
+        return BridgeProxyHelper.maxPlayers;
+    }
+
+    public static void setMaxPlayers(int maxPlayers) {
+        BridgeProxyHelper.maxPlayers = maxPlayers;
+    }
 }
