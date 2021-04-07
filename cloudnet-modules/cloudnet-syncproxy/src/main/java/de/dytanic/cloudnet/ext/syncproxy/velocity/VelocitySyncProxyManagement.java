@@ -77,7 +77,9 @@ public class VelocitySyncProxyManagement extends AbstractSyncProxyManagement {
                         && !super.loginConfiguration.getWhitelist().contains(player.getUsername())
                         && !super.loginConfiguration.getWhitelist().contains(player.getUniqueId().toString())
                         && !player.hasPermission("cloudnet.syncproxy.maintenance")) {
-                    player.disconnect(LegacyComponentSerializer.legacyLinking().deserialize(super.syncProxyConfiguration.getMessages().get("player-login-not-whitelisted").replace("&", "§")));
+                    player.disconnect(LegacyComponentSerializer.legacyLinking().deserialize(
+                            this.replaceColorChar(super.syncProxyConfiguration.getMessages().get("player-login-not-whitelisted"))
+                    ));
                 }
             }
         }
@@ -86,7 +88,7 @@ public class VelocitySyncProxyManagement extends AbstractSyncProxyManagement {
     @Override
     public void broadcastServiceStateChange(String key, ServiceInfoSnapshot serviceInfoSnapshot) {
         if (super.syncProxyConfiguration != null && super.syncProxyConfiguration.showIngameServicesStartStopMessages()) {
-            String message = super.getServiceStateChangeMessage(key, serviceInfoSnapshot);
+            String message = this.replaceColorChar(super.getServiceStateChangeMessage(key, serviceInfoSnapshot));
 
             for (Player player : this.proxyServer.getAllPlayers()) {
                 if (player.hasPermission("cloudnet.syncproxy.notify")) {
@@ -94,6 +96,17 @@ public class VelocitySyncProxyManagement extends AbstractSyncProxyManagement {
                 }
             }
         }
+    }
+
+    private String replaceColorChar(String input) {
+        char[] translate = input.toCharArray();
+        for (int i = 0; i < translate.length - 1; i++) {
+            if (translate[i] == '&' && "0123456789AaBbCcDdEeFfKkLlMmNnOoRr".indexOf(translate[i + 1]) > -1) {
+                translate[i] = '§';
+            }
+        }
+
+        return new String(translate);
     }
 
 }
