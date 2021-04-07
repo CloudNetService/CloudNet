@@ -218,4 +218,12 @@ public final class VelocityCloudNetHelper {
     public static void setProxyServer(ProxyServer proxyServer) {
         VelocityCloudNetHelper.proxyServer = proxyServer;
     }
+
+    public static int getMaxPlayers() {
+        return maxPlayers;
+    }
+
+    public static void setMaxPlayers(int maxPlayers) {
+        VelocityCloudNetHelper.maxPlayers = maxPlayers;
+    }
 }
