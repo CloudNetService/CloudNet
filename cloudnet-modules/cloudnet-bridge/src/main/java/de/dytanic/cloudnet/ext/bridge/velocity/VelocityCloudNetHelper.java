@@ -38,6 +38,7 @@ public final class VelocityCloudNetHelper {
     public static final Map<String, ServiceInfoSnapshot> SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION = BridgeProxyHelper.SERVICE_CACHE;
 
     private static int lastOnlineCount = -1;
+    private static volatile int maxPlayers;
 
     private static ProxyServer proxyServer;
 
@@ -172,6 +173,10 @@ public final class VelocityCloudNetHelper {
         return BridgeProxyHelper.isFallbackService(serverInfo.getName());
     }
 
+    public static void init() {
+        VelocityCloudNetHelper.setMaxPlayers(proxyServer.getConfiguration().getShowMaxPlayers());
+    }
+
     public static void initProperties(ServiceInfoSnapshot serviceInfoSnapshot) {
         lastOnlineCount = proxyServer.getPlayerCount();
 
@@ -182,6 +187,7 @@ public final class VelocityCloudNetHelper {
                 .append("Velocity-Name", proxyServer.getVersion().getName())
                 .append("Online-Count", proxyServer.getPlayerCount())
                 .append("Online-Mode", proxyServer.getConfiguration().isOnlineMode())
+                .append("Max-Players", proxyServer.getConfiguration().getShowMaxPlayers())
                 .append("Compression-Level", proxyServer.getConfiguration().getCompressionLevel())
                 .append("Connection-Timeout", proxyServer.getConfiguration().getConnectTimeout())
                 .append("Players", proxyServer.getAllPlayers().stream().map(player -> new VelocityCloudNetPlayerInfo(
@@ -199,12 +205,10 @@ public final class VelocityCloudNetHelper {
 
                     pluginInfo.getProperties()
                             .append("authors", pluginContainer.getDescription().getAuthors())
-                            .append("depends", pluginContainer.getDescription().getDependencies())
-                    ;
+                            .append("depends", pluginContainer.getDescription().getDependencies());
 
                     return pluginInfo;
-                }).collect(Collectors.toList()))
-        ;
+                }).collect(Collectors.toList()));
     }
 
     public static ProxyServer getProxyServer() {

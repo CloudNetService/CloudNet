@@ -28,6 +28,7 @@ import java.util.stream.Collectors;
 public final class BungeeCloudNetHelper {
 
     private static int lastOnlineCount = -1;
+    private static volatile int maxPlayers;
 
     /**
      * @deprecated use {@link BridgeProxyHelper#getCachedServiceInfoSnapshot(String)} or {@link BridgeProxyHelper#cacheServiceInfoSnapshot(ServiceInfoSnapshot)}
@@ -38,7 +39,6 @@ public final class BungeeCloudNetHelper {
     private BungeeCloudNetHelper() {
         throw new UnsupportedOperationException();
     }
-
 
     public static int getLastOnlineCount() {
         return lastOnlineCount;
@@ -113,6 +113,10 @@ public final class BungeeCloudNetHelper {
                 || (serviceInfoSnapshot.getServiceId().getEnvironment().isMinecraftBedrockServer() && currentServiceEnvironment.isMinecraftBedrockProxy());
     }
 
+    public static void init() {
+        BungeeCloudNetHelper.setMaxPlayers(ProxyServer.getInstance().getConfig().getPlayerLimit());
+    }
+
     public static void initProperties(ServiceInfoSnapshot serviceInfoSnapshot) {
         Preconditions.checkNotNull(serviceInfoSnapshot);
 
@@ -123,6 +127,7 @@ public final class BungeeCloudNetHelper {
                 .append("Version", ProxyServer.getInstance().getVersion())
                 .append("Game-Version", ProxyServer.getInstance().getGameVersion())
                 .append("Online-Count", ProxyServer.getInstance().getOnlineCount())
+                .append("Max-Players", ProxyServer.getInstance().getConfig().getPlayerLimit())
                 .append("Channels", ProxyServer.getInstance().getChannels())
                 .append("BungeeCord-Name", ProxyServer.getInstance().getName())
                 .append("Players", ProxyServer.getInstance().getPlayers().stream().map(proxiedPlayer -> new BungeeCloudNetPlayerInfo(
@@ -142,8 +147,7 @@ public final class BungeeCloudNetHelper {
                     ;
 
                     return pluginInfo;
-                }).collect(Collectors.toList()))
-        ;
+                }).collect(Collectors.toList()));
     }
 
     public static NetworkConnectionInfo createNetworkConnectionInfo(PendingConnection pendingConnection) {
@@ -179,5 +183,13 @@ public final class BungeeCloudNetHelper {
         }
 
         return ProxyServer.getInstance().constructServerInfo(name, address, "CloudNet provided serverInfo", false);
+    }
+
+    public static int getMaxPlayers() {
+        return maxPlayers;
+    }
+
+    public static void setMaxPlayers(int maxPlayers) {
+        BungeeCloudNetHelper.maxPlayers = maxPlayers;
     }
 }
