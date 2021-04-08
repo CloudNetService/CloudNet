@@ -61,7 +61,7 @@ public final class DefaultFileLogHandler extends AbstractLogHandler {
      */
     public DefaultFileLogHandler setEnableErrorLog(boolean enableErrorLog) throws IOException {
         if (enableErrorLog && this.errorWriter == null) {
-            this.errorFile = this.initErrorWriter(this.selectLogFile(null, "error.log"));
+            this.errorFile = this.initErrorWriter(this.selectLogFile(null, "error.%d.log"));
             this.errorWriter = new PrintWriter(new FileWriter(this.errorFile, true));
         } else if (!enableErrorLog && this.errorWriter != null) {
             this.errorWriter.close();
@@ -89,13 +89,13 @@ public final class DefaultFileLogHandler extends AbstractLogHandler {
 
         if (this.errorWriter != null && logEntry.getLogLevel().getLevel() >= 126 && logEntry.getLogLevel().getLevel() <= 127) {
             if (this.errorFile == null || this.errorFile.length() > this.maxBytes) {
-                this.errorFile = this.initErrorWriter(this.selectLogFile(this.errorWriter, "error.log"));
+                this.errorFile = this.initErrorWriter(this.selectLogFile(this.errorWriter, "error.%d.log"));
             }
 
             this.writtenErrorBytes += formattedBytes.length;
 
             if (this.writtenErrorBytes > this.maxBytes) {
-                this.errorFile = this.initErrorWriter(this.selectLogFile(this.errorWriter, "error.log"));
+                this.errorFile = this.initErrorWriter(this.selectLogFile(this.errorWriter, "error.%d.log"));
             }
 
             this.errorWriter.write(formatted);
@@ -144,7 +144,7 @@ public final class DefaultFileLogHandler extends AbstractLogHandler {
         int index = 0;
 
         while (true) {
-            file = new File(this.directory, index + "." + pattern);
+            file = new File(this.directory, String.format(pattern, index));
 
             try {
 
