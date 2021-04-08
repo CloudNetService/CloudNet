@@ -17,7 +17,7 @@ import java.io.InputStream;
 import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -133,16 +133,15 @@ public final class CloudflareAPI implements AutoCloseable {
     public void close() {
     }
 
-
     private void read() {
         JsonDocument document = this.database.get(CLOUDFLARE_STORE_DOCUMENT);
 
         if (document == null) {
-            document = new JsonDocument("cache", Collections.EMPTY_MAP);
+            document = new JsonDocument("cache", new HashMap<>());
         }
 
         this.createdRecords.clear();
-        this.createdRecords.putAll(document.get("cache", MAP_STRING_DOCUMENT, Collections.EMPTY_MAP));
+        this.createdRecords.putAll(document.get("cache", MAP_STRING_DOCUMENT, new HashMap<>()));
     }
 
     private void write() {
