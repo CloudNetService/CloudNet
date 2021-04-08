@@ -144,7 +144,7 @@ public final class DefaultFileLogHandler extends AbstractLogHandler {
         int index = 0;
 
         while (true) {
-            file = new File(this.directory, pattern + "." + index);
+            file = new File(this.directory, index + "." + pattern);
 
             try {
 
