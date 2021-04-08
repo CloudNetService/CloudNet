@@ -95,14 +95,15 @@ public class DefaultClusterNodeServer extends DefaultNodeServer implements IClus
     }
 
     @Override
-    public void close() throws Exception {
+    public synchronized void close() throws Exception {
         if (this.channel != null) {
             this.channel.close();
+            ClusterNodeServerUtils.handleNodeServerClose(this.channel, this);
+
+            this.channel = null;
         }
 
-        this.channel = null;
         this.currentSnapshot = this.lastSnapshot = null;
-
         super.close();
     }
 

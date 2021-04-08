@@ -56,15 +56,15 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
 
     @Override
     @ApiStatus.Internal
-    public ITask<ICloudService> createCloudService(@NotNull ServiceConfiguration serviceConfiguration) {
+    public ITask<ICloudService> createCloudService(@NotNull ServiceConfiguration serviceConfiguration, @Nullable Long timeoutMillis) {
         if (CloudNet.getInstance().isMainThread()) {
-            return CompletedTask.create(this.createCloudServiceSync(serviceConfiguration));
+            return CompletedTask.create(this.createCloudServiceSync(serviceConfiguration, timeoutMillis));
         } else {
-            return CloudNet.getInstance().runTask(() -> this.createCloudServiceSync(serviceConfiguration));
+            return CloudNet.getInstance().runTask(() -> this.createCloudServiceSync(serviceConfiguration, timeoutMillis));
         }
     }
 
-    private ICloudService createCloudServiceSync(@NotNull ServiceConfiguration serviceConfiguration) {
+    private ICloudService createCloudServiceSync(@NotNull ServiceConfiguration serviceConfiguration, @Nullable Long timeoutMillis) {
         this.prepareServiceConfiguration(serviceConfiguration);
 
         CloudServiceCreateEvent event = new CloudServiceCreateEvent(serviceConfiguration);
@@ -81,11 +81,16 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
         if (cloudService != null) {
             cloudService.init();
 
-            this.cloudServices.put(cloudService.getServiceId().getUniqueId(), cloudService);
-            this.globalServiceInfoSnapshots.put(cloudService.getServiceId().getUniqueId(), cloudService.getServiceInfoSnapshot());
-            CloudNet.getInstance().sendAll(new PacketClientServerServiceInfoPublisher(cloudService.getServiceInfoSnapshot(), PacketClientServerServiceInfoPublisher.PublisherType.REGISTER));
+            if (timeoutMillis == null || timeoutMillis >= System.currentTimeMillis()) {
+                this.cloudServices.put(cloudService.getServiceId().getUniqueId(), cloudService);
+                this.globalServiceInfoSnapshots.put(cloudService.getServiceId().getUniqueId(), cloudService.getServiceInfoSnapshot());
 
-            CloudNet.getInstance().publishNetworkClusterNodeInfoSnapshotUpdate();
+                CloudNet.getInstance().sendAll(new PacketClientServerServiceInfoPublisher(cloudService.getServiceInfoSnapshot(), PacketClientServerServiceInfoPublisher.PublisherType.REGISTER));
+                CloudNet.getInstance().publishNetworkClusterNodeInfoSnapshotUpdate();
+            } else {
+                cloudService.delete(false);
+                return null;
+            }
         }
 
         return cloudService;
@@ -315,7 +320,7 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
 
     @ApiStatus.Internal
     public void prepareServiceConfiguration(NodeServer server, ServiceConfiguration configuration) {
-        Preconditions.checkArgument(!CloudNet.getInstance().isMainThread(), "Async service pre-prepare");
+        Preconditions.checkArgument(CloudNet.getInstance().isMainThread(), "Async service pre-prepare");
 
         configuration.getServiceId().setNodeUniqueId(server.getNodeInfo().getUniqueId());
         configuration.getServiceId().setTaskServiceId(this.checkAndReplaceTaskId(configuration.getServiceId()));

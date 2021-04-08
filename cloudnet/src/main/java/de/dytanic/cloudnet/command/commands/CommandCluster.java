@@ -12,6 +12,8 @@ import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkCluster;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
+import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
+import de.dytanic.cloudnet.driver.service.ProcessSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import de.dytanic.cloudnet.network.NetworkUpdateType;
 import de.dytanic.cloudnet.template.ITemplateStorage;
@@ -79,23 +81,30 @@ public final class CommandCluster extends SubCommandHandler {
                                 anyStringIgnoreCase("remove", "rm"),
                                 dynamicString(
                                         "nodeId",
-                                        LanguageManager.getMessage("command-cluster-remove-node-not-found"),
+                                        LanguageManager.getMessage("command-cluster-node-not-found"),
                                         nodeId -> CloudNet.getInstance().getConfig().getClusterConfig().getNodes().stream().anyMatch(node -> node.getUniqueId().equals(nodeId)),
                                         () -> CloudNet.getInstance().getConfig().getClusterConfig().getNodes().stream().map(NetworkClusterNode::getUniqueId).collect(Collectors.toList())
                                 )
                         )
                         .generateCommand(
-                                (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
-                                    for (IClusterNodeServer node : CloudNet.getInstance().getClusterNodeServerProvider().getNodeServers()) {
-                                        if (properties.containsKey("id") && !node.getNodeInfo().getUniqueId().contains(properties.get("id"))) {
-                                            continue;
-                                        }
-
-                                        displayNode(sender, node);
-                                    }
-                                },
-                                subCommand -> subCommand.enableProperties().appendUsage("| id=<id>"),
+                                (subCommand, sender, command, args, commandLine, properties, internalProperties) -> displayNodes(sender),
                                 exactStringIgnoreCase("nodes")
+                        )
+                        .generateCommand(
+                                (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
+                                    CloudNet.getInstance().getClusterNodeServerProvider().getNodeServers()
+                                            .stream()
+                                            .filter(node -> node.getNodeInfo().getUniqueId().equals(args.argument(1)))
+                                            .findFirst()
+                                            .ifPresent(node -> displayNode(sender, node));
+                                },
+                                anyStringIgnoreCase("node"),
+                                dynamicString(
+                                        "nodeId",
+                                        LanguageManager.getMessage("command-cluster-node-not-found"),
+                                        nodeId -> CloudNet.getInstance().getClusterNodeServerProvider().getNodeServers().stream().anyMatch(node -> node.getNodeInfo().getUniqueId().equals(nodeId)),
+                                        () -> CloudNet.getInstance().getClusterNodeServerProvider().getNodeServers().stream().map(server -> server.getNodeInfo().getUniqueId()).collect(Collectors.toList())
+                                )
                         )
 
                         .prefix(exactStringIgnoreCase("push"))
@@ -187,6 +196,44 @@ public final class CommandCluster extends SubCommandHandler {
     private static void pushGroups(ICommandSender sender) {
         CloudNet.getInstance().updateGroupConfigurationsInCluster(CloudNet.getInstance().getGroupConfigurationProvider().getGroupConfigurations(), NetworkUpdateType.SET);
         sender.sendMessage(LanguageManager.getMessage("command-cluster-push-groups-success"));
+    }
+
+    private static void displayNodes(ICommandSender sender) {
+        StringBuilder stringBuilder = new StringBuilder();
+        for (IClusterNodeServer node : CloudNet.getInstance().getClusterNodeServerProvider().getNodeServers()) {
+            stringBuilder
+                    // line 1
+                    .append("Id: ")
+                    .append(node.getNodeInfo().getUniqueId())
+                    .append(node.isHeadNode() ? " (Head) " : " ")
+                    .append(node.isConnected() ? "&aConnected&r" : "&cNot connected&r");
+            if (node.getNodeInfoSnapshot() != null) {
+                stringBuilder.append("\n");
+
+                NetworkClusterNodeInfoSnapshot snapshot = node.getNodeInfoSnapshot();
+                ProcessSnapshot processSnapshot = snapshot.getProcessSnapshot();
+
+                stringBuilder
+                        // cpu usage
+                        .append("CPU (P/S): ")
+                        .append(CPUUsageResolver.CPU_USAGE_OUTPUT_FORMAT.format(processSnapshot.getCpuUsage()))
+                        .append("%/")
+                        .append(CPUUsageResolver.CPU_USAGE_OUTPUT_FORMAT.format(snapshot.getSystemCpuUsage()))
+                        .append("%; ")
+                        // memory usage
+                        .append("Memory (U/R/M): ")
+                        .append(snapshot.getUsedMemory())
+                        .append("/")
+                        .append(snapshot.getReservedMemory())
+                        .append("/")
+                        .append(snapshot.getMaxMemory())
+                        .append("MB");
+            }
+
+            stringBuilder.append("\n\n");
+        }
+
+        sender.sendMessage(stringBuilder.substring(0, stringBuilder.length() - 1).split("\n"));
     }
 
     private static void displayNode(ICommandSender sender, IClusterNodeServer node) {

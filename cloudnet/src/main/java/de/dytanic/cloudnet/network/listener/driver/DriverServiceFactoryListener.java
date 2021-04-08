@@ -27,8 +27,11 @@ public class DriverServiceFactoryListener extends CategorizedDriverAPIListener {
                 // this message is only accepted by a head node
                 return ProtocolBuffer.create().writeBoolean(false);
             } else {
+                ServiceConfiguration configuration = input.readObject(ServiceConfiguration.class);
+                long timeoutMillis = packet.getCreationMillis() + 5000;
+
                 ICloudService service = CloudNet.getInstance().getCloudServiceManager()
-                        .createCloudService(input.readObject(ServiceConfiguration.class))
+                        .createCloudService(configuration, timeoutMillis)
                         .get(5, TimeUnit.SECONDS, null);
                 return ProtocolBuffer.create().writeOptionalObject(service == null ? null : service.getServiceInfoSnapshot());
             }

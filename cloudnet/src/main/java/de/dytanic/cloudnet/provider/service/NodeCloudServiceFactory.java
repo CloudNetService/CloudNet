@@ -40,7 +40,7 @@ public class NodeCloudServiceFactory extends DefaultCloudServiceFactory implemen
             if (this.cloudNet.isMainThread()) {
                 return this.createCloudServiceAsHeadNode(serviceConfiguration);
             } else {
-                return this.cloudNet.scheduleTask(() -> this.createCloudServiceAsHeadNode(serviceConfiguration)).get(5, TimeUnit.SECONDS, null);
+                return this.cloudNet.runTask(() -> this.createCloudServiceAsHeadNode(serviceConfiguration)).get(5, TimeUnit.SECONDS, null);
             }
         } else {
             return this.cloudNet.getClusterNodeServerProvider().getHeadNode()
@@ -86,7 +86,7 @@ public class NodeCloudServiceFactory extends DefaultCloudServiceFactory implemen
                         buffer -> buffer.writeObject(serviceConfiguration)
                 ))
                         .map(packet -> packet.getBuffer().readOptionalObject(ServiceInfoSnapshot.class))
-                        .get(5, TimeUnit.SECONDS, null);
+                        .get(6, TimeUnit.SECONDS, null);
             } else {
                 return null;
             }

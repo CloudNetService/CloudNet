@@ -34,12 +34,9 @@ public abstract class DefaultCloudService extends DefaultEmptyCloudService {
     private static final Lock START_SEQUENCE_LOCK = new ReentrantLock();
 
     protected final Lock lifeCycleLock = new ReentrantLock();
-
-    private boolean initialized;
-
-    protected boolean firstStartupOnStaticService = false;
     private final File directory;
-
+    protected boolean firstStartupOnStaticService = false;
+    private boolean initialized;
     private boolean shutdownState;
 
     public DefaultCloudService(@NotNull String runtime, @NotNull ICloudServiceManager cloudServiceManager, @NotNull ServiceConfiguration serviceConfiguration, @NotNull CloudServiceHandler handler) {
@@ -272,10 +269,7 @@ public abstract class DefaultCloudService extends DefaultEmptyCloudService {
 
     protected void postPrepare() {
         this.lifeCycle = ServiceLifeCycle.PREPARED;
-
         this.serviceInfoSnapshot.setLifeCycle(ServiceLifeCycle.PREPARED);
-        this.cloudServiceManager.getGlobalServiceInfoSnapshots().put(this.getServiceId().getUniqueId(), this.serviceInfoSnapshot);
-        CloudNet.getInstance().sendAll(new PacketClientServerServiceInfoPublisher(this.serviceInfoSnapshot, PacketClientServerServiceInfoPublisher.PublisherType.REGISTER));
 
         super.handler.handlePostPrepare(this);
     }
@@ -329,7 +323,7 @@ public abstract class DefaultCloudService extends DefaultEmptyCloudService {
         super.handler.handlePostStop(this, exitValue);
     }
 
-    protected void deleteFiles() {
+    protected void deleteFiles(boolean sendUpdate) {
         if (!this.preDelete()) {
             return;
         }
@@ -340,22 +334,24 @@ public abstract class DefaultCloudService extends DefaultEmptyCloudService {
             FileUtils.delete(this.getDirectory());
         }
 
-        this.postDelete();
+        this.postDelete(sendUpdate);
     }
 
     protected boolean preDelete() {
         return super.handler.handlePreDelete(this);
     }
 
-    protected void postDelete() {
+    protected void postDelete(boolean sendUpdate) {
         this.getCloudServiceManager().getCloudServices().remove(this.getServiceId().getUniqueId());
         this.getCloudServiceManager().getGlobalServiceInfoSnapshots().remove(this.getServiceId().getUniqueId());
 
         this.lifeCycle = ServiceLifeCycle.DELETED;
         this.serviceInfoSnapshot.setLifeCycle(ServiceLifeCycle.DELETED);
 
-        CloudNet.getInstance().publishNetworkClusterNodeInfoSnapshotUpdate();
-        CloudNet.getInstance().sendAll(new PacketClientServerServiceInfoPublisher(this.getServiceInfoSnapshot(), PacketClientServerServiceInfoPublisher.PublisherType.UNREGISTER));
+        if (sendUpdate) {
+            CloudNet.getInstance().publishNetworkClusterNodeInfoSnapshotUpdate();
+            CloudNet.getInstance().sendAll(new PacketClientServerServiceInfoPublisher(this.getServiceInfoSnapshot(), PacketClientServerServiceInfoPublisher.PublisherType.UNREGISTER));
+        }
 
         super.handler.handlePostDelete(this);
     }

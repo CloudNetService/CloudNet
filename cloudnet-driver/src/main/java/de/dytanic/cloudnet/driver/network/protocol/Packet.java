@@ -27,15 +27,13 @@ public class Packet implements IPacket {
      * An one length size byte[] for empty packet bodies
      */
     public static final byte[] EMPTY_PACKET_BYTE_ARRAY = new byte[]{0};
-
     public static final Packet EMPTY = new Packet(-1, JsonDocument.EMPTY, EMPTY_PACKET_BYTE_ARRAY);
 
+    protected final long creationMillis = System.currentTimeMillis();
+
     protected int channel;
-
     protected UUID uniqueId;
-
     protected JsonDocument header;
-
     protected ProtocolBuffer body;
 
     public Packet(int channel, @NotNull JsonDocument header) {
@@ -98,6 +96,11 @@ public class Packet implements IPacket {
     @Override
     public byte[] getBodyAsArray() {
         return this.body == null ? EMPTY_PACKET_BYTE_ARRAY : this.body.toArray();
+    }
+
+    @Override
+    public long getCreationMillis() {
+        return this.creationMillis;
     }
 
     public static Packet createResponseFor(IPacket packet, JsonDocument header, ProtocolBuffer body) {

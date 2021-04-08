@@ -83,7 +83,11 @@ public interface ICloudService {
 
     int kill();
 
-    void delete();
+    default void delete() {
+        this.delete(true);
+    }
+
+    void delete(boolean sendUpdate);
 
     boolean isAlive();
 

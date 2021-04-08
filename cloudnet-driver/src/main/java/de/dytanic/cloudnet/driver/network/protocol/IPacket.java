@@ -65,6 +65,11 @@ public interface IPacket {
     byte[] getBodyAsArray();
 
     /**
+     * @return the creation milliseconds of this packet
+     */
+    long getCreationMillis();
+
+    /**
      * @return if there should be debug messages for this type of packet
      */
     default boolean isShowDebug() {

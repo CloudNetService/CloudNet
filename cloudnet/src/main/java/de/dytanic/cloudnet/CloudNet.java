@@ -639,15 +639,10 @@ public final class CloudNet extends CloudNetDriver {
             nodes.add(this.clusterNodeServerProvider.getSelfNode());
         }
 
-        return nodes.stream()
-                .filter(node -> {
-                    int usedAfterStart = node.getNodeInfoSnapshot().getUsedMemory() + maxHeapMemory;
-                    return node.getNodeInfoSnapshot().getMaxMemory() >= usedAfterStart;
-                })
-                .min(Comparator.comparingDouble(node -> {
-                    NetworkClusterNodeInfoSnapshot info = node.getNodeInfoSnapshot();
-                    return info.getSystemCpuUsage() + ((double) info.getReservedMemory() / info.getMaxMemory() * 100D);
-                })).orElse(null);
+        return nodes.stream().min(Comparator.comparingDouble(node -> {
+            NetworkClusterNodeInfoSnapshot info = node.getNodeInfoSnapshot();
+            return info.getSystemCpuUsage() + ((double) info.getReservedMemory() / info.getMaxMemory() * 100D);
+        })).orElse(null);
     }
 
     public boolean canStartServices(Collection<String> allowedNodes, String nodeUniqueId) {
@@ -659,9 +654,11 @@ public final class CloudNet extends CloudNetDriver {
     }
 
     public Collection<IClusterNodeServer> getValidClusterNodeServers(Collection<String> allowedNodes) {
-        return this.clusterNodeServerProvider.getNodeServers().stream()
-                .filter(clusterNodeServer ->
-                        clusterNodeServer.isConnected() && this.canStartServices(allowedNodes, clusterNodeServer.getNodeInfo().getUniqueId()))
+        return this.clusterNodeServerProvider.getNodeServers()
+                .stream()
+                .filter(IClusterNodeServer::isConnected)
+                .filter(server -> server.getNodeInfoSnapshot() != null)
+                .filter(clusterNodeServer -> this.canStartServices(allowedNodes, clusterNodeServer.getNodeInfo().getUniqueId()))
                 .collect(Collectors.toList());
     }
 
@@ -708,10 +705,12 @@ public final class CloudNet extends CloudNetDriver {
                 })).orElse(null);
     }
 
+    @Deprecated
     public boolean competeWithCluster(ServiceTask serviceTask) {
         return this.competeWithCluster(serviceTask.getAssociatedNodes());
     }
 
+    @Deprecated
     public boolean competeWithCluster(Collection<String> allowedNodes) {
         NetworkClusterNodeInfoSnapshot bestNode = this.searchLogicNode(allowedNodes);
         return bestNode != null && bestNode.getNode().getUniqueId().equals(this.config.getIdentity().getUniqueId());
