@@ -62,7 +62,7 @@ public interface IPermissible extends INameable, IJsonDocPropertyable, Comparabl
      * An update via {@link IPermissionManagement#updateGroup(IPermissionGroup)} or
      * {@link IPermissionManagement#updateGroup(IPermissionGroup)} is required.
      *
-     * @param group the group where this permission should be effective
+     * @param group      the group where this permission should be effective
      * @param permission the permission
      * @return {@code true} if the permission has been added successfully or {@code false} if the given {@code permission} was null
      */
@@ -85,7 +85,7 @@ public interface IPermissible extends INameable, IJsonDocPropertyable, Comparabl
      * An update via {@link IPermissionManagement#updateGroup(IPermissionGroup)} or
      * {@link IPermissionManagement#updateGroup(IPermissionGroup)} is required.
      *
-     * @param group the group where this permission is effective
+     * @param group      the group where this permission is effective
      * @param permission the permission
      * @return {@code true} if the permission has been removed successfully or {@code false} if the given {@code permission} doesn't exist
      */
@@ -247,30 +247,57 @@ public interface IPermissible extends INameable, IJsonDocPropertyable, Comparabl
      * @return the result of this check
      */
     default PermissionCheckResult hasPermission(@NotNull Collection<Permission> permissions, @NotNull Permission permission) {
-        Permission targetPerms = permissions.stream().filter(perm -> perm.getName().equalsIgnoreCase(permission.getName())).findFirst().orElse(null);
+        return PermissionCheckResult.fromPermission(this.findMatchingPermission(permissions, permission));
+    }
 
-        if (targetPerms != null && permission.getName().equalsIgnoreCase(targetPerms.getName()) && targetPerms.getPotency() < 0) {
-            return PermissionCheckResult.FORBIDDEN;
-        }
-
+    /**
+     * Finds the best matching permission in the given {@code permissions} by logically checking the absolute potency
+     * against each other to find the permission with the highest positive or negative potency.
+     *
+     * @param permissions the permission to check for.
+     * @param permission  the initial permission to check against.
+     * @return the logic permission which has the highest potency.
+     */
+    default @Nullable Permission findMatchingPermission(@NotNull Collection<Permission> permissions, @NotNull Permission permission) {
+        Permission lastMatch = null;
+        // search for a better match
         for (Permission permissionEntry : permissions) {
-
-            if (permissionEntry.getName().equals("*") && (permissionEntry.getPotency() >= permission.getPotency() || this.getPotency() >= permission.getPotency())) {
-                return PermissionCheckResult.ALLOWED;
+            Permission used = lastMatch == null ? permission : lastMatch;
+            // the "star" permission represents a permission which allows access to every command
+            if (permissionEntry.getName().equals("*") && permissionEntry.compareTo(used) > 0) {
+                lastMatch = this.correctPermission(permissionEntry);
+                continue;
             }
-
-            if (permissionEntry.getName().endsWith("*") && permission.getName().contains(permissionEntry.getName().replace("*", ""))
-                    && (permissionEntry.getPotency() >= permission.getPotency() || this.getPotency() >= permission.getPotency())) {
-                return PermissionCheckResult.ALLOWED;
+            // searches for "perm.*"-permissions (allowing all sub permissions of the given permission name start
+            if (permissionEntry.getName().endsWith("*")
+                    && permission.getName().contains(permissionEntry.getName().replace("*", ""))
+                    && permissionEntry.compareTo(used) > 0) {
+                lastMatch = this.correctPermission(permissionEntry);
+                continue;
             }
-
-            if (permission.getName().equalsIgnoreCase(permissionEntry.getName()) &&
-                    (permissionEntry.getPotency() >= permission.getPotency() || this.getPotency() >= permission.getPotency())) {
-                return PermissionCheckResult.ALLOWED;
+            // checks if the current permission is exactly (case-sensitive) the permission for which we are searching
+            if (permission.getName().equalsIgnoreCase(permissionEntry.getName()) && permissionEntry.compareTo(used) > 0) {
+                lastMatch = this.correctPermission(permissionEntry);
             }
         }
 
-        return PermissionCheckResult.DENIED;
+        return lastMatch;
+    }
+
+    /**
+     * Corrects the permission input of potency according to the potency of this permissible.
+     *
+     * @param input the permission to correct.
+     * @return a new corrected instance if this permissible has a higher absolute potency, else {@code input}.
+     */
+    default @NotNull Permission correctPermission(@NotNull Permission input) {
+        if (Math.abs(input.getPotency()) >= Math.abs(this.getPotency())) {
+            // if the permission potency is higher as the permissible one it will override it
+            return input;
+        } else {
+            // the user potency is higher than the permission one (absolute) so the permissible potency should be used
+            return new Permission(input.getName(), this.getPotency(), input.getTimeOutMillis());
+        }
     }
 
     /**

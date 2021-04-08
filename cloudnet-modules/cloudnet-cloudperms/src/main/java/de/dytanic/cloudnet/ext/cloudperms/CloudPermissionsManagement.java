@@ -147,12 +147,12 @@ public class CloudPermissionsManagement implements IPermissionManagement, Cached
     }
 
     @Override
-    public Collection<Permission> getAllPermissions(@NotNull IPermissible permissible) {
+    public @NotNull Collection<Permission> getAllPermissions(@NotNull IPermissible permissible) {
         return wrapped.getAllPermissions(permissible);
     }
 
     @Override
-    public Collection<Permission> getAllPermissions(@NotNull IPermissible permissible, @Nullable String group) {
+    public @NotNull Collection<Permission> getAllPermissions(@NotNull IPermissible permissible, @Nullable String group) {
         return wrapped.getAllPermissions(permissible, group);
     }
 
@@ -197,7 +197,7 @@ public class CloudPermissionsManagement implements IPermissionManagement, Cached
     }
 
     @Override
-    public Collection<IPermissionUser> getUsers() {
+    public @NotNull Collection<IPermissionUser> getUsers() {
         return wrapped.getUsers();
     }
 
@@ -357,7 +357,7 @@ public class CloudPermissionsManagement implements IPermissionManagement, Cached
     }
 
     @Override
-    public ITask<IPermissionGroup> getDefaultPermissionGroupAsync() {
+    public @NotNull ITask<IPermissionGroup> getDefaultPermissionGroupAsync() {
         return wrapped.getDefaultPermissionGroupAsync();
     }
 
@@ -397,17 +397,17 @@ public class CloudPermissionsManagement implements IPermissionManagement, Cached
     }
 
     @Override
-    public ITask<IPermissionGroup> modifyGroupAsync(@NotNull String name, @NotNull Consumer<IPermissionGroup> modifier) {
+    public @NotNull ITask<IPermissionGroup> modifyGroupAsync(@NotNull String name, @NotNull Consumer<IPermissionGroup> modifier) {
         return wrapped.modifyGroupAsync(name, modifier);
     }
 
     @Override
-    public ITask<IPermissionUser> modifyUserAsync(@NotNull UUID uniqueId, @NotNull Consumer<IPermissionUser> modifier) {
+    public @NotNull ITask<IPermissionUser> modifyUserAsync(@NotNull UUID uniqueId, @NotNull Consumer<IPermissionUser> modifier) {
         return wrapped.modifyUserAsync(uniqueId, modifier);
     }
 
     @Override
-    public ITask<List<IPermissionUser>> modifyUsersAsync(@NotNull String name, @NotNull Consumer<IPermissionUser> modifier) {
+    public @NotNull ITask<List<IPermissionUser>> modifyUsersAsync(@NotNull String name, @NotNull Consumer<IPermissionUser> modifier) {
         return wrapped.modifyUsersAsync(name, modifier);
     }
 

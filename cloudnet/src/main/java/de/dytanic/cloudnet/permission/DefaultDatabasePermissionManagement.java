@@ -271,7 +271,7 @@ public class DefaultDatabasePermissionManagement extends ClusterSynchronizedPerm
 
         IPermissionGroup permissionGroup = this.permissionGroupsMap.get(name);
 
-        if (this.testPermissionGroup(permissionGroup)) {
+        if (this.testPermissible(permissionGroup)) {
             ITask<IPermissionGroup> task = new ListenableTask<>(() -> permissionGroup);
 
             this.updateGroupAsync(permissionGroup).onComplete(aVoid -> {
@@ -289,7 +289,7 @@ public class DefaultDatabasePermissionManagement extends ClusterSynchronizedPerm
     }
 
     @Override
-    public ITask<IPermissionGroup> getDefaultPermissionGroupAsync() {
+    public @NotNull ITask<IPermissionGroup> getDefaultPermissionGroupAsync() {
         for (IPermissionGroup group : this.permissionGroupsMap.values()) {
             if (group != null && group.isDefaultGroup()) {
                 return CompletedTask.create(group);
@@ -304,7 +304,7 @@ public class DefaultDatabasePermissionManagement extends ClusterSynchronizedPerm
         CountingTask<Collection<IPermissionGroup>> task = new CountingTask<>(this.permissionGroupsMap.values(), this.permissionGroupsMap.size());
 
         for (IPermissionGroup permissionGroup : this.permissionGroupsMap.values()) {
-            if (this.testPermissionGroup(permissionGroup)) {
+            if (this.testPermissible(permissionGroup)) {
                 this.updateGroupAsync(permissionGroup)
                         .onComplete(aVoid -> task.countDown())
                         .onCancelled(voidITask -> task.countDown())
@@ -320,7 +320,7 @@ public class DefaultDatabasePermissionManagement extends ClusterSynchronizedPerm
     @Override
     public Collection<IPermissionGroup> getGroups() {
         for (IPermissionGroup permissionGroup : this.permissionGroupsMap.values()) {
-            if (this.testPermissionGroup(permissionGroup)) {
+            if (this.testPermissible(permissionGroup)) {
                 this.updateGroup(permissionGroup);
             }
         }
@@ -351,7 +351,7 @@ public class DefaultDatabasePermissionManagement extends ClusterSynchronizedPerm
         this.permissionGroupsMap.clear();
 
         for (IPermissionGroup group : groups) {
-            this.testPermissionGroup(group);
+            this.testPermissible(group);
             this.permissionGroupsMap.put(group.getName(), group);
         }
 
