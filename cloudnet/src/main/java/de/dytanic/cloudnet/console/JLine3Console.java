@@ -50,7 +50,7 @@ public final class JLine3Console implements IConsole {
 
         try {
             AnsiConsole.systemInstall();
-        } catch (UnsatisfiedLinkError ignored) {
+        } catch (Throwable ignored) {
         }
 
         this.terminal = TerminalBuilder.builder().system(true).encoding(StandardCharsets.UTF_8).build();
