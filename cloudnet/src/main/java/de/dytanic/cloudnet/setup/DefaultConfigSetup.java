@@ -26,7 +26,7 @@ public class DefaultConfigSetup implements DefaultSetup {
 
     private void detectAllIPAddresses() throws SocketException {
         this.whitelistDefaultIPs.add("127.0.1.1");
-        this.whitelistDefaultIPs.add("127.0.1.1");
+        this.whitelistDefaultIPs.add("127.0.0.1");
 
         this.suggestionIPs.add("127.0.0.1");
         this.suggestionIPs.add("127.0.1.1");
