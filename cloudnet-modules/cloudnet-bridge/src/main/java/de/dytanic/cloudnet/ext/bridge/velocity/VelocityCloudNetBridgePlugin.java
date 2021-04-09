@@ -40,6 +40,7 @@ public final class VelocityCloudNetBridgePlugin {
 
         this.proxyServer = proxyServer;
         VelocityCloudNetHelper.setProxyServer(proxyServer);
+        VelocityCloudNetHelper.init();
     }
 
     public static VelocityCloudNetBridgePlugin getInstance() {
