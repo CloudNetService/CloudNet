@@ -172,6 +172,10 @@ public final class VelocityCloudNetHelper {
         return BridgeProxyHelper.isFallbackService(serverInfo.getName());
     }
 
+    public static void init() {
+        BridgeProxyHelper.setMaxPlayers(proxyServer.getConfiguration().getShowMaxPlayers());
+    }
+
     public static void initProperties(ServiceInfoSnapshot serviceInfoSnapshot) {
         lastOnlineCount = proxyServer.getPlayerCount();
 
@@ -182,6 +186,7 @@ public final class VelocityCloudNetHelper {
                 .append("Velocity-Name", proxyServer.getVersion().getName())
                 .append("Online-Count", proxyServer.getPlayerCount())
                 .append("Online-Mode", proxyServer.getConfiguration().isOnlineMode())
+                .append("Max-Players", BridgeProxyHelper.getMaxPlayers())
                 .append("Compression-Level", proxyServer.getConfiguration().getCompressionLevel())
                 .append("Connection-Timeout", proxyServer.getConfiguration().getConnectTimeout())
                 .append("Players", proxyServer.getAllPlayers().stream().map(player -> new VelocityCloudNetPlayerInfo(
@@ -199,12 +204,10 @@ public final class VelocityCloudNetHelper {
 
                     pluginInfo.getProperties()
                             .append("authors", pluginContainer.getDescription().getAuthors())
-                            .append("depends", pluginContainer.getDescription().getDependencies())
-                    ;
+                            .append("depends", pluginContainer.getDescription().getDependencies());
 
                     return pluginInfo;
-                }).collect(Collectors.toList()))
-        ;
+                }).collect(Collectors.toList()));
     }
 
     public static ProxyServer getProxyServer() {
