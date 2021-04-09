@@ -42,7 +42,7 @@ public final class Main {
 
     private static void initLoggerAndConsole(IConsole console, ILogger logger) throws Throwable {
         for (AbstractLogHandler logHandler : new AbstractLogHandler[]{
-                new DefaultFileLogHandler(Paths.get("local", "logs"), "cloudnet.log", DefaultFileLogHandler.SIZE_8MB).setEnableErrorLog(true),
+                new DefaultFileLogHandler(Paths.get("local", "logs"), "cloudnet.%d.log", DefaultFileLogHandler.SIZE_8MB).setEnableErrorLog(true),
                 new ConsoleLogHandler(console).setFormatter(console.hasColorSupport() ? new ColouredLogFormatter() : new DefaultLogFormatter())
         }) {
             logger.addLogHandler(logHandler);

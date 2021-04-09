@@ -39,7 +39,7 @@ public final class Main {
 
     private static void initLogger(ILogger logger) throws Throwable {
         for (AbstractLogHandler logHandler : new AbstractLogHandler[]{
-                new DefaultFileLogHandler(Paths.get(".wrapper", "logs"), "wrapper.log", DefaultFileLogHandler.SIZE_8MB),
+                new DefaultFileLogHandler(Paths.get(".wrapper", "logs"), "wrapper.%d.log", DefaultFileLogHandler.SIZE_8MB),
                 new InternalPrintStreamLogHandler(System.out, System.err)}) {
             logger.addLogHandler(logHandler.setFormatter(new WrapperLogFormatter()));
         }
