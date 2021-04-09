@@ -13,7 +13,7 @@ public final class IncludePluginListener {
 
     @EventListener
     public void handle(CloudServicePreStartEvent event) {
-        boolean installPlugin = CloudNetCloudPermissionsModule.getInstance().isEnabled() && CloudNetCloudPermissionsModule.getInstance().getExcludedGroups()
+        boolean installPlugin = CloudNetCloudPermissionsModule.getInstance().getConfig().getBoolean("enabled") && CloudNetCloudPermissionsModule.getInstance().getExcludedGroups()
                 .stream()
                 .noneMatch(excludedGroup -> Arrays.asList(event.getCloudService().getServiceConfiguration().getGroups()).contains(excludedGroup));
 
