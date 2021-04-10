@@ -1,8 +1,10 @@
 package de.dytanic.cloudnet.common.concurrent;
 
+import org.jetbrains.annotations.Nullable;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.io.PrintStream;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -12,15 +14,12 @@ public class DefaultTaskSchedulerTest implements Callable<String> {
     @Test
     public void testDefaultTaskScheduler() throws Exception {
         ITaskScheduler scheduler = new DefaultTaskScheduler(4, 50000, 50);
-
         Assert.assertEquals(4, scheduler.getMaxThreadSize());
 
         IScheduledTask<String> x = scheduler.schedule(this);
-
         Assert.assertEquals(1, scheduler.getCurrentWorkerCount());
 
         AtomicInteger yTaskCount = new AtomicInteger();
-
         IScheduledTask<String> y = scheduler.schedule(() -> {
             yTaskCount.incrementAndGet();
 
@@ -51,6 +50,18 @@ public class DefaultTaskSchedulerTest implements Callable<String> {
 
         IScheduledTask<Integer> callbackTask = scheduler.schedule(new CallableCounter(), 0, 1, 5);
         Assert.assertEquals(5, callbackTask.get().intValue());
+
+        AtomicInteger prints = new AtomicInteger();
+        PrintStream printStream = new PrintStream(System.out) {
+            @Override
+            public void println(@Nullable String x) {
+                prints.incrementAndGet();
+            }
+        };
+        scheduler.schedule(() -> printStream.println("Hi"), 0, 1, -1, TimeUnit.SECONDS);
+
+        Thread.sleep(5000);
+        Assert.assertEquals(5, prints.get());
 
         scheduler.cancelAll();
     }

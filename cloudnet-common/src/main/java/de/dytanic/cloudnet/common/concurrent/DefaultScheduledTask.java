@@ -30,7 +30,7 @@ public final class DefaultScheduledTask<V> implements IScheduledTask<V> {
         this.delay = delay > 0 ? timeUnit.toMillis(delay) : -1;
         this.repeat = repeat > 0 ? timeUnit.toMillis(repeat) : -1;
 
-        this.repeats = repeats < 1 ? 1 : repeats;
+        this.repeats = repeats;
         this.delayedTimeStamp = System.currentTimeMillis() + this.delay;
     }
 

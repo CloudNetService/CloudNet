@@ -140,7 +140,7 @@ public class DefaultTaskScheduler implements ITaskScheduler {
 
     @Override
     public <V> IScheduledTask<V> schedule(Callable<V> callable, long delay, long repeat, TimeUnit timeUnit) {
-        return this.schedule(callable, delay, repeat, -1, timeUnit);
+        return this.schedule(callable, delay, repeat, 1, timeUnit);
     }
 
     @Override
@@ -175,7 +175,7 @@ public class DefaultTaskScheduler implements ITaskScheduler {
 
     @Override
     public IScheduledTask<Void> schedule(Runnable runnable, long delay, long repeat, TimeUnit timeUnit) {
-        return this.schedule(runnable, delay, repeat, -1, timeUnit);
+        return this.schedule(runnable, delay, repeat, 1, timeUnit);
     }
 
     @Override
@@ -286,7 +286,6 @@ public class DefaultTaskScheduler implements ITaskScheduler {
         private synchronized void run0() {
             while (!DefaultTaskScheduler.this.taskEntries.isEmpty() && !this.isInterrupted()) {
                 this.scheduledTask = DefaultTaskScheduler.this.taskEntries.poll();
-
                 if (this.scheduledTask == null) {
                     continue;
                 }
@@ -294,12 +293,10 @@ public class DefaultTaskScheduler implements ITaskScheduler {
                 this.lifeMillis = System.currentTimeMillis();
 
                 long difference = this.scheduledTask.getDelayedTimeStamp() - System.currentTimeMillis();
-
                 if (difference > DefaultTaskScheduler.this.threadPauseDelayMillis) {
                     this.sleep0(DefaultTaskScheduler.this.threadPauseDelayMillis - 1);
                     this.offerEntry(this.scheduledTask);
                     continue;
-
                 } else if (difference > 0) {
                     this.sleep0(difference);
                 }
