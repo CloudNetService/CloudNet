@@ -178,14 +178,12 @@ public final class WildcardUtil {
             char c = content[index];
             if (c == ')' && isPartOfPattern(content, index)) {
                 metGroupClosings++;
-            } else if (c == '(' && isPartOfPattern(content, index)) {
-                if (--metGroupClosings < 0) {
-                    // we found an unclosed start of a group, escape it!
-                    // as we are looping backwards we first need to append the actual char and then the escaping backslash
-                    result.append(c).append("\\");
-                    metGroupClosings = 0;
-                    continue;
-                }
+            } else if (c == '(' && isPartOfPattern(content, index) && --metGroupClosings < 0) {
+                // we found an unclosed start of a group, escape it!
+                // as we are looping backwards we first need to append the actual char and then the escaping backslash
+                result.append(c).append("\\");
+                metGroupClosings = 0;
+                continue;
             }
             result.append(c);
         }
