@@ -27,6 +27,7 @@ public class NodeInfoSnapshotSerializerTest {
                 Integer.MAX_VALUE,
                 Integer.MAX_VALUE,
                 Integer.MIN_VALUE,
+                0,
                 new ProcessSnapshot(-1, -1, -1, -1, -1, -1, Collections.emptyList(), Double.MAX_VALUE, Integer.MIN_VALUE),
                 Arrays.asList(
                         new ModuleConfiguration(

@@ -8,7 +8,22 @@ import de.dytanic.cloudnet.cluster.NodeServer;
 import de.dytanic.cloudnet.command.ConsoleCommandSender;
 import de.dytanic.cloudnet.command.DefaultCommandMap;
 import de.dytanic.cloudnet.command.ICommandMap;
-import de.dytanic.cloudnet.command.commands.*;
+import de.dytanic.cloudnet.command.commands.CommandClear;
+import de.dytanic.cloudnet.command.commands.CommandCluster;
+import de.dytanic.cloudnet.command.commands.CommandCopy;
+import de.dytanic.cloudnet.command.commands.CommandCreate;
+import de.dytanic.cloudnet.command.commands.CommandDebug;
+import de.dytanic.cloudnet.command.commands.CommandExit;
+import de.dytanic.cloudnet.command.commands.CommandGroups;
+import de.dytanic.cloudnet.command.commands.CommandHelp;
+import de.dytanic.cloudnet.command.commands.CommandMe;
+import de.dytanic.cloudnet.command.commands.CommandModules;
+import de.dytanic.cloudnet.command.commands.CommandPermissions;
+import de.dytanic.cloudnet.command.commands.CommandReload;
+import de.dytanic.cloudnet.command.commands.CommandScreen;
+import de.dytanic.cloudnet.command.commands.CommandService;
+import de.dytanic.cloudnet.command.commands.CommandTasks;
+import de.dytanic.cloudnet.command.commands.CommandTemplate;
 import de.dytanic.cloudnet.common.Properties;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.concurrent.DefaultTaskScheduler;
@@ -53,7 +68,11 @@ import de.dytanic.cloudnet.driver.permission.IPermissionGroup;
 import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
 import de.dytanic.cloudnet.driver.permission.IPermissionUser;
 import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
-import de.dytanic.cloudnet.driver.service.*;
+import de.dytanic.cloudnet.driver.service.GroupConfiguration;
+import de.dytanic.cloudnet.driver.service.ProcessSnapshot;
+import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
+import de.dytanic.cloudnet.driver.service.ServiceTask;
+import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import de.dytanic.cloudnet.event.CloudNetNodePostInitializationEvent;
 import de.dytanic.cloudnet.event.cluster.NetworkClusterNodeInfoConfigureEvent;
 import de.dytanic.cloudnet.event.command.CommandNotFoundEvent;
@@ -68,9 +87,22 @@ import de.dytanic.cloudnet.network.NetworkUpdateType;
 import de.dytanic.cloudnet.network.listener.PacketServerChannelMessageListener;
 import de.dytanic.cloudnet.network.listener.auth.PacketClientAuthorizationListener;
 import de.dytanic.cloudnet.network.listener.auth.PacketServerAuthorizationResponseListener;
-import de.dytanic.cloudnet.network.listener.cluster.*;
+import de.dytanic.cloudnet.network.listener.cluster.PacketServerClusterNodeInfoUpdateListener;
+import de.dytanic.cloudnet.network.listener.cluster.PacketServerDeployLocalTemplateListener;
+import de.dytanic.cloudnet.network.listener.cluster.PacketServerH2DatabaseListener;
+import de.dytanic.cloudnet.network.listener.cluster.PacketServerServiceInfoPublisherListener;
+import de.dytanic.cloudnet.network.listener.cluster.PacketServerSetGlobalServiceInfoListListener;
+import de.dytanic.cloudnet.network.listener.cluster.PacketServerSetGroupConfigurationListListener;
+import de.dytanic.cloudnet.network.listener.cluster.PacketServerSetH2DatabaseDataListener;
+import de.dytanic.cloudnet.network.listener.cluster.PacketServerSetPermissionDataListener;
+import de.dytanic.cloudnet.network.listener.cluster.PacketServerSetServiceTaskListListener;
+import de.dytanic.cloudnet.network.listener.cluster.PacketServerUpdatePermissionsListener;
 import de.dytanic.cloudnet.network.listener.driver.PacketServerDriverAPIListener;
-import de.dytanic.cloudnet.network.packet.*;
+import de.dytanic.cloudnet.network.packet.PacketServerClusterNodeInfoUpdate;
+import de.dytanic.cloudnet.network.packet.PacketServerSetGroupConfigurationList;
+import de.dytanic.cloudnet.network.packet.PacketServerSetH2DatabaseData;
+import de.dytanic.cloudnet.network.packet.PacketServerSetPermissionData;
+import de.dytanic.cloudnet.network.packet.PacketServerSetServiceTaskList;
 import de.dytanic.cloudnet.permission.DefaultDatabasePermissionManagement;
 import de.dytanic.cloudnet.permission.DefaultPermissionManagementHandler;
 import de.dytanic.cloudnet.permission.NodePermissionManagement;
@@ -99,7 +131,16 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Random;
+import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
@@ -127,12 +168,12 @@ public final class CloudNet extends CloudNetDriver {
 
     private final IConsole console;
     private final ICommandMap commandMap = new DefaultCommandMap();
+    private final DefaultCloudServiceManager cloudServiceManager;
 
     private final QueuedConsoleLogHandler queuedConsoleLogHandler;
     private final ConsoleCommandSender consoleCommandSender;
 
     private final DefaultInstallation defaultInstallation = new DefaultInstallation();
-    private final DefaultCloudServiceManager cloudServiceManager = new DefaultCloudServiceManager();
     private final ServiceVersionProvider serviceVersionProvider = new ServiceVersionProvider();
 
     private INetworkClient networkClient;
@@ -149,6 +190,8 @@ public final class CloudNet extends CloudNetDriver {
         setInstance(this);
 
         logger.setLevel(this.defaultLogLevel);
+
+        this.cloudServiceManager = new DefaultCloudServiceManager();
 
         super.cloudServiceFactory = new NodeCloudServiceFactory(this, this.cloudServiceManager);
         super.generalCloudServiceProvider = new NodeGeneralCloudServiceProvider(this);
@@ -265,25 +308,25 @@ public final class CloudNet extends CloudNetDriver {
     }
 
     private void setNetworkListeners() {
-        Random random = new Random();
-        for (NetworkClusterNode node : this.config.getClusterConfig().getNodes()) {
-            if (!this.networkClient.connect(node.getListeners()[random.nextInt(node.getListeners().length)])) {
-                this.logger.log(LogLevel.WARNING, LanguageManager.getMessage("cluster-server-networking-connection-refused"));
-            }
-        }
-
         for (HostAndPort hostAndPort : this.config.getIdentity().getListeners()) {
-            this.logger.info(LanguageManager.getMessage("cloudnet-network-server-bind").replace("%address%",
-                    hostAndPort.getHost() + ":" + hostAndPort.getPort()));
+            this.logger.info(LanguageManager.getMessage("cloudnet-network-server-bind")
+                    .replace("%address%", hostAndPort.getHost() + ":" + hostAndPort.getPort()));
 
             this.networkServer.addListener(hostAndPort);
         }
 
         for (HostAndPort hostAndPort : this.config.getHttpListeners()) {
-            this.logger.info(LanguageManager.getMessage("cloudnet-http-server-bind").replace("%address%",
-                    hostAndPort.getHost() + ":" + hostAndPort.getPort()));
+            this.logger.info(LanguageManager.getMessage("cloudnet-http-server-bind")
+                    .replace("%address%", hostAndPort.getHost() + ":" + hostAndPort.getPort()));
 
             this.httpServer.addListener(hostAndPort);
+        }
+
+        Random random = new Random();
+        for (NetworkClusterNode node : this.config.getClusterConfig().getNodes()) {
+            if (!this.networkClient.connect(node.getListeners()[random.nextInt(node.getListeners().length)])) {
+                this.logger.log(LogLevel.WARNING, LanguageManager.getMessage("cluster-server-networking-connection-refused"));
+            }
         }
     }
 
@@ -597,6 +640,7 @@ public final class CloudNet extends CloudNetDriver {
                 this.cloudServiceManager.getCurrentUsedHeapMemory(),
                 this.cloudServiceManager.getCurrentReservedMemory(),
                 this.config.getMaxMemory(),
+                this.config.getMaxCPUUsageToStartServices(),
                 ProcessSnapshot.self(),
                 this.moduleProvider.getModules().stream().map(IModuleWrapper::getModuleConfiguration).collect(Collectors.toList()),
                 CPUUsageResolver.getSystemCPUUsage()
@@ -639,10 +683,19 @@ public final class CloudNet extends CloudNetDriver {
             nodes.add(this.clusterNodeServerProvider.getSelfNode());
         }
 
-        return nodes.stream().min(Comparator.comparingDouble(node -> {
-            NetworkClusterNodeInfoSnapshot info = node.getNodeInfoSnapshot();
-            return info.getSystemCpuUsage() + ((double) info.getReservedMemory() / info.getMaxMemory() * 100D);
-        })).orElse(null);
+        boolean includeSystemCpuUsage = nodes.stream().noneMatch(server -> server.getNodeInfoSnapshot().getSystemCpuUsage() < 0);
+        return nodes.stream()
+                .filter(node -> {
+                    NetworkClusterNodeInfoSnapshot info = node.getNodeInfoSnapshot();
+                    return info.getUsedMemory() + maxHeapMemory <= info.getMaxMemory()
+                            && info.getMaxCPUUsageToStartServices() >= info.getSystemCpuUsage();
+                })
+                .min(Comparator.comparingDouble(node -> {
+                    NetworkClusterNodeInfoSnapshot info = node.getNodeInfoSnapshot();
+                    return includeSystemCpuUsage ? info.getSystemCpuUsage() : 0 +
+                            ((double) info.getReservedMemory() / info.getMaxMemory() * 100);
+                }))
+                .orElse(null);
     }
 
     public boolean canStartServices(Collection<String> allowedNodes, String nodeUniqueId) {
@@ -687,22 +740,27 @@ public final class CloudNet extends CloudNetDriver {
             nodes.add(this.clusterNodeServerProvider.getSelfNode());
         }
 
+        boolean includeSystemCpuUsage = nodes.stream().noneMatch(server -> server.getNodeInfoSnapshot().getSystemCpuUsage() < 0);
         return nodes.stream()
                 .filter(Objects::nonNull)
                 .map(server -> new Pair<>(server, services.get(server.getNodeInfo().getUniqueId())))
                 .peek(pair -> pair.setSecond(pair.getSecond().stream()
                         .filter(info -> {
-                            int usedAfterStart = pair.getFirst().getNodeInfoSnapshot().getUsedMemory()
-                                    + info.getConfiguration().getProcessConfig().getMaxHeapMemorySize();
-                            return pair.getFirst().getNodeInfoSnapshot().getMaxMemory() >= usedAfterStart;
+                            NetworkClusterNodeInfoSnapshot snapshot = pair.getFirst().getNodeInfoSnapshot();
+                            int usedAfterStart = snapshot.getUsedMemory() + info.getConfiguration().getProcessConfig().getMaxHeapMemorySize();
+
+                            return snapshot.getMaxMemory() >= usedAfterStart
+                                    && snapshot.getMaxCPUUsageToStartServices() >= snapshot.getSystemCpuUsage();
                         })
                         .collect(Collectors.toSet()))
                 )
                 .filter(pair -> !pair.getSecond().isEmpty())
                 .min(Comparator.comparingDouble(pair -> {
-                    NetworkClusterNodeInfoSnapshot info = pair.getFirst().getNodeInfoSnapshot();
-                    return info.getSystemCpuUsage() + ((double) info.getReservedMemory() / info.getMaxMemory() * 100D);
-                })).orElse(null);
+                    NetworkClusterNodeInfoSnapshot snapshot = pair.getFirst().getNodeInfoSnapshot();
+                    return includeSystemCpuUsage ? snapshot.getSystemCpuUsage() : 0 +
+                            ((double) snapshot.getReservedMemory() / snapshot.getMaxMemory() * 100);
+                }))
+                .orElse(null);
     }
 
     @Deprecated

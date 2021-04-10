@@ -10,10 +10,13 @@ import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
 import de.dytanic.cloudnet.driver.service.ServiceTask;
 import de.dytanic.cloudnet.event.instance.CloudNetTickEvent;
-import de.dytanic.cloudnet.service.ICloudService;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.Map;
+import java.util.Queue;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.stream.Collectors;
@@ -21,6 +24,7 @@ import java.util.stream.Collectors;
 public class CloudNetTick {
 
     public static final int TPS = CloudNet.TPS;
+    private static final int MILLIS_BETWEEN_TICKS = 1000 / TPS;
 
     @NotNull
     private final Queue<ITask<?>> processQueue = new ConcurrentLinkedQueue<>();
@@ -40,25 +44,24 @@ public class CloudNetTick {
     }
 
     public void start() {
-        long value = System.currentTimeMillis();
-        long millis = 1000 / TPS;
-
-        int launchServicesTick = 0;
-        int clusterUpdateTick = 0;
+        long lastTickLength;
+        long currentTickNumber = 0;
+        long lastTick = System.currentTimeMillis();
 
         while (this.cloudNet.isRunning()) {
             try {
-                long diff = System.currentTimeMillis() - value;
-                if (diff < millis) {
+                currentTickNumber++;
+
+                lastTickLength = System.currentTimeMillis() - lastTick;
+                if (lastTickLength < MILLIS_BETWEEN_TICKS) {
                     try {
-                        Thread.sleep(millis - diff);
+                        Thread.sleep(MILLIS_BETWEEN_TICKS - lastTickLength);
                     } catch (Exception exception) {
                         exception.printStackTrace();
                     }
                 }
 
-                value = System.currentTimeMillis();
-
+                lastTick = System.currentTimeMillis();
                 while (!this.processQueue.isEmpty()) {
                     ITask<?> task = this.processQueue.poll();
                     if (task != null) {
@@ -66,21 +69,11 @@ public class CloudNetTick {
                     }
                 }
 
-                if (++clusterUpdateTick >= TPS) {
-                    this.cloudNet.publishNetworkClusterNodeInfoSnapshotUpdate();
-                    this.cloudNet.getClusterNodeServerProvider().checkForDeadNodes();
-                    clusterUpdateTick = 0;
-                }
-
                 if (this.cloudNet.getClusterNodeServerProvider().getSelfNode().isHeadNode()) {
-                    if (++launchServicesTick >= TPS * 2) {
+                    if (currentTickNumber % TPS * 2 == 0) {
                         this.startService();
-                        launchServicesTick = 0;
                     }
                 }
-
-                this.stopDeadServices();
-                this.updateServiceLogs();
 
                 this.cloudNet.getEventManager().callEvent(new CloudNetTickEvent());
             } catch (Exception exception) {
@@ -148,19 +141,4 @@ public class CloudNetTick {
         }
         return false;
     }
-
-    private void stopDeadServices() {
-        for (ICloudService cloudService : this.cloudNet.getCloudServiceManager().getCloudServices().values()) {
-            if (!cloudService.isAlive()) {
-                cloudService.stop();
-            }
-        }
-    }
-
-    private void updateServiceLogs() {
-        for (ICloudService cloudService : this.cloudNet.getCloudServiceManager().getCloudServices().values()) {
-            cloudService.getServiceConsoleLogCache().update();
-        }
-    }
-
 }

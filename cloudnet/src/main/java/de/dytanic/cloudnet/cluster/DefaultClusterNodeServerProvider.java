@@ -19,15 +19,21 @@ import java.io.InputStream;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public final class DefaultClusterNodeServerProvider extends DefaultNodeServerProvider<IClusterNodeServer> implements IClusterNodeServerProvider {
 
-    private static final long MAX_NO_UPDATE_MILLIS = Long.getLong("cloudnet.max_node_idle_millis", 30_000);
+    private static final long MAX_NO_UPDATE_MILLIS = Long.getLong("cloudnet.max.node.idle.millis", 30_000);
 
     public DefaultClusterNodeServerProvider(CloudNet cloudNet) {
         super(cloudNet);
+
+        cloudNet.getTaskScheduler().schedule(() -> {
+            cloudNet.publishNetworkClusterNodeInfoSnapshotUpdate();
+            this.checkForDeadNodes();
+        }, 2, 2, -1, TimeUnit.SECONDS);
     }
 
     @Override

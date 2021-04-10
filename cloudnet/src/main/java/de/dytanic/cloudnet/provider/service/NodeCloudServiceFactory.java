@@ -73,6 +73,7 @@ public class NodeCloudServiceFactory extends DefaultCloudServiceFactory implemen
 
         if (nodeServer != null && nodeServer.isAvailable()) {
             this.cloudServiceManager.prepareServiceConfiguration(nodeServer, serviceConfiguration);
+            nodeServer.getNodeInfoSnapshot().addReservedMemory(serviceConfiguration.getProcessConfig().getMaxHeapMemorySize());
 
             ServiceInfoSnapshot snapshot;
             if (nodeServer instanceof LocalNodeServer) {
@@ -91,7 +92,6 @@ public class NodeCloudServiceFactory extends DefaultCloudServiceFactory implemen
                 return null;
             }
 
-            this.cloudServiceManager.freeServiceId(serviceConfiguration);
             return snapshot;
         }
 

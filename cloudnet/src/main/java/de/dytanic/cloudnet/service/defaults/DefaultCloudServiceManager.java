@@ -37,10 +37,16 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
     private final File persistenceServicesDirectory = new File(System.getProperty("cloudnet.persistable.services.path", "local/services"));
 
     private final Map<UUID, ServiceInfoSnapshot> globalServiceInfoSnapshots = new ConcurrentHashMap<>();
-    private final Map<String, Set<Integer>> reservedServiceIds = new ConcurrentHashMap<>();
 
     private final Map<UUID, ICloudService> cloudServices = new ConcurrentHashMap<>();
     private final Map<String, ICloudServiceFactory> cloudServiceFactories = new ConcurrentHashMap<>();
+
+    public DefaultCloudServiceManager() {
+        CloudNet.getInstance().getTaskScheduler().schedule(() -> {
+            this.stopDeadServices();
+            this.updateServiceLogs();
+        }, 5, 5, -1, TimeUnit.SECONDS);
+    }
 
     @Override
     @Deprecated
@@ -217,7 +223,7 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
     public Collection<Integer> getReservedTaskIds(@NotNull String task) {
         Preconditions.checkNotNull(task);
 
-        Collection<Integer> taskIdList = new ArrayList<>(this.reservedServiceIds.getOrDefault(task, Collections.emptySet()));
+        Collection<Integer> taskIdList = new ArrayList<>();
         for (ServiceInfoSnapshot serviceInfoSnapshot : this.globalServiceInfoSnapshots.values()) {
             if (serviceInfoSnapshot.getServiceId().getTaskName().equalsIgnoreCase(task)) {
                 taskIdList.add(serviceInfoSnapshot.getServiceId().getTaskServiceId());
@@ -324,19 +330,19 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
 
         configuration.getServiceId().setNodeUniqueId(server.getNodeInfo().getUniqueId());
         configuration.getServiceId().setTaskServiceId(this.checkAndReplaceTaskId(configuration.getServiceId()));
-
-        this.reservedServiceIds.computeIfAbsent(configuration.getServiceId().getTaskName(), t -> new HashSet<>())
-                .add(configuration.getServiceId().getTaskServiceId());
     }
 
-    @ApiStatus.Internal
-    public void freeServiceId(ServiceConfiguration configuration) {
-        Set<Integer> reservedIds = this.reservedServiceIds.get(configuration.getServiceId().getTaskName());
-        if (reservedIds != null) {
-            reservedIds.remove(configuration.getServiceId().getTaskServiceId());
-            if (reservedIds.isEmpty()) {
-                this.reservedServiceIds.remove(configuration.getServiceId().getTaskName());
+    private void stopDeadServices() {
+        for (ICloudService cloudService : this.cloudServices.values()) {
+            if (!cloudService.isAlive()) {
+                cloudService.stop();
             }
+        }
+    }
+
+    private void updateServiceLogs() {
+        for (ICloudService cloudService : this.cloudServices.values()) {
+            cloudService.getServiceConsoleLogCache().update();
         }
     }
 }
