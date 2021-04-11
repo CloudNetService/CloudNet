@@ -45,7 +45,7 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
         CloudNet.getInstance().getTaskScheduler().schedule(() -> {
             this.stopDeadServices();
             this.updateServiceLogs();
-        }, 5, 5, -1, TimeUnit.SECONDS);
+        }, 1, 1, -1, TimeUnit.SECONDS);
     }
 
     @Override
