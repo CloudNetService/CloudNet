@@ -10,6 +10,7 @@ import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot
 import de.dytanic.cloudnet.driver.network.def.packet.PacketClientServerChannelMessage;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.provider.service.CloudServiceFactory;
+import de.dytanic.cloudnet.driver.provider.service.RemoteCloudServiceFactory;
 import de.dytanic.cloudnet.driver.provider.service.RemoteSpecificCloudServiceProvider;
 import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
@@ -26,7 +27,7 @@ public class DefaultClusterNodeServer extends DefaultNodeServer implements IClus
 
     protected DefaultClusterNodeServer(DefaultClusterNodeServerProvider provider, NetworkClusterNode nodeInfo) {
         this.provider = provider;
-        this.cloudServiceFactory = new ClusterNodeCloudServiceFactory(this::getChannel, this);
+        this.cloudServiceFactory = new RemoteCloudServiceFactory(this::getChannel);
 
         this.setNodeInfo(nodeInfo);
     }
