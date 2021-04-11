@@ -214,7 +214,7 @@ final class JVMCloudService extends DefaultMinecraftCloudService implements IClo
                     outputStream.write("end\n".getBytes());
                     outputStream.flush();
 
-                    if (this.process.waitFor(5, TimeUnit.SECONDS)) {
+                    if (this.process.waitFor(CloudNet.getInstance().getConfig().getProcessTerminationTimeoutSeconds(), TimeUnit.SECONDS)) {
                         return this.process.exitValue();
                     }
                 } catch (Exception exception) {

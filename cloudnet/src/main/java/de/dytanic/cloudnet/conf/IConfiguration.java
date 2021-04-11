@@ -79,6 +79,8 @@ public interface IConfiguration {
 
     String getJVMCommand();
 
+    int getProcessTerminationTimeoutSeconds();
+
     enum DefaultJVMFlags {
         NONE(Collections.emptyList()),
         DYTANIC(Arrays.asList(

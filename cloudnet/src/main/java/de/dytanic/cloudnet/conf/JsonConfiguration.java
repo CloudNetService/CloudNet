@@ -62,6 +62,8 @@ public final class JsonConfiguration implements IConfiguration {
 
     private String defaultHostAddress;
 
+    private int processTerminationTimeoutSeconds;
+
     @Override
     public boolean isFileExists() {
         return Files.exists(CONFIG_FILE_PATH);
@@ -137,6 +139,7 @@ public final class JsonConfiguration implements IConfiguration {
                         System.getenv("CLOUDNET_RUNTIME_JVM_COMMAND") :
                         "java"
         );
+        this.processTerminationTimeoutSeconds = this.document.getInt("processTerminationTimeoutSeconds", 5);
 
         this.hostAddress = this.document.getString("hostAddress", address);
         this.connectHostAddress = this.document.getString("connectHostAddress", this.hostAddress);
@@ -172,6 +175,7 @@ public final class JsonConfiguration implements IConfiguration {
                 .append("ipWhitelist", this.ipWhitelist)
                 .append("maxMemory", this.maxMemory)
                 .append("jvmCommand", this.jVMCommand)
+                .append("processTerminationTimeoutSeconds", this.processTerminationTimeoutSeconds)
                 .append("maxServiceConsoleLogCacheSize", this.maxServiceConsoleLogCacheSize)
                 .append("printErrorStreamLinesFromServices", this.printErrorStreamLinesFromServices)
                 .append("maxCPUUsageToStartServices", this.maxCPUUsageToStartServices)
@@ -344,6 +348,11 @@ public final class JsonConfiguration implements IConfiguration {
 
     public String getJVMCommand() {
         return this.jVMCommand;
+    }
+
+    @Override
+    public int getProcessTerminationTimeoutSeconds() {
+        return this.processTerminationTimeoutSeconds;
     }
 
     public String getDefaultHostAddress() {
