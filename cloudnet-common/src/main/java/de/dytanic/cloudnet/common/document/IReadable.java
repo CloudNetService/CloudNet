@@ -1,6 +1,14 @@
 package de.dytanic.cloudnet.common.document;
 
-import java.io.*;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -10,129 +18,139 @@ import java.nio.file.Paths;
  */
 public interface IReadable {
 
-    IReadable read(InputStream inputStream);
+    @NotNull
+    IReadable read(@NotNull Reader reader);
 
-    IReadable read(Reader reader);
-
+    @NotNull
     IReadable read(byte[] bytes);
 
-    IReadable append(InputStream inputStream);
+    @NotNull
+    IReadable append(@NotNull Reader reader);
 
-    IReadable append(Reader reader);
+    @NotNull
+    IReadable read(@NotNull InputStream inputStream);
 
-
-    default IReadable read(Path path) {
-        if (Files.exists(path)) {
-            try (InputStream inputStream = new FileInputStream(path.toFile())) {
-                this.read(inputStream);
+    @NotNull
+    default IReadable read(@Nullable Path path) {
+        if (path != null && Files.exists(path)) {
+            try (InputStream inputStream = Files.newInputStream(path)) {
+                return this.read(inputStream);
             } catch (IOException exception) {
                 exception.printStackTrace();
             }
         }
-
         return this;
     }
 
-    default IReadable read(String path) {
-        if (path == null) {
-            return this;
+    @NotNull
+    default IReadable read(@Nullable String path) {
+        if (path != null) {
+            return this.read(Paths.get(path));
         }
-
-        return this.read(Paths.get(path));
-    }
-
-    default IReadable read(String... paths) {
-        if (paths == null) {
-            return this;
-        }
-        for (String path : paths) {
-            this.read(path);
-        }
-
         return this;
     }
 
-    default IReadable read(File file) {
-        if (file == null) {
-            return this;
+    @NotNull
+    default IReadable read(@Nullable String... paths) {
+        if (paths != null) {
+            for (String path : paths) {
+                this.read(path);
+            }
         }
-
-        return this.read(file.toPath());
-    }
-
-    default IReadable read(File... files) {
-        if (files == null) {
-            return this;
-        }
-        for (File file : files) {
-            this.read(file);
-        }
-
         return this;
     }
 
-    default IReadable read(Path... paths) {
-        if (paths == null) {
-            return this;
+    @NotNull
+    @Deprecated
+    default IReadable read(@Nullable File file) {
+        if (file != null) {
+            return this.read(file.toPath());
         }
-        for (Path path : paths) {
-            this.read(path);
-        }
-
         return this;
     }
 
-    default IReadable append(Path path) {
+    @NotNull
+    @Deprecated
+    default IReadable read(@Nullable File... files) {
+        if (files != null) {
+            for (File file : files) {
+                this.read(file);
+            }
+        }
+        return this;
+    }
+
+    @NotNull
+    default IReadable read(@Nullable Path... paths) {
+        if (paths != null) {
+            for (Path path : paths) {
+                this.read(path);
+            }
+        }
+        return this;
+    }
+
+    @NotNull
+    default IReadable append(@NotNull InputStream inputStream) {
+        try (InputStreamReader reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8)) {
+            return this.append(reader);
+        } catch (IOException exception) {
+            exception.printStackTrace();
+            return this;
+        }
+    }
+
+    @NotNull
+    default IReadable append(@Nullable Path path) {
         this.read(path);
         return this;
     }
 
-    default IReadable append(String path) {
-        if (path == null) {
-            return this;
+    @NotNull
+    default IReadable append(@Nullable String path) {
+        if (path != null) {
+            return this.append(Paths.get(path));
         }
-
-        return this.append(Paths.get(path));
-    }
-
-    default IReadable append(String... paths) {
-        if (paths == null) {
-            return this;
-        }
-        for (String path : paths) {
-            this.append(path);
-        }
-
         return this;
     }
 
-    default IReadable append(File file) {
-        if (file == null) {
-            return this;
+    @NotNull
+    default IReadable append(@Nullable String... paths) {
+        if (paths != null) {
+            for (String path : paths) {
+                this.append(path);
+            }
         }
-
-        return this.append(file.toPath());
-    }
-
-    default IReadable append(File... files) {
-        if (files == null) {
-            return this;
-        }
-        for (File file : files) {
-            this.append(file);
-        }
-
         return this;
     }
 
-    default IReadable append(Path... paths) {
-        if (paths == null) {
-            return this;
+    @NotNull
+    @Deprecated
+    default IReadable append(@Nullable File file) {
+        if (file != null) {
+            return this.append(file.toPath());
         }
-        for (Path path : paths) {
-            this.append(path);
-        }
+        return this;
+    }
 
+    @NotNull
+    @Deprecated
+    default IReadable append(@Nullable File... files) {
+        if (files != null) {
+            for (File file : files) {
+                this.append(file);
+            }
+        }
+        return this;
+    }
+
+    @NotNull
+    default IReadable append(@Nullable Path... paths) {
+        if (paths != null) {
+            for (Path path : paths) {
+                this.append(path);
+            }
+        }
         return this;
     }
 }

@@ -7,9 +7,9 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.internal.bind.TypeAdapters;
 import de.dytanic.cloudnet.common.document.IDocument;
-import de.dytanic.cloudnet.common.document.IReadable;
 import lombok.EqualsAndHashCode;
 import org.jetbrains.annotations.NotNull;
 
@@ -18,10 +18,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.io.Reader;
-import java.io.StringReader;
 import java.io.Writer;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
@@ -159,6 +156,7 @@ public class JsonDocument implements IDocument<JsonDocument>, Cloneable {
         return new JsonDocument(GSON.toJsonTree(object));
     }
 
+    @Deprecated
     public static JsonDocument newDocument(File file) {
         if (file == null) {
             return null;
@@ -180,8 +178,13 @@ public class JsonDocument implements IDocument<JsonDocument>, Cloneable {
         return document;
     }
 
-    public static JsonDocument newDocument(String input) {
-        return new JsonDocument().read(input);
+    public static JsonDocument newDocument(String json) {
+        try {
+            return new JsonDocument(JsonParser.parseString(json));
+        } catch (JsonSyntaxException exception) {
+            exception.printStackTrace();
+            return new JsonDocument();
+        }
     }
 
     @Override
@@ -359,17 +362,7 @@ public class JsonDocument implements IDocument<JsonDocument>, Cloneable {
     }
 
     @Override
-    public JsonDocument append(InputStream inputStream) {
-        try (InputStreamReader reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8)) {
-            return this.append(reader);
-        } catch (Exception exception) {
-            exception.printStackTrace();
-        }
-        return this;
-    }
-
-    @Override
-    public JsonDocument append(Reader reader) {
+    public @NotNull JsonDocument append(@NotNull Reader reader) {
         return this.append(JsonParser.parseReader(reader).getAsJsonObject());
     }
 
@@ -817,34 +810,13 @@ public class JsonDocument implements IDocument<JsonDocument>, Cloneable {
     }
 
     @Override
-    public JsonDocument write(OutputStream outputStream) {
-        try (OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8)) {
-            this.write(outputStreamWriter);
-        } catch (Exception exception) {
-            exception.printStackTrace();
-        }
-        return this;
-    }
-
-    @Override
-    public JsonDocument write(Writer writer) {
+    public @NotNull JsonDocument write(Writer writer) {
         GSON.toJson(this.jsonObject, writer);
         return this;
     }
 
     @Override
-    public JsonDocument read(InputStream inputStream) {
-        try (InputStreamReader inputStreamReader = new InputStreamReader(inputStream, StandardCharsets.UTF_8)) {
-            return this.read(inputStreamReader);
-        } catch (IOException exception) {
-            exception.printStackTrace();
-        }
-        return this;
-    }
-
-
-    @Override
-    public JsonDocument read(Reader reader) {
+    public @NotNull JsonDocument read(@NotNull Reader reader) {
         try (BufferedReader bufferedReader = new BufferedReader(reader)) {
             return this.append(JsonParser.parseReader(bufferedReader).getAsJsonObject());
         } catch (Exception ex) {
@@ -854,18 +826,19 @@ public class JsonDocument implements IDocument<JsonDocument>, Cloneable {
     }
 
     @Override
-    public IReadable read(byte[] bytes) {
+    public @NotNull JsonDocument read(byte[] bytes) {
         this.append(JsonParser.parseString(new String(bytes, StandardCharsets.UTF_8)).getAsJsonObject());
         return this;
     }
 
-    public JsonDocument read(String input) {
-        try {
-            this.append(JsonParser.parseReader(new BufferedReader(new StringReader(input))).getAsJsonObject());
-        } catch (Exception exception) {
+    @Override
+    public @NotNull JsonDocument read(@NotNull InputStream inputStream) {
+        try (InputStreamReader reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8)) {
+            return this.read(reader);
+        } catch (IOException exception) {
             exception.printStackTrace();
+            return this;
         }
-        return this;
     }
 
     @Override

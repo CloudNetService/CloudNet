@@ -4,15 +4,18 @@ import de.dytanic.cloudnet.driver.network.ssl.SSLConfiguration;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
-import java.io.File;
+import java.nio.file.Paths;
 
 @ToString
 @EqualsAndHashCode
 public class ConfigurationOptionSSL {
 
-    private boolean enabled, clientAuth;
+    private boolean enabled;
+    private boolean clientAuth;
 
-    private String trustCertificatePath, certificatePath, privateKeyPath;
+    private String trustCertificatePath;
+    private String certificatePath;
+    private String privateKeyPath;
 
     public ConfigurationOptionSSL(boolean enabled, boolean clientAuth, String trustCertificatePath, String certificatePath, String privateKeyPath) {
         this.enabled = enabled;
@@ -28,9 +31,9 @@ public class ConfigurationOptionSSL {
     public SSLConfiguration toSslConfiguration() {
         return new SSLConfiguration(
                 this.clientAuth,
-                this.trustCertificatePath == null ? null : new File(this.trustCertificatePath),
-                this.certificatePath == null ? null : new File(this.certificatePath),
-                this.privateKeyPath == null ? null : new File(this.privateKeyPath)
+                this.trustCertificatePath == null ? null : Paths.get(this.trustCertificatePath),
+                this.certificatePath == null ? null : Paths.get(this.certificatePath),
+                this.privateKeyPath == null ? null : Paths.get(this.privateKeyPath)
         );
     }
 

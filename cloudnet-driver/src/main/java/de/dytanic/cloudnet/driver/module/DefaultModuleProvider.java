@@ -6,6 +6,7 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -16,20 +17,9 @@ public final class DefaultModuleProvider implements IModuleProvider {
     protected final Collection<DefaultModuleWrapper> moduleWrappers = new CopyOnWriteArrayList<>();
 
     protected IModuleProviderHandler moduleProviderHandler = new ModuleProviderHandlerAdapter();
-
     protected IModuleDependencyLoader moduleDependencyLoader = new DefaultMemoryModuleDependencyLoader();
 
-    private File moduleDirectory = new File("modules");
-
-    @Override
-    public File getModuleDirectory() {
-        return this.moduleDirectory;
-    }
-
-    @Override
-    public void setModuleDirectory(File moduleDirectory) {
-        this.moduleDirectory = Preconditions.checkNotNull(moduleDirectory);
-    }
+    private Path moduleDirectory = Paths.get("modules");
 
     @Override
     public Collection<IModuleWrapper> getModules() {
@@ -55,16 +45,13 @@ public final class DefaultModuleProvider implements IModuleProvider {
         Preconditions.checkNotNull(url);
 
         DefaultModuleWrapper moduleWrapper = null;
-
         if (this.moduleWrappers.stream().anyMatch(defaultModuleWrapper -> defaultModuleWrapper.getUrl().toString().equalsIgnoreCase(url.toString()))) {
             return null;
         }
 
         try {
-
             this.moduleWrappers.add(moduleWrapper = new DefaultModuleWrapper(this, url, this.moduleDirectory));
             moduleWrapper.loadModule();
-
         } catch (Throwable throwable) {
             throwable.printStackTrace();
 
@@ -154,6 +141,16 @@ public final class DefaultModuleProvider implements IModuleProvider {
         }
 
         return this;
+    }
+
+    @Override
+    public Path getModuleDirectoryPath() {
+        return this.moduleDirectory;
+    }
+
+    @Override
+    public void setModuleDirectoryPath(Path moduleDirectory) {
+        this.moduleDirectory = Preconditions.checkNotNull(moduleDirectory);
     }
 
     public IModuleProviderHandler getModuleProviderHandler() {

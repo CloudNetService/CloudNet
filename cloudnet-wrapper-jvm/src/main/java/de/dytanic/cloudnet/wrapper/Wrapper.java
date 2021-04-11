@@ -3,6 +3,7 @@ package de.dytanic.cloudnet.wrapper;
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.concurrent.ITask;
+import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.common.logging.ILogger;
 import de.dytanic.cloudnet.common.logging.LogLevel;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
@@ -52,6 +53,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.lang.reflect.Method;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -78,7 +81,7 @@ public final class Wrapper extends CloudNetDriver implements DriverAPIUser {
     /**
      * The default workDirectory of this process as File instance
      */
-    private final File workDirectory = new File(".");
+    private final Path workDirectory = Paths.get("");
 
     /**
      * The commandline arguments from the main() method of Main class by the application wrapper
@@ -120,15 +123,15 @@ public final class Wrapper extends CloudNetDriver implements DriverAPIUser {
         if (this.config.getSslConfig().getBoolean("enabled")) {
             this.networkClient = new NettyNetworkClient(NetworkClientChannelHandler::new, new SSLConfiguration(
                     this.config.getSslConfig().getBoolean("clientAuth"),
-                    this.config.getSslConfig().contains("trustCertificatePath") ?
-                            new File(".wrapper/trustCertificate") :
-                            null,
-                    this.config.getSslConfig().contains("certificatePath") ?
-                            new File(".wrapper/certificate") :
-                            null,
-                    this.config.getSslConfig().contains("privateKeyPath") ?
-                            new File(".wrapper/privateKey") :
-                            null
+                    this.config.getSslConfig().contains("trustCertificatePath")
+                            ? Paths.get(".wrapper", "trustCertificate")
+                            : null,
+                    this.config.getSslConfig().contains("certificatePath")
+                            ? Paths.get(".wrapper", "certificate")
+                            : null,
+                    this.config.getSslConfig().contains("privateKeyPath")
+                            ? Paths.get(".wrapper", "privateKey")
+                            : null
             ), this.taskScheduler);
         } else {
             this.networkClient = new NettyNetworkClient(NetworkClientChannelHandler::new);
@@ -146,7 +149,7 @@ public final class Wrapper extends CloudNetDriver implements DriverAPIUser {
         this.networkClient.getPacketRegistry().addListener(PacketConstants.INTERNAL_DRIVER_API_CHANNEL, new PacketServerWrapperDriverAPIListener());
         //-
 
-        this.moduleProvider.setModuleDirectory(new File(".wrapper/modules"));
+        this.moduleProvider.setModuleDirectoryPath(Paths.get(".wrapper", "modules"));
         this.moduleProvider.setModuleProviderHandler(new DefaultModuleProviderHandler());
         this.driverEnvironment = DriverEnvironment.WRAPPER;
     }
@@ -415,22 +418,12 @@ public final class Wrapper extends CloudNetDriver implements DriverAPIUser {
     }
 
     private void enableModules() {
-        File dir = new File(System.getProperty("cloudnet.module.dir", ".wrapper/modules"));
-        dir.mkdirs();
-
-        File[] files = dir.listFiles(pathname -> {
-            String lowerName = pathname.getName().toLowerCase();
-            return !pathname.isDirectory() && lowerName.endsWith(".jar") ||
-                    lowerName.endsWith(".war") ||
-                    lowerName.endsWith(".zip");
-        });
-
-        if (files != null) {
-            for (File file : files) {
-                IModuleWrapper moduleWrapper = this.moduleProvider.loadModule(file);
-                moduleWrapper.startModule();
-            }
-        }
+        Path moduleDirectory = Paths.get(System.getProperty("cloudnet.module.dir", ".wrapper/modules"));
+        FileUtils.createDirectoryReported(moduleDirectory);
+        FileUtils.walkFileTree(moduleDirectory, (root, current) -> {
+            IModuleWrapper wrapper = this.moduleProvider.loadModule(current);
+            wrapper.startModule();
+        }, false, "*.{jar,war,zip}");
     }
 
     private boolean startApplication() throws Exception {
@@ -479,7 +472,13 @@ public final class Wrapper extends CloudNetDriver implements DriverAPIUser {
     }
 
     @NotNull
+    @Deprecated
     public File getWorkDirectory() {
+        return this.workDirectory.toFile();
+    }
+
+    @NotNull
+    public Path getWorkingDirectoryPath() {
         return this.workDirectory;
     }
 

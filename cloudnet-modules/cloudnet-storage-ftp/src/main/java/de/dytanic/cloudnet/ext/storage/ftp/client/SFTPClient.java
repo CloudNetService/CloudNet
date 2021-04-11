@@ -124,8 +124,9 @@ public class SFTPClient implements Closeable {
     }
 
     public boolean uploadFile(Path localPath, String remotePath) {
-        if (!Files.exists(localPath))
+        if (!Files.exists(localPath)) {
             return false;
+        }
         try (InputStream inputStream = Files.newInputStream(localPath)) {
             this.uploadFile(inputStream, remotePath);
             return true;
@@ -222,8 +223,9 @@ public class SFTPClient implements Closeable {
 
         try {
             Collection<ChannelSftp.LsEntry> entries = this.listFiles(remotePath);
-            if (entries == null)
+            if (entries == null) {
                 return false;
+            }
 
             Path dir = Paths.get(localPath);
             if (!Files.exists(dir)) {
@@ -250,8 +252,9 @@ public class SFTPClient implements Closeable {
     }
 
     public void zipDirectory(String remotePath, OutputStream outputStream) {
-        if (remotePath.endsWith("/"))
+        if (remotePath.endsWith("/")) {
             remotePath = remotePath.substring(0, remotePath.length() - 1);
+        }
 
         try {
             try (ZipOutputStream zipOutputStream = new ZipOutputStream(outputStream, StandardCharsets.UTF_8)) {
@@ -264,8 +267,9 @@ public class SFTPClient implements Closeable {
 
     private boolean zip(ZipOutputStream zipOutputStream, String remotePath, String relativePath) throws IOException, SftpException {
         Collection<ChannelSftp.LsEntry> entries = this.listFiles(remotePath);
-        if (entries == null)
+        if (entries == null) {
             return false;
+        }
 
         for (ChannelSftp.LsEntry entry : entries) {
             if (!entry.getAttrs().isDir() && !entry.getAttrs().isLink()) {
@@ -345,8 +349,9 @@ public class SFTPClient implements Closeable {
     public boolean deleteDirectory(String path) {
         try {
             Collection<ChannelSftp.LsEntry> entries = this.listFiles(path);
-            if (entries == null)
+            if (entries == null) {
                 return false;
+            }
 
             for (ChannelSftp.LsEntry entry : entries) {
 

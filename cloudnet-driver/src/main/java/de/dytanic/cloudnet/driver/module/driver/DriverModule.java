@@ -1,6 +1,7 @@
 package de.dytanic.cloudnet.driver.module.driver;
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.common.logging.ILogger;
 import de.dytanic.cloudnet.common.logging.LogLevel;
 import de.dytanic.cloudnet.common.registry.IServicesRegistry;
@@ -8,7 +9,8 @@ import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.event.IEventManager;
 import de.dytanic.cloudnet.driver.module.DefaultModule;
 
-import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 public class DriverModule extends DefaultModule {
 
@@ -28,22 +30,21 @@ public class DriverModule extends DefaultModule {
 
     public final DriverModule saveConfig() {
         if (this.config != null) {
-            this.config.write(new File(this.getModuleWrapper().getDataFolder(), "config.json"));
+            this.config.write(this.getModuleWrapper().getDataDirectory().resolve("config.json"));
         }
 
         return this;
     }
 
     private JsonDocument reloadConfig0() {
-        this.getModuleWrapper().getDataFolder().mkdirs();
+        FileUtils.createDirectoryReported(this.getModuleWrapper().getDataDirectory());
 
-        File file = new File(this.getModuleWrapper().getDataFolder(), "config.json");
-
-        if (!file.exists()) {
-            new JsonDocument().write(file);
+        Path configuration = this.getModuleWrapper().getDataDirectory().resolve("config.json");
+        if (Files.notExists(configuration)) {
+            JsonDocument.EMPTY.write(configuration);
         }
 
-        return JsonDocument.newDocument(file);
+        return JsonDocument.newDocument(configuration);
     }
 
     public final ILogger log(LogLevel level, String message) {

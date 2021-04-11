@@ -1,6 +1,5 @@
 package de.dytanic.cloudnet.ext.storage.ftp.storage.queue;
 
-
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.concurrent.ITaskListener;
@@ -31,12 +30,12 @@ public class OutputStreamCloseTask extends OutputStream implements ITask<OutputS
     }
 
     @Override
-    public void write(@NotNull byte[] b) throws IOException {
+    public void write(byte[] b) throws IOException {
         this.outputStream.write(b);
     }
 
     @Override
-    public void write(@NotNull byte[] b, int off, int len) throws IOException {
+    public void write(byte[] b, int off, int len) throws IOException {
         this.outputStream.write(b, off, len);
     }
 

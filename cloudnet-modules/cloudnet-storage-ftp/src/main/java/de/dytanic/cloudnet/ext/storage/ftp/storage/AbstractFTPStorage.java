@@ -1,6 +1,5 @@
 package de.dytanic.cloudnet.ext.storage.ftp.storage;
 
-
 import de.dytanic.cloudnet.ext.storage.ftp.client.FTPCredentials;
 import de.dytanic.cloudnet.ext.storage.ftp.client.FTPType;
 import de.dytanic.cloudnet.template.ITemplateStorage;
