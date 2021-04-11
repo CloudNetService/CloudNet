@@ -89,7 +89,7 @@ public abstract class CloudNetDriver {
     public abstract String getComponentName();
 
     /**
-     * @return returns the uniqueId of this node
+     * Gets the component name if it is called on a node and the name of the node if it is called on a wrapper.
      */
     @NotNull
     public abstract String getNodeUniqueId();
