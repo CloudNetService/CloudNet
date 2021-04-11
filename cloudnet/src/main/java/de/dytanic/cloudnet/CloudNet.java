@@ -129,6 +129,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
@@ -156,7 +157,7 @@ public final class CloudNet extends CloudNetDriver {
 
     private final LogLevel defaultLogLevel = LogLevel.getDefaultLogLevel(System.getProperty("cloudnet.logging.defaultlevel")).orElse(LogLevel.FATAL);
 
-    private final File moduleDirectory = new File(System.getProperty("cloudnet.modules.directory", "modules"));
+    private final Path moduleDirectory = Paths.get(System.getProperty("cloudnet.modules.directory", "modules"));
 
     private final IConfiguration config = new JsonConfiguration();
     private final IConfigurationRegistry configurationRegistry = new JsonConfigurationRegistry(Paths.get(System.getProperty("cloudnet.registry.global.path", "local/registry")));
@@ -227,15 +228,15 @@ public final class CloudNet extends CloudNetDriver {
 
     @Override
     public synchronized void start() throws Exception {
-        File tempDirectory = new File(System.getProperty("cloudnet.tempDir", "temp"));
-        tempDirectory.mkdirs();
+        Path tempDirectory = Paths.get(System.getProperty("cloudnet.tempDir", "temp"));
+        FileUtils.createDirectoryReported(tempDirectory);
 
-        File cachesDirectory = new File(tempDirectory, "caches");
-        cachesDirectory.mkdirs();
+        Path cachesDirectory = tempDirectory.resolve("caches");
+        FileUtils.createDirectoryReported(cachesDirectory);
 
         try (InputStream inputStream = CloudNet.class.getClassLoader().getResourceAsStream("wrapper.jar")) {
             Preconditions.checkNotNull(inputStream, "Missing wrapper.jar");
-            Files.copy(inputStream, new File(tempDirectory, "caches/wrapper.jar").toPath(), StandardCopyOption.REPLACE_EXISTING);
+            Files.copy(inputStream, cachesDirectory.resolve("wrapper.jar"), StandardCopyOption.REPLACE_EXISTING);
         }
 
         this.initServiceVersions();
@@ -387,7 +388,7 @@ public final class CloudNet extends CloudNetDriver {
 
             this.networkTaskScheduler.shutdown();
 
-            FileUtils.delete(new File("temp"));
+            FileUtils.delete(Paths.get(System.getProperty("cloudnet.tempDir", "temp")));
 
             this.logger.close();
             this.console.close();
@@ -404,6 +405,11 @@ public final class CloudNet extends CloudNetDriver {
     @Override
     public @NotNull String getComponentName() {
         return this.config.getIdentity().getUniqueId();
+    }
+
+    @Override
+    public @NotNull String getNodeUniqueId() {
+        return this.getComponentName();
     }
 
     public boolean isRunning() {
@@ -933,18 +939,13 @@ public final class CloudNet extends CloudNetDriver {
 
     private void loadModules() {
         this.logger.info(LanguageManager.getMessage("cloudnet-load-modules-createDirectory"));
-        this.moduleDirectory.mkdirs();
+        FileUtils.createDirectoryReported(this.moduleDirectory);
 
         this.logger.info(LanguageManager.getMessage("cloudnet-load-modules"));
-        for (File file : Objects.requireNonNull(this.moduleDirectory.listFiles(pathname -> {
-            String lowerName = pathname.getName().toLowerCase();
-            return !pathname.isDirectory() && lowerName.endsWith(".jar") ||
-                    lowerName.endsWith(".war") ||
-                    lowerName.endsWith(".zip");
-        }))) {
-            this.logger.info(LanguageManager.getMessage("cloudnet-load-modules-found").replace("%file_name%", file.getName()));
-            this.moduleProvider.loadModule(file);
-        }
+        FileUtils.walkFileTree(this.moduleDirectory, (root, current) -> {
+            this.logger.info(LanguageManager.getMessage("cloudnet-load-modules-found").replace("%file_name%", current.getFileName().toString()));
+            this.moduleProvider.loadModule(current);
+        }, false, "*.{jar,war,zip}");
     }
 
     private void startModules() {
@@ -964,12 +965,17 @@ public final class CloudNet extends CloudNetDriver {
     }
 
     private void registerDefaultServices() {
-        this.servicesRegistry.registerService(ITemplateStorage.class, LocalTemplateStorage.LOCAL_TEMPLATE_STORAGE,
-                new LocalTemplateStorage(new File(System.getProperty("cloudnet.storage.local", "local/templates"))));
+        this.servicesRegistry.registerService(
+                ITemplateStorage.class,
+                LocalTemplateStorage.LOCAL_TEMPLATE_STORAGE,
+                new LocalTemplateStorage(Paths.get(System.getProperty("cloudnet.storage.local", "local/templates")))
+        );
 
-        this.servicesRegistry.registerService(AbstractDatabaseProvider.class, "h2",
-                new H2DatabaseProvider(System.getProperty("cloudnet.database.h2.path", "local/database/h2"),
-                        !CloudNet.getInstance().getConfig().getClusterConfig().getNodes().isEmpty()));
+        this.servicesRegistry.registerService(
+                AbstractDatabaseProvider.class,
+                "h2",
+                new H2DatabaseProvider(System.getProperty("cloudnet.database.h2.path", "local/database/h2"), !this.config.getClusterConfig().getNodes().isEmpty())
+        );
     }
 
     private void runConsole() {
@@ -1007,7 +1013,12 @@ public final class CloudNet extends CloudNetDriver {
         return this.commandMap;
     }
 
+    @Deprecated
     public File getModuleDirectory() {
+        return this.moduleDirectory.toFile();
+    }
+
+    public Path getModuleDirectoryPath() {
         return this.moduleDirectory;
     }
 

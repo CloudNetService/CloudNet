@@ -1,5 +1,6 @@
 package de.dytanic.cloudnet.driver.serialization.json;
 
+import com.google.gson.JsonParser;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import de.dytanic.cloudnet.driver.serialization.SerializableObject;
@@ -23,7 +24,7 @@ public class SerializableJsonDocument extends JsonDocument implements Serializab
     public SerializableJsonDocument(Object toObjectMirror) {
         super(toObjectMirror);
     }
-    
+
     public SerializableJsonDocument(Properties properties) {
         super(properties);
     }
@@ -117,7 +118,7 @@ public class SerializableJsonDocument extends JsonDocument implements Serializab
     public JsonDocument clone() {
         return new SerializableJsonDocument(super.clone());
     }
-    
+
     @Override
     public void write(@NotNull ProtocolBuffer buffer) {
         buffer.writeString(super.toJson());
@@ -126,6 +127,6 @@ public class SerializableJsonDocument extends JsonDocument implements Serializab
     @Override
     public void read(@NotNull ProtocolBuffer buffer) {
         super.clear();
-        super.read(buffer.readString());
+        super.append(JsonParser.parseString(buffer.readString()).getAsJsonObject());
     }
 }

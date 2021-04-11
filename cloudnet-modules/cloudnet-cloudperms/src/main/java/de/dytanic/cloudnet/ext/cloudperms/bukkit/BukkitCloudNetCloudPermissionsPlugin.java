@@ -2,11 +2,9 @@ package de.dytanic.cloudnet.ext.cloudperms.bukkit;
 
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
-import de.dytanic.cloudnet.driver.permission.CachedPermissionManagement;
 import de.dytanic.cloudnet.driver.permission.IPermissionGroup;
 import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
 import de.dytanic.cloudnet.driver.permission.IPermissionUser;
-import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsManagement;
 import de.dytanic.cloudnet.ext.cloudperms.bukkit.listener.BukkitCloudNetCloudPermissionsPlayerListener;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import org.bukkit.Bukkit;
@@ -29,8 +27,6 @@ public final class BukkitCloudNetCloudPermissionsPlugin extends JavaPlugin {
         return BukkitCloudNetCloudPermissionsPlugin.instance;
     }
 
-    private CachedPermissionManagement permissionsManagement;
-
     @Override
     public void onLoad() {
         instance = this;
@@ -38,12 +34,10 @@ public final class BukkitCloudNetCloudPermissionsPlugin extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        this.permissionsManagement = CloudPermissionsManagement.newInstance();
-
         this.checkForVault();
         this.initPlayersCloudPermissible();
 
-        this.getServer().getPluginManager().registerEvents(new BukkitCloudNetCloudPermissionsPlayerListener(this.permissionsManagement), this);
+        this.getServer().getPluginManager().registerEvents(new BukkitCloudNetCloudPermissionsPlayerListener(CloudNetDriver.getInstance().getPermissionManagement()), this);
     }
 
     @Override
@@ -64,18 +58,18 @@ public final class BukkitCloudNetCloudPermissionsPlugin extends JavaPlugin {
                                Function<Player, IPermissionGroup> allOtherPlayerPermissionGroupFunction) {
         Preconditions.checkNotNull(player);
 
-        IPermissionUser playerPermissionUser = this.permissionsManagement.getUser(player.getUniqueId());
+        IPermissionUser playerPermissionUser = CloudNetDriver.getInstance().getPermissionManagement().getUser(player.getUniqueId());
         AtomicReference<IPermissionGroup> playerPermissionGroup = new AtomicReference<>(playerIPermissionGroupFunction != null ? playerIPermissionGroupFunction.apply(player) : null);
 
         if (playerPermissionUser != null && playerPermissionGroup.get() == null) {
-            playerPermissionGroup.set(this.permissionsManagement.getHighestPermissionGroup(playerPermissionUser));
+            playerPermissionGroup.set(CloudNetDriver.getInstance().getPermissionManagement().getHighestPermissionGroup(playerPermissionUser));
 
             if (playerPermissionGroup.get() == null) {
-                playerPermissionGroup.set(this.permissionsManagement.getDefaultPermissionGroup());
+                playerPermissionGroup.set(CloudNetDriver.getInstance().getPermissionManagement().getDefaultPermissionGroup());
             }
         }
 
-        int sortIdLength = this.permissionsManagement.getGroups().stream()
+        int sortIdLength = CloudNetDriver.getInstance().getPermissionManagement().getGroups().stream()
                 .map(IPermissionGroup::getSortId)
                 .map(String::valueOf)
                 .mapToInt(String::length)
@@ -91,14 +85,14 @@ public final class BukkitCloudNetCloudPermissionsPlugin extends JavaPlugin {
                 this.addTeamEntry(player, all, playerPermissionGroup.get(), sortIdLength);
             }
 
-            IPermissionUser targetPermissionUser = this.permissionsManagement.getUser(all.getUniqueId());
+            IPermissionUser targetPermissionUser = CloudNetDriver.getInstance().getPermissionManagement().getUser(all.getUniqueId());
             IPermissionGroup targetPermissionGroup = allOtherPlayerPermissionGroupFunction != null ? allOtherPlayerPermissionGroupFunction.apply(all) : null;
 
             if (targetPermissionUser != null && targetPermissionGroup == null) {
-                targetPermissionGroup = this.permissionsManagement.getHighestPermissionGroup(targetPermissionUser);
+                targetPermissionGroup = CloudNetDriver.getInstance().getPermissionManagement().getHighestPermissionGroup(targetPermissionUser);
 
                 if (targetPermissionGroup == null) {
-                    targetPermissionGroup = this.permissionsManagement.getDefaultPermissionGroup();
+                    targetPermissionGroup = CloudNetDriver.getInstance().getPermissionManagement().getDefaultPermissionGroup();
                 }
             }
 
@@ -144,7 +138,7 @@ public final class BukkitCloudNetCloudPermissionsPlugin extends JavaPlugin {
                     ChatColor chatColor = ChatColor.getByChar(color.replaceAll("&", "").replaceAll("§", ""));
                     if (chatColor != null) {
                         permissionGroup.setColor(color);
-                        this.permissionsManagement.updateGroup(permissionGroup);
+                        CloudNetDriver.getInstance().getPermissionManagement().updateGroup(permissionGroup);
                         method.invoke(team, chatColor);
                     }
                 }
@@ -194,13 +188,12 @@ public final class BukkitCloudNetCloudPermissionsPlugin extends JavaPlugin {
         Preconditions.checkNotNull(field);
 
         field.setAccessible(true);
-        field.set(player, new BukkitCloudNetCloudPermissionsPermissible(player, this.permissionsManagement));
+        field.set(player, new BukkitCloudNetCloudPermissionsPermissible(player, CloudNetDriver.getInstance().getPermissionManagement()));
     }
 
     private Class<?> reflectCraftClazz(String suffix) {
         try {
-            String version = org.bukkit.Bukkit.getServer().getClass().getPackage()
-                    .getName().split("\\.")[3];
+            String version = org.bukkit.Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];
             return Class.forName("org.bukkit.craftbukkit." + version + suffix);
         } catch (Exception ex) {
             try {
@@ -220,19 +213,15 @@ public final class BukkitCloudNetCloudPermissionsPlugin extends JavaPlugin {
                 || super.getServer().getPluginManager().isPluginEnabled("VaultAPI")) {
 
             try {
-
                 Class<?> vaultSupportClass = Class.forName("de.dytanic.cloudnet.ext.cloudperms.bukkit.vault.VaultSupport");
                 Method enableMethod = vaultSupportClass.getDeclaredMethod("enable", JavaPlugin.class, IPermissionManagement.class);
 
-                enableMethod.invoke(null, this, this.permissionsManagement);
+                enableMethod.invoke(null, this, CloudNetDriver.getInstance().getPermissionManagement());
 
                 super.getLogger().info("Enabled Vault support!");
-
             } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException exception) {
                 exception.printStackTrace();
             }
-
         }
     }
-
 }

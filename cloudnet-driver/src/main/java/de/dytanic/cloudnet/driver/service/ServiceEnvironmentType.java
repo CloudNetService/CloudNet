@@ -5,9 +5,11 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.jar.JarFile;
+import java.util.jar.JarInputStream;
 
 public enum ServiceEnvironmentType {
 
@@ -39,13 +41,13 @@ public enum ServiceEnvironmentType {
             44955
     ) {
         @Override
-        public String getMainClass(@Nullable File applicationFile) {
+        public String getMainClass(@Nullable Path applicationFile) {
             return "io.gomint.server.Bootstrap";
         }
 
         @Override
-        public @NotNull String getClasspath(@NotNull File wrapperFile, @Nullable File applicationFile) {
-            return wrapperFile.getAbsolutePath() + File.pathSeparator + "modules/*";
+        public @NotNull String getClasspath(@NotNull Path wrapperFile, @Nullable Path applicationFile) {
+            return wrapperFile.toAbsolutePath() + File.pathSeparator + "modules/*";
         }
     },
     BUNGEECORD(
@@ -87,20 +89,29 @@ public enum ServiceEnvironmentType {
         this.ignoredConsoleLines = Arrays.asList(ignoredConsoleLines);
     }
 
+    @Deprecated
     public @Nullable String getMainClass(@Nullable File applicationFile) {
-        if (applicationFile != null && applicationFile.exists()) {
-            try (JarFile jarFile = new JarFile(applicationFile)) {
-                return jarFile.getManifest().getMainAttributes().getValue("Main-Class");
+        return applicationFile == null ? null : this.getMainClass(applicationFile.toPath());
+    }
+
+    public @Nullable String getMainClass(@Nullable Path applicationFile) {
+        if (applicationFile != null && Files.exists(applicationFile)) {
+            try (JarInputStream stream = new JarInputStream(Files.newInputStream(applicationFile))) {
+                return stream.getManifest().getMainAttributes().getValue("Main-Class");
             } catch (IOException exception) {
                 exception.printStackTrace();
             }
         }
-
         return null;
     }
 
+    @Deprecated
     public @NotNull String getClasspath(@NotNull File wrapperFile, @Nullable File applicationFile) {
-        return wrapperFile.getAbsolutePath() + File.pathSeparator + (applicationFile == null ? "" : applicationFile.getAbsolutePath());
+        return this.getClasspath(wrapperFile.toPath(), applicationFile == null ? null : applicationFile.toPath());
+    }
+
+    public @NotNull String getClasspath(@NotNull Path wrapperFile, @Nullable Path applicationFile) {
+        return wrapperFile.toAbsolutePath() + File.pathSeparator + (applicationFile == null ? "" : applicationFile.toAbsolutePath());
     }
 
     public ServiceEnvironment[] getEnvironments() {

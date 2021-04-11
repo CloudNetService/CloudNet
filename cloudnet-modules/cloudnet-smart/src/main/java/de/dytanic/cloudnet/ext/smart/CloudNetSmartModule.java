@@ -15,6 +15,7 @@ import de.dytanic.cloudnet.ext.smart.template.TemplateInstaller;
 import de.dytanic.cloudnet.ext.smart.util.SmartServiceTaskConfig;
 import de.dytanic.cloudnet.module.NodeCloudNetModule;
 
+import java.nio.file.Files;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -39,7 +40,7 @@ public final class CloudNetSmartModule extends NodeCloudNetModule {
     @ModuleTask(order = 127, event = ModuleLifeCycle.STARTED)
     public void initTaskConfigs() {
         Map<String, SmartServiceTaskConfig> oldSmartTasks = new HashMap<>();
-        if (this.getModuleWrapper().getDataFolder().exists() && this.getConfig().contains("smartTasks")) {
+        if (Files.exists(this.getModuleWrapper().getDataDirectory()) && this.getConfig().contains("smartTasks")) {
             Collection<JsonDocument> smartTasks = this.getConfig().get("smartTasks", new TypeToken<Collection<JsonDocument>>() {
             }.getType());
             for (JsonDocument smartTaskJson : smartTasks) {
@@ -50,7 +51,7 @@ public final class CloudNetSmartModule extends NodeCloudNetModule {
                         smartTask
                 );
             }
-            FileUtils.delete(this.getModuleWrapper().getDataFolder());
+            FileUtils.delete(this.getModuleWrapper().getDataDirectory());
         }
 
         for (ServiceTask task : this.getCloudNet().getServiceTaskProvider().getPermanentServiceTasks()) {

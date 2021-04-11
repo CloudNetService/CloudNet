@@ -24,7 +24,7 @@ public final class CommandSyncProxy extends SubCommandHandler {
                         .generateCommand(
                                 (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
                                     CloudNetSyncProxyModule.getInstance().setSyncProxyConfiguration(SyncProxyConfigurationWriterAndReader.read(
-                                            CloudNetSyncProxyModule.getInstance().getConfigurationFile()
+                                            CloudNetSyncProxyModule.getInstance().getConfigurationFilePath()
                                     ));
 
                                     CloudNetDriver.getInstance().getMessenger().sendChannelMessage(

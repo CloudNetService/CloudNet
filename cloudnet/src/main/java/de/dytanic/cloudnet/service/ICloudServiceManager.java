@@ -9,6 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
@@ -18,10 +19,18 @@ import java.util.function.Predicate;
 public interface ICloudServiceManager {
 
     @NotNull
+    @Deprecated
     File getTempDirectory();
 
     @NotNull
+    @Deprecated
     File getPersistenceServicesDirectory();
+
+    @NotNull
+    Path getTempDirectoryPath();
+
+    @NotNull
+    Path getPersistentServicesDirectoryPath();
 
     @NotNull
     Map<UUID, ServiceInfoSnapshot> getGlobalServiceInfoSnapshots();

@@ -22,6 +22,8 @@ import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.InputStream;
+import java.nio.file.Files;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.concurrent.Callable;
@@ -69,20 +71,24 @@ public final class NettyNetworkClient implements INetworkClient {
 
     private void init() throws Exception {
         if (this.sslConfiguration != null) {
-            if (this.sslConfiguration.getCertificatePath() != null &&
-                    this.sslConfiguration.getPrivateKeyPath() != null) {
+            if (this.sslConfiguration.getCertificate() != null && this.sslConfiguration.getPrivateKey() != null) {
                 SslContextBuilder builder = SslContextBuilder.forClient();
 
-                if (this.sslConfiguration.getTrustCertificatePath() != null) {
-                    builder.trustManager(this.sslConfiguration.getTrustCertificatePath());
+                if (this.sslConfiguration.getTrustCertificate() != null) {
+                    try (InputStream stream = Files.newInputStream(this.sslConfiguration.getTrustCertificate())) {
+                        builder.trustManager(stream);
+                    }
                 } else {
                     builder.trustManager(InsecureTrustManagerFactory.INSTANCE);
                 }
 
-                this.sslContext = builder
-                        .keyManager(this.sslConfiguration.getCertificatePath(), this.sslConfiguration.getPrivateKeyPath())
-                        .clientAuth(this.sslConfiguration.isClientAuth() ? ClientAuth.REQUIRE : ClientAuth.OPTIONAL)
-                        .build();
+                try (InputStream cert = Files.newInputStream(this.sslConfiguration.getCertificate());
+                     InputStream privateKey = Files.newInputStream(this.sslConfiguration.getPrivateKey())) {
+                    this.sslContext = builder
+                            .keyManager(cert, privateKey)
+                            .clientAuth(this.sslConfiguration.isClientAuth() ? ClientAuth.REQUIRE : ClientAuth.OPTIONAL)
+                            .build();
+                }
             } else {
                 SelfSignedCertificate selfSignedCertificate = new SelfSignedCertificate();
                 this.sslContext = SslContextBuilder.forClient()
