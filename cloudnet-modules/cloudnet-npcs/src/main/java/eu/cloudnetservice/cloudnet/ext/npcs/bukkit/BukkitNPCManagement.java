@@ -4,6 +4,7 @@ package eu.cloudnetservice.cloudnet.ext.npcs.bukkit;
 import com.comphenix.protocol.wrappers.EnumWrappers;
 import com.github.juliarn.npc.NPC;
 import com.github.juliarn.npc.NPCPool;
+import com.github.juliarn.npc.modifier.AnimationModifier;
 import com.github.juliarn.npc.modifier.MetadataModifier;
 import com.github.juliarn.npc.profile.Profile;
 import de.dytanic.cloudnet.common.collection.Pair;
@@ -237,6 +238,8 @@ public class BukkitNPCManagement extends AbstractNPCManagement {
                             .queue(MetadataModifier.EntityMetadata.SKIN_LAYERS, true)
                             .queue(MetadataModifier.EntityMetadata.SNEAKING, false)
                             .send(player);
+
+                    spawnedNPC.animation().queue(AnimationModifier.EntityAnimation.SWING_MAIN_ARM).send(player);
 
                     Material material = Material.getMaterial(cloudNPC.getItemInHand());
                     if (material != null) {

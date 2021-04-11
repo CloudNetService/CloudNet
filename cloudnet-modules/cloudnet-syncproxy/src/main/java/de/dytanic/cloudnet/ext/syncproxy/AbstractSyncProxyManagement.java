@@ -4,11 +4,20 @@ package de.dytanic.cloudnet.ext.syncproxy;
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.ext.bridge.BridgeServiceProperty;
-import de.dytanic.cloudnet.ext.syncproxy.configuration.*;
+import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyConfiguration;
+import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyMotd;
+import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyProxyLoginConfiguration;
+import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyTabList;
+import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyTabListConfiguration;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public abstract class AbstractSyncProxyManagement {
@@ -27,7 +36,7 @@ public abstract class AbstractSyncProxyManagement {
 
     protected String tabListFooter;
 
-    protected Map<UUID, Integer> onlineCountCache = new HashMap<>();
+    protected final Map<UUID, Integer> onlineCountCache = new HashMap<>();
 
 
     protected abstract void schedule(Runnable runnable, long millis);

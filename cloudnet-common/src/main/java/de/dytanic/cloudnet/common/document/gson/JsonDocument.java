@@ -45,7 +45,7 @@ import java.util.Properties;
 public class JsonDocument implements IDocument<JsonDocument>, Cloneable {
 
     public static final JsonDocument EMPTY = newDocument();
-    public static Gson GSON = new GsonBuilder()
+    public static final Gson GSON = new GsonBuilder()
             .serializeNulls()
             .disableHtmlEscaping()
             .setPrettyPrinting()
