@@ -88,6 +88,12 @@ public abstract class CloudNetDriver {
     @NotNull
     public abstract String getComponentName();
 
+    /**
+     * @return returns the uniqueId of this node
+     */
+    @NotNull
+    public abstract String getNodeUniqueId();
+
     @NotNull
     public CloudServiceFactory getCloudServiceFactory() {
         return this.cloudServiceFactory;

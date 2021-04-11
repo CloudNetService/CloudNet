@@ -368,6 +368,11 @@ public final class CloudNet extends CloudNetDriver {
         return this.config.getIdentity().getUniqueId();
     }
 
+    @Override
+    public @NotNull String getNodeUniqueId() {
+        return this.getComponentName();
+    }
+
     public boolean isRunning() {
         return this.running;
     }
