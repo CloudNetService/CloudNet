@@ -203,6 +203,11 @@ public final class Wrapper extends CloudNetDriver implements DriverAPIUser {
     }
 
     @Override
+    public @NotNull String getNodeUniqueId() {
+        return this.getServiceId().getNodeUniqueId();
+    }
+
+    @Override
     public @NotNull SpecificCloudServiceProvider getCloudServiceProvider(@NotNull String name) {
         return new RemoteSpecificCloudServiceProvider(this.getNetworkChannel(), this.generalCloudServiceProvider, name);
     }
