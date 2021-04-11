@@ -154,9 +154,9 @@ public abstract class DefaultCloudService extends DefaultEmptyCloudService {
     }
 
     protected ServiceInfoSnapshot createServiceInfoSnapshot(ServiceLifeCycle lifeCycle) {
-        JsonDocument properties = JsonDocument.EMPTY;
-        if (lifeCycle != ServiceLifeCycle.STOPPED) {
-            properties = this.serviceInfoSnapshot != null ? this.serviceInfoSnapshot.getProperties() : this.serviceConfiguration.getProperties();
+        JsonDocument properties = this.serviceConfiguration.getProperties();
+        if (lifeCycle != ServiceLifeCycle.STOPPED && this.serviceInfoSnapshot != null) {
+            properties = this.serviceInfoSnapshot.getProperties();
         }
         return new ServiceInfoSnapshot(
                 System.currentTimeMillis(),
