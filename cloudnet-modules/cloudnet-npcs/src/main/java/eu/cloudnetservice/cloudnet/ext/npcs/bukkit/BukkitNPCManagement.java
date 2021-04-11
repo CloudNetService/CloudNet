@@ -26,7 +26,12 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class BukkitNPCManagement extends AbstractNPCManagement {
@@ -41,7 +46,9 @@ public class BukkitNPCManagement extends AbstractNPCManagement {
 
     public BukkitNPCManagement(@NotNull JavaPlugin javaPlugin) {
         this.javaPlugin = javaPlugin;
-        this.npcPool = new NPCPool(javaPlugin, 50, 20, super.ownNPCConfigurationEntry.getNPCTabListRemoveTicks());
+        this.npcPool = NPCPool.builder(javaPlugin)
+                .tabListRemoveTicks(super.ownNPCConfigurationEntry.getNPCTabListRemoveTicks())
+                .build();
 
         super.cloudNPCS.forEach(this::createNPC);
     }
@@ -209,17 +216,18 @@ public class BukkitNPCManagement extends AbstractNPCManagement {
 
         Location location = this.toLocation(cloudNPC.getPosition());
 
-        NPC npc = new NPC.Builder(new Profile(
-                cloudNPC.getUUID(),
-                cloudNPC.getDisplayName(),
-                cloudNPC.getProfileProperties().stream()
-                        .map(npcProfileProperty -> new Profile.Property(
-                                npcProfileProperty.getName(),
-                                npcProfileProperty.getValue(),
-                                npcProfileProperty.getSignature())
-                        )
-                        .collect(Collectors.toSet())
-        ))
+        NPC npc = NPC.builder()
+                .profile(new Profile(
+                        cloudNPC.getUUID(),
+                        cloudNPC.getDisplayName(),
+                        cloudNPC.getProfileProperties().stream()
+                                .map(npcProfileProperty -> new Profile.Property(
+                                        npcProfileProperty.getName(),
+                                        npcProfileProperty.getValue(),
+                                        npcProfileProperty.getSignature())
+                                )
+                                .collect(Collectors.toSet())
+                ))
                 .location(location)
                 .lookAtPlayer(cloudNPC.isLookAtPlayer())
                 .imitatePlayer(cloudNPC.isImitatePlayer())

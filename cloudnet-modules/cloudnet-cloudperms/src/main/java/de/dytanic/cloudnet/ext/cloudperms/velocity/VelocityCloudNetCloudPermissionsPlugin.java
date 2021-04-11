@@ -19,9 +19,6 @@ import java.lang.reflect.Field;
 public final class VelocityCloudNetCloudPermissionsPlugin {
 
     private final ProxyServer proxyServer;
-
-    private CachedPermissionManagement permissionsManagement;
-
     private PermissionProvider permissionProvider;
 
     @Inject
@@ -31,12 +28,13 @@ public final class VelocityCloudNetCloudPermissionsPlugin {
 
     @Subscribe
     public void handleProxyInit(ProxyInitializeEvent event) {
-        this.permissionsManagement = CloudPermissionsManagement.newInstance();
-        this.permissionProvider = new VelocityCloudNetCloudPermissionsPermissionProvider(this.permissionsManagement);
+        this.permissionProvider = new VelocityCloudNetCloudPermissionsPermissionProvider(CloudNetDriver.getInstance().getPermissionManagement());
 
         this.initPlayersPermissionFunction();
-
-        this.proxyServer.getEventManager().register(this, new VelocityCloudNetCloudPermissionsPlayerListener(this.permissionsManagement, this.permissionProvider));
+        this.proxyServer.getEventManager().register(this, new VelocityCloudNetCloudPermissionsPlayerListener(
+                CloudNetDriver.getInstance().getPermissionManagement(),
+                this.permissionProvider
+        ));
     }
 
     @Subscribe
@@ -56,7 +54,7 @@ public final class VelocityCloudNetCloudPermissionsPlugin {
         try {
             Field field = player.getClass().getDeclaredField("permissionFunction");
             field.setAccessible(true);
-            field.set(player, new VelocityCloudNetCloudPermissionsPermissionFunction(player.getUniqueId(), this.permissionsManagement));
+            field.set(player, new VelocityCloudNetCloudPermissionsPermissionFunction(player.getUniqueId(), CloudNetDriver.getInstance().getPermissionManagement()));
         } catch (Exception exception) {
             exception.printStackTrace();
         }

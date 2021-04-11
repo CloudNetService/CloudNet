@@ -5,8 +5,6 @@ import cn.nukkit.Server;
 import cn.nukkit.plugin.PluginBase;
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
-import de.dytanic.cloudnet.driver.permission.CachedPermissionManagement;
-import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsManagement;
 import de.dytanic.cloudnet.ext.cloudperms.nukkit.listener.NukkitCloudNetCloudPermissionsPlayerListener;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 
@@ -14,15 +12,12 @@ import java.lang.reflect.Field;
 
 public final class NukkitCloudNetCloudPermissionsPlugin extends PluginBase {
 
-    private CachedPermissionManagement permissionsManagement;
-
     @Override
     public void onEnable() {
-        this.permissionsManagement = CloudPermissionsManagement.newInstance();
         this.injectPlayersCloudPermissible();
 
         super.getServer().getPluginManager().registerEvents(
-                new NukkitCloudNetCloudPermissionsPlayerListener(this, this.permissionsManagement),
+                new NukkitCloudNetCloudPermissionsPlayerListener(this, CloudNetDriver.getInstance().getPermissionManagement()),
                 this
         );
     }
@@ -43,7 +38,7 @@ public final class NukkitCloudNetCloudPermissionsPlugin extends PluginBase {
         try {
             Field field = Player.class.getDeclaredField("perm");
             field.setAccessible(true);
-            field.set(player, new NukkitCloudNetCloudPermissionsPermissible(player, this.permissionsManagement));
+            field.set(player, new NukkitCloudNetCloudPermissionsPermissible(player, CloudNetDriver.getInstance().getPermissionManagement()));
 
         } catch (Exception exception) {
             exception.printStackTrace();

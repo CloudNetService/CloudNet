@@ -1,6 +1,8 @@
 package de.dytanic.cloudnet.ext.cloudperms;
 
+import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.permission.CachedPermissionManagement;
+import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
 import de.dytanic.cloudnet.driver.permission.IPermissionUser;
 import de.dytanic.cloudnet.driver.permission.PermissionUser;
 
@@ -16,11 +18,11 @@ public class CloudPermissionsHelper {
         throw new UnsupportedOperationException();
     }
 
-    public static void initPermissionUser(CachedPermissionManagement permissionsManagement, UUID uniqueId, String name, Consumer<String> disconnectHandler) {
+    public static void initPermissionUser(IPermissionManagement permissionsManagement, UUID uniqueId, String name, Consumer<String> disconnectHandler) {
         initPermissionUser(permissionsManagement, uniqueId, name, disconnectHandler, true);
     }
 
-    public static void initPermissionUser(CachedPermissionManagement permissionsManagement, UUID uniqueId, String name, Consumer<String> disconnectHandler, boolean shouldUpdateName) {
+    public static void initPermissionUser(IPermissionManagement permissionsManagement, UUID uniqueId, String name, Consumer<String> disconnectHandler, boolean shouldUpdateName) {
         IPermissionUser permissionUser = null;
         try {
             permissionUser = permissionsManagement.getUserAsync(uniqueId).get(3, TimeUnit.SECONDS);
@@ -44,7 +46,11 @@ public class CloudPermissionsHelper {
         }
 
         if (permissionUser != null) {
-            permissionsManagement.getCachedPermissionUsers().put(permissionUser.getUniqueId(), permissionUser);
+            CachedPermissionManagement management = asCachedPermissionManagement(permissionsManagement);
+            if (management != null) {
+                management.getCachedPermissionUsers().put(uniqueId, permissionUser);
+            }
+
             if (shouldUpdateName && !name.equals(permissionUser.getName())) {
                 permissionUser.setName(name);
                 permissionsManagement.updateUser(permissionUser);
@@ -52,4 +58,11 @@ public class CloudPermissionsHelper {
         }
     }
 
+    public static CachedPermissionManagement getCachedPermissionManagement() {
+        return asCachedPermissionManagement(CloudNetDriver.getInstance().getPermissionManagement());
+    }
+
+    public static CachedPermissionManagement asCachedPermissionManagement(IPermissionManagement management) {
+        return management instanceof CachedPermissionManagement ? (CachedPermissionManagement) management : null;
+    }
 }
