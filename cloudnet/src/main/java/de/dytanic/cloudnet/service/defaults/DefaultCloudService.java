@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.concurrent.CompletedTask;
 import de.dytanic.cloudnet.common.concurrent.ITask;
+import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.common.unsafe.CPUUsageResolver;
@@ -153,6 +154,10 @@ public abstract class DefaultCloudService extends DefaultEmptyCloudService {
     }
 
     protected ServiceInfoSnapshot createServiceInfoSnapshot(ServiceLifeCycle lifeCycle) {
+        JsonDocument properties = this.serviceConfiguration.getProperties();
+        if (lifeCycle != ServiceLifeCycle.STOPPED && this.serviceInfoSnapshot != null) {
+            properties = this.serviceInfoSnapshot.getProperties();
+        }
         return new ServiceInfoSnapshot(
                 System.currentTimeMillis(),
                 new HostAndPort(CloudNet.getInstance().getConfig().getHostAddress(), this.serviceConfiguration.getPort()),
@@ -160,7 +165,7 @@ public abstract class DefaultCloudService extends DefaultEmptyCloudService {
                 -1,
                 lifeCycle,
                 this.serviceInfoSnapshot != null && this.isAlive() ? this.serviceInfoSnapshot.getProcessSnapshot() : ProcessSnapshot.empty(),
-                this.serviceInfoSnapshot != null ? this.serviceInfoSnapshot.getProperties() : this.serviceConfiguration.getProperties(),
+                properties,
                 this.serviceConfiguration
         );
     }
