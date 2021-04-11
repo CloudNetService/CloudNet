@@ -5,13 +5,22 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 public abstract class DefaultPermissionManagement implements IPermissionManagement {
+
+    private static final Comparator<IPermissible> POTENCY_COMPARATOR = Comparator.comparingInt(IPermissible::getPotency);
 
     @Override
     public IPermissionManagement getChildPermissionManagement() {
@@ -104,7 +113,7 @@ public abstract class DefaultPermissionManagement implements IPermissionManageme
             permissionGroups.add(this.getDefaultPermissionGroup());
         }
 
-        permissionGroups.sort(Comparator.comparingInt(IPermissionGroup::getPotency).reversed());
+        permissionGroups.sort(POTENCY_COMPARATOR);
         return permissionGroups;
     }
 
@@ -283,10 +292,6 @@ public abstract class DefaultPermissionManagement implements IPermissionManageme
 
     @Override
     public @NotNull Collection<Permission> getAllPermissions(@NotNull IPermissible permissible, String group) {
-        if (permissible == null) {
-            return Collections.emptyList();
-        }
-
         Collection<Permission> permissions = new ArrayList<>(permissible.getPermissions());
         if (group != null && permissible.getGroupPermissions().containsKey(group)) {
             permissions.addAll(permissible.getGroupPermissions().get(group));
