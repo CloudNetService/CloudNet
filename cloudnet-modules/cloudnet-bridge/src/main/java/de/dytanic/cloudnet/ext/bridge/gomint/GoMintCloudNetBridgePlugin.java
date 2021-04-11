@@ -61,7 +61,7 @@ public final class GoMintCloudNetBridgePlugin extends Plugin {
             boolean value = false;
 
             GoMint.instance().pluginManager().callEvent(pingEvent);
-            if (pingEvent.motd() != null && !pingEvent.motd().equalsIgnoreCase(GoMintCloudNetHelper.getApiMotd())) {
+            if (pingEvent.motd() != null && !pingEvent.motd().equalsIgnoreCase(BridgeServerHelper.getMotd())) {
                 hasToUpdate = true;
                 GoMintCloudNetHelper.setMotd(pingEvent.motd());
                 if (pingEvent.motd().toLowerCase().contains("running") ||

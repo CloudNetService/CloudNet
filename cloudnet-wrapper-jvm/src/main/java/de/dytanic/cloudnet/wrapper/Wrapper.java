@@ -20,7 +20,12 @@ import de.dytanic.cloudnet.driver.network.ssl.SSLConfiguration;
 import de.dytanic.cloudnet.driver.provider.service.RemoteCloudServiceFactory;
 import de.dytanic.cloudnet.driver.provider.service.RemoteSpecificCloudServiceProvider;
 import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
-import de.dytanic.cloudnet.driver.service.*;
+import de.dytanic.cloudnet.driver.service.ProcessSnapshot;
+import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
+import de.dytanic.cloudnet.driver.service.ServiceId;
+import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
+import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
+import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import de.dytanic.cloudnet.wrapper.conf.DocumentWrapperConfiguration;
 import de.dytanic.cloudnet.wrapper.conf.IWrapperConfiguration;
 import de.dytanic.cloudnet.wrapper.database.IDatabaseProvider;
@@ -29,7 +34,12 @@ import de.dytanic.cloudnet.wrapper.event.ApplicationPostStartEvent;
 import de.dytanic.cloudnet.wrapper.event.ApplicationPreStartEvent;
 import de.dytanic.cloudnet.wrapper.event.service.ServiceInfoSnapshotConfigureEvent;
 import de.dytanic.cloudnet.wrapper.network.NetworkClientChannelHandler;
-import de.dytanic.cloudnet.wrapper.network.listener.*;
+import de.dytanic.cloudnet.wrapper.network.listener.PacketServerAuthorizationResponseListener;
+import de.dytanic.cloudnet.wrapper.network.listener.PacketServerChannelMessageListener;
+import de.dytanic.cloudnet.wrapper.network.listener.PacketServerServiceInfoPublisherListener;
+import de.dytanic.cloudnet.wrapper.network.listener.PacketServerSetGlobalLogLevelListener;
+import de.dytanic.cloudnet.wrapper.network.listener.PacketServerUpdatePermissionsListener;
+import de.dytanic.cloudnet.wrapper.network.listener.PacketServerWrapperDriverAPIListener;
 import de.dytanic.cloudnet.wrapper.network.packet.PacketClientServiceInfoUpdate;
 import de.dytanic.cloudnet.wrapper.permission.WrapperPermissionManagement;
 import de.dytanic.cloudnet.wrapper.provider.WrapperGroupConfigurationProvider;
@@ -498,11 +508,18 @@ public final class Wrapper extends CloudNetDriver implements DriverAPIUser {
         return this.currentServiceInfoSnapshot;
     }
 
+    /**
+     * @deprecated use {@link CloudNetDriver#getDatabaseProvider()} instead
+     */
     @NotNull
+    @Deprecated
+    @ApiStatus.ScheduledForRemoval
     public IDatabaseProvider getDatabaseProvider() {
         return this.databaseProvider;
     }
 
+    @Deprecated
+    @ApiStatus.ScheduledForRemoval
     public void setDatabaseProvider(@NotNull IDatabaseProvider databaseProvider) {
         Preconditions.checkNotNull(databaseProvider);
         this.databaseProvider = databaseProvider;
