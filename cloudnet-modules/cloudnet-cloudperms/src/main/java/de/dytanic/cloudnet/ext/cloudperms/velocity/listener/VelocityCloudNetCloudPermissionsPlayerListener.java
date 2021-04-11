@@ -9,16 +9,16 @@ import com.velocitypowered.api.event.permission.PermissionsSetupEvent;
 import com.velocitypowered.api.permission.PermissionProvider;
 import com.velocitypowered.api.proxy.Player;
 import de.dytanic.cloudnet.driver.permission.CachedPermissionManagement;
+import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
 import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsHelper;
 import net.kyori.text.serializer.legacy.LegacyComponentSerializer;
 
 public final class VelocityCloudNetCloudPermissionsPlayerListener {
 
-    private final CachedPermissionManagement permissionsManagement;
-
+    private final IPermissionManagement permissionsManagement;
     private final PermissionProvider permissionProvider;
 
-    public VelocityCloudNetCloudPermissionsPlayerListener(CachedPermissionManagement permissionsManagement, PermissionProvider permissionProvider) {
+    public VelocityCloudNetCloudPermissionsPlayerListener(IPermissionManagement permissionsManagement, PermissionProvider permissionProvider) {
         this.permissionsManagement = permissionsManagement;
         this.permissionProvider = permissionProvider;
     }
@@ -40,7 +40,9 @@ public final class VelocityCloudNetCloudPermissionsPlayerListener {
 
     @Subscribe
     public void handle(DisconnectEvent event) {
-        this.permissionsManagement.getCachedPermissionUsers().remove(event.getPlayer().getUniqueId());
+        CachedPermissionManagement management = CloudPermissionsHelper.asCachedPermissionManagement(this.permissionsManagement);
+        if (management != null) {
+            management.getCachedPermissionUsers().remove(event.getPlayer().getUniqueId());
+        }
     }
-
 }

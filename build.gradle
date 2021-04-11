@@ -66,7 +66,7 @@ allprojects {
         dependencyNettyVersion = '4.1.63.Final'
         dependencyJLineVersion = '3.19.0'
         dependencyJAnsiVersion = '2.3.2'
-        dependencySpigotApiVersion = '1.16.5-R0.1-SNAPSHOT'
+        dependencySpigotApiVersion = '1.8.8-R0.1-SNAPSHOT'
         dependencySpongeVersion = '7.3.0'
         dependencyBungeeCordVersion = '1.16-R0.5-SNAPSHOT'
         dependencyVelocityVersion = '1.1.4'

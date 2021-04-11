@@ -216,6 +216,11 @@ public final class Wrapper extends CloudNetDriver implements DriverAPIUser {
     }
 
     @Override
+    public @NotNull String getNodeUniqueId() {
+        return this.getServiceId().getNodeUniqueId();
+    }
+
+    @Override
     public @NotNull SpecificCloudServiceProvider getCloudServiceProvider(@NotNull String name) {
         return new RemoteSpecificCloudServiceProvider(this.getNetworkChannel(), this.generalCloudServiceProvider, name);
     }
@@ -502,11 +507,18 @@ public final class Wrapper extends CloudNetDriver implements DriverAPIUser {
         return this.currentServiceInfoSnapshot;
     }
 
+    /**
+     * @deprecated use {@link CloudNetDriver#getDatabaseProvider()} instead
+     */
     @NotNull
+    @Deprecated
+    @ApiStatus.ScheduledForRemoval
     public IDatabaseProvider getDatabaseProvider() {
         return this.databaseProvider;
     }
 
+    @Deprecated
+    @ApiStatus.ScheduledForRemoval
     public void setDatabaseProvider(@NotNull IDatabaseProvider databaseProvider) {
         Preconditions.checkNotNull(databaseProvider);
         this.databaseProvider = databaseProvider;

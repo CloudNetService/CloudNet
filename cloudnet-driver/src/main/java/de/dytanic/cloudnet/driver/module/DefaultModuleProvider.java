@@ -14,7 +14,8 @@ import java.util.stream.Collectors;
 
 public final class DefaultModuleProvider implements IModuleProvider {
 
-    protected Collection<DefaultModuleWrapper> moduleWrappers = new CopyOnWriteArrayList<>();
+    protected final Collection<DefaultModuleWrapper> moduleWrappers = new CopyOnWriteArrayList<>();
+
     protected IModuleProviderHandler moduleProviderHandler = new ModuleProviderHandlerAdapter();
     protected IModuleDependencyLoader moduleDependencyLoader = new DefaultMemoryModuleDependencyLoader();
 

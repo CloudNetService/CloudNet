@@ -3,7 +3,6 @@ package de.dytanic.cloudnet.ext.cloudperms.node;
 import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.driver.module.ModuleLifeCycle;
 import de.dytanic.cloudnet.driver.module.ModuleTask;
-import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsManagement;
 import de.dytanic.cloudnet.ext.cloudperms.node.listener.ConfigurationUpdateListener;
 import de.dytanic.cloudnet.ext.cloudperms.node.listener.IncludePluginListener;
 import de.dytanic.cloudnet.module.NodeCloudNetModule;
@@ -26,13 +25,6 @@ public final class CloudNetCloudPermissionsModule extends NodeCloudNetModule {
     @ModuleTask(order = 127, event = ModuleLifeCycle.LOADED)
     public void init() {
         instance = this;
-    }
-
-    @ModuleTask(order = 127, event = ModuleLifeCycle.STARTED)
-    public void initPermissionManagement() {
-        if (this.getConfig().getBoolean("enabled")) {
-            CloudPermissionsManagement.newInstance();
-        }
     }
 
     @ModuleTask(order = 126, event = ModuleLifeCycle.STARTED)

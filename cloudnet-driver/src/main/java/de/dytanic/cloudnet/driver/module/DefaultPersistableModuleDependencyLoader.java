@@ -10,7 +10,7 @@ import java.util.Map;
 
 public class DefaultPersistableModuleDependencyLoader implements IModuleDependencyLoader {
 
-    protected Path baseDirectory;
+    protected final Path baseDirectory;
 
     public DefaultPersistableModuleDependencyLoader(Path baseDirectory) {
         this.baseDirectory = baseDirectory;
