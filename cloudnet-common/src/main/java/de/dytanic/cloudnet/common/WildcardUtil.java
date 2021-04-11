@@ -199,6 +199,6 @@ public final class WildcardUtil {
      * @return {@code true} if the char is part of the pattern or {@code false} if escaped
      */
     private static boolean isPartOfPattern(char[] content, int index) {
-        return index > 0 && content[--index] != '\\';
+        return index <= 0 || content[--index] != '\\';
     }
 }
