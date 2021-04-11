@@ -154,6 +154,10 @@ public abstract class DefaultCloudService extends DefaultEmptyCloudService {
     }
 
     protected ServiceInfoSnapshot createServiceInfoSnapshot(ServiceLifeCycle lifeCycle) {
+        JsonDocument properties = JsonDocument.EMPTY;
+        if (lifeCycle != ServiceLifeCycle.STOPPED) {
+            properties = this.serviceInfoSnapshot != null ? this.serviceInfoSnapshot.getProperties() : this.serviceConfiguration.getProperties();
+        }
         return new ServiceInfoSnapshot(
                 System.currentTimeMillis(),
                 new HostAndPort(CloudNet.getInstance().getConfig().getHostAddress(), this.serviceConfiguration.getPort()),
@@ -161,7 +165,7 @@ public abstract class DefaultCloudService extends DefaultEmptyCloudService {
                 -1,
                 lifeCycle,
                 this.serviceInfoSnapshot != null && this.isAlive() ? this.serviceInfoSnapshot.getProcessSnapshot() : ProcessSnapshot.empty(),
-                this.serviceInfoSnapshot != null ? lifeCycle == ServiceLifeCycle.STOPPED ? JsonDocument.EMPTY : this.serviceConfiguration.getProperties() : this.serviceConfiguration.getProperties(),
+                properties,
                 this.serviceConfiguration
         );
     }
