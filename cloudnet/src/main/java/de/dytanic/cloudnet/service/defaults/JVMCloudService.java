@@ -85,8 +85,6 @@ final class JVMCloudService extends DefaultMinecraftCloudService implements IClo
     private void invokeAutoDeleteOnStopIfNotRestart() {
         if (this.getServiceConfiguration().isAutoDeleteOnStop() && !this.restartState) {
             this.delete();
-        } else {
-            this.initAndPrepareService();
         }
     }
 
@@ -102,8 +100,10 @@ final class JVMCloudService extends DefaultMinecraftCloudService implements IClo
 
     @Override
     public boolean isAlive() {
-        return this.lifeCycle == ServiceLifeCycle.DEFINED || this.lifeCycle == ServiceLifeCycle.PREPARED ||
-                (this.lifeCycle == ServiceLifeCycle.RUNNING && this.process != null && this.process.isAlive());
+        return this.lifeCycle == ServiceLifeCycle.DEFINED
+                || this.lifeCycle == ServiceLifeCycle.PREPARED
+                || this.lifeCycle == ServiceLifeCycle.STOPPED
+                || (this.lifeCycle == ServiceLifeCycle.RUNNING && this.process != null && this.process.isAlive());
     }
 
     @Override
