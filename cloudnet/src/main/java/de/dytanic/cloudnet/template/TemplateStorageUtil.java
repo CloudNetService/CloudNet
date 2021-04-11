@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Path;
 
 public final class TemplateStorageUtil {
 
@@ -22,8 +23,13 @@ public final class TemplateStorageUtil {
                 .getService(ITemplateStorage.class, LocalTemplateStorage.LOCAL_TEMPLATE_STORAGE);
     }
 
+    @Deprecated
     public static File getFile(ServiceTemplate serviceTemplate, String path) {
-        return new File(getLocalTemplateStorage().getStorageDirectory() + File.separator + serviceTemplate.getTemplatePath(), path);
+        return getPath(serviceTemplate, path).toFile();
+    }
+
+    public static Path getPath(ServiceTemplate serviceTemplate, String path) {
+        return getLocalTemplateStorage().getStorageDirectory().resolve(serviceTemplate.getTemplatePath()).resolve(path).normalize();
     }
 
     private static void prepareProxyTemplate(ITemplateStorage storage, ServiceTemplate template, byte[] buffer, String configPath, String defaultConfigPath) throws IOException {

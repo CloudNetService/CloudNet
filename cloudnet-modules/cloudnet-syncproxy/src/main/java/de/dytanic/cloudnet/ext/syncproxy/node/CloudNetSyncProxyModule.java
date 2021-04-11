@@ -12,14 +12,14 @@ import de.dytanic.cloudnet.ext.syncproxy.node.listener.SyncProxyDefaultConfigura
 import de.dytanic.cloudnet.module.NodeCloudNetModule;
 
 import java.io.File;
+import java.nio.file.Path;
 
 public final class CloudNetSyncProxyModule extends NodeCloudNetModule {
 
     private static CloudNetSyncProxyModule instance;
 
+    private Path configurationFilePath;
     private SyncProxyConfiguration syncProxyConfiguration;
-
-    private File configurationFile;
 
     public CloudNetSyncProxyModule() {
         instance = this;
@@ -31,8 +31,8 @@ public final class CloudNetSyncProxyModule extends NodeCloudNetModule {
 
     @ModuleTask(order = 127, event = ModuleLifeCycle.STARTED)
     public void createConfigurationOrUpdate() {
-        this.configurationFile = new File(this.getModuleWrapper().getDataFolder(), "config.json");
-        this.syncProxyConfiguration = SyncProxyConfigurationWriterAndReader.read(this.configurationFile);
+        this.configurationFilePath = this.getModuleWrapper().getDataDirectory().resolve("config.json");
+        this.syncProxyConfiguration = SyncProxyConfigurationWriterAndReader.read(this.configurationFilePath);
     }
 
     @ModuleTask(order = 64, event = ModuleLifeCycle.STARTED)
@@ -59,7 +59,12 @@ public final class CloudNetSyncProxyModule extends NodeCloudNetModule {
         this.syncProxyConfiguration = syncProxyConfiguration;
     }
 
+    @Deprecated
     public File getConfigurationFile() {
-        return this.configurationFile;
+        return this.configurationFilePath.toFile();
+    }
+
+    public Path getConfigurationFilePath() {
+        return configurationFilePath;
     }
 }
