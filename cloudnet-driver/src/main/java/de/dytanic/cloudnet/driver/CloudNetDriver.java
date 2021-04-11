@@ -76,7 +76,6 @@ public abstract class CloudNetDriver {
         CloudNetDriver.instance = instance;
     }
 
-
     public abstract void start() throws Exception;
 
     public abstract void stop();
@@ -90,6 +89,7 @@ public abstract class CloudNetDriver {
 
     /**
      * Gets the component name if it is called on a node and the name of the node if it is called on a wrapper.
+     * @return the uniqueId of the current node
      */
     @NotNull
     public abstract String getNodeUniqueId();
