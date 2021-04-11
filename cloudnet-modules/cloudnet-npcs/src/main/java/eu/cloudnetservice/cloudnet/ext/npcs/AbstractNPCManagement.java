@@ -15,7 +15,13 @@ import eu.cloudnetservice.cloudnet.ext.npcs.configuration.NPCConfigurationEntry;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public abstract class AbstractNPCManagement extends ServiceInfoStateWatcher {
@@ -24,9 +30,9 @@ public abstract class AbstractNPCManagement extends ServiceInfoStateWatcher {
 
     protected NPCConfigurationEntry ownNPCConfigurationEntry;
 
-    protected Set<CloudNPC> cloudNPCS;
+    protected final Set<CloudNPC> cloudNPCS;
 
-    protected Map<ServiceInfoState, NPCConfigurationEntry.ItemLayout> itemLayouts = new HashMap<>();
+    protected final Map<ServiceInfoState, NPCConfigurationEntry.ItemLayout> itemLayouts = new HashMap<>();
 
     public AbstractNPCManagement() {
         this.setNPCConfiguration(this.getNPCConfigurationFromNode());

@@ -18,7 +18,15 @@ import de.dytanic.cloudnet.wrapper.Wrapper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -32,7 +40,7 @@ public abstract class AbstractSignManagement extends ServiceInfoStateWatcher {
             new AtomicInteger(-1), //starting
             new AtomicInteger(-1) //search
     };
-    protected Set<Sign> signs;
+    protected final Set<Sign> signs;
 
     public AbstractSignManagement() {
         Collection<Sign> signsFromNode = this.getSignsFromNode();
