@@ -335,10 +335,17 @@ public class CommandTasks extends CommandServiceConfigurationBase {
                 )
 
                 .generateCommand(
-                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> forEachTasks((ServiceConfigurationBase[]) internalProperties.get("tasks"), serviceTask -> {
-                            serviceTask.getAssociatedNodes().add((String) args.argument(4));
-                            sender.sendMessage(LanguageManager.getMessage("command-tasks-add-node-success"));
-                        }),
+                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
+                            String node = (String) args.argument(4);
+                            forEachTasks((ServiceConfigurationBase[]) internalProperties.get("tasks"), serviceTask -> {
+                                if (serviceTask.getAssociatedNodes().contains(node)) {
+                                    sender.sendMessage(LanguageManager.getMessage("command-tasks-add-node-already-added"));
+                                } else {
+                                    serviceTask.getAssociatedNodes().add(node);
+                                    sender.sendMessage(LanguageManager.getMessage("command-tasks-add-node-success"));
+                                }
+                            });
+                        },
                         exactStringIgnoreCase("node"),
                         dynamicString(
                                 "uniqueId",
@@ -357,10 +364,17 @@ public class CommandTasks extends CommandServiceConfigurationBase {
                         )
                 )
                 .generateCommand(
-                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> forEachTasks((ServiceConfigurationBase[]) internalProperties.get("tasks"), serviceTask -> {
-                            serviceTask.getGroups().add((String) args.argument(4));
-                            sender.sendMessage(LanguageManager.getMessage("command-tasks-add-group-success"));
-                        }),
+                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
+                            String group = (String) args.argument(4);
+                            forEachTasks((ServiceConfigurationBase[]) internalProperties.get("tasks"), serviceTask -> {
+                                if (serviceTask.getGroups().contains(group)) {
+                                    sender.sendMessage(LanguageManager.getMessage("command-tasks-add-group-already-added"));
+                                } else {
+                                    serviceTask.getGroups().add(group);
+                                    sender.sendMessage(LanguageManager.getMessage("command-tasks-add-group-success"));
+                                }
+                            });
+                        },
                         exactStringIgnoreCase("group"),
                         dynamicString(
                                 "name",
