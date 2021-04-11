@@ -97,7 +97,11 @@ public class ServiceVersionProvider {
     }
 
     public boolean installServiceVersion(ServiceVersionType serviceVersionType, ServiceVersion serviceVersion, ITemplateStorage storage, ServiceTemplate serviceTemplate) {
-        if (!serviceVersionType.canInstall(serviceVersion)) {
+        return this.installServiceVersion(serviceVersionType, serviceVersion, storage, serviceTemplate, false);
+    }
+
+    public boolean installServiceVersion(ServiceVersionType serviceVersionType, ServiceVersion serviceVersion, ITemplateStorage storage, ServiceTemplate serviceTemplate, boolean forceInstall) {
+        if (!forceInstall && !serviceVersionType.canInstall(serviceVersion)) {
             throw new IllegalStateException("Cannot run " + serviceVersionType.getName() + "-" + serviceVersion.getName() + " on " + JavaVersion.getRuntimeVersion().getName());
         }
 
@@ -137,10 +141,7 @@ public class ServiceVersionProvider {
             } else {
                 Files.createDirectories(workingDirectory);
 
-                List<InstallStep> installSteps = new ArrayList<>();
-
-                installSteps.add(InstallStep.DOWNLOAD);
-                installSteps.addAll(serviceVersionType.getInstallSteps());
+                List<InstallStep> installSteps = new ArrayList<>(serviceVersionType.getInstallSteps());
                 installSteps.add(InstallStep.DEPLOY);
 
                 Set<Path> lastStepResult = new HashSet<>();

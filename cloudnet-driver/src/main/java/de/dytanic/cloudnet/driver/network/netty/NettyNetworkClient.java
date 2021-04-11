@@ -29,6 +29,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 public final class NettyNetworkClient implements INetworkClient {
 
+    private static final int CONNECTION_TIMEOUT_MILLIS = 5_000;
+
     protected final Collection<INetworkChannel> channels = new ConcurrentLinkedQueue<>();
 
     protected final IPacketListenerRegistry packetRegistry = new DefaultPacketListenerRegistry();
@@ -108,7 +110,7 @@ public final class NettyNetworkClient implements INetworkClient {
                     .option(ChannelOption.AUTO_READ, true)
                     .option(ChannelOption.IP_TOS, 24)
                     .option(ChannelOption.TCP_NODELAY, true)
-                    .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 2500)
+                    .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, CONNECTION_TIMEOUT_MILLIS)
                     .channel(NettyUtils.getSocketChannelClass())
                     .handler(new NettyNetworkClientInitializer(this, hostAndPort, () -> this.connectedTime = System.currentTimeMillis()))
                     .connect(hostAndPort.getHost(), hostAndPort.getPort())
@@ -179,6 +181,15 @@ public final class NettyNetworkClient implements INetworkClient {
 
         for (INetworkChannel channel : this.channels) {
             channel.sendPacket(packets);
+        }
+    }
+
+    @Override
+    public void sendPacketSync(@NotNull IPacket... packets) {
+        Preconditions.checkNotNull(packets);
+
+        for (INetworkChannel channel : this.channels) {
+            channel.sendPacketSync(packets);
         }
     }
 

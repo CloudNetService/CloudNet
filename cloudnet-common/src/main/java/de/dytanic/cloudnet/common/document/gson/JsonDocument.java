@@ -1,19 +1,40 @@
 package de.dytanic.cloudnet.common.document.gson;
 
-import com.google.gson.*;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.google.gson.internal.bind.TypeAdapters;
 import de.dytanic.cloudnet.common.document.IDocument;
 import de.dytanic.cloudnet.common.document.IReadable;
 import lombok.EqualsAndHashCode;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Reader;
+import java.io.StringReader;
+import java.io.Writer;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.Collection;
+import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Properties;
 
 /**
  * The Gson implementation of IDocument class.
@@ -23,15 +44,13 @@ import java.util.*;
 @EqualsAndHashCode
 public class JsonDocument implements IDocument<JsonDocument>, Cloneable {
 
+    public static final JsonDocument EMPTY = newDocument();
     public static Gson GSON = new GsonBuilder()
             .serializeNulls()
             .disableHtmlEscaping()
             .setPrettyPrinting()
             .registerTypeAdapterFactory(TypeAdapters.newTypeHierarchyFactory(JsonDocument.class, new JsonDocumentTypeAdapter()))
             .create();
-
-    public static final JsonDocument EMPTY = newDocument();
-
     protected final JsonObject jsonObject;
 
     /**
@@ -152,6 +171,12 @@ public class JsonDocument implements IDocument<JsonDocument>, Cloneable {
         JsonDocument document = new JsonDocument();
 
         document.read(path);
+        return document;
+    }
+
+    public static JsonDocument newDocument(InputStream stream) {
+        JsonDocument document = new JsonDocument();
+        document.read(stream);
         return document;
     }
 

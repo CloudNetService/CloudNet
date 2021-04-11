@@ -1,5 +1,7 @@
 package de.dytanic.cloudnet.driver.network.netty;
 
+import de.dytanic.cloudnet.driver.CloudNetDriver;
+import de.dytanic.cloudnet.driver.DriverEnvironment;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.epoll.Epoll;
@@ -35,7 +37,10 @@ public final class NettyUtils {
     }
 
     public static EventLoopGroup newEventLoopGroup() {
-        int threads = Math.min(Runtime.getRuntime().availableProcessors(), 4);
+        int threads = CloudNetDriver.optionalInstance()
+                .filter(cloudNetDriver -> cloudNetDriver.getDriverEnvironment() == DriverEnvironment.CLOUDNET)
+                .map(cloudNetDriver -> 0)
+                .orElse(4);
 
         return Epoll.isAvailable() ?
                 new EpollEventLoopGroup(threads, threadFactory()) :

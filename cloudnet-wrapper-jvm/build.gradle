@@ -28,7 +28,11 @@ shadowJar {
     archiveFileName.set(cloudnetWrapperFile)
     archiveClassifier.set(null)
     archiveVersion.set(null)
+
+    relocate 'io.netty', 'de.dytanic.cloudnet.wrapper.relocate.io.netty'
+    relocate 'META-INF/native/libnetty', 'META-INF/native/libde_dytanic_cloudnet_wrapper_relocate_netty'
+    relocate 'META-INF/native/netty', 'META-INF/native/de_dytanic_cloudnet_wrapper_relocate_netty'
+
     relocate 'com.google.common', 'de.dytanic.cloudnet.wrapper.relocate.guava'
-    relocate 'io.netty', 'de.dytanic.cloudnet.wrapper.relocate.netty'
     relocate 'com.google.gson', 'de.dytanic.cloudnet.wrapper.relocate.gson'
 }

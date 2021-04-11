@@ -38,8 +38,8 @@ public class IncludePluginListener {
             urlConnection.setUseCaches(false);
             urlConnection.setDoOutput(false);
 
-            urlConnection.setConnectTimeout(5000);
-            urlConnection.setReadTimeout(5000);
+            urlConnection.setConnectTimeout(2000);
+            urlConnection.setReadTimeout(2000);
 
             urlConnection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11");
             urlConnection.connect();
@@ -48,7 +48,7 @@ public class IncludePluginListener {
                 Files.copy(inputStream, PROTOCOLLIB_CACHE_PATH, StandardCopyOption.REPLACE_EXISTING);
             }
         } catch (IOException exception) {
-            CloudNetDriver.getInstance().getLogger().error("Unable to download ProtocolLib!", exception);
+            CloudNetDriver.getInstance().getLogger().warning("Unable to download ProtocolLib!", exception);
         }
     }
 
@@ -70,7 +70,7 @@ public class IncludePluginListener {
         if (installPlugin) {
             Path protocolLibTargetPath = pluginsFolder.toPath().resolve("ProtocolLib.jar");
 
-            if (!Files.exists(protocolLibTargetPath)) {
+            if (!Files.exists(protocolLibTargetPath) && Files.exists(PROTOCOLLIB_CACHE_PATH)) {
                 try {
                     Files.copy(PROTOCOLLIB_CACHE_PATH, protocolLibTargetPath, StandardCopyOption.REPLACE_EXISTING);
                 } catch (IOException exception) {

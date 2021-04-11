@@ -33,7 +33,7 @@ public abstract class SQLDatabase implements IDatabase {
         this.name = name;
         this.executorService = executorService;
 
-        databaseProvider.executeUpdate("CREATE TABLE IF NOT EXISTS `" + name + "` (" + TABLE_COLUMN_KEY + " VARCHAR(512) PRIMARY KEY, " + TABLE_COLUMN_VALUE + " TEXT);");
+        databaseProvider.executeUpdate("CREATE TABLE IF NOT EXISTS `" + name + "` (" + TABLE_COLUMN_KEY + " VARCHAR(64) PRIMARY KEY, " + TABLE_COLUMN_VALUE + " TEXT);");
     }
 
     @Override

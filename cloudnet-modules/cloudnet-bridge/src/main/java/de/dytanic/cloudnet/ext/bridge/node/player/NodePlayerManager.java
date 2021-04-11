@@ -9,6 +9,7 @@ import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.database.Database;
 import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
+import de.dytanic.cloudnet.driver.service.ServiceId;
 import de.dytanic.cloudnet.ext.bridge.node.NodePlayerProvider;
 import de.dytanic.cloudnet.ext.bridge.player.*;
 import org.jetbrains.annotations.ApiStatus;
@@ -115,24 +116,54 @@ public final class NodePlayerManager extends DefaultPlayerManager implements IPl
 
         JsonDocument jsonDocument = this.getDatabase().get(uniqueId.toString());
 
-        return jsonDocument != null ? jsonDocument.toInstanceOf(CloudOfflinePlayer.TYPE) : null;
+        return jsonDocument != null ? this.parseOfflinePlayer(jsonDocument) : null;
     }
 
     @Override
     public @NotNull List<? extends ICloudOfflinePlayer> getOfflinePlayers(@NotNull String name) {
         Preconditions.checkNotNull(name);
 
-        return this.getDatabase().get(new JsonDocument("name", name)).stream().map(jsonDocument -> (CloudOfflinePlayer) jsonDocument.toInstanceOf(CloudOfflinePlayer.TYPE)).collect(Collectors.toList());
+        return this.getDatabase().get(new JsonDocument("name", name)).stream()
+                .map(this::parseOfflinePlayer)
+                .collect(Collectors.toList());
     }
 
     @Override
     @Deprecated
     public List<? extends ICloudOfflinePlayer> getRegisteredPlayers() {
-        List<? extends ICloudOfflinePlayer> cloudOfflinePlayers = new ArrayList<>();
+        List<CloudOfflinePlayer> cloudOfflinePlayers = new ArrayList<>();
 
-        this.getDatabase().iterate((s, jsonDocument) -> cloudOfflinePlayers.add(jsonDocument.toInstanceOf(CloudOfflinePlayer.TYPE)));
+        this.getDatabase().iterate((s, jsonDocument) -> cloudOfflinePlayers.add(this.parseOfflinePlayer(jsonDocument)));
 
         return cloudOfflinePlayers;
+    }
+
+    private CloudOfflinePlayer parseOfflinePlayer(JsonDocument jsonDocument) {
+        CloudOfflinePlayer cloudOfflinePlayer = jsonDocument.toInstanceOf(CloudOfflinePlayer.TYPE);
+
+        NetworkServiceInfo networkServiceInfo = cloudOfflinePlayer.getLastNetworkConnectionInfo().getNetworkService();
+
+        if (networkServiceInfo.getServiceId() == null || networkServiceInfo.getGroups() == null) {
+            // CloudNet 3.3 and lower CloudOfflinePlayer database entries don't have a serviceId and groups, migrating them
+            JsonDocument lastNetworkConnectionInfoDocument = jsonDocument.getDocument("lastNetworkConnectionInfo", new JsonDocument());
+            JsonDocument networkServiceDocument = lastNetworkConnectionInfoDocument.getDocument("networkService", new JsonDocument());
+
+            String[] serverNameSplit = networkServiceDocument.getString("serverName", "").split("-");
+
+            ServiceId serviceId = new ServiceId(
+                    networkServiceDocument.get("uniqueId", UUID.class, UUID.randomUUID()),
+                    CloudNetDriver.getInstance().getComponentName(),
+                    serverNameSplit.length > 0 ? serverNameSplit[0] : "",
+                    serverNameSplit.length > 1 ? Integer.parseInt(serverNameSplit[1]) : -1,
+                    networkServiceDocument.get("environment", ServiceEnvironmentType.class, ServiceEnvironmentType.MINECRAFT_SERVER)
+            );
+
+            networkServiceInfo.setServiceId(serviceId);
+            networkServiceInfo.setGroups(new String[0]);
+            this.updateOfflinePlayer0(cloudOfflinePlayer);
+        }
+
+        return cloudOfflinePlayer;
     }
 
     @Override

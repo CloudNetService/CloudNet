@@ -25,8 +25,10 @@ public final class VelocityCloudNetCloudPermissionsPlayerListener {
 
     @Subscribe(order = PostOrder.EARLY)
     public void handle(LoginEvent event) {
-        CloudPermissionsHelper.initPermissionUser(this.permissionsManagement, event.getPlayer().getUniqueId(), event.getPlayer().getUsername(), message ->
-                event.setResult(ResultedEvent.ComponentResult.denied(LegacyComponentSerializer.legacyLinking().deserialize(message.replace("&", "§")))));
+        if (event.getResult().isAllowed()) {
+            CloudPermissionsHelper.initPermissionUser(this.permissionsManagement, event.getPlayer().getUniqueId(), event.getPlayer().getUsername(), message ->
+                    event.setResult(ResultedEvent.ComponentResult.denied(LegacyComponentSerializer.legacyLinking().deserialize(message.replace("&", "§")))));
+        }
     }
 
     @Subscribe

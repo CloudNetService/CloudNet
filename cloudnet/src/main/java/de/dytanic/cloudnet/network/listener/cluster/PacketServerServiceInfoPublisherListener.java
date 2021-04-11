@@ -22,34 +22,63 @@ public final class PacketServerServiceInfoPublisherListener implements IPacketLi
         ServiceInfoSnapshot serviceInfoSnapshot = packet.getBuffer().readObject(ServiceInfoSnapshot.class);
         PacketClientServerServiceInfoPublisher.PublisherType publisherType = packet.getBuffer().readEnumConstant(PacketClientServerServiceInfoPublisher.PublisherType.class);
 
+        UUID serviceUniqueId = serviceInfoSnapshot.getServiceId().getUniqueId();
+
+        Map<UUID, ServiceInfoSnapshot> globalServiceInfoSnapshots = this.getGlobalServiceInfoSnapshots();
+        boolean knowsService = globalServiceInfoSnapshots.containsKey(serviceUniqueId);
+
         switch (publisherType) {
             case UPDATE:
+                if (!knowsService) {
+                    return;
+                }
+
                 this.invokeEvent(new CloudServiceInfoUpdateEvent(serviceInfoSnapshot));
-                this.getGlobalServiceInfoSnapshots().put(serviceInfoSnapshot.getServiceId().getUniqueId(), serviceInfoSnapshot);
+                this.getGlobalServiceInfoSnapshots().put(serviceUniqueId, serviceInfoSnapshot);
                 break;
             case REGISTER:
                 this.invokeEvent(new CloudServiceRegisterEvent(serviceInfoSnapshot));
-                this.getGlobalServiceInfoSnapshots().put(serviceInfoSnapshot.getServiceId().getUniqueId(), serviceInfoSnapshot);
+                this.getGlobalServiceInfoSnapshots().put(serviceUniqueId, serviceInfoSnapshot);
                 break;
             case CONNECTED:
+                if (!knowsService) {
+                    return;
+                }
+
                 this.invokeEvent(new CloudServiceConnectNetworkEvent(serviceInfoSnapshot));
-                this.getGlobalServiceInfoSnapshots().put(serviceInfoSnapshot.getServiceId().getUniqueId(), serviceInfoSnapshot);
+                this.getGlobalServiceInfoSnapshots().put(serviceUniqueId, serviceInfoSnapshot);
                 break;
             case DISCONNECTED:
+                if (!knowsService) {
+                    return;
+                }
+
                 this.invokeEvent(new CloudServiceDisconnectNetworkEvent(serviceInfoSnapshot));
-                this.getGlobalServiceInfoSnapshots().put(serviceInfoSnapshot.getServiceId().getUniqueId(), serviceInfoSnapshot);
+                this.getGlobalServiceInfoSnapshots().put(serviceUniqueId, serviceInfoSnapshot);
                 break;
             case UNREGISTER:
+                if (!knowsService) {
+                    return;
+                }
+
                 this.invokeEvent(new CloudServiceUnregisterEvent(serviceInfoSnapshot));
-                this.getGlobalServiceInfoSnapshots().remove(serviceInfoSnapshot.getServiceId().getUniqueId());
+                this.getGlobalServiceInfoSnapshots().remove(serviceUniqueId);
                 break;
             case STARTED:
+                if (!knowsService) {
+                    return;
+                }
+
                 this.invokeEvent(new CloudServiceStartEvent(serviceInfoSnapshot));
-                this.getGlobalServiceInfoSnapshots().put(serviceInfoSnapshot.getServiceId().getUniqueId(), serviceInfoSnapshot);
+                this.getGlobalServiceInfoSnapshots().put(serviceUniqueId, serviceInfoSnapshot);
                 break;
             case STOPPED:
+                if (!knowsService) {
+                    return;
+                }
+
                 this.invokeEvent(new CloudServiceStopEvent(serviceInfoSnapshot));
-                this.getGlobalServiceInfoSnapshots().put(serviceInfoSnapshot.getServiceId().getUniqueId(), serviceInfoSnapshot);
+                this.getGlobalServiceInfoSnapshots().put(serviceUniqueId, serviceInfoSnapshot);
                 break;
         }
 

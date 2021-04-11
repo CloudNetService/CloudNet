@@ -7,7 +7,7 @@ import de.dytanic.cloudnet.driver.module.ModuleRepository;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
-import de.dytanic.cloudnet.driver.service.*;
+import de.dytanic.cloudnet.driver.service.ProcessSnapshot;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -19,7 +19,8 @@ public class NodeInfoSnapshotSerializerTest {
     @Test
     public void serializeNodeInfoSnapshot() {
         NetworkClusterNodeInfoSnapshot original = new NetworkClusterNodeInfoSnapshot(
-                Long.MAX_VALUE,
+                System.currentTimeMillis(),
+                System.nanoTime(),
                 new NetworkClusterNode("Node-XXX", new HostAndPort[]{new HostAndPort("127.0.0.1", 12345), new HostAndPort("123.456.789.012", 98765)}),
                 "3.3.0-RELEASE",
                 Integer.MAX_VALUE,

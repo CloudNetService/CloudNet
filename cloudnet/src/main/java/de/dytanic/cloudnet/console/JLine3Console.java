@@ -47,8 +47,10 @@ public final class JLine3Console implements IConsole {
 
     public JLine3Console() throws Exception {
         System.setProperty("library.jansi.version", "CloudNET");
-        if (!System.getProperty("os.version").contains("raspi")) {
+
+        try {
             AnsiConsole.systemInstall();
+        } catch (Throwable ignored) {
         }
 
         this.terminal = TerminalBuilder.builder().system(true).encoding(StandardCharsets.UTF_8).build();

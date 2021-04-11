@@ -8,7 +8,9 @@ RUN gradle
 
 FROM openjdk:8u212-jre-alpine3.9
 USER root
+RUN mkdir -p /home/cloudnet
+WORKDIR /home/cloudnet
 
-COPY --from=build /usr/src/cloudnet-sources/cloudnet-launcher/build/libs/launcher.jar /home/cloudnet
+COPY --from=build /usr/src/cloudnet-sources/cloudnet-launcher/build/libs/launcher.jar .
 
 CMD ["java", "-XX:CompileThreshold=100", "-Dfile.encoding=UTF-8", "-jar", "launcher.jar"]

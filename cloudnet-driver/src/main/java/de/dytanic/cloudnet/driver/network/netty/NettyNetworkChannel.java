@@ -136,15 +136,6 @@ final class NettyNetworkChannel implements INetworkChannel {
     }
 
     @Override
-    public void sendPacket(@NotNull IPacket... packets) {
-        Preconditions.checkNotNull(packets);
-
-        for (IPacket packet : packets) {
-            this.sendPacket(packet);
-        }
-    }
-
-    @Override
     public void close() {
         this.channel.close();
     }

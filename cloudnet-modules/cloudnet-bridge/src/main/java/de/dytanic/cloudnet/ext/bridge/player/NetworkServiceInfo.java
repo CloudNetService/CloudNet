@@ -41,6 +41,10 @@ public class NetworkServiceInfo implements SerializableObject {
         return this.groups;
     }
 
+    public void setGroups(String[] groups) {
+        this.groups = groups;
+    }
+
     public String getTaskName() {
         return this.serviceId.getTaskName();
     }

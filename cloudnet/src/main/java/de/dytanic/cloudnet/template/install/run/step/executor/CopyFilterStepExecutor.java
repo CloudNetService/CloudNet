@@ -34,24 +34,38 @@ public class CopyFilterStepExecutor implements InstallStepExecutor {
         Set<Path> resultPaths = new HashSet<>();
 
         for (Path path : inputPaths) {
+            if (Files.isDirectory(path)) {
+                continue;
+            }
+
             String relativePath = workingDirectory.relativize(path).toString().replace("\\", "/").toLowerCase();
 
             for (Map.Entry<Pattern, String> patternEntry : patterns) {
                 Pattern pattern = patternEntry.getKey();
-                Path targetPath = workingDirectory.resolve(patternEntry.getValue().replace("%fileName%", path.getFileName().toString()));
+                String target = patternEntry.getValue();
 
                 if (pattern.matcher(relativePath).matches()) {
-                    Files.copy(path, targetPath, StandardCopyOption.REPLACE_EXISTING);
+                    Path targetPath = workingDirectory.resolve(
+                            target.replace("%path%", relativePath)
+                                    .replace("%fileName%", path.getFileName().toString())
+                    );
+
+                    if (Files.isDirectory(targetPath)) {
+                        targetPath = path;
+                    }
+
+                    // copying might not even be necessary, maybe only filtering was wanted?
+                    if (!path.equals(targetPath)) {
+                        Files.createDirectories(targetPath.getParent());
+                        Files.copy(path, targetPath, StandardCopyOption.REPLACE_EXISTING);
+                    }
+
                     resultPaths.add(targetPath);
                 }
             }
         }
 
         return resultPaths;
-    }
-
-    @Override
-    public void interrupt() {
     }
 
 }

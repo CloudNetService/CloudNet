@@ -1,7 +1,11 @@
 package de.dytanic.cloudnet.ext.storage.ftp.client;
 
-import com.jcraft.jsch.*;
-import de.dytanic.cloudnet.common.io.FileUtils;
+import com.jcraft.jsch.ChannelSftp;
+import com.jcraft.jsch.JSch;
+import com.jcraft.jsch.JSchException;
+import com.jcraft.jsch.Session;
+import com.jcraft.jsch.SftpATTRS;
+import com.jcraft.jsch.SftpException;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.common.logging.ILogger;
 import de.dytanic.cloudnet.common.logging.LogLevel;
@@ -12,7 +16,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.*;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -218,10 +226,9 @@ public class SFTPClient implements Closeable {
                 return false;
 
             Path dir = Paths.get(localPath);
-            if (Files.exists(dir)) {
-                FileUtils.delete(dir.toFile());
+            if (!Files.exists(dir)) {
+                Files.createDirectories(dir);
             }
-            Files.createDirectories(dir);
 
             for (ChannelSftp.LsEntry entry : entries) {
                 if (entry.getAttrs().isDir()) {

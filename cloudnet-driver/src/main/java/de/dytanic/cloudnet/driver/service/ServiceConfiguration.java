@@ -22,6 +22,7 @@ public class ServiceConfiguration extends SerializableJsonDocPropertyable implem
     protected ServiceId serviceId;
 
     protected String runtime;
+    protected String javaCommand;
 
     protected boolean autoDeleteOnStop, staticService;
 
@@ -42,18 +43,30 @@ public class ServiceConfiguration extends SerializableJsonDocPropertyable implem
     protected int port;
 
     public ServiceConfiguration(ServiceId serviceId, String runtime, boolean autoDeleteOnStop, boolean staticService, String[] groups, ServiceRemoteInclusion[] includes, ServiceTemplate[] templates, ServiceDeployment[] deployments, ProcessConfiguration processConfig, int port) {
-        this(serviceId, runtime, autoDeleteOnStop, staticService, groups, includes, templates, deployments, new String[0], processConfig, port);
+        this(serviceId, runtime, autoDeleteOnStop, staticService, groups, includes, templates, deployments, new String[0], processConfig, port, null);
     }
 
     public ServiceConfiguration(ServiceId serviceId, String runtime, boolean autoDeleteOnStop, boolean staticService, String[] groups, ServiceRemoteInclusion[] includes, ServiceTemplate[] templates, ServiceDeployment[] deployments, String[] deletedFilesAfterStop, ProcessConfiguration processConfig, int port) {
-        this(serviceId, runtime, autoDeleteOnStop, staticService, groups, includes, templates, deployments, deletedFilesAfterStop, processConfig, JsonDocument.newDocument(), port);
+        this(serviceId, runtime, autoDeleteOnStop, staticService, groups, includes, templates, deployments, deletedFilesAfterStop, processConfig, JsonDocument.newDocument(), port, null);
+    }
+
+    public ServiceConfiguration(ServiceId serviceId, String runtime, boolean autoDeleteOnStop, boolean staticService, String[] groups, ServiceRemoteInclusion[] includes, ServiceTemplate[] templates, ServiceDeployment[] deployments, String[] deletedFilesAfterStop, ProcessConfiguration processConfig, int port, String javaCommand) {
+        this(serviceId, runtime, autoDeleteOnStop, staticService, groups, includes, templates, deployments, deletedFilesAfterStop, processConfig, JsonDocument.newDocument(), port, javaCommand);
     }
 
     public ServiceConfiguration(ServiceId serviceId, String runtime, boolean autoDeleteOnStop, boolean staticService, String[] groups, ServiceRemoteInclusion[] includes, ServiceTemplate[] templates, ServiceDeployment[] deployments, ProcessConfiguration processConfig, JsonDocument properties, int port) {
-        this(serviceId, runtime, autoDeleteOnStop, staticService, groups, includes, templates, deployments, new String[0], processConfig, properties, port);
+        this(serviceId, runtime, autoDeleteOnStop, staticService, groups, includes, templates, deployments, new String[0], processConfig, properties, port, null);
+    }
+
+    public ServiceConfiguration(ServiceId serviceId, String runtime, boolean autoDeleteOnStop, boolean staticService, String[] groups, ServiceRemoteInclusion[] includes, ServiceTemplate[] templates, ServiceDeployment[] deployments, ProcessConfiguration processConfig, JsonDocument properties, int port, String javaCommand) {
+        this(serviceId, runtime, autoDeleteOnStop, staticService, groups, includes, templates, deployments, new String[0], processConfig, properties, port, javaCommand);
     }
 
     public ServiceConfiguration(ServiceId serviceId, String runtime, boolean autoDeleteOnStop, boolean staticService, String[] groups, ServiceRemoteInclusion[] includes, ServiceTemplate[] templates, ServiceDeployment[] deployments, String[] deletedFilesAfterStop, ProcessConfiguration processConfig, JsonDocument properties, int port) {
+        this(serviceId, runtime, autoDeleteOnStop, staticService, groups, includes, templates, deployments, deletedFilesAfterStop, processConfig, properties, port, null);
+    }
+
+    public ServiceConfiguration(ServiceId serviceId, String runtime, boolean autoDeleteOnStop, boolean staticService, String[] groups, ServiceRemoteInclusion[] includes, ServiceTemplate[] templates, ServiceDeployment[] deployments, String[] deletedFilesAfterStop, ProcessConfiguration processConfig, JsonDocument properties, int port, String javaCommand) {
         this.serviceId = serviceId;
         this.runtime = runtime;
         this.autoDeleteOnStop = autoDeleteOnStop;
@@ -66,6 +79,7 @@ public class ServiceConfiguration extends SerializableJsonDocPropertyable implem
         this.processConfig = processConfig;
         this.properties = properties;
         this.port = port;
+        this.javaCommand = javaCommand;
     }
 
     public ServiceConfiguration() {
@@ -104,6 +118,15 @@ public class ServiceConfiguration extends SerializableJsonDocPropertyable implem
 
     public void setStaticService(boolean staticService) {
         this.staticService = staticService;
+    }
+
+    @Nullable
+    public String getJavaCommand() {
+        return this.javaCommand;
+    }
+
+    public void setJavaCommand(String javaCommand) {
+        this.javaCommand = javaCommand;
     }
 
     @NotNull
@@ -215,6 +238,7 @@ public class ServiceConfiguration extends SerializableJsonDocPropertyable implem
     public void write(@NotNull ProtocolBuffer buffer) {
         buffer.writeObject(this.serviceId);
         buffer.writeOptionalString(this.runtime);
+        buffer.writeOptionalString(this.javaCommand);
         buffer.writeBoolean(this.autoDeleteOnStop);
         buffer.writeBoolean(this.staticService);
         buffer.writeStringCollection(this.groups == null ? Collections.emptyList() : Arrays.asList(this.groups));
@@ -247,6 +271,7 @@ public class ServiceConfiguration extends SerializableJsonDocPropertyable implem
     public void read(@NotNull ProtocolBuffer buffer) {
         this.serviceId = buffer.readObject(ServiceId.class);
         this.runtime = buffer.readOptionalString();
+        this.javaCommand = buffer.readOptionalString();
         this.autoDeleteOnStop = buffer.readBoolean();
         this.staticService = buffer.readBoolean();
         this.groups = buffer.readStringCollection().toArray(new String[0]);
@@ -324,7 +349,8 @@ public class ServiceConfiguration extends SerializableJsonDocPropertyable implem
                     .maxHeapMemory(task.getProcessConfiguration().getMaxHeapMemorySize())
                     .jvmOptions(task.getProcessConfiguration().getJvmOptions())
                     .processParameters(task.getProcessConfiguration().getProcessParameters())
-                    .startPort(task.getStartPort());
+                    .startPort(task.getStartPort())
+                    .javaCommand(task.getJavaCommand());
         }
 
         /**
@@ -380,6 +406,16 @@ public class ServiceConfiguration extends SerializableJsonDocPropertyable implem
         @NotNull
         public Builder uniqueId(@NotNull UUID uniqueId) {
             this.config.serviceId.uniqueId = uniqueId;
+            return this;
+        }
+
+        /**
+         * the java command to start the service with
+         * if this is null the default value from the config.json will be used
+         */
+        @NotNull
+        public Builder javaCommand(@Nullable String javaCommand) {
+            this.config.javaCommand = javaCommand;
             return this;
         }
 

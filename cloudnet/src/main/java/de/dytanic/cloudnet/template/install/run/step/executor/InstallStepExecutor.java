@@ -12,6 +12,7 @@ public interface InstallStepExecutor {
 
     @NotNull Set<Path> execute(@NotNull InstallInformation installInformation, @NotNull Path workingDirectory, @NotNull Set<Path> inputPaths) throws IOException;
 
-    void interrupt();
+    default void interrupt() {
+    }
 
 }

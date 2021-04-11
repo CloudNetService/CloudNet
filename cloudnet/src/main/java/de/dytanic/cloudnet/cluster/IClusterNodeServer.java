@@ -38,6 +38,8 @@ public interface IClusterNodeServer extends AutoCloseable {
 
     void saveSendPacket(@NotNull IPacket packet);
 
+    void saveSendPacketSync(@NotNull IPacket packet);
+
     boolean isAcceptableConnection(@NotNull INetworkChannel channel, @NotNull String nodeId);
 
     String[] sendCommandLine(@NotNull String commandLine);

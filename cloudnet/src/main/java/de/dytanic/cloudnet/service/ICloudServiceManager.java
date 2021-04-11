@@ -1,5 +1,6 @@
 package de.dytanic.cloudnet.service;
 
+import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import org.jetbrains.annotations.ApiStatus;
@@ -33,8 +34,12 @@ public interface ICloudServiceManager {
     @NotNull
     Optional<ICloudServiceFactory> getCloudServiceFactory(@Nullable String runtime);
 
-    @ApiStatus.Internal
+    @Deprecated
+    @ApiStatus.ScheduledForRemoval
     ICloudService runTask(@NotNull ServiceConfiguration serviceConfiguration);
+
+    @ApiStatus.Internal
+    ITask<ICloudService> createCloudService(@NotNull ServiceConfiguration serviceConfiguration);
 
     void startAllCloudServices();
 

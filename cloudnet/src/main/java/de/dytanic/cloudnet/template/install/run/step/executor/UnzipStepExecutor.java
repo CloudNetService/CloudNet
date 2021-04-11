@@ -43,8 +43,4 @@ public class UnzipStepExecutor implements InstallStepExecutor {
         return resultPaths;
     }
 
-    @Override
-    public void interrupt() {
-    }
-
 }

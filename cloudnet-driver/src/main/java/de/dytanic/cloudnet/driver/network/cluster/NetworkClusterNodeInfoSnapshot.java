@@ -21,18 +21,59 @@ public class NetworkClusterNodeInfoSnapshot extends SerializableJsonDocPropertya
     }.getType();
 
     protected long creationTime;
-
+    protected long startupNanos;
     protected NetworkClusterNode node;
-
     protected String version;
-
-    protected int currentServicesCount, usedMemory, reservedMemory, maxMemory;
+    protected int currentServicesCount;
+    protected int usedMemory;
+    protected int reservedMemory;
+    protected int maxMemory;
     protected ProcessSnapshot processSnapshot;
     protected Collection<ModuleConfiguration> modules;
     private double systemCpuUsage;
 
-    public NetworkClusterNodeInfoSnapshot(long creationTime, NetworkClusterNode node, String version, int currentServicesCount, int usedMemory, int reservedMemory, int maxMemory, ProcessSnapshot processSnapshot, Collection<ModuleConfiguration> modules, double systemCpuUsage) {
+    /**
+     * @deprecated Use {@link #NetworkClusterNodeInfoSnapshot(long, long, NetworkClusterNode, String, int, int, int, int, ProcessSnapshot, Collection, double)} instead
+     */
+    @Deprecated
+    public NetworkClusterNodeInfoSnapshot(long creationTime,
+                                          NetworkClusterNode node,
+                                          String version,
+                                          int currentServicesCount,
+                                          int usedMemory,
+                                          int reservedMemory,
+                                          int maxMemory,
+                                          ProcessSnapshot processSnapshot,
+                                          Collection<ModuleConfiguration> modules,
+                                          double systemCpuUsage) {
+        this(
+                creationTime,
+                System.nanoTime(),
+                node,
+                version,
+                currentServicesCount,
+                usedMemory,
+                reservedMemory,
+                maxMemory,
+                processSnapshot,
+                modules,
+                systemCpuUsage
+        );
+    }
+
+    public NetworkClusterNodeInfoSnapshot(long creationTime,
+                                          long startupNanos,
+                                          NetworkClusterNode node,
+                                          String version,
+                                          int currentServicesCount,
+                                          int usedMemory,
+                                          int reservedMemory,
+                                          int maxMemory,
+                                          ProcessSnapshot processSnapshot,
+                                          Collection<ModuleConfiguration> modules,
+                                          double systemCpuUsage) {
         this.creationTime = creationTime;
+        this.startupNanos = startupNanos;
         this.node = node;
         this.version = version;
         this.currentServicesCount = currentServicesCount;
@@ -49,6 +90,10 @@ public class NetworkClusterNodeInfoSnapshot extends SerializableJsonDocPropertya
 
     public long getCreationTime() {
         return this.creationTime;
+    }
+
+    public long getStartupNanos() {
+        return this.startupNanos;
     }
 
     public void setCreationTime(long creationTime) {
@@ -130,6 +175,7 @@ public class NetworkClusterNodeInfoSnapshot extends SerializableJsonDocPropertya
     @Override
     public void write(@NotNull ProtocolBuffer buffer) {
         buffer.writeLong(this.creationTime);
+        buffer.writeLong(this.startupNanos);
         buffer.writeObject(this.node);
         buffer.writeString(this.version);
         buffer.writeInt(this.currentServicesCount);
@@ -146,6 +192,7 @@ public class NetworkClusterNodeInfoSnapshot extends SerializableJsonDocPropertya
     @Override
     public void read(@NotNull ProtocolBuffer buffer) {
         this.creationTime = buffer.readLong();
+        this.startupNanos = buffer.readLong();
         this.node = buffer.readObject(NetworkClusterNode.class);
         this.version = buffer.readString();
         this.currentServicesCount = buffer.readInt();

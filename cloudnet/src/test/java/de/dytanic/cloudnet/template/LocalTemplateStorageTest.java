@@ -5,9 +5,11 @@ import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.Objects;
+import java.util.zip.ZipInputStream;
 
 public final class LocalTemplateStorageTest {
 
@@ -16,10 +18,10 @@ public final class LocalTemplateStorageTest {
         File directory = new File("build/local_template_storage");
         ITemplateStorage storage = new LocalTemplateStorage(directory);
 
-        try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-             InputStream inputStream = LocalTemplateStorageTest.class.getClassLoader().getResourceAsStream("local_template_storage.zip")) {
-            FileUtils.copy(inputStream, byteArrayOutputStream);
-            storage.deploy(byteArrayOutputStream.toByteArray(), new ServiceTemplate("Test", "default", "local"));
+        try (InputStream fileStream = LocalTemplateStorageTest.class.getClassLoader().getResourceAsStream("local_template_storage.zip");
+             ZipInputStream stream = new ZipInputStream(Objects.requireNonNull(fileStream), StandardCharsets.UTF_8)
+        ) {
+            storage.deploy(stream, new ServiceTemplate("Test", "default", "local"));
             Assert.assertTrue(new File(directory, "Test/default/plugins/test_file.yml").exists());
         }
 

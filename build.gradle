@@ -12,10 +12,6 @@ allprojects {
         mavenCentral()
 
         maven {
-            url 'https://repo.dmulloy2.net/nexus/repository/public/'
-        }
-
-        maven {
             name 'jitpack.io'
             url 'https://jitpack.io'
         }
@@ -62,23 +58,29 @@ allprojects {
         cloudNetCodeName = 'Earthquake'
 
         //Dependencies
-        dependencyGuavaVersion = '28.2-jre'
-        dependencyAnnotationsVersion = '19.0.0'
-        dependencyLombokVersion = '1.18.6'
-        dependencyH2Version = '1.4.197'
+        dependencyGuavaVersion = '30.1.1-jre'
+        dependencyAnnotationsVersion = '20.1.0'
+        dependencyLombokVersion = '1.18.20'
+        dependencyH2Version = '1.4.197' // do not update, leads to database incompatibility
         dependencyGsonVersion = '2.8.6'
-        dependencyNettyVersion = '4.1.36.Final'
-        dependencyJLine3Version = '3.16.0'
-        dependencyJAnsiVersion = '1.17.1'
-        dependencyNextCloudJavaAPIVersion = '11.0.3'
-        dependencyBukkitVersion = '1.15.2-R0.1-SNAPSHOT'
-        dependencySpongeVersion = '7.0.0'
-        dependencyBungeeCordVersion = '1.15-SNAPSHOT'
-        dependencyVelocityVersion = '1.1.0-SNAPSHOT'
+        dependencyNettyVersion = '4.1.63.Final'
+        dependencyJLineVersion = '3.19.0'
+        dependencyJAnsiVersion = '2.3.2'
+        dependencySpigotApiVersion = '1.16.5-R0.1-SNAPSHOT'
+        dependencySpongeVersion = '7.3.0'
+        dependencyBungeeCordVersion = '1.16-R0.5-SNAPSHOT'
+        dependencyVelocityVersion = '1.1.4'
         dependencyNukkitXVersion = '1.0-SNAPSHOT'
         dependencyGoMintVersion = '1.0.0-SNAPSHOT'
+        dependencyMysqlConnectorJavaVersion = '8.0.23'
+        dependencyHikariCpVersion = '4.0.3'
+        dependencyVaultVersion = '1.7'
+        dependencyProtocolLibVersion = 'master-SNAPSHOT'
+        dependencyNpcLibVersion = 'development-SNAPSHOT'
+        dependencyCommonsNetVersion = '3.8.0'
+        dependencyJschVersion = '0.1.55'
 
-        testJunitVersion = '4.12'
+        testJunitVersion = '4.13.2'
 
         //file
         cloudnetLauncherFile = 'launcher.jar'
@@ -189,6 +191,7 @@ subprojects {
 
     jar {
         from rootProject.file('LICENSE')
+        duplicatesStrategy = DuplicatesStrategy.INCLUDE
     }
 
     task sourcesJar(type: Jar) {

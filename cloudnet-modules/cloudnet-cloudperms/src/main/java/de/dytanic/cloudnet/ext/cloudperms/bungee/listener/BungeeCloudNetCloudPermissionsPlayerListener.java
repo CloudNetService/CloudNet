@@ -28,10 +28,12 @@ public final class BungeeCloudNetCloudPermissionsPlayerListener implements Liste
 
     @EventHandler(priority = EventPriority.LOW)
     public void handle(LoginEvent event) {
-        CloudPermissionsHelper.initPermissionUser(this.permissionsManagement, event.getConnection().getUniqueId(), event.getConnection().getName(), message -> {
-            event.setCancelled(true);
-            event.setCancelReason(TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', message)));
-        });
+        if (!event.isCancelled()) {
+            CloudPermissionsHelper.initPermissionUser(this.permissionsManagement, event.getConnection().getUniqueId(), event.getConnection().getName(), message -> {
+                event.setCancelled(true);
+                event.setCancelReason(TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', message)));
+            });
+        }
     }
 
     @EventHandler

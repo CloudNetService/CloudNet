@@ -39,7 +39,6 @@ public final class BungeeCloudNetHelper {
         throw new UnsupportedOperationException();
     }
 
-
     public static int getLastOnlineCount() {
         return lastOnlineCount;
     }
@@ -54,6 +53,7 @@ public final class BungeeCloudNetHelper {
                 return BridgeProxyHelper.filterPlayerFallbacks(
                         player.getUniqueId(),
                         currentServer,
+                        player.getPendingConnection().getVirtualHost().getHostString(),
                         player::hasPermission
                 ).anyMatch(proxyFallback ->
                         proxyFallback.getTask().equals(currentService.getServiceId().getTaskName()));
@@ -74,6 +74,7 @@ public final class BungeeCloudNetHelper {
         return BridgeProxyHelper.getNextFallback(
                 player.getUniqueId(),
                 currentServer != null ? currentServer.getName() : null,
+                player.getPendingConnection().getVirtualHost().getHostString(),
                 player::hasPermission
         ).map(serviceInfoSnapshot -> ProxyServer.getInstance().getPluginManager().callEvent(
                 new BungeePlayerFallbackEvent(player, serviceInfoSnapshot, serviceInfoSnapshot.getName())
@@ -81,7 +82,9 @@ public final class BungeeCloudNetHelper {
     }
 
     public static CompletableFuture<ServiceInfoSnapshot> connectToFallback(ProxiedPlayer player, String currentServer) {
-        return BridgeProxyHelper.connectToFallback(player.getUniqueId(), currentServer,
+        return BridgeProxyHelper.connectToFallback(player.getUniqueId(),
+                currentServer,
+                player.getPendingConnection().getVirtualHost().getHostString(),
                 player::hasPermission,
                 serviceInfoSnapshot -> {
                     BungeePlayerFallbackEvent event = new BungeePlayerFallbackEvent(player, serviceInfoSnapshot, serviceInfoSnapshot.getName());
@@ -109,6 +112,10 @@ public final class BungeeCloudNetHelper {
                 || (serviceInfoSnapshot.getServiceId().getEnvironment().isMinecraftBedrockServer() && currentServiceEnvironment.isMinecraftBedrockProxy());
     }
 
+    public static void init() {
+        BridgeProxyHelper.setMaxPlayers(ProxyServer.getInstance().getConfig().getPlayerLimit());
+    }
+
     public static void initProperties(ServiceInfoSnapshot serviceInfoSnapshot) {
         Preconditions.checkNotNull(serviceInfoSnapshot);
 
@@ -119,6 +126,7 @@ public final class BungeeCloudNetHelper {
                 .append("Version", ProxyServer.getInstance().getVersion())
                 .append("Game-Version", ProxyServer.getInstance().getGameVersion())
                 .append("Online-Count", ProxyServer.getInstance().getOnlineCount())
+                .append("Max-Players", BridgeProxyHelper.getMaxPlayers())
                 .append("Channels", ProxyServer.getInstance().getChannels())
                 .append("BungeeCord-Name", ProxyServer.getInstance().getName())
                 .append("Players", ProxyServer.getInstance().getPlayers().stream().map(proxiedPlayer -> new BungeeCloudNetPlayerInfo(
@@ -138,8 +146,7 @@ public final class BungeeCloudNetHelper {
                     ;
 
                     return pluginInfo;
-                }).collect(Collectors.toList()))
-        ;
+                }).collect(Collectors.toList()));
     }
 
     public static NetworkConnectionInfo createNetworkConnectionInfo(PendingConnection pendingConnection) {

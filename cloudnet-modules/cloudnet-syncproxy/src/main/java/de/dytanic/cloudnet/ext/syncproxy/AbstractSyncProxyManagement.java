@@ -2,10 +2,8 @@ package de.dytanic.cloudnet.ext.syncproxy;
 
 
 import com.google.common.base.Preconditions;
-import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.ext.bridge.BridgeServiceProperty;
-import de.dytanic.cloudnet.ext.bridge.player.IPlayerManager;
 import de.dytanic.cloudnet.ext.syncproxy.configuration.*;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import org.jetbrains.annotations.Nullable;
@@ -18,8 +16,6 @@ public abstract class AbstractSyncProxyManagement {
     private static final Random RANDOM = new Random();
 
     protected final AtomicInteger tabListEntryIndex = new AtomicInteger(-1);
-
-    protected IPlayerManager playerManager = CloudNetDriver.getInstance().getServicesRegistry().getFirstService(IPlayerManager.class);
 
     protected SyncProxyConfiguration syncProxyConfiguration;
 
@@ -140,7 +136,10 @@ public abstract class AbstractSyncProxyManagement {
                         Arrays.asList(Wrapper.getInstance().getServiceConfiguration().getGroups()).contains(tabListConfiguration.getTargetGroup()))
                 .findFirst().orElse(null);
 
-        this.scheduleTabList();
+        if (this.tabListEntryIndex.get() == -1) {
+            this.scheduleTabList();
+        }
+
         this.checkWhitelist();
     }
 

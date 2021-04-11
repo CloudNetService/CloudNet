@@ -42,7 +42,8 @@ public class CommandCreate extends SubCommandHandler {
                                             serviceTask.getGroups(),
                                             serviceTask.getDeletedFilesAfterStop(),
                                             serviceTask.getProcessConfiguration(),
-                                            serviceTask.getStartPort()
+                                            serviceTask.getStartPort(),
+                                            serviceTask.getJavaCommand()
                                     );
 
                                     if (serviceInfoSnapshots.isEmpty()) {
@@ -95,7 +96,8 @@ public class CommandCreate extends SubCommandHandler {
                                                         new ArrayList<>(),
                                                         new ArrayList<>()
                                                 ),
-                                                environment.getDefaultStartPort()
+                                                environment.getDefaultStartPort(),
+                                                null
                                         );
 
                                         listAndStartServices(sender, serviceInfoSnapshots, properties);
@@ -117,6 +119,7 @@ public class CommandCreate extends SubCommandHandler {
                                                         "- memory=<mb>",
                                                         "- groups=[Lobby, Prime, TestLobby]",
                                                         "- runtime=<name>",
+                                                        "- javaCommand=<command>",
                                                         "- jvmOptions=[-XX:OptimizeStringConcat;-Xms256M]",
                                                         "- templates=[storage:prefix/name  local:Lobby/Lobby;local:/PremiumLobby]",
                                                         "- deployments=[storage:prefix/name  local:Lobby/Lobby;local:/PremiumLobby]",
@@ -165,7 +168,8 @@ public class CommandCreate extends SubCommandHandler {
             Collection<String> groups,
             Collection<String> deletedFilesAfterStop,
             ProcessConfiguration processConfiguration,
-            int startPort
+            int startPort,
+            String javaCommand
     ) {
         Collection<ServiceInfoSnapshot> serviceInfoSnapshots = new ArrayList<>(count);
 
@@ -203,7 +207,8 @@ public class CommandCreate extends SubCommandHandler {
                                     processConfiguration.getProcessParameters())
                     ),
                     finalStartPort,
-                    0
+                    0,
+                    properties.getOrDefault("javaCommand", javaCommand)
             ));
 
             if (serviceInfoSnapshot != null) {

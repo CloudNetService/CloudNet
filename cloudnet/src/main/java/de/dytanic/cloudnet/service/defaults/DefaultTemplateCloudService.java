@@ -14,6 +14,7 @@ import de.dytanic.cloudnet.service.ICloudServiceManager;
 import de.dytanic.cloudnet.service.handler.CloudServiceHandler;
 import de.dytanic.cloudnet.template.ITemplateStorage;
 import de.dytanic.cloudnet.template.LocalTemplateStorage;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
@@ -37,6 +38,7 @@ public abstract class DefaultTemplateCloudService extends DefaultCloudService {
     }
 
     @Override
+    @ApiStatus.Internal
     public void init() {
         this.waitingIncludes.addAll(Arrays.asList(this.getServiceConfiguration().getIncludes()));
         this.waitingTemplates.addAll(Arrays.asList(this.getServiceConfiguration().getTemplates()));
