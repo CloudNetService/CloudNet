@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit;
 
 @ToString
 @EqualsAndHashCode
-public final class Permission implements SerializableObject {
+public final class Permission implements SerializableObject, Comparable<Permission> {
 
     private String name;
 
@@ -75,5 +75,10 @@ public final class Permission implements SerializableObject {
         this.name = buffer.readString();
         this.potency = buffer.readInt();
         this.timeOutMillis = buffer.readLong();
+    }
+
+    @Override
+    public int compareTo(@NotNull Permission o) {
+        return Integer.compare(Math.abs(this.getPotency()), Math.abs(o.getPotency()));
     }
 }
