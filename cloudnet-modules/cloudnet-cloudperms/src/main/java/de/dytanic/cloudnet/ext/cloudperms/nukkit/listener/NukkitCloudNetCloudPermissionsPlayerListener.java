@@ -7,18 +7,18 @@ import cn.nukkit.event.Listener;
 import cn.nukkit.event.player.PlayerLoginEvent;
 import cn.nukkit.event.player.PlayerQuitEvent;
 import de.dytanic.cloudnet.driver.permission.CachedPermissionManagement;
+import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
 import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsHelper;
 import de.dytanic.cloudnet.ext.cloudperms.nukkit.NukkitCloudNetCloudPermissionsPlugin;
 
 public final class NukkitCloudNetCloudPermissionsPlayerListener implements Listener {
 
     private final NukkitCloudNetCloudPermissionsPlugin plugin;
+    private final IPermissionManagement permissionsManagement;
 
-    private final CachedPermissionManagement permissionsManagement;
-
-    public NukkitCloudNetCloudPermissionsPlayerListener(NukkitCloudNetCloudPermissionsPlugin plugin, CachedPermissionManagement permissionsManagement) {
-        this.permissionsManagement = permissionsManagement;
+    public NukkitCloudNetCloudPermissionsPlayerListener(NukkitCloudNetCloudPermissionsPlugin plugin, IPermissionManagement permissionsManagement) {
         this.plugin = plugin;
+        this.permissionsManagement = permissionsManagement;
     }
 
     @EventHandler(priority = EventPriority.LOW)
@@ -35,6 +35,9 @@ public final class NukkitCloudNetCloudPermissionsPlayerListener implements Liste
 
     @EventHandler
     public void handle(PlayerQuitEvent event) {
-        this.permissionsManagement.getCachedPermissionUsers().remove(event.getPlayer().getUniqueId());
+        CachedPermissionManagement management = CloudPermissionsHelper.asCachedPermissionManagement(this.permissionsManagement);
+        if (management != null) {
+            management.getCachedPermissionUsers().remove(event.getPlayer().getUniqueId());
+        }
     }
 }

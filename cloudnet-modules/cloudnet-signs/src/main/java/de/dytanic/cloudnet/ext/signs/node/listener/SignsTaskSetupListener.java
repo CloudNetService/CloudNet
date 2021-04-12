@@ -33,7 +33,7 @@ public class SignsTaskSetupListener {
             if (configuration.getConfigurations().stream().noneMatch(entry -> entry.getTargetGroup().equals(taskName))) {
                 SignConfigurationEntryType entryType = environment == ServiceEnvironmentType.MINECRAFT_SERVER ? SignConfigurationEntryType.BUKKIT : SignConfigurationEntryType.NUKKIT;
                 configuration.getConfigurations().add(entryType.createEntry(taskName));
-                SignConfigurationReaderAndWriter.write(configuration, CloudNetSignsModule.getInstance().getConfigurationFile());
+                SignConfigurationReaderAndWriter.write(configuration, CloudNetSignsModule.getInstance().getConfigurationFilePath());
             }
         }
     }

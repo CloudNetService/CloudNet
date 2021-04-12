@@ -3,7 +3,6 @@ package de.dytanic.cloudnet.ext.cloudperms.node;
 import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.driver.module.ModuleLifeCycle;
 import de.dytanic.cloudnet.driver.module.ModuleTask;
-import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsManagement;
 import de.dytanic.cloudnet.ext.cloudperms.node.listener.ConfigurationUpdateListener;
 import de.dytanic.cloudnet.ext.cloudperms.node.listener.IncludePluginListener;
 import de.dytanic.cloudnet.module.NodeCloudNetModule;
@@ -28,13 +27,6 @@ public final class CloudNetCloudPermissionsModule extends NodeCloudNetModule {
         instance = this;
     }
 
-    @ModuleTask(order = 127, event = ModuleLifeCycle.STARTED)
-    public void initPermissionManagement() {
-        if (this.getConfig().getBoolean("enabled")) {
-            CloudPermissionsManagement.newInstance();
-        }
-    }
-
     @ModuleTask(order = 126, event = ModuleLifeCycle.STARTED)
     public void initConfig() {
         this.getConfig().getBoolean("enabled", true);
@@ -46,7 +38,6 @@ public final class CloudNetCloudPermissionsModule extends NodeCloudNetModule {
     public void registerListeners() {
         this.registerListeners(new IncludePluginListener(), new ConfigurationUpdateListener());
     }
-
 
     public List<String> getExcludedGroups() {
         return this.getConfig().get("excludedGroups", LIST_STRING);

@@ -6,6 +6,7 @@ import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.ext.signs.configuration.entry.SignConfigurationEntryType;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -16,19 +17,27 @@ public final class SignConfigurationReaderAndWriter {
         throw new UnsupportedOperationException();
     }
 
+    @Deprecated
     public static void write(SignConfiguration signConfiguration, File file) {
-        Preconditions.checkNotNull(signConfiguration);
-        Preconditions.checkNotNull(file);
-
-        file.getParentFile().mkdirs();
-        new JsonDocument("config", signConfiguration).write(file);
+        write(signConfiguration, file.toPath());
     }
 
+    public static void write(SignConfiguration signConfiguration, Path path) {
+        Preconditions.checkNotNull(signConfiguration);
+        Preconditions.checkNotNull(path);
+
+        JsonDocument.newDocument("config", signConfiguration).write(path);
+    }
+
+    @Deprecated
     public static SignConfiguration read(File file) {
-        Preconditions.checkNotNull(file);
+        return read(file.toPath());
+    }
 
-        JsonDocument document = JsonDocument.newDocument(file);
+    public static SignConfiguration read(Path path) {
+        Preconditions.checkNotNull(path);
 
+        JsonDocument document = JsonDocument.newDocument(path);
         if (!document.contains("config")) {
             SignConfiguration signConfiguration = new SignConfiguration(
                     new ArrayList<>(Collections.singletonList(SignConfigurationEntryType.BUKKIT.createEntry("Lobby"))),
@@ -41,19 +50,18 @@ public final class SignConfigurationReaderAndWriter {
                     ))
             );
 
-            write(signConfiguration, file);
+            write(signConfiguration, path);
             return signConfiguration;
         }
 
         SignConfiguration signConfiguration = document.get("config", SignConfiguration.TYPE);
-
         if (!signConfiguration.getMessages().containsKey("command-cloudsign-cleanup-success")) {
             signConfiguration.getMessages().put("command-cloudsign-cleanup-success", "&7Non-existing signs were removed successfully");
         }
 
         // new properties in the configuration will be saved
         document.append("config", signConfiguration);
-        document.write(file);
+        document.write(path);
 
         return signConfiguration;
     }

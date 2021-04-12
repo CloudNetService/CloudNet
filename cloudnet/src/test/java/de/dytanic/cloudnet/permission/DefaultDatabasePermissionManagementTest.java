@@ -1,5 +1,6 @@
 package de.dytanic.cloudnet.permission;
 
+import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.database.AbstractDatabaseProvider;
 import de.dytanic.cloudnet.database.h2.H2DatabaseProvider;
 import de.dytanic.cloudnet.driver.permission.IPermissionGroup;
@@ -9,7 +10,10 @@ import de.dytanic.cloudnet.driver.permission.Permission;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.io.File;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.nio.file.Paths;
 import java.util.concurrent.TimeUnit;
 
 public class DefaultDatabasePermissionManagementTest {
@@ -23,8 +27,8 @@ public class DefaultDatabasePermissionManagementTest {
         String permissionStar = "test.*";
         String groupPermission = "role.permission";
 
-        new File("build/h2database.mv.db").delete();
-        new File("build/group_permissions.json").delete();
+        FileUtils.delete(Paths.get("build/h2database.mv.db"));
+        FileUtils.delete(Paths.get("build/group_permissions.json"));
 
         AbstractDatabaseProvider databaseProvider = new H2DatabaseProvider("build/h2database", false);
         Assert.assertTrue(databaseProvider.init());

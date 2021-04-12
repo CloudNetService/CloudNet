@@ -78,6 +78,7 @@ public class QuestionAnswerTypeServiceVersion implements QuestionAnswerType<Pair
                 .filter(serviceVersionType -> serviceVersionType.getTargetEnvironment().getEnvironmentType() == this.environmentTypeSupplier.get())
                 .flatMap(serviceVersionType -> serviceVersionType.getVersions()
                         .stream()
+                        .filter(version -> version.canRun(JavaVersion.getRuntimeVersion()))
                         .map(serviceVersion -> serviceVersionType.getName() + "-" + serviceVersion.getName()))
                 .collect(Collectors.toList());
         completableAnswers.add("none");

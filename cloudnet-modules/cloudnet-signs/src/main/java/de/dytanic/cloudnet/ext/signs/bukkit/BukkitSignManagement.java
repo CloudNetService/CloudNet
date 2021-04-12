@@ -138,7 +138,7 @@ public class BukkitSignManagement extends AbstractSignManagement {
     }
 
     /**
-     * Returns the facing of the specified block state, if its block data is an {@link org.bukkit.block.data.type.WallSign}
+     * Returns the facing of the specified block state, if its block data is a WallSign
      * from the 1.13+ spigot api
      *
      * @param blockState the block state the facing should be returned from
