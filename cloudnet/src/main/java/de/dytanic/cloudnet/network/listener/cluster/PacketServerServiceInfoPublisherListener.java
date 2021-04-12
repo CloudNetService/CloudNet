@@ -1,9 +1,16 @@
 package de.dytanic.cloudnet.network.listener.cluster;
 
 import de.dytanic.cloudnet.CloudNet;
+import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.event.Event;
-import de.dytanic.cloudnet.driver.event.events.service.*;
+import de.dytanic.cloudnet.driver.event.events.service.CloudServiceConnectNetworkEvent;
+import de.dytanic.cloudnet.driver.event.events.service.CloudServiceDisconnectNetworkEvent;
+import de.dytanic.cloudnet.driver.event.events.service.CloudServiceInfoUpdateEvent;
+import de.dytanic.cloudnet.driver.event.events.service.CloudServiceRegisterEvent;
+import de.dytanic.cloudnet.driver.event.events.service.CloudServiceStartEvent;
+import de.dytanic.cloudnet.driver.event.events.service.CloudServiceStopEvent;
+import de.dytanic.cloudnet.driver.event.events.service.CloudServiceUnregisterEvent;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.def.packet.PacketClientServerServiceInfoPublisher;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
@@ -71,6 +78,12 @@ public final class PacketServerServiceInfoPublisherListener implements IPacketLi
 
                 this.invokeEvent(new CloudServiceStartEvent(serviceInfoSnapshot));
                 this.getGlobalServiceInfoSnapshots().put(serviceUniqueId, serviceInfoSnapshot);
+
+                System.out.println(LanguageManager.getMessage("cloud-service-pre-start-message-different-node")
+                        .replace("%task%", serviceInfoSnapshot.getServiceId().getTaskName())
+                        .replace("%serviceId%", String.valueOf(serviceInfoSnapshot.getServiceId().getTaskServiceId()))
+                        .replace("%id%", serviceInfoSnapshot.getServiceId().getUniqueId().toString())
+                        .replace("%node%", serviceInfoSnapshot.getServiceId().getNodeUniqueId()));
                 break;
             case STOPPED:
                 if (!knowsService) {
@@ -79,6 +92,12 @@ public final class PacketServerServiceInfoPublisherListener implements IPacketLi
 
                 this.invokeEvent(new CloudServiceStopEvent(serviceInfoSnapshot));
                 this.getGlobalServiceInfoSnapshots().put(serviceUniqueId, serviceInfoSnapshot);
+
+                System.out.println(LanguageManager.getMessage("cloud-service-pre-stop-message-different-node")
+                        .replace("%task%", serviceInfoSnapshot.getServiceId().getTaskName())
+                        .replace("%serviceId%", String.valueOf(serviceInfoSnapshot.getServiceId().getTaskServiceId()))
+                        .replace("%id%", serviceInfoSnapshot.getServiceId().getUniqueId().toString())
+                        .replace("%node%", serviceInfoSnapshot.getServiceId().getNodeUniqueId()));
                 break;
         }
 
