@@ -84,6 +84,14 @@ public final class BukkitCloudNetCloudPermissionsPermissible extends Permissible
                 return false;
             }
 
+            for (Permission permission : this.getDefaultPermissions()) {
+                if (permission.getName().equalsIgnoreCase(inName)) {
+                    // default permissions are always active if not explicitly forbidden
+                    PermissionCheckResult result = this.permissionsManagement.getPermissionResult(permissionUser, inName);
+                    return result == PermissionCheckResult.DENIED || result.asBoolean();
+                }
+            }
+
             PermissionCheckResult result = this.permissionsManagement.getPermissionResult(permissionUser, inName);
             if (result != PermissionCheckResult.DENIED) {
                 return result.asBoolean();
