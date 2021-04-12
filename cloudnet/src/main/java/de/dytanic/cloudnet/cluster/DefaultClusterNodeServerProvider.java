@@ -33,7 +33,7 @@ public final class DefaultClusterNodeServerProvider extends DefaultNodeServerPro
         cloudNet.getTaskScheduler().schedule(() -> {
             cloudNet.publishNetworkClusterNodeInfoSnapshotUpdate();
             this.checkForDeadNodes();
-        }, 2, 2, -1, TimeUnit.SECONDS);
+        }, 1, 1, -1, TimeUnit.SECONDS);
     }
 
     @Override
