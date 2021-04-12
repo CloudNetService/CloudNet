@@ -187,7 +187,15 @@ public final class FileUtils {
     }
 
     public static Path createTempFile() {
-        return Paths.get(System.getProperty("cloudnet.tempDir", "temp"), UUID.randomUUID().toString());
+        Path tempDir = Paths.get(System.getProperty("cloudnet.tempDir", "temp"));
+        if (Files.notExists(tempDir)) {
+            try {
+                Files.createDirectories(tempDir);
+            } catch (IOException exception) {
+                exception.printStackTrace();
+            }
+        }
+        return tempDir.resolve(UUID.randomUUID().toString());
     }
 
     @NotNull
@@ -198,7 +206,7 @@ public final class FileUtils {
     @NotNull
     public static InputStream zipToStream(@NotNull Path directory, Predicate<Path> fileFilter) throws IOException {
         Path target = createTempFile();
-        zipToFile(directory, target, fileFilter);
+        zipToFile(directory, target, path -> !target.equals(path) && (fileFilter == null || fileFilter.test(path)));
         return Files.newInputStream(target, StandardOpenOption.DELETE_ON_CLOSE, LinkOption.NOFOLLOW_LINKS);
     }
 
