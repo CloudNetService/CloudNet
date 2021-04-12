@@ -12,8 +12,16 @@ import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
 import org.jetbrains.annotations.NotNull;
 
-import java.net.*;
-import java.util.*;
+import java.net.Inet6Address;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class DefaultConfigSetup implements DefaultSetup {
@@ -120,7 +128,7 @@ public class DefaultConfigSetup implements DefaultSetup {
         animation.addEntry(new QuestionListEntry<>(
                 "hostAddress",
                 LanguageManager.getMessage("cloudnet-init-setup-host-address"),
-                new QuestionAnswerTypeHostAndPort() {
+                new QuestionAnswerTypeHostAndPort(false) {
                     @Override
                     public String getRecommendation() {
                         return DefaultConfigSetup.this.preferredIP;
