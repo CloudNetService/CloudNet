@@ -7,7 +7,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -19,8 +18,6 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 public abstract class DefaultPermissionManagement implements IPermissionManagement {
-
-    private static final Comparator<IPermissible> POTENCY_COMPARATOR = Comparator.comparingInt(IPermissible::getPotency);
 
     @Override
     public IPermissionManagement getChildPermissionManagement() {
@@ -113,7 +110,6 @@ public abstract class DefaultPermissionManagement implements IPermissionManageme
             permissionGroups.add(this.getDefaultPermissionGroup());
         }
 
-        permissionGroups.sort(POTENCY_COMPARATOR);
         return permissionGroups;
     }
 
