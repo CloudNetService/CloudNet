@@ -12,11 +12,23 @@ import de.dytanic.cloudnet.common.logging.IFormatter;
 import de.dytanic.cloudnet.console.IConsole;
 import de.dytanic.cloudnet.console.animation.questionlist.ConsoleQuestionListAnimation;
 import de.dytanic.cloudnet.console.animation.questionlist.QuestionListEntry;
-import de.dytanic.cloudnet.console.animation.questionlist.answer.*;
+import de.dytanic.cloudnet.console.animation.questionlist.answer.QuestionAnswerTypeBoolean;
+import de.dytanic.cloudnet.console.animation.questionlist.answer.QuestionAnswerTypeCollection;
+import de.dytanic.cloudnet.console.animation.questionlist.answer.QuestionAnswerTypeEnum;
+import de.dytanic.cloudnet.console.animation.questionlist.answer.QuestionAnswerTypeInt;
+import de.dytanic.cloudnet.console.animation.questionlist.answer.QuestionAnswerTypeIntRange;
+import de.dytanic.cloudnet.console.animation.questionlist.answer.QuestionAnswerTypeServiceVersion;
+import de.dytanic.cloudnet.console.animation.questionlist.answer.QuestionAnswerTypeString;
 import de.dytanic.cloudnet.console.log.ColouredLogFormatter;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
-import de.dytanic.cloudnet.driver.service.*;
+import de.dytanic.cloudnet.driver.service.GroupConfiguration;
+import de.dytanic.cloudnet.driver.service.ProcessConfiguration;
+import de.dytanic.cloudnet.driver.service.ServiceConfigurationBase;
+import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
+import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
+import de.dytanic.cloudnet.driver.service.ServiceTask;
+import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import de.dytanic.cloudnet.template.ITemplateStorage;
 import de.dytanic.cloudnet.template.LocalTemplateStorage;
 import de.dytanic.cloudnet.template.TemplateStorageUtil;
@@ -25,7 +37,11 @@ import de.dytanic.cloudnet.template.install.ServiceVersionType;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -297,6 +313,15 @@ public class CommandTasks extends CommandServiceConfigurationBase {
                         exactStringIgnoreCase("disableIpRewrite"),
                         bool("value")
                 )
+                .generateCommand(
+                        (subCommand, sender, command, args, commandLine, properties, internalProperties) ->
+                                forEachTasks(
+                                        (ServiceConfigurationBase[]) internalProperties.get("tasks"),
+                                        task -> task.setJavaCommand((String) args.argument("value").orElse(null))
+                                ),
+                        exactStringIgnoreCase("javaCommand"),
+                        dynamicString("value")
+                )
 
                 .removeLastPostHandler();
     }
@@ -310,10 +335,17 @@ public class CommandTasks extends CommandServiceConfigurationBase {
                 )
 
                 .generateCommand(
-                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> forEachTasks((ServiceConfigurationBase[]) internalProperties.get("tasks"), serviceTask -> {
-                            serviceTask.getAssociatedNodes().add((String) args.argument(4));
-                            sender.sendMessage(LanguageManager.getMessage("command-tasks-add-node-success"));
-                        }),
+                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
+                            String node = (String) args.argument(4);
+                            forEachTasks((ServiceConfigurationBase[]) internalProperties.get("tasks"), serviceTask -> {
+                                if (serviceTask.getAssociatedNodes().contains(node)) {
+                                    sender.sendMessage(LanguageManager.getMessage("command-tasks-add-node-already-added"));
+                                } else {
+                                    serviceTask.getAssociatedNodes().add(node);
+                                    sender.sendMessage(LanguageManager.getMessage("command-tasks-add-node-success"));
+                                }
+                            });
+                        },
                         exactStringIgnoreCase("node"),
                         dynamicString(
                                 "uniqueId",
@@ -332,10 +364,17 @@ public class CommandTasks extends CommandServiceConfigurationBase {
                         )
                 )
                 .generateCommand(
-                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> forEachTasks((ServiceConfigurationBase[]) internalProperties.get("tasks"), serviceTask -> {
-                            serviceTask.getGroups().add((String) args.argument(4));
-                            sender.sendMessage(LanguageManager.getMessage("command-tasks-add-group-success"));
-                        }),
+                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
+                            String group = (String) args.argument(4);
+                            forEachTasks((ServiceConfigurationBase[]) internalProperties.get("tasks"), serviceTask -> {
+                                if (serviceTask.getGroups().contains(group)) {
+                                    sender.sendMessage(LanguageManager.getMessage("command-tasks-add-group-already-added"));
+                                } else {
+                                    serviceTask.getGroups().add(group);
+                                    sender.sendMessage(LanguageManager.getMessage("command-tasks-add-group-success"));
+                                }
+                            });
+                        },
                         exactStringIgnoreCase("group"),
                         dynamicString(
                                 "name",

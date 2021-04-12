@@ -50,12 +50,12 @@ public final class CloudNetSignsModuleListener {
         }
 
         if (event.getChannel().equalsIgnoreCase(SignConstants.SIGN_CLUSTER_CHANNEL_NAME)) {
-            if (SignConstants.SIGN_CHANNEL_UPDATE_SIGN_CONFIGURATION.equals(event.getMessage().toLowerCase())) {
+            if (SignConstants.SIGN_CHANNEL_UPDATE_SIGN_CONFIGURATION.equalsIgnoreCase(event.getMessage())) {
                 SignConfiguration signConfiguration = event.getData().get("signConfiguration", SignConfiguration.TYPE);
                 Collection<Sign> signs = event.getData().get("signs", SignConstants.COLLECTION_SIGNS);
 
                 CloudNetSignsModule.getInstance().setSignConfiguration(signConfiguration);
-                SignConfigurationReaderAndWriter.write(signConfiguration, CloudNetSignsModule.getInstance().getConfigurationFile());
+                SignConfigurationReaderAndWriter.write(signConfiguration, CloudNetSignsModule.getInstance().getConfigurationFilePath());
 
                 CloudNetSignsModule.getInstance().write(signs);
             }

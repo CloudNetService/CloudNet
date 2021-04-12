@@ -2,16 +2,35 @@ package de.dytanic.cloudnet.permission;
 
 import com.google.common.base.Preconditions;
 import com.google.gson.reflect.TypeToken;
-import de.dytanic.cloudnet.common.concurrent.*;
+import de.dytanic.cloudnet.common.concurrent.CompletableTask;
+import de.dytanic.cloudnet.common.concurrent.CompletedTask;
+import de.dytanic.cloudnet.common.concurrent.CountingTask;
+import de.dytanic.cloudnet.common.concurrent.ITask;
+import de.dytanic.cloudnet.common.concurrent.ListenableTask;
+import de.dytanic.cloudnet.common.concurrent.NullCompletableTask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.database.AbstractDatabaseProvider;
 import de.dytanic.cloudnet.driver.database.Database;
-import de.dytanic.cloudnet.driver.permission.*;
+import de.dytanic.cloudnet.driver.permission.DefaultSynchronizedPermissionManagement;
+import de.dytanic.cloudnet.driver.permission.IPermissionGroup;
+import de.dytanic.cloudnet.driver.permission.IPermissionManagementHandler;
+import de.dytanic.cloudnet.driver.permission.IPermissionUser;
+import de.dytanic.cloudnet.driver.permission.PermissionGroup;
+import de.dytanic.cloudnet.driver.permission.PermissionUser;
+import de.dytanic.cloudnet.driver.permission.PermissionUserGroupInfo;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.File;
-import java.util.*;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
@@ -22,7 +41,7 @@ public class DefaultDatabasePermissionManagement extends ClusterSynchronizedPerm
 
     private static final String DATABASE_USERS_NAME = "cloudnet_permission_users";
 
-    private final File file = new File(System.getProperty("cloudnet.permissions.json.path", "local/permissions.json"));
+    private final Path file = Paths.get(System.getProperty("cloudnet.permissions.json.path", "local/permissions.json"));
 
     private final Map<String, IPermissionGroup> permissionGroupsMap = new ConcurrentHashMap<>();
     private final Callable<AbstractDatabaseProvider> databaseProviderCallable;
@@ -34,7 +53,7 @@ public class DefaultDatabasePermissionManagement extends ClusterSynchronizedPerm
 
     @Override
     public void init() {
-        this.file.getParentFile().mkdirs();
+        FileUtils.createDirectoryReported(this.file.getParent());
         this.loadGroups();
     }
 

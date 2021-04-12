@@ -3,7 +3,10 @@ package de.dytanic.cloudnet.common.io;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -15,24 +18,21 @@ public final class FileUtilsTest {
 
     @Test
     public void testFileUtils() throws Exception {
-        File testDirectory = new File("build/testDirectory");
-        testDirectory.mkdirs();
+        Path testDirectory = Paths.get("build", "testDirectory");
+        FileUtils.createDirectoryReported(testDirectory);
 
-        byte[] buffer = new byte[2048];
-
-        File zip = new File(testDirectory, "test.zip");
-        zip.createNewFile();
-
-        try (OutputStream outputStream = new FileOutputStream(zip)) {
+        Path zip = testDirectory.resolve("test.zip");
+        try (OutputStream outputStream = Files.newOutputStream(zip)) {
             outputStream.write(FileUtils.emptyZipByteArray());
         }
 
-        Assert.assertEquals(FileUtils.emptyZipByteArray().length, zip.length());
+        Assert.assertEquals(FileUtils.emptyZipByteArray().length, Files.size(zip));
 
         try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream("Hello, world! Hello Peter!".getBytes(StandardCharsets.UTF_8))) {
             Assert.assertEquals("Hello, world! Hello Peter!", new String(FileUtils.toByteArray(byteArrayInputStream), StandardCharsets.UTF_8));
         }
 
+        byte[] buffer = new byte[2048];
         FileUtils.openZipFileSystem(zip, fileSystem -> {
             Path zipEntryInfoFile = fileSystem.getPath("info.txt");
 
@@ -44,39 +44,34 @@ public final class FileUtilsTest {
             return null;
         });
 
-        try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-             ZipFile zipFile = new ZipFile(zip)) {
+        try (ByteArrayOutputStream out = new ByteArrayOutputStream(); ZipFile zipFile = new ZipFile(zip.toFile())) {
             ZipEntry zipEntry = zipFile.getEntry("info.txt");
             Assert.assertNotNull(zipEntry);
 
             try (InputStream inputStream = zipFile.getInputStream(zipEntry)) {
-                FileUtils.copy(inputStream, byteArrayOutputStream);
+                FileUtils.copy(inputStream, out);
             }
 
-            Assert.assertEquals("Info message :3", new String(byteArrayOutputStream.toByteArray(), StandardCharsets.UTF_8));
+            Assert.assertEquals("Info message :3", out.toString(StandardCharsets.UTF_8.name()));
         }
 
         FileUtils.delete(testDirectory);
-        Assert.assertFalse(testDirectory.exists());
+        Assert.assertFalse(Files.exists(testDirectory));
 
-        zip = new File("build/test.zip");
-        zip.createNewFile();
-
-        try (OutputStream outputStream = Files.newOutputStream(zip.toPath());
+        zip = Paths.get("build", "test.zip");
+        try (OutputStream outputStream = Files.newOutputStream(zip);
              InputStream inputStream = FileUtilsTest.class.getClassLoader().getResourceAsStream("file_utils_resources.zip")) {
             FileUtils.copy(inputStream, outputStream, buffer);
         }
 
-        Path path = Paths.get("build/testDirectory");
+        FileUtils.extract(zip, testDirectory);
 
-        FileUtils.extract(zip.toPath(), path);
+        Assert.assertTrue(Files.exists(testDirectory));
+        Assert.assertTrue(Files.exists(testDirectory.resolve("bungee/config.yml")));
+        Assert.assertTrue(Files.exists(testDirectory.resolve("nms/bukkit.yml")));
+        Assert.assertTrue(Files.exists(testDirectory.resolve("nms/server.properties")));
 
-        Assert.assertTrue(Files.exists(path));
-        Assert.assertTrue(new File(path.toFile(), "bungee/config.yml").exists());
-        Assert.assertTrue(new File(path.toFile(), "nms/bukkit.yml").exists());
-        Assert.assertTrue(new File(path.toFile(), "nms/server.properties").exists());
-
-        FileUtils.delete(path.toFile());
-        Assert.assertFalse(Files.exists(path));
+        FileUtils.delete(testDirectory);
+        Assert.assertTrue(Files.notExists(testDirectory));
     }
 }

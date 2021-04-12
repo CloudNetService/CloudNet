@@ -40,7 +40,7 @@ public abstract class AbstractSignManagement extends ServiceInfoStateWatcher {
             new AtomicInteger(-1), //starting
             new AtomicInteger(-1) //search
     };
-    protected Set<Sign> signs;
+    protected final Set<Sign> signs;
 
     public AbstractSignManagement() {
         Collection<Sign> signsFromNode = this.getSignsFromNode();

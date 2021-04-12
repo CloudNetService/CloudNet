@@ -1,6 +1,7 @@
 package de.dytanic.cloudnet.ext.cloudperms.bukkit.listener;
 
 import de.dytanic.cloudnet.driver.permission.CachedPermissionManagement;
+import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
 import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsHelper;
 import de.dytanic.cloudnet.ext.cloudperms.bukkit.BukkitCloudNetCloudPermissionsPlugin;
 import org.bukkit.Bukkit;
@@ -13,9 +14,9 @@ import org.bukkit.event.player.PlayerQuitEvent;
 
 public final class BukkitCloudNetCloudPermissionsPlayerListener implements Listener {
 
-    private final CachedPermissionManagement permissionsManagement;
+    private final IPermissionManagement permissionsManagement;
 
-    public BukkitCloudNetCloudPermissionsPlayerListener(CachedPermissionManagement permissionsManagement) {
+    public BukkitCloudNetCloudPermissionsPlayerListener(IPermissionManagement permissionsManagement) {
         this.permissionsManagement = permissionsManagement;
     }
 
@@ -33,6 +34,9 @@ public final class BukkitCloudNetCloudPermissionsPlayerListener implements Liste
 
     @EventHandler
     public void handle(PlayerQuitEvent event) {
-        this.permissionsManagement.getCachedPermissionUsers().remove(event.getPlayer().getUniqueId());
+        CachedPermissionManagement management = CloudPermissionsHelper.asCachedPermissionManagement(this.permissionsManagement);
+        if (management != null) {
+            management.getCachedPermissionUsers().remove(event.getPlayer().getUniqueId());
+        }
     }
 }
