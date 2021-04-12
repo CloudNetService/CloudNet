@@ -163,7 +163,7 @@ public final class DefaultFileLogHandler extends AbstractLogHandler {
         int index = 0;
         while (true) {
             try {
-                path = this.directory.resolve(String.format(pattern, index));
+                path = this.directory.resolve(String.format(pattern, index++));
                 if (Files.notExists(path)) {
                     Files.createFile(path);
                     return path;
