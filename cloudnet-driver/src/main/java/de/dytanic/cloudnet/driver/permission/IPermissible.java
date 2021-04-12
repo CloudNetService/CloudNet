@@ -265,39 +265,23 @@ public interface IPermissible extends INameable, IJsonDocPropertyable, Comparabl
             Permission used = lastMatch == null ? permission : lastMatch;
             // the "star" permission represents a permission which allows access to every command
             if (permissionEntry.getName().equals("*") && permissionEntry.compareTo(used) > 0) {
-                lastMatch = this.correctPermission(permissionEntry);
+                lastMatch = permissionEntry;
                 continue;
             }
             // searches for "perm.*"-permissions (allowing all sub permissions of the given permission name start
             if (permissionEntry.getName().endsWith("*")
                     && permission.getName().contains(permissionEntry.getName().replace("*", ""))
                     && permissionEntry.compareTo(used) > 0) {
-                lastMatch = this.correctPermission(permissionEntry);
+                lastMatch = permissionEntry;
                 continue;
             }
             // checks if the current permission is exactly (case-sensitive) the permission for which we are searching
             if (permission.getName().equalsIgnoreCase(permissionEntry.getName()) && permissionEntry.compareTo(used) > 0) {
-                lastMatch = this.correctPermission(permissionEntry);
+                lastMatch = permissionEntry;
             }
         }
 
         return lastMatch;
-    }
-
-    /**
-     * Corrects the permission input of potency according to the potency of this permissible.
-     *
-     * @param input the permission to correct.
-     * @return a new corrected instance if this permissible has a higher absolute potency, else {@code input}.
-     */
-    default @NotNull Permission correctPermission(@NotNull Permission input) {
-        if (Math.abs(input.getPotency()) >= Math.abs(this.getPotency())) {
-            // if the permission potency is higher as the permissible one it will override it
-            return input;
-        } else {
-            // the user potency is higher than the permission one (absolute) so the permissible potency should be used
-            return new Permission(input.getName(), this.getPotency(), input.getTimeOutMillis());
-        }
     }
 
     /**

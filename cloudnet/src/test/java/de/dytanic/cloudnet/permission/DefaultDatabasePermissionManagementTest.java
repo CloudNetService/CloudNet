@@ -10,9 +10,6 @@ import de.dytanic.cloudnet.driver.permission.Permission;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.PrintStream;
 import java.nio.file.Paths;
 import java.util.concurrent.TimeUnit;
 
@@ -95,17 +92,13 @@ public class DefaultDatabasePermissionManagementTest {
         permissionManagement.updateGroup(permissionGroup);
         Assert.assertFalse(permissionManagement.getGroup(groupName).hasPermission("City", new Permission("test.test.5678")).asBoolean());
 
-        permissionGroup.addPermission("City", new Permission("test.test.91011", -1));
-        permissionManagement.updateGroup(permissionGroup);
-        Assert.assertTrue(permissionManagement.getGroup(groupName).hasPermission("City", new Permission("test.test.91011")).asBoolean());
-
         permissionGroup.addPermission("City", new Permission("test.test.91011", -65));
         permissionManagement.updateGroup(permissionGroup);
         Assert.assertFalse(permissionManagement.getGroup(groupName).hasPermission("City", new Permission("test.test.91011")).asBoolean());
 
         permissionGroup.addPermission("Super_City", new Permission("test.perm.*", -10));
         permissionManagement.updateGroup(permissionGroup);
-        Assert.assertTrue(permissionManagement.getGroup(groupName).hasPermission("Super_City", new Permission("test.perm.7859")).asBoolean());
+        Assert.assertFalse(permissionManagement.getGroup(groupName).hasPermission("Super_City", new Permission("test.perm.7859")).asBoolean());
 
         permissionGroup.addPermission("Super_City", new Permission("test.perm.*", -100));
         permissionManagement.updateGroup(permissionGroup);
