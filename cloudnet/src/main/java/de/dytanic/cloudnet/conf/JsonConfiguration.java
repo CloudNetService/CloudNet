@@ -16,7 +16,13 @@ import java.net.UnknownHostException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
 
 public final class JsonConfiguration implements IConfiguration {
 
@@ -352,7 +358,7 @@ public final class JsonConfiguration implements IConfiguration {
 
     @Override
     public int getProcessTerminationTimeoutSeconds() {
-        return this.processTerminationTimeoutSeconds;
+        return Math.max(1, this.processTerminationTimeoutSeconds);
     }
 
     @Override
