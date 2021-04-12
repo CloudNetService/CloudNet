@@ -16,7 +16,13 @@ import java.net.UnknownHostException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
 
 public final class JsonConfiguration implements IConfiguration {
 
@@ -61,6 +67,8 @@ public final class JsonConfiguration implements IConfiguration {
     private String jVMCommand;
 
     private String defaultHostAddress;
+
+    private int processTerminationTimeoutSeconds;
 
     @Override
     public boolean isFileExists() {
@@ -137,6 +145,7 @@ public final class JsonConfiguration implements IConfiguration {
                         System.getenv("CLOUDNET_RUNTIME_JVM_COMMAND") :
                         "java"
         );
+        this.processTerminationTimeoutSeconds = this.document.getInt("processTerminationTimeoutSeconds", 5);
 
         this.hostAddress = this.document.getString("hostAddress", address);
         this.connectHostAddress = this.document.getString("connectHostAddress", this.hostAddress);
@@ -172,6 +181,7 @@ public final class JsonConfiguration implements IConfiguration {
                 .append("ipWhitelist", this.ipWhitelist)
                 .append("maxMemory", this.maxMemory)
                 .append("jvmCommand", this.jVMCommand)
+                .append("processTerminationTimeoutSeconds", this.processTerminationTimeoutSeconds)
                 .append("maxServiceConsoleLogCacheSize", this.maxServiceConsoleLogCacheSize)
                 .append("printErrorStreamLinesFromServices", this.printErrorStreamLinesFromServices)
                 .append("maxCPUUsageToStartServices", this.maxCPUUsageToStartServices)
@@ -344,6 +354,16 @@ public final class JsonConfiguration implements IConfiguration {
 
     public String getJVMCommand() {
         return this.jVMCommand;
+    }
+
+    @Override
+    public int getProcessTerminationTimeoutSeconds() {
+        return Math.max(1, this.processTerminationTimeoutSeconds);
+    }
+
+    @Override
+    public void setProcessTerminationTimeoutSeconds(int processTerminationTimeoutSeconds) {
+        this.processTerminationTimeoutSeconds = processTerminationTimeoutSeconds;
     }
 
     public String getDefaultHostAddress() {
