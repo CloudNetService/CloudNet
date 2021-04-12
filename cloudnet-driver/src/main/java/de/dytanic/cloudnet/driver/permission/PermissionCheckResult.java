@@ -26,6 +26,14 @@ public enum PermissionCheckResult {
         this.value = value;
     }
 
+    public static PermissionCheckResult fromBoolean(Boolean result) {
+        return result == null ? DENIED : result ? ALLOWED : FORBIDDEN;
+    }
+
+    public static PermissionCheckResult fromPermission(Permission permission) {
+        return fromBoolean(permission == null ? null : permission.getPotency() >= 0);
+    }
+
     /**
      * Returns the result as boolean
      *

@@ -5,9 +5,6 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-/**
- * Created by Tareko on 20.12.2017.
- */
 public class JsonDocProperty<E> {
 
     protected final BiConsumer<E, JsonDocument> appender;
