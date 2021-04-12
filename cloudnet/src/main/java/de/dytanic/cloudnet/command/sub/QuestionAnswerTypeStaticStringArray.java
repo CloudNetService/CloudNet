@@ -2,6 +2,7 @@ package de.dytanic.cloudnet.command.sub;
 
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.console.animation.questionlist.QuestionAnswerType;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -19,18 +20,18 @@ public class QuestionAnswerTypeStaticStringArray implements QuestionAnswerType<S
     }
 
     @Override
-    public boolean isValidInput(String input) {
+    public boolean isValidInput(@NotNull String input) {
         return Arrays.stream(this.allowedValues)
                 .anyMatch(value -> (this.ignoreCase && value.equalsIgnoreCase(input)) || value.equals(input));
     }
 
     @Override
-    public String parse(String input) {
-        return Arrays.stream(this.allowedValues).filter(value -> value.equalsIgnoreCase(input)).findFirst().get();
+    public @NotNull String parse(@NotNull String input) {
+        return Arrays.stream(this.allowedValues).filter(value -> value.equalsIgnoreCase(input)).findFirst().orElseThrow(() -> new IllegalStateException("Calling parse when isValidInput was false"));
     }
 
     @Override
-    public String getInvalidInputMessage(String input) {
+    public String getInvalidInputMessage(@NotNull String input) {
         return null;
     }
 

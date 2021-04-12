@@ -25,7 +25,7 @@ public final class CommandMe extends CommandDefault {
                 " ",
                 "CloudNet " + CommandMe.class.getPackage().getImplementationTitle()
                         + " " + CommandMe.class.getPackage().getImplementationVersion() + " by Dytanic & the CloudNet Community",
-                "Discord: https://discord.gg/CPCWr7w",
+                "Discord: https://discord.cloudnetservice.eu/",
                 " ",
                 "ClusterId: " + this.getCloudNet().getConfig().getClusterConfig().getClusterId(),
                 "NodeId: " + this.getCloudNet().getConfig().getIdentity().getUniqueId(),

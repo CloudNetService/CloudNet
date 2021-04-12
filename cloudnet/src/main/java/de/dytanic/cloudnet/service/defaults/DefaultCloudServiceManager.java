@@ -2,11 +2,20 @@ package de.dytanic.cloudnet.service.defaults;
 
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.CloudNet;
+import de.dytanic.cloudnet.common.concurrent.CompletedTask;
+import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.concurrent.function.ThrowableConsumer;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.network.def.packet.PacketClientServerServiceInfoPublisher;
-import de.dytanic.cloudnet.driver.service.*;
+import de.dytanic.cloudnet.driver.service.GroupConfiguration;
+import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
+import de.dytanic.cloudnet.driver.service.ServiceDeployment;
+import de.dytanic.cloudnet.driver.service.ServiceId;
+import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
+import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
+import de.dytanic.cloudnet.driver.service.ServiceRemoteInclusion;
+import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import de.dytanic.cloudnet.event.service.CloudServiceCreateEvent;
 import de.dytanic.cloudnet.service.ICloudService;
 import de.dytanic.cloudnet.service.ICloudServiceFactory;
@@ -14,15 +23,28 @@ import de.dytanic.cloudnet.service.ICloudServiceManager;
 import de.dytanic.cloudnet.service.handler.CloudServiceHandler;
 import de.dytanic.cloudnet.service.handler.DefaultCloudServiceHandler;
 import de.dytanic.cloudnet.util.PortValidator;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
-import java.util.*;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -30,15 +52,35 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
 
     private static final CloudServiceHandler HANDLER = DefaultCloudServiceHandler.INSTANCE;
     private static final ICloudServiceFactory DEFAULT_FACTORY = new DefaultCloudServiceFactory(JVMCloudService.RUNTIME, (manager, configuration) -> new JVMCloudService(manager, configuration, HANDLER));
-    private final File
-            tempDirectory = new File(System.getProperty("cloudnet.tempDir.services", "temp/services")),
-            persistenceServicesDirectory = new File(System.getProperty("cloudnet.persistable.services.path", "local/services"));
+    private final Path tempDirectory = Paths.get(System.getProperty("cloudnet.tempDir.services", "temp/services"));
+    private final Path persistenceServicesDirectory = Paths.get(System.getProperty("cloudnet.persistable.services.path", "local/services"));
     private final Map<UUID, ServiceInfoSnapshot> globalServiceInfoSnapshots = new ConcurrentHashMap<>();
     private final Map<UUID, ICloudService> cloudServices = new ConcurrentHashMap<>();
     private final Map<String, ICloudServiceFactory> cloudServiceFactories = new ConcurrentHashMap<>();
 
     @Override
+    @Deprecated
+    @ApiStatus.ScheduledForRemoval
     public ICloudService runTask(@NotNull ServiceConfiguration serviceConfiguration) {
+        try {
+            return this.createCloudService(serviceConfiguration).get(20, TimeUnit.SECONDS);
+        } catch (InterruptedException | ExecutionException | TimeoutException exception) {
+            exception.printStackTrace();
+            return null;
+        }
+    }
+
+    @Override
+    @ApiStatus.Internal
+    public ITask<ICloudService> createCloudService(@NotNull ServiceConfiguration serviceConfiguration) {
+        if (CloudNet.getInstance().isMainThread()) {
+            return CompletedTask.create(this.createCloudServiceSync(serviceConfiguration));
+        } else {
+            return CloudNet.getInstance().runTask(() -> this.createCloudServiceSync(serviceConfiguration));
+        }
+    }
+
+    private ICloudService createCloudServiceSync(@NotNull ServiceConfiguration serviceConfiguration) {
         this.prepareServiceConfiguration(serviceConfiguration);
 
         CloudServiceCreateEvent event = new CloudServiceCreateEvent(serviceConfiguration);
@@ -47,8 +89,6 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
         if (event.isCancelled()) {
             return null;
         }
-
-        serviceConfiguration.setPort(this.checkAndReplacePort(serviceConfiguration.getPort()));
 
         ICloudService cloudService = this.getCloudServiceFactory(serviceConfiguration.getRuntime())
                 .map(factory -> factory.createCloudService(this, serviceConfiguration))
@@ -59,8 +99,8 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
 
             this.cloudServices.put(cloudService.getServiceId().getUniqueId(), cloudService);
             this.globalServiceInfoSnapshots.put(cloudService.getServiceId().getUniqueId(), cloudService.getServiceInfoSnapshot());
-
             CloudNet.getInstance().sendAll(new PacketClientServerServiceInfoPublisher(cloudService.getServiceInfoSnapshot(), PacketClientServerServiceInfoPublisher.PublisherType.REGISTER));
+
             CloudNet.getInstance().publishNetworkClusterNodeInfoSnapshotUpdate();
         }
 
@@ -70,11 +110,10 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
     private void prepareServiceConfiguration(ServiceConfiguration configuration) {
         configuration.getServiceId().setNodeUniqueId(CloudNet.getInstance().getComponentName());
 
-        Collection<String> groups = new ArrayList<>(Arrays.asList(configuration.getGroups()));
+        configuration.getServiceId().setTaskServiceId(this.checkAndReplaceTaskId(configuration.getServiceId()));
+        configuration.setPort(this.checkAndReplacePort(configuration.getPort()));
 
-        if (configuration.getServiceId().getTaskServiceId() == -1) {
-            configuration.getServiceId().setTaskServiceId(this.findTaskId(configuration.getServiceId().getTaskName()));
-        }
+        Collection<String> groups = new ArrayList<>(Arrays.asList(configuration.getGroups()));
 
         Collection<ServiceTemplate> templates = new ArrayList<>();
         Collection<ServiceDeployment> deployments = new ArrayList<>();
@@ -109,18 +148,6 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
         configuration.setIncludes(inclusions.toArray(new ServiceRemoteInclusion[0]));
     }
 
-    private int findTaskId(String taskName) {
-        int taskId = 1;
-
-        Collection<Integer> taskIdList = this.getReservedTaskIds(taskName);
-
-        while (taskIdList.contains(taskId)) {
-            taskId++;
-        }
-
-        return taskId;
-    }
-
     @Override
     public void startAllCloudServices() {
         this.executeForAllServices(ICloudService::start);
@@ -145,7 +172,7 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
         CountDownLatch countDownLatch = new CountDownLatch(cloudServices.size());
         ExecutorService executorService = Executors.newFixedThreadPool((cloudServices.size() / 2) + 1);
 
-        for (ICloudService cloudService : this.cloudServices.values()) {
+        for (ICloudService cloudService : cloudServices) {
             executorService.execute(() -> {
                 try {
                     consumer.accept(cloudService);
@@ -239,29 +266,65 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
         return value;
     }
 
-    private int checkAndReplacePort(int port) {
-        Collection<Integer> ports = this.cloudServices.values().stream().map(iCloudService -> iCloudService.getServiceConfiguration().getPort()).collect(Collectors.toList());
-
-        while (ports.contains(port)) {
-            port++;
+    private int checkAndReplaceTaskId(ServiceId serviceId) {
+        int taskId = serviceId.getTaskServiceId();
+        if (taskId <= 0) {
+            taskId = 1;
         }
 
-        while (!PortValidator.checkPort(port)) {
-            CloudNetDriver.getInstance().getLogger().extended(LanguageManager.getMessage("cloud-service-port-bind-retry-message")
-                    .replace("%port%", String.valueOf(port))
-                    .replace("%next_port%", String.valueOf(++port)));
+        Collection<Integer> taskIdList = this.getReservedTaskIds(serviceId.getTaskName());
+        while (taskIdList.contains(taskId)) {
+            taskId++;
+        }
+
+        return taskId;
+    }
+
+    private int checkAndReplacePort(int port) {
+        Collection<Integer> usedPorts = new HashSet<>();
+
+        for (ICloudService cloudService : this.cloudServices.values()) {
+            usedPorts.add(cloudService.getServiceConfiguration().getPort());
+        }
+
+        boolean portBindRetry = false;
+        while (usedPorts.contains(port) || (portBindRetry = !PortValidator.checkPort(port))) {
+            int oldPort = port++;
+
+            if (portBindRetry) {
+                CloudNetDriver.getInstance().getLogger().extended(LanguageManager.getMessage("cloud-service-port-bind-retry-message")
+                        .replace("%port%", String.valueOf(oldPort))
+                        .replace("%next_port%", String.valueOf(port)));
+
+                portBindRetry = false;
+            }
+
         }
 
         return port;
     }
 
     @NotNull
+    @Override
     public File getTempDirectory() {
+        return this.tempDirectory.toFile();
+    }
+
+    @NotNull
+    @Override
+    public Path getTempDirectoryPath() {
         return this.tempDirectory;
     }
 
     @NotNull
+    @Override
     public File getPersistenceServicesDirectory() {
+        return this.persistenceServicesDirectory.toFile();
+    }
+
+    @NotNull
+    @Override
+    public Path getPersistentServicesDirectoryPath() {
         return this.persistenceServicesDirectory;
     }
 
@@ -283,4 +346,5 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
     public @NotNull Optional<ICloudServiceFactory> getCloudServiceFactory(String runtime) {
         return runtime == null ? Optional.empty() : Optional.ofNullable(this.cloudServiceFactories.get(runtime));
     }
+
 }

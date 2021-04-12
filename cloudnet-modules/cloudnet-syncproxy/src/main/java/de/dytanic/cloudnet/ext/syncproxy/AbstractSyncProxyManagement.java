@@ -2,15 +2,22 @@ package de.dytanic.cloudnet.ext.syncproxy;
 
 
 import com.google.common.base.Preconditions;
-import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.ext.bridge.BridgeServiceProperty;
-import de.dytanic.cloudnet.ext.bridge.player.IPlayerManager;
-import de.dytanic.cloudnet.ext.syncproxy.configuration.*;
+import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyConfiguration;
+import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyMotd;
+import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyProxyLoginConfiguration;
+import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyTabList;
+import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyTabListConfiguration;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public abstract class AbstractSyncProxyManagement {
@@ -18,8 +25,6 @@ public abstract class AbstractSyncProxyManagement {
     private static final Random RANDOM = new Random();
 
     protected final AtomicInteger tabListEntryIndex = new AtomicInteger(-1);
-
-    protected IPlayerManager playerManager = CloudNetDriver.getInstance().getServicesRegistry().getFirstService(IPlayerManager.class);
 
     protected SyncProxyConfiguration syncProxyConfiguration;
 
@@ -31,10 +36,10 @@ public abstract class AbstractSyncProxyManagement {
 
     protected String tabListFooter;
 
-    protected Map<UUID, Integer> onlineCountCache = new HashMap<>();
+    protected final Map<UUID, Integer> onlineCountCache = new HashMap<>();
 
 
-    protected abstract void scheduleNative(Runnable runnable, long millis);
+    protected abstract void schedule(Runnable runnable, long millis);
 
     public abstract void updateTabList();
 
@@ -114,16 +119,15 @@ public abstract class AbstractSyncProxyManagement {
             this.tabListHeader = tabList.getHeader();
             this.tabListFooter = tabList.getFooter();
 
-            this.scheduleNative(
+            this.schedule(
                     this::scheduleTabList,
                     (long) (1000D / this.tabListConfiguration.getAnimationsPerSecond())
             );
+
+            this.updateTabList();
         } else {
             this.tabListEntryIndex.set(-1);
-            this.scheduleNative(this::scheduleTabList, 500);
         }
-
-        this.updateTabList();
     }
 
     public void setSyncProxyConfiguration(SyncProxyConfiguration syncProxyConfiguration) {
@@ -140,6 +144,10 @@ public abstract class AbstractSyncProxyManagement {
                 .filter(tabListConfiguration -> tabListConfiguration.getTargetGroup() != null &&
                         Arrays.asList(Wrapper.getInstance().getServiceConfiguration().getGroups()).contains(tabListConfiguration.getTargetGroup()))
                 .findFirst().orElse(null);
+
+        if (this.tabListEntryIndex.get() == -1) {
+            this.scheduleTabList();
+        }
 
         this.checkWhitelist();
     }

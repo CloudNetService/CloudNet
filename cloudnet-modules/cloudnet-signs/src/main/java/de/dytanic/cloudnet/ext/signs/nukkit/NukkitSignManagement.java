@@ -5,6 +5,7 @@ import cn.nukkit.block.Block;
 import cn.nukkit.block.BlockWallSign;
 import cn.nukkit.blockentity.BlockEntity;
 import cn.nukkit.blockentity.BlockEntitySign;
+import cn.nukkit.level.Level;
 import cn.nukkit.level.Location;
 import cn.nukkit.math.BlockFace;
 import cn.nukkit.utils.Faceable;
@@ -46,15 +47,11 @@ public final class NukkitSignManagement extends AbstractSignManagement {
     protected void updateSignNext(@NotNull Sign sign, @NotNull SignLayout signLayout, @Nullable ServiceInfoSnapshot serviceInfoSnapshot) {
         Server.getInstance().getScheduler().scheduleTask(this.plugin, () -> {
             Location location = this.toLocation(sign.getWorldPosition());
-
-            if (location != null) {
-
+            if (location != null && location.getLevel().isChunkLoaded(location.getChunkX(), location.getChunkZ())) {
                 BlockEntity blockEntity = location.getLevel().getBlockEntity(location);
-
                 if (blockEntity instanceof BlockEntitySign) {
                     this.updateSign(sign, (BlockEntitySign) blockEntity, signLayout, serviceInfoSnapshot);
                 }
-
             }
         });
     }
@@ -127,20 +124,14 @@ public final class NukkitSignManagement extends AbstractSignManagement {
         }
     }
 
-    public Location toLocation(WorldPosition worldPosition) {
-        Preconditions.checkNotNull(worldPosition);
+    public Location toLocation(WorldPosition position) {
+        Preconditions.checkNotNull(position);
 
-        return Server.getInstance().getLevelByName(worldPosition.getWorld()) != null ? new Location(
-                worldPosition.getX(),
-                worldPosition.getY(),
-                worldPosition.getZ(),
-                Server.getInstance().getLevelByName(worldPosition.getWorld())
-        ) : null;
+        Level level = Server.getInstance().getLevelByName(position.getWorld());
+        return level == null ? null : new Location(position.getX(), position.getY(), position.getZ(), level);
     }
 
     public NukkitCloudNetSignsPlugin getPlugin() {
         return this.plugin;
     }
-
-
 }

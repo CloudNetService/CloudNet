@@ -10,12 +10,13 @@ import de.dytanic.cloudnet.driver.network.netty.http.NettyHttpServer;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
+import io.netty.handler.codec.http.EmptyHttpHeaders;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpClientCodec;
-import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.websocketx.*;
 import io.netty.handler.codec.http.websocketx.extensions.compression.WebSocketClientCompressionHandler;
+import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 
 import java.net.URI;
@@ -63,7 +64,7 @@ public final class NettyWebSocketServerExample {
             context.cancelNext();
         });
 
-        assertTrue(httpServer.addListener(new HostAndPort("0.0.0.0", port)));
+        assertTrue(httpServer.addListener(new HostAndPort("127.0.0.1", port)));
 
         EventLoopGroup eventLoopGroup = NettyUtils.newEventLoopGroup();
         WebSocketClientHandshaker webSocketClientHandshaker = WebSocketClientHandshakerFactory
@@ -72,7 +73,7 @@ public final class NettyWebSocketServerExample {
                         WebSocketVersion.V13,
                         null,
                         false,
-                        HttpHeaders.EMPTY_HEADERS,
+                        EmptyHttpHeaders.INSTANCE,
                         1280000
                 );
 
@@ -81,7 +82,7 @@ public final class NettyWebSocketServerExample {
                 .channel(NettyUtils.getSocketChannelClass())
                 .handler(new ChannelInitializer<Channel>() {
                     @Override
-                    protected void initChannel(Channel ch) throws Exception {
+                    protected void initChannel(@NotNull Channel ch) {
                         ch.pipeline().addLast(
                                 new HttpClientCodec(),
                                 new HttpObjectAggregator(65536),
@@ -89,12 +90,12 @@ public final class NettyWebSocketServerExample {
                                 new ChannelInboundHandlerAdapter() {
 
                                     @Override
-                                    public void channelActive(ChannelHandlerContext ctx) throws Exception {
+                                    public void channelActive(@NotNull ChannelHandlerContext ctx) {
                                         webSocketClientHandshaker.handshake(ctx.channel());
                                     }
 
                                     @Override
-                                    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+                                    public void channelRead(@NotNull ChannelHandlerContext ctx, @NotNull Object msg) throws Exception {
                                         if (!webSocketClientHandshaker.isHandshakeComplete() && msg instanceof FullHttpResponse) {
                                             try {
                                                 webSocketClientHandshaker.finishHandshake(ctx.channel(), (FullHttpResponse) msg);

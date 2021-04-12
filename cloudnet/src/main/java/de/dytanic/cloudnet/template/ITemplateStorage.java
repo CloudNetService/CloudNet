@@ -4,8 +4,7 @@ import de.dytanic.cloudnet.driver.template.TemplateStorage;
 import org.jetbrains.annotations.ApiStatus;
 
 /**
- * @see TemplateStorage
- * @deprecated Moved to the driver
+ * @deprecated moved to the driver api, use {@link TemplateStorage} instead
  */
 @Deprecated
 @ApiStatus.ScheduledForRemoval(inVersion = "3.5")

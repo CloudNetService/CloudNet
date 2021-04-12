@@ -11,12 +11,21 @@ import de.dytanic.cloudnet.driver.template.FileInfo;
 import de.dytanic.cloudnet.ext.storage.ftp.client.FTPCredentials;
 import de.dytanic.cloudnet.ext.storage.ftp.client.FTPType;
 import org.apache.commons.net.MalformedServerReplyException;
-import org.apache.commons.net.ftp.*;
+import org.apache.commons.net.ftp.FTP;
+import org.apache.commons.net.ftp.FTPClient;
+import org.apache.commons.net.ftp.FTPFile;
+import org.apache.commons.net.ftp.FTPReply;
+import org.apache.commons.net.ftp.FTPSClient;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
@@ -88,15 +97,6 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
         this.ftpClient.disconnect();
     }
 
-    @Override
-    @Deprecated
-    public boolean deploy(@NotNull byte[] zipInput, @NotNull ServiceTemplate target) {
-        Preconditions.checkNotNull(zipInput);
-        Preconditions.checkNotNull(target);
-
-        return this.deploy(new ZipInputStream(new ByteArrayInputStream(zipInput), StandardCharsets.UTF_8), target);
-    }
-
     private void deployZipEntry(ZipInputStream zipInputStream, ZipEntry zipEntry, String targetDirectory) throws IOException {
         String entryPath = (targetDirectory + "/" + zipEntry.getName()).replace(File.separatorChar, '/');
 
@@ -109,20 +109,18 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
     }
 
     @Override
-    public boolean deploy(@NotNull File directory, @NotNull ServiceTemplate target, @Nullable Predicate<File> fileFilter) {
-        Preconditions.checkNotNull(directory);
-        Preconditions.checkNotNull(target);
-
-        if (directory.exists()) {
-            File[] files = directory.listFiles();
-
-            boolean value = false;
-
-            if (files != null) {
-                value = this.deploy(files, target, fileFilter);
+    public boolean deploy(@NotNull Path directory, @NotNull ServiceTemplate target, Predicate<Path> filter) {
+        if (Files.isDirectory(directory)) {
+            boolean result = true;
+            try (DirectoryStream<Path> stream = Files.newDirectoryStream(directory)) {
+                for (Path path : stream) {
+                    this.deployFile(path, target.getTemplatePath());
+                }
+            } catch (IOException exception) {
+                result = false;
             }
 
-            return value;
+            return result;
         }
 
         return false;
@@ -156,97 +154,35 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
         return false;
     }
 
-    private boolean deploy(File[] files, ServiceTemplate target, Predicate<File> fileFilter) {
-        Preconditions.checkNotNull(files);
-        Preconditions.checkNotNull(target);
-
-        if (this.has(target)) {
-            this.delete(target);
-        }
-
-        try {
-            this.createDirectories(target.getTemplatePath());
-
-            for (File file : files) {
-                if (file != null && (fileFilter == null || fileFilter.test(file))) {
-                    this.deployFile(file, target.getTemplatePath());
+    private void deployFile(Path file, String targetDirectory) throws IOException {
+        if (Files.isDirectory(file)) {
+            this.createDirectories(targetDirectory + "/" + file.getFileName());
+            try (DirectoryStream<Path> stream = Files.newDirectoryStream(file)) {
+                for (Path path : stream) {
+                    this.deployFile(path, targetDirectory + '/' + file.getFileName());
                 }
             }
-
-            return true;
-
-        } catch (IOException exception) {
-            exception.printStackTrace();
-            return false;
-        }
-    }
-
-    private void deployFile(File file, String targetDirectory) throws IOException {
-        if (file.isDirectory()) {
-            this.createDirectories(targetDirectory + "/" + file.getName());
-
-            File[] files = file.listFiles();
-
-            if (files != null) {
-                for (File entry : files) {
-                    this.deployFile(entry, targetDirectory + "/" + file.getName());
-                }
-            }
-
         } else {
-            try (InputStream inputStream = new FileInputStream(file)) {
-                this.ftpClient.storeFile(targetDirectory + "/" + file.getName(), inputStream);
+            try (InputStream inputStream = Files.newInputStream(file)) {
+                this.ftpClient.storeFile(targetDirectory + "/" + file.getFileName(), inputStream);
             }
         }
     }
 
-    @Override
-    public boolean copy(@NotNull ServiceTemplate template, @NotNull File directory) {
-        Preconditions.checkNotNull(template);
-        Preconditions.checkNotNull(directory);
-
-        if (!this.has(template)) {
-            return false;
-        }
-
-        directory.mkdirs();
-
-        try {
-            FTPFile[] files = this.ftpClient.listFiles(template.getTemplatePath());
-
-            if (files != null) {
-                for (FTPFile file : files) {
-                    this.copyFile(template.getTemplatePath() + "/" + file.getName(), file, directory);
-                }
-            }
-            return true;
-        } catch (IOException exception) {
-            exception.printStackTrace();
-        }
-        return false;
-    }
-
-    private void copyFile(String filePath, FTPFile file, File directory) throws IOException {
-        directory.mkdirs();
+    private void copyFile(String filePath, FTPFile file, Path directory) throws IOException {
+        FileUtils.createDirectoryReported(directory);
 
         if (file.isDirectory()) {
-
             FTPFile[] files = this.ftpClient.listFiles(filePath);
-
             if (files != null) {
                 for (FTPFile entry : files) {
-                    this.copyFile(filePath + "/" + entry.getName(), entry, new File(directory, file.getName()));
+                    this.copyFile(filePath + "/" + entry.getName(), entry, directory.resolve(file.getName()));
                 }
             }
-
         } else if (file.isFile()) {
-            File entry = new File(directory, file.getName());
-            entry.getParentFile().mkdirs();
-
-            if (!entry.exists()) {
-                entry.createNewFile();
-
-                try (OutputStream outputStream = new FileOutputStream(entry)) {
+            Path entry = directory.resolve(file.getName());
+            if (Files.notExists(entry)) {
+                try (OutputStream outputStream = Files.newOutputStream(entry)) {
                     this.ftpClient.retrieveFile(filePath, outputStream);
                 }
             }
@@ -258,28 +194,22 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
         Preconditions.checkNotNull(template);
         Preconditions.checkNotNull(directory);
 
-        return this.copy(template, directory.toFile());
-    }
-
-    @Override
-    @Deprecated
-    public byte[] toZipByteArray(@NotNull ServiceTemplate template) {
         if (!this.has(template)) {
-            return FileUtils.emptyZipByteArray();
+            return false;
         }
 
-        try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-             ZipOutputStream zipOutputStream = new ZipOutputStream(byteArrayOutputStream, StandardCharsets.UTF_8)) {
-
-            this.zipToStream(zipOutputStream, template.getTemplatePath(), "");
-
-            return byteArrayOutputStream.toByteArray();
-
+        try {
+            FTPFile[] files = this.ftpClient.listFiles(template.getTemplatePath());
+            if (files != null) {
+                for (FTPFile file : files) {
+                    this.copyFile(template.getTemplatePath() + "/" + file.getName(), file, directory);
+                }
+            }
+            return true;
         } catch (IOException exception) {
             exception.printStackTrace();
         }
-
-        return FileUtils.emptyZipByteArray();
+        return false;
     }
 
     @Override

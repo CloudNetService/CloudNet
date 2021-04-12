@@ -39,7 +39,6 @@ public final class V1HttpHandlerLocalTemplateFileSystem extends V1HttpHandler {
         }
 
         ServiceTemplate serviceTemplate = ServiceTemplate.local(context.request().pathParameters().get("prefix"), context.request().pathParameters().get("name"));
-
         if (serviceTemplate.storage().exists()) {
             FileInfo info = this.getFileByPath(path, serviceTemplate);
 
@@ -83,7 +82,6 @@ public final class V1HttpHandlerLocalTemplateFileSystem extends V1HttpHandler {
         }
 
         ServiceTemplate serviceTemplate = ServiceTemplate.local(context.request().pathParameters().get("prefix"), context.request().pathParameters().get("name"));
-
         if (serviceTemplate.storage().exists()) {
             try (OutputStream outputStream = serviceTemplate.storage().newOutputStream(this.parsePath(path))) {
                 FileUtils.copy(new ByteArrayInputStream(context.request().body()), outputStream);
@@ -110,7 +108,6 @@ public final class V1HttpHandlerLocalTemplateFileSystem extends V1HttpHandler {
         }
 
         ServiceTemplate serviceTemplate = ServiceTemplate.local(context.request().pathParameters().get("prefix"), context.request().pathParameters().get("name"));
-
         if (serviceTemplate.storage().exists()) {
             String filePath = this.parsePath(path);
 
@@ -134,7 +131,6 @@ public final class V1HttpHandlerLocalTemplateFileSystem extends V1HttpHandler {
             this.send404Response(context, "template not found!");
         }
     }
-
 
     private FileInfo getFileByPath(String path, ServiceTemplate serviceTemplate) throws IOException {
         return serviceTemplate.storage().getFileInfo(this.parsePath(path));

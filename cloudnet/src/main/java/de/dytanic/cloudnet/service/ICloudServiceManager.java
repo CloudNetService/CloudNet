@@ -1,5 +1,6 @@
 package de.dytanic.cloudnet.service;
 
+import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import org.jetbrains.annotations.ApiStatus;
@@ -7,6 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
@@ -16,10 +18,18 @@ import java.util.function.Predicate;
 public interface ICloudServiceManager {
 
     @NotNull
+    @Deprecated
     File getTempDirectory();
 
     @NotNull
+    @Deprecated
     File getPersistenceServicesDirectory();
+
+    @NotNull
+    Path getTempDirectoryPath();
+
+    @NotNull
+    Path getPersistentServicesDirectoryPath();
 
     @NotNull
     Map<UUID, ServiceInfoSnapshot> getGlobalServiceInfoSnapshots();
@@ -33,8 +43,12 @@ public interface ICloudServiceManager {
     @NotNull
     Optional<ICloudServiceFactory> getCloudServiceFactory(@Nullable String runtime);
 
-    @ApiStatus.Internal
+    @Deprecated
+    @ApiStatus.ScheduledForRemoval
     ICloudService runTask(@NotNull ServiceConfiguration serviceConfiguration);
+
+    @ApiStatus.Internal
+    ITask<ICloudService> createCloudService(@NotNull ServiceConfiguration serviceConfiguration);
 
     void startAllCloudServices();
 

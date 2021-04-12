@@ -22,7 +22,6 @@ import de.dytanic.cloudnet.driver.template.defaults.DefaultAsyncTemplateStorage;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -57,20 +56,11 @@ public class RemoteTemplateStorage extends DefaultAsyncTemplateStorage implement
     }
 
     @Override
-    public @NotNull ITask<Boolean> deployAsync(@NotNull byte[] zipInput, @NotNull ServiceTemplate target) {
-        return this.executeDriverAPIMethod(
-                DriverAPIRequestType.DEPLOY_TEMPLATE_BYTE_ARRAY,
-                buffer -> this.writeDefaults(buffer, target).writeArray(zipInput),
-                this::readDefaultBooleanResponse
-        );
-    }
-
-    @Override
-    public @NotNull ITask<Boolean> deployAsync(@NotNull File directory, @NotNull ServiceTemplate target, @Nullable Predicate<File> fileFilter) {
+    public @NotNull ITask<Boolean> deployAsync(@NotNull Path directory, @NotNull ServiceTemplate target, @Nullable Predicate<Path> fileFilter) {
         CompletableTask<Boolean> task = new CompletableTask<>();
 
         SERVICE.execute(() -> {
-            try (InputStream inputStream = FileUtils.zipToStream(directory.toPath(), fileFilter != null ? path -> fileFilter.test(path.toFile()) : null)) {
+            try (InputStream inputStream = FileUtils.zipToStream(directory, fileFilter != null ? path -> fileFilter.test(path) : null)) {
                 this.deployAsync(inputStream, target).addListener(new CompletableTaskListener<>(task));
             } catch (IOException exception) {
                 task.fail(exception);
@@ -90,11 +80,6 @@ public class RemoteTemplateStorage extends DefaultAsyncTemplateStorage implement
     }
 
     @Override
-    public @NotNull ITask<Boolean> copyAsync(@NotNull ServiceTemplate template, @NotNull File directory) {
-        return this.copyAsync(template, directory.toPath());
-    }
-
-    @Override
     public @NotNull ITask<Boolean> copyAsync(@NotNull ServiceTemplate template, @NotNull Path directory) {
         return this.zipTemplateAsync(template).mapThrowable(inputStream -> {
             if (inputStream == null) {
@@ -103,15 +88,6 @@ public class RemoteTemplateStorage extends DefaultAsyncTemplateStorage implement
 
             return FileUtils.extract(inputStream, directory) != null;
         });
-    }
-
-    @Override
-    public @NotNull ITask<byte[]> toZipByteArrayAsync(@NotNull ServiceTemplate template) {
-        return this.executeDriverAPIMethod(
-                DriverAPIRequestType.LOAD_TEMPLATE_ARRAY,
-                buffer -> this.writeDefaults(buffer, template),
-                packet -> this.readDefaults(packet).getBuffer().readArray()
-        );
     }
 
     @Override

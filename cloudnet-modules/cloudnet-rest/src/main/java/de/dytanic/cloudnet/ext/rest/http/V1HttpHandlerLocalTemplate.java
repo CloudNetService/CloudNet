@@ -1,10 +1,16 @@
 package de.dytanic.cloudnet.ext.rest.http;
 
+import com.google.common.io.ByteStreams;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.network.http.HttpResponseCode;
 import de.dytanic.cloudnet.driver.network.http.IHttpContext;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import de.dytanic.cloudnet.http.V1HttpHandler;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.zip.ZipInputStream;
 
 public final class V1HttpHandlerLocalTemplate extends V1HttpHandler {
 
@@ -23,26 +29,30 @@ public final class V1HttpHandlerLocalTemplate extends V1HttpHandler {
             ServiceTemplate serviceTemplate = ServiceTemplate.local(context.request().pathParameters().get("prefix"), context.request().pathParameters().get("name"));
 
             if (serviceTemplate.storage().exists()) {
-                context
-                        .response()
-                        .statusCode(HttpResponseCode.HTTP_OK)
-                        .header("Content-Type", "application/octet-stream")
-                        .header("Content-Disposition", "attachment; filename=\"" + serviceTemplate.getPrefix() + "." + serviceTemplate.getName() + ".zip\"")
-                        .body(serviceTemplate.storage().toZipByteArray())
-                        .context()
-                        .closeAfter(true)
-                        .cancelNext()
-                ;
-            } else {
-                context
-                        .response()
-                        .statusCode(HttpResponseCode.HTTP_NOT_FOUND)
-                        .context()
-                        .closeAfter(true)
-                        .cancelNext()
-                ;
+                try (InputStream stream = serviceTemplate.storage().zipTemplate()) {
+                    if (stream != null) {
+                        context
+                                .response()
+                                .statusCode(HttpResponseCode.HTTP_OK)
+                                .header("Content-Type", "application/octet-stream")
+                                .header("Content-Disposition", "attachment; filename=\"" + serviceTemplate.getPrefix() + "." + serviceTemplate.getName() + ".zip\"")
+                                .body(ByteStreams.toByteArray(stream))
+                                .context()
+                                .closeAfter(true)
+                                .cancelNext();
+                        return;
+                    }
+                } catch (IOException exception) {
+                    exception.printStackTrace();
+                }
             }
 
+            context
+                    .response()
+                    .statusCode(HttpResponseCode.HTTP_NOT_FOUND)
+                    .context()
+                    .closeAfter(true)
+                    .cancelNext();
             return;
         }
 
@@ -53,15 +63,14 @@ public final class V1HttpHandlerLocalTemplate extends V1HttpHandler {
                 .body(GSON.toJson(CloudNetDriver.getInstance().getLocalTemplateStorage().getTemplates()))
                 .context()
                 .closeAfter(true)
-                .cancelNext()
-        ;
+                .cancelNext();
     }
 
     @Override
     public void handlePost(String path, IHttpContext context) {
         if (context.request().pathParameters().containsKey("prefix") && context.request().pathParameters().containsKey("name")) {
             ServiceTemplate serviceTemplate = ServiceTemplate.local(context.request().pathParameters().get("prefix"), context.request().pathParameters().get("name"));
-            serviceTemplate.storage().deploy(context.request().body());
+            serviceTemplate.storage().deploy(new ZipInputStream(new ByteArrayInputStream(context.request().body())));
         }
     }
 
@@ -84,5 +93,4 @@ public final class V1HttpHandlerLocalTemplate extends V1HttpHandler {
 
         this.send400Response(context, "prefix or name path parameter not found");
     }
-
 }

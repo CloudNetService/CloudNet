@@ -3,11 +3,9 @@ package de.dytanic.cloudnet.driver.template;
 import de.dytanic.cloudnet.common.INameable;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -19,19 +17,6 @@ import java.util.zip.ZipInputStream;
 public interface TemplateStorage extends AutoCloseable, INameable {
 
     /**
-     * Unzips the given zip archive into the given template.
-     * This doesn't clear the template before filling it.
-     *
-     * @param zipInput the zip archive as a byte array
-     * @param target   the target template
-     * @return true if the deployment was successful
-     * @deprecated Causes very high heap space (over)load. Use {@link #deploy(InputStream, ServiceTemplate)} instead
-     */
-    @Deprecated
-    @ApiStatus.ScheduledForRemoval(inVersion = "3.5")
-    boolean deploy(@NotNull byte[] zipInput, @NotNull ServiceTemplate target);
-
-    /**
      * Deploys the following directory files to the target template storage.
      * If the given file filter is not null, method will apply every single file to the given file filter and only
      * deploy files that were allowed by the filter.
@@ -41,7 +26,7 @@ public interface TemplateStorage extends AutoCloseable, INameable {
      * @param fileFilter the filter for files that should be deployed
      * @return whether it was copied successfully
      */
-    boolean deploy(@NotNull File directory, @NotNull ServiceTemplate target, @Nullable Predicate<File> fileFilter);
+    boolean deploy(@NotNull Path directory, @NotNull ServiceTemplate target, @Nullable Predicate<Path> fileFilter);
 
     /**
      * Copies the given directory into the given template.
@@ -50,12 +35,12 @@ public interface TemplateStorage extends AutoCloseable, INameable {
      * @param target    the template to be deployed to
      * @return whether it was copied successfully
      */
-    default boolean deploy(@NotNull File directory, @NotNull ServiceTemplate target) {
+    default boolean deploy(@NotNull Path directory, @NotNull ServiceTemplate target) {
         return this.deploy(directory, target, null);
     }
 
     /**
-     * Copies the given directory into the given template.
+     * Copies the given stream into the given template.
      *
      * @param inputStream the zipped data to be deployed
      * @param target      the template to be deployed to
@@ -70,26 +55,7 @@ public interface TemplateStorage extends AutoCloseable, INameable {
      * @param directory the target directory to copy the files to
      * @return whether it was copied successfully
      */
-    boolean copy(@NotNull ServiceTemplate template, @NotNull File directory);
-
-    /**
-     * Copies the given template into the given directory
-     *
-     * @param template  the template to copy the files from
-     * @param directory the target directory to copy the files to
-     * @return whether it was copied successfully
-     */
     boolean copy(@NotNull ServiceTemplate template, @NotNull Path directory);
-
-    /**
-     * Zips a template into a byte array.
-     *
-     * @param template the template which should be converted to a byte array
-     * @return The byte array of the zipped template
-     * @deprecated Causes very high heap space (over)load. Use {@link #asZipInputStream(ServiceTemplate)} instead
-     */
-    @Deprecated
-    byte[] toZipByteArray(@NotNull ServiceTemplate template);
 
     /**
      * Gets a template into a {@link ZipInputStream}.
@@ -296,20 +262,6 @@ public interface TemplateStorage extends AutoCloseable, INameable {
     void close() throws IOException;
 
     /**
-     * Unzips the given zip archive into the given template.
-     * This doesn't clear the template before filling it.
-     *
-     * @param zipInput the zip archive as a byte array
-     * @param target   the target template
-     * @return true if the deployment was successful
-     * @deprecated Causes very high heap space (over)load. Use {@link #deploy(InputStream, ServiceTemplate)} instead
-     */
-    @Deprecated
-    @ApiStatus.ScheduledForRemoval(inVersion = "3.5")
-    @NotNull
-    ITask<Boolean> deployAsync(@NotNull byte[] zipInput, @NotNull ServiceTemplate target);
-
-    /**
      * Deploys the following directory files to the target template storage.
      * If the given file filter is not null, method will apply every single file to the given file filter and only
      * deploy files that were allowed by the filter.
@@ -320,7 +272,7 @@ public interface TemplateStorage extends AutoCloseable, INameable {
      * @return whether it was copied successfully
      */
     @NotNull
-    ITask<Boolean> deployAsync(@NotNull File directory, @NotNull ServiceTemplate target, @Nullable Predicate<File> fileFilter);
+    ITask<Boolean> deployAsync(@NotNull Path directory, @NotNull ServiceTemplate target, @Nullable Predicate<Path> fileFilter);
 
     /**
      * Copies the given directory into the given template.
@@ -330,7 +282,7 @@ public interface TemplateStorage extends AutoCloseable, INameable {
      * @return whether it was copied successfully
      */
     @NotNull
-    default ITask<Boolean> deployAsync(@NotNull File directory, @NotNull ServiceTemplate target) {
+    default ITask<Boolean> deployAsync(@NotNull Path directory, @NotNull ServiceTemplate target) {
         return this.deployAsync(directory, target, null);
     }
 
@@ -352,28 +304,7 @@ public interface TemplateStorage extends AutoCloseable, INameable {
      * @return whether it was copied successfully
      */
     @NotNull
-    ITask<Boolean> copyAsync(@NotNull ServiceTemplate template, @NotNull File directory);
-
-    /**
-     * Copies the given template into the given directory
-     *
-     * @param template  the template to copy the files from
-     * @param directory the target directory to copy the files to
-     * @return whether it was copied successfully
-     */
-    @NotNull
     ITask<Boolean> copyAsync(@NotNull ServiceTemplate template, @NotNull Path directory);
-
-    /**
-     * Zips a template into a byte array.
-     *
-     * @param template the template which should be converted to a byte array
-     * @return The byte array of the zipped template
-     * @deprecated Causes very high heap space (over)load. Use {@link #asZipInputStream(ServiceTemplate)} instead
-     */
-    @Deprecated
-    @NotNull
-    ITask<byte[]> toZipByteArrayAsync(@NotNull ServiceTemplate template);
 
     /**
      * Gets a template into a {@link ZipInputStream}.

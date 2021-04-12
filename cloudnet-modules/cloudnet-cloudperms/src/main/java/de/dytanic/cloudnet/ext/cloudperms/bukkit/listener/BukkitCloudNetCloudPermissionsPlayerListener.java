@@ -1,6 +1,7 @@
 package de.dytanic.cloudnet.ext.cloudperms.bukkit.listener;
 
 import de.dytanic.cloudnet.driver.permission.CachedPermissionManagement;
+import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
 import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsHelper;
 import de.dytanic.cloudnet.ext.cloudperms.bukkit.BukkitCloudNetCloudPermissionsPlugin;
 import org.bukkit.Bukkit;
@@ -13,24 +14,29 @@ import org.bukkit.event.player.PlayerQuitEvent;
 
 public final class BukkitCloudNetCloudPermissionsPlayerListener implements Listener {
 
-    private final CachedPermissionManagement permissionsManagement;
+    private final IPermissionManagement permissionsManagement;
 
-    public BukkitCloudNetCloudPermissionsPlayerListener(CachedPermissionManagement permissionsManagement) {
+    public BukkitCloudNetCloudPermissionsPlayerListener(IPermissionManagement permissionsManagement) {
         this.permissionsManagement = permissionsManagement;
     }
 
-    @EventHandler(priority = EventPriority.LOWEST)
+    @EventHandler(priority = EventPriority.LOW)
     public void handle(PlayerLoginEvent event) {
-        CloudPermissionsHelper.initPermissionUser(this.permissionsManagement, event.getPlayer().getUniqueId(), event.getPlayer().getName(), message -> {
-            event.setResult(PlayerLoginEvent.Result.KICK_OTHER);
-            event.setKickMessage(ChatColor.translateAlternateColorCodes('&', message));
-        }, Bukkit.getOnlineMode());
+        if (event.getResult() == PlayerLoginEvent.Result.ALLOWED) {
+            CloudPermissionsHelper.initPermissionUser(this.permissionsManagement, event.getPlayer().getUniqueId(), event.getPlayer().getName(), message -> {
+                event.setResult(PlayerLoginEvent.Result.KICK_OTHER);
+                event.setKickMessage(ChatColor.translateAlternateColorCodes('&', message));
+            }, Bukkit.getOnlineMode());
 
-        BukkitCloudNetCloudPermissionsPlugin.getInstance().injectCloudPermissible(event.getPlayer());
+            BukkitCloudNetCloudPermissionsPlugin.getInstance().injectCloudPermissible(event.getPlayer());
+        }
     }
 
     @EventHandler
     public void handle(PlayerQuitEvent event) {
-        this.permissionsManagement.getCachedPermissionUsers().remove(event.getPlayer().getUniqueId());
+        CachedPermissionManagement management = CloudPermissionsHelper.asCachedPermissionManagement(this.permissionsManagement);
+        if (management != null) {
+            management.getCachedPermissionUsers().remove(event.getPlayer().getUniqueId());
+        }
     }
 }

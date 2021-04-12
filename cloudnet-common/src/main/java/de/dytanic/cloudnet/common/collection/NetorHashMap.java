@@ -6,7 +6,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class NetorHashMap<K, F, S> {
 
-    protected ConcurrentHashMap<K, Pair<F, S>> wrapped = new ConcurrentHashMap<>();
+    protected final ConcurrentHashMap<K, Pair<F, S>> wrapped = new ConcurrentHashMap<>();
 
     public Set<Map.Entry<K, Pair<F, S>>> entrySet() {
         return this.wrapped.entrySet();

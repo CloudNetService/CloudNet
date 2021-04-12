@@ -11,6 +11,8 @@ import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import de.dytanic.cloudnet.driver.template.TemplateStorage;
 import de.dytanic.cloudnet.template.ClusterSynchronizedTemplateStorage;
 
+import java.io.ByteArrayInputStream;
+
 public class PacketServerSyncTemplateStorageListener implements IPacketListener {
 
     @Override
@@ -30,7 +32,7 @@ public class PacketServerSyncTemplateStorageListener implements IPacketListener 
 
         switch (requestType) {
             case DEPLOY_TEMPLATE_BYTE_ARRAY:
-                storage.deployWithoutSynchronization(buffer.readArray(), template);
+                storage.deployWithoutSynchronization(new ByteArrayInputStream(buffer.readArray()), template);
                 break;
 
             case DELETE_TEMPLATE:
@@ -56,6 +58,5 @@ public class PacketServerSyncTemplateStorageListener implements IPacketListener 
             default:
                 throw new IllegalStateException("Unexpected value: " + requestType);
         }
-
     }
 }

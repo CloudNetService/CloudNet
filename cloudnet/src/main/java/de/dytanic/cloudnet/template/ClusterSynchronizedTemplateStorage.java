@@ -14,7 +14,6 @@ import de.dytanic.cloudnet.network.packet.PacketServerSyncTemplateStorage;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -55,25 +54,10 @@ public abstract class ClusterSynchronizedTemplateStorage extends DefaultSyncTemp
     }
 
     @Override
-    public boolean deploy(@NotNull byte[] zipInput, @NotNull ServiceTemplate target) {
-        if (this.deployWithoutSynchronization(zipInput, target)) {
-            if (this.requiresSynchronization()) {
-                this.sendDefault(DriverAPIRequestType.DEPLOY_TEMPLATE_BYTE_ARRAY, target, ProtocolBuffer.create().writeArray(zipInput));
-            }
-
-            return true;
-        }
-
-        return false;
-    }
-
-    public abstract boolean deployWithoutSynchronization(@NotNull byte[] zipInput, @NotNull ServiceTemplate target);
-
-    @Override
-    public boolean deploy(@NotNull File directory, @NotNull ServiceTemplate target, @Nullable Predicate<File> fileFilter) {
+    public boolean deploy(@NotNull Path directory, @NotNull ServiceTemplate target, @Nullable Predicate<Path> fileFilter) {
         if (this.deployWithoutSynchronization(directory, target, fileFilter)) {
             if (this.requiresSynchronization()) {
-                try (InputStream inputStream = FileUtils.zipToStream(directory.toPath(), fileFilter != null ? path -> fileFilter.test(path.toFile()) : null)) {
+                try (InputStream inputStream = FileUtils.zipToStream(directory, fileFilter != null ? fileFilter::test : null)) {
                     this.sendChunks(DriverAPIRequestType.DEPLOY_TEMPLATE_STREAM, inputStream, target, JsonDocument.newDocument());
                 } catch (IOException exception) {
                     exception.printStackTrace();
@@ -86,7 +70,7 @@ public abstract class ClusterSynchronizedTemplateStorage extends DefaultSyncTemp
         return false;
     }
 
-    public abstract boolean deployWithoutSynchronization(@NotNull File directory, @NotNull ServiceTemplate target, @Nullable Predicate<File> fileFilter);
+    public abstract boolean deployWithoutSynchronization(@NotNull Path directory, @NotNull ServiceTemplate target, @Nullable Predicate<Path> fileFilter);
 
     @Override
     public boolean deploy(@NotNull InputStream inputStream, @NotNull ServiceTemplate target) {

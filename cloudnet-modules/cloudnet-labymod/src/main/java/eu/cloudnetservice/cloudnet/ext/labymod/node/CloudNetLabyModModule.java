@@ -1,6 +1,7 @@
 package eu.cloudnetservice.cloudnet.ext.labymod.node;
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.driver.module.ModuleLifeCycle;
 import de.dytanic.cloudnet.driver.module.ModuleTask;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
@@ -20,11 +21,11 @@ public class CloudNetLabyModModule extends NodeCloudNetModule {
 
     @ModuleTask(event = ModuleLifeCycle.STARTED)
     public void loadConfig() {
-        super.getModuleWrapper().getDataFolder().mkdirs();
+        FileUtils.createDirectoryReported(super.getModuleWrapper().getDataDirectory());
 
         JsonDocument previousConfig = super.getConfig().clone();
         this.configuration = super.getConfig().get("config", LabyModConfiguration.class, new LabyModConfiguration(
-                true,
+                false,
                 new ServiceDisplay(true, ServiceDisplay.DisplayType.SERVICE, "Playing on %display%"),
                 new DiscordJoinMatchConfig(true, new ArrayList<>()),
                 new ServiceDisplay(true, ServiceDisplay.DisplayType.TASK, "§bCloud§fNet §8➢ §e%display%"),

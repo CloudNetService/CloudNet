@@ -1,16 +1,15 @@
 package de.dytanic.cloudnet.ext.storage.ftp.storage;
 
-
 import de.dytanic.cloudnet.driver.template.defaults.DefaultSyncTemplateStorage;
 import de.dytanic.cloudnet.ext.storage.ftp.client.FTPCredentials;
 import de.dytanic.cloudnet.ext.storage.ftp.client.FTPType;
 
 public abstract class AbstractFTPStorage extends DefaultSyncTemplateStorage {
 
+    protected final FTPCredentials credentials;
+    protected final FTPType ftpType;
+    protected final String baseDirectory;
     private final String name;
-    protected FTPCredentials credentials;
-    protected FTPType ftpType;
-    protected String baseDirectory;
 
     AbstractFTPStorage(String name, FTPCredentials credentials, FTPType ftpType) {
         this.name = name;

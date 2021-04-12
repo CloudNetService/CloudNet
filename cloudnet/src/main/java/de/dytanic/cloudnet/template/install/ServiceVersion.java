@@ -8,27 +8,30 @@ import java.util.Map;
 import java.util.Optional;
 
 public class ServiceVersion {
+    private final Map<String, String> additionalDownloads = new HashMap<>();
     private String name;
     private String url;
-    private int minJavaVersion, maxJavaVersion;
+    private int minJavaVersion;
+    private int maxJavaVersion;
     private boolean deprecated;
+    private boolean cacheFiles = true;
     private JsonDocument properties = new JsonDocument();
-    private final Map<String, String> additionalDownloads = new HashMap<>();
 
-    public ServiceVersion(String name, String url, int minJavaVersion, int maxJavaVersion, boolean deprecated, JsonDocument properties) {
+    public ServiceVersion(String name, String url, int minJavaVersion, int maxJavaVersion, boolean deprecated, boolean cacheFiles, JsonDocument properties) {
         this.name = name;
         this.url = url;
         this.minJavaVersion = minJavaVersion;
         this.maxJavaVersion = maxJavaVersion;
         this.deprecated = deprecated;
+        this.cacheFiles = cacheFiles;
         this.properties = properties;
     }
 
     public ServiceVersion() {
     }
 
-    public boolean isLatest() {
-        return this.name.equalsIgnoreCase("latest");
+    public boolean isCacheFiles() {
+        return this.cacheFiles;
     }
 
     public boolean isDeprecated() {
@@ -62,6 +65,10 @@ public class ServiceVersion {
         return this.url;
     }
 
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
     public JsonDocument getProperties() {
         return this.properties;
     }
@@ -69,5 +76,4 @@ public class ServiceVersion {
     public Map<String, String> getAdditionalDownloads() {
         return this.additionalDownloads;
     }
-
 }

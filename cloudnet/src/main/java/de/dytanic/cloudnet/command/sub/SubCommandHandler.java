@@ -9,7 +9,10 @@ import de.dytanic.cloudnet.common.Properties;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class SubCommandHandler extends Command implements ITabCompleter {
@@ -66,34 +69,35 @@ public class SubCommandHandler extends Command implements ITabCompleter {
 
     @Override
     public void execute(ICommandSender sender, String command, String[] args, String commandLine, Properties properties) {
-        Optional<String> optionalInvalidMessage = this.subCommands.stream()
-                .map(subCommand -> subCommand.getInvalidArgumentMessage(args))
-                .filter(Objects::nonNull)
-                .filter(pair -> pair.getSecond() == 0) // all static values must match
-                .findFirst()
-                .map(Pair::getFirst);
+        SubCommand subCommand = null;
+        SubCommandArgument<?>[] arguments = null;
 
-        Optional<Pair<SubCommand, SubCommandArgument<?>[]>> optionalSubCommand = this.subCommands.stream()
-                .map(subCommand -> new Pair<>(subCommand, subCommand.parseArgs(args)))
-                .filter(pair -> pair.getSecond() != null && pair.getSecond().length != 0)
-                .findFirst();
-
-        if (optionalInvalidMessage.isPresent() && !optionalSubCommand.isPresent()) {
-            sender.sendMessage(optionalInvalidMessage.get());
-            return;
+        for (SubCommand registeredCommand : this.subCommands) {
+            arguments = registeredCommand.parseArgs(args);
+            if (arguments != null && arguments.length > 0) {
+                subCommand = registeredCommand;
+                break;
+            }
         }
 
-        if (!optionalSubCommand.isPresent()) {
+        if (subCommand == null) {
+            for (SubCommand registeredCommand : this.subCommands) {
+                Pair<String, Integer> invalidArgumentMessage = registeredCommand.getInvalidArgumentMessage(args);
+                if (invalidArgumentMessage != null && invalidArgumentMessage.getSecond() == 0) {
+                    sender.sendMessage(invalidArgumentMessage.getFirst());
+                    return;
+                }
+            }
+
             this.sendHelp(sender);
             return;
         }
 
+        this.executeCommand(sender, command, args, commandLine, subCommand, arguments);
+    }
 
-        Pair<SubCommand, SubCommandArgument<?>[]> subCommandPair = optionalSubCommand.get();
-
-        SubCommand subCommand = subCommandPair.getFirst();
-        SubCommandArgument<?>[] parsedArgs = subCommandPair.getSecond();
-
+    protected void executeCommand(ICommandSender sender, String command, String[] args, String commandLine,
+                                  SubCommand subCommand, SubCommandArgument<?>[] parsedArgs) {
         if (subCommand.isOnlyConsole() && !(sender instanceof ConsoleCommandSender)) {
             sender.sendMessage(LanguageManager.getMessage("command-sub-only-console"));
             return;

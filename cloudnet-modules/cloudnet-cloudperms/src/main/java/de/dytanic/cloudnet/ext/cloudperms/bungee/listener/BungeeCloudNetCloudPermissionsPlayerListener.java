@@ -1,6 +1,7 @@
 package de.dytanic.cloudnet.ext.cloudperms.bungee.listener;
 
 import de.dytanic.cloudnet.driver.permission.CachedPermissionManagement;
+import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
 import de.dytanic.cloudnet.driver.permission.IPermissionUser;
 import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsHelper;
 import net.md_5.bungee.api.ChatColor;
@@ -20,18 +21,20 @@ import java.util.UUID;
 
 public final class BungeeCloudNetCloudPermissionsPlayerListener implements Listener {
 
-    private final CachedPermissionManagement permissionsManagement;
+    private final IPermissionManagement permissionsManagement;
 
-    public BungeeCloudNetCloudPermissionsPlayerListener(CachedPermissionManagement permissionsManagement) {
+    public BungeeCloudNetCloudPermissionsPlayerListener(IPermissionManagement permissionsManagement) {
         this.permissionsManagement = permissionsManagement;
     }
 
     @EventHandler(priority = EventPriority.LOW)
     public void handle(LoginEvent event) {
-        CloudPermissionsHelper.initPermissionUser(this.permissionsManagement, event.getConnection().getUniqueId(), event.getConnection().getName(), message -> {
-            event.setCancelled(true);
-            event.setCancelReason(TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', message)));
-        });
+        if (!event.isCancelled()) {
+            CloudPermissionsHelper.initPermissionUser(this.permissionsManagement, event.getConnection().getUniqueId(), event.getConnection().getName(), message -> {
+                event.setCancelled(true);
+                event.setCancelReason(TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', message)));
+            });
+        }
     }
 
     @EventHandler
@@ -63,9 +66,9 @@ public final class BungeeCloudNetCloudPermissionsPlayerListener implements Liste
 
     @EventHandler
     public void handle(PlayerDisconnectEvent event) {
-        UUID uniqueId = event.getPlayer().getUniqueId();
-
-        this.permissionsManagement.getCachedPermissionUsers().remove(uniqueId);
+        CachedPermissionManagement management = CloudPermissionsHelper.asCachedPermissionManagement(this.permissionsManagement);
+        if (management != null) {
+            management.getCachedPermissionUsers().remove(event.getPlayer().getUniqueId());
+        }
     }
-
 }

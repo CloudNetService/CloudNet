@@ -1,19 +1,37 @@
 package de.dytanic.cloudnet.common.document.gson;
 
-import com.google.gson.*;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.internal.bind.TypeAdapters;
 import de.dytanic.cloudnet.common.document.IDocument;
-import de.dytanic.cloudnet.common.document.IReadable;
 import lombok.EqualsAndHashCode;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.Writer;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.Collection;
+import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Properties;
 
 /**
  * The Gson implementation of IDocument class.
@@ -23,15 +41,13 @@ import java.util.*;
 @EqualsAndHashCode
 public class JsonDocument implements IDocument<JsonDocument>, Cloneable {
 
-    public static Gson GSON = new GsonBuilder()
+    public static final JsonDocument EMPTY = newDocument();
+    public static final Gson GSON = new GsonBuilder()
             .serializeNulls()
             .disableHtmlEscaping()
             .setPrettyPrinting()
             .registerTypeAdapterFactory(TypeAdapters.newTypeHierarchyFactory(JsonDocument.class, new JsonDocumentTypeAdapter()))
             .create();
-
-    public static final JsonDocument EMPTY = newDocument();
-
     protected final JsonObject jsonObject;
 
     /**
@@ -140,6 +156,7 @@ public class JsonDocument implements IDocument<JsonDocument>, Cloneable {
         return new JsonDocument(GSON.toJsonTree(object));
     }
 
+    @Deprecated
     public static JsonDocument newDocument(File file) {
         if (file == null) {
             return null;
@@ -155,8 +172,19 @@ public class JsonDocument implements IDocument<JsonDocument>, Cloneable {
         return document;
     }
 
-    public static JsonDocument newDocument(String input) {
-        return new JsonDocument().read(input);
+    public static JsonDocument newDocument(InputStream stream) {
+        JsonDocument document = new JsonDocument();
+        document.read(stream);
+        return document;
+    }
+
+    public static JsonDocument newDocument(String json) {
+        try {
+            return new JsonDocument(JsonParser.parseString(json));
+        } catch (JsonSyntaxException exception) {
+            exception.printStackTrace();
+            return new JsonDocument();
+        }
     }
 
     @Override
@@ -334,17 +362,7 @@ public class JsonDocument implements IDocument<JsonDocument>, Cloneable {
     }
 
     @Override
-    public JsonDocument append(InputStream inputStream) {
-        try (InputStreamReader reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8)) {
-            return this.append(reader);
-        } catch (Exception exception) {
-            exception.printStackTrace();
-        }
-        return this;
-    }
-
-    @Override
-    public JsonDocument append(Reader reader) {
+    public @NotNull JsonDocument append(@NotNull Reader reader) {
         return this.append(JsonParser.parseReader(reader).getAsJsonObject());
     }
 
@@ -792,34 +810,13 @@ public class JsonDocument implements IDocument<JsonDocument>, Cloneable {
     }
 
     @Override
-    public JsonDocument write(OutputStream outputStream) {
-        try (OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8)) {
-            this.write(outputStreamWriter);
-        } catch (Exception exception) {
-            exception.printStackTrace();
-        }
-        return this;
-    }
-
-    @Override
-    public JsonDocument write(Writer writer) {
+    public @NotNull JsonDocument write(Writer writer) {
         GSON.toJson(this.jsonObject, writer);
         return this;
     }
 
     @Override
-    public JsonDocument read(InputStream inputStream) {
-        try (InputStreamReader inputStreamReader = new InputStreamReader(inputStream, StandardCharsets.UTF_8)) {
-            return this.read(inputStreamReader);
-        } catch (IOException exception) {
-            exception.printStackTrace();
-        }
-        return this;
-    }
-
-
-    @Override
-    public JsonDocument read(Reader reader) {
+    public @NotNull JsonDocument read(@NotNull Reader reader) {
         try (BufferedReader bufferedReader = new BufferedReader(reader)) {
             return this.append(JsonParser.parseReader(bufferedReader).getAsJsonObject());
         } catch (Exception ex) {
@@ -829,18 +826,19 @@ public class JsonDocument implements IDocument<JsonDocument>, Cloneable {
     }
 
     @Override
-    public IReadable read(byte[] bytes) {
+    public @NotNull JsonDocument read(byte[] bytes) {
         this.append(JsonParser.parseString(new String(bytes, StandardCharsets.UTF_8)).getAsJsonObject());
         return this;
     }
 
-    public JsonDocument read(String input) {
-        try {
-            this.append(JsonParser.parseReader(new BufferedReader(new StringReader(input))).getAsJsonObject());
-        } catch (Exception exception) {
+    @Override
+    public @NotNull JsonDocument read(@NotNull InputStream inputStream) {
+        try (InputStreamReader reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8)) {
+            return this.read(reader);
+        } catch (IOException exception) {
             exception.printStackTrace();
+            return this;
         }
-        return this;
     }
 
     @Override

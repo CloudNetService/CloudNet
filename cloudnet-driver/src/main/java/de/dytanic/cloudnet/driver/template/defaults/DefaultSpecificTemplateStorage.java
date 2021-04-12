@@ -9,7 +9,6 @@ import de.dytanic.cloudnet.driver.template.TemplateStorage;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -58,12 +57,7 @@ public class DefaultSpecificTemplateStorage implements SpecificTemplateStorage {
     }
 
     @Override
-    public boolean deploy(@NotNull byte[] zipInput) {
-        return this.storage.deploy(zipInput, this.template);
-    }
-
-    @Override
-    public boolean deploy(@NotNull File directory, @Nullable Predicate<File> fileFilter) {
+    public boolean deploy(@NotNull Path directory, @Nullable Predicate<Path> fileFilter) {
         return this.storage.deploy(directory, this.template, fileFilter);
     }
 
@@ -73,18 +67,8 @@ public class DefaultSpecificTemplateStorage implements SpecificTemplateStorage {
     }
 
     @Override
-    public boolean copy(@NotNull File directory) {
-        return this.storage.copy(this.template, directory);
-    }
-
-    @Override
     public boolean copy(@NotNull Path directory) {
         return this.storage.copy(this.template, directory);
-    }
-
-    @Override
-    public byte[] toZipByteArray() {
-        return this.storage.toZipByteArray(this.template);
     }
 
     @Override
@@ -163,12 +147,7 @@ public class DefaultSpecificTemplateStorage implements SpecificTemplateStorage {
     }
 
     @Override
-    public @NotNull ITask<Boolean> deployAsync(@NotNull byte[] zipInput) {
-        return this.storage.deployAsync(zipInput, this.template);
-    }
-
-    @Override
-    public @NotNull ITask<Boolean> deployAsync(@NotNull File directory, @Nullable Predicate<File> fileFilter) {
+    public @NotNull ITask<Boolean> deployAsync(@NotNull Path directory, @Nullable Predicate<Path> fileFilter) {
         return this.storage.deployAsync(directory, this.template, fileFilter);
     }
 
@@ -178,18 +157,8 @@ public class DefaultSpecificTemplateStorage implements SpecificTemplateStorage {
     }
 
     @Override
-    public @NotNull ITask<Boolean> copyAsync(@NotNull File directory) {
-        return this.storage.deployAsync(directory, this.template);
-    }
-
-    @Override
     public @NotNull ITask<Boolean> copyAsync(@NotNull Path directory) {
-        return this.storage.copyAsync(this.template, directory);
-    }
-
-    @Override
-    public @NotNull ITask<byte[]> toZipByteArrayAsync() {
-        return this.storage.toZipByteArrayAsync(this.template);
+        return this.storage.deployAsync(directory, this.template);
     }
 
     @Override

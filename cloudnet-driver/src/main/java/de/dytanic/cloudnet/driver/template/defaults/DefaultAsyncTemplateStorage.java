@@ -7,7 +7,6 @@ import de.dytanic.cloudnet.driver.template.TemplateStorage;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -21,18 +20,14 @@ import java.util.function.Predicate;
 import java.util.zip.ZipInputStream;
 
 public abstract class DefaultAsyncTemplateStorage implements TemplateStorage {
-    @Override
-    public boolean deploy(@NotNull byte[] zipInput, @NotNull ServiceTemplate target) {
-        return this.deployAsync(zipInput, target).get(20, TimeUnit.SECONDS, false);
-    }
 
     @Override
-    public boolean deploy(@NotNull File directory, @NotNull ServiceTemplate target, @Nullable Predicate<File> fileFilter) {
+    public boolean deploy(@NotNull Path directory, @NotNull ServiceTemplate target, @Nullable Predicate<Path> fileFilter) {
         return this.deployAsync(directory, target, fileFilter).get(20, TimeUnit.SECONDS, false);
     }
 
     @Override
-    public boolean deploy(@NotNull File directory, @NotNull ServiceTemplate target) {
+    public boolean deploy(@NotNull Path directory, @NotNull ServiceTemplate target) {
         return this.deployAsync(directory, target).get(20, TimeUnit.SECONDS, false);
     }
 
@@ -42,18 +37,8 @@ public abstract class DefaultAsyncTemplateStorage implements TemplateStorage {
     }
 
     @Override
-    public boolean copy(@NotNull ServiceTemplate template, @NotNull File directory) {
-        return this.copyAsync(template, directory).get(20, TimeUnit.SECONDS, false);
-    }
-
-    @Override
     public boolean copy(@NotNull ServiceTemplate template, @NotNull Path directory) {
         return this.copyAsync(template, directory).get(20, TimeUnit.SECONDS, false);
-    }
-
-    @Override
-    public byte[] toZipByteArray(@NotNull ServiceTemplate template) {
-        return this.toZipByteArrayAsync(template).get(5, TimeUnit.SECONDS, null);
     }
 
     @Override
@@ -154,5 +139,4 @@ public abstract class DefaultAsyncTemplateStorage implements TemplateStorage {
         }
         return def;
     }
-
 }

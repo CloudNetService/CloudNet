@@ -3,7 +3,11 @@ package de.dytanic.cloudnet.driver.network.netty.client;
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.concurrent.DefaultTaskScheduler;
 import de.dytanic.cloudnet.common.concurrent.ITaskScheduler;
-import de.dytanic.cloudnet.driver.network.*;
+import de.dytanic.cloudnet.driver.network.DefaultNetworkComponent;
+import de.dytanic.cloudnet.driver.network.HostAndPort;
+import de.dytanic.cloudnet.driver.network.INetworkChannel;
+import de.dytanic.cloudnet.driver.network.INetworkChannelHandler;
+import de.dytanic.cloudnet.driver.network.INetworkClient;
 import de.dytanic.cloudnet.driver.network.netty.NettyUtils;
 import de.dytanic.cloudnet.driver.network.protocol.DefaultPacketListenerRegistry;
 import de.dytanic.cloudnet.driver.network.protocol.IPacketListenerRegistry;
@@ -20,6 +24,8 @@ import io.netty.handler.ssl.util.SelfSignedCertificate;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.InputStream;
+import java.nio.file.Files;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.concurrent.Callable;
@@ -27,6 +33,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 @ApiStatus.Internal
 public final class NettyNetworkClient implements DefaultNetworkComponent, INetworkClient {
+
+    private static final int CONNECTION_TIMEOUT_MILLIS = 5_000;
 
     protected final Collection<INetworkChannel> channels = new ConcurrentLinkedQueue<>();
 
@@ -66,20 +74,24 @@ public final class NettyNetworkClient implements DefaultNetworkComponent, INetwo
 
     private void init() throws Exception {
         if (this.sslConfiguration != null) {
-            if (this.sslConfiguration.getCertificatePath() != null &&
-                    this.sslConfiguration.getPrivateKeyPath() != null) {
+            if (this.sslConfiguration.getCertificate() != null && this.sslConfiguration.getPrivateKey() != null) {
                 SslContextBuilder builder = SslContextBuilder.forClient();
 
-                if (this.sslConfiguration.getTrustCertificatePath() != null) {
-                    builder.trustManager(this.sslConfiguration.getTrustCertificatePath());
+                if (this.sslConfiguration.getTrustCertificate() != null) {
+                    try (InputStream stream = Files.newInputStream(this.sslConfiguration.getTrustCertificate())) {
+                        builder.trustManager(stream);
+                    }
                 } else {
                     builder.trustManager(InsecureTrustManagerFactory.INSTANCE);
                 }
 
-                this.sslContext = builder
-                        .keyManager(this.sslConfiguration.getCertificatePath(), this.sslConfiguration.getPrivateKeyPath())
-                        .clientAuth(this.sslConfiguration.isClientAuth() ? ClientAuth.REQUIRE : ClientAuth.OPTIONAL)
-                        .build();
+                try (InputStream cert = Files.newInputStream(this.sslConfiguration.getCertificate());
+                     InputStream privateKey = Files.newInputStream(this.sslConfiguration.getPrivateKey())) {
+                    this.sslContext = builder
+                            .keyManager(cert, privateKey)
+                            .clientAuth(this.sslConfiguration.isClientAuth() ? ClientAuth.REQUIRE : ClientAuth.OPTIONAL)
+                            .build();
+                }
             } else {
                 SelfSignedCertificate selfSignedCertificate = new SelfSignedCertificate();
                 this.sslContext = SslContextBuilder.forClient()
@@ -107,7 +119,7 @@ public final class NettyNetworkClient implements DefaultNetworkComponent, INetwo
                     .option(ChannelOption.AUTO_READ, true)
                     .option(ChannelOption.IP_TOS, 24)
                     .option(ChannelOption.TCP_NODELAY, true)
-                    .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 2500)
+                    .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, CONNECTION_TIMEOUT_MILLIS)
                     .channel(NettyUtils.getSocketChannelClass())
                     .handler(new NettyNetworkClientInitializer(this, hostAndPort, () -> this.connectedTime = System.currentTimeMillis()))
                     .connect(hostAndPort.getHost(), hostAndPort.getPort())

@@ -1,6 +1,8 @@
 package de.dytanic.cloudnet.ext.bridge;
 
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.event.events.service.CloudServiceStartEvent;
@@ -12,37 +14,49 @@ import de.dytanic.cloudnet.wrapper.Wrapper;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
 public class OnlyProxyProtection {
 
-    public final Map<UUID, String> proxyIpAddress = new HashMap<>();
+    public final Multimap<UUID, String> proxyIpAddress = ArrayListMultimap.create();
 
-    private final boolean enabled;
+    private final boolean serverOnlineMode;
+
+    private boolean lastEnabledState = false;
 
     private final ServiceEnvironmentType environmentType = Wrapper.getInstance().getServiceId().getEnvironment();
 
     public OnlyProxyProtection(boolean serverOnlineMode) {
+        this.serverOnlineMode = serverOnlineMode;
+    }
+
+    private boolean checkEnabledState() {
         BridgeConfiguration bridgeConfiguration = BridgeConfigurationProvider.load();
 
-        this.enabled = !serverOnlineMode
+        boolean enabledState = !this.serverOnlineMode
                 && bridgeConfiguration != null
                 && bridgeConfiguration.isOnlyProxyProtection()
                 && bridgeConfiguration.getExcludedOnlyProxyWalkableGroups() != null
                 && bridgeConfiguration.getExcludedOnlyProxyWalkableGroups().stream()
                 .noneMatch(group -> Arrays.asList(Wrapper.getInstance().getServiceConfiguration().getGroups()).contains(group));
 
-        if (this.enabled) {
-            CloudNetDriver.getInstance().getCloudServiceProvider().getCloudServices().forEach(this::addProxyAddress);
+        if (this.lastEnabledState != enabledState) {
+            this.lastEnabledState = enabledState;
 
-            CloudNetDriver.getInstance().getEventManager().registerListener(this);
+            if (enabledState) {
+                CloudNetDriver.getInstance().getCloudServiceProvider().getCloudServices().forEach(this::addProxyAddress);
+                CloudNetDriver.getInstance().getEventManager().registerListener(this);
+            } else {
+                this.proxyIpAddress.clear();
+                CloudNetDriver.getInstance().getEventManager().unregisterListener(this);
+            }
         }
+
+        return enabledState;
     }
 
     public boolean shouldDisallowPlayer(String playerAddress) {
-        return this.enabled && !this.proxyIpAddress.containsValue(playerAddress);
+        return this.checkEnabledState() && !this.proxyIpAddress.containsValue(playerAddress);
     }
 
     private void addProxyAddress(ServiceInfoSnapshot proxySnapshot) {
@@ -50,19 +64,20 @@ public class OnlyProxyProtection {
                 || proxySnapshot.getServiceId().getEnvironment().isMinecraftBedrockProxy() && this.environmentType.isMinecraftBedrockServer()) {
             try {
                 InetAddress proxyAddress = InetAddress.getByName(proxySnapshot.getAddress().getHost());
+                InetAddress proxyConnectAddress = InetAddress.getByName(proxySnapshot.getConnectAddress().getHost());
 
-                if (proxyAddress.isLoopbackAddress() || proxyAddress.isAnyLocalAddress()) {
+                if (proxyAddress.isAnyLocalAddress() && proxyConnectAddress.isAnyLocalAddress()) {
                     CloudNetDriver.getInstance().getLogger().warning(
                             String.format(
-                                    "[OnlyProxyJoin] This server will reject all connections from proxy %s because it's running on a local or loopback address! " +
-                                            "Please set a remote address by changing the 'hostAddress' property in the config.json of %s.",
+                                    "[OnlyProxyJoin] Proxy %s is bound on a wildcard address and connects users to a wildcard address! " +
+                                            "This might cause issues with OnlyProxyJoin, please set either the 'hostAddress'- or 'connectHostAddress'-property " +
+                                            "to a static address. This can be done In the config.json file of Node %s.",
                                     proxySnapshot.getName(), proxySnapshot.getServiceId().getNodeUniqueId()
                             )
                     );
-                    return;
                 }
 
-                this.proxyIpAddress.put(proxySnapshot.getServiceId().getUniqueId(), proxyAddress.getHostAddress());
+                this.proxyIpAddress.putAll(proxySnapshot.getServiceId().getUniqueId(), Arrays.asList(proxyAddress.getHostAddress(), proxyConnectAddress.getHostAddress()));
             } catch (UnknownHostException exception) {
                 exception.printStackTrace();
             }
@@ -76,10 +91,11 @@ public class OnlyProxyProtection {
 
     @EventListener
     public void handleServiceStop(CloudServiceStopEvent event) {
-        this.proxyIpAddress.remove(event.getServiceInfo().getServiceId().getUniqueId());
+        this.proxyIpAddress.removeAll(event.getServiceInfo().getServiceId().getUniqueId());
     }
 
-    public Map<UUID, String> getProxyIpAddress() {
+    public Multimap<UUID, String> getProxyIpAddress() {
         return this.proxyIpAddress;
     }
+
 }

@@ -11,52 +11,51 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.file.*;
+import java.nio.file.DirectoryStream;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import java.util.zip.ZipInputStream;
 
 public final class LocalTemplateStorage extends ClusterSynchronizedTemplateStorage {
 
-    private final File storageDirectory;
+    public static final String LOCAL_TEMPLATE_STORAGE = "local";
+    private final Path storageDirectory;
 
-    public LocalTemplateStorage(File storageDirectory) {
-        this.storageDirectory = storageDirectory;
-        this.storageDirectory.mkdirs();
-    }
-
-    @Override
     @Deprecated
-    public boolean deployWithoutSynchronization(@NotNull byte[] zipInput, @NotNull ServiceTemplate target) {
-        Preconditions.checkNotNull(target);
+    public LocalTemplateStorage(File storageDirectory) {
+        this(storageDirectory.toPath());
+    }
 
-        try {
-            FileUtils.extract(zipInput, new File(this.storageDirectory, target.getTemplatePath()).toPath());
-            return true;
-        } catch (IOException exception) {
-            exception.printStackTrace();
-        }
-
-        return false;
+    public LocalTemplateStorage(Path storageDirectory) {
+        this.storageDirectory = storageDirectory;
+        FileUtils.createDirectoryReported(storageDirectory);
     }
 
     @Override
-    public boolean deployWithoutSynchronization(@NotNull File directory, @NotNull ServiceTemplate target, @Nullable Predicate<File> fileFilter) {
+    public boolean deployWithoutSynchronization(@NotNull Path directory, @NotNull ServiceTemplate target, @Nullable Predicate<Path> fileFilter) {
         Preconditions.checkNotNull(directory);
         Preconditions.checkNotNull(target);
 
-        if (!directory.isDirectory()) {
-            return false;
-        }
-
-        try {
-            FileUtils.copyFilesToDirectory(directory, new File(this.storageDirectory, target.getTemplatePath()), fileFilter);
+        if (Files.isDirectory(directory)) {
+            FileUtils.copyFilesToDirectory(
+                    directory,
+                    this.storageDirectory.resolve(target.getTemplatePath()),
+                    fileFilter == null ? null : fileFilter::test
+            );
             return true;
-        } catch (IOException exception) {
-            exception.printStackTrace();
         }
 
         return false;
@@ -68,7 +67,7 @@ public final class LocalTemplateStorage extends ClusterSynchronizedTemplateStora
         Preconditions.checkNotNull(target);
 
         try {
-            FileUtils.extract0(new ZipInputStream(inputStream), new File(this.storageDirectory, target.getTemplatePath()).toPath());
+            FileUtils.extract0(new ZipInputStream(inputStream), this.storageDirectory.resolve(target.getTemplatePath()));
             return true;
         } catch (IOException exception) {
             exception.printStackTrace();
@@ -78,37 +77,12 @@ public final class LocalTemplateStorage extends ClusterSynchronizedTemplateStora
     }
 
     @Override
-    public boolean copy(@NotNull ServiceTemplate template, @NotNull File directory) {
-        Preconditions.checkNotNull(template);
-        Preconditions.checkNotNull(directory);
-
-        byte[] buffer = new byte[32768];
-        File templateDirectory = new File(this.storageDirectory, template.getTemplatePath());
-        boolean value = true;
-
-        try {
-            FileUtils.copyFilesToDirectory(templateDirectory, directory, buffer);
-        } catch (IOException e) {
-            e.printStackTrace();
-            value = false;
-        }
-
-        return value;
-    }
-
-    @Override
     public boolean copy(@NotNull ServiceTemplate template, @NotNull Path directory) {
         Preconditions.checkNotNull(template);
         Preconditions.checkNotNull(directory);
 
-        return this.copy(template, directory.toFile());
-    }
-
-    @Override
-    @Deprecated
-    public byte[] toZipByteArray(@NotNull ServiceTemplate template) {
-        File directory = new File(this.storageDirectory, template.getTemplatePath());
-        return directory.exists() ? FileUtils.convert(new Path[]{directory.toPath()}) : null;
+        FileUtils.copyFilesToDirectory(this.storageDirectory.resolve(template.getTemplatePath()), directory);
+        return true;
     }
 
     @Override
@@ -118,7 +92,7 @@ public final class LocalTemplateStorage extends ClusterSynchronizedTemplateStora
             return null;
         }
 
-        Path directory = new File(this.storageDirectory, template.getTemplatePath()).toPath();
+        Path directory = this.storageDirectory.resolve(template.getTemplatePath());
         Path tempFile = FileUtils.createTempFile();
 
         Path file = FileUtils.zipToFile(directory, tempFile);
@@ -133,39 +107,46 @@ public final class LocalTemplateStorage extends ClusterSynchronizedTemplateStora
     public boolean deleteWithoutSynchronization(@NotNull ServiceTemplate template) {
         Preconditions.checkNotNull(template);
 
-        File file = new File(this.storageDirectory, template.getTemplatePath());
-        if (!file.exists()) {
+        Path target = this.storageDirectory.resolve(template.getTemplatePath());
+        if (Files.notExists(target)) {
             return false;
+        } else {
+            FileUtils.delete(target);
+            return true;
         }
-        FileUtils.delete(file);
-        return true;
     }
 
     @Override
     public boolean createWithoutSynchronization(@NotNull ServiceTemplate template) {
-        File directory = new File(this.storageDirectory, template.getTemplatePath());
-        if (directory.exists()) {
-            return false;
+        Path directory = this.storageDirectory.resolve(template.getTemplatePath());
+        if (Files.notExists(directory)) {
+            FileUtils.createDirectoryReported(directory);
+            return true;
         }
-        return directory.mkdirs();
+        return false;
+    }
+
+    @Override
+    public boolean has(@NotNull ServiceTemplate template) {
+        Preconditions.checkNotNull(template);
+        return Files.exists(this.storageDirectory.resolve(template.getTemplatePath()));
     }
 
     @Nullable
     @Override
     public OutputStream appendOutputStreamWithoutSynchronization(@NotNull ServiceTemplate template, @NotNull String path) throws IOException {
-        Path file = this.storageDirectory.toPath().resolve(template.getTemplatePath()).resolve(path);
-        if (!Files.exists(file)) {
+        Path file = this.storageDirectory.resolve(template.getTemplatePath()).resolve(path);
+        if (Files.notExists(file)) {
             Files.createDirectories(file.getParent());
             Files.createFile(file);
         }
-
         return Files.newOutputStream(file, StandardOpenOption.APPEND);
     }
 
     @Nullable
     @Override
     public OutputStream newOutputStreamWithoutSynchronization(@NotNull ServiceTemplate template, @NotNull String path) throws IOException {
-        Path file = this.storageDirectory.toPath().resolve(template.getTemplatePath()).resolve(path);
+        Path file = this.storageDirectory.resolve(template.getTemplatePath()).resolve(path);
         if (Files.exists(file)) {
             Files.delete(file);
         } else {
@@ -176,81 +157,60 @@ public final class LocalTemplateStorage extends ClusterSynchronizedTemplateStora
 
     @Override
     public boolean createFileWithoutSynchronization(@NotNull ServiceTemplate template, @NotNull String path) throws IOException {
-        Path file = this.storageDirectory.toPath().resolve(template.getTemplatePath()).resolve(path);
+        Path file = this.storageDirectory.resolve(template.getTemplatePath()).resolve(path);
         if (Files.exists(file)) {
             return false;
+        } else {
+            Files.createDirectories(file.getParent());
+            Files.createFile(file);
+            return true;
         }
-        Files.createDirectories(file.getParent());
-        Files.createFile(file);
-        return true;
     }
 
     @Override
     public boolean createDirectoryWithoutSynchronization(@NotNull ServiceTemplate template, @NotNull String path) throws IOException {
-        Path dir = this.storageDirectory.toPath().resolve(template.getTemplatePath()).resolve(path);
+        Path dir = this.storageDirectory.resolve(template.getTemplatePath()).resolve(path);
         if (Files.exists(dir)) {
             return false;
+        } else {
+            Files.createDirectories(dir);
+            return true;
         }
-        Files.createDirectories(dir);
-        return true;
     }
 
     @Override
     public boolean hasFile(@NotNull ServiceTemplate template, @NotNull String path) {
-        Path file = this.storageDirectory.toPath().resolve(template.getTemplatePath()).resolve(path);
+        Path file = this.storageDirectory.resolve(template.getTemplatePath()).resolve(path);
         return Files.exists(file);
     }
 
     @Override
-    public boolean deleteFileWithoutSynchronization(@NotNull ServiceTemplate template, @NotNull String path) throws IOException {
-        Path file = this.storageDirectory.toPath().resolve(template.getTemplatePath()).resolve(path);
-        if (!Files.exists(file)) {
+    public boolean deleteFileWithoutSynchronization(@NotNull ServiceTemplate template, @NotNull String path) {
+        Path file = this.storageDirectory.resolve(template.getTemplatePath()).resolve(path);
+        if (Files.notExists(file)) {
             return false;
-        }
-        if (Files.isDirectory(file)) {
-            Files.walkFileTree(file, new SimpleFileVisitor<Path>() {
-                @Override
-                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                    Files.delete(file);
-                    return FileVisitResult.CONTINUE;
-                }
-
-                @Override
-                public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-                    Files.delete(dir);
-                    return FileVisitResult.CONTINUE;
-                }
-            });
         } else {
-            Files.delete(file);
+            FileUtils.delete(file);
+            return true;
         }
-        return true;
-    }
-
-    @Override
-    public boolean has(@NotNull ServiceTemplate template) {
-        Preconditions.checkNotNull(template);
-
-        File file = new File(this.storageDirectory, template.getTemplatePath());
-        return file.exists() && file.isDirectory();
     }
 
     @Override
     public @Nullable InputStream newInputStream(@NotNull ServiceTemplate template, @NotNull String path) throws IOException {
-        Path file = this.storageDirectory.toPath().resolve(template.getTemplatePath()).resolve(path);
+        Path file = this.storageDirectory.resolve(template.getTemplatePath()).resolve(path);
         return Files.exists(file) && !Files.isDirectory(file) ? Files.newInputStream(file) : null;
     }
 
     @Override
     public @Nullable FileInfo getFileInfo(@NotNull ServiceTemplate template, @NotNull String path) throws IOException {
-        Path file = this.storageDirectory.toPath().resolve(template.getTemplatePath()).resolve(path);
+        Path file = this.storageDirectory.resolve(template.getTemplatePath()).resolve(path);
         return Files.exists(file) ? FileInfo.of(file, Paths.get(path)) : null;
     }
 
     @Override
     public FileInfo[] listFiles(@NotNull ServiceTemplate template, @NotNull String dir, boolean deep) throws IOException {
         List<FileInfo> files = new ArrayList<>();
-        Path directory = this.storageDirectory.toPath().resolve(template.getTemplatePath()).resolve(dir);
+        Path directory = this.storageDirectory.resolve(template.getTemplatePath()).resolve(dir);
         if (Files.notExists(directory) || !Files.isDirectory(directory)) {
             return null;
         }
@@ -281,34 +241,33 @@ public final class LocalTemplateStorage extends ClusterSynchronizedTemplateStora
 
     @Override
     public @NotNull Collection<ServiceTemplate> getTemplates() {
-        Collection<ServiceTemplate> templates = new ArrayList<>();
-
-        File[] files = this.storageDirectory.listFiles();
-
-        if (files != null) {
-            for (File entry : files) {
-                if (entry.isDirectory()) {
-                    File[] subPathEntries = entry.listFiles();
-
-                    if (subPathEntries != null) {
-                        for (File subEntry : subPathEntries) {
-                            if (subEntry.isDirectory()) {
-                                templates.add(ServiceTemplate.local(entry.getName(), subEntry.getName()));
-                            }
+        try {
+            return Files.list(this.storageDirectory)
+                    .filter(Files::isDirectory)
+                    .flatMap(path -> {
+                        try {
+                            return Files.list(path);
+                        } catch (IOException exception) {
+                            return null;
                         }
-                    }
-                }
-            }
+                    })
+                    .filter(Objects::nonNull)
+                    .map(path -> {
+                        Path relativize = this.storageDirectory.relativize(path);
+                        return new ServiceTemplate(relativize.getName(0).toString(), relativize.getName(1).toString(), LOCAL_TEMPLATE_STORAGE);
+                    })
+                    .collect(Collectors.toList());
+        } catch (IOException exception) {
+            exception.printStackTrace();
+            return Collections.emptyList();
         }
-
-        return templates;
     }
 
     @Override
     public void close() {
     }
 
-    public File getStorageDirectory() {
+    public Path getStorageDirectory() {
         return this.storageDirectory;
     }
 

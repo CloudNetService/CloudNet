@@ -8,7 +8,6 @@ import de.dytanic.cloudnet.driver.template.TemplateStorage;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Path;
@@ -19,17 +18,12 @@ import java.util.zip.ZipInputStream;
 public abstract class DefaultSyncTemplateStorage implements TemplateStorage {
 
     @Override
-    public @NotNull ITask<Boolean> deployAsync(@NotNull byte[] zipInput, @NotNull ServiceTemplate target) {
-        return CompletableTask.supplyAsync(() -> this.deploy(zipInput, target));
-    }
-
-    @Override
-    public @NotNull ITask<Boolean> deployAsync(@NotNull File directory, @NotNull ServiceTemplate target, @Nullable Predicate<File> fileFilter) {
+    public @NotNull ITask<Boolean> deployAsync(@NotNull Path directory, @NotNull ServiceTemplate target, @Nullable Predicate<Path> fileFilter) {
         return CompletableTask.supplyAsync(() -> this.deploy(directory, target, fileFilter));
     }
 
     @Override
-    public @NotNull ITask<Boolean> deployAsync(@NotNull File directory, @NotNull ServiceTemplate target) {
+    public @NotNull ITask<Boolean> deployAsync(@NotNull Path directory, @NotNull ServiceTemplate target) {
         return CompletableTask.supplyAsync(() -> this.deploy(directory, target));
     }
 
@@ -39,18 +33,8 @@ public abstract class DefaultSyncTemplateStorage implements TemplateStorage {
     }
 
     @Override
-    public @NotNull ITask<Boolean> copyAsync(@NotNull ServiceTemplate template, @NotNull File directory) {
-        return CompletableTask.supplyAsync(() -> this.copy(template, directory));
-    }
-
-    @Override
     public @NotNull ITask<Boolean> copyAsync(@NotNull ServiceTemplate template, @NotNull Path directory) {
         return CompletableTask.supplyAsync(() -> this.copy(template, directory));
-    }
-
-    @Override
-    public @NotNull ITask<byte[]> toZipByteArrayAsync(@NotNull ServiceTemplate template) {
-        return CompletableTask.supplyAsync(() -> this.toZipByteArray(template));
     }
 
     @Override

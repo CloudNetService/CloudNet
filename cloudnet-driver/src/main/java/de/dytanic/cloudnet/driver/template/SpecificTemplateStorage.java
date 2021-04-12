@@ -4,11 +4,9 @@ import de.dytanic.cloudnet.common.INameable;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import de.dytanic.cloudnet.driver.template.defaults.DefaultSpecificTemplateStorage;
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -56,25 +54,14 @@ public interface SpecificTemplateStorage extends INameable {
     TemplateStorage getWrappedStorage();
 
     /**
-     * Deploys a zip compressed into a target template storage that should decompressed and deploy on the target template
-     *
-     * @param zipInput the target zip compressed byte array within all files are included for the target template
-     * @return true if the deployment was successful
-     * @deprecated Causes very high heap space (over)load. Use {@link #deploy(InputStream)} instead
+     * @see TemplateStorage#deploy(Path, ServiceTemplate, Predicate)
      */
-    @Deprecated
-    @ApiStatus.ScheduledForRemoval(inVersion = "3.5")
-    boolean deploy(@NotNull byte[] zipInput);
+    boolean deploy(@NotNull Path directory, @Nullable Predicate<Path> fileFilter);
 
     /**
-     * @see TemplateStorage#deploy(File, ServiceTemplate, Predicate)
+     * @see TemplateStorage#deploy(Path, ServiceTemplate)
      */
-    boolean deploy(@NotNull File directory, @Nullable Predicate<File> fileFilter);
-
-    /**
-     * @see TemplateStorage#deploy(File, ServiceTemplate)
-     */
-    default boolean deploy(@NotNull File directory) {
+    default boolean deploy(@NotNull Path directory) {
         return this.deploy(directory, null);
     }
 
@@ -84,20 +71,9 @@ public interface SpecificTemplateStorage extends INameable {
     boolean deploy(@NotNull InputStream inputStream);
 
     /**
-     * @see TemplateStorage#copy(ServiceTemplate, File)
-     */
-    boolean copy(@NotNull File directory);
-
-    /**
      * @see TemplateStorage#copy(ServiceTemplate, Path)
      */
     boolean copy(@NotNull Path directory);
-
-    /**
-     * @see TemplateStorage#toZipByteArray(ServiceTemplate)
-     */
-    @Deprecated
-    byte[] toZipByteArray();
 
     /**
      * @see TemplateStorage#asZipInputStream(ServiceTemplate)
@@ -201,24 +177,16 @@ public interface SpecificTemplateStorage extends INameable {
     }
 
     /**
-     * @see TemplateStorage#deployAsync(byte[], ServiceTemplate)
+     * @see TemplateStorage#deployAsync(Path, ServiceTemplate, Predicate)
      */
-    @Deprecated
-    @ApiStatus.ScheduledForRemoval(inVersion = "3.5")
     @NotNull
-    ITask<Boolean> deployAsync(@NotNull byte[] zipInput);
+    ITask<Boolean> deployAsync(@NotNull Path directory, @Nullable Predicate<Path> fileFilter);
 
     /**
-     * @see TemplateStorage#deployAsync(File, ServiceTemplate, Predicate)
+     * @see TemplateStorage#deployAsync(Path, ServiceTemplate)
      */
     @NotNull
-    ITask<Boolean> deployAsync(@NotNull File directory, @Nullable Predicate<File> fileFilter);
-
-    /**
-     * @see TemplateStorage#deployAsync(File, ServiceTemplate)
-     */
-    @NotNull
-    default ITask<Boolean> deployAsync(@NotNull File directory) {
+    default ITask<Boolean> deployAsync(@NotNull Path directory) {
         return this.deployAsync(directory, null);
     }
 
@@ -229,23 +197,10 @@ public interface SpecificTemplateStorage extends INameable {
     ITask<Boolean> deployAsync(@NotNull InputStream inputStream);
 
     /**
-     * @see TemplateStorage#copyAsync(ServiceTemplate, File)
-     */
-    @NotNull
-    ITask<Boolean> copyAsync(@NotNull File directory);
-
-    /**
      * @see TemplateStorage#copyAsync(ServiceTemplate, Path)
      */
     @NotNull
     ITask<Boolean> copyAsync(@NotNull Path directory);
-
-    /**
-     * @see TemplateStorage#toZipByteArrayAsync(ServiceTemplate)
-     */
-    @Deprecated
-    @NotNull
-    ITask<byte[]> toZipByteArrayAsync();
 
     /**
      * @see TemplateStorage#asZipInputStreamAsync(ServiceTemplate)

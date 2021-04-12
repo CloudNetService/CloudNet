@@ -1,5 +1,6 @@
 package de.dytanic.cloudnet.network.listener.driver;
 
+import com.google.common.io.ByteStreams;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.INameable;
 import de.dytanic.cloudnet.common.concurrent.function.ThrowableBiFunction;
@@ -61,12 +62,16 @@ public class DriverTemplateStorageListener extends CategorizedDriverAPIListener 
         super.registerHandler(DriverAPIRequestType.DELETE_TEMPLATE, this.throwableResponseHandler(input -> TemplateStorageResponse.of(this.readSpecific(input).delete())));
 
         super.registerHandler(DriverAPIRequestType.LOAD_TEMPLATE_ARRAY, this.throwableHandler((channel, input) ->
-                ProtocolBuffer.create().writeEnumConstant(TemplateStorageResponse.SUCCESS).writeArray(this.readSpecific(input).toZipByteArray()))
+                ProtocolBuffer.create()
+                        .writeEnumConstant(TemplateStorageResponse.SUCCESS)
+                        .writeArray(ByteStreams.toByteArray(this.readSpecific(input).zipTemplate())))
         );
         super.registerHandler(DriverAPIRequestType.LOAD_TEMPLATE_STREAM, this.chunkedHandler(input -> this.readSpecific(input).zipTemplate()));
         super.registerHandler(DriverAPIRequestType.GET_FILE_CONTENT, this.chunkedHandler(input -> this.readSpecific(input).newInputStream(input.readString())));
 
-        super.registerHandler(DriverAPIRequestType.DEPLOY_TEMPLATE_BYTE_ARRAY, this.throwableResponseHandler(input -> TemplateStorageResponse.of(this.readSpecific(input).deploy(input.readArray()))));
+        super.registerHandler(DriverAPIRequestType.DEPLOY_TEMPLATE_BYTE_ARRAY, this.throwableResponseHandler(
+                input -> TemplateStorageResponse.of(this.readSpecific(input).deploy(new ByteArrayInputStream(input.readArray())))
+        ));
 
 
         super.registerHandler(

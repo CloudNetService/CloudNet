@@ -7,6 +7,7 @@ import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironment;
+import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
 import de.dytanic.cloudnet.driver.service.ServiceTask;
 import de.dytanic.cloudnet.service.ICloudService;
@@ -15,15 +16,19 @@ import de.dytanic.cloudnet.service.handler.CloudServiceHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.File;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
-import java.util.jar.JarFile;
+import java.util.jar.JarInputStream;
+import java.util.stream.Collectors;
 
 final class JVMCloudService extends DefaultMinecraftCloudService implements ICloudService {
 
@@ -104,67 +109,45 @@ final class JVMCloudService extends DefaultMinecraftCloudService implements IClo
     @Override
     protected void writeConfiguration() {
         HostAndPort[] listeners = CloudNet.getInstance().getConfig().getIdentity().getListeners();
-        new JsonDocument()
+        JsonDocument.newDocument()
                 .append("connectionKey", this.getConnectionKey())
                 .append("listener", listeners[ThreadLocalRandom.current().nextInt(listeners.length)])
-                //-
                 .append("serviceConfiguration", this.getServiceConfiguration())
                 .append("serviceInfoSnapshot", this.serviceInfoSnapshot)
                 .append("sslConfig", CloudNet.getInstance().getConfig().getServerSslConfig())
-                .write(new File(this.getDirectory(), ".wrapper/wrapper.json"));
+                .write(this.getDirectoryPath().resolve(".wrapper/wrapper.json"));
     }
 
     @Override
     protected void startProcess() throws Exception {
         List<String> commandArguments = new ArrayList<>();
 
-        commandArguments.add(CloudNet.getInstance().getConfig().getJVMCommand());
+        String javaCommand = this.getJavaCommand();
+        commandArguments.add(javaCommand == null ? CloudNet.getInstance().getConfig().getJVMCommand() : javaCommand);
+
         commandArguments.addAll(CloudNet.getInstance().getConfig().getDefaultJVMFlags().getJvmFlags());
 
         commandArguments.addAll(Arrays.asList(
                 // sys properties
                 "-Djline.terminal=jline.UnsupportedTerminal",
                 "-Dfile.encoding=UTF-8",
-                "-Dio.netty.noPreferDirect=true",
                 "-Dclient.encoding.override=UTF-8",
-                "-Dio.netty.maxDirectMemory=0",
-                "-Dio.netty.leakDetectionLevel=DISABLED",
-                "-Dio.netty.recycler.maxCapacity=0",
-                "-Dio.netty.recycler.maxCapacity.default=0",
+                "-Dde.dytanic.cloudnet.wrapper.relocate.io.netty.packagePrefix=de.dytanic.cloudnet.wrapper.relocate.",
                 "-DIReallyKnowWhatIAmDoingISwear=true",
                 "-Dcloudnet.wrapper.messages.language=" + LanguageManager.getLanguage()
         ));
 
-        File wrapperFile = new File(System.getProperty("cloudnet.tempDir", "temp"), "caches/wrapper.jar");
+        ServiceEnvironmentType type = this.getServiceConfiguration().getProcessConfig().getEnvironment();
+        Path applicationFile = this.selectApplicationFile(type);
+        String applicationMainClass = type.getMainClass(applicationFile);
 
-        File applicationFile = null;
-        File[] files = this.getDirectory().listFiles();
-
-        if (files != null) {
-            for (ServiceEnvironment environment : this.getServiceConfiguration().getProcessConfig().getEnvironment().getEnvironments()) {
-                for (File file : files) {
-                    String fileName = file.getName().toLowerCase();
-
-                    if (fileName.endsWith(".jar") && fileName.contains(environment.getName())) {
-                        applicationFile = file;
-                        break;
-                    }
-                }
-
-                if (applicationFile != null) {
-                    break;
-                }
-            }
-        }
-
-        if (applicationFile == null) {
+        if (applicationMainClass == null) {
             CloudNetDriver.getInstance().getLogger().error(LanguageManager.getMessage("cloud-service-jar-file-not-found-error")
                     .replace("%task%", this.getServiceId().getTaskName())
                     .replace("%serviceId%", String.valueOf(this.getServiceId().getTaskServiceId()))
                     .replace("%id%", this.getServiceId().getUniqueId().toString()));
 
             ServiceTask serviceTask = CloudNet.getInstance().getServiceTaskProvider().getServiceTask(this.getServiceId().getTaskName());
-
             if (serviceTask != null) {
                 serviceTask.forbidServiceStarting(SERVICE_ERROR_RESTART_DELAY * 1000);
             }
@@ -173,20 +156,18 @@ final class JVMCloudService extends DefaultMinecraftCloudService implements IClo
             return;
         }
 
+        Path wrapperFile = Paths.get(System.getProperty("cloudnet.tempDir", "temp"), "caches", "wrapper.jar");
+
         commandArguments.addAll(this.getServiceConfiguration().getProcessConfig().getJvmOptions());
         commandArguments.addAll(Arrays.asList(
                 "-Xmx" + this.getServiceConfiguration().getProcessConfig().getMaxHeapMemorySize() + "M",
-                "-cp", wrapperFile.getAbsolutePath() + File.pathSeparator + applicationFile.getAbsolutePath())
-        );
+                "-cp", type.getClasspath(wrapperFile, applicationFile)
+        ));
 
-        try (JarFile jarFile = new JarFile(wrapperFile)) {
-            commandArguments.add(jarFile.getManifest().getMainAttributes().getValue("Main-Class"));
+        try (JarInputStream stream = new JarInputStream(Files.newInputStream(wrapperFile))) {
+            commandArguments.add(stream.getManifest().getMainAttributes().getValue("Main-Class"));
         }
-
-        commandArguments.add(applicationFile.getAbsolutePath());
-        try (JarFile jarFile = new JarFile(applicationFile)) {
-            commandArguments.add(jarFile.getManifest().getMainAttributes().getValue("Main-Class"));
-        }
+        commandArguments.add(applicationMainClass);
 
         this.postConfigureServiceEnvironmentStartParameters(commandArguments);
 
@@ -194,7 +175,7 @@ final class JVMCloudService extends DefaultMinecraftCloudService implements IClo
 
         this.process = new ProcessBuilder()
                 .command(commandArguments)
-                .directory(this.getDirectory())
+                .directory(this.getDirectoryPath().toFile())
                 .start();
     }
 
@@ -284,4 +265,26 @@ final class JVMCloudService extends DefaultMinecraftCloudService implements IClo
         return this.process;
     }
 
+    @Nullable
+    private Path selectApplicationFile(ServiceEnvironmentType serviceEnvironmentType) throws IOException {
+        Path applicationFile = null;
+        List<Path> files = Files.list(this.getDirectoryPath()).collect(Collectors.toList());
+
+        for (ServiceEnvironment environment : serviceEnvironmentType.getEnvironments()) {
+            for (Path file : files) {
+                String fileName = file.toString().toLowerCase();
+
+                if (fileName.endsWith(".jar") && fileName.contains(environment.getName())) {
+                    applicationFile = file;
+                    break;
+                }
+            }
+
+            if (applicationFile != null) {
+                break;
+            }
+        }
+
+        return applicationFile;
+    }
 }

@@ -6,31 +6,64 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Map;
+import java.util.*;
 
 @ToString
 @EqualsAndHashCode(callSuper = false)
 public final class BridgeConfiguration extends BasicJsonDocPropertyable {
 
+    public static final Map<String, String> DEFAULT_MESSAGES = new HashMap<>();
+
+    static {
+        DEFAULT_MESSAGES.put("command-hub-success-connect", "&7You did successfully connect to %server%");
+        DEFAULT_MESSAGES.put("command-hub-already-in-hub", "&cYou are already connected");
+        DEFAULT_MESSAGES.put("command-hub-no-server-found", "&7Hub server cannot be found");
+        DEFAULT_MESSAGES.put("server-join-cancel-because-only-proxy", "&7You must connect from an original proxy server");
+        DEFAULT_MESSAGES.put("server-join-cancel-because-maintenance", "&7This server is currently in maintenance mode");
+        DEFAULT_MESSAGES.put("server-join-cancel-because-permission", "&7You do not have the required permissions to connect to this server.");
+        DEFAULT_MESSAGES.put("command-cloud-sub-command-no-permission", "&7You are not allowed to use &b%command%");
+        DEFAULT_MESSAGES.put("already-connected", "§cYou are already connected to this network!");
+    }
+
     public static final Type TYPE = new TypeToken<BridgeConfiguration>() {
     }.getType();
 
-    private String prefix;
+    private String prefix = "&7Cloud &8| &b";
+
     private boolean onlyProxyProtection = true;
-    private Collection<String> excludedOnlyProxyWalkableGroups = new ArrayList<>(), excludedGroups;
-    private Collection<ProxyFallbackConfiguration> bungeeFallbackConfigurations;
-    private Map<String, String> messages;
+
+    private Collection<String> excludedOnlyProxyWalkableGroups = new ArrayList<>();
+
+    private Collection<String> excludedGroups = new ArrayList<>();
+
+    private Collection<ProxyFallbackConfiguration> bungeeFallbackConfigurations = new ArrayList<>();
+
+    private Collection<String> hubCommandNames = Arrays.asList("hub", "lobby", "leave", "l");
+
     private boolean logPlayerConnections = true;
 
+    private Map<String, String> messages = DEFAULT_MESSAGES;
+
     public BridgeConfiguration(String prefix, boolean onlyProxyProtection, Collection<String> excludedOnlyProxyWalkableGroups, Collection<String> excludedGroups,
-                               Collection<ProxyFallbackConfiguration> bungeeFallbackConfigurations, Map<String, String> messages, boolean logPlayerConnections) {
+                               Collection<ProxyFallbackConfiguration> bungeeFallbackConfigurations, Map<String, String> messages,
+                               boolean logPlayerConnections) {
         this.prefix = prefix;
         this.onlyProxyProtection = onlyProxyProtection;
         this.excludedOnlyProxyWalkableGroups = excludedOnlyProxyWalkableGroups;
         this.excludedGroups = excludedGroups;
         this.bungeeFallbackConfigurations = bungeeFallbackConfigurations;
+        this.logPlayerConnections = logPlayerConnections;
+        this.messages = messages;
+    }
+
+    public BridgeConfiguration(String prefix, boolean onlyProxyProtection, Collection<String> excludedOnlyProxyWalkableGroups, Collection<String> excludedGroups, Collection<ProxyFallbackConfiguration> bungeeFallbackConfigurations, Collection<String> hubCommandNames, boolean logPlayerConnections, Map<String, String> messages) {
+        this.prefix = prefix;
+        this.onlyProxyProtection = onlyProxyProtection;
+        this.excludedOnlyProxyWalkableGroups = excludedOnlyProxyWalkableGroups;
+        this.excludedGroups = excludedGroups;
+        this.bungeeFallbackConfigurations = bungeeFallbackConfigurations;
+        this.hubCommandNames = hubCommandNames;
+        this.logPlayerConnections = logPlayerConnections;
         this.messages = messages;
     }
 
@@ -91,6 +124,10 @@ public final class BridgeConfiguration extends BasicJsonDocPropertyable {
 
     public void setLogPlayerConnections(boolean logPlayerConnections) {
         this.logPlayerConnections = logPlayerConnections;
+    }
+
+    public Collection<String> getHubCommandNames() {
+        return hubCommandNames;
     }
 
 }

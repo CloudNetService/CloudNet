@@ -44,13 +44,14 @@ public final class BukkitCloudNetBridgePlugin extends JavaPlugin {
         Bukkit.getServer().getPluginManager().registerEvents(new BukkitPlayerListener(this), this);
 
         //CloudNet
-        CloudNetDriver.getInstance().getEventManager().registerListener(new BukkitCloudNetListener(this));
+        CloudNetDriver.getInstance().getEventManager().registerListener(new BukkitCloudNetListener());
         CloudNetDriver.getInstance().getEventManager().registerListener(new BridgeCustomChannelMessageListener());
     }
 
     private void runFireServerListPingEvent() {
         Bukkit.getScheduler().runTaskTimerAsynchronously(this, () -> {
-            boolean hasToUpdate = false, value = false;
+            boolean hasToUpdate = false;
+            boolean value = false;
 
             try {
                 ServerListPingEvent serverListPingEvent = new ServerListPingEvent(

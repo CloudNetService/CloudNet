@@ -1,7 +1,6 @@
 package eu.cloudnetservice.cloudnet.ext.npcs.bukkit.listener;
 
 
-import com.comphenix.protocol.wrappers.EnumWrappers;
 import com.github.juliarn.npc.event.PlayerNPCInteractEvent;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
@@ -19,7 +18,11 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.*;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 public class NPCInventoryListener implements Listener {
@@ -49,10 +52,10 @@ public class NPCInventoryListener implements Listener {
         if (properties != null) {
             CloudNPC cloudNPC = properties.getHolder();
 
-            EnumWrappers.EntityUseAction action = event.getAction();
+            PlayerNPCInteractEvent.EntityUseAction action = event.getUseAction();
 
-            if (action == EnumWrappers.EntityUseAction.INTERACT_AT || action == EnumWrappers.EntityUseAction.ATTACK) {
-                NPCAction npcAction = action == EnumWrappers.EntityUseAction.INTERACT_AT
+            if (action == PlayerNPCInteractEvent.EntityUseAction.INTERACT_AT || action == PlayerNPCInteractEvent.EntityUseAction.ATTACK) {
+                NPCAction npcAction = action == PlayerNPCInteractEvent.EntityUseAction.INTERACT_AT
                         ? cloudNPC.getRightClickAction()
                         : cloudNPC.getLeftClickAction();
 

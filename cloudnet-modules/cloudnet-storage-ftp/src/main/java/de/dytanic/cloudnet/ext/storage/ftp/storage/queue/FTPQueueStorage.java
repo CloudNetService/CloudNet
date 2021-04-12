@@ -12,7 +12,10 @@ import de.dytanic.cloudnet.ext.storage.ftp.storage.AbstractFTPStorage;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.*;
+import java.io.Closeable;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.concurrent.BlockingQueue;
@@ -27,10 +30,9 @@ public class FTPQueueStorage extends DefaultAsyncTemplateStorage implements Runn
     private static final long EMPTY_QUEUE_TOLERANCE_SECONDS = 5;
 
     private final AbstractFTPStorage executingStorage;
-
-    private boolean opened = true;
     @NotNull
     private final BlockingQueue<ITask<?>> ftpTaskQueue = new LinkedBlockingQueue<>();
+    private boolean opened = true;
 
     public FTPQueueStorage(AbstractFTPStorage executingStorage) {
         this.executingStorage = executingStorage;
@@ -75,12 +77,7 @@ public class FTPQueueStorage extends DefaultAsyncTemplateStorage implements Runn
     }
 
     @Override
-    public @NotNull ITask<Boolean> deployAsync(@NotNull byte[] zipInput, @NotNull ServiceTemplate target) {
-        return this.addTask(new FTPTask<>(() -> this.executingStorage.deploy(zipInput, target)));
-    }
-
-    @Override
-    public @NotNull ITask<Boolean> deployAsync(@NotNull File directory, @NotNull ServiceTemplate target, @Nullable Predicate<File> fileFilter) {
+    public @NotNull ITask<Boolean> deployAsync(@NotNull Path directory, @NotNull ServiceTemplate target, @Nullable Predicate<Path> fileFilter) {
         return this.addTask(new FTPTask<>(() -> this.executingStorage.deploy(directory, target, fileFilter)));
     }
 
@@ -90,18 +87,15 @@ public class FTPQueueStorage extends DefaultAsyncTemplateStorage implements Runn
     }
 
     @Override
-    public @NotNull ITask<Boolean> copyAsync(@NotNull ServiceTemplate template, @NotNull File directory) {
-        return this.addTask(new FTPTask<>(() -> this.executingStorage.copy(template, directory)));
-    }
-
-    @Override
     public @NotNull ITask<Boolean> copyAsync(@NotNull ServiceTemplate template, @NotNull Path directory) {
         return this.addTask(new FTPTask<>(() -> this.executingStorage.copy(template, directory)));
     }
 
-    @Override
-    public @NotNull ITask<byte[]> toZipByteArrayAsync(@NotNull ServiceTemplate template) {
-        return this.addTask(new FTPTask<>(() -> this.executingStorage.toZipByteArray(template)));
+    public boolean copy(@NotNull ServiceTemplate template, @NotNull Path directory) {
+        ITask<Boolean> ftpTask = new FTPTask<>(() -> this.executingStorage.copy(template, directory));
+        this.ftpTaskQueue.add(ftpTask);
+
+        return ftpTask.getDef(false);
     }
 
     @Override

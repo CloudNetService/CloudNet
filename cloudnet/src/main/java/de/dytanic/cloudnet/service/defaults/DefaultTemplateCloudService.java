@@ -6,23 +6,34 @@ import de.dytanic.cloudnet.common.encrypt.EncryptTo;
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
-import de.dytanic.cloudnet.driver.service.*;
+import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
+import de.dytanic.cloudnet.driver.service.ServiceDeployment;
+import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
+import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
+import de.dytanic.cloudnet.driver.service.ServiceRemoteInclusion;
+import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import de.dytanic.cloudnet.driver.template.TemplateStorage;
 import de.dytanic.cloudnet.event.service.CloudServiceDeploymentEvent;
 import de.dytanic.cloudnet.event.service.CloudServicePreLoadInclusionEvent;
 import de.dytanic.cloudnet.event.service.CloudServiceTemplateLoadEvent;
 import de.dytanic.cloudnet.service.ICloudServiceManager;
 import de.dytanic.cloudnet.service.handler.CloudServiceHandler;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.file.Files;
-import java.util.*;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Base64;
+import java.util.Collections;
+import java.util.List;
+import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -39,6 +50,7 @@ public abstract class DefaultTemplateCloudService extends DefaultCloudService {
     }
 
     @Override
+    @ApiStatus.Internal
     public void init() {
         this.waitingIncludes.addAll(Arrays.asList(this.getServiceConfiguration().getIncludes()));
         this.waitingTemplates.addAll(Arrays.asList(this.getServiceConfiguration().getTemplates()));
@@ -63,29 +75,28 @@ public abstract class DefaultTemplateCloudService extends DefaultCloudService {
                             .replace("%destination%", inclusion.getDestination())
                     );
 
-                    File cacheDestination = new File(
+                    Path cacheDestination = Paths.get(
                             System.getProperty("cloudnet.tempDir.includes", "temp/includes"),
                             Base64.getEncoder().encodeToString(EncryptTo.encryptToSHA256(inclusion.getUrl()))
                     );
-                    cacheDestination.getParentFile().mkdirs();
+                    FileUtils.createDirectoryReported(cacheDestination.getParent());
 
-                    if (!cacheDestination.exists()) {
+                    if (Files.notExists(cacheDestination)) {
                         if (!this.includeInclusions0(inclusion, cacheDestination, buffer)) {
                             continue;
                         }
                     }
 
-                    try (InputStream inputStream = new FileInputStream(cacheDestination)) {
-                        File destination = new File(this.getDirectory(), inclusion.getDestination());
-                        destination.getParentFile().mkdirs();
+                    try (InputStream inputStream = Files.newInputStream(cacheDestination)) {
+                        Path target = this.getDirectoryPath().resolve(inclusion.getDestination());
+                        FileUtils.createDirectoryReported(target.getParent());
 
-                        try (OutputStream outputStream = Files.newOutputStream(destination.toPath())) {
+                        try (OutputStream outputStream = Files.newOutputStream(target)) {
                             FileUtils.copy(inputStream, outputStream, buffer);
                         }
                     }
 
                     this.includes.add(inclusion);
-
                 } catch (Exception exception) {
                     exception.printStackTrace();
                 }
@@ -93,7 +104,7 @@ public abstract class DefaultTemplateCloudService extends DefaultCloudService {
         }
     }
 
-    private boolean includeInclusions0(ServiceRemoteInclusion inclusion, File destination, byte[] buffer) throws Exception {
+    private boolean includeInclusions0(ServiceRemoteInclusion inclusion, Path destination, byte[] buffer) throws Exception {
         URLConnection connection = new URL(inclusion.getUrl()).openConnection();
 
         if (CloudNetDriver.getInstance().getEventManager().callEvent(new CloudServicePreLoadInclusionEvent(this, inclusion, connection)).isCancelled()) {
@@ -116,7 +127,7 @@ public abstract class DefaultTemplateCloudService extends DefaultCloudService {
 
         connection.connect();
 
-        try (InputStream inputStream = connection.getInputStream(); OutputStream outputStream = Files.newOutputStream(destination.toPath())) {
+        try (InputStream inputStream = connection.getInputStream(); OutputStream outputStream = Files.newOutputStream(destination)) {
             FileUtils.copy(inputStream, outputStream, buffer);
         }
 
@@ -152,7 +163,7 @@ public abstract class DefaultTemplateCloudService extends DefaultCloudService {
                                 .replace("%storage%", template.getStorage())
                         );
 
-                        storage.copy(template, this.getDirectory());
+                        storage.copy(template, this.getDirectoryPath());
                     }
 
                     this.templates.add(template);
@@ -188,10 +199,12 @@ public abstract class DefaultTemplateCloudService extends DefaultCloudService {
                             .replace("%storage%", deployment.getTemplate().getStorage())
                     );
 
-                    storage.deploy(this.getDirectory(), deployment.getTemplate(), pathname -> {
-                                if (deployment.getExcludes() != null) {
-                                    return !deployment.getExcludes().contains(pathname.isDirectory() ? pathname.getName() + "/" : pathname.getName()) && !pathname
-                                            .getName().equals("wrapper.jar") && !pathname.getName().equals(".wrapper");
+                    storage.deploy(this.getDirectoryPath(), deployment.getTemplate(), path -> {
+                                Path pathFileName = path.getFileName();
+                                if (pathFileName != null && deployment.getExcludes() != null) {
+                                    String fileName = Files.isDirectory(path) ? pathFileName.toString() + '/' : pathFileName.toString();
+                                    return !deployment.getExcludes().contains(fileName)
+                                            && !fileName.equals("wrapper.jar") && !fileName.equals(".wrapper");
                                 } else {
                                     return true;
                                 }
@@ -261,5 +274,4 @@ public abstract class DefaultTemplateCloudService extends DefaultCloudService {
     public Queue<ServiceTemplate> getWaitingTemplates() {
         return this.waitingTemplates;
     }
-
 }

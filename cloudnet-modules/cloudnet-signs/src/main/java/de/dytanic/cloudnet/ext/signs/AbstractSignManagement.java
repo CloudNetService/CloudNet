@@ -18,7 +18,15 @@ import de.dytanic.cloudnet.wrapper.Wrapper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -26,13 +34,13 @@ public abstract class AbstractSignManagement extends ServiceInfoStateWatcher {
 
     private static final Comparator<Pair<ServiceInfoSnapshot, ServiceInfoStateWatcher.ServiceInfoState>>
             ENTRY_NAME_COMPARATOR = Comparator.comparing(entry -> entry.getFirst().getName()),
-            ENTRY_STATE_COMPARATOR = Comparator.comparingInt(entry -> entry.getSecond().getValue());
+            ENTRY_STATE_COMPARATOR = Comparator.comparingInt(entry -> entry.getSecond().getPriority());
 
     private final AtomicInteger[] indexes = new AtomicInteger[]{
             new AtomicInteger(-1), //starting
             new AtomicInteger(-1) //search
     };
-    protected Set<Sign> signs;
+    protected final Set<Sign> signs;
 
     public AbstractSignManagement() {
         Collection<Sign> signsFromNode = this.getSignsFromNode();
@@ -192,7 +200,7 @@ public abstract class AbstractSignManagement extends ServiceInfoStateWatcher {
 
                     return access;
                 })
-                .min(ENTRY_STATE_COMPARATOR);
+                .max(ENTRY_STATE_COMPARATOR);
 
         if (optionalEntry.isPresent()) {
             Pair<ServiceInfoSnapshot, ServiceInfoStateWatcher.ServiceInfoState> entry = optionalEntry.get();

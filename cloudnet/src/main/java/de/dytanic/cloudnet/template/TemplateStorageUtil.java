@@ -6,15 +6,32 @@ import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import de.dytanic.cloudnet.driver.template.SpecificTemplateStorage;
+import de.dytanic.cloudnet.driver.template.TemplateStorage;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Path;
 
 public final class TemplateStorageUtil {
 
     private TemplateStorageUtil() {
         throw new UnsupportedOperationException();
+    }
+
+    public static LocalTemplateStorage getLocalTemplateStorage() {
+        return (LocalTemplateStorage) CloudNet.getInstance().getServicesRegistry()
+                .getService(TemplateStorage.class, LocalTemplateStorage.LOCAL_TEMPLATE_STORAGE);
+    }
+
+    @Deprecated
+    public static File getFile(ServiceTemplate serviceTemplate, String path) {
+        return getPath(serviceTemplate, path).toFile();
+    }
+
+    public static Path getPath(ServiceTemplate serviceTemplate, String path) {
+        return getLocalTemplateStorage().getStorageDirectory().resolve(serviceTemplate.getTemplatePath()).resolve(path).normalize();
     }
 
     private static void prepareProxyTemplate(SpecificTemplateStorage storage, byte[] buffer, String configPath, String defaultConfigPath) throws IOException {
@@ -70,6 +87,15 @@ public final class TemplateStorageUtil {
 
                     try (OutputStream outputStream = storage.newOutputStream("nukkit.yml");
                          InputStream inputStream = CloudNet.class.getClassLoader().getResourceAsStream("files/nukkit/nukkit.yml")) {
+                        if (inputStream != null) {
+                            FileUtils.copy(inputStream, outputStream, buffer);
+                        }
+                    }
+                }
+                break;
+                case GO_MINT: {
+                    try (OutputStream outputStream = storage.newOutputStream("server.yml");
+                         InputStream inputStream = CloudNet.class.getClassLoader().getResourceAsStream("files/gomint/server.yml")) {
                         if (inputStream != null) {
                             FileUtils.copy(inputStream, outputStream, buffer);
                         }

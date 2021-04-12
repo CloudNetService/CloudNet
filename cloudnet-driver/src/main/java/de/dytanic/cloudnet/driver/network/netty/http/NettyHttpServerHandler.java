@@ -1,14 +1,21 @@
 package de.dytanic.cloudnet.driver.network.netty.http;
 
 import de.dytanic.cloudnet.driver.network.HostAndPort;
-import io.netty.channel.*;
-import io.netty.handler.codec.DecoderResult;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.HttpRequest;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @ApiStatus.Internal
 final class NettyHttpServerHandler extends SimpleChannelInboundHandler<HttpRequest> {
@@ -50,7 +57,7 @@ final class NettyHttpServerHandler extends SimpleChannelInboundHandler<HttpReque
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, HttpRequest msg) {
-        if (msg.decoderResult() != DecoderResult.SUCCESS) {
+        if (msg.decoderResult().isFailure()) {
             ctx.channel().close();
             return;
         }

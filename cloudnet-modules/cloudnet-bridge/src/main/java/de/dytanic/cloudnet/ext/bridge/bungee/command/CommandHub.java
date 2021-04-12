@@ -8,10 +8,15 @@ import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Command;
 
+import java.util.Arrays;
+
 public final class CommandHub extends Command {
 
-    public CommandHub() {
-        super("hub");
+    private final String[] aliases;
+
+    public CommandHub(String[] names) {
+        super(names[0]);
+        this.aliases = Arrays.copyOfRange(names, 1, names.length);
     }
 
     @Override
@@ -22,7 +27,7 @@ public final class CommandHub extends Command {
 
         ProxiedPlayer proxiedPlayer = (ProxiedPlayer) sender;
 
-        if (BungeeCloudNetHelper.isOnAFallbackInstance(proxiedPlayer)) {
+        if (BungeeCloudNetHelper.isOnMatchingFallbackInstance(proxiedPlayer)) {
             sender.sendMessage(TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', BridgeConfigurationProvider.load().getMessages().get("command-hub-already-in-hub"))));
             return;
         }
@@ -42,6 +47,7 @@ public final class CommandHub extends Command {
 
     @Override
     public String[] getAliases() {
-        return new String[]{"lobby", "l", "leave"};
+        return this.aliases;
     }
+
 }

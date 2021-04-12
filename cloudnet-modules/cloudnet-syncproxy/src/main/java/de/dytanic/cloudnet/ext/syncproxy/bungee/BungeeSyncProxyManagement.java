@@ -2,6 +2,7 @@ package de.dytanic.cloudnet.ext.syncproxy.bungee;
 
 
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
+import de.dytanic.cloudnet.ext.bridge.proxy.BridgeProxyHelper;
 import de.dytanic.cloudnet.ext.syncproxy.AbstractSyncProxyManagement;
 import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyConfiguration;
 import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyProxyLoginConfiguration;
@@ -23,11 +24,10 @@ public class BungeeSyncProxyManagement extends AbstractSyncProxyManagement {
         this.plugin = plugin;
 
         super.setSyncProxyConfiguration(SyncProxyConfiguration.getConfigurationFromNode());
-        super.scheduleTabList();
     }
 
     @Override
-    protected void scheduleNative(Runnable runnable, long millis) {
+    protected void schedule(Runnable runnable, long millis) {
         ProxyServer.getInstance().getScheduler().schedule(this.plugin, runnable, millis, TimeUnit.MILLISECONDS);
     }
 
@@ -41,6 +41,10 @@ public class BungeeSyncProxyManagement extends AbstractSyncProxyManagement {
     }
 
     public void updateTabList(ProxiedPlayer proxiedPlayer) {
+        if (super.tabListEntryIndex.get() == -1) {
+            return;
+        }
+
         proxiedPlayer.setTabHeader(
                 TextComponent.fromLegacyText(super.tabListHeader != null ?
                         this.replaceTabListItem(proxiedPlayer, ChatColor.translateAlternateColorCodes('&', super.tabListHeader))
@@ -54,8 +58,16 @@ public class BungeeSyncProxyManagement extends AbstractSyncProxyManagement {
     }
 
     private String replaceTabListItem(ProxiedPlayer proxiedPlayer, String input) {
+        String taskName = "";
+        if (proxiedPlayer.getServer() != null) {
+            ServiceInfoSnapshot serviceInfoSnapshot = BridgeProxyHelper.getCachedServiceInfoSnapshot(proxiedPlayer.getServer().getInfo().getName());
+            if (serviceInfoSnapshot != null) {
+                taskName = serviceInfoSnapshot.getServiceId().getTaskName();
+            }
+        }
         input = input
                 .replace("%server%", proxiedPlayer.getServer() != null ? proxiedPlayer.getServer().getInfo().getName() : "")
+                .replace("%task%", taskName)
                 .replace("%online_players%", String.valueOf(super.loginConfiguration != null ? super.getSyncProxyOnlineCount() : ProxyServer.getInstance().getOnlineCount()))
                 .replace("%max_players%", String.valueOf(super.loginConfiguration != null ? super.loginConfiguration.getMaxPlayers() : proxiedPlayer.getPendingConnection().getListener().getMaxPlayers()))
                 .replace("%name%", proxiedPlayer.getName())

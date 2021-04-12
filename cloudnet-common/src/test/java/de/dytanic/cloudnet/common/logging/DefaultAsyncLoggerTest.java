@@ -1,5 +1,6 @@
 package de.dytanic.cloudnet.common.logging;
 
+import org.jetbrains.annotations.NotNull;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -35,7 +36,7 @@ public class DefaultAsyncLoggerTest {
     private class LogHandler implements ILogHandler {
 
         @Override
-        public void handle(LogEntry logEntry) {
+        public void handle(@NotNull LogEntry logEntry) {
             DefaultAsyncLoggerTest.this.data = logEntry.getMessages()[0];
 
             Assert.assertNotNull("data transfer", DefaultAsyncLoggerTest.this.data);

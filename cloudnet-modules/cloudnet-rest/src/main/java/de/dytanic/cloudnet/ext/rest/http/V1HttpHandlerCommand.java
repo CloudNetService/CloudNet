@@ -1,6 +1,7 @@
 package de.dytanic.cloudnet.ext.rest.http;
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import de.dytanic.cloudnet.driver.network.http.HttpResponseCode;
 import de.dytanic.cloudnet.driver.network.http.IHttpContext;
 import de.dytanic.cloudnet.driver.permission.IPermissionUser;
 import de.dytanic.cloudnet.http.V1HttpHandler;
@@ -34,6 +35,7 @@ public final class V1HttpHandlerCommand extends V1HttpHandler {
             if (this.getCloudNet().getCommandMap().dispatchCommand(commandSender, commandLine)) {
                 context
                         .response()
+                        .statusCode(HttpResponseCode.HTTP_OK)
                         .body(new JsonDocument("receivedMessages", commandSender.getWrittenMessages().toArray(new String[0])).toByteArray())
                         .context()
                         .closeAfter(true)

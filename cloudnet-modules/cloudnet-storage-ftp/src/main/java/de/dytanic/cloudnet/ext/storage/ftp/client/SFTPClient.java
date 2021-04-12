@@ -1,7 +1,11 @@
 package de.dytanic.cloudnet.ext.storage.ftp.client;
 
-import com.jcraft.jsch.*;
-import de.dytanic.cloudnet.common.io.FileUtils;
+import com.jcraft.jsch.ChannelSftp;
+import com.jcraft.jsch.JSch;
+import com.jcraft.jsch.JSchException;
+import com.jcraft.jsch.Session;
+import com.jcraft.jsch.SftpATTRS;
+import com.jcraft.jsch.SftpException;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.common.logging.ILogger;
 import de.dytanic.cloudnet.common.logging.LogLevel;
@@ -12,7 +16,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.*;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -116,8 +124,9 @@ public class SFTPClient implements Closeable {
     }
 
     public boolean uploadFile(Path localPath, String remotePath) {
-        if (!Files.exists(localPath))
+        if (!Files.exists(localPath)) {
             return false;
+        }
         try (InputStream inputStream = Files.newInputStream(localPath)) {
             this.uploadFile(inputStream, remotePath);
             return true;
@@ -221,14 +230,14 @@ public class SFTPClient implements Closeable {
 
         try {
             Collection<ChannelSftp.LsEntry> entries = this.listFiles(remotePath);
-            if (entries == null)
+            if (entries == null) {
                 return false;
+            }
 
             Path dir = Paths.get(localPath);
-            if (Files.exists(dir)) {
-                FileUtils.delete(dir.toFile());
+            if (!Files.exists(dir)) {
+                Files.createDirectories(dir);
             }
-            Files.createDirectories(dir);
 
             for (ChannelSftp.LsEntry entry : entries) {
                 if (entry.getAttrs().isDir()) {
@@ -250,8 +259,9 @@ public class SFTPClient implements Closeable {
     }
 
     public void zipDirectory(String remotePath, OutputStream outputStream) {
-        if (remotePath.endsWith("/"))
+        if (remotePath.endsWith("/")) {
             remotePath = remotePath.substring(0, remotePath.length() - 1);
+        }
 
         try {
             try (ZipOutputStream zipOutputStream = new ZipOutputStream(outputStream, StandardCharsets.UTF_8)) {
@@ -264,8 +274,9 @@ public class SFTPClient implements Closeable {
 
     private boolean zip(ZipOutputStream zipOutputStream, String remotePath, String relativePath) throws IOException, SftpException {
         Collection<ChannelSftp.LsEntry> entries = this.listFiles(remotePath);
-        if (entries == null)
+        if (entries == null) {
             return false;
+        }
 
         for (ChannelSftp.LsEntry entry : entries) {
             if (!entry.getAttrs().isDir() && !entry.getAttrs().isLink()) {
@@ -345,8 +356,9 @@ public class SFTPClient implements Closeable {
     public boolean deleteDirectory(String path) {
         try {
             Collection<ChannelSftp.LsEntry> entries = this.listFiles(path);
-            if (entries == null)
+            if (entries == null) {
                 return false;
+            }
 
             for (ChannelSftp.LsEntry entry : entries) {
 

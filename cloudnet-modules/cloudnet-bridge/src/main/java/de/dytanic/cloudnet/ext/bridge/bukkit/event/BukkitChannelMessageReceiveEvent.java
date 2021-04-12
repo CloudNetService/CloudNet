@@ -5,6 +5,9 @@ import de.dytanic.cloudnet.ext.bridge.WrappedChannelMessageReceiveEvent;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * {@inheritDoc}
+ */
 public final class BukkitChannelMessageReceiveEvent extends BukkitCloudNetEvent implements WrappedChannelMessageReceiveEvent {
 
     private static final HandlerList handlerList = new HandlerList();

@@ -48,7 +48,10 @@ public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
         this.hikariDataSource.setPassword(this.config.getString("password"));
         this.hikariDataSource.setDriverClassName("com.mysql.jdbc.Driver");
 
-        this.hikariDataSource.setMaximumPoolSize(this.config.getInt("connectionPoolSize"));
+        int maxPoolSize = this.config.getInt("connectionMaxPoolSize");
+
+        this.hikariDataSource.setMaximumPoolSize(maxPoolSize);
+        this.hikariDataSource.setMinimumIdle(Math.min(maxPoolSize, this.config.getInt("connectionMinPoolSize")));
         this.hikariDataSource.setConnectionTimeout(this.config.getInt("connectionTimeout"));
         this.hikariDataSource.setValidationTimeout(this.config.getInt("validationTimeout"));
 

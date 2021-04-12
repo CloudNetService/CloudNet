@@ -3,11 +3,19 @@ package de.dytanic.cloudnet.ext.bridge;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 @ToString
 @EqualsAndHashCode
 public class ProxyFallback implements Comparable<ProxyFallback> {
 
     protected String task, permission;
+
+    protected Collection<String> availableOnGroups = new ArrayList<>();
+
+    protected String forcedHost;
+
     private int priority;
 
     public ProxyFallback(String task, String permission, int priority) {
@@ -38,6 +46,22 @@ public class ProxyFallback implements Comparable<ProxyFallback> {
 
     public void setPermission(String permission) {
         this.permission = permission;
+    }
+
+    public Collection<String> getAvailableOnGroups() {
+        return this.availableOnGroups;
+    }
+
+    public void setAvailableOnGroups(Collection<String> availableOnGroups) {
+        this.availableOnGroups = availableOnGroups;
+    }
+
+    public String getForcedHost() {
+        return this.forcedHost;
+    }
+
+    public void setForcedHost(String forcedHost) {
+        this.forcedHost = forcedHost;
     }
 
     public int getPriority() {

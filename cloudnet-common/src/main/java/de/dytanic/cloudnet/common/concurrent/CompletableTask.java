@@ -6,7 +6,13 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.concurrent.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 public class CompletableTask<V> implements ITask<V> {
 
@@ -42,23 +48,6 @@ public class CompletableTask<V> implements ITask<V> {
         return task;
     }
 
-    @Override
-    public @NotNull ITask<V> addListener(ITaskListener<V> listener) {
-        if (this.future.isDone()) {
-            if (this.future.isCancelled()) {
-                listener.onCancelled(this);
-            } else if (this.throwable != null) {
-                listener.onFailure(this, this.throwable);
-            } else {
-                listener.onComplete(this, this.future.getNow(null));
-            }
-            return this;
-        }
-
-        this.listeners.add(listener);
-        return this;
-    }
-
     public static <I, O> ITask<O> mapFrom(ITask<I> source, ThrowableFunction<I, O, Throwable> mapper) {
         CompletableTask<O> result = new CompletableTask<>();
         source.addListener(new ITaskListener<I>() {
@@ -82,6 +71,23 @@ public class CompletableTask<V> implements ITask<V> {
             }
         });
         return result;
+    }
+
+    @Override
+    public @NotNull ITask<V> addListener(ITaskListener<V> listener) {
+        if (this.future.isDone()) {
+            if (this.future.isCancelled()) {
+                listener.onCancelled(this);
+            } else if (this.throwable != null) {
+                listener.onFailure(this, this.throwable);
+            } else {
+                listener.onComplete(this, this.future.getNow(null));
+            }
+            return this;
+        }
+
+        this.listeners.add(listener);
+        return this;
     }
 
     @Override
@@ -186,5 +192,4 @@ public class CompletableTask<V> implements ITask<V> {
         this.onCancelled(otherTask -> task.cancel(true));
         return task;
     }
-
 }

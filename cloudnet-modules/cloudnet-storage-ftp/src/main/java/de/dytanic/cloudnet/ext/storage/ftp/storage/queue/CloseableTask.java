@@ -1,6 +1,5 @@
 package de.dytanic.cloudnet.ext.storage.ftp.storage.queue;
 
-
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.concurrent.ITaskListener;
@@ -141,6 +140,4 @@ public class CloseableTask<C extends Closeable> implements ITask<C>, Closeable {
     public C get(long timeout, @NotNull TimeUnit unit) {
         return this.get();
     }
-
-
 }
