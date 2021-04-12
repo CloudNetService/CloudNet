@@ -355,6 +355,11 @@ public final class JsonConfiguration implements IConfiguration {
         return this.processTerminationTimeoutSeconds;
     }
 
+    @Override
+    public void setProcessTerminationTimeoutSeconds(int processTerminationTimeoutSeconds) {
+        this.processTerminationTimeoutSeconds = processTerminationTimeoutSeconds;
+    }
+
     public String getDefaultHostAddress() {
         return this.defaultHostAddress;
     }
