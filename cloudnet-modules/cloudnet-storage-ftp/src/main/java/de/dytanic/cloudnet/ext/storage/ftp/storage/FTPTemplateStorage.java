@@ -5,6 +5,7 @@ import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.common.logging.ILogger;
 import de.dytanic.cloudnet.common.logging.LogLevel;
+import de.dytanic.cloudnet.common.stream.WrappedOutputStream;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import de.dytanic.cloudnet.driver.template.FileInfo;
@@ -280,7 +281,9 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
             String filePath = path + "/" + ftpFile.getName();
 
             if (ftpFile.isDirectory()) {
-                this.deleteDir(filePath);
+                if (!ftpFile.getName().equals(".") && !ftpFile.getName().equals("..")) {
+                    this.deleteDir(filePath);
+                }
             } else {
                 this.ftpClient.deleteFile(filePath);
             }
@@ -306,8 +309,10 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
     public OutputStream appendOutputStream(@NotNull ServiceTemplate template, @NotNull String path) throws IOException {
         String fullPath = template.getTemplatePath() + "/" + path;
 
-        this.createParent(fullPath);
-        return this.ftpClient.appendFileStream(fullPath);
+        this.createFile(template, path);
+
+        OutputStream outputStream = this.ftpClient.appendFileStream(fullPath);
+        return outputStream != null ? this.wrapOutputStream(outputStream) : null;
     }
 
     @Nullable
@@ -315,8 +320,10 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
     public OutputStream newOutputStream(@NotNull ServiceTemplate template, @NotNull String path) throws IOException {
         String fullPath = template.getTemplatePath() + "/" + path;
 
-        this.createParent(fullPath);
-        return this.ftpClient.storeFileStream(fullPath);
+        this.createFile(template, path);
+
+        OutputStream outputStream = this.ftpClient.storeFileStream(fullPath);
+        return outputStream != null ? this.wrapOutputStream(outputStream) : null;
     }
 
     @Override
@@ -361,8 +368,8 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
 
     private boolean isDirectory(String fullPath) throws IOException {
         try {
-            this.ftpClient.mdtmFile(fullPath);
-            return false;
+            FTPFile ftpFile = this.ftpClient.mlistFile(fullPath);
+            return ftpFile != null && ftpFile.isDirectory();
         } catch (MalformedServerReplyException exception) {
             return this.ftpClient.getReplyCode() == FTPReply.FILE_UNAVAILABLE;
         }
@@ -388,7 +395,7 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
         }
 
         try {
-            FTPFile file = this.ftpClient.mdtmFile(template.getTemplatePath() + "/" + path);
+            FTPFile file = this.ftpClient.mlistFile(template.getTemplatePath() + "/" + path);
             return file == null ? null : this.asInfo(path, file);
         } catch (MalformedServerReplyException exception) {
             if (this.ftpClient.getReplyCode() == FTPReply.FILE_UNAVAILABLE) {
@@ -499,6 +506,16 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
         }
 
         this.ftpClient.changeWorkingDirectory(super.baseDirectory);
+    }
+
+    private OutputStream wrapOutputStream(OutputStream input) {
+        return new WrappedOutputStream(input) {
+            @Override
+            public void close() throws IOException {
+                super.close();
+                FTPTemplateStorage.this.completeDataTransfer();
+            }
+        };
     }
 
 }
