@@ -35,7 +35,7 @@ public class QuestionAnswerTypeHostAndPort implements QuestionAnswerType<HostAnd
             URI uri = URI.create("tcp://" + input);
 
             String host = uri.getHost();
-            if (host == null || (requiresPort && uri.getPort() == -1)) {
+            if (host == null || (this.requiresPort && uri.getPort() == -1)) {
                 return null;
             }
 
