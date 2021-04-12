@@ -122,6 +122,7 @@ public class ChunkedPacketBuilder {
             }
 
             this.target.accept(createEndPacket(channel, uniqueId, chunkId, chunkSize));
+            this.inputStream.close();
 
             this.success = true;
         } catch (ChunkInterrupt ignored) {
