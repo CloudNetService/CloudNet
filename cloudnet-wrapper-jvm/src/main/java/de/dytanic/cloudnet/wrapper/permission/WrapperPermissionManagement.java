@@ -278,7 +278,7 @@ public class WrapperPermissionManagement extends DefaultPermissionManagement
     }
 
     @Override
-    public ITask<IPermissionGroup> getDefaultPermissionGroupAsync() {
+    public @NotNull ITask<IPermissionGroup> getDefaultPermissionGroupAsync() {
         return CompletedTask.create(this.getDefaultPermissionGroup());
     }
 
