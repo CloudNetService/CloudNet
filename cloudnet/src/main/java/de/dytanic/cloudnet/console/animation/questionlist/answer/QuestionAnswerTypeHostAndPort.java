@@ -40,10 +40,11 @@ public class QuestionAnswerTypeHostAndPort implements QuestionAnswerType<HostAnd
             }
 
             InetAddress inetAddress = InetAddresses.forUriString(host);
-            if (this.requiresPort && !PortValidator.checkHost(inetAddress.getHostAddress(), uri.getPort())) {
-                return null;
-            }
-            return new HostAndPort(inetAddress.getHostAddress(), uri.getPort());
+            boolean valid = this.requiresPort
+                    ? PortValidator.checkHost(inetAddress.getHostAddress(), uri.getPort())
+                    : PortValidator.canAssignAddress(inetAddress.getHostAddress());
+
+            return valid ? new HostAndPort(inetAddress.getHostAddress(), uri.getPort()) : null;
         } catch (IllegalArgumentException exception) {
             return null;
         }
