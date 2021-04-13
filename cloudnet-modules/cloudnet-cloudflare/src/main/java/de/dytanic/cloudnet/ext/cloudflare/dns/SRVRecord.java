@@ -1,7 +1,3 @@
-/*
- * Copyright (c) Tarek Hosni El Alaoui 2017
- */
-
 package de.dytanic.cloudnet.ext.cloudflare.dns;
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
