@@ -9,9 +9,6 @@ import com.google.gson.stream.JsonWriter;
 
 import java.io.IOException;
 
-/**
- * Created by Tareko on 23.12.2017.
- */
 public class JsonDocumentTypeAdapter extends TypeAdapter<JsonDocument> {
 
     @Override
