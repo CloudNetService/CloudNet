@@ -1,10 +1,17 @@
 package de.dytanic.cloudnet.driver.permission;
 
 import de.dytanic.cloudnet.common.concurrent.ITask;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -85,7 +92,7 @@ public abstract class DefaultPermissionManagement implements IPermissionManageme
     @Override
     @NotNull
     public Collection<IPermissionGroup> getGroups(@Nullable IPermissible permissible) {
-        Collection<IPermissionGroup> permissionGroups = new ArrayList<>();
+        List<IPermissionGroup> permissionGroups = new ArrayList<>();
 
         if (permissible == null) {
             return permissionGroups;
@@ -120,15 +127,72 @@ public abstract class DefaultPermissionManagement implements IPermissionManageme
     @Override
     @NotNull
     public PermissionCheckResult getPermissionResult(@NotNull IPermissible permissible, @NotNull Permission permission) {
-        return this.getPermissionResult(permissible, () -> permissible.hasPermission(permission), permissionGroup -> this.tryExtendedGroups(permissionGroup.getName(), permissionGroup, permission, 0));
+        Permission bestMatch = permissible.findMatchingPermission(permissible.getPermissions(), permission);
+        Permission bestGroupMatch = tryExtendedGroups(bestMatch == null ? permission : bestMatch, permissible, null, new HashSet<>());
+
+        if (bestMatch == null || bestGroupMatch == null) {
+            return PermissionCheckResult.fromPermission(bestMatch == null ? bestGroupMatch : bestMatch);
+        } else {
+            return PermissionCheckResult.fromPermission(bestGroupMatch.compareTo(bestMatch) > 0 ? bestGroupMatch : bestMatch);
+        }
     }
 
     @Override
     @NotNull
     public PermissionCheckResult getPermissionResult(@NotNull IPermissible permissible, @NotNull String group, @NotNull Permission permission) {
-        return this.getPermissionResult(permissible, () -> permissible.hasPermission(permission), permissionGroup -> this.tryExtendedGroups(permissionGroup.getName(), permissionGroup, group, permission, 0));
+        Collection<Permission> permissions = permissible.getGroupPermissions().get(group);
+        if (permissions != null) {
+            Permission bestMatch = permissible.findMatchingPermission(permissions, permission);
+            Permission bestGroupMatch = tryExtendedGroups(bestMatch == null ? permission : bestMatch, permissible, group, new HashSet<>());
+
+            if (bestMatch == null || bestGroupMatch == null) {
+                return PermissionCheckResult.fromPermission(bestMatch == null ? bestGroupMatch : bestMatch);
+            } else {
+                return PermissionCheckResult.fromPermission(bestGroupMatch.compareTo(bestMatch) > 0 ? bestGroupMatch : bestMatch);
+            }
+        }
+        return PermissionCheckResult.DENIED;
     }
 
+    private Permission tryExtendedGroups(Permission permission, IPermissible permissible, String currentGroup, Set<String> testedGroups) {
+        Permission bestResult = null;
+        for (IPermissionGroup group : this.getGroups(permissible)) {
+            if (group == null) {
+                continue;
+            }
+
+            if (!testedGroups.add(group.getName())) {
+                return bestResult;
+            }
+
+            Collection<Permission> permissions = currentGroup != null
+                    ? group.getGroupPermissions().get(currentGroup)
+                    : group.getPermissions();
+            if (permissions == null) {
+                // (╯°□°）╯︵ ┻━┻
+                continue;
+            }
+
+            Permission matching = group.findMatchingPermission(permissions, permission);
+            if (matching != null && matching.compareTo(bestResult == null ? permission : bestResult) > 0) {
+                bestResult = matching;
+            }
+
+            Permission bestRecursive = tryExtendedGroups(bestResult == null ? permission : bestResult, group, currentGroup, testedGroups);
+            if (bestRecursive != null) {
+                // the recursive result is always based on the previous checked result so a null check is enough here
+                bestResult = bestRecursive;
+            }
+        }
+
+        return bestResult;
+    }
+
+    /**
+     * @deprecated has no use internally anymore, will be removed in a further release.
+     */
+    @Deprecated
+    @ApiStatus.ScheduledForRemoval
     public PermissionCheckResult getPermissionResult(IPermissible permissible, Supplier<PermissionCheckResult> permissionTester, Function<IPermissionGroup, PermissionCheckResult> extendedGroupsTester) {
         switch (permissionTester.get()) {
             case ALLOWED:
@@ -151,6 +215,11 @@ public abstract class DefaultPermissionManagement implements IPermissionManageme
         return publicGroup != null ? extendedGroupsTester.apply(publicGroup) : PermissionCheckResult.DENIED;
     }
 
+    /**
+     * @deprecated has no use internally anymore, will be removed in a further release.
+     */
+    @Deprecated
+    @ApiStatus.ScheduledForRemoval
     public PermissionCheckResult tryExtendedGroups(@NotNull String firstGroup, @Nullable IPermissionGroup permissionGroup, @NotNull Permission permission, int layer) {
         if (permissionGroup == null) {
             return PermissionCheckResult.DENIED;
@@ -179,6 +248,11 @@ public abstract class DefaultPermissionManagement implements IPermissionManageme
         return PermissionCheckResult.DENIED;
     }
 
+    /**
+     * @deprecated has no use internally anymore, will be removed in a further release.
+     */
+    @Deprecated
+    @ApiStatus.ScheduledForRemoval
     public PermissionCheckResult tryExtendedGroups(@NotNull String firstGroup, @Nullable IPermissionGroup permissionGroup, @NotNull String group, @NotNull Permission permission, int layer) {
         if (permissionGroup == null) {
             return PermissionCheckResult.DENIED;
@@ -208,16 +282,12 @@ public abstract class DefaultPermissionManagement implements IPermissionManageme
     }
 
     @Override
-    public Collection<Permission> getAllPermissions(@NotNull IPermissible permissible) {
+    public @NotNull Collection<Permission> getAllPermissions(@NotNull IPermissible permissible) {
         return this.getAllPermissions(permissible, null);
     }
 
     @Override
-    public Collection<Permission> getAllPermissions(@NotNull IPermissible permissible, String group) {
-        if (permissible == null) {
-            return Collections.emptyList();
-        }
-
+    public @NotNull Collection<Permission> getAllPermissions(@NotNull IPermissible permissible, String group) {
         Collection<Permission> permissions = new ArrayList<>(permissible.getPermissions());
         if (group != null && permissible.getGroupPermissions().containsKey(group)) {
             permissions.addAll(permissible.getGroupPermissions().get(group));
@@ -229,7 +299,7 @@ public abstract class DefaultPermissionManagement implements IPermissionManageme
     }
 
     @Override
-    public ITask<IPermissionGroup> modifyGroupAsync(@NotNull String name, @NotNull Consumer<IPermissionGroup> modifier) {
+    public @NotNull ITask<IPermissionGroup> modifyGroupAsync(@NotNull String name, @NotNull Consumer<IPermissionGroup> modifier) {
         ITask<IPermissionGroup> task = this.getGroupAsync(name);
 
         task.onComplete(group -> {
@@ -243,7 +313,7 @@ public abstract class DefaultPermissionManagement implements IPermissionManageme
     }
 
     @Override
-    public ITask<IPermissionUser> modifyUserAsync(@NotNull UUID uniqueId, @NotNull Consumer<IPermissionUser> modifier) {
+    public @NotNull ITask<IPermissionUser> modifyUserAsync(@NotNull UUID uniqueId, @NotNull Consumer<IPermissionUser> modifier) {
         ITask<IPermissionUser> task = this.getUserAsync(uniqueId);
 
         task.onComplete(user -> {
@@ -257,7 +327,7 @@ public abstract class DefaultPermissionManagement implements IPermissionManageme
     }
 
     @Override
-    public ITask<List<IPermissionUser>> modifyUsersAsync(@NotNull String name, @NotNull Consumer<IPermissionUser> modifier) {
+    public @NotNull ITask<List<IPermissionUser>> modifyUsersAsync(@NotNull String name, @NotNull Consumer<IPermissionUser> modifier) {
         ITask<List<IPermissionUser>> task = this.getUsersAsync(name);
 
         task.onComplete(users -> {

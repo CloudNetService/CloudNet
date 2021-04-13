@@ -74,7 +74,7 @@ public abstract class ClusterSynchronizedPermissionManagement extends DefaultPer
     public @NotNull ITask<IPermissionGroup> addGroupAsync(@NotNull IPermissionGroup permissionGroup) {
         Preconditions.checkNotNull(permissionGroup);
 
-        this.testPermissionGroup(permissionGroup);
+        this.testPermissible(permissionGroup);
 
         if (this.getPermissionManagementHandler() != null) {
             this.getPermissionManagementHandler().handleAddGroup(this, permissionGroup);
@@ -86,7 +86,7 @@ public abstract class ClusterSynchronizedPermissionManagement extends DefaultPer
     public @NotNull ITask<Void> updateGroupAsync(@NotNull IPermissionGroup permissionGroup) {
         Preconditions.checkNotNull(permissionGroup);
 
-        this.testPermissionGroup(permissionGroup);
+        this.testPermissible(permissionGroup);
 
         if (this.getPermissionManagementHandler() != null) {
             this.getPermissionManagementHandler().handleUpdateGroup(this, permissionGroup);
