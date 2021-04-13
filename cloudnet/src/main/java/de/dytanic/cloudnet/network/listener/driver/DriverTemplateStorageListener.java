@@ -61,18 +61,8 @@ public class DriverTemplateStorageListener extends CategorizedDriverAPIListener 
         super.registerHandler(DriverAPIRequestType.CREATE_TEMPLATE, this.throwableResponseHandler(input -> TemplateStorageResponse.of(this.readSpecific(input).create())));
         super.registerHandler(DriverAPIRequestType.DELETE_TEMPLATE, this.throwableResponseHandler(input -> TemplateStorageResponse.of(this.readSpecific(input).delete())));
 
-        super.registerHandler(DriverAPIRequestType.LOAD_TEMPLATE_ARRAY, this.throwableHandler((channel, input) ->
-                ProtocolBuffer.create()
-                        .writeEnumConstant(TemplateStorageResponse.SUCCESS)
-                        .writeArray(ByteStreams.toByteArray(this.readSpecific(input).zipTemplate())))
-        );
         super.registerHandler(DriverAPIRequestType.LOAD_TEMPLATE_STREAM, this.chunkedHandler(input -> this.readSpecific(input).zipTemplate()));
         super.registerHandler(DriverAPIRequestType.GET_FILE_CONTENT, this.chunkedHandler(input -> this.readSpecific(input).newInputStream(input.readString())));
-
-        super.registerHandler(DriverAPIRequestType.DEPLOY_TEMPLATE_BYTE_ARRAY, this.throwableResponseHandler(
-                input -> TemplateStorageResponse.of(this.readSpecific(input).deploy(new ByteArrayInputStream(input.readArray())))
-        ));
-
 
         super.registerHandler(
                 DriverAPIRequestType.GET_TEMPLATE_STORAGES,

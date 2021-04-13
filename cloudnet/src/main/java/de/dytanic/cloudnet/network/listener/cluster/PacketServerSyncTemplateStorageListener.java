@@ -31,10 +31,6 @@ public class PacketServerSyncTemplateStorageListener implements IPacketListener 
         ClusterSynchronizedTemplateStorage storage = (ClusterSynchronizedTemplateStorage) templateStorage;
 
         switch (requestType) {
-            case DEPLOY_TEMPLATE_BYTE_ARRAY:
-                storage.deployWithoutSynchronization(new ByteArrayInputStream(buffer.readArray()), template);
-                break;
-
             case DELETE_TEMPLATE:
                 storage.deleteWithoutSynchronization(template);
                 break;
