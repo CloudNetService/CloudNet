@@ -19,7 +19,6 @@ dependencies {
 
 shadowJar {
     archiveFileName.set(cloudnetWrapperFile)
-    archiveClassifier.set(null)
     archiveVersion.set(null)
 
     relocate 'io.netty', 'de.dytanic.cloudnet.wrapper.relocate.io.netty'
