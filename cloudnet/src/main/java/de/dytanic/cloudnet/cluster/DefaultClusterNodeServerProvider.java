@@ -30,10 +30,10 @@ public final class DefaultClusterNodeServerProvider extends DefaultNodeServerPro
     public DefaultClusterNodeServerProvider(CloudNet cloudNet) {
         super(cloudNet);
 
-        cloudNet.getTaskScheduler().schedule(() -> {
+        cloudNet.getTaskExecutor().scheduleAtFixedRate(() -> {
             cloudNet.publishNetworkClusterNodeInfoSnapshotUpdate();
             this.checkForDeadNodes();
-        }, 1, 1, -1, TimeUnit.SECONDS);
+        }, 1, 1, TimeUnit.SECONDS);
     }
 
     @Override

@@ -73,10 +73,10 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
     private final Map<String, ICloudServiceFactory> cloudServiceFactories = new ConcurrentHashMap<>();
 
     public DefaultCloudServiceManager() {
-        CloudNet.getInstance().getTaskScheduler().schedule(() -> {
+        CloudNet.getInstance().getTaskExecutor().scheduleAtFixedRate(() -> {
             this.stopDeadServices();
             this.updateServiceLogs();
-        }, 1, 1, -1, TimeUnit.SECONDS);
+        }, 1, 1, TimeUnit.SECONDS);
     }
 
     @Override
