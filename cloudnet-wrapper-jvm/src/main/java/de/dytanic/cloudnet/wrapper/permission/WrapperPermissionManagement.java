@@ -7,12 +7,27 @@ import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.api.DriverAPIRequestType;
 import de.dytanic.cloudnet.driver.api.DriverAPIUser;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
-import de.dytanic.cloudnet.driver.permission.*;
+import de.dytanic.cloudnet.driver.permission.CachedPermissionManagement;
+import de.dytanic.cloudnet.driver.permission.DefaultPermissionManagement;
+import de.dytanic.cloudnet.driver.permission.DefaultSynchronizedPermissionManagement;
+import de.dytanic.cloudnet.driver.permission.IPermissible;
+import de.dytanic.cloudnet.driver.permission.IPermissionGroup;
+import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
+import de.dytanic.cloudnet.driver.permission.IPermissionUser;
+import de.dytanic.cloudnet.driver.permission.Permission;
+import de.dytanic.cloudnet.driver.permission.PermissionCheckResult;
+import de.dytanic.cloudnet.driver.permission.PermissionGroup;
+import de.dytanic.cloudnet.driver.permission.PermissionUser;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
@@ -30,8 +45,11 @@ public class WrapperPermissionManagement extends DefaultPermissionManagement
 
     @Override
     public void init() {
-        for (IPermissionGroup group : this.loadGroupsAsync().getDef(null)) {
-            this.cachedPermissionGroups.put(group.getName(), group);
+        Collection<IPermissionGroup> groups = this.loadGroupsAsync().getDef(null);
+        if (groups != null && !groups.isEmpty()) {
+            for (IPermissionGroup group : groups) {
+                this.cachedPermissionGroups.put(group.getName(), group);
+            }
         }
 
         CloudNetDriver.getInstance().getEventManager().registerListener(new PermissionCacheListener(this));
