@@ -132,7 +132,7 @@ public final class Wrapper extends CloudNetDriver implements DriverAPIUser {
                     this.config.getSslConfig().contains("privateKeyPath")
                             ? Paths.get(".wrapper", "privateKey")
                             : null
-            ), this.taskScheduler);
+            ));
         } else {
             this.networkClient = new NettyNetworkClient(NetworkClientChannelHandler::new);
         }
@@ -204,6 +204,7 @@ public final class Wrapper extends CloudNetDriver implements DriverAPIUser {
             exception.printStackTrace();
         }
 
+        this.scheduler.shutdownNow();
         this.taskScheduler.shutdown();
         this.moduleProvider.unloadAll();
         this.eventManager.unregisterAll();

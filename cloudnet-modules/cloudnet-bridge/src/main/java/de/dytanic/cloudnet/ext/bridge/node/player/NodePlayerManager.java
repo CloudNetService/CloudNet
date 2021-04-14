@@ -2,9 +2,9 @@ package de.dytanic.cloudnet.ext.bridge.node.player;
 
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.CloudNet;
-import de.dytanic.cloudnet.common.concurrent.CompletableTask;
 import de.dytanic.cloudnet.common.concurrent.CompletedTask;
 import de.dytanic.cloudnet.common.concurrent.ITask;
+import de.dytanic.cloudnet.common.concurrent.ListenableTask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.database.Database;
@@ -12,12 +12,25 @@ import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceId;
 import de.dytanic.cloudnet.ext.bridge.node.NodePlayerProvider;
-import de.dytanic.cloudnet.ext.bridge.player.*;
+import de.dytanic.cloudnet.ext.bridge.player.CloudOfflinePlayer;
+import de.dytanic.cloudnet.ext.bridge.player.CloudPlayer;
+import de.dytanic.cloudnet.ext.bridge.player.DefaultPlayerManager;
+import de.dytanic.cloudnet.ext.bridge.player.ICloudOfflinePlayer;
+import de.dytanic.cloudnet.ext.bridge.player.ICloudPlayer;
+import de.dytanic.cloudnet.ext.bridge.player.IPlayerManager;
+import de.dytanic.cloudnet.ext.bridge.player.NetworkConnectionInfo;
+import de.dytanic.cloudnet.ext.bridge.player.NetworkPlayerServerInfo;
+import de.dytanic.cloudnet.ext.bridge.player.NetworkServiceInfo;
+import de.dytanic.cloudnet.ext.bridge.player.PlayerProvider;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
@@ -260,14 +273,8 @@ public final class NodePlayerManager extends DefaultPlayerManager implements IPl
 
     @NotNull
     public <T> ITask<T> schedule(Callable<T> callable) {
-        CompletableTask<T> task = new CompletableTask<>();
-        CloudNetDriver.getInstance().getTaskExecutor().execute(() -> {
-            try {
-                task.complete(callable.call());
-            } catch (Exception exception) {
-                task.fail(exception);
-            }
-        });
+        ITask<T> task = new ListenableTask<>(callable);
+        CloudNetDriver.getInstance().getTaskExecutor().submit(task);
         return task;
     }
 

@@ -360,6 +360,7 @@ public final class CloudNet extends CloudNetDriver {
         this.serviceVersionProvider.interruptInstallSteps();
 
         this.cloudServiceManager.deleteAllCloudServices();
+        this.scheduler.shutdownNow();
         this.taskScheduler.shutdown();
 
         this.unloadAll();
@@ -857,8 +858,7 @@ public final class CloudNet extends CloudNetDriver {
     @NotNull
     public <T> ITask<T> scheduleTask(Callable<T> callable) {
         ITask<T> task = new ListenableTask<>(callable);
-
-        this.taskScheduler.schedule(task);
+        this.scheduler.submit(task);
         return task;
     }
 
