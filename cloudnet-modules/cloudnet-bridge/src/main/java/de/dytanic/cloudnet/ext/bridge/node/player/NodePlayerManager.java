@@ -2,6 +2,7 @@ package de.dytanic.cloudnet.ext.bridge.node.player;
 
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.CloudNet;
+import de.dytanic.cloudnet.common.concurrent.CompletableTask;
 import de.dytanic.cloudnet.common.concurrent.CompletedTask;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
@@ -257,10 +258,17 @@ public final class NodePlayerManager extends DefaultPlayerManager implements IPl
         this.updateOfflinePlayer0(CloudOfflinePlayer.of(cloudPlayer));
     }
 
-
     @NotNull
     public <T> ITask<T> schedule(Callable<T> callable) {
-        return CloudNet.getInstance().getTaskScheduler().schedule(callable);
+        CompletableTask<T> task = new CompletableTask<>();
+        CloudNetDriver.getInstance().getTaskExecutor().execute(() -> {
+            try {
+                task.complete(callable.call());
+            } catch (Exception exception) {
+                task.fail(exception);
+            }
+        });
+        return task;
     }
 
     public Map<UUID, CloudPlayer> getOnlineCloudPlayers() {

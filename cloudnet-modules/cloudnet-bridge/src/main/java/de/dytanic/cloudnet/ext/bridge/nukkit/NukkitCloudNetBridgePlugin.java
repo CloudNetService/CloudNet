@@ -23,7 +23,7 @@ public final class NukkitCloudNetBridgePlugin extends PluginBase {
         CloudNetDriver.getInstance().getServicesRegistry().registerService(IPlayerManager.class, "BridgePlayerManager", new BridgePlayerManager());
         this.initListeners();
 
-        Wrapper.getInstance().getTaskScheduler().schedule(BridgeHelper::updateServiceInfo); //However, calling this method in the scheduler fixes a NullPointerException in NukkitCloudNetHelper.initProperties(ServiceInfoSnapshot)
+        Wrapper.getInstance().getTaskExecutor().execute(BridgeHelper::updateServiceInfo); //However, calling this method in the scheduler fixes a NullPointerException in NukkitCloudNetHelper.initProperties(ServiceInfoSnapshot)
         this.runFireServerListPingEvent();
     }
 

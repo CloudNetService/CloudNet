@@ -27,7 +27,7 @@ public final class BukkitCloudNetBridgePlugin extends JavaPlugin {
         this.initListeners();
 
         Bukkit.getServer().getMessenger().registerOutgoingPluginChannel(this, "cloudnet:main");
-        Wrapper.getInstance().getTaskScheduler().schedule(BridgeHelper::updateServiceInfo);
+        Wrapper.getInstance().getTaskExecutor().execute(BridgeHelper::updateServiceInfo);
 
         this.runFireServerListPingEvent();
     }

@@ -109,7 +109,7 @@ public class SubCommandHandler extends Command implements ITabCompleter {
         }
 
         if (subCommand.isAsync()) {
-            CloudNet.getInstance().getTaskScheduler().schedule(() ->
+            CloudNet.getInstance().getTaskExecutor().execute(() ->
                     subCommand.execute(
                             subCommand, sender, command, new SubCommandArgumentWrapper(parsedArgs),
                             commandLine, subCommand.parseProperties(args), new HashMap<>()
