@@ -1,10 +1,14 @@
 package de.dytanic.cloudnet.common.concurrent;
 
+import org.jetbrains.annotations.ApiStatus;
+
 import java.util.Collection;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
+@Deprecated
+@ApiStatus.ScheduledForRemoval
 public interface ITaskScheduler extends IScheduledTaskInvoker, Executor {
 
     long getThreadLifeMillis();

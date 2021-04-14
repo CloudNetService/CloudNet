@@ -139,7 +139,7 @@ public abstract class AbstractSignManagement extends ServiceInfoStateWatcher {
     public boolean addSign(@NotNull Sign sign) {
         if (Arrays.asList(Wrapper.getInstance().getServiceConfiguration().getGroups()).contains(sign.getProvidedGroup())) {
             this.signs.add(sign);
-            CloudNetDriver.getInstance().getTaskScheduler().schedule(this::updateSigns);
+            CloudNetDriver.getInstance().getTaskExecutor().execute(this::updateSigns);
             return true;
         }
         return false;
@@ -155,7 +155,7 @@ public abstract class AbstractSignManagement extends ServiceInfoStateWatcher {
                 .filter(filterSign -> filterSign.getSignId() == sign.getSignId())
                 .findFirst().ifPresent(signEntry -> this.signs.remove(signEntry));
 
-        CloudNetDriver.getInstance().getTaskScheduler().schedule(this::updateSigns);
+        CloudNetDriver.getInstance().getTaskExecutor().execute(this::updateSigns);
     }
 
     public void updateSigns() {
@@ -390,7 +390,7 @@ public abstract class AbstractSignManagement extends ServiceInfoStateWatcher {
             this.runTaskLater(this::executeStartingTask, 20);
         }
 
-        CloudNetDriver.getInstance().getTaskScheduler().schedule(this::updateSigns);
+        CloudNetDriver.getInstance().getTaskExecutor().execute(this::updateSigns);
     }
 
     protected void executeSearchingTask() {
@@ -418,7 +418,7 @@ public abstract class AbstractSignManagement extends ServiceInfoStateWatcher {
             this.runTaskLater(this::executeSearchingTask, 20);
         }
 
-        CloudNetDriver.getInstance().getTaskScheduler().schedule(this::updateSigns);
+        CloudNetDriver.getInstance().getTaskExecutor().execute(this::updateSigns);
     }
 
     public AtomicInteger[] getIndexes() {

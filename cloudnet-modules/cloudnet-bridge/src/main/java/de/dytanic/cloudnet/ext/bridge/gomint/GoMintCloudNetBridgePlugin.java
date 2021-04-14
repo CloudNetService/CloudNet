@@ -29,7 +29,7 @@ public final class GoMintCloudNetBridgePlugin extends Plugin {
 
         this.initListeners();
 
-        Wrapper.getInstance().getTaskScheduler().schedule(BridgeHelper::updateServiceInfo);
+        Wrapper.getInstance().getTaskExecutor().execute(BridgeHelper::updateServiceInfo);
 
         this.runFirePingEvent();
     }
