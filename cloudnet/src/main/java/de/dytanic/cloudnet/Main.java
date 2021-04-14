@@ -2,7 +2,6 @@ package de.dytanic.cloudnet;
 
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.common.logging.AbstractLogHandler;
-import de.dytanic.cloudnet.common.logging.AsyncPrintStream;
 import de.dytanic.cloudnet.common.logging.DefaultAsyncLogger;
 import de.dytanic.cloudnet.common.logging.DefaultFileLogHandler;
 import de.dytanic.cloudnet.common.logging.DefaultLogFormatter;
@@ -14,6 +13,8 @@ import de.dytanic.cloudnet.console.IConsole;
 import de.dytanic.cloudnet.console.JLine3Console;
 import de.dytanic.cloudnet.console.log.ColouredLogFormatter;
 
+import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.util.Arrays;
 
@@ -48,7 +49,7 @@ public final class Main {
             logger.addLogHandler(logHandler);
         }
 
-        System.setOut(new AsyncPrintStream(new LogOutputStream(logger, LogLevel.INFO)));
-        System.setErr(new AsyncPrintStream(new LogOutputStream(logger, LogLevel.ERROR)));
+        System.setOut(new PrintStream(new LogOutputStream(logger, LogLevel.INFO), true, StandardCharsets.UTF_8.name()));
+        System.setErr(new PrintStream(new LogOutputStream(logger, LogLevel.ERROR), true, StandardCharsets.UTF_8.name()));
     }
 }
