@@ -1,6 +1,7 @@
 package de.dytanic.cloudnet.network.listener.cluster;
 
 import de.dytanic.cloudnet.CloudNet;
+import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.def.packet.PacketClientServerServiceInfoPublisher;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
@@ -19,8 +20,31 @@ public final class PacketServerServiceInfoPublisherListener implements IPacketLi
                 packet.getBuffer().readEnumConstant(PacketClientServerServiceInfoPublisher.PublisherType.class);
 
         if (CloudNet.getInstance().getCloudServiceManager().handleServiceUpdate(publisherType, serviceInfoSnapshot)) {
+            this.publishMessageIfNecessary(publisherType, serviceInfoSnapshot);
+
             packet.getBuffer().resetReaderIndex();
             this.sendUpdateToAllServices(packet);
+        }
+    }
+
+    private void publishMessageIfNecessary(PacketClientServerServiceInfoPublisher.PublisherType type, ServiceInfoSnapshot snapshot) {
+        switch (type) {
+            case STARTED:
+                System.out.println(LanguageManager.getMessage("cloud-service-pre-start-message-different-node")
+                        .replace("%task%", snapshot.getServiceId().getTaskName())
+                        .replace("%serviceId%", String.valueOf(snapshot.getServiceId().getTaskServiceId()))
+                        .replace("%id%", snapshot.getServiceId().getUniqueId().toString())
+                        .replace("%node%", snapshot.getServiceId().getNodeUniqueId()));
+                break;
+            case STOPPED:
+                System.out.println(LanguageManager.getMessage("cloud-service-pre-stop-message-different-node")
+                        .replace("%task%", snapshot.getServiceId().getTaskName())
+                        .replace("%serviceId%", String.valueOf(snapshot.getServiceId().getTaskServiceId()))
+                        .replace("%id%", snapshot.getServiceId().getUniqueId().toString())
+                        .replace("%node%", snapshot.getServiceId().getNodeUniqueId()));
+                break;
+            default:
+                break;
         }
     }
 

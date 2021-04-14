@@ -1,5 +1,6 @@
 package de.dytanic.cloudnet.common.concurrent;
 
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
@@ -12,6 +13,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
+@Deprecated
+@ApiStatus.ScheduledForRemoval
 public class DefaultTaskScheduler implements ITaskScheduler {
 
     protected static final long DEFAULT_THREAD_LIFE_MILLIS = 60000, DEFAULT_THREAD_PAUSE_MILLIS = 5;
