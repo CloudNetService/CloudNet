@@ -11,6 +11,7 @@ import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
 import de.dytanic.cloudnet.driver.service.ServiceTask;
 import de.dytanic.cloudnet.event.instance.CloudNetTickEvent;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.Comparator;
@@ -24,21 +25,18 @@ import java.util.stream.Collectors;
 public class CloudNetTick {
 
     public static final int TPS = CloudNet.TPS;
-    private static final int MILLIS_BETWEEN_TICKS = 1000 / TPS;
-
-    @NotNull
-    private final Queue<ITask<?>> processQueue = new ConcurrentLinkedQueue<>();
+    public static final int MILLIS_BETWEEN_TICKS = 1000 / TPS;
 
     private final CloudNet cloudNet;
+    private final Queue<ITask<?>> processQueue = new ConcurrentLinkedQueue<>();
 
     public CloudNetTick(CloudNet cloudNet) {
         this.cloudNet = cloudNet;
     }
 
     @NotNull
-    public <T> ITask<T> runTask(Callable<T> runnable) {
-        ITask<T> task = new ListenableTask<>(runnable);
-
+    public <T> ITask<T> runTask(@NotNull Callable<T> callable) {
+        ITask<T> task = new ListenableTask<>(callable);
         this.processQueue.offer(task);
         return task;
     }
@@ -109,7 +107,7 @@ public class CloudNetTick {
         }
     }
 
-    private boolean startPreparedService(Collection<ServiceInfoSnapshot> taskServices) {
+    private boolean startPreparedService(@NotNull Collection<ServiceInfoSnapshot> taskServices) {
         Map<String, Set<ServiceInfoSnapshot>> preparedServices = taskServices.stream()
                 .filter(taskService -> taskService.getLifeCycle() == ServiceLifeCycle.PREPARED)
                 .collect(Collectors.groupingBy(info -> info.getServiceId().getNodeUniqueId(), Collectors.toSet()));
@@ -133,11 +131,13 @@ public class CloudNetTick {
         return false;
     }
 
-    private boolean startPreparedService(NodeServer nodeServer, ServiceInfoSnapshot snapshot) {
-        SpecificCloudServiceProvider provider = nodeServer.getCloudServiceProvider(snapshot);
-        if (provider != null) {
-            provider.start();
-            return true;
+    private boolean startPreparedService(@NotNull NodeServer nodeServer, @Nullable ServiceInfoSnapshot snapshot) {
+        if (snapshot != null) {
+            SpecificCloudServiceProvider provider = nodeServer.getCloudServiceProvider(snapshot);
+            if (provider != null) {
+                provider.start();
+                return true;
+            }
         }
         return false;
     }
