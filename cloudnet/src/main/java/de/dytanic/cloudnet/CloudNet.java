@@ -1030,7 +1030,7 @@ public final class CloudNet extends CloudNetDriver {
         return this.configurationRegistry;
     }
 
-    public ICloudServiceManager getCloudServiceManager() {
+    public DefaultCloudServiceManager getCloudServiceManager() {
         return this.cloudServiceManager;
     }
 

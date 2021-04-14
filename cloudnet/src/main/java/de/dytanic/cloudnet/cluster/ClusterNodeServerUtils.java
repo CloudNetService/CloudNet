@@ -23,7 +23,7 @@ final class ClusterNodeServerUtils {
 
         for (ServiceInfoSnapshot snapshot : CloudNet.getInstance().getCloudServiceProvider().getCloudServices()) {
             if (snapshot.getServiceId().getNodeUniqueId().equalsIgnoreCase(server.getNodeInfo().getUniqueId())) {
-                CloudNet.getInstance().getCloudServiceManager().getGlobalServiceInfoSnapshots().remove(snapshot.getServiceId().getUniqueId());
+                CloudNet.getInstance().getCloudServiceManager().handleServiceUpdate(PacketClientServerServiceInfoPublisher.PublisherType.UNREGISTER, snapshot);
                 removed.add(new PacketClientServerServiceInfoPublisher(snapshot, PacketClientServerServiceInfoPublisher.PublisherType.UNREGISTER));
                 CloudNet.getInstance().getEventManager().callEvent(new CloudServiceUnregisterEvent(snapshot));
             }

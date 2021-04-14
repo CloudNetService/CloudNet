@@ -9,9 +9,7 @@ import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.common.unsafe.CPUUsageResolver;
 import de.dytanic.cloudnet.conf.ConfigurationOptionSSL;
-import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.api.DriverAPIRequestType;
-import de.dytanic.cloudnet.driver.event.events.service.CloudServiceInfoUpdateEvent;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.network.def.packet.PacketClientDriverAPI;
 import de.dytanic.cloudnet.driver.network.def.packet.PacketClientServerServiceInfoPublisher;
@@ -189,9 +187,7 @@ public abstract class DefaultCloudService extends DefaultEmptyCloudService {
     @Override
     public void updateServiceInfoSnapshot(@NotNull ServiceInfoSnapshot serviceInfoSnapshot) {
         this.setServiceInfoSnapshot(serviceInfoSnapshot);
-        this.getCloudServiceManager().getGlobalServiceInfoSnapshots().put(serviceInfoSnapshot.getServiceId().getUniqueId(), serviceInfoSnapshot);
-
-        CloudNetDriver.getInstance().getEventManager().callEvent(new CloudServiceInfoUpdateEvent(serviceInfoSnapshot));
+        this.getCloudServiceManager().handleServiceUpdate(PacketClientServerServiceInfoPublisher.PublisherType.UPDATE, serviceInfoSnapshot);
 
         CloudNet.getInstance().sendAll(new PacketClientServerServiceInfoPublisher(serviceInfoSnapshot, PacketClientServerServiceInfoPublisher.PublisherType.UPDATE));
     }
@@ -265,7 +261,7 @@ public abstract class DefaultCloudService extends DefaultEmptyCloudService {
         this.includeTemplates();
 
         this.serviceInfoSnapshot = this.createServiceInfoSnapshot(ServiceLifeCycle.PREPARED);
-        this.getCloudServiceManager().getGlobalServiceInfoSnapshots().put(this.serviceInfoSnapshot.getServiceId().getUniqueId(), this.serviceInfoSnapshot);
+        this.getCloudServiceManager().handleServiceUpdate(PacketClientServerServiceInfoPublisher.PublisherType.STARTED, this.serviceInfoSnapshot);
 
         this.writeConfiguration();
     }
@@ -288,6 +284,7 @@ public abstract class DefaultCloudService extends DefaultEmptyCloudService {
     protected void postStart() {
         this.lifeCycle = ServiceLifeCycle.RUNNING;
         this.serviceInfoSnapshot.setLifeCycle(ServiceLifeCycle.RUNNING);
+
         CloudNet.getInstance().sendAll(new PacketClientServerServiceInfoPublisher(this.serviceInfoSnapshot, PacketClientServerServiceInfoPublisher.PublisherType.STARTED));
 
         super.handler.handlePostStart(this);
@@ -348,7 +345,7 @@ public abstract class DefaultCloudService extends DefaultEmptyCloudService {
 
     protected void postDelete(boolean sendUpdate) {
         this.getCloudServiceManager().getCloudServices().remove(this.getServiceId().getUniqueId());
-        this.getCloudServiceManager().getGlobalServiceInfoSnapshots().remove(this.getServiceId().getUniqueId());
+        this.getCloudServiceManager().handleServiceUpdate(PacketClientServerServiceInfoPublisher.PublisherType.UNREGISTER, this.getServiceInfoSnapshot());
 
         this.lifeCycle = ServiceLifeCycle.DELETED;
         this.serviceInfoSnapshot.setLifeCycle(ServiceLifeCycle.DELETED);
@@ -360,5 +357,4 @@ public abstract class DefaultCloudService extends DefaultEmptyCloudService {
 
         super.handler.handlePostDelete(this);
     }
-
 }
