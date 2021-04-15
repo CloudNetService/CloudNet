@@ -165,11 +165,12 @@ public final class CloudNetTickListener {
 
                     if (this.startService(cloudService.getServiceId().getTaskName()) != null) {
                         this.newInstanceDelay.add(cloudService.getServiceId().getUniqueId());
-                        CloudNetDriver.getInstance().getTaskScheduler().schedule(() -> {
-                            this.newInstanceDelay.remove(cloudService.getServiceId().getUniqueId());
-                        }, smartTask.getForAnewInstanceDelayTimeInSeconds(), TimeUnit.SECONDS);
+                        CloudNetDriver.getInstance().getTaskExecutor().schedule(
+                                () -> this.newInstanceDelay.remove(cloudService.getServiceId().getUniqueId()),
+                                smartTask.getForAnewInstanceDelayTimeInSeconds(),
+                                TimeUnit.SECONDS
+                        );
                     }
-
                 }
             }
         }

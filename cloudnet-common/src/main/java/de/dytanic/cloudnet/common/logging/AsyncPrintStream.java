@@ -1,7 +1,3 @@
-/*
- * Copyright (c) Tarek Hosni El Alaoui 2017
- */
-
 package de.dytanic.cloudnet.common.logging;
 
 import org.jetbrains.annotations.NotNull;
@@ -21,6 +17,7 @@ import java.util.concurrent.LinkedBlockingQueue;
  * The actual console output is still executed in a thread where its priority
  * is as low as possible to affect the program even less
  */
+@Deprecated
 public class AsyncPrintStream extends PrintStream {
 
     static final BlockingQueue<Runnable> ASYNC_QUEUE = new LinkedBlockingQueue<>();
