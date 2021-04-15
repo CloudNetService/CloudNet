@@ -144,7 +144,7 @@
         "BUILD",
         "COPY_FILTER"
       ],
-      "website": "https://papermc.io",
+      "website": "https://github.com/Spottedleaf/Tuinity",
       "versions": [
         {
           "name": "latest",
