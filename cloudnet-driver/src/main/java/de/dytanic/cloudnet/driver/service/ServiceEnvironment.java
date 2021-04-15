@@ -8,6 +8,7 @@ public enum ServiceEnvironment {
     MINECRAFT_SERVER_DEFAULT("minecraft"),
     MINECRAFT_SERVER_SPIGOT("spigot"),
     MINECRAFT_SERVER_PAPER_SPIGOT("paper"),
+    MINECRAFT_SERVER_TUNITY_SPIGOT("tunity"),
     MINECRAFT_SERVER_FORGE("forge"),
     MINECRAFT_SERVER_SPONGE_VANILLA("spongevanilla"),
     MINECRAFT_SERVER_AKARIN("akarin"),

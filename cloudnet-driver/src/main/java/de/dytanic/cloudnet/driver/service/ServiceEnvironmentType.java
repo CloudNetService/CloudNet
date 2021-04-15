@@ -20,6 +20,7 @@ public enum ServiceEnvironmentType {
                     ServiceEnvironment.MINECRAFT_SERVER_SPONGE_VANILLA,
                     ServiceEnvironment.MINECRAFT_SERVER_TACO,
                     ServiceEnvironment.MINECRAFT_SERVER_PAPER_SPIGOT,
+                    ServiceEnvironment.MINECRAFT_SERVER_TUNITY_SPIGOT,
                     ServiceEnvironment.MINECRAFT_SERVER_SPIGOT,
                     ServiceEnvironment.MINECRAFT_SERVER_AKARIN,
                     ServiceEnvironment.MINECRAFT_SERVER_DEFAULT,
