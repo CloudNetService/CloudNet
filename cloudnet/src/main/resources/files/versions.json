@@ -156,8 +156,7 @@
             },
             "jvmOptions": [
               "-Dpaperclip.patchonly=true"
-            ],
-            "versionGroup": "1.16.5"
+            ]
           }
         },
         {
@@ -169,8 +168,7 @@
             },
             "jvmOptions": [
               "-Dpaperclip.patchonly=true"
-            ],
-            "versionGroup": "1.16.5"
+            ]
           }
         },
         {
