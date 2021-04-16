@@ -2,6 +2,7 @@ package de.dytanic.cloudnet.common.concurrent;
 
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.concurrent.function.ThrowableFunction;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
@@ -10,6 +11,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
+@Deprecated
+@ApiStatus.ScheduledForRemoval
 public final class DefaultScheduledTask<V> implements IScheduledTask<V> {
 
     private static final AtomicLong TASK_ID_COUNTER = new AtomicLong();

@@ -1,6 +1,6 @@
 package de.dytanic.cloudnet.driver.network.netty;
 
-import de.dytanic.cloudnet.common.concurrent.ITaskScheduler;
+import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.protocol.Packet;
 import io.netty.channel.ChannelHandlerContext;
@@ -9,7 +9,6 @@ import org.jetbrains.annotations.ApiStatus;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.concurrent.Callable;
 
 @ApiStatus.Internal
 public abstract class NettyNetworkHandler extends SimpleChannelInboundHandler<Packet> {
@@ -17,8 +16,6 @@ public abstract class NettyNetworkHandler extends SimpleChannelInboundHandler<Pa
     protected NettyNetworkChannel channel;
 
     protected abstract Collection<INetworkChannel> getChannels();
-
-    protected abstract ITaskScheduler getTaskScheduler();
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
@@ -28,7 +25,6 @@ public abstract class NettyNetworkHandler extends SimpleChannelInboundHandler<Pa
             }
 
             ctx.channel().close();
-
             this.getChannels().remove(this.channel);
         }
     }
@@ -47,14 +43,12 @@ public abstract class NettyNetworkHandler extends SimpleChannelInboundHandler<Pa
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, Packet msg) {
-        this.getTaskScheduler().schedule((Callable<Void>) () -> {
-            if (this.channel.getHandler() != null && !this.channel.getHandler().handlePacketReceive(this.channel, msg)) {
-                return null;
+        try {
+            if (this.channel.getHandler() == null || this.channel.getHandler().handlePacketReceive(this.channel, msg)) {
+                this.channel.getPacketRegistry().handlePacket(this.channel, msg);
             }
-
-            this.channel.getPacketRegistry().handlePacket(this.channel, msg);
-            return null;
-        });
+        } catch (Exception exception) {
+            CloudNetDriver.getInstance().getLogger().error("Exception whilst handling packet " + msg, exception);
+        }
     }
-
 }

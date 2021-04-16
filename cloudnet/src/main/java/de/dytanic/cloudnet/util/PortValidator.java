@@ -1,5 +1,6 @@
 package de.dytanic.cloudnet.util;
 
+import java.net.BindException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 
@@ -20,6 +21,17 @@ public final class PortValidator {
             return true;
         } catch (Exception exception) {
             return false;
+        }
+    }
+
+    public static boolean canAssignAddress(String host) {
+        try (ServerSocket serverSocket = new ServerSocket()) {
+            serverSocket.bind(new InetSocketAddress(host, 45893));
+            return true;
+        } catch (Exception exception) {
+            return exception instanceof BindException
+                    && exception.getMessage() != null
+                    && exception.getMessage().startsWith("Address already in use");
         }
     }
 

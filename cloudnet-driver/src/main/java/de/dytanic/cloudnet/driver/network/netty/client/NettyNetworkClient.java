@@ -1,7 +1,6 @@
 package de.dytanic.cloudnet.driver.network.netty.client;
 
 import com.google.common.base.Preconditions;
-import de.dytanic.cloudnet.common.concurrent.DefaultTaskScheduler;
 import de.dytanic.cloudnet.common.concurrent.ITaskScheduler;
 import de.dytanic.cloudnet.driver.network.DefaultNetworkComponent;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
@@ -36,40 +35,36 @@ public final class NettyNetworkClient implements DefaultNetworkComponent, INetwo
 
     private static final int CONNECTION_TIMEOUT_MILLIS = 5_000;
 
-    protected final Collection<INetworkChannel> channels = new ConcurrentLinkedQueue<>();
-
-    protected final IPacketListenerRegistry packetRegistry = new DefaultPacketListenerRegistry();
-
     protected final EventLoopGroup eventLoopGroup = NettyUtils.newEventLoopGroup();
 
+    protected final Collection<INetworkChannel> channels = new ConcurrentLinkedQueue<>();
+    protected final IPacketListenerRegistry packetRegistry = new DefaultPacketListenerRegistry();
+
     protected final Callable<INetworkChannelHandler> networkChannelHandler;
-
-    protected final ITaskScheduler taskScheduler;
-
-    protected final boolean taskSchedulerFromConstructor;
-
     protected final SSLConfiguration sslConfiguration;
 
+    protected long connectedTime;
     protected SslContext sslContext;
 
-    protected long connectedTime;
-
     public NettyNetworkClient(Callable<INetworkChannelHandler> networkChannelHandler) {
-        this(networkChannelHandler, null, null);
+        this(networkChannelHandler, null);
     }
 
-    public NettyNetworkClient(Callable<INetworkChannelHandler> networkChannelHandler, SSLConfiguration sslConfiguration, ITaskScheduler taskScheduler) {
+    public NettyNetworkClient(Callable<INetworkChannelHandler> networkChannelHandler, SSLConfiguration sslConfiguration) {
         this.networkChannelHandler = networkChannelHandler;
         this.sslConfiguration = sslConfiguration;
-
-        this.taskSchedulerFromConstructor = taskScheduler != null;
-        this.taskScheduler = taskScheduler == null ? new DefaultTaskScheduler(Runtime.getRuntime().availableProcessors()) : taskScheduler;
 
         try {
             this.init();
         } catch (Exception exception) {
             exception.printStackTrace();
         }
+    }
+
+    @Deprecated
+    @ApiStatus.ScheduledForRemoval
+    public NettyNetworkClient(Callable<INetworkChannelHandler> networkChannelHandler, SSLConfiguration sslConfiguration, ITaskScheduler taskScheduler) {
+        this(networkChannelHandler, sslConfiguration);
     }
 
     private void init() throws Exception {
@@ -120,7 +115,7 @@ public final class NettyNetworkClient implements DefaultNetworkComponent, INetwo
                     .option(ChannelOption.IP_TOS, 24)
                     .option(ChannelOption.TCP_NODELAY, true)
                     .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, CONNECTION_TIMEOUT_MILLIS)
-                    .channel(NettyUtils.getSocketChannelClass())
+                    .channelFactory(NettyUtils.getClientChannelFactory())
                     .handler(new NettyNetworkClientInitializer(this, hostAndPort, () -> this.connectedTime = System.currentTimeMillis()))
                     .connect(hostAndPort.getHost(), hostAndPort.getPort())
                     .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE)
@@ -138,7 +133,6 @@ public final class NettyNetworkClient implements DefaultNetworkComponent, INetwo
 
     @Override
     public void close() {
-        this.taskScheduler.shutdown();
         this.closeChannels();
         this.eventLoopGroup.shutdownGracefully();
     }

@@ -2,7 +2,6 @@ package de.dytanic.cloudnet.driver.network.netty.server;
 
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.collection.Pair;
-import de.dytanic.cloudnet.common.concurrent.DefaultTaskScheduler;
 import de.dytanic.cloudnet.common.concurrent.ITaskScheduler;
 import de.dytanic.cloudnet.driver.network.DefaultNetworkComponent;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
@@ -33,39 +32,39 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 @ApiStatus.Internal
 public final class NettyNetworkServer extends NettySSLServer implements DefaultNetworkComponent, INetworkServer {
 
-    protected final Map<Integer, Pair<HostAndPort, ChannelFuture>> channelFutures = new ConcurrentHashMap<>();
-
     protected final Collection<INetworkChannel> channels = new ConcurrentLinkedQueue<>();
+    protected final Map<Integer, Pair<HostAndPort, ChannelFuture>> channelFutures = new ConcurrentHashMap<>();
 
     protected final IPacketListenerRegistry packetRegistry = new DefaultPacketListenerRegistry();
 
-    protected final EventLoopGroup bossEventLoopGroup = NettyUtils.newEventLoopGroup(), workerEventLoopGroup = NettyUtils.newEventLoopGroup();
-
-    protected final ITaskScheduler taskScheduler;
-
-    protected final boolean taskSchedulerFromConstructor;
+    protected final EventLoopGroup bossEventLoopGroup = NettyUtils.newEventLoopGroup();
+    protected final EventLoopGroup workerEventLoopGroup = NettyUtils.newEventLoopGroup();
 
     protected final Callable<INetworkChannelHandler> networkChannelHandler;
 
     public NettyNetworkServer(Callable<INetworkChannelHandler> networkChannelHandler) {
-        this(networkChannelHandler, null, null);
+        this(null, networkChannelHandler);
     }
 
-    public NettyNetworkServer(Callable<INetworkChannelHandler> networkChannelHandler, ITaskScheduler taskScheduler) {
-        this(networkChannelHandler, null, taskScheduler);
-    }
-
-    public NettyNetworkServer(Callable<INetworkChannelHandler> networkChannelHandler, SSLConfiguration sslConfiguration, ITaskScheduler taskScheduler) {
+    public NettyNetworkServer(SSLConfiguration sslConfiguration, Callable<INetworkChannelHandler> networkChannelHandler) {
         super(sslConfiguration);
         this.networkChannelHandler = networkChannelHandler;
-        this.taskSchedulerFromConstructor = taskScheduler != null;
-        this.taskScheduler = taskScheduler == null ? new DefaultTaskScheduler(Runtime.getRuntime().availableProcessors()) : taskScheduler;
 
         try {
             this.init();
         } catch (Exception exception) {
             exception.printStackTrace();
         }
+    }
+
+    @Deprecated
+    public NettyNetworkServer(Callable<INetworkChannelHandler> networkChannelHandler, ITaskScheduler taskScheduler) {
+        this(null, networkChannelHandler);
+    }
+
+    @Deprecated
+    public NettyNetworkServer(Callable<INetworkChannelHandler> networkChannelHandler, SSLConfiguration sslConfiguration, ITaskScheduler taskScheduler) {
+        this(sslConfiguration, networkChannelHandler);
     }
 
     @Override
@@ -91,7 +90,7 @@ public final class NettyNetworkServer extends NettySSLServer implements DefaultN
                         .childOption(ChannelOption.TCP_NODELAY, true)
                         .childOption(ChannelOption.IP_TOS, 24)
                         .childOption(ChannelOption.AUTO_READ, true)
-                        .channel(NettyUtils.getServerSocketChannelClass())
+                        .channelFactory(NettyUtils.getServerChannelFactory())
                         .childHandler(new NettyNetworkServerInitializer(this, hostAndPort))
                         .bind(hostAndPort.getHost(), hostAndPort.getPort())
                         .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE)
@@ -111,7 +110,6 @@ public final class NettyNetworkServer extends NettySSLServer implements DefaultN
 
     @Override
     public void close() {
-        this.taskScheduler.shutdown();
         this.closeChannels();
 
         for (Pair<HostAndPort, ChannelFuture> entry : this.channelFutures.values()) {

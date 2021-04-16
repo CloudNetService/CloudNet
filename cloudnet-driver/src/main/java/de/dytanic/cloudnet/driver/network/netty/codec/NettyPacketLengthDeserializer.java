@@ -1,7 +1,3 @@
-/*
- * Copyright (c) Tarek Hosni El Alaoui 2017
- */
-
 package de.dytanic.cloudnet.driver.network.netty.codec;
 
 import de.dytanic.cloudnet.driver.network.netty.NettyUtils;

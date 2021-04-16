@@ -126,6 +126,7 @@ import de.dytanic.cloudnet.service.defaults.DefaultCloudServiceManager;
 import de.dytanic.cloudnet.setup.DefaultInstallation;
 import de.dytanic.cloudnet.template.LocalTemplateStorage;
 import de.dytanic.cloudnet.template.install.ServiceVersionProvider;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -249,14 +250,13 @@ public final class CloudNet extends CloudNetDriver {
             CloudNetDriver.getInstance().getLogger().warning(LanguageManager.getMessage("cloudnet-init-config-low-memory-warning"));
         }
 
-        this.networkClient = new NettyNetworkClient(NetworkClientChannelHandlerImpl::new,
-                this.config.getClientSslConfig().isEnabled() ? this.config.getClientSslConfig().toSslConfiguration() : null,
-                this.networkTaskScheduler
+        this.networkClient = new NettyNetworkClient(
+                NetworkClientChannelHandlerImpl::new,
+                this.config.getClientSslConfig().isEnabled() ? this.config.getClientSslConfig().toSslConfiguration() : null
         );
-
-        this.networkServer = new NettyNetworkServer(NetworkServerChannelHandlerImpl::new,
+        this.networkServer = new NettyNetworkServer(
                 this.config.getClientSslConfig().isEnabled() ? this.config.getServerSslConfig().toSslConfiguration() : null,
-                this.networkTaskScheduler
+                NetworkServerChannelHandlerImpl::new
         );
         this.httpServer = new NettyHttpServer(this.config.getClientSslConfig().isEnabled() ? this.config.getWebSslConfig().toSslConfiguration() : null);
 
@@ -363,6 +363,7 @@ public final class CloudNet extends CloudNetDriver {
         this.serviceVersionProvider.interruptInstallSteps();
 
         this.cloudServiceManager.deleteAllCloudServices();
+        this.scheduler.shutdownNow();
         this.taskScheduler.shutdown();
 
         this.unloadAll();
@@ -860,8 +861,7 @@ public final class CloudNet extends CloudNetDriver {
     @NotNull
     public <T> ITask<T> scheduleTask(Callable<T> callable) {
         ITask<T> task = new ListenableTask<>(callable);
-
-        this.taskScheduler.schedule(task);
+        this.scheduler.submit(task);
         return task;
     }
 
@@ -971,6 +971,8 @@ public final class CloudNet extends CloudNetDriver {
         return this.clusterNodeServerProvider;
     }
 
+    @Deprecated
+    @ApiStatus.ScheduledForRemoval
     public ITaskScheduler getNetworkTaskScheduler() {
         return this.networkTaskScheduler;
     }
