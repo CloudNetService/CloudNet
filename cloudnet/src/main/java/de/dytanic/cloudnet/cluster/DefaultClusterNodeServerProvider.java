@@ -3,6 +3,7 @@ package de.dytanic.cloudnet.cluster;
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkCluster;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
@@ -16,6 +17,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.DecimalFormat;
+import java.text.Format;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
@@ -25,14 +28,19 @@ import java.util.stream.Collectors;
 
 public final class DefaultClusterNodeServerProvider extends DefaultNodeServerProvider<IClusterNodeServer> implements IClusterNodeServerProvider {
 
+    private static final Format TIME_FORMAT = new DecimalFormat("##.###");
     private static final long MAX_NO_UPDATE_MILLIS = Long.getLong("cloudnet.max.node.idle.millis", 30_000);
 
     public DefaultClusterNodeServerProvider(CloudNet cloudNet) {
         super(cloudNet);
 
         cloudNet.getTaskExecutor().scheduleAtFixedRate(() -> {
-            cloudNet.publishNetworkClusterNodeInfoSnapshotUpdate();
-            this.checkForDeadNodes();
+            try {
+                cloudNet.publishNetworkClusterNodeInfoSnapshotUpdate();
+                this.checkForDeadNodes();
+            } catch (Throwable throwable) {
+                cloudNet.getLogger().error("Exception while ticking node server provider", throwable);
+            }
         }, 1, 1, TimeUnit.SECONDS);
     }
 
@@ -122,6 +130,10 @@ public final class DefaultClusterNodeServerProvider extends DefaultNodeServerPro
                 NetworkClusterNodeInfoSnapshot snapshot = nodeServer.getNodeInfoSnapshot();
                 if (snapshot != null && snapshot.getCreationTime() + MAX_NO_UPDATE_MILLIS < System.currentTimeMillis()) {
                     try {
+                        System.out.println(LanguageManager.getMessage("cluster-server-idling-too-long")
+                                .replace("%id%", nodeServer.getNodeInfo().getUniqueId())
+                                .replace("%time%", TIME_FORMAT.format((System.currentTimeMillis() - snapshot.getCreationTime()) / 1000))
+                        );
                         nodeServer.close();
                     } catch (Exception exception) {
                         exception.printStackTrace();

@@ -74,8 +74,12 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
 
     public DefaultCloudServiceManager() {
         CloudNet.getInstance().getTaskExecutor().scheduleAtFixedRate(() -> {
-            this.stopDeadServices();
-            this.updateServiceLogs();
+            try {
+                this.stopDeadServices();
+                this.updateServiceLogs();
+            } catch (Throwable throwable) {
+                CloudNet.getInstance().getLogger().error("Exception while ticking the cloud service manager", throwable);
+            }
         }, 1, 1, TimeUnit.SECONDS);
     }
 
