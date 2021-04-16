@@ -53,7 +53,7 @@ public interface IPermissionManagement {
     void init();
 
     /**
-     * Reloads this permission manegement
+     * Reloads this permission management
      *
      * @return {@code true} if the reload was successful
      */
@@ -207,6 +207,39 @@ public interface IPermissionManagement {
      */
     @NotNull
     PermissionCheckResult getPermissionResult(@NotNull IPermissible permissible, @NotNull String group, @NotNull Permission permission);
+
+    /**
+     * Checks if the given {@code permissible} has the given {@code permission}.
+     *
+     * @param permissible the permissible to check if the permission is set.
+     * @param groups      the groups to get the permissions on.
+     * @param permission  the permission to check.
+     * @return the check result. {@link PermissionCheckResult#DENIED} indicates that there was no allowing/forbidding permission.
+     */
+    @NotNull
+    PermissionCheckResult getPermissionResult(@NotNull IPermissible permissible, @NotNull Iterable<String> groups, @NotNull Permission permission);
+
+    /**
+     * Checks if the given {@code permissible} has the given {@code permission}.
+     *
+     * @param permissible the permissible to check if the permission is set.
+     * @param groups      the groups to get the permissions on.
+     * @param permission  the permission to check.
+     * @return the check result. {@link PermissionCheckResult#DENIED} indicates that there was no allowing/forbidding permission.
+     */
+    @NotNull
+    PermissionCheckResult getPermissionResult(@NotNull IPermissible permissible, @NotNull String[] groups, @NotNull Permission permission);
+
+    /**
+     * Finds the highest permission (sorted by the potency) in the given {@code permissions} array using the given
+     * {@code permission} potency as the starting point.
+     *
+     * @param permissions the permissions to check through.
+     * @param permission  the starting point for the check to run.
+     * @return the highest permission in the given {@code permission} or {@code null} if there is no permission with a higher potency in the given collection
+     */
+    @Nullable
+    Permission findHighestPermission(@NotNull Collection<Permission> permissions, @NotNull Permission permission);
 
     /**
      * Gets all permission of the specified {@code permissible}

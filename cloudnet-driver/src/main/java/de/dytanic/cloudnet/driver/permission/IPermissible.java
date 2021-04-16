@@ -2,6 +2,7 @@ package de.dytanic.cloudnet.driver.permission;
 
 import de.dytanic.cloudnet.common.INameable;
 import de.dytanic.cloudnet.common.document.gson.IJsonDocPropertyable;
+import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.serialization.SerializableObject;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -259,29 +260,7 @@ public interface IPermissible extends INameable, IJsonDocPropertyable, Comparabl
      * @return the logic permission which has the highest potency.
      */
     default @Nullable Permission findMatchingPermission(@NotNull Collection<Permission> permissions, @NotNull Permission permission) {
-        Permission lastMatch = null;
-        // search for a better match
-        for (Permission permissionEntry : permissions) {
-            Permission used = lastMatch == null ? permission : lastMatch;
-            // the "star" permission represents a permission which allows access to every command
-            if (permissionEntry.getName().equals("*") && permissionEntry.compareTo(used) > 0) {
-                lastMatch = permissionEntry;
-                continue;
-            }
-            // searches for "perm.*"-permissions (allowing all sub permissions of the given permission name start
-            if (permissionEntry.getName().endsWith("*")
-                    && permission.getName().contains(permissionEntry.getName().replace("*", ""))
-                    && permissionEntry.compareTo(used) > 0) {
-                lastMatch = permissionEntry;
-                continue;
-            }
-            // checks if the current permission is exactly (case-sensitive) the permission for which we are searching
-            if (permission.getName().equalsIgnoreCase(permissionEntry.getName()) && permissionEntry.compareTo(used) > 0) {
-                lastMatch = permissionEntry;
-            }
-        }
-
-        return lastMatch;
+        return CloudNetDriver.getInstance().getPermissionManagement().findHighestPermission(permissions, permission);
     }
 
     /**
