@@ -9,7 +9,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.jar.JarInputStream;
+import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
 public enum ServiceEnvironmentType {
@@ -98,8 +98,8 @@ public enum ServiceEnvironmentType {
 
     public @Nullable String getMainClass(@Nullable Path applicationFile) {
         if (applicationFile != null && Files.exists(applicationFile)) {
-            try (JarInputStream stream = new JarInputStream(Files.newInputStream(applicationFile))) {
-                Manifest manifest = stream.getManifest();
+            try (JarFile jarFile = new JarFile(applicationFile.toFile())) {
+                Manifest manifest = jarFile.getManifest();
                 return manifest == null ? null : manifest.getMainAttributes().getValue("Main-Class");
             } catch (IOException exception) {
                 exception.printStackTrace();
