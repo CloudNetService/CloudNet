@@ -27,7 +27,7 @@ public final class PacketServerH2DatabaseListener implements IPacketListener {
                             CloudNetDriver.getInstance().getEventManager().callEvent(
                                     new DatabaseInsertEntryEvent(database, packet.getHeader().getString("key"), packet.getHeader().getDocument("document"))
                             );
-                            database.insert0(packet.getHeader().getString("key"), packet.getHeader().getDocument("document"));
+                            database.insertOrUpdate(packet.getHeader().getString("key"), packet.getHeader().getDocument("document"));
                         }
                         break;
                     case UPDATE:
@@ -35,7 +35,7 @@ public final class PacketServerH2DatabaseListener implements IPacketListener {
                             CloudNetDriver.getInstance().getEventManager().callEvent(
                                     new DatabaseUpdateEntryEvent(database, packet.getHeader().getString("key"), packet.getHeader().getDocument("document"))
                             );
-                            database.update0(packet.getHeader().getString("key"), packet.getHeader().getDocument("document"));
+                            database.insertOrUpdate(packet.getHeader().getString("key"), packet.getHeader().getDocument("document"));
                         }
                         break;
                     case DELETE:

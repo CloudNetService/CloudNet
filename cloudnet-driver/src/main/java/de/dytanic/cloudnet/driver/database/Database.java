@@ -41,6 +41,7 @@ public interface Database extends INameable, AutoCloseable {
 
     long getDocumentsCount();
 
+    boolean isSynced();
 
     @NotNull
     ITask<Boolean> insertAsync(String key, JsonDocument document);

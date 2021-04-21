@@ -9,7 +9,13 @@ import de.dytanic.cloudnet.database.IDatabase;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.ResultSet;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.WeakHashMap;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.function.BiConsumer;
@@ -59,9 +65,11 @@ public abstract class SQLDatabase implements IDatabase {
         if (this.databaseProvider.getDatabaseHandler() != null) {
             this.databaseProvider.getDatabaseHandler().handleInsert(this, key, document);
         }
-        return this.contains(key) ? this.update0(key, document) : this.insert0(key, document);
+
+        return this.insertOrUpdate(key, document);
     }
 
+    @Deprecated
     public boolean insert0(String key, JsonDocument document) {
         Preconditions.checkNotNull(key);
         Preconditions.checkNotNull(document);
@@ -81,13 +89,25 @@ public abstract class SQLDatabase implements IDatabase {
             this.databaseProvider.getDatabaseHandler().handleUpdate(this, key, document);
         }
 
-        return this.contains(key) ? this.update0(key, document) : this.insert0(key, document);
+        return this.insertOrUpdate(key, document);
     }
 
+    @Deprecated
     public boolean update0(String key, JsonDocument document) {
         return this.databaseProvider.executeUpdate(
                 "UPDATE `" + this.name + "` SET " + TABLE_COLUMN_VALUE + "=? WHERE " + TABLE_COLUMN_KEY + "=?",
                 document.toString(), key
+        ) != -1;
+    }
+
+    public boolean insertOrUpdate(String key, JsonDocument document) {
+        Preconditions.checkNotNull(key);
+        Preconditions.checkNotNull(document);
+
+        return this.databaseProvider.executeUpdate(
+                "INSERT INTO `" + this.name + "` (" + TABLE_COLUMN_KEY + "," + TABLE_COLUMN_VALUE + ") VALUES (?, ?) " +
+                        "ON DUPLICATE KEY UPDATE " + TABLE_COLUMN_VALUE + " = VALUES(" + TABLE_COLUMN_VALUE + ");",
+                key, document.toString()
         ) != -1;
     }
 

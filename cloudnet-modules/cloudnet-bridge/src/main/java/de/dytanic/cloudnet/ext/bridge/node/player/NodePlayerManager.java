@@ -1,6 +1,8 @@
 package de.dytanic.cloudnet.ext.bridge.node.player;
 
 import com.google.common.base.Preconditions;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.concurrent.CompletedTask;
 import de.dytanic.cloudnet.common.concurrent.ITask;
@@ -33,16 +35,20 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @ApiStatus.Internal
 public final class NodePlayerManager extends DefaultPlayerManager implements IPlayerManager {
 
-    private final Map<UUID, CloudPlayer> onlineCloudPlayers = new ConcurrentHashMap<>();
-
     private final String databaseName;
 
+    private final Cache<UUID, ICloudOfflinePlayer> offlinePlayerCache = CacheBuilder.newBuilder()
+            .concurrencyLevel(4)
+            .expireAfterAccess(5, TimeUnit.MINUTES)
+            .build();
+    private final Map<UUID, CloudPlayer> onlineCloudPlayers = new ConcurrentHashMap<>();
     private final PlayerProvider allPlayersProvider = new NodePlayerProvider(this, () -> this.onlineCloudPlayers.values().stream());
 
     public NodePlayerManager(String databaseName) {
@@ -78,6 +84,16 @@ public final class NodePlayerManager extends DefaultPlayerManager implements IPl
     }
 
     @Override
+    public @Nullable CloudPlayer getFirstOnlinePlayer(@NotNull String name) {
+        for (CloudPlayer player : this.onlineCloudPlayers.values()) {
+            if (player.getName().equalsIgnoreCase(name)) {
+                return player;
+            }
+        }
+        return null;
+    }
+
+    @Override
     public @NotNull List<? extends ICloudPlayer> getOnlinePlayers(@NotNull String name) {
         Preconditions.checkNotNull(name);
 
@@ -88,8 +104,11 @@ public final class NodePlayerManager extends DefaultPlayerManager implements IPl
     public @NotNull List<? extends ICloudPlayer> getOnlinePlayers(@NotNull ServiceEnvironmentType environment) {
         Preconditions.checkNotNull(environment);
 
-        return this.onlineCloudPlayers.values().stream().filter(cloudPlayer -> (cloudPlayer.getLoginService() != null && cloudPlayer.getLoginService().getEnvironment() == environment) ||
-                (cloudPlayer.getConnectedService() != null && cloudPlayer.getConnectedService().getEnvironment() == environment)).collect(Collectors.toList());
+        return this.onlineCloudPlayers.values()
+                .stream()
+                .filter(cloudPlayer -> (cloudPlayer.getLoginService() != null && cloudPlayer.getLoginService().getEnvironment() == environment)
+                        || (cloudPlayer.getConnectedService() != null && cloudPlayer.getConnectedService().getEnvironment() == environment))
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -104,22 +123,22 @@ public final class NodePlayerManager extends DefaultPlayerManager implements IPl
 
     @Override
     public @NotNull PlayerProvider taskOnlinePlayers(@NotNull String task) {
-        return new NodePlayerProvider(this,
+        return new NodePlayerProvider(
+                this,
                 () -> this.onlineCloudPlayers.values().stream()
-                        .filter(cloudPlayer ->
-                                cloudPlayer.getConnectedService().getTaskName().equalsIgnoreCase(task) ||
-                                        cloudPlayer.getLoginService().getTaskName().equalsIgnoreCase(task)
-                        )
+                        .filter(cloudPlayer -> cloudPlayer.getConnectedService().getTaskName().equalsIgnoreCase(task)
+                                || cloudPlayer.getLoginService().getTaskName().equalsIgnoreCase(task))
         );
     }
 
     @Override
     public @NotNull PlayerProvider groupOnlinePlayers(@NotNull String group) {
-        return new NodePlayerProvider(this,
+        return new NodePlayerProvider(
+                this,
                 () -> this.onlineCloudPlayers.values().stream()
                         .filter(cloudPlayer ->
-                                Arrays.stream(cloudPlayer.getConnectedService().getGroups()).anyMatch(s -> s.equalsIgnoreCase(group)) ||
-                                        Arrays.stream(cloudPlayer.getLoginService().getGroups()).anyMatch(s -> s.equalsIgnoreCase(group))
+                                Arrays.binarySearch(cloudPlayer.getConnectedService().getGroups(), group) >= 0
+                                        || Arrays.binarySearch(cloudPlayer.getLoginService().getGroups(), group) >= 0
                         )
         );
     }
@@ -128,9 +147,25 @@ public final class NodePlayerManager extends DefaultPlayerManager implements IPl
     public ICloudOfflinePlayer getOfflinePlayer(@NotNull UUID uniqueId) {
         Preconditions.checkNotNull(uniqueId);
 
-        JsonDocument jsonDocument = this.getDatabase().get(uniqueId.toString());
+        ICloudOfflinePlayer offlinePlayer = this.offlinePlayerCache.getIfPresent(uniqueId);
+        if (offlinePlayer == null) {
+            JsonDocument jsonDocument = this.getDatabase().get(uniqueId.toString());
+            if (jsonDocument != null) {
+                offlinePlayer = this.parseOfflinePlayer(jsonDocument);
+                this.offlinePlayerCache.put(uniqueId, offlinePlayer);
+            }
+        }
+        return offlinePlayer;
+    }
 
-        return jsonDocument != null ? this.parseOfflinePlayer(jsonDocument) : null;
+    @Override
+    public @Nullable ICloudOfflinePlayer getFirstOfflinePlayer(@NotNull String name) {
+        for (ICloudOfflinePlayer offlinePlayer : this.offlinePlayerCache.asMap().values()) {
+            if (offlinePlayer.getName().equalsIgnoreCase(name)) {
+                return offlinePlayer;
+            }
+        }
+        return IPlayerManager.super.getFirstOfflinePlayer(name);
     }
 
     @Override
@@ -174,7 +209,7 @@ public final class NodePlayerManager extends DefaultPlayerManager implements IPl
 
             networkServiceInfo.setServiceId(serviceId);
             networkServiceInfo.setGroups(new String[0]);
-            this.updateOfflinePlayer0(cloudOfflinePlayer);
+            this.updateOfflinePlayer(cloudOfflinePlayer);
         }
 
         return cloudOfflinePlayer;
@@ -248,7 +283,17 @@ public final class NodePlayerManager extends DefaultPlayerManager implements IPl
     }
 
     public void updateOfflinePlayer0(ICloudOfflinePlayer cloudOfflinePlayer) {
+        this.offlinePlayerCache.put(cloudOfflinePlayer.getUniqueId(), cloudOfflinePlayer);
         this.getDatabase().update(cloudOfflinePlayer.getUniqueId().toString(), JsonDocument.newDocument(cloudOfflinePlayer));
+    }
+
+    public void handleOfflinePlayerUpdate(ICloudOfflinePlayer player) {
+        this.offlinePlayerCache.put(player.getUniqueId(), player);
+
+        Database database = this.getDatabase();
+        if (!database.isSynced()) {
+            database.updateAsync(player.getUniqueId().toString(), JsonDocument.newDocument(player));
+        }
     }
 
     @Override
@@ -265,10 +310,13 @@ public final class NodePlayerManager extends DefaultPlayerManager implements IPl
     }
 
     public void updateOnlinePlayer0(ICloudPlayer cloudPlayer) {
-        if (this.onlineCloudPlayers.containsKey(cloudPlayer.getUniqueId())) {
-            this.onlineCloudPlayers.put(cloudPlayer.getUniqueId(), (CloudPlayer) cloudPlayer);
-        }
+        this.onlineCloudPlayers.replace(cloudPlayer.getUniqueId(), (CloudPlayer) cloudPlayer);
         this.updateOfflinePlayer0(CloudOfflinePlayer.of(cloudPlayer));
+    }
+
+    public void handleOnlinePlayerUpdate(ICloudPlayer cloudPlayer) {
+        this.onlineCloudPlayers.replace(cloudPlayer.getUniqueId(), (CloudPlayer) cloudPlayer);
+        this.handleOfflinePlayerUpdate(CloudOfflinePlayer.of(cloudPlayer));
     }
 
     @NotNull
@@ -287,43 +335,60 @@ public final class NodePlayerManager extends DefaultPlayerManager implements IPl
     }
 
     public void loginPlayer(NetworkConnectionInfo networkConnectionInfo, NetworkPlayerServerInfo networkPlayerServerInfo) {
+        NetworkServiceInfo networkService = networkConnectionInfo.getNetworkService();
+        // check if the player is already loaded
         CloudPlayer cloudPlayer = this.getOnlinePlayer(networkConnectionInfo.getUniqueId());
-
         if (cloudPlayer == null) {
-            cloudPlayer = this.getOnlineCloudPlayers().values().stream()
-                    .filter(cloudPlayer1 -> cloudPlayer1.getName().equalsIgnoreCase(networkConnectionInfo.getName()) &&
-                            cloudPlayer1.getLoginService().getUniqueId().equals(networkConnectionInfo.getNetworkService().getUniqueId()))
-                    .findFirst()
-                    .orElse(null);
-
+            // try to load the player using the name and the login service
+            for (CloudPlayer player : this.getOnlineCloudPlayers().values()) {
+                if (player.getName().equals(networkConnectionInfo.getName())
+                        && player.getLoginService() != null
+                        && player.getLoginService().getUniqueId().equals(networkService.getUniqueId())) {
+                    cloudPlayer = player;
+                    break;
+                }
+            }
+            // there is no loaded player, so try to load it using the offline association
             if (cloudPlayer == null) {
                 ICloudOfflinePlayer cloudOfflinePlayer = this.getOrRegisterOfflinePlayer(networkConnectionInfo);
 
                 cloudPlayer = new CloudPlayer(
                         cloudOfflinePlayer,
-                        networkConnectionInfo.getNetworkService(),
-                        networkConnectionInfo.getNetworkService(),
+                        networkService,
+                        networkService,
                         networkConnectionInfo,
                         networkPlayerServerInfo
                 );
-
                 cloudPlayer.setLastLoginTimeMillis(System.currentTimeMillis());
+
                 this.getOnlineCloudPlayers().put(cloudPlayer.getUniqueId(), cloudPlayer);
             }
         }
-
+        // we can always update the name to keep it synced
+        cloudPlayer.setName(networkConnectionInfo.getName());
+        // check if the login service is a proxy and set the proxy as the login service if so
+        if (networkService.getServiceId().getEnvironment().isMinecraftProxy()) {
+            // a proxy should be able to change the login service
+            cloudPlayer.setLoginService(networkService);
+            // set the unique id of the player to the (most likely) online unique id
+            // as a server might give us a offline mode unique id
+            cloudPlayer.setUniqueId(networkConnectionInfo.getUniqueId());
+        }
+        // Set more information according to the server information which the proxy can't provide
         if (networkPlayerServerInfo != null) {
-            cloudPlayer.setConnectedService(networkPlayerServerInfo.getNetworkService());
             cloudPlayer.setNetworkPlayerServerInfo(networkPlayerServerInfo);
+            cloudPlayer.setConnectedService(networkPlayerServerInfo.getNetworkService());
 
             if (networkPlayerServerInfo.getXBoxId() != null) {
                 cloudPlayer.setXBoxId(networkPlayerServerInfo.getXBoxId());
             }
+
+            if (cloudPlayer.getLoginService() == null) {
+                cloudPlayer.setLoginService(networkPlayerServerInfo.getNetworkService());
+            }
         }
-
-        cloudPlayer.setName(networkConnectionInfo.getName());
-
-        this.updateOnlinePlayer0(cloudPlayer);
+        // update the player into the database
+        this.updateOnlinePlayer(cloudPlayer);
     }
 
     public ICloudOfflinePlayer getOrRegisterOfflinePlayer(NetworkConnectionInfo networkConnectionInfo) {
@@ -338,11 +403,10 @@ public final class NodePlayerManager extends DefaultPlayerManager implements IPl
                     System.currentTimeMillis(),
                     networkConnectionInfo
             );
+            this.offlinePlayerCache.put(networkConnectionInfo.getUniqueId(), cloudOfflinePlayer);
 
-            this.getDatabase().insert(
-                    cloudOfflinePlayer.getUniqueId().toString(),
-                    JsonDocument.newDocument(cloudOfflinePlayer)
-            );
+            // insert can be async, as the player is now cached
+            this.getDatabase().insertAsync(cloudOfflinePlayer.getUniqueId().toString(), JsonDocument.newDocument(cloudOfflinePlayer));
         }
 
         return cloudOfflinePlayer;
@@ -351,26 +415,22 @@ public final class NodePlayerManager extends DefaultPlayerManager implements IPl
     public void logoutPlayer(CloudPlayer cloudPlayer) {
         this.getOnlineCloudPlayers().remove(cloudPlayer.getUniqueId());
         cloudPlayer.setLastNetworkConnectionInfo(cloudPlayer.getNetworkConnectionInfo());
+
         this.updateOnlinePlayer0(cloudPlayer);
     }
 
     private void logoutPlayer(UUID uniqueId, String name, Predicate<CloudPlayer> predicate) {
-        CloudPlayer cloudPlayer = uniqueId != null ?
-                this.getOnlinePlayer(uniqueId) :
-                this.getOnlineCloudPlayers().values().stream()
-                        .filter(cloudPlayer1 -> cloudPlayer1.getName().equals(name))
-                        .findFirst()
-                        .orElse(null);
-
+        CloudPlayer cloudPlayer = uniqueId != null ? this.getOnlinePlayer(uniqueId) : this.getFirstOnlinePlayer(name);
         if (cloudPlayer != null && (predicate == null || predicate.test(cloudPlayer))) {
             this.logoutPlayer(cloudPlayer);
         }
     }
 
     public void logoutPlayer(NetworkConnectionInfo networkConnectionInfo) {
-        this.logoutPlayer(networkConnectionInfo.getUniqueId(), networkConnectionInfo.getName(),
-                cloudPlayer -> cloudPlayer != null &&
-                        cloudPlayer.getLoginService().getUniqueId().equals(networkConnectionInfo.getNetworkService().getUniqueId())
+        this.logoutPlayer(
+                networkConnectionInfo.getUniqueId(),
+                networkConnectionInfo.getName(),
+                player -> player != null && player.getLoginService().getUniqueId().equals(networkConnectionInfo.getNetworkService().getUniqueId())
         );
     }
 

@@ -65,14 +65,14 @@ public final class PlayerManagerListener {
             case "update_offline_cloud_player": {
                 ICloudOfflinePlayer cloudOfflinePlayer = event.getBuffer().readObject(CloudOfflinePlayer.class);
 
-                this.nodePlayerManager.updateOfflinePlayer0(cloudOfflinePlayer);
+                this.nodePlayerManager.handleOfflinePlayerUpdate(cloudOfflinePlayer);
                 CloudNetDriver.getInstance().getEventManager().callEvent(new BridgeUpdateCloudOfflinePlayerEvent(cloudOfflinePlayer));
             }
             break;
             case "update_online_cloud_player": {
                 ICloudPlayer cloudPlayer = event.getBuffer().readObject(CloudPlayer.class);
 
-                this.nodePlayerManager.updateOnlinePlayer0(cloudPlayer);
+                this.nodePlayerManager.handleOnlinePlayerUpdate(cloudPlayer);
                 CloudNetDriver.getInstance().getEventManager().callEvent(new BridgeUpdateCloudPlayerEvent(cloudPlayer));
             }
             break;
