@@ -23,7 +23,8 @@ import java.util.function.BiPredicate;
 
 public abstract class SQLDatabase implements IDatabase {
 
-    private static final String TABLE_COLUMN_KEY = "Name", TABLE_COLUMN_VALUE = "Document";
+    protected static final String TABLE_COLUMN_KEY = "Name";
+    protected static final String TABLE_COLUMN_VALUE = "Document";
 
     protected final SQLDatabaseProvider databaseProvider;
     protected final String name;

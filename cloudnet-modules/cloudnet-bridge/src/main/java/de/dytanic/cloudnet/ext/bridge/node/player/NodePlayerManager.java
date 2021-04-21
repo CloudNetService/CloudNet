@@ -165,7 +165,7 @@ public final class NodePlayerManager extends DefaultPlayerManager implements IPl
                 return offlinePlayer;
             }
         }
-        return IPlayerManager.super.getFirstOfflinePlayer(name);
+        return super.getFirstOfflinePlayer(name);
     }
 
     @Override

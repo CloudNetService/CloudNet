@@ -78,7 +78,7 @@ public final class NettyWebSocketServerExample {
 
         new Bootstrap()
                 .group(eventLoopGroup)
-                .channel(NettyUtils.getSocketChannelClass())
+                .channelFactory(NettyUtils.getClientChannelFactory())
                 .handler(new ChannelInitializer<Channel>() {
                     @Override
                     protected void initChannel(@NotNull Channel ch) {

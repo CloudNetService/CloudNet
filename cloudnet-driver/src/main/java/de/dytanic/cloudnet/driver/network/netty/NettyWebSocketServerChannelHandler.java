@@ -33,7 +33,7 @@ final class NettyWebSocketServerChannelHandler extends SimpleChannelInboundHandl
         }
 
         if (webSocketFrame instanceof CloseWebSocketFrame) {
-            this.webSocketServerChannel.close(200, "client connection closed");
+            this.webSocketServerChannel.close(1000, "client connection closed");
         }
     }
 
