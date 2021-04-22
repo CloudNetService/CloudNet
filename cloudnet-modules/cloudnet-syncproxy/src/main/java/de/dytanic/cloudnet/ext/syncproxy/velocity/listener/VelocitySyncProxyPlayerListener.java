@@ -67,6 +67,8 @@ public final class VelocitySyncProxyPlayerListener {
                                 .replace("%proxy_uniqueId%", String.valueOf(Wrapper.getInstance().getServiceId().getUniqueId()))
                                 .replace("%task%", Wrapper.getInstance().getServiceId().getTaskName())
                                 .replace("%node%", Wrapper.getInstance().getServiceId().getNodeUniqueId())
+                                .replace("%online_players%", String.valueOf(onlinePlayers))
+                                .replace("%max_players%", String.valueOf(maxPlayers))
                                 .replace("&", "§")),
                         event.getPing().getFavicon().isPresent() ? event.getPing().getFavicon().get() : null,
                         event.getPing().getModinfo().isPresent() ? event.getPing().getModinfo().get() : null
