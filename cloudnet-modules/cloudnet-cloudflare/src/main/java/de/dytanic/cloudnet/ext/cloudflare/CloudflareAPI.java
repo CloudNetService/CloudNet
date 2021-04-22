@@ -9,6 +9,7 @@ import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.database.Database;
 import de.dytanic.cloudnet.ext.cloudflare.dns.DNSRecord;
+import org.jetbrains.annotations.ApiStatus;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -21,6 +22,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+@Deprecated
+@ApiStatus.ScheduledForRemoval
 public final class CloudflareAPI implements AutoCloseable {
 
     private static final String CLOUDFLARE_API_V1 = "https://api.cloudflare.com/client/v4/", CLOUDFLARE_STORE_DOCUMENT = "cloudflare_store";
