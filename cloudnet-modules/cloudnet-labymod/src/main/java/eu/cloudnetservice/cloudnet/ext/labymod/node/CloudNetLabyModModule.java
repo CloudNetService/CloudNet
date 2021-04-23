@@ -58,9 +58,11 @@ public class CloudNetLabyModModule extends NodeCloudNetModule {
                 LABY_MOD_PERMISSION_CONFIG
         ));
 
-        if (this.configuration.getLabyModPermissionConfig() == null) {
-            this.configuration.setLabyModPermissionConfig(LABY_MOD_PERMISSION_CONFIG);
+        if (this.configuration.getPermissionConfig() == null) {
+            this.configuration.setPermissionConfig(LABY_MOD_PERMISSION_CONFIG);
         }
+
+        super.getConfig().append("config", this.configuration);
 
         if (!previousConfig.equals(super.getConfig())) {
             super.saveConfig();
