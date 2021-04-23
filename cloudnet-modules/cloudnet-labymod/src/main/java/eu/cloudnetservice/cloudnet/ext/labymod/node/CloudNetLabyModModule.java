@@ -8,13 +8,36 @@ import de.dytanic.cloudnet.module.NodeCloudNetModule;
 import eu.cloudnetservice.cloudnet.ext.labymod.LabyModConstants;
 import eu.cloudnetservice.cloudnet.ext.labymod.config.DiscordJoinMatchConfig;
 import eu.cloudnetservice.cloudnet.ext.labymod.config.LabyModConfiguration;
+import eu.cloudnetservice.cloudnet.ext.labymod.config.LabyModPermissionConfig;
 import eu.cloudnetservice.cloudnet.ext.labymod.config.ServiceDisplay;
 import eu.cloudnetservice.cloudnet.ext.labymod.node.listener.IncludePluginListener;
 import eu.cloudnetservice.cloudnet.ext.labymod.node.listener.LabyModCustomChannelMessageListener;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class CloudNetLabyModModule extends NodeCloudNetModule {
+
+    private static final Map<String, Boolean> DEFAULT_LABY_MOD_PERMISSIONS = new HashMap<>();
+    private static final LabyModPermissionConfig LABY_MOD_PERMISSION_CONFIG = new LabyModPermissionConfig(false, DEFAULT_LABY_MOD_PERMISSIONS);
+
+    static {
+        DEFAULT_LABY_MOD_PERMISSIONS.put("IMPROVED_LAVA", false);
+        DEFAULT_LABY_MOD_PERMISSIONS.put("CROSSHAIR_SYNC", false);
+        DEFAULT_LABY_MOD_PERMISSIONS.put("REFILL_FIX", false);
+        DEFAULT_LABY_MOD_PERMISSIONS.put("GUI_ALL", true);
+        DEFAULT_LABY_MOD_PERMISSIONS.put("GUI_POTION_EFFECTS", true);
+        DEFAULT_LABY_MOD_PERMISSIONS.put("GUI_ARMOR_HUD", true);
+        DEFAULT_LABY_MOD_PERMISSIONS.put("GUI_ITEM_HUD", true);
+        DEFAULT_LABY_MOD_PERMISSIONS.put("BLOCKBUILD", true);
+        DEFAULT_LABY_MOD_PERMISSIONS.put("TAGS", true);
+        DEFAULT_LABY_MOD_PERMISSIONS.put("CHAT", true);
+        DEFAULT_LABY_MOD_PERMISSIONS.put("ANIMATIONS", true);
+        DEFAULT_LABY_MOD_PERMISSIONS.put("SATURATION_BAR", true);
+        DEFAULT_LABY_MOD_PERMISSIONS.put("RANGE", false);
+        DEFAULT_LABY_MOD_PERMISSIONS.put("SLOWDOWN", false);
+    }
 
     private LabyModConfiguration configuration;
 
@@ -30,8 +53,13 @@ public class CloudNetLabyModModule extends NodeCloudNetModule {
                 new ServiceDisplay(true, ServiceDisplay.DisplayType.TASK, "§bCloud§fNet §8➢ §e%display%"),
                 "mc.example.com",
                 true,
-                new ArrayList<>()
+                new ArrayList<>(),
+                LABY_MOD_PERMISSION_CONFIG
         ));
+
+        if (this.configuration.getLabyModPermissionConfig() == null) {
+            this.configuration.setLabyModPermissionConfig(LABY_MOD_PERMISSION_CONFIG);
+        }
 
         if (!previousConfig.equals(super.getConfig())) {
             super.saveConfig();

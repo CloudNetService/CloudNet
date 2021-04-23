@@ -11,8 +11,9 @@ public class LabyModConfiguration {
     private Collection<String> excludedSpectateGroups;
     private ServiceDisplay gameModeSwitchMessages;
     private String loginDomain;
+    private LabyModPermissionConfig labyModPermissionConfig;
 
-    public LabyModConfiguration(boolean enabled, ServiceDisplay discordRPC, DiscordJoinMatchConfig discordJoinMatch, ServiceDisplay gameModeSwitchMessages, String loginDomain, boolean discordSpectateEnabled, Collection<String> excludedSpectateGroups) {
+    public LabyModConfiguration(boolean enabled, ServiceDisplay discordRPC, DiscordJoinMatchConfig discordJoinMatch, ServiceDisplay gameModeSwitchMessages, String loginDomain, boolean discordSpectateEnabled, Collection<String> excludedSpectateGroups, LabyModPermissionConfig labyModPermissionConfig) {
         this.enabled = enabled;
         this.discordRPC = discordRPC;
         this.discordJoinMatch = discordJoinMatch;
@@ -20,6 +21,7 @@ public class LabyModConfiguration {
         this.loginDomain = loginDomain;
         this.discordSpectateEnabled = discordSpectateEnabled;
         this.excludedSpectateGroups = excludedSpectateGroups;
+        this.labyModPermissionConfig = labyModPermissionConfig;
     }
 
     public boolean isEnabled() {
@@ -76,5 +78,13 @@ public class LabyModConfiguration {
 
     public void setExcludedSpectateGroups(Collection<String> excludedSpectateGroups) {
         this.excludedSpectateGroups = excludedSpectateGroups;
+    }
+
+    public LabyModPermissionConfig getLabyModPermissionConfig() {
+        return this.labyModPermissionConfig;
+    }
+
+    public void setLabyModPermissionConfig(LabyModPermissionConfig labyModPermissionConfig) {
+        this.labyModPermissionConfig = labyModPermissionConfig;
     }
 }
