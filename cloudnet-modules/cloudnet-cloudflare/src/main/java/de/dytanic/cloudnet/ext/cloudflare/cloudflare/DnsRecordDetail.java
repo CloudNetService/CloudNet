@@ -20,14 +20,14 @@ public class DnsRecordDetail {
     }
 
     public String getId() {
-        return id;
+        return this.id;
     }
 
     public DNSRecord getDnsRecord() {
-        return dnsRecord;
+        return this.dnsRecord;
     }
 
     public CloudflareConfigurationEntry getConfigurationEntry() {
-        return configurationEntry;
+        return this.configurationEntry;
     }
 }

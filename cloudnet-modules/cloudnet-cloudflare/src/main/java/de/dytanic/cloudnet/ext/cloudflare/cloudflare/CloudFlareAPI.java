@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.stream.Collectors;
 
 public class CloudFlareAPI implements AutoCloseable {
 
@@ -79,10 +80,9 @@ public class CloudFlareAPI implements AutoCloseable {
     public Collection<DnsRecordDetail> deleteAllRecords(@NotNull UUID serviceUniqueId) {
         Preconditions.checkNotNull(serviceUniqueId, "serviceUniqueId");
 
-        Collection<DnsRecordDetail> serviceRecords = this.createdRecords.get(serviceUniqueId);
-        serviceRecords.removeIf(serviceRecord -> !deleteRecord(serviceRecord));
-
-        return serviceRecords;
+        return this.createdRecords.removeAll(serviceUniqueId).stream()
+                .filter(this::deleteRecord)
+                .collect(Collectors.toSet());
     }
 
     public boolean deleteRecord(@NotNull CloudflareConfigurationEntry configuration, @NotNull String id) {
@@ -172,5 +172,21 @@ public class CloudFlareAPI implements AutoCloseable {
         for (Map.Entry<UUID, DnsRecordDetail> entry : this.createdRecords.entries()) {
             this.deleteRecord(entry.getValue());
         }
+    }
+
+    @NotNull
+    public Collection<DnsRecordDetail> getCreatedRecords(@NotNull UUID serviceUniqueId) {
+        Preconditions.checkNotNull(serviceUniqueId, "serviceUniqueId");
+        return this.createdRecords.get(serviceUniqueId);
+    }
+
+    @NotNull
+    public Collection<DnsRecordDetail> getCreatedRecords() {
+        return this.createdRecords.values();
+    }
+
+    @NotNull
+    public Collection<UUID> getServiceUniqueIds() {
+        return this.createdRecords.keys();
     }
 }

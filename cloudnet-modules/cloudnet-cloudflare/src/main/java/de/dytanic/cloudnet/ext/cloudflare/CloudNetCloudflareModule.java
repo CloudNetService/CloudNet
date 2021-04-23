@@ -136,6 +136,6 @@ public final class CloudNetCloudflareModule extends NodeCloudNetModule {
     }
 
     public CloudFlareAPI getCloudFlareAPI() {
-        return cloudFlareAPI;
+        return this.cloudFlareAPI;
     }
 }
