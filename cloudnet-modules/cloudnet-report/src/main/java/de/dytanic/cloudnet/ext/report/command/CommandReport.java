@@ -10,6 +10,7 @@ import de.dytanic.cloudnet.command.sub.SubCommandBuilder;
 import de.dytanic.cloudnet.command.sub.SubCommandHandler;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.document.gson.JsonDocumentTypeAdapter;
+import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.common.logging.LogEntry;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
@@ -21,8 +22,14 @@ import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.ext.report.CloudNetReportModule;
 
 import javax.management.MBeanServer;
-import java.io.*;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.io.Writer;
 import java.lang.management.ManagementFactory;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
@@ -33,15 +40,14 @@ import static de.dytanic.cloudnet.command.sub.SubCommandArgumentTypes.exactStrin
 
 public final class CommandReport extends SubCommandHandler {
 
+    private static final DateFormat
+            DATE_FORMAT = new SimpleDateFormat("dd-MM-yyyy_HH-mm-ss"),
+            LOG_FORMAT = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss.SSS");
     private final Gson gson = new GsonBuilder()
             .registerTypeAdapterFactory(TypeAdapters.newFactory(JsonDocument.class, new JsonDocumentTypeAdapter()))
             .setPrettyPrinting()
             .serializeNulls()
             .create();
-
-    private static final DateFormat
-            DATE_FORMAT = new SimpleDateFormat("dd-MM-yyyy_HH-mm-ss"),
-            LOG_FORMAT = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss.SSS");
 
     public CommandReport() {
         super("report", "reports");
@@ -53,8 +59,8 @@ public final class CommandReport extends SubCommandHandler {
 
         super.setSubCommands(SubCommandBuilder.create()
                 .preExecute((subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
-                    File directory = new File(CloudNetReportModule.getInstance().getModuleWrapper().getDataFolder(), "reports");
-                    directory.mkdirs();
+                    Path directory = CloudNetReportModule.getInstance().getModuleWrapper().getDataDirectory().resolve("reports");
+                    FileUtils.createDirectoryReported(directory);
 
                     internalProperties.put("dir", directory);
                 })
@@ -69,23 +75,15 @@ public final class CommandReport extends SubCommandHandler {
                 .generateCommand(
                         (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
                             long millis = System.currentTimeMillis();
-                            File file = new File((File) internalProperties.get("dir"), DATE_FORMAT.format(millis) + ".report");
+                            Path file = ((Path) internalProperties.get("dir")).resolve(DATE_FORMAT.format(millis) + ".report");
 
-                            if (file.exists()) {
+                            if (Files.exists(file)) {
                                 return;
                             }
 
-                            internalProperties.put("filePath", file.getAbsolutePath());
-
-                            try (FileWriter fileWriter = new FileWriter(file, false);
-                                 ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-                                 PrintWriter printWriter = new PrintWriter(byteArrayOutputStream, true)) {
-                                this.postReportOutput(printWriter, millis);
-
-                                String postData = new String(byteArrayOutputStream.toByteArray());
-
-                                fileWriter.write(postData);
-                                fileWriter.flush();
+                            internalProperties.put("filePath", file.toAbsolutePath().toString());
+                            try (OutputStreamWriter writer = new OutputStreamWriter(Files.newOutputStream(file), StandardCharsets.UTF_8)) {
+                                this.postReportOutput(writer, millis);
                             } catch (IOException exception) {
                                 exception.printStackTrace();
                             }
@@ -93,15 +91,15 @@ public final class CommandReport extends SubCommandHandler {
                         exactStringIgnoreCase("cloud"))
                 .generateCommand(
                         (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
-                            File file = new File((File) internalProperties.get("dir"), DATE_FORMAT.format(System.currentTimeMillis()) + "-heapdump.hprof");
+                            long millis = System.currentTimeMillis();
+                            Path file = ((Path) internalProperties.get("dir")).resolve(DATE_FORMAT.format(millis) + "-heapdump.hprof");
 
-                            if (file.exists()) {
+                            if (Files.exists(file)) {
                                 return;
                             }
 
-                            String filePath = file.getAbsolutePath();
+                            String filePath = file.toAbsolutePath().toString();
                             internalProperties.put("filePath", filePath);
-
                             this.createHeapDump(filePath);
                         },
                         exactStringIgnoreCase("heap"))

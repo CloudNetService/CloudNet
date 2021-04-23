@@ -9,15 +9,21 @@ import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEven
 import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import de.dytanic.cloudnet.ext.bridge.BridgeConfiguration;
 import de.dytanic.cloudnet.ext.bridge.BridgeConstants;
-import de.dytanic.cloudnet.ext.bridge.event.*;
+import de.dytanic.cloudnet.ext.bridge.event.BridgeConfigurationUpdateEvent;
+import de.dytanic.cloudnet.ext.bridge.event.BridgeProxyPlayerDisconnectEvent;
+import de.dytanic.cloudnet.ext.bridge.event.BridgeProxyPlayerLoginRequestEvent;
+import de.dytanic.cloudnet.ext.bridge.event.BridgeProxyPlayerLoginSuccessEvent;
+import de.dytanic.cloudnet.ext.bridge.event.BridgeProxyPlayerServerConnectRequestEvent;
+import de.dytanic.cloudnet.ext.bridge.event.BridgeProxyPlayerServerSwitchEvent;
+import de.dytanic.cloudnet.ext.bridge.event.BridgeServerPlayerDisconnectEvent;
+import de.dytanic.cloudnet.ext.bridge.event.BridgeServerPlayerLoginRequestEvent;
+import de.dytanic.cloudnet.ext.bridge.event.BridgeServerPlayerLoginSuccessEvent;
 import de.dytanic.cloudnet.ext.bridge.node.CloudNetBridgeModule;
 import de.dytanic.cloudnet.ext.bridge.node.event.NodeLocalBridgePlayerProxyLoginRequestEvent;
 import de.dytanic.cloudnet.ext.bridge.node.player.NodePlayerManager;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkConnectionInfo;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkPlayerServerInfo;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkServiceInfo;
-
-import java.io.File;
 
 public final class NodeCustomChannelMessageListener {
 
@@ -92,9 +98,8 @@ public final class NodeCustomChannelMessageListener {
 
                 if (bridgeConfiguration != null) {
                     new JsonDocument()
-                            .append("config", bridgeConfiguration
-                            ).write(new File(CloudNetBridgeModule.getInstance().getModuleWrapper().getDataFolder(), "config.json")
-                    );
+                            .append("config", bridgeConfiguration)
+                            .write(CloudNetBridgeModule.getInstance().getModuleWrapper().getDataDirectory().resolve("config.json"));
 
                     CloudNetBridgeModule.getInstance().setBridgeConfiguration(bridgeConfiguration);
                     CloudNetDriver.getInstance().getEventManager().callEvent(new BridgeConfigurationUpdateEvent(bridgeConfiguration));

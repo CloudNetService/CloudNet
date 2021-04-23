@@ -7,9 +7,19 @@ import java.util.Collection;
 
 public interface IModuleProvider {
 
-    File getModuleDirectory();
+    @Deprecated
+    default File getModuleDirectory() {
+        return this.getModuleDirectoryPath().toFile();
+    }
 
-    void setModuleDirectory(File moduleDirectory);
+    @Deprecated
+    default void setModuleDirectory(File moduleDirectory) {
+        this.setModuleDirectoryPath(moduleDirectory.toPath());
+    }
+
+    Path getModuleDirectoryPath();
+
+    void setModuleDirectoryPath(Path moduleDirectory);
 
     IModuleProviderHandler getModuleProviderHandler();
 

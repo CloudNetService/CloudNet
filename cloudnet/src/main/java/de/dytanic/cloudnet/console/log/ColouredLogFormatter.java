@@ -34,8 +34,7 @@ public final class ColouredLogFormatter implements IFormatter {
                         .append(ConsoleColor.DARK_GRAY)
                         .append(": ")
                         .append(logEntry.getLogLevel().isColorized() ? ConsoleColor.YELLOW : ConsoleColor.DEFAULT)
-                        .append(message)
-                        .append(System.lineSeparator());
+                        .append(message);
             }
         }
 

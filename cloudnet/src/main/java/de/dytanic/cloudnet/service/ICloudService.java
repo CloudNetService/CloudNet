@@ -2,12 +2,19 @@ package de.dytanic.cloudnet.service;
 
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
-import de.dytanic.cloudnet.driver.service.*;
+import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
+import de.dytanic.cloudnet.driver.service.ServiceDeployment;
+import de.dytanic.cloudnet.driver.service.ServiceId;
+import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
+import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
+import de.dytanic.cloudnet.driver.service.ServiceRemoteInclusion;
+import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Queue;
 
@@ -49,7 +56,11 @@ public interface ICloudService {
     String getConnectionKey();
 
     @NotNull
+    @Deprecated
     File getDirectory();
+
+    @NotNull
+    Path getDirectoryPath();
 
     INetworkChannel getNetworkChannel();
 

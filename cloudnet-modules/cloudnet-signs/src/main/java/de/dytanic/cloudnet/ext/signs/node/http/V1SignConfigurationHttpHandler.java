@@ -45,7 +45,7 @@ public final class V1SignConfigurationHttpHandler extends V1HttpHandler {
 
                 if (signConfiguration != null) {
                     CloudNetSignsModule.getInstance().setSignConfiguration(signConfiguration);
-                    SignConfigurationReaderAndWriter.write(signConfiguration, CloudNetSignsModule.getInstance().getConfigurationFile());
+                    SignConfigurationReaderAndWriter.write(signConfiguration, CloudNetSignsModule.getInstance().getConfigurationFilePath());
 
                     CloudNetDriver.getInstance().getMessenger().sendChannelMessage(
                             SignConstants.SIGN_CHANNEL_NAME,

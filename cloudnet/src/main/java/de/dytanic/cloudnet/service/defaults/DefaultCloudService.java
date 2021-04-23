@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.concurrent.CompletedTask;
 import de.dytanic.cloudnet.common.concurrent.ITask;
+import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.common.unsafe.CPUUsageResolver;
@@ -24,42 +25,45 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 public abstract class DefaultCloudService extends DefaultEmptyCloudService {
 
-    protected static final String TEMP_NAME_SPLITTER = "_";
+    protected static final char TEMP_NAME_SPLITTER = '_';
     protected static final long SERVICE_ERROR_RESTART_DELAY = 30;
     private static final Lock START_SEQUENCE_LOCK = new ReentrantLock();
 
     protected final Lock lifeCycleLock = new ReentrantLock();
-
-    private boolean initialized;
-
+    private final Path directory;
     protected boolean firstStartupOnStaticService = false;
-    private final File directory;
-
+    private boolean initialized;
     private boolean shutdownState;
 
     public DefaultCloudService(@NotNull String runtime, @NotNull ICloudServiceManager cloudServiceManager, @NotNull ServiceConfiguration serviceConfiguration, @NotNull CloudServiceHandler handler) {
         super(runtime, cloudServiceManager, serviceConfiguration, handler);
-        this.directory =
-                serviceConfiguration.isStaticService() ?
-                        new File(cloudServiceManager.getPersistenceServicesDirectory(), this.getServiceId().getName())
-                        :
-                        new File(cloudServiceManager.getTempDirectory(), this.getServiceId().getName() + TEMP_NAME_SPLITTER + this.getServiceId().getUniqueId().toString());
+        this.directory = serviceConfiguration.isStaticService()
+                ? cloudServiceManager.getPersistentServicesDirectoryPath().resolve(this.getServiceId().getName())
+                : cloudServiceManager.getTempDirectoryPath().resolve(this.getServiceId().getName() + TEMP_NAME_SPLITTER + this.getServiceId().getUniqueId());
 
         if (this.serviceConfiguration.isStaticService()) {
-            this.firstStartupOnStaticService = !this.directory.exists();
+            this.firstStartupOnStaticService = Files.notExists(this.directory);
         }
 
-        this.directory.mkdirs();
+        FileUtils.createDirectoryReported(this.directory);
     }
 
     @NotNull
     @Override
     public File getDirectory() {
+        return this.directory.toFile();
+    }
+
+    @Override
+    public @NotNull Path getDirectoryPath() {
         return this.directory;
     }
 
@@ -78,34 +82,30 @@ public abstract class DefaultCloudService extends DefaultEmptyCloudService {
                 return;
             }
 
-            new File(this.directory, ".wrapper").mkdirs();
+            Path wrapperPath = this.directory.resolve(".wrapper");
+            FileUtils.createDirectoryReported(wrapperPath);
 
             if (CloudNet.getInstance().getConfig().getServerSslConfig().isEnabled()) {
                 try {
+                    Path certificatePath = wrapperPath.resolve("certificate");
                     ConfigurationOptionSSL ssl = CloudNet.getInstance().getConfig().getServerSslConfig();
 
-                    File file;
+                    Path path;
                     if (ssl.getCertificatePath() != null) {
-                        file = new File(ssl.getCertificatePath());
-
-                        if (file.exists()) {
-                            FileUtils.copy(file, new File(this.directory, ".wrapper/certificate"));
+                        if (Files.exists(path = Paths.get(ssl.getCertificatePath()))) {
+                            FileUtils.copy(path, certificatePath);
                         }
                     }
 
                     if (ssl.getPrivateKeyPath() != null) {
-                        file = new File(ssl.getPrivateKeyPath());
-
-                        if (file.exists()) {
-                            FileUtils.copy(file, new File(this.directory, ".wrapper/privateKey"));
+                        if (Files.exists(path = Paths.get(ssl.getPrivateKeyPath()))) {
+                            FileUtils.copy(path, certificatePath);
                         }
                     }
 
                     if (ssl.getTrustCertificatePath() != null) {
-                        file = new File(ssl.getTrustCertificatePath());
-
-                        if (file.exists()) {
-                            FileUtils.copy(file, new File(this.directory, ".wrapper/trustCertificate"));
+                        if (Files.exists(path = Paths.get(ssl.getTrustCertificatePath()))) {
+                            FileUtils.copy(path, certificatePath);
                         }
                     }
                 } catch (Exception exception) {
@@ -154,6 +154,10 @@ public abstract class DefaultCloudService extends DefaultEmptyCloudService {
     }
 
     protected ServiceInfoSnapshot createServiceInfoSnapshot(ServiceLifeCycle lifeCycle) {
+        JsonDocument properties = this.serviceConfiguration.getProperties();
+        if (lifeCycle != ServiceLifeCycle.STOPPED && this.serviceInfoSnapshot != null) {
+            properties = this.serviceInfoSnapshot.getProperties();
+        }
         return new ServiceInfoSnapshot(
                 System.currentTimeMillis(),
                 new HostAndPort(CloudNet.getInstance().getConfig().getHostAddress(), this.serviceConfiguration.getPort()),
@@ -161,7 +165,7 @@ public abstract class DefaultCloudService extends DefaultEmptyCloudService {
                 -1,
                 lifeCycle,
                 this.serviceInfoSnapshot != null && this.isAlive() ? this.serviceInfoSnapshot.getProcessSnapshot() : ProcessSnapshot.empty(),
-                this.serviceInfoSnapshot != null ? this.serviceInfoSnapshot.getProperties() : this.serviceConfiguration.getProperties(),
+                properties,
                 this.serviceConfiguration
         );
     }
@@ -313,11 +317,9 @@ public abstract class DefaultCloudService extends DefaultEmptyCloudService {
 
         if (this.getServiceConfiguration().getDeletedFilesAfterStop() != null) {
             for (String path : this.getServiceConfiguration().getDeletedFilesAfterStop()) {
-                if (path != null) {
-                    File file = new File(this.getDirectory(), path);
-                    if (file.exists()) {
-                        FileUtils.delete(file);
-                    }
+                Path file = this.directory.resolve(path);
+                if (Files.exists(file)) {
+                    FileUtils.delete(file);
                 }
             }
         }
@@ -337,7 +339,7 @@ public abstract class DefaultCloudService extends DefaultEmptyCloudService {
         this.deployResources();
 
         if (!this.getServiceConfiguration().isStaticService()) {
-            FileUtils.delete(this.getDirectory());
+            FileUtils.delete(this.directory);
         }
 
         this.postDelete();

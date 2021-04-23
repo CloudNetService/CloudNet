@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableMap;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -23,15 +24,24 @@ public final class SyncProxyConfigurationWriterAndReader {
         throw new UnsupportedOperationException();
     }
 
+    @Deprecated
     public static void write(SyncProxyConfiguration syncProxyConfiguration, File file) {
+        write(syncProxyConfiguration, file.toPath());
+    }
+
+    public static void write(SyncProxyConfiguration syncProxyConfiguration, Path file) {
         Preconditions.checkNotNull(syncProxyConfiguration);
         Preconditions.checkNotNull(file);
 
-        file.getParentFile().mkdirs();
-        new JsonDocument("config", syncProxyConfiguration).write(file);
+        JsonDocument.newDocument("config", syncProxyConfiguration).write(file);
     }
 
+    @Deprecated
     public static SyncProxyConfiguration read(File file) {
+        return read(file.toPath());
+    }
+
+    public static SyncProxyConfiguration read(Path file) {
         Preconditions.checkNotNull(file);
 
         JsonDocument document = JsonDocument.newDocument(file);

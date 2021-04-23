@@ -1,6 +1,7 @@
 package de.dytanic.cloudnet.ext.cloudperms.gomint.listener;
 
 import de.dytanic.cloudnet.driver.permission.CachedPermissionManagement;
+import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
 import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsHelper;
 import de.dytanic.cloudnet.ext.cloudperms.gomint.GoMintCloudNetCloudPermissionsPlugin;
 import io.gomint.ChatColor;
@@ -15,9 +16,9 @@ import io.gomint.server.GoMintServer;
 
 public final class GoMintCloudNetCloudPermissionsPlayerListener implements EventListener {
 
-    private final CachedPermissionManagement permissionsManagement;
+    private final IPermissionManagement permissionsManagement;
 
-    public GoMintCloudNetCloudPermissionsPlayerListener(CachedPermissionManagement permissionsManagement) {
+    public GoMintCloudNetCloudPermissionsPlayerListener(IPermissionManagement permissionsManagement) {
         this.permissionsManagement = permissionsManagement;
     }
 
@@ -37,7 +38,9 @@ public final class GoMintCloudNetCloudPermissionsPlayerListener implements Event
 
     @EventHandler
     public void handle(PlayerQuitEvent event) {
-        this.permissionsManagement.getCachedPermissionUsers().remove(event.player().uuid());
+        CachedPermissionManagement management = CloudPermissionsHelper.asCachedPermissionManagement(this.permissionsManagement);
+        if (management != null) {
+            management.getCachedPermissionUsers().remove(event.player().uuid());
+        }
     }
-
 }

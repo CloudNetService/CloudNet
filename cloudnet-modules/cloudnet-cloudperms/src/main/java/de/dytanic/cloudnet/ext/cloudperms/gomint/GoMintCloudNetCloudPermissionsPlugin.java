@@ -1,8 +1,6 @@
 package de.dytanic.cloudnet.ext.cloudperms.gomint;
 
 import de.dytanic.cloudnet.driver.CloudNetDriver;
-import de.dytanic.cloudnet.driver.permission.CachedPermissionManagement;
-import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsManagement;
 import de.dytanic.cloudnet.ext.cloudperms.gomint.listener.GoMintCloudNetCloudPermissionsPlayerListener;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import io.gomint.GoMint;
@@ -21,8 +19,6 @@ public final class GoMintCloudNetCloudPermissionsPlugin extends Plugin {
         return GoMintCloudNetCloudPermissionsPlugin.instance;
     }
 
-    private CachedPermissionManagement permissionsManagement;
-
     @Override
     public void onStartup() {
         instance = this;
@@ -30,11 +26,9 @@ public final class GoMintCloudNetCloudPermissionsPlugin extends Plugin {
 
     @Override
     public void onInstall() {
-        this.permissionsManagement = CloudPermissionsManagement.newInstance();
-
         this.injectEntityPlayersCloudPermissionManager();
 
-        super.registerListener(new GoMintCloudNetCloudPermissionsPlayerListener(this.permissionsManagement));
+        super.registerListener(new GoMintCloudNetCloudPermissionsPlayerListener(CloudNetDriver.getInstance().getPermissionManagement()));
     }
 
     @Override
@@ -48,7 +42,7 @@ public final class GoMintCloudNetCloudPermissionsPlugin extends Plugin {
     }
 
     public void injectPermissionManager(EntityPlayer entityPlayer) {
-        entityPlayer.permissionManager(new GoMintCloudNetCloudPermissionsPermissionManager(entityPlayer, this.permissionsManagement));
+        entityPlayer.permissionManager(new GoMintCloudNetCloudPermissionsPermissionManager(entityPlayer, CloudNetDriver.getInstance().getPermissionManagement()));
     }
 
 }

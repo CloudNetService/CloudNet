@@ -14,5 +14,4 @@ public interface LabyModConstants {
     String CLOUDNET_CHANNEL_NAME = "cloudnet_labymod_module";
 
     Collection<ServiceEnvironmentType> SUPPORTED_ENVIRONMENTS = Arrays.asList(ServiceEnvironmentType.BUNGEECORD, ServiceEnvironmentType.VELOCITY);
-
 }

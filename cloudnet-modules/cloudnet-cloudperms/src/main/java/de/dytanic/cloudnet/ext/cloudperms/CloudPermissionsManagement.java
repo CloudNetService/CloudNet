@@ -2,12 +2,23 @@ package de.dytanic.cloudnet.ext.cloudperms;
 
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
-import de.dytanic.cloudnet.driver.permission.*;
+import de.dytanic.cloudnet.driver.permission.CachedPermissionManagement;
+import de.dytanic.cloudnet.driver.permission.IPermissible;
+import de.dytanic.cloudnet.driver.permission.IPermissionGroup;
+import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
+import de.dytanic.cloudnet.driver.permission.IPermissionUser;
+import de.dytanic.cloudnet.driver.permission.Permission;
+import de.dytanic.cloudnet.driver.permission.PermissionCheckResult;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
 import java.util.function.Consumer;
 
 @Deprecated
@@ -147,12 +158,27 @@ public class CloudPermissionsManagement implements IPermissionManagement, Cached
     }
 
     @Override
-    public Collection<Permission> getAllPermissions(@NotNull IPermissible permissible) {
+    public @NotNull PermissionCheckResult getPermissionResult(@NotNull IPermissible permissible, @NotNull Iterable<String> groups, @NotNull Permission permission) {
+        return wrapped.getPermissionResult(permissible, groups, permission);
+    }
+
+    @Override
+    public @NotNull PermissionCheckResult getPermissionResult(@NotNull IPermissible permissible, @NotNull String[] groups, @NotNull Permission permission) {
+        return wrapped.getPermissionResult(permissible, groups, permission);
+    }
+
+    @Override
+    public @Nullable Permission findHighestPermission(@NotNull Collection<Permission> permissions, @NotNull Permission permission) {
+        return wrapped.findHighestPermission(permissions, permission);
+    }
+
+    @Override
+    public @NotNull Collection<Permission> getAllPermissions(@NotNull IPermissible permissible) {
         return wrapped.getAllPermissions(permissible);
     }
 
     @Override
-    public Collection<Permission> getAllPermissions(@NotNull IPermissible permissible, @Nullable String group) {
+    public @NotNull Collection<Permission> getAllPermissions(@NotNull IPermissible permissible, @Nullable String group) {
         return wrapped.getAllPermissions(permissible, group);
     }
 
@@ -197,7 +223,7 @@ public class CloudPermissionsManagement implements IPermissionManagement, Cached
     }
 
     @Override
-    public Collection<IPermissionUser> getUsers() {
+    public @NotNull Collection<IPermissionUser> getUsers() {
         return wrapped.getUsers();
     }
 
@@ -357,7 +383,7 @@ public class CloudPermissionsManagement implements IPermissionManagement, Cached
     }
 
     @Override
-    public ITask<IPermissionGroup> getDefaultPermissionGroupAsync() {
+    public @NotNull ITask<IPermissionGroup> getDefaultPermissionGroupAsync() {
         return wrapped.getDefaultPermissionGroupAsync();
     }
 
@@ -397,17 +423,17 @@ public class CloudPermissionsManagement implements IPermissionManagement, Cached
     }
 
     @Override
-    public ITask<IPermissionGroup> modifyGroupAsync(@NotNull String name, @NotNull Consumer<IPermissionGroup> modifier) {
+    public @NotNull ITask<IPermissionGroup> modifyGroupAsync(@NotNull String name, @NotNull Consumer<IPermissionGroup> modifier) {
         return wrapped.modifyGroupAsync(name, modifier);
     }
 
     @Override
-    public ITask<IPermissionUser> modifyUserAsync(@NotNull UUID uniqueId, @NotNull Consumer<IPermissionUser> modifier) {
+    public @NotNull ITask<IPermissionUser> modifyUserAsync(@NotNull UUID uniqueId, @NotNull Consumer<IPermissionUser> modifier) {
         return wrapped.modifyUserAsync(uniqueId, modifier);
     }
 
     @Override
-    public ITask<List<IPermissionUser>> modifyUsersAsync(@NotNull String name, @NotNull Consumer<IPermissionUser> modifier) {
+    public @NotNull ITask<List<IPermissionUser>> modifyUsersAsync(@NotNull String name, @NotNull Consumer<IPermissionUser> modifier) {
         return wrapped.modifyUsersAsync(name, modifier);
     }
 

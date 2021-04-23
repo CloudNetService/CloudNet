@@ -137,6 +137,55 @@
       ]
     },
     {
+      "name": "tuinity",
+      "targetEnvironment": "MINECRAFT_SERVER_TUINITY_SPIGOT",
+      "installSteps": [
+        "DOWNLOAD",
+        "BUILD",
+        "COPY_FILTER"
+      ],
+      "website": "https://github.com/Spottedleaf/Tuinity",
+      "versions": [
+        {
+          "name": "latest",
+          "cacheFiles": false,
+          "url": "https://ci.codemc.io/job/Spottedleaf/job/Tuinity/lastSuccessfulBuild/artifact/tuinity-paperclip.jar",
+          "properties": {
+            "copy": {
+              "cache/patched.*\\.jar": "tuinity.jar"
+            },
+            "jvmOptions": [
+              "-Dpaperclip.patchonly=true"
+            ]
+          }
+        },
+        {
+          "name": "1.16.5",
+          "url": "https://ci.codemc.io/job/Spottedleaf/job/Tuinity/lastSuccessfulBuild/artifact/tuinity-paperclip.jar",
+          "properties": {
+            "copy": {
+              "cache/patched.*\\.jar": "tuinity.jar"
+            },
+            "jvmOptions": [
+              "-Dpaperclip.patchonly=true"
+            ]
+          }
+        },
+        {
+          "name": "1.15.2",
+          "url": "https://ci.codemc.io/job/Spottedleaf/job/Tuinity/139/artifact/tuinity-paperclip.jar",
+          "properties": {
+            "copy": {
+              "cache/patched.*\\.jar": "tuinity.jar"
+            },
+            "jvmOptions": [
+              "-Dpaperclip.patchonly=true"
+            ]
+          }
+        }
+      ]
+    },
+    {
       "name": "spigot",
       "targetEnvironment": "MINECRAFT_SERVER_SPIGOT",
       "website": "https://getbukkit.org",

@@ -38,6 +38,6 @@ public abstract class AbstractLogHandler implements ILogHandler {
     }
 
     @Override
-    public void close() {
+    public void close() throws Exception {
     }
 }

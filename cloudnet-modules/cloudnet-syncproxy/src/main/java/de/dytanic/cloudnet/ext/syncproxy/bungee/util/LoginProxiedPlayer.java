@@ -277,6 +277,7 @@ public class LoginProxiedPlayer implements ProxiedPlayer {
     }
 
     @Override
+    @Deprecated
     public InetSocketAddress getAddress() {
         return this.connection.getAddress();
     }

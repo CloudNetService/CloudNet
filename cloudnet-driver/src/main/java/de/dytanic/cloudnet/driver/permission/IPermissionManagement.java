@@ -12,70 +12,252 @@ import java.util.function.Consumer;
 
 public interface IPermissionManagement {
 
+    /**
+     * Get the child permission management or {@code null} if there is no child permission management.
+     *
+     * @return the child permission management or {@code null} if there is no child permission management.
+     */
+    @Nullable
     IPermissionManagement getChildPermissionManagement();
 
+    /**
+     * Gets if this permission management can be overridden.
+     *
+     * @return if this permission management can be overridden.
+     */
     boolean canBeOverwritten();
 
     /**
+     * Gets all users with the given {@code name}.
+     *
+     * @param name the name of the permission users to get.
+     * @return all permission users with the given {@code name}.
      * @deprecated use {@link #getUsers(String)} instead
      */
     @Deprecated
     @ApiStatus.ScheduledForRemoval(inVersion = "3.5")
     List<IPermissionUser> getUser(String name);
 
+    /**
+     * Gets the first permission user with the given {@code name}.
+     *
+     * @param name the name of the user to get.
+     * @return the first permission user or {@code null} if no user with this name exists.
+     */
     IPermissionUser getFirstUser(String name);
 
+    /**
+     * Initializes this permission management.
+     */
+    @ApiStatus.Internal
     void init();
 
+    /**
+     * Reloads this permission management
+     *
+     * @return {@code true} if the reload was successful
+     */
     boolean reload();
 
-
+    /**
+     * Gets the highest permission group of the specified user, evaluated by using the group potency.
+     *
+     * @param permissionUser the user
+     * @return the highest permission group.
+     */
     IPermissionGroup getHighestPermissionGroup(@NotNull IPermissionUser permissionUser);
 
+    /**
+     * Gets the default permission group.
+     *
+     * @return the default permission group.
+     */
     IPermissionGroup getDefaultPermissionGroup();
 
+    /**
+     * Removes the timed-out permissions of the given {@code permissionGroup}.
+     *
+     * @param permissionGroup the group to check.
+     * @return {@code true} if at least one permission was removed.
+     * @deprecated Use {@link #testPermissible(IPermissible)} instead.
+     */
+    @Deprecated
+    @ApiStatus.ScheduledForRemoval
     boolean testPermissionGroup(@Nullable IPermissionGroup permissionGroup);
 
+    /**
+     * Removes all timed-out permissions and groups of the given {@code permissionUser}.
+     *
+     * @param permissionUser the permission user to check.
+     * @return {@code true} if at least one permission was removed.
+     */
     boolean testPermissionUser(@Nullable IPermissionUser permissionUser);
 
+    /**
+     * Removes the timed-out permissions of the given {@code permissible}.
+     *
+     * @param permissible the permissible to check.
+     * @return {@code true} if at least one permission was removed.
+     */
     boolean testPermissible(@Nullable IPermissible permissible);
 
+    /**
+     * Adds a new permission user if it does not already exists.
+     *
+     * @param name     the name of the new user.
+     * @param password the password of the new user.
+     * @param potency  the potency of the new user.
+     * @return the newly created permission user.
+     */
     IPermissionUser addUser(@NotNull String name, @NotNull String password, int potency);
 
+    /**
+     * Adds a new permission group if it does not already exists.
+     *
+     * @param role    the case-sensitive name of the new group
+     * @param potency the potency of the new group
+     * @return the newly created permission group
+     */
     IPermissionGroup addGroup(@NotNull String role, int potency);
 
+    /**
+     * Gets the extended groups of the specified {@code group}.
+     *
+     * @param permissible the permissible to get the extended groups of.
+     * @return the extended groups of the given {@code permissible}.
+     */
     @NotNull
     Collection<IPermissionGroup> getGroups(@Nullable IPermissible permissible);
 
     /**
+     * Gets the extended groups of the specified {@code group}.
+     *
+     * @param group the group to get the extended groups of.
+     * @return the extended groups of the given {@code group}.
      * @deprecated Replace with {@link #getGroups(IPermissible)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval
     Collection<IPermissionGroup> getExtendedGroups(@Nullable IPermissionGroup group);
 
+    /**
+     * Checks if the given {@code permissible} has the given {@code permission}.
+     *
+     * @param permissible the permissible to check if the permission is set.
+     * @param permission  the permission to check.
+     * @return the check result.
+     * @see #getPermissionResult(IPermissible, String)
+     */
     default boolean hasPermission(@NotNull IPermissible permissible, @NotNull String permission) {
         return this.getPermissionResult(permissible, permission).asBoolean();
     }
 
+    /**
+     * Checks if the given {@code permissible} has the given {@code permission}.
+     *
+     * @param permissible the permissible to check if the permission is set.
+     * @param permission  the permission to check.
+     * @return the check result.
+     * @see #getPermissionResult(IPermissible, Permission)
+     */
     default boolean hasPermission(@NotNull IPermissible permissible, @NotNull Permission permission) {
         return this.getPermissionResult(permissible, permission).asBoolean();
     }
 
+    /**
+     * Checks if the given {@code permissible} has the given {@code permission}.
+     *
+     * @param permissible the permissible to check if the permission is set.
+     * @param group       the group to get the permissions on.
+     * @param permission  the permission to check.
+     * @return the check result.
+     * @see #getPermissionResult(IPermissible, String, Permission)
+     */
     default boolean hasPermission(@NotNull IPermissible permissible, @NotNull String group, @NotNull Permission permission) {
         return this.getPermissionResult(permissible, group, permission).asBoolean();
     }
 
+    /**
+     * Checks if the given {@code permissible} has the given {@code permission}.
+     *
+     * @param permissible the permissible to check if the permission is set.
+     * @param permission  the permission to check.
+     * @return the check result. {@link PermissionCheckResult#DENIED} indicates that there was no allowing/forbidding permission.
+     */
     @NotNull
     PermissionCheckResult getPermissionResult(@NotNull IPermissible permissible, @NotNull String permission);
 
+    /**
+     * Checks if the given {@code permissible} has the given {@code permission}.
+     *
+     * @param permissible the permissible to check if the permission is set.
+     * @param permission  the permission to check.
+     * @return the check result. {@link PermissionCheckResult#DENIED} indicates that there was no allowing/forbidding permission.
+     */
     @NotNull
     PermissionCheckResult getPermissionResult(@NotNull IPermissible permissible, @NotNull Permission permission);
 
+    /**
+     * Checks if the given {@code permissible} has the given {@code permission}.
+     *
+     * @param permissible the permissible to check if the permission is set.
+     * @param group       the group to get the permissions on.
+     * @param permission  the permission to check.
+     * @return the check result. {@link PermissionCheckResult#DENIED} indicates that there was no allowing/forbidding permission.
+     */
     @NotNull
     PermissionCheckResult getPermissionResult(@NotNull IPermissible permissible, @NotNull String group, @NotNull Permission permission);
 
+    /**
+     * Checks if the given {@code permissible} has the given {@code permission}.
+     *
+     * @param permissible the permissible to check if the permission is set.
+     * @param groups      the groups to get the permissions on.
+     * @param permission  the permission to check.
+     * @return the check result. {@link PermissionCheckResult#DENIED} indicates that there was no allowing/forbidding permission.
+     */
+    @NotNull
+    PermissionCheckResult getPermissionResult(@NotNull IPermissible permissible, @NotNull Iterable<String> groups, @NotNull Permission permission);
+
+    /**
+     * Checks if the given {@code permissible} has the given {@code permission}.
+     *
+     * @param permissible the permissible to check if the permission is set.
+     * @param groups      the groups to get the permissions on.
+     * @param permission  the permission to check.
+     * @return the check result. {@link PermissionCheckResult#DENIED} indicates that there was no allowing/forbidding permission.
+     */
+    @NotNull
+    PermissionCheckResult getPermissionResult(@NotNull IPermissible permissible, @NotNull String[] groups, @NotNull Permission permission);
+
+    /**
+     * Finds the highest permission (sorted by the potency) in the given {@code permissions} array using the given
+     * {@code permission} potency as the starting point.
+     *
+     * @param permissions the permissions to check through.
+     * @param permission  the starting point for the check to run.
+     * @return the highest permission in the given {@code permission} or {@code null} if there is no permission with a higher potency in the given collection
+     */
+    @Nullable
+    Permission findHighestPermission(@NotNull Collection<Permission> permissions, @NotNull Permission permission);
+
+    /**
+     * Gets all permission of the specified {@code permissible}
+     *
+     * @param permissible the permissible to get the permission of.
+     * @return all permissions of the permissible
+     */
+    @NotNull
     Collection<Permission> getAllPermissions(@NotNull IPermissible permissible);
 
+    /**
+     * Gets all permission of the specified {@code permissible} on the given {@code group}.
+     *
+     * @param permissible the permissible to get the permission of.
+     * @param group       the group to get the permission on or {@code null} if no specific group should be used.
+     * @return all permissions of the permissible on the specified group if provided
+     */
+    @NotNull
     Collection<Permission> getAllPermissions(@NotNull IPermissible permissible, @Nullable String group);
 
     /**
@@ -154,6 +336,7 @@ public interface IPermissionManagement {
      *
      * @return a list of all {@link IPermissionUser}s stored in the database or an empty list if there is no user with that name stored.
      */
+    @NotNull
     Collection<IPermissionUser> getUsers();
 
     /**
@@ -266,6 +449,12 @@ public interface IPermissionManagement {
      */
     List<IPermissionUser> modifyUsers(@NotNull String name, @NotNull Consumer<IPermissionUser> modifier);
 
+    /**
+     * Retrieves every permission group object of the specified {@code permissionUser}.
+     *
+     * @param permissionUser the user to get the groups of
+     * @return a collection of all group objects the user is in
+     */
     @NotNull
     ITask<Collection<IPermissionGroup>> getGroupsAsync(@Nullable IPermissionUser permissionUser);
 
@@ -273,10 +462,19 @@ public interface IPermissionManagement {
      * Adds a new user to the database.
      *
      * @param permissionUser the user to be added
+     * @return the created permission user
      */
     @NotNull
     ITask<IPermissionUser> addUserAsync(@NotNull IPermissionUser permissionUser);
 
+    /**
+     * Adds a new user to the database.
+     *
+     * @param name     the name of the new user
+     * @param password the password of the new user
+     * @param potency  the potency of the new user
+     * @return the created permission user
+     */
     @NotNull
     ITask<IPermissionUser> addUserAsync(@NotNull String name, @NotNull String password, int potency);
 
@@ -284,6 +482,7 @@ public interface IPermissionManagement {
      * Updates an already existing user in the database.
      *
      * @param permissionUser the user to be updated
+     * @return a task completed when the operation was executed
      */
     @NotNull
     ITask<Void> updateUserAsync(@NotNull IPermissionUser permissionUser);
@@ -293,6 +492,7 @@ public interface IPermissionManagement {
      * This method is case-sensitive.
      *
      * @param name the name of the users to be deleted
+     * @return if the operation was successful
      */
     @NotNull
     ITask<Boolean> deleteUserAsync(@NotNull String name);
@@ -301,6 +501,7 @@ public interface IPermissionManagement {
      * Deletes one user with the uniqueId of the given user.
      *
      * @param permissionUser the user to be deleted
+     * @return if the operation was successful
      */
     @NotNull
     ITask<Boolean> deleteUserAsync(@NotNull IPermissionUser permissionUser);
@@ -344,6 +545,12 @@ public interface IPermissionManagement {
     @NotNull
     ITask<List<IPermissionUser>> getUsersAsync(@NotNull String name);
 
+    /**
+     * Gets the first user with the specified {@code name}.
+     *
+     * @param name the name of the user to get.
+     * @return the {@link IPermissionUser} from the database or {@code null} if there is no user with that name stored
+     */
     @NotNull
     ITask<IPermissionUser> getFirstUserAsync(String name);
 
@@ -363,6 +570,7 @@ public interface IPermissionManagement {
      * Clears all users stored in the database and inserts the given list.
      *
      * @param users the new {@link IPermissionUser}s to be stored in the database
+     * @return a task completed when the operation was executed
      */
     @NotNull
     ITask<Void> setUsersAsync(@NotNull Collection<? extends IPermissionUser> users);
@@ -374,6 +582,7 @@ public interface IPermissionManagement {
      * <p>
      * This method shouldn't be used when there are many users with that group stored in the database, because that takes a lot of memory.
      *
+     * @param group the name of the group to get the users of.
      * @return a list of all {@link IPermissionUser}s stored in the database or an empty list if there is no user with that name stored.
      */
     @NotNull
@@ -384,10 +593,19 @@ public interface IPermissionManagement {
      * it will be deleted and created again.
      *
      * @param permissionGroup the {@link IPermissionGroup} to be added
+     * @return the created permission group.
      */
     @NotNull
     ITask<IPermissionGroup> addGroupAsync(@NotNull IPermissionGroup permissionGroup);
 
+    /**
+     * Adds a new permission group to the list of groups. If a group with that name already exists,
+     * it will be deleted and created again.
+     *
+     * @param role    the name of the group to create.
+     * @param potency the potency of the new group.
+     * @return the created permission group.
+     */
     @NotNull
     ITask<IPermissionGroup> addGroupAsync(@NotNull String role, int potency);
 
@@ -396,6 +614,7 @@ public interface IPermissionManagement {
      * it will be created.
      *
      * @param permissionGroup the {@link IPermissionGroup} to be updated
+     * @return a task completed when the operation was executed
      */
     @NotNull
     ITask<Void> updateGroupAsync(@NotNull IPermissionGroup permissionGroup);
@@ -404,6 +623,7 @@ public interface IPermissionManagement {
      * Deletes a group by its name out of the list of groups. If a group with that name doesn't exist, nothing happens.
      *
      * @param name the case-sensitive name of the group
+     * @return a task completed when the operation was executed
      */
     @NotNull
     ITask<Void> deleteGroupAsync(@NotNull String name);
@@ -412,6 +632,7 @@ public interface IPermissionManagement {
      * Deletes a group by its name out of the list of groups. If a group with that name doesn't exist, nothing happens.
      *
      * @param permissionGroup the {@link IPermissionGroup} to be deleted
+     * @return a task completed when the operation was executed
      */
     @NotNull
     ITask<Void> deleteGroupAsync(@NotNull IPermissionGroup permissionGroup);
@@ -434,6 +655,12 @@ public interface IPermissionManagement {
     @NotNull
     ITask<IPermissionGroup> getGroupAsync(@NotNull String name);
 
+    /**
+     * Gets the default permission group.
+     *
+     * @return the default permission group.
+     */
+    @NotNull
     ITask<IPermissionGroup> getDefaultPermissionGroupAsync();
 
     /**
@@ -460,6 +687,7 @@ public interface IPermissionManagement {
      * @param modifier the Consumer to modify the user
      * @return the modified user
      */
+    @NotNull
     ITask<IPermissionGroup> modifyGroupAsync(@NotNull String name, @NotNull Consumer<IPermissionGroup> modifier);
 
     /**
@@ -470,6 +698,7 @@ public interface IPermissionManagement {
      * @param modifier the Consumer to modify the user
      * @return the modified user
      */
+    @NotNull
     ITask<IPermissionUser> modifyUserAsync(@NotNull UUID uniqueId, @NotNull Consumer<IPermissionUser> modifier);
 
     /**
@@ -480,6 +709,6 @@ public interface IPermissionManagement {
      * @param modifier the Consumer to modify the available users
      * @return a list of all modified users
      */
+    @NotNull
     ITask<List<IPermissionUser>> modifyUsersAsync(@NotNull String name, @NotNull Consumer<IPermissionUser> modifier);
-
 }

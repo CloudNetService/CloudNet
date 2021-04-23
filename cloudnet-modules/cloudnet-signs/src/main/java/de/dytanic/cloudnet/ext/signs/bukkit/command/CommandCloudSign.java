@@ -8,6 +8,7 @@ import de.dytanic.cloudnet.ext.signs.configuration.entry.SignConfigurationEntry;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -16,6 +17,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
+import java.util.Set;
 
 public final class CommandCloudSign implements CommandExecutor {
 
@@ -47,7 +49,7 @@ public final class CommandCloudSign implements CommandExecutor {
         Player player = (Player) sender;
 
         if (args.length == 1 && args[0].equalsIgnoreCase("remove")) {
-            Block block = player.getTargetBlock(null, 15);
+            Block block = player.getTargetBlock((Set<Material>) null, 15);
 
             if (block.getState() instanceof org.bukkit.block.Sign) {
                 for (Sign sign : this.bukkitSignManagement.getSigns()) {
@@ -79,7 +81,7 @@ public final class CommandCloudSign implements CommandExecutor {
         }
 
         if (args.length >= 2 && args[0].equalsIgnoreCase("create")) {
-            Block block = player.getTargetBlock(null, 15);
+            Block block = player.getTargetBlock((Set<Material>) null, 15);
 
             if (block.getState() instanceof org.bukkit.block.Sign) {
                 for (Sign sign : this.bukkitSignManagement.getSigns()) {

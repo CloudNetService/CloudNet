@@ -2,26 +2,32 @@ package de.dytanic.cloudnet.database.h2;
 
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.concurrent.IThrowableCallback;
+import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.database.sql.SQLDatabaseProvider;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import org.h2.Driver;
 
-import java.io.File;
-import java.sql.*;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.ExecutorService;
 
 public final class H2DatabaseProvider extends SQLDatabaseProvider {
 
-    private static final long NEW_CREATION_DELAY = 600000;
+    private static final long NEW_CREATION_DELAY = 600_000;
 
     static {
         Driver.load();
     }
 
-    protected final File h2dbFile;
+    protected final Path h2dbFile;
     protected final boolean runsInCluster;
     protected Connection connection;
 
@@ -31,14 +37,14 @@ public final class H2DatabaseProvider extends SQLDatabaseProvider {
 
     public H2DatabaseProvider(String h2File, boolean runsInCluster, ExecutorService executorService) {
         super(executorService);
-        this.h2dbFile = new File(h2File);
+        this.h2dbFile = Paths.get(h2File);
         this.runsInCluster = runsInCluster;
     }
 
     @Override
     public boolean init() throws Exception {
-        this.h2dbFile.getParentFile().mkdirs();
-        this.connection = DriverManager.getConnection("jdbc:h2:" + this.h2dbFile.getAbsolutePath());
+        FileUtils.createDirectoryReported(this.h2dbFile.getParent());
+        this.connection = DriverManager.getConnection("jdbc:h2:" + this.h2dbFile.toAbsolutePath());
 
         if (this.runsInCluster) {
             CloudNetDriver.getInstance().getLogger().warning("============================================");

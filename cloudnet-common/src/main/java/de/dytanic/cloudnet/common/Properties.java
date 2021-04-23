@@ -92,14 +92,8 @@ public class Properties extends LinkedHashMap<String, String> {
      * @see java.util.Properties
      */
     public void load(File file) throws IOException {
-        if (file == null) {
-            return;
-        }
-
-        if (file.exists()) {
-            try (InputStream inputStream = new FileInputStream(file)) {
-                this.load(inputStream);
-            }
+        if (file != null) {
+            this.load(file.toPath());
         }
     }
 
@@ -112,8 +106,10 @@ public class Properties extends LinkedHashMap<String, String> {
      * @see java.util.Properties
      */
     public void load(Path path) throws IOException {
-        if (path != null) {
-            this.load(path.toFile());
+        if (path != null && Files.exists(path)) {
+            try (InputStream stream = Files.newInputStream(path)) {
+                this.load(stream);
+            }
         }
     }
 

@@ -5,10 +5,10 @@ import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.common.unsafe.ResourceResolver;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URI;
 import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -24,33 +24,30 @@ public final class DefaultModuleHelper {
         throw new UnsupportedOperationException();
     }
 
-    public static boolean copyCurrentModuleInstanceFromClass(Class<?> clazz, File target) {
+    public static boolean copyCurrentModuleInstanceFromClass(Class<?> clazz, Path target) {
         Preconditions.checkNotNull(clazz);
         Preconditions.checkNotNull(target);
 
         try {
-            target.getParentFile().mkdirs();
+            URI uri = ResourceResolver.resolveURIFromResourceByClass(clazz);
+            if (uri != null) {
+                URLConnection connection = uri.toURL().openConnection();
+                connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11");
+                connection.connect();
 
-            if (!target.exists()) {
-                target.createNewFile();
+                try (InputStream inputStream = connection.getInputStream(); OutputStream outputStream = Files.newOutputStream(target)) {
+                    FileUtils.copy(inputStream, outputStream);
+                }
+
+                return true;
             }
-
-            URLConnection connection = ResourceResolver.resolveURIFromResourceByClass(clazz).toURL().openConnection();
-            connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11");
-            connection.connect();
-
-            try (InputStream inputStream = connection.getInputStream();
-                 FileOutputStream fileOutputStream = new FileOutputStream(target)) {
-                FileUtils.copy(inputStream, fileOutputStream);
-            }
-            return true;
         } catch (IOException exception) {
             exception.printStackTrace();
         }
         return false;
     }
 
-    public static void copyPluginConfigurationFileForEnvironment(Class<?> targetClass, ServiceEnvironmentType type, File file) {
+    public static void copyPluginConfigurationFileForEnvironment(Class<?> targetClass, ServiceEnvironmentType type, Path file) {
         FileUtils.openZipFileSystem(file, fileSystem -> {
             Path pluginPath = fileSystem.getPath("plugin.yml");
 
