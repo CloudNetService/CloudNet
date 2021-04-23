@@ -1,8 +1,10 @@
 package de.dytanic.cloudnet.permission;
 
+import de.dytanic.cloudnet.EmptyCloudNetDriver;
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.database.AbstractDatabaseProvider;
 import de.dytanic.cloudnet.database.h2.H2DatabaseProvider;
+import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.permission.IPermissionGroup;
 import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
 import de.dytanic.cloudnet.driver.permission.IPermissionUser;
@@ -34,6 +36,11 @@ public class DefaultDatabasePermissionManagementTest {
 
         IPermissionManagement permissionManagement = new DefaultDatabasePermissionManagement(() -> databaseProvider);
         permissionManagement.init();
+
+        CloudNetDriver driver = new EmptyCloudNetDriver() {{
+            setInstance(this);
+        }};
+        driver.setPermissionManagement(permissionManagement);
 
         IPermissionUser permissionUser = permissionManagement.addUser(userName, "1234", (byte) 5);
         Assert.assertNotNull(permissionUser);
