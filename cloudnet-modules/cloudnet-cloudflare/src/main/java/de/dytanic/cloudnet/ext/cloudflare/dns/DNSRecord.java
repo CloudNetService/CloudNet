@@ -8,10 +8,11 @@ import lombok.ToString;
 @EqualsAndHashCode
 public class DNSRecord {
 
-    protected String type, name, content;
+    protected String type;
+    protected String name;
+    protected String content;
 
     protected int ttl;
-
     protected boolean proxied;
 
     protected JsonObject data;
