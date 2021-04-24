@@ -72,7 +72,7 @@ allprojects {
         dependencyVelocityVersion = '1.1.4'
         dependencyNukkitXVersion = '1.0-SNAPSHOT'
         dependencyGoMintVersion = '1.0.0-SNAPSHOT'
-        dependencyMysqlConnectorJavaVersion = '8.0.23'
+        dependencyMysqlConnectorJavaVersion = '8.0.24'
         dependencyHikariCpVersion = '4.0.3'
         dependencyVaultVersion = '1.7'
         dependencyProtocolLibVersion = 'master-SNAPSHOT'
