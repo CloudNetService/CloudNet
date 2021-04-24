@@ -7,8 +7,7 @@ import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.api.DriverAPIRequestType;
 import de.dytanic.cloudnet.driver.api.DriverAPIUser;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
-import de.dytanic.cloudnet.driver.permission.CachedPermissionManagement;
-import de.dytanic.cloudnet.driver.permission.DefaultPermissionManagement;
+import de.dytanic.cloudnet.driver.permission.DefaultCachedPermissionManagement;
 import de.dytanic.cloudnet.driver.permission.DefaultSynchronizedPermissionManagement;
 import de.dytanic.cloudnet.driver.permission.IPermissible;
 import de.dytanic.cloudnet.driver.permission.IPermissionGroup;
@@ -26,18 +25,12 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
-public class WrapperPermissionManagement extends DefaultPermissionManagement
-        implements DefaultSynchronizedPermissionManagement, IPermissionManagement, CachedPermissionManagement, DriverAPIUser {
+public class WrapperPermissionManagement extends DefaultCachedPermissionManagement implements DefaultSynchronizedPermissionManagement, DriverAPIUser {
 
     private final Wrapper wrapper;
-
-    private final Map<UUID, IPermissionUser> cachedPermissionUsers = new ConcurrentHashMap<>();
-    private final Map<String, IPermissionGroup> cachedPermissionGroups = new ConcurrentHashMap<>();
 
     public WrapperPermissionManagement(Wrapper wrapper) {
         this.wrapper = wrapper;
@@ -48,7 +41,7 @@ public class WrapperPermissionManagement extends DefaultPermissionManagement
         Collection<IPermissionGroup> groups = this.loadGroupsAsync().getDef(null);
         if (groups != null && !groups.isEmpty()) {
             for (IPermissionGroup group : groups) {
-                this.cachedPermissionGroups.put(group.getName(), group);
+                this.permissionGroupCache.put(group.getName(), group);
             }
         }
 
@@ -65,10 +58,13 @@ public class WrapperPermissionManagement extends DefaultPermissionManagement
         if (success) {
             Collection<IPermissionGroup> permissionGroups = this.loadGroupsAsync().getDef(null);
 
-            this.cachedPermissionGroups.clear();
+            this.permissionGroupLocks.clear();
+            this.permissionGroupCache.invalidateAll();
 
-            for (IPermissionGroup group : permissionGroups) {
-                this.cachedPermissionGroups.put(group.getName(), group);
+            if (permissionGroups != null) {
+                for (IPermissionGroup group : permissionGroups) {
+                    this.permissionGroupCache.put(group.getName(), group);
+                }
             }
         }
 
@@ -86,7 +82,7 @@ public class WrapperPermissionManagement extends DefaultPermissionManagement
 
     @Override
     public Collection<IPermissionGroup> getGroups() {
-        return this.cachedPermissionGroups.values();
+        return this.permissionGroupCache.asMap().values();
     }
 
     @Override
@@ -141,7 +137,8 @@ public class WrapperPermissionManagement extends DefaultPermissionManagement
     public ITask<Boolean> containsUserAsync(@NotNull UUID uniqueId) {
         Preconditions.checkNotNull(uniqueId);
 
-        if (this.cachedPermissionUsers.containsKey(uniqueId)) {
+        IPermissionUser user = this.permissionUserCache.getIfPresent(uniqueId);
+        if (user != null) {
             return CompletedTask.create(true);
         }
 
@@ -157,7 +154,7 @@ public class WrapperPermissionManagement extends DefaultPermissionManagement
     public ITask<Boolean> containsUserAsync(@NotNull String name) {
         Preconditions.checkNotNull(name);
 
-        if (this.cachedPermissionUsers.values().stream().anyMatch(permissionUser -> permissionUser.getName().equals(name))) {
+        if (this.permissionUserCache.asMap().values().stream().anyMatch(permissionUser -> permissionUser.getName().equals(name))) {
             return CompletedTask.create(true);
         }
 
@@ -173,14 +170,32 @@ public class WrapperPermissionManagement extends DefaultPermissionManagement
     public ITask<IPermissionUser> getUserAsync(@NotNull UUID uniqueId) {
         Preconditions.checkNotNull(uniqueId);
 
-        if (this.cachedPermissionUsers.containsKey(uniqueId)) {
-            return CompletedTask.create(this.cachedPermissionUsers.get(uniqueId));
+        IPermissionUser user = this.permissionUserCache.getIfPresent(uniqueId);
+        if (user != null) {
+            return CompletedTask.create(user);
         }
 
         return this.executeDriverAPIMethod(
                 DriverAPIRequestType.PERMISSION_MANAGEMENT_GET_USER_BY_UNIQUE_ID,
                 buffer -> buffer.writeUUID(uniqueId),
                 packet -> packet.getBuffer().readOptionalObject(PermissionUser.class)
+        );
+    }
+
+    @Override
+    public @NotNull ITask<IPermissionUser> getOrCreateUserAsync(@NotNull UUID uniqueId, @NotNull String name) {
+        Preconditions.checkNotNull(uniqueId, "uniqueId");
+        Preconditions.checkNotNull(name, "name");
+
+        IPermissionUser user = this.permissionUserCache.getIfPresent(uniqueId);
+        if (user != null) {
+            return CompletedTask.create(user);
+        }
+
+        return this.executeDriverAPIMethod(
+                DriverAPIRequestType.PERMISSION_MANAGEMENT_GET_OR_CREATE_USER,
+                buffer -> buffer.writeUUID(uniqueId).writeString(name),
+                packet -> packet.getBuffer().readObject(PermissionUser.class)
         );
     }
 
@@ -284,7 +299,7 @@ public class WrapperPermissionManagement extends DefaultPermissionManagement
     public ITask<Boolean> containsGroupAsync(@NotNull String name) {
         Preconditions.checkNotNull(name);
 
-        return CompletedTask.create(this.cachedPermissionGroups.containsKey(name));
+        return CompletedTask.create(this.permissionGroupCache.getIfPresent(name) != null);
     }
 
     @Override
@@ -292,7 +307,7 @@ public class WrapperPermissionManagement extends DefaultPermissionManagement
     public ITask<IPermissionGroup> getGroupAsync(@NotNull String name) {
         Preconditions.checkNotNull(name);
 
-        return CompletedTask.create(this.cachedPermissionGroups.get(name));
+        return CompletedTask.create(this.permissionGroupCache.getIfPresent(name));
     }
 
     @Override
@@ -302,12 +317,12 @@ public class WrapperPermissionManagement extends DefaultPermissionManagement
 
     @Override
     public @NotNull ITask<Collection<IPermissionGroup>> getGroupsAsync() {
-        return CompletedTask.create(this.cachedPermissionGroups.values());
+        return CompletedTask.create(this.permissionGroupCache.asMap().values());
     }
 
     @Override
     public IPermissionGroup getDefaultPermissionGroup() {
-        return this.cachedPermissionGroups.values().stream()
+        return this.permissionGroupCache.asMap().values().stream()
                 .filter(IPermissionGroup::isDefaultGroup)
                 .findFirst()
                 .orElse(null);
@@ -342,14 +357,6 @@ public class WrapperPermissionManagement extends DefaultPermissionManagement
     @Override
     public boolean canBeOverwritten() {
         return true;
-    }
-
-    public Map<UUID, IPermissionUser> getCachedPermissionUsers() {
-        return this.cachedPermissionUsers;
-    }
-
-    public Map<String, IPermissionGroup> getCachedPermissionGroups() {
-        return this.cachedPermissionGroups;
     }
 
     @Override

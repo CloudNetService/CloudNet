@@ -68,6 +68,11 @@ public interface DefaultSynchronizedPermissionManagement extends IPermissionMana
         return this.getUserAsync(uniqueId).get(5, TimeUnit.SECONDS, null);
     }
 
+    @Override
+    default @NotNull IPermissionUser getOrCreateUser(@NotNull UUID uniqueId, @NotNull String name) {
+        return this.getOrCreateUserAsync(uniqueId, name).get(5, TimeUnit.SECONDS, null);
+    }
+
     @NotNull
     @Override
     default List<IPermissionUser> getUsers(@NotNull String name) {

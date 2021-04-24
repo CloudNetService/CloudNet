@@ -3,6 +3,7 @@ package de.dytanic.cloudnet.ext.cloudperms;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.permission.CachedPermissionManagement;
+import de.dytanic.cloudnet.driver.permission.DefaultCachedPermissionManagement;
 import de.dytanic.cloudnet.driver.permission.IPermissible;
 import de.dytanic.cloudnet.driver.permission.IPermissionGroup;
 import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
@@ -23,7 +24,7 @@ import java.util.function.Consumer;
 
 @Deprecated
 @ApiStatus.ScheduledForRemoval(inVersion = "3.5")
-public class CloudPermissionsManagement implements IPermissionManagement, CachedPermissionManagement {
+public class CloudPermissionsManagement extends DefaultCachedPermissionManagement implements IPermissionManagement, CachedPermissionManagement {
 
     private final IPermissionManagement wrapped;
 
@@ -218,6 +219,11 @@ public class CloudPermissionsManagement implements IPermissionManagement, Cached
     }
 
     @Override
+    public @NotNull IPermissionUser getOrCreateUser(@NotNull UUID uniqueId, @NotNull String name) {
+        return wrapped.getOrCreateUser(uniqueId, name);
+    }
+
+    @Override
     public @NotNull List<IPermissionUser> getUsers(@NotNull String name) {
         return wrapped.getUsers(name);
     }
@@ -320,6 +326,11 @@ public class CloudPermissionsManagement implements IPermissionManagement, Cached
     @Override
     public @NotNull ITask<IPermissionUser> getUserAsync(@NotNull UUID uniqueId) {
         return wrapped.getUserAsync(uniqueId);
+    }
+
+    @Override
+    public @NotNull ITask<IPermissionUser> getOrCreateUserAsync(@NotNull UUID uniqueId, @NotNull String name) {
+        return wrapped.getOrCreateUserAsync(uniqueId, name);
     }
 
     @Override

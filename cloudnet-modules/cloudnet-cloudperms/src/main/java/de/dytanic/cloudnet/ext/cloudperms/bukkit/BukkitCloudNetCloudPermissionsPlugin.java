@@ -12,8 +12,8 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scoreboard.Team;
+import org.jetbrains.annotations.ApiStatus;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.concurrent.atomic.AtomicReference;
@@ -35,9 +35,10 @@ public final class BukkitCloudNetCloudPermissionsPlugin extends JavaPlugin {
     @Override
     public void onEnable() {
         this.checkForVault();
-        this.initPlayersCloudPermissible();
+        Bukkit.getOnlinePlayers().forEach(this::injectCloudPermissible);
 
-        this.getServer().getPluginManager().registerEvents(new BukkitCloudNetCloudPermissionsPlayerListener(CloudNetDriver.getInstance().getPermissionManagement()), this);
+        this.getServer().getPluginManager().registerEvents(new BukkitCloudNetCloudPermissionsPlayerListener(this,
+                CloudNetDriver.getInstance().getPermissionManagement()), this);
     }
 
     @Override
@@ -157,55 +158,20 @@ public final class BukkitCloudNetCloudPermissionsPlugin extends JavaPlugin {
         target.setDisplayName(ChatColor.translateAlternateColorCodes('&', permissionGroup.getDisplay() + target.getName()));
     }
 
+    @ApiStatus.Internal
     public void injectCloudPermissible(Player player) {
         Preconditions.checkNotNull(player);
-
         try {
-            Field field;
-            Class<?> clazz = this.reflectCraftClazz(".entity.CraftHumanEntity");
-
-            if (clazz != null) {
-                field = clazz.getDeclaredField("perm");
-            } else {
-                field = Class.forName("net.glowstone.entity.GlowHumanEntity").getDeclaredField("permissions");
-            }
-
-            this.injectCloudPermissible0(player, field);
+            BukkitPermissionInjector.injectPlayer(player);
         } catch (Exception exception) {
             exception.printStackTrace();
         }
     }
 
-
     private void initScoreboard(Player all) {
         if (all.getScoreboard().equals(all.getServer().getScoreboardManager().getMainScoreboard())) {
             all.setScoreboard(all.getServer().getScoreboardManager().getNewScoreboard());
         }
-    }
-
-    private void injectCloudPermissible0(Player player, Field field) throws Exception {
-        Preconditions.checkNotNull(player);
-        Preconditions.checkNotNull(field);
-
-        field.setAccessible(true);
-        field.set(player, new BukkitCloudNetCloudPermissionsPermissible(player, CloudNetDriver.getInstance().getPermissionManagement()));
-    }
-
-    private Class<?> reflectCraftClazz(String suffix) {
-        try {
-            String version = org.bukkit.Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];
-            return Class.forName("org.bukkit.craftbukkit." + version + suffix);
-        } catch (Exception ex) {
-            try {
-                return Class.forName("org.bukkit.craftbukkit." + suffix);
-            } catch (ClassNotFoundException ignored) {
-                return null;
-            }
-        }
-    }
-
-    private void initPlayersCloudPermissible() {
-        Bukkit.getOnlinePlayers().forEach(this::injectCloudPermissible);
     }
 
     private void checkForVault() {

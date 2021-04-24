@@ -4,7 +4,7 @@ import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.concurrent.CompletableTask;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.concurrent.NullCompletableTask;
-import de.dytanic.cloudnet.driver.permission.DefaultPermissionManagement;
+import de.dytanic.cloudnet.driver.permission.DefaultCachedPermissionManagement;
 import de.dytanic.cloudnet.driver.permission.IPermissionGroup;
 import de.dytanic.cloudnet.driver.permission.IPermissionUser;
 import org.jetbrains.annotations.NotNull;
@@ -13,7 +13,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Collection;
 import java.util.Collections;
 
-public abstract class ClusterSynchronizedPermissionManagement extends DefaultPermissionManagement implements NodePermissionManagement {
+public abstract class ClusterSynchronizedPermissionManagement extends DefaultCachedPermissionManagement implements NodePermissionManagement {
     @Override
     public @NotNull ITask<IPermissionUser> addUserAsync(@NotNull IPermissionUser permissionUser) {
         Preconditions.checkNotNull(permissionUser);
