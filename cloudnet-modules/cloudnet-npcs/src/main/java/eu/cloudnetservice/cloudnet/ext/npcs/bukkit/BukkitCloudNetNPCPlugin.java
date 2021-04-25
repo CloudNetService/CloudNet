@@ -35,6 +35,7 @@ public class BukkitCloudNetNPCPlugin extends JavaPlugin {
         CloudNetDriver.getInstance().getEventManager().registerListener(this.npcManagement);
         Bukkit.getPluginManager().registerEvents(new NPCInventoryListener(this.npcManagement), this);
         Bukkit.getPluginManager().registerEvents(new LabyModEmotePlayer(this, this.npcManagement), this);
+        Bukkit.getScheduler().scheduleSyncRepeatingTask(this, new BukkitNPCKnockbackRunnable(this.npcManagement), 20, 5);
     }
 
     @Override
