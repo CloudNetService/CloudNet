@@ -160,6 +160,10 @@ public class DefaultDatabasePermissionManagement extends ClusterSynchronizedPerm
                 this.addUserAsync(newUser);
                 return newUser;
             } else {
+                if (this.testPermissionUser(permissionUser)) {
+                    this.updateUserAsync(permissionUser);
+                }
+
                 this.permissionUserCache.put(uniqueId, permissionUser);
                 return permissionUser;
             }

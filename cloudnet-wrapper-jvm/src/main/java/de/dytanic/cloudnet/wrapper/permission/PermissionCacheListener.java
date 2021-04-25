@@ -8,6 +8,7 @@ import de.dytanic.cloudnet.driver.event.events.permission.PermissionSetGroupsEve
 import de.dytanic.cloudnet.driver.event.events.permission.PermissionUpdateGroupEvent;
 import de.dytanic.cloudnet.driver.event.events.permission.PermissionUpdateUserEvent;
 import de.dytanic.cloudnet.driver.permission.IPermissionGroup;
+import de.dytanic.cloudnet.driver.permission.IPermissionUser;
 import org.jetbrains.annotations.ApiStatus;
 
 @ApiStatus.Internal
@@ -21,8 +22,9 @@ public final class PermissionCacheListener {
 
     @EventListener
     public void handle(PermissionUpdateUserEvent event) {
-        if (this.permissionManagement.getCachedPermissionUsers().containsKey(event.getPermissionUser().getUniqueId())) {
-            this.permissionManagement.getCachedPermissionUsers().put(event.getPermissionUser().getUniqueId(), event.getPermissionUser());
+        IPermissionUser user = event.getPermissionUser();
+        if (this.permissionManagement.getCachedPermissionUsers().containsKey(user.getUniqueId())) {
+            this.permissionManagement.getCachedPermissionUsers().put(user.getUniqueId(), user);
         }
     }
 

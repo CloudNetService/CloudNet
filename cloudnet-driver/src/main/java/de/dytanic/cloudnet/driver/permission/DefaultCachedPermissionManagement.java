@@ -2,6 +2,7 @@ package de.dytanic.cloudnet.driver.permission;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.RemovalCause;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -16,11 +17,11 @@ public abstract class DefaultCachedPermissionManagement extends DefaultPermissio
     protected final Cache<UUID, IPermissionUser> permissionUserCache = CacheBuilder.newBuilder()
             .expireAfterAccess(5, TimeUnit.MINUTES)
             .concurrencyLevel(4)
-            .removalListener(notification -> this.handleUserRemove((UUID) notification.getKey(), (IPermissionUser) notification.getValue()))
+            .removalListener(notification -> this.handleUserRemove((UUID) notification.getKey(), (IPermissionUser) notification.getValue(), notification.getCause()))
             .build();
     protected final Cache<String, IPermissionGroup> permissionGroupCache = CacheBuilder.newBuilder()
             .concurrencyLevel(4)
-            .removalListener(notification -> this.handleGroupRemove((String) notification.getKey(), (IPermissionGroup) notification.getValue()))
+            .removalListener(notification -> this.handleGroupRemove((String) notification.getKey(), (IPermissionGroup) notification.getValue(), notification.getCause()))
             .build();
 
     protected final Map<UUID, AtomicInteger> permissionUserLocks = new ConcurrentHashMap<>();
@@ -94,14 +95,14 @@ public abstract class DefaultCachedPermissionManagement extends DefaultPermissio
         this.permissionGroupLocks.remove(group.getName());
     }
 
-    protected void handleUserRemove(@NotNull UUID key, @NotNull IPermissionUser user) {
-        if (this.isLocked(user)) {
+    protected void handleUserRemove(@NotNull UUID key, @NotNull IPermissionUser user, @NotNull RemovalCause cause) {
+        if (cause != RemovalCause.REPLACED && this.isLocked(user)) {
             this.permissionUserCache.put(key, user);
         }
     }
 
-    protected void handleGroupRemove(@NotNull String key, @NotNull IPermissionGroup group) {
-        if (this.isLocked(group)) {
+    protected void handleGroupRemove(@NotNull String key, @NotNull IPermissionGroup group, @NotNull RemovalCause cause) {
+        if (cause != RemovalCause.REPLACED && this.isLocked(group)) {
             this.permissionGroupCache.put(key, group);
         }
     }
