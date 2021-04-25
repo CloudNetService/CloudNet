@@ -20,6 +20,7 @@ public abstract class ClusterSynchronizedPermissionManagement extends DefaultCac
         if (this.getPermissionManagementHandler() != null) {
             this.getPermissionManagementHandler().handleAddUser(this, permissionUser);
         }
+        this.permissionUserCache.put(permissionUser.getUniqueId(), permissionUser);
         return this.addUserWithoutClusterSyncAsync(permissionUser);
     }
 

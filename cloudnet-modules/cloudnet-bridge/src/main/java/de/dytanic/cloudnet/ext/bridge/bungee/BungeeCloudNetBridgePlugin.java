@@ -51,7 +51,7 @@ public final class BungeeCloudNetBridgePlugin extends Plugin {
                     super.getProxy().getPlayers().size() != BungeeCloudNetHelper.getLastOnlineCount()) {
                 Wrapper.getInstance().publishServiceInfoUpdate();
             }
-        }, 500, 500, TimeUnit.MILLISECONDS);
+        }, 5, 5, TimeUnit.SECONDS);
     }
 
     private void initServers() {

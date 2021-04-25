@@ -67,7 +67,7 @@ public final class VelocityCloudNetBridgePlugin {
                     this.proxyServer.getPlayerCount() != VelocityCloudNetHelper.getLastOnlineCount()) {
                 Wrapper.getInstance().publishServiceInfoUpdate();
             }
-        }).repeat(500, TimeUnit.MILLISECONDS).schedule();
+        }).repeat(5, TimeUnit.SECONDS).schedule();
     }
 
     private void initListeners() {

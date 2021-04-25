@@ -178,8 +178,12 @@ public class WrapperPermissionManagement extends DefaultCachedPermissionManageme
         return this.executeDriverAPIMethod(
                 DriverAPIRequestType.PERMISSION_MANAGEMENT_GET_USER_BY_UNIQUE_ID,
                 buffer -> buffer.writeUUID(uniqueId),
-                packet -> packet.getBuffer().readOptionalObject(PermissionUser.class)
-        );
+                packet -> (IPermissionUser) packet.getBuffer().readOptionalObject(PermissionUser.class)
+        ).onComplete(permissionUser -> {
+            if (permissionUser != null) {
+                this.permissionUserCache.put(permissionUser.getUniqueId(), permissionUser);
+            }
+        });
     }
 
     @Override
@@ -195,8 +199,12 @@ public class WrapperPermissionManagement extends DefaultCachedPermissionManageme
         return this.executeDriverAPIMethod(
                 DriverAPIRequestType.PERMISSION_MANAGEMENT_GET_OR_CREATE_USER,
                 buffer -> buffer.writeUUID(uniqueId).writeString(name),
-                packet -> packet.getBuffer().readObject(PermissionUser.class)
-        );
+                packet -> (IPermissionUser) packet.getBuffer().readObject(PermissionUser.class)
+        ).onComplete(permissionUser -> {
+            if (permissionUser != null) {
+                this.permissionUserCache.put(permissionUser.getUniqueId(), permissionUser);
+            }
+        });
     }
 
     @Override
