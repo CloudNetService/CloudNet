@@ -6,6 +6,7 @@ import de.dytanic.cloudnet.driver.event.Event;
  * Responsible for invoking event listener methods without reflection.
  * An implementation is automatically generated for every event listener method when registered.
  */
+@FunctionalInterface
 public interface ListenerInvoker {
 
     /**

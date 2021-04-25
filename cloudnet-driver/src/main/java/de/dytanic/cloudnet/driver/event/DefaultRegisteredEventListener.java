@@ -33,27 +33,29 @@ public class DefaultRegisteredEventListener implements IRegisteredEventListener 
     public void fireEvent(Event event) {
         Preconditions.checkNotNull(event);
 
-        if (this.getEventClass().isAssignableFrom(event.getClass())) {
-            if (event.isShowDebug()) {
-                CloudNetDriver.optionalInstance().ifPresent(cloudNetDriver -> {
-                    if (cloudNetDriver.getLogger().getLevel() >= LogLevel.DEBUG.getLevel()) {
-                        cloudNetDriver.getLogger().debug(String.format(
-                                "Calling event %s on listener %s",
-                                event.getClass().getName(),
-                                this.getInstance().getClass().getName()
-                        ));
-                    }
-                });
-            }
+        if (!this.getEventClass().isAssignableFrom(event.getClass())) {
+            return;
+        }
 
-            try {
-                this.listenerInvoker.invoke(event);
-            } catch (Exception exception) {
-                throw new EventListenerException(String.format(
-                        "Error while invoking event listener %s in class %s",
-                        this.methodName,
-                        this.instance.getClass().getName()), exception);
-            }
+        if (event.isShowDebug()) {
+            CloudNetDriver.optionalInstance().ifPresent(cloudNetDriver -> {
+                if (cloudNetDriver.getLogger().getLevel() >= LogLevel.DEBUG.getLevel()) {
+                    cloudNetDriver.getLogger().debug(String.format(
+                            "Calling event %s on listener %s",
+                            event.getClass().getName(),
+                            this.getInstance().getClass().getName()
+                    ));
+                }
+            });
+        }
+
+        try {
+            this.listenerInvoker.invoke(event);
+        } catch (Exception exception) {
+            throw new EventListenerException(String.format(
+                    "Error while invoking event listener %s in class %s",
+                    this.methodName,
+                    this.instance.getClass().getName()), exception);
         }
     }
 

@@ -173,11 +173,8 @@ public final class DefaultEventManager implements IEventManager {
                 }
             });
 
-            if (!this.registeredListeners.containsKey(eventListener.channel())) {
-                this.registeredListeners.put(eventListener.channel(), new CopyOnWriteArrayList<>());
-            }
-
-            this.registeredListeners.get(eventListener.channel()).add(registeredEventListener);
+            this.registeredListeners.computeIfAbsent(eventListener.channel(),
+                    key -> new CopyOnWriteArrayList<>()).add(registeredEventListener);
         }
     }
 }
