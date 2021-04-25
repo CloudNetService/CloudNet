@@ -27,7 +27,6 @@ import java.util.stream.Collectors;
 public class DefaultConfigSetup implements DefaultSetup {
 
     private final List<String> suggestionIPs = new ArrayList<>();
-
     private final List<String> whitelistDefaultIPs = new ArrayList<>();
 
     private String preferredIP;
