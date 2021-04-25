@@ -1,6 +1,5 @@
 package de.dytanic.cloudnet.driver.event.invoker;
 
-
 import de.dytanic.cloudnet.driver.event.Event;
 
 /**

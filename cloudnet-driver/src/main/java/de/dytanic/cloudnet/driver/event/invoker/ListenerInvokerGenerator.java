@@ -19,7 +19,7 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * Generates {@link ListenerInvoker} implementations for certain event handler methods.
+ * Generates {@link ListenerInvoker} implementations for certain event listener methods.
  *
  * @see ListenerInvoker
  */
@@ -43,7 +43,7 @@ public class ListenerInvokerGenerator {
     /**
      * Generates a new {@link ListenerInvoker}.
      *
-     * @param listener   The listener object the event listener method is in
+     * @param listener   The listener class instance the event listener method is in
      * @param methodName The name of the event listener method
      * @param eventClass The class of the event the listener method is handling
      * @return The new generated {@link ListenerInvoker}, being able the invoke the event listener method.
@@ -65,8 +65,8 @@ public class ListenerInvokerGenerator {
                     listenerClass.getClassLoader(),
                     ListenerInvokerClassLoader::new);
 
-            // listener classes might be loaded by another class loader (for example module listeners), add them to the
-            // class path of the class pool
+            // listener classes might be loaded by another class loader (for example module listeners),
+            // add them to the class path of the class pool
             this.classPool.appendClassPath(new LoaderClassPath(invokerClassLoader));
 
             CtClass listenerInvokerClass = this.classPool.makeClass(className);
