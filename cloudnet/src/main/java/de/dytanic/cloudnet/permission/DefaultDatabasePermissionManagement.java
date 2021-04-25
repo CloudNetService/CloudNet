@@ -111,6 +111,10 @@ public class DefaultDatabasePermissionManagement extends ClusterSynchronizedPerm
     public @NotNull ITask<Boolean> containsUserAsync(@NotNull String name) {
         Preconditions.checkNotNull(name);
 
+        if (this.permissionUserCache.asMap().values().stream().anyMatch(permissionUser -> permissionUser.getName().equals(name))) {
+            return CompletedTask.create(true);
+        }
+
         return this.getUsersAsync(name).map(users -> !users.isEmpty());
     }
 
@@ -189,6 +193,12 @@ public class DefaultDatabasePermissionManagement extends ClusterSynchronizedPerm
 
     @Override
     public @NotNull ITask<IPermissionUser> getFirstUserAsync(String name) {
+        for (IPermissionUser permissionUser : this.permissionUserCache.asMap().values()) {
+            if (permissionUser.getName().equals(name)) {
+                return CompletedTask.create(permissionUser);
+            }
+        }
+
         return this.getUsersAsync(name)
                 .map(users -> users.isEmpty() ? null : users.get(0));
     }

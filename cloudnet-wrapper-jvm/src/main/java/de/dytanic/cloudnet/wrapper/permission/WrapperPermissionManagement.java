@@ -223,6 +223,12 @@ public class WrapperPermissionManagement extends DefaultCachedPermissionManageme
     public @NotNull ITask<IPermissionUser> getFirstUserAsync(String name) {
         Preconditions.checkNotNull(name);
 
+        for (IPermissionUser permissionUser : this.permissionUserCache.asMap().values()) {
+            if (permissionUser.getName().equals(name)) {
+                return CompletedTask.create(permissionUser);
+            }
+        }
+
         return this.executeDriverAPIMethod(
                 DriverAPIRequestType.PERMISSION_MANAGEMENT_GET_FIRST_USER_BY_NAME,
                 buffer -> buffer.writeString(name),
