@@ -3,15 +3,23 @@ package de.dytanic.cloudnet.driver.event;
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.logging.LogLevel;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
+import de.dytanic.cloudnet.driver.event.invoker.ListenerInvoker;
+import de.dytanic.cloudnet.driver.event.invoker.ListenerInvokerGenerator;
 
 import java.lang.reflect.Method;
-import java.util.*;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public final class DefaultEventManager implements IEventManager {
 
-    //Map<Channel, Listeners>
     private final Map<String, List<IRegisteredEventListener>> registeredListeners = new HashMap<>();
+
+    private final ListenerInvokerGenerator invokerGenerator = new ListenerInvokerGenerator();
 
     @Override
     public IEventManager registerListener(Object listener) {
@@ -102,14 +110,13 @@ public final class DefaultEventManager implements IEventManager {
                 listeners.addAll(entry);
             }
 
-            this.fireEvent0(listeners, event);
-
+            this.fireEvent(listeners, event);
         } else if (this.registeredListeners.containsKey(channel)) {
-            this.fireEvent0(this.registeredListeners.get(channel), event);
+            this.fireEvent(this.registeredListeners.get(channel), event);
         }
     }
 
-    private void fireEvent0(List<IRegisteredEventListener> listeners, Event event) {
+    private void fireEvent(List<IRegisteredEventListener> listeners, Event event) {
         Collections.sort(listeners);
 
         for (IRegisteredEventListener listener : listeners) {
@@ -117,8 +124,44 @@ public final class DefaultEventManager implements IEventManager {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private void registerListener0(Object listener) {
         for (Method method : listener.getClass().getMethods()) {
+            if (!method.isAnnotationPresent(EventListener.class)) {
+                continue;
+            }
+
+            if (method.getParameterCount() != 1 || !Modifier.isPublic(method.getModifiers())) {
+                throw new IllegalStateException(String.format(
+                        "Listener method %s:%s has to be public with exactly one argument",
+                        listener.getClass().getName(),
+                        method.getName()));
+            }
+
+            Class<?> parameterType = method.getParameters()[0].getType();
+
+            if (!Event.class.isAssignableFrom(parameterType)) {
+                throw new IllegalStateException(String.format(
+                        "Parameter type %s of listener method %s:%s is not an event",
+                        parameterType.getName(),
+                        listener.getClass().getName(),
+                        method.getName()));
+            }
+
+            Class<Event> eventClass = (Class<Event>) parameterType;
+            String methodName = method.getName();
+
+            EventListener eventListener = method.getAnnotation(EventListener.class);
+            ListenerInvoker listenerInvoker = this.invokerGenerator.generate(listener, methodName, eventClass);
+
+            IRegisteredEventListener registeredEventListener = new DefaultRegisteredEventListener(
+                    eventListener,
+                    eventListener.priority(),
+                    listener,
+                    eventClass,
+                    methodName,
+                    listenerInvoker);
+
             CloudNetDriver.optionalInstance().ifPresent(cloudNetDriver -> {
                 if (cloudNetDriver.getLogger().getLevel() >= LogLevel.DEBUG.getLevel()) {
                     cloudNetDriver.getLogger().debug(String.format(
@@ -129,26 +172,12 @@ public final class DefaultEventManager implements IEventManager {
                     ));
                 }
             });
-            if (
-                    method.getParameterCount() == 1 &&
-                            method.isAnnotationPresent(EventListener.class) &&
-                            Event.class.isAssignableFrom(method.getParameters()[0].getType())) {
-                EventListener eventListener = method.getAnnotation(EventListener.class);
 
-                IRegisteredEventListener registeredEventListener = new DefaultRegisteredEventListener(
-                        eventListener,
-                        eventListener.priority(),
-                        listener,
-                        method,
-                        (Class<? extends Event>) method.getParameters()[0].getType()
-                );
-
-                if (!this.registeredListeners.containsKey(eventListener.channel())) {
-                    this.registeredListeners.put(eventListener.channel(), new CopyOnWriteArrayList<>());
-                }
-
-                this.registeredListeners.get(eventListener.channel()).add(registeredEventListener);
+            if (!this.registeredListeners.containsKey(eventListener.channel())) {
+                this.registeredListeners.put(eventListener.channel(), new CopyOnWriteArrayList<>());
             }
+
+            this.registeredListeners.get(eventListener.channel()).add(registeredEventListener);
         }
     }
 }
