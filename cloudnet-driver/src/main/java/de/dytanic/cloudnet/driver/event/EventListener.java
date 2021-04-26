@@ -12,5 +12,4 @@ public @interface EventListener {
     String channel() default "*";
 
     EventPriority priority() default EventPriority.NORMAL;
-
 }
