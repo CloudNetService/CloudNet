@@ -20,7 +20,6 @@ public interface IEventManager {
 
     <T extends Event> T callEvent(String channel, T event);
 
-
     default <T extends Event> T callEvent(T event) {
         return this.callEvent("*", event);
     }

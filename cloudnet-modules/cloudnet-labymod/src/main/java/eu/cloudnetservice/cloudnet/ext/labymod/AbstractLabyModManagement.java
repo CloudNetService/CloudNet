@@ -29,6 +29,19 @@ public abstract class AbstractLabyModManagement {
 
     protected abstract void sendData(UUID playerId, byte[] data);
 
+    public void sendPermissions(UUID uniqueId) {
+        if (!LabyModUtils.getConfiguration().getPermissionConfig().isEnabled()) {
+            return;
+        }
+
+        final byte[] permissionBytes = LabyModChannelUtils.getLMCMessageContents(
+                "PERMISSIONS",
+                JsonDocument.newDocument(LabyModUtils.getConfiguration().getPermissionConfig().getLabyModPermissions())
+        );
+
+        this.sendData(uniqueId, permissionBytes);
+    }
+
     public void connectTo(UUID player, ICloudPlayer target) {
         ServiceInfoSnapshot connectedService = BridgeProxyHelper.getCachedServiceInfoSnapshot(target.getConnectedService().getServerName());
 
