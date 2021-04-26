@@ -31,7 +31,7 @@ public final class NukkitCloudNetCloudPermissionsPlayerListener implements Liste
         }
     }
 
-    @EventHandler(priority = EventPriority.MONITOR)
+    @EventHandler(priority = EventPriority.LOWEST)
     public void handle(PlayerLoginEvent event) {
         if (!event.isCancelled()) {
             this.plugin.injectCloudPermissible(event.getPlayer());
