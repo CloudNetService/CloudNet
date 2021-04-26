@@ -11,7 +11,7 @@ public class NPCConfigurationEntry {
 
     private String targetGroup = "Lobby";
     private double infoLineDistance = 0.1D;
-    private double knockbackDistance = 0.2D;
+    private double knockbackDistance = 0.7D;
     private double knockbackStrength = 0.8D;
     private int inventorySize = 54;
     private int startSlot = 10;
@@ -54,7 +54,7 @@ public class NPCConfigurationEntry {
     }
 
     public NPCConfigurationEntry(String targetGroup, double infoLineDistance, int inventorySize, int startSlot, int endSlot, boolean showFullServices, ItemLayout onlineItem, ItemLayout emptyItem, ItemLayout fullItem, Map<Integer, ItemLayout> inventoryLayout, LabyModEmotes labyModEmotes, long npcTabListRemoveTicks) {
-        this(targetGroup, infoLineDistance, 0.2D, 0.8D, inventorySize, startSlot, endSlot, showFullServices, onlineItem, emptyItem, fullItem, inventoryLayout, labyModEmotes, npcTabListRemoveTicks);
+        this(targetGroup, infoLineDistance, 0.7D, 0.8D, inventorySize, startSlot, endSlot, showFullServices, onlineItem, emptyItem, fullItem, inventoryLayout, labyModEmotes, npcTabListRemoveTicks);
     }
 
     public NPCConfigurationEntry(String targetGroup, double infoLineDistance, double knockbackDistance, double knockbackStrength, int inventorySize, int startSlot, int endSlot, boolean showFullServices, ItemLayout onlineItem, ItemLayout emptyItem, ItemLayout fullItem, Map<Integer, ItemLayout> inventoryLayout, LabyModEmotes labyModEmotes, long npcTabListRemoveTicks) {
@@ -184,9 +184,10 @@ public class NPCConfigurationEntry {
 
     public static class LabyModEmotes {
 
-        // See https://docs.labymod.net/pages/server/emote_api/ for all available emote ids.
+        // See https://docs.labymod.net/pages/server/labymod/emote_api/ for all available emote ids.
         private int[] emoteIds = new int[]{2, 3, 49};
         private int[] onJoinEmoteIds = new int[]{4, 20};
+        private int[] onKnockbackEmoteIds = new int[]{37};
         private long minEmoteDelayTicks = 20 * 20;
         private long maxEmoteDelayTicks = 30 * 20;
         private boolean playEmotesSynchronous = false;
@@ -208,6 +209,14 @@ public class NPCConfigurationEntry {
 
         public void setOnJoinEmoteIds(int[] onJoinEmoteIds) {
             this.onJoinEmoteIds = onJoinEmoteIds;
+        }
+
+        public int[] getOnKnockbackEmoteIds() {
+            return this.onKnockbackEmoteIds;
+        }
+
+        public void setOnKnockbackEmoteIds(int[] onKnockbackEmoteIds) {
+            this.onKnockbackEmoteIds = onKnockbackEmoteIds;
         }
 
         public long getMinEmoteDelayTicks() {

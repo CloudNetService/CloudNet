@@ -1,11 +1,11 @@
 package eu.cloudnetservice.cloudnet.ext.npcs.bukkit;
 
-
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import eu.cloudnetservice.cloudnet.ext.npcs.AbstractNPCManagement;
 import eu.cloudnetservice.cloudnet.ext.npcs.bukkit.command.CloudNPCCommand;
 import eu.cloudnetservice.cloudnet.ext.npcs.bukkit.labymod.LabyModEmotePlayer;
 import eu.cloudnetservice.cloudnet.ext.npcs.bukkit.listener.NPCInventoryListener;
+import eu.cloudnetservice.cloudnet.ext.npcs.configuration.NPCConfigurationEntry;
 import org.bukkit.Bukkit;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -35,7 +35,14 @@ public class BukkitCloudNetNPCPlugin extends JavaPlugin {
         CloudNetDriver.getInstance().getEventManager().registerListener(this.npcManagement);
         Bukkit.getPluginManager().registerEvents(new NPCInventoryListener(this.npcManagement), this);
         Bukkit.getPluginManager().registerEvents(new LabyModEmotePlayer(this, this.npcManagement), this);
-        Bukkit.getScheduler().scheduleSyncRepeatingTask(this, new BukkitNPCKnockbackRunnable(this.npcManagement), 20, 5);
+
+        NPCConfigurationEntry ownNPCConfigurationEntry = this.npcManagement.getOwnNPCConfigurationEntry();
+
+        if (ownNPCConfigurationEntry != null
+                && ownNPCConfigurationEntry.getKnockbackDistance() > 0
+                && ownNPCConfigurationEntry.getKnockbackDistance() > 0) {
+            Bukkit.getScheduler().scheduleSyncRepeatingTask(this, new BukkitNPCKnockbackRunnable(this.npcManagement), 20, 5);
+        }
     }
 
     @Override
@@ -47,5 +54,4 @@ public class BukkitCloudNetNPCPlugin extends JavaPlugin {
             CloudNetDriver.getInstance().getServicesRegistry().unregisterService(AbstractNPCManagement.class, this.npcManagement);
         }
     }
-
 }
