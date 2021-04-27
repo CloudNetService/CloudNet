@@ -40,7 +40,7 @@ public class BukkitCloudNetNPCPlugin extends JavaPlugin {
 
         if (ownNPCConfigurationEntry != null
                 && ownNPCConfigurationEntry.getKnockbackDistance() > 0
-                && ownNPCConfigurationEntry.getKnockbackDistance() > 0) {
+                && ownNPCConfigurationEntry.getKnockbackStrength() > 0) {
             Bukkit.getScheduler().scheduleSyncRepeatingTask(this, new BukkitNPCKnockbackRunnable(this.npcManagement), 20, 5);
         }
     }
