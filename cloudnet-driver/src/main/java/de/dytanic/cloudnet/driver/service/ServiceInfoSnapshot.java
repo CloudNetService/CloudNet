@@ -3,11 +3,13 @@ package de.dytanic.cloudnet.driver.service;
 import com.google.common.collect.ComparisonChain;
 import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.common.INameable;
-import de.dytanic.cloudnet.common.document.gson.BasicJsonDocPropertyable;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
+import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
+import de.dytanic.cloudnet.driver.serialization.SerializableObject;
+import de.dytanic.cloudnet.driver.serialization.json.SerializableJsonDocPropertyable;
 import de.dytanic.cloudnet.driver.service.property.ServiceProperty;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -19,16 +21,16 @@ import java.util.Optional;
 
 @ToString
 @EqualsAndHashCode(callSuper = false)
-public class ServiceInfoSnapshot extends BasicJsonDocPropertyable implements INameable, Comparable<ServiceInfoSnapshot> {
+public class ServiceInfoSnapshot extends SerializableJsonDocPropertyable implements INameable, Comparable<ServiceInfoSnapshot>, SerializableObject {
 
     public static final Type TYPE = new TypeToken<ServiceInfoSnapshot>() {
     }.getType();
 
     protected long creationTime;
 
-    protected ServiceId serviceId;
-
     protected HostAndPort address;
+
+    protected HostAndPort connectAddress;
 
     protected long connectedTime;
 
@@ -38,14 +40,18 @@ public class ServiceInfoSnapshot extends BasicJsonDocPropertyable implements INa
 
     protected ServiceConfiguration configuration;
 
-    public ServiceInfoSnapshot(long creationTime, ServiceId serviceId, HostAndPort address, long connectedTime, ServiceLifeCycle lifeCycle, ProcessSnapshot processSnapshot, ServiceConfiguration configuration) {
-        this(creationTime, serviceId, address, connectedTime, lifeCycle, processSnapshot, JsonDocument.newDocument(), configuration);
+    public ServiceInfoSnapshot(long creationTime, HostAndPort address, long connectedTime, ServiceLifeCycle lifeCycle, ProcessSnapshot processSnapshot, ServiceConfiguration configuration) {
+        this(creationTime, address, connectedTime, lifeCycle, processSnapshot, JsonDocument.newDocument(), configuration);
     }
 
-    public ServiceInfoSnapshot(long creationTime, ServiceId serviceId, HostAndPort address, long connectedTime, ServiceLifeCycle lifeCycle, ProcessSnapshot processSnapshot, JsonDocument properties, ServiceConfiguration configuration) {
+    public ServiceInfoSnapshot(long creationTime, HostAndPort address, long connectedTime, ServiceLifeCycle lifeCycle, ProcessSnapshot processSnapshot, JsonDocument properties, ServiceConfiguration configuration) {
+        this(creationTime, address, address, connectedTime, lifeCycle, processSnapshot, properties, configuration);
+    }
+
+    public ServiceInfoSnapshot(long creationTime, HostAndPort address, HostAndPort connectAddress, long connectedTime, ServiceLifeCycle lifeCycle, ProcessSnapshot processSnapshot, JsonDocument properties, ServiceConfiguration configuration) {
         this.creationTime = creationTime;
-        this.serviceId = serviceId;
         this.address = address;
+        this.connectAddress = connectAddress;
         this.connectedTime = connectedTime;
         this.lifeCycle = lifeCycle;
         this.processSnapshot = processSnapshot;
@@ -61,11 +67,15 @@ public class ServiceInfoSnapshot extends BasicJsonDocPropertyable implements INa
     }
 
     public ServiceId getServiceId() {
-        return this.serviceId;
+        return this.configuration.getServiceId();
     }
 
     public HostAndPort getAddress() {
         return this.address;
+    }
+
+    public HostAndPort getConnectAddress() {
+        return this.connectAddress;
     }
 
     public boolean isConnected() {
@@ -116,7 +126,7 @@ public class ServiceInfoSnapshot extends BasicJsonDocPropertyable implements INa
 
     @Override
     public String getName() {
-        return this.serviceId.getName();
+        return this.getServiceId().getName();
     }
 
     @Override
@@ -125,5 +135,31 @@ public class ServiceInfoSnapshot extends BasicJsonDocPropertyable implements INa
                 .compare(this.getServiceId().getTaskName(), serviceInfoSnapshot.getServiceId().getTaskName())
                 .compare(this.getServiceId().getTaskServiceId(), serviceInfoSnapshot.getServiceId().getTaskServiceId())
                 .result();
+    }
+
+    @Override
+    public void write(@NotNull ProtocolBuffer buffer) {
+        buffer.writeLong(this.creationTime);
+        buffer.writeObject(this.address);
+        buffer.writeObject(this.connectAddress);
+        buffer.writeLong(this.connectedTime);
+        buffer.writeEnumConstant(this.lifeCycle);
+        buffer.writeObject(this.processSnapshot);
+        buffer.writeObject(this.configuration);
+
+        super.write(buffer);
+    }
+
+    @Override
+    public void read(@NotNull ProtocolBuffer buffer) {
+        this.creationTime = buffer.readLong();
+        this.address = buffer.readObject(HostAndPort.class);
+        this.connectAddress = buffer.readObject(HostAndPort.class);
+        this.connectedTime = buffer.readLong();
+        this.lifeCycle = buffer.readEnumConstant(ServiceLifeCycle.class);
+        this.processSnapshot = buffer.readObject(ProcessSnapshot.class);
+        this.configuration = buffer.readObject(ServiceConfiguration.class);
+
+        super.read(buffer);
     }
 }

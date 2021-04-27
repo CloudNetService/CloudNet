@@ -1,6 +1,7 @@
 package eu.cloudnetservice.cloudnet.ext.labymod.node;
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.driver.module.ModuleLifeCycle;
 import de.dytanic.cloudnet.driver.module.ModuleTask;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
@@ -8,30 +9,60 @@ import de.dytanic.cloudnet.module.NodeCloudNetModule;
 import eu.cloudnetservice.cloudnet.ext.labymod.LabyModConstants;
 import eu.cloudnetservice.cloudnet.ext.labymod.config.DiscordJoinMatchConfig;
 import eu.cloudnetservice.cloudnet.ext.labymod.config.LabyModConfiguration;
+import eu.cloudnetservice.cloudnet.ext.labymod.config.LabyModPermissionConfig;
 import eu.cloudnetservice.cloudnet.ext.labymod.config.ServiceDisplay;
 import eu.cloudnetservice.cloudnet.ext.labymod.node.listener.IncludePluginListener;
 import eu.cloudnetservice.cloudnet.ext.labymod.node.listener.LabyModCustomChannelMessageListener;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class CloudNetLabyModModule extends NodeCloudNetModule {
+
+    private static final Map<String, Boolean> DEFAULT_LABY_MOD_PERMISSIONS = new HashMap<>();
+    private static final LabyModPermissionConfig LABY_MOD_PERMISSION_CONFIG = new LabyModPermissionConfig(false, DEFAULT_LABY_MOD_PERMISSIONS);
+
+    static {
+        DEFAULT_LABY_MOD_PERMISSIONS.put("IMPROVED_LAVA", false);
+        DEFAULT_LABY_MOD_PERMISSIONS.put("CROSSHAIR_SYNC", false);
+        DEFAULT_LABY_MOD_PERMISSIONS.put("REFILL_FIX", false);
+        DEFAULT_LABY_MOD_PERMISSIONS.put("GUI_ALL", true);
+        DEFAULT_LABY_MOD_PERMISSIONS.put("GUI_POTION_EFFECTS", true);
+        DEFAULT_LABY_MOD_PERMISSIONS.put("GUI_ARMOR_HUD", true);
+        DEFAULT_LABY_MOD_PERMISSIONS.put("GUI_ITEM_HUD", true);
+        DEFAULT_LABY_MOD_PERMISSIONS.put("BLOCKBUILD", true);
+        DEFAULT_LABY_MOD_PERMISSIONS.put("TAGS", true);
+        DEFAULT_LABY_MOD_PERMISSIONS.put("CHAT", true);
+        DEFAULT_LABY_MOD_PERMISSIONS.put("ANIMATIONS", true);
+        DEFAULT_LABY_MOD_PERMISSIONS.put("SATURATION_BAR", true);
+        DEFAULT_LABY_MOD_PERMISSIONS.put("RANGE", false);
+        DEFAULT_LABY_MOD_PERMISSIONS.put("SLOWDOWN", false);
+    }
 
     private LabyModConfiguration configuration;
 
     @ModuleTask(event = ModuleLifeCycle.STARTED)
     public void loadConfig() {
-        super.getModuleWrapper().getDataFolder().mkdirs();
+        FileUtils.createDirectoryReported(super.getModuleWrapper().getDataDirectory());
 
         JsonDocument previousConfig = super.getConfig().clone();
         this.configuration = super.getConfig().get("config", LabyModConfiguration.class, new LabyModConfiguration(
-                true,
+                false,
                 new ServiceDisplay(true, ServiceDisplay.DisplayType.SERVICE, "Playing on %display%"),
                 new DiscordJoinMatchConfig(true, new ArrayList<>()),
                 new ServiceDisplay(true, ServiceDisplay.DisplayType.TASK, "§bCloud§fNet §8➢ §e%display%"),
                 "mc.example.com",
                 true,
-                new ArrayList<>()
+                new ArrayList<>(),
+                LABY_MOD_PERMISSION_CONFIG
         ));
+
+        if (this.configuration.getPermissionConfig() == null) {
+            this.configuration.setPermissionConfig(LABY_MOD_PERMISSION_CONFIG);
+        }
+
+        super.getConfig().append("config", this.configuration);
 
         if (!previousConfig.equals(super.getConfig())) {
             super.saveConfig();

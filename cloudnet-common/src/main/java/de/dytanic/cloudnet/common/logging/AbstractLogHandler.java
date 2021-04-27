@@ -1,5 +1,7 @@
 package de.dytanic.cloudnet.common.logging;
 
+import org.jetbrains.annotations.NotNull;
+
 /**
  * This is a basic abstract implementation of the ILogHandler class.
  * It should help, to create a simple
@@ -11,17 +13,18 @@ public abstract class AbstractLogHandler implements ILogHandler {
      *
      * @see DefaultLogFormatter
      */
-    protected IFormatter formatter = new DefaultLogFormatter();
+    protected IFormatter formatter;
 
     public AbstractLogHandler() {
+        this(new DefaultLogFormatter());
     }
 
-    public AbstractLogHandler(IFormatter formatter) {
+    public AbstractLogHandler(@NotNull IFormatter formatter) {
         this.formatter = formatter;
     }
 
-    public IFormatter getFormatter() {
-        return formatter;
+    public @NotNull IFormatter getFormatter() {
+        return this.formatter;
     }
 
     /**
@@ -29,13 +32,12 @@ public abstract class AbstractLogHandler implements ILogHandler {
      *
      * @return the current instance of the AbstractLogHandler class
      */
-    public AbstractLogHandler setFormatter(IFormatter formatter) {
+    public @NotNull AbstractLogHandler setFormatter(@NotNull IFormatter formatter) {
         this.formatter = formatter;
         return this;
     }
 
     @Override
-    public void close() {
-
+    public void close() throws Exception {
     }
 }

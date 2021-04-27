@@ -6,6 +6,7 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -13,27 +14,16 @@ import java.util.stream.Collectors;
 
 public final class DefaultModuleProvider implements IModuleProvider {
 
-    protected Collection<DefaultModuleWrapper> moduleWrappers = new CopyOnWriteArrayList<>();
+    protected final Collection<DefaultModuleWrapper> moduleWrappers = new CopyOnWriteArrayList<>();
 
     protected IModuleProviderHandler moduleProviderHandler = new ModuleProviderHandlerAdapter();
-
     protected IModuleDependencyLoader moduleDependencyLoader = new DefaultMemoryModuleDependencyLoader();
 
-    private File moduleDirectory = new File("modules");
-
-    @Override
-    public File getModuleDirectory() {
-        return moduleDirectory;
-    }
-
-    @Override
-    public void setModuleDirectory(File moduleDirectory) {
-        this.moduleDirectory = Preconditions.checkNotNull(moduleDirectory);
-    }
+    private Path moduleDirectory = Paths.get("modules");
 
     @Override
     public Collection<IModuleWrapper> getModules() {
-        return Collections.unmodifiableCollection(moduleWrappers);
+        return Collections.unmodifiableCollection(this.moduleWrappers);
     }
 
     @Override
@@ -55,16 +45,13 @@ public final class DefaultModuleProvider implements IModuleProvider {
         Preconditions.checkNotNull(url);
 
         DefaultModuleWrapper moduleWrapper = null;
-
         if (this.moduleWrappers.stream().anyMatch(defaultModuleWrapper -> defaultModuleWrapper.getUrl().toString().equalsIgnoreCase(url.toString()))) {
             return null;
         }
 
         try {
-
             this.moduleWrappers.add(moduleWrapper = new DefaultModuleWrapper(this, url, this.moduleDirectory));
             moduleWrapper.loadModule();
-
         } catch (Throwable throwable) {
             throwable.printStackTrace();
 
@@ -80,7 +67,7 @@ public final class DefaultModuleProvider implements IModuleProvider {
     public IModuleWrapper loadModule(File file) {
         Preconditions.checkNotNull(file);
 
-        return loadModule(file.toPath());
+        return this.loadModule(file.toPath());
     }
 
     @Override
@@ -88,7 +75,7 @@ public final class DefaultModuleProvider implements IModuleProvider {
         Preconditions.checkNotNull(path);
 
         try {
-            return loadModule(path.toUri().toURL());
+            return this.loadModule(path.toUri().toURL());
         } catch (MalformedURLException exception) {
             exception.printStackTrace();
         }
@@ -101,7 +88,7 @@ public final class DefaultModuleProvider implements IModuleProvider {
         Preconditions.checkNotNull(urls);
 
         for (URL url : urls) {
-            loadModule(url);
+            this.loadModule(url);
         }
 
         return this;
@@ -112,7 +99,7 @@ public final class DefaultModuleProvider implements IModuleProvider {
         Preconditions.checkNotNull(files);
 
         for (File file : files) {
-            loadModule(file);
+            this.loadModule(file);
         }
 
         return this;
@@ -123,7 +110,7 @@ public final class DefaultModuleProvider implements IModuleProvider {
         Preconditions.checkNotNull(paths);
 
         for (Path path : paths) {
-            loadModule(path);
+            this.loadModule(path);
         }
 
         return this;
@@ -154,6 +141,16 @@ public final class DefaultModuleProvider implements IModuleProvider {
         }
 
         return this;
+    }
+
+    @Override
+    public Path getModuleDirectoryPath() {
+        return this.moduleDirectory;
+    }
+
+    @Override
+    public void setModuleDirectoryPath(Path moduleDirectory) {
+        this.moduleDirectory = Preconditions.checkNotNull(moduleDirectory);
     }
 
     public IModuleProviderHandler getModuleProviderHandler() {

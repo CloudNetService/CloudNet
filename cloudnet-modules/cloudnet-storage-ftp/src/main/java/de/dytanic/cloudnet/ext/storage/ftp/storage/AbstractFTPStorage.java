@@ -1,6 +1,5 @@
 package de.dytanic.cloudnet.ext.storage.ftp.storage;
 
-
 import de.dytanic.cloudnet.ext.storage.ftp.client.FTPCredentials;
 import de.dytanic.cloudnet.ext.storage.ftp.client.FTPType;
 import de.dytanic.cloudnet.template.ITemplateStorage;
@@ -8,9 +7,9 @@ import de.dytanic.cloudnet.template.ITemplateStorage;
 public abstract class AbstractFTPStorage implements ITemplateStorage {
 
     private final String name;
-    protected FTPCredentials credentials;
-    protected FTPType ftpType;
-    protected String baseDirectory;
+    protected final FTPCredentials credentials;
+    protected final FTPType ftpType;
+    protected final String baseDirectory;
 
     AbstractFTPStorage(String name, FTPCredentials credentials, FTPType ftpType) {
         this.name = name;
@@ -30,19 +29,19 @@ public abstract class AbstractFTPStorage implements ITemplateStorage {
 
     @Override
     public String getName() {
-        return name;
+        return this.name;
     }
 
     public FTPCredentials getCredentials() {
-        return credentials;
+        return this.credentials;
     }
 
     public FTPType getFtpType() {
-        return ftpType;
+        return this.ftpType;
     }
 
     public String getBaseDirectory() {
-        return baseDirectory;
+        return this.baseDirectory;
     }
 
 }

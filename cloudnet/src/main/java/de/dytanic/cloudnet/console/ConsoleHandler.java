@@ -1,15 +1,18 @@
 package de.dytanic.cloudnet.console;
 
+import org.jetbrains.annotations.NotNull;
+
 public class ConsoleHandler<H> {
+
     private boolean enabled;
     private final H handler;
 
-    public ConsoleHandler(boolean enabled, H handler) {
+    public ConsoleHandler(boolean enabled, @NotNull H handler) {
         this.enabled = enabled;
         this.handler = handler;
     }
 
-    public ConsoleHandler(H handler) {
+    public ConsoleHandler(@NotNull H handler) {
         this(true, handler);
     }
 
@@ -21,7 +24,7 @@ public class ConsoleHandler<H> {
         this.enabled = enabled;
     }
 
-    public H getHandler() {
+    public @NotNull H getHandler() {
         return this.handler;
     }
 }

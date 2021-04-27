@@ -1,77 +1,51 @@
 package de.dytanic.cloudnet.network.listener;
 
-import de.dytanic.cloudnet.CloudNet;
+import de.dytanic.cloudnet.common.concurrent.CompletedTask;
+import de.dytanic.cloudnet.common.concurrent.ITask;
+import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
-import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
+import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
-import de.dytanic.cloudnet.driver.network.def.packet.PacketClientServerChannelMessage;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.network.protocol.IPacketListener;
-import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
-import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
-import de.dytanic.cloudnet.driver.service.ServiceTask;
-import de.dytanic.cloudnet.service.ICloudService;
+import de.dytanic.cloudnet.driver.network.protocol.Packet;
+import de.dytanic.cloudnet.driver.provider.CloudMessenger;
+import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
+import de.dytanic.cloudnet.provider.NodeMessenger;
 
-import java.util.UUID;
+import java.util.Collection;
 
 public final class PacketServerChannelMessageListener implements IPacketListener {
 
+    private final boolean redirectToCluster;
+
+    public PacketServerChannelMessageListener(boolean redirectToCluster) {
+        this.redirectToCluster = redirectToCluster;
+    }
+
     @Override
     public void handle(INetworkChannel channel, IPacket packet) {
-        if (packet.getHeader().contains("channel") && packet.getHeader().contains("message") && packet.getHeader().contains("data")) {
-            if (packet.getHeader().contains("uniqueId")) { //this is sent by both the nodes and services
-                UUID uniqueId = packet.getHeader().get("uniqueId", UUID.class);
-                if (uniqueId != null) {
-                    ServiceInfoSnapshot serviceInfoSnapshot = CloudNet.getInstance().getCloudServiceProvider().getCloudService(uniqueId);
-                    if (serviceInfoSnapshot != null) {
-                        CloudNet.getInstance().getMessenger().sendChannelMessage(
-                                serviceInfoSnapshot,
-                                packet.getHeader().getString("channel"),
-                                packet.getHeader().getString("message"),
-                                packet.getHeader().getDocument("data")
-                        );
-                    }
-                }
-            } else if (packet.getHeader().contains("task")) { //this is only sent by the services
-                ServiceTask serviceTask = CloudNet.getInstance().getServiceTaskProvider().getServiceTask(packet.getHeader().getString("task"));
-                if (serviceTask != null) {
-                    CloudNet.getInstance().getMessenger().sendChannelMessage(
-                            serviceTask,
-                            packet.getHeader().getString("channel"),
-                            packet.getHeader().getString("message"),
-                            packet.getHeader().getDocument("data")
-                    );
-                }
-            } else if (packet.getHeader().contains("environment")) { //this is only sent by the services
-                ServiceEnvironmentType environment = packet.getHeader().get("environment", ServiceEnvironmentType.class);
-                if (environment != null) {
-                    CloudNet.getInstance().getMessenger().sendChannelMessage(
-                            environment,
-                            packet.getHeader().getString("channel"),
-                            packet.getHeader().getString("message"),
-                            packet.getHeader().getDocument("data")
-                    );
-                }
-            } else { //this can be called from both the nodes and services
-                IPacket response = new PacketClientServerChannelMessage(
-                        packet.getHeader().getString("channel"),
-                        packet.getHeader().getString("message"),
-                        packet.getHeader().getDocument("data")
-                );
-                for (ICloudService cloudService : CloudNet.getInstance().getCloudServiceManager().getCloudServices().values()) {
-                    if (cloudService.getNetworkChannel() != null) {
-                        cloudService.getNetworkChannel().sendPacket(response);
-                    }
-                }
+        ChannelMessage message = packet.getBuffer().readObject(ChannelMessage.class);
+        boolean query = packet.getBuffer().readBoolean();
 
-                CloudNetDriver.getInstance().getEventManager().callEvent(
-                        new ChannelMessageReceiveEvent(
-                                packet.getHeader().getString("channel"),
-                                packet.getHeader().getString("message"),
-                                packet.getHeader().getDocument("data")
-                        )
-                );
+        CloudMessenger messenger = CloudNetDriver.getInstance().getMessenger();
+
+        this.redirectMessage(messenger, message, query).onComplete(response -> {
+            if (response != null) {
+                channel.sendPacket(new Packet(-1, packet.getUniqueId(), JsonDocument.EMPTY, ProtocolBuffer.create().writeObjectCollection(response)));
             }
+        });
+    }
+
+    private ITask<Collection<ChannelMessage>> redirectMessage(CloudMessenger messenger, ChannelMessage message, boolean query) {
+        NodeMessenger nodeMessenger = (NodeMessenger) messenger;
+
+        if (query) {
+            return nodeMessenger.sendChannelMessageQueryAsync(message, !this.redirectToCluster);
+        } else {
+            nodeMessenger.sendChannelMessage(message, !this.redirectToCluster);
+            return CompletedTask.create(null);
         }
     }
+
 }

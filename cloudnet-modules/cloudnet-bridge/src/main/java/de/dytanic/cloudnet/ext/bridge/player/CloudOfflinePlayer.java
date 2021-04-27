@@ -2,8 +2,9 @@ package de.dytanic.cloudnet.ext.bridge.player;
 
 import com.google.common.base.Preconditions;
 import com.google.gson.reflect.TypeToken;
-import de.dytanic.cloudnet.common.document.gson.BasicJsonDocPropertyable;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
+import de.dytanic.cloudnet.driver.serialization.json.SerializableJsonDocPropertyable;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.jetbrains.annotations.NotNull;
@@ -13,7 +14,7 @@ import java.util.UUID;
 
 @ToString
 @EqualsAndHashCode(callSuper = false)
-public class CloudOfflinePlayer extends BasicJsonDocPropertyable implements ICloudOfflinePlayer {
+public class CloudOfflinePlayer extends SerializableJsonDocPropertyable implements ICloudOfflinePlayer {
 
     public static final Type TYPE = new TypeToken<CloudOfflinePlayer>() {
     }.getType();
@@ -108,6 +109,30 @@ public class CloudOfflinePlayer extends BasicJsonDocPropertyable implements IClo
 
     public void setLastNetworkConnectionInfo(@NotNull NetworkConnectionInfo lastNetworkConnectionInfo) {
         this.lastNetworkConnectionInfo = lastNetworkConnectionInfo;
+    }
+
+    @Override
+    public void write(@NotNull ProtocolBuffer buffer) {
+        buffer.writeUUID(this.uniqueId);
+        buffer.writeString(this.name);
+        buffer.writeOptionalString(this.xBoxId);
+        buffer.writeLong(this.firstLoginTimeMillis);
+        buffer.writeLong(this.lastLoginTimeMillis);
+        buffer.writeObject(this.lastNetworkConnectionInfo);
+
+        super.write(buffer);
+    }
+
+    @Override
+    public void read(@NotNull ProtocolBuffer buffer) {
+        this.uniqueId = buffer.readUUID();
+        this.name = buffer.readString();
+        this.xBoxId = buffer.readOptionalString();
+        this.firstLoginTimeMillis = buffer.readLong();
+        this.lastLoginTimeMillis = buffer.readLong();
+        this.lastNetworkConnectionInfo = buffer.readObject(NetworkConnectionInfo.class);
+
+        super.read(buffer);
     }
 
 }

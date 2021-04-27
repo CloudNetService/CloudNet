@@ -1,31 +1,33 @@
 package de.dytanic.cloudnet.database.h2;
 
 import com.google.common.base.Preconditions;
-import de.dytanic.cloudnet.common.collection.NetorHashMap;
-import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.concurrent.IThrowableCallback;
+import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.database.sql.SQLDatabaseProvider;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import org.h2.Driver;
 
-import java.io.File;
-import java.sql.*;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Map;
 import java.util.concurrent.ExecutorService;
 
 public final class H2DatabaseProvider extends SQLDatabaseProvider {
 
-    private static final long NEW_CREATION_DELAY = 600000;
+    private static final long NEW_CREATION_DELAY = 600_000;
 
     static {
         Driver.load();
     }
 
-    protected final NetorHashMap<String, Long, H2Database> cachedDatabaseInstances = new NetorHashMap<>();
-    protected final File h2dbFile;
+    protected final Path h2dbFile;
     protected final boolean runsInCluster;
     protected Connection connection;
 
@@ -35,14 +37,14 @@ public final class H2DatabaseProvider extends SQLDatabaseProvider {
 
     public H2DatabaseProvider(String h2File, boolean runsInCluster, ExecutorService executorService) {
         super(executorService);
-        this.h2dbFile = new File(h2File);
+        this.h2dbFile = Paths.get(h2File);
         this.runsInCluster = runsInCluster;
     }
 
     @Override
     public boolean init() throws Exception {
-        this.h2dbFile.getParentFile().mkdirs();
-        this.connection = DriverManager.getConnection("jdbc:h2:" + this.h2dbFile.getAbsolutePath());
+        FileUtils.createDirectoryReported(this.h2dbFile.getParent());
+        this.connection = DriverManager.getConnection("jdbc:h2:" + this.h2dbFile.toAbsolutePath());
 
         if (this.runsInCluster) {
             CloudNetDriver.getInstance().getLogger().warning("============================================");
@@ -67,31 +69,20 @@ public final class H2DatabaseProvider extends SQLDatabaseProvider {
             this.cachedDatabaseInstances.add(name, System.currentTimeMillis() + NEW_CREATION_DELAY, new H2Database(this, name, super.executorService));
         }
 
-        return this.cachedDatabaseInstances.getSecond(name);
-    }
-
-    @Override
-    public boolean containsDatabase(String name) {
-        Preconditions.checkNotNull(name);
-
-        this.removedOutdatedEntries();
-
-        for (String database : this.getDatabaseNames()) {
-            if (database.equalsIgnoreCase(name)) {
-                return true;
-            }
-        }
-
-        return false;
+        return (H2Database) this.cachedDatabaseInstances.getSecond(name);
     }
 
     @Override
     public boolean deleteDatabase(String name) {
         Preconditions.checkNotNull(name);
 
+        if (!this.containsDatabase(name)) {
+            return false;
+        }
+
         this.cachedDatabaseInstances.remove(name);
 
-        try (PreparedStatement preparedStatement = this.connection.prepareStatement("DROP TABLE " + name)) {
+        try (PreparedStatement preparedStatement = this.connection.prepareStatement("DROP TABLE IF EXISTS `" + name + "`")) {
             return preparedStatement.executeUpdate() != -1;
         } catch (SQLException exception) {
             exception.printStackTrace();
@@ -126,14 +117,6 @@ public final class H2DatabaseProvider extends SQLDatabaseProvider {
 
         if (this.connection != null) {
             this.connection.close();
-        }
-    }
-
-    private void removedOutdatedEntries() {
-        for (Map.Entry<String, Pair<Long, H2Database>> entry : this.cachedDatabaseInstances.entrySet()) {
-            if (entry.getValue().getFirst() < System.currentTimeMillis()) {
-                this.cachedDatabaseInstances.remove(entry.getKey());
-            }
         }
     }
 

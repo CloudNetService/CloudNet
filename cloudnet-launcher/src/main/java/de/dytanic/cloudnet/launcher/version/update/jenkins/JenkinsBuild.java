@@ -15,11 +15,11 @@ public class JenkinsBuild {
     }
 
     public List<BuildArtifact> getArtifacts() {
-        return artifacts;
+        return this.artifacts;
     }
 
     public long getTimestamp() {
-        return timestamp;
+        return this.timestamp;
     }
 
     public static class BuildArtifact {
@@ -34,11 +34,11 @@ public class JenkinsBuild {
         }
 
         public String getFileName() {
-            return fileName;
+            return this.fileName;
         }
 
         public String getRelativePath() {
-            return relativePath;
+            return this.relativePath;
         }
 
     }

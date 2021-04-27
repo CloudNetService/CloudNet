@@ -16,7 +16,10 @@ import de.dytanic.cloudnet.ext.signs.node.CloudNetSignsModule;
 
 import java.util.stream.Collectors;
 
-import static de.dytanic.cloudnet.command.sub.SubCommandArgumentTypes.*;
+import static de.dytanic.cloudnet.command.sub.SubCommandArgumentTypes.anyStringIgnoreCase;
+import static de.dytanic.cloudnet.command.sub.SubCommandArgumentTypes.dynamicString;
+import static de.dytanic.cloudnet.command.sub.SubCommandArgumentTypes.exactEnum;
+import static de.dytanic.cloudnet.command.sub.SubCommandArgumentTypes.exactStringIgnoreCase;
 
 public final class CommandSigns extends SubCommandHandler {
 
@@ -27,7 +30,7 @@ public final class CommandSigns extends SubCommandHandler {
                         .generateCommand(
                                 (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
                                     CloudNetSignsModule.getInstance().setSignConfiguration(SignConfigurationReaderAndWriter.read(
-                                            CloudNetSignsModule.getInstance().getConfigurationFile()
+                                            CloudNetSignsModule.getInstance().getConfigurationFilePath()
                                     ));
 
                                     CloudNetDriver.getInstance().getMessenger().sendChannelMessage(
@@ -49,7 +52,7 @@ public final class CommandSigns extends SubCommandHandler {
                                     SignConfiguration signConfiguration = CloudNetSignsModule.getInstance().getSignConfiguration();
 
                                     signConfiguration.getConfigurations().add(signConfigurationEntryType.createEntry(targetGroup));
-                                    SignConfigurationReaderAndWriter.write(signConfiguration, CloudNetSignsModule.getInstance().getConfigurationFile());
+                                    SignConfigurationReaderAndWriter.write(signConfiguration, CloudNetSignsModule.getInstance().getConfigurationFilePath());
 
                                     sender.sendMessage(LanguageManager.getMessage("module-signs-command-create-entry-success"));
                                 },

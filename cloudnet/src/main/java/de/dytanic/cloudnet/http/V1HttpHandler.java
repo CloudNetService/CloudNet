@@ -90,7 +90,7 @@ public abstract class V1HttpHandler extends MethodHttpHandlerAdapter {
 
     protected boolean checkPermission(IHttpContext context, String permission) {
         try {
-            if (!permission.isEmpty() && !getCloudNet().getPermissionManagement().hasPermission(HTTP_SESSION.getUser(context), new Permission(permission, 1))) {
+            if (!permission.isEmpty() && !this.getCloudNet().getPermissionManagement().hasPermission(HTTP_SESSION.getUser(context), new Permission(permission, 1))) {
                 this.send403Response(context, "permission required " + permission);
                 return false;
             }

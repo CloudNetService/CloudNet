@@ -22,6 +22,23 @@ public interface SpecificCloudServiceProvider {
     ServiceInfoSnapshot getServiceInfoSnapshot();
 
     /**
+     * Checks whether the service info on this provider is available or not.
+     *
+     * @return {@code true} if it is or {@code false} if not
+     */
+    boolean isValid();
+
+    /**
+     * Forces this service to update its {@link ServiceInfoSnapshot}, instead of {@link #getServiceInfoSnapshot()}, this method
+     * always returns the current snapshot with the current e.g. CPU and memory usage.
+     *
+     * @return the current info or {@code null} if the service is not connected
+     * @throws IllegalArgumentException if no uniqueId/name/serviceInfo was given on creating this provider
+     */
+    @Nullable
+    ServiceInfoSnapshot forceUpdateServiceInfo();
+
+    /**
      * Adds a service template to this service. This template won't be copied directly after adding it but when the service is prepared.
      *
      * @param serviceTemplate the template to be added to the list of templates of this service
@@ -137,6 +154,24 @@ public interface SpecificCloudServiceProvider {
      */
     @NotNull
     ITask<ServiceInfoSnapshot> getServiceInfoSnapshotAsync();
+
+    /**
+     * Checks whether the service info on this provider is available or not.
+     *
+     * @return {@code true} if it is or {@code false} if not
+     */
+    @NotNull
+    ITask<Boolean> isValidAsync();
+
+    /**
+     * Forces this service to update its {@link ServiceInfoSnapshot}, instead of {@link #getServiceInfoSnapshot()}, this method
+     * always returns the current snapshot with the current e.g. CPU and memory usage.
+     *
+     * @return the current info or {@code null} if the service is not connected
+     * @throws IllegalArgumentException if no uniqueId/name/serviceInfo was given on creating this provider
+     */
+    @NotNull
+    ITask<ServiceInfoSnapshot> forceUpdateServiceInfoAsync();
 
     /**
      * Adds a service template to this service. This template won't be copied directly after adding it but when the service is prepared

@@ -1,35 +1,28 @@
 package de.dytanic.cloudnet.ext.bridge.nukkit.event;
 
 import cn.nukkit.event.HandlerList;
-import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
+import de.dytanic.cloudnet.ext.bridge.WrappedChannelMessageReceiveEvent;
 
-public final class NukkitChannelMessageReceiveEvent extends NukkitCloudNetEvent {
+/**
+ * {@inheritDoc}
+ */
+public final class NukkitChannelMessageReceiveEvent extends NukkitCloudNetEvent implements WrappedChannelMessageReceiveEvent {
 
     private static final HandlerList handlers = new HandlerList();
 
-    private final String channel, message;
+    private final ChannelMessageReceiveEvent event;
 
-    private final JsonDocument data;
+    public NukkitChannelMessageReceiveEvent(ChannelMessageReceiveEvent event) {
+        this.event = event;
+    }
 
-    public NukkitChannelMessageReceiveEvent(String channel, String message, JsonDocument data) {
-        this.channel = channel;
-        this.message = message;
-        this.data = data;
+    @Override
+    public ChannelMessageReceiveEvent getWrapped() {
+        return this.event;
     }
 
     public static HandlerList getHandlers() {
         return NukkitChannelMessageReceiveEvent.handlers;
-    }
-
-    public String getChannel() {
-        return this.channel;
-    }
-
-    public String getMessage() {
-        return this.message;
-    }
-
-    public JsonDocument getData() {
-        return this.data;
     }
 }

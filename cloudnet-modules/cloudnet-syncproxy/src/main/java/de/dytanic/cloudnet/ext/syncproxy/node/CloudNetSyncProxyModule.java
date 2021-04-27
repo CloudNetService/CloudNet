@@ -12,14 +12,14 @@ import de.dytanic.cloudnet.ext.syncproxy.node.listener.SyncProxyDefaultConfigura
 import de.dytanic.cloudnet.module.NodeCloudNetModule;
 
 import java.io.File;
+import java.nio.file.Path;
 
 public final class CloudNetSyncProxyModule extends NodeCloudNetModule {
 
     private static CloudNetSyncProxyModule instance;
 
+    private Path configurationFilePath;
     private SyncProxyConfiguration syncProxyConfiguration;
-
-    private File configurationFile;
 
     public CloudNetSyncProxyModule() {
         instance = this;
@@ -31,23 +31,23 @@ public final class CloudNetSyncProxyModule extends NodeCloudNetModule {
 
     @ModuleTask(order = 127, event = ModuleLifeCycle.STARTED)
     public void createConfigurationOrUpdate() {
-        configurationFile = new File(getModuleWrapper().getDataFolder(), "config.json");
-        syncProxyConfiguration = SyncProxyConfigurationWriterAndReader.read(configurationFile);
+        this.configurationFilePath = this.getModuleWrapper().getDataDirectory().resolve("config.json");
+        this.syncProxyConfiguration = SyncProxyConfigurationWriterAndReader.read(this.configurationFilePath);
     }
 
     @ModuleTask(order = 64, event = ModuleLifeCycle.STARTED)
     public void initListeners() {
-        registerListeners(new IncludePluginListener(), new SyncProxyConfigUpdateListener(), new SyncProxyDefaultConfigurationListener());
+        this.registerListeners(new IncludePluginListener(), new SyncProxyConfigUpdateListener(), new SyncProxyDefaultConfigurationListener());
     }
 
     @ModuleTask(order = 60, event = ModuleLifeCycle.STARTED)
     public void registerCommands() {
-        registerCommand(new CommandSyncProxy());
+        this.registerCommand(new CommandSyncProxy());
     }
 
     @ModuleTask(order = 35, event = ModuleLifeCycle.STARTED)
     public void registerHttpHandlers() {
-        getCloudNet().getHttpServer().registerHandler("/api/v1/modules/syncproxy/config",
+        this.getCloudNet().getHttpServer().registerHandler("/api/v1/modules/syncproxy/config",
                 new V1SyncProxyConfigurationHttpHandler("cloudnet.http.v1.modules.syncproxy.config"));
     }
 
@@ -59,7 +59,12 @@ public final class CloudNetSyncProxyModule extends NodeCloudNetModule {
         this.syncProxyConfiguration = syncProxyConfiguration;
     }
 
+    @Deprecated
     public File getConfigurationFile() {
-        return this.configurationFile;
+        return this.configurationFilePath.toFile();
+    }
+
+    public Path getConfigurationFilePath() {
+        return configurationFilePath;
     }
 }

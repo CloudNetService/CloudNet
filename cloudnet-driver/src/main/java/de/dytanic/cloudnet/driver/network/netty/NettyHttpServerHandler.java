@@ -1,13 +1,20 @@
 package de.dytanic.cloudnet.driver.network.netty;
 
 import de.dytanic.cloudnet.driver.network.HostAndPort;
-import io.netty.channel.*;
-import io.netty.handler.codec.DecoderResult;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.HttpRequest;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 final class NettyHttpServerHandler extends SimpleChannelInboundHandler<HttpRequest> {
 
@@ -24,7 +31,7 @@ final class NettyHttpServerHandler extends SimpleChannelInboundHandler<HttpReque
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
-        this.channel = new NettyHttpChannel(ctx.channel(), connectedAddress, new HostAndPort(ctx.channel().remoteAddress()));
+        this.channel = new NettyHttpChannel(ctx.channel(), this.connectedAddress, HostAndPort.fromSocketAddress(ctx.channel().remoteAddress()));
     }
 
     @Override
@@ -48,7 +55,7 @@ final class NettyHttpServerHandler extends SimpleChannelInboundHandler<HttpReque
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, HttpRequest msg) {
-        if (msg.decoderResult() != DecoderResult.SUCCESS) {
+        if (msg.decoderResult().isFailure()) {
             ctx.channel().close();
             return;
         }
@@ -100,7 +107,7 @@ final class NettyHttpServerHandler extends SimpleChannelInboundHandler<HttpReque
 
     private boolean handleMessage0(NettyHttpServer.HttpHandlerEntry httpHandlerEntry, NettyHttpServerContext context,
                                    Map<String, String> pathParameters, String fullPath, String[] pathEntries, String[] handlerPathEntries) {
-        if (httpHandlerEntry.port != null && httpHandlerEntry.port != connectedAddress.getPort()) {
+        if (httpHandlerEntry.port != null && httpHandlerEntry.port != this.connectedAddress.getPort()) {
             return false;
         }
 

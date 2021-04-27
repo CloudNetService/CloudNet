@@ -1,8 +1,12 @@
 package de.dytanic.cloudnet.ext.syncproxy.bungee.util;
 
-
 import com.google.common.base.Preconditions;
-import net.md_5.bungee.api.*;
+import net.md_5.bungee.api.Callback;
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.ServerConnectRequest;
+import net.md_5.bungee.api.SkinConfiguration;
+import net.md_5.bungee.api.Title;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.PendingConnection;
@@ -14,14 +18,30 @@ import net.md_5.bungee.api.score.Scoreboard;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Locale;
+import java.util.Map;
+import java.util.UUID;
 
 public class LoginProxiedPlayer implements ProxiedPlayer {
 
     private final PendingConnection connection;
 
+    private final Collection<String> permissions = new ArrayList<>();
+
+    private final Collection<String> groups = new ArrayList<>();
+
     public LoginProxiedPlayer(PendingConnection connection) {
         this.connection = connection;
+
+        this.groups.addAll(ProxyServer.getInstance().getConfigurationAdapter().getGroups(connection.getName()));
+
+        for (String group : this.groups) {
+            for (String permission : ProxyServer.getInstance().getConfigurationAdapter().getPermissions(group)) {
+                this.setPermission(permission, true);
+            }
+        }
     }
 
     @Override
@@ -41,6 +61,16 @@ public class LoginProxiedPlayer implements ProxiedPlayer {
 
     @Override
     public void sendMessage(ChatMessageType position, BaseComponent message) {
+
+    }
+
+    @Override
+    public void sendMessage(UUID sender, BaseComponent... message) {
+
+    }
+
+    @Override
+    public void sendMessage(UUID sender, BaseComponent message) {
 
     }
 
@@ -206,7 +236,7 @@ public class LoginProxiedPlayer implements ProxiedPlayer {
 
     @Override
     public Collection<String> getGroups() {
-        return Collections.emptyList();
+        return this.groups;
     }
 
     @Override
@@ -226,21 +256,28 @@ public class LoginProxiedPlayer implements ProxiedPlayer {
         return ProxyServer.getInstance().getPluginManager().callEvent(new PermissionCheckEvent(
                 this,
                 permission,
-                false
+                this.permissions.contains(permission.toLowerCase())
         )).hasPermission();
     }
 
     @Override
     public void setPermission(String permission, boolean value) {
+        Preconditions.checkNotNull(permission);
 
+        if (value) {
+            this.permissions.add(permission.toLowerCase());
+        } else {
+            this.permissions.remove(permission.toLowerCase());
+        }
     }
 
     @Override
     public Collection<String> getPermissions() {
-        return Collections.emptyList();
+        return this.permissions;
     }
 
     @Override
+    @Deprecated
     public InetSocketAddress getAddress() {
         return this.connection.getAddress();
     }

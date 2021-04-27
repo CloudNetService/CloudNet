@@ -1,19 +1,29 @@
 package de.dytanic.cloudnet.common.io;
 
+import com.google.common.collect.ImmutableMap;
 import de.dytanic.cloudnet.common.concurrent.IVoidThrowableCallback;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.DirectoryStream;
 import java.nio.file.FileSystem;
-import java.nio.file.*;
+import java.nio.file.FileSystems;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.EnumSet;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import java.util.function.Predicate;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
@@ -26,14 +36,10 @@ import java.util.zip.ZipOutputStream;
  * <li>Zip IO</li>
  * </ol>
  */
+@ApiStatus.Internal
 public final class FileUtils {
 
-    private static final Map<String, String> zipFileSystemProperties = new HashMap<>();
-
-    static {
-        zipFileSystemProperties.put("create", "false");
-        zipFileSystemProperties.put("encoding", "UTF-8");
-    }
+    private static final Map<String, String> ZIP_FILE_SYSTEM_PROPERTIES = ImmutableMap.of("create", "false", "encoding", "UTF-8");
 
     private FileUtils() {
         throw new UnsupportedOperationException();
@@ -50,9 +56,7 @@ public final class FileUtils {
 
         try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
             copy(inputStream, byteArrayOutputStream, buffer);
-
             return byteArrayOutputStream.toByteArray();
-
         } catch (IOException exception) {
             exception.printStackTrace();
         }
@@ -60,19 +64,11 @@ public final class FileUtils {
         return null;
     }
 
-    public static void openZipFileSystem(File file,
-                                         IVoidThrowableCallback<FileSystem> consumer) {
-        openZipFileSystem(file.toPath(), consumer);
-    }
-
-    public static void openZipFileSystem(Path path,
-                                         IVoidThrowableCallback<FileSystem> consumer) {
-        try (FileSystem fileSystem = FileSystems
-                .newFileSystem(URI.create("jar:" + path.toUri()),
-                        zipFileSystemProperties)) {
+    public static void openZipFileSystem(Path path, IVoidThrowableCallback<FileSystem> consumer) {
+        try (FileSystem fileSystem = FileSystems.newFileSystem(URI.create("jar:" + path.toUri()), ZIP_FILE_SYSTEM_PROPERTIES)) {
             consumer.call(fileSystem);
-        } catch (Throwable e) {
-            e.printStackTrace();
+        } catch (Throwable throwable) {
+            throwable.printStackTrace();
         }
     }
 
@@ -80,15 +76,12 @@ public final class FileUtils {
         copy(inputStream, outputStream, new byte[8192]);
     }
 
-    public static void copy(InputStream inputStream, OutputStream outputStream,
-                            byte[] buffer) throws IOException {
+    public static void copy(InputStream inputStream, OutputStream outputStream, byte[] buffer) throws IOException {
         copy(inputStream, outputStream, buffer, null);
     }
 
-    public static void copy(InputStream inputStream, OutputStream outputStream,
-                            byte[] buffer, Consumer<Integer> lengthInputListener) throws IOException {
+    public static void copy(InputStream inputStream, OutputStream outputStream, byte[] buffer, Consumer<Integer> lengthInputListener) throws IOException {
         int len;
-
         while ((len = inputStream.read(buffer, 0, buffer.length)) != -1) {
             if (lengthInputListener != null) {
                 lengthInputListener.accept(len);
@@ -99,128 +92,61 @@ public final class FileUtils {
         }
     }
 
-    public static void copy(File from, File to) throws IOException {
-        copy(from.toPath(), to.toPath());
-    }
-
-    public static void copy(File from, File to, byte[] buffer)
-            throws IOException {
-        copy(from.toPath(), to.toPath(), buffer);
-    }
-
     public static void copy(Path from, Path to) throws IOException {
         copy(from, to, new byte[8192]);
     }
 
-    public static void copy(Path from, Path to, byte[] buffer)
-            throws IOException {
+    public static void copy(Path from, Path to, byte[] buffer) throws IOException {
         if (from == null || to == null || !Files.exists(from)) {
             return;
         }
 
-        if (!Files.exists(to)) {
-            to.toFile().getParentFile().mkdirs();
-            to.toFile().delete();
-
-            Files.createFile(to);
+        if (Files.notExists(to)) {
+            createDirectoryReported(to.getParent());
         }
 
-        try (InputStream inputStream = Files
-                .newInputStream(from); OutputStream outputStream = Files
-                .newOutputStream(to)) {
-            copy(inputStream, outputStream, buffer);
+        try (InputStream stream = Files.newInputStream(from); OutputStream target = Files.newOutputStream(to)) {
+            copy(stream, target, buffer);
         }
     }
 
-    public static void copyFilesToDirectory(File from, File to)
-            throws IOException {
-        copyFilesToDirectory(from, to, new byte[16384]);
-    }
-
-    public static void copyFilesToDirectory(File from, File to, Predicate<File> fileFilter)
-            throws IOException {
-        copyFilesToDirectory(from, to, new byte[16384], fileFilter);
-    }
-
-    public static void copyFilesToDirectory(File from, File to, byte[] buffer)
-            throws IOException {
-        copyFilesToDirectory(from, to, buffer, null);
-    }
-
-    public static void copyFilesToDirectory(File from, File to, byte[] buffer, Predicate<File> fileFilter)
-            throws IOException {
-        if (to == null || from == null || !from.exists()) {
-            return;
-        }
-
-        if (from.isDirectory()) {
-            to.mkdirs();
-
-            File[] list = from.listFiles();
-
-            if (list != null && list.length > 0) {
-                for (File file : list) {
-
-                    if (file != null && (fileFilter == null || fileFilter.test(file))) {
-                        if (file.isDirectory()) {
-                            copyFilesToDirectory(file,
-                                    new File(to.getAbsolutePath() + "/" + file.getName()));
-                        } else {
-                            copy(file.toPath(),
-                                    Paths.get(to.getAbsolutePath() + "/" + file.getName()), buffer);
-                        }
-                    }
-
+    public static void copyFilesToDirectory(Path from, Path to) {
+        walkFileTree(from, (root, current) -> {
+            if (!Files.isDirectory(current)) {
+                try {
+                    FileUtils.copy(current, to.resolve(from.relativize(current)));
+                } catch (IOException exception) {
+                    exception.printStackTrace();
                 }
             }
+        });
+    }
+
+    public static void copyFilesToDirectory(Path from, Path to, DirectoryStream.Filter<Path> filter) {
+        if (filter == null) {
+            copyFilesToDirectory(from, to);
         } else {
-            copy(from.toPath(),
-                    Paths.get(to.getAbsolutePath() + "/" + from.getName()), buffer);
+            walkFileTree(from, (root, current) -> {
+                if (!Files.isDirectory(current)) {
+                    try {
+                        FileUtils.copy(current, to.resolve(from.relativize(current)));
+                    } catch (IOException exception) {
+                        exception.printStackTrace();
+                    }
+                }
+            }, true, filter);
         }
     }
 
-    public static void delete(File file) {
-        if (file == null || !file.exists()) {
+    public static void delete(Path file) {
+        if (file == null || Files.notExists(file)) {
             return;
         }
 
-        if (file.isDirectory()) {
-            File[] files = file.listFiles();
-
-            if (files != null) {
-                for (File entry : files) {
-                    if (entry.isDirectory()) {
-                        delete(entry);
-                    } else {
-                        entry.delete();
-                    }
-                }
-            }
+        if (Files.isDirectory(file)) {
+            walkFileTree(file, (root, current) -> FileUtils.deleteFileReported(current));
         }
-
-        file.delete();
-    }
-
-    public static Path convert(Path zipPath, Path... directories)
-            throws IOException {
-        if (directories == null) {
-            return null;
-        }
-
-        if (!Files.exists(zipPath)) {
-            Files.createFile(zipPath);
-        }
-
-        try (OutputStream outputStream = Files.newOutputStream(zipPath);
-             ZipOutputStream zipOutputStream = new ZipOutputStream(outputStream,
-                     StandardCharsets.UTF_8)) {
-            for (Path dir : directories) {
-                if (Files.exists(dir)) {
-                    convert0(zipOutputStream, dir);
-                }
-            }
-        }
-        return zipPath;
+        FileUtils.deleteFileReported(file);
     }
 
     /**
@@ -240,18 +166,7 @@ public final class FileUtils {
             try (ZipOutputStream zipOutputStream = new ZipOutputStream(byteBuffer,
                     StandardCharsets.UTF_8)) {
                 for (Path dir : directories) {
-                    if (Files.exists(dir)) {
-                        if (Files.isDirectory(dir)) {
-                            convert0(zipOutputStream, dir);
-                        } else {
-                            zipOutputStream
-                                    .putNextEntry(new ZipEntry(dir.toFile().getName()));
-                            try (InputStream inputStream = Files.newInputStream(dir)) {
-                                copy(inputStream, zipOutputStream);
-                            }
-                            zipOutputStream.closeEntry();
-                        }
-                    }
+                    zipDir(zipOutputStream, dir);
                 }
             }
 
@@ -270,9 +185,9 @@ public final class FileUtils {
             return null;
         }
 
-        delete(target.toFile());
-        try {
-            zipStream(directory, Files.newOutputStream(target, StandardOpenOption.CREATE));
+        delete(target);
+        try (OutputStream outputStream = Files.newOutputStream(target, StandardOpenOption.CREATE)) {
+            zipStream(directory, outputStream);
             return target;
         } catch (final IOException exception) {
             exception.printStackTrace();
@@ -284,33 +199,23 @@ public final class FileUtils {
     private static void zipStream(Path source, OutputStream buffer) throws IOException {
         try (ZipOutputStream zipOutputStream = new ZipOutputStream(buffer, StandardCharsets.UTF_8)) {
             if (Files.exists(source)) {
-                if (Files.isDirectory(source)) {
-                    convert0(zipOutputStream, source);
-                } else {
-                    zipOutputStream.putNextEntry(new ZipEntry(source.toFile().getName()));
-                    try (InputStream inputStream = Files.newInputStream(source)) {
-                        copy(inputStream, zipOutputStream);
-                    }
-
-                    zipOutputStream.closeEntry();
-                }
+                zipDir(zipOutputStream, source);
             }
         }
     }
 
-    private static void convert0(ZipOutputStream zipOutputStream, Path directory) throws IOException {
+    private static void zipDir(ZipOutputStream zipOutputStream, Path directory) throws IOException {
         Files.walkFileTree(
                 directory,
-                EnumSet.noneOf(FileVisitOption.class),
-                Integer.MAX_VALUE,
                 new SimpleFileVisitor<Path>() {
                     public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                        try (InputStream inputStream = Files.newInputStream(file)) {
+                        try {
                             zipOutputStream.putNextEntry(new ZipEntry(directory.relativize(file).toString().replace("\\", "/")));
-                            copy(inputStream, zipOutputStream);
+                            Files.copy(file, zipOutputStream);
                             zipOutputStream.closeEntry();
-                        } catch (Exception ex) {
+                        } catch (IOException ex) {
                             zipOutputStream.closeEntry();
+                            throw ex;
                         }
                         return FileVisitResult.CONTINUE;
                     }
@@ -318,8 +223,7 @@ public final class FileUtils {
         );
     }
 
-    public static Path extract(Path zipPath, Path targetDirectory)
-            throws IOException {
+    public static Path extract(Path zipPath, Path targetDirectory) throws IOException {
         if (zipPath == null || targetDirectory == null || !Files.exists(zipPath)) {
             return targetDirectory;
         }
@@ -331,26 +235,22 @@ public final class FileUtils {
         return targetDirectory;
     }
 
-    public static Path extract(byte[] zipData, Path targetDirectory)
-            throws IOException {
+    public static Path extract(byte[] zipData, Path targetDirectory) throws IOException {
         if (zipData == null || zipData.length == 0 || targetDirectory == null) {
             return targetDirectory;
         }
 
-        try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(
-                zipData)) {
+        try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(zipData)) {
             extract0(new ZipInputStream(byteArrayInputStream, StandardCharsets.UTF_8), targetDirectory);
         }
 
         return targetDirectory;
     }
 
-    public static void extract0(ZipInputStream zipInputStream, Path targetDirectory)
-            throws IOException {
+    public static void extract0(ZipInputStream zipInputStream, Path targetDirectory) throws IOException {
         ZipEntry zipEntry;
-
         while ((zipEntry = zipInputStream.getNextEntry()) != null) {
-            extract1(zipInputStream, zipEntry, targetDirectory);
+            extractEntry(zipInputStream, zipEntry, targetDirectory);
             zipInputStream.closeEntry();
         }
     }
@@ -359,12 +259,10 @@ public final class FileUtils {
         byte[] bytes = null;
 
         try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
-            ZipOutputStream zipOutputStream = new ZipOutputStream(
-                    byteArrayOutputStream, StandardCharsets.UTF_8);
+            ZipOutputStream zipOutputStream = new ZipOutputStream(byteArrayOutputStream, StandardCharsets.UTF_8);
             zipOutputStream.close();
 
             bytes = byteArrayOutputStream.toByteArray();
-
         } catch (IOException exception) {
             exception.printStackTrace();
         }
@@ -372,9 +270,9 @@ public final class FileUtils {
         return bytes;
     }
 
-    private static void extract1(ZipInputStream zipInputStream, ZipEntry zipEntry,
-                                 Path targetDirectory) throws IOException {
-        Path file = Paths.get(targetDirectory.toString(), zipEntry.getName());
+    private static void extractEntry(ZipInputStream zipInputStream, ZipEntry zipEntry, Path targetDirectory) throws IOException {
+        Path file = targetDirectory.resolve(zipEntry.getName());
+        ensureChild(targetDirectory, file);
 
         if (zipEntry.isDirectory()) {
             if (!Files.exists(file)) {
@@ -397,25 +295,70 @@ public final class FileUtils {
         }
     }
 
-    public static void workFileTree(Path path, Consumer<File> consumer) {
-        workFileTree(path.toFile(), consumer);
+    public static void walkFileTree(Path rootDirectoryPath, BiConsumer<Path, Path> consumer) {
+        walkFileTree(rootDirectoryPath, consumer, true);
     }
 
-    public static void workFileTree(File file, Consumer<File> consumer) {
-        if (!file.exists()) {
+    public static void walkFileTree(Path rootDirectoryPath, BiConsumer<Path, Path> consumer, boolean visitDirectories) {
+        walkFileTree(rootDirectoryPath, consumer, visitDirectories, "*");
+    }
+
+    public static void walkFileTree(Path rootDirectoryPath, BiConsumer<Path, Path> consumer, boolean visitDirectories, String glob) {
+        if (Files.notExists(rootDirectoryPath)) {
             return;
         }
-
-        consumer.accept(file);
-
-        if (file.isDirectory()) {
-            File[] files = file.listFiles();
-
-            if (files != null && files.length > 0) {
-                for (File entry : files) {
-                    workFileTree(entry, consumer);
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(rootDirectoryPath, glob)) {
+            for (Path path : stream) {
+                if (Files.isDirectory(path) && visitDirectories) {
+                    walkFileTree(path, consumer, true, glob);
                 }
+                consumer.accept(rootDirectoryPath, path);
             }
+        } catch (IOException exception) {
+            exception.printStackTrace();
+        }
+    }
+
+    public static void walkFileTree(Path rootDirectoryPath, BiConsumer<Path, Path> consumer, boolean visitDirectories, DirectoryStream.Filter<Path> filter) {
+        if (Files.notExists(rootDirectoryPath)) {
+            return;
+        }
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(rootDirectoryPath, filter)) {
+            for (Path path : stream) {
+                if (Files.isDirectory(path) && visitDirectories) {
+                    walkFileTree(path, consumer, true, filter);
+                }
+                consumer.accept(rootDirectoryPath, path);
+            }
+        } catch (IOException exception) {
+            exception.printStackTrace();
+        }
+    }
+
+    public static void createDirectoryReported(@Nullable Path directoryPath) {
+        if (directoryPath != null && Files.notExists(directoryPath)) {
+            try {
+                Files.createDirectories(directoryPath);
+            } catch (IOException exception) {
+                exception.printStackTrace();
+            }
+        }
+    }
+
+    public static void deleteFileReported(Path file) {
+        try {
+            Files.deleteIfExists(file);
+        } catch (IOException exception) {
+            exception.printStackTrace();
+        }
+    }
+
+    private static void ensureChild(Path root, Path child) {
+        Path rootNormal = root.normalize().toAbsolutePath();
+        Path childNormal = child.normalize().toAbsolutePath();
+
+        if (childNormal.getNameCount() <= rootNormal.getNameCount() || !childNormal.startsWith(rootNormal)) {
+            throw new IllegalStateException("Child " + childNormal + " is not in root path " + rootNormal);
         }
     }
 }

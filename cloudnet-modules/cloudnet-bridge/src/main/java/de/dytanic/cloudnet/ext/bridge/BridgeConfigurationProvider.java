@@ -1,20 +1,11 @@
 package de.dytanic.cloudnet.ext.bridge;
 
 import com.google.common.base.Preconditions;
-import com.google.gson.reflect.TypeToken;
-import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
-import de.dytanic.cloudnet.driver.CloudNetDriver;
-
-import java.lang.reflect.Type;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import de.dytanic.cloudnet.driver.channel.ChannelMessage;
+import de.dytanic.cloudnet.wrapper.Wrapper;
 
 public final class BridgeConfigurationProvider {
-
-    private static final Type TYPE = new TypeToken<BridgeConfiguration>() {
-    }.getType();
 
     private static BridgeConfiguration loadedConfiguration;
 
@@ -25,11 +16,12 @@ public final class BridgeConfigurationProvider {
     public static BridgeConfiguration update(BridgeConfiguration bridgeConfiguration) {
         Preconditions.checkNotNull(bridgeConfiguration);
 
-        CloudNetDriver.getInstance().getMessenger().sendChannelMessage(
-                BridgeConstants.BRIDGE_CUSTOM_CHANNEL_MESSAGING_CHANNEL,
-                "update_bridge_configuration",
-                new JsonDocument("bridgeConfiguration", bridgeConfiguration)
-        );
+        BridgeHelper.messageBuilder()
+                .message(BridgeConstants.BRIDGE_NETWORK_CHANNEL_CLUSTER_MESSAGE_UPDATE_BRIDGE_CONFIGURATION_LISTENER)
+                .json(JsonDocument.newDocument("bridgeConfiguration", bridgeConfiguration))
+                .targetAll()
+                .build()
+                .send();
         loadedConfiguration = bridgeConfiguration;
 
         return bridgeConfiguration;
@@ -50,18 +42,12 @@ public final class BridgeConfigurationProvider {
     }
 
     private static BridgeConfiguration load0() {
-        ITask<BridgeConfiguration> task = CloudNetDriver.getInstance().getPacketQueryProvider().sendCallablePacket(CloudNetDriver.getInstance().getNetworkClient().getChannels().iterator().next(),
-                BridgeConstants.BRIDGE_NETWORK_CHANNEL_MESSAGE_GET_BRIDGE_CONFIGURATION_CHANNEL_NAME,
-                BridgeConstants.BRIDGE_NETWORK_CHANNEL_MESSAGE_GET_BRIDGE_CONFIGURATION,
-                new JsonDocument(),
-                documentPair -> documentPair.get("bridgeConfig", TYPE));
+        ChannelMessage response = BridgeHelper.messageBuilder()
+                .message(BridgeConstants.BRIDGE_NETWORK_CHANNEL_MESSAGE_GET_BRIDGE_CONFIGURATION)
+                .targetNode(Wrapper.getInstance().getServiceId().getNodeUniqueId())
+                .build()
+                .sendSingleQuery();
 
-        try {
-            return task.get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException exception) {
-            exception.printStackTrace();
-        }
-
-        return null;
+        return response != null ? response.getJson().get("bridgeConfig", BridgeConfiguration.TYPE) : null;
     }
 }

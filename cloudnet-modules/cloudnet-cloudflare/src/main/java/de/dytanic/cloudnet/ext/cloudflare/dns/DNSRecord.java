@@ -1,7 +1,3 @@
-/*
- * Copyright (c) Tarek Hosni El Alaoui 2017
- */
-
 package de.dytanic.cloudnet.ext.cloudflare.dns;
 
 import com.google.gson.JsonObject;
@@ -12,10 +8,11 @@ import lombok.ToString;
 @EqualsAndHashCode
 public class DNSRecord {
 
-    protected String type, name, content;
+    protected String type;
+    protected String name;
+    protected String content;
 
     protected int ttl;
-
     protected boolean proxied;
 
     protected JsonObject data;

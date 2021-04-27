@@ -8,7 +8,7 @@ public class BungeeCloudNetReconnectHandler implements ReconnectHandler {
 
     @Override
     public ServerInfo getServer(ProxiedPlayer player) {
-        return BungeeCloudNetHelper.getNextFallback(player).orElse(null);
+        return BungeeCloudNetHelper.getNextFallback(player, null).orElse(null);
     }
 
     @Override

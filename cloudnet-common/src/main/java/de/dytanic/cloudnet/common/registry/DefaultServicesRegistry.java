@@ -166,7 +166,7 @@ public class DefaultServicesRegistry implements IServicesRegistry {
      */
     @Override
     public IServicesRegistry unregisterAll(ClassLoader classLoader) {
-        for (List<RegistryEntry<?>> item : providedServices.values()) {
+        for (List<RegistryEntry<?>> item : this.providedServices.values()) {
             item.removeIf(entry -> entry.service.getClass().getClassLoader().equals(classLoader));
         }
 

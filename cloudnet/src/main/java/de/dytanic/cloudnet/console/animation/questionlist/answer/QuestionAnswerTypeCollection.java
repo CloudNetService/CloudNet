@@ -1,6 +1,7 @@
 package de.dytanic.cloudnet.console.animation.questionlist.answer;
 
 import de.dytanic.cloudnet.console.animation.questionlist.QuestionAnswerType;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -25,7 +26,7 @@ public class QuestionAnswerTypeCollection implements QuestionAnswerType<Collecti
     }
 
     @Override
-    public boolean isValidInput(String input) {
+    public boolean isValidInput(@NotNull String input) {
         if (!this.allowEmpty && input.trim().isEmpty()) {
             return false;
         }
@@ -33,7 +34,7 @@ public class QuestionAnswerTypeCollection implements QuestionAnswerType<Collecti
     }
 
     @Override
-    public Collection<String> parse(String input) {
+    public @NotNull Collection<String> parse(@NotNull String input) {
         return new ArrayList<>(Arrays.asList(input.split(";")));
     }
 

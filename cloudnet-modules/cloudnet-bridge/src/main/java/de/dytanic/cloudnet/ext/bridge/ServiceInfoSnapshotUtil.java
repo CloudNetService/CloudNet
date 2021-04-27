@@ -5,6 +5,7 @@ import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.driver.service.property.ServiceProperty;
+import de.dytanic.cloudnet.ext.bridge.player.IPlayerManager;
 
 import java.util.Collection;
 
@@ -15,15 +16,15 @@ public final class ServiceInfoSnapshotUtil {
     }
 
     public static int getTaskOnlineCount(String taskName) {
-        return CloudNetDriver.getInstance().getCloudServiceProvider().getCloudServices(taskName).stream()
-                .mapToInt(snapshot -> snapshot.getProperty(BridgeServiceProperty.ONLINE_COUNT).orElse(0))
-                .sum();
+        return CloudNetDriver.getInstance().getServicesRegistry().getFirstService(IPlayerManager.class)
+                .taskOnlinePlayers(taskName)
+                .count();
     }
 
     public static int getGroupOnlineCount(String groupName) {
-        return CloudNetDriver.getInstance().getCloudServiceProvider().getCloudServicesByGroup(groupName).stream()
-                .mapToInt(snapshot -> snapshot.getProperty(BridgeServiceProperty.ONLINE_COUNT).orElse(0))
-                .sum();
+        return CloudNetDriver.getInstance().getServicesRegistry().getFirstService(IPlayerManager.class)
+                .groupOnlinePlayers(groupName)
+                .count();
     }
 
     /**

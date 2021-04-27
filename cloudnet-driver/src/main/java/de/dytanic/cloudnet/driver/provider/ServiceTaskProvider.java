@@ -13,11 +13,23 @@ import java.util.Collection;
 public interface ServiceTaskProvider {
 
     /**
+     * Reloads all tasks
+     */
+    void reload();
+
+    /**
      * Gets all tasks that are registered in the cloud
      *
      * @return a list containing the task configurations of all tasks
      */
     Collection<ServiceTask> getPermanentServiceTasks();
+
+    /**
+     * Clears all existing service tasks and sets the given collection as the new service tasks
+     *
+     * @param serviceTasks the new service tasks
+     */
+    void setPermanentServiceTasks(@NotNull Collection<ServiceTask> serviceTasks);
 
     /**
      * Gets a specific task by its name
@@ -41,7 +53,7 @@ public interface ServiceTaskProvider {
      *
      * @param serviceTask the task to be added
      */
-    void addPermanentServiceTask(@NotNull ServiceTask serviceTask);
+    boolean addPermanentServiceTask(@NotNull ServiceTask serviceTask);
 
     /**
      * Removes a task from the cloud
@@ -58,12 +70,26 @@ public interface ServiceTaskProvider {
     void removePermanentServiceTask(@NotNull ServiceTask serviceTask);
 
     /**
+     * Reloads all tasks
+     */
+    @NotNull
+    ITask<Void> reloadAsync();
+
+    /**
      * Gets all tasks that are registered in the cloud
      *
      * @return a list containing the task configurations of all tasks
      */
     @NotNull
     ITask<Collection<ServiceTask>> getPermanentServiceTasksAsync();
+
+    /**
+     * Clears all existing service tasks and sets the given collection as the new service tasks
+     *
+     * @param serviceTasks the new service tasks
+     */
+    @NotNull
+    ITask<Void> setPermanentServiceTasksAsync(@NotNull Collection<ServiceTask> serviceTasks);
 
     /**
      * Gets a specific task by its name
@@ -89,7 +115,7 @@ public interface ServiceTaskProvider {
      * @param serviceTask the task to be added
      */
     @NotNull
-    ITask<Void> addPermanentServiceTaskAsync(@NotNull ServiceTask serviceTask);
+    ITask<Boolean> addPermanentServiceTaskAsync(@NotNull ServiceTask serviceTask);
 
     /**
      * Removes a task from the cloud

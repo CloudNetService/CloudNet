@@ -2,7 +2,8 @@ package eu.cloudnetservice.cloudnet.ext.npcs.node;
 
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
-import de.dytanic.cloudnet.database.IDatabase;
+import de.dytanic.cloudnet.common.io.FileUtils;
+import de.dytanic.cloudnet.driver.database.Database;
 import de.dytanic.cloudnet.driver.module.ModuleLifeCycle;
 import de.dytanic.cloudnet.driver.module.ModuleTask;
 import de.dytanic.cloudnet.driver.util.DefaultModuleHelper;
@@ -10,6 +11,7 @@ import de.dytanic.cloudnet.module.NodeCloudNetModule;
 import eu.cloudnetservice.cloudnet.ext.npcs.CloudNPC;
 import eu.cloudnetservice.cloudnet.ext.npcs.NPCConstants;
 import eu.cloudnetservice.cloudnet.ext.npcs.configuration.NPCConfiguration;
+import eu.cloudnetservice.cloudnet.ext.npcs.node.command.CommandNPC;
 import eu.cloudnetservice.cloudnet.ext.npcs.node.listener.CloudNetNPCMessageListener;
 import eu.cloudnetservice.cloudnet.ext.npcs.node.listener.IncludePluginListener;
 import eu.cloudnetservice.cloudnet.ext.npcs.node.listener.NPCTaskSetupListener;
@@ -30,10 +32,9 @@ public class CloudNetNPCModule extends NodeCloudNetModule {
 
     @ModuleTask(event = ModuleLifeCycle.STARTED, order = 127)
     public void loadConfiguration() {
-        super.getModuleWrapper().getDataFolder().mkdirs();
+        FileUtils.createDirectoryReported(this.getModuleWrapper().getDataDirectory());
 
         this.npcConfiguration = super.getConfig().get("config", NPCConfiguration.class, new NPCConfiguration());
-
         for (Map.Entry<String, String> entry : NPCConfiguration.DEFAULT_MESSAGES.entrySet()) {
             if (!this.npcConfiguration.getMessages().containsKey(entry.getKey())) {
                 this.npcConfiguration.getMessages().put(entry.getKey(), entry.getValue());
@@ -49,6 +50,11 @@ public class CloudNetNPCModule extends NodeCloudNetModule {
     public void saveNPCConfiguration() {
         super.getConfig().append("config", this.npcConfiguration);
         super.saveConfig();
+    }
+
+    @ModuleTask(event = ModuleLifeCycle.STARTED, order = 125)
+    public void registerCommands() {
+        super.registerCommand(new CommandNPC(this));
     }
 
     @ModuleTask(event = ModuleLifeCycle.STARTED, order = 126)
@@ -76,20 +82,20 @@ public class CloudNetNPCModule extends NodeCloudNetModule {
     }
 
     public Set<CloudNPC> loadNPCs() {
-        IDatabase database = super.getDatabaseProvider().getDatabase(DefaultModuleHelper.DEFAULT_CONFIGURATION_DATABASE_NAME);
+        Database database = super.getDatabaseProvider().getDatabase(DefaultModuleHelper.DEFAULT_CONFIGURATION_DATABASE_NAME);
         JsonDocument document = database.get(NPC_DOCUMENT_NAME);
 
         return document == null ? new HashSet<>() : document.get(DOCUMENT_NPC_KEY, NPCConstants.NPC_COLLECTION_TYPE);
     }
 
     public void saveNPCs(Set<CloudNPC> npcs) {
-        IDatabase database = super.getDatabaseProvider().getDatabase(DefaultModuleHelper.DEFAULT_CONFIGURATION_DATABASE_NAME);
+        Database database = super.getDatabaseProvider().getDatabase(DefaultModuleHelper.DEFAULT_CONFIGURATION_DATABASE_NAME);
 
         database.update(NPC_DOCUMENT_NAME, new JsonDocument(DOCUMENT_NPC_KEY, npcs));
     }
 
     public NPCConfiguration getNPCConfiguration() {
-        return npcConfiguration;
+        return this.npcConfiguration;
     }
 
     public void setNPCConfiguration(NPCConfiguration npcConfiguration) {
@@ -97,7 +103,7 @@ public class CloudNetNPCModule extends NodeCloudNetModule {
     }
 
     public Set<CloudNPC> getCachedNPCs() {
-        return cachedNPCs;
+        return this.cachedNPCs;
     }
 
     public void setCachedNPCs(Set<CloudNPC> cachedNPCs) {

@@ -1,9 +1,9 @@
 package de.dytanic.cloudnet.ext.cloudperms.bukkit;
 
 import de.dytanic.cloudnet.driver.CloudNetDriver;
+import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
 import de.dytanic.cloudnet.driver.permission.IPermissionUser;
 import de.dytanic.cloudnet.driver.permission.PermissionCheckResult;
-import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsManagement;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissibleBase;
@@ -15,14 +15,14 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.BiConsumer;
-import java.util.function.Predicate;
+import java.util.function.Function;
 
 public final class BukkitCloudNetCloudPermissionsPermissible extends PermissibleBase {
 
     private final Player player;
-    private final CloudPermissionsManagement permissionsManagement;
+    private final IPermissionManagement permissionsManagement;
 
-    public BukkitCloudNetCloudPermissionsPermissible(Player player, CloudPermissionsManagement permissionsManagement) {
+    public BukkitCloudNetCloudPermissionsPermissible(Player player, IPermissionManagement permissionsManagement) {
         super(player);
 
         this.player = player;
@@ -36,23 +36,26 @@ public final class BukkitCloudNetCloudPermissionsPermissible extends Permissible
     @Override
     public Set<PermissionAttachmentInfo> getEffectivePermissions() {
         Set<PermissionAttachmentInfo> infos = new HashSet<>();
-        IPermissionUser permissionUser = CloudNetDriver.getInstance().getPermissionManagement().getUser(this.player.getUniqueId());
-        if (permissionUser == null) {
-            return infos;
-        }
 
-        for (String group : Wrapper.getInstance().getServiceConfiguration().getGroups()) {
-            CloudNetDriver.getInstance().getPermissionManagement().getAllPermissions(permissionUser, group).forEach(permission -> {
-                Permission bukkitPermission = this.player.getServer().getPluginManager().getPermission(permission.getName());
-                if (bukkitPermission != null) {
-                    this.forEachChildren(bukkitPermission, (name, value) -> infos.add(new PermissionAttachmentInfo(this, name, null, value)));
-                } else {
-                    infos.add(new PermissionAttachmentInfo(this, permission.getName(), null, permission.getPotency() >= 0));
-                }
-            });
-        }
-        for (Permission defaultPermission : this.getDefaultPermissions()) {
-            this.forEachChildren(defaultPermission, (name, value) -> infos.add(new PermissionAttachmentInfo(this, name, null, value)));
+        IPermissionUser permissionUser = CloudNetDriver.getInstance().getPermissionManagement().getUser(this.player.getUniqueId());
+        if (permissionUser != null) {
+            for (String group : Wrapper.getInstance().getServiceConfiguration().getGroups()) {
+                CloudNetDriver.getInstance()
+                        .getPermissionManagement()
+                        .getAllPermissions(permissionUser, group)
+                        .forEach(permission -> {
+                            Permission bukkitPermission = this.player.getServer().getPluginManager().getPermission(permission.getName());
+                            if (bukkitPermission != null) {
+                                this.forEachChildren(bukkitPermission, (name, value) -> infos.add(new PermissionAttachmentInfo(this, name, null, value)));
+                            } else {
+                                infos.add(new PermissionAttachmentInfo(this, permission.getName(), null, permission.getPotency() >= 0));
+                            }
+                        });
+            }
+
+            for (Permission defaultPermission : this.getDefaultPermissions()) {
+                this.forEachChildren(defaultPermission, (name, value) -> infos.add(new PermissionAttachmentInfo(this, name, null, value)));
+            }
         }
 
         return infos;
@@ -60,17 +63,17 @@ public final class BukkitCloudNetCloudPermissionsPermissible extends Permissible
 
     @Override
     public boolean isPermissionSet(@NotNull String name) {
-        return hasPermission(name);
+        return this.hasPermission(name);
     }
 
     @Override
     public boolean isPermissionSet(Permission perm) {
-        return isPermissionSet(perm.getName());
+        return this.isPermissionSet(perm.getName());
     }
 
     @Override
     public boolean hasPermission(Permission perm) {
-        return hasPermission(perm.getName());
+        return this.hasPermission(perm.getName());
     }
 
     @Override
@@ -80,44 +83,63 @@ public final class BukkitCloudNetCloudPermissionsPermissible extends Permissible
             if (permissionUser == null) {
                 return false;
             }
-            if (this.checkPermission(permissionUser, inName)) {
-                return true;
+
+            for (Permission permission : this.getDefaultPermissions()) {
+                if (permission.getName().equalsIgnoreCase(inName)) {
+                    // default permissions are always active if not explicitly forbidden
+                    PermissionCheckResult result = this.permissionsManagement.getPermissionResult(permissionUser, inName);
+                    return result == PermissionCheckResult.DENIED || result.asBoolean();
+                }
             }
-            return this.testParents(inName, parentPermission -> this.checkPermission(permissionUser, parentPermission.getName()));
+
+            PermissionCheckResult result = this.permissionsManagement.getPermissionResult(permissionUser, inName);
+            if (result != PermissionCheckResult.DENIED) {
+                return result.asBoolean();
+            }
+
+            return this.testParents(inName, perm -> this.permissionsManagement.getPermissionResult(permissionUser, perm.getName()));
         } catch (Exception ex) {
             ex.printStackTrace();
             return false;
         }
     }
 
-    private boolean testDefaultPermission(IPermissionUser permissionUser, String name) {
-        return this.permissionsManagement.getPlayerPermissionResult(permissionUser, name) != PermissionCheckResult.FORBIDDEN;
-    }
-
-    private boolean testParents(String inName, Predicate<Permission> parentAcceptor) {
+    private boolean testParents(String inName, Function<Permission, PermissionCheckResult> parentAcceptor) {
         for (Permission parent : this.player.getServer().getPluginManager().getPermissions()) {
-            if (this.testParents(inName, parent, null, parentAcceptor)) {
-                return true;
+            PermissionCheckResult result = this.testParents(inName, parent, null, parentAcceptor);
+            if (result != PermissionCheckResult.DENIED) {
+                return result.asBoolean();
             }
         }
         return false;
     }
 
-    private boolean testParents(String inName, Permission parent, Permission lastParent, Predicate<Permission> parentAcceptor) {
+    private PermissionCheckResult testParents(String inName, Permission parent, Permission lastParent, Function<Permission, PermissionCheckResult> parentAcceptor) {
         for (Map.Entry<String, Boolean> entry : parent.getChildren().entrySet()) {
             if (entry.getKey().equalsIgnoreCase(inName)) {
-                if (lastParent != null && parentAcceptor.test(lastParent)) {
-                    return entry.getValue();
+                PermissionCheckResult result;
+                if (lastParent != null) {
+                    result = parentAcceptor.apply(lastParent);
+                } else {
+                    result = parentAcceptor.apply(parent);
                 }
-                return parentAcceptor.test(parent) && entry.getValue();
+
+                if (result != PermissionCheckResult.DENIED) {
+                    return PermissionCheckResult.fromBoolean(entry.getValue());
+                }
+                continue;
             }
 
             Permission child = this.player.getServer().getPluginManager().getPermission(entry.getKey());
-            if (child != null && this.testParents(inName, child, parent, parentAcceptor)) {
-                return true;
+            if (child != null) {
+                PermissionCheckResult result = this.testParents(inName, child, parent, parentAcceptor);
+                if (result != PermissionCheckResult.DENIED) {
+                    return result;
+                }
             }
         }
-        return false;
+
+        return PermissionCheckResult.DENIED;
     }
 
     private void forEachChildren(Permission permission, BiConsumer<String, Boolean> permissionAcceptor) {
@@ -125,11 +147,6 @@ public final class BukkitCloudNetCloudPermissionsPermissible extends Permissible
         for (Map.Entry<String, Boolean> entry : permission.getChildren().entrySet()) {
             permissionAcceptor.accept(entry.getKey(), entry.getValue());
         }
-    }
-
-    private boolean checkPermission(IPermissionUser permissionUser, String name) {
-        return this.getDefaultPermissions().stream().anyMatch(permission -> permission.getName().equalsIgnoreCase(name) && this.testDefaultPermission(permissionUser, name)) ||
-                this.permissionsManagement.hasPlayerPermission(permissionUser, name);
     }
 
     public Player getPlayer() {

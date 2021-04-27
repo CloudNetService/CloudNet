@@ -2,27 +2,46 @@ package de.dytanic.cloudnet.permission;
 
 import com.google.common.base.Preconditions;
 import com.google.gson.reflect.TypeToken;
-import de.dytanic.cloudnet.common.concurrent.*;
+import de.dytanic.cloudnet.common.concurrent.CompletableTask;
+import de.dytanic.cloudnet.common.concurrent.CompletedTask;
+import de.dytanic.cloudnet.common.concurrent.CountingTask;
+import de.dytanic.cloudnet.common.concurrent.ITask;
+import de.dytanic.cloudnet.common.concurrent.ListenableTask;
+import de.dytanic.cloudnet.common.concurrent.NullCompletableTask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.database.AbstractDatabaseProvider;
-import de.dytanic.cloudnet.database.IDatabase;
-import de.dytanic.cloudnet.driver.permission.*;
+import de.dytanic.cloudnet.driver.database.Database;
+import de.dytanic.cloudnet.driver.permission.DefaultSynchronizedPermissionManagement;
+import de.dytanic.cloudnet.driver.permission.IPermissionGroup;
+import de.dytanic.cloudnet.driver.permission.IPermissionManagementHandler;
+import de.dytanic.cloudnet.driver.permission.IPermissionUser;
+import de.dytanic.cloudnet.driver.permission.PermissionGroup;
+import de.dytanic.cloudnet.driver.permission.PermissionUser;
+import de.dytanic.cloudnet.driver.permission.PermissionUserGroupInfo;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.File;
-import java.util.*;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
 
 public class DefaultDatabasePermissionManagement extends ClusterSynchronizedPermissionManagement
-        implements DefaultSynchronizedPermissionManagement, DefaultPermissionManagement {
+        implements DefaultSynchronizedPermissionManagement {
 
     private static final String DATABASE_USERS_NAME = "cloudnet_permission_users";
 
-    private final File file = new File(System.getProperty("cloudnet.permissions.json.path", "local/permissions.json"));
+    private final Path file = Paths.get(System.getProperty("cloudnet.permissions.json.path", "local/permissions.json"));
 
     private final Map<String, IPermissionGroup> permissionGroupsMap = new ConcurrentHashMap<>();
     private final Callable<AbstractDatabaseProvider> databaseProviderCallable;
@@ -30,8 +49,11 @@ public class DefaultDatabasePermissionManagement extends ClusterSynchronizedPerm
 
     public DefaultDatabasePermissionManagement(Callable<AbstractDatabaseProvider> databaseProviderCallable) {
         this.databaseProviderCallable = databaseProviderCallable;
+    }
 
-        this.file.getParentFile().mkdirs();
+    @Override
+    public void init() {
+        FileUtils.createDirectoryReported(this.file.getParent());
         this.loadGroups();
     }
 
@@ -87,14 +109,7 @@ public class DefaultDatabasePermissionManagement extends ClusterSynchronizedPerm
     public @NotNull ITask<Boolean> containsUserAsync(@NotNull String name) {
         Preconditions.checkNotNull(name);
 
-        CompletableTask<Boolean> task = new CompletableTask<>();
-
-        this.getUsersAsync(name)
-                .onComplete(users -> task.complete(!users.isEmpty()))
-                .onCancelled(listITask -> task.cancel(true))
-                .onFailure(throwable -> task.complete(false));
-
-        return task;
+        return this.getUsersAsync(name).map(users -> !users.isEmpty());
     }
 
     @Override
@@ -127,10 +142,8 @@ public class DefaultDatabasePermissionManagement extends ClusterSynchronizedPerm
     public @NotNull ITask<List<IPermissionUser>> getUsersAsync(@NotNull String name) {
         Preconditions.checkNotNull(name);
 
-        CompletableTask<List<IPermissionUser>> task = new CompletableTask<>();
-
-        this.getDatabase().getAsync("name", name)
-                .onComplete(documents -> task.complete(documents.stream().map(document -> {
+        return this.getDatabase().getAsync("name", name)
+                .map(documents -> documents.stream().map(document -> {
                     IPermissionUser permissionUser = document.toInstanceOf(PermissionUser.TYPE);
 
                     if (this.testPermissionUser(permissionUser)) {
@@ -138,50 +151,25 @@ public class DefaultDatabasePermissionManagement extends ClusterSynchronizedPerm
                     }
 
                     return permissionUser;
-                }).collect(Collectors.toList())))
-                .onCancelled(listITask -> task.cancel(true))
-                .onFailure(throwable -> task.complete(Collections.emptyList()));
-
-        return task;
+                }).collect(Collectors.toList()));
     }
 
     @Override
     public @NotNull ITask<IPermissionUser> getFirstUserAsync(String name) {
-        CompletableTask<IPermissionUser> task = new CompletableTask<>();
-
-        this.getUsersAsync(name)
-                .onComplete(users -> task.complete(users.isEmpty() ? null : users.get(0)))
-                .onCancelled(listITask -> task.cancel(true))
-                .onFailure(throwable -> task.complete(null));
-
-        return task;
+        return this.getUsersAsync(name)
+                .map(users -> users.isEmpty() ? null : users.get(0));
     }
 
     @Override
     public @NotNull ITask<Collection<IPermissionUser>> getUsersAsync() {
         Collection<IPermissionUser> permissionUsers = new ArrayList<>();
-        ITask<Collection<IPermissionUser>> task = new ListenableTask<>(() -> permissionUsers);
 
-        this.getDatabase().iterateAsync((key, document) -> {
+        return this.getDatabase().iterateAsync((key, document) -> {
             IPermissionUser permissionUser = document.toInstanceOf(PermissionUser.TYPE);
             this.testPermissionUser(permissionUser);
 
             permissionUsers.add(permissionUser);
-        }).onComplete(aVoid -> {
-            try {
-                task.call();
-            } catch (Exception exception) {
-                exception.printStackTrace();
-            }
-        }).onCancelled(voidITask -> task.cancel(true)).onFailure(throwable -> {
-            try {
-                task.call();
-            } catch (Exception exception) {
-                exception.printStackTrace();
-            }
-        });
-
-        return task;
+        }).map(aVoid -> permissionUsers);
     }
 
     @Override
@@ -302,7 +290,7 @@ public class DefaultDatabasePermissionManagement extends ClusterSynchronizedPerm
 
         IPermissionGroup permissionGroup = this.permissionGroupsMap.get(name);
 
-        if (this.testPermissionGroup(permissionGroup)) {
+        if (this.testPermissible(permissionGroup)) {
             ITask<IPermissionGroup> task = new ListenableTask<>(() -> permissionGroup);
 
             this.updateGroupAsync(permissionGroup).onComplete(aVoid -> {
@@ -320,7 +308,7 @@ public class DefaultDatabasePermissionManagement extends ClusterSynchronizedPerm
     }
 
     @Override
-    public ITask<IPermissionGroup> getDefaultPermissionGroupAsync() {
+    public @NotNull ITask<IPermissionGroup> getDefaultPermissionGroupAsync() {
         for (IPermissionGroup group : this.permissionGroupsMap.values()) {
             if (group != null && group.isDefaultGroup()) {
                 return CompletedTask.create(group);
@@ -335,7 +323,7 @@ public class DefaultDatabasePermissionManagement extends ClusterSynchronizedPerm
         CountingTask<Collection<IPermissionGroup>> task = new CountingTask<>(this.permissionGroupsMap.values(), this.permissionGroupsMap.size());
 
         for (IPermissionGroup permissionGroup : this.permissionGroupsMap.values()) {
-            if (this.testPermissionGroup(permissionGroup)) {
+            if (this.testPermissible(permissionGroup)) {
                 this.updateGroupAsync(permissionGroup)
                         .onComplete(aVoid -> task.countDown())
                         .onCancelled(voidITask -> task.countDown())
@@ -351,7 +339,7 @@ public class DefaultDatabasePermissionManagement extends ClusterSynchronizedPerm
     @Override
     public Collection<IPermissionGroup> getGroups() {
         for (IPermissionGroup permissionGroup : this.permissionGroupsMap.values()) {
-            if (this.testPermissionGroup(permissionGroup)) {
+            if (this.testPermissible(permissionGroup)) {
                 this.updateGroup(permissionGroup);
             }
         }
@@ -382,7 +370,7 @@ public class DefaultDatabasePermissionManagement extends ClusterSynchronizedPerm
         this.permissionGroupsMap.clear();
 
         for (IPermissionGroup group : groups) {
-            this.testPermissionGroup(group);
+            this.testPermissible(group);
             this.permissionGroupsMap.put(group.getName(), group);
         }
 
@@ -393,7 +381,7 @@ public class DefaultDatabasePermissionManagement extends ClusterSynchronizedPerm
 
     @Override
     public boolean reload() {
-        loadGroups();
+        this.loadGroups();
 
         if (this.permissionManagementHandler != null) {
             this.permissionManagementHandler.handleReloaded(this);
@@ -428,7 +416,7 @@ public class DefaultDatabasePermissionManagement extends ClusterSynchronizedPerm
         }
     }
 
-    public IDatabase getDatabase() {
+    public Database getDatabase() {
         return this.getDatabaseProvider().getDatabase(DATABASE_USERS_NAME);
     }
 

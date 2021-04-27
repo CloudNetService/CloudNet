@@ -1,8 +1,9 @@
 package de.dytanic.cloudnet.ext.cloudperms.bungee.listener;
 
+import de.dytanic.cloudnet.driver.permission.CachedPermissionManagement;
+import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
 import de.dytanic.cloudnet.driver.permission.IPermissionUser;
 import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsHelper;
-import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsManagement;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -12,6 +13,7 @@ import net.md_5.bungee.api.event.PermissionCheckEvent;
 import net.md_5.bungee.api.event.PlayerDisconnectEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
+import net.md_5.bungee.event.EventPriority;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -19,18 +21,20 @@ import java.util.UUID;
 
 public final class BungeeCloudNetCloudPermissionsPlayerListener implements Listener {
 
-    private final CloudPermissionsManagement permissionsManagement;
+    private final IPermissionManagement permissionsManagement;
 
-    public BungeeCloudNetCloudPermissionsPlayerListener(CloudPermissionsManagement permissionsManagement) {
+    public BungeeCloudNetCloudPermissionsPlayerListener(IPermissionManagement permissionsManagement) {
         this.permissionsManagement = permissionsManagement;
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.LOW)
     public void handle(LoginEvent event) {
-        CloudPermissionsHelper.initPermissionUser(this.permissionsManagement, event.getConnection().getUniqueId(), event.getConnection().getName(), message -> {
-            event.setCancelled(true);
-            event.setCancelReason(TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', message)));
-        });
+        if (!event.isCancelled()) {
+            CloudPermissionsHelper.initPermissionUser(this.permissionsManagement, event.getConnection().getUniqueId(), event.getConnection().getName(), message -> {
+                event.setCancelled(true);
+                event.setCancelReason(TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', message)));
+            });
+        }
     }
 
     @EventHandler
@@ -55,16 +59,16 @@ public final class BungeeCloudNetCloudPermissionsPlayerListener implements Liste
             IPermissionUser permissionUser = this.permissionsManagement.getUser(uniqueId);
 
             if (permissionUser != null) {
-                event.setHasPermission(this.permissionsManagement.hasPlayerPermission(permissionUser, event.getPermission()));
+                event.setHasPermission(this.permissionsManagement.hasPermission(permissionUser, event.getPermission()));
             }
         }
     }
 
     @EventHandler
     public void handle(PlayerDisconnectEvent event) {
-        UUID uniqueId = event.getPlayer().getUniqueId();
-
-        this.permissionsManagement.getCachedPermissionUsers().remove(uniqueId);
+        CachedPermissionManagement management = CloudPermissionsHelper.asCachedPermissionManagement(this.permissionsManagement);
+        if (management != null) {
+            management.getCachedPermissionUsers().remove(event.getPlayer().getUniqueId());
+        }
     }
-
 }

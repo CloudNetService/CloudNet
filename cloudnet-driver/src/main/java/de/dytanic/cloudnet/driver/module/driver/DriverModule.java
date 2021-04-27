@@ -1,6 +1,7 @@
 package de.dytanic.cloudnet.driver.module.driver;
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.common.logging.ILogger;
 import de.dytanic.cloudnet.common.logging.LogLevel;
 import de.dytanic.cloudnet.common.registry.IServicesRegistry;
@@ -8,54 +9,54 @@ import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.event.IEventManager;
 import de.dytanic.cloudnet.driver.module.DefaultModule;
 
-import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 public class DriverModule extends DefaultModule {
 
     protected JsonDocument config;
 
     public final JsonDocument getConfig() {
-        if (config == null) {
-            config = reloadConfig0();
+        if (this.config == null) {
+            this.config = this.reloadConfig0();
         }
 
-        return config;
+        return this.config;
     }
 
     public JsonDocument reloadConfig() {
-        return config = reloadConfig0();
+        return this.config = this.reloadConfig0();
     }
 
     public final DriverModule saveConfig() {
-        if (config != null) {
-            config.write(new File(getModuleWrapper().getDataFolder(), "config.json"));
+        if (this.config != null) {
+            this.config.write(this.getModuleWrapper().getDataDirectory().resolve("config.json"));
         }
 
         return this;
     }
 
     private JsonDocument reloadConfig0() {
-        getModuleWrapper().getDataFolder().mkdirs();
+        FileUtils.createDirectoryReported(this.getModuleWrapper().getDataDirectory());
 
-        File file = new File(getModuleWrapper().getDataFolder(), "config.json");
-
-        if (!file.exists()) {
-            new JsonDocument().write(file);
+        Path configuration = this.getModuleWrapper().getDataDirectory().resolve("config.json");
+        if (Files.notExists(configuration)) {
+            JsonDocument.EMPTY.write(configuration);
         }
 
-        return JsonDocument.newDocument(file);
+        return JsonDocument.newDocument(configuration);
     }
 
     public final ILogger log(LogLevel level, String message) {
-        return getLogger().log(level, message);
+        return this.getLogger().log(level, message);
     }
 
     public final IEventManager registerListener(Object listener) {
-        return getEventManager().registerListener(listener);
+        return this.getEventManager().registerListener(listener);
     }
 
     public final IEventManager registerListeners(Object... listeners) {
-        return getEventManager().registerListeners(listeners);
+        return this.getEventManager().registerListeners(listeners);
     }
 
     public final IServicesRegistry getRegistry() {

@@ -2,15 +2,18 @@ package de.dytanic.cloudnet.ext.bridge.player;
 
 import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
+import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
+import de.dytanic.cloudnet.driver.serialization.SerializableObject;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Type;
 import java.util.UUID;
 
 @ToString
 @EqualsAndHashCode
-public class NetworkConnectionInfo {
+public class NetworkConnectionInfo implements SerializableObject {
 
     public static final Type TYPE = new TypeToken<NetworkConnectionInfo>() {
     }.getType();
@@ -103,6 +106,26 @@ public class NetworkConnectionInfo {
 
     public void setNetworkService(NetworkServiceInfo networkService) {
         this.networkService = networkService;
+    }
+
+    @Override
+    public void write(@NotNull ProtocolBuffer buffer) {
+        buffer.writeUUID(this.uniqueId);
+        buffer.writeString(this.name);
+        buffer.writeInt(this.version);
+        buffer.writeObject(this.address);
+        buffer.writeObject(this.listener);
+        buffer.writeObject(this.networkService);
+    }
+
+    @Override
+    public void read(@NotNull ProtocolBuffer buffer) {
+        this.uniqueId = buffer.readUUID();
+        this.name = buffer.readString();
+        this.version = buffer.readInt();
+        this.address = buffer.readObject(HostAndPort.class);
+        this.listener = buffer.readObject(HostAndPort.class);
+        this.networkService = buffer.readObject(NetworkServiceInfo.class);
     }
 
 }

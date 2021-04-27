@@ -17,12 +17,12 @@ public class CloudNetChatPlugin extends JavaPlugin implements Listener {
 
     @Override
     public void onEnable() {
-        getConfig().options().copyDefaults(true);
-        saveConfig();
+        this.getConfig().options().copyDefaults(true);
+        this.saveConfig();
 
-        this.format = getConfig().getString("format");
+        this.format = this.getConfig().getString("format");
 
-        getServer().getPluginManager().registerEvents(this, this);
+        this.getServer().getPluginManager().registerEvents(this, this);
     }
 
     @EventHandler(priority = EventPriority.HIGH)

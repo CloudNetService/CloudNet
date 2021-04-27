@@ -4,7 +4,7 @@ import java.util.Map;
 
 public abstract class CNLCommand {
 
-    protected String name;
+    protected final String name;
 
     public CNLCommand(String name) {
         this.name = name;

@@ -25,11 +25,11 @@ import java.util.stream.Collectors;
 
 public final class NettyHttpServer extends NettySSLServer implements IHttpServer {
 
+    protected final List<HttpHandlerEntry> registeredHandlers = new CopyOnWriteArrayList<>();
     protected final Map<Integer, Pair<HostAndPort, ChannelFuture>> channelFutures = new ConcurrentHashMap<>();
 
-    protected final List<HttpHandlerEntry> registeredHandlers = new CopyOnWriteArrayList<>();
-
-    protected final EventLoopGroup bossGroup = NettyUtils.newEventLoopGroup(), workerGroup = NettyUtils.newEventLoopGroup();
+    protected final EventLoopGroup bossGroup = NettyUtils.newEventLoopGroup();
+    protected final EventLoopGroup workerGroup = NettyUtils.newEventLoopGroup();
 
     public NettyHttpServer() throws Exception {
         this(null);
@@ -41,10 +41,9 @@ public final class NettyHttpServer extends NettySSLServer implements IHttpServer
         this.init();
     }
 
-
     @Override
     public boolean isSslEnabled() {
-        return sslContext != null;
+        return this.sslContext != null;
     }
 
     @Override
@@ -57,24 +56,22 @@ public final class NettyHttpServer extends NettySSLServer implements IHttpServer
         Preconditions.checkNotNull(hostAndPort);
         Preconditions.checkNotNull(hostAndPort.getHost());
 
-        if (!channelFutures.containsKey(hostAndPort.getPort())) {
+        if (!this.channelFutures.containsKey(hostAndPort.getPort())) {
             try {
-                this.channelFutures.put(hostAndPort.getPort(), new Pair<>(hostAndPort, new ServerBootstrap()
-                        .group(bossGroup, workerGroup)
+                return this.channelFutures.putIfAbsent(hostAndPort.getPort(), new Pair<>(hostAndPort, new ServerBootstrap()
+                        .group(this.bossGroup, this.workerGroup)
                         .childOption(ChannelOption.TCP_NODELAY, true)
                         .childOption(ChannelOption.IP_TOS, 24)
                         .childOption(ChannelOption.AUTO_READ, true)
                         .childOption(ChannelOption.ALLOCATOR, ByteBufAllocator.DEFAULT)
-                        .channel(NettyUtils.getServerSocketChannelClass())
+                        .channelFactory(NettyUtils.getServerChannelFactory())
                         .childHandler(new NettyHttpServerInitializer(this, hostAndPort))
                         .bind(hostAndPort.getHost(), hostAndPort.getPort())
                         .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE)
                         .addListener(ChannelFutureListener.CLOSE_ON_FAILURE)
                         .sync()
                         .channel()
-                        .closeFuture()));
-
-                return true;
+                        .closeFuture())) == null;
             } catch (InterruptedException exception) {
                 exception.printStackTrace();
             }
@@ -174,18 +171,15 @@ public final class NettyHttpServer extends NettySSLServer implements IHttpServer
         this.clearHandlers();
     }
 
-
     @ToString
     @EqualsAndHashCode
     public static class HttpHandlerEntry implements Comparable<HttpHandlerEntry> {
 
         public final String path;
+        public final Integer port;
+        public final int priority;
 
         public final IHttpHandler httpHandler;
-
-        public final Integer port;
-
-        public final int priority;
 
         public HttpHandlerEntry(String path, IHttpHandler httpHandler, Integer port, int priority) {
             this.path = path;

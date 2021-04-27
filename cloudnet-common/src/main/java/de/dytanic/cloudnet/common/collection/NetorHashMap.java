@@ -6,54 +6,54 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class NetorHashMap<K, F, S> {
 
-    protected ConcurrentHashMap<K, Pair<F, S>> wrapped = new ConcurrentHashMap<>();
+    protected final ConcurrentHashMap<K, Pair<F, S>> wrapped = new ConcurrentHashMap<>();
 
     public Set<Map.Entry<K, Pair<F, S>>> entrySet() {
-        return wrapped.entrySet();
+        return this.wrapped.entrySet();
     }
 
     public void clear() {
-        wrapped.clear();
+        this.wrapped.clear();
     }
 
     public int size() {
-        return wrapped.size();
+        return this.wrapped.size();
     }
 
     public void add(K key, F valueF, S valueS) {
-        wrapped.put(key, new Pair<>(valueF, valueS));
+        this.wrapped.put(key, new Pair<>(valueF, valueS));
     }
 
     public void remove(K key) {
-        wrapped.remove(key);
+        this.wrapped.remove(key);
     }
 
     public Set<K> keySet() {
-        return wrapped.keySet();
+        return this.wrapped.keySet();
     }
 
     public boolean contains(K key) {
-        return wrapped.containsKey(key);
+        return this.wrapped.containsKey(key);
     }
 
     public Pair<F, S> get(K key) {
-        return wrapped.get(key);
+        return this.wrapped.get(key);
     }
 
     public F getFirst(K key) {
-        return wrapped.get(key).getFirst();
+        return this.wrapped.get(key).getFirst();
     }
 
     public S getSecond(K key) {
-        return wrapped.get(key).getSecond();
+        return this.wrapped.get(key).getSecond();
     }
 
     public void replaceFirst(K key, F value) {
-        wrapped.get(key).setFirst(value);
+        this.wrapped.get(key).setFirst(value);
     }
 
     public void replaceSecond(K key, S value) {
-        wrapped.get(key).setSecond(value);
+        this.wrapped.get(key).setSecond(value);
     }
 
 }

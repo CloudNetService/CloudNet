@@ -70,11 +70,11 @@ public class NPCConfigurationEntry {
     }
 
     public String getTargetGroup() {
-        return targetGroup;
+        return this.targetGroup;
     }
 
     public double getInfoLineDistance() {
-        return infoLineDistance;
+        return this.infoLineDistance;
     }
 
     public void setInfoLineDistance(double infoLineDistance) {
@@ -82,7 +82,7 @@ public class NPCConfigurationEntry {
     }
 
     public int getInventorySize() {
-        return inventorySize;
+        return this.inventorySize;
     }
 
     public void setInventorySize(int inventorySize) {
@@ -90,7 +90,7 @@ public class NPCConfigurationEntry {
     }
 
     public int getStartSlot() {
-        return startSlot;
+        return this.startSlot;
     }
 
     public void setStartSlot(int startSlot) {
@@ -98,7 +98,7 @@ public class NPCConfigurationEntry {
     }
 
     public int getEndSlot() {
-        return endSlot;
+        return this.endSlot;
     }
 
     public void setEndSlot(int endSlot) {
@@ -106,7 +106,7 @@ public class NPCConfigurationEntry {
     }
 
     public boolean isShowFullServices() {
-        return showFullServices;
+        return this.showFullServices;
     }
 
     public void setShowFullServices(boolean showFullServices) {
@@ -114,7 +114,7 @@ public class NPCConfigurationEntry {
     }
 
     public ItemLayout getOnlineItem() {
-        return onlineItem;
+        return this.onlineItem;
     }
 
     public void setOnlineItem(ItemLayout onlineItem) {
@@ -122,7 +122,7 @@ public class NPCConfigurationEntry {
     }
 
     public ItemLayout getEmptyItem() {
-        return emptyItem;
+        return this.emptyItem;
     }
 
     public void setEmptyItem(ItemLayout emptyItem) {
@@ -130,7 +130,7 @@ public class NPCConfigurationEntry {
     }
 
     public ItemLayout getFullItem() {
-        return fullItem;
+        return this.fullItem;
     }
 
     public void setFullItem(ItemLayout fullItem) {
@@ -138,7 +138,7 @@ public class NPCConfigurationEntry {
     }
 
     public Map<Integer, ItemLayout> getInventoryLayout() {
-        return inventoryLayout;
+        return this.inventoryLayout;
     }
 
     public void setInventoryLayout(Map<Integer, ItemLayout> inventoryLayout) {
@@ -146,7 +146,7 @@ public class NPCConfigurationEntry {
     }
 
     public LabyModEmotes getLabyModEmotes() {
-        return labyModEmotes;
+        return this.labyModEmotes;
     }
 
     public void setLabyModEmotes(LabyModEmotes labyModEmotes) {
@@ -154,7 +154,7 @@ public class NPCConfigurationEntry {
     }
 
     public long getNPCTabListRemoveTicks() {
-        return npcTabListRemoveTicks;
+        return this.npcTabListRemoveTicks;
     }
 
     public void setNPCTabListRemoveTicks(long npcTabListRemoveTicks) {
@@ -178,7 +178,7 @@ public class NPCConfigurationEntry {
         }
 
         public int[] getEmoteIds() {
-            return emoteIds;
+            return this.emoteIds;
         }
 
         public void setEmoteIds(int[] emoteIds) {
@@ -186,7 +186,7 @@ public class NPCConfigurationEntry {
         }
 
         public int[] getOnJoinEmoteIds() {
-            return onJoinEmoteIds;
+            return this.onJoinEmoteIds;
         }
 
         public void setOnJoinEmoteIds(int[] onJoinEmoteIds) {
@@ -194,7 +194,7 @@ public class NPCConfigurationEntry {
         }
 
         public long getMinEmoteDelayTicks() {
-            return minEmoteDelayTicks;
+            return this.minEmoteDelayTicks;
         }
 
         public void setMinEmoteDelayTicks(long minEmoteDelayTicks) {
@@ -202,7 +202,7 @@ public class NPCConfigurationEntry {
         }
 
         public long getMaxEmoteDelayTicks() {
-            return maxEmoteDelayTicks;
+            return this.maxEmoteDelayTicks;
         }
 
         public void setMaxEmoteDelayTicks(long maxEmoteDelayTicks) {
@@ -210,7 +210,7 @@ public class NPCConfigurationEntry {
         }
 
         public boolean isPlayEmotesSynchronous() {
-            return playEmotesSynchronous;
+            return this.playEmotesSynchronous;
         }
 
         public void setPlayEmotesSynchronous(boolean playEmotesSynchronous) {
@@ -239,7 +239,7 @@ public class NPCConfigurationEntry {
         }
 
         public String getMaterial() {
-            return material;
+            return this.material;
         }
 
         public void setMaterial(String material) {
@@ -247,7 +247,7 @@ public class NPCConfigurationEntry {
         }
 
         public int getSubId() {
-            return subId;
+            return this.subId;
         }
 
         public void setSubId(int subId) {
@@ -255,7 +255,7 @@ public class NPCConfigurationEntry {
         }
 
         public String getDisplayName() {
-            return displayName;
+            return this.displayName;
         }
 
         public void setDisplayName(String displayName) {
@@ -263,7 +263,7 @@ public class NPCConfigurationEntry {
         }
 
         public List<String> getLore() {
-            return lore;
+            return this.lore;
         }
 
         public void setLore(List<String> lore) {

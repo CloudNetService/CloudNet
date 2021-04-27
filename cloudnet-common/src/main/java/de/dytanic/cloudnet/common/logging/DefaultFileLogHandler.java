@@ -1,35 +1,35 @@
 package de.dytanic.cloudnet.common.logging;
 
+import de.dytanic.cloudnet.common.io.FileUtils;
+import org.jetbrains.annotations.NotNull;
+
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 
 /**
  * A standard file logger for this LoggingAPI. All important configurations can be made in the constructor
  */
 public final class DefaultFileLogHandler extends AbstractLogHandler {
 
-    public static final long SIZE_8MB = 8000000L;
+    public static final long SIZE_8MB = 8 * 1024 * 1024;
 
-
-    private final File directory;
-
+    private final Path directory;
     private final String pattern;
-
     private final long maxBytes;
 
+    private Path entry;
+    private OutputStream outputStream;
+    private long writtenBytes = 0L;
 
-    private File entry;
-
-    private PrintWriter printWriter;
-
-    private long writternBytes = 0L;
-
-    private File errorFile;
+    private Path errorFile;
+    private OutputStream errorWriter;
     private long writtenErrorBytes = 0L;
-    private PrintWriter errorWriter;
 
     /**
      * The default constructor with all important configuration
@@ -38,18 +38,23 @@ public final class DefaultFileLogHandler extends AbstractLogHandler {
      * @param pattern   the file pattern, for the log files like "app.log" will be to than "app.log.0"
      * @param maxBytes  the maximum bytes, that a log file should have, to switch to the next log file
      */
+    @Deprecated
     public DefaultFileLogHandler(File directory, String pattern, long maxBytes) {
+        this(directory.toPath(), pattern, maxBytes);
+    }
+
+    public DefaultFileLogHandler(Path directory, String pattern, long maxBytes) {
         if (directory == null) {
-            directory = new File(System.getProperty("cloudnet.logging.fallback.log.directory", "logs"));
+            directory = Paths.get(System.getProperty("cloudnet.logging.fallback.log.directory", "logs"));
         }
 
         this.directory = directory;
-        this.directory.mkdirs();
+        FileUtils.createDirectoryReported(this.directory);
 
         this.pattern = pattern;
         this.maxBytes = maxBytes;
 
-        this.entry = this.initPrintWriter(selectLogFile(this.printWriter, this.writternBytes, this.pattern));
+        this.entry = this.init(this.selectLogFile(null, this.pattern));
     }
 
     /**
@@ -59,8 +64,8 @@ public final class DefaultFileLogHandler extends AbstractLogHandler {
      */
     public DefaultFileLogHandler setEnableErrorLog(boolean enableErrorLog) throws IOException {
         if (enableErrorLog && this.errorWriter == null) {
-            this.errorFile = this.initErrorWriter(this.selectLogFile(null, this.writtenErrorBytes, "error.log"));
-            this.errorWriter = new PrintWriter(new FileWriter(this.errorFile, true));
+            this.errorFile = this.initErrorWriter(this.selectLogFile(null, "error.%d.log"));
+            this.errorWriter = Files.newOutputStream(this.errorFile);
         } else if (!enableErrorLog && this.errorWriter != null) {
             this.errorWriter.close();
             this.errorWriter = null;
@@ -69,121 +74,134 @@ public final class DefaultFileLogHandler extends AbstractLogHandler {
     }
 
     @Override
-    public void handle(LogEntry logEntry) {
-        if (getFormatter() == null) {
-            setFormatter(new DefaultLogFormatter());
+    public void handle(@NotNull LogEntry logEntry) throws Exception {
+        if (this.outputStream == null) {
+            // handler is not available
+            return;
         }
 
-        if (entry == null || this.entry.length() > maxBytes) {
-            this.entry = this.initPrintWriter(selectLogFile(this.printWriter, this.writternBytes, this.pattern));
+        if (this.entry == null || Files.size(this.entry) > this.maxBytes) {
+            this.entry = this.init(this.selectLogFile(this.outputStream, this.pattern));
         }
 
-        String formatted = getFormatter().format(logEntry);
+        String formatted = this.getFormatter().format(logEntry);
         byte[] formattedBytes = formatted.getBytes(StandardCharsets.UTF_8);
-        this.writternBytes = writternBytes + formattedBytes.length;
+        this.writtenBytes += formattedBytes.length;
 
-        if (this.writternBytes > maxBytes) {
-            this.entry = this.initPrintWriter(selectLogFile(this.printWriter, this.writternBytes, this.pattern));
+        if (this.writtenBytes > this.maxBytes) {
+            this.entry = this.init(this.selectLogFile(this.outputStream, this.pattern));
+            this.writtenBytes = 0;
         }
 
-        printWriter.write(formatted);
-        printWriter.flush();
+        if (this.writeTo(this.outputStream, formattedBytes)) {
+            this.entry = this.init(this.selectLogFile(this.outputStream, this.pattern));
+            this.writtenBytes = 0;
+        }
 
         if (this.errorWriter != null && logEntry.getLogLevel().getLevel() >= 126 && logEntry.getLogLevel().getLevel() <= 127) {
-            if (this.errorFile == null || this.errorFile.length() > maxBytes) {
-                this.errorFile = this.initErrorWriter(selectLogFile(this.errorWriter, this.writtenErrorBytes, "error.log"));
+            if (this.errorFile == null || Files.size(this.errorFile) > this.maxBytes) {
+                this.errorFile = this.initErrorWriter(this.selectLogFile(this.errorWriter, "error.%d.log"));
             }
 
             this.writtenErrorBytes += formattedBytes.length;
-
-            if (this.writtenErrorBytes > maxBytes) {
-                this.errorFile = this.initErrorWriter(selectLogFile(this.errorWriter, this.writtenErrorBytes, "error.log"));
+            if (this.writtenErrorBytes > this.maxBytes) {
+                this.errorFile = this.initErrorWriter(this.selectLogFile(this.errorWriter, "error.%d.log"));
+                this.writtenErrorBytes = 0;
             }
 
-            this.errorWriter.write(formatted);
-            this.errorWriter.flush();
+            if (this.writeTo(this.errorWriter, formattedBytes)) {
+                this.errorFile = this.initErrorWriter(this.selectLogFile(this.errorWriter, "error.log"));
+                this.writtenErrorBytes = 0;
+            }
         }
     }
 
     @Override
-    public void close() {
-        printWriter.flush();
-        printWriter.close();
+    public void close() throws Exception {
+        if (this.outputStream != null) {
+            this.outputStream.flush();
+            this.outputStream.close();
+            this.outputStream = null;
+        }
+        if (this.errorWriter != null) {
+            this.errorWriter.flush();
+            this.errorWriter.close();
+            this.errorWriter = null;
+        }
     }
 
-    public File getDirectory() {
+    public Path getDirectory() {
         return directory;
     }
 
     public String getPattern() {
-        return pattern;
+        return this.pattern;
     }
 
     public long getMaxBytes() {
-        return maxBytes;
+        return this.maxBytes;
     }
 
-    public File getEntry() {
+    public Path getEntry() {
         return entry;
     }
 
-    public PrintWriter getPrintWriter() {
-        return printWriter;
+    public long getWrittenBytes() {
+        return writtenBytes;
     }
 
-    public long getWritternBytes() {
-        return writternBytes;
-    }
-
-    private File selectLogFile(PrintWriter printWriter, long writternBytes, String pattern) {
-        if (printWriter != null) {
-            printWriter.close();
-        }
-        if (writternBytes != 0L) {
-        }
-
-        entry = null;
-        File file;
-
-        int index = 0;
-
-        while (true) {
-            file = new File(directory, pattern + "." + index);
-
+    private Path selectLogFile(OutputStream currentTargetStream, String pattern) {
+        if (currentTargetStream != null) {
             try {
-
-                if (!file.exists()) {
-                    file.createNewFile();
-                }
-
-                if (file.length() < maxBytes) {
-                    index = 0;
-                    return file;
-                }
-
-            } catch (Exception exception) {
+                currentTargetStream.close();
+            } catch (IOException exception) {
                 exception.printStackTrace();
             }
+        }
 
-            index++;
+        Path path;
+        int index = 0;
+        while (true) {
+            try {
+                path = this.directory.resolve(String.format(pattern, index++));
+                if (Files.notExists(path)) {
+                    Files.createFile(path);
+                    return path;
+                }
+                if (!Files.isDirectory(path) && Files.size(path) < this.maxBytes) {
+                    return path;
+                }
+            } catch (IOException exception) {
+                exception.printStackTrace();
+            }
         }
     }
 
-    private File initPrintWriter(File file) {
+    private Path init(Path file) {
         try {
-            this.printWriter = new PrintWriter(new FileWriter(file, true));
+            this.outputStream = Files.newOutputStream(file, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
         } catch (IOException exception) {
             exception.printStackTrace();
         }
         return file;
     }
 
-    private File initErrorWriter(File file) {
+    private Path initErrorWriter(Path file) {
         try {
-            this.errorWriter = new PrintWriter(new FileWriter(file, true));
+            this.errorWriter = Files.newOutputStream(file, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
         } catch (IOException exception) {
             exception.printStackTrace();
         }
         return file;
+    }
+
+    private boolean writeTo(OutputStream target, byte[] content) {
+        try {
+            target.write(content);
+            target.flush();
+            return false;
+        } catch (IOException exception) {
+            return true;
+        }
     }
 }

@@ -3,6 +3,7 @@ package de.dytanic.cloudnet.wrapper.log;
 import de.dytanic.cloudnet.common.logging.AbstractLogHandler;
 import de.dytanic.cloudnet.common.logging.LogEntry;
 import de.dytanic.cloudnet.common.logging.LogLevel;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.PrintStream;
 
@@ -20,7 +21,7 @@ public final class InternalPrintStreamLogHandler extends AbstractLogHandler {
     }
 
     @Override
-    public void handle(LogEntry logEntry) {
+    public void handle(@NotNull LogEntry logEntry) {
         PrintStream targetStream = logEntry.getLogLevel().equals(LogLevel.ERROR) || logEntry.getLogLevel().equals(LogLevel.WARNING)
                 ? this.errorStream
                 : this.outputStream;

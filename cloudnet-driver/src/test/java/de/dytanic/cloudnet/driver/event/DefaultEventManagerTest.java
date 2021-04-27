@@ -24,7 +24,7 @@ public final class DefaultEventManagerTest {
 
         Assert.assertNotNull(eventManager.unregisterListener(ListenerTest.class));
         Assert.assertNotNull(eventManager.callEvent("set", testEvent));
-        Assert.assertEquals(46, publisherCounter.get());
+        Assert.assertEquals(46, this.publisherCounter.get());
 
         Assert.assertEquals("Test_value1234", testEvent.value);
 
@@ -60,7 +60,7 @@ public final class DefaultEventManagerTest {
         Assert.assertEquals("value_789", testEvent.value);
     }
 
-    private final class TestEvent extends Event {
+    public static final class TestEvent extends Event {
 
         public String value;
 
@@ -70,14 +70,14 @@ public final class DefaultEventManagerTest {
     }
 
 
-    private final class ListenerTest {
+    public final class ListenerTest {
 
         @EventListener(channel = "set")
         public void onTestExecute(TestEvent testEvent) {
             Assert.assertEquals("Test_value1234", testEvent.value);
 
             testEvent.value = "test_result";
-            publisherCounter.incrementAndGet();
+            DefaultEventManagerTest.this.publisherCounter.incrementAndGet();
         }
 
         @EventListener(channel = "test_channel")
@@ -86,7 +86,7 @@ public final class DefaultEventManagerTest {
         }
     }
 
-    private final class ListenerTest2 {
+    public final class ListenerTest2 {
 
         @EventListener(channel = "test_channel_2", priority = EventPriority.HIGHEST)
         public void onTestExecute(TestEvent testEvent) {

@@ -1,11 +1,9 @@
 package de.dytanic.cloudnet.ext.bridge.bungee.listener;
 
-import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.ext.bridge.BridgeHelper;
 import de.dytanic.cloudnet.ext.bridge.bungee.BungeeCloudNetBridgePlugin;
 import de.dytanic.cloudnet.ext.bridge.bungee.BungeeCloudNetHelper;
-import de.dytanic.cloudnet.ext.bridge.player.NetworkServiceInfo;
 import de.dytanic.cloudnet.ext.bridge.proxy.BridgeProxyHelper;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -27,10 +25,10 @@ public final class BungeePlayerListener implements Listener {
 
     @EventHandler
     public void handle(LoginEvent event) {
-        JsonDocument response = BridgeHelper.sendChannelMessageProxyLoginRequest(BungeeCloudNetHelper.createNetworkConnectionInfo(event.getConnection()));
-        if (response != null && response.contains("kickReason")) {
+        String kickReason = BridgeHelper.sendChannelMessageProxyLoginRequest(BungeeCloudNetHelper.createNetworkConnectionInfo(event.getConnection()));
+        if (kickReason != null) {
             event.setCancelled(true);
-            event.setCancelReason(TextComponent.fromLegacyText(response.getString("kickReason")));
+            event.setCancelReason(TextComponent.fromLegacyText(kickReason));
         }
     }
 
@@ -45,11 +43,9 @@ public final class BungeePlayerListener implements Listener {
         ServiceInfoSnapshot serviceInfoSnapshot = BridgeProxyHelper.getCachedServiceInfoSnapshot(event.getPlayer().getServer().getInfo().getName());
 
         if (serviceInfoSnapshot != null) {
-            BridgeHelper.sendChannelMessageProxyServerSwitch(BungeeCloudNetHelper.createNetworkConnectionInfo(event.getPlayer().getPendingConnection()),
-                    new NetworkServiceInfo(
-                            serviceInfoSnapshot.getServiceId(),
-                            serviceInfoSnapshot.getConfiguration().getGroups()
-                    )
+            BridgeHelper.sendChannelMessageProxyServerSwitch(
+                    BungeeCloudNetHelper.createNetworkConnectionInfo(event.getPlayer().getPendingConnection()),
+                    BridgeHelper.createNetworkServiceInfo(serviceInfoSnapshot)
             );
         }
     }
@@ -61,11 +57,9 @@ public final class BungeePlayerListener implements Listener {
         ServiceInfoSnapshot serviceInfoSnapshot = BridgeProxyHelper.getCachedServiceInfoSnapshot(event.getTarget().getName());
 
         if (serviceInfoSnapshot != null) {
-            BridgeHelper.sendChannelMessageProxyServerConnectRequest(BungeeCloudNetHelper.createNetworkConnectionInfo(proxiedPlayer.getPendingConnection()),
-                    new NetworkServiceInfo(
-                            serviceInfoSnapshot.getServiceId(),
-                            serviceInfoSnapshot.getConfiguration().getGroups()
-                    )
+            BridgeHelper.sendChannelMessageProxyServerConnectRequest(
+                    BungeeCloudNetHelper.createNetworkConnectionInfo(proxiedPlayer.getPendingConnection()),
+                    BridgeHelper.createNetworkServiceInfo(serviceInfoSnapshot)
             );
         }
     }
@@ -82,7 +76,7 @@ public final class BungeePlayerListener implements Listener {
             }
             BridgeProxyHelper.handleConnectionFailed(event.getPlayer().getUniqueId(), kickFrom.getName());
 
-            BungeeCloudNetHelper.getNextFallback(event.getPlayer()).ifPresent(serverInfo -> {
+            BungeeCloudNetHelper.getNextFallback(event.getPlayer(), kickFrom).ifPresent(serverInfo -> {
                 event.setCancelled(true);
                 event.setCancelServer(serverInfo);
                 event.getPlayer().sendMessage(event.getKickReasonComponent());

@@ -1,7 +1,7 @@
 package de.dytanic.cloudnet.ext.bridge.bungee.command;
 
-import de.dytanic.cloudnet.common.command.CommandInfo;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
+import de.dytanic.cloudnet.driver.command.CommandInfo;
 import de.dytanic.cloudnet.ext.bridge.BridgeConfigurationProvider;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
@@ -43,16 +43,14 @@ public final class CommandCloudNet extends Command implements TabExecutor {
             }
         }
 
-        String[] messages = CloudNetDriver.getInstance().sendCommandLine(commandLine);
-
-        if (messages != null) {
+        CloudNetDriver.getInstance().getNodeInfoProvider().sendCommandLineAsync(commandLine).onComplete(messages -> {
             for (String message : messages) {
                 if (message != null) {
                     sender.sendMessage(TextComponent.fromLegacyText(
                             ChatColor.translateAlternateColorCodes('&', BridgeConfigurationProvider.load().getPrefix() + message)));
                 }
             }
-        }
+        });
     }
 
     @Override

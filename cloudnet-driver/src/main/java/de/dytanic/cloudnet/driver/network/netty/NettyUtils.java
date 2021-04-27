@@ -1,7 +1,12 @@
 package de.dytanic.cloudnet.driver.network.netty;
 
+import de.dytanic.cloudnet.driver.CloudNetDriver;
+import de.dytanic.cloudnet.driver.DriverEnvironment;
 import io.netty.buffer.ByteBuf;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelFactory;
 import io.netty.channel.EventLoopGroup;
+import io.netty.channel.ServerChannel;
 import io.netty.channel.epoll.Epoll;
 import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.epoll.EpollServerSocketChannel;
@@ -16,14 +21,15 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.util.ResourceLeakDetector;
-import io.netty.util.concurrent.DefaultThreadFactory;
-import io.netty.util.concurrent.MultithreadEventExecutorGroup;
+import io.netty.util.concurrent.FastThreadLocalThread;
+import org.jetbrains.annotations.ApiStatus;
 
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ThreadFactory;
 
-
 public final class NettyUtils {
+
+    private static final ThreadFactory THREAD_FACTORY = FastThreadLocalThread::new;
 
     static {
         ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.DISABLED);
@@ -34,7 +40,10 @@ public final class NettyUtils {
     }
 
     public static EventLoopGroup newEventLoopGroup() {
-        int threads = Math.min(Runtime.getRuntime().availableProcessors(), 4);
+        int threads = CloudNetDriver.optionalInstance()
+                .filter(cloudNetDriver -> cloudNetDriver.getDriverEnvironment() == DriverEnvironment.CLOUDNET)
+                .map(cloudNetDriver -> 0)
+                .orElse(4);
 
         return Epoll.isAvailable() ?
                 new EpollEventLoopGroup(threads, threadFactory()) :
@@ -43,16 +52,28 @@ public final class NettyUtils {
                         new NioEventLoopGroup(threads, threadFactory());
     }
 
+    @Deprecated
+    @ApiStatus.ScheduledForRemoval
     public static Class<? extends SocketChannel> getSocketChannelClass() {
         return Epoll.isAvailable() ? EpollSocketChannel.class : KQueue.isAvailable() ? KQueueSocketChannel.class : NioSocketChannel.class;
     }
 
+    public static ChannelFactory<? extends Channel> getClientChannelFactory() {
+        return Epoll.isAvailable() ? EpollSocketChannel::new : KQueue.isAvailable() ? KQueueSocketChannel::new : NioSocketChannel::new;
+    }
+
+    @Deprecated
+    @ApiStatus.ScheduledForRemoval
     public static Class<? extends ServerSocketChannel> getServerSocketChannelClass() {
         return Epoll.isAvailable() ? EpollServerSocketChannel.class : KQueue.isAvailable() ? KQueueServerSocketChannel.class : NioServerSocketChannel.class;
     }
 
+    public static ChannelFactory<? extends ServerChannel> getServerChannelFactory() {
+        return Epoll.isAvailable() ? EpollServerSocketChannel::new : KQueue.isAvailable() ? KQueueServerSocketChannel::new : NioServerSocketChannel::new;
+    }
+
     public static ThreadFactory threadFactory() {
-        return new DefaultThreadFactory(MultithreadEventExecutorGroup.class, true, Thread.MIN_PRIORITY);
+        return THREAD_FACTORY;
     }
 
     public static byte[] toByteArray(ByteBuf byteBuf, int size) {

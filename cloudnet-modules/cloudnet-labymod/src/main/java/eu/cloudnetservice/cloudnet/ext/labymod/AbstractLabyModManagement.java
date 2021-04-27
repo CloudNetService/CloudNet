@@ -14,7 +14,7 @@ import java.util.UUID;
 
 public abstract class AbstractLabyModManagement {
 
-    private IPlayerManager playerManager;
+    private final IPlayerManager playerManager;
 
     public AbstractLabyModManagement(IPlayerManager playerManager) {
         this.playerManager = playerManager;
@@ -28,6 +28,19 @@ public abstract class AbstractLabyModManagement {
     protected abstract void connectPlayer(UUID playerId, String target);
 
     protected abstract void sendData(UUID playerId, byte[] data);
+
+    public void sendPermissions(UUID uniqueId) {
+        if (!LabyModUtils.getConfiguration().getPermissionConfig().isEnabled()) {
+            return;
+        }
+
+        final byte[] permissionBytes = LabyModChannelUtils.getLMCMessageContents(
+                "PERMISSIONS",
+                JsonDocument.newDocument(LabyModUtils.getConfiguration().getPermissionConfig().getLabyModPermissions())
+        );
+
+        this.sendData(uniqueId, permissionBytes);
+    }
 
     public void connectTo(UUID player, ICloudPlayer target) {
         ServiceInfoSnapshot connectedService = BridgeProxyHelper.getCachedServiceInfoSnapshot(target.getConnectedService().getServerName());

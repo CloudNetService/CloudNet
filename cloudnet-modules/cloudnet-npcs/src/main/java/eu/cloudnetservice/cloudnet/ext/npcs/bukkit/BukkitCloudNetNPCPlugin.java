@@ -40,6 +40,8 @@ public class BukkitCloudNetNPCPlugin extends JavaPlugin {
     @Override
     public void onDisable() {
         if (this.npcManagement != null) {
+            CloudNetDriver.getInstance().getEventManager().unregisterListener(this.npcManagement);
+
             this.npcManagement.shutdown();
             CloudNetDriver.getInstance().getServicesRegistry().unregisterService(AbstractNPCManagement.class, this.npcManagement);
         }

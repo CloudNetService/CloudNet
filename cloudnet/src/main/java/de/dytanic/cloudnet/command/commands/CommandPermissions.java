@@ -11,6 +11,7 @@ import de.dytanic.cloudnet.command.sub.SubCommandHandler;
 import de.dytanic.cloudnet.common.INameable;
 import de.dytanic.cloudnet.common.collection.Triple;
 import de.dytanic.cloudnet.common.language.LanguageManager;
+import de.dytanic.cloudnet.console.ConsoleColor;
 import de.dytanic.cloudnet.driver.permission.*;
 import de.dytanic.cloudnet.driver.service.GroupConfiguration;
 
@@ -361,25 +362,44 @@ public class CommandPermissions extends SubCommandHandler {
                         dynamicString("suffix")
                 )
                 .generateCommand(
-                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> ((IPermissionGroup) internalProperties.get("group")).setColor((String) args.argument(4)),
-                        subCommand -> subCommand.appendUsage("| 1.13+"),
-                        exactStringIgnoreCase("color"),
-                        dynamicString("color", 2)
-                )
-                .generateCommand(
                         (subCommand, sender, command, args, commandLine, properties, internalProperties) -> ((IPermissionGroup) internalProperties.get("group")).setDefaultGroup((boolean) args.argument(4)),
                         exactStringIgnoreCase("defaultGroup"),
                         bool("defaultGroup")
                 )
-                .removeLastPrefix()
                 .removeLastPostHandler()
+
+                .generateCommand(
+                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
+                            IPermissionGroup group = (IPermissionGroup) internalProperties.get("group");
+
+                            String rawColor = (String) args.argument(4);
+
+                            group.setColor(rawColor);
+                            CloudNet.getInstance().getPermissionManagement().updateGroup(group);
+
+                            String rawColorCode = rawColor.replace("&", "").replace("§", "");
+                            ConsoleColor color = rawColorCode.length() == 0 ? null : ConsoleColor.getByChar(rawColorCode.charAt(0));
+
+                            sender.sendMessage(
+                                    LanguageManager.getMessage("command-permissions-group-update-property")
+                                            .replace("%group%", group.getName())
+                                            .replace("%value%", color != null ? "&" + color.getIndex() + color.name() : rawColor)
+                                            .replace("%property%", (String) args.argument(3))
+                            );
+                        },
+                        subCommand -> subCommand.appendUsage("| 1.13+"),
+                        exactStringIgnoreCase("color"),
+                        dynamicString("color", 2)
+                )
+                .removeLastPrefix()
 
                 .generateCommand(
                         (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
                             IPermissionGroup group = ((IPermissionGroup) internalProperties.get("group"));
                             String name = (String) args.argument("name").get();
-
                             group.getGroups().add(name);
+
+                            CloudNet.getInstance().getPermissionManagement().updateGroup(group);
                             sender.sendMessage(LanguageManager.getMessage("command-permissions-group-add-group-successful")
                                     .replace("%name%", group.getName())
                                     .replace("%group%", name)
@@ -423,19 +443,18 @@ public class CommandPermissions extends SubCommandHandler {
                 .generateCommand(
                         (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
                             IPermissionGroup group = (IPermissionGroup) internalProperties.get("group");
-                            String parentGroup = (String) args.argument("group").get();
-                            group.getGroups().remove(parentGroup);
+                            String name = (String) args.argument("name").get();
+                            group.getGroups().remove(name);
 
                             CloudNet.getInstance().getPermissionManagement().updateGroup(group);
                             sender.sendMessage(LanguageManager.getMessage("command-permissions-group-remove-group-successful")
-                                    .replace("%name%", parentGroup)
+                                    .replace("%name%", name)
                                     .replace("%group%", group.getName())
                             );
                         },
                         anyStringIgnoreCase("remove", "rm"),
                         anyStringIgnoreCase("group", "g"),
-                        dynamicString("group")
-
+                        dynamicString("name")
                 )
 
                 .removeLastPrefix()

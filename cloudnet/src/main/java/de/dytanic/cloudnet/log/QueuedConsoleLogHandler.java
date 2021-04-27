@@ -4,6 +4,7 @@ import de.dytanic.cloudnet.common.logging.ILogHandler;
 import de.dytanic.cloudnet.common.logging.LogEntry;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.event.log.LoggingEntryEvent;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -19,11 +20,11 @@ public final class QueuedConsoleLogHandler implements ILogHandler {
     private final Queue<LogEntry> cachedQueuedLogEntries = new ConcurrentLinkedQueue<>();
 
     @Override
-    public void handle(LogEntry logEntry) {
-        cachedQueuedLogEntries.offer(logEntry);
+    public void handle(@NotNull LogEntry logEntry) {
+        this.cachedQueuedLogEntries.offer(logEntry);
 
-        while (cachedQueuedLogEntries.size() > 128) {
-            cachedQueuedLogEntries.poll();
+        while (this.cachedQueuedLogEntries.size() > 128) {
+            this.cachedQueuedLogEntries.poll();
         }
 
         CloudNetDriver.getInstance().getEventManager().callEvent(new LoggingEntryEvent(logEntry));

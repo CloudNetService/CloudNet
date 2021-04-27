@@ -1,19 +1,27 @@
 package de.dytanic.cloudnet.driver.service;
 
 import de.dytanic.cloudnet.common.INameable;
+import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
+import de.dytanic.cloudnet.driver.serialization.SerializableObject;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = false)
-public class ServiceTask extends ServiceConfigurationBase implements INameable {
+public class ServiceTask extends ServiceConfigurationBase implements INameable, SerializableObject {
 
     private String name;
 
     private String runtime;
+
+    private String javaCommand;
+
+    private boolean disableIpRewrite;
 
     private boolean maintenance, autoDeleteOnStop, staticServices;
 
@@ -47,6 +55,12 @@ public class ServiceTask extends ServiceConfigurationBase implements INameable {
     }
 
     public ServiceTask(Collection<ServiceRemoteInclusion> includes, Collection<ServiceTemplate> templates, Collection<ServiceDeployment> deployments,
+                       String name, String runtime, boolean autoDeleteOnStop, boolean staticServices, Collection<String> associatedNodes, Collection<String> groups,
+                       Collection<String> deletedFilesAfterStop, ProcessConfiguration processConfiguration, int startPort, int minServiceCount, String javaCommand) {
+        this(includes, templates, deployments, name, runtime, false, autoDeleteOnStop, staticServices, associatedNodes, groups, deletedFilesAfterStop, processConfiguration, startPort, minServiceCount, javaCommand);
+    }
+
+    public ServiceTask(Collection<ServiceRemoteInclusion> includes, Collection<ServiceTemplate> templates, Collection<ServiceDeployment> deployments,
                        String name, String runtime, boolean maintenance, boolean autoDeleteOnStop, boolean staticServices, Collection<String> associatedNodes, Collection<String> groups,
                        ProcessConfiguration processConfiguration, int startPort, int minServiceCount) {
         this(includes, templates, deployments, name, runtime, maintenance, autoDeleteOnStop, staticServices, associatedNodes, groups, new ArrayList<>(), processConfiguration, startPort, minServiceCount);
@@ -55,6 +69,12 @@ public class ServiceTask extends ServiceConfigurationBase implements INameable {
     public ServiceTask(Collection<ServiceRemoteInclusion> includes, Collection<ServiceTemplate> templates, Collection<ServiceDeployment> deployments,
                        String name, String runtime, boolean maintenance, boolean autoDeleteOnStop, boolean staticServices, Collection<String> associatedNodes, Collection<String> groups,
                        Collection<String> deletedFilesAfterStop, ProcessConfiguration processConfiguration, int startPort, int minServiceCount) {
+        this(includes, templates, deployments, name, runtime, maintenance, autoDeleteOnStop, staticServices, associatedNodes, groups, deletedFilesAfterStop, processConfiguration, startPort, minServiceCount, null);
+    }
+
+    public ServiceTask(Collection<ServiceRemoteInclusion> includes, Collection<ServiceTemplate> templates, Collection<ServiceDeployment> deployments,
+                       String name, String runtime, boolean maintenance, boolean autoDeleteOnStop, boolean staticServices, Collection<String> associatedNodes, Collection<String> groups,
+                       Collection<String> deletedFilesAfterStop, ProcessConfiguration processConfiguration, int startPort, int minServiceCount, String javaCommand) {
         super(includes, templates, deployments);
         this.name = name;
         this.runtime = runtime;
@@ -67,6 +87,7 @@ public class ServiceTask extends ServiceConfigurationBase implements INameable {
         this.startPort = startPort;
         this.minServiceCount = minServiceCount;
         this.staticServices = staticServices;
+        this.javaCommand = javaCommand;
     }
 
     public ServiceTask() {
@@ -75,6 +96,11 @@ public class ServiceTask extends ServiceConfigurationBase implements INameable {
     @Override
     public Collection<String> getJvmOptions() {
         return this.processConfiguration.getJvmOptions();
+    }
+
+    @Override
+    public Collection<String> getProcessParameters() {
+        return this.processConfiguration.getProcessParameters();
     }
 
     /**
@@ -91,12 +117,29 @@ public class ServiceTask extends ServiceConfigurationBase implements INameable {
         return !this.maintenance && System.currentTimeMillis() > this.serviceStartAbilityTime;
     }
 
+    public boolean isDisableIpRewrite() {
+        return this.disableIpRewrite;
+    }
+
+    public void setDisableIpRewrite(boolean disableIpRewrite) {
+        this.disableIpRewrite = disableIpRewrite;
+    }
+
     public String getName() {
         return this.name;
     }
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    @Nullable
+    public String getJavaCommand() {
+        return this.javaCommand;
+    }
+
+    public void setJavaCommand(String javaCommand) {
+        this.javaCommand = javaCommand;
     }
 
     public String getRuntime() {
@@ -148,7 +191,7 @@ public class ServiceTask extends ServiceConfigurationBase implements INameable {
     }
 
     public Collection<String> getDeletedFilesAfterStop() {
-        return deletedFilesAfterStop;
+        return this.deletedFilesAfterStop;
     }
 
     public void setDeletedFilesAfterStop(Collection<String> deletedFilesAfterStop) {
@@ -195,10 +238,48 @@ public class ServiceTask extends ServiceConfigurationBase implements INameable {
                 new ProcessConfiguration(
                         this.processConfiguration.getEnvironment(),
                         this.processConfiguration.getMaxHeapMemorySize(),
-                        new ArrayList<>(this.processConfiguration.getJvmOptions())
+                        new ArrayList<>(this.processConfiguration.getJvmOptions()),
+                        new ArrayList<>(this.processConfiguration.getProcessParameters())
                 ),
                 this.startPort,
-                this.minServiceCount
+                this.minServiceCount,
+                this.javaCommand
         );
+    }
+
+    @Override
+    public void write(@NotNull ProtocolBuffer buffer) {
+        super.write(buffer);
+        buffer.writeString(this.name);
+        buffer.writeString(this.runtime);
+        buffer.writeOptionalString(this.javaCommand);
+        buffer.writeBoolean(this.disableIpRewrite);
+        buffer.writeBoolean(this.maintenance);
+        buffer.writeBoolean(this.autoDeleteOnStop);
+        buffer.writeBoolean(this.staticServices);
+        buffer.writeStringCollection(this.associatedNodes);
+        buffer.writeStringCollection(this.groups);
+        buffer.writeStringCollection(this.deletedFilesAfterStop);
+        buffer.writeObject(this.processConfiguration);
+        buffer.writeInt(this.startPort);
+        buffer.writeInt(this.minServiceCount);
+    }
+
+    @Override
+    public void read(@NotNull ProtocolBuffer buffer) {
+        super.read(buffer);
+        this.name = buffer.readString();
+        this.runtime = buffer.readString();
+        this.javaCommand = buffer.readOptionalString();
+        this.disableIpRewrite = buffer.readBoolean();
+        this.maintenance = buffer.readBoolean();
+        this.autoDeleteOnStop = buffer.readBoolean();
+        this.staticServices = buffer.readBoolean();
+        this.associatedNodes = buffer.readStringCollection();
+        this.groups = buffer.readStringCollection();
+        this.deletedFilesAfterStop = buffer.readStringCollection();
+        this.processConfiguration = buffer.readObject(ProcessConfiguration.class);
+        this.startPort = buffer.readInt();
+        this.minServiceCount = buffer.readInt();
     }
 }

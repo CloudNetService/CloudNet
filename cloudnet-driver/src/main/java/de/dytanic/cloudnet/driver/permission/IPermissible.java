@@ -2,6 +2,8 @@ package de.dytanic.cloudnet.driver.permission;
 
 import de.dytanic.cloudnet.common.INameable;
 import de.dytanic.cloudnet.common.document.gson.IJsonDocPropertyable;
+import de.dytanic.cloudnet.driver.CloudNetDriver;
+import de.dytanic.cloudnet.driver.serialization.SerializableObject;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -10,7 +12,9 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-public interface IPermissible extends INameable, IJsonDocPropertyable, Comparable<IPermissible> {
+public interface IPermissible extends INameable, IJsonDocPropertyable, Comparable<IPermissible>, SerializableObject {
+
+    Collection<String> getGroupNames();
 
     /**
      * Sets the name of this permissible.
@@ -59,7 +63,7 @@ public interface IPermissible extends INameable, IJsonDocPropertyable, Comparabl
      * An update via {@link IPermissionManagement#updateGroup(IPermissionGroup)} or
      * {@link IPermissionManagement#updateGroup(IPermissionGroup)} is required.
      *
-     * @param group the group where this permission should be effective
+     * @param group      the group where this permission should be effective
      * @param permission the permission
      * @return {@code true} if the permission has been added successfully or {@code false} if the given {@code permission} was null
      */
@@ -82,7 +86,7 @@ public interface IPermissible extends INameable, IJsonDocPropertyable, Comparabl
      * An update via {@link IPermissionManagement#updateGroup(IPermissionGroup)} or
      * {@link IPermissionManagement#updateGroup(IPermissionGroup)} is required.
      *
-     * @param group the group where this permission is effective
+     * @param group      the group where this permission is effective
      * @param permission the permission
      * @return {@code true} if the permission has been removed successfully or {@code false} if the given {@code permission} doesn't exist
      */
@@ -244,30 +248,19 @@ public interface IPermissible extends INameable, IJsonDocPropertyable, Comparabl
      * @return the result of this check
      */
     default PermissionCheckResult hasPermission(@NotNull Collection<Permission> permissions, @NotNull Permission permission) {
-        Permission targetPerms = permissions.stream().filter(perm -> perm.getName().equalsIgnoreCase(permission.getName())).findFirst().orElse(null);
+        return PermissionCheckResult.fromPermission(this.findMatchingPermission(permissions, permission));
+    }
 
-        if (targetPerms != null && permission.getName().equalsIgnoreCase(targetPerms.getName()) && targetPerms.getPotency() < 0) {
-            return PermissionCheckResult.FORBIDDEN;
-        }
-
-        for (Permission permissionEntry : permissions) {
-
-            if (permissionEntry.getName().equals("*") && (permissionEntry.getPotency() >= permission.getPotency() || getPotency() >= permission.getPotency())) {
-                return PermissionCheckResult.ALLOWED;
-            }
-
-            if (permissionEntry.getName().endsWith("*") && permission.getName().contains(permissionEntry.getName().replace("*", ""))
-                    && (permissionEntry.getPotency() >= permission.getPotency() || getPotency() >= permission.getPotency())) {
-                return PermissionCheckResult.ALLOWED;
-            }
-
-            if (permission.getName().equalsIgnoreCase(permissionEntry.getName()) &&
-                    (permissionEntry.getPotency() >= permission.getPotency() || getPotency() >= permission.getPotency())) {
-                return PermissionCheckResult.ALLOWED;
-            }
-        }
-
-        return PermissionCheckResult.DENIED;
+    /**
+     * Finds the best matching permission in the given {@code permissions} by logically checking the absolute potency
+     * against each other to find the permission with the highest positive or negative potency.
+     *
+     * @param permissions the permission to check for.
+     * @param permission  the initial permission to check against.
+     * @return the logic permission which has the highest potency.
+     */
+    default @Nullable Permission findMatchingPermission(@NotNull Collection<Permission> permissions, @NotNull Permission permission) {
+        return CloudNetDriver.getInstance().getPermissionManagement().findHighestPermission(permissions, permission);
     }
 
     /**
@@ -278,7 +271,7 @@ public interface IPermissible extends INameable, IJsonDocPropertyable, Comparabl
      * @return the result of this check
      */
     default PermissionCheckResult hasPermission(@NotNull String group, @NotNull Permission permission) {
-        return getGroupPermissions().containsKey(group) ? hasPermission(getGroupPermissions().get(group), permission) : PermissionCheckResult.DENIED;
+        return this.getGroupPermissions().containsKey(group) ? this.hasPermission(this.getGroupPermissions().get(group), permission) : PermissionCheckResult.DENIED;
     }
 
     /**
@@ -288,7 +281,7 @@ public interface IPermissible extends INameable, IJsonDocPropertyable, Comparabl
      * @return the result of this check
      */
     default PermissionCheckResult hasPermission(@NotNull Permission permission) {
-        return hasPermission(getPermissions(), permission);
+        return this.hasPermission(this.getPermissions(), permission);
     }
 
     /**
@@ -300,11 +293,11 @@ public interface IPermissible extends INameable, IJsonDocPropertyable, Comparabl
      * @return the result of this check
      */
     default PermissionCheckResult hasPermission(@NotNull String permission) {
-        return hasPermission(new Permission(permission, 0));
+        return this.hasPermission(new Permission(permission, 0));
     }
 
     @Override
     default int compareTo(IPermissible o) {
-        return getPotency() + o.getPotency();
+        return this.getPotency() + o.getPotency();
     }
 }

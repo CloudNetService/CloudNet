@@ -15,8 +15,6 @@ import de.dytanic.cloudnet.service.ICloudService;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Map;
-import java.util.UUID;
 
 final class NetworkChannelHandlerUtils {
 
@@ -49,11 +47,11 @@ final class NetworkChannelHandlerUtils {
 
         Collection<Packet> removed = new ArrayList<>();
 
-        for (Map.Entry<UUID, ServiceInfoSnapshot> entry : CloudNet.getInstance().getCloudServiceManager().getGlobalServiceInfoSnapshots().entrySet()) {
-            if (entry.getValue().getServiceId().getNodeUniqueId().equalsIgnoreCase(clusterNodeServer.getNodeInfo().getUniqueId())) {
-                CloudNet.getInstance().getCloudServiceManager().getGlobalServiceInfoSnapshots().remove(entry.getKey());
-                removed.add(new PacketClientServerServiceInfoPublisher(entry.getValue(), PacketClientServerServiceInfoPublisher.PublisherType.UNREGISTER));
-                CloudNet.getInstance().getEventManager().callEvent(new CloudServiceUnregisterEvent(entry.getValue()));
+        for (ServiceInfoSnapshot snapshot : CloudNet.getInstance().getCloudServiceProvider().getCloudServices()) {
+            if (snapshot.getServiceId().getNodeUniqueId().equalsIgnoreCase(clusterNodeServer.getNodeInfo().getUniqueId())) {
+                CloudNet.getInstance().getCloudServiceManager().getGlobalServiceInfoSnapshots().remove(snapshot.getServiceId().getUniqueId());
+                removed.add(new PacketClientServerServiceInfoPublisher(snapshot, PacketClientServerServiceInfoPublisher.PublisherType.UNREGISTER));
+                CloudNet.getInstance().getEventManager().callEvent(new CloudServiceUnregisterEvent(snapshot));
             }
         }
 

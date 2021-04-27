@@ -10,7 +10,7 @@ import java.util.Map;
 
 public class DefaultPersistableModuleDependencyLoader implements IModuleDependencyLoader {
 
-    protected Path baseDirectory;
+    protected final Path baseDirectory;
 
     public DefaultPersistableModuleDependencyLoader(Path baseDirectory) {
         this.baseDirectory = baseDirectory;
@@ -23,12 +23,12 @@ public class DefaultPersistableModuleDependencyLoader implements IModuleDependen
 
     @Override
     public URL loadModuleDependencyByUrl(ModuleConfiguration moduleConfiguration, ModuleDependency moduleDependency, Map<String, String> moduleRepositoriesUrls) throws Exception {
-        return loadModuleDependency0(moduleDependency, moduleDependency.getUrl());
+        return this.loadModuleDependency0(moduleDependency, moduleDependency.getUrl());
     }
 
     @Override
     public URL loadModuleDependencyByRepository(ModuleConfiguration moduleConfiguration, ModuleDependency moduleDependency, Map<String, String> moduleRepositoriesUrls) throws Exception {
-        return loadModuleDependency0(moduleDependency, moduleRepositoriesUrls.get(moduleDependency.getRepo()) +
+        return this.loadModuleDependency0(moduleDependency, moduleRepositoriesUrls.get(moduleDependency.getRepo()) +
                 moduleDependency.getGroup().replace(".", "/") + "/" +
                 moduleDependency.getName() + "/" + moduleDependency.getVersion() + "/" +
                 moduleDependency.getName() + "-" + moduleDependency.getVersion() + ".jar");

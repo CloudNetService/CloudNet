@@ -35,9 +35,9 @@ public final class VelocitySyncProxyPlayerListener {
                 int onlinePlayers = this.syncProxyManagement.getSyncProxyOnlineCount();
 
                 int maxPlayers = syncProxyMotd.isAutoSlot() ? Math.min(
-                        this.syncProxyManagement.getLoginConfiguration().getMaxPlayers(),
+                        syncProxyProxyLoginConfiguration.getMaxPlayers(),
                         onlinePlayers + syncProxyMotd.getAutoSlotMaxPlayersDistance()
-                ) : this.syncProxyManagement.getLoginConfiguration().getMaxPlayers();
+                ) : syncProxyProxyLoginConfiguration.getMaxPlayers();
 
                 event.setPing(new ServerPing(
                         syncProxyMotd.getProtocolText() != null ? new ServerPing.Version(1,
@@ -60,13 +60,15 @@ public final class VelocitySyncProxyPlayerListener {
                                                         UUID.randomUUID()
                                                 )).collect(Collectors.toList())
                                         :
-                                        Collections.EMPTY_LIST
+                                        Collections.emptyList()
                         ),
                         LegacyComponentSerializer.legacyLinking().deserialize((syncProxyMotd.getFirstLine() + "\n" + syncProxyMotd.getSecondLine())
                                 .replace("%proxy%", Wrapper.getInstance().getServiceId().getName())
                                 .replace("%proxy_uniqueId%", String.valueOf(Wrapper.getInstance().getServiceId().getUniqueId()))
                                 .replace("%task%", Wrapper.getInstance().getServiceId().getTaskName())
                                 .replace("%node%", Wrapper.getInstance().getServiceId().getNodeUniqueId())
+                                .replace("%online_players%", String.valueOf(onlinePlayers))
+                                .replace("%max_players%", String.valueOf(maxPlayers))
                                 .replace("&", "§")),
                         event.getPing().getFavicon().isPresent() ? event.getPing().getFavicon().get() : null,
                         event.getPing().getModinfo().isPresent() ? event.getPing().getModinfo().get() : null
@@ -92,7 +94,7 @@ public final class VelocitySyncProxyPlayerListener {
                 return;
             }
 
-            if (this.syncProxyManagement.getSyncProxyOnlineCount() >= this.syncProxyManagement.getLoginConfiguration().getMaxPlayers() &&
+            if (this.syncProxyManagement.getSyncProxyOnlineCount() >= syncProxyProxyLoginConfiguration.getMaxPlayers() &&
                     !event.getPlayer().hasPermission("cloudnet.syncproxy.fulljoin")) {
                 event.setResult(LoginEvent.ComponentResult.denied(LegacyComponentSerializer.legacyLinking().deserialize(
                         this.syncProxyManagement.getSyncProxyConfiguration().getMessages()

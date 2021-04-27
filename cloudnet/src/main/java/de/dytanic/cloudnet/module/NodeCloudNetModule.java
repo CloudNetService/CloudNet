@@ -15,14 +15,14 @@ import de.dytanic.cloudnet.template.ITemplateStorage;
 public abstract class NodeCloudNetModule extends DriverModule {
 
     public final void registerCommand(Command command) {
-        getCloudNet().getCommandMap().registerCommand(command);
+        this.getCloudNet().getCommandMap().registerCommand(command);
     }
 
     public final <T extends ITemplateStorage> T registerTemplateStorage(String serviceName, T templateStorage) {
         Preconditions.checkNotNull(serviceName);
         Preconditions.checkNotNull(templateStorage);
 
-        getRegistry().registerService(ITemplateStorage.class, serviceName, templateStorage);
+        this.getRegistry().registerService(ITemplateStorage.class, serviceName, templateStorage);
 
         return templateStorage;
     }
@@ -31,7 +31,7 @@ public abstract class NodeCloudNetModule extends DriverModule {
         Preconditions.checkNotNull(serviceName);
         Preconditions.checkNotNull(databaseProvider);
 
-        getRegistry().registerService(AbstractDatabaseProvider.class, serviceName, databaseProvider);
+        this.getRegistry().registerService(AbstractDatabaseProvider.class, serviceName, databaseProvider);
 
         return databaseProvider;
     }
@@ -40,19 +40,19 @@ public abstract class NodeCloudNetModule extends DriverModule {
         Preconditions.checkNotNull(path);
         Preconditions.checkNotNull(httpHandlers);
 
-        return getHttpServer().registerHandler(path, httpHandlers);
+        return this.getHttpServer().registerHandler(path, httpHandlers);
     }
 
     public final AbstractDatabaseProvider getDatabaseProvider() {
-        return getCloudNet().getDatabaseProvider();
+        return this.getCloudNet().getDatabaseProvider();
     }
 
     public final IHttpServer getHttpServer() {
-        return getCloudNet().getHttpServer();
+        return this.getCloudNet().getHttpServer();
     }
 
     public final NetworkClusterNode getIdentity() {
-        return getCloudNetConfig().getIdentity();
+        return this.getCloudNetConfig().getIdentity();
     }
 
     public final IConfiguration getCloudNetConfig() {

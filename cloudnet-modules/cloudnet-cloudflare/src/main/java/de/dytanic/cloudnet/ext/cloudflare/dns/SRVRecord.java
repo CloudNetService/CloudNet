@@ -1,10 +1,9 @@
-/*
- * Copyright (c) Tarek Hosni El Alaoui 2017
- */
-
 package de.dytanic.cloudnet.ext.cloudflare.dns;
 
+import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import de.dytanic.cloudnet.ext.cloudflare.CloudflareConfigurationEntry;
+import de.dytanic.cloudnet.ext.cloudflare.CloudflareGroupConfiguration;
 
 /**
  * A representation of an SRV DNS record
@@ -30,4 +29,24 @@ public class SRVRecord extends DNSRecord {
         );
     }
 
+    public static SRVRecord forConfiguration(CloudflareConfigurationEntry entry, CloudflareGroupConfiguration configuration, int port) {
+        return new SRVRecord(
+                String.format("_minecraft._tcp.%s", entry.getDomainName()),
+                String.format(
+                        "SRV %s %s %s %s.%s",
+                        configuration.getPriority(),
+                        configuration.getWeight(),
+                        port,
+                        CloudNet.getInstance().getConfig().getIdentity().getUniqueId(),
+                        entry.getDomainName()
+                ),
+                "_minecraft",
+                "_tcp",
+                configuration.getSub().equals("@") ? entry.getDomainName() : configuration.getSub(),
+                configuration.getPriority(),
+                configuration.getWeight(),
+                port,
+                CloudNet.getInstance().getConfig().getIdentity().getUniqueId() + "." + entry.getDomainName()
+        );
+    }
 }

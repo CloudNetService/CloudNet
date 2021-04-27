@@ -1,19 +1,30 @@
 package de.dytanic.cloudnet.service;
 
-import de.dytanic.cloudnet.CloudNet;
-import de.dytanic.cloudnet.driver.CloudNetDriver;
-import de.dytanic.cloudnet.driver.event.events.service.CloudServiceInfoUpdateEvent;
+import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
-import de.dytanic.cloudnet.driver.network.def.packet.PacketClientServerServiceInfoPublisher;
-import de.dytanic.cloudnet.driver.service.*;
+import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
+import de.dytanic.cloudnet.driver.service.ServiceDeployment;
+import de.dytanic.cloudnet.driver.service.ServiceId;
+import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
+import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
+import de.dytanic.cloudnet.driver.service.ServiceRemoteInclusion;
+import de.dytanic.cloudnet.driver.service.ServiceTemplate;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Queue;
 
 public interface ICloudService {
+
+    @ApiStatus.Internal
+    void init();
+
+    @Nullable
+    String getJavaCommand();
 
     @NotNull
     String getRuntime();
@@ -45,19 +56,24 @@ public interface ICloudService {
     String getConnectionKey();
 
     @NotNull
+    @Deprecated
     File getDirectory();
+
+    @NotNull
+    Path getDirectoryPath();
 
     INetworkChannel getNetworkChannel();
 
+    @ApiStatus.Internal
     void setNetworkChannel(INetworkChannel channel);
 
     @NotNull
     ServiceInfoSnapshot getServiceInfoSnapshot();
 
-    void setServiceInfoSnapshot(@NotNull ServiceInfoSnapshot serviceInfoSnapshot);
-
     @NotNull
     ServiceInfoSnapshot getLastServiceInfoSnapshot();
+
+    ITask<ServiceInfoSnapshot> forceUpdateServiceInfoSnapshotAsync();
 
     @Nullable
     Process getProcess();
@@ -89,7 +105,7 @@ public interface ICloudService {
     void deployResources(boolean removeDeployments);
 
     default void deployResources() {
-        deployResources(true);
+        this.deployResources(true);
     }
 
     void offerTemplate(@NotNull ServiceTemplate template);
@@ -98,16 +114,6 @@ public interface ICloudService {
 
     void addDeployment(@NotNull ServiceDeployment deployment);
 
-    default void updateServiceInfoSnapshot(@NotNull ServiceInfoSnapshot serviceInfoSnapshot) {
-        this.setServiceInfoSnapshot(serviceInfoSnapshot);
-        this.getCloudServiceManager().getGlobalServiceInfoSnapshots().put(serviceInfoSnapshot.getServiceId().getUniqueId(), serviceInfoSnapshot);
-
-        CloudNetDriver.getInstance().getEventManager().callEvent(new CloudServiceInfoUpdateEvent(serviceInfoSnapshot));
-
-        CloudNet.getInstance().getNetworkClient()
-                .sendPacket(new PacketClientServerServiceInfoPublisher(serviceInfoSnapshot, PacketClientServerServiceInfoPublisher.PublisherType.UPDATE));
-        CloudNet.getInstance().getNetworkServer()
-                .sendPacket(new PacketClientServerServiceInfoPublisher(serviceInfoSnapshot, PacketClientServerServiceInfoPublisher.PublisherType.UPDATE));
-    }
+    void updateServiceInfoSnapshot(@NotNull ServiceInfoSnapshot serviceInfoSnapshot);
 
 }

@@ -2,7 +2,6 @@ package de.dytanic.cloudnet.driver.network.netty;
 
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.collection.Pair;
-import de.dytanic.cloudnet.common.concurrent.DefaultTaskScheduler;
 import de.dytanic.cloudnet.common.concurrent.ITaskScheduler;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
@@ -28,33 +27,23 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 public final class NettyNetworkServer extends NettySSLServer implements INetworkServer {
 
-    protected final Map<Integer, Pair<HostAndPort, ChannelFuture>> channelFutures = new ConcurrentHashMap<>();
-
     protected final Collection<INetworkChannel> channels = new ConcurrentLinkedQueue<>();
+    protected final Map<Integer, Pair<HostAndPort, ChannelFuture>> channelFutures = new ConcurrentHashMap<>();
 
     protected final IPacketListenerRegistry packetRegistry = new DefaultPacketListenerRegistry();
 
-    protected final EventLoopGroup bossEventLoopGroup = NettyUtils.newEventLoopGroup(), workerEventLoopGroup = NettyUtils.newEventLoopGroup();
-
-    protected final ITaskScheduler taskScheduler;
-
-    protected final boolean taskSchedulerFromConstructor;
+    protected final EventLoopGroup bossEventLoopGroup = NettyUtils.newEventLoopGroup();
+    protected final EventLoopGroup workerEventLoopGroup = NettyUtils.newEventLoopGroup();
 
     protected final Callable<INetworkChannelHandler> networkChannelHandler;
 
     public NettyNetworkServer(Callable<INetworkChannelHandler> networkChannelHandler) {
-        this(networkChannelHandler, null, null);
+        this(null, networkChannelHandler);
     }
 
-    public NettyNetworkServer(Callable<INetworkChannelHandler> networkChannelHandler, ITaskScheduler taskScheduler) {
-        this(networkChannelHandler, null, taskScheduler);
-    }
-
-    public NettyNetworkServer(Callable<INetworkChannelHandler> networkChannelHandler, SSLConfiguration sslConfiguration, ITaskScheduler taskScheduler) {
+    public NettyNetworkServer(SSLConfiguration sslConfiguration, Callable<INetworkChannelHandler> networkChannelHandler) {
         super(sslConfiguration);
         this.networkChannelHandler = networkChannelHandler;
-        this.taskSchedulerFromConstructor = taskScheduler != null;
-        this.taskScheduler = taskScheduler == null ? new DefaultTaskScheduler(Runtime.getRuntime().availableProcessors()) : taskScheduler;
 
         try {
             this.init();
@@ -63,9 +52,19 @@ public final class NettyNetworkServer extends NettySSLServer implements INetwork
         }
     }
 
+    @Deprecated
+    public NettyNetworkServer(Callable<INetworkChannelHandler> networkChannelHandler, ITaskScheduler taskScheduler) {
+        this(null, networkChannelHandler);
+    }
+
+    @Deprecated
+    public NettyNetworkServer(Callable<INetworkChannelHandler> networkChannelHandler, SSLConfiguration sslConfiguration, ITaskScheduler taskScheduler) {
+        this(sslConfiguration, networkChannelHandler);
+    }
+
     @Override
     public boolean isSslEnabled() {
-        return sslContext != null;
+        return this.sslContext != null;
     }
 
 
@@ -82,11 +81,11 @@ public final class NettyNetworkServer extends NettySSLServer implements INetwork
         if (!this.channelFutures.containsKey(hostAndPort.getPort())) {
             try {
                 this.channelFutures.put(hostAndPort.getPort(), new Pair<>(hostAndPort, new ServerBootstrap()
-                        .group(bossEventLoopGroup, workerEventLoopGroup)
+                        .group(this.bossEventLoopGroup, this.workerEventLoopGroup)
                         .childOption(ChannelOption.TCP_NODELAY, true)
                         .childOption(ChannelOption.IP_TOS, 24)
                         .childOption(ChannelOption.AUTO_READ, true)
-                        .channel(NettyUtils.getServerSocketChannelClass())
+                        .channelFactory(NettyUtils.getServerChannelFactory())
                         .childHandler(new NettyNetworkServerInitializer(this, hostAndPort))
                         .bind(hostAndPort.getHost(), hostAndPort.getPort())
                         .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE)
@@ -106,7 +105,6 @@ public final class NettyNetworkServer extends NettySSLServer implements INetwork
 
     @Override
     public void close() {
-        taskScheduler.shutdown();
         this.closeChannels();
 
         for (Pair<HostAndPort, ChannelFuture> entry : this.channelFutures.values()) {
@@ -144,11 +142,29 @@ public final class NettyNetworkServer extends NettySSLServer implements INetwork
     }
 
     @Override
+    public void sendPacketSync(@NotNull IPacket packet) {
+        Preconditions.checkNotNull(packet);
+
+        for (INetworkChannel channel : this.channels) {
+            channel.sendPacketSync(packet);
+        }
+    }
+
+    @Override
     public void sendPacket(@NotNull IPacket... packets) {
         Preconditions.checkNotNull(packets);
 
         for (INetworkChannel channel : this.channels) {
             channel.sendPacket(packets);
+        }
+    }
+
+    @Override
+    public void sendPacketSync(@NotNull IPacket... packets) {
+        Preconditions.checkNotNull(packets);
+
+        for (INetworkChannel channel : this.channels) {
+            channel.sendPacketSync(packets);
         }
     }
 

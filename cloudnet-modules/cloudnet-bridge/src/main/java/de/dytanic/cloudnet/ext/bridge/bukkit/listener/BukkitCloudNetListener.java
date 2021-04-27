@@ -3,7 +3,6 @@ package de.dytanic.cloudnet.ext.bridge.bukkit.listener;
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
 import de.dytanic.cloudnet.driver.event.events.network.NetworkChannelPacketReceiveEvent;
-import de.dytanic.cloudnet.driver.event.events.network.NetworkClusterNodeInfoUpdateEvent;
 import de.dytanic.cloudnet.driver.event.events.service.*;
 import de.dytanic.cloudnet.ext.bridge.bukkit.BukkitCloudNetHelper;
 import de.dytanic.cloudnet.ext.bridge.bukkit.event.*;
@@ -57,12 +56,7 @@ public final class BukkitCloudNetListener {
 
     @EventListener
     public void handle(ChannelMessageReceiveEvent event) {
-        this.bukkitCall(new BukkitChannelMessageReceiveEvent(event.getChannel(), event.getMessage(), event.getData()));
-    }
-
-    @EventListener
-    public void handle(NetworkClusterNodeInfoUpdateEvent event) {
-        this.bukkitCall(new BukkitNetworkClusterNodeInfoUpdateEvent(event.getNetworkClusterNodeInfoSnapshot()));
+        this.bukkitCall(new BukkitChannelMessageReceiveEvent(event));
     }
 
     @EventListener
@@ -116,6 +110,7 @@ public final class BukkitCloudNetListener {
     }
 
     private void bukkitCall(Event event) {
-        Bukkit.getScheduler().runTask(BukkitCloudNetHelper.getPlugin(), () -> Bukkit.getPluginManager().callEvent(event));
+        Bukkit.getPluginManager().callEvent(event);
     }
+
 }

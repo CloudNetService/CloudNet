@@ -1,11 +1,12 @@
 package eu.cloudnetservice.cloudnet.ext.labymod.node.listener;
 
+import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.util.DefaultModuleHelper;
 import de.dytanic.cloudnet.event.service.CloudServicePreStartEvent;
 import eu.cloudnetservice.cloudnet.ext.labymod.node.CloudNetLabyModModule;
 
-import java.io.File;
+import java.nio.file.Path;
 
 public final class IncludePluginListener {
 
@@ -22,13 +23,18 @@ public final class IncludePluginListener {
             return;
         }
 
-        new File(event.getCloudService().getDirectory(), "plugins").mkdirs();
-        File file = new File(event.getCloudService().getDirectory(), "plugins/cloudnet-labymod.jar");
-        file.delete();
+        Path pluginsFolder = event.getCloudService().getDirectoryPath().resolve("plugins");
+        FileUtils.createDirectoryReported(pluginsFolder);
 
-        if (DefaultModuleHelper.copyCurrentModuleInstanceFromClass(IncludePluginListener.class, file)) {
-            DefaultModuleHelper.copyPluginConfigurationFileForEnvironment(IncludePluginListener.class,
-                    event.getCloudService().getServiceConfiguration().getProcessConfig().getEnvironment(), file);
+        Path targetFile = pluginsFolder.resolve("cloudnet-labymod.jar");
+        FileUtils.deleteFileReported(targetFile);
+
+        if (DefaultModuleHelper.copyCurrentModuleInstanceFromClass(IncludePluginListener.class, targetFile)) {
+            DefaultModuleHelper.copyPluginConfigurationFileForEnvironment(
+                    IncludePluginListener.class,
+                    event.getCloudService().getServiceConfiguration().getProcessConfig().getEnvironment(),
+                    targetFile
+            );
         }
     }
 }

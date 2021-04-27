@@ -1,5 +1,7 @@
 package de.dytanic.cloudnet.common.logging;
 
+import org.jetbrains.annotations.NotNull;
+
 /**
  * A LogHandler should handle an incoming LogEntry.
  * The Operation can be execute asynchronously or synchronously.
@@ -14,6 +16,6 @@ public interface ILogHandler extends AutoCloseable {
      *
      * @param logEntry the new incoming log entry
      */
-    void handle(LogEntry logEntry);
+    void handle(@NotNull LogEntry logEntry) throws Exception;
 
 }

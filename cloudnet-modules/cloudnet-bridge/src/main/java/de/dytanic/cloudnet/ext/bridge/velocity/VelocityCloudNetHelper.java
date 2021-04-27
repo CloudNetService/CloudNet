@@ -13,16 +13,19 @@ import de.dytanic.cloudnet.ext.bridge.BridgeHelper;
 import de.dytanic.cloudnet.ext.bridge.PluginInfo;
 import de.dytanic.cloudnet.ext.bridge.ProxyFallbackConfiguration;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkConnectionInfo;
-import de.dytanic.cloudnet.ext.bridge.player.NetworkServiceInfo;
 import de.dytanic.cloudnet.ext.bridge.proxy.BridgeProxyHelper;
 import de.dytanic.cloudnet.ext.bridge.velocity.event.VelocityPlayerFallbackEvent;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 
+import java.net.InetSocketAddress;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -85,10 +88,7 @@ public final class VelocityCloudNetHelper {
                 new HostAndPort(proxyServer.getBoundAddress()),
                 proxyServer.getConfiguration().isOnlineMode(),
                 true,
-                new NetworkServiceInfo(
-                        Wrapper.getInstance().getServiceId(),
-                        Wrapper.getInstance().getCurrentServiceInfoSnapshot().getConfiguration().getGroups()
-                )
+                BridgeHelper.createOwnNetworkServiceInfo()
         );
     }
 
@@ -96,14 +96,26 @@ public final class VelocityCloudNetHelper {
         return BridgeProxyHelper.getNextFallback(
                 player.getUniqueId(),
                 player.getCurrentServer().map(ServerConnection::getServerInfo).map(ServerInfo::getName).orElse(null),
+                player.getVirtualHost().map(InetSocketAddress::getHostString).orElse(null),
                 player::hasPermission
         ).map(serviceInfoSnapshot -> new VelocityPlayerFallbackEvent(player, serviceInfoSnapshot, serviceInfoSnapshot.getName()))
+                .map(event -> proxyServer.getEventManager().fire(event))
+                .map(future -> {
+                    try {
+                        return future.get(10, TimeUnit.SECONDS);
+                    } catch (InterruptedException | ExecutionException | TimeoutException exception) {
+                        exception.printStackTrace();
+                    }
+                    return null;
+                })
                 .map(VelocityPlayerFallbackEvent::getFallbackName)
                 .flatMap(proxyServer::getServer);
     }
 
     public static CompletableFuture<ServiceInfoSnapshot> connectToFallback(Player player, String currentServer) {
-        return BridgeProxyHelper.connectToFallback(player.getUniqueId(), currentServer,
+        return BridgeProxyHelper.connectToFallback(player.getUniqueId(),
+                currentServer,
+                player.getVirtualHost().map(InetSocketAddress::getHostString).orElse(null),
                 player::hasPermission,
                 serviceInfoSnapshot -> {
                     CompletableFuture<Boolean> future = new CompletableFuture<>();
@@ -135,8 +147,22 @@ public final class VelocityCloudNetHelper {
         return serviceInfoSnapshot.getServiceId().getEnvironment().isMinecraftJavaServer();
     }
 
-    public static boolean isOnAFallbackInstance(Player player) {
-        return player.getCurrentServer().isPresent() && isFallbackServer(player.getCurrentServer().get().getServerInfo());
+    public static boolean isOnMatchingFallbackInstance(Player player) {
+        return player.getCurrentServer().map(serverConnection -> {
+            String currentServer = serverConnection.getServerInfo().getName();
+            ServiceInfoSnapshot currentService = BridgeProxyHelper.getCachedServiceInfoSnapshot(currentServer);
+
+            if (currentService == null) {
+                return false;
+            }
+
+            return BridgeProxyHelper.filterPlayerFallbacks(
+                    player.getUniqueId(),
+                    currentServer,
+                    player.getVirtualHost().map(InetSocketAddress::getHostString).orElse(null),
+                    player::hasPermission
+            ).anyMatch(proxyFallback -> proxyFallback.getTask().equals(currentService.getServiceId().getTaskName()));
+        }).orElse(false);
     }
 
     public static boolean isFallbackServer(ServerInfo serverInfo) {
@@ -144,6 +170,10 @@ public final class VelocityCloudNetHelper {
             return false;
         }
         return BridgeProxyHelper.isFallbackService(serverInfo.getName());
+    }
+
+    public static void init() {
+        BridgeProxyHelper.setMaxPlayers(proxyServer.getConfiguration().getShowMaxPlayers());
     }
 
     public static void initProperties(ServiceInfoSnapshot serviceInfoSnapshot) {
@@ -156,6 +186,7 @@ public final class VelocityCloudNetHelper {
                 .append("Velocity-Name", proxyServer.getVersion().getName())
                 .append("Online-Count", proxyServer.getPlayerCount())
                 .append("Online-Mode", proxyServer.getConfiguration().isOnlineMode())
+                .append("Max-Players", BridgeProxyHelper.getMaxPlayers())
                 .append("Compression-Level", proxyServer.getConfiguration().getCompressionLevel())
                 .append("Connection-Timeout", proxyServer.getConfiguration().getConnectTimeout())
                 .append("Players", proxyServer.getAllPlayers().stream().map(player -> new VelocityCloudNetPlayerInfo(
@@ -173,12 +204,10 @@ public final class VelocityCloudNetHelper {
 
                     pluginInfo.getProperties()
                             .append("authors", pluginContainer.getDescription().getAuthors())
-                            .append("depends", pluginContainer.getDescription().getDependencies())
-                    ;
+                            .append("depends", pluginContainer.getDescription().getDependencies());
 
                     return pluginInfo;
-                }).collect(Collectors.toList()))
-        ;
+                }).collect(Collectors.toList()));
     }
 
     public static ProxyServer getProxyServer() {

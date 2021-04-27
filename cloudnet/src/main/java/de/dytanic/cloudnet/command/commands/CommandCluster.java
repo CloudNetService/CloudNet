@@ -17,6 +17,8 @@ import de.dytanic.cloudnet.network.NetworkUpdateType;
 import de.dytanic.cloudnet.template.ITemplateStorage;
 import de.dytanic.cloudnet.template.LocalTemplateStorage;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -61,7 +63,7 @@ public final class CommandCluster extends SubCommandHandler {
                                         LanguageManager.getMessage("command-cluster-create-node-already-existing"),
                                         nodeId -> CloudNet.getInstance().getConfig().getClusterConfig().getNodes().stream().noneMatch(node -> node.getUniqueId().equals(nodeId))
                                 ),
-                                hostAndPort("host")
+                                validHostAndPort("host")
                         )
                         .generateCommand(
                                 (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
@@ -144,15 +146,22 @@ public final class CommandCluster extends SubCommandHandler {
     }
 
     private static void pushLocalTemplate(ICommandSender sender, ITemplateStorage storage, ServiceTemplate serviceTemplate) {
-        byte[] bytes = storage.toZipByteArray(serviceTemplate);
+        String template = serviceTemplate.getStorage() + ":" + serviceTemplate.getTemplatePath();
 
-        if (bytes != null) {
-            CloudNet.getInstance().deployTemplateInCluster(serviceTemplate, bytes);
+        try {
+            sender.sendMessage(LanguageManager.getMessage("command-cluster-push-template-compress").replace("%template%", template));
+            try (InputStream inputStream = storage.zipTemplate(serviceTemplate)) {
+                if (inputStream != null) {
+                    sender.sendMessage(LanguageManager.getMessage("command-cluster-push-template-compress-success").replace("%template%", template));
+                    CloudNet.getInstance().deployTemplateInCluster(serviceTemplate, inputStream);
 
-            sender.sendMessage(
-                    LanguageManager.getMessage("command-cluster-push-templates-from-local-success")
-                            .replace("%template%", serviceTemplate.getStorage() + ":" + serviceTemplate.getTemplatePath())
-            );
+                    sender.sendMessage(LanguageManager.getMessage("command-cluster-push-template-from-local-success").replace("%template%", template));
+                } else {
+                    sender.sendMessage(LanguageManager.getMessage("command-cluster-push-template-compress-failed").replace("%template%", template));
+                }
+            }
+        } catch (IOException exception) {
+            exception.printStackTrace();
         }
     }
 
@@ -212,10 +221,10 @@ public final class CommandCluster extends SubCommandHandler {
                     "Unloaded classes: " + node.getNodeInfoSnapshot().getProcessSnapshot().getUnloadedClassCount(),
                     "Total loaded classes: " + node.getNodeInfoSnapshot().getProcessSnapshot().getTotalLoadedClassCount(),
                     " ",
-                    "Extensions: ",
-                    node.getNodeInfoSnapshot().getExtensions().stream().map(networkClusterNodeExtensionSnapshot -> networkClusterNodeExtensionSnapshot.getGroup() + ":" +
-                            networkClusterNodeExtensionSnapshot.getName() + ":" +
-                            networkClusterNodeExtensionSnapshot.getVersion()).collect(Collectors.toList()).toString(),
+                    "Modules: ",
+                    node.getNodeInfoSnapshot().getModules().stream()
+                            .map(module -> module.getGroup() + ":" + module.getName() + ":" + module.getVersion())
+                            .collect(Collectors.toList()).toString(),
                     " ",
                     "Properties:"
             ));

@@ -25,15 +25,16 @@ public final class CommandReload extends CommandDefault implements ITabCompleter
 
         if (args.length == 1) {
             if (args[0].equalsIgnoreCase("confirm") || args[0].equalsIgnoreCase("all")) {
-                getCloudNet().reload();
+                this.getCloudNet().reload();
                 sender.sendMessage(LanguageManager.getMessage("command-reload-confirm-success"));
                 return;
             }
             if (args[0].equalsIgnoreCase("config") || args[0].equalsIgnoreCase("conf")) {
-                getCloudNet().getConfig().load();
-                getCloudNet().getConfigurationRegistry().load();
-                getCloudNet().getCloudServiceManager().reload();
-                getCloudNet().getPermissionManagement().reload();
+                this.getCloudNet().getConfig().load();
+                this.getCloudNet().getConfigurationRegistry().load();
+                this.getCloudNet().getServiceTaskProvider().reload();
+                this.getCloudNet().getGroupConfigurationProvider().reload();
+                this.getCloudNet().getPermissionManagement().reload();
                 sender.sendMessage(LanguageManager.getMessage("command-reload-reload-config-success"));
             }
         }

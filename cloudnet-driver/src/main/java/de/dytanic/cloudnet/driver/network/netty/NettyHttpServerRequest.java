@@ -14,7 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-final class NettyHttpServerRequest implements IHttpRequest {
+final class NettyHttpServerRequest extends NettyHttpMessage implements IHttpRequest {
 
     protected final NettyHttpServerContext context;
 
@@ -48,7 +48,7 @@ final class NettyHttpServerRequest implements IHttpRequest {
 
     @Override
     public String uri() {
-        return httpRequest.uri();
+        return this.httpRequest.uri();
     }
 
     @Override
@@ -125,34 +125,34 @@ final class NettyHttpServerRequest implements IHttpRequest {
 
     @Override
     public HttpVersion version() {
-        return this.getCloudNetHttpVersion(this.httpRequest.protocolVersion());
+        return super.getCloudNetHttpVersion(this.httpRequest.protocolVersion());
     }
 
     @Override
     public IHttpRequest version(HttpVersion version) {
         Preconditions.checkNotNull(version);
 
-        this.httpRequest.setProtocolVersion(this.getNettyHttpVersion(version));
+        this.httpRequest.setProtocolVersion(super.getNettyHttpVersion(version));
         return this;
     }
 
     @Override
     public byte[] body() {
-        if (httpRequest instanceof FullHttpRequest) {
-            if (body == null) {
+        if (this.httpRequest instanceof FullHttpRequest) {
+            if (this.body == null) {
                 FullHttpRequest httpRequest = (FullHttpRequest) this.httpRequest;
 
                 int length = httpRequest.content().readableBytes();
 
                 if (httpRequest.content().hasArray()) {
-                    body = httpRequest.content().array();
+                    this.body = httpRequest.content().array();
                 } else {
-                    body = new byte[length];
-                    httpRequest.content().getBytes(httpRequest.content().readerIndex(), body);
+                    this.body = new byte[length];
+                    httpRequest.content().getBytes(httpRequest.content().readerIndex(), this.body);
                 }
             }
 
-            return body;
+            return this.body;
         }
 
         return new byte[0];
@@ -160,7 +160,7 @@ final class NettyHttpServerRequest implements IHttpRequest {
 
     @Override
     public String bodyAsString() {
-        return new String(body(), StandardCharsets.UTF_8);
+        return new String(this.body(), StandardCharsets.UTF_8);
     }
 
     @Override
@@ -173,30 +173,6 @@ final class NettyHttpServerRequest implements IHttpRequest {
         Preconditions.checkNotNull(text);
 
         return this.body(text.getBytes(StandardCharsets.UTF_8));
-    }
-
-    private HttpVersion getCloudNetHttpVersion(io.netty.handler.codec.http.HttpVersion httpVersion) {
-        if (httpVersion == io.netty.handler.codec.http.HttpVersion.HTTP_1_0) {
-            return HttpVersion.HTTP_1_0;
-        }
-
-        if (httpVersion == io.netty.handler.codec.http.HttpVersion.HTTP_1_1) {
-            return HttpVersion.HTTP_1_1;
-        }
-
-        return HttpVersion.HTTP_1_0;
-    }
-
-    private io.netty.handler.codec.http.HttpVersion getNettyHttpVersion(HttpVersion httpVersion) {
-        if (httpVersion == HttpVersion.HTTP_1_0) {
-            return io.netty.handler.codec.http.HttpVersion.HTTP_1_0;
-        }
-
-        if (httpVersion == HttpVersion.HTTP_1_1) {
-            return io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
-        }
-
-        return io.netty.handler.codec.http.HttpVersion.HTTP_1_0;
     }
 
 }

@@ -1,5 +1,7 @@
 package de.dytanic.cloudnet.common.logging;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
@@ -13,10 +15,10 @@ import java.text.SimpleDateFormat;
  */
 public final class DefaultLogFormatter implements IFormatter {
 
-    private final DateFormat dateFormat = new SimpleDateFormat("dd.MM HH:mm:ss.SSS");
+    private static final DateFormat DATE_FORMAT = new SimpleDateFormat("dd.MM HH:mm:ss.SSS");
 
     @Override
-    public String format(LogEntry logEntry) {
+    public @NotNull String format(@NotNull LogEntry logEntry) {
         StringBuilder builder = new StringBuilder();
         LoggingUtils.printStackTraceToStringBuilder(builder, logEntry.getThrowable());
 
@@ -26,7 +28,7 @@ public final class DefaultLogFormatter implements IFormatter {
             if (message != null) {
                 stringBuilder
                         .append("[")
-                        .append(dateFormat.format(logEntry.getTimeStamp()))
+                        .append(DATE_FORMAT.format(logEntry.getTimeStamp()))
                         .append("] ")
                         .append(logEntry.getLogLevel().getUpperName())
                         .append(": ")
@@ -35,9 +37,7 @@ public final class DefaultLogFormatter implements IFormatter {
             }
         }
 
-
         stringBuilder.append(builder);
-
         return stringBuilder.toString();
     }
 }

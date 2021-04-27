@@ -3,11 +3,14 @@ package eu.cloudnetservice.cloudnet.ext.labymod;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
+import de.dytanic.cloudnet.driver.channel.ChannelMessage;
+import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.ext.bridge.BridgeServiceProperty;
 import de.dytanic.cloudnet.ext.bridge.player.CloudPlayer;
 import de.dytanic.cloudnet.ext.bridge.player.ICloudPlayer;
 import de.dytanic.cloudnet.ext.bridge.player.IPlayerManager;
+import de.dytanic.cloudnet.wrapper.Wrapper;
 import eu.cloudnetservice.cloudnet.ext.labymod.config.DiscordJoinMatchConfig;
 import eu.cloudnetservice.cloudnet.ext.labymod.config.LabyModConfiguration;
 import eu.cloudnetservice.cloudnet.ext.labymod.config.ServiceDisplay;
@@ -17,9 +20,6 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.UUID;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 import static eu.cloudnetservice.cloudnet.ext.labymod.LabyModChannelUtils.getLMCMessageContents;
 
@@ -33,15 +33,14 @@ public class LabyModUtils {
 
     public static LabyModConfiguration getConfiguration() {
         if (cachedConfiguration == null) {
-            ITask<LabyModConfiguration> task = CloudNetDriver.getInstance().getPacketQueryProvider().sendCallablePacket(CloudNetDriver.getInstance().getNetworkClient().getChannels().iterator().next(),
-                    LabyModConstants.CLOUDNET_CHANNEL_NAME,
-                    LabyModConstants.GET_CONFIGURATION,
-                    new JsonDocument(),
-                    documentPair -> documentPair.get("labyModConfig", LabyModConfiguration.class));
-            try {
-                cachedConfiguration = task.get(5, TimeUnit.SECONDS);
-            } catch (InterruptedException | ExecutionException | TimeoutException exception) {
-                exception.printStackTrace();
+            ChannelMessage response = ChannelMessage.builder()
+                    .channel(LabyModConstants.CLOUDNET_CHANNEL_NAME)
+                    .message(LabyModConstants.GET_CONFIGURATION)
+                    .targetNode(Wrapper.getInstance().getServiceId().getNodeUniqueId())
+                    .build()
+                    .sendSingleQuery();
+            if (response != null) {
+                cachedConfiguration = response.getJson().get("labyModConfig", LabyModConfiguration.class);
             }
         }
 
@@ -58,20 +57,26 @@ public class LabyModUtils {
 
     @NotNull
     public static ITask<ICloudPlayer> getPlayerByJoinSecret(UUID joinSecret) {
-        return CloudNetDriver.getInstance().getPacketQueryProvider().sendCallablePacket(CloudNetDriver.getInstance().getNetworkClient().getChannels().iterator().next(),
-                LabyModConstants.CLOUDNET_CHANNEL_NAME,
-                LabyModConstants.GET_PLAYER_JOIN_SECRET,
-                new JsonDocument().append("joinSecret", joinSecret),
-                document -> document.get("player", CloudPlayer.TYPE));
+        return ChannelMessage.builder()
+                .channel(LabyModConstants.CLOUDNET_CHANNEL_NAME)
+                .message(LabyModConstants.GET_PLAYER_JOIN_SECRET)
+                .buffer(ProtocolBuffer.create().writeUUID(joinSecret))
+                .targetNode(Wrapper.getInstance().getServiceId().getNodeUniqueId())
+                .build()
+                .sendSingleQueryAsync()
+                .map(message -> message.getBuffer().readOptionalObject(CloudPlayer.class));
     }
 
     @NotNull
     public static ITask<ICloudPlayer> getPlayerBySpectateSecret(UUID spectateSecret) {
-        return CloudNetDriver.getInstance().getPacketQueryProvider().sendCallablePacket(CloudNetDriver.getInstance().getNetworkClient().getChannels().iterator().next(),
-                LabyModConstants.CLOUDNET_CHANNEL_NAME,
-                LabyModConstants.GET_PLAYER_SPECTATE_SECRET,
-                new JsonDocument().append("spectateSecret", spectateSecret),
-                document -> document.get("player", CloudPlayer.TYPE));
+        return ChannelMessage.builder()
+                .channel(LabyModConstants.CLOUDNET_CHANNEL_NAME)
+                .message(LabyModConstants.GET_PLAYER_SPECTATE_SECRET)
+                .buffer(ProtocolBuffer.create().writeUUID(spectateSecret))
+                .targetNode(Wrapper.getInstance().getServiceId().getNodeUniqueId())
+                .build()
+                .sendSingleQueryAsync()
+                .map(message -> message.getBuffer().readOptionalObject(CloudPlayer.class));
     }
 
     private static String getDisplay(ServiceInfoSnapshot serviceInfoSnapshot, ServiceDisplay serviceDisplay) {

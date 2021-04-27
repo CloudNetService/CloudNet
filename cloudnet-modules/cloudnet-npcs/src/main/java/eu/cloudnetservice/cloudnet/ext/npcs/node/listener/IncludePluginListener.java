@@ -1,13 +1,12 @@
 package eu.cloudnetservice.cloudnet.ext.npcs.node.listener;
 
-
+import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.util.DefaultModuleHelper;
 import de.dytanic.cloudnet.event.service.CloudServicePreStartEvent;
 import eu.cloudnetservice.cloudnet.ext.npcs.node.CloudNetNPCModule;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -20,8 +19,7 @@ import java.util.Arrays;
 
 public class IncludePluginListener {
 
-    private static final String PROTOCOLLIB_DOWNLOAD_URL = "https://github.com/dmulloy2/ProtocolLib/releases/latest/download/ProtocolLib.jar";
-
+    private static final String PROTOCOLLIB_DOWNLOAD_URL = "https://ci.dmulloy2.net/job/ProtocolLib/lastSuccessfulBuild/artifact/target/ProtocolLib.jar";
     private static final Path PROTOCOLLIB_CACHE_PATH = Paths.get(System.getProperty("cloudnet.tempDir", "temp"), "caches", "ProtocolLib.jar");
 
     private final CloudNetNPCModule npcModule;
@@ -38,8 +36,8 @@ public class IncludePluginListener {
             urlConnection.setUseCaches(false);
             urlConnection.setDoOutput(false);
 
-            urlConnection.setConnectTimeout(5000);
-            urlConnection.setReadTimeout(5000);
+            urlConnection.setConnectTimeout(2000);
+            urlConnection.setReadTimeout(2000);
 
             urlConnection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11");
             urlConnection.connect();
@@ -48,7 +46,7 @@ public class IncludePluginListener {
                 Files.copy(inputStream, PROTOCOLLIB_CACHE_PATH, StandardCopyOption.REPLACE_EXISTING);
             }
         } catch (IOException exception) {
-            CloudNetDriver.getInstance().getLogger().error("Unable to download ProtocolLib!", exception);
+            CloudNetDriver.getInstance().getLogger().warning("Unable to download ProtocolLib!", exception);
         }
     }
 
@@ -61,28 +59,30 @@ public class IncludePluginListener {
         boolean installPlugin = this.npcModule.getNPCConfiguration().getConfigurations().stream()
                 .anyMatch(npcConfigurationEntry -> Arrays.asList(event.getCloudService().getServiceConfiguration().getGroups()).contains(npcConfigurationEntry.getTargetGroup()));
 
-        File pluginsFolder = new File(event.getCloudService().getDirectory(), "plugins");
-        pluginsFolder.mkdirs();
+        Path pluginsFolder = event.getCloudService().getDirectoryPath().resolve("plugins");
+        FileUtils.createDirectoryReported(pluginsFolder);
 
-        File file = new File(pluginsFolder, "cloudnet-npcs.jar");
-        file.delete();
+        Path targetFile = pluginsFolder.resolve("cloudnet-npcs.jar");
+        FileUtils.deleteFileReported(targetFile);
 
         if (installPlugin) {
-            try {
-                Files.copy(PROTOCOLLIB_CACHE_PATH, pluginsFolder.toPath().resolve("ProtocolLib.jar"), StandardCopyOption.REPLACE_EXISTING);
-            } catch (IOException exception) {
-                CloudNetDriver.getInstance().getLogger().error("Unable to copy ProtocolLib!", exception);
-                return;
+            Path protocolLibTargetPath = pluginsFolder.resolve("ProtocolLib.jar");
+            if (Files.notExists(protocolLibTargetPath) && Files.exists(PROTOCOLLIB_CACHE_PATH)) {
+                try {
+                    Files.copy(PROTOCOLLIB_CACHE_PATH, protocolLibTargetPath, StandardCopyOption.REPLACE_EXISTING);
+                } catch (IOException exception) {
+                    CloudNetDriver.getInstance().getLogger().error("Unable to copy ProtocolLib!", exception);
+                    return;
+                }
             }
 
-            if (DefaultModuleHelper.copyCurrentModuleInstanceFromClass(IncludePluginListener.class, file)) {
+            if (DefaultModuleHelper.copyCurrentModuleInstanceFromClass(IncludePluginListener.class, targetFile)) {
                 DefaultModuleHelper.copyPluginConfigurationFileForEnvironment(
                         IncludePluginListener.class,
                         event.getCloudService().getServiceConfiguration().getProcessConfig().getEnvironment(),
-                        file
+                        targetFile
                 );
             }
         }
     }
-
 }

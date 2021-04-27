@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Path;
 
 public final class TemplateStorageUtil {
 
@@ -22,8 +23,13 @@ public final class TemplateStorageUtil {
                 .getService(ITemplateStorage.class, LocalTemplateStorage.LOCAL_TEMPLATE_STORAGE);
     }
 
+    @Deprecated
     public static File getFile(ServiceTemplate serviceTemplate, String path) {
-        return new File(getLocalTemplateStorage().getStorageDirectory() + "/" + serviceTemplate.getTemplatePath(), path);
+        return getPath(serviceTemplate, path).toFile();
+    }
+
+    public static Path getPath(ServiceTemplate serviceTemplate, String path) {
+        return getLocalTemplateStorage().getStorageDirectory().resolve(serviceTemplate.getTemplatePath()).resolve(path).normalize();
     }
 
     private static void prepareProxyTemplate(ITemplateStorage storage, ServiceTemplate template, byte[] buffer, String configPath, String defaultConfigPath) throws IOException {
@@ -85,6 +91,15 @@ public final class TemplateStorageUtil {
                     }
                 }
                 break;
+                case GO_MINT: {
+                    try (OutputStream outputStream = storage.newOutputStream(serviceTemplate, "server.yml");
+                         InputStream inputStream = CloudNet.class.getClassLoader().getResourceAsStream("files/gomint/server.yml")) {
+                        if (inputStream != null) {
+                            FileUtils.copy(inputStream, outputStream, buffer);
+                        }
+                    }
+                }
+                break;
                 case MINECRAFT_SERVER: {
                     try (OutputStream outputStream = storage.newOutputStream(serviceTemplate, "server.properties");
                          InputStream inputStream = CloudNet.class.getClassLoader().getResourceAsStream("files/nms/server.properties")) {
@@ -127,7 +142,7 @@ public final class TemplateStorageUtil {
             }
 
             if (storage.shouldSyncInCluster()) {
-                CloudNet.getInstance().deployTemplateInCluster(serviceTemplate, storage.toZipByteArray(serviceTemplate));
+                CloudNet.getInstance().deployTemplateInCluster(serviceTemplate, storage.zipTemplate(serviceTemplate));
             }
             return true;
         } else {

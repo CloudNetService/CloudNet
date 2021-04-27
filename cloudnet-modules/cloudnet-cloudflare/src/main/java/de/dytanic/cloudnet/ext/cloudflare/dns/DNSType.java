@@ -1,19 +1,23 @@
-/*
- * Copyright (c) Tarek Hosni El Alaoui 2017
- */
-
 package de.dytanic.cloudnet.ext.cloudflare.dns;
 
 public enum DNSType {
 
     A,
     AAAA,
-    CNAME,
-    MX,
-    LOC,
-    SRV,
-    SPF,
+    HTTPS,
     TXT,
+    SRV,
+    LOC,
+    MX,
     NS,
-    CAA
+    SPF,
+    CERT,
+    DNSKEY,
+    DS,
+    NAPTR,
+    SMIMEA,
+    SSHFP,
+    SVCB,
+    TLSA,
+    URI
 }

@@ -16,35 +16,43 @@ import de.dytanic.cloudnet.ext.bridge.BridgeHelper;
 import de.dytanic.cloudnet.ext.bridge.OnlyProxyProtection;
 import de.dytanic.cloudnet.ext.bridge.nukkit.NukkitCloudNetHelper;
 import de.dytanic.cloudnet.wrapper.Wrapper;
+import org.bukkit.ChatColor;
 
 public final class NukkitPlayerListener implements Listener {
-
-    private final BridgeConfiguration bridgeConfiguration;
 
     private final OnlyProxyProtection onlyProxyProtection;
 
     public NukkitPlayerListener() {
-        this.bridgeConfiguration = BridgeConfigurationProvider.load();
         this.onlyProxyProtection = new OnlyProxyProtection(Server.getInstance().getPropertyBoolean("xbox-auth"));
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void handle(PlayerLoginEvent event) {
         Player player = event.getPlayer();
+        BridgeConfiguration bridgeConfiguration = BridgeConfigurationProvider.load();
 
         if (this.onlyProxyProtection.shouldDisallowPlayer(player.getAddress())) {
             event.setCancelled(true);
-            event.setKickMessage(this.bridgeConfiguration.getMessages().get("server-join-cancel-because-only-proxy").replace('&', '§'));
+            event.setKickMessage(bridgeConfiguration.getMessages().get("server-join-cancel-because-only-proxy").replace('&', '§'));
             return;
         }
 
         String currentTaskName = Wrapper.getInstance().getServiceId().getTaskName();
         ServiceTask serviceTask = Wrapper.getInstance().getServiceTaskProvider().getServiceTask(currentTaskName);
 
-        if (serviceTask != null && serviceTask.isMaintenance() && !player.hasPermission("cloudnet.bridge.maintenance")) {
-            event.setCancelled(true);
-            event.setKickMessage(this.bridgeConfiguration.getMessages().get("server-join-cancel-because-maintenance").replace('&', '§'));
-            return;
+        if (serviceTask != null) {
+            String requiredPermission = serviceTask.getProperties().getString("requiredPermission");
+            if (requiredPermission != null && !player.hasPermission(requiredPermission)) {
+                event.setCancelled(true);
+                event.setKickMessage(ChatColor.translateAlternateColorCodes('&', bridgeConfiguration.getMessages().get("server-join-cancel-because-permission")));
+                return;
+            }
+
+            if (serviceTask.isMaintenance() && !player.hasPermission("cloudnet.bridge.maintenance")) {
+                event.setCancelled(true);
+                event.setKickMessage(bridgeConfiguration.getMessages().get("server-join-cancel-because-maintenance").replace('&', '§'));
+                return;
+            }
         }
 
         BridgeHelper.sendChannelMessageServerLoginRequest(NukkitCloudNetHelper.createNetworkConnectionInfo(player),

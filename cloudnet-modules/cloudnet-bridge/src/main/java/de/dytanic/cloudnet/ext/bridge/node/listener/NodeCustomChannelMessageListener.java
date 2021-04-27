@@ -3,20 +3,27 @@ package de.dytanic.cloudnet.ext.bridge.node.listener;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
+import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
-import de.dytanic.cloudnet.event.network.NetworkChannelReceiveCallablePacketEvent;
+import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import de.dytanic.cloudnet.ext.bridge.BridgeConfiguration;
 import de.dytanic.cloudnet.ext.bridge.BridgeConstants;
-import de.dytanic.cloudnet.ext.bridge.event.*;
+import de.dytanic.cloudnet.ext.bridge.event.BridgeConfigurationUpdateEvent;
+import de.dytanic.cloudnet.ext.bridge.event.BridgeProxyPlayerDisconnectEvent;
+import de.dytanic.cloudnet.ext.bridge.event.BridgeProxyPlayerLoginRequestEvent;
+import de.dytanic.cloudnet.ext.bridge.event.BridgeProxyPlayerLoginSuccessEvent;
+import de.dytanic.cloudnet.ext.bridge.event.BridgeProxyPlayerServerConnectRequestEvent;
+import de.dytanic.cloudnet.ext.bridge.event.BridgeProxyPlayerServerSwitchEvent;
+import de.dytanic.cloudnet.ext.bridge.event.BridgeServerPlayerDisconnectEvent;
+import de.dytanic.cloudnet.ext.bridge.event.BridgeServerPlayerLoginRequestEvent;
+import de.dytanic.cloudnet.ext.bridge.event.BridgeServerPlayerLoginSuccessEvent;
 import de.dytanic.cloudnet.ext.bridge.node.CloudNetBridgeModule;
 import de.dytanic.cloudnet.ext.bridge.node.event.NodeLocalBridgePlayerProxyLoginRequestEvent;
 import de.dytanic.cloudnet.ext.bridge.node.player.NodePlayerManager;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkConnectionInfo;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkPlayerServerInfo;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkServiceInfo;
-
-import java.io.File;
 
 public final class NodeCustomChannelMessageListener {
 
@@ -29,26 +36,28 @@ public final class NodeCustomChannelMessageListener {
     }
 
     @EventListener
-    public void handle(NetworkChannelReceiveCallablePacketEvent event) {
-        if (!event.getChannelName().equalsIgnoreCase(BridgeConstants.BRIDGE_CUSTOM_CHANNEL_MESSAGING_CHANNEL)) {
+    public void handleProxyLoginRequest(ChannelMessageReceiveEvent event) {
+        if (!event.getChannel().equalsIgnoreCase(BridgeConstants.BRIDGE_CUSTOM_CHANNEL_MESSAGING_CHANNEL) || !event.isQuery()) {
             return;
         }
 
-        if (BridgeConstants.BRIDGE_EVENT_CHANNEL_MESSAGE_NAME_PROXY_LOGIN_REQUEST.equals(event.getId())) {
-            NetworkConnectionInfo networkConnectionInfo = event.getHeader().get("networkConnectionInfo", NetworkConnectionInfo.TYPE);
-            event.setCallbackPacket(this.processLoginRequest(new NodeLocalBridgePlayerProxyLoginRequestEvent(networkConnectionInfo, null)));
+        if (BridgeConstants.BRIDGE_EVENT_CHANNEL_MESSAGE_NAME_PROXY_LOGIN_REQUEST.equals(event.getMessage())) {
+            NetworkConnectionInfo networkConnectionInfo = event.getBuffer().readObject(NetworkConnectionInfo.class);
+            ProtocolBuffer response = this.processLoginRequest(new NodeLocalBridgePlayerProxyLoginRequestEvent(networkConnectionInfo, null));
+            event.setQueryResponse(ChannelMessage.buildResponseFor(event.getChannelMessage()).buffer(response).build());
 
             this.callProxyLoginRequest(networkConnectionInfo);
 
-            CloudNetDriver.getInstance().getMessenger().sendChannelMessage(
-                    BridgeConstants.BRIDGE_CUSTOM_CHANNEL_MESSAGING_CHANNEL,
-                    BridgeConstants.BRIDGE_EVENT_CHANNEL_MESSAGE_NAME_PROXY_LOGIN_REQUEST,
-                    new JsonDocument("networkConnectionInfo", networkConnectionInfo)
-            );
+            this.nodePlayerManager.messageBuilder()
+                    .message(BridgeConstants.BRIDGE_EVENT_CHANNEL_MESSAGE_NAME_PROXY_LOGIN_REQUEST)
+                    .buffer(ProtocolBuffer.create().writeObject(networkConnectionInfo))
+                    .targetAll()
+                    .build()
+                    .send();
         }
     }
 
-    private JsonDocument processLoginRequest(NodeLocalBridgePlayerProxyLoginRequestEvent requestEvent) {
+    private ProtocolBuffer processLoginRequest(NodeLocalBridgePlayerProxyLoginRequestEvent requestEvent) {
         CloudNetDriver.getInstance().getEventManager().callEvent(requestEvent);
 
         if (this.nodePlayerManager.getOnlinePlayer(requestEvent.getConnectionInfo().getUniqueId()) != null) {
@@ -60,9 +69,9 @@ public final class NodeCustomChannelMessageListener {
             if (requestEvent.getKickReason() == null) {
                 requestEvent.setKickReason("§cNo kick reason given");
             }
-            return JsonDocument.newDocument("kickReason", requestEvent.getKickReason());
+            return ProtocolBuffer.create().writeOptionalString(requestEvent.getKickReason());
         }
-        return JsonDocument.newDocument();
+        return ProtocolBuffer.create().writeOptionalString(null);
     }
 
     private void callProxyLoginRequest(NetworkConnectionInfo networkConnectionInfo) {
@@ -79,35 +88,29 @@ public final class NodeCustomChannelMessageListener {
 
     @EventListener
     public void handle(ChannelMessageReceiveEvent event) {
-        if (!event.getChannel().equalsIgnoreCase(BridgeConstants.BRIDGE_CUSTOM_CHANNEL_MESSAGING_CHANNEL)) {
+        if (!event.getChannel().equals(BridgeConstants.BRIDGE_CUSTOM_CHANNEL_MESSAGING_CHANNEL) || event.getMessage() == null) {
             return;
         }
 
-        switch (event.getMessage().toLowerCase()) {
+        switch (event.getMessage()) {
             case BridgeConstants.BRIDGE_NETWORK_CHANNEL_CLUSTER_MESSAGE_UPDATE_BRIDGE_CONFIGURATION_LISTENER: {
                 BridgeConfiguration bridgeConfiguration = event.getData().get("bridgeConfiguration", BridgeConfiguration.TYPE);
 
                 if (bridgeConfiguration != null) {
                     new JsonDocument()
-                            .append("config", bridgeConfiguration
-                            ).write(new File(CloudNetBridgeModule.getInstance().getModuleWrapper().getDataFolder(), "config.json")
-                    );
+                            .append("config", bridgeConfiguration)
+                            .write(CloudNetBridgeModule.getInstance().getModuleWrapper().getDataDirectory().resolve("config.json"));
 
                     CloudNetBridgeModule.getInstance().setBridgeConfiguration(bridgeConfiguration);
                     CloudNetDriver.getInstance().getEventManager().callEvent(new BridgeConfigurationUpdateEvent(bridgeConfiguration));
                 }
             }
             break;
-            case BridgeConstants.BRIDGE_EVENT_CHANNEL_MESSAGE_NAME_PROXY_LOGIN_REQUEST: {
-                NetworkConnectionInfo networkConnectionInfo = event.getData().get("networkConnectionInfo", NetworkConnectionInfo.TYPE);
-                this.callProxyLoginRequest(networkConnectionInfo);
-            }
-            break;
             case BridgeConstants.BRIDGE_EVENT_CHANNEL_MESSAGE_NAME_PROXY_LOGIN_SUCCESS: {
-                NetworkConnectionInfo networkConnectionInfo = event.getData().get("networkConnectionInfo", NetworkConnectionInfo.TYPE);
+                NetworkConnectionInfo networkConnectionInfo = event.getBuffer().readObject(NetworkConnectionInfo.class);
                 CloudNetDriver.getInstance().getEventManager().callEvent(new BridgeProxyPlayerLoginSuccessEvent(networkConnectionInfo));
 
-                if (bridgeConfiguration.isLogPlayerConnections()) {
+                if (this.bridgeConfiguration.isLogPlayerConnections()) {
                     System.out.println(LanguageManager.getMessage("module-bridge-player-proxy-login-success")
                             .replace("%uniqueId%", String.valueOf(networkConnectionInfo.getUniqueId()))
                             .replace("%name%", networkConnectionInfo.getName())
@@ -119,10 +122,10 @@ public final class NodeCustomChannelMessageListener {
             }
             break;
             case BridgeConstants.BRIDGE_EVENT_CHANNEL_MESSAGE_NAME_PROXY_SERVER_CONNECT_REQUEST: {
-                NetworkConnectionInfo networkConnectionInfo = event.getData().get("networkConnectionInfo", NetworkConnectionInfo.TYPE);
-                NetworkServiceInfo networkServiceInfo = event.getData().get("networkServiceInfo", NetworkServiceInfo.class);
+                NetworkConnectionInfo networkConnectionInfo = event.getBuffer().readObject(NetworkConnectionInfo.class);
+                NetworkServiceInfo networkServiceInfo = event.getBuffer().readObject(NetworkServiceInfo.class);
 
-                if (bridgeConfiguration.isLogPlayerConnections()) {
+                if (this.bridgeConfiguration.isLogPlayerConnections()) {
                     System.out.println(LanguageManager.getMessage("module-bridge-player-proxy-server-connect-request")
                             .replace("%uniqueId%", String.valueOf(networkConnectionInfo.getUniqueId()))
                             .replace("%name%", networkConnectionInfo.getName())
@@ -135,10 +138,10 @@ public final class NodeCustomChannelMessageListener {
             }
             break;
             case BridgeConstants.BRIDGE_EVENT_CHANNEL_MESSAGE_NAME_PROXY_SERVER_SWITCH: {
-                NetworkConnectionInfo networkConnectionInfo = event.getData().get("networkConnectionInfo", NetworkConnectionInfo.TYPE);
-                NetworkServiceInfo networkServiceInfo = event.getData().get("networkServiceInfo", NetworkServiceInfo.class);
+                NetworkConnectionInfo networkConnectionInfo = event.getBuffer().readObject(NetworkConnectionInfo.class);
+                NetworkServiceInfo networkServiceInfo = event.getBuffer().readObject(NetworkServiceInfo.class);
 
-                if (bridgeConfiguration.isLogPlayerConnections()) {
+                if (this.bridgeConfiguration.isLogPlayerConnections()) {
                     System.out.println(LanguageManager.getMessage("module-bridge-player-proxy-server-switch")
                             .replace("%uniqueId%", String.valueOf(networkConnectionInfo.getUniqueId()))
                             .replace("%name%", networkConnectionInfo.getName())
@@ -151,9 +154,9 @@ public final class NodeCustomChannelMessageListener {
             }
             break;
             case BridgeConstants.BRIDGE_EVENT_CHANNEL_MESSAGE_NAME_PROXY_DISCONNECT: {
-                NetworkConnectionInfo networkConnectionInfo = event.getData().get("networkConnectionInfo", NetworkConnectionInfo.TYPE);
+                NetworkConnectionInfo networkConnectionInfo = event.getBuffer().readObject(NetworkConnectionInfo.class);
 
-                if (bridgeConfiguration.isLogPlayerConnections()) {
+                if (this.bridgeConfiguration.isLogPlayerConnections()) {
                     System.out.println(LanguageManager.getMessage("module-bridge-player-proxy-disconnect")
                             .replace("%uniqueId%", String.valueOf(networkConnectionInfo.getUniqueId()))
                             .replace("%name%", networkConnectionInfo.getName())
@@ -166,10 +169,10 @@ public final class NodeCustomChannelMessageListener {
             }
             break;
             case BridgeConstants.BRIDGE_EVENT_CHANNEL_MESSAGE_NAME_SERVER_LOGIN_REQUEST: {
-                NetworkPlayerServerInfo networkPlayerServerInfo = event.getData().get("networkPlayerServerInfo", NetworkPlayerServerInfo.TYPE);
-                NetworkConnectionInfo networkConnectionInfo = event.getData().get("networkConnectionInfo", NetworkConnectionInfo.TYPE);
+                NetworkConnectionInfo networkConnectionInfo = event.getBuffer().readObject(NetworkConnectionInfo.class);
+                NetworkPlayerServerInfo networkPlayerServerInfo = event.getBuffer().readObject(NetworkPlayerServerInfo.class);
 
-                if (bridgeConfiguration.isLogPlayerConnections()) {
+                if (this.bridgeConfiguration.isLogPlayerConnections()) {
                     System.out.println(LanguageManager.getMessage("module-bridge-player-server-login-request")
                             .replace("%uniqueId%", String.valueOf(networkPlayerServerInfo.getUniqueId()))
                             .replace("%name%", networkPlayerServerInfo.getName())
@@ -181,10 +184,10 @@ public final class NodeCustomChannelMessageListener {
             }
             break;
             case BridgeConstants.BRIDGE_EVENT_CHANNEL_MESSAGE_NAME_SERVER_LOGIN_SUCCESS: {
-                NetworkPlayerServerInfo networkPlayerServerInfo = event.getData().get("networkPlayerServerInfo", NetworkPlayerServerInfo.TYPE);
-                NetworkConnectionInfo networkConnectionInfo = event.getData().get("networkConnectionInfo", NetworkConnectionInfo.TYPE);
+                NetworkConnectionInfo networkConnectionInfo = event.getBuffer().readObject(NetworkConnectionInfo.class);
+                NetworkPlayerServerInfo networkPlayerServerInfo = event.getBuffer().readObject(NetworkPlayerServerInfo.class);
 
-                if (bridgeConfiguration.isLogPlayerConnections()) {
+                if (this.bridgeConfiguration.isLogPlayerConnections()) {
                     System.out.println(LanguageManager.getMessage("module-bridge-player-server-login-success")
                             .replace("%uniqueId%", String.valueOf(networkPlayerServerInfo.getUniqueId()))
                             .replace("%name%", networkPlayerServerInfo.getName())
@@ -197,10 +200,10 @@ public final class NodeCustomChannelMessageListener {
             }
             break;
             case BridgeConstants.BRIDGE_EVENT_CHANNEL_MESSAGE_NAME_SERVER_DISCONNECT: {
-                NetworkPlayerServerInfo networkPlayerServerInfo = event.getData().get("networkPlayerServerInfo", NetworkPlayerServerInfo.TYPE);
-                NetworkConnectionInfo networkConnectionInfo = event.getData().get("networkConnectionInfo", NetworkConnectionInfo.TYPE);
+                NetworkConnectionInfo networkConnectionInfo = event.getBuffer().readObject(NetworkConnectionInfo.class);
+                NetworkPlayerServerInfo networkPlayerServerInfo = event.getBuffer().readObject(NetworkPlayerServerInfo.class);
 
-                if (bridgeConfiguration.isLogPlayerConnections()) {
+                if (this.bridgeConfiguration.isLogPlayerConnections()) {
                     System.out.println(LanguageManager.getMessage("module-bridge-player-server-disconnect")
                             .replace("%uniqueId%", String.valueOf(networkPlayerServerInfo.getUniqueId()))
                             .replace("%name%", networkPlayerServerInfo.getName())

@@ -7,6 +7,8 @@ import de.dytanic.cloudnet.command.sub.SubCommandBuilder;
 import de.dytanic.cloudnet.command.sub.SubCommandHandler;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
+import de.dytanic.cloudnet.driver.util.ColumnTextFormatter;
+import de.dytanic.cloudnet.driver.util.PrefixedMessageMapper;
 import de.dytanic.cloudnet.ext.bridge.player.ICloudOfflinePlayer;
 import de.dytanic.cloudnet.ext.bridge.player.ICloudPlayer;
 import de.dytanic.cloudnet.ext.bridge.player.IPlayerManager;
@@ -39,7 +41,7 @@ public final class CommandPlayers extends SubCommandHandler {
 
                                     List<String> messages = new ArrayList<>();
 
-                                    for (ICloudPlayer player : playerManager.getOnlinePlayers()) {
+                                    for (ICloudPlayer player : playerManager.onlinePlayers().asPlayers()) {
                                         if (properties.containsKey("name") &&
                                                 !player.getName().toLowerCase().contains(properties.get("name").toLowerCase())) {
                                             continue;
@@ -79,15 +81,18 @@ public final class CommandPlayers extends SubCommandHandler {
                                         return;
                                     }
 
-                                    for (ICloudPlayer cloudPlayer : playerManager.getOnlinePlayers()) {
-                                        sender.sendMessage("- " + cloudPlayer.getUniqueId() + " " + cloudPlayer.getName() + " | " +
-                                                (cloudPlayer.getLoginService() != null ?
-                                                        cloudPlayer.getLoginService().getUniqueId().toString().split("-")[0] + " " + cloudPlayer.getLoginService().getServerName() : null) +
-                                                " | " +
-                                                (cloudPlayer.getConnectedService() != null ?
-                                                        cloudPlayer.getConnectedService().getUniqueId().toString().split("-")[0] + " " + cloudPlayer.getConnectedService().getServerName() : null)
-                                        );
-                                    }
+                                    String[] messages = ColumnTextFormatter.mapToEqual(playerManager.onlinePlayers().asPlayers(), ' ',
+                                            new PrefixedMessageMapper<>("- ", player -> player.getUniqueId() + " " + player.getName()),
+                                            new PrefixedMessageMapper<>(" | ", player -> player.getLoginService() != null ?
+                                                    player.getLoginService().getUniqueId().toString().split("-")[0] + " " + player.getLoginService().getServerName()
+                                                    : null),
+                                            new PrefixedMessageMapper<>(" | ", player -> player.getLoginService() != null ?
+                                                    player.getConnectedService().getUniqueId().toString().split("-")[0] + " " + player.getConnectedService().getServerName()
+                                                    : null)
+                                    );
+
+                                    sender.sendMessage(messages);
+
                                 },
                                 subCommand -> subCommand.enableProperties().appendUsage("| --force")
                         )
@@ -95,15 +100,18 @@ public final class CommandPlayers extends SubCommandHandler {
 
                         .generateCommand(
                                 (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
-                                    sender.sendMessage("=> Registered: " + playerManager.getRegisteredCount());
-                                    if (!properties.containsKey("force") && playerManager.getRegisteredCount() > MAX_REGISTERED_PLAYERS_FOR_COMPLETION) {
+                                    long registered = playerManager.getRegisteredCount();
+                                    sender.sendMessage("=> Registered: " + registered);
+                                    if (!properties.containsKey("force") && registered > MAX_REGISTERED_PLAYERS_FOR_COMPLETION) {
                                         sender.sendMessage(LanguageManager.getMessage("module-bridge-command-players-too-many-players"));
                                         return;
                                     }
 
-                                    for (ICloudOfflinePlayer cloudPlayer : playerManager.getRegisteredPlayers()) {
-                                        sender.sendMessage("- " + cloudPlayer.getUniqueId() + " " + cloudPlayer.getName() + " | Last login: " + DATE_FORMAT.format(new Date(cloudPlayer.getLastLoginTimeMillis())));
-                                    }
+                                    String[] messages = ColumnTextFormatter.mapToEqual(playerManager.getRegisteredPlayers(), ' ',
+                                            new PrefixedMessageMapper<>("- ", player -> player.getUniqueId() + " (" + player.getName() + ")"),
+                                            new PrefixedMessageMapper<>(" | Last login: ", player -> DATE_FORMAT.format(new Date(player.getLastLoginTimeMillis())))
+                                    );
+                                    sender.sendMessage(messages);
                                 },
                                 subCommand -> subCommand.enableProperties().appendUsage("| --force"),
                                 anyStringIgnoreCase("registered", "all")
@@ -140,10 +148,7 @@ public final class CommandPlayers extends SubCommandHandler {
                                 "name",
                                 LanguageManager.getMessage("module-bridge-command-players-player-not-online"),
                                 name -> !playerManager.getOnlinePlayers(name).isEmpty(),
-                                () -> playerManager.getRegisteredCount() <= MAX_ONLINE_PLAYERS_FOR_COMPLETION ?
-                                        playerManager.getOnlinePlayers().stream()
-                                                .map(ICloudPlayer::getName)
-                                                .collect(Collectors.toList()) : null
+                                () -> playerManager.getRegisteredCount() <= MAX_ONLINE_PLAYERS_FOR_COMPLETION ? playerManager.onlinePlayers().asNames() : null
                         ))
 
                         .generateCommand(
@@ -172,7 +177,7 @@ public final class CommandPlayers extends SubCommandHandler {
                                         );
                                     }
                                 },
-                                subCommand -> subCommand.setMinArgs(subCommand.getRequiredArguments().length - 1).setMaxArgs(Integer.MAX_VALUE),
+                                subCommand -> subCommand.setMinArgs(subCommand.getRequiredArguments().length).setMaxArgs(Integer.MAX_VALUE),
                                 exactStringIgnoreCase("sendMessage"),
                                 dynamicString("message")
                         )

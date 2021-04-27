@@ -2,6 +2,7 @@ package de.dytanic.cloudnet.console.animation.questionlist.answer;
 
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.console.animation.questionlist.QuestionAnswerType;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -29,12 +30,12 @@ public class QuestionAnswerTypeBoolean implements QuestionAnswerType<Boolean> {
     }
 
     @Override
-    public boolean isValidInput(String input) {
+    public boolean isValidInput(@NotNull String input) {
         return this.trueString.equalsIgnoreCase(input) || this.falseString.equalsIgnoreCase(input);
     }
 
     @Override
-    public Boolean parse(String input) {
+    public @NotNull Boolean parse(@NotNull String input) {
         return this.trueString.equalsIgnoreCase(input);
     }
 
@@ -49,7 +50,7 @@ public class QuestionAnswerTypeBoolean implements QuestionAnswerType<Boolean> {
     }
 
     @Override
-    public String getInvalidInputMessage(String input) {
+    public String getInvalidInputMessage(@NotNull String input) {
         return LanguageManager.getMessage("ca-question-list-invalid-boolean")
                 .replace("%true%", this.trueString)
                 .replace("%false%", this.falseString);

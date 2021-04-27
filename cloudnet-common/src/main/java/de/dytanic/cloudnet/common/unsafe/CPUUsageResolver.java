@@ -1,7 +1,7 @@
 package de.dytanic.cloudnet.common.unsafe;
 
 import com.sun.management.OperatingSystemMXBean;
-import de.dytanic.cloudnet.common.annotation.UnsafeClass;
+import org.jetbrains.annotations.ApiStatus;
 
 import java.lang.management.ManagementFactory;
 import java.text.DecimalFormat;
@@ -13,7 +13,7 @@ import java.text.DecimalFormat;
  *
  * @see com.sun.management.OperatingSystemMXBean
  */
-@UnsafeClass
+@ApiStatus.Internal
 public final class CPUUsageResolver {
 
     /**

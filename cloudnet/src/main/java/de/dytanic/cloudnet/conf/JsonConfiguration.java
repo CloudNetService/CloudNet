@@ -16,7 +16,13 @@ import java.net.UnknownHostException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
 
 public final class JsonConfiguration implements IConfiguration {
 
@@ -46,9 +52,13 @@ public final class JsonConfiguration implements IConfiguration {
 
     private int maxMemory, maxServiceConsoleLogCacheSize;
 
-    private boolean printErrorStreamLinesFromServices, defaultJVMOptionParameters;
+    private boolean printErrorStreamLinesFromServices;
+
+    private DefaultJVMFlags defaultJVMFlags;
 
     private String hostAddress;
+
+    private String connectHostAddress;
 
     private Collection<HostAndPort> httpListeners;
 
@@ -57,6 +67,8 @@ public final class JsonConfiguration implements IConfiguration {
     private String jVMCommand;
 
     private String defaultHostAddress;
+
+    private int processTerminationTimeoutSeconds;
 
     @Override
     public boolean isFileExists() {
@@ -78,7 +90,7 @@ public final class JsonConfiguration implements IConfiguration {
             exception.printStackTrace();
         }
 
-        String address = defaultHostAddress;
+        String address = this.defaultHostAddress;
 
         if (address == null) {
             try {
@@ -123,15 +135,20 @@ public final class JsonConfiguration implements IConfiguration {
 
         this.maxServiceConsoleLogCacheSize = this.document.getInt("maxServiceConsoleLogCacheSize", 64);
         this.printErrorStreamLinesFromServices = this.document.getBoolean("printErrorStreamLinesFromServices", true);
-        this.defaultJVMOptionParameters = this.document.getBoolean("defaultJVMOptionParameters", true);
+
+        // replaced by the DefaultJVMFlags-enum
+        this.document.remove("defaultJVMOptionParameters");
+        this.defaultJVMFlags = this.document.get("defaultJVMFlags", DefaultJVMFlags.class, DefaultJVMFlags.DYTANIC);
 
         this.jVMCommand = this.document.getString("jvmCommand",
                 System.getenv("CLOUDNET_RUNTIME_JVM_COMMAND") != null ?
                         System.getenv("CLOUDNET_RUNTIME_JVM_COMMAND") :
                         "java"
         );
+        this.processTerminationTimeoutSeconds = this.document.getInt("processTerminationTimeoutSeconds", 5);
 
         this.hostAddress = this.document.getString("hostAddress", address);
+        this.connectHostAddress = this.document.getString("connectHostAddress", this.hostAddress);
         this.httpListeners = this.document.get("httpListeners", HOST_AND_PORT_COLLECTION, Collections.singletonList(new HostAndPort("0.0.0.0", 2812)));
 
         ConfigurationOptionSSL fallback = new ConfigurationOptionSSL(
@@ -155,8 +172,8 @@ public final class JsonConfiguration implements IConfiguration {
 
     @Override
     public void save() {
-        if (document == null) {
-            document = new JsonDocument();
+        if (this.document == null) {
+            this.document = new JsonDocument();
         }
 
         this.document
@@ -164,14 +181,16 @@ public final class JsonConfiguration implements IConfiguration {
                 .append("ipWhitelist", this.ipWhitelist)
                 .append("maxMemory", this.maxMemory)
                 .append("jvmCommand", this.jVMCommand)
+                .append("processTerminationTimeoutSeconds", this.processTerminationTimeoutSeconds)
                 .append("maxServiceConsoleLogCacheSize", this.maxServiceConsoleLogCacheSize)
                 .append("printErrorStreamLinesFromServices", this.printErrorStreamLinesFromServices)
                 .append("maxCPUUsageToStartServices", this.maxCPUUsageToStartServices)
                 .append("parallelServiceStartSequence", this.parallelServiceStartSequence)
-                .append("defaultJVMOptionParameters", this.defaultJVMOptionParameters)
+                .append("defaultJVMFlags", this.defaultJVMFlags)
                 .append("runBlockedServiceStartTryLaterAutomatic", this.runBlockedServiceStartTryLaterAutomatic)
                 .append("cluster", this.clusterConfig)
                 .append("hostAddress", this.hostAddress)
+                .append("connectHostAddress", this.connectHostAddress)
                 .append("httpListeners", this.httpListeners)
                 .append("clientSslConfig", this.clientSslConfig)
                 .append("serverSslConfig", this.serverSslConfig)
@@ -277,13 +296,14 @@ public final class JsonConfiguration implements IConfiguration {
         this.save();
     }
 
-    public boolean isDefaultJVMOptionParameters() {
-        return this.defaultJVMOptionParameters;
+    @Override
+    public DefaultJVMFlags getDefaultJVMFlags() {
+        return this.defaultJVMFlags;
     }
 
     @Override
-    public void setDefaultJVMOptionParameters(boolean defaultJVMOptionParameters) {
-        this.defaultJVMOptionParameters = defaultJVMOptionParameters;
+    public void setDefaultJVMFlags(DefaultJVMFlags defaultJVMFlags) {
+        this.defaultJVMFlags = defaultJVMFlags;
         this.save();
     }
 
@@ -306,6 +326,18 @@ public final class JsonConfiguration implements IConfiguration {
     @Override
     public void setHostAddress(String hostAddress) {
         this.hostAddress = hostAddress;
+        this.save();
+    }
+
+    @Override
+    public String getConnectHostAddress() {
+        return this.connectHostAddress;
+    }
+
+    @Override
+    public void setConnectHostAddress(String connectHostAddress) {
+        this.connectHostAddress = connectHostAddress;
+        this.save();
     }
 
     public ConfigurationOptionSSL getClientSslConfig() {
@@ -324,6 +356,16 @@ public final class JsonConfiguration implements IConfiguration {
         return this.jVMCommand;
     }
 
+    @Override
+    public int getProcessTerminationTimeoutSeconds() {
+        return Math.max(1, this.processTerminationTimeoutSeconds);
+    }
+
+    @Override
+    public void setProcessTerminationTimeoutSeconds(int processTerminationTimeoutSeconds) {
+        this.processTerminationTimeoutSeconds = processTerminationTimeoutSeconds;
+    }
+
     public String getDefaultHostAddress() {
         return this.defaultHostAddress;
     }
@@ -331,4 +373,5 @@ public final class JsonConfiguration implements IConfiguration {
     public void setDefaultHostAddress(String defaultHostAddress) {
         this.defaultHostAddress = defaultHostAddress;
     }
+
 }

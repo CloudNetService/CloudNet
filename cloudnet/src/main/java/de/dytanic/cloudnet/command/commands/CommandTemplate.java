@@ -91,12 +91,16 @@ public class CommandTemplate extends SubCommandHandler {
 
                                     ServiceVersion version = optionalVersion.get();
 
-                                    if (!versionType.getInstallerType().canInstall(version)) {
+                                    boolean forceInstall = properties.containsKey("force");
+
+                                    if (!versionType.canInstall(version)) {
                                         sender.sendMessage(LanguageManager.getMessage("command-template-install-wrong-java")
                                                 .replace("%version%", versionType.getName() + "-" + version.getName())
                                                 .replace("%java%", JavaVersion.getRuntimeVersion().getName())
                                         );
-                                        return;
+                                        if (!forceInstall) {
+                                            return;
+                                        }
                                     }
 
                                     CloudNet.getInstance().scheduleTask(() -> {
@@ -105,7 +109,7 @@ public class CommandTemplate extends SubCommandHandler {
                                                 .replace("%template%", template.toString())
                                         );
 
-                                        if (CloudNet.getInstance().getServiceVersionProvider().installServiceVersion(versionType, version, storage, template)) {
+                                        if (CloudNet.getInstance().getServiceVersionProvider().installServiceVersion(versionType, version, storage, template, forceInstall)) {
                                             sender.sendMessage(LanguageManager.getMessage("command-template-install-success")
                                                     .replace("%version%", versionType.getName() + "-" + version.getName())
                                                     .replace("%template%", template.toString())
@@ -119,7 +123,9 @@ public class CommandTemplate extends SubCommandHandler {
                                         return null;
                                     });
                                 },
-                                subCommand -> subCommand.appendUsage("| example: template install Lobby/default paperspigot 1.13.2"),
+                                subCommand -> subCommand
+                                        .enableProperties()
+                                        .appendUsage("| --force | example: template install Lobby/default paperspigot 1.13.2"),
                                 exactStringIgnoreCase("install"),
                                 template("template", true),
                                 dynamicString(

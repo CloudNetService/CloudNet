@@ -1,17 +1,21 @@
 package de.dytanic.cloudnet.ext.cloudflare;
 
 import lombok.EqualsAndHashCode;
-import lombok.ToString;
 
 import java.util.Collection;
 
-@ToString
 @EqualsAndHashCode
 public class CloudflareConfigurationEntry {
 
     protected boolean enabled;
 
-    protected String hostAddress, email, apiToken, zoneId, domainName;
+    protected AuthenticationMethod authenticationMethod = AuthenticationMethod.GLOBAL_KEY;
+
+    protected String hostAddress;
+    protected String email;
+    protected String apiToken;
+    protected String zoneId;
+    protected String domainName;
 
     protected Collection<CloudflareGroupConfiguration> groups;
 
@@ -34,6 +38,14 @@ public class CloudflareConfigurationEntry {
 
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
+    }
+
+    public AuthenticationMethod getAuthenticationMethod() {
+        return authenticationMethod;
+    }
+
+    public void setAuthenticationMethod(AuthenticationMethod authenticationMethod) {
+        this.authenticationMethod = authenticationMethod;
     }
 
     public String getHostAddress() {
@@ -84,4 +96,18 @@ public class CloudflareConfigurationEntry {
         this.groups = groups;
     }
 
+    @Override
+    public String toString() {
+        return "CloudflareConfigurationEntry(enabled=" + this.isEnabled()
+                + ", authenticationMethod=" + this.getAuthenticationMethod()
+                + ", hostAddress=" + this.getHostAddress()
+                + ", domainName=" + this.getDomainName()
+                + ", groups=" + this.getGroups()
+                + ")";
+    }
+
+    public enum AuthenticationMethod {
+        GLOBAL_KEY,
+        BEARER_TOKEN
+    }
 }

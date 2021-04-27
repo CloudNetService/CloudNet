@@ -1,10 +1,10 @@
 package de.dytanic.cloudnet.wrapper.provider.service;
 
 import com.google.common.base.Preconditions;
-import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.common.concurrent.ITask;
-import de.dytanic.cloudnet.common.document.gson.JsonDocument;
-import de.dytanic.cloudnet.driver.network.def.PacketConstants;
+import de.dytanic.cloudnet.driver.api.DriverAPIRequestType;
+import de.dytanic.cloudnet.driver.api.DriverAPIUser;
+import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.provider.service.GeneralCloudServiceProvider;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
@@ -14,11 +14,9 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.UUID;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
-public class WrapperGeneralCloudServiceProvider implements GeneralCloudServiceProvider {
+public class WrapperGeneralCloudServiceProvider implements GeneralCloudServiceProvider, DriverAPIUser {
 
     private final Wrapper wrapper;
 
@@ -28,212 +26,172 @@ public class WrapperGeneralCloudServiceProvider implements GeneralCloudServicePr
 
     @Override
     public Collection<UUID> getServicesAsUniqueId() {
-        try {
-            return this.getServicesAsUniqueIdAsync().get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException exception) {
-            exception.printStackTrace();
-        }
-        return null;
+        return this.getServicesAsUniqueIdAsync().get(5, TimeUnit.SECONDS, null);
     }
 
     @Nullable
     @Override
-    public ServiceInfoSnapshot getCloudServiceByName(String name) {
-        try {
-            return this.getCloudServiceByNameAsync(name).get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException exception) {
-            exception.printStackTrace();
-        }
-        return null;
+    public ServiceInfoSnapshot getCloudServiceByName(@NotNull String name) {
+        return this.getCloudServiceByNameAsync(name).get(5, TimeUnit.SECONDS, null);
     }
 
     @Override
     public Collection<ServiceInfoSnapshot> getCloudServices() {
-        try {
-            return this.getCloudServicesAsync().get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException exception) {
-            exception.printStackTrace();
-        }
-        return null;
+        return this.getCloudServicesAsync().get(5, TimeUnit.SECONDS, null);
     }
 
     @Override
     public Collection<ServiceInfoSnapshot> getStartedCloudServices() {
-        try {
-            return this.getStartedCloudServicesAsync().get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException exception) {
-            exception.printStackTrace();
-        }
-        return null;
+        return this.getStartedCloudServicesAsync().get(5, TimeUnit.SECONDS, null);
     }
 
     @Override
-    public Collection<ServiceInfoSnapshot> getCloudServices(String taskName) {
-        try {
-            return this.getCloudServicesAsync(taskName).get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException exception) {
-            exception.printStackTrace();
-        }
-        return null;
+    public Collection<ServiceInfoSnapshot> getCloudServices(@NotNull String taskName) {
+        return this.getCloudServicesAsync(taskName).get(5, TimeUnit.SECONDS, null);
     }
 
     @Override
-    public Collection<ServiceInfoSnapshot> getCloudServices(ServiceEnvironmentType environment) {
+    public Collection<ServiceInfoSnapshot> getCloudServices(@NotNull ServiceEnvironmentType environment) {
         Preconditions.checkNotNull(environment);
-
-        try {
-            return this.getCloudServicesAsync(environment).get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException exception) {
-            exception.printStackTrace();
-        }
-        return null;
+        return this.getCloudServicesAsync(environment).get(5, TimeUnit.SECONDS, null);
     }
 
     @Override
-    public Collection<ServiceInfoSnapshot> getCloudServicesByGroup(String group) {
-        try {
-            return this.getCloudServicesByGroupAsync(group).get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException exception) {
-            exception.printStackTrace();
-        }
-        return null;
+    public Collection<ServiceInfoSnapshot> getCloudServicesByGroup(@NotNull String group) {
+        return this.getCloudServicesByGroupAsync(group).get(5, TimeUnit.SECONDS, null);
     }
 
     @Nullable
     @Override
-    public ServiceInfoSnapshot getCloudService(UUID uniqueId) {
-        try {
-            return this.getCloudServiceAsync(uniqueId).get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException exception) {
-            exception.printStackTrace();
-        }
-        return null;
+    public ServiceInfoSnapshot getCloudService(@NotNull UUID uniqueId) {
+        return this.getCloudServiceAsync(uniqueId).get(5, TimeUnit.SECONDS, null);
     }
 
     @Override
     public int getServicesCount() {
-        try {
-            return this.getServicesCountAsync().get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException exception) {
-            exception.printStackTrace();
-        }
-        return -1;
+        return this.getServicesCountAsync().get(5, TimeUnit.SECONDS, null);
     }
 
     @Override
-    public int getServicesCountByGroup(String group) {
-        try {
-            return this.getServicesCountByGroupAsync(group).get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException exception) {
-            exception.printStackTrace();
-        }
-        return -1;
+    public int getServicesCountByGroup(@NotNull String group) {
+        return this.getServicesCountByGroupAsync(group).get(5, TimeUnit.SECONDS, null);
     }
 
     @Override
-    public int getServicesCountByTask(String taskName) {
-        try {
-            return this.getServicesCountByTaskAsync(taskName).get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException exception) {
-            exception.printStackTrace();
-        }
-        return -1;
+    public int getServicesCountByTask(@NotNull String taskName) {
+        return this.getServicesCountByTaskAsync(taskName).get(5, TimeUnit.SECONDS, null);
     }
 
     @Override
     @NotNull
     public ITask<Collection<UUID>> getServicesAsUniqueIdAsync() {
-        return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
-                new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_services_as_uuid"), null,
-                documentPair -> documentPair.getFirst().get("serviceUniqueIds", new TypeToken<Collection<UUID>>() {
-                }.getType()));
+        return this.executeDriverAPIMethod(
+                DriverAPIRequestType.GET_SERVICES_AS_UNIQUE_ID,
+                packet -> packet.getBuffer().readUUIDCollection()
+        );
     }
 
     @Override
     @NotNull
-    public ITask<ServiceInfoSnapshot> getCloudServiceByNameAsync(String name) {
-        return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
-                new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_cloudService_by_name").append("name", name), null,
-                documentPair -> documentPair.getFirst().get("serviceInfoSnapshot", ServiceInfoSnapshot.TYPE));
+    public ITask<ServiceInfoSnapshot> getCloudServiceByNameAsync(@NotNull String name) {
+        return this.executeDriverAPIMethod(
+                DriverAPIRequestType.GET_CLOUD_SERVICE_BY_NAME,
+                buffer -> buffer.writeString(name),
+                packet -> packet.getBuffer().readOptionalObject(ServiceInfoSnapshot.class)
+        );
     }
 
     @Override
     @NotNull
     public ITask<Collection<ServiceInfoSnapshot>> getCloudServicesAsync() {
-        return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
-                new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_cloudServiceInfos"), null,
-                documentPair -> documentPair.getFirst().get("serviceInfoSnapshots", new TypeToken<Collection<ServiceInfoSnapshot>>() {
-                }.getType()));
+        return this.executeDriverAPIMethod(
+                DriverAPIRequestType.GET_CLOUD_SERVICES,
+                packet -> packet.getBuffer().readObjectCollection(ServiceInfoSnapshot.class)
+        );
     }
 
     @Override
     @NotNull
     public ITask<Collection<ServiceInfoSnapshot>> getStartedCloudServicesAsync() {
-        return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
-                new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_cloudServiceInfos_started"), null,
-                documentPair -> documentPair.getFirst().get("serviceInfoSnapshots", new TypeToken<Collection<ServiceInfoSnapshot>>() {
-                }.getType()));
+        return this.executeDriverAPIMethod(
+                DriverAPIRequestType.GET_STARTED_CLOUD_SERVICES,
+                packet -> packet.getBuffer().readObjectCollection(ServiceInfoSnapshot.class)
+        );
     }
 
     @Override
     @NotNull
-    public ITask<Collection<ServiceInfoSnapshot>> getCloudServicesAsync(String taskName) {
-        return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
-                new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_cloudServiceInfos_by_taskName").append("taskName", taskName), null,
-                documentPair -> documentPair.getFirst().get("serviceInfoSnapshots", new TypeToken<Collection<ServiceInfoSnapshot>>() {
-                }.getType()));
+    public ITask<Collection<ServiceInfoSnapshot>> getCloudServicesAsync(@NotNull String taskName) {
+        return this.executeDriverAPIMethod(
+                DriverAPIRequestType.GET_CLOUD_SERVICES_BY_SERVICE_TASK,
+                buffer -> buffer.writeString(taskName),
+                packet -> packet.getBuffer().readObjectCollection(ServiceInfoSnapshot.class)
+        );
     }
 
     @Override
     @NotNull
-    public ITask<Collection<ServiceInfoSnapshot>> getCloudServicesAsync(ServiceEnvironmentType environment) {
+    public ITask<Collection<ServiceInfoSnapshot>> getCloudServicesAsync(@NotNull ServiceEnvironmentType environment) {
         Preconditions.checkNotNull(environment);
 
-        return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
-                new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_cloud_services_with_environment").append("serviceEnvironment", environment), null,
-                documentPair -> documentPair.getFirst().get("serviceInfoSnapshots", new TypeToken<Collection<ServiceInfoSnapshot>>() {
-                }.getType()));
+        return this.executeDriverAPIMethod(
+                DriverAPIRequestType.GET_CLOUD_SERVICES_BY_ENVIRONMENT,
+                buffer -> buffer.writeEnumConstant(environment),
+                packet -> packet.getBuffer().readObjectCollection(ServiceInfoSnapshot.class)
+        );
     }
 
     @Override
     @NotNull
-    public ITask<Collection<ServiceInfoSnapshot>> getCloudServicesByGroupAsync(String group) {
-        return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
-                new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_cloudServiceInfos_by_group").append("group", group), null,
-                documentPair -> documentPair.getFirst().get("serviceInfoSnapshots", new TypeToken<Collection<ServiceInfoSnapshot>>() {
-                }.getType()));
+    public ITask<Collection<ServiceInfoSnapshot>> getCloudServicesByGroupAsync(@NotNull String group) {
+        return this.executeDriverAPIMethod(
+                DriverAPIRequestType.GET_CLOUD_SERVICES_BY_GROUP,
+                buffer -> buffer.writeString(group),
+                packet -> packet.getBuffer().readObjectCollection(ServiceInfoSnapshot.class)
+        );
     }
 
     @Override
     @NotNull
     public ITask<Integer> getServicesCountAsync() {
-        return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
-                new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_services_count"), null,
-                documentPair -> documentPair.getFirst().getInt("servicesCount"));
+        return this.executeDriverAPIMethod(
+                DriverAPIRequestType.GET_SERVICES_COUNT,
+                packet -> packet.getBuffer().readInt()
+        );
     }
 
     @Override
     @NotNull
-    public ITask<Integer> getServicesCountByGroupAsync(String group) {
-        return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
-                new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_services_count_by_group").append("group", group), null,
-                documentPair -> documentPair.getFirst().getInt("servicesCount"));
+    public ITask<Integer> getServicesCountByGroupAsync(@NotNull String group) {
+        return this.executeDriverAPIMethod(
+                DriverAPIRequestType.GET_SERVICES_COUNT_BY_GROUP,
+                buffer -> buffer.writeString(group),
+                packet -> packet.getBuffer().readInt()
+        );
     }
 
     @Override
     @NotNull
-    public ITask<Integer> getServicesCountByTaskAsync(String taskName) {
-        return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
-                new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_services_count_by_task").append("taskName", taskName), null,
-                documentPair -> documentPair.getFirst().getInt("servicesCount"));
+    public ITask<Integer> getServicesCountByTaskAsync(@NotNull String taskName) {
+        return this.executeDriverAPIMethod(
+                DriverAPIRequestType.GET_SERVICES_COUNT_BY_TASK,
+                buffer -> buffer.writeString(taskName),
+                packet -> packet.getBuffer().readInt()
+        );
     }
 
     @Override
     @NotNull
-    public ITask<ServiceInfoSnapshot> getCloudServiceAsync(UUID uniqueId) {
-        return this.wrapper.getPacketQueryProvider().sendCallablePacketWithAsDriverSyncAPIWithNetworkConnector(
-                new JsonDocument(PacketConstants.SYNC_PACKET_ID_PROPERTY, "get_cloudServiceInfos_by_uniqueId").append("uniqueId", uniqueId), null,
-                documentPair -> documentPair.getFirst().get("serviceInfoSnapshot", new TypeToken<ServiceInfoSnapshot>() {
-                }.getType()));
+    public ITask<ServiceInfoSnapshot> getCloudServiceAsync(@NotNull UUID uniqueId) {
+        return this.executeDriverAPIMethod(
+                DriverAPIRequestType.GET_CLOUD_SERVICE_BY_UNIQUE_ID,
+                buffer -> buffer.writeUUID(uniqueId),
+                packet -> packet.getBuffer().readOptionalObject(ServiceInfoSnapshot.class)
+        );
+    }
+
+    @Override
+    public INetworkChannel getNetworkChannel() {
+        return this.wrapper.getNetworkChannel();
     }
 }

@@ -44,7 +44,7 @@ public final class V1HttpHandlerCluster extends V1HttpHandler {
                     .body(GSON.toJson(
                             super.getCloudNet().getClusterNodeServerProvider().getNodeServers().stream()
                                     .filter(iClusterNodeServer -> !context.request().queryParameters().containsKey("uniqueId") ||
-                                            containsStringElementInCollection(context.request().queryParameters().get("uniqueId"),
+                                            this.containsStringElementInCollection(context.request().queryParameters().get("uniqueId"),
                                                     iClusterNodeServer.getNodeInfo().getUniqueId()))
                                     .map(iClusterNodeServer -> new JsonDocument()
                                             .append("node", iClusterNodeServer.getNodeInfo())

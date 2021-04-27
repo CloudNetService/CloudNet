@@ -1,97 +1,185 @@
 {
+  "fileVersion": 1,
   "versions": [
     {
       "name": "paperspigot",
       "targetEnvironment": "MINECRAFT_SERVER_PAPER_SPIGOT",
-      "installerType": "BUILD",
+      "installSteps": [
+        "PAPER_API",
+        "DOWNLOAD",
+        "BUILD",
+        "COPY_FILTER"
+      ],
       "website": "https://papermc.io",
       "versions": [
         {
           "name": "latest",
-          "url": "https://papermc.io/ci/job/Paper-1.15/lastSuccessfulBuild/artifact/paperclip.jar",
+          "cacheFiles": false,
           "properties": {
-            "copy": [
-              "cache/patched.*\\.jar"
-            ]
+            "copy": {
+              "cache/patched.*\\.jar": "paper.jar"
+            },
+            "jvmOptions": [
+              "-Dpaperclip.patchonly=true"
+            ],
+            "fetchOverPaperApi": true,
+            "versionGroup": "1.16.5"
           }
         },
         {
-          "name": "1.15.1",
-          "url": "https://papermc.io/ci/job/Paper-1.15/lastSuccessfulBuild/artifact/paperclip.jar",
+          "name": "1.16.5",
           "properties": {
-            "copy": [
-              "cache/patched.*\\.jar"
+            "copy": {
+              "cache/patched.*\\.jar": "paper.jar"
+            },
+            "jvmOptions": [
+              "-Dpaperclip.patchonly=true"
+            ],
+            "fetchOverPaperApi": true,
+            "versionGroup": "1.16.5"
+          }
+        },
+        {
+          "name": "1.15.2",
+          "url": "https://papermc.io/api/v2/projects/paper/versions/1.15.2/builds/391/downloads/paper-1.15.2-391.jar",
+          "properties": {
+            "copy": {
+              "cache/patched.*\\.jar": "paper.jar"
+            },
+            "jvmOptions": [
+              "-Dpaperclip.patchonly=true"
             ]
           }
         },
         {
           "name": "1.14.4",
-          "url": "https://papermc.io/ci/job/Paper-1.14/lastSuccessfulBuild/artifact/paperclip.jar",
+          "url": "https://papermc.io/api/v2/projects/paper/versions/1.14.4/builds/243/downloads/paper-1.14.4-243.jar",
           "properties": {
-            "copy": [
-              "cache/patched.*\\.jar"
+            "copy": {
+              "cache/patched.*\\.jar": "paper.jar"
+            },
+            "jvmOptions": [
+              "-Dpaperclip.patchonly=true"
             ]
           }
         },
         {
           "name": "1.13.2",
-          "url": "https://papermc.io/ci/job/Paper-1.13/lastSuccessfulBuild/artifact/paperclip.jar",
+          "url": "https://papermc.io/api/v2/projects/paper/versions/1.13.2/builds/655/downloads/paper-1.13.2-655.jar",
           "properties": {
-            "copy": [
-              "cache/patched.*\\.jar"
+            "copy": {
+              "cache/patched.*\\.jar": "paper.jar"
+            },
+            "jvmOptions": [
+              "-Dpaperclip.patchonly=true"
             ]
           }
         },
         {
           "name": "1.12.2",
-          "url": "https://papermc.io/ci/job/Paper/lastSuccessfulBuild/artifact/paperclip-1618.jar",
+          "url": "https://papermc.io/api/v2/projects/paper/versions/1.12.2/builds/1618/downloads/paper-1.12.2-1618.jar",
           "properties": {
-            "copy": [
-              "cache/patched.*\\.jar"
+            "copy": {
+              "cache/patched.*\\.jar": "paper.jar"
+            },
+            "jvmOptions": [
+              "-Dpaperclip.patchonly=true"
             ]
           }
         },
         {
           "name": "1.11.2",
-          "url": "https://papermc.io/ci/job/Paper/1104/artifact/paperclip.jar",
+          "url": "https://papermc.io/api/v2/projects/paper/versions/1.11.2/builds/1104/downloads/paper-1.11.2-1104.jar",
           "deprecated": true,
           "maxJavaVersion": 8,
           "properties": {
-            "copy": [
-              "cache/patched.*\\.jar"
+            "copy": {
+              "cache/patched.*\\.jar": "paper.jar"
+            },
+            "jvmOptions": [
+              "-Dpaperclip.patchonly=true"
             ]
           }
         },
         {
           "name": "1.10.2",
-          "url": "https://papermc.io/ci/job/Paper/916/artifact/paperclip-916.2.jar",
+          "url": "https://papermc.io/api/v2/projects/paper/versions/1.10.2/builds/916/downloads/paper-1.10.2-916.jar",
           "deprecated": true,
           "maxJavaVersion": 8,
           "properties": {
-            "copy": [
-              "cache/patched.*\\.jar"
-            ]
+            "copy": {
+              "cache/patched.*\\.jar": "paper.jar"
+            }
           }
         },
         {
           "name": "1.9.4",
-          "url": "https://papermc.io/ci/job/Paper/773/artifact/paperclip-773.jar",
+          "url": "https://papermc.io/api/v2/projects/paper/versions/1.9.4/builds/773/downloads/paper-1.9.4-773.jar",
           "deprecated": true,
           "maxJavaVersion": 8,
           "properties": {
-            "copy": [
-              "cache/patched.*\\.jar"
-            ]
+            "copy": {
+              "cache/patched.*\\.jar": "paper.jar"
+            }
           }
         },
         {
           "name": "1.8.8",
-          "url": "https://papermc.io/ci/job/Paper/443/artifact/paperclip-1.8.8-fix.jar",
+          "url": "https://papermc.io/api/v2/projects/paper/versions/1.8.8/builds/443/downloads/paper-1.8.8-443.jar",
           "deprecated": true,
           "maxJavaVersion": 8,
           "properties": {
-            "copy": [
-              "cache/patched.*\\.jar"
+            "copy": {
+              "cache/patched.*\\.jar": "paper.jar"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "tuinity",
+      "targetEnvironment": "MINECRAFT_SERVER_TUINITY_SPIGOT",
+      "installSteps": [
+        "DOWNLOAD",
+        "BUILD",
+        "COPY_FILTER"
+      ],
+      "website": "https://github.com/Spottedleaf/Tuinity",
+      "versions": [
+        {
+          "name": "latest",
+          "cacheFiles": false,
+          "url": "https://ci.codemc.io/job/Spottedleaf/job/Tuinity/lastSuccessfulBuild/artifact/tuinity-paperclip.jar",
+          "properties": {
+            "copy": {
+              "cache/patched.*\\.jar": "tuinity.jar"
+            },
+            "jvmOptions": [
+              "-Dpaperclip.patchonly=true"
+            ]
+          }
+        },
+        {
+          "name": "1.16.5",
+          "url": "https://ci.codemc.io/job/Spottedleaf/job/Tuinity/lastSuccessfulBuild/artifact/tuinity-paperclip.jar",
+          "properties": {
+            "copy": {
+              "cache/patched.*\\.jar": "tuinity.jar"
+            },
+            "jvmOptions": [
+              "-Dpaperclip.patchonly=true"
+            ]
+          }
+        },
+        {
+          "name": "1.15.2",
+          "url": "https://ci.codemc.io/job/Spottedleaf/job/Tuinity/139/artifact/tuinity-paperclip.jar",
+          "properties": {
+            "copy": {
+              "cache/patched.*\\.jar": "tuinity.jar"
+            },
+            "jvmOptions": [
+              "-Dpaperclip.patchonly=true"
             ]
           }
         }
@@ -100,12 +188,19 @@
     {
       "name": "spigot",
       "targetEnvironment": "MINECRAFT_SERVER_SPIGOT",
-      "installerType": "DOWNLOAD",
       "website": "https://getbukkit.org",
+      "installSteps": [
+        "DOWNLOAD"
+      ],
       "versions": [
         {
           "name": "latest",
-          "url": "https://cdn.getbukkit.org/spigot/spigot-1.15.2.jar"
+          "url": "https://cdn.getbukkit.org/spigot/spigot-1.16.5.jar",
+          "cacheFiles": false
+        },
+        {
+          "name": "1.16.5",
+          "url": "https://cdn.getbukkit.org/spigot/spigot-1.16.5.jar"
         },
         {
           "name": "1.15.2",
@@ -121,36 +216,63 @@
         },
         {
           "name": "1.11.2",
-          "url": "https://cdn.getbukkit.org/spigot/spigot-1.11.2.jar"
+          "url": "https://cdn.getbukkit.org/spigot/spigot-1.11.2.jar",
+          "deprecated": true,
+          "maxJavaVersion": 8
         },
         {
           "name": "1.10.2",
-          "url": "https://cdn.getbukkit.org/spigot/spigot-1.10.2-R0.1-SNAPSHOT-latest.jar"
+          "url": "https://cdn.getbukkit.org/spigot/spigot-1.10.2-R0.1-SNAPSHOT-latest.jar",
+          "deprecated": true,
+          "maxJavaVersion": 8
         },
         {
           "name": "1.9.4",
-          "url": "https://cdn.getbukkit.org/spigot/spigot-1.9.4-R0.1-SNAPSHOT-latest.jar"
+          "url": "https://cdn.getbukkit.org/spigot/spigot-1.9.4-R0.1-SNAPSHOT-latest.jar",
+          "deprecated": true,
+          "maxJavaVersion": 8
         },
         {
           "name": "1.8.8",
-          "url": "https://cdn.getbukkit.org/spigot/spigot-1.8.8-R0.1-SNAPSHOT-latest.jar"
+          "url": "https://cdn.getbukkit.org/spigot/spigot-1.8.8-R0.1-SNAPSHOT-latest.jar",
+          "deprecated": true,
+          "maxJavaVersion": 8
         }
       ]
     },
     {
       "name": "buildtools",
       "targetEnvironment": "MINECRAFT_SERVER_SPIGOT",
-      "installerType": "BUILD",
+      "installSteps": [
+        "DOWNLOAD",
+        "BUILD",
+        "COPY_FILTER"
+      ],
       "website": "https://spigotmc.org",
       "versions": [
         {
           "name": "latest",
           "url": "https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar",
           "maxJavaVersion": 13,
+          "cacheFiles": false,
           "properties": {
-            "copy": [
-              "spigot-.*\\.jar"
-            ],
+            "copy": {
+              "spigot-.*\\.jar": "spigot.jar"
+            },
+            "parameters": [
+              "--rev",
+              "%version%"
+            ]
+          }
+        },
+        {
+          "name": "1.16.5",
+          "url": "https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar",
+          "maxJavaVersion": 13,
+          "properties": {
+            "copy": {
+              "spigot-.*\\.jar": "spigot.jar"
+            },
             "parameters": [
               "--rev",
               "%version%"
@@ -162,9 +284,9 @@
           "url": "https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar",
           "maxJavaVersion": 13,
           "properties": {
-            "copy": [
-              "spigot-.*\\.jar"
-            ],
+            "copy": {
+              "spigot-.*\\.jar": "spigot.jar"
+            },
             "parameters": [
               "--rev",
               "%version%"
@@ -176,9 +298,9 @@
           "url": "https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar",
           "maxJavaVersion": 13,
           "properties": {
-            "copy": [
-              "spigot-.*\\.jar"
-            ],
+            "copy": {
+              "spigot-.*\\.jar": "spigot.jar"
+            },
             "parameters": [
               "--rev",
               "%version%"
@@ -190,9 +312,9 @@
           "url": "https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar",
           "maxJavaVersion": 10,
           "properties": {
-            "copy": [
-              "spigot-.*\\.jar"
-            ],
+            "copy": {
+              "spigot-.*\\.jar": "spigot.jar"
+            },
             "parameters": [
               "--rev",
               "%version%"
@@ -205,9 +327,9 @@
           "deprecated": true,
           "maxJavaVersion": 8,
           "properties": {
-            "copy": [
-              "spigot-.*\\.jar"
-            ],
+            "copy": {
+              "spigot-.*\\.jar": "spigot.jar"
+            },
             "parameters": [
               "--rev",
               "%version%"
@@ -220,9 +342,9 @@
           "deprecated": true,
           "maxJavaVersion": 8,
           "properties": {
-            "copy": [
-              "spigot-.*\\.jar"
-            ],
+            "copy": {
+              "spigot-.*\\.jar": "spigot.jar"
+            },
             "parameters": [
               "--rev",
               "%version%"
@@ -235,9 +357,9 @@
           "deprecated": true,
           "maxJavaVersion": 8,
           "properties": {
-            "copy": [
-              "spigot-.*\\.jar"
-            ],
+            "copy": {
+              "spigot-.*\\.jar": "spigot.jar"
+            },
             "parameters": [
               "--rev",
               "%version%"
@@ -250,9 +372,9 @@
           "deprecated": true,
           "maxJavaVersion": 8,
           "properties": {
-            "copy": [
-              "spigot-.*\\.jar"
-            ],
+            "copy": {
+              "spigot-.*\\.jar": "spigot.jar"
+            },
             "parameters": [
               "--rev",
               "%version%"
@@ -264,16 +386,19 @@
     {
       "name": "spongevanilla",
       "targetEnvironment": "MINECRAFT_SERVER_SPONGE_VANILLA",
-      "installerType": "DOWNLOAD",
       "website": "https://spongepowered.org",
+      "installSteps": [
+        "DOWNLOAD"
+      ],
       "versions": [
         {
           "name": "latest",
-          "url": "https://repo.spongepowered.org/maven/org/spongepowered/spongevanilla/1.12.2-7.1.2/spongevanilla-1.12.2-7.1.2.jar"
+          "url": "https://repo.spongepowered.org/maven/org/spongepowered/spongevanilla/1.12.2-7.3.0/spongevanilla-1.12.2-7.3.0.jar",
+          "cacheFiles": false
         },
         {
           "name": "1.12.2",
-          "url": "https://repo.spongepowered.org/maven/org/spongepowered/spongevanilla/1.12.2-7.1.2/spongevanilla-1.12.2-7.1.2.jar"
+          "url": "https://repo.spongepowered.org/maven/org/spongepowered/spongevanilla/1.12.2-7.3.0/spongevanilla-1.12.2-7.3.0.jar"
         },
         {
           "name": "1.11.2",
@@ -282,46 +407,63 @@
         {
           "name": "1.10.2",
           "url": "https://repo.spongepowered.org/maven/org/spongepowered/spongevanilla/1.10.2-5.2.0-BETA-403/spongevanilla-1.10.2-5.2.0-BETA-403.jar"
-        },
-        {
-          "name": "1.8.9",
-          "url": "https://repo.spongepowered.org/maven/org/spongepowered/spongevanilla/1.10.2-5.2.0-BETA-403/spongevanilla-1.10.2-5.2.0-BETA-403.jar"
         }
       ]
     },
     {
       "name": "forge",
       "targetEnvironment": "MINECRAFT_SERVER_FORGE",
-      "installerType": "BUILD",
+      "installSteps": [
+        "DOWNLOAD",
+        "BUILD",
+        "COPY_FILTER"
+      ],
       "website": "https://minecraftforge.net",
       "versions": [
         {
           "name": "latest",
-          "url": "https://files.minecraftforge.net/maven/net/minecraftforge/forge/1.15.1-30.0.15/forge-1.15.1-30.0.15-installer.jar",
+          "url": "https://files.minecraftforge.net/maven/net/minecraftforge/forge/1.16.5-36.0.7/forge-1.16.5-36.0.7-installer.jar",
           "maxJavaVersion": 13,
+          "cacheFiles": false,
           "properties": {
-            "copy": [
-              "libraries/.*",
-              ".*\\.json",
-              "forge-.*\\.jar",
-              "minecraft_server.*\\.jar"
-            ],
+            "copy": {
+              "libraries/.*": "/",
+              ".*\\.json": "/",
+              "forge-.*\\.jar": "/",
+              "minecraft_server.*\\.jar": "/"
+            },
             "parameters": [
               "--installServer"
             ]
           }
         },
         {
-          "name": "1.15.1",
-          "url": "https://files.minecraftforge.net/maven/net/minecraftforge/forge/1.15.1-30.0.15/forge-1.15.1-30.0.15-installer.jar",
+          "name": "1.16.5",
+          "url": "https://files.minecraftforge.net/maven/net/minecraftforge/forge/1.16.5-36.0.7/forge-1.16.5-36.0.7-installer.jar",
           "maxJavaVersion": 13,
           "properties": {
-            "copy": [
-              "libraries/.*",
-              ".*\\.json",
-              "forge-.*\\.jar",
-              "minecraft_server.*\\.jar"
-            ],
+            "copy": {
+              "libraries/.*": "/",
+              ".*\\.json": "/",
+              "forge-.*\\.jar": "/",
+              "minecraft_server.*\\.jar": "/"
+            },
+            "parameters": [
+              "--installServer"
+            ]
+          }
+        },
+        {
+          "name": "1.15.2",
+          "url": "https://files.minecraftforge.net/maven/net/minecraftforge/forge/1.15.2-31.2.41/forge-1.15.2-31.2.41-installer.jar",
+          "maxJavaVersion": 13,
+          "properties": {
+            "copy": {
+              "libraries/.*": "/",
+              ".*\\.json": "/",
+              "forge-.*\\.jar": "/",
+              "minecraft_server.*\\.jar": "/"
+            },
             "parameters": [
               "--installServer"
             ]
@@ -332,12 +474,12 @@
           "url": "https://files.minecraftforge.net/maven/net/minecraftforge/forge/1.14.4-28.1.107/forge-1.14.4-28.1.107-installer.jar",
           "maxJavaVersion": 13,
           "properties": {
-            "copy": [
-              "libraries/.*",
-              ".*\\.json",
-              "forge-.*\\.jar",
-              "minecraft_server.*\\.jar"
-            ],
+            "copy": {
+              "libraries/.*": "/",
+              ".*\\.json": "/",
+              "forge-.*\\.jar": "/",
+              "minecraft_server.*\\.jar": "/"
+            },
             "parameters": [
               "--installServer"
             ]
@@ -348,12 +490,12 @@
           "url": "https://files.minecraftforge.net/maven/net/minecraftforge/forge/1.13.2-25.0.219/forge-1.13.2-25.0.219-installer.jar",
           "maxJavaVersion": 13,
           "properties": {
-            "copy": [
-              "libraries/.*",
-              ".*\\.json",
-              "forge-.*\\.jar",
-              "minecraft_server.*\\.jar"
-            ],
+            "copy": {
+              "libraries/.*": "/",
+              ".*\\.json": "/",
+              "forge-.*\\.jar": "/",
+              "minecraft_server.*\\.jar": "/"
+            },
             "parameters": [
               "--installServer"
             ]
@@ -364,12 +506,12 @@
           "url": "https://files.minecraftforge.net/maven/net/minecraftforge/forge/1.12.2-14.23.5.2847/forge-1.12.2-14.23.5.2847-installer.jar",
           "maxJavaVersion": 10,
           "properties": {
-            "copy": [
-              "libraries/.*",
-              ".*\\.json",
-              "forge-.*\\.jar",
-              "minecraft_server.*\\.jar"
-            ],
+            "copy": {
+              "libraries/.*": "/",
+              ".*\\.json": "/",
+              "forge-.*\\.jar": "/",
+              "minecraft_server.*\\.jar": "/"
+            },
             "parameters": [
               "--installServer"
             ]
@@ -380,12 +522,12 @@
           "url": "https://files.minecraftforge.net/maven/net/minecraftforge/forge/1.11.2-13.20.1.2588/forge-1.11.2-13.20.1.2588-installer.jar",
           "maxJavaVersion": 8,
           "properties": {
-            "copy": [
-              "libraries/.*",
-              ".*\\.json",
-              "forge-.*\\.jar",
-              "minecraft_server.*\\.jar"
-            ],
+            "copy": {
+              "libraries/.*": "/",
+              ".*\\.json": "/",
+              "forge-.*\\.jar": "/",
+              "minecraft_server.*\\.jar": "/"
+            },
             "parameters": [
               "--installServer"
             ]
@@ -396,12 +538,12 @@
           "url": "https://files.minecraftforge.net/maven/net/minecraftforge/forge/1.10.2-12.18.3.2511/forge-1.10.2-12.18.3.2511-installer.jar",
           "maxJavaVersion": 8,
           "properties": {
-            "copy": [
-              "libraries/.*",
-              ".*\\.json",
-              "forge-.*\\.jar",
-              "minecraft_server.*\\.jar"
-            ],
+            "copy": {
+              "libraries/.*": "/",
+              ".*\\.json": "/",
+              "forge-.*\\.jar": "/",
+              "minecraft_server.*\\.jar": "/"
+            },
             "parameters": [
               "--installServer"
             ]
@@ -412,12 +554,12 @@
           "url": "https://files.minecraftforge.net/maven/net/minecraftforge/forge/1.9.4-12.17.0.2051/forge-1.9.4-12.17.0.2051-installer.jar",
           "maxJavaVersion": 8,
           "properties": {
-            "copy": [
-              "libraries/.*",
-              ".*\\.json",
-              "forge-.*\\.jar",
-              "minecraft_server.*\\.jar"
-            ],
+            "copy": {
+              "libraries/.*": "/",
+              ".*\\.json": "/",
+              "forge-.*\\.jar": "/",
+              "minecraft_server.*\\.jar": "/"
+            },
             "parameters": [
               "--installServer"
             ]
@@ -428,12 +570,12 @@
           "url": "https://files.minecraftforge.net/maven/net/minecraftforge/forge/1.8.9-11.15.1.2318-1.8.9/forge-1.8.9-11.15.1.2318-1.8.9-installer.jar",
           "maxJavaVersion": 8,
           "properties": {
-            "copy": [
-              "libraries/.*",
-              ".*\\.json",
-              "forge-.*\\.jar",
-              "minecraft_server.*\\.jar"
-            ],
+            "copy": {
+              "libraries/.*": "/",
+              ".*\\.json": "/",
+              "forge-.*\\.jar": "/",
+              "minecraft_server.*\\.jar": "/"
+            },
             "parameters": [
               "--installServer"
             ]
@@ -444,12 +586,12 @@
           "url": "https://files.minecraftforge.net/maven/net/minecraftforge/forge/1.7.10-10.13.4.1614-1.7.10/forge-1.7.10-10.13.4.1614-1.7.10-installer.jar",
           "maxJavaVersion": 8,
           "properties": {
-            "copy": [
-              "libraries/.*",
-              ".*\\.json",
-              "forge-.*\\.jar",
-              "minecraft_server.*\\.jar"
-            ],
+            "copy": {
+              "libraries/.*": "/",
+              ".*\\.json": "/",
+              "forge-.*\\.jar": "/",
+              "minecraft_server.*\\.jar": "/"
+            },
             "parameters": [
               "--installServer"
             ]
@@ -460,58 +602,63 @@
     {
       "name": "spongeforge",
       "targetEnvironment": "MINECRAFT_SERVER_FORGE",
-      "installerType": "BUILD",
+      "installSteps": [
+        "DOWNLOAD",
+        "BUILD",
+        "COPY_FILTER"
+      ],
       "website": "https://spongepowered.org / https://minecraftforge.net",
       "versions": [
         {
           "name": "latest",
-          "url": "https://files.minecraftforge.net/maven/net/minecraftforge/forge/1.12.2-14.23.5.2847/forge-1.12.2-14.23.5.2847-installer.jar",
+          "url": "https://files.minecraftforge.net/maven/net/minecraftforge/forge/1.12.2-14.23.5.2838/forge-1.12.2-14.23.5.2838-installer.jar",
           "maxJavaVersion": 10,
+          "cacheFiles": false,
           "properties": {
-            "copy": [
-              "libraries/.*",
-              ".*\\.json",
-              "forge-.*\\.jar",
-              "minecraft_server.*\\.jar"
-            ],
+            "copy": {
+              "libraries/.*": "/",
+              ".*\\.json": "/",
+              "forge-.*\\.jar": "/",
+              "minecraft_server.*\\.jar": "/"
+            },
             "parameters": [
               "--installServer"
             ]
           },
           "additionalDownloads": {
-            "mods/spongeforge.jar": "https://repo.spongepowered.org/maven/org/spongepowered/spongeforge/1.12.2-2838-7.1.8-RC3964/spongeforge-1.12.2-2838-7.1.8-RC3964.jar"
+            "mods/spongeforge.jar": "https://repo.spongepowered.org/maven/org/spongepowered/spongeforge/1.12.2-2838-7.3.0/spongeforge-1.12.2-2838-7.3.0.jar"
           }
         },
         {
           "name": "1.12.2",
-          "url": "https://files.minecraftforge.net/maven/net/minecraftforge/forge/1.12.2-14.23.5.2847/forge-1.12.2-14.23.5.2847-installer.jar",
+          "url": "https://files.minecraftforge.net/maven/net/minecraftforge/forge/1.12.2-14.23.5.2838/forge-1.12.2-14.23.5.2838-installer.jar",
           "maxJavaVersion": 10,
           "properties": {
-            "copy": [
-              "libraries/.*",
-              ".*\\.json",
-              "forge-.*\\.jar",
-              "minecraft_server.*\\.jar"
-            ],
+            "copy": {
+              "libraries/.*": "/",
+              ".*\\.json": "/",
+              "forge-.*\\.jar": "/",
+              "minecraft_server.*\\.jar": "/"
+            },
             "parameters": [
               "--installServer"
             ]
           },
           "additionalDownloads": {
-            "mods/spongeforge.jar": "https://repo.spongepowered.org/maven/org/spongepowered/spongeforge/1.12.2-2838-7.1.8-RC3964/spongeforge-1.12.2-2838-7.1.8-RC3964.jar"
+            "mods/spongeforge.jar": "https://repo.spongepowered.org/maven/org/spongepowered/spongeforge/1.12.2-2838-7.3.0/spongeforge-1.12.2-2838-7.3.0.jar"
           }
         },
         {
           "name": "1.11.2",
-          "url": "https://files.minecraftforge.net/maven/net/minecraftforge/forge/1.11.2-13.20.1.2588/forge-1.11.2-13.20.1.2588-installer.jar",
+          "url": "https://files.minecraftforge.net/maven/net/minecraftforge/forge/1.11.2-13.20.1.2476/forge-1.11.2-13.20.1.2476-installer.jar",
           "maxJavaVersion": 8,
           "properties": {
-            "copy": [
-              "libraries/.*",
-              ".*\\.json",
-              "forge-.*\\.jar",
-              "minecraft_server.*\\.jar"
-            ],
+            "copy": {
+              "libraries/.*": "/",
+              ".*\\.json": "/",
+              "forge-.*\\.jar": "/",
+              "minecraft_server.*\\.jar": "/"
+            },
             "parameters": [
               "--installServer"
             ]
@@ -522,15 +669,15 @@
         },
         {
           "name": "1.10.2",
-          "url": "https://files.minecraftforge.net/maven/net/minecraftforge/forge/1.10.2-12.18.3.2511/forge-1.10.2-12.18.3.2511-installer.jar",
+          "url": "https://files.minecraftforge.net/maven/net/minecraftforge/forge/1.10.2-12.18.3.2477/forge-1.10.2-12.18.3.2477-installer.jar",
           "maxJavaVersion": 8,
           "properties": {
-            "copy": [
-              "libraries/.*",
-              ".*\\.json",
-              "forge-.*\\.jar",
-              "minecraft_server.*\\.jar"
-            ],
+            "copy": {
+              "libraries/.*": "/",
+              ".*\\.json": "/",
+              "forge-.*\\.jar": "/",
+              "minecraft_server.*\\.jar": "/"
+            },
             "parameters": [
               "--installServer"
             ]
@@ -544,12 +691,15 @@
     {
       "name": "glowstone",
       "targetEnvironment": "GLOWSTONE_DEFAULT",
-      "installerType": "DOWNLOAD",
       "website": "https://github.com/GlowstoneMC",
+      "installSteps": [
+        "DOWNLOAD"
+      ],
       "versions": [
         {
           "name": "latest",
-          "url": "https://github.com/GlowstoneMC/Glowstone/releases/download/2018.9.0/glowstone.jar"
+          "url": "https://github.com/GlowstoneMC/Glowstone/releases/download/2018.9.0/glowstone.jar",
+          "cacheFiles": false
         },
         {
           "name": "1.12.2",
@@ -564,84 +714,149 @@
     {
       "name": "waterdog",
       "targetEnvironment": "WATERDOG_DEFAULT",
-      "installerType": "DOWNLOAD",
       "website": "https://ci.codemc.org/job/yesdog/job/Waterdog",
+      "installSteps": [
+        "DOWNLOAD"
+      ],
       "versions": [
         {
           "name": "latest",
-          "url": "https://ci.codemc.org/job/yesdog/job/Waterdog/lastStableBuild/artifact/Waterfall-Proxy/bootstrap/target/Waterdog.jar"
+          "url": "https://ci.codemc.org/job/yesdog/job/Waterdog/lastStableBuild/artifact/Waterfall-Proxy/bootstrap/target/Waterdog.jar",
+          "cacheFiles": false
+        },
+        {
+          "name": "alemiz-zlib",
+          "url": "https://jenkins.mizerak.eu/view/Alemiz-Jobs/job/WaterDog/job/alemiz-zlib/lastSuccessfulBuild/artifact/Waterfall-Proxy/bootstrap/target/Waterdog.jar",
+          "cacheFiles": false
         }
       ]
     },
     {
       "name": "bungeecord",
       "targetEnvironment": "BUNGEECORD_DEFAULT",
-      "installerType": "DOWNLOAD",
       "website": "https://ci.md-5.net/job/BungeeCord",
+      "installSteps": [
+        "DOWNLOAD"
+      ],
       "versions": [
         {
           "name": "latest",
-          "url": "https://ci.md-5.net/job/BungeeCord/lastSuccessfulBuild/artifact/bootstrap/target/BungeeCord.jar"
+          "url": "https://ci.md-5.net/job/BungeeCord/lastSuccessfulBuild/artifact/bootstrap/target/BungeeCord.jar",
+          "cacheFiles": false
         }
       ]
     },
     {
       "name": "travertine",
       "targetEnvironment": "BUNGEECORD_TRAVERTINE",
-      "installerType": "DOWNLOAD",
       "website": "https://papermc.io",
+      "installSteps": [
+        "PAPER_API",
+        "DOWNLOAD"
+      ],
       "versions": [
         {
           "name": "latest",
-          "url": "https://papermc.io/ci/job/Travertine/lastSuccessfulBuild/artifact/Travertine-Proxy/bootstrap/target/Travertine.jar"
+          "cacheFiles": false,
+          "properties": {
+            "fetchOverPaperApi": true,
+            "versionGroup": "1.16"
+          }
         }
       ]
     },
     {
       "name": "hexacord",
       "targetEnvironment": "BUNGEECORD_HEXACORD",
-      "installerType": "DOWNLOAD",
       "website": "https://github.com/HexagonMC/BungeeCord",
+      "installSteps": [
+        "DOWNLOAD"
+      ],
       "versions": [
         {
           "name": "latest",
-          "url": "https://github.com/HexagonMC/BungeeCord/releases/latest/download/BungeeCord.jar"
+          "url": "https://github.com/HexagonMC/BungeeCord/releases/latest/download/BungeeCord.jar",
+          "cacheFiles": false
         }
       ]
     },
     {
       "name": "waterfall",
       "targetEnvironment": "BUNGEECORD_WATERFALL",
-      "installerType": "DOWNLOAD",
       "website": "https://papermc.io",
+      "installSteps": [
+        "PAPER_API",
+        "DOWNLOAD"
+      ],
       "versions": [
         {
           "name": "latest",
-          "url": "https://ci.destroystokyo.com/job/Waterfall/lastSuccessfulBuild/artifact/Waterfall-Proxy/bootstrap/target/Waterfall.jar"
+          "cacheFiles": false,
+          "properties": {
+            "fetchOverPaperApi": true,
+            "versionGroup": "1.16"
+          }
         }
       ]
     },
     {
       "name": "velocity",
       "targetEnvironment": "VELOCITY_DEFAULT",
-      "installerType": "DOWNLOAD",
       "website": "https://velocitypowered.com",
+      "installSteps": [
+        "DOWNLOAD"
+      ],
       "versions": [
         {
           "name": "latest",
-          "url": "https://ci.velocitypowered.com/job/velocity/lastSuccessfulBuild/artifact/proxy/build/libs/velocity-proxy-1.0.6-SNAPSHOT-all.jar"
+          "url": "https://versions.velocitypowered.com/download/latest.jar",
+          "cacheFiles": false
+        },
+        {
+          "name": "development",
+          "url": "https://versions.velocitypowered.com/download/1.1.x-SNAPSHOT.jar",
+          "cacheFiles": false
         }
       ]
     },
     {
       "name": "nukkit",
       "targetEnvironment": "NUKKIT_DEFAULT",
-      "installerType": "DOWNLOAD",
       "website": "https://nukkitx.com",
+      "installSteps": [
+        "DOWNLOAD"
+      ],
       "versions": [
         {
           "name": "latest",
-          "url": "https://ci.nukkitx.com/job/NukkitX/job/Nukkit/job/master/lastSuccessfulBuild/artifact/target/nukkit-1.0-SNAPSHOT.jar"
+          "url": "https://ci.nukkitx.com/job/NukkitX/job/Nukkit/job/master/lastSuccessfulBuild/artifact/target/nukkit-1.0-SNAPSHOT.jar",
+          "cacheFiles": false
+        }
+      ]
+    },
+    {
+      "name": "gomint",
+      "targetEnvironment": "GO_MINT_DEFAULT",
+      "installSteps": [
+        "DOWNLOAD",
+        "UNZIP",
+        "COPY_FILTER"
+      ],
+      "website": "https://gomint.io",
+      "versions": [
+        {
+          "name": "latest",
+          "url": "https://gomint-artifacts.s3.amazonaws.com/latest.zip",
+          "minJavaVersion": 9,
+          "cacheFiles": false,
+          "properties": {
+            "copy": {
+              "modules/.*": "/"
+            }
+          },
+          "additionalDownloads": {
+            "modules/gson-2.8.6.jar": "https://repo1.maven.org/maven2/com/google/code/gson/gson/2.8.6/gson-2.8.6.jar"
+          }
         }
       ]
     }

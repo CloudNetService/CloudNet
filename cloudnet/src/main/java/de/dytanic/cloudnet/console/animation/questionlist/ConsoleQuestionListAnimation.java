@@ -11,6 +11,9 @@ import de.dytanic.cloudnet.event.setup.SetupCompleteEvent;
 import de.dytanic.cloudnet.event.setup.SetupInitiateEvent;
 import de.dytanic.cloudnet.event.setup.SetupResponseEvent;
 import org.fusesource.jansi.Ansi;
+import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -18,6 +21,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
 public class ConsoleQuestionListAnimation extends AbstractConsoleAnimation {
+
     private final Supplier<String> headerSupplier;
     private final Supplier<String> footerSupplier;
     private final Supplier<Collection<String>> lastCachedMessagesSupplier;
@@ -26,12 +30,11 @@ public class ConsoleQuestionListAnimation extends AbstractConsoleAnimation {
 
     private String previousPrompt;
     private boolean previousPrintingEnabled;
+    private boolean previousUseMatchingHistorySearch;
     private List<String> previousHistory;
 
-    private final Map<String, Object> results = new HashMap<>();
-
     private Queue<QuestionListEntry<?>> entries = new LinkedBlockingQueue<>();
-
+    private final Map<String, Object> results = new HashMap<>();
     private final Collection<BiConsumer<QuestionListEntry<?>, Object>> entryCompletionListeners = new ArrayList<>();
 
     private int currentCursor = 1;
@@ -43,7 +46,8 @@ public class ConsoleQuestionListAnimation extends AbstractConsoleAnimation {
         this(null, lastCachedMessagesSupplier, headerSupplier, footerSupplier, overwritePrompt);
     }
 
-    public ConsoleQuestionListAnimation(String name, Supplier<Collection<String>> lastCachedMessagesSupplier, Supplier<String> headerSupplier, Supplier<String> footerSupplier, String overwritePrompt) {
+    public ConsoleQuestionListAnimation(String name, Supplier<Collection<String>> lastCachedMessagesSupplier,
+                                        Supplier<String> headerSupplier, Supplier<String> footerSupplier, String overwritePrompt) {
         super(name);
         this.lastCachedMessagesSupplier = lastCachedMessagesSupplier;
         this.headerSupplier = headerSupplier;
@@ -54,23 +58,25 @@ public class ConsoleQuestionListAnimation extends AbstractConsoleAnimation {
         super.setCursor(0);
     }
 
-    public void addEntry(QuestionListEntry<?> entry) {
+    public void addEntry(@NotNull QuestionListEntry<?> entry) {
         this.entries.add(entry);
     }
 
-    public void addEntriesFirst(QuestionListEntry<?>... entries) {
+    public void addEntriesFirst(@NonNls QuestionListEntry<?>... entries) {
         if (entries.length == 0) {
             return;
         }
+
         Queue<QuestionListEntry<?>> newEntries = new LinkedBlockingQueue<>(Arrays.asList(entries));
         newEntries.addAll(this.entries);
         this.entries = newEntries;
     }
 
-    public void addEntriesAfter(String keyBefore, QuestionListEntry<?>... entries) {
+    public void addEntriesAfter(@NotNull String keyBefore, @NonNls QuestionListEntry<?>... entries) {
         if (entries.length == 0) {
             return;
         }
+
         Queue<QuestionListEntry<?>> newEntries = new LinkedBlockingQueue<>();
         for (QuestionListEntry<?> oldEntry : this.entries) {
             newEntries.add(oldEntry);
@@ -78,20 +84,24 @@ public class ConsoleQuestionListAnimation extends AbstractConsoleAnimation {
                 newEntries.addAll(Arrays.asList(entries));
             }
         }
+
         this.entries = newEntries;
     }
 
-    public void addEntriesBefore(String keyAfter, QuestionListEntry<?>... entries) {
+    public void addEntriesBefore(@NotNull String keyAfter, @NonNls QuestionListEntry<?>... entries) {
         if (entries.length == 0) {
             return;
         }
+
         Queue<QuestionListEntry<?>> newEntries = new LinkedBlockingQueue<>();
         for (QuestionListEntry<?> oldEntry : this.entries) {
             if (oldEntry.getKey().equals(keyAfter)) {
                 newEntries.addAll(Arrays.asList(entries));
             }
+
             newEntries.add(oldEntry);
         }
+
         this.entries = newEntries;
     }
 
@@ -107,30 +117,32 @@ public class ConsoleQuestionListAnimation extends AbstractConsoleAnimation {
         return this.cancellable;
     }
 
-    public Map<String, Object> getResults() {
+    public @NotNull Map<String, Object> getResults() {
         return this.results;
     }
 
-    public Object getResult(String key) {
+    public @Nullable Object getResult(@NotNull String key) {
         return this.results.get(key);
     }
 
-    public boolean hasResult(String key) {
+    public boolean hasResult(@NotNull String key) {
         return this.results.containsKey(key);
     }
 
-    public void addEntryCompletionListener(BiConsumer<QuestionListEntry<?>, Object> listener) {
+    public void addEntryCompletionListener(@NotNull BiConsumer<QuestionListEntry<?>, Object> listener) {
         this.entryCompletionListeners.add(listener);
     }
 
     @Override
-    public void setConsole(IConsole console) {
+    public void setConsole(@NotNull IConsole console) {
         super.setConsole(console);
         this.previousPrintingEnabled = console.isPrintingEnabled();
+        this.previousUseMatchingHistorySearch = console.isUsingMatchingHistoryComplete();
         this.previousPrompt = console.getPrompt();
         this.previousHistory = console.getCommandHistory();
 
         console.setCommandHistory(null);
+        console.setUsingMatchingHistoryComplete(false);
 
         if (this.overwritePrompt != null) {
             console.setPrompt(this.overwritePrompt);
@@ -147,9 +159,7 @@ public class ConsoleQuestionListAnimation extends AbstractConsoleAnimation {
         }
 
         console.disableAllHandlers();
-
         CloudNet.getInstance().getEventManager().callEvent(new SetupInitiateEvent(this));
-
     }
 
     @Override
@@ -161,7 +171,6 @@ public class ConsoleQuestionListAnimation extends AbstractConsoleAnimation {
         }
 
         QuestionAnswerType<?> answerType = entry.getAnswerType();
-
         this.setDefaultConsoleValues(answerType);
 
         String possibleAnswers = answerType.getPossibleAnswersAsString();
@@ -204,7 +213,7 @@ public class ConsoleQuestionListAnimation extends AbstractConsoleAnimation {
         return false;
     }
 
-    private boolean validateInput(QuestionAnswerType<?> answerType, QuestionListEntry<?> entry, String input) {
+    private boolean validateInput(@NotNull QuestionAnswerType<?> answerType, @NotNull QuestionListEntry<?> entry, @NotNull String input) {
         if (this.isCancellable() && input.equalsIgnoreCase("cancel")) {
             this.cancelled = true;
             this.entries.clear();
@@ -221,7 +230,7 @@ public class ConsoleQuestionListAnimation extends AbstractConsoleAnimation {
 
             CloudNet.getInstance().getEventManager().callEvent(new SetupResponseEvent(this, entry, result));
 
-            super.getConsole().writeRaw( //print result message and remove question
+            super.getConsole().writeRaw( // print result message and remove question
                     this.eraseLines(Ansi.ansi().reset(), this.currentCursor + 1)
                             .a("&r").a(entry.getQuestion())
                             .a(" &r> &a").a(input)
@@ -233,7 +242,7 @@ public class ConsoleQuestionListAnimation extends AbstractConsoleAnimation {
         }
 
         try {
-            super.eraseLastLine(); //erase prompt
+            super.eraseLastLine(); // erase prompt
 
             String[] lines = answerType.getInvalidInputMessage(input).split(System.lineSeparator());
             for (String line : lines) {
@@ -243,7 +252,6 @@ public class ConsoleQuestionListAnimation extends AbstractConsoleAnimation {
             Thread.sleep(3000);
 
             super.getConsole().writeRaw(this.eraseLines(Ansi.ansi().reset(), lines.length).toString()); //erase invalid input message
-
             super.getConsole().setCommandHistory(answerType.getCompletableAnswers());
         } catch (InterruptedException exception) {
             exception.printStackTrace();
@@ -252,7 +260,7 @@ public class ConsoleQuestionListAnimation extends AbstractConsoleAnimation {
         return false;
     }
 
-    private void setDefaultConsoleValues(QuestionAnswerType<?> answerType) {
+    private void setDefaultConsoleValues(@NotNull QuestionAnswerType<?> answerType) {
         super.getConsole().setCommandHistory(answerType.getCompletableAnswers());
 
         String recommendation = answerType.getRecommendation();
@@ -269,7 +277,6 @@ public class ConsoleQuestionListAnimation extends AbstractConsoleAnimation {
             CloudNet.getInstance().getEventManager().callEvent(new SetupCancelledEvent(this));
         } else {
             String footer = this.footerSupplier.get();
-
             if (footer != null) {
                 super.getConsole().forceWriteLine("&r" + footer);
             }
@@ -293,10 +300,11 @@ public class ConsoleQuestionListAnimation extends AbstractConsoleAnimation {
         super.getConsole().enableAllHandlers();
         super.getConsole().togglePrinting(this.previousPrintingEnabled);
         super.getConsole().setPrompt(this.previousPrompt);
+        super.getConsole().setUsingMatchingHistoryComplete(this.previousUseMatchingHistorySearch);
         super.getConsole().setCommandHistory(this.previousHistory);
     }
 
-    private String[] updateCursor(String... texts) {
+    private String[] updateCursor(@NonNls String... texts) {
         Collection<String> result = new ArrayList<>(texts.length);
         int length = 0;
         for (String text : texts) {
@@ -305,16 +313,17 @@ public class ConsoleQuestionListAnimation extends AbstractConsoleAnimation {
                 result.add(line);
             }
         }
+
         this.currentCursor = length;
         return result.toArray(new String[0]);
     }
 
-    private Ansi eraseLines(Ansi ansi, int count) {
+    private @NotNull Ansi eraseLines(@NotNull Ansi ansi, int count) {
         for (int i = 0; i < count; i++) {
             ansi.cursorUp(1);
             ansi.eraseLine();
         }
+
         return ansi;
     }
-
 }

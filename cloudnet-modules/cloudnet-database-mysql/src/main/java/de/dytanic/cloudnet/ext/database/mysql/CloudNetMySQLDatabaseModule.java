@@ -30,27 +30,36 @@ public final class CloudNetMySQLDatabaseModule extends NodeCloudNetModule {
 
     @ModuleTask(order = 126, event = ModuleLifeCycle.LOADED)
     public void initConfig() {
-        getConfig().getString("database", "mysql");
-        getConfig().get("addresses", TYPE, Collections.singletonList(
+        this.getConfig().getString("database", "mysql");
+        this.getConfig().get("addresses", TYPE, Collections.singletonList(
                 new MySQLConnectionEndpoint(false, "CloudNet", new HostAndPort("127.0.0.1", 3306))
         ));
 
-        getConfig().getString("username", "root");
-        getConfig().getString("password", "root");
-        getConfig().getInt("connectionPoolSize", 15);
-        getConfig().getInt("connectionTimeout", 5000);
-        getConfig().getInt("validationTimeout", 5000);
+        this.getConfig().getString("username", "root");
+        this.getConfig().getString("password", "root");
 
-        saveConfig();
+        int connectionMaxPoolSize = 20;
+
+        if (this.getConfig().contains("connectionPoolSize")) {
+            connectionMaxPoolSize = this.getConfig().getInt("connectionPoolSize");
+            this.getConfig().remove("connectionPoolSize");
+        }
+
+        this.getConfig().getInt("connectionMaxPoolSize", connectionMaxPoolSize);
+        this.getConfig().getInt("connectionMinPoolSize", 10);
+        this.getConfig().getInt("connectionTimeout", 5000);
+        this.getConfig().getInt("validationTimeout", 5000);
+
+        this.saveConfig();
     }
 
     @ModuleTask(order = 125, event = ModuleLifeCycle.LOADED)
     public void registerDatabaseProvider() {
-        getRegistry().registerService(AbstractDatabaseProvider.class, getConfig().getString("database"), new MySQLDatabaseProvider(getConfig(), null));
+        this.getRegistry().registerService(AbstractDatabaseProvider.class, this.getConfig().getString("database"), new MySQLDatabaseProvider(this.getConfig(), null));
     }
 
     @ModuleTask(order = 127, event = ModuleLifeCycle.STOPPED)
     public void unregisterDatabaseProvider() {
-        getRegistry().unregisterService(AbstractDatabaseProvider.class, getConfig().getString("database"));
+        this.getRegistry().unregisterService(AbstractDatabaseProvider.class, this.getConfig().getString("database"));
     }
 }

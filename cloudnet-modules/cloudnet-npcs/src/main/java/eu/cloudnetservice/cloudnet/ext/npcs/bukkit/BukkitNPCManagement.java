@@ -4,6 +4,7 @@ package eu.cloudnetservice.cloudnet.ext.npcs.bukkit;
 import com.comphenix.protocol.wrappers.EnumWrappers;
 import com.github.juliarn.npc.NPC;
 import com.github.juliarn.npc.NPCPool;
+import com.github.juliarn.npc.modifier.AnimationModifier;
 import com.github.juliarn.npc.modifier.MetadataModifier;
 import com.github.juliarn.npc.profile.Profile;
 import de.dytanic.cloudnet.common.collection.Pair;
@@ -26,7 +27,12 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class BukkitNPCManagement extends AbstractNPCManagement {
@@ -41,7 +47,9 @@ public class BukkitNPCManagement extends AbstractNPCManagement {
 
     public BukkitNPCManagement(@NotNull JavaPlugin javaPlugin) {
         this.javaPlugin = javaPlugin;
-        this.npcPool = new NPCPool(javaPlugin, 50, 20, super.ownNPCConfigurationEntry.getNPCTabListRemoveTicks());
+        this.npcPool = NPCPool.builder(javaPlugin)
+                .tabListRemoveTicks(super.ownNPCConfigurationEntry.getNPCTabListRemoveTicks())
+                .build();
 
         super.cloudNPCS.forEach(this::createNPC);
     }
@@ -209,17 +217,18 @@ public class BukkitNPCManagement extends AbstractNPCManagement {
 
         Location location = this.toLocation(cloudNPC.getPosition());
 
-        NPC npc = new NPC.Builder(new Profile(
-                cloudNPC.getUUID(),
-                cloudNPC.getDisplayName(),
-                cloudNPC.getProfileProperties().stream()
-                        .map(npcProfileProperty -> new Profile.Property(
-                                npcProfileProperty.getName(),
-                                npcProfileProperty.getValue(),
-                                npcProfileProperty.getSignature())
-                        )
-                        .collect(Collectors.toSet())
-        ))
+        NPC npc = NPC.builder()
+                .profile(new Profile(
+                        cloudNPC.getUUID(),
+                        cloudNPC.getDisplayName(),
+                        cloudNPC.getProfileProperties().stream()
+                                .map(npcProfileProperty -> new Profile.Property(
+                                        npcProfileProperty.getName(),
+                                        npcProfileProperty.getValue(),
+                                        npcProfileProperty.getSignature())
+                                )
+                                .collect(Collectors.toSet())
+                ))
                 .location(location)
                 .lookAtPlayer(cloudNPC.isLookAtPlayer())
                 .imitatePlayer(cloudNPC.isImitatePlayer())
@@ -229,6 +238,8 @@ public class BukkitNPCManagement extends AbstractNPCManagement {
                             .queue(MetadataModifier.EntityMetadata.SKIN_LAYERS, true)
                             .queue(MetadataModifier.EntityMetadata.SNEAKING, false)
                             .send(player);
+
+                    spawnedNPC.animation().queue(AnimationModifier.EntityAnimation.SWING_MAIN_ARM).send(player);
 
                     Material material = Material.getMaterial(cloudNPC.getItemInHand());
                     if (material != null) {
@@ -301,19 +312,19 @@ public class BukkitNPCManagement extends AbstractNPCManagement {
 
 
     public NPCPool getNPCPool() {
-        return npcPool;
+        return this.npcPool;
     }
 
     public ItemStack[] getDefaultItems() {
-        return defaultItems;
+        return this.defaultItems;
     }
 
     public Map<ServiceInfoState, NPCConfigurationEntry.ItemLayout> getItemLayouts() {
-        return itemLayouts;
+        return this.itemLayouts;
     }
 
     public Map<UUID, BukkitNPCProperties> getNPCProperties() {
-        return npcProperties;
+        return this.npcProperties;
     }
 
 }
