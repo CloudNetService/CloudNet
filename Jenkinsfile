@@ -1,7 +1,7 @@
 pipeline {
   agent any
   tools {
-    gradle 'Gradle6'
+    gradle 'Gradle_7'
     jdk 'Java11'
   }
   options {
