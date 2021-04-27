@@ -15,10 +15,12 @@ import org.bukkit.event.player.PlayerQuitEvent;
 public final class BukkitCloudNetCloudPermissionsPlayerListener implements Listener {
 
     private final BukkitCloudNetCloudPermissionsPlugin plugin;
-    private final CloudPermissionsManagement permissionsManagement;
+    private final IPermissionManagement permissionsManagement;
 
-    public BukkitCloudNetCloudPermissionsPlayerListener(BukkitCloudNetCloudPermissionsPlugin plugin, CloudPermissionsManagement permissionsManagement) {
+    public BukkitCloudNetCloudPermissionsPlayerListener(BukkitCloudNetCloudPermissionsPlugin plugin, IPermissionManagement permissionsManagement) {
         this.plugin = plugin;
+        this.permissionsManagement = permissionsManagement;
+    }
 
     @EventHandler(priority = EventPriority.LOW)
     public void handle(PlayerLoginEvent event) {

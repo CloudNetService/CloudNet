@@ -3,8 +3,6 @@ package de.dytanic.cloudnet.ext.cloudperms.bukkit;
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
-import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsManagement;
-import de.dytanic.cloudnet.driver.permission.IPermissionUser;
 import de.dytanic.cloudnet.ext.cloudperms.bukkit.listener.BukkitCloudNetCloudPermissionsPlayerListener;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import org.bukkit.Bukkit;
@@ -17,7 +15,6 @@ import java.lang.reflect.Method;
 
 public final class BukkitCloudNetCloudPermissionsPlugin extends JavaPlugin {
 
-    private CloudPermissionsManagement permissionsManagement;
     private static BukkitCloudNetCloudPermissionsPlugin instance;
 
     public static BukkitCloudNetCloudPermissionsPlugin getInstance() {
@@ -29,7 +26,7 @@ public final class BukkitCloudNetCloudPermissionsPlugin extends JavaPlugin {
         this.checkForVault();
         this.initPlayersCloudPermissible();
 
-        getServer().getPluginManager().registerEvents(new BukkitCloudNetCloudPermissionsPlayerListener(this, this.permissionsManagement), this);
+        getServer().getPluginManager().registerEvents(new BukkitCloudNetCloudPermissionsPlayerListener(this, CloudNetDriver.getInstance().getPermissionManagement()), this);
     }
 
     @Override
