@@ -1,10 +1,8 @@
 package de.dytanic.cloudnet.common.logging;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.Callable;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * The default implementation of the ILogger interface.
@@ -13,48 +11,27 @@ import java.util.concurrent.LinkedBlockingQueue;
  */
 public class DefaultAsyncLogger implements ILogger {
 
-    protected final Collection<ILogHandler> handlers = new ArrayList<>();
-    private final BlockingQueue<LogHandlerRunnable> entries = new LinkedBlockingQueue<>();
-    private final Thread logThread = new Thread() {
-
-        @Override
-        public void run() {
-            while (!this.isInterrupted()) {
-                try {
-                    LogHandlerRunnable logHandlerRunnable = DefaultAsyncLogger.this.entries.take();
-                    logHandlerRunnable.call();
-
-                } catch (Throwable e) {
-                    break;
-                }
-            }
-
-            while (!DefaultAsyncLogger.this.entries.isEmpty()) {
-                DefaultAsyncLogger.this.entries.poll().call();
-            }
-        }
-    };
-    protected int level = -1;
+    protected final AtomicInteger level = new AtomicInteger(-1);
+    protected final Collection<ILogHandler> handlers = new CopyOnWriteArraySet<>();
+    protected final LogEntryDispatcher dispatcher = new LogEntryDispatcher(this);
 
     public DefaultAsyncLogger() {
-        this.logThread.setPriority(Thread.MIN_PRIORITY);
-        this.logThread.start();
+        this.dispatcher.start();
     }
 
     @Override
     public int getLevel() {
-        return this.level;
+        return this.level.get();
     }
 
     @Override
     public void setLevel(int level) {
-        this.level = level;
+        this.level.set(level);
     }
 
     @Override
     public ILogger log(LogEntry logEntry) {
         this.handleLogEntry(logEntry);
-
         return this;
     }
 
@@ -74,14 +51,12 @@ public class DefaultAsyncLogger implements ILogger {
 
     @Override
     public synchronized ILogger addLogHandler(ILogHandler logHandler) {
-
         this.handlers.add(logHandler);
         return this;
     }
 
     @Override
     public synchronized ILogger addLogHandlers(ILogHandler... logHandlers) {
-
         for (ILogHandler logHandler : logHandlers) {
             this.addLogHandler(logHandler);
         }
@@ -90,7 +65,6 @@ public class DefaultAsyncLogger implements ILogger {
 
     @Override
     public synchronized ILogger addLogHandlers(Iterable<ILogHandler> logHandlers) {
-
         for (ILogHandler logHandler : logHandlers) {
             this.addLogHandler(logHandler);
         }
@@ -99,14 +73,12 @@ public class DefaultAsyncLogger implements ILogger {
 
     @Override
     public synchronized ILogger removeLogHandler(ILogHandler logHandler) {
-
         this.handlers.remove(logHandler);
         return this;
     }
 
     @Override
     public synchronized ILogger removeLogHandlers(ILogHandler... logHandlers) {
-
         for (ILogHandler logHandler : logHandlers) {
             this.removeLogHandler(logHandler);
         }
@@ -115,7 +87,6 @@ public class DefaultAsyncLogger implements ILogger {
 
     @Override
     public synchronized ILogger removeLogHandlers(Iterable<ILogHandler> logHandlers) {
-
         for (ILogHandler logHandler : logHandlers) {
             this.removeLogHandler(logHandler);
         }
@@ -124,7 +95,7 @@ public class DefaultAsyncLogger implements ILogger {
 
     @Override
     public Iterable<ILogHandler> getLogHandlers() {
-        return new ArrayList<>(this.handlers);
+        return this.handlers;
     }
 
     @Override
@@ -139,7 +110,6 @@ public class DefaultAsyncLogger implements ILogger {
                 return false;
             }
         }
-
         return true;
     }
 
@@ -149,42 +119,19 @@ public class DefaultAsyncLogger implements ILogger {
             logHandler.close();
         }
 
-        this.logThread.interrupt();
-        this.logThread.join();
+        this.dispatcher.interrupt();
+        this.dispatcher.join();
+
         this.handlers.clear();
     }
 
-
     private void handleLogEntry(LogEntry logEntry) {
-        if (logEntry != null && (this.level == -1 || logEntry.getLogLevel().getLevel() <= this.level)) {
+        if (logEntry != null && (this.getLevel() == -1 || logEntry.getLogLevel().getLevel() <= this.getLevel())) {
             if (logEntry.getLogLevel().isAsync()) {
-                this.entries.offer(new LogHandlerRunnable(logEntry));
+                this.dispatcher.enqueueLogEntry(logEntry);
             } else {
-                new LogHandlerRunnable(logEntry).call();
+                this.dispatcher.dispatchLogEntry(logEntry);
             }
         }
     }
-
-    public class LogHandlerRunnable implements Callable<Void> {
-
-        private final LogEntry logEntry;
-
-        public LogHandlerRunnable(LogEntry logEntry) {
-            this.logEntry = logEntry;
-        }
-
-        @Override
-        public Void call() {
-
-            for (ILogHandler iLogHandler : DefaultAsyncLogger.this.handlers) {
-                try {
-                    iLogHandler.handle(this.logEntry);
-                } catch (Exception exception) {
-                    exception.printStackTrace();
-                }
-            }
-            return null;
-        }
-    }
-
 }

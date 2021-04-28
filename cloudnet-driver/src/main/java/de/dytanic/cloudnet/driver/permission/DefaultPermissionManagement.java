@@ -1,5 +1,6 @@
 package de.dytanic.cloudnet.driver.permission;
 
+import com.google.common.collect.Iterables;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
@@ -7,10 +8,10 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -127,65 +128,82 @@ public abstract class DefaultPermissionManagement implements IPermissionManageme
     @Override
     @NotNull
     public PermissionCheckResult getPermissionResult(@NotNull IPermissible permissible, @NotNull Permission permission) {
-        Permission bestMatch = permissible.findMatchingPermission(permissible.getPermissions(), permission);
-        Permission bestGroupMatch = tryExtendedGroups(bestMatch == null ? permission : bestMatch, permissible, null, new HashSet<>());
-
-        if (bestMatch == null || bestGroupMatch == null) {
-            return PermissionCheckResult.fromPermission(bestMatch == null ? bestGroupMatch : bestMatch);
-        } else {
-            return PermissionCheckResult.fromPermission(bestGroupMatch.compareTo(bestMatch) > 0 ? bestGroupMatch : bestMatch);
-        }
+        return PermissionCheckResult.fromPermission(this.findHighestPermission(this.collectAllPermissions(permissible, null), permission));
     }
 
     @Override
     @NotNull
     public PermissionCheckResult getPermissionResult(@NotNull IPermissible permissible, @NotNull String group, @NotNull Permission permission) {
-        Collection<Permission> permissions = permissible.getGroupPermissions().get(group);
-        if (permissions != null) {
-            Permission bestMatch = permissible.findMatchingPermission(permissions, permission);
-            Permission bestGroupMatch = tryExtendedGroups(bestMatch == null ? permission : bestMatch, permissible, group, new HashSet<>());
-
-            if (bestMatch == null || bestGroupMatch == null) {
-                return PermissionCheckResult.fromPermission(bestMatch == null ? bestGroupMatch : bestMatch);
-            } else {
-                return PermissionCheckResult.fromPermission(bestGroupMatch.compareTo(bestMatch) > 0 ? bestGroupMatch : bestMatch);
-            }
-        }
-        return PermissionCheckResult.DENIED;
+        return this.getPermissionResult(permissible, Collections.singleton(group), permission);
     }
 
-    private Permission tryExtendedGroups(Permission permission, IPermissible permissible, String currentGroup, Set<String> testedGroups) {
-        Permission bestResult = null;
-        for (IPermissionGroup group : this.getGroups(permissible)) {
-            if (group == null) {
+    @Override
+    public @NotNull PermissionCheckResult getPermissionResult(@NotNull IPermissible permissible, @NotNull Iterable<String> groups, @NotNull Permission permission) {
+        return this.getPermissionResult(permissible, Iterables.toArray(groups, String.class), permission);
+    }
+
+    @Override
+    public @NotNull PermissionCheckResult getPermissionResult(@NotNull IPermissible permissible, @NotNull String[] groups, @NotNull Permission permission) {
+        return PermissionCheckResult.fromPermission(this.findHighestPermission(this.collectAllPermissions(permissible, groups), permission));
+    }
+
+    @Override
+    @Nullable
+    public Permission findHighestPermission(@NotNull Collection<Permission> permissions, @NotNull Permission permission) {
+        Permission lastMatch = null;
+        // search for a better match
+        for (Permission permissionEntry : permissions) {
+            Permission used = lastMatch == null ? permission : lastMatch;
+            // the "star" permission represents a permission which allows access to every command
+            if (permissionEntry.getName().equals("*") && permissionEntry.compareTo(used) >= 0) {
+                lastMatch = permissionEntry;
                 continue;
             }
-
-            if (!testedGroups.add(group.getName())) {
-                return bestResult;
-            }
-
-            Collection<Permission> permissions = currentGroup != null
-                    ? group.getGroupPermissions().get(currentGroup)
-                    : group.getPermissions();
-            if (permissions == null) {
-                // (╯°□°）╯︵ ┻━┻
+            // searches for "perm.*"-permissions (allowing all sub permissions of the given permission name start
+            if (permissionEntry.getName().endsWith("*")
+                    && permission.getName().contains(permissionEntry.getName().replace("*", ""))
+                    && permissionEntry.compareTo(used) >= 0) {
+                lastMatch = permissionEntry;
                 continue;
             }
-
-            Permission matching = group.findMatchingPermission(permissions, permission);
-            if (matching != null && matching.compareTo(bestResult == null ? permission : bestResult) > 0) {
-                bestResult = matching;
-            }
-
-            Permission bestRecursive = tryExtendedGroups(bestResult == null ? permission : bestResult, group, currentGroup, testedGroups);
-            if (bestRecursive != null) {
-                // the recursive result is always based on the previous checked result so a null check is enough here
-                bestResult = bestRecursive;
+            // checks if the current permission is exactly (case-sensitive) the permission for which we are searching
+            if (permission.getName().equalsIgnoreCase(permissionEntry.getName()) && permissionEntry.compareTo(used) >= 0) {
+                lastMatch = permissionEntry;
             }
         }
 
-        return bestResult;
+        return lastMatch;
+    }
+
+    protected Collection<Permission> collectAllPermissions(@NotNull IPermissible permissible, @Nullable String[] groups) {
+        return this.collectAllPermissionsTo(new HashSet<>(), permissible, groups);
+    }
+
+    protected Collection<Permission> collectAllPermissionsTo(@NotNull Collection<Permission> target, @NotNull IPermissible permissible,
+                                                             @Nullable String[] groups) {
+        this.collectPermissionsInto(target, permissible, groups);
+        this.collectAllGroupPermissionsInto(target, this.getGroups(permissible), groups, new HashSet<>());
+
+        return target;
+    }
+
+    protected void collectAllGroupPermissionsInto(@NotNull Collection<Permission> target, @NotNull Collection<IPermissionGroup> groups,
+                                                  @Nullable String[] taskGroups, @NotNull Collection<String> travelledGroups) {
+        for (IPermissionGroup permissionGroup : groups) {
+            if (permissionGroup != null && travelledGroups.add(permissionGroup.getName())) {
+                this.collectPermissionsInto(target, permissionGroup, taskGroups);
+                this.collectAllGroupPermissionsInto(target, this.getGroups(permissionGroup), taskGroups, travelledGroups);
+            }
+        }
+    }
+
+    protected void collectPermissionsInto(@NotNull Collection<Permission> permissions, @NotNull IPermissible permissible, @Nullable String[] groups) {
+        permissions.addAll(permissible.getPermissions());
+        if (groups != null) {
+            for (String group : groups) {
+                permissions.addAll(permissible.getGroupPermissions().getOrDefault(group, Collections.emptySet()));
+            }
+        }
     }
 
     /**

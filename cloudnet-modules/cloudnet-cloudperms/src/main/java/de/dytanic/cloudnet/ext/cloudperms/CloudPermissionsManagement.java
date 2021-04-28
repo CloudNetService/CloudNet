@@ -2,12 +2,23 @@ package de.dytanic.cloudnet.ext.cloudperms;
 
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
-import de.dytanic.cloudnet.driver.permission.*;
+import de.dytanic.cloudnet.driver.permission.CachedPermissionManagement;
+import de.dytanic.cloudnet.driver.permission.IPermissible;
+import de.dytanic.cloudnet.driver.permission.IPermissionGroup;
+import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
+import de.dytanic.cloudnet.driver.permission.IPermissionUser;
+import de.dytanic.cloudnet.driver.permission.Permission;
+import de.dytanic.cloudnet.driver.permission.PermissionCheckResult;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
 import java.util.function.Consumer;
 
 @Deprecated
@@ -144,6 +155,21 @@ public class CloudPermissionsManagement implements IPermissionManagement, Cached
     @NotNull
     public PermissionCheckResult getPermissionResult(@NotNull IPermissible permissible, @NotNull String group, @NotNull Permission permission) {
         return wrapped.getPermissionResult(permissible, group, permission);
+    }
+
+    @Override
+    public @NotNull PermissionCheckResult getPermissionResult(@NotNull IPermissible permissible, @NotNull Iterable<String> groups, @NotNull Permission permission) {
+        return wrapped.getPermissionResult(permissible, groups, permission);
+    }
+
+    @Override
+    public @NotNull PermissionCheckResult getPermissionResult(@NotNull IPermissible permissible, @NotNull String[] groups, @NotNull Permission permission) {
+        return wrapped.getPermissionResult(permissible, groups, permission);
+    }
+
+    @Override
+    public @Nullable Permission findHighestPermission(@NotNull Collection<Permission> permissions, @NotNull Permission permission) {
+        return wrapped.findHighestPermission(permissions, permission);
     }
 
     @Override

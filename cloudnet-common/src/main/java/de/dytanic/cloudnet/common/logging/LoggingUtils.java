@@ -3,7 +3,7 @@ package de.dytanic.cloudnet.common.logging;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
-public class LoggingUtils {
+public final class LoggingUtils {
 
     private LoggingUtils() {
         throw new UnsupportedOperationException();
@@ -16,5 +16,4 @@ public class LoggingUtils {
             builder.append(writer).append(System.lineSeparator());
         }
     }
-
 }

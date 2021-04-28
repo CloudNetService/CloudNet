@@ -139,7 +139,7 @@ public abstract class AbstractSignManagement extends ServiceInfoStateWatcher {
     public boolean addSign(@NotNull Sign sign) {
         if (Arrays.asList(Wrapper.getInstance().getServiceConfiguration().getGroups()).contains(sign.getProvidedGroup())) {
             this.signs.add(sign);
-            CloudNetDriver.getInstance().getTaskScheduler().schedule(this::updateSigns);
+            CloudNetDriver.getInstance().getTaskExecutor().execute(this::updateSigns);
             return true;
         }
         return false;
@@ -153,9 +153,9 @@ public abstract class AbstractSignManagement extends ServiceInfoStateWatcher {
     public void removeSign(@NotNull Sign sign) {
         this.signs.stream()
                 .filter(filterSign -> filterSign.getSignId() == sign.getSignId())
-                .findFirst().ifPresent(signEntry -> this.signs.remove(signEntry));
+                .findFirst().ifPresent(this.signs::remove);
 
-        CloudNetDriver.getInstance().getTaskScheduler().schedule(this::updateSigns);
+        CloudNetDriver.getInstance().getTaskExecutor().execute(this::updateSigns);
     }
 
     public void updateSigns() {

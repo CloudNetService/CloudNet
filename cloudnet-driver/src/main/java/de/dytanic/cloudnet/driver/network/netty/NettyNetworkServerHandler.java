@@ -1,18 +1,17 @@
 package de.dytanic.cloudnet.driver.network.netty;
 
+import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.network.protocol.Packet;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 
 import java.io.IOException;
-import java.util.concurrent.Callable;
 
 final class NettyNetworkServerHandler extends SimpleChannelInboundHandler<Packet> {
 
-    private final NettyNetworkServer nettyNetworkServer;
-
     private final HostAndPort connectedAddress;
+    private final NettyNetworkServer nettyNetworkServer;
 
     private NettyNetworkChannel channel;
 
@@ -23,9 +22,14 @@ final class NettyNetworkServerHandler extends SimpleChannelInboundHandler<Packet
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        this.channel = new NettyNetworkChannel(ctx.channel(), this.nettyNetworkServer.getPacketRegistry(),
-                this.nettyNetworkServer.networkChannelHandler.call(), this.connectedAddress, HostAndPort.fromSocketAddress(ctx.channel().remoteAddress()), false);
-
+        this.channel = new NettyNetworkChannel(
+                ctx.channel(),
+                this.nettyNetworkServer.getPacketRegistry(),
+                this.nettyNetworkServer.networkChannelHandler.call(),
+                this.connectedAddress,
+                HostAndPort.fromSocketAddress(ctx.channel().remoteAddress()),
+                false
+        );
         this.nettyNetworkServer.channels.add(this.channel);
 
         if (this.channel.getHandler() != null) {
@@ -41,7 +45,6 @@ final class NettyNetworkServerHandler extends SimpleChannelInboundHandler<Packet
             }
 
             ctx.channel().close();
-
             this.nettyNetworkServer.channels.remove(this.channel);
         }
     }
@@ -60,13 +63,12 @@ final class NettyNetworkServerHandler extends SimpleChannelInboundHandler<Packet
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, Packet msg) {
-        this.nettyNetworkServer.taskScheduler.schedule((Callable<Void>) () -> {
-            if (this.channel.getHandler() != null && !this.channel.getHandler().handlePacketReceive(this.channel, msg)) {
-                return null;
+        try {
+            if (this.channel.getHandler() == null || this.channel.getHandler().handlePacketReceive(this.channel, msg)) {
+                this.channel.getPacketRegistry().handlePacket(this.channel, msg);
             }
-
-            this.channel.getPacketRegistry().handlePacket(this.channel, msg);
-            return null;
-        });
+        } catch (Exception exception) {
+            CloudNetDriver.getInstance().getLogger().error("Exception whilst handling packet " + msg, exception);
+        }
     }
 }

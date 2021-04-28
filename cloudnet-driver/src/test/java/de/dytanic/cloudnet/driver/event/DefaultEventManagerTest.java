@@ -60,7 +60,7 @@ public final class DefaultEventManagerTest {
         Assert.assertEquals("value_789", testEvent.value);
     }
 
-    private static final class TestEvent extends Event {
+    public static final class TestEvent extends Event {
 
         public String value;
 
@@ -70,7 +70,7 @@ public final class DefaultEventManagerTest {
     }
 
 
-    private final class ListenerTest {
+    public final class ListenerTest {
 
         @EventListener(channel = "set")
         public void onTestExecute(TestEvent testEvent) {
@@ -86,7 +86,7 @@ public final class DefaultEventManagerTest {
         }
     }
 
-    private final class ListenerTest2 {
+    public final class ListenerTest2 {
 
         @EventListener(channel = "test_channel_2", priority = EventPriority.HIGHEST)
         public void onTestExecute(TestEvent testEvent) {

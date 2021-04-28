@@ -9,7 +9,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.jar.JarInputStream;
+import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
 public enum ServiceEnvironmentType {
@@ -20,6 +20,7 @@ public enum ServiceEnvironmentType {
                     ServiceEnvironment.MINECRAFT_SERVER_SPONGE_VANILLA,
                     ServiceEnvironment.MINECRAFT_SERVER_TACO,
                     ServiceEnvironment.MINECRAFT_SERVER_PAPER_SPIGOT,
+                    ServiceEnvironment.MINECRAFT_SERVER_TUINITY_SPIGOT,
                     ServiceEnvironment.MINECRAFT_SERVER_SPIGOT,
                     ServiceEnvironment.MINECRAFT_SERVER_AKARIN,
                     ServiceEnvironment.MINECRAFT_SERVER_DEFAULT,
@@ -102,8 +103,8 @@ public enum ServiceEnvironmentType {
 
     public @Nullable String getMainClass(@Nullable Path applicationFile) {
         if (applicationFile != null && Files.exists(applicationFile)) {
-            try (JarInputStream stream = new JarInputStream(Files.newInputStream(applicationFile))) {
-                Manifest manifest = stream.getManifest();
+            try (JarFile jarFile = new JarFile(applicationFile.toFile())) {
+                Manifest manifest = jarFile.getManifest();
                 return manifest == null ? null : manifest.getMainAttributes().getValue("Main-Class");
             } catch (IOException exception) {
                 exception.printStackTrace();
