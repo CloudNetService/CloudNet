@@ -3,6 +3,7 @@ package de.dytanic.cloudnet.ext.bridge.node.player;
 import com.google.common.base.Preconditions;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import com.google.common.util.concurrent.Striped;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.concurrent.CompletedTask;
 import de.dytanic.cloudnet.common.concurrent.ITask;
@@ -39,11 +40,11 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @ApiStatus.Internal
+@SuppressWarnings("UnstableApiUsage")
 public final class NodePlayerManager extends DefaultPlayerManager implements IPlayerManager {
 
     private final String databaseName;
@@ -54,7 +55,7 @@ public final class NodePlayerManager extends DefaultPlayerManager implements IPl
             .build();
     private final Map<UUID, CloudPlayer> onlineCloudPlayers = new ConcurrentHashMap<>();
 
-    private final Lock playerLoginSelectionLock = new ReentrantLock(true);
+    private final Striped<Lock> loginLocks = Striped.lazyWeakLock(1);
     private final PlayerProvider allPlayersProvider = new NodePlayerProvider(this, () -> this.onlineCloudPlayers.values().stream());
 
     public NodePlayerManager(String databaseName) {
@@ -371,9 +372,10 @@ public final class NodePlayerManager extends DefaultPlayerManager implements IPl
     }
 
     protected CloudPlayer selectPlayerForLogin(NetworkConnectionInfo connectionInfo, NetworkPlayerServerInfo networkPlayerServerInfo) {
+        Lock loginLock = this.loginLocks.get(connectionInfo.getUniqueId());
         try {
             // ensure that only one player get selected at a time
-            this.playerLoginSelectionLock.lock();
+            loginLock.lock();
             // check if the player is already loaded
             CloudPlayer cloudPlayer = this.getOnlinePlayer(connectionInfo.getUniqueId());
             if (cloudPlayer == null) {
@@ -404,7 +406,7 @@ public final class NodePlayerManager extends DefaultPlayerManager implements IPl
             }
             return cloudPlayer;
         } finally {
-            this.playerLoginSelectionLock.unlock();
+            loginLock.unlock();
         }
     }
 
@@ -421,9 +423,10 @@ public final class NodePlayerManager extends DefaultPlayerManager implements IPl
     }
 
     public void processLoginMessage(@NotNull CloudPlayer cloudPlayer) {
+        Lock loginLock = this.loginLocks.get(cloudPlayer.getUniqueId());
         try {
             // ensure we only handle one login at a time
-            this.playerLoginSelectionLock.lock();
+            loginLock.lock();
             // check if the player is already loaded
             CloudPlayer registeredPlayer = this.onlineCloudPlayers.get(cloudPlayer.getUniqueId());
             if (registeredPlayer == null) {
@@ -460,7 +463,7 @@ public final class NodePlayerManager extends DefaultPlayerManager implements IPl
                 }
             }
         } finally {
-            this.playerLoginSelectionLock.unlock();
+            loginLock.unlock();
         }
     }
 
@@ -506,9 +509,4 @@ public final class NodePlayerManager extends DefaultPlayerManager implements IPl
                 player -> player != null && player.getLoginService().getUniqueId().equals(networkConnectionInfo.getNetworkService().getUniqueId())
         );
     }
-
-    public void logoutPlayer(UUID uniqueId, String name) {
-        this.logoutPlayer(uniqueId, name, null);
-    }
-
 }
