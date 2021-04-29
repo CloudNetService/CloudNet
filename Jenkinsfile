@@ -12,8 +12,8 @@ pipeline {
 
     stages {
         stage('Clean-Build') {
-            configFileProvider([configFile(fileId: "e94f788c-1d9c-48d4-b9a9-8286ff68275e", targetLocation: 'gradle.properties')]) {
-                steps {
+            steps {
+                configFileProvider([configFile(fileId: "e94f788c-1d9c-48d4-b9a9-8286ff68275e", targetLocation: 'gradle.properties')]) {
                     sh './gradlew clean build jar -x test -x allJavaDoc --full-stacktrace'
                 }
             }
