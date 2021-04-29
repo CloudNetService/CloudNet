@@ -7,9 +7,11 @@ import lombok.ToString;
 @EqualsAndHashCode
 public class CloudflareGroupConfiguration {
 
-    protected String name, sub;
+    protected String name;
+    protected String sub;
 
-    protected int priority, weight;
+    protected int priority;
+    protected int weight;
 
     public CloudflareGroupConfiguration(String name, String sub, int priority, int weight) {
         this.name = name;
