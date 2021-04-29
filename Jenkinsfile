@@ -12,9 +12,44 @@ pipeline {
 
     stages {
         stage('Clean-Build') {
+            configFileProvider([configFile(fileId: "e94f788c-1d9c-48d4-b9a9-8286ff68275e", targetLocation: 'gradle.properties')]) {
+                steps {
+                    sh './gradlew clean build jar -x test -x allJavaDoc --full-stacktrace'
+                }
+            }
+        }
+
+        stage('Run unit tests') {
             steps {
-                sh './gradlew clean build jar --no-daemon'
+                sh './gradlew test --full-stacktrace'
                 junit '**/build/test-results/test/*.xml'
+            }
+        }
+
+        stage('Build Javadocs') {
+            when {
+                anyOf {
+                    branch 'master'
+                    branch 'development'
+                }
+            }
+
+            steps {
+                sh './gradlew allJavadoc --full-stacktrace'
+                zip archive: true, dir: 'build/javadoc', glob: '', zipFile: 'Javadoc.zip'
+            }
+        }
+
+        stage('Publish to repository') {
+            when {
+                anyOf {
+                    branch 'master'
+                    branch 'development'
+                }
+            }
+
+            steps {
+                sh './gradlew publish --full-stacktrace'
             }
         }
 
@@ -55,26 +90,6 @@ pipeline {
                 zip archive: true, dir: 'temp', glob: '', zipFile: 'AutoUpdater.zip'
 
                 sh 'rm -r temp/'
-            }
-        }
-
-        stage('Maven Publish') {
-            when {
-                anyOf {
-                    branch 'master'
-                    branch 'development'
-                }
-            }
-
-            steps {
-                sh './gradlew publish --no-daemon'
-            }
-        }
-
-        stage('Javadoc') {
-            steps {
-                sh './gradlew allJavadoc --no-daemon'
-                zip archive: true, dir: 'build/javadoc', glob: '', zipFile: 'Javadoc.zip'
             }
         }
 
