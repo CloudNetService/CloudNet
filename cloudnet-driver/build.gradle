@@ -21,4 +21,5 @@ dependencies {
     api group: 'io.netty', name: 'netty-codec-http', version: dependencyNettyVersion
     api group: 'io.netty', name: 'netty-transport-native-epoll', version: dependencyNettyVersion, classifier: 'linux-x86_64'
     api group: 'io.netty', name: 'netty-transport-native-kqueue', version: dependencyNettyVersion, classifier: 'osx-x86_64'
+    implementation group: 'org.javassist', name: 'javassist', version: dependencyJavassistVersion
 }

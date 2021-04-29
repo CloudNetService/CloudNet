@@ -62,7 +62,7 @@ public final class CommandCluster extends SubCommandHandler {
                                         LanguageManager.getMessage("command-cluster-create-node-already-existing"),
                                         nodeId -> CloudNet.getInstance().getConfig().getClusterConfig().getNodes().stream().noneMatch(node -> node.getUniqueId().equals(nodeId))
                                 ),
-                                hostAndPort("host")
+                                validHostAndPort("host")
                         )
                         .generateCommand(
                                 (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {

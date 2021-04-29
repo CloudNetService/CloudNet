@@ -155,19 +155,19 @@ public abstract class DefaultPermissionManagement implements IPermissionManageme
         for (Permission permissionEntry : permissions) {
             Permission used = lastMatch == null ? permission : lastMatch;
             // the "star" permission represents a permission which allows access to every command
-            if (permissionEntry.getName().equals("*") && permissionEntry.compareTo(used) > 0) {
+            if (permissionEntry.getName().equals("*") && permissionEntry.compareTo(used) >= 0) {
                 lastMatch = permissionEntry;
                 continue;
             }
             // searches for "perm.*"-permissions (allowing all sub permissions of the given permission name start
             if (permissionEntry.getName().endsWith("*")
                     && permission.getName().contains(permissionEntry.getName().replace("*", ""))
-                    && permissionEntry.compareTo(used) > 0) {
+                    && permissionEntry.compareTo(used) >= 0) {
                 lastMatch = permissionEntry;
                 continue;
             }
             // checks if the current permission is exactly (case-sensitive) the permission for which we are searching
-            if (permission.getName().equalsIgnoreCase(permissionEntry.getName()) && permissionEntry.compareTo(used) > 0) {
+            if (permission.getName().equalsIgnoreCase(permissionEntry.getName()) && permissionEntry.compareTo(used) >= 0) {
                 lastMatch = permissionEntry;
             }
         }

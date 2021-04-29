@@ -2,7 +2,16 @@ package de.dytanic.cloudnet.command.sub;
 
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.console.animation.questionlist.QuestionAnswerType;
-import de.dytanic.cloudnet.console.animation.questionlist.answer.*;
+import de.dytanic.cloudnet.console.animation.questionlist.answer.QuestionAnswerTypeBoolean;
+import de.dytanic.cloudnet.console.animation.questionlist.answer.QuestionAnswerTypeCollection;
+import de.dytanic.cloudnet.console.animation.questionlist.answer.QuestionAnswerTypeDouble;
+import de.dytanic.cloudnet.console.animation.questionlist.answer.QuestionAnswerTypeEnum;
+import de.dytanic.cloudnet.console.animation.questionlist.answer.QuestionAnswerTypeHostAndPort;
+import de.dytanic.cloudnet.console.animation.questionlist.answer.QuestionAnswerTypeInt;
+import de.dytanic.cloudnet.console.animation.questionlist.answer.QuestionAnswerTypeIntRange;
+import de.dytanic.cloudnet.console.animation.questionlist.answer.QuestionAnswerTypeServiceTemplate;
+import de.dytanic.cloudnet.console.animation.questionlist.answer.QuestionAnswerTypeString;
+import de.dytanic.cloudnet.console.animation.questionlist.answer.QuestionAnswerTypeValidHostAndPort;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import org.jetbrains.annotations.NotNull;
@@ -19,6 +28,15 @@ public class SubCommandArgumentTypes {
 
     public static QuestionAnswerType<HostAndPort> hostAndPort(String key) {
         return new QuestionAnswerTypeHostAndPort() {
+            @Override
+            public String getRecommendation() {
+                return key;
+            }
+        };
+    }
+
+    public static QuestionAnswerType<HostAndPort> validHostAndPort(String key) {
+        return new QuestionAnswerTypeValidHostAndPort() {
             @Override
             public String getRecommendation() {
                 return key;
