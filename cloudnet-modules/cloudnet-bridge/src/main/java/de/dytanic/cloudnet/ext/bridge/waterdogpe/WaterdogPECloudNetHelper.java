@@ -8,11 +8,11 @@ import de.dytanic.cloudnet.ext.bridge.PluginInfo;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkConnectionInfo;
 import de.dytanic.cloudnet.ext.bridge.proxy.BridgeProxyHelper;
 import de.dytanic.cloudnet.ext.bridge.waterdogpe.event.WaterdogPEPlayerFallbackEvent;
-import dev.waterdog.ProxyServer;
-import dev.waterdog.VersionInfo;
-import dev.waterdog.network.ServerInfo;
-import dev.waterdog.network.session.LoginData;
-import dev.waterdog.player.ProxiedPlayer;
+import dev.waterdog.waterdogpe.ProxyServer;
+import dev.waterdog.waterdogpe.WaterdogPE;
+import dev.waterdog.waterdogpe.network.ServerInfo;
+import dev.waterdog.waterdogpe.network.session.LoginData;
+import dev.waterdog.waterdogpe.player.ProxiedPlayer;
 
 import java.util.Map;
 import java.util.Optional;
@@ -109,8 +109,8 @@ public final class WaterdogPECloudNetHelper {
 
         serviceInfoSnapshot.getProperties()
                 .append("Online", BridgeHelper.isOnline())
-                .append("Version", VersionInfo.BASE_VERSION)
-                .append("Protocol-Version", VersionInfo.LATEST_PROTOCOL_VERSION)
+                .append("Version", WaterdogPE.version().baseVersion())
+                .append("Protocol-Version", WaterdogPE.version().latestProtocolVersion())
                 .append("Online-Count", ProxyServer.getInstance().getPlayers().size())
                 .append("WaterdogPE-Name", "WaterdogPE")
                 .append("Players", ProxyServer.getInstance().getPlayers().values().stream().map(proxiedPlayer -> new WaterdogPECloudNetPlayerInfo(
@@ -142,7 +142,7 @@ public final class WaterdogPECloudNetHelper {
                 new HostAndPort(loginData.getAddress()),
                 new HostAndPort(ProxyServer.getInstance().getConfiguration().getBindAddress()),
                 ProxyServer.getInstance().getConfiguration().isOnlineMode(),
-                loginData.getProtocol().getProtocol() < VersionInfo.LATEST_PROTOCOL_VERSION,
+                loginData.getProtocol().getProtocol() < WaterdogPE.version().latestProtocolVersion(),
                 BridgeHelper.createOwnNetworkServiceInfo()
         );
     }

@@ -16,8 +16,8 @@ import de.dytanic.cloudnet.ext.bridge.waterdogpe.listener.WaterdogPECloudNetList
 import de.dytanic.cloudnet.ext.bridge.waterdogpe.listener.WaterdogPEPlayerExecutorListener;
 import de.dytanic.cloudnet.ext.bridge.waterdogpe.listener.WaterdogPEPlayerListener;
 import de.dytanic.cloudnet.wrapper.Wrapper;
-import dev.waterdog.network.ServerInfo;
-import dev.waterdog.plugin.Plugin;
+import dev.waterdog.waterdogpe.network.ServerInfo;
+import dev.waterdog.waterdogpe.plugin.Plugin;
 
 import java.net.InetSocketAddress;
 import java.util.Collection;

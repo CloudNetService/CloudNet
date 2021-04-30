@@ -2,9 +2,9 @@ package de.dytanic.cloudnet.ext.bridge.waterdogpe.listener;
 
 import de.dytanic.cloudnet.ext.bridge.listener.PlayerExecutorListener;
 import de.dytanic.cloudnet.ext.bridge.waterdogpe.WaterdogPECloudNetHelper;
-import dev.waterdog.ProxyServer;
-import dev.waterdog.network.ServerInfo;
-import dev.waterdog.player.ProxiedPlayer;
+import dev.waterdog.waterdogpe.ProxyServer;
+import dev.waterdog.waterdogpe.network.ServerInfo;
+import dev.waterdog.waterdogpe.player.ProxiedPlayer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
