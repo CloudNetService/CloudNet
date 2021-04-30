@@ -1,20 +1,21 @@
 package eu.cloudnetservice.cloudnet.ext.npcs.configuration;
 
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class NPCConfigurationEntry {
 
     private String targetGroup = "Lobby";
-
     private double infoLineDistance = 0.1D;
-
+    private double knockbackDistance = 0.7D;
+    private double knockbackStrength = 0.8D;
     private int inventorySize = 54;
-
     private int startSlot = 10;
-
     private int endSlot = 54;
-
     private boolean showFullServices = true;
 
     private ItemLayout onlineItem = new ItemLayout("LIME_DYE", "§a%name%", Arrays.asList(
@@ -39,9 +40,7 @@ public class NPCConfigurationEntry {
     ));
 
     private Map<Integer, ItemLayout> inventoryLayout = new HashMap<>();
-
     private LabyModEmotes labyModEmotes = new LabyModEmotes();
-
     private long npcTabListRemoveTicks = 40L;
 
     public NPCConfigurationEntry() {
@@ -55,8 +54,14 @@ public class NPCConfigurationEntry {
     }
 
     public NPCConfigurationEntry(String targetGroup, double infoLineDistance, int inventorySize, int startSlot, int endSlot, boolean showFullServices, ItemLayout onlineItem, ItemLayout emptyItem, ItemLayout fullItem, Map<Integer, ItemLayout> inventoryLayout, LabyModEmotes labyModEmotes, long npcTabListRemoveTicks) {
+        this(targetGroup, infoLineDistance, 0.7D, 0.8D, inventorySize, startSlot, endSlot, showFullServices, onlineItem, emptyItem, fullItem, inventoryLayout, labyModEmotes, npcTabListRemoveTicks);
+    }
+
+    public NPCConfigurationEntry(String targetGroup, double infoLineDistance, double knockbackDistance, double knockbackStrength, int inventorySize, int startSlot, int endSlot, boolean showFullServices, ItemLayout onlineItem, ItemLayout emptyItem, ItemLayout fullItem, Map<Integer, ItemLayout> inventoryLayout, LabyModEmotes labyModEmotes, long npcTabListRemoveTicks) {
         this.targetGroup = targetGroup;
         this.infoLineDistance = infoLineDistance;
+        this.knockbackDistance = knockbackDistance;
+        this.knockbackStrength = knockbackStrength;
         this.inventorySize = inventorySize;
         this.startSlot = startSlot;
         this.endSlot = endSlot;
@@ -79,6 +84,22 @@ public class NPCConfigurationEntry {
 
     public void setInfoLineDistance(double infoLineDistance) {
         this.infoLineDistance = infoLineDistance;
+    }
+
+    public double getKnockbackDistance() {
+        return this.knockbackDistance;
+    }
+
+    public void setKnockbackDistance(double knockbackDistance) {
+        this.knockbackDistance = knockbackDistance;
+    }
+
+    public double getKnockbackStrength() {
+        return this.knockbackStrength;
+    }
+
+    public void setKnockbackStrength(double knockbackStrength) {
+        this.knockbackStrength = knockbackStrength;
     }
 
     public int getInventorySize() {
@@ -163,15 +184,12 @@ public class NPCConfigurationEntry {
 
     public static class LabyModEmotes {
 
-        // See https://docs.labymod.net/pages/server/emote_api/ for all available emote ids.
+        // See https://docs.labymod.net/pages/server/labymod/emote_api/ for all available emote ids.
         private int[] emoteIds = new int[]{2, 3, 49};
-
         private int[] onJoinEmoteIds = new int[]{4, 20};
-
+        private int[] onKnockbackEmoteIds = new int[]{37};
         private long minEmoteDelayTicks = 20 * 20;
-
         private long maxEmoteDelayTicks = 30 * 20;
-
         private boolean playEmotesSynchronous = false;
 
         public LabyModEmotes() {
@@ -191,6 +209,14 @@ public class NPCConfigurationEntry {
 
         public void setOnJoinEmoteIds(int[] onJoinEmoteIds) {
             this.onJoinEmoteIds = onJoinEmoteIds;
+        }
+
+        public int[] getOnKnockbackEmoteIds() {
+            return this.onKnockbackEmoteIds;
+        }
+
+        public void setOnKnockbackEmoteIds(int[] onKnockbackEmoteIds) {
+            this.onKnockbackEmoteIds = onKnockbackEmoteIds;
         }
 
         public long getMinEmoteDelayTicks() {
@@ -222,11 +248,8 @@ public class NPCConfigurationEntry {
     public static class ItemLayout {
 
         private String material;
-
         private int subId = -1;
-
         private String displayName;
-
         private List<String> lore;
 
         public ItemLayout() {
