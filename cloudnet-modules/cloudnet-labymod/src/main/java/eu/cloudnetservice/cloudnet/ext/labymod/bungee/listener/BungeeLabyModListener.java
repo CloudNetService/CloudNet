@@ -6,6 +6,7 @@ import eu.cloudnetservice.cloudnet.ext.labymod.LabyModUtils;
 import eu.cloudnetservice.cloudnet.ext.labymod.config.LabyModConfiguration;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.PluginMessageEvent;
+import net.md_5.bungee.api.event.PostLoginEvent;
 import net.md_5.bungee.api.event.ServerConnectedEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
@@ -16,6 +17,11 @@ public class BungeeLabyModListener implements Listener {
 
     public BungeeLabyModListener(AbstractLabyModManagement labyModManagement) {
         this.labyModManagement = labyModManagement;
+    }
+
+    @EventHandler
+    public void handleLogin(PostLoginEvent event) {
+        this.labyModManagement.sendPermissions(event.getPlayer().getUniqueId());
     }
 
     @EventHandler

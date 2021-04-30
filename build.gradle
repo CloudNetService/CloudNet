@@ -79,6 +79,7 @@ allprojects {
         dependencyNpcLibVersion = 'development-SNAPSHOT'
         dependencyCommonsNetVersion = '3.8.0'
         dependencyJschVersion = '0.1.55'
+        dependencyJavassistVersion = '3.27.0-GA'
 
         testJunitVersion = '4.13.2'
 

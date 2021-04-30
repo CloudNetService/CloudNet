@@ -61,7 +61,7 @@ public class DefaultClusterSetup implements DefaultSetup {
                         .map(node -> new QuestionListEntry<>(
                                 "nodeHost-" + node,
                                 LanguageManager.getMessage("cloudnet-init-setup-cluster-node-host").replace("%node%", node),
-                                new QuestionAnswerTypeHostAndPort()
+                                new QuestionAnswerTypeValidHostAndPort()
                         ))
                         .toArray(QuestionListEntry[]::new)
                 );

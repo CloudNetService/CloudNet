@@ -4,12 +4,20 @@ public enum DNSType {
 
     A,
     AAAA,
-    CNAME,
-    MX,
-    LOC,
-    SRV,
-    SPF,
+    HTTPS,
     TXT,
+    SRV,
+    LOC,
+    MX,
     NS,
-    CAA
+    SPF,
+    CERT,
+    DNSKEY,
+    DS,
+    NAPTR,
+    SMIMEA,
+    SSHFP,
+    SVCB,
+    TLSA,
+    URI
 }
