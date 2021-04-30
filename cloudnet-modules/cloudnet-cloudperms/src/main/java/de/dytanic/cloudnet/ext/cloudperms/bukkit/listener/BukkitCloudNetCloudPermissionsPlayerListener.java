@@ -37,7 +37,7 @@ public final class BukkitCloudNetCloudPermissionsPlayerListener implements Liste
         }, Bukkit.getOnlineMode());
     }
 
-    @EventHandler(priority = EventPriority.MONITOR)
+    @EventHandler(priority = EventPriority.LOWEST)
     public void handle(PlayerLoginEvent event) {
         if (event.getResult() != PlayerLoginEvent.Result.ALLOWED) {
             return;

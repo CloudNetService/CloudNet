@@ -76,6 +76,11 @@ public final class PlayerManagerListener {
                 CloudNetDriver.getInstance().getEventManager().callEvent(new BridgeUpdateCloudPlayerEvent(cloudPlayer));
             }
             break;
+            case "process_cloud_player_login": {
+                CloudPlayer cloudPlayer = event.getBuffer().readObject(CloudPlayer.class);
+                this.nodePlayerManager.processLoginMessage(cloudPlayer);
+            }
+            break;
         }
     }
 

@@ -3,12 +3,14 @@ package de.dytanic.cloudnet.ext.bridge.node.player;
 import com.google.common.base.Preconditions;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import com.google.common.util.concurrent.Striped;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.concurrent.CompletedTask;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.concurrent.ListenableTask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
+import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.driver.database.Database;
 import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
@@ -32,14 +34,17 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @ApiStatus.Internal
+@SuppressWarnings("UnstableApiUsage")
 public final class NodePlayerManager extends DefaultPlayerManager implements IPlayerManager {
 
     private final String databaseName;
@@ -49,6 +54,8 @@ public final class NodePlayerManager extends DefaultPlayerManager implements IPl
             .expireAfterAccess(5, TimeUnit.MINUTES)
             .build();
     private final Map<UUID, CloudPlayer> onlineCloudPlayers = new ConcurrentHashMap<>();
+
+    private final Striped<Lock> loginLocks = Striped.lazyWeakLock(1);
     private final PlayerProvider allPlayersProvider = new NodePlayerProvider(this, () -> this.onlineCloudPlayers.values().stream());
 
     public NodePlayerManager(String databaseName) {
@@ -336,34 +343,7 @@ public final class NodePlayerManager extends DefaultPlayerManager implements IPl
 
     public void loginPlayer(NetworkConnectionInfo networkConnectionInfo, NetworkPlayerServerInfo networkPlayerServerInfo) {
         NetworkServiceInfo networkService = networkConnectionInfo.getNetworkService();
-        // check if the player is already loaded
-        CloudPlayer cloudPlayer = this.getOnlinePlayer(networkConnectionInfo.getUniqueId());
-        if (cloudPlayer == null) {
-            // try to load the player using the name and the login service
-            for (CloudPlayer player : this.getOnlineCloudPlayers().values()) {
-                if (player.getName().equals(networkConnectionInfo.getName())
-                        && player.getLoginService() != null
-                        && player.getLoginService().getUniqueId().equals(networkService.getUniqueId())) {
-                    cloudPlayer = player;
-                    break;
-                }
-            }
-            // there is no loaded player, so try to load it using the offline association
-            if (cloudPlayer == null) {
-                ICloudOfflinePlayer cloudOfflinePlayer = this.getOrRegisterOfflinePlayer(networkConnectionInfo);
-
-                cloudPlayer = new CloudPlayer(
-                        cloudOfflinePlayer,
-                        networkService,
-                        networkService,
-                        networkConnectionInfo,
-                        networkPlayerServerInfo
-                );
-                cloudPlayer.setLastLoginTimeMillis(System.currentTimeMillis());
-
-                this.getOnlineCloudPlayers().put(cloudPlayer.getUniqueId(), cloudPlayer);
-            }
-        }
+        CloudPlayer cloudPlayer = this.selectPlayerForLogin(networkConnectionInfo, networkPlayerServerInfo);
         // we can always update the name to keep it synced
         cloudPlayer.setName(networkConnectionInfo.getName());
         // check if the login service is a proxy and set the proxy as the login service if so
@@ -387,8 +367,104 @@ public final class NodePlayerManager extends DefaultPlayerManager implements IPl
                 cloudPlayer.setLoginService(networkPlayerServerInfo.getNetworkService());
             }
         }
+        // update the player into the database and notify the other nodes
+        this.processLogin(cloudPlayer);
+    }
+
+    protected CloudPlayer selectPlayerForLogin(NetworkConnectionInfo connectionInfo, NetworkPlayerServerInfo networkPlayerServerInfo) {
+        Lock loginLock = this.loginLocks.get(connectionInfo.getUniqueId());
+        try {
+            // ensure that only one player get selected at a time
+            loginLock.lock();
+            // check if the player is already loaded
+            CloudPlayer cloudPlayer = this.getOnlinePlayer(connectionInfo.getUniqueId());
+            if (cloudPlayer == null) {
+                // try to load the player using the name and the login service
+                for (CloudPlayer player : this.getOnlineCloudPlayers().values()) {
+                    if (player.getName().equals(connectionInfo.getName())
+                            && player.getLoginService() != null
+                            && player.getLoginService().getUniqueId().equals(connectionInfo.getNetworkService().getUniqueId())) {
+                        cloudPlayer = player;
+                        break;
+                    }
+                }
+                // there is no loaded player, so try to load it using the offline association
+                if (cloudPlayer == null) {
+                    ICloudOfflinePlayer cloudOfflinePlayer = this.getOrRegisterOfflinePlayer(connectionInfo);
+
+                    cloudPlayer = new CloudPlayer(
+                            cloudOfflinePlayer,
+                            connectionInfo.getNetworkService(),
+                            connectionInfo.getNetworkService(),
+                            connectionInfo,
+                            networkPlayerServerInfo
+                    );
+                    cloudPlayer.setLastLoginTimeMillis(System.currentTimeMillis());
+
+                    this.getOnlineCloudPlayers().put(cloudPlayer.getUniqueId(), cloudPlayer);
+                }
+            }
+            return cloudPlayer;
+        } finally {
+            loginLock.unlock();
+        }
+    }
+
+    protected void processLogin(@NotNull CloudPlayer cloudPlayer) {
         // update the player into the database
-        this.updateOnlinePlayer(cloudPlayer);
+        this.updateOnlinePlayer0(cloudPlayer);
+        // notify the other nodes that we received the login
+        ChannelMessage.builder()
+                .channel("process_cloud_player_login")
+                .buffer(ProtocolBuffer.create().writeObject(cloudPlayer))
+                .targetNodes()
+                .build()
+                .send();
+    }
+
+    public void processLoginMessage(@NotNull CloudPlayer cloudPlayer) {
+        Lock loginLock = this.loginLocks.get(cloudPlayer.getUniqueId());
+        try {
+            // ensure we only handle one login at a time
+            loginLock.lock();
+            // check if the player is already loaded
+            CloudPlayer registeredPlayer = this.onlineCloudPlayers.get(cloudPlayer.getUniqueId());
+            if (registeredPlayer == null) {
+                this.onlineCloudPlayers.put(cloudPlayer.getUniqueId(), cloudPlayer);
+                this.offlinePlayerCache.put(cloudPlayer.getUniqueId(), cloudPlayer);
+            } else {
+                boolean needsUpdate = false;
+                // check if the player has a known login service
+                if (cloudPlayer.getLoginService() != null) {
+                    NetworkServiceInfo newLoginService = cloudPlayer.getLoginService();
+                    NetworkServiceInfo knownLoginService = registeredPlayer.getLoginService();
+                    // check if we already know the same service
+                    if (!Objects.equals(newLoginService, knownLoginService)) {
+                        // the supplied player connected to a proxy
+                        if (newLoginService.getEnvironment().isMinecraftProxy()) {
+                            if (knownLoginService == null || !knownLoginService.getEnvironment().isMinecraftProxy()) {
+                                cloudPlayer.setLoginService(newLoginService);
+                                needsUpdate = true;
+                            }
+                        }
+                    }
+                }
+                // check if the player has a known connected service which is not a proxy
+                if (cloudPlayer.getConnectedService() != null && cloudPlayer.getConnectedService().getEnvironment().isMinecraftProxy()) {
+                    NetworkServiceInfo knownConnectedService = registeredPlayer.getConnectedService();
+                    if (knownConnectedService != null && knownConnectedService.getEnvironment().isMinecraftServer()) {
+                        cloudPlayer.setConnectedService(knownConnectedService);
+                        needsUpdate = true;
+                    }
+                }
+                // check if we need to update the player
+                if (needsUpdate) {
+                    this.updateOnlinePlayer0(cloudPlayer);
+                }
+            }
+        } finally {
+            loginLock.unlock();
+        }
     }
 
     public ICloudOfflinePlayer getOrRegisterOfflinePlayer(NetworkConnectionInfo networkConnectionInfo) {
@@ -433,9 +509,4 @@ public final class NodePlayerManager extends DefaultPlayerManager implements IPl
                 player -> player != null && player.getLoginService().getUniqueId().equals(networkConnectionInfo.getNetworkService().getUniqueId())
         );
     }
-
-    public void logoutPlayer(UUID uniqueId, String name) {
-        this.logoutPlayer(uniqueId, name, null);
-    }
-
 }
