@@ -28,14 +28,12 @@ final class NettyNetworkChannel implements INetworkChannel {
 
     private static final AtomicLong CHANNEL_ID_COUNTER = new AtomicLong();
 
-    private final long channelId = CHANNEL_ID_COUNTER.addAndGet(1);
-
-
+    private final long channelId;
     private final Channel channel;
-
     private final IPacketListenerRegistry packetRegistry;
 
-    private final HostAndPort serverAddress, clientAddress;
+    private final HostAndPort serverAddress;
+    private final HostAndPort clientAddress;
 
     private final boolean clientProvidedChannel;
 
@@ -43,6 +41,7 @@ final class NettyNetworkChannel implements INetworkChannel {
 
     public NettyNetworkChannel(Channel channel, IPacketListenerRegistry packetRegistry, INetworkChannelHandler handler,
                                HostAndPort serverAddress, HostAndPort clientAddress, boolean clientProvidedChannel) {
+        this.channelId = CHANNEL_ID_COUNTER.incrementAndGet();
         this.channel = channel;
         this.handler = handler;
 
@@ -120,7 +119,7 @@ final class NettyNetworkChannel implements INetworkChannel {
                                         "Sending packet to %s on channel %d with id %s, header=%s;body=%d",
                                         this.getClientAddress().toString(),
                                         packet.getChannel(),
-                                        packet.getUniqueId().toString(),
+                                        packet.getUniqueId(),
                                         packet.getHeader().toJson(),
                                         packet.getBuffer() != null ? packet.getBuffer().readableBytes() : 0
                                 )

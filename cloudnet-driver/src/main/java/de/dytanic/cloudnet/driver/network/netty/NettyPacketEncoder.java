@@ -3,7 +3,6 @@ package de.dytanic.cloudnet.driver.network.netty;
 import de.dytanic.cloudnet.common.logging.LogLevel;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
-import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
@@ -19,7 +18,7 @@ final class NettyPacketEncoder extends MessageToByteEncoder<IPacket> {
                             String.format(
                                     "Encoding packet on channel %d with id %s, header=%s;body=%d",
                                     packet.getChannel(),
-                                    packet.getUniqueId().toString(),
+                                    packet.getUniqueId(),
                                     packet.getHeader().toJson(),
                                     packet.getBuffer() != null ? packet.getBuffer().readableBytes() : 0
                             )
@@ -28,13 +27,29 @@ final class NettyPacketEncoder extends MessageToByteEncoder<IPacket> {
             });
         }
 
-        ProtocolBuffer data = ProtocolBuffer.wrap(byteBuf);
+        // channel
+        NettyUtils.writeVarInt(byteBuf, packet.getChannel());
+        // unique id
+        byteBuf
+                .writeLong(packet.getUniqueId().getMostSignificantBits())
+                .writeLong(packet.getUniqueId().getLeastSignificantBits());
+        // header
+        this.writeHeader(packet, byteBuf);
+        // body
+        if (packet.getBuffer() != null) {
+            int amount = packet.getBuffer().readableBytes();
+            NettyUtils.writeVarInt(byteBuf, amount);
+            byteBuf.writeBytes(packet.getBuffer(), 0, amount);
+        } else {
+            NettyUtils.writeVarInt(byteBuf, 0);
+        }
+    }
 
-        data.writeVarInt(packet.getChannel());
-        data.writeUUID(packet.getUniqueId());
-
-        data.writeString(packet.getHeader() != null ? packet.getHeader().toJson() : "{}");
-
-        data.writeArray(packet.getBodyAsArray());
+    private void writeHeader(IPacket packet, ByteBuf byteBuf) {
+        if (packet.getHeader() == null || packet.getHeader().isEmpty()) {
+            NettyUtils.writeVarInt(byteBuf, 0);
+        } else {
+            NettyUtils.writeString(byteBuf, packet.getHeader().toJson());
+        }
     }
 }

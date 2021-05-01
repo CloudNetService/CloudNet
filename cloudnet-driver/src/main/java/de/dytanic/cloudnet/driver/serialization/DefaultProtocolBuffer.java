@@ -61,19 +61,19 @@ public class DefaultProtocolBuffer extends ProtocolBuffer {
     }
 
     @Override
-    public ProtocolBuffer writeArray(@NotNull byte[] bytes) {
+    public ProtocolBuffer writeArray(byte[] bytes) {
         this.writeVarInt(bytes.length);
         this.writeBytes(bytes);
         return this;
     }
 
     @Override
-    public @Nullable byte[] readOptionalArray() {
+    public byte[] readOptionalArray() {
         return this.readBoolean() ? this.readArray() : null;
     }
 
     @Override
-    public ProtocolBuffer writeOptionalArray(@Nullable byte[] bytes) {
+    public ProtocolBuffer writeOptionalArray(byte[] bytes) {
         this.writeBoolean(bytes != null);
         if (bytes != null) {
             this.writeArray(bytes);
@@ -82,7 +82,7 @@ public class DefaultProtocolBuffer extends ProtocolBuffer {
     }
 
     @Override
-    public @NotNull byte[] readArray() {
+    public byte[] readArray() {
         int length = this.readVarInt();
 
         byte[] bytes = new byte[length];
@@ -92,7 +92,7 @@ public class DefaultProtocolBuffer extends ProtocolBuffer {
     }
 
     @Override
-    public @NotNull byte[] toArray() {
+    public byte[] toArray() {
         byte[] bytes = new byte[this.readableBytes()];
         this.getBytes(this.readerIndex(), bytes);
         return bytes;
@@ -295,6 +295,7 @@ public class DefaultProtocolBuffer extends ProtocolBuffer {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public @NotNull <T extends SerializableObject> T[] readObjectArray(@NotNull Class<T> objectClass) {
         int size = this.readVarInt();
         Object result = Array.newInstance(objectClass, size);

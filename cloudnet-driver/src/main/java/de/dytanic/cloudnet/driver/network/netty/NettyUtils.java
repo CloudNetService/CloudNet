@@ -2,6 +2,7 @@ package de.dytanic.cloudnet.driver.network.netty;
 
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.DriverEnvironment;
+import de.dytanic.cloudnet.driver.network.exception.SilentDecoderException;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFactory;
@@ -30,9 +31,12 @@ import java.util.concurrent.ThreadFactory;
 public final class NettyUtils {
 
     private static final ThreadFactory THREAD_FACTORY = FastThreadLocalThread::new;
+    private static final SilentDecoderException INVALID_VAR_INT = new SilentDecoderException("Invalid var int");
 
     static {
-        ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.DISABLED);
+        if (System.getProperty("io.netty.leakDetection.level") == null) {
+            ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.DISABLED);
+        }
     }
 
     private NettyUtils() {
@@ -76,86 +80,72 @@ public final class NettyUtils {
         return THREAD_FACTORY;
     }
 
+    @Deprecated
+    @ApiStatus.ScheduledForRemoval
     public static byte[] toByteArray(ByteBuf byteBuf, int size) {
+        return readByteArray(byteBuf, size);
+    }
+
+    public static byte[] readByteArray(ByteBuf byteBuf, int size) {
         byte[] data = new byte[size];
         byteBuf.readBytes(data);
         return data;
     }
 
     public static int readVarInt(ByteBuf byteBuf) {
-        int numRead = 0;
-        int result = 0;
-        byte read;
-        do {
-            read = byteBuf.readByte();
-            int value = (read & 0b01111111);
-            result |= (value << (7 * numRead));
-
-            numRead++;
-            if (numRead > 5) {
-                throw new RuntimeException("VarInt is too big");
-            }
-        } while ((read & 0b10000000) != 0);
-
-        return result;
-    }
-
-    public static long readVarLong(ByteBuf byteBuf) {
-        int numRead = 0;
-        long result = 0;
-        byte read;
-        do {
-            read = byteBuf.readByte();
-            int value = (read & 0b01111111);
-            result |= (value << (7 * numRead));
-
-            numRead++;
-            if (numRead > 10) {
-                throw new RuntimeException("VarLong is too big");
-            }
-        } while ((read & 0b10000000) != 0);
-
-        return result;
+        return (int) readVarVariant(byteBuf, 5);
     }
 
     public static ByteBuf writeVarInt(ByteBuf byteBuf, int value) {
-        do {
-            byte temp = (byte) (value & 0b01111111);
-            value >>>= 7;
-            if (value != 0) {
-                temp |= 0b10000000;
+        while (true) {
+            if ((value & -128) == 0) {
+                byteBuf.writeByte(value);
+                return byteBuf;
             }
-            byteBuf.writeByte(temp);
-        } while (value != 0);
 
-        return byteBuf;
+            byteBuf.writeByte(value & 0x7F | 0x80);
+            value >>>= 7;
+        }
+    }
+
+    public static long readVarLong(ByteBuf byteBuf) {
+        return readVarVariant(byteBuf, 10);
     }
 
     public static ByteBuf writeVarLong(ByteBuf byteBuf, long value) {
-        do {
-            byte temp = (byte) (value & 0b01111111);
-            value >>>= 7;
-            if (value != 0) {
-                temp |= 0b10000000;
+        while (true) {
+            if ((value & -128) == 0) {
+                byteBuf.writeByte((int) value);
+                return byteBuf;
             }
-            byteBuf.writeByte(temp);
-        } while (value != 0);
 
-        return byteBuf;
+            byteBuf.writeByte((int) value & 0x7F | 0x80);
+            value >>>= 7;
+        }
+    }
+
+    private static long readVarVariant(ByteBuf byteBuf, int maxReadUpperBound) {
+        long i = 0;
+        int maxRead = Math.min(maxReadUpperBound, byteBuf.readableBytes());
+        for (int j = 0; j < maxRead; j++) {
+            int nextByte = byteBuf.readByte();
+            i |= (long) (nextByte & 0x7F) << j * 7;
+            if ((nextByte & 0x80) != 128) {
+                return i;
+            }
+        }
+        throw INVALID_VAR_INT;
     }
 
     public static ByteBuf writeString(ByteBuf byteBuf, String string) {
-        byte[] values = string.getBytes(StandardCharsets.UTF_8);
-        writeVarInt(byteBuf, values.length);
-        byteBuf.writeBytes(values);
+        byte[] content = string.getBytes(StandardCharsets.UTF_8);
+        writeVarInt(byteBuf, content.length);
+        byteBuf.writeBytes(content);
         return byteBuf;
     }
 
     public static String readString(ByteBuf byteBuf) {
-        int integer = readVarInt(byteBuf);
-        byte[] buffer = new byte[integer];
-        byteBuf.readBytes(buffer, 0, integer);
-
-        return new String(buffer, StandardCharsets.UTF_8);
+        int size = readVarInt(byteBuf);
+        return new String(readByteArray(byteBuf, size), StandardCharsets.UTF_8);
     }
 }
