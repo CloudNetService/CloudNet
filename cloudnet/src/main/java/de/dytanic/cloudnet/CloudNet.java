@@ -698,7 +698,7 @@ public final class CloudNet extends CloudNetDriver {
                 })
                 .min(Comparator.comparingDouble(node -> {
                     NetworkClusterNodeInfoSnapshot info = node.getNodeInfoSnapshot();
-                    return includeSystemCpuUsage ? info.getSystemCpuUsage() : 0 +
+                    return (includeSystemCpuUsage ? info.getSystemCpuUsage() : 0) +
                             ((double) info.getReservedMemory() / info.getMaxMemory() * 100);
                 }))
                 .orElse(null);
@@ -763,7 +763,7 @@ public final class CloudNet extends CloudNetDriver {
                 .filter(pair -> !pair.getSecond().isEmpty())
                 .min(Comparator.comparingDouble(pair -> {
                     NetworkClusterNodeInfoSnapshot snapshot = pair.getFirst().getNodeInfoSnapshot();
-                    return includeSystemCpuUsage ? snapshot.getSystemCpuUsage() : 0 +
+                    return (includeSystemCpuUsage ? snapshot.getSystemCpuUsage() : 0) +
                             ((double) snapshot.getReservedMemory() / snapshot.getMaxMemory() * 100);
                 }))
                 .orElse(null);
