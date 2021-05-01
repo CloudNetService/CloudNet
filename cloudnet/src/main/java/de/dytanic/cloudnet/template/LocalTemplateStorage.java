@@ -134,9 +134,10 @@ public final class LocalTemplateStorage implements ITemplateStorage {
     }
 
     @Override
+    @Deprecated
     public byte[] toZipByteArray(@NotNull ServiceTemplate template) {
         Path dir = this.storageDirectory.resolve(template.getTemplatePath());
-        return Files.exists(dir) ? FileUtils.convert(new Path[]{dir}) : null;
+        return Files.exists(dir) ? FileUtils.convert(dir) : null;
     }
 
     @Override
