@@ -32,8 +32,8 @@ public class NettySSLHttpServerTest {
         try (IHttpServer httpServer = new NettyHttpServer(new SSLConfiguration(
                 false,
                 null,
-                selfSignedCertificate.certificate(),
-                selfSignedCertificate.privateKey()
+                selfSignedCertificate.certificate().toPath(),
+                selfSignedCertificate.privateKey().toPath()
         ))) {
             Assert.assertTrue(httpServer.isSslEnabled());
             Assert.assertTrue(httpServer.registerHandler("/test/power", (path, context) -> context.response()

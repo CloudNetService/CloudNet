@@ -45,7 +45,7 @@ public final class V1SyncProxyConfigurationHttpHandler extends V1HttpHandler {
 
                 if (syncProxyConfiguration != null) {
                     CloudNetSyncProxyModule.getInstance().setSyncProxyConfiguration(syncProxyConfiguration);
-                    SyncProxyConfigurationWriterAndReader.write(syncProxyConfiguration, CloudNetSyncProxyModule.getInstance().getConfigurationFile());
+                    SyncProxyConfigurationWriterAndReader.write(syncProxyConfiguration, CloudNetSyncProxyModule.getInstance().getConfigurationFilePath());
 
                     CloudNetDriver.getInstance().getMessenger().sendChannelMessage(
                             SyncProxyConstants.SYNC_PROXY_CHANNEL_NAME,

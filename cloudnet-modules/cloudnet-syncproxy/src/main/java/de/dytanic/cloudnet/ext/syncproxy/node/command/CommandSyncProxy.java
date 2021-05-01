@@ -165,7 +165,7 @@ public final class CommandSyncProxy extends SubCommandHandler {
     }
 
     private static void saveAndUpdate(SyncProxyConfiguration syncProxyConfiguration) {
-        SyncProxyConfigurationWriterAndReader.write(syncProxyConfiguration, CloudNetSyncProxyModule.getInstance().getConfigurationFile());
+        SyncProxyConfigurationWriterAndReader.write(syncProxyConfiguration, CloudNetSyncProxyModule.getInstance().getConfigurationFilePath());
 
         CloudNetSyncProxyModule.getInstance().setSyncProxyConfiguration(syncProxyConfiguration);
         CloudNetDriver.getInstance().getMessenger().sendChannelMessage(

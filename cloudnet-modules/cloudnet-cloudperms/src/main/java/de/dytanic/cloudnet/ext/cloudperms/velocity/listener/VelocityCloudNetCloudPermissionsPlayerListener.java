@@ -11,7 +11,8 @@ import com.velocitypowered.api.proxy.Player;
 import de.dytanic.cloudnet.driver.permission.CachedPermissionManagement;
 import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
 import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsHelper;
-import net.kyori.text.serializer.legacy.LegacyComponentSerializer;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
 public final class VelocityCloudNetCloudPermissionsPlayerListener {
 
@@ -26,8 +27,15 @@ public final class VelocityCloudNetCloudPermissionsPlayerListener {
     @Subscribe(order = PostOrder.EARLY)
     public void handle(LoginEvent event) {
         if (event.getResult().isAllowed()) {
-            CloudPermissionsHelper.initPermissionUser(this.permissionsManagement, event.getPlayer().getUniqueId(), event.getPlayer().getUsername(), message ->
-                    event.setResult(ResultedEvent.ComponentResult.denied(LegacyComponentSerializer.legacyLinking().deserialize(message.replace("&", "§")))));
+            CloudPermissionsHelper.initPermissionUser(
+                    this.permissionsManagement,
+                    event.getPlayer().getUniqueId(),
+                    event.getPlayer().getUsername(),
+                    message -> {
+                        Component result = LegacyComponentSerializer.legacySection().deserialize(message.replace("&", "§"));
+                        event.setResult(ResultedEvent.ComponentResult.denied(result));
+                    }
+            );
         }
     }
 
