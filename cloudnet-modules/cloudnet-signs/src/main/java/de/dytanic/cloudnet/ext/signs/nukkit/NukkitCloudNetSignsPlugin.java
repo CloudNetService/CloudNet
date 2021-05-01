@@ -1,6 +1,5 @@
 package de.dytanic.cloudnet.ext.signs.nukkit;
 
-
 import cn.nukkit.plugin.PluginBase;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.ext.signs.AbstractSignManagement;
