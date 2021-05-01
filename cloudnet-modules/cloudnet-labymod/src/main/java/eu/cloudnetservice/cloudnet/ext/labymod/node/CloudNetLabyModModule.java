@@ -7,10 +7,7 @@ import de.dytanic.cloudnet.driver.module.ModuleTask;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.module.NodeCloudNetModule;
 import eu.cloudnetservice.cloudnet.ext.labymod.LabyModConstants;
-import eu.cloudnetservice.cloudnet.ext.labymod.config.DiscordJoinMatchConfig;
-import eu.cloudnetservice.cloudnet.ext.labymod.config.LabyModConfiguration;
-import eu.cloudnetservice.cloudnet.ext.labymod.config.LabyModPermissionConfig;
-import eu.cloudnetservice.cloudnet.ext.labymod.config.ServiceDisplay;
+import eu.cloudnetservice.cloudnet.ext.labymod.config.*;
 import eu.cloudnetservice.cloudnet.ext.labymod.node.listener.IncludePluginListener;
 import eu.cloudnetservice.cloudnet.ext.labymod.node.listener.LabyModCustomChannelMessageListener;
 
@@ -22,6 +19,7 @@ public class CloudNetLabyModModule extends NodeCloudNetModule {
 
     private static final Map<String, Boolean> DEFAULT_LABY_MOD_PERMISSIONS = new HashMap<>();
     private static final LabyModPermissionConfig LABY_MOD_PERMISSION_CONFIG = new LabyModPermissionConfig(false, DEFAULT_LABY_MOD_PERMISSIONS);
+    private static final LabyModBannerConfig BANNER_CONFIG = new LabyModBannerConfig(false, "https://dl.hdskins.de/CloudNet.png");
 
     static {
         DEFAULT_LABY_MOD_PERMISSIONS.put("IMPROVED_LAVA", false);
@@ -55,11 +53,16 @@ public class CloudNetLabyModModule extends NodeCloudNetModule {
                 "mc.example.com",
                 true,
                 new ArrayList<>(),
-                LABY_MOD_PERMISSION_CONFIG
+                LABY_MOD_PERMISSION_CONFIG,
+                BANNER_CONFIG
         ));
 
         if (this.configuration.getPermissionConfig() == null) {
             this.configuration.setPermissionConfig(LABY_MOD_PERMISSION_CONFIG);
+        }
+
+        if (this.configuration.getBannerConfig() == null) {
+            this.configuration.setBannerConfig(BANNER_CONFIG);
         }
 
         super.getConfig().append("config", this.configuration);
