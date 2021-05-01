@@ -1,6 +1,5 @@
 package de.dytanic.cloudnet.driver.event.events.network;
 
-
 import de.dytanic.cloudnet.driver.event.ICancelable;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;

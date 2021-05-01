@@ -1,6 +1,5 @@
 package de.dytanic.cloudnet.wrapper.permission;
 
-
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.event.events.permission.*;
 import de.dytanic.cloudnet.driver.permission.IPermissionGroup;

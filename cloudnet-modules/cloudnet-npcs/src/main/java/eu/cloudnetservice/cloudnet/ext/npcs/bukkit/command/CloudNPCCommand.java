@@ -1,6 +1,5 @@
 package eu.cloudnetservice.cloudnet.ext.npcs.bukkit.command;
 
-
 import com.github.juliarn.npc.profile.Profile;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.service.GroupConfiguration;

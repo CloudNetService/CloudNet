@@ -3,7 +3,11 @@ package de.dytanic.cloudnet.driver.network.netty;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.concurrent.ListenableTask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
-import de.dytanic.cloudnet.driver.network.*;
+import de.dytanic.cloudnet.driver.network.HostAndPort;
+import de.dytanic.cloudnet.driver.network.INetworkChannel;
+import de.dytanic.cloudnet.driver.network.INetworkChannelHandler;
+import de.dytanic.cloudnet.driver.network.INetworkClient;
+import de.dytanic.cloudnet.driver.network.INetworkServer;
 import de.dytanic.cloudnet.driver.network.netty.client.NettyNetworkClient;
 import de.dytanic.cloudnet.driver.network.netty.server.NettyNetworkServer;
 import de.dytanic.cloudnet.driver.network.protocol.Packet;
@@ -22,19 +26,19 @@ public final class NettySSLNetworkClientServerTest implements INetworkChannelHan
 
         SelfSignedCertificate selfSignedCertificate = new SelfSignedCertificate();
 
-        INetworkServer server = new NettyNetworkServer(() -> this, new SSLConfiguration(
+        INetworkServer server = new NettyNetworkServer(new SSLConfiguration(
                 true,
                 null,
-                selfSignedCertificate.certificate(),
-                selfSignedCertificate.privateKey()
-        ), null);
+                selfSignedCertificate.certificate().toPath(),
+                selfSignedCertificate.privateKey().toPath()
+        ), () -> this);
 
         INetworkClient client = new NettyNetworkClient(() -> this, new SSLConfiguration(
                 false,
                 null,
-                selfSignedCertificate.certificate(),
-                selfSignedCertificate.privateKey()
-        ), null);
+                selfSignedCertificate.certificate().toPath(),
+                selfSignedCertificate.privateKey().toPath()
+        ));
 
         Assert.assertTrue(server.isSslEnabled());
         Assert.assertTrue(client.isSslEnabled());

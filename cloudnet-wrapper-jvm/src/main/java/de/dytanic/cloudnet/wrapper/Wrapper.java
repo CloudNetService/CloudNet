@@ -364,11 +364,11 @@ public final class Wrapper extends CloudNetDriver implements DriverAPIUser {
      *
      * @see ServiceInfoSnapshotConfigureEvent
      */
-    public synchronized void publishServiceInfoUpdate() {
+    public void publishServiceInfoUpdate() {
         this.publishServiceInfoUpdate(this.createServiceInfoSnapshot());
     }
 
-    public synchronized void publishServiceInfoUpdate(@NotNull ServiceInfoSnapshot serviceInfoSnapshot) {
+    public void publishServiceInfoUpdate(@NotNull ServiceInfoSnapshot serviceInfoSnapshot) {
         if (this.currentServiceInfoSnapshot.getServiceId().equals(serviceInfoSnapshot.getServiceId())) {
             this.configureServiceInfoSnapshot(serviceInfoSnapshot);
         }

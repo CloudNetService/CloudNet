@@ -1,6 +1,5 @@
 package eu.cloudnetservice.cloudnet.ext.npcs.bukkit.labymod;
 
-
 import com.github.juliarn.npc.NPC;
 import com.github.juliarn.npc.modifier.LabyModModifier;
 import com.google.common.base.Preconditions;

@@ -1,6 +1,5 @@
 package eu.cloudnetservice.cloudnet.ext.npcs;
 
-
 import de.dytanic.cloudnet.ext.bridge.WorldPosition;
 import lombok.EqualsAndHashCode;
 

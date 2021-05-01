@@ -1,14 +1,18 @@
 package de.dytanic.cloudnet.ext.bridge;
 
 import com.google.common.base.Preconditions;
-import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import de.dytanic.cloudnet.ext.bridge.player.ICloudPlayer;
-import de.dytanic.cloudnet.ext.bridge.player.executor.DefaultPlayerExecutor;
+import net.kyori.adventure.text.serializer.legacytext3.LegacyText3ComponentSerializer;
 import net.kyori.text.Component;
-import net.kyori.text.serializer.gson.GsonComponentSerializer;
+import org.jetbrains.annotations.ApiStatus;
 
 import java.util.UUID;
 
+/**
+ * @deprecated Use {@link AdventureComponentMessenger} instead
+ */
+@Deprecated
+@ApiStatus.ScheduledForRemoval
 public class VelocityComponentMessenger {
 
     private VelocityComponentMessenger() {
@@ -25,13 +29,7 @@ public class VelocityComponentMessenger {
         Preconditions.checkNotNull(uniqueId);
         Preconditions.checkNotNull(message);
 
-        DefaultPlayerExecutor.builder()
-                .message("send_message_component")
-                .buffer(ProtocolBuffer.create()
-                        .writeUUID(uniqueId)
-                        .writeString(GsonComponentSerializer.INSTANCE.serialize(message))
-                )
-                .build().send();
+        AdventureComponentMessenger.sendMessage(uniqueId, LegacyText3ComponentSerializer.get().deserialize(message));
     }
 
     public static void broadcastMessage(Component message) {
@@ -43,12 +41,6 @@ public class VelocityComponentMessenger {
     public static void broadcastMessage(Component message, String permission) {
         Preconditions.checkNotNull(message);
 
-        DefaultPlayerExecutor.builder()
-                .message("broadcast_message_component")
-                .buffer(ProtocolBuffer.create()
-                        .writeString(GsonComponentSerializer.INSTANCE.serialize(message))
-                        .writeOptionalString(permission)
-                )
-                .build().send();
+        AdventureComponentMessenger.broadcastMessage(LegacyText3ComponentSerializer.get().deserialize(message), permission);
     }
 }

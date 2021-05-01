@@ -1,6 +1,5 @@
 package de.dytanic.cloudnet.ext.cloudperms.bukkit.vault;
 
-
 import de.dytanic.cloudnet.common.INameable;
 import de.dytanic.cloudnet.driver.permission.IPermissionGroup;
 import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
