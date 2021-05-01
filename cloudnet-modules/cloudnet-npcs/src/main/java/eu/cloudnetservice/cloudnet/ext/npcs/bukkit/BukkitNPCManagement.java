@@ -1,6 +1,5 @@
 package eu.cloudnetservice.cloudnet.ext.npcs.bukkit;
 
-
 import com.comphenix.protocol.wrappers.EnumWrappers;
 import com.github.juliarn.npc.NPC;
 import com.github.juliarn.npc.NPCPool;

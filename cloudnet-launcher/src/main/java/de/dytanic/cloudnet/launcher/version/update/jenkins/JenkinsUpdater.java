@@ -1,6 +1,5 @@
 package de.dytanic.cloudnet.launcher.version.update.jenkins;
 
-
 import de.dytanic.cloudnet.launcher.LauncherUtils;
 import de.dytanic.cloudnet.launcher.version.update.Updater;
 

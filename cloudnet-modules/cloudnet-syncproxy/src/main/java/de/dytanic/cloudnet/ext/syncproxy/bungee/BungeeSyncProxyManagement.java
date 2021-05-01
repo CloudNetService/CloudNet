@@ -1,6 +1,5 @@
 package de.dytanic.cloudnet.ext.syncproxy.bungee;
 
-
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.ext.bridge.proxy.BridgeProxyHelper;
 import de.dytanic.cloudnet.ext.syncproxy.AbstractSyncProxyManagement;

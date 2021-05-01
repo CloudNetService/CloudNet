@@ -6,27 +6,30 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 import java.lang.reflect.Type;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 @ToString
 @EqualsAndHashCode(callSuper = false)
 public final class BridgeConfiguration extends BasicJsonDocPropertyable {
 
+    public static final Type TYPE = new TypeToken<BridgeConfiguration>() {
+    }.getType();
     public static final Map<String, String> DEFAULT_MESSAGES = new HashMap<>();
 
     static {
-        DEFAULT_MESSAGES.put("command-hub-success-connect", "&7You did successfully connect to %server%");
-        DEFAULT_MESSAGES.put("command-hub-already-in-hub", "&cYou are already connected");
-        DEFAULT_MESSAGES.put("command-hub-no-server-found", "&7Hub server cannot be found");
-        DEFAULT_MESSAGES.put("server-join-cancel-because-only-proxy", "&7You must connect from an original proxy server");
-        DEFAULT_MESSAGES.put("server-join-cancel-because-maintenance", "&7This server is currently in maintenance mode");
-        DEFAULT_MESSAGES.put("server-join-cancel-because-permission", "&7You do not have the required permissions to connect to this server.");
-        DEFAULT_MESSAGES.put("command-cloud-sub-command-no-permission", "&7You are not allowed to use &b%command%");
+        DEFAULT_MESSAGES.put("command-hub-success-connect", "§7You did successfully connect to %server%");
+        DEFAULT_MESSAGES.put("command-hub-already-in-hub", "§cYou are already connected");
+        DEFAULT_MESSAGES.put("command-hub-no-server-found", "§7Hub server cannot be found");
+        DEFAULT_MESSAGES.put("server-join-cancel-because-only-proxy", "§7You must connect from an original proxy server");
+        DEFAULT_MESSAGES.put("server-join-cancel-because-maintenance", "§7This server is currently in maintenance mode");
+        DEFAULT_MESSAGES.put("server-join-cancel-because-permission", "§7You do not have the required permissions to connect to this server.");
+        DEFAULT_MESSAGES.put("command-cloud-sub-command-no-permission", "§7You are not allowed to use §b%command%");
         DEFAULT_MESSAGES.put("already-connected", "§cYou are already connected to this network!");
     }
-
-    public static final Type TYPE = new TypeToken<BridgeConfiguration>() {
-    }.getType();
 
     private String prefix = "&7Cloud &8| &b";
 

@@ -10,8 +10,8 @@ import com.velocitypowered.api.permission.PermissionProvider;
 import com.velocitypowered.api.proxy.Player;
 import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
 import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsHelper;
-import net.kyori.text.Component;
-import net.kyori.text.serializer.legacy.LegacyComponentSerializer;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
 public final class VelocityCloudNetCloudPermissionsPlayerListener {
 
@@ -28,7 +28,7 @@ public final class VelocityCloudNetCloudPermissionsPlayerListener {
         if (event.getResult().isAllowed()) {
             Player player = event.getPlayer();
             CloudPermissionsHelper.initPermissionUser(this.permissionsManagement, player.getUniqueId(), player.getUsername(), message -> {
-                Component reasonComponent = LegacyComponentSerializer.legacyLinking().deserialize(message.replace("&", "§"));
+                Component reasonComponent = LegacyComponentSerializer.legacySection().deserialize(message.replace("&", "§"));
                 event.setResult(ResultedEvent.ComponentResult.denied(reasonComponent));
             });
         }
