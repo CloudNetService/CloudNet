@@ -1,6 +1,5 @@
 package eu.cloudnetservice.cloudnet.ext.npcs.configuration;
 
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;

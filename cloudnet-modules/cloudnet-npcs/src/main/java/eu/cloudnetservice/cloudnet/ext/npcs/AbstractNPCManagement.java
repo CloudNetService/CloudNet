@@ -1,6 +1,5 @@
 package eu.cloudnetservice.cloudnet.ext.npcs;
 
-
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;

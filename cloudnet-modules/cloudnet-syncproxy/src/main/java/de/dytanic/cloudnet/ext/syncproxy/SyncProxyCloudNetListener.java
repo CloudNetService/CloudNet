@@ -1,6 +1,5 @@
 package de.dytanic.cloudnet.ext.syncproxy;
 
-
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
 import de.dytanic.cloudnet.driver.event.events.service.CloudServiceInfoUpdateEvent;

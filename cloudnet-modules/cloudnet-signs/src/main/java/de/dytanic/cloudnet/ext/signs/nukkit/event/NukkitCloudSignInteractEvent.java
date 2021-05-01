@@ -1,6 +1,5 @@
 package de.dytanic.cloudnet.ext.signs.nukkit.event;
 
-
 import cn.nukkit.Player;
 import cn.nukkit.event.Cancellable;
 import cn.nukkit.event.HandlerList;

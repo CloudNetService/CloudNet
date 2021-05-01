@@ -1,6 +1,5 @@
 package de.dytanic.cloudnet.ext.syncproxy;
 
-
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.ext.bridge.BridgeServiceProperty;
