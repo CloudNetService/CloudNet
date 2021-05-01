@@ -1,6 +1,5 @@
 package eu.cloudnetservice.cloudnet.ext.npcs;
 
-
 import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;

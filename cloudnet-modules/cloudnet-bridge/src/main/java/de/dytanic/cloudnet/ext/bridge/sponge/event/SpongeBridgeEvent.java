@@ -1,6 +1,5 @@
 package de.dytanic.cloudnet.ext.bridge.sponge.event;
 
-
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import org.jetbrains.annotations.NotNull;

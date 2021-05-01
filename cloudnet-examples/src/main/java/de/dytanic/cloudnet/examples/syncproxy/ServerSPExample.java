@@ -1,6 +1,5 @@
 package de.dytanic.cloudnet.examples.syncproxy;
 
-
 import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyConfiguration;
 import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyMotd;
 

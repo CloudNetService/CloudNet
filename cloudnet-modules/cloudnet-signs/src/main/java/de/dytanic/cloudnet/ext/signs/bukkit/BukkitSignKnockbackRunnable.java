@@ -1,6 +1,5 @@
 package de.dytanic.cloudnet.ext.signs.bukkit;
 
-
 import de.dytanic.cloudnet.ext.bridge.WorldPosition;
 import de.dytanic.cloudnet.ext.signs.Sign;
 import org.bukkit.Location;

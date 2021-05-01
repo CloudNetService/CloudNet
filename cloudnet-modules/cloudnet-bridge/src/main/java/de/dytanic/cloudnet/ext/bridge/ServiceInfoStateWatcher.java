@@ -1,6 +1,5 @@
 package de.dytanic.cloudnet.ext.bridge;
 
-
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.unsafe.CPUUsageResolver;
 import de.dytanic.cloudnet.driver.CloudNetDriver;

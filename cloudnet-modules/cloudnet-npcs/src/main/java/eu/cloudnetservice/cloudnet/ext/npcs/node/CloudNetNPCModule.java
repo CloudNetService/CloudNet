@@ -1,6 +1,5 @@
 package eu.cloudnetservice.cloudnet.ext.npcs.node;
 
-
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.driver.database.Database;

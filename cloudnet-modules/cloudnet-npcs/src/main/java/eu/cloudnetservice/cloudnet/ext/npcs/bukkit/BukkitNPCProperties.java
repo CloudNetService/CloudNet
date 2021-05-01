@@ -1,6 +1,5 @@
 package eu.cloudnetservice.cloudnet.ext.npcs.bukkit;
 
-
 import eu.cloudnetservice.cloudnet.ext.npcs.CloudNPC;
 import org.bukkit.inventory.Inventory;
 
