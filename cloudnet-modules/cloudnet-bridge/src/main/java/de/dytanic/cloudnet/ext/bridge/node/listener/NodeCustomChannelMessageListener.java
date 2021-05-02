@@ -25,6 +25,8 @@ import de.dytanic.cloudnet.ext.bridge.player.NetworkConnectionInfo;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkPlayerServerInfo;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkServiceInfo;
 
+import java.util.UUID;
+
 public final class NodeCustomChannelMessageListener {
 
     private final NodePlayerManager nodePlayerManager;
@@ -166,6 +168,22 @@ public final class NodeCustomChannelMessageListener {
 
                 CloudNetDriver.getInstance().getEventManager().callEvent(new BridgeProxyPlayerDisconnectEvent(networkConnectionInfo));
                 this.nodePlayerManager.logoutPlayer(networkConnectionInfo);
+            }
+            break;
+            case BridgeConstants.BRIDGE_EVENT_CHANNEL_MESSAGE_NAME_PROXY_MISSING_DISCONNECT: {
+                UUID playerId = event.getBuffer().readUUID();
+                String playerName = event.getBuffer().readString();
+                NetworkServiceInfo proxy = event.getBuffer().readObject(NetworkServiceInfo.class);
+
+                if (this.bridgeConfiguration.isLogPlayerConnections()) {
+                    System.out.println(LanguageManager.getMessage("module-bridge-player-proxy-disconnect")
+                            .replace("%uniqueId%", String.valueOf(playerId))
+                            .replace("%name%", playerName)
+                            .replace("%proxy%", proxy.getServerName())
+                    );
+                }
+
+                this.nodePlayerManager.logoutPlayer(playerId, playerName, proxy);
             }
             break;
             case BridgeConstants.BRIDGE_EVENT_CHANNEL_MESSAGE_NAME_SERVER_LOGIN_REQUEST: {

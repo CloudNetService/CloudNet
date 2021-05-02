@@ -7,6 +7,7 @@ import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkConnectionInfo;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkPlayerServerInfo;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkServiceInfo;
+import de.dytanic.cloudnet.ext.bridge.player.ServicePlayer;
 import de.dytanic.cloudnet.ext.bridge.proxy.BridgeProxyHelper;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 
@@ -20,12 +21,12 @@ public final class BridgeHelper {
         throw new UnsupportedOperationException();
     }
 
-    public static void setOnline(boolean online) {
-        BridgeHelper.online = online;
-    }
-
     public static boolean isOnline() {
         return BridgeHelper.online;
+    }
+
+    public static void setOnline(boolean online) {
+        BridgeHelper.online = online;
     }
 
     public static void updateServiceInfo() {
@@ -120,6 +121,16 @@ public final class BridgeHelper {
                 .send();
     }
 
+    public static void sendChanelMessageMissingDisconnect(ServicePlayer player) {
+        messageBuilder()
+                .message(BridgeConstants.BRIDGE_EVENT_CHANNEL_MESSAGE_NAME_PROXY_MISSING_DISCONNECT)
+                .buffer(ProtocolBuffer.create().writeUUID(player.getUniqueId())
+                        .writeString(player.getName()).writeObject(createOwnNetworkServiceInfo()))
+                .targetAll()
+                .build()
+                .send();
+    }
+
     public static NetworkConnectionInfo createNetworkConnectionInfo(
             UUID uniqueId,
             String name,
@@ -134,7 +145,7 @@ public final class BridgeHelper {
     }
 
     /**
-     * @deprecated  moved to {@link BridgeProxyHelper}
+     * @deprecated moved to {@link BridgeProxyHelper}
      */
     @Deprecated
     public static boolean isFallbackService(ServiceInfoSnapshot serviceInfoSnapshot) {

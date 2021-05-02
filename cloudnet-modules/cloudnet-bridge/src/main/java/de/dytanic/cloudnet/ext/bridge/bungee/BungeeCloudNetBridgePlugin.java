@@ -6,6 +6,7 @@ import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
 import de.dytanic.cloudnet.ext.bridge.BridgeConfigurationProvider;
 import de.dytanic.cloudnet.ext.bridge.BridgeHelper;
 import de.dytanic.cloudnet.ext.bridge.BridgePlayerManager;
+import de.dytanic.cloudnet.ext.bridge.BridgeServiceProperty;
 import de.dytanic.cloudnet.ext.bridge.bungee.command.CommandCloudNet;
 import de.dytanic.cloudnet.ext.bridge.bungee.command.CommandHub;
 import de.dytanic.cloudnet.ext.bridge.bungee.listener.BungeeCloudNetListener;
@@ -13,6 +14,7 @@ import de.dytanic.cloudnet.ext.bridge.bungee.listener.BungeePlayerExecutorListen
 import de.dytanic.cloudnet.ext.bridge.bungee.listener.BungeePlayerListener;
 import de.dytanic.cloudnet.ext.bridge.listener.BridgeCustomChannelMessageListener;
 import de.dytanic.cloudnet.ext.bridge.player.IPlayerManager;
+import de.dytanic.cloudnet.ext.bridge.player.ServicePlayer;
 import de.dytanic.cloudnet.ext.bridge.proxy.BridgeProxyHelper;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import net.md_5.bungee.api.ProxyServer;
@@ -47,9 +49,22 @@ public final class BungeeCloudNetBridgePlugin extends Plugin {
 
     private void runPlayerDisconnectTask() {
         super.getProxy().getScheduler().schedule(this, () -> {
-            if (BungeeCloudNetHelper.getLastOnlineCount() != -1 &&
-                    super.getProxy().getPlayers().size() != BungeeCloudNetHelper.getLastOnlineCount()) {
-                Wrapper.getInstance().publishServiceInfoUpdate();
+            if (BungeeCloudNetHelper.getLastOnlineCount() != -1 && super.getProxy().getPlayers().size() != BungeeCloudNetHelper.getLastOnlineCount()) {
+                Wrapper.getInstance().getCurrentServiceInfoSnapshot().getProperty(BridgeServiceProperty.PLAYERS).ifPresent(players -> {
+                    boolean needsUpdate = false;
+                    for (ServicePlayer player : players) {
+                        if (super.getProxy().getPlayer(player.getUniqueId()) == null) {
+                            needsUpdate = true;
+
+                            BridgeHelper.sendChanelMessageMissingDisconnect(player);
+                            BridgeProxyHelper.clearFallbackProfile(player.getUniqueId());
+                        }
+                    }
+
+                    if (needsUpdate) {
+                        BridgeHelper.updateServiceInfo();
+                    }
+                });
             }
         }, 5, 5, TimeUnit.SECONDS);
     }

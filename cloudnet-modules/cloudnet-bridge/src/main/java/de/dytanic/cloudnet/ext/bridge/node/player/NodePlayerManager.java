@@ -506,7 +506,15 @@ public final class NodePlayerManager extends DefaultPlayerManager implements IPl
         this.logoutPlayer(
                 networkConnectionInfo.getUniqueId(),
                 networkConnectionInfo.getName(),
-                player -> player != null && player.getLoginService().getUniqueId().equals(networkConnectionInfo.getNetworkService().getUniqueId())
+                networkConnectionInfo.getNetworkService()
+        );
+    }
+
+    public void logoutPlayer(UUID uniqueId, String name, NetworkServiceInfo proxy) {
+        this.logoutPlayer(
+                uniqueId,
+                name,
+                player -> player != null && player.getLoginService().getUniqueId().equals(proxy.getUniqueId())
         );
     }
 }
