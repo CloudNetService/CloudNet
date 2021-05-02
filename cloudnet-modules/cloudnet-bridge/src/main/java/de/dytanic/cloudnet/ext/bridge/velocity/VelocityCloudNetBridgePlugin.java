@@ -74,7 +74,7 @@ public final class VelocityCloudNetBridgePlugin {
                         if (!this.proxyServer.getPlayer(player.getUniqueId()).isPresent()) {
                             needsUpdate = true;
 
-                            BridgeHelper.sendChanelMessageMissingDisconnect(player);
+                            BridgeHelper.sendChannelMessageMissingDisconnect(player);
                             BridgeProxyHelper.clearFallbackProfile(player.getUniqueId());
                         }
                     }

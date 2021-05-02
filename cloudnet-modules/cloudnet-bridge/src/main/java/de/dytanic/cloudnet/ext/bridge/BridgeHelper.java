@@ -121,7 +121,7 @@ public final class BridgeHelper {
                 .send();
     }
 
-    public static void sendChanelMessageMissingDisconnect(ServicePlayer player) {
+    public static void sendChannelMessageMissingDisconnect(ServicePlayer player) {
         messageBuilder()
                 .message(BridgeConstants.BRIDGE_EVENT_CHANNEL_MESSAGE_NAME_PROXY_MISSING_DISCONNECT)
                 .buffer(ProtocolBuffer.create().writeUUID(player.getUniqueId())

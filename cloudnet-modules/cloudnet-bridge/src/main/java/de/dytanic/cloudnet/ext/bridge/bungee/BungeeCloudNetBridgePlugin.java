@@ -56,7 +56,7 @@ public final class BungeeCloudNetBridgePlugin extends Plugin {
                         if (super.getProxy().getPlayer(player.getUniqueId()) == null) {
                             needsUpdate = true;
 
-                            BridgeHelper.sendChanelMessageMissingDisconnect(player);
+                            BridgeHelper.sendChannelMessageMissingDisconnect(player);
                             BridgeProxyHelper.clearFallbackProfile(player.getUniqueId());
                         }
                     }
