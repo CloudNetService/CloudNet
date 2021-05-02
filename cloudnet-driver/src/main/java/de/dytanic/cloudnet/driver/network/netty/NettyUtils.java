@@ -25,6 +25,8 @@ import io.netty.util.concurrent.FastThreadLocalThread;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 
 public final class NettyUtils {
@@ -40,16 +42,16 @@ public final class NettyUtils {
     }
 
     public static EventLoopGroup newEventLoopGroup() {
-        int threads = CloudNetDriver.optionalInstance()
-                .filter(cloudNetDriver -> cloudNetDriver.getDriverEnvironment() == DriverEnvironment.CLOUDNET)
-                .map(cloudNetDriver -> 0)
-                .orElse(4);
-
+        int threads = getThreadAmount();
         return Epoll.isAvailable() ?
                 new EpollEventLoopGroup(threads, threadFactory()) :
                 KQueue.isAvailable() ?
                         new KQueueEventLoopGroup(threads, threadFactory()) :
                         new NioEventLoopGroup(threads, threadFactory());
+    }
+
+    public static Executor newPacketDispatcher() {
+        return Executors.newFixedThreadPool(getThreadAmount());
     }
 
     @Deprecated
@@ -157,5 +159,12 @@ public final class NettyUtils {
         byteBuf.readBytes(buffer, 0, integer);
 
         return new String(buffer, StandardCharsets.UTF_8);
+    }
+
+    public static int getThreadAmount() {
+        return CloudNetDriver.optionalInstance()
+                .filter(cloudNetDriver -> cloudNetDriver.getDriverEnvironment() == DriverEnvironment.CLOUDNET)
+                .map(cloudNetDriver -> Runtime.getRuntime().availableProcessors() * 2)
+                .orElse(4);
     }
 }
