@@ -7,11 +7,13 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 
 import java.io.IOException;
+import java.util.concurrent.Executor;
 
 final class NettyNetworkClientHandler extends SimpleChannelInboundHandler<Packet> {
 
     private final HostAndPort connectedAddress;
     private final NettyNetworkClient nettyNetworkClient;
+    private final Executor packetDispatcher = NettyUtils.newPacketDispatcher();
 
     private NettyNetworkChannel channel;
 
@@ -63,12 +65,14 @@ final class NettyNetworkClientHandler extends SimpleChannelInboundHandler<Packet
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, Packet msg) {
-        try {
-            if (this.channel.getHandler() == null || this.channel.getHandler().handlePacketReceive(this.channel, msg)) {
-                this.channel.getPacketRegistry().handlePacket(this.channel, msg);
+        this.packetDispatcher.execute(() -> {
+            try {
+                if (this.channel.getHandler() == null || this.channel.getHandler().handlePacketReceive(this.channel, msg)) {
+                    this.channel.getPacketRegistry().handlePacket(this.channel, msg);
+                }
+            } catch (Exception exception) {
+                CloudNetDriver.getInstance().getLogger().error("Exception whilst handling packet " + msg, exception);
             }
-        } catch (Exception exception) {
-            CloudNetDriver.getInstance().getLogger().error("Exception whilst handling packet " + msg, exception);
-        }
+        });
     }
 }
