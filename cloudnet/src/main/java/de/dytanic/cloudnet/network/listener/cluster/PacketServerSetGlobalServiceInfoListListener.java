@@ -2,6 +2,7 @@ package de.dytanic.cloudnet.network.listener.cluster;
 
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
+import de.dytanic.cloudnet.driver.network.def.packet.PacketClientServerServiceInfoPublisher;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.network.protocol.IPacketListener;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
@@ -16,10 +17,9 @@ public final class PacketServerSetGlobalServiceInfoListListener implements IPack
 
         for (ServiceInfoSnapshot serviceInfoSnapshot : serviceInfoSnapshots) {
             if (serviceInfoSnapshot != null) {
-                CloudNet.getInstance().getCloudServiceManager().getGlobalServiceInfoSnapshots()
-                        .put(serviceInfoSnapshot.getServiceId().getUniqueId(), serviceInfoSnapshot);
+                CloudNet.getInstance().getCloudServiceManager()
+                        .handleServiceUpdate(PacketClientServerServiceInfoPublisher.PublisherType.REGISTER, serviceInfoSnapshot);
             }
         }
     }
-
 }

@@ -91,10 +91,10 @@ final class JVMCloudService extends DefaultMinecraftCloudService implements IClo
     }
 
     @Override
-    public void delete() {
+    public void delete(boolean sendUpdate) {
         try {
             this.lifeCycleLock.lock();
-            this.delete0();
+            this.delete0(sendUpdate);
         } finally {
             this.lifeCycleLock.unlock();
         }
@@ -244,7 +244,7 @@ final class JVMCloudService extends DefaultMinecraftCloudService implements IClo
         return -1;
     }
 
-    private void delete0() {
+    private void delete0(boolean sendUpdate) {
         if (this.lifeCycle == ServiceLifeCycle.DELETED) {
             return;
         }
@@ -253,7 +253,7 @@ final class JVMCloudService extends DefaultMinecraftCloudService implements IClo
             return;
         }
 
-        super.deleteFiles();
+        super.deleteFiles(sendUpdate);
     }
 
     @NotNull

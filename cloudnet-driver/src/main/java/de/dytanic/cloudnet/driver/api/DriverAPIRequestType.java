@@ -53,6 +53,7 @@ public enum DriverAPIRequestType {
 
     // CloudServiceFactory
     CREATE_CLOUD_SERVICE_BY_CONFIGURATION(DriverAPICategory.CLOUD_SERVICE_FACTORY),
+    FORCE_CREATE_CLOUD_SERVICE_BY_CONFIGURATION(DriverAPICategory.CLOUD_SERVICE_FACTORY),
 
     // GeneralCloudServiceProvider
     GET_SERVICES_AS_UNIQUE_ID(DriverAPICategory.GENERAL_CLOUD_SERVICES),

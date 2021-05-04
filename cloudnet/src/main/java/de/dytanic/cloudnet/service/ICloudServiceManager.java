@@ -1,6 +1,7 @@
 package de.dytanic.cloudnet.service;
 
 import de.dytanic.cloudnet.common.concurrent.ITask;
+import de.dytanic.cloudnet.driver.network.def.packet.PacketClientServerServiceInfoPublisher;
 import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import org.jetbrains.annotations.ApiStatus;
@@ -34,6 +35,8 @@ public interface ICloudServiceManager {
     @NotNull
     Map<UUID, ServiceInfoSnapshot> getGlobalServiceInfoSnapshots();
 
+    boolean handleServiceUpdate(@NotNull PacketClientServerServiceInfoPublisher.PublisherType type, @NotNull ServiceInfoSnapshot snapshot);
+
     @NotNull
     Map<UUID, ICloudService> getCloudServices();
 
@@ -48,7 +51,12 @@ public interface ICloudServiceManager {
     ICloudService runTask(@NotNull ServiceConfiguration serviceConfiguration);
 
     @ApiStatus.Internal
-    ITask<ICloudService> createCloudService(@NotNull ServiceConfiguration serviceConfiguration);
+    default ITask<ICloudService> createCloudService(@NotNull ServiceConfiguration serviceConfiguration) {
+        return this.createCloudService(serviceConfiguration, null);
+    }
+
+    @ApiStatus.Internal
+    ITask<ICloudService> createCloudService(@NotNull ServiceConfiguration serviceConfiguration, @Nullable Long timeoutMillis);
 
     void startAllCloudServices();
 

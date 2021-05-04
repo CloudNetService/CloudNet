@@ -9,9 +9,12 @@ import org.jetbrains.annotations.ApiStatus;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.concurrent.Executor;
 
 @ApiStatus.Internal
 public abstract class NettyNetworkHandler extends SimpleChannelInboundHandler<Packet> {
+
+    private final Executor packetDispatcher = NettyUtils.newPacketDispatcher();
 
     protected NettyNetworkChannel channel;
 
@@ -43,12 +46,14 @@ public abstract class NettyNetworkHandler extends SimpleChannelInboundHandler<Pa
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, Packet msg) {
-        try {
-            if (this.channel.getHandler() == null || this.channel.getHandler().handlePacketReceive(this.channel, msg)) {
-                this.channel.getPacketRegistry().handlePacket(this.channel, msg);
+        this.packetDispatcher.execute(() -> {
+            try {
+                if (this.channel.getHandler() == null || this.channel.getHandler().handlePacketReceive(this.channel, msg)) {
+                    this.channel.getPacketRegistry().handlePacket(this.channel, msg);
+                }
+            } catch (Exception exception) {
+                CloudNetDriver.getInstance().getLogger().error("Exception whilst handling packet " + msg, exception);
             }
-        } catch (Exception exception) {
-            CloudNetDriver.getInstance().getLogger().error("Exception whilst handling packet " + msg, exception);
-        }
+        });
     }
 }

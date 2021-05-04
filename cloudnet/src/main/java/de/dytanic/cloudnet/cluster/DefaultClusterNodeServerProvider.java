@@ -1,61 +1,54 @@
 package de.dytanic.cloudnet.cluster;
 
 import com.google.common.base.Preconditions;
+import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkCluster;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
+import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
 import de.dytanic.cloudnet.driver.network.def.PacketConstants;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.network.protocol.chunk.ChunkedPacketBuilder;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.DecimalFormat;
+import java.text.Format;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public final class DefaultClusterNodeServerProvider implements IClusterNodeServerProvider {
+public final class DefaultClusterNodeServerProvider extends DefaultNodeServerProvider<IClusterNodeServer> implements IClusterNodeServerProvider {
 
-    protected final Map<String, IClusterNodeServer> servers = new ConcurrentHashMap<>();
+    private static final Format TIME_FORMAT = new DecimalFormat("##.###");
+    private static final long MAX_NO_UPDATE_MILLIS = Long.getLong("cloudnet.max.node.idle.millis", 30_000);
 
-    @Override
-    public Collection<IClusterNodeServer> getNodeServers() {
-        return this.servers.values();
-    }
+    public DefaultClusterNodeServerProvider(CloudNet cloudNet) {
+        super(cloudNet);
 
-    @Override
-    public Collection<INetworkChannel> getConnectedChannels() {
-        return this.getNodeServers().stream()
-                .map(IClusterNodeServer::getChannel)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public boolean hasAnyConnection() {
-        return !this.servers.isEmpty() && this.servers.values().stream().anyMatch(IClusterNodeServer::isConnected);
-    }
-
-    @Nullable
-    @Override
-    public IClusterNodeServer getNodeServer(@NotNull String uniqueId) {
-        Preconditions.checkNotNull(uniqueId);
-
-        return this.servers.get(uniqueId);
+        cloudNet.getTaskExecutor().scheduleAtFixedRate(() -> {
+            try {
+                cloudNet.publishNetworkClusterNodeInfoSnapshotUpdate();
+                this.checkForDeadNodes();
+            } catch (Throwable throwable) {
+                cloudNet.getLogger().error("Exception while ticking node server provider", throwable);
+            }
+        }, 1, 1, TimeUnit.SECONDS);
     }
 
     @Override
     public IClusterNodeServer getNodeServer(@NotNull INetworkChannel channel) {
         Preconditions.checkNotNull(channel);
 
-        for (IClusterNodeServer clusterNodeServer : this.servers.values()) {
+        for (IClusterNodeServer clusterNodeServer : this.getNodeServers()) {
             if (clusterNodeServer.getChannel() != null && clusterNodeServer.getChannel().getChannelId() == channel.getChannelId()) {
                 return clusterNodeServer;
             }
@@ -67,20 +60,22 @@ public final class DefaultClusterNodeServerProvider implements IClusterNodeServe
     @Override
     public void setClusterServers(@NotNull NetworkCluster networkCluster) {
         for (NetworkClusterNode clusterNode : networkCluster.getNodes()) {
-            if (this.servers.containsKey(clusterNode.getUniqueId())) {
-                this.servers.get(clusterNode.getUniqueId()).setNodeInfo(clusterNode);
+            NodeServer nodeServer = this.getNodeServer(clusterNode.getUniqueId());
+            if (nodeServer != null) {
+                nodeServer.setNodeInfo(clusterNode);
             } else {
-                this.servers.put(clusterNode.getUniqueId(), new DefaultClusterNodeServer(this, clusterNode));
+                this.nodeServers.add(new DefaultClusterNodeServer(this, clusterNode));
             }
         }
 
-        for (IClusterNodeServer clusterNodeServer : this.servers.values()) {
-            NetworkClusterNode node = networkCluster.getNodes().stream()
+        for (IClusterNodeServer clusterNodeServer : this.nodeServers) {
+            NetworkClusterNode node = networkCluster.getNodes()
+                    .stream()
                     .filter(networkClusterNode -> networkClusterNode.getUniqueId().equalsIgnoreCase(clusterNodeServer.getNodeInfo().getUniqueId()))
-                    .findFirst().orElse(null);
-
+                    .findFirst()
+                    .orElse(null);
             if (node == null) {
-                this.servers.remove(clusterNodeServer.getNodeInfo().getUniqueId());
+                this.nodeServers.removeIf(n -> n.getNodeInfo().getUniqueId().equals(clusterNodeServer.getNodeInfo().getUniqueId()));
             }
         }
     }
@@ -89,7 +84,7 @@ public final class DefaultClusterNodeServerProvider implements IClusterNodeServe
     public void sendPacket(@NotNull IPacket packet) {
         Preconditions.checkNotNull(packet);
 
-        for (IClusterNodeServer nodeServer : this.servers.values()) {
+        for (IClusterNodeServer nodeServer : this.nodeServers) {
             nodeServer.saveSendPacket(packet);
         }
     }
@@ -98,51 +93,75 @@ public final class DefaultClusterNodeServerProvider implements IClusterNodeServe
     public void sendPacketSync(@NotNull IPacket packet) {
         Preconditions.checkNotNull(packet);
 
-        for (IClusterNodeServer nodeServer : this.servers.values()) {
+        for (IClusterNodeServer nodeServer : this.nodeServers) {
             nodeServer.saveSendPacketSync(packet);
         }
     }
 
     @Override
-    public void deployTemplateInCluster(@NotNull ServiceTemplate serviceTemplate, @NotNull byte[] zipResource) {
-        this.deployTemplateInCluster(serviceTemplate, new ByteArrayInputStream(zipResource));
+    public void deployTemplateInCluster(@NotNull ServiceTemplate serviceTemplate, @NotNull InputStream inputStream) {
+        if (!this.nodeServers.isEmpty()) {
+            Collection<INetworkChannel> channels = this.nodeServers
+                    .stream()
+                    .filter(IClusterNodeServer::isConnected)
+                    .map(IClusterNodeServer::getChannel)
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
+
+            try {
+                JsonDocument header = JsonDocument.newDocument()
+                        .append("template", serviceTemplate)
+                        .append("preClear", true);
+
+                ChunkedPacketBuilder.newBuilder(PacketConstants.CLUSTER_TEMPLATE_DEPLOY_CHANNEL, inputStream)
+                        .header(header)
+                        .target(channels)
+                        .complete();
+            } catch (IOException exception) {
+                exception.printStackTrace();
+            }
+        }
     }
 
     @Override
-    public void deployTemplateInCluster(@NotNull ServiceTemplate serviceTemplate, @NotNull InputStream inputStream) {
-        if (this.servers.values().stream().noneMatch(IClusterNodeServer::isConnected)) {
-            return;
-        }
-
-        Collection<INetworkChannel> channels = this.servers
-                .values()
-                .stream()
-                .map(IClusterNodeServer::getChannel)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
-
-        try {
-            JsonDocument header = JsonDocument.newDocument().append("template", serviceTemplate).append("preClear", true);
-
-            ChunkedPacketBuilder.newBuilder(PacketConstants.CLUSTER_TEMPLATE_DEPLOY_CHANNEL, inputStream)
-                    .header(header)
-                    .target(channels)
-                    .complete();
-        } catch (IOException exception) {
-            exception.printStackTrace();
+    public void checkForDeadNodes() {
+        for (IClusterNodeServer nodeServer : this.nodeServers) {
+            if (nodeServer.isAvailable()) {
+                NetworkClusterNodeInfoSnapshot snapshot = nodeServer.getNodeInfoSnapshot();
+                if (snapshot != null && snapshot.getCreationTime() + MAX_NO_UPDATE_MILLIS < System.currentTimeMillis()) {
+                    try {
+                        System.out.println(LanguageManager.getMessage("cluster-server-idling-too-long")
+                                .replace("%id%", nodeServer.getNodeInfo().getUniqueId())
+                                .replace("%time%", TIME_FORMAT.format((System.currentTimeMillis() - snapshot.getCreationTime()) / 1000))
+                        );
+                        nodeServer.close();
+                    } catch (Exception exception) {
+                        exception.printStackTrace();
+                    }
+                }
+            }
         }
     }
 
     @Override
     public void close() throws Exception {
-        for (IClusterNodeServer clusterNodeServer : this.servers.values()) {
+        for (IClusterNodeServer clusterNodeServer : this.nodeServers) {
             clusterNodeServer.close();
         }
 
-        this.servers.clear();
+        this.nodeServers.clear();
+        this.refreshHeadNode();
     }
 
+    /**
+     * Gets all nodes servers as unique-id - server map.
+     *
+     * @return all nodes servers as unique-id - server map.
+     * @deprecated currently mapped, use {@link #getNodeServers()} instead.
+     */
+    @Deprecated
+    @ApiStatus.ScheduledForRemoval
     public Map<String, IClusterNodeServer> getServers() {
-        return this.servers;
+        return this.nodeServers.stream().collect(Collectors.toMap(server -> server.getNodeInfo().getUniqueId(), Function.identity()));
     }
 }

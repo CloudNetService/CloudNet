@@ -3,13 +3,17 @@ package de.dytanic.cloudnet.provider.service;
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.cluster.IClusterNodeServer;
+import de.dytanic.cloudnet.cluster.LocalNodeServer;
+import de.dytanic.cloudnet.cluster.NodeServer;
 import de.dytanic.cloudnet.common.concurrent.ITask;
-import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
+import de.dytanic.cloudnet.driver.api.DriverAPIRequestType;
+import de.dytanic.cloudnet.driver.network.def.packet.PacketClientDriverAPI;
 import de.dytanic.cloudnet.driver.provider.service.CloudServiceFactory;
 import de.dytanic.cloudnet.driver.provider.service.DefaultCloudServiceFactory;
 import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.service.ICloudService;
+import de.dytanic.cloudnet.service.defaults.DefaultCloudServiceManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -20,9 +24,11 @@ import java.util.concurrent.TimeUnit;
 public class NodeCloudServiceFactory extends DefaultCloudServiceFactory implements CloudServiceFactory {
 
     private final CloudNet cloudNet;
+    private final DefaultCloudServiceManager cloudServiceManager;
 
-    public NodeCloudServiceFactory(CloudNet cloudNet) {
+    public NodeCloudServiceFactory(CloudNet cloudNet, DefaultCloudServiceManager cloudServiceManager) {
         this.cloudNet = cloudNet;
+        this.cloudServiceManager = cloudServiceManager;
     }
 
     @Nullable
@@ -30,32 +36,16 @@ public class NodeCloudServiceFactory extends DefaultCloudServiceFactory implemen
     public ServiceInfoSnapshot createCloudService(ServiceConfiguration serviceConfiguration) {
         Preconditions.checkNotNull(serviceConfiguration);
 
-        String node = serviceConfiguration.getServiceId().getNodeUniqueId();
-        if (node == null) {
-            Collection<String> allowedNodes = serviceConfiguration.getServiceId().getAllowedNodes();
-            if (allowedNodes == null) {
-                allowedNodes = Collections.emptyList();
+        if (this.cloudNet.getClusterNodeServerProvider().getSelfNode().isHeadNode()) {
+            if (this.cloudNet.isMainThread()) {
+                return this.createCloudServiceAsHeadNode(serviceConfiguration);
+            } else {
+                return this.cloudNet.runTask(() -> this.createCloudServiceAsHeadNode(serviceConfiguration)).get(5, TimeUnit.SECONDS, null);
             }
-            NetworkClusterNodeInfoSnapshot snapshot = this.cloudNet.searchLogicNode(allowedNodes);
-            if (snapshot == null) {
-                return null;
-            }
-
-            node = snapshot.getNode().getUniqueId();
-        }
-
-        if (this.cloudNet.getConfig().getIdentity().getUniqueId().equals(node)) {
-            ICloudService cloudService = this.cloudNet.getCloudServiceManager().createCloudService(serviceConfiguration).get(5, TimeUnit.SECONDS, null);
-            return cloudService != null ? cloudService.getServiceInfoSnapshot() : null;
         } else {
-            IClusterNodeServer server = this.cloudNet.getClusterNodeServerProvider().getNodeServer(node);
-
-            if (server != null && server.isConnected()) {
-                return server.getCloudServiceFactory().createCloudService(serviceConfiguration);
-            }
+            return this.cloudNet.getClusterNodeServerProvider().getHeadNode()
+                    .getCloudServiceFactory().createCloudService(serviceConfiguration);
         }
-
-        return null;
     }
 
     @Override
@@ -63,4 +53,48 @@ public class NodeCloudServiceFactory extends DefaultCloudServiceFactory implemen
         return this.cloudNet.scheduleTask(() -> this.createCloudService(serviceConfiguration));
     }
 
+    private ServiceInfoSnapshot createCloudServiceAsHeadNode(ServiceConfiguration serviceConfiguration) {
+        NodeServer nodeServer;
+        if (serviceConfiguration.getServiceId().getNodeUniqueId() == null) {
+            Collection<String> allowedNodes = serviceConfiguration.getServiceId().getAllowedNodes();
+            if (allowedNodes == null) {
+                allowedNodes = Collections.emptySet();
+            }
+
+            nodeServer = this.cloudNet.searchLogicNodeServer(allowedNodes, serviceConfiguration.getProcessConfig().getMaxHeapMemorySize());
+        } else {
+            String nodeUniqueId = serviceConfiguration.getServiceId().getNodeUniqueId();
+            if (this.cloudNet.getClusterNodeServerProvider().getSelfNode().getNodeInfo().getUniqueId().equals(nodeUniqueId)) {
+                nodeServer = this.cloudNet.getClusterNodeServerProvider().getSelfNode();
+            } else {
+                nodeServer = this.cloudNet.getClusterNodeServerProvider().getNodeServer(nodeUniqueId);
+            }
+        }
+
+        if (nodeServer != null && nodeServer.isAvailable()) {
+            this.cloudServiceManager.prepareServiceConfiguration(nodeServer, serviceConfiguration);
+            nodeServer.getNodeInfoSnapshot().addReservedMemory(serviceConfiguration.getProcessConfig().getMaxHeapMemorySize());
+
+            ServiceInfoSnapshot snapshot;
+            if (nodeServer instanceof LocalNodeServer) {
+                ICloudService cloudService = this.cloudNet.getCloudServiceManager()
+                        .createCloudService(serviceConfiguration)
+                        .get(5, TimeUnit.SECONDS, null);
+                snapshot = cloudService != null ? cloudService.getServiceInfoSnapshot() : null;
+            } else if (nodeServer instanceof IClusterNodeServer) {
+                snapshot = ((IClusterNodeServer) nodeServer).getChannel().sendQueryAsync(new PacketClientDriverAPI(
+                        DriverAPIRequestType.FORCE_CREATE_CLOUD_SERVICE_BY_CONFIGURATION,
+                        buffer -> buffer.writeObject(serviceConfiguration)
+                ))
+                        .map(packet -> packet.getBuffer().readOptionalObject(ServiceInfoSnapshot.class))
+                        .get(6, TimeUnit.SECONDS, null);
+            } else {
+                return null;
+            }
+
+            return snapshot;
+        }
+
+        return null;
+    }
 }
