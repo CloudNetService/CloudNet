@@ -1,17 +1,23 @@
 package de.dytanic.cloudnet;
 
+import de.dytanic.cloudnet.cluster.NodeServer;
+import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.concurrent.ListenableTask;
+import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
 import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
 import de.dytanic.cloudnet.driver.service.ServiceTask;
 import de.dytanic.cloudnet.event.instance.CloudNetTickEvent;
-import de.dytanic.cloudnet.service.ICloudService;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
+import java.util.Comparator;
+import java.util.Map;
 import java.util.Queue;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.stream.Collectors;
@@ -19,44 +25,41 @@ import java.util.stream.Collectors;
 public class CloudNetTick {
 
     public static final int TPS = CloudNet.TPS;
-
-    @NotNull
-    private final Queue<ITask<?>> processQueue = new ConcurrentLinkedQueue<>();
+    public static final int MILLIS_BETWEEN_TICKS = 1000 / TPS;
 
     private final CloudNet cloudNet;
+    private final Queue<ITask<?>> processQueue = new ConcurrentLinkedQueue<>();
 
     public CloudNetTick(CloudNet cloudNet) {
         this.cloudNet = cloudNet;
     }
 
     @NotNull
-    public <T> ITask<T> runTask(Callable<T> runnable) {
-        ITask<T> task = new ListenableTask<>(runnable);
-
+    public <T> ITask<T> runTask(@NotNull Callable<T> callable) {
+        ITask<T> task = new ListenableTask<>(callable);
         this.processQueue.offer(task);
         return task;
     }
 
     public void start() {
-        long value = System.currentTimeMillis();
-        long millis = 1000 / TPS;
-
-        int launchServicesTick = 0;
-        int clusterUpdateTick = 0;
+        long lastTickLength;
+        long currentTickNumber = 0;
+        long lastTick = System.currentTimeMillis();
 
         while (this.cloudNet.isRunning()) {
             try {
-                long diff = System.currentTimeMillis() - value;
-                if (diff < millis) {
+                currentTickNumber++;
+
+                lastTickLength = System.currentTimeMillis() - lastTick;
+                if (lastTickLength < MILLIS_BETWEEN_TICKS) {
                     try {
-                        Thread.sleep(millis - diff);
+                        Thread.sleep(MILLIS_BETWEEN_TICKS - lastTickLength);
                     } catch (Exception exception) {
                         exception.printStackTrace();
                     }
                 }
 
-                value = System.currentTimeMillis();
-
+                lastTick = System.currentTimeMillis();
                 while (!this.processQueue.isEmpty()) {
                     ITask<?> task = this.processQueue.poll();
                     if (task != null) {
@@ -64,18 +67,11 @@ public class CloudNetTick {
                     }
                 }
 
-                if (++clusterUpdateTick >= TPS) {
-                    this.cloudNet.publishNetworkClusterNodeInfoSnapshotUpdate();
-                    clusterUpdateTick = 0;
+                if (this.cloudNet.getClusterNodeServerProvider().getSelfNode().isHeadNode()) {
+                    if (currentTickNumber % TPS * 2 == 0) {
+                        this.startService();
+                    }
                 }
-
-                if (++launchServicesTick >= TPS * 2) {
-                    this.startService();
-                    launchServicesTick = 0;
-                }
-
-                this.stopDeadServices();
-                this.updateServiceLogs();
 
                 this.cloudNet.getEventManager().callEvent(new CloudNetTickEvent());
             } catch (Exception exception) {
@@ -93,68 +89,56 @@ public class CloudNetTick {
                         .filter(taskService -> taskService.getLifeCycle() == ServiceLifeCycle.RUNNING)
                         .count();
 
-                if (this.cloudNet.canStartServices(serviceTask) && serviceTask.getMinServiceCount() > runningServicesCount) {
+                if (serviceTask.getMinServiceCount() > runningServicesCount) {
                     // checking if there is a prepared service that can be started instead of creating a new service
-                    if (this.startPreparedService(serviceTask.getName(), taskServices)) {
+                    if (this.startPreparedService(taskServices)) {
                         return;
                     }
-
-                    if (this.cloudNet.competeWithCluster(serviceTask)) {
-                        // this is the best node to create and start a new service
-                        this.cloudNet.getCloudServiceManager().createCloudService(ServiceConfiguration.builder(serviceTask).build()).onComplete(cloudService -> {
-                            if (cloudService != null) {
-                                try {
-                                    cloudService.start();
-                                } catch (Exception exception) {
-                                    exception.printStackTrace();
-                                }
-                            }
-                        });
+                    // start a new service if no service is available
+                    NodeServer nodeServer = this.cloudNet.searchLogicNodeServer(serviceTask);
+                    if (nodeServer != null) {
+                        // found the best node server to start the service on
+                        nodeServer.getCloudServiceFactory()
+                                .createCloudServiceAsync(ServiceConfiguration.builder(serviceTask).build())
+                                .onComplete(snapshot -> this.startPreparedService(nodeServer, snapshot));
                     }
                 }
             }
         }
     }
 
-
-    private boolean startPreparedService(String taskName, Collection<ServiceInfoSnapshot> taskServices) {
-        Collection<String> preparedServiceNodeUniqueIds = taskServices.stream()
+    private boolean startPreparedService(@NotNull Collection<ServiceInfoSnapshot> taskServices) {
+        Map<String, Set<ServiceInfoSnapshot>> preparedServices = taskServices.stream()
                 .filter(taskService -> taskService.getLifeCycle() == ServiceLifeCycle.PREPARED)
-                .map(taskService -> taskService.getServiceId().getNodeUniqueId())
-                .collect(Collectors.toSet());
+                .collect(Collectors.groupingBy(info -> info.getServiceId().getNodeUniqueId(), Collectors.toSet()));
 
-        boolean servicesPrepared = !preparedServiceNodeUniqueIds.isEmpty();
-
-        if (servicesPrepared && this.cloudNet.competeWithCluster(preparedServiceNodeUniqueIds)) {
-            // this is the best node to start one of the prepared services
-            this.cloudNet.getCloudServiceManager().getLocalCloudServices(taskName)
-                    .stream()
-                    .filter(cloudService -> cloudService.getLifeCycle() == ServiceLifeCycle.PREPARED)
-                    .findFirst()
-                    .ifPresent(cloudService -> {
-                        try {
-                            cloudService.start();
-                        } catch (Exception exception) {
-                            exception.printStackTrace();
-                        }
-                    });
-        }
-
-        return servicesPrepared;
-    }
-
-    private void stopDeadServices() {
-        for (ICloudService cloudService : this.cloudNet.getCloudServiceManager().getCloudServices().values()) {
-            if (!cloudService.isAlive()) {
-                cloudService.stop();
+        if (!preparedServices.isEmpty()) {
+            Pair<NodeServer, Set<ServiceInfoSnapshot>> logicServices = this.cloudNet.searchLogicNodeServer(preparedServices);
+            if (logicServices != null && !logicServices.getSecond().isEmpty()) {
+                Set<ServiceInfoSnapshot> services = logicServices.getSecond();
+                if (services.size() == 1) {
+                    return this.startPreparedService(logicServices.getFirst(), services.iterator().next());
+                } else {
+                    ServiceInfoSnapshot snapshot = services.stream()
+                            .min(Comparator.comparingInt(info -> info.getServiceId().getTaskServiceId()))
+                            .orElse(null);
+                    if (snapshot != null) {
+                        return this.startPreparedService(logicServices.getFirst(), snapshot);
+                    }
+                }
             }
         }
+        return false;
     }
 
-    private void updateServiceLogs() {
-        for (ICloudService cloudService : this.cloudNet.getCloudServiceManager().getCloudServices().values()) {
-            cloudService.getServiceConsoleLogCache().update();
+    private boolean startPreparedService(@NotNull NodeServer nodeServer, @Nullable ServiceInfoSnapshot snapshot) {
+        if (snapshot != null) {
+            SpecificCloudServiceProvider provider = nodeServer.getCloudServiceProvider(snapshot);
+            if (provider != null) {
+                provider.start();
+                return true;
+            }
         }
+        return false;
     }
-
 }
