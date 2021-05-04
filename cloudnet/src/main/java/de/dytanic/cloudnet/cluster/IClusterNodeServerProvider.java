@@ -9,6 +9,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.util.Collection;
 
 /**
  * Represents the full management of all nodes of the cluster.
@@ -51,6 +52,20 @@ public interface IClusterNodeServerProvider extends NodeServerProvider<IClusterN
      * @param inputStream     the template data as a zip archive
      */
     void deployTemplateInCluster(@NotNull ServiceTemplate serviceTemplate, @NotNull InputStream inputStream);
+
+    /**
+     * Get all node server network channels which are currently connected and recognized by this provider.
+     *
+     * @return all node server network channels which are currently connected.
+     */
+    Collection<INetworkChannel> getConnectedChannels();
+
+    /**
+     * Get whether any other node is connected with this node.
+     *
+     * @return whether any other node is connected with this node.
+     */
+    boolean hasAnyConnection();
 
     /**
      * Checks if all nodes had sent a node snapshot update recently or disconnects them.
