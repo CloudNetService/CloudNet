@@ -14,11 +14,9 @@ import org.bukkit.event.player.PlayerQuitEvent;
 
 public final class BukkitCloudNetCloudPermissionsPlayerListener implements Listener {
 
-    private final BukkitCloudNetCloudPermissionsPlugin plugin;
     private final IPermissionManagement permissionsManagement;
 
-    public BukkitCloudNetCloudPermissionsPlayerListener(BukkitCloudNetCloudPermissionsPlugin plugin, IPermissionManagement permissionsManagement) {
-        this.plugin = plugin;
+    public BukkitCloudNetCloudPermissionsPlayerListener(IPermissionManagement permissionsManagement) {
         this.permissionsManagement = permissionsManagement;
     }
 
@@ -30,7 +28,7 @@ public final class BukkitCloudNetCloudPermissionsPlayerListener implements Liste
                 event.setKickMessage(ChatColor.translateAlternateColorCodes('&', message));
             }, Bukkit.getOnlineMode());
 
-            plugin.injectCloudPermissible(event.getPlayer());
+            BukkitCloudNetCloudPermissionsPlugin.getInstance().injectCloudPermissible(event.getPlayer());
         }
     }
 
