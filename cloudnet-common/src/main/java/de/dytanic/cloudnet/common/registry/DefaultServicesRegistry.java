@@ -1,6 +1,10 @@
 package de.dytanic.cloudnet.common.registry;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -24,11 +28,8 @@ public class DefaultServicesRegistry implements IServicesRegistry {
             return this;
         }
 
-        if (!this.providedServices.containsKey(clazz)) {
-            this.providedServices.put(clazz, new CopyOnWriteArrayList<>());
-        }
-
-        this.providedServices.get(clazz).add(new RegistryEntry<>(name, service));
+        this.providedServices.computeIfAbsent(clazz, c -> new CopyOnWriteArrayList<>())
+                .add(new RegistryEntry<>(name, service));
         return this;
     }
 
