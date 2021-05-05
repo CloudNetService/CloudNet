@@ -23,7 +23,7 @@ public final class H2Database extends SQLDatabase {
         Preconditions.checkNotNull(document);
 
         return this.databaseProvider.executeUpdate(
-                "MERGE INTO `" + this.name + "` (" + TABLE_COLUMN_KEY + "," + TABLE_COLUMN_VALUE + ") VALUES (?, ?);",
+                String.format("MERGE INTO `%s` (%s, %s) VALUES (?, ?);", this.name, TABLE_COLUMN_KEY, TABLE_COLUMN_VALUE),
                 key, document.toString()
         ) != -1;
     }
