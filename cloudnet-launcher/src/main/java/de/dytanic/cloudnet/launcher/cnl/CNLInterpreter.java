@@ -85,9 +85,9 @@ public class CNLInterpreter {
                 List<String> list = Arrays.asList(commandLine.replaceFirst(name + " ", "").split(" "));
                 list.replaceAll(text -> {
 
-                    for (String variable : variables.keySet()) {
-                        if (text.contains("$" + variable)) {
-                            text = text.replace("$" + variable, variables.get(variable));
+                    for (Map.Entry<String, String> entry : variables.entrySet()) {
+                        if (text.contains("$" + entry.getKey())) {
+                            text = text.replace("$" + entry.getKey(), entry.getValue());
                         }
                     }
 
