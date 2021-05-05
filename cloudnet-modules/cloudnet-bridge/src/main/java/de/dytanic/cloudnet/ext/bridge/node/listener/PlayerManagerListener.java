@@ -30,9 +30,24 @@ public final class PlayerManagerListener {
 
     @EventListener
     public void handle(CloudServiceStopEvent event) {
-        for (ICloudPlayer cloudPlayer : this.nodePlayerManager.getOnlineCloudPlayers().values()) {
-            if (cloudPlayer.getLoginService() != null && cloudPlayer.getLoginService().getUniqueId().equals(event.getServiceInfo().getServiceId().getUniqueId())) {
-                this.nodePlayerManager.getOnlineCloudPlayers().remove(cloudPlayer.getUniqueId());
+        UUID serviceId = event.getServiceInfo().getServiceId().getUniqueId();
+        for (CloudPlayer cloudPlayer : this.nodePlayerManager.getOnlineCloudPlayers().values()) {
+            if (cloudPlayer.getLoginService() == null) {
+                continue;
+            }
+
+            if (cloudPlayer.getLoginService().getEnvironment().isMinecraftProxy()) {
+                if (cloudPlayer.getLoginService().getUniqueId().equals(serviceId)) {
+                    this.nodePlayerManager.logoutPlayer(cloudPlayer);
+                }
+                continue;
+            }
+
+            UUID connectedServiceId = cloudPlayer.getLoginService().getUniqueId();
+            if (cloudPlayer.getConnectedService() != null
+                    && connectedServiceId.equals(serviceId)
+                    && cloudPlayer.getLoginService().getServiceId().getUniqueId().equals(connectedServiceId)) {
+                this.nodePlayerManager.logoutPlayer(cloudPlayer);
             }
         }
     }

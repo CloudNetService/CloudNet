@@ -342,6 +342,16 @@ public final class NodePlayerManager extends DefaultPlayerManager implements IPl
     }
 
     public void loginPlayer(NetworkConnectionInfo networkConnectionInfo, NetworkPlayerServerInfo networkPlayerServerInfo) {
+        // ensure that we handle only one login message at a time
+        Lock loginLock = this.loginLocks.get(networkConnectionInfo.getUniqueId());
+        try {
+            this.loginPlayer0(networkConnectionInfo, networkPlayerServerInfo);
+        } finally {
+            loginLock.unlock();
+        }
+    }
+
+    private void loginPlayer0(NetworkConnectionInfo networkConnectionInfo, NetworkPlayerServerInfo networkPlayerServerInfo) {
         NetworkServiceInfo networkService = networkConnectionInfo.getNetworkService();
         CloudPlayer cloudPlayer = this.selectPlayerForLogin(networkConnectionInfo, networkPlayerServerInfo);
         // we can always update the name to keep it synced
@@ -372,42 +382,35 @@ public final class NodePlayerManager extends DefaultPlayerManager implements IPl
     }
 
     protected CloudPlayer selectPlayerForLogin(NetworkConnectionInfo connectionInfo, NetworkPlayerServerInfo networkPlayerServerInfo) {
-        Lock loginLock = this.loginLocks.get(connectionInfo.getUniqueId());
-        try {
-            // ensure that only one player get selected at a time
-            loginLock.lock();
-            // check if the player is already loaded
-            CloudPlayer cloudPlayer = this.getOnlinePlayer(connectionInfo.getUniqueId());
-            if (cloudPlayer == null) {
-                // try to load the player using the name and the login service
-                for (CloudPlayer player : this.getOnlineCloudPlayers().values()) {
-                    if (player.getName().equals(connectionInfo.getName())
-                            && player.getLoginService() != null
-                            && player.getLoginService().getUniqueId().equals(connectionInfo.getNetworkService().getUniqueId())) {
-                        cloudPlayer = player;
-                        break;
-                    }
-                }
-                // there is no loaded player, so try to load it using the offline association
-                if (cloudPlayer == null) {
-                    ICloudOfflinePlayer cloudOfflinePlayer = this.getOrRegisterOfflinePlayer(connectionInfo);
-
-                    cloudPlayer = new CloudPlayer(
-                            cloudOfflinePlayer,
-                            connectionInfo.getNetworkService(),
-                            connectionInfo.getNetworkService(),
-                            connectionInfo,
-                            networkPlayerServerInfo
-                    );
-                    cloudPlayer.setLastLoginTimeMillis(System.currentTimeMillis());
-
-                    this.getOnlineCloudPlayers().put(cloudPlayer.getUniqueId(), cloudPlayer);
+        // check if the player is already loaded
+        CloudPlayer cloudPlayer = this.getOnlinePlayer(connectionInfo.getUniqueId());
+        if (cloudPlayer == null) {
+            // try to load the player using the name and the login service
+            for (CloudPlayer player : this.getOnlineCloudPlayers().values()) {
+                if (player.getName().equals(connectionInfo.getName())
+                        && player.getLoginService() != null
+                        && player.getLoginService().getUniqueId().equals(connectionInfo.getNetworkService().getUniqueId())) {
+                    cloudPlayer = player;
+                    break;
                 }
             }
-            return cloudPlayer;
-        } finally {
-            loginLock.unlock();
+            // there is no loaded player, so try to load it using the offline association
+            if (cloudPlayer == null) {
+                ICloudOfflinePlayer cloudOfflinePlayer = this.getOrRegisterOfflinePlayer(connectionInfo);
+
+                cloudPlayer = new CloudPlayer(
+                        cloudOfflinePlayer,
+                        connectionInfo.getNetworkService(),
+                        connectionInfo.getNetworkService(),
+                        connectionInfo,
+                        networkPlayerServerInfo
+                );
+                cloudPlayer.setLastLoginTimeMillis(System.currentTimeMillis());
+
+                this.getOnlineCloudPlayers().put(cloudPlayer.getUniqueId(), cloudPlayer);
+            }
         }
+        return cloudPlayer;
     }
 
     protected void processLogin(@NotNull CloudPlayer cloudPlayer) {
