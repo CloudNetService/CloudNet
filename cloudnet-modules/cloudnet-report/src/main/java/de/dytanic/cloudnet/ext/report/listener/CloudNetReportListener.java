@@ -1,14 +1,17 @@
 package de.dytanic.cloudnet.ext.report.listener;
 
+import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.driver.event.Event;
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
+import de.dytanic.cloudnet.event.service.CloudServicePostStopEvent;
 import de.dytanic.cloudnet.event.service.CloudServicePreDeleteEvent;
 import de.dytanic.cloudnet.ext.report.CloudNetReportModule;
 import de.dytanic.cloudnet.service.ICloudService;
+import de.dytanic.cloudnet.service.IServiceConsoleLogCache;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -18,16 +21,48 @@ import java.nio.file.Path;
 
 public final class CloudNetReportListener {
 
+    private final CloudNetReportModule reportModule;
+
+    public CloudNetReportListener(CloudNetReportModule reportModule) {
+        this.reportModule = reportModule;
+    }
+
     @EventListener
     public void handle(Event event) {
-        CloudNetReportModule.getInstance().setEventClass(event.getClass());
+        this.reportModule.setEventClass(event.getClass());
+    }
+
+    @EventListener
+    public void handle(CloudServicePostStopEvent event) {
+        long serviceLifetimeLogPrint = this.reportModule.getConfig().getLong("serviceLifetimeLogPrint", -1L);
+
+        if (serviceLifetimeLogPrint == -1L) {
+            return;
+        }
+
+        ICloudService cloudService = event.getCloudService();
+        long serviceLifetime = System.currentTimeMillis() - cloudService.getServiceInfoSnapshot().getConnectedTime();
+
+        // If the service lifetime is lower than the one specified in the config,
+        // print the log as it might be stopped due to an error
+        if (serviceLifetime <= serviceLifetimeLogPrint) {
+            IServiceConsoleLogCache serviceConsoleLogCache = cloudService.getServiceConsoleLogCache();
+
+            serviceConsoleLogCache.setAutoPrintReceivedInput(true);
+            serviceConsoleLogCache.update();
+            serviceConsoleLogCache.getCachedLogMessages().forEach(message ->
+                    CloudNet.getInstance().getLogger().warning(String.format(
+                            "[%s] %s",
+                            cloudService.getServiceId().getName(),
+                            message)));
+        }
     }
 
     @EventListener
     public void handle(CloudServicePreDeleteEvent event) {
-        if (CloudNetReportModule.getInstance().getConfig().getBoolean("savingRecords")) {
+        if (this.reportModule.getConfig().getBoolean("savingRecords")) {
             String childPath = event.getCloudService().getServiceId().getName() + "." + event.getCloudService().getServiceId().getUniqueId();
-            Path subDir = CloudNetReportModule.getInstance().getRecordsSavingDirectory().resolve(childPath).normalize().toAbsolutePath();
+            Path subDir = this.reportModule.getRecordsSavingDirectory().resolve(childPath).normalize().toAbsolutePath();
 
             if (Files.notExists(subDir)) {
                 FileUtils.createDirectoryReported(subDir);

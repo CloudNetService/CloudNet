@@ -157,10 +157,10 @@ public abstract class DefaultCloudService extends DefaultEmptyCloudService {
             properties = this.serviceInfoSnapshot.getProperties();
         }
         return new ServiceInfoSnapshot(
-                System.currentTimeMillis(),
+                this.serviceInfoSnapshot == null ? System.currentTimeMillis() : this.serviceInfoSnapshot.getCreationTime(),
                 new HostAndPort(CloudNet.getInstance().getConfig().getHostAddress(), this.serviceConfiguration.getPort()),
                 new HostAndPort(CloudNet.getInstance().getConfig().getConnectHostAddress(), this.serviceConfiguration.getPort()),
-                -1,
+                this.serviceInfoSnapshot == null ? -1 : this.serviceInfoSnapshot.getConnectedTime(),
                 lifeCycle,
                 this.serviceInfoSnapshot != null && this.isAlive() ? this.serviceInfoSnapshot.getProcessSnapshot() : ProcessSnapshot.empty(),
                 properties,
