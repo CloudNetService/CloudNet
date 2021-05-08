@@ -58,7 +58,7 @@ public final class NettyPacketLengthDeserializer extends ByteToMessageDecoder {
         @Override
         public boolean process(byte value) throws Exception {
             this.varInt |= (value & 0x7F) << this.bytesRead++ * 7;
-            if (this.bytesRead > 3) {
+            if (this.bytesRead > 5) {
                 this.result = ProcessingResult.TOO_BIG;
                 return false;
             } else if ((value & 0x80) != 128) {
