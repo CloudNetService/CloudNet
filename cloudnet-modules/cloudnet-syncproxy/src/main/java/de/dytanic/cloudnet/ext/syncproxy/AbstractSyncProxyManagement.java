@@ -1,6 +1,7 @@
 package de.dytanic.cloudnet.ext.syncproxy;
 
 import com.google.common.base.Preconditions;
+import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.ext.bridge.BridgeServiceProperty;
 import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyConfiguration;
@@ -12,31 +13,26 @@ import de.dytanic.cloudnet.wrapper.Wrapper;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public abstract class AbstractSyncProxyManagement {
 
     private static final Random RANDOM = new Random();
 
+    protected final Map<UUID, Integer> onlineCountCache = new ConcurrentHashMap<>();
     protected final AtomicInteger tabListEntryIndex = new AtomicInteger(-1);
 
     protected SyncProxyConfiguration syncProxyConfiguration;
-
     protected SyncProxyProxyLoginConfiguration loginConfiguration;
-
     protected SyncProxyTabListConfiguration tabListConfiguration;
 
     protected String tabListHeader;
-
     protected String tabListFooter;
-
-    protected final Map<UUID, Integer> onlineCountCache = new HashMap<>();
-
 
     protected abstract void schedule(Runnable runnable, long millis);
 
@@ -129,6 +125,10 @@ public abstract class AbstractSyncProxyManagement {
         }
     }
 
+    public SyncProxyConfiguration getSyncProxyConfiguration() {
+        return this.syncProxyConfiguration;
+    }
+
     public void setSyncProxyConfiguration(SyncProxyConfiguration syncProxyConfiguration) {
         Preconditions.checkNotNull(syncProxyConfiguration, "SyncProxyConfiguration is null!");
 
@@ -151,8 +151,15 @@ public abstract class AbstractSyncProxyManagement {
         this.checkWhitelist();
     }
 
-    public SyncProxyConfiguration getSyncProxyConfiguration() {
-        return this.syncProxyConfiguration;
+    protected void initialize() {
+        this.setSyncProxyConfiguration(SyncProxyConfiguration.getConfigurationFromNode());
+        CloudNetDriver.getInstance().getCloudServiceProvider().getCloudServicesAsync().onComplete(services -> {
+            for (ServiceInfoSnapshot service : services) {
+                if (service.getServiceId().getEnvironment().isMinecraftProxy() && this.inGroup(service)) {
+                    this.updateServiceOnlineCount(service);
+                }
+            }
+        });
     }
 
     @Nullable
