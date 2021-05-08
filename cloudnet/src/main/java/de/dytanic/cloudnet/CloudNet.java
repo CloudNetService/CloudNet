@@ -244,8 +244,8 @@ public final class CloudNet extends CloudNetDriver {
         boolean configFileAvailable = this.config.isFileExists();
         this.config.load();
 
-        this.clusterNodeServerProvider = new DefaultClusterNodeServerProvider(this);
         this.defaultInstallation.executeFirstStartSetup(this.console, configFileAvailable);
+        this.clusterNodeServerProvider = new DefaultClusterNodeServerProvider(this);
 
         HeaderReader.readAndPrintHeader(this.console);
 
