@@ -5,13 +5,13 @@ import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyConfigurationWri
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.io.File;
+import java.nio.file.Paths;
 
 public final class SyncProxyConfigurationWriterAndReaderTest {
 
     @Test
     public void testWriterAndReader() {
-        SyncProxyConfiguration bungeeConfiguration = SyncProxyConfigurationWriterAndReader.read(new File("build/sync_bungee.json"));
+        SyncProxyConfiguration bungeeConfiguration = SyncProxyConfigurationWriterAndReader.read(Paths.get("build/sync_bungee.json"));
 
         Assert.assertNotNull(bungeeConfiguration);
         Assert.assertNotNull(bungeeConfiguration.getLoginConfigurations());

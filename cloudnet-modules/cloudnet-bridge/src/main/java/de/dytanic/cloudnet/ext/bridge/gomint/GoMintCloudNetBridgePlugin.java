@@ -29,7 +29,7 @@ public final class GoMintCloudNetBridgePlugin extends Plugin {
 
         this.initListeners();
 
-        Wrapper.getInstance().getTaskScheduler().schedule(BridgeHelper::updateServiceInfo);
+        Wrapper.getInstance().getTaskExecutor().execute(BridgeHelper::updateServiceInfo);
 
         this.runFirePingEvent();
     }
@@ -50,30 +50,30 @@ public final class GoMintCloudNetBridgePlugin extends Plugin {
     }
 
     private void runFirePingEvent() {
-        super.getScheduler().schedule(() -> {
+        super.scheduler().schedule(() -> {
             PingEvent pingEvent = new PingEvent(
                     GoMintCloudNetHelper.getMotd(),
-                    GoMint.instance().getPlayers().size(),
+                    GoMint.instance().onlinePlayers().size(),
                     GoMintCloudNetHelper.getMaxPlayers()
             );
 
             boolean hasToUpdate = false;
             boolean value = false;
 
-            GoMint.instance().getPluginManager().callEvent(pingEvent);
-            if (pingEvent.getMotd() != null && !pingEvent.getMotd().equalsIgnoreCase(GoMintCloudNetHelper.getApiMotd())) {
+            GoMint.instance().pluginManager().callEvent(pingEvent);
+            if (pingEvent.motd() != null && !pingEvent.motd().equalsIgnoreCase(BridgeServerHelper.getMotd())) {
                 hasToUpdate = true;
-                GoMintCloudNetHelper.setMotd(pingEvent.getMotd());
-                if (pingEvent.getMotd().toLowerCase().contains("running") ||
-                        pingEvent.getMotd().toLowerCase().contains("ingame") ||
-                        pingEvent.getMotd().toLowerCase().contains("playing")) {
+                GoMintCloudNetHelper.setMotd(pingEvent.motd());
+                if (pingEvent.motd().toLowerCase().contains("running") ||
+                        pingEvent.motd().toLowerCase().contains("ingame") ||
+                        pingEvent.motd().toLowerCase().contains("playing")) {
                     value = true;
                 }
             }
 
-            if (pingEvent.getMaxPlayers() != GoMintCloudNetHelper.getMaxPlayers()) {
+            if (pingEvent.maxPlayers() != GoMintCloudNetHelper.getMaxPlayers()) {
                 hasToUpdate = true;
-                GoMintCloudNetHelper.setMaxPlayers(pingEvent.getMaxPlayers());
+                GoMintCloudNetHelper.setMaxPlayers(pingEvent.maxPlayers());
             }
 
             if (value) {

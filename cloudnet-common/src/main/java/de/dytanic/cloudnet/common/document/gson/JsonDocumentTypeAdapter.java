@@ -9,17 +9,16 @@ import com.google.gson.stream.JsonWriter;
 
 import java.io.IOException;
 
-/**
- * Created by Tareko on 23.12.2017.
- */
 public class JsonDocumentTypeAdapter extends TypeAdapter<JsonDocument> {
 
     @Override
+    @Deprecated // not part of the api
     public void write(JsonWriter jsonWriter, JsonDocument document) throws IOException {
         TypeAdapters.JSON_ELEMENT.write(jsonWriter, document == null ? new JsonObject() : document.jsonObject);
     }
 
     @Override
+    @Deprecated // not part of the api
     public JsonDocument read(JsonReader jsonReader) throws IOException {
         JsonElement jsonElement = TypeAdapters.JSON_ELEMENT.read(jsonReader);
         if (jsonElement != null && jsonElement.isJsonObject()) {

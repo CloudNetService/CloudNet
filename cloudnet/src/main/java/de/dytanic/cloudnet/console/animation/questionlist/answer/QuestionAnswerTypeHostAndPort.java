@@ -1,43 +1,30 @@
 package de.dytanic.cloudnet.console.animation.questionlist.answer;
 
-import com.google.common.net.InetAddresses;
-import de.dytanic.cloudnet.console.animation.questionlist.QuestionAnswerType;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
+import de.dytanic.cloudnet.util.PortValidator;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.net.InetAddress;
-import java.net.URI;
-import java.util.Collection;
+public class QuestionAnswerTypeHostAndPort extends QuestionAnswerTypeValidHostAndPort {
 
-public class QuestionAnswerTypeHostAndPort implements QuestionAnswerType<HostAndPort> {
-
-    @Override
-    public boolean isValidInput(@NotNull String input) {
-        return !input.isEmpty() && this.parse(input) != null;
+    public QuestionAnswerTypeHostAndPort() {
+        super();
     }
 
-    @SuppressWarnings("UnstableApiUsage")
+    public QuestionAnswerTypeHostAndPort(boolean requiresPort) {
+        super(requiresPort);
+    }
+
     @Override
     public @Nullable HostAndPort parse(@NotNull String input) {
-        try {
-            URI uri = URI.create("tcp://" + input);
-
-            String host = uri.getHost();
-            if (host == null) {
-                return null;
-            }
-
-            InetAddress inetAddress = InetAddresses.forUriString(host);
-            return new HostAndPort(inetAddress.getHostAddress(), uri.getPort());
-        } catch (IllegalArgumentException exception) {
+        HostAndPort parsedOutput = super.parse(input);
+        if (parsedOutput == null) {
             return null;
         }
-    }
 
-    @Override
-    public Collection<String> getPossibleAnswers() {
-        return null;
+        boolean valid = this.requiresPort
+                ? PortValidator.checkHost(parsedOutput.getHost(), parsedOutput.getPort())
+                : PortValidator.canAssignAddress(parsedOutput.getHost());
+        return valid ? parsedOutput : null;
     }
-
 }

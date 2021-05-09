@@ -2,6 +2,7 @@ package eu.cloudnetservice.cloudnet.ext.labymod.velocity.listener;
 
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.connection.PluginMessageEvent;
+import com.velocitypowered.api.event.connection.PostLoginEvent;
 import com.velocitypowered.api.event.player.ServerConnectedEvent;
 import com.velocitypowered.api.proxy.Player;
 import eu.cloudnetservice.cloudnet.ext.labymod.AbstractLabyModManagement;
@@ -15,6 +16,11 @@ public class VelocityLabyModListener {
 
     public VelocityLabyModListener(AbstractLabyModManagement labyModManagement) {
         this.labyModManagement = labyModManagement;
+    }
+
+    @Subscribe
+    public void handleLogin(PostLoginEvent event) {
+        this.labyModManagement.sendPermissions(event.getPlayer().getUniqueId());
     }
 
     @Subscribe

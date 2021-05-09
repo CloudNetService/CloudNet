@@ -1,6 +1,5 @@
 package de.dytanic.cloudnet.ext.signs.bukkit.event;
 
-
 import de.dytanic.cloudnet.ext.signs.Sign;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;

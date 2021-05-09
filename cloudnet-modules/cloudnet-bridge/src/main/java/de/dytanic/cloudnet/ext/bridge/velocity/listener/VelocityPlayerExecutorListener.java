@@ -8,9 +8,9 @@ import com.velocitypowered.api.proxy.messages.LegacyChannelIdentifier;
 import com.velocitypowered.api.proxy.server.ServerInfo;
 import de.dytanic.cloudnet.ext.bridge.listener.PlayerExecutorListener;
 import de.dytanic.cloudnet.ext.bridge.velocity.VelocityCloudNetHelper;
-import net.kyori.text.Component;
-import net.kyori.text.serializer.gson.GsonComponentSerializer;
-import net.kyori.text.serializer.legacy.LegacyComponentSerializer;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -43,21 +43,21 @@ public class VelocityPlayerExecutorListener extends PlayerExecutorListener<Playe
 
     @Override
     protected void kick(@NotNull Player player, @NotNull String reason) {
-        player.disconnect(LegacyComponentSerializer.legacy().deserialize(reason));
+        player.disconnect(LegacyComponentSerializer.legacySection().deserialize(reason));
     }
 
     @Override
     protected void sendMessage(@NotNull Player player, @NotNull String message) {
-        player.sendMessage(LegacyComponentSerializer.legacyLinking().deserialize(message));
+        player.sendMessage(LegacyComponentSerializer.legacySection().deserialize(message));
     }
 
     @Override
     protected void sendMessageComponent(@NotNull Player player, @NotNull String data) {
-        player.sendMessage(GsonComponentSerializer.INSTANCE.deserialize(data));
+        player.sendMessage(GsonComponentSerializer.gson().deserialize(data));
     }
 
     @Override
-    protected void sendPluginMessage(@NotNull Player player, @NotNull String tag, @NotNull byte[] data) {
+    protected void sendPluginMessage(@NotNull Player player, @NotNull String tag, byte[] data) {
         ChannelIdentifier identifier = new LegacyChannelIdentifier(tag);
         VelocityCloudNetHelper.getProxyServer().getChannelRegistrar().register(identifier);
         player.sendPluginMessage(identifier, data);
@@ -73,12 +73,12 @@ public class VelocityPlayerExecutorListener extends PlayerExecutorListener<Playe
 
     @Override
     protected void broadcastMessageComponent(@NotNull String data, @Nullable String permission) {
-        this.broadcastMessage(GsonComponentSerializer.INSTANCE.deserialize(data), permission);
+        this.broadcastMessage(GsonComponentSerializer.gson().deserialize(data), permission);
     }
 
     @Override
     protected void broadcastMessage(@NotNull String message, @Nullable String permission) {
-        this.broadcastMessage(LegacyComponentSerializer.legacyLinking().deserialize(message), permission);
+        this.broadcastMessage(LegacyComponentSerializer.legacySection().deserialize(message), permission);
     }
 
     @Override

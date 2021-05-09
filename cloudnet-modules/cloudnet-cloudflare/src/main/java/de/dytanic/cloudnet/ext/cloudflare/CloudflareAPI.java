@@ -9,6 +9,7 @@ import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.database.Database;
 import de.dytanic.cloudnet.ext.cloudflare.dns.DNSRecord;
+import org.jetbrains.annotations.ApiStatus;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -17,10 +18,12 @@ import java.io.InputStream;
 import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+@Deprecated
+@ApiStatus.ScheduledForRemoval
 public final class CloudflareAPI implements AutoCloseable {
 
     private static final String CLOUDFLARE_API_V1 = "https://api.cloudflare.com/client/v4/", CLOUDFLARE_STORE_DOCUMENT = "cloudflare_store";
@@ -133,16 +136,15 @@ public final class CloudflareAPI implements AutoCloseable {
     public void close() {
     }
 
-
     private void read() {
         JsonDocument document = this.database.get(CLOUDFLARE_STORE_DOCUMENT);
 
         if (document == null) {
-            document = new JsonDocument("cache", Collections.EMPTY_MAP);
+            document = new JsonDocument("cache", new HashMap<>());
         }
 
         this.createdRecords.clear();
-        this.createdRecords.putAll(document.get("cache", MAP_STRING_DOCUMENT, Collections.EMPTY_MAP));
+        this.createdRecords.putAll(document.get("cache", MAP_STRING_DOCUMENT, new HashMap<>()));
     }
 
     private void write() {

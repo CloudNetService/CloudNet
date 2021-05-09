@@ -12,7 +12,13 @@ import de.dytanic.cloudnet.common.logging.IFormatter;
 import de.dytanic.cloudnet.common.logging.ILogHandler;
 import de.dytanic.cloudnet.common.unsafe.CPUUsageResolver;
 import de.dytanic.cloudnet.driver.event.Event;
-import de.dytanic.cloudnet.driver.module.*;
+import de.dytanic.cloudnet.driver.module.IModuleProvider;
+import de.dytanic.cloudnet.driver.module.IModuleWrapper;
+import de.dytanic.cloudnet.driver.module.ModuleConfiguration;
+import de.dytanic.cloudnet.driver.module.ModuleDependency;
+import de.dytanic.cloudnet.driver.module.ModuleLifeCycle;
+import de.dytanic.cloudnet.driver.module.ModuleRepository;
+import de.dytanic.cloudnet.driver.module.ModuleTask;
 import de.dytanic.cloudnet.driver.module.driver.DriverModule;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceTask;
@@ -32,6 +38,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,12 +47,9 @@ import java.util.stream.Collectors;
 public final class CloudNetReportModule extends NodeCloudNetModule {
 
     private static CloudNetReportModule instance;
-
-    private volatile Class<? extends Event> eventClass;
-
-    private File savingRecordsDirectory;
-
     private final IFormatter logFormatter = new DefaultLogFormatter();
+    private Path savingRecordsDirectory;
+    private volatile Class<? extends Event> eventClass;
 
     public static CloudNetReportModule getInstance() {
         return CloudNetReportModule.instance;
@@ -61,20 +65,21 @@ public final class CloudNetReportModule extends NodeCloudNetModule {
         this.getConfig().getBoolean("savingRecords", true);
         this.getConfig().getString("recordDestinationDirectory", "records");
         this.getConfig().get("pasteServerType", PasteServerType.class, PasteServerType.HASTE);
-        this.getConfig().getString("pasteServerUrl", "https://hasteb.in");
+        this.getConfig().getString("pasteServerUrl", "https://just-paste.it");
+        this.getConfig().getLong("serviceLifetimeLogPrint", 5000L);
 
         this.saveConfig();
     }
 
     @ModuleTask(order = 126, event = ModuleLifeCycle.STARTED)
     public void initSavingRecordsDirectory() {
-        this.savingRecordsDirectory = new File(this.getModuleWrapper().getDataFolder(), this.getConfig().getString("recordDestinationDirectory"));
-        this.savingRecordsDirectory.mkdirs();
+        this.savingRecordsDirectory = this.getModuleWrapper().getDataDirectory().resolve(this.getConfig().getString("recordDestinationDirectory"));
+        FileUtils.createDirectoryReported(this.savingRecordsDirectory);
     }
 
     @ModuleTask(order = 64, event = ModuleLifeCycle.STARTED)
     public void registerListeners() {
-        this.registerListener(new CloudNetReportListener());
+        this.registerListener(new CloudNetReportListener(this));
     }
 
     @ModuleTask(order = 16, event = ModuleLifeCycle.STARTED)
@@ -87,7 +92,6 @@ public final class CloudNetReportModule extends NodeCloudNetModule {
         String url = this.getConfig().getString("pasteServerUrl");
         return url.endsWith("/") ? url.substring(0, url.length() - 1) : url;
     }
-
 
     public String executePaste(String content) {
         Preconditions.checkNotNull(content);
@@ -122,7 +126,6 @@ public final class CloudNetReportModule extends NodeCloudNetModule {
 
             return this.getPasteURL() + "/" + jsonDocument.getString("key") +
                     (jsonDocument.contains("deleteSecret") ? " DeleteSecret: " + jsonDocument.getString("deleteSecret") : "");
-
         } catch (IOException exception) {
             exception.printStackTrace();
         }
@@ -138,10 +141,14 @@ public final class CloudNetReportModule extends NodeCloudNetModule {
         this.eventClass = eventClass;
     }
 
+    @Deprecated
     public File getSavingRecordsDirectory() {
-        return this.savingRecordsDirectory;
+        return this.savingRecordsDirectory.toFile();
     }
 
+    public Path getRecordsSavingDirectory() {
+        return this.savingRecordsDirectory;
+    }
 
     private void appendComponent(StringBuilder builder, String component, String content, boolean lastComponent) {
         builder.append(component).append(": \n");
@@ -237,7 +244,7 @@ public final class CloudNetReportModule extends NodeCloudNetModule {
 
         builder.append('\n');
 
-        File logFile = null;
+        Path logFile = null;
         for (ILogHandler logHandler : CloudNet.getInstance().getLogger().getLogHandlers()) {
             if (logHandler instanceof DefaultFileLogHandler) {
                 logFile = ((DefaultFileLogHandler) logHandler).getEntry();
@@ -255,7 +262,7 @@ public final class CloudNetReportModule extends NodeCloudNetModule {
             List<String> logLines;
 
             if (logFile != null) {
-                List<String> lines = Files.readAllLines(logFile.toPath());
+                List<String> lines = Files.readAllLines(logFile);
                 if (lines.size() >= maxLines) {
                     logLines = lines.stream().skip(lines.size() - maxLines).collect(Collectors.toList());
                 } else {
@@ -358,5 +365,4 @@ public final class CloudNetReportModule extends NodeCloudNetModule {
 
         return builder.toString();
     }
-
 }

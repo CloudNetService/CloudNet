@@ -17,6 +17,7 @@ import de.dytanic.cloudnet.ext.bridge.proxy.BridgeProxyHelper;
 import de.dytanic.cloudnet.ext.bridge.velocity.event.VelocityPlayerFallbackEvent;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 
+import java.net.InetSocketAddress;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
@@ -95,6 +96,7 @@ public final class VelocityCloudNetHelper {
         return BridgeProxyHelper.getNextFallback(
                 player.getUniqueId(),
                 player.getCurrentServer().map(ServerConnection::getServerInfo).map(ServerInfo::getName).orElse(null),
+                player.getVirtualHost().map(InetSocketAddress::getHostString).orElse(null),
                 player::hasPermission
         ).map(serviceInfoSnapshot -> new VelocityPlayerFallbackEvent(player, serviceInfoSnapshot, serviceInfoSnapshot.getName()))
                 .map(event -> proxyServer.getEventManager().fire(event))
@@ -111,7 +113,9 @@ public final class VelocityCloudNetHelper {
     }
 
     public static CompletableFuture<ServiceInfoSnapshot> connectToFallback(Player player, String currentServer) {
-        return BridgeProxyHelper.connectToFallback(player.getUniqueId(), currentServer,
+        return BridgeProxyHelper.connectToFallback(player.getUniqueId(),
+                currentServer,
+                player.getVirtualHost().map(InetSocketAddress::getHostString).orElse(null),
                 player::hasPermission,
                 serviceInfoSnapshot -> {
                     CompletableFuture<Boolean> future = new CompletableFuture<>();
@@ -155,6 +159,7 @@ public final class VelocityCloudNetHelper {
             return BridgeProxyHelper.filterPlayerFallbacks(
                     player.getUniqueId(),
                     currentServer,
+                    player.getVirtualHost().map(InetSocketAddress::getHostString).orElse(null),
                     player::hasPermission
             ).anyMatch(proxyFallback -> proxyFallback.getTask().equals(currentService.getServiceId().getTaskName()));
         }).orElse(false);
@@ -167,6 +172,10 @@ public final class VelocityCloudNetHelper {
         return BridgeProxyHelper.isFallbackService(serverInfo.getName());
     }
 
+    public static void init() {
+        BridgeProxyHelper.setMaxPlayers(proxyServer.getConfiguration().getShowMaxPlayers());
+    }
+
     public static void initProperties(ServiceInfoSnapshot serviceInfoSnapshot) {
         lastOnlineCount = proxyServer.getPlayerCount();
 
@@ -177,6 +186,7 @@ public final class VelocityCloudNetHelper {
                 .append("Velocity-Name", proxyServer.getVersion().getName())
                 .append("Online-Count", proxyServer.getPlayerCount())
                 .append("Online-Mode", proxyServer.getConfiguration().isOnlineMode())
+                .append("Max-Players", BridgeProxyHelper.getMaxPlayers())
                 .append("Compression-Level", proxyServer.getConfiguration().getCompressionLevel())
                 .append("Connection-Timeout", proxyServer.getConfiguration().getConnectTimeout())
                 .append("Players", proxyServer.getAllPlayers().stream().map(player -> new VelocityCloudNetPlayerInfo(
@@ -194,12 +204,10 @@ public final class VelocityCloudNetHelper {
 
                     pluginInfo.getProperties()
                             .append("authors", pluginContainer.getDescription().getAuthors())
-                            .append("depends", pluginContainer.getDescription().getDependencies())
-                    ;
+                            .append("depends", pluginContainer.getDescription().getDependencies());
 
                     return pluginInfo;
-                }).collect(Collectors.toList()))
-        ;
+                }).collect(Collectors.toList()));
     }
 
     public static ProxyServer getProxyServer() {

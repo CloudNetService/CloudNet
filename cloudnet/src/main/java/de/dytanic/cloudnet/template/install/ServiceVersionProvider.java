@@ -141,10 +141,7 @@ public class ServiceVersionProvider {
             } else {
                 Files.createDirectories(workingDirectory);
 
-                List<InstallStep> installSteps = new ArrayList<>();
-
-                installSteps.add(InstallStep.DOWNLOAD);
-                installSteps.addAll(serviceVersionType.getInstallSteps());
+                List<InstallStep> installSteps = new ArrayList<>(serviceVersionType.getInstallSteps());
                 installSteps.add(InstallStep.DEPLOY);
 
                 Set<Path> lastStepResult = new HashSet<>();
@@ -177,7 +174,7 @@ public class ServiceVersionProvider {
         } catch (Exception exception) {
             exception.printStackTrace();
         } finally {
-            FileUtils.delete(workingDirectory.toFile());
+            FileUtils.delete(workingDirectory);
         }
 
         return false;

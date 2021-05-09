@@ -18,7 +18,12 @@ import org.jline.utils.InfoCmp;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -48,8 +53,9 @@ public final class JLine3Console implements IConsole {
     public JLine3Console() throws Exception {
         System.setProperty("library.jansi.version", "CloudNET");
 
-        if (!System.getProperty("os.version").contains("raspi")) {
+        try {
             AnsiConsole.systemInstall();
+        } catch (Throwable ignored) {
         }
 
         this.terminal = TerminalBuilder.builder().system(true).encoding(StandardCharsets.UTF_8).build();
@@ -217,7 +223,7 @@ public final class JLine3Console implements IConsole {
     public @NotNull IConsole forceWriteLine(@NotNull String text) {
         text = ConsoleColor.toColouredString('&', text);
         if (!text.endsWith(System.lineSeparator())) {
-            text = text + System.lineSeparator();
+            text += System.lineSeparator();
         }
 
         this.print(Ansi.ansi().eraseLine(Ansi.Erase.ALL).toString() + '\r' + text + Ansi.ansi().reset().toString());

@@ -1,6 +1,5 @@
 package eu.cloudnetservice.cloudnet.ext.npcs.configuration;
 
-
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import eu.cloudnetservice.cloudnet.ext.npcs.NPCConstants;

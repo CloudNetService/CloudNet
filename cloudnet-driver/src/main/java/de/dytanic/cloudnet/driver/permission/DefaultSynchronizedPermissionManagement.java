@@ -75,7 +75,7 @@ public interface DefaultSynchronizedPermissionManagement extends IPermissionMana
     }
 
     @Override
-    default Collection<IPermissionUser> getUsers() {
+    default @NotNull Collection<IPermissionUser> getUsers() {
         return this.getUsersAsync().get(5, TimeUnit.SECONDS, Collections.emptyList());
     }
 

@@ -9,7 +9,7 @@ import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyMotd;
 import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyProxyLoginConfiguration;
 import de.dytanic.cloudnet.ext.syncproxy.velocity.VelocitySyncProxyManagement;
 import de.dytanic.cloudnet.wrapper.Wrapper;
-import net.kyori.text.serializer.legacy.LegacyComponentSerializer;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -62,11 +62,13 @@ public final class VelocitySyncProxyPlayerListener {
                                         :
                                         Collections.emptyList()
                         ),
-                        LegacyComponentSerializer.legacyLinking().deserialize((syncProxyMotd.getFirstLine() + "\n" + syncProxyMotd.getSecondLine())
+                        LegacyComponentSerializer.legacySection().deserialize((syncProxyMotd.getFirstLine() + "\n" + syncProxyMotd.getSecondLine())
                                 .replace("%proxy%", Wrapper.getInstance().getServiceId().getName())
                                 .replace("%proxy_uniqueId%", String.valueOf(Wrapper.getInstance().getServiceId().getUniqueId()))
                                 .replace("%task%", Wrapper.getInstance().getServiceId().getTaskName())
                                 .replace("%node%", Wrapper.getInstance().getServiceId().getNodeUniqueId())
+                                .replace("%online_players%", String.valueOf(onlinePlayers))
+                                .replace("%max_players%", String.valueOf(maxPlayers))
                                 .replace("&", "§")),
                         event.getPing().getFavicon().isPresent() ? event.getPing().getFavicon().get() : null,
                         event.getPing().getModinfo().isPresent() ? event.getPing().getModinfo().get() : null
@@ -87,16 +89,19 @@ public final class VelocitySyncProxyPlayerListener {
                     return;
                 }
 
-                event.setResult(LoginEvent.ComponentResult.denied(LegacyComponentSerializer.legacyLinking().deserialize((this.syncProxyManagement.getSyncProxyConfiguration().getMessages()
-                        .get("player-login-not-whitelisted")).replace("&", "§"))));
+                event.setResult(LoginEvent.ComponentResult.denied(LegacyComponentSerializer.legacySection().deserialize(
+                        this.syncProxyManagement.getSyncProxyConfiguration().getMessages().get("player-login-not-whitelisted")
+                                .replace("&", "§"))
+                ));
                 return;
             }
 
             if (this.syncProxyManagement.getSyncProxyOnlineCount() >= syncProxyProxyLoginConfiguration.getMaxPlayers() &&
                     !event.getPlayer().hasPermission("cloudnet.syncproxy.fulljoin")) {
-                event.setResult(LoginEvent.ComponentResult.denied(LegacyComponentSerializer.legacyLinking().deserialize(
+                event.setResult(LoginEvent.ComponentResult.denied(LegacyComponentSerializer.legacySection().deserialize(
                         this.syncProxyManagement.getSyncProxyConfiguration().getMessages()
-                                .getOrDefault("player-login-full-server", "&cThe network is currently full. You need extra permissions to enter the network").replace("&", "§")
+                                .getOrDefault("player-login-full-server", "&cThe network is currently full. You need extra permissions to enter the network")
+                                .replace("&", "§")
                 )));
             }
         }

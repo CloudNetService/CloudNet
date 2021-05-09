@@ -1,6 +1,5 @@
 package de.dytanic.cloudnet.template.install.run.step.executor;
 
-
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.console.animation.progressbar.ProgressBarInputStream;
 import de.dytanic.cloudnet.template.install.run.InstallInformation;

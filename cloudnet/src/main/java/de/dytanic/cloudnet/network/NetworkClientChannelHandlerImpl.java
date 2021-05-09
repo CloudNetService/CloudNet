@@ -61,7 +61,7 @@ public final class NetworkClientChannelHandlerImpl implements INetworkChannelHan
         IClusterNodeServer clusterNodeServer = CloudNet.getInstance().getClusterNodeServerProvider().getNodeServer(channel);
 
         if (clusterNodeServer != null) {
-            NetworkChannelHandlerUtils.handleRemoveDisconnectedClusterInNetwork(channel, clusterNodeServer);
+            NetworkChannelHandlerUtils.closeNodeServer(clusterNodeServer);
         }
     }
 }

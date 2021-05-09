@@ -1,6 +1,5 @@
 package de.dytanic.cloudnet.ext.syncproxy.velocity;
 
-
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
@@ -8,7 +7,7 @@ import de.dytanic.cloudnet.ext.bridge.proxy.BridgeProxyHelper;
 import de.dytanic.cloudnet.ext.syncproxy.AbstractSyncProxyManagement;
 import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyConfiguration;
 import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyTabList;
-import net.kyori.text.serializer.legacy.LegacyComponentSerializer;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
 import java.util.concurrent.TimeUnit;
 
@@ -44,9 +43,9 @@ public class VelocitySyncProxyManagement extends AbstractSyncProxyManagement {
             return;
         }
 
-        player.getTabList().setHeaderAndFooter(
-                LegacyComponentSerializer.legacyLinking().deserialize(super.tabListHeader != null ? this.replaceTabListItem(player, super.tabListHeader) : ""),
-                LegacyComponentSerializer.legacyLinking().deserialize(super.tabListFooter != null ? this.replaceTabListItem(player, super.tabListFooter) : "")
+        player.sendPlayerListHeaderAndFooter(
+                LegacyComponentSerializer.legacySection().deserialize(super.tabListHeader != null ? this.replaceTabListItem(player, super.tabListHeader) : ""),
+                LegacyComponentSerializer.legacySection().deserialize(super.tabListFooter != null ? this.replaceTabListItem(player, super.tabListFooter) : "")
         );
     }
 
@@ -77,7 +76,9 @@ public class VelocitySyncProxyManagement extends AbstractSyncProxyManagement {
                         && !super.loginConfiguration.getWhitelist().contains(player.getUsername())
                         && !super.loginConfiguration.getWhitelist().contains(player.getUniqueId().toString())
                         && !player.hasPermission("cloudnet.syncproxy.maintenance")) {
-                    player.disconnect(LegacyComponentSerializer.legacyLinking().deserialize(super.syncProxyConfiguration.getMessages().get("player-login-not-whitelisted").replace("&", "§")));
+                    player.disconnect(LegacyComponentSerializer.legacySection().deserialize(
+                            this.replaceColorChar(super.syncProxyConfiguration.getMessages().get("player-login-not-whitelisted"))
+                    ));
                 }
             }
         }
@@ -86,14 +87,24 @@ public class VelocitySyncProxyManagement extends AbstractSyncProxyManagement {
     @Override
     public void broadcastServiceStateChange(String key, ServiceInfoSnapshot serviceInfoSnapshot) {
         if (super.syncProxyConfiguration != null && super.syncProxyConfiguration.showIngameServicesStartStopMessages()) {
-            String message = super.getServiceStateChangeMessage(key, serviceInfoSnapshot);
+            String message = this.replaceColorChar(super.getServiceStateChangeMessage(key, serviceInfoSnapshot));
 
             for (Player player : this.proxyServer.getAllPlayers()) {
                 if (player.hasPermission("cloudnet.syncproxy.notify")) {
-                    player.sendMessage(LegacyComponentSerializer.legacyLinking().deserialize(message));
+                    player.sendMessage(LegacyComponentSerializer.legacySection().deserialize(message));
                 }
             }
         }
     }
 
+    private String replaceColorChar(String input) {
+        char[] translate = input.toCharArray();
+        for (int i = 0; i < translate.length - 1; i++) {
+            if (translate[i] == '&' && "0123456789AaBbCcDdEeFfKkLlMmNnOoRr".indexOf(translate[i + 1]) > -1) {
+                translate[i] = '§';
+            }
+        }
+
+        return new String(translate);
+    }
 }

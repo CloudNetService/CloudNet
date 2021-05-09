@@ -1,6 +1,5 @@
 package de.dytanic.cloudnet.ext.signs.nukkit.listener;
 
-
 import cn.nukkit.Server;
 import cn.nukkit.blockentity.BlockEntitySign;
 import cn.nukkit.event.EventHandler;

@@ -5,6 +5,8 @@
       "name": "paperspigot",
       "targetEnvironment": "MINECRAFT_SERVER_PAPER_SPIGOT",
       "installSteps": [
+        "PAPER_API",
+        "DOWNLOAD",
         "BUILD",
         "COPY_FILTER"
       ],
@@ -12,7 +14,6 @@
       "versions": [
         {
           "name": "latest",
-          "url": "https://papermc.io/ci/job/Paper-1.16/lastSuccessfulBuild/artifact/paperclip.jar",
           "cacheFiles": false,
           "properties": {
             "copy": {
@@ -20,24 +21,27 @@
             },
             "jvmOptions": [
               "-Dpaperclip.patchonly=true"
-            ]
+            ],
+            "fetchOverPaperApi": true,
+            "versionGroup": "1.16.5"
           }
         },
         {
-          "name": "1.16.4",
-          "url": "https://papermc.io/ci/job/Paper-1.16/lastSuccessfulBuild/artifact/paperclip.jar",
+          "name": "1.16.5",
           "properties": {
             "copy": {
               "cache/patched.*\\.jar": "paper.jar"
             },
             "jvmOptions": [
               "-Dpaperclip.patchonly=true"
-            ]
+            ],
+            "fetchOverPaperApi": true,
+            "versionGroup": "1.16.5"
           }
         },
         {
           "name": "1.15.2",
-          "url": "https://papermc.io/ci/job/Paper-1.15/lastSuccessfulBuild/artifact/paperclip.jar",
+          "url": "https://papermc.io/api/v2/projects/paper/versions/1.15.2/builds/391/downloads/paper-1.15.2-391.jar",
           "properties": {
             "copy": {
               "cache/patched.*\\.jar": "paper.jar"
@@ -49,7 +53,7 @@
         },
         {
           "name": "1.14.4",
-          "url": "https://papermc.io/ci/job/Paper-1.14/lastSuccessfulBuild/artifact/paperclip.jar",
+          "url": "https://papermc.io/api/v2/projects/paper/versions/1.14.4/builds/243/downloads/paper-1.14.4-243.jar",
           "properties": {
             "copy": {
               "cache/patched.*\\.jar": "paper.jar"
@@ -61,7 +65,7 @@
         },
         {
           "name": "1.13.2",
-          "url": "https://papermc.io/ci/job/Paper-1.13/lastSuccessfulBuild/artifact/paperclip.jar",
+          "url": "https://papermc.io/api/v2/projects/paper/versions/1.13.2/builds/655/downloads/paper-1.13.2-655.jar",
           "properties": {
             "copy": {
               "cache/patched.*\\.jar": "paper.jar"
@@ -73,7 +77,7 @@
         },
         {
           "name": "1.12.2",
-          "url": "https://papermc.io/ci/job/Paper/lastSuccessfulBuild/artifact/paperclip-1618.jar",
+          "url": "https://papermc.io/api/v2/projects/paper/versions/1.12.2/builds/1618/downloads/paper-1.12.2-1618.jar",
           "properties": {
             "copy": {
               "cache/patched.*\\.jar": "paper.jar"
@@ -85,7 +89,7 @@
         },
         {
           "name": "1.11.2",
-          "url": "https://papermc.io/ci/job/Paper/1104/artifact/paperclip.jar",
+          "url": "https://papermc.io/api/v2/projects/paper/versions/1.11.2/builds/1104/downloads/paper-1.11.2-1104.jar",
           "deprecated": true,
           "maxJavaVersion": 8,
           "properties": {
@@ -99,7 +103,7 @@
         },
         {
           "name": "1.10.2",
-          "url": "https://papermc.io/ci/job/Paper/916/artifact/paperclip-916.2.jar",
+          "url": "https://papermc.io/api/v2/projects/paper/versions/1.10.2/builds/916/downloads/paper-1.10.2-916.jar",
           "deprecated": true,
           "maxJavaVersion": 8,
           "properties": {
@@ -110,7 +114,7 @@
         },
         {
           "name": "1.9.4",
-          "url": "https://papermc.io/ci/job/Paper/773/artifact/paperclip-773.jar",
+          "url": "https://papermc.io/api/v2/projects/paper/versions/1.9.4/builds/773/downloads/paper-1.9.4-773.jar",
           "deprecated": true,
           "maxJavaVersion": 8,
           "properties": {
@@ -121,7 +125,7 @@
         },
         {
           "name": "1.8.8",
-          "url": "https://papermc.io/ci/job/Paper/443/artifact/paperclip-1.8.8-fix.jar",
+          "url": "https://papermc.io/api/v2/projects/paper/versions/1.8.8/builds/443/downloads/paper-1.8.8-443.jar",
           "deprecated": true,
           "maxJavaVersion": 8,
           "properties": {
@@ -133,18 +137,70 @@
       ]
     },
     {
-      "name": "spigot",
-      "targetEnvironment": "MINECRAFT_SERVER_SPIGOT",
-      "website": "https://getbukkit.org",
+      "name": "tuinity",
+      "targetEnvironment": "MINECRAFT_SERVER_TUINITY_SPIGOT",
+      "installSteps": [
+        "DOWNLOAD",
+        "BUILD",
+        "COPY_FILTER"
+      ],
+      "website": "https://github.com/Spottedleaf/Tuinity",
       "versions": [
         {
           "name": "latest",
-          "url": "https://cdn.getbukkit.org/spigot/spigot-1.16.4.jar",
+          "cacheFiles": false,
+          "url": "https://ci.codemc.io/job/Spottedleaf/job/Tuinity/lastSuccessfulBuild/artifact/tuinity-paperclip.jar",
+          "properties": {
+            "copy": {
+              "cache/patched.*\\.jar": "tuinity.jar"
+            },
+            "jvmOptions": [
+              "-Dpaperclip.patchonly=true"
+            ]
+          }
+        },
+        {
+          "name": "1.16.5",
+          "url": "https://ci.codemc.io/job/Spottedleaf/job/Tuinity/lastSuccessfulBuild/artifact/tuinity-paperclip.jar",
+          "properties": {
+            "copy": {
+              "cache/patched.*\\.jar": "tuinity.jar"
+            },
+            "jvmOptions": [
+              "-Dpaperclip.patchonly=true"
+            ]
+          }
+        },
+        {
+          "name": "1.15.2",
+          "url": "https://ci.codemc.io/job/Spottedleaf/job/Tuinity/139/artifact/tuinity-paperclip.jar",
+          "properties": {
+            "copy": {
+              "cache/patched.*\\.jar": "tuinity.jar"
+            },
+            "jvmOptions": [
+              "-Dpaperclip.patchonly=true"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "spigot",
+      "targetEnvironment": "MINECRAFT_SERVER_SPIGOT",
+      "website": "https://getbukkit.org",
+      "installSteps": [
+        "DOWNLOAD"
+      ],
+      "versions": [
+        {
+          "name": "latest",
+          "url": "https://cdn.getbukkit.org/spigot/spigot-1.16.5.jar",
           "cacheFiles": false
         },
         {
-          "name": "1.16.4",
-          "url": "https://cdn.getbukkit.org/spigot/spigot-1.16.4.jar"
+          "name": "1.16.5",
+          "url": "https://cdn.getbukkit.org/spigot/spigot-1.16.5.jar"
         },
         {
           "name": "1.15.2",
@@ -188,6 +244,7 @@
       "name": "buildtools",
       "targetEnvironment": "MINECRAFT_SERVER_SPIGOT",
       "installSteps": [
+        "DOWNLOAD",
         "BUILD",
         "COPY_FILTER"
       ],
@@ -209,7 +266,7 @@
           }
         },
         {
-          "name": "1.16.4",
+          "name": "1.16.5",
           "url": "https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar",
           "maxJavaVersion": 13,
           "properties": {
@@ -330,6 +387,9 @@
       "name": "spongevanilla",
       "targetEnvironment": "MINECRAFT_SERVER_SPONGE_VANILLA",
       "website": "https://spongepowered.org",
+      "installSteps": [
+        "DOWNLOAD"
+      ],
       "versions": [
         {
           "name": "latest",
@@ -354,6 +414,7 @@
       "name": "forge",
       "targetEnvironment": "MINECRAFT_SERVER_FORGE",
       "installSteps": [
+        "DOWNLOAD",
         "BUILD",
         "COPY_FILTER"
       ],
@@ -361,7 +422,7 @@
       "versions": [
         {
           "name": "latest",
-          "url": "https://files.minecraftforge.net/maven/net/minecraftforge/forge/1.16.4-35.0.3/forge-1.16.4-35.0.3-installer.jar",
+          "url": "https://files.minecraftforge.net/maven/net/minecraftforge/forge/1.16.5-36.0.7/forge-1.16.5-36.0.7-installer.jar",
           "maxJavaVersion": 13,
           "cacheFiles": false,
           "properties": {
@@ -377,8 +438,8 @@
           }
         },
         {
-          "name": "1.16.4",
-          "url": "https://files.minecraftforge.net/maven/net/minecraftforge/forge/1.16.4-35.0.3/forge-1.16.4-35.0.3-installer.jar",
+          "name": "1.16.5",
+          "url": "https://files.minecraftforge.net/maven/net/minecraftforge/forge/1.16.5-36.0.7/forge-1.16.5-36.0.7-installer.jar",
           "maxJavaVersion": 13,
           "properties": {
             "copy": {
@@ -542,6 +603,7 @@
       "name": "spongeforge",
       "targetEnvironment": "MINECRAFT_SERVER_FORGE",
       "installSteps": [
+        "DOWNLOAD",
         "BUILD",
         "COPY_FILTER"
       ],
@@ -630,6 +692,9 @@
       "name": "glowstone",
       "targetEnvironment": "GLOWSTONE_DEFAULT",
       "website": "https://github.com/GlowstoneMC",
+      "installSteps": [
+        "DOWNLOAD"
+      ],
       "versions": [
         {
           "name": "latest",
@@ -650,6 +715,9 @@
       "name": "waterdog",
       "targetEnvironment": "WATERDOG_DEFAULT",
       "website": "https://ci.codemc.org/job/yesdog/job/Waterdog",
+      "installSteps": [
+        "DOWNLOAD"
+      ],
       "versions": [
         {
           "name": "latest",
@@ -667,6 +735,9 @@
       "name": "bungeecord",
       "targetEnvironment": "BUNGEECORD_DEFAULT",
       "website": "https://ci.md-5.net/job/BungeeCord",
+      "installSteps": [
+        "DOWNLOAD"
+      ],
       "versions": [
         {
           "name": "latest",
@@ -679,11 +750,18 @@
       "name": "travertine",
       "targetEnvironment": "BUNGEECORD_TRAVERTINE",
       "website": "https://papermc.io",
+      "installSteps": [
+        "PAPER_API",
+        "DOWNLOAD"
+      ],
       "versions": [
         {
           "name": "latest",
-          "url": "https://papermc.io/ci/job/Travertine/lastSuccessfulBuild/artifact/Travertine-Proxy/bootstrap/target/Travertine.jar",
-          "cacheFiles": false
+          "cacheFiles": false,
+          "properties": {
+            "fetchOverPaperApi": true,
+            "versionGroup": "1.16"
+          }
         }
       ]
     },
@@ -691,6 +769,9 @@
       "name": "hexacord",
       "targetEnvironment": "BUNGEECORD_HEXACORD",
       "website": "https://github.com/HexagonMC/BungeeCord",
+      "installSteps": [
+        "DOWNLOAD"
+      ],
       "versions": [
         {
           "name": "latest",
@@ -703,11 +784,18 @@
       "name": "waterfall",
       "targetEnvironment": "BUNGEECORD_WATERFALL",
       "website": "https://papermc.io",
+      "installSteps": [
+        "PAPER_API",
+        "DOWNLOAD"
+      ],
       "versions": [
         {
           "name": "latest",
-          "url": "https://ci.destroystokyo.com/job/Waterfall/lastSuccessfulBuild/artifact/Waterfall-Proxy/bootstrap/target/Waterfall.jar",
-          "cacheFiles": false
+          "cacheFiles": false,
+          "properties": {
+            "fetchOverPaperApi": true,
+            "versionGroup": "1.16"
+          }
         }
       ]
     },
@@ -715,6 +803,9 @@
       "name": "velocity",
       "targetEnvironment": "VELOCITY_DEFAULT",
       "website": "https://velocitypowered.com",
+      "installSteps": [
+        "DOWNLOAD"
+      ],
       "versions": [
         {
           "name": "latest",
@@ -732,6 +823,9 @@
       "name": "nukkit",
       "targetEnvironment": "NUKKIT_DEFAULT",
       "website": "https://nukkitx.com",
+      "installSteps": [
+        "DOWNLOAD"
+      ],
       "versions": [
         {
           "name": "latest",
@@ -744,6 +838,7 @@
       "name": "gomint",
       "targetEnvironment": "GO_MINT_DEFAULT",
       "installSteps": [
+        "DOWNLOAD",
         "UNZIP",
         "COPY_FILTER"
       ],

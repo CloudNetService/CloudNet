@@ -1,6 +1,7 @@
 package de.dytanic.cloudnet.ext.cloudperms.gomint.listener;
 
 import de.dytanic.cloudnet.driver.permission.CachedPermissionManagement;
+import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
 import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsHelper;
 import de.dytanic.cloudnet.ext.cloudperms.gomint.GoMintCloudNetCloudPermissionsPlugin;
 import io.gomint.ChatColor;
@@ -15,21 +16,21 @@ import io.gomint.server.GoMintServer;
 
 public final class GoMintCloudNetCloudPermissionsPlayerListener implements EventListener {
 
-    private final CachedPermissionManagement permissionsManagement;
+    private final IPermissionManagement permissionsManagement;
 
-    public GoMintCloudNetCloudPermissionsPlayerListener(CachedPermissionManagement permissionsManagement) {
+    public GoMintCloudNetCloudPermissionsPlayerListener(IPermissionManagement permissionsManagement) {
         this.permissionsManagement = permissionsManagement;
     }
 
     @EventHandler(priority = EventPriority.LOW)
     public void handle(PlayerLoginEvent event) {
-        if (!event.isCancelled()) {
-            EntityPlayer player = event.getPlayer();
+        if (!event.cancelled()) {
+            EntityPlayer player = event.player();
 
-            CloudPermissionsHelper.initPermissionUser(this.permissionsManagement, player.getUUID(), event.getPlayer().getName(), message -> {
-                event.setCancelled(true);
-                event.setKickMessage(ChatColor.translateAlternateColorCodes('&', message));
-            }, ((GoMintServer) GoMint.instance()).getEncryptionKeyFactory().isKeyGiven());
+            CloudPermissionsHelper.initPermissionUser(this.permissionsManagement, player.uuid(), event.player().name(), message -> {
+                event.cancelled(true);
+                event.kickMessage(ChatColor.translateAlternateColorCodes('&', message));
+            }, ((GoMintServer) GoMint.instance()).encryptionKeyFactory().isKeyGiven());
 
             GoMintCloudNetCloudPermissionsPlugin.getInstance().injectPermissionManager(player);
         }
@@ -37,7 +38,9 @@ public final class GoMintCloudNetCloudPermissionsPlayerListener implements Event
 
     @EventHandler
     public void handle(PlayerQuitEvent event) {
-        this.permissionsManagement.getCachedPermissionUsers().remove(event.getPlayer().getUUID());
+        CachedPermissionManagement management = CloudPermissionsHelper.asCachedPermissionManagement(this.permissionsManagement);
+        if (management != null) {
+            management.getCachedPermissionUsers().remove(event.player().uuid());
+        }
     }
-
 }

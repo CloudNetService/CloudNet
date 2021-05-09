@@ -9,7 +9,13 @@ import de.dytanic.cloudnet.common.Properties;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.console.animation.questionlist.answer.QuestionAnswerTypeEnum;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
-import de.dytanic.cloudnet.driver.service.*;
+import de.dytanic.cloudnet.driver.service.ProcessConfiguration;
+import de.dytanic.cloudnet.driver.service.ServiceDeployment;
+import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
+import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
+import de.dytanic.cloudnet.driver.service.ServiceRemoteInclusion;
+import de.dytanic.cloudnet.driver.service.ServiceTask;
+import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -42,7 +48,8 @@ public class CommandCreate extends SubCommandHandler {
                                             serviceTask.getGroups(),
                                             serviceTask.getDeletedFilesAfterStop(),
                                             serviceTask.getProcessConfiguration(),
-                                            serviceTask.getStartPort()
+                                            serviceTask.getStartPort(),
+                                            serviceTask.getJavaCommand()
                                     );
 
                                     if (serviceInfoSnapshots.isEmpty()) {
@@ -95,7 +102,8 @@ public class CommandCreate extends SubCommandHandler {
                                                         new ArrayList<>(),
                                                         new ArrayList<>()
                                                 ),
-                                                environment.getDefaultStartPort()
+                                                environment.getDefaultStartPort(),
+                                                null
                                         );
 
                                         listAndStartServices(sender, serviceInfoSnapshots, properties);
@@ -117,6 +125,7 @@ public class CommandCreate extends SubCommandHandler {
                                                         "- memory=<mb>",
                                                         "- groups=[Lobby, Prime, TestLobby]",
                                                         "- runtime=<name>",
+                                                        "- javaCommand=<command>",
                                                         "- jvmOptions=[-XX:OptimizeStringConcat;-Xms256M]",
                                                         "- templates=[storage:prefix/name  local:Lobby/Lobby;local:/PremiumLobby]",
                                                         "- deployments=[storage:prefix/name  local:Lobby/Lobby;local:/PremiumLobby]",
@@ -140,7 +149,11 @@ public class CommandCreate extends SubCommandHandler {
     private static void listAndStartServices(ICommandSender sender, Collection<ServiceInfoSnapshot> serviceInfoSnapshots, Properties properties) {
         for (ServiceInfoSnapshot serviceInfoSnapshot : serviceInfoSnapshots) {
             if (serviceInfoSnapshot != null) {
-                sender.sendMessage(serviceInfoSnapshot.getServiceId().getName() + " - " + serviceInfoSnapshot.getServiceId().getUniqueId().toString());
+                sender.sendMessage(serviceInfoSnapshot.getServiceId().getUniqueId().toString().split("-")[0]
+                        + " | Name: " + serviceInfoSnapshot.getServiceId().getName()
+                        + " | Node: " + serviceInfoSnapshot.getServiceId().getNodeUniqueId()
+                        + " | Address: " + serviceInfoSnapshot.getAddress().getHost() + ":"
+                        + serviceInfoSnapshot.getAddress().getPort());
             }
         }
 
@@ -165,7 +178,8 @@ public class CommandCreate extends SubCommandHandler {
             Collection<String> groups,
             Collection<String> deletedFilesAfterStop,
             ProcessConfiguration processConfiguration,
-            int startPort
+            int startPort,
+            String javaCommand
     ) {
         Collection<ServiceInfoSnapshot> serviceInfoSnapshots = new ArrayList<>(count);
 
@@ -203,7 +217,8 @@ public class CommandCreate extends SubCommandHandler {
                                     processConfiguration.getProcessParameters())
                     ),
                     finalStartPort,
-                    0
+                    0,
+                    properties.getOrDefault("javaCommand", javaCommand)
             ));
 
             if (serviceInfoSnapshot != null) {

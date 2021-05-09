@@ -10,7 +10,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.function.Predicate;
 import java.util.zip.ZipInputStream;
@@ -33,7 +35,7 @@ public interface ITemplateStorage extends AutoCloseable, INameable {
      */
     @Deprecated
     @ApiStatus.ScheduledForRemoval(inVersion = "3.5")
-    boolean deploy(@NotNull byte[] zipInput, @NotNull ServiceTemplate target);
+    boolean deploy(byte[] zipInput, @NotNull ServiceTemplate target);
 
     /**
      * Deploys the following directory files to the target template storage.
@@ -42,9 +44,19 @@ public interface ITemplateStorage extends AutoCloseable, INameable {
      * @param target    the template to deploy to
      * @return if the deployment was successful
      */
-    boolean deploy(@NotNull File directory, @NotNull ServiceTemplate target, @Nullable Predicate<File> fileFilter);
+    @Deprecated
+    default boolean deploy(@NotNull File directory, @NotNull ServiceTemplate target, @Nullable Predicate<File> fileFilter) {
+        return this.deploy(directory.toPath(), target, fileFilter == null ? null : path -> fileFilter.test(path.toFile()));
+    }
 
+    boolean deploy(@NotNull Path directory, @NotNull ServiceTemplate target, @Nullable DirectoryStream.Filter<Path> filter);
+
+    @Deprecated
     default boolean deploy(@NotNull File directory, @NotNull ServiceTemplate target) {
+        return this.deploy(directory, target, null);
+    }
+
+    default boolean deploy(@NotNull Path directory, @NotNull ServiceTemplate target) {
         return this.deploy(directory, target, null);
     }
 
@@ -52,13 +64,22 @@ public interface ITemplateStorage extends AutoCloseable, INameable {
 
     boolean deploy(@NotNull Path[] paths, @NotNull ServiceTemplate target);
 
-    boolean deploy(@NotNull File[] files, @NotNull ServiceTemplate target);
+    @Deprecated
+    default boolean deploy(@NotNull File[] files, @NotNull ServiceTemplate target) {
+        return this.deploy(Arrays.stream(files).map(File::toPath).toArray(Path[]::new), target);
+    }
 
-    boolean copy(@NotNull ServiceTemplate template, @NotNull File directory);
+    @Deprecated
+    default boolean copy(@NotNull ServiceTemplate template, @NotNull File directory) {
+        return this.copy(template, directory.toPath());
+    }
 
     boolean copy(@NotNull ServiceTemplate template, @NotNull Path directory);
 
-    boolean copy(@NotNull ServiceTemplate template, @NotNull File[] directories);
+    @Deprecated
+    default boolean copy(@NotNull ServiceTemplate template, @NotNull File[] directories) {
+        return this.copy(template, Arrays.stream(directories).map(File::toPath).toArray(Path[]::new));
+    }
 
     boolean copy(@NotNull ServiceTemplate template, @NotNull Path[] directories);
 

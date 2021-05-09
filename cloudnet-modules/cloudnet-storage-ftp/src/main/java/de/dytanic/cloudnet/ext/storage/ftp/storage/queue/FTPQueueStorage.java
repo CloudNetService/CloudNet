@@ -8,10 +8,10 @@ import de.dytanic.cloudnet.template.ITemplateStorage;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Collections;
@@ -20,7 +20,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Predicate;
 import java.util.zip.ZipInputStream;
 
 public class FTPQueueStorage implements Runnable, ITemplateStorage {
@@ -28,10 +27,9 @@ public class FTPQueueStorage implements Runnable, ITemplateStorage {
     private static final long EMPTY_QUEUE_TOLERANCE_SECONDS = 5;
 
     private final AbstractFTPStorage executingStorage;
-
-    private boolean opened = true;
     @NotNull
     private final BlockingQueue<ITask<?>> ftpTaskQueue = new LinkedBlockingQueue<>();
+    private boolean opened = true;
 
     public FTPQueueStorage(AbstractFTPStorage executingStorage) {
         this.executingStorage = executingStorage;
@@ -66,7 +64,7 @@ public class FTPQueueStorage implements Runnable, ITemplateStorage {
 
     @Override
     @Deprecated
-    public boolean deploy(@NotNull byte[] zipInput, @NotNull ServiceTemplate target) {
+    public boolean deploy(byte[] zipInput, @NotNull ServiceTemplate target) {
         ITask<Boolean> ftpTask = new FTPTask<>(() -> this.executingStorage.deploy(zipInput, target));
         this.ftpTaskQueue.add(ftpTask);
 
@@ -74,8 +72,8 @@ public class FTPQueueStorage implements Runnable, ITemplateStorage {
     }
 
     @Override
-    public boolean deploy(@NotNull File directory, @NotNull ServiceTemplate target, @Nullable Predicate<File> fileFilter) {
-        ITask<Boolean> ftpTask = new FTPTask<>(() -> this.executingStorage.deploy(directory, target, fileFilter));
+    public boolean deploy(@NotNull Path directory, @NotNull ServiceTemplate target, DirectoryStream.@Nullable Filter<Path> filter) {
+        ITask<Boolean> ftpTask = new FTPTask<>(() -> this.executingStorage.deploy(directory, target, filter));
         this.ftpTaskQueue.add(ftpTask);
 
         return ftpTask.getDef(false);
@@ -98,32 +96,8 @@ public class FTPQueueStorage implements Runnable, ITemplateStorage {
     }
 
     @Override
-    public boolean deploy(@NotNull File[] files, @NotNull ServiceTemplate target) {
-        ITask<Boolean> ftpTask = new FTPTask<>(() -> this.executingStorage.deploy(files, target));
-        this.ftpTaskQueue.add(ftpTask);
-
-        return ftpTask.getDef(false);
-    }
-
-    @Override
-    public boolean copy(@NotNull ServiceTemplate template, @NotNull File directory) {
-        ITask<Boolean> ftpTask = new FTPTask<>(() -> this.executingStorage.copy(template, directory));
-        this.ftpTaskQueue.add(ftpTask);
-
-        return ftpTask.getDef(false);
-    }
-
-    @Override
     public boolean copy(@NotNull ServiceTemplate template, @NotNull Path directory) {
         ITask<Boolean> ftpTask = new FTPTask<>(() -> this.executingStorage.copy(template, directory));
-        this.ftpTaskQueue.add(ftpTask);
-
-        return ftpTask.getDef(false);
-    }
-
-    @Override
-    public boolean copy(@NotNull ServiceTemplate template, @NotNull File[] directories) {
-        ITask<Boolean> ftpTask = new FTPTask<>(() -> this.executingStorage.copy(template, directories));
         this.ftpTaskQueue.add(ftpTask);
 
         return ftpTask.getDef(false);

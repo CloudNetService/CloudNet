@@ -1,6 +1,5 @@
 package de.dytanic.cloudnet.launcher.version.update.jenkins;
 
-
 import java.util.List;
 
 public class JenkinsBuild {

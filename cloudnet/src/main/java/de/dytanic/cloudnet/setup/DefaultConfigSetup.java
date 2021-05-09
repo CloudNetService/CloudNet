@@ -12,21 +12,28 @@ import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
 import org.jetbrains.annotations.NotNull;
 
-import java.net.*;
-import java.util.*;
+import java.net.Inet6Address;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class DefaultConfigSetup implements DefaultSetup {
 
     private final List<String> suggestionIPs = new ArrayList<>();
-
     private final List<String> whitelistDefaultIPs = new ArrayList<>();
 
     private String preferredIP;
 
     private void detectAllIPAddresses() throws SocketException {
         this.whitelistDefaultIPs.add("127.0.1.1");
-        this.whitelistDefaultIPs.add("127.0.1.1");
+        this.whitelistDefaultIPs.add("127.0.0.1");
 
         this.suggestionIPs.add("127.0.0.1");
         this.suggestionIPs.add("127.0.1.1");
@@ -120,7 +127,7 @@ public class DefaultConfigSetup implements DefaultSetup {
         animation.addEntry(new QuestionListEntry<>(
                 "hostAddress",
                 LanguageManager.getMessage("cloudnet-init-setup-host-address"),
-                new QuestionAnswerTypeHostAndPort() {
+                new QuestionAnswerTypeHostAndPort(false) {
                     @Override
                     public String getRecommendation() {
                         return DefaultConfigSetup.this.preferredIP;

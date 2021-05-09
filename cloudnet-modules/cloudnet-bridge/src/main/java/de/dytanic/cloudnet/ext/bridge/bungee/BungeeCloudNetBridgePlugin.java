@@ -16,7 +16,6 @@ import de.dytanic.cloudnet.ext.bridge.player.IPlayerManager;
 import de.dytanic.cloudnet.ext.bridge.proxy.BridgeProxyHelper;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import net.md_5.bungee.api.ProxyServer;
-import net.md_5.bungee.api.config.ListenerInfo;
 import net.md_5.bungee.api.plugin.Plugin;
 
 import java.net.InetSocketAddress;
@@ -29,15 +28,13 @@ public final class BungeeCloudNetBridgePlugin extends Plugin {
     public synchronized void onEnable() {
         CloudNetDriver.getInstance().getServicesRegistry().registerService(IPlayerManager.class, "BridgePlayerManager", new BridgePlayerManager());
 
+        BungeeCloudNetHelper.init();
         this.initListeners();
         this.registerCommands();
         this.initServers();
         this.runPlayerDisconnectTask();
 
-        this.getProxy().setReconnectHandler(new BungeeCloudNetReconnectHandler());
-        for (ListenerInfo listenerInfo : this.getProxy().getConfig().getListeners()) {
-            listenerInfo.getServerPriority().clear();
-        }
+        super.getProxy().setReconnectHandler(new BungeeCloudNetReconnectHandler());
 
         BridgeHelper.updateServiceInfo();
     }

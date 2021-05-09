@@ -30,7 +30,8 @@ public final class CloudNetTickListener {
 
     @EventListener
     public void handle(CloudNetTickEvent event) {
-        if (this.ticksPerSecond.getAndIncrement() >= CloudNet.TPS) {
+        if (CloudNet.getInstance().getClusterNodeServerProvider().getSelfNode().isHeadNode()
+                && this.ticksPerSecond.getAndIncrement() >= CloudNet.TPS) {
             this.handleSmartTasksConfigItems();
             this.handlePercentStart();
             this.handleAutoStop();
@@ -101,6 +102,7 @@ public final class CloudNetTickListener {
                 .filter(serviceInfoSnapshot -> serviceInfoSnapshot.getLifeCycle() == ServiceLifeCycle.RUNNING)
                 .collect(Collectors.toList());
         Collection<ServiceInfoSnapshot> onlineServiceInfoSnapshots = runningServiceInfoSnapshots.stream()
+                .filter(serviceInfoSnapshot -> !serviceInfoSnapshot.getProperty(BridgeServiceProperty.IS_IN_GAME).orElse(false))
                 .filter(serviceInfoSnapshot -> serviceInfoSnapshot.getProperties().contains("Online-Count"))
                 .filter(serviceInfoSnapshot -> serviceInfoSnapshot.getProperties().contains("Max-Players"))
                 .collect(Collectors.toList());
@@ -164,11 +166,12 @@ public final class CloudNetTickListener {
 
                     if (this.startService(cloudService.getServiceId().getTaskName()) != null) {
                         this.newInstanceDelay.add(cloudService.getServiceId().getUniqueId());
-                        CloudNetDriver.getInstance().getTaskScheduler().schedule(() -> {
-                            this.newInstanceDelay.remove(cloudService.getServiceId().getUniqueId());
-                        }, smartTask.getForAnewInstanceDelayTimeInSeconds(), TimeUnit.SECONDS);
+                        CloudNetDriver.getInstance().getTaskExecutor().schedule(
+                                () -> this.newInstanceDelay.remove(cloudService.getServiceId().getUniqueId()),
+                                smartTask.getForAnewInstanceDelayTimeInSeconds(),
+                                TimeUnit.SECONDS
+                        );
                     }
-
                 }
             }
         }

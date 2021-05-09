@@ -8,6 +8,9 @@ import de.dytanic.cloudnet.http.V1HttpHandler;
 import de.dytanic.cloudnet.template.ITemplateStorage;
 import de.dytanic.cloudnet.template.LocalTemplateStorage;
 
+import java.io.ByteArrayInputStream;
+import java.util.zip.ZipInputStream;
+
 public final class V1HttpHandlerLocalTemplate extends V1HttpHandler {
 
     public V1HttpHandlerLocalTemplate(String permission) {
@@ -63,7 +66,7 @@ public final class V1HttpHandlerLocalTemplate extends V1HttpHandler {
     public void handlePost(String path, IHttpContext context) {
         if (context.request().pathParameters().containsKey("prefix") && context.request().pathParameters().containsKey("name")) {
             ServiceTemplate serviceTemplate = this.createLocalTemplate(context.request().pathParameters().get("prefix"), context.request().pathParameters().get("name"));
-            this.getStorage().deploy(context.request().body(), serviceTemplate);
+            this.getStorage().deploy(new ZipInputStream(new ByteArrayInputStream(context.request().body())), serviceTemplate);
         }
     }
 

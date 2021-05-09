@@ -1,6 +1,5 @@
 package de.dytanic.cloudnet.ext.signs.nukkit.command;
 
-
 import cn.nukkit.Player;
 import cn.nukkit.block.Block;
 import cn.nukkit.blockentity.BlockEntity;
