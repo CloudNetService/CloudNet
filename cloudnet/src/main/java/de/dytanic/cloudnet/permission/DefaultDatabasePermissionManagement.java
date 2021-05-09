@@ -420,6 +420,11 @@ public class DefaultDatabasePermissionManagement extends ClusterSynchronizedPerm
     }
 
     @Override
+    public boolean needsDatabaseSync() {
+        return !this.getDatabase().isSynced();
+    }
+
+    @Override
     public boolean reload() {
         this.loadGroups();
 

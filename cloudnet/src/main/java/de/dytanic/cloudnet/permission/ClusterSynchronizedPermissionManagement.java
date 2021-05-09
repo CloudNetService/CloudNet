@@ -156,4 +156,5 @@ public abstract class ClusterSynchronizedPermissionManagement extends DefaultCac
 
     public abstract ITask<Void> setGroupsWithoutClusterSyncAsync(Collection<? extends IPermissionGroup> groups);
 
+    public abstract boolean needsDatabaseSync();
 }
