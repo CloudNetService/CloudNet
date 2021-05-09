@@ -1,5 +1,8 @@
 package de.dytanic.cloudnet.driver.network.http;
 
+import org.jetbrains.annotations.Nullable;
+
+import java.io.InputStream;
 import java.util.Map;
 
 public interface IHttpMessage<T extends IHttpMessage<?>> {
@@ -34,4 +37,10 @@ public interface IHttpMessage<T extends IHttpMessage<?>> {
 
     T body(String text);
 
+    @Nullable
+    InputStream bodyStream();
+
+    T body(@Nullable InputStream body);
+
+    boolean hasBody();
 }

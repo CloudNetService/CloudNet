@@ -1,25 +1,31 @@
 package de.dytanic.cloudnet.driver.network.netty;
 
+import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.handler.codec.http.DefaultHttpResponse;
+import io.netty.handler.codec.http.FullHttpResponse;
+import io.netty.handler.codec.http.HttpChunkedInput;
+import io.netty.handler.codec.http.HttpHeaderNames;
+import io.netty.handler.codec.http.HttpHeaderValues;
 import io.netty.handler.codec.http.HttpRequest;
+import io.netty.handler.codec.http.HttpUtil;
+import io.netty.handler.stream.ChunkedStream;
 
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 final class NettyHttpServerHandler extends SimpleChannelInboundHandler<HttpRequest> {
 
     private final NettyHttpServer nettyHttpServer;
-
     private final HostAndPort connectedAddress;
 
     private NettyHttpChannel channel;
@@ -31,7 +37,8 @@ final class NettyHttpServerHandler extends SimpleChannelInboundHandler<HttpReque
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
-        this.channel = new NettyHttpChannel(ctx.channel(), this.connectedAddress, HostAndPort.fromSocketAddress(ctx.channel().remoteAddress()));
+        this.channel = new NettyHttpChannel(ctx.channel(), this.connectedAddress,
+                HostAndPort.fromSocketAddress(ctx.channel().remoteAddress()));
     }
 
     @Override
@@ -69,37 +76,53 @@ final class NettyHttpServerHandler extends SimpleChannelInboundHandler<HttpReque
 
         if (fullPath.isEmpty()) {
             fullPath = "/";
-        }
-        if (fullPath.endsWith("/") && !fullPath.equals("/")) {
+        } else if (fullPath.endsWith("/")) {
             fullPath = fullPath.substring(0, fullPath.length() - 1);
         }
 
-        Map<String, String> pathParameters = new HashMap<>();
         List<NettyHttpServer.HttpHandlerEntry> entries = new ArrayList<>(this.nettyHttpServer.registeredHandlers);
-        String[] pathEntries = fullPath.split("/"), handlerPathEntries;
-        Collections.sort(entries);
+        entries.sort(Comparator.comparingInt(entry -> entry.priority));
 
-        NettyHttpServerContext context = new NettyHttpServerContext(this.nettyHttpServer, this.channel, uri, pathParameters, httpRequest);
+        String[] pathEntries = fullPath.split("/");
+        NettyHttpServerContext context = new NettyHttpServerContext(this.nettyHttpServer, this.channel,
+                uri, new HashMap<>(), httpRequest);
 
         for (NettyHttpServer.HttpHandlerEntry httpHandlerEntry : entries) {
-            if (context.cancelNext) {
-                break;
-            }
-            handlerPathEntries = httpHandlerEntry.path.split("/");
+            String[] handlerPathEntries = httpHandlerEntry.path.split("/");
             context.setPathPrefix(httpHandlerEntry.path);
 
-            if (this.handleMessage0(httpHandlerEntry, context, pathParameters, fullPath, pathEntries, handlerPathEntries)) {
-                context.lastHandler = httpHandlerEntry.httpHandler;
+            if (this.handleMessage0(httpHandlerEntry, context, fullPath, pathEntries, handlerPathEntries)) {
+                context.setLastHandler(httpHandlerEntry.httpHandler);
+                if (context.cancelNext()) {
+                    break;
+                }
             }
         }
 
         if (!context.cancelSendResponse) {
-            if (context.httpServerResponse.statusCode() == 404 && context.httpServerResponse.httpResponse.content().readableBytes() == 0) {
-                context.httpServerResponse.httpResponse.content().writeBytes("Resource not found!".getBytes());
+            NettyHttpServerResponse response = context.httpServerResponse;
+            if (response.statusCode() == 404 && !response.hasBody()) {
+                response.body("Resource not found!");
             }
 
-            ChannelFuture channelFuture = channel.writeAndFlush(context.httpServerResponse.httpResponse).addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
+            FullHttpResponse netty = response.httpResponse;
+            if (!context.closeAfter()) {
+                netty.headers().set(HttpHeaderNames.CONNECTION, HttpHeaderValues.KEEP_ALIVE);
+            }
 
+            ChannelFuture channelFuture;
+            if (response.bodyStream() != null) {
+                HttpUtil.setTransferEncodingChunked(netty, true);
+
+                channel.write(new DefaultHttpResponse(netty.protocolVersion(), netty.status(), netty.headers()), channel.voidPromise());
+                channelFuture = channel.writeAndFlush(new HttpChunkedInput(new ChunkedStream(response.bodyStream())),
+                        channel.newProgressivePromise());
+            } else {
+                netty.headers().set(HttpHeaderNames.CONTENT_LENGTH, netty.content().readableBytes());
+                channelFuture = channel.writeAndFlush(netty);
+            }
+
+            channelFuture.addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
             if (context.closeAfter()) {
                 channelFuture.addListener(ChannelFutureListener.CLOSE);
             }
@@ -107,7 +130,7 @@ final class NettyHttpServerHandler extends SimpleChannelInboundHandler<HttpReque
     }
 
     private boolean handleMessage0(NettyHttpServer.HttpHandlerEntry httpHandlerEntry, NettyHttpServerContext context,
-                                   Map<String, String> pathParameters, String fullPath, String[] pathEntries, String[] handlerPathEntries) {
+                                   String fullPath, String[] pathEntries, String[] handlerPathEntries) {
         if (httpHandlerEntry.port != null && httpHandlerEntry.port != this.connectedAddress.getPort()) {
             return false;
         }
@@ -121,33 +144,29 @@ final class NettyHttpServerHandler extends SimpleChannelInboundHandler<HttpReque
         }
 
         boolean wildCard = false;
-
-        if (!(pathEntries.length == 1 && handlerPathEntries.length == 1)) {
+        if (pathEntries.length != 1 || handlerPathEntries.length != 1) {
             for (int index = 1; index < pathEntries.length; ++index) {
                 if (wildCard) {
                     continue;
                 }
 
-                if (index >= handlerPathEntries.length) {
-                    return false;
-                }
-
-                if (handlerPathEntries[index].equals("*") && handlerPathEntries.length - 1 == index) {
-                    wildCard = true;
+                // check if a wildcard is provided
+                String entry = handlerPathEntries[index];
+                if (entry.equals("*")) {
+                    if (handlerPathEntries.length - 1 == index) {
+                        wildCard = true;
+                    }
                     continue;
                 }
-
-                if (handlerPathEntries[index].startsWith("{") && handlerPathEntries[index].endsWith("}") && handlerPathEntries[index].length() > 2) {
-                    String replacedString = handlerPathEntries[index].replaceFirst("\\{", "");
-                    pathParameters.put(replacedString.substring(0, replacedString.length() - 1), pathEntries[index]);
+                // check for a path parameter in form {name}
+                if (entry.startsWith("{") && entry.endsWith("}") && entry.length() > 2) {
+                    String replacedString = entry.replaceFirst("\\{", "");
+                    context.request().pathParameters().put(
+                            replacedString.substring(0, replacedString.length() - 1), pathEntries[index]);
                     continue;
                 }
-
-                if (handlerPathEntries[index].equals("*")) {
-                    continue;
-                }
-
-                if (!handlerPathEntries[index].equals(pathEntries[index])) {
+                // check if the uri does match at the position
+                if (!entry.equals(pathEntries[index])) {
                     return false;
                 }
             }
@@ -155,9 +174,11 @@ final class NettyHttpServerHandler extends SimpleChannelInboundHandler<HttpReque
 
         try {
             httpHandlerEntry.httpHandler.handle(fullPath, context);
-        } catch (Throwable ex) {
-            ex.printStackTrace();
+            return true;
+        } catch (Exception exception) {
+            CloudNetDriver.getInstance().getLogger().error(String.format("Exception posting http request to handler %s",
+                    httpHandlerEntry.httpHandler.getClass().getName()), exception);
+            return false;
         }
-        return true;
     }
 }

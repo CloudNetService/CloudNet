@@ -13,7 +13,9 @@ import java.net.URL;
 
 public class NettyHttpServerTest {
 
-    private static final String TEST_STRING = "Response Text", TEST_STRING_2 = "Bernd", TEST_STRING_2_MESSAGE = "Eine Test Nachricht";
+    private static final String TEST_STRING = "Response Text";
+    private static final String TEST_STRING_2 = "Bernd";
+    private static final String TEST_STRING_2_MESSAGE = "Eine Test Nachricht";
 
     @Test
     public void testHttpServerWithParameters() throws Exception {
@@ -24,7 +26,7 @@ public class NettyHttpServerTest {
         Assert.assertNotNull(httpServer.registerHandler("/person/{id}/{name}/info", (path, context) -> {
             if (context.request().pathParameters().containsKey("id") && context.request().pathParameters().containsKey("name") &&
                     context.request().pathParameters().get("id").equals("64") && context.request().pathParameters().get("name").equals("Albert") &&
-                    context.request().method().toUpperCase().equals("GET")) {
+                    context.request().method().equalsIgnoreCase("GET")) {
                 context
                         .response()
                         .header("Content-Type", "text/plain")
@@ -74,12 +76,12 @@ public class NettyHttpServerTest {
         IHttpServer httpServer = new NettyHttpServer();
 
         Assert.assertNotNull(httpServer.registerHandler("/person/*/test", (path, context) -> {
-            if (context.request().method().toUpperCase().equals("POST")) {
+            if (context.request().method().equalsIgnoreCase("POST")) {
                 context
                         .response()
                         .header("Content-Type", "text/plain")
                         .header("Request-Text-Example", path.split("/")[2])
-                        .body(context.request().body())
+                        .body(context.request().bodyStream())
                         .statusCode(200)
                         .context()
                         .cancelNext()
