@@ -342,9 +342,10 @@ public final class NodePlayerManager extends DefaultPlayerManager implements IPl
     }
 
     public void loginPlayer(NetworkConnectionInfo networkConnectionInfo, NetworkPlayerServerInfo networkPlayerServerInfo) {
-        // ensure that we handle only one login message at a time
         Lock loginLock = this.loginLocks.get(networkConnectionInfo.getUniqueId());
         try {
+            // ensure that we handle only one login message at a time
+            loginLock.lock();
             this.loginPlayer0(networkConnectionInfo, networkPlayerServerInfo);
         } finally {
             loginLock.unlock();
