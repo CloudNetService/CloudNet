@@ -353,7 +353,7 @@ public final class FileUtils {
         }
     }
 
-    private static void ensureChild(Path root, Path child) {
+    public static void ensureChild(Path root, Path child) {
         Path rootNormal = root.normalize().toAbsolutePath();
         Path childNormal = child.normalize().toAbsolutePath();
 

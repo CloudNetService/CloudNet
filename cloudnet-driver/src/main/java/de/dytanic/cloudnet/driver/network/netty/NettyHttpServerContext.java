@@ -141,6 +141,12 @@ final class NettyHttpServerContext implements IHttpContext {
     }
 
     @Override
+    public IHttpContext cancelNext(boolean cancelNext) {
+        this.cancelNext = cancelNext;
+        return this;
+    }
+
+    @Override
     public IHttpHandler peekLast() {
         return this.lastHandler;
     }

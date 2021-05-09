@@ -20,6 +20,8 @@ public interface IHttpContext {
 
     boolean cancelNext();
 
+    IHttpContext cancelNext(boolean cancelNext);
+
     IHttpComponent<?> component();
 
     IHttpContext closeAfter(boolean value);
