@@ -6,15 +6,17 @@ import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
+import org.jetbrains.annotations.ApiStatus;
 
 import java.io.InputStream;
 import java.nio.file.Files;
 
-abstract class NettySSLServer {
+@ApiStatus.Internal
+public abstract class NettySSLServer {
 
     protected final SSLConfiguration sslConfiguration;
 
-    protected SslContext sslContext;
+    public SslContext sslContext;
 
     public NettySSLServer(SSLConfiguration sslConfiguration) {
         this.sslConfiguration = sslConfiguration;

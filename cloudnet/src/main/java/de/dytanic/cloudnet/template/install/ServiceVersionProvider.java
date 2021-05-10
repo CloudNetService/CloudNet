@@ -9,7 +9,8 @@ import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.console.animation.progressbar.ProgressBarInputStream;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironment;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
-import de.dytanic.cloudnet.template.ITemplateStorage;
+import de.dytanic.cloudnet.driver.template.FileInfo;
+import de.dytanic.cloudnet.driver.template.TemplateStorage;
 import de.dytanic.cloudnet.template.install.run.InstallInformation;
 import de.dytanic.cloudnet.template.install.run.step.InstallStep;
 
@@ -22,7 +23,14 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class ServiceVersionProvider {
@@ -87,20 +95,19 @@ public class ServiceVersionProvider {
         return Optional.ofNullable(this.serviceVersionTypes.get(name.toLowerCase()));
     }
 
-
     public boolean installServiceVersion(ServiceVersionType serviceVersionType, ServiceVersion serviceVersion, ServiceTemplate serviceTemplate) {
-        ITemplateStorage storage = CloudNet.getInstance().getServicesRegistry().getService(ITemplateStorage.class, serviceTemplate.getStorage());
-        if (storage == null) {
-            throw new IllegalArgumentException("Storage " + serviceTemplate.getStorage() + " not found");
-        }
-        return this.installServiceVersion(serviceVersionType, serviceVersion, storage, serviceTemplate);
+        return this.installServiceVersion(serviceVersionType, serviceVersion, serviceTemplate.storage().getWrappedStorage(), serviceTemplate);
     }
 
-    public boolean installServiceVersion(ServiceVersionType serviceVersionType, ServiceVersion serviceVersion, ITemplateStorage storage, ServiceTemplate serviceTemplate) {
+    public boolean installServiceVersion(ServiceVersionType serviceVersionType, ServiceVersion serviceVersion, ServiceTemplate serviceTemplate, boolean force) {
+        return this.installServiceVersion(serviceVersionType, serviceVersion, serviceTemplate.storage().getWrappedStorage(), serviceTemplate, force);
+    }
+
+    public boolean installServiceVersion(ServiceVersionType serviceVersionType, ServiceVersion serviceVersion, TemplateStorage storage, ServiceTemplate serviceTemplate) {
         return this.installServiceVersion(serviceVersionType, serviceVersion, storage, serviceTemplate, false);
     }
 
-    public boolean installServiceVersion(ServiceVersionType serviceVersionType, ServiceVersion serviceVersion, ITemplateStorage storage, ServiceTemplate serviceTemplate, boolean forceInstall) {
+    public boolean installServiceVersion(ServiceVersionType serviceVersionType, ServiceVersion serviceVersion, TemplateStorage storage, ServiceTemplate serviceTemplate, boolean forceInstall) {
         if (!forceInstall && !serviceVersionType.canInstall(serviceVersion)) {
             throw new IllegalStateException("Cannot run " + serviceVersionType.getName() + "-" + serviceVersion.getName() + " on " + JavaVersion.getRuntimeVersion().getName());
         }
@@ -117,10 +124,12 @@ public class ServiceVersionProvider {
 
         try {
             //delete all old application files if they exist to prevent that they are used to start the server
-            for (String file : storage.listFiles(serviceTemplate)) {
-                for (ServiceEnvironment environment : ServiceEnvironment.values()) {
-                    if (file.toLowerCase().contains(environment.getName()) && file.endsWith(".jar")) {
-                        storage.deleteFile(serviceTemplate, file);
+            for (FileInfo file : storage.listFiles(serviceTemplate, "", false)) {
+                if (file != null) {
+                    for (ServiceEnvironment environment : ServiceEnvironment.values()) {
+                        if (file.getName().toLowerCase().contains(environment.getName()) && file.getName().endsWith(".jar")) {
+                            storage.deleteFile(serviceTemplate, file.getPath());
+                        }
                     }
                 }
             }
@@ -128,7 +137,7 @@ public class ServiceVersionProvider {
             exception.printStackTrace();
         }
 
-        Path workingDirectory = Paths.get(System.getProperty("cloudnet.tempDir.build", "temp/build"), UUID.randomUUID().toString());
+        Path workingDirectory = FileUtils.createTempFile();
 
         Path versionCacheDirectory = Paths.get(System.getProperty("cloudnet.versioncache.path", "local/versioncache"),
                 serviceVersionType.getName() + "-" + serviceVersion.getName());
@@ -183,5 +192,4 @@ public class ServiceVersionProvider {
     public Map<String, ServiceVersionType> getServiceVersionTypes() {
         return this.serviceVersionTypes;
     }
-
 }

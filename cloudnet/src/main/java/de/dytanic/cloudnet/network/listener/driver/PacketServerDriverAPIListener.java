@@ -27,9 +27,6 @@ public class PacketServerDriverAPIListener implements IPacketListener {
 
         this.registerListener(new DriverNodeInfoListener());
         this.registerListener(new DriverTemplateStorageListener());
-
-        int handlerCount = this.listeners.values().stream().mapToInt(CategorizedDriverAPIListener::getHandlerCount).sum();
-        Preconditions.checkArgument(handlerCount == DriverAPIRequestType.values().length, "Invalid handlers registered");
     }
 
     private void registerListener(CategorizedDriverAPIListener listener) {

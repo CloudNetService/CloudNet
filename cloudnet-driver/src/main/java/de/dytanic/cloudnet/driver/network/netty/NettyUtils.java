@@ -30,6 +30,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 
+@ApiStatus.Internal
 public final class NettyUtils {
 
     private static final ThreadFactory THREAD_FACTORY = FastThreadLocalThread::new;

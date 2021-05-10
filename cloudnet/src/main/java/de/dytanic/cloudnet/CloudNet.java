@@ -26,6 +26,7 @@ import de.dytanic.cloudnet.command.commands.CommandTasks;
 import de.dytanic.cloudnet.command.commands.CommandTemplate;
 import de.dytanic.cloudnet.common.Properties;
 import de.dytanic.cloudnet.common.collection.Pair;
+import de.dytanic.cloudnet.common.concurrent.CompletedTask;
 import de.dytanic.cloudnet.common.concurrent.DefaultTaskScheduler;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.concurrent.ITaskScheduler;
@@ -59,9 +60,9 @@ import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot
 import de.dytanic.cloudnet.driver.network.def.PacketConstants;
 import de.dytanic.cloudnet.driver.network.def.packet.PacketServerSetGlobalLogLevel;
 import de.dytanic.cloudnet.driver.network.http.IHttpServer;
-import de.dytanic.cloudnet.driver.network.netty.NettyHttpServer;
-import de.dytanic.cloudnet.driver.network.netty.NettyNetworkClient;
-import de.dytanic.cloudnet.driver.network.netty.NettyNetworkServer;
+import de.dytanic.cloudnet.driver.network.netty.client.NettyNetworkClient;
+import de.dytanic.cloudnet.driver.network.netty.http.NettyHttpServer;
+import de.dytanic.cloudnet.driver.network.netty.server.NettyNetworkServer;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.network.protocol.IPacketListenerRegistry;
 import de.dytanic.cloudnet.driver.permission.IPermissionGroup;
@@ -73,6 +74,7 @@ import de.dytanic.cloudnet.driver.service.ProcessSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceTask;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
+import de.dytanic.cloudnet.driver.template.TemplateStorage;
 import de.dytanic.cloudnet.event.CloudNetNodePostInitializationEvent;
 import de.dytanic.cloudnet.event.cluster.NetworkClusterNodeInfoConfigureEvent;
 import de.dytanic.cloudnet.event.command.CommandNotFoundEvent;
@@ -85,6 +87,7 @@ import de.dytanic.cloudnet.network.NetworkClientChannelHandlerImpl;
 import de.dytanic.cloudnet.network.NetworkServerChannelHandlerImpl;
 import de.dytanic.cloudnet.network.NetworkUpdateType;
 import de.dytanic.cloudnet.network.listener.PacketServerChannelMessageListener;
+import de.dytanic.cloudnet.network.listener.PacketServerSetGlobalLogLevelListener;
 import de.dytanic.cloudnet.network.listener.auth.PacketClientAuthorizationListener;
 import de.dytanic.cloudnet.network.listener.auth.PacketServerAuthorizationResponseListener;
 import de.dytanic.cloudnet.network.listener.cluster.PacketServerClusterNodeInfoUpdateListener;
@@ -96,6 +99,8 @@ import de.dytanic.cloudnet.network.listener.cluster.PacketServerSetGroupConfigur
 import de.dytanic.cloudnet.network.listener.cluster.PacketServerSetH2DatabaseDataListener;
 import de.dytanic.cloudnet.network.listener.cluster.PacketServerSetPermissionDataListener;
 import de.dytanic.cloudnet.network.listener.cluster.PacketServerSetServiceTaskListListener;
+import de.dytanic.cloudnet.network.listener.cluster.PacketServerSyncTemplateStorageChunkListener;
+import de.dytanic.cloudnet.network.listener.cluster.PacketServerSyncTemplateStorageListener;
 import de.dytanic.cloudnet.network.listener.cluster.PacketServerUpdatePermissionsListener;
 import de.dytanic.cloudnet.network.listener.driver.PacketServerDriverAPIListener;
 import de.dytanic.cloudnet.network.packet.PacketServerClusterNodeInfoUpdate;
@@ -118,7 +123,6 @@ import de.dytanic.cloudnet.provider.service.NodeGeneralCloudServiceProvider;
 import de.dytanic.cloudnet.service.ICloudService;
 import de.dytanic.cloudnet.service.defaults.DefaultCloudServiceManager;
 import de.dytanic.cloudnet.setup.DefaultInstallation;
-import de.dytanic.cloudnet.template.ITemplateStorage;
 import de.dytanic.cloudnet.template.LocalTemplateStorage;
 import de.dytanic.cloudnet.template.install.ServiceVersionProvider;
 import org.jetbrains.annotations.ApiStatus;
@@ -430,6 +434,30 @@ public final class CloudNet extends CloudNetDriver {
     }
 
     @Override
+    public @NotNull TemplateStorage getLocalTemplateStorage() {
+        TemplateStorage storage = this.getTemplateStorage(ServiceTemplate.LOCAL_STORAGE);
+        if (storage == null) {
+            throw new IllegalStateException("No local TemplateStorage registered");
+        }
+        return storage;
+    }
+
+    @Override
+    public @Nullable TemplateStorage getTemplateStorage(String storage) {
+        return this.servicesRegistry.getService(TemplateStorage.class, storage);
+    }
+
+    @Override
+    public @NotNull Collection<TemplateStorage> getAvailableTemplateStorages() {
+        return this.servicesRegistry.getServices(TemplateStorage.class);
+    }
+
+    @Override
+    public @NotNull ITask<Collection<TemplateStorage>> getAvailableTemplateStoragesAsync() {
+        return CompletedTask.create(this.getAvailableTemplateStorages());
+    }
+
+    @Override
     public @NotNull SpecificCloudServiceProvider getCloudServiceProvider(@NotNull String name) {
         ServiceInfoSnapshot snapshot = this.generalCloudServiceProvider.getCloudServiceByName(name);
         return this.selectCloudServiceProvider(snapshot);
@@ -516,24 +544,6 @@ public final class CloudNet extends CloudNetDriver {
     }
 
     @Override
-    public Collection<ServiceTemplate> getLocalTemplateStorageTemplates() {
-        return this.getServicesRegistry().getService(ITemplateStorage.class, LocalTemplateStorage.LOCAL_TEMPLATE_STORAGE).getTemplates();
-    }
-
-    @Override
-    public Collection<ServiceTemplate> getTemplateStorageTemplates(@NotNull String serviceName) {
-        Preconditions.checkNotNull(serviceName);
-
-        Collection<ServiceTemplate> collection = new ArrayList<>();
-
-        if (this.servicesRegistry.containsService(ITemplateStorage.class, serviceName)) {
-            collection.addAll(this.servicesRegistry.getService(ITemplateStorage.class, serviceName).getTemplates());
-        }
-
-        return collection;
-    }
-
-    @Override
     public void setGlobalLogLevel(@NotNull LogLevel logLevel) {
         this.setGlobalLogLevel(logLevel.getLevel());
     }
@@ -558,20 +568,6 @@ public final class CloudNet extends CloudNetDriver {
         } else {
             return new Pair<>(false, new String[0]);
         }
-    }
-
-    @Override
-    @NotNull
-    public ITask<Collection<ServiceTemplate>> getLocalTemplateStorageTemplatesAsync() {
-        return this.scheduleTask(CloudNet.this::getLocalTemplateStorageTemplates);
-    }
-
-    @Override
-    @NotNull
-    public ITask<Collection<ServiceTemplate>> getTemplateStorageTemplatesAsync(@NotNull String serviceName) {
-        Preconditions.checkNotNull(serviceName);
-
-        return this.scheduleTask(() -> CloudNet.this.getTemplateStorageTemplates(serviceName));
     }
 
     @Override
@@ -837,12 +833,11 @@ public final class CloudNet extends CloudNetDriver {
         return map;
     }
 
+    public void registerClusterPacketRegistryListeners(IPacketListenerRegistry registry, boolean client) {
+        if (client) {
+            registry.addListener(PacketConstants.INTERNAL_AUTHORIZATION_CHANNEL, new PacketServerAuthorizationResponseListener());
+        }
 
-    private void initPacketRegistryListeners() {
-        IPacketListenerRegistry registry = this.getNetworkClient().getPacketRegistry();
-
-        // Packet client registry
-        registry.addListener(PacketConstants.INTERNAL_AUTHORIZATION_CHANNEL, new PacketServerAuthorizationResponseListener());
         registry.addListener(PacketConstants.SERVICE_INFO_PUBLISH_CHANNEL, new PacketServerServiceInfoPublisherListener());
         registry.addListener(PacketConstants.PERMISSIONS_PUBLISH_CHANNEL, new PacketServerUpdatePermissionsListener());
         registry.addListener(PacketConstants.CHANNEL_MESSAGING_CHANNEL, new PacketServerChannelMessageListener(false));
@@ -850,6 +845,8 @@ public final class CloudNet extends CloudNetDriver {
         registry.addListener(PacketConstants.CLUSTER_SERVICE_INFO_LIST_CHANNEL, new PacketServerSetGlobalServiceInfoListListener());
         registry.addListener(PacketConstants.CLUSTER_GROUP_CONFIG_LIST_CHANNEL, new PacketServerSetGroupConfigurationListListener());
         registry.addListener(PacketConstants.CLUSTER_TASK_LIST_CHANNEL, new PacketServerSetServiceTaskListListener());
+        registry.addListener(PacketConstants.CLUSTER_TEMPLATE_STORAGE_SYNC_CHANNEL, new PacketServerSyncTemplateStorageListener());
+        registry.addListener(PacketConstants.CLUSTER_TEMPLATE_STORAGE_CHUNK_SYNC_CHANNEL, new PacketServerSyncTemplateStorageChunkListener(false));
         registry.addListener(PacketConstants.CLUSTER_PERMISSION_DATA_CHANNEL, new PacketServerSetPermissionDataListener());
         registry.addListener(PacketConstants.CLUSTER_TEMPLATE_DEPLOY_CHANNEL, new PacketServerDeployLocalTemplateListener());
         registry.addListener(PacketConstants.CLUSTER_NODE_INFO_CHANNEL, new PacketServerClusterNodeInfoUpdateListener());
@@ -857,10 +854,17 @@ public final class CloudNet extends CloudNetDriver {
         registry.addListener(PacketConstants.INTERNAL_H2_DATABASE_UPDATE_MODULE, new PacketServerH2DatabaseListener());
         registry.addListener(PacketConstants.INTERNAL_H2_DATABASE_UPDATE_MODULE, new PacketServerSetH2DatabaseDataListener());
 
+        registry.addListener(PacketConstants.INTERNAL_DEBUGGING_CHANNEL, new PacketServerSetGlobalLogLevelListener(false));
+
         // Node server API
         registry.addListener(PacketConstants.INTERNAL_DRIVER_API_CHANNEL, new PacketServerDriverAPIListener());
+    }
 
-        // Packet server registry
+    private void initPacketRegistryListeners() {
+        IPacketListenerRegistry registry = this.getNetworkClient().getPacketRegistry();
+
+        this.registerClusterPacketRegistryListeners(registry, true);
+
         this.getNetworkServer().getPacketRegistry().addListener(PacketConstants.INTERNAL_AUTHORIZATION_CHANNEL, new PacketClientAuthorizationListener());
     }
 
@@ -965,7 +969,7 @@ public final class CloudNet extends CloudNetDriver {
 
     private void registerDefaultServices() {
         this.servicesRegistry.registerService(
-                ITemplateStorage.class,
+                TemplateStorage.class,
                 LocalTemplateStorage.LOCAL_TEMPLATE_STORAGE,
                 new LocalTemplateStorage(Paths.get(System.getProperty("cloudnet.storage.local", "local/templates")))
         );

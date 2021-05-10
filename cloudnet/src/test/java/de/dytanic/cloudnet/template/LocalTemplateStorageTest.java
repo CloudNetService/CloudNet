@@ -6,24 +6,22 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Objects;
-import java.util.zip.ZipInputStream;
 
 public final class LocalTemplateStorageTest {
 
     @Test
     public void testTemplateStorage() throws Exception {
         Path directory = Paths.get("build/local_template_storage");
-        ITemplateStorage storage = new LocalTemplateStorage(directory);
+        ClusterSynchronizedTemplateStorage storage = new LocalTemplateStorage(directory);
+        storage.toggleSynchronization(false);
 
-        try (InputStream fileStream = LocalTemplateStorageTest.class.getClassLoader().getResourceAsStream("local_template_storage.zip");
-             ZipInputStream stream = new ZipInputStream(Objects.requireNonNull(fileStream), StandardCharsets.UTF_8)
-        ) {
-            storage.deploy(stream, new ServiceTemplate("Test", "default", "local"));
+        try (InputStream fileStream = LocalTemplateStorageTest.class.getClassLoader().getResourceAsStream("local_template_storage.zip")) {
+            Assert.assertNotNull(fileStream);
+
+            storage.deploy(fileStream, new ServiceTemplate("Test", "default", "local"));
             Assert.assertTrue(Files.exists(directory.resolve("Test/default/plugins/test_file.yml")));
         }
 

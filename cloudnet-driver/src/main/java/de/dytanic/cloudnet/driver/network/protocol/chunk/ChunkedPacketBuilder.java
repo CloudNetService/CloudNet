@@ -51,6 +51,10 @@ public class ChunkedPacketBuilder {
         return this;
     }
 
+    public int channel() {
+        return this.chunkSize;
+    }
+
     public ChunkedPacketBuilder target(Consumer<ChunkedPacket> target) {
         this.target = target;
         return this;
@@ -69,14 +73,26 @@ public class ChunkedPacketBuilder {
         return this;
     }
 
+    public UUID uniqueId() {
+        return this.uniqueId;
+    }
+
     public ChunkedPacketBuilder header(JsonDocument header) {
         this.header = header;
         return this;
     }
 
+    public JsonDocument header() {
+        return this.header;
+    }
+
     public ChunkedPacketBuilder chunkSize(int chunkSize) {
         this.chunkSize = chunkSize;
         return this;
+    }
+
+    public int chunkSize() {
+        return this.chunkSize;
     }
 
     private ChunkedPacket createStartPacket(int channel, UUID uniqueId, JsonDocument header, int chunkSize) {
@@ -106,6 +122,7 @@ public class ChunkedPacketBuilder {
             }
 
             this.target.accept(createEndPacket(channel, uniqueId, chunkId, chunkSize));
+            this.inputStream.close();
 
             this.success = true;
         } catch (ChunkInterrupt ignored) {

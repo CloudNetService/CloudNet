@@ -20,7 +20,6 @@ import de.dytanic.cloudnet.console.animation.questionlist.answer.QuestionAnswerT
 import de.dytanic.cloudnet.console.animation.questionlist.answer.QuestionAnswerTypeServiceVersion;
 import de.dytanic.cloudnet.console.animation.questionlist.answer.QuestionAnswerTypeString;
 import de.dytanic.cloudnet.console.log.ColouredLogFormatter;
-import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
 import de.dytanic.cloudnet.driver.service.GroupConfiguration;
 import de.dytanic.cloudnet.driver.service.ProcessConfiguration;
@@ -29,8 +28,6 @@ import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceTask;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
-import de.dytanic.cloudnet.template.ITemplateStorage;
-import de.dytanic.cloudnet.template.LocalTemplateStorage;
 import de.dytanic.cloudnet.template.TemplateStorageUtil;
 import de.dytanic.cloudnet.template.install.ServiceVersion;
 import de.dytanic.cloudnet.template.install.ServiceVersionType;
@@ -150,9 +147,7 @@ public class CommandTasks extends CommandServiceConfigurationBase {
 
                                 CloudNet.getInstance().getServiceTaskProvider().addPermanentServiceTask(new ServiceTask(
                                         new ArrayList<>(),
-                                        new ArrayList<>(Collections.singletonList(
-                                                new ServiceTemplate(name, "default", LocalTemplateStorage.LOCAL_TEMPLATE_STORAGE)
-                                        )),
+                                        new ArrayList<>(Collections.singletonList(ServiceTemplate.local(name, "default"))),
                                         new ArrayList<>(),
                                         name,
                                         "jvm",
@@ -170,12 +165,7 @@ public class CommandTasks extends CommandServiceConfigurationBase {
                                         0
                                 ));
 
-                                TemplateStorageUtil.createAndPrepareTemplate(
-                                        CloudNetDriver.getInstance().getServicesRegistry().getService(ITemplateStorage.class, LocalTemplateStorage.LOCAL_TEMPLATE_STORAGE),
-                                        name,
-                                        "default",
-                                        type
-                                );
+                                TemplateStorageUtil.createAndPrepareTemplate(ServiceTemplate.local(name, "default"), type);
 
                                 sender.sendMessage(LanguageManager.getMessage("command-tasks-create-task"));
 
@@ -631,16 +621,10 @@ public class CommandTasks extends CommandServiceConfigurationBase {
 
             Pair<ServiceVersionType, ServiceVersion> serviceVersion = (Pair<ServiceVersionType, ServiceVersion>) animation.getResult("serviceVersion");
 
-            ServiceTemplate template = new ServiceTemplate(name, "default", LocalTemplateStorage.LOCAL_TEMPLATE_STORAGE);
-            ITemplateStorage templateStorage = CloudNetDriver.getInstance().getServicesRegistry().getService(ITemplateStorage.class, LocalTemplateStorage.LOCAL_TEMPLATE_STORAGE);
+            ServiceTemplate template = ServiceTemplate.local(name, "default");
 
             try {
-                TemplateStorageUtil.createAndPrepareTemplate(
-                        templateStorage,
-                        name,
-                        "default",
-                        environmentType
-                );
+                TemplateStorageUtil.createAndPrepareTemplate(template, environmentType);
             } catch (IOException exception) {
                 exception.printStackTrace();
             }
@@ -649,7 +633,6 @@ public class CommandTasks extends CommandServiceConfigurationBase {
                 CloudNet.getInstance().getServiceVersionProvider().installServiceVersion(
                         serviceVersion.getFirst(),
                         serviceVersion.getSecond(),
-                        templateStorage,
                         template
                 );
             }
