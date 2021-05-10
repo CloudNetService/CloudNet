@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.Executor;
 
 @ApiStatus.Internal
 public final class NettyNetworkServer extends NettySSLServer implements DefaultNetworkComponent, INetworkServer {
@@ -36,6 +37,8 @@ public final class NettyNetworkServer extends NettySSLServer implements DefaultN
     protected final Map<Integer, Pair<HostAndPort, ChannelFuture>> channelFutures = new ConcurrentHashMap<>();
 
     protected final IPacketListenerRegistry packetRegistry = new DefaultPacketListenerRegistry();
+
+    protected final Executor packetDispatcher = NettyUtils.newPacketDispatcher();
 
     protected final EventLoopGroup bossEventLoopGroup = NettyUtils.newEventLoopGroup();
     protected final EventLoopGroup workerEventLoopGroup = NettyUtils.newEventLoopGroup();
@@ -122,6 +125,11 @@ public final class NettyNetworkServer extends NettySSLServer implements DefaultN
 
     public Collection<INetworkChannel> getChannels() {
         return Collections.unmodifiableCollection(this.channels);
+    }
+
+    @Override
+    public Executor getPacketDispatcher() {
+        return this.packetDispatcher;
     }
 
     @Override

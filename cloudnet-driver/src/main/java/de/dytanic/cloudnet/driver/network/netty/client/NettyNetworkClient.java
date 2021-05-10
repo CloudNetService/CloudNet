@@ -29,12 +29,14 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.Executor;
 
 @ApiStatus.Internal
 public final class NettyNetworkClient implements DefaultNetworkComponent, INetworkClient {
 
     private static final int CONNECTION_TIMEOUT_MILLIS = 5_000;
 
+    protected final Executor packetDispatcher = NettyUtils.newPacketDispatcher();
     protected final EventLoopGroup eventLoopGroup = NettyUtils.newEventLoopGroup();
 
     protected final Collection<INetworkChannel> channels = new ConcurrentLinkedQueue<>();
@@ -140,6 +142,11 @@ public final class NettyNetworkClient implements DefaultNetworkComponent, INetwo
     @Override
     public Collection<INetworkChannel> getChannels() {
         return Collections.unmodifiableCollection(this.channels);
+    }
+
+    @Override
+    public Executor getPacketDispatcher() {
+        return this.packetDispatcher;
     }
 
     @Override

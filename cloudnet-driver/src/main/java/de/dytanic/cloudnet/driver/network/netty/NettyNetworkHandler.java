@@ -14,11 +14,11 @@ import java.util.concurrent.Executor;
 @ApiStatus.Internal
 public abstract class NettyNetworkHandler extends SimpleChannelInboundHandler<Packet> {
 
-    private final Executor packetDispatcher = NettyUtils.newPacketDispatcher();
-
     protected NettyNetworkChannel channel;
 
     protected abstract Collection<INetworkChannel> getChannels();
+
+    protected abstract Executor getPacketDispatcher();
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
@@ -46,7 +46,7 @@ public abstract class NettyNetworkHandler extends SimpleChannelInboundHandler<Pa
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, Packet msg) {
-        this.packetDispatcher.execute(() -> {
+        this.getPacketDispatcher().execute(() -> {
             try {
                 if (this.channel.getHandler() == null || this.channel.getHandler().handlePacketReceive(this.channel, msg)) {
                     this.channel.getPacketRegistry().handlePacket(this.channel, msg);
