@@ -3,6 +3,7 @@ package de.dytanic.cloudnet.common.io;
 import com.google.common.collect.ImmutableMap;
 import de.dytanic.cloudnet.common.concurrent.IVoidThrowableCallback;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.ByteArrayInputStream;
@@ -17,13 +18,17 @@ import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Map;
+import java.util.UUID;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
@@ -39,6 +44,7 @@ import java.util.zip.ZipOutputStream;
 @ApiStatus.Internal
 public final class FileUtils {
 
+    public static final InputStream EMPTY_STREAM = new ByteArrayInputStream(new byte[0]);
     private static final Map<String, String> ZIP_FILE_SYSTEM_PROPERTIES = ImmutableMap.of("create", "false", "encoding", "UTF-8");
 
     private FileUtils() {
@@ -146,6 +152,7 @@ public final class FileUtils {
         if (Files.isDirectory(file)) {
             walkFileTree(file, (root, current) -> FileUtils.deleteFileReported(current));
         }
+
         FileUtils.deleteFileReported(file);
     }
 
@@ -166,7 +173,7 @@ public final class FileUtils {
             try (ZipOutputStream zipOutputStream = new ZipOutputStream(byteBuffer,
                     StandardCharsets.UTF_8)) {
                 for (Path dir : directories) {
-                    zipDir(zipOutputStream, dir);
+                    zipDir(zipOutputStream, dir, null);
                 }
             }
 
@@ -179,15 +186,44 @@ public final class FileUtils {
         return emptyZipByteArray();
     }
 
+    public static Path createTempFile() {
+        Path tempDir = Paths.get(System.getProperty("cloudnet.tempDir", "temp"));
+        if (Files.notExists(tempDir)) {
+            try {
+                Files.createDirectories(tempDir);
+            } catch (IOException exception) {
+                exception.printStackTrace();
+            }
+        }
+        return tempDir.resolve(UUID.randomUUID().toString());
+    }
+
+    @NotNull
+    public static InputStream zipToStream(@NotNull Path directory) throws IOException {
+        return zipToStream(directory, null);
+    }
+
+    @NotNull
+    public static InputStream zipToStream(@NotNull Path directory, Predicate<Path> fileFilter) throws IOException {
+        Path target = createTempFile();
+        zipToFile(directory, target, path -> !target.equals(path) && (fileFilter == null || fileFilter.test(path)));
+        return Files.newInputStream(target, StandardOpenOption.DELETE_ON_CLOSE, LinkOption.NOFOLLOW_LINKS);
+    }
+
     @Nullable
     public static Path zipToFile(Path directory, Path target) {
+        return zipToFile(directory, target, null);
+    }
+
+    @Nullable
+    public static Path zipToFile(Path directory, Path target, Predicate<Path> fileFilter) {
         if (directory == null || !Files.exists(directory)) {
             return null;
         }
 
         delete(target);
         try (OutputStream outputStream = Files.newOutputStream(target, StandardOpenOption.CREATE)) {
-            zipStream(directory, outputStream);
+            zipStream(directory, outputStream, fileFilter);
             return target;
         } catch (final IOException exception) {
             exception.printStackTrace();
@@ -196,19 +232,23 @@ public final class FileUtils {
         return null;
     }
 
-    private static void zipStream(Path source, OutputStream buffer) throws IOException {
+    private static void zipStream(Path source, OutputStream buffer, Predicate<Path> fileFilter) throws IOException {
         try (ZipOutputStream zipOutputStream = new ZipOutputStream(buffer, StandardCharsets.UTF_8)) {
             if (Files.exists(source)) {
-                zipDir(zipOutputStream, source);
+                zipDir(zipOutputStream, source, fileFilter);
             }
         }
     }
 
-    private static void zipDir(ZipOutputStream zipOutputStream, Path directory) throws IOException {
+    private static void zipDir(ZipOutputStream zipOutputStream, Path directory, Predicate<Path> fileFilter) throws IOException {
         Files.walkFileTree(
                 directory,
                 new SimpleFileVisitor<Path>() {
                     public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                        if (fileFilter != null && !fileFilter.test(file)) {
+                            return FileVisitResult.CONTINUE;
+                        }
+
                         try {
                             zipOutputStream.putNextEntry(new ZipEntry(directory.relativize(file).toString().replace("\\", "/")));
                             Files.copy(file, zipOutputStream);
@@ -229,8 +269,16 @@ public final class FileUtils {
         }
 
         try (InputStream inputStream = Files.newInputStream(zipPath)) {
-            extract0(new ZipInputStream(inputStream, StandardCharsets.UTF_8), targetDirectory);
+            return extract(inputStream, targetDirectory);
         }
+    }
+
+    public static Path extract(InputStream inputStream, Path targetDirectory) throws IOException {
+        if (inputStream == null || targetDirectory == null) {
+            return targetDirectory;
+        }
+
+        extract0(new ZipInputStream(inputStream, StandardCharsets.UTF_8), targetDirectory);
 
         return targetDirectory;
     }

@@ -124,6 +124,20 @@ public final class DefaultClusterNodeServerProvider extends DefaultNodeServerPro
     }
 
     @Override
+    public Collection<INetworkChannel> getConnectedChannels() {
+        return this.getNodeServers().stream()
+                .map(IClusterNodeServer::getChannel)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public boolean hasAnyConnection() {
+        Collection<IClusterNodeServer> servers = this.getNodeServers();
+        return !servers.isEmpty() && servers.stream().anyMatch(IClusterNodeServer::isConnected);
+    }
+
+    @Override
     public void checkForDeadNodes() {
         for (IClusterNodeServer nodeServer : this.nodeServers) {
             if (nodeServer.isAvailable()) {

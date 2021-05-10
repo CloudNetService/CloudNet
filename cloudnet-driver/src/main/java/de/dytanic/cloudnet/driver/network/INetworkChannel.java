@@ -5,10 +5,12 @@ import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.network.protocol.IPacketListenerRegistry;
 import de.dytanic.cloudnet.driver.network.protocol.IPacketSender;
+import de.dytanic.cloudnet.driver.network.protocol.chunk.ChunkedQueryResponse;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.UUID;
 
 /**
  * A NetworkChannel instance represents an open connection
@@ -59,7 +61,15 @@ public interface INetworkChannel extends IPacketSender, AutoCloseable {
 
     IPacket sendQuery(@NotNull IPacket packet);
 
+    ITask<IPacket> registerQueryResponseHandler(UUID uniqueId);
+
+    ITask<ChunkedQueryResponse> sendChunkedPacketQuery(@NotNull IPacket packet);
+
+    boolean sendChunkedPacketsResponse(@NotNull UUID uniqueId, @NotNull JsonDocument header, @NotNull InputStream inputStream) throws IOException;
+
     boolean sendChunkedPackets(@NotNull JsonDocument header, @NotNull InputStream inputStream, int channel) throws IOException;
+
+    boolean sendChunkedPackets(UUID uniqueId, @NotNull JsonDocument header, @NotNull InputStream inputStream, int channel) throws IOException;
 
     boolean isWriteable();
 
