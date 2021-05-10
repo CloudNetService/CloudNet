@@ -1,13 +1,29 @@
 package de.dytanic.cloudnet.ext.rest.v2;
 
+import com.google.common.collect.Iterables;
+import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.network.http.IHttpContext;
+import de.dytanic.cloudnet.driver.network.http.websocket.IWebSocketChannel;
+import de.dytanic.cloudnet.driver.network.http.websocket.IWebSocketListener;
+import de.dytanic.cloudnet.driver.network.http.websocket.WebSocketFrameType;
 import de.dytanic.cloudnet.driver.provider.service.CloudServiceFactory;
 import de.dytanic.cloudnet.driver.provider.service.GeneralCloudServiceProvider;
+import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
+import de.dytanic.cloudnet.driver.service.ServiceDeployment;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
+import de.dytanic.cloudnet.driver.service.ServiceRemoteInclusion;
+import de.dytanic.cloudnet.driver.service.ServiceTask;
+import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import de.dytanic.cloudnet.http.v2.HttpSession;
 import de.dytanic.cloudnet.http.v2.V2HttpHandler;
+import de.dytanic.cloudnet.service.ICloudService;
+import de.dytanic.cloudnet.service.IServiceConsoleLogCache;
+import de.dytanic.cloudnet.service.ServiceConsoleLineHandler;
 
+import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 public class V2HttpHandlerService extends V2HttpHandler {
@@ -15,10 +31,6 @@ public class V2HttpHandlerService extends V2HttpHandler {
     public V2HttpHandlerService(String requiredPermission) {
         super(requiredPermission, "GET", "POST", "DELETE");
     }
-
-    // d     d        d                                d
-    // GET   GET      GET                      DELETE  GET      POST                               GET                           GET     GET        GET
-    // list, service, start/stop/restart/kill, delete, command, add template/deployment/inclusion, include templates/inclusions, deploy, log lines, log web socket
 
     @Override
     protected void handleBearerAuthorized(String path, IHttpContext context, HttpSession session) {
@@ -29,13 +41,25 @@ public class V2HttpHandlerService extends V2HttpHandler {
                 this.handleServiceStateUpdateRequest(path, context);
             } else if (path.endsWith("/command")) {
                 this.handleServiceCommandRequest(context);
-            } else if (path.endsWith("/include")) {
-
+            } else if (path.contains("/include")) {
+                this.handleIncludeRequest(context);
+            } else if (path.endsWith("/deployresources")) {
+                this.handleDeployResourcesRequest(context);
+            } else if (path.endsWith("/loglines")) {
+                this.handleLogLinesRequest(context);
+            } else if (path.endsWith("/livelog")) {
+                this.handleLiveLogRequest(context);
+            } else {
+                this.handleServiceRequest(context);
             }
         } else if (context.request().method().equalsIgnoreCase("POST")) {
-
+            if (path.endsWith("/create")) {
+                this.handleCreateRequest(context);
+            } else if (path.contains("/add")) {
+                this.handleAddRequest(context);
+            }
         } else if (context.request().method().equalsIgnoreCase("DELETE")) {
-
+            this.handleServiceDeleteRequest(context);
         }
     }
 
@@ -45,6 +69,15 @@ public class V2HttpHandlerService extends V2HttpHandler {
                 .context()
                 .closeAfter(true)
                 .cancelNext();
+    }
+
+    protected void handleServiceRequest(IHttpContext context) {
+        this.handleWithServiceContext(context, service -> this.ok(context)
+                .body(this.success().append("snapshot", service).toByteArray())
+                .context()
+                .closeAfter(true)
+                .cancelNext()
+        );
     }
 
     protected void handleServiceStateUpdateRequest(String path, IHttpContext context) {
@@ -81,7 +114,213 @@ public class V2HttpHandlerService extends V2HttpHandler {
 
     protected void handleIncludeRequest(IHttpContext context) {
         this.handleWithServiceContext(context, service -> {
+            List<String> types = context.request().queryParameters().get("type");
+            if (types != null && !types.isEmpty()) {
+                if (types.contains("templates")) {
+                    service.provider().includeWaitingServiceTemplates();
+                }
+                if (types.contains("inclusions")) {
+                    service.provider().includeWaitingServiceInclusions();
+                }
+                this.ok(context).body(this.success().toByteArray()).context().closeAfter(true).cancelNext();
+            } else {
+                this.badRequest(context)
+                        .body(this.failure().append("reason", "Missing inclusion types in query params").toByteArray())
+                        .context()
+                        .closeAfter(true)
+                        .cancelNext();
+            }
+        });
+    }
 
+    protected void handleDeployResourcesRequest(IHttpContext context) {
+        this.handleWithServiceContext(context, service -> {
+            boolean removeDeployments = this.body(context.request()).getBoolean("removeDeployments", true);
+            service.provider().deployResources(removeDeployments);
+
+            this.ok(context).body(this.success().toByteArray()).context().closeAfter(true).cancelNext();
+        });
+    }
+
+    protected void handleLogLinesRequest(IHttpContext context) {
+        this.handleWithServiceContext(context, service -> this.ok(context)
+                .body(this.success().append("lines", service.provider().getCachedLogMessages()).toByteArray())
+                .context()
+                .closeAfter(true)
+                .cancelNext()
+        );
+    }
+
+    protected void handleLiveLogRequest(IHttpContext context) {
+        this.handleWithServiceContext(context, service -> {
+            ICloudService cloudService = this.getCloudNet().getCloudServiceManager().getCloudService(service.getServiceId().getUniqueId());
+            if (cloudService != null) {
+                IWebSocketChannel webSocketChannel = context.upgrade();
+                if (webSocketChannel == null) {
+                    return;
+                }
+
+                ServiceConsoleLineHandler handler = (console, line) -> webSocketChannel.sendWebSocketFrame(WebSocketFrameType.TEXT, line);
+                cloudService.getServiceConsoleLogCache().addHandler(handler);
+
+                webSocketChannel.addListener(new ConsoleHandlerWebSocketListener(cloudService.getServiceConsoleLogCache(), handler));
+            } else {
+                this.badRequest(context)
+                        .body(this.failure().append("reason", "Service is unknown or not running on this node").toByteArray())
+                        .context()
+                        .closeAfter(true)
+                        .cancelNext();
+            }
+        });
+    }
+
+    protected void handleCreateRequest(IHttpContext context) {
+        JsonDocument body = this.body(context.request());
+        // check for a provided service configuration
+        ServiceConfiguration configuration = body.get("serviceConfiguration", ServiceConfiguration.class);
+        if (configuration == null) {
+            // check for a provided service task
+            ServiceTask serviceTask = body.get("task", ServiceTask.class);
+            if (serviceTask != null) {
+                ServiceConfiguration.Builder builder = ServiceConfiguration.builder(serviceTask);
+                if (!builder.isValid()) {
+                    this.sendInvalidServiceConfigurationResponse(context);
+                    return;
+                } else {
+                    configuration = builder.build();
+                }
+            } else {
+                // fallback to a service task name which has to exist
+                String serviceTaskName = body.getString("serviceTaskName");
+                if (serviceTaskName != null) {
+                    ServiceTask task = this.getCloudNet().getServiceTaskProvider().getServiceTask(serviceTaskName);
+                    if (task != null) {
+                        ServiceConfiguration.Builder builder = ServiceConfiguration.builder(task);
+                        if (!builder.isValid()) {
+                            this.sendInvalidServiceConfigurationResponse(context);
+                            return;
+                        } else {
+                            configuration = builder.build();
+                        }
+                    } else {
+                        // we got a task but it does not exist
+                        this.badRequest(context)
+                                .body(this.failure().append("reason", "Provided task is unknown").toByteArray())
+                                .context()
+                                .closeAfter(true)
+                                .cancelNext();
+                        return;
+                    }
+                } else {
+                    this.sendInvalidServiceConfigurationResponse(context);
+                    return;
+                }
+            }
+        }
+
+        configuration.replaceNulls();
+        if (!configuration.isValid()) {
+            this.sendInvalidServiceConfigurationResponse(context);
+            return;
+        }
+
+        ServiceInfoSnapshot snapshot = this.getServiceFactory().createCloudService(configuration);
+        if (snapshot != null) {
+            boolean start = body.getBoolean("start", false);
+            if (start) {
+                snapshot.provider().start();
+            }
+
+            this.ok(context)
+                    .body(this.success().append("snapshot", snapshot).toByteArray())
+                    .context()
+                    .closeAfter(true)
+                    .cancelNext();
+        } else {
+            this.ok(context)
+                    .body(this.failure().toByteArray())
+                    .context()
+                    .closeAfter(true)
+                    .cancelNext();
+        }
+    }
+
+    protected void handleAddRequest(IHttpContext context) {
+        this.handleWithServiceContext(context, service -> {
+            String type = Iterables.getFirst(context.request().queryParameters().get("type"), null);
+            if (type == null) {
+                this.badRequest(context)
+                        .body(this.failure().append("reason", "Missing type in query params").toByteArray())
+                        .context()
+                        .closeAfter(true)
+                        .cancelNext();
+            } else {
+                JsonDocument body = this.body(context.request());
+                boolean flushAfter = body.getBoolean("flush", false);
+
+                if (type.equalsIgnoreCase("template")) {
+                    ServiceTemplate template = body.get("template", ServiceTemplate.class);
+                    if (template == null) {
+                        this.badRequest(context)
+                                .body(this.failure().append("reason", "Missing template in body").toByteArray())
+                                .context()
+                                .closeAfter(true)
+                                .cancelNext();
+                        return;
+                    } else {
+                        service.provider().addServiceTemplate(template);
+                        if (flushAfter) {
+                            service.provider().includeWaitingServiceTemplates();
+                        }
+                    }
+                } else if (type.equalsIgnoreCase("deployment")) {
+                    ServiceDeployment deployment = body.get("deployment", ServiceDeployment.class);
+                    if (deployment == null) {
+                        this.badRequest(context)
+                                .body(this.failure().append("reason", "Missing deployment in body").toByteArray())
+                                .context()
+                                .closeAfter(true)
+                                .cancelNext();
+                        return;
+                    } else {
+                        service.provider().addServiceDeployment(deployment);
+                        if (flushAfter) {
+                            service.provider().deployResources(body.getBoolean("removeDeployments", true));
+                        }
+                    }
+                } else if (type.equalsIgnoreCase("inclusion")) {
+                    ServiceRemoteInclusion inclusion = body.get("inclusion", ServiceRemoteInclusion.class);
+                    if (inclusion == null) {
+                        this.badRequest(context)
+                                .body(this.failure().append("reason", "Missing inclusion in body").toByteArray())
+                                .context()
+                                .closeAfter(true)
+                                .cancelNext();
+                        return;
+                    } else {
+                        service.provider().addServiceRemoteInclusion(inclusion);
+                        if (flushAfter) {
+                            service.provider().includeWaitingServiceInclusions();
+                        }
+                    }
+                } else {
+                    this.badRequest(context)
+                            .body(this.failure().append("reason", "Invalid add type").toByteArray())
+                            .context()
+                            .closeAfter(true)
+                            .cancelNext();
+                    return;
+                }
+
+                this.ok(context).body(this.success().toByteArray()).context().closeAfter(true).cancelNext();
+            }
+        });
+    }
+
+    protected void handleServiceDeleteRequest(IHttpContext context) {
+        this.handleWithServiceContext(context, service -> {
+            service.provider().delete();
+            this.ok(context).body(this.success().toByteArray()).context().closeAfter(true).cancelNext();
         });
     }
 
@@ -117,6 +356,14 @@ public class V2HttpHandlerService extends V2HttpHandler {
         handler.accept(serviceInfoSnapshot);
     }
 
+    protected void sendInvalidServiceConfigurationResponse(IHttpContext context) {
+        this.badRequest(context)
+                .body(this.failure().append("reason", "Missing parameters for service creation").toByteArray())
+                .context()
+                .closeAfter(true)
+                .cancelNext();
+    }
+
     protected GeneralCloudServiceProvider getGeneralServiceProvider() {
         return this.getCloudNet().getCloudServiceProvider();
     }
@@ -131,5 +378,28 @@ public class V2HttpHandlerService extends V2HttpHandler {
 
     protected ServiceInfoSnapshot getServiceById(UUID uniqueID) {
         return this.getGeneralServiceProvider().getCloudService(uniqueID);
+    }
+
+    protected static class ConsoleHandlerWebSocketListener implements IWebSocketListener {
+
+        protected final IServiceConsoleLogCache logCache;
+        protected final ServiceConsoleLineHandler watchingHandler;
+
+        public ConsoleHandlerWebSocketListener(IServiceConsoleLogCache logCache, ServiceConsoleLineHandler watchingHandler) {
+            this.logCache = logCache;
+            this.watchingHandler = watchingHandler;
+        }
+
+        @Override
+        public void handle(IWebSocketChannel channel, WebSocketFrameType type, byte[] bytes) throws Exception {
+            if (type == WebSocketFrameType.PING) {
+                channel.sendWebSocketFrame(WebSocketFrameType.PONG, bytes);
+            }
+        }
+
+        @Override
+        public void handleClose(IWebSocketChannel channel, AtomicInteger statusCode, AtomicReference<String> reasonText) {
+            this.logCache.removeHandler(this.watchingHandler);
+        }
     }
 }

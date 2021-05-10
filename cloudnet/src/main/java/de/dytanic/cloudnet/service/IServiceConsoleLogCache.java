@@ -18,4 +18,7 @@ public interface IServiceConsoleLogCache {
 
     void setScreenEnabled(boolean value);
 
+    void addHandler(ServiceConsoleLineHandler handler);
+
+    void removeHandler(ServiceConsoleLineHandler handler);
 }

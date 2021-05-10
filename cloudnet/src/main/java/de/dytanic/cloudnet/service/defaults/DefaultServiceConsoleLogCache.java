@@ -8,27 +8,27 @@ import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
 import de.dytanic.cloudnet.event.service.CloudServiceConsoleLogReceiveEntryEvent;
 import de.dytanic.cloudnet.service.ICloudService;
 import de.dytanic.cloudnet.service.IServiceConsoleLogCache;
+import de.dytanic.cloudnet.service.ServiceConsoleLineHandler;
 
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Queue;
+import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 public final class DefaultServiceConsoleLogCache implements IServiceConsoleLogCache {
 
+    private final byte[] buffer = new byte[1024];
     private final Queue<String> cachedLogMessages = new ConcurrentLinkedQueue<>();
 
-    private final byte[] buffer = new byte[1024];
-
-    private final StringBuffer stringBuffer = new StringBuffer();
-
-
     private final ICloudService cloudService;
-
+    private final StringBuffer stringBuffer = new StringBuffer();
 
     private boolean autoPrintReceivedInput;
     private boolean screenEnabled;
 
+    private Set<ServiceConsoleLineHandler> handlers;
 
     private int len;
 
@@ -86,6 +86,11 @@ public final class DefaultServiceConsoleLogCache implements IServiceConsoleLogCa
         }
 
         this.cachedLogMessages.offer(text);
+        if (this.handlers != null && !this.handlers.isEmpty()) {
+            for (ServiceConsoleLineHandler handler : this.handlers) {
+                handler.handleLine(this, text);
+            }
+        }
 
         CloudNetDriver.getInstance().getEventManager().callEvent(new CloudServiceConsoleLogReceiveEntryEvent(this.cloudService.getServiceInfoSnapshot(), text, printErrorIntoConsole));
 
@@ -130,5 +135,20 @@ public final class DefaultServiceConsoleLogCache implements IServiceConsoleLogCa
     @Override
     public void setScreenEnabled(boolean screenEnabled) {
         this.screenEnabled = screenEnabled;
+    }
+
+    @Override
+    public void addHandler(ServiceConsoleLineHandler handler) {
+        if (this.handlers == null) {
+            this.handlers = new CopyOnWriteArraySet<>();
+        }
+        this.handlers.add(handler);
+    }
+
+    @Override
+    public void removeHandler(ServiceConsoleLineHandler handler) {
+        if (this.handlers != null) {
+            this.handlers.remove(handler);
+        }
     }
 }

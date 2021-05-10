@@ -4,8 +4,15 @@ import de.dytanic.cloudnet.driver.network.http.websocket.IWebSocketListener;
 import de.dytanic.cloudnet.driver.network.http.websocket.WebSocketFrameType;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.handler.codec.http.websocketx.*;
+import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
+import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
+import io.netty.handler.codec.http.websocketx.PingWebSocketFrame;
+import io.netty.handler.codec.http.websocketx.PongWebSocketFrame;
+import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
+import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import org.jetbrains.annotations.ApiStatus;
+
+import java.io.IOException;
 
 @ApiStatus.Internal
 final class NettyWebSocketServerChannelHandler extends SimpleChannelInboundHandler<WebSocketFrame> {
@@ -14,6 +21,25 @@ final class NettyWebSocketServerChannelHandler extends SimpleChannelInboundHandl
 
     public NettyWebSocketServerChannelHandler(NettyWebSocketServerChannel webSocketServerChannel) {
         this.webSocketServerChannel = webSocketServerChannel;
+    }
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
+        if (!(cause instanceof IOException)) {
+            cause.printStackTrace();
+        }
+    }
+
+    @Override
+    public void channelReadComplete(ChannelHandlerContext ctx) {
+        ctx.flush();
+    }
+
+    @Override
+    public void channelInactive(ChannelHandlerContext ctx) {
+        if (!ctx.channel().isActive() || !ctx.channel().isOpen() || !ctx.channel().isWritable()) {
+            ctx.channel().close();
+        }
     }
 
     @Override
@@ -35,7 +61,7 @@ final class NettyWebSocketServerChannelHandler extends SimpleChannelInboundHandl
         }
 
         if (webSocketFrame instanceof CloseWebSocketFrame) {
-            this.webSocketServerChannel.close(200, "client connection closed");
+            this.webSocketServerChannel.close(1000, "client connection closed");
         }
     }
 

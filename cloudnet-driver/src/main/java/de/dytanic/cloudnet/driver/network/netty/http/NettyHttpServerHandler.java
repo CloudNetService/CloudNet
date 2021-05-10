@@ -175,7 +175,7 @@ final class NettyHttpServerHandler extends SimpleChannelInboundHandler<HttpReque
         }
 
         try {
-            httpHandlerEntry.httpHandler.handle(fullPath, context);
+            httpHandlerEntry.httpHandler.handle(fullPath.toLowerCase(), context);
             return true;
         } catch (Exception exception) {
             CloudNetDriver.getInstance().getLogger().error(String.format("Exception posting http request to handler %s",

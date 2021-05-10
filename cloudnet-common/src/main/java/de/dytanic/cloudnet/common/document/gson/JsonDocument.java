@@ -181,8 +181,7 @@ public class JsonDocument implements IDocument<JsonDocument>, Cloneable {
     public static JsonDocument newDocument(String json) {
         try {
             return new JsonDocument(JsonParser.parseString(json));
-        } catch (JsonSyntaxException exception) {
-            exception.printStackTrace();
+        } catch (Exception exception) {
             return new JsonDocument();
         }
     }

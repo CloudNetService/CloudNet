@@ -111,7 +111,10 @@ final class NettyHttpServerContext implements IHttpContext {
             this.webSocketServerChannel = new NettyWebSocketServerChannel(this.channel, this.nettyChannel, handshaker);
             this.nettyChannel.pipeline().addLast("websocket-server-channel-handler",
                     new NettyWebSocketServerChannelHandler(this.webSocketServerChannel));
+
+            this.cancelNext(true);
             this.closeAfter(false);
+            this.cancelSendResponse = true;
         }
 
         return this.webSocketServerChannel;
