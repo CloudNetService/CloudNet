@@ -26,4 +26,8 @@ dependencies {
     api group: 'org.jline', name: 'jline', version: dependencyJLineVersion
     api group: 'org.fusesource.jansi', name: 'jansi', version: dependencyJAnsiVersion
     api group: 'com.h2database', name: 'h2', version: dependencyH2Version
+
+    api group: 'io.jsonwebtoken', name: 'jjwt-api', version: dependencyJJWTVersion
+    api group: 'io.jsonwebtoken', name: 'jjwt-impl', version: dependencyJJWTVersion
+    api group: 'io.jsonwebtoken', name: 'jjwt-gson', version: dependencyJJWTVersion
 }

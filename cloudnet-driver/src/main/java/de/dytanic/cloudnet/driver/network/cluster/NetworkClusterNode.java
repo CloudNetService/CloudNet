@@ -32,6 +32,10 @@ public class NetworkClusterNode extends SerializableJsonDocPropertyable implemen
         return this.listeners;
     }
 
+    public void setListeners(HostAndPort[] listeners) {
+        this.listeners = listeners;
+    }
+
     @Override
     public void write(@NotNull ProtocolBuffer buffer) {
         buffer.writeString(this.uniqueId);

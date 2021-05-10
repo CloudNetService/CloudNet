@@ -3,7 +3,29 @@ package de.dytanic.cloudnet.ext.rest;
 import de.dytanic.cloudnet.driver.module.ModuleLifeCycle;
 import de.dytanic.cloudnet.driver.module.ModuleTask;
 import de.dytanic.cloudnet.driver.network.http.IHttpHandler;
-import de.dytanic.cloudnet.ext.rest.http.*;
+import de.dytanic.cloudnet.ext.rest.http.V1HttpHandlerAuthentication;
+import de.dytanic.cloudnet.ext.rest.http.V1HttpHandlerCluster;
+import de.dytanic.cloudnet.ext.rest.http.V1HttpHandlerCommand;
+import de.dytanic.cloudnet.ext.rest.http.V1HttpHandlerDatabase;
+import de.dytanic.cloudnet.ext.rest.http.V1HttpHandlerGroups;
+import de.dytanic.cloudnet.ext.rest.http.V1HttpHandlerLocalTemplate;
+import de.dytanic.cloudnet.ext.rest.http.V1HttpHandlerLocalTemplateFileSystem;
+import de.dytanic.cloudnet.ext.rest.http.V1HttpHandlerLogout;
+import de.dytanic.cloudnet.ext.rest.http.V1HttpHandlerModules;
+import de.dytanic.cloudnet.ext.rest.http.V1HttpHandlerPing;
+import de.dytanic.cloudnet.ext.rest.http.V1HttpHandlerServices;
+import de.dytanic.cloudnet.ext.rest.http.V1HttpHandlerShowOpenAPI;
+import de.dytanic.cloudnet.ext.rest.http.V1HttpHandlerStatus;
+import de.dytanic.cloudnet.ext.rest.http.V1HttpHandlerTasks;
+import de.dytanic.cloudnet.ext.rest.http.V1SecurityProtectionHttpHandler;
+import de.dytanic.cloudnet.ext.rest.v2.V2HttpHandlerAuthorization;
+import de.dytanic.cloudnet.ext.rest.v2.V2HttpHandlerCluster;
+import de.dytanic.cloudnet.ext.rest.v2.V2HttpHandlerDatabase;
+import de.dytanic.cloudnet.ext.rest.v2.V2HttpHandlerGroups;
+import de.dytanic.cloudnet.ext.rest.v2.V2HttpHandlerInfo;
+import de.dytanic.cloudnet.ext.rest.v2.V2HttpHandlerService;
+import de.dytanic.cloudnet.ext.rest.v2.V2HttpHandlerSession;
+import de.dytanic.cloudnet.ext.rest.v2.V2HttpHandlerTasks;
 import de.dytanic.cloudnet.module.NodeCloudNetModule;
 
 public final class CloudNetRestModule extends NodeCloudNetModule {
@@ -11,8 +33,34 @@ public final class CloudNetRestModule extends NodeCloudNetModule {
     @ModuleTask(order = 127, event = ModuleLifeCycle.STARTED)
     public void initHttpHandlers() {
         this.getHttpServer()
+                // v2 rest auth
+                .registerHandler("/api/v2/auth", IHttpHandler.PRIORITY_NORMAL, new V2HttpHandlerAuthorization())
+                // v2 session management
+                .registerHandler("/api/v2/session/*", IHttpHandler.PRIORITY_NORMAL, new V2HttpHandlerSession())
+                // v2 node status check / information
+                .registerHandler("/api/v2/info", IHttpHandler.PRIORITY_NORMAL, new V2HttpHandlerInfo())
+                // v2 cluster
+                .registerHandler("/api/v2/cluster", IHttpHandler.PRIORITY_NORMAL, new V2HttpHandlerCluster("http.v2.cluster"))
+                .registerHandler("/api/v2/cluster/{node}", IHttpHandler.PRIORITY_NORMAL, new V2HttpHandlerCluster("http.v2.cluster"))
+                .registerHandler("/api/v2/cluster/{node}/command", IHttpHandler.PRIORITY_NORMAL, new V2HttpHandlerCluster("http.v2.cluster"))
+                // v2 database
+                .registerHandler("/api/v2/database", IHttpHandler.PRIORITY_NORMAL, new V2HttpHandlerDatabase("http.v2.database"))
+                .registerHandler("/api/v2/database/{name}", IHttpHandler.PRIORITY_NORMAL, new V2HttpHandlerDatabase("http.v2.database"))
+                .registerHandler("/api/v2/database/{name}/*", IHttpHandler.PRIORITY_LOW, new V2HttpHandlerDatabase("http.v2.database"))
+                // v2 groups
+                .registerHandler("/api/v2/group", IHttpHandler.PRIORITY_NORMAL, new V2HttpHandlerGroups("http.v2.groups"))
+                .registerHandler("/api/v2/group/{group}", IHttpHandler.PRIORITY_NORMAL, new V2HttpHandlerGroups("http.v2.groups"))
+                .registerHandler("/api/v2/group/{group}/*", IHttpHandler.PRIORITY_LOW, new V2HttpHandlerGroups("http.v2.groups"))
+                // v2 tasks
+                .registerHandler("/api/v2/task", IHttpHandler.PRIORITY_NORMAL, new V2HttpHandlerTasks("http.v2.tasks"))
+                .registerHandler("/api/v2/task/{task}", IHttpHandler.PRIORITY_NORMAL, new V2HttpHandlerTasks("http.v2.tasks"))
+                .registerHandler("/api/v2/task/{task}/*", IHttpHandler.PRIORITY_LOW, new V2HttpHandlerTasks("http.v2.tasks"))
+                // v2 services
+                .registerHandler("/api/v2/service", IHttpHandler.PRIORITY_NORMAL, new V2HttpHandlerService("http.v2.services"))
+                .registerHandler("/api/v2/service/{identifier}", IHttpHandler.PRIORITY_NORMAL, new V2HttpHandlerService("http.v2.services"))
+                .registerHandler("/api/v2/service/{identifier}/*", IHttpHandler.PRIORITY_LOW, new V2HttpHandlerService("http.v2.services"))
+                // legacy v1 handlers
                 .registerHandler("/api/v1", IHttpHandler.PRIORITY_NORMAL, new V1HttpHandlerShowOpenAPI())
-                //HttpHandler API implementation
                 .registerHandler("/api/v1/*", IHttpHandler.PRIORITY_HIGH, new V1SecurityProtectionHttpHandler())
                 .registerHandler("/api/v1/auth", IHttpHandler.PRIORITY_NORMAL, new V1HttpHandlerAuthentication())
                 .registerHandler("/api/v1/logout", IHttpHandler.PRIORITY_NORMAL, new V1HttpHandlerLogout())
