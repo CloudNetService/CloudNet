@@ -8,6 +8,7 @@ import io.netty.channel.ChannelHandlerContext;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.Collection;
+import java.util.concurrent.Executor;
 
 @ApiStatus.Internal
 final class NettyNetworkClientHandler extends NettyNetworkHandler {
@@ -40,5 +41,10 @@ final class NettyNetworkClientHandler extends NettyNetworkHandler {
     @Override
     protected Collection<INetworkChannel> getChannels() {
         return this.nettyNetworkClient.channels;
+    }
+
+    @Override
+    protected Executor getPacketDispatcher() {
+        return this.nettyNetworkClient.getPacketDispatcher();
     }
 }
