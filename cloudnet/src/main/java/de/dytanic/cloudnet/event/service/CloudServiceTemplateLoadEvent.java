@@ -3,20 +3,20 @@ package de.dytanic.cloudnet.event.service;
 import de.dytanic.cloudnet.driver.event.ICancelable;
 import de.dytanic.cloudnet.driver.event.events.DriverEvent;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
+import de.dytanic.cloudnet.driver.template.TemplateStorage;
 import de.dytanic.cloudnet.service.ICloudService;
-import de.dytanic.cloudnet.template.ITemplateStorage;
 
 public final class CloudServiceTemplateLoadEvent extends DriverEvent implements ICancelable {
 
     private final ICloudService cloudService;
 
-    private final ITemplateStorage storage;
+    private final TemplateStorage storage;
 
     private final ServiceTemplate template;
 
     private boolean cancelled;
 
-    public CloudServiceTemplateLoadEvent(ICloudService cloudService, ITemplateStorage storage, ServiceTemplate template) {
+    public CloudServiceTemplateLoadEvent(ICloudService cloudService, TemplateStorage storage, ServiceTemplate template) {
         this.cloudService = cloudService;
         this.storage = storage;
         this.template = template;
@@ -26,7 +26,7 @@ public final class CloudServiceTemplateLoadEvent extends DriverEvent implements 
         return this.cloudService;
     }
 
-    public ITemplateStorage getStorage() {
+    public TemplateStorage getStorage() {
         return this.storage;
     }
 

@@ -12,18 +12,15 @@ import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
 import de.dytanic.cloudnet.driver.service.ServiceRemoteInclusion;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
+import de.dytanic.cloudnet.driver.template.TemplateStorage;
 import de.dytanic.cloudnet.event.service.CloudServiceDeploymentEvent;
 import de.dytanic.cloudnet.event.service.CloudServicePreLoadInclusionEvent;
 import de.dytanic.cloudnet.event.service.CloudServiceTemplateLoadEvent;
 import de.dytanic.cloudnet.service.ICloudServiceManager;
 import de.dytanic.cloudnet.service.handler.CloudServiceHandler;
-import de.dytanic.cloudnet.template.ITemplateStorage;
-import de.dytanic.cloudnet.template.LocalTemplateStorage;
-import de.dytanic.cloudnet.template.TemplateStorageUtil;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
@@ -143,7 +140,7 @@ public abstract class DefaultTemplateCloudService extends DefaultCloudService {
             ServiceTemplate template = this.waitingTemplates.poll();
 
             if (template != null && template.getName() != null && template.getPrefix() != null && template.getStorage() != null) {
-                ITemplateStorage storage = this.getStorage(template.getStorage());
+                TemplateStorage storage = this.getStorage(template.getStorage());
 
                 if (!storage.has(template)) {
                     continue;
@@ -185,7 +182,7 @@ public abstract class DefaultTemplateCloudService extends DefaultCloudService {
             if (deployment != null) {
                 if (deployment.getTemplate() != null && deployment.getTemplate().getStorage() != null && deployment.getTemplate().getPrefix() != null &&
                         deployment.getTemplate().getName() != null) {
-                    ITemplateStorage storage = this.getStorage(deployment.getTemplate().getStorage());
+                    TemplateStorage storage = this.getStorage(deployment.getTemplate().getStorage());
 
                     CloudServiceDeploymentEvent cloudServiceDeploymentEvent = new CloudServiceDeploymentEvent(this, storage, deployment);
                     CloudNetDriver.getInstance().getEventManager().callEvent(cloudServiceDeploymentEvent);
@@ -216,17 +213,6 @@ public abstract class DefaultTemplateCloudService extends DefaultCloudService {
 
                     if (removeDeployments) {
                         this.deployments.remove(deployment);
-                    }
-
-                    if (storage instanceof LocalTemplateStorage) {
-                        try {
-                            InputStream stream = storage.zipTemplate(deployment.getTemplate());
-                            if (stream != null) {
-                                CloudNet.getInstance().deployTemplateInCluster(deployment.getTemplate(), stream);
-                            }
-                        } catch (IOException exception) {
-                            exception.printStackTrace();
-                        }
                     }
                 }
             }
@@ -259,13 +245,9 @@ public abstract class DefaultTemplateCloudService extends DefaultCloudService {
         return super.createServiceInfoSnapshot(lifeCycle);
     }
 
-    private ITemplateStorage getStorage(String storageName) {
-        ITemplateStorage storage = CloudNetDriver.getInstance().getServicesRegistry().getService(ITemplateStorage.class, storageName);
-        if (storage == null) {
-            storage = TemplateStorageUtil.getLocalTemplateStorage();
-        }
-
-        return storage;
+    private TemplateStorage getStorage(String storageName) {
+        TemplateStorage storage = CloudNetDriver.getInstance().getTemplateStorage(storageName);
+        return storage != null ? storage : CloudNetDriver.getInstance().getLocalTemplateStorage();
     }
 
     @Override
@@ -292,5 +274,4 @@ public abstract class DefaultTemplateCloudService extends DefaultCloudService {
     public Queue<ServiceTemplate> getWaitingTemplates() {
         return this.waitingTemplates;
     }
-
 }

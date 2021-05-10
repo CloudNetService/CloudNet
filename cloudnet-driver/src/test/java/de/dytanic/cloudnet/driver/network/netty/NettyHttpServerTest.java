@@ -1,6 +1,7 @@
 package de.dytanic.cloudnet.driver.network.netty;
 
 import de.dytanic.cloudnet.driver.network.http.IHttpServer;
+import de.dytanic.cloudnet.driver.network.netty.http.NettyHttpServer;
 import org.junit.Assert;
 import org.junit.Test;
 

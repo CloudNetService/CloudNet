@@ -30,10 +30,6 @@ public class CategorizedDriverAPIListener {
         this.handlers.put(requestType, handler);
     }
 
-    protected int getHandlerCount() {
-        return this.handlers.size();
-    }
-
     public void handleDriverRequest(DriverAPIRequestType requestType, INetworkChannel channel, IPacket packet) {
         DriverAPIHandler handler = this.handlers.get(requestType);
         Preconditions.checkNotNull(handler, "RequestType " + requestType + " not registered for category" + this.category);

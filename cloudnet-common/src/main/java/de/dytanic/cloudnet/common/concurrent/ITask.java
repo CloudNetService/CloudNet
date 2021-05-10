@@ -1,5 +1,6 @@
 package de.dytanic.cloudnet.common.concurrent;
 
+import de.dytanic.cloudnet.common.concurrent.function.ThrowableFunction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -79,6 +80,10 @@ public interface ITask<V> extends Future<V>, Callable<V> {
 
     V get(long time, TimeUnit timeUnit, V def);
 
-    <T> ITask<T> map(@Nullable Function<V, T> mapper);
+    <T> ITask<T> mapThrowable(@Nullable ThrowableFunction<V, T, Throwable> mapper);
+
+    default <T> ITask<T> map(@Nullable Function<V, T> mapper) {
+        return this.mapThrowable(mapper == null ? null : mapper::apply);
+    }
 
 }

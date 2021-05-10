@@ -15,9 +15,8 @@ import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
 import de.dytanic.cloudnet.driver.service.ProcessSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
+import de.dytanic.cloudnet.driver.template.TemplateStorage;
 import de.dytanic.cloudnet.network.NetworkUpdateType;
-import de.dytanic.cloudnet.template.ITemplateStorage;
-import de.dytanic.cloudnet.template.LocalTemplateStorage;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -150,11 +149,11 @@ public final class CommandCluster extends SubCommandHandler {
     }
 
     private static void pushLocalTemplate(ICommandSender sender, ServiceTemplate serviceTemplate) {
-        ITemplateStorage storage = CloudNetDriver.getInstance().getServicesRegistry().getService(ITemplateStorage.class, LocalTemplateStorage.LOCAL_TEMPLATE_STORAGE);
+        TemplateStorage storage = CloudNetDriver.getInstance().getLocalTemplateStorage();
         pushLocalTemplate(sender, storage, serviceTemplate);
     }
 
-    private static void pushLocalTemplate(ICommandSender sender, ITemplateStorage storage, ServiceTemplate serviceTemplate) {
+    private static void pushLocalTemplate(ICommandSender sender, TemplateStorage storage, ServiceTemplate serviceTemplate) {
         String template = serviceTemplate.getStorage() + ":" + serviceTemplate.getTemplatePath();
 
         try {
@@ -175,7 +174,7 @@ public final class CommandCluster extends SubCommandHandler {
     }
 
     private static void pushLocalTemplates(ICommandSender sender) {
-        ITemplateStorage storage = CloudNetDriver.getInstance().getServicesRegistry().getService(ITemplateStorage.class, LocalTemplateStorage.LOCAL_TEMPLATE_STORAGE);
+        TemplateStorage storage = CloudNetDriver.getInstance().getLocalTemplateStorage();
 
         for (ServiceTemplate serviceTemplate : storage.getTemplates()) {
             pushLocalTemplate(sender, storage, serviceTemplate);

@@ -39,7 +39,7 @@ public class NetworkClientChannelHandler implements INetworkChannelHandler {
 
     @Override
     public boolean handlePacketReceive(INetworkChannel channel, Packet packet) {
-        if (InternalSyncPacketChannel.handleIncomingChannel(packet)) {
+        if (InternalSyncPacketChannel.handleIncomingChannel(channel, packet)) {
             return false;
         }
 
