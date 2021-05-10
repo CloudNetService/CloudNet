@@ -10,7 +10,7 @@ import de.dytanic.cloudnet.driver.module.driver.DriverModule;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
 import de.dytanic.cloudnet.driver.network.http.IHttpHandler;
 import de.dytanic.cloudnet.driver.network.http.IHttpServer;
-import de.dytanic.cloudnet.template.ITemplateStorage;
+import de.dytanic.cloudnet.driver.template.TemplateStorage;
 
 public abstract class NodeCloudNetModule extends DriverModule {
 
@@ -18,11 +18,11 @@ public abstract class NodeCloudNetModule extends DriverModule {
         this.getCloudNet().getCommandMap().registerCommand(command);
     }
 
-    public final <T extends ITemplateStorage> T registerTemplateStorage(String serviceName, T templateStorage) {
+    public final <T extends TemplateStorage> T registerTemplateStorage(String serviceName, T templateStorage) {
         Preconditions.checkNotNull(serviceName);
         Preconditions.checkNotNull(templateStorage);
 
-        this.getRegistry().registerService(ITemplateStorage.class, serviceName, templateStorage);
+        this.getRegistry().registerService(TemplateStorage.class, serviceName, templateStorage);
 
         return templateStorage;
     }

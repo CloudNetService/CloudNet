@@ -5,13 +5,13 @@ import de.dytanic.cloudnet.driver.network.netty.NettyUtils;
 import de.dytanic.cloudnet.driver.serialization.json.SerializableJsonDocument;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
+import io.netty.buffer.ByteBufInputStream;
+import io.netty.buffer.ByteBufOutputStream;
 import io.netty.util.ByteProcessor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -341,6 +341,28 @@ public class DefaultProtocolBuffer extends ProtocolBuffer {
     public <E extends Enum<E>> ProtocolBuffer writeOptionalEnumConstant(@Nullable E enumConstant) {
         this.writeVarInt(enumConstant != null ? enumConstant.ordinal() : -1);
         return this;
+    }
+
+    @Override
+    public ProtocolBuffer writeThrowable(Throwable throwable) {
+        try (ByteBufOutputStream outputStream = new ByteBufOutputStream(this);
+             ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream)) {
+            objectOutputStream.writeObject(throwable);
+        } catch (IOException exception) {
+            exception.printStackTrace();
+        }
+        return this;
+    }
+
+    @Override
+    public Throwable readThrowable() {
+        try (ByteBufInputStream inputStream = new ByteBufInputStream(this);
+             ObjectInputStream objectInputStream = new ObjectInputStream(inputStream)) {
+            return (Throwable) objectInputStream.readObject();
+        } catch (IOException | ClassNotFoundException exception) {
+            exception.printStackTrace();
+        }
+        return null;
     }
 
     @Override

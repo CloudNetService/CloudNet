@@ -1,11 +1,13 @@
 package de.dytanic.cloudnet.driver.serialization;
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import de.dytanic.cloudnet.common.io.FileUtils;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.InputStream;
 import java.util.Collection;
 import java.util.UUID;
 
@@ -15,6 +17,10 @@ public abstract class ProtocolBuffer extends ByteBuf {
 
     public static ProtocolBuffer create() {
         return wrap(Unpooled.buffer());
+    }
+
+    public static ProtocolBuffer readAll(InputStream inputStream) {
+        return wrap(FileUtils.toByteArray(inputStream));
     }
 
     public static ProtocolBuffer wrap(byte[] bytes) {
@@ -125,6 +131,11 @@ public abstract class ProtocolBuffer extends ByteBuf {
     public abstract <E extends Enum<E>> E readOptionalEnumConstant(@NotNull Class<E> enumClass);
 
     public abstract <E extends Enum<E>> ProtocolBuffer writeOptionalEnumConstant(@Nullable E enumConstant);
+
+    public abstract ProtocolBuffer writeThrowable(@Nullable Throwable throwable);
+
+    @Nullable
+    public abstract Throwable readThrowable();
 
 
     @Override

@@ -2,6 +2,7 @@ package de.dytanic.cloudnet.driver;
 
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.collection.Pair;
+import de.dytanic.cloudnet.common.concurrent.CompletedTask;
 import de.dytanic.cloudnet.common.concurrent.DefaultTaskScheduler;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.concurrent.ITaskScheduler;
@@ -26,10 +27,13 @@ import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
 import de.dytanic.cloudnet.driver.service.ProcessSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
+import de.dytanic.cloudnet.driver.template.TemplateStorage;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.Executors;
@@ -140,6 +144,18 @@ public abstract class CloudNetDriver {
     }
 
     @NotNull
+    public abstract TemplateStorage getLocalTemplateStorage();
+
+    @Nullable
+    public abstract TemplateStorage getTemplateStorage(String storage);
+
+    @NotNull
+    public abstract Collection<TemplateStorage> getAvailableTemplateStorages();
+
+    @NotNull
+    public abstract ITask<Collection<TemplateStorage>> getAvailableTemplateStoragesAsync();
+
+    @NotNull
     public abstract DatabaseProvider getDatabaseProvider();
 
     /**
@@ -182,15 +198,43 @@ public abstract class CloudNetDriver {
     @NotNull
     public abstract INetworkClient getNetworkClient();
 
+    /**
+     * @deprecated use {@link #getLocalTemplateStorage()} instead
+     */
+    @Deprecated
     @NotNull
-    public abstract ITask<Collection<ServiceTemplate>> getLocalTemplateStorageTemplatesAsync();
+    public ITask<Collection<ServiceTemplate>> getLocalTemplateStorageTemplatesAsync() {
+        return this.getLocalTemplateStorage().getTemplatesAsync();
+    }
 
+    /**
+     * @deprecated use {@link #getTemplateStorage(String)} instead
+     */
+    @Deprecated
     @NotNull
-    public abstract ITask<Collection<ServiceTemplate>> getTemplateStorageTemplatesAsync(@NotNull String serviceName);
+    public ITask<Collection<ServiceTemplate>> getTemplateStorageTemplatesAsync(@NotNull String serviceName) {
+        TemplateStorage storage = this.getTemplateStorage(serviceName);
+        return storage != null ? storage.getTemplatesAsync() : CompletedTask.create(Collections.emptyList());
+    }
 
-    public abstract Collection<ServiceTemplate> getLocalTemplateStorageTemplates();
+    /**
+     * @deprecated use {@link #getLocalTemplateStorage()} instead
+     */
+    @Deprecated
+    @NotNull
+    public Collection<ServiceTemplate> getLocalTemplateStorageTemplates() {
+        return this.getLocalTemplateStorage().getTemplates();
+    }
 
-    public abstract Collection<ServiceTemplate> getTemplateStorageTemplates(@NotNull String serviceName);
+    /**
+     * @deprecated use {@link #getTemplateStorage(String)} instead
+     */
+    @Deprecated
+    @NotNull
+    public Collection<ServiceTemplate> getTemplateStorageTemplates(@NotNull String serviceName) {
+        TemplateStorage storage = this.getTemplateStorage(serviceName);
+        return storage != null ? storage.getTemplates() : Collections.emptyList();
+    }
 
     public abstract void setGlobalLogLevel(@NotNull LogLevel logLevel);
 

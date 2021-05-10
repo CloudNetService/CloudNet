@@ -5,6 +5,8 @@ import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
+import de.dytanic.cloudnet.driver.template.SpecificTemplateStorage;
+import de.dytanic.cloudnet.driver.template.TemplateStorage;
 
 import java.io.File;
 import java.io.IOException;
@@ -20,7 +22,7 @@ public final class TemplateStorageUtil {
 
     public static LocalTemplateStorage getLocalTemplateStorage() {
         return (LocalTemplateStorage) CloudNet.getInstance().getServicesRegistry()
-                .getService(ITemplateStorage.class, LocalTemplateStorage.LOCAL_TEMPLATE_STORAGE);
+                .getService(TemplateStorage.class, LocalTemplateStorage.LOCAL_TEMPLATE_STORAGE);
     }
 
     @Deprecated
@@ -32,15 +34,15 @@ public final class TemplateStorageUtil {
         return getLocalTemplateStorage().getStorageDirectory().resolve(serviceTemplate.getTemplatePath()).resolve(path).normalize();
     }
 
-    private static void prepareProxyTemplate(ITemplateStorage storage, ServiceTemplate template, byte[] buffer, String configPath, String defaultConfigPath) throws IOException {
-        try (OutputStream outputStream = storage.newOutputStream(template, configPath);
+    private static void prepareProxyTemplate(SpecificTemplateStorage storage, byte[] buffer, String configPath, String defaultConfigPath) throws IOException {
+        try (OutputStream outputStream = storage.newOutputStream(configPath);
              InputStream inputStream = CloudNet.class.getClassLoader().getResourceAsStream(defaultConfigPath)) {
             if (inputStream != null) {
                 FileUtils.copy(inputStream, outputStream, buffer);
             }
         }
 
-        try (OutputStream outputStream = storage.newOutputStream(template, "server-icon.png");
+        try (OutputStream outputStream = storage.newOutputStream("server-icon.png");
              InputStream inputStream = CloudNet.class.getClassLoader().getResourceAsStream("files/server-icon.png")) {
             if (inputStream != null) {
                 FileUtils.copy(inputStream, outputStream, buffer);
@@ -48,42 +50,42 @@ public final class TemplateStorageUtil {
         }
     }
 
-    public static boolean createAndPrepareTemplate(ITemplateStorage storage, String prefix, String name, ServiceEnvironmentType environment) throws IOException {
+    public static boolean createAndPrepareTemplate(ServiceTemplate template, ServiceEnvironmentType environment) throws IOException {
+        return createAndPrepareTemplate(template.storage(), environment);
+    }
+
+    public static boolean createAndPrepareTemplate(SpecificTemplateStorage storage, ServiceEnvironmentType environment) throws IOException {
         Preconditions.checkNotNull(storage);
-        Preconditions.checkNotNull(prefix);
-        Preconditions.checkNotNull(name);
         Preconditions.checkNotNull(environment);
 
-        ServiceTemplate serviceTemplate = new ServiceTemplate(prefix, name, storage.getName());
+        if (!storage.exists()) {
+            storage.create();
 
-        if (!storage.has(serviceTemplate)) {
-            storage.create(serviceTemplate);
-
-            storage.createDirectory(serviceTemplate, "plugins");
+            storage.createDirectory("plugins");
             byte[] buffer = new byte[3072];
 
             switch (environment) {
                 case BUNGEECORD: {
-                    prepareProxyTemplate(storage, serviceTemplate, buffer, "config.yml", "files/bungee/config.yml");
+                    prepareProxyTemplate(storage, buffer, "config.yml", "files/bungee/config.yml");
                 }
                 break;
                 case WATERDOG: {
-                    prepareProxyTemplate(storage, serviceTemplate, buffer, "config.yml", "files/waterdog/config.yml");
+                    prepareProxyTemplate(storage, buffer, "config.yml", "files/waterdog/config.yml");
                 }
                 break;
                 case VELOCITY: {
-                    prepareProxyTemplate(storage, serviceTemplate, buffer, "velocity.toml", "files/velocity/velocity.toml");
+                    prepareProxyTemplate(storage, buffer, "velocity.toml", "files/velocity/velocity.toml");
                 }
                 break;
                 case NUKKIT: {
-                    try (OutputStream outputStream = storage.newOutputStream(serviceTemplate, "server.properties");
+                    try (OutputStream outputStream = storage.newOutputStream("server.properties");
                          InputStream inputStream = CloudNet.class.getClassLoader().getResourceAsStream("files/nukkit/server.properties")) {
                         if (inputStream != null) {
                             FileUtils.copy(inputStream, outputStream, buffer);
                         }
                     }
 
-                    try (OutputStream outputStream = storage.newOutputStream(serviceTemplate, "nukkit.yml");
+                    try (OutputStream outputStream = storage.newOutputStream("nukkit.yml");
                          InputStream inputStream = CloudNet.class.getClassLoader().getResourceAsStream("files/nukkit/nukkit.yml")) {
                         if (inputStream != null) {
                             FileUtils.copy(inputStream, outputStream, buffer);
@@ -92,7 +94,7 @@ public final class TemplateStorageUtil {
                 }
                 break;
                 case GO_MINT: {
-                    try (OutputStream outputStream = storage.newOutputStream(serviceTemplate, "server.yml");
+                    try (OutputStream outputStream = storage.newOutputStream("server.yml");
                          InputStream inputStream = CloudNet.class.getClassLoader().getResourceAsStream("files/gomint/server.yml")) {
                         if (inputStream != null) {
                             FileUtils.copy(inputStream, outputStream, buffer);
@@ -101,28 +103,28 @@ public final class TemplateStorageUtil {
                 }
                 break;
                 case MINECRAFT_SERVER: {
-                    try (OutputStream outputStream = storage.newOutputStream(serviceTemplate, "server.properties");
+                    try (OutputStream outputStream = storage.newOutputStream("server.properties");
                          InputStream inputStream = CloudNet.class.getClassLoader().getResourceAsStream("files/nms/server.properties")) {
                         if (inputStream != null) {
                             FileUtils.copy(inputStream, outputStream, buffer);
                         }
                     }
 
-                    try (OutputStream outputStream = storage.newOutputStream(serviceTemplate, "bukkit.yml");
+                    try (OutputStream outputStream = storage.newOutputStream("bukkit.yml");
                          InputStream inputStream = CloudNet.class.getClassLoader().getResourceAsStream("files/nms/bukkit.yml")) {
                         if (inputStream != null) {
                             FileUtils.copy(inputStream, outputStream, buffer);
                         }
                     }
 
-                    try (OutputStream outputStream = storage.newOutputStream(serviceTemplate, "spigot.yml");
+                    try (OutputStream outputStream = storage.newOutputStream("spigot.yml");
                          InputStream inputStream = CloudNet.class.getClassLoader().getResourceAsStream("files/nms/spigot.yml")) {
                         if (inputStream != null) {
                             FileUtils.copy(inputStream, outputStream, buffer);
                         }
                     }
 
-                    try (OutputStream outputStream = storage.newOutputStream(serviceTemplate, "config/sponge/global.conf");
+                    try (OutputStream outputStream = storage.newOutputStream("config/sponge/global.conf");
                          InputStream inputStream = CloudNet.class.getClassLoader().getResourceAsStream("files/nms/global.conf")) {
                         if (inputStream != null) {
                             FileUtils.copy(inputStream, outputStream, buffer);
@@ -131,7 +133,7 @@ public final class TemplateStorageUtil {
                 }
                 break;
                 case GLOWSTONE: {
-                    try (OutputStream outputStream = storage.newOutputStream(serviceTemplate, "config/glowstone.yml");
+                    try (OutputStream outputStream = storage.newOutputStream("config/glowstone.yml");
                          InputStream inputStream = CloudNet.class.getClassLoader().getResourceAsStream("files/glowstone/glowstone.yml")) {
                         if (inputStream != null) {
                             FileUtils.copy(inputStream, outputStream, buffer);
@@ -139,10 +141,6 @@ public final class TemplateStorageUtil {
                     }
                 }
                 break;
-            }
-
-            if (storage.shouldSyncInCluster()) {
-                CloudNet.getInstance().deployTemplateInCluster(serviceTemplate, storage.zipTemplate(serviceTemplate));
             }
             return true;
         } else {

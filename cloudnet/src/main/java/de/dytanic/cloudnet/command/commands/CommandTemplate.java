@@ -8,8 +8,9 @@ import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.console.animation.questionlist.answer.QuestionAnswerTypeEnum;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
+import de.dytanic.cloudnet.driver.template.SpecificTemplateStorage;
+import de.dytanic.cloudnet.driver.template.TemplateStorage;
 import de.dytanic.cloudnet.driver.util.ColumnTextFormatter;
-import de.dytanic.cloudnet.template.ITemplateStorage;
 import de.dytanic.cloudnet.template.TemplateStorageUtil;
 import de.dytanic.cloudnet.template.install.ServiceVersion;
 import de.dytanic.cloudnet.template.install.ServiceVersionType;
@@ -25,6 +26,7 @@ import java.util.zip.ZipInputStream;
 import static de.dytanic.cloudnet.command.sub.SubCommandArgumentTypes.*;
 
 public class CommandTemplate extends SubCommandHandler {
+
     public CommandTemplate() {
         super(
                 SubCommandBuilder.create()
@@ -32,7 +34,7 @@ public class CommandTemplate extends SubCommandHandler {
                         .generateCommand(
                                 (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
                                     String storageName = (String) args.argument("storage").orElse("local");
-                                    ITemplateStorage storage = CloudNet.getInstance().getServicesRegistry().getService(ITemplateStorage.class, storageName);
+                                    TemplateStorage storage = CloudNet.getInstance().getTemplateStorage(storageName);
 
                                     List<String> messages = new ArrayList<>();
                                     messages.add(LanguageManager.getMessage("command-template-list-templates").replace("%storage%", storageName));
@@ -48,7 +50,7 @@ public class CommandTemplate extends SubCommandHandler {
                                 dynamicString(
                                         "storage",
                                         LanguageManager.getMessage("command-template-storage-not-found"),
-                                        input -> CloudNet.getInstance().getServicesRegistry().containsService(ITemplateStorage.class, input)
+                                        input -> CloudNet.getInstance().getTemplateStorage(input) != null
                                 )
                         )
 
@@ -79,7 +81,6 @@ public class CommandTemplate extends SubCommandHandler {
                                 (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
 
                                     ServiceTemplate template = (ServiceTemplate) args.argument("template").get();
-                                    ITemplateStorage storage = CloudNet.getInstance().getServicesRegistry().getService(ITemplateStorage.class, template.getStorage());
                                     ServiceVersionType versionType = CloudNet.getInstance().getServiceVersionProvider().getServiceVersionType((String) args.argument("versionType").get()).get();
 
                                     Optional<ServiceVersion> optionalVersion = versionType.getVersion((String) args.argument("version").get());
@@ -109,7 +110,7 @@ public class CommandTemplate extends SubCommandHandler {
                                                 .replace("%template%", template.toString())
                                         );
 
-                                        if (CloudNet.getInstance().getServiceVersionProvider().installServiceVersion(versionType, version, storage, template, forceInstall)) {
+                                        if (CloudNet.getInstance().getServiceVersionProvider().installServiceVersion(versionType, version, template, forceInstall)) {
                                             sender.sendMessage(LanguageManager.getMessage("command-template-install-success")
                                                     .replace("%version%", versionType.getName() + "-" + version.getName())
                                                     .replace("%template%", template.toString())
@@ -153,9 +154,9 @@ public class CommandTemplate extends SubCommandHandler {
                         .generateCommand(
                                 (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
                                     ServiceTemplate template = (ServiceTemplate) args.argument("template").get();
-                                    ITemplateStorage storage = CloudNet.getInstance().getServicesRegistry().getService(ITemplateStorage.class, template.getStorage());
+                                    SpecificTemplateStorage storage = template.storage();
 
-                                    if (!storage.has(template)) {
+                                    if (!storage.exists()) {
                                         sender.sendMessage(LanguageManager.getMessage("command-template-delete-template-not-found")
                                                 .replace("%template%", template.getTemplatePath())
                                                 .replace("%storage%", template.getStorage())
@@ -163,7 +164,7 @@ public class CommandTemplate extends SubCommandHandler {
                                         return;
                                     }
 
-                                    storage.delete(template);
+                                    storage.delete();
                                     sender.sendMessage(LanguageManager.getMessage("command-template-delete-success")
                                             .replace("%template%", template.getTemplatePath())
                                             .replace("%storage%", template.getStorage())
@@ -176,10 +177,10 @@ public class CommandTemplate extends SubCommandHandler {
                         .generateCommand(
                                 (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
                                     ServiceTemplate template = (ServiceTemplate) args.argument("template").get();
-                                    ITemplateStorage storage = CloudNet.getInstance().getServicesRegistry().getService(ITemplateStorage.class, template.getStorage());
+                                    SpecificTemplateStorage storage = template.storage();
                                     ServiceEnvironmentType environment = (ServiceEnvironmentType) args.argument(QuestionAnswerTypeEnum.class).get();
 
-                                    if (storage.has(template)) {
+                                    if (storage.exists()) {
                                         sender.sendMessage(LanguageManager.getMessage("command-template-create-template-already-exists")
                                                 .replace("%template%", template.getTemplatePath())
                                                 .replace("%storage%", template.getStorage())
@@ -188,7 +189,7 @@ public class CommandTemplate extends SubCommandHandler {
                                     }
 
                                     try {
-                                        if (TemplateStorageUtil.createAndPrepareTemplate(storage, template.getPrefix(), template.getName(), environment)) {
+                                        if (TemplateStorageUtil.createAndPrepareTemplate(template, environment)) {
                                             sender.sendMessage(LanguageManager.getMessage("command-template-create-success")
                                                     .replace("%template%", template.getTemplatePath())
                                                     .replace("%storage%", template.getStorage())
@@ -211,8 +212,8 @@ public class CommandTemplate extends SubCommandHandler {
                                 (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
                                     ServiceTemplate sourceTemplate = (ServiceTemplate) args.argument("storage:prefix/name (sourceTemplate)").get();
                                     ServiceTemplate targetTemplate = (ServiceTemplate) args.argument("storage:prefix/name (targetTemplate)").get();
-                                    ITemplateStorage sourceStorage = CloudNet.getInstance().getServicesRegistry().getService(ITemplateStorage.class, sourceTemplate.getStorage());
-                                    ITemplateStorage targetStorage = CloudNet.getInstance().getServicesRegistry().getService(ITemplateStorage.class, targetTemplate.getStorage());
+                                    SpecificTemplateStorage sourceStorage = sourceTemplate.storage();
+                                    SpecificTemplateStorage targetStorage = targetTemplate.storage();
 
                                     if (sourceTemplate.equals(targetTemplate)) {
                                         sender.sendMessage(LanguageManager.getMessage("command-template-copy-same-source-and-target"));
@@ -225,16 +226,16 @@ public class CommandTemplate extends SubCommandHandler {
                                                 .replace("%targetTemplate%", targetTemplate.toString())
                                         );
 
-                                        targetStorage.delete(targetTemplate);
-                                        targetStorage.create(targetTemplate);
+                                        targetStorage.delete();
+                                        targetStorage.create();
 
-                                        try (ZipInputStream stream = sourceStorage.asZipInputStream(sourceTemplate)) {
+                                        try (ZipInputStream stream = sourceStorage.asZipInputStream()) {
                                             if (stream == null) {
                                                 sender.sendMessage(LanguageManager.getMessage("command-template-copy-failed"));
                                                 return null;
                                             }
 
-                                            targetStorage.deploy(stream, targetTemplate);
+                                            targetStorage.deploy(stream);
                                             sender.sendMessage(LanguageManager.getMessage("command-template-copy-success")
                                                     .replace("%sourceTemplate%", sourceTemplate.toString())
                                                     .replace("%targetTemplate%", targetTemplate.toString())
