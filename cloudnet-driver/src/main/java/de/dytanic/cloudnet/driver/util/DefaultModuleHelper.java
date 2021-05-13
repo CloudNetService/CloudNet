@@ -4,7 +4,9 @@ import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.common.unsafe.ResourceResolver;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
+import org.jetbrains.annotations.ApiStatus;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -22,6 +24,12 @@ public final class DefaultModuleHelper {
 
     private DefaultModuleHelper() {
         throw new UnsupportedOperationException();
+    }
+
+    @Deprecated
+    @ApiStatus.ScheduledForRemoval
+    public static boolean copyCurrentModuleInstanceFromClass(Class<?> clazz, File target) {
+        return copyCurrentModuleInstanceFromClass(clazz, target.toPath());
     }
 
     public static boolean copyCurrentModuleInstanceFromClass(Class<?> clazz, Path target) {

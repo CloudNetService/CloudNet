@@ -3,6 +3,8 @@ package de.dytanic.cloudnet.driver.network.netty;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.network.*;
 import de.dytanic.cloudnet.driver.network.def.internal.InternalSyncPacketChannel;
+import de.dytanic.cloudnet.driver.network.netty.client.NettyNetworkClient;
+import de.dytanic.cloudnet.driver.network.netty.server.NettyNetworkServer;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.network.protocol.IPacketListener;
 import de.dytanic.cloudnet.driver.network.protocol.Packet;
@@ -85,7 +87,7 @@ public class NettyNetworkQueryTest {
 
         @Override
         public boolean handlePacketReceive(INetworkChannel channel, Packet packet) {
-            return !InternalSyncPacketChannel.handleIncomingChannel(packet);
+            return !InternalSyncPacketChannel.handleIncomingChannel(channel, packet);
         }
 
         @Override

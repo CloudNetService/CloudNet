@@ -1,6 +1,5 @@
 package de.dytanic.cloudnet.template.install.run.step.executor;
 
-
 import de.dytanic.cloudnet.template.install.run.InstallInformation;
 import org.jetbrains.annotations.NotNull;
 

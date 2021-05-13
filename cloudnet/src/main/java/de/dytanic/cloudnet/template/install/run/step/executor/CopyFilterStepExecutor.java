@@ -1,6 +1,5 @@
 package de.dytanic.cloudnet.template.install.run.step.executor;
 
-
 import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.template.install.run.InstallInformation;
 import org.jetbrains.annotations.NotNull;

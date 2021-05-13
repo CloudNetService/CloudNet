@@ -34,7 +34,7 @@ public class SyncProxyDefaultConfigurationListener {
         }
 
         if (modified) {
-            SyncProxyConfigurationWriterAndReader.write(configuration, CloudNetSyncProxyModule.getInstance().getConfigurationFile());
+            SyncProxyConfigurationWriterAndReader.write(configuration, CloudNetSyncProxyModule.getInstance().getConfigurationFilePath());
         }
 
     }

@@ -162,7 +162,6 @@ public final class BungeeCloudNetHelper {
         );
     }
 
-
     public static ServerInfo createServerInfo(String name, InetSocketAddress address) {
         Preconditions.checkNotNull(name);
         Preconditions.checkNotNull(address);

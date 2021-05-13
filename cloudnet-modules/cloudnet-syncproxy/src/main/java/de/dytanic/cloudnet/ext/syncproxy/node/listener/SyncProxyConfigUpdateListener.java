@@ -37,14 +37,14 @@ public final class SyncProxyConfigUpdateListener {
             return;
         }
 
-        if (SyncProxyConstants.SYNC_PROXY_UPDATE_CONFIGURATION.equals(event.getMessage().toLowerCase())) {
+        if (SyncProxyConstants.SYNC_PROXY_UPDATE_CONFIGURATION.equals(event.getMessage())) {
             SyncProxyConfiguration syncProxyConfiguration = event.getData().get("syncProxyConfiguration", SyncProxyConfiguration.TYPE);
 
             if (syncProxyConfiguration != null) {
                 CloudNetSyncProxyModule.getInstance().setSyncProxyConfiguration(syncProxyConfiguration);
             }
 
-            SyncProxyConfigurationWriterAndReader.write(syncProxyConfiguration, CloudNetSyncProxyModule.getInstance().getConfigurationFile());
+            SyncProxyConfigurationWriterAndReader.write(syncProxyConfiguration, CloudNetSyncProxyModule.getInstance().getConfigurationFilePath());
         }
     }
 }

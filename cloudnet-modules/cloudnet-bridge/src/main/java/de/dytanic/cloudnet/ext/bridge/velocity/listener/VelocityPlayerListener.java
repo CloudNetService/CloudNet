@@ -13,7 +13,8 @@ import de.dytanic.cloudnet.ext.bridge.BridgeHelper;
 import de.dytanic.cloudnet.ext.bridge.proxy.BridgeProxyHelper;
 import de.dytanic.cloudnet.ext.bridge.velocity.VelocityCloudNetBridgePlugin;
 import de.dytanic.cloudnet.ext.bridge.velocity.VelocityCloudNetHelper;
-import net.kyori.text.serializer.legacy.LegacyComponentSerializer;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
 import java.util.concurrent.TimeUnit;
 
@@ -29,7 +30,8 @@ public final class VelocityPlayerListener {
     public void handle(LoginEvent event) {
         String kickReason = BridgeHelper.sendChannelMessageProxyLoginRequest(VelocityCloudNetHelper.createNetworkConnectionInfo(event.getPlayer()));
         if (kickReason != null) {
-            event.setResult(ResultedEvent.ComponentResult.denied(LegacyComponentSerializer.legacyLinking().deserialize(kickReason)));
+            Component reason = LegacyComponentSerializer.legacySection().deserialize(kickReason);
+            event.setResult(ResultedEvent.ComponentResult.denied(reason));
         }
     }
 
@@ -77,7 +79,6 @@ public final class VelocityPlayerListener {
 
             VelocityCloudNetHelper.getNextFallback(event.getPlayer())
                     .ifPresent(registeredServer -> event.setResult(KickedFromServerEvent.RedirectPlayer.create(registeredServer)));
-            event.getOriginalReason().ifPresent(component -> event.getPlayer().sendMessage(component));
         }
     }
 

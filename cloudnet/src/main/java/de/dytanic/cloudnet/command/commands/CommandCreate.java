@@ -9,7 +9,13 @@ import de.dytanic.cloudnet.common.Properties;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.console.animation.questionlist.answer.QuestionAnswerTypeEnum;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
-import de.dytanic.cloudnet.driver.service.*;
+import de.dytanic.cloudnet.driver.service.ProcessConfiguration;
+import de.dytanic.cloudnet.driver.service.ServiceDeployment;
+import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
+import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
+import de.dytanic.cloudnet.driver.service.ServiceRemoteInclusion;
+import de.dytanic.cloudnet.driver.service.ServiceTask;
+import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -143,7 +149,11 @@ public class CommandCreate extends SubCommandHandler {
     private static void listAndStartServices(ICommandSender sender, Collection<ServiceInfoSnapshot> serviceInfoSnapshots, Properties properties) {
         for (ServiceInfoSnapshot serviceInfoSnapshot : serviceInfoSnapshots) {
             if (serviceInfoSnapshot != null) {
-                sender.sendMessage(serviceInfoSnapshot.getServiceId().getName() + " - " + serviceInfoSnapshot.getServiceId().getUniqueId().toString());
+                sender.sendMessage(serviceInfoSnapshot.getServiceId().getUniqueId().toString().split("-")[0]
+                        + " | Name: " + serviceInfoSnapshot.getServiceId().getName()
+                        + " | Node: " + serviceInfoSnapshot.getServiceId().getNodeUniqueId()
+                        + " | Address: " + serviceInfoSnapshot.getAddress().getHost() + ":"
+                        + serviceInfoSnapshot.getAddress().getPort());
             }
         }
 

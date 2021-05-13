@@ -1,11 +1,10 @@
 package de.dytanic.cloudnet.network.listener.cluster;
 
-import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
-import de.dytanic.cloudnet.driver.network.protocol.chunk.client.CachedChunkedPacketListener;
-import de.dytanic.cloudnet.driver.network.protocol.chunk.client.ChunkedPacketSession;
+import de.dytanic.cloudnet.driver.network.protocol.chunk.listener.CachedChunkedPacketListener;
+import de.dytanic.cloudnet.driver.network.protocol.chunk.listener.ChunkedPacketSession;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
-import de.dytanic.cloudnet.template.ITemplateStorage;
+import de.dytanic.cloudnet.driver.template.TemplateStorage;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -16,11 +15,10 @@ public final class PacketServerDeployLocalTemplateListener extends CachedChunked
 
     @Override
     protected void handleComplete(@NotNull ChunkedPacketSession session, @NotNull InputStream inputStream) throws IOException {
+        TemplateStorage storage = CloudNetDriver.getInstance().getLocalTemplateStorage();
         ServiceTemplate template = session.getHeader().get("template", ServiceTemplate.class);
         boolean preClear = session.getHeader().getBoolean("preClear");
 
-        ITemplateStorage storage = CloudNetDriver.getInstance().getServicesRegistry().getService(ITemplateStorage.class, template.getStorage());
-        Preconditions.checkNotNull(storage, "Storage %s not found", template.getStorage());
         if (preClear) {
             storage.delete(template);
         }
@@ -29,4 +27,5 @@ public final class PacketServerDeployLocalTemplateListener extends CachedChunked
             storage.deploy(zipInputStream, template);
         }
     }
+
 }

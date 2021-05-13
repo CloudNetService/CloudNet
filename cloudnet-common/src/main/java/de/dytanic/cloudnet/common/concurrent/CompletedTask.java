@@ -1,25 +1,31 @@
 package de.dytanic.cloudnet.common.concurrent;
 
+import de.dytanic.cloudnet.common.concurrent.function.ThrowableFunction;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
 
 public class CompletedTask<V> implements ITask<V> {
 
-    private static final ITask<Void> VOID_TASK = new CompletedTask<>(null);
+    private static final ITask<Void> VOID_TASK = new CompletedTask<>(null, null);
 
     private final V value;
+    private final Throwable throwable;
 
-    private CompletedTask(V value) {
+    public CompletedTask(V value, Throwable throwable) {
         this.value = value;
+        this.throwable = throwable;
+    }
+
+    public static <V> ITask<V> createFailed(Throwable throwable) {
+        return new CompletedTask<>(null, throwable);
     }
 
     public static <V> ITask<V> create(V value) {
-        return new CompletedTask<>(value);
+        return new CompletedTask<>(value, null);
     }
 
     public static ITask<Void> voidTask() {
@@ -28,7 +34,11 @@ public class CompletedTask<V> implements ITask<V> {
 
     @Override
     public @NotNull ITask<V> addListener(ITaskListener<V> listener) {
-        listener.onComplete(this, this.value);
+        if (this.throwable != null) {
+            listener.onFailure(this, this.throwable);
+        } else {
+            listener.onComplete(this, this.value);
+        }
         return this;
     }
 
@@ -58,8 +68,12 @@ public class CompletedTask<V> implements ITask<V> {
     }
 
     @Override
-    public <T> ITask<T> map(Function<V, T> mapper) {
-        return create(mapper == null ? null : mapper.apply(this.value));
+    public <T> ITask<T> mapThrowable(ThrowableFunction<V, T, Throwable> mapper) {
+        try {
+            return create(mapper == null ? null : mapper.apply(this.value));
+        } catch (Throwable exception) {
+            return createFailed(throwable);
+        }
     }
 
     @Override

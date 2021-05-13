@@ -12,10 +12,11 @@ import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkCluster;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
+import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
+import de.dytanic.cloudnet.driver.service.ProcessSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
+import de.dytanic.cloudnet.driver.template.TemplateStorage;
 import de.dytanic.cloudnet.network.NetworkUpdateType;
-import de.dytanic.cloudnet.template.ITemplateStorage;
-import de.dytanic.cloudnet.template.LocalTemplateStorage;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -79,23 +80,30 @@ public final class CommandCluster extends SubCommandHandler {
                                 anyStringIgnoreCase("remove", "rm"),
                                 dynamicString(
                                         "nodeId",
-                                        LanguageManager.getMessage("command-cluster-remove-node-not-found"),
+                                        LanguageManager.getMessage("command-cluster-node-not-found"),
                                         nodeId -> CloudNet.getInstance().getConfig().getClusterConfig().getNodes().stream().anyMatch(node -> node.getUniqueId().equals(nodeId)),
                                         () -> CloudNet.getInstance().getConfig().getClusterConfig().getNodes().stream().map(NetworkClusterNode::getUniqueId).collect(Collectors.toList())
                                 )
                         )
                         .generateCommand(
-                                (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
-                                    for (IClusterNodeServer node : CloudNet.getInstance().getClusterNodeServerProvider().getNodeServers()) {
-                                        if (properties.containsKey("id") && !node.getNodeInfo().getUniqueId().contains(properties.get("id"))) {
-                                            continue;
-                                        }
-
-                                        displayNode(sender, node);
-                                    }
-                                },
-                                subCommand -> subCommand.enableProperties().appendUsage("| id=<id>"),
+                                (subCommand, sender, command, args, commandLine, properties, internalProperties) -> displayNodes(sender),
                                 exactStringIgnoreCase("nodes")
+                        )
+                        .generateCommand(
+                                (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
+                                    CloudNet.getInstance().getClusterNodeServerProvider().getNodeServers()
+                                            .stream()
+                                            .filter(node -> node.getNodeInfo().getUniqueId().equals(args.argument(1)))
+                                            .findFirst()
+                                            .ifPresent(node -> displayNode(sender, node));
+                                },
+                                anyStringIgnoreCase("node"),
+                                dynamicString(
+                                        "nodeId",
+                                        LanguageManager.getMessage("command-cluster-node-not-found"),
+                                        nodeId -> CloudNet.getInstance().getClusterNodeServerProvider().getNodeServers().stream().anyMatch(node -> node.getNodeInfo().getUniqueId().equals(nodeId)),
+                                        () -> CloudNet.getInstance().getClusterNodeServerProvider().getNodeServers().stream().map(server -> server.getNodeInfo().getUniqueId()).collect(Collectors.toList())
+                                )
                         )
 
                         .prefix(exactStringIgnoreCase("push"))
@@ -141,11 +149,11 @@ public final class CommandCluster extends SubCommandHandler {
     }
 
     private static void pushLocalTemplate(ICommandSender sender, ServiceTemplate serviceTemplate) {
-        ITemplateStorage storage = CloudNetDriver.getInstance().getServicesRegistry().getService(ITemplateStorage.class, LocalTemplateStorage.LOCAL_TEMPLATE_STORAGE);
+        TemplateStorage storage = CloudNetDriver.getInstance().getLocalTemplateStorage();
         pushLocalTemplate(sender, storage, serviceTemplate);
     }
 
-    private static void pushLocalTemplate(ICommandSender sender, ITemplateStorage storage, ServiceTemplate serviceTemplate) {
+    private static void pushLocalTemplate(ICommandSender sender, TemplateStorage storage, ServiceTemplate serviceTemplate) {
         String template = serviceTemplate.getStorage() + ":" + serviceTemplate.getTemplatePath();
 
         try {
@@ -166,7 +174,7 @@ public final class CommandCluster extends SubCommandHandler {
     }
 
     private static void pushLocalTemplates(ICommandSender sender) {
-        ITemplateStorage storage = CloudNetDriver.getInstance().getServicesRegistry().getService(ITemplateStorage.class, LocalTemplateStorage.LOCAL_TEMPLATE_STORAGE);
+        TemplateStorage storage = CloudNetDriver.getInstance().getLocalTemplateStorage();
 
         for (ServiceTemplate serviceTemplate : storage.getTemplates()) {
             pushLocalTemplate(sender, storage, serviceTemplate);
@@ -189,12 +197,50 @@ public final class CommandCluster extends SubCommandHandler {
         sender.sendMessage(LanguageManager.getMessage("command-cluster-push-groups-success"));
     }
 
+    private static void displayNodes(ICommandSender sender) {
+        StringBuilder stringBuilder = new StringBuilder();
+        for (IClusterNodeServer node : CloudNet.getInstance().getClusterNodeServerProvider().getNodeServers()) {
+            stringBuilder
+                    // line 1
+                    .append("Id: ")
+                    .append(node.getNodeInfo().getUniqueId())
+                    .append(node.isHeadNode() ? " (Head) " : " ")
+                    .append(node.isConnected() ? "&aConnected&r" : "&cNot connected&r");
+            if (node.getNodeInfoSnapshot() != null) {
+                stringBuilder.append("\n");
+
+                NetworkClusterNodeInfoSnapshot snapshot = node.getNodeInfoSnapshot();
+                ProcessSnapshot processSnapshot = snapshot.getProcessSnapshot();
+
+                stringBuilder
+                        // cpu usage
+                        .append("CPU (P/S): ")
+                        .append(CPUUsageResolver.CPU_USAGE_OUTPUT_FORMAT.format(processSnapshot.getCpuUsage()))
+                        .append("%/")
+                        .append(CPUUsageResolver.CPU_USAGE_OUTPUT_FORMAT.format(snapshot.getSystemCpuUsage()))
+                        .append("%; ")
+                        // memory usage
+                        .append("Memory (U/R/M): ")
+                        .append(snapshot.getUsedMemory())
+                        .append("/")
+                        .append(snapshot.getReservedMemory())
+                        .append("/")
+                        .append(snapshot.getMaxMemory())
+                        .append("MB");
+            }
+
+            stringBuilder.append("\n\n");
+        }
+
+        sender.sendMessage(stringBuilder.substring(0, stringBuilder.length() - 1).split("\n"));
+    }
+
     private static void displayNode(ICommandSender sender, IClusterNodeServer node) {
         Preconditions.checkNotNull(node);
 
         List<String> list = new ArrayList<>(Arrays.asList(
                 " ",
-                "Id: " + node.getNodeInfo().getUniqueId(),
+                "Id: " + node.getNodeInfo().getUniqueId() + (node.isHeadNode() ? " (Head)" : ""),
                 "State: " + (node.isConnected() ? "Connected" : "Not connected"),
                 " ",
                 "Address: "
@@ -209,8 +255,9 @@ public final class CommandCluster extends SubCommandHandler {
             list.add("* ClusterNodeInfoSnapshot from " + new SimpleDateFormat("dd.MM.yyyy HH:mm:ss").format(node.getNodeInfoSnapshot().getCreationTime()));
 
             list.addAll(Arrays.asList(
-                    "CloudServices (" + node.getNodeInfoSnapshot().getCurrentServicesCount() + ") memory usage " +
-                            node.getNodeInfoSnapshot().getUsedMemory() + "/" + node.getNodeInfoSnapshot().getReservedMemory() + "/" + node.getNodeInfoSnapshot().getMaxMemory() + "MB",
+                    "CloudServices (" + node.getNodeInfoSnapshot().getCurrentServicesCount() + ") memory usage (U/R/M): "
+                            + node.getNodeInfoSnapshot().getUsedMemory() + "/" + node.getNodeInfoSnapshot().getReservedMemory()
+                            + "/" + node.getNodeInfoSnapshot().getMaxMemory() + " MB",
                     " ",
                     "CPU usage process: " + CPUUsageResolver.CPU_USAGE_OUTPUT_FORMAT.format(node.getNodeInfoSnapshot().getProcessSnapshot().getCpuUsage()) + "%",
                     "CPU usage system: " + CPUUsageResolver.CPU_USAGE_OUTPUT_FORMAT.format(node.getNodeInfoSnapshot().getSystemCpuUsage()) + "%",

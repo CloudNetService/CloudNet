@@ -7,6 +7,7 @@ import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.Collection;
 
@@ -14,22 +15,7 @@ import java.util.Collection;
  * Represents the full management of all nodes of the cluster.
  * It's manage all nodes that are configured on the platform
  */
-public interface IClusterNodeServerProvider extends AutoCloseable, IPacketSender {
-
-    /**
-     * Returns the represent nodes that are configured on the application.
-     * The nodes shouldn't be online
-     */
-    Collection<IClusterNodeServer> getNodeServers();
-
-    /**
-     * Returns the node with the specific uniqueId that is configured
-     *
-     * @param uniqueId the uniqueId from the node, that should retrieve
-     * @return the IClusterNodeServer instance or null if the node doesn't registered
-     */
-    @Nullable
-    IClusterNodeServer getNodeServer(@NotNull String uniqueId);
+public interface IClusterNodeServerProvider extends NodeServerProvider<IClusterNodeServer>, IPacketSender, AutoCloseable {
 
     /**
      * Returns the node with the specific channel that is configured
@@ -55,7 +41,9 @@ public interface IClusterNodeServerProvider extends AutoCloseable, IPacketSender
      * @deprecated use {@link #deployTemplateInCluster(ServiceTemplate, InputStream)} instead, this method causes high heap usage
      */
     @Deprecated
-    void deployTemplateInCluster(@NotNull ServiceTemplate serviceTemplate, @NotNull byte[] zipResource);
+    default void deployTemplateInCluster(@NotNull ServiceTemplate serviceTemplate, byte[] zipResource) {
+        this.deployTemplateInCluster(serviceTemplate, new ByteArrayInputStream(zipResource));
+    }
 
     /**
      * Deploys the given template to all connected nodes.
@@ -65,4 +53,22 @@ public interface IClusterNodeServerProvider extends AutoCloseable, IPacketSender
      */
     void deployTemplateInCluster(@NotNull ServiceTemplate serviceTemplate, @NotNull InputStream inputStream);
 
+    /**
+     * Get all node server network channels which are currently connected and recognized by this provider.
+     *
+     * @return all node server network channels which are currently connected.
+     */
+    Collection<INetworkChannel> getConnectedChannels();
+
+    /**
+     * Get whether any other node is connected with this node.
+     *
+     * @return whether any other node is connected with this node.
+     */
+    boolean hasAnyConnection();
+
+    /**
+     * Checks if all nodes had sent a node snapshot update recently or disconnects them.
+     */
+    void checkForDeadNodes();
 }

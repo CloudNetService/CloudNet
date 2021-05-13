@@ -156,11 +156,11 @@ public interface IPlayerManager {
      * <p>
      * Depending on the amount of registered players, this method might take a bit longer or won't even work,
      * because it takes too much memory to keep the whole list loaded.
+     * <p>
+     * NOTE: This shouldn't be used when you have many players in your database, because it can cause major problems in the cloud
      *
      * @return the list with every registered player in the cloud
-     * @deprecated This shouldn't be used when you have many players in your database, because it can cause major problems in the cloud
      */
-    @Deprecated
     @ApiStatus.Experimental
     List<? extends ICloudOfflinePlayer> getRegisteredPlayers();
 

@@ -40,7 +40,7 @@ public final class NetworkServerChannelHandlerImpl implements INetworkChannelHan
 
     @Override
     public boolean handlePacketReceive(INetworkChannel channel, Packet packet) {
-        if (InternalSyncPacketChannel.handleIncomingChannel(packet)) {
+        if (InternalSyncPacketChannel.handleIncomingChannel(channel, packet)) {
             return false;
         }
 
@@ -67,7 +67,7 @@ public final class NetworkServerChannelHandlerImpl implements INetworkChannelHan
         IClusterNodeServer clusterNodeServer = CloudNet.getInstance().getClusterNodeServerProvider().getNodeServer(channel);
 
         if (clusterNodeServer != null) {
-            NetworkChannelHandlerUtils.handleRemoveDisconnectedClusterInNetwork(channel, clusterNodeServer);
+            NetworkChannelHandlerUtils.closeNodeServer(clusterNodeServer);
         }
     }
 

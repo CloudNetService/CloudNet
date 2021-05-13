@@ -16,7 +16,7 @@ import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.INetworkClient;
 import de.dytanic.cloudnet.driver.network.def.PacketConstants;
 import de.dytanic.cloudnet.driver.network.def.packet.PacketServerSetGlobalLogLevel;
-import de.dytanic.cloudnet.driver.network.netty.NettyNetworkClient;
+import de.dytanic.cloudnet.driver.network.netty.client.NettyNetworkClient;
 import de.dytanic.cloudnet.driver.network.ssl.SSLConfiguration;
 import de.dytanic.cloudnet.driver.provider.service.RemoteCloudServiceFactory;
 import de.dytanic.cloudnet.driver.provider.service.RemoteSpecificCloudServiceProvider;
@@ -27,6 +27,8 @@ import de.dytanic.cloudnet.driver.service.ServiceId;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
+import de.dytanic.cloudnet.driver.template.RemoteTemplateStorage;
+import de.dytanic.cloudnet.driver.template.TemplateStorage;
 import de.dytanic.cloudnet.wrapper.conf.DocumentWrapperConfiguration;
 import de.dytanic.cloudnet.wrapper.conf.IWrapperConfiguration;
 import de.dytanic.cloudnet.wrapper.database.IDatabaseProvider;
@@ -57,11 +59,13 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.Collectors;
 
 /**
  * This class is the main class of the application wrapper, which performs the basic
@@ -217,8 +221,31 @@ public final class Wrapper extends CloudNetDriver implements DriverAPIUser {
     }
 
     @Override
+    public @NotNull TemplateStorage getLocalTemplateStorage() {
+        return this.getTemplateStorage(ServiceTemplate.LOCAL_STORAGE);
+    }
+
+    @Override
     public @NotNull String getNodeUniqueId() {
         return this.getServiceId().getNodeUniqueId();
+    }
+
+    @Override
+    public @NotNull TemplateStorage getTemplateStorage(String storage) {
+        return new RemoteTemplateStorage(storage, this::getNetworkChannel);
+    }
+
+    @Override
+    public @NotNull Collection<TemplateStorage> getAvailableTemplateStorages() {
+        return this.getAvailableTemplateStoragesAsync().get(5, TimeUnit.SECONDS, Collections.emptyList());
+    }
+
+    @Override
+    public @NotNull ITask<Collection<TemplateStorage>> getAvailableTemplateStoragesAsync() {
+        return this.executeDriverAPIMethod(
+                DriverAPIRequestType.GET_TEMPLATE_STORAGES,
+                packet -> packet.getBuffer().readStringCollection()
+        ).map(names -> names.stream().map(this::getTemplateStorage).collect(Collectors.toList()));
     }
 
     @Override
@@ -234,30 +261,6 @@ public final class Wrapper extends CloudNetDriver implements DriverAPIUser {
     @Override
     public @NotNull SpecificCloudServiceProvider getCloudServiceProvider(@NotNull ServiceInfoSnapshot serviceInfoSnapshot) {
         return new RemoteSpecificCloudServiceProvider(this.getNetworkChannel(), serviceInfoSnapshot);
-    }
-
-    /**
-     * Application wrapper implementation of this method. See the full documentation at the
-     * CloudNetDriver class.
-     *
-     * @see CloudNetDriver
-     */
-    @Override
-    public Collection<ServiceTemplate> getLocalTemplateStorageTemplates() {
-        return this.getLocalTemplateStorageTemplatesAsync().get(5, TimeUnit.SECONDS, null);
-    }
-
-    /**
-     * Application wrapper implementation of this method. See the full documentation at the
-     * CloudNetDriver class.
-     *
-     * @see CloudNetDriver
-     */
-    @Override
-    public Collection<ServiceTemplate> getTemplateStorageTemplates(@NotNull String serviceName) {
-        Preconditions.checkNotNull(serviceName);
-
-        return this.getTemplateStorageTemplatesAsync(serviceName).get(5, TimeUnit.SECONDS, null);
     }
 
     @Override
@@ -282,36 +285,6 @@ public final class Wrapper extends CloudNetDriver implements DriverAPIUser {
         Preconditions.checkNotNull(commandLine);
 
         return this.sendCommandLineAsPermissionUserAsync(uniqueId, commandLine).get(5, TimeUnit.SECONDS, null);
-    }
-
-    /**
-     * Application wrapper implementation of this method. See the full documentation at the
-     * CloudNetDriver class.
-     *
-     * @see CloudNetDriver
-     */
-    @Override
-    @NotNull
-    public ITask<Collection<ServiceTemplate>> getLocalTemplateStorageTemplatesAsync() {
-        return this.getTemplateStorageTemplatesAsync("local");
-    }
-
-    /**
-     * Application wrapper implementation of this method. See the full documentation at the
-     * CloudNetDriver class.
-     *
-     * @see CloudNetDriver
-     */
-    @Override
-    @NotNull
-    public ITask<Collection<ServiceTemplate>> getTemplateStorageTemplatesAsync(@NotNull String serviceName) {
-        Preconditions.checkNotNull(serviceName);
-
-        return this.executeDriverAPIMethod(
-                DriverAPIRequestType.GET_TEMPLATE_STORAGE_TEMPLATES,
-                buffer -> buffer.writeString(serviceName),
-                packet -> packet.getBuffer().readObjectCollection(ServiceTemplate.class)
-        );
     }
 
     /**
@@ -391,11 +364,11 @@ public final class Wrapper extends CloudNetDriver implements DriverAPIUser {
      *
      * @see ServiceInfoSnapshotConfigureEvent
      */
-    public synchronized void publishServiceInfoUpdate() {
+    public void publishServiceInfoUpdate() {
         this.publishServiceInfoUpdate(this.createServiceInfoSnapshot());
     }
 
-    public synchronized void publishServiceInfoUpdate(@NotNull ServiceInfoSnapshot serviceInfoSnapshot) {
+    public void publishServiceInfoUpdate(@NotNull ServiceInfoSnapshot serviceInfoSnapshot) {
         if (this.currentServiceInfoSnapshot.getServiceId().equals(serviceInfoSnapshot.getServiceId())) {
             this.configureServiceInfoSnapshot(serviceInfoSnapshot);
         }
