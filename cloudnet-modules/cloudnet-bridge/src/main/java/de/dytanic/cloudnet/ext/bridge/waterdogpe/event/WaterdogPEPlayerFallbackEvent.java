@@ -2,8 +2,8 @@ package de.dytanic.cloudnet.ext.bridge.waterdogpe.event;
 
 
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
-import dev.waterdog.event.Event;
-import dev.waterdog.player.ProxiedPlayer;
+import dev.waterdog.waterdogpe.event.Event;
+import dev.waterdog.waterdogpe.player.ProxiedPlayer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

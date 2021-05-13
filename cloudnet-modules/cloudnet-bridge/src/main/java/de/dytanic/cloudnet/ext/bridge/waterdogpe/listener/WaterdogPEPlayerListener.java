@@ -4,14 +4,14 @@ import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.ext.bridge.BridgeHelper;
 import de.dytanic.cloudnet.ext.bridge.proxy.BridgeProxyHelper;
 import de.dytanic.cloudnet.ext.bridge.waterdogpe.WaterdogPECloudNetHelper;
-import dev.waterdog.ProxyServer;
-import dev.waterdog.event.EventManager;
-import dev.waterdog.event.defaults.PlayerDisconnectEvent;
-import dev.waterdog.event.defaults.PlayerLoginEvent;
-import dev.waterdog.event.defaults.PlayerPreLoginEvent;
-import dev.waterdog.event.defaults.PostTransferCompleteEvent;
-import dev.waterdog.event.defaults.PreTransferEvent;
-import dev.waterdog.player.ProxiedPlayer;
+import dev.waterdog.waterdogpe.ProxyServer;
+import dev.waterdog.waterdogpe.event.EventManager;
+import dev.waterdog.waterdogpe.event.defaults.PlayerDisconnectEvent;
+import dev.waterdog.waterdogpe.event.defaults.PlayerLoginEvent;
+import dev.waterdog.waterdogpe.event.defaults.PlayerPreLoginEvent;
+import dev.waterdog.waterdogpe.event.defaults.PostTransferCompleteEvent;
+import dev.waterdog.waterdogpe.event.defaults.PreTransferEvent;
+import dev.waterdog.waterdogpe.player.ProxiedPlayer;
 
 public final class WaterdogPEPlayerListener {
 
