@@ -1,6 +1,5 @@
 package de.dytanic.cloudnet.ext.rest.v2;
 
-import com.google.common.collect.Iterables;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.network.http.IHttpContext;
 import de.dytanic.cloudnet.driver.network.http.websocket.IWebSocketChannel;
@@ -14,13 +13,13 @@ import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceRemoteInclusion;
 import de.dytanic.cloudnet.driver.service.ServiceTask;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
+import de.dytanic.cloudnet.ext.rest.RestUtils;
 import de.dytanic.cloudnet.http.v2.HttpSession;
 import de.dytanic.cloudnet.http.v2.V2HttpHandler;
 import de.dytanic.cloudnet.service.ICloudService;
 import de.dytanic.cloudnet.service.IServiceConsoleLogCache;
 import de.dytanic.cloudnet.service.ServiceConsoleLineHandler;
 
-import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -37,10 +36,8 @@ public class V2HttpHandlerService extends V2HttpHandler {
         if (context.request().method().equalsIgnoreCase("GET")) {
             if (path.endsWith("/service")) {
                 this.handleListServicesRequest(context);
-            } else if (path.endsWith("/start") || path.endsWith("/stop") || path.endsWith("/restart") || path.endsWith("/kill")) {
-                this.handleServiceStateUpdateRequest(path, context);
-            } else if (path.endsWith("/command")) {
-                this.handleServiceCommandRequest(context);
+            } else if (path.endsWith("/lifecycle")) {
+                this.handleServiceStateUpdateRequest(context);
             } else if (path.contains("/include")) {
                 this.handleIncludeRequest(context);
             } else if (path.endsWith("/deployresources")) {
@@ -57,6 +54,8 @@ public class V2HttpHandlerService extends V2HttpHandler {
                 this.handleCreateRequest(context);
             } else if (path.contains("/add")) {
                 this.handleAddRequest(context);
+            } else if (path.endsWith("/command")) {
+                this.handleServiceCommandRequest(context);
             }
         } else if (context.request().method().equalsIgnoreCase("DELETE")) {
             this.handleServiceDeleteRequest(context);
@@ -80,16 +79,33 @@ public class V2HttpHandlerService extends V2HttpHandler {
         );
     }
 
-    protected void handleServiceStateUpdateRequest(String path, IHttpContext context) {
+    protected void handleServiceStateUpdateRequest(IHttpContext context) {
         this.handleWithServiceContext(context, service -> {
-            if (path.endsWith("/start")) {
+            String targetState = RestUtils.getFirst(context.request().queryParameters().get("target"));
+            if (targetState == null) {
+                this.badRequest(context)
+                        .body(this.failure().append("reason", "Missing target state in query").toByteArray())
+                        .context()
+                        .closeAfter(true)
+                        .cancelNext();
+                return;
+            }
+
+            if (targetState.equalsIgnoreCase("start")) {
                 service.provider().start();
-            } else if (path.endsWith("/stop")) {
+            } else if (targetState.equalsIgnoreCase("stop")) {
                 service.provider().stop();
-            } else if (path.endsWith("/restart")) {
+            } else if (targetState.equalsIgnoreCase("restart")) {
                 service.provider().restart();
-            } else if (path.endsWith("/kill")) {
+            } else if (targetState.equalsIgnoreCase("kill")) {
                 service.provider().kill();
+            } else {
+                this.badRequest(context)
+                        .body(this.failure().append("reason", "Invalid target state").toByteArray())
+                        .context()
+                        .closeAfter(true)
+                        .cancelNext();
+                return;
             }
 
             this.ok(context).body(this.success().toByteArray()).context().closeAfter(true).cancelNext();
@@ -114,14 +130,21 @@ public class V2HttpHandlerService extends V2HttpHandler {
 
     protected void handleIncludeRequest(IHttpContext context) {
         this.handleWithServiceContext(context, service -> {
-            List<String> types = context.request().queryParameters().get("type");
-            if (types != null && !types.isEmpty()) {
-                if (types.contains("templates")) {
+            String type = RestUtils.getFirst(context.request().queryParameters().get("type"));
+            if (type != null) {
+                if (type.equalsIgnoreCase("templates")) {
                     service.provider().includeWaitingServiceTemplates();
-                }
-                if (types.contains("inclusions")) {
+                } else if (type.equalsIgnoreCase("inclusions")) {
                     service.provider().includeWaitingServiceInclusions();
+                } else {
+                    this.badRequest(context)
+                            .body(this.failure().append("reason", "Invalid include type").toByteArray())
+                            .context()
+                            .closeAfter(true)
+                            .cancelNext();
+                    return;
                 }
+
                 this.ok(context).body(this.success().toByteArray()).context().closeAfter(true).cancelNext();
             } else {
                 this.badRequest(context)
@@ -135,7 +158,7 @@ public class V2HttpHandlerService extends V2HttpHandler {
 
     protected void handleDeployResourcesRequest(IHttpContext context) {
         this.handleWithServiceContext(context, service -> {
-            boolean removeDeployments = this.body(context.request()).getBoolean("removeDeployments", true);
+            boolean removeDeployments = Boolean.getBoolean(RestUtils.getFirst(context.request().queryParameters().get("remove"), "true"));
             service.provider().deployResources(removeDeployments);
 
             this.ok(context).body(this.success().toByteArray()).context().closeAfter(true).cancelNext();
@@ -247,7 +270,7 @@ public class V2HttpHandlerService extends V2HttpHandler {
 
     protected void handleAddRequest(IHttpContext context) {
         this.handleWithServiceContext(context, service -> {
-            String type = Iterables.getFirst(context.request().queryParameters().get("type"), null);
+            String type = RestUtils.getFirst(context.request().queryParameters().get("type"), null);
             if (type == null) {
                 this.badRequest(context)
                         .body(this.failure().append("reason", "Missing type in query params").toByteArray())
@@ -256,7 +279,7 @@ public class V2HttpHandlerService extends V2HttpHandler {
                         .cancelNext();
             } else {
                 JsonDocument body = this.body(context.request());
-                boolean flushAfter = body.getBoolean("flush", false);
+                boolean flushAfter = Boolean.getBoolean(RestUtils.getFirst(context.request().queryParameters().get("flush"), "false"));
 
                 if (type.equalsIgnoreCase("template")) {
                     ServiceTemplate template = body.get("template", ServiceTemplate.class);

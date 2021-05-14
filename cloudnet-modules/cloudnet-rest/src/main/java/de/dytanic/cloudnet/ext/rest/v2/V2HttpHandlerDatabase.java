@@ -4,6 +4,7 @@ import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.database.Database;
 import de.dytanic.cloudnet.driver.database.DatabaseProvider;
 import de.dytanic.cloudnet.driver.network.http.IHttpContext;
+import de.dytanic.cloudnet.ext.rest.RestUtils;
 import de.dytanic.cloudnet.http.v2.HttpSession;
 import de.dytanic.cloudnet.http.v2.V2HttpHandler;
 
@@ -20,18 +21,15 @@ public class V2HttpHandlerDatabase extends V2HttpHandler {
     @Override
     protected void handleBearerAuthorized(String path, IHttpContext context, HttpSession session) {
         if (context.request().method().equals("GET")) {
-            if (path.endsWith("/database")) {
+            if (path.endsWith("/contains")) {
+                // contains in a specific database
+                this.handleContainsRequest(context);
+            } else if (path.endsWith("/database")) {
                 // names of the database
                 this.handleNamesRequest(context);
             } else if (path.endsWith("/clear")) {
                 // clear of a specific database
                 this.handleClearRequest(context);
-            } else if (path.endsWith("/contains")) {
-                // contains in a specific database
-                this.handleContainsRequest(context);
-            } else if (path.endsWith("/get")) {
-                // get a value from the database
-                this.handleGetRequest(context);
             } else if (path.endsWith("/keys")) {
                 // list all keys in database
                 this.handleKeysRequest(context);
@@ -40,8 +38,13 @@ public class V2HttpHandlerDatabase extends V2HttpHandler {
                 this.handleCountRequest(context);
             }
         } else if (context.request().method().equalsIgnoreCase("POST")) {
-            // insert of a document into a database
-            this.handleInsertRequest(context);
+            if (path.endsWith("/get")) {
+                // get a value from the database
+                this.handleGetRequest(context);
+            } else {
+                // insert of a document into a database
+                this.handleInsertRequest(context);
+            }
         } else if (context.request().method().equalsIgnoreCase("PUT")) {
             // update a document in the database
             this.handleUpdateRequest(context);
@@ -77,7 +80,7 @@ public class V2HttpHandlerDatabase extends V2HttpHandler {
             return;
         }
 
-        String key = this.body(context.request()).getString("key");
+        String key = RestUtils.getFirst(context.request().queryParameters().get("key"));
         if (key == null) {
             this.badRequest(context)
                     .body(this.failure().append("reason", "Missing key in request").toByteArray())
@@ -110,6 +113,7 @@ public class V2HttpHandlerDatabase extends V2HttpHandler {
                     .context()
                     .closeAfter(true)
                     .cancelNext();
+            return;
         }
 
         Collection<JsonDocument> result = filter == null ? Collections.singleton(database.get(key)) : database.get(filter);
@@ -188,7 +192,7 @@ public class V2HttpHandlerDatabase extends V2HttpHandler {
             return;
         }
 
-        String key = this.body(context.request()).getString("key");
+        String key = RestUtils.getFirst(context.request().queryParameters().get("key"));
         if (database.delete(key)) {
             this.ok(context).body(this.success().toByteArray()).context().closeAfter(true).cancelNext();
         } else {

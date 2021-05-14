@@ -80,7 +80,7 @@ public class V2HttpHandlerGroups extends V2HttpHandler {
         }
 
         this.getGroupProvider().addGroupConfiguration(configuration);
-        this.ok(context)
+        this.response(context, HttpResponseCode.HTTP_CREATED)
                 .body(this.success().toByteArray())
                 .context()
                 .closeAfter(true)

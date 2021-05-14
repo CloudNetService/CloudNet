@@ -24,6 +24,10 @@ public class DriverModule extends DefaultModule {
         return this.config;
     }
 
+    public void setConfig(JsonDocument config) {
+        this.config = config;
+    }
+
     public JsonDocument reloadConfig() {
         return this.config = this.reloadConfig0();
     }

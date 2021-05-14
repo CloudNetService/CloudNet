@@ -23,7 +23,7 @@ public class V2HttpHandlerInfo extends V2HttpHandler {
     }
 
     @Override
-    protected void handleBasicAuthorized(String path, IHttpContext context, IPermissionUser user) throws Exception {
+    protected void handleBasicAuthorized(String path, IHttpContext context, IPermissionUser user) {
         this.sendNodeInformation(context);
     }
 

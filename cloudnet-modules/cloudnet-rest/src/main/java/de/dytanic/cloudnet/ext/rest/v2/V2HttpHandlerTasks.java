@@ -80,7 +80,7 @@ public class V2HttpHandlerTasks extends V2HttpHandler {
         }
 
         if (this.getTaskProvider().addPermanentServiceTask(serviceTask)) {
-            this.ok(context).body(this.success().toByteArray()).context().closeAfter(true).cancelNext();
+            this.response(context, HttpResponseCode.HTTP_CREATED).body(this.success().toByteArray()).context().closeAfter(true).cancelNext();
         } else {
             this.ok(context).body(this.failure().toByteArray()).context().closeAfter(true).cancelNext();
         }

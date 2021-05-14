@@ -139,6 +139,10 @@ public abstract class V2HttpHandler implements IHttpHandler {
         return this.response(context, HttpResponseCode.HTTP_BAD_REQUEST);
     }
 
+    protected IHttpResponse notFound(IHttpContext context) {
+        return this.response(context, HttpResponseCode.HTTP_NOT_FOUND);
+    }
+
     protected IHttpResponse response(IHttpContext context, int statusCode) {
         return context.response()
                 .statusCode(statusCode)

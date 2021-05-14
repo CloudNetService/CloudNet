@@ -24,20 +24,20 @@ public class V2HttpHandlerCluster extends V2HttpHandler {
     protected void handleBearerAuthorized(String path, IHttpContext context, HttpSession session) {
         if (context.request().method().equalsIgnoreCase("GET")) {
             if (context.request().pathParameters().containsKey("node")) {
-                if (path.endsWith("/command")) {
-                    // a command should be executed on the node
-                    this.handleNodeCommandRequest(context);
-                } else {
-                    // specific node was requested
-                    this.handleNodeRequest(context);
-                }
+                // specific node was requested
+                this.handleNodeRequest(context);
             } else {
                 // a list of all nodes was requested
                 this.handleNodeListRequest(context);
             }
         } else if (context.request().method().equalsIgnoreCase("POST")) {
-            // post is used for creation of nodes
-            this.handleNodeCreateRequest(context);
+            if (path.endsWith("/command")) {
+                // a command should be executed on the node
+                this.handleNodeCommandRequest(context);
+            } else {
+                // post is used for creation of nodes
+                this.handleNodeCreateRequest(context);
+            }
         } else if (context.request().method().equalsIgnoreCase("DELETE")) {
             // delete a cluster server from the configuration
             this.handleNodeDeleteRequest(context);
@@ -100,7 +100,7 @@ public class V2HttpHandlerCluster extends V2HttpHandler {
 
     protected void handleNodeCreateRequest(IHttpContext context) {
         NetworkClusterNode server = this.body(context.request()).toInstanceOf(NetworkClusterNode.class);
-        if (server == null) {
+        if (server == null || server.getUniqueId() == null || server.getListeners() == null) {
             this.badRequest(context)
                     .body(this.failure().append("reason", "Missing node server information").toByteArray())
                     .context()

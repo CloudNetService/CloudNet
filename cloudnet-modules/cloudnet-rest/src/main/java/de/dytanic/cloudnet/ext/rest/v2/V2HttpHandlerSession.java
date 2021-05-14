@@ -35,7 +35,7 @@ public class V2HttpHandlerSession extends V2HttpHandler {
 
     protected void handleLogout(IHttpContext context, HttpSession session) {
         if (this.authentication.expireSession(session)) {
-            this.ok(context).context().closeAfter(true).cancelNext();
+            this.ok(context).body(this.success().toByteArray()).context().closeAfter(true).cancelNext();
         } else {
             this.send403(context, "Unable to close unknown session");
         }

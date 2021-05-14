@@ -23,9 +23,14 @@ import de.dytanic.cloudnet.ext.rest.v2.V2HttpHandlerCluster;
 import de.dytanic.cloudnet.ext.rest.v2.V2HttpHandlerDatabase;
 import de.dytanic.cloudnet.ext.rest.v2.V2HttpHandlerGroups;
 import de.dytanic.cloudnet.ext.rest.v2.V2HttpHandlerInfo;
+import de.dytanic.cloudnet.ext.rest.v2.V2HttpHandlerLiveConsole;
+import de.dytanic.cloudnet.ext.rest.v2.V2HttpHandlerModule;
 import de.dytanic.cloudnet.ext.rest.v2.V2HttpHandlerService;
+import de.dytanic.cloudnet.ext.rest.v2.V2HttpHandlerServiceVersionProvider;
 import de.dytanic.cloudnet.ext.rest.v2.V2HttpHandlerSession;
 import de.dytanic.cloudnet.ext.rest.v2.V2HttpHandlerTasks;
+import de.dytanic.cloudnet.ext.rest.v2.V2HttpHandlerTemplate;
+import de.dytanic.cloudnet.ext.rest.v2.V2HttpHandlerTemplateStorages;
 import de.dytanic.cloudnet.module.NodeCloudNetModule;
 
 public final class CloudNetRestModule extends NodeCloudNetModule {
@@ -39,6 +44,8 @@ public final class CloudNetRestModule extends NodeCloudNetModule {
                 .registerHandler("/api/v2/session/*", IHttpHandler.PRIORITY_NORMAL, new V2HttpHandlerSession())
                 // v2 node status check / information
                 .registerHandler("/api/v2/info", IHttpHandler.PRIORITY_NORMAL, new V2HttpHandlerInfo())
+                // v2 node live console
+                .registerHandler("/api/v2/liveConsole", IHttpHandler.PRIORITY_NORMAL, new V2HttpHandlerLiveConsole("http.v2.live.console"))
                 // v2 cluster
                 .registerHandler("/api/v2/cluster", IHttpHandler.PRIORITY_NORMAL, new V2HttpHandlerCluster("http.v2.cluster"))
                 .registerHandler("/api/v2/cluster/{node}", IHttpHandler.PRIORITY_NORMAL, new V2HttpHandlerCluster("http.v2.cluster"))
@@ -59,6 +66,18 @@ public final class CloudNetRestModule extends NodeCloudNetModule {
                 .registerHandler("/api/v2/service", IHttpHandler.PRIORITY_NORMAL, new V2HttpHandlerService("http.v2.services"))
                 .registerHandler("/api/v2/service/{identifier}", IHttpHandler.PRIORITY_NORMAL, new V2HttpHandlerService("http.v2.services"))
                 .registerHandler("/api/v2/service/{identifier}/*", IHttpHandler.PRIORITY_LOW, new V2HttpHandlerService("http.v2.services"))
+                // v2 template storage management
+                .registerHandler("/api/v2/templateStorage", IHttpHandler.PRIORITY_NORMAL, new V2HttpHandlerTemplateStorages("http.v2.template.storage"))
+                .registerHandler("/api/v2/templateStorage/{storage}/*", IHttpHandler.PRIORITY_LOW, new V2HttpHandlerTemplateStorages("http.v2.template.storage"))
+                // v2 template management
+                .registerHandler("/api/v2/template/{storage}/{prefix}/{name}/*", IHttpHandler.PRIORITY_NORMAL, new V2HttpHandlerTemplate("http.v2.template"))
+                // v2 server version management
+                .registerHandler("/api/v2/serviceVersion", IHttpHandler.PRIORITY_NORMAL, new V2HttpHandlerServiceVersionProvider("http.v2.service.provider"))
+                .registerHandler("/api/v2/serviceVersion/{version}", IHttpHandler.PRIORITY_LOW, new V2HttpHandlerServiceVersionProvider("http.v2.service.provider"))
+                // v2 module management
+                .registerHandler("/api/v2/module", IHttpHandler.PRIORITY_NORMAL, new V2HttpHandlerModule("http.v2.module"))
+                .registerHandler("/api/v2/module/{name}", IHttpHandler.PRIORITY_NORMAL, new V2HttpHandlerModule("http.v2.module"))
+                .registerHandler("/api/v2/module/{name}/*", IHttpHandler.PRIORITY_LOW, new V2HttpHandlerModule("http.v2.module"))
                 // legacy v1 handlers
                 .registerHandler("/api/v1", IHttpHandler.PRIORITY_NORMAL, new V1HttpHandlerShowOpenAPI())
                 .registerHandler("/api/v1/*", IHttpHandler.PRIORITY_HIGH, new V1SecurityProtectionHttpHandler())

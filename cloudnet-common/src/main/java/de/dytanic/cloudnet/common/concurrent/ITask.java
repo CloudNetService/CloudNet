@@ -69,6 +69,12 @@ public interface ITask<V> extends Future<V>, Callable<V> {
         return this.onFailure((Consumer<Throwable>) Throwable::printStackTrace);
     }
 
+    default ITask<V> throwExceptionOnFailure() {
+        return this.onFailure(throwable -> {
+            throw new RuntimeException(throwable);
+        });
+    }
+
     @NotNull
     ITask<V> clearListeners();
 
