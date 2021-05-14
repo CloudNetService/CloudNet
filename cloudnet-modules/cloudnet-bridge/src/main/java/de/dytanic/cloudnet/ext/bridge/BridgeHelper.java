@@ -126,7 +126,7 @@ public final class BridgeHelper {
                 .message(BridgeConstants.BRIDGE_EVENT_CHANNEL_MESSAGE_NAME_PROXY_MISSING_DISCONNECT)
                 .buffer(ProtocolBuffer.create().writeUUID(player.getUniqueId())
                         .writeString(player.getName()).writeObject(createOwnNetworkServiceInfo()))
-                .targetAll()
+                .targetNodes()
                 .build()
                 .send();
     }

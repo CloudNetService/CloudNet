@@ -55,7 +55,7 @@ public final class NodePlayerManager extends DefaultPlayerManager implements IPl
             .build();
     private final Map<UUID, CloudPlayer> onlineCloudPlayers = new ConcurrentHashMap<>();
 
-    private final Striped<Lock> loginLocks = Striped.lazyWeakLock(1);
+    private final Striped<Lock> managementLocks = Striped.lazyWeakLock(1);
     private final PlayerProvider allPlayersProvider = new NodePlayerProvider(this, () -> this.onlineCloudPlayers.values().stream());
 
     public NodePlayerManager(String databaseName) {
@@ -185,7 +185,6 @@ public final class NodePlayerManager extends DefaultPlayerManager implements IPl
     }
 
     @Override
-    @Deprecated
     public List<? extends ICloudOfflinePlayer> getRegisteredPlayers() {
         List<CloudOfflinePlayer> cloudOfflinePlayers = new ArrayList<>();
 
@@ -317,13 +316,25 @@ public final class NodePlayerManager extends DefaultPlayerManager implements IPl
     }
 
     public void updateOnlinePlayer0(ICloudPlayer cloudPlayer) {
-        this.onlineCloudPlayers.replace(cloudPlayer.getUniqueId(), (CloudPlayer) cloudPlayer);
+        this.updateOnlinePlayerInCache(cloudPlayer);
         this.updateOfflinePlayer0(CloudOfflinePlayer.of(cloudPlayer));
     }
 
     public void handleOnlinePlayerUpdate(ICloudPlayer cloudPlayer) {
-        this.onlineCloudPlayers.replace(cloudPlayer.getUniqueId(), (CloudPlayer) cloudPlayer);
+        this.updateOnlinePlayerInCache(cloudPlayer);
         this.handleOfflinePlayerUpdate(CloudOfflinePlayer.of(cloudPlayer));
+    }
+
+    protected void updateOnlinePlayerInCache(ICloudPlayer cloudPlayer) {
+        Lock handlingLock = this.managementLocks.get(cloudPlayer.getUniqueId());
+        try {
+            // lock the management lock of the player to ensure only one update at a time
+            handlingLock.lock();
+            // actually update the player if needed
+            this.onlineCloudPlayers.replace(cloudPlayer.getUniqueId(), (CloudPlayer) cloudPlayer);
+        } finally {
+            handlingLock.unlock();
+        }
     }
 
     @NotNull
@@ -342,7 +353,7 @@ public final class NodePlayerManager extends DefaultPlayerManager implements IPl
     }
 
     public void loginPlayer(NetworkConnectionInfo networkConnectionInfo, NetworkPlayerServerInfo networkPlayerServerInfo) {
-        Lock loginLock = this.loginLocks.get(networkConnectionInfo.getUniqueId());
+        Lock loginLock = this.managementLocks.get(networkConnectionInfo.getUniqueId());
         try {
             // ensure that we handle only one login message at a time
             loginLock.lock();
@@ -427,7 +438,7 @@ public final class NodePlayerManager extends DefaultPlayerManager implements IPl
     }
 
     public void processLoginMessage(@NotNull CloudPlayer cloudPlayer) {
-        Lock loginLock = this.loginLocks.get(cloudPlayer.getUniqueId());
+        Lock loginLock = this.managementLocks.get(cloudPlayer.getUniqueId());
         try {
             // ensure we only handle one login at a time
             loginLock.lock();
@@ -493,10 +504,18 @@ public final class NodePlayerManager extends DefaultPlayerManager implements IPl
     }
 
     public void logoutPlayer(CloudPlayer cloudPlayer) {
-        this.getOnlineCloudPlayers().remove(cloudPlayer.getUniqueId());
-        cloudPlayer.setLastNetworkConnectionInfo(cloudPlayer.getNetworkConnectionInfo());
-
-        this.updateOnlinePlayer0(cloudPlayer);
+        Lock managementLock = this.managementLocks.get(cloudPlayer.getUniqueId());
+        try {
+            // ensure only one update operation at a time
+            managementLock.lock();
+            // remove the player from the cache
+            this.onlineCloudPlayers.remove(cloudPlayer.getUniqueId());
+            cloudPlayer.setLastNetworkConnectionInfo(cloudPlayer.getNetworkConnectionInfo());
+            // update the offline version of the player into the database
+            this.updateOfflinePlayer0(CloudOfflinePlayer.of(cloudPlayer));
+        } finally {
+            managementLock.unlock();
+        }
     }
 
     private void logoutPlayer(UUID uniqueId, String name, Predicate<CloudPlayer> predicate) {

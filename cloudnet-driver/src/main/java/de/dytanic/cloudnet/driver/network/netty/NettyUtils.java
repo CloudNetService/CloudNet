@@ -27,8 +27,10 @@ import org.jetbrains.annotations.ApiStatus;
 
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
+import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 @ApiStatus.Internal
 public final class NettyUtils {
@@ -56,7 +58,9 @@ public final class NettyUtils {
     }
 
     public static Executor newPacketDispatcher() {
-        return Executors.newFixedThreadPool(getThreadAmount());
+        // a cached pool with a maximum of 100 threads with an idle-lifetime of 30 seconds
+        return new ThreadPoolExecutor(0, 100,
+                30L, TimeUnit.SECONDS, new SynchronousQueue<>(true));
     }
 
     @Deprecated
