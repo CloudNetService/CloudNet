@@ -22,9 +22,8 @@ import de.dytanic.cloudnet.ext.rest.v2.V2HttpHandlerAuthorization;
 import de.dytanic.cloudnet.ext.rest.v2.V2HttpHandlerCluster;
 import de.dytanic.cloudnet.ext.rest.v2.V2HttpHandlerDatabase;
 import de.dytanic.cloudnet.ext.rest.v2.V2HttpHandlerGroups;
-import de.dytanic.cloudnet.ext.rest.v2.V2HttpHandlerInfo;
-import de.dytanic.cloudnet.ext.rest.v2.V2HttpHandlerLiveConsole;
 import de.dytanic.cloudnet.ext.rest.v2.V2HttpHandlerModule;
+import de.dytanic.cloudnet.ext.rest.v2.V2HttpHandlerNode;
 import de.dytanic.cloudnet.ext.rest.v2.V2HttpHandlerService;
 import de.dytanic.cloudnet.ext.rest.v2.V2HttpHandlerServiceVersionProvider;
 import de.dytanic.cloudnet.ext.rest.v2.V2HttpHandlerSession;
@@ -42,10 +41,9 @@ public final class CloudNetRestModule extends NodeCloudNetModule {
                 .registerHandler("/api/v2/auth", IHttpHandler.PRIORITY_NORMAL, new V2HttpHandlerAuthorization())
                 // v2 session management
                 .registerHandler("/api/v2/session/*", IHttpHandler.PRIORITY_NORMAL, new V2HttpHandlerSession())
-                // v2 node status check / information
-                .registerHandler("/api/v2/info", IHttpHandler.PRIORITY_NORMAL, new V2HttpHandlerInfo())
-                // v2 node live console
-                .registerHandler("/api/v2/liveConsole", IHttpHandler.PRIORITY_NORMAL, new V2HttpHandlerLiveConsole("http.v2.live.console"))
+                // v2 node handling
+                .registerHandler("/api/v2/node", IHttpHandler.PRIORITY_NORMAL, new V2HttpHandlerNode("http.v2.node"))
+                .registerHandler("/api/v2/node/*", IHttpHandler.PRIORITY_LOW, new V2HttpHandlerNode("http.v2.node"))
                 // v2 cluster
                 .registerHandler("/api/v2/cluster", IHttpHandler.PRIORITY_NORMAL, new V2HttpHandlerCluster("http.v2.cluster"))
                 .registerHandler("/api/v2/cluster/{node}", IHttpHandler.PRIORITY_NORMAL, new V2HttpHandlerCluster("http.v2.cluster"))

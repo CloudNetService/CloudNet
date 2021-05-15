@@ -11,6 +11,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Locale;
 
 public class NettyHttpServerTest {
 
@@ -105,7 +106,7 @@ public class NettyHttpServerTest {
         }
 
         Assert.assertEquals(200, httpURLConnection.getResponseCode());
-        Assert.assertEquals(TEST_STRING_2, httpURLConnection.getHeaderField("Request-Text-Example"));
+        Assert.assertEquals(TEST_STRING_2.toLowerCase(Locale.ROOT), httpURLConnection.getHeaderField("Request-Text-Example"));
 
         try (InputStream inputStream = httpURLConnection.getInputStream(); BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(
                 inputStream

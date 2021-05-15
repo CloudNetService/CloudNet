@@ -36,9 +36,9 @@ public final class JsonConfiguration implements IConfiguration {
             HOST_AND_PORT_COLLECTION = new TypeToken<Collection<HostAndPort>>() {
             }.getType();
 
-    private static final Path CONFIG_FILE_PATH = Paths.get(System.getProperty("cloudnet.config.json.path", "config.json"));
+    public static final Path CONFIG_FILE_PATH = Paths.get(System.getProperty("cloudnet.config.json.path", "config.json"));
 
-    private JsonDocument document;
+    private transient JsonDocument document;
 
     private NetworkClusterNode identity;
 
