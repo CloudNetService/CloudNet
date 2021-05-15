@@ -78,15 +78,9 @@ final class NettyWebSocketServerChannelHandler extends SimpleChannelInboundHandl
     }
 
     private byte[] readContentFromWebSocketFrame(WebSocketFrame frame) {
-        int length = frame.content().readableBytes();
-
-        if (frame.content().hasArray()) {
-            return frame.content().array();
-        } else {
-            byte[] bytes = new byte[length];
-            frame.content().getBytes(frame.content().readerIndex(), bytes);
-            return bytes;
-        }
+        byte[] bytes = new byte[frame.content().readableBytes()];
+        frame.content().getBytes(frame.content().readerIndex(), bytes);
+        return bytes;
     }
 
     public NettyWebSocketServerChannel getWebSocketServerChannel() {

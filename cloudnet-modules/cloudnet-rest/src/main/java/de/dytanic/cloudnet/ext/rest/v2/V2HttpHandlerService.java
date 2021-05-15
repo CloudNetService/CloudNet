@@ -20,6 +20,7 @@ import de.dytanic.cloudnet.service.ICloudService;
 import de.dytanic.cloudnet.service.IServiceConsoleLogCache;
 import de.dytanic.cloudnet.service.ServiceConsoleLineHandler;
 
+import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -415,8 +416,9 @@ public class V2HttpHandlerService extends V2HttpHandler {
 
         @Override
         public void handle(IWebSocketChannel channel, WebSocketFrameType type, byte[] bytes) throws Exception {
-            if (type == WebSocketFrameType.PING) {
-                channel.sendWebSocketFrame(WebSocketFrameType.PONG, bytes);
+            if (type == WebSocketFrameType.TEXT) {
+                String commandLine = new String(bytes, StandardCharsets.UTF_8);
+                this.logCache.getCloudService().runCommand(commandLine);
             }
         }
 
