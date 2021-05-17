@@ -20,6 +20,7 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 public abstract class ClusterSynchronizedTemplateStorage extends DefaultSyncTemplateStorage {
@@ -34,15 +35,20 @@ public abstract class ClusterSynchronizedTemplateStorage extends DefaultSyncTemp
         return this.enabled && CloudNet.getInstance().getClusterNodeServerProvider().hasAnyConnection();
     }
 
-    private void sendDefault(DriverAPIRequestType requestType, ServiceTemplate template, ProtocolBuffer buffer) {
-        buffer.markWriterIndex();
-        buffer.writerIndex(0);
+    private void sendDefault(DriverAPIRequestType requestType, ServiceTemplate template) {
+        this.sendDefault(requestType, template, null);
+    }
 
+    private void sendDefault(DriverAPIRequestType requestType, ServiceTemplate template, @Nullable Consumer<ProtocolBuffer> handler) {
+        ProtocolBuffer buffer = ProtocolBuffer.create();
+        // write default data
         buffer.writeEnumConstant(requestType);
         buffer.writeObject(template);
-
-        buffer.resetWriterIndex();
-
+        // post it to the buffer handler for further appending of information
+        if (handler != null) {
+            handler.accept(buffer);
+        }
+        // publish the message in the cluster
         CloudNet.getInstance().getClusterNodeServerProvider().sendPacket(new PacketServerSyncTemplateStorage(buffer));
     }
 
@@ -84,7 +90,6 @@ public abstract class ClusterSynchronizedTemplateStorage extends DefaultSyncTemp
 
             try (InputStream localInputStream = Files.newInputStream(tempFile)) {
                 if (this.deployWithoutSynchronization(localInputStream, target)) {
-
                     try (InputStream remoteInputStream = Files.newInputStream(tempFile, StandardOpenOption.DELETE_ON_CLOSE)) {
                         this.sendChunks(DriverAPIRequestType.DEPLOY_TEMPLATE_STREAM, remoteInputStream, target, JsonDocument.newDocument());
                     }
@@ -94,7 +99,6 @@ public abstract class ClusterSynchronizedTemplateStorage extends DefaultSyncTemp
 
                 Files.delete(tempFile);
             }
-
         } catch (IOException exception) {
             exception.printStackTrace();
         }
@@ -108,7 +112,7 @@ public abstract class ClusterSynchronizedTemplateStorage extends DefaultSyncTemp
     public boolean delete(@NotNull ServiceTemplate template) {
         if (this.deleteWithoutSynchronization(template)) {
             if (this.requiresSynchronization()) {
-                this.sendDefault(DriverAPIRequestType.DELETE_TEMPLATE, template, ProtocolBuffer.create());
+                this.sendDefault(DriverAPIRequestType.DELETE_TEMPLATE, template);
             }
 
             return true;
@@ -123,7 +127,7 @@ public abstract class ClusterSynchronizedTemplateStorage extends DefaultSyncTemp
     public boolean create(@NotNull ServiceTemplate template) {
         if (this.createWithoutSynchronization(template)) {
             if (this.requiresSynchronization()) {
-                this.sendDefault(DriverAPIRequestType.CREATE_TEMPLATE, template, ProtocolBuffer.create());
+                this.sendDefault(DriverAPIRequestType.CREATE_TEMPLATE, template);
             }
 
             return true;
@@ -170,7 +174,7 @@ public abstract class ClusterSynchronizedTemplateStorage extends DefaultSyncTemp
     public boolean createFile(@NotNull ServiceTemplate template, @NotNull String path) throws IOException {
         if (this.createFileWithoutSynchronization(template, path)) {
             if (this.requiresSynchronization()) {
-                this.sendDefault(DriverAPIRequestType.CREATE_FILE, template, ProtocolBuffer.create().writeString(path));
+                this.sendDefault(DriverAPIRequestType.CREATE_FILE, template, buf -> buf.writeString(path));
             }
 
             return true;
@@ -185,7 +189,7 @@ public abstract class ClusterSynchronizedTemplateStorage extends DefaultSyncTemp
     public boolean createDirectory(@NotNull ServiceTemplate template, @NotNull String path) throws IOException {
         if (this.createDirectoryWithoutSynchronization(template, path)) {
             if (this.requiresSynchronization()) {
-                this.sendDefault(DriverAPIRequestType.CREATE_DIRECTORY, template, ProtocolBuffer.create().writeString(path));
+                this.sendDefault(DriverAPIRequestType.CREATE_DIRECTORY, template, buf -> buf.writeString(path));
             }
 
             return true;
@@ -200,7 +204,7 @@ public abstract class ClusterSynchronizedTemplateStorage extends DefaultSyncTemp
     public boolean deleteFile(@NotNull ServiceTemplate template, @NotNull String path) throws IOException {
         if (this.deleteFileWithoutSynchronization(template, path)) {
             if (this.requiresSynchronization()) {
-                this.sendDefault(DriverAPIRequestType.DELETE_FILE, template, ProtocolBuffer.create().writeString(path));
+                this.sendDefault(DriverAPIRequestType.DELETE_FILE, template, buf -> buf.writeString(path));
             }
 
             return true;
