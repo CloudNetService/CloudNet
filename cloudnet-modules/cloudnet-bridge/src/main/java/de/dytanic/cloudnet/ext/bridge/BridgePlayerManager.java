@@ -1,17 +1,28 @@
 package de.dytanic.cloudnet.ext.bridge;
 
 import com.google.common.base.Preconditions;
+import de.dytanic.cloudnet.common.concurrent.CompletedTask;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
-import de.dytanic.cloudnet.ext.bridge.player.*;
+import de.dytanic.cloudnet.ext.bridge.player.CloudOfflinePlayer;
+import de.dytanic.cloudnet.ext.bridge.player.CloudPlayer;
+import de.dytanic.cloudnet.ext.bridge.player.DefaultPlayerManager;
+import de.dytanic.cloudnet.ext.bridge.player.ICloudOfflinePlayer;
+import de.dytanic.cloudnet.ext.bridge.player.ICloudPlayer;
+import de.dytanic.cloudnet.ext.bridge.player.IPlayerManager;
+import de.dytanic.cloudnet.ext.bridge.player.PlayerProvider;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 @ApiStatus.Internal
@@ -223,4 +234,21 @@ public final class BridgePlayerManager extends DefaultPlayerManager implements I
                 .send();
     }
 
+    @Override
+    public void deleteCloudPlayer(@NotNull ICloudOfflinePlayer cloudPlayer) {
+        this.deleteCloudPlayerAsync(cloudPlayer).get(5L, TimeUnit.SECONDS, null);
+    }
+
+    @Override
+    public ITask<Void> deleteCloudPlayerAsync(@NotNull ICloudOfflinePlayer cloudPlayer) {
+        Preconditions.checkNotNull(cloudPlayer);
+
+        this.messageBuilder()
+                .message("delete_offline_player")
+                .targetNode(Wrapper.getInstance().getNodeUniqueId())
+                .buffer(ProtocolBuffer.create().writeObject(cloudPlayer))
+                .build()
+                .send();
+        return new CompletedTask<>(null, null);
+    }
 }
