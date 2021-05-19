@@ -39,29 +39,30 @@ public final class CommandBridge extends SubCommandHandler {
                                 },
                                 SubCommand::onlyConsole,
                                 anyStringIgnoreCase("reload", "rl")
-                        ).generateCommand(
-                        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
-                            String targetGroup = (String) args.argument("targetGroup").get();
-
-                            BridgeConfiguration bridgeConfiguration = bridgeModule.getBridgeConfiguration();
-                            ProxyFallbackConfiguration fallbackConfiguration = bridgeModule.createDefaultFallbackConfiguration(targetGroup);
-                            bridgeConfiguration.getBungeeFallbackConfigurations().add(fallbackConfiguration);
-
-                            BridgeConfigurationProvider.update(bridgeConfiguration);
-
-                            sender.sendMessage(LanguageManager.getMessage("module-bridge-command-create-entry-success"));
-                        },
-                        anyStringIgnoreCase("create", "new"),
-                        exactStringIgnoreCase("entry"),
-                        dynamicString(
-                                "targetGroup",
-                                LanguageManager.getMessage("module-bridge-command-create-entry-group-not-found"),
-                                name -> CloudNet.getInstance().getGroupConfigurationProvider().isGroupConfigurationPresent(name),
-                                () -> CloudNet.getInstance().getGroupConfigurationProvider().getGroupConfigurations().stream()
-                                        .map(GroupConfiguration::getName)
-                                        .collect(Collectors.toList())
                         )
-                )
+                        .generateCommand(
+                                (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
+                                    String targetGroup = (String) args.argument("targetGroup").get();
+
+                                    BridgeConfiguration bridgeConfiguration = bridgeModule.getBridgeConfiguration();
+                                    ProxyFallbackConfiguration fallbackConfiguration = bridgeModule.createDefaultFallbackConfiguration(targetGroup);
+                                    bridgeConfiguration.getBungeeFallbackConfigurations().add(fallbackConfiguration);
+
+                                    BridgeConfigurationProvider.update(bridgeConfiguration);
+
+                                    sender.sendMessage(LanguageManager.getMessage("module-bridge-command-create-entry-success"));
+                                },
+                                anyStringIgnoreCase("create", "new"),
+                                exactStringIgnoreCase("entry"),
+                                dynamicString(
+                                        "targetGroup",
+                                        LanguageManager.getMessage("module-bridge-command-create-entry-group-not-found"),
+                                        name -> CloudNet.getInstance().getGroupConfigurationProvider().isGroupConfigurationPresent(name),
+                                        () -> CloudNet.getInstance().getGroupConfigurationProvider().getGroupConfigurations().stream()
+                                                .map(GroupConfiguration::getName)
+                                                .collect(Collectors.toList())
+                                )
+                        )
 
                         .prefix(exactStringIgnoreCase("task"))
                         .prefix(dynamicString(
