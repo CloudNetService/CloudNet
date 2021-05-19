@@ -277,8 +277,8 @@ public final class NodePlayerManager extends DefaultPlayerManager implements IPl
                 .send();
     }
 
-    public void deleteCloudOfflinePlayer0(@NotNull ICloudOfflinePlayer cloudPlayer) {
-        this.getDatabase().delete(cloudPlayer.getUniqueId().toString());
+    public void deleteCloudOfflinePlayer0(@NotNull ICloudOfflinePlayer cloudOfflinePlayer) {
+        this.getDatabase().delete(cloudOfflinePlayer.getUniqueId().toString());
     }
 
     @Override
