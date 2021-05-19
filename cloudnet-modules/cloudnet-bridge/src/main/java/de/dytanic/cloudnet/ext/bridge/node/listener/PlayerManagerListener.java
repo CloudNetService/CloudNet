@@ -78,10 +78,10 @@ public final class PlayerManagerListener {
             }
             break;
             case "delete_offline_player": {
-                ICloudOfflinePlayer offlinePlayer = event.getBuffer().readObject(CloudOfflinePlayer.class);
+                ICloudOfflinePlayer cloudOfflinePlayer = event.getBuffer().readObject(CloudOfflinePlayer.class);
 
-                this.nodePlayerManager.deleteCloudPlayer0(offlinePlayer);
-                CloudNetDriver.getInstance().getEventManager().callEvent(new BridgeDeleteCloudOfflinePlayerEvent(offlinePlayer));
+                this.nodePlayerManager.deleteCloudOfflinePlayer0(cloudOfflinePlayer);
+                CloudNetDriver.getInstance().getEventManager().callEvent(new BridgeDeleteCloudOfflinePlayerEvent(cloudOfflinePlayer));
             }
             break;
         }

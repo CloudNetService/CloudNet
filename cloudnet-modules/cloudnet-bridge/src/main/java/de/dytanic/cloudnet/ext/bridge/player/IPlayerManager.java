@@ -313,18 +313,18 @@ public interface IPlayerManager {
     void updateOnlinePlayer(@NotNull ICloudPlayer cloudPlayer);
 
     /**
-     * Deletes the give player from the database and calls the {@link de.dytanic.cloudnet.ext.bridge.event.BridgeUpdateCloudPlayerEvent} on the whole network.
+     * Deletes the give player from the database and calls the {@link de.dytanic.cloudnet.ext.bridge.event.BridgeDeleteCloudOfflinePlayerEvent} on the whole network.
      *
-     * @param cloudPlayer the player to be deleted
+     * @param cloudOfflinePlayer the player to be deleted
      */
-    void deleteCloudPlayer(@NotNull ICloudOfflinePlayer cloudPlayer);
+    void deleteCloudOfflinePlayer(@NotNull ICloudOfflinePlayer cloudOfflinePlayer);
 
     /**
-     * Deletes the given player from the database async and calls the {@link de.dytanic.cloudnet.ext.bridge.event.BridgeUpdateCloudPlayerEvent} on the whole network.
+     * Deletes the given player from the database async and calls the {@link de.dytanic.cloudnet.ext.bridge.event.BridgeDeleteCloudOfflinePlayerEvent} on the whole network.
      *
-     * @param cloudPlayer the player to be deleted
+     * @param cloudOfflinePlayer the player to be deleted
      */
-    ITask<Void> deleteCloudPlayerAsync(@NotNull ICloudOfflinePlayer cloudPlayer);
+    ITask<Void> deleteCloudOfflinePlayerAsync(@NotNull ICloudOfflinePlayer cloudOfflinePlayer);
 
     /**
      * Gets the player executor which will execute the methods as every player that is online on the proxies.

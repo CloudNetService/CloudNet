@@ -154,7 +154,7 @@ public final class CommandPlayers extends SubCommandHandler {
                                         sender.sendMessage(LanguageManager.getMessage("module-bridge-command-players-delete-player")
                                                 .replace("%name%", offlinePlayer.getName())
                                                 .replace("%uniqueId%", offlinePlayer.getUniqueId().toString()));
-                                        playerManager.deleteCloudPlayerAsync(offlinePlayer);
+                                        playerManager.deleteCloudOfflinePlayerAsync(offlinePlayer);
                                     }
                                 },
                                 subCommand -> subCommand.setMinArgs(subCommand.getRequiredArguments().length - 1).setMaxArgs(Integer.MAX_VALUE),

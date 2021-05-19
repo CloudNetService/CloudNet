@@ -235,18 +235,18 @@ public final class BridgePlayerManager extends DefaultPlayerManager implements I
     }
 
     @Override
-    public void deleteCloudPlayer(@NotNull ICloudOfflinePlayer cloudPlayer) {
-        this.deleteCloudPlayerAsync(cloudPlayer).get(5L, TimeUnit.SECONDS, null);
+    public void deleteCloudOfflinePlayer(@NotNull ICloudOfflinePlayer cloudOfflinePlayer) {
+        this.deleteCloudOfflinePlayerAsync(cloudOfflinePlayer).get(5L, TimeUnit.SECONDS, null);
     }
 
     @Override
-    public ITask<Void> deleteCloudPlayerAsync(@NotNull ICloudOfflinePlayer cloudPlayer) {
-        Preconditions.checkNotNull(cloudPlayer);
+    public ITask<Void> deleteCloudOfflinePlayerAsync(@NotNull ICloudOfflinePlayer cloudOfflinePlayer) {
+        Preconditions.checkNotNull(cloudOfflinePlayer);
 
         this.messageBuilder()
                 .message("delete_offline_player")
                 .targetNode(Wrapper.getInstance().getNodeUniqueId())
-                .buffer(ProtocolBuffer.create().writeObject(cloudPlayer))
+                .buffer(ProtocolBuffer.create().writeObject(cloudOfflinePlayer))
                 .build()
                 .send();
         return new CompletedTask<>(null, null);
