@@ -38,6 +38,10 @@ public final class SignConfigurationReaderAndWriter {
         Preconditions.checkNotNull(path);
 
         JsonDocument document = JsonDocument.newDocument(path);
+        return read(document, path);
+    }
+
+    public static SignConfiguration read(JsonDocument document, Path path) {
         if (!document.contains("config")) {
             SignConfiguration signConfiguration = new SignConfiguration(
                     new ArrayList<>(Collections.singletonList(SignConfigurationEntryType.BUKKIT.createEntry("Lobby"))),

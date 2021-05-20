@@ -11,7 +11,11 @@ import io.netty.util.ByteProcessor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -25,7 +29,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class DefaultProtocolBuffer extends ProtocolBuffer {
 
@@ -204,6 +210,24 @@ public class DefaultProtocolBuffer extends ProtocolBuffer {
     }
 
     @Override
+    public ProtocolBuffer writeStringMap(@NotNull Map<String, String> map) {
+        this.writeVarInt(map.size());
+        for (Map.Entry<String, String> entry : map.entrySet()) {
+            this.writeString(entry.getKey()).writeString(entry.getValue());
+        }
+        return this;
+    }
+
+    @Override
+    public @NotNull Map<String, String> readStringMap() {
+        Map<String, String> map = new ConcurrentHashMap<>();
+        for (int i = 0; i < this.readVarInt(); i++) {
+            map.put(this.readString(), this.readString());
+        }
+        return map;
+    }
+
+    @Override
     public @NotNull JsonDocument readJsonDocument() {
         return this.readObject(SerializableJsonDocument.class);
     }
@@ -269,9 +293,9 @@ public class DefaultProtocolBuffer extends ProtocolBuffer {
     }
 
     @Override
-    public @NotNull <T extends SerializableObject> Collection<T> readObjectCollection(@NotNull Class<T> objectClass) {
+    public @NotNull <T extends SerializableObject> List<T> readObjectCollection(@NotNull Class<T> objectClass) {
         int size = this.readVarInt();
-        Collection<T> result = new ArrayList<>(size);
+        List<T> result = new ArrayList<>(size);
 
         try {
             Constructor<T> constructor = objectClass.getDeclaredConstructor();

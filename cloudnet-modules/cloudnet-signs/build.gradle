@@ -8,4 +8,5 @@ dependencies {
     compileOnly project(':cloudnet-modules:cloudnet-bridge')
     compileOnly group: 'cn.nukkit', name: 'nukkit', version: dependencyNukkitXVersion
     compileOnly group: 'org.spigotmc', name: 'spigot-api', version: dependencySpigotApiVersion
+    compileOnly group: 'org.spongepowered', name: 'spongeapi', version: dependencySpongeVersion
 }
