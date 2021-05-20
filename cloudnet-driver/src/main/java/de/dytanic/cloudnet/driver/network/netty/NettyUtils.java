@@ -49,17 +49,16 @@ public final class NettyUtils {
     }
 
     public static EventLoopGroup newEventLoopGroup() {
-        int threads = getThreadAmount();
         return Epoll.isAvailable() ?
-                new EpollEventLoopGroup(threads, threadFactory()) :
+                new EpollEventLoopGroup(4, threadFactory()) :
                 KQueue.isAvailable() ?
-                        new KQueueEventLoopGroup(threads, threadFactory()) :
-                        new NioEventLoopGroup(threads, threadFactory());
+                        new KQueueEventLoopGroup(4, threadFactory()) :
+                        new NioEventLoopGroup(4, threadFactory());
     }
 
     public static Executor newPacketDispatcher() {
-        // a cached pool with a maximum of 100 threads with an idle-lifetime of 30 seconds
-        return new ThreadPoolExecutor(0, 100,
+        // a cached pool with a thread idle-lifetime of 30 seconds
+        return new ThreadPoolExecutor(0, getThreadAmount(),
                 30L, TimeUnit.SECONDS, new SynchronousQueue<>(true));
     }
 
@@ -160,6 +159,6 @@ public final class NettyUtils {
         return CloudNetDriver.optionalInstance()
                 .filter(cloudNetDriver -> cloudNetDriver.getDriverEnvironment() == DriverEnvironment.CLOUDNET)
                 .map(cloudNetDriver -> Runtime.getRuntime().availableProcessors() * 2)
-                .orElse(4);
+                .orElse(8);
     }
 }
