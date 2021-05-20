@@ -92,7 +92,7 @@ public class DefaultClusterNodeServer extends DefaultNodeServer implements IClus
 
     @Override
     public SpecificCloudServiceProvider getCloudServiceProvider(@NotNull ServiceInfoSnapshot serviceInfoSnapshot) {
-        return new RemoteSpecificCloudServiceProvider(this.channel, serviceInfoSnapshot);
+        return this.channel == null ? null : new RemoteSpecificCloudServiceProvider(this.channel, serviceInfoSnapshot);
     }
 
     @Override
