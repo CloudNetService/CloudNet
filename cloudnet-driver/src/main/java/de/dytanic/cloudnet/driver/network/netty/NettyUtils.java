@@ -27,6 +27,7 @@ import org.jetbrains.annotations.ApiStatus;
 
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.Executor;
+import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -37,6 +38,7 @@ public final class NettyUtils {
 
     private static final ThreadFactory THREAD_FACTORY = FastThreadLocalThread::new;
     private static final SilentDecoderException INVALID_VAR_INT = new SilentDecoderException("Invalid var int");
+    private static final RejectedExecutionHandler DEFAULT_REJECT_HANDLER = new ThreadPoolExecutor.CallerRunsPolicy();
 
     static {
         if (System.getProperty("io.netty.leakDetection.level") == null) {
@@ -58,8 +60,9 @@ public final class NettyUtils {
 
     public static Executor newPacketDispatcher() {
         // a cached pool with a thread idle-lifetime of 30 seconds
+        // rejected tasks will be executed on the calling thread (See ThreadPoolExecutor.CallerRunsPolicy)
         return new ThreadPoolExecutor(0, getThreadAmount(),
-                30L, TimeUnit.SECONDS, new SynchronousQueue<>(true));
+                30L, TimeUnit.SECONDS, new SynchronousQueue<>(true), DEFAULT_REJECT_HANDLER);
     }
 
     @Deprecated
