@@ -96,7 +96,7 @@ public final class CloudNetBridgeModule extends NodeCloudNetModule {
 
     @ModuleTask(order = 16, event = ModuleLifeCycle.STARTED)
     public void registerCommands() {
-        this.registerCommand(new CommandBridge());
+        this.registerCommand(new CommandBridge(this));
         this.registerCommand(new CommandPlayers(this.nodePlayerManager));
     }
 
