@@ -313,14 +313,14 @@ public interface IPlayerManager {
     void updateOnlinePlayer(@NotNull ICloudPlayer cloudPlayer);
 
     /**
-     * Deletes the give player from the database and calls the {@link de.dytanic.cloudnet.ext.bridge.event.BridgeDeleteCloudOfflinePlayerEvent} on the whole network.
+     * Deletes the given player from the database and notifies all connected components.
      *
      * @param cloudOfflinePlayer the player to be deleted
      */
     void deleteCloudOfflinePlayer(@NotNull ICloudOfflinePlayer cloudOfflinePlayer);
 
     /**
-     * Deletes the given player from the database async and calls the {@link de.dytanic.cloudnet.ext.bridge.event.BridgeDeleteCloudOfflinePlayerEvent} on the whole network.
+     * Deletes the given player from the database async and notifies all connected components.
      *
      * @param cloudOfflinePlayer the player to be deleted
      */

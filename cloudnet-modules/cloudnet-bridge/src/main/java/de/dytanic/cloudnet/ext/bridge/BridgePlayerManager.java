@@ -249,6 +249,6 @@ public final class BridgePlayerManager extends DefaultPlayerManager implements I
                 .buffer(ProtocolBuffer.create().writeObject(cloudOfflinePlayer))
                 .build()
                 .send();
-        return new CompletedTask<>(null, null);
+        return CompletedTask.voidTask();
     }
 }
