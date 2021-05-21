@@ -10,7 +10,9 @@ import eu.cloudnetservice.cloudnet.ext.signs.AbstractSignManagement;
 import eu.cloudnetservice.cloudnet.ext.signs.Sign;
 import eu.cloudnetservice.cloudnet.ext.signs.SignManagement;
 import eu.cloudnetservice.cloudnet.ext.signs.configuration.SignConfigurationEntry;
+import eu.cloudnetservice.cloudnet.ext.signs.configuration.SignLayoutsHolder;
 import eu.cloudnetservice.cloudnet.ext.signs.configuration.SignsConfiguration;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -41,23 +43,69 @@ public abstract class ServiceSignManagement<T> extends AbstractSignManagement im
         }
     }
 
+    /**
+     * Adds a new service to the signs.
+     *
+     * @param snapshot the service to handle
+     */
     public abstract void handleServiceAdd(@NotNull ServiceInfoSnapshot snapshot);
 
+    /**
+     * Updates the service on the signs.
+     *
+     * @param snapshot the service to handle
+     */
     public abstract void handleServiceUpdate(@NotNull ServiceInfoSnapshot snapshot);
 
+    /**
+     * Removes the service from the signs.
+     *
+     * @param snapshot the service to handle
+     */
     public abstract void handleServiceRemove(@NotNull ServiceInfoSnapshot snapshot);
 
-    @Nullable
-    public abstract Sign getSignAt(@NotNull T t);
+    /**
+     * Get the sign at the given platform sign extend location.
+     *
+     * @param t the sign type extend
+     * @return The sign at the given location or null if there is no sign at the given location.
+     * @see #getSignAt(WorldPosition)
+     */
+    public abstract @Nullable Sign getSignAt(@NotNull T t);
 
-    @Nullable
-    public abstract Sign createSign(@NotNull T t, @NotNull String group);
+    /**
+     * Creates a sign at the given platform sign extend location.
+     *
+     * @param t     the sign type extend.
+     * @param group the group the sign is targeting.
+     * @return the created sign or null if the sign couldn't be created.
+     * @see #createSign(Object, String, String)
+     */
+    public abstract @Nullable Sign createSign(@NotNull T t, @NotNull String group);
 
-    @Nullable
-    public abstract Sign createSign(@NotNull T t, @NotNull String group, @Nullable String templatePath);
+    /**
+     * Creates a sign at the given platform sign extend location.
+     *
+     * @param t            the sign type extend.
+     * @param group        the group the sign is targeting.
+     * @param templatePath the template path the sign is targeting or null if none.
+     * @return the created sign or null if the sign couldn't be created.
+     */
+    public abstract @Nullable Sign createSign(@NotNull T t, @NotNull String group, @Nullable String templatePath);
 
+    /**
+     * Deletes the sign at the given platform sign extend location.
+     *
+     * @param t the sign type extend
+     * @see #deleteSign(WorldPosition)
+     */
     public abstract void deleteSign(@NotNull T t);
 
+    /**
+     * Removes all signs where there is no sign block at this position
+     *
+     * @return the amount of removed signs
+     */
     public abstract int removeMissingSigns();
 
     /**

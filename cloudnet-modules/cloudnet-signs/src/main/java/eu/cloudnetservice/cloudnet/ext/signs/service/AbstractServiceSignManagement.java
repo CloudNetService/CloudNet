@@ -133,7 +133,14 @@ public abstract class AbstractServiceSignManagement<T> extends ServiceSignManage
 
     @Override
     public boolean canConnect(@NotNull Sign sign, @NotNull Function<String, Boolean> permissionChecker) {
-        return false;
+        if (sign.getCurrentTarget() == null) {
+            return false;
+        } else {
+            ServiceInfoStateWatcher.ServiceInfoState state = ServiceInfoStateWatcher.stateFromServiceInfoSnapshot(sign.getCurrentTarget());
+            return state == ServiceInfoStateWatcher.ServiceInfoState.EMPTY_ONLINE
+                    || state == ServiceInfoStateWatcher.ServiceInfoState.ONLINE
+                    || state == ServiceInfoStateWatcher.ServiceInfoState.FULL_ONLINE;
+        }
     }
 
     @Override
