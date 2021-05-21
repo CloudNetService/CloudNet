@@ -11,6 +11,9 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * Represents an abstract default implementation of the common sign management methods.
+ */
 public abstract class AbstractSignManagement implements SignManagement {
 
     public static final String SIGN_CHANNEL_NAME = "internal_sign_channel";
@@ -19,40 +22,62 @@ public abstract class AbstractSignManagement implements SignManagement {
     protected static final String SIGN_DELETED = "signs_sign_deleted";
     protected static final String SIGN_BULK_DELETE = "signs_sign_bulk_deleted";
     protected static final String SIGN_CONFIGURATION_UPDATE = "signs_sign_config_update";
-    protected static final String SIGN_GET_SIGNS_BY_GROUPS = "signs_get_signs_by_groups";
 
     protected final Map<WorldPosition, Sign> signs = new ConcurrentHashMap<>();
     protected SignsConfiguration signsConfiguration;
 
+    /**
+     * Constructs a new sign management.
+     *
+     * @param signsConfiguration the sign configuration to use.
+     */
     protected AbstractSignManagement(SignsConfiguration signsConfiguration) {
         this.signsConfiguration = signsConfiguration;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public @Nullable Sign getSignAt(@NotNull WorldPosition position) {
         return this.signs.get(position);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void deleteSign(@NotNull Sign sign) {
         this.deleteSign(sign.getWorldPosition());
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int deleteAllSigns(@NotNull String group) {
         return this.deleteAllSigns(group, null);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public @NotNull Collection<Sign> getSigns() {
         return this.signs.values();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public @NotNull SignsConfiguration getSignsConfiguration() {
         return this.signsConfiguration;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void setSignsConfiguration(@NotNull SignsConfiguration signsConfiguration) {
         this.signsConfiguration = signsConfiguration;
@@ -83,6 +108,12 @@ public abstract class AbstractSignManagement implements SignManagement {
         this.signsConfiguration = configuration;
     }
 
+    /**
+     * Creates a channel message which is accepted by all sign network components handler.
+     *
+     * @param message the message of the channel message.
+     * @return the channel message builder for further configuration.
+     */
     protected ChannelMessage.Builder channelMessage(@NotNull String message) {
         return ChannelMessage.builder()
                 .channel(SIGN_CHANNEL_NAME)

@@ -2,12 +2,12 @@ package de.dytanic.cloudnet.ext.bridge;
 
 import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import de.dytanic.cloudnet.driver.serialization.SerializableObject;
-import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Objects;
+
 @ToString
-@EqualsAndHashCode
 public class WorldPosition implements SerializableObject {
 
     protected double x, y, z, yaw, pitch;
@@ -109,4 +109,29 @@ public class WorldPosition implements SerializableObject {
         this.group = buffer.readOptionalString();
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        WorldPosition position = (WorldPosition) o;
+        boolean allValues = Double.compare(position.x, x) == 0
+                && Double.compare(position.y, y) == 0
+                && Double.compare(position.z, z) == 0
+                && Double.compare(position.yaw, yaw) == 0
+                && Double.compare(position.pitch, pitch) == 0
+                && Objects.equals(world, position.world);
+        if (this.group != null && position.group != null) {
+            return allValues && this.group.equals(position.group);
+        }
+        return allValues;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(x, y, z, yaw, pitch, world);
+    }
 }

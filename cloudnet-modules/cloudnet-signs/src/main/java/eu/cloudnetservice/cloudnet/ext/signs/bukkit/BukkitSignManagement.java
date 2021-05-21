@@ -39,7 +39,7 @@ public class BukkitSignManagement extends AbstractServiceSignManagement<org.bukk
         if (Bukkit.isPrimaryThread()) {
             this.pushUpdates0(signs, layout);
         } else if (this.plugin.isEnabled()) {
-            Bukkit.getScheduler().scheduleSyncDelayedTask(this.plugin, () -> this.pushUpdates0(signs, layout));
+            Bukkit.getScheduler().runTask(this.plugin, () -> this.pushUpdates0(signs, layout));
         }
     }
 
@@ -116,7 +116,7 @@ public class BukkitSignManagement extends AbstractServiceSignManagement<org.bukk
     public @Nullable Sign createSign(@NotNull org.bukkit.block.Sign sign, @NotNull String group, @Nullable String templatePath) {
         SignConfigurationEntry entry = this.getApplicableSignConfigurationEntry();
         if (entry != null) {
-            Sign created = new Sign(group, entry.getTargetGroup(), templatePath, this.locationToWorldPosition(sign.getLocation()));
+            Sign created = new Sign(group, entry.getTargetGroup(), templatePath, this.locationToWorldPosition(sign.getLocation(), entry.getTargetGroup()));
             this.createSign(created);
             return created;
         }
@@ -167,8 +167,7 @@ public class BukkitSignManagement extends AbstractServiceSignManagement<org.bukk
                                         .forEach(entity -> entity.setVelocity(entity.getLocation().toVector()
                                                 .subtract(location.toVector())
                                                 .normalize()
-                                                .multiply(configuration.getStrength())
-                                                .setY(0.2D)));
+                                                .multiply(configuration.getStrength())));
                             }
                         }
                     }
@@ -179,6 +178,10 @@ public class BukkitSignManagement extends AbstractServiceSignManagement<org.bukk
 
     protected @NotNull WorldPosition locationToWorldPosition(@NotNull Location location) {
         return new WorldPosition(location.getX(), location.getY(), location.getZ(), 0, 0, location.getWorld().getName());
+    }
+
+    protected @NotNull WorldPosition locationToWorldPosition(@NotNull Location location, @NotNull String group) {
+        return new WorldPosition(location.getX(), location.getY(), location.getZ(), 0, 0, location.getWorld().getName(), group);
     }
 
     protected @Nullable Location worldPositionToLocation(@NotNull WorldPosition position) {

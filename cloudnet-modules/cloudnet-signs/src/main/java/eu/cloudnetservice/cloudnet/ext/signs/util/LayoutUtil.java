@@ -21,7 +21,7 @@ public final class LayoutUtil {
     }
 
     public static SignLayout getLayoutAndTick(@NotNull SignConfigurationEntry entry, @NotNull Sign sign, @Nullable ServiceInfoSnapshot snapshot) {
-        return getLayoutHolder(entry, sign, snapshot).tickAndGetCurrentLayout();
+        return getLayoutHolder(entry, sign, snapshot).tick().getCurrentLayout();
     }
 
     public static SignLayoutsHolder getLayoutHolder(@NotNull SignConfigurationEntry entry, @NotNull Sign sign, @Nullable ServiceInfoSnapshot snapshot) {

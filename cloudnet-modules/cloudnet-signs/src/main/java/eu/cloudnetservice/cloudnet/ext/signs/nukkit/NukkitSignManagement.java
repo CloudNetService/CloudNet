@@ -109,7 +109,7 @@ public class NukkitSignManagement extends AbstractServiceSignManagement<BlockEnt
     public @Nullable Sign createSign(@NotNull BlockEntitySign blockEntitySign, @NotNull String group, @Nullable String templatePath) {
         SignConfigurationEntry entry = this.getApplicableSignConfigurationEntry();
         if (entry != null) {
-            Sign sign = new Sign(group, entry.getTargetGroup(), templatePath, this.locationToWorldPosition(blockEntitySign.getLocation()));
+            Sign sign = new Sign(group, entry.getTargetGroup(), templatePath, this.locationToWorldPosition(blockEntitySign.getLocation(), entry.getTargetGroup()));
             this.createSign(sign);
             return sign;
         }
@@ -170,6 +170,10 @@ public class NukkitSignManagement extends AbstractServiceSignManagement<BlockEnt
 
     protected @NotNull WorldPosition locationToWorldPosition(@NotNull Location location) {
         return new WorldPosition(location.getX(), location.getY(), location.getZ(), 0, 0, location.getLevel().getName());
+    }
+
+    protected @NotNull WorldPosition locationToWorldPosition(@NotNull Location location, @NotNull String group) {
+        return new WorldPosition(location.getX(), location.getY(), location.getZ(), 0, 0, location.getLevel().getName(), group);
     }
 
     protected @Nullable Location locationFromWorldPosition(@NotNull WorldPosition position) {

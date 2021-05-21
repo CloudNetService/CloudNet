@@ -14,6 +14,9 @@ public class SignLayout implements SerializableObject {
     protected String blockMaterial;
     protected int blockSubId;
 
+    public SignLayout() {
+    }
+
     public SignLayout(String[] lines, String blockMaterial, int blockSubId) {
         this.lines = lines;
         this.blockMaterial = blockMaterial;

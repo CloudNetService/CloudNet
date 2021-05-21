@@ -1,11 +1,11 @@
 {
-  "group": "de.dytanic.cloudnet.modules",
+  "group": "eu.cloudnetservice.cloudnet.modules",
   "name": "CloudNet-Signs",
-  "version": "1.1",
+  "version": "2.0",
   "author": "CloudNetService",
   "website": "https://cloudnetservice.eu",
-  "description": "CloudNet extension, which implement the signs system for minecraft server Bukkit and Sponge",
-  "main": "de.dytanic.cloudnet.ext.signs.node.CloudNetSignsModule",
+  "description": "CloudNet extension, which implement the signs system for minecraft server Bukkit, Nukkit and Sponge",
+  "main": "eu.cloudnetservice.cloudnet.ext.signs.node.CloudNetSignsModule",
   "dependencies": [
     {
       "group": "de.dytanic.cloudnet.modules",

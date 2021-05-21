@@ -22,6 +22,8 @@ import java.util.stream.Collectors;
 
 public class NodeSignManagement extends AbstractSignManagement implements SignManagement {
 
+    protected static final String NODE_TO_NODE_SET_SIGN_CONFIGURATION = "signs_node_node_set_signs_config";
+
     protected final Database database;
     protected final Path configurationFilePath;
 
@@ -30,6 +32,13 @@ public class NodeSignManagement extends AbstractSignManagement implements SignMa
 
         this.configurationFilePath = configurationFilePath;
         this.database = database;
+
+        this.database.documentsAsync().onComplete(jsonDocuments -> {
+            for (JsonDocument document : jsonDocuments) {
+                Sign sign = document.toInstanceOf(Sign.class);
+                this.signs.put(sign.getWorldPosition(), sign);
+            }
+        });
     }
 
     @Override

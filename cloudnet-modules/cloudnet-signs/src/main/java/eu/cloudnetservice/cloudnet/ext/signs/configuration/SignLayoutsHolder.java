@@ -6,6 +6,7 @@ import lombok.ToString;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @ToString
@@ -14,7 +15,11 @@ public class SignLayoutsHolder implements SerializableObject {
     protected int animationsPerSecond;
     protected List<SignLayout> signLayouts;
 
+    protected transient AtomicBoolean tickBlocked;
     protected transient AtomicInteger currentAnimation;
+
+    public SignLayoutsHolder() {
+    }
 
     public SignLayoutsHolder(int animationsPerSecond, List<SignLayout> signLayouts) {
         this.animationsPerSecond = animationsPerSecond;
@@ -37,23 +42,52 @@ public class SignLayoutsHolder implements SerializableObject {
         this.signLayouts = signLayouts;
     }
 
+    public boolean hasLayouts() {
+        return !this.signLayouts.isEmpty();
+    }
+
+    public boolean isTickedBlocked() {
+        return this.tickBlocked != null && this.tickBlocked.get();
+    }
+
+    public void setTickBlocked(boolean tickBlocked) {
+        if (this.tickBlocked == null) {
+            this.tickBlocked = new AtomicBoolean(tickBlocked);
+        } else {
+            this.tickBlocked.set(tickBlocked);
+        }
+    }
+
+    public SignLayoutsHolder releaseTickBlock() {
+        if (this.tickBlocked != null) {
+            this.tickBlocked.set(false);
+        }
+        return this;
+    }
+
     public SignLayout getCurrentLayout() {
         return this.getSignLayouts().get(this.getCurrentAnimation());
     }
 
-    public SignLayout tickAndGetCurrentLayout() {
-        return this.getSignLayouts().get(this.getCurrentAnimationAndUp());
+    public SignLayoutsHolder tick() {
+        if (!this.isTickedBlocked()) {
+            AtomicInteger currentIndex = this.getCurrentAnimationIndexOrInit();
+            if (currentIndex.incrementAndGet() >= this.signLayouts.size()) {
+                currentIndex.set(0);
+            }
+        }
+        return this;
     }
 
     public int getCurrentAnimation() {
         return this.currentAnimation == null ? 0 : this.currentAnimation.get();
     }
 
-    public int getCurrentAnimationAndUp() {
+    protected AtomicInteger getCurrentAnimationIndexOrInit() {
         if (this.currentAnimation == null) {
-            return (this.currentAnimation = new AtomicInteger(1)).get();
+            return this.currentAnimation = new AtomicInteger(-1);
         } else {
-            return this.currentAnimation.getAndIncrement();
+            return this.currentAnimation;
         }
     }
 

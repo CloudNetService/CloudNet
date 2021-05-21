@@ -15,6 +15,8 @@ import org.jetbrains.annotations.NotNull;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public final class NodeSignsConfigurationHelper {
@@ -59,7 +61,7 @@ public final class NodeSignsConfigurationHelper {
         SignConfiguration oldConfiguration = SignConfigurationReaderAndWriter.read(document, path);
         // create new configuration from it
         return new SignsConfiguration(
-                oldConfiguration.getMessages(),
+                convertMessages(oldConfiguration.getMessages()),
                 oldConfiguration.getConfigurations().stream().map(oldEntry -> new SignConfigurationEntry(
                         oldEntry.getTargetGroup(),
                         oldEntry.isSwitchToSearchingWhenServiceIsFull(),
@@ -95,5 +97,13 @@ public final class NodeSignsConfigurationHelper {
 
     protected static SignLayoutsHolder convertSingleToMany(de.dytanic.cloudnet.ext.signs.SignLayout oldLayout) {
         return new SignLayoutsHolder(1, new ArrayList<>(Collections.singleton(convertSignLayout(oldLayout))));
+    }
+
+    protected static Map<String, String> convertMessages(Map<String, String> oldMessages) {
+        Map<String, String> messages = new HashMap<>(SignsConfiguration.DEFAULT_MESSAGES);
+        for (Map.Entry<String, String> entry : oldMessages.entrySet()) {
+            messages.put(entry.getKey(), entry.getValue().replace('&', '§'));
+        }
+        return messages;
     }
 }

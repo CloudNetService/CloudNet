@@ -5,17 +5,35 @@ import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import de.dytanic.cloudnet.driver.serialization.SerializableObject;
 import eu.cloudnetservice.cloudnet.ext.signs.node.configuration.SignConfigurationType;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 public class SignsConfiguration implements SerializableObject {
 
+    public static final Map<String, String> DEFAULT_MESSAGES = ImmutableMap.<String, String>builder()
+            .put("server-connecting-message", "§7You will be moved to §c%server%§7...")
+            .put("command-cloudsign-no-entry", "§7No configuration entry found for any group the wrapper belongs to.")
+            .put("command-cloudsign-not-looking-at-sign", "§7You are not facing a sign...")
+            .put("command-cloudsign-create-success", "§7The target sign with the target group §6%group% §7was successfully created.")
+            .put("command-cloudsign-remove-not-existing", "§7The target sign is not registered as a cloud sign.")
+            .put("command-cloudsign-remove-success", "§7Removing the target sign. Please wait...")
+            .put("command-cloudsign-bulk-remove-success", "§7Removing §6%amount% §7signs. Please wait...")
+            .put("command-cloudsign-sign-already-exist", "§7The sign is already set. If you want to remove it, use '/cs remove'.")
+            .put("command-cloudsign-cleanup-success", "§6%amount% §7non-existing signs were removed successfully.")
+            .build();
+
     protected Map<String, String> messages;
     protected Collection<SignConfigurationEntry> configurationEntries;
+
+    public SignsConfiguration() {
+    }
 
     public SignsConfiguration(Map<String, String> messages, Collection<SignConfigurationEntry> configurationEntries) {
         this.messages = messages;
@@ -24,26 +42,14 @@ public class SignsConfiguration implements SerializableObject {
 
     public static SignsConfiguration createDefaultJava(@NotNull String group) {
         return new SignsConfiguration(
-                new HashMap<>(ImmutableMap.of(
-                        "server-connecting-message", "&7You will be moved to &c%server%&7...",
-                        "command-cloudsign-create-success", "&7The target sign with the target group &6%group% &7is successfully created.",
-                        "command-cloudsign-remove-success", "&7The target sign will removed! Please wait...",
-                        "command-cloudsign-sign-already-exist", "&7The sign is already set. If you want to remove that, use the /cloudsign remove command",
-                        "command-cloudsign-cleanup-success", "&7Non-existing signs were removed successfully"
-                )),
+                new HashMap<>(DEFAULT_MESSAGES),
                 new ArrayList<>(Collections.singleton(SignConfigurationType.JAVA.createEntry(group)))
         );
     }
 
     public static SignsConfiguration createDefaultBedrock(@NotNull String group) {
         return new SignsConfiguration(
-                new HashMap<>(ImmutableMap.of(
-                        "server-connecting-message", "&7You will be moved to &c%server%&7...",
-                        "command-cloudsign-create-success", "&7The target sign with the target group &6%group% &7is successfully created.",
-                        "command-cloudsign-remove-success", "&7The target sign will removed! Please wait...",
-                        "command-cloudsign-sign-already-exist", "&7The sign is already set. If you want to remove that, use the /cloudsign remove command",
-                        "command-cloudsign-cleanup-success", "&7Non-existing signs were removed successfully"
-                )),
+                new HashMap<>(DEFAULT_MESSAGES),
                 new ArrayList<>(Collections.singleton(SignConfigurationType.BEDROCK.createEntry(group)))
         );
     }
@@ -54,6 +60,20 @@ public class SignsConfiguration implements SerializableObject {
 
     public void setMessages(Map<String, String> messages) {
         this.messages = messages;
+    }
+
+    public void sendMessage(@NotNull String key, @NotNull Consumer<String> messageSender) {
+        this.sendMessage(key, messageSender, null);
+    }
+
+    public void sendMessage(@NotNull String key, @NotNull Consumer<String> messageSender, @Nullable Function<String, String> modifier) {
+        String message = this.getMessages().getOrDefault(key, DEFAULT_MESSAGES.get(key));
+        if (message != null) {
+            if (modifier != null) {
+                message = modifier.apply(message);
+            }
+            messageSender.accept(message);
+        }
     }
 
     public Collection<SignConfigurationEntry> getConfigurationEntries() {

@@ -12,10 +12,8 @@ public class BukkitCloudSignInteractEvent extends PlayerEvent implements Cancell
 
     private static final HandlerList HANDLER_LIST = new HandlerList();
 
-    private boolean cancelled;
-
     private final Sign clickedSign;
-
+    private boolean cancelled;
     private String targetServer;
 
     public BukkitCloudSignInteractEvent(@NotNull Player who, @NotNull Sign clickedSign, @Nullable String targetServer) {

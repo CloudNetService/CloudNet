@@ -1,5 +1,7 @@
 package eu.cloudnetservice.cloudnet.ext.signs.service;
 
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.MapMaker;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
@@ -16,16 +18,14 @@ import eu.cloudnetservice.cloudnet.ext.signs.configuration.SignLayout;
 import eu.cloudnetservice.cloudnet.ext.signs.configuration.SignLayoutsHolder;
 import eu.cloudnetservice.cloudnet.ext.signs.configuration.SignsConfiguration;
 import eu.cloudnetservice.cloudnet.ext.signs.util.LayoutUtil;
+import eu.cloudnetservice.cloudnet.ext.signs.util.PriorityUtil;
 import org.bukkit.ChatColor;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
@@ -37,6 +37,7 @@ import java.util.function.Function;
 public abstract class AbstractServiceSignManagement<T> extends ServiceSignManagement<T> implements SignManagement {
 
     public static final String REQUEST_CONFIG = "signs_request_config";
+    public static final String SET_SIGN_CONFIG = "signs_update_sign_config";
     public static final String SIGN_CREATE = "signs_sign_create";
     public static final String SIGN_DELETE = "signs_sign_delete";
     public static final String SIGN_ALL_DELETE = "signs_sign_delete_all";
@@ -49,22 +50,11 @@ public abstract class AbstractServiceSignManagement<T> extends ServiceSignManage
 
     protected AbstractServiceSignManagement() {
         super(loadSignsConfiguration());
-
-        if (this.signsConfiguration != null) {
-            CloudNetDriver.getInstance().getTaskExecutor().scheduleAtFixedRate(this::tick, 0,
-                    1000 / TPS, TimeUnit.MILLISECONDS);
-            this.startKnockbackTask();
-
-            CloudNetDriver.getInstance().getCloudServiceProvider().getCloudServicesAsync().onComplete(services -> {
-                for (ServiceInfoSnapshot service : services) {
-                    this.handleServiceAdd(service);
-                }
-            });
-        }
     }
 
     protected static @Nullable SignsConfiguration loadSignsConfiguration() {
         ChannelMessage response = ChannelMessage.builder()
+                .channel(SIGN_CHANNEL_NAME)
                 .message(REQUEST_CONFIG)
                 .targetNode(Wrapper.getInstance().getNodeUniqueId())
                 .build()
@@ -113,13 +103,18 @@ public abstract class AbstractServiceSignManagement<T> extends ServiceSignManage
     public void handleServiceUpdate(@NotNull ServiceInfoSnapshot snapshot) {
         if (this.shouldAssign(snapshot)) {
             Sign handlingSign = this.getSignOf(snapshot);
-            if (handlingSign != null) {
-                handlingSign.setCurrentTarget(snapshot);
-                this.updateSign(handlingSign);
-            } else {
-                this.waitingAssignments.remove(snapshot);
-                this.waitingAssignments.add(snapshot);
+            if (handlingSign == null) {
+                handlingSign = this.getNextFreeSign(snapshot);
+                // in all cases we need to remove the old waiting assignment
+                this.waitingAssignments.removeIf(s -> s.getName().equals(snapshot.getName()));
+                if (handlingSign == null) {
+                    this.waitingAssignments.add(snapshot);
+                    return;
+                }
             }
+
+            handlingSign.setCurrentTarget(snapshot);
+            this.updateSign(handlingSign);
         }
     }
 
@@ -131,7 +126,7 @@ public abstract class AbstractServiceSignManagement<T> extends ServiceSignManage
                 handlingSign.setCurrentTarget(null);
                 this.updateSign(handlingSign);
             } else {
-                this.waitingAssignments.remove(snapshot);
+                this.waitingAssignments.removeIf(s -> s.getName().equals(snapshot.getName()));
             }
         }
     }
@@ -139,6 +134,51 @@ public abstract class AbstractServiceSignManagement<T> extends ServiceSignManage
     @Override
     public boolean canConnect(@NotNull Sign sign, @NotNull Function<String, Boolean> permissionChecker) {
         return false;
+    }
+
+    @Override
+    public void setSignsConfiguration(@NotNull SignsConfiguration signsConfiguration) {
+        this.channelMessage(SET_SIGN_CONFIG)
+                .buffer(ProtocolBuffer.create().writeObject(signsConfiguration))
+                .build().send();
+    }
+
+    @Override
+    public void initialize() {
+        this.initialize(new MapMaker().weakKeys().makeMap());
+    }
+
+    @Override
+    public void initialize(@NotNull Map<SignLayoutsHolder, Set<Sign>> signsNeedingTicking) {
+        if (this.signsConfiguration != null) {
+            CloudNetDriver.getInstance().getTaskExecutor().scheduleAtFixedRate(() -> {
+                try {
+                    this.tick(signsNeedingTicking);
+                } catch (Throwable throwable) {
+                    System.err.println("Exception ticking signs");
+                    throwable.printStackTrace();
+                }
+            }, 0, 1000 / TPS, TimeUnit.MILLISECONDS);
+            this.startKnockbackTask();
+
+            CloudNetDriver.getInstance().getCloudServiceProvider().getCloudServicesAsync().onComplete(services -> {
+                for (ServiceInfoSnapshot service : services) {
+                    this.handleServiceAdd(service);
+                }
+            });
+        }
+    }
+
+    @Override
+    public void handleInternalSignRemove(@NotNull WorldPosition position) {
+        if (Arrays.asList(Wrapper.getInstance().getServiceConfiguration().getGroups()).contains(position.getGroup())) {
+            Sign sign = this.getSignAt(position);
+            if (sign != null && sign.getCurrentTarget() != null) {
+                this.waitingAssignments.add(sign.getCurrentTarget());
+            }
+
+            super.handleInternalSignRemove(position);
+        }
     }
 
     protected @NotNull String[] replaceLines(@NotNull Sign sign, @NotNull SignLayout layout) {
@@ -197,22 +237,24 @@ public abstract class AbstractServiceSignManagement<T> extends ServiceSignManage
         }
     }
 
-    protected void tick() {
+    @ApiStatus.Internal
+    protected void tick(@NotNull Map<SignLayoutsHolder, Set<Sign>> signsNeedingTicking) {
         this.currentTick.incrementAndGet();
 
         SignConfigurationEntry ownEntry = this.getApplicableSignConfigurationEntry();
         if (ownEntry != null) {
-            Map<SignLayoutsHolder, Set<Sign>> signsNeedingTicking = new HashMap<>();
             for (Sign value : this.signs.values()) {
                 SignLayoutsHolder holder = LayoutUtil.getLayoutHolder(ownEntry, value, value.getCurrentTarget());
-                if ((this.currentTick.get() % 20) % Math.round(20D / holder.getAnimationsPerSecond()) == 0) {
-                    holder.tickAndGetCurrentLayout();
+                if (holder.hasLayouts() && holder.getAnimationsPerSecond() > 0 && (this.currentTick.get() % 20) % Math.round(20D / holder.getAnimationsPerSecond()) == 0) {
+                    holder.tick().setTickBlocked(true);
                     signsNeedingTicking.computeIfAbsent(holder, s -> new HashSet<>()).add(value);
                 }
             }
 
             for (Map.Entry<SignLayoutsHolder, Set<Sign>> entry : signsNeedingTicking.entrySet()) {
-                this.pushUpdates(entry.getValue(), entry.getKey().getCurrentLayout());
+                this.pushUpdates(ImmutableSet.copyOf(entry.getValue()), entry.getKey().releaseTickBlock().getCurrentLayout());
+                // remove updated sign from the map
+                entry.getValue().clear();
             }
 
             if (!this.waitingAssignments.isEmpty()) {
@@ -230,23 +272,53 @@ public abstract class AbstractServiceSignManagement<T> extends ServiceSignManage
     }
 
     protected @Nullable Sign getNextFreeSign(@NotNull ServiceInfoSnapshot snapshot) {
-        synchronized (this) {
-            List<Sign> signs = new ArrayList<>(this.signs.values());
-            Collections.sort(signs);
+        SignConfigurationEntry entry = this.getApplicableSignConfigurationEntry();
+        int servicePriority = PriorityUtil.getPriority(snapshot, entry);
 
-            for (Sign sign : signs) {
-                if (sign.getCurrentTarget() == null && Arrays.asList(snapshot.getConfiguration().getGroups()).contains(sign.getTargetGroup())
+        synchronized (this) {
+            Sign bestChoice = null;
+            for (Sign sign : this.signs.values()) {
+                if (Arrays.asList(snapshot.getConfiguration().getGroups()).contains(sign.getTargetGroup())
                         && (sign.getTemplatePath() == null || this.checkTemplatePath(snapshot, sign))) {
-                    return sign;
+                    // the service could be assigned to the sign
+                    if (sign.getCurrentTarget() == null) {
+                        // the sign has no target yet, best choice
+                        bestChoice = sign;
+                        break;
+                    } else {
+                        // get the priority depending if we found a sign yet
+                        int signPriority = sign.getPriority(entry);
+                        int priority = bestChoice == null ? servicePriority : bestChoice.getPriority(entry);
+                        // check if the service/sign we found has a higher priority than the sign
+                        if (priority > signPriority) {
+                            // yes it has, use the sign with the lower priority
+                            bestChoice = sign;
+                        } else if (priority == signPriority && bestChoice != null) {
+                            // no it has the same priority as the found best choice, check if we get a better template
+                            // path match than using the best choice
+                            if (bestChoice.getTemplatePath() == null && sign.getTemplatePath() != null) {
+                                // yes the sign has a better template path match than the previous choice
+                                bestChoice = sign;
+                            }
+                        }
+                    }
                 }
             }
-            return null;
+
+            if (bestChoice != null && bestChoice.getCurrentTarget() != null) {
+                // enqueue the current target of the sign
+                this.waitingAssignments.add(bestChoice.getCurrentTarget());
+                // reset the signs target
+                bestChoice.setCurrentTarget(null);
+            }
+
+            return bestChoice;
         }
     }
 
     protected @Nullable Sign getSignOf(@NotNull ServiceInfoSnapshot snapshot) {
         for (Sign value : this.signs.values()) {
-            if (value.getCurrentTarget().equals(snapshot)) {
+            if (value.getCurrentTarget() != null && value.getCurrentTarget().getName().equals(snapshot.getName())) {
                 return value;
             }
         }

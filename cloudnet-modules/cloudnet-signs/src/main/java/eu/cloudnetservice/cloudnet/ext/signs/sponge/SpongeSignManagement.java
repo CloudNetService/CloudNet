@@ -114,7 +114,7 @@ public class SpongeSignManagement extends AbstractServiceSignManagement<org.spon
     public @Nullable Sign createSign(org.spongepowered.api.block.tileentity.@NotNull Sign sign, @NotNull String group, @Nullable String templatePath) {
         SignConfigurationEntry entry = this.getApplicableSignConfigurationEntry();
         if (entry != null) {
-            Sign created = new Sign(group, entry.getTargetGroup(), templatePath, this.locationToWorldPosition(sign.getLocation()));
+            Sign created = new Sign(group, entry.getTargetGroup(), templatePath, this.locationToWorldPosition(sign.getLocation(), entry.getTargetGroup()));
             this.createSign(created);
             return created;
         }
@@ -179,6 +179,10 @@ public class SpongeSignManagement extends AbstractServiceSignManagement<org.spon
 
     protected @NotNull WorldPosition locationToWorldPosition(@NotNull Location<World> location) {
         return new WorldPosition(location.getX(), location.getY(), location.getZ(), 0, 0, location.getExtent().getName());
+    }
+
+    protected @NotNull WorldPosition locationToWorldPosition(@NotNull Location<World> location, @NotNull String group) {
+        return new WorldPosition(location.getX(), location.getY(), location.getZ(), 0, 0, location.getExtent().getName(), group);
     }
 
     protected @Nullable Location<World> locationFromWorldPosition(@NotNull WorldPosition position) {

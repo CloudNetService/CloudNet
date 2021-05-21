@@ -24,6 +24,9 @@ public class SignConfigurationEntry implements SerializableObject, Cloneable {
     protected SignLayoutsHolder onlineLayout;
     protected SignLayoutsHolder fullLayout;
 
+    public SignConfigurationEntry() {
+    }
+
     public SignConfigurationEntry(String targetGroup, boolean switchToSearchingWhenServiceIsFull, KnockbackConfiguration knockbackConfiguration,
                                   List<SignGroupConfiguration> groupConfigurations, SignLayoutsHolder searchingLayout, SignLayoutsHolder startingLayout,
                                   SignLayoutsHolder emptyLayout, SignLayoutsHolder onlineLayout, SignLayoutsHolder fullLayout) {
@@ -239,6 +242,9 @@ public class SignConfigurationEntry implements SerializableObject, Cloneable {
         protected double distance;
         protected double strength;
         protected String bypassPermission;
+
+        public KnockbackConfiguration() {
+        }
 
         public KnockbackConfiguration(double distance, double strength) {
             this(true, distance, strength);

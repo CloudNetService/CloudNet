@@ -8,10 +8,18 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 
+/**
+ * Represents a shared management for the sign system.
+ */
 public interface SignManagement {
 
-    @Nullable
-    Sign getSignAt(@NotNull WorldPosition position);
+    /**
+     * Get a sign which is located at the specified location.
+     *
+     * @param position the position the sign is located at
+     * @return the sign at the given location or null if there is no sign
+     */
+    @Nullable Sign getSignAt(@NotNull WorldPosition position);
 
     void createSign(@NotNull Sign sign);
 

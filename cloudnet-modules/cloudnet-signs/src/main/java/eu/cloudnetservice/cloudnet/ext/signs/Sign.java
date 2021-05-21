@@ -3,11 +3,13 @@ package eu.cloudnetservice.cloudnet.ext.signs;
 import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import de.dytanic.cloudnet.driver.serialization.SerializableObject;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
-import de.dytanic.cloudnet.ext.bridge.ServiceInfoStateWatcher;
 import de.dytanic.cloudnet.ext.bridge.WorldPosition;
+import eu.cloudnetservice.cloudnet.ext.signs.configuration.SignConfigurationEntry;
+import eu.cloudnetservice.cloudnet.ext.signs.util.PriorityUtil;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -26,6 +28,9 @@ public class Sign implements SerializableObject, Comparable<Sign> {
     protected WorldPosition worldPosition;
 
     protected transient AtomicReference<ServiceInfoSnapshot> currentTarget;
+
+    public Sign() {
+    }
 
     /**
      * Creates a new sign object
@@ -103,31 +108,30 @@ public class Sign implements SerializableObject, Comparable<Sign> {
      * @return the priority of the sign to be on the sign wall
      */
     public int getPriority() {
+        return getPriority(false);
+    }
+
+    /**
+     * Get the priority of the sign to be on the sign wall
+     *
+     * @param entry the signs configuration entry to get additional configuration from
+     * @return the priority of the sign to be on the sign wall
+     */
+    public int getPriority(@Nullable SignConfigurationEntry entry) {
+        return getPriority(entry != null && entry.isSwitchToSearchingWhenServiceIsFull());
+    }
+
+    /**
+     * Get the priority of the sign to be on the sign wall
+     *
+     * @param lowerFullToSearching If true the priority of a full service will be synced to the of a searching sign
+     * @return the priority of the sign to be on the sign wall
+     */
+    public int getPriority(boolean lowerFullToSearching) {
         // check if the service has a snapshot
         ServiceInfoSnapshot target = this.getCurrentTarget();
-        if (target == null) {
-            // no target has the lowest priority
-            return 0;
-        }
-        // Get the state of the service
-        ServiceInfoStateWatcher.ServiceInfoState state = ServiceInfoStateWatcher.stateFromServiceInfoSnapshot(target);
-        switch (state) {
-            case FULL_ONLINE:
-                // full (premium) service are preferred
-                return 4;
-            case ONLINE:
-                // online has the second highest priority as full is preferred
-                return 3;
-            case EMPTY_ONLINE:
-                // empty services are not the first choice for a sign wall
-                return 2;
-            case STARTING:
-            case STOPPED:
-                // this sign should only be on the wall when there is no other service
-                return 1;
-            default:
-                return 0;
-        }
+        // no target has the lowest priority
+        return target == null ? 0 : PriorityUtil.getPriority(target);
     }
 
     @Override

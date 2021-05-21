@@ -7,20 +7,21 @@ import de.dytanic.cloudnet.module.NodeCloudNetModule;
 import eu.cloudnetservice.cloudnet.ext.signs.GlobalChannelMessageListener;
 import eu.cloudnetservice.cloudnet.ext.signs.SignManagement;
 import eu.cloudnetservice.cloudnet.ext.signs.configuration.SignsConfiguration;
+import eu.cloudnetservice.cloudnet.ext.signs.node.commands.CommandSign;
 import eu.cloudnetservice.cloudnet.ext.signs.node.configuration.NodeSignsConfigurationHelper;
 
 import java.nio.file.Path;
 
 public class CloudNetSignsModule extends NodeCloudNetModule {
 
-    protected static final String DATABASE_NAME = "signs";
+    protected static final String DATABASE_NAME = "cloudnet_signs";
 
-    protected final Database database;
-    protected final Path configurationPath;
-
+    protected Database database;
+    protected Path configurationPath;
     protected SignsConfiguration configuration;
 
-    protected CloudNetSignsModule() {
+    @ModuleTask(order = 50)
+    public void initialize() {
         this.database = this.getCloudNet().getDatabaseProvider().getDatabase(DATABASE_NAME);
         this.configurationPath = this.getModuleWrapper().getDataDirectory().resolve("config.json");
     }
@@ -35,8 +36,9 @@ public class CloudNetSignsModule extends NodeCloudNetModule {
         SignManagement management = new NodeSignManagement(this.configuration, this.configurationPath, this.database);
         management.registerToServiceRegistry();
 
+        this.registerCommand(new CommandSign(management, this.configurationPath));
         this.getCloudNet().getEventManager().registerListeners(new GlobalChannelMessageListener(management),
-                new NodeChannelMessageListener(management));
+                new NodeSignsListener(management));
     }
 
     @ModuleTask(order = 40, event = ModuleLifeCycle.STOPPED)

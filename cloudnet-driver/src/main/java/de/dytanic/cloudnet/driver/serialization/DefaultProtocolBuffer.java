@@ -220,8 +220,9 @@ public class DefaultProtocolBuffer extends ProtocolBuffer {
 
     @Override
     public @NotNull Map<String, String> readStringMap() {
+        int size = this.readVarInt();
         Map<String, String> map = new ConcurrentHashMap<>();
-        for (int i = 0; i < this.readVarInt(); i++) {
+        for (int i = 0; i < size; i++) {
             map.put(this.readString(), this.readString());
         }
         return map;

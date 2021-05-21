@@ -12,6 +12,9 @@ public class SignGroupConfiguration implements Cloneable, SerializableObject {
     protected SignLayoutsHolder onlineLayout;
     protected SignLayoutsHolder fullLayout;
 
+    public SignGroupConfiguration() {
+    }
+
     public SignGroupConfiguration(String targetGroup, SignLayoutsHolder emptyLayout, SignLayoutsHolder onlineLayout, SignLayoutsHolder fullLayout) {
         this.targetGroup = targetGroup;
         this.emptyLayout = emptyLayout;
