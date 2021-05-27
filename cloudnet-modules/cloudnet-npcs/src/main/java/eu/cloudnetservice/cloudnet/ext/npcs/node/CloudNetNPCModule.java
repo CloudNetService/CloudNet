@@ -33,17 +33,22 @@ public class CloudNetNPCModule extends NodeCloudNetModule {
     public void loadConfiguration() {
         FileUtils.createDirectoryReported(this.getModuleWrapper().getDataDirectory());
 
-        this.npcConfiguration = super.getConfig().get("config", NPCConfiguration.class, new NPCConfiguration());
-        for (Map.Entry<String, String> entry : NPCConfiguration.DEFAULT_MESSAGES.entrySet()) {
-            if (!this.npcConfiguration.getMessages().containsKey(entry.getKey())) {
-                this.npcConfiguration.getMessages().put(entry.getKey(), entry.getValue());
-            }
-        }
+        this.readConfiguration();
 
         NPCConfiguration.sendNPCConfigurationUpdate(this.npcConfiguration);
         this.saveNPCConfiguration();
 
         this.cachedNPCs = this.loadNPCs();
+    }
+
+    public NPCConfiguration readConfiguration() {
+        this.npcConfiguration = super.reloadConfig().get("config", NPCConfiguration.class, NPCConfiguration.EMPTY_CONFIGURATION);
+        for (Map.Entry<String, String> entry : NPCConfiguration.DEFAULT_MESSAGES.entrySet()) {
+            if (!this.npcConfiguration.getMessages().containsKey(entry.getKey())) {
+                this.npcConfiguration.getMessages().put(entry.getKey(), entry.getValue());
+            }
+        }
+        return this.npcConfiguration;
     }
 
     public void saveNPCConfiguration() {
