@@ -10,6 +10,7 @@ import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -40,7 +41,7 @@ public class NodeGeneralCloudServiceProvider implements GeneralCloudServiceProvi
 
     @Override
     public Collection<ServiceInfoSnapshot> getCloudServices() {
-        return this.cloudNet.getCloudServiceManager().getGlobalServiceInfoSnapshots().values();
+        return new ArrayList<>(this.cloudNet.getCloudServiceManager().getGlobalServiceInfoSnapshots().values());
     }
 
     @Override
