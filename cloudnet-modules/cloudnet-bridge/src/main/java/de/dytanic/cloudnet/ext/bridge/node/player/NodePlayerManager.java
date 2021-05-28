@@ -454,13 +454,11 @@ public final class NodePlayerManager extends DefaultPlayerManager implements IPl
                     NetworkServiceInfo newLoginService = cloudPlayer.getLoginService();
                     NetworkServiceInfo knownLoginService = registeredPlayer.getLoginService();
                     // check if we already know the same service
-                    if (!Objects.equals(newLoginService, knownLoginService)) {
-                        // the supplied player connected to a proxy
-                        if (newLoginService.getEnvironment().isMinecraftProxy()
-                                && (knownLoginService == null || !knownLoginService.getEnvironment().isMinecraftProxy())) {
-                            cloudPlayer.setLoginService(newLoginService);
-                            needsUpdate = true;
-                        }
+                    if (!Objects.equals(newLoginService, knownLoginService)
+                            && newLoginService.getEnvironment().isMinecraftProxy()
+                            && (knownLoginService == null || !knownLoginService.getEnvironment().isMinecraftProxy())) {
+                        cloudPlayer.setLoginService(newLoginService);
+                        needsUpdate = true;
                     }
                 }
                 // check if the player has a known connected service which is not a proxy
