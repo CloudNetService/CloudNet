@@ -2,7 +2,7 @@ package de.dytanic.cloudnet.ext.cloudperms.bukkit.listener;
 
 import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
 import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsHelper;
-import de.dytanic.cloudnet.ext.cloudperms.bukkit.BukkitPermissionInjector;
+import de.dytanic.cloudnet.ext.cloudperms.bukkit.BukkitPermissionInjectionHelper;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.event.EventHandler;
@@ -44,8 +44,8 @@ public final class BukkitCloudNetCloudPermissionsPlayerListener implements Liste
         }
 
         try {
-            BukkitPermissionInjector.injectPlayer(event.getPlayer());
-        } catch (Exception exception) {
+            BukkitPermissionInjectionHelper.injectPlayer(event.getPlayer());
+        } catch (Throwable exception) {
             this.plugin.getLogger().log(Level.SEVERE, "Error while injecting permissible for player " + event.getPlayer(), exception);
             event.setResult(PlayerLoginEvent.Result.KICK_OTHER);
         }

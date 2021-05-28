@@ -162,8 +162,8 @@ public final class BukkitCloudNetCloudPermissionsPlugin extends JavaPlugin {
     public void injectCloudPermissible(Player player) {
         Preconditions.checkNotNull(player);
         try {
-            BukkitPermissionInjector.injectPlayer(player);
-        } catch (Exception exception) {
+            BukkitPermissionInjectionHelper.injectPlayer(player);
+        } catch (Throwable exception) {
             exception.printStackTrace();
         }
     }

@@ -6,16 +6,18 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Field;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public final class BukkitPermissionInjector {
+public final class BukkitPermissionInjectionHelper {
 
     private static final Pattern PACKAGE_VERSION_PATTERN = Pattern.compile("^org\\.bukkit\\.craftbukkit\\.(\\w+)\\.CraftServer$");
 
-    private static final Field PERMISSIBLE_FIELD;
     private static final String SERVER_PACKAGE_VERSION;
+    private static final MethodHandle PERMISSIBLE_FIELD;
 
     static {
         // load server version
@@ -40,26 +42,26 @@ public final class BukkitPermissionInjector {
                 permissibleField.setAccessible(true);
             }
 
-            PERMISSIBLE_FIELD = permissibleField;
-        } catch (final ClassNotFoundException | NoSuchFieldException exception) {
+            PERMISSIBLE_FIELD = MethodHandles.lookup().unreflectSetter(permissibleField);
+        } catch (final ClassNotFoundException | NoSuchFieldException | IllegalAccessException exception) {
             throw new ExceptionInInitializerError(exception);
         }
     }
 
-    private BukkitPermissionInjector() {
+    private BukkitPermissionInjectionHelper() {
         throw new UnsupportedOperationException();
     }
 
-    public static void injectPlayer(@NotNull Player player) throws Exception {
+    public static void injectPlayer(@NotNull Player player) throws Throwable {
         Preconditions.checkNotNull(player, "player");
         injectPlayer(player, PERMISSIBLE_FIELD);
     }
 
-    public static void injectPlayer(@NotNull Player player, @NotNull Field field) throws Exception {
+    public static void injectPlayer(@NotNull Player player, @NotNull MethodHandle handle) throws Throwable {
         Preconditions.checkNotNull(player, "player");
-        Preconditions.checkNotNull(field, "field");
+        Preconditions.checkNotNull(handle, "handle");
 
-        field.set(player,
-                new BukkitCloudNetCloudPermissionsPermissible(player, CloudNetDriver.getInstance().getPermissionManagement()));
+        handle.invoke(player, new BukkitCloudNetCloudPermissionsPermissible(player,
+                CloudNetDriver.getInstance().getPermissionManagement()));
     }
 }
