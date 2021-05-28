@@ -43,7 +43,7 @@ public class CommandNPC extends SubCommandHandler {
                         )
                         .generateCommand(
                                 (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
-                                    NPCConfiguration.sendNPCConfigurationUpdate(npcModule.getNPCConfiguration());
+                                    NPCConfiguration.sendNPCConfigurationUpdate(npcModule.readConfiguration());
                                     sender.sendMessage(LanguageManager.getMessage("module-npcs-command-reload-success"));
                                 },
                                 anyStringIgnoreCase("reload", "rl")
