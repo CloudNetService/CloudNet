@@ -42,7 +42,7 @@ public final class CloudNetSyncProxyModule extends NodeCloudNetModule {
 
     @ModuleTask(order = 60, event = ModuleLifeCycle.STARTED)
     public void registerCommands() {
-        this.registerCommand(new CommandSyncProxy());
+        this.registerCommand(new CommandSyncProxy(this));
     }
 
     @ModuleTask(order = 35, event = ModuleLifeCycle.STARTED)
