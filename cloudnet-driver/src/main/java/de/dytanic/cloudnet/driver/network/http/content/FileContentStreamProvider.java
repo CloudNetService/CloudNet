@@ -10,7 +10,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-public final class FileContentStreamProvider implements ContentStreamProvider {
+final class FileContentStreamProvider implements ContentStreamProvider {
 
     private final Path workingDirectory;
 
@@ -19,7 +19,7 @@ public final class FileContentStreamProvider implements ContentStreamProvider {
     }
 
     @Override
-    public @Nullable StreamableContent provideStream(@NotNull String path) {
+    public @Nullable StreamableContent provideContent(@NotNull String path) {
         Path targetPath = this.workingDirectory.resolve(path);
         if (Files.notExists(targetPath) || Files.isDirectory(targetPath)) {
             return null;

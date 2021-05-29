@@ -19,7 +19,7 @@ public class StaticContentHttpHandler implements IHttpHandler {
             path += "index.html";
         }
 
-        ContentStreamProvider.StreamableContent content = this.provider.provideStream(path);
+        ContentStreamProvider.StreamableContent content = this.provider.provideContent(path);
         if (content != null) {
             context
                     .closeAfter(true)
