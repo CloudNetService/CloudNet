@@ -15,11 +15,16 @@ import de.dytanic.cloudnet.network.NetworkUpdateType;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.*;
+import java.nio.file.FileVisitOption;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class NodeServiceTaskProvider implements ServiceTaskProvider {
@@ -28,7 +33,6 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
     private static final Path TASKS_DIRECTORY = Paths.get(System.getProperty("cloudnet.config.tasks.directory.path", "local/tasks"));
 
     private final CloudNet cloudNet;
-
     private final Collection<ServiceTask> permanentServiceTasks = new CopyOnWriteArrayList<>();
 
     public NodeServiceTaskProvider(CloudNet cloudNet) {
@@ -40,32 +44,44 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
     }
 
     private void load() throws IOException {
+        // check if the old tasks.json is still in use and upgrade if necessary
+        this.upgrade();
+        // remove all pre-loaded tasks
         this.permanentServiceTasks.clear();
-
-        if (!Files.exists(TASKS_DIRECTORY)) {
+        if (Files.notExists(TASKS_DIRECTORY)) {
             return;
         }
-        Files.walkFileTree(TASKS_DIRECTORY, new SimpleFileVisitor<Path>() {
+        // walk over all files in the document tree
+        // maxDepth 1 indicates that we only walk in the tasks directory, not in sub directories
+        Files.walkFileTree(TASKS_DIRECTORY, EnumSet.noneOf(FileVisitOption.class), 1, new SimpleFileVisitor<Path>() {
             @Override
-            public FileVisitResult visitFile(Path path, BasicFileAttributes attrs) throws IOException {
-                System.out.println(LanguageManager.getMessage("cloudnet-load-task").replace("%path%", path.toString()));
-                JsonDocument document = JsonDocument.newDocument(path);
-                ServiceTask task = document.toInstanceOf(ServiceTask.class);
-                if (task != null && task.getName() != null) {
-                    permanentServiceTasks.add(task);
-                    Files.write(path, new JsonDocument(task).toPrettyJson().getBytes(StandardCharsets.UTF_8));
-                    System.out.println(LanguageManager.getMessage("cloudnet-load-task-success").replace("%path%", path.toString()).replace("%name%", task.getName()));
-                    if (task.isMaintenance()) {
-                        CloudNet.getInstance().getLogger().warning(LanguageManager.getMessage("cloudnet-load-task-maintenance-warning").replace("%task%", task.getName()));
+            public FileVisitResult visitFile(Path path, BasicFileAttributes attrs) {
+                System.out.println(LanguageManager.getMessage("cloudnet-load-task")
+                        .replace("%path%", path.toString()));
+
+                ServiceTask task = JsonDocument.newDocument(path).toInstanceOf(ServiceTask.class);
+                if (task != null) {
+                    // write all new configuration entries (the name too if missing) to the file if needed
+                    JsonDocument.newDocument(task).write(path);
+                    // check if we can load the task
+                    if (task.getName() != null) {
+                        permanentServiceTasks.add(task);
+                        System.out.println(LanguageManager.getMessage("cloudnet-load-task-success")
+                                .replace("%path%", path.toString()).replace("%name%", task.getName()));
+                        // just a notify for the user that cloudnet is not attempting to start new services
+                        if (task.isMaintenance()) {
+                            CloudNet.getInstance().getLogger().warning(LanguageManager.getMessage(
+                                    "cloudnet-load-task-maintenance-warning").replace("%task%", task.getName()));
+                        }
                     }
                 } else {
-                    System.err.println(LanguageManager.getMessage("cloudnet-load-task-failed").replace("%path%", path.toString()));
+                    System.err.println(LanguageManager.getMessage("cloudnet-load-task-failed")
+                            .replace("%path%", path.toString()));
                 }
+
                 return FileVisitResult.CONTINUE;
             }
         });
-
-        this.upgrade();
     }
 
     private void upgrade() throws IOException {
