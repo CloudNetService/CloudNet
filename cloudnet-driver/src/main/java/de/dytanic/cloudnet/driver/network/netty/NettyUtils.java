@@ -22,6 +22,8 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.util.ResourceLeakDetector;
 import io.netty.util.concurrent.FastThreadLocalThread;
+import io.netty.util.internal.logging.InternalLoggerFactory;
+import io.netty.util.internal.logging.JdkLoggerFactory;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.nio.charset.StandardCharsets;
@@ -35,6 +37,9 @@ public final class NettyUtils {
     private static final ThreadFactory THREAD_FACTORY = FastThreadLocalThread::new;
 
     static {
+        // use jdk logger to prevent issues with older slf4j versions
+        // like them bundled in spigot 1.8
+        InternalLoggerFactory.setDefaultFactory(JdkLoggerFactory.INSTANCE);
         ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.DISABLED);
     }
 
