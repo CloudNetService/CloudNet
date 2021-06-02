@@ -422,7 +422,7 @@
       "versions": [
         {
           "name": "latest",
-          "url": "https://files.minecraftforge.net/maven/net/minecraftforge/forge/1.16.5-36.0.7/forge-1.16.5-36.0.7-installer.jar",
+          "url": "https://maven.minecraftforge.net/net/minecraftforge/forge/1.16.5-36.1.24/forge-1.16.5-36.1.24-installer.jar",
           "maxJavaVersion": 13,
           "cacheFiles": false,
           "properties": {
@@ -439,7 +439,7 @@
         },
         {
           "name": "1.16.5",
-          "url": "https://files.minecraftforge.net/maven/net/minecraftforge/forge/1.16.5-36.0.7/forge-1.16.5-36.0.7-installer.jar",
+          "url": "https://maven.minecraftforge.net/net/minecraftforge/forge/1.16.5-36.1.24/forge-1.16.5-36.1.24-installer.jar",
           "maxJavaVersion": 13,
           "properties": {
             "copy": {
@@ -455,7 +455,7 @@
         },
         {
           "name": "1.15.2",
-          "url": "https://files.minecraftforge.net/maven/net/minecraftforge/forge/1.15.2-31.2.41/forge-1.15.2-31.2.41-installer.jar",
+          "url": "https://maven.minecraftforge.net/net/minecraftforge/forge/1.15.2-31.2.50/forge-1.15.2-31.2.50-installer.jar",
           "maxJavaVersion": 13,
           "properties": {
             "copy": {
@@ -471,7 +471,7 @@
         },
         {
           "name": "1.14.4",
-          "url": "https://files.minecraftforge.net/maven/net/minecraftforge/forge/1.14.4-28.1.107/forge-1.14.4-28.1.107-installer.jar",
+          "url": "https://maven.minecraftforge.net/net/minecraftforge/forge/1.14.4-28.2.23/forge-1.14.4-28.2.23-installer.jar",
           "maxJavaVersion": 13,
           "properties": {
             "copy": {
@@ -487,7 +487,7 @@
         },
         {
           "name": "1.13.2",
-          "url": "https://files.minecraftforge.net/maven/net/minecraftforge/forge/1.13.2-25.0.219/forge-1.13.2-25.0.219-installer.jar",
+          "url": "https://maven.minecraftforge.net/net/minecraftforge/forge/1.13.2-25.0.219/forge-1.13.2-25.0.219-installer.jar",
           "maxJavaVersion": 13,
           "properties": {
             "copy": {
@@ -503,8 +503,8 @@
         },
         {
           "name": "1.12.2",
-          "url": "https://files.minecraftforge.net/maven/net/minecraftforge/forge/1.12.2-14.23.5.2847/forge-1.12.2-14.23.5.2847-installer.jar",
-          "maxJavaVersion": 10,
+          "url": "https://maven.minecraftforge.net/net/minecraftforge/forge/1.12.2-14.23.5.2855/forge-1.12.2-14.23.5.2855-installer.jar",
+          "maxJavaVersion": 8,
           "properties": {
             "copy": {
               "libraries/.*": "/",
@@ -519,7 +519,7 @@
         },
         {
           "name": "1.11.2",
-          "url": "https://files.minecraftforge.net/maven/net/minecraftforge/forge/1.11.2-13.20.1.2588/forge-1.11.2-13.20.1.2588-installer.jar",
+          "url": "https://maven.minecraftforge.net/net/minecraftforge/forge/1.11.2-13.20.1.2588/forge-1.11.2-13.20.1.2588-installer.jar",
           "maxJavaVersion": 8,
           "properties": {
             "copy": {
@@ -535,7 +535,7 @@
         },
         {
           "name": "1.10.2",
-          "url": "https://files.minecraftforge.net/maven/net/minecraftforge/forge/1.10.2-12.18.3.2511/forge-1.10.2-12.18.3.2511-installer.jar",
+          "url": "https://maven.minecraftforge.net/net/minecraftforge/forge/1.10.2-12.18.3.2511/forge-1.10.2-12.18.3.2511-installer.jar",
           "maxJavaVersion": 8,
           "properties": {
             "copy": {
@@ -551,7 +551,7 @@
         },
         {
           "name": "1.9.4",
-          "url": "https://files.minecraftforge.net/maven/net/minecraftforge/forge/1.9.4-12.17.0.2051/forge-1.9.4-12.17.0.2051-installer.jar",
+          "url": "https://maven.minecraftforge.net/net/minecraftforge/forge/1.9.4-12.17.0.2317-1.9.4/forge-1.9.4-12.17.0.2317-1.9.4-installer.jar",
           "maxJavaVersion": 8,
           "properties": {
             "copy": {
@@ -567,7 +567,7 @@
         },
         {
           "name": "1.8.9",
-          "url": "https://files.minecraftforge.net/maven/net/minecraftforge/forge/1.8.9-11.15.1.2318-1.8.9/forge-1.8.9-11.15.1.2318-1.8.9-installer.jar",
+          "url": "https://maven.minecraftforge.net/net/minecraftforge/forge/1.8.9-11.15.1.2318-1.8.9/forge-1.8.9-11.15.1.2318-1.8.9-installer.jar",
           "maxJavaVersion": 8,
           "properties": {
             "copy": {
@@ -583,7 +583,7 @@
         },
         {
           "name": "1.7.10",
-          "url": "https://files.minecraftforge.net/maven/net/minecraftforge/forge/1.7.10-10.13.4.1614-1.7.10/forge-1.7.10-10.13.4.1614-1.7.10-installer.jar",
+          "url": "https://maven.minecraftforge.net/net/minecraftforge/forge/1.7.10-10.13.4.1614-1.7.10/forge-1.7.10-10.13.4.1614-1.7.10-installer.jar",
           "maxJavaVersion": 8,
           "properties": {
             "copy": {
@@ -611,8 +611,8 @@
       "versions": [
         {
           "name": "latest",
-          "url": "https://files.minecraftforge.net/maven/net/minecraftforge/forge/1.12.2-14.23.5.2838/forge-1.12.2-14.23.5.2838-installer.jar",
-          "maxJavaVersion": 10,
+          "url": "https://maven.minecraftforge.net/net/minecraftforge/forge/1.12.2-14.23.5.2855/forge-1.12.2-14.23.5.2855-installer.jar",
+          "maxJavaVersion": 8,
           "cacheFiles": false,
           "properties": {
             "copy": {
@@ -631,8 +631,8 @@
         },
         {
           "name": "1.12.2",
-          "url": "https://files.minecraftforge.net/maven/net/minecraftforge/forge/1.12.2-14.23.5.2838/forge-1.12.2-14.23.5.2838-installer.jar",
-          "maxJavaVersion": 10,
+          "url": "https://maven.minecraftforge.net/net/minecraftforge/forge/1.12.2-14.23.5.2855/forge-1.12.2-14.23.5.2855-installer.jar",
+          "maxJavaVersion": 8,
           "properties": {
             "copy": {
               "libraries/.*": "/",
