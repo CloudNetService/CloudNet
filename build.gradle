@@ -82,6 +82,7 @@ allprojects {
         dependencyJavassistVersion = '3.28.0-GA'
 
         testJunitVersion = '4.13.2'
+        testBcpkixJdk15OnVersion = '1.68'
 
         //file
         cloudnetLauncherFile = 'launcher.jar'
