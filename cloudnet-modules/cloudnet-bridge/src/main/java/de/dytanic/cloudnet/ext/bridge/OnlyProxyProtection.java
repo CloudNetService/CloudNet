@@ -1,6 +1,5 @@
 package de.dytanic.cloudnet.ext.bridge;
 
-
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import de.dytanic.cloudnet.driver.CloudNetDriver;

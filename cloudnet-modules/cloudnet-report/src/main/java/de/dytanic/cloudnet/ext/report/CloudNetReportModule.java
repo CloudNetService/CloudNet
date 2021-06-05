@@ -66,6 +66,7 @@ public final class CloudNetReportModule extends NodeCloudNetModule {
         this.getConfig().getString("recordDestinationDirectory", "records");
         this.getConfig().get("pasteServerType", PasteServerType.class, PasteServerType.HASTE);
         this.getConfig().getString("pasteServerUrl", "https://just-paste.it");
+        this.getConfig().getLong("serviceLifetimeLogPrint", 5000L);
 
         this.saveConfig();
     }
@@ -78,7 +79,7 @@ public final class CloudNetReportModule extends NodeCloudNetModule {
 
     @ModuleTask(order = 64, event = ModuleLifeCycle.STARTED)
     public void registerListeners() {
-        this.registerListener(new CloudNetReportListener());
+        this.registerListener(new CloudNetReportListener(this));
     }
 
     @ModuleTask(order = 16, event = ModuleLifeCycle.STARTED)

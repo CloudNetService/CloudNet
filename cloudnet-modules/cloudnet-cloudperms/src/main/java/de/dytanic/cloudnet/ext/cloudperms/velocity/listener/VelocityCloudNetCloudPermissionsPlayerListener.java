@@ -8,10 +8,10 @@ import com.velocitypowered.api.event.connection.LoginEvent;
 import com.velocitypowered.api.event.permission.PermissionsSetupEvent;
 import com.velocitypowered.api.permission.PermissionProvider;
 import com.velocitypowered.api.proxy.Player;
-import de.dytanic.cloudnet.driver.permission.CachedPermissionManagement;
 import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
 import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsHelper;
-import net.kyori.text.serializer.legacy.LegacyComponentSerializer;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
 public final class VelocityCloudNetCloudPermissionsPlayerListener {
 
@@ -23,11 +23,14 @@ public final class VelocityCloudNetCloudPermissionsPlayerListener {
         this.permissionProvider = permissionProvider;
     }
 
-    @Subscribe(order = PostOrder.EARLY)
+    @Subscribe(order = PostOrder.LAST)
     public void handle(LoginEvent event) {
         if (event.getResult().isAllowed()) {
-            CloudPermissionsHelper.initPermissionUser(this.permissionsManagement, event.getPlayer().getUniqueId(), event.getPlayer().getUsername(), message ->
-                    event.setResult(ResultedEvent.ComponentResult.denied(LegacyComponentSerializer.legacyLinking().deserialize(message.replace("&", "§")))));
+            Player player = event.getPlayer();
+            CloudPermissionsHelper.initPermissionUser(this.permissionsManagement, player.getUniqueId(), player.getUsername(), message -> {
+                Component reasonComponent = LegacyComponentSerializer.legacySection().deserialize(message.replace("&", "§"));
+                event.setResult(ResultedEvent.ComponentResult.denied(reasonComponent));
+            });
         }
     }
 
@@ -40,9 +43,6 @@ public final class VelocityCloudNetCloudPermissionsPlayerListener {
 
     @Subscribe
     public void handle(DisconnectEvent event) {
-        CachedPermissionManagement management = CloudPermissionsHelper.asCachedPermissionManagement(this.permissionsManagement);
-        if (management != null) {
-            management.getCachedPermissionUsers().remove(event.getPlayer().getUniqueId());
-        }
+        CloudPermissionsHelper.handlePlayerQuit(this.permissionsManagement, event.getPlayer().getUniqueId());
     }
 }

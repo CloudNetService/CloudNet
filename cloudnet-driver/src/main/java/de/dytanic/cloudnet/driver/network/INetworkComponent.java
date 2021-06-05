@@ -4,6 +4,7 @@ import de.dytanic.cloudnet.driver.network.protocol.IPacketListenerRegistry;
 import de.dytanic.cloudnet.driver.network.protocol.IPacketSender;
 
 import java.util.Collection;
+import java.util.concurrent.Executor;
 
 /**
  * Includes the basic functions for the client and the server
@@ -24,6 +25,8 @@ interface INetworkComponent extends IPacketSender {
         Collection<INetworkChannel> channels = this.getChannels();
         return channels.isEmpty() ? null : channels.iterator().next();
     }
+
+    Executor getPacketDispatcher();
 
     /**
      * Close all open connections from this network component

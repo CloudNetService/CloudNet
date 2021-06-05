@@ -17,13 +17,15 @@ public final class PacketConstants {
             CLUSTER_TASK_LIST_CHANNEL = 9,
             CLUSTER_PERMISSION_DATA_CHANNEL = 10,
             CLUSTER_TEMPLATE_DEPLOY_CHANNEL = 11,
-            CLUSTER_NODE_INFO_CHANNEL = 12;
+            CLUSTER_TEMPLATE_STORAGE_SYNC_CHANNEL = 12,
+            CLUSTER_TEMPLATE_STORAGE_CHUNK_SYNC_CHANNEL = 13,
+            CLUSTER_NODE_INFO_CHANNEL = 14;
 
     //events
     public static final int
-            SERVICE_INFO_PUBLISH_CHANNEL = 13,
-            PERMISSIONS_PUBLISH_CHANNEL = 14,
-            CHANNEL_MESSAGING_CHANNEL = 15;
+            SERVICE_INFO_PUBLISH_CHANNEL = 15,
+            PERMISSIONS_PUBLISH_CHANNEL = 16,
+            CHANNEL_MESSAGING_CHANNEL = 17;
 
     private PacketConstants() {
         throw new UnsupportedOperationException();

@@ -12,7 +12,6 @@ import de.dytanic.cloudnet.ext.bridge.node.command.CommandBridge;
 import de.dytanic.cloudnet.ext.bridge.node.command.CommandPlayers;
 import de.dytanic.cloudnet.ext.bridge.node.http.V1BridgeConfigurationHttpHandler;
 import de.dytanic.cloudnet.ext.bridge.node.listener.BridgeDefaultConfigurationListener;
-import de.dytanic.cloudnet.ext.bridge.node.listener.BridgePlayerDisconnectListener;
 import de.dytanic.cloudnet.ext.bridge.node.listener.BridgeServiceListCommandListener;
 import de.dytanic.cloudnet.ext.bridge.node.listener.BridgeTaskSetupListener;
 import de.dytanic.cloudnet.ext.bridge.node.listener.IncludePluginListener;
@@ -96,15 +95,15 @@ public final class CloudNetBridgeModule extends NodeCloudNetModule {
 
     @ModuleTask(order = 16, event = ModuleLifeCycle.STARTED)
     public void registerCommands() {
-        this.registerCommand(new CommandBridge());
+        this.registerCommand(new CommandBridge(this));
         this.registerCommand(new CommandPlayers(this.nodePlayerManager));
     }
 
     @ModuleTask(order = 8, event = ModuleLifeCycle.STARTED)
     public void initListeners() {
         this.registerListeners(new NetworkListenerRegisterListener(), new BridgeTaskSetupListener(), new IncludePluginListener(),
-                new NodeCustomChannelMessageListener(this.nodePlayerManager), new BridgePlayerDisconnectListener(this.nodePlayerManager),
-                new BridgeDefaultConfigurationListener(), new BridgeServiceListCommandListener(), new TaskConfigListener());
+                new NodeCustomChannelMessageListener(this.nodePlayerManager), new BridgeDefaultConfigurationListener(),
+                new BridgeServiceListCommandListener(), new TaskConfigListener());
     }
 
     @Override

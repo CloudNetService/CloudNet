@@ -39,7 +39,7 @@ public final class CPUUsageResolver {
      * @see com.sun.management.OperatingSystemMXBean
      */
     public static double getSystemCPUUsage() {
-        return ((OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean()).getSystemCpuLoad() * 100;
+        return toPercentage(getSystemMxBean().getSystemCpuLoad());
     }
 
     /**
@@ -49,7 +49,7 @@ public final class CPUUsageResolver {
      * @see com.sun.management.OperatingSystemMXBean
      */
     public static double getProcessCPUUsage() {
-        return ((OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean()).getProcessCpuLoad() * 100;
+        return toPercentage(getSystemMxBean().getProcessCpuLoad());
     }
 
     /**
@@ -59,7 +59,14 @@ public final class CPUUsageResolver {
      * @see com.sun.management.OperatingSystemMXBean
      */
     public static long getSystemMemory() {
-        return ((OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean()).getTotalPhysicalMemorySize();
+        return getSystemMxBean().getTotalPhysicalMemorySize();
     }
 
+    private static double toPercentage(double input) {
+        return input < 0 ? -1 : input * 100;
+    }
+
+    private static OperatingSystemMXBean getSystemMxBean() {
+        return (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
+    }
 }

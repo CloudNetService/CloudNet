@@ -12,12 +12,12 @@ public final class V1HttpHandlerAuthentication extends V1HttpHandler {
     }
 
     @Override
-    public void handleOptions(String path, IHttpContext context) {
-        this.sendOptions(context, "OPTIONS, GET");
-    }
+    public void handle(String path, IHttpContext context) throws Exception {
+        if (context.request().method().equalsIgnoreCase("OPTIONS")) {
+            this.sendOptions(context, "OPTIONS, GET");
+            return;
+        }
 
-    @Override
-    public void handleGet(String path, IHttpContext context) throws Exception {
         if (HTTP_SESSION.auth(context)) {
             if (context.request().queryParameters().containsKey("redirect")) {
                 context
@@ -26,8 +26,7 @@ public final class V1HttpHandlerAuthentication extends V1HttpHandler {
                         .header("Location", context.request().queryParameters().get("redirect").iterator().next())
                         .context()
                         .closeAfter(true)
-                        .cancelNext()
-                ;
+                        .cancelNext();
             } else {
                 context
                         .response()
@@ -36,8 +35,7 @@ public final class V1HttpHandlerAuthentication extends V1HttpHandler {
                         .body(new JsonDocument("success", true).append("userUniqueId", HTTP_SESSION.getUser(context).getUniqueId()).toByteArray())
                         .context()
                         .closeAfter(true)
-                        .cancelNext()
-                ;
+                        .cancelNext();
             }
         } else {
             context
@@ -46,8 +44,9 @@ public final class V1HttpHandlerAuthentication extends V1HttpHandler {
                     .header("WWW-Authenticate", "Basic realm=\"CloudNet-REST-v1\"")
                     .context()
                     .closeAfter(true)
-                    .cancelNext()
-            ;
+                    .cancelNext();
         }
+
+        super.handle(path, context);
     }
 }

@@ -10,4 +10,8 @@ public final class MySQLDatabase extends SQLDatabase {
         super(databaseProvider, name, executorService);
     }
 
+    @Override
+    public boolean isSynced() {
+        return true;
+    }
 }

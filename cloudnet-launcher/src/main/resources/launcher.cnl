@@ -42,3 +42,4 @@ var cloudnet.logging.defaultlevel FATAL
 #var cloudnet.default.tasks.skip true
 #var cloudnet.default.permissions.skip true
 #var cloudnet.default.tasks.installation recommended
+#var cloudnet.max.node.idle.millis 30000

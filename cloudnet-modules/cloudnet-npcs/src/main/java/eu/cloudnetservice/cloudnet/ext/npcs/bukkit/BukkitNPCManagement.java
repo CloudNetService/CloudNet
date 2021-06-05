@@ -1,6 +1,5 @@
 package eu.cloudnetservice.cloudnet.ext.npcs.bukkit;
 
-
 import com.comphenix.protocol.wrappers.EnumWrappers;
 import com.github.juliarn.npc.NPC;
 import com.github.juliarn.npc.NPCPool;
@@ -101,7 +100,7 @@ public class BukkitNPCManagement extends AbstractNPCManagement {
     }
 
     public void shutdown() {
-        super.cloudNPCS.forEach(this::destroyNPC);
+        super.cloudNPCS.forEach(cloudNPC -> this.getInfoLineStand(cloudNPC).ifPresent(Entity::remove));
     }
 
     public Optional<ArmorStand> getInfoLineStand(@NotNull CloudNPC cloudNPC) {

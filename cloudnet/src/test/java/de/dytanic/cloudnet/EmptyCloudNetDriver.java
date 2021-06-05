@@ -9,7 +9,9 @@ import de.dytanic.cloudnet.driver.network.INetworkClient;
 import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
+import de.dytanic.cloudnet.driver.template.TemplateStorage;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.UUID;
@@ -37,6 +39,26 @@ public class EmptyCloudNetDriver extends CloudNetDriver {
 
     @Override
     public @NotNull String getNodeUniqueId() {
+        return null;
+    }
+
+    @Override
+    public @NotNull TemplateStorage getLocalTemplateStorage() {
+        return null;
+    }
+
+    @Override
+    public @Nullable TemplateStorage getTemplateStorage(String storage) {
+        return null;
+    }
+
+    @Override
+    public @NotNull Collection<TemplateStorage> getAvailableTemplateStorages() {
+        return null;
+    }
+
+    @Override
+    public @NotNull ITask<Collection<TemplateStorage>> getAvailableTemplateStoragesAsync() {
         return null;
     }
 

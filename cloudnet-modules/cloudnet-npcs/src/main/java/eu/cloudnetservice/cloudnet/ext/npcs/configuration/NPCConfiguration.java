@@ -1,16 +1,20 @@
 package eu.cloudnetservice.cloudnet.ext.npcs.configuration;
 
-
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import eu.cloudnetservice.cloudnet.ext.npcs.NPCConstants;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 public class NPCConfiguration {
 
     public static final Map<String, String> DEFAULT_MESSAGES = new HashMap<>();
+    public static final NPCConfiguration EMPTY_CONFIGURATION = new NPCConfiguration();
 
     static {
         DEFAULT_MESSAGES.put("command-create-invalid-material", "§7The provided item isn't a valid material! (Use AIR for no item in hand)");

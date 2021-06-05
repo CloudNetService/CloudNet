@@ -19,10 +19,10 @@ public class CloudPlayer extends CloudOfflinePlayer implements ICloudPlayer {
     public static final Type TYPE = new TypeToken<CloudPlayer>() {
     }.getType();
 
-    protected NetworkServiceInfo loginService, connectedService;
+    protected NetworkServiceInfo loginService;
+    protected NetworkServiceInfo connectedService;
 
     protected NetworkConnectionInfo networkConnectionInfo;
-
     protected NetworkPlayerServerInfo networkPlayerServerInfo;
 
     protected JsonDocument onlineProperties;

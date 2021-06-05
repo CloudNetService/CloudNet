@@ -1,14 +1,12 @@
 package de.dytanic.cloudnet.ext.syncproxy.velocity;
 
-
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.ext.bridge.proxy.BridgeProxyHelper;
 import de.dytanic.cloudnet.ext.syncproxy.AbstractSyncProxyManagement;
-import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyConfiguration;
 import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyTabList;
-import net.kyori.text.serializer.legacy.LegacyComponentSerializer;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
 import java.util.concurrent.TimeUnit;
 
@@ -22,7 +20,7 @@ public class VelocitySyncProxyManagement extends AbstractSyncProxyManagement {
         this.proxyServer = proxyServer;
         this.plugin = plugin;
 
-        super.setSyncProxyConfiguration(SyncProxyConfiguration.getConfigurationFromNode());
+        this.initialize();
     }
 
     @Override
@@ -44,9 +42,9 @@ public class VelocitySyncProxyManagement extends AbstractSyncProxyManagement {
             return;
         }
 
-        player.getTabList().setHeaderAndFooter(
-                LegacyComponentSerializer.legacyLinking().deserialize(super.tabListHeader != null ? this.replaceTabListItem(player, super.tabListHeader) : ""),
-                LegacyComponentSerializer.legacyLinking().deserialize(super.tabListFooter != null ? this.replaceTabListItem(player, super.tabListFooter) : "")
+        player.sendPlayerListHeaderAndFooter(
+                LegacyComponentSerializer.legacySection().deserialize(super.tabListHeader != null ? this.replaceTabListItem(player, super.tabListHeader) : ""),
+                LegacyComponentSerializer.legacySection().deserialize(super.tabListFooter != null ? this.replaceTabListItem(player, super.tabListFooter) : "")
         );
     }
 
@@ -77,7 +75,7 @@ public class VelocitySyncProxyManagement extends AbstractSyncProxyManagement {
                         && !super.loginConfiguration.getWhitelist().contains(player.getUsername())
                         && !super.loginConfiguration.getWhitelist().contains(player.getUniqueId().toString())
                         && !player.hasPermission("cloudnet.syncproxy.maintenance")) {
-                    player.disconnect(LegacyComponentSerializer.legacyLinking().deserialize(
+                    player.disconnect(LegacyComponentSerializer.legacySection().deserialize(
                             this.replaceColorChar(super.syncProxyConfiguration.getMessages().get("player-login-not-whitelisted"))
                     ));
                 }
@@ -92,7 +90,7 @@ public class VelocitySyncProxyManagement extends AbstractSyncProxyManagement {
 
             for (Player player : this.proxyServer.getAllPlayers()) {
                 if (player.hasPermission("cloudnet.syncproxy.notify")) {
-                    player.sendMessage(LegacyComponentSerializer.legacyLinking().deserialize(message));
+                    player.sendMessage(LegacyComponentSerializer.legacySection().deserialize(message));
                 }
             }
         }
@@ -108,5 +106,4 @@ public class VelocitySyncProxyManagement extends AbstractSyncProxyManagement {
 
         return new String(translate);
     }
-
 }

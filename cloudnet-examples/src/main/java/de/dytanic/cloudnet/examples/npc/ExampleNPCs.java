@@ -1,6 +1,5 @@
 package de.dytanic.cloudnet.examples.npc;
 
-
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.ext.bridge.WorldPosition;
 import eu.cloudnetservice.cloudnet.ext.npcs.AbstractNPCManagement;

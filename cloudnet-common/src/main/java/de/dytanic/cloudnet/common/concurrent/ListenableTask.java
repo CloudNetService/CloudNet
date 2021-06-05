@@ -1,6 +1,7 @@
 package de.dytanic.cloudnet.common.concurrent;
 
 import com.google.common.base.Preconditions;
+import de.dytanic.cloudnet.common.concurrent.function.ThrowableFunction;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
@@ -9,7 +10,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Function;
 
 @NotNull
 public class ListenableTask<V> implements ITask<V> {
@@ -189,12 +189,17 @@ public class ListenableTask<V> implements ITask<V> {
         }
     }
 
-    public <T> ListenableTask<T> map(Function<V, T> function) {
+    @Override
+    public <T> ListenableTask<T> mapThrowable(ThrowableFunction<V, T, Throwable> function) {
         AtomicReference<T> reference = new AtomicReference<>();
         ListenableTask<T> task = new ListenableTask<>(reference::get);
 
         this.onComplete(v -> {
-            reference.set(function == null ? null : function.apply(v));
+            try {
+                reference.set(function == null ? null : function.apply(v));
+            } catch (Throwable throwable) {
+                task.throwable = throwable;
+            }
             task.call();
         });
         this.onCancelled(viTask -> {

@@ -1,6 +1,5 @@
 package eu.cloudnetservice.cloudnet.ext.npcs.bukkit.listener;
 
-
 import com.github.juliarn.npc.event.PlayerNPCInteractEvent;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
@@ -41,6 +40,10 @@ public class NPCInventoryListener implements Listener {
 
     @EventHandler
     public void handleNPCInteract(PlayerNPCInteractEvent event) {
+        if (event.getHand() != PlayerNPCInteractEvent.Hand.MAIN_HAND) {
+            return;
+        }
+
         Player player = event.getPlayer();
         int entityId = event.getNPC().getEntityId();
 

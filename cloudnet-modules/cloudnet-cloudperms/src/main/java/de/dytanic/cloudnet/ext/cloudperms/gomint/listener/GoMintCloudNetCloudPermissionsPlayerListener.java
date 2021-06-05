@@ -1,6 +1,5 @@
 package de.dytanic.cloudnet.ext.cloudperms.gomint.listener;
 
-import de.dytanic.cloudnet.driver.permission.CachedPermissionManagement;
 import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
 import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsHelper;
 import de.dytanic.cloudnet.ext.cloudperms.gomint.GoMintCloudNetCloudPermissionsPlugin;
@@ -27,7 +26,7 @@ public final class GoMintCloudNetCloudPermissionsPlayerListener implements Event
         if (!event.cancelled()) {
             EntityPlayer player = event.player();
 
-            CloudPermissionsHelper.initPermissionUser(this.permissionsManagement, player.uuid(), event.player().name(), message -> {
+            CloudPermissionsHelper.initPermissionUser(this.permissionsManagement, player.uuid(), player.name(), message -> {
                 event.cancelled(true);
                 event.kickMessage(ChatColor.translateAlternateColorCodes('&', message));
             }, ((GoMintServer) GoMint.instance()).encryptionKeyFactory().isKeyGiven());
@@ -38,9 +37,6 @@ public final class GoMintCloudNetCloudPermissionsPlayerListener implements Event
 
     @EventHandler
     public void handle(PlayerQuitEvent event) {
-        CachedPermissionManagement management = CloudPermissionsHelper.asCachedPermissionManagement(this.permissionsManagement);
-        if (management != null) {
-            management.getCachedPermissionUsers().remove(event.player().uuid());
-        }
+        CloudPermissionsHelper.handlePlayerQuit(this.permissionsManagement, event.player().uuid());
     }
 }

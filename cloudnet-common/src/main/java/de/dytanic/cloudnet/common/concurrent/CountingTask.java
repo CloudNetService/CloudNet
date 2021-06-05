@@ -5,7 +5,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class CountingTask<V> extends CompletableTask<V> {
 
     private final V value;
-
     private final AtomicInteger count;
 
     public CountingTask(V value, int initialValue) {
@@ -30,5 +29,4 @@ public class CountingTask<V> extends CompletableTask<V> {
     public int countValue() {
         return this.count.get();
     }
-
 }

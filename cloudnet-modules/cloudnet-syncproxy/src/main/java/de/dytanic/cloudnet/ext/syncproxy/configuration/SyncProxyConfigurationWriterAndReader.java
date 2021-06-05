@@ -79,8 +79,8 @@ public final class SyncProxyConfigurationWriterAndReader {
                 targetGroup,
                 Collections.singletonList(
                         new SyncProxyTabList(
-                                " \n&b&lCloud&f&lNet &6Earthquake &8■ &7next &bgeneration &7network &8➜ &f%online_players%&8/&f%max_players%&f\n &8► &7Current server &8● &b%server% &8◄ \n ",
-                                " \n &7Sponsored by &8» &fOpusX.io &8▎ &7Discord &8» &fdiscord.cloudnetservice.eu \n &7powered by &8» &b&b&lCloud&f&lNet \n "
+                                " \n &b&o■ &8┃ &3&lCloudNet &8● &7Earthquake &8&l» &7&o%online_players%&8/&7&o%max_players% &8┃ &b&o■ \n &8► &7Current server &8● &b%server% &8◄ \n ",
+                                " \n &7Discord &8&l» &bdiscord.cloudnetservice.eu \n &7&onext &3&l&ogeneration &7&onetwork \n "
                         )
                 ),
                 1
@@ -94,31 +94,25 @@ public final class SyncProxyConfigurationWriterAndReader {
                 100,
                 new ArrayList<>(),
                 Collections.singletonList(new SyncProxyMotd(
-                        "&b&lCloud&f&lNet &6Earthquake &8■ &7next &bgeneration &7cloud system",
-                        "&7Sponsored by &8» &bOpusX.io &8▎ &8» &c%proxy%",
+                        "         &b&o■ &8┃ &3&lCloudNet &8● &7Earthquake &8&l» &7&ov3.4 &8┃ &b&o■",
+                        "              &7&onext &3&l&ogeneration &7&onetwork",
                         false,
                         1,
-                        new String[]{
-                                " ",
-                                "&b&lCloud&f&lNet &8× &7your &bfree &7cloudsystem",
-                                "&7Sponsored by &8» &bOpusX.io",
-                                "&7Discord &8» &fdiscord.cloudnetservice.eu",
-                                " "
-                        },
+                        new String[]{},
                         null
                 )),
                 Collections.singletonList(new SyncProxyMotd(
-                        "&b&lCloud&f&lNet &6Earthquake &8■ &7next &bgeneration &7cloud system",
-                        "      &bMaintenance &8» &7We are still in &bmaintenance",
+                        "         &b&o■ &8┃ &3&lCloudNet &8● &7Earthquake &8&l» &7&ov3.4 &8┃ &b&o■",
+                        "     &3&lMaintenance &8&l» &7We are still in &3&lmaintenance",
                         false,
                         1,
                         new String[]{
                                 " ",
-                                "&b&lCloud&f&lNet &8× &7your &bfree &7cloudsystem",
-                                "&7Discord &8» &fdiscord.cloudnetservice.eu",
+                                "&b&o■ &8┃ &3&lCloudNet &8● &7Earthquake &8&l» &7&ov3.4 &8┃ &b&o■",
+                                "&7Discord &8&l» &bdiscord.cloudnetservice.eu",
                                 " "
                         },
-                        "&8➜ &bMaintenance &8&l【&c✘&8&l】"
+                        "&8➜ &c&lMaintenance &8┃ &c✘"
                 ))
         );
     }

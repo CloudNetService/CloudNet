@@ -5,19 +5,22 @@ import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.common.logging.ILogger;
 import de.dytanic.cloudnet.common.logging.LogLevel;
+import de.dytanic.cloudnet.common.stream.WrappedOutputStream;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
+import de.dytanic.cloudnet.driver.template.FileInfo;
 import de.dytanic.cloudnet.ext.storage.ftp.client.FTPCredentials;
 import de.dytanic.cloudnet.ext.storage.ftp.client.FTPType;
+import org.apache.commons.net.MalformedServerReplyException;
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
+import org.apache.commons.net.ftp.FTPReply;
 import org.apache.commons.net.ftp.FTPSClient;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,12 +30,10 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.UUID;
+import java.util.function.Predicate;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
@@ -72,6 +73,7 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
             if (this.ftpClient.login(username, password)) {
                 this.ftpClient.sendNoOp();
                 this.ftpClient.setFileType(FTP.BINARY_FILE_TYPE);
+                this.createDirectories(super.baseDirectory);
                 this.ftpClient.changeWorkingDirectory(super.baseDirectory);
 
                 return true;
@@ -96,15 +98,6 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
         this.ftpClient.disconnect();
     }
 
-    @Override
-    @Deprecated
-    public boolean deploy(byte[] zipInput, @NotNull ServiceTemplate target) {
-        Preconditions.checkNotNull(zipInput);
-        Preconditions.checkNotNull(target);
-
-        return this.deploy(new ZipInputStream(new ByteArrayInputStream(zipInput), StandardCharsets.UTF_8), target);
-    }
-
     private void deployZipEntry(ZipInputStream zipInputStream, ZipEntry zipEntry, String targetDirectory) throws IOException {
         String entryPath = (targetDirectory + "/" + zipEntry.getName()).replace(File.separatorChar, '/');
 
@@ -117,7 +110,7 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
     }
 
     @Override
-    public boolean deploy(@NotNull Path directory, @NotNull ServiceTemplate target, DirectoryStream.@Nullable Filter<Path> filter) {
+    public boolean deploy(@NotNull Path directory, @NotNull ServiceTemplate target, Predicate<Path> filter) {
         if (Files.isDirectory(directory)) {
             boolean result = true;
             try (DirectoryStream<Path> stream = Files.newDirectoryStream(directory)) {
@@ -135,20 +128,22 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
     }
 
     @Override
-    public boolean deploy(@NotNull ZipInputStream zipInputStream, @NotNull ServiceTemplate serviceTemplate) {
-        Preconditions.checkNotNull(zipInputStream);
-        Preconditions.checkNotNull(serviceTemplate);
+    public boolean deploy(@NotNull InputStream inputStream, @NotNull ServiceTemplate target) {
+        Preconditions.checkNotNull(inputStream);
+        Preconditions.checkNotNull(target);
 
-        if (this.has(serviceTemplate)) {
-            this.delete(serviceTemplate);
+        if (this.has(target)) {
+            this.delete(target);
         }
 
-        this.create(serviceTemplate);
+        this.create(target);
+
+        ZipInputStream zipInputStream = new ZipInputStream(inputStream);
 
         try {
             ZipEntry zipEntry;
             while ((zipEntry = zipInputStream.getNextEntry()) != null) {
-                this.deployZipEntry(zipInputStream, zipEntry, serviceTemplate.getTemplatePath());
+                this.deployZipEntry(zipInputStream, zipEntry, target.getTemplatePath());
                 zipInputStream.closeEntry();
             }
 
@@ -158,38 +153,6 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
         }
 
         return false;
-    }
-
-    @Override
-    public boolean deploy(@NotNull Path[] paths, @NotNull ServiceTemplate target) {
-        Preconditions.checkNotNull(paths);
-        Preconditions.checkNotNull(target);
-
-        return this.deployFiles(paths, target);
-    }
-
-    private boolean deployFiles(Path[] files, ServiceTemplate target) {
-        Preconditions.checkNotNull(files);
-        Preconditions.checkNotNull(target);
-
-        if (this.has(target)) {
-            this.delete(target);
-        }
-
-        try {
-            this.createDirectories(target.getTemplatePath());
-
-            for (Path file : files) {
-                if (file != null) {
-                    this.deployFile(file, target.getTemplatePath());
-                }
-            }
-
-            return true;
-        } catch (IOException exception) {
-            exception.printStackTrace();
-            return false;
-        }
     }
 
     private void deployFile(Path file, String targetDirectory) throws IOException {
@@ -203,6 +166,26 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
         } else {
             try (InputStream inputStream = Files.newInputStream(file)) {
                 this.ftpClient.storeFile(targetDirectory + "/" + file.getFileName(), inputStream);
+            }
+        }
+    }
+
+    private void copyFile(String filePath, FTPFile file, Path directory) throws IOException {
+        FileUtils.createDirectoryReported(directory);
+
+        if (file.isDirectory()) {
+            FTPFile[] files = this.ftpClient.listFiles(filePath);
+            if (files != null) {
+                for (FTPFile entry : files) {
+                    this.copyFile(filePath + "/" + entry.getName(), entry, directory.resolve(file.getName()));
+                }
+            }
+        } else if (file.isFile()) {
+            Path entry = directory.resolve(file.getName());
+            if (Files.notExists(entry)) {
+                try (OutputStream outputStream = Files.newOutputStream(entry)) {
+                    this.ftpClient.retrieveFile(filePath, outputStream);
+                }
             }
         }
     }
@@ -230,62 +213,6 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
         return false;
     }
 
-    private void copyFile(String filePath, FTPFile file, Path directory) throws IOException {
-        FileUtils.createDirectoryReported(directory);
-
-        if (file.isDirectory()) {
-            FTPFile[] files = this.ftpClient.listFiles(filePath);
-            if (files != null) {
-                for (FTPFile entry : files) {
-                    this.copyFile(filePath + "/" + entry.getName(), entry, directory.resolve(file.getName()));
-                }
-            }
-        } else if (file.isFile()) {
-            Path entry = directory.resolve(file.getName());
-            if (Files.notExists(entry)) {
-                try (OutputStream outputStream = Files.newOutputStream(entry)) {
-                    this.ftpClient.retrieveFile(filePath, outputStream);
-                }
-            }
-        }
-    }
-
-    @Override
-    public boolean copy(@NotNull ServiceTemplate template, @NotNull Path[] directories) {
-        Preconditions.checkNotNull(template);
-        Preconditions.checkNotNull(directories);
-
-        boolean value = true;
-        for (Path dir : directories) {
-            if (!this.copy(template, dir)) {
-                value = false;
-            }
-        }
-
-        return value;
-    }
-
-    @Override
-    @Deprecated
-    public byte[] toZipByteArray(@NotNull ServiceTemplate template) {
-        if (!this.has(template)) {
-            return FileUtils.emptyZipByteArray();
-        }
-
-        try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-             ZipOutputStream zipOutputStream = new ZipOutputStream(byteArrayOutputStream, StandardCharsets.UTF_8)) {
-
-            this.toByteArray(zipOutputStream, template.getTemplatePath(), "");
-
-            return byteArrayOutputStream.toByteArray();
-
-        } catch (IOException exception) {
-            exception.printStackTrace();
-        }
-
-        return FileUtils.emptyZipByteArray();
-    }
-
     @Override
     @Nullable
     public InputStream zipTemplate(@NotNull ServiceTemplate template) throws IOException {
@@ -293,23 +220,23 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
             return null;
         }
 
-        Path tempFile = Paths.get(System.getProperty("cloudnet.tempDir", "temp"), UUID.randomUUID().toString());
+        Path tempFile = FileUtils.createTempFile();
 
         try (OutputStream stream = Files.newOutputStream(tempFile, StandardOpenOption.CREATE);
              ZipOutputStream zipOutputStream = new ZipOutputStream(stream, StandardCharsets.UTF_8)) {
-            this.toByteArray(zipOutputStream, template.getTemplatePath(), "");
+            this.zipToStream(zipOutputStream, template.getTemplatePath(), "");
             return Files.newInputStream(tempFile, StandardOpenOption.DELETE_ON_CLOSE, LinkOption.NOFOLLOW_LINKS);
         }
     }
 
-    private void toByteArray(ZipOutputStream zipOutputStream, String baseDirectory, String relativeDirectory) throws IOException {
+    private void zipToStream(ZipOutputStream zipOutputStream, String baseDirectory, String relativeDirectory) throws IOException {
         FTPFile[] files = this.ftpClient.listFiles(baseDirectory);
 
         if (files != null) {
             for (FTPFile file : files) {
                 if (file != null) {
                     if (file.isDirectory()) {
-                        this.toByteArray(zipOutputStream, baseDirectory + "/" + file.getName(),
+                        this.zipToStream(zipOutputStream, baseDirectory + "/" + file.getName(),
                                 relativeDirectory + (relativeDirectory.isEmpty() ? "" : "/") + file.getName());
                     } else if (file.isFile()) {
                         zipOutputStream.putNextEntry(new ZipEntry(relativeDirectory + (relativeDirectory.isEmpty() ? "" : "/") + file.getName()));
@@ -326,8 +253,7 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
         Preconditions.checkNotNull(template);
 
         try {
-            this.deleteDir(template.getTemplatePath());
-            return true;
+            return this.deleteDir(template.getTemplatePath());
         } catch (IOException exception) {
             exception.printStackTrace();
             return false;
@@ -337,6 +263,9 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
     @Override
     public boolean create(@NotNull ServiceTemplate template) {
         Preconditions.checkNotNull(template);
+        if (this.has(template)) {
+            return false;
+        }
 
         try {
             this.createDirectories(template.getTemplatePath());
@@ -347,18 +276,20 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
         }
     }
 
-    private void deleteDir(String path) throws IOException {
+    private boolean deleteDir(String path) throws IOException {
         for (FTPFile ftpFile : this.ftpClient.mlistDir(path)) {
             String filePath = path + "/" + ftpFile.getName();
 
             if (ftpFile.isDirectory()) {
-                this.deleteDir(filePath);
+                if (!ftpFile.getName().equals(".") && !ftpFile.getName().equals("..")) {
+                    this.deleteDir(filePath);
+                }
             } else {
                 this.ftpClient.deleteFile(filePath);
             }
         }
 
-        this.ftpClient.removeDirectory(path);
+        return this.ftpClient.removeDirectory(path);
     }
 
     @Override
@@ -378,8 +309,10 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
     public OutputStream appendOutputStream(@NotNull ServiceTemplate template, @NotNull String path) throws IOException {
         String fullPath = template.getTemplatePath() + "/" + path;
 
-        this.createParent(fullPath);
-        return this.ftpClient.appendFileStream(fullPath);
+        this.createFile(template, path);
+
+        OutputStream outputStream = this.ftpClient.appendFileStream(fullPath);
+        return outputStream != null ? this.wrapOutputStream(outputStream) : null;
     }
 
     @Nullable
@@ -387,8 +320,10 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
     public OutputStream newOutputStream(@NotNull ServiceTemplate template, @NotNull String path) throws IOException {
         String fullPath = template.getTemplatePath() + "/" + path;
 
-        this.createParent(fullPath);
-        return this.ftpClient.storeFileStream(fullPath);
+        this.createFile(template, path);
+
+        OutputStream outputStream = this.ftpClient.storeFileStream(fullPath);
+        return outputStream != null ? this.wrapOutputStream(outputStream) : null;
     }
 
     @Override
@@ -431,19 +366,105 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
         return file != null;
     }
 
+    private boolean isDirectory(String fullPath) throws IOException {
+        try {
+            FTPFile ftpFile = this.ftpClient.mlistFile(fullPath);
+            return ftpFile != null && ftpFile.isDirectory();
+        } catch (MalformedServerReplyException exception) {
+            return this.ftpClient.getReplyCode() == FTPReply.FILE_UNAVAILABLE;
+        }
+    }
+
     @Override
     public boolean deleteFile(@NotNull ServiceTemplate template, @NotNull String path) throws IOException {
-        return this.ftpClient.deleteFile(template.getTemplatePath() + "/" + path);
+        String fullPath = template.getTemplatePath() + "/" + path;
+
+        return this.isDirectory(fullPath) ? this.deleteDir(fullPath) : this.ftpClient.deleteFile(fullPath);
     }
 
     @Override
-    public String[] listFiles(@NotNull ServiceTemplate template, @NotNull String dir) throws IOException {
-        FTPFile[] fileList = this.ftpClient.mlistDir(template.getTemplatePath() + "/" + dir);
-        return fileList == null ? new String[0] : Arrays.stream(fileList).map(FTPFile::getName).toArray(String[]::new);
+    public @Nullable InputStream newInputStream(@NotNull ServiceTemplate template, @NotNull String path) throws IOException {
+        String fullPath = template.getTemplatePath() + "/" + path;
+        return !this.isDirectory(fullPath) ? this.ftpClient.retrieveFileStream(fullPath) : null;
     }
 
     @Override
-    public Collection<ServiceTemplate> getTemplates() {
+    public @Nullable FileInfo getFileInfo(@NotNull ServiceTemplate template, @NotNull String path) throws IOException {
+        if (path.endsWith("/")) {
+            path = path.substring(0, path.length() - 1);
+        }
+
+        try {
+            FTPFile file = this.ftpClient.mlistFile(template.getTemplatePath() + "/" + path);
+            return file == null ? null : this.asInfo(path, file);
+        } catch (MalformedServerReplyException exception) {
+            if (this.ftpClient.getReplyCode() == FTPReply.FILE_UNAVAILABLE) {
+                return this.asInfo(path, null);
+            }
+            return null;
+        }
+    }
+
+    @Override
+    public FileInfo[] listFiles(@NotNull ServiceTemplate template, @NotNull String dir, boolean deep) throws IOException {
+        if (dir.endsWith("/")) {
+            dir = dir.substring(0, dir.length() - 1);
+        }
+
+        String fullDir = template.getTemplatePath() + "/" + dir;
+
+        if (!this.isDirectory(fullDir)) {
+            return null;
+        }
+
+        Collection<FileInfo> files = new ArrayList<>();
+        try {
+            this.listFiles(fullDir, dir, files, deep);
+        } catch (MalformedServerReplyException exception) {
+            if (this.ftpClient.getReplyCode() == FTPReply.FILE_UNAVAILABLE) {
+                return null;
+            }
+            throw exception;
+        }
+        return files.toArray(new FileInfo[0]);
+    }
+
+    private void listFiles(@NotNull String dir, @NotNull String pathPrefix, Collection<FileInfo> files, boolean deep) throws IOException {
+        FTPFile[] list = this.ftpClient.listFiles(dir);
+        if (list == null) {
+            return;
+        }
+
+        for (FTPFile file : list) {
+            String path = pathPrefix + "/" + file.getName();
+            files.add(this.asInfo(path, file));
+
+            if (deep && file.isDirectory()) {
+                this.listFiles(dir + "/" + file.getName(), pathPrefix + "/" + file.getName(), files, true);
+            }
+        }
+    }
+
+    private FileInfo asInfo(String path, FTPFile file) {
+        if (path.startsWith("/")) {
+            path = path.substring(1);
+        }
+
+        String filename = path;
+        int slash = filename.lastIndexOf('/');
+        if (slash != -1 && slash < filename.length() - 1) {
+            filename = filename.substring(slash + 1);
+        }
+
+        return new FileInfo(
+                path, filename, file == null || file.isDirectory(),
+                false, -1, file == null || file.getTimestamp() == null ? -1 : file.getTimestamp().getTimeInMillis(), -1,
+                file == null ? -1 : file.getSize()
+        );
+    }
+
+    @Override
+    public @NotNull Collection<ServiceTemplate> getTemplates() {
         Collection<ServiceTemplate> templates = new ArrayList<>();
 
         try {
@@ -472,25 +493,29 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
     }
 
     private void createDirectories(String path) throws IOException {
-        StringBuilder pathBuilder = new StringBuilder();
-
         if (this.ftpClient.changeWorkingDirectory(path)) {
             this.ftpClient.changeWorkingDirectory(super.baseDirectory);
             return;
         }
 
         for (String pathSegment : path.split("/")) {
-            pathBuilder.append(pathSegment).append('/');
-
-            String currentPath = pathBuilder.toString();
-
-            if (!this.ftpClient.changeWorkingDirectory(currentPath)) {
-                this.ftpClient.makeDirectory(currentPath);
+            if (!this.ftpClient.changeWorkingDirectory(pathSegment)) {
+                this.ftpClient.makeDirectory(pathSegment);
+                this.ftpClient.changeWorkingDirectory(pathSegment);
             }
-
-            this.ftpClient.changeWorkingDirectory(super.baseDirectory);
         }
 
+        this.ftpClient.changeWorkingDirectory(super.baseDirectory);
+    }
+
+    private OutputStream wrapOutputStream(OutputStream input) {
+        return new WrappedOutputStream(input) {
+            @Override
+            public void close() throws IOException {
+                super.close();
+                FTPTemplateStorage.this.completeDataTransfer();
+            }
+        };
     }
 
 }

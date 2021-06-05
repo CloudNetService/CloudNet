@@ -1,25 +1,76 @@
 package de.dytanic.cloudnet.common.concurrent;
 
+import de.dytanic.cloudnet.common.concurrent.function.ThrowableFunction;
+import de.dytanic.cloudnet.common.concurrent.function.ThrowableSupplier;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.concurrent.*;
-import java.util.function.Function;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 public class CompletableTask<V> implements ITask<V> {
 
+    private static final ExecutorService SERVICE = Executors.newCachedThreadPool();
+
     private final Collection<ITaskListener<V>> listeners = new ArrayList<>();
 
-    private final CompletableFuture<V> future = new CompletableFuture<>();
+    private final CompletableFuture<V> future;
 
     private Throwable throwable;
 
-    {
+    public CompletableTask() {
+        this(new CompletableFuture<>());
+    }
+
+    private CompletableTask(CompletableFuture<V> future) {
+        this.future = future;
         this.future.exceptionally(throwable -> {
             this.throwable = throwable;
             return null;
         });
+    }
+
+    public static <V> CompletableTask<V> supplyAsync(ThrowableSupplier<V, Throwable> supplier) {
+        CompletableTask<V> task = new CompletableTask<>();
+        SERVICE.execute(() -> {
+            try {
+                task.complete(supplier.get());
+            } catch (Throwable throwable) {
+                task.fail(throwable);
+            }
+        });
+        return task;
+    }
+
+    public static <I, O> ITask<O> mapFrom(ITask<I> source, ThrowableFunction<I, O, Throwable> mapper) {
+        CompletableTask<O> result = new CompletableTask<>();
+        source.addListener(new ITaskListener<I>() {
+            @Override
+            public void onComplete(ITask<I> task, I i) {
+                try {
+                    result.complete(mapper == null ? null : mapper.apply(i));
+                } catch (Throwable throwable) {
+                    result.fail(throwable);
+                }
+            }
+
+            @Override
+            public void onCancelled(ITask<I> task) {
+                result.cancel(true);
+            }
+
+            @Override
+            public void onFailure(ITask<I> task, Throwable throwable) {
+                result.fail(throwable);
+            }
+        });
+        return result;
     }
 
     @Override
@@ -69,13 +120,12 @@ public class CompletableTask<V> implements ITask<V> {
         }
     }
 
-    @Override
-    public <T> ITask<T> map(Function<V, T> mapper) {
-        CompletableTask<T> task = new CompletableTask<>();
-        this.future.thenAccept(v -> task.complete(mapper == null ? null : mapper.apply(v)));
-        this.onFailure(task.future::completeExceptionally);
-        this.onCancelled(otherTask -> task.cancel(true));
-        return task;
+    public void fail(Throwable throwable) {
+        this.throwable = throwable;
+        this.future.completeExceptionally(throwable);
+        for (ITaskListener<V> listener : this.listeners) {
+            listener.onFailure(this, throwable);
+        }
     }
 
     @Override
@@ -91,14 +141,6 @@ public class CompletableTask<V> implements ITask<V> {
         for (ITaskListener<V> listener : this.listeners) {
             listener.onComplete(this, value);
         }
-    }
-
-    public void fail(Throwable throwable) {
-        for (ITaskListener<V> listener : this.listeners) {
-            listener.onFailure(this, throwable);
-        }
-
-        this.future.completeExceptionally(throwable);
     }
 
     @Override
@@ -136,4 +178,18 @@ public class CompletableTask<V> implements ITask<V> {
         return this.future.get(l, timeUnit);
     }
 
+    @Override
+    public <T> ITask<T> mapThrowable(ThrowableFunction<V, T, Throwable> mapper) {
+        CompletableTask<T> task = new CompletableTask<>();
+        this.future.thenAccept(v -> {
+            try {
+                task.complete(mapper == null ? null : mapper.apply(v));
+            } catch (Throwable throwable) {
+                task.fail(throwable);
+            }
+        });
+        this.onFailure(task.future::completeExceptionally);
+        this.onCancelled(otherTask -> task.cancel(true));
+        return task;
+    }
 }

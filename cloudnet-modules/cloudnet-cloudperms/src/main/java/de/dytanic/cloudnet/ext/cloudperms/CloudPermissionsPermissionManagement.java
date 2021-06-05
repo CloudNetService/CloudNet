@@ -1,6 +1,5 @@
 package de.dytanic.cloudnet.ext.cloudperms;
 
-
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.permission.IPermissionManagement;

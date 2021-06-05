@@ -1,13 +1,20 @@
 package de.dytanic.cloudnet.ext.syncproxy.node.command;
 
+import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.command.ICommandSender;
 import de.dytanic.cloudnet.command.sub.SubCommandBuilder;
 import de.dytanic.cloudnet.command.sub.SubCommandHandler;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
+import de.dytanic.cloudnet.driver.service.GroupConfiguration;
 import de.dytanic.cloudnet.ext.syncproxy.SyncProxyConstants;
-import de.dytanic.cloudnet.ext.syncproxy.configuration.*;
+import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyConfiguration;
+import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyConfigurationWriterAndReader;
+import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyMotd;
+import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyProxyLoginConfiguration;
+import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyTabList;
+import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyTabListConfiguration;
 import de.dytanic.cloudnet.ext.syncproxy.node.CloudNetSyncProxyModule;
 
 import java.util.Collection;
@@ -17,10 +24,9 @@ import static de.dytanic.cloudnet.command.sub.SubCommandArgumentTypes.*;
 
 public final class CommandSyncProxy extends SubCommandHandler {
 
-    public CommandSyncProxy() {
+    public CommandSyncProxy(CloudNetSyncProxyModule syncProxyModule) {
         super(
                 SubCommandBuilder.create()
-
                         .generateCommand(
                                 (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
                                     CloudNetSyncProxyModule.getInstance().setSyncProxyConfiguration(SyncProxyConfigurationWriterAndReader.read(
@@ -40,6 +46,31 @@ public final class CommandSyncProxy extends SubCommandHandler {
                         .generateCommand(
                                 (subCommand, sender, command, args, commandLine, properties, internalProperties) -> displayListConfiguration(sender, CloudNetSyncProxyModule.getInstance().getSyncProxyConfiguration()),
                                 exactStringIgnoreCase("list")
+                        )
+                        .generateCommand(
+                                (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
+                                    String targetGroup = (String) args.argument("targetGroup").get();
+
+                                    SyncProxyConfiguration syncProxyConfiguration = syncProxyModule.getSyncProxyConfiguration();
+
+                                    syncProxyConfiguration.getLoginConfigurations()
+                                            .add(SyncProxyConfigurationWriterAndReader.createDefaultLoginConfiguration(targetGroup));
+                                    syncProxyConfiguration.getTabListConfigurations()
+                                            .add(SyncProxyConfigurationWriterAndReader.createDefaultTabListConfiguration(targetGroup));
+                                    SyncProxyConfigurationWriterAndReader.write(syncProxyConfiguration, syncProxyModule.getConfigurationFilePath());
+
+                                    sender.sendMessage(LanguageManager.getMessage("module-syncproxy-command-create-entry-success"));
+                                },
+                                anyStringIgnoreCase("create", "new"),
+                                exactStringIgnoreCase("entry"),
+                                dynamicString(
+                                        "targetGroup",
+                                        LanguageManager.getMessage("module-syncproxy-command-create-entry-group-not-found"),
+                                        name -> CloudNet.getInstance().getGroupConfigurationProvider().isGroupConfigurationPresent(name),
+                                        () -> CloudNet.getInstance().getGroupConfigurationProvider().getGroupConfigurations().stream()
+                                                .map(GroupConfiguration::getName)
+                                                .collect(Collectors.toList())
+                                )
                         )
 
                         .prefix(exactStringIgnoreCase("target"))
@@ -165,7 +196,7 @@ public final class CommandSyncProxy extends SubCommandHandler {
     }
 
     private static void saveAndUpdate(SyncProxyConfiguration syncProxyConfiguration) {
-        SyncProxyConfigurationWriterAndReader.write(syncProxyConfiguration, CloudNetSyncProxyModule.getInstance().getConfigurationFile());
+        SyncProxyConfigurationWriterAndReader.write(syncProxyConfiguration, CloudNetSyncProxyModule.getInstance().getConfigurationFilePath());
 
         CloudNetSyncProxyModule.getInstance().setSyncProxyConfiguration(syncProxyConfiguration);
         CloudNetDriver.getInstance().getMessenger().sendChannelMessage(
