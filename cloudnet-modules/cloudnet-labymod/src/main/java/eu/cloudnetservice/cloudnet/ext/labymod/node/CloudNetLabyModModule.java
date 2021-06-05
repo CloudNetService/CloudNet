@@ -19,7 +19,7 @@ public class CloudNetLabyModModule extends NodeCloudNetModule {
 
     private static final Map<String, Boolean> DEFAULT_LABY_MOD_PERMISSIONS = new HashMap<>();
     private static final LabyModPermissionConfig LABY_MOD_PERMISSION_CONFIG = new LabyModPermissionConfig(false, DEFAULT_LABY_MOD_PERMISSIONS);
-    private static final LabyModBannerConfig BANNER_CONFIG = new LabyModBannerConfig(false, "https://dl.hdskins.de/CloudNet.png");
+    private static final LabyModBannerConfig BANNER_CONFIG = new LabyModBannerConfig(false, "http://dl.cloudnetservice.eu/data/minecraft/CloudNet-LabyMod-Banner.png");
 
     static {
         DEFAULT_LABY_MOD_PERMISSIONS.put("IMPROVED_LAVA", false);
