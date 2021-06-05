@@ -59,11 +59,11 @@ allprojects {
 
         //Dependencies
         dependencyGuavaVersion = '30.1.1-jre'
-        dependencyAnnotationsVersion = '20.1.0'
+        dependencyAnnotationsVersion = '21.0.1'
         dependencyLombokVersion = '1.18.20'
         dependencyH2Version = '1.4.197' // do not update, leads to database incompatibility
-        dependencyGsonVersion = '2.8.6'
-        dependencyNettyVersion = '4.1.64.Final'
+        dependencyGsonVersion = '2.8.7'
+        dependencyNettyVersion = '4.1.65.Final'
         dependencyJLineVersion = '3.20.0'
         dependencyJAnsiVersion = '2.3.2'
         dependencySpigotApiVersion = '1.8.8-R0.1-SNAPSHOT'

@@ -100,7 +100,7 @@ public class BukkitNPCManagement extends AbstractNPCManagement {
     }
 
     public void shutdown() {
-        super.cloudNPCS.forEach(this::destroyNPC);
+        super.cloudNPCS.forEach(cloudNPC -> this.getInfoLineStand(cloudNPC).ifPresent(Entity::remove));
     }
 
     public Optional<ArmorStand> getInfoLineStand(@NotNull CloudNPC cloudNPC) {
