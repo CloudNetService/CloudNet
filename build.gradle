@@ -8,13 +8,7 @@ allprojects {
     version "$major.$minor.$patch-$versionType"
 
     repositories {
-
         mavenCentral()
-
-        maven {
-            name 'jitpack.io'
-            url 'https://jitpack.io'
-        }
 
         maven {
             name 'spongepowered'
@@ -49,6 +43,11 @@ allprojects {
         maven {
             name 'vault'
             url 'https://repo.md-5.net/repository/releases'
+        }
+
+        maven {
+            name 'jitpack.io'
+            url 'https://jitpack.io'
         }
 
     }
