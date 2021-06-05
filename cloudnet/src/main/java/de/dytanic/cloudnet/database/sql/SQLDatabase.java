@@ -9,7 +9,13 @@ import de.dytanic.cloudnet.database.IDatabase;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.ResultSet;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.WeakHashMap;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.function.BiConsumer;
@@ -17,7 +23,8 @@ import java.util.function.BiPredicate;
 
 public abstract class SQLDatabase implements IDatabase {
 
-    private static final String TABLE_COLUMN_KEY = "Name", TABLE_COLUMN_VALUE = "Document";
+    protected static final String TABLE_COLUMN_KEY = "Name";
+    protected static final String TABLE_COLUMN_VALUE = "Document";
 
     protected final SQLDatabaseProvider databaseProvider;
     protected final String name;
@@ -33,7 +40,8 @@ public abstract class SQLDatabase implements IDatabase {
         this.name = name;
         this.executorService = executorService;
 
-        databaseProvider.executeUpdate("CREATE TABLE IF NOT EXISTS `" + name + "` (" + TABLE_COLUMN_KEY + " VARCHAR(64) PRIMARY KEY, " + TABLE_COLUMN_VALUE + " TEXT);");
+        databaseProvider.executeUpdate(String.format("CREATE TABLE IF NOT EXISTS `%s` (%s VARCHAR(64) PRIMARY KEY, %s TEXT);",
+                name, TABLE_COLUMN_KEY, TABLE_COLUMN_VALUE));
     }
 
     @Override
@@ -59,9 +67,11 @@ public abstract class SQLDatabase implements IDatabase {
         if (this.databaseProvider.getDatabaseHandler() != null) {
             this.databaseProvider.getDatabaseHandler().handleInsert(this, key, document);
         }
-        return this.contains(key) ? this.update0(key, document) : this.insert0(key, document);
+
+        return this.insertOrUpdate(key, document);
     }
 
+    @Deprecated
     public boolean insert0(String key, JsonDocument document) {
         Preconditions.checkNotNull(key);
         Preconditions.checkNotNull(document);
@@ -81,13 +91,25 @@ public abstract class SQLDatabase implements IDatabase {
             this.databaseProvider.getDatabaseHandler().handleUpdate(this, key, document);
         }
 
-        return this.contains(key) ? this.update0(key, document) : this.insert0(key, document);
+        return this.insertOrUpdate(key, document);
     }
 
+    @Deprecated
     public boolean update0(String key, JsonDocument document) {
         return this.databaseProvider.executeUpdate(
                 "UPDATE `" + this.name + "` SET " + TABLE_COLUMN_VALUE + "=? WHERE " + TABLE_COLUMN_KEY + "=?",
                 document.toString(), key
+        ) != -1;
+    }
+
+    public boolean insertOrUpdate(String key, JsonDocument document) {
+        Preconditions.checkNotNull(key);
+        Preconditions.checkNotNull(document);
+
+        return this.databaseProvider.executeUpdate(String.format(
+                "INSERT INTO `%s` (%s, %s) VALUES (?, ?) ON DUPLICATE KEY UPDATE %s = VALUES(%s);",
+                this.name, TABLE_COLUMN_KEY, TABLE_COLUMN_VALUE, TABLE_COLUMN_VALUE, TABLE_COLUMN_VALUE
+                ), key, document.toString()
         ) != -1;
     }
 
@@ -96,7 +118,7 @@ public abstract class SQLDatabase implements IDatabase {
         Preconditions.checkNotNull(key);
 
         return this.databaseProvider.executeQuery(
-                "SELECT " + TABLE_COLUMN_KEY + " FROM `" + this.name + "` WHERE " + TABLE_COLUMN_KEY + "=?",
+                String.format("SELECT %s FROM `%s` WHERE %s = ?", TABLE_COLUMN_KEY, this.name, TABLE_COLUMN_KEY),
                 ResultSet::next,
                 key
         );
@@ -115,7 +137,7 @@ public abstract class SQLDatabase implements IDatabase {
 
     public boolean delete0(String key) {
         return this.databaseProvider.executeUpdate(
-                "DELETE FROM `" + this.name + "` WHERE " + TABLE_COLUMN_KEY + "=?",
+                String.format("DELETE FROM `%s` WHERE %s = ?", this.name, TABLE_COLUMN_KEY),
                 key
         ) != -1;
     }
@@ -125,7 +147,7 @@ public abstract class SQLDatabase implements IDatabase {
         Preconditions.checkNotNull(key);
 
         return this.databaseProvider.executeQuery(
-                "SELECT " + TABLE_COLUMN_VALUE + " FROM `" + this.name + "` WHERE " + TABLE_COLUMN_KEY + "=?",
+                String.format("SELECT %s FROM `%s` WHERE %s = ?", TABLE_COLUMN_VALUE, this.name, TABLE_COLUMN_KEY),
                 resultSet -> resultSet.next() ? JsonDocument.newDocument(resultSet.getString(TABLE_COLUMN_VALUE)) : null,
                 key
         );
@@ -137,10 +159,9 @@ public abstract class SQLDatabase implements IDatabase {
         Preconditions.checkNotNull(fieldValue);
 
         return this.databaseProvider.executeQuery(
-                "SELECT " + TABLE_COLUMN_VALUE + " FROM `" + this.name + "` WHERE " + TABLE_COLUMN_VALUE + " LIKE ?",
+                String.format("SELECT %s FROM `%s` WHERE %s LIKE ?", TABLE_COLUMN_VALUE, this.name, TABLE_COLUMN_VALUE),
                 resultSet -> {
                     List<JsonDocument> jsonDocuments = new ArrayList<>();
-
                     while (resultSet.next()) {
                         jsonDocuments.add(JsonDocument.newDocument(resultSet.getString(TABLE_COLUMN_VALUE)));
                     }
@@ -181,7 +202,6 @@ public abstract class SQLDatabase implements IDatabase {
                 stringBuilder.toString(),
                 resultSet -> {
                     List<JsonDocument> jsonDocuments = new ArrayList<>();
-
                     while (resultSet.next()) {
                         jsonDocuments.add(JsonDocument.newDocument(resultSet.getString(TABLE_COLUMN_VALUE)));
                     }
@@ -195,10 +215,9 @@ public abstract class SQLDatabase implements IDatabase {
     @Override
     public Collection<String> keys() {
         return this.databaseProvider.executeQuery(
-                "SELECT " + TABLE_COLUMN_KEY + " FROM `" + this.name + "`",
+                String.format("SELECT %s FROM `%s`", TABLE_COLUMN_KEY, this.name),
                 resultSet -> {
                     Collection<String> keys = new ArrayList<>();
-
                     while (resultSet.next()) {
                         keys.add(resultSet.getString(TABLE_COLUMN_KEY));
                     }
@@ -211,10 +230,9 @@ public abstract class SQLDatabase implements IDatabase {
     @Override
     public Collection<JsonDocument> documents() {
         return this.databaseProvider.executeQuery(
-                "SELECT " + TABLE_COLUMN_VALUE + " FROM `" + this.name + "`",
+                String.format("SELECT %s FROM `%s`", TABLE_COLUMN_VALUE, this.name),
                 resultSet -> {
                     Collection<JsonDocument> documents = new ArrayList<>();
-
                     while (resultSet.next()) {
                         documents.add(JsonDocument.newDocument(resultSet.getString(TABLE_COLUMN_VALUE)));
                     }
@@ -227,10 +245,9 @@ public abstract class SQLDatabase implements IDatabase {
     @Override
     public Map<String, JsonDocument> entries() {
         return this.databaseProvider.executeQuery(
-                "SELECT * FROM `" + this.name + "`",
+                String.format("SELECT * FROM `%s`", this.name),
                 resultSet -> {
                     Map<String, JsonDocument> map = new WeakHashMap<>();
-
                     while (resultSet.next()) {
                         map.put(resultSet.getString(TABLE_COLUMN_KEY), JsonDocument.newDocument(resultSet.getString(TABLE_COLUMN_VALUE)));
                     }
@@ -245,10 +262,9 @@ public abstract class SQLDatabase implements IDatabase {
         Preconditions.checkNotNull(predicate);
 
         return this.databaseProvider.executeQuery(
-                "SELECT * FROM `" + this.name + "`",
+                String.format("SELECT * FROM `%s`", this.name),
                 resultSet -> {
                     Map<String, JsonDocument> map = new HashMap<>();
-
                     while (resultSet.next()) {
                         String key = resultSet.getString(TABLE_COLUMN_KEY);
                         JsonDocument document = JsonDocument.newDocument(resultSet.getString(TABLE_COLUMN_VALUE));
@@ -268,7 +284,7 @@ public abstract class SQLDatabase implements IDatabase {
         Preconditions.checkNotNull(consumer);
 
         this.databaseProvider.executeQuery(
-                "SELECT * FROM `" + this.name + "`",
+                String.format("SELECT * FROM `%s`", this.name),
                 (IThrowableCallback<ResultSet, Void>) resultSet -> {
                     while (resultSet.next()) {
                         String key = resultSet.getString(TABLE_COLUMN_KEY);
@@ -290,7 +306,7 @@ public abstract class SQLDatabase implements IDatabase {
     }
 
     public void clear0() {
-        this.databaseProvider.executeUpdate("TRUNCATE TABLE `" + this.name + "`");
+        this.databaseProvider.executeUpdate(String.format("TRUNCATE TABLE `%s`", this.name));
     }
 
     @Override

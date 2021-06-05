@@ -5,7 +5,6 @@ import com.velocitypowered.api.proxy.ProxyServer;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.ext.bridge.proxy.BridgeProxyHelper;
 import de.dytanic.cloudnet.ext.syncproxy.AbstractSyncProxyManagement;
-import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyConfiguration;
 import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyTabList;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
@@ -21,7 +20,7 @@ public class VelocitySyncProxyManagement extends AbstractSyncProxyManagement {
         this.proxyServer = proxyServer;
         this.plugin = plugin;
 
-        super.setSyncProxyConfiguration(SyncProxyConfiguration.getConfigurationFromNode());
+        this.initialize();
     }
 
     @Override

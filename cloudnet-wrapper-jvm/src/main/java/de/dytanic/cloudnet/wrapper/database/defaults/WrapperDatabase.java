@@ -104,6 +104,11 @@ public class WrapperDatabase implements IDatabase {
     }
 
     @Override
+    public boolean isSynced() {
+        return true;
+    }
+
+    @Override
     @NotNull
     public ITask<Boolean> insertAsync(String key, JsonDocument document) {
         return this.databaseProvider.executeQuery(
