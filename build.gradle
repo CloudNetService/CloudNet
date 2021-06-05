@@ -9,12 +9,8 @@ allprojects {
 
     repositories {
 
+        mavenLocal()
         mavenCentral()
-
-        maven {
-            name 'jitpack.io'
-            url 'https://jitpack.io'
-        }
 
         maven {
             name 'spongepowered'
@@ -51,6 +47,11 @@ allprojects {
             url 'https://repo.md-5.net/repository/releases'
         }
 
+        maven {
+            name 'jitpack.io'
+            url 'https://jitpack.io'
+        }
+
     }
 
     project.ext {
@@ -76,7 +77,7 @@ allprojects {
         dependencyHikariCpVersion = '4.0.3'
         dependencyVaultVersion = '1.7'
         dependencyProtocolLibVersion = 'master-SNAPSHOT'
-        dependencyNpcLibVersion = 'development-SNAPSHOT'
+        dependencyNpcLibVersion = '2.5-RELEASE'
         dependencyCommonsNetVersion = '3.8.0'
         dependencyJschVersion = '0.1.55'
         dependencyJavassistVersion = '3.27.0-GA'
