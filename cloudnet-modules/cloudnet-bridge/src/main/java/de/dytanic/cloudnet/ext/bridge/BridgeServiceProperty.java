@@ -119,5 +119,4 @@ public class BridgeServiceProperty {
         text = text.toLowerCase();
         return text.contains("ingame") || text.contains("running") || text.contains("playing");
     }
-
 }
