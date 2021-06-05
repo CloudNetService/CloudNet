@@ -8,8 +8,6 @@ allprojects {
     version "$major.$minor.$patch-$versionType"
 
     repositories {
-
-        mavenLocal()
         mavenCentral()
 
         maven {
@@ -77,7 +75,7 @@ allprojects {
         dependencyHikariCpVersion = '4.0.3'
         dependencyVaultVersion = '1.7'
         dependencyProtocolLibVersion = 'master-SNAPSHOT'
-        dependencyNpcLibVersion = '2.5-RELEASE'
+        dependencyNpcLibVersion = 'development-SNAPSHOT'
         dependencyCommonsNetVersion = '3.8.0'
         dependencyJschVersion = '0.1.55'
         dependencyJavassistVersion = '3.28.0-GA'
