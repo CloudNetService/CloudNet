@@ -11,9 +11,12 @@ import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
 import de.dytanic.cloudnet.ext.bridge.BridgeConfigurationProvider;
+import de.dytanic.cloudnet.ext.bridge.BridgeHelper;
 import de.dytanic.cloudnet.ext.bridge.BridgePlayerManager;
+import de.dytanic.cloudnet.ext.bridge.BridgeServiceProperty;
 import de.dytanic.cloudnet.ext.bridge.listener.BridgeCustomChannelMessageListener;
 import de.dytanic.cloudnet.ext.bridge.player.IPlayerManager;
+import de.dytanic.cloudnet.ext.bridge.player.ServicePlayer;
 import de.dytanic.cloudnet.ext.bridge.proxy.BridgeProxyHelper;
 import de.dytanic.cloudnet.ext.bridge.velocity.command.CommandCloudNet;
 import de.dytanic.cloudnet.ext.bridge.velocity.command.CommandHub;
@@ -64,11 +67,24 @@ public final class VelocityCloudNetBridgePlugin {
 
     private void runPlayerDisconnectTask() {
         this.proxyServer.getScheduler().buildTask(this, () -> {
-            if (VelocityCloudNetHelper.getLastOnlineCount() != -1 &&
-                    this.proxyServer.getPlayerCount() != VelocityCloudNetHelper.getLastOnlineCount()) {
-                Wrapper.getInstance().publishServiceInfoUpdate();
+            if (VelocityCloudNetHelper.getLastOnlineCount() != -1 && this.proxyServer.getPlayerCount() != VelocityCloudNetHelper.getLastOnlineCount()) {
+                Wrapper.getInstance().getCurrentServiceInfoSnapshot().getProperty(BridgeServiceProperty.PLAYERS).ifPresent(players -> {
+                    boolean needsUpdate = false;
+                    for (ServicePlayer player : players) {
+                        if (!this.proxyServer.getPlayer(player.getUniqueId()).isPresent()) {
+                            needsUpdate = true;
+
+                            BridgeHelper.sendChannelMessageMissingDisconnect(player);
+                            BridgeProxyHelper.clearFallbackProfile(player.getUniqueId());
+                        }
+                    }
+
+                    if (needsUpdate) {
+                        BridgeHelper.updateServiceInfo();
+                    }
+                });
             }
-        }).repeat(500, TimeUnit.MILLISECONDS).schedule();
+        }).repeat(5, TimeUnit.SECONDS).schedule();
     }
 
     private void initListeners() {
