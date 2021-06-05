@@ -43,7 +43,7 @@ public final class PacketServerSetH2DatabaseDataListener implements IPacketListe
                 H2Database database = databaseProvider.getDatabase(db.getKey());
 
                 for (Map.Entry<String, JsonDocument> entry : documents.get(db.getKey()).entrySet()) {
-                    database.insert0(entry.getKey(), entry.getValue());
+                    database.insertOrUpdate(entry.getKey(), entry.getValue());
                 }
             }
 

@@ -42,6 +42,19 @@ public abstract class AbstractLabyModManagement {
         this.sendData(uniqueId, permissionBytes);
     }
 
+    public void sendBanner(UUID uniqueId) {
+        if (!LabyModUtils.getConfiguration().getBannerConfig().isEnabled()) {
+            return;
+        }
+
+        final byte[] bannerBytes = LabyModChannelUtils.getLMCMessageContents(
+                "server_banner",
+                JsonDocument.newDocument("url", LabyModUtils.getConfiguration().getBannerConfig().getBannerUrl())
+        );
+
+        this.sendData(uniqueId, bannerBytes);
+    }
+
     public void connectTo(UUID player, ICloudPlayer target) {
         ServiceInfoSnapshot connectedService = BridgeProxyHelper.getCachedServiceInfoSnapshot(target.getConnectedService().getServerName());
 
@@ -95,9 +108,13 @@ public abstract class AbstractLabyModManagement {
     }
 
     private void handleInfo(ICloudPlayer cloudPlayer, JsonDocument messageContents) {
+        this.sendBanner(cloudPlayer.getUniqueId());
+        this.sendPermissions(cloudPlayer.getUniqueId());
+
         if (LabyModUtils.getLabyModOptions(cloudPlayer) != null) {
             return;
         }
+
         LabyModPlayerOptions labyModOptions = messageContents.toInstanceOf(LabyModPlayerOptions.class);
         if (!labyModOptions.isValid()) {
             return;

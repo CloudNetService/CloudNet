@@ -3,7 +3,11 @@ package de.dytanic.cloudnet.network.listener.driver;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.api.DriverAPICategory;
 import de.dytanic.cloudnet.driver.api.DriverAPIRequestType;
-import de.dytanic.cloudnet.driver.permission.*;
+import de.dytanic.cloudnet.driver.permission.IPermissionGroup;
+import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
+import de.dytanic.cloudnet.driver.permission.IPermissionUser;
+import de.dytanic.cloudnet.driver.permission.PermissionGroup;
+import de.dytanic.cloudnet.driver.permission.PermissionUser;
 import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 
 import java.util.Collection;
@@ -92,6 +96,11 @@ public class DriverPermissionManagementListener extends CategorizedDriverAPIList
             return ProtocolBuffer.create().writeOptionalObject(user);
         });
 
+        super.registerHandler(DriverAPIRequestType.PERMISSION_MANAGEMENT_GET_OR_CREATE_USER, (channel, packet, buffer) -> {
+            IPermissionUser user = this.permissionManagement().getOrCreateUser(buffer.readUUID(), buffer.readString());
+            return ProtocolBuffer.create().writeObject(user);
+        });
+
         super.registerHandler(DriverAPIRequestType.PERMISSION_MANAGEMENT_GET_USERS_BY_NAME, (channel, packet, buffer) -> {
             Collection<IPermissionUser> users = this.permissionManagement().getUsers(buffer.readString());
             return ProtocolBuffer.create().writeObjectCollection(users);
@@ -131,7 +140,7 @@ public class DriverPermissionManagementListener extends CategorizedDriverAPIList
             IPermissionGroup group = this.permissionManagement().getDefaultPermissionGroup();
             return ProtocolBuffer.create().writeOptionalObject(group);
         });
-        
+
     }
 
     private IPermissionManagement permissionManagement() {

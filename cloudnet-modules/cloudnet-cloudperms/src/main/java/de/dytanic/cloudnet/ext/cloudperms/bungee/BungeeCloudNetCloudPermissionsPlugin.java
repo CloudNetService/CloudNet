@@ -20,5 +20,4 @@ public final class BungeeCloudNetCloudPermissionsPlugin extends Plugin {
         CloudNetDriver.getInstance().getEventManager().unregisterListeners(this.getClass().getClassLoader());
         Wrapper.getInstance().unregisterPacketListenersByClassLoader(this.getClass().getClassLoader());
     }
-
 }

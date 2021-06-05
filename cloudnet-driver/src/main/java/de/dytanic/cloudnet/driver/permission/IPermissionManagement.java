@@ -317,6 +317,16 @@ public interface IPermissionManagement {
     IPermissionUser getUser(@NotNull UUID uniqueId);
 
     /**
+     * Gets a user with the given uniqueId out of the database or creates a new one if the database contains no such entry.
+     *
+     * @param uniqueId the uniqueId of the user
+     * @param name     the name of the permission user
+     * @return the {@link IPermissionUser} from the database or a newly created one.
+     */
+    @NotNull
+    IPermissionUser getOrCreateUser(@NotNull UUID uniqueId, @NotNull String name);
+
+    /**
      * Gets a list of all users with the given name out of the database.
      * This can only return null when the connection to the database (or when it is executed in a
      * Wrapper instance the connection to the cloud) times out.
@@ -533,6 +543,16 @@ public interface IPermissionManagement {
      */
     @NotNull
     ITask<IPermissionUser> getUserAsync(@NotNull UUID uniqueId);
+
+    /**
+     * Gets a user with the given uniqueId out of the database or creates a new one if the database contains no such entry.
+     *
+     * @param uniqueId the uniqueId of the user
+     * @param name     the name of the permission user
+     * @return the {@link IPermissionUser} from the database or a newly created one.
+     */
+    @NotNull
+    ITask<IPermissionUser> getOrCreateUserAsync(@NotNull UUID uniqueId, @NotNull String name);
 
     /**
      * Gets a list of all users with the given name out of the database.

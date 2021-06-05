@@ -12,8 +12,9 @@ public class LabyModConfiguration {
     private ServiceDisplay gameModeSwitchMessages;
     private String loginDomain;
     private LabyModPermissionConfig permissionConfig;
+    private LabyModBannerConfig bannerConfig;
 
-    public LabyModConfiguration(boolean enabled, ServiceDisplay discordRPC, DiscordJoinMatchConfig discordJoinMatch, ServiceDisplay gameModeSwitchMessages, String loginDomain, boolean discordSpectateEnabled, Collection<String> excludedSpectateGroups, LabyModPermissionConfig permissionConfig) {
+    public LabyModConfiguration(boolean enabled, ServiceDisplay discordRPC, DiscordJoinMatchConfig discordJoinMatch, ServiceDisplay gameModeSwitchMessages, String loginDomain, boolean discordSpectateEnabled, Collection<String> excludedSpectateGroups, LabyModPermissionConfig permissionConfig, LabyModBannerConfig bannerConfig) {
         this.enabled = enabled;
         this.discordRPC = discordRPC;
         this.discordJoinMatch = discordJoinMatch;
@@ -22,6 +23,7 @@ public class LabyModConfiguration {
         this.discordSpectateEnabled = discordSpectateEnabled;
         this.excludedSpectateGroups = excludedSpectateGroups;
         this.permissionConfig = permissionConfig;
+        this.bannerConfig = bannerConfig;
     }
 
     public boolean isEnabled() {
@@ -86,5 +88,13 @@ public class LabyModConfiguration {
 
     public void setPermissionConfig(LabyModPermissionConfig permissionConfig) {
         this.permissionConfig = permissionConfig;
+    }
+
+    public LabyModBannerConfig getBannerConfig() {
+        return this.bannerConfig;
+    }
+
+    public void setBannerConfig(LabyModBannerConfig bannerConfig) {
+        this.bannerConfig = bannerConfig;
     }
 }

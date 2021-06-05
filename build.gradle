@@ -8,13 +8,7 @@ allprojects {
     version "$major.$minor.$patch-$versionType"
 
     repositories {
-
         mavenCentral()
-
-        maven {
-            name 'jitpack.io'
-            url 'https://jitpack.io'
-        }
 
         maven {
             name 'spongepowered'
@@ -51,6 +45,11 @@ allprojects {
             url 'https://repo.md-5.net/repository/releases'
         }
 
+        maven {
+            name 'jitpack.io'
+            url 'https://jitpack.io'
+        }
+
     }
 
     project.ext {
@@ -82,6 +81,7 @@ allprojects {
         dependencyJavassistVersion = '3.28.0-GA'
 
         testJunitVersion = '4.13.2'
+        testBcpkixJdk15OnVersion = '1.68'
 
         //file
         cloudnetLauncherFile = 'launcher.jar'

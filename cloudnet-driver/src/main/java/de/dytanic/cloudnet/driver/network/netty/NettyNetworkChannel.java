@@ -71,7 +71,7 @@ public final class NettyNetworkChannel extends DefaultNetworkChannel implements 
                                         "Sending packet to %s on channel %d with id %s, header=%s;body=%d",
                                         this.getClientAddress().toString(),
                                         packet.getChannel(),
-                                        packet.getUniqueId().toString(),
+                                        packet.getUniqueId(),
                                         packet.getHeader().toJson(),
                                         packet.getBuffer() != null ? packet.getBuffer().readableBytes() : 0
                                 )
