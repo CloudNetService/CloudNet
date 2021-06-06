@@ -31,9 +31,24 @@ public final class PlayerManagerListener {
 
     @EventListener
     public void handle(CloudServiceStopEvent event) {
-        for (ICloudPlayer cloudPlayer : this.nodePlayerManager.getOnlineCloudPlayers().values()) {
-            if (cloudPlayer.getLoginService() != null && cloudPlayer.getLoginService().getUniqueId().equals(event.getServiceInfo().getServiceId().getUniqueId())) {
-                this.nodePlayerManager.getOnlineCloudPlayers().remove(cloudPlayer.getUniqueId());
+        UUID serviceId = event.getServiceInfo().getServiceId().getUniqueId();
+        for (CloudPlayer cloudPlayer : this.nodePlayerManager.getOnlineCloudPlayers().values()) {
+            if (cloudPlayer.getLoginService() == null) {
+                continue;
+            }
+
+            if (cloudPlayer.getLoginService().getEnvironment().isMinecraftProxy()) {
+                if (cloudPlayer.getLoginService().getUniqueId().equals(serviceId)) {
+                    this.nodePlayerManager.logoutPlayer(cloudPlayer);
+                }
+                continue;
+            }
+
+            UUID connectedServiceId = cloudPlayer.getLoginService().getUniqueId();
+            if (cloudPlayer.getConnectedService() != null
+                    && connectedServiceId.equals(serviceId)
+                    && cloudPlayer.getLoginService().getServiceId().getUniqueId().equals(connectedServiceId)) {
+                this.nodePlayerManager.logoutPlayer(cloudPlayer);
             }
         }
     }
@@ -66,15 +81,20 @@ public final class PlayerManagerListener {
             case "update_offline_cloud_player": {
                 ICloudOfflinePlayer cloudOfflinePlayer = event.getBuffer().readObject(CloudOfflinePlayer.class);
 
-                this.nodePlayerManager.updateOfflinePlayer0(cloudOfflinePlayer);
+                this.nodePlayerManager.handleOfflinePlayerUpdate(cloudOfflinePlayer);
                 CloudNetDriver.getInstance().getEventManager().callEvent(new BridgeUpdateCloudOfflinePlayerEvent(cloudOfflinePlayer));
             }
             break;
             case "update_online_cloud_player": {
                 ICloudPlayer cloudPlayer = event.getBuffer().readObject(CloudPlayer.class);
 
-                this.nodePlayerManager.updateOnlinePlayer0(cloudPlayer);
+                this.nodePlayerManager.handleOnlinePlayerUpdate(cloudPlayer);
                 CloudNetDriver.getInstance().getEventManager().callEvent(new BridgeUpdateCloudPlayerEvent(cloudPlayer));
+            }
+            break;
+            case "process_cloud_player_login": {
+                CloudPlayer cloudPlayer = event.getBuffer().readObject(CloudPlayer.class);
+                this.nodePlayerManager.processLoginMessage(cloudPlayer);
             }
             break;
             case "delete_offline_player": {
