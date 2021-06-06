@@ -9,6 +9,7 @@ import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.event.cluster.NetworkChannelAuthClusterNodeSuccessEvent;
 import de.dytanic.cloudnet.ext.bridge.BridgeConstants;
+import de.dytanic.cloudnet.ext.bridge.event.BridgeDeleteCloudOfflinePlayerEvent;
 import de.dytanic.cloudnet.ext.bridge.event.BridgeUpdateCloudOfflinePlayerEvent;
 import de.dytanic.cloudnet.ext.bridge.event.BridgeUpdateCloudPlayerEvent;
 import de.dytanic.cloudnet.ext.bridge.node.player.NodePlayerManager;
@@ -94,6 +95,13 @@ public final class PlayerManagerListener {
             case "process_cloud_player_login": {
                 CloudPlayer cloudPlayer = event.getBuffer().readObject(CloudPlayer.class);
                 this.nodePlayerManager.processLoginMessage(cloudPlayer);
+            }
+            break;
+            case "delete_offline_player": {
+                ICloudOfflinePlayer cloudOfflinePlayer = event.getBuffer().readObject(CloudOfflinePlayer.class);
+
+                this.nodePlayerManager.deleteCloudOfflinePlayer0(cloudOfflinePlayer);
+                CloudNetDriver.getInstance().getEventManager().callEvent(new BridgeDeleteCloudOfflinePlayerEvent(cloudOfflinePlayer));
             }
             break;
         }

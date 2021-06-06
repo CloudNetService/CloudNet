@@ -15,7 +15,12 @@ import de.dytanic.cloudnet.ext.bridge.player.IPlayerManager;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static de.dytanic.cloudnet.command.sub.SubCommandArgumentTypes.*;
@@ -142,6 +147,28 @@ public final class CommandPlayers extends SubCommandHandler {
                                                         .collect(Collectors.toList()) :
                                                 null
                                 )
+                        )
+                        .generateCommand(
+                                (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
+                                    for (ICloudOfflinePlayer offlinePlayer : playerManager.getOfflinePlayers((String) args.argument("name").get())) {
+                                        sender.sendMessage(LanguageManager.getMessage("module-bridge-command-players-delete-player")
+                                                .replace("%name%", offlinePlayer.getName())
+                                                .replace("%uniqueId%", offlinePlayer.getUniqueId().toString()));
+                                        playerManager.deleteCloudOfflinePlayerAsync(offlinePlayer);
+                                    }
+                                },
+                                subCommand -> subCommand.setMinArgs(subCommand.getRequiredArguments().length - 1).setMaxArgs(Integer.MAX_VALUE),
+                                dynamicString(
+                                        "name",
+                                        LanguageManager.getMessage("module-bridge-command-players-player-not-registered"),
+                                        name -> !playerManager.getOfflinePlayers(name).isEmpty(),
+                                        () -> playerManager.getRegisteredCount() <= MAX_REGISTERED_PLAYERS_FOR_COMPLETION ?
+                                                playerManager.getRegisteredPlayers().stream()
+                                                        .map(ICloudOfflinePlayer::getName)
+                                                        .collect(Collectors.toList()) :
+                                                null
+                                ),
+                                anyStringIgnoreCase("delete", "del")
                         )
 
                         .prefix(dynamicString(
