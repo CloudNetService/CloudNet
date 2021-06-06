@@ -14,7 +14,11 @@
  * limitations under the License.
  */
 
-defaultTasks 'clean', 'build', 'test', 'jar'
+plugins {
+  id 'org.cadixdev.licenser' version '0.6.0' apply false
+}
+
+defaultTasks 'build', 'checkLicenses', 'test', 'jar'
 
 allprojects {
 
@@ -186,6 +190,7 @@ subprojects {
   apply plugin: 'checkstyle'
   apply plugin: 'java-library'
   apply plugin: 'maven-publish'
+  apply plugin: 'org.cadixdev.licenser'
 
   compileJava {
     options.encoding = 'UTF-8'
@@ -197,6 +202,11 @@ subprojects {
 
   javadoc {
     options.encoding = 'UTF-8'
+  }
+
+  license {
+    include '**/*.java'
+    header = project.rootProject.file('license_header.txt')
   }
 
   checkstyle {

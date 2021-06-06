@@ -1,6 +1,8 @@
 name: Gradle Github Actions
 
-on: [ push ]
+on:
+  - push
+  - pull_request
 
 jobs:
   build:
@@ -15,6 +17,9 @@ jobs:
           distribution: 'adopt'
           java-version: '16'
           check-latest: true
+
+      - name: Validate license headers
+        run: ./gradlew checkLicenses
 
       - name: Test with Gradle
         run: ./gradlew test
