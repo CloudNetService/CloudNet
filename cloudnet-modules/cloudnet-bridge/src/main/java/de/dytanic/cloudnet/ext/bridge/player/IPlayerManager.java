@@ -313,6 +313,20 @@ public interface IPlayerManager {
     void updateOnlinePlayer(@NotNull ICloudPlayer cloudPlayer);
 
     /**
+     * Deletes the given player from the database and notifies all connected components.
+     *
+     * @param cloudOfflinePlayer the player to be deleted
+     */
+    void deleteCloudOfflinePlayer(@NotNull ICloudOfflinePlayer cloudOfflinePlayer);
+
+    /**
+     * Deletes the given player from the database async and notifies all connected components.
+     *
+     * @param cloudOfflinePlayer the player to be deleted
+     */
+    ITask<Void> deleteCloudOfflinePlayerAsync(@NotNull ICloudOfflinePlayer cloudOfflinePlayer);
+
+    /**
      * Gets the player executor which will execute the methods as every player that is online on the proxies.
      *
      * @return the constant {@link PlayerExecutor}

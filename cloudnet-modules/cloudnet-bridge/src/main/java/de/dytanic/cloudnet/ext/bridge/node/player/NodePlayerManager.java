@@ -315,6 +315,32 @@ public final class NodePlayerManager extends DefaultPlayerManager implements IPl
                 .send();
     }
 
+    @Override
+    public void deleteCloudOfflinePlayer(@NotNull ICloudOfflinePlayer cloudOfflinePlayer) {
+        Preconditions.checkNotNull(cloudOfflinePlayer);
+
+        this.deleteCloudOfflinePlayer0(cloudOfflinePlayer);
+        this.messageBuilder()
+                .message("delete_offline_player")
+                .targetAll()
+                .buffer(ProtocolBuffer.create().writeObject(cloudOfflinePlayer))
+                .build()
+                .send();
+    }
+
+    public void deleteCloudOfflinePlayer0(@NotNull ICloudOfflinePlayer cloudOfflinePlayer) {
+        this.getDatabase().delete(cloudOfflinePlayer.getUniqueId().toString());
+        this.offlinePlayerCache.invalidate(cloudOfflinePlayer.getUniqueId());
+    }
+
+    @Override
+    public ITask<Void> deleteCloudOfflinePlayerAsync(@NotNull ICloudOfflinePlayer cloudOfflinePlayer) {
+        return this.schedule(() -> {
+            this.deleteCloudOfflinePlayer(cloudOfflinePlayer);
+            return null;
+        });
+    }
+
     public void updateOnlinePlayer0(ICloudPlayer cloudPlayer) {
         this.updateOnlinePlayerInCache(cloudPlayer);
         this.updateOfflinePlayer0(CloudOfflinePlayer.of(cloudPlayer));
