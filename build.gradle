@@ -99,6 +99,8 @@ allprojects {
     testJunitVersion = '4.13.2'
     testBcpkixJdk15OnVersion = '1.68'
 
+    buildCheckstyleToolVersion = '8.43'
+
     //file
     cloudnetLauncherFile = 'launcher.jar'
     cloudnetCommonFile = 'common.jar'
@@ -195,6 +197,10 @@ subprojects {
 
   javadoc {
     options.encoding = 'UTF-8'
+  }
+
+  checkstyle {
+    toolVersion = project.ext.buildCheckstyleToolVersion
   }
 
   tasks.withType(Checkstyle) {

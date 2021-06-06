@@ -23,8 +23,7 @@ import org.junit.Test;
 public final class DefaultCommandMapTest {
 
   private String name;
-
-  private String b;
+  private String message;
 
   @Test
   public void testMap() {
@@ -34,7 +33,7 @@ public final class DefaultCommandMapTest {
 
       @Override
       public void sendMessage(String message) {
-        DefaultCommandMapTest.this.b = message;
+        DefaultCommandMapTest.this.message = message;
       }
 
       @Override
@@ -88,7 +87,7 @@ public final class DefaultCommandMapTest {
 
     Assert.assertNotNull(this.name);
     Assert.assertEquals("Dytanic", this.name);
-    Assert.assertEquals("Hello, world!", this.b);
+    Assert.assertEquals("Hello, world!", this.message);
   }
 
 }
