@@ -330,6 +330,7 @@ public final class NodePlayerManager extends DefaultPlayerManager implements IPl
 
     public void deleteCloudOfflinePlayer0(@NotNull ICloudOfflinePlayer cloudOfflinePlayer) {
         this.getDatabase().delete(cloudOfflinePlayer.getUniqueId().toString());
+        this.offlinePlayerCache.invalidate(cloudOfflinePlayer.getUniqueId());
     }
 
     @Override
