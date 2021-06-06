@@ -8,19 +8,19 @@ import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
  */
 public final class NukkitCloudServiceUnregisterEvent extends NukkitCloudNetEvent {
 
-    private static final HandlerList handlers = new HandlerList();
+  private static final HandlerList handlers = new HandlerList();
 
-    private final ServiceInfoSnapshot serviceInfoSnapshot;
+  private final ServiceInfoSnapshot serviceInfoSnapshot;
 
-    public NukkitCloudServiceUnregisterEvent(ServiceInfoSnapshot serviceInfoSnapshot) {
-        this.serviceInfoSnapshot = serviceInfoSnapshot;
-    }
+  public NukkitCloudServiceUnregisterEvent(ServiceInfoSnapshot serviceInfoSnapshot) {
+    this.serviceInfoSnapshot = serviceInfoSnapshot;
+  }
 
-    public static HandlerList getHandlers() {
-        return NukkitCloudServiceUnregisterEvent.handlers;
-    }
+  public static HandlerList getHandlers() {
+    return NukkitCloudServiceUnregisterEvent.handlers;
+  }
 
-    public ServiceInfoSnapshot getServiceInfoSnapshot() {
-        return this.serviceInfoSnapshot;
-    }
+  public ServiceInfoSnapshot getServiceInfoSnapshot() {
+    return this.serviceInfoSnapshot;
+  }
 }

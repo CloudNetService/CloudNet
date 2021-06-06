@@ -9,26 +9,26 @@ import de.dytanic.cloudnet.driver.network.protocol.IPacket;
  */
 public final class NukkitNetworkChannelPacketReceiveEvent extends NukkitCloudNetEvent {
 
-    private static final HandlerList handlers = new HandlerList();
+  private static final HandlerList handlers = new HandlerList();
 
-    private final INetworkChannel channel;
+  private final INetworkChannel channel;
 
-    private final IPacket packet;
+  private final IPacket packet;
 
-    public NukkitNetworkChannelPacketReceiveEvent(INetworkChannel channel, IPacket packet) {
-        this.channel = channel;
-        this.packet = packet;
-    }
+  public NukkitNetworkChannelPacketReceiveEvent(INetworkChannel channel, IPacket packet) {
+    this.channel = channel;
+    this.packet = packet;
+  }
 
-    public static HandlerList getHandlers() {
-        return NukkitNetworkChannelPacketReceiveEvent.handlers;
-    }
+  public static HandlerList getHandlers() {
+    return NukkitNetworkChannelPacketReceiveEvent.handlers;
+  }
 
-    public INetworkChannel getChannel() {
-        return this.channel;
-    }
+  public INetworkChannel getChannel() {
+    return this.channel;
+  }
 
-    public IPacket getPacket() {
-        return this.packet;
-    }
+  public IPacket getPacket() {
+    return this.packet;
+  }
 }

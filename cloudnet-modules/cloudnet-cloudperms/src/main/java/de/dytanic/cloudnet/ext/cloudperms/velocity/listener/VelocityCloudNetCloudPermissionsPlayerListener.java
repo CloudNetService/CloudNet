@@ -15,34 +15,36 @@ import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
 public final class VelocityCloudNetCloudPermissionsPlayerListener {
 
-    private final IPermissionManagement permissionsManagement;
-    private final PermissionProvider permissionProvider;
+  private final IPermissionManagement permissionsManagement;
+  private final PermissionProvider permissionProvider;
 
-    public VelocityCloudNetCloudPermissionsPlayerListener(IPermissionManagement permissionsManagement, PermissionProvider permissionProvider) {
-        this.permissionsManagement = permissionsManagement;
-        this.permissionProvider = permissionProvider;
-    }
+  public VelocityCloudNetCloudPermissionsPlayerListener(IPermissionManagement permissionsManagement,
+    PermissionProvider permissionProvider) {
+    this.permissionsManagement = permissionsManagement;
+    this.permissionProvider = permissionProvider;
+  }
 
-    @Subscribe(order = PostOrder.LAST)
-    public void handle(LoginEvent event) {
-        if (event.getResult().isAllowed()) {
-            Player player = event.getPlayer();
-            CloudPermissionsHelper.initPermissionUser(this.permissionsManagement, player.getUniqueId(), player.getUsername(), message -> {
-                Component reasonComponent = LegacyComponentSerializer.legacySection().deserialize(message.replace("&", "§"));
-                event.setResult(ResultedEvent.ComponentResult.denied(reasonComponent));
-            });
-        }
+  @Subscribe(order = PostOrder.LAST)
+  public void handle(LoginEvent event) {
+    if (event.getResult().isAllowed()) {
+      Player player = event.getPlayer();
+      CloudPermissionsHelper
+        .initPermissionUser(this.permissionsManagement, player.getUniqueId(), player.getUsername(), message -> {
+          Component reasonComponent = LegacyComponentSerializer.legacySection().deserialize(message.replace("&", "§"));
+          event.setResult(ResultedEvent.ComponentResult.denied(reasonComponent));
+        });
     }
+  }
 
-    @Subscribe
-    public void handle(PermissionsSetupEvent event) {
-        if (event.getSubject() instanceof Player) {
-            event.setProvider(this.permissionProvider);
-        }
+  @Subscribe
+  public void handle(PermissionsSetupEvent event) {
+    if (event.getSubject() instanceof Player) {
+      event.setProvider(this.permissionProvider);
     }
+  }
 
-    @Subscribe
-    public void handle(DisconnectEvent event) {
-        CloudPermissionsHelper.handlePlayerQuit(this.permissionsManagement, event.getPlayer().getUniqueId());
-    }
+  @Subscribe
+  public void handle(DisconnectEvent event) {
+    CloudPermissionsHelper.handlePlayerQuit(this.permissionsManagement, event.getPlayer().getUniqueId());
+  }
 }

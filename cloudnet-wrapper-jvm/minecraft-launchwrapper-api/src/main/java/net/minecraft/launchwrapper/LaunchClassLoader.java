@@ -5,7 +5,7 @@ package net.minecraft.launchwrapper;
 
 public class LaunchClassLoader {
 
-    public void addClassLoaderExclusion(String toExclude) {
-    }
+  public void addClassLoaderExclusion(String toExclude) {
+  }
 
 }

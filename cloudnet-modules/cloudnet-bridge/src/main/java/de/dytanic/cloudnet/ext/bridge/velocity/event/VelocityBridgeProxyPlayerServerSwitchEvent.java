@@ -5,20 +5,21 @@ import de.dytanic.cloudnet.ext.bridge.player.NetworkServiceInfo;
 
 public final class VelocityBridgeProxyPlayerServerSwitchEvent extends VelocityBridgeEvent {
 
-    private final NetworkConnectionInfo networkConnectionInfo;
+  private final NetworkConnectionInfo networkConnectionInfo;
 
-    private final NetworkServiceInfo networkServiceInfo;
+  private final NetworkServiceInfo networkServiceInfo;
 
-    public VelocityBridgeProxyPlayerServerSwitchEvent(NetworkConnectionInfo networkConnectionInfo, NetworkServiceInfo networkServiceInfo) {
-        this.networkConnectionInfo = networkConnectionInfo;
-        this.networkServiceInfo = networkServiceInfo;
-    }
+  public VelocityBridgeProxyPlayerServerSwitchEvent(NetworkConnectionInfo networkConnectionInfo,
+    NetworkServiceInfo networkServiceInfo) {
+    this.networkConnectionInfo = networkConnectionInfo;
+    this.networkServiceInfo = networkServiceInfo;
+  }
 
-    public NetworkConnectionInfo getNetworkConnectionInfo() {
-        return this.networkConnectionInfo;
-    }
+  public NetworkConnectionInfo getNetworkConnectionInfo() {
+    return this.networkConnectionInfo;
+  }
 
-    public NetworkServiceInfo getNetworkServiceInfo() {
-        return this.networkServiceInfo;
-    }
+  public NetworkServiceInfo getNetworkServiceInfo() {
+    return this.networkServiceInfo;
+  }
 }

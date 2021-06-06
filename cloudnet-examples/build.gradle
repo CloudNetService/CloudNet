@@ -1,18 +1,18 @@
 repositories {
-    maven {
-        name 'spigotmc'
-        url 'https://repo.md-5.net/service/local/repositories/repobo-rel/content/'
-    }
+  maven {
+    name 'spigotmc'
+    url 'https://repo.md-5.net/service/local/repositories/repobo-rel/content/'
+  }
 }
 
 dependencies {
-    compileOnly project(':cloudnet')
-    compileOnly project(':cloudnet-wrapper-jvm')
-    compileOnly project(':cloudnet-modules').project('cloudnet-bridge')
-    compileOnly project(':cloudnet-modules').project('cloudnet-syncproxy')
-    compileOnly project(':cloudnet-modules').project('cloudnet-cloudperms')
-    compileOnly project(':cloudnet-modules').project('cloudnet-signs')
-    compileOnly project(':cloudnet-modules').project('cloudnet-npcs')
-    compileOnly project(':cloudnet-plugins').project('cloudnet-simplenametags')
-    compileOnly group: 'org.spigotmc', name: 'spigot-api', version: dependencySpigotApiVersion
+  compileOnly project(':cloudnet')
+  compileOnly project(':cloudnet-wrapper-jvm')
+  compileOnly project(':cloudnet-modules').project('cloudnet-bridge')
+  compileOnly project(':cloudnet-modules').project('cloudnet-syncproxy')
+  compileOnly project(':cloudnet-modules').project('cloudnet-cloudperms')
+  compileOnly project(':cloudnet-modules').project('cloudnet-signs')
+  compileOnly project(':cloudnet-modules').project('cloudnet-npcs')
+  compileOnly project(':cloudnet-plugins').project('cloudnet-simplenametags')
+  compileOnly group: 'org.spigotmc', name: 'spigot-api', version: dependencySpigotApiVersion
 }

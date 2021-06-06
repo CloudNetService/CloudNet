@@ -2,21 +2,21 @@ package de.dytanic.cloudnet.driver.module;
 
 public class DefaultModule implements IModule {
 
-    IModuleWrapper moduleWrapper;
+  IModuleWrapper moduleWrapper;
 
-    ClassLoader classLoader;
+  ClassLoader classLoader;
 
-    ModuleConfiguration moduleConfig;
+  ModuleConfiguration moduleConfig;
 
-    public IModuleWrapper getModuleWrapper() {
-        return this.moduleWrapper;
-    }
+  public IModuleWrapper getModuleWrapper() {
+    return this.moduleWrapper;
+  }
 
-    public ClassLoader getClassLoader() {
-        return this.classLoader;
-    }
+  public ClassLoader getClassLoader() {
+    return this.classLoader;
+  }
 
-    public ModuleConfiguration getModuleConfig() {
-        return this.moduleConfig;
-    }
+  public ModuleConfiguration getModuleConfig() {
+    return this.moduleConfig;
+  }
 }

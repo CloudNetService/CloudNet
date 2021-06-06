@@ -1,46 +1,45 @@
 package de.dytanic.cloudnet.driver.module;
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
-import org.jetbrains.annotations.NotNull;
-
 import java.io.File;
 import java.nio.file.Path;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
+import org.jetbrains.annotations.NotNull;
 
 public interface IModuleWrapper {
 
-    EnumMap<ModuleLifeCycle, List<IModuleTaskEntry>> getModuleTasks();
+  EnumMap<ModuleLifeCycle, List<IModuleTaskEntry>> getModuleTasks();
 
-    IModule getModule();
+  IModule getModule();
 
-    ModuleLifeCycle getModuleLifeCycle();
+  ModuleLifeCycle getModuleLifeCycle();
 
-    IModuleProvider getModuleProvider();
+  IModuleProvider getModuleProvider();
 
-    ModuleConfiguration getModuleConfiguration();
+  ModuleConfiguration getModuleConfiguration();
 
-    JsonDocument getModuleConfigurationSource();
+  JsonDocument getModuleConfigurationSource();
 
-    ClassLoader getClassLoader();
+  ClassLoader getClassLoader();
 
-    IModuleWrapper loadModule();
+  IModuleWrapper loadModule();
 
-    IModuleWrapper startModule();
+  IModuleWrapper startModule();
 
-    IModuleWrapper stopModule();
+  IModuleWrapper stopModule();
 
-    IModuleWrapper unloadModule();
+  IModuleWrapper unloadModule();
 
-    @Deprecated
-    default File getDataFolder() {
-        return this.getDataDirectory().toFile();
-    }
+  @Deprecated
+  default File getDataFolder() {
+    return this.getDataDirectory().toFile();
+  }
 
-    @NotNull
-    Path getDataDirectory();
+  @NotNull
+  Path getDataDirectory();
 
-    Map<String, String> getDefaultRepositories();
+  Map<String, String> getDefaultRepositories();
 
 }

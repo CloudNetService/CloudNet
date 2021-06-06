@@ -16,53 +16,55 @@ import de.dytanic.cloudnet.ext.signs.nukkit.event.NukkitCloudSignInteractEvent;
 
 public class NukkitSignInteractionListener implements Listener {
 
-    private final NukkitSignManagement nukkitSignManagement;
+  private final NukkitSignManagement nukkitSignManagement;
 
-    public NukkitSignInteractionListener(NukkitSignManagement nukkitSignManagement) {
-        this.nukkitSignManagement = nukkitSignManagement;
-    }
+  public NukkitSignInteractionListener(NukkitSignManagement nukkitSignManagement) {
+    this.nukkitSignManagement = nukkitSignManagement;
+  }
 
-    @EventHandler
-    public void handleInteract(PlayerInteractEvent event) {
-        SignConfigurationEntry entry = this.nukkitSignManagement.getOwnSignConfigurationEntry();
+  @EventHandler
+  public void handleInteract(PlayerInteractEvent event) {
+    SignConfigurationEntry entry = this.nukkitSignManagement.getOwnSignConfigurationEntry();
 
-        if (entry != null) {
-            if ((event.getAction().equals(PlayerInteractEvent.Action.RIGHT_CLICK_BLOCK)) &&
-                    event.getBlock() != null &&
-                    event.getBlock().getLevel().getBlockEntity(event.getBlock().getLocation()) instanceof BlockEntitySign) {
-                for (Sign sign : this.nukkitSignManagement.getSigns()) {
-                    Location location = this.nukkitSignManagement.toLocation(sign.getWorldPosition());
+    if (entry != null) {
+      if ((event.getAction().equals(PlayerInteractEvent.Action.RIGHT_CLICK_BLOCK)) &&
+        event.getBlock() != null &&
+        event.getBlock().getLevel().getBlockEntity(event.getBlock().getLocation()) instanceof BlockEntitySign) {
+        for (Sign sign : this.nukkitSignManagement.getSigns()) {
+          Location location = this.nukkitSignManagement.toLocation(sign.getWorldPosition());
 
-                    if (location == null || !location.equals(event.getBlock().getLocation())) {
-                        continue;
-                    }
+          if (location == null || !location.equals(event.getBlock().getLocation())) {
+            continue;
+          }
 
-                    String targetServer = sign.getServiceInfoSnapshot() == null ? null : sign.getServiceInfoSnapshot().getName();
+          String targetServer = sign.getServiceInfoSnapshot() == null ? null : sign.getServiceInfoSnapshot().getName();
 
-                    NukkitCloudSignInteractEvent signInteractEvent = new NukkitCloudSignInteractEvent(event.getPlayer(), sign, targetServer);
-                    Server.getInstance().getPluginManager().callEvent(signInteractEvent);
+          NukkitCloudSignInteractEvent signInteractEvent = new NukkitCloudSignInteractEvent(event.getPlayer(), sign,
+            targetServer);
+          Server.getInstance().getPluginManager().callEvent(signInteractEvent);
 
-                    if (!signInteractEvent.isCancelled() && signInteractEvent.getTargetServer() != null) {
-                        CloudNetDriver.getInstance().getServicesRegistry().getFirstService(IPlayerManager.class)
-                                .getPlayerExecutor(event.getPlayer().getUniqueId()).connect(signInteractEvent.getTargetServer());
+          if (!signInteractEvent.isCancelled() && signInteractEvent.getTargetServer() != null) {
+            CloudNetDriver.getInstance().getServicesRegistry().getFirstService(IPlayerManager.class)
+              .getPlayerExecutor(event.getPlayer().getUniqueId()).connect(signInteractEvent.getTargetServer());
 
-                        String serverConnectMessage = SignConfigurationProvider.load().getMessages().get("server-connecting-message");
+            String serverConnectMessage = SignConfigurationProvider.load().getMessages()
+              .get("server-connecting-message");
 
-                        if (serverConnectMessage != null) {
-                            event.getPlayer().sendMessage(
-                                    serverConnectMessage
-                                            .replace("%server%", sign.getServiceInfoSnapshot().getServiceId().getName())
-                                            .replace('&', '§')
-                            );
-                        }
-
-                    }
-
-                    return;
-                }
+            if (serverConnectMessage != null) {
+              event.getPlayer().sendMessage(
+                serverConnectMessage
+                  .replace("%server%", sign.getServiceInfoSnapshot().getServiceId().getName())
+                  .replace('&', '§')
+              );
             }
+
+          }
+
+          return;
         }
+      }
     }
+  }
 
 
 }

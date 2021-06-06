@@ -14,22 +14,22 @@ import eu.cloudnetservice.cloudnet.ext.labymod.velocity.listener.VelocityLabyMod
 @Plugin(id = "cloudnet_labymod_velocity")
 public class VelocityCloudNetLabyModPlugin {
 
-    private AbstractLabyModManagement labyModManagement;
-    private final ProxyServer proxyServer;
+  private final ProxyServer proxyServer;
+  private AbstractLabyModManagement labyModManagement;
 
-    @Inject
-    public VelocityCloudNetLabyModPlugin(ProxyServer proxyServer) {
-        this.proxyServer = proxyServer;
-    }
+  @Inject
+  public VelocityCloudNetLabyModPlugin(ProxyServer proxyServer) {
+    this.proxyServer = proxyServer;
+  }
 
-    @Subscribe
-    public void handleProxyInit(ProxyInitializeEvent event) {
-        ChannelIdentifier identifier = new LegacyChannelIdentifier(LabyModConstants.LMC_CHANNEL_NAME);
-        this.proxyServer.getChannelRegistrar().register(identifier);
+  @Subscribe
+  public void handleProxyInit(ProxyInitializeEvent event) {
+    ChannelIdentifier identifier = new LegacyChannelIdentifier(LabyModConstants.LMC_CHANNEL_NAME);
+    this.proxyServer.getChannelRegistrar().register(identifier);
 
-        this.labyModManagement = new VelocityLabyModManagement(this.proxyServer, identifier);
+    this.labyModManagement = new VelocityLabyModManagement(this.proxyServer, identifier);
 
-        this.proxyServer.getEventManager().register(this, new VelocityLabyModListener(this.labyModManagement));
-    }
+    this.proxyServer.getEventManager().register(this, new VelocityLabyModListener(this.labyModManagement));
+  }
 
 }

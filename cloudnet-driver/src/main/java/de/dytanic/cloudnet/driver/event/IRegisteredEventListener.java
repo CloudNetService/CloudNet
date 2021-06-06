@@ -4,22 +4,22 @@ import de.dytanic.cloudnet.driver.event.invoker.ListenerInvoker;
 
 public interface IRegisteredEventListener extends Comparable<IRegisteredEventListener> {
 
-    void fireEvent(Event event);
+  void fireEvent(Event event);
 
-    EventListener getEventListener();
+  EventListener getEventListener();
 
-    EventPriority getPriority();
+  EventPriority getPriority();
 
-    Object getInstance();
+  Object getInstance();
 
-    ListenerInvoker getInvoker();
+  ListenerInvoker getInvoker();
 
-    Class<?> getEventClass();
+  Class<?> getEventClass();
 
-    String getMethodName();
+  String getMethodName();
 
-    @Override
-    default int compareTo(IRegisteredEventListener other) {
-        return this.getPriority().compareTo(other.getPriority());
-    }
+  @Override
+  default int compareTo(IRegisteredEventListener other) {
+    return this.getPriority().compareTo(other.getPriority());
+  }
 }

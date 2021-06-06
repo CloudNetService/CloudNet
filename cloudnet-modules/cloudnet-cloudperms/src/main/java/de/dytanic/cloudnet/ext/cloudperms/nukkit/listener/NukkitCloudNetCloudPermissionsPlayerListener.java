@@ -13,33 +13,36 @@ import de.dytanic.cloudnet.ext.cloudperms.nukkit.NukkitCloudNetCloudPermissionsP
 
 public final class NukkitCloudNetCloudPermissionsPlayerListener implements Listener {
 
-    private final NukkitCloudNetCloudPermissionsPlugin plugin;
-    private final IPermissionManagement permissionsManagement;
+  private final NukkitCloudNetCloudPermissionsPlugin plugin;
+  private final IPermissionManagement permissionsManagement;
 
-    public NukkitCloudNetCloudPermissionsPlayerListener(NukkitCloudNetCloudPermissionsPlugin plugin, IPermissionManagement permissionsManagement) {
-        this.plugin = plugin;
-        this.permissionsManagement = permissionsManagement;
-    }
+  public NukkitCloudNetCloudPermissionsPlayerListener(NukkitCloudNetCloudPermissionsPlugin plugin,
+    IPermissionManagement permissionsManagement) {
+    this.plugin = plugin;
+    this.permissionsManagement = permissionsManagement;
+  }
 
-    @EventHandler(priority = EventPriority.LOW)
-    public void handle(PlayerAsyncPreLoginEvent event) {
-        if (!event.isCancelled()) {
-            CloudPermissionsHelper.initPermissionUser(this.permissionsManagement, event.getPlayer().getUniqueId(), event.getPlayer().getName(), message -> {
-                event.setCancelled();
-                event.setKickMessage(message.replace("&", "§"));
-            }, Server.getInstance().getPropertyBoolean("xbox-auth", true));
-        }
+  @EventHandler(priority = EventPriority.LOW)
+  public void handle(PlayerAsyncPreLoginEvent event) {
+    if (!event.isCancelled()) {
+      CloudPermissionsHelper
+        .initPermissionUser(this.permissionsManagement, event.getPlayer().getUniqueId(), event.getPlayer().getName(),
+          message -> {
+            event.setCancelled();
+            event.setKickMessage(message.replace("&", "§"));
+          }, Server.getInstance().getPropertyBoolean("xbox-auth", true));
     }
+  }
 
-    @EventHandler(priority = EventPriority.LOWEST)
-    public void handle(PlayerLoginEvent event) {
-        if (!event.isCancelled()) {
-            this.plugin.injectCloudPermissible(event.getPlayer());
-        }
+  @EventHandler(priority = EventPriority.LOWEST)
+  public void handle(PlayerLoginEvent event) {
+    if (!event.isCancelled()) {
+      this.plugin.injectCloudPermissible(event.getPlayer());
     }
+  }
 
-    @EventHandler
-    public void handle(PlayerQuitEvent event) {
-        CloudPermissionsHelper.handlePlayerQuit(this.permissionsManagement, event.getPlayer().getUniqueId());
-    }
+  @EventHandler
+  public void handle(PlayerQuitEvent event) {
+    CloudPermissionsHelper.handlePlayerQuit(this.permissionsManagement, event.getPlayer().getUniqueId());
+  }
 }

@@ -13,25 +13,24 @@ import de.dytanic.cloudnet.common.document.gson.JsonDocumentTypeAdapter;
  */
 public final class GsonUtil {
 
-    /**
-     * The Gson constant instance, which should use as a new Gson object instance
-     * The following attributes has with GsonBuilder.
-     * <p>
-     * The serializer has no pretty printing. You can use new JsonDocument(obj).toPrettyJson(); als alternative
-     *
-     * @see Gson
-     * @see GsonBuilder
-     * <p>
-     * serializeNulls
-     * disableHtmlEscaping
-     */
-    public static final Gson GSON = new GsonBuilder()
-            .serializeNulls()
-            .disableHtmlEscaping()
-            .registerTypeAdapterFactory(TypeAdapters.newTypeHierarchyFactory(JsonDocument.class, new JsonDocumentTypeAdapter()))
-            .create();
+  /**
+   * The Gson constant instance, which should use as a new Gson object instance The following attributes has with
+   * GsonBuilder.
+   * <p>
+   * The serializer has no pretty printing. You can use new JsonDocument(obj).toPrettyJson(); als alternative
+   *
+   * @see Gson
+   * @see GsonBuilder
+   * <p>
+   * serializeNulls disableHtmlEscaping
+   */
+  public static final Gson GSON = new GsonBuilder()
+    .serializeNulls()
+    .disableHtmlEscaping()
+    .registerTypeAdapterFactory(TypeAdapters.newTypeHierarchyFactory(JsonDocument.class, new JsonDocumentTypeAdapter()))
+    .create();
 
-    private GsonUtil() {
-        throw new UnsupportedOperationException();
-    }
+  private GsonUtil() {
+    throw new UnsupportedOperationException();
+  }
 }

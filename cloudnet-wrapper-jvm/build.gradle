@@ -1,30 +1,30 @@
 plugins {
-    id "com.github.johnrengelman.shadow" version "7.0.0"
+  id "com.github.johnrengelman.shadow" version "7.0.0"
 }
 
 jar {
-    manifest {
-        attributes 'Main-Class': 'de.dytanic.cloudnet.wrapper.Main'
-        attributes 'Implementation-Version': archiveVersion.get() + "-" + getCurrentCommitHash()
-        attributes 'Implementation-Title': cloudNetCodeName
-    }
+  manifest {
+    attributes 'Main-Class': 'de.dytanic.cloudnet.wrapper.Main'
+    attributes 'Implementation-Version': archiveVersion.get() + "-" + getCurrentCommitHash()
+    attributes 'Implementation-Title': cloudNetCodeName
+  }
 
-    dependsOn shadowJar
+  dependsOn shadowJar
 }
 
 dependencies {
-    api project(':cloudnet-driver')
-    compileOnly project(':cloudnet-wrapper-jvm:minecraft-launchwrapper-api')
+  api project(':cloudnet-driver')
+  compileOnly project(':cloudnet-wrapper-jvm:minecraft-launchwrapper-api')
 }
 
 shadowJar {
-    archiveFileName.set(cloudnetWrapperFile)
-    archiveVersion.set(null)
+  archiveFileName.set(cloudnetWrapperFile)
+  archiveVersion.set(null)
 
-    relocate 'io.netty', 'de.dytanic.cloudnet.wrapper.relocate.io.netty'
-    relocate 'META-INF/native/libnetty', 'META-INF/native/libde_dytanic_cloudnet_wrapper_relocate_netty'
-    relocate 'META-INF/native/netty', 'META-INF/native/de_dytanic_cloudnet_wrapper_relocate_netty'
+  relocate 'io.netty', 'de.dytanic.cloudnet.wrapper.relocate.io.netty'
+  relocate 'META-INF/native/libnetty', 'META-INF/native/libde_dytanic_cloudnet_wrapper_relocate_netty'
+  relocate 'META-INF/native/netty', 'META-INF/native/de_dytanic_cloudnet_wrapper_relocate_netty'
 
-    relocate 'com.google.common', 'de.dytanic.cloudnet.wrapper.relocate.guava'
-    relocate 'com.google.gson', 'de.dytanic.cloudnet.wrapper.relocate.gson'
+  relocate 'com.google.common', 'de.dytanic.cloudnet.wrapper.relocate.guava'
+  relocate 'com.google.gson', 'de.dytanic.cloudnet.wrapper.relocate.gson'
 }

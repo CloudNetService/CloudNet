@@ -6,6 +6,6 @@ import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 
 public interface DriverAPIHandler {
 
-    ProtocolBuffer handle(INetworkChannel channel, IPacket packet, ProtocolBuffer buffer);
+  ProtocolBuffer handle(INetworkChannel channel, IPacket packet, ProtocolBuffer buffer);
 
 }

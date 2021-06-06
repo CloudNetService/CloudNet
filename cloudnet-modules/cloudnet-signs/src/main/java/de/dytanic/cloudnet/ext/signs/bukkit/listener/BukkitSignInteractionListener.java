@@ -17,50 +17,52 @@ import org.bukkit.event.player.PlayerInteractEvent;
 
 public final class BukkitSignInteractionListener implements Listener {
 
-    private final BukkitSignManagement bukkitSignManagement;
+  private final BukkitSignManagement bukkitSignManagement;
 
-    public BukkitSignInteractionListener(BukkitSignManagement bukkitSignManagement) {
-        this.bukkitSignManagement = bukkitSignManagement;
-    }
+  public BukkitSignInteractionListener(BukkitSignManagement bukkitSignManagement) {
+    this.bukkitSignManagement = bukkitSignManagement;
+  }
 
-    @EventHandler
-    public void handleInteract(PlayerInteractEvent event) {
-        SignConfigurationEntry entry = this.bukkitSignManagement.getOwnSignConfigurationEntry();
+  @EventHandler
+  public void handleInteract(PlayerInteractEvent event) {
+    SignConfigurationEntry entry = this.bukkitSignManagement.getOwnSignConfigurationEntry();
 
-        if (entry != null) {
-            if ((event.getAction().equals(Action.RIGHT_CLICK_BLOCK)) &&
-                    event.getClickedBlock() != null &&
-                    event.getClickedBlock().getState() instanceof org.bukkit.block.Sign) {
-                for (Sign sign : this.bukkitSignManagement.getSigns()) {
-                    Location location = this.bukkitSignManagement.toLocation(sign.getWorldPosition());
+    if (entry != null) {
+      if ((event.getAction().equals(Action.RIGHT_CLICK_BLOCK)) &&
+        event.getClickedBlock() != null &&
+        event.getClickedBlock().getState() instanceof org.bukkit.block.Sign) {
+        for (Sign sign : this.bukkitSignManagement.getSigns()) {
+          Location location = this.bukkitSignManagement.toLocation(sign.getWorldPosition());
 
-                    if (location == null || !location.equals(event.getClickedBlock().getLocation())) {
-                        continue;
-                    }
+          if (location == null || !location.equals(event.getClickedBlock().getLocation())) {
+            continue;
+          }
 
-                    String targetServer = sign.getServiceInfoSnapshot() == null ? null : sign.getServiceInfoSnapshot().getName();
+          String targetServer = sign.getServiceInfoSnapshot() == null ? null : sign.getServiceInfoSnapshot().getName();
 
-                    BukkitCloudSignInteractEvent signInteractEvent = new BukkitCloudSignInteractEvent(event.getPlayer(), sign, targetServer);
-                    Bukkit.getPluginManager().callEvent(signInteractEvent);
+          BukkitCloudSignInteractEvent signInteractEvent = new BukkitCloudSignInteractEvent(event.getPlayer(), sign,
+            targetServer);
+          Bukkit.getPluginManager().callEvent(signInteractEvent);
 
-                    if (!signInteractEvent.isCancelled() && signInteractEvent.getTargetServer() != null) {
-                        CloudNetDriver.getInstance().getServicesRegistry().getFirstService(IPlayerManager.class)
-                                .getPlayerExecutor(event.getPlayer().getUniqueId()).connect(signInteractEvent.getTargetServer());
+          if (!signInteractEvent.isCancelled() && signInteractEvent.getTargetServer() != null) {
+            CloudNetDriver.getInstance().getServicesRegistry().getFirstService(IPlayerManager.class)
+              .getPlayerExecutor(event.getPlayer().getUniqueId()).connect(signInteractEvent.getTargetServer());
 
-                        String serverConnectMessage = SignConfigurationProvider.load().getMessages().get("server-connecting-message");
+            String serverConnectMessage = SignConfigurationProvider.load().getMessages()
+              .get("server-connecting-message");
 
-                        if (serverConnectMessage != null) {
-                            event.getPlayer().sendMessage(
-                                    ChatColor.translateAlternateColorCodes('&',
-                                            serverConnectMessage.replace("%server%", sign.getServiceInfoSnapshot().getServiceId().getName())
-                                    )
-                            );
-                        }
-                    }
-
-                    return;
-                }
+            if (serverConnectMessage != null) {
+              event.getPlayer().sendMessage(
+                ChatColor.translateAlternateColorCodes('&',
+                  serverConnectMessage.replace("%server%", sign.getServiceInfoSnapshot().getServiceId().getName())
+                )
+              );
             }
+          }
+
+          return;
         }
+      }
     }
+  }
 }

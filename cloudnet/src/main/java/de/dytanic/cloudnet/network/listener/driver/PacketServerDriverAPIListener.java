@@ -7,41 +7,40 @@ import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.network.protocol.IPacketListener;
 import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
-
 import java.util.HashMap;
 import java.util.Map;
 
 public class PacketServerDriverAPIListener implements IPacketListener {
 
-    private final Map<DriverAPICategory, CategorizedDriverAPIListener> listeners = new HashMap<>();
+  private final Map<DriverAPICategory, CategorizedDriverAPIListener> listeners = new HashMap<>();
 
-    public PacketServerDriverAPIListener() {
-        this.registerListener(new DriverPermissionManagementListener());
+  public PacketServerDriverAPIListener() {
+    this.registerListener(new DriverPermissionManagementListener());
 
-        this.registerListener(new DriverSpecificServiceListener());
-        this.registerListener(new DriverGeneralServiceListener());
-        this.registerListener(new DriverServiceFactoryListener());
+    this.registerListener(new DriverSpecificServiceListener());
+    this.registerListener(new DriverGeneralServiceListener());
+    this.registerListener(new DriverServiceFactoryListener());
 
-        this.registerListener(new DriverServiceTaskListener());
-        this.registerListener(new DriverGroupListener());
+    this.registerListener(new DriverServiceTaskListener());
+    this.registerListener(new DriverGroupListener());
 
-        this.registerListener(new DriverNodeInfoListener());
-        this.registerListener(new DriverTemplateStorageListener());
-    }
+    this.registerListener(new DriverNodeInfoListener());
+    this.registerListener(new DriverTemplateStorageListener());
+  }
 
-    private void registerListener(CategorizedDriverAPIListener listener) {
-        this.listeners.put(listener.getCategory(), listener);
-    }
+  private void registerListener(CategorizedDriverAPIListener listener) {
+    this.listeners.put(listener.getCategory(), listener);
+  }
 
-    @Override
-    public void handle(INetworkChannel channel, IPacket packet) {
-        ProtocolBuffer input = packet.getBuffer();
-        DriverAPIRequestType requestType = input.readEnumConstant(DriverAPIRequestType.class);
+  @Override
+  public void handle(INetworkChannel channel, IPacket packet) {
+    ProtocolBuffer input = packet.getBuffer();
+    DriverAPIRequestType requestType = input.readEnumConstant(DriverAPIRequestType.class);
 
-        CategorizedDriverAPIListener listener = this.listeners.get(requestType.getCategory());
-        Preconditions.checkNotNull(listener, "No listener for category " + requestType.getCategory() + " found");
+    CategorizedDriverAPIListener listener = this.listeners.get(requestType.getCategory());
+    Preconditions.checkNotNull(listener, "No listener for category " + requestType.getCategory() + " found");
 
-        listener.handleDriverRequest(requestType, channel, packet);
-    }
+    listener.handleDriverRequest(requestType, channel, packet);
+  }
 
 }

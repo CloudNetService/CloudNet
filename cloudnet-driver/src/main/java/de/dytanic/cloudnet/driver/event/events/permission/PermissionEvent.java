@@ -6,14 +6,14 @@ import org.jetbrains.annotations.NotNull;
 
 public abstract class PermissionEvent extends Event {
 
-    private final IPermissionManagement permissionManagement;
+  private final IPermissionManagement permissionManagement;
 
-    public PermissionEvent(@NotNull IPermissionManagement permissionManagement) {
-        this.permissionManagement = permissionManagement;
-    }
+  public PermissionEvent(@NotNull IPermissionManagement permissionManagement) {
+    this.permissionManagement = permissionManagement;
+  }
 
-    @NotNull
-    public IPermissionManagement getPermissionManagement() {
-        return this.permissionManagement;
-    }
+  @NotNull
+  public IPermissionManagement getPermissionManagement() {
+    return this.permissionManagement;
+  }
 }

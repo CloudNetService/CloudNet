@@ -1,5 +1,8 @@
 package de.dytanic.cloudnet.command.commands;
 
+import static de.dytanic.cloudnet.command.sub.SubCommandArgumentTypes.anyStringIgnoreCase;
+import static de.dytanic.cloudnet.command.sub.SubCommandArgumentTypes.dynamicString;
+
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.command.ConsoleCommandSender;
 import de.dytanic.cloudnet.command.sub.SubCommandBuilder;
@@ -9,144 +12,148 @@ import de.dytanic.cloudnet.common.logging.LogLevel;
 import de.dytanic.cloudnet.driver.service.ServiceId;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.service.ICloudService;
-
 import java.util.Collection;
 import java.util.stream.Collectors;
 
-import static de.dytanic.cloudnet.command.sub.SubCommandArgumentTypes.anyStringIgnoreCase;
-import static de.dytanic.cloudnet.command.sub.SubCommandArgumentTypes.dynamicString;
-
 public class CommandScreen extends SubCommandHandler {
-    public CommandScreen() {
-        super(
-                SubCommandBuilder.create()
 
-                        .generateCommand(
-                                (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
-                                    Collection<String> services = CloudNet.getInstance().getCloudServiceManager().getCloudServices().values().stream()
-                                            .filter(cloudService -> cloudService.getServiceConsoleLogCache().isScreenEnabled())
-                                            .map(cloudService -> cloudService.getServiceId().getName())
-                                            .collect(Collectors.toSet());
+  public CommandScreen() {
+    super(
+      SubCommandBuilder.create()
 
-                                    if (services.isEmpty()) {
-                                        sender.sendMessage(LanguageManager.getMessage("command-screen-list-no-screen"));
-                                        return;
-                                    }
+        .generateCommand(
+          (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
+            Collection<String> services = CloudNet.getInstance().getCloudServiceManager().getCloudServices().values()
+              .stream()
+              .filter(cloudService -> cloudService.getServiceConsoleLogCache().isScreenEnabled())
+              .map(cloudService -> cloudService.getServiceId().getName())
+              .collect(Collectors.toSet());
 
-                                    sender.sendMessage(LanguageManager.getMessage("command-screen-list").replace("%screens%", String.join(", ", services)));
-                                },
-                                anyStringIgnoreCase("list", "l")
-                        )
+            if (services.isEmpty()) {
+              sender.sendMessage(LanguageManager.getMessage("command-screen-list-no-screen"));
+              return;
+            }
 
-                        .generateCommand(
-                                (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
-                                    Collection<String> services = CloudNet.getInstance().getCloudServiceManager().getCloudServices().values().stream()
-                                            .filter(cloudService -> {
-                                                if (cloudService.getServiceConsoleLogCache().isScreenEnabled()) {
-                                                    cloudService.getServiceConsoleLogCache().setScreenEnabled(false);
-                                                    return true;
-                                                }
-                                                return false;
-                                            })
-                                            .map(cloudService -> cloudService.getServiceId().getName())
-                                            .collect(Collectors.toSet());
+            sender.sendMessage(
+              LanguageManager.getMessage("command-screen-list").replace("%screens%", String.join(", ", services)));
+          },
+          anyStringIgnoreCase("list", "l")
+        )
 
-                                    if (services.isEmpty()) {
-                                        sender.sendMessage(LanguageManager.getMessage("command-screen-list-no-screen"));
-                                        return;
-                                    }
+        .generateCommand(
+          (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
+            Collection<String> services = CloudNet.getInstance().getCloudServiceManager().getCloudServices().values()
+              .stream()
+              .filter(cloudService -> {
+                if (cloudService.getServiceConsoleLogCache().isScreenEnabled()) {
+                  cloudService.getServiceConsoleLogCache().setScreenEnabled(false);
+                  return true;
+                }
+                return false;
+              })
+              .map(cloudService -> cloudService.getServiceId().getName())
+              .collect(Collectors.toSet());
 
-                                    sender.sendMessage(LanguageManager.getMessage("command-screen-disabled").replace("%screens%", String.join(", ", services)));
-                                },
-                                anyStringIgnoreCase("disableAll", "d")
-                        )
+            if (services.isEmpty()) {
+              sender.sendMessage(LanguageManager.getMessage("command-screen-list-no-screen"));
+              return;
+            }
 
-                        .generateCommand(
-                                (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
-                                    String name = (String) args.argument("local service name").get();
+            sender.sendMessage(
+              LanguageManager.getMessage("command-screen-disabled").replace("%screens%", String.join(", ", services)));
+          },
+          anyStringIgnoreCase("disableAll", "d")
+        )
 
-                                    ServiceInfoSnapshot serviceInfoSnapshot = CloudNet.getInstance().getCloudServiceByNameOrUniqueId(name);
+        .generateCommand(
+          (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
+            String name = (String) args.argument("local service name").get();
 
-                                    if (serviceInfoSnapshot == null) {
-                                        return;
-                                    }
+            ServiceInfoSnapshot serviceInfoSnapshot = CloudNet.getInstance().getCloudServiceByNameOrUniqueId(name);
 
-                                    ICloudService cloudService = CloudNet.getInstance().getCloudServiceManager().getCloudService(serviceInfoSnapshot.getServiceId().getUniqueId());
+            if (serviceInfoSnapshot == null) {
+              return;
+            }
 
-                                    if (cloudService == null) {
-                                        return;
-                                    }
+            ICloudService cloudService = CloudNet.getInstance().getCloudServiceManager()
+              .getCloudService(serviceInfoSnapshot.getServiceId().getUniqueId());
 
-                                    if (sender instanceof ConsoleCommandSender) {
-                                        boolean enabled = !cloudService.getServiceConsoleLogCache().isScreenEnabled();
-                                        cloudService.getServiceConsoleLogCache().setScreenEnabled(enabled);
+            if (cloudService == null) {
+              return;
+            }
 
-                                        if (enabled) {
-                                            for (String input : cloudService.getServiceConsoleLogCache().getCachedLogMessages()) {
-                                                CloudNet.getInstance().getLogger().log(LogLevel.INFO, "[" + cloudService.getServiceId().getName() + "] " + input);
-                                            }
+            if (sender instanceof ConsoleCommandSender) {
+              boolean enabled = !cloudService.getServiceConsoleLogCache().isScreenEnabled();
+              cloudService.getServiceConsoleLogCache().setScreenEnabled(enabled);
 
-                                            sender.sendMessage(LanguageManager.getMessage("command-screen-enable-for-service")
-                                                    .replace("%name%", cloudService.getServiceId().getName())
-                                                    .replace("%uniqueId%", cloudService.getServiceId().getUniqueId().toString().split("-")[0])
-                                            );
-                                        } else {
-                                            sender.sendMessage(LanguageManager.getMessage("command-screen-disable-for-service")
-                                                    .replace("%name%", cloudService.getServiceId().getName())
-                                                    .replace("%uniqueId%", cloudService.getServiceId().getUniqueId().toString().split("-")[0])
-                                            );
-                                        }
-                                        return;
-                                    }
+              if (enabled) {
+                for (String input : cloudService.getServiceConsoleLogCache().getCachedLogMessages()) {
+                  CloudNet.getInstance().getLogger()
+                    .log(LogLevel.INFO, "[" + cloudService.getServiceId().getName() + "] " + input);
+                }
 
-                                    for (String input : cloudService.getServiceConsoleLogCache().getCachedLogMessages()) {
-                                        sender.sendMessage("[" + cloudService.getServiceId().getName() + "] " + input);
-                                    }
-                                },
-                                anyStringIgnoreCase("toggle", "t"),
-                                dynamicString(
-                                        "local service name",
-                                        () -> CloudNet.getInstance().getCloudServiceManager().getLocalCloudServices()
-                                                .stream()
-                                                .map(ICloudService::getServiceId)
-                                                .map(ServiceId::getName)
-                                                .collect(Collectors.toList())
-                                )
-                        )
+                sender.sendMessage(LanguageManager.getMessage("command-screen-enable-for-service")
+                  .replace("%name%", cloudService.getServiceId().getName())
+                  .replace("%uniqueId%", cloudService.getServiceId().getUniqueId().toString().split("-")[0])
+                );
+              } else {
+                sender.sendMessage(LanguageManager.getMessage("command-screen-disable-for-service")
+                  .replace("%name%", cloudService.getServiceId().getName())
+                  .replace("%uniqueId%", cloudService.getServiceId().getUniqueId().toString().split("-")[0])
+                );
+              }
+              return;
+            }
 
-                        .generateCommand(
-                                (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
-                                    String line = (String) args.argument("command").get();
+            for (String input : cloudService.getServiceConsoleLogCache().getCachedLogMessages()) {
+              sender.sendMessage("[" + cloudService.getServiceId().getName() + "] " + input);
+            }
+          },
+          anyStringIgnoreCase("toggle", "t"),
+          dynamicString(
+            "local service name",
+            () -> CloudNet.getInstance().getCloudServiceManager().getLocalCloudServices()
+              .stream()
+              .map(ICloudService::getServiceId)
+              .map(ServiceId::getName)
+              .collect(Collectors.toList())
+          )
+        )
 
-                                    Collection<String> targetServiceNames = CloudNet.getInstance().getCloudServiceManager().getCloudServices().values().stream()
-                                            .filter(cloudService -> {
-                                                if (cloudService.getServiceConsoleLogCache().isScreenEnabled()) {
-                                                    cloudService.runCommand(line);
-                                                    return true;
-                                                }
-                                                return false;
-                                            })
-                                            .map(cloudService -> cloudService.getServiceId().getName())
-                                            .collect(Collectors.toSet());
+        .generateCommand(
+          (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
+            String line = (String) args.argument("command").get();
 
-                                    if (targetServiceNames.isEmpty()) {
-                                        sender.sendMessage(LanguageManager.getMessage("command-screen-write-no-screen"));
-                                    } else {
-                                        sender.sendMessage(LanguageManager.getMessage("command-screen-write-success")
-                                                .replace("%command%", line)
-                                                .replace("%targets%", String.join(", ", targetServiceNames)));
-                                    }
-                                },
-                                subCommand -> subCommand.setMinArgs(subCommand.getRequiredArguments().length).setMaxArgs(Integer.MAX_VALUE),
-                                anyStringIgnoreCase("write", "send"),
-                                dynamicString("command")
-                        )
+            Collection<String> targetServiceNames = CloudNet.getInstance().getCloudServiceManager().getCloudServices()
+              .values().stream()
+              .filter(cloudService -> {
+                if (cloudService.getServiceConsoleLogCache().isScreenEnabled()) {
+                  cloudService.runCommand(line);
+                  return true;
+                }
+                return false;
+              })
+              .map(cloudService -> cloudService.getServiceId().getName())
+              .collect(Collectors.toSet());
 
-                        .getSubCommands(),
-                "screen", "scr", "console"
-        );
+            if (targetServiceNames.isEmpty()) {
+              sender.sendMessage(LanguageManager.getMessage("command-screen-write-no-screen"));
+            } else {
+              sender.sendMessage(LanguageManager.getMessage("command-screen-write-success")
+                .replace("%command%", line)
+                .replace("%targets%", String.join(", ", targetServiceNames)));
+            }
+          },
+          subCommand -> subCommand.setMinArgs(subCommand.getRequiredArguments().length).setMaxArgs(Integer.MAX_VALUE),
+          anyStringIgnoreCase("write", "send"),
+          dynamicString("command")
+        )
 
-        super.permission = "cloudnet.command.screen";
-        super.description = LanguageManager.getMessage("command-description-screen");
-    }
+        .getSubCommands(),
+      "screen", "scr", "console"
+    );
+
+    super.permission = "cloudnet.command.screen";
+    super.description = LanguageManager.getMessage("command-description-screen");
+  }
 }

@@ -8,27 +8,27 @@ import org.jetbrains.annotations.NotNull;
 
 public interface IClusterNodeServer extends NodeServer, AutoCloseable {
 
-    void sendCustomChannelMessage(@NotNull String channel, @NotNull String message, @NotNull JsonDocument data);
+  void sendCustomChannelMessage(@NotNull String channel, @NotNull String message, @NotNull JsonDocument data);
 
-    void sendCustomChannelMessage(@NotNull ChannelMessage channelMessage);
+  void sendCustomChannelMessage(@NotNull ChannelMessage channelMessage);
 
-    @Override
-    @NotNull IClusterNodeServerProvider getProvider();
+  @Override
+  @NotNull IClusterNodeServerProvider getProvider();
 
-    INetworkChannel getChannel();
+  INetworkChannel getChannel();
 
-    void setChannel(@NotNull INetworkChannel channel);
+  void setChannel(@NotNull INetworkChannel channel);
 
-    boolean isConnected();
+  boolean isConnected();
 
-    void saveSendPacket(@NotNull IPacket packet);
+  void saveSendPacket(@NotNull IPacket packet);
 
-    void saveSendPacketSync(@NotNull IPacket packet);
+  void saveSendPacketSync(@NotNull IPacket packet);
 
-    boolean isAcceptableConnection(@NotNull INetworkChannel channel, @NotNull String nodeId);
+  boolean isAcceptableConnection(@NotNull INetworkChannel channel, @NotNull String nodeId);
 
-    @Override
-    default boolean isAvailable() {
-        return this.getChannel() != null;
-    }
+  @Override
+  default boolean isAvailable() {
+    return this.getChannel() != null;
+  }
 }

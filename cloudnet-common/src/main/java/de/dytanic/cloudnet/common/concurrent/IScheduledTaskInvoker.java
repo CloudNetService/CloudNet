@@ -6,8 +6,8 @@ import org.jetbrains.annotations.ApiStatus;
 @ApiStatus.ScheduledForRemoval
 public interface IScheduledTaskInvoker {
 
-    <V> IScheduledTask<V> offerTask(IScheduledTask<V> scheduledTask);
+  <V> IScheduledTask<V> offerTask(IScheduledTask<V> scheduledTask);
 
-    IScheduledTaskInvoker cancelAll();
+  IScheduledTaskInvoker cancelAll();
 
 }

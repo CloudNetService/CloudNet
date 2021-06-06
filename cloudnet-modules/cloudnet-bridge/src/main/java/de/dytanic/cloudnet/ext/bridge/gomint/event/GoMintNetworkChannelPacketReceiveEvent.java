@@ -8,20 +8,20 @@ import de.dytanic.cloudnet.driver.network.protocol.IPacket;
  */
 public final class GoMintNetworkChannelPacketReceiveEvent extends GoMintCloudNetEvent {
 
-    private final INetworkChannel channel;
+  private final INetworkChannel channel;
 
-    private final IPacket packet;
+  private final IPacket packet;
 
-    public GoMintNetworkChannelPacketReceiveEvent(INetworkChannel channel, IPacket packet) {
-        this.channel = channel;
-        this.packet = packet;
-    }
+  public GoMintNetworkChannelPacketReceiveEvent(INetworkChannel channel, IPacket packet) {
+    this.channel = channel;
+    this.packet = packet;
+  }
 
-    public INetworkChannel getChannel() {
-        return this.channel;
-    }
+  public INetworkChannel getChannel() {
+    return this.channel;
+  }
 
-    public IPacket getPacket() {
-        return this.packet;
-    }
+  public IPacket getPacket() {
+    return this.packet;
+  }
 }

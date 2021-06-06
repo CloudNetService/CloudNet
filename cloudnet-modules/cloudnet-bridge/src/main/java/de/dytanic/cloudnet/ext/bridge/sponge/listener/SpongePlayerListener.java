@@ -10,26 +10,28 @@ import org.spongepowered.api.scheduler.SpongeExecutorService;
 
 public final class SpongePlayerListener {
 
-    private final SpongeExecutorService executorService;
+  private final SpongeExecutorService executorService;
 
-    public SpongePlayerListener(SpongeCloudNetBridgePlugin plugin) {
-        this.executorService = Sponge.getGame().getScheduler().createSyncExecutor(plugin);
-    }
+  public SpongePlayerListener(SpongeCloudNetBridgePlugin plugin) {
+    this.executorService = Sponge.getGame().getScheduler().createSyncExecutor(plugin);
+  }
 
-    @Listener
-    public void handle(ClientConnectionEvent.Join event) {
-        BridgeHelper.sendChannelMessageServerLoginSuccess(SpongeCloudNetHelper.createNetworkConnectionInfo(event.getTargetEntity()),
-                SpongeCloudNetHelper.createNetworkPlayerServerInfo(event.getTargetEntity(), false)
-        );
+  @Listener
+  public void handle(ClientConnectionEvent.Join event) {
+    BridgeHelper
+      .sendChannelMessageServerLoginSuccess(SpongeCloudNetHelper.createNetworkConnectionInfo(event.getTargetEntity()),
+        SpongeCloudNetHelper.createNetworkPlayerServerInfo(event.getTargetEntity(), false)
+      );
 
-        this.executorService.execute(BridgeHelper::updateServiceInfo);
-    }
+    this.executorService.execute(BridgeHelper::updateServiceInfo);
+  }
 
-    @Listener
-    public void handle(ClientConnectionEvent.Disconnect event) {
-        BridgeHelper.sendChannelMessageServerDisconnect(SpongeCloudNetHelper.createNetworkConnectionInfo(event.getTargetEntity()),
-                SpongeCloudNetHelper.createNetworkPlayerServerInfo(event.getTargetEntity(), false));
+  @Listener
+  public void handle(ClientConnectionEvent.Disconnect event) {
+    BridgeHelper
+      .sendChannelMessageServerDisconnect(SpongeCloudNetHelper.createNetworkConnectionInfo(event.getTargetEntity()),
+        SpongeCloudNetHelper.createNetworkPlayerServerInfo(event.getTargetEntity(), false));
 
-        this.executorService.execute(BridgeHelper::updateServiceInfo);
-    }
+    this.executorService.execute(BridgeHelper::updateServiceInfo);
+  }
 }

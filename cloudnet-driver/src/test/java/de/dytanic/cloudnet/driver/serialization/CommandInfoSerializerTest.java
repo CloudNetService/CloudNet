@@ -6,16 +6,16 @@ import org.junit.Test;
 
 public class CommandInfoSerializerTest {
 
-    @Test
-    public void serializeCommandInfo() {
-        CommandInfo original = new CommandInfo(new String[]{"help", "?"}, null, "desc", "any usage");
+  @Test
+  public void serializeCommandInfo() {
+    CommandInfo original = new CommandInfo(new String[]{"help", "?"}, null, "desc", "any usage");
 
-        ProtocolBuffer buffer = ProtocolBuffer.create();
-        buffer.writeObject(original);
+    ProtocolBuffer buffer = ProtocolBuffer.create();
+    buffer.writeObject(original);
 
-        CommandInfo deserialized = buffer.readObject(CommandInfo.class);
+    CommandInfo deserialized = buffer.readObject(CommandInfo.class);
 
-        Assert.assertEquals(original, deserialized);
-    }
+    Assert.assertEquals(original, deserialized);
+  }
 
 }

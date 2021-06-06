@@ -9,13 +9,15 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public class VaultSupport {
 
-    public static void enable(JavaPlugin plugin, IPermissionManagement permissionManagement) {
-        ServicesManager servicesManager = plugin.getServer().getServicesManager();
+  public static void enable(JavaPlugin plugin, IPermissionManagement permissionManagement) {
+    ServicesManager servicesManager = plugin.getServer().getServicesManager();
 
-        Permission vaultPermissionImplementation = new VaultPermissionImplementation(permissionManagement);
+    Permission vaultPermissionImplementation = new VaultPermissionImplementation(permissionManagement);
 
-        servicesManager.register(Permission.class, vaultPermissionImplementation, plugin, ServicePriority.Highest);
-        servicesManager.register(Chat.class, new VaultChatImplementation(vaultPermissionImplementation, permissionManagement), plugin, ServicePriority.Highest);
-    }
+    servicesManager.register(Permission.class, vaultPermissionImplementation, plugin, ServicePriority.Highest);
+    servicesManager
+      .register(Chat.class, new VaultChatImplementation(vaultPermissionImplementation, permissionManagement), plugin,
+        ServicePriority.Highest);
+  }
 
 }

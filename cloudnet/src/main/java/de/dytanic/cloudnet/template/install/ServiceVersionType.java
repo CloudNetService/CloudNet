@@ -2,52 +2,53 @@ package de.dytanic.cloudnet.template.install;
 
 import de.dytanic.cloudnet.driver.service.ServiceEnvironment;
 import de.dytanic.cloudnet.template.install.run.step.InstallStep;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
 public class ServiceVersionType {
-    private String name;
-    private ServiceEnvironment targetEnvironment;
-    private List<InstallStep> installSteps = new ArrayList<>();
-    private Collection<ServiceVersion> versions;
 
-    public ServiceVersionType() {
-    }
+  private String name;
+  private ServiceEnvironment targetEnvironment;
+  private List<InstallStep> installSteps = new ArrayList<>();
+  private Collection<ServiceVersion> versions;
 
-    public ServiceVersionType(String name, ServiceEnvironment targetEnvironment, List<InstallStep> installSteps, Collection<ServiceVersion> versions) {
-        this.name = name;
-        this.targetEnvironment = targetEnvironment;
-        this.installSteps = installSteps;
-        this.versions = versions;
-    }
+  public ServiceVersionType() {
+  }
 
-    public Optional<ServiceVersion> getVersion(String name) {
-        return this.versions.stream()
-                .filter(serviceVersion -> serviceVersion.getName().equalsIgnoreCase(name))
-                .findFirst();
-    }
+  public ServiceVersionType(String name, ServiceEnvironment targetEnvironment, List<InstallStep> installSteps,
+    Collection<ServiceVersion> versions) {
+    this.name = name;
+    this.targetEnvironment = targetEnvironment;
+    this.installSteps = installSteps;
+    this.versions = versions;
+  }
 
-    public boolean canInstall(ServiceVersion serviceVersion) {
-        return !this.installSteps.contains(InstallStep.BUILD) || serviceVersion.canRun();
-    }
+  public Optional<ServiceVersion> getVersion(String name) {
+    return this.versions.stream()
+      .filter(serviceVersion -> serviceVersion.getName().equalsIgnoreCase(name))
+      .findFirst();
+  }
 
-    public String getName() {
-        return this.name;
-    }
+  public boolean canInstall(ServiceVersion serviceVersion) {
+    return !this.installSteps.contains(InstallStep.BUILD) || serviceVersion.canRun();
+  }
 
-    public ServiceEnvironment getTargetEnvironment() {
-        return this.targetEnvironment;
-    }
+  public String getName() {
+    return this.name;
+  }
 
-    public List<InstallStep> getInstallSteps() {
-        return this.installSteps;
-    }
+  public ServiceEnvironment getTargetEnvironment() {
+    return this.targetEnvironment;
+  }
 
-    public Collection<ServiceVersion> getVersions() {
-        return this.versions;
-    }
+  public List<InstallStep> getInstallSteps() {
+    return this.installSteps;
+  }
+
+  public Collection<ServiceVersion> getVersions() {
+    return this.versions;
+  }
 
 }

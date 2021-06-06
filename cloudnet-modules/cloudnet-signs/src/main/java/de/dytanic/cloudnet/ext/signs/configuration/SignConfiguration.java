@@ -2,46 +2,45 @@ package de.dytanic.cloudnet.ext.signs.configuration;
 
 import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.ext.signs.configuration.entry.SignConfigurationEntry;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
-
 import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.Map;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 @ToString
 @EqualsAndHashCode
 public class SignConfiguration {
 
-    public static final Type TYPE = new TypeToken<SignConfiguration>() {
-    }.getType();
+  public static final Type TYPE = new TypeToken<SignConfiguration>() {
+  }.getType();
 
-    protected Collection<SignConfigurationEntry> configurations;
+  protected Collection<SignConfigurationEntry> configurations;
 
-    protected Map<String, String> messages;
+  protected Map<String, String> messages;
 
-    public SignConfiguration(Collection<SignConfigurationEntry> configurations, Map<String, String> messages) {
-        this.configurations = configurations;
-        this.messages = messages;
-    }
+  public SignConfiguration(Collection<SignConfigurationEntry> configurations, Map<String, String> messages) {
+    this.configurations = configurations;
+    this.messages = messages;
+  }
 
-    public SignConfiguration() {
-    }
+  public SignConfiguration() {
+  }
 
-    public Collection<SignConfigurationEntry> getConfigurations() {
-        return this.configurations;
-    }
+  public Collection<SignConfigurationEntry> getConfigurations() {
+    return this.configurations;
+  }
 
-    public void setConfigurations(Collection<SignConfigurationEntry> configurations) {
-        this.configurations = configurations;
-    }
+  public void setConfigurations(Collection<SignConfigurationEntry> configurations) {
+    this.configurations = configurations;
+  }
 
-    public Map<String, String> getMessages() {
-        return this.messages;
-    }
+  public Map<String, String> getMessages() {
+    return this.messages;
+  }
 
-    public void setMessages(Map<String, String> messages) {
-        this.messages = messages;
-    }
+  public void setMessages(Map<String, String> messages) {
+    this.messages = messages;
+  }
 
 }

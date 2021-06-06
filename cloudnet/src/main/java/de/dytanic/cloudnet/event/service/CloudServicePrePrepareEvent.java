@@ -6,25 +6,24 @@ import de.dytanic.cloudnet.service.ICloudService;
 
 public final class CloudServicePrePrepareEvent extends DriverEvent implements ICancelable {
 
-    private final ICloudService cloudService;
+  private final ICloudService cloudService;
+  private boolean cancelled = false;
 
-    public CloudServicePrePrepareEvent(ICloudService cloudService) {
-        this.cloudService = cloudService;
-    }
+  public CloudServicePrePrepareEvent(ICloudService cloudService) {
+    this.cloudService = cloudService;
+  }
 
-    public ICloudService getCloudService() {
-        return this.cloudService;
-    }
+  public ICloudService getCloudService() {
+    return this.cloudService;
+  }
 
-    private boolean cancelled = false;
+  @Override
+  public boolean isCancelled() {
+    return this.cancelled;
+  }
 
-    @Override
-    public boolean isCancelled() {
-        return this.cancelled;
-    }
-
-    @Override
-    public void setCancelled(boolean value) {
-        this.cancelled = value;
-    }
+  @Override
+  public void setCancelled(boolean value) {
+    this.cancelled = value;
+  }
 }

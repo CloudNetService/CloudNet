@@ -7,9 +7,9 @@ import de.dytanic.cloudnet.driver.network.protocol.IPacketListener;
 
 public class PacketServerSetGlobalLogLevelListener implements IPacketListener {
 
-    @Override
-    public void handle(INetworkChannel channel, IPacket packet) {
-        CloudNetDriver.getInstance().getLogger().setLevel(packet.getBuffer().readInt());
-    }
+  @Override
+  public void handle(INetworkChannel channel, IPacket packet) {
+    CloudNetDriver.getInstance().getLogger().setLevel(packet.getBuffer().readInt());
+  }
 
 }

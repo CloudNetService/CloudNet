@@ -5,12 +5,12 @@ import de.dytanic.cloudnet.common.Properties;
 
 public final class CommandClear extends CommandDefault {
 
-    public CommandClear() {
-        super("clear");
-    }
+  public CommandClear() {
+    super("clear");
+  }
 
-    @Override
-    public void execute(ICommandSender sender, String command, String[] args, String commandLine, Properties properties) {
-        this.getCloudNet().getConsole().clearScreen();
-    }
+  @Override
+  public void execute(ICommandSender sender, String command, String[] args, String commandLine, Properties properties) {
+    this.getCloudNet().getConsole().clearScreen();
+  }
 }

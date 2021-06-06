@@ -12,21 +12,21 @@ import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 
 public final class PacketServerChannelMessageListener implements IPacketListener {
 
-    @Override
-    public void handle(INetworkChannel channel, IPacket packet) {
-        ChannelMessage message = packet.getBuffer().readObject(ChannelMessage.class);
-        boolean query = packet.getBuffer().readBoolean();
+  @Override
+  public void handle(INetworkChannel channel, IPacket packet) {
+    ChannelMessage message = packet.getBuffer().readObject(ChannelMessage.class);
+    boolean query = packet.getBuffer().readBoolean();
 
-        ChannelMessageReceiveEvent event = new ChannelMessageReceiveEvent(message, query);
-        CloudNetDriver.getInstance().getEventManager().callEvent(event);
+    ChannelMessageReceiveEvent event = new ChannelMessageReceiveEvent(message, query);
+    CloudNetDriver.getInstance().getEventManager().callEvent(event);
 
-        if (query) {
-            ProtocolBuffer buffer = ProtocolBuffer.create();
-            buffer.writeBoolean(event.getQueryResponse() != null);
-            if (event.getQueryResponse() != null) {
-                buffer.writeObject(event.getQueryResponse());
-            }
-            channel.sendPacket(new Packet(-1, packet.getUniqueId(), JsonDocument.EMPTY, buffer));
-        }
+    if (query) {
+      ProtocolBuffer buffer = ProtocolBuffer.create();
+      buffer.writeBoolean(event.getQueryResponse() != null);
+      if (event.getQueryResponse() != null) {
+        buffer.writeObject(event.getQueryResponse());
+      }
+      channel.sendPacket(new Packet(-1, packet.getUniqueId(), JsonDocument.EMPTY, buffer));
     }
+  }
 }

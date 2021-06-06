@@ -8,20 +8,20 @@ import org.jetbrains.annotations.NotNull;
 @ApiStatus.ScheduledForRemoval
 public interface IScheduledTask<V> extends ITask<V> {
 
-    long getTaskId();
+  long getTaskId();
 
-    boolean isRepeatable();
+  boolean isRepeatable();
 
-    long getDelayedTimeStamp();
+  long getDelayedTimeStamp();
 
-    long getDelayMillis();
+  long getDelayMillis();
 
-    IScheduledTask<V> setDelayMillis(long delayMillis);
+  IScheduledTask<V> setDelayMillis(long delayMillis);
 
-    long getRepeatMillis();
+  long getRepeatMillis();
 
-    IScheduledTask<V> setRepeatMillis(long repeatMillis);
+  IScheduledTask<V> setRepeatMillis(long repeatMillis);
 
-    IScheduledTask<V> cancel();
+  IScheduledTask<V> cancel();
 
 }

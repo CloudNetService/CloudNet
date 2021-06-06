@@ -9,25 +9,25 @@ import org.jetbrains.annotations.NotNull;
  */
 public final class BukkitCloudServiceConnectNetworkEvent extends BukkitCloudNetEvent {
 
-    private static final HandlerList handlerList = new HandlerList();
+  private static final HandlerList handlerList = new HandlerList();
 
-    private final ServiceInfoSnapshot serviceInfoSnapshot;
+  private final ServiceInfoSnapshot serviceInfoSnapshot;
 
-    public BukkitCloudServiceConnectNetworkEvent(ServiceInfoSnapshot serviceInfoSnapshot) {
-        this.serviceInfoSnapshot = serviceInfoSnapshot;
-    }
+  public BukkitCloudServiceConnectNetworkEvent(ServiceInfoSnapshot serviceInfoSnapshot) {
+    this.serviceInfoSnapshot = serviceInfoSnapshot;
+  }
 
-    public static HandlerList getHandlerList() {
-        return BukkitCloudServiceConnectNetworkEvent.handlerList;
-    }
+  public static HandlerList getHandlerList() {
+    return BukkitCloudServiceConnectNetworkEvent.handlerList;
+  }
 
-    @NotNull
-    @Override
-    public HandlerList getHandlers() {
-        return handlerList;
-    }
+  @NotNull
+  @Override
+  public HandlerList getHandlers() {
+    return handlerList;
+  }
 
-    public ServiceInfoSnapshot getServiceInfoSnapshot() {
-        return this.serviceInfoSnapshot;
-    }
+  public ServiceInfoSnapshot getServiceInfoSnapshot() {
+    return this.serviceInfoSnapshot;
+  }
 }

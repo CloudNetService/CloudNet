@@ -9,4 +9,5 @@ import org.jetbrains.annotations.ApiStatus;
 @Deprecated
 @ApiStatus.ScheduledForRemoval(inVersion = "3.6")
 public interface IDatabase extends Database {
+
 }

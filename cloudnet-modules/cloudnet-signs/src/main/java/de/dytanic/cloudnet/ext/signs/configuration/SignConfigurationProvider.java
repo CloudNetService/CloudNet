@@ -7,35 +7,35 @@ import de.dytanic.cloudnet.wrapper.Wrapper;
 
 public final class SignConfigurationProvider {
 
-    private static volatile SignConfiguration loadedConfiguration;
+  private static volatile SignConfiguration loadedConfiguration;
 
-    private SignConfigurationProvider() {
-        throw new UnsupportedOperationException();
+  private SignConfigurationProvider() {
+    throw new UnsupportedOperationException();
+  }
+
+  public static void setLocal(SignConfiguration signConfiguration) {
+    Preconditions.checkNotNull(signConfiguration);
+
+    loadedConfiguration = signConfiguration;
+  }
+
+  public static SignConfiguration load() {
+    if (loadedConfiguration == null) {
+      loadedConfiguration = load0();
     }
 
-    public static void setLocal(SignConfiguration signConfiguration) {
-        Preconditions.checkNotNull(signConfiguration);
+    return loadedConfiguration;
+  }
 
-        loadedConfiguration = signConfiguration;
-    }
+  private static SignConfiguration load0() {
+    ChannelMessage response = ChannelMessage.builder()
+      .channel(SignConstants.SIGN_CHANNEL_NAME)
+      .message(SignConstants.SIGN_CHANNEL_GET_SIGNS_CONFIGURATION)
+      .targetNode(Wrapper.getInstance().getServiceId().getNodeUniqueId())
+      .build()
+      .sendSingleQuery();
 
-    public static SignConfiguration load() {
-        if (loadedConfiguration == null) {
-            loadedConfiguration = load0();
-        }
-
-        return loadedConfiguration;
-    }
-
-    private static SignConfiguration load0() {
-        ChannelMessage response = ChannelMessage.builder()
-                .channel(SignConstants.SIGN_CHANNEL_NAME)
-                .message(SignConstants.SIGN_CHANNEL_GET_SIGNS_CONFIGURATION)
-                .targetNode(Wrapper.getInstance().getServiceId().getNodeUniqueId())
-                .build()
-                .sendSingleQuery();
-
-        return response == null ? null : response.getJson().get("signConfiguration", SignConfiguration.TYPE);
-    }
+    return response == null ? null : response.getJson().get("signConfiguration", SignConfiguration.TYPE);
+  }
 
 }

@@ -7,22 +7,23 @@ import de.dytanic.cloudnet.ext.bridge.WrappedChannelMessageReceiveEvent;
 /**
  * {@inheritDoc}
  */
-public final class NukkitChannelMessageReceiveEvent extends NukkitCloudNetEvent implements WrappedChannelMessageReceiveEvent {
+public final class NukkitChannelMessageReceiveEvent extends NukkitCloudNetEvent implements
+  WrappedChannelMessageReceiveEvent {
 
-    private static final HandlerList handlers = new HandlerList();
+  private static final HandlerList handlers = new HandlerList();
 
-    private final ChannelMessageReceiveEvent event;
+  private final ChannelMessageReceiveEvent event;
 
-    public NukkitChannelMessageReceiveEvent(ChannelMessageReceiveEvent event) {
-        this.event = event;
-    }
+  public NukkitChannelMessageReceiveEvent(ChannelMessageReceiveEvent event) {
+    this.event = event;
+  }
 
-    @Override
-    public ChannelMessageReceiveEvent getWrapped() {
-        return this.event;
-    }
+  public static HandlerList getHandlers() {
+    return NukkitChannelMessageReceiveEvent.handlers;
+  }
 
-    public static HandlerList getHandlers() {
-        return NukkitChannelMessageReceiveEvent.handlers;
-    }
+  @Override
+  public ChannelMessageReceiveEvent getWrapped() {
+    return this.event;
+  }
 }

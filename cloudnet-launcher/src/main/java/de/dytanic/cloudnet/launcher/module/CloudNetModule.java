@@ -7,21 +7,21 @@ import lombok.ToString;
 @EqualsAndHashCode
 public final class CloudNetModule {
 
-    protected final String name;
+  protected final String name;
 
-    protected final String fileName;
+  protected final String fileName;
 
-    public CloudNetModule(String name, String fileName) {
-        this.name = name;
-        this.fileName = fileName;
-    }
+  public CloudNetModule(String name, String fileName) {
+    this.name = name;
+    this.fileName = fileName;
+  }
 
-    public String getName() {
-        return this.name;
-    }
+  public String getName() {
+    return this.name;
+  }
 
-    public String getFileName() {
-        return this.fileName;
-    }
+  public String getFileName() {
+    return this.fileName;
+  }
 
 }

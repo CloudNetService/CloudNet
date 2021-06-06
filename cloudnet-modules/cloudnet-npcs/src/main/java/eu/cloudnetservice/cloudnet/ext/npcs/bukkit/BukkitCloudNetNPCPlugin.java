@@ -12,46 +12,49 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public class BukkitCloudNetNPCPlugin extends JavaPlugin {
 
-    private BukkitNPCManagement npcManagement;
+  private BukkitNPCManagement npcManagement;
 
-    @Override
-    public void onEnable() {
-        this.npcManagement = new BukkitNPCManagement(this);
-        CloudNetDriver.getInstance().getServicesRegistry().registerService(AbstractNPCManagement.class, "BukkitNPCManagement", this.npcManagement);
+  @Override
+  public void onEnable() {
+    this.npcManagement = new BukkitNPCManagement(this);
+    CloudNetDriver.getInstance().getServicesRegistry()
+      .registerService(AbstractNPCManagement.class, "BukkitNPCManagement", this.npcManagement);
 
-        this.registerListeners();
+    this.registerListeners();
+  }
+
+  private void registerListeners() {
+    PluginCommand pluginCommand = this.getCommand("cloudnpc");
+
+    if (pluginCommand != null) {
+      pluginCommand.setExecutor(new CloudNPCCommand(this.npcManagement));
+      pluginCommand.setPermission("cloudnet.command.cloudnpc");
+      pluginCommand.setUsage(
+        "/cloudnpc create <targetGroup> <displayName> <skinUUID> <itemInHand> <shouldLookAtPlayer> <shouldImitatePlayer>");
+      pluginCommand.setDescription("Adds or removes server selector NPCs");
     }
 
-    private void registerListeners() {
-        PluginCommand pluginCommand = this.getCommand("cloudnpc");
+    CloudNetDriver.getInstance().getEventManager().registerListener(this.npcManagement);
+    Bukkit.getPluginManager().registerEvents(new NPCInventoryListener(this.npcManagement), this);
+    Bukkit.getPluginManager().registerEvents(new LabyModEmotePlayer(this, this.npcManagement), this);
 
-        if (pluginCommand != null) {
-            pluginCommand.setExecutor(new CloudNPCCommand(this.npcManagement));
-            pluginCommand.setPermission("cloudnet.command.cloudnpc");
-            pluginCommand.setUsage("/cloudnpc create <targetGroup> <displayName> <skinUUID> <itemInHand> <shouldLookAtPlayer> <shouldImitatePlayer>");
-            pluginCommand.setDescription("Adds or removes server selector NPCs");
-        }
+    NPCConfigurationEntry ownNPCConfigurationEntry = this.npcManagement.getOwnNPCConfigurationEntry();
 
-        CloudNetDriver.getInstance().getEventManager().registerListener(this.npcManagement);
-        Bukkit.getPluginManager().registerEvents(new NPCInventoryListener(this.npcManagement), this);
-        Bukkit.getPluginManager().registerEvents(new LabyModEmotePlayer(this, this.npcManagement), this);
-
-        NPCConfigurationEntry ownNPCConfigurationEntry = this.npcManagement.getOwnNPCConfigurationEntry();
-
-        if (ownNPCConfigurationEntry != null
-                && ownNPCConfigurationEntry.getKnockbackDistance() > 0
-                && ownNPCConfigurationEntry.getKnockbackStrength() > 0) {
-            Bukkit.getScheduler().scheduleSyncRepeatingTask(this, new BukkitNPCKnockbackRunnable(this.npcManagement), 20, 5);
-        }
+    if (ownNPCConfigurationEntry != null
+      && ownNPCConfigurationEntry.getKnockbackDistance() > 0
+      && ownNPCConfigurationEntry.getKnockbackStrength() > 0) {
+      Bukkit.getScheduler().scheduleSyncRepeatingTask(this, new BukkitNPCKnockbackRunnable(this.npcManagement), 20, 5);
     }
+  }
 
-    @Override
-    public void onDisable() {
-        if (this.npcManagement != null) {
-            CloudNetDriver.getInstance().getEventManager().unregisterListener(this.npcManagement);
+  @Override
+  public void onDisable() {
+    if (this.npcManagement != null) {
+      CloudNetDriver.getInstance().getEventManager().unregisterListener(this.npcManagement);
 
-            this.npcManagement.shutdown();
-            CloudNetDriver.getInstance().getServicesRegistry().unregisterService(AbstractNPCManagement.class, this.npcManagement);
-        }
+      this.npcManagement.shutdown();
+      CloudNetDriver.getInstance().getServicesRegistry()
+        .unregisterService(AbstractNPCManagement.class, this.npcManagement);
     }
+  }
 }

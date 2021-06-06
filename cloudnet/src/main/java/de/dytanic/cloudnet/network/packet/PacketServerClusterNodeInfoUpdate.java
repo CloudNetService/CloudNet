@@ -7,13 +7,14 @@ import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 
 public final class PacketServerClusterNodeInfoUpdate extends Packet {
 
-    public PacketServerClusterNodeInfoUpdate(NetworkClusterNodeInfoSnapshot networkClusterNodeInfoSnapshot) {
-        super(PacketConstants.CLUSTER_NODE_INFO_CHANNEL, ProtocolBuffer.create().writeObject(networkClusterNodeInfoSnapshot));
-    }
+  public PacketServerClusterNodeInfoUpdate(NetworkClusterNodeInfoSnapshot networkClusterNodeInfoSnapshot) {
+    super(PacketConstants.CLUSTER_NODE_INFO_CHANNEL,
+      ProtocolBuffer.create().writeObject(networkClusterNodeInfoSnapshot));
+  }
 
-    @Override
-    public boolean isShowDebug() {
-        return false;
-    }
+  @Override
+  public boolean isShowDebug() {
+    return false;
+  }
 
 }

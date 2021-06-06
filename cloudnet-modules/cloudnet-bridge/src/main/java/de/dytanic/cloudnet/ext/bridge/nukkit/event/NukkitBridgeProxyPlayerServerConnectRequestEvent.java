@@ -9,26 +9,27 @@ import de.dytanic.cloudnet.ext.bridge.player.NetworkServiceInfo;
  */
 public class NukkitBridgeProxyPlayerServerConnectRequestEvent extends NukkitBridgeEvent {
 
-    private static final HandlerList handlers = new HandlerList();
+  private static final HandlerList handlers = new HandlerList();
 
-    private final NetworkConnectionInfo networkConnectionInfo;
+  private final NetworkConnectionInfo networkConnectionInfo;
 
-    private final NetworkServiceInfo networkServiceInfo;
+  private final NetworkServiceInfo networkServiceInfo;
 
-    public NukkitBridgeProxyPlayerServerConnectRequestEvent(NetworkConnectionInfo networkConnectionInfo, NetworkServiceInfo networkServiceInfo) {
-        this.networkConnectionInfo = networkConnectionInfo;
-        this.networkServiceInfo = networkServiceInfo;
-    }
+  public NukkitBridgeProxyPlayerServerConnectRequestEvent(NetworkConnectionInfo networkConnectionInfo,
+    NetworkServiceInfo networkServiceInfo) {
+    this.networkConnectionInfo = networkConnectionInfo;
+    this.networkServiceInfo = networkServiceInfo;
+  }
 
-    public static HandlerList getHandlers() {
-        return NukkitBridgeProxyPlayerServerConnectRequestEvent.handlers;
-    }
+  public static HandlerList getHandlers() {
+    return NukkitBridgeProxyPlayerServerConnectRequestEvent.handlers;
+  }
 
-    public NetworkConnectionInfo getNetworkConnectionInfo() {
-        return this.networkConnectionInfo;
-    }
+  public NetworkConnectionInfo getNetworkConnectionInfo() {
+    return this.networkConnectionInfo;
+  }
 
-    public NetworkServiceInfo getNetworkServiceInfo() {
-        return this.networkServiceInfo;
-    }
+  public NetworkServiceInfo getNetworkServiceInfo() {
+    return this.networkServiceInfo;
+  }
 }

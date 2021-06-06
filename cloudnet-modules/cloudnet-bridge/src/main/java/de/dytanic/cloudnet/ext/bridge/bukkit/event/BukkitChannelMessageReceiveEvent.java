@@ -8,28 +8,29 @@ import org.jetbrains.annotations.NotNull;
 /**
  * {@inheritDoc}
  */
-public final class BukkitChannelMessageReceiveEvent extends BukkitCloudNetEvent implements WrappedChannelMessageReceiveEvent {
+public final class BukkitChannelMessageReceiveEvent extends BukkitCloudNetEvent implements
+  WrappedChannelMessageReceiveEvent {
 
-    private static final HandlerList handlerList = new HandlerList();
+  private static final HandlerList handlerList = new HandlerList();
 
-    private final ChannelMessageReceiveEvent event;
+  private final ChannelMessageReceiveEvent event;
 
-    public BukkitChannelMessageReceiveEvent(ChannelMessageReceiveEvent event) {
-        this.event = event;
-    }
+  public BukkitChannelMessageReceiveEvent(ChannelMessageReceiveEvent event) {
+    this.event = event;
+  }
 
-    @Override
-    public ChannelMessageReceiveEvent getWrapped() {
-        return this.event;
-    }
+  public static HandlerList getHandlerList() {
+    return BukkitChannelMessageReceiveEvent.handlerList;
+  }
 
-    public static HandlerList getHandlerList() {
-        return BukkitChannelMessageReceiveEvent.handlerList;
-    }
+  @Override
+  public ChannelMessageReceiveEvent getWrapped() {
+    return this.event;
+  }
 
-    @NotNull
-    @Override
-    public HandlerList getHandlers() {
-        return handlerList;
-    }
+  @NotNull
+  @Override
+  public HandlerList getHandlers() {
+    return handlerList;
+  }
 }

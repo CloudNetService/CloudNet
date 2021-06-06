@@ -10,14 +10,15 @@ import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
 @Deprecated
 public class CloudPermissionsPermissionManagement extends CloudPermissionsManagement {
 
-    CloudPermissionsPermissionManagement(IPermissionManagement childPermissionManagement) {
-        super(childPermissionManagement);
-    }
+  CloudPermissionsPermissionManagement(IPermissionManagement childPermissionManagement) {
+    super(childPermissionManagement);
+  }
 
-    public static CloudPermissionsPermissionManagement getInstance() {
-        IPermissionManagement permissionManagement = CloudNetDriver.getInstance().getPermissionManagement();
-        Preconditions.checkArgument(permissionManagement instanceof CloudPermissionsPermissionManagement, "CloudPerms is not enabled");
-        return (CloudPermissionsPermissionManagement) permissionManagement;
-    }
+  public static CloudPermissionsPermissionManagement getInstance() {
+    IPermissionManagement permissionManagement = CloudNetDriver.getInstance().getPermissionManagement();
+    Preconditions
+      .checkArgument(permissionManagement instanceof CloudPermissionsPermissionManagement, "CloudPerms is not enabled");
+    return (CloudPermissionsPermissionManagement) permissionManagement;
+  }
 
 }

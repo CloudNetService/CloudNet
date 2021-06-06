@@ -5,7 +5,6 @@ import de.dytanic.cloudnet.ext.syncproxy.AbstractSyncProxyManagement;
 import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyConfiguration;
 import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyMotd;
 import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyProxyLoginConfiguration;
-
 import java.util.Collections;
 
 /**
@@ -13,43 +12,46 @@ import java.util.Collections;
  */
 public class ProxySPExample {
 
-    private final AbstractSyncProxyManagement syncProxyManagement = CloudNetDriver.getInstance().getServicesRegistry().getFirstService(AbstractSyncProxyManagement.class);
+  private final AbstractSyncProxyManagement syncProxyManagement = CloudNetDriver.getInstance().getServicesRegistry()
+    .getFirstService(AbstractSyncProxyManagement.class);
 
-    /**
-     * Actives maintenance for the group of the current proxy
-     */
-    public void changeLocalMaintenance() {
-        SyncProxyProxyLoginConfiguration loginConfiguration = this.syncProxyManagement.getLoginConfiguration();
+  /**
+   * Actives maintenance for the group of the current proxy
+   */
+  public void changeLocalMaintenance() {
+    SyncProxyProxyLoginConfiguration loginConfiguration = this.syncProxyManagement.getLoginConfiguration();
 
-        if (loginConfiguration != null) {
-            loginConfiguration.setMaintenance(true);
+    if (loginConfiguration != null) {
+      loginConfiguration.setMaintenance(true);
 
-            // updating in cluster
-            SyncProxyConfiguration.updateSyncProxyConfigurationInNetwork(this.syncProxyManagement.getSyncProxyConfiguration());
-        }
+      // updating in cluster
+      SyncProxyConfiguration
+        .updateSyncProxyConfigurationInNetwork(this.syncProxyManagement.getSyncProxyConfiguration());
     }
+  }
 
-    /**
-     * Changes the MOTD for the group of the current proxy
-     */
-    public void changeLocalMOTD() {
-        SyncProxyProxyLoginConfiguration loginConfiguration = this.syncProxyManagement.getLoginConfiguration();
+  /**
+   * Changes the MOTD for the group of the current proxy
+   */
+  public void changeLocalMOTD() {
+    SyncProxyProxyLoginConfiguration loginConfiguration = this.syncProxyManagement.getLoginConfiguration();
 
-        if (loginConfiguration != null) {
-            loginConfiguration.setMotds(Collections.singletonList(
-                    new SyncProxyMotd("Welcome to my server!",
-                            "You'll connect to %proxy%",
-                            true,
-                            1,
-                            new String[0],
-                            null
-                    )
-            ));
+    if (loginConfiguration != null) {
+      loginConfiguration.setMotds(Collections.singletonList(
+        new SyncProxyMotd("Welcome to my server!",
+          "You'll connect to %proxy%",
+          true,
+          1,
+          new String[0],
+          null
+        )
+      ));
 
-            // updating in cluster
-            SyncProxyConfiguration.updateSyncProxyConfigurationInNetwork(this.syncProxyManagement.getSyncProxyConfiguration());
-        }
+      // updating in cluster
+      SyncProxyConfiguration
+        .updateSyncProxyConfigurationInNetwork(this.syncProxyManagement.getSyncProxyConfiguration());
     }
+  }
 
 
 }

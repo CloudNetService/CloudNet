@@ -4,14 +4,14 @@ import de.dytanic.cloudnet.console.animation.questionlist.ConsoleQuestionListAni
 
 public interface DefaultSetup {
 
-    void applyQuestions(ConsoleQuestionListAnimation animation) throws Exception;
+  void applyQuestions(ConsoleQuestionListAnimation animation) throws Exception;
 
-    default void execute(ConsoleQuestionListAnimation animation) {
-    }
+  default void execute(ConsoleQuestionListAnimation animation) {
+  }
 
-    default void postExecute(ConsoleQuestionListAnimation animation) {
-    }
+  default void postExecute(ConsoleQuestionListAnimation animation) {
+  }
 
-    boolean shouldAsk(boolean configFileAvailable);
+  boolean shouldAsk(boolean configFileAvailable);
 
 }

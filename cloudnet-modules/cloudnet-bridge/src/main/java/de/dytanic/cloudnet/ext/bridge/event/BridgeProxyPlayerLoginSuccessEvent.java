@@ -5,13 +5,13 @@ import de.dytanic.cloudnet.ext.bridge.player.NetworkConnectionInfo;
 
 public final class BridgeProxyPlayerLoginSuccessEvent extends DriverEvent {
 
-    private final NetworkConnectionInfo networkConnectionInfo;
+  private final NetworkConnectionInfo networkConnectionInfo;
 
-    public BridgeProxyPlayerLoginSuccessEvent(NetworkConnectionInfo networkConnectionInfo) {
-        this.networkConnectionInfo = networkConnectionInfo;
-    }
+  public BridgeProxyPlayerLoginSuccessEvent(NetworkConnectionInfo networkConnectionInfo) {
+    this.networkConnectionInfo = networkConnectionInfo;
+  }
 
-    public NetworkConnectionInfo getNetworkConnectionInfo() {
-        return this.networkConnectionInfo;
-    }
+  public NetworkConnectionInfo getNetworkConnectionInfo() {
+    return this.networkConnectionInfo;
+  }
 }

@@ -9,4 +9,5 @@ import org.jetbrains.annotations.ApiStatus;
 @Deprecated
 @ApiStatus.ScheduledForRemoval(inVersion = "3.5")
 public interface ITemplateStorage extends TemplateStorage {
+
 }

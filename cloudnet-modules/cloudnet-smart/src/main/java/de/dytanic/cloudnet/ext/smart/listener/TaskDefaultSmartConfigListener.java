@@ -7,11 +7,11 @@ import de.dytanic.cloudnet.ext.smart.util.SmartServiceTaskConfig;
 
 public class TaskDefaultSmartConfigListener {
 
-    @EventListener
-    public void handleTaskAdd(ServiceTaskAddEvent event) {
-        if (!event.getTask().getProperties().contains(CloudNetSmartModule.SMART_CONFIG_ENTRY)) {
-            event.getTask().getProperties().append(CloudNetSmartModule.SMART_CONFIG_ENTRY, new SmartServiceTaskConfig());
-        }
+  @EventListener
+  public void handleTaskAdd(ServiceTaskAddEvent event) {
+    if (!event.getTask().getProperties().contains(CloudNetSmartModule.SMART_CONFIG_ENTRY)) {
+      event.getTask().getProperties().append(CloudNetSmartModule.SMART_CONFIG_ENTRY, new SmartServiceTaskConfig());
     }
+  }
 
 }

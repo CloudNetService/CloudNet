@@ -6,20 +6,20 @@ import de.dytanic.cloudnet.driver.network.INetworkChannel;
 
 public final class NetworkChannelAuthClusterNodeSuccessEvent extends Event {
 
-    private final IClusterNodeServer node;
+  private final IClusterNodeServer node;
 
-    private final INetworkChannel channel;
+  private final INetworkChannel channel;
 
-    public NetworkChannelAuthClusterNodeSuccessEvent(IClusterNodeServer node, INetworkChannel channel) {
-        this.node = node;
-        this.channel = channel;
-    }
+  public NetworkChannelAuthClusterNodeSuccessEvent(IClusterNodeServer node, INetworkChannel channel) {
+    this.node = node;
+    this.channel = channel;
+  }
 
-    public IClusterNodeServer getNode() {
-        return this.node;
-    }
+  public IClusterNodeServer getNode() {
+    return this.node;
+  }
 
-    public INetworkChannel getChannel() {
-        return this.channel;
-    }
+  public INetworkChannel getChannel() {
+    return this.channel;
+  }
 }

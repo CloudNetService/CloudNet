@@ -5,12 +5,13 @@ import de.dytanic.cloudnet.driver.module.IModuleWrapper;
 import de.dytanic.cloudnet.driver.module.ModuleLifeCycle;
 
 /**
- * This event is being called after a module has been unloaded and the tasks with the lifecycle {@link ModuleLifeCycle#UNLOADED} of this module have been fired.
- * {@link IModuleWrapper#getModuleLifeCycle()} is still {@link ModuleLifeCycle#UNUSEABLE}
+ * This event is being called after a module has been unloaded and the tasks with the lifecycle {@link
+ * ModuleLifeCycle#UNLOADED} of this module have been fired. {@link IModuleWrapper#getModuleLifeCycle()} is still {@link
+ * ModuleLifeCycle#UNUSEABLE}
  */
 public final class ModulePostUnloadEvent extends ModuleEvent {
 
-    public ModulePostUnloadEvent(IModuleProvider moduleProvider, IModuleWrapper module) {
-        super(moduleProvider, module);
-    }
+  public ModulePostUnloadEvent(IModuleProvider moduleProvider, IModuleWrapper module) {
+    super(moduleProvider, module);
+  }
 }

@@ -6,7 +6,6 @@ import de.dytanic.cloudnet.driver.network.http.HttpResponseCode;
 import de.dytanic.cloudnet.driver.network.http.IHttpContext;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import de.dytanic.cloudnet.http.V1HttpHandler;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,83 +13,90 @@ import java.util.zip.ZipInputStream;
 
 public final class V1HttpHandlerLocalTemplate extends V1HttpHandler {
 
-    public V1HttpHandlerLocalTemplate(String permission) {
-        super(permission);
-    }
+  public V1HttpHandlerLocalTemplate(String permission) {
+    super(permission);
+  }
 
-    @Override
-    public void handleOptions(String path, IHttpContext context) {
-        this.sendOptions(context, "OPTIONS, GET, DELETE, POST");
-    }
+  @Override
+  public void handleOptions(String path, IHttpContext context) {
+    this.sendOptions(context, "OPTIONS, GET, DELETE, POST");
+  }
 
-    @Override
-    public void handleGet(String path, IHttpContext context) {
-        if (context.request().pathParameters().containsKey("prefix") && context.request().pathParameters().containsKey("name")) {
-            ServiceTemplate serviceTemplate = ServiceTemplate.local(context.request().pathParameters().get("prefix"), context.request().pathParameters().get("name"));
+  @Override
+  public void handleGet(String path, IHttpContext context) {
+    if (context.request().pathParameters().containsKey("prefix") && context.request().pathParameters()
+      .containsKey("name")) {
+      ServiceTemplate serviceTemplate = ServiceTemplate
+        .local(context.request().pathParameters().get("prefix"), context.request().pathParameters().get("name"));
 
-            if (serviceTemplate.storage().exists()) {
-                try (InputStream stream = serviceTemplate.storage().zipTemplate()) {
-                    if (stream != null) {
-                        context
-                                .response()
-                                .statusCode(HttpResponseCode.HTTP_OK)
-                                .header("Content-Type", "application/octet-stream")
-                                .header("Content-Disposition", "attachment; filename=\"" + serviceTemplate.getPrefix() + "." + serviceTemplate.getName() + ".zip\"")
-                                .body(ByteStreams.toByteArray(stream))
-                                .context()
-                                .closeAfter(true)
-                                .cancelNext();
-                        return;
-                    }
-                } catch (IOException exception) {
-                    exception.printStackTrace();
-                }
-            }
-
+      if (serviceTemplate.storage().exists()) {
+        try (InputStream stream = serviceTemplate.storage().zipTemplate()) {
+          if (stream != null) {
             context
-                    .response()
-                    .statusCode(HttpResponseCode.HTTP_NOT_FOUND)
-                    .context()
-                    .closeAfter(true)
-                    .cancelNext();
+              .response()
+              .statusCode(HttpResponseCode.HTTP_OK)
+              .header("Content-Type", "application/octet-stream")
+              .header("Content-Disposition",
+                "attachment; filename=\"" + serviceTemplate.getPrefix() + "." + serviceTemplate.getName() + ".zip\"")
+              .body(ByteStreams.toByteArray(stream))
+              .context()
+              .closeAfter(true)
+              .cancelNext();
             return;
+          }
+        } catch (IOException exception) {
+          exception.printStackTrace();
         }
+      }
 
-        context
-                .response()
-                .statusCode(HttpResponseCode.HTTP_OK)
-                .header("Content-Type", "application/json")
-                .body(GSON.toJson(CloudNetDriver.getInstance().getLocalTemplateStorage().getTemplates()))
-                .context()
-                .closeAfter(true)
-                .cancelNext();
+      context
+        .response()
+        .statusCode(HttpResponseCode.HTTP_NOT_FOUND)
+        .context()
+        .closeAfter(true)
+        .cancelNext();
+      return;
     }
 
-    @Override
-    public void handlePost(String path, IHttpContext context) {
-        if (context.request().pathParameters().containsKey("prefix") && context.request().pathParameters().containsKey("name")) {
-            ServiceTemplate serviceTemplate = ServiceTemplate.local(context.request().pathParameters().get("prefix"), context.request().pathParameters().get("name"));
-            serviceTemplate.storage().deploy(new ZipInputStream(new ByteArrayInputStream(context.request().body())));
-        }
+    context
+      .response()
+      .statusCode(HttpResponseCode.HTTP_OK)
+      .header("Content-Type", "application/json")
+      .body(GSON.toJson(CloudNetDriver.getInstance().getLocalTemplateStorage().getTemplates()))
+      .context()
+      .closeAfter(true)
+      .cancelNext();
+  }
+
+  @Override
+  public void handlePost(String path, IHttpContext context) {
+    if (context.request().pathParameters().containsKey("prefix") && context.request().pathParameters()
+      .containsKey("name")) {
+      ServiceTemplate serviceTemplate = ServiceTemplate
+        .local(context.request().pathParameters().get("prefix"), context.request().pathParameters().get("name"));
+      serviceTemplate.storage().deploy(new ZipInputStream(new ByteArrayInputStream(context.request().body())));
+    }
+  }
+
+  @Override
+  public void handleDelete(String path, IHttpContext context) {
+    if (context.request().pathParameters().containsKey("prefix") && context.request().pathParameters()
+      .containsKey("name")) {
+      ServiceTemplate serviceTemplate = ServiceTemplate
+        .local(context.request().pathParameters().get("prefix"), context.request().pathParameters().get("name"));
+      serviceTemplate.storage().delete();
+
+      context
+        .response()
+        .statusCode(HttpResponseCode.HTTP_OK)
+        .context()
+        .closeAfter(true)
+        .cancelNext()
+      ;
+
+      return;
     }
 
-    @Override
-    public void handleDelete(String path, IHttpContext context) {
-        if (context.request().pathParameters().containsKey("prefix") && context.request().pathParameters().containsKey("name")) {
-            ServiceTemplate serviceTemplate = ServiceTemplate.local(context.request().pathParameters().get("prefix"), context.request().pathParameters().get("name"));
-            serviceTemplate.storage().delete();
-
-            context
-                    .response()
-                    .statusCode(HttpResponseCode.HTTP_OK)
-                    .context()
-                    .closeAfter(true)
-                    .cancelNext()
-            ;
-
-            return;
-        }
-
-        this.send400Response(context, "prefix or name path parameter not found");
-    }
+    this.send400Response(context, "prefix or name path parameter not found");
+  }
 }

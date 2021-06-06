@@ -4,9 +4,9 @@ import de.dytanic.cloudnet.driver.event.events.DriverEvent;
 
 public final class CloudNetTickEvent extends DriverEvent {
 
-    @Override
-    public boolean isShowDebug() {
-        return false;
-    }
+  @Override
+  public boolean isShowDebug() {
+    return false;
+  }
 
 }

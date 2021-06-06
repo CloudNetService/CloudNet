@@ -10,23 +10,23 @@ import net.md_5.bungee.api.plugin.Plugin;
 
 public class BungeeCloudNetLabyModPlugin extends Plugin {
 
-    private AbstractLabyModManagement labyModManagement;
+  private AbstractLabyModManagement labyModManagement;
 
-    @Override
-    public void onEnable() {
-        LabyModConfiguration configuration = LabyModUtils.getConfiguration();
-        if (configuration == null || !configuration.isEnabled()) {
-            return;
-        }
-        this.getProxy().registerChannel(LabyModConstants.LMC_CHANNEL_NAME);
-
-        this.labyModManagement = new BungeeLabyModManagement(super.getProxy());
-
-        this.getProxy().getPluginManager().registerListener(this, new BungeeLabyModListener(this.labyModManagement));
+  @Override
+  public void onEnable() {
+    LabyModConfiguration configuration = LabyModUtils.getConfiguration();
+    if (configuration == null || !configuration.isEnabled()) {
+      return;
     }
+    this.getProxy().registerChannel(LabyModConstants.LMC_CHANNEL_NAME);
 
-    @Override
-    public void onDisable() {
-        CloudNetDriver.getInstance().getEventManager().unregisterListeners(this.getClass().getClassLoader());
-    }
+    this.labyModManagement = new BungeeLabyModManagement(super.getProxy());
+
+    this.getProxy().getPluginManager().registerListener(this, new BungeeLabyModListener(this.labyModManagement));
+  }
+
+  @Override
+  public void onDisable() {
+    CloudNetDriver.getInstance().getEventManager().unregisterListeners(this.getClass().getClassLoader());
+  }
 }

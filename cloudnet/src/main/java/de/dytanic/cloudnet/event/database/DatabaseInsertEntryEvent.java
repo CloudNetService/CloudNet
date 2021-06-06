@@ -5,30 +5,30 @@ import de.dytanic.cloudnet.database.IDatabase;
 
 public class DatabaseInsertEntryEvent extends DatabaseEvent {
 
-    private String key;
+  private String key;
 
-    private JsonDocument document;
+  private JsonDocument document;
 
-    public DatabaseInsertEntryEvent(IDatabase database, String key, JsonDocument document) {
-        super(database);
+  public DatabaseInsertEntryEvent(IDatabase database, String key, JsonDocument document) {
+    super(database);
 
-        this.key = key;
-        this.document = document;
-    }
+    this.key = key;
+    this.document = document;
+  }
 
-    public String getKey() {
-        return this.key;
-    }
+  public String getKey() {
+    return this.key;
+  }
 
-    public void setKey(String key) {
-        this.key = key;
-    }
+  public void setKey(String key) {
+    this.key = key;
+  }
 
-    public JsonDocument getDocument() {
-        return this.document;
-    }
+  public JsonDocument getDocument() {
+    return this.document;
+  }
 
-    public void setDocument(JsonDocument document) {
-        this.document = document;
-    }
+  public void setDocument(JsonDocument document) {
+    this.document = document;
+  }
 }

@@ -4,12 +4,12 @@ import io.netty.handler.codec.DecoderException;
 
 public class SilentDecoderException extends DecoderException {
 
-    public SilentDecoderException(String message) {
-        super(message);
-    }
+  public SilentDecoderException(String message) {
+    super(message);
+  }
 
-    @Override
-    public synchronized Throwable fillInStackTrace() {
-        return this;
-    }
+  @Override
+  public synchronized Throwable fillInStackTrace() {
+    return this;
+  }
 }

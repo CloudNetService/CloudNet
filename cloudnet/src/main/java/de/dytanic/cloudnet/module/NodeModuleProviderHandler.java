@@ -7,13 +7,13 @@ import de.dytanic.cloudnet.driver.module.IModuleWrapper;
 
 public final class NodeModuleProviderHandler extends DefaultModuleProviderHandler implements IModuleProviderHandler {
 
-    @Override
-    public void handlePostModuleStop(IModuleWrapper moduleWrapper) {
-        super.handlePostModuleStop(moduleWrapper);
+  @Override
+  public void handlePostModuleStop(IModuleWrapper moduleWrapper) {
+    super.handlePostModuleStop(moduleWrapper);
 
-        CloudNet.getInstance().unregisterPacketListenersByClassLoader(moduleWrapper.getClassLoader());
-        CloudNet.getInstance().getHttpServer().removeHandler(moduleWrapper.getClassLoader());
-        CloudNet.getInstance().getCommandMap().unregisterCommands(moduleWrapper.getClassLoader());
-    }
+    CloudNet.getInstance().unregisterPacketListenersByClassLoader(moduleWrapper.getClassLoader());
+    CloudNet.getInstance().getHttpServer().removeHandler(moduleWrapper.getClassLoader());
+    CloudNet.getInstance().getCommandMap().unregisterCommands(moduleWrapper.getClassLoader());
+  }
 
 }

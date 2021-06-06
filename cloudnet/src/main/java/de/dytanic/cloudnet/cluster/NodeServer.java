@@ -11,32 +11,32 @@ import org.jetbrains.annotations.Nullable;
 
 public interface NodeServer extends AutoCloseable {
 
-    @NotNull
-    NodeServerProvider<? extends NodeServer> getProvider();
+  @NotNull
+  NodeServerProvider<? extends NodeServer> getProvider();
 
-    boolean isHeadNode();
+  boolean isHeadNode();
 
-    boolean isAvailable();
+  boolean isAvailable();
 
-    @NotNull
-    NetworkClusterNode getNodeInfo();
+  @NotNull
+  NetworkClusterNode getNodeInfo();
 
-    @ApiStatus.Internal
-    void setNodeInfo(@NotNull NetworkClusterNode nodeInfo);
+  @ApiStatus.Internal
+  void setNodeInfo(@NotNull NetworkClusterNode nodeInfo);
 
-    NetworkClusterNodeInfoSnapshot getNodeInfoSnapshot();
+  NetworkClusterNodeInfoSnapshot getNodeInfoSnapshot();
 
-    @ApiStatus.Internal
-    void setNodeInfoSnapshot(@NotNull NetworkClusterNodeInfoSnapshot nodeInfoSnapshot);
+  @ApiStatus.Internal
+  void setNodeInfoSnapshot(@NotNull NetworkClusterNodeInfoSnapshot nodeInfoSnapshot);
 
-    NetworkClusterNodeInfoSnapshot getLastNodeInfoSnapshot();
+  NetworkClusterNodeInfoSnapshot getLastNodeInfoSnapshot();
 
-    @NotNull
-    String[] sendCommandLine(@NotNull String commandLine);
+  @NotNull
+  String[] sendCommandLine(@NotNull String commandLine);
 
-    @NotNull
-    CloudServiceFactory getCloudServiceFactory();
+  @NotNull
+  CloudServiceFactory getCloudServiceFactory();
 
-    @Nullable
-    SpecificCloudServiceProvider getCloudServiceProvider(@NotNull ServiceInfoSnapshot serviceInfoSnapshot);
+  @Nullable
+  SpecificCloudServiceProvider getCloudServiceProvider(@NotNull ServiceInfoSnapshot serviceInfoSnapshot);
 }

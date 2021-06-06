@@ -1,10 +1,10 @@
 jar {
-    archiveFileName.set('cloudnet-chat.jar')
+  archiveFileName.set('cloudnet-chat.jar')
 }
 
 dependencies {
-    compileOnly project(':cloudnet-driver')
-    compileOnly project(':cloudnet-wrapper-jvm')
-    compileOnly project(':cloudnet-modules').project('cloudnet-cloudperms')
-    compileOnly group: 'org.spigotmc', name: 'spigot-api', version: dependencySpigotApiVersion
+  compileOnly project(':cloudnet-driver')
+  compileOnly project(':cloudnet-wrapper-jvm')
+  compileOnly project(':cloudnet-modules').project('cloudnet-cloudperms')
+  compileOnly group: 'org.spigotmc', name: 'spigot-api', version: dependencySpigotApiVersion
 }

@@ -6,8 +6,8 @@ import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 
 public class PacketServerSetGlobalLogLevel extends Packet {
 
-    public PacketServerSetGlobalLogLevel(int logLevel) {
-        super(PacketConstants.INTERNAL_DEBUGGING_CHANNEL, ProtocolBuffer.create().writeInt(logLevel));
-    }
+  public PacketServerSetGlobalLogLevel(int logLevel) {
+    super(PacketConstants.INTERNAL_DEBUGGING_CHANNEL, ProtocolBuffer.create().writeInt(logLevel));
+  }
 
 }

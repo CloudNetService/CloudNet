@@ -10,41 +10,45 @@ import de.dytanic.cloudnet.wrapper.Wrapper;
 
 public class NukkitCloudNetSignsPlugin extends PluginBase {
 
-    private NukkitSignManagement signManagement;
+  private NukkitSignManagement signManagement;
 
-    @Override
-    public void onEnable() {
-        this.signManagement = new NukkitSignManagement(this);
-        CloudNetDriver.getInstance().getServicesRegistry().registerService(AbstractSignManagement.class, "NukkitSignManagement", this.signManagement);
+  @Override
+  public void onEnable() {
+    this.signManagement = new NukkitSignManagement(this);
+    CloudNetDriver.getInstance().getServicesRegistry()
+      .registerService(AbstractSignManagement.class, "NukkitSignManagement", this.signManagement);
 
-        this.initListeners();
+    this.initListeners();
+  }
+
+  @Override
+  public void onDisable() {
+    CloudNetDriver.getInstance().getEventManager().unregisterListeners(this.getClass().getClassLoader());
+    Wrapper.getInstance().unregisterPacketListenersByClassLoader(this.getClass().getClassLoader());
+
+    CloudNetDriver.getInstance().getServicesRegistry()
+      .unregisterService(AbstractSignManagement.class, this.signManagement);
+  }
+
+  private void initListeners() {
+    //Commands
+    super.getServer().getCommandMap().register("CloudNet-Signs", new CommandCloudSign(this.signManagement));
+
+    //CloudNet listeners
+    CloudNetDriver.getInstance().getEventManager().registerListener(this.signManagement);
+
+    //Nukkit listeners
+    super.getServer().getPluginManager().registerEvents(new NukkitSignInteractionListener(this.signManagement), this);
+
+    //Sign knockback scheduler
+    SignConfigurationEntry signConfigurationEntry = this.signManagement.getOwnSignConfigurationEntry();
+
+    if (signConfigurationEntry != null && signConfigurationEntry.getKnockbackDistance() > 0
+      && signConfigurationEntry.getKnockbackStrength() > 0) {
+      super.getServer().getScheduler()
+        .scheduleDelayedRepeatingTask(this, new NukkitSignKnockbackRunnable(this.signManagement), 20, 5);
     }
-
-    @Override
-    public void onDisable() {
-        CloudNetDriver.getInstance().getEventManager().unregisterListeners(this.getClass().getClassLoader());
-        Wrapper.getInstance().unregisterPacketListenersByClassLoader(this.getClass().getClassLoader());
-
-        CloudNetDriver.getInstance().getServicesRegistry().unregisterService(AbstractSignManagement.class, this.signManagement);
-    }
-
-    private void initListeners() {
-        //Commands
-        super.getServer().getCommandMap().register("CloudNet-Signs", new CommandCloudSign(this.signManagement));
-
-        //CloudNet listeners
-        CloudNetDriver.getInstance().getEventManager().registerListener(this.signManagement);
-
-        //Nukkit listeners
-        super.getServer().getPluginManager().registerEvents(new NukkitSignInteractionListener(this.signManagement), this);
-
-        //Sign knockback scheduler
-        SignConfigurationEntry signConfigurationEntry = this.signManagement.getOwnSignConfigurationEntry();
-
-        if (signConfigurationEntry != null && signConfigurationEntry.getKnockbackDistance() > 0 && signConfigurationEntry.getKnockbackStrength() > 0) {
-            super.getServer().getScheduler().scheduleDelayedRepeatingTask(this, new NukkitSignKnockbackRunnable(this.signManagement), 20, 5);
-        }
-    }
+  }
 
 
 }

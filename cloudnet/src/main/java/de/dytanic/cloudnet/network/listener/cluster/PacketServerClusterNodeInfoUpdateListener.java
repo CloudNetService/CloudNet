@@ -11,15 +11,17 @@ import de.dytanic.cloudnet.event.network.NetworkClusterNodeInfoUpdateEvent;
 
 public final class PacketServerClusterNodeInfoUpdateListener implements IPacketListener {
 
-    @Override
-    public void handle(INetworkChannel channel, IPacket packet) {
-        NetworkClusterNodeInfoSnapshot snapshot = packet.getBuffer().readObject(NetworkClusterNodeInfoSnapshot.class);
-        IClusterNodeServer clusterNodeServer = CloudNet.getInstance().getClusterNodeServerProvider().getNodeServer(snapshot.getNode().getUniqueId());
+  @Override
+  public void handle(INetworkChannel channel, IPacket packet) {
+    NetworkClusterNodeInfoSnapshot snapshot = packet.getBuffer().readObject(NetworkClusterNodeInfoSnapshot.class);
+    IClusterNodeServer clusterNodeServer = CloudNet.getInstance().getClusterNodeServerProvider()
+      .getNodeServer(snapshot.getNode().getUniqueId());
 
-        if (clusterNodeServer != null) {
-            clusterNodeServer.setNodeInfoSnapshot(snapshot);
-            CloudNetDriver.getInstance().getEventManager().callEvent(new NetworkClusterNodeInfoUpdateEvent(channel, snapshot));
-        }
+    if (clusterNodeServer != null) {
+      clusterNodeServer.setNodeInfoSnapshot(snapshot);
+      CloudNetDriver.getInstance().getEventManager()
+        .callEvent(new NetworkClusterNodeInfoUpdateEvent(channel, snapshot));
     }
+  }
 
 }

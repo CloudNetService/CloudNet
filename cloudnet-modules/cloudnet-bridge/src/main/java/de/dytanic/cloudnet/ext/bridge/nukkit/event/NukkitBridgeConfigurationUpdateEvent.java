@@ -8,19 +8,19 @@ import de.dytanic.cloudnet.ext.bridge.BridgeConfiguration;
  */
 public final class NukkitBridgeConfigurationUpdateEvent extends NukkitBridgeEvent {
 
-    private static final HandlerList handlers = new HandlerList();
+  private static final HandlerList handlers = new HandlerList();
 
-    private final BridgeConfiguration bridgeConfiguration;
+  private final BridgeConfiguration bridgeConfiguration;
 
-    public NukkitBridgeConfigurationUpdateEvent(BridgeConfiguration bridgeConfiguration) {
-        this.bridgeConfiguration = bridgeConfiguration;
-    }
+  public NukkitBridgeConfigurationUpdateEvent(BridgeConfiguration bridgeConfiguration) {
+    this.bridgeConfiguration = bridgeConfiguration;
+  }
 
-    public static HandlerList getHandlers() {
-        return NukkitBridgeConfigurationUpdateEvent.handlers;
-    }
+  public static HandlerList getHandlers() {
+    return NukkitBridgeConfigurationUpdateEvent.handlers;
+  }
 
-    public BridgeConfiguration getBridgeConfiguration() {
-        return this.bridgeConfiguration;
-    }
+  public BridgeConfiguration getBridgeConfiguration() {
+    return this.bridgeConfiguration;
+  }
 }

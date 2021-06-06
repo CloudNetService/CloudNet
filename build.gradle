@@ -2,258 +2,258 @@ defaultTasks 'clean', 'build', 'test', 'jar'
 
 allprojects {
 
-    def major = 3, minor = 4, patch = 0, versionType = "SNAPSHOT"
+  def major = 3, minor = 4, patch = 0, versionType = "SNAPSHOT"
 
-    group 'de.dytanic.cloudnet'
-    version "$major.$minor.$patch-$versionType"
+  group 'de.dytanic.cloudnet'
+  version "$major.$minor.$patch-$versionType"
 
-    repositories {
-        mavenCentral()
+  repositories {
+    mavenCentral()
 
-        maven {
-            name 'spongepowered'
-            url 'https://repo.spongepowered.org/maven'
-        }
-
-        maven {
-            name 'spigotmc-repo'
-            url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
-        }
-
-        maven {
-            name 'bungeecord-repo'
-            url 'https://oss.sonatype.org/content/repositories/snapshots'
-        }
-
-        maven {
-            name 'velocity'
-            url 'https://repo.velocitypowered.com/snapshots/'
-        }
-
-        maven {
-            name 'nukkix'
-            url 'https://repo.nukkitx.com/maven-snapshots'
-        }
-
-        maven {
-            name 'sonatype'
-            url 'https://oss.sonatype.org/content/repositories/snapshots'
-        }
-
-        maven {
-            name 'vault'
-            url 'https://repo.md-5.net/repository/releases'
-        }
-
-        maven {
-            name 'jitpack.io'
-            url 'https://jitpack.io'
-        }
-
+    maven {
+      name 'spongepowered'
+      url 'https://repo.spongepowered.org/maven'
     }
 
-    project.ext {
-
-        cloudNetCodeName = 'Earthquake'
-
-        //Dependencies
-        dependencyGuavaVersion = '30.1.1-jre'
-        dependencyAnnotationsVersion = '21.0.1'
-        dependencyLombokVersion = '1.18.20'
-        dependencyH2Version = '1.4.197' // do not update, leads to database incompatibility
-        dependencyGsonVersion = '2.8.7'
-        dependencyNettyVersion = '4.1.65.Final'
-        dependencyJLineVersion = '3.20.0'
-        dependencyJAnsiVersion = '2.3.2'
-        dependencySpigotApiVersion = '1.8.8-R0.1-SNAPSHOT'
-        dependencySpongeVersion = '7.3.0'
-        dependencyBungeeCordVersion = '1.16-R0.5-SNAPSHOT'
-        dependencyVelocityVersion = '1.1.4'
-        dependencyNukkitXVersion = '1.0-SNAPSHOT'
-        dependencyGoMintVersion = '1.0.0-SNAPSHOT'
-        dependencyMysqlConnectorJavaVersion = '8.0.25'
-        dependencyHikariCpVersion = '4.0.3'
-        dependencyVaultVersion = '1.7'
-        dependencyProtocolLibVersion = 'master-SNAPSHOT'
-        dependencyNpcLibVersion = 'development-SNAPSHOT'
-        dependencyCommonsNetVersion = '3.8.0'
-        dependencyJschVersion = '0.1.55'
-        dependencyJavassistVersion = '3.28.0-GA'
-
-        testJunitVersion = '4.13.2'
-        testBcpkixJdk15OnVersion = '1.68'
-
-        //file
-        cloudnetLauncherFile = 'launcher.jar'
-        cloudnetCommonFile = 'common.jar'
-        cloudnetWrapperFile = 'wrapper.jar'
-
-        //compiled files for launcher
-        cloudnetRunnableOutFileName = 'cloudnet.jar'
-        cloudnetRunnableOutCNLFileName = 'cloudnet.cnl'
-
-        cloudnetDriverOutFileName = 'driver.jar'
-        cloudnetDriverOutCNLFileName = 'driver.cnl'
-
-        //cloudNet modules
-        cloudnetModuleBridgeFileName = 'cloudnet-bridge.jar'
-        cloudnetModuleLabyModFileName = 'cloudnet-labymod.jar'
-        cloudnetModuleSignsFileName = 'cloudnet-signs.jar'
-        cloudnetModuleNPCsFileName = 'cloudnet-npcs.jar'
-        cloudnetModuleSmartFileName = 'cloudnet-smart.jar'
-        cloudnetModuleSyncProxyFileName = 'cloudnet-syncproxy.jar'
-        cloudnetModuleCloudflareFileName = 'cloudnet-cloudflare.jar'
-        cloudnetModuleCloudPermsFileName = 'cloudnet-cloudperms.jar'
-        cloudnetModuleReportFileName = 'cloudnet-report.jar'
-        cloudnetModuleRestFileName = 'cloudnet-rest.jar'
-        cloudnetModuleNextCloudFileName = 'cloudnet-storage-nextcloud.jar'
-        cloudnetModuleStorageFTPFileName = 'cloudnet-storage-ftp.jar'
-        cloudnetModuleDatabaseMySQLFileName = 'cloudnet-database-mysql.jar'
+    maven {
+      name 'spigotmc-repo'
+      url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
     }
 
-
-    ext.createCnlFile = { Project pro, String fileName ->
-
-        def stringBuilder = new StringBuilder("# CloudNet $cloudNetCodeName ${version}\n\n")
-                .append("# repositories\n\n")
-                .append("repo maven https://repo1.maven.org/maven2\n")
-                .append("# dependencies\n\n")
-
-        pro.configurations.runtimeClasspath.resolvedConfiguration.resolvedArtifacts.forEach({
-
-            if (it.moduleVersion.id.group != project.group) {
-
-                stringBuilder
-                        .append("include maven ")
-                        .append(it.moduleVersion.id.group).append(" ")
-                        .append(it.moduleVersion.id.name).append(" ")
-                        .append(it.moduleVersion.id.version)
-
-                if (it.classifier != null) stringBuilder.append(" ").append(it.classifier)
-
-                stringBuilder.append("\n")
-            }
-        })
-
-        file("$pro.buildDir/libs/" + fileName).text = stringBuilder.toString()
+    maven {
+      name 'bungeecord-repo'
+      url 'https://oss.sonatype.org/content/repositories/snapshots'
     }
 
-    String hashValue = null
-    ext.getCurrentCommitHash = {
-        if (hashValue == null) {
-            try {
-                def hashStdOut = new ByteArrayOutputStream()
+    maven {
+      name 'velocity'
+      url 'https://repo.velocitypowered.com/snapshots/'
+    }
 
-                exec {
-                    commandLine "git", "rev-parse", "--short", "HEAD"
-                    standardOutput = hashStdOut
-                }
+    maven {
+      name 'nukkix'
+      url 'https://repo.nukkitx.com/maven-snapshots'
+    }
 
-                hashValue = new String(hashStdOut.toByteArray()).substring(0, 7)
+    maven {
+      name 'sonatype'
+      url 'https://oss.sonatype.org/content/repositories/snapshots'
+    }
 
-            } catch (Exception ignored) {
-                hashValue = "unknown"
-            }
+    maven {
+      name 'vault'
+      url 'https://repo.md-5.net/repository/releases'
+    }
+
+    maven {
+      name 'jitpack.io'
+      url 'https://jitpack.io'
+    }
+
+  }
+
+  project.ext {
+
+    cloudNetCodeName = 'Earthquake'
+
+    //Dependencies
+    dependencyGuavaVersion = '30.1.1-jre'
+    dependencyAnnotationsVersion = '21.0.1'
+    dependencyLombokVersion = '1.18.20'
+    dependencyH2Version = '1.4.197' // do not update, leads to database incompatibility
+    dependencyGsonVersion = '2.8.7'
+    dependencyNettyVersion = '4.1.65.Final'
+    dependencyJLineVersion = '3.20.0'
+    dependencyJAnsiVersion = '2.3.2'
+    dependencySpigotApiVersion = '1.8.8-R0.1-SNAPSHOT'
+    dependencySpongeVersion = '7.3.0'
+    dependencyBungeeCordVersion = '1.16-R0.5-SNAPSHOT'
+    dependencyVelocityVersion = '1.1.4'
+    dependencyNukkitXVersion = '1.0-SNAPSHOT'
+    dependencyGoMintVersion = '1.0.0-SNAPSHOT'
+    dependencyMysqlConnectorJavaVersion = '8.0.25'
+    dependencyHikariCpVersion = '4.0.3'
+    dependencyVaultVersion = '1.7'
+    dependencyProtocolLibVersion = 'master-SNAPSHOT'
+    dependencyNpcLibVersion = 'development-SNAPSHOT'
+    dependencyCommonsNetVersion = '3.8.0'
+    dependencyJschVersion = '0.1.55'
+    dependencyJavassistVersion = '3.28.0-GA'
+
+    testJunitVersion = '4.13.2'
+    testBcpkixJdk15OnVersion = '1.68'
+
+    //file
+    cloudnetLauncherFile = 'launcher.jar'
+    cloudnetCommonFile = 'common.jar'
+    cloudnetWrapperFile = 'wrapper.jar'
+
+    //compiled files for launcher
+    cloudnetRunnableOutFileName = 'cloudnet.jar'
+    cloudnetRunnableOutCNLFileName = 'cloudnet.cnl'
+
+    cloudnetDriverOutFileName = 'driver.jar'
+    cloudnetDriverOutCNLFileName = 'driver.cnl'
+
+    //cloudNet modules
+    cloudnetModuleBridgeFileName = 'cloudnet-bridge.jar'
+    cloudnetModuleLabyModFileName = 'cloudnet-labymod.jar'
+    cloudnetModuleSignsFileName = 'cloudnet-signs.jar'
+    cloudnetModuleNPCsFileName = 'cloudnet-npcs.jar'
+    cloudnetModuleSmartFileName = 'cloudnet-smart.jar'
+    cloudnetModuleSyncProxyFileName = 'cloudnet-syncproxy.jar'
+    cloudnetModuleCloudflareFileName = 'cloudnet-cloudflare.jar'
+    cloudnetModuleCloudPermsFileName = 'cloudnet-cloudperms.jar'
+    cloudnetModuleReportFileName = 'cloudnet-report.jar'
+    cloudnetModuleRestFileName = 'cloudnet-rest.jar'
+    cloudnetModuleNextCloudFileName = 'cloudnet-storage-nextcloud.jar'
+    cloudnetModuleStorageFTPFileName = 'cloudnet-storage-ftp.jar'
+    cloudnetModuleDatabaseMySQLFileName = 'cloudnet-database-mysql.jar'
+  }
+
+
+  ext.createCnlFile = { Project pro, String fileName ->
+
+    def stringBuilder = new StringBuilder("# CloudNet $cloudNetCodeName ${version}\n\n")
+      .append("# repositories\n\n")
+      .append("repo maven https://repo1.maven.org/maven2\n")
+      .append("# dependencies\n\n")
+
+    pro.configurations.runtimeClasspath.resolvedConfiguration.resolvedArtifacts.forEach({
+
+      if (it.moduleVersion.id.group != project.group) {
+
+        stringBuilder
+          .append("include maven ")
+          .append(it.moduleVersion.id.group).append(" ")
+          .append(it.moduleVersion.id.name).append(" ")
+          .append(it.moduleVersion.id.version)
+
+        if (it.classifier != null) stringBuilder.append(" ").append(it.classifier)
+
+        stringBuilder.append("\n")
+      }
+    })
+
+    file("$pro.buildDir/libs/" + fileName).text = stringBuilder.toString()
+  }
+
+  String hashValue = null
+  ext.getCurrentCommitHash = {
+    if (hashValue == null) {
+      try {
+        def hashStdOut = new ByteArrayOutputStream()
+
+        exec {
+          commandLine "git", "rev-parse", "--short", "HEAD"
+          standardOutput = hashStdOut
         }
 
-        return hashValue
+        hashValue = new String(hashStdOut.toByteArray()).substring(0, 7)
+
+      } catch (Exception ignored) {
+        hashValue = "unknown"
+      }
     }
+
+    return hashValue
+  }
 }
 
 subprojects {
 
-    if (project.name == 'cloudnet-modules' || project.name == 'cloudnet-plugins') return
+  if (project.name == 'cloudnet-modules' || project.name == 'cloudnet-plugins') return
 
-    apply plugin: 'java'
-    apply plugin: 'checkstyle'
-    apply plugin: 'java-library'
-    apply plugin: 'maven-publish'
+  apply plugin: 'java'
+  apply plugin: 'checkstyle'
+  apply plugin: 'java-library'
+  apply plugin: 'maven-publish'
 
-    compileJava {
-        options.encoding = 'UTF-8'
+  compileJava {
+    options.encoding = 'UTF-8'
+  }
+
+  compileTestJava {
+    options.encoding = 'UTF-8'
+  }
+
+  javadoc {
+    options.encoding = 'UTF-8'
+  }
+
+  tasks.withType(Checkstyle) {
+    configFile = project.rootProject.file('checkstyle.xml')
+  }
+
+  sourceCompatibility = 1.8
+  targetCompatibility = 1.8
+
+  dependencies {
+    implementation group: 'org.jetbrains', name: 'annotations', version: dependencyAnnotationsVersion
+    compileOnly group: 'org.projectlombok', name: 'lombok', version: dependencyLombokVersion
+    testImplementation group: 'junit', name: 'junit', version: testJunitVersion
+    annotationProcessor group: 'org.projectlombok', name: 'lombok', version: dependencyLombokVersion
+  }
+
+  jar {
+    from rootProject.file('license.txt')
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+  }
+
+  task sourcesJar(type: Jar) {
+    from sourceSets.main.allJava
+    archiveClassifier.set('sources')
+  }
+
+  task javadocJar(type: Jar) {
+    from javadoc
+    archiveClassifier.set('javadoc')
+  }
+
+  publishing {
+    publications {
+      mavenJava(MavenPublication) {
+        from components.java
+        artifact sourcesJar
+        artifact javadocJar
+      }
     }
-
-    compileTestJava {
-        options.encoding = 'UTF-8'
-    }
-
-    javadoc {
-        options.encoding = 'UTF-8'
-    }
-
-    tasks.withType(Checkstyle) {
-        configFile = project.rootProject.file('checkstyle.xml')
-    }
-
-    sourceCompatibility = 1.8
-    targetCompatibility = 1.8
-
-    dependencies {
-        implementation group: 'org.jetbrains', name: 'annotations', version: dependencyAnnotationsVersion
-        compileOnly group: 'org.projectlombok', name: 'lombok', version: dependencyLombokVersion
-        testImplementation group: 'junit', name: 'junit', version: testJunitVersion
-        annotationProcessor group: 'org.projectlombok', name: 'lombok', version: dependencyLombokVersion
-    }
-
-    jar {
-        from rootProject.file('license.txt')
-        duplicatesStrategy = DuplicatesStrategy.INCLUDE
-    }
-
-    task sourcesJar(type: Jar) {
-        from sourceSets.main.allJava
-        archiveClassifier.set('sources')
-    }
-
-    task javadocJar(type: Jar) {
-        from javadoc
-        archiveClassifier.set('javadoc')
-    }
-
-    publishing {
-        publications {
-            mavenJava(MavenPublication) {
-                from components.java
-                artifact sourcesJar
-                artifact javadocJar
-            }
+    repositories {
+      maven {
+        if (project.version.endsWith("RELEASE")) {
+          url 'https://repo.cloudnetservice.eu/repository/releases/'
+        } else {
+          url 'https://repo.cloudnetservice.eu/repository/snapshots/'
         }
-        repositories {
-            maven {
-                if (project.version.endsWith("RELEASE")) {
-                    url 'https://repo.cloudnetservice.eu/repository/releases/'
-                } else {
-                    url 'https://repo.cloudnetservice.eu/repository/snapshots/'
-                }
 
-                credentials {
-                    username = project.hasProperty("mavenUser") ? project.property("mavenUser") : ""
-                    password = project.hasProperty("mavenPassword") ? project.property("mavenPassword") : ""
-                }
-            }
+        credentials {
+          username = project.hasProperty("mavenUser") ? project.property("mavenUser") : ""
+          password = project.hasProperty("mavenPassword") ? project.property("mavenPassword") : ""
         }
+      }
     }
+  }
 
 }
 
 task allJavadoc(type: Javadoc) {
-    dependsOn ':cloudnet-launcher:jar'
+  dependsOn ':cloudnet-launcher:jar'
 
-    destinationDir = new File(buildDir, 'javadoc')
-    title = 'CloudNet documentation ' + version
+  destinationDir = new File(buildDir, 'javadoc')
+  title = 'CloudNet documentation ' + version
 
-    options.encoding = 'UTF-8'
-    options.windowTitle = 'CloudNet Javadocs'
-    options.memberLevel = JavadocMemberLevel.PRIVATE
-    options.addBooleanOption "-no-module-directories", true
+  options.encoding = 'UTF-8'
+  options.windowTitle = 'CloudNet Javadocs'
+  options.memberLevel = JavadocMemberLevel.PRIVATE
+  options.addBooleanOption "-no-module-directories", true
 
-    options.addStringOption('Xdoclint:none', '-quiet')
+  options.addStringOption('Xdoclint:none', '-quiet')
 
-    def exportedProjects = subprojects.findAll {
-        it.name != 'cloudnet-modules' && it.name != 'cloudnet-plugins'
-    }.collect { it.path }
+  def exportedProjects = subprojects.findAll {
+    it.name != 'cloudnet-modules' && it.name != 'cloudnet-plugins'
+  }.collect { it.path }
 
-    source = exportedProjects.collect { project(it).sourceSets.main.allJava }
-    classpath = files(exportedProjects.collect { project(it).sourceSets.main.compileClasspath })
-    failOnError = false
+  source = exportedProjects.collect { project(it).sourceSets.main.allJava }
+  classpath = files(exportedProjects.collect { project(it).sourceSets.main.compileClasspath })
+  failOnError = false
 }

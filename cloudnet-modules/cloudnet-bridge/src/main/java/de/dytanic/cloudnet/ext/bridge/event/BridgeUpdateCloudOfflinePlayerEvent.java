@@ -5,13 +5,13 @@ import de.dytanic.cloudnet.ext.bridge.player.ICloudOfflinePlayer;
 
 public final class BridgeUpdateCloudOfflinePlayerEvent extends DriverEvent {
 
-    private final ICloudOfflinePlayer cloudOfflinePlayer;
+  private final ICloudOfflinePlayer cloudOfflinePlayer;
 
-    public BridgeUpdateCloudOfflinePlayerEvent(ICloudOfflinePlayer cloudOfflinePlayer) {
-        this.cloudOfflinePlayer = cloudOfflinePlayer;
-    }
+  public BridgeUpdateCloudOfflinePlayerEvent(ICloudOfflinePlayer cloudOfflinePlayer) {
+    this.cloudOfflinePlayer = cloudOfflinePlayer;
+  }
 
-    public ICloudOfflinePlayer getCloudOfflinePlayer() {
-        return this.cloudOfflinePlayer;
-    }
+  public ICloudOfflinePlayer getCloudOfflinePlayer() {
+    return this.cloudOfflinePlayer;
+  }
 }

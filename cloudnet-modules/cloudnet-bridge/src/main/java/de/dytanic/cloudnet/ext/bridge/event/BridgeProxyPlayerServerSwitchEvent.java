@@ -6,20 +6,21 @@ import de.dytanic.cloudnet.ext.bridge.player.NetworkServiceInfo;
 
 public final class BridgeProxyPlayerServerSwitchEvent extends DriverEvent {
 
-    private final NetworkConnectionInfo networkConnectionInfo;
+  private final NetworkConnectionInfo networkConnectionInfo;
 
-    private final NetworkServiceInfo networkServiceInfo;
+  private final NetworkServiceInfo networkServiceInfo;
 
-    public BridgeProxyPlayerServerSwitchEvent(NetworkConnectionInfo networkConnectionInfo, NetworkServiceInfo networkServiceInfo) {
-        this.networkConnectionInfo = networkConnectionInfo;
-        this.networkServiceInfo = networkServiceInfo;
-    }
+  public BridgeProxyPlayerServerSwitchEvent(NetworkConnectionInfo networkConnectionInfo,
+    NetworkServiceInfo networkServiceInfo) {
+    this.networkConnectionInfo = networkConnectionInfo;
+    this.networkServiceInfo = networkServiceInfo;
+  }
 
-    public NetworkConnectionInfo getNetworkConnectionInfo() {
-        return this.networkConnectionInfo;
-    }
+  public NetworkConnectionInfo getNetworkConnectionInfo() {
+    return this.networkConnectionInfo;
+  }
 
-    public NetworkServiceInfo getNetworkServiceInfo() {
-        return this.networkServiceInfo;
-    }
+  public NetworkServiceInfo getNetworkServiceInfo() {
+    return this.networkServiceInfo;
+  }
 }

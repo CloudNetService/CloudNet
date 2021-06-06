@@ -6,32 +6,36 @@ import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 
 public final class ExampleGroups {
 
-    public void test() {
-        this.addGroupConfiguration();
-        this.updateGroupConfiguration();
-        this.removeGroupConfiguration();
-    }
+  public void test() {
+    this.addGroupConfiguration();
+    this.updateGroupConfiguration();
+    this.removeGroupConfiguration();
+  }
 
-    public void addGroupConfiguration() {
-        CloudNetDriver.getInstance().getGroupConfigurationProvider().addGroupConfiguration(new GroupConfiguration("TestGroup")); //Creates a group without default includes, templates and deployments
-    }
+  public void addGroupConfiguration() {
+    CloudNetDriver.getInstance().getGroupConfigurationProvider().addGroupConfiguration(
+      new GroupConfiguration("TestGroup")); //Creates a group without default includes, templates and deployments
+  }
 
-    public void updateGroupConfiguration() {
-        if (CloudNetDriver.getInstance().getGroupConfigurationProvider().isGroupConfigurationPresent("TestGroup")) {
-            CloudNetDriver.getInstance().getGroupConfigurationProvider().getGroupConfigurationAsync("TestGroup").onComplete(result -> {
-                result.getTemplates().add(new ServiceTemplate( //add a new ServiceTemplate to the group
-                        "Lobby",
-                        "default",
-                        "local"
-                ));
+  public void updateGroupConfiguration() {
+    if (CloudNetDriver.getInstance().getGroupConfigurationProvider().isGroupConfigurationPresent("TestGroup")) {
+      CloudNetDriver.getInstance().getGroupConfigurationProvider().getGroupConfigurationAsync("TestGroup")
+        .onComplete(result -> {
+          result.getTemplates().add(new ServiceTemplate( //add a new ServiceTemplate to the group
+            "Lobby",
+            "default",
+            "local"
+          ));
 
-                CloudNetDriver.getInstance().getGroupConfigurationProvider().addGroupConfiguration(result); //add or update the group configuration
-            }).fireExceptionOnFailure();
-        }
+          CloudNetDriver.getInstance().getGroupConfigurationProvider()
+            .addGroupConfiguration(result); //add or update the group configuration
+        }).fireExceptionOnFailure();
     }
+  }
 
-    public void removeGroupConfiguration() {
-        CloudNetDriver.getInstance().getGroupConfigurationProvider().removeGroupConfiguration("TestGroup"); //remove the group configuration in network
-    }
+  public void removeGroupConfiguration() {
+    CloudNetDriver.getInstance().getGroupConfigurationProvider()
+      .removeGroupConfiguration("TestGroup"); //remove the group configuration in network
+  }
 
 }

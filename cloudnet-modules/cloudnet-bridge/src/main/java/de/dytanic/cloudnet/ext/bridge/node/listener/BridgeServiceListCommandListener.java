@@ -6,18 +6,26 @@ import de.dytanic.cloudnet.ext.bridge.BridgeServiceProperty;
 
 public class BridgeServiceListCommandListener {
 
-    @EventListener
-    public void handleCommand(ServiceListCommandEvent event) {
-        event.addParameter(serviceInfoSnapshot -> serviceInfoSnapshot.getProperty(BridgeServiceProperty.IS_ONLINE).orElse(false) ?
-                "Players: " + serviceInfoSnapshot.getProperty(BridgeServiceProperty.ONLINE_COUNT).orElse(0) + "/" + serviceInfoSnapshot.getProperty(BridgeServiceProperty.MAX_PLAYERS).orElse(0) :
-                null);
-        event.addParameter(serviceInfoSnapshot -> serviceInfoSnapshot.getProperty(BridgeServiceProperty.IS_IN_GAME).orElse(false) ? "Ingame" : null);
+  @EventListener
+  public void handleCommand(ServiceListCommandEvent event) {
+    event.addParameter(
+      serviceInfoSnapshot -> serviceInfoSnapshot.getProperty(BridgeServiceProperty.IS_ONLINE).orElse(false) ?
+        "Players: " + serviceInfoSnapshot.getProperty(BridgeServiceProperty.ONLINE_COUNT).orElse(0) + "/"
+          + serviceInfoSnapshot.getProperty(BridgeServiceProperty.MAX_PLAYERS).orElse(0) :
+        null);
+    event.addParameter(
+      serviceInfoSnapshot -> serviceInfoSnapshot.getProperty(BridgeServiceProperty.IS_IN_GAME).orElse(false) ? "Ingame"
+        : null);
 
-        long onlineServices = event.getTargetServiceInfoSnapshots().stream().filter(serviceInfoSnapshot -> serviceInfoSnapshot.getProperty(BridgeServiceProperty.IS_ONLINE).orElse(false)).count();
-        long inGameServices = event.getTargetServiceInfoSnapshots().stream().filter(serviceInfoSnapshot -> serviceInfoSnapshot.getProperty(BridgeServiceProperty.IS_IN_GAME).orElse(false)).count();
+    long onlineServices = event.getTargetServiceInfoSnapshots().stream()
+      .filter(serviceInfoSnapshot -> serviceInfoSnapshot.getProperty(BridgeServiceProperty.IS_ONLINE).orElse(false))
+      .count();
+    long inGameServices = event.getTargetServiceInfoSnapshots().stream()
+      .filter(serviceInfoSnapshot -> serviceInfoSnapshot.getProperty(BridgeServiceProperty.IS_IN_GAME).orElse(false))
+      .count();
 
-        event.addSummaryParameter("Online: " + onlineServices);
-        event.addSummaryParameter("Ingame: " + inGameServices);
-    }
+    event.addSummaryParameter("Online: " + onlineServices);
+    event.addSummaryParameter("Ingame: " + inGameServices);
+  }
 
 }

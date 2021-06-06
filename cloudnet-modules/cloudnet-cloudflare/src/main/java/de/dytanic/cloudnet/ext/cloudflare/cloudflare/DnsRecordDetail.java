@@ -9,25 +9,25 @@ import lombok.ToString;
 @EqualsAndHashCode
 public class DnsRecordDetail {
 
-    private final String id;
-    private final DNSRecord dnsRecord;
-    private final CloudflareConfigurationEntry configurationEntry;
+  private final String id;
+  private final DNSRecord dnsRecord;
+  private final CloudflareConfigurationEntry configurationEntry;
 
-    public DnsRecordDetail(String id, DNSRecord dnsRecord, CloudflareConfigurationEntry configurationEntry) {
-        this.id = id;
-        this.dnsRecord = dnsRecord;
-        this.configurationEntry = configurationEntry;
-    }
+  public DnsRecordDetail(String id, DNSRecord dnsRecord, CloudflareConfigurationEntry configurationEntry) {
+    this.id = id;
+    this.dnsRecord = dnsRecord;
+    this.configurationEntry = configurationEntry;
+  }
 
-    public String getId() {
-        return this.id;
-    }
+  public String getId() {
+    return this.id;
+  }
 
-    public DNSRecord getDnsRecord() {
-        return this.dnsRecord;
-    }
+  public DNSRecord getDnsRecord() {
+    return this.dnsRecord;
+  }
 
-    public CloudflareConfigurationEntry getConfigurationEntry() {
-        return this.configurationEntry;
-    }
+  public CloudflareConfigurationEntry getConfigurationEntry() {
+    return this.configurationEntry;
+  }
 }

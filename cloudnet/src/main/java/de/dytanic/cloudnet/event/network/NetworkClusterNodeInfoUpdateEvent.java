@@ -6,15 +6,16 @@ import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot
 
 public final class NetworkClusterNodeInfoUpdateEvent extends NetworkEvent {
 
-    private final NetworkClusterNodeInfoSnapshot networkClusterNodeInfoSnapshot;
+  private final NetworkClusterNodeInfoSnapshot networkClusterNodeInfoSnapshot;
 
-    public NetworkClusterNodeInfoUpdateEvent(INetworkChannel channel, NetworkClusterNodeInfoSnapshot networkClusterNodeInfoSnapshot) {
-        super(channel);
+  public NetworkClusterNodeInfoUpdateEvent(INetworkChannel channel,
+    NetworkClusterNodeInfoSnapshot networkClusterNodeInfoSnapshot) {
+    super(channel);
 
-        this.networkClusterNodeInfoSnapshot = networkClusterNodeInfoSnapshot;
-    }
+    this.networkClusterNodeInfoSnapshot = networkClusterNodeInfoSnapshot;
+  }
 
-    public NetworkClusterNodeInfoSnapshot getNetworkClusterNodeInfoSnapshot() {
-        return this.networkClusterNodeInfoSnapshot;
-    }
+  public NetworkClusterNodeInfoSnapshot getNetworkClusterNodeInfoSnapshot() {
+    return this.networkClusterNodeInfoSnapshot;
+  }
 }

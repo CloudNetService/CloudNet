@@ -4,24 +4,24 @@ import de.dytanic.cloudnet.service.ICloudService;
 
 public interface CloudServiceHandler {
 
-    boolean handlePreDelete(ICloudService service);
+  boolean handlePreDelete(ICloudService service);
 
-    void handlePostDelete(ICloudService service);
+  void handlePostDelete(ICloudService service);
 
-    boolean handlePrePrepare(ICloudService service);
+  boolean handlePrePrepare(ICloudService service);
 
-    void handlePostPrepare(ICloudService service);
+  void handlePostPrepare(ICloudService service);
 
-    boolean handlePrePrepareStart(ICloudService service);
+  boolean handlePrePrepareStart(ICloudService service);
 
-    void handlePostPrepareStart(ICloudService service);
+  void handlePostPrepareStart(ICloudService service);
 
-    void handlePreStart(ICloudService service);
+  void handlePreStart(ICloudService service);
 
-    void handlePostStart(ICloudService service);
+  void handlePostStart(ICloudService service);
 
-    boolean handlePreStop(ICloudService service);
+  boolean handlePreStop(ICloudService service);
 
-    void handlePostStop(ICloudService service, int exitValue);
+  void handlePostStop(ICloudService service, int exitValue);
 
 }

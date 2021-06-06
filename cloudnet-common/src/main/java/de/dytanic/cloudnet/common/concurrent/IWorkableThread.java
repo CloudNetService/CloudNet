@@ -6,16 +6,16 @@ import org.jetbrains.annotations.ApiStatus;
 @ApiStatus.ScheduledForRemoval
 public interface IWorkableThread extends AutoCloseable {
 
-    <V> IScheduledTask<V> getTask();
+  <V> IScheduledTask<V> getTask();
 
-    <V> IWorkableThread setTask(IScheduledTask<V> scheduledTask);
+  <V> IWorkableThread setTask(IScheduledTask<V> scheduledTask);
 
-    boolean isEmpty();
+  boolean isEmpty();
 
-    int getTasksCount();
+  int getTasksCount();
 
-    void stop();
+  void stop();
 
-    void interrupt();
+  void interrupt();
 
 }

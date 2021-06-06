@@ -9,7 +9,7 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 public @interface EventListener {
 
-    String channel() default "*";
+  String channel() default "*";
 
-    EventPriority priority() default EventPriority.NORMAL;
+  EventPriority priority() default EventPriority.NORMAL;
 }

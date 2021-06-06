@@ -6,9 +6,9 @@ import org.junit.Test;
 
 public final class EncryptToTest {
 
-    @Test
-    public void testEncryptToSHA256() throws Exception {
-        Assert.assertNotNull(EncryptTo.encryptToSHA256(StringUtil.generateRandomString(32)));
-        Assert.assertNotNull(EncryptTo.encryptToSHA1(StringUtil.generateRandomString(32)));
-    }
+  @Test
+  public void testEncryptToSHA256() throws Exception {
+    Assert.assertNotNull(EncryptTo.encryptToSHA256(StringUtil.generateRandomString(32)));
+    Assert.assertNotNull(EncryptTo.encryptToSHA1(StringUtil.generateRandomString(32)));
+  }
 }

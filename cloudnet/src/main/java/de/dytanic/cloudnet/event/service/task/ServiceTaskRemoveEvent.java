@@ -6,23 +6,23 @@ import de.dytanic.cloudnet.driver.service.ServiceTask;
 
 public class ServiceTaskRemoveEvent extends Event implements ICancelable {
 
-    private final ServiceTask task;
+  private final ServiceTask task;
 
-    private boolean cancelled;
+  private boolean cancelled;
 
-    public ServiceTaskRemoveEvent(ServiceTask task) {
-        this.task = task;
-    }
+  public ServiceTaskRemoveEvent(ServiceTask task) {
+    this.task = task;
+  }
 
-    public ServiceTask getTask() {
-        return this.task;
-    }
+  public ServiceTask getTask() {
+    return this.task;
+  }
 
-    public boolean isCancelled() {
-        return this.cancelled;
-    }
+  public boolean isCancelled() {
+    return this.cancelled;
+  }
 
-    public void setCancelled(boolean cancelled) {
-        this.cancelled = cancelled;
-    }
+  public void setCancelled(boolean cancelled) {
+    this.cancelled = cancelled;
+  }
 }

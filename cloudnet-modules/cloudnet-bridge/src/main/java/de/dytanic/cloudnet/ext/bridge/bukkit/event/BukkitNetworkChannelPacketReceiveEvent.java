@@ -10,32 +10,32 @@ import org.jetbrains.annotations.NotNull;
  */
 public final class BukkitNetworkChannelPacketReceiveEvent extends BukkitCloudNetEvent {
 
-    private static final HandlerList handlerList = new HandlerList();
+  private static final HandlerList handlerList = new HandlerList();
 
-    private final INetworkChannel channel;
+  private final INetworkChannel channel;
 
-    private final IPacket packet;
+  private final IPacket packet;
 
-    public BukkitNetworkChannelPacketReceiveEvent(INetworkChannel channel, IPacket packet) {
-        this.channel = channel;
-        this.packet = packet;
-    }
+  public BukkitNetworkChannelPacketReceiveEvent(INetworkChannel channel, IPacket packet) {
+    this.channel = channel;
+    this.packet = packet;
+  }
 
-    public static HandlerList getHandlerList() {
-        return BukkitNetworkChannelPacketReceiveEvent.handlerList;
-    }
+  public static HandlerList getHandlerList() {
+    return BukkitNetworkChannelPacketReceiveEvent.handlerList;
+  }
 
-    @NotNull
-    @Override
-    public HandlerList getHandlers() {
-        return handlerList;
-    }
+  @NotNull
+  @Override
+  public HandlerList getHandlers() {
+    return handlerList;
+  }
 
-    public INetworkChannel getChannel() {
-        return this.channel;
-    }
+  public INetworkChannel getChannel() {
+    return this.channel;
+  }
 
-    public IPacket getPacket() {
-        return this.packet;
-    }
+  public IPacket getPacket() {
+    return this.packet;
+  }
 }

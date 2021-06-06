@@ -11,31 +11,33 @@ import eu.cloudnetservice.cloudnet.ext.labymod.config.LabyModConfiguration;
 
 public class VelocityLabyModListener {
 
-    private final AbstractLabyModManagement labyModManagement;
+  private final AbstractLabyModManagement labyModManagement;
 
-    public VelocityLabyModListener(AbstractLabyModManagement labyModManagement) {
-        this.labyModManagement = labyModManagement;
+  public VelocityLabyModListener(AbstractLabyModManagement labyModManagement) {
+    this.labyModManagement = labyModManagement;
+  }
+
+  @Subscribe
+  public void handleServerConnected(ServerConnectedEvent event) {
+    this.labyModManagement
+      .sendServerUpdate(event.getPlayer().getUniqueId(), event.getServer().getServerInfo().getName());
+  }
+
+  @Subscribe
+  public void handlePluginMessage(PluginMessageEvent event) {
+    LabyModConfiguration configuration = LabyModUtils.getConfiguration();
+    if (configuration == null || !configuration.isEnabled() || !event.getIdentifier().getId()
+      .equals(LabyModConstants.LMC_CHANNEL_NAME)) {
+      return;
     }
 
-    @Subscribe
-    public void handleServerConnected(ServerConnectedEvent event) {
-        this.labyModManagement.sendServerUpdate(event.getPlayer().getUniqueId(), event.getServer().getServerInfo().getName());
+    if (!(event.getSource() instanceof Player)) {
+      return;
     }
 
-    @Subscribe
-    public void handlePluginMessage(PluginMessageEvent event) {
-        LabyModConfiguration configuration = LabyModUtils.getConfiguration();
-        if (configuration == null || !configuration.isEnabled() || !event.getIdentifier().getId().equals(LabyModConstants.LMC_CHANNEL_NAME)) {
-            return;
-        }
+    Player player = (Player) event.getSource();
 
-        if (!(event.getSource() instanceof Player)) {
-            return;
-        }
-
-        Player player = (Player) event.getSource();
-
-        this.labyModManagement.handleChannelMessage(player.getUniqueId(), event.getData());
-    }
+    this.labyModManagement.handleChannelMessage(player.getUniqueId(), event.getData());
+  }
 
 }

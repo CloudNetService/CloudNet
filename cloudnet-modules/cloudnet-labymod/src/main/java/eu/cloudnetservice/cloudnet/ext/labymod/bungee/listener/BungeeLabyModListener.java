@@ -12,31 +12,32 @@ import net.md_5.bungee.event.EventHandler;
 
 public class BungeeLabyModListener implements Listener {
 
-    private final AbstractLabyModManagement labyModManagement;
+  private final AbstractLabyModManagement labyModManagement;
 
-    public BungeeLabyModListener(AbstractLabyModManagement labyModManagement) {
-        this.labyModManagement = labyModManagement;
+  public BungeeLabyModListener(AbstractLabyModManagement labyModManagement) {
+    this.labyModManagement = labyModManagement;
+  }
+
+  @EventHandler
+  public void handle(ServerConnectedEvent event) {
+    this.labyModManagement.sendServerUpdate(event.getPlayer().getUniqueId(), event.getServer().getInfo().getName());
+  }
+
+  @EventHandler
+  public void handle(PluginMessageEvent event) {
+    LabyModConfiguration configuration = LabyModUtils.getConfiguration();
+    if (configuration == null || !configuration.isEnabled() || !event.getTag()
+      .equals(LabyModConstants.LMC_CHANNEL_NAME)) {
+      return;
     }
 
-    @EventHandler
-    public void handle(ServerConnectedEvent event) {
-        this.labyModManagement.sendServerUpdate(event.getPlayer().getUniqueId(), event.getServer().getInfo().getName());
+    if (!(event.getSender() instanceof ProxiedPlayer)) {
+      return;
     }
 
-    @EventHandler
-    public void handle(PluginMessageEvent event) {
-        LabyModConfiguration configuration = LabyModUtils.getConfiguration();
-        if (configuration == null || !configuration.isEnabled() || !event.getTag().equals(LabyModConstants.LMC_CHANNEL_NAME)) {
-            return;
-        }
+    ProxiedPlayer player = (ProxiedPlayer) event.getSender();
 
-        if (!(event.getSender() instanceof ProxiedPlayer)) {
-            return;
-        }
-
-        ProxiedPlayer player = (ProxiedPlayer) event.getSender();
-
-        this.labyModManagement.handleChannelMessage(player.getUniqueId(), event.getData());
-    }
+    this.labyModManagement.handleChannelMessage(player.getUniqueId(), event.getData());
+  }
 
 }

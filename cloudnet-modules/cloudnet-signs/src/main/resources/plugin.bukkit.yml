@@ -7,8 +7,8 @@ description: Bukkit extension for the CloudNet runtime, which optimizes some fea
 
 main: de.dytanic.cloudnet.ext.signs.bukkit.BukkitCloudNetSignsPlugin
 
-depend: [CloudNet-Bridge]
+depend: [ CloudNet-Bridge ]
 
 commands:
   cloudsign:
-    aliases: [cs]
+    aliases: [ cs ]

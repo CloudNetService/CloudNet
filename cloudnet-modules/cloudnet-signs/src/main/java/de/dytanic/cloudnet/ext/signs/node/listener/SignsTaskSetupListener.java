@@ -14,51 +14,55 @@ import de.dytanic.cloudnet.ext.signs.node.CloudNetSignsModule;
 
 public class SignsTaskSetupListener {
 
-    @EventListener
-    public void handleSetupComplete(SetupCompleteEvent event) {
-        if (!event.getSetup().getName().equals("TaskSetup")) {
-            return;
-        }
-
-        if (event.getSetup().hasResult("GenerateDefaultSignsConfig")) {
-            String taskName = (String) event.getSetup().getResult("name");
-            ServiceEnvironmentType environment = (ServiceEnvironmentType) event.getSetup().getResult("environment");
-            boolean generateDefaultSignsConfig = (Boolean) event.getSetup().getResult("GenerateDefaultSignsConfig");
-
-            if (!generateDefaultSignsConfig) {
-                return;
-            }
-
-            SignConfiguration configuration = CloudNetSignsModule.getInstance().getSignConfiguration();
-            if (configuration.getConfigurations().stream().noneMatch(entry -> entry.getTargetGroup().equals(taskName))) {
-                SignConfigurationEntryType entryType = environment == ServiceEnvironmentType.MINECRAFT_SERVER ? SignConfigurationEntryType.BUKKIT : SignConfigurationEntryType.NUKKIT;
-                configuration.getConfigurations().add(entryType.createEntry(taskName));
-                SignConfigurationReaderAndWriter.write(configuration, CloudNetSignsModule.getInstance().getConfigurationFilePath());
-            }
-        }
+  @EventListener
+  public void handleSetupComplete(SetupCompleteEvent event) {
+    if (!event.getSetup().getName().equals("TaskSetup")) {
+      return;
     }
 
-    @EventListener
-    public void handleSetupResponse(SetupResponseEvent event) {
-        if (!event.getSetup().getName().equals("TaskSetup") || !(event.getResponse() instanceof ServiceEnvironmentType) || event.getSetup().hasResult("GenerateDefaultSignsConfig")) {
-            return;
-        }
+    if (event.getSetup().hasResult("GenerateDefaultSignsConfig")) {
+      String taskName = (String) event.getSetup().getResult("name");
+      ServiceEnvironmentType environment = (ServiceEnvironmentType) event.getSetup().getResult("environment");
+      boolean generateDefaultSignsConfig = (Boolean) event.getSetup().getResult("GenerateDefaultSignsConfig");
 
-        ServiceEnvironmentType environment = (ServiceEnvironmentType) event.getResponse();
-        if (environment != ServiceEnvironmentType.MINECRAFT_SERVER && environment != ServiceEnvironmentType.NUKKIT) {
-            return;
-        }
+      if (!generateDefaultSignsConfig) {
+        return;
+      }
 
-        event.getSetup().addEntry(new QuestionListEntry<>(
-                "GenerateDefaultSignsConfig",
-                LanguageManager.getMessage("module-signs-tasks-setup-generate-default-config"),
-                new QuestionAnswerTypeBoolean() {
-                    @Override
-                    public String getRecommendation() {
-                        return super.getFalseString();
-                    }
-                }
-        ));
+      SignConfiguration configuration = CloudNetSignsModule.getInstance().getSignConfiguration();
+      if (configuration.getConfigurations().stream().noneMatch(entry -> entry.getTargetGroup().equals(taskName))) {
+        SignConfigurationEntryType entryType =
+          environment == ServiceEnvironmentType.MINECRAFT_SERVER ? SignConfigurationEntryType.BUKKIT
+            : SignConfigurationEntryType.NUKKIT;
+        configuration.getConfigurations().add(entryType.createEntry(taskName));
+        SignConfigurationReaderAndWriter
+          .write(configuration, CloudNetSignsModule.getInstance().getConfigurationFilePath());
+      }
     }
+  }
+
+  @EventListener
+  public void handleSetupResponse(SetupResponseEvent event) {
+    if (!event.getSetup().getName().equals("TaskSetup") || !(event.getResponse() instanceof ServiceEnvironmentType)
+      || event.getSetup().hasResult("GenerateDefaultSignsConfig")) {
+      return;
+    }
+
+    ServiceEnvironmentType environment = (ServiceEnvironmentType) event.getResponse();
+    if (environment != ServiceEnvironmentType.MINECRAFT_SERVER && environment != ServiceEnvironmentType.NUKKIT) {
+      return;
+    }
+
+    event.getSetup().addEntry(new QuestionListEntry<>(
+      "GenerateDefaultSignsConfig",
+      LanguageManager.getMessage("module-signs-tasks-setup-generate-default-config"),
+      new QuestionAnswerTypeBoolean() {
+        @Override
+        public String getRecommendation() {
+          return super.getFalseString();
+        }
+      }
+    ));
+  }
 
 }

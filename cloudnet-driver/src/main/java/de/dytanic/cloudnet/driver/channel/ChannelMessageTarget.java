@@ -12,60 +12,61 @@ import org.jetbrains.annotations.Nullable;
 @EqualsAndHashCode
 public class ChannelMessageTarget implements SerializableObject {
 
-    private Type type;
-    private String name;
-    private ServiceEnvironmentType environment;
+  private Type type;
+  private String name;
+  private ServiceEnvironmentType environment;
 
-    public ChannelMessageTarget(@NotNull Type type, @Nullable String name) {
-        this.type = type;
-        this.name = name;
-    }
+  public ChannelMessageTarget(@NotNull Type type, @Nullable String name) {
+    this.type = type;
+    this.name = name;
+  }
 
-    public ChannelMessageTarget(@NotNull ServiceEnvironmentType environment) {
-        this.type = Type.ENVIRONMENT;
-        this.environment = environment;
-    }
+  public ChannelMessageTarget(@NotNull ServiceEnvironmentType environment) {
+    this.type = Type.ENVIRONMENT;
+    this.environment = environment;
+  }
 
-    public ChannelMessageTarget() {
-    }
+  public ChannelMessageTarget() {
+  }
 
-    public Type getType() {
-        return this.type;
-    }
+  public Type getType() {
+    return this.type;
+  }
 
-    public String getName() {
-        return this.name;
-    }
+  public String getName() {
+    return this.name;
+  }
 
-    public ServiceEnvironmentType getEnvironment() {
-        return this.environment;
-    }
+  public ServiceEnvironmentType getEnvironment() {
+    return this.environment;
+  }
 
-    public boolean includesNode(String uniqueId) {
-        return this.type.equals(Type.ALL) || (this.type.equals(Type.NODE) && (this.name == null || this.name.equals(uniqueId)));
-    }
+  public boolean includesNode(String uniqueId) {
+    return this.type.equals(Type.ALL) || (this.type.equals(Type.NODE) && (this.name == null || this.name
+      .equals(uniqueId)));
+  }
 
-    @Override
-    public void write(@NotNull ProtocolBuffer buffer) {
-        buffer.writeEnumConstant(this.type);
-        buffer.writeOptionalString(this.name);
-        buffer.writeOptionalEnumConstant(this.environment);
-    }
+  @Override
+  public void write(@NotNull ProtocolBuffer buffer) {
+    buffer.writeEnumConstant(this.type);
+    buffer.writeOptionalString(this.name);
+    buffer.writeOptionalEnumConstant(this.environment);
+  }
 
-    @Override
-    public void read(@NotNull ProtocolBuffer buffer) {
-        this.type = buffer.readEnumConstant(Type.class);
-        this.name = buffer.readOptionalString();
-        this.environment = buffer.readOptionalEnumConstant(ServiceEnvironmentType.class);
-    }
+  @Override
+  public void read(@NotNull ProtocolBuffer buffer) {
+    this.type = buffer.readEnumConstant(Type.class);
+    this.name = buffer.readOptionalString();
+    this.environment = buffer.readOptionalEnumConstant(ServiceEnvironmentType.class);
+  }
 
-    public enum Type {
-        ALL,
-        NODE,
-        SERVICE,
-        TASK,
-        GROUP,
-        ENVIRONMENT
-    }
+  public enum Type {
+    ALL,
+    NODE,
+    SERVICE,
+    TASK,
+    GROUP,
+    ENVIRONMENT
+  }
 
 }

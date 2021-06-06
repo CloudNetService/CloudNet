@@ -7,17 +7,17 @@ import de.dytanic.cloudnet.common.logging.LogLevel;
 
 public class CommandDebug extends CommandDefault {
 
-    public CommandDebug() {
-        super("debug");
-    }
+  public CommandDebug() {
+    super("debug");
+  }
 
-    @Override
-    public void execute(ICommandSender sender, String command, String[] args, String commandLine, Properties properties) {
-        if (CloudNet.getInstance().getLogger().getLevel() == LogLevel.DEBUG.getLevel()) {
-            CloudNet.getInstance().setGlobalLogLevel(CloudNet.getInstance().getDefaultLogLevel());
-        } else {
-            CloudNet.getInstance().setGlobalLogLevel(LogLevel.DEBUG);
-        }
+  @Override
+  public void execute(ICommandSender sender, String command, String[] args, String commandLine, Properties properties) {
+    if (CloudNet.getInstance().getLogger().getLevel() == LogLevel.DEBUG.getLevel()) {
+      CloudNet.getInstance().setGlobalLogLevel(CloudNet.getInstance().getDefaultLogLevel());
+    } else {
+      CloudNet.getInstance().setGlobalLogLevel(LogLevel.DEBUG);
     }
+  }
 
 }

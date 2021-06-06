@@ -10,34 +10,34 @@ import org.jetbrains.annotations.Nullable;
 
 public class NukkitCloudSignInteractEvent extends PlayerEvent implements Cancellable {
 
-    private static final HandlerList HANDLER_LIST = new HandlerList();
+  private static final HandlerList HANDLER_LIST = new HandlerList();
 
-    private final Sign clickedSign;
+  private final Sign clickedSign;
 
-    private String targetServer;
+  private String targetServer;
 
-    public NukkitCloudSignInteractEvent(@NotNull Player who, @NotNull Sign clickedSign, @Nullable String targetServer) {
-        super.player = who;
-        this.clickedSign = clickedSign;
-        this.targetServer = targetServer;
-    }
+  public NukkitCloudSignInteractEvent(@NotNull Player who, @NotNull Sign clickedSign, @Nullable String targetServer) {
+    super.player = who;
+    this.clickedSign = clickedSign;
+    this.targetServer = targetServer;
+  }
 
-    public static HandlerList getHandlers() {
-        return HANDLER_LIST;
-    }
+  public static HandlerList getHandlers() {
+    return HANDLER_LIST;
+  }
 
-    @NotNull
-    public Sign getClickedSign() {
-        return this.clickedSign;
-    }
+  @NotNull
+  public Sign getClickedSign() {
+    return this.clickedSign;
+  }
 
-    @Nullable
-    public String getTargetServer() {
-        return this.targetServer;
-    }
+  @Nullable
+  public String getTargetServer() {
+    return this.targetServer;
+  }
 
-    public void setTargetServer(String targetServer) {
-        this.targetServer = targetServer;
-    }
+  public void setTargetServer(String targetServer) {
+    this.targetServer = targetServer;
+  }
 
 }

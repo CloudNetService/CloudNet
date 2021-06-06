@@ -7,11 +7,11 @@ import java.security.SecureClassLoader;
  */
 public class ListenerInvokerClassLoader extends SecureClassLoader {
 
-    public ListenerInvokerClassLoader(ClassLoader parent) {
-        super(parent);
-    }
+  public ListenerInvokerClassLoader(ClassLoader parent) {
+    super(parent);
+  }
 
-    public Class<?> defineClass(String className, byte[] bytes) {
-        return super.defineClass(className, bytes, 0, bytes.length);
-    }
+  public Class<?> defineClass(String className, byte[] bytes) {
+    return super.defineClass(className, bytes, 0, bytes.length);
+  }
 }

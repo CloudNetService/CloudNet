@@ -8,37 +8,37 @@ import de.dytanic.cloudnet.service.ICloudService;
 
 public final class CloudServiceTemplateLoadEvent extends DriverEvent implements ICancelable {
 
-    private final ICloudService cloudService;
+  private final ICloudService cloudService;
 
-    private final TemplateStorage storage;
+  private final TemplateStorage storage;
 
-    private final ServiceTemplate template;
+  private final ServiceTemplate template;
 
-    private boolean cancelled;
+  private boolean cancelled;
 
-    public CloudServiceTemplateLoadEvent(ICloudService cloudService, TemplateStorage storage, ServiceTemplate template) {
-        this.cloudService = cloudService;
-        this.storage = storage;
-        this.template = template;
-    }
+  public CloudServiceTemplateLoadEvent(ICloudService cloudService, TemplateStorage storage, ServiceTemplate template) {
+    this.cloudService = cloudService;
+    this.storage = storage;
+    this.template = template;
+  }
 
-    public ICloudService getCloudService() {
-        return this.cloudService;
-    }
+  public ICloudService getCloudService() {
+    return this.cloudService;
+  }
 
-    public TemplateStorage getStorage() {
-        return this.storage;
-    }
+  public TemplateStorage getStorage() {
+    return this.storage;
+  }
 
-    public ServiceTemplate getTemplate() {
-        return this.template;
-    }
+  public ServiceTemplate getTemplate() {
+    return this.template;
+  }
 
-    public boolean isCancelled() {
-        return this.cancelled;
-    }
+  public boolean isCancelled() {
+    return this.cancelled;
+  }
 
-    public void setCancelled(boolean cancelled) {
-        this.cancelled = cancelled;
-    }
+  public void setCancelled(boolean cancelled) {
+    this.cancelled = cancelled;
+  }
 }

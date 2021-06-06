@@ -10,20 +10,20 @@ import de.dytanic.cloudnet.driver.module.IModuleWrapper;
  */
 public abstract class ModuleEvent extends DriverEvent {
 
-    private final IModuleProvider moduleProvider;
+  private final IModuleProvider moduleProvider;
 
-    private final IModuleWrapper module;
+  private final IModuleWrapper module;
 
-    public ModuleEvent(IModuleProvider moduleProvider, IModuleWrapper module) {
-        this.moduleProvider = moduleProvider;
-        this.module = module;
-    }
+  public ModuleEvent(IModuleProvider moduleProvider, IModuleWrapper module) {
+    this.moduleProvider = moduleProvider;
+    this.module = module;
+  }
 
-    public IModuleProvider getModuleProvider() {
-        return this.moduleProvider;
-    }
+  public IModuleProvider getModuleProvider() {
+    return this.moduleProvider;
+  }
 
-    public IModuleWrapper getModule() {
-        return this.module;
-    }
+  public IModuleWrapper getModule() {
+    return this.module;
+  }
 }

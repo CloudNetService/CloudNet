@@ -5,13 +5,13 @@ import de.dytanic.cloudnet.service.ICloudService;
 
 public final class CloudServicePreStartEvent extends DriverEvent {
 
-    private final ICloudService cloudService;
+  private final ICloudService cloudService;
 
-    public CloudServicePreStartEvent(ICloudService cloudService) {
-        this.cloudService = cloudService;
-    }
+  public CloudServicePreStartEvent(ICloudService cloudService) {
+    this.cloudService = cloudService;
+  }
 
-    public ICloudService getCloudService() {
-        return this.cloudService;
-    }
+  public ICloudService getCloudService() {
+    return this.cloudService;
+  }
 }

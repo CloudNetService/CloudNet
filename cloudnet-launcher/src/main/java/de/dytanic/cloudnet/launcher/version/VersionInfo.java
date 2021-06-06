@@ -4,18 +4,18 @@ import java.nio.file.Path;
 
 public interface VersionInfo {
 
-    String getRepositoryVersion();
+  String getRepositoryVersion();
 
-    String getCurrentVersion();
+  String getCurrentVersion();
 
-    String getGitHubRepository();
+  String getGitHubRepository();
 
-    long getReleaseTimestamp();
+  long getReleaseTimestamp();
 
-    Path getTargetDirectory();
+  Path getTargetDirectory();
 
-    default String getFullVersion() {
-        return this.getCurrentVersion() + "-" + this.getReleaseTimestamp();
-    }
+  default String getFullVersion() {
+    return this.getCurrentVersion() + "-" + this.getReleaseTimestamp();
+  }
 
 }

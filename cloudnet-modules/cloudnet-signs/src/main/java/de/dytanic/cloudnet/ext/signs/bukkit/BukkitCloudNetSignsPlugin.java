@@ -12,47 +12,51 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public final class BukkitCloudNetSignsPlugin extends JavaPlugin {
 
-    private BukkitSignManagement signManagement;
+  private BukkitSignManagement signManagement;
 
-    @Override
-    public void onEnable() {
-        this.signManagement = new BukkitSignManagement(this);
-        CloudNetDriver.getInstance().getServicesRegistry().registerService(AbstractSignManagement.class, "BukkitSignManagement", this.signManagement);
+  @Override
+  public void onEnable() {
+    this.signManagement = new BukkitSignManagement(this);
+    CloudNetDriver.getInstance().getServicesRegistry()
+      .registerService(AbstractSignManagement.class, "BukkitSignManagement", this.signManagement);
 
-        this.initListeners();
+    this.initListeners();
+  }
+
+  @Override
+  public void onDisable() {
+    CloudNetDriver.getInstance().getEventManager().unregisterListeners(super.getClassLoader());
+    Wrapper.getInstance().unregisterPacketListenersByClassLoader(this.getClass().getClassLoader());
+
+    CloudNetDriver.getInstance().getServicesRegistry()
+      .unregisterService(AbstractSignManagement.class, "BukkitSignManagement");
+  }
+
+  private void initListeners() {
+    //Commands
+    PluginCommand cloudSignCommand = this.getCommand("cloudsign");
+
+    if (cloudSignCommand != null) {
+      cloudSignCommand.setExecutor(new CommandCloudSign(this.signManagement));
+      cloudSignCommand.setPermission("cloudnet.command.cloudsign");
+      cloudSignCommand.setUsage("/cloudsign create <targetGroup>");
+      cloudSignCommand.setDescription("Add or Removes signs from the provided Group configuration");
     }
 
-    @Override
-    public void onDisable() {
-        CloudNetDriver.getInstance().getEventManager().unregisterListeners(super.getClassLoader());
-        Wrapper.getInstance().unregisterPacketListenersByClassLoader(this.getClass().getClassLoader());
+    //CloudNet listeners
+    CloudNetDriver.getInstance().getEventManager().registerListener(this.signManagement);
 
-        CloudNetDriver.getInstance().getServicesRegistry().unregisterService(AbstractSignManagement.class, "BukkitSignManagement");
+    //Bukkit listeners
+    Bukkit.getPluginManager().registerEvents(new BukkitSignInteractionListener(this.signManagement), this);
+
+    //Sign knockback scheduler
+    SignConfigurationEntry signConfigurationEntry = this.signManagement.getOwnSignConfigurationEntry();
+
+    if (signConfigurationEntry != null && signConfigurationEntry.getKnockbackDistance() > 0
+      && signConfigurationEntry.getKnockbackStrength() > 0) {
+      Bukkit.getScheduler()
+        .scheduleSyncRepeatingTask(this, new BukkitSignKnockbackRunnable(this.signManagement), 20, 5);
     }
-
-    private void initListeners() {
-        //Commands
-        PluginCommand cloudSignCommand = this.getCommand("cloudsign");
-
-        if (cloudSignCommand != null) {
-            cloudSignCommand.setExecutor(new CommandCloudSign(this.signManagement));
-            cloudSignCommand.setPermission("cloudnet.command.cloudsign");
-            cloudSignCommand.setUsage("/cloudsign create <targetGroup>");
-            cloudSignCommand.setDescription("Add or Removes signs from the provided Group configuration");
-        }
-
-        //CloudNet listeners
-        CloudNetDriver.getInstance().getEventManager().registerListener(this.signManagement);
-
-        //Bukkit listeners
-        Bukkit.getPluginManager().registerEvents(new BukkitSignInteractionListener(this.signManagement), this);
-
-        //Sign knockback scheduler
-        SignConfigurationEntry signConfigurationEntry = this.signManagement.getOwnSignConfigurationEntry();
-
-        if (signConfigurationEntry != null && signConfigurationEntry.getKnockbackDistance() > 0 && signConfigurationEntry.getKnockbackStrength() > 0) {
-            Bukkit.getScheduler().scheduleSyncRepeatingTask(this, new BukkitSignKnockbackRunnable(this.signManagement), 20, 5);
-        }
-    }
+  }
 
 }

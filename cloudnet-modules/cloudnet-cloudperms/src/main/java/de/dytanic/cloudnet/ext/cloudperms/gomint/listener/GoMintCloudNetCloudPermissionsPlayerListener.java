@@ -15,28 +15,28 @@ import io.gomint.server.GoMintServer;
 
 public final class GoMintCloudNetCloudPermissionsPlayerListener implements EventListener {
 
-    private final IPermissionManagement permissionsManagement;
+  private final IPermissionManagement permissionsManagement;
 
-    public GoMintCloudNetCloudPermissionsPlayerListener(IPermissionManagement permissionsManagement) {
-        this.permissionsManagement = permissionsManagement;
+  public GoMintCloudNetCloudPermissionsPlayerListener(IPermissionManagement permissionsManagement) {
+    this.permissionsManagement = permissionsManagement;
+  }
+
+  @EventHandler(priority = EventPriority.LOW)
+  public void handle(PlayerLoginEvent event) {
+    if (!event.cancelled()) {
+      EntityPlayer player = event.player();
+
+      CloudPermissionsHelper.initPermissionUser(this.permissionsManagement, player.uuid(), player.name(), message -> {
+        event.cancelled(true);
+        event.kickMessage(ChatColor.translateAlternateColorCodes('&', message));
+      }, ((GoMintServer) GoMint.instance()).encryptionKeyFactory().isKeyGiven());
+
+      GoMintCloudNetCloudPermissionsPlugin.getInstance().injectPermissionManager(player);
     }
+  }
 
-    @EventHandler(priority = EventPriority.LOW)
-    public void handle(PlayerLoginEvent event) {
-        if (!event.cancelled()) {
-            EntityPlayer player = event.player();
-
-            CloudPermissionsHelper.initPermissionUser(this.permissionsManagement, player.uuid(), player.name(), message -> {
-                event.cancelled(true);
-                event.kickMessage(ChatColor.translateAlternateColorCodes('&', message));
-            }, ((GoMintServer) GoMint.instance()).encryptionKeyFactory().isKeyGiven());
-
-            GoMintCloudNetCloudPermissionsPlugin.getInstance().injectPermissionManager(player);
-        }
-    }
-
-    @EventHandler
-    public void handle(PlayerQuitEvent event) {
-        CloudPermissionsHelper.handlePlayerQuit(this.permissionsManagement, event.player().uuid());
-    }
+  @EventHandler
+  public void handle(PlayerQuitEvent event) {
+    CloudPermissionsHelper.handlePlayerQuit(this.permissionsManagement, event.player().uuid());
+  }
 }

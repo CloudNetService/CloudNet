@@ -11,6 +11,6 @@ import org.jetbrains.annotations.ApiStatus;
 @ApiStatus.ScheduledForRemoval(inVersion = "3.6")
 public interface IDatabase extends Database, INameable, AutoCloseable {
 
-    AbstractDatabaseProvider getDatabaseProvider();
+  AbstractDatabaseProvider getDatabaseProvider();
 
 }

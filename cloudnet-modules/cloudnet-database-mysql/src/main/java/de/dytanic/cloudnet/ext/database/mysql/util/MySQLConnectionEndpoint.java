@@ -8,28 +8,28 @@ import lombok.ToString;
 @EqualsAndHashCode
 public final class MySQLConnectionEndpoint {
 
-    protected final boolean useSsl;
+  protected final boolean useSsl;
 
-    protected final String database;
+  protected final String database;
 
-    protected final HostAndPort address;
+  protected final HostAndPort address;
 
-    public MySQLConnectionEndpoint(boolean useSsl, String database, HostAndPort address) {
-        this.useSsl = useSsl;
-        this.database = database;
-        this.address = address;
-    }
+  public MySQLConnectionEndpoint(boolean useSsl, String database, HostAndPort address) {
+    this.useSsl = useSsl;
+    this.database = database;
+    this.address = address;
+  }
 
-    public boolean isUseSsl() {
-        return this.useSsl;
-    }
+  public boolean isUseSsl() {
+    return this.useSsl;
+  }
 
-    public String getDatabase() {
-        return this.database;
-    }
+  public String getDatabase() {
+    return this.database;
+  }
 
-    public HostAndPort getAddress() {
-        return this.address;
-    }
+  public HostAndPort getAddress() {
+    return this.address;
+  }
 
 }

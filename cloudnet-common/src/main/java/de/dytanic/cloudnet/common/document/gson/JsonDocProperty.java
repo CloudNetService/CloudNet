@@ -7,34 +7,35 @@ import java.util.function.Predicate;
 
 public class JsonDocProperty<E> {
 
-    protected final BiConsumer<E, JsonDocument> appender;
+  protected final BiConsumer<E, JsonDocument> appender;
 
-    protected final Function<JsonDocument, E> resolver;
+  protected final Function<JsonDocument, E> resolver;
 
-    protected final Consumer<JsonDocument> remover;
+  protected final Consumer<JsonDocument> remover;
 
-    protected final Predicate<JsonDocument> tester;
+  protected final Predicate<JsonDocument> tester;
 
-    public JsonDocProperty(BiConsumer<E, JsonDocument> appender, Function<JsonDocument, E> resolver, Consumer<JsonDocument> remover, Predicate<JsonDocument> tester) {
-        this.appender = appender;
-        this.resolver = resolver;
-        this.remover = remover;
-        this.tester = tester;
-    }
+  public JsonDocProperty(BiConsumer<E, JsonDocument> appender, Function<JsonDocument, E> resolver,
+    Consumer<JsonDocument> remover, Predicate<JsonDocument> tester) {
+    this.appender = appender;
+    this.resolver = resolver;
+    this.remover = remover;
+    this.tester = tester;
+  }
 
-    public BiConsumer<E, JsonDocument> getAppender() {
-        return this.appender;
-    }
+  public BiConsumer<E, JsonDocument> getAppender() {
+    return this.appender;
+  }
 
-    public Function<JsonDocument, E> getResolver() {
-        return this.resolver;
-    }
+  public Function<JsonDocument, E> getResolver() {
+    return this.resolver;
+  }
 
-    public Consumer<JsonDocument> getRemover() {
-        return this.remover;
-    }
+  public Consumer<JsonDocument> getRemover() {
+    return this.remover;
+  }
 
-    public Predicate<JsonDocument> getTester() {
-        return this.tester;
-    }
+  public Predicate<JsonDocument> getTester() {
+    return this.tester;
+  }
 }

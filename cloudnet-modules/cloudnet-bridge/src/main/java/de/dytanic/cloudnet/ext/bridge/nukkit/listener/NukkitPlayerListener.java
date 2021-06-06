@@ -20,65 +20,69 @@ import org.bukkit.ChatColor;
 
 public final class NukkitPlayerListener implements Listener {
 
-    private final OnlyProxyProtection onlyProxyProtection;
+  private final OnlyProxyProtection onlyProxyProtection;
 
-    public NukkitPlayerListener() {
-        this.onlyProxyProtection = new OnlyProxyProtection(Server.getInstance().getPropertyBoolean("xbox-auth"));
+  public NukkitPlayerListener() {
+    this.onlyProxyProtection = new OnlyProxyProtection(Server.getInstance().getPropertyBoolean("xbox-auth"));
+  }
+
+  @EventHandler(priority = EventPriority.HIGHEST)
+  public void handle(PlayerLoginEvent event) {
+    Player player = event.getPlayer();
+    BridgeConfiguration bridgeConfiguration = BridgeConfigurationProvider.load();
+
+    if (this.onlyProxyProtection.shouldDisallowPlayer(player.getAddress())) {
+      event.setCancelled(true);
+      event.setKickMessage(
+        bridgeConfiguration.getMessages().get("server-join-cancel-because-only-proxy").replace('&', '§'));
+      return;
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void handle(PlayerLoginEvent event) {
-        Player player = event.getPlayer();
-        BridgeConfiguration bridgeConfiguration = BridgeConfigurationProvider.load();
+    String currentTaskName = Wrapper.getInstance().getServiceId().getTaskName();
+    ServiceTask serviceTask = Wrapper.getInstance().getServiceTaskProvider().getServiceTask(currentTaskName);
 
-        if (this.onlyProxyProtection.shouldDisallowPlayer(player.getAddress())) {
-            event.setCancelled(true);
-            event.setKickMessage(bridgeConfiguration.getMessages().get("server-join-cancel-because-only-proxy").replace('&', '§'));
-            return;
-        }
+    if (serviceTask != null) {
+      String requiredPermission = serviceTask.getProperties().getString("requiredPermission");
+      if (requiredPermission != null && !player.hasPermission(requiredPermission)) {
+        event.setCancelled(true);
+        event.setKickMessage(ChatColor.translateAlternateColorCodes('&',
+          bridgeConfiguration.getMessages().get("server-join-cancel-because-permission")));
+        return;
+      }
 
-        String currentTaskName = Wrapper.getInstance().getServiceId().getTaskName();
-        ServiceTask serviceTask = Wrapper.getInstance().getServiceTaskProvider().getServiceTask(currentTaskName);
-
-        if (serviceTask != null) {
-            String requiredPermission = serviceTask.getProperties().getString("requiredPermission");
-            if (requiredPermission != null && !player.hasPermission(requiredPermission)) {
-                event.setCancelled(true);
-                event.setKickMessage(ChatColor.translateAlternateColorCodes('&', bridgeConfiguration.getMessages().get("server-join-cancel-because-permission")));
-                return;
-            }
-
-            if (serviceTask.isMaintenance() && !player.hasPermission("cloudnet.bridge.maintenance")) {
-                event.setCancelled(true);
-                event.setKickMessage(bridgeConfiguration.getMessages().get("server-join-cancel-because-maintenance").replace('&', '§'));
-                return;
-            }
-        }
-
-        BridgeHelper.sendChannelMessageServerLoginRequest(NukkitCloudNetHelper.createNetworkConnectionInfo(player),
-                NukkitCloudNetHelper.createNetworkPlayerServerInfo(player, true)
-        );
+      if (serviceTask.isMaintenance() && !player.hasPermission("cloudnet.bridge.maintenance")) {
+        event.setCancelled(true);
+        event.setKickMessage(
+          bridgeConfiguration.getMessages().get("server-join-cancel-because-maintenance").replace('&', '§'));
+        return;
+      }
     }
 
-    @EventHandler
-    public void handle(PlayerJoinEvent event) {
-        BridgeHelper.sendChannelMessageServerLoginSuccess(NukkitCloudNetHelper.createNetworkConnectionInfo(event.getPlayer()),
-                NukkitCloudNetHelper.createNetworkPlayerServerInfo(event.getPlayer(), false));
+    BridgeHelper.sendChannelMessageServerLoginRequest(NukkitCloudNetHelper.createNetworkConnectionInfo(player),
+      NukkitCloudNetHelper.createNetworkPlayerServerInfo(player, true)
+    );
+  }
 
+  @EventHandler
+  public void handle(PlayerJoinEvent event) {
+    BridgeHelper
+      .sendChannelMessageServerLoginSuccess(NukkitCloudNetHelper.createNetworkConnectionInfo(event.getPlayer()),
+        NukkitCloudNetHelper.createNetworkPlayerServerInfo(event.getPlayer(), false));
+
+    BridgeHelper.updateServiceInfo();
+  }
+
+  @EventHandler
+  public void handle(PlayerQuitEvent event) {
+    BridgeHelper.sendChannelMessageServerDisconnect(NukkitCloudNetHelper.createNetworkConnectionInfo(event.getPlayer()),
+      NukkitCloudNetHelper.createNetworkPlayerServerInfo(event.getPlayer(), false));
+
+    event.getPlayer().getServer().getScheduler().scheduleDelayedTask(new Task() {
+      @Override
+      public void onRun(int currentTick) {
         BridgeHelper.updateServiceInfo();
-    }
-
-    @EventHandler
-    public void handle(PlayerQuitEvent event) {
-        BridgeHelper.sendChannelMessageServerDisconnect(NukkitCloudNetHelper.createNetworkConnectionInfo(event.getPlayer()),
-                NukkitCloudNetHelper.createNetworkPlayerServerInfo(event.getPlayer(), false));
-
-        event.getPlayer().getServer().getScheduler().scheduleDelayedTask(new Task() {
-            @Override
-            public void onRun(int currentTick) {
-                BridgeHelper.updateServiceInfo();
-            }
-        }, 1);
-    }
+      }
+    }, 1);
+  }
 
 }

@@ -8,32 +8,32 @@ import de.dytanic.cloudnet.template.install.run.step.executor.DownloadStepExecut
 import de.dytanic.cloudnet.template.install.run.step.executor.InstallStepExecutor;
 import de.dytanic.cloudnet.template.install.run.step.executor.PaperApiVersionFetchStepExecutor;
 import de.dytanic.cloudnet.template.install.run.step.executor.UnzipStepExecutor;
-import org.jetbrains.annotations.NotNull;
-
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Set;
+import org.jetbrains.annotations.NotNull;
 
 public enum InstallStep {
-    DOWNLOAD(new DownloadStepExecutor()),
-    BUILD(new BuildStepExecutor()),
-    UNZIP(new UnzipStepExecutor()),
-    COPY_FILTER(new CopyFilterStepExecutor()),
-    DEPLOY(new DeployStepExecutor()),
-    PAPER_API(new PaperApiVersionFetchStepExecutor());
+  DOWNLOAD(new DownloadStepExecutor()),
+  BUILD(new BuildStepExecutor()),
+  UNZIP(new UnzipStepExecutor()),
+  COPY_FILTER(new CopyFilterStepExecutor()),
+  DEPLOY(new DeployStepExecutor()),
+  PAPER_API(new PaperApiVersionFetchStepExecutor());
 
-    private final InstallStepExecutor executor;
+  private final InstallStepExecutor executor;
 
-    InstallStep(InstallStepExecutor executor) {
-        this.executor = executor;
-    }
+  InstallStep(InstallStepExecutor executor) {
+    this.executor = executor;
+  }
 
-    public @NotNull Set<Path> execute(@NotNull InstallInformation installInformation, @NotNull Path workingDirectory, @NotNull Set<Path> inputPaths) throws IOException {
-        return this.executor.execute(installInformation, workingDirectory, inputPaths);
-    }
+  public @NotNull Set<Path> execute(@NotNull InstallInformation installInformation, @NotNull Path workingDirectory,
+    @NotNull Set<Path> inputPaths) throws IOException {
+    return this.executor.execute(installInformation, workingDirectory, inputPaths);
+  }
 
-    public void interrupt() {
-        this.executor.interrupt();
-    }
+  public void interrupt() {
+    this.executor.interrupt();
+  }
 
 }

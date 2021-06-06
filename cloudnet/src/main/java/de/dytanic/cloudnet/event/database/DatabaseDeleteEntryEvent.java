@@ -4,19 +4,19 @@ import de.dytanic.cloudnet.database.IDatabase;
 
 public class DatabaseDeleteEntryEvent extends DatabaseEvent {
 
-    private String key;
+  private String key;
 
-    public DatabaseDeleteEntryEvent(IDatabase database, String key) {
-        super(database);
+  public DatabaseDeleteEntryEvent(IDatabase database, String key) {
+    super(database);
 
-        this.key = key;
-    }
+    this.key = key;
+  }
 
-    public String getKey() {
-        return this.key;
-    }
+  public String getKey() {
+    return this.key;
+  }
 
-    public void setKey(String key) {
-        this.key = key;
-    }
+  public void setKey(String key) {
+    this.key = key;
+  }
 }

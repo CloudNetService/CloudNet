@@ -15,29 +15,31 @@ import de.dytanic.cloudnet.wrapper.Wrapper;
 @Plugin(id = "cloudnet_syncproxy_velocity")
 public final class VelocityCloudNetSyncProxyPlugin {
 
-    private final ProxyServer proxyServer;
+  private final ProxyServer proxyServer;
 
-    @Inject
-    public VelocityCloudNetSyncProxyPlugin(ProxyServer proxyServer) {
-        this.proxyServer = proxyServer;
-    }
+  @Inject
+  public VelocityCloudNetSyncProxyPlugin(ProxyServer proxyServer) {
+    this.proxyServer = proxyServer;
+  }
 
-    @Subscribe
-    public void handleProxyInit(ProxyInitializeEvent event) {
-        VelocitySyncProxyManagement syncProxyManagement = new VelocitySyncProxyManagement(this.proxyServer, this);
-        CloudNetDriver.getInstance().getServicesRegistry().registerService(AbstractSyncProxyManagement.class, "VelocitySyncProxyManagement", syncProxyManagement);
+  @Subscribe
+  public void handleProxyInit(ProxyInitializeEvent event) {
+    VelocitySyncProxyManagement syncProxyManagement = new VelocitySyncProxyManagement(this.proxyServer, this);
+    CloudNetDriver.getInstance().getServicesRegistry()
+      .registerService(AbstractSyncProxyManagement.class, "VelocitySyncProxyManagement", syncProxyManagement);
 
-        CloudNetDriver.getInstance().getEventManager().registerListener(new SyncProxyCloudNetListener(syncProxyManagement));
+    CloudNetDriver.getInstance().getEventManager().registerListener(new SyncProxyCloudNetListener(syncProxyManagement));
 
-        this.proxyServer.getEventManager().register(this, new VelocitySyncProxyPlayerListener(syncProxyManagement));
-    }
+    this.proxyServer.getEventManager().register(this, new VelocitySyncProxyPlayerListener(syncProxyManagement));
+  }
 
-    @Subscribe
-    public void handleProxyShutdown(ProxyShutdownEvent event) {
-        CloudNetDriver.getInstance().getEventManager().unregisterListeners(this.getClass().getClassLoader());
-        Wrapper.getInstance().unregisterPacketListenersByClassLoader(this.getClass().getClassLoader());
+  @Subscribe
+  public void handleProxyShutdown(ProxyShutdownEvent event) {
+    CloudNetDriver.getInstance().getEventManager().unregisterListeners(this.getClass().getClassLoader());
+    Wrapper.getInstance().unregisterPacketListenersByClassLoader(this.getClass().getClassLoader());
 
-        CloudNetDriver.getInstance().getServicesRegistry().unregisterService(AbstractSyncProxyManagement.class, "VelocitySyncProxyManagement");
-    }
+    CloudNetDriver.getInstance().getServicesRegistry()
+      .unregisterService(AbstractSyncProxyManagement.class, "VelocitySyncProxyManagement");
+  }
 
 }

@@ -11,66 +11,67 @@ import org.bukkit.event.EventHandler;
 
 public final class ExampleSigns {
 
-    // getting the SignManagement via CloudNet's service registry
-    private final AbstractSignManagement signManagement = CloudNetDriver.getInstance().getServicesRegistry().getFirstService(AbstractSignManagement.class);
+  // getting the SignManagement via CloudNet's service registry
+  private final AbstractSignManagement signManagement = CloudNetDriver.getInstance().getServicesRegistry()
+    .getFirstService(AbstractSignManagement.class);
 
-    public void updateSigns() {
-        this.signManagement.updateSigns();
+  public void updateSigns() {
+    this.signManagement.updateSigns();
+  }
+
+  public void foreachSigns() {
+    for (Sign sign : this.signManagement.getSigns()) {
+      // ...
     }
+  }
 
-    public void foreachSigns() {
-        for (Sign sign : this.signManagement.getSigns()) {
-            // ...
-        }
-    }
+  public void customizeSignLayout() {
+    this.signManagement.getOwnSignConfigurationEntry().getTaskLayouts().add(new SignConfigurationTaskEntry(
+      "Lobby",
+      new SignLayout(
+        new String[]{
+          "Lobby-1",
+          "%online_count% / %max_players%",
+          "A minecraft server",
+          "LOBBY"
+        },
+        Material.STONE.name(),
+        0
+      ),
+      new SignLayout(
+        new String[]{
+          "Lobby-1",
+          "%online_count% / %max_players%",
+          "A minecraft server",
+          "LOBBY"
+        },
+        Material.STONE.name(),
+        0
+      ),
+      new SignLayout(
+        new String[]{
+          "Lobby-1",
+          "%online_count% / %max_players%",
+          "A minecraft server",
+          "LOBBY"
+        },
+        Material.STONE.name(),
+        0
+      )
+    ));
+  }
 
-    public void customizeSignLayout() {
-        this.signManagement.getOwnSignConfigurationEntry().getTaskLayouts().add(new SignConfigurationTaskEntry(
-                "Lobby",
-                new SignLayout(
-                        new String[]{
-                                "Lobby-1",
-                                "%online_count% / %max_players%",
-                                "A minecraft server",
-                                "LOBBY"
-                        },
-                        Material.STONE.name(),
-                        0
-                ),
-                new SignLayout(
-                        new String[]{
-                                "Lobby-1",
-                                "%online_count% / %max_players%",
-                                "A minecraft server",
-                                "LOBBY"
-                        },
-                        Material.STONE.name(),
-                        0
-                ),
-                new SignLayout(
-                        new String[]{
-                                "Lobby-1",
-                                "%online_count% / %max_players%",
-                                "A minecraft server",
-                                "LOBBY"
-                        },
-                        Material.STONE.name(),
-                        0
-                )
-        ));
-    }
+  @EventHandler
+  public void handleSignInteract(BukkitCloudSignInteractEvent event) {
+    Sign sign = event.getClickedSign();
 
-    @EventHandler
-    public void handleSignInteract(BukkitCloudSignInteractEvent event) {
-        Sign sign = event.getClickedSign();
+    event.getPlayer().sendMessage(String.format("You clicked on a sign targeting group %s!", sign.getTargetGroup()));
 
-        event.getPlayer().sendMessage(String.format("You clicked on a sign targeting group %s!", sign.getTargetGroup()));
+    // sending the Player to any desired service
+    event.setTargetServer("PeepoHub-2");
 
-        // sending the Player to any desired service
-        event.setTargetServer("PeepoHub-2");
-
-        // cancelling the event, the Player won't be sent to any service
-        event.setCancelled(true);
-    }
+    // cancelling the event, the Player won't be sent to any service
+    event.setCancelled(true);
+  }
 
 }

@@ -6,20 +6,21 @@ import de.dytanic.cloudnet.driver.module.ModuleDependency;
 import de.dytanic.cloudnet.driver.module.ModuleLifeCycle;
 
 /**
- * This event is being called before a dependency for a module is being downloaded.
- * {@link IModuleWrapper#getModuleLifeCycle()} is still {@link ModuleLifeCycle#UNLOADED}
+ * This event is being called before a dependency for a module is being downloaded. {@link
+ * IModuleWrapper#getModuleLifeCycle()} is still {@link ModuleLifeCycle#UNLOADED}
  */
 public final class ModulePreInstallDependencyEvent extends ModuleEvent {
 
-    private final ModuleDependency moduleDependency;
+  private final ModuleDependency moduleDependency;
 
-    public ModulePreInstallDependencyEvent(IModuleProvider moduleProvider, IModuleWrapper module, ModuleDependency moduleDependency) {
-        super(moduleProvider, module);
+  public ModulePreInstallDependencyEvent(IModuleProvider moduleProvider, IModuleWrapper module,
+    ModuleDependency moduleDependency) {
+    super(moduleProvider, module);
 
-        this.moduleDependency = moduleDependency;
-    }
+    this.moduleDependency = moduleDependency;
+  }
 
-    public ModuleDependency getModuleDependency() {
-        return this.moduleDependency;
-    }
+  public ModuleDependency getModuleDependency() {
+    return this.moduleDependency;
+  }
 }

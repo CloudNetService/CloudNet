@@ -6,20 +6,20 @@ import de.dytanic.cloudnet.service.ICloudService;
 
 public final class NetworkChannelAuthCloudServiceSuccessEvent extends Event {
 
-    private final ICloudService cloudService;
+  private final ICloudService cloudService;
 
-    private final INetworkChannel channel;
+  private final INetworkChannel channel;
 
-    public NetworkChannelAuthCloudServiceSuccessEvent(ICloudService cloudService, INetworkChannel channel) {
-        this.cloudService = cloudService;
-        this.channel = channel;
-    }
+  public NetworkChannelAuthCloudServiceSuccessEvent(ICloudService cloudService, INetworkChannel channel) {
+    this.cloudService = cloudService;
+    this.channel = channel;
+  }
 
-    public ICloudService getCloudService() {
-        return this.cloudService;
-    }
+  public ICloudService getCloudService() {
+    return this.cloudService;
+  }
 
-    public INetworkChannel getChannel() {
-        return this.channel;
-    }
+  public INetworkChannel getChannel() {
+    return this.channel;
+  }
 }

@@ -20,68 +20,72 @@ import org.bukkit.event.player.PlayerQuitEvent;
 
 public final class BukkitPlayerListener implements Listener {
 
-    private final BukkitCloudNetBridgePlugin plugin;
+  private final BukkitCloudNetBridgePlugin plugin;
 
-    private final OnlyProxyProtection onlyProxyProtection;
+  private final OnlyProxyProtection onlyProxyProtection;
 
-    public BukkitPlayerListener(BukkitCloudNetBridgePlugin plugin) {
-        this.plugin = plugin;
+  public BukkitPlayerListener(BukkitCloudNetBridgePlugin plugin) {
+    this.plugin = plugin;
 
-        this.onlyProxyProtection = new OnlyProxyProtection(Bukkit.getOnlineMode());
+    this.onlyProxyProtection = new OnlyProxyProtection(Bukkit.getOnlineMode());
+  }
+
+  @EventHandler(priority = EventPriority.HIGHEST)
+  public void handle(PlayerLoginEvent event) {
+    Player player = event.getPlayer();
+    BridgeConfiguration bridgeConfiguration = BridgeConfigurationProvider.load();
+
+    if (this.onlyProxyProtection.shouldDisallowPlayer(event.getRealAddress().getHostAddress())) {
+      event.setResult(PlayerLoginEvent.Result.KICK_WHITELIST);
+      event.setKickMessage(ChatColor.translateAlternateColorCodes('&',
+        bridgeConfiguration.getMessages().get("server-join-cancel-because-only-proxy")));
+      return;
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void handle(PlayerLoginEvent event) {
-        Player player = event.getPlayer();
-        BridgeConfiguration bridgeConfiguration = BridgeConfigurationProvider.load();
+    String currentTaskName = Wrapper.getInstance().getServiceId().getTaskName();
+    ServiceTask serviceTask = Wrapper.getInstance().getServiceTaskProvider().getServiceTask(currentTaskName);
 
-        if (this.onlyProxyProtection.shouldDisallowPlayer(event.getRealAddress().getHostAddress())) {
-            event.setResult(PlayerLoginEvent.Result.KICK_WHITELIST);
-            event.setKickMessage(ChatColor.translateAlternateColorCodes('&', bridgeConfiguration.getMessages().get("server-join-cancel-because-only-proxy")));
-            return;
-        }
+    if (serviceTask != null) {
+      String requiredPermission = serviceTask.getProperties().getString("requiredPermission");
+      if (requiredPermission != null && !player.hasPermission(requiredPermission)) {
+        event.setResult(PlayerLoginEvent.Result.KICK_WHITELIST);
+        event.setKickMessage(ChatColor.translateAlternateColorCodes('&',
+          bridgeConfiguration.getMessages().get("server-join-cancel-because-permission")));
+        return;
+      }
 
-        String currentTaskName = Wrapper.getInstance().getServiceId().getTaskName();
-        ServiceTask serviceTask = Wrapper.getInstance().getServiceTaskProvider().getServiceTask(currentTaskName);
-
-        if (serviceTask != null) {
-            String requiredPermission = serviceTask.getProperties().getString("requiredPermission");
-            if (requiredPermission != null && !player.hasPermission(requiredPermission)) {
-                event.setResult(PlayerLoginEvent.Result.KICK_WHITELIST);
-                event.setKickMessage(ChatColor.translateAlternateColorCodes('&', bridgeConfiguration.getMessages().get("server-join-cancel-because-permission")));
-                return;
-            }
-
-            if (serviceTask.isMaintenance() && !player.hasPermission("cloudnet.bridge.maintenance")) {
-                event.setResult(PlayerLoginEvent.Result.KICK_WHITELIST);
-                event.setKickMessage(ChatColor.translateAlternateColorCodes('&', bridgeConfiguration.getMessages().get("server-join-cancel-because-maintenance")));
-                return;
-            }
-        }
-
-        BridgeHelper.sendChannelMessageServerLoginRequest(BukkitCloudNetHelper.createNetworkConnectionInfo(player),
-                BukkitCloudNetHelper.createNetworkPlayerServerInfo(player, true)
-        );
+      if (serviceTask.isMaintenance() && !player.hasPermission("cloudnet.bridge.maintenance")) {
+        event.setResult(PlayerLoginEvent.Result.KICK_WHITELIST);
+        event.setKickMessage(ChatColor.translateAlternateColorCodes('&',
+          bridgeConfiguration.getMessages().get("server-join-cancel-because-maintenance")));
+        return;
+      }
     }
 
-    @EventHandler
-    public void handle(PlayerJoinEvent event) {
-        BridgeHelper.sendChannelMessageServerLoginSuccess(BukkitCloudNetHelper.createNetworkConnectionInfo(event.getPlayer()),
-                BukkitCloudNetHelper.createNetworkPlayerServerInfo(event.getPlayer(), false));
+    BridgeHelper.sendChannelMessageServerLoginRequest(BukkitCloudNetHelper.createNetworkConnectionInfo(player),
+      BukkitCloudNetHelper.createNetworkPlayerServerInfo(player, true)
+    );
+  }
 
-        BridgeHelper.updateServiceInfo();
-    }
+  @EventHandler
+  public void handle(PlayerJoinEvent event) {
+    BridgeHelper
+      .sendChannelMessageServerLoginSuccess(BukkitCloudNetHelper.createNetworkConnectionInfo(event.getPlayer()),
+        BukkitCloudNetHelper.createNetworkPlayerServerInfo(event.getPlayer(), false));
 
-    @EventHandler
-    public void handle(PlayerQuitEvent event) {
-        Player player = event.getPlayer();
+    BridgeHelper.updateServiceInfo();
+  }
 
-        Bukkit.getScheduler().runTask(this.plugin, () -> {
-            BridgeHelper.sendChannelMessageServerDisconnect(BukkitCloudNetHelper.createNetworkConnectionInfo(player),
-                    BukkitCloudNetHelper.createNetworkPlayerServerInfo(player, false));
+  @EventHandler
+  public void handle(PlayerQuitEvent event) {
+    Player player = event.getPlayer();
 
-            BridgeHelper.updateServiceInfo();
-        });
-    }
+    Bukkit.getScheduler().runTask(this.plugin, () -> {
+      BridgeHelper.sendChannelMessageServerDisconnect(BukkitCloudNetHelper.createNetworkConnectionInfo(player),
+        BukkitCloudNetHelper.createNetworkPlayerServerInfo(player, false));
+
+      BridgeHelper.updateServiceInfo();
+    });
+  }
 
 }

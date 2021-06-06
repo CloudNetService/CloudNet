@@ -4,13 +4,13 @@ import de.dytanic.cloudnet.ext.bridge.BridgeConfiguration;
 
 public final class BungeeBridgeConfigurationUpdateEvent extends BungeeBridgeEvent {
 
-    private final BridgeConfiguration bridgeConfiguration;
+  private final BridgeConfiguration bridgeConfiguration;
 
-    public BungeeBridgeConfigurationUpdateEvent(BridgeConfiguration bridgeConfiguration) {
-        this.bridgeConfiguration = bridgeConfiguration;
-    }
+  public BungeeBridgeConfigurationUpdateEvent(BridgeConfiguration bridgeConfiguration) {
+    this.bridgeConfiguration = bridgeConfiguration;
+  }
 
-    public BridgeConfiguration getBridgeConfiguration() {
-        return this.bridgeConfiguration;
-    }
+  public BridgeConfiguration getBridgeConfiguration() {
+    return this.bridgeConfiguration;
+  }
 }

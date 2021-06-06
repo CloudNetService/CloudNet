@@ -5,13 +5,13 @@ import de.dytanic.cloudnet.ext.bridge.BridgeConfiguration;
 
 public final class BridgeConfigurationUpdateEvent extends DriverEvent {
 
-    private final BridgeConfiguration bridgeConfiguration;
+  private final BridgeConfiguration bridgeConfiguration;
 
-    public BridgeConfigurationUpdateEvent(BridgeConfiguration bridgeConfiguration) {
-        this.bridgeConfiguration = bridgeConfiguration;
-    }
+  public BridgeConfigurationUpdateEvent(BridgeConfiguration bridgeConfiguration) {
+    this.bridgeConfiguration = bridgeConfiguration;
+  }
 
-    public BridgeConfiguration getBridgeConfiguration() {
-        return this.bridgeConfiguration;
-    }
+  public BridgeConfiguration getBridgeConfiguration() {
+    return this.bridgeConfiguration;
+  }
 }

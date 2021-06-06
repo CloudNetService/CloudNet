@@ -6,18 +6,18 @@ import org.jetbrains.annotations.NotNull;
 
 public final class ConsoleLogHandler extends AbstractLogHandler {
 
-    private final IConsole console;
+  private final IConsole console;
 
-    public ConsoleLogHandler(IConsole console) {
-        this.console = console;
-    }
+  public ConsoleLogHandler(IConsole console) {
+    this.console = console;
+  }
 
-    @Override
-    public void handle(@NotNull LogEntry logEntry) {
-        this.console.writeLine(this.getFormatter().format(logEntry));
-    }
+  @Override
+  public void handle(@NotNull LogEntry logEntry) {
+    this.console.writeLine(this.getFormatter().format(logEntry));
+  }
 
-    public @NotNull IConsole getConsole() {
-        return this.console;
-    }
+  public @NotNull IConsole getConsole() {
+    return this.console;
+  }
 }

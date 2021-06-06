@@ -9,24 +9,24 @@ import org.jetbrains.annotations.NotNull;
  */
 public final class BukkitBridgeProxyPlayerDisconnectEvent extends BukkitBridgeEvent {
 
-    private static final HandlerList handlerList = new HandlerList();
-    private final NetworkConnectionInfo networkConnectionInfo;
+  private static final HandlerList handlerList = new HandlerList();
+  private final NetworkConnectionInfo networkConnectionInfo;
 
-    public BukkitBridgeProxyPlayerDisconnectEvent(NetworkConnectionInfo networkConnectionInfo) {
-        this.networkConnectionInfo = networkConnectionInfo;
-    }
+  public BukkitBridgeProxyPlayerDisconnectEvent(NetworkConnectionInfo networkConnectionInfo) {
+    this.networkConnectionInfo = networkConnectionInfo;
+  }
 
-    public static HandlerList getHandlerList() {
-        return BukkitBridgeProxyPlayerDisconnectEvent.handlerList;
-    }
+  public static HandlerList getHandlerList() {
+    return BukkitBridgeProxyPlayerDisconnectEvent.handlerList;
+  }
 
-    @NotNull
-    @Override
-    public HandlerList getHandlers() {
-        return handlerList;
-    }
+  @NotNull
+  @Override
+  public HandlerList getHandlers() {
+    return handlerList;
+  }
 
-    public NetworkConnectionInfo getNetworkConnectionInfo() {
-        return this.networkConnectionInfo;
-    }
+  public NetworkConnectionInfo getNetworkConnectionInfo() {
+    return this.networkConnectionInfo;
+  }
 }

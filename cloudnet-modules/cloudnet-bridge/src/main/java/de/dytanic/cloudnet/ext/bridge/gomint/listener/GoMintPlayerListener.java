@@ -19,63 +19,67 @@ import io.gomint.server.GoMintServer;
 
 public final class GoMintPlayerListener implements EventListener {
 
-    private final Plugin plugin;
+  private final Plugin plugin;
 
-    private final OnlyProxyProtection onlyProxyProtection;
+  private final OnlyProxyProtection onlyProxyProtection;
 
-    public GoMintPlayerListener(Plugin plugin) {
-        this.plugin = plugin;
+  public GoMintPlayerListener(Plugin plugin) {
+    this.plugin = plugin;
 
-        this.onlyProxyProtection = new OnlyProxyProtection(((GoMintServer) plugin.server()).encryptionKeyFactory().isKeyGiven());
+    this.onlyProxyProtection = new OnlyProxyProtection(
+      ((GoMintServer) plugin.server()).encryptionKeyFactory().isKeyGiven());
+  }
+
+  @EventHandler
+  public void handle(PlayerLoginEvent event) {
+    EntityPlayer player = event.player();
+    BridgeConfiguration bridgeConfiguration = BridgeConfigurationProvider.load();
+
+    if (this.onlyProxyProtection.shouldDisallowPlayer(player.address().getAddress().getHostAddress())) {
+      event.cancelled(true);
+      event.kickMessage(ChatColor.translateAlternateColorCodes('&',
+        bridgeConfiguration.getMessages().get("server-join-cancel-because-only-proxy")));
+      return;
     }
 
-    @EventHandler
-    public void handle(PlayerLoginEvent event) {
-        EntityPlayer player = event.player();
-        BridgeConfiguration bridgeConfiguration = BridgeConfigurationProvider.load();
+    String currentTaskName = Wrapper.getInstance().getServiceId().getTaskName();
+    ServiceTask serviceTask = Wrapper.getInstance().getServiceTaskProvider().getServiceTask(currentTaskName);
 
-        if (this.onlyProxyProtection.shouldDisallowPlayer(player.address().getAddress().getHostAddress())) {
-            event.cancelled(true);
-            event.kickMessage(ChatColor.translateAlternateColorCodes('&', bridgeConfiguration.getMessages().get("server-join-cancel-because-only-proxy")));
-            return;
-        }
+    if (serviceTask != null) {
+      String requiredPermission = serviceTask.getProperties().getString("requiredPermission");
+      if (requiredPermission != null && !player.permissionManager().has(requiredPermission)) {
+        event.cancelled(true);
+        event.kickMessage(ChatColor.translateAlternateColorCodes('&',
+          bridgeConfiguration.getMessages().get("server-join-cancel-because-permission")));
+        return;
+      }
 
-        String currentTaskName = Wrapper.getInstance().getServiceId().getTaskName();
-        ServiceTask serviceTask = Wrapper.getInstance().getServiceTaskProvider().getServiceTask(currentTaskName);
-
-        if (serviceTask != null) {
-            String requiredPermission = serviceTask.getProperties().getString("requiredPermission");
-            if (requiredPermission != null && !player.permissionManager().has(requiredPermission)) {
-                event.cancelled(true);
-                event.kickMessage(ChatColor.translateAlternateColorCodes('&', bridgeConfiguration.getMessages().get("server-join-cancel-because-permission")));
-                return;
-            }
-
-            if (serviceTask.isMaintenance() && !player.permissionManager().has("cloudnet.bridge.maintenance")) {
-                event.cancelled(true);
-                event.kickMessage(ChatColor.translateAlternateColorCodes('&', bridgeConfiguration.getMessages().get("server-join-cancel-because-maintenance")));
-                return;
-            }
-        }
-
-        BridgeHelper.sendChannelMessageServerLoginRequest(GoMintCloudNetHelper.createNetworkConnectionInfo(player),
-                GoMintCloudNetHelper.createNetworkPlayerServerInfo(player, true));
+      if (serviceTask.isMaintenance() && !player.permissionManager().has("cloudnet.bridge.maintenance")) {
+        event.cancelled(true);
+        event.kickMessage(ChatColor.translateAlternateColorCodes('&',
+          bridgeConfiguration.getMessages().get("server-join-cancel-because-maintenance")));
+        return;
+      }
     }
 
-    @EventHandler
-    public void handle(PlayerJoinEvent event) {
-        BridgeHelper.sendChannelMessageServerLoginSuccess(GoMintCloudNetHelper.createNetworkConnectionInfo(event.player()),
-                GoMintCloudNetHelper.createNetworkPlayerServerInfo(event.player(), false));
+    BridgeHelper.sendChannelMessageServerLoginRequest(GoMintCloudNetHelper.createNetworkConnectionInfo(player),
+      GoMintCloudNetHelper.createNetworkPlayerServerInfo(player, true));
+  }
 
-        BridgeHelper.updateServiceInfo();
-    }
+  @EventHandler
+  public void handle(PlayerJoinEvent event) {
+    BridgeHelper.sendChannelMessageServerLoginSuccess(GoMintCloudNetHelper.createNetworkConnectionInfo(event.player()),
+      GoMintCloudNetHelper.createNetworkPlayerServerInfo(event.player(), false));
 
-    @EventHandler
-    public void handle(PlayerQuitEvent event) {
-        BridgeHelper.sendChannelMessageServerDisconnect(GoMintCloudNetHelper.createNetworkConnectionInfo(event.player()),
-                GoMintCloudNetHelper.createNetworkPlayerServerInfo(event.player(), false));
+    BridgeHelper.updateServiceInfo();
+  }
 
-        this.plugin.scheduler().execute(BridgeHelper::updateServiceInfo);
-    }
+  @EventHandler
+  public void handle(PlayerQuitEvent event) {
+    BridgeHelper.sendChannelMessageServerDisconnect(GoMintCloudNetHelper.createNetworkConnectionInfo(event.player()),
+      GoMintCloudNetHelper.createNetworkPlayerServerInfo(event.player(), false));
+
+    this.plugin.scheduler().execute(BridgeHelper::updateServiceInfo);
+  }
 
 }

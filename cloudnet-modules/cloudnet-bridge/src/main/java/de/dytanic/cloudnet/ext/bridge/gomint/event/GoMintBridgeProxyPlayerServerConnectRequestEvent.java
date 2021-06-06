@@ -8,20 +8,21 @@ import de.dytanic.cloudnet.ext.bridge.player.NetworkServiceInfo;
  */
 public class GoMintBridgeProxyPlayerServerConnectRequestEvent extends GoMintBridgeEvent {
 
-    private final NetworkConnectionInfo networkConnectionInfo;
+  private final NetworkConnectionInfo networkConnectionInfo;
 
-    private final NetworkServiceInfo networkServiceInfo;
+  private final NetworkServiceInfo networkServiceInfo;
 
-    public GoMintBridgeProxyPlayerServerConnectRequestEvent(NetworkConnectionInfo networkConnectionInfo, NetworkServiceInfo networkServiceInfo) {
-        this.networkConnectionInfo = networkConnectionInfo;
-        this.networkServiceInfo = networkServiceInfo;
-    }
+  public GoMintBridgeProxyPlayerServerConnectRequestEvent(NetworkConnectionInfo networkConnectionInfo,
+    NetworkServiceInfo networkServiceInfo) {
+    this.networkConnectionInfo = networkConnectionInfo;
+    this.networkServiceInfo = networkServiceInfo;
+  }
 
-    public NetworkConnectionInfo getNetworkConnectionInfo() {
-        return this.networkConnectionInfo;
-    }
+  public NetworkConnectionInfo getNetworkConnectionInfo() {
+    return this.networkConnectionInfo;
+  }
 
-    public NetworkServiceInfo getNetworkServiceInfo() {
-        return this.networkServiceInfo;
-    }
+  public NetworkServiceInfo getNetworkServiceInfo() {
+    return this.networkServiceInfo;
+  }
 }

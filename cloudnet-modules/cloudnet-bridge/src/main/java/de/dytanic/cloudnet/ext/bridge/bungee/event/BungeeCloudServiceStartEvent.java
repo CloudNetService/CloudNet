@@ -4,13 +4,13 @@ import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 
 public final class BungeeCloudServiceStartEvent extends BungeeCloudNetEvent {
 
-    private final ServiceInfoSnapshot serviceInfoSnapshot;
+  private final ServiceInfoSnapshot serviceInfoSnapshot;
 
-    public BungeeCloudServiceStartEvent(ServiceInfoSnapshot serviceInfoSnapshot) {
-        this.serviceInfoSnapshot = serviceInfoSnapshot;
-    }
+  public BungeeCloudServiceStartEvent(ServiceInfoSnapshot serviceInfoSnapshot) {
+    this.serviceInfoSnapshot = serviceInfoSnapshot;
+  }
 
-    public ServiceInfoSnapshot getServiceInfoSnapshot() {
-        return this.serviceInfoSnapshot;
-    }
+  public ServiceInfoSnapshot getServiceInfoSnapshot() {
+    return this.serviceInfoSnapshot;
+  }
 }

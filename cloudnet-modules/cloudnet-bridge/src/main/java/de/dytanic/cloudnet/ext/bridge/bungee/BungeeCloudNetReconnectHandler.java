@@ -6,21 +6,21 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 
 public class BungeeCloudNetReconnectHandler implements ReconnectHandler {
 
-    @Override
-    public ServerInfo getServer(ProxiedPlayer player) {
-        return BungeeCloudNetHelper.getNextFallback(player, null).orElse(null);
-    }
+  @Override
+  public ServerInfo getServer(ProxiedPlayer player) {
+    return BungeeCloudNetHelper.getNextFallback(player, null).orElse(null);
+  }
 
-    @Override
-    public void setServer(ProxiedPlayer player) {
-    }
+  @Override
+  public void setServer(ProxiedPlayer player) {
+  }
 
-    @Override
-    public void save() {
-    }
+  @Override
+  public void save() {
+  }
 
-    @Override
-    public void close() {
-    }
+  @Override
+  public void close() {
+  }
 
 }

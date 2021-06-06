@@ -10,30 +10,31 @@ import org.jetbrains.annotations.NotNull;
  */
 public final class BukkitBridgeServerPlayerLoginSuccessEvent extends BukkitBridgeEvent {
 
-    private static final HandlerList handlerList = new HandlerList();
-    private final NetworkConnectionInfo networkConnectionInfo;
-    private final NetworkPlayerServerInfo networkPlayerServerInfo;
+  private static final HandlerList handlerList = new HandlerList();
+  private final NetworkConnectionInfo networkConnectionInfo;
+  private final NetworkPlayerServerInfo networkPlayerServerInfo;
 
-    public BukkitBridgeServerPlayerLoginSuccessEvent(NetworkConnectionInfo networkConnectionInfo, NetworkPlayerServerInfo networkPlayerServerInfo) {
-        this.networkConnectionInfo = networkConnectionInfo;
-        this.networkPlayerServerInfo = networkPlayerServerInfo;
-    }
+  public BukkitBridgeServerPlayerLoginSuccessEvent(NetworkConnectionInfo networkConnectionInfo,
+    NetworkPlayerServerInfo networkPlayerServerInfo) {
+    this.networkConnectionInfo = networkConnectionInfo;
+    this.networkPlayerServerInfo = networkPlayerServerInfo;
+  }
 
-    public static HandlerList getHandlerList() {
-        return BukkitBridgeServerPlayerLoginSuccessEvent.handlerList;
-    }
+  public static HandlerList getHandlerList() {
+    return BukkitBridgeServerPlayerLoginSuccessEvent.handlerList;
+  }
 
-    @NotNull
-    @Override
-    public HandlerList getHandlers() {
-        return handlerList;
-    }
+  @NotNull
+  @Override
+  public HandlerList getHandlers() {
+    return handlerList;
+  }
 
-    public NetworkConnectionInfo getNetworkConnectionInfo() {
-        return this.networkConnectionInfo;
-    }
+  public NetworkConnectionInfo getNetworkConnectionInfo() {
+    return this.networkConnectionInfo;
+  }
 
-    public NetworkPlayerServerInfo getNetworkPlayerServerInfo() {
-        return this.networkPlayerServerInfo;
-    }
+  public NetworkPlayerServerInfo getNetworkPlayerServerInfo() {
+    return this.networkPlayerServerInfo;
+  }
 }

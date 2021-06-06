@@ -7,13 +7,13 @@ import de.dytanic.cloudnet.ext.bridge.BridgeConfiguration;
  */
 public final class GoMintBridgeConfigurationUpdateEvent extends GoMintBridgeEvent {
 
-    private final BridgeConfiguration bridgeConfiguration;
+  private final BridgeConfiguration bridgeConfiguration;
 
-    public GoMintBridgeConfigurationUpdateEvent(BridgeConfiguration bridgeConfiguration) {
-        this.bridgeConfiguration = bridgeConfiguration;
-    }
+  public GoMintBridgeConfigurationUpdateEvent(BridgeConfiguration bridgeConfiguration) {
+    this.bridgeConfiguration = bridgeConfiguration;
+  }
 
-    public BridgeConfiguration getBridgeConfiguration() {
-        return this.bridgeConfiguration;
-    }
+  public BridgeConfiguration getBridgeConfiguration() {
+    return this.bridgeConfiguration;
+  }
 }

@@ -1,11 +1,11 @@
 jar {
-    archiveFileName.set(cloudnetModuleSignsFileName)
+  archiveFileName.set(cloudnetModuleSignsFileName)
 }
 
 dependencies {
-    compileOnly project(':cloudnet')
-    compileOnly project(':cloudnet-wrapper-jvm')
-    compileOnly project(':cloudnet-modules:cloudnet-bridge')
-    compileOnly group: 'cn.nukkit', name: 'nukkit', version: dependencyNukkitXVersion
-    compileOnly group: 'org.spigotmc', name: 'spigot-api', version: dependencySpigotApiVersion
+  compileOnly project(':cloudnet')
+  compileOnly project(':cloudnet-wrapper-jvm')
+  compileOnly project(':cloudnet-modules:cloudnet-bridge')
+  compileOnly group: 'cn.nukkit', name: 'nukkit', version: dependencyNukkitXVersion
+  compileOnly group: 'org.spigotmc', name: 'spigot-api', version: dependencySpigotApiVersion
 }

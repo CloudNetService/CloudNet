@@ -5,15 +5,15 @@ import de.dytanic.cloudnet.driver.permission.IPermissionUser;
 
 abstract class PermissionUserEvent extends PermissionEvent {
 
-    private final IPermissionUser permissionUser;
+  private final IPermissionUser permissionUser;
 
-    public PermissionUserEvent(IPermissionManagement permissionManagement, IPermissionUser permissionUser) {
-        super(permissionManagement);
+  public PermissionUserEvent(IPermissionManagement permissionManagement, IPermissionUser permissionUser) {
+    super(permissionManagement);
 
-        this.permissionUser = permissionUser;
-    }
+    this.permissionUser = permissionUser;
+  }
 
-    public IPermissionUser getPermissionUser() {
-        return this.permissionUser;
-    }
+  public IPermissionUser getPermissionUser() {
+    return this.permissionUser;
+  }
 }

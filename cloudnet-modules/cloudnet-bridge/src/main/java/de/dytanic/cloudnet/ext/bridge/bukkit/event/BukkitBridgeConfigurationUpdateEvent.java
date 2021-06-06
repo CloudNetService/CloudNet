@@ -9,24 +9,24 @@ import org.jetbrains.annotations.NotNull;
  */
 public final class BukkitBridgeConfigurationUpdateEvent extends BukkitBridgeEvent {
 
-    private static final HandlerList handlerList = new HandlerList();
-    private final BridgeConfiguration bridgeConfiguration;
+  private static final HandlerList handlerList = new HandlerList();
+  private final BridgeConfiguration bridgeConfiguration;
 
-    public BukkitBridgeConfigurationUpdateEvent(BridgeConfiguration bridgeConfiguration) {
-        this.bridgeConfiguration = bridgeConfiguration;
-    }
+  public BukkitBridgeConfigurationUpdateEvent(BridgeConfiguration bridgeConfiguration) {
+    this.bridgeConfiguration = bridgeConfiguration;
+  }
 
-    public static HandlerList getHandlerList() {
-        return BukkitBridgeConfigurationUpdateEvent.handlerList;
-    }
+  public static HandlerList getHandlerList() {
+    return BukkitBridgeConfigurationUpdateEvent.handlerList;
+  }
 
-    @NotNull
-    @Override
-    public HandlerList getHandlers() {
-        return handlerList;
-    }
+  @NotNull
+  @Override
+  public HandlerList getHandlers() {
+    return handlerList;
+  }
 
-    public BridgeConfiguration getBridgeConfiguration() {
-        return this.bridgeConfiguration;
-    }
+  public BridgeConfiguration getBridgeConfiguration() {
+    return this.bridgeConfiguration;
+  }
 }

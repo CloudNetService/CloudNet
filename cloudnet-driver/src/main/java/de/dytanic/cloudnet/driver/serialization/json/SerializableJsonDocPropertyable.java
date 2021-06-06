@@ -6,13 +6,14 @@ import de.dytanic.cloudnet.driver.serialization.SerializableObject;
 import org.jetbrains.annotations.NotNull;
 
 public class SerializableJsonDocPropertyable extends BasicJsonDocPropertyable implements SerializableObject {
-    @Override
-    public void write(@NotNull ProtocolBuffer buffer) {
-        buffer.writeJsonDocument(super.properties);
-    }
 
-    @Override
-    public void read(@NotNull ProtocolBuffer buffer) {
-        super.properties = buffer.readJsonDocument();
-    }
+  @Override
+  public void write(@NotNull ProtocolBuffer buffer) {
+    buffer.writeJsonDocument(super.properties);
+  }
+
+  @Override
+  public void read(@NotNull ProtocolBuffer buffer) {
+    super.properties = buffer.readJsonDocument();
+  }
 }

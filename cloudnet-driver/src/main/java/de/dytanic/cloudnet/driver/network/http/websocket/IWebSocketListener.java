@@ -5,9 +5,9 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public interface IWebSocketListener {
 
-    void handle(IWebSocketChannel channel, WebSocketFrameType type, byte[] bytes) throws Exception;
+  void handle(IWebSocketChannel channel, WebSocketFrameType type, byte[] bytes) throws Exception;
 
-    default void handleClose(IWebSocketChannel channel, AtomicInteger statusCode, AtomicReference<String> reasonText) {
+  default void handleClose(IWebSocketChannel channel, AtomicInteger statusCode, AtomicReference<String> reasonText) {
 
-    }
+  }
 }

@@ -13,81 +13,88 @@ import de.dytanic.cloudnet.ext.bridge.BridgeHelper;
 import de.dytanic.cloudnet.ext.bridge.proxy.BridgeProxyHelper;
 import de.dytanic.cloudnet.ext.bridge.velocity.VelocityCloudNetBridgePlugin;
 import de.dytanic.cloudnet.ext.bridge.velocity.VelocityCloudNetHelper;
+import java.util.concurrent.TimeUnit;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
-import java.util.concurrent.TimeUnit;
-
 public final class VelocityPlayerListener {
 
-    private final VelocityCloudNetBridgePlugin plugin;
+  private final VelocityCloudNetBridgePlugin plugin;
 
-    public VelocityPlayerListener(VelocityCloudNetBridgePlugin plugin) {
-        this.plugin = plugin;
+  public VelocityPlayerListener(VelocityCloudNetBridgePlugin plugin) {
+    this.plugin = plugin;
+  }
+
+  @Subscribe
+  public void handle(LoginEvent event) {
+    String kickReason = BridgeHelper
+      .sendChannelMessageProxyLoginRequest(VelocityCloudNetHelper.createNetworkConnectionInfo(event.getPlayer()));
+    if (kickReason != null) {
+      Component reason = LegacyComponentSerializer.legacySection().deserialize(kickReason);
+      event.setResult(ResultedEvent.ComponentResult.denied(reason));
+    }
+  }
+
+  @Subscribe
+  public void handle(PostLoginEvent event) {
+    BridgeHelper
+      .sendChannelMessageProxyLoginSuccess(VelocityCloudNetHelper.createNetworkConnectionInfo(event.getPlayer()));
+
+    VelocityCloudNetHelper.getProxyServer().getScheduler()
+      .buildTask(this.plugin, VelocityCloudNetHelper::updateServiceInfo)
+      .delay(50, TimeUnit.MILLISECONDS).schedule();
+  }
+
+  @Subscribe
+  public void handle(ServerPreConnectEvent event) {
+    if (!event.getPlayer().getCurrentServer().isPresent()) {
+      VelocityCloudNetHelper.getNextFallback(event.getPlayer())
+        .ifPresent(registeredServer -> event.setResult(ServerPreConnectEvent.ServerResult.allowed(registeredServer)));
     }
 
-    @Subscribe
-    public void handle(LoginEvent event) {
-        String kickReason = BridgeHelper.sendChannelMessageProxyLoginRequest(VelocityCloudNetHelper.createNetworkConnectionInfo(event.getPlayer()));
-        if (kickReason != null) {
-            Component reason = LegacyComponentSerializer.legacySection().deserialize(kickReason);
-            event.setResult(ResultedEvent.ComponentResult.denied(reason));
-        }
+    ServiceInfoSnapshot serviceInfoSnapshot = BridgeProxyHelper
+      .getCachedServiceInfoSnapshot(event.getResult().getServer().get().getServerInfo().getName());
+
+    if (serviceInfoSnapshot != null) {
+      BridgeHelper.sendChannelMessageProxyServerConnectRequest(
+        VelocityCloudNetHelper.createNetworkConnectionInfo(event.getPlayer()),
+        BridgeHelper.createNetworkServiceInfo(serviceInfoSnapshot)
+      );
     }
+  }
 
-    @Subscribe
-    public void handle(PostLoginEvent event) {
-        BridgeHelper.sendChannelMessageProxyLoginSuccess(VelocityCloudNetHelper.createNetworkConnectionInfo(event.getPlayer()));
+  @Subscribe
+  public void handle(ServerConnectedEvent event) {
+    ServiceInfoSnapshot serviceInfoSnapshot = BridgeProxyHelper
+      .getCachedServiceInfoSnapshot(event.getServer().getServerInfo().getName());
 
-        VelocityCloudNetHelper.getProxyServer().getScheduler().buildTask(this.plugin, VelocityCloudNetHelper::updateServiceInfo)
-                .delay(50, TimeUnit.MILLISECONDS).schedule();
+    if (serviceInfoSnapshot != null) {
+      BridgeHelper.sendChannelMessageProxyServerSwitch(
+        VelocityCloudNetHelper.createNetworkConnectionInfo(event.getPlayer()),
+        BridgeHelper.createNetworkServiceInfo(serviceInfoSnapshot)
+      );
     }
+  }
 
-    @Subscribe
-    public void handle(ServerPreConnectEvent event) {
-        if (!event.getPlayer().getCurrentServer().isPresent()) {
-            VelocityCloudNetHelper.getNextFallback(event.getPlayer())
-                    .ifPresent(registeredServer -> event.setResult(ServerPreConnectEvent.ServerResult.allowed(registeredServer)));
-        }
+  @Subscribe
+  public void handle(KickedFromServerEvent event) {
+    if (event.getPlayer().isActive()) {
+      BridgeProxyHelper
+        .handleConnectionFailed(event.getPlayer().getUniqueId(), event.getServer().getServerInfo().getName());
 
-        ServiceInfoSnapshot serviceInfoSnapshot = BridgeProxyHelper.getCachedServiceInfoSnapshot(event.getResult().getServer().get().getServerInfo().getName());
-
-        if (serviceInfoSnapshot != null) {
-            BridgeHelper.sendChannelMessageProxyServerConnectRequest(
-                    VelocityCloudNetHelper.createNetworkConnectionInfo(event.getPlayer()),
-                    BridgeHelper.createNetworkServiceInfo(serviceInfoSnapshot)
-            );
-        }
+      VelocityCloudNetHelper.getNextFallback(event.getPlayer())
+        .ifPresent(registeredServer -> event.setResult(KickedFromServerEvent.RedirectPlayer.create(registeredServer)));
     }
+  }
 
-    @Subscribe
-    public void handle(ServerConnectedEvent event) {
-        ServiceInfoSnapshot serviceInfoSnapshot = BridgeProxyHelper.getCachedServiceInfoSnapshot(event.getServer().getServerInfo().getName());
+  @Subscribe
+  public void handle(DisconnectEvent event) {
+    BridgeHelper
+      .sendChannelMessageProxyDisconnect(VelocityCloudNetHelper.createNetworkConnectionInfo(event.getPlayer()));
+    BridgeProxyHelper.clearFallbackProfile(event.getPlayer().getUniqueId());
 
-        if (serviceInfoSnapshot != null) {
-            BridgeHelper.sendChannelMessageProxyServerSwitch(
-                    VelocityCloudNetHelper.createNetworkConnectionInfo(event.getPlayer()),
-                    BridgeHelper.createNetworkServiceInfo(serviceInfoSnapshot)
-            );
-        }
-    }
-
-    @Subscribe
-    public void handle(KickedFromServerEvent event) {
-        if (event.getPlayer().isActive()) {
-            BridgeProxyHelper.handleConnectionFailed(event.getPlayer().getUniqueId(), event.getServer().getServerInfo().getName());
-
-            VelocityCloudNetHelper.getNextFallback(event.getPlayer())
-                    .ifPresent(registeredServer -> event.setResult(KickedFromServerEvent.RedirectPlayer.create(registeredServer)));
-        }
-    }
-
-    @Subscribe
-    public void handle(DisconnectEvent event) {
-        BridgeHelper.sendChannelMessageProxyDisconnect(VelocityCloudNetHelper.createNetworkConnectionInfo(event.getPlayer()));
-        BridgeProxyHelper.clearFallbackProfile(event.getPlayer().getUniqueId());
-
-        VelocityCloudNetHelper.getProxyServer().getScheduler().buildTask(this.plugin, VelocityCloudNetHelper::updateServiceInfo)
-                .delay(50, TimeUnit.MILLISECONDS).schedule();
-    }
+    VelocityCloudNetHelper.getProxyServer().getScheduler()
+      .buildTask(this.plugin, VelocityCloudNetHelper::updateServiceInfo)
+      .delay(50, TimeUnit.MILLISECONDS).schedule();
+  }
 }

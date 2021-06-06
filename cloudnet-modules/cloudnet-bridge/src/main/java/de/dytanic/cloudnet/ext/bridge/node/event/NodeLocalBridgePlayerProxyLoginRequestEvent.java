@@ -8,35 +8,35 @@ import org.jetbrains.annotations.Nullable;
 
 public class NodeLocalBridgePlayerProxyLoginRequestEvent extends Event implements ICancelable {
 
-    private final NetworkConnectionInfo connectionInfo;
-    private String kickReason;
-    private boolean cancelled;
+  private final NetworkConnectionInfo connectionInfo;
+  private String kickReason;
+  private boolean cancelled;
 
-    public NodeLocalBridgePlayerProxyLoginRequestEvent(@NotNull NetworkConnectionInfo connectionInfo, String kickReason) {
-        this.connectionInfo = connectionInfo;
-        this.kickReason = kickReason;
-    }
+  public NodeLocalBridgePlayerProxyLoginRequestEvent(@NotNull NetworkConnectionInfo connectionInfo, String kickReason) {
+    this.connectionInfo = connectionInfo;
+    this.kickReason = kickReason;
+  }
 
-    public NetworkConnectionInfo getConnectionInfo() {
-        return this.connectionInfo;
-    }
+  public NetworkConnectionInfo getConnectionInfo() {
+    return this.connectionInfo;
+  }
 
-    @Nullable
-    public String getKickReason() {
-        return this.kickReason;
-    }
+  @Nullable
+  public String getKickReason() {
+    return this.kickReason;
+  }
 
-    public void setKickReason(@Nullable String kickReason) {
-        this.kickReason = kickReason;
-    }
+  public void setKickReason(@Nullable String kickReason) {
+    this.kickReason = kickReason;
+  }
 
-    @Override
-    public boolean isCancelled() {
-        return this.cancelled;
-    }
+  @Override
+  public boolean isCancelled() {
+    return this.cancelled;
+  }
 
-    @Override
-    public void setCancelled(boolean cancelled) {
-        this.cancelled = cancelled;
-    }
+  @Override
+  public void setCancelled(boolean cancelled) {
+    this.cancelled = cancelled;
+  }
 }

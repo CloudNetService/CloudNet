@@ -18,81 +18,81 @@ import org.jetbrains.annotations.NotNull;
 @ApiStatus.Internal
 public final class NettyNetworkChannel extends DefaultNetworkChannel implements INetworkChannel {
 
-    private final Channel channel;
+  private final Channel channel;
 
-    public NettyNetworkChannel(Channel channel, IPacketListenerRegistry packetRegistry, INetworkChannelHandler handler,
-                               HostAndPort serverAddress, HostAndPort clientAddress, boolean clientProvidedChannel) {
-        super(packetRegistry, serverAddress, clientAddress, clientProvidedChannel, handler);
-        this.channel = channel;
+  public NettyNetworkChannel(Channel channel, IPacketListenerRegistry packetRegistry, INetworkChannelHandler handler,
+    HostAndPort serverAddress, HostAndPort clientAddress, boolean clientProvidedChannel) {
+    super(packetRegistry, serverAddress, clientAddress, clientProvidedChannel, handler);
+    this.channel = channel;
+  }
+
+  @Override
+  public void sendPacket(@NotNull IPacket packet) {
+    Preconditions.checkNotNull(packet);
+
+    if (this.channel.eventLoop().inEventLoop()) {
+      this.writePacket(packet);
+    } else {
+      this.channel.eventLoop().execute(() -> this.writePacket(packet));
+    }
+  }
+
+  @Override
+  public void sendPacketSync(@NotNull IPacket packet) {
+    Preconditions.checkNotNull(packet);
+
+    ChannelFuture future = this.writePacket(packet);
+    if (future != null) {
+      future.syncUninterruptibly();
+    }
+  }
+
+  @Override
+  public boolean isWriteable() {
+    return this.channel.isWritable();
+  }
+
+  @Override
+  public boolean isActive() {
+    return this.channel.isActive();
+  }
+
+  private ChannelFuture writePacket(IPacket packet) {
+    NetworkChannelPacketSendEvent event = new NetworkChannelPacketSendEvent(this, packet);
+
+    CloudNetDriver.optionalInstance().ifPresent(cloudNetDriver -> cloudNetDriver.getEventManager().callEvent(event));
+
+    if (!event.isCancelled()) {
+      if (packet.isShowDebug()) {
+        CloudNetDriver.optionalInstance().ifPresent(cloudNetDriver -> {
+          if (cloudNetDriver.getLogger().getLevel() >= LogLevel.DEBUG.getLevel()) {
+            cloudNetDriver.getLogger().debug(
+              String.format(
+                "Sending packet to %s on channel %d with id %s, header=%s;body=%d",
+                this.getClientAddress().toString(),
+                packet.getChannel(),
+                packet.getUniqueId(),
+                packet.getHeader().toJson(),
+                packet.getBuffer() != null ? packet.getBuffer().readableBytes() : 0
+              )
+            );
+          }
+        });
+      }
+
+      return this.channel.writeAndFlush(packet);
     }
 
-    @Override
-    public void sendPacket(@NotNull IPacket packet) {
-        Preconditions.checkNotNull(packet);
+    return null;
+  }
 
-        if (this.channel.eventLoop().inEventLoop()) {
-            this.writePacket(packet);
-        } else {
-            this.channel.eventLoop().execute(() -> this.writePacket(packet));
-        }
-    }
+  @Override
+  public void close() {
+    this.channel.close();
+  }
 
-    @Override
-    public void sendPacketSync(@NotNull IPacket packet) {
-        Preconditions.checkNotNull(packet);
-
-        ChannelFuture future = this.writePacket(packet);
-        if (future != null) {
-            future.syncUninterruptibly();
-        }
-    }
-
-    @Override
-    public boolean isWriteable() {
-        return this.channel.isWritable();
-    }
-
-    @Override
-    public boolean isActive() {
-        return this.channel.isActive();
-    }
-
-    private ChannelFuture writePacket(IPacket packet) {
-        NetworkChannelPacketSendEvent event = new NetworkChannelPacketSendEvent(this, packet);
-
-        CloudNetDriver.optionalInstance().ifPresent(cloudNetDriver -> cloudNetDriver.getEventManager().callEvent(event));
-
-        if (!event.isCancelled()) {
-            if (packet.isShowDebug()) {
-                CloudNetDriver.optionalInstance().ifPresent(cloudNetDriver -> {
-                    if (cloudNetDriver.getLogger().getLevel() >= LogLevel.DEBUG.getLevel()) {
-                        cloudNetDriver.getLogger().debug(
-                                String.format(
-                                        "Sending packet to %s on channel %d with id %s, header=%s;body=%d",
-                                        this.getClientAddress().toString(),
-                                        packet.getChannel(),
-                                        packet.getUniqueId(),
-                                        packet.getHeader().toJson(),
-                                        packet.getBuffer() != null ? packet.getBuffer().readableBytes() : 0
-                                )
-                        );
-                    }
-                });
-            }
-
-            return this.channel.writeAndFlush(packet);
-        }
-
-        return null;
-    }
-
-    @Override
-    public void close() {
-        this.channel.close();
-    }
-
-    public Channel getChannel() {
-        return this.channel;
-    }
+  public Channel getChannel() {
+    return this.channel;
+  }
 
 }

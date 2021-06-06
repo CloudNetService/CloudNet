@@ -4,13 +4,13 @@ import de.dytanic.cloudnet.ext.bridge.player.NetworkConnectionInfo;
 
 public final class SpongeBridgeProxyPlayerLoginSuccessEvent extends SpongeBridgeEvent {
 
-    private final NetworkConnectionInfo networkConnectionInfo;
+  private final NetworkConnectionInfo networkConnectionInfo;
 
-    public SpongeBridgeProxyPlayerLoginSuccessEvent(NetworkConnectionInfo networkConnectionInfo) {
-        this.networkConnectionInfo = networkConnectionInfo;
-    }
+  public SpongeBridgeProxyPlayerLoginSuccessEvent(NetworkConnectionInfo networkConnectionInfo) {
+    this.networkConnectionInfo = networkConnectionInfo;
+  }
 
-    public NetworkConnectionInfo getNetworkConnectionInfo() {
-        return this.networkConnectionInfo;
-    }
+  public NetworkConnectionInfo getNetworkConnectionInfo() {
+    return this.networkConnectionInfo;
+  }
 }

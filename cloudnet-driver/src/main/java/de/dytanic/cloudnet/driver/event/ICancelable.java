@@ -2,8 +2,8 @@ package de.dytanic.cloudnet.driver.event;
 
 public interface ICancelable {
 
-    boolean isCancelled();
+  boolean isCancelled();
 
-    void setCancelled(boolean value);
+  void setCancelled(boolean value);
 
 }

@@ -5,12 +5,12 @@ import de.dytanic.cloudnet.driver.network.protocol.Packet;
 import de.dytanic.cloudnet.driver.permission.IPermissionGroup;
 import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import de.dytanic.cloudnet.network.NetworkUpdateType;
-
 import java.util.Collection;
 
 public final class PacketServerSetPermissionData extends Packet {
 
-    public PacketServerSetPermissionData(Collection<IPermissionGroup> permissionGroups, NetworkUpdateType updateType) {
-        super(PacketConstants.CLUSTER_PERMISSION_DATA_CHANNEL, ProtocolBuffer.create().writeObjectCollection(permissionGroups).writeEnumConstant(updateType));
-    }
+  public PacketServerSetPermissionData(Collection<IPermissionGroup> permissionGroups, NetworkUpdateType updateType) {
+    super(PacketConstants.CLUSTER_PERMISSION_DATA_CHANNEL,
+      ProtocolBuffer.create().writeObjectCollection(permissionGroups).writeEnumConstant(updateType));
+  }
 }

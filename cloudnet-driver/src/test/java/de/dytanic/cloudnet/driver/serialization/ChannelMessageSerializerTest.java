@@ -10,22 +10,22 @@ import org.junit.Test;
 
 public class ChannelMessageSerializerTest {
 
-    @Test
-    public void serializeChannelMessage() {
-        ChannelMessage original = ChannelMessage.builder(new ChannelMessageSender("Test", DriverEnvironment.CLOUDNET))
-                .channel("test-channel")
-                .message("test-message")
-                .buffer(new byte[]{1, 2, 3, 4, 5})
-                .json(JsonDocument.newDocument("1", "2"))
-                .targetAll(ChannelMessageTarget.Type.NODE)
-                .build();
+  @Test
+  public void serializeChannelMessage() {
+    ChannelMessage original = ChannelMessage.builder(new ChannelMessageSender("Test", DriverEnvironment.CLOUDNET))
+      .channel("test-channel")
+      .message("test-message")
+      .buffer(new byte[]{1, 2, 3, 4, 5})
+      .json(JsonDocument.newDocument("1", "2"))
+      .targetAll(ChannelMessageTarget.Type.NODE)
+      .build();
 
-        ProtocolBuffer buffer = ProtocolBuffer.create();
-        buffer.writeObject(original);
+    ProtocolBuffer buffer = ProtocolBuffer.create();
+    buffer.writeObject(original);
 
-        ChannelMessage deserialized = buffer.readObject(ChannelMessage.class);
+    ChannelMessage deserialized = buffer.readObject(ChannelMessage.class);
 
-        Assert.assertEquals(original, deserialized);
-    }
+    Assert.assertEquals(original, deserialized);
+  }
 
 }

@@ -4,8 +4,8 @@ import org.jetbrains.annotations.NotNull;
 
 public interface SerializableObject {
 
-    void write(@NotNull ProtocolBuffer buffer);
+  void write(@NotNull ProtocolBuffer buffer);
 
-    void read(@NotNull ProtocolBuffer buffer);
+  void read(@NotNull ProtocolBuffer buffer);
 
 }

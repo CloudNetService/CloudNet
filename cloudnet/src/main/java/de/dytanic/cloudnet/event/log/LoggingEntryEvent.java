@@ -5,19 +5,19 @@ import de.dytanic.cloudnet.driver.event.events.DriverEvent;
 
 public final class LoggingEntryEvent extends DriverEvent {
 
-    private final LogEntry logEntry;
+  private final LogEntry logEntry;
 
-    public LoggingEntryEvent(LogEntry logEntry) {
-        this.logEntry = logEntry;
-    }
+  public LoggingEntryEvent(LogEntry logEntry) {
+    this.logEntry = logEntry;
+  }
 
-    public LogEntry getLogEntry() {
-        return this.logEntry;
-    }
+  public LogEntry getLogEntry() {
+    return this.logEntry;
+  }
 
-    @Override
-    public boolean isShowDebug() {
-        return false;
-    }
+  @Override
+  public boolean isShowDebug() {
+    return false;
+  }
 
 }

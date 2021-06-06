@@ -7,7 +7,8 @@ import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 
 public final class PacketClientServiceInfoUpdate extends Packet {
 
-    public PacketClientServiceInfoUpdate(ServiceInfoSnapshot serviceInfoSnapshot) {
-        super(PacketConstants.INTERNAL_WRAPPER_TO_NODE_INFO_CHANNEL, ProtocolBuffer.create().writeObject(serviceInfoSnapshot));
-    }
+  public PacketClientServiceInfoUpdate(ServiceInfoSnapshot serviceInfoSnapshot) {
+    super(PacketConstants.INTERNAL_WRAPPER_TO_NODE_INFO_CHANNEL,
+      ProtocolBuffer.create().writeObject(serviceInfoSnapshot));
+  }
 }

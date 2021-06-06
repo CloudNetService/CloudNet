@@ -5,13 +5,13 @@ import de.dytanic.cloudnet.driver.network.INetworkChannel;
 
 public abstract class NetworkEvent extends DriverEvent {
 
-    private final INetworkChannel channel;
+  private final INetworkChannel channel;
 
-    public NetworkEvent(INetworkChannel channel) {
-        this.channel = channel;
-    }
+  public NetworkEvent(INetworkChannel channel) {
+    this.channel = channel;
+  }
 
-    public INetworkChannel getChannel() {
-        return this.channel;
-    }
+  public INetworkChannel getChannel() {
+    return this.channel;
+  }
 }

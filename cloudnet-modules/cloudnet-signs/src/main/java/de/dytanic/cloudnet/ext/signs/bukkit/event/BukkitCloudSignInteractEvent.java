@@ -10,48 +10,45 @@ import org.jetbrains.annotations.Nullable;
 
 public class BukkitCloudSignInteractEvent extends PlayerEvent implements Cancellable {
 
-    private static final HandlerList HANDLER_LIST = new HandlerList();
+  private static final HandlerList HANDLER_LIST = new HandlerList();
+  private final Sign clickedSign;
+  private boolean cancelled;
+  private String targetServer;
 
-    private boolean cancelled;
+  public BukkitCloudSignInteractEvent(@NotNull Player who, @NotNull Sign clickedSign, @Nullable String targetServer) {
+    super(who);
+    this.clickedSign = clickedSign;
+    this.targetServer = targetServer;
+  }
 
-    private final Sign clickedSign;
+  @NotNull
+  public Sign getClickedSign() {
+    return this.clickedSign;
+  }
 
-    private String targetServer;
+  @Nullable
+  public String getTargetServer() {
+    return this.targetServer;
+  }
 
-    public BukkitCloudSignInteractEvent(@NotNull Player who, @NotNull Sign clickedSign, @Nullable String targetServer) {
-        super(who);
-        this.clickedSign = clickedSign;
-        this.targetServer = targetServer;
-    }
+  public void setTargetServer(String targetServer) {
+    this.targetServer = targetServer;
+  }
 
-    @NotNull
-    public Sign getClickedSign() {
-        return this.clickedSign;
-    }
+  @NotNull
+  @Override
+  public HandlerList getHandlers() {
+    return HANDLER_LIST;
+  }
 
-    @Nullable
-    public String getTargetServer() {
-        return this.targetServer;
-    }
+  @Override
+  public boolean isCancelled() {
+    return this.cancelled;
+  }
 
-    public void setTargetServer(String targetServer) {
-        this.targetServer = targetServer;
-    }
-
-    @NotNull
-    @Override
-    public HandlerList getHandlers() {
-        return HANDLER_LIST;
-    }
-
-    @Override
-    public boolean isCancelled() {
-        return this.cancelled;
-    }
-
-    @Override
-    public void setCancelled(boolean cancel) {
-        this.cancelled = cancel;
-    }
+  @Override
+  public void setCancelled(boolean cancel) {
+    this.cancelled = cancel;
+  }
 
 }

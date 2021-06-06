@@ -11,29 +11,30 @@ import de.dytanic.cloudnet.ext.bridge.node.CloudNetBridgeModule;
 
 public final class NetworkListenerRegisterListener {
 
-    @EventListener
-    public void handle(NetworkChannelAuthClusterNodeSuccessEvent event) {
+  @EventListener
+  public void handle(NetworkChannelAuthClusterNodeSuccessEvent event) {
         /*event.getNode().sendCustomChannelMessage(
                 BridgeConstants.BRIDGE_CUSTOM_CHANNEL_MESSAGING_CHANNEL,
                 BridgeConstants.BRIDGE_NETWORK_CHANNEL_CLUSTER_MESSAGE_UPDATE_BRIDGE_CONFIGURATION_LISTENER,
                 new JsonDocument("bridgeConfiguration", CloudNetBridgeModule.getInstance().getBridgeConfiguration())
         );*/
+  }
+
+  @EventListener
+  public void handle(ChannelMessageReceiveEvent event) {
+    if (!event.getChannel().equalsIgnoreCase(BridgeConstants.BRIDGE_CUSTOM_CHANNEL_MESSAGING_CHANNEL) || !event
+      .isQuery()) {
+      return;
     }
 
-    @EventListener
-    public void handle(ChannelMessageReceiveEvent event) {
-        if (!event.getChannel().equalsIgnoreCase(BridgeConstants.BRIDGE_CUSTOM_CHANNEL_MESSAGING_CHANNEL) || !event.isQuery()) {
-            return;
-        }
+    if (BridgeConstants.BRIDGE_NETWORK_CHANNEL_MESSAGE_GET_BRIDGE_CONFIGURATION.equals(event.getMessage())) {
+      BridgeConfiguration configuration = JsonDocument
+        .newDocument(CloudNetBridgeModule.getInstance().getModuleWrapper().getDataDirectory().resolve("config.json"))
+        .get("config", BridgeConfiguration.TYPE);
 
-        if (BridgeConstants.BRIDGE_NETWORK_CHANNEL_MESSAGE_GET_BRIDGE_CONFIGURATION.equals(event.getMessage())) {
-            BridgeConfiguration configuration = JsonDocument
-                    .newDocument(CloudNetBridgeModule.getInstance().getModuleWrapper().getDataDirectory().resolve("config.json"))
-                    .get("config", BridgeConfiguration.TYPE);
-
-            event.setQueryResponse(ChannelMessage.buildResponseFor(event.getChannelMessage())
-                    .json(JsonDocument.newDocument("bridgeConfig", configuration))
-                    .build());
-        }
+      event.setQueryResponse(ChannelMessage.buildResponseFor(event.getChannelMessage())
+        .json(JsonDocument.newDocument("bridgeConfig", configuration))
+        .build());
     }
+  }
 }

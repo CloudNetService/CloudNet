@@ -10,26 +10,26 @@ import org.jetbrains.annotations.ApiStatus;
 @ApiStatus.Internal
 final class NettyHttpServerInitializer extends ChannelInitializer<Channel> {
 
-    private final NettyHttpServer nettyHttpServer;
+  private final NettyHttpServer nettyHttpServer;
 
-    private final HostAndPort hostAndPort;
+  private final HostAndPort hostAndPort;
 
-    public NettyHttpServerInitializer(NettyHttpServer nettyHttpServer, HostAndPort hostAndPort) {
-        this.nettyHttpServer = nettyHttpServer;
-        this.hostAndPort = hostAndPort;
+  public NettyHttpServerInitializer(NettyHttpServer nettyHttpServer, HostAndPort hostAndPort) {
+    this.nettyHttpServer = nettyHttpServer;
+    this.hostAndPort = hostAndPort;
+  }
+
+  @Override
+  protected void initChannel(Channel ch) {
+    if (this.nettyHttpServer.sslContext != null) {
+      ch.pipeline()
+        .addLast(this.nettyHttpServer.sslContext.newHandler(ch.alloc()));
     }
 
-    @Override
-    protected void initChannel(Channel ch) {
-        if (this.nettyHttpServer.sslContext != null) {
-            ch.pipeline()
-                    .addLast(this.nettyHttpServer.sslContext.newHandler(ch.alloc()));
-        }
-
-        ch.pipeline()
-                .addLast("http-server-codec", new HttpServerCodec())
-                .addLast("http-object-aggregator", new HttpObjectAggregator(Short.MAX_VALUE))
-                .addLast("http-server-handler", new NettyHttpServerHandler(this.nettyHttpServer, this.hostAndPort))
-        ;
-    }
+    ch.pipeline()
+      .addLast("http-server-codec", new HttpServerCodec())
+      .addLast("http-object-aggregator", new HttpObjectAggregator(Short.MAX_VALUE))
+      .addLast("http-server-handler", new NettyHttpServerHandler(this.nettyHttpServer, this.hostAndPort))
+    ;
+  }
 }

@@ -6,24 +6,24 @@ import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 
 public class NetworkChannelPacketReceiveEvent extends NetworkEvent implements ICancelable {
 
-    private final IPacket packet;
-    private boolean cancelled;
+  private final IPacket packet;
+  private boolean cancelled;
 
-    public NetworkChannelPacketReceiveEvent(INetworkChannel channel, IPacket packet) {
-        super(channel);
-        this.packet = packet;
-    }
+  public NetworkChannelPacketReceiveEvent(INetworkChannel channel, IPacket packet) {
+    super(channel);
+    this.packet = packet;
+  }
 
-    public IPacket getPacket() {
-        return this.packet;
-    }
+  public IPacket getPacket() {
+    return this.packet;
+  }
 
-    public boolean isCancelled() {
-        return this.cancelled;
-    }
+  public boolean isCancelled() {
+    return this.cancelled;
+  }
 
-    public void setCancelled(boolean cancelled) {
-        this.cancelled = cancelled;
-    }
+  public void setCancelled(boolean cancelled) {
+    this.cancelled = cancelled;
+  }
 
 }

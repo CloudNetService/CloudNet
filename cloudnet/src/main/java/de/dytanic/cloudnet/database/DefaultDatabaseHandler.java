@@ -13,47 +13,49 @@ import de.dytanic.cloudnet.network.packet.PacketServerH2Database;
 
 public final class DefaultDatabaseHandler implements IDatabaseHandler {
 
-    @Override
-    public void handleInsert(Database database, String key, JsonDocument document) {
-        CloudNetDriver.getInstance().getEventManager().callEvent(new DatabaseInsertEntryEvent((IDatabase) database, key, document));
+  @Override
+  public void handleInsert(Database database, String key, JsonDocument document) {
+    CloudNetDriver.getInstance().getEventManager()
+      .callEvent(new DatabaseInsertEntryEvent((IDatabase) database, key, document));
 
-        if (database instanceof H2Database) {
-            CloudNet.getInstance().getClusterNodeServerProvider().sendPacket(
-                    new PacketServerH2Database(PacketServerH2Database.OperationType.INSERT, database.getName(), key, document)
-            );
-        }
+    if (database instanceof H2Database) {
+      CloudNet.getInstance().getClusterNodeServerProvider().sendPacket(
+        new PacketServerH2Database(PacketServerH2Database.OperationType.INSERT, database.getName(), key, document)
+      );
     }
+  }
 
-    @Override
-    public void handleUpdate(Database database, String key, JsonDocument document) {
-        CloudNetDriver.getInstance().getEventManager().callEvent(new DatabaseUpdateEntryEvent((IDatabase) database, key, document));
+  @Override
+  public void handleUpdate(Database database, String key, JsonDocument document) {
+    CloudNetDriver.getInstance().getEventManager()
+      .callEvent(new DatabaseUpdateEntryEvent((IDatabase) database, key, document));
 
-        if (database instanceof H2Database) {
-            CloudNet.getInstance().getClusterNodeServerProvider().sendPacket(
-                    new PacketServerH2Database(PacketServerH2Database.OperationType.UPDATE, database.getName(), key, document)
-            );
-        }
+    if (database instanceof H2Database) {
+      CloudNet.getInstance().getClusterNodeServerProvider().sendPacket(
+        new PacketServerH2Database(PacketServerH2Database.OperationType.UPDATE, database.getName(), key, document)
+      );
     }
+  }
 
-    @Override
-    public void handleDelete(Database database, String key) {
-        CloudNetDriver.getInstance().getEventManager().callEvent(new DatabaseDeleteEntryEvent((IDatabase) database, key));
+  @Override
+  public void handleDelete(Database database, String key) {
+    CloudNetDriver.getInstance().getEventManager().callEvent(new DatabaseDeleteEntryEvent((IDatabase) database, key));
 
-        if (database instanceof H2Database) {
-            CloudNet.getInstance().getClusterNodeServerProvider().sendPacket(
-                    new PacketServerH2Database(PacketServerH2Database.OperationType.DELETE, database.getName(), key, null)
-            );
-        }
+    if (database instanceof H2Database) {
+      CloudNet.getInstance().getClusterNodeServerProvider().sendPacket(
+        new PacketServerH2Database(PacketServerH2Database.OperationType.DELETE, database.getName(), key, null)
+      );
     }
+  }
 
-    @Override
-    public void handleClear(Database database) {
-        CloudNetDriver.getInstance().getEventManager().callEvent(new DatabaseClearEntriesEvent((IDatabase) database));
+  @Override
+  public void handleClear(Database database) {
+    CloudNetDriver.getInstance().getEventManager().callEvent(new DatabaseClearEntriesEvent((IDatabase) database));
 
-        if (database instanceof H2Database) {
-            CloudNet.getInstance().getClusterNodeServerProvider().sendPacket(
-                    new PacketServerH2Database(PacketServerH2Database.OperationType.CLEAR, database.getName(), null, null)
-            );
-        }
+    if (database instanceof H2Database) {
+      CloudNet.getInstance().getClusterNodeServerProvider().sendPacket(
+        new PacketServerH2Database(PacketServerH2Database.OperationType.CLEAR, database.getName(), null, null)
+      );
     }
+  }
 }

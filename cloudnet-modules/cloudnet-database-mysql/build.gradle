@@ -1,9 +1,9 @@
 jar {
-    archiveFileName.set(cloudnetModuleDatabaseMySQLFileName)
+  archiveFileName.set(cloudnetModuleDatabaseMySQLFileName)
 }
 
 dependencies {
-    compileOnly project(':cloudnet')
-    compileOnly group: 'mysql', name: 'mysql-connector-java', version: dependencyMysqlConnectorJavaVersion
-    compileOnly group: 'com.zaxxer', name: 'HikariCP', version: dependencyHikariCpVersion
+  compileOnly project(':cloudnet')
+  compileOnly group: 'mysql', name: 'mysql-connector-java', version: dependencyMysqlConnectorJavaVersion
+  compileOnly group: 'com.zaxxer', name: 'HikariCP', version: dependencyHikariCpVersion
 }

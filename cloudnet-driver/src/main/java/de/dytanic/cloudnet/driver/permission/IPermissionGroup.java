@@ -1,35 +1,34 @@
 package de.dytanic.cloudnet.driver.permission;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.util.Collection;
+import org.jetbrains.annotations.NotNull;
 
 public interface IPermissionGroup extends IPermissible {
 
-    Collection<String> getGroups();
+  Collection<String> getGroups();
 
-    boolean isDefaultGroup();
+  boolean isDefaultGroup();
 
-    void setDefaultGroup(boolean defaultGroup);
+  void setDefaultGroup(boolean defaultGroup);
 
-    int getSortId();
+  int getSortId();
 
-    void setSortId(int sortId);
+  void setSortId(int sortId);
 
-    String getPrefix();
+  String getPrefix();
 
-    void setPrefix(@NotNull String prefix);
+  void setPrefix(@NotNull String prefix);
 
-    String getColor();
+  String getColor();
 
-    void setColor(@NotNull String color);
+  void setColor(@NotNull String color);
 
-    String getSuffix();
+  String getSuffix();
 
-    void setSuffix(@NotNull String suffix);
+  void setSuffix(@NotNull String suffix);
 
-    String getDisplay();
+  String getDisplay();
 
-    void setDisplay(@NotNull String display);
+  void setDisplay(@NotNull String display);
 
 }

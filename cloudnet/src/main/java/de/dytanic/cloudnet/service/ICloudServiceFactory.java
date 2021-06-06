@@ -6,10 +6,11 @@ import org.jetbrains.annotations.Nullable;
 
 public interface ICloudServiceFactory {
 
-    @NotNull
-    String getRuntime();
+  @NotNull
+  String getRuntime();
 
-    @Nullable
-    ICloudService createCloudService(@NotNull ICloudServiceManager cloudServiceManager, @NotNull ServiceConfiguration serviceConfiguration);
+  @Nullable
+  ICloudService createCloudService(@NotNull ICloudServiceManager cloudServiceManager,
+    @NotNull ServiceConfiguration serviceConfiguration);
 
 }

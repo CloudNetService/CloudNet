@@ -1,10 +1,10 @@
 jar {
-    archiveFileName.set(cloudnetCommonFile)
+  archiveFileName.set(cloudnetCommonFile)
 }
 
 dependencies {
-    api group: 'com.google.code.gson', name: 'gson', version: dependencyGsonVersion
-    api group: 'com.google.guava', name: 'guava', version: dependencyGuavaVersion
+  api group: 'com.google.code.gson', name: 'gson', version: dependencyGsonVersion
+  api group: 'com.google.guava', name: 'guava', version: dependencyGuavaVersion
 
-    testImplementation group: 'junit', name: 'junit', version: testJunitVersion
+  testImplementation group: 'junit', name: 'junit', version: testJunitVersion
 }

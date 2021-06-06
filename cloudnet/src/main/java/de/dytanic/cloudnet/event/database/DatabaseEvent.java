@@ -5,13 +5,13 @@ import de.dytanic.cloudnet.driver.event.events.DriverEvent;
 
 abstract class DatabaseEvent extends DriverEvent {
 
-    private final IDatabase database;
+  private final IDatabase database;
 
-    public DatabaseEvent(IDatabase database) {
-        this.database = database;
-    }
+  public DatabaseEvent(IDatabase database) {
+    this.database = database;
+  }
 
-    public IDatabase getDatabase() {
-        return this.database;
-    }
+  public IDatabase getDatabase() {
+    return this.database;
+  }
 }

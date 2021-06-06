@@ -7,8 +7,8 @@ import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 
 public final class PacketClientServerChannelMessage extends Packet {
 
-    public PacketClientServerChannelMessage(ChannelMessage message, boolean query) {
-        super(PacketConstants.CHANNEL_MESSAGING_CHANNEL, ProtocolBuffer.create().writeObject(message).writeBoolean(query));
-    }
+  public PacketClientServerChannelMessage(ChannelMessage message, boolean query) {
+    super(PacketConstants.CHANNEL_MESSAGING_CHANNEL, ProtocolBuffer.create().writeObject(message).writeBoolean(query));
+  }
 
 }

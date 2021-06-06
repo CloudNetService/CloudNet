@@ -9,25 +9,25 @@ import org.jetbrains.annotations.NotNull;
  */
 public final class BukkitCloudServiceDisconnectNetworkEvent extends BukkitCloudNetEvent {
 
-    private static final HandlerList handlerList = new HandlerList();
+  private static final HandlerList handlerList = new HandlerList();
 
-    private final ServiceInfoSnapshot serviceInfoSnapshot;
+  private final ServiceInfoSnapshot serviceInfoSnapshot;
 
-    public BukkitCloudServiceDisconnectNetworkEvent(ServiceInfoSnapshot serviceInfoSnapshot) {
-        this.serviceInfoSnapshot = serviceInfoSnapshot;
-    }
+  public BukkitCloudServiceDisconnectNetworkEvent(ServiceInfoSnapshot serviceInfoSnapshot) {
+    this.serviceInfoSnapshot = serviceInfoSnapshot;
+  }
 
-    public static HandlerList getHandlerList() {
-        return BukkitCloudServiceDisconnectNetworkEvent.handlerList;
-    }
+  public static HandlerList getHandlerList() {
+    return BukkitCloudServiceDisconnectNetworkEvent.handlerList;
+  }
 
-    @NotNull
-    @Override
-    public HandlerList getHandlers() {
-        return handlerList;
-    }
+  @NotNull
+  @Override
+  public HandlerList getHandlers() {
+    return handlerList;
+  }
 
-    public ServiceInfoSnapshot getServiceInfoSnapshot() {
-        return this.serviceInfoSnapshot;
-    }
+  public ServiceInfoSnapshot getServiceInfoSnapshot() {
+    return this.serviceInfoSnapshot;
+  }
 }

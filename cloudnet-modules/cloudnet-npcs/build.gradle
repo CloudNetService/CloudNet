@@ -1,16 +1,16 @@
 jar {
-    archiveFileName.set(cloudnetModuleNPCsFileName)
+  archiveFileName.set(cloudnetModuleNPCsFileName)
 
-    from {
-        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
-    }
+  from {
+    configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+  }
 }
 
 dependencies {
-    compileOnly project(':cloudnet')
-    compileOnly project(':cloudnet-wrapper-jvm')
-    compileOnly project(':cloudnet-modules:cloudnet-bridge')
-    compileOnly group: 'org.spigotmc', name: 'spigot-api', version: dependencySpigotApiVersion
-    compileOnly group: 'com.github.dmulloy2', name: 'ProtocolLib', version: dependencyProtocolLibVersion
-    api group: 'com.github.juliarn', name: 'npc-lib', version: dependencyNpcLibVersion
+  compileOnly project(':cloudnet')
+  compileOnly project(':cloudnet-wrapper-jvm')
+  compileOnly project(':cloudnet-modules:cloudnet-bridge')
+  compileOnly group: 'org.spigotmc', name: 'spigot-api', version: dependencySpigotApiVersion
+  compileOnly group: 'com.github.dmulloy2', name: 'ProtocolLib', version: dependencyProtocolLibVersion
+  api group: 'com.github.juliarn', name: 'npc-lib', version: dependencyNpcLibVersion
 }

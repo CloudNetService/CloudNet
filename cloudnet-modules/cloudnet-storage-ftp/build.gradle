@@ -1,9 +1,9 @@
 jar {
-    archiveFileName.set(cloudnetModuleStorageFTPFileName)
+  archiveFileName.set(cloudnetModuleStorageFTPFileName)
 }
 
 dependencies {
-    compileOnly project(':cloudnet')
-    compileOnly group: 'commons-net', name: 'commons-net', version: dependencyCommonsNetVersion
-    compileOnly group: 'com.jcraft', name: 'jsch', version: dependencyJschVersion
+  compileOnly project(':cloudnet')
+  compileOnly group: 'commons-net', name: 'commons-net', version: dependencyCommonsNetVersion
+  compileOnly group: 'com.jcraft', name: 'jsch', version: dependencyJschVersion
 }

@@ -7,43 +7,43 @@ import lombok.ToString;
 @EqualsAndHashCode
 public class SignLayout {
 
-    protected String[] lines;
+  protected String[] lines;
 
-    protected String blockType;
+  protected String blockType;
 
-    protected int subId;
+  protected int subId;
 
-    public SignLayout(String[] lines, String blockType, int subId) {
-        this.lines = lines;
-        this.blockType = blockType;
-        this.subId = subId;
-    }
+  public SignLayout(String[] lines, String blockType, int subId) {
+    this.lines = lines;
+    this.blockType = blockType;
+    this.subId = subId;
+  }
 
-    public SignLayout() {
-    }
+  public SignLayout() {
+  }
 
-    public String[] getLines() {
-        return this.lines;
-    }
+  public String[] getLines() {
+    return this.lines;
+  }
 
-    public void setLines(String[] lines) {
-        this.lines = lines;
-    }
+  public void setLines(String[] lines) {
+    this.lines = lines;
+  }
 
-    public String getBlockType() {
-        return this.blockType;
-    }
+  public String getBlockType() {
+    return this.blockType;
+  }
 
-    public void setBlockType(String blockType) {
-        this.blockType = blockType;
-    }
+  public void setBlockType(String blockType) {
+    this.blockType = blockType;
+  }
 
-    public int getSubId() {
-        return this.subId;
-    }
+  public int getSubId() {
+    return this.subId;
+  }
 
-    public void setSubId(int subId) {
-        this.subId = subId;
-    }
+  public void setSubId(int subId) {
+    this.subId = subId;
+  }
 
 }

@@ -4,8 +4,8 @@ import de.dytanic.cloudnet.driver.network.HostAndPort;
 
 public interface IHttpServer extends IHttpComponent<IHttpServer> {
 
-    boolean addListener(int port);
+  boolean addListener(int port);
 
-    boolean addListener(HostAndPort hostAndPort);
+  boolean addListener(HostAndPort hostAndPort);
 
 }

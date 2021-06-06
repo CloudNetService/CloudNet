@@ -5,13 +5,13 @@ import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
 
 public final class PermissionServiceSetEvent extends DriverEvent {
 
-    private final IPermissionManagement permissionManager;
+  private final IPermissionManagement permissionManager;
 
-    public PermissionServiceSetEvent(IPermissionManagement permissionManager) {
-        this.permissionManager = permissionManager;
-    }
+  public PermissionServiceSetEvent(IPermissionManagement permissionManager) {
+    this.permissionManager = permissionManager;
+  }
 
-    public IPermissionManagement getPermissionManager() {
-        return this.permissionManager;
-    }
+  public IPermissionManagement getPermissionManager() {
+    return this.permissionManager;
+  }
 }

@@ -9,26 +9,27 @@ import de.dytanic.cloudnet.ext.bridge.player.NetworkPlayerServerInfo;
  */
 public final class NukkitBridgeServerPlayerDisconnectEvent extends NukkitBridgeEvent {
 
-    private static final HandlerList handlers = new HandlerList();
+  private static final HandlerList handlers = new HandlerList();
 
-    private final NetworkConnectionInfo networkConnectionInfo;
+  private final NetworkConnectionInfo networkConnectionInfo;
 
-    private final NetworkPlayerServerInfo networkPlayerServerInfo;
+  private final NetworkPlayerServerInfo networkPlayerServerInfo;
 
-    public NukkitBridgeServerPlayerDisconnectEvent(NetworkConnectionInfo networkConnectionInfo, NetworkPlayerServerInfo networkPlayerServerInfo) {
-        this.networkConnectionInfo = networkConnectionInfo;
-        this.networkPlayerServerInfo = networkPlayerServerInfo;
-    }
+  public NukkitBridgeServerPlayerDisconnectEvent(NetworkConnectionInfo networkConnectionInfo,
+    NetworkPlayerServerInfo networkPlayerServerInfo) {
+    this.networkConnectionInfo = networkConnectionInfo;
+    this.networkPlayerServerInfo = networkPlayerServerInfo;
+  }
 
-    public static HandlerList getHandlers() {
-        return NukkitBridgeServerPlayerDisconnectEvent.handlers;
-    }
+  public static HandlerList getHandlers() {
+    return NukkitBridgeServerPlayerDisconnectEvent.handlers;
+  }
 
-    public NetworkConnectionInfo getNetworkConnectionInfo() {
-        return this.networkConnectionInfo;
-    }
+  public NetworkConnectionInfo getNetworkConnectionInfo() {
+    return this.networkConnectionInfo;
+  }
 
-    public NetworkPlayerServerInfo getNetworkPlayerServerInfo() {
-        return this.networkPlayerServerInfo;
-    }
+  public NetworkPlayerServerInfo getNetworkPlayerServerInfo() {
+    return this.networkPlayerServerInfo;
+  }
 }

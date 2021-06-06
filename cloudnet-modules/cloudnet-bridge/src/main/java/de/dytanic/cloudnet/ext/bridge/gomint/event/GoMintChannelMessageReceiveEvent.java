@@ -6,17 +6,18 @@ import de.dytanic.cloudnet.ext.bridge.WrappedChannelMessageReceiveEvent;
 /**
  * {@inheritDoc}
  */
-public final class GoMintChannelMessageReceiveEvent extends GoMintCloudNetEvent implements WrappedChannelMessageReceiveEvent {
+public final class GoMintChannelMessageReceiveEvent extends GoMintCloudNetEvent implements
+  WrappedChannelMessageReceiveEvent {
 
-    private final ChannelMessageReceiveEvent event;
+  private final ChannelMessageReceiveEvent event;
 
-    public GoMintChannelMessageReceiveEvent(ChannelMessageReceiveEvent event) {
-        this.event = event;
-    }
+  public GoMintChannelMessageReceiveEvent(ChannelMessageReceiveEvent event) {
+    this.event = event;
+  }
 
-    @Override
-    public ChannelMessageReceiveEvent getWrapped() {
-        return this.event;
-    }
+  @Override
+  public ChannelMessageReceiveEvent getWrapped() {
+    return this.event;
+  }
 
 }

@@ -7,17 +7,17 @@ import org.jetbrains.annotations.NotNull;
  */
 public interface INetworkClient extends INetworkComponent, AutoCloseable {
 
-    /**
-     * Open a new connection to the specific host and port
-     *
-     * @param hostAndPort the address, that should the client connect to
-     * @return true if the connection was success or false if the connection was unsuccessful or refused
-     */
-    boolean connect(@NotNull HostAndPort hostAndPort);
+  /**
+   * Open a new connection to the specific host and port
+   *
+   * @param hostAndPort the address, that should the client connect to
+   * @return true if the connection was success or false if the connection was unsuccessful or refused
+   */
+  boolean connect(@NotNull HostAndPort hostAndPort);
 
-    /**
-     * Gets the time when this client was connected to the server in milliseconds
-     */
-    long getConnectedTime();
+  /**
+   * Gets the time when this client was connected to the server in milliseconds
+   */
+  long getConnectedTime();
 
 }

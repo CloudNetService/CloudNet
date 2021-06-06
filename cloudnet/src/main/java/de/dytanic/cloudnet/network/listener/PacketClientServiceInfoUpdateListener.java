@@ -10,15 +10,15 @@ import de.dytanic.cloudnet.service.ICloudServiceManager;
 
 public final class PacketClientServiceInfoUpdateListener implements IPacketListener {
 
-    @Override
-    public void handle(INetworkChannel channel, IPacket packet) {
-        ServiceInfoSnapshot serviceInfoSnapshot = packet.getBuffer().readObject(ServiceInfoSnapshot.class);
+  @Override
+  public void handle(INetworkChannel channel, IPacket packet) {
+    ServiceInfoSnapshot serviceInfoSnapshot = packet.getBuffer().readObject(ServiceInfoSnapshot.class);
 
-        ICloudServiceManager cloudServiceManager = CloudNet.getInstance().getCloudServiceManager();
-        ICloudService cloudService = cloudServiceManager.getCloudService(serviceInfoSnapshot.getServiceId().getUniqueId());
+    ICloudServiceManager cloudServiceManager = CloudNet.getInstance().getCloudServiceManager();
+    ICloudService cloudService = cloudServiceManager.getCloudService(serviceInfoSnapshot.getServiceId().getUniqueId());
 
-        if (cloudService != null) {
-            cloudService.updateServiceInfoSnapshot(serviceInfoSnapshot);
-        }
+    if (cloudService != null) {
+      cloudService.updateServiceInfoSnapshot(serviceInfoSnapshot);
     }
+  }
 }

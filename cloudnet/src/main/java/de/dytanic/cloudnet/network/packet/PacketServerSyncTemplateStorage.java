@@ -6,7 +6,7 @@ import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 
 public final class PacketServerSyncTemplateStorage extends Packet {
 
-    public PacketServerSyncTemplateStorage(ProtocolBuffer buffer) {
-        super(PacketConstants.CLUSTER_TEMPLATE_STORAGE_SYNC_CHANNEL, buffer);
-    }
+  public PacketServerSyncTemplateStorage(ProtocolBuffer buffer) {
+    super(PacketConstants.CLUSTER_TEMPLATE_STORAGE_SYNC_CHANNEL, buffer);
+  }
 }

@@ -14,76 +14,76 @@ import io.gomint.event.network.PingEvent;
 import io.gomint.plugin.Plugin;
 import io.gomint.plugin.PluginName;
 import io.gomint.plugin.Version;
-
 import java.util.concurrent.TimeUnit;
 
 @PluginName("CloudNet-Bridge")
 @Version(major = 1, minor = 2)
 public final class GoMintCloudNetBridgePlugin extends Plugin {
 
-    @Override
-    public void onInstall() {
-        GoMintCloudNetHelper.init();
+  @Override
+  public void onInstall() {
+    GoMintCloudNetHelper.init();
 
-        CloudNetDriver.getInstance().getServicesRegistry().registerService(IPlayerManager.class, "BridgePlayerManager", new BridgePlayerManager());
+    CloudNetDriver.getInstance().getServicesRegistry()
+      .registerService(IPlayerManager.class, "BridgePlayerManager", new BridgePlayerManager());
 
-        this.initListeners();
+    this.initListeners();
 
-        Wrapper.getInstance().getTaskExecutor().execute(BridgeHelper::updateServiceInfo);
+    Wrapper.getInstance().getTaskExecutor().execute(BridgeHelper::updateServiceInfo);
 
-        this.runFirePingEvent();
-    }
+    this.runFirePingEvent();
+  }
 
-    @Override
-    public void onUninstall() {
-        CloudNetDriver.getInstance().getEventManager().unregisterListeners(this.getClass().getClassLoader());
-        Wrapper.getInstance().unregisterPacketListenersByClassLoader(this.getClass().getClassLoader());
-    }
+  @Override
+  public void onUninstall() {
+    CloudNetDriver.getInstance().getEventManager().unregisterListeners(this.getClass().getClassLoader());
+    Wrapper.getInstance().unregisterPacketListenersByClassLoader(this.getClass().getClassLoader());
+  }
 
-    private void initListeners() {
-        // GoMint API
-        super.registerListener(new GoMintPlayerListener(this));
+  private void initListeners() {
+    // GoMint API
+    super.registerListener(new GoMintPlayerListener(this));
 
-        // CloudNet
-        CloudNetDriver.getInstance().getEventManager().registerListener(new GoMintCloudNetListener(this));
-        CloudNetDriver.getInstance().getEventManager().registerListener(new BridgeCustomChannelMessageListener());
-    }
+    // CloudNet
+    CloudNetDriver.getInstance().getEventManager().registerListener(new GoMintCloudNetListener(this));
+    CloudNetDriver.getInstance().getEventManager().registerListener(new BridgeCustomChannelMessageListener());
+  }
 
-    private void runFirePingEvent() {
-        super.scheduler().schedule(() -> {
-            PingEvent pingEvent = new PingEvent(
-                    GoMintCloudNetHelper.getMotd(),
-                    GoMint.instance().onlinePlayers().size(),
-                    GoMintCloudNetHelper.getMaxPlayers()
-            );
+  private void runFirePingEvent() {
+    super.scheduler().schedule(() -> {
+      PingEvent pingEvent = new PingEvent(
+        GoMintCloudNetHelper.getMotd(),
+        GoMint.instance().onlinePlayers().size(),
+        GoMintCloudNetHelper.getMaxPlayers()
+      );
 
-            boolean hasToUpdate = false;
-            boolean value = false;
+      boolean hasToUpdate = false;
+      boolean value = false;
 
-            GoMint.instance().pluginManager().callEvent(pingEvent);
-            if (pingEvent.motd() != null && !pingEvent.motd().equalsIgnoreCase(BridgeServerHelper.getMotd())) {
-                hasToUpdate = true;
-                GoMintCloudNetHelper.setMotd(pingEvent.motd());
-                if (pingEvent.motd().toLowerCase().contains("running") ||
-                        pingEvent.motd().toLowerCase().contains("ingame") ||
-                        pingEvent.motd().toLowerCase().contains("playing")) {
-                    value = true;
-                }
-            }
+      GoMint.instance().pluginManager().callEvent(pingEvent);
+      if (pingEvent.motd() != null && !pingEvent.motd().equalsIgnoreCase(BridgeServerHelper.getMotd())) {
+        hasToUpdate = true;
+        GoMintCloudNetHelper.setMotd(pingEvent.motd());
+        if (pingEvent.motd().toLowerCase().contains("running") ||
+          pingEvent.motd().toLowerCase().contains("ingame") ||
+          pingEvent.motd().toLowerCase().contains("playing")) {
+          value = true;
+        }
+      }
 
-            if (pingEvent.maxPlayers() != GoMintCloudNetHelper.getMaxPlayers()) {
-                hasToUpdate = true;
-                GoMintCloudNetHelper.setMaxPlayers(pingEvent.maxPlayers());
-            }
+      if (pingEvent.maxPlayers() != GoMintCloudNetHelper.getMaxPlayers()) {
+        hasToUpdate = true;
+        GoMintCloudNetHelper.setMaxPlayers(pingEvent.maxPlayers());
+      }
 
-            if (value) {
-                BridgeServerHelper.changeToIngame(true);
-                return;
-            }
+      if (value) {
+        BridgeServerHelper.changeToIngame(true);
+        return;
+      }
 
-            if (hasToUpdate) {
-                BridgeHelper.updateServiceInfo();
-            }
-        }, 0, 500, TimeUnit.MILLISECONDS);
-    }
+      if (hasToUpdate) {
+        BridgeHelper.updateServiceInfo();
+      }
+    }, 0, 500, TimeUnit.MILLISECONDS);
+  }
 }

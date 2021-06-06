@@ -5,20 +5,20 @@ import de.dytanic.cloudnet.service.ICloudService;
 
 public final class CloudServicePostStopEvent extends DriverEvent {
 
-    private final ICloudService cloudService;
+  private final ICloudService cloudService;
 
-    private final int exitValue;
+  private final int exitValue;
 
-    public CloudServicePostStopEvent(ICloudService cloudService, int exitValue) {
-        this.cloudService = cloudService;
-        this.exitValue = exitValue;
-    }
+  public CloudServicePostStopEvent(ICloudService cloudService, int exitValue) {
+    this.cloudService = cloudService;
+    this.exitValue = exitValue;
+  }
 
-    public ICloudService getCloudService() {
-        return this.cloudService;
-    }
+  public ICloudService getCloudService() {
+    return this.cloudService;
+  }
 
-    public int getExitValue() {
-        return this.exitValue;
-    }
+  public int getExitValue() {
+    return this.exitValue;
+  }
 }

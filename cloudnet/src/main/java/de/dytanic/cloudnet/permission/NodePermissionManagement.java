@@ -5,8 +5,8 @@ import de.dytanic.cloudnet.driver.permission.IPermissionManagementHandler;
 
 public interface NodePermissionManagement extends IPermissionManagement {
 
-    IPermissionManagementHandler getPermissionManagementHandler();
+  IPermissionManagementHandler getPermissionManagementHandler();
 
-    void setPermissionManagementHandler(IPermissionManagementHandler permissionManagementHandler);
+  void setPermissionManagementHandler(IPermissionManagementHandler permissionManagementHandler);
 
 }
