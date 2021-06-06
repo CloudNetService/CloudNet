@@ -47,14 +47,17 @@ public final class BukkitCloudNetCloudPermissionsPlugin extends JavaPlugin {
         Wrapper.getInstance().unregisterPacketListenersByClassLoader(this.getClass().getClassLoader());
     }
 
+    @Deprecated
     public void updateNameTags(Player player) {
         this.updateNameTags(player, null);
     }
 
+    @Deprecated
     public void updateNameTags(Player player, Function<Player, IPermissionGroup> playerIPermissionGroupFunction) {
         this.updateNameTags(player, playerIPermissionGroupFunction, null);
     }
 
+    @Deprecated
     public void updateNameTags(Player player, Function<Player, IPermissionGroup> playerIPermissionGroupFunction,
                                Function<Player, IPermissionGroup> allOtherPlayerPermissionGroupFunction) {
         Preconditions.checkNotNull(player);
