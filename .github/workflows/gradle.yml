@@ -28,7 +28,7 @@ jobs:
           mkdir -p temp/;
           cp -r .template/* temp/;
 
-          cp LICENSE temp/LICENSE;
+          cp license.txt temp/license.txt;
 
           mkdir temp/dev;
           mkdir temp/dev/examples;

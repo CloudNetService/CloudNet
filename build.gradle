@@ -165,6 +165,7 @@ subprojects {
     if (project.name == 'cloudnet-modules' || project.name == 'cloudnet-plugins') return
 
     apply plugin: 'java'
+    apply plugin: 'checkstyle'
     apply plugin: 'java-library'
     apply plugin: 'maven-publish'
 
@@ -180,6 +181,10 @@ subprojects {
         options.encoding = 'UTF-8'
     }
 
+    tasks.withType(Checkstyle) {
+        configFile = project.rootProject.file('checkstyle.xml')
+    }
+
     sourceCompatibility = 1.8
     targetCompatibility = 1.8
 
@@ -191,7 +196,7 @@ subprojects {
     }
 
     jar {
-        from rootProject.file('LICENSE')
+        from rootProject.file('license.txt')
         duplicatesStrategy = DuplicatesStrategy.INCLUDE
     }
 
