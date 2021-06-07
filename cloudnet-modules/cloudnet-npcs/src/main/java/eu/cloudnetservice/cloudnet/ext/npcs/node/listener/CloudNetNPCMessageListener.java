@@ -87,6 +87,8 @@ public class CloudNetNPCMessageListener {
           event.setJsonResponse(JsonDocument.newDocument("npcs", this.npcModule.getCachedNPCs()));
         }
         break;
+        default:
+          break;
       }
 
     }

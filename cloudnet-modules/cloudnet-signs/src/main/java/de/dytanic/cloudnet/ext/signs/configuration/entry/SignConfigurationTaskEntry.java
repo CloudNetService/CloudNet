@@ -26,7 +26,9 @@ public class SignConfigurationTaskEntry {
 
   protected String task;
 
-  protected SignLayout onlineLayout, emptyLayout, fullLayout;
+  protected SignLayout onlineLayout;
+  protected SignLayout emptyLayout;
+  protected SignLayout fullLayout;
 
   public SignConfigurationTaskEntry(String task, SignLayout onlineLayout, SignLayout emptyLayout,
     SignLayout fullLayout) {

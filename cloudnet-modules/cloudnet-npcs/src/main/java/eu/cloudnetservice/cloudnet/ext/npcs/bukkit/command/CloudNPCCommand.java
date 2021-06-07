@@ -276,7 +276,9 @@ public class CloudNPCCommand implements CommandExecutor, TabCompleter {
     for (CloudNPC cloudNPC : this.npcManagement.getCloudNPCS()) {
       WorldPosition position = cloudNPC.getPosition();
 
-      int x = (int) position.getX(), y = (int) position.getY(), z = (int) position.getZ();
+      int x = (int) position.getX();
+      int y = (int) position.getY();
+      int z = (int) position.getZ();
 
       BaseComponent[] textComponent = new ComponentBuilder(String.format(
         "§8> %s §8- §7%d, %d, %d §8- §7%s",

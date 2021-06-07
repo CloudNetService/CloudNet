@@ -26,7 +26,11 @@ import org.jetbrains.annotations.NotNull;
 @EqualsAndHashCode
 public class ModuleDependency implements SerializableObject {
 
-  private String repo, url, group, name, version;
+  private String repo;
+  private String url;
+  private String group;
+  private String name;
+  private String version;
 
   public ModuleDependency(String repo, String url, String group, String name, String version) {
     this.repo = repo;

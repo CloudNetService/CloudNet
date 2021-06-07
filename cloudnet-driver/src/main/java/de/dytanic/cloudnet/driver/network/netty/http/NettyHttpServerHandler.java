@@ -93,9 +93,12 @@ final class NettyHttpServerHandler extends SimpleChannelInboundHandler<HttpReque
     }
 
     Map<String, String> pathParameters = new HashMap<>();
+
     List<NettyHttpServer.HttpHandlerEntry> entries = new ArrayList<>(this.nettyHttpServer.registeredHandlers);
-    String[] pathEntries = fullPath.split("/"), handlerPathEntries;
     Collections.sort(entries);
+
+    String[] pathEntries = fullPath.split("/");
+    String[] handlerPathEntries;
 
     NettyHttpServerContext context = new NettyHttpServerContext(this.nettyHttpServer, this.channel, uri, pathParameters,
       httpRequest);

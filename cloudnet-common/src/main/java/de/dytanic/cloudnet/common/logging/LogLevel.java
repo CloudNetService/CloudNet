@@ -99,7 +99,8 @@ public class LogLevel implements ILevelable {
   /**
    * The level name in lower and upper case form. It is important fort the format of the end messages
    */
-  protected String lowerName, upperName;
+  protected String lowerName;
+  protected String upperName;
 
   /**
    * Defines the current level as int value

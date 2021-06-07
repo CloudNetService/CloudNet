@@ -60,19 +60,19 @@ public class ExampleWebSocket {
                   channel.close(200, "invoked close");
                 }
                 break;
+              default:
+                break;
             }
           }
 
           @Override
           public void handleClose(IWebSocketChannel channel, AtomicInteger statusCode,
-            AtomicReference<String> reasonText) //handle the closing output
-          {
+            AtomicReference<String> reasonText) { // handle the closing output
             if (!ExampleWebSocket.this.channels.contains(channel)) {
               statusCode.set(500);
             }
 
             ExampleWebSocket.this.channels.remove(channel);
-
             System.out.println("I close");
           }
         });

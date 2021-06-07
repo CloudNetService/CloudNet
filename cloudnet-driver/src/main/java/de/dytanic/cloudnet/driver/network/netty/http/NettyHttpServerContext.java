@@ -48,17 +48,17 @@ final class NettyHttpServerContext implements IHttpContext {
 
   protected final Channel nettyChannel;
 
-  protected final NettyHttpServer nettyHttpServer;
-
   protected final NettyHttpChannel channel;
+  protected final NettyHttpServer nettyHttpServer;
 
   protected final HttpRequest httpRequest;
 
   protected final NettyHttpServerRequest httpServerRequest;
-
   protected final NettyHttpServerResponse httpServerResponse;
 
-  protected volatile boolean closeAfter = true, cancelNext = false, cancelSendResponse = false;
+  protected volatile boolean closeAfter = true;
+  protected volatile boolean cancelNext = false;
+  protected volatile boolean cancelSendResponse = false;
 
   protected volatile NettyWebSocketServerChannel webSocketServerChannel;
 

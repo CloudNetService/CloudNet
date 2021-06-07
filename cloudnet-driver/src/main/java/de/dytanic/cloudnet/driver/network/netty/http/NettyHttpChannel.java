@@ -26,7 +26,8 @@ final class NettyHttpChannel implements IHttpChannel {
 
   protected final Channel channel;
 
-  protected final HostAndPort serverAddress, clientAddress;
+  protected final HostAndPort serverAddress;
+  protected final HostAndPort clientAddress;
 
   public NettyHttpChannel(Channel channel, HostAndPort serverAddress, HostAndPort clientAddress) {
     this.channel = channel;

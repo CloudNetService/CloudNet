@@ -32,17 +32,16 @@ import org.jetbrains.annotations.NotNull;
 @ApiStatus.ScheduledForRemoval
 public class DefaultTaskScheduler implements ITaskScheduler {
 
-  protected static final long DEFAULT_THREAD_LIFE_MILLIS = 60000, DEFAULT_THREAD_PAUSE_MILLIS = 5;
+  protected static final long DEFAULT_THREAD_LIFE_MILLIS = 60000;
+  protected static final long DEFAULT_THREAD_PAUSE_MILLIS = 5;
 
   protected static final AtomicInteger GROUP_COUNT = new AtomicInteger();
 
+  protected final Queue<IWorkableThread> workers = new ConcurrentLinkedQueue<>();
   protected final Deque<IScheduledTask<?>> taskEntries = new ConcurrentLinkedDeque<>();
 
-  protected final Queue<IWorkableThread> workers = new ConcurrentLinkedQueue<>();
-
+  protected final AtomicLong threadCount = new AtomicLong();
   protected final ThreadGroup threadGroup = new ThreadGroup("DefaultTaskScheduler-" + GROUP_COUNT.incrementAndGet());
-
-  protected final AtomicLong THREAD_COUNT = new AtomicLong();
 
   protected volatile int maxThreadSize;
   protected volatile long threadLifeMillis;
@@ -82,8 +81,8 @@ public class DefaultTaskScheduler implements ITaskScheduler {
     return this.threadGroup;
   }
 
-  public AtomicLong getTHREAD_COUNT() {
-    return this.THREAD_COUNT;
+  public AtomicLong getThreadCount() {
+    return this.threadCount;
   }
 
   public int getMaxThreadSize() {
@@ -284,7 +283,7 @@ public class DefaultTaskScheduler implements ITaskScheduler {
 
     public Worker() {
       super(DefaultTaskScheduler.this.threadGroup,
-        DefaultTaskScheduler.this.threadGroup.getName() + "#" + DefaultTaskScheduler.this.THREAD_COUNT
+        DefaultTaskScheduler.this.threadGroup.getName() + "#" + DefaultTaskScheduler.this.threadCount
           .incrementAndGet());
 
       DefaultTaskScheduler.this.workers.add(this);

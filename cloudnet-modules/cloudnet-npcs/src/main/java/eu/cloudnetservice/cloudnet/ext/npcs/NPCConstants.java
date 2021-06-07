@@ -26,12 +26,11 @@ public class NPCConstants {
   }.getType();
 
   public static final String NPC_CHANNEL_NAME = "cloudnet_npc_channel";
-  public static final String
-    NPC_CHANNEL_ADD_NPC_MESSAGE = "add_npc",
-    NPC_CHANNEL_REMOVE_NPC_MESSAGE = "remove_npc",
-    NPC_CHANNEL_GET_NPCS_MESSAGE = "get_npcs",
-    NPC_CHANNEL_GET_CONFIGURATION_MESSAGE = "get_npc_configuration",
-    NPC_CHANNEL_UPDATE_CONFIGURATION_MESSAGE = "update_npc_configuration";
+  public static final String NPC_CHANNEL_ADD_NPC_MESSAGE = "add_npc";
+  public static final String NPC_CHANNEL_REMOVE_NPC_MESSAGE = "remove_npc";
+  public static final String NPC_CHANNEL_GET_NPCS_MESSAGE = "get_npcs";
+  public static final String NPC_CHANNEL_GET_CONFIGURATION_MESSAGE = "get_npc_configuration";
+  public static final String NPC_CHANNEL_UPDATE_CONFIGURATION_MESSAGE = "update_npc_configuration";
 
   private NPCConstants() {
     throw new UnsupportedOperationException();

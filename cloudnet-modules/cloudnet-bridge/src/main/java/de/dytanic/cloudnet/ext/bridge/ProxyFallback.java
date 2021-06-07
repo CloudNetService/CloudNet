@@ -25,12 +25,12 @@ import lombok.ToString;
 @EqualsAndHashCode
 public class ProxyFallback implements Comparable<ProxyFallback> {
 
-  protected String task, permission;
+  protected String task;
+  protected String permission;
 
   protected Collection<String> availableOnGroups = new ArrayList<>();
 
   protected String forcedHost;
-
   private int priority;
 
   public ProxyFallback(String task, String permission, int priority) {

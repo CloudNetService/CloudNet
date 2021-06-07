@@ -30,17 +30,22 @@ final class GoMintCloudNetPlayerInfo {
   protected double health;
   protected double maxHealth;
   protected double saturation;
+
   protected int level;
   protected int ping;
+
   protected Locale locale;
   protected WorldPosition location;
   protected HostAndPort address;
+
   private UUID uniqueId;
-  private boolean online;
   private String name;
+
+  private boolean online;
+
   private String deviceName;
-  private String xBoxId;
   private String gamemode;
+  private String xBoxId;
 
   public GoMintCloudNetPlayerInfo(double health, double maxHealth, double saturation, int level, int ping,
     Locale locale, WorldPosition location, HostAndPort address, UUID uniqueId, boolean online, String name,

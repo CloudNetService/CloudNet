@@ -69,6 +69,8 @@ public final class BridgeCustomChannelMessageListener {
           .callEvent(new BridgeDeleteCloudOfflinePlayerEvent(offlinePlayer));
       }
       break;
+      default:
+        break;
     }
   }
 
@@ -143,6 +145,8 @@ public final class BridgeCustomChannelMessageListener {
           .callEvent(new BridgeServerPlayerDisconnectEvent(networkConnectionInfo, networkPlayerServerInfo));
       }
       break;
+      default:
+        break;
     }
   }
 }

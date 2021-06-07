@@ -260,6 +260,8 @@ public final class NodeCustomChannelMessageListener {
         this.nodePlayerManager.logoutPlayer(networkConnectionInfo);
       }
       break;
+      default:
+        break;
     }
   }
 

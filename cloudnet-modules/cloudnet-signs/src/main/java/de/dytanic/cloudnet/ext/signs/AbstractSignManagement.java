@@ -47,9 +47,11 @@ import org.jetbrains.annotations.Nullable;
 
 public abstract class AbstractSignManagement extends ServiceInfoStateWatcher {
 
-  private static final Comparator<Pair<ServiceInfoSnapshot, ServiceInfoStateWatcher.ServiceInfoState>>
-    ENTRY_NAME_COMPARATOR = Comparator.comparing(entry -> entry.getFirst().getName()),
-    ENTRY_STATE_COMPARATOR = Comparator.comparingInt(entry -> entry.getSecond().getPriority());
+  private static final Comparator<Pair<ServiceInfoSnapshot, ServiceInfoStateWatcher.ServiceInfoState>> ENTRY_NAME_COMPARATOR
+    = Comparator.comparing(entry -> entry.getFirst().getName());
+  private static final Comparator<Pair<ServiceInfoSnapshot, ServiceInfoStateWatcher.ServiceInfoState>> ENTRY_STATE_COMPARATOR
+    = Comparator.comparingInt(entry -> entry.getSecond().getPriority());
+
   protected final Set<Sign> signs;
   private final AtomicInteger[] indexes = new AtomicInteger[]{
     new AtomicInteger(-1), //starting
@@ -143,6 +145,8 @@ public abstract class AbstractSignManagement extends ServiceInfoStateWatcher {
         }
       }
       break;
+      default:
+        break;
     }
   }
 
@@ -307,6 +311,8 @@ public abstract class AbstractSignManagement extends ServiceInfoStateWatcher {
         this.updateSignNext(sign, signLayout, serviceInfoSnapshot);
       }
       break;
+      default:
+        break;
     }
   }
 

@@ -110,6 +110,8 @@ public class NPCInventoryListener implements Listener {
                   .map(ServiceInfoSnapshot::getName)
                   .orElse(null);
                 break;
+              default:
+                break;
             }
 
             if (targetServiceName != null) {

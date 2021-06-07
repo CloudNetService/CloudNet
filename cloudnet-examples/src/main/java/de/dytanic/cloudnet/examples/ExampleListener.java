@@ -118,8 +118,8 @@ public final class ExampleListener {
   }
 
   @EventListener
-  public void handleNotCalledEvent(ExampleOwnEvent event) //On this example module, this listener won't called
-  {
+  public void handleNotCalledEvent(ExampleOwnEvent event) {
+    // On this example module, this listener won't called
     System.out.println("No event listening on public channel");
   }
 

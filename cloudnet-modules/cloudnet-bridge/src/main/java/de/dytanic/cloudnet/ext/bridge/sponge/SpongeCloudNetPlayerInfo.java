@@ -32,7 +32,9 @@ final class SpongeCloudNetPlayerInfo {
 
   private int ping;
 
-  private double health, maxHealth, saturation;
+  private double health;
+  private double maxHealth;
+  private double saturation;
 
   private int level;
 

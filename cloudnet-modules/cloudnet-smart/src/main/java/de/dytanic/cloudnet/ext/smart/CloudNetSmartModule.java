@@ -201,6 +201,8 @@ public final class CloudNetSmartModule extends NodeCloudNetModule {
 
         break;
       }
+      default:
+        break;
     }
 
     return outTemplates.toArray(new ServiceTemplate[0]);

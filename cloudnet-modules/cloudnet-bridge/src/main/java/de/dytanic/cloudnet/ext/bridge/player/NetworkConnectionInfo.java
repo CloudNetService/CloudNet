@@ -34,14 +34,15 @@ public class NetworkConnectionInfo implements SerializableObject {
   }.getType();
 
   protected UUID uniqueId;
-
   protected String name;
 
   protected int version;
 
-  protected HostAndPort address, listener;
+  protected HostAndPort address;
+  protected HostAndPort listener;
 
-  protected boolean onlineMode, legacy;
+  protected boolean onlineMode;
+  protected boolean legacy;
 
   protected NetworkServiceInfo networkService;
 

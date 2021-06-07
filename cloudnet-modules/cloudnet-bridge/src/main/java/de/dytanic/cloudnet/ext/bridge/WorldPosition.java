@@ -26,9 +26,14 @@ import org.jetbrains.annotations.NotNull;
 @EqualsAndHashCode
 public class WorldPosition implements SerializableObject {
 
-  protected double x, y, z, yaw, pitch;
+  protected double x;
+  protected double y;
+  protected double z;
+  protected double yaw;
+  protected double pitch;
 
-  protected String world, group;
+  protected String world;
+  protected String group;
 
   public WorldPosition(double x, double y, double z, double yaw, double pitch, String world) {
     this.x = x;

@@ -31,8 +31,8 @@ public final class ExampleModule extends
   }
 
   @ModuleTask(event = ModuleLifeCycle.STARTED)
-  public void initConfig() //Init the configurations/default configurations
-  {
+  public void initConfig() {
+    // Init the configurations/default configurations
     this.getConfig().getString("Host", "127.0.0.1");
     this.getConfig().getInt("Port", 3306);
     this.getConfig().getString("Database", "Network");

@@ -44,7 +44,8 @@ public class ServiceConfiguration extends SerializableJsonDocPropertyable implem
   protected String runtime;
   protected String javaCommand;
 
-  protected boolean autoDeleteOnStop, staticService;
+  protected boolean autoDeleteOnStop;
+  protected boolean staticService;
 
   protected String[] groups;
 
@@ -346,7 +347,15 @@ public class ServiceConfiguration extends SerializableJsonDocPropertyable implem
    * </ul>
    * You can create a new service with this example:
    * <p>
-   * {@code ServiceConfiguration.builder().task("Lobby").environment(ServiceEnvironmentType.MINECRAFT_SERVER).maxHeapMemory(512).build().createNewService()}
+   * <code>
+   *   ServiceConfiguration
+   *    .builder()
+   *    .task("Lobby")
+   *    .environment(ServiceEnvironmentType.MINECRAFT_SERVER)
+   *    .maxHeapMemory(512)
+   *    .build()
+   *    .createNewService();
+   * </code>
    * <p>
    * this will return the newly created {@link ServiceInfoSnapshot} or null if the service couldn't be created.
    */

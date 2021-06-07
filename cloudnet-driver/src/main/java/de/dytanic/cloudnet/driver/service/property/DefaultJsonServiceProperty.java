@@ -26,19 +26,19 @@ public class DefaultJsonServiceProperty<T> implements ServiceProperty<T> {
 
   private final String key;
   private final Type type;
-  private final Class<T> tClass;
+  private final Class<T> classType;
 
   private boolean allowModifications = true;
 
-  private DefaultJsonServiceProperty(String key, Type type, Class<T> tClass) {
+  private DefaultJsonServiceProperty(String key, Type type, Class<T> classType) {
     this.key = key;
     this.type = type;
-    this.tClass = tClass;
+    this.classType = classType;
   }
 
   @NotNull
-  public static <T> DefaultJsonServiceProperty<T> createFromClass(@NotNull String key, @NotNull Class<T> tClass) {
-    return new DefaultJsonServiceProperty<>(key, null, tClass);
+  public static <T> DefaultJsonServiceProperty<T> createFromClass(@NotNull String key, @NotNull Class<T> classType) {
+    return new DefaultJsonServiceProperty<>(key, null, classType);
   }
 
   @NotNull
@@ -68,7 +68,7 @@ public class DefaultJsonServiceProperty<T> implements ServiceProperty<T> {
       return Optional.empty();
     }
     return Optional.ofNullable(this.type != null ? serviceInfoSnapshot.getProperties().get(this.key, this.type)
-      : serviceInfoSnapshot.getProperties().get(this.key, this.tClass));
+      : serviceInfoSnapshot.getProperties().get(this.key, this.classType));
   }
 
   @Override

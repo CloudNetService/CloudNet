@@ -29,17 +29,15 @@ import org.jetbrains.annotations.NotNull;
 public class ModuleConfiguration implements SerializableObject {
 
   protected boolean runtimeModule;
-
   protected boolean storesSensitiveData;
 
-  protected String
-    group,
-    name,
-    version,
-    main,
-    description,
-    author,
-    website;
+  protected String group;
+  protected String name;
+  protected String version;
+  protected String main;
+  protected String description;
+  protected String author;
+  protected String website;
 
   //protected ModuleUpdateServiceConfiguration updateServiceConfiguration;
 

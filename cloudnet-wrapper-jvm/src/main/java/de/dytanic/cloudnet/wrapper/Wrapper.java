@@ -123,9 +123,8 @@ public final class Wrapper extends CloudNetDriver implements DriverAPIUser {
    * The ServiceInfoSnapshot instances. The current ServiceInfoSnapshot instance is the last send object snapshot from
    * this process. The lastServiceInfoSnapshot is the element which was send before.
    */
-  private ServiceInfoSnapshot
-    lastServiceInfoSnapShot = this.config.getServiceInfoSnapshot(),
-    currentServiceInfoSnapshot = this.config.getServiceInfoSnapshot();
+  private ServiceInfoSnapshot lastServiceInfoSnapShot = this.config.getServiceInfoSnapshot();
+  private ServiceInfoSnapshot currentServiceInfoSnapshot = this.config.getServiceInfoSnapshot();
 
   Wrapper(List<String> commandLineArguments, ILogger logger) {
     super(logger);

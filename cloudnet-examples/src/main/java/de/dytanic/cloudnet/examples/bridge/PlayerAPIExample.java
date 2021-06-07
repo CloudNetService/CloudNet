@@ -65,33 +65,30 @@ public final class PlayerAPIExample {
       });
   }
 
-  public void getPlayerExample(Player player) //Bukkit Player
-  {
+  public void getPlayerExample(Player player) { // Bukkit player
     Preconditions.checkNotNull(player);
 
     ICloudPlayer cloudPlayer = this.playerManager
       .getOnlinePlayer(player.getUniqueId()); //Returns an online cloudPlayers
 
-    if (cloudPlayer != null) //Checks that the player is online
-    {
+    // Checks if the player is online
+    if (cloudPlayer != null) {
       cloudPlayer.getUniqueId(); //Returns the uniqueId
       cloudPlayer.getName(); //Returns the players name
       cloudPlayer.getXBoxId(); //Bedrock Edition XBoxId
     }
 
     ICloudOfflinePlayer cloudOfflinePlayer = this.playerManager.getOfflinePlayer(player.getUniqueId());
-    //Returns the cloud offline player with all players data from the database
+    // Returns the cloud offline player with all players data from the database
 
-    if (cloudOfflinePlayer != null) //Checks the cloud offline player if it registered on CloudNet
-    {
+    // Checks the cloud offline player if it registered on CloudNet
+    if (cloudOfflinePlayer != null) {
       cloudOfflinePlayer.getFirstLoginTimeMillis(); //First login in milliseconds since 1.1.1970
       cloudOfflinePlayer.getLastLoginTimeMillis(); //Last login or the current login in milliseconds
     }
 
     List<? extends ICloudPlayer> cloudPlayers = this.playerManager.getOnlinePlayers(player.getName());
-
-    if (cloudPlayers != null && !cloudPlayers.isEmpty()) //If player instances with that name is contain
-    {
+    if (!cloudPlayers.isEmpty()) {
       ICloudPlayer entry = cloudPlayers.get(0);
 
       this.playerManager.getPlayerExecutor(entry).kick("Kick message"); //kicks a player from the network
@@ -102,15 +99,11 @@ public final class PlayerAPIExample {
   }
 
   //Add additional properties
-  public void addPropertiesToPlayer(Player player) //Bukkit org.bukkit.entity.Player
-  {
+  public void addPropertiesToPlayer(Player player) { // Bukkit org.bukkit.entity.Player
     ICloudPlayer cloudPlayer = this.playerManager.getOnlinePlayer(player.getUniqueId());
 
     if (cloudPlayer != null) {
-      cloudPlayer.getProperties()
-        .append("my custom property", 42)
-      ;
-
+      cloudPlayer.getProperties().append("my custom property", 42);
       this.playerManager.updateOnlinePlayer(cloudPlayer);
     }
   }

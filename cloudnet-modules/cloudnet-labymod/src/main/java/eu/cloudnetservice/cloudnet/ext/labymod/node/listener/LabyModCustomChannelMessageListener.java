@@ -59,6 +59,8 @@ public class LabyModCustomChannelMessageListener {
         UUID spectateSecret = event.getBuffer().readUUID();
         event.createBinaryResponse().writeOptionalObject(this.getPlayerBySpectateSecret(spectateSecret));
         break;
+      default:
+        break;
     }
   }
 

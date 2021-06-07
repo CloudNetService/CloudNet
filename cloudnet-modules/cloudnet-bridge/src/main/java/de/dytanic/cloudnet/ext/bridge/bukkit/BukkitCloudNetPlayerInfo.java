@@ -30,7 +30,9 @@ public final class BukkitCloudNetPlayerInfo {
 
   protected String name;
 
-  protected double health, maxHealth, saturation;
+  protected double health;
+  protected double maxHealth;
+  protected double saturation;
 
   protected int level;
 

@@ -29,12 +29,12 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.jetbrains.annotations.NotNull;
 
-@ToString
-@EqualsAndHashCode
 /**
  * A snapshot of a process in the Cloud which provides information about the cpu and memory usage, the running threads
  * and the pid.
  */
+@ToString
+@EqualsAndHashCode
 public class ProcessSnapshot implements SerializableObject {
 
   private static final ProcessSnapshot EMPTY = new ProcessSnapshot(-1, -1, -1, -1, -1, -1, Collections.emptyList(), -1,

@@ -20,7 +20,8 @@ import de.dytanic.cloudnet.common.document.gson.BasicJsonDocPropertyable;
 
 public class PluginInfo extends BasicJsonDocPropertyable {
 
-  private final String name, version;
+  private final String name;
+  private final String version;
 
   public PluginInfo(String name, String version) {
     this.name = name;

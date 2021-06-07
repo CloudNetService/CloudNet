@@ -22,11 +22,11 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.jetbrains.annotations.NotNull;
 
-@ToString
-@EqualsAndHashCode
 /**
  * The information of a thread running on any process in the Cloud.
  */
+@ToString
+@EqualsAndHashCode
 public class ThreadSnapshot implements SerializableObject {
 
   private long id;

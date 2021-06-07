@@ -42,11 +42,11 @@ public final class V1HttpHandlerCluster extends V1HttpHandler {
         .header("Content-Type", "application/json")
         .body(GSON.toJson(
           super.getCloudNet().getClusterNodeServerProvider().getNodeServers().stream()
-            .filter(iClusterNodeServer -> iClusterNodeServer.getNodeInfo().getUniqueId().toLowerCase()
+            .filter(nodeServer -> nodeServer.getNodeInfo().getUniqueId().toLowerCase()
               .contains(context.request().pathParameters().get("node")))
-            .map(iClusterNodeServer -> new JsonDocument()
-              .append("node", iClusterNodeServer.getNodeInfo())
-              .append("nodeInfoSnapshot", iClusterNodeServer.getNodeInfoSnapshot()))
+            .map(nodeServer -> new JsonDocument()
+              .append("node", nodeServer.getNodeInfo())
+              .append("nodeInfoSnapshot", nodeServer.getNodeInfoSnapshot()))
             .collect(Collectors.toList())))
         .context()
         .closeAfter(true)
@@ -59,12 +59,12 @@ public final class V1HttpHandlerCluster extends V1HttpHandler {
         .header("Content-Type", "application/json")
         .body(GSON.toJson(
           super.getCloudNet().getClusterNodeServerProvider().getNodeServers().stream()
-            .filter(iClusterNodeServer -> !context.request().queryParameters().containsKey("uniqueId") ||
+            .filter(nodeServer -> !context.request().queryParameters().containsKey("uniqueId") ||
               this.containsStringElementInCollection(context.request().queryParameters().get("uniqueId"),
-                iClusterNodeServer.getNodeInfo().getUniqueId()))
-            .map(iClusterNodeServer -> new JsonDocument()
-              .append("node", iClusterNodeServer.getNodeInfo())
-              .append("nodeInfoSnapshot", iClusterNodeServer.getNodeInfoSnapshot()))
+                nodeServer.getNodeInfo().getUniqueId()))
+            .map(nodeServer -> new JsonDocument()
+              .append("node", nodeServer.getNodeInfo())
+              .append("nodeInfoSnapshot", nodeServer.getNodeInfoSnapshot()))
             .collect(Collectors.toList())))
         .context()
         .closeAfter(true)

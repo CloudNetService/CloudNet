@@ -37,10 +37,16 @@ public final class DefaultScheduledTask<V> implements IScheduledTask<V> {
   private Collection<ITaskListener<V>> listeners;
 
   private volatile V value;
-
-  private volatile boolean wait, done, cancelled;
-  private long delay, repeat, repeats, delayedTimeStamp;
   private Callable<V> callable;
+
+  private volatile boolean wait;
+  private volatile boolean done;
+  private volatile boolean cancelled;
+
+  private long delay;
+  private long repeat;
+  private long repeats;
+  private long delayedTimeStamp;
 
   public DefaultScheduledTask(Callable<V> callable, long delay, long repeat, long repeats, TimeUnit timeUnit) {
     this.callable = callable;

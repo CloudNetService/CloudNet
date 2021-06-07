@@ -193,8 +193,7 @@ public class BukkitNPCManagement extends AbstractNPCManagement {
         if (slot > super.ownNPCConfigurationEntry.getEndSlot() - 1) {
           break serviceLoop;
         }
-      }
-      while (items[slot] != null);
+      } while (items[slot] != null);
 
       properties.getServerSlots().put(slot, infoSnapshot.getName());
       items[slot] = itemStack;

@@ -24,7 +24,8 @@ import lombok.ToString;
 @EqualsAndHashCode
 public class ProxyFallbackConfiguration {
 
-  protected String targetGroup, defaultFallbackTask;
+  protected String targetGroup;
+  protected String defaultFallbackTask;
 
   protected List<ProxyFallback> fallbacks;
 

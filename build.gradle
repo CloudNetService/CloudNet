@@ -214,6 +214,8 @@ subprojects {
   }
 
   tasks.withType(Checkstyle) {
+    maxErrors = 0
+    maxWarnings = 0
     configFile = project.rootProject.file('checkstyle.xml')
   }
 

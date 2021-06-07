@@ -27,7 +27,8 @@ public final class VelocityCloudNetPlayerInfo {
 
   private UUID uniqueId;
 
-  private String name, server;
+  private String name;
+  private String server;
 
   private int ping;
 

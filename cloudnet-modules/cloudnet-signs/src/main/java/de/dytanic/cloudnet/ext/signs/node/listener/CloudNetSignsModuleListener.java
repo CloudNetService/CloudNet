@@ -57,6 +57,8 @@ public final class CloudNetSignsModuleListener {
           JsonDocument.newDocument("signConfiguration", CloudNetSignsModule.getInstance().getSignConfiguration()));
       }
       break;
+      default:
+        break;
     }
   }
 
@@ -97,6 +99,8 @@ public final class CloudNetSignsModuleListener {
           }
         }
         break;
+        default:
+          break;
       }
     }
   }

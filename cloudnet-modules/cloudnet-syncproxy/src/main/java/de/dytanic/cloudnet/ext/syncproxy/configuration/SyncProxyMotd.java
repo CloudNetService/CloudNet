@@ -23,7 +23,8 @@ import lombok.ToString;
 @EqualsAndHashCode
 public class SyncProxyMotd {
 
-  protected String firstLine, secondLine;
+  protected String firstLine;
+  protected String secondLine;
 
   protected boolean autoSlot;
 

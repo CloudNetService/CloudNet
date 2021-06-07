@@ -25,7 +25,9 @@ public class ModuleUpdateServiceConfiguration {
 
   protected boolean autoInstall;
 
-  protected String url, currentVersion, infoMessage;
+  protected String url;
+  protected String currentVersion;
+  protected String infoMessage;
 
   public ModuleUpdateServiceConfiguration(boolean autoInstall, String url, String currentVersion, String infoMessage) {
     this.autoInstall = autoInstall;

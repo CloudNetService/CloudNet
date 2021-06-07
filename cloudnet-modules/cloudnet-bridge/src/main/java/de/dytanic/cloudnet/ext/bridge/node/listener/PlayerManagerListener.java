@@ -122,6 +122,8 @@ public final class PlayerManagerListener {
           .callEvent(new BridgeDeleteCloudOfflinePlayerEvent(cloudOfflinePlayer));
       }
       break;
+      default:
+        break;
     }
   }
 
@@ -227,6 +229,8 @@ public final class PlayerManagerListener {
         event.createBinaryResponse().writeObjectCollection(this.nodePlayerManager.getRegisteredPlayers());
       }
       break;
+      default:
+        break;
     }
   }
 }

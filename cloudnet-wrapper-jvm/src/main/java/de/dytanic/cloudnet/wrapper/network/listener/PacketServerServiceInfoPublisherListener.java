@@ -61,6 +61,8 @@ public final class PacketServerServiceInfoPublisherListener implements IPacketLi
       case STOPPED:
         this.invoke0(new CloudServiceStopEvent(serviceInfoSnapshot));
         break;
+      default:
+        break;
     }
   }
 

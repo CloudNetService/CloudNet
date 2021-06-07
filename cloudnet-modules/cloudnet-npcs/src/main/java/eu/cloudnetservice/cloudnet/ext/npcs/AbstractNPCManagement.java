@@ -102,6 +102,8 @@ public abstract class AbstractNPCManagement extends ServiceInfoStateWatcher {
           }
         }
         break;
+        default:
+          break;
       }
 
     }

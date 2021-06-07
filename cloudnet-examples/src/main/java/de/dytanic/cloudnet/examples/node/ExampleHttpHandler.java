@@ -24,8 +24,9 @@ import de.dytanic.cloudnet.driver.network.http.MethodHttpHandlerAdapter;
 public final class ExampleHttpHandler {
 
   public void registerHttpHandlerExample() {
+    // register a default http handler, which receives all http message on the following path
     CloudNet.getInstance().getHttpServer()
-      .registerHandler( //register a default http handler, which receives all http message on the following path
+      .registerHandler(
         "/helloworld",
         (path, context) -> {
           context
@@ -40,7 +41,8 @@ public final class ExampleHttpHandler {
         })
     ;
 
-    CloudNet.getInstance().getHttpServer().registerHandler( //Register for the http get specific an http handler
+    // Register for the http get specific an http handler
+    CloudNet.getInstance().getHttpServer().registerHandler(
       "/your_name/{name}", //Http
       new MethodHttpHandlerAdapter() {
 
@@ -51,7 +53,7 @@ public final class ExampleHttpHandler {
             .statusCode(HttpResponseCode.HTTP_OK)
             .header("Content-Type", "text/plain")
             .body("Your name is " + context.request().pathParameters()
-              .containsKey("name")) //get the following path parameter "name"
+              .containsKey("name")) // get the following path parameter "name"
             .context()
             .closeAfter(true)
             .cancelNext()

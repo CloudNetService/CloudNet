@@ -16,7 +16,6 @@
 
 package de.dytanic.cloudnet.wrapper.conf;
 
-import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
@@ -36,11 +35,8 @@ public final class DocumentWrapperConfiguration implements IWrapperConfiguration
   private static final Path WRAPPER_CONFIG = Paths
     .get(System.getProperty("cloudnet.wrapper.config.path", ".wrapper/wrapper.json"));
 
-  private static final Type
-    SERVICE_CFG_TYPE = new TypeToken<ServiceConfiguration>() {
-  }.getType(),
-    SERVICE_INFO_TYPE = new TypeToken<ServiceInfoSnapshot>() {
-    }.getType();
+  private static final Type SERVICE_CFG_TYPE = ServiceConfiguration.class;
+  private static final Type SERVICE_INFO_TYPE = ServiceInfoSnapshot.class;
 
   private String connectionKey;
 

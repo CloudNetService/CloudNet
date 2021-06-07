@@ -94,7 +94,8 @@ public final class SyncProxyConfigurationWriterAndReader {
       targetGroup,
       Collections.singletonList(
         new SyncProxyTabList(
-          " \n &b&o■ &8┃ &3&lCloudNet &8● &7Earthquake &8&l» &7&o%online_players%&8/&7&o%max_players% &8┃ &b&o■ \n &8► &7Current server &8● &b%server% &8◄ \n ",
+          " \n &b&o■ &8┃ &3&lCloudNet &8● &7Earthquake &8&l» &7&o%online_players%&8/&7&o%max_players% &8┃ &b&o■ "
+            + "\n &8► &7Current server &8● &b%server% &8◄ \n ",
           " \n &7Discord &8&l» &bdiscord.cloudnetservice.eu \n &7&onext &3&l&ogeneration &7&onetwork \n "
         )
       ),

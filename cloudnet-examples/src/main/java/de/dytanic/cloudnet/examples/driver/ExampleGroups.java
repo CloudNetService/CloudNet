@@ -37,7 +37,8 @@ public final class ExampleGroups {
     if (CloudNetDriver.getInstance().getGroupConfigurationProvider().isGroupConfigurationPresent("TestGroup")) {
       CloudNetDriver.getInstance().getGroupConfigurationProvider().getGroupConfigurationAsync("TestGroup")
         .onComplete(result -> {
-          result.getTemplates().add(new ServiceTemplate( //add a new ServiceTemplate to the group
+          // add a new ServiceTemplate to the group
+          result.getTemplates().add(new ServiceTemplate(
             "Lobby",
             "default",
             "local"

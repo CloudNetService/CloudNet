@@ -37,12 +37,6 @@ public interface ITaskListener<T> {
     }
   };
 
-  /**
-   * Will fired if the operation was completed
-   *
-   * @param task
-   * @param t
-   */
   default void onComplete(ITask<T> task, T t) {
   }
 

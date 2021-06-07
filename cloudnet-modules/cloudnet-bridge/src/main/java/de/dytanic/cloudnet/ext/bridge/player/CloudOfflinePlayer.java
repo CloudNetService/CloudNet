@@ -36,9 +36,11 @@ public class CloudOfflinePlayer extends SerializableJsonDocPropertyable implemen
 
   protected UUID uniqueId;
 
-  protected String name, xBoxId;
+  protected String name;
+  protected String xBoxId;
 
-  protected long firstLoginTimeMillis, lastLoginTimeMillis;
+  protected long firstLoginTimeMillis;
+  protected long lastLoginTimeMillis;
 
   protected NetworkConnectionInfo lastNetworkConnectionInfo;
 

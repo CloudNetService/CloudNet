@@ -23,7 +23,10 @@ import lombok.ToString;
 @EqualsAndHashCode
 public class HttpCookie {
 
-  protected String name, value, domain, path;
+  protected String name;
+  protected String value;
+  protected String domain;
+  protected String path;
 
   protected long maxAge;
 

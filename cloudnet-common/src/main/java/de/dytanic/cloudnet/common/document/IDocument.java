@@ -29,16 +29,16 @@ import java.util.Properties;
  * A document is a wrapper to persistence data or read data in the heap or easy into the following implementation format
  * of this interface.
  */
-public interface IDocument<Document extends IDocument<?>> extends IJsonDocPropertyable, Serializable, IPersistable,
+public interface IDocument<R extends IDocument<?>> extends IJsonDocPropertyable, Serializable, IPersistable,
   IReadable, Iterable<String> {
 
   Collection<String> keys();
 
   int size();
 
-  Document clear();
+  R clear();
 
-  Document remove(String key);
+  R remove(String key);
 
   boolean contains(String key);
 
@@ -47,31 +47,31 @@ public interface IDocument<Document extends IDocument<?>> extends IJsonDocProper
   <T> T toInstanceOf(Type clazz);
 
 
-  Document append(String key, Object value);
+  R append(String key, Object value);
 
-  Document append(String key, Number value);
+  R append(String key, Number value);
 
-  Document append(String key, Boolean value);
+  R append(String key, Boolean value);
 
-  Document append(String key, String value);
+  R append(String key, String value);
 
-  Document append(String key, Character value);
+  R append(String key, Character value);
 
-  Document append(String key, Document value);
+  R append(String key, R value);
 
-  Document append(Properties properties);
+  R append(Properties properties);
 
-  Document append(Map<String, Object> map);
+  R append(Map<String, Object> map);
 
-  Document append(String key, Properties properties);
+  R append(String key, Properties properties);
 
-  Document append(String key, byte[] bytes);
+  R append(String key, byte[] bytes);
 
-  Document append(Document t);
+  R append(R t);
 
-  Document appendNull(String key);
+  R appendNull(String key);
 
-  Document getDocument(String key);
+  R getDocument(String key);
 
   int getInt(String key);
 

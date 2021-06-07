@@ -55,9 +55,9 @@ import javax.management.MBeanServer;
 
 public final class CommandReport extends SubCommandHandler {
 
-  private static final DateFormat
-    DATE_FORMAT = new SimpleDateFormat("dd-MM-yyyy_HH-mm-ss"),
-    LOG_FORMAT = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss.SSS");
+  private static final DateFormat DATE_FORMAT = new SimpleDateFormat("dd-MM-yyyy_HH-mm-ss");
+  private static final DateFormat LOG_FORMAT = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss.SSS");
+
   private final Gson gson = new GsonBuilder()
     .registerTypeAdapterFactory(TypeAdapters.newFactory(JsonDocument.class, new JsonDocumentTypeAdapter()))
     .setPrettyPrinting()

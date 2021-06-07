@@ -144,8 +144,7 @@ public final class CommandBridge extends SubCommandHandler {
       })
 
       .generateCommand(
-        (subCommand, sender, command, args, commandLine, properties, internalProperties) ->
-        {
+        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
           ServiceTask serviceTask = CloudNetDriver.getInstance().getServiceTaskProvider()
             .getServiceTask(args.argument(1).toString());
           if (serviceTask == null || !serviceTask.getProcessConfiguration().getEnvironment().isMinecraftServer()) {

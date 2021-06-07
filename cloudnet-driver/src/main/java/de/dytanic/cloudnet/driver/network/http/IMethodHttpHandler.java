@@ -48,6 +48,8 @@ public interface IMethodHttpHandler extends IHttpHandler {
       case "CONNECT":
         this.handleConnect(path, context);
         break;
+      default:
+        break;
     }
   }
 

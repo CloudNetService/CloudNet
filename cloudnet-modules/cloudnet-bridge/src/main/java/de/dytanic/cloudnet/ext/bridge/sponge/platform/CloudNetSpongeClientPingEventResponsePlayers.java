@@ -28,8 +28,10 @@ class CloudNetSpongeClientPingEventResponsePlayers implements ClientPingServerEv
 
   private final List<GameProfile> gameProfiles = new ArrayList<>(
     Sponge.getServer().getGameProfileManager().getCache().getProfiles());
+
   private int online;
   private int max;
+
   private CloudNetSpongeClientPingEventResponsePlayers(int online, int max) {
     this.online = online;
     this.max = max;

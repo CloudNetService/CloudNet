@@ -28,7 +28,8 @@ import org.jetbrains.annotations.NotNull;
  */
 public final class InternalPrintStreamLogHandler extends AbstractLogHandler {
 
-  private final PrintStream outputStream, errorStream;
+  private final PrintStream outputStream;
+  private final PrintStream errorStream;
 
   public InternalPrintStreamLogHandler(PrintStream outputStream, PrintStream errorStream) {
     this.outputStream = outputStream;

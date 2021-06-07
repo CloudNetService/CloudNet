@@ -27,7 +27,8 @@ public final class BungeeCloudNetPlayerInfo {
 
   private UUID uniqueId;
 
-  private String name, server;
+  private String name;
+  private String server;
 
   private int ping;
 

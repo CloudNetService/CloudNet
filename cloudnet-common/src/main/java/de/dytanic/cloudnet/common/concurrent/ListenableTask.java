@@ -31,8 +31,10 @@ public class ListenableTask<V> implements ITask<V> {
 
   private final Callable<V> callable;
   private Collection<ITaskListener<V>> listeners;
+
   private volatile V value;
-  private volatile boolean done, cancelled;
+  private volatile boolean done;
+  private volatile boolean cancelled;
   private volatile Throwable throwable;
 
   public ListenableTask(Callable<V> callable) {

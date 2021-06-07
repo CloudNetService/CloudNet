@@ -42,8 +42,7 @@ public final class BukkitPluginExample extends JavaPlugin {
   }
 
   @Override
-  public void onDisable() //Important! Remove all your own registered listeners or registry items
-  {
+  public void onDisable() { // Important! Remove all your own registered listeners or registry items
     CloudNetDriver.getInstance().getEventManager()
       .unregisterListeners(this.getClassLoader()); //Removes all Event listeners from this plugin
     Wrapper.getInstance().getServicesRegistry()

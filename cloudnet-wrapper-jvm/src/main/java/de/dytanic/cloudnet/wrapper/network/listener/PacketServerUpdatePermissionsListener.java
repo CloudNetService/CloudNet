@@ -72,6 +72,8 @@ public final class PacketServerUpdatePermissionsListener implements IPacketListe
         this.invoke0(new PermissionUpdateGroupEvent(CloudNetDriver.getInstance().getPermissionManagement(),
           packet.getBuffer().readObject(PermissionGroup.class)));
         break;
+      default:
+        break;
     }
   }
 

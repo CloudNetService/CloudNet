@@ -33,7 +33,7 @@ import org.jetbrains.annotations.ApiStatus;
 @ApiStatus.Internal
 public final class InternalSyncPacketChannel {
 
-  private final static Map<UUID, SynchronizedCallback> WAITING_PACKETS = new ConcurrentHashMap<>();
+  private static final Map<UUID, SynchronizedCallback> WAITING_PACKETS = new ConcurrentHashMap<>();
 
   private InternalSyncPacketChannel() {
     throw new UnsupportedOperationException();

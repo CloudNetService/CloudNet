@@ -31,19 +31,16 @@ import org.jetbrains.annotations.Nullable;
 public class ServiceTask extends ServiceConfigurationBase implements INameable, SerializableObject {
 
   private String name;
-
   private String runtime;
-
   private String javaCommand;
 
   private boolean disableIpRewrite;
-
-  private boolean maintenance, autoDeleteOnStop, staticServices;
+  private boolean maintenance;
+  private boolean autoDeleteOnStop;
+  private boolean staticServices;
 
   private Collection<String> associatedNodes = new ArrayList<>();
-
   private Collection<String> groups = new ArrayList<>();
-
   private Collection<String> deletedFilesAfterStop = new ArrayList<>();
 
   private ProcessConfiguration processConfiguration;

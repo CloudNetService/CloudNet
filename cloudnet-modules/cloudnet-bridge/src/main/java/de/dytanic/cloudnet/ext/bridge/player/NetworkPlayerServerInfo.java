@@ -36,9 +36,12 @@ public final class NetworkPlayerServerInfo implements SerializableObject {
 
   protected UUID uniqueId;
 
-  protected String name, xBoxId;
+  protected String name;
+  protected String xBoxId;
 
-  protected double health, maxHealth, saturation;
+  protected double health;
+  protected double maxHealth;
+  protected double saturation;
 
   protected int level;
 
@@ -172,5 +175,4 @@ public final class NetworkPlayerServerInfo implements SerializableObject {
     this.address = buffer.readObject(HostAndPort.class);
     this.networkService = buffer.readObject(NetworkServiceInfo.class);
   }
-
 }

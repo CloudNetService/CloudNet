@@ -29,11 +29,18 @@ public class SignConfigurationEntry {
 
   protected String targetGroup;
   protected boolean switchToSearchingWhenServiceIsFull;
+
   protected double knockbackDistance = 1.0;
   protected double knockbackStrength = 0.8;
+
+  protected SignLayout defaultOnlineLayout;
+  protected SignLayout defaultEmptyLayout;
+  protected SignLayout defaultFullLayout;
+
+  protected SignLayoutConfiguration startingLayouts;
+  protected SignLayoutConfiguration searchLayouts;
+
   protected Collection<SignConfigurationTaskEntry> taskLayouts;
-  protected SignLayout defaultOnlineLayout, defaultEmptyLayout, defaultFullLayout;
-  protected SignLayoutConfiguration startingLayouts, searchLayouts;
 
   public SignConfigurationEntry(String targetGroup, boolean switchToSearchingWhenServiceIsFull,
     Collection<SignConfigurationTaskEntry> taskLayouts, SignLayout defaultOnlineLayout, SignLayout defaultEmptyLayout,

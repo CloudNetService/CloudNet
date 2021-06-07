@@ -134,6 +134,8 @@ public final class V1HttpHandlerServices extends V1HttpHandler {
             ;
           }
           break;
+          default:
+            break;
         }
       } else {
         context

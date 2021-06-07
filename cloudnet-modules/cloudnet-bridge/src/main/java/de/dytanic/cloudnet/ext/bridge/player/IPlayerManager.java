@@ -320,16 +320,14 @@ public interface IPlayerManager {
   ITask<List<? extends ICloudOfflinePlayer>> getRegisteredPlayersAsync();
 
   /**
-   * Updates the given player to the database of the cloud and calls the {@link de.dytanic.cloudnet.ext.bridge.event.BridgeUpdateCloudOfflinePlayerEvent}
-   * on the whole network.
+   * Updates the given player to the database of the cloud and calls an update event on the whole network.
    *
    * @param cloudOfflinePlayer the player to be updated
    */
   void updateOfflinePlayer(@NotNull ICloudOfflinePlayer cloudOfflinePlayer);
 
   /**
-   * Updates the given player to the database of the cloud and calls the {@link de.dytanic.cloudnet.ext.bridge.event.BridgeUpdateCloudPlayerEvent}
-   * on the whole network.
+   * Updates the given player to the database of the cloud and calls the player update event.
    *
    * @param cloudPlayer the player to be updated
    */

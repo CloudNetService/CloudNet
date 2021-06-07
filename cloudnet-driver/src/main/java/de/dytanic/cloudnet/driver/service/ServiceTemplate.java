@@ -38,7 +38,10 @@ public class ServiceTemplate implements INameable, SerializableObject {
 
   public static final String LOCAL_STORAGE = "local";
 
-  private String prefix, name, storage;
+  private String prefix;
+  private String name;
+  private String storage;
+
   private boolean alwaysCopyToStaticServices;
 
   public ServiceTemplate(String prefix, String name, String storage) {

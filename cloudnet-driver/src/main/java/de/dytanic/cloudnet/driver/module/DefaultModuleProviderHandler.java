@@ -112,8 +112,8 @@ public class DefaultModuleProviderHandler implements IModuleProviderHandler {
     this.getLogger().extended(this.replaceAll(LanguageManager.getMessage("cloudnet-pre-install-dependency-module")
         .replace("%group%", dependency.getGroup())
         .replace("%name%", dependency.getName())
-        .replace("%version%", dependency.getVersion())
-      , this.getModuleProvider(), moduleWrapper));
+        .replace("%version%", dependency.getVersion()),
+      this.getModuleProvider(), moduleWrapper));
   }
 
   @Override
@@ -122,8 +122,8 @@ public class DefaultModuleProviderHandler implements IModuleProviderHandler {
     this.getLogger().extended(this.replaceAll(LanguageManager.getMessage("cloudnet-post-install-dependency-module")
         .replace("%group%", dependency.getGroup())
         .replace("%name%", dependency.getName())
-        .replace("%version%", dependency.getVersion())
-      , this.getModuleProvider(), moduleWrapper));
+        .replace("%version%", dependency.getVersion()),
+      this.getModuleProvider(), moduleWrapper));
   }
 
   protected ILogger getLogger() {

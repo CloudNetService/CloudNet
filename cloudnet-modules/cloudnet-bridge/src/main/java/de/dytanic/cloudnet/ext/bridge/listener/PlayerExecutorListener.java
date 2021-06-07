@@ -30,7 +30,7 @@ import java.util.function.Predicate;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public abstract class PlayerExecutorListener<Player> {
+public abstract class PlayerExecutorListener<P> {
 
   @EventListener
   public void handleChannelMessage(ChannelMessageReceiveEvent event) {
@@ -48,11 +48,11 @@ public abstract class PlayerExecutorListener<Player> {
 
     UUID uniqueId = event.getBuffer().readUUID();
 
-    Collection<Player> players;
+    Collection<P> players;
     if (uniqueId.getLeastSignificantBits() == 0 && uniqueId.getMostSignificantBits() == 0) {
       players = this.getOnlinePlayers();
     } else {
-      Player player = this.getPlayer(uniqueId);
+      P player = this.getPlayer(uniqueId);
       if (player == null) {
         return;
       }
@@ -63,7 +63,7 @@ public abstract class PlayerExecutorListener<Player> {
       case "connect_server": {
         String service = event.getBuffer().readString();
 
-        for (Player player : players) {
+        for (P player : players) {
           this.connect(player, service);
         }
       }
@@ -77,7 +77,7 @@ public abstract class PlayerExecutorListener<Player> {
       break;
 
       case "connect_fallback": {
-        for (Player player : players) {
+        for (P player : players) {
           this.connectToFallback(player);
         }
       }
@@ -104,7 +104,7 @@ public abstract class PlayerExecutorListener<Player> {
       case "kick": {
         String reason = event.getBuffer().readString();
 
-        for (Player player : players) {
+        for (P player : players) {
           this.kick(player, reason.replace('&', '§'));
         }
       }
@@ -113,7 +113,7 @@ public abstract class PlayerExecutorListener<Player> {
       case "send_message": {
         String message = event.getBuffer().readString();
 
-        for (Player player : players) {
+        for (P player : players) {
           this.sendMessage(player, message);
         }
       }
@@ -121,7 +121,7 @@ public abstract class PlayerExecutorListener<Player> {
       case "send_message_component": {
         String data = event.getBuffer().readString();
 
-        for (Player player : players) {
+        for (P player : players) {
           this.sendMessageComponent(player, data);
         }
       }
@@ -131,7 +131,7 @@ public abstract class PlayerExecutorListener<Player> {
         String tag = event.getBuffer().readString();
         byte[] data = event.getBuffer().readArray();
 
-        for (Player player : players) {
+        for (P player : players) {
           this.sendPluginMessage(player, tag, data);
         }
       }
@@ -140,37 +140,40 @@ public abstract class PlayerExecutorListener<Player> {
       case "dispatch_proxy_command": {
         String command = event.getBuffer().readString();
 
-        for (Player player : players) {
+        for (P player : players) {
           this.dispatchCommand(player, command);
         }
       }
+      break;
 
+      default:
+        break;
     }
   }
 
   @Nullable
-  protected abstract Player getPlayer(@NotNull UUID uniqueId);
+  protected abstract P getPlayer(@NotNull UUID uniqueId);
 
   @NotNull
-  protected abstract Collection<Player> getOnlinePlayers();
+  protected abstract Collection<P> getOnlinePlayers();
 
-  protected abstract void connect(@NotNull Player player, @NotNull String service);
+  protected abstract void connect(@NotNull P player, @NotNull String service);
 
-  protected abstract void kick(@NotNull Player player, @NotNull String reason);
+  protected abstract void kick(@NotNull P player, @NotNull String reason);
 
-  protected abstract void sendMessage(@NotNull Player player, @NotNull String message);
+  protected abstract void sendMessage(@NotNull P player, @NotNull String message);
 
-  protected abstract void sendMessageComponent(@NotNull Player player, @NotNull String data);
+  protected abstract void sendMessageComponent(@NotNull P player, @NotNull String data);
 
-  protected abstract void sendPluginMessage(@NotNull Player player, @NotNull String tag, @NotNull byte[] data);
+  protected abstract void sendPluginMessage(@NotNull P player, @NotNull String tag, @NotNull byte[] data);
 
   protected abstract void broadcastMessageComponent(@NotNull String data, @Nullable String permission);
 
   protected abstract void broadcastMessage(@NotNull String message, @Nullable String permission);
 
-  protected abstract void connectToFallback(@NotNull Player player);
+  protected abstract void connectToFallback(@NotNull P player);
 
-  protected abstract void dispatchCommand(@NotNull Player player, @NotNull String command);
+  protected abstract void dispatchCommand(@NotNull P player, @NotNull String command);
 
   protected Optional<ServiceInfoSnapshot> findService(@NotNull Predicate<ServiceInfoSnapshot> filter,
     @NotNull ServerSelectorType selectorType) {
@@ -179,10 +182,10 @@ public abstract class PlayerExecutorListener<Player> {
       .min(selectorType.getComparator());
   }
 
-  protected void connect(@NotNull Collection<Player> players, @NotNull Predicate<ServiceInfoSnapshot> filter,
+  protected void connect(@NotNull Collection<P> players, @NotNull Predicate<ServiceInfoSnapshot> filter,
     @NotNull ServerSelectorType selectorType) {
     this.findService(filter, selectorType).map(ServiceInfoSnapshot::getName).ifPresent(service -> {
-      for (Player player : players) {
+      for (P player : players) {
         this.connect(player, service);
       }
     });

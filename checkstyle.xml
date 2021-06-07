@@ -36,6 +36,11 @@
     <property name="ignorePattern" value="^package.*|^import.*|a href|http://|https://|ftp://|//.*"/>
   </module>
   <module name="TreeWalker">
+    <module name="SuppressionCommentFilter">
+      <property name="offCommentFormat" value="CHECKSTYLE.OFF\: ([\w\|]+)"/>
+      <property name="onCommentFormat" value="CHECKSTYLE.ON"/>
+      <property name="checkFormat" value="$1"/>
+    </module>
     <module name="OuterTypeFilename"/>
     <module name="IllegalTokenText">
       <property name="tokens" value="STRING_LITERAL, CHAR_LITERAL"/>
@@ -171,12 +176,12 @@
     <module name="MemberName">
       <message key="name.invalidPattern"
         value="Member name ''{0}'' must match pattern ''{1}''."/>
-      <property name="format" value="^[a-z][a-z0-9][a-zA-Z0-9]*$"/>
+      <property name="format" value="^[a-z]([a-zA-Z0-9]*)*$"/>
     </module>
     <module name="ParameterName">
       <message key="name.invalidPattern"
         value="Parameter name ''{0}'' must match pattern ''{1}''."/>
-      <property name="format" value="^[a-z]([a-z0-9][a-zA-Z0-9]*)?$"/>
+      <property name="format" value="^[a-z]([a-zA-Z0-9]*)*$"/>
     </module>
     <module name="LambdaParameterName">
       <message key="name.invalidPattern"

@@ -26,7 +26,8 @@ import org.jetbrains.annotations.NotNull;
 @EqualsAndHashCode
 public class ModuleRepository implements SerializableObject {
 
-  private String name, url;
+  private String name;
+  private String url;
 
   public ModuleRepository(String name, String url) {
     this.name = name;

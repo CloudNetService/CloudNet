@@ -41,7 +41,8 @@ import org.jetbrains.annotations.ApiStatus;
 @ApiStatus.ScheduledForRemoval
 public final class CloudflareAPI implements AutoCloseable {
 
-  private static final String CLOUDFLARE_API_V1 = "https://api.cloudflare.com/client/v4/", CLOUDFLARE_STORE_DOCUMENT = "cloudflare_store";
+  private static final String CLOUDFLARE_API_V1 = "https://api.cloudflare.com/client/v4/";
+  private static final String CLOUDFLARE_STORE_DOCUMENT = "cloudflare_store";
 
   private static final Type MAP_STRING_DOCUMENT = new TypeToken<Map<String, Pair<String, JsonDocument>>>() {
   }.getType();

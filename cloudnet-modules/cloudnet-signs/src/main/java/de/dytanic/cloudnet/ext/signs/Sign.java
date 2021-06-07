@@ -32,7 +32,9 @@ public class Sign implements Comparable<Sign> {
 
   protected long signId;
 
-  protected String providedGroup, targetGroup, templatePath;
+  protected String providedGroup;
+  protected String targetGroup;
+  protected String templatePath;
 
   @EqualsAndHashCode.Include
   protected WorldPosition worldPosition;

@@ -41,8 +41,7 @@ public final class UpdateNameTagsExample {
   }
 
   @EventListener(priority = EventPriority.LOWEST)
-  public void handle(PermissionUpdateUserEvent event) //Live update of permission users
-  {
+  public void handle(PermissionUpdateUserEvent event) { //Live update of permission users
     Player player = Bukkit.getPlayer(event.getPermissionUser().getUniqueId());
 
     if (player != null) {
