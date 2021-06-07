@@ -30,7 +30,9 @@ public final class H2DatabaseProviderTest implements IDatabaseHandler {
 
   protected String resultString;
 
-  protected boolean value, geh, cleared;
+  protected boolean value;
+  protected boolean geh;
+  protected boolean cleared;
 
   @Test
   public void testDatabaseProvider() throws Exception {
