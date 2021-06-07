@@ -33,7 +33,7 @@ jobs:
           mkdir -p temp/;
           cp -r .template/* temp/;
 
-          cp license.txt temp/license.txt;
+          cp LICENSE temp/license.txt;
 
           mkdir temp/dev;
           mkdir temp/dev/examples;

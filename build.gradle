@@ -206,7 +206,7 @@ subprojects {
 
   license {
     include '**/*.java'
-    header = project.rootProject.file('license_header.txt')
+    header = project.rootProject.file('LICENSE_HEADER')
   }
 
   checkstyle {
@@ -230,7 +230,7 @@ subprojects {
   }
 
   jar {
-    from rootProject.file('license.txt')
+    from rootProject.file('LICENSE')
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
   }
 

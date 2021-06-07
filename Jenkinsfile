@@ -78,7 +78,7 @@ pipeline {
         sh 'mkdir -p temp'
         sh 'cp -r .template/* temp/'
 
-        sh 'cp license.txt temp/license.txt'
+        sh 'cp LICENSE temp/license.txt'
 
         sh 'mkdir temp/dev'
         sh 'mkdir temp/dev/examples'
