@@ -34,9 +34,8 @@ import org.junit.Test;
 
 public class NettyNetworkQueryTest {
 
-  private boolean
-    connectedClient = false,
-    connectedServer = false;
+  private boolean connectedClient = false;
+  private boolean connectedServer = false;
 
   @Test
   public void testNettyConnectorServer() throws Throwable {

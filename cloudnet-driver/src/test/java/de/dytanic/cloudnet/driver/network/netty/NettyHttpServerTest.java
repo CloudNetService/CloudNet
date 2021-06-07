@@ -29,7 +29,9 @@ import org.junit.Test;
 
 public class NettyHttpServerTest {
 
-  private static final String TEST_STRING = "Response Text", TEST_STRING_2 = "Bernd", TEST_STRING_2_MESSAGE = "Eine Test Nachricht";
+  private static final String TEST_STRING = "Response Text";
+  private static final String TEST_STRING_2 = "Bernd";
+  private static final String TEST_STRING_2_MESSAGE = "Eine Test Nachricht";
 
   @Test
   public void testHttpServerWithParameters() throws Exception {

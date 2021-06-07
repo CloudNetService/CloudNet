@@ -23,7 +23,8 @@ public class CPUUsageResolverTest {
 
   @Test
   public void testCPUUsageResolver() {
-    double value = CPUUsageResolver.getProcessCPUUsage(), system = CPUUsageResolver.getSystemCPUUsage();
+    double value = CPUUsageResolver.getProcessCPUUsage();
+    double system = CPUUsageResolver.getSystemCPUUsage();
 
     Assert.assertTrue(value <= 100D);
     Assert.assertTrue(system <= 100D);

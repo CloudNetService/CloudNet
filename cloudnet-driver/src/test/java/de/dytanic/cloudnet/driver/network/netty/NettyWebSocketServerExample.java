@@ -55,11 +55,10 @@ import org.junit.Test;
 
 public final class NettyWebSocketServerExample {
 
-  private static final String
-    PING_STRING = "ping value",
-    PONG_STRING = "pong value",
-    TEXT_STRING = "text value",
-    BINARY_STRING = "binary value";
+  private static final String PING_STRING = "ping value";
+  private static final String PONG_STRING = "pong value";
+  private static final String TEXT_STRING = "text value";
+  private static final String BINARY_STRING = "binary value";
 
   private static final ITask<String> task = new ListenableTask<>(() -> "Async_response_message");
 
@@ -85,6 +84,8 @@ public final class NettyWebSocketServerExample {
             break;
           case CLOSE:
             channel1.close();
+            break;
+          default:
             break;
         }
       });

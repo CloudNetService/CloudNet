@@ -32,13 +32,11 @@ import org.junit.Test;
 
 public class NettyNetworkClientServerTest {
 
-  private boolean
-    connectedClient = false,
-    connectedServer = false;
+  private boolean connectedClient = false;
+  private boolean connectedServer = false;
 
-  private volatile String
-    cliPacketServerReceive = null,
-    cliPacketClientReceive = null;
+  private volatile String cliPacketServerReceive = null;
+  private volatile String cliPacketClientReceive = null;
 
   @Test
   public void testNettyConnectorServer() throws Throwable {
