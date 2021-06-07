@@ -71,7 +71,6 @@ public abstract class SQLDatabase implements IDatabase {
         return this.insertOrUpdate(key, document);
     }
 
-    @Deprecated
     public boolean insert0(String key, JsonDocument document) {
         Preconditions.checkNotNull(key);
         Preconditions.checkNotNull(document);
@@ -94,7 +93,6 @@ public abstract class SQLDatabase implements IDatabase {
         return this.insertOrUpdate(key, document);
     }
 
-    @Deprecated
     public boolean update0(String key, JsonDocument document) {
         return this.databaseProvider.executeUpdate(
                 "UPDATE `" + this.name + "` SET " + TABLE_COLUMN_VALUE + "=? WHERE " + TABLE_COLUMN_KEY + "=?",
@@ -106,11 +104,7 @@ public abstract class SQLDatabase implements IDatabase {
         Preconditions.checkNotNull(key);
         Preconditions.checkNotNull(document);
 
-        return this.databaseProvider.executeUpdate(String.format(
-                "INSERT INTO `%s` (%s, %s) VALUES (?, ?) ON DUPLICATE KEY UPDATE %s = VALUES(%s);",
-                this.name, TABLE_COLUMN_KEY, TABLE_COLUMN_VALUE, TABLE_COLUMN_VALUE, TABLE_COLUMN_VALUE
-                ), key, document.toString()
-        ) != -1;
+        return this.contains(key) ? this.update0(key, document) : this.insert0(key, document);
     }
 
     @Override
