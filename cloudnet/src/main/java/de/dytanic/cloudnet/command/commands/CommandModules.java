@@ -35,15 +35,6 @@ public final class CommandModules extends CommandDefault implements ITabComplete
     super("modules", "module");
   }
 
-  /**
-   * An unsafe implementation for managing the module system Use the "reload" for a save module reloading
-   *
-   * @param sender
-   * @param command
-   * @param args
-   * @param commandLine
-   * @param properties
-   */
   @Deprecated
   @Override
   public void execute(ICommandSender sender, String command, String[] args, String commandLine, Properties properties) {

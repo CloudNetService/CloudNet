@@ -95,9 +95,11 @@ public abstract class V1HttpHandler extends MethodHttpHandlerAdapter {
       .header("Access-Control-Allow-Origin", "*")
       .header("Access-Control-Allow-Credentials", "true")
       .header("Access-Control-Allow-Headers",
-        "Accept, Origin, if-none-match, Access-Control-Allow-Headers, Access-Control-Allow-Origin, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
+        "Accept, Origin, if-none-match, Access-Control-Allow-Headers, Access-Control-Allow-Origin, Content-Type, "
+          + "Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
       .header("Access-Control-Expose-Headers",
-        "Accept, Origin, if-none-match, Access-Control-Allow-Headers, Access-Control-Allow-Origin, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
+        "Accept, Origin, if-none-match, Access-Control-Allow-Headers, Access-Control-Allow-Origin, Content-Type, "
+          + "Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
       .header("Access-Control-Allow-Methods", allowedMethods)
       .header("Access-Control-Max-Age", "3600")
       .context()

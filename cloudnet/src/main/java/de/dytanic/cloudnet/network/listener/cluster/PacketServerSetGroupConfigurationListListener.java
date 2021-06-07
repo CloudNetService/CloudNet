@@ -64,6 +64,8 @@ public final class PacketServerSetGroupConfigurationListListener implements IPac
             provider.removeGroupConfigurationWithoutClusterSync(groupConfiguration.getName());
           }
           break;
+        default:
+          break;
       }
     }
   }

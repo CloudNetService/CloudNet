@@ -46,7 +46,8 @@ public interface IConsole extends AutoCloseable {
     return this.hasColorSupport();
   }
 
-  @NotNull @Unmodifiable List<String> getCommandHistory();
+  @Unmodifiable
+  @NotNull List<String> getCommandHistory();
 
   void setCommandHistory(@Nullable List<String> history);
 

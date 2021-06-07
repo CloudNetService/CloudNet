@@ -129,7 +129,7 @@ public abstract class ClusterSynchronizedPermissionManagement extends DefaultCac
         task.call();
         return;
       }
-      this.deleteGroupAsync(permissionGroup).onComplete(aVoid -> task.call());
+      this.deleteGroupAsync(permissionGroup).onComplete($ -> task.call());
     });
     return task;
   }

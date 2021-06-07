@@ -161,6 +161,8 @@ public final class PacketServerUpdatePermissionsListener implements IPacketListe
         }
       }
       break;
+      default:
+        break;
     }
 
     packet.getBuffer().resetReaderIndex();

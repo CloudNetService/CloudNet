@@ -63,6 +63,8 @@ public final class PacketServerSetServiceTaskListListener implements IPacketList
             provider.removeServiceTaskWithoutClusterSync(serviceTask.getName());
           }
           break;
+        default:
+          break;
       }
     }
   }

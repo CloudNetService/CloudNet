@@ -30,7 +30,8 @@ import lombok.ToString;
 @EqualsAndHashCode
 public final class JsonConfigurationRegistry implements IConfigurationRegistry {
 
-  private final int registryVersion = 1, lowestSupportedVersion = 1;
+  private final int registryVersion = 1;
+  private final int lowestSupportedVersion = 1;
 
   private final Path path;
 

@@ -163,6 +163,8 @@ public final class TemplateStorageUtil {
           }
         }
         break;
+        default:
+          break;
       }
       return true;
     } else {

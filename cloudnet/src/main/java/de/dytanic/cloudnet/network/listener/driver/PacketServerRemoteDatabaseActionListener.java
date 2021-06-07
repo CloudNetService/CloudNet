@@ -58,15 +58,16 @@ public class PacketServerRemoteDatabaseActionListener implements IPacketListener
             .sendPacket(Packet.createResponseFor(packet, ProtocolBuffer.create().writeStringCollection(databases)));
         }
         break;
+
+        default:
+          break;
       }
 
       return;
     }
 
     Database database = databaseProvider.getDatabase(buffer.readString());
-
     switch (requestType) {
-
       case DATABASE_KEYS: {
         Collection<String> keys = database.keys();
         channel.sendPacket(Packet.createResponseFor(packet, ProtocolBuffer.create().writeStringCollection(keys)));
@@ -167,7 +168,8 @@ public class PacketServerRemoteDatabaseActionListener implements IPacketListener
       }
       break;
 
+      default:
+        break;
     }
   }
-
 }

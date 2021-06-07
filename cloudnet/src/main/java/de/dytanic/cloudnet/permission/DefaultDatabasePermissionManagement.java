@@ -229,7 +229,7 @@ public class DefaultDatabasePermissionManagement extends ClusterSynchronizedPerm
       this.testPermissionUser(permissionUser);
 
       permissionUsers.add(permissionUser);
-    }).map(aVoid -> permissionUsers);
+    }).map($ -> permissionUsers);
   }
 
   @Override
@@ -237,7 +237,7 @@ public class DefaultDatabasePermissionManagement extends ClusterSynchronizedPerm
     Preconditions.checkNotNull(users);
 
     CompletableTask<Void> task = new NullCompletableTask<>();
-    this.getDatabase().clearAsync().onComplete(aVoid -> {
+    this.getDatabase().clearAsync().onComplete($ -> {
       CountDownLatch latch = new CountDownLatch(users.size());
 
       for (IPermissionUser permissionUser : users) {
@@ -245,7 +245,7 @@ public class DefaultDatabasePermissionManagement extends ClusterSynchronizedPerm
           this.getDatabase().insertAsync(permissionUser.getUniqueId().toString(), new JsonDocument(permissionUser))
             .onComplete(success -> latch.countDown())
             .onFailure(throwable -> latch.countDown())
-            .onCancelled(iTask -> latch.countDown());
+            .onCancelled($1 -> latch.countDown());
         }
       }
 
@@ -274,7 +274,7 @@ public class DefaultDatabasePermissionManagement extends ClusterSynchronizedPerm
       if (permissionUser.inGroup(group)) {
         permissionUsers.add(permissionUser);
       }
-    }).onComplete(aVoid -> {
+    }).onComplete($ -> {
       try {
         task.call();
       } catch (Exception exception) {
@@ -348,7 +348,7 @@ public class DefaultDatabasePermissionManagement extends ClusterSynchronizedPerm
     IPermissionGroup permissionGroup = this.permissionGroupCache.getIfPresent(name);
     if (permissionGroup != null && this.testPermissible(permissionGroup)) {
       ITask<IPermissionGroup> task = new ListenableTask<>(() -> permissionGroup);
-      this.updateGroupAsync(permissionGroup).onComplete(aVoid -> {
+      this.updateGroupAsync(permissionGroup).onComplete($ -> {
         try {
           task.call();
         } catch (Exception exception) {
@@ -381,9 +381,9 @@ public class DefaultDatabasePermissionManagement extends ClusterSynchronizedPerm
     for (IPermissionGroup permissionGroup : groups) {
       if (this.testPermissible(permissionGroup)) {
         this.updateGroupAsync(permissionGroup)
-          .onComplete(aVoid -> task.countDown())
-          .onCancelled(voidITask -> task.countDown())
-          .onFailure(throwable -> task.countDown());
+          .onComplete($ -> task.countDown())
+          .onCancelled($ -> task.countDown())
+          .onFailure($ -> task.countDown());
       } else {
         task.countDown();
       }

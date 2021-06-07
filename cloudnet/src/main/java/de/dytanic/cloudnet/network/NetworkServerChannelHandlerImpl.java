@@ -76,8 +76,8 @@ public final class NetworkServerChannelHandlerImpl implements INetworkChannelHan
         .replace("%clientAddress%", channel.getClientAddress().getHost() + ":" + channel.getClientAddress().getPort())
       ));
 
-    ICloudService cloudService = CloudNet.getInstance().getCloudServiceManager().getCloudService(iCloudService ->
-      iCloudService.getNetworkChannel() != null && iCloudService.getNetworkChannel().equals(channel));
+    ICloudService cloudService = CloudNet.getInstance().getCloudServiceManager().getCloudService(service ->
+      service.getNetworkChannel() != null && service.getNetworkChannel().equals(channel));
 
     if (cloudService != null) {
       this.closeAsCloudService(cloudService, channel);

@@ -157,6 +157,8 @@ public class LocalNodeSpecificCloudServiceProvider implements SpecificCloudServi
           return null;
         });
         break;
+      default:
+        break;
     }
   }
 

@@ -50,6 +50,8 @@ public final class PacketServerSetPermissionDataListener implements IPacketListe
             permissionManagement.deleteGroupWithoutClusterSyncAsync(permissionGroup);
           }
           break;
+        default:
+          break;
       }
     }
   }

@@ -230,6 +230,8 @@ public abstract class DefaultMinecraftCloudService extends DefaultTemplateCloudS
       case NUKKIT:
         commandArguments.add("disable-ansi");
         break;
+      default:
+        break;
     }
   }
 }

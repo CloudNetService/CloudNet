@@ -41,15 +41,11 @@ import java.util.UUID;
 
 public final class JsonConfiguration implements IConfiguration {
 
-  private static final Type
-    CLUSTER_NODE = new TypeToken<NetworkClusterNode>() {
-  }.getType(),
-    CLUSTER = new TypeToken<NetworkCluster>() {
-    }.getType(),
-    SET_STRING = new TypeToken<Set<String>>() {
-    }.getType(),
-    HOST_AND_PORT_COLLECTION = new TypeToken<Collection<HostAndPort>>() {
-    }.getType();
+  private static final Type CLUSTER = NetworkCluster.class;
+  private static final Type CLUSTER_NODE = NetworkClusterNode.class;
+  private static final Type SET_STRING = TypeToken.getParameterized(Set.class, String.class).getType();
+  private static final Type HOST_AND_PORT_COLLECTION = TypeToken.getParameterized(Collection.class, HostAndPort.class)
+    .getType();
 
   private static final Path CONFIG_FILE_PATH = Paths
     .get(System.getProperty("cloudnet.config.json.path", "config.json"));
@@ -57,31 +53,32 @@ public final class JsonConfiguration implements IConfiguration {
   private JsonDocument document;
 
   private NetworkClusterNode identity;
-
   private NetworkCluster clusterConfig;
 
   private Collection<String> ipWhitelist;
 
   private double maxCPUUsageToStartServices;
 
-  private boolean parallelServiceStartSequence, runBlockedServiceStartTryLaterAutomatic;
+  private boolean parallelServiceStartSequence;
+  private boolean runBlockedServiceStartTryLaterAutomatic;
 
-  private int maxMemory, maxServiceConsoleLogCacheSize;
+  private int maxMemory;
+  private int maxServiceConsoleLogCacheSize;
 
   private boolean printErrorStreamLinesFromServices;
 
   private DefaultJVMFlags defaultJVMFlags;
 
   private String hostAddress;
-
   private String connectHostAddress;
 
   private Collection<HostAndPort> httpListeners;
 
-  private ConfigurationOptionSSL clientSslConfig, serverSslConfig, webSslConfig;
+  private ConfigurationOptionSSL clientSslConfig;
+  private ConfigurationOptionSSL serverSslConfig;
+  private ConfigurationOptionSSL webSslConfig;
 
-  private String jVMCommand;
-
+  private String jvmCommand;
   private String defaultHostAddress;
 
   private int processTerminationTimeoutSeconds;
@@ -158,7 +155,7 @@ public final class JsonConfiguration implements IConfiguration {
     this.document.remove("defaultJVMOptionParameters");
     this.defaultJVMFlags = this.document.get("defaultJVMFlags", DefaultJVMFlags.class, DefaultJVMFlags.DYTANIC);
 
-    this.jVMCommand = this.document.getString("jvmCommand",
+    this.jvmCommand = this.document.getString("jvmCommand",
       System.getenv("CLOUDNET_RUNTIME_JVM_COMMAND") != null ?
         System.getenv("CLOUDNET_RUNTIME_JVM_COMMAND") :
         "java"
@@ -199,7 +196,7 @@ public final class JsonConfiguration implements IConfiguration {
       .append("identity", this.identity)
       .append("ipWhitelist", this.ipWhitelist)
       .append("maxMemory", this.maxMemory)
-      .append("jvmCommand", this.jVMCommand)
+      .append("jvmCommand", this.jvmCommand)
       .append("processTerminationTimeoutSeconds", this.processTerminationTimeoutSeconds)
       .append("maxServiceConsoleLogCacheSize", this.maxServiceConsoleLogCacheSize)
       .append("printErrorStreamLinesFromServices", this.printErrorStreamLinesFromServices)
@@ -372,7 +369,7 @@ public final class JsonConfiguration implements IConfiguration {
   }
 
   public String getJVMCommand() {
-    return this.jVMCommand;
+    return this.jvmCommand;
   }
 
   @Override

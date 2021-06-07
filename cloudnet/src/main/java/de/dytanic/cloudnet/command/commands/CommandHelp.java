@@ -70,8 +70,9 @@ public final class CommandHelp extends CommandDefault implements ITabCompleter {
           }
         }
         break;
+      default:
+        break;
     }
-
   }
 
   @Override

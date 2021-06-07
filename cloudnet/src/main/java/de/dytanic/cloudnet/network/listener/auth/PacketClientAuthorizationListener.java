@@ -144,6 +144,8 @@ public final class PacketClientAuthorizationListener implements IPacketListener 
             }
           }
           break;
+        default:
+          break;
       }
 
       channel.sendPacket(new PacketServerAuthorizationResponse(false, "access denied"));

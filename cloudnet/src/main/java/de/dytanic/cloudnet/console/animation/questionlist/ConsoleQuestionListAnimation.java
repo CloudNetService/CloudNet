@@ -251,7 +251,8 @@ public class ConsoleQuestionListAnimation extends AbstractConsoleAnimation {
 
       CloudNet.getInstance().getEventManager().callEvent(new SetupResponseEvent(this, entry, result));
 
-      super.getConsole().writeRaw( // print result message and remove question
+      // print result message and remove question
+      super.getConsole().writeRaw(
         this.eraseLines(Ansi.ansi().reset(), this.currentCursor + 1)
           .a("&r").a(entry.getQuestion())
           .a(" &r> &a").a(input)

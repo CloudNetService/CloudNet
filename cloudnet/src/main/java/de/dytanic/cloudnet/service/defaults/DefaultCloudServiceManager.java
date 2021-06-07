@@ -257,7 +257,7 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
     Preconditions.checkNotNull(taskName);
 
     return this.cloudServices.values().stream()
-      .filter(iCloudService -> iCloudService.getServiceId().getTaskName().equalsIgnoreCase(taskName))
+      .filter(service -> service.getServiceId().getTaskName().equalsIgnoreCase(taskName))
       .collect(Collectors.toList());
   }
 

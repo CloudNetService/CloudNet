@@ -33,7 +33,7 @@
   <module name="LineLength">
     <property name="fileExtensions" value="java"/>
     <property name="max" value="140"/>
-    <property name="ignorePattern" value="^package.*|^import.*|a href|href|http://|https://|ftp://"/>
+    <property name="ignorePattern" value="^package.*|^import.*|a href|http://|https://|ftp://|//.*"/>
   </module>
   <module name="TreeWalker">
     <module name="OuterTypeFilename"/>
@@ -181,7 +181,7 @@
     <module name="LambdaParameterName">
       <message key="name.invalidPattern"
         value="Lambda parameter name ''{0}'' must match pattern ''{1}''."/>
-      <property name="format" value="^[a-z]([a-z0-9][a-zA-Z0-9]*)?$"/>
+      <property name="format" value="^[$a-z]([a-z0-9][a-zA-Z0-9]*)?$"/>
     </module>
     <module name="CatchParameterName">
       <message key="name.invalidPattern"
@@ -272,7 +272,6 @@
     </module>
     <module name="NonEmptyAtclauseDescription"/>
     <module name="InvalidJavadocPosition"/>
-    <module name="JavadocTagContinuationIndentation"/>
     <module name="RequireEmptyLineBeforeBlockTagGroup"/>
     <module name="AtclauseOrder">
       <property name="tagOrder" value="@param, @return, @throws, @deprecated"/>
@@ -293,7 +292,7 @@
     </module>
     <module name="SingleLineJavadoc"/>
     <module name="EmptyCatchBlock">
-      <property name="exceptionVariableName" value="expected"/>
+      <property name="exceptionVariableName" value="ignored|expected"/>
     </module>
     <module name="CommentsIndentation">
       <property name="tokens" value="SINGLE_LINE_COMMENT, BLOCK_COMMENT_BEGIN"/>

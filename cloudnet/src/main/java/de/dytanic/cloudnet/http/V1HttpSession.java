@@ -68,7 +68,7 @@ public final class V1HttpSession {
 
     List<IPermissionUser> permissionUsers = CloudNet.getInstance().getPermissionManagement().getUsers(credentials[0]);
     IPermissionUser permissionUser = permissionUsers.stream()
-      .filter(iPermissionUser -> iPermissionUser.checkPassword(credentials[1])).findFirst().orElse(null);
+      .filter(user -> user.checkPassword(credentials[1])).findFirst().orElse(null);
 
     if (permissionUser == null) {
       return false;
@@ -182,7 +182,8 @@ public final class V1HttpSession {
   public static class SessionEntry {
 
     private final long creationTime;
-    private final String uniqueId, userUniqueId;
+    private final String uniqueId;
+    private final String userUniqueId;
     private long lastUsageMillis;
 
     public SessionEntry(long creationTime, long lastUsageMillis, String uniqueId, String userUniqueId) {

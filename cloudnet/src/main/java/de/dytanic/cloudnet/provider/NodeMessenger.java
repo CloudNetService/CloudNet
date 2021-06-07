@@ -126,6 +126,8 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
       case ALL: {
         return this.getAll(sender, serviceOnly);
       }
+      default:
+        break;
     }
     return null;
   }

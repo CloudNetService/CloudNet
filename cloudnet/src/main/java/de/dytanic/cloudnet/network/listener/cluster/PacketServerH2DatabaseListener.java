@@ -69,6 +69,8 @@ public final class PacketServerH2DatabaseListener implements IPacketListener {
             CloudNetDriver.getInstance().getEventManager().callEvent(new DatabaseClearEntriesEvent(database));
             database.clear0();
             break;
+          default:
+            break;
         }
       }
     }
