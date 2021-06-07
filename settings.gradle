@@ -1,5 +1,3 @@
-rootProject.name = 'cloudnet-root'
-
 /*
  * Copyright 2019-2021 CloudNetService team & contributors
  *
@@ -16,18 +14,25 @@ rootProject.name = 'cloudnet-root'
  * limitations under the License.
  */
 
+rootProject.name = 'cloudnet-root'
+
 // requires
 include 'cloudnet-common'
 include 'cloudnet-driver'
+
 // exports
-include 'cloudnet-wrapper-jvm'
 include 'cloudnet'
+include 'cloudnet-wrapper-jvm'
+// launch wrapper for forge compatibility
+include ':cloudnet-wrapper-jvm:minecraft-launchwrapper-api'
+findProject(':cloudnet-wrapper-jvm:minecraft-launchwrapper-api')?.name = 'minecraft-launchwrapper-api'
+
 // launcher
 include 'cloudnet-launcher'
 include 'cloudnet-modules'
 include 'cloudnet-plugins'
 
-// modules for cloudnet
+// modules
 include 'cloudnet-modules:cloudnet-signs'
 findProject(':cloudnet-modules:cloudnet-signs')?.name = 'cloudnet-signs'
 include 'cloudnet-modules:cloudnet-npcs'
@@ -50,15 +55,14 @@ include 'cloudnet-modules:cloudnet-database-mysql'
 findProject(':cloudnet-modules:cloudnet-database-mysql')?.name = 'cloudnet-database-mysql'
 include 'cloudnet-modules:cloudnet-cloudperms'
 findProject(':cloudnet-modules:cloudnet-cloudperms')?.name = 'cloudnet-cloudperms'
-//plugins
-include 'cloudnet-plugins:cloudnet-simplenametags'
-findProject(':cloudnet-plugins:cloudnet-simplenametags')?.name = 'cloudnet-simplenametags'
-include 'cloudnet-plugins:cloudnet-chat'
-findProject(':cloudnet-plugins:cloudnet-chat')?.name = 'cloudnet-chat'
-
-include 'cloudnet-examples'
 include 'cloudnet-modules:cloudnet-rest'
 findProject(':cloudnet-modules:cloudnet-rest')?.name = 'cloudnet-rest'
 
-include ':cloudnet-wrapper-jvm:minecraft-launchwrapper-api'
+// plugins
+include 'cloudnet-plugins:cloudnet-chat'
+findProject(':cloudnet-plugins:cloudnet-chat')?.name = 'cloudnet-chat'
+include 'cloudnet-plugins:cloudnet-simplenametags'
+findProject(':cloudnet-plugins:cloudnet-simplenametags')?.name = 'cloudnet-simplenametags'
 
+// examples
+include 'cloudnet-examples'
