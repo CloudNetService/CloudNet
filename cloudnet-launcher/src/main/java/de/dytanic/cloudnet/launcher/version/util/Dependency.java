@@ -25,7 +25,10 @@ import lombok.ToString;
 @EqualsAndHashCode
 public class Dependency {
 
-  private final String repository, group, name, version;
+  private final String repository;
+  private final String group;
+  private final String name;
+  private final String version;
 
   private String classifier;
 

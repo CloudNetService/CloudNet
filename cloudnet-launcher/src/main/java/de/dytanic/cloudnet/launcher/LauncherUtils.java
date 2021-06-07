@@ -55,15 +55,14 @@ public final class LauncherUtils {
     "driver.cnl"
   };
 
-  public static final String
-    CLOUDNET_SELECTED_VERSION = "cloudnet.launcher.select.version",
-    LAUNCHER_DEV_MODE = "cloudnet.launcher.dev-mode",
-    CLOUDNET_REPOSITORY = "cloudnet.repository",
-    CLOUDNET_REPOSITORY_GITHUB = "cloudnet.repository.github",
-    CLOUDNET_REPOSITORY_AUTO_UPDATE = "cloudnet.auto-update",
-    FALLBACK_VERSION = LauncherUtils.class.getPackage().getSpecificationVersion(),
-    CLOUDNET_SNAPSHOTS = "cloudnet.snapshots.use-snapshots",
-    CLOUDNET_SNAPSHOTS_JOB_URL = "cloudnet.snapshots.job.url";
+  public static final String CLOUDNET_REPOSITORY = "cloudnet.repository";
+  public static final String LAUNCHER_DEV_MODE = "cloudnet.launcher.dev-mode";
+  public static final String CLOUDNET_SNAPSHOTS = "cloudnet.snapshots.use-snapshots";
+  public static final String CLOUDNET_REPOSITORY_AUTO_UPDATE = "cloudnet.auto-update";
+  public static final String CLOUDNET_SNAPSHOTS_JOB_URL = "cloudnet.snapshots.job.url";
+  public static final String CLOUDNET_REPOSITORY_GITHUB = "cloudnet.repository.github";
+  public static final String CLOUDNET_SELECTED_VERSION = "cloudnet.launcher.select.version";
+  public static final String FALLBACK_VERSION = LauncherUtils.class.getPackage().getSpecificationVersion();
 
   private LauncherUtils() {
     throw new UnsupportedOperationException();
