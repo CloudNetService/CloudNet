@@ -16,8 +16,6 @@
 
 package de.dytanic.cloudnet.database.h2;
 
-import com.google.common.base.Preconditions;
-import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.database.sql.SQLDatabase;
 import java.util.concurrent.ExecutorService;
 
@@ -30,16 +28,5 @@ public final class H2Database extends SQLDatabase {
   @Override
   public boolean isSynced() {
     return false;
-  }
-
-  @Override
-  public boolean insertOrUpdate(String key, JsonDocument document) {
-    Preconditions.checkNotNull(key);
-    Preconditions.checkNotNull(document);
-
-    return this.databaseProvider.executeUpdate(
-      String.format("MERGE INTO `%s` (%s, %s) VALUES (?, ?);", this.name, TABLE_COLUMN_KEY, TABLE_COLUMN_VALUE),
-      key, document.toString()
-    ) != -1;
   }
 }
