@@ -16,13 +16,14 @@
 
 package de.dytanic.cloudnet.ext.signs;
 
-import com.google.gson.reflect.TypeToken;
+import com.google.common.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.Collection;
 
 public final class SignConstants {
 
-  public static final Type COLLECTION_SIGNS = TypeToken.getParameterized(Collection.class, Sign.class).getType();
+  public static final Type COLLECTION_SIGNS = new TypeToken<Collection<Sign>>() {
+  }.getType();
 
   public static final String SIGN_CLUSTER_CHANNEL_NAME = "cloudnet_cluster_signs_channel";
   public static final String SIGN_CHANNEL_NAME = "cloudnet_signs_channel";
