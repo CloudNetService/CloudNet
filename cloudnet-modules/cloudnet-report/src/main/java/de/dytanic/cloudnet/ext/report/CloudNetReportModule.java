@@ -55,7 +55,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -67,6 +66,7 @@ public final class CloudNetReportModule extends NodeCloudNetModule {
   private final IFormatter logFormatter = new DefaultLogFormatter();
   private Path savingRecordsDirectory;
   private volatile Class<? extends Event> eventClass;
+  private SimpleDateFormat dateFormat;
 
   public static CloudNetReportModule getInstance() {
     return CloudNetReportModule.instance;
@@ -86,17 +86,19 @@ public final class CloudNetReportModule extends NodeCloudNetModule {
     this.getConfig().get("pasteServerType", PasteServerType.class, PasteServerType.HASTE);
     this.getConfig().getString("pasteServerUrl", "https://just-paste.it");
     this.getConfig().getLong("serviceLifetimeLogPrint", 5000L);
-
     this.saveConfig();
+    if (this.getConfig().getBoolean("addCustomDate")) {
+      dateFormat = new SimpleDateFormat(this.getConfig().getString("dateFormat"));
+    }
   }
+
 
   @ModuleTask(order = 126, event = ModuleLifeCycle.STARTED)
   public void initSavingRecordsDirectory() {
-    SimpleDateFormat dateFormat = new SimpleDateFormat(this.getConfig().getString("dateFormat"));
-    String date = dateFormat.format(System.currentTimeMillis());
     if (this.getConfig().getBoolean("addCustomDate")) {
+      String date = dateFormat.format(System.currentTimeMillis());
       this.savingRecordsDirectory = this.getModuleWrapper().getDataDirectory()
-        .resolve(this.getConfig().getString("recordDestinationDirectory") + "/" + getdate);
+        .resolve(this.getConfig().getString("recordDestinationDirectory") + "/" + date);
     } else {
       this.savingRecordsDirectory = this.getModuleWrapper().getDataDirectory()
         .resolve(this.getConfig().getString("recordDestinationDirectory"));

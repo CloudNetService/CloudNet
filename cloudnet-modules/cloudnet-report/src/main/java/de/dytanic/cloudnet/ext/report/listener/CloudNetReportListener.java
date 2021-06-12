@@ -49,7 +49,6 @@ public final class CloudNetReportListener {
 
   @EventListener
   public void handle(CloudServicePostStopEvent event) {
-    this.reportModule.initSavingRecordsDirectory();
 
     long serviceLifetimeLogPrint = this.reportModule.getConfig().getLong("serviceLifetimeLogPrint", -1L);
 
@@ -77,6 +76,7 @@ public final class CloudNetReportListener {
 
   @EventListener
   public void handle(CloudServicePreDeleteEvent event) {
+    this.reportModule.initSavingRecordsDirectory();
     if (this.reportModule.getConfig().getBoolean("savingRecords")) {
       String childPath =
         event.getCloudService().getServiceId().getName() + "." + event.getCloudService().getServiceId().getUniqueId();
