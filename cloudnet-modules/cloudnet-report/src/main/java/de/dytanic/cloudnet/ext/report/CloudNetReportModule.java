@@ -54,6 +54,8 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -79,6 +81,8 @@ public final class CloudNetReportModule extends NodeCloudNetModule {
   public void initConfig() {
     this.getConfig().getBoolean("savingRecords", true);
     this.getConfig().getString("recordDestinationDirectory", "records");
+    this.getConfig().getBoolean("addCustomDate", true);
+    this.getConfig().getString("dateFormat", "YYYY-MM-dd");
     this.getConfig().get("pasteServerType", PasteServerType.class, PasteServerType.HASTE);
     this.getConfig().getString("pasteServerUrl", "https://just-paste.it");
     this.getConfig().getLong("serviceLifetimeLogPrint", 5000L);
@@ -88,8 +92,15 @@ public final class CloudNetReportModule extends NodeCloudNetModule {
 
   @ModuleTask(order = 126, event = ModuleLifeCycle.STARTED)
   public void initSavingRecordsDirectory() {
+    SimpleDateFormat dateFormat = new SimpleDateFormat("YYYY-MM-dd");
+    String getdate = dateFormat.format(new Date());
+    if (this.getConfig().getBoolean("addCustomDate") == true) {
     this.savingRecordsDirectory = this.getModuleWrapper().getDataDirectory()
-      .resolve(this.getConfig().getString("recordDestinationDirectory"));
+        .resolve(this.getConfig().getString("recordDestinationDirectory") + "/" + getdate);
+    } else {
+      this.savingRecordsDirectory = this.getModuleWrapper().getDataDirectory()
+        .resolve(this.getConfig().getString("recordDestinationDirectory"));
+    }
     FileUtils.createDirectoryReported(this.savingRecordsDirectory);
   }
 

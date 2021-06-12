@@ -49,6 +49,8 @@ public final class CloudNetReportListener {
 
   @EventListener
   public void handle(CloudServicePostStopEvent event) {
+    this.reportModule.initSavingRecordsDirectory();
+
     long serviceLifetimeLogPrint = this.reportModule.getConfig().getLong("serviceLifetimeLogPrint", -1L);
 
     if (serviceLifetimeLogPrint == -1L) {
