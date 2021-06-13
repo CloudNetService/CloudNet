@@ -93,7 +93,6 @@ public final class CloudNetReportModule extends NodeCloudNetModule {
   }
 
 
-  @ModuleTask(order = 126, event = ModuleLifeCycle.STARTED)
   public void initSavingRecordsDirectory() {
     if (this.getConfig().getBoolean("addCustomDate")) {
       String date = dateFormat.format(System.currentTimeMillis());
