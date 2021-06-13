@@ -66,7 +66,7 @@ public final class CloudNetReportModule extends NodeCloudNetModule {
   private final IFormatter logFormatter = new DefaultLogFormatter();
   private Path savingRecordsDirectory;
   private volatile Class<? extends Event> eventClass;
-  private DateFormat dateFormat;
+  private SimpleDateFormat dateFormat;
 
   public static CloudNetReportModule getInstance() {
     return CloudNetReportModule.instance;
