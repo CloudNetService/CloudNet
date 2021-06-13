@@ -54,7 +54,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -66,7 +66,7 @@ public final class CloudNetReportModule extends NodeCloudNetModule {
   private final IFormatter logFormatter = new DefaultLogFormatter();
   private Path savingRecordsDirectory;
   private volatile Class<? extends Event> eventClass;
-  private DateFormat dateFormat;
+  private SimpleDateFormat dateFormat;
 
   public static CloudNetReportModule getInstance() {
     return CloudNetReportModule.instance;
