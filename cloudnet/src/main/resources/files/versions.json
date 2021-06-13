@@ -195,8 +195,12 @@
       "versions": [
         {
           "name": "latest",
-          "url": "https://cdn.getbukkit.org/spigot/spigot-1.16.5.jar",
+          "url": "https://cdn.getbukkit.org/spigot/spigot-1.17.jar",
           "cacheFiles": false
+        },
+        {
+          "name": "1.17",
+          "url": "https://cdn.getbukkit.org/spigot/spigot-1.17.jar"
         },
         {
           "name": "1.16.5",
