@@ -396,6 +396,21 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
   }
 
   @Override
+  public void addCloudServiceFactory(@NotNull ICloudServiceFactory factory) {
+    this.cloudServiceFactories.putIfAbsent(factory.getRuntime(), factory);
+  }
+
+  @Override
+  public void removeCloudServiceFactory(@NotNull ICloudServiceFactory factory) {
+    this.removeCloudServiceFactory(factory.getRuntime());
+  }
+
+  @Override
+  public void removeCloudServiceFactory(@NotNull String runtime) {
+    this.cloudServiceFactories.remove(runtime);
+  }
+
+  @Override
   public boolean handleServiceUpdate(PacketClientServerServiceInfoPublisher.@NotNull PublisherType type,
     @NotNull ServiceInfoSnapshot snapshot) {
     try {
