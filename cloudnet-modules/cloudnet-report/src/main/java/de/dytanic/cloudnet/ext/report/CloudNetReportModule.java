@@ -95,7 +95,7 @@ public final class CloudNetReportModule extends NodeCloudNetModule {
 
 
   public void initSavingRecordsDirectory() {
-    if (this.getConfig().getBoolean("addCustomDate")) {
+    if (this.dateFormat != null && this.getConfig().getBoolean("addCustomDate")) {
       String date = this.dateFormat.format(System.currentTimeMillis());
       this.savingRecordsDirectory = this.getModuleWrapper().getDataDirectory()
         .resolve(this.getConfig().getString("recordDestinationDirectory") + "/" + date);
