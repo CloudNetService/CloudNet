@@ -87,8 +87,9 @@ public final class CloudNetReportModule extends NodeCloudNetModule {
     this.getConfig().getString("pasteServerUrl", "https://just-paste.it");
     this.getConfig().getLong("serviceLifetimeLogPrint", 5000L);
     this.saveConfig();
-    if (this.getConfig().getBoolean("addCustomDate")) {
-      dateFormat = new SimpleDateFormat(this.getConfig().getString("dateFormat"));
+    String dateFormat = this.getConfig().getString("dateFormat");
+    if (dateFormat != null && this.getConfig().getBoolean("addCustomDate")) {
+      this.dateFormat = new SimpleDateFormat(dateFormat);
     }
   }
 
