@@ -24,7 +24,6 @@ import de.dytanic.cloudnet.driver.database.DatabaseProvider;
 import de.dytanic.cloudnet.driver.network.INetworkClient;
 import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
-import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import de.dytanic.cloudnet.driver.template.TemplateStorage;
 import java.util.Collection;
 import java.util.UUID;
@@ -100,26 +99,6 @@ public class EmptyCloudNetDriver extends CloudNetDriver {
 
   @Override
   public @NotNull INetworkClient getNetworkClient() {
-    return null;
-  }
-
-  @Override
-  public @NotNull ITask<Collection<ServiceTemplate>> getLocalTemplateStorageTemplatesAsync() {
-    return null;
-  }
-
-  @Override
-  public @NotNull ITask<Collection<ServiceTemplate>> getTemplateStorageTemplatesAsync(@NotNull String serviceName) {
-    return null;
-  }
-
-  @Override
-  public Collection<ServiceTemplate> getLocalTemplateStorageTemplates() {
-    return null;
-  }
-
-  @Override
-  public Collection<ServiceTemplate> getTemplateStorageTemplates(@NotNull String serviceName) {
     return null;
   }
 
