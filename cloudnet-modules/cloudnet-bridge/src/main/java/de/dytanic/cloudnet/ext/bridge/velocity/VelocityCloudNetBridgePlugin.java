@@ -85,7 +85,7 @@ public final class VelocityCloudNetBridgePlugin {
     this.proxyServer.getScheduler().buildTask(this, () -> {
       if (VelocityCloudNetHelper.getLastOnlineCount() != -1
         && this.proxyServer.getPlayerCount() != VelocityCloudNetHelper.getLastOnlineCount()) {
-        Wrapper.getInstance().getCurrentServiceInfoSnapshot().getProperty(BridgeServiceProperty.PLAYERS)
+        Wrapper.getInstance().configureServiceInfoSnapshot().getProperty(BridgeServiceProperty.PLAYERS)
           .ifPresent(players -> {
             boolean needsUpdate = false;
             for (ServicePlayer player : players) {

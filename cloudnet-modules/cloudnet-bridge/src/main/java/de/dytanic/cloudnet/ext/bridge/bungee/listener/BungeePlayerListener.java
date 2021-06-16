@@ -28,7 +28,6 @@ import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.LoginEvent;
 import net.md_5.bungee.api.event.PlayerDisconnectEvent;
-import net.md_5.bungee.api.event.PostLoginEvent;
 import net.md_5.bungee.api.event.ServerConnectEvent;
 import net.md_5.bungee.api.event.ServerKickEvent;
 import net.md_5.bungee.api.event.ServerSwitchEvent;
@@ -54,13 +53,6 @@ public final class BungeePlayerListener implements Listener {
   }
 
   @EventHandler
-  public void handle(PostLoginEvent event) {
-    BridgeHelper.sendChannelMessageProxyLoginSuccess(
-      BungeeCloudNetHelper.createNetworkConnectionInfo(event.getPlayer().getPendingConnection()));
-    BridgeHelper.updateServiceInfo();
-  }
-
-  @EventHandler
   public void handle(ServerSwitchEvent event) {
     ServiceInfoSnapshot serviceInfoSnapshot = BridgeProxyHelper
       .getCachedServiceInfoSnapshot(event.getPlayer().getServer().getInfo().getName());
@@ -76,6 +68,13 @@ public final class BungeePlayerListener implements Listener {
   @EventHandler
   public void handle(ServerConnectEvent event) {
     ProxiedPlayer proxiedPlayer = event.getPlayer();
+
+    // handle the player connection if it is the initial connect to the proxy
+    if (event.getReason() == ServerConnectEvent.Reason.JOIN_PROXY) {
+      BridgeHelper.sendChannelMessageProxyLoginSuccess(
+        BungeeCloudNetHelper.createNetworkConnectionInfo(proxiedPlayer.getPendingConnection()));
+      BridgeHelper.updateServiceInfo();
+    }
 
     ServiceInfoSnapshot serviceInfoSnapshot = BridgeProxyHelper
       .getCachedServiceInfoSnapshot(event.getTarget().getName());
@@ -98,8 +97,8 @@ public final class BungeePlayerListener implements Listener {
         event.setCancelled(true);
         return;
       }
-      BridgeProxyHelper.handleConnectionFailed(event.getPlayer().getUniqueId(), kickFrom.getName());
 
+      BridgeProxyHelper.handleConnectionFailed(event.getPlayer().getUniqueId(), kickFrom.getName());
       BungeeCloudNetHelper.getNextFallback(event.getPlayer(), kickFrom).ifPresent(serverInfo -> {
         event.setCancelled(true);
         event.setCancelServer(serverInfo);
@@ -110,11 +109,12 @@ public final class BungeePlayerListener implements Listener {
 
   @EventHandler
   public void handle(PlayerDisconnectEvent event) {
-    BridgeHelper.sendChannelMessageProxyDisconnect(
-      BungeeCloudNetHelper.createNetworkConnectionInfo(event.getPlayer().getPendingConnection()));
-    BridgeProxyHelper.clearFallbackProfile(event.getPlayer().getUniqueId());
+    ProxyServer.getInstance().getScheduler().schedule(this.plugin, () -> {
+      BridgeHelper.updateServiceInfo();
 
-    ProxyServer.getInstance().getScheduler()
-      .schedule(this.plugin, BridgeHelper::updateServiceInfo, 50, TimeUnit.MILLISECONDS);
+      BridgeHelper.sendChannelMessageProxyDisconnect(BungeeCloudNetHelper.createNetworkConnectionInfo(
+        event.getPlayer().getPendingConnection()));
+      BridgeProxyHelper.clearFallbackProfile(event.getPlayer().getUniqueId());
+    }, 50, TimeUnit.MILLISECONDS);
   }
 }
