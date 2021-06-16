@@ -164,7 +164,7 @@ public abstract class DefaultMinecraftCloudService extends DefaultTemplateCloudS
             }
 
             if (line.startsWith("  port: ")) {
-              line = "  port: " + serviceConfiguration.getPort();
+              line = "  port: " + this.serviceConfiguration.getPort();
             }
 
             return line;

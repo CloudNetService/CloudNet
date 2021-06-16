@@ -117,7 +117,7 @@ public class ChunkedPacketTest {
     @Override
     protected @NotNull OutputStream createOutputStream(@NotNull UUID sessionUniqueId,
       @NotNull Map<String, Object> properties) throws IOException {
-      return Files.newOutputStream(path);
+      return Files.newOutputStream(this.path);
     }
   }
 

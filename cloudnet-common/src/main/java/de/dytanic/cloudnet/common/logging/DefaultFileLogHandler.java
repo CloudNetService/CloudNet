@@ -147,7 +147,7 @@ public final class DefaultFileLogHandler extends AbstractLogHandler {
   }
 
   public Path getDirectory() {
-    return directory;
+    return this.directory;
   }
 
   public String getPattern() {
@@ -159,11 +159,11 @@ public final class DefaultFileLogHandler extends AbstractLogHandler {
   }
 
   public Path getEntry() {
-    return entry;
+    return this.entry;
   }
 
   public long getWrittenBytes() {
-    return writtenBytes;
+    return this.writtenBytes;
   }
 
   private Path selectLogFile(OutputStream currentTargetStream, String pattern) {

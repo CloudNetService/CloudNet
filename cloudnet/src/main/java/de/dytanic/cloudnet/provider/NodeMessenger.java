@@ -266,11 +266,11 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
     }
 
     public INetworkChannel getChannel() {
-      return channel;
+      return this.channel;
     }
 
     public boolean isNode() {
-      return node;
+      return this.node;
     }
 
   }

@@ -90,8 +90,8 @@ public class ChunkedPacket extends Packet {
   }
 
   public void readData(@NotNull OutputStream outputStream) throws IOException {
-    this.dataLength = body.readInt();
-    body.readBytes(outputStream, this.dataLength);
+    this.dataLength = this.body.readInt();
+    this.body.readBytes(outputStream, this.dataLength);
   }
 
   public int getChunks() {

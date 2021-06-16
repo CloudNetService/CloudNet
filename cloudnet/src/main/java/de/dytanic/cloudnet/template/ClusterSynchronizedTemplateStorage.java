@@ -192,7 +192,8 @@ public abstract class ClusterSynchronizedTemplateStorage extends DefaultSyncTemp
       public void close() throws IOException {
         super.close();
         try (InputStream inputStream = Files.newInputStream(tempFile, StandardOpenOption.DELETE_ON_CLOSE)) {
-          sendChunks(requestType, inputStream, template, JsonDocument.newDocument("path", path));
+          ClusterSynchronizedTemplateStorage.this
+              .sendChunks(requestType, inputStream, template, JsonDocument.newDocument("path", path));
         }
       }
     };

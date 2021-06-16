@@ -81,6 +81,6 @@ public final class CloudNetSyncProxyModule extends NodeCloudNetModule {
   }
 
   public Path getConfigurationFilePath() {
-    return configurationFilePath;
+    return this.configurationFilePath;
   }
 }

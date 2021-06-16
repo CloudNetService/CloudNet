@@ -363,7 +363,7 @@ public final class JLine3Console implements IConsole {
   @NotNull
   @ApiStatus.Internal
   protected Map<UUID, ConsoleHandler<Consumer<String>>> getConsoleInputHandler() {
-    return consoleInputHandler;
+    return this.consoleInputHandler;
   }
 
   @NotNull
@@ -448,11 +448,11 @@ public final class JLine3Console implements IConsole {
 
     public @NotNull InternalLineReader build() {
       InternalLineReader reader = new InternalLineReader(this.terminal, "CloudNet-Console", this.variables);
-      if (completer != null) {
-        reader.setCompleter(completer);
+      if (this.completer != null) {
+        reader.setCompleter(this.completer);
       }
 
-      for (Map.Entry<LineReader.Option, Boolean> e : options.entrySet()) {
+      for (Map.Entry<LineReader.Option, Boolean> e : this.options.entrySet()) {
         reader.option(e.getKey(), e.getValue());
       }
 
