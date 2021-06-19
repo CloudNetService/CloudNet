@@ -50,8 +50,7 @@
             },
             "jvmOptions": [
               "-Dpaperclip.patchonly=true"
-            ],
-            "versionGroup": "1.16.5"
+            ]
           }
         },
         {
@@ -211,7 +210,8 @@
         {
           "name": "latest",
           "url": "https://cdn.getbukkit.org/spigot/spigot-1.17.jar",
-          "cacheFiles": false
+          "cacheFiles": false,
+          "minJavaVersion": 16
         },
         {
           "name": "1.17",
