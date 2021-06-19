@@ -94,7 +94,7 @@ allprojects {
     dependencyMysqlConnectorJavaVersion = '8.0.25'
     dependencyHikariCpVersion = '4.0.3'
     dependencyVaultVersion = '1.7'
-    dependencyProtocolLibVersion = 'master-SNAPSHOT'
+    dependencyProtocolLibVersion = 'f11c246' // TODO: temp workaround for build to run
     dependencyNpcLibVersion = 'development-SNAPSHOT'
     dependencyCommonsNetVersion = '3.8.0'
     dependencyJschVersion = '0.1.55'
