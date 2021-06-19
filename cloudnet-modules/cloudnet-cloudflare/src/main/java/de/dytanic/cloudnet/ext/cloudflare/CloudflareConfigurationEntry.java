@@ -57,7 +57,7 @@ public class CloudflareConfigurationEntry {
   }
 
   public AuthenticationMethod getAuthenticationMethod() {
-    return authenticationMethod;
+    return this.authenticationMethod;
   }
 
   public void setAuthenticationMethod(AuthenticationMethod authenticationMethod) {

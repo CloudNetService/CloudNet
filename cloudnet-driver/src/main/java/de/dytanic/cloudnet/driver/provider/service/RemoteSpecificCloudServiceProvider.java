@@ -245,7 +245,7 @@ public class RemoteSpecificCloudServiceProvider implements SpecificCloudServiceP
 
     return this.executeVoidDriverAPIMethod(
       DriverAPIRequestType.RUN_COMMAND_ON_CLOUD_SERVICE,
-      buffer -> writeDefaults(buffer).writeString(command),
+      buffer -> this.writeDefaults(buffer).writeString(command),
       packet -> this.readDefaults(packet.getBuffer())
     );
   }

@@ -87,7 +87,7 @@ public class CompletedTask<V> implements ITask<V> {
     try {
       return create(mapper == null ? null : mapper.apply(this.value));
     } catch (Throwable exception) {
-      return createFailed(throwable);
+      return createFailed(this.throwable);
     }
   }
 

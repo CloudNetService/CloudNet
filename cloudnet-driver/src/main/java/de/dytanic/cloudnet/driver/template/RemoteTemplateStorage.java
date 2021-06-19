@@ -171,7 +171,8 @@ public class RemoteTemplateStorage extends DefaultAsyncTemplateStorage implement
       public void close() throws IOException {
         super.close();
         try (InputStream inputStream = Files.newInputStream(tempFile, StandardOpenOption.DELETE_ON_CLOSE)) {
-          sendChunks(requestType, inputStream, template, JsonDocument.newDocument("path", path), false);
+          RemoteTemplateStorage.this
+            .sendChunks(requestType, inputStream, template, JsonDocument.newDocument("path", path), false);
         }
       }
     };

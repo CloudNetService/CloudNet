@@ -38,7 +38,7 @@ public final class CloudNetSimpleNameTagsListener implements Listener {
 
   @EventHandler(priority = EventPriority.HIGHEST)
   public void handle(PlayerJoinEvent event) {
-    Bukkit.getScheduler().runTask(this.plugin, () -> plugin.updateNameTags(event.getPlayer()));
+    Bukkit.getScheduler().runTask(this.plugin, () -> this.plugin.updateNameTags(event.getPlayer()));
   }
 
   @EventListener
@@ -46,7 +46,7 @@ public final class CloudNetSimpleNameTagsListener implements Listener {
     Bukkit.getScheduler().runTask(this.plugin, () -> Bukkit.getOnlinePlayers().stream()
       .filter(player -> player.getUniqueId().equals(event.getPermissionUser().getUniqueId()))
       .findFirst()
-      .ifPresent(plugin::updateNameTags));
+      .ifPresent(this.plugin::updateNameTags));
   }
 
   @EventListener
@@ -56,7 +56,7 @@ public final class CloudNetSimpleNameTagsListener implements Listener {
         .getUser(player.getUniqueId());
 
       if (permissionUser != null && permissionUser.inGroup(event.getPermissionGroup().getName())) {
-        plugin.updateNameTags(player);
+        this.plugin.updateNameTags(player);
       }
     }));
   }

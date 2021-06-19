@@ -59,7 +59,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @ApiStatus.Internal
-@SuppressWarnings("UnstableApiUsage")
 public final class NodePlayerManager extends DefaultPlayerManager implements IPlayerManager {
 
   private final String databaseName;
@@ -535,6 +534,7 @@ public final class NodePlayerManager extends DefaultPlayerManager implements IPl
     ICloudOfflinePlayer cloudOfflinePlayer = this.getOfflinePlayer(networkConnectionInfo.getUniqueId());
 
     if (cloudOfflinePlayer == null) {
+      // create a new player and cache it, the insert into the database will be done later during the login
       cloudOfflinePlayer = new CloudOfflinePlayer(
         networkConnectionInfo.getUniqueId(),
         networkConnectionInfo.getName(),
@@ -544,10 +544,6 @@ public final class NodePlayerManager extends DefaultPlayerManager implements IPl
         networkConnectionInfo
       );
       this.offlinePlayerCache.put(networkConnectionInfo.getUniqueId(), cloudOfflinePlayer);
-
-      // insert can be async, as the player is now cached
-      this.getDatabase()
-        .insertAsync(cloudOfflinePlayer.getUniqueId().toString(), JsonDocument.newDocument(cloudOfflinePlayer));
     }
 
     return cloudOfflinePlayer;
@@ -558,18 +554,39 @@ public final class NodePlayerManager extends DefaultPlayerManager implements IPl
     try {
       // ensure only one update operation at a time
       managementLock.lock();
-      // remove the player from the cache
-      this.onlineCloudPlayers.remove(cloudPlayer.getUniqueId());
-      cloudPlayer.setLastNetworkConnectionInfo(cloudPlayer.getNetworkConnectionInfo());
-      // update the offline version of the player into the database
-      this.updateOfflinePlayer0(CloudOfflinePlayer.of(cloudPlayer));
+      // actually process the logout
+      this.logoutPlayer0(cloudPlayer);
     } finally {
       managementLock.unlock();
     }
   }
 
+  private void logoutPlayer0(CloudPlayer cloudPlayer) {
+    // remove the player from the cache
+    this.onlineCloudPlayers.remove(cloudPlayer.getUniqueId());
+    cloudPlayer.setLastNetworkConnectionInfo(cloudPlayer.getNetworkConnectionInfo());
+    // update the offline version of the player into the database
+    this.updateOfflinePlayer0(CloudOfflinePlayer.of(cloudPlayer));
+  }
+
   private void logoutPlayer(UUID uniqueId, String name, Predicate<CloudPlayer> predicate) {
-    CloudPlayer cloudPlayer = uniqueId != null ? this.getOnlinePlayer(uniqueId) : this.getFirstOnlinePlayer(name);
+    CloudPlayer cloudPlayer;
+    if (uniqueId != null) {
+      // if we can logout by unique id we need to lock the processing lock
+      Lock managementLock = this.managementLocks.get(uniqueId);
+      try {
+        // lock the management lock to prevent duplicate handling at the same time
+        managementLock.lock();
+        // try the associated player
+        cloudPlayer = this.getOnlinePlayer(uniqueId);
+      } finally {
+        // unlock the lock to allow the logout if the player is present
+        managementLock.unlock();
+      }
+    } else {
+      cloudPlayer = this.getFirstOnlinePlayer(name);
+    }
+
     if (cloudPlayer != null && (predicate == null || predicate.test(cloudPlayer))) {
       this.logoutPlayer(cloudPlayer);
     }
@@ -587,7 +604,7 @@ public final class NodePlayerManager extends DefaultPlayerManager implements IPl
     this.logoutPlayer(
       uniqueId,
       name,
-      player -> player != null && player.getLoginService().getUniqueId().equals(proxy.getUniqueId())
+      player -> player.getLoginService().getUniqueId().equals(proxy.getUniqueId())
     );
   }
 }
