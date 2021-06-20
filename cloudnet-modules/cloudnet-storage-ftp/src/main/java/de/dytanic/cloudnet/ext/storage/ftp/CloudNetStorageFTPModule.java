@@ -23,6 +23,7 @@ import de.dytanic.cloudnet.ext.storage.ftp.client.FTPCredentials;
 import de.dytanic.cloudnet.ext.storage.ftp.client.FTPType;
 import de.dytanic.cloudnet.ext.storage.ftp.storage.queue.FTPQueueStorage;
 import de.dytanic.cloudnet.module.NodeCloudNetModule;
+
 import java.util.Arrays;
 
 public final class CloudNetStorageFTPModule extends NodeCloudNetModule {
@@ -42,6 +43,7 @@ public final class CloudNetStorageFTPModule extends NodeCloudNetModule {
     super.getConfig().getString("storage", "ftp");
     super.getConfig().getString("username", "root");
     super.getConfig().getString("password", "password");
+    super.getConfig().getString("sshKeyPath", "");
     super.getConfig().getString("baseDirectory", "/home/cloudnet");
 
     super.saveConfig();
@@ -54,13 +56,15 @@ public final class CloudNetStorageFTPModule extends NodeCloudNetModule {
     if (ftpType == null) {
       super.getModuleWrapper().stopModule();
 
-      throw new IllegalArgumentException("Invalid ftp type! Available types: " + Arrays.toString(FTPType.values()));
+      throw new IllegalArgumentException(
+          "Invalid ftp type! Available types: " + Arrays.toString(FTPType.values()));
     }
 
     String storageName = super.getConfig().getString("storage");
     FTPCredentials credentials = super.getConfig().toInstanceOf(FTPCredentials.class);
 
-    this.templateStorage = new FTPQueueStorage(ftpType.createNewTemplateStorage(storageName, credentials));
+    this.templateStorage =
+        new FTPQueueStorage(ftpType.createNewTemplateStorage(storageName, credentials));
     super.registerTemplateStorage(storageName, this.templateStorage);
 
     Thread ftpQueueThread = new Thread(this.templateStorage, "FTP queue worker");
@@ -78,5 +82,4 @@ public final class CloudNetStorageFTPModule extends NodeCloudNetModule {
       }
     }
   }
-
 }
