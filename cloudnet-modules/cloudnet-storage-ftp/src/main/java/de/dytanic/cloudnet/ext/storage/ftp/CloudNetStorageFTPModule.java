@@ -23,7 +23,6 @@ import de.dytanic.cloudnet.ext.storage.ftp.client.FTPCredentials;
 import de.dytanic.cloudnet.ext.storage.ftp.client.FTPType;
 import de.dytanic.cloudnet.ext.storage.ftp.storage.queue.FTPQueueStorage;
 import de.dytanic.cloudnet.module.NodeCloudNetModule;
-
 import java.util.Arrays;
 
 public final class CloudNetStorageFTPModule extends NodeCloudNetModule {
