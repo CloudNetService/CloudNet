@@ -116,7 +116,7 @@ public final class CloudNetReportListener {
           } catch (IOException exception) {
             exception.printStackTrace();
           }
-        }, false, "proxy.log*");
+        }, false, "balancer.log*");
       } else {
         FileUtils.copyFilesToDirectory(cloudService.getDirectoryPath().resolve("logs"), targetDirectory);
       }
