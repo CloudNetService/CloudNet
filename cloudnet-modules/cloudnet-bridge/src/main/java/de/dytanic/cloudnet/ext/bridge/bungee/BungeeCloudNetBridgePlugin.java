@@ -67,7 +67,7 @@ public final class BungeeCloudNetBridgePlugin extends Plugin {
     super.getProxy().getScheduler().schedule(this, () -> {
       if (BungeeCloudNetHelper.getLastOnlineCount() != -1
         && super.getProxy().getPlayers().size() != BungeeCloudNetHelper.getLastOnlineCount()) {
-        Wrapper.getInstance().getCurrentServiceInfoSnapshot().getProperty(BridgeServiceProperty.PLAYERS)
+        Wrapper.getInstance().configureServiceInfoSnapshot().getProperty(BridgeServiceProperty.PLAYERS)
           .ifPresent(players -> {
             boolean needsUpdate = false;
             for (ServicePlayer player : players) {

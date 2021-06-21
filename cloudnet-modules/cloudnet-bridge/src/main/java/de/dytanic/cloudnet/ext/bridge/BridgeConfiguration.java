@@ -150,7 +150,7 @@ public final class BridgeConfiguration extends BasicJsonDocPropertyable {
   }
 
   public Collection<String> getHubCommandNames() {
-    return hubCommandNames;
+    return this.hubCommandNames;
   }
 
 }

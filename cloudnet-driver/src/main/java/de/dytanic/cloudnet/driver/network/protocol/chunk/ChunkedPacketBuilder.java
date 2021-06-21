@@ -126,18 +126,19 @@ public class ChunkedPacketBuilder {
     this.validate();
 
     try {
-      this.target.accept(createStartPacket(channel, uniqueId, header, chunkSize));
+      this.target.accept(this.createStartPacket(this.channel, this.uniqueId, this.header, this.chunkSize));
 
       int chunkId = 1;
 
       int read;
-      byte[] buffer = new byte[chunkSize];
+      byte[] buffer = new byte[this.chunkSize];
       while ((read = this.inputStream.read(buffer)) != -1) {
         this.target
-          .accept(createSegment(channel, uniqueId, chunkId++, chunkSize, read, Arrays.copyOf(buffer, buffer.length)));
+          .accept(this.createSegment(this.channel, this.uniqueId, chunkId++,
+              this.chunkSize, read, Arrays.copyOf(buffer, buffer.length)));
       }
 
-      this.target.accept(createEndPacket(channel, uniqueId, chunkId, chunkSize));
+      this.target.accept(this.createEndPacket(this.channel, this.uniqueId, chunkId, this.chunkSize));
       this.inputStream.close();
 
       this.success = true;

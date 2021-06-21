@@ -82,7 +82,7 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
           JsonDocument.newDocument(task).write(path);
           // check if we can load the task
           if (task.getName() != null) {
-            permanentServiceTasks.add(task);
+            NodeServiceTaskProvider.this.permanentServiceTasks.add(task);
             System.out.println(LanguageManager.getMessage("cloudnet-load-task-success")
               .replace("%path%", path.toString()).replace("%name%", task.getName()));
             // just a notify for the user that cloudnet is not attempting to start new services
@@ -127,7 +127,7 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
       @Override
       public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
         String name = file.getFileName().toString();
-        if (permanentServiceTasks.stream()
+        if (NodeServiceTaskProvider.this.permanentServiceTasks.stream()
           .noneMatch(serviceTask -> (serviceTask.getName() + ".json").equalsIgnoreCase(name))) {
           Files.delete(file);
         }

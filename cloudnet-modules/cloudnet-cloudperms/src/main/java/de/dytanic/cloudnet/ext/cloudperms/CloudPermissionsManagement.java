@@ -65,24 +65,24 @@ public class CloudPermissionsManagement extends DefaultCachedPermissionManagemen
 
   @Override
   public IPermissionManagement getChildPermissionManagement() {
-    return wrapped.getChildPermissionManagement();
+    return this.wrapped.getChildPermissionManagement();
   }
 
   @Override
   public boolean canBeOverwritten() {
-    return wrapped.canBeOverwritten();
+    return this.wrapped.canBeOverwritten();
   }
 
   @Override
   @ApiStatus.ScheduledForRemoval(inVersion = "3.5")
   @Deprecated
   public List<IPermissionUser> getUser(String name) {
-    return wrapped.getUser(name);
+    return this.wrapped.getUser(name);
   }
 
   @Override
   public IPermissionUser getFirstUser(String name) {
-    return wrapped.getFirstUser(name);
+    return this.wrapped.getFirstUser(name);
   }
 
   @Override
@@ -92,342 +92,342 @@ public class CloudPermissionsManagement extends DefaultCachedPermissionManagemen
 
   @Override
   public boolean reload() {
-    return wrapped.reload();
+    return this.wrapped.reload();
   }
 
   @Override
   public IPermissionGroup getHighestPermissionGroup(@NotNull IPermissionUser permissionUser) {
-    return wrapped.getHighestPermissionGroup(permissionUser);
+    return this.wrapped.getHighestPermissionGroup(permissionUser);
   }
 
   @Override
   public IPermissionGroup getDefaultPermissionGroup() {
-    return wrapped.getDefaultPermissionGroup();
+    return this.wrapped.getDefaultPermissionGroup();
   }
 
   @Override
   public boolean testPermissionGroup(@Nullable IPermissionGroup permissionGroup) {
-    return wrapped.testPermissionGroup(permissionGroup);
+    return this.wrapped.testPermissionGroup(permissionGroup);
   }
 
   @Override
   public boolean testPermissionUser(@Nullable IPermissionUser permissionUser) {
-    return wrapped.testPermissionUser(permissionUser);
+    return this.wrapped.testPermissionUser(permissionUser);
   }
 
   @Override
   public boolean testPermissible(@Nullable IPermissible permissible) {
-    return wrapped.testPermissible(permissible);
+    return this.wrapped.testPermissible(permissible);
   }
 
   @Override
   public IPermissionUser addUser(@NotNull String name, @NotNull String password, int potency) {
-    return wrapped.addUser(name, password, potency);
+    return this.wrapped.addUser(name, password, potency);
   }
 
   @Override
   public IPermissionGroup addGroup(@NotNull String role, int potency) {
-    return wrapped.addGroup(role, potency);
+    return this.wrapped.addGroup(role, potency);
   }
 
   @Override
   @NotNull
   public Collection<IPermissionGroup> getGroups(@Nullable IPermissible permissible) {
-    return wrapped.getGroups(permissible);
+    return this.wrapped.getGroups(permissible);
   }
 
   @Override
   @Deprecated
   public Collection<IPermissionGroup> getExtendedGroups(@Nullable IPermissionGroup group) {
-    return wrapped.getExtendedGroups(group);
+    return this.wrapped.getExtendedGroups(group);
   }
 
   @Override
   public boolean hasPermission(@NotNull IPermissible permissible, @NotNull String permission) {
-    return wrapped.hasPermission(permissible, permission);
+    return this.wrapped.hasPermission(permissible, permission);
   }
 
   @Override
   public boolean hasPermission(@NotNull IPermissible permissible, @NotNull Permission permission) {
-    return wrapped.hasPermission(permissible, permission);
+    return this.wrapped.hasPermission(permissible, permission);
   }
 
   @Override
   public boolean hasPermission(@NotNull IPermissible permissible, @NotNull String group,
     @NotNull Permission permission) {
-    return wrapped.hasPermission(permissible, group, permission);
+    return this.wrapped.hasPermission(permissible, group, permission);
   }
 
   @Override
   @NotNull
   public PermissionCheckResult getPermissionResult(@NotNull IPermissible permissible, @NotNull String permission) {
-    return wrapped.getPermissionResult(permissible, permission);
+    return this.wrapped.getPermissionResult(permissible, permission);
   }
 
   @Override
   @NotNull
   public PermissionCheckResult getPermissionResult(@NotNull IPermissible permissible, @NotNull Permission permission) {
-    return wrapped.getPermissionResult(permissible, permission);
+    return this.wrapped.getPermissionResult(permissible, permission);
   }
 
   @Override
   @NotNull
   public PermissionCheckResult getPermissionResult(@NotNull IPermissible permissible, @NotNull String group,
     @NotNull Permission permission) {
-    return wrapped.getPermissionResult(permissible, group, permission);
+    return this.wrapped.getPermissionResult(permissible, group, permission);
   }
 
   @Override
   public @NotNull PermissionCheckResult getPermissionResult(@NotNull IPermissible permissible,
     @NotNull Iterable<String> groups, @NotNull Permission permission) {
-    return wrapped.getPermissionResult(permissible, groups, permission);
+    return this.wrapped.getPermissionResult(permissible, groups, permission);
   }
 
   @Override
   public @NotNull PermissionCheckResult getPermissionResult(@NotNull IPermissible permissible, @NotNull String[] groups,
     @NotNull Permission permission) {
-    return wrapped.getPermissionResult(permissible, groups, permission);
+    return this.wrapped.getPermissionResult(permissible, groups, permission);
   }
 
   @Override
   public @Nullable Permission findHighestPermission(@NotNull Collection<Permission> permissions,
     @NotNull Permission permission) {
-    return wrapped.findHighestPermission(permissions, permission);
+    return this.wrapped.findHighestPermission(permissions, permission);
   }
 
   @Override
   public @NotNull Collection<Permission> getAllPermissions(@NotNull IPermissible permissible) {
-    return wrapped.getAllPermissions(permissible);
+    return this.wrapped.getAllPermissions(permissible);
   }
 
   @Override
   public @NotNull Collection<Permission> getAllPermissions(@NotNull IPermissible permissible, @Nullable String group) {
-    return wrapped.getAllPermissions(permissible, group);
+    return this.wrapped.getAllPermissions(permissible, group);
   }
 
   @Override
   public IPermissionUser addUser(@NotNull IPermissionUser permissionUser) {
-    return wrapped.addUser(permissionUser);
+    return this.wrapped.addUser(permissionUser);
   }
 
   @Override
   public void updateUser(@NotNull IPermissionUser permissionUser) {
-    wrapped.updateUser(permissionUser);
+    this.wrapped.updateUser(permissionUser);
   }
 
   @Override
   public boolean deleteUser(@NotNull String name) {
-    return wrapped.deleteUser(name);
+    return this.wrapped.deleteUser(name);
   }
 
   @Override
   public boolean deleteUser(@NotNull IPermissionUser permissionUser) {
-    return wrapped.deleteUser(permissionUser);
+    return this.wrapped.deleteUser(permissionUser);
   }
 
   @Override
   public boolean containsUser(@NotNull UUID uniqueId) {
-    return wrapped.containsUser(uniqueId);
+    return this.wrapped.containsUser(uniqueId);
   }
 
   @Override
   public boolean containsUser(@NotNull String name) {
-    return wrapped.containsUser(name);
+    return this.wrapped.containsUser(name);
   }
 
   @Override
   public @Nullable IPermissionUser getUser(@NotNull UUID uniqueId) {
-    return wrapped.getUser(uniqueId);
+    return this.wrapped.getUser(uniqueId);
   }
 
   @Override
   public @NotNull IPermissionUser getOrCreateUser(@NotNull UUID uniqueId, @NotNull String name) {
-    return wrapped.getOrCreateUser(uniqueId, name);
+    return this.wrapped.getOrCreateUser(uniqueId, name);
   }
 
   @Override
   public @NotNull List<IPermissionUser> getUsers(@NotNull String name) {
-    return wrapped.getUsers(name);
+    return this.wrapped.getUsers(name);
   }
 
   @Override
   public @NotNull Collection<IPermissionUser> getUsers() {
-    return wrapped.getUsers();
+    return this.wrapped.getUsers();
   }
 
   @Override
   public void setUsers(@Nullable Collection<? extends IPermissionUser> users) {
-    wrapped.setUsers(users == null ? Collections.emptyList() : users);
+    this.wrapped.setUsers(users == null ? Collections.emptyList() : users);
   }
 
   @Override
   public Collection<IPermissionUser> getUsersByGroup(@NotNull String group) {
-    return wrapped.getUsersByGroup(group);
+    return this.wrapped.getUsersByGroup(group);
   }
 
   @Override
   public IPermissionGroup addGroup(@NotNull IPermissionGroup permissionGroup) {
-    return wrapped.addGroup(permissionGroup);
+    return this.wrapped.addGroup(permissionGroup);
   }
 
   @Override
   public void updateGroup(@NotNull IPermissionGroup permissionGroup) {
-    wrapped.updateGroup(permissionGroup);
+    this.wrapped.updateGroup(permissionGroup);
   }
 
   @Override
   public void deleteGroup(@NotNull String name) {
-    wrapped.deleteGroup(name);
+    this.wrapped.deleteGroup(name);
   }
 
   @Override
   public void deleteGroup(@NotNull IPermissionGroup permissionGroup) {
-    wrapped.deleteGroup(permissionGroup);
+    this.wrapped.deleteGroup(permissionGroup);
   }
 
   @Override
   public boolean containsGroup(@NotNull String group) {
-    return wrapped.containsGroup(group);
+    return this.wrapped.containsGroup(group);
   }
 
   @Override
   public @Nullable IPermissionGroup getGroup(@NotNull String name) {
-    return wrapped.getGroup(name);
+    return this.wrapped.getGroup(name);
   }
 
   @Override
   public Collection<IPermissionGroup> getGroups() {
-    return wrapped.getGroups();
+    return this.wrapped.getGroups();
   }
 
   @Override
   public void setGroups(@Nullable Collection<? extends IPermissionGroup> groups) {
-    wrapped.setGroups(groups);
+    this.wrapped.setGroups(groups);
   }
 
   @Override
   public @NotNull ITask<Collection<IPermissionGroup>> getGroupsAsync(@Nullable IPermissionUser permissionUser) {
-    return wrapped.getGroupsAsync(permissionUser);
+    return this.wrapped.getGroupsAsync(permissionUser);
   }
 
   @Override
   public @NotNull ITask<IPermissionUser> addUserAsync(@NotNull IPermissionUser permissionUser) {
-    return wrapped.addUserAsync(permissionUser);
+    return this.wrapped.addUserAsync(permissionUser);
   }
 
   @Override
   public @NotNull ITask<IPermissionUser> addUserAsync(@NotNull String name, @NotNull String password, int potency) {
-    return wrapped.addUserAsync(name, password, potency);
+    return this.wrapped.addUserAsync(name, password, potency);
   }
 
   @Override
   public @NotNull ITask<Void> updateUserAsync(@NotNull IPermissionUser permissionUser) {
-    return wrapped.updateUserAsync(permissionUser);
+    return this.wrapped.updateUserAsync(permissionUser);
   }
 
   @Override
   public @NotNull ITask<Boolean> deleteUserAsync(@NotNull String name) {
-    return wrapped.deleteUserAsync(name);
+    return this.wrapped.deleteUserAsync(name);
   }
 
   @Override
   public @NotNull ITask<Boolean> deleteUserAsync(@NotNull IPermissionUser permissionUser) {
-    return wrapped.deleteUserAsync(permissionUser);
+    return this.wrapped.deleteUserAsync(permissionUser);
   }
 
   @Override
   public @NotNull ITask<Boolean> containsUserAsync(@NotNull UUID uniqueId) {
-    return wrapped.containsUserAsync(uniqueId);
+    return this.wrapped.containsUserAsync(uniqueId);
   }
 
   @Override
   public @NotNull ITask<Boolean> containsUserAsync(@NotNull String name) {
-    return wrapped.containsUserAsync(name);
+    return this.wrapped.containsUserAsync(name);
   }
 
   @Override
   public @NotNull ITask<IPermissionUser> getUserAsync(@NotNull UUID uniqueId) {
-    return wrapped.getUserAsync(uniqueId);
+    return this.wrapped.getUserAsync(uniqueId);
   }
 
   @Override
   public @NotNull ITask<IPermissionUser> getOrCreateUserAsync(@NotNull UUID uniqueId, @NotNull String name) {
-    return wrapped.getOrCreateUserAsync(uniqueId, name);
+    return this.wrapped.getOrCreateUserAsync(uniqueId, name);
   }
 
   @Override
   public @NotNull ITask<List<IPermissionUser>> getUsersAsync(@NotNull String name) {
-    return wrapped.getUsersAsync(name);
+    return this.wrapped.getUsersAsync(name);
   }
 
   @Override
   public @NotNull ITask<IPermissionUser> getFirstUserAsync(String name) {
-    return wrapped.getFirstUserAsync(name);
+    return this.wrapped.getFirstUserAsync(name);
   }
 
   @Override
   public @NotNull ITask<Collection<IPermissionUser>> getUsersAsync() {
-    return wrapped.getUsersAsync();
+    return this.wrapped.getUsersAsync();
   }
 
   @Override
   public @NotNull ITask<Void> setUsersAsync(@NotNull Collection<? extends IPermissionUser> users) {
-    return wrapped.setUsersAsync(users);
+    return this.wrapped.setUsersAsync(users);
   }
 
   @Override
   public @NotNull ITask<Collection<IPermissionUser>> getUsersByGroupAsync(@NotNull String group) {
-    return wrapped.getUsersByGroupAsync(group);
+    return this.wrapped.getUsersByGroupAsync(group);
   }
 
   @Override
   public @NotNull ITask<IPermissionGroup> addGroupAsync(@NotNull IPermissionGroup permissionGroup) {
-    return wrapped.addGroupAsync(permissionGroup);
+    return this.wrapped.addGroupAsync(permissionGroup);
   }
 
   @Override
   public @NotNull ITask<IPermissionGroup> addGroupAsync(@NotNull String role, int potency) {
-    return wrapped.addGroupAsync(role, potency);
+    return this.wrapped.addGroupAsync(role, potency);
   }
 
   @Override
   public @NotNull ITask<Void> updateGroupAsync(@NotNull IPermissionGroup permissionGroup) {
-    return wrapped.updateGroupAsync(permissionGroup);
+    return this.wrapped.updateGroupAsync(permissionGroup);
   }
 
   @Override
   public @NotNull ITask<Void> deleteGroupAsync(@NotNull String name) {
-    return wrapped.deleteGroupAsync(name);
+    return this.wrapped.deleteGroupAsync(name);
   }
 
   @Override
   public @NotNull ITask<Void> deleteGroupAsync(@NotNull IPermissionGroup permissionGroup) {
-    return wrapped.deleteGroupAsync(permissionGroup);
+    return this.wrapped.deleteGroupAsync(permissionGroup);
   }
 
   @Override
   public @NotNull ITask<Boolean> containsGroupAsync(@NotNull String group) {
-    return wrapped.containsGroupAsync(group);
+    return this.wrapped.containsGroupAsync(group);
   }
 
   @Override
   public @NotNull ITask<IPermissionGroup> getGroupAsync(@NotNull String name) {
-    return wrapped.getGroupAsync(name);
+    return this.wrapped.getGroupAsync(name);
   }
 
   @Override
   public @NotNull ITask<IPermissionGroup> getDefaultPermissionGroupAsync() {
-    return wrapped.getDefaultPermissionGroupAsync();
+    return this.wrapped.getDefaultPermissionGroupAsync();
   }
 
   @Override
   public @NotNull ITask<Collection<IPermissionGroup>> getGroupsAsync() {
-    return wrapped.getGroupsAsync();
+    return this.wrapped.getGroupsAsync();
   }
 
   @Override
   public @NotNull ITask<Void> setGroupsAsync(@Nullable Collection<? extends IPermissionGroup> groups) {
-    return wrapped.setGroupsAsync(groups);
+    return this.wrapped.setGroupsAsync(groups);
   }
 
   @Override
@@ -444,35 +444,35 @@ public class CloudPermissionsManagement extends DefaultCachedPermissionManagemen
 
   @Override
   public IPermissionGroup modifyGroup(@NotNull String name, @NotNull Consumer<IPermissionGroup> modifier) {
-    return wrapped.modifyGroup(name, modifier);
+    return this.wrapped.modifyGroup(name, modifier);
   }
 
   @Override
   public IPermissionUser modifyUser(@NotNull UUID uniqueId, @NotNull Consumer<IPermissionUser> modifier) {
-    return wrapped.modifyUser(uniqueId, modifier);
+    return this.wrapped.modifyUser(uniqueId, modifier);
   }
 
   @Override
   public List<IPermissionUser> modifyUsers(@NotNull String name, @NotNull Consumer<IPermissionUser> modifier) {
-    return wrapped.modifyUsers(name, modifier);
+    return this.wrapped.modifyUsers(name, modifier);
   }
 
   @Override
   public @NotNull ITask<IPermissionGroup> modifyGroupAsync(@NotNull String name,
     @NotNull Consumer<IPermissionGroup> modifier) {
-    return wrapped.modifyGroupAsync(name, modifier);
+    return this.wrapped.modifyGroupAsync(name, modifier);
   }
 
   @Override
   public @NotNull ITask<IPermissionUser> modifyUserAsync(@NotNull UUID uniqueId,
     @NotNull Consumer<IPermissionUser> modifier) {
-    return wrapped.modifyUserAsync(uniqueId, modifier);
+    return this.wrapped.modifyUserAsync(uniqueId, modifier);
   }
 
   @Override
   public @NotNull ITask<List<IPermissionUser>> modifyUsersAsync(@NotNull String name,
     @NotNull Consumer<IPermissionUser> modifier) {
-    return wrapped.modifyUsersAsync(name, modifier);
+    return this.wrapped.modifyUsersAsync(name, modifier);
   }
 
 }

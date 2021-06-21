@@ -139,7 +139,7 @@ public interface IConfiguration {
     }
 
     public List<String> getJvmFlags() {
-      return jvmFlags;
+      return this.jvmFlags;
     }
 
   }

@@ -37,19 +37,19 @@ public class InstallInformation {
   }
 
   public ServiceVersionType getServiceVersionType() {
-    return serviceVersionType;
+    return this.serviceVersionType;
   }
 
   public ServiceVersion getServiceVersion() {
-    return serviceVersion;
+    return this.serviceVersion;
   }
 
   public TemplateStorage getTemplateStorage() {
-    return templateStorage;
+    return this.templateStorage;
   }
 
   public ServiceTemplate getServiceTemplate() {
-    return serviceTemplate;
+    return this.serviceTemplate;
   }
 
 }
