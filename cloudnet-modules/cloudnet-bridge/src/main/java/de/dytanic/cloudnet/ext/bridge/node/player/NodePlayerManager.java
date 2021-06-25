@@ -212,7 +212,7 @@ public final class NodePlayerManager extends DefaultPlayerManager implements IPl
   }
 
   private CloudOfflinePlayer parseOfflinePlayer(JsonDocument jsonDocument) {
-    CloudOfflinePlayer cloudOfflinePlayer = jsonDocument.toInstanceOf(CloudOfflinePlayer.TYPE);
+    CloudOfflinePlayer cloudOfflinePlayer = jsonDocument.toInstanceOf(CloudOfflinePlayer.class);
 
     NetworkServiceInfo networkServiceInfo = cloudOfflinePlayer.getLastNetworkConnectionInfo().getNetworkService();
 

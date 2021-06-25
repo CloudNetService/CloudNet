@@ -18,7 +18,6 @@ package de.dytanic.cloudnet.examples.node;
 
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
-import de.dytanic.cloudnet.common.gson.GsonUtil;
 import de.dytanic.cloudnet.driver.event.Event;
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.network.http.websocket.IWebSocketChannel;
@@ -36,7 +35,7 @@ public class ExampleWebSocket {
   @EventListener
   public void handlePostEventsToWebSocketChannels(Event event) {
     for (IWebSocketChannel channel : this.channels) {
-      channel.sendWebSocketFrame(WebSocketFrameType.TEXT, GsonUtil.GSON.toJson(event));
+      channel.sendWebSocketFrame(WebSocketFrameType.TEXT, JsonDocument.newDocument(event).toJson());
     }
   }
 

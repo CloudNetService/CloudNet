@@ -56,7 +56,7 @@ public final class V1SignConfigurationHttpHandler extends V1HttpHandler {
   public void handlePost(String path, IHttpContext context) throws Exception {
     try {
       if (context.request().body().length > 0) {
-        SignConfiguration signConfiguration = GSON.fromJson(context.request().bodyAsString(), SignConfiguration.TYPE);
+        SignConfiguration signConfiguration = GSON.fromJson(context.request().bodyAsString(), SignConfiguration.class);
 
         if (signConfiguration != null) {
           CloudNetSignsModule.getInstance().setSignConfiguration(signConfiguration);

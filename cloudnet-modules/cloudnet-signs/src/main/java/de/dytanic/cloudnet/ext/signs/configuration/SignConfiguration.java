@@ -16,7 +16,6 @@
 
 package de.dytanic.cloudnet.ext.signs.configuration;
 
-import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.ext.signs.configuration.entry.SignConfigurationEntry;
 import java.lang.reflect.Type;
 import java.util.Collection;
@@ -28,8 +27,8 @@ import lombok.ToString;
 @EqualsAndHashCode
 public class SignConfiguration {
 
-  public static final Type TYPE = new TypeToken<SignConfiguration>() {
-  }.getType();
+  @Deprecated
+  public static final Type TYPE = SignConfiguration.class;
 
   protected Collection<SignConfigurationEntry> configurations;
 

@@ -16,7 +16,7 @@
 
 package de.dytanic.cloudnet.ext.cloudflare.dns;
 
-import com.google.gson.JsonObject;
+import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
@@ -31,9 +31,9 @@ public class DNSRecord {
   protected int ttl;
   protected boolean proxied;
 
-  protected JsonObject data;
+  protected JsonDocument data;
 
-  public DNSRecord(String type, String name, String content, int ttl, boolean proxied, JsonObject data) {
+  public DNSRecord(String type, String name, String content, int ttl, boolean proxied, JsonDocument data) {
     this.type = type;
     this.name = name;
     this.content = content;
@@ -85,12 +85,11 @@ public class DNSRecord {
     this.proxied = proxied;
   }
 
-  public JsonObject getData() {
+  public JsonDocument getData() {
     return this.data;
   }
 
-  public void setData(JsonObject data) {
+  public void setData(JsonDocument data) {
     this.data = data;
   }
-
 }

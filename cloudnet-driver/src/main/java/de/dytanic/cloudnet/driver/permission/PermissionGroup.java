@@ -16,7 +16,6 @@
 
 package de.dytanic.cloudnet.driver.permission;
 
-import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -33,11 +32,8 @@ import org.jetbrains.annotations.NotNull;
 @EqualsAndHashCode(callSuper = false)
 public class PermissionGroup extends AbstractPermissible implements IPermissionGroup {
 
-  /**
-   * The Gson TypeToken result of the PermissionGroup class
-   */
-  public static final Type TYPE = new TypeToken<PermissionGroup>() {
-  }.getType();
+  @Deprecated
+  public static final Type TYPE = PermissionGroup.class;
 
   protected Collection<String> groups = new ArrayList<>();
 

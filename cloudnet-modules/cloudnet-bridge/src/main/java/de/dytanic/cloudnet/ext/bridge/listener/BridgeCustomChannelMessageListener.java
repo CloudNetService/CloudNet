@@ -83,7 +83,7 @@ public final class BridgeCustomChannelMessageListener {
 
     switch (event.getMessage()) {
       case "update_bridge_configuration": {
-        BridgeConfiguration bridgeConfiguration = event.getData().get("bridgeConfiguration", BridgeConfiguration.TYPE);
+        BridgeConfiguration bridgeConfiguration = event.getData().get("bridgeConfiguration", BridgeConfiguration.class);
 
         if (bridgeConfiguration != null) {
           BridgeConfigurationProvider.setLocal(bridgeConfiguration);

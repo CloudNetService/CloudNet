@@ -16,7 +16,6 @@
 
 package de.dytanic.cloudnet.ext.bridge.player;
 
-import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import de.dytanic.cloudnet.ext.bridge.player.executor.DefaultPlayerExecutor;
@@ -31,8 +30,8 @@ import org.jetbrains.annotations.NotNull;
 @EqualsAndHashCode(callSuper = false)
 public class CloudPlayer extends CloudOfflinePlayer implements ICloudPlayer {
 
-  public static final Type TYPE = new TypeToken<CloudPlayer>() {
-  }.getType();
+  @Deprecated
+  public static final Type TYPE = CloudPlayer.class;
 
   protected NetworkServiceInfo loginService;
   protected NetworkServiceInfo connectedService;

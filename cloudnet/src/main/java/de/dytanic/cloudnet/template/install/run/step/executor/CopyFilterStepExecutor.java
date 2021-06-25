@@ -34,8 +34,8 @@ import org.jetbrains.annotations.NotNull;
 
 public class CopyFilterStepExecutor implements InstallStepExecutor {
 
-  private static final Type STRING_MAP_TYPE = new TypeToken<Map<String, String>>() {
-  }.getType();
+  private static final Type STRING_MAP_TYPE = TypeToken.getParameterized(Map.class, String.class, String.class)
+    .getType();
 
   @Override
   public @NotNull Set<Path> execute(@NotNull InstallInformation installInformation, @NotNull Path workingDirectory,

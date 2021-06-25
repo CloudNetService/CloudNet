@@ -29,8 +29,8 @@ import java.util.Map;
 
 public final class PacketServerSetH2DatabaseDataListener implements IPacketListener {
 
-  private static final Type TYPE = new TypeToken<Map<String, Map<String, JsonDocument>>>() {
-  }.getType();
+  private static final Type TYPE = TypeToken.getParameterized(Map.class, String.class,
+    TypeToken.getParameterized(Map.class, String.class, JsonDocument.class).getType()).getType();
 
   @Override
   public void handle(INetworkChannel channel, IPacket packet) {

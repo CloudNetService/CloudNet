@@ -70,7 +70,7 @@ public final class CloudNetSignsModuleListener {
 
     if (event.getChannel().equalsIgnoreCase(SignConstants.SIGN_CLUSTER_CHANNEL_NAME)) {
       if (SignConstants.SIGN_CHANNEL_UPDATE_SIGN_CONFIGURATION.equalsIgnoreCase(event.getMessage())) {
-        SignConfiguration signConfiguration = event.getData().get("signConfiguration", SignConfiguration.TYPE);
+        SignConfiguration signConfiguration = event.getData().get("signConfiguration", SignConfiguration.class);
         Collection<Sign> signs = event.getData().get("signs", SignConstants.COLLECTION_SIGNS);
 
         CloudNetSignsModule.getInstance().setSignConfiguration(signConfiguration);
@@ -84,7 +84,7 @@ public final class CloudNetSignsModuleListener {
     if (event.getChannel().equals(SignConstants.SIGN_CHANNEL_NAME)) {
       switch (event.getMessage().toLowerCase()) {
         case SignConstants.SIGN_CHANNEL_ADD_SIGN_MESSAGE: {
-          Sign sign = event.getData().get("sign", Sign.TYPE);
+          Sign sign = event.getData().get("sign", Sign.class);
 
           if (sign != null) {
             CloudNetSignsModule.getInstance().addSignToFile(sign);
@@ -92,7 +92,7 @@ public final class CloudNetSignsModuleListener {
         }
         break;
         case SignConstants.SIGN_CHANNEL_REMOVE_SIGN_MESSAGE: {
-          Sign sign = event.getData().get("sign", Sign.TYPE);
+          Sign sign = event.getData().get("sign", Sign.class);
 
           if (sign != null) {
             CloudNetSignsModule.getInstance().removeSignToFile(sign);

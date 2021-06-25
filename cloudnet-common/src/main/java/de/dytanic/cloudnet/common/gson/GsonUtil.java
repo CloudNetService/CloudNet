@@ -21,12 +21,15 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.internal.bind.TypeAdapters;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.document.gson.JsonDocumentTypeAdapter;
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 
 /**
  * Includes a Gson object as member, which should protect for multiple creation of Gson instances
  *
  * @see Gson
  */
+@Deprecated
+@ScheduledForRemoval
 public final class GsonUtil {
 
   /**

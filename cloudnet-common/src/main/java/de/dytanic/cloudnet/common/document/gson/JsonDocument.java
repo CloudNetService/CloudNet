@@ -18,7 +18,6 @@ package de.dytanic.cloudnet.common.document.gson;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
@@ -64,12 +63,18 @@ public class JsonDocument implements IDocument<JsonDocument>, Cloneable {
     .create();
   protected final JsonObject jsonObject;
 
-  /**
-   * @deprecated causes issues because of the relocated Gson, will be made private in a future release
-   */
-  @Deprecated
-  public JsonDocument(JsonObject jsonObject) {
+  private JsonDocument(JsonObject jsonObject) {
+    // non public gson api access
     this.jsonObject = jsonObject;
+  }
+
+  JsonDocument(JsonElement jsonElement) {
+    // non public gson api access
+    this(jsonElement.isJsonObject() ? jsonElement.getAsJsonObject() : new JsonObject());
+  }
+
+  public JsonDocument(JsonDocument jsonDocument) {
+    this.jsonObject = jsonDocument.jsonObject.deepCopy();
   }
 
   public JsonDocument() {
@@ -78,14 +83,6 @@ public class JsonDocument implements IDocument<JsonDocument>, Cloneable {
 
   public JsonDocument(Object toObjectMirror) {
     this(GSON.toJsonTree(toObjectMirror));
-  }
-
-  /**
-   * @deprecated causes issues because of the relocated Gson, will be made private in a future release
-   */
-  @Deprecated
-  public JsonDocument(JsonElement jsonElement) {
-    this(jsonElement.isJsonObject() ? jsonElement.getAsJsonObject() : new JsonObject());
   }
 
   public JsonDocument(Properties properties) {
@@ -131,14 +128,6 @@ public class JsonDocument implements IDocument<JsonDocument>, Cloneable {
 
   public static JsonDocument newDocument() {
     return new JsonDocument();
-  }
-
-  /**
-   * @deprecated causes issues because of the relocated Gson, will be removed in a future release
-   */
-  @Deprecated
-  public static JsonDocument newDocument(JsonObject jsonObject) {
-    return new JsonDocument(jsonObject);
   }
 
   public static JsonDocument newDocument(String key, String value) {
@@ -316,11 +305,7 @@ public class JsonDocument implements IDocument<JsonDocument>, Cloneable {
     }
   }
 
-  /**
-   * @deprecated causes issues because of the relocated Gson, will be made private in a future release
-   */
-  @Deprecated
-  public JsonDocument append(JsonObject jsonObject) {
+  private JsonDocument append(JsonObject jsonObject) {
     if (jsonObject == null) {
       return this;
     }
@@ -570,42 +555,6 @@ public class JsonDocument implements IDocument<JsonDocument>, Cloneable {
     }
   }
 
-  /**
-   * @deprecated causes issues because of the relocated Gson, will be removed in a future release
-   */
-  @Deprecated
-  public JsonArray getJsonArray(String key) {
-    if (!this.contains(key)) {
-      return null;
-    }
-
-    JsonElement jsonElement = this.jsonObject.get(key);
-
-    if (jsonElement.isJsonArray()) {
-      return jsonElement.getAsJsonArray();
-    } else {
-      return null;
-    }
-  }
-
-  /**
-   * @deprecated causes issues because of the relocated Gson, will be removed in a future release
-   */
-  @Deprecated
-  public JsonObject getJsonObject(String key) {
-    if (!this.contains(key)) {
-      return null;
-    }
-
-    JsonElement jsonElement = this.jsonObject.get(key);
-
-    if (jsonElement.isJsonObject()) {
-      return jsonElement.getAsJsonObject();
-    } else {
-      return null;
-    }
-  }
-
   @Override
   public Properties getProperties(String key) {
     Properties properties = new Properties();
@@ -617,11 +566,15 @@ public class JsonDocument implements IDocument<JsonDocument>, Cloneable {
     return properties;
   }
 
-  /**
-   * @deprecated causes issues because of the relocated Gson, will be removed in a future release
-   */
-  @Deprecated
-  public JsonElement get(String key) {
+  private JsonElement get(String key) {
+    if (!this.contains(key)) {
+      return null;
+    }
+
+    return this.jsonObject.get(key);
+  }
+
+  public Object getElement(String key) {
     if (!this.contains(key)) {
       return null;
     }
@@ -741,30 +694,6 @@ public class JsonDocument implements IDocument<JsonDocument>, Cloneable {
     return this.getDocument(key);
   }
 
-  /**
-   * @deprecated causes issues because of the relocated Gson, will be removed in a future release
-   */
-  @Deprecated
-  public JsonArray getJsonArray(String key, JsonArray def) {
-    if (!this.contains(key)) {
-      this.append(key, def);
-    }
-
-    return this.getJsonArray(key);
-  }
-
-  /**
-   * @deprecated causes issues because of the relocated Gson, will be removed in a future release
-   */
-  @Deprecated
-  public JsonObject getJsonObject(String key, JsonObject def) {
-    if (!this.contains(key)) {
-      this.append(key, def);
-    }
-
-    return this.getJsonObject(key);
-  }
-
   public byte[] getBinary(String key, byte[] def) {
     if (!this.contains(key)) {
       this.append(key, def);
@@ -880,14 +809,6 @@ public class JsonDocument implements IDocument<JsonDocument>, Cloneable {
   @Override
   public JsonDocument getProperties() {
     return this;
-  }
-
-  /**
-   * @deprecated causes issues because of the relocated Gson, will be removed in a future release
-   */
-  @Deprecated
-  public JsonObject toJsonObject() {
-    return this.jsonObject;
   }
 
   public String toPrettyJson() {

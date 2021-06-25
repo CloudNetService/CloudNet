@@ -26,15 +26,15 @@ import de.dytanic.cloudnet.ext.cloudflare.CloudflareGroupConfiguration;
  */
 public class SRVRecord extends DNSRecord {
 
-  public SRVRecord(String name, String content, String service, String proto, String secondName, int priority, int weight,
-    int port, String target) {
+  public SRVRecord(String name, String content, String service, String proto, String secondName,
+    int priority, int weight, int port, String target) {
     super(
       DNSType.SRV.name(),
       name,
       content,
       1,
       false,
-      new JsonDocument()
+      JsonDocument.newDocument()
         .append("service", service)
         .append("proto", proto)
         .append("name", secondName)
@@ -42,7 +42,6 @@ public class SRVRecord extends DNSRecord {
         .append("weight", weight)
         .append("port", port)
         .append("target", target)
-        .toJsonObject()
     );
   }
 

@@ -61,7 +61,7 @@ public final class CloudNetBridgeModule extends NodeCloudNetModule {
   public void createConfiguration() {
     FileUtils.createDirectoryReported(this.getModuleWrapper().getDataDirectory());
 
-    this.bridgeConfiguration = this.getConfig().get("config", BridgeConfiguration.TYPE, new BridgeConfiguration());
+    this.bridgeConfiguration = this.getConfig().get("config", BridgeConfiguration.class, new BridgeConfiguration());
     for (Map.Entry<String, String> entry : BridgeConfiguration.DEFAULT_MESSAGES.entrySet()) {
       if (!this.bridgeConfiguration.getMessages().containsKey(entry.getKey())) {
         this.bridgeConfiguration.getMessages().put(entry.getKey(), entry.getValue());

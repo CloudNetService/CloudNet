@@ -70,7 +70,7 @@ public final class SyncProxyConfigurationWriterAndReader {
       document = JsonDocument.newDocument(file);
     }
 
-    SyncProxyConfiguration configuration = document.get("config", SyncProxyConfiguration.TYPE);
+    SyncProxyConfiguration configuration = document.get("config", SyncProxyConfiguration.class);
     if (configuration.getMessages() != null) {
       boolean edit = false;
       for (Map.Entry<String, String> entry : DEFAULT_MESSAGES.entrySet()) {

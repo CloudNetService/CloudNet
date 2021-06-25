@@ -56,7 +56,7 @@ public final class V1BridgeConfigurationHttpHandler extends V1HttpHandler {
     try {
       if (context.request().body().length > 0) {
         BridgeConfiguration bridgeConfiguration = GSON
-          .fromJson(context.request().bodyAsString(), BridgeConfiguration.TYPE);
+          .fromJson(context.request().bodyAsString(), BridgeConfiguration.class);
 
         if (bridgeConfiguration != null) {
           CloudNetBridgeModule.getInstance().setBridgeConfiguration(bridgeConfiguration);

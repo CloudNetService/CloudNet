@@ -29,6 +29,7 @@ import de.dytanic.cloudnet.event.service.task.ServiceTaskAddEvent;
 import de.dytanic.cloudnet.event.service.task.ServiceTaskRemoveEvent;
 import de.dytanic.cloudnet.network.NetworkUpdateType;
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.nio.file.FileVisitOption;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
@@ -48,6 +49,8 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
     .get(System.getProperty("cloudnet.config.task.path", "local/tasks.json"));
   private static final Path TASKS_DIRECTORY = Paths
     .get(System.getProperty("cloudnet.config.tasks.directory.path", "local/tasks"));
+  private static final Type COLLECTION_SERVICE_TASK_TYPE = TypeToken
+    .getParameterized(Collection.class, ServiceTask.class).getType();
 
   private final CloudNet cloudNet;
   private final Collection<ServiceTask> permanentServiceTasks = new CopyOnWriteArrayList<>();
@@ -104,8 +107,7 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
   private void upgrade() throws IOException {
     if (Files.exists(OLD_TASK_CONFIG_FILE)) {
       JsonDocument document = JsonDocument.newDocument(OLD_TASK_CONFIG_FILE);
-      this.permanentServiceTasks
-        .addAll(document.get("tasks", TypeToken.getParameterized(Collection.class, ServiceTask.class).getType()));
+      this.permanentServiceTasks.addAll(document.get("tasks", COLLECTION_SERVICE_TASK_TYPE));
       this.save();
 
       try {

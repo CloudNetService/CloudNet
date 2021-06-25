@@ -38,7 +38,7 @@ public final class ConfigurationUpdateListener {
       event.getMessage() != null && event.getMessage().equalsIgnoreCase("update_configuration")) {
       CloudNetCloudPermissionsModule.getInstance().getConfig().append("enabled", event.getData().getBoolean("enabled"));
       CloudNetCloudPermissionsModule.getInstance().getConfig()
-        .append("excludedGroups", event.getData().get("excludedGroups"));
+        .append("excludedGroups", event.getData().getElement("excludedGroups"));
       CloudNetCloudPermissionsModule.getInstance().saveConfig();
     }
   }

@@ -16,10 +16,7 @@
 
 package de.dytanic.cloudnet.ext.smart;
 
-import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.CloudNet;
-import de.dytanic.cloudnet.common.document.gson.JsonDocument;
-import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.driver.module.ModuleLifeCycle;
 import de.dytanic.cloudnet.driver.module.ModuleTask;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
@@ -34,12 +31,10 @@ import de.dytanic.cloudnet.ext.smart.listener.TaskDefaultSmartConfigListener;
 import de.dytanic.cloudnet.ext.smart.template.TemplateInstaller;
 import de.dytanic.cloudnet.ext.smart.util.SmartServiceTaskConfig;
 import de.dytanic.cloudnet.module.NodeCloudNetModule;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -66,31 +61,10 @@ public final class CloudNetSmartModule extends NodeCloudNetModule {
 
   @ModuleTask(order = 127, event = ModuleLifeCycle.STARTED)
   public void initTaskConfigs() {
-    Map<String, SmartServiceTaskConfig> oldSmartTasks = new HashMap<>();
-    if (Files.exists(this.getModuleWrapper().getDataDirectory()) && this.getConfig().contains("smartTasks")) {
-      Collection<JsonDocument> smartTasks = this.getConfig()
-        .get("smartTasks", new TypeToken<Collection<JsonDocument>>() {
-        }.getType());
-      for (JsonDocument smartTaskJson : smartTasks) {
-        SmartServiceTaskConfig smartTask = smartTaskJson.toInstanceOf(SmartServiceTaskConfig.class);
-        smartTask.setEnabled(true);
-        oldSmartTasks.put(
-          smartTaskJson.getString("task"),
-          smartTask
-        );
-      }
-      FileUtils.delete(this.getModuleWrapper().getDataDirectory());
-    }
-
     for (ServiceTask task : this.getCloudNet().getServiceTaskProvider().getPermanentServiceTasks()) {
       SmartServiceTaskConfig config = task.getProperties().get(SMART_CONFIG_ENTRY, SmartServiceTaskConfig.class);
       if (config == null) {
-        task.getProperties().append(
-          SMART_CONFIG_ENTRY,
-          oldSmartTasks.containsKey(task.getName()) ?
-            oldSmartTasks.get(task.getName()) :
-            new SmartServiceTaskConfig()
-        );
+        task.getProperties().append(SMART_CONFIG_ENTRY, new SmartServiceTaskConfig());
         this.getCloudNet().getServiceTaskProvider().addPermanentServiceTask(task);
       }
     }

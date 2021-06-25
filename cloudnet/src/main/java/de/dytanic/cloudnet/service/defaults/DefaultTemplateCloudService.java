@@ -135,7 +135,7 @@ public abstract class DefaultTemplateCloudService extends DefaultCloudService {
         JsonDocument document = inclusion.getProperties().getDocument("httpHeaders");
 
         for (String key : document) {
-          connection.setRequestProperty(key, document.get(key).toString());
+          connection.setRequestProperty(key, document.getElement(key).toString());
         }
       }
     }
