@@ -100,5 +100,4 @@ public class CommandCopy extends CommandDefault implements ITabCompleter {
       .map(path -> "template=" + path)
       .collect(Collectors.toList());
   }
-  }
 }
