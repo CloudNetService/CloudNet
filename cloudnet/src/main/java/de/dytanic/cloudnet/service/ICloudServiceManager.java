@@ -62,6 +62,12 @@ public interface ICloudServiceManager {
   @NotNull
   Optional<ICloudServiceFactory> getCloudServiceFactory(@Nullable String runtime);
 
+  void addCloudServiceFactory(@NotNull ICloudServiceFactory factory);
+
+  void removeCloudServiceFactory(@NotNull ICloudServiceFactory factory);
+
+  void removeCloudServiceFactory(@NotNull String runtime);
+
   @Deprecated
   @ApiStatus.ScheduledForRemoval
   ICloudService runTask(@NotNull ServiceConfiguration serviceConfiguration);
