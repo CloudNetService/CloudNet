@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit;
 import org.jetbrains.annotations.ApiStatus;
 
 @Deprecated
-@ApiStatus.ScheduledForRemoval
+@ApiStatus.ScheduledForRemoval(inVersion = "3.6")
 public interface ITaskScheduler extends IScheduledTaskInvoker, Executor {
 
   long getThreadLifeMillis();

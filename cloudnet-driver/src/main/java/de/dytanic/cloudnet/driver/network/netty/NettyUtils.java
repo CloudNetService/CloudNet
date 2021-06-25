@@ -88,7 +88,7 @@ public final class NettyUtils {
   }
 
   @Deprecated
-  @ApiStatus.ScheduledForRemoval
+  @ApiStatus.ScheduledForRemoval(inVersion = "3.6")
   public static Class<? extends SocketChannel> getSocketChannelClass() {
     return Epoll.isAvailable() ? EpollSocketChannel.class
       : KQueue.isAvailable() ? KQueueSocketChannel.class : NioSocketChannel.class;
@@ -100,7 +100,7 @@ public final class NettyUtils {
   }
 
   @Deprecated
-  @ApiStatus.ScheduledForRemoval
+  @ApiStatus.ScheduledForRemoval(inVersion = "3.6")
   public static Class<? extends ServerSocketChannel> getServerSocketChannelClass() {
     return Epoll.isAvailable() ? EpollServerSocketChannel.class
       : KQueue.isAvailable() ? KQueueServerSocketChannel.class : NioServerSocketChannel.class;
@@ -116,7 +116,7 @@ public final class NettyUtils {
   }
 
   @Deprecated
-  @ApiStatus.ScheduledForRemoval
+  @ApiStatus.ScheduledForRemoval(inVersion = "3.6")
   public static byte[] toByteArray(ByteBuf byteBuf, int size) {
     return readByteArray(byteBuf, size);
   }

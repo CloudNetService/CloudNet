@@ -29,7 +29,7 @@ import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
  * @see Gson
  */
 @Deprecated
-@ScheduledForRemoval
+@ScheduledForRemoval(inVersion = "3.6")
 public final class GsonUtil {
 
   /**

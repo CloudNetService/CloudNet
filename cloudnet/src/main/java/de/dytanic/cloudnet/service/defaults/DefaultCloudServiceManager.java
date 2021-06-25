@@ -101,7 +101,7 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
 
   @Override
   @Deprecated
-  @ApiStatus.ScheduledForRemoval
+  @ApiStatus.ScheduledForRemoval(inVersion = "3.6")
   public ICloudService runTask(@NotNull ServiceConfiguration serviceConfiguration) {
     try {
       return this.createCloudService(serviceConfiguration).get(20, TimeUnit.SECONDS);

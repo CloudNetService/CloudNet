@@ -19,7 +19,7 @@ package de.dytanic.cloudnet.common.concurrent;
 import org.jetbrains.annotations.ApiStatus;
 
 @Deprecated
-@ApiStatus.ScheduledForRemoval
+@ApiStatus.ScheduledForRemoval(inVersion = "3.6")
 public interface IScheduledTaskInvoker {
 
   <V> IScheduledTask<V> offerTask(IScheduledTask<V> scheduledTask);

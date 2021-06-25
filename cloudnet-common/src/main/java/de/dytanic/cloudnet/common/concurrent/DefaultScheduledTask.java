@@ -27,7 +27,7 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 @Deprecated
-@ApiStatus.ScheduledForRemoval
+@ApiStatus.ScheduledForRemoval(inVersion = "3.6")
 public final class DefaultScheduledTask<V> implements IScheduledTask<V> {
 
   private static final AtomicLong TASK_ID_COUNTER = new AtomicLong();

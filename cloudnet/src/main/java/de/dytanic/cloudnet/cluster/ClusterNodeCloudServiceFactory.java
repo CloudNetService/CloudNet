@@ -27,7 +27,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @Deprecated
-@ApiStatus.ScheduledForRemoval
+@ApiStatus.ScheduledForRemoval(inVersion = "3.6")
 public class ClusterNodeCloudServiceFactory extends RemoteCloudServiceFactory {
 
   private final IClusterNodeServer server;

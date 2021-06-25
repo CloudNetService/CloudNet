@@ -510,13 +510,13 @@ public final class Wrapper extends CloudNetDriver implements DriverAPIUser {
    */
   @NotNull
   @Deprecated
-  @ApiStatus.ScheduledForRemoval
+  @ApiStatus.ScheduledForRemoval(inVersion = "3.6")
   public IDatabaseProvider getDatabaseProvider() {
     return this.databaseProvider;
   }
 
   @Deprecated
-  @ApiStatus.ScheduledForRemoval
+  @ApiStatus.ScheduledForRemoval(inVersion = "3.6")
   public void setDatabaseProvider(@NotNull IDatabaseProvider databaseProvider) {
     Preconditions.checkNotNull(databaseProvider);
     this.databaseProvider = databaseProvider;

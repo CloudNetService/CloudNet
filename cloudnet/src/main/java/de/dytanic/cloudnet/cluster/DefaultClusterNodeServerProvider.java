@@ -193,7 +193,7 @@ public final class DefaultClusterNodeServerProvider extends DefaultNodeServerPro
    * @deprecated currently mapped, use {@link #getNodeServers()} instead.
    */
   @Deprecated
-  @ApiStatus.ScheduledForRemoval
+  @ApiStatus.ScheduledForRemoval(inVersion = "3.6")
   public Map<String, IClusterNodeServer> getServers() {
     return this.nodeServers.stream()
       .collect(Collectors.toMap(server -> server.getNodeInfo().getUniqueId(), Function.identity()));

@@ -57,7 +57,7 @@ public class BukkitSignManagement extends AbstractSignManagement {
    * @deprecated SignManagement should be accessed via the {@link de.dytanic.cloudnet.common.registry.IServicesRegistry}
    */
   @Deprecated
-  @ApiStatus.ScheduledForRemoval
+  @ApiStatus.ScheduledForRemoval(inVersion = "3.6")
   public static BukkitSignManagement getInstance() {
     return (BukkitSignManagement) CloudNetDriver.getInstance().getServicesRegistry()
       .getFirstService(AbstractSignManagement.class);
