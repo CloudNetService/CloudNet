@@ -90,10 +90,15 @@ public class CommandCopy extends CommandDefault implements ITabCompleter {
   @Override
   public Collection<String> complete(String commandLine, String[] args, Properties properties) {
     if (args.length <= 1) {
-      return super.getCloudNet().getCloudServiceProvider().getCloudServices().stream().map(ServiceInfoSnapshot::getName)
+      return super.getCloudNet().getCloudServiceProvider().getCloudServices().stream()
+        .map(ServiceInfoSnapshot::getName)
         .collect(Collectors.toList());
     }
-    return super.getCloudNet().getLocalTemplateStorageTemplates().stream().map(ServiceTemplate::getTemplatePath)
-      .map(path -> "template=" + path).collect(Collectors.toList());
+
+    return super.getCloudNet().getLocalTemplateStorage().getTemplates().stream()
+      .map(ServiceTemplate::getTemplatePath)
+      .map(path -> "template=" + path)
+      .collect(Collectors.toList());
+  }
   }
 }
