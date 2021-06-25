@@ -84,7 +84,7 @@ allprojects {
     dependencyGsonVersion = '2.8.7'
     dependencyNettyVersion = '4.1.65.Final'
     dependencyJLineVersion = '3.20.0'
-    dependencyJAnsiVersion = '2.3.2'
+    dependencyJAnsiVersion = '2.3.3'
     dependencySpigotApiVersion = '1.8.8-R0.1-SNAPSHOT'
     dependencySpongeVersion = '7.3.0'
     dependencyBungeeCordVersion = '1.16-R0.5-SNAPSHOT'
@@ -101,7 +101,7 @@ allprojects {
     dependencyJavassistVersion = '3.28.0-GA'
 
     testJunitVersion = '4.13.2'
-    testBcpkixJdk15OnVersion = '1.68'
+    testBcpkixJdk15OnVersion = '1.69'
 
     buildCheckstyleToolVersion = '8.43'
 
