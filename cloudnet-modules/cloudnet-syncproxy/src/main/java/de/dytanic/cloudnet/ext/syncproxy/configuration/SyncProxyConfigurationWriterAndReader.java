@@ -94,7 +94,7 @@ public final class SyncProxyConfigurationWriterAndReader {
       targetGroup,
       Collections.singletonList(
         new SyncProxyTabList(
-          " \n &b&o■ &8┃ &3&lCloudNet &8● &7Earthquake &8&l» &7&o%online_players%&8/&7&o%max_players% &8┃ &b&o■ "
+          " \n &b&o■ &8┃ &3&lCloudNet &8● &cBlizzard &8&l» &7&o%online_players%&8/&7&o%max_players% &8┃ &b&o■ "
             + "\n &8► &7Current server &8● &b%server% &8◄ \n ",
           " \n &7Discord &8&l» &bdiscord.cloudnetservice.eu \n &7&onext &3&l&ogeneration &7&onetwork \n "
         )
@@ -110,7 +110,7 @@ public final class SyncProxyConfigurationWriterAndReader {
       100,
       new ArrayList<>(),
       Collections.singletonList(new SyncProxyMotd(
-        "         &b&o■ &8┃ &3&lCloudNet &8● &7Earthquake &8&l» &7&ov3.4 &8┃ &b&o■",
+        "         &b&o■ &8┃ &3&lCloudNet &8● &cBlizzard &8&l» &7&ov3.4 &8┃ &b&o■",
         "              &7&onext &3&l&ogeneration &7&onetwork",
         false,
         1,
@@ -118,13 +118,13 @@ public final class SyncProxyConfigurationWriterAndReader {
         null
       )),
       Collections.singletonList(new SyncProxyMotd(
-        "         &b&o■ &8┃ &3&lCloudNet &8● &7Earthquake &8&l» &7&ov3.4 &8┃ &b&o■",
+        "         &b&o■ &8┃ &3&lCloudNet &8● &cBlizzard &8&l» &7&ov3.4 &8┃ &b&o■",
         "     &3&lMaintenance &8&l» &7We are still in &3&lmaintenance",
         false,
         1,
         new String[]{
           " ",
-          "&b&o■ &8┃ &3&lCloudNet &8● &7Earthquake &8&l» &7&ov3.4 &8┃ &b&o■",
+          "&b&o■ &8┃ &3&lCloudNet &8● &cBlizzard &8&l» &7&ov3.4 &8┃ &b&o■",
           "&7Discord &8&l» &bdiscord.cloudnetservice.eu",
           " "
         },
