@@ -84,7 +84,9 @@ public final class CloudNetRestModule extends NodeCloudNetModule {
       .registerHandler("/api/v2/group/{group}", IHttpHandler.PRIORITY_NORMAL, new V2HttpHandlerGroups("http.v2.groups"))
       .registerHandler("/api/v2/group/{group}/*", IHttpHandler.PRIORITY_LOW, new V2HttpHandlerGroups("http.v2.groups"))
       // v2 permissions
-      .registerHandler("/api/v2/permission", IHttpHandler.PRIORITY_NORMAL,
+      .registerHandler("/api/v2/permission/group/", IHttpHandler.PRIORITY_NORMAL,
+        new V2HttpHandlerPermission("http.v2.permission"))
+      .registerHandler("/api/v2/permission/user/", IHttpHandler.PRIORITY_NORMAL,
         new V2HttpHandlerPermission("http.v2.permission"))
       .registerHandler("/api/v2/permission/group/{group}", IHttpHandler.PRIORITY_NORMAL,
         new V2HttpHandlerPermission("http.v2.permission"))

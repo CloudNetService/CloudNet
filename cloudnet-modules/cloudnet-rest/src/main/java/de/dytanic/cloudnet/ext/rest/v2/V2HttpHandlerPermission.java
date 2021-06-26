@@ -21,6 +21,8 @@ import de.dytanic.cloudnet.driver.network.http.IHttpContext;
 import de.dytanic.cloudnet.driver.permission.IPermissionGroup;
 import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
 import de.dytanic.cloudnet.driver.permission.IPermissionUser;
+import de.dytanic.cloudnet.driver.permission.PermissionGroup;
+import de.dytanic.cloudnet.driver.permission.PermissionUser;
 import de.dytanic.cloudnet.http.v2.HttpSession;
 import de.dytanic.cloudnet.http.v2.V2HttpHandler;
 import java.util.function.Consumer;
@@ -87,7 +89,7 @@ public class V2HttpHandlerPermission extends V2HttpHandler {
       IPermissionGroup permissionGroup = this.getPermissionManagement().getGroup(name);
       if (permissionGroup == null) {
         this.ok(context)
-          .body(this.failure().append("reason", "Unknown configuration").toByteArray())
+          .body(this.failure().append("reason", "Unknown permission group").toByteArray())
           .context()
           .closeAfter(true)
           .cancelNext();
@@ -102,10 +104,10 @@ public class V2HttpHandlerPermission extends V2HttpHandler {
   }
 
   protected void handleCreatePermissionGroupRequest(IHttpContext context) {
-    IPermissionGroup permissionGroup = this.body(context.request()).toInstanceOf(IPermissionGroup.class);
+    IPermissionGroup permissionGroup = this.body(context.request()).toInstanceOf(PermissionGroup.class);
     if (permissionGroup == null) {
       this.badRequest(context)
-        .body(this.failure().append("reason", "Missing configuration").toByteArray())
+        .body(this.failure().append("reason", "Missing permission group").toByteArray())
         .context()
         .closeAfter(true)
         .cancelNext();
@@ -131,7 +133,7 @@ public class V2HttpHandlerPermission extends V2HttpHandler {
           .cancelNext();
       } else {
         this.response(context, HttpResponseCode.HTTP_GONE)
-          .body(this.failure().append("reason", "No such group").toByteArray())
+          .body(this.failure().append("reason", "No such permission group").toByteArray())
           .context()
           .closeAfter(true)
           .cancelNext();
@@ -143,7 +145,7 @@ public class V2HttpHandlerPermission extends V2HttpHandler {
     String groupName = context.request().pathParameters().get("group");
     if (groupName == null) {
       this.badRequest(context)
-        .body(this.failure().append("reason", "Missing group parameter").toByteArray())
+        .body(this.failure().append("reason", "Missing permission group parameter").toByteArray())
         .context()
         .closeAfter(true)
         .cancelNext();
@@ -166,7 +168,7 @@ public class V2HttpHandlerPermission extends V2HttpHandler {
       IPermissionUser permissionUser = this.getPermissionManagement().getFirstUser(name);
       if (permissionUser == null) {
         this.ok(context)
-          .body(this.failure().append("reason", "Unknown user").toByteArray())
+          .body(this.failure().append("reason", "Unknown permission user").toByteArray())
           .context()
           .closeAfter(true)
           .cancelNext();
@@ -181,10 +183,10 @@ public class V2HttpHandlerPermission extends V2HttpHandler {
   }
 
   protected void handleCreatePermissionUserRequest(IHttpContext context) {
-    IPermissionUser permissionUser = this.body(context.request()).toInstanceOf(IPermissionUser.class);
+    IPermissionUser permissionUser = this.body(context.request()).toInstanceOf(PermissionUser.class);
     if (permissionUser == null) {
       this.badRequest(context)
-        .body(this.failure().append("reason", "Missing user configuration").toByteArray())
+        .body(this.failure().append("reason", "Missing permission user").toByteArray())
         .context()
         .closeAfter(true)
         .cancelNext();
@@ -210,7 +212,7 @@ public class V2HttpHandlerPermission extends V2HttpHandler {
           .cancelNext();
       } else {
         this.response(context, HttpResponseCode.HTTP_GONE)
-          .body(this.failure().append("reason", "No such user").toByteArray())
+          .body(this.failure().append("reason", "No such permission user").toByteArray())
           .context()
           .closeAfter(true)
           .cancelNext();
@@ -223,7 +225,7 @@ public class V2HttpHandlerPermission extends V2HttpHandler {
     String permissionUserName = context.request().pathParameters().get("user");
     if (permissionUserName == null) {
       this.badRequest(context)
-        .body(this.failure().append("reason", "Missing user parameter").toByteArray())
+        .body(this.failure().append("reason", "Missing permission user parameter").toByteArray())
         .context()
         .closeAfter(true)
         .cancelNext();

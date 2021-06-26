@@ -18,6 +18,7 @@ package de.dytanic.cloudnet.ext.bridge.node.http.v2;
 
 import de.dytanic.cloudnet.driver.network.http.HttpResponseCode;
 import de.dytanic.cloudnet.driver.network.http.IHttpContext;
+import de.dytanic.cloudnet.ext.bridge.player.CloudOfflinePlayer;
 import de.dytanic.cloudnet.ext.bridge.player.ICloudOfflinePlayer;
 import de.dytanic.cloudnet.ext.bridge.player.ICloudPlayer;
 import de.dytanic.cloudnet.ext.bridge.player.IPlayerManager;
@@ -80,7 +81,7 @@ public class V2HttpHandlerBridge extends V2HttpHandler {
   }
 
   protected void handleCreateCloudPlayerRequest(IHttpContext context) {
-    ICloudOfflinePlayer cloudOfflinePlayer = this.body(context.request()).toInstanceOf(ICloudOfflinePlayer.class);
+    ICloudOfflinePlayer cloudOfflinePlayer = this.body(context.request()).toInstanceOf(CloudOfflinePlayer.class);
     if (cloudOfflinePlayer == null) {
       this.badRequest(context)
         .body(this.failure().append("reason", "Missing player configuration").toByteArray())
