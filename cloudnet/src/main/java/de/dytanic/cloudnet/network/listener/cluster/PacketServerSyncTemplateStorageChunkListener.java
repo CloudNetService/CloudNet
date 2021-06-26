@@ -49,7 +49,7 @@ public class PacketServerSyncTemplateStorageChunkListener extends CachedChunkedP
     TemplateStorage storage = CloudNet.getInstance().getTemplateStorage(template.getStorage());
     Preconditions.checkNotNull(storage, "invalid storage %s", template.getStorage());
 
-    if (this.redirectToCluster && !(storage instanceof ClusterSynchronizedTemplateStorage)) {
+    if (!this.redirectToCluster && !(storage instanceof ClusterSynchronizedTemplateStorage)) {
       throw new IllegalArgumentException("TemplateStorage " + template.getStorage() + " is not cluster synchronized");
     }
 

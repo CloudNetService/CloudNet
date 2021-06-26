@@ -16,11 +16,11 @@
 
 package de.dytanic.cloudnet.ext.cloudflare.dns;
 
-import com.google.gson.JsonObject;
+import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 
 public class DefaultDNSRecord extends DNSRecord {
 
-  public DefaultDNSRecord(DNSType type, String name, String content, JsonObject data) {
+  public DefaultDNSRecord(DNSType type, String name, String content, JsonDocument data) {
     super(type.name(), name, content, 1, false, data);
   }
 

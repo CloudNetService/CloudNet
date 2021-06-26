@@ -9,7 +9,7 @@
 # Code Style settings
 !/.idea/codeStyles
 .idea/codeStyles/*
-!/.idea/codeStyles/CloudNet.xml
+!/.idea/codeStyles/Project.xml
 !/.idea/codeStyles/codeStyleConfig.xml
 # Inspection profiles
 !/.idea/inspectionProfiles

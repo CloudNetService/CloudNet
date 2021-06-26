@@ -46,7 +46,7 @@ public final class NetworkListenerRegisterListener {
     if (BridgeConstants.BRIDGE_NETWORK_CHANNEL_MESSAGE_GET_BRIDGE_CONFIGURATION.equals(event.getMessage())) {
       BridgeConfiguration configuration = JsonDocument
         .newDocument(CloudNetBridgeModule.getInstance().getModuleWrapper().getDataDirectory().resolve("config.json"))
-        .get("config", BridgeConfiguration.TYPE);
+        .get("config", BridgeConfiguration.class);
 
       event.setQueryResponse(ChannelMessage.buildResponseFor(event.getChannelMessage())
         .json(JsonDocument.newDocument("bridgeConfig", configuration))

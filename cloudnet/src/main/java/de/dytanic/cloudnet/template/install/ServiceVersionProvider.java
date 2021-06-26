@@ -32,6 +32,7 @@ import de.dytanic.cloudnet.template.install.run.step.InstallStep;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.Files;
@@ -51,6 +52,8 @@ import java.util.stream.Collectors;
 public class ServiceVersionProvider {
 
   private static final int VERSIONS_FILE_VERSION = 1;
+  private static final Type COLLECTION_SERVICE_VERSION_TYPE = TypeToken
+    .getParameterized(Collection.class, ServiceVersionType.class).getType();
 
   private final Map<String, ServiceVersionType> serviceVersionTypes = new HashMap<>();
 
@@ -86,9 +89,7 @@ public class ServiceVersionProvider {
     int fileVersion = document.getInt("fileVersion", -1);
 
     if (VERSIONS_FILE_VERSION == fileVersion && document.contains("versions")) {
-      Collection<ServiceVersionType> versions = document
-        .get("versions", TypeToken.getParameterized(Collection.class, ServiceVersionType.class).getType());
-
+      Collection<ServiceVersionType> versions = document.get("versions", COLLECTION_SERVICE_VERSION_TYPE);
       for (ServiceVersionType serviceVersionType : versions) {
         this.registerServiceVersionType(serviceVersionType);
       }

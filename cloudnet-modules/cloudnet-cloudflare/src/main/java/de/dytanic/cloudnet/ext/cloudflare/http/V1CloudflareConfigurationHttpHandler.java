@@ -54,7 +54,7 @@ public final class V1CloudflareConfigurationHttpHandler extends V1HttpHandler {
     try {
       if (context.request().body().length > 0) {
         CloudflareConfiguration cloudflareConfiguration = GSON
-          .fromJson(context.request().bodyAsString(), CloudflareConfiguration.TYPE);
+          .fromJson(context.request().bodyAsString(), CloudflareConfiguration.class);
 
         if (cloudflareConfiguration != null) {
           CloudNetCloudflareModule.getInstance().updateConfiguration(cloudflareConfiguration);

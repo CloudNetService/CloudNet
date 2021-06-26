@@ -21,7 +21,6 @@ import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
-import de.dytanic.cloudnet.common.gson.GsonUtil;
 import de.dytanic.cloudnet.ext.cloudflare.CloudflareConfigurationEntry;
 import de.dytanic.cloudnet.ext.cloudflare.dns.DNSRecord;
 import de.dytanic.cloudnet.service.ICloudService;
@@ -170,7 +169,7 @@ public class CloudFlareAPI implements AutoCloseable {
     Preconditions.checkNotNull(connection, "connection");
     Preconditions.checkNotNull(record, "record");
 
-    return this.sendRequestAndReadResponse(connection, GsonUtil.GSON.toJson(record));
+    return this.sendRequestAndReadResponse(connection, JsonDocument.newDocument(record).toJson());
   }
 
   @NotNull

@@ -17,7 +17,6 @@
 package de.dytanic.cloudnet.driver.service;
 
 import com.google.common.collect.ComparisonChain;
-import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.common.INameable;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
@@ -39,8 +38,7 @@ import org.jetbrains.annotations.Nullable;
 public class ServiceInfoSnapshot extends SerializableJsonDocPropertyable implements INameable,
   Comparable<ServiceInfoSnapshot>, SerializableObject {
 
-  public static final Type TYPE = new TypeToken<ServiceInfoSnapshot>() {
-  }.getType();
+  public static final Type TYPE = ServiceInfoSnapshot.class;
 
   protected long creationTime;
 

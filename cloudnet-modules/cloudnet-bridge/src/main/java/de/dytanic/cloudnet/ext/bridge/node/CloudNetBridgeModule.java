@@ -28,6 +28,7 @@ import de.dytanic.cloudnet.ext.bridge.node.command.CommandBridge;
 import de.dytanic.cloudnet.ext.bridge.node.command.CommandPlayers;
 import de.dytanic.cloudnet.ext.bridge.node.http.V1BridgeConfigurationHttpHandler;
 import de.dytanic.cloudnet.ext.bridge.node.listener.BridgeDefaultConfigurationListener;
+import de.dytanic.cloudnet.ext.bridge.node.listener.BridgeLocalProxyPlayerDisconnectListener;
 import de.dytanic.cloudnet.ext.bridge.node.listener.BridgeServiceListCommandListener;
 import de.dytanic.cloudnet.ext.bridge.node.listener.BridgeTaskSetupListener;
 import de.dytanic.cloudnet.ext.bridge.node.listener.IncludePluginListener;
@@ -60,7 +61,7 @@ public final class CloudNetBridgeModule extends NodeCloudNetModule {
   public void createConfiguration() {
     FileUtils.createDirectoryReported(this.getModuleWrapper().getDataDirectory());
 
-    this.bridgeConfiguration = this.getConfig().get("config", BridgeConfiguration.TYPE, new BridgeConfiguration());
+    this.bridgeConfiguration = this.getConfig().get("config", BridgeConfiguration.class, new BridgeConfiguration());
     for (Map.Entry<String, String> entry : BridgeConfiguration.DEFAULT_MESSAGES.entrySet()) {
       if (!this.bridgeConfiguration.getMessages().containsKey(entry.getKey())) {
         this.bridgeConfiguration.getMessages().put(entry.getKey(), entry.getValue());
@@ -119,7 +120,7 @@ public final class CloudNetBridgeModule extends NodeCloudNetModule {
   @ModuleTask(order = 8, event = ModuleLifeCycle.STARTED)
   public void initListeners() {
     this.registerListeners(new NetworkListenerRegisterListener(), new BridgeTaskSetupListener(),
-      new IncludePluginListener(),
+      new IncludePluginListener(), new BridgeLocalProxyPlayerDisconnectListener(this.nodePlayerManager),
       new NodeCustomChannelMessageListener(this.nodePlayerManager), new BridgeDefaultConfigurationListener(),
       new BridgeServiceListCommandListener(), new TaskConfigListener());
   }

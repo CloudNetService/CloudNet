@@ -69,7 +69,7 @@ public interface ICloudServiceManager {
   void removeCloudServiceFactory(@NotNull String runtime);
 
   @Deprecated
-  @ApiStatus.ScheduledForRemoval
+  @ApiStatus.ScheduledForRemoval(inVersion = "3.6")
   ICloudService runTask(@NotNull ServiceConfiguration serviceConfiguration);
 
   @ApiStatus.Internal

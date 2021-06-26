@@ -16,10 +16,10 @@
 
 package eu.cloudnetservice.cloudnet.ext.npcs.bukkit;
 
-import com.comphenix.protocol.wrappers.EnumWrappers;
 import com.github.juliarn.npc.NPC;
 import com.github.juliarn.npc.NPCPool;
 import com.github.juliarn.npc.modifier.AnimationModifier;
+import com.github.juliarn.npc.modifier.EquipmentModifier;
 import com.github.juliarn.npc.modifier.MetadataModifier;
 import com.github.juliarn.npc.profile.Profile;
 import de.dytanic.cloudnet.common.collection.Pair;
@@ -259,7 +259,7 @@ public class BukkitNPCManagement extends AbstractNPCManagement {
 
         Material material = Material.getMaterial(cloudNPC.getItemInHand());
         if (material != null) {
-          spawnedNPC.equipment().queue(EnumWrappers.ItemSlot.MAINHAND, new ItemStack(material)).send(player);
+          spawnedNPC.equipment().queue(EquipmentModifier.MAINHAND, new ItemStack(material)).send(player);
         }
       }).build(this.npcPool);
 

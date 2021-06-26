@@ -42,7 +42,7 @@ public final class DefaultModuleHelper {
   }
 
   @Deprecated
-  @ApiStatus.ScheduledForRemoval
+  @ApiStatus.ScheduledForRemoval(inVersion = "3.6")
   public static boolean copyCurrentModuleInstanceFromClass(Class<?> clazz, File target) {
     return copyCurrentModuleInstanceFromClass(clazz, target.toPath());
   }

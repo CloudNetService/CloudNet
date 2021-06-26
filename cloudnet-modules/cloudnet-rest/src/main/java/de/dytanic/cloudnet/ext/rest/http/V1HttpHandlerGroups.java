@@ -16,7 +16,6 @@
 
 package de.dytanic.cloudnet.ext.rest.http;
 
-import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.network.http.HttpResponseCode;
@@ -24,14 +23,10 @@ import de.dytanic.cloudnet.driver.network.http.IHttpContext;
 import de.dytanic.cloudnet.driver.service.GroupConfiguration;
 import de.dytanic.cloudnet.ext.rest.RestUtils;
 import de.dytanic.cloudnet.http.V1HttpHandler;
-import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.util.stream.Collectors;
 
 public final class V1HttpHandlerGroups extends V1HttpHandler {
-
-  private static final Type TYPE = new TypeToken<GroupConfiguration>() {
-  }.getType();
 
   public V1HttpHandlerGroups(String permission) {
     super(permission);
@@ -78,7 +73,7 @@ public final class V1HttpHandlerGroups extends V1HttpHandler {
   @Override
   public void handlePost(String path, IHttpContext context) {
     GroupConfiguration groupConfiguration = GSON
-      .fromJson(new String(context.request().body(), StandardCharsets.UTF_8), TYPE);
+      .fromJson(new String(context.request().body(), StandardCharsets.UTF_8), GroupConfiguration.class);
 
     if (groupConfiguration.getName() == null) {
       this.send400Response(context, "groupConfiguration name not found");

@@ -64,6 +64,6 @@ public final class BridgeConfigurationProvider {
       .build()
       .sendSingleQuery();
 
-    return response != null ? response.getJson().get("bridgeConfig", BridgeConfiguration.TYPE) : null;
+    return response != null ? response.getJson().get("bridgeConfig", BridgeConfiguration.class) : null;
   }
 }

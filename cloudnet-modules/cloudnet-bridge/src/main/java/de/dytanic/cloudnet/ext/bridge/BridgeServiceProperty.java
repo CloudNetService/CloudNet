@@ -27,6 +27,7 @@ import de.dytanic.cloudnet.driver.service.property.DefaultFunctionalServicePrope
 import de.dytanic.cloudnet.driver.service.property.DefaultModifiableServiceProperty;
 import de.dytanic.cloudnet.driver.service.property.ServiceProperty;
 import de.dytanic.cloudnet.ext.bridge.player.ServicePlayer;
+import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
@@ -86,23 +87,25 @@ public class BridgeServiceProperty {
    */
   public static final ServiceProperty<Boolean> IS_FULL = DefaultFunctionalServiceProperty.<Boolean>create()
     .get(BridgeServiceProperty::isFullService);
-  private static final TypeToken<Collection<JsonDocument>> DOCUMENT_COLLECTION_TYPE = new TypeToken<Collection<JsonDocument>>() {
-  };
+  /**
+   * A type representing a collection of json documents.
+   */
+  private static final Type DOCUMENT_COLLECTION_TYPE = new TypeToken<Collection<JsonDocument>>() {
+  }.getType();
   /**
    * Property to get all online players on a service.
    */
   public static final ServiceProperty<Collection<ServicePlayer>> PLAYERS = DefaultModifiableServiceProperty
-    .<Collection<JsonDocument>, Collection<ServicePlayer>>wrap(
-      createFromType("Players", DOCUMENT_COLLECTION_TYPE.getType()))
+    .<Collection<JsonDocument>, Collection<ServicePlayer>>wrap(createFromType("Players", DOCUMENT_COLLECTION_TYPE))
     .modifyGet(
       (serviceInfoSnapshot, documents) -> documents.stream().map(ServicePlayer::new).collect(Collectors.toList()));
-  private static final TypeToken<Collection<PluginInfo>> PLUGIN_INFO_COLLECTION_TYPE = new TypeToken<Collection<PluginInfo>>() {
-  };
+  private static final Type PLUGIN_INFO_COLLECTION_TYPE = new TypeToken<Collection<PluginInfo>>() {
+  }.getType();
   /**
    * Property to get all installed plugins on a service.
    */
   public static final ServiceProperty<Collection<PluginInfo>> PLUGINS = createFromType("Plugins",
-    PLUGIN_INFO_COLLECTION_TYPE.getType(), true);
+    PLUGIN_INFO_COLLECTION_TYPE, true);
 
   private static boolean isEmptyService(ServiceInfoSnapshot serviceInfoSnapshot) {
     return serviceInfoSnapshot.isConnected() &&

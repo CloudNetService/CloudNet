@@ -57,7 +57,7 @@ public final class V1SyncProxyConfigurationHttpHandler extends V1HttpHandler {
     try {
       if (context.request().body().length > 0) {
         SyncProxyConfiguration syncProxyConfiguration = GSON
-          .fromJson(context.request().bodyAsString(), SyncProxyConfiguration.TYPE);
+          .fromJson(context.request().bodyAsString(), SyncProxyConfiguration.class);
 
         if (syncProxyConfiguration != null) {
           CloudNetSyncProxyModule.getInstance().setSyncProxyConfiguration(syncProxyConfiguration);

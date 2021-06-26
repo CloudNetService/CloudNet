@@ -22,7 +22,7 @@ defaultTasks 'build', 'checkLicenses', 'test', 'jar'
 
 allprojects {
 
-  def major = 3, minor = 4, patch = 0, versionType = "SNAPSHOT"
+  def major = 3, minor = 5, patch = 0, versionType = "SNAPSHOT"
 
   group 'de.dytanic.cloudnet'
   version "$major.$minor.$patch-$versionType"
@@ -74,7 +74,7 @@ allprojects {
 
   project.ext {
 
-    cloudNetCodeName = 'Earthquake'
+    cloudNetCodeName = 'Blizzard'
 
     //Dependencies
     dependencyGuavaVersion = '30.1.1-jre'
@@ -87,8 +87,8 @@ allprojects {
     dependencyJAnsiVersion = '2.3.3'
     dependencySpigotApiVersion = '1.8.8-R0.1-SNAPSHOT'
     dependencySpongeVersion = '7.3.0'
-    dependencyBungeeCordVersion = '1.16-R0.5-SNAPSHOT'
-    dependencyVelocityVersion = '1.1.4'
+    dependencyBungeeCordVersion = '1.17-R0.1-SNAPSHOT'
+    dependencyVelocityVersion = '1.1.8'
     dependencyNukkitXVersion = '1.0-SNAPSHOT'
     dependencyGoMintVersion = '1.0.0-SNAPSHOT'
     dependencyMysqlConnectorJavaVersion = '8.0.25'

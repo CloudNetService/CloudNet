@@ -284,7 +284,7 @@ public abstract class CloudNetDriver {
 
   @NotNull
   @Deprecated
-  @ApiStatus.ScheduledForRemoval
+  @ApiStatus.ScheduledForRemoval(inVersion = "3.6")
   public ITaskScheduler getTaskScheduler() {
     return this.taskScheduler;
   }

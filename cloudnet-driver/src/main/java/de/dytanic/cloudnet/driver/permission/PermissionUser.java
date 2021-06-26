@@ -16,7 +16,6 @@
 
 package de.dytanic.cloudnet.driver.permission;
 
-import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.common.encrypt.EncryptTo;
 import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import java.lang.reflect.Type;
@@ -38,11 +37,8 @@ import org.jetbrains.annotations.Nullable;
 @EqualsAndHashCode(callSuper = false)
 public class PermissionUser extends AbstractPermissible implements IPermissionUser {
 
-  /**
-   * The Gson TypeToken result of the PermissionUser class
-   */
-  public static final Type TYPE = new TypeToken<PermissionUser>() {
-  }.getType();
+  @Deprecated
+  public static final Type TYPE = PermissionUser.class;
 
   protected UUID uniqueId;
 

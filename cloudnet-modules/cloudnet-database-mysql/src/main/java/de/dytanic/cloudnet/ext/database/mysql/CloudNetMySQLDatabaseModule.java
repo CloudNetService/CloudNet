@@ -29,8 +29,8 @@ import java.util.List;
 
 public final class CloudNetMySQLDatabaseModule extends NodeCloudNetModule {
 
-  public static final Type TYPE = new TypeToken<List<MySQLConnectionEndpoint>>() {
-  }.getType();
+  @Deprecated
+  public static final Type TYPE = TypeToken.getParameterized(List.class, MySQLConnectionEndpoint.class).getType();
 
   private static CloudNetMySQLDatabaseModule instance;
 
