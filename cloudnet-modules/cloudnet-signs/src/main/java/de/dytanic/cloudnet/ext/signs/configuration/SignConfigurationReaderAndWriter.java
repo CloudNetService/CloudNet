@@ -75,7 +75,7 @@ public final class SignConfigurationReaderAndWriter {
       return signConfiguration;
     }
 
-    SignConfiguration signConfiguration = document.get("config", SignConfiguration.TYPE);
+    SignConfiguration signConfiguration = document.get("config", SignConfiguration.class);
     if (!signConfiguration.getMessages().containsKey("command-cloudsign-cleanup-success")) {
       signConfiguration.getMessages()
         .put("command-cloudsign-cleanup-success", "&7Non-existing signs were removed successfully");
