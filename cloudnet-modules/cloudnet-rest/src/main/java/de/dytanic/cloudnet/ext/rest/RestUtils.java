@@ -18,7 +18,6 @@ package de.dytanic.cloudnet.ext.rest;
 
 import com.google.common.collect.Iterables;
 import de.dytanic.cloudnet.driver.service.ServiceConfigurationBase;
-
 import java.util.ArrayList;
 
 public final class RestUtils {

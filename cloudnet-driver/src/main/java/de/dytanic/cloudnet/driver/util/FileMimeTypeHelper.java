@@ -17,7 +17,6 @@
 package de.dytanic.cloudnet.driver.util;
 
 import com.google.common.collect.ImmutableMap;
-
 import java.io.File;
 import java.nio.file.Path;
 import java.util.Map;
