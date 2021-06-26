@@ -23,12 +23,22 @@ public class FTPCredentials {
   private final HostAndPort address;
   private final String username;
   private final String password;
+  private final String sshKeyPath;
+  private final String sshKeyPassword;
   private final String baseDirectory;
 
-  public FTPCredentials(HostAndPort address, String username, String password, String baseDirectory) {
+  public FTPCredentials(
+    HostAndPort address,
+    String username,
+    String password,
+    String sshKeyPath,
+    String sshKeyPassword,
+    String baseDirectory) {
     this.address = address;
     this.username = username;
     this.password = password;
+    this.sshKeyPath = sshKeyPath;
+    this.sshKeyPassword = sshKeyPassword;
     this.baseDirectory = baseDirectory;
   }
 
@@ -42,6 +52,14 @@ public class FTPCredentials {
 
   public String getBaseDirectory() {
     return this.baseDirectory;
+  }
+
+  public String getSshKeyPath() {
+    return this.sshKeyPath;
+  }
+
+  public String getSshKeyPassword() {
+    return this.sshKeyPassword;
   }
 
   public String getUsername() {
