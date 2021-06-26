@@ -20,6 +20,7 @@ import de.dytanic.cloudnet.driver.network.http.HttpResponseCode;
 import de.dytanic.cloudnet.driver.network.http.IHttpContext;
 import de.dytanic.cloudnet.driver.permission.IPermissionGroup;
 import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
+import de.dytanic.cloudnet.driver.permission.IPermissionUser;
 import de.dytanic.cloudnet.http.v2.HttpSession;
 import de.dytanic.cloudnet.http.v2.V2HttpHandler;
 import java.util.function.Consumer;
@@ -32,13 +33,12 @@ public class V2HttpHandlerPermission extends V2HttpHandler {
 
   @Override
   protected void handleBearerAuthorized(String path, IHttpContext context, HttpSession session) {
+    //TODO: determine if the route is user or group based
     if (context.request().method().equalsIgnoreCase("GET")) {
-      if (path.endsWith("/permission")) {
-        this.handlePermissionGroupList(context);
-      } else if (path.endsWith("/exists")) {
-        this.handlePermissionGroupExistsRequest(context);
+      if (path.contains("user")) {
+
       } else {
-        this.handlePermissionGroupRequest(context);
+
       }
     } else if (context.request().method().equalsIgnoreCase("POST")) {
       this.handleCreatePermissionGroupRequest(context);
@@ -131,6 +131,86 @@ public class V2HttpHandlerPermission extends V2HttpHandler {
         .cancelNext();
     } else {
       handler.accept(groupName);
+    }
+  }
+
+  protected void handlePermissionUserExistsRequest(IHttpContext context) {
+    this.handleWithPermissionUserContext(context, name -> this.ok(context)
+      .body(this.success().append("result", this.getPermissionManagement().containsUser(name)).toByteArray())
+      .context()
+      .closeAfter(true)
+      .cancelNext()
+    );
+  }
+
+  protected void handlePermissionUserRequest(IHttpContext context) {
+    this.handleWithPermissionUserContext(context, name -> {
+      IPermissionUser permissionUser = this.getPermissionManagement().getFirstUser(name);
+      if (permissionUser == null) {
+        this.ok(context)
+          .body(this.failure().append("reason", "Unknown user").toByteArray())
+          .context()
+          .closeAfter(true)
+          .cancelNext();
+      } else {
+        this.ok(context)
+          .body(this.success().append("user", permissionUser).toByteArray())
+          .context()
+          .closeAfter(true)
+          .cancelNext();
+      }
+    });
+  }
+
+  protected void handleCreatePermissionUserRequest(IHttpContext context) {
+    IPermissionUser permissionUser = this.body(context.request()).toInstanceOf(IPermissionUser.class);
+    if (permissionUser == null) {
+      this.badRequest(context)
+        .body(this.failure().append("reason", "Missing user configuration").toByteArray())
+        .context()
+        .closeAfter(true)
+        .cancelNext();
+      return;
+    }
+
+    this.getPermissionManagement().addUser(permissionUser);
+    this.response(context, HttpResponseCode.HTTP_CREATED)
+      .body(this.success().toByteArray())
+      .context()
+      .closeAfter(true)
+      .cancelNext();
+  }
+
+  protected void handleDeletePermissionUserRequest(IHttpContext context) {
+    this.handleWithPermissionUserContext(context, name -> {
+      if (this.getPermissionManagement().containsUser(name)) {
+        this.getPermissionManagement().deleteUser(name);
+        this.ok(context)
+          .body(this.success().toByteArray())
+          .context()
+          .closeAfter(true)
+          .cancelNext();
+      } else {
+        this.response(context, HttpResponseCode.HTTP_GONE)
+          .body(this.failure().append("reason", "No such user").toByteArray())
+          .context()
+          .closeAfter(true)
+          .cancelNext();
+      }
+    });
+
+  }
+
+  protected void handleWithPermissionUserContext(IHttpContext context, Consumer<String> handler) {
+    String permissionUserName = context.request().pathParameters().get("user");
+    if (permissionUserName == null) {
+      this.badRequest(context)
+        .body(this.failure().append("reason", "Missing user parameter").toByteArray())
+        .context()
+        .closeAfter(true)
+        .cancelNext();
+    } else {
+      handler.accept(permissionUserName);
     }
   }
 

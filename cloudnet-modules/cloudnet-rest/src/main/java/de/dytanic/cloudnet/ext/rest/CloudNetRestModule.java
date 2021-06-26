@@ -42,6 +42,7 @@ import de.dytanic.cloudnet.ext.rest.v2.V2HttpHandlerDatabase;
 import de.dytanic.cloudnet.ext.rest.v2.V2HttpHandlerGroups;
 import de.dytanic.cloudnet.ext.rest.v2.V2HttpHandlerModule;
 import de.dytanic.cloudnet.ext.rest.v2.V2HttpHandlerNode;
+import de.dytanic.cloudnet.ext.rest.v2.V2HttpHandlerPermission;
 import de.dytanic.cloudnet.ext.rest.v2.V2HttpHandlerService;
 import de.dytanic.cloudnet.ext.rest.v2.V2HttpHandlerServiceVersionProvider;
 import de.dytanic.cloudnet.ext.rest.v2.V2HttpHandlerSession;
@@ -82,6 +83,12 @@ public final class CloudNetRestModule extends NodeCloudNetModule {
       .registerHandler("/api/v2/group", IHttpHandler.PRIORITY_NORMAL, new V2HttpHandlerGroups("http.v2.groups"))
       .registerHandler("/api/v2/group/{group}", IHttpHandler.PRIORITY_NORMAL, new V2HttpHandlerGroups("http.v2.groups"))
       .registerHandler("/api/v2/group/{group}/*", IHttpHandler.PRIORITY_LOW, new V2HttpHandlerGroups("http.v2.groups"))
+      // v2 permissions
+      .registerHandler("/api/v2/permission", IHttpHandler.PRIORITY_NORMAL, new V2HttpHandlerPermission("http.v2.permission"))
+      .registerHandler("/api/v2/permission/group/{group}", IHttpHandler.PRIORITY_NORMAL, new V2HttpHandlerPermission("http.v2.permission"))
+      .registerHandler("/api/v2/permission/user/{user}", IHttpHandler.PRIORITY_NORMAL, new V2HttpHandlerPermission("http.v2.permission"))
+      .registerHandler("/api/v2/permission/group/{group}/*", IHttpHandler.PRIORITY_LOW, new V2HttpHandlerPermission("http.v2.permission"))
+      .registerHandler("/api/v2/permission/user/{user}/*", IHttpHandler.PRIORITY_LOW, new V2HttpHandlerPermission("http.v2.permission"))
       // v2 tasks
       .registerHandler("/api/v2/task", IHttpHandler.PRIORITY_NORMAL, new V2HttpHandlerTasks("http.v2.tasks"))
       .registerHandler("/api/v2/task/{task}", IHttpHandler.PRIORITY_NORMAL, new V2HttpHandlerTasks("http.v2.tasks"))
