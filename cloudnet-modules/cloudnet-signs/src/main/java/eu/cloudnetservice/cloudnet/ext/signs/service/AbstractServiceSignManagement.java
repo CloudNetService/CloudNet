@@ -270,8 +270,8 @@ public abstract class AbstractServiceSignManagement<T> extends ServiceSignManage
         SignLayoutsHolder holder = LayoutUtil.getLayoutHolder(ownEntry, value, value.getCurrentTarget());
         if (holder.hasLayouts() && holder.getAnimationsPerSecond() > 0
           && (this.currentTick.get() % 20) % Math.round(20D / holder.getAnimationsPerSecond()) == 0) {
-          holder.tick().setTickBlocked(true);
-          signsNeedingTicking.computeIfAbsent(holder, s -> new HashSet<>()).add(value);
+          holder.tick().enableTickBlock();
+          signsNeedingTicking.computeIfAbsent(holder, $ -> new HashSet<>()).add(value);
         }
       }
 

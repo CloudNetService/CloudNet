@@ -65,12 +65,11 @@ public class SignLayoutsHolder implements SerializableObject {
     return this.tickBlocked != null && this.tickBlocked.get();
   }
 
-  public void setTickBlocked(boolean tickBlocked) {
+  public void enableTickBlock() {
     if (this.tickBlocked == null) {
-      this.tickBlocked = new AtomicBoolean(tickBlocked);
-    } else {
-      this.tickBlocked.set(tickBlocked);
+      this.tickBlocked = new AtomicBoolean();
     }
+    this.tickBlocked.set(true);
   }
 
   public SignLayoutsHolder releaseTickBlock() {
