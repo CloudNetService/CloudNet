@@ -43,6 +43,7 @@ public final class CloudNetStorageFTPModule extends NodeCloudNetModule {
     super.getConfig().getString("username", "root");
     super.getConfig().getString("password", "password");
     super.getConfig().getString("sshKeyPath", "");
+    super.getConfig().getString("sshKeyPassword", "");
     super.getConfig().getString("baseDirectory", "/home/cloudnet");
 
     super.saveConfig();

@@ -59,12 +59,14 @@ public class SFTPClient implements Closeable {
     ILogger logger = CloudNetDriver.getInstance().getLogger();
 
     try {
-      JSch sch = new JSch();
       boolean sshKey = credentials.getSshKeyPath() != null && !credentials.getSshKeyPath().isEmpty();
+      boolean sshKeyEncrypted = credentials.getSshKeyPassword() != null && !credentials.getSshKeyPassword().isEmpty();
+
+      JSch sch = new JSch();
       if (sshKey) {
         File file = new File(credentials.getSshKeyPath());
         if (file.exists()) {
-          sch.addIdentity(file.getAbsolutePath(), credentials.getSshKeyPassword());
+          sch.addIdentity(file.getAbsolutePath(), sshKeyEncrypted ? credentials.getSshKeyPassword() : null);
         } else {
           sshKey = false;
         }
