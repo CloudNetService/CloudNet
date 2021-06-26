@@ -17,11 +17,13 @@
 package de.dytanic.cloudnet.ext.report;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.primitives.Ints;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.Properties;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.io.FileUtils;
+import de.dytanic.cloudnet.common.io.HttpConnectionProvider;
 import de.dytanic.cloudnet.common.logging.DefaultFileLogHandler;
 import de.dytanic.cloudnet.common.logging.DefaultLogFormatter;
 import de.dytanic.cloudnet.common.logging.IFormatter;
@@ -50,7 +52,6 @@ import java.io.OutputStream;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
 import java.net.HttpURLConnection;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -130,32 +131,27 @@ public final class CloudNetReportModule extends NodeCloudNetModule {
     try {
       byte[] contentBytes = content.getBytes(StandardCharsets.UTF_8);
 
-      HttpURLConnection httpURLConnection = (HttpURLConnection) new URL(this.getPasteURL() + "/documents")
-        .openConnection();
-
-      httpURLConnection.setRequestMethod("POST");
-
-      httpURLConnection.setRequestProperty("content-length", String.valueOf(contentBytes.length));
-      httpURLConnection.setRequestProperty("content-type", "application/json");
-      httpURLConnection.setRequestProperty("user-agent",
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36");
-
-      httpURLConnection.setDoOutput(true);
-      httpURLConnection.setDoInput(true);
-      httpURLConnection.connect();
+      HttpURLConnection connection = HttpConnectionProvider.provideConnection(
+        this.getPasteURL() + "/documents",
+        ImmutableMap.<String, String>builder()
+          .putAll(HttpConnectionProvider.DEFAULT_REQUEST_PROPERTIES)
+          .put("content-type", "application/json")
+          .put("content-length", String.valueOf(contentBytes.length))
+          .build());
+      connection.setRequestMethod("POST");
+      connection.setDoOutput(true);
+      connection.connect();
 
       if (this.getConfig().get("pasteServerType", PasteServerType.class) == PasteServerType.HASTE) {
-        try (OutputStream outputStream = httpURLConnection.getOutputStream()) {
+        try (OutputStream outputStream = connection.getOutputStream()) {
           outputStream.write(contentBytes);
         }
       }
 
-      String input;
-      try (InputStream inputStream = httpURLConnection.getInputStream()) {
-        input = new String(FileUtils.toByteArray(inputStream), StandardCharsets.UTF_8);
+      JsonDocument jsonDocument;
+      try (InputStream inputStream = connection.getInputStream()) {
+        jsonDocument = JsonDocument.newDocument(inputStream);
       }
-
-      JsonDocument jsonDocument = JsonDocument.newDocument(input);
 
       return this.getPasteURL() + "/" + jsonDocument.getString("key") +
         (jsonDocument.contains("deleteSecret") ? " DeleteSecret: " + jsonDocument.getString("deleteSecret") : "");

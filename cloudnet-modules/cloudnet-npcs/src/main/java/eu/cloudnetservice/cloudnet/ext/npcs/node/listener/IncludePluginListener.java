@@ -17,6 +17,7 @@
 package eu.cloudnetservice.cloudnet.ext.npcs.node.listener;
 
 import de.dytanic.cloudnet.common.io.FileUtils;
+import de.dytanic.cloudnet.common.io.HttpConnectionProvider;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.util.DefaultModuleHelper;
@@ -24,7 +25,6 @@ import de.dytanic.cloudnet.event.service.CloudServicePreStartEvent;
 import eu.cloudnetservice.cloudnet.ext.npcs.node.CloudNetNPCModule;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -47,16 +47,8 @@ public class IncludePluginListener {
 
   private void downloadProtocolLib() {
     try {
-      URLConnection urlConnection = new URL(PROTOCOLLIB_DOWNLOAD_URL).openConnection();
-
+      URLConnection urlConnection = HttpConnectionProvider.provideConnection(PROTOCOLLIB_DOWNLOAD_URL, 2_000);
       urlConnection.setUseCaches(false);
-      urlConnection.setDoOutput(false);
-
-      urlConnection.setConnectTimeout(2000);
-      urlConnection.setReadTimeout(2000);
-
-      urlConnection.setRequestProperty("User-Agent",
-        "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11");
       urlConnection.connect();
 
       try (InputStream inputStream = urlConnection.getInputStream()) {

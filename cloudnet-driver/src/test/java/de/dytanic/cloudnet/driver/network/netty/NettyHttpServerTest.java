@@ -16,6 +16,7 @@
 
 package de.dytanic.cloudnet.driver.network.netty;
 
+import de.dytanic.cloudnet.common.io.HttpConnectionProvider;
 import de.dytanic.cloudnet.driver.network.http.IHttpServer;
 import de.dytanic.cloudnet.driver.network.netty.http.NettyHttpServer;
 import java.io.BufferedReader;
@@ -23,7 +24,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
-import java.net.URL;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -66,10 +66,8 @@ public class NettyHttpServerTest {
     Assert.assertEquals(1, httpServer.getHttpHandlers().size());
     Assert.assertTrue(httpServer.addListener(port));
 
-    HttpURLConnection httpURLConnection = (HttpURLConnection) new URL(
-      "http://localhost:" + port + "/person/64/Albert/info").openConnection();
-    httpURLConnection.setRequestMethod("GET");
-    httpURLConnection.setDoOutput(false);
+    HttpURLConnection httpURLConnection = HttpConnectionProvider
+      .provideConnection(String.format("http://localhost:%d/person/64/Albert/info", port));
     httpURLConnection.setUseCaches(false);
     httpURLConnection.connect();
 
@@ -112,8 +110,8 @@ public class NettyHttpServerTest {
     Assert.assertEquals(1, httpServer.getHttpHandlers().size());
     Assert.assertTrue(httpServer.addListener(port));
 
-    HttpURLConnection httpURLConnection = (HttpURLConnection) new URL(
-      "http://localhost:" + port + "/person/" + TEST_STRING_2 + "/test").openConnection();
+    HttpURLConnection httpURLConnection = HttpConnectionProvider
+      .provideConnection(String.format("http://localhost:%d/person/%s/test", port, TEST_STRING_2));
     httpURLConnection.setRequestMethod("POST");
     httpURLConnection.setDoOutput(true);
     httpURLConnection.setUseCaches(false);

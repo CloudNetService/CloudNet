@@ -16,6 +16,7 @@
 
 package de.dytanic.cloudnet.console.animation.progressbar;
 
+import de.dytanic.cloudnet.common.io.HttpConnectionProvider;
 import de.dytanic.cloudnet.console.IConsole;
 import java.io.IOException;
 import java.io.InputStream;
@@ -40,10 +41,19 @@ public class ProgressBarInputStream extends InputStream {
     this.wrapped = wrapped;
   }
 
+  public static InputStream wrapDownload(IConsole console, String endpoint) throws IOException {
+    URLConnection urlConnection = HttpConnectionProvider.provideConnection(endpoint);
+    urlConnection.setUseCaches(false);
+    urlConnection.connect();
+
+    InputStream inputStream = urlConnection.getInputStream();
+
+    long contentLength = urlConnection.getHeaderFieldLong("Content-Length", inputStream.available());
+    return console.isAnimationRunning() ? inputStream : new ProgressBarInputStream(console, inputStream, contentLength);
+  }
+
   public static InputStream wrapDownload(IConsole console, URL url) throws IOException {
     URLConnection urlConnection = url.openConnection();
-    urlConnection.setRequestProperty("User-Agent",
-      "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11");
     urlConnection.connect();
 
     InputStream inputStream = urlConnection.getInputStream();
