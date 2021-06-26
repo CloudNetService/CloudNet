@@ -100,8 +100,8 @@ public final class CloudNetBridgeModule extends NodeCloudNetModule {
     this.getHttpServer().registerHandler("/api/v1/modules/bridge/config",
       new V1BridgeConfigurationHttpHandler("cloudnet.http.v1.modules.bridge.config"));
 
-    this.getHttpServer()
-      .registerHandler("/api/v2/player", IHttpHandler.PRIORITY_NORMAL, new V2HttpHandlerBridge("http.v2.player"));
+    this.getHttpServer().registerHandler("/api/v2/player", IHttpHandler.PRIORITY_NORMAL,
+      new V2HttpHandlerBridge("http.v2.player"));
     this.getHttpServer().registerHandler("/api/v2/player/{player}", IHttpHandler.PRIORITY_NORMAL,
       new V2HttpHandlerBridge("http.v2.player"));
     this.getHttpServer().registerHandler("/api/v2/player/{player}/*", IHttpHandler.PRIORITY_LOW,

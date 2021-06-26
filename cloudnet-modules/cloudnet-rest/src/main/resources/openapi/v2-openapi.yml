@@ -55,6 +55,11 @@ tags:
     externalDocs:
       url: 'https://cloudnetservice.eu/docs/3.3/modules/cloudperms'
       description: More information
+  - name: Player
+    description: Management of cloudnet players
+    externalDocs:
+      url: 'https://cloudnetservice.eu/docs/3.3/commands/players'
+      description: More information
   - name: Tasks
     description: Management of the cloudnet task system
     externalDocs:
@@ -710,7 +715,7 @@ paths:
           $ref: '#/components/responses/BadRequest'
         '403':
           $ref: '#/components/responses/Unauthorized'
-  /permission:
+  /permission/group:
     post:
       requestBody:
         required: true
@@ -748,7 +753,7 @@ paths:
                           $ref: '#/components/schemas/PermissionGroup'
         '403':
           $ref: '#/components/responses/Unauthorized'
-  '/permission/{name}':
+  '/permission/group/{name}':
     parameters:
       - name: name
         in: path
@@ -786,7 +791,7 @@ paths:
           $ref: '#/components/responses/BadRequest'
         '403':
           $ref: '#/components/responses/Unauthorized'
-  '/permission/{name}/exists':
+  '/permission/group/{name}/exists':
     parameters:
       - name: name
         in: path
@@ -798,6 +803,176 @@ paths:
       tags:
         - Permissions
       summary: Checks if a permission groups exists
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Success'
+                  - properties:
+                      result:
+                        type: boolean
+                        example: true
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+  '/permission/user':
+    post:
+      requestBody:
+        required: true
+        description: The permission user to create
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PermissionUser'
+      tags:
+        - Permissions
+      summary: Creates a permission user
+      responses:
+        '201':
+          $ref: '#/components/responses/Success'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+  '/permission/user/{name}':
+    parameters:
+      - name: name
+        in: path
+        required: true
+        description: The name of the permission user
+        schema:
+          type: string
+    get:
+      tags:
+        - Permissions
+      summary: Get a permission user
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Success'
+                  - properties:
+                      user:
+                        $ref: '#/components/schemas/PermissionUser'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+    delete:
+      tags:
+        - Permissions
+      summary: Deletes a permission user
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+  '/permission/user/{name}/exists':
+    parameters:
+      - name: name
+        in: path
+        required: true
+        description: The name of the permission user
+        schema:
+          type: string
+    get:
+      tags:
+        - Permissions
+      summary: Checks if a permission user exists
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Success'
+                  - properties:
+                      result:
+                        type: boolean
+                        example: true
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+  '/player/user':
+    post:
+      requestBody:
+        required: true
+        description: The permission user to create
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PermissionUser'
+      tags:
+        - Player
+      summary: Creates a permission user
+      responses:
+        '201':
+          $ref: '#/components/responses/Success'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+  '/player/{name}':
+    parameters:
+      - name: name
+        in: path
+        required: true
+        description: The name of the permission user
+        schema:
+          type: string
+    get:
+      tags:
+        - Player
+      summary: Get a permission user
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Success'
+                  - properties:
+                      user:
+                        $ref: '#/components/schemas/PermissionUser'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+    delete:
+      tags:
+        - Player
+      summary: Deletes a permission user
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+  '/player/{name}/exists':
+    parameters:
+      - name: name
+        in: path
+        required: true
+        description: The name of the permission user
+        schema:
+          type: string
+    get:
+      tags:
+        - Player
+      summary: Checks if a permission user exists
       responses:
         '200':
           description: OK
@@ -2548,6 +2723,35 @@ components:
         timeOutMillis:
           type: number
           example: -1
+    PermissionUser:
+      type: object
+      properties:
+        uniqueId:
+          type: string
+          example: '62b37d32-3305-475a-bf26-9abee4b0b90f'
+        groups:
+          type: array
+          items:
+            type: string
+            example:
+              - Group1
+              - Group2
+        hashedPassword:
+          type: string
+          example: 'pmWkWSBCL51Bfkhn79xPuKBKHz//H6B+mY6G9/eieuM='
+        createdTime:
+          type: integer
+          example: 1624713880928
+        name:
+          type: string
+          example: CloudNetUser
+        potency:
+          type: integer
+          example: 100
+        permissions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Permission'
     ServiceTemplate:
       type: object
       properties:
