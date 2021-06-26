@@ -40,13 +40,10 @@ public final class NukkitCloudNetCloudPermissionsPlayerListener implements Liste
 
   @EventHandler(priority = EventPriority.LOW)
   public void handle(PlayerAsyncPreLoginEvent event) {
-    if (!event.isCancelled()) {
-      CloudPermissionsHelper
-        .initPermissionUser(this.permissionsManagement, event.getPlayer().getUniqueId(), event.getPlayer().getName(),
-          message -> {
-            event.setCancelled();
-            event.setKickMessage(message.replace("&", "§"));
-          }, Server.getInstance().getPropertyBoolean("xbox-auth", true));
+    if (event.getLoginResult() == PlayerAsyncPreLoginEvent.LoginResult.SUCCESS) {
+      CloudPermissionsHelper.initPermissionUser(this.permissionsManagement, event.getUuid(), event.getName(),
+        message -> event.disAllow(message.replace("&", "§")),
+        Server.getInstance().getPropertyBoolean("xbox-auth", true));
     }
   }
 
