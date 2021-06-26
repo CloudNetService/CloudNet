@@ -39,6 +39,7 @@ import org.spongepowered.api.text.Text;
   version = "2.0",
   authors = "CloudNetService",
   url = "https://cloudnetservice.eu",
+  description = "Sponge extension for the CloudNet runtime which adds sign connector support",
   dependencies = @Dependency(id = "cloudnet_bridge")
 )
 public class SpongeSignsPlugin {
