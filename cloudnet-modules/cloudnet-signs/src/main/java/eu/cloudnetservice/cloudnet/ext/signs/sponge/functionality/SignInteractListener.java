@@ -58,7 +58,7 @@ public class SignInteractListener {
           boolean canConnect = this.signManagement.canConnect(sign, player::hasPermission);
 
           SpongeCloudSignInteractEvent interactEvent = new SpongeCloudSignInteractEvent(
-            Cause.of(EventContext.empty(), plugin),
+            Cause.of(EventContext.empty(), this.plugin),
             player, sign, !canConnect);
           Sponge.getEventManager().post(interactEvent);
 

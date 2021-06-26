@@ -85,6 +85,7 @@ public class BukkitSignManagement extends AbstractServiceSignManagement<org.bukk
         Block block = location.getBlock();
         if (block.getState() instanceof org.bukkit.block.Sign) {
           org.bukkit.block.Sign bukkitSign = (org.bukkit.block.Sign) block.getState();
+          BukkitCompatibility.setSignGlowing(bukkitSign, layout);
 
           String[] replaced = this.replaceLines(sign, layout);
           if (replaced != null) {

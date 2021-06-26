@@ -41,7 +41,7 @@ public class BukkitCloudSignInteractEvent extends PlayerEvent implements Cancell
   }
 
   public Sign getClickedSign() {
-    return clickedSign;
+    return this.clickedSign;
   }
 
   public Optional<ServiceInfoSnapshot> getTarget() {

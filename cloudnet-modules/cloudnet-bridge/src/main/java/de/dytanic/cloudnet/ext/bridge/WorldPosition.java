@@ -134,16 +134,16 @@ public class WorldPosition implements SerializableObject {
     if (this == o) {
       return true;
     }
-    if (o == null || getClass() != o.getClass()) {
+    if (o == null || this.getClass() != o.getClass()) {
       return false;
     }
     WorldPosition position = (WorldPosition) o;
-    boolean allValues = Double.compare(position.x, x) == 0
-      && Double.compare(position.y, y) == 0
-      && Double.compare(position.z, z) == 0
-      && Double.compare(position.yaw, yaw) == 0
-      && Double.compare(position.pitch, pitch) == 0
-      && Objects.equals(world, position.world);
+    boolean allValues = Double.compare(position.x, this.x) == 0
+      && Double.compare(position.y, this.y) == 0
+      && Double.compare(position.z, this.z) == 0
+      && Double.compare(position.yaw, this.yaw) == 0
+      && Double.compare(position.pitch, this.pitch) == 0
+      && Objects.equals(this.world, position.world);
     if (this.group != null && position.group != null) {
       return allValues && this.group.equals(position.group);
     }
@@ -152,6 +152,6 @@ public class WorldPosition implements SerializableObject {
 
   @Override
   public int hashCode() {
-    return Objects.hash(x, y, z, yaw, pitch, world);
+    return Objects.hash(this.x, this.y, this.z, this.yaw, this.pitch, this.world);
   }
 }

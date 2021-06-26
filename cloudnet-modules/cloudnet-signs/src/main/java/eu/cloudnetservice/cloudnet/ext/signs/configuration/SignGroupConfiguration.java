@@ -40,19 +40,19 @@ public class SignGroupConfiguration implements Cloneable, SerializableObject {
   }
 
   public String getTargetGroup() {
-    return targetGroup;
+    return this.targetGroup;
   }
 
   public SignLayoutsHolder getEmptyLayout() {
-    return emptyLayout;
+    return this.emptyLayout;
   }
 
   public SignLayoutsHolder getOnlineLayout() {
-    return onlineLayout;
+    return this.onlineLayout;
   }
 
   public SignLayoutsHolder getFullLayout() {
-    return fullLayout;
+    return this.fullLayout;
   }
 
   @Override

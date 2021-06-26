@@ -72,7 +72,7 @@ public class SignsConfiguration implements SerializableObject {
   }
 
   public Map<String, String> getMessages() {
-    return messages;
+    return this.messages;
   }
 
   public void setMessages(Map<String, String> messages) {
@@ -95,7 +95,7 @@ public class SignsConfiguration implements SerializableObject {
   }
 
   public Collection<SignConfigurationEntry> getConfigurationEntries() {
-    return configurationEntries;
+    return this.configurationEntries;
   }
 
   public void setConfigurationEntries(Collection<SignConfigurationEntry> configurationEntries) {

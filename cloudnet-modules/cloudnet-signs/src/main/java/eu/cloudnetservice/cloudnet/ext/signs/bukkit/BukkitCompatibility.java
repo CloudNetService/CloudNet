@@ -16,11 +16,15 @@
 
 package eu.cloudnetservice.cloudnet.ext.signs.bukkit;
 
+import com.google.common.base.Enums;
+import eu.cloudnetservice.cloudnet.ext.signs.configuration.SignLayout;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
+import org.bukkit.DyeColor;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
+import org.bukkit.material.Colorable;
 import org.bukkit.material.MaterialData;
 import org.bukkit.material.Sign;
 import org.jetbrains.annotations.ApiStatus;
@@ -35,7 +39,11 @@ public final class BukkitCompatibility {
   private static final MethodHandle GET_BLOCK_DATA;
   private static final MethodHandle WALL_SIGN_GET_FACING;
 
+  private static final MethodHandle SET_GLOWING;
+  private static final MethodHandle SET_DYE_COLOR;
+
   static {
+    // facing lookup
     Class<?> wallSignClass;
 
     MethodHandle getBlockData;
@@ -55,9 +63,27 @@ public final class BukkitCompatibility {
       getFacing = null;
     }
 
+    // glowing lookup
+    MethodHandle setGlowing;
+    MethodHandle setDyeColor;
+
+    try {
+      setGlowing = MethodHandles.publicLookup().findVirtual(org.bukkit.block.Sign.class, "setGlowingText",
+        MethodType.methodType(void.class, boolean.class));
+      setDyeColor = MethodHandles.publicLookup().findVirtual(Colorable.class, "setColor",
+        MethodType.methodType(void.class, DyeColor.class));
+    } catch (NoSuchMethodException | IllegalAccessException exception) {
+      // not available (only 1.17+)
+      setGlowing = null;
+      setDyeColor = null;
+    }
+
     WALL_SIGN_CLASS = wallSignClass;
     GET_BLOCK_DATA = getBlockData;
     WALL_SIGN_GET_FACING = getFacing;
+
+    SET_GLOWING = setGlowing;
+    SET_DYE_COLOR = setDyeColor;
   }
 
   private BukkitCompatibility() {
@@ -85,5 +111,21 @@ public final class BukkitCompatibility {
     }
     // unable to retrieve facing information
     return null;
+  }
+
+  public static void setSignGlowing(@NotNull org.bukkit.block.Sign sign, @NotNull SignLayout layout) {
+    if (SET_GLOWING != null && SET_DYE_COLOR != null && layout.getGlowingColor() != null) {
+      // try to find the defined dye color
+      DyeColor color = Enums.getIfPresent(DyeColor.class, layout.getGlowingColor().toUpperCase()).orNull();
+      if (color != null) {
+        try {
+          // enable the glowing of the sign
+          SET_GLOWING.invoke(sign, Boolean.TRUE);
+          SET_DYE_COLOR.invoke(sign, color);
+        } catch (Throwable throwable) {
+          throwable.printStackTrace();
+        }
+      }
+    }
   }
 }

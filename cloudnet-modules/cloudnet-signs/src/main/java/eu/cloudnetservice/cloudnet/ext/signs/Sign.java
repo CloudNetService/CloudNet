@@ -74,7 +74,7 @@ public class Sign implements SerializableObject, Comparable<Sign> {
   }
 
   public String getTargetGroup() {
-    return targetGroup;
+    return this.targetGroup;
   }
 
   public void setTargetGroup(String targetGroup) {
@@ -82,7 +82,7 @@ public class Sign implements SerializableObject, Comparable<Sign> {
   }
 
   public String getCreatedGroup() {
-    return createdGroup;
+    return this.createdGroup;
   }
 
   public void setCreatedGroup(String createdGroup) {
@@ -90,7 +90,7 @@ public class Sign implements SerializableObject, Comparable<Sign> {
   }
 
   public String getTemplatePath() {
-    return templatePath;
+    return this.templatePath;
   }
 
   public void setTemplatePath(String templatePath) {
@@ -98,7 +98,7 @@ public class Sign implements SerializableObject, Comparable<Sign> {
   }
 
   public WorldPosition getWorldPosition() {
-    return worldPosition;
+    return this.worldPosition;
   }
 
   public void setWorldPosition(WorldPosition worldPosition) {
@@ -123,7 +123,7 @@ public class Sign implements SerializableObject, Comparable<Sign> {
    * @return the priority of the sign to be on the sign wall
    */
   public int getPriority() {
-    return getPriority(false);
+    return this.getPriority(false);
   }
 
   /**
@@ -133,7 +133,7 @@ public class Sign implements SerializableObject, Comparable<Sign> {
    * @return the priority of the sign to be on the sign wall
    */
   public int getPriority(@Nullable SignConfigurationEntry entry) {
-    return getPriority(entry != null && entry.isSwitchToSearchingWhenServiceIsFull());
+    return this.getPriority(entry != null && entry.isSwitchToSearchingWhenServiceIsFull());
   }
 
   /**

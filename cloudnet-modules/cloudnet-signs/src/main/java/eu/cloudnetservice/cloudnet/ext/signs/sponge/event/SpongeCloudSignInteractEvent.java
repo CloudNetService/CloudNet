@@ -45,7 +45,7 @@ public class SpongeCloudSignInteractEvent extends AbstractEvent implements Targe
   }
 
   public Sign getSign() {
-    return sign;
+    return this.sign;
   }
 
   public Optional<ServiceInfoSnapshot> getTarget() {

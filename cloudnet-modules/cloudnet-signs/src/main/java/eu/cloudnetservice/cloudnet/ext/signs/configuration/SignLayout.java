@@ -29,6 +29,7 @@ public class SignLayout implements SerializableObject {
   protected String[] lines;
   protected String blockMaterial;
   protected int blockSubId;
+  protected String glowingColor;
 
   public SignLayout() {
   }
@@ -40,7 +41,7 @@ public class SignLayout implements SerializableObject {
   }
 
   public String[] getLines() {
-    return lines;
+    return this.lines;
   }
 
   public void setLines(String[] lines) {
@@ -48,7 +49,7 @@ public class SignLayout implements SerializableObject {
   }
 
   public String getBlockMaterial() {
-    return blockMaterial;
+    return this.blockMaterial;
   }
 
   public void setBlockMaterial(String blockMaterial) {
@@ -56,11 +57,19 @@ public class SignLayout implements SerializableObject {
   }
 
   public int getBlockSubId() {
-    return blockSubId;
+    return this.blockSubId;
   }
 
   public void setBlockSubId(int blockSubId) {
     this.blockSubId = blockSubId;
+  }
+
+  public String getGlowingColor() {
+    return this.glowingColor;
+  }
+
+  public void setGlowingColor(String glowingColor) {
+    this.glowingColor = glowingColor;
   }
 
   @Override
@@ -68,6 +77,7 @@ public class SignLayout implements SerializableObject {
     buffer.writeStringArray(this.lines);
     buffer.writeOptionalString(this.blockMaterial);
     buffer.writeInt(this.blockSubId);
+    buffer.writeOptionalString(this.glowingColor);
   }
 
   @Override
@@ -75,5 +85,6 @@ public class SignLayout implements SerializableObject {
     this.lines = buffer.readStringArray();
     this.blockMaterial = buffer.readOptionalString();
     this.blockSubId = buffer.readInt();
+    this.glowingColor = buffer.readOptionalString();
   }
 }

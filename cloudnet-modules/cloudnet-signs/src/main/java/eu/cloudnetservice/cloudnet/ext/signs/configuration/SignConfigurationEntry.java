@@ -149,7 +149,7 @@ public class SignConfigurationEntry implements SerializableObject, Cloneable {
   }
 
   public String getTargetGroup() {
-    return targetGroup;
+    return this.targetGroup;
   }
 
   public void setTargetGroup(String targetGroup) {
@@ -157,7 +157,7 @@ public class SignConfigurationEntry implements SerializableObject, Cloneable {
   }
 
   public boolean isSwitchToSearchingWhenServiceIsFull() {
-    return switchToSearchingWhenServiceIsFull;
+    return this.switchToSearchingWhenServiceIsFull;
   }
 
   public void setSwitchToSearchingWhenServiceIsFull(boolean switchToSearchingWhenServiceIsFull) {
@@ -165,7 +165,7 @@ public class SignConfigurationEntry implements SerializableObject, Cloneable {
   }
 
   public KnockbackConfiguration getKnockbackConfiguration() {
-    return knockbackConfiguration;
+    return this.knockbackConfiguration;
   }
 
   public void setKnockbackConfiguration(KnockbackConfiguration knockbackConfiguration) {
@@ -173,7 +173,7 @@ public class SignConfigurationEntry implements SerializableObject, Cloneable {
   }
 
   public List<SignGroupConfiguration> getGroupConfigurations() {
-    return groupConfigurations;
+    return this.groupConfigurations;
   }
 
   public void setGroupConfigurations(List<SignGroupConfiguration> groupConfigurations) {
@@ -181,7 +181,7 @@ public class SignConfigurationEntry implements SerializableObject, Cloneable {
   }
 
   public SignLayoutsHolder getSearchingLayout() {
-    return searchingLayout;
+    return this.searchingLayout;
   }
 
   public void setSearchingLayout(SignLayoutsHolder searchingLayout) {
@@ -189,7 +189,7 @@ public class SignConfigurationEntry implements SerializableObject, Cloneable {
   }
 
   public SignLayoutsHolder getStartingLayout() {
-    return startingLayout;
+    return this.startingLayout;
   }
 
   public void setStartingLayout(SignLayoutsHolder startingLayout) {
@@ -197,7 +197,7 @@ public class SignConfigurationEntry implements SerializableObject, Cloneable {
   }
 
   public SignLayoutsHolder getEmptyLayout() {
-    return emptyLayout;
+    return this.emptyLayout;
   }
 
   public void setEmptyLayout(SignLayoutsHolder emptyLayout) {
@@ -205,7 +205,7 @@ public class SignConfigurationEntry implements SerializableObject, Cloneable {
   }
 
   public SignLayoutsHolder getOnlineLayout() {
-    return onlineLayout;
+    return this.onlineLayout;
   }
 
   public void setOnlineLayout(SignLayoutsHolder onlineLayout) {
@@ -213,7 +213,7 @@ public class SignConfigurationEntry implements SerializableObject, Cloneable {
   }
 
   public SignLayoutsHolder getFullLayout() {
-    return fullLayout;
+    return this.fullLayout;
   }
 
   public void setFullLayout(SignLayoutsHolder fullLayout) {
@@ -280,7 +280,7 @@ public class SignConfigurationEntry implements SerializableObject, Cloneable {
     }
 
     public boolean isEnabled() {
-      return enabled;
+      return this.enabled;
     }
 
     public void setEnabled(boolean enabled) {
@@ -288,7 +288,7 @@ public class SignConfigurationEntry implements SerializableObject, Cloneable {
     }
 
     public double getDistance() {
-      return distance;
+      return this.distance;
     }
 
     public void setDistance(double distance) {
@@ -296,7 +296,7 @@ public class SignConfigurationEntry implements SerializableObject, Cloneable {
     }
 
     public double getStrength() {
-      return strength;
+      return this.strength;
     }
 
     public void setStrength(double strength) {
@@ -304,7 +304,7 @@ public class SignConfigurationEntry implements SerializableObject, Cloneable {
     }
 
     public String getBypassPermission() {
-      return bypassPermission;
+      return this.bypassPermission;
     }
 
     public void setBypassPermission(String bypassPermission) {

@@ -42,7 +42,7 @@ public class SignLayoutsHolder implements SerializableObject {
   }
 
   public int getAnimationsPerSecond() {
-    return animationsPerSecond;
+    return this.animationsPerSecond;
   }
 
   public void setAnimationsPerSecond(int animationsPerSecond) {
@@ -50,7 +50,7 @@ public class SignLayoutsHolder implements SerializableObject {
   }
 
   public List<SignLayout> getSignLayouts() {
-    return signLayouts;
+    return this.signLayouts;
   }
 
   public void setSignLayouts(List<SignLayout> signLayouts) {

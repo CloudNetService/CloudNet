@@ -44,7 +44,7 @@ public class NukkitCloudSignInteractEvent extends PlayerEvent implements Cancell
   }
 
   public Sign getSign() {
-    return sign;
+    return this.sign;
   }
 
   public Optional<ServiceInfoSnapshot> getTarget() {
