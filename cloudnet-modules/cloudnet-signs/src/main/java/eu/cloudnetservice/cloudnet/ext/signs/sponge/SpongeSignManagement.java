@@ -35,7 +35,7 @@ import org.spongepowered.api.data.manipulator.mutable.block.DirectionalData;
 import org.spongepowered.api.data.manipulator.mutable.tileentity.SignData;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.serializer.TextSerializers;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
@@ -94,7 +94,7 @@ public class SpongeSignManagement extends AbstractServiceSignManagement<org.spon
         String[] lines = this.replaceLines(sign, layout);
         if (lines != null) {
           for (int i = 0; i < 4; i++) {
-            signData.setElement(i, Text.of(lines[i]));
+            signData.setElement(i, TextSerializers.FORMATTING_CODE.deserialize(lines[i]));
           }
 
           tileSign.offer(signData);
@@ -151,7 +151,7 @@ public class SpongeSignManagement extends AbstractServiceSignManagement<org.spon
       Location<World> location = this.locationFromWorldPosition(position);
       if (location != null) {
         TileEntity tileEntity = location.getTileEntity().orElse(null);
-        if (tileEntity != null && !(tileEntity instanceof org.spongepowered.api.block.tileentity.Sign)) {
+        if (!(tileEntity instanceof org.spongepowered.api.block.tileentity.Sign)) {
           this.deleteSign(position);
           removed++;
         }

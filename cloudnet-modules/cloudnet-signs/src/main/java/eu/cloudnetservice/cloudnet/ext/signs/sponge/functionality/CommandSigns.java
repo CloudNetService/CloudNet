@@ -118,8 +118,7 @@ public class CommandSigns implements CommandExecutor {
     Optional<BlockRayHit<World>> hit = BlockRay.from(player)
       .distanceLimit(15)
       .narrowPhase(true)
-      .select(BlockRay.notAirFilter())
-      .whilst(lastHit -> {
+      .select(lastHit -> {
         BlockType blockType = lastHit.getExtent()
           .getBlockType(lastHit.getBlockX(), lastHit.getBlockY(), lastHit.getBlockZ());
         return blockType.equals(BlockTypes.STANDING_SIGN) || blockType.equals(BlockTypes.WALL_SIGN);

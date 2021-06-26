@@ -16,10 +16,10 @@
 
 package eu.cloudnetservice.cloudnet.ext.signs.node.util;
 
-import de.dytanic.cloudnet.command.sub.SubCommandArgumentTypes;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.console.animation.questionlist.ConsoleQuestionListAnimation;
 import de.dytanic.cloudnet.console.animation.questionlist.QuestionListEntry;
+import de.dytanic.cloudnet.console.animation.questionlist.answer.QuestionAnswerTypeBoolean;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.cloudnet.ext.signs.SignManagement;
 import eu.cloudnetservice.cloudnet.ext.signs.configuration.SignConfigurationEntry;
@@ -35,7 +35,12 @@ public final class SignEntryTaskSetup {
   private static final QuestionListEntry<Boolean> CREATE_ENTRY_QUESTION_LIST = new QuestionListEntry<>(
     "GenerateDefaultSignsConfig",
     LanguageManager.getMessage("module-signs-tasks-setup-generate-default-config"),
-    SubCommandArgumentTypes.bool("false")
+    new QuestionAnswerTypeBoolean() {
+      @Override
+      public String getRecommendation() {
+        return super.getFalseString();
+      }
+    }
   );
 
   private SignEntryTaskSetup() {
@@ -44,8 +49,8 @@ public final class SignEntryTaskSetup {
 
   public static void addSetupQuestionIfNecessary(@NotNull ConsoleQuestionListAnimation animation,
     @NotNull ServiceEnvironmentType type) {
-    if (!animation.hasResult("GenerateDefaultSignsConfig") && (type.isMinecraftJavaServer() || type
-      .isMinecraftBedrockServer())) {
+    if (!animation.hasResult("GenerateDefaultSignsConfig")
+      && (type.isMinecraftJavaServer() || type.isMinecraftBedrockServer())) {
       animation.addEntry(CREATE_ENTRY_QUESTION_LIST);
     }
   }

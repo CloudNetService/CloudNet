@@ -16,13 +16,13 @@
 
 package eu.cloudnetservice.cloudnet.ext.signs.configuration;
 
+import com.google.common.base.Strings;
 import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import de.dytanic.cloudnet.driver.serialization.SerializableObject;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import jdk.internal.joptsimple.internal.Strings;
 import org.jetbrains.annotations.NotNull;
 
 public class SignConfigurationEntry implements SerializableObject, Cloneable {
@@ -142,7 +142,7 @@ public class SignConfigurationEntry implements SerializableObject, Cloneable {
       new String[]{
         "",
         firstLine,
-        Strings.repeat('.', amount),
+        Strings.repeat(".", amount),
         ""
       }, block, -1
     );
