@@ -3,7 +3,7 @@ version: '2.0'
 api-version: '1.13'
 author: CloudNetService
 website: https://cloudnetservice.eu
-description: Bukkit extension for the CloudNet runtime, which add sign connector support
+description: Bukkit extension for the CloudNet runtime which adds sign connector support
 
 main: eu.cloudnetservice.cloudnet.ext.signs.bukkit.BukkitSignsPlugin
 
