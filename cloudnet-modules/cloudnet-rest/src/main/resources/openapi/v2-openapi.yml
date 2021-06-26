@@ -50,6 +50,11 @@ tags:
     externalDocs:
       url: 'https://cloudnetservice.eu/docs/3.3/components/groups'
       description: More information
+  - name: Permissions
+    description: Management of the cloudnet permission system
+    externalDocs:
+      url: 'https://cloudnetservice.eu/docs/3.3/modules/cloudperms'
+      description: More information
   - name: Tasks
     description: Management of the cloudnet task system
     externalDocs:
@@ -689,6 +694,110 @@ paths:
       tags:
         - Groups
       summary: Checks if a groups exists
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Success'
+                  - properties:
+                      result:
+                        type: boolean
+                        example: true
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+  /permission:
+    post:
+      requestBody:
+        required: true
+        description: The permission group to create
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PermissionGroup'
+      tags:
+        - Permissions
+      summary: Creates a group
+      responses:
+        '201':
+          $ref: '#/components/responses/Success'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+    get:
+      tags:
+        - Permissions
+      summary: Lists all permission groups
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Success'
+                  - properties:
+                      groups:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/PermissionGroup'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+  '/permission/{name}':
+    parameters:
+      - name: name
+        in: path
+        required: true
+        description: The name of the permission group
+        schema:
+          type: string
+    get:
+      tags:
+        - Permissions
+      summary: Get a permission group
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Success'
+                  - properties:
+                      group:
+                        $ref: '#/components/schemas/PermissionGroup'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+    delete:
+      tags:
+        - Permissions
+      summary: Deletes a permission group
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+  '/permission/{name}/exists':
+    parameters:
+      - name: name
+        in: path
+        required: true
+        description: The name of the permission group
+        schema:
+          type: string
+    get:
+      tags:
+        - Permissions
+      summary: Checks if a permission groups exists
       responses:
         '200':
           description: OK
@@ -2388,6 +2497,57 @@ components:
               example:
                 - MINECRAFT_SERVER
                 - VELOCITY
+    PermissionGroup:
+      type: object
+      properties:
+        groups:
+          type: array
+          items:
+            type: string
+          example:
+            - Other group 1
+            - Other group 2
+        prefix:
+          type: string
+          example: '&7Spieler'
+        color:
+          type: string
+          example: '&6'
+        suffix:
+          type: string
+          example: '&a'
+        display:
+          type: string
+          example: '&7Spieler'
+        sortId:
+          type: integer
+          example: 50
+        defaultGroup:
+          type: boolean
+        createdTime:
+          type: number
+        name:
+          type: string
+          example: Spieler
+        potency:
+          type: integer
+          example: 10
+        permissions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Permission'
+    Permission:
+      type: object
+      properties:
+        name:
+          type: string
+          example: cloudnet.*
+        potency:
+          type: integer
+          example: 50
+        timeOutMillis:
+          type: number
+          example: -1
     ServiceTemplate:
       type: object
       properties:
