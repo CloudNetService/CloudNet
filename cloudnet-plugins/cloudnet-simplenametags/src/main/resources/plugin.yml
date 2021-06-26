@@ -5,4 +5,4 @@ api-version: "1.13"
 
 main: de.dytanic.cloudnet.ext.simplenametags.CloudNetSimpleNameTagsPlugin
 
-depend: [CloudNet-CloudPerms]
+depend: [ CloudNet-CloudPerms ]

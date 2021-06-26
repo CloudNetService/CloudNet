@@ -52,7 +52,7 @@ timings:
   privacy: false
   #Settings sections to ignore. These sections won't be sent to Aikar's Timing parser
   #For example: [all] or [settings, timings]
-  ignore: []
+  ignore: [ ]
 
 level-settings:
   #The default format that levels will use when created

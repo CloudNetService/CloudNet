@@ -1,3 +1,19 @@
+/*
+ * Copyright 2019-2021 CloudNetService team & contributors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package de.dytanic.cloudnet.driver.network.netty.http;
 
 import com.google.common.base.Preconditions;
@@ -23,45 +39,46 @@ import io.netty.handler.codec.http.cookie.ServerCookieEncoder;
 import io.netty.handler.codec.http.websocketx.WebSocketHandshakeException;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
-import org.jetbrains.annotations.ApiStatus;
-
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.jetbrains.annotations.ApiStatus;
 
 @ApiStatus.Internal
 final class NettyHttpServerContext implements IHttpContext {
 
-    protected final Collection<HttpCookie> cookies = new ArrayList<>();
+  protected final Collection<HttpCookie> cookies = new ArrayList<>();
 
-    protected final NettyHttpChannel channel;
-    protected final NettyHttpServer nettyHttpServer;
+  protected final Channel nettyChannel;
 
-    protected final Channel nettyChannel;
-    protected final HttpRequest httpRequest;
+  protected final NettyHttpChannel channel;
+  protected final NettyHttpServer nettyHttpServer;
 
-    protected final NettyHttpServerRequest httpServerRequest;
-    protected final NettyHttpServerResponse httpServerResponse;
+  protected final HttpRequest httpRequest;
 
-    protected volatile boolean closeAfter = true;
-    protected volatile boolean cancelNext;
-    protected volatile boolean cancelSendResponse;
+  protected final NettyHttpServerRequest httpServerRequest;
+  protected final NettyHttpServerResponse httpServerResponse;
 
-    protected volatile NettyWebSocketServerChannel webSocketServerChannel;
+  protected volatile boolean closeAfter = true;
+  protected volatile boolean cancelNext = false;
+  protected volatile boolean cancelSendResponse = false;
 
-    protected String pathPrefix;
-    protected IHttpHandler lastHandler;
+  protected volatile NettyWebSocketServerChannel webSocketServerChannel;
 
-    public NettyHttpServerContext(NettyHttpServer nettyHttpServer, NettyHttpChannel channel, URI uri, Map<String, String> pathParameters, HttpRequest httpRequest) {
-        this.nettyHttpServer = nettyHttpServer;
-        this.channel = channel;
-        this.httpRequest = httpRequest;
-        this.nettyChannel = channel.getChannel();
+  protected IHttpHandler lastHandler;
+  protected String pathPrefix;
 
-        this.httpServerRequest = new NettyHttpServerRequest(this, httpRequest, pathParameters, uri);
-        this.httpServerResponse = new NettyHttpServerResponse(this, httpRequest);
+  public NettyHttpServerContext(NettyHttpServer nettyHttpServer, NettyHttpChannel channel, URI uri,
+    Map<String, String> pathParameters, HttpRequest httpRequest) {
+    this.nettyHttpServer = nettyHttpServer;
+    this.channel = channel;
+    this.httpRequest = httpRequest;
+    this.nettyChannel = channel.getChannel();
+
+    this.httpServerRequest = new NettyHttpServerRequest(this, httpRequest, pathParameters, uri);
+    this.httpServerResponse = new NettyHttpServerResponse(this, httpRequest);
 
         if (this.httpRequest.headers().contains("Cookie")) {
             this.cookies.addAll(ServerCookieDecoder.LAX.decode(this.httpRequest.headers().get("Cookie")).stream()
@@ -77,8 +94,8 @@ final class NettyHttpServerContext implements IHttpContext {
                     )).collect(Collectors.toList()));
         }
 
-        this.updateHeaderResponse();
-    }
+    this.updateHeaderResponse();
+  }
 
     @Override
     public IWebSocketChannel upgrade() {
@@ -117,33 +134,33 @@ final class NettyHttpServerContext implements IHttpContext {
             this.cancelSendResponse = true;
         }
 
-        return this.webSocketServerChannel;
-    }
+    return this.webSocketServerChannel;
+  }
 
-    @Override
-    public IWebSocketChannel webSocketChanel() {
-        return this.webSocketServerChannel;
-    }
+  @Override
+  public IWebSocketChannel webSocketChanel() {
+    return this.webSocketServerChannel;
+  }
 
-    @Override
-    public IHttpChannel channel() {
-        return this.channel;
-    }
+  @Override
+  public IHttpChannel channel() {
+    return this.channel;
+  }
 
-    @Override
-    public IHttpRequest request() {
-        return this.httpServerRequest;
-    }
+  @Override
+  public IHttpRequest request() {
+    return this.httpServerRequest;
+  }
 
-    @Override
-    public IHttpResponse response() {
-        return this.httpServerResponse;
-    }
+  @Override
+  public IHttpResponse response() {
+    return this.httpServerResponse;
+  }
 
-    @Override
-    public boolean cancelNext() {
-        return this.cancelNext = true;
-    }
+  @Override
+  public boolean cancelNext() {
+    return this.cancelNext = true;
+  }
 
     @Override
     public IHttpContext cancelNext(boolean cancelNext) {
@@ -156,86 +173,87 @@ final class NettyHttpServerContext implements IHttpContext {
         return this.lastHandler;
     }
 
-    @Override
-    public IHttpComponent<IHttpServer> component() {
-        return this.nettyHttpServer;
+  @Override
+  public IHttpComponent<IHttpServer> component() {
+    return this.nettyHttpServer;
+  }
+
+  @Override
+  public IHttpContext closeAfter(boolean value) {
+    this.closeAfter = value;
+    return this;
+  }
+
+  @Override
+  public boolean closeAfter() {
+    return this.closeAfter;
+  }
+
+  @Override
+  public HttpCookie cookie(String name) {
+    Preconditions.checkNotNull(name);
+
+    return this.cookies.stream().filter(httpCookie -> httpCookie.getName().equalsIgnoreCase(name)).findFirst()
+      .orElse(null);
+  }
+
+  @Override
+  public Collection<HttpCookie> cookies() {
+    return this.cookies;
+  }
+
+  @Override
+  public boolean hasCookie(String name) {
+    Preconditions.checkNotNull(name);
+
+    return this.cookies.stream().anyMatch(httpCookie -> httpCookie.getName().equalsIgnoreCase(name));
+  }
+
+  @Override
+  public IHttpContext setCookies(Collection<HttpCookie> cookies) {
+    Preconditions.checkNotNull(cookies);
+
+    this.cookies.clear();
+    this.cookies.addAll(cookies);
+    this.updateHeaderResponse();
+
+    return this;
+  }
+
+  @Override
+  public IHttpContext addCookie(HttpCookie httpCookie) {
+    Preconditions.checkNotNull(httpCookie);
+
+    HttpCookie cookie = this.cookie(httpCookie.getName());
+
+    if (cookie != null) {
+      this.removeCookie(cookie.getName());
+    }
+    this.cookies.add(httpCookie);
+    this.updateHeaderResponse();
+
+    return this;
+  }
+
+  @Override
+  public IHttpContext removeCookie(String name) {
+    Preconditions.checkNotNull(name);
+
+    HttpCookie cookie = this.cookie(name);
+    if (cookie != null) {
+      cookie.setMaxAge(-1);
     }
 
-    @Override
-    public IHttpContext closeAfter(boolean value) {
-        this.closeAfter = value;
-        return this;
-    }
+    this.updateHeaderResponse();
+    return this;
+  }
 
-    @Override
-    public boolean closeAfter() {
-        return this.closeAfter;
-    }
-
-    @Override
-    public HttpCookie cookie(String name) {
-        Preconditions.checkNotNull(name);
-
-        return this.cookies.stream().filter(httpCookie -> httpCookie.getName().equalsIgnoreCase(name)).findFirst().orElse(null);
-    }
-
-    @Override
-    public Collection<HttpCookie> cookies() {
-        return this.cookies;
-    }
-
-    @Override
-    public boolean hasCookie(String name) {
-        Preconditions.checkNotNull(name);
-
-        return this.cookies.stream().anyMatch(httpCookie -> httpCookie.getName().equalsIgnoreCase(name));
-    }
-
-    @Override
-    public IHttpContext setCookies(Collection<HttpCookie> cookies) {
-        Preconditions.checkNotNull(cookies);
-
-        this.cookies.clear();
-        this.cookies.addAll(cookies);
-        this.updateHeaderResponse();
-
-        return this;
-    }
-
-    @Override
-    public IHttpContext addCookie(HttpCookie httpCookie) {
-        Preconditions.checkNotNull(httpCookie);
-
-        HttpCookie cookie = this.cookie(httpCookie.getName());
-
-        if (cookie != null) {
-            this.removeCookie(cookie.getName());
-        }
-        this.cookies.add(httpCookie);
-        this.updateHeaderResponse();
-
-        return this;
-    }
-
-    @Override
-    public IHttpContext removeCookie(String name) {
-        Preconditions.checkNotNull(name);
-
-        HttpCookie cookie = this.cookie(name);
-        if (cookie != null) {
-            cookie.setMaxAge(-1);
-        }
-
-        this.updateHeaderResponse();
-        return this;
-    }
-
-    @Override
-    public IHttpContext clearCookies() {
-        this.cookies.clear();
-        this.updateHeaderResponse();
-        return this;
-    }
+  @Override
+  public IHttpContext clearCookies() {
+    this.cookies.clear();
+    this.updateHeaderResponse();
+    return this;
+  }
 
     @Override
     public String pathPrefix() {
@@ -260,12 +278,12 @@ final class NettyHttpServerContext implements IHttpContext {
                         cookie.setHttpOnly(httpCookie.isHttpOnly());
                         cookie.setWrap(httpCookie.isWrap());
 
-                        return cookie;
-                    }).collect(Collectors.toList())));
-        }
+          return cookie;
+        }).collect(Collectors.toList())));
     }
+  }
 
-    public void setLastHandler(IHttpHandler lastHandler) {
-        this.lastHandler = lastHandler;
-    }
+  public void setLastHandler(IHttpHandler lastHandler) {
+    this.lastHandler = lastHandler;
+  }
 }

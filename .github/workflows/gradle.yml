@@ -1,6 +1,8 @@
 name: Gradle Github Actions
 
-on: [ push ]
+on:
+  - push
+  - pull_request
 
 jobs:
   build:
@@ -13,8 +15,11 @@ jobs:
         uses: actions/setup-java@v2
         with:
           distribution: 'adopt'
-          java-version: '15'
+          java-version: '16'
           check-latest: true
+
+      - name: Validate license headers
+        run: ./gradlew checkLicenses
 
       - name: Test with Gradle
         run: ./gradlew test
@@ -28,7 +33,7 @@ jobs:
           mkdir -p temp/;
           cp -r .template/* temp/;
 
-          cp LICENSE temp/LICENSE;
+          cp LICENSE temp/license.txt;
 
           mkdir temp/dev;
           mkdir temp/dev/examples;

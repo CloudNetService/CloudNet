@@ -1,3 +1,19 @@
+/*
+ * Copyright 2019-2021 CloudNetService team & contributors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package de.dytanic.cloudnet.driver.network.netty.http;
 
 import de.dytanic.cloudnet.driver.CloudNetDriver;
@@ -23,6 +39,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @ApiStatus.Internal
 final class NettyHttpServerHandler extends SimpleChannelInboundHandler<HttpRequest> {
@@ -30,12 +47,12 @@ final class NettyHttpServerHandler extends SimpleChannelInboundHandler<HttpReque
     private final NettyHttpServer nettyHttpServer;
     private final HostAndPort connectedAddress;
 
-    private NettyHttpChannel channel;
+  private NettyHttpChannel channel;
 
-    public NettyHttpServerHandler(NettyHttpServer nettyHttpServer, HostAndPort connectedAddress) {
-        this.nettyHttpServer = nettyHttpServer;
-        this.connectedAddress = connectedAddress;
-    }
+  public NettyHttpServerHandler(NettyHttpServer nettyHttpServer, HostAndPort connectedAddress) {
+    this.nettyHttpServer = nettyHttpServer;
+    this.connectedAddress = connectedAddress;
+  }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
@@ -43,38 +60,38 @@ final class NettyHttpServerHandler extends SimpleChannelInboundHandler<HttpReque
                 HostAndPort.fromSocketAddress(ctx.channel().remoteAddress()));
     }
 
-    @Override
-    public void channelInactive(ChannelHandlerContext ctx) {
-        if (!ctx.channel().isActive() || !ctx.channel().isOpen() || !ctx.channel().isWritable()) {
-            ctx.channel().close();
-        }
+  @Override
+  public void channelInactive(ChannelHandlerContext ctx) {
+    if (!ctx.channel().isActive() || !ctx.channel().isOpen() || !ctx.channel().isWritable()) {
+      ctx.channel().close();
+    }
+  }
+
+  @Override
+  public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
+    if (!(cause instanceof IOException)) {
+      cause.printStackTrace();
+    }
+  }
+
+  @Override
+  public void channelReadComplete(ChannelHandlerContext ctx) {
+    ctx.flush();
+  }
+
+  @Override
+  protected void channelRead0(ChannelHandlerContext ctx, HttpRequest msg) {
+    if (msg.decoderResult().isFailure()) {
+      ctx.channel().close();
+      return;
     }
 
-    @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        if (!(cause instanceof IOException)) {
-            cause.printStackTrace();
-        }
-    }
+    this.handleMessage(ctx.channel(), msg);
+  }
 
-    @Override
-    public void channelReadComplete(ChannelHandlerContext ctx) {
-        ctx.flush();
-    }
-
-    @Override
-    protected void channelRead0(ChannelHandlerContext ctx, HttpRequest msg) {
-        if (msg.decoderResult().isFailure()) {
-            ctx.channel().close();
-            return;
-        }
-
-        this.handleMessage(ctx.channel(), msg);
-    }
-
-    private void handleMessage(Channel channel, HttpRequest httpRequest) {
-        URI uri = URI.create(httpRequest.uri());
-        String fullPath = uri.getPath();
+  private void handleMessage(Channel channel, HttpRequest httpRequest) {
+    URI uri = URI.create(httpRequest.uri());
+    String fullPath = uri.getPath();
 
         if (fullPath.isEmpty()) {
             fullPath = "/";
@@ -137,13 +154,13 @@ final class NettyHttpServerHandler extends SimpleChannelInboundHandler<HttpReque
             return false;
         }
 
-        if (!httpHandlerEntry.path.endsWith("*") && pathEntries.length != handlerPathEntries.length) {
-            return false;
-        }
+    if (!httpHandlerEntry.path.endsWith("*") && pathEntries.length != handlerPathEntries.length) {
+      return false;
+    }
 
-        if (pathEntries.length < handlerPathEntries.length) {
-            return false;
-        }
+    if (pathEntries.length < handlerPathEntries.length) {
+      return false;
+    }
 
         boolean wildCard = false;
         if (pathEntries.length != 1 || handlerPathEntries.length != 1) {

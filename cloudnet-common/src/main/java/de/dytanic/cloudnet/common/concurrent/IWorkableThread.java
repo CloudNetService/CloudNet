@@ -1,3 +1,19 @@
+/*
+ * Copyright 2019-2021 CloudNetService team & contributors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package de.dytanic.cloudnet.common.concurrent;
 
 import org.jetbrains.annotations.ApiStatus;
@@ -6,16 +22,16 @@ import org.jetbrains.annotations.ApiStatus;
 @ApiStatus.ScheduledForRemoval
 public interface IWorkableThread extends AutoCloseable {
 
-    <V> IScheduledTask<V> getTask();
+  <V> IScheduledTask<V> getTask();
 
-    <V> IWorkableThread setTask(IScheduledTask<V> scheduledTask);
+  <V> IWorkableThread setTask(IScheduledTask<V> scheduledTask);
 
-    boolean isEmpty();
+  boolean isEmpty();
 
-    int getTasksCount();
+  int getTasksCount();
 
-    void stop();
+  void stop();
 
-    void interrupt();
+  void interrupt();
 
 }

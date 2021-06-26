@@ -1,99 +1,115 @@
+/*
+ * Copyright 2019-2021 CloudNetService team & contributors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 jar {
 
-    dependsOn ':cloudnet-driver:jar'
-    dependsOn ':cloudnet:jar'
+  dependsOn ':cloudnet-driver:jar'
+  dependsOn ':cloudnet:jar'
 
-    //Depends modules
-    dependsOn ':cloudnet-modules:cloudnet-bridge:jar'
-    dependsOn ':cloudnet-modules:cloudnet-labymod:jar'
-    dependsOn ':cloudnet-modules:cloudnet-signs:jar'
-    dependsOn ':cloudnet-modules:cloudnet-npcs:jar'
-    dependsOn ':cloudnet-modules:cloudnet-syncproxy:jar'
-    dependsOn ':cloudnet-modules:cloudnet-smart:jar'
-    dependsOn ':cloudnet-modules:cloudnet-cloudflare:jar'
-    dependsOn ':cloudnet-modules:cloudnet-report:jar'
-    dependsOn ':cloudnet-modules:cloudnet-rest:jar'
-    dependsOn ':cloudnet-modules:cloudnet-cloudperms:jar'
-    dependsOn ':cloudnet-modules:cloudnet-storage-ftp:jar'
-    dependsOn ':cloudnet-modules:cloudnet-database-mysql:jar'
-    dependsOn ':cloudnet-modules:cloudnet-labymod:jar'
+  //Depends modules
+  dependsOn ':cloudnet-modules:cloudnet-bridge:jar'
+  dependsOn ':cloudnet-modules:cloudnet-labymod:jar'
+  dependsOn ':cloudnet-modules:cloudnet-signs:jar'
+  dependsOn ':cloudnet-modules:cloudnet-npcs:jar'
+  dependsOn ':cloudnet-modules:cloudnet-syncproxy:jar'
+  dependsOn ':cloudnet-modules:cloudnet-smart:jar'
+  dependsOn ':cloudnet-modules:cloudnet-cloudflare:jar'
+  dependsOn ':cloudnet-modules:cloudnet-report:jar'
+  dependsOn ':cloudnet-modules:cloudnet-rest:jar'
+  dependsOn ':cloudnet-modules:cloudnet-cloudperms:jar'
+  dependsOn ':cloudnet-modules:cloudnet-storage-ftp:jar'
+  dependsOn ':cloudnet-modules:cloudnet-database-mysql:jar'
+  dependsOn ':cloudnet-modules:cloudnet-labymod:jar'
 
-    archiveFileName.set(cloudnetLauncherFile)
+  archiveFileName.set(cloudnetLauncherFile)
 
-    manifest {
-        attributes 'Main-Class': 'de.dytanic.cloudnet.launcher.CloudNetLauncher'
-        attributes 'Implementation-Version': archiveVersion.get() + "-" + getCurrentCommitHash()
-        attributes 'Specification-Version': archiveVersion.get() + "-" + System.currentTimeMillis()
-    }
+  manifest {
+    attributes 'Main-Class': 'de.dytanic.cloudnet.launcher.CloudNetLauncher'
+    attributes 'Implementation-Version': archiveVersion.get() + "-" + getCurrentCommitHash()
+    attributes 'Specification-Version': archiveVersion.get() + "-" + System.currentTimeMillis()
+  }
 
-    from {
-        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
-    }
+  from {
+    configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+  }
 
-    //jar file
-    from('../cloudnet/build/libs') {
-        include cloudnetRunnableOutFileName
-        include cloudnetRunnableOutCNLFileName
-    }
+  //jar file
+  from('../cloudnet/build/libs') {
+    include cloudnetRunnableOutFileName
+    include cloudnetRunnableOutCNLFileName
+  }
 
-    //driver file
-    from('../cloudnet-driver/build/libs') {
-        include cloudnetDriverOutFileName
-        include cloudnetDriverOutCNLFileName
-    }
+  //driver file
+  from('../cloudnet-driver/build/libs') {
+    include cloudnetDriverOutFileName
+    include cloudnetDriverOutCNLFileName
+  }
 
-    //cloudNet default modules
+  //cloudNet default modules
 
-    from('../cloudnet-modules/cloudnet-bridge/build/libs') {
-        include cloudnetModuleBridgeFileName
-    }
+  from('../cloudnet-modules/cloudnet-bridge/build/libs') {
+    include cloudnetModuleBridgeFileName
+  }
 
-    from('../cloudnet-modules/cloudnet-signs/build/libs') {
-        include cloudnetModuleSignsFileName
-    }
+  from('../cloudnet-modules/cloudnet-signs/build/libs') {
+    include cloudnetModuleSignsFileName
+  }
 
-    from('../cloudnet-modules/cloudnet-npcs/build/libs') {
-        include cloudnetModuleNPCsFileName
-    }
+  from('../cloudnet-modules/cloudnet-npcs/build/libs') {
+    include cloudnetModuleNPCsFileName
+  }
 
-    from('../cloudnet-modules/cloudnet-syncproxy/build/libs') {
-        include cloudnetModuleSyncProxyFileName
-    }
+  from('../cloudnet-modules/cloudnet-syncproxy/build/libs') {
+    include cloudnetModuleSyncProxyFileName
+  }
 
-    from('../cloudnet-modules/cloudnet-smart/build/libs') {
-        include cloudnetModuleSmartFileName
-    }
+  from('../cloudnet-modules/cloudnet-smart/build/libs') {
+    include cloudnetModuleSmartFileName
+  }
 
-    from('../cloudnet-modules/cloudnet-cloudflare/build/libs') {
-        include cloudnetModuleCloudflareFileName
-    }
+  from('../cloudnet-modules/cloudnet-cloudflare/build/libs') {
+    include cloudnetModuleCloudflareFileName
+  }
 
-    from('../cloudnet-modules/cloudnet-report/build/libs') {
-        include cloudnetModuleReportFileName
-    }
+  from('../cloudnet-modules/cloudnet-report/build/libs') {
+    include cloudnetModuleReportFileName
+  }
 
-    from('../cloudnet-modules/cloudnet-rest/build/libs') {
-        include cloudnetModuleRestFileName
-    }
+  from('../cloudnet-modules/cloudnet-rest/build/libs') {
+    include cloudnetModuleRestFileName
+  }
 
-    from('../cloudnet-modules/cloudnet-cloudperms/build/libs') {
-        include cloudnetModuleCloudPermsFileName
-    }
+  from('../cloudnet-modules/cloudnet-cloudperms/build/libs') {
+    include cloudnetModuleCloudPermsFileName
+  }
 
-    from('../cloudnet-modules/cloudnet-storage-ftp/build/libs') {
-        include cloudnetModuleStorageFTPFileName
-    }
+  from('../cloudnet-modules/cloudnet-storage-ftp/build/libs') {
+    include cloudnetModuleStorageFTPFileName
+  }
 
-    from('../cloudnet-modules/cloudnet-database-mysql/build/libs') {
-        include cloudnetModuleDatabaseMySQLFileName
-    }
+  from('../cloudnet-modules/cloudnet-database-mysql/build/libs') {
+    include cloudnetModuleDatabaseMySQLFileName
+  }
 
-    from('../cloudnet-modules/cloudnet-labymod/build/libs') {
-        include cloudnetModuleLabyModFileName
-    }
+  from('../cloudnet-modules/cloudnet-labymod/build/libs') {
+    include cloudnetModuleLabyModFileName
+  }
 }
 
 
 dependencies {
-    api group: 'com.google.code.gson', name: 'gson', version: dependencyGsonVersion
+  api group: 'com.google.code.gson', name: 'gson', version: dependencyGsonVersion
 }
