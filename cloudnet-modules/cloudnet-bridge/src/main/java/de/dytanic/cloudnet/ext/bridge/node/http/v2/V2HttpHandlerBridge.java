@@ -66,7 +66,7 @@ public class V2HttpHandlerBridge extends V2HttpHandler {
           .cancelNext();
       } else {
         ICloudPlayer cloudPlayer = this.getPlayerManager().getFirstOnlinePlayer(name);
-        if(cloudPlayer != null) {
+        if (cloudPlayer != null) {
           cloudOfflinePlayer = cloudPlayer;
         }
 
@@ -121,7 +121,7 @@ public class V2HttpHandlerBridge extends V2HttpHandler {
 
   protected void handleWithCloudPlayerContext(IHttpContext context, Consumer<String> handler) {
     String cloudPlayer = context.request().pathParameters().get("player");
-    if(cloudPlayer == null) {
+    if (cloudPlayer == null) {
       this.badRequest(context)
         .body(this.failure().append("reason", "Missing player parameter").toByteArray())
         .context()

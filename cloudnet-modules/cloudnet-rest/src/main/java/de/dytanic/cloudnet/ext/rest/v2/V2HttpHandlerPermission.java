@@ -33,17 +33,35 @@ public class V2HttpHandlerPermission extends V2HttpHandler {
 
   @Override
   protected void handleBearerAuthorized(String path, IHttpContext context, HttpSession session) {
-    //TODO: determine if the route is user or group based
     if (context.request().method().equalsIgnoreCase("GET")) {
-      if (path.contains("user")) {
-
+      if (path.endsWith("exists")) {
+        if (path.contains("user")) {
+          this.handlePermissionUserExistsRequest(context);
+        } else {
+          this.handlePermissionGroupExistsRequest(context);
+        }
+      } else if (path.endsWith("group")) {
+        this.handlePermissionGroupList(context);
       } else {
-
+        if (path.contains("user")) {
+          this.handlePermissionUserRequest(context);
+        } else {
+          this.handlePermissionGroupRequest(context);
+        }
       }
     } else if (context.request().method().equalsIgnoreCase("POST")) {
-      this.handleCreatePermissionGroupRequest(context);
+      if (path.endsWith("user")) {
+        this.handleCreatePermissionUserRequest(context);
+      } else {
+        this.handleCreatePermissionGroupRequest(context);
+      }
     } else if (context.request().method().equalsIgnoreCase("DELETE")) {
-      this.handleDeletePermissionGroupRequest(context);
+      if (path.contains("user")) {
+        this.handleDeletePermissionUserRequest(context);
+      } else {
+        this.handleDeletePermissionGroupRequest(context);
+      }
+
     }
   }
 
