@@ -35,13 +35,6 @@ import lombok.ToString;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
-
 @ToString
 @EqualsAndHashCode(callSuper = false)
 public class ServiceConfiguration extends SerializableJsonDocPropertyable implements SerializableObject {
@@ -56,19 +49,22 @@ public class ServiceConfiguration extends SerializableJsonDocPropertyable implem
 
   protected String[] groups;
 
-    protected ServiceRemoteInclusion[] includes;
-    protected ServiceTemplate[] templates;
-    protected ServiceDeployment[] deployments;
-    protected String[] deletedFilesAfterStop;
-    protected ProcessConfiguration processConfig;
-    protected int port;
-    private ServiceRemoteInclusion[] initIncludes;
-    private ServiceTemplate[] initTemplates;
-    private ServiceDeployment[] initDeployments;
+  protected ServiceRemoteInclusion[] includes;
+  protected ServiceTemplate[] templates;
+  protected ServiceDeployment[] deployments;
+  protected String[] deletedFilesAfterStop;
+  protected ProcessConfiguration processConfig;
+  protected int port;
+  private ServiceRemoteInclusion[] initIncludes;
+  private ServiceTemplate[] initTemplates;
+  private ServiceDeployment[] initDeployments;
 
-    public ServiceConfiguration(ServiceId serviceId, String runtime, boolean autoDeleteOnStop, boolean staticService, String[] groups, ServiceRemoteInclusion[] includes, ServiceTemplate[] templates, ServiceDeployment[] deployments, ProcessConfiguration processConfig, int port) {
-        this(serviceId, runtime, autoDeleteOnStop, staticService, groups, includes, templates, deployments, new String[0], processConfig, port, null);
-    }
+  public ServiceConfiguration(ServiceId serviceId, String runtime, boolean autoDeleteOnStop, boolean staticService,
+    String[] groups, ServiceRemoteInclusion[] includes, ServiceTemplate[] templates, ServiceDeployment[] deployments,
+    ProcessConfiguration processConfig, int port) {
+    this(serviceId, runtime, autoDeleteOnStop, staticService, groups, includes, templates, deployments, new String[0],
+      processConfig, port, null);
+  }
 
   public ServiceConfiguration(ServiceId serviceId, String runtime, boolean autoDeleteOnStop, boolean staticService,
     String[] groups, ServiceRemoteInclusion[] includes, ServiceTemplate[] templates, ServiceDeployment[] deployments,
@@ -342,28 +338,28 @@ public class ServiceConfiguration extends SerializableJsonDocPropertyable implem
     this.processConfig = processConfig;
   }
 
-    public boolean isValid() {
-        return this.serviceId.taskName != null && this.serviceId.environment != null
-                && this.processConfig.maxHeapMemorySize > 0 && this.port > 0;
-    }
+  public boolean isValid() {
+    return this.serviceId.taskName != null && this.serviceId.environment != null
+      && this.processConfig.maxHeapMemorySize > 0 && this.port > 0;
+  }
 
-    public void replaceNulls() {
-        if (this.templates == null) {
-            this.templates = new ServiceTemplate[0];
-        }
-        if (this.deployments == null) {
-            this.deployments = new ServiceDeployment[0];
-        }
-        if (this.includes == null) {
-            this.includes = new ServiceRemoteInclusion[0];
-        }
-        if (this.serviceId.uniqueId == null) {
-            this.serviceId.uniqueId = UUID.randomUUID();
-        }
-        if (this.processConfig.jvmOptions == null) {
-            this.processConfig.jvmOptions = Collections.emptyList();
-        }
+  public void replaceNulls() {
+    if (this.templates == null) {
+      this.templates = new ServiceTemplate[0];
     }
+    if (this.deployments == null) {
+      this.deployments = new ServiceDeployment[0];
+    }
+    if (this.includes == null) {
+      this.includes = new ServiceRemoteInclusion[0];
+    }
+    if (this.serviceId.uniqueId == null) {
+      this.serviceId.uniqueId = UUID.randomUUID();
+    }
+    if (this.processConfig.jvmOptions == null) {
+      this.processConfig.jvmOptions = Collections.emptyList();
+    }
+  }
 
   /**
    * Builder for the creation of new services. All required parameters are:
@@ -879,21 +875,21 @@ public class ServiceConfiguration extends SerializableJsonDocPropertyable implem
       return this;
     }
 
-        public boolean isValid() {
-            return this.config.isValid();
-        }
-
-        @NotNull
-        public ServiceConfiguration build() {
-            Preconditions.checkNotNull(this.config.serviceId.taskName, "No task provided");
-            Preconditions.checkNotNull(this.config.serviceId.environment, "No environment provided");
-            Preconditions.checkArgument(this.config.processConfig.maxHeapMemorySize > 0, "No max heap memory provided");
-            Preconditions.checkArgument(this.config.port > 0, "StartPort has to greater than 0");
-
-            this.config.replaceNulls();
-            return this.config;
-        }
-
+    public boolean isValid() {
+      return this.config.isValid();
     }
+
+    @NotNull
+    public ServiceConfiguration build() {
+      Preconditions.checkNotNull(this.config.serviceId.taskName, "No task provided");
+      Preconditions.checkNotNull(this.config.serviceId.environment, "No environment provided");
+      Preconditions.checkArgument(this.config.processConfig.maxHeapMemorySize > 0, "No max heap memory provided");
+      Preconditions.checkArgument(this.config.port > 0, "StartPort has to greater than 0");
+
+      this.config.replaceNulls();
+      return this.config;
+    }
+
+  }
 
 }

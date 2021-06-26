@@ -37,7 +37,7 @@ public interface IHttpContext {
 
   IHttpContext cancelNext(boolean cancelNext);
 
-    IHttpComponent<?> component();
+  IHttpComponent<?> component();
 
   IHttpContext closeAfter(boolean value);
 
@@ -57,6 +57,6 @@ public interface IHttpContext {
 
   IHttpContext clearCookies();
 
-    String pathPrefix();
+  String pathPrefix();
 
 }

@@ -41,15 +41,13 @@ import java.util.UUID;
 
 public final class JsonConfiguration implements IConfiguration {
 
+  public static final Path CONFIG_FILE_PATH = Paths
+    .get(System.getProperty("cloudnet.config.json.path", "config.json"));
   private static final Type CLUSTER = NetworkCluster.class;
   private static final Type CLUSTER_NODE = NetworkClusterNode.class;
   private static final Type SET_STRING = TypeToken.getParameterized(Set.class, String.class).getType();
   private static final Type HOST_AND_PORT_COLLECTION = TypeToken.getParameterized(Collection.class, HostAndPort.class)
     .getType();
-
-  public static final Path CONFIG_FILE_PATH = Paths
-    .get(System.getProperty("cloudnet.config.json.path", "config.json"));
-
   private transient JsonDocument document;
 
   private NetworkClusterNode identity;

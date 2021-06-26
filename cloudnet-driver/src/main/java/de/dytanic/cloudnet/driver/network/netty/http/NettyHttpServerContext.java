@@ -80,59 +80,59 @@ final class NettyHttpServerContext implements IHttpContext {
     this.httpServerRequest = new NettyHttpServerRequest(this, httpRequest, pathParameters, uri);
     this.httpServerResponse = new NettyHttpServerResponse(this, httpRequest);
 
-        if (this.httpRequest.headers().contains("Cookie")) {
-            this.cookies.addAll(ServerCookieDecoder.LAX.decode(this.httpRequest.headers().get("Cookie")).stream()
-                    .map(cookie -> new HttpCookie(
-                            cookie.name(),
-                            cookie.value(),
-                            cookie.domain(),
-                            cookie.path(),
-                            cookie.isHttpOnly(),
-                            cookie.isSecure(),
-                            cookie.wrap(),
-                            cookie.maxAge()
-                    )).collect(Collectors.toList()));
-        }
+    if (this.httpRequest.headers().contains("Cookie")) {
+      this.cookies.addAll(ServerCookieDecoder.LAX.decode(this.httpRequest.headers().get("Cookie")).stream()
+        .map(cookie -> new HttpCookie(
+          cookie.name(),
+          cookie.value(),
+          cookie.domain(),
+          cookie.path(),
+          cookie.isHttpOnly(),
+          cookie.isSecure(),
+          cookie.wrap(),
+          cookie.maxAge()
+        )).collect(Collectors.toList()));
+    }
 
     this.updateHeaderResponse();
   }
 
-    @Override
-    public IWebSocketChannel upgrade() {
-        if (this.webSocketServerChannel == null) {
-            WebSocketServerHandshaker handshaker = new WebSocketServerHandshakerFactory(
-                    this.httpRequest.uri(),
-                    null,
-                    true,
-                    Short.MAX_VALUE,
-                    false
-            ).newHandshaker(this.httpRequest);
-            if (handshaker == null) {
-                WebSocketServerHandshakerFactory.sendUnsupportedVersionResponse(this.nettyChannel);
-                return null;
-            } else {
-                this.nettyChannel.pipeline().remove("http-server-handler");
-                try {
-                    handshaker.handshake(this.nettyChannel, this.httpRequest);
-                } catch (WebSocketHandshakeException exception) {
-                    this.nettyChannel.writeAndFlush(new DefaultFullHttpResponse(
-                            this.httpRequest.protocolVersion(),
-                            HttpResponseStatus.OK,
-                            Unpooled.wrappedBuffer("Unable to upgrade connection".getBytes())
-                    ));
-                    CloudNetDriver.getInstance().getLogger().error("Exception during websocket handshake", exception);
-                    return null;
-                }
-            }
-
-            this.webSocketServerChannel = new NettyWebSocketServerChannel(this.channel, this.nettyChannel, handshaker);
-            this.nettyChannel.pipeline().addLast("websocket-server-channel-handler",
-                    new NettyWebSocketServerChannelHandler(this.webSocketServerChannel));
-
-            this.cancelNext(true);
-            this.closeAfter(false);
-            this.cancelSendResponse = true;
+  @Override
+  public IWebSocketChannel upgrade() {
+    if (this.webSocketServerChannel == null) {
+      WebSocketServerHandshaker handshaker = new WebSocketServerHandshakerFactory(
+        this.httpRequest.uri(),
+        null,
+        true,
+        Short.MAX_VALUE,
+        false
+      ).newHandshaker(this.httpRequest);
+      if (handshaker == null) {
+        WebSocketServerHandshakerFactory.sendUnsupportedVersionResponse(this.nettyChannel);
+        return null;
+      } else {
+        this.nettyChannel.pipeline().remove("http-server-handler");
+        try {
+          handshaker.handshake(this.nettyChannel, this.httpRequest);
+        } catch (WebSocketHandshakeException exception) {
+          this.nettyChannel.writeAndFlush(new DefaultFullHttpResponse(
+            this.httpRequest.protocolVersion(),
+            HttpResponseStatus.OK,
+            Unpooled.wrappedBuffer("Unable to upgrade connection".getBytes())
+          ));
+          CloudNetDriver.getInstance().getLogger().error("Exception during websocket handshake", exception);
+          return null;
         }
+      }
+
+      this.webSocketServerChannel = new NettyWebSocketServerChannel(this.channel, this.nettyChannel, handshaker);
+      this.nettyChannel.pipeline().addLast("websocket-server-channel-handler",
+        new NettyWebSocketServerChannelHandler(this.webSocketServerChannel));
+
+      this.cancelNext(true);
+      this.closeAfter(false);
+      this.cancelSendResponse = true;
+    }
 
     return this.webSocketServerChannel;
   }
@@ -162,16 +162,16 @@ final class NettyHttpServerContext implements IHttpContext {
     return this.cancelNext = true;
   }
 
-    @Override
-    public IHttpContext cancelNext(boolean cancelNext) {
-        this.cancelNext = cancelNext;
-        return this;
-    }
+  @Override
+  public IHttpContext cancelNext(boolean cancelNext) {
+    this.cancelNext = cancelNext;
+    return this;
+  }
 
-    @Override
-    public IHttpHandler peekLast() {
-        return this.lastHandler;
-    }
+  @Override
+  public IHttpHandler peekLast() {
+    return this.lastHandler;
+  }
 
   @Override
   public IHttpComponent<IHttpServer> component() {
@@ -255,28 +255,28 @@ final class NettyHttpServerContext implements IHttpContext {
     return this;
   }
 
-    @Override
-    public String pathPrefix() {
-        return this.pathPrefix;
-    }
+  @Override
+  public String pathPrefix() {
+    return this.pathPrefix;
+  }
 
-    public void setPathPrefix(String pathPrefix) {
-        this.pathPrefix = pathPrefix;
-    }
+  public void setPathPrefix(String pathPrefix) {
+    this.pathPrefix = pathPrefix;
+  }
 
-    private void updateHeaderResponse() {
-        if (this.cookies.isEmpty()) {
-            this.httpServerResponse.httpResponse.headers().remove("Set-Cookie");
-        } else {
-            this.httpServerResponse.httpResponse.headers().set("Set-Cookie",
-                    ServerCookieEncoder.LAX.encode(this.cookies.stream().map(httpCookie -> {
-                        Cookie cookie = new DefaultCookie(httpCookie.getName(), httpCookie.getValue());
-                        cookie.setDomain(httpCookie.getDomain());
-                        cookie.setMaxAge(httpCookie.getMaxAge());
-                        cookie.setPath(httpCookie.getPath());
-                        cookie.setSecure(httpCookie.isSecure());
-                        cookie.setHttpOnly(httpCookie.isHttpOnly());
-                        cookie.setWrap(httpCookie.isWrap());
+  private void updateHeaderResponse() {
+    if (this.cookies.isEmpty()) {
+      this.httpServerResponse.httpResponse.headers().remove("Set-Cookie");
+    } else {
+      this.httpServerResponse.httpResponse.headers().set("Set-Cookie",
+        ServerCookieEncoder.LAX.encode(this.cookies.stream().map(httpCookie -> {
+          Cookie cookie = new DefaultCookie(httpCookie.getName(), httpCookie.getValue());
+          cookie.setDomain(httpCookie.getDomain());
+          cookie.setMaxAge(httpCookie.getMaxAge());
+          cookie.setPath(httpCookie.getPath());
+          cookie.setSecure(httpCookie.isSecure());
+          cookie.setHttpOnly(httpCookie.isHttpOnly());
+          cookie.setWrap(httpCookie.isWrap());
 
           return cookie;
         }).collect(Collectors.toList())));

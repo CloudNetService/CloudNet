@@ -57,8 +57,8 @@ public interface IModuleWrapper {
   @NotNull
   Path getDataDirectory();
 
-    @NotNull URL getUrl();
+  @NotNull URL getUrl();
 
-    Map<String, String> getDefaultRepositories();
+  Map<String, String> getDefaultRepositories();
 
 }

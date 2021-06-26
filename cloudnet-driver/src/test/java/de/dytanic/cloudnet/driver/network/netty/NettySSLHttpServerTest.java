@@ -56,8 +56,8 @@ public class NettySSLHttpServerTest {
         .body("Data-Set")
         .statusCode(200)).addListener(port));
 
-            HttpsURLConnection.setDefaultHostnameVerifier((s, sslSession) -> true);
-            TrustManager[] trustManagers = new TrustManager[]{new UnsafeSingleCertTrustManager(selfSignedCertificate.cert())};
+      HttpsURLConnection.setDefaultHostnameVerifier((s, sslSession) -> true);
+      TrustManager[] trustManagers = new TrustManager[]{new UnsafeSingleCertTrustManager(selfSignedCertificate.cert())};
 
       SSLContext sslContext = SSLContext.getInstance("SSL");
       sslContext.init(null, trustManagers, new SecureRandom());
@@ -76,29 +76,29 @@ public class NettySSLHttpServerTest {
         Assert.assertEquals("Data-Set", bufferedReader.readLine());
       }
 
-            httpURLConnection.disconnect();
-        }
+      httpURLConnection.disconnect();
+    }
+  }
+
+  private static final class UnsafeSingleCertTrustManager implements X509TrustManager {
+
+    private final X509Certificate[] trusted;
+
+    public UnsafeSingleCertTrustManager(X509Certificate certificate) {
+      this.trusted = new X509Certificate[]{certificate};
     }
 
-    private static final class UnsafeSingleCertTrustManager implements X509TrustManager {
-
-        private final X509Certificate[] trusted;
-
-        public UnsafeSingleCertTrustManager(X509Certificate certificate) {
-            this.trusted = new X509Certificate[]{certificate};
-        }
-
-        @Override
-        public void checkClientTrusted(X509Certificate[] x509Certificates, String s) {
-        }
-
-        @Override
-        public void checkServerTrusted(X509Certificate[] x509Certificates, String s) {
-        }
-
-        @Override
-        public X509Certificate[] getAcceptedIssuers() {
-            return this.trusted;
-        }
+    @Override
+    public void checkClientTrusted(X509Certificate[] x509Certificates, String s) {
     }
+
+    @Override
+    public void checkServerTrusted(X509Certificate[] x509Certificates, String s) {
+    }
+
+    @Override
+    public X509Certificate[] getAcceptedIssuers() {
+      return this.trusted;
+    }
+  }
 }

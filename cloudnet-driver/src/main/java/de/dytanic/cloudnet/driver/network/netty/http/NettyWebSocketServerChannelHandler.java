@@ -26,9 +26,8 @@ import io.netty.handler.codec.http.websocketx.PingWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.PongWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
-import org.jetbrains.annotations.ApiStatus;
-
 import java.io.IOException;
+import org.jetbrains.annotations.ApiStatus;
 
 @ApiStatus.Internal
 final class NettyWebSocketServerChannelHandler extends SimpleChannelInboundHandler<WebSocketFrame> {
@@ -39,30 +38,30 @@ final class NettyWebSocketServerChannelHandler extends SimpleChannelInboundHandl
     this.webSocketServerChannel = webSocketServerChannel;
   }
 
-    @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        if (!(cause instanceof IOException)) {
-            cause.printStackTrace();
-        }
+  @Override
+  public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
+    if (!(cause instanceof IOException)) {
+      cause.printStackTrace();
     }
+  }
 
-    @Override
-    public void channelReadComplete(ChannelHandlerContext ctx) {
-        ctx.flush();
+  @Override
+  public void channelReadComplete(ChannelHandlerContext ctx) {
+    ctx.flush();
+  }
+
+  @Override
+  public void channelInactive(ChannelHandlerContext ctx) {
+    if (!ctx.channel().isActive() || !ctx.channel().isOpen() || !ctx.channel().isWritable()) {
+      ctx.channel().close();
     }
+  }
 
-    @Override
-    public void channelInactive(ChannelHandlerContext ctx) {
-        if (!ctx.channel().isActive() || !ctx.channel().isOpen() || !ctx.channel().isWritable()) {
-            ctx.channel().close();
-        }
+  @Override
+  protected void channelRead0(ChannelHandlerContext ctx, WebSocketFrame webSocketFrame) {
+    if (webSocketFrame instanceof PingWebSocketFrame) {
+      this.invoke0(WebSocketFrameType.PING, webSocketFrame);
     }
-
-    @Override
-    protected void channelRead0(ChannelHandlerContext ctx, WebSocketFrame webSocketFrame) {
-        if (webSocketFrame instanceof PingWebSocketFrame) {
-            this.invoke0(WebSocketFrameType.PING, webSocketFrame);
-        }
 
     if (webSocketFrame instanceof PongWebSocketFrame) {
       this.invoke0(WebSocketFrameType.PONG, webSocketFrame);
@@ -76,10 +75,10 @@ final class NettyWebSocketServerChannelHandler extends SimpleChannelInboundHandl
       this.invoke0(WebSocketFrameType.BINARY, webSocketFrame);
     }
 
-        if (webSocketFrame instanceof CloseWebSocketFrame) {
-            this.webSocketServerChannel.close(1000, "client connection closed");
-        }
+    if (webSocketFrame instanceof CloseWebSocketFrame) {
+      this.webSocketServerChannel.close(1000, "client connection closed");
     }
+  }
 
   private void invoke0(WebSocketFrameType type, WebSocketFrame webSocketFrame) {
     byte[] bytes = this.readContentFromWebSocketFrame(webSocketFrame);
@@ -93,11 +92,11 @@ final class NettyWebSocketServerChannelHandler extends SimpleChannelInboundHandl
     }
   }
 
-    private byte[] readContentFromWebSocketFrame(WebSocketFrame frame) {
-        byte[] bytes = new byte[frame.content().readableBytes()];
-        frame.content().getBytes(frame.content().readerIndex(), bytes);
-        return bytes;
-    }
+  private byte[] readContentFromWebSocketFrame(WebSocketFrame frame) {
+    byte[] bytes = new byte[frame.content().readableBytes()];
+    frame.content().getBytes(frame.content().readerIndex(), bytes);
+    return bytes;
+  }
 
   public NettyWebSocketServerChannel getWebSocketServerChannel() {
     return this.webSocketServerChannel;
