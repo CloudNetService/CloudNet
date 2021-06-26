@@ -15,7 +15,6 @@ This pull request includes:
 
 <!-- Add test results before and after applying your changes. -->
 
-
 ### Related issues/discussions:
 
 <!-- Add any related issues here by mentioning them (e.g. Fixes #1). -->  

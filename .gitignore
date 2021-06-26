@@ -1,50 +1,68 @@
-# Eclipse stuff
-.classpath
-.project
-.settings/
-
-# netbeans
-nbproject/
-nbactions.xml
-.idea
-src/main/test
-
-# we use maven!
-build.xml
-
-# maven
-target/
-dependency-reduced-pom.xml
-src/test
+# include specific folders in .idea/
+!.idea
+.idea/*
+# copyright settings
+!/.idea/copyright
+.idea/copyright/*
+!/.idea/copyright/CloudNet.xml
+!/.idea/copyright/profiles_settings.xml
+# Code Style settings
+!/.idea/codeStyles
+.idea/codeStyles/*
+!/.idea/codeStyles/CloudNet.xml
+!/.idea/codeStyles/codeStyleConfig.xml
+# Inspection profiles
+!/.idea/inspectionProfiles
+.idea/inspectionProfiles/*
+!/.idea/inspectionProfiles/CloudNet.xml
+!/.idea/inspectionProfiles/profiles_settings.xml
 
 # gradle
 .gradle/
-
-# vim
-.*.sw[a-p]
-
-# various other potential build files
 build/
-out/
-bin/
-dist/
-manifest.mf
 
-# Mac filesystem dust
-.DS_Store/
+# eclipse
+*.classpath
+*.project
+*.settings
+/bin/
+/subprojects/*/bin/
+.metadata/
+atlassian-ide-plugin.xml
 
-# intellij
-*.iml
-*.ipr
-*.iws
-.idea/
+# NetBeans
+.nb-gradle
+.nb-gradle-properties
 
-# other files
-*.log*
+# Vim
+*.sw[nop]
+
+# Emacs
+*~
+\#*\#
+.\#*
+
+# Textmate
+.textmate
+
+# Sublime Text
+*.sublime-*
+
+# jEnv
+.java-version
+
+# macOS
+.DS_Store
+
+# HPROF
+*.hprof
+
+# Work dirs
+/incoming-distributions
+/intTestHomeDir
+
+# Logs
+/*.log
 
 # delombok
 */src/main/lombok
-
-#Testing in the IDEA
-# *.json
-# *.properties

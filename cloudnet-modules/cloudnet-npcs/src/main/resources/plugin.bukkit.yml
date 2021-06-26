@@ -7,8 +7,8 @@ description: CloudNet extension which adds NPCs for server selection
 
 main: eu.cloudnetservice.cloudnet.ext.npcs.bukkit.BukkitCloudNetNPCPlugin
 
-depend: [CloudNet-Bridge, ProtocolLib]
+depend: [ CloudNet-Bridge, ProtocolLib ]
 
 commands:
   cloudnpc:
-    aliases: [cn]
+    aliases: [ cn ]

@@ -1,30 +1,46 @@
+/*
+ * Copyright 2019-2021 CloudNetService team & contributors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 plugins {
-    id "com.github.johnrengelman.shadow" version "7.0.0"
+  id "com.github.johnrengelman.shadow" version "7.0.0"
 }
 
 jar {
-    manifest {
-        attributes 'Main-Class': 'de.dytanic.cloudnet.wrapper.Main'
-        attributes 'Implementation-Version': archiveVersion.get() + "-" + getCurrentCommitHash()
-        attributes 'Implementation-Title': cloudNetCodeName
-    }
+  manifest {
+    attributes 'Main-Class': 'de.dytanic.cloudnet.wrapper.Main'
+    attributes 'Implementation-Version': archiveVersion.get() + "-" + getCurrentCommitHash()
+    attributes 'Implementation-Title': cloudNetCodeName
+  }
 
-    dependsOn shadowJar
+  dependsOn shadowJar
 }
 
 dependencies {
-    api project(':cloudnet-driver')
-    compileOnly project(':cloudnet-wrapper-jvm:minecraft-launchwrapper-api')
+  api project(':cloudnet-driver')
+  compileOnly project(':cloudnet-wrapper-jvm:minecraft-launchwrapper-api')
 }
 
 shadowJar {
-    archiveFileName.set(cloudnetWrapperFile)
-    archiveVersion.set(null)
+  archiveFileName.set(cloudnetWrapperFile)
+  archiveVersion.set(null)
 
-    relocate 'io.netty', 'de.dytanic.cloudnet.wrapper.relocate.io.netty'
-    relocate 'META-INF/native/libnetty', 'META-INF/native/libde_dytanic_cloudnet_wrapper_relocate_netty'
-    relocate 'META-INF/native/netty', 'META-INF/native/de_dytanic_cloudnet_wrapper_relocate_netty'
+  relocate 'io.netty', 'de.dytanic.cloudnet.wrapper.relocate.io.netty'
+  relocate 'META-INF/native/libnetty', 'META-INF/native/libde_dytanic_cloudnet_wrapper_relocate_netty'
+  relocate 'META-INF/native/netty', 'META-INF/native/de_dytanic_cloudnet_wrapper_relocate_netty'
 
-    relocate 'com.google.common', 'de.dytanic.cloudnet.wrapper.relocate.guava'
-    relocate 'com.google.gson', 'de.dytanic.cloudnet.wrapper.relocate.gson'
+  relocate 'com.google.common', 'de.dytanic.cloudnet.wrapper.relocate.guava'
+  relocate 'com.google.gson', 'de.dytanic.cloudnet.wrapper.relocate.gson'
 }

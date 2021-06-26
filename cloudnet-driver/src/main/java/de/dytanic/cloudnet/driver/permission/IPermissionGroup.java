@@ -1,35 +1,50 @@
+/*
+ * Copyright 2019-2021 CloudNetService team & contributors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package de.dytanic.cloudnet.driver.permission;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.util.Collection;
+import org.jetbrains.annotations.NotNull;
 
 public interface IPermissionGroup extends IPermissible {
 
-    Collection<String> getGroups();
+  Collection<String> getGroups();
 
-    boolean isDefaultGroup();
+  boolean isDefaultGroup();
 
-    void setDefaultGroup(boolean defaultGroup);
+  void setDefaultGroup(boolean defaultGroup);
 
-    int getSortId();
+  int getSortId();
 
-    void setSortId(int sortId);
+  void setSortId(int sortId);
 
-    String getPrefix();
+  String getPrefix();
 
-    void setPrefix(@NotNull String prefix);
+  void setPrefix(@NotNull String prefix);
 
-    String getColor();
+  String getColor();
 
-    void setColor(@NotNull String color);
+  void setColor(@NotNull String color);
 
-    String getSuffix();
+  String getSuffix();
 
-    void setSuffix(@NotNull String suffix);
+  void setSuffix(@NotNull String suffix);
 
-    String getDisplay();
+  String getDisplay();
 
-    void setDisplay(@NotNull String display);
+  void setDisplay(@NotNull String display);
 
 }

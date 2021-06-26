@@ -1,3 +1,19 @@
+/*
+ * Copyright 2019-2021 CloudNetService team & contributors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package de.dytanic.cloudnet.ext.bridge.nukkit.listener;
 
 import cn.nukkit.Player;
@@ -20,65 +36,69 @@ import org.bukkit.ChatColor;
 
 public final class NukkitPlayerListener implements Listener {
 
-    private final OnlyProxyProtection onlyProxyProtection;
+  private final OnlyProxyProtection onlyProxyProtection;
 
-    public NukkitPlayerListener() {
-        this.onlyProxyProtection = new OnlyProxyProtection(Server.getInstance().getPropertyBoolean("xbox-auth"));
+  public NukkitPlayerListener() {
+    this.onlyProxyProtection = new OnlyProxyProtection(Server.getInstance().getPropertyBoolean("xbox-auth"));
+  }
+
+  @EventHandler(priority = EventPriority.HIGHEST)
+  public void handle(PlayerLoginEvent event) {
+    Player player = event.getPlayer();
+    BridgeConfiguration bridgeConfiguration = BridgeConfigurationProvider.load();
+
+    if (this.onlyProxyProtection.shouldDisallowPlayer(player.getAddress())) {
+      event.setCancelled(true);
+      event.setKickMessage(
+        bridgeConfiguration.getMessages().get("server-join-cancel-because-only-proxy").replace('&', '§'));
+      return;
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void handle(PlayerLoginEvent event) {
-        Player player = event.getPlayer();
-        BridgeConfiguration bridgeConfiguration = BridgeConfigurationProvider.load();
+    String currentTaskName = Wrapper.getInstance().getServiceId().getTaskName();
+    ServiceTask serviceTask = Wrapper.getInstance().getServiceTaskProvider().getServiceTask(currentTaskName);
 
-        if (this.onlyProxyProtection.shouldDisallowPlayer(player.getAddress())) {
-            event.setCancelled(true);
-            event.setKickMessage(bridgeConfiguration.getMessages().get("server-join-cancel-because-only-proxy").replace('&', '§'));
-            return;
-        }
+    if (serviceTask != null) {
+      String requiredPermission = serviceTask.getProperties().getString("requiredPermission");
+      if (requiredPermission != null && !player.hasPermission(requiredPermission)) {
+        event.setCancelled(true);
+        event.setKickMessage(ChatColor.translateAlternateColorCodes('&',
+          bridgeConfiguration.getMessages().get("server-join-cancel-because-permission")));
+        return;
+      }
 
-        String currentTaskName = Wrapper.getInstance().getServiceId().getTaskName();
-        ServiceTask serviceTask = Wrapper.getInstance().getServiceTaskProvider().getServiceTask(currentTaskName);
-
-        if (serviceTask != null) {
-            String requiredPermission = serviceTask.getProperties().getString("requiredPermission");
-            if (requiredPermission != null && !player.hasPermission(requiredPermission)) {
-                event.setCancelled(true);
-                event.setKickMessage(ChatColor.translateAlternateColorCodes('&', bridgeConfiguration.getMessages().get("server-join-cancel-because-permission")));
-                return;
-            }
-
-            if (serviceTask.isMaintenance() && !player.hasPermission("cloudnet.bridge.maintenance")) {
-                event.setCancelled(true);
-                event.setKickMessage(bridgeConfiguration.getMessages().get("server-join-cancel-because-maintenance").replace('&', '§'));
-                return;
-            }
-        }
-
-        BridgeHelper.sendChannelMessageServerLoginRequest(NukkitCloudNetHelper.createNetworkConnectionInfo(player),
-                NukkitCloudNetHelper.createNetworkPlayerServerInfo(player, true)
-        );
+      if (serviceTask.isMaintenance() && !player.hasPermission("cloudnet.bridge.maintenance")) {
+        event.setCancelled(true);
+        event.setKickMessage(
+          bridgeConfiguration.getMessages().get("server-join-cancel-because-maintenance").replace('&', '§'));
+        return;
+      }
     }
 
-    @EventHandler
-    public void handle(PlayerJoinEvent event) {
-        BridgeHelper.sendChannelMessageServerLoginSuccess(NukkitCloudNetHelper.createNetworkConnectionInfo(event.getPlayer()),
-                NukkitCloudNetHelper.createNetworkPlayerServerInfo(event.getPlayer(), false));
+    BridgeHelper.sendChannelMessageServerLoginRequest(NukkitCloudNetHelper.createNetworkConnectionInfo(player),
+      NukkitCloudNetHelper.createNetworkPlayerServerInfo(player, true)
+    );
+  }
 
+  @EventHandler
+  public void handle(PlayerJoinEvent event) {
+    BridgeHelper
+      .sendChannelMessageServerLoginSuccess(NukkitCloudNetHelper.createNetworkConnectionInfo(event.getPlayer()),
+        NukkitCloudNetHelper.createNetworkPlayerServerInfo(event.getPlayer(), false));
+
+    BridgeHelper.updateServiceInfo();
+  }
+
+  @EventHandler
+  public void handle(PlayerQuitEvent event) {
+    BridgeHelper.sendChannelMessageServerDisconnect(NukkitCloudNetHelper.createNetworkConnectionInfo(event.getPlayer()),
+      NukkitCloudNetHelper.createNetworkPlayerServerInfo(event.getPlayer(), false));
+
+    event.getPlayer().getServer().getScheduler().scheduleDelayedTask(new Task() {
+      @Override
+      public void onRun(int currentTick) {
         BridgeHelper.updateServiceInfo();
-    }
-
-    @EventHandler
-    public void handle(PlayerQuitEvent event) {
-        BridgeHelper.sendChannelMessageServerDisconnect(NukkitCloudNetHelper.createNetworkConnectionInfo(event.getPlayer()),
-                NukkitCloudNetHelper.createNetworkPlayerServerInfo(event.getPlayer(), false));
-
-        event.getPlayer().getServer().getScheduler().scheduleDelayedTask(new Task() {
-            @Override
-            public void onRun(int currentTick) {
-                BridgeHelper.updateServiceInfo();
-            }
-        }, 1);
-    }
+      }
+    }, 1);
+  }
 
 }

@@ -1,10 +1,11 @@
 ### SyncProxy
 
-The SyncProxy module is responsible for the pure representation of the motd and the tab list in order to
-synchronize proxy services within a group. She also has a maintenance mode with a whitelist on it.
-Above all, it is interesting when it comes to the use of multiple proxy services to distribute the players there.
+The SyncProxy module is responsible for the pure representation of the motd and the tab list in order to synchronize
+proxy services within a group. She also has a maintenance mode with a whitelist on it. Above all, it is interesting when
+it comes to the use of multiple proxy services to distribute the players there.
 
 The permission, which you can join in maintenance mode
+
 ```
 cloudnet.syncproxy.maintenance
 ```
