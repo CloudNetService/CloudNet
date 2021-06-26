@@ -46,11 +46,6 @@ public abstract class DefaultPermissionManagement implements IPermissionManageme
   }
 
   @Deprecated
-  public List<IPermissionUser> getUser(String name) {
-    return this.getUsers(name);
-  }
-
-  @Deprecated
   public Collection<IPermissionUser> getUserByGroup(String group) {
     return this.getUsersByGroup(group);
   }
@@ -235,7 +230,7 @@ public abstract class DefaultPermissionManagement implements IPermissionManageme
    * @deprecated has no use internally anymore, will be removed in a further release.
    */
   @Deprecated
-  @ApiStatus.ScheduledForRemoval
+  @ApiStatus.ScheduledForRemoval(inVersion = "3.6")
   public PermissionCheckResult getPermissionResult(IPermissible permissible,
     Supplier<PermissionCheckResult> permissionTester,
     Function<IPermissionGroup, PermissionCheckResult> extendedGroupsTester) {
@@ -264,7 +259,7 @@ public abstract class DefaultPermissionManagement implements IPermissionManageme
    * @deprecated has no use internally anymore, will be removed in a further release.
    */
   @Deprecated
-  @ApiStatus.ScheduledForRemoval
+  @ApiStatus.ScheduledForRemoval(inVersion = "3.6")
   public PermissionCheckResult tryExtendedGroups(@NotNull String firstGroup, @Nullable IPermissionGroup permissionGroup,
     @NotNull Permission permission, int layer) {
     if (permissionGroup == null) {
@@ -298,7 +293,7 @@ public abstract class DefaultPermissionManagement implements IPermissionManageme
    * @deprecated has no use internally anymore, will be removed in a further release.
    */
   @Deprecated
-  @ApiStatus.ScheduledForRemoval
+  @ApiStatus.ScheduledForRemoval(inVersion = "3.6")
   public PermissionCheckResult tryExtendedGroups(@NotNull String firstGroup, @Nullable IPermissionGroup permissionGroup,
     @NotNull String group, @NotNull Permission permission, int layer) {
     if (permissionGroup == null) {

@@ -54,6 +54,8 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -63,6 +65,8 @@ public final class CloudNetReportModule extends NodeCloudNetModule {
 
   private static CloudNetReportModule instance;
   private final IFormatter logFormatter = new DefaultLogFormatter();
+
+  private DateFormat dateFormat;
   private Path savingRecordsDirectory;
   private volatile Class<? extends Event> eventClass;
 
@@ -79,17 +83,28 @@ public final class CloudNetReportModule extends NodeCloudNetModule {
   public void initConfig() {
     this.getConfig().getBoolean("savingRecords", true);
     this.getConfig().getString("recordDestinationDirectory", "records");
+    this.getConfig().getBoolean("addCustomDate", true);
+    this.getConfig().getString("dateFormat", "yyyy-MM-dd");
     this.getConfig().get("pasteServerType", PasteServerType.class, PasteServerType.HASTE);
     this.getConfig().getString("pasteServerUrl", "https://just-paste.it");
     this.getConfig().getLong("serviceLifetimeLogPrint", 5000L);
-
     this.saveConfig();
+    String dateFormat = this.getConfig().getString("dateFormat");
+    if (dateFormat != null && this.getConfig().getBoolean("addCustomDate")) {
+      this.dateFormat = new SimpleDateFormat(dateFormat);
+    }
   }
 
-  @ModuleTask(order = 126, event = ModuleLifeCycle.STARTED)
+
   public void initSavingRecordsDirectory() {
-    this.savingRecordsDirectory = this.getModuleWrapper().getDataDirectory()
-      .resolve(this.getConfig().getString("recordDestinationDirectory"));
+    if (this.dateFormat != null && this.getConfig().getBoolean("addCustomDate")) {
+      String date = this.dateFormat.format(System.currentTimeMillis());
+      this.savingRecordsDirectory = this.getModuleWrapper().getDataDirectory()
+        .resolve(this.getConfig().getString("recordDestinationDirectory") + "/" + date);
+    } else {
+      this.savingRecordsDirectory = this.getModuleWrapper().getDataDirectory()
+        .resolve(this.getConfig().getString("recordDestinationDirectory"));
+    }
     FileUtils.createDirectoryReported(this.savingRecordsDirectory);
   }
 

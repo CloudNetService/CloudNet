@@ -35,6 +35,7 @@ import de.dytanic.cloudnet.driver.permission.IPermissionUser;
 import de.dytanic.cloudnet.driver.permission.PermissionGroup;
 import de.dytanic.cloudnet.driver.permission.PermissionUser;
 import de.dytanic.cloudnet.driver.permission.PermissionUserGroupInfo;
+import java.lang.reflect.Type;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -54,6 +55,8 @@ public class DefaultDatabasePermissionManagement extends ClusterSynchronizedPerm
   DefaultSynchronizedPermissionManagement {
 
   private static final String DATABASE_USERS_NAME = "cloudnet_permission_users";
+  private static final Type COLLECTION_GROUP_TYPE = TypeToken.getParameterized(Collection.class, PermissionGroup.class)
+    .getType();
 
   private final Path file = Paths.get(System.getProperty("cloudnet.permissions.json.path", "local/permissions.json"));
 
@@ -149,7 +152,7 @@ public class DefaultDatabasePermissionManagement extends ClusterSynchronizedPerm
       if (document == null) {
         task.complete(null);
       } else {
-        IPermissionUser permissionUser = document.toInstanceOf(PermissionUser.TYPE);
+        IPermissionUser permissionUser = document.toInstanceOf(PermissionUser.class);
 
         if (this.testPermissionUser(permissionUser)) {
           this.updateUser(permissionUser);
@@ -197,7 +200,7 @@ public class DefaultDatabasePermissionManagement extends ClusterSynchronizedPerm
 
     return this.getDatabase().getAsync("name", name)
       .map(documents -> documents.stream().map(document -> {
-        IPermissionUser permissionUser = document.toInstanceOf(PermissionUser.TYPE);
+        IPermissionUser permissionUser = document.toInstanceOf(PermissionUser.class);
 
         if (this.testPermissionUser(permissionUser)) {
           this.updateUser(permissionUser);
@@ -225,7 +228,7 @@ public class DefaultDatabasePermissionManagement extends ClusterSynchronizedPerm
     Collection<IPermissionUser> permissionUsers = new ArrayList<>();
 
     return this.getDatabase().iterateAsync((key, document) -> {
-      IPermissionUser permissionUser = document.toInstanceOf(PermissionUser.TYPE);
+      IPermissionUser permissionUser = document.toInstanceOf(PermissionUser.class);
       this.testPermissionUser(permissionUser);
 
       permissionUsers.add(permissionUser);
@@ -268,7 +271,7 @@ public class DefaultDatabasePermissionManagement extends ClusterSynchronizedPerm
     ITask<Collection<IPermissionUser>> task = new ListenableTask<>(() -> permissionUsers);
 
     this.getDatabase().iterateAsync((key, document) -> {
-      IPermissionUser permissionUser = document.toInstanceOf(PermissionUser.TYPE);
+      IPermissionUser permissionUser = document.toInstanceOf(PermissionUser.class);
 
       this.testPermissionUser(permissionUser);
       if (permissionUser.inGroup(group)) {
@@ -462,9 +465,7 @@ public class DefaultDatabasePermissionManagement extends ClusterSynchronizedPerm
     JsonDocument document = JsonDocument.newDocument(this.file);
 
     if (document.contains("groups")) {
-      Collection<PermissionGroup> permissionGroups = document
-        .get("groups", new TypeToken<Collection<PermissionGroup>>() {
-        }.getType());
+      Collection<PermissionGroup> permissionGroups = document.get("groups", COLLECTION_GROUP_TYPE);
 
       this.permissionGroupLocks.clear();
       this.permissionGroupCache.invalidateAll();

@@ -16,7 +16,6 @@
 
 package de.dytanic.cloudnet.network.listener.auth;
 
-import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.cluster.IClusterNodeServer;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
@@ -56,8 +55,7 @@ public final class PacketClientAuthorizationListener implements IPacketListener 
           if (credentials.contains("clusterId") && credentials.contains("clusterNode") &&
             this.getCloudNet().getConfig().getClusterConfig().getClusterId()
               .equals(credentials.get("clusterId", UUID.class))) {
-            NetworkClusterNode clusterNode = credentials.get("clusterNode", new TypeToken<NetworkClusterNode>() {
-            }.getType());
+            NetworkClusterNode clusterNode = credentials.get("clusterNode", NetworkClusterNode.class);
 
             for (IClusterNodeServer clusterNodeServer : this.getCloudNet().getClusterNodeServerProvider()
               .getNodeServers()) {

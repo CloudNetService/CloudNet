@@ -45,7 +45,7 @@ public final class CommandBridge extends SubCommandHandler {
         .generateCommand(
           (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
             BridgeConfiguration bridgeConfiguration = bridgeModule.reloadConfig()
-              .get("config", BridgeConfiguration.TYPE);
+              .get("config", BridgeConfiguration.class);
             bridgeModule.setBridgeConfiguration(bridgeConfiguration);
 
             CloudNetDriver.getInstance().getMessenger().sendChannelMessage(

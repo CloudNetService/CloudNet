@@ -125,12 +125,12 @@ public abstract class AbstractSignManagement extends ServiceInfoStateWatcher {
 
     switch (event.getMessage().toLowerCase()) {
       case SignConstants.SIGN_CHANNEL_UPDATE_SIGN_CONFIGURATION: {
-        SignConfiguration signConfiguration = event.getData().get("signConfiguration", SignConfiguration.TYPE);
+        SignConfiguration signConfiguration = event.getData().get("signConfiguration", SignConfiguration.class);
         SignConfigurationProvider.setLocal(signConfiguration);
       }
       break;
       case SignConstants.SIGN_CHANNEL_ADD_SIGN_MESSAGE: {
-        Sign sign = event.getData().get("sign", Sign.TYPE);
+        Sign sign = event.getData().get("sign", Sign.class);
 
         if (sign != null) {
           this.addSign(sign);
@@ -138,7 +138,7 @@ public abstract class AbstractSignManagement extends ServiceInfoStateWatcher {
       }
       break;
       case SignConstants.SIGN_CHANNEL_REMOVE_SIGN_MESSAGE: {
-        Sign sign = event.getData().get("sign", Sign.TYPE);
+        Sign sign = event.getData().get("sign", Sign.class);
 
         if (sign != null) {
           this.removeSign(sign);

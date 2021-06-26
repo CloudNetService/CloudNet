@@ -16,7 +16,7 @@
 
 package de.dytanic.cloudnet.ext.cloudflare;
 
-import com.google.gson.JsonObject;
+import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.module.ModuleLifeCycle;
@@ -53,7 +53,7 @@ public final class CloudNetCloudflareModule extends NodeCloudNetModule {
   @ModuleTask(order = 127, event = ModuleLifeCycle.STARTED)
   public void loadConfiguration() {
     this.cloudflareConfiguration = this.getConfig()
-      .get("config", CloudflareConfiguration.TYPE, new CloudflareConfiguration(
+      .get("config", CloudflareConfiguration.class, new CloudflareConfiguration(
         new ArrayList<>(Collections.singletonList(
           new CloudflareConfigurationEntry(
             false,
@@ -96,7 +96,7 @@ public final class CloudNetCloudflareModule extends NodeCloudNetModule {
             ipv6Address ? DNSType.AAAA : DNSType.A,
             this.getCloudNetConfig().getIdentity().getUniqueId() + "." + entry.getDomainName(),
             entry.getHostAddress(),
-            new JsonObject()
+            JsonDocument.EMPTY
           )
         );
         if (recordDetail != null) {

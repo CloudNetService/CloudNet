@@ -41,8 +41,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class BuildStepExecutor implements InstallStepExecutor {
 
-  private static final Type STRING_LIST_TYPE = new TypeToken<List<String>>() {
-  }.getType();
+  private static final Type STRING_LIST_TYPE = TypeToken.getParameterized(List.class, String.class).getType();
   private static final ExecutorService OUTPUT_READER_EXECUTOR = Executors.newCachedThreadPool();
 
   private final Collection<Process> runningBuildProcesses = new CopyOnWriteArrayList<>();

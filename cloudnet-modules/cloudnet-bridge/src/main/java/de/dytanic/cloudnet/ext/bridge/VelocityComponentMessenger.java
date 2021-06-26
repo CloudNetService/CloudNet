@@ -27,7 +27,7 @@ import org.jetbrains.annotations.ApiStatus;
  * @deprecated Use {@link AdventureComponentMessenger} instead
  */
 @Deprecated
-@ApiStatus.ScheduledForRemoval
+@ApiStatus.ScheduledForRemoval(inVersion = "3.6")
 public class VelocityComponentMessenger {
 
   private VelocityComponentMessenger() {

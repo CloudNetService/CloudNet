@@ -79,7 +79,7 @@ public final class NettyNetworkClient implements DefaultNetworkComponent, INetwo
   }
 
   @Deprecated
-  @ApiStatus.ScheduledForRemoval
+  @ApiStatus.ScheduledForRemoval(inVersion = "3.6")
   public NettyNetworkClient(Callable<INetworkChannelHandler> networkChannelHandler, SSLConfiguration sslConfiguration,
     ITaskScheduler taskScheduler) {
     this(networkChannelHandler, sslConfiguration);

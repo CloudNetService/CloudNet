@@ -21,7 +21,7 @@ import org.jetbrains.annotations.NotNull;
 
 @NotNull
 @Deprecated
-@ApiStatus.ScheduledForRemoval
+@ApiStatus.ScheduledForRemoval(inVersion = "3.6")
 public interface IScheduledTask<V> extends ITask<V> {
 
   long getTaskId();

@@ -16,7 +16,6 @@
 
 package de.dytanic.cloudnet.ext.signs;
 
-import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.ext.bridge.WorldPosition;
 import java.lang.reflect.Type;
@@ -27,8 +26,8 @@ import lombok.ToString;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Sign implements Comparable<Sign> {
 
-  public static final Type TYPE = new TypeToken<Sign>() {
-  }.getType();
+  @Deprecated
+  public static final Type TYPE = Sign.class;
 
   protected long signId;
 

@@ -1089,7 +1089,7 @@ public final class CloudNet extends CloudNetDriver {
   }
 
   @Deprecated
-  @ApiStatus.ScheduledForRemoval
+  @ApiStatus.ScheduledForRemoval(inVersion = "3.6")
   public ITaskScheduler getNetworkTaskScheduler() {
     return this.networkTaskScheduler;
   }

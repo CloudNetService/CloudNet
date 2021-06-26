@@ -16,7 +16,6 @@
 
 package de.dytanic.cloudnet.ext.syncproxy.configuration;
 
-import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;
@@ -33,8 +32,9 @@ import org.jetbrains.annotations.NotNull;
 @EqualsAndHashCode
 public class SyncProxyConfiguration {
 
-  public static final Type TYPE = new TypeToken<SyncProxyConfiguration>() {
-  }.getType();
+  @Deprecated
+  public static final Type TYPE = SyncProxyConfiguration.class;
+
   protected Collection<SyncProxyProxyLoginConfiguration> loginConfigurations;
   protected Collection<SyncProxyTabListConfiguration> tabListConfigurations;
   protected Map<String, String> messages;
@@ -61,7 +61,7 @@ public class SyncProxyConfiguration {
       .sendSingleQuery();
 
     if (response != null) {
-      return response.getJson().get("syncProxyConfiguration", SyncProxyConfiguration.TYPE);
+      return response.getJson().get("syncProxyConfiguration", SyncProxyConfiguration.class);
     }
 
     return null;

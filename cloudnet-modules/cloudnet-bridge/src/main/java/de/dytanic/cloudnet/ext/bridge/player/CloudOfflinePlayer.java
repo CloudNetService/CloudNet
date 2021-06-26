@@ -17,7 +17,6 @@
 package de.dytanic.cloudnet.ext.bridge.player;
 
 import com.google.common.base.Preconditions;
-import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import de.dytanic.cloudnet.driver.serialization.json.SerializableJsonDocPropertyable;
@@ -31,8 +30,8 @@ import org.jetbrains.annotations.NotNull;
 @EqualsAndHashCode(callSuper = false)
 public class CloudOfflinePlayer extends SerializableJsonDocPropertyable implements ICloudOfflinePlayer {
 
-  public static final Type TYPE = new TypeToken<CloudOfflinePlayer>() {
-  }.getType();
+  @Deprecated
+  public static final Type TYPE = CloudOfflinePlayer.class;
 
   protected UUID uniqueId;
 

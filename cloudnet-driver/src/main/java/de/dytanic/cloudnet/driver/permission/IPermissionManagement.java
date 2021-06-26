@@ -43,17 +43,6 @@ public interface IPermissionManagement {
   boolean canBeOverwritten();
 
   /**
-   * Gets all users with the given {@code name}.
-   *
-   * @param name the name of the permission users to get.
-   * @return all permission users with the given {@code name}.
-   * @deprecated use {@link #getUsers(String)} instead
-   */
-  @Deprecated
-  @ApiStatus.ScheduledForRemoval(inVersion = "3.5")
-  List<IPermissionUser> getUser(String name);
-
-  /**
    * Gets the first permission user with the given {@code name}.
    *
    * @param name the name of the user to get.
@@ -97,7 +86,7 @@ public interface IPermissionManagement {
    * @deprecated Use {@link #testPermissible(IPermissible)} instead.
    */
   @Deprecated
-  @ApiStatus.ScheduledForRemoval
+  @ApiStatus.ScheduledForRemoval(inVersion = "3.6")
   boolean testPermissionGroup(@Nullable IPermissionGroup permissionGroup);
 
   /**
@@ -152,7 +141,7 @@ public interface IPermissionManagement {
    * @deprecated Replace with {@link #getGroups(IPermissible)}
    */
   @Deprecated
-  @ApiStatus.ScheduledForRemoval
+  @ApiStatus.ScheduledForRemoval(inVersion = "3.6")
   Collection<IPermissionGroup> getExtendedGroups(@Nullable IPermissionGroup group);
 
   /**

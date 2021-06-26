@@ -16,7 +16,6 @@
 
 package de.dytanic.cloudnet.ext.bridge.player;
 
-import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import de.dytanic.cloudnet.driver.serialization.SerializableObject;
@@ -30,8 +29,8 @@ import org.jetbrains.annotations.NotNull;
 @EqualsAndHashCode
 public class NetworkConnectionInfo implements SerializableObject {
 
-  public static final Type TYPE = new TypeToken<NetworkConnectionInfo>() {
-  }.getType();
+  @Deprecated
+  public static final Type TYPE = NetworkConnectionInfo.class;
 
   protected UUID uniqueId;
   protected String name;

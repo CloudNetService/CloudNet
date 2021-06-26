@@ -21,7 +21,6 @@ import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import de.dytanic.cloudnet.driver.serialization.SerializableObject;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 @ToString
@@ -62,15 +61,6 @@ public class ModuleConfiguration implements SerializableObject {
     this.repos = repos;
     this.dependencies = dependencies;
     this.properties = properties;
-  }
-
-  @Deprecated
-  @ApiStatus.ScheduledForRemoval(inVersion = "3.5")
-  public ModuleConfiguration(boolean runtimeModule, String group, String name, String version, String main,
-    String description, String author, String website, ModuleRepository[] repos, ModuleDependency[] dependencies,
-    JsonDocument properties) {
-    this(runtimeModule, false, group, name, version, main, description, author, website, repos, dependencies,
-      properties);
   }
 
   public ModuleConfiguration() {

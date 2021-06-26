@@ -16,7 +16,6 @@
 
 package de.dytanic.cloudnet.ext.rest.http;
 
-import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.network.http.HttpResponseCode;
@@ -24,15 +23,11 @@ import de.dytanic.cloudnet.driver.network.http.IHttpContext;
 import de.dytanic.cloudnet.driver.service.ServiceTask;
 import de.dytanic.cloudnet.ext.rest.RestUtils;
 import de.dytanic.cloudnet.http.V1HttpHandler;
-import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
 public final class V1HttpHandlerTasks extends V1HttpHandler {
-
-  private static final Type TYPE = new TypeToken<ServiceTask>() {
-  }.getType();
 
   public V1HttpHandlerTasks(String permission) {
     super(permission);
@@ -78,7 +73,8 @@ public final class V1HttpHandlerTasks extends V1HttpHandler {
 
   @Override
   public void handlePost(String path, IHttpContext context) {
-    ServiceTask serviceTask = GSON.fromJson(new String(context.request().body(), StandardCharsets.UTF_8), TYPE);
+    ServiceTask serviceTask = JsonDocument.newDocument(new String(context.request().body(), StandardCharsets.UTF_8))
+      .toInstanceOf(ServiceTask.class);
 
     if (serviceTask.getProcessConfiguration() == null || serviceTask.getName() == null) {
       this.send400Response(context, "processConfiguration or serviceTask name not found");

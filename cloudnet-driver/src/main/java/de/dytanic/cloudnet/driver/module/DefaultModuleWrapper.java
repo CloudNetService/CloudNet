@@ -17,13 +17,11 @@
 package de.dytanic.cloudnet.driver.module;
 
 import com.google.common.base.Preconditions;
-import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Method;
-import java.lang.reflect.Type;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
@@ -38,9 +36,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import org.jetbrains.annotations.NotNull;
 
 public class DefaultModuleWrapper implements IModuleWrapper {
-
-  private static final Type MODULE_CONFIGURATION_TYPE = new TypeToken<ModuleConfiguration>() {
-  }.getType();
 
   private static final Map<String, String> DEFAULT_REPOSITORIES = Collections
     .singletonMap("maven", "https://repo1.maven.org/maven2/");
@@ -89,7 +84,7 @@ public class DefaultModuleWrapper implements IModuleWrapper {
 
       try (InputStreamReader reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8)) {
         this.moduleConfigurationSource = new JsonDocument().read(reader);
-        this.moduleConfiguration = this.moduleConfigurationSource.toInstanceOf(MODULE_CONFIGURATION_TYPE);
+        this.moduleConfiguration = this.moduleConfigurationSource.toInstanceOf(ModuleConfiguration.class);
       }
     }
 

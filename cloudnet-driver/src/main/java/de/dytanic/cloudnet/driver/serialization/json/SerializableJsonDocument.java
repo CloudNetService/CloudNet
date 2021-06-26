@@ -16,7 +16,6 @@
 
 package de.dytanic.cloudnet.driver.serialization.json;
 
-import com.google.gson.JsonParser;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import de.dytanic.cloudnet.driver.serialization.SerializableObject;
@@ -29,7 +28,7 @@ import org.jetbrains.annotations.NotNull;
 public class SerializableJsonDocument extends JsonDocument implements SerializableObject {
 
   private SerializableJsonDocument(JsonDocument document) {
-    super(document.toJsonObject());
+    super(document);
   }
 
   public SerializableJsonDocument() {
@@ -143,6 +142,6 @@ public class SerializableJsonDocument extends JsonDocument implements Serializab
   @Override
   public void read(@NotNull ProtocolBuffer buffer) {
     super.clear();
-    super.append(JsonParser.parseString(buffer.readString()).getAsJsonObject());
+    super.append(JsonDocument.newDocument(buffer.readString()));
   }
 }

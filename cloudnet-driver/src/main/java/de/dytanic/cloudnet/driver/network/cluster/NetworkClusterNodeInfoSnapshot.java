@@ -32,8 +32,8 @@ import org.jetbrains.annotations.NotNull;
 @EqualsAndHashCode(callSuper = false)
 public class NetworkClusterNodeInfoSnapshot extends SerializableJsonDocPropertyable implements SerializableObject {
 
-  public static final Type TYPE = new TypeToken<NetworkClusterNodeInfoSnapshot>() {
-  }.getType();
+  @Deprecated
+  public static final Type TYPE = NetworkClusterNodeInfoSnapshot.class;
 
   protected long creationTime;
   protected long startupMillis;

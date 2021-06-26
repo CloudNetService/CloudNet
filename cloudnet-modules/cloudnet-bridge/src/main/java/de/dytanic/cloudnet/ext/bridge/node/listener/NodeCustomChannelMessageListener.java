@@ -115,7 +115,7 @@ public final class NodeCustomChannelMessageListener {
 
     switch (event.getMessage()) {
       case BridgeConstants.BRIDGE_NETWORK_CHANNEL_CLUSTER_MESSAGE_UPDATE_BRIDGE_CONFIGURATION_LISTENER: {
-        BridgeConfiguration bridgeConfiguration = event.getData().get("bridgeConfiguration", BridgeConfiguration.TYPE);
+        BridgeConfiguration bridgeConfiguration = event.getData().get("bridgeConfiguration", BridgeConfiguration.class);
 
         if (bridgeConfiguration != null) {
           new JsonDocument()

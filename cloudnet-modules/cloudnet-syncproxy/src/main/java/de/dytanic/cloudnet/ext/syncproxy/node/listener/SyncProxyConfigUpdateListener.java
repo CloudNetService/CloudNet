@@ -56,7 +56,7 @@ public final class SyncProxyConfigUpdateListener {
 
     if (SyncProxyConstants.SYNC_PROXY_UPDATE_CONFIGURATION.equals(event.getMessage())) {
       SyncProxyConfiguration syncProxyConfiguration = event.getData()
-        .get("syncProxyConfiguration", SyncProxyConfiguration.TYPE);
+        .get("syncProxyConfiguration", SyncProxyConfiguration.class);
 
       if (syncProxyConfiguration != null) {
         CloudNetSyncProxyModule.getInstance().setSyncProxyConfiguration(syncProxyConfiguration);

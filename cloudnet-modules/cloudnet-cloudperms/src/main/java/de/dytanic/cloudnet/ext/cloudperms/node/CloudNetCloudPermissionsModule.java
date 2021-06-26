@@ -28,8 +28,7 @@ import java.util.List;
 
 public final class CloudNetCloudPermissionsModule extends NodeCloudNetModule {
 
-  private static final Type LIST_STRING = new TypeToken<List<String>>() {
-  }.getType();
+  private static final Type LIST_STRING = TypeToken.getParameterized(List.class, String.class).getType();
 
   private static CloudNetCloudPermissionsModule instance;
 

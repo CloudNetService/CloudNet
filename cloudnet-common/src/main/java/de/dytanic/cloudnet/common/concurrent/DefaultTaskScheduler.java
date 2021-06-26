@@ -29,7 +29,7 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 @Deprecated
-@ApiStatus.ScheduledForRemoval
+@ApiStatus.ScheduledForRemoval(inVersion = "3.6")
 public class DefaultTaskScheduler implements ITaskScheduler {
 
   protected static final long DEFAULT_THREAD_LIFE_MILLIS = 60000;

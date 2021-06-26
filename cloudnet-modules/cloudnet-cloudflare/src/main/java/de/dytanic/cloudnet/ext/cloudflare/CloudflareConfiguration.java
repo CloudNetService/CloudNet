@@ -16,7 +16,6 @@
 
 package de.dytanic.cloudnet.ext.cloudflare;
 
-import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.Collection;
 import lombok.EqualsAndHashCode;
@@ -26,8 +25,8 @@ import lombok.ToString;
 @EqualsAndHashCode
 public class CloudflareConfiguration {
 
-  public static final Type TYPE = new TypeToken<CloudflareConfiguration>() {
-  }.getType();
+  @Deprecated
+  public static final Type TYPE = CloudflareConfiguration.class;
 
   protected Collection<CloudflareConfigurationEntry> entries;
 
