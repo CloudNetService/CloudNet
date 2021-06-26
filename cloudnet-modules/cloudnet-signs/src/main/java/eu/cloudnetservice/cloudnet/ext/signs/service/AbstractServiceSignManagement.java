@@ -44,7 +44,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
-import org.bukkit.ChatColor;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -209,8 +208,8 @@ public abstract class AbstractServiceSignManagement<T> extends ServiceSignManage
     if (lines != null && lines.length == 4) {
       String[] replacedLines = new String[4];
       for (int i = 0; i < 4; i++) {
-        replacedLines[i] = ChatColor.translateAlternateColorCodes('&',
-          ServiceInfoStateWatcher.replaceServiceInfo(lines[i], sign.getTargetGroup(), sign.getCurrentTarget()));
+        replacedLines[i] = ServiceInfoStateWatcher
+          .replaceServiceInfo(lines[i], sign.getTargetGroup(), sign.getCurrentTarget());
       }
       return replacedLines;
     }

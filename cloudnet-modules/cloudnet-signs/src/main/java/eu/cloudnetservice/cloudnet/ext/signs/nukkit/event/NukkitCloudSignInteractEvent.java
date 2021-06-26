@@ -39,7 +39,7 @@ public class NukkitCloudSignInteractEvent extends PlayerEvent implements Cancell
     this.setCancelled(cancelled);
   }
 
-  public static HandlerList getHandlerList() {
+  public static HandlerList getHandlers() {
     return HANDLER_LIST;
   }
 

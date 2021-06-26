@@ -25,6 +25,7 @@ import eu.cloudnetservice.cloudnet.ext.signs.configuration.SignLayout;
 import eu.cloudnetservice.cloudnet.ext.signs.service.AbstractServiceSignManagement;
 import java.util.Set;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -90,7 +91,7 @@ public class BukkitSignManagement extends AbstractServiceSignManagement<org.bukk
           String[] replaced = this.replaceLines(sign, layout);
           if (replaced != null) {
             for (int i = 0; i < 4; i++) {
-              bukkitSign.setLine(i, replaced[i]);
+              bukkitSign.setLine(i, ChatColor.translateAlternateColorCodes('&', replaced[i]));
             }
 
             bukkitSign.update();
