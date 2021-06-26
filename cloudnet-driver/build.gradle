@@ -1,25 +1,44 @@
+/*
+ * Copyright 2019-2021 CloudNetService team & contributors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 jar {
-    dependsOn ':cloudnet-common:jar'
-    archiveFileName.set(cloudnetDriverOutFileName)
+  dependsOn ':cloudnet-common:jar'
+  archiveFileName.set(cloudnetDriverOutFileName)
 
-    from {
-        configurations.runtimeClasspath.resolvedConfiguration.resolvedArtifacts.stream().filter({
-            it.moduleVersion.id.group == project.group
-        }).collect({
-            it.file.isDirectory() ? it.file : zipTree(it.file)
-        })
-    }
+  from {
+    configurations.runtimeClasspath.resolvedConfiguration.resolvedArtifacts.stream().filter({
+      it.moduleVersion.id.group == project.group
+    }).collect({
+      it.file.isDirectory() ? it.file : zipTree(it.file)
+    })
+  }
 
-    doLast {
-        createCnlFile(project, cloudnetDriverOutCNLFileName)
-    }
+  doLast {
+    createCnlFile(project, cloudnetDriverOutCNLFileName)
+  }
 }
 
 dependencies {
-    api project(':cloudnet-common')
-    api group: 'io.netty', name: 'netty-handler', version: dependencyNettyVersion
-    api group: 'io.netty', name: 'netty-codec-http', version: dependencyNettyVersion
-    api group: 'io.netty', name: 'netty-transport-native-epoll', version: dependencyNettyVersion, classifier: 'linux-x86_64'
-    api group: 'io.netty', name: 'netty-transport-native-kqueue', version: dependencyNettyVersion, classifier: 'osx-x86_64'
-    implementation group: 'org.javassist', name: 'javassist', version: dependencyJavassistVersion
+  api project(':cloudnet-common')
+  api group: 'io.netty', name: 'netty-handler', version: dependencyNettyVersion
+  api group: 'io.netty', name: 'netty-codec-http', version: dependencyNettyVersion
+  api group: 'io.netty', name: 'netty-transport-native-epoll', version: dependencyNettyVersion, classifier: 'linux-x86_64'
+  api group: 'io.netty', name: 'netty-transport-native-kqueue', version: dependencyNettyVersion, classifier: 'osx-x86_64'
+  implementation group: 'org.javassist', name: 'javassist', version: dependencyJavassistVersion
+  // jdk 15-ea removed the sun.security.x509 package, leading test (which uses the self signed certificate)
+  // to fail. This dependency adds backward support (and is only needed during the tests)
+  testImplementation group: 'org.bouncycastle', name: 'bcpkix-jdk15on', version: testBcpkixJdk15OnVersion
 }

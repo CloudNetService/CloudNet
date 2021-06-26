@@ -54,7 +54,7 @@ messages:
   restart: Server is restarting
 stats:
   disable-saving: false
-  forced-stats: {}
+  forced-stats: { }
 world-settings:
   default:
     verbose: false

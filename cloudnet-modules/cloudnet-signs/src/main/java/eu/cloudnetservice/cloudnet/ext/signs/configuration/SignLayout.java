@@ -1,3 +1,19 @@
+/*
+ * Copyright 2019-2021 CloudNetService team & contributors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package eu.cloudnetservice.cloudnet.ext.signs.configuration;
 
 import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
@@ -10,54 +26,54 @@ import org.jetbrains.annotations.NotNull;
 @EqualsAndHashCode
 public class SignLayout implements SerializableObject {
 
-    protected String[] lines;
-    protected String blockMaterial;
-    protected int blockSubId;
+  protected String[] lines;
+  protected String blockMaterial;
+  protected int blockSubId;
 
-    public SignLayout() {
-    }
+  public SignLayout() {
+  }
 
-    public SignLayout(String[] lines, String blockMaterial, int blockSubId) {
-        this.lines = lines;
-        this.blockMaterial = blockMaterial;
-        this.blockSubId = blockSubId;
-    }
+  public SignLayout(String[] lines, String blockMaterial, int blockSubId) {
+    this.lines = lines;
+    this.blockMaterial = blockMaterial;
+    this.blockSubId = blockSubId;
+  }
 
-    public String[] getLines() {
-        return lines;
-    }
+  public String[] getLines() {
+    return lines;
+  }
 
-    public void setLines(String[] lines) {
-        this.lines = lines;
-    }
+  public void setLines(String[] lines) {
+    this.lines = lines;
+  }
 
-    public String getBlockMaterial() {
-        return blockMaterial;
-    }
+  public String getBlockMaterial() {
+    return blockMaterial;
+  }
 
-    public void setBlockMaterial(String blockMaterial) {
-        this.blockMaterial = blockMaterial;
-    }
+  public void setBlockMaterial(String blockMaterial) {
+    this.blockMaterial = blockMaterial;
+  }
 
-    public int getBlockSubId() {
-        return blockSubId;
-    }
+  public int getBlockSubId() {
+    return blockSubId;
+  }
 
-    public void setBlockSubId(int blockSubId) {
-        this.blockSubId = blockSubId;
-    }
+  public void setBlockSubId(int blockSubId) {
+    this.blockSubId = blockSubId;
+  }
 
-    @Override
-    public void write(@NotNull ProtocolBuffer buffer) {
-        buffer.writeStringArray(this.lines);
-        buffer.writeOptionalString(this.blockMaterial);
-        buffer.writeInt(this.blockSubId);
-    }
+  @Override
+  public void write(@NotNull ProtocolBuffer buffer) {
+    buffer.writeStringArray(this.lines);
+    buffer.writeOptionalString(this.blockMaterial);
+    buffer.writeInt(this.blockSubId);
+  }
 
-    @Override
-    public void read(@NotNull ProtocolBuffer buffer) {
-        this.lines = buffer.readStringArray();
-        this.blockMaterial = buffer.readOptionalString();
-        this.blockSubId = buffer.readInt();
-    }
+  @Override
+  public void read(@NotNull ProtocolBuffer buffer) {
+    this.lines = buffer.readStringArray();
+    this.blockMaterial = buffer.readOptionalString();
+    this.blockSubId = buffer.readInt();
+  }
 }

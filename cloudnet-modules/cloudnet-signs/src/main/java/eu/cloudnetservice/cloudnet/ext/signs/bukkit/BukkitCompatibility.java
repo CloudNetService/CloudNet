@@ -1,5 +1,24 @@
+/*
+ * Copyright 2019-2021 CloudNetService team & contributors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package eu.cloudnetservice.cloudnet.ext.signs.bukkit;
 
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.material.MaterialData;
@@ -8,67 +27,63 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
-
 @ApiStatus.Internal
 public final class BukkitCompatibility {
 
-    private static final Class<?> WALL_SIGN_CLASS;
+  private static final Class<?> WALL_SIGN_CLASS;
 
-    private static final MethodHandle GET_BLOCK_DATA;
-    private static final MethodHandle WALL_SIGN_GET_FACING;
+  private static final MethodHandle GET_BLOCK_DATA;
+  private static final MethodHandle WALL_SIGN_GET_FACING;
 
-    static {
-        Class<?> wallSignClass;
+  static {
+    Class<?> wallSignClass;
 
-        MethodHandle getBlockData;
-        MethodHandle getFacing;
+    MethodHandle getBlockData;
+    MethodHandle getFacing;
 
-        try {
-            wallSignClass = Class.forName("org.bukkit.block.data.type.WallSign");
-            Class<?> blockDataClass = Class.forName("org.bukkit.block.data.BlockData");
+    try {
+      wallSignClass = Class.forName("org.bukkit.block.data.type.WallSign");
+      Class<?> blockDataClass = Class.forName("org.bukkit.block.data.BlockData");
 
-            getBlockData = MethodHandles.publicLookup().findVirtual(BlockState.class, "getBlockData",
-                    MethodType.methodType(blockDataClass));
-            getFacing = MethodHandles.publicLookup().findVirtual(wallSignClass, "getFacing",
-                    MethodType.methodType(BlockFace.class));
-        } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException exception) {
-            wallSignClass = null;
-            getBlockData = null;
-            getFacing = null;
-        }
-
-        WALL_SIGN_CLASS = wallSignClass;
-        GET_BLOCK_DATA = getBlockData;
-        WALL_SIGN_GET_FACING = getFacing;
+      getBlockData = MethodHandles.publicLookup().findVirtual(BlockState.class, "getBlockData",
+        MethodType.methodType(blockDataClass));
+      getFacing = MethodHandles.publicLookup().findVirtual(wallSignClass, "getFacing",
+        MethodType.methodType(BlockFace.class));
+    } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException exception) {
+      wallSignClass = null;
+      getBlockData = null;
+      getFacing = null;
     }
 
-    private BukkitCompatibility() {
-        throw new UnsupportedOperationException();
-    }
+    WALL_SIGN_CLASS = wallSignClass;
+    GET_BLOCK_DATA = getBlockData;
+    WALL_SIGN_GET_FACING = getFacing;
+  }
 
-    public static @Nullable BlockFace getFacing(@NotNull BlockState blockState) {
-        if (WALL_SIGN_CLASS != null && GET_BLOCK_DATA != null && WALL_SIGN_GET_FACING != null) {
-            // modern bukkit lookup is possible
-            try {
-                Object blockData = GET_BLOCK_DATA.invoke(blockState);
-                if (WALL_SIGN_CLASS.isInstance(blockData)) {
-                    return (BlockFace) WALL_SIGN_GET_FACING.invoke(blockData);
-                }
-            } catch (Throwable throwable) {
-                throwable.printStackTrace();
-            }
-            return BlockFace.UP;
+  private BukkitCompatibility() {
+    throw new UnsupportedOperationException();
+  }
+
+  public static @Nullable BlockFace getFacing(@NotNull BlockState blockState) {
+    if (WALL_SIGN_CLASS != null && GET_BLOCK_DATA != null && WALL_SIGN_GET_FACING != null) {
+      // modern bukkit lookup is possible
+      try {
+        Object blockData = GET_BLOCK_DATA.invoke(blockState);
+        if (WALL_SIGN_CLASS.isInstance(blockData)) {
+          return (BlockFace) WALL_SIGN_GET_FACING.invoke(blockData);
         }
-        // use legacy lookup
-        MaterialData materialData = blockState.getData();
-        if (materialData instanceof Sign) {
-            Sign sign = (Sign) materialData;
-            return sign.isWallSign() ? sign.getFacing() : BlockFace.UP;
-        }
-        // unable to retrieve facing information
-        return null;
+      } catch (Throwable throwable) {
+        throwable.printStackTrace();
+      }
+      return BlockFace.UP;
     }
+    // use legacy lookup
+    MaterialData materialData = blockState.getData();
+    if (materialData instanceof Sign) {
+      Sign sign = (Sign) materialData;
+      return sign.isWallSign() ? sign.getFacing() : BlockFace.UP;
+    }
+    // unable to retrieve facing information
+    return null;
+  }
 }
