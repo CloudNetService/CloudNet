@@ -1,10 +1,16 @@
 name: CloudNet-Signs
-version: "1.1"
-api: [ "1.0.5" ]
+version: '2.0'
+api: [ '1.0.5' ]
 author: CloudNetService
 website: https://cloudnetservice.eu
-description: Nukkit extension for the CloudNet runtime, which optimizes some features
+description: Nukkit extension for the CloudNet runtime which adds sign connector support
 
-main: de.dytanic.cloudnet.ext.signs.nukkit.NukkitCloudNetSignsPlugin
+main: eu.cloudnetservice.cloudnet.ext.signs.nukkit.NukkitSignsPlugin
 
 depend: [ CloudNet-Bridge ]
+
+commands:
+  cloudsign:
+    aliases: [ cs ]
+    permission: 'cloudnet.command.cloudsign'
+    description: 'Management of the signs'

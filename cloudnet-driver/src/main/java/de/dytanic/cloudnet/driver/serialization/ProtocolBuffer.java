@@ -22,6 +22,8 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.io.InputStream;
 import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -103,6 +105,11 @@ public abstract class ProtocolBuffer extends ByteBuf {
 
   public abstract ProtocolBuffer writeUUIDCollection(@NotNull Collection<UUID> uuids);
 
+  public abstract ProtocolBuffer writeStringMap(@NotNull Map<String, String> map);
+
+  @NotNull
+  public abstract Map<String, String> readStringMap();
+
   @NotNull
   public abstract JsonDocument readJsonDocument();
 
@@ -130,7 +137,7 @@ public abstract class ProtocolBuffer extends ByteBuf {
   public abstract ProtocolBuffer writeOptionalObject(@Nullable SerializableObject object);
 
   @NotNull
-  public abstract <T extends SerializableObject> Collection<T> readObjectCollection(@NotNull Class<T> objectClass);
+  public abstract <T extends SerializableObject> List<T> readObjectCollection(@NotNull Class<T> objectClass);
 
   public abstract ProtocolBuffer writeObjectCollection(@NotNull Collection<? extends SerializableObject> objects);
 

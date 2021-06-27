@@ -16,7 +16,6 @@
 
 package de.dytanic.cloudnet.driver.network.cluster;
 
-import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.driver.module.ModuleConfiguration;
 import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import de.dytanic.cloudnet.driver.serialization.SerializableObject;

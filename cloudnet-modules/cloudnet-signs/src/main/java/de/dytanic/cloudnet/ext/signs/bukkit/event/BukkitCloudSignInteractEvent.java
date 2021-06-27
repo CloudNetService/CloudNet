@@ -27,6 +27,7 @@ import org.jetbrains.annotations.Nullable;
 public class BukkitCloudSignInteractEvent extends PlayerEvent implements Cancellable {
 
   private static final HandlerList HANDLER_LIST = new HandlerList();
+
   private final Sign clickedSign;
   private boolean cancelled;
   private String targetServer;

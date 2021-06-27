@@ -135,7 +135,7 @@ public class ChunkedPacketBuilder {
       while ((read = this.inputStream.read(buffer)) != -1) {
         this.target
           .accept(this.createSegment(this.channel, this.uniqueId, chunkId++,
-              this.chunkSize, read, Arrays.copyOf(buffer, buffer.length)));
+            this.chunkSize, read, Arrays.copyOf(buffer, buffer.length)));
       }
 
       this.target.accept(this.createEndPacket(this.channel, this.uniqueId, chunkId, this.chunkSize));
