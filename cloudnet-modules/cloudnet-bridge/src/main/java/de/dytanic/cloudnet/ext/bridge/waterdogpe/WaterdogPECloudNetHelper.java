@@ -88,7 +88,6 @@ public final class WaterdogPECloudNetHelper {
         WaterdogPEPlayerFallbackEvent event = new WaterdogPEPlayerFallbackEvent(player, serviceInfoSnapshot,
           serviceInfoSnapshot.getName());
         ProxyServer.getInstance().getEventManager().callEvent(event);
-
         return event;
       })
       .map(WaterdogPEPlayerFallbackEvent::getFallbackName)

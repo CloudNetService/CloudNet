@@ -17,6 +17,8 @@
 package de.dytanic.cloudnet.ext.bridge.waterdogpe.listener;
 
 import de.dytanic.cloudnet.driver.event.EventListener;
+import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
+import de.dytanic.cloudnet.driver.event.events.network.NetworkChannelPacketReceiveEvent;
 import de.dytanic.cloudnet.driver.event.events.service.CloudServiceConnectNetworkEvent;
 import de.dytanic.cloudnet.driver.event.events.service.CloudServiceDisconnectNetworkEvent;
 import de.dytanic.cloudnet.driver.event.events.service.CloudServiceInfoUpdateEvent;
@@ -25,10 +27,39 @@ import de.dytanic.cloudnet.driver.event.events.service.CloudServiceStartEvent;
 import de.dytanic.cloudnet.driver.event.events.service.CloudServiceStopEvent;
 import de.dytanic.cloudnet.driver.event.events.service.CloudServiceUnregisterEvent;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
+import de.dytanic.cloudnet.ext.bridge.event.BridgeConfigurationUpdateEvent;
+import de.dytanic.cloudnet.ext.bridge.event.BridgeProxyPlayerDisconnectEvent;
+import de.dytanic.cloudnet.ext.bridge.event.BridgeProxyPlayerLoginRequestEvent;
+import de.dytanic.cloudnet.ext.bridge.event.BridgeProxyPlayerLoginSuccessEvent;
+import de.dytanic.cloudnet.ext.bridge.event.BridgeProxyPlayerServerConnectRequestEvent;
+import de.dytanic.cloudnet.ext.bridge.event.BridgeProxyPlayerServerSwitchEvent;
+import de.dytanic.cloudnet.ext.bridge.event.BridgeServerPlayerDisconnectEvent;
+import de.dytanic.cloudnet.ext.bridge.event.BridgeServerPlayerLoginRequestEvent;
+import de.dytanic.cloudnet.ext.bridge.event.BridgeServerPlayerLoginSuccessEvent;
 import de.dytanic.cloudnet.ext.bridge.proxy.BridgeProxyHelper;
 import de.dytanic.cloudnet.ext.bridge.waterdogpe.WaterdogPECloudNetHelper;
+import de.dytanic.cloudnet.ext.bridge.waterdogpe.event.WaterdogPEBridgeConfigurationUpdateEvent;
+import de.dytanic.cloudnet.ext.bridge.waterdogpe.event.WaterdogPEBridgeProxyPlayerDisconnectEvent;
+import de.dytanic.cloudnet.ext.bridge.waterdogpe.event.WaterdogPEBridgeProxyPlayerLoginRequestEvent;
+import de.dytanic.cloudnet.ext.bridge.waterdogpe.event.WaterdogPEBridgeProxyPlayerLoginSuccessEvent;
+import de.dytanic.cloudnet.ext.bridge.waterdogpe.event.WaterdogPEBridgeProxyPlayerServerConnectRequestEvent;
+import de.dytanic.cloudnet.ext.bridge.waterdogpe.event.WaterdogPEBridgeProxyPlayerServerSwitchEvent;
+import de.dytanic.cloudnet.ext.bridge.waterdogpe.event.WaterdogPEBridgeServerPlayerDisconnectEvent;
+import de.dytanic.cloudnet.ext.bridge.waterdogpe.event.WaterdogPEBridgeServerPlayerLoginRequestEvent;
+import de.dytanic.cloudnet.ext.bridge.waterdogpe.event.WaterdogPEBridgeServerPlayerLoginSuccessEvent;
+import de.dytanic.cloudnet.ext.bridge.waterdogpe.event.WaterdogPEChannelMessageReceiveEvent;
+import de.dytanic.cloudnet.ext.bridge.waterdogpe.event.WaterdogPECloudServiceConnectNetworkEvent;
+import de.dytanic.cloudnet.ext.bridge.waterdogpe.event.WaterdogPECloudServiceDisconnectNetworkEvent;
+import de.dytanic.cloudnet.ext.bridge.waterdogpe.event.WaterdogPECloudServiceInfoUpdateEvent;
+import de.dytanic.cloudnet.ext.bridge.waterdogpe.event.WaterdogPECloudServiceRegisterEvent;
+import de.dytanic.cloudnet.ext.bridge.waterdogpe.event.WaterdogPECloudServiceStartEvent;
+import de.dytanic.cloudnet.ext.bridge.waterdogpe.event.WaterdogPECloudServiceStopEvent;
+import de.dytanic.cloudnet.ext.bridge.waterdogpe.event.WaterdogPECloudServiceUnregisterEvent;
+import de.dytanic.cloudnet.ext.bridge.waterdogpe.event.WaterdogPENetworkChannelPacketReceiveEvent;
+import de.dytanic.cloudnet.ext.bridge.waterdogpe.event.WaterdogPEServiceInfoSnapshotConfigureEvent;
 import de.dytanic.cloudnet.wrapper.event.service.ServiceInfoSnapshotConfigureEvent;
 import dev.waterdog.waterdogpe.ProxyServer;
+import dev.waterdog.waterdogpe.event.Event;
 import dev.waterdog.waterdogpe.network.ServerInfo;
 import java.net.InetSocketAddress;
 
@@ -37,7 +68,7 @@ public final class WaterdogPECloudNetListener {
   @EventListener
   public void handle(ServiceInfoSnapshotConfigureEvent event) {
     WaterdogPECloudNetHelper.initProperties(event.getServiceInfoSnapshot());
-    // this.waterdogPECall(new WaterdogPEServiceInfoSnapshotConfigureEvent(event.getServiceInfoSnapshot()));
+    this.waterdogPECall(new WaterdogPEServiceInfoSnapshotConfigureEvent(event.getServiceInfoSnapshot()));
   }
 
   @EventListener
@@ -60,7 +91,7 @@ public final class WaterdogPECloudNetListener {
         ProxyServer.getInstance().registerServerInfo(new ServerInfo(name, address, address)), false);
     }
 
-    // this.waterdogPECall(new WaterdogPECloudServiceStartEvent(event.getServiceInfo()));
+    this.waterdogPECall(new WaterdogPECloudServiceStartEvent(event.getServiceInfo()));
   }
 
   @EventListener
@@ -73,7 +104,7 @@ public final class WaterdogPECloudNetListener {
       BridgeProxyHelper.cacheServiceInfoSnapshot(serviceInfoSnapshot);
     }
 
-    // this.waterdogPECall(new WaterdogPECloudServiceStopEvent(event.getServiceInfo()));
+    this.waterdogPECall(new WaterdogPECloudServiceStopEvent(event.getServiceInfo()));
   }
 
   @EventListener
@@ -84,7 +115,7 @@ public final class WaterdogPECloudNetListener {
       BridgeProxyHelper.cacheServiceInfoSnapshot(serviceInfoSnapshot);
     }
 
-    // this.waterdogPECall(new WaterdogPECloudServiceInfoUpdateEvent(event.getServiceInfo()));
+    this.waterdogPECall(new WaterdogPECloudServiceInfoUpdateEvent(event.getServiceInfo()));
   }
 
   @EventListener
@@ -95,7 +126,7 @@ public final class WaterdogPECloudNetListener {
       BridgeProxyHelper.cacheServiceInfoSnapshot(serviceInfoSnapshot);
     }
 
-    // this.waterdogPECall(new WaterdogPECloudServiceRegisterEvent(event.getServiceInfo()));
+    this.waterdogPECall(new WaterdogPECloudServiceRegisterEvent(event.getServiceInfo()));
   }
 
   @EventListener
@@ -106,7 +137,7 @@ public final class WaterdogPECloudNetListener {
       BridgeProxyHelper.cacheServiceInfoSnapshot(serviceInfoSnapshot);
     }
 
-    // this.waterdogPECall(new WaterdogPECloudServiceConnectNetworkEvent(event.getServiceInfo()));
+    this.waterdogPECall(new WaterdogPECloudServiceConnectNetworkEvent(event.getServiceInfo()));
   }
 
   @EventListener
@@ -117,7 +148,7 @@ public final class WaterdogPECloudNetListener {
       BridgeProxyHelper.cacheServiceInfoSnapshot(serviceInfoSnapshot);
     }
 
-    // this.waterdogPECall(new WaterdogPECloudServiceDisconnectNetworkEvent(event.getServiceInfo()));
+    this.waterdogPECall(new WaterdogPECloudServiceDisconnectNetworkEvent(event.getServiceInfo()));
   }
 
   @EventListener
@@ -128,10 +159,9 @@ public final class WaterdogPECloudNetListener {
       BridgeProxyHelper.removeCachedServiceInfoSnapshot(serviceInfoSnapshot);
     }
 
-    // this.waterdogPECall(new WaterdogPECloudServiceUnregisterEvent(event.getServiceInfo()));
+    this.waterdogPECall(new WaterdogPECloudServiceUnregisterEvent(event.getServiceInfo()));
   }
 
-  /*
   @EventListener
   public void handle(ChannelMessageReceiveEvent event) {
     this.waterdogPECall(new WaterdogPEChannelMessageReceiveEvent(event));
@@ -193,7 +223,6 @@ public final class WaterdogPECloudNetListener {
   }
 
   private void waterdogPECall(Event event) {
-    ProxyServer.getInstance().getPluginManager().callEvent(event);
+    ProxyServer.getInstance().getEventManager().callEvent(event);
   }
-   */
 }

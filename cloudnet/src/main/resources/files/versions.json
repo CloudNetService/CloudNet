@@ -757,11 +757,22 @@
           "name": "latest",
           "url": "https://ci.codemc.org/job/yesdog/job/Waterdog/lastStableBuild/artifact/Waterfall-Proxy/bootstrap/target/Waterdog.jar",
           "cacheFiles": false
-        },
+        }
+      ]
+    },
+    {
+      "name": "waterdogpe",
+      "targetEnvironment": "WATERDOG_PE",
+      "website": "https://waterdog.dev",
+      "installSteps": [
+        "DOWNLOAD"
+      ],
+      "versions": [
         {
-          "name": "alemiz-zlib",
-          "url": "https://jenkins.mizerak.eu/view/Alemiz-Jobs/job/WaterDog/job/alemiz-zlib/lastSuccessfulBuild/artifact/Waterfall-Proxy/bootstrap/target/Waterdog.jar",
-          "cacheFiles": false
+          "name": "latest",
+          "url": "https://jenkins.waterdog.dev/job/Waterdog/job/WaterdogPE/job/master/lastSuccessfulBuild/artifact/target/Waterdog.jar",
+          "cacheFiles": false,
+          "minJavaVersion": 11
         }
       ]
     },
