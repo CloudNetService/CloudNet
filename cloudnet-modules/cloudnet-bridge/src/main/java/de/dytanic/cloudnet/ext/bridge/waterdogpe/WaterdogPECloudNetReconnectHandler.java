@@ -16,7 +16,6 @@
 
 package de.dytanic.cloudnet.ext.bridge.waterdogpe;
 
-
 import de.dytanic.cloudnet.ext.bridge.proxy.BridgeProxyHelper;
 import dev.waterdog.waterdogpe.network.ServerInfo;
 import dev.waterdog.waterdogpe.player.ProxiedPlayer;

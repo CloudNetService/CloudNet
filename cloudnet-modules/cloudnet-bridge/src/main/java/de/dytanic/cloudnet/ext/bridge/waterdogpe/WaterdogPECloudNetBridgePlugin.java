@@ -16,7 +16,6 @@
 
 package de.dytanic.cloudnet.ext.bridge.waterdogpe;
 
-
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;

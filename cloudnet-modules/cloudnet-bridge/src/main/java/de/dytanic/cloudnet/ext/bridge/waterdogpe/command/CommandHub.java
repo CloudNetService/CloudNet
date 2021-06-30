@@ -16,7 +16,6 @@
 
 package de.dytanic.cloudnet.ext.bridge.waterdogpe.command;
 
-
 import de.dytanic.cloudnet.ext.bridge.BridgeConfigurationProvider;
 import de.dytanic.cloudnet.ext.bridge.waterdogpe.WaterdogPECloudNetHelper;
 import dev.waterdog.waterdogpe.command.Command;

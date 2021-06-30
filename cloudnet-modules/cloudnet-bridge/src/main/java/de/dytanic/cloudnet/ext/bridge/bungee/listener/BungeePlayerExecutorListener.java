@@ -66,7 +66,7 @@ public class BungeePlayerExecutorListener extends PlayerExecutorListener<Proxied
   }
 
   @Override
-  protected void sendPluginMessage(@NotNull ProxiedPlayer player, @NotNull String tag, @NotNull byte[] data) {
+  protected void sendPluginMessage(@NotNull ProxiedPlayer player, @NotNull String tag, byte[] data) {
     if (!ProxyServer.getInstance().getChannels().contains(tag)) {
       ProxyServer.getInstance().registerChannel(tag);
     }

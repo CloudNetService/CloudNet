@@ -48,7 +48,6 @@ public final class WaterdogPECloudNetHelper {
     throw new UnsupportedOperationException();
   }
 
-
   public static int getLastOnlineCount() {
     return lastOnlineCount;
   }

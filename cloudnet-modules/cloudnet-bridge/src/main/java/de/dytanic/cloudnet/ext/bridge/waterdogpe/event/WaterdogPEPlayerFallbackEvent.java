@@ -16,7 +16,6 @@
 
 package de.dytanic.cloudnet.ext.bridge.waterdogpe.event;
 
-
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import dev.waterdog.waterdogpe.event.Event;
 import dev.waterdog.waterdogpe.player.ProxiedPlayer;

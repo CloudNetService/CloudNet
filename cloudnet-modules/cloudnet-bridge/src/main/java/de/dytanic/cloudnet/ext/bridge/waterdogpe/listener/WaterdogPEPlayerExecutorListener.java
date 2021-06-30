@@ -63,9 +63,8 @@ public class WaterdogPEPlayerExecutorListener extends PlayerExecutorListener<Pro
   }
 
   @Override
-  protected void sendPluginMessage(@NotNull ProxiedPlayer player, @NotNull String tag, @NotNull byte[] data) {
+  protected void sendPluginMessage(@NotNull ProxiedPlayer player, @NotNull String tag, byte[] data) {
   }
-
 
   @Override
   protected void broadcastMessageComponent(@NotNull String data, @Nullable String permission) {
