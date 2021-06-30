@@ -20,7 +20,10 @@ import com.google.common.collect.Iterables;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.event.events.service.CloudServiceInfoUpdateEvent;
+import de.dytanic.cloudnet.driver.event.events.service.CloudServiceStopEvent;
+import de.dytanic.cloudnet.driver.event.events.service.CloudServiceUnregisterEvent;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
+import de.dytanic.cloudnet.event.service.CloudServicePostStopEvent;
 import de.dytanic.cloudnet.ext.bridge.BridgeServiceProperty;
 import de.dytanic.cloudnet.ext.bridge.node.player.NodePlayerManager;
 import de.dytanic.cloudnet.ext.bridge.player.CloudPlayer;
@@ -29,6 +32,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import org.jetbrains.annotations.NotNull;
 
 public final class BridgeLocalProxyPlayerDisconnectListener {
 
@@ -73,6 +77,33 @@ public final class BridgeLocalProxyPlayerDisconnectListener {
             // free the tester for him
             this.invisibilityTester.remove(value.getUniqueId());
           }
+        }
+      }
+    }
+  }
+
+  @EventListener
+  public void handle(CloudServiceStopEvent event) {
+    this.handleCloudServiceRemove(event.getServiceInfo());
+  }
+
+  @EventListener
+  public void handle(CloudServicePostStopEvent event) {
+    this.handleCloudServiceRemove(event.getCloudService().getServiceInfoSnapshot());
+  }
+
+  @EventListener
+  public void handle(CloudServiceUnregisterEvent event) {
+    this.handleCloudServiceRemove(event.getServiceInfo());
+  }
+
+  private void handleCloudServiceRemove(@NotNull ServiceInfoSnapshot snapshot) {
+    if (snapshot.getServiceId().getEnvironment().isMinecraftProxy()) {
+      // test if any player has the stopped service as the login service
+      for (CloudPlayer value : this.playerManager.getOnlineCloudPlayers().values()) {
+        if (value.getLoginService().getServiceId().getUniqueId().equals(snapshot.getServiceId().getUniqueId())) {
+          // the player was connected to that proxy, log him out now
+          this.playerManager.logoutPlayer(value);
         }
       }
     }
