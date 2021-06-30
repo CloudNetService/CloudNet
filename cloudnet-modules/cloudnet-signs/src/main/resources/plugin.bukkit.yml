@@ -1,14 +1,16 @@
 name: CloudNet-Signs
-version: "1.1"
-api-version: "1.13"
+version: '2.0'
+api-version: '1.13'
 author: CloudNetService
 website: https://cloudnetservice.eu
-description: Bukkit extension for the CloudNet runtime, which optimizes some features
+description: Bukkit extension for the CloudNet runtime which adds sign connector support
 
-main: de.dytanic.cloudnet.ext.signs.bukkit.BukkitCloudNetSignsPlugin
+main: eu.cloudnetservice.cloudnet.ext.signs.bukkit.BukkitSignsPlugin
 
-depend: [CloudNet-Bridge]
+depend: [ CloudNet-Bridge ]
 
 commands:
   cloudsign:
-    aliases: [cs]
+    aliases: [ cs ]
+    permission: 'cloudnet.command.cloudsign'
+    description: 'Management of the signs'

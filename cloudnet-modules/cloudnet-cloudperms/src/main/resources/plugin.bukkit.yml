@@ -6,4 +6,4 @@ description: Bukkit extension which implement the permission management system f
 
 main: de.dytanic.cloudnet.ext.cloudperms.bukkit.BukkitCloudNetCloudPermissionsPlugin
 
-softdepend: [Vault, VaultAPI]
+softdepend: [ Vault, VaultAPI ]
