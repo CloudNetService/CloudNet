@@ -94,14 +94,12 @@ public class WaterdogPECloudNetBridgePlugin extends Plugin {
   }
 
   private void registerCommands() {
-    super.getProxy().getCommandMap().registerCommand("cloudnet", new CommandCloudNet());
+    super.getProxy().getCommandMap().registerCommand(new CommandCloudNet());
 
     Collection<String> hubCommandNames = BridgeConfigurationProvider.load().getHubCommandNames();
-
     if (!hubCommandNames.isEmpty()) {
       String[] hubCommandArray = hubCommandNames.toArray(new String[0]);
-
-      super.getProxy().getCommandMap().registerCommand(hubCommandArray[0], new CommandHub(hubCommandArray));
+      super.getProxy().getCommandMap().registerCommand(new CommandHub(hubCommandArray));
     }
   }
 
