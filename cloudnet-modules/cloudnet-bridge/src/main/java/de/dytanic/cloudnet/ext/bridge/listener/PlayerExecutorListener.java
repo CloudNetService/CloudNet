@@ -165,7 +165,7 @@ public abstract class PlayerExecutorListener<P> {
 
   protected abstract void sendMessageComponent(@NotNull P player, @NotNull String data);
 
-  protected abstract void sendPluginMessage(@NotNull P player, @NotNull String tag, @NotNull byte[] data);
+  protected abstract void sendPluginMessage(@NotNull P player, @NotNull String tag, byte[] data);
 
   protected abstract void broadcastMessageComponent(@NotNull String data, @Nullable String permission);
 

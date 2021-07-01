@@ -1,0 +1,5 @@
+name: CloudNet-Bridge
+version: "1.2"
+author: CloudNetService
+
+main: de.dytanic.cloudnet.ext.bridge.waterdogpe.WaterdogPECloudNetBridgePlugin

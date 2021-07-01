@@ -55,7 +55,7 @@ public final class GoMintCloudNetHelper extends BridgeServerHelper {
 
   public static void initProperties(ServiceInfoSnapshot serviceInfoSnapshot) {
     serviceInfoSnapshot.getProperties()
-      .append("Online", true)
+      .append("Online", BridgeHelper.isOnline())
       .append("Version", Protocol.MINECRAFT_PE_NETWORK_VERSION)
       .append("GoMint-Version", GoMint.instance().version())
       .append("Max-Players", BridgeServerHelper.getMaxPlayers())
@@ -115,7 +115,6 @@ public final class GoMintCloudNetHelper extends BridgeServerHelper {
           gameRules
         );
       }).collect(Collectors.toList()));
-
   }
 
   public static NetworkConnectionInfo createNetworkConnectionInfo(EntityPlayer player) {
@@ -162,5 +161,4 @@ public final class GoMintCloudNetHelper extends BridgeServerHelper {
       BridgeHelper.createOwnNetworkServiceInfo()
     );
   }
-
 }

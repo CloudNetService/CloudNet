@@ -38,6 +38,7 @@ public enum ServiceEnvironment {
   BUNGEECORD_HEXACORD("hexacord"),
   //Waterdog
   WATERDOG_DEFAULT("waterdog"),
+  WATERDOG_PE("waterdog-pe"),
   //Nukkit
   NUKKIT_DEFAULT("nukkit"),
   //GoMint

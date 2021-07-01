@@ -27,4 +27,5 @@ dependencies {
   compileOnly group: 'org.spigotmc', name: 'spigot-api', version: dependencySpigotApiVersion
   compileOnly group: 'net.md-5', name: 'bungeecord-api', version: dependencyBungeeCordVersion
   compileOnly group: 'com.velocitypowered', name: 'velocity-api', version: dependencyVelocityVersion
+  compileOnly group: 'dev.waterdog.waterdogpe', name: 'waterdog', version: dependencyWaterdogPEVersion
 }

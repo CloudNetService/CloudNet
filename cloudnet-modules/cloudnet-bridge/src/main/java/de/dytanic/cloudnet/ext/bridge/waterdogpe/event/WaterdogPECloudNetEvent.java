@@ -14,15 +14,20 @@
  * limitations under the License.
  */
 
-jar {
-  archiveFileName.set(cloudnetModuleSyncProxyFileName)
-}
+package de.dytanic.cloudnet.ext.bridge.waterdogpe.event;
 
-dependencies {
-  compileOnly project(':cloudnet')
-  compileOnly project(':cloudnet-wrapper-jvm')
-  compileOnly project(':cloudnet-modules:cloudnet-bridge')
-  compileOnly group: 'net.md-5', name: 'bungeecord-api', version: dependencyBungeeCordVersion
-  compileOnly group: 'com.velocitypowered', name: 'velocity-api', version: dependencyVelocityVersion
-  compileOnly group: 'dev.waterdog.waterdogpe', name: 'waterdog', version: dependencyWaterdogPEVersion
+import de.dytanic.cloudnet.driver.CloudNetDriver;
+import de.dytanic.cloudnet.wrapper.Wrapper;
+import dev.waterdog.waterdogpe.event.Event;
+
+abstract class WaterdogPECloudNetEvent extends Event {
+
+  public final CloudNetDriver getDriver() {
+    return CloudNetDriver.getInstance();
+  }
+
+  public final Wrapper getWrapper() {
+    return Wrapper.getInstance();
+  }
+
 }
