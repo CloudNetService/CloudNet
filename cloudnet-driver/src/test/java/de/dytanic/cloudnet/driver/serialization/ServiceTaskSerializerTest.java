@@ -16,7 +16,6 @@
 
 package de.dytanic.cloudnet.driver.serialization;
 
-import de.dytanic.cloudnet.driver.service.ProcessConfiguration;
 import de.dytanic.cloudnet.driver.service.ServiceDeployment;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceRemoteInclusion;
@@ -31,23 +30,26 @@ public class ServiceTaskSerializerTest {
 
   @Test
   public void serializeServiceTask() {
-    ServiceTask original = new ServiceTask(
-      Collections.singletonList(new ServiceRemoteInclusion("https://cloudnetservice.eu", "destination")),
-      Collections.singletonList(new ServiceTemplate("Global", "default", "local", true)),
-      Collections.singletonList(new ServiceDeployment(new ServiceTemplate("Backup", "Global", "local", true),
-        Arrays.asList("some", "excluded", "files"))),
-      "Lobby",
-      "jvm",
-      true,
-      true,
-      true,
-      Arrays.asList("Node-X", "Node-2"),
-      Arrays.asList("Global", "Lobby", "Global-Server"),
-      Arrays.asList("deleted", "files"),
-      new ProcessConfiguration(ServiceEnvironmentType.MINECRAFT_SERVER, 1234, Arrays.asList("some", "options")),
-      25565,
-      5000
-    );
+    ServiceTask original = ServiceTask.builder()
+      .includes(Collections.singletonList(new ServiceRemoteInclusion("https://cloudnetservice.eu", "destination")))
+      .templates(Collections.singletonList(new ServiceTemplate("Global", "default", "local", true)))
+      .deployments(Collections.singletonList(
+        new ServiceDeployment(new ServiceTemplate("Backup", "Global", "local", true),
+          Arrays.asList("some", "excluded", "files"))))
+      .name("Lobby")
+      .runtime("jvm")
+      .maintenance(true)
+      .autoDeleteOnStop(true)
+      .staticServices(true)
+      .associatedNodes(Arrays.asList("Node-1", "Node-2"))
+      .groups(Arrays.asList("Global", "Lobby", "Global-Server"))
+      .deletedFilesAfterStop(Collections.singletonList("config.yml"))
+      .serviceEnvironmentType(ServiceEnvironmentType.MINECRAFT_SERVER).maxHeapMemory(1234)
+      .processParameters(Arrays.asList("Parameter1", "Parameter2"))
+      .jvmOptions(Arrays.asList("Options1", "Options2"))
+      .startPort(25565)
+      .minServiceCount(187)
+      .build();
 
     ProtocolBuffer buffer = ProtocolBuffer.create();
     buffer.writeObject(original);

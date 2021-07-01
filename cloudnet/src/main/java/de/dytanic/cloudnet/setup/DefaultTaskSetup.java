@@ -25,7 +25,6 @@ import de.dytanic.cloudnet.console.animation.questionlist.answer.QuestionAnswerT
 import de.dytanic.cloudnet.console.animation.questionlist.answer.QuestionAnswerTypeEnum;
 import de.dytanic.cloudnet.console.animation.questionlist.answer.QuestionAnswerTypeServiceVersion;
 import de.dytanic.cloudnet.driver.service.GroupConfiguration;
-import de.dytanic.cloudnet.driver.service.ProcessConfiguration;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceTask;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
@@ -36,7 +35,6 @@ import de.dytanic.cloudnet.template.TemplateStorageUtil;
 import de.dytanic.cloudnet.template.install.ServiceVersion;
 import de.dytanic.cloudnet.template.install.ServiceVersionType;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 
@@ -115,27 +113,16 @@ public class DefaultTaskSetup implements DefaultSetup {
   }
 
   private void createDefaultTask(ServiceEnvironmentType environment, String taskName, int maxHeapMemorySize) {
-    ServiceTask serviceTask = new ServiceTask(
-      new ArrayList<>(),
-      new ArrayList<>(Collections.singletonList(new ServiceTemplate(taskName, "default", "local"))),
-      new ArrayList<>(),
-      taskName,
-      "jvm",
-      false,
-      true,
-      false,
-      new ArrayList<>(),
-      new ArrayList<>(Collections.singletonList(taskName)),
-      new ArrayList<>(),
-      new ProcessConfiguration(
-        environment,
-        maxHeapMemorySize,
-        new ArrayList<>(),
-        new ArrayList<>()
-      ),
-      environment.getDefaultStartPort(),
-      1
-    );
+    ServiceTask serviceTask = ServiceTask.builder()
+      .templates(Collections.singletonList(new ServiceTemplate(taskName, "default", "local")))
+      .name(taskName)
+      .autoDeleteOnStop(true)
+      .groups(Collections.singletonList(taskName))
+      .serviceEnvironmentType(environment)
+      .maxHeapMemory(maxHeapMemorySize)
+      .startPort(environment.getDefaultStartPort())
+      .minServiceCount(1)
+      .build();
 
     for (ServiceTemplate template : serviceTask.getTemplates()) {
       try {

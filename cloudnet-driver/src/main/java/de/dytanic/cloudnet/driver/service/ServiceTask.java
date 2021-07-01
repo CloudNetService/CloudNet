@@ -16,6 +16,7 @@
 
 package de.dytanic.cloudnet.driver.service;
 
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.INameable;
 import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import de.dytanic.cloudnet.driver.serialization.SerializableObject;
@@ -23,6 +24,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.jetbrains.annotations.ApiStatus.Internal;
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -53,6 +56,8 @@ public class ServiceTask extends ServiceConfigurationBase implements INameable, 
    */
   private transient long serviceStartAbilityTime = -1;
 
+  @Deprecated
+  @ScheduledForRemoval(inVersion = "3.6")
   public ServiceTask(Collection<ServiceRemoteInclusion> includes, Collection<ServiceTemplate> templates,
     Collection<ServiceDeployment> deployments,
     String name, String runtime, boolean autoDeleteOnStop, boolean staticServices, Collection<String> associatedNodes,
@@ -62,6 +67,8 @@ public class ServiceTask extends ServiceConfigurationBase implements INameable, 
       staticServices, associatedNodes, groups, processConfiguration, startPort, minServiceCount);
   }
 
+  @Deprecated
+  @ScheduledForRemoval(inVersion = "3.6")
   public ServiceTask(Collection<ServiceRemoteInclusion> includes, Collection<ServiceTemplate> templates,
     Collection<ServiceDeployment> deployments,
     String name, String runtime, boolean autoDeleteOnStop, boolean staticServices, Collection<String> associatedNodes,
@@ -72,6 +79,8 @@ public class ServiceTask extends ServiceConfigurationBase implements INameable, 
       groups, deletedFilesAfterStop, processConfiguration, startPort, minServiceCount);
   }
 
+  @Deprecated
+  @ScheduledForRemoval(inVersion = "3.6")
   public ServiceTask(Collection<ServiceRemoteInclusion> includes, Collection<ServiceTemplate> templates,
     Collection<ServiceDeployment> deployments,
     String name, String runtime, boolean autoDeleteOnStop, boolean staticServices, Collection<String> associatedNodes,
@@ -82,6 +91,8 @@ public class ServiceTask extends ServiceConfigurationBase implements INameable, 
       groups, deletedFilesAfterStop, processConfiguration, startPort, minServiceCount, javaCommand);
   }
 
+  @Deprecated
+  @ScheduledForRemoval(inVersion = "3.6")
   public ServiceTask(Collection<ServiceRemoteInclusion> includes, Collection<ServiceTemplate> templates,
     Collection<ServiceDeployment> deployments,
     String name, String runtime, boolean maintenance, boolean autoDeleteOnStop, boolean staticServices,
@@ -91,6 +102,8 @@ public class ServiceTask extends ServiceConfigurationBase implements INameable, 
       associatedNodes, groups, new ArrayList<>(), processConfiguration, startPort, minServiceCount);
   }
 
+  @Deprecated
+  @ScheduledForRemoval(inVersion = "3.6")
   public ServiceTask(Collection<ServiceRemoteInclusion> includes, Collection<ServiceTemplate> templates,
     Collection<ServiceDeployment> deployments,
     String name, String runtime, boolean maintenance, boolean autoDeleteOnStop, boolean staticServices,
@@ -101,6 +114,8 @@ public class ServiceTask extends ServiceConfigurationBase implements INameable, 
       associatedNodes, groups, deletedFilesAfterStop, processConfiguration, startPort, minServiceCount, null);
   }
 
+  @Deprecated
+  @ScheduledForRemoval(inVersion = "3.6")
   public ServiceTask(Collection<ServiceRemoteInclusion> includes, Collection<ServiceTemplate> templates,
     Collection<ServiceDeployment> deployments,
     String name, String runtime, boolean maintenance, boolean autoDeleteOnStop, boolean staticServices,
@@ -122,7 +137,18 @@ public class ServiceTask extends ServiceConfigurationBase implements INameable, 
     this.javaCommand = javaCommand;
   }
 
+  @Internal
   public ServiceTask() {
+  }
+
+  @NotNull
+  public static ServiceTask.Builder builder() {
+    return new Builder();
+  }
+
+  @NotNull
+  public static ServiceTask.Builder builder(@NotNull ServiceTask serviceTask) {
+    return new Builder(serviceTask);
   }
 
   @Override
@@ -255,28 +281,26 @@ public class ServiceTask extends ServiceConfigurationBase implements INameable, 
   }
 
   public ServiceTask makeClone() {
-    return new ServiceTask(
-      new ArrayList<>(this.includes),
-      new ArrayList<>(this.templates),
-      new ArrayList<>(this.deployments),
-      this.name,
-      this.runtime,
-      this.maintenance,
-      this.autoDeleteOnStop,
-      this.staticServices,
-      new ArrayList<>(this.associatedNodes),
-      new ArrayList<>(this.groups),
-      new ArrayList<>(this.deletedFilesAfterStop),
-      new ProcessConfiguration(
-        this.processConfiguration.getEnvironment(),
-        this.processConfiguration.getMaxHeapMemorySize(),
-        new ArrayList<>(this.processConfiguration.getJvmOptions()),
-        new ArrayList<>(this.processConfiguration.getProcessParameters())
-      ),
-      this.startPort,
-      this.minServiceCount,
-      this.javaCommand
-    );
+    return ServiceTask.builder()
+      .includes(new ArrayList<>(this.includes))
+      .templates(new ArrayList<>(this.templates))
+      .deployments(new ArrayList<>(this.deployments))
+      .name(this.name)
+      .runtime(this.runtime)
+      .maintenance(this.maintenance)
+      .autoDeleteOnStop(this.autoDeleteOnStop)
+      .staticServices(this.staticServices)
+      .associatedNodes(new ArrayList<>(this.associatedNodes))
+      .groups(new ArrayList<>(this.groups))
+      .deletedFilesAfterStop(new ArrayList<>(this.deletedFilesAfterStop))
+      .serviceEnvironmentType(this.processConfiguration.environment)
+      .maxHeapMemory(this.processConfiguration.maxHeapMemorySize)
+      .jvmOptions(new ArrayList<>(this.processConfiguration.jvmOptions))
+      .processParameters(new ArrayList<>(this.processConfiguration.processParameters))
+      .startPort(this.startPort)
+      .minServiceCount(this.minServiceCount)
+      .javaCommand(this.javaCommand)
+      .build();
   }
 
   @Override
@@ -313,5 +337,202 @@ public class ServiceTask extends ServiceConfigurationBase implements INameable, 
     this.processConfiguration = buffer.readObject(ProcessConfiguration.class);
     this.startPort = buffer.readInt();
     this.minServiceCount = buffer.readInt();
+  }
+
+  public static class Builder {
+
+    private final ServiceTask serviceTask;
+
+    protected Builder() {
+      this.serviceTask = new ServiceTask();
+      this.serviceTask.processConfiguration = new ProcessConfiguration();
+    }
+
+    protected Builder(@NotNull ServiceTask serviceTask) {
+      Preconditions.checkNotNull(serviceTask, "serviceTask");
+
+      this.serviceTask = serviceTask;
+    }
+
+    @NotNull
+    public Builder name(@NotNull String name) {
+      Preconditions.checkNotNull(name, "name");
+
+      this.serviceTask.setName(name);
+      return this;
+    }
+
+    @NotNull
+    public Builder runtime(@Nullable String runtime) {
+
+      this.serviceTask.setRuntime(runtime);
+      return this;
+    }
+
+    @NotNull
+    public Builder javaCommand(@Nullable String javaCommand) {
+      this.serviceTask.setJavaCommand(javaCommand);
+      return this;
+    }
+
+    @NotNull
+    public Builder disableIpRewrite(boolean disableIpRewrite) {
+      this.serviceTask.setDisableIpRewrite(disableIpRewrite);
+      return this;
+    }
+
+    @NotNull
+    public Builder maintenance(boolean maintenance) {
+      this.serviceTask.setMaintenance(maintenance);
+      return this;
+    }
+
+    @NotNull
+    public Builder autoDeleteOnStop(boolean autoDeleteOnStop) {
+      this.serviceTask.setAutoDeleteOnStop(autoDeleteOnStop);
+      return this;
+    }
+
+    @NotNull
+    public Builder staticServices(boolean staticServices) {
+      this.serviceTask.setStaticServices(staticServices);
+      return this;
+    }
+
+    @NotNull
+    public Builder associatedNodes(@NotNull Collection<String> associatedNodes) {
+      Preconditions.checkNotNull(associatedNodes, "associatedNodes");
+
+      this.serviceTask.setAssociatedNodes(new ArrayList<>(associatedNodes));
+      return this;
+    }
+
+    @NotNull
+    public Builder groups(@NotNull Collection<String> groups) {
+      Preconditions.checkNotNull(groups, "groups");
+
+      this.serviceTask.setGroups(new ArrayList<>(groups));
+      return this;
+    }
+
+    @NotNull
+    public Builder deletedFilesAfterStop(@NotNull Collection<String> deletedFilesAfterStop) {
+      Preconditions.checkNotNull(deletedFilesAfterStop, "deletedFilesAfterStop");
+
+      this.serviceTask.setDeletedFilesAfterStop(new ArrayList<>(deletedFilesAfterStop));
+      return this;
+    }
+
+    @NotNull
+    public Builder processConfiguration(@NotNull ProcessConfiguration processConfiguration) {
+      Preconditions.checkNotNull(processConfiguration, "processConfiguration");
+
+      this.serviceTask.setProcessConfiguration(processConfiguration);
+      return this;
+    }
+
+    @NotNull
+    public Builder startPort(int startPort) {
+      this.serviceTask.setStartPort(startPort);
+      return this;
+    }
+
+    @NotNull
+    public Builder minServiceCount(int minServiceCount) {
+      this.serviceTask.setMinServiceCount(minServiceCount);
+      return this;
+    }
+
+    @NotNull
+    public Builder jvmOptions(@NotNull Collection<String> jvmOptions) {
+      Preconditions.checkNotNull(jvmOptions, "jvmOptions");
+
+      this.serviceTask.processConfiguration.setJvmOptions(new ArrayList<>(jvmOptions));
+      return this;
+    }
+
+    @NotNull
+    public Builder processParameters(@NotNull Collection<String> processParameters) {
+      Preconditions.checkNotNull(processParameters, "processParameters");
+
+      this.serviceTask.processConfiguration.setProcessParameters(new ArrayList<>(processParameters));
+      return this;
+    }
+
+    @NotNull
+    public Builder includes(@NotNull Collection<ServiceRemoteInclusion> includes) {
+      Preconditions.checkNotNull(includes, "includes");
+
+      this.serviceTask.setIncludes(new ArrayList<>(includes));
+      return this;
+    }
+
+    @NotNull
+    public Builder templates(@NotNull Collection<ServiceTemplate> templates) {
+      Preconditions.checkNotNull(templates, "templates");
+
+      this.serviceTask.setTemplates(new ArrayList<>(templates));
+      return this;
+    }
+
+    @NotNull
+    public Builder deployments(@NotNull Collection<ServiceDeployment> deployments) {
+      Preconditions.checkNotNull(deployments, "deployments");
+
+      this.serviceTask.setDeployments(new ArrayList<>(deployments));
+      return this;
+    }
+
+    @NotNull
+    public Builder maxHeapMemory(int maxHeapMemory) {
+      this.serviceTask.processConfiguration.setMaxHeapMemorySize(maxHeapMemory);
+      return this;
+    }
+
+    @NotNull
+    public Builder serviceEnvironmentType(@NotNull ServiceEnvironmentType serviceEnvironmentType) {
+      Preconditions.checkNotNull(serviceEnvironmentType, "serviceEnvironmentType");
+
+      this.serviceTask.processConfiguration.setEnvironment(serviceEnvironmentType);
+      return this;
+    }
+
+    @NotNull
+    public ServiceTask build() {
+      Preconditions.checkNotNull(this.serviceTask.name, "name");
+      Preconditions.checkNotNull(this.serviceTask.processConfiguration, "processConfiguration");
+      Preconditions.checkNotNull(this.serviceTask.processConfiguration.environment, "environment");
+      Preconditions.checkArgument(this.serviceTask.processConfiguration.maxHeapMemorySize > 0, "maxHeapMemory < 0");
+      Preconditions.checkArgument(this.serviceTask.startPort > 0, "startPort < 0");
+
+      if (this.serviceTask.runtime == null) {
+        this.serviceTask.runtime = "jvm";
+      }
+      if (this.serviceTask.associatedNodes == null) {
+        this.serviceTask.associatedNodes = new ArrayList<>();
+      }
+      if (this.serviceTask.groups == null) {
+        this.serviceTask.groups = new ArrayList<>();
+      }
+      if (this.serviceTask.deletedFilesAfterStop == null) {
+        this.serviceTask.deletedFilesAfterStop = new ArrayList<>();
+      }
+      if (this.serviceTask.includes == null) {
+        this.serviceTask.includes = new ArrayList<>();
+      }
+      if (this.serviceTask.templates == null) {
+        this.serviceTask.templates = new ArrayList<>();
+      }
+      if (this.serviceTask.deployments == null) {
+        this.serviceTask.deployments = new ArrayList<>();
+      }
+      if (this.serviceTask.processConfiguration.processParameters == null) {
+        this.serviceTask.processConfiguration.processParameters = new ArrayList<>();
+      }
+      if (this.serviceTask.processConfiguration.jvmOptions == null) {
+        this.serviceTask.processConfiguration.jvmOptions = new ArrayList<>();
+      }
+      return this.serviceTask;
+    }
   }
 }

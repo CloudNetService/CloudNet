@@ -35,6 +35,10 @@ public final class ProcessConfiguration implements SerializableObject {
   protected Collection<String> jvmOptions;
   protected Collection<String> processParameters = new ArrayList<>();
 
+  public ProcessConfiguration(ServiceEnvironmentType environment, int maxHeapMemorySize) {
+    this(environment, maxHeapMemorySize, new ArrayList<>());
+  }
+
 
   public ProcessConfiguration(ServiceEnvironmentType environment, int maxHeapMemorySize,
     Collection<String> jvmOptions) {

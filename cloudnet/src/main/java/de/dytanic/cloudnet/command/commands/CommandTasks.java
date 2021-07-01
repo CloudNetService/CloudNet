@@ -45,7 +45,6 @@ import de.dytanic.cloudnet.console.animation.questionlist.answer.QuestionAnswerT
 import de.dytanic.cloudnet.console.log.ColouredLogFormatter;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
 import de.dytanic.cloudnet.driver.service.GroupConfiguration;
-import de.dytanic.cloudnet.driver.service.ProcessConfiguration;
 import de.dytanic.cloudnet.driver.service.ServiceConfigurationBase;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
@@ -170,26 +169,18 @@ public class CommandTasks extends CommandServiceConfigurationBase {
             String name = (String) args.argument("name").get();
             ServiceEnvironmentType type = (ServiceEnvironmentType) args.argument(QuestionAnswerTypeEnum.class).get();
 
-            CloudNet.getInstance().getServiceTaskProvider().addPermanentServiceTask(new ServiceTask(
-              new ArrayList<>(),
-              new ArrayList<>(Collections.singletonList(ServiceTemplate.local(name, "default"))),
-              new ArrayList<>(),
-              name,
-              "jvm",
-              true,
-              false,
-              new ArrayList<>(
-                Collections.singletonList(CloudNet.getInstance().getConfig().getIdentity().getUniqueId())),
-              new ArrayList<>(Collections.singletonList(name)),
-              new ProcessConfiguration(
-                type,
-                type.isMinecraftProxy() ? 256 : 512,
-                new ArrayList<>(),
-                new ArrayList<>()
-              ),
-              type.getDefaultStartPort(),
-              0
-            ));
+            ServiceTask serviceTask = ServiceTask.builder()
+              .templates(Collections.singletonList(ServiceTemplate.local(name, "default")))
+              .name(name)
+              .autoDeleteOnStop(true)
+              .associatedNodes(Collections.singletonList(CloudNet.getInstance().getComponentName()))
+              .groups(Collections.singletonList(name))
+              .serviceEnvironmentType(type)
+              .maxHeapMemory(type.isMinecraftProxy() ? 256 : 512)
+              .startPort(type.getDefaultStartPort())
+              .build();
+
+            CloudNet.getInstance().getServiceTaskProvider().addPermanentServiceTask(serviceTask);
 
             TemplateStorageUtil.createAndPrepareTemplate(ServiceTemplate.local(name, "default"), type);
 
@@ -669,27 +660,19 @@ public class CommandTasks extends CommandServiceConfigurationBase {
         );
       }
 
-      ServiceTask serviceTask = new ServiceTask(
-        new ArrayList<>(),
-        new ArrayList<>(Collections.singletonList(template)),
-        new ArrayList<>(),
-        name,
-        "jvm",
-        maintenance,
-        autoDeleteOnStop,
-        staticServices,
-        associatedNodes,
-        new ArrayList<>(Collections.singletonList(name)),
-        new ArrayList<>(),
-        new ProcessConfiguration(
-          environmentType,
-          memory,
-          new ArrayList<>(),
-          new ArrayList<>()
-        ),
-        startPort,
-        minServiceCount
-      );
+      ServiceTask serviceTask = ServiceTask.builder()
+        .templates(Collections.singletonList(template))
+        .name("Lobby")
+        .maintenance(maintenance)
+        .autoDeleteOnStop(autoDeleteOnStop)
+        .staticServices(staticServices)
+        .associatedNodes(associatedNodes)
+        .groups(Collections.singletonList(name))
+        .serviceEnvironmentType(environmentType)
+        .maxHeapMemory(memory)
+        .startPort(startPort)
+        .minServiceCount(minServiceCount)
+        .build();
 
       CloudNet.getInstance().getServiceTaskProvider().addPermanentServiceTask(serviceTask);
 
