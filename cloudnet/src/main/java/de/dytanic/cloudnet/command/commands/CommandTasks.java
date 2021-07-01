@@ -662,7 +662,7 @@ public class CommandTasks extends CommandServiceConfigurationBase {
 
       ServiceTask serviceTask = ServiceTask.builder()
         .templates(Collections.singletonList(template))
-        .name("Lobby")
+        .name(name)
         .maintenance(maintenance)
         .autoDeleteOnStop(autoDeleteOnStop)
         .staticServices(staticServices)

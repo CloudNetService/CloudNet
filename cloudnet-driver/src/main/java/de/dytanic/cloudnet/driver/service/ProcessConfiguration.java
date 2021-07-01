@@ -99,7 +99,6 @@ public final class ProcessConfiguration implements SerializableObject {
     );
   }
 
-
   @Override
   public void write(@NotNull ProtocolBuffer buffer) {
     buffer.writeEnumConstant(this.environment);

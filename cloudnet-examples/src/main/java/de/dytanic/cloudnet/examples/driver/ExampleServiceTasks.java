@@ -34,7 +34,6 @@ public final class ExampleServiceTasks {
   }
 
   public void addServiceTask() {
-
     ServiceTask serviceTask = ServiceTask.builder()
       .includes(
         Collections.singletonList(new ServiceRemoteInclusion("https://cloudnetservice.eu", "destination"))) //includes
@@ -46,8 +45,8 @@ public final class ExampleServiceTasks {
       .runtime("jvm") //runtime can be null for the default jvm wrapper or "jvm"
       .maintenance(true) //maintenance
       .autoDeleteOnStop(true) //autoDeleteOnStop => if the service stops naturally it will be automatic deleted
-      .staticServices(
-        true) //The service won't be deleted fully and will store in the configured directory. The default is /local/services
+      //The service won't be deleted fully and will store in the configured directory. The default is /local/services
+      .staticServices(true)
       .associatedNodes(Arrays.asList("Node-1", "Node-2")) //node ids
       .groups(Arrays.asList("Global", "Lobby", "Global-Server")) //groups
       .serviceEnvironmentType(ServiceEnvironmentType.MINECRAFT_SERVER) //environement type
