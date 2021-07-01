@@ -28,7 +28,7 @@ public class WaterdogPECloudNetSyncProxyPlugin extends Plugin {
   @Override
   public void onEnable() {
     // register management
-    WaterdogPESyncProxyManagement management = new WaterdogPESyncProxyManagement(this);
+    WaterdogPESyncProxyManagement management = new WaterdogPESyncProxyManagement();
     CloudNetDriver.getInstance().getServicesRegistry()
       .registerService(AbstractSyncProxyManagement.class, "WaterdogPESyncProxyManagement", management);
     // cloud listener

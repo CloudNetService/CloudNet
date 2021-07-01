@@ -21,15 +21,12 @@ import de.dytanic.cloudnet.ext.syncproxy.AbstractSyncProxyManagement;
 import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyProxyLoginConfiguration;
 import dev.waterdog.waterdogpe.ProxyServer;
 import dev.waterdog.waterdogpe.player.ProxiedPlayer;
-import dev.waterdog.waterdogpe.plugin.Plugin;
 import java.util.List;
 
 public class WaterdogPESyncProxyManagement extends AbstractSyncProxyManagement {
 
-  private final Plugin plugin;
-
-  public WaterdogPESyncProxyManagement(Plugin plugin) {
-    this.plugin = plugin;
+  public WaterdogPESyncProxyManagement() {
+    this.initialize();
   }
 
   @Override
