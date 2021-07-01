@@ -364,7 +364,6 @@ public class ServiceTask extends ServiceConfigurationBase implements INameable, 
 
     @NotNull
     public Builder runtime(@Nullable String runtime) {
-
       this.serviceTask.setRuntime(runtime);
       return this;
     }
@@ -427,7 +426,7 @@ public class ServiceTask extends ServiceConfigurationBase implements INameable, 
     public Builder processConfiguration(@NotNull ProcessConfiguration processConfiguration) {
       Preconditions.checkNotNull(processConfiguration, "processConfiguration");
 
-      this.serviceTask.setProcessConfiguration(processConfiguration);
+      this.serviceTask.setProcessConfiguration(processConfiguration.makeClone());
       return this;
     }
 
@@ -532,6 +531,7 @@ public class ServiceTask extends ServiceConfigurationBase implements INameable, 
       if (this.serviceTask.processConfiguration.jvmOptions == null) {
         this.serviceTask.processConfiguration.jvmOptions = new ArrayList<>();
       }
+
       return this.serviceTask;
     }
   }

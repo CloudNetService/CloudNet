@@ -39,7 +39,6 @@ public final class ProcessConfiguration implements SerializableObject {
     this(environment, maxHeapMemorySize, new ArrayList<>());
   }
 
-
   public ProcessConfiguration(ServiceEnvironmentType environment, int maxHeapMemorySize,
     Collection<String> jvmOptions) {
     this(environment, maxHeapMemorySize, jvmOptions, new ArrayList<>());
@@ -90,6 +89,16 @@ public final class ProcessConfiguration implements SerializableObject {
   public void setProcessParameters(Collection<String> processParameters) {
     this.processParameters = processParameters;
   }
+
+  public ProcessConfiguration makeClone() {
+    return new ProcessConfiguration(
+      this.environment,
+      this.maxHeapMemorySize,
+      new ArrayList<>(this.jvmOptions),
+      new ArrayList<>(this.processParameters)
+    );
+  }
+
 
   @Override
   public void write(@NotNull ProtocolBuffer buffer) {
