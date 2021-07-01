@@ -1,0 +1,5 @@
+name: CloudNet-CloudPerms
+version: "1.2"
+author: CloudNetService
+
+main: de.dytanic.cloudnet.ext.cloudperms.waterdogpe.WaterdogPECloudNetCloudPermissionsPlugin
