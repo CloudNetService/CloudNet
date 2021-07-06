@@ -1,291 +1,245 @@
+/*
+ * Copyright 2019-2021 CloudNetService team & contributors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package de.dytanic.cloudnet.ext.storage.ftp.storage.queue;
 
+import de.dytanic.cloudnet.common.concurrent.CompletableTask;
+import de.dytanic.cloudnet.common.concurrent.CompletedTask;
 import de.dytanic.cloudnet.common.concurrent.ITask;
-import de.dytanic.cloudnet.common.concurrent.ListenableTask;
+import de.dytanic.cloudnet.common.concurrent.function.ThrowableSupplier;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
+import de.dytanic.cloudnet.driver.template.FileInfo;
+import de.dytanic.cloudnet.driver.template.TemplateStorage;
+import de.dytanic.cloudnet.driver.template.defaults.DefaultAsyncTemplateStorage;
 import de.dytanic.cloudnet.ext.storage.ftp.storage.AbstractFTPStorage;
-import de.dytanic.cloudnet.template.ITemplateStorage;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import java.io.File;
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Path;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.zip.ZipInputStream;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-public class FTPQueueStorage implements Runnable, ITemplateStorage {
+public class FTPQueueStorage extends DefaultAsyncTemplateStorage implements Runnable, TemplateStorage {
 
-    private static final long EMPTY_QUEUE_TOLERANCE_SECONDS = 5;
+  private static final long EMPTY_QUEUE_TOLERANCE_SECONDS = 5;
 
-    private final AbstractFTPStorage executingStorage;
+  private final AbstractFTPStorage executingStorage;
+  @NotNull
+  private final BlockingQueue<ITask<?>> ftpTaskQueue = new LinkedBlockingQueue<>();
+  private boolean opened = true;
 
-    private boolean opened = true;
-    @NotNull
-    private final BlockingQueue<ITask<?>> ftpTaskQueue = new LinkedBlockingQueue<>();
+  public FTPQueueStorage(AbstractFTPStorage executingStorage) {
+    this.executingStorage = executingStorage;
+  }
 
-    public FTPQueueStorage(AbstractFTPStorage executingStorage) {
-        this.executingStorage = executingStorage;
-    }
+  @Override
+  public void run() {
+    while (!Thread.currentThread().isInterrupted() && this.opened) {
+      try {
+        ITask<?> nextFTPTask = this.ftpTaskQueue.poll(EMPTY_QUEUE_TOLERANCE_SECONDS, TimeUnit.SECONDS);
 
-    @Override
-    public void run() {
-        while (!Thread.currentThread().isInterrupted() && this.opened) {
-            try {
-                ITask<?> nextFTPTask = this.ftpTaskQueue.poll(EMPTY_QUEUE_TOLERANCE_SECONDS, TimeUnit.SECONDS);
+        boolean ftpAvailable = this.executingStorage.isAvailable();
 
-                boolean ftpAvailable = this.executingStorage.isAvailable();
+        if (nextFTPTask == null) {
+          if (ftpAvailable) {
+            this.executingStorage.close();
+          }
+        } else {
+          if (!ftpAvailable && !this.executingStorage.connect()) {
+            nextFTPTask.cancel(true);
+          }
 
-                if (nextFTPTask == null) {
-                    if (ftpAvailable) {
-                        this.executingStorage.close();
-                    }
-                } else {
-                    if (!ftpAvailable && !this.executingStorage.connect()) {
-                        nextFTPTask.cancel(true);
-                    }
-
-                    nextFTPTask.call();
-                }
-            } catch (Exception exception) {
-                exception.printStackTrace();
-            }
-
+          nextFTPTask.call();
         }
+      } catch (Exception exception) {
+        exception.printStackTrace();
+      }
 
     }
 
-    @Override
-    @Deprecated
-    public boolean deploy(@NotNull byte[] zipInput, @NotNull ServiceTemplate target) {
-        ITask<Boolean> ftpTask = new FTPTask<>(() -> this.executingStorage.deploy(zipInput, target));
-        this.ftpTaskQueue.add(ftpTask);
+  }
 
-        return ftpTask.getDef(false);
+  private <V> ITask<V> addTask(FTPTask<V> task) {
+    this.ftpTaskQueue.add(task);
+    return task;
+  }
+
+  @Override
+  public void close() throws IOException {
+    this.opened = false;
+    this.executingStorage.close();
+  }
+
+  @Override
+  public @NotNull ITask<Boolean> deployAsync(@NotNull Path directory, @NotNull ServiceTemplate target,
+    @Nullable Predicate<Path> fileFilter) {
+    return this.addTask(new FTPTask<>(() -> this.executingStorage.deploy(directory, target, fileFilter)));
+  }
+
+  @Override
+  public @NotNull ITask<Boolean> deployAsync(@NotNull InputStream inputStream, @NotNull ServiceTemplate target) {
+    return this.addTask(new FTPTask<>(() -> this.executingStorage.deploy(inputStream, target)));
+  }
+
+  @Override
+  public @NotNull ITask<Boolean> copyAsync(@NotNull ServiceTemplate template, @NotNull Path directory) {
+    return this.addTask(new FTPTask<>(() -> this.executingStorage.copy(template, directory)));
+  }
+
+  public boolean copy(@NotNull ServiceTemplate template, @NotNull Path directory) {
+    ITask<Boolean> ftpTask = new FTPTask<>(() -> this.executingStorage.copy(template, directory));
+    this.ftpTaskQueue.add(ftpTask);
+
+    return ftpTask.getDef(false);
+  }
+
+  @Override
+  public @NotNull ITask<InputStream> zipTemplateAsync(@NotNull ServiceTemplate template) {
+    return this.addTask(new FTPTask<>(() -> this.executingStorage.zipTemplate(template)));
+  }
+
+  @Override
+  public @NotNull ITask<Boolean> deleteAsync(@NotNull ServiceTemplate template) {
+    return this.addTask(new FTPTask<>(() -> this.executingStorage.delete(template)));
+  }
+
+  @Override
+  public @NotNull ITask<Boolean> createAsync(@NotNull ServiceTemplate template) {
+    return this.addTask(new FTPTask<>(() -> this.executingStorage.create(template)));
+  }
+
+  @Override
+  public @NotNull ITask<Boolean> hasAsync(@NotNull ServiceTemplate template) {
+    return this.addTask(new FTPTask<>(() -> this.executingStorage.has(template)));
+  }
+
+  @Override
+  public @NotNull ITask<OutputStream> appendOutputStreamAsync(@NotNull ServiceTemplate template, @NotNull String path) {
+    return CompletableTask.supplyAsync(() -> this
+      .createDataTransfer(() -> this.executingStorage.appendOutputStream(template, path),
+        CloseableTask::toOutputStream));
+  }
+
+  @Override
+  public @NotNull ITask<OutputStream> newOutputStreamAsync(@NotNull ServiceTemplate template, @NotNull String path) {
+    return CompletableTask.supplyAsync(() -> this
+      .createDataTransfer(() -> this.executingStorage.newOutputStream(template, path), CloseableTask::toOutputStream));
+  }
+
+  private <C extends Closeable, S> S createDataTransfer(ThrowableSupplier<C, IOException> streamSupplier,
+    Function<CloseableTask<C>, S> streamMapper) throws IOException {
+    CompletableTask<CloseableTask<C>> task = new CompletableTask<>();
+
+    FTPTask<Void> ftpTask = new FTPTask<>(() -> {
+      C c = streamSupplier.get();
+      CloseableTask<C> resultStream = new CloseableTask<>(c);
+
+      task.complete(resultStream);
+
+      resultStream.get();
+
+      this.executingStorage.completeDataTransfer();
+
+      return null;
+    }, task::call);
+    this.ftpTaskQueue.add(ftpTask);
+
+    try {
+      CloseableTask<C> closeable = task.get();
+
+      if (ftpTask.getException() instanceof IOException) {
+        throw (IOException) ftpTask.getException();
+      }
+
+      return streamMapper.apply(closeable);
+    } catch (InterruptedException | ExecutionException exception) {
+      return null;
     }
+  }
 
-    @Override
-    public boolean deploy(@NotNull File directory, @NotNull ServiceTemplate target, @Nullable Predicate<File> fileFilter) {
-        ITask<Boolean> ftpTask = new FTPTask<>(() -> this.executingStorage.deploy(directory, target, fileFilter));
-        this.ftpTaskQueue.add(ftpTask);
+  @Override
+  public @NotNull ITask<Boolean> createFileAsync(@NotNull ServiceTemplate template, @NotNull String path) {
+    return this.addTask(new FTPTask<>(() -> this.executingStorage.createFile(template, path)));
+  }
 
-        return ftpTask.getDef(false);
+  @Override
+  public @NotNull ITask<Boolean> createDirectoryAsync(@NotNull ServiceTemplate template, @NotNull String path) {
+    return this.addTask(new FTPTask<>(() -> this.executingStorage.createDirectory(template, path)));
+  }
+
+  @Override
+  public @NotNull ITask<Boolean> hasFileAsync(@NotNull ServiceTemplate template, @NotNull String path) {
+    return this.addTask(new FTPTask<>(() -> this.executingStorage.hasFile(template, path)));
+  }
+
+  @Override
+  public @NotNull ITask<Boolean> deleteFileAsync(@NotNull ServiceTemplate template, @NotNull String path) {
+    return this.addTask(new FTPTask<>(() -> this.executingStorage.deleteFile(template, path)));
+  }
+
+  @Override
+  public @NotNull ITask<InputStream> newInputStreamAsync(@NotNull ServiceTemplate template, @NotNull String path) {
+    return CompletableTask.supplyAsync(() -> this
+      .createDataTransfer(() -> this.executingStorage.newInputStream(template, path), CloseableTask::toInputStream));
+  }
+
+  @Override
+  public @NotNull ITask<FileInfo> getFileInfoAsync(@NotNull ServiceTemplate template, @NotNull String path) {
+    return this.addTask(new FTPTask<>(() -> this.executingStorage.getFileInfo(template, path)));
+  }
+
+  @Override
+  public @NotNull ITask<FileInfo[]> listFilesAsync(@NotNull ServiceTemplate template, @NotNull String dir,
+    boolean deep) {
+    return this.addTask(new FTPTask<>(() -> this.executingStorage.listFiles(template, dir, deep)));
+  }
+
+  @Override
+  public @NotNull ITask<Collection<ServiceTemplate>> getTemplatesAsync() {
+    return this.addTask(new FTPTask<>(this.executingStorage::getTemplates));
+  }
+
+  @Override
+  public @NotNull ITask<Void> closeAsync() {
+    try {
+      this.close();
+      return CompletedTask.create(null);
+    } catch (IOException exception) {
+      return CompletedTask.createFailed(exception);
     }
+  }
 
-    @Override
-    public boolean deploy(@NotNull ZipInputStream inputStream, @NotNull ServiceTemplate serviceTemplate) {
-        ITask<Boolean> ftpTask = new FTPTask<>(() -> this.executingStorage.deploy(inputStream, serviceTemplate));
-        this.ftpTaskQueue.add(ftpTask);
+  public AbstractFTPStorage getExecutingStorage() {
+    return this.executingStorage;
+  }
 
-        return ftpTask.getDef(false);
-    }
+  public boolean isOpened() {
+    return this.opened;
+  }
 
-    @Override
-    public boolean deploy(@NotNull Path[] paths, @NotNull ServiceTemplate target) {
-        ITask<Boolean> ftpTask = new FTPTask<>(() -> this.executingStorage.deploy(paths, target));
-        this.ftpTaskQueue.add(ftpTask);
-
-        return ftpTask.getDef(false);
-    }
-
-    @Override
-    public boolean deploy(@NotNull File[] files, @NotNull ServiceTemplate target) {
-        ITask<Boolean> ftpTask = new FTPTask<>(() -> this.executingStorage.deploy(files, target));
-        this.ftpTaskQueue.add(ftpTask);
-
-        return ftpTask.getDef(false);
-    }
-
-    @Override
-    public boolean copy(@NotNull ServiceTemplate template, @NotNull File directory) {
-        ITask<Boolean> ftpTask = new FTPTask<>(() -> this.executingStorage.copy(template, directory));
-        this.ftpTaskQueue.add(ftpTask);
-
-        return ftpTask.getDef(false);
-    }
-
-    @Override
-    public boolean copy(@NotNull ServiceTemplate template, @NotNull Path directory) {
-        ITask<Boolean> ftpTask = new FTPTask<>(() -> this.executingStorage.copy(template, directory));
-        this.ftpTaskQueue.add(ftpTask);
-
-        return ftpTask.getDef(false);
-    }
-
-    @Override
-    public boolean copy(@NotNull ServiceTemplate template, @NotNull File[] directories) {
-        ITask<Boolean> ftpTask = new FTPTask<>(() -> this.executingStorage.copy(template, directories));
-        this.ftpTaskQueue.add(ftpTask);
-
-        return ftpTask.getDef(false);
-    }
-
-    @Override
-    public boolean copy(@NotNull ServiceTemplate template, @NotNull Path[] directories) {
-        ITask<Boolean> ftpTask = new FTPTask<>(() -> this.executingStorage.copy(template, directories));
-        this.ftpTaskQueue.add(ftpTask);
-
-        return ftpTask.getDef(false);
-    }
-
-    @Override
-    @Deprecated
-    public byte[] toZipByteArray(@NotNull ServiceTemplate template) {
-        ITask<byte[]> ftpTask = new FTPTask<>(() -> this.executingStorage.toZipByteArray(template));
-        this.ftpTaskQueue.add(ftpTask);
-
-        return ftpTask.getDef(new byte[0]);
-    }
-
-    @Override
-    public @Nullable InputStream zipTemplate(@NotNull ServiceTemplate template) {
-        ITask<InputStream> ftpTask = new FTPTask<>(() -> this.executingStorage.zipTemplate(template));
-        this.ftpTaskQueue.add(ftpTask);
-
-        return ftpTask.getDef(null);
-    }
-
-    @Override
-    public boolean delete(@NotNull ServiceTemplate template) {
-        ITask<Boolean> ftpTask = new FTPTask<>(() -> this.executingStorage.delete(template));
-        this.ftpTaskQueue.add(ftpTask);
-
-        return ftpTask.getDef(false);
-    }
-
-    @Override
-    public boolean create(@NotNull ServiceTemplate template) {
-        ITask<Boolean> ftpTask = new FTPTask<>(() -> this.executingStorage.create(template));
-        this.ftpTaskQueue.add(ftpTask);
-
-        return ftpTask.getDef(false);
-    }
-
-    @Override
-    public boolean has(@NotNull ServiceTemplate template) {
-        ITask<Boolean> ftpTask = new FTPTask<>(() -> this.executingStorage.has(template));
-        this.ftpTaskQueue.add(ftpTask);
-
-        return ftpTask.getDef(false);
-    }
-
-    @Nullable
-    @Override
-    public OutputStream appendOutputStream(@NotNull ServiceTemplate template, @NotNull String path) throws IOException {
-        return this.createDataTransfer(() -> this.executingStorage.appendOutputStream(template, path));
-    }
-
-    @Nullable
-    @Override
-    public OutputStream newOutputStream(@NotNull ServiceTemplate template, @NotNull String path) throws IOException {
-        return this.createDataTransfer(() -> this.executingStorage.newOutputStream(template, path));
-    }
-
-    private OutputStream createDataTransfer(Callable<OutputStream> outputStreamCallable) throws IOException {
-        AtomicReference<OutputStream> outputStreamReference = new AtomicReference<>();
-        ListenableTask<OutputStream> valueTask = new ListenableTask<>(outputStreamReference::get);
-
-        FTPTask<Void> ftpTask = new FTPTask<>(() -> {
-            OutputStreamCloseTask outputStreamCloseTask = new OutputStreamCloseTask(outputStreamCallable.call());
-
-            outputStreamReference.set(outputStreamCloseTask);
-            valueTask.call();
-
-            outputStreamCloseTask.get();
-
-            this.executingStorage.completeDataTransfer();
-
-            return null;
-        }, valueTask::call);
-        this.ftpTaskQueue.add(ftpTask);
-
-        try {
-            OutputStream outputStream = valueTask.get();
-
-            if (ftpTask.getException() instanceof IOException) {
-                throw (IOException) ftpTask.getException();
-            }
-
-            return outputStream;
-        } catch (InterruptedException exception) {
-            return null;
-        }
-    }
-
-    @Override
-    public boolean createFile(@NotNull ServiceTemplate template, @NotNull String path) throws IOException {
-        FTPTask<Boolean> ftpTask = new FTPTask<>(() -> this.executingStorage.createFile(template, path));
-        this.ftpTaskQueue.add(ftpTask);
-
-        return ftpTask.getOptionalValue(false).orElseThrow(() -> (IOException) ftpTask.getException());
-    }
-
-    @Override
-    public boolean createDirectory(@NotNull ServiceTemplate template, @NotNull String path) throws IOException {
-        FTPTask<Boolean> ftpTask = new FTPTask<>(() -> this.executingStorage.createDirectory(template, path));
-        this.ftpTaskQueue.add(ftpTask);
-
-        return ftpTask.getOptionalValue(false).orElseThrow(() -> (IOException) ftpTask.getException());
-    }
-
-    @Override
-    public boolean hasFile(@NotNull ServiceTemplate template, @NotNull String path) throws IOException {
-        FTPTask<Boolean> ftpTask = new FTPTask<>(() -> this.executingStorage.hasFile(template, path));
-        this.ftpTaskQueue.add(ftpTask);
-
-        return ftpTask.getOptionalValue(false).orElseThrow(() -> (IOException) ftpTask.getException());
-    }
-
-    @Override
-    public boolean deleteFile(@NotNull ServiceTemplate template, @NotNull String path) throws IOException {
-        FTPTask<Boolean> ftpTask = new FTPTask<>(() -> this.executingStorage.deleteFile(template, path));
-        this.ftpTaskQueue.add(ftpTask);
-
-        return ftpTask.getOptionalValue(false).orElseThrow(() -> (IOException) ftpTask.getException());
-    }
-
-    @Override
-    public String[] listFiles(@NotNull ServiceTemplate template, @NotNull String dir) throws IOException {
-        FTPTask<String[]> ftpTask = new FTPTask<>(() -> this.executingStorage.listFiles(template, dir));
-        this.ftpTaskQueue.add(ftpTask);
-
-        return ftpTask.getOptionalValue(new String[0]).orElseThrow(() -> (IOException) ftpTask.getException());
-    }
-
-    @Override
-    public Collection<ServiceTemplate> getTemplates() {
-        ITask<Collection<ServiceTemplate>> ftpTask = new FTPTask<>(this.executingStorage::getTemplates);
-        this.ftpTaskQueue.add(ftpTask);
-
-        return ftpTask.getDef(Collections.emptyList());
-    }
-
-    public AbstractFTPStorage getExecutingStorage() {
-        return this.executingStorage;
-    }
-
-    public boolean isOpened() {
-        return this.opened;
-    }
-
-    @Override
-    public String getName() {
-        return this.executingStorage.getName();
-    }
-
-    @Override
-    public void close() throws IOException {
-        this.opened = false;
-        this.executingStorage.close();
-    }
-
+  @Override
+  public String getName() {
+    return this.executingStorage.getName();
+  }
 }

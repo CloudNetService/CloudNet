@@ -1,30 +1,45 @@
-package de.dytanic.cloudnet.driver.event;
+/*
+ * Copyright 2019-2021 CloudNetService team & contributors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
-import org.junit.Assert;
-import org.junit.Test;
+package de.dytanic.cloudnet.driver.event;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import org.junit.Assert;
+import org.junit.Test;
 
 public class EventPriorityTest {
 
-    @Test
-    public void testEventPriorityComparator() {
-        List<EventPriority> eventPriorities = Arrays.asList(
-                EventPriority.HIGH,
-                EventPriority.LOWEST,
-                EventPriority.LOW,
-                EventPriority.NORMAL,
-                EventPriority.HIGHEST
-        );
+  @Test
+  public void testEventPriorityComparator() {
+    List<EventPriority> eventPriorities = Arrays.asList(
+      EventPriority.HIGH,
+      EventPriority.LOWEST,
+      EventPriority.LOW,
+      EventPriority.NORMAL,
+      EventPriority.HIGHEST
+    );
 
-        Collections.sort(eventPriorities);
+    Collections.sort(eventPriorities);
 
-        Assert.assertEquals(EventPriority.HIGHEST, eventPriorities.get(0));
-        Assert.assertEquals(EventPriority.HIGH, eventPriorities.get(1));
-        Assert.assertEquals(EventPriority.NORMAL, eventPriorities.get(2));
-        Assert.assertEquals(EventPriority.LOW, eventPriorities.get(3));
-        Assert.assertEquals(EventPriority.LOWEST, eventPriorities.get(4));
-    }
+    Assert.assertEquals(EventPriority.HIGHEST, eventPriorities.get(0));
+    Assert.assertEquals(EventPriority.HIGH, eventPriorities.get(1));
+    Assert.assertEquals(EventPriority.NORMAL, eventPriorities.get(2));
+    Assert.assertEquals(EventPriority.LOW, eventPriorities.get(3));
+    Assert.assertEquals(EventPriority.LOWEST, eventPriorities.get(4));
+  }
 }

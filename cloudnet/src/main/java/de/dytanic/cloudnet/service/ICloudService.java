@@ -1,104 +1,138 @@
+/*
+ * Copyright 2019-2021 CloudNetService team & contributors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package de.dytanic.cloudnet.service;
 
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
-import de.dytanic.cloudnet.driver.service.*;
+import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
+import de.dytanic.cloudnet.driver.service.ServiceDeployment;
+import de.dytanic.cloudnet.driver.service.ServiceId;
+import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
+import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
+import de.dytanic.cloudnet.driver.service.ServiceRemoteInclusion;
+import de.dytanic.cloudnet.driver.service.ServiceTemplate;
+import java.io.File;
+import java.nio.file.Path;
+import java.util.List;
+import java.util.Queue;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.File;
-import java.util.List;
-import java.util.Queue;
-
 public interface ICloudService {
 
-    void init();
+  @ApiStatus.Internal
+  void init();
 
-    @NotNull
-    String getRuntime();
+  @Nullable
+  String getJavaCommand();
 
-    List<ServiceRemoteInclusion> getIncludes();
+  @NotNull
+  String getRuntime();
 
-    List<ServiceTemplate> getTemplates();
+  List<ServiceRemoteInclusion> getIncludes();
 
-    List<ServiceDeployment> getDeployments();
+  List<ServiceTemplate> getTemplates();
 
-    Queue<ServiceRemoteInclusion> getWaitingIncludes();
+  List<ServiceDeployment> getDeployments();
 
-    Queue<ServiceTemplate> getWaitingTemplates();
+  Queue<ServiceRemoteInclusion> getWaitingIncludes();
 
-    List<String> getGroups();
+  Queue<ServiceTemplate> getWaitingTemplates();
 
-    @NotNull
-    ServiceLifeCycle getLifeCycle();
+  List<String> getGroups();
 
-    @NotNull
-    ICloudServiceManager getCloudServiceManager();
+  @NotNull
+  ServiceLifeCycle getLifeCycle();
 
-    @NotNull
-    ServiceConfiguration getServiceConfiguration();
+  @NotNull
+  ICloudServiceManager getCloudServiceManager();
 
-    @NotNull
-    ServiceId getServiceId();
+  @NotNull
+  ServiceConfiguration getServiceConfiguration();
 
-    String getConnectionKey();
+  @NotNull
+  ServiceId getServiceId();
 
-    @NotNull
-    File getDirectory();
+  String getConnectionKey();
 
-    INetworkChannel getNetworkChannel();
+  @NotNull
+  @Deprecated
+  File getDirectory();
 
-    @ApiStatus.Internal
-    void setNetworkChannel(INetworkChannel channel);
+  @NotNull
+  Path getDirectoryPath();
 
-    @NotNull
-    ServiceInfoSnapshot getServiceInfoSnapshot();
+  INetworkChannel getNetworkChannel();
 
-    @NotNull
-    ServiceInfoSnapshot getLastServiceInfoSnapshot();
+  @ApiStatus.Internal
+  void setNetworkChannel(INetworkChannel channel);
 
-    ITask<ServiceInfoSnapshot> forceUpdateServiceInfoSnapshotAsync();
+  @NotNull
+  ServiceInfoSnapshot getServiceInfoSnapshot();
 
-    @Nullable
-    Process getProcess();
+  @NotNull
+  ServiceInfoSnapshot getLastServiceInfoSnapshot();
 
-    void runCommand(@NotNull String commandLine);
+  ITask<ServiceInfoSnapshot> forceUpdateServiceInfoSnapshotAsync();
 
-    int getConfiguredMaxHeapMemory();
+  @Nullable
+  Process getProcess();
 
-    @NotNull
-    IServiceConsoleLogCache getServiceConsoleLogCache();
+  void runCommand(@NotNull String commandLine);
+
+  int getConfiguredMaxHeapMemory();
+
+  @NotNull
+  IServiceConsoleLogCache getServiceConsoleLogCache();
 
 
-    void start() throws Exception;
+  void start() throws Exception;
 
-    void restart() throws Exception;
+  void restart() throws Exception;
 
-    int stop();
+  int stop();
 
-    int kill();
+  int kill();
 
-    void delete();
+  default void delete() {
+    this.delete(true);
+  }
 
-    boolean isAlive();
+  void delete(boolean sendUpdate);
 
-    void includeInclusions();
+  boolean isAlive();
 
-    void includeTemplates();
+  void includeInclusions();
 
-    void deployResources(boolean removeDeployments);
+  void includeTemplates();
 
-    default void deployResources() {
-        this.deployResources(true);
-    }
+  void deployResources(boolean removeDeployments);
 
-    void offerTemplate(@NotNull ServiceTemplate template);
+  default void deployResources() {
+    this.deployResources(true);
+  }
 
-    void offerInclusion(@NotNull ServiceRemoteInclusion inclusion);
+  void offerTemplate(@NotNull ServiceTemplate template);
 
-    void addDeployment(@NotNull ServiceDeployment deployment);
+  void offerInclusion(@NotNull ServiceRemoteInclusion inclusion);
 
-    void updateServiceInfoSnapshot(@NotNull ServiceInfoSnapshot serviceInfoSnapshot);
+  void addDeployment(@NotNull ServiceDeployment deployment);
+
+  void updateServiceInfoSnapshot(@NotNull ServiceInfoSnapshot serviceInfoSnapshot);
 
 }

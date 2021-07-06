@@ -29,7 +29,7 @@ servers:
     restricted: false
 listeners:
   - query_port: 19132
-    motd: '&bCloudNet &7v&b3 &8[&6Earthquake&8] &7Waterdog &cProxy &7instance'
+    motd: '&bCloudNet &7v&b3 &8[&cBlizzard&8] &7Waterdog &cProxy &7instance'
     tab_list: GLOBAL_PING
     query_enabled: false
     proxy_protocol: false

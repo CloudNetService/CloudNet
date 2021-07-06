@@ -1,14 +1,27 @@
+/*
+ * Copyright 2019-2021 CloudNetService team & contributors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package eu.cloudnetservice.cloudnet.ext.npcs.bukkit.labymod;
 
-
+import com.github.juliarn.npc.NPC;
+import com.github.juliarn.npc.modifier.LabyModModifier;
 import com.google.common.base.Preconditions;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import de.dytanic.cloudnet.driver.CloudNetDriver;
-import de.dytanic.cloudnet.ext.bridge.player.IPlayerManager;
-import eu.cloudnetservice.cloudnet.ext.npcs.AbstractNPCManagement;
-import eu.cloudnetservice.cloudnet.ext.npcs.CloudNPC;
+import eu.cloudnetservice.cloudnet.ext.npcs.bukkit.BukkitNPCManagement;
 import eu.cloudnetservice.cloudnet.ext.npcs.configuration.NPCConfigurationEntry;
+import java.util.concurrent.ThreadLocalRandom;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -17,88 +30,79 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.concurrent.ThreadLocalRandom;
-
 public class LabyModEmotePlayer implements Listener {
 
-    private final JavaPlugin javaPlugin;
+  private final JavaPlugin javaPlugin;
 
-    private final AbstractNPCManagement abstractNPCManagement;
+  private final BukkitNPCManagement npcManagement;
 
-    private final IPlayerManager playerManager = CloudNetDriver.getInstance().getServicesRegistry().getFirstService(IPlayerManager.class);
+  public LabyModEmotePlayer(JavaPlugin javaPlugin, BukkitNPCManagement npcManagement) {
+    this.javaPlugin = javaPlugin;
+    this.npcManagement = npcManagement;
 
-    public LabyModEmotePlayer(JavaPlugin javaPlugin, AbstractNPCManagement abstractNPCManagement) {
-        this.javaPlugin = javaPlugin;
-        this.abstractNPCManagement = abstractNPCManagement;
+    this.schedule();
+  }
+
+  private void schedule() {
+    NPCConfigurationEntry.LabyModEmotes labyModEmotes = this.npcManagement.getOwnNPCConfigurationEntry()
+      .getLabyModEmotes();
+
+    long minTicks = labyModEmotes.getMinEmoteDelayTicks();
+    long maxTicks = labyModEmotes.getMaxEmoteDelayTicks();
+
+    Preconditions.checkArgument(minTicks > 0, "EmoteDelayTicks have to be > 0!");
+    Preconditions.checkArgument(maxTicks > 0, "EmoteDelayTicks have to be > 0!");
+    Preconditions.checkArgument(maxTicks >= minTicks, "MinEmoteDelayTicks cannot be greater than MaxEmoteDelayTicks!");
+
+    long emotePlayDelayTicks = minTicks == maxTicks
+      ? minTicks
+      : ThreadLocalRandom.current()
+        .nextLong(labyModEmotes.getMinEmoteDelayTicks(), labyModEmotes.getMaxEmoteDelayTicks());
+
+    if (this.javaPlugin.isEnabled() && labyModEmotes.getEmoteIds().length > 0) {
+      Bukkit.getScheduler().runTaskLaterAsynchronously(this.javaPlugin, () -> {
+        int emoteId = this.getEmoteId(labyModEmotes.getEmoteIds());
+
+        for (NPC npc : this.npcManagement.getNPCPool().getNPCs()) {
+          if (emoteId == -1) {
+            emoteId = this.getRandomEmoteId(labyModEmotes.getEmoteIds());
+          }
+          npc.labymod().queue(LabyModModifier.LabyModAction.EMOTE, emoteId).send();
+        }
 
         this.schedule();
+      }, emotePlayDelayTicks);
     }
+  }
 
-    private void schedule() {
-        NPCConfigurationEntry.LabyModEmotes labyModEmotes = this.abstractNPCManagement.getOwnNPCConfigurationEntry().getLabyModEmotes();
+  private int getEmoteId(int[] emoteIds) {
+    return this.npcManagement.getOwnNPCConfigurationEntry().getLabyModEmotes().isPlayEmotesSynchronous()
+      ? this.getRandomEmoteId(emoteIds)
+      : -1;
+  }
 
-        long minTicks = labyModEmotes.getMinEmoteDelayTicks();
-        long maxTicks = labyModEmotes.getMaxEmoteDelayTicks();
+  private int getRandomEmoteId(int[] emoteIds) {
+    return emoteIds[ThreadLocalRandom.current().nextInt(emoteIds.length)];
+  }
 
-        Preconditions.checkArgument(minTicks > 0, "EmoteDelayTicks have to be > 0!");
-        Preconditions.checkArgument(maxTicks > 0, "EmoteDelayTicks have to be > 0!");
-        Preconditions.checkArgument(maxTicks >= minTicks, "MinEmoteDelayTicks cannot be greater than MaxEmoteDelayTicks!");
+  @EventHandler(priority = EventPriority.HIGH)
+  public void handleJoin(PlayerJoinEvent event) {
+    Player player = event.getPlayer();
 
-        long emotePlayDelayTicks = minTicks == maxTicks
-                ? minTicks
-                : ThreadLocalRandom.current().nextLong(labyModEmotes.getMinEmoteDelayTicks(), labyModEmotes.getMaxEmoteDelayTicks());
+    int[] onJoinEmoteIds = this.npcManagement
+      .getOwnNPCConfigurationEntry()
+      .getLabyModEmotes()
+      .getOnJoinEmoteIds();
 
-        if (this.javaPlugin.isEnabled() && labyModEmotes.getEmoteIds().length > 0) {
-            Bukkit.getScheduler().runTaskLaterAsynchronously(this.javaPlugin, () -> {
-                byte[] channelMessage = this.createChannelMessage(labyModEmotes.getEmoteIds());
+    if (onJoinEmoteIds.length > 0) {
+      int emoteId = this.getEmoteId(onJoinEmoteIds);
 
-                Bukkit.getOnlinePlayers().forEach(player ->
-                        this.playerManager.getPlayerExecutor(player.getUniqueId()).sendPluginMessage("LMC", channelMessage));
-
-                this.schedule();
-            }, emotePlayDelayTicks);
+      for (NPC npc : this.npcManagement.getNPCPool().getNPCs()) {
+        if (emoteId == -1) {
+          emoteId = this.getRandomEmoteId(onJoinEmoteIds);
         }
+        npc.labymod().queue(LabyModModifier.LabyModAction.EMOTE, emoteId).send(player);
+      }
     }
-
-    private byte[] createChannelMessage(int[] allEmoteIds) {
-        int emoteId = this.abstractNPCManagement.getOwnNPCConfigurationEntry().getLabyModEmotes().isPlayEmotesSynchronous()
-                ? this.getRandomEmoteId(allEmoteIds)
-                : -1;
-
-        JsonArray emoteList = new JsonArray();
-
-        for (CloudNPC cloudNPC : this.abstractNPCManagement.getCloudNPCS()) {
-            JsonObject emote = new JsonObject();
-            emote.addProperty("uuid", cloudNPC.getUUID().toString());
-            emote.addProperty("emote_id", emoteId == -1 ? this.getRandomEmoteId(allEmoteIds) : emoteId);
-
-            emoteList.add(emote);
-        }
-
-        return LabyModChannelUtil.createChannelMessageData("emote_api", emoteList);
-    }
-
-    private int getRandomEmoteId(int[] emoteIds) {
-        return emoteIds[ThreadLocalRandom.current().nextInt(emoteIds.length)];
-    }
-
-    @EventHandler(priority = EventPriority.HIGH)
-    public void handleJoin(PlayerJoinEvent event) {
-        Player player = event.getPlayer();
-
-        int[] onJoinEmoteIds = this.abstractNPCManagement
-                .getOwnNPCConfigurationEntry()
-                .getLabyModEmotes()
-                .getOnJoinEmoteIds();
-
-        if (onJoinEmoteIds.length > 0) {
-            byte[] channelMessage = this.createChannelMessage(onJoinEmoteIds);
-
-            Bukkit.getScheduler().runTaskLater(this.javaPlugin, () ->
-                            this.playerManager.getPlayerExecutor(player.getUniqueId()).sendPluginMessage("LMC", channelMessage),
-                    40
-            );
-        }
-    }
-
+  }
 }

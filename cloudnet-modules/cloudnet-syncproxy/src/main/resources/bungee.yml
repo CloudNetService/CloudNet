@@ -2,7 +2,7 @@ name: 'CloudNet-SyncProxy'
 version: '2.0'
 author: 'CloudNetService'
 description: 'CloudNet extension which serves proxy utils with CloudNet support'
-depends: [CloudNet-Bridge]
-softdepends: [CloudNet-CloudPerms]
+depends: [ CloudNet-Bridge ]
+softdepends: [ CloudNet-CloudPerms ]
 
 main: 'de.dytanic.cloudnet.ext.syncproxy.bungee.BungeeCloudNetSyncProxyPlugin'

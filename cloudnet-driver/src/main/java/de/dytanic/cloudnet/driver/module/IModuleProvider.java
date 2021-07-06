@@ -1,3 +1,19 @@
+/*
+ * Copyright 2019-2021 CloudNetService team & contributors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package de.dytanic.cloudnet.driver.module;
 
 import java.io.File;
@@ -7,40 +23,50 @@ import java.util.Collection;
 
 public interface IModuleProvider {
 
-    File getModuleDirectory();
+  @Deprecated
+  default File getModuleDirectory() {
+    return this.getModuleDirectoryPath().toFile();
+  }
 
-    void setModuleDirectory(File moduleDirectory);
+  @Deprecated
+  default void setModuleDirectory(File moduleDirectory) {
+    this.setModuleDirectoryPath(moduleDirectory.toPath());
+  }
 
-    IModuleProviderHandler getModuleProviderHandler();
+  Path getModuleDirectoryPath();
 
-    void setModuleProviderHandler(IModuleProviderHandler moduleProviderHandler);
+  void setModuleDirectoryPath(Path moduleDirectory);
 
-    IModuleDependencyLoader getModuleDependencyLoader();
+  IModuleProviderHandler getModuleProviderHandler();
 
-    void setModuleDependencyLoader(IModuleDependencyLoader moduleDependencyLoader);
+  void setModuleProviderHandler(IModuleProviderHandler moduleProviderHandler);
 
-    Collection<IModuleWrapper> getModules();
+  IModuleDependencyLoader getModuleDependencyLoader();
 
-    Collection<IModuleWrapper> getModules(String group);
+  void setModuleDependencyLoader(IModuleDependencyLoader moduleDependencyLoader);
 
-    IModuleWrapper getModule(String name);
+  Collection<IModuleWrapper> getModules();
 
-    IModuleWrapper loadModule(URL url);
+  Collection<IModuleWrapper> getModules(String group);
 
-    IModuleWrapper loadModule(File file);
+  IModuleWrapper getModule(String name);
 
-    IModuleWrapper loadModule(Path path);
+  IModuleWrapper loadModule(URL url);
 
-    IModuleProvider loadModule(URL... urls);
+  IModuleWrapper loadModule(File file);
 
-    IModuleProvider loadModule(File... files);
+  IModuleWrapper loadModule(Path path);
 
-    IModuleProvider loadModule(Path... paths);
+  IModuleProvider loadModule(URL... urls);
 
-    IModuleProvider startAll();
+  IModuleProvider loadModule(File... files);
 
-    IModuleProvider stopAll();
+  IModuleProvider loadModule(Path... paths);
 
-    IModuleProvider unloadAll();
+  IModuleProvider startAll();
+
+  IModuleProvider stopAll();
+
+  IModuleProvider unloadAll();
 
 }

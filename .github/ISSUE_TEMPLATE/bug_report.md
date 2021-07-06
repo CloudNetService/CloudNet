@@ -1,8 +1,8 @@
 ---
 name: "\U0001F41E Bug report"
-about: Create an issue which describes a bug in CloudNet
+about: "Create an issue which describes a bug in CloudNet"
 title: ''
-labels: bug
+labels: "bug"
 assignees: ''
 
 ---

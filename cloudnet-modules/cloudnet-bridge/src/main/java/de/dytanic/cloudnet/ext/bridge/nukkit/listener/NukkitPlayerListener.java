@@ -1,3 +1,19 @@
+/*
+ * Copyright 2019-2021 CloudNetService team & contributors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package de.dytanic.cloudnet.ext.bridge.nukkit.listener;
 
 import cn.nukkit.Player;
@@ -17,97 +33,101 @@ import de.dytanic.cloudnet.ext.bridge.nukkit.NukkitCloudNetHelper;
 import de.dytanic.cloudnet.ext.bridge.nukkit.event.NukkitServiceTaskAddEvent;
 import de.dytanic.cloudnet.ext.bridge.server.OnlyProxyProtection;
 import de.dytanic.cloudnet.wrapper.Wrapper;
-
 import java.util.Optional;
 
 public final class NukkitPlayerListener implements Listener {
 
-    private final OnlyProxyProtection onlyProxyProtection;
+  private final OnlyProxyProtection onlyProxyProtection;
 
-    private ServiceTask serviceTask;
+  private ServiceTask serviceTask;
 
-    public NukkitPlayerListener() {
-        this.onlyProxyProtection = new OnlyProxyProtection(Server.getInstance().getPropertyBoolean("xbox-auth"));
+  public NukkitPlayerListener() {
+    this.onlyProxyProtection = new OnlyProxyProtection(Server.getInstance().getPropertyBoolean("xbox-auth"));
 
-        String currentTaskName = Wrapper.getInstance().getServiceId().getTaskName();
-        this.serviceTask = Wrapper.getInstance().getServiceTaskProvider().getServiceTask(currentTaskName);
+    String currentTaskName = Wrapper.getInstance().getServiceId().getTaskName();
+    this.serviceTask = Wrapper.getInstance().getServiceTaskProvider().getServiceTask(currentTaskName);
+  }
+
+  private Optional<String> getPlayerKickMessage(Player player) {
+    if (this.serviceTask == null) {
+      return Optional.empty();
     }
 
-    private Optional<String> getPlayerKickMessage(Player player) {
-        if (this.serviceTask == null) {
-            return Optional.empty();
-        }
+    BridgeConfiguration bridgeConfiguration = BridgeConfigurationProvider.load();
 
-        BridgeConfiguration bridgeConfiguration = BridgeConfigurationProvider.load();
-
-        if (this.serviceTask.isMaintenance() && !player.hasPermission("cloudnet.bridge.maintenance")) {
-            return Optional.of(bridgeConfiguration.getMessages().get("server-join-cancel-because-maintenance").replace('&', '§'));
-        } else {
-            String requiredPermission = this.serviceTask.getProperties().getString("requiredPermission");
-            if (requiredPermission != null && !player.hasPermission(requiredPermission)) {
-                return Optional.of(bridgeConfiguration.getMessages().get("server-join-cancel-because-permission").replace('&', '§'));
-            }
-        }
-
-        return Optional.empty();
+    if (this.serviceTask.isMaintenance() && !player.hasPermission("cloudnet.bridge.maintenance")) {
+      return Optional
+        .of(bridgeConfiguration.getMessages().get("server-join-cancel-because-maintenance").replace('&', '§'));
+    } else {
+      String requiredPermission = this.serviceTask.getProperties().getString("requiredPermission");
+      if (requiredPermission != null && !player.hasPermission(requiredPermission)) {
+        return Optional
+          .of(bridgeConfiguration.getMessages().get("server-join-cancel-because-permission").replace('&', '§'));
+      }
     }
 
-    @EventHandler
-    public void handle(NukkitServiceTaskAddEvent event) {
-        ServiceTask task = event.getTask();
+    return Optional.empty();
+  }
 
-        if (this.serviceTask != null && this.serviceTask.getName().equals(task.getName())) {
-            this.serviceTask = task;
+  @EventHandler
+  public void handle(NukkitServiceTaskAddEvent event) {
+    ServiceTask task = event.getTask();
 
-            Server.getInstance().getOnlinePlayers().forEach((uuid, player) -> this.getPlayerKickMessage(player).ifPresent(player::kick));
-        }
+    if (this.serviceTask != null && this.serviceTask.getName().equals(task.getName())) {
+      this.serviceTask = task;
+
+      Server.getInstance().getOnlinePlayers()
+        .forEach((uuid, player) -> this.getPlayerKickMessage(player).ifPresent(player::kick));
+    }
+  }
+
+  @EventHandler(priority = EventPriority.HIGHEST)
+  public void handle(PlayerLoginEvent event) {
+    Player player = event.getPlayer();
+    BridgeConfiguration bridgeConfiguration = BridgeConfigurationProvider.load();
+
+    if (this.onlyProxyProtection.shouldDisallowPlayer(player.getAddress())) {
+      event.setCancelled(true);
+      event.setKickMessage(
+        bridgeConfiguration.getMessages().get("server-join-cancel-because-only-proxy").replace('&', '§'));
+      return;
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void handle(PlayerLoginEvent event) {
-        Player player = event.getPlayer();
-        BridgeConfiguration bridgeConfiguration = BridgeConfigurationProvider.load();
+    Optional<String> kickMessageOptional = this.getPlayerKickMessage(player);
 
-        if (this.onlyProxyProtection.shouldDisallowPlayer(player.getAddress())) {
-            event.setCancelled(true);
-            event.setKickMessage(bridgeConfiguration.getMessages().get("server-join-cancel-because-only-proxy").replace('&', '§'));
-            return;
-        }
+    if (kickMessageOptional.isPresent()) {
+      String kickMessage = kickMessageOptional.get();
 
-        Optional<String> kickMessageOptional = this.getPlayerKickMessage(player);
-
-        if (kickMessageOptional.isPresent()) {
-            String kickMessage = kickMessageOptional.get();
-
-            event.setCancelled(true);
-            event.setKickMessage(kickMessage);
-            return;
-        }
-
-        BridgeHelper.sendChannelMessageServerLoginRequest(NukkitCloudNetHelper.createNetworkConnectionInfo(player),
-                NukkitCloudNetHelper.createNetworkPlayerServerInfo(player, true)
-        );
+      event.setCancelled(true);
+      event.setKickMessage(kickMessage);
+      return;
     }
 
-    @EventHandler
-    public void handle(PlayerJoinEvent event) {
-        BridgeHelper.sendChannelMessageServerLoginSuccess(NukkitCloudNetHelper.createNetworkConnectionInfo(event.getPlayer()),
-                NukkitCloudNetHelper.createNetworkPlayerServerInfo(event.getPlayer(), false));
+    BridgeHelper.sendChannelMessageServerLoginRequest(NukkitCloudNetHelper.createNetworkConnectionInfo(player),
+      NukkitCloudNetHelper.createNetworkPlayerServerInfo(player, true)
+    );
+  }
 
+  @EventHandler
+  public void handle(PlayerJoinEvent event) {
+    BridgeHelper
+      .sendChannelMessageServerLoginSuccess(NukkitCloudNetHelper.createNetworkConnectionInfo(event.getPlayer()),
+        NukkitCloudNetHelper.createNetworkPlayerServerInfo(event.getPlayer(), false));
+
+    BridgeHelper.updateServiceInfo();
+  }
+
+  @EventHandler
+  public void handle(PlayerQuitEvent event) {
+    BridgeHelper.sendChannelMessageServerDisconnect(NukkitCloudNetHelper.createNetworkConnectionInfo(event.getPlayer()),
+      NukkitCloudNetHelper.createNetworkPlayerServerInfo(event.getPlayer(), false));
+
+    event.getPlayer().getServer().getScheduler().scheduleDelayedTask(new Task() {
+      @Override
+      public void onRun(int currentTick) {
         BridgeHelper.updateServiceInfo();
-    }
-
-    @EventHandler
-    public void handle(PlayerQuitEvent event) {
-        BridgeHelper.sendChannelMessageServerDisconnect(NukkitCloudNetHelper.createNetworkConnectionInfo(event.getPlayer()),
-                NukkitCloudNetHelper.createNetworkPlayerServerInfo(event.getPlayer(), false));
-
-        event.getPlayer().getServer().getScheduler().scheduleDelayedTask(new Task() {
-            @Override
-            public void onRun(int currentTick) {
-                BridgeHelper.updateServiceInfo();
-            }
-        }, 1);
-    }
+      }
+    }, 1);
+  }
 
 }

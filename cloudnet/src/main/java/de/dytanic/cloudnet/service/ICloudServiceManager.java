@@ -1,91 +1,136 @@
+/*
+ * Copyright 2019-2021 CloudNetService team & contributors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package de.dytanic.cloudnet.service;
 
+import de.dytanic.cloudnet.common.concurrent.ITask;
+import de.dytanic.cloudnet.driver.network.def.packet.PacketClientServerServiceInfoPublisher;
 import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
-import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
 import java.io.File;
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Predicate;
+import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public interface ICloudServiceManager {
 
-    @NotNull
-    File getTempDirectory();
+  @NotNull
+  @Deprecated
+  File getTempDirectory();
 
-    @NotNull
-    File getPersistenceServicesDirectory();
+  @NotNull
+  @Deprecated
+  File getPersistenceServicesDirectory();
 
-    @NotNull
-    Map<UUID, ServiceInfoSnapshot> getGlobalServiceInfoSnapshots();
+  @NotNull
+  Path getTempDirectoryPath();
 
-    @NotNull
-    Map<UUID, ICloudService> getCloudServices();
+  @NotNull
+  Path getPersistentServicesDirectoryPath();
 
-    @NotNull
-    Collection<ICloudServiceFactory> getCloudServiceFactories();
+  @NotNull
+  Map<UUID, ServiceInfoSnapshot> getGlobalServiceInfoSnapshots();
 
-    @NotNull
-    Optional<ICloudServiceFactory> getCloudServiceFactory(@Nullable String runtime);
+  boolean handleServiceUpdate(@NotNull PacketClientServerServiceInfoPublisher.PublisherType type,
+    @NotNull ServiceInfoSnapshot snapshot);
 
-    @ApiStatus.Internal
-    ICloudService runTask(@NotNull ServiceConfiguration serviceConfiguration);
+  @NotNull
+  Map<UUID, ICloudService> getCloudServices();
 
-    void startAllCloudServices();
+  @NotNull
+  Collection<ICloudServiceFactory> getCloudServiceFactories();
 
-    void stopAllCloudServices();
+  @NotNull
+  Optional<ICloudServiceFactory> getCloudServiceFactory(@Nullable String runtime);
 
-    void deleteAllCloudServices();
+  void addCloudServiceFactory(@NotNull ICloudServiceFactory factory);
 
-    //-
+  void removeCloudServiceFactory(@NotNull ICloudServiceFactory factory);
 
-    @Nullable
-    ICloudService getCloudService(@NotNull UUID uniqueId);
+  void removeCloudServiceFactory(@NotNull String runtime);
 
-    @Nullable
-    ICloudService getCloudService(@NotNull Predicate<ICloudService> predicate);
+  @Deprecated
+  @ApiStatus.ScheduledForRemoval(inVersion = "3.6")
+  ICloudService runTask(@NotNull ServiceConfiguration serviceConfiguration);
 
-    /**
-     * @deprecated moved to {@link #getLocalCloudServices(String)}
-     */
-    @Deprecated
-    default Collection<ICloudService> getCloudServices(String taskName) {
-        return this.getLocalCloudServices(taskName);
-    }
+  @ApiStatus.Internal
+  default ITask<ICloudService> createCloudService(@NotNull ServiceConfiguration serviceConfiguration) {
+    return this.createCloudService(serviceConfiguration, null);
+  }
 
-    /**
-     * @deprecated moved to {@link #getLocalCloudServices(Predicate)}
-     */
-    @Deprecated
-    default Collection<ICloudService> getCloudServices(Predicate<ICloudService> predicate) {
-        return this.getLocalCloudServices(predicate);
-    }
+  @ApiStatus.Internal
+  ITask<ICloudService> createCloudService(@NotNull ServiceConfiguration serviceConfiguration,
+    @Nullable Long timeoutMillis);
 
-    /**
-     * @deprecated moved to {@link #getLocalCloudServices()}
-     */
-    @Deprecated
-    default Collection<ICloudService> getServices() {
-        return this.getLocalCloudServices();
-    }
+  void startAllCloudServices();
 
-    Collection<ICloudService> getLocalCloudServices(@NotNull String taskName);
+  void stopAllCloudServices();
 
-    Collection<ICloudService> getLocalCloudServices(@NotNull Predicate<ICloudService> predicate);
+  void deleteAllCloudServices();
 
-    Collection<ICloudService> getLocalCloudServices();
+  //-
 
-    Collection<Integer> getReservedTaskIds(@NotNull String task);
+  @Nullable
+  ICloudService getCloudService(@NotNull UUID uniqueId);
 
-    //-
+  @Nullable
+  ICloudService getCloudService(@NotNull Predicate<ICloudService> predicate);
 
-    int getCurrentUsedHeapMemory();
+  /**
+   * @deprecated moved to {@link #getLocalCloudServices(String)}
+   */
+  @Deprecated
+  default Collection<ICloudService> getCloudServices(String taskName) {
+    return this.getLocalCloudServices(taskName);
+  }
 
-    int getCurrentReservedMemory();
+  /**
+   * @deprecated moved to {@link #getLocalCloudServices(Predicate)}
+   */
+  @Deprecated
+  default Collection<ICloudService> getCloudServices(Predicate<ICloudService> predicate) {
+    return this.getLocalCloudServices(predicate);
+  }
+
+  /**
+   * @deprecated moved to {@link #getLocalCloudServices()}
+   */
+  @Deprecated
+  default Collection<ICloudService> getServices() {
+    return this.getLocalCloudServices();
+  }
+
+  Collection<ICloudService> getLocalCloudServices(@NotNull String taskName);
+
+  Collection<ICloudService> getLocalCloudServices(@NotNull Predicate<ICloudService> predicate);
+
+  Collection<ICloudService> getLocalCloudServices();
+
+  Collection<Integer> getReservedTaskIds(@NotNull String task);
+
+  //-
+
+  int getCurrentUsedHeapMemory();
+
+  int getCurrentReservedMemory();
 
 }

@@ -1,8 +1,8 @@
 ---
 name: "\U0001F4A1 Feature request"
-about: Create an issue describing a feature you want to see in CloudNet
+about: "Create an issue describing a feature you want to see in CloudNet"
 title: ''
-labels: enhancement
+labels: "enhancement"
 assignees: ''
 
 ---

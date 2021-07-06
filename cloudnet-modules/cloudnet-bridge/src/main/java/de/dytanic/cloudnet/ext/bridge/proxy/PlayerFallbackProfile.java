@@ -1,33 +1,48 @@
+/*
+ * Copyright 2019-2021 CloudNetService team & contributors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package de.dytanic.cloudnet.ext.bridge.proxy;
 
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
-
 import java.util.Collection;
 import java.util.HashSet;
 
 public class PlayerFallbackProfile {
 
-    private String connectingService;
-    private final Collection<String> failedConnections = new HashSet<>();
+  private final Collection<String> failedConnections = new HashSet<>();
+  private String connectingService;
 
-    public boolean canConnect(ServiceInfoSnapshot serviceInfoSnapshot) {
-        return !this.failedConnections.contains(serviceInfoSnapshot.getName());
-    }
+  public boolean canConnect(ServiceInfoSnapshot serviceInfoSnapshot) {
+    return !this.failedConnections.contains(serviceInfoSnapshot.getName());
+  }
 
-    public Collection<String> getFailedConnections() {
-        return this.failedConnections;
-    }
+  public Collection<String> getFailedConnections() {
+    return this.failedConnections;
+  }
 
-    public String getConnectingService() {
-        return this.connectingService;
-    }
+  public String getConnectingService() {
+    return this.connectingService;
+  }
 
-    public void setConnectingService(String connectingService) {
-        this.connectingService = connectingService;
-    }
+  public void setConnectingService(String connectingService) {
+    this.connectingService = connectingService;
+  }
 
-    public void addKick(String kickedFrom) {
-        this.failedConnections.add(kickedFrom);
-    }
+  public void addKick(String kickedFrom) {
+    this.failedConnections.add(kickedFrom);
+  }
 
 }

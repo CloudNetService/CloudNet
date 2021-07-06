@@ -1,53 +1,41 @@
+/*
+ * Copyright 2019-2021 CloudNetService team & contributors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package de.dytanic.cloudnet.driver.event;
 
-import com.google.common.base.Preconditions;
-import de.dytanic.cloudnet.common.logging.LogLevel;
-import de.dytanic.cloudnet.driver.CloudNetDriver;
-
-import java.lang.reflect.Method;
+import de.dytanic.cloudnet.driver.event.invoker.ListenerInvoker;
 
 public interface IRegisteredEventListener extends Comparable<IRegisteredEventListener> {
 
-    EventListener getEventListener();
+  void fireEvent(Event event);
 
-    EventPriority getPriority();
+  EventListener getEventListener();
 
-    Object getInstance();
+  EventPriority getPriority();
 
-    Method getHandlerMethod();
+  Object getInstance();
 
-    Class<? extends Event> getEventClass();
+  ListenerInvoker getInvoker();
 
-    default <T extends Event> T fireEvent(T event) {
-        Preconditions.checkNotNull(event);
+  Class<?> getEventClass();
 
-        if (this.getEventClass().isAssignableFrom(event.getClass())) {
+  String getMethodName();
 
-            if (event.isShowDebug()) {
-                CloudNetDriver.optionalInstance().ifPresent(cloudNetDriver -> {
-                    if (cloudNetDriver.getLogger().getLevel() >= LogLevel.DEBUG.getLevel()) {
-                        cloudNetDriver.getLogger().debug(String.format(
-                                "Calling event %s on listener %s",
-                                event.getClass().getName(),
-                                this.getInstance().getClass().getName()
-                        ));
-                    }
-                });
-            }
-
-            try {
-                this.getHandlerMethod().setAccessible(true);
-                this.getHandlerMethod().invoke(this.getInstance(), event);
-            } catch (Exception ex) {
-                throw new EventListenerException("An error on offerTask method " + this.getHandlerMethod().getName() + " in class " + this.getInstance().getClass(), ex);
-            }
-        }
-
-        return event;
-    }
-
-    @Override
-    default int compareTo(IRegisteredEventListener o) {
-        return this.getPriority().compareTo(o.getPriority());
-    }
+  @Override
+  default int compareTo(IRegisteredEventListener other) {
+    return this.getPriority().compareTo(other.getPriority());
+  }
 }

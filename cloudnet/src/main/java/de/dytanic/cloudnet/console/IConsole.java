@@ -1,82 +1,111 @@
+/*
+ * Copyright 2019-2021 CloudNetService team & contributors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package de.dytanic.cloudnet.console;
 
 import de.dytanic.cloudnet.command.ITabCompleter;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.console.animation.AbstractConsoleAnimation;
-import org.jetbrains.annotations.NotNull;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Unmodifiable;
+import org.jetbrains.annotations.UnmodifiableView;
 
 public interface IConsole extends AutoCloseable {
 
-    Collection<AbstractConsoleAnimation> getRunningAnimations();
+  @NotNull
+  @UnmodifiableView
+  Collection<AbstractConsoleAnimation> getRunningAnimations();
 
-    void startAnimation(AbstractConsoleAnimation animation);
+  void startAnimation(@NotNull AbstractConsoleAnimation animation);
 
-    boolean isAnimationRunning();
+  boolean isAnimationRunning();
 
-    void togglePrinting(boolean enabled);
+  void togglePrinting(boolean enabled);
 
-    boolean isPrintingEnabled();
+  boolean isPrintingEnabled();
 
-    default boolean hasAnimationSupport() {
-        return this.hasColorSupport();
-    }
+  default boolean hasAnimationSupport() {
+    return this.hasColorSupport();
+  }
 
-    List<String> getCommandHistory();
+  @Unmodifiable
+  @NotNull List<String> getCommandHistory();
 
-    void setCommandHistory(List<String> history);
+  void setCommandHistory(@Nullable List<String> history);
 
-    void setCommandInputValue(String commandInputValue);
+  void setCommandInputValue(@NotNull String commandInputValue);
 
-    @NotNull
-    ITask<String> readLine();
+  @NotNull
+  ITask<String> readLine();
 
-    void enableAllHandlers();
+  void enableAllHandlers();
 
-    void disableAllHandlers();
+  void disableAllHandlers();
 
-    void enableAllTabCompletionHandlers();
+  void enableAllTabCompletionHandlers();
 
-    void disableAllTabCompletionHandlers();
+  void disableAllTabCompletionHandlers();
 
-    void enableAllCommandHandlers();
+  void enableAllCommandHandlers();
 
-    void disableAllCommandHandlers();
+  void disableAllCommandHandlers();
 
-    void addCommandHandler(UUID uniqueId, Consumer<String> inputConsumer);
+  void addCommandHandler(@NotNull UUID uniqueId, @NotNull Consumer<String> inputConsumer);
 
-    void removeCommandHandler(UUID uniqueId);
+  void removeCommandHandler(@NotNull UUID uniqueId);
 
-    void addTabCompletionHandler(UUID uniqueId, ITabCompleter completer);
+  void addTabCompletionHandler(@NotNull UUID uniqueId, @NotNull ITabCompleter completer);
 
-    void removeTabCompletionHandler(UUID uniqueId);
+  void removeTabCompletionHandler(@NotNull UUID uniqueId);
 
-    IConsole writeRaw(String rawText);
+  @NotNull IConsole writeRaw(@NotNull String rawText);
 
-    IConsole forceWrite(String text);
+  @NotNull IConsole forceWrite(@NotNull String text);
 
-    IConsole forceWriteLine(String text);
+  @NotNull IConsole forceWriteLine(@NotNull String text);
 
-    IConsole write(String text);
+  @NotNull IConsole write(@NotNull String text);
 
-    IConsole writeLine(String text);
+  @NotNull IConsole writeLine(@NotNull String text);
 
-    boolean hasColorSupport();
+  boolean hasColorSupport();
 
-    void setPrompt(String prompt);
+  boolean isUsingMatchingHistoryComplete();
 
-    String getPrompt();
+  void setUsingMatchingHistoryComplete(boolean matchingHistoryComplete);
 
-    void resetPrompt();
+  @NotNull String getPrompt();
 
-    void clearScreen();
+  void setPrompt(@NotNull String prompt);
 
-    String getScreenName();
+  void resetPrompt();
 
-    void setScreenName(String name);
+  void removePrompt();
+
+  void emptyPrompt();
+
+  void clearScreen();
+
+  @NotNull String getScreenName();
+
+  void setScreenName(@NotNull String name);
 
 }
