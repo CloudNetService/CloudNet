@@ -88,7 +88,7 @@ allprojects {
     dependencySpigotApiVersion = '1.17-R0.1-SNAPSHOT'
     dependencySpongeVersion = '7.3.0'
     dependencyBungeeCordVersion = '1.17-R0.1-SNAPSHOT'
-    dependencyVelocityVersion = '1.1.8'
+    dependencyVelocityVersion = '3.0.0'
     dependencyNukkitXVersion = '1.0-SNAPSHOT'
     dependencyGoMintVersion = '1.0.0-SNAPSHOT'
     dependencyWaterdogPEVersion = '1.1.1-SNAPSHOT'
@@ -104,7 +104,7 @@ allprojects {
     testJunitVersion = '4.13.2'
     testBcpkixJdk15OnVersion = '1.69'
 
-    buildCheckstyleToolVersion = '8.43'
+    buildCheckstyleToolVersion = '8.44'
 
     //file
     cloudnetLauncherFile = 'launcher.jar'

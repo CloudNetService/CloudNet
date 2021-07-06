@@ -14,8 +14,17 @@
  * limitations under the License.
  */
 
+plugins {
+  id "com.github.johnrengelman.shadow" version "7.0.0"
+}
+
 jar {
   archiveFileName.set(cloudnetModuleBridgeFileName)
+}
+
+shadowJar {
+  archiveFileName.set(cloudnetModuleBridgeFileName)
+  dependsOn jar
 }
 
 dependencies {
@@ -28,4 +37,9 @@ dependencies {
   compileOnly group: 'net.md-5', name: 'bungeecord-api', version: dependencyBungeeCordVersion
   compileOnly group: 'com.velocitypowered', name: 'velocity-api', version: dependencyVelocityVersion
   compileOnly group: 'dev.waterdog.waterdogpe', name: 'waterdog', version: dependencyWaterdogPEVersion
+  // DEPRECATED: will be removed completely in 3.6 (See VelocityComponentMessenger for further information)
+  implementation group: 'net.kyori', name: 'text-api', version: '3.0.4'
+  implementation(group: 'net.kyori', name: 'adventure-text-serializer-legacy-text3', version: '4.0.0-SNAPSHOT') {
+    transitive = false
+  }
 }

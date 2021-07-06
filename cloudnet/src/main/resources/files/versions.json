@@ -869,12 +869,14 @@
         {
           "name": "latest",
           "url": "https://versions.velocitypowered.com/download/latest.jar",
-          "cacheFiles": false
+          "cacheFiles": false,
+          "minJavaVersion": 11
         },
         {
           "name": "development",
-          "url": "https://versions.velocitypowered.com/download/1.1.x-SNAPSHOT.jar",
-          "cacheFiles": false
+          "url": "https://versions.velocitypowered.com/download/3.0.x-SNAPSHOT.jar",
+          "cacheFiles": false,
+          "minJavaVersion": 11
         }
       ]
     },
