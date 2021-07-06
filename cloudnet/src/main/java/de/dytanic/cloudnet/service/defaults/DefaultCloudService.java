@@ -294,7 +294,7 @@ public abstract class DefaultCloudService extends DefaultEmptyCloudService {
 
   protected void postPrepare() {
     this.lifeCycle = ServiceLifeCycle.PREPARED;
-    this.serviceInfoSnapshot.setLifeCycle(ServiceLifeCycle.PREPARED);
+    this.updateServiceInfoSnapshot(this.createServiceInfoSnapshot(ServiceLifeCycle.PREPARED));
 
     super.handler.handlePostPrepare(this);
   }
