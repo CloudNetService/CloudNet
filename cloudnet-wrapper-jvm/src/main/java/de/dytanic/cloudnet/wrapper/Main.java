@@ -46,7 +46,7 @@ public final class Main {
     LanguageManager
       .addLanguageFile("french", Main.class.getClassLoader().getResourceAsStream("lang/french.properties"));
     LanguageManager
-      .addLanguageFile("french", Main.class.getClassLoader().getResourceAsStream("lang/chinese.properties"));
+      .addLanguageFile("chinese", Main.class.getClassLoader().getResourceAsStream("lang/chinese.properties"));
 
     ILogger logger = new DefaultAsyncLogger();
     initLogger(logger);
