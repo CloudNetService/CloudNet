@@ -47,6 +47,8 @@ public final class Main {
       .addLanguageFile("english", Main.class.getClassLoader().getResourceAsStream("lang/english.properties"));
     LanguageManager
       .addLanguageFile("french", Main.class.getClassLoader().getResourceAsStream("lang/french.properties"));
+    LanguageManager
+      .addLanguageFile("dutch", Main.class.getClassLoader().getResourceAsStream("lang/dutch.properties"));
 
     IConsole console = new JLine3Console();
     ILogger logger = new DefaultAsyncLogger();
