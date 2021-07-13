@@ -16,6 +16,7 @@
 
 package de.dytanic.cloudnet.driver.network.netty;
 
+import de.dytanic.cloudnet.common.io.HttpConnectionProvider;
 import de.dytanic.cloudnet.driver.network.http.HttpResponseCode;
 import de.dytanic.cloudnet.driver.network.http.IHttpServer;
 import de.dytanic.cloudnet.driver.network.netty.http.NettyHttpServer;
@@ -25,7 +26,6 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
@@ -64,8 +64,9 @@ public class NettySSLHttpServerTest {
 
       HttpsURLConnection.setDefaultSSLSocketFactory(sslContext.getSocketFactory());
 
-      HttpURLConnection httpURLConnection = (HttpURLConnection) new URL("https://127.0.0.1:" + port + "/test/power")
-        .openConnection();
+      HttpURLConnection httpURLConnection = HttpConnectionProvider
+        .provideConnection(String.format("https://127.0.0.1:%d/test/power", port));
+      httpURLConnection.setUseCaches(false);
       httpURLConnection.connect();
 
       Assert.assertEquals(HttpResponseCode.HTTP_OK, httpURLConnection.getResponseCode());

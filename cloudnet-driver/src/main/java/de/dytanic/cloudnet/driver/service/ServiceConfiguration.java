@@ -889,7 +889,5 @@ public class ServiceConfiguration extends SerializableJsonDocPropertyable implem
       this.config.replaceNulls();
       return this.config;
     }
-
   }
-
 }

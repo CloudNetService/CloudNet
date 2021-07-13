@@ -40,7 +40,6 @@ public final class DefaultServiceConsoleLogCache implements IServiceConsoleLogCa
   private final StringBuffer stringBuffer = new StringBuffer();
   private final ICloudService cloudService;
 
-
   private boolean autoPrintReceivedInput;
   private boolean screenEnabled;
 

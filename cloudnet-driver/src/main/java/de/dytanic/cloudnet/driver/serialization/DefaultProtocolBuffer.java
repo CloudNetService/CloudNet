@@ -42,7 +42,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -223,6 +225,25 @@ public class DefaultProtocolBuffer extends ProtocolBuffer {
   }
 
   @Override
+  public ProtocolBuffer writeStringMap(@NotNull Map<String, String> map) {
+    this.writeVarInt(map.size());
+    for (Map.Entry<String, String> entry : map.entrySet()) {
+      this.writeString(entry.getKey()).writeString(entry.getValue());
+    }
+    return this;
+  }
+
+  @Override
+  public @NotNull Map<String, String> readStringMap() {
+    int size = this.readVarInt();
+    Map<String, String> map = new ConcurrentHashMap<>();
+    for (int i = 0; i < size; i++) {
+      map.put(this.readString(), this.readString());
+    }
+    return map;
+  }
+
+  @Override
   public @NotNull JsonDocument readJsonDocument() {
     return this.readObject(SerializableJsonDocument.class);
   }
@@ -288,9 +309,9 @@ public class DefaultProtocolBuffer extends ProtocolBuffer {
   }
 
   @Override
-  public @NotNull <T extends SerializableObject> Collection<T> readObjectCollection(@NotNull Class<T> objectClass) {
+  public @NotNull <T extends SerializableObject> List<T> readObjectCollection(@NotNull Class<T> objectClass) {
     int size = this.readVarInt();
-    Collection<T> result = new ArrayList<>(size);
+    List<T> result = new ArrayList<>(size);
 
     try {
       Constructor<T> constructor = objectClass.getDeclaredConstructor();
@@ -314,7 +335,6 @@ public class DefaultProtocolBuffer extends ProtocolBuffer {
   }
 
   @Override
-  @SuppressWarnings("unchecked")
   public @NotNull <T extends SerializableObject> T[] readObjectArray(@NotNull Class<T> objectClass) {
     int size = this.readVarInt();
     Object result = Array.newInstance(objectClass, size);

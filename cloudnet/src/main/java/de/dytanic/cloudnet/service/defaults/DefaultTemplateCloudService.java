@@ -20,6 +20,7 @@ import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.encrypt.EncryptTo;
 import de.dytanic.cloudnet.common.io.FileUtils;
+import de.dytanic.cloudnet.common.io.HttpConnectionProvider;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
@@ -36,7 +37,6 @@ import de.dytanic.cloudnet.service.ICloudServiceManager;
 import de.dytanic.cloudnet.service.handler.CloudServiceHandler;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.URL;
 import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -123,7 +123,7 @@ public abstract class DefaultTemplateCloudService extends DefaultCloudService {
 
   private boolean includeInclusions0(ServiceRemoteInclusion inclusion, Path destination, byte[] buffer)
     throws Exception {
-    URLConnection connection = new URL(inclusion.getUrl()).openConnection();
+    URLConnection connection = HttpConnectionProvider.provideConnection(inclusion.getUrl());
 
     if (CloudNetDriver.getInstance().getEventManager()
       .callEvent(new CloudServicePreLoadInclusionEvent(this, inclusion, connection)).isCancelled()) {
@@ -140,11 +140,7 @@ public abstract class DefaultTemplateCloudService extends DefaultCloudService {
       }
     }
 
-    connection.setDoOutput(false);
     connection.setUseCaches(false);
-    connection.setRequestProperty("User-Agent",
-      "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11");
-
     connection.connect();
 
     try (InputStream inputStream = connection.getInputStream(); OutputStream outputStream = Files

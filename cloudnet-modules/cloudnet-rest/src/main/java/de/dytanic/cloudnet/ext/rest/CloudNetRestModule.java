@@ -125,6 +125,8 @@ public final class CloudNetRestModule extends NodeCloudNetModule {
       .registerHandler("/api/v2/module/{name}/*", IHttpHandler.PRIORITY_LOW, new V2HttpHandlerModule("http.v2.module"))
       // legacy v1 handlers
       .registerHandler("/api/v1", IHttpHandler.PRIORITY_NORMAL, new V1HttpHandlerShowOpenAPI())
+      .registerHandler("/api/v1", IHttpHandler.PRIORITY_NORMAL, new V1HttpHandlerShowOpenAPI())
+      //HttpHandler API implementation
       .registerHandler("/api/v1/*", IHttpHandler.PRIORITY_HIGH, new V1SecurityProtectionHttpHandler())
       .registerHandler("/api/v1/auth", IHttpHandler.PRIORITY_NORMAL, new V1HttpHandlerAuthentication())
       .registerHandler("/api/v1/logout", IHttpHandler.PRIORITY_NORMAL, new V1HttpHandlerLogout())

@@ -21,6 +21,7 @@ import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.JavaVersion;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.io.FileUtils;
+import de.dytanic.cloudnet.common.io.HttpConnectionProvider;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.console.animation.progressbar.ProgressBarInputStream;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironment;
@@ -34,7 +35,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -60,18 +60,12 @@ public class ServiceVersionProvider {
   public boolean loadServiceVersionTypes(String url) throws IOException {
     this.serviceVersionTypes.clear();
 
-    HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
-    connection.setRequestProperty("User-Agent",
-      "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11");
-
+    HttpURLConnection connection = HttpConnectionProvider.provideConnection(url);
+    connection.setUseCaches(false);
     connection.connect();
 
     try (InputStream inputStream = connection.getInputStream()) {
-      boolean success = this.loadVersionsFromInputStream(inputStream);
-
-      connection.disconnect();
-
-      return success;
+      return this.loadVersionsFromInputStream(inputStream);
     }
   }
 
@@ -201,8 +195,7 @@ public class ServiceVersionProvider {
         String path = downloadEntry.getKey();
         String url = downloadEntry.getValue();
 
-        try (InputStream inputStream = ProgressBarInputStream
-          .wrapDownload(CloudNet.getInstance().getConsole(), new URL(url));
+        try (InputStream inputStream = ProgressBarInputStream.wrapDownload(CloudNet.getInstance().getConsole(), url);
           OutputStream outputStream = storage.newOutputStream(serviceTemplate, path)) {
           FileUtils.copy(inputStream, outputStream);
         }

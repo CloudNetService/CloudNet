@@ -41,14 +41,14 @@ import java.util.UUID;
 
 public final class JsonConfiguration implements IConfiguration {
 
-  public static final Path CONFIG_FILE_PATH = Paths
+  private static final Path CONFIG_FILE_PATH = Paths
     .get(System.getProperty("cloudnet.config.json.path", "config.json"));
-  private static final Type CLUSTER = NetworkCluster.class;
-  private static final Type CLUSTER_NODE = NetworkClusterNode.class;
+
   private static final Type SET_STRING = TypeToken.getParameterized(Set.class, String.class).getType();
   private static final Type HOST_AND_PORT_COLLECTION = TypeToken.getParameterized(Collection.class, HostAndPort.class)
     .getType();
-  private transient JsonDocument document;
+
+  private JsonDocument document;
 
   private NetworkClusterNode identity;
   private NetworkCluster clusterConfig;
@@ -115,7 +115,7 @@ public final class JsonConfiguration implements IConfiguration {
     addresses.add(address);
 
     if (this.identity == null) {
-      this.identity = this.document.get("identity", CLUSTER_NODE, new NetworkClusterNode(
+      this.identity = this.document.get("identity", NetworkClusterNode.class, new NetworkClusterNode(
         System.getenv("CLOUDNET_CLUSTER_NODE_UNIQUE_ID") != null ?
           System.getenv("CLOUDNET_CLUSTER_NODE_UNIQUE_ID") :
           "Node-" + UUID.randomUUID().toString().split("-")[0],
@@ -131,7 +131,7 @@ public final class JsonConfiguration implements IConfiguration {
 
     this.ipWhitelist = this.document.get("ipWhitelist", SET_STRING, addresses);
 
-    this.clusterConfig = this.document.get("cluster", CLUSTER, new NetworkCluster(
+    this.clusterConfig = this.document.get("cluster", NetworkCluster.class, new NetworkCluster(
       System.getenv("CLOUDNET_CLUSTER_ID") != null ?
         UUID.fromString(System.getenv("CLOUDNET_CLUSTER_ID")) :
         UUID.randomUUID(),

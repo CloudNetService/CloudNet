@@ -58,5 +58,4 @@ public interface IHttpContext {
   IHttpContext clearCookies();
 
   String pathPrefix();
-
 }

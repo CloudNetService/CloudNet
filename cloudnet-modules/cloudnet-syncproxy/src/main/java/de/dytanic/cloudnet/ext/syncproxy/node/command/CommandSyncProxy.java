@@ -98,7 +98,7 @@ public final class CommandSyncProxy extends SubCommandHandler {
         .prefix(exactStringIgnoreCase("target"))
         .prefix(dynamicString(
           "targetGroup",
-          LanguageManager.getMessage("module-signs-command-create-entry-group-not-found"),
+          LanguageManager.getMessage("module-syncproxy-command-create-entry-group-not-found"),
           name -> getSyncProxyLoginConfiguration(name) != null,
           () -> CloudNetSyncProxyModule.getInstance().getSyncProxyConfiguration().getLoginConfigurations().stream()
             .map(SyncProxyProxyLoginConfiguration::getTargetGroup).collect(Collectors.toList())

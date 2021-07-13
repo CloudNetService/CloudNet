@@ -29,7 +29,6 @@ import de.dytanic.cloudnet.command.sub.SubCommandHandler;
 import de.dytanic.cloudnet.common.Properties;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.console.animation.questionlist.answer.QuestionAnswerTypeEnum;
-import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.service.ProcessConfiguration;
 import de.dytanic.cloudnet.driver.service.ServiceDeployment;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
@@ -219,34 +218,35 @@ public class CommandCreate extends SubCommandHandler {
     }
 
     for (int i = 0; i < count; i++) {
-      ServiceInfoSnapshot serviceInfoSnapshot = CloudNetDriver.getInstance().getCloudServiceFactory()
-        .createCloudService(new ServiceTask(
-          includes,
-          temps,
-          deploy,
-          properties.getOrDefault("name", name),
-          properties.getOrDefault("runtime", runtime),
-          properties.getOrDefault("autoDeleteOnStop", String.valueOf(autoDeleteOnStop)).equalsIgnoreCase("true"),
-          properties.getOrDefault("static", String.valueOf(staticServices)).equalsIgnoreCase("true"),
-          properties.containsKey("node") ? Arrays.asList(properties.get("node").split(";")) : nodes,
-          properties.containsKey("groups") ? Arrays.asList(properties.get("groups").split(";")) : groups,
-          properties.containsKey("deletedFilesAfterStop") ? Arrays
-            .asList(properties.get("deletedFilesAfterStop").split(";")) : deletedFilesAfterStop,
-          new ProcessConfiguration(
-            processConfiguration.getEnvironment(),
-            properties.containsKey("memory") && Ints.tryParse(properties.get("memory")) != null ?
-              Integer.parseInt(properties.get("memory")) : processConfiguration.getMaxHeapMemorySize(),
-            new ArrayList<>(properties.containsKey("jvmOptions") ?
-              Arrays.asList(properties.get("jvmOptions").split(";")) :
-              processConfiguration.getJvmOptions()),
-            new ArrayList<>(properties.containsKey("processParameters") ?
-              Arrays.asList(properties.get("processParameters").split(";")) :
-              processConfiguration.getProcessParameters())
-          ),
-          finalStartPort,
-          0,
-          properties.getOrDefault("javaCommand", javaCommand)
-        ));
+      ServiceTask serviceTask = ServiceTask.builder()
+        .includes(includes)
+        .templates(temps)
+        .deployments(deploy)
+        .name(properties.getOrDefault("name", name))
+        .runtime(properties.getOrDefault("runtime", runtime))
+        .javaCommand(properties.getOrDefault("javaCommand", javaCommand))
+        .autoDeleteOnStop(
+          Boolean.parseBoolean(properties.getOrDefault("autoDeleteOnStop", String.valueOf(autoDeleteOnStop))))
+        .staticServices(Boolean.parseBoolean(properties.getOrDefault("static", String.valueOf(staticServices))))
+        .associatedNodes(properties.containsKey("node") ? Arrays.asList(properties.get("node").split(";")) : nodes)
+        .groups(properties.containsKey("groups") ? Arrays.asList(properties.get("groups").split(";")) : groups)
+        .deletedFilesAfterStop(properties.containsKey("deletedFilesAfterStop") ? Arrays
+          .asList(properties.get("deletedFilesAfterStop").split(";")) : deletedFilesAfterStop)
+        .serviceEnvironmentType(processConfiguration.getEnvironment())
+        .maxHeapMemory(properties.containsKey("memory") && Ints.tryParse(properties.get("memory")) != null ?
+          Integer.parseInt(properties.get("memory")) : processConfiguration.getMaxHeapMemorySize())
+        .jvmOptions(new ArrayList<>(properties.containsKey("jvmOptions") ?
+          Arrays.asList(properties.get("jvmOptions").split(";")) :
+          processConfiguration.getJvmOptions()))
+        .processParameters(new ArrayList<>(properties.containsKey("processParameters") ?
+          Arrays.asList(properties.get("processParameters").split(";")) :
+          processConfiguration.getProcessParameters()))
+        .startPort(finalStartPort)
+        .minServiceCount(0)
+        .build();
+
+      ServiceInfoSnapshot serviceInfoSnapshot = CloudNet.getInstance().getCloudServiceFactory()
+        .createCloudService(serviceTask);
 
       if (serviceInfoSnapshot != null) {
         serviceInfoSnapshots.add(serviceInfoSnapshot);
@@ -255,5 +255,4 @@ public class CommandCreate extends SubCommandHandler {
 
     return serviceInfoSnapshots;
   }
-
 }

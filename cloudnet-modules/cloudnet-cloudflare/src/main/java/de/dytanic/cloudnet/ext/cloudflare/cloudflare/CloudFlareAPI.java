@@ -21,13 +21,13 @@ import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import de.dytanic.cloudnet.common.io.HttpConnectionProvider;
 import de.dytanic.cloudnet.ext.cloudflare.CloudflareConfigurationEntry;
 import de.dytanic.cloudnet.ext.cloudflare.dns.DNSRecord;
 import de.dytanic.cloudnet.service.ICloudService;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Map;
@@ -137,9 +137,7 @@ public class CloudFlareAPI implements AutoCloseable {
     Preconditions.checkNotNull(method, "method");
     Preconditions.checkNotNull(entry, "entry");
 
-    HttpURLConnection connection = (HttpURLConnection) new URL(endpoint).openConnection();
-    connection.setConnectTimeout(5000);
-    connection.setReadTimeout(5000);
+    HttpURLConnection connection = HttpConnectionProvider.provideConnection(endpoint);
     connection.setUseCaches(false);
     connection.setDoOutput(true);
     connection.setRequestMethod(method);

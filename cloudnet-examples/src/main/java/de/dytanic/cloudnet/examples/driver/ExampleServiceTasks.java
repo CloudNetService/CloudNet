@@ -17,11 +17,12 @@
 package de.dytanic.cloudnet.examples.driver;
 
 import de.dytanic.cloudnet.driver.CloudNetDriver;
-import de.dytanic.cloudnet.driver.service.ProcessConfiguration;
+import de.dytanic.cloudnet.driver.service.ServiceDeployment;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
+import de.dytanic.cloudnet.driver.service.ServiceRemoteInclusion;
 import de.dytanic.cloudnet.driver.service.ServiceTask;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 
 public final class ExampleServiceTasks {
@@ -33,32 +34,26 @@ public final class ExampleServiceTasks {
   }
 
   public void addServiceTask() {
-    ServiceTask serviceTask = new ServiceTask(
-      new ArrayList<>(), //includes
-      new ArrayList<>(Collections.singletonList(
-        new ServiceTemplate(
-          "TestTask",
-          "default",
-          "local"
-        )
-      )), //templates
-      new ArrayList<>(), //deployments
-      "TestTask", //name
-      null, //runtime can be null for the default jvm wrapper or "jvm"
-      true, //autoDeleteOnStop => if the service stops naturally it will be automatic deleted
-      true,
+    ServiceTask serviceTask = ServiceTask.builder()
+      .includes(
+        Collections.singletonList(new ServiceRemoteInclusion("https://cloudnetservice.eu", "destination"))) //includes
+      .templates(Collections.singletonList(new ServiceTemplate("Global", "default", "local", true))) //templates
+      .deployments(Collections.singletonList(
+        new ServiceDeployment(new ServiceTemplate("Backup", "Global", "local", true),
+          Arrays.asList("some", "excluded", "files")))) //deployments
+      .name("Lobby") //name
+      .runtime("jvm") //runtime can be null for the default jvm wrapper or "jvm"
+      .maintenance(true) //maintenance
+      .autoDeleteOnStop(true) //autoDeleteOnStop => if the service stops naturally it will be automatic deleted
       //The service won't be deleted fully and will store in the configured directory. The default is /local/services
-      new ArrayList<>(), //node ids
-      new ArrayList<>(Collections.singletonList("TestTask")), //groups
-      new ProcessConfiguration(
-        ServiceEnvironmentType.MINECRAFT_SERVER, //environement type
-        356, //max heap memory size
-        new ArrayList<>()
-      ),
-      4000, //start port
-      0 //min services count with auto creation
-    );
-
+      .staticServices(true)
+      .associatedNodes(Arrays.asList("Node-1", "Node-2")) //node ids
+      .groups(Arrays.asList("Global", "Lobby", "Global-Server")) //groups
+      .serviceEnvironmentType(ServiceEnvironmentType.MINECRAFT_SERVER) //environement type
+      .maxHeapMemory(1234) //max heap memory size
+      .startPort(25565) //start port
+      .minServiceCount(187) //min services count with auto creation
+      .build();
     CloudNetDriver.getInstance().getServiceTaskProvider().addPermanentServiceTask(serviceTask);
   }
 

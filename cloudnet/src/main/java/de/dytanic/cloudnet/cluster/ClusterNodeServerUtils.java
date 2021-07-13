@@ -18,7 +18,6 @@ package de.dytanic.cloudnet.cluster;
 
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.language.LanguageManager;
-import de.dytanic.cloudnet.driver.event.events.service.CloudServiceUnregisterEvent;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.def.packet.PacketClientServerServiceInfoPublisher;
 import de.dytanic.cloudnet.driver.network.protocol.Packet;
@@ -42,7 +41,6 @@ final class ClusterNodeServerUtils {
           .handleServiceUpdate(PacketClientServerServiceInfoPublisher.PublisherType.UNREGISTER, snapshot);
         removed.add(new PacketClientServerServiceInfoPublisher(snapshot,
           PacketClientServerServiceInfoPublisher.PublisherType.UNREGISTER));
-        CloudNet.getInstance().getEventManager().callEvent(new CloudServiceUnregisterEvent(snapshot));
       }
     }
 
