@@ -83,8 +83,6 @@ tags:
     description: Management of service versions
   - name: Modules
     description: Management of the modules
-  - name: Channel messaging
-    description: Access to the channel messaging
 paths:
   /cluster:
     get:
@@ -823,14 +821,14 @@ paths:
     post:
       requestBody:
         required: true
-        description: The permission user to create
+        description: The permission user to create or update
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/PermissionUser'
       tags:
         - Permissions
-      summary: Creates a permission user
+      summary: Creates or updates a permission user
       responses:
         '201':
           $ref: '#/components/responses/Success'
@@ -838,18 +836,19 @@ paths:
           $ref: '#/components/responses/BadRequest'
         '403':
           $ref: '#/components/responses/Unauthorized'
-  '/permission/user/{name}':
+  '/permission/user/{identifier}':
     parameters:
-      - name: name
+      - name: identifier
         in: path
         required: true
-        description: The name of the permission user
+        description: The name or unique id of the permission user
+        example: '62b37d32-3305-475a-bf26-9abee4b0b90f'
         schema:
           type: string
     get:
       tags:
         - Permissions
-      summary: Get a permission user
+      summary: Get a permission user by his name or unique id
       responses:
         '200':
           description: OK
@@ -876,18 +875,19 @@ paths:
           $ref: '#/components/responses/BadRequest'
         '403':
           $ref: '#/components/responses/Unauthorized'
-  '/permission/user/{name}/exists':
+  '/permission/user/{identifier}/exists':
     parameters:
-      - name: name
+      - name: identifier
         in: path
         required: true
-        description: The name of the permission user
+        example: '62b37d32-3305-475a-bf26-9abee4b0b90f'
+        description: The name or unique id of the permission user
         schema:
           type: string
     get:
       tags:
         - Permissions
-      summary: Checks if a permission user exists
+      summary: Check if a permission user exists
       responses:
         '200':
           description: OK
@@ -904,18 +904,18 @@ paths:
           $ref: '#/components/responses/BadRequest'
         '403':
           $ref: '#/components/responses/Unauthorized'
-  '/player/user':
+  '/player':
     post:
       requestBody:
         required: true
-        description: The permission user to create
+        description: The player to create or update
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PermissionUser'
+              $ref: '#/components/schemas/OfflinePlayer'
       tags:
         - Player
-      summary: Creates a permission user
+      summary: Creates or updates an offline player
       responses:
         '201':
           $ref: '#/components/responses/Success'
@@ -923,18 +923,19 @@ paths:
           $ref: '#/components/responses/BadRequest'
         '403':
           $ref: '#/components/responses/Unauthorized'
-  '/player/{name}':
+  '/player/{identifier}':
     parameters:
-      - name: name
+      - name: identifier
         in: path
         required: true
-        description: The name of the permission user
+        description: The name or unique id of the player to get
+        example: 'bcc582ed-494d-4b93-86cb-b58564651a26'
         schema:
           type: string
     get:
       tags:
         - Player
-      summary: Get a permission user
+      summary: Get a player by his unique id or name
       responses:
         '200':
           description: OK
@@ -944,8 +945,8 @@ paths:
                 allOf:
                   - $ref: '#/components/schemas/Success'
                   - properties:
-                      user:
-                        $ref: '#/components/schemas/PermissionUser'
+                      player:
+                        $ref: '#/components/schemas/OfflinePlayer'
         '400':
           $ref: '#/components/responses/BadRequest'
         '403':
@@ -953,7 +954,7 @@ paths:
     delete:
       tags:
         - Player
-      summary: Deletes a permission user
+      summary: Deletes a player by his unique id or name
       responses:
         '200':
           $ref: '#/components/responses/Success'
@@ -961,18 +962,19 @@ paths:
           $ref: '#/components/responses/BadRequest'
         '403':
           $ref: '#/components/responses/Unauthorized'
-  '/player/{name}/exists':
+  '/player/{identifier}/exists':
     parameters:
-      - name: name
+      - name: identifier
         in: path
         required: true
-        description: The name of the permission user
+        description: The name or unique id of the player to check for
+        example: 'bcc582ed-494d-4b93-86cb-b58564651a26'
         schema:
           type: string
     get:
       tags:
         - Player
-      summary: Checks if a permission user exists
+      summary: Checks if a specific player is registered
       responses:
         '200':
           description: OK
@@ -2752,6 +2754,58 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Permission'
+    OfflinePlayer:
+      type: object
+      properties:
+        uniqueId:
+          type: string
+          example: 'bcc582ed-494d-4b93-86cb-b58564651a26'
+        name:
+          type: string
+          example: derklaro
+        xBoxId:
+          type: string
+          example: null
+        firstLoginTimeMillis:
+          type: number
+          example: 1626194104
+        lastLoginTimeMillis:
+          type: number
+          example: 1626194104
+        lastNetworkConnectionInfo:
+          type: object
+          properties:
+            uniqueId:
+              type: string
+              example: 'bcc582ed-494d-4b93-86cb-b58564651a26'
+            name:
+              type: string
+              example: derklaro
+            version:
+              type: integer
+              example: 756
+            address:
+              $ref: '#/components/schemas/HostAndPort'
+            listener:
+              $ref: '#/components/schemas/HostAndPort'
+            onlineMode:
+              type: boolean
+              example: true
+            legacy:
+              type: boolean
+              example: false
+            networkService:
+              type: object
+              properties:
+                serviceId:
+                  $ref: '#/components/schemas/ServiceId'
+                groups:
+                  type: array
+                  items:
+                    type: string
+                  example:
+                    - Global
+                    - Global-Proxy
     ServiceTemplate:
       type: object
       properties:

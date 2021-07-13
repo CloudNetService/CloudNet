@@ -25,6 +25,7 @@ import de.dytanic.cloudnet.driver.permission.PermissionGroup;
 import de.dytanic.cloudnet.driver.permission.PermissionUser;
 import de.dytanic.cloudnet.http.v2.HttpSession;
 import de.dytanic.cloudnet.http.v2.V2HttpHandler;
+import java.util.UUID;
 import java.util.function.Consumer;
 
 public class V2HttpHandlerPermission extends V2HttpHandler {
@@ -63,7 +64,6 @@ public class V2HttpHandlerPermission extends V2HttpHandler {
       } else {
         this.handleDeletePermissionGroupRequest(context);
       }
-
     }
   }
 
@@ -76,8 +76,8 @@ public class V2HttpHandlerPermission extends V2HttpHandler {
   }
 
   protected void handlePermissionGroupExistsRequest(IHttpContext context) {
-    this.handleWithPermissionGroupContext(context, name -> this.ok(context)
-      .body(this.success().append("result", this.getPermissionManagement().containsGroup(name)).toByteArray())
+    this.handleWithPermissionGroupContext(context, true, group -> this.ok(context)
+      .body(this.success().append("result", group != null).toByteArray())
       .context()
       .closeAfter(true)
       .cancelNext()
@@ -85,29 +85,18 @@ public class V2HttpHandlerPermission extends V2HttpHandler {
   }
 
   protected void handlePermissionGroupRequest(IHttpContext context) {
-    this.handleWithPermissionGroupContext(context, name -> {
-      IPermissionGroup permissionGroup = this.getPermissionManagement().getGroup(name);
-      if (permissionGroup == null) {
-        this.ok(context)
-          .body(this.failure().append("reason", "Unknown permission group").toByteArray())
-          .context()
-          .closeAfter(true)
-          .cancelNext();
-      } else {
-        this.ok(context)
-          .body(this.success().append("group", permissionGroup).toByteArray())
-          .context()
-          .closeAfter(true)
-          .cancelNext();
-      }
-    });
+    this.handleWithPermissionGroupContext(context, false, group -> this.ok(context)
+      .body(this.success().append("group", group).toByteArray())
+      .context()
+      .closeAfter(true)
+      .cancelNext());
   }
 
   protected void handleCreatePermissionGroupRequest(IHttpContext context) {
     IPermissionGroup permissionGroup = this.body(context.request()).toInstanceOf(PermissionGroup.class);
     if (permissionGroup == null) {
       this.badRequest(context)
-        .body(this.failure().append("reason", "Missing permission group").toByteArray())
+        .body(this.failure().append("reason", "Missing permission group in body").toByteArray())
         .context()
         .closeAfter(true)
         .cancelNext();
@@ -123,40 +112,19 @@ public class V2HttpHandlerPermission extends V2HttpHandler {
   }
 
   protected void handleDeletePermissionGroupRequest(IHttpContext context) {
-    this.handleWithPermissionGroupContext(context, name -> {
-      if (this.getPermissionManagement().containsGroup(name)) {
-        this.getPermissionManagement().deleteGroup(name);
-        this.ok(context)
-          .body(this.success().toByteArray())
-          .context()
-          .closeAfter(true)
-          .cancelNext();
-      } else {
-        this.response(context, HttpResponseCode.HTTP_GONE)
-          .body(this.failure().append("reason", "No such permission group").toByteArray())
-          .context()
-          .closeAfter(true)
-          .cancelNext();
-      }
-    });
-  }
-
-  protected void handleWithPermissionGroupContext(IHttpContext context, Consumer<String> handler) {
-    String groupName = context.request().pathParameters().get("group");
-    if (groupName == null) {
-      this.badRequest(context)
-        .body(this.failure().append("reason", "Missing permission group parameter").toByteArray())
+    this.handleWithPermissionGroupContext(context, false, group -> {
+      this.getPermissionManagement().deleteGroup(group);
+      this.ok(context)
+        .body(this.success().toByteArray())
         .context()
         .closeAfter(true)
         .cancelNext();
-    } else {
-      handler.accept(groupName);
-    }
+    });
   }
 
   protected void handlePermissionUserExistsRequest(IHttpContext context) {
-    this.handleWithPermissionUserContext(context, name -> this.ok(context)
-      .body(this.success().append("result", this.getPermissionManagement().containsUser(name)).toByteArray())
+    this.handleWithPermissionUserContext(context, true, user -> this.ok(context)
+      .body(this.success().append("result", user != null).toByteArray())
       .context()
       .closeAfter(true)
       .cancelNext()
@@ -164,22 +132,11 @@ public class V2HttpHandlerPermission extends V2HttpHandler {
   }
 
   protected void handlePermissionUserRequest(IHttpContext context) {
-    this.handleWithPermissionUserContext(context, name -> {
-      IPermissionUser permissionUser = this.getPermissionManagement().getFirstUser(name);
-      if (permissionUser == null) {
-        this.ok(context)
-          .body(this.failure().append("reason", "Unknown permission user").toByteArray())
-          .context()
-          .closeAfter(true)
-          .cancelNext();
-      } else {
-        this.ok(context)
-          .body(this.success().append("user", permissionUser).toByteArray())
-          .context()
-          .closeAfter(true)
-          .cancelNext();
-      }
-    });
+    this.handleWithPermissionUserContext(context, false, user -> this.ok(context)
+      .body(this.success().append("user", user).toByteArray())
+      .context()
+      .closeAfter(true)
+      .cancelNext());
   }
 
   protected void handleCreatePermissionUserRequest(IHttpContext context) {
@@ -202,36 +159,78 @@ public class V2HttpHandlerPermission extends V2HttpHandler {
   }
 
   protected void handleDeletePermissionUserRequest(IHttpContext context) {
-    this.handleWithPermissionUserContext(context, name -> {
-      if (this.getPermissionManagement().containsUser(name)) {
-        this.getPermissionManagement().deleteUser(name);
-        this.ok(context)
-          .body(this.success().toByteArray())
-          .context()
-          .closeAfter(true)
-          .cancelNext();
-      } else {
-        this.response(context, HttpResponseCode.HTTP_GONE)
-          .body(this.failure().append("reason", "No such permission user").toByteArray())
-          .context()
-          .closeAfter(true)
-          .cancelNext();
-      }
-    });
-
-  }
-
-  protected void handleWithPermissionUserContext(IHttpContext context, Consumer<String> handler) {
-    String permissionUserName = context.request().pathParameters().get("user");
-    if (permissionUserName == null) {
-      this.badRequest(context)
-        .body(this.failure().append("reason", "Missing permission user parameter").toByteArray())
+    this.handleWithPermissionUserContext(context, false, user -> {
+      this.getPermissionManagement().deleteUser(user);
+      this.ok(context)
+        .body(this.success().toByteArray())
         .context()
         .closeAfter(true)
         .cancelNext();
-    } else {
-      handler.accept(permissionUserName);
+    });
+  }
+
+  protected void handleWithPermissionGroupContext(
+    IHttpContext context,
+    boolean mayBeNull,
+    Consumer<IPermissionGroup> handler
+  ) {
+    String groupName = context.request().pathParameters().get("group");
+    if (groupName == null) {
+      this.badRequest(context)
+        .body(this.failure().append("reason", "Missing permission group name parameter").toByteArray())
+        .context()
+        .closeAfter(true)
+        .cancelNext();
+      return;
     }
+    // try to get the group
+    IPermissionGroup group = this.getPermissionManagement().getGroup(groupName);
+    if (group == null && !mayBeNull) {
+      this.ok(context)
+        .body(this.failure().append("reason", "Unknown permission group").toByteArray())
+        .context()
+        .closeAfter(true)
+        .cancelNext();
+      return;
+    }
+    // post to the handler
+    handler.accept(group);
+  }
+
+  protected void handleWithPermissionUserContext(
+    IHttpContext context,
+    boolean mayBeNull,
+    Consumer<IPermissionUser> handler
+  ) {
+    String identifier = context.request().pathParameters().get("user");
+    if (identifier == null) {
+      this.badRequest(context)
+        .body(this.failure().append("reason", "Missing identifier parameter").toByteArray())
+        .context()
+        .closeAfter(true)
+        .cancelNext();
+      return;
+    }
+    // try to find a matching player
+    IPermissionUser user;
+    try {
+      // try to parse a player unique id from the string
+      UUID uniqueId = UUID.fromString(identifier);
+      user = this.getPermissionManagement().getUser(uniqueId);
+    } catch (Exception exception) {
+      user = this.getPermissionManagement().getFirstUser(identifier);
+    }
+    // check if the user is present before applying to the handler
+    if (user == null && !mayBeNull) {
+      this.ok(context)
+        .body(this.failure().append("reason", "No permission user with provided uniqueId/name").toByteArray())
+        .context()
+        .closeAfter(true)
+        .cancelNext();
+      return;
+    }
+    // post to handler
+    handler.accept(user);
   }
 
   protected IPermissionManagement getPermissionManagement() {

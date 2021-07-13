@@ -20,10 +20,10 @@ import de.dytanic.cloudnet.driver.network.http.HttpResponseCode;
 import de.dytanic.cloudnet.driver.network.http.IHttpContext;
 import de.dytanic.cloudnet.ext.bridge.player.CloudOfflinePlayer;
 import de.dytanic.cloudnet.ext.bridge.player.ICloudOfflinePlayer;
-import de.dytanic.cloudnet.ext.bridge.player.ICloudPlayer;
 import de.dytanic.cloudnet.ext.bridge.player.IPlayerManager;
 import de.dytanic.cloudnet.http.v2.HttpSession;
 import de.dytanic.cloudnet.http.v2.V2HttpHandler;
+import java.util.UUID;
 import java.util.function.Consumer;
 
 public class V2HttpHandlerBridge extends V2HttpHandler {
@@ -48,8 +48,8 @@ public class V2HttpHandlerBridge extends V2HttpHandler {
   }
 
   protected void handleCloudPlayerExistsRequest(IHttpContext context) {
-    this.handleWithCloudPlayerContext(context, name -> this.ok(context)
-      .body(this.success().append("result", this.getPlayerManager().getFirstOfflinePlayer(name) != null).toByteArray())
+    this.handleWithCloudPlayerContext(context, true, player -> this.ok(context)
+      .body(this.success().append("result", player != null).toByteArray())
       .context()
       .closeAfter(true)
       .cancelNext()
@@ -57,27 +57,11 @@ public class V2HttpHandlerBridge extends V2HttpHandler {
   }
 
   protected void handleCloudPlayerRequest(IHttpContext context) {
-    this.handleWithCloudPlayerContext(context, name -> {
-      ICloudOfflinePlayer cloudOfflinePlayer = this.getPlayerManager().getFirstOfflinePlayer(name);
-      if (cloudOfflinePlayer == null) {
-        this.ok(context)
-          .body(this.failure().append("reason", "Unknown player").toByteArray())
-          .context()
-          .closeAfter(true)
-          .cancelNext();
-      } else {
-        ICloudPlayer cloudPlayer = this.getPlayerManager().getFirstOnlinePlayer(name);
-        if (cloudPlayer != null) {
-          cloudOfflinePlayer = cloudPlayer;
-        }
-
-        this.ok(context)
-          .body(this.success().append("player", cloudOfflinePlayer).toByteArray())
-          .context()
-          .closeAfter(true)
-          .cancelNext();
-      }
-    });
+    this.handleWithCloudPlayerContext(context, false, player -> this.ok(context)
+      .body(this.success().append("player", player).toByteArray())
+      .context()
+      .closeAfter(true)
+      .cancelNext());
   }
 
   protected void handleCreateCloudPlayerRequest(IHttpContext context) {
@@ -100,37 +84,50 @@ public class V2HttpHandlerBridge extends V2HttpHandler {
   }
 
   protected void handleDeleteCloudPlayerRequest(IHttpContext context) {
-    this.handleWithCloudPlayerContext(context, name -> {
-      ICloudOfflinePlayer cloudOfflinePlayer = this.getPlayerManager().getFirstOfflinePlayer(name);
-      if (cloudOfflinePlayer != null) {
-        this.getPlayerManager().deleteCloudOfflinePlayer(cloudOfflinePlayer);
-        this.ok(context)
-          .body(this.success().toByteArray())
-          .context()
-          .closeAfter(true)
-          .cancelNext();
-      } else {
-        this.response(context, HttpResponseCode.HTTP_GONE)
-          .body(this.failure().append("reason", "No such player").toByteArray())
-          .context()
-          .closeAfter(true)
-          .cancelNext();
-      }
-    });
-
-  }
-
-  protected void handleWithCloudPlayerContext(IHttpContext context, Consumer<String> handler) {
-    String cloudPlayer = context.request().pathParameters().get("player");
-    if (cloudPlayer == null) {
-      this.badRequest(context)
-        .body(this.failure().append("reason", "Missing player parameter").toByteArray())
+    this.handleWithCloudPlayerContext(context, false, player -> {
+      this.getPlayerManager().deleteCloudOfflinePlayer(player);
+      this.ok(context)
+        .body(this.success().toByteArray())
         .context()
         .closeAfter(true)
         .cancelNext();
-    } else {
-      handler.accept(cloudPlayer);
+    });
+  }
+
+  protected void handleWithCloudPlayerContext(
+    IHttpContext context,
+    boolean mayBeNull,
+    Consumer<ICloudOfflinePlayer> handler
+  ) {
+    String identifier = context.request().pathParameters().get("player");
+    if (identifier == null) {
+      this.badRequest(context)
+        .body(this.failure().append("reason", "Missing player identifier").toByteArray())
+        .context()
+        .closeAfter(true)
+        .cancelNext();
+      return;
     }
+    // try to find a matching player
+    ICloudOfflinePlayer player;
+    try {
+      // try to parse a player unique id from the string
+      UUID uniqueId = UUID.fromString(identifier);
+      player = this.getPlayerManager().getOfflinePlayer(uniqueId);
+    } catch (Exception exception) {
+      player = this.getPlayerManager().getFirstOfflinePlayer(identifier);
+    }
+    // check if a player is present before applying to the handler
+    if (player == null && !mayBeNull) {
+      this.ok(context)
+        .body(this.failure().append("reason", "No player with provided uniqueId/name").toByteArray())
+        .context()
+        .closeAfter(true)
+        .cancelNext();
+      return;
+    }
+    // post to handler
+    handler.accept(player);
   }
 
   protected IPlayerManager getPlayerManager() {
