@@ -107,7 +107,7 @@ public class HttpCookie {
   }
 
   public boolean isHttpOnly() {
-    return httpOnly;
+    return this.httpOnly;
   }
 
   public void setHttpOnly(boolean httpOnly) {
@@ -115,7 +115,7 @@ public class HttpCookie {
   }
 
   public boolean isSecure() {
-    return secure;
+    return this.secure;
   }
 
   public void setSecure(boolean secure) {
@@ -123,7 +123,7 @@ public class HttpCookie {
   }
 
   public boolean isWrap() {
-    return wrap;
+    return this.wrap;
   }
 
   public void setWrap(boolean wrap) {
