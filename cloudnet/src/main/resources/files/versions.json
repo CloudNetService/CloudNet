@@ -24,7 +24,7 @@
               "-Dpaperclip.patchonly=true"
             ],
             "fetchOverPaperApi": true,
-            "versionGroup": "1.17"
+            "versionGroup": "1.17.1"
           }
         },
         {
@@ -38,7 +38,7 @@
               "-Dpaperclip.patchonly=true"
             ],
             "fetchOverPaperApi": true,
-            "versionGroup": "1.17"
+            "versionGroup": "1.17.1"
           }
         },
         {
