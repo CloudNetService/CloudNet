@@ -375,7 +375,7 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
     return context.response()
       .statusCode(HttpResponseCode.HTTP_OK)
       .header("Content-Type", contentType)
-      .header("Access-Control-Allow-Origin", "*");
+      .header("Access-Control-Allow-Origin", this.accessControlConfiguration.getCorsPolicy());
   }
 
   protected @Nullable String guessFileName(String path) {

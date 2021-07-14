@@ -167,7 +167,7 @@ public abstract class V2HttpHandler implements IHttpHandler {
     return context.response()
       .statusCode(statusCode)
       .header("Content-Type", "application/json")
-      .header("Access-Control-Allow-Origin", "*");
+      .header("Access-Control-Allow-Origin", this.accessControlConfiguration.getCorsPolicy());
   }
 
   protected JsonDocument body(IHttpRequest request) {
