@@ -49,11 +49,21 @@ import de.dytanic.cloudnet.ext.rest.v2.V2HttpHandlerSession;
 import de.dytanic.cloudnet.ext.rest.v2.V2HttpHandlerTasks;
 import de.dytanic.cloudnet.ext.rest.v2.V2HttpHandlerTemplate;
 import de.dytanic.cloudnet.ext.rest.v2.V2HttpHandlerTemplateStorages;
+import de.dytanic.cloudnet.http.v2.AccessControlConfiguration;
 import de.dytanic.cloudnet.module.NodeCloudNetModule;
 
 public final class CloudNetRestModule extends NodeCloudNetModule {
 
   @ModuleTask(order = 127, event = ModuleLifeCycle.STARTED)
+  public void loadConfiguration() {
+    String corsPolicy = this.getConfig().getString("corsPolicy", "strict-origin-when-cross-origin");
+    int accessControlMaxAge = this.getConfig().getInt("accessControlMaxAge", 3600);
+
+    this.saveConfig();
+    AccessControlConfiguration.setDefaultConfiguration(new AccessControlConfiguration(corsPolicy, accessControlMaxAge));
+  }
+
+  @ModuleTask(order = 120, event = ModuleLifeCycle.STARTED)
   public void initHttpHandlers() {
     this.getHttpServer()
       // v2 openapi specification

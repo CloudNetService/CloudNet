@@ -39,15 +39,17 @@ public abstract class V2HttpHandler implements IHttpHandler {
   protected final String supportedRequestMethodsString;
 
   protected V2HttpAuthentication authentication;
+  protected AccessControlConfiguration accessControlConfiguration;
 
   public V2HttpHandler(String requiredPermission, String... supportedRequestMethods) {
-    this(requiredPermission, DEFAULT_AUTH, supportedRequestMethods);
+    this(requiredPermission, DEFAULT_AUTH, AccessControlConfiguration.defaults(), supportedRequestMethods);
   }
 
   public V2HttpHandler(String requiredPermission, V2HttpAuthentication authentication,
-    String... supportedRequestMethods) {
+    AccessControlConfiguration accessControlConfiguration, String... supportedRequestMethods) {
     this.requiredPermission = requiredPermission;
     this.authentication = authentication;
+    this.accessControlConfiguration = accessControlConfiguration;
 
     this.supportedRequestMethods = supportedRequestMethods;
     // needed to use a binary search later
@@ -140,8 +142,8 @@ public abstract class V2HttpHandler implements IHttpHandler {
       .cancelNext(true)
       .response()
       .statusCode(HttpResponseCode.HTTP_NO_CONTENT)
-      .header("Access-Control-Max-Age", "3600")
-      .header("Access-Control-Allow-Origin", "*")
+      .header("Access-Control-Max-Age", Integer.toString(this.accessControlConfiguration.getAccessControlMaxAge()))
+      .header("Access-Control-Allow-Origin", this.accessControlConfiguration.getCorsPolicy())
       .header("Access-Control-Allow-Headers", "*")
       .header("Access-Control-Expose-Headers", "Accept, Origin, if-none-match, Access-Control-Allow-Headers, " +
         "Access-Control-Allow-Origin, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
