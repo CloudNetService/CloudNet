@@ -21,6 +21,7 @@ jar {
 dependencies {
   compileOnly project(':cloudnet')
   compileOnly project(':cloudnet-wrapper-jvm')
+
   compileOnly group: 'cn.nukkit', name: 'nukkit', version: dependencyNukkitXVersion
   compileOnly group: 'io.gomint', name: 'gomint-server', version: dependencyGoMintVersion
   compileOnly group: 'org.spigotmc', name: 'spigot-api', version: dependencySpigotApiVersion

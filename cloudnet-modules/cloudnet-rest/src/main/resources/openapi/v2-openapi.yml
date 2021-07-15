@@ -1,0 +1,3271 @@
+openapi: 3.0.3
+info:
+  description: |
+    CloudNet's rest API version 2 is the next generation in CloudNet's rest history. It has
+    definitely more opportunities than the previous version of it and provides
+    a lot of methods to manage and control the CloudNet node and cluster behaviour.
+
+    The API is based on http/https requests and mostely JSON responses. You need
+    to send your session bearer token when you make a request. The token can be
+    obtained by sending a request to the /auth route. Most of the routes require
+    an authentication and a permission which must be set to access the endpoint.
+
+    All the responses contain a `success` boolean (if they are JSON responses) giving
+    information whether or not the request was handled successfully. If that boolean is
+    `false` an extra `reason` field is appended to the JSON entity defining the cause
+    of the failure.
+
+    Every rest rout is fixed to a version number and every call must contain one.
+    The latest one is 2. The latest stable endpoint base URL is
+    `http(s)://{host}:{port}/api/v2/`. Host and port is the one defined in your
+    CloudNet's node config.json `httpListeners` section. If you want to use https
+    you have to configure the web SSL settings in the same file.
+  version: '2'
+  title: CloudNet v3
+  contact:
+    url: 'https://cloudnetservice.eu'
+    name: CloudNetService
+  license:
+    name: 'Apache license, version 2.0'
+    url: 'https://www.apache.org/licenses/LICENSE-2.0.html'
+externalDocs:
+  description: Find out more about CloudNet and it's setup
+  url: 'https://cloudnetservice.eu'
+security:
+  - bearerAuth: [ ]
+tags:
+  - name: Session Management
+    description: Management of the user's rest api authentication and session
+  - name: Node
+    description: Access to some node functions the request is sent to
+  - name: Cluster
+    description: Management of the cluster the current node is part of
+    externalDocs:
+      url: 'https://cloudnetservice.eu/docs/3.3/setup/cluster'
+      description: More information
+  - name: Database
+    description: Management of the cloudnet internal database
+  - name: Groups
+    description: Management of the cloudnet group system
+    externalDocs:
+      url: 'https://cloudnetservice.eu/docs/3.3/components/groups'
+      description: More information
+  - name: Permissions
+    description: Management of the cloudnet permission system
+    externalDocs:
+      url: 'https://cloudnetservice.eu/docs/3.3/modules/cloudperms'
+      description: More information
+  - name: Player
+    description: Management of cloudnet players
+    externalDocs:
+      url: 'https://cloudnetservice.eu/docs/3.3/commands/players'
+      description: More information
+  - name: Tasks
+    description: Management of the cloudnet task system
+    externalDocs:
+      url: 'https://cloudnetservice.eu/docs/3.3/components/tasks'
+      description: More information
+  - name: Services
+    description: Management of the services which are running in the cluster
+    externalDocs:
+      url: 'https://cloudnetservice.eu/docs/3.3/components/services'
+      description: More information
+  - name: Template Storage
+    description: Management of the templates
+    externalDocs:
+      url: 'https://cloudnetservice.eu/docs/3.3/components/template-storages'
+  - name: Templates
+    description: Management of the templates
+    externalDocs:
+      url: 'https://cloudnetservice.eu/docs/3.3/components/templates'
+      description: More information
+  - name: Service Versions
+    description: Management of service versions
+  - name: Modules
+    description: Management of the modules
+paths:
+  /cluster:
+    get:
+      tags:
+        - Cluster
+      summary: Lists all nodes
+      description: |
+        Lists all nodes which are registered in the node. This includes nodes
+        which are currently not connected to the node. If they are not connected
+        available will be `false` and the `nodeInfoSnapshot` will be null.
+      operationId: cluster
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Success'
+                  - properties:
+                      nodes:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/NetworkClusterNodeInfoSnapshot'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+    put:
+      requestBody:
+        required: true
+        description: The new node configuration entry.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NetworkClusterNode'
+      tags:
+        - Cluster
+      summary: Updates a node
+      description: |
+        Changes the configuration of a specific node in the local node's config
+        file. The updated will be pushed live to the node cluster settings. That
+        does not mean that the node tries to connect to the other one.
+      operationId: clusterUpdate
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    post:
+      requestBody:
+        required: true
+        description: The node configuration entry.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NetworkClusterNode'
+      tags:
+        - Cluster
+      summary: Creates a new node
+      description: |
+        Creates a node in the node's local configuration and updates it live to
+        the node cluster settings. That does not mean that the node tries to
+        connect to the other one.
+      operationId: clusterCreate
+      responses:
+        '201':
+          $ref: '#/components/responses/Success'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+  '/cluster/{uniqueId}':
+    parameters:
+      - name: uniqueId
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      tags:
+        - Cluster
+      summary: Shows a unique node
+      description: |
+        Shows a specific node according to the unique id provided in the request
+        path if the node exists.
+      operationId: clusterInfo
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Success'
+                  - $ref: '#/components/schemas/NetworkClusterNodeInfoSnapshot'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      tags:
+        - Cluster
+      summary: Deletes a node
+      description: |
+        Deletes a node from the config of the local node and pushes the changes
+        live to the local cluster settings. That does not mean that the node
+        gets disconnected.
+      operationId: clusterDelete
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  '/cluster/{uniqueId}/command':
+    parameters:
+      - name: uniqueId
+        in: path
+        required: true
+        description: The node id to execute the command on
+        schema:
+          type: string
+    post:
+      requestBody:
+        required: true
+        description: The command to send to the node
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                command:
+                  type: string
+                  example: perms user derklaro add permission * 1
+      tags:
+        - Cluster
+      summary: Sends a command to the given node
+      description: Sends a command to a specific node in the cluster.
+      operationId: clusterCommand
+      responses:
+        '200':
+          description: The command was executed successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Success'
+                  - properties:
+                      result:
+                        type: array
+                        items:
+                          type: string
+                        example:
+                          - Command Response Line1
+                          - Command Response Line2
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+  /node:
+    get:
+      security:
+        - { }
+        - basicAuth: [ ]
+        - bearerAuth: [ ]
+      tags:
+        - Node
+      summary: Node info
+      description: Information about the node the rest listener belongs to
+      operationId: generalInfo
+      responses:
+        '200':
+          description: Information about the node the request was sent to
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NodeInfo'
+        '204':
+          description: |
+            If the request has no Authorization header set the node will just
+            answer with a 204 to indicate that the listener is up and running.
+  /node/liveConsole:
+    get:
+      tags:
+        - Node
+      summary: Live console
+      description: |
+        Upgrades the connection to a web socket connection and sends all new command
+        lines received to the connection.
+      responses:
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+  /node/reload:
+    parameters:
+      - name: type
+        in: query
+        required: false
+        description: The reload type
+        schema:
+          type: string
+          enum:
+            - 'all'
+            - 'config'
+          default: 'all'
+    get:
+      tags:
+        - Node
+      summary: Reloads the node the request is sent to
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+  /node/config:
+    get:
+      tags:
+        - Node
+      summary: Get the current configuration file of the node the request is sent to
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/Success'
+                  - $ref: '#/components/schemas/JsonConfiguration'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+    put:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JsonConfiguration'
+      tags:
+        - Node
+      summary: Updates the configuration file of the node the request is sent to
+      description: |
+        To add/remove a node from the configuration please use the cluster
+        routes to add/remove a node
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+  /database:
+    get:
+      tags:
+        - Database
+      summary: Lists all database names
+      operationId: listDatabase
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/Success'
+                  - properties:
+                      result:
+                        type: array
+                        items:
+                          type: string
+                          example:
+                            - Database1
+                            - Database2
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+  '/database/{name}':
+    parameters:
+      - name: name
+        in: path
+        required: true
+        schema:
+          type: string
+    post:
+      requestBody:
+        required: true
+        description: The document value to insert
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                key:
+                  type: string
+                  example: Signs 0utplayyyy
+                document:
+                  type: object
+                  example:
+                    Name: Peter
+      tags:
+        - Database
+      summary: Creates a new document in a database
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+    put:
+      requestBody:
+        required: true
+        description: The document key and value to update
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                key:
+                  type: string
+                  example: Signs 0utplayyyy
+                document:
+                  type: object
+                  example:
+                    Name: Peter
+      tags:
+        - Database
+      summary: Updates a document in a database
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+    delete:
+      parameters:
+        - name: key
+          in: query
+          required: true
+          description: The key to delete from a database
+          schema:
+            type: string
+      tags:
+        - Database
+      summary: Deletes a document from the database
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+  '/database/{name}/clear':
+    get:
+      tags:
+        - Database
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+      summary: Clears a database
+      description: Clears the content of the given database.
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+  '/database/{name}/keys':
+    get:
+      tags:
+        - Database
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+      summary: Get all keys in a database
+      description: ''
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/Success'
+                  - properties:
+                      keys:
+                        type: array
+                        example:
+                          - Key1
+                          - Key2
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+  '/database/{name}/count':
+    get:
+      tags:
+        - Database
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+      summary: Get the document count of a database
+      description: ''
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/Success'
+                  - properties:
+                      count:
+                        type: integer
+                        example: 5
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+  '/database/{name}/contains':
+    get:
+      tags:
+        - Database
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: key
+          in: query
+          required: true
+          description: The key to check for
+          schema:
+            type: string
+      summary: Checks if the provided database contains a specific key
+      description: ''
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/Success'
+                  - properties:
+                      result:
+                        type: boolean
+                        example: true
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+  '/database/{name}/get':
+    post:
+      requestBody:
+        required: true
+        description: Defines the search filter or key to get the documents
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - type: object
+                  properties:
+                    filter:
+                      type: object
+                      example:
+                        Signs: 0utplayyyy
+                - type: object
+                  properties:
+                    key:
+                      type: string
+                      example: Signs 0utplayyyy
+      tags:
+        - Database
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+      summary: Get a specific document from a database
+      description: |
+        Gets all documents out of the provided database, either by using the provided
+        key or the provided search filter.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/Success'
+                  - properties:
+                      result:
+                        type: array
+                        example:
+                          - Name: Peter
+                          - Lastname: Parker
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+  /group:
+    post:
+      requestBody:
+        required: true
+        description: The group configuration to create
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GroupConfiguration'
+      tags:
+        - Groups
+      summary: Creates a group
+      responses:
+        '201':
+          $ref: '#/components/responses/Success'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+    get:
+      tags:
+        - Groups
+      summary: Lists all group configurations
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Success'
+                  - properties:
+                      groups:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/GroupConfiguration'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+  '/group/{name}':
+    parameters:
+      - name: name
+        in: path
+        required: true
+        description: The name of the group
+        schema:
+          type: string
+    get:
+      tags:
+        - Groups
+      summary: Get a group configuration
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Success'
+                  - properties:
+                      group:
+                        $ref: '#/components/schemas/GroupConfiguration'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+    delete:
+      tags:
+        - Groups
+      summary: Deletes a group
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+  '/group/{name}/exists':
+    parameters:
+      - name: name
+        in: path
+        required: true
+        description: The name of the group
+        schema:
+          type: string
+    get:
+      tags:
+        - Groups
+      summary: Checks if a groups exists
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Success'
+                  - properties:
+                      result:
+                        type: boolean
+                        example: true
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+  /permission/group:
+    post:
+      requestBody:
+        required: true
+        description: The permission group to create
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PermissionGroup'
+      tags:
+        - Permissions
+      summary: Creates a group
+      responses:
+        '201':
+          $ref: '#/components/responses/Success'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+    get:
+      tags:
+        - Permissions
+      summary: Lists all permission groups
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Success'
+                  - properties:
+                      groups:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/PermissionGroup'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+  '/permission/group/{name}':
+    parameters:
+      - name: name
+        in: path
+        required: true
+        description: The name of the permission group
+        schema:
+          type: string
+    get:
+      tags:
+        - Permissions
+      summary: Get a permission group
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Success'
+                  - properties:
+                      group:
+                        $ref: '#/components/schemas/PermissionGroup'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+    delete:
+      tags:
+        - Permissions
+      summary: Deletes a permission group
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+  '/permission/group/{name}/exists':
+    parameters:
+      - name: name
+        in: path
+        required: true
+        description: The name of the permission group
+        schema:
+          type: string
+    get:
+      tags:
+        - Permissions
+      summary: Checks if a permission groups exists
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Success'
+                  - properties:
+                      result:
+                        type: boolean
+                        example: true
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+  '/permission/user':
+    post:
+      requestBody:
+        required: true
+        description: The permission user to create or update
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PermissionUser'
+      tags:
+        - Permissions
+      summary: Creates or updates a permission user
+      responses:
+        '201':
+          $ref: '#/components/responses/Success'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+  '/permission/user/{identifier}':
+    parameters:
+      - name: identifier
+        in: path
+        required: true
+        description: The name or unique id of the permission user
+        example: '62b37d32-3305-475a-bf26-9abee4b0b90f'
+        schema:
+          type: string
+    get:
+      tags:
+        - Permissions
+      summary: Get a permission user by his name or unique id
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Success'
+                  - properties:
+                      user:
+                        $ref: '#/components/schemas/PermissionUser'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+    delete:
+      tags:
+        - Permissions
+      summary: Deletes a permission user
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+  '/permission/user/{identifier}/exists':
+    parameters:
+      - name: identifier
+        in: path
+        required: true
+        example: '62b37d32-3305-475a-bf26-9abee4b0b90f'
+        description: The name or unique id of the permission user
+        schema:
+          type: string
+    get:
+      tags:
+        - Permissions
+      summary: Check if a permission user exists
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Success'
+                  - properties:
+                      result:
+                        type: boolean
+                        example: true
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+  '/player':
+    post:
+      requestBody:
+        required: true
+        description: The player to create or update
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OfflinePlayer'
+      tags:
+        - Player
+      summary: Creates or updates an offline player
+      responses:
+        '201':
+          $ref: '#/components/responses/Success'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+  '/player/{identifier}':
+    parameters:
+      - name: identifier
+        in: path
+        required: true
+        description: The name or unique id of the player to get
+        example: 'bcc582ed-494d-4b93-86cb-b58564651a26'
+        schema:
+          type: string
+    get:
+      tags:
+        - Player
+      summary: Get a player by his unique id or name
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Success'
+                  - properties:
+                      player:
+                        $ref: '#/components/schemas/OfflinePlayer'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+    delete:
+      tags:
+        - Player
+      summary: Deletes a player by his unique id or name
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+  '/player/{identifier}/exists':
+    parameters:
+      - name: identifier
+        in: path
+        required: true
+        description: The name or unique id of the player to check for
+        example: 'bcc582ed-494d-4b93-86cb-b58564651a26'
+        schema:
+          type: string
+    get:
+      tags:
+        - Player
+      summary: Checks if a specific player is registered
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Success'
+                  - properties:
+                      result:
+                        type: boolean
+                        example: true
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+  /task:
+    post:
+      requestBody:
+        required: true
+        description: The task to create
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ServiceTask'
+      tags:
+        - Tasks
+      summary: Creates a task
+      responses:
+        '200':
+          description: The request was ok but the task couln't be created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    default: false
+        '201':
+          description: The task was created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+    get:
+      tags:
+        - Tasks
+      summary: Lists all registered tasks
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Success'
+                  - properties:
+                      tasks:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/ServiceTask'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+  '/task/{name}':
+    parameters:
+      - name: name
+        in: path
+        required: true
+        description: The name of the task
+        schema:
+          type: string
+    get:
+      tags:
+        - Tasks
+      summary: Get a task by it's name
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Success'
+                  - properties:
+                      task:
+                        $ref: '#/components/schemas/ServiceTask'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+    delete:
+      tags:
+        - Tasks
+      summary: Deletes a task
+      responses:
+        '200':
+          description: The task was deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+  '/task/{name}/exists':
+    parameters:
+      - name: name
+        in: path
+        required: true
+        description: The name of the task
+        schema:
+          type: string
+    get:
+      tags:
+        - Tasks
+      summary: Check if a service task by the provided name exists
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Success'
+                  - properties:
+                      result:
+                        type: boolean
+                        example: true
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+  /auth:
+    post:
+      security:
+        - basicAuth: [ ]
+      tags:
+        - Session Management
+      summary: Authenticate a user at the rest endpoint
+      description: |
+        When sending a request to that endpoint containing a Authorization header
+        with a basic http auth value, the endpoint will generate a bearer token
+        for further api requests which is by default valid for one hour. You
+        can call /refresh with the token to get a new one which is again one hour
+        valid (by default).
+      responses:
+        '200':
+          description: |
+            Successfully authnticated the user at the rest endpoint. The resulting
+            json object will contain the bearer token for further requests to the
+            endpoint.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginSuccess'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+  /session/logout:
+    post:
+      tags:
+        - Session Management
+      summary: Inavlidates the session
+      description: |
+        Invalidates the session the sent bearer token belongs to, meaning that
+        the user can no longer sent requests to the rest endpoint and needs to
+        re-authenticate when needed
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+  /session/refresh:
+    post:
+      tags:
+        - Session Management
+      summary: Refreshes a session
+      description: |
+        Refresehes the session of a user by adding another hour (by default) of
+        session time to it. The reponse will contain a need token when the session
+        was refreshed successfully.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginSuccess'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+  /service:
+    get:
+      tags:
+        - Services
+      summary: Lists all known services
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Success'
+                  - properties:
+                      services:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/ServiceInfoSnapshot'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+  '/service/{identifier}':
+    parameters:
+      - name: identifier
+        in: path
+        required: true
+        description: The name or unique id of the service
+        schema:
+          type: string
+    get:
+      tags:
+        - Services
+      summary: Shows a specific service if it's exists
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Success'
+                  - properties:
+                      snapshot:
+                        $ref: '#/components/schemas/ServiceInfoSnapshot'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+    delete:
+      tags:
+        - Services
+      summary: Deletes a service
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+  '/service/{identifier}/lifecycle':
+    parameters:
+      - name: identifier
+        in: path
+        required: true
+        description: The name or unique id of the service
+        schema:
+          type: string
+      - name: target
+        in: query
+        required: true
+        description: The target service lifecycle
+        schema:
+          type: string
+          enum:
+            - start
+            - stop
+            - restart
+            - kill
+    get:
+      tags:
+        - Services
+      summary: Updates the lifecycle of a service
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+  '/service/{identifier}/include':
+    parameters:
+      - name: identifier
+        in: path
+        required: true
+        description: The name or unique id of the service
+        schema:
+          type: string
+      - name: type
+        in: query
+        required: true
+        description: The type of inclusion to include
+        schema:
+          type: string
+          enum:
+            - templates
+            - inclusions
+    get:
+      tags:
+        - Services
+      summary: Includes a specific type of inclusion added to a service
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+  '/service/{identifier}/deployResources':
+    parameters:
+      - name: identifier
+        in: path
+        required: true
+        description: The name or unique id of the service
+        schema:
+          type: string
+      - name: remove
+        in: query
+        required: false
+        description: If the deployments should be removed afterwards
+        schema:
+          type: boolean
+          default: true
+    get:
+      tags:
+        - Services
+      summary: Deploys all waiting deployments of a service
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+  '/service/{identifier}/logLines':
+    parameters:
+      - name: identifier
+        in: path
+        required: true
+        description: The name or unique id of the service
+        schema:
+          type: string
+    get:
+      tags:
+        - Services
+      summary: Get the cached log lines of a service
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Success'
+                  - properties:
+                      lines:
+                        type: array
+                        items:
+                          type: string
+                        example:
+                          - Line1
+                          - Line2
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+  '/service/{identifier}/liveLog':
+    parameters:
+      - name: identifier
+        in: path
+        required: true
+        description: The name or unique id of the service
+        schema:
+          type: string
+    get:
+      tags:
+        - Services
+      summary: Live console of a service
+      description: |
+        Upgrades the connection to a web socket connection and sends all new log lines
+        received to the connection
+      responses:
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+  /service/create:
+    post:
+      tags:
+        - Services
+      summary: Creates a new service
+      requestBody:
+        required: true
+        description: |
+          The request body can contain a service configuration, a service task or a name of a
+          service task to base the new service on. The start boolean in the body defines whether
+          the service should get started after the creation.
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - properties:
+                    start:
+                      type: boolean
+                      default: false
+                    serviceConfiguration:
+                      $ref: '#/components/schemas/ServiceConfiguration'
+                - properties:
+                    start:
+                      type: boolean
+                      default: false
+                    task:
+                      $ref: '#/components/schemas/ServiceTask'
+                - properties:
+                    start:
+                      type: boolean
+                      default: false
+                    serviceTaskName:
+                      type: string
+                      example: Lobby
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Success'
+                  - properties:
+                      snapshot:
+                        $ref: '#/components/schemas/ServiceInfoSnapshot'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+  '/service/{identifier}/add':
+    parameters:
+      - name: identifier
+        in: path
+        required: true
+        description: The name or unique id of the service
+        schema:
+          type: string
+      - name: type
+        in: query
+        required: true
+        description: The type of
+        schema:
+          type: string
+          enum:
+            - template
+            - deployment
+            - inclusion
+      - name: flush
+        in: query
+        required: false
+        description: |
+          If the inclusions/deployments of the service should be included/deployed after the add
+        schema:
+          type: boolean
+          default: false
+    post:
+      requestBody:
+        required: true
+        description: The inclusion/deployment to add
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - properties:
+                    template:
+                      $ref: '#/components/schemas/ServiceTemplate'
+                - properties:
+                    removeDeployments:
+                      type: boolean
+                      default: true
+                    deployment:
+                      $ref: '#/components/schemas/ServiceDeployment'
+                - properties:
+                    inclusion:
+                      $ref: '#/components/schemas/ServiceRemoteInclusion'
+      tags:
+        - Services
+      summary: Adds an inclusion/deployment to a service
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+  '/service/{identifier}/command':
+    parameters:
+      - name: identifier
+        in: path
+        required: true
+        description: The name or unique id of the service
+        schema:
+          type: string
+    post:
+      requestBody:
+        required: true
+        description: The command to execute on the service
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                command:
+                  type: string
+                  example: whitelist on
+      tags:
+        - Services
+      summary: Executes the specified command on a service
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+  /templatestorage:
+    get:
+      tags:
+        - Template Storage
+      summary: Shows every available template storage
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Success'
+                  - properties:
+                      storages:
+                        type: array
+                        items:
+                          type: string
+                        example:
+                          - local
+                          - ftp
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+  '/templatestorage/{storage}/templates':
+    get:
+      parameters:
+        - name: storage
+          in: path
+          required: true
+          description: The name of the template storage
+          schema:
+            type: string
+      tags:
+        - Template Storage
+      summary: List every template in the given storage
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Success'
+                  - properties:
+                      templates:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/ServiceTemplate'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+  '/template/{storage}/{prefix}/{name}/file/download':
+    get:
+      parameters:
+        - name: storage
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: prefix
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: path
+          in: query
+          schema:
+            type: string
+          required: true
+      tags:
+        - Templates
+      summary: Download a file from the specified template
+      responses:
+        '200':
+          description: OK
+          headers:
+            Content-Disposition:
+              description: |
+                A header indicating that the content is expected to be displayed
+                as an attachment, that is downloaded and saved locally.
+              style: simple
+              schema:
+                type: string
+          content:
+            application/octet-stream:
+              schema:
+                type: object
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          description: |
+            The path requested doesn't exist in the template or is a directory
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  '/template/{storage}/{prefix}/{name}/file/info':
+    get:
+      parameters:
+        - name: storage
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: prefix
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: path
+          in: query
+          schema:
+            type: string
+          required: true
+      tags:
+        - Templates
+      summary: Get information about a path in a template
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Success'
+                  - properties:
+                      info:
+                        $ref: '#/components/schemas/FileInfo'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          description: The path requested doesn't exist in the template
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  '/template/{storage}/{prefix}/{name}/file/exists':
+    get:
+      parameters:
+        - name: storage
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: prefix
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: path
+          in: query
+          schema:
+            type: string
+          required: true
+      tags:
+        - Templates
+      summary: Checks wheather a file/directory exists at the specified path
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Success'
+                  - properties:
+                      exists:
+                        type: boolean
+                        example: true
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+  '/template/{storage}/{prefix}/{name}/download':
+    get:
+      parameters:
+        - name: storage
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: prefix
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+      tags:
+        - Templates
+      summary: Download a template as a zip file
+      responses:
+        '200':
+          description: OK
+          headers:
+            Content-Disposition:
+              description: |
+                A header indicating that the content is expected to be displayed
+                as an attachment, that is downloaded and saved locally.
+              style: simple
+              schema:
+                type: string
+          content:
+            application/zip:
+              schema:
+                type: object
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  '/template/{storage}/{prefix}/{name}/directory/list':
+    get:
+      parameters:
+        - name: storage
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: prefix
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: directory
+          in: query
+          required: false
+          schema:
+            type: string
+            default: ''
+        - name: deep
+          in: query
+          required: false
+          schema:
+            type: boolean
+            default: false
+      tags:
+        - Templates
+      summary: Lists all files in a template's directory
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Success'
+                  - properties:
+                      files:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/FileInfo'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+  '/template/{storage}/{prefix}/{name}/create':
+    get:
+      parameters:
+        - name: storage
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: prefix
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+      tags:
+        - Templates
+      summary: Creates a template in a storage
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+  '/template/{storage}/{prefix}/{name}/install':
+    post:
+      requestBody:
+        required: true
+        description: Information about the type and version to install
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - properties:
+                    force:
+                      type: boolean
+                      default: false
+                    type:
+                      $ref: '#/components/schemas/ServiceVersionType'
+                    version:
+                      $ref: '#/components/schemas/ServiceVersion'
+                - properties:
+                    force:
+                      type: boolean
+                      default: false
+                    typeName:
+                      type: string
+                      example: paperspigot
+                    versionName:
+                      type: string
+                      example: latest
+      parameters:
+        - name: storage
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: prefix
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+      tags:
+        - Templates
+      summary: Installs a service version in a template
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+  '/template/{storage}/{prefix}/{name}/deploy':
+    post:
+      requestBody:
+        required: true
+        description: The content of the template in zip form
+        content:
+          application/zip:
+            schema:
+              type: object
+      parameters:
+        - name: storage
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: prefix
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+      tags:
+        - Templates
+      summary: Deploys the zip archive into a template
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+  '/template/{storage}/{prefix}/{name}/file/create':
+    post:
+      requestBody:
+        required: true
+        description: The content of the file
+        content:
+          '*':
+            schema:
+              type: object
+      parameters:
+        - name: storage
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: prefix
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: path
+          in: query
+          required: true
+          schema:
+            type: string
+      tags:
+        - Templates
+      summary: Creates/Overrides a file in a template
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          description: File not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  '/template/{storage}/{prefix}/{name}/file/append':
+    post:
+      requestBody:
+        required: true
+        description: The content of the file
+        content:
+          '*':
+            schema:
+              type: object
+      parameters:
+        - name: storage
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: prefix
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: path
+          in: query
+          required: true
+          schema:
+            type: string
+      tags:
+        - Templates
+      summary: Appends the content to a file in a template
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          description: File not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  '/template/{storage}/{prefix}/{name}/directory/create':
+    post:
+      parameters:
+        - name: storage
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: prefix
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: path
+          in: query
+          required: true
+          schema:
+            type: string
+      tags:
+        - Templates
+      summary: Creates a directory in a template
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+  '/template/{storage}/{prefix}/{name}/':
+    delete:
+      parameters:
+        - name: storage
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: prefix
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+      tags:
+        - Templates
+      summary: Deletes a template
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+  '/template/{storage}/{prefix}/{name}/file':
+    delete:
+      parameters:
+        - name: storage
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: prefix
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: path
+          in: query
+          required: true
+          schema:
+            type: string
+      tags:
+        - Templates
+      summary: Deletes a file from a template
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+  '/template/{storage}/{prefix}/{name}/directory':
+    delete:
+      parameters:
+        - name: storage
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: prefix
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: path
+          in: query
+          required: true
+          schema:
+            type: string
+      tags:
+        - Templates
+      summary: Deletes a directory from a template
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+  /serviceversion:
+    get:
+      tags:
+        - Service Versions
+      summary: Lists all available service version types
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Success'
+                  - properties:
+                      versions:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/ServiceVersionType'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+  '/serviceversion/{version}':
+    parameters:
+      - name: version
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      tags:
+        - Service Versions
+      summary: Get a specific service version type
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Success'
+                  - properties:
+                      version:
+                        $ref: '#/components/schemas/ServiceVersionType'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+  /serviceversion/load:
+    get:
+      parameters:
+        - name: url
+          in: query
+          required: false
+          description: |
+            The url to load the service types from. If no url is provided the service types
+            loaded are the fallback types compiled into the jar file.
+          schema:
+            type: string
+      tags:
+        - Service Versions
+      summary: Loads the service types into the service type provider
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+  /serviceversion/add:
+    post:
+      requestBody:
+        required: true
+        description: The service type to add to the service type provider
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ServiceVersionType'
+      tags:
+        - Service Versions
+      summary: Adds a service version type to the service type provider
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+  /module:
+    get:
+      tags:
+        - Modules
+      summary: Lists all loaded modules
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Success'
+                  - properties:
+                      modules:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/ModuleInfo'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+  /module/reload:
+    get:
+      tags:
+        - Modules
+      summary: Unloads and loads all loaded modules
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+  '/module/{name}':
+    get:
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+      tags:
+        - Modules
+      summary: Get the information about a specific module
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Success'
+                  - $ref: '#/components/schemas/ModuleInfo'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+  '/module/{name}/reload':
+    get:
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+      tags:
+        - Modules
+      summary: Unloads and loads a specific module
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+  '/module/{name}/unload':
+    get:
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+      tags:
+        - Modules
+      summary: Unloads a specific module
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+  '/module/{name}/config':
+    get:
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+      tags:
+        - Modules
+      summary: Get the configuration file of a module
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Success'
+                  - properties:
+                      config:
+                        type: object
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+    post:
+      requestBody:
+        required: true
+        description: The updated configuration file of the module
+        content:
+          application/json:
+            schema:
+              type: object
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+      tags:
+        - Modules
+      summary: Updates the configuration file of a module
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+  '/module/{name}/load':
+    post:
+      requestBody:
+        required: true
+        description: The jar file of the module to copy and load
+        content:
+          application/java-archive:
+            schema:
+              type: object
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+      tags:
+        - Modules
+      summary: Copies a module from the request body and loads it
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Success'
+                  - $ref: '#/components/schemas/ModuleInfo'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+servers:
+  - url: '{protocol}://{host}:{port}/api/v2/'
+    variables:
+      protocol:
+        enum:
+          - http
+          - https
+        default: https
+      host:
+        default: 127.0.0.1
+        description: The host of your CloudNet's web server instance
+      port:
+        default: '2812'
+        description: The port of your CloudNet's web server instance
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    basicAuth:
+      type: http
+      scheme: basic
+  responses:
+    Success:
+      description: The action was executed
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Success'
+    NotFound:
+      description: The specified resource was not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+        text/plain:
+          example: Resource not found!
+    Unauthorized:
+      description: |
+        Either the credentials for a successful login are missing or the user
+        has not the required permissions to execute that action
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    BadRequest:
+      description: |
+        The request sent to the server does not contain all nessacary information
+        or a specific information provided is invalid.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  schemas:
+    NetworkClusterNode:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/JsonDocPropertyable'
+        - properties:
+            uniqueId:
+              type: string
+              example: 'Node-1'
+            listeners:
+              type: array
+              items:
+                $ref: '#/components/schemas/HostAndPort'
+    JsonConfiguration:
+      type: object
+      properties:
+        identity:
+          $ref: '#/components/schemas/NetworkClusterNode'
+        clusterConfig:
+          type: object
+          properties:
+            clusterId:
+              type: string
+              example: 'a0e8765e-7853-455b-bb2b-7a022a607be2'
+            nodes:
+              type: array
+              items:
+                $ref: '#/components/schemas/NetworkClusterNode'
+        ipWhitelist:
+          type: array
+          items:
+            type: string
+          example:
+            - '192.168.56.1'
+            - '127.0.0.1'
+        maxCPUUsageToStartServices:
+          type: number
+          example: 90.0
+        parallelServiceStartSequence:
+          type: boolean
+          example: true
+        runBlockedServiceStartTryLaterAutomatic:
+          type: boolean
+          example: true
+        maxMemory:
+          type: number
+          example: 2048
+        maxServiceConsoleLogCacheSize:
+          type: integer
+          example: 128
+        printErrorStreamLinesFromServices:
+          type: boolean
+          example: true
+        defaultJVMFlags:
+          type: string
+          enum:
+            - NONE
+            - DYTANIC
+            - AIKAR
+          example: 'DYTANIC'
+        jvmCommand:
+          type: string
+          example: 'java'
+        hostAddress:
+          type: string
+          example: '127.0.0.1'
+        connectHostAddress:
+          type: string
+          example: '127.0.0.1'
+        httpListeners:
+          type: array
+          items:
+            $ref: '#/components/schemas/HostAndPort'
+        clientSslConfig:
+          $ref: '#/components/schemas/ConfigurationOptionSSL'
+        serverSslConfig:
+          $ref: '#/components/schemas/ConfigurationOptionSSL'
+        webSslConfig:
+          $ref: '#/components/schemas/ConfigurationOptionSSL'
+    ConfigurationOptionSSL:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+          example: false
+        clientAuth:
+          type: boolean
+          example: true
+        trustCertificatePath:
+          type: string
+          example: null
+        certificatePath:
+          type: string
+          example: 'local/certificate.pem'
+        privateKeyPath:
+          type: string
+          example: 'local/privateKey.key'
+    NetworkClusterNodeInfoSnapshot:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/JsonDocPropertyable'
+        - properties:
+            node:
+              $ref: '#/components/schemas/NetworkClusterNode'
+            available:
+              type: boolean
+              example: true
+            head:
+              type: boolean
+              example: false
+            nodeInfoSnapshot:
+              type: object
+              allOf:
+                - $ref: '#/components/schemas/JsonDocPropertyable'
+                - properties:
+                    creationTime:
+                      type: number
+                      example: '1620819600457'
+                    startupMillis:
+                      type: number
+                      example: '1620819600457'
+                    node:
+                      $ref: '#/components/schemas/NetworkClusterNode'
+                    version:
+                      type: string
+                      example: 3.4.0-SNAPSHOT-1e90354
+                    currentServicesCount:
+                      type: integer
+                      example: 5
+                    usedMemory:
+                      type: number
+                      example: 512
+                    reservedMemory:
+                      type: number
+                      example: 1024
+                    maxMemory:
+                      type: number
+                      example: 2048
+                    maxCPUUsageToStartServices:
+                      type: number
+                      example: 90
+                    processSnapshot:
+                      $ref: '#/components/schemas/ProcessSnapshot'
+                    modules:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/ModuleConfiguration'
+                    systemCpuUsage:
+                      type: number
+                      example: 59.49392987250135
+    LoginSuccess:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/Success'
+        - properties:
+            token:
+              type: string
+              example: eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJDbG91ZE5ldCBOb2RlLTEiLCJzdWIiOiJkZXJrbGFybyIsImp0aSI6IjAwY2ViMDIwLTI3ZDctNGRkYy05YTczLTMwYmIzMTA2ODE0OSIsImlhdCI6MTYyMDc0OTA0MCwidW5pcXVlSWQiOiI0YjljODMzYi05MWM2LTRkOTMtOWM1NC0zNjg0ODE2NzQ0MzgiLCJleHAiOjE2MjA3NTI2NDB9.-d0Ll4f2CPQueNxN89iWB73wZEt0UeWElv-caAzaKLE
+            id:
+              type: string
+              example: 62b37d32-3305-475a-bf26-9abee4b0b90f
+    JsonDocPropertyable:
+      type: object
+      properties:
+        properties:
+          type: object
+          example: { }
+    ServiceRemoteInclusion:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/JsonDocPropertyable'
+        - properties:
+            url:
+              type: string
+              example: 'https://my-plugins.de/cool.jar'
+            destination:
+              type: string
+              example: plugins/cool.jar
+    ServiceDeployment:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/JsonDocPropertyable'
+        - properties:
+            template:
+              $ref: '#/components/schemas/ServiceTemplate'
+            excludes:
+              type: array
+              items:
+                type: string
+              example:
+                - spigot.jar
+                - plugins/cool.jar
+    ServiceConfigurationBase:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/JsonDocPropertyable'
+        - properties:
+            includes:
+              type: array
+              items:
+                $ref: '#/components/schemas/ServiceRemoteInclusion'
+            templates:
+              type: array
+              items:
+                $ref: '#/components/schemas/ServiceTemplate'
+            deployments:
+              type: array
+              items:
+                $ref: '#/components/schemas/ServiceDeployment'
+    GroupConfiguration:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ServiceConfigurationBase'
+        - properties:
+            name:
+              type: string
+              example: Lobby
+            jvmOptions:
+              type: array
+              items:
+                type: string
+              example:
+                - Option1
+                - Option2
+            processParameters:
+              type: array
+              items:
+                type: string
+              example:
+                - Parameter1
+                - Parameter2
+            targetEnvironments:
+              type: array
+              items:
+                type: object
+              example:
+                - MINECRAFT_SERVER
+                - VELOCITY
+    PermissionGroup:
+      type: object
+      properties:
+        groups:
+          type: array
+          items:
+            type: string
+          example:
+            - Other group 1
+            - Other group 2
+        prefix:
+          type: string
+          example: '&7Spieler'
+        color:
+          type: string
+          example: '&6'
+        suffix:
+          type: string
+          example: '&a'
+        display:
+          type: string
+          example: '&7Spieler'
+        sortId:
+          type: integer
+          example: 50
+        defaultGroup:
+          type: boolean
+        createdTime:
+          type: number
+        name:
+          type: string
+          example: Spieler
+        potency:
+          type: integer
+          example: 10
+        permissions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Permission'
+    Permission:
+      type: object
+      properties:
+        name:
+          type: string
+          example: cloudnet.*
+        potency:
+          type: integer
+          example: 50
+        timeOutMillis:
+          type: number
+          example: -1
+    PermissionUser:
+      type: object
+      properties:
+        uniqueId:
+          type: string
+          example: '62b37d32-3305-475a-bf26-9abee4b0b90f'
+        groups:
+          type: array
+          items:
+            type: string
+            example:
+              - Group1
+              - Group2
+        hashedPassword:
+          type: string
+          example: 'pmWkWSBCL51Bfkhn79xPuKBKHz//H6B+mY6G9/eieuM='
+        createdTime:
+          type: integer
+          example: 1624713880928
+        name:
+          type: string
+          example: CloudNetUser
+        potency:
+          type: integer
+          example: 100
+        permissions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Permission'
+    OfflinePlayer:
+      type: object
+      properties:
+        uniqueId:
+          type: string
+          example: 'bcc582ed-494d-4b93-86cb-b58564651a26'
+        name:
+          type: string
+          example: derklaro
+        xBoxId:
+          type: string
+          example: null
+        firstLoginTimeMillis:
+          type: number
+          example: 1626194104
+        lastLoginTimeMillis:
+          type: number
+          example: 1626194104
+        lastNetworkConnectionInfo:
+          type: object
+          properties:
+            uniqueId:
+              type: string
+              example: 'bcc582ed-494d-4b93-86cb-b58564651a26'
+            name:
+              type: string
+              example: derklaro
+            version:
+              type: integer
+              example: 756
+            address:
+              $ref: '#/components/schemas/HostAndPort'
+            listener:
+              $ref: '#/components/schemas/HostAndPort'
+            onlineMode:
+              type: boolean
+              example: true
+            legacy:
+              type: boolean
+              example: false
+            networkService:
+              type: object
+              properties:
+                serviceId:
+                  $ref: '#/components/schemas/ServiceId'
+                groups:
+                  type: array
+                  items:
+                    type: string
+                  example:
+                    - Global
+                    - Global-Proxy
+    ServiceTemplate:
+      type: object
+      properties:
+        prefix:
+          type: string
+          example: Global
+        name:
+          type: string
+          example: server
+        storage:
+          type: string
+          example: local
+        alwaysCopyToStaticServices:
+          type: boolean
+          example: false
+    NodeInfo:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/Success'
+        - properties:
+            title:
+              type: string
+              example: Earthquake
+            version:
+              type: string
+              example: 3.4.0-SNAPSHOT-1e90354
+            nodeInfoSnapshot:
+              type: object
+            serviceCount:
+              type: integer
+              example: 0
+            clientConnections:
+              type: array
+              items:
+                type: string
+                default:
+                  - '127.0.0.1:1411'
+                  - '127.0.0.1:1412'
+    ProcessSnapshot:
+      type: object
+      properties:
+        heapUsageMemory:
+          type: number
+          example: 230091112
+        noHeapUsageMemory:
+          type: number
+          example: 46906136
+        maxHeapMemory:
+          type: number
+          example: 2111832064
+        currentLoadedClassCount:
+          type: number
+          example: 5919
+        totalLoadedClassCount:
+          type: number
+          example: 5940
+        unloadedClassCount:
+          type: number
+          example: 21
+        threads:
+          type: array
+          items:
+            $ref: '#/components/schemas/ThreadSnapshot'
+        cpuUsage:
+          type: number
+          example: 0.7781862806132257
+        pid:
+          type: integer
+          example: 8168
+    ThreadSnapshot:
+      type: object
+      properties:
+        id:
+          type: number
+          example: 5
+        name:
+          type: string
+          example: WindowsStreamPump
+        threadState:
+          type: string
+          enum:
+            - NEW
+            - RUNNABLE
+            - BLOCKED
+            - WAITING
+            - TIMED_WAITING
+            - TERMINATED
+          example: RUNNABLE
+        daemon:
+          type: boolean
+          example: true
+        priority:
+          type: integer
+          example: 1
+    ModuleConfiguration:
+      type: object
+      properties:
+        runtimeModule:
+          type: boolean
+          example: false
+        storesSensitiveData:
+          type: boolean
+          example: true
+        group:
+          type: string
+          example: de.dytanic.cloudnet.modules
+        name:
+          type: string
+          example: CloudNet-CloudFlare
+        version:
+          type: string
+          example: '1.1'
+        main:
+          type: string
+          example: de.dytanic.cloudnet.ext.cloudflare.CloudNetCloudflareModule
+        description:
+          type: string
+          example: 'Node extension for the https://cloudflare.com REST-API'
+        author:
+          type: string
+          example: CloudNetService
+        website:
+          type: string
+          example: 'https://cloudnetservice.eu'
+        repos:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+                example: CloudNet
+              url:
+                type: string
+                example: 'https://repo.cloudnetservice.eu/'
+        dependencies:
+          type: array
+          items:
+            type: object
+            properties:
+              repo:
+                type: string
+                example: CloudNet
+              url:
+                type: string
+                example: 'https://repo.cloudnetservice.eu/'
+              group:
+                type: string
+                example: de.dytanic.cloudnet.modules
+              name:
+                type: string
+                example: CloudNet-Bridge
+              version:
+                type: string
+                example: '1.1'
+        properties:
+          type: object
+          example: { }
+    ProcessConfiguration:
+      type: object
+      properties:
+        environment:
+          type: string
+          example: MINECRAFT_SERVER
+        maxHeapMemorySize:
+          type: integer
+          example: 512
+        jvmOptions:
+          type: array
+          items:
+            type: string
+          example:
+            - Option1
+            - Option2
+        processParameters:
+          type: array
+          items:
+            type: string
+          example:
+            - Parameter1
+            - Parameter2
+    ServiceTask:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ServiceConfigurationBase'
+        - properties:
+            name:
+              type: string
+              example: Lobby
+            runtime:
+              type: string
+              example: jvm
+            javaCommand:
+              type: string
+              example: java
+            disableIpRewrite:
+              type: boolean
+              example: true
+            maintenance:
+              type: boolean
+              example: false
+            autoDeleteOnStop:
+              type: boolean
+              example: false
+            staticServices:
+              type: boolean
+              example: true
+            associatedNodes:
+              type: array
+              items:
+                type: string
+              example:
+                - Node-1
+                - Node-2
+            groups:
+              type: array
+              items:
+                type: string
+              example:
+                - Lobby
+                - Global-Lobby
+            deletedFilesAfterStop:
+              type: array
+              items:
+                type: string
+              example:
+                - server.properties
+                - plugins/cool/config.json
+            processConfiguration:
+              $ref: '#/components/schemas/ProcessConfiguration'
+            startPort:
+              type: integer
+              example: 25565
+            minServiceCount:
+              type: integer
+              example: 2
+    ServiceId:
+      type: object
+      properties:
+        uniqueId:
+          type: string
+          example: 43a9e824-cc3c-459b-b574-4f41e6509bda
+        taskName:
+          type: string
+          example: Lobby
+        taskServiceId:
+          type: integer
+          example: 2
+        nodeUniqueId:
+          type: string
+          example: Node-2
+        allowedNodes:
+          type: array
+          items:
+            type: string
+          example:
+            - Node-1
+            - Node-2
+        environment:
+          type: string
+          example: MINECRAFT_SERVER
+    ServiceConfiguration:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/JsonDocPropertyable'
+        - properties:
+            serviceId:
+              $ref: '#/components/schemas/ServiceId'
+            runtime:
+              type: string
+              example: jvm
+            javaCommand:
+              type: string
+              example: java
+            groups:
+              type: array
+              items:
+                type: string
+              example:
+                - Lobby
+                - Lobby-Global
+            includes:
+              type: array
+              items:
+                $ref: '#/components/schemas/ServiceRemoteInclusion'
+            templates:
+              type: array
+              items:
+                $ref: '#/components/schemas/ServiceTemplate'
+            deployments:
+              type: array
+              items:
+                $ref: '#/components/schemas/ServiceDeployment'
+            deletedFilesAfterStop:
+              type: array
+              items:
+                type: string
+              example:
+                - server.properties
+                - plugins/cool/config.json
+            processConfig:
+              $ref: '#/components/schemas/ProcessConfiguration'
+            port:
+              type: integer
+              example: 25565
+            initIncludes:
+              type: array
+              items:
+                $ref: '#/components/schemas/ServiceRemoteInclusion'
+            initTemplates:
+              type: array
+              items:
+                $ref: '#/components/schemas/ServiceTemplate'
+            initDeployments:
+              type: array
+              items:
+                $ref: '#/components/schemas/ServiceDeployment'
+    ServiceInfoSnapshot:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/JsonDocPropertyable'
+        - properties:
+            creationTime:
+              type: number
+              example: 1620824797570
+            address:
+              $ref: '#/components/schemas/HostAndPort'
+            connectAddress:
+              $ref: '#/components/schemas/HostAndPort'
+            connectedTime:
+              type: number
+              example: 1620824797599
+            lifeCycle:
+              type: string
+              enum:
+                - DEFINED
+                - PREPARED
+                - RUNNING
+                - STOPPED
+                - DELETED
+              example: PREPARED
+            processSnapshot:
+              $ref: '#/components/schemas/ProcessSnapshot'
+            configuration:
+              $ref: '#/components/schemas/ServiceConfiguration'
+    HostAndPort:
+      type: object
+      properties:
+        host:
+          type: string
+          example: 127.0.0.1
+        port:
+          type: integer
+          example: 1410
+    FileInfo:
+      type: object
+      properties:
+        path:
+          type: string
+          example: plugins/cool.jar
+        name:
+          type: string
+          example: cool.jar
+        directory:
+          type: boolean
+          example: false
+        hidden:
+          type: boolean
+          example: false
+        creationTime:
+          type: number
+          example: 1619200785568
+        lastModified:
+          type: number
+          example: 1619200785568
+        lastAccess:
+          type: number
+          example: 1620804114355
+        size:
+          type: number
+          example: 13785007
+    ServiceVersion:
+      type: object
+      properties:
+        additionalDownloads:
+          type: object
+          additionalProperties:
+            type: string
+          example:
+            modules/gson-2.8.6.jar: 'https://repo1.maven.org/maven2/com/google/code/gson/gson/2.8.6/gson-2.8.6.jar'
+        name:
+          type: string
+          example: latest
+        url:
+          type: string
+          example: 'https://papermc.io/api/v2/projects/paper/versions/1.14.4/builds/243/downloads/paper-1.14.4-243.jar'
+        minJavaVersion:
+          type: integer
+          example: 8
+        maxJavaVersion:
+          type: integer
+          example: 11
+        deprecated:
+          type: boolean
+          example: false
+        cacheFiles:
+          type: boolean
+          example: false
+        properties:
+          type: object
+          example: { }
+    ServiceVersionType:
+      type: object
+      properties:
+        name:
+          type: string
+          example: paperspigot
+        targetEnvironment:
+          type: string
+          example: MINECRAFT_SERVER_PAPER_SPIGOT
+        installSteps:
+          type: array
+          items:
+            type: string
+          example:
+            - PAPER_API
+            - DOWNLOAD
+            - BUILD
+            - COPY_FILTER
+        versions:
+          type: array
+          items:
+            $ref: '#/components/schemas/ServiceVersion'
+    ModuleInfo:
+      type: object
+      properties:
+        lifecycle:
+          type: string
+          enum:
+            - LOADED
+            - STARTED
+            - STOPPED
+            - UNLOADED
+            - UNUSEABLE
+        configuration:
+          $ref: '#/components/schemas/ModuleConfiguration'
+    Success:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+    Error:
+      type: object
+      properties:
+        success:
+          type: boolean
+          default: false
+          description: This boolean will always be false when an error occured
+        reason:
+          type: string
+          example: Error message
+          description: The error that occured during the processing of the request

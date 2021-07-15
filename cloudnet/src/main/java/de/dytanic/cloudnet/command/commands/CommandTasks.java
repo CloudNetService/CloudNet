@@ -179,7 +179,6 @@ public class CommandTasks extends CommandServiceConfigurationBase {
               .maxHeapMemory(type.isMinecraftProxy() ? 256 : 512)
               .startPort(type.getDefaultStartPort())
               .build();
-
             CloudNet.getInstance().getServiceTaskProvider().addPermanentServiceTask(serviceTask);
 
             TemplateStorageUtil.createAndPrepareTemplate(ServiceTemplate.local(name, "default"), type);
@@ -673,7 +672,6 @@ public class CommandTasks extends CommandServiceConfigurationBase {
         .startPort(startPort)
         .minServiceCount(minServiceCount)
         .build();
-
       CloudNet.getInstance().getServiceTaskProvider().addPermanentServiceTask(serviceTask);
 
       sender.sendMessage(LanguageManager.getMessage("command-tasks-setup-create-success").replace("%name%", name));

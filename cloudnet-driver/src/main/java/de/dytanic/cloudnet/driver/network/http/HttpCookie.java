@@ -18,6 +18,7 @@ package de.dytanic.cloudnet.driver.network.http;
 
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.jetbrains.annotations.ApiStatus;
 
 @ToString
 @EqualsAndHashCode
@@ -28,7 +29,17 @@ public class HttpCookie {
   protected String domain;
   protected String path;
 
+  protected boolean httpOnly;
+  protected boolean secure;
+  protected boolean wrap;
+
   protected long maxAge;
+
+  public HttpCookie(String name, String value) {
+    this.name = name;
+    this.value = value;
+    this.maxAge = Long.MIN_VALUE;
+  }
 
   public HttpCookie(String name, String value, String domain, String path, long maxAge) {
     this.name = name;
@@ -38,6 +49,20 @@ public class HttpCookie {
     this.maxAge = maxAge;
   }
 
+  public HttpCookie(String name, String value, String domain, String path, boolean httpOnly, boolean secure,
+    boolean wrap, long maxAge) {
+    this.name = name;
+    this.value = value;
+    this.domain = domain;
+    this.path = path;
+    this.httpOnly = httpOnly;
+    this.secure = secure;
+    this.wrap = wrap;
+    this.maxAge = maxAge;
+  }
+
+  @Deprecated
+  @ApiStatus.ScheduledForRemoval
   public HttpCookie() {
   }
 
@@ -81,4 +106,27 @@ public class HttpCookie {
     this.maxAge = maxAge;
   }
 
+  public boolean isHttpOnly() {
+    return this.httpOnly;
+  }
+
+  public void setHttpOnly(boolean httpOnly) {
+    this.httpOnly = httpOnly;
+  }
+
+  public boolean isSecure() {
+    return this.secure;
+  }
+
+  public void setSecure(boolean secure) {
+    this.secure = secure;
+  }
+
+  public boolean isWrap() {
+    return this.wrap;
+  }
+
+  public void setWrap(boolean wrap) {
+    this.wrap = wrap;
+  }
 }

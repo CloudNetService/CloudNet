@@ -26,6 +26,7 @@ import io.netty.handler.codec.http.websocketx.PingWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.PongWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
+import java.io.IOException;
 import org.jetbrains.annotations.ApiStatus;
 
 @ApiStatus.Internal
@@ -35,6 +36,25 @@ final class NettyWebSocketServerChannelHandler extends SimpleChannelInboundHandl
 
   public NettyWebSocketServerChannelHandler(NettyWebSocketServerChannel webSocketServerChannel) {
     this.webSocketServerChannel = webSocketServerChannel;
+  }
+
+  @Override
+  public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
+    if (!(cause instanceof IOException)) {
+      cause.printStackTrace();
+    }
+  }
+
+  @Override
+  public void channelReadComplete(ChannelHandlerContext ctx) {
+    ctx.flush();
+  }
+
+  @Override
+  public void channelInactive(ChannelHandlerContext ctx) {
+    if (!ctx.channel().isActive() || !ctx.channel().isOpen() || !ctx.channel().isWritable()) {
+      ctx.channel().close();
+    }
   }
 
   @Override
@@ -73,15 +93,9 @@ final class NettyWebSocketServerChannelHandler extends SimpleChannelInboundHandl
   }
 
   private byte[] readContentFromWebSocketFrame(WebSocketFrame frame) {
-    int length = frame.content().readableBytes();
-
-    if (frame.content().hasArray()) {
-      return frame.content().array();
-    } else {
-      byte[] bytes = new byte[length];
-      frame.content().getBytes(frame.content().readerIndex(), bytes);
-      return bytes;
-    }
+    byte[] bytes = new byte[frame.content().readableBytes()];
+    frame.content().getBytes(frame.content().readerIndex(), bytes);
+    return bytes;
   }
 
   public NettyWebSocketServerChannel getWebSocketServerChannel() {

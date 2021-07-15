@@ -915,7 +915,7 @@ public final class CloudNet extends CloudNetDriver {
     this.unloadModules();
   }
 
-  private void unloadModules() {
+  public void unloadModules() {
     for (IModuleWrapper moduleWrapper : this.moduleProvider.getModules()) {
       if (!moduleWrapper.getModuleConfiguration().isRuntimeModule()) {
         this.unloadModule(moduleWrapper);
@@ -929,7 +929,7 @@ public final class CloudNet extends CloudNetDriver {
     }
   }
 
-  private void unloadModule(IModuleWrapper moduleWrapper) {
+  public void unloadModule(IModuleWrapper moduleWrapper) {
     this.unregisterPacketListenersByClassLoader(moduleWrapper.getClassLoader());
     this.eventManager.unregisterListeners(moduleWrapper.getClassLoader());
     this.commandMap.unregisterCommands(moduleWrapper.getClassLoader());
@@ -978,7 +978,7 @@ public final class CloudNet extends CloudNetDriver {
     return task;
   }
 
-  private void enableModules() {
+  public void enableModules() {
     this.loadModules();
     this.startModules();
   }

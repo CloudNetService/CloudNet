@@ -53,7 +53,7 @@ import java.nio.charset.StandardCharsets;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 
-public final class NettyWebSocketServerExample {
+public final class NettyWebSocketServerTest {
 
   private static final String PING_STRING = "ping value";
   private static final String PONG_STRING = "pong value";

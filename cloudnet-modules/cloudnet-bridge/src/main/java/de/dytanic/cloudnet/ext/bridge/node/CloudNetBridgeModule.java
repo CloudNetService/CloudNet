@@ -20,6 +20,7 @@ import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.driver.module.ModuleLifeCycle;
 import de.dytanic.cloudnet.driver.module.ModuleTask;
+import de.dytanic.cloudnet.driver.network.http.IHttpHandler;
 import de.dytanic.cloudnet.ext.bridge.BridgeConfiguration;
 import de.dytanic.cloudnet.ext.bridge.ProxyFallback;
 import de.dytanic.cloudnet.ext.bridge.ProxyFallbackConfiguration;
@@ -27,6 +28,7 @@ import de.dytanic.cloudnet.ext.bridge.listener.TaskConfigListener;
 import de.dytanic.cloudnet.ext.bridge.node.command.CommandBridge;
 import de.dytanic.cloudnet.ext.bridge.node.command.CommandPlayers;
 import de.dytanic.cloudnet.ext.bridge.node.http.V1BridgeConfigurationHttpHandler;
+import de.dytanic.cloudnet.ext.bridge.node.http.v2.V2HttpHandlerBridge;
 import de.dytanic.cloudnet.ext.bridge.node.listener.BridgeDefaultConfigurationListener;
 import de.dytanic.cloudnet.ext.bridge.node.listener.BridgeLocalProxyPlayerDisconnectListener;
 import de.dytanic.cloudnet.ext.bridge.node.listener.BridgeServiceListCommandListener;
@@ -97,6 +99,13 @@ public final class CloudNetBridgeModule extends NodeCloudNetModule {
   public void registerHandlers() {
     this.getHttpServer().registerHandler("/api/v1/modules/bridge/config",
       new V1BridgeConfigurationHttpHandler("cloudnet.http.v1.modules.bridge.config"));
+
+    this.getHttpServer().registerHandler("/api/v2/player", IHttpHandler.PRIORITY_NORMAL,
+      new V2HttpHandlerBridge("http.v2.player"));
+    this.getHttpServer().registerHandler("/api/v2/player/{player}", IHttpHandler.PRIORITY_NORMAL,
+      new V2HttpHandlerBridge("http.v2.player"));
+    this.getHttpServer().registerHandler("/api/v2/player/{player}/*", IHttpHandler.PRIORITY_LOW,
+      new V2HttpHandlerBridge("http.v2.player"));
   }
 
   @ModuleTask(order = 17, event = ModuleLifeCycle.STARTED)

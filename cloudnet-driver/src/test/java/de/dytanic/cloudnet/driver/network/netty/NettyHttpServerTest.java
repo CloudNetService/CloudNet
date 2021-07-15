@@ -24,6 +24,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.util.Locale;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -99,7 +100,7 @@ public class NettyHttpServerTest {
           .response()
           .header("Content-Type", "text/plain")
           .header("Request-Text-Example", path.split("/")[2])
-          .body(context.request().body())
+          .body(context.request().bodyStream())
           .statusCode(200)
           .context()
           .cancelNext()
@@ -123,7 +124,8 @@ public class NettyHttpServerTest {
     }
 
     Assert.assertEquals(200, httpURLConnection.getResponseCode());
-    Assert.assertEquals(TEST_STRING_2, httpURLConnection.getHeaderField("Request-Text-Example"));
+    Assert
+      .assertEquals(TEST_STRING_2.toLowerCase(Locale.ROOT), httpURLConnection.getHeaderField("Request-Text-Example"));
 
     try (InputStream inputStream = httpURLConnection
       .getInputStream(); BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(

@@ -20,27 +20,28 @@ import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.driver.network.http.HttpVersion;
 import de.dytanic.cloudnet.driver.network.http.IHttpContext;
 import de.dytanic.cloudnet.driver.network.http.IHttpRequest;
+import io.netty.buffer.ByteBufInputStream;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.QueryStringDecoder;
+import java.io.InputStream;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.Nullable;
 
 @ApiStatus.Internal
 final class NettyHttpServerRequest extends NettyHttpMessage implements IHttpRequest {
 
   protected final NettyHttpServerContext context;
 
+  protected final URI uri;
   protected final HttpRequest httpRequest;
 
-  protected final URI uri;
-
   protected final Map<String, String> pathParameters;
-
   protected final Map<String, List<String>> queryParameters;
 
   protected byte[] body;
@@ -183,7 +184,7 @@ final class NettyHttpServerRequest extends NettyHttpMessage implements IHttpRequ
 
   @Override
   public IHttpRequest body(byte[] byteArray) {
-    throw new UnsupportedOperationException("No setting http body in request message by client");
+    throw new UnsupportedOperationException("Unable to set body in request");
   }
 
   @Override
@@ -193,4 +194,23 @@ final class NettyHttpServerRequest extends NettyHttpMessage implements IHttpRequ
     return this.body(text.getBytes(StandardCharsets.UTF_8));
   }
 
+  @Override
+  public @Nullable InputStream bodyStream() {
+    if (this.httpRequest instanceof FullHttpRequest) {
+      return new ByteBufInputStream(((FullHttpRequest) this.httpRequest).content());
+    } else {
+      return null;
+    }
+  }
+
+  @Override
+  public IHttpRequest body(@Nullable InputStream body) {
+    throw new UnsupportedOperationException("Unable to set body in request");
+  }
+
+  @Override
+  public boolean hasBody() {
+    return this.httpRequest instanceof FullHttpRequest
+      && ((FullHttpRequest) this.httpRequest).content().readableBytes() > 0;
+  }
 }
