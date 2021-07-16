@@ -585,12 +585,9 @@ public final class NodePlayerManager extends DefaultPlayerManager implements IPl
       }
     } else {
       cloudPlayer = this.getFirstOnlinePlayer(name);
-      if (cloudPlayer == null || (predicate != null && !predicate.test(cloudPlayer))) {
-        return;
-      }
     }
 
-    if (cloudPlayer != null) {
+    if (cloudPlayer != null && (predicate == null || predicate.test(cloudPlayer))) {
       this.logoutPlayer(cloudPlayer);
     }
   }
