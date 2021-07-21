@@ -59,7 +59,7 @@ tags:
     description: Management of cloudnet players
     externalDocs:
       url: 'https://cloudnetservice.eu/docs/3.3/commands/players'
-      description: More information
+      description: More information    
   - name: Tasks
     description: Management of the cloudnet task system
     externalDocs:
@@ -333,7 +333,7 @@ paths:
         - Node
       summary: Updates the configuration file of the node the request is sent to
       description: |
-        To add/remove a node from the configuration please use the cluster
+        To add/remove a node from the configuration please use the cluster 
         routes to add/remove a node
       responses:
         '200':
@@ -487,9 +487,11 @@ paths:
                   - properties:
                       keys:
                         type: array
-                        example:
-                          - Key1
-                          - Key2
+                        items:
+                          type: string
+                          example:
+                            - Key1
+                            - Key2
         '400':
           $ref: '#/components/responses/BadRequest'
         '403':
@@ -602,9 +604,11 @@ paths:
                   - properties:
                       result:
                         type: array
-                        example:
-                          - Name: Peter
-                          - Lastname: Parker
+                        items:
+                          type: string
+                          example:
+                            - Name: Peter
+                            - Lastname: Parker
         '400':
           $ref: '#/components/responses/BadRequest'
         '403':
@@ -903,7 +907,7 @@ paths:
         '400':
           $ref: '#/components/responses/BadRequest'
         '403':
-          $ref: '#/components/responses/Unauthorized'
+          $ref: '#/components/responses/Unauthorized'     
   '/player':
     post:
       requestBody:
@@ -2697,14 +2701,14 @@ components:
           type: string
           example: '&7Spieler'
         sortId:
-          type: integer
+          type: integer 
           example: 50
         defaultGroup:
-          type: boolean
+          type: boolean 
         createdTime:
-          type: number
+          type: number 
         name:
-          type: string
+          type: string 
           example: Spieler
         potency:
           type: integer
@@ -2741,7 +2745,7 @@ components:
         hashedPassword:
           type: string
           example: 'pmWkWSBCL51Bfkhn79xPuKBKHz//H6B+mY6G9/eieuM='
-        createdTime:
+        createdTime: 
           type: integer
           example: 1624713880928
         name:
@@ -2828,10 +2832,10 @@ components:
         - properties:
             title:
               type: string
-              example: Earthquake
+              example: 'Earthquake'
             version:
               type: string
-              example: 3.4.0-SNAPSHOT-1e90354
+              example: '3.4.0-SNAPSHOT-1e90354'
             nodeInfoSnapshot:
               type: object
             serviceCount:
@@ -2841,7 +2845,7 @@ components:
               type: array
               items:
                 type: string
-                default:
+                example:
                   - '127.0.0.1:1411'
                   - '127.0.0.1:1412'
     ProcessSnapshot:
