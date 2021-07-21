@@ -67,10 +67,10 @@ public final class CloudNetRestModule extends NodeCloudNetModule {
   public void initHttpHandlers() {
     this.getHttpServer()
       // v2 openapi specification
-      .registerHandler("/documentation", IHttpHandler.PRIORITY_NORMAL, new StaticContentHttpHandler(
+      .registerHandler("/api/v2/documentation", IHttpHandler.PRIORITY_NORMAL, new StaticContentHttpHandler(
         ContentStreamProvider.classLoader(this.getClassLoader(), "documentation")
       ))
-      .registerHandler("/documentation/*", IHttpHandler.PRIORITY_LOW, new StaticContentHttpHandler(
+      .registerHandler("/api/v2/documentation/*", IHttpHandler.PRIORITY_LOW, new StaticContentHttpHandler(
         ContentStreamProvider.classLoader(this.getClassLoader(), "documentation")
       ))
       // v2 rest auth

@@ -128,9 +128,7 @@ public abstract class V2HttpHandler implements IHttpHandler {
   }
 
   protected void send403(IHttpContext context, String reason) {
-    context.response()
-      .statusCode(HttpResponseCode.HTTP_FORBIDDEN)
-      .header("Content-Type", "application/json")
+    this.response(context, HttpResponseCode.HTTP_FORBIDDEN)
       .body(this.failure().append("reason", reason).toByteArray())
       .context()
       .closeAfter(true)
