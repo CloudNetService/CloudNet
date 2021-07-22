@@ -1135,7 +1135,7 @@ paths:
       responses:
         '200':
           description: |
-            Successfully authnticated the user at the rest endpoint. The resulting
+            Successfully authenticated the user at the rest endpoint. The resulting
             json object will contain the bearer token for further requests to the
             endpoint.
           content:
