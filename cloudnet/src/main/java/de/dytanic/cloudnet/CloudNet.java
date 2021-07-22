@@ -281,11 +281,11 @@ public final class CloudNet extends CloudNetDriver {
       this.config.getClientSslConfig().isEnabled() ? this.config.getClientSslConfig().toSslConfiguration() : null
     );
     this.networkServer = new NettyNetworkServer(
-      this.config.getClientSslConfig().isEnabled() ? this.config.getServerSslConfig().toSslConfiguration() : null,
+      this.config.getServerSslConfig().isEnabled() ? this.config.getServerSslConfig().toSslConfiguration() : null,
       NetworkServerChannelHandlerImpl::new
     );
     this.httpServer = new NettyHttpServer(
-      this.config.getClientSslConfig().isEnabled() ? this.config.getWebSslConfig().toSslConfiguration() : null);
+      this.config.getWebSslConfig().isEnabled() ? this.config.getWebSslConfig().toSslConfiguration() : null);
 
     this.initPacketRegistryListeners();
     this.clusterNodeServerProvider.setClusterServers(this.config.getClusterConfig());
