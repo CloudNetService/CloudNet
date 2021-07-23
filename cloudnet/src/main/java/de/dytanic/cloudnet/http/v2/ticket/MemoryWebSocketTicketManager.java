@@ -20,6 +20,7 @@ import de.dytanic.cloudnet.common.StringUtil;
 import de.dytanic.cloudnet.common.encrypt.EncryptTo;
 import de.dytanic.cloudnet.driver.network.http.IHttpRequest;
 import de.dytanic.cloudnet.http.v2.HttpSession;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
@@ -33,7 +34,7 @@ public class MemoryWebSocketTicketManager implements WebSocketTicketManager {
   public static final long DEFAULT_TICKET_TIMEOUT = 10_000;
   public static final WebSocketTicketManager INSTANCE = new MemoryWebSocketTicketManager();
 
-  private final Map<byte[], WebSocketTicket> tickets = new ConcurrentHashMap<>();
+  private final Map<String, WebSocketTicket> tickets = new ConcurrentHashMap<>();
 
   @Override
   public @NotNull Collection<WebSocketTicket> getTickets() {
@@ -44,19 +45,19 @@ public class MemoryWebSocketTicketManager implements WebSocketTicketManager {
   @Override
   public @Nullable WebSocketTicket expireTicket(@NotNull String ticketId) {
     this.removeOutdatedEntries();
-    return this.tickets.remove(EncryptTo.encryptToSHA256(ticketId));
+    return this.tickets.remove(this.convertTicketId(ticketId));
   }
 
   @Override
   public @Nullable WebSocketTicket findTicket(@NotNull String ticketId) {
     this.removeOutdatedEntries();
-    return this.tickets.get(EncryptTo.encryptToSHA256(ticketId));
+    return this.tickets.get(this.convertTicketId(ticketId));
   }
 
   @Override
   public @Nullable WebSocketTicket findAndRemoveTicket(@NotNull String ticketId) {
     this.removeOutdatedEntries();
-    return this.tickets.remove(EncryptTo.encryptToSHA256(ticketId));
+    return this.tickets.remove(this.convertTicketId(ticketId));
   }
 
   @Override
@@ -76,12 +77,16 @@ public class MemoryWebSocketTicketManager implements WebSocketTicketManager {
       System.currentTimeMillis() + timeout,
       session
     );
-    this.tickets.put(EncryptTo.encryptToSHA256(ticket.getFullId()), ticket);
+    this.tickets.put(this.convertTicketId(ticket.getFullId()), ticket);
     return ticket;
   }
 
+  private @NotNull String convertTicketId(@NotNull String tickedId) {
+    return new String(EncryptTo.encryptToSHA256(tickedId), StandardCharsets.UTF_8);
+  }
+
   private void removeOutdatedEntries() {
-    for (Entry<byte[], WebSocketTicket> entry : this.tickets.entrySet()) {
+    for (Entry<String, WebSocketTicket> entry : this.tickets.entrySet()) {
       if (entry.getValue().isExpired()) {
         this.tickets.remove(entry.getKey());
       }
