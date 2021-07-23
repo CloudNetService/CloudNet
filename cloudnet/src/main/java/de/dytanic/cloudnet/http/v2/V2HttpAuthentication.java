@@ -21,6 +21,7 @@ import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.network.http.IHttpRequest;
 import de.dytanic.cloudnet.driver.permission.IPermissionUser;
+import de.dytanic.cloudnet.http.v2.ticket.WebSocketTicketManager;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jws;
@@ -61,7 +62,16 @@ public class V2HttpAuthentication {
   protected static final LoginResult<IPermissionUser> ERROR_HANDLING_BASIC_LOGIN = LoginResult.failure(
     "No matching user for provided basic login credentials");
 
+  protected final WebSocketTicketManager webSocketTicketManager;
   protected final Map<String, HttpSession> sessions = new ConcurrentHashMap<>();
+
+  public V2HttpAuthentication() {
+    this(WebSocketTicketManager.memoryCached());
+  }
+
+  public V2HttpAuthentication(WebSocketTicketManager webSocketTicketManager) {
+    this.webSocketTicketManager = webSocketTicketManager;
+  }
 
   public @NotNull String createJwt(@NotNull IPermissionUser subject, long sessionTimeMillis) {
     HttpSession session = this.getSessions().computeIfAbsent(subject.getUniqueId().toString(),
@@ -190,6 +200,10 @@ public class V2HttpAuthentication {
   public @NotNull Map<String, HttpSession> getSessions() {
     this.cleanup();
     return this.sessions;
+  }
+
+  public @NotNull WebSocketTicketManager getWebSocketTicketManager() {
+    return this.webSocketTicketManager;
   }
 
   public static class LoginResult<T> {

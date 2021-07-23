@@ -49,6 +49,7 @@ import de.dytanic.cloudnet.ext.rest.v2.V2HttpHandlerSession;
 import de.dytanic.cloudnet.ext.rest.v2.V2HttpHandlerTasks;
 import de.dytanic.cloudnet.ext.rest.v2.V2HttpHandlerTemplate;
 import de.dytanic.cloudnet.ext.rest.v2.V2HttpHandlerTemplateStorages;
+import de.dytanic.cloudnet.ext.rest.v2.V2HttpHandlerWebSocketTicket;
 import de.dytanic.cloudnet.http.v2.AccessControlConfiguration;
 import de.dytanic.cloudnet.module.NodeCloudNetModule;
 
@@ -75,6 +76,8 @@ public final class CloudNetRestModule extends NodeCloudNetModule {
       ))
       // v2 rest auth
       .registerHandler("/api/v2/auth", IHttpHandler.PRIORITY_NORMAL, new V2HttpHandlerAuthorization())
+      .registerHandler("/api/v2/wsTicket", IHttpHandler.PRIORITY_NORMAL,
+        new V2HttpHandlerWebSocketTicket("http.v2.ws_ticket"))
       // v2 session management
       .registerHandler("/api/v2/session/*", IHttpHandler.PRIORITY_NORMAL, new V2HttpHandlerSession())
       // v2 node handling

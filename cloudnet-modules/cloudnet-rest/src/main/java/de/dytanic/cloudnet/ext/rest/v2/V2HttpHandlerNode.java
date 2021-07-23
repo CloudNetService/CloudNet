@@ -33,7 +33,7 @@ import de.dytanic.cloudnet.driver.network.http.websocket.WebSocketFrameType;
 import de.dytanic.cloudnet.driver.permission.IPermissionUser;
 import de.dytanic.cloudnet.ext.rest.RestUtils;
 import de.dytanic.cloudnet.http.v2.HttpSession;
-import de.dytanic.cloudnet.http.v2.V2HttpHandler;
+import de.dytanic.cloudnet.http.v2.WebSocketAbleV2HttpHandler;
 import de.dytanic.cloudnet.permission.command.DefaultPermissionUserCommandSender;
 import de.dytanic.cloudnet.permission.command.IPermissionUserCommandSender;
 import java.nio.charset.StandardCharsets;
@@ -42,16 +42,19 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
 
-public class V2HttpHandlerNode extends V2HttpHandler {
+public class V2HttpHandlerNode extends WebSocketAbleV2HttpHandler {
 
   protected static final IFormatter LOG_FORMATTER = new DefaultLogFormatter();
 
   public V2HttpHandlerNode(String requiredPermission) {
-    super(requiredPermission, "GET", "PUT");
+    super(
+      requiredPermission,
+      (context, path) -> context.request().method().equalsIgnoreCase("GET") && path.endsWith("/liveconsole"),
+      "GET", "PUT");
   }
 
   @Override
-  protected void handleUnauthorized(String path, IHttpContext context) {
+  protected void handleUnauthorizedRequest(String path, IHttpContext context) throws Exception {
     this.response(context, HttpResponseCode.HTTP_NO_CONTENT).context().closeAfter(true).cancelNext();
   }
 
@@ -77,6 +80,12 @@ public class V2HttpHandlerNode extends V2HttpHandler {
         this.handleNodeConfigUpdateRequest(context);
       }
     }
+  }
+
+  @Override
+  protected void handleTicketAuthorizedRequest(String path, IHttpContext context, HttpSession session)
+    throws Exception {
+    this.handleLiveConsoleRequest(context, session);
   }
 
   protected void sendNodeInformation(IHttpContext context) {

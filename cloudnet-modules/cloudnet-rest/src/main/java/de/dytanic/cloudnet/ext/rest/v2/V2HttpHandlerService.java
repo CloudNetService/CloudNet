@@ -31,7 +31,7 @@ import de.dytanic.cloudnet.driver.service.ServiceTask;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import de.dytanic.cloudnet.ext.rest.RestUtils;
 import de.dytanic.cloudnet.http.v2.HttpSession;
-import de.dytanic.cloudnet.http.v2.V2HttpHandler;
+import de.dytanic.cloudnet.http.v2.WebSocketAbleV2HttpHandler;
 import de.dytanic.cloudnet.service.ICloudService;
 import de.dytanic.cloudnet.service.IServiceConsoleLogCache;
 import de.dytanic.cloudnet.service.ServiceConsoleLineHandler;
@@ -41,10 +41,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
-public class V2HttpHandlerService extends V2HttpHandler {
+public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
 
   public V2HttpHandlerService(String requiredPermission) {
-    super(requiredPermission, "GET", "POST", "DELETE");
+    super(
+      requiredPermission,
+      (context, path) -> context.request().method().equalsIgnoreCase("GET") && path.endsWith("/livelog"),
+      "GET", "POST", "DELETE"
+    );
   }
 
   @Override
@@ -76,6 +80,12 @@ public class V2HttpHandlerService extends V2HttpHandler {
     } else if (context.request().method().equalsIgnoreCase("DELETE")) {
       this.handleServiceDeleteRequest(context);
     }
+  }
+
+  @Override
+  protected void handleTicketAuthorizedRequest(String path, IHttpContext context,
+    HttpSession session) throws Exception {
+    this.handleLiveLogRequest(context);
   }
 
   protected void handleListServicesRequest(IHttpContext context) {

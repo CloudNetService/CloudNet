@@ -1144,6 +1144,34 @@ paths:
                 $ref: '#/components/schemas/LoginSuccess'
         '403':
           $ref: '#/components/responses/Unauthorized'
+  /wsTicket:
+    post:
+      tags:
+        - Session Management
+      summary: Requests a one time ticket to authorize a web socket request
+      description: |
+        Gives a one time ticket bound to the requesting user allowing the
+        authorize of a web socket open request without providing the bearer
+        auth header as normally. This is needed when working with java script
+        as js does not give a possibility to provide custom headers to a
+        web socket request.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Success'
+                  - properties:
+                      id:
+                        type: string
+                        example: 'GRNHGRW343GMNIULK25454VR3534GSNR'
+                      expire:
+                        type: number
+                        example: 1627024556
+        '403':
+          $ref: '#/components/responses/Unauthorized'
   /session/logout:
     post:
       tags:
