@@ -17,12 +17,22 @@
 package de.dytanic.cloudnet.database.h2;
 
 import de.dytanic.cloudnet.database.sql.SQLDatabase;
+import de.dytanic.cloudnet.database.sql.SQLDatabaseProvider;
 import java.util.concurrent.ExecutorService;
 
 public final class H2Database extends SQLDatabase {
 
   public H2Database(H2DatabaseProvider databaseProvider, String name, ExecutorService executorService) {
     super(databaseProvider, name, executorService);
+  }
+
+  public H2Database(
+    SQLDatabaseProvider databaseProvider,
+    String name,
+    long cacheRemovalDelay,
+    ExecutorService executorService
+  ) {
+    super(databaseProvider, name, cacheRemovalDelay, executorService);
   }
 
   @Override

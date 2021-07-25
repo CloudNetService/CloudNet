@@ -44,20 +44,33 @@ public abstract class SQLDatabase implements IDatabase {
   protected final SQLDatabaseProvider databaseProvider;
   protected final String name;
 
+  protected final long cacheTimeoutTime;
   protected final ExecutorService executorService;
 
   public SQLDatabase(SQLDatabaseProvider databaseProvider, String name, ExecutorService executorService) {
+    this(databaseProvider, name, 600_000, executorService);
+  }
+
+  public SQLDatabase(
+    SQLDatabaseProvider databaseProvider,
+    String name,
+    long cacheRemovalDelay,
+    ExecutorService executorService
+  ) {
     Preconditions.checkNotNull(databaseProvider);
     Preconditions.checkNotNull(name);
     Preconditions.checkNotNull(executorService);
 
     this.databaseProvider = databaseProvider;
     this.name = name;
-    this.executorService = executorService;
 
-    databaseProvider
-      .executeUpdate(String.format("CREATE TABLE IF NOT EXISTS `%s` (%s VARCHAR(64) PRIMARY KEY, %s TEXT);",
-        name, TABLE_COLUMN_KEY, TABLE_COLUMN_VALUE));
+    this.executorService = executorService;
+    this.cacheTimeoutTime = System.currentTimeMillis() + cacheRemovalDelay;
+
+    databaseProvider.executeUpdate(String.format(
+      "CREATE TABLE IF NOT EXISTS `%s` (%s VARCHAR(64) PRIMARY KEY, %s TEXT);",
+      name, TABLE_COLUMN_KEY, TABLE_COLUMN_VALUE
+    ));
   }
 
   @Override

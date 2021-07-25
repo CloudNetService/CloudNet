@@ -19,6 +19,7 @@ package de.dytanic.cloudnet.http.v2;
 import com.google.common.collect.Iterables;
 import de.dytanic.cloudnet.driver.network.http.IHttpContext;
 import de.dytanic.cloudnet.http.v2.ticket.WebSocketTicket;
+import java.util.List;
 import java.util.function.BiPredicate;
 
 public abstract class WebSocketAbleV2HttpHandler extends V2HttpHandler {
@@ -47,7 +48,8 @@ public abstract class WebSocketAbleV2HttpHandler extends V2HttpHandler {
       return;
     }
 
-    String ticketId = Iterables.getFirst(context.request().queryParameters().get("ticket"), null);
+    List<String> ticketIds = context.request().queryParameters().get("ticket");
+    String ticketId = ticketIds == null ? null : Iterables.getFirst(ticketIds, null);
     if (ticketId == null) {
       this.send403(context, "Missing authorization or ticket information");
       return;

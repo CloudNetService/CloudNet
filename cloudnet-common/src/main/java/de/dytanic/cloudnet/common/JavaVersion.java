@@ -30,7 +30,8 @@ public enum JavaVersion {
   JAVA_14(14, 58D, "Java 14"),
   JAVA_15(15, 59D, "Java 15"),
   JAVA_16(16, 60D, "Java 16"),
-  JAVA_17(17, 61D, "Java 17");
+  JAVA_17(17, 61D, "Java 17"),
+  JAVA_18(18, 62D, "Java 18");
 
   private final int version;
   private final double versionId;

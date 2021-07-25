@@ -56,8 +56,6 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
     if (context.request().method().equalsIgnoreCase("GET")) {
       if (path.endsWith("/service")) {
         this.handleListServicesRequest(context);
-      } else if (path.endsWith("/lifecycle")) {
-        this.handleServiceStateUpdateRequest(context);
       } else if (path.contains("/include")) {
         this.handleIncludeRequest(context);
       } else if (path.endsWith("/deployresources")) {
@@ -77,6 +75,8 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
       } else if (path.endsWith("/command")) {
         this.handleServiceCommandRequest(context);
       }
+    } else if (context.request().method().equals("PATCH")) {
+      this.handleServiceStateUpdateRequest(context);
     } else if (context.request().method().equalsIgnoreCase("DELETE")) {
       this.handleServiceDeleteRequest(context);
     }

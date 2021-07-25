@@ -17,30 +17,28 @@
 package de.dytanic.cloudnet.database.sql;
 
 import com.google.common.base.Preconditions;
-import de.dytanic.cloudnet.common.collection.NetorHashMap;
-import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.concurrent.IThrowableCallback;
 import de.dytanic.cloudnet.database.AbstractDatabaseProvider;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public abstract class SQLDatabaseProvider extends AbstractDatabaseProvider {
 
   protected final ExecutorService executorService;
-  protected final NetorHashMap<String, Long, SQLDatabase> cachedDatabaseInstances = new NetorHashMap<>();
+  protected final Map<String, SQLDatabase> cachedDatabaseInstances;
+
   private final boolean autoShutdownExecutorService;
 
   public SQLDatabaseProvider(ExecutorService executorService) {
-    if (executorService != null) {
-      this.executorService = executorService;
-    } else {
-      this.executorService = Executors.newCachedThreadPool();
-    }
+    this.cachedDatabaseInstances = new ConcurrentHashMap<>();
     this.autoShutdownExecutorService = executorService == null;
+    this.executorService = executorService == null ? Executors.newCachedThreadPool() : executorService;
   }
 
   @Override
@@ -59,8 +57,8 @@ public abstract class SQLDatabaseProvider extends AbstractDatabaseProvider {
   }
 
   protected void removedOutdatedEntries() {
-    for (Map.Entry<String, Pair<Long, SQLDatabase>> entry : this.cachedDatabaseInstances.entrySet()) {
-      if (entry.getValue().getFirst() < System.currentTimeMillis()) {
+    for (Entry<String, SQLDatabase> entry : this.cachedDatabaseInstances.entrySet()) {
+      if (entry.getValue().cacheTimeoutTime < System.currentTimeMillis()) {
         this.cachedDatabaseInstances.remove(entry.getKey());
       }
     }

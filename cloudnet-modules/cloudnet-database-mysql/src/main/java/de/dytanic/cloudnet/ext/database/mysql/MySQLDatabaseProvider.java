@@ -17,6 +17,7 @@
 package de.dytanic.cloudnet.ext.database.mysql;
 
 import com.google.common.base.Preconditions;
+import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import de.dytanic.cloudnet.common.concurrent.IThrowableCallback;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
@@ -35,13 +36,12 @@ import java.util.concurrent.ExecutorService;
 
 public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
 
-  private static final long NEW_CREATION_DELAY = 600000;
+  private static final long NEW_CREATION_DELAY = 600_000;
+  private static final String CONNECT_URL_FORMAT = "jdbc:mysql://%s:%d/%s?serverTimezone=UTC&useSSL=%b&trustServerCertificate=%b";
 
+  protected final JsonDocument config;
 
-  protected final HikariDataSource hikariDataSource = new HikariDataSource();
-
-  private final JsonDocument config;
-
+  protected HikariDataSource hikariDataSource;
   private List<MySQLConnectionEndpoint> addresses;
 
   public MySQLDatabaseProvider(JsonDocument config, ExecutorService executorService) {
@@ -54,25 +54,36 @@ public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
     this.addresses = this.config.get("addresses", CloudNetMySQLDatabaseModule.TYPE);
     MySQLConnectionEndpoint endpoint = this.addresses.get(new Random().nextInt(this.addresses.size()));
 
-    this.hikariDataSource.setJdbcUrl(
-      "jdbc:mysql://" + endpoint.getAddress().getHost() + ":" + endpoint.getAddress().getPort() + "/" + endpoint
-        .getDatabase() +
-        String.format("?useSSL=%b&trustServerCertificate=%b", endpoint.isUseSsl(), endpoint.isUseSsl())
-    );
+    HikariConfig hikariConfig = new HikariConfig();
 
-    //base configuration
-    this.hikariDataSource.setUsername(this.config.getString("username"));
-    this.hikariDataSource.setPassword(this.config.getString("password"));
-    this.hikariDataSource.setDriverClassName("com.mysql.jdbc.Driver");
+    hikariConfig.setJdbcUrl(String.format(
+      CONNECT_URL_FORMAT,
+      endpoint.getAddress().getHost(), endpoint.getAddress().getPort(),
+      endpoint.getDatabase(), endpoint.isUseSsl(), endpoint.isUseSsl()
+    ));
+    hikariConfig.setDriverClassName("com.mysql.cj.jdbc.Driver");
+    hikariConfig.setUsername(this.config.getString("username"));
+    hikariConfig.setPassword(this.config.getString("password"));
+
+    hikariConfig.addDataSourceProperty("cachePrepStmts", "true");
+    hikariConfig.addDataSourceProperty("prepStmtCacheSize", "250");
+    hikariConfig.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
+    hikariConfig.addDataSourceProperty("useServerPrepStmts", "true");
+    hikariConfig.addDataSourceProperty("useLocalSessionState", "true");
+    hikariConfig.addDataSourceProperty("rewriteBatchedStatements", "true");
+    hikariConfig.addDataSourceProperty("cacheResultSetMetadata", "true");
+    hikariConfig.addDataSourceProperty("cacheServerConfiguration", "true");
+    hikariConfig.addDataSourceProperty("elideSetAutoCommits", "true");
+    hikariConfig.addDataSourceProperty("maintainTimeStats", "false");
 
     int maxPoolSize = this.config.getInt("connectionMaxPoolSize");
 
-    this.hikariDataSource.setMaximumPoolSize(maxPoolSize);
-    this.hikariDataSource.setMinimumIdle(Math.min(maxPoolSize, this.config.getInt("connectionMinPoolSize")));
-    this.hikariDataSource.setConnectionTimeout(this.config.getInt("connectionTimeout"));
-    this.hikariDataSource.setValidationTimeout(this.config.getInt("validationTimeout"));
+    hikariConfig.setMaximumPoolSize(maxPoolSize);
+    hikariConfig.setMinimumIdle(Math.min(maxPoolSize, this.config.getInt("connectionMinPoolSize")));
+    hikariConfig.setConnectionTimeout(this.config.getInt("connectionTimeout"));
+    hikariConfig.setValidationTimeout(this.config.getInt("validationTimeout"));
 
-    this.hikariDataSource.validate();
+    this.hikariDataSource = new HikariDataSource(hikariConfig);
     return true;
   }
 
@@ -81,13 +92,8 @@ public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
     Preconditions.checkNotNull(name);
 
     this.removedOutdatedEntries();
-
-    if (!this.cachedDatabaseInstances.contains(name)) {
-      this.cachedDatabaseInstances.add(name, System.currentTimeMillis() + NEW_CREATION_DELAY,
-        new MySQLDatabase(this, name, super.executorService));
-    }
-
-    return this.cachedDatabaseInstances.getSecond(name);
+    return this.cachedDatabaseInstances.computeIfAbsent(name,
+      $ -> new MySQLDatabase(this, name, NEW_CREATION_DELAY, super.executorService));
   }
 
   @Override
@@ -95,23 +101,13 @@ public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
     Preconditions.checkNotNull(name);
 
     this.cachedDatabaseInstances.remove(name);
-
-    if (this.containsDatabase(name)) {
-      try (Connection connection = this.getConnection();
-        PreparedStatement preparedStatement = connection.prepareStatement("DROP TABLE " + name)) {
-        return preparedStatement.executeUpdate() != -1;
-      } catch (SQLException exception) {
-        exception.printStackTrace();
-      }
-    }
-
-    return false;
+    return this.executeUpdate(String.format("DROP TABLE IF EXISTS `%s`;", name)) != -1;
   }
 
   @Override
   public Collection<String> getDatabaseNames() {
     return this.executeQuery(
-      "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES  where TABLE_SCHEMA='PUBLIC'",
+      "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA='PUBLIC'",
       resultSet -> {
         Collection<String> collection = new ArrayList<>();
         while (resultSet.next()) {
@@ -186,7 +182,6 @@ public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
       try (ResultSet resultSet = preparedStatement.executeQuery()) {
         return callback.call(resultSet);
       }
-
     } catch (Throwable e) {
       e.printStackTrace();
     }

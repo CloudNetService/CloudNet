@@ -1281,7 +1281,7 @@ paths:
             - stop
             - restart
             - kill
-    get:
+    patch:
       tags:
         - Services
       summary: Updates the lifecycle of a service

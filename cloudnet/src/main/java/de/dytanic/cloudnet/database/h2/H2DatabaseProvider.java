@@ -79,13 +79,8 @@ public final class H2DatabaseProvider extends SQLDatabaseProvider {
     Preconditions.checkNotNull(name);
 
     this.removedOutdatedEntries();
-
-    if (!this.cachedDatabaseInstances.contains(name)) {
-      this.cachedDatabaseInstances
-        .add(name, System.currentTimeMillis() + NEW_CREATION_DELAY, new H2Database(this, name, super.executorService));
-    }
-
-    return (H2Database) this.cachedDatabaseInstances.getSecond(name);
+    return (H2Database) this.cachedDatabaseInstances.computeIfAbsent(name,
+      $ -> new H2Database(this, name, NEW_CREATION_DELAY, super.executorService));
   }
 
   @Override
