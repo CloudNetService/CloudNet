@@ -17,6 +17,7 @@
 package de.dytanic.cloudnet.common;
 
 import java.util.Random;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Includes string operations that are needed. Within the project and which are needed more frequently
@@ -51,5 +52,9 @@ public final class StringUtil {
     }
 
     return stringBuilder.toString();
+  }
+
+  public static boolean isNullOrEmpty(@Nullable String string) {
+    return string == null || string.isEmpty();
   }
 }

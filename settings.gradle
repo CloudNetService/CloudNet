@@ -53,6 +53,8 @@ include 'cloudnet-modules:cloudnet-report'
 findProject(':cloudnet-modules:cloudnet-report')?.name = 'cloudnet-report'
 include 'cloudnet-modules:cloudnet-database-mysql'
 findProject(':cloudnet-modules:cloudnet-database-mysql')?.name = 'cloudnet-database-mysql'
+include 'cloudnet-modules:cloudnet-database-mongodb'
+findProject(':cloudnet-modules:cloudnet-database-mongodb')?.name = 'cloudnet-database-mongodb'
 include 'cloudnet-modules:cloudnet-cloudperms'
 findProject(':cloudnet-modules:cloudnet-cloudperms')?.name = 'cloudnet-cloudperms'
 include 'cloudnet-modules:cloudnet-rest'
@@ -66,3 +68,4 @@ findProject(':cloudnet-plugins:cloudnet-simplenametags')?.name = 'cloudnet-simpl
 
 // examples
 include 'cloudnet-examples'
+

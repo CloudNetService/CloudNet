@@ -94,6 +94,7 @@ allprojects {
     dependencyGoMintVersion = '1.0.0-SNAPSHOT'
     dependencyWaterdogPEVersion = '1.1.1-SNAPSHOT'
     dependencyMysqlConnectorJavaVersion = '8.0.26'
+    dependencyMongoJavaDriverVersion = '4.3.0'
     dependencyHikariCpVersion = '5.0.0'
     dependencyVaultVersion = '1.7'
     dependencyProtocolLibVersion = 'master-SNAPSHOT'
@@ -135,6 +136,7 @@ allprojects {
     cloudnetModuleNextCloudFileName = 'cloudnet-storage-nextcloud.jar'
     cloudnetModuleStorageFTPFileName = 'cloudnet-storage-ftp.jar'
     cloudnetModuleDatabaseMySQLFileName = 'cloudnet-database-mysql.jar'
+    cloudnetModuleDatabaseMongodbFileName = 'cloudnet-database-mongodb.jar'
   }
 
   ext.createCnlFile = { Project pro, String fileName ->
