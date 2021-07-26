@@ -95,6 +95,10 @@ public class MongoDBDatabaseProvider extends AbstractDatabaseProvider {
   public void close() {
     this.mongoClient.close();
     this.cachedDatabaseInstances.clear();
+
+    if (this.autoShutdownExecutorService) {
+      this.executorService.shutdownNow();
+    }
   }
 
   @Override
