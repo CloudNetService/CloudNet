@@ -45,6 +45,11 @@ public class CommandMigrate extends SubCommandHandler {
             AbstractDatabaseProvider sourceDatabaseProvider = getDatabaseProvider((String) args.argument(1));
             AbstractDatabaseProvider targetDatabaseProvider = getDatabaseProvider((String) args.argument(2));
 
+            if (sourceDatabaseProvider.equals(targetDatabaseProvider)) {
+              sender.sendMessage(LanguageManager.getMessage("command-migrate-source-equals-target"));
+              return;
+            }
+
             executeIfNotCurrentProvider(sourceDatabaseProvider, AbstractDatabaseProvider::init);
             executeIfNotCurrentProvider(targetDatabaseProvider, AbstractDatabaseProvider::init);
 
