@@ -39,10 +39,16 @@ jar {
 
 dependencies {
   api project(':cloudnet-driver')
+  // console
   api group: 'org.jline', name: 'jline', version: dependencyJLineVersion
   api group: 'org.fusesource.jansi', name: 'jansi', version: dependencyJAnsiVersion
+  // default database implementations
   api group: 'com.h2database', name: 'h2', version: dependencyH2Version
+  api group: 'org.jetbrains.xodus', name: 'xodus-environment', version: dependencyXodusVersion
+  // jwt for rest api
   api group: 'io.jsonwebtoken', name: 'jjwt-api', version: dependencyJJWTVersion
   api group: 'io.jsonwebtoken', name: 'jjwt-impl', version: dependencyJJWTVersion
   api group: 'io.jsonwebtoken', name: 'jjwt-gson', version: dependencyJJWTVersion
+  // just for slf4j to disable the warning message
+  api group: 'org.slf4j', name: 'slf4j-nop', version: dependencySlf4jVersion
 }

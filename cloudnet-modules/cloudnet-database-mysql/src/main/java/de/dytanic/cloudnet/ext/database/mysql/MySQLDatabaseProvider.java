@@ -88,6 +88,11 @@ public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
   }
 
   @Override
+  public boolean needsClusterSync() {
+    return false;
+  }
+
+  @Override
   public IDatabase getDatabase(String name) {
     Preconditions.checkNotNull(name);
 

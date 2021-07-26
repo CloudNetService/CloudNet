@@ -29,6 +29,8 @@ public abstract class AbstractDatabaseProvider implements DatabaseProvider, INam
 
   public abstract boolean init() throws Exception;
 
+  public abstract boolean needsClusterSync();
+
   public IDatabaseHandler getDatabaseHandler() {
     return this.databaseHandler;
   }

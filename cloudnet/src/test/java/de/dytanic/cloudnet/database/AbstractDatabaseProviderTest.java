@@ -14,11 +14,9 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.database.h2;
+package de.dytanic.cloudnet.database;
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
-import de.dytanic.cloudnet.database.AbstractDatabaseProvider;
-import de.dytanic.cloudnet.database.IDatabaseHandler;
 import de.dytanic.cloudnet.driver.database.Database;
 import java.util.Random;
 import java.util.UUID;
@@ -26,7 +24,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.Assert;
 import org.junit.Test;
 
-public final class H2DatabaseProviderTest implements IDatabaseHandler {
+public abstract class AbstractDatabaseProviderTest implements IDatabaseHandler {
+
+  protected static final String DATABASE_NAME = "RANDOM_DATABASE";
+
+  protected final AbstractDatabaseProvider databaseProvider;
 
   protected String resultString;
 
@@ -34,21 +36,24 @@ public final class H2DatabaseProviderTest implements IDatabaseHandler {
   protected boolean geh;
   protected boolean cleared;
 
+  public AbstractDatabaseProviderTest(AbstractDatabaseProvider databaseProvider) {
+    this.databaseProvider = databaseProvider;
+  }
+
   @Test
   public void testDatabaseProvider() throws Exception {
-    AbstractDatabaseProvider databaseProvider = new H2DatabaseProvider("build/h2database", false);
-    Assert.assertTrue(databaseProvider.init());
+    Assert.assertTrue(this.databaseProvider.init());
 
-    databaseProvider.setDatabaseHandler(this);
+    this.databaseProvider.setDatabaseHandler(this);
 
-    Database database = databaseProvider.getDatabase("randomDataDatabase");
+    Database database = this.databaseProvider.getDatabase(DATABASE_NAME);
     Assert.assertNotNull(database);
 
-    Assert.assertTrue(databaseProvider.getDatabaseNames().contains("randomDataDatabase".toUpperCase()));
-    Assert.assertTrue(databaseProvider.deleteDatabase("randomDataDatabase"));
-    Assert.assertFalse(databaseProvider.getDatabaseNames().contains("randomDataDatabase".toUpperCase()));
+    Assert.assertTrue(this.databaseProvider.getDatabaseNames().contains(DATABASE_NAME));
+    Assert.assertTrue(this.databaseProvider.deleteDatabase(DATABASE_NAME));
+    Assert.assertFalse(this.databaseProvider.getDatabaseNames().contains(DATABASE_NAME));
 
-    database = databaseProvider.getDatabase("randomDataDatabase");
+    database = this.databaseProvider.getDatabase(DATABASE_NAME);
 
     Assert.assertTrue(database.insert("_xxx_", new JsonDocument("value", "1")));
     Assert.assertEquals(1, database.get("value", "1").size());
@@ -91,7 +96,7 @@ public final class H2DatabaseProviderTest implements IDatabaseHandler {
     database.clear();
     Assert.assertTrue(this.cleared);
 
-    databaseProvider.close();
+    this.databaseProvider.close();
   }
 
   @Override

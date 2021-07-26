@@ -20,14 +20,13 @@ import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.network.def.PacketConstants;
 import de.dytanic.cloudnet.driver.network.protocol.Packet;
 
-public final class PacketServerH2Database extends Packet {
+public final class PacketServerLocalDatabase extends Packet {
 
-  public PacketServerH2Database(OperationType operationType, String name, String key, JsonDocument document) {
-    super(PacketConstants.INTERNAL_H2_DATABASE_UPDATE_MODULE, new JsonDocument("operationType", operationType)
-        .append("name", name)
-        .append("key", key)
-        .append("document", document),
-      new byte[0]);
+  public PacketServerLocalDatabase(OperationType operationType, String name, String key, JsonDocument document) {
+    super(PacketConstants.INTERNAL_LOCAL_DATABASE_SYNC_CHANNEL, JsonDocument.newDocument("operationType", operationType)
+      .append("name", name)
+      .append("key", key)
+      .append("document", document));
   }
 
   public enum OperationType {
