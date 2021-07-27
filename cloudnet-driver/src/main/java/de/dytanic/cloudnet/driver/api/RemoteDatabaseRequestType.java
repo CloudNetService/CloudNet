@@ -34,7 +34,8 @@ public enum RemoteDatabaseRequestType {
   DATABASE_ENTRIES(true),
   DATABASE_CLEAR(true),
   DATABASE_CLOSE(true),
-  DATABASE_COUNT_DOCUMENTS(true);
+  DATABASE_COUNT_DOCUMENTS(true),
+  DATABASE_ITERATE_CHUNKED(true);
 
   private final boolean databaseSpecific;
 

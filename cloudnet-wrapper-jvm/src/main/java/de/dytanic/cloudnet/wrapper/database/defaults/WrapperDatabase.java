@@ -16,10 +16,12 @@
 
 package de.dytanic.cloudnet.wrapper.database.defaults;
 
+import de.dytanic.cloudnet.common.concurrent.CompletableTask;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.concurrent.ListenableTask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.api.RemoteDatabaseRequestType;
+import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import de.dytanic.cloudnet.wrapper.database.IDatabase;
 import java.util.ArrayList;
@@ -31,6 +33,8 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 import java.util.function.BiPredicate;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import org.jetbrains.annotations.NotNull;
 
 public class WrapperDatabase implements IDatabase {
@@ -110,6 +114,11 @@ public class WrapperDatabase implements IDatabase {
   @Override
   public void iterate(BiConsumer<String, JsonDocument> consumer) {
     this.iterateAsync(consumer).getDef(null);
+  }
+
+  @Override
+  public void iterate(BiConsumer<String, JsonDocument> consumer, int chunkSize) {
+    this.iterateAsync(consumer, chunkSize).getDef(null);
   }
 
   @Override
@@ -224,14 +233,7 @@ public class WrapperDatabase implements IDatabase {
     return this.databaseProvider.executeQuery(
       RemoteDatabaseRequestType.DATABASE_ENTRIES,
       this::writeDefaults
-    ).map(packet -> {
-      int size = packet.getBuffer().readVarInt();
-      Map<String, JsonDocument> documents = new HashMap<>();
-      for (int i = 0; i < size; i++) {
-        documents.put(packet.getBuffer().readString(), packet.getBuffer().readJsonDocument());
-      }
-      return documents;
-    });
+    ).map(this.dataMapReader());
   }
 
   @Override
@@ -260,6 +262,50 @@ public class WrapperDatabase implements IDatabase {
       }
     });
     return task;
+  }
+
+  @Override
+  public @NotNull ITask<Void> iterateAsync(BiConsumer<String, JsonDocument> consumer, int chunkSize) {
+    CompletableTask<Void> completeTask = new CompletableTask<>();
+    this.readNextDataChunk(0, chunkSize)
+      .onComplete(this.chunkedIterateResultHandler(completeTask, consumer, 0, chunkSize));
+    return completeTask;
+  }
+
+  private @NotNull ITask<Map<String, JsonDocument>> readNextDataChunk(long beginIndex, int chunkSize) {
+    return this.databaseProvider.executeQuery(
+      RemoteDatabaseRequestType.DATABASE_ITERATE_CHUNKED,
+      buffer -> this.writeDefaults(buffer).writeVarLong(beginIndex).writeVarInt(chunkSize)
+    ).map(this.dataMapReader());
+  }
+
+  private @NotNull Consumer<Map<String, JsonDocument>> chunkedIterateResultHandler(
+    @NotNull CompletableTask<Void> completeTask,
+    @NotNull BiConsumer<String, JsonDocument> consumer,
+    long currentIndex,
+    int chunkSize
+  ) {
+    return result -> {
+      if (result.isEmpty()) {
+        completeTask.complete(null);
+        return;
+      }
+
+      result.forEach(consumer);
+      this.readNextDataChunk(currentIndex + chunkSize, chunkSize)
+        .onComplete(this.chunkedIterateResultHandler(completeTask, consumer, currentIndex + chunkSize, chunkSize));
+    };
+  }
+
+  private @NotNull Function<IPacket, Map<String, JsonDocument>> dataMapReader() {
+    return packet -> {
+      int size = packet.getBuffer().readVarInt();
+      Map<String, JsonDocument> documents = new HashMap<>();
+      for (int i = 0; i < size; i++) {
+        documents.put(packet.getBuffer().readString(), packet.getBuffer().readJsonDocument());
+      }
+      return documents;
+    };
   }
 
   @Override

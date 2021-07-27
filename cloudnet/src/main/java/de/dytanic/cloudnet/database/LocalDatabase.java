@@ -17,7 +17,9 @@
 package de.dytanic.cloudnet.database;
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import java.util.Map;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public interface LocalDatabase extends IDatabase {
 
@@ -28,4 +30,6 @@ public interface LocalDatabase extends IDatabase {
   void deleteWithoutHandlerCall(@NotNull String key);
 
   void clearWithoutHandlerCall();
+
+  @Nullable Map<String, JsonDocument> readChunk(long beginIndex, int chunkSize);
 }
