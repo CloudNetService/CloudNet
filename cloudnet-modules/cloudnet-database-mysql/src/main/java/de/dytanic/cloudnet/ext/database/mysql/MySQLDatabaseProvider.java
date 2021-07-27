@@ -106,7 +106,7 @@ public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
     Preconditions.checkNotNull(name);
 
     this.cachedDatabaseInstances.remove(name);
-    return this.executeUpdate(String.format("DROP TABLE IF EXISTS \"%s\";", name)) != -1;
+    return this.executeUpdate(String.format("DROP TABLE IF EXISTS `%s`;", name)) != -1;
   }
 
   @Override
