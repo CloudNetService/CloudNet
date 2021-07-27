@@ -181,7 +181,7 @@ public abstract class SQLDatabase extends AbstractDatabase {
 
         return jsonDocuments;
       },
-      "%`" + fieldName + "`:" + JsonDocument.GSON.toJson(fieldValue) + "%"
+      "%\"" + fieldName + "\":" + JsonDocument.GSON.toJson(fieldValue) + "%"
     );
   }
 
@@ -204,7 +204,7 @@ public abstract class SQLDatabase extends AbstractDatabase {
         item = iterator.next();
 
         stringBuilder.append(TABLE_COLUMN_VALUE).append(" LIKE ?");
-        collection.add("%`" + item + "`:" + filters.getElement(item).toString() + "%");
+        collection.add("%\"" + item + "\":" + filters.getElement(item).toString() + "%");
 
         if (iterator.hasNext()) {
           stringBuilder.append(" and ");
