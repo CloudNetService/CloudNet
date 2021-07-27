@@ -46,6 +46,24 @@ public abstract class AbstractDatabase implements LocalDatabase, IDatabase {
   }
 
   @Override
+  public void iterate(BiConsumer<String, JsonDocument> consumer, int chunkSize) {
+    long documentCount = this.getDocumentsCount();
+    if (documentCount != 0) {
+      long currentIndex = 0;
+      while (currentIndex < documentCount) {
+        Map<String, JsonDocument> result = this.readChunk(currentIndex, chunkSize);
+        if (result != null) {
+          result.forEach(consumer);
+          currentIndex += chunkSize;
+          continue;
+        }
+
+        break;
+      }
+    }
+  }
+
+  @Override
   public @NotNull ITask<Boolean> insertAsync(String key, JsonDocument document) {
     return this.schedule(() -> this.insert(key, document));
   }
@@ -103,6 +121,11 @@ public abstract class AbstractDatabase implements LocalDatabase, IDatabase {
   @Override
   public @NotNull ITask<Void> iterateAsync(BiConsumer<String, JsonDocument> consumer) {
     return this.schedule(() -> this.iterate(consumer));
+  }
+
+  @Override
+  public @NotNull ITask<Void> iterateAsync(BiConsumer<String, JsonDocument> consumer, int chunkSize) {
+    return this.schedule(() -> this.iterate(consumer, chunkSize));
   }
 
   @Override

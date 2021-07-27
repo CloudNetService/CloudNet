@@ -63,7 +63,7 @@ public abstract class SQLDatabase extends AbstractDatabase {
     this.cacheTimeoutTime = System.currentTimeMillis() + cacheRemovalDelay;
 
     databaseProvider.executeUpdate(String.format(
-      "CREATE TABLE IF NOT EXISTS `%s` (%s VARCHAR(64) PRIMARY KEY, %s TEXT);",
+      "CREATE TABLE IF NOT EXISTS \"%s\" (%s VARCHAR(64) PRIMARY KEY, %s TEXT);",
       name, TABLE_COLUMN_KEY, TABLE_COLUMN_VALUE
     ));
   }
@@ -95,7 +95,7 @@ public abstract class SQLDatabase extends AbstractDatabase {
     Preconditions.checkNotNull(document);
 
     return this.databaseProvider.executeUpdate(
-      "INSERT INTO `" + this.name + "` (" + TABLE_COLUMN_KEY + "," + TABLE_COLUMN_VALUE + ") VALUES (?, ?);",
+      "INSERT INTO \"" + this.name + "\" (" + TABLE_COLUMN_KEY + "," + TABLE_COLUMN_VALUE + ") VALUES (?, ?);",
       key, document.toString()
     ) != -1;
   }
@@ -114,7 +114,7 @@ public abstract class SQLDatabase extends AbstractDatabase {
 
   public boolean update0(String key, JsonDocument document) {
     return this.databaseProvider.executeUpdate(
-      "UPDATE `" + this.name + "` SET " + TABLE_COLUMN_VALUE + "=? WHERE " + TABLE_COLUMN_KEY + "=?",
+      "UPDATE \"" + this.name + "\" SET " + TABLE_COLUMN_VALUE + "=? WHERE " + TABLE_COLUMN_KEY + "=?",
       document.toString(), key
     ) != -1;
   }
@@ -131,7 +131,7 @@ public abstract class SQLDatabase extends AbstractDatabase {
     Preconditions.checkNotNull(key);
 
     return this.databaseProvider.executeQuery(
-      String.format("SELECT %s FROM `%s` WHERE %s = ?", TABLE_COLUMN_KEY, this.name, TABLE_COLUMN_KEY),
+      String.format("SELECT %s FROM \"%s\" WHERE %s = ?", TABLE_COLUMN_KEY, this.name, TABLE_COLUMN_KEY),
       ResultSet::next,
       key
     );
@@ -150,7 +150,7 @@ public abstract class SQLDatabase extends AbstractDatabase {
 
   public boolean delete0(String key) {
     return this.databaseProvider.executeUpdate(
-      String.format("DELETE FROM `%s` WHERE %s = ?", this.name, TABLE_COLUMN_KEY),
+      String.format("DELETE FROM \"%s\" WHERE %s = ?", this.name, TABLE_COLUMN_KEY),
       key
     ) != -1;
   }
@@ -160,7 +160,7 @@ public abstract class SQLDatabase extends AbstractDatabase {
     Preconditions.checkNotNull(key);
 
     return this.databaseProvider.executeQuery(
-      String.format("SELECT %s FROM `%s` WHERE %s = ?", TABLE_COLUMN_VALUE, this.name, TABLE_COLUMN_KEY),
+      String.format("SELECT %s FROM \"%s\" WHERE %s = ?", TABLE_COLUMN_VALUE, this.name, TABLE_COLUMN_KEY),
       resultSet -> resultSet.next() ? JsonDocument.newDocument(resultSet.getString(TABLE_COLUMN_VALUE)) : null,
       key
     );
@@ -172,7 +172,7 @@ public abstract class SQLDatabase extends AbstractDatabase {
     Preconditions.checkNotNull(fieldValue);
 
     return this.databaseProvider.executeQuery(
-      String.format("SELECT %s FROM `%s` WHERE %s LIKE ?", TABLE_COLUMN_VALUE, this.name, TABLE_COLUMN_VALUE),
+      String.format("SELECT %s FROM \"%s\" WHERE %s LIKE ?", TABLE_COLUMN_VALUE, this.name, TABLE_COLUMN_VALUE),
       resultSet -> {
         List<JsonDocument> jsonDocuments = new ArrayList<>();
         while (resultSet.next()) {
@@ -189,8 +189,8 @@ public abstract class SQLDatabase extends AbstractDatabase {
   public List<JsonDocument> get(JsonDocument filters) {
     Preconditions.checkNotNull(filters);
 
-    StringBuilder stringBuilder = new StringBuilder("SELECT ").append(TABLE_COLUMN_VALUE).append(" FROM `")
-      .append(this.name).append('`');
+    StringBuilder stringBuilder = new StringBuilder("SELECT ").append(TABLE_COLUMN_VALUE).append(" FROM \"")
+      .append(this.name).append('\"');
 
     Collection<String> collection = new ArrayList<>();
 
@@ -213,7 +213,7 @@ public abstract class SQLDatabase extends AbstractDatabase {
     }
 
     return this.databaseProvider.executeQuery(
-      stringBuilder.toString(),
+      stringBuilder.append(";").toString(),
       resultSet -> {
         List<JsonDocument> jsonDocuments = new ArrayList<>();
         while (resultSet.next()) {
@@ -229,7 +229,7 @@ public abstract class SQLDatabase extends AbstractDatabase {
   @Override
   public Collection<String> keys() {
     return this.databaseProvider.executeQuery(
-      String.format("SELECT %s FROM `%s`", TABLE_COLUMN_KEY, this.name),
+      String.format("SELECT %s FROM \"%s\";", TABLE_COLUMN_KEY, this.name),
       resultSet -> {
         Collection<String> keys = new ArrayList<>();
         while (resultSet.next()) {
@@ -244,7 +244,7 @@ public abstract class SQLDatabase extends AbstractDatabase {
   @Override
   public Collection<JsonDocument> documents() {
     return this.databaseProvider.executeQuery(
-      String.format("SELECT %s FROM `%s`", TABLE_COLUMN_VALUE, this.name),
+      String.format("SELECT %s FROM \"%s\";", TABLE_COLUMN_VALUE, this.name),
       resultSet -> {
         Collection<JsonDocument> documents = new ArrayList<>();
         while (resultSet.next()) {
@@ -259,7 +259,7 @@ public abstract class SQLDatabase extends AbstractDatabase {
   @Override
   public Map<String, JsonDocument> entries() {
     return this.databaseProvider.executeQuery(
-      String.format("SELECT * FROM `%s`", this.name),
+      String.format("SELECT * FROM \"%s\";", this.name),
       resultSet -> {
         Map<String, JsonDocument> map = new WeakHashMap<>();
         while (resultSet.next()) {
@@ -277,7 +277,7 @@ public abstract class SQLDatabase extends AbstractDatabase {
     Preconditions.checkNotNull(predicate);
 
     return this.databaseProvider.executeQuery(
-      String.format("SELECT * FROM `%s`", this.name),
+      String.format("SELECT * FROM \"%s\";", this.name),
       resultSet -> {
         Map<String, JsonDocument> map = new HashMap<>();
         while (resultSet.next()) {
@@ -299,7 +299,7 @@ public abstract class SQLDatabase extends AbstractDatabase {
     Preconditions.checkNotNull(consumer);
 
     this.databaseProvider.executeQuery(
-      String.format("SELECT * FROM `%s`", this.name),
+      String.format("SELECT * FROM \"%s\";", this.name),
       (IThrowableCallback<ResultSet, Void>) resultSet -> {
         while (resultSet.next()) {
           String key = resultSet.getString(TABLE_COLUMN_KEY);
@@ -321,13 +321,9 @@ public abstract class SQLDatabase extends AbstractDatabase {
     this.clearWithoutHandlerCall();
   }
 
-  public void clear0() {
-
-  }
-
   @Override
   public long getDocumentsCount() {
-    return this.databaseProvider.executeQuery("SELECT COUNT(*) FROM " + this.name, resultSet -> {
+    return this.databaseProvider.executeQuery("SELECT COUNT(*) FROM \"" + this.name + "\";", resultSet -> {
       if (resultSet.next()) {
         return resultSet.getLong(1);
       }
@@ -352,6 +348,6 @@ public abstract class SQLDatabase extends AbstractDatabase {
 
   @Override
   public void clearWithoutHandlerCall() {
-    this.databaseProvider.executeUpdate(String.format("TRUNCATE TABLE `%s`", this.name));
+    this.databaseProvider.executeUpdate(String.format("TRUNCATE TABLE \"%s\"", this.name));
   }
 }

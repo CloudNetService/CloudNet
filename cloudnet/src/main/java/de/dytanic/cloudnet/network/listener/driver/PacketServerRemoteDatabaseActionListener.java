@@ -19,6 +19,7 @@ package de.dytanic.cloudnet.network.listener.driver;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.database.AbstractDatabaseProvider;
+import de.dytanic.cloudnet.database.LocalDatabase;
 import de.dytanic.cloudnet.driver.api.RemoteDatabaseRequestType;
 import de.dytanic.cloudnet.driver.database.Database;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
@@ -66,7 +67,7 @@ public class PacketServerRemoteDatabaseActionListener implements IPacketListener
       return;
     }
 
-    Database database = databaseProvider.getDatabase(buffer.readString());
+    LocalDatabase database = (LocalDatabase) databaseProvider.getDatabase(buffer.readString());
     switch (requestType) {
       case DATABASE_KEYS: {
         Collection<String> keys = database.keys();
@@ -107,6 +108,22 @@ public class PacketServerRemoteDatabaseActionListener implements IPacketListener
           response.writeJsonDocument(value);
         });
         channel.sendPacket(Packet.createResponseFor(packet, response));
+      }
+      break;
+
+      case DATABASE_ITERATE_CHUNKED: {
+        Map<String, JsonDocument> entries = database.readChunk(buffer.readVarLong(), buffer.readVarInt());
+        if (entries == null || entries.isEmpty()) {
+          channel.sendPacket(Packet.createResponseFor(packet, ProtocolBuffer.create().writeVarInt(0)));
+        } else {
+          ProtocolBuffer response = ProtocolBuffer.create();
+          response.writeVarInt(entries.size());
+          entries.forEach((key, value) -> {
+            response.writeString(key);
+            response.writeJsonDocument(value);
+          });
+          channel.sendPacket(Packet.createResponseFor(packet, response));
+        }
       }
       break;
 

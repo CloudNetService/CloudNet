@@ -38,6 +38,7 @@ import jetbrains.exodus.env.Cursor;
 import jetbrains.exodus.env.Environment;
 import jetbrains.exodus.env.Store;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class XodusDatabase extends AbstractDatabase {
 
@@ -234,6 +235,31 @@ public class XodusDatabase extends AbstractDatabase {
     this.environment.executeInExclusiveTransaction(txn -> {
       this.environment.truncateStore(this.name, txn);
       this.store.set(this.environment.openStore(this.name, this.getStore().getConfig(), txn));
+    });
+  }
+
+  @Override
+  public @Nullable Map<String, JsonDocument> readChunk(long beginIndex, int chunkSize) {
+    return this.environment.computeInReadonlyTransaction(txn -> {
+      try (Cursor cursor = this.getStore().openCursor(txn)) {
+        // skip to the begin index
+        for (long i = 1; i < beginIndex; i++) {
+          if (!cursor.getNext()) {
+            return null;
+          }
+        }
+
+        Map<String, JsonDocument> result = new HashMap<>();
+
+        long currentReadCount = 0;
+        while (chunkSize > currentReadCount && cursor.getNext()) {
+          result.put(StringBinding.entryToString(cursor.getKey()),
+            JsonDocument.newDocument(cursor.getValue().getBytesUnsafe()));
+          currentReadCount++;
+        }
+
+        return result.isEmpty() ? null : result;
+      }
     });
   }
 }

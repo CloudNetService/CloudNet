@@ -24,7 +24,6 @@ import com.mongodb.client.model.Indexes;
 import com.mongodb.client.model.UpdateOptions;
 import com.mongodb.client.model.Updates;
 import com.mongodb.client.result.UpdateResult;
-import com.mongodb.lang.Nullable;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.database.AbstractDatabase;
 import de.dytanic.cloudnet.database.AbstractDatabaseProvider;
@@ -39,6 +38,7 @@ import java.util.function.BiPredicate;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class MongoDBDatabase extends AbstractDatabase {
 
@@ -209,6 +209,22 @@ public class MongoDBDatabase extends AbstractDatabase {
   @Override
   public void clearWithoutHandlerCall() {
     this.collection.deleteMany(new Document());
+  }
+
+  @Override
+  public @Nullable Map<String, JsonDocument> readChunk(long beginIndex, int chunkSize) {
+    Map<String, JsonDocument> result = new HashMap<>();
+    try (MongoCursor<Document> cursor = this.collection.find().skip((int) beginIndex).limit(chunkSize).iterator()) {
+      while (cursor.hasNext()) {
+        Document document = cursor.next();
+        String key = document.getString(KEY_NAME);
+        JsonDocument value = JsonDocument.newDocument(document.get(VALUE_NAME, Document.class).toJson());
+
+        result.put(key, value);
+      }
+    }
+
+    return result.isEmpty() ? null : result;
   }
 
   @Override
