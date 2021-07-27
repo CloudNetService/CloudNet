@@ -19,17 +19,16 @@ package de.dytanic.cloudnet.command.commands;
 import static de.dytanic.cloudnet.command.sub.SubCommandArgumentTypes.anyStringIgnoreCase;
 import static de.dytanic.cloudnet.command.sub.SubCommandArgumentTypes.dynamicString;
 
+import com.google.common.primitives.Ints;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.command.sub.SubCommandBuilder;
 import de.dytanic.cloudnet.command.sub.SubCommandHandler;
 import de.dytanic.cloudnet.common.INameable;
 import de.dytanic.cloudnet.common.concurrent.function.ThrowableConsumer;
-import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.database.AbstractDatabaseProvider;
 import de.dytanic.cloudnet.driver.database.Database;
 import java.util.Collection;
-import java.util.Map.Entry;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -53,20 +52,19 @@ public class CommandMigrate extends SubCommandHandler {
             executeIfNotCurrentProvider(sourceDatabaseProvider, AbstractDatabaseProvider::init);
             executeIfNotCurrentProvider(targetDatabaseProvider, AbstractDatabaseProvider::init);
 
-            for (String databaseName : sourceDatabaseProvider.getDatabaseNames()) {
-              if (!properties.containsKey("no-clear") || !properties.getBoolean("no-clear")) {
-                targetDatabaseProvider.deleteDatabase(databaseName);
-              }
+            Integer chunkSize = Ints.tryParse(properties.getOrDefault("chunk-size", Integer.toString(100)));
+            if (chunkSize == null) {
+              chunkSize = 100;
+            }
 
+            for (String databaseName : sourceDatabaseProvider.getDatabaseNames()) {
               sender.sendMessage(
                 LanguageManager.getMessage("command-migrate-current-database").replace("%db%", databaseName));
 
               Database sourceDatabase = sourceDatabaseProvider.getDatabase(databaseName);
               Database targetDatabase = targetDatabaseProvider.getDatabase(databaseName);
 
-              for (Entry<String, JsonDocument> databaseEntry : sourceDatabase.entries().entrySet()) {
-                targetDatabase.insert(databaseEntry.getKey(), databaseEntry.getValue());
-              }
+              sourceDatabase.iterate(targetDatabase::insert, chunkSize);
             }
 
             executeIfNotCurrentProvider(sourceDatabaseProvider, AbstractDatabaseProvider::close);
@@ -76,7 +74,7 @@ public class CommandMigrate extends SubCommandHandler {
               .replace("%source%", sourceDatabaseProvider.getName())
               .replace("%target%", targetDatabaseProvider.getName()));
           },
-          command -> command.enableProperties().appendUsage("| --no-clear"),
+          command -> command.enableProperties().appendUsage("| --no-clear --chunk-size=100"),
           anyStringIgnoreCase("database", "db"),
           dynamicString("database-from", LanguageManager.getMessage("command-migrate-unknown-database-provider"),
             providerRegisteredPredicate(),
