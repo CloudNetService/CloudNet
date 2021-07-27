@@ -398,8 +398,7 @@ public final class CloudNet extends CloudNetDriver {
       if (this.databaseProvider != null) {
         try {
           this.databaseProvider.close();
-        } catch (Exception exception) {
-          exception.printStackTrace();
+        } catch (Exception ignored) {
         }
       }
 

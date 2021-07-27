@@ -77,10 +77,10 @@ public class XodusDatabaseProvider extends AbstractDatabaseProvider {
 
   @Override
   public Database getDatabase(String name) {
-    return this.environment.computeInTransaction(txn -> {
+    return this.cachedDatabaseInstances.computeIfAbsent(name, $ -> this.environment.computeInTransaction(txn -> {
       Store store = this.environment.openStore(name, StoreConfig.WITHOUT_DUPLICATES_WITH_PREFIXING, txn);
       return new XodusDatabase(name, this.executorService, store, this);
-    });
+    }));
   }
 
   @Override
@@ -105,6 +105,10 @@ public class XodusDatabaseProvider extends AbstractDatabaseProvider {
   public void close() throws Exception {
     this.environment.close();
     this.cachedDatabaseInstances.clear();
+
+    if (this.autoShutdownExecutorService) {
+      this.executorService.shutdownNow();
+    }
   }
 
   @Override
