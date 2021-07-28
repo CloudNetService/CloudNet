@@ -163,7 +163,7 @@
         {
           "name": "latest",
           "cacheFiles": false,
-          "url": "https://ci.codemc.io/job/Spottedleaf/job/Tuinity/lastSuccessfulBuild/artifact/tuinity-paperclip.jar",
+          "url": "https://ci.codemc.io/job/Spottedleaf/job/Tuinity-1.17/lastSuccessfulBuild/artifact/tuinity-paperclip.jar",
           "minJavaVersion": 16,
           "properties": {
             "copy": {
@@ -176,7 +176,7 @@
         },
         {
           "name": "1.17.1",
-          "url": "https://ci.codemc.io/job/Spottedleaf/job/Tuinity/lastSuccessfulBuild/artifact/tuinity-paperclip.jar",
+          "url": "https://ci.codemc.io/job/Spottedleaf/job/Tuinity-1.17/lastSuccessfulBuild/artifact/tuinity-paperclip.jar",
           "minJavaVersion": 16,
           "properties": {
             "copy": {
