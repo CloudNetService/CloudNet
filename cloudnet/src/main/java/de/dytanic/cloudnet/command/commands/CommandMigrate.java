@@ -36,6 +36,8 @@ import org.jetbrains.annotations.NotNull;
 
 public class CommandMigrate extends SubCommandHandler {
 
+  private static final int DEFAULT_CHUNK_SIZE = 100;
+
   public CommandMigrate() {
     super(
       SubCommandBuilder.create()
@@ -49,22 +51,31 @@ public class CommandMigrate extends SubCommandHandler {
               return;
             }
 
-            executeIfNotCurrentProvider(sourceDatabaseProvider, AbstractDatabaseProvider::init);
-            executeIfNotCurrentProvider(targetDatabaseProvider, AbstractDatabaseProvider::init);
-
-            Integer chunkSize = Ints.tryParse(properties.getOrDefault("chunk-size", Integer.toString(100)));
-            if (chunkSize == null) {
-              chunkSize = 100;
+            if (!executeIfNotCurrentProvider(sourceDatabaseProvider, AbstractDatabaseProvider::init) ||
+              !executeIfNotCurrentProvider(targetDatabaseProvider, AbstractDatabaseProvider::init)) {
+              return;
             }
 
-            for (String databaseName : sourceDatabaseProvider.getDatabaseNames()) {
-              sender.sendMessage(
-                LanguageManager.getMessage("command-migrate-current-database").replace("%db%", databaseName));
+            Integer chunkSize = Ints.tryParse(
+              properties.getOrDefault("chunk-size", Integer.toString(DEFAULT_CHUNK_SIZE)));
+            if (chunkSize == null) {
+              sender.sendMessage(LanguageManager.getMessage("command-migrate-chunk-size-not-a-number"));
+              return;
+            }
 
-              Database sourceDatabase = sourceDatabaseProvider.getDatabase(databaseName);
-              Database targetDatabase = targetDatabaseProvider.getDatabase(databaseName);
+            try {
+              for (String databaseName : sourceDatabaseProvider.getDatabaseNames()) {
+                sender.sendMessage(
+                  LanguageManager.getMessage("command-migrate-current-database").replace("%db%", databaseName));
 
-              sourceDatabase.iterate(targetDatabase::insert, chunkSize);
+                Database sourceDatabase = sourceDatabaseProvider.getDatabase(databaseName);
+                Database targetDatabase = targetDatabaseProvider.getDatabase(databaseName);
+
+                sourceDatabase.iterate(targetDatabase::insert, chunkSize);
+              }
+            } catch (Exception exception) {
+              CloudNet.getInstance().getLogger().error("Establishing a connection to the database failed", exception);
+              return;
             }
 
             executeIfNotCurrentProvider(sourceDatabaseProvider, AbstractDatabaseProvider::close);
@@ -74,14 +85,14 @@ public class CommandMigrate extends SubCommandHandler {
               .replace("%source%", sourceDatabaseProvider.getName())
               .replace("%target%", targetDatabaseProvider.getName()));
           },
-          command -> command.enableProperties().appendUsage("| --no-clear --chunk-size=100"),
+          command -> command.onlyConsole().enableProperties().appendUsage("| --chunk-size=100"),
           anyStringIgnoreCase("database", "db"),
           dynamicString("database-from", LanguageManager.getMessage("command-migrate-unknown-database-provider"),
             providerRegisteredPredicate(),
-            possibleAnswerSupplier()),
+            possibleDatabaseProvidersSupplier()),
           dynamicString("database-to", LanguageManager.getMessage("command-migrate-unknown-database-provider"),
             providerRegisteredPredicate(),
-            possibleAnswerSupplier())
+            possibleDatabaseProvidersSupplier())
         )
         .getSubCommands(),
       "migrate"
@@ -95,7 +106,7 @@ public class CommandMigrate extends SubCommandHandler {
     return input -> getDatabaseProvider(input) != null;
   }
 
-  private static Supplier<Collection<String>> possibleAnswerSupplier() {
+  private static Supplier<Collection<String>> possibleDatabaseProvidersSupplier() {
     return () -> CloudNet.getInstance().getServicesRegistry().getServices(AbstractDatabaseProvider.class)
       .stream()
       .map(INameable::getName)
@@ -106,14 +117,16 @@ public class CommandMigrate extends SubCommandHandler {
     return CloudNet.getInstance().getServicesRegistry().getService(AbstractDatabaseProvider.class, name);
   }
 
-  private static void executeIfNotCurrentProvider(@NotNull AbstractDatabaseProvider provider,
+  private static boolean executeIfNotCurrentProvider(@NotNull AbstractDatabaseProvider sourceProvider,
     @NotNull ThrowableConsumer<AbstractDatabaseProvider, ?> handler) {
-    if (!CloudNet.getInstance().getDatabaseProvider().equals(provider)) {
+    if (!CloudNet.getInstance().getDatabaseProvider().equals(sourceProvider)) {
       try {
-        handler.accept(provider);
+        handler.accept(sourceProvider);
       } catch (Throwable throwable) {
-        throwable.printStackTrace();
+        CloudNet.getInstance().getLogger().error("Establishing a connection to the database failed", throwable);
+        return false;
       }
     }
+    return true;
   }
 }
