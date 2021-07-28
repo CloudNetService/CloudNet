@@ -23,6 +23,8 @@ import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.common.io.HttpConnectionProvider;
 import de.dytanic.cloudnet.common.language.LanguageManager;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.console.animation.progressbar.ProgressBarInputStream;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironment;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
@@ -54,6 +56,7 @@ public class ServiceVersionProvider {
   private static final int VERSIONS_FILE_VERSION = 1;
   private static final Type COLLECTION_SERVICE_VERSION_TYPE = TypeToken
     .getParameterized(Collection.class, ServiceVersionType.class).getType();
+  protected static final Logger LOGGER = LogManager.getLogger(ServiceVersionProvider.class);
 
   private final Map<String, ServiceVersionType> serviceVersionTypes = new HashMap<>();
 
@@ -133,7 +136,7 @@ public class ServiceVersionProvider {
     }
 
     if (serviceVersion.isDeprecated()) {
-      CloudNet.getInstance().getLogger().warning(LanguageManager.getMessage("versions-installer-deprecated-version")
+      LOGGER.warning(LanguageManager.getMessage("versions-installer-deprecated-version")
         .replace("%version%", serviceVersionType.getName() + "-" + serviceVersion.getName())
       );
     }

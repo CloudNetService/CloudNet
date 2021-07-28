@@ -16,7 +16,8 @@
 
 package de.dytanic.cloudnet.driver.network.netty;
 
-import de.dytanic.cloudnet.driver.CloudNetDriver;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.protocol.Packet;
 import io.netty.channel.ChannelHandlerContext;
@@ -28,6 +29,8 @@ import org.jetbrains.annotations.ApiStatus;
 
 @ApiStatus.Internal
 public abstract class NettyNetworkHandler extends SimpleChannelInboundHandler<Packet> {
+
+  private static final Logger LOGGER = LogManager.getLogger(NettyNetworkHandler.class);
 
   protected NettyNetworkChannel channel;
 
@@ -67,7 +70,7 @@ public abstract class NettyNetworkHandler extends SimpleChannelInboundHandler<Pa
           this.channel.getPacketRegistry().handlePacket(this.channel, msg);
         }
       } catch (Exception exception) {
-        CloudNetDriver.getInstance().getLogger().error("Exception whilst handling packet " + msg, exception);
+        LOGGER.severe("Exception whilst handling packet " + msg, exception);
       }
     });
   }

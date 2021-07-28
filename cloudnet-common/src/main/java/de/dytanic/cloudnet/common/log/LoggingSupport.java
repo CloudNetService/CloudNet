@@ -23,18 +23,19 @@ final class LoggingSupport {
 
   private static ClassContextualSecurityManager securityManager;
   private static boolean securityManagerInitializationAttempted = false;
+  private static final Logger LOGGER = LogManager.getLogger(LoggingSupport.class);
 
   private LoggingSupport() {
     throw new UnsupportedOperationException();
   }
 
   public static void reportError(@NotNull String message) {
-    System.err.println("ERROR: " + message);
+    LOGGER.severe("ERROR: " + message);
   }
 
   public static void reportError(@NotNull String message, @NotNull Throwable throwable) {
-    System.err.println("ERROR: " + message);
-    System.err.println("Reported exception:");
+    LOGGER.severe("ERROR: " + message);
+    LOGGER.severe("Reported exception:");
     throwable.printStackTrace();
   }
 

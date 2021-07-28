@@ -51,6 +51,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.logging.Level;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 import org.jetbrains.annotations.NotNull;
@@ -68,7 +69,7 @@ public abstract class CloudNetDriver {
   @Deprecated
   protected final ITaskScheduler taskScheduler = new DefaultTaskScheduler();
   @Deprecated
-  protected final ILogger logger;
+  protected final ILogger iLogger;
 
   protected CloudMessenger messenger;
   protected NodeInfoProvider nodeInfoProvider;
@@ -81,13 +82,13 @@ public abstract class CloudNetDriver {
   protected DriverEnvironment driverEnvironment = DriverEnvironment.EMBEDDED;
 
   public CloudNetDriver() {
-    this.logger = new DefaultAsyncLogger();
+    this.iLogger = new DefaultAsyncLogger();
   }
 
   @Deprecated
   @ScheduledForRemoval
-  public CloudNetDriver(@NotNull ILogger logger) {
-    this.logger = logger;
+  public CloudNetDriver(@NotNull ILogger iLogger) {
+    this.iLogger = iLogger;
   }
 
   public static CloudNetDriver getInstance() {
@@ -261,9 +262,33 @@ public abstract class CloudNetDriver {
     return storage != null ? storage.getTemplates() : Collections.emptyList();
   }
 
-  public abstract void setGlobalLogLevel(@NotNull LogLevel logLevel);
+  @Deprecated
+  @ScheduledForRemoval
+  public void setGlobalLogLevel(@NotNull LogLevel logLevel) {
+    this.setGlobalLogLevel(logLevel.getLevel());
+  }
 
-  public abstract void setGlobalLogLevel(int logLevel);
+  @Deprecated
+  @ScheduledForRemoval
+  public void setGlobalLogLevel(int logLevel) {
+    switch (logLevel) {
+      case 0:
+      case 1:
+        this.setGlobalLogLevel(Level.INFO);
+      case 125:
+        this.setGlobalLogLevel(Level.WARNING);
+      case 126:
+      case 127:
+        this.setGlobalLogLevel(Level.SEVERE);
+      case 128:
+      case 129:
+        this.setGlobalLogLevel(Level.FINE);
+      case Integer.MAX_VALUE:
+        this.setGlobalLogLevel(Level.ALL);
+    }
+  }
+
+  public abstract void setGlobalLogLevel(Level logLevel);
 
   public abstract Pair<Boolean, String[]> sendCommandLineAsPermissionUser(@NotNull UUID uniqueId,
     @NotNull String commandLine);
@@ -309,13 +334,14 @@ public abstract class CloudNetDriver {
   }
 
   /**
-   * @deprecated Don't use this logger instance - create your own one using a lib or the build in LogManager.
+   * @deprecated Don't use this logger instance - create your own one using a lib or the build in {@link
+   * de.dytanic.cloudnet.common.log.LogManager}.
    */
   @NotNull
   @Deprecated
   @ScheduledForRemoval
   public ILogger getLogger() {
-    return this.logger;
+    return this.iLogger;
   }
 
   @NotNull

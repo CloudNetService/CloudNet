@@ -19,7 +19,6 @@ package de.dytanic.cloudnet.service.defaults;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.language.LanguageManager;
-import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironment;
@@ -158,11 +157,10 @@ final class JVMCloudService extends DefaultMinecraftCloudService implements IClo
     String applicationMainClass = type.getMainClass(applicationFile);
 
     if (applicationMainClass == null) {
-      CloudNetDriver.getInstance().getLogger()
-        .error(LanguageManager.getMessage("cloud-service-jar-file-not-found-error")
-          .replace("%task%", this.getServiceId().getTaskName())
-          .replace("%serviceId%", String.valueOf(this.getServiceId().getTaskServiceId()))
-          .replace("%id%", this.getServiceId().getUniqueId().toString()));
+      LOGGER.severe(LanguageManager.getMessage("cloud-service-jar-file-not-found-error")
+        .replace("%task%", this.getServiceId().getTaskName())
+        .replace("%serviceId%", String.valueOf(this.getServiceId().getTaskServiceId()))
+        .replace("%id%", this.getServiceId().getUniqueId().toString()));
 
       ServiceTask serviceTask = CloudNet.getInstance().getServiceTaskProvider()
         .getServiceTask(this.getServiceId().getTaskName());

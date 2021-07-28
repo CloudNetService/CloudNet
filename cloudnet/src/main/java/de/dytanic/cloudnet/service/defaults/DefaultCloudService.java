@@ -52,11 +52,9 @@ public abstract class DefaultCloudService extends DefaultEmptyCloudService {
 
   protected final Path directory;
   protected final Lock lifeCycleLock = new ReentrantLock();
-
+  protected boolean firstStartupOnStaticService = false;
   private boolean initialized;
   private boolean shutdownState;
-
-  protected boolean firstStartupOnStaticService = false;
 
   public DefaultCloudService(@NotNull String runtime, @NotNull ICloudServiceManager cloudServiceManager,
     @NotNull ServiceConfiguration serviceConfiguration, @NotNull CloudServiceHandler handler) {
@@ -146,7 +144,7 @@ public abstract class DefaultCloudService extends DefaultEmptyCloudService {
           }
         });
       } else {
-        System.out.println(LanguageManager.getMessage("cloud-service-manager-max-memory-error"));
+        LOGGER.info(LanguageManager.getMessage("cloud-service-manager-max-memory-error"));
       }
 
       return false;
@@ -162,7 +160,7 @@ public abstract class DefaultCloudService extends DefaultEmptyCloudService {
           }
         });
       } else {
-        System.out.println(LanguageManager.getMessage("cloud-service-manager-cpu-usage-to-high-error"));
+        LOGGER.info(LanguageManager.getMessage("cloud-service-manager-cpu-usage-to-high-error"));
       }
 
       return false;

@@ -23,9 +23,8 @@ import com.jcraft.jsch.Session;
 import com.jcraft.jsch.SftpATTRS;
 import com.jcraft.jsch.SftpException;
 import de.dytanic.cloudnet.common.language.LanguageManager;
-import de.dytanic.cloudnet.common.logging.ILogger;
-import de.dytanic.cloudnet.common.logging.LogLevel;
-import de.dytanic.cloudnet.driver.CloudNetDriver;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
@@ -47,7 +46,7 @@ import java.util.zip.ZipOutputStream;
 
 public class SFTPClient implements Closeable {
 
-  private static final LogLevel LOG_LEVEL = new LogLevel("ftp", "FTP", 1, true, true);
+  private static final Logger LOGGER = LogManager.getLogger(SFTPClient.class);
 
   private static final FTPType FTP_TYPE = FTPType.SFTP;
 
@@ -56,7 +55,6 @@ public class SFTPClient implements Closeable {
   private ChannelSftp channel;
 
   public boolean connect(FTPCredentials credentials) {
-    ILogger logger = CloudNetDriver.getInstance().getLogger();
 
     try {
       boolean sshKey = credentials.getSshKeyPath() != null && !credentials.getSshKeyPath().isEmpty();
@@ -84,8 +82,7 @@ public class SFTPClient implements Closeable {
       this.session.setConfig("StrictHostKeyChecking", "no");
       this.session.connect(2500);
     } catch (JSchException exception) {
-      logger.log(
-        LOG_LEVEL,
+      LOGGER.severe(
         LanguageManager.getMessage("module-storage-ftp-connect-failed")
           .replace("%ftpType%", FTP_TYPE.toString()),
         exception);
@@ -102,10 +99,8 @@ public class SFTPClient implements Closeable {
 
       this.channel.connect();
     } catch (JSchException exception) {
-      logger.log(
-        LOG_LEVEL,
-        LanguageManager.getMessage("module-storage-ftp-connect-failed")
-          .replace("%ftpType%", FTP_TYPE.toString()),
+      LOGGER.severe(
+        LanguageManager.getMessage("module-storage-ftp-connect-failed").replace("%ftpType%", FTP_TYPE.toString()),
         exception);
       return false;
     }

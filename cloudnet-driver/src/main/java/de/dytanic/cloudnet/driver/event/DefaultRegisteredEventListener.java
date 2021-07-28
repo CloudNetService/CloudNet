@@ -17,11 +17,13 @@
 package de.dytanic.cloudnet.driver.event;
 
 import com.google.common.base.Preconditions;
-import de.dytanic.cloudnet.common.logging.LogLevel;
-import de.dytanic.cloudnet.driver.CloudNetDriver;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.event.invoker.ListenerInvoker;
 
 public class DefaultRegisteredEventListener implements IRegisteredEventListener {
+
+  private static final Logger LOGGER = LogManager.getLogger(DefaultRegisteredEventListener.class);
 
   private final EventListener eventListener;
   private final EventPriority priority;
@@ -54,15 +56,11 @@ public class DefaultRegisteredEventListener implements IRegisteredEventListener 
     }
 
     if (event.isShowDebug()) {
-      CloudNetDriver.optionalInstance().ifPresent(cloudNetDriver -> {
-        if (cloudNetDriver.getLogger().getLevel() >= LogLevel.DEBUG.getLevel()) {
-          cloudNetDriver.getLogger().debug(String.format(
-            "Calling event %s on listener %s",
-            event.getClass().getName(),
-            this.getInstance().getClass().getName()
-          ));
-        }
-      });
+      LOGGER.fine(String.format(
+        "Calling event %s on listener %s",
+        event.getClass().getName(),
+        this.getInstance().getClass().getName()
+      ));
     }
 
     try {

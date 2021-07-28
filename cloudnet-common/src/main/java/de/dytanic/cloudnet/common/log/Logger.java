@@ -16,6 +16,7 @@
 
 package de.dytanic.cloudnet.common.log;
 
+import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -31,4 +32,32 @@ public abstract class Logger extends java.util.logging.Logger {
   public abstract @Nullable LogRecordDispatcher getLogRecordDispatcher();
 
   public abstract void setLogRecordDispatcher(@Nullable LogRecordDispatcher dispatcher);
+
+  public void fine(@NotNull String message, @NotNull Throwable throwable) {
+    this.log(Level.FINE, message, throwable);
+  }
+
+  public void finer(@NotNull String message, @NotNull Throwable throwable) {
+    this.log(Level.FINER, message, throwable);
+  }
+
+  public void finest(@NotNull String message, @NotNull Throwable throwable) {
+    this.log(Level.FINEST, message, throwable);
+  }
+
+  public void severe(@NotNull String message, @NotNull Throwable throwable) {
+    this.log(Level.SEVERE, message, throwable);
+  }
+
+  public void warning(@NotNull String message, @NotNull Throwable throwable) {
+    this.log(Level.WARNING, message, throwable);
+  }
+
+  public void info(@NotNull String message, @NotNull Throwable throwable) {
+    this.log(Level.INFO, message, throwable);
+  }
+
+  public void config(@NotNull String message, @NotNull Throwable throwable) {
+    this.log(Level.CONFIG, message, throwable);
+  }
 }

@@ -18,6 +18,9 @@ package de.dytanic.cloudnet.common.io;
 
 import com.google.common.collect.ImmutableMap;
 import de.dytanic.cloudnet.common.concurrent.IVoidThrowableCallback;
+import de.dytanic.cloudnet.common.language.LanguageManager;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -62,6 +65,7 @@ public final class FileUtils {
   public static final InputStream EMPTY_STREAM = new ByteArrayInputStream(new byte[0]);
   private static final Map<String, String> ZIP_FILE_SYSTEM_PROPERTIES = ImmutableMap
     .of("create", "false", "encoding", "UTF-8");
+  private static final Logger LOGGER = LogManager.getLogger(FileUtils.class);
 
   private FileUtils() {
     throw new UnsupportedOperationException();
@@ -80,7 +84,7 @@ public final class FileUtils {
       copy(inputStream, byteArrayOutputStream, buffer);
       return byteArrayOutputStream.toByteArray();
     } catch (IOException exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while reading stream", exception);
     }
 
     return null;
@@ -91,7 +95,7 @@ public final class FileUtils {
       .newFileSystem(URI.create("jar:" + path.toUri()), ZIP_FILE_SYSTEM_PROPERTIES)) {
       consumer.call(fileSystem);
     } catch (Throwable throwable) {
-      throwable.printStackTrace();
+      LOGGER.severe("Exception while opening file", throwable);
     }
   }
 
@@ -140,7 +144,7 @@ public final class FileUtils {
         try {
           FileUtils.copy(current, to.resolve(from.relativize(current)));
         } catch (IOException exception) {
-          exception.printStackTrace();
+          LOGGER.severe("Exception while coping file", exception);
         }
       }
     });
@@ -155,7 +159,7 @@ public final class FileUtils {
           try {
             FileUtils.copy(current, to.resolve(from.relativize(current)));
           } catch (IOException exception) {
-            exception.printStackTrace();
+            LOGGER.severe("Exception while coping file", exception);
           }
         }
       }, true, filter);
@@ -198,7 +202,7 @@ public final class FileUtils {
       return byteBuffer.toByteArray();
 
     } catch (IOException exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while reading stream", exception);
     }
 
     return emptyZipByteArray();
@@ -210,7 +214,7 @@ public final class FileUtils {
       try {
         Files.createDirectories(tempDir);
       } catch (IOException exception) {
-        exception.printStackTrace();
+        LOGGER.severe("Exception while creating directory", exception);
       }
     }
     return tempDir.resolve(UUID.randomUUID().toString());
@@ -244,7 +248,7 @@ public final class FileUtils {
       zipStream(directory, outputStream, fileFilter);
       return target;
     } catch (final IOException exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while reading stream", exception);
     }
 
     return null;
@@ -331,7 +335,7 @@ public final class FileUtils {
 
       bytes = byteArrayOutputStream.toByteArray();
     } catch (IOException exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while reading stream", exception);
     }
 
     return bytes;
@@ -384,7 +388,7 @@ public final class FileUtils {
         consumer.accept(rootDirectoryPath, path);
       }
     } catch (IOException exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while opening stream", exception);
     }
   }
 
@@ -401,7 +405,7 @@ public final class FileUtils {
         consumer.accept(rootDirectoryPath, path);
       }
     } catch (IOException exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while opening stream", exception);
     }
   }
 
@@ -410,7 +414,7 @@ public final class FileUtils {
       try {
         Files.createDirectories(directoryPath);
       } catch (IOException exception) {
-        exception.printStackTrace();
+        LOGGER.severe("Exception while creating directory", exception);
       }
     }
   }
@@ -419,7 +423,7 @@ public final class FileUtils {
     try {
       Files.deleteIfExists(file);
     } catch (IOException exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while deleting file", exception);
     }
   }
 

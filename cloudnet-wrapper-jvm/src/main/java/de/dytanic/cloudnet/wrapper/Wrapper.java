@@ -20,9 +20,6 @@ import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.io.FileUtils;
-import de.dytanic.cloudnet.common.log.LogManager;
-import de.dytanic.cloudnet.common.log.Logger;
-import de.dytanic.cloudnet.common.logging.ILogger;
 import de.dytanic.cloudnet.common.logging.LogLevel;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.DriverEnvironment;
@@ -80,6 +77,7 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
@@ -224,7 +222,7 @@ public final class Wrapper extends CloudNetDriver implements DriverAPIUser {
   public void stop() {
     try {
       this.networkClient.close();
-      this.logger.close();
+      this.iLogger.close();
     } catch (Exception exception) {
       exception.printStackTrace();
     }
@@ -286,13 +284,8 @@ public final class Wrapper extends CloudNetDriver implements DriverAPIUser {
   }
 
   @Override
-  public void setGlobalLogLevel(@NotNull LogLevel logLevel) {
-    this.setGlobalLogLevel(logLevel.getLevel());
-  }
-
-  @Override
-  public void setGlobalLogLevel(int logLevel) {
-    this.networkClient.sendPacket(new PacketServerSetGlobalLogLevel(logLevel));
+  public void setGlobalLogLevel(Level logLevel) {
+    this.networkClient.sendPacket(new PacketServerSetGlobalLogLevel(logLevel.getName()));
   }
 
   /**
@@ -449,7 +442,7 @@ public final class Wrapper extends CloudNetDriver implements DriverAPIUser {
 
     Thread applicationThread = new Thread(() -> {
       try {
-        this.logger.info(
+        this.iLogger.info(
           "Starting Application-Thread based of " + Wrapper.this.getServiceConfiguration().getProcessConfig()
             .getEnvironment() + "\n");
         method.invoke(null, new Object[]{arguments.toArray(new String[0])});

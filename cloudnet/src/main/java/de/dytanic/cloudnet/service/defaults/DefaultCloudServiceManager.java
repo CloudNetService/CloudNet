@@ -23,6 +23,8 @@ import de.dytanic.cloudnet.common.concurrent.CompletedTask;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.concurrent.function.ThrowableConsumer;
 import de.dytanic.cloudnet.common.language.LanguageManager;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.event.events.service.CloudServiceConnectNetworkEvent;
 import de.dytanic.cloudnet.driver.event.events.service.CloudServiceDisconnectNetworkEvent;
@@ -78,6 +80,8 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
   private static final ICloudServiceFactory DEFAULT_FACTORY = new DefaultCloudServiceFactory(JVMCloudService.RUNTIME,
     (manager, configuration) -> new JVMCloudService(manager, configuration, HANDLER));
 
+  private static final Logger LOGGER = LogManager.getLogger(DefaultCloudServiceManager.class);
+
   private final Path tempDirectory = Paths.get(System.getProperty("cloudnet.tempDir.services", "temp/services"));
   private final Path persistenceServicesDirectory = Paths
     .get(System.getProperty("cloudnet.persistable.services.path", "local/services"));
@@ -94,7 +98,7 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
         this.stopDeadServices();
         this.updateServiceLogs();
       } catch (Throwable throwable) {
-        CloudNet.getInstance().getLogger().error("Exception while ticking the cloud service manager", throwable);
+        LOGGER.severe("Exception while ticking the cloud service manager", throwable);
       }
     }, 1, 1, TimeUnit.SECONDS);
   }
@@ -337,10 +341,9 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
       int oldPort = port++;
 
       if (portBindRetry) {
-        CloudNetDriver.getInstance().getLogger()
-          .extended(LanguageManager.getMessage("cloud-service-port-bind-retry-message")
-            .replace("%port%", String.valueOf(oldPort))
-            .replace("%next_port%", String.valueOf(port)));
+        LOGGER.fine(LanguageManager.getMessage("cloud-service-port-bind-retry-message")
+          .replace("%port%", String.valueOf(oldPort))
+          .replace("%next_port%", String.valueOf(port)));
 
         portBindRetry = false;
       }

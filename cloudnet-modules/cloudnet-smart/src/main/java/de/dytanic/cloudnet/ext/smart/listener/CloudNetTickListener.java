@@ -18,6 +18,8 @@ package de.dytanic.cloudnet.ext.smart.listener;
 
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.language.LanguageManager;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
@@ -38,6 +40,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 public final class CloudNetTickListener {
+
+  private static final Logger LOGGER = LogManager.getLogger(CloudNetTickListener.class);
 
   private final Collection<UUID> newInstanceDelay = new CopyOnWriteArrayList<>();
 
@@ -153,7 +157,7 @@ public final class CloudNetTickListener {
         }
 
         if (cloudServiceProfile.getAutoStopCount().decrementAndGet() <= 0) {
-          System.out.println(LanguageManager.getMessage("module-smart-stop-service-automatically")
+          LOGGER.info(LanguageManager.getMessage("module-smart-stop-service-automatically")
             .replace("%id%", serviceInfoSnapshot.getServiceId().getUniqueId().toString())
             .replace("%task%", serviceInfoSnapshot.getServiceId().getTaskName())
             .replace("%serviceId%", String.valueOf(serviceInfoSnapshot.getServiceId().getTaskServiceId()))

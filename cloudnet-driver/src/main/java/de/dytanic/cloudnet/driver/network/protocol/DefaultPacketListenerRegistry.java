@@ -17,8 +17,8 @@
 package de.dytanic.cloudnet.driver.network.protocol;
 
 import com.google.common.base.Preconditions;
-import de.dytanic.cloudnet.common.logging.LogLevel;
-import de.dytanic.cloudnet.driver.CloudNetDriver;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import java.util.Arrays;
 import java.util.Collection;
@@ -32,6 +32,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * Default IPacketListenerRegistry implementation
  */
 public final class DefaultPacketListenerRegistry implements IPacketListenerRegistry {
+
+  private static final Logger LOGGER = LogManager.getLogger(DefaultPacketListenerRegistry.class);
 
   private final Map<Integer, List<IPacketListener>> listeners = new ConcurrentHashMap<>();
 
@@ -126,20 +128,16 @@ public final class DefaultPacketListenerRegistry implements IPacketListenerRegis
     Preconditions.checkNotNull(packet);
 
     if (packet.isShowDebug() && this.parent == null) {
-      CloudNetDriver.optionalInstance().ifPresent(cloudNetDriver -> {
-        if (cloudNetDriver.getLogger().getLevel() >= LogLevel.DEBUG.getLevel()) {
-          cloudNetDriver.getLogger().debug(
-            String.format(
-              "Handling packet by %s on channel %d with id %s, header=%s;body=%d",
-              channel.getClientAddress().toString(),
-              packet.getChannel(),
-              packet.getUniqueId().toString(),
-              packet.getHeader().toJson(),
-              packet.getBuffer() != null ? packet.getBuffer().readableBytes() : 0
-            )
-          );
-        }
-      });
+      LOGGER.finer(
+        String.format(
+          "Handling packet by %s on channel %d with id %s, header=%s;body=%d",
+          channel.getClientAddress().toString(),
+          packet.getChannel(),
+          packet.getUniqueId(),
+          packet.getHeader().toJson(),
+          packet.getBuffer() != null ? packet.getBuffer().readableBytes() : 0
+        )
+      );
     }
 
     if (this.parent != null) {

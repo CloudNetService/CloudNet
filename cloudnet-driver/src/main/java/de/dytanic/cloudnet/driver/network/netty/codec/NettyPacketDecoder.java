@@ -17,8 +17,8 @@
 package de.dytanic.cloudnet.driver.network.netty.codec;
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
-import de.dytanic.cloudnet.common.logging.LogLevel;
-import de.dytanic.cloudnet.driver.CloudNetDriver;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.network.netty.NettyUtils;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.network.protocol.Packet;
@@ -33,6 +33,8 @@ import org.jetbrains.annotations.ApiStatus;
 
 @ApiStatus.Internal
 public final class NettyPacketDecoder extends ByteToMessageDecoder {
+
+  private static final Logger LOGGER = LogManager.getLogger(NettyPacketDecoder.class);
 
   @Override
   protected void decode(ChannelHandlerContext ctx, ByteBuf byteBuf, List<Object> out) {
@@ -56,25 +58,21 @@ public final class NettyPacketDecoder extends ByteToMessageDecoder {
     }
   }
 
-  protected void showDebug(IPacket packet) {
+  private void showDebug(IPacket packet) {
     if (packet.isShowDebug()) {
-      CloudNetDriver.optionalInstance().ifPresent(cloudNetDriver -> {
-        if (cloudNetDriver.getLogger().getLevel() >= LogLevel.DEBUG.getLevel()) {
-          cloudNetDriver.getLogger().debug(
-            String.format(
-              "Successfully decoded packet on channel %d with id %s, header=%s;body=%d",
-              packet.getChannel(),
-              packet.getUniqueId(),
-              packet.getHeader().toJson(),
-              packet.getBuffer() != null ? packet.getBuffer().readableBytes() : 0
-            )
-          );
-        }
-      });
+      LOGGER.fine(
+        String.format(
+          "Successfully decoded packet on channel %d with id %s, header=%s;body=%d",
+          packet.getChannel(),
+          packet.getUniqueId(),
+          packet.getHeader().toJson(),
+          packet.getBuffer() != null ? packet.getBuffer().readableBytes() : 0
+        )
+      );
     }
   }
 
-  protected JsonDocument readHeader(ByteBuf buf) {
+  private JsonDocument readHeader(ByteBuf buf) {
     int length = NettyUtils.readVarInt(buf);
     if (length == 0) {
       return JsonDocument.EMPTY;

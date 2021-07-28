@@ -19,9 +19,10 @@ package de.dytanic.cloudnet.ext.cloudflare.cloudflare;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
-import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.io.HttpConnectionProvider;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.ext.cloudflare.CloudflareConfigurationEntry;
 import de.dytanic.cloudnet.ext.cloudflare.dns.DNSRecord;
 import de.dytanic.cloudnet.service.ICloudService;
@@ -44,6 +45,8 @@ public class CloudFlareAPI implements AutoCloseable {
   protected static final String ZONE_RECORDS_ENDPOINT = CLOUDFLARE_ENDPOINT + "zones/%s/dns_records";
   protected static final String ZONE_RECORDS_MANAGEMENT_ENDPOINT = ZONE_RECORDS_ENDPOINT + "/%s";
 
+  protected static final Logger LOGGER = LogManager.getLogger(CloudFlareAPI.class);
+
   protected final Multimap<UUID, DnsRecordDetail> createdRecords = Multimaps
     .newSetMultimap(new ConcurrentHashMap<>(), CopyOnWriteArraySet::new);
 
@@ -63,7 +66,7 @@ public class CloudFlareAPI implements AutoCloseable {
       if (result.getBoolean("success") && content != null) {
         String id = content.getString("id");
         if (id != null) {
-          CloudNet.getInstance().getLogger().debug(
+          LOGGER.fine(
             "Successfully created record with id " + id + " based on " + record + " (configuration: " + configuration
               + ")");
 
@@ -72,10 +75,10 @@ public class CloudFlareAPI implements AutoCloseable {
           return detail;
         }
       } else {
-        CloudNet.getInstance().getLogger().debug("Unable to create cloudflare record, response was: " + result);
+        LOGGER.fine("Unable to create cloudflare record, response was: " + result);
       }
     } catch (IOException exception) {
-      CloudNet.getInstance().getLogger().fatal(
+      LOGGER.severe(
         "Error while creating cloudflare record for configuration " + configuration + " (record: " + record + ")",
         exception
       );
@@ -116,15 +119,13 @@ public class CloudFlareAPI implements AutoCloseable {
 
       JsonDocument content = result.getDocument("result");
       if (content != null && content.contains("id")) {
-        CloudNet.getInstance().getLogger()
-          .debug("Successfully deleted record " + id + " for configuration " + configuration);
+        LOGGER.fine("Successfully deleted record " + id + " for configuration " + configuration);
         return true;
       }
 
-      CloudNet.getInstance().getLogger().debug("Unable to delete record " + id + ", response: " + result);
+      LOGGER.fine("Unable to delete record " + id + ", response: " + result);
     } catch (IOException exception) {
-      CloudNet.getInstance().getLogger()
-        .fatal("Error while deleting dns record for configuration " + configuration, exception);
+      LOGGER.severe("Error while deleting dns record for configuration " + configuration, exception);
     }
 
     return false;

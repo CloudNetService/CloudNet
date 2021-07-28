@@ -24,6 +24,8 @@ import de.dytanic.cloudnet.command.ConsoleCommandSender;
 import de.dytanic.cloudnet.command.sub.SubCommandBuilder;
 import de.dytanic.cloudnet.command.sub.SubCommandHandler;
 import de.dytanic.cloudnet.common.language.LanguageManager;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.common.logging.LogLevel;
 import de.dytanic.cloudnet.driver.service.ServiceId;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
@@ -32,6 +34,8 @@ import java.util.Collection;
 import java.util.stream.Collectors;
 
 public class CommandScreen extends SubCommandHandler {
+
+  private static final Logger LOGGER = LogManager.getLogger(CommandScreen.class);
 
   public CommandScreen() {
     super(
@@ -104,8 +108,7 @@ public class CommandScreen extends SubCommandHandler {
 
               if (enabled) {
                 for (String input : cloudService.getServiceConsoleLogCache().getCachedLogMessages()) {
-                  CloudNet.getInstance().getLogger()
-                    .log(LogLevel.INFO, "[" + cloudService.getServiceId().getName() + "] " + input);
+                  LOGGER.info("[" + cloudService.getServiceId().getName() + "] " + input);
                 }
 
                 sender.sendMessage(LanguageManager.getMessage("command-screen-enable-for-service")

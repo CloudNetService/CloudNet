@@ -18,6 +18,8 @@ package de.dytanic.cloudnet.http.v2;
 
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.collection.Pair;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.network.http.IHttpRequest;
 import de.dytanic.cloudnet.driver.permission.IPermissionUser;
@@ -40,6 +42,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.jetbrains.annotations.NotNull;
@@ -61,6 +64,8 @@ public class V2HttpAuthentication {
     "Unable to process bearer login: user gone");
   protected static final LoginResult<IPermissionUser> ERROR_HANDLING_BASIC_LOGIN = LoginResult.failure(
     "No matching user for provided basic login credentials");
+
+  protected static final Logger LOGGER = LogManager.getLogger(V2HttpAuthentication.class);
 
   protected final WebSocketTicketManager webSocketTicketManager;
   protected final Map<String, HttpSession> sessions = new ConcurrentHashMap<>();
@@ -128,7 +133,7 @@ public class V2HttpAuthentication {
           }
         }
       } catch (JwtException | IllegalArgumentException exception) {
-        CloudNet.getInstance().getLogger().debug("Exception while handling bearer auth", exception);
+        LOGGER.log(Level.FINE, "Exception while handling bearer auth", exception);
         // the key is not yet usable or too old
         if (exception instanceof PrematureJwtException || exception instanceof ExpiredJwtException) {
           return LoginResult.failure(exception.getMessage());

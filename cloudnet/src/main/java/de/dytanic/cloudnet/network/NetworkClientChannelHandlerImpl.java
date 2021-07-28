@@ -20,6 +20,8 @@ import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.cluster.IClusterNodeServer;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.language.LanguageManager;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.event.events.network.ChannelType;
 import de.dytanic.cloudnet.driver.event.events.network.NetworkChannelCloseEvent;
@@ -33,6 +35,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 public final class NetworkClientChannelHandlerImpl implements INetworkChannelHandler {
 
+  private static final Logger LOGGER = LogManager.getLogger(NetworkClientChannelHandlerImpl.class);
   private static final AtomicLong connectionWhichSendRequest = new AtomicLong();
 
   @Override
@@ -48,11 +51,10 @@ public final class NetworkClientChannelHandlerImpl implements INetworkChannelHan
         .append("secondNodeConnection", connectionWhichSendRequest.incrementAndGet() > 1)
     ));
 
-    CloudNetDriver.optionalInstance().ifPresent(
-      cloudNetDriver -> cloudNetDriver.getLogger().extended(LanguageManager.getMessage("client-network-channel-init")
-        .replace("%serverAddress%", channel.getServerAddress().getHost() + ":" + channel.getServerAddress().getPort())
-        .replace("%clientAddress%", channel.getClientAddress().getHost() + ":" + channel.getClientAddress().getPort())
-      ));
+    LOGGER.fine(LanguageManager.getMessage("client-network-channel-init")
+      .replace("%serverAddress%", channel.getServerAddress().getHost() + ":" + channel.getServerAddress().getPort())
+      .replace("%clientAddress%", channel.getClientAddress().getHost() + ":" + channel.getClientAddress().getPort())
+    );
   }
 
   @Override
@@ -71,11 +73,10 @@ public final class NetworkClientChannelHandlerImpl implements INetworkChannelHan
       .callEvent(new NetworkChannelCloseEvent(channel, ChannelType.CLIENT_CHANNEL));
     connectionWhichSendRequest.decrementAndGet();
 
-    CloudNetDriver.optionalInstance().ifPresent(
-      cloudNetDriver -> cloudNetDriver.getLogger().extended(LanguageManager.getMessage("client-network-channel-close")
-        .replace("%serverAddress%", channel.getServerAddress().getHost() + ":" + channel.getServerAddress().getPort())
-        .replace("%clientAddress%", channel.getClientAddress().getHost() + ":" + channel.getClientAddress().getPort())
-      ));
+    LOGGER.fine(LanguageManager.getMessage("client-network-channel-close")
+      .replace("%serverAddress%", channel.getServerAddress().getHost() + ":" + channel.getServerAddress().getPort())
+      .replace("%clientAddress%", channel.getClientAddress().getHost() + ":" + channel.getClientAddress().getPort())
+    );
 
     IClusterNodeServer clusterNodeServer = CloudNet.getInstance().getClusterNodeServerProvider().getNodeServer(channel);
 

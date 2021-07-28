@@ -19,10 +19,9 @@ package de.dytanic.cloudnet.ext.storage.ftp.storage;
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.common.language.LanguageManager;
-import de.dytanic.cloudnet.common.logging.ILogger;
-import de.dytanic.cloudnet.common.logging.LogLevel;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.common.stream.WrappedOutputStream;
-import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import de.dytanic.cloudnet.driver.template.FileInfo;
 import de.dytanic.cloudnet.ext.storage.ftp.client.FTPCredentials;
@@ -55,7 +54,7 @@ import org.jetbrains.annotations.Nullable;
 
 public final class FTPTemplateStorage extends AbstractFTPStorage {
 
-  private static final LogLevel LOG_LEVEL = new LogLevel("ftp", "FTP", 1, true, true);
+  private static final Logger LOGGER = LogManager.getLogger(FTPTemplateStorage.class);
 
   private final FTPClient ftpClient;
 
@@ -80,8 +79,6 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
       }
     }
 
-    ILogger logger = CloudNetDriver.getInstance().getLogger();
-
     try {
       this.ftpClient.setAutodetectUTF8(true);
       this.ftpClient.connect(host, port);
@@ -98,7 +95,7 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
       exception.printStackTrace();
     }
 
-    logger.log(LOG_LEVEL, LanguageManager.getMessage("module-storage-ftp-connect-failed")
+    LOGGER.warning(LanguageManager.getMessage("module-storage-ftp-connect-failed")
       .replace("%ftpType%", this.ftpType.toString()));
 
     return false;

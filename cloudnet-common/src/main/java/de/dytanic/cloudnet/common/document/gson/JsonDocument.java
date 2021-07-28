@@ -25,6 +25,8 @@ import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.internal.bind.TypeAdapters;
 import de.dytanic.cloudnet.common.document.IDocument;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -54,6 +56,7 @@ import org.jetbrains.annotations.NotNull;
 @EqualsAndHashCode
 public class JsonDocument implements IDocument<JsonDocument>, Cloneable {
 
+  private static final Logger LOGGER = LogManager.getLogger(JsonDocument.class);
   public static final JsonDocument EMPTY = newDocument();
   public static final Gson GSON = new GsonBuilder()
     .serializeNulls()
@@ -185,7 +188,7 @@ public class JsonDocument implements IDocument<JsonDocument>, Cloneable {
     try {
       return new JsonDocument(JsonParser.parseString(json));
     } catch (JsonSyntaxException exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while parsing json string", exception);
       return new JsonDocument();
     }
   }
@@ -779,7 +782,7 @@ public class JsonDocument implements IDocument<JsonDocument>, Cloneable {
     try (InputStreamReader reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8)) {
       return this.read(reader);
     } catch (IOException exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while reading input stream", exception);
       return this;
     }
   }

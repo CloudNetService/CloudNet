@@ -18,7 +18,8 @@ package de.dytanic.cloudnet.ext.cloudflare;
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.language.LanguageManager;
-import de.dytanic.cloudnet.driver.CloudNetDriver;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.module.ModuleLifeCycle;
 import de.dytanic.cloudnet.driver.module.ModuleTask;
 import de.dytanic.cloudnet.ext.cloudflare.cloudflare.CloudFlareAPI;
@@ -37,8 +38,8 @@ import java.util.UUID;
 
 public final class CloudNetCloudflareModule extends NodeCloudNetModule {
 
+  private static final Logger LOGGER = LogManager.getLogger(CloudNetCloudflareModule.class);
   private static CloudNetCloudflareModule instance;
-
   private CloudFlareAPI cloudFlareAPI;
   private CloudflareConfiguration cloudflareConfiguration;
 
@@ -85,7 +86,7 @@ public final class CloudNetCloudflareModule extends NodeCloudNetModule {
         try {
           ipv6Address = InetAddress.getByName(entry.getHostAddress()) instanceof Inet6Address;
         } catch (UnknownHostException exception) {
-          this.getLogger().fatal("Host address of entry " + entry + " is invalid!", exception);
+          LOGGER.severe("Host address of entry " + entry + " is invalid!", exception);
           continue;
         }
 
@@ -100,7 +101,7 @@ public final class CloudNetCloudflareModule extends NodeCloudNetModule {
           )
         );
         if (recordDetail != null) {
-          CloudNetDriver.getInstance().getLogger()
+          LOGGER
             .info(LanguageManager.getMessage("module-cloudflare-create-dns-record-for-service")
               .replace("%service%", this.getCloudNet().getConfig().getIdentity().getUniqueId())
               .replace("%domain%", entry.getDomainName())

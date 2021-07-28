@@ -18,6 +18,8 @@ package de.dytanic.cloudnet.http.v2;
 
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.conf.IConfiguration;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.network.http.HttpResponseCode;
@@ -33,6 +35,8 @@ import org.jetbrains.annotations.NotNull;
 public abstract class V2HttpHandler implements IHttpHandler {
 
   protected static final V2HttpAuthentication DEFAULT_AUTH = new V2HttpAuthentication();
+
+  protected static final Logger LOGGER = LogManager.getLogger(V2HttpHandler.class);
 
   protected final String requiredPermission;
   protected final String[] supportedRequestMethods;

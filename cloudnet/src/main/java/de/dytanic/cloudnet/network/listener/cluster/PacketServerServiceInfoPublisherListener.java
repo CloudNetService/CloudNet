@@ -18,6 +18,8 @@ package de.dytanic.cloudnet.network.listener.cluster;
 
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.language.LanguageManager;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.def.packet.PacketClientServerServiceInfoPublisher;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
@@ -26,6 +28,8 @@ import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.service.ICloudService;
 
 public final class PacketServerServiceInfoPublisherListener implements IPacketListener {
+
+  private static final Logger LOGGER = LogManager.getLogger(PacketServerServiceInfoPublisherListener.class);
 
   @Override
   public void handle(INetworkChannel channel, IPacket packet) {
@@ -47,14 +51,14 @@ public final class PacketServerServiceInfoPublisherListener implements IPacketLi
     ServiceInfoSnapshot snapshot) {
     switch (type) {
       case STARTED:
-        System.out.println(LanguageManager.getMessage("cloud-service-pre-start-message-different-node")
+        LOGGER.info(LanguageManager.getMessage("cloud-service-pre-start-message-different-node")
           .replace("%task%", snapshot.getServiceId().getTaskName())
           .replace("%serviceId%", String.valueOf(snapshot.getServiceId().getTaskServiceId()))
           .replace("%id%", snapshot.getServiceId().getUniqueId().toString())
           .replace("%node%", snapshot.getServiceId().getNodeUniqueId()));
         break;
       case STOPPED:
-        System.out.println(LanguageManager.getMessage("cloud-service-pre-stop-message-different-node")
+        LOGGER.info(LanguageManager.getMessage("cloud-service-pre-stop-message-different-node")
           .replace("%task%", snapshot.getServiceId().getTaskName())
           .replace("%serviceId%", String.valueOf(snapshot.getServiceId().getTaskServiceId()))
           .replace("%id%", snapshot.getServiceId().getUniqueId().toString())

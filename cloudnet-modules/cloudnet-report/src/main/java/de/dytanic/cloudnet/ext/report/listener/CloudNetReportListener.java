@@ -20,6 +20,8 @@ import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.common.language.LanguageManager;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.event.Event;
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
@@ -36,6 +38,7 @@ import java.nio.file.Path;
 
 public final class CloudNetReportListener {
 
+  private static final Logger LOGGER = LogManager.getLogger(CloudNetReportListener.class);
   private final CloudNetReportModule reportModule;
 
   public CloudNetReportListener(CloudNetReportModule reportModule) {
@@ -66,7 +69,7 @@ public final class CloudNetReportListener {
       serviceConsoleLogCache.setAutoPrintReceivedInput(true);
       serviceConsoleLogCache.update();
       serviceConsoleLogCache.getCachedLogMessages().forEach(message ->
-        CloudNet.getInstance().getLogger().warning(String.format(
+        LOGGER.warning(String.format(
           "[%s] %s",
           cloudService.getServiceId().getName(),
           message)));
@@ -84,7 +87,7 @@ public final class CloudNetReportListener {
       if (Files.notExists(subDir)) {
         FileUtils.createDirectoryReported(subDir);
 
-        System.out.println(LanguageManager.getMessage("module-report-create-record-start")
+        LOGGER.info(LanguageManager.getMessage("module-report-create-record-start")
           .replace("%service%", event.getCloudService().getServiceId().getName())
           .replace("%file%", subDir.toString())
         );
@@ -96,7 +99,7 @@ public final class CloudNetReportListener {
         this.writeCachedConsoleLog(subDir, event.getCloudService());
         this.writeServiceInfoSnapshot(subDir, event.getCloudService());
 
-        System.out.println(LanguageManager.getMessage("module-report-create-record-success")
+        LOGGER.info(LanguageManager.getMessage("module-report-create-record-success")
           .replace("%service%", event.getCloudService().getServiceId().getName())
           .replace("%file%", subDir.toString())
         );

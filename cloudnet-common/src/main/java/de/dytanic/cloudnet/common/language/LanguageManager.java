@@ -17,6 +17,9 @@
 package de.dytanic.cloudnet.common.language;
 
 import de.dytanic.cloudnet.common.Properties;
+import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -33,6 +36,8 @@ import java.util.Map;
  * loaded there
  */
 public final class LanguageManager {
+
+  private static final Logger LOGGER = LogManager.getLogger(LanguageManager.class);
 
   private static final Map<String, Properties> LANGUAGE_CACHE = new HashMap<>();
   /**
@@ -99,7 +104,7 @@ public final class LanguageManager {
     try (InputStream inputStream = Files.newInputStream(file)) {
       addLanguageFile(language, inputStream);
     } catch (IOException exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while reading language file", exception);
     }
   }
 
@@ -113,7 +118,7 @@ public final class LanguageManager {
     try (Reader reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8)) {
       addLanguageFile(language, reader);
     } catch (IOException exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while reading language file", exception);
     }
   }
 
@@ -129,7 +134,7 @@ public final class LanguageManager {
     try {
       properties.load(reader);
     } catch (IOException exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while reading language file", exception);
     }
 
     addLanguageFile(language, properties);

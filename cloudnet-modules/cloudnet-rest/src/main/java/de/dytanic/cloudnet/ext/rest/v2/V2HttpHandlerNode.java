@@ -18,12 +18,10 @@ package de.dytanic.cloudnet.ext.rest.v2;
 
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
-import de.dytanic.cloudnet.common.logging.AbstractLogHandler;
-import de.dytanic.cloudnet.common.logging.DefaultLogFormatter;
-import de.dytanic.cloudnet.common.logging.IFormatter;
-import de.dytanic.cloudnet.common.logging.LogEntry;
+import de.dytanic.cloudnet.common.log.AbstractHandler;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.defaults.DefaultLogFormatter;
 import de.dytanic.cloudnet.conf.JsonConfiguration;
-import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.http.HttpResponseCode;
 import de.dytanic.cloudnet.driver.network.http.IHttpContext;
@@ -39,12 +37,11 @@ import de.dytanic.cloudnet.permission.command.IPermissionUserCommandSender;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.logging.Formatter;
+import java.util.logging.LogRecord;
 import java.util.stream.Collectors;
-import org.jetbrains.annotations.NotNull;
 
 public class V2HttpHandlerNode extends WebSocketAbleV2HttpHandler {
-
-  protected static final IFormatter LOG_FORMATTER = new DefaultLogFormatter();
 
   public V2HttpHandlerNode(String requiredPermission) {
     super(
@@ -159,27 +156,22 @@ public class V2HttpHandlerNode extends WebSocketAbleV2HttpHandler {
   protected void handleLiveConsoleRequest(IHttpContext context, HttpSession session) {
     IWebSocketChannel channel = context.upgrade();
     if (channel != null) {
-      WebSocketLogHandler handler = new WebSocketLogHandler(session, channel, LOG_FORMATTER);
+      WebSocketLogHandler handler = new WebSocketLogHandler(session, channel, DefaultLogFormatter.INSTANCE);
 
       channel.addListener(handler);
-      CloudNetDriver.getInstance().getLogger().addLogHandler(handler);
+      LogManager.getRootLogger().addHandler(handler);
     }
   }
 
-  protected class WebSocketLogHandler extends AbstractLogHandler implements IWebSocketListener {
+  protected class WebSocketLogHandler extends AbstractHandler implements IWebSocketListener {
 
     protected final HttpSession httpSession;
     protected final IWebSocketChannel channel;
 
-    public WebSocketLogHandler(HttpSession session, IWebSocketChannel channel, IFormatter formatter) {
-      super(formatter);
+    public WebSocketLogHandler(HttpSession session, IWebSocketChannel channel, Formatter formatter) {
+      super.setFormatter(formatter);
       this.httpSession = session;
       this.channel = channel;
-    }
-
-    @Override
-    public void handle(@NotNull LogEntry logEntry) throws Exception {
-      this.channel.sendWebSocketFrame(WebSocketFrameType.TEXT, super.formatter.format(logEntry));
     }
 
     @Override
@@ -200,7 +192,12 @@ public class V2HttpHandlerNode extends WebSocketAbleV2HttpHandler {
 
     @Override
     public void handleClose(IWebSocketChannel channel, AtomicInteger statusCode, AtomicReference<String> reasonText) {
-      CloudNetDriver.getInstance().getLogger().removeLogHandler(this);
+      LogManager.getRootLogger().removeHandler(this);
+    }
+
+    @Override
+    public void publish(LogRecord record) {
+      this.channel.sendWebSocketFrame(WebSocketFrameType.TEXT, super.getFormatter().format(record));
     }
   }
 }
