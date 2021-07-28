@@ -63,12 +63,6 @@ public enum ConsoleColor {
     this.ansiCode = ansiCode;
   }
 
-  public static void main(String[] args) {
-    System.out.println(toColouredString('&', "&4H&call&#09add3o"));
-    System.out.println(ConsoleColor.DEFAULT);
-    System.out.println(stripColor('&', "&4H&call&#09add3o"));
-  }
-
   public static @NotNull String toColouredString(char triggerChar, @NotNull String text) {
     StringBuffer content = convertRGBColors(triggerChar, text);
 
