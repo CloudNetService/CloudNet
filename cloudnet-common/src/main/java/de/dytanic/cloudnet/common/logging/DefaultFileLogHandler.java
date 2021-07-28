@@ -25,11 +25,14 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * A standard file logger for this LoggingAPI. All important configurations can be made in the constructor
  */
+@Deprecated
+@ScheduledForRemoval
 public final class DefaultFileLogHandler extends AbstractLogHandler {
 
   public static final long SIZE_8MB = 8 * 1024 * 1024;

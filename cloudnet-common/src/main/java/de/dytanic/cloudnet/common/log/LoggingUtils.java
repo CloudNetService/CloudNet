@@ -18,6 +18,7 @@ package de.dytanic.cloudnet.common.log;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import org.jetbrains.annotations.NotNull;
@@ -39,6 +40,12 @@ public final class LoggingUtils {
         // no such log level or level number, default to INFO
         return Level.INFO;
       }
+    }
+  }
+
+  public static void removeHandlers(@NotNull Logger logger) {
+    for (Handler handler : logger.getHandlers()) {
+      logger.removeHandler(handler);
     }
   }
 

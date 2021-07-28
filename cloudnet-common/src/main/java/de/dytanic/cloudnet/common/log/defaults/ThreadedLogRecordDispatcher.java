@@ -33,7 +33,7 @@ public final class ThreadedLogRecordDispatcher extends Thread implements LogReco
   private final BlockingQueue<LogRecord> queue;
 
   private ThreadedLogRecordDispatcher(@NotNull Logger logger, @NotNull String threadName) {
-    super("Log record dispatcher");
+    super(threadName);
     this.setDaemon(true);
     this.setPriority(Thread.MIN_PRIORITY);
 

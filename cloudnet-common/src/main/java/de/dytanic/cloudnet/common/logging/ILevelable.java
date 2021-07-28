@@ -16,11 +16,15 @@
 
 package de.dytanic.cloudnet.common.logging;
 
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
+
 /**
  * Allows an object to has an specific LogLevel as integer value
  *
  * @see LogLevel
  */
+@Deprecated
+@ScheduledForRemoval
 interface ILevelable {
 
   /**

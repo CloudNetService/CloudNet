@@ -16,11 +16,14 @@
 
 package de.dytanic.cloudnet.common.logging;
 
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * The Formatter is a simply abstract way to format a LogEntry to a easy, formatted, readable message.
  */
+@Deprecated
+@ScheduledForRemoval
 public interface IFormatter {
 
   /**

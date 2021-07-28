@@ -18,7 +18,10 @@ package de.dytanic.cloudnet.common.logging;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 
+@Deprecated
+@ScheduledForRemoval
 public class LogEntryDispatcher extends Thread {
 
   private final ILogger parentLogger;

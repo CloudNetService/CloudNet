@@ -25,6 +25,8 @@ import de.dytanic.cloudnet.common.log.defaults.DefaultLogFormatter;
 import de.dytanic.cloudnet.common.log.defaults.ThreadedLogRecordDispatcher;
 import de.dytanic.cloudnet.common.log.io.LogOutputStream;
 import de.dytanic.cloudnet.wrapper.log.InternalPrintStreamLogHandler;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -53,10 +55,13 @@ public final class Main {
   }
 
   private static void initLogger(Logger logger) {
+    LoggingUtils.removeHandlers(logger);
+    Path logFilePattern = Paths.get(".wrapper", "logs", "wrapper.%g.log");
+
     logger.setLevel(LoggingUtils.getDefaultLogLevel());
     logger.setLogRecordDispatcher(ThreadedLogRecordDispatcher.forLogger(logger));
 
-    logger.addHandler(DefaultFileHandler.newInstance(".wrapper/logs/wrapper.%g.log", false)
+    logger.addHandler(DefaultFileHandler.newInstance(logFilePattern, false)
       .withFormatter(DefaultLogFormatter.INSTANCE));
     logger.addHandler(InternalPrintStreamLogHandler.forSystemStreams().withFormatter(DefaultLogFormatter.INSTANCE));
 

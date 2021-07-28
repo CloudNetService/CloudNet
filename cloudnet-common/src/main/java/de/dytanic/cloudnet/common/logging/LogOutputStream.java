@@ -19,11 +19,14 @@ package de.dytanic.cloudnet.common.logging;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 
 /**
  * Defines a new ByteArrayOutputStream that convert the bytes into a message and invokes the in constructor exist
  * logger
  */
+@Deprecated
+@ScheduledForRemoval
 public class LogOutputStream extends ByteArrayOutputStream {
 
   /**

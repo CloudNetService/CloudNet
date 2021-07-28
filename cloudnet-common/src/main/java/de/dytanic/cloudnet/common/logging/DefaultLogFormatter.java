@@ -18,6 +18,7 @@ package de.dytanic.cloudnet.common.logging;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -28,6 +29,8 @@ import org.jetbrains.annotations.NotNull;
  *
  * @see AbstractLogHandler
  */
+@Deprecated
+@ScheduledForRemoval
 public final class DefaultLogFormatter implements IFormatter {
 
   private static final DateFormat DATE_FORMAT = new SimpleDateFormat("dd.MM HH:mm:ss.SSS");

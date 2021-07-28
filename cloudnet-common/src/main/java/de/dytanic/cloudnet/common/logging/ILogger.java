@@ -16,10 +16,14 @@
 
 package de.dytanic.cloudnet.common.logging;
 
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
+
 /**
  * The logger is designed to handle the application and has all the basic capabilities to provide easy-to-use logging A
  * logger can optionally process messages asynchronously. However, it is not an obligation for the implementation
  */
+@Deprecated
+@ScheduledForRemoval
 public interface ILogger extends ILogHandlerProvider<ILogger>, ILevelable, AutoCloseable {
 
   /**
