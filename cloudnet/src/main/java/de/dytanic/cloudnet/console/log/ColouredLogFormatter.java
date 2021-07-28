@@ -16,22 +16,62 @@
 
 package de.dytanic.cloudnet.console.log;
 
+import de.dytanic.cloudnet.common.log.LoggingUtils;
 import de.dytanic.cloudnet.common.logging.IFormatter;
 import de.dytanic.cloudnet.common.logging.LogEntry;
-import de.dytanic.cloudnet.common.logging.LoggingUtils;
 import de.dytanic.cloudnet.console.ConsoleColor;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.logging.Formatter;
+import java.util.logging.Level;
+import java.util.logging.LogRecord;
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 import org.jetbrains.annotations.NotNull;
 
-public final class ColouredLogFormatter implements IFormatter {
+public final class ColouredLogFormatter extends Formatter implements IFormatter {
 
   private final DateFormat dateFormat = new SimpleDateFormat("dd.MM HH:mm:ss.SSS");
 
   @Override
+  public String format(LogRecord record) {
+    StringBuilder builder = new StringBuilder()
+      .append(ConsoleColor.DARK_GRAY)
+      .append('[')
+      .append(ConsoleColor.WHITE)
+      .append(this.dateFormat.format(record.getMillis()))
+      .append(ConsoleColor.DARK_GRAY)
+      .append("] ")
+      .append(this.getColor(record.getLevel()))
+      .append(ConsoleColor.DARK_GRAY)
+      .append(": ")
+      .append(ConsoleColor.toColouredString('&', super.formatMessage(record)))
+      .append(System.lineSeparator());
+    LoggingUtils.printStackTraceInto(builder, record);
+
+    return builder.toString();
+  }
+
+  private @NotNull String getColor(@NotNull Level level) {
+    ConsoleColor color = ConsoleColor.DARK_GRAY;
+    if (level == Level.INFO) {
+      color = ConsoleColor.GREEN;
+    } else if (level == Level.WARNING) {
+      color = ConsoleColor.YELLOW;
+    } else if (level == Level.SEVERE) {
+      color = ConsoleColor.RED;
+    } else if (level.intValue() >= Level.FINEST.intValue() && level.intValue() <= Level.FINE.intValue()) {
+      color = ConsoleColor.BLUE;
+    }
+
+    return color + level.getLocalizedName();
+  }
+
+  @Override
+  @Deprecated
+  @ScheduledForRemoval
   public @NotNull String format(@NotNull LogEntry logEntry) {
     StringBuilder builder = new StringBuilder();
-    LoggingUtils.printStackTraceToStringBuilder(builder, logEntry.getThrowable());
+    de.dytanic.cloudnet.common.logging.LoggingUtils.printStackTraceToStringBuilder(builder, logEntry.getThrowable());
 
     StringBuilder stringBuilder = new StringBuilder();
 

@@ -14,27 +14,21 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.event.log;
+package de.dytanic.cloudnet.common.log;
 
-import de.dytanic.cloudnet.driver.event.events.DriverEvent;
 import java.util.logging.LogRecord;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-public final class LoggingEntryEvent extends DriverEvent {
+public abstract class Logger extends java.util.logging.Logger {
 
-  private final LogRecord record;
-
-  public LoggingEntryEvent(LogRecord record) {
-    this.record = record;
+  protected Logger(String name, String resourceBundleName) {
+    super(name, resourceBundleName);
   }
 
-  public @NotNull LogRecord getLogEntry() {
-    return this.record;
-  }
+  public abstract void forceLog(@NotNull LogRecord logRecord);
 
-  @Override
-  public boolean isShowDebug() {
-    return false;
-  }
+  public abstract @Nullable LogRecordDispatcher getLogRecordDispatcher();
 
+  public abstract void setLogRecordDispatcher(@Nullable LogRecordDispatcher dispatcher);
 }

@@ -18,8 +18,11 @@ package de.dytanic.cloudnet.console;
 
 import de.dytanic.cloudnet.common.logging.AbstractLogHandler;
 import de.dytanic.cloudnet.common.logging.LogEntry;
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 import org.jetbrains.annotations.NotNull;
 
+@Deprecated
+@ScheduledForRemoval
 public final class ConsoleLogHandler extends AbstractLogHandler {
 
   private final IConsole console;

@@ -50,7 +50,8 @@ import de.dytanic.cloudnet.common.concurrent.ListenableTask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.common.language.LanguageManager;
-import de.dytanic.cloudnet.common.logging.ILogger;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.common.logging.LogLevel;
 import de.dytanic.cloudnet.common.unsafe.CPUUsageResolver;
 import de.dytanic.cloudnet.conf.IConfiguration;
@@ -150,6 +151,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -163,6 +165,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -171,12 +174,8 @@ public final class CloudNet extends CloudNetDriver {
   public static final int TPS = 10;
   private static CloudNet instance;
 
-  private final long startupMillis = System.currentTimeMillis();
-
   private final CloudNetTick mainLoop = new CloudNetTick(this);
-
-  private final LogLevel defaultLogLevel = LogLevel
-    .getDefaultLogLevel(System.getProperty("cloudnet.logging.defaultlevel")).orElse(LogLevel.FATAL);
+  private final long startupMillis = System.currentTimeMillis();
 
   private final Path moduleDirectory = Paths.get(System.getProperty("cloudnet.modules.directory", "modules"));
 
@@ -208,11 +207,8 @@ public final class CloudNet extends CloudNetDriver {
 
   private volatile boolean running = true;
 
-  CloudNet(List<String> commandLineArguments, ILogger logger, IConsole console) {
-    super(logger);
+  CloudNet(String[] commandLineArguments, Logger logger, IConsole console) {
     setInstance(this);
-
-    logger.setLevel(this.defaultLogLevel);
 
     this.cloudServiceManager = new DefaultCloudServiceManager();
 
@@ -224,12 +220,12 @@ public final class CloudNet extends CloudNetDriver {
     super.messenger = new NodeMessenger(this);
 
     this.console = console;
-    this.commandLineArguments = commandLineArguments;
-    this.commandLineProperties = Properties.parseLine(commandLineArguments.toArray(new String[0]));
+    this.commandLineArguments = Arrays.asList(commandLineArguments);
+    this.commandLineProperties = Properties.parseLine(commandLineArguments);
 
     this.consoleCommandSender = new ConsoleCommandSender(logger);
 
-    logger.addLogHandler(this.queuedConsoleLogHandler = new QueuedConsoleLogHandler());
+    logger.addHandler(this.queuedConsoleLogHandler = new QueuedConsoleLogHandler());
 
     this.serviceTaskProvider.reload();
     this.groupConfigurationProvider.reload();
@@ -440,8 +436,10 @@ public final class CloudNet extends CloudNetDriver {
     return this.running;
   }
 
+  @Deprecated
+  @ScheduledForRemoval
   public LogLevel getDefaultLogLevel() {
-    return this.defaultLogLevel;
+    return LogLevel.getDefaultLogLevel(LogManager.getRootLogger().getLevel().getName()).orElse(null);
   }
 
   @Override

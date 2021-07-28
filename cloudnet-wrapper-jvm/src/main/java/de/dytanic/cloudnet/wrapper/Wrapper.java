@@ -20,6 +20,8 @@ import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.io.FileUtils;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.common.logging.ILogger;
 import de.dytanic.cloudnet.common.logging.LogLevel;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
@@ -126,8 +128,7 @@ public final class Wrapper extends CloudNetDriver implements DriverAPIUser {
   private ServiceInfoSnapshot lastServiceInfoSnapShot = this.config.getServiceInfoSnapshot();
   private ServiceInfoSnapshot currentServiceInfoSnapshot = this.config.getServiceInfoSnapshot();
 
-  Wrapper(List<String> commandLineArguments, ILogger logger) {
-    super(logger);
+  Wrapper(List<String> commandLineArguments) {
     setInstance(this);
 
     super.cloudServiceFactory = new RemoteCloudServiceFactory(this::getNetworkChannel);
