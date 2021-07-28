@@ -17,6 +17,7 @@
 package de.dytanic.cloudnet.driver.network.netty.http;
 
 import com.google.common.base.Preconditions;
+import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.network.http.HttpCookie;
 import de.dytanic.cloudnet.driver.network.http.IHttpChannel;
 import de.dytanic.cloudnet.driver.network.http.IHttpComponent;
@@ -26,12 +27,16 @@ import de.dytanic.cloudnet.driver.network.http.IHttpRequest;
 import de.dytanic.cloudnet.driver.network.http.IHttpResponse;
 import de.dytanic.cloudnet.driver.network.http.IHttpServer;
 import de.dytanic.cloudnet.driver.network.http.websocket.IWebSocketChannel;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
+import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.HttpRequest;
+import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.cookie.Cookie;
 import io.netty.handler.codec.http.cookie.DefaultCookie;
 import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
 import io.netty.handler.codec.http.cookie.ServerCookieEncoder;
+import io.netty.handler.codec.http.websocketx.WebSocketHandshakeException;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
 import java.net.URI;
@@ -63,6 +68,7 @@ final class NettyHttpServerContext implements IHttpContext {
   protected volatile NettyWebSocketServerChannel webSocketServerChannel;
 
   protected IHttpHandler lastHandler;
+  protected String pathPrefix;
 
   public NettyHttpServerContext(NettyHttpServer nettyHttpServer, NettyHttpChannel channel, URI uri,
     Map<String, String> pathParameters, HttpRequest httpRequest) {
@@ -75,12 +81,15 @@ final class NettyHttpServerContext implements IHttpContext {
     this.httpServerResponse = new NettyHttpServerResponse(this, httpRequest);
 
     if (this.httpRequest.headers().contains("Cookie")) {
-      this.cookies.addAll(
-        ServerCookieDecoder.LAX.decode(this.httpRequest.headers().get("Cookie")).stream().map(cookie -> new HttpCookie(
+      this.cookies.addAll(ServerCookieDecoder.LAX.decode(this.httpRequest.headers().get("Cookie")).stream()
+        .map(cookie -> new HttpCookie(
           cookie.name(),
           cookie.value(),
           cookie.domain(),
           cookie.path(),
+          cookie.isHttpOnly(),
+          cookie.isSecure(),
+          cookie.wrap(),
           cookie.maxAge()
         )).collect(Collectors.toList()));
     }
@@ -91,25 +100,38 @@ final class NettyHttpServerContext implements IHttpContext {
   @Override
   public IWebSocketChannel upgrade() {
     if (this.webSocketServerChannel == null) {
-      this.cancelSendResponse = true;
-      WebSocketServerHandshakerFactory webSocketServerHandshakerFactory = new WebSocketServerHandshakerFactory(
+      WebSocketServerHandshaker handshaker = new WebSocketServerHandshakerFactory(
         this.httpRequest.uri(),
         null,
+        true,
+        Short.MAX_VALUE,
         false
-      );
+      ).newHandshaker(this.httpRequest);
+      if (handshaker == null) {
+        WebSocketServerHandshakerFactory.sendUnsupportedVersionResponse(this.nettyChannel);
+        return null;
+      } else {
+        this.nettyChannel.pipeline().remove("http-server-handler");
+        try {
+          handshaker.handshake(this.nettyChannel, this.httpRequest);
+        } catch (WebSocketHandshakeException exception) {
+          this.nettyChannel.writeAndFlush(new DefaultFullHttpResponse(
+            this.httpRequest.protocolVersion(),
+            HttpResponseStatus.OK,
+            Unpooled.wrappedBuffer("Unable to upgrade connection".getBytes())
+          ));
+          CloudNetDriver.getInstance().getLogger().error("Exception during websocket handshake", exception);
+          return null;
+        }
+      }
 
-      this.nettyChannel.pipeline().remove("http-server-handler");
-
-      WebSocketServerHandshaker webSocketServerHandshaker = webSocketServerHandshakerFactory
-        .newHandshaker(this.httpRequest);
-      webSocketServerHandshaker.handshake(this.nettyChannel, this.httpRequest);
-
-      this.webSocketServerChannel = new NettyWebSocketServerChannel(this.channel, this.nettyChannel,
-        webSocketServerHandshaker);
+      this.webSocketServerChannel = new NettyWebSocketServerChannel(this.channel, this.nettyChannel, handshaker);
       this.nettyChannel.pipeline().addLast("websocket-server-channel-handler",
         new NettyWebSocketServerChannelHandler(this.webSocketServerChannel));
 
+      this.cancelNext(true);
       this.closeAfter(false);
+      this.cancelSendResponse = true;
     }
 
     return this.webSocketServerChannel;
@@ -138,6 +160,12 @@ final class NettyHttpServerContext implements IHttpContext {
   @Override
   public boolean cancelNext() {
     return this.cancelNext = true;
+  }
+
+  @Override
+  public IHttpContext cancelNext(boolean cancelNext) {
+    this.cancelNext = cancelNext;
+    return this;
   }
 
   @Override
@@ -227,16 +255,28 @@ final class NettyHttpServerContext implements IHttpContext {
     return this;
   }
 
+  @Override
+  public String pathPrefix() {
+    return this.pathPrefix;
+  }
+
+  public void setPathPrefix(String pathPrefix) {
+    this.pathPrefix = pathPrefix;
+  }
+
   private void updateHeaderResponse() {
     if (this.cookies.isEmpty()) {
       this.httpServerResponse.httpResponse.headers().remove("Set-Cookie");
     } else {
-      this.httpServerResponse.httpResponse.headers()
-        .set("Set-Cookie", ServerCookieEncoder.LAX.encode(this.cookies.stream().map(httpCookie -> {
+      this.httpServerResponse.httpResponse.headers().set("Set-Cookie",
+        ServerCookieEncoder.LAX.encode(this.cookies.stream().map(httpCookie -> {
           Cookie cookie = new DefaultCookie(httpCookie.getName(), httpCookie.getValue());
           cookie.setDomain(httpCookie.getDomain());
           cookie.setMaxAge(httpCookie.getMaxAge());
           cookie.setPath(httpCookie.getPath());
+          cookie.setSecure(httpCookie.isSecure());
+          cookie.setHttpOnly(httpCookie.isHttpOnly());
+          cookie.setWrap(httpCookie.isWrap());
 
           return cookie;
         }).collect(Collectors.toList())));

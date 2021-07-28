@@ -62,6 +62,7 @@ import de.dytanic.cloudnet.console.util.HeaderReader;
 import de.dytanic.cloudnet.database.AbstractDatabaseProvider;
 import de.dytanic.cloudnet.database.DefaultDatabaseHandler;
 import de.dytanic.cloudnet.database.h2.H2DatabaseProvider;
+import de.dytanic.cloudnet.database.xodus.XodusDatabaseProvider;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.DriverEnvironment;
 import de.dytanic.cloudnet.driver.database.Database;
@@ -109,11 +110,11 @@ import de.dytanic.cloudnet.network.listener.auth.PacketClientAuthorizationListen
 import de.dytanic.cloudnet.network.listener.auth.PacketServerAuthorizationResponseListener;
 import de.dytanic.cloudnet.network.listener.cluster.PacketServerClusterNodeInfoUpdateListener;
 import de.dytanic.cloudnet.network.listener.cluster.PacketServerDeployLocalTemplateListener;
-import de.dytanic.cloudnet.network.listener.cluster.PacketServerH2DatabaseListener;
+import de.dytanic.cloudnet.network.listener.cluster.PacketServerLocalDatabaseListener;
 import de.dytanic.cloudnet.network.listener.cluster.PacketServerServiceInfoPublisherListener;
 import de.dytanic.cloudnet.network.listener.cluster.PacketServerSetGlobalServiceInfoListListener;
 import de.dytanic.cloudnet.network.listener.cluster.PacketServerSetGroupConfigurationListListener;
-import de.dytanic.cloudnet.network.listener.cluster.PacketServerSetH2DatabaseDataListener;
+import de.dytanic.cloudnet.network.listener.cluster.PacketServerSetLocalDatabaseDataListener;
 import de.dytanic.cloudnet.network.listener.cluster.PacketServerSetPermissionDataListener;
 import de.dytanic.cloudnet.network.listener.cluster.PacketServerSetServiceTaskListListener;
 import de.dytanic.cloudnet.network.listener.cluster.PacketServerSyncTemplateStorageChunkListener;
@@ -122,7 +123,7 @@ import de.dytanic.cloudnet.network.listener.cluster.PacketServerUpdatePermission
 import de.dytanic.cloudnet.network.listener.driver.PacketServerDriverAPIListener;
 import de.dytanic.cloudnet.network.packet.PacketServerClusterNodeInfoUpdate;
 import de.dytanic.cloudnet.network.packet.PacketServerSetGroupConfigurationList;
-import de.dytanic.cloudnet.network.packet.PacketServerSetH2DatabaseData;
+import de.dytanic.cloudnet.network.packet.PacketServerSetLocalDatabaseData;
 import de.dytanic.cloudnet.network.packet.PacketServerSetPermissionData;
 import de.dytanic.cloudnet.permission.DefaultDatabasePermissionManagement;
 import de.dytanic.cloudnet.permission.DefaultPermissionManagementHandler;
@@ -281,11 +282,11 @@ public final class CloudNet extends CloudNetDriver {
       this.config.getClientSslConfig().isEnabled() ? this.config.getClientSslConfig().toSslConfiguration() : null
     );
     this.networkServer = new NettyNetworkServer(
-      this.config.getClientSslConfig().isEnabled() ? this.config.getServerSslConfig().toSslConfiguration() : null,
+      this.config.getServerSslConfig().isEnabled() ? this.config.getServerSslConfig().toSslConfiguration() : null,
       NetworkServerChannelHandlerImpl::new
     );
     this.httpServer = new NettyHttpServer(
-      this.config.getClientSslConfig().isEnabled() ? this.config.getWebSslConfig().toSslConfiguration() : null);
+      this.config.getWebSslConfig().isEnabled() ? this.config.getWebSslConfig().toSslConfiguration() : null);
 
     this.initPacketRegistryListeners();
     this.clusterNodeServerProvider.setClusterServers(this.config.getClusterConfig());
@@ -299,7 +300,7 @@ public final class CloudNet extends CloudNetDriver {
     this.loadModules();
 
     this.databaseProvider = this.servicesRegistry.getService(AbstractDatabaseProvider.class,
-      this.configurationRegistry.getString("database_provider", "h2"));
+      this.configurationRegistry.getString("database_provider", "xodus"));
 
     if (this.databaseProvider == null) {
       this.stop();
@@ -307,8 +308,8 @@ public final class CloudNet extends CloudNetDriver {
 
     this.databaseProvider.setDatabaseHandler(new DefaultDatabaseHandler());
 
-    if (!this.databaseProvider.init() && !(this.databaseProvider instanceof H2DatabaseProvider)) {
-      this.databaseProvider = this.servicesRegistry.getService(AbstractDatabaseProvider.class, "h2");
+    if (!this.databaseProvider.init() && !(this.databaseProvider instanceof XodusDatabaseProvider)) {
+      this.databaseProvider = this.servicesRegistry.getService(AbstractDatabaseProvider.class, "xodus");
       this.databaseProvider.init();
     }
 
@@ -396,8 +397,7 @@ public final class CloudNet extends CloudNetDriver {
       if (this.databaseProvider != null) {
         try {
           this.databaseProvider.close();
-        } catch (Exception exception) {
-          exception.printStackTrace();
+        } catch (Exception ignored) {
         }
       }
 
@@ -849,10 +849,10 @@ public final class CloudNet extends CloudNetDriver {
 
   public void publishH2DatabaseDataToCluster(INetworkChannel channel) {
     if (channel != null) {
-      if (this.databaseProvider instanceof H2DatabaseProvider) {
+      if (this.databaseProvider.needsClusterSync()) {
         Map<String, Map<String, JsonDocument>> map = this.allocateDatabaseData();
 
-        channel.sendPacket(new PacketServerSetH2DatabaseData(map, NetworkUpdateType.ADD));
+        channel.sendPacket(new PacketServerSetLocalDatabaseData(map, NetworkUpdateType.ADD));
 
         for (Map.Entry<String, Map<String, JsonDocument>> entry : map.entrySet()) {
           entry.getValue().clear();
@@ -867,11 +867,8 @@ public final class CloudNet extends CloudNetDriver {
     Map<String, Map<String, JsonDocument>> map = new HashMap<>();
 
     for (String name : this.databaseProvider.getDatabaseNames()) {
-      if (!map.containsKey(name)) {
-        map.put(name, new HashMap<>());
-      }
       Database database = this.databaseProvider.getDatabase(name);
-      map.get(name).putAll(database.entries());
+      map.computeIfAbsent(name, $ -> new HashMap<>()).putAll(database.entries());
     }
 
     return map;
@@ -901,9 +898,9 @@ public final class CloudNet extends CloudNetDriver {
       .addListener(PacketConstants.CLUSTER_TEMPLATE_DEPLOY_CHANNEL, new PacketServerDeployLocalTemplateListener());
     registry.addListener(PacketConstants.CLUSTER_NODE_INFO_CHANNEL, new PacketServerClusterNodeInfoUpdateListener());
 
-    registry.addListener(PacketConstants.INTERNAL_H2_DATABASE_UPDATE_MODULE, new PacketServerH2DatabaseListener());
-    registry
-      .addListener(PacketConstants.INTERNAL_H2_DATABASE_UPDATE_MODULE, new PacketServerSetH2DatabaseDataListener());
+    registry.addListener(PacketConstants.INTERNAL_LOCAL_DATABASE_SYNC_CHANNEL, new PacketServerLocalDatabaseListener());
+    registry.addListener(PacketConstants.INTERNAL_LOCAL_DATABASE_SET_DATA_CHANNEL,
+      new PacketServerSetLocalDatabaseDataListener());
 
     registry.addListener(PacketConstants.INTERNAL_DEBUGGING_CHANNEL, new PacketServerSetGlobalLogLevelListener(false));
 
@@ -924,7 +921,7 @@ public final class CloudNet extends CloudNetDriver {
     this.unloadModules();
   }
 
-  private void unloadModules() {
+  public void unloadModules() {
     for (IModuleWrapper moduleWrapper : this.moduleProvider.getModules()) {
       if (!moduleWrapper.getModuleConfiguration().isRuntimeModule()) {
         this.unloadModule(moduleWrapper);
@@ -938,7 +935,7 @@ public final class CloudNet extends CloudNetDriver {
     }
   }
 
-  private void unloadModule(IModuleWrapper moduleWrapper) {
+  public void unloadModule(IModuleWrapper moduleWrapper) {
     this.unregisterPacketListenersByClassLoader(moduleWrapper.getClassLoader());
     this.eventManager.unregisterListeners(moduleWrapper.getClassLoader());
     this.commandMap.unregisterCommands(moduleWrapper.getClassLoader());
@@ -987,7 +984,7 @@ public final class CloudNet extends CloudNetDriver {
     return task;
   }
 
-  private void enableModules() {
+  public void enableModules() {
     this.loadModules();
     this.startModules();
   }
@@ -1032,6 +1029,14 @@ public final class CloudNet extends CloudNetDriver {
       AbstractDatabaseProvider.class,
       "h2",
       new H2DatabaseProvider(System.getProperty("cloudnet.database.h2.path", "local/database/h2"),
+        !this.config.getClusterConfig().getNodes().isEmpty())
+    );
+
+    this.servicesRegistry.registerService(
+      AbstractDatabaseProvider.class,
+      "xodus",
+      new XodusDatabaseProvider(
+        new File(System.getProperty("cloudnet.database.xodus.path", "local/database/xodus")),
         !this.config.getClusterConfig().getNodes().isEmpty())
     );
   }

@@ -64,7 +64,7 @@ import de.dytanic.cloudnet.ext.bridge.waterdogpe.event.WaterdogPEServiceTaskRemo
 import de.dytanic.cloudnet.wrapper.event.service.ServiceInfoSnapshotConfigureEvent;
 import dev.waterdog.waterdogpe.ProxyServer;
 import dev.waterdog.waterdogpe.event.Event;
-import dev.waterdog.waterdogpe.network.ServerInfo;
+import dev.waterdog.waterdogpe.network.serverinfo.BedrockServerInfo;
 import java.net.InetSocketAddress;
 
 public final class WaterdogPECloudNetListener {
@@ -92,7 +92,7 @@ public final class WaterdogPECloudNetListener {
       );
 
       ProxyServer.getInstance().getScheduler().scheduleTask(() ->
-        ProxyServer.getInstance().registerServerInfo(new ServerInfo(name, address, address)), false);
+        ProxyServer.getInstance().registerServerInfo(new BedrockServerInfo(name, address, address)), false);
     }
 
     this.waterdogPECall(new WaterdogPECloudServiceStartEvent(event.getServiceInfo()));

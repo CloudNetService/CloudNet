@@ -29,9 +29,9 @@ import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.driver.util.ColumnTextFormatter;
 import de.dytanic.cloudnet.driver.util.PrefixedMessageMapper;
+import de.dytanic.cloudnet.ext.bridge.node.player.NodePlayerManager;
 import de.dytanic.cloudnet.ext.bridge.player.ICloudOfflinePlayer;
 import de.dytanic.cloudnet.ext.bridge.player.ICloudPlayer;
-import de.dytanic.cloudnet.ext.bridge.player.IPlayerManager;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -48,7 +48,7 @@ public final class CommandPlayers extends SubCommandHandler {
   private static final long MAX_ONLINE_PLAYERS_FOR_COMPLETION = 50;
   private static final DateFormat DATE_FORMAT = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
 
-  public CommandPlayers(IPlayerManager playerManager) {
+  public CommandPlayers(NodePlayerManager playerManager) {
     super(
       SubCommandBuilder.create()
 
@@ -205,7 +205,16 @@ public final class CommandPlayers extends SubCommandHandler {
 
         .generateCommand(
           (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
+            boolean forceDisconnect = commandLine.endsWith("--force");
+            if (forceDisconnect) {
+              sender.sendMessage(LanguageManager.getMessage("module-bridge-command-players-kick-player-force"));
+            }
+
             String reason = (String) args.argument("reason").orElse("no reason given");
+            if (forceDisconnect) {
+              reason = reason.replaceFirst("(?s)(.*)--force", "$1");
+            }
+
             for (ICloudPlayer player : playerManager.getOnlinePlayers((String) args.argument("name").get())) {
               playerManager.getPlayerExecutor(player).kick(reason);
               sender.sendMessage(LanguageManager.getMessage("module-bridge-command-players-kick-player")
@@ -213,10 +222,16 @@ public final class CommandPlayers extends SubCommandHandler {
                 .replace("%uniqueId%", player.getUniqueId().toString())
                 .replace("%reason%", reason)
               );
+
+              if (forceDisconnect) {
+                playerManager.logoutPlayer(player.getUniqueId(), player.getName(), player.getLoginService());
+              }
             }
           },
-          subCommand -> subCommand.setMinArgs(subCommand.getRequiredArguments().length - 1)
-            .setMaxArgs(Integer.MAX_VALUE),
+          subCommand -> subCommand
+            .setMinArgs(subCommand.getRequiredArguments().length - 1)
+            .setMaxArgs(Integer.MAX_VALUE)
+            .appendUsage("| --force"),
           exactStringIgnoreCase("kick"),
           dynamicString("reason")
         )

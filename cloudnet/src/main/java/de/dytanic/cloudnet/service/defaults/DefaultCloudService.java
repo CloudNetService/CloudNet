@@ -48,13 +48,15 @@ public abstract class DefaultCloudService extends DefaultEmptyCloudService {
 
   protected static final char TEMP_NAME_SPLITTER = '_';
   protected static final long SERVICE_ERROR_RESTART_DELAY = 30;
-  private static final Lock START_SEQUENCE_LOCK = new ReentrantLock();
+  protected static final Lock START_SEQUENCE_LOCK = new ReentrantLock();
 
+  protected final Path directory;
   protected final Lock lifeCycleLock = new ReentrantLock();
-  private final Path directory;
-  protected boolean firstStartupOnStaticService = false;
+
   private boolean initialized;
   private boolean shutdownState;
+
+  protected boolean firstStartupOnStaticService = false;
 
   public DefaultCloudService(@NotNull String runtime, @NotNull ICloudServiceManager cloudServiceManager,
     @NotNull ServiceConfiguration serviceConfiguration, @NotNull CloudServiceHandler handler) {

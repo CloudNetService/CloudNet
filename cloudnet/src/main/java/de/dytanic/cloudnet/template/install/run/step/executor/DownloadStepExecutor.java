@@ -45,5 +45,4 @@ public class DownloadStepExecutor implements InstallStepExecutor {
       return new HashSet<>(Collections.singleton(targetPath));
     }
   }
-
 }

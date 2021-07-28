@@ -21,25 +21,26 @@ public final class PacketConstants {
   // general
   public static final int INTERNAL_AUTHORIZATION_CHANNEL = 1;
   public static final int INTERNAL_WRAPPER_TO_NODE_INFO_CHANNEL = 2;
-  public static final int INTERNAL_H2_DATABASE_UPDATE_MODULE = 3;
-  public static final int INTERNAL_DEBUGGING_CHANNEL = 4;
-  public static final int INTERNAL_DRIVER_API_CHANNEL = 5;
-  public static final int INTERNAL_DATABASE_API_CHANNEL = 6;
+  public static final int INTERNAL_LOCAL_DATABASE_SYNC_CHANNEL = 3;
+  public static final int INTERNAL_LOCAL_DATABASE_SET_DATA_CHANNEL = 4;
+  public static final int INTERNAL_DEBUGGING_CHANNEL = 5;
+  public static final int INTERNAL_DRIVER_API_CHANNEL = 6;
+  public static final int INTERNAL_DATABASE_API_CHANNEL = 7;
 
   // cluster
-  public static final int CLUSTER_SERVICE_INFO_LIST_CHANNEL = 7;
-  public static final int CLUSTER_GROUP_CONFIG_LIST_CHANNEL = 8;
-  public static final int CLUSTER_TASK_LIST_CHANNEL = 9;
-  public static final int CLUSTER_PERMISSION_DATA_CHANNEL = 10;
-  public static final int CLUSTER_TEMPLATE_DEPLOY_CHANNEL = 11;
-  public static final int CLUSTER_TEMPLATE_STORAGE_SYNC_CHANNEL = 12;
-  public static final int CLUSTER_TEMPLATE_STORAGE_CHUNK_SYNC_CHANNEL = 13;
-  public static final int CLUSTER_NODE_INFO_CHANNEL = 14;
+  public static final int CLUSTER_SERVICE_INFO_LIST_CHANNEL = 8;
+  public static final int CLUSTER_GROUP_CONFIG_LIST_CHANNEL = 9;
+  public static final int CLUSTER_TASK_LIST_CHANNEL = 10;
+  public static final int CLUSTER_PERMISSION_DATA_CHANNEL = 11;
+  public static final int CLUSTER_TEMPLATE_DEPLOY_CHANNEL = 12;
+  public static final int CLUSTER_TEMPLATE_STORAGE_SYNC_CHANNEL = 13;
+  public static final int CLUSTER_TEMPLATE_STORAGE_CHUNK_SYNC_CHANNEL = 14;
+  public static final int CLUSTER_NODE_INFO_CHANNEL = 15;
 
   // events
-  public static final int SERVICE_INFO_PUBLISH_CHANNEL = 15;
-  public static final int PERMISSIONS_PUBLISH_CHANNEL = 16;
-  public static final int CHANNEL_MESSAGING_CHANNEL = 17;
+  public static final int SERVICE_INFO_PUBLISH_CHANNEL = 16;
+  public static final int PERMISSIONS_PUBLISH_CHANNEL = 17;
+  public static final int CHANNEL_MESSAGING_CHANNEL = 18;
 
   private PacketConstants() {
     throw new UnsupportedOperationException();

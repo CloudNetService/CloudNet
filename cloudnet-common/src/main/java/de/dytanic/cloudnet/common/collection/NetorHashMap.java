@@ -19,7 +19,10 @@ package de.dytanic.cloudnet.common.collection;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 
+@Deprecated
+@ScheduledForRemoval
 public class NetorHashMap<K, F, S> {
 
   protected final ConcurrentHashMap<K, Pair<F, S>> wrapped = new ConcurrentHashMap<>();

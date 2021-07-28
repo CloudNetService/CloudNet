@@ -14,26 +14,22 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.network.packet;
+package de.dytanic.cloudnet.database;
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
-import de.dytanic.cloudnet.driver.network.def.PacketConstants;
-import de.dytanic.cloudnet.driver.network.protocol.Packet;
+import java.util.Map;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-public final class PacketServerH2Database extends Packet {
+public interface LocalDatabase extends IDatabase {
 
-  public PacketServerH2Database(OperationType operationType, String name, String key, JsonDocument document) {
-    super(PacketConstants.INTERNAL_H2_DATABASE_UPDATE_MODULE, new JsonDocument("operationType", operationType)
-        .append("name", name)
-        .append("key", key)
-        .append("document", document),
-      new byte[0]);
-  }
+  void insertWithoutHandlerCall(@NotNull String key, @NotNull JsonDocument document);
 
-  public enum OperationType {
-    INSERT,
-    UPDATE,
-    DELETE,
-    CLEAR
-  }
+  void updateWithoutHandlerCall(@NotNull String key, @NotNull JsonDocument document);
+
+  void deleteWithoutHandlerCall(@NotNull String key);
+
+  void clearWithoutHandlerCall();
+
+  @Nullable Map<String, JsonDocument> readChunk(long beginIndex, int chunkSize);
 }

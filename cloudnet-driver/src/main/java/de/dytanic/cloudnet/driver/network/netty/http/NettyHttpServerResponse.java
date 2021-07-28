@@ -24,6 +24,8 @@ import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponseStatus;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
@@ -31,8 +33,9 @@ import java.util.Map;
 final class NettyHttpServerResponse extends NettyHttpMessage implements IHttpResponse {
 
   protected final NettyHttpServerContext context;
-
   protected final DefaultFullHttpResponse httpResponse;
+
+  protected InputStream responseInputStream;
 
   public NettyHttpServerResponse(NettyHttpServerContext context, HttpRequest httpRequest) {
     this.context = context;
@@ -157,4 +160,26 @@ final class NettyHttpServerResponse extends NettyHttpMessage implements IHttpRes
     return this;
   }
 
+  @Override
+  public InputStream bodyStream() {
+    return this.responseInputStream;
+  }
+
+  @Override
+  public IHttpResponse body(InputStream body) {
+    if (this.responseInputStream != null) {
+      try {
+        this.responseInputStream.close();
+      } catch (IOException ignored) {
+      }
+    }
+
+    this.responseInputStream = body;
+    return this;
+  }
+
+  @Override
+  public boolean hasBody() {
+    return this.httpResponse.content().readableBytes() > 0 || this.responseInputStream != null;
+  }
 }

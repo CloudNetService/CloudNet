@@ -31,7 +31,7 @@ import de.dytanic.cloudnet.ext.bridge.waterdogpe.listener.WaterdogPECloudNetList
 import de.dytanic.cloudnet.ext.bridge.waterdogpe.listener.WaterdogPEPlayerExecutorListener;
 import de.dytanic.cloudnet.ext.bridge.waterdogpe.listener.WaterdogPEPlayerListener;
 import de.dytanic.cloudnet.wrapper.Wrapper;
-import dev.waterdog.waterdogpe.network.ServerInfo;
+import dev.waterdog.waterdogpe.network.serverinfo.BedrockServerInfo;
 import dev.waterdog.waterdogpe.plugin.Plugin;
 import java.net.InetSocketAddress;
 import java.util.Collection;
@@ -86,8 +86,7 @@ public class WaterdogPECloudNetBridgePlugin extends Plugin {
           serviceInfoSnapshot.getConnectAddress().getHost(),
           serviceInfoSnapshot.getConnectAddress().getPort()
         );
-
-        super.getProxy().registerServerInfo(new ServerInfo(name, address, address));
+        super.getProxy().registerServerInfo(new BedrockServerInfo(name, address, address));
         BridgeProxyHelper.cacheServiceInfoSnapshot(serviceInfoSnapshot);
       }
     }

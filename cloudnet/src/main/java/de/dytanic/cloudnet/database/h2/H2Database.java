@@ -16,8 +16,13 @@
 
 package de.dytanic.cloudnet.database.h2;
 
+import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.database.sql.SQLDatabase;
+import de.dytanic.cloudnet.database.sql.SQLDatabaseProvider;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
+import org.jetbrains.annotations.Nullable;
 
 public final class H2Database extends SQLDatabase {
 
@@ -25,8 +30,35 @@ public final class H2Database extends SQLDatabase {
     super(databaseProvider, name, executorService);
   }
 
+  public H2Database(
+    SQLDatabaseProvider databaseProvider,
+    String name,
+    long cacheRemovalDelay,
+    ExecutorService executorService
+  ) {
+    super(databaseProvider, name, cacheRemovalDelay, executorService);
+  }
+
   @Override
   public boolean isSynced() {
     return false;
+  }
+
+  @Override
+  public @Nullable Map<String, JsonDocument> readChunk(long beginIndex, int chunkSize) {
+    return this.databaseProvider.executeQuery(
+      String.format("SELECT * FROM `%s` WHERE rownum() BETWEEN ? AND ?;", this.name),
+      resultSet -> {
+        Map<String, JsonDocument> result = new HashMap<>();
+        while (resultSet.next()) {
+          String key = resultSet.getString(TABLE_COLUMN_KEY);
+          JsonDocument document = JsonDocument.newDocument(resultSet.getString(TABLE_COLUMN_VALUE));
+          result.put(key, document);
+        }
+
+        return result.isEmpty() ? null : result;
+      },
+      beginIndex, beginIndex + chunkSize
+    );
   }
 }

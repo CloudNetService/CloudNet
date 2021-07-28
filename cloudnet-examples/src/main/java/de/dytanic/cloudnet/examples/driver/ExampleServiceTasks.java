@@ -54,7 +54,6 @@ public final class ExampleServiceTasks {
       .startPort(25565) //start port
       .minServiceCount(187) //min services count with auto creation
       .build();
-
     CloudNetDriver.getInstance().getServiceTaskProvider().addPermanentServiceTask(serviceTask);
   }
 

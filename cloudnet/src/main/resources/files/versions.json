@@ -24,11 +24,11 @@
               "-Dpaperclip.patchonly=true"
             ],
             "fetchOverPaperApi": true,
-            "versionGroup": "1.17"
+            "versionGroup": "1.17.1"
           }
         },
         {
-          "name": "1.17",
+          "name": "1.17.1",
           "minJavaVersion": 16,
           "properties": {
             "copy": {
@@ -38,7 +38,7 @@
               "-Dpaperclip.patchonly=true"
             ],
             "fetchOverPaperApi": true,
-            "versionGroup": "1.17"
+            "versionGroup": "1.17.1"
           }
         },
         {
@@ -163,7 +163,7 @@
         {
           "name": "latest",
           "cacheFiles": false,
-          "url": "https://ci.codemc.io/job/Spottedleaf/job/Tuinity/lastSuccessfulBuild/artifact/tuinity-paperclip.jar",
+          "url": "https://ci.codemc.io/job/Spottedleaf/job/Tuinity-1.17/lastSuccessfulBuild/artifact/tuinity-paperclip.jar",
           "minJavaVersion": 16,
           "properties": {
             "copy": {
@@ -175,8 +175,8 @@
           }
         },
         {
-          "name": "1.17",
-          "url": "https://ci.codemc.io/job/Spottedleaf/job/Tuinity/lastSuccessfulBuild/artifact/tuinity-paperclip.jar",
+          "name": "1.17.1",
+          "url": "https://ci.codemc.io/job/Spottedleaf/job/Tuinity-1.17/lastSuccessfulBuild/artifact/tuinity-paperclip.jar",
           "minJavaVersion": 16,
           "properties": {
             "copy": {
@@ -223,13 +223,13 @@
       "versions": [
         {
           "name": "latest",
-          "url": "https://cdn.getbukkit.org/spigot/spigot-1.17.jar",
+          "url": "https://download.getbukkit.org/spigot/spigot-1.17.1.jar",
           "cacheFiles": false,
           "minJavaVersion": 16
         },
         {
-          "name": "1.17",
-          "url": "https://cdn.getbukkit.org/spigot/spigot-1.17.jar",
+          "name": "1.17.1",
+          "url": "https://download.getbukkit.org/spigot/spigot-1.17.1.jar",
           "minJavaVersion": 16
         },
         {
@@ -300,7 +300,7 @@
           }
         },
         {
-          "name": "1.17",
+          "name": "1.17.1",
           "url": "https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar",
           "minJavaVersion": 16,
           "properties": {

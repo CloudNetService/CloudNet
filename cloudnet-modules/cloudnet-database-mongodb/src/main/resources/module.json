@@ -1,0 +1,37 @@
+{
+  "runtimeModule": true,
+  "group": "eu.cloudnetservice.cloudnet.modules",
+  "name": "CloudNet-Database-MongoDB",
+  "version": "1.0",
+  "author": "CloudNetService",
+  "website": "https://cloudnetservice.eu",
+  "description": "CloudNet extension, which includes the database support for MongoDB",
+  "main": "eu.cloudnetservice.cloudnet.ext.mongodb.CloudNetMongoDatabaseModule",
+  "storesSensitiveData": true,
+  "dependencies": [
+    {
+      "group": "org.mongodb",
+      "name": "mongodb-driver-sync",
+      "version": "4.3.0",
+      "repo": "maven"
+    },
+    {
+      "group": "org.mongodb",
+      "name": "bson",
+      "version": "4.3.0",
+      "repo": "maven"
+    },
+    {
+      "group": "org.mongodb",
+      "name": "mongodb-driver-core",
+      "version": "4.3.0",
+      "repo": "maven"
+    },
+    {
+      "group": "org.slf4j",
+      "name": "slf4j-nop",
+      "version": "1.7.25",
+      "repo": "maven"
+    }
+  ]
+}

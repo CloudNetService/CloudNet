@@ -5,26 +5,26 @@
   "version": "1.0",
   "author": "CloudNetService",
   "website": "https://cloudnetservice.eu",
-  "description": "CloudNet extension, which includes the database support for MySQL and MariaDB database to store",
+  "description": "CloudNet extension, which includes the database support for MySQL and MariaDB",
   "main": "de.dytanic.cloudnet.ext.database.mysql.CloudNetMySQLDatabaseModule",
   "storesSensitiveData": true,
   "dependencies": [
     {
       "group": "mysql",
       "name": "mysql-connector-java",
-      "version": "5.1.47",
+      "version": "8.0.26",
       "repo": "maven"
     },
     {
       "group": "com.zaxxer",
       "name": "HikariCP",
-      "version": "2.7.9",
+      "version": "5.0.0",
       "repo": "maven"
     },
     {
       "group": "org.javassist",
       "name": "javassist",
-      "version": "3.22.0-CR1",
+      "version": "3.28.0-GA",
       "repo": "maven"
     },
     {

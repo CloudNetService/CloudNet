@@ -19,9 +19,8 @@ package de.dytanic.cloudnet.database.h2;
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.concurrent.IThrowableCallback;
 import de.dytanic.cloudnet.common.io.FileUtils;
-import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.database.sql.SQLDatabaseProvider;
-import de.dytanic.cloudnet.driver.CloudNetDriver;
+import de.dytanic.cloudnet.database.util.LocalDatabaseUtils;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.Connection;
@@ -58,20 +57,17 @@ public final class H2DatabaseProvider extends SQLDatabaseProvider {
 
   @Override
   public boolean init() throws Exception {
+    LocalDatabaseUtils.bigWarningThatEveryoneCanSeeWhenRunningInCluster(this.runsInCluster);
+
     FileUtils.createDirectoryReported(this.h2dbFile.getParent());
     this.connection = DriverManager.getConnection("jdbc:h2:" + this.h2dbFile.toAbsolutePath());
 
-    if (this.runsInCluster) {
-      CloudNetDriver.getInstance().getLogger().warning("============================================");
-      CloudNetDriver.getInstance().getLogger().warning(" ");
-
-      CloudNetDriver.getInstance().getLogger().warning(LanguageManager.getMessage("cloudnet-cluster-h2-warning"));
-
-      CloudNetDriver.getInstance().getLogger().warning(" ");
-      CloudNetDriver.getInstance().getLogger().warning("============================================");
-    }
-
     return this.connection != null;
+  }
+
+  @Override
+  public boolean needsClusterSync() {
+    return true;
   }
 
   @Override
@@ -79,13 +75,8 @@ public final class H2DatabaseProvider extends SQLDatabaseProvider {
     Preconditions.checkNotNull(name);
 
     this.removedOutdatedEntries();
-
-    if (!this.cachedDatabaseInstances.contains(name)) {
-      this.cachedDatabaseInstances
-        .add(name, System.currentTimeMillis() + NEW_CREATION_DELAY, new H2Database(this, name, super.executorService));
-    }
-
-    return (H2Database) this.cachedDatabaseInstances.getSecond(name);
+    return (H2Database) this.cachedDatabaseInstances.computeIfAbsent(name,
+      $ -> new H2Database(this, name, NEW_CREATION_DELAY, super.executorService));
   }
 
   @Override
@@ -111,7 +102,7 @@ public final class H2DatabaseProvider extends SQLDatabaseProvider {
   @Override
   public Collection<String> getDatabaseNames() {
     return this.executeQuery(
-      "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES  where TABLE_SCHEMA='PUBLIC'",
+      "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA='PUBLIC'",
       resultSet -> {
         Collection<String> collection = new ArrayList<>();
         while (resultSet.next()) {

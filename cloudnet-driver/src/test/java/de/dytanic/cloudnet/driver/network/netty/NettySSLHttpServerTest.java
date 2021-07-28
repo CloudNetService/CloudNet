@@ -28,7 +28,6 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
-import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
@@ -58,24 +57,7 @@ public class NettySSLHttpServerTest {
         .statusCode(200)).addListener(port));
 
       HttpsURLConnection.setDefaultHostnameVerifier((s, sslSession) -> true);
-
-      TrustManager[] trustManagers = new TrustManager[]{
-        new X509TrustManager() {
-          @Override
-          public void checkClientTrusted(X509Certificate[] x509Certificates, String s) throws CertificateException {
-
-          }
-
-          @Override
-          public void checkServerTrusted(X509Certificate[] x509Certificates, String s) throws CertificateException {
-          }
-
-          @Override
-          public X509Certificate[] getAcceptedIssuers() {
-            return new X509Certificate[]{selfSignedCertificate.cert()};
-          }
-        }
-      };
+      TrustManager[] trustManagers = new TrustManager[]{new UnsafeSingleCertTrustManager(selfSignedCertificate.cert())};
 
       SSLContext sslContext = SSLContext.getInstance("SSL");
       sslContext.init(null, trustManagers, new SecureRandom());
@@ -96,6 +78,28 @@ public class NettySSLHttpServerTest {
       }
 
       httpURLConnection.disconnect();
+    }
+  }
+
+  private static final class UnsafeSingleCertTrustManager implements X509TrustManager {
+
+    private final X509Certificate[] trusted;
+
+    public UnsafeSingleCertTrustManager(X509Certificate certificate) {
+      this.trusted = new X509Certificate[]{certificate};
+    }
+
+    @Override
+    public void checkClientTrusted(X509Certificate[] x509Certificates, String s) {
+    }
+
+    @Override
+    public void checkServerTrusted(X509Certificate[] x509Certificates, String s) {
+    }
+
+    @Override
+    public X509Certificate[] getAcceptedIssuers() {
+      return this.trusted;
     }
   }
 }

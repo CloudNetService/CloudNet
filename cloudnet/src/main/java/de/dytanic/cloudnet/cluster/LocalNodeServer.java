@@ -65,10 +65,9 @@ public class LocalNodeServer extends DefaultNodeServer implements NodeServer {
   }
 
   @Override
-  public @Nullable SpecificCloudServiceProvider getCloudServiceProvider(
-    @NotNull ServiceInfoSnapshot serviceInfoSnapshot) {
+  public @Nullable SpecificCloudServiceProvider getCloudServiceProvider(@NotNull ServiceInfoSnapshot snapshot) {
     ICloudService service = this.cloudNet.getCloudServiceManager()
-      .getCloudService(serviceInfoSnapshot.getServiceId().getUniqueId());
+      .getCloudService(snapshot.getServiceId().getUniqueId());
     return service == null
       ? EmptySpecificCloudServiceProvider.INSTANCE
       : new LocalNodeSpecificCloudServiceProvider(this.cloudNet, service);

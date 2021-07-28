@@ -52,6 +52,8 @@ public interface Database extends INameable, AutoCloseable {
 
   void iterate(BiConsumer<String, JsonDocument> consumer);
 
+  void iterate(BiConsumer<String, JsonDocument> consumer, int chunkSize);
+
   void clear();
 
   long getDocumentsCount();
@@ -93,6 +95,9 @@ public interface Database extends INameable, AutoCloseable {
 
   @NotNull
   ITask<Void> iterateAsync(BiConsumer<String, JsonDocument> consumer);
+
+  @NotNull
+  ITask<Void> iterateAsync(BiConsumer<String, JsonDocument> consumer, int chunkSize);
 
   @NotNull
   ITask<Void> clearAsync();

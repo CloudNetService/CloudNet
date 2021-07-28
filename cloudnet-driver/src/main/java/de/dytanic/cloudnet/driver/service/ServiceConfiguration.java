@@ -338,6 +338,29 @@ public class ServiceConfiguration extends SerializableJsonDocPropertyable implem
     this.processConfig = processConfig;
   }
 
+  public boolean isValid() {
+    return this.serviceId.taskName != null && this.serviceId.environment != null
+      && this.processConfig.maxHeapMemorySize > 0 && this.port > 0;
+  }
+
+  public void replaceNulls() {
+    if (this.templates == null) {
+      this.templates = new ServiceTemplate[0];
+    }
+    if (this.deployments == null) {
+      this.deployments = new ServiceDeployment[0];
+    }
+    if (this.includes == null) {
+      this.includes = new ServiceRemoteInclusion[0];
+    }
+    if (this.serviceId.uniqueId == null) {
+      this.serviceId.uniqueId = UUID.randomUUID();
+    }
+    if (this.processConfig.jvmOptions == null) {
+      this.processConfig.jvmOptions = Collections.emptyList();
+    }
+  }
+
   /**
    * Builder for the creation of new services. All required parameters are:
    * <ul>
@@ -852,6 +875,10 @@ public class ServiceConfiguration extends SerializableJsonDocPropertyable implem
       return this;
     }
 
+    public boolean isValid() {
+      return this.config.isValid();
+    }
+
     @NotNull
     public ServiceConfiguration build() {
       Preconditions.checkNotNull(this.config.serviceId.taskName, "No task provided");
@@ -859,25 +886,8 @@ public class ServiceConfiguration extends SerializableJsonDocPropertyable implem
       Preconditions.checkArgument(this.config.processConfig.maxHeapMemorySize > 0, "No max heap memory provided");
       Preconditions.checkArgument(this.config.port > 0, "StartPort has to greater than 0");
 
-      if (this.config.templates == null) {
-        this.config.templates = new ServiceTemplate[0];
-      }
-      if (this.config.deployments == null) {
-        this.config.deployments = new ServiceDeployment[0];
-      }
-      if (this.config.includes == null) {
-        this.config.includes = new ServiceRemoteInclusion[0];
-      }
-      if (this.config.serviceId.uniqueId == null) {
-        this.config.serviceId.uniqueId = UUID.randomUUID();
-      }
-      if (this.config.processConfig.jvmOptions == null) {
-        this.config.processConfig.jvmOptions = Collections.emptyList();
-      }
-
+      this.config.replaceNulls();
       return this.config;
     }
-
   }
-
 }
