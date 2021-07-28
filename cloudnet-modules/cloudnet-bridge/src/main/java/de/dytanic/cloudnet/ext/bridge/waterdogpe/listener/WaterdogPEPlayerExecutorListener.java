@@ -19,7 +19,7 @@ package de.dytanic.cloudnet.ext.bridge.waterdogpe.listener;
 import de.dytanic.cloudnet.ext.bridge.listener.PlayerExecutorListener;
 import de.dytanic.cloudnet.ext.bridge.waterdogpe.WaterdogPECloudNetHelper;
 import dev.waterdog.waterdogpe.ProxyServer;
-import dev.waterdog.waterdogpe.network.ServerInfo;
+import dev.waterdog.waterdogpe.network.serverinfo.ServerInfo;
 import dev.waterdog.waterdogpe.player.ProxiedPlayer;
 import java.util.Collection;
 import java.util.UUID;
@@ -83,7 +83,7 @@ public class WaterdogPEPlayerExecutorListener extends PlayerExecutorListener<Pro
   @Override
   protected void connectToFallback(@NotNull ProxiedPlayer player) {
     WaterdogPECloudNetHelper
-      .connectToFallback(player, player.getServer() != null ? player.getServer().getInfo().getServerName() : null);
+      .connectToFallback(player, player.getServerInfo() != null ? player.getServerInfo().getServerName() : null);
   }
 
   @Override
