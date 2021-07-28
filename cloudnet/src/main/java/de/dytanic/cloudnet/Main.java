@@ -31,6 +31,7 @@ import de.dytanic.cloudnet.console.log.ColouredLogFormatter;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.logging.Formatter;
+import java.util.logging.Level;
 
 public final class Main {
 
@@ -53,6 +54,7 @@ public final class Main {
     Logger logger = LogManager.getRootLogger();
 
     initLoggerAndConsole(console, logger);
+    logger.log(Level.SEVERE, "Huhu", new IllegalStateException("hu"));
 
     CloudNet cloudNet = new CloudNet(args, logger, console);
     cloudNet.start();

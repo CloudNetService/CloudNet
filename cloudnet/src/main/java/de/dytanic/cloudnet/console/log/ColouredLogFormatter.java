@@ -45,8 +45,7 @@ public final class ColouredLogFormatter extends Formatter implements IFormatter 
       .append(ConsoleColor.DARK_GRAY)
       .append(": ")
       .append(ConsoleColor.DEFAULT)
-      .append(super.formatMessage(record))
-      .append(System.lineSeparator());
+      .append(super.formatMessage(record));
     LoggingUtils.printStackTraceInto(builder, record);
 
     return builder.toString();

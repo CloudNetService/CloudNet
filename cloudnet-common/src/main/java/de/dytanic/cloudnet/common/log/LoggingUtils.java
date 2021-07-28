@@ -53,7 +53,7 @@ public final class LoggingUtils {
     if (record.getThrown() != null) {
       StringWriter writer = new StringWriter();
       record.getThrown().printStackTrace(new PrintWriter(writer));
-      stringBuilder.append(writer);
+      stringBuilder.append('\n').append(writer);
     }
   }
 }
