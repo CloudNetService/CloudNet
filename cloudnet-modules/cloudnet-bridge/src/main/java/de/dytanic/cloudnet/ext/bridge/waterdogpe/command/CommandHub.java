@@ -45,7 +45,7 @@ public class CommandHub extends Command {
     }
 
     WaterdogPECloudNetHelper.connectToFallback(proxiedPlayer,
-      proxiedPlayer.getServer() != null ? proxiedPlayer.getServer().getInfo().getServerName() : null)
+        proxiedPlayer.getServerInfo() != null ? proxiedPlayer.getServerInfo().getServerName() : null)
       .thenAccept(connectedFallback -> {
         if (connectedFallback != null) {
           sender.sendMessage(

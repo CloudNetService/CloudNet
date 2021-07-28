@@ -26,7 +26,7 @@ import de.dytanic.cloudnet.ext.bridge.proxy.BridgeProxyHelper;
 import de.dytanic.cloudnet.ext.bridge.waterdogpe.event.WaterdogPEPlayerFallbackEvent;
 import dev.waterdog.waterdogpe.ProxyServer;
 import dev.waterdog.waterdogpe.WaterdogPE;
-import dev.waterdog.waterdogpe.network.ServerInfo;
+import dev.waterdog.waterdogpe.network.serverinfo.ServerInfo;
 import dev.waterdog.waterdogpe.network.session.LoginData;
 import dev.waterdog.waterdogpe.player.ProxiedPlayer;
 import java.util.Map;
@@ -53,7 +53,7 @@ public final class WaterdogPECloudNetHelper {
   }
 
   public static boolean isOnMatchingFallbackInstance(ProxiedPlayer player) {
-    String currentServer = player.getServer() == null ? null : player.getServer().getInfo().getServerName();
+    String currentServer = player.getServerInfo() == null ? null : player.getServerInfo().getServerName();
 
     if (currentServer != null) {
       ServiceInfoSnapshot currentService = BridgeProxyHelper.getCachedServiceInfoSnapshot(currentServer);
@@ -133,7 +133,7 @@ public final class WaterdogPECloudNetHelper {
         ProxyServer.getInstance().getPlayers().values().stream().map(proxiedPlayer -> new WaterdogPECloudNetPlayerInfo(
           proxiedPlayer.getUniqueId(),
           proxiedPlayer.getName(),
-          proxiedPlayer.getServer() != null ? proxiedPlayer.getServer().getInfo().getServerName() : null,
+          proxiedPlayer.getServerInfo() != null ? proxiedPlayer.getServerInfo().getServerName() : null,
           (int) proxiedPlayer.getPing(),
           new HostAndPort(proxiedPlayer.getLoginData().getAddress())
         )).collect(Collectors.toList()))

@@ -65,7 +65,7 @@ public final class WaterdogPEPlayerListener {
 
     eventManager.subscribe(PostTransferCompleteEvent.class, event -> {
       ServiceInfoSnapshot serviceInfoSnapshot = BridgeProxyHelper
-        .getCachedServiceInfoSnapshot(event.getPlayer().getServer().getInfo().getServerName());
+        .getCachedServiceInfoSnapshot(event.getPlayer().getServerInfo().getServerName());
 
       if (serviceInfoSnapshot != null) {
         BridgeHelper.sendChannelMessageProxyServerSwitch(
