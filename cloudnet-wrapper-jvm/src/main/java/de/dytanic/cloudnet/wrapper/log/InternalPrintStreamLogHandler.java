@@ -51,9 +51,8 @@ public final class InternalPrintStreamLogHandler extends AbstractHandler {
 
   @Override
   public void publish(LogRecord record) {
-    PrintStream targetStream = record.getLevel() == Level.SEVERE || record.getLevel() == Level.WARNING
-      ? this.errorStream : this.outputStream;
-    targetStream.println(super.getFormatter().format(record));
+    PrintStream stream = record.getLevel().intValue() > Level.INFO.intValue() ? this.errorStream : this.outputStream;
+    stream.println(super.getFormatter().format(record));
   }
 
   public @NotNull InternalPrintStreamLogHandler withFormatter(@NotNull Formatter formatter) {
