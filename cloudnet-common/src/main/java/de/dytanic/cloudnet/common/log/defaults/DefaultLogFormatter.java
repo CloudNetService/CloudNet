@@ -38,8 +38,7 @@ public final class DefaultLogFormatter extends Formatter {
       .append("] ")
       .append(record.getLevel().getLocalizedName())
       .append(": ")
-      .append(super.formatMessage(record))
-      .append(System.lineSeparator());
+      .append(super.formatMessage(record));
     LoggingUtils.printStackTraceInto(builder, record);
 
     return builder.toString();
