@@ -149,7 +149,7 @@ public final class DefaultPacketListenerRegistry implements IPacketListenerRegis
         try {
           listener.handle(channel, packet);
         } catch (Exception exception) {
-          exception.printStackTrace();
+          LOGGER.severe("Exception while handling packet", exception);
         }
       }
     }

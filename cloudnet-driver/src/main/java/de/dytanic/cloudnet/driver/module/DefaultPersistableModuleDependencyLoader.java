@@ -16,7 +16,10 @@
 
 package de.dytanic.cloudnet.driver.module;
 
+import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.common.io.HttpConnectionProvider;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -27,6 +30,8 @@ import java.util.Map;
 
 public class DefaultPersistableModuleDependencyLoader implements IModuleDependencyLoader {
 
+  private static final Logger LOGGER = LogManager.getLogger(DefaultPersistableModuleDependencyLoader.class);
+
   protected final Path baseDirectory;
 
   public DefaultPersistableModuleDependencyLoader(Path baseDirectory) {
@@ -34,7 +39,7 @@ public class DefaultPersistableModuleDependencyLoader implements IModuleDependen
     try {
       Files.createDirectories(baseDirectory);
     } catch (IOException exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while creating directories", exception);
     }
   }
 

@@ -53,7 +53,7 @@ public abstract class NettyNetworkHandler extends SimpleChannelInboundHandler<Pa
   @Override
   public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
     if (!(cause instanceof IOException)) {
-      cause.printStackTrace();
+      LOGGER.severe("Exception was caught", cause);
     }
   }
 

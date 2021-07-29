@@ -18,6 +18,8 @@ package de.dytanic.cloudnet.driver.util;
 
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.io.FileUtils;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.common.unsafe.ResourceResolver;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import java.io.File;
@@ -35,6 +37,7 @@ import org.jetbrains.annotations.ApiStatus;
  */
 public final class DefaultModuleHelper {
 
+  private static final Logger LOGGER = LogManager.getLogger(DefaultModuleHelper.class);
   public static final String DEFAULT_CONFIGURATION_DATABASE_NAME = "cloudNet_module_configuration";
 
   private DefaultModuleHelper() {
@@ -67,7 +70,7 @@ public final class DefaultModuleHelper {
         return true;
       }
     } catch (IOException exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while resolving URI", exception);
     }
     return false;
   }

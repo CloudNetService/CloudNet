@@ -54,7 +54,7 @@ public final class NettyPacketDecoder extends ByteToMessageDecoder {
 
       this.showDebug(packet);
     } catch (Exception exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while decoding packet", exception);
     }
   }
 

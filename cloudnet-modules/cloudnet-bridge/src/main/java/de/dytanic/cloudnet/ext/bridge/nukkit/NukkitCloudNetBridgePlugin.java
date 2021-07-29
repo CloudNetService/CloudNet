@@ -94,7 +94,7 @@ public final class NukkitCloudNetBridgePlugin extends PluginBase {
           BridgeHelper.updateServiceInfo();
         }
       } catch (Exception exception) {
-        exception.printStackTrace();
+        this.getLogger().error("Exception while firing serverlist ping", exception);
       }
     }, 10, true);
   }

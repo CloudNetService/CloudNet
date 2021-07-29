@@ -71,7 +71,7 @@ final class NettyHttpServerHandler extends SimpleChannelInboundHandler<HttpReque
   @Override
   public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
     if (!(cause instanceof IOException)) {
-      cause.printStackTrace();
+      LOGGER.severe("Exception was caught", cause);
     }
   }
 

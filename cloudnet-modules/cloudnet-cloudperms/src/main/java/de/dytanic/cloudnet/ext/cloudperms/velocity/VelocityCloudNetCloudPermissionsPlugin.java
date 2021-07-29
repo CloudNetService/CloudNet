@@ -29,16 +29,20 @@ import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.ext.cloudperms.velocity.listener.VelocityCloudNetCloudPermissionsPlayerListener;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import java.lang.reflect.Field;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @Plugin(id = "cloudnet_cloudperms_velocity")
 public final class VelocityCloudNetCloudPermissionsPlugin {
 
   private final ProxyServer proxyServer;
+  private final Logger logger;
   private PermissionProvider permissionProvider;
 
   @Inject
-  public VelocityCloudNetCloudPermissionsPlugin(ProxyServer proxyServer) {
+  public VelocityCloudNetCloudPermissionsPlugin(ProxyServer proxyServer, Logger logger) {
     this.proxyServer = proxyServer;
+    this.logger = logger;
   }
 
   @Subscribe
@@ -73,7 +77,7 @@ public final class VelocityCloudNetCloudPermissionsPlugin {
       field.set(player, new VelocityCloudNetCloudPermissionsPermissionFunction(player.getUniqueId(),
         CloudNetDriver.getInstance().getPermissionManagement()));
     } catch (Exception exception) {
-      exception.printStackTrace();
+      this.logger.log(Level.SEVERE, "Exception while injecting permissions", exception);
     }
   }
 

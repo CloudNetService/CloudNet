@@ -99,7 +99,7 @@ public class OnlyProxyProtection {
         this.proxyIpAddress.putAll(proxySnapshot.getServiceId().getUniqueId(),
           Arrays.asList(proxyAddress.getHostAddress(), proxyConnectAddress.getHostAddress()));
       } catch (UnknownHostException exception) {
-        exception.printStackTrace();
+        LOGGER.severe("Exception while resolving host", exception);
       }
     }
   }

@@ -23,6 +23,8 @@ import com.google.gson.internal.bind.TypeAdapters;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.document.gson.JsonDocumentTypeAdapter;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.network.http.HttpResponseCode;
 import de.dytanic.cloudnet.driver.network.http.IHttpContext;
 import de.dytanic.cloudnet.driver.network.http.MethodHttpHandlerAdapter;
@@ -30,6 +32,8 @@ import de.dytanic.cloudnet.driver.permission.Permission;
 import java.util.Collection;
 
 public abstract class V1HttpHandler extends MethodHttpHandlerAdapter {
+
+  protected static final Logger LOGGER = LogManager.getLogger(V1HttpHandler.class);
 
   protected static final Gson GSON = new GsonBuilder().registerTypeAdapterFactory(TypeAdapters.newTypeHierarchyFactory(
     JsonDocument.class,

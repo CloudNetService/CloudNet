@@ -18,7 +18,6 @@ package de.dytanic.cloudnet.common.io;
 
 import com.google.common.collect.ImmutableMap;
 import de.dytanic.cloudnet.common.concurrent.IVoidThrowableCallback;
-import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import java.io.ByteArrayInputStream;

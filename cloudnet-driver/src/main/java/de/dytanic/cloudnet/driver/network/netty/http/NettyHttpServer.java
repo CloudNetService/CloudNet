@@ -18,6 +18,8 @@ package de.dytanic.cloudnet.driver.network.netty.http;
 
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.collection.Pair;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.network.http.IHttpHandler;
 import de.dytanic.cloudnet.driver.network.http.IHttpServer;
@@ -43,6 +45,8 @@ import org.jetbrains.annotations.NotNull;
 
 @ApiStatus.Internal
 public final class NettyHttpServer extends NettySSLServer implements IHttpServer {
+
+  private static final Logger LOGGER = LogManager.getLogger(NettyHttpServer.class);
 
   protected final List<HttpHandlerEntry> registeredHandlers = new CopyOnWriteArrayList<>();
   protected final Map<Integer, Pair<HostAndPort, ChannelFuture>> channelFutures = new ConcurrentHashMap<>();
@@ -92,7 +96,7 @@ public final class NettyHttpServer extends NettySSLServer implements IHttpServer
           .channel()
           .closeFuture())) == null;
       } catch (InterruptedException exception) {
-        exception.printStackTrace();
+        LOGGER.severe("Exception while listening to the channel", exception);
       }
     }
 

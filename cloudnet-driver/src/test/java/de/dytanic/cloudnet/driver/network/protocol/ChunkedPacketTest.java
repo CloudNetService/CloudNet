@@ -63,7 +63,7 @@ public class ChunkedPacketTest {
         try {
           listener.handle(null, packet.fillBuffer());
         } catch (Exception exception) {
-          exception.printStackTrace();
+          throw new RuntimeException();
         }
       }).complete();
     }

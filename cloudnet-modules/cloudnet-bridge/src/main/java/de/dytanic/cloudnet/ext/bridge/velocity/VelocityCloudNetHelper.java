@@ -22,6 +22,8 @@ import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.ServerConnection;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
 import com.velocitypowered.api.proxy.server.ServerInfo;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.ext.bridge.BridgeConfigurationProvider;
@@ -52,6 +54,8 @@ public final class VelocityCloudNetHelper {
    */
   @Deprecated
   public static final Map<String, ServiceInfoSnapshot> SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION = BridgeProxyHelper.SERVICE_CACHE;
+
+  private static final Logger LOGGER = LogManager.getLogger(VelocityCloudNetHelper.class);
 
   private static int lastOnlineCount = -1;
 
@@ -127,7 +131,7 @@ public final class VelocityCloudNetHelper {
         try {
           return future.get(10, TimeUnit.SECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException exception) {
-          exception.printStackTrace();
+          LOGGER.severe("Exception while searching fallback", exception);
         }
         return null;
       })

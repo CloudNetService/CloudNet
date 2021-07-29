@@ -18,6 +18,8 @@ package de.dytanic.cloudnet.driver.module;
 
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -37,6 +39,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class DefaultModuleWrapper implements IModuleWrapper {
 
+  private static final Logger LOGGER = LogManager.getLogger(DefaultModuleWrapper.class);
   private static final Map<String, String> DEFAULT_REPOSITORIES = Collections
     .singletonMap("maven", "https://repo1.maven.org/maven2/");
 
@@ -255,7 +258,7 @@ public class DefaultModuleWrapper implements IModuleWrapper {
     try {
       this.classLoader.close();
     } catch (Exception exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while unloading module", exception);
     }
 
     this.classLoader = null;
@@ -283,8 +286,8 @@ public class DefaultModuleWrapper implements IModuleWrapper {
       try {
         entry.getHandler().setAccessible(true);
         entry.getHandler().invoke(entry.getModule());
-      } catch (Throwable th) {
-        th.printStackTrace();
+      } catch (Throwable throwable) {
+        LOGGER.severe("Exception while firing tasks", throwable);
       }
     }
   }
