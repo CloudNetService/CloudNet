@@ -60,7 +60,7 @@ public final class Main {
 
   private static void initLoggerAndConsole(IConsole console, Logger logger) {
     Path logFilePattern = Paths.get("local", "logs", "cloudnet.%g.log");
-    Formatter consoleFormatter = console.hasColorSupport() ? new ColouredLogFormatter() : DefaultLogFormatter.INSTANCE;
+    Formatter consoleFormatter = console.hasColorSupport() ? new ColouredLogFormatter() : DefaultLogFormatter.END_CLEAN;
 
     LoggingUtils.removeHandlers(logger);
 
@@ -68,7 +68,7 @@ public final class Main {
     logger.setLogRecordDispatcher(ThreadedLogRecordDispatcher.forLogger(logger));
 
     logger.addHandler(
-      DefaultFileHandler.newInstance(logFilePattern, true).withFormatter(DefaultLogFormatter.INSTANCE));
+      DefaultFileHandler.newInstance(logFilePattern, true).withFormatter(DefaultLogFormatter.END_LINE_SEPARATOR));
     logger.addHandler(AcceptingLogHandler.newInstance(console::writeLine).withFormatter(consoleFormatter));
 
     System.setErr(LogOutputStream.forSevere(logger).toPrintStream());

@@ -143,7 +143,7 @@ public final class FileUtils {
         try {
           FileUtils.copy(current, to.resolve(from.relativize(current)));
         } catch (IOException exception) {
-          LOGGER.severe("Exception while coping file", exception);
+          LOGGER.severe("Exception while copying file", exception);
         }
       }
     });
@@ -158,7 +158,7 @@ public final class FileUtils {
           try {
             FileUtils.copy(current, to.resolve(from.relativize(current)));
           } catch (IOException exception) {
-            LOGGER.severe("Exception while coping file", exception);
+            LOGGER.severe("Exception while copying file", exception);
           }
         }
       }, true, filter);

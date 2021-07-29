@@ -156,7 +156,7 @@ public class V2HttpHandlerNode extends WebSocketAbleV2HttpHandler {
   protected void handleLiveConsoleRequest(IHttpContext context, HttpSession session) {
     IWebSocketChannel channel = context.upgrade();
     if (channel != null) {
-      WebSocketLogHandler handler = new WebSocketLogHandler(session, channel, DefaultLogFormatter.INSTANCE);
+      WebSocketLogHandler handler = new WebSocketLogHandler(session, channel, DefaultLogFormatter.END_LINE_SEPARATOR);
 
       channel.addListener(handler);
       LogManager.getRootLogger().addHandler(handler);

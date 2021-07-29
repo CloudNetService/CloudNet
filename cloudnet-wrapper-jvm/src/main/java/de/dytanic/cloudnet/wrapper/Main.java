@@ -62,8 +62,8 @@ public final class Main {
     logger.setLogRecordDispatcher(ThreadedLogRecordDispatcher.forLogger(logger));
 
     logger.addHandler(DefaultFileHandler.newInstance(logFilePattern, false)
-      .withFormatter(DefaultLogFormatter.INSTANCE));
-    logger.addHandler(InternalPrintStreamLogHandler.forSystemStreams().withFormatter(DefaultLogFormatter.INSTANCE));
+      .withFormatter(DefaultLogFormatter.END_LINE_SEPARATOR));
+    logger.addHandler(InternalPrintStreamLogHandler.forSystemStreams().withFormatter(DefaultLogFormatter.END_CLEAN));
 
     System.setErr(LogOutputStream.forSevere(logger).toPrintStream());
     System.setOut(LogOutputStream.forInformative(logger).toPrintStream());

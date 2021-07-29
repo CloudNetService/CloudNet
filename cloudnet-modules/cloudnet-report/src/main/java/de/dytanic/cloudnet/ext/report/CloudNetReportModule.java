@@ -271,12 +271,10 @@ public final class CloudNetReportModule extends NodeCloudNetModule {
 
     builder.append('\n');
 
-    Integer parsedMaxLines;
-
     List<String> logLines;
 
     logLines = CloudNet.getInstance().getQueuedConsoleLogHandler().getCachedLogEntries().stream()
-      .map(DefaultLogFormatter.INSTANCE::format)
+      .map(DefaultLogFormatter.END_LINE_SEPARATOR::format)
       .collect(Collectors.toList());
 
     for (String logLine : logLines) {
