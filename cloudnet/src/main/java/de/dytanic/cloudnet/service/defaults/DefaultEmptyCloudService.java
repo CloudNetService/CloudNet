@@ -38,7 +38,7 @@ public abstract class DefaultEmptyCloudService implements ICloudService {
   protected final ServiceConfiguration serviceConfiguration;
   protected final CloudServiceHandler handler;
   protected static final Logger LOGGER = LogManager.getLogger(DefaultEmptyCloudService.class);
-  ;
+
   private final String runtime;
   private final String connectionKey;
   protected volatile ServiceLifeCycle lifeCycle;

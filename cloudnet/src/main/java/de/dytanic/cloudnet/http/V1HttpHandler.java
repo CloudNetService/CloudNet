@@ -121,7 +121,7 @@ public abstract class V1HttpHandler extends MethodHttpHandlerAdapter {
         return false;
       }
     } catch (Exception exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while checking permissions", exception);
     }
 
     return true;

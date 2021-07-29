@@ -18,6 +18,8 @@ package de.dytanic.cloudnet.template.install.run.step.executor;
 
 import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.CloudNet;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.template.install.ServiceVersion;
 import de.dytanic.cloudnet.template.install.run.InstallInformation;
 import java.io.BufferedReader;
@@ -41,6 +43,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class BuildStepExecutor implements InstallStepExecutor {
 
+  private static final Logger LOGGER = LogManager.getLogger(BuildStepExecutor.class);
   private static final Type STRING_LIST_TYPE = TypeToken.getParameterized(List.class, String.class).getType();
   private static final ExecutorService OUTPUT_READER_EXECUTOR = Executors.newCachedThreadPool();
 
@@ -104,7 +107,7 @@ public class BuildStepExecutor implements InstallStepExecutor {
 
       return exitCode;
     } catch (IOException | InterruptedException exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while awaiting build process", exception);
     }
     return -1;
   }
@@ -129,7 +132,7 @@ public class BuildStepExecutor implements InstallStepExecutor {
           this.outputStream.println(line);
         }
       } catch (IOException exception) {
-        exception.printStackTrace();
+        LOGGER.severe("Exception while reading output", exception);
       }
     }
 

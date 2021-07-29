@@ -41,6 +41,12 @@
       <property name="onCommentFormat" value="CHECKSTYLE.ON"/>
       <property name="checkFormat" value="$1"/>
     </module>
+    <module name="RegexpSinglelineJava">
+      <property name="format" value="\.printStackTrace\(\)"/>
+      <property name="ignoreComments" value="true"/>
+      <property name="message"
+        value="Using Throwable#printStackTrace() is forbidden. Rethrow, log or handle the exception."/>
+    </module> <!-- TODO: exclude launcher etc -->
     <module name="OuterTypeFilename"/>
     <module name="IllegalTokenText">
       <property name="tokens" value="STRING_LITERAL, CHAR_LITERAL"/>

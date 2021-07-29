@@ -116,7 +116,7 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
       try {
         Files.delete(OLD_TASK_CONFIG_FILE);
       } catch (IOException exception) {
-        exception.printStackTrace();
+        LOGGER.severe("Exception while deleting file", exception);
       }
     }
   }
@@ -145,7 +145,7 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
     try {
       Files.deleteIfExists(TASKS_DIRECTORY.resolve(name + ".json"));
     } catch (IOException exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while deleting task file", exception);
     }
   }
 
@@ -158,7 +158,7 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
     try {
       this.load();
     } catch (IOException exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while reloading", exception);
     }
   }
 
@@ -181,7 +181,7 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
     try {
       this.save();
     } catch (IOException exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while saving service tasks", exception);
     }
   }
 

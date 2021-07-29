@@ -43,7 +43,7 @@ public final class NetworkServerChannelHandlerImpl implements INetworkChannelHan
       try {
         channel.close();
       } catch (Exception exception) {
-        exception.printStackTrace();
+        LOGGER.severe("Exception while closing channel", exception);
       }
       return;
     }

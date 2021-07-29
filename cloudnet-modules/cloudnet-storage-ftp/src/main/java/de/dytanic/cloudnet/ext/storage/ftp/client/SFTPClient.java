@@ -135,7 +135,7 @@ public class SFTPClient implements Closeable {
       this.channel.put(remotePath);
       return true;
     } catch (SftpException exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while creating a file", exception);
       return false;
     }
   }
@@ -157,7 +157,7 @@ public class SFTPClient implements Closeable {
     try {
       this.channel.put(localPath, remotePath);
     } catch (SftpException exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while uploading a file", exception);
     }
   }
 
@@ -169,7 +169,7 @@ public class SFTPClient implements Closeable {
       this.uploadFile(inputStream, remotePath);
       return true;
     } catch (IOException exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while uploading a file", exception);
       return false;
     }
   }
@@ -179,7 +179,7 @@ public class SFTPClient implements Closeable {
     try {
       this.channel.put(inputStream, remotePath);
     } catch (SftpException exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while uploading a file", exception);
     }
   }
 
@@ -188,7 +188,7 @@ public class SFTPClient implements Closeable {
     try {
       return this.channel.put(remotePath, ChannelSftp.APPEND);
     } catch (SftpException exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while appending an outputstream", exception);
     }
     return null;
   }
@@ -198,7 +198,7 @@ public class SFTPClient implements Closeable {
     try {
       return this.channel.put(remotePath);
     } catch (SftpException exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while opening an outputstream", exception);
     }
     return null;
   }
@@ -291,7 +291,7 @@ public class SFTPClient implements Closeable {
       }
 
     } catch (SftpException | IOException exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while downloading a directory", exception);
       return false;
     }
     return true;
@@ -308,7 +308,7 @@ public class SFTPClient implements Closeable {
         this.zip(zipOutputStream, remotePath, "");
       }
     } catch (SftpException | IOException exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while zipping a directory", exception);
     }
   }
 
@@ -362,7 +362,7 @@ public class SFTPClient implements Closeable {
               try {
                 SFTPClient.this.channel.put(file.toString(), path);
               } catch (SftpException exception) {
-                exception.printStackTrace();
+                LOGGER.severe("Exception while uploading a directory", exception);
               }
             }
             return FileVisitResult.CONTINUE;
@@ -370,7 +370,7 @@ public class SFTPClient implements Closeable {
         });
       return true;
     } catch (IOException exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while uploading a directory", exception);
       return false;
     }
   }
@@ -389,7 +389,7 @@ public class SFTPClient implements Closeable {
       }
       return true;
     } catch (IOException exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while uploading a directory", exception);
       return false;
     }
   }
@@ -409,7 +409,7 @@ public class SFTPClient implements Closeable {
           try {
             this.channel.rm(path + "/" + entry.getFilename());
           } catch (SftpException exception) {
-            exception.printStackTrace();
+            LOGGER.severe("Exception while deleting a directory", exception);
           }
         }
       }

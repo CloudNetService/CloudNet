@@ -16,6 +16,8 @@
 
 package de.dytanic.cloudnet.console.util;
 
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.console.IConsole;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -25,6 +27,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
 public final class HeaderReader {
+
+  private static final Logger LOGGER = LogManager.getLogger(HeaderReader.class);
 
   private HeaderReader() {
     throw new UnsupportedOperationException();
@@ -42,7 +46,7 @@ public final class HeaderReader {
         console.writeLine(input.replace("%codename%", codename).replace("%version%", version));
       }
     } catch (IOException exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while reading header", exception);
     }
   }
 }

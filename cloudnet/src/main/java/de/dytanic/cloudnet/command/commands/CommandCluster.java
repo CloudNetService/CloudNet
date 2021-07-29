@@ -202,7 +202,7 @@ public final class CommandCluster extends SubCommandHandler {
         }
       }
     } catch (IOException exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while reading inputstream", exception);
     }
   }
 

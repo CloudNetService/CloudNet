@@ -113,7 +113,7 @@ public abstract class DefaultTemplateCloudService extends DefaultCloudService {
 
           this.includes.add(inclusion);
         } catch (Exception exception) {
-          exception.printStackTrace();
+          LOGGER.severe("Exception while including inclusions", exception);
         }
       }
     }
@@ -187,7 +187,7 @@ public abstract class DefaultTemplateCloudService extends DefaultCloudService {
           this.templates.add(template);
 
         } catch (Exception exception) {
-          exception.printStackTrace();
+          LOGGER.severe("Exception while including templates", exception);
         }
       }
     }

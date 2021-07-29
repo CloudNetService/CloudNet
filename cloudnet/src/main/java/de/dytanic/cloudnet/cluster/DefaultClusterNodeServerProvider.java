@@ -140,7 +140,7 @@ public final class DefaultClusterNodeServerProvider extends DefaultNodeServerPro
           .target(channels)
           .complete();
       } catch (IOException exception) {
-        exception.printStackTrace();
+        LOGGER.severe("Exception while deploying into cluster", exception);
       }
     }
   }
@@ -172,7 +172,7 @@ public final class DefaultClusterNodeServerProvider extends DefaultNodeServerPro
             );
             nodeServer.close();
           } catch (Exception exception) {
-            exception.printStackTrace();
+            LOGGER.severe("Exception while closing server", exception);
           }
         }
       }

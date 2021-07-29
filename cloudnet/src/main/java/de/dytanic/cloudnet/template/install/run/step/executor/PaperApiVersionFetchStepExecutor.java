@@ -20,6 +20,8 @@ import com.google.common.collect.ImmutableMap;
 import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.io.HttpConnectionProvider;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.template.install.ServiceVersionType;
 import de.dytanic.cloudnet.template.install.run.InstallInformation;
 import java.io.IOException;
@@ -34,6 +36,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class PaperApiVersionFetchStepExecutor implements InstallStepExecutor {
 
+  private static final Logger LOGGER = LogManager.getLogger(PaperApiVersionFetchStepExecutor.class);
   private static final String VERSION_LIST_URL = "https://papermc.io/api/v2/projects/%s/versions/%s";
   private static final String DOWNLOAD_URL = "https://papermc.io/api/v2/projects/%s/versions/%s/builds/%d/downloads/%s-%s-%d.jar";
   private static final Type INT_SET_TYPE = TypeToken.getParameterized(Set.class, Integer.class).getType();
@@ -83,7 +86,7 @@ public class PaperApiVersionFetchStepExecutor implements InstallStepExecutor {
         }
       }
     } catch (IOException exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while executing request", exception);
     }
     return JsonDocument.EMPTY;
   }

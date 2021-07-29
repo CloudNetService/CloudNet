@@ -17,7 +17,6 @@
 package de.dytanic.cloudnet.driver.template.defaults;
 
 import de.dytanic.cloudnet.common.concurrent.ITask;
-import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
@@ -39,7 +38,7 @@ import org.jetbrains.annotations.Nullable;
 
 public abstract class DefaultAsyncTemplateStorage implements TemplateStorage {
 
-  private static final Logger LOGGER = LogManager.getLogger(DefaultAsyncTemplateStorage.class);
+  protected static final Logger LOGGER = LogManager.getLogger(DefaultAsyncTemplateStorage.class);
 
   @Override
   public boolean deploy(@NotNull Path directory, @NotNull ServiceTemplate target,

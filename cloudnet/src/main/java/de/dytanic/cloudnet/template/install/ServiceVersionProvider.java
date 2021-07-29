@@ -157,7 +157,7 @@ public class ServiceVersionProvider {
         }
       }
     } catch (IOException exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while deleting old application files", exception);
     }
 
     Path workingDirectory = FileUtils.createTempFile();
@@ -206,7 +206,7 @@ public class ServiceVersionProvider {
 
       return true;
     } catch (Exception exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while installing application files", exception);
     } finally {
       FileUtils.delete(workingDirectory);
     }

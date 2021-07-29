@@ -66,7 +66,7 @@ final class JVMCloudService extends DefaultMinecraftCloudService implements IClo
         outputStream.write((commandLine + "\n").getBytes(StandardCharsets.UTF_8));
         outputStream.flush();
       } catch (Exception exception) {
-        exception.printStackTrace();
+        LOGGER.severe("Exception while running the command", exception);
       }
     }
   }
@@ -208,7 +208,7 @@ final class JVMCloudService extends DefaultMinecraftCloudService implements IClo
         try {
           this.getNetworkChannel().close();
         } catch (Exception exception) {
-          exception.printStackTrace();
+          LOGGER.severe("Exception while closing the network channel", exception);
         }
       }
 
@@ -235,7 +235,7 @@ final class JVMCloudService extends DefaultMinecraftCloudService implements IClo
             return this.process.exitValue();
           }
         } catch (Exception exception) {
-          exception.printStackTrace();
+          LOGGER.severe("Exception while stopping the process", exception);
         }
       }
 

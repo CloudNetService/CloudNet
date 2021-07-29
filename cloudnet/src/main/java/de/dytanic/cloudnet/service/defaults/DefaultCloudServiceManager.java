@@ -110,7 +110,7 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
     try {
       return this.createCloudService(serviceConfiguration).get(20, TimeUnit.SECONDS);
     } catch (InterruptedException | ExecutionException | TimeoutException exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while creating the cloud service", exception);
       return null;
     }
   }
@@ -226,7 +226,7 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
           try {
             consumer.accept(cloudService);
           } catch (Exception exception) {
-            exception.printStackTrace();
+            LOGGER.severe("Exception while executing task for all services", exception);
           }
         });
       }
@@ -235,7 +235,7 @@ public final class DefaultCloudServiceManager implements ICloudServiceManager {
         executorService.shutdown();
         executorService.awaitTermination(5, TimeUnit.MINUTES);
       } catch (InterruptedException exception) {
-        exception.printStackTrace();
+        LOGGER.severe("Exception while awaiting the termination", exception);
       }
     }
   }

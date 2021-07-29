@@ -22,6 +22,8 @@ import de.dytanic.cloudnet.cluster.IClusterNodeServer;
 import de.dytanic.cloudnet.command.Command;
 import de.dytanic.cloudnet.command.DriverCommandSender;
 import de.dytanic.cloudnet.common.concurrent.ITask;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.command.CommandInfo;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
@@ -34,6 +36,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class NodeNodeInfoProvider implements NodeInfoProvider {
+
+  private static final Logger LOGGER = LogManager.getLogger(NodeNodeInfoProvider.class);
 
   private final CloudNet cloudNet;
 
@@ -113,7 +117,7 @@ public class NodeNodeInfoProvider implements NodeInfoProvider {
           return null;
         }).get();
       } catch (InterruptedException | ExecutionException exception) {
-        exception.printStackTrace();
+        LOGGER.severe("Exception sending commandline", exception);
       }
     }
 

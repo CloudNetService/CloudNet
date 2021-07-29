@@ -75,7 +75,7 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
       try {
         this.ftpClient.disconnect();
       } catch (IOException exception) {
-        exception.printStackTrace();
+        LOGGER.severe("Exception disconnecting from the server", exception);
       }
     }
 
@@ -92,7 +92,7 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
         return true;
       }
     } catch (IOException exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception connecting to the server", exception);
     }
 
     LOGGER.warning(LanguageManager.getMessage("module-storage-ftp-connect-failed")
@@ -163,7 +163,7 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
 
       return true;
     } catch (IOException exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while deploying templates", exception);
     }
 
     return false;
@@ -222,7 +222,7 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
       }
       return true;
     } catch (IOException exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while copying templates", exception);
     }
     return false;
   }
@@ -271,7 +271,7 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
     try {
       return this.deleteDir(template.getTemplatePath());
     } catch (IOException exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while deleting templates", exception);
       return false;
     }
   }
@@ -287,7 +287,7 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
       this.createDirectories(template.getTemplatePath());
       return true;
     } catch (IOException exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while creating templates", exception);
       return false;
     }
   }
@@ -315,7 +315,7 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
     try {
       return this.ftpClient.listFiles(template.getTemplatePath()).length > 0;
     } catch (IOException exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while listing files", exception);
       return false;
     }
   }
@@ -347,7 +347,7 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
     try {
       this.ftpClient.completePendingCommand();
     } catch (IOException exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while completing data transfer", exception);
     }
   }
 
@@ -504,7 +504,7 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
         }
       }
     } catch (IOException exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while resolving templates", exception);
     }
 
     return templates;

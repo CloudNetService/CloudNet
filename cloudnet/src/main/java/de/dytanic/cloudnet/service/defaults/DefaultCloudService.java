@@ -124,7 +124,7 @@ public abstract class DefaultCloudService extends DefaultEmptyCloudService {
             }
           }
         } catch (Exception exception) {
-          exception.printStackTrace();
+          LOGGER.severe("Exception while ssl init", exception);
         }
       }
 
@@ -140,7 +140,7 @@ public abstract class DefaultCloudService extends DefaultEmptyCloudService {
           try {
             this.start();
           } catch (Exception exception) {
-            exception.printStackTrace();
+            LOGGER.severe("Exception while starting the cloud service", exception);
           }
         });
       } else {
@@ -156,7 +156,7 @@ public abstract class DefaultCloudService extends DefaultEmptyCloudService {
           try {
             this.start();
           } catch (Exception exception) {
-            exception.printStackTrace();
+            LOGGER.severe("Exception while starting the cloud service", exception);
           }
         });
       } else {

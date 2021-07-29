@@ -23,6 +23,8 @@ import de.dytanic.cloudnet.common.Properties;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.common.io.HttpConnectionProvider;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.common.log.defaults.DefaultLogFormatter;
 import de.dytanic.cloudnet.common.unsafe.CPUUsageResolver;
 import de.dytanic.cloudnet.driver.event.Event;
@@ -58,6 +60,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public final class CloudNetReportModule extends NodeCloudNetModule {
+
+  private static final Logger LOGGER = LogManager.getLogger(CloudNetReportModule.class);
 
   private static CloudNetReportModule instance;
   private DateFormat dateFormat;
@@ -149,7 +153,7 @@ public final class CloudNetReportModule extends NodeCloudNetModule {
       return this.getPasteURL() + "/" + jsonDocument.getString("key") +
         (jsonDocument.contains("deleteSecret") ? " DeleteSecret: " + jsonDocument.getString("deleteSecret") : "");
     } catch (IOException exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while creating paste", exception);
     }
 
     return null;

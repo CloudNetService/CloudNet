@@ -182,7 +182,6 @@ public abstract class AbstractServiceSignManagement<T> extends ServiceSignManage
           this.tick(signsNeedingTicking);
         } catch (Throwable throwable) {
           LOGGER.severe("Exception ticking signs");
-          throwable.printStackTrace();
         }
       }, 0, 1000 / TPS, TimeUnit.MILLISECONDS);
       this.startKnockbackTask();

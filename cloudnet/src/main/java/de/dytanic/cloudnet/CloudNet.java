@@ -331,14 +331,14 @@ public final class CloudNet extends CloudNetDriver {
 
   private void setNetworkListeners() {
     for (HostAndPort hostAndPort : this.config.getIdentity().getListeners()) {
-      this.iLogger.info(LanguageManager.getMessage("cloudnet-network-server-bind")
+      LOGGER.info(LanguageManager.getMessage("cloudnet-network-server-bind")
         .replace("%address%", hostAndPort.getHost() + ":" + hostAndPort.getPort()));
 
       this.networkServer.addListener(hostAndPort);
     }
 
     for (HostAndPort hostAndPort : this.config.getHttpListeners()) {
-      this.iLogger.info(LanguageManager.getMessage("cloudnet-http-server-bind")
+      LOGGER.info(LanguageManager.getMessage("cloudnet-http-server-bind")
         .replace("%address%", hostAndPort.getHost() + ":" + hostAndPort.getPort()));
 
       this.httpServer.addListener(hostAndPort);
@@ -347,13 +347,13 @@ public final class CloudNet extends CloudNetDriver {
     Random random = new Random();
     for (NetworkClusterNode node : this.config.getClusterConfig().getNodes()) {
       if (!this.networkClient.connect(node.getListeners()[random.nextInt(node.getListeners().length)])) {
-        this.iLogger.log(LogLevel.WARNING, LanguageManager.getMessage("cluster-server-networking-connection-refused"));
+        LOGGER.warning(LanguageManager.getMessage("cluster-server-networking-connection-refused"));
       }
     }
   }
 
   public void reload() {
-    this.iLogger.info(LanguageManager.getMessage("reload-start-message"));
+    LOGGER.info(LanguageManager.getMessage("reload-start-message"));
 
     this.config.load();
     this.getConfigurationRegistry().load();
@@ -368,7 +368,7 @@ public final class CloudNet extends CloudNetDriver {
 
     this.enableModules();
 
-    this.iLogger.info(LanguageManager.getMessage("reload-end-message"));
+    LOGGER.info(LanguageManager.getMessage("reload-end-message"));
   }
 
   @Override
@@ -379,7 +379,7 @@ public final class CloudNet extends CloudNetDriver {
       return;
     }
 
-    this.iLogger.info(LanguageManager.getMessage("stop-start-message"));
+    LOGGER.info(LanguageManager.getMessage("stop-start-message"));
 
     this.serviceVersionProvider.interruptInstallSteps();
 
@@ -398,24 +398,23 @@ public final class CloudNet extends CloudNetDriver {
         }
       }
 
-      this.iLogger.info(LanguageManager.getMessage("stop-network-client"));
+      LOGGER.info(LanguageManager.getMessage("stop-network-client"));
       this.networkClient.close();
 
-      this.iLogger.info(LanguageManager.getMessage("stop-network-server"));
+      LOGGER.info(LanguageManager.getMessage("stop-network-server"));
       this.networkServer.close();
 
-      this.iLogger.info(LanguageManager.getMessage("stop-http-server"));
+      LOGGER.info(LanguageManager.getMessage("stop-http-server"));
       this.httpServer.close();
 
       this.networkTaskScheduler.shutdown();
 
       FileUtils.delete(Paths.get(System.getProperty("cloudnet.tempDir", "temp")));
 
-      this.iLogger.close();
       this.console.close();
 
     } catch (Exception exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while closing the console", exception);
     }
 
     if (!Thread.currentThread().getName().equals("Shutdown Thread")) {
@@ -929,7 +928,7 @@ public final class CloudNet extends CloudNetDriver {
     this.getNetworkServer().getPacketRegistry().removeListeners(moduleWrapper.getClassLoader());
 
     moduleWrapper.unloadModule();
-    this.iLogger.info(LanguageManager.getMessage("cloudnet-unload-module")
+    LOGGER.info(LanguageManager.getMessage("cloudnet-unload-module")
       .replace("%module_group%", moduleWrapper.getModuleConfiguration().getGroup())
       .replace("%module_name%", moduleWrapper.getModuleConfiguration().getName())
       .replace("%module_version%", moduleWrapper.getModuleConfiguration().getVersion())
@@ -937,7 +936,7 @@ public final class CloudNet extends CloudNetDriver {
   }
 
   private void registerDefaultCommands() {
-    this.iLogger.info(LanguageManager.getMessage("reload-register-defaultCommands"));
+    LOGGER.info(LanguageManager.getMessage("reload-register-defaultCommands"));
 
     this.commandMap.registerCommand(
       //Runtime commands
@@ -974,12 +973,12 @@ public final class CloudNet extends CloudNetDriver {
   }
 
   private void loadModules() {
-    this.iLogger.info(LanguageManager.getMessage("cloudnet-load-modules-createDirectory"));
+    LOGGER.info(LanguageManager.getMessage("cloudnet-load-modules-createDirectory"));
     FileUtils.createDirectoryReported(this.moduleDirectory);
 
-    this.iLogger.info(LanguageManager.getMessage("cloudnet-load-modules"));
+    LOGGER.info(LanguageManager.getMessage("cloudnet-load-modules"));
     FileUtils.walkFileTree(this.moduleDirectory, (root, current) -> {
-      this.iLogger.info(LanguageManager.getMessage("cloudnet-load-modules-found")
+      LOGGER.info(LanguageManager.getMessage("cloudnet-load-modules-found")
         .replace("%file_name%", current.getFileName().toString()));
       this.moduleProvider.loadModule(current);
     }, false, "*.{jar,war,zip}");
@@ -1026,7 +1025,7 @@ public final class CloudNet extends CloudNetDriver {
   }
 
   private void runConsole() {
-    this.iLogger.info(LanguageManager.getMessage("console-ready"));
+    LOGGER.info(LanguageManager.getMessage("console-ready"));
 
     this.getConsole().addCommandHandler(UUID.randomUUID(), input -> {
       try {
@@ -1044,15 +1043,15 @@ public final class CloudNet extends CloudNetDriver {
 
         if (!this.getCommandMap().dispatchCommand(this.getConsoleCommandSender(), input)) {
           this.getEventManager().callEvent(new CommandNotFoundEvent(input));
-          this.iLogger.warning(LanguageManager.getMessage("command-not-found"));
+          LOGGER.warning(LanguageManager.getMessage("command-not-found"));
 
           return;
         }
 
         this.getEventManager().callEvent(new CommandPostProcessEvent(input, this.getConsoleCommandSender()));
 
-      } catch (Throwable ex) {
-        ex.printStackTrace();
+      } catch (Throwable throwable) {
+        LOGGER.severe("Exception while starting the console", throwable);
       }
     });
   }

@@ -20,6 +20,8 @@ import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.concurrent.CompletedTask;
 import de.dytanic.cloudnet.common.concurrent.ITask;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
 import de.dytanic.cloudnet.driver.service.ServiceDeployment;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
@@ -33,6 +35,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class LocalNodeSpecificCloudServiceProvider implements SpecificCloudServiceProvider {
+
+  private final static Logger LOGGER = LogManager.getLogger(LocalNodeSpecificCloudServiceProvider.class);
 
   private final CloudNet cloudNet;
   private final ICloudService service;
@@ -142,7 +146,7 @@ public class LocalNodeSpecificCloudServiceProvider implements SpecificCloudServi
         try {
           this.service.start();
         } catch (Exception exception) {
-          exception.printStackTrace();
+          LOGGER.severe("Exception while starting service", exception);
         }
         break;
       case STOPPED:
@@ -176,7 +180,7 @@ public class LocalNodeSpecificCloudServiceProvider implements SpecificCloudServi
     try {
       this.service.restart();
     } catch (Exception exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while restarting service", exception);
     }
   }
 
@@ -194,7 +198,7 @@ public class LocalNodeSpecificCloudServiceProvider implements SpecificCloudServi
     try {
       this.service.kill();
     } catch (Exception exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while killing service", exception);
     }
   }
 

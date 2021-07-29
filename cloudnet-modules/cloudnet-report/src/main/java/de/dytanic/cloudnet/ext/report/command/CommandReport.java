@@ -30,7 +30,6 @@ import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.document.gson.JsonDocumentTypeAdapter;
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.common.language.LanguageManager;
-import de.dytanic.cloudnet.common.logging.LogEntry;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.command.CommandInfo;
 import de.dytanic.cloudnet.driver.module.IModuleTaskEntry;
@@ -51,9 +50,11 @@ import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.LogRecord;
 import javax.management.MBeanServer;
 
 public final class CommandReport extends SubCommandHandler {
+
 
   private static final DateFormat DATE_FORMAT = new SimpleDateFormat("dd-MM-yyyy_HH-mm-ss");
   private static final DateFormat LOG_FORMAT = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss.SSS");
@@ -101,7 +102,7 @@ public final class CommandReport extends SubCommandHandler {
             StandardCharsets.UTF_8)) {
             this.postReportOutput(writer, millis);
           } catch (IOException exception) {
-            exception.printStackTrace();
+            LOGGER.severe("Exception while posting report", exception);
           }
         },
         exactStringIgnoreCase("cloud"))
@@ -130,23 +131,17 @@ public final class CommandReport extends SubCommandHandler {
       writer.println();
 
       writer.println("Last log lines");
-      for (LogEntry logEntry : CloudNet.getInstance().getQueuedConsoleLogHandler().getCachedQueuedLogEntries()) {
-        if (logEntry.getMessages() != null) {
-          for (String message : logEntry.getMessages()) {
-            if (message != null) {
-              writer.println(
-                "[" + LOG_FORMAT.format(logEntry.getTimeStamp()) + "] " +
-                  logEntry.getLogLevel().getUpperName() + " | Thread: " +
-                  logEntry.getThread().getName() + " | Class: " +
-                  logEntry.getClazz().getName() + ": " +
-                  message
-              );
+      for (LogRecord logRecord : CloudNet.getInstance().getQueuedConsoleLogHandler().getCachedLogEntries()) {
+        writer.println(
+          "[" + LOG_FORMAT.format(logRecord.getMillis()) + "] " +
+            logRecord.getLevel().getLocalizedName() + " | Thread: " +
+            logRecord.getThreadID() + " | Class: " +
+            logRecord.getSourceClassName() + ": " +
+            logRecord.getMessage()
+        );
 
-              if (logEntry.getThrowable() != null) {
-                logEntry.getThrowable().printStackTrace(writer);
-              }
-            }
-          }
+        if (logRecord.getThrown() != null) {
+          logRecord.getThrown().printStackTrace(writer);
         }
       }
 
@@ -263,7 +258,7 @@ public final class CommandReport extends SubCommandHandler {
         server, "com.sun.management:type=HotSpotDiagnostic", HotSpotDiagnosticMXBean.class);
       mxBean.dumpHeap(filePath, false);
     } catch (IOException exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while creating heap dump", exception);
     }
   }
 

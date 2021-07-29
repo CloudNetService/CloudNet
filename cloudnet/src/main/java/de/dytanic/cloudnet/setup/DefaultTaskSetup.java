@@ -19,6 +19,8 @@ package de.dytanic.cloudnet.setup;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.language.LanguageManager;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.console.animation.questionlist.ConsoleQuestionListAnimation;
 import de.dytanic.cloudnet.console.animation.questionlist.QuestionListEntry;
 import de.dytanic.cloudnet.console.animation.questionlist.answer.QuestionAnswerTypeBoolean;
@@ -40,6 +42,7 @@ import java.util.Collections;
 
 public class DefaultTaskSetup implements DefaultSetup {
 
+  private static final Logger LOGGER = LogManager.getLogger(DefaultTaskSetup.class);
   private static final String GLOBAL_TEMPLATE_PREFIX = "Global";
   private static final String GLOBAL_PROXY_GROUP_NAME = "Global-Proxy";
   private static final String GLOBAL_SERVER_GROUP_NAME = "Global-Server";
@@ -106,7 +109,7 @@ public class DefaultTaskSetup implements DefaultSetup {
       TemplateStorageUtil
         .createAndPrepareTemplate(globalTemplate, versionType.getTargetEnvironment().getEnvironmentType());
     } catch (IOException exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while creating templates", exception);
     }
 
     CloudNet.getInstance().getServiceVersionProvider().installServiceVersion(versionType, version, globalTemplate);
@@ -128,7 +131,7 @@ public class DefaultTaskSetup implements DefaultSetup {
       try {
         TemplateStorageUtil.createAndPrepareTemplate(template, environment);
       } catch (IOException exception) {
-        exception.printStackTrace();
+        LOGGER.severe("Exception while creating templates", exception);
       }
     }
     CloudNet.getInstance().getServiceTaskProvider().addPermanentServiceTask(serviceTask);

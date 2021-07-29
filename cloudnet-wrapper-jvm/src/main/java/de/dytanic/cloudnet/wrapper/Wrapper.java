@@ -20,7 +20,8 @@ import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.io.FileUtils;
-import de.dytanic.cloudnet.common.logging.LogLevel;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.DriverEnvironment;
 import de.dytanic.cloudnet.driver.api.DriverAPIRequestType;
@@ -89,6 +90,8 @@ import org.jetbrains.annotations.NotNull;
  * @see CloudNetDriver
  */
 public final class Wrapper extends CloudNetDriver implements DriverAPIUser {
+
+  private static final Logger LOGGER = LogManager.getLogger(Wrapper.class);
 
   /**
    * The configuration of the wrapper, which was created from the CloudNet node. The properties are mirrored from the
@@ -222,9 +225,8 @@ public final class Wrapper extends CloudNetDriver implements DriverAPIUser {
   public void stop() {
     try {
       this.networkClient.close();
-      this.iLogger.close();
     } catch (Exception exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while closing the network client", exception);
     }
 
     this.scheduler.shutdownNow();
@@ -442,12 +444,12 @@ public final class Wrapper extends CloudNetDriver implements DriverAPIUser {
 
     Thread applicationThread = new Thread(() -> {
       try {
-        this.iLogger.info(
+        LOGGER.info(
           "Starting Application-Thread based of " + Wrapper.this.getServiceConfiguration().getProcessConfig()
             .getEnvironment() + "\n");
         method.invoke(null, new Object[]{arguments.toArray(new String[0])});
       } catch (Exception exception) {
-        exception.printStackTrace();
+        LOGGER.severe("Exception while starting application", exception);
       }
     }, "Application-Thread");
     applicationThread.setContextClassLoader(ClassLoader.getSystemClassLoader());
