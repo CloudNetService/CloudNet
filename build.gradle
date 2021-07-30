@@ -92,7 +92,7 @@ allprojects {
     dependencyVelocityVersion = '3.0.0'
     dependencyNukkitXVersion = '1.0-SNAPSHOT'
     dependencyGoMintVersion = '1.0.0-SNAPSHOT'
-    dependencyWaterdogPEVersion = '1.1.1-SNAPSHOT'
+    dependencyWaterdogPEVersion = '1.1.2-SNAPSHOT'
     dependencyMysqlConnectorJavaVersion = '8.0.26'
     dependencyMongoJavaDriverVersion = '4.3.0'
     dependencyHikariCpVersion = '5.0.0'
