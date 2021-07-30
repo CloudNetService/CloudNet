@@ -74,7 +74,8 @@ public class CommandMigrate extends SubCommandHandler {
                 sourceDatabase.iterate(targetDatabase::insert, chunkSize);
               }
             } catch (Exception exception) {
-              CloudNet.getInstance().getLogger().error("Establishing a connection to the database failed", exception);
+              CloudNet.getInstance().getLogger().error(
+                LanguageManager.getMessage("command-migrate-database-connection-failed"), exception);
               return;
             }
 
@@ -123,7 +124,8 @@ public class CommandMigrate extends SubCommandHandler {
       try {
         handler.accept(sourceProvider);
       } catch (Throwable throwable) {
-        CloudNet.getInstance().getLogger().error("Establishing a connection to the database failed", throwable);
+        CloudNet.getInstance().getLogger().error(
+          LanguageManager.getMessage("command-migrate-database-connection-failed"), throwable);
         return false;
       }
     }
