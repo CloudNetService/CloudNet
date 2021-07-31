@@ -74,11 +74,12 @@ public class DefaultTaskSetup implements DefaultSetup {
     globalServerGroup.getTargetEnvironments().add(serverEnvironment);
 
     if (installProxy) {
-      this.createDefaultTask(proxyEnvironment, PROXY_TASK_NAME, 256);
+      this.createDefaultTask(proxyEnvironment, PROXY_TASK_NAME, null, 256);
     }
 
     if (installServer) {
-      this.createDefaultTask(serverEnvironment, LOBBY_TASK_NAME, 512);
+      this.createDefaultTask(serverEnvironment, LOBBY_TASK_NAME,
+        ((Pair<String, ?>) animation.getResult("javaCommand")).getFirst(), 512);
     }
 
     if (proxyVersion != null) {
@@ -115,11 +116,13 @@ public class DefaultTaskSetup implements DefaultSetup {
     CloudNet.getInstance().getServiceVersionProvider().installServiceVersion(versionType, version, globalTemplate);
   }
 
-  private void createDefaultTask(ServiceEnvironmentType environment, String taskName, int maxHeapMemorySize) {
+  private void createDefaultTask(ServiceEnvironmentType environment, String taskName, String javaCommand,
+    int maxHeapMemorySize) {
     ServiceTask serviceTask = ServiceTask.builder()
       .templates(Collections.singletonList(new ServiceTemplate(taskName, "default", "local")))
       .name(taskName)
       .autoDeleteOnStop(true)
+      .javaCommand(javaCommand)
       .groups(Collections.singletonList(taskName))
       .serviceEnvironmentType(environment)
       .maxHeapMemory(maxHeapMemorySize)
