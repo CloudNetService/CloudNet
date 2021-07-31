@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.ext.bridge.listener;
+package de.dytanic.cloudnet.ext.bridge.bungee.event;
 
-import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.service.ServiceTask;
-import de.dytanic.cloudnet.event.service.task.LocalServiceTaskAddEvent;
 
-public class TaskConfigListener {
+public class BungeeServiceTaskRemoveEvent extends BungeeCloudNetEvent {
 
-  @EventListener
-  public void handleTaskAdd(LocalServiceTaskAddEvent event) {
-    ServiceTask serviceTask = event.getTask();
-    if (serviceTask.getProcessConfiguration().getEnvironment().isMinecraftServer()
-      && !serviceTask.getProperties().contains("requiredPermission")) {
-      serviceTask.getProperties().appendNull("requiredPermission");
-    }
+  private final ServiceTask task;
+
+  public BungeeServiceTaskRemoveEvent(ServiceTask task) {
+    this.task = task;
   }
+
+  public ServiceTask getTask() {
+    return task;
+  }
+
 }

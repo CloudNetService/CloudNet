@@ -14,17 +14,16 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.network.listener.cluster;
+package de.dytanic.cloudnet.wrapper.network.listener;
 
-import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
+import de.dytanic.cloudnet.driver.event.events.service.task.ServiceTaskAddEvent;
+import de.dytanic.cloudnet.driver.event.events.service.task.ServiceTaskRemoveEvent;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.NetworkUpdateType;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.network.protocol.IPacketListener;
 import de.dytanic.cloudnet.driver.service.ServiceTask;
-import de.dytanic.cloudnet.event.network.NetworkChannelReceiveServiceTasksUpdateEvent;
-import de.dytanic.cloudnet.provider.NodeServiceTaskProvider;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,35 +38,20 @@ public final class PacketServerSetServiceTaskListListener implements IPacketList
       return;
     }
 
-    NodeServiceTaskProvider provider = (NodeServiceTaskProvider) CloudNet.getInstance().getServiceTaskProvider();
-
-    NetworkChannelReceiveServiceTasksUpdateEvent event = new NetworkChannelReceiveServiceTasksUpdateEvent(channel,
-      serviceTasks);
-    CloudNetDriver.getInstance().getEventManager().callEvent(event);
-
-    if (!event.isCancelled()) {
-      serviceTasks = event.getServiceTasks() != null ? event.getServiceTasks() : serviceTasks;
-
-      switch (updateType) {
-        case SET:
-          provider.setServiceTasksWithoutClusterSync(serviceTasks);
-          break;
-        case ADD:
-          for (ServiceTask serviceTask : serviceTasks) {
-            provider.addServiceTaskWithoutClusterSync(serviceTask);
-          }
-          break;
-        case REMOVE:
-          for (ServiceTask serviceTask : serviceTasks) {
-            provider.removeServiceTaskWithoutClusterSync(serviceTask.getName());
-          }
-          break;
-        default:
-          break;
-      }
-
-      packet.getBuffer().resetReaderIndex();
-      CloudNet.getInstance().sendAllSync(packet);
+    switch (updateType) {
+      case ADD:
+        for (ServiceTask serviceTask : serviceTasks) {
+          CloudNetDriver.getInstance().getEventManager().callEvent(new ServiceTaskAddEvent(serviceTask));
+        }
+        break;
+      case REMOVE:
+        for (ServiceTask serviceTask : serviceTasks) {
+          CloudNetDriver.getInstance().getEventManager().callEvent(new ServiceTaskRemoveEvent(serviceTask));
+        }
+        break;
+      default:
+        break;
     }
   }
+
 }

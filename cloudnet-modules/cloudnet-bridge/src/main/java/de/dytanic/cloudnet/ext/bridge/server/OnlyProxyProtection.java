@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.ext.bridge;
+package de.dytanic.cloudnet.ext.bridge.server;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
@@ -24,6 +24,8 @@ import de.dytanic.cloudnet.driver.event.events.service.CloudServiceStartEvent;
 import de.dytanic.cloudnet.driver.event.events.service.CloudServiceStopEvent;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
+import de.dytanic.cloudnet.ext.bridge.BridgeConfiguration;
+import de.dytanic.cloudnet.ext.bridge.BridgeConfigurationProvider;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import java.net.InetAddress;
 import java.net.UnknownHostException;

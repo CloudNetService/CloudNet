@@ -26,6 +26,8 @@ import de.dytanic.cloudnet.driver.event.events.service.CloudServiceRegisterEvent
 import de.dytanic.cloudnet.driver.event.events.service.CloudServiceStartEvent;
 import de.dytanic.cloudnet.driver.event.events.service.CloudServiceStopEvent;
 import de.dytanic.cloudnet.driver.event.events.service.CloudServiceUnregisterEvent;
+import de.dytanic.cloudnet.driver.event.events.service.task.ServiceTaskAddEvent;
+import de.dytanic.cloudnet.driver.event.events.service.task.ServiceTaskRemoveEvent;
 import de.dytanic.cloudnet.ext.bridge.bungee.BungeeCloudNetHelper;
 import de.dytanic.cloudnet.ext.bridge.bungee.event.BungeeBridgeConfigurationUpdateEvent;
 import de.dytanic.cloudnet.ext.bridge.bungee.event.BungeeBridgeProxyPlayerDisconnectEvent;
@@ -46,6 +48,8 @@ import de.dytanic.cloudnet.ext.bridge.bungee.event.BungeeCloudServiceStopEvent;
 import de.dytanic.cloudnet.ext.bridge.bungee.event.BungeeCloudServiceUnregisterEvent;
 import de.dytanic.cloudnet.ext.bridge.bungee.event.BungeeNetworkChannelPacketReceiveEvent;
 import de.dytanic.cloudnet.ext.bridge.bungee.event.BungeeServiceInfoSnapshotConfigureEvent;
+import de.dytanic.cloudnet.ext.bridge.bungee.event.BungeeServiceTaskAddEvent;
+import de.dytanic.cloudnet.ext.bridge.bungee.event.BungeeServiceTaskRemoveEvent;
 import de.dytanic.cloudnet.ext.bridge.event.BridgeConfigurationUpdateEvent;
 import de.dytanic.cloudnet.ext.bridge.event.BridgeProxyPlayerDisconnectEvent;
 import de.dytanic.cloudnet.ext.bridge.event.BridgeProxyPlayerLoginRequestEvent;
@@ -142,6 +146,16 @@ public final class BungeeCloudNetListener {
     }
 
     this.bungeeCall(new BungeeCloudServiceUnregisterEvent(event.getServiceInfo()));
+  }
+
+  @EventListener
+  public void handle(ServiceTaskAddEvent event) {
+    this.bungeeCall(new BungeeServiceTaskAddEvent(event.getTask()));
+  }
+
+  @EventListener
+  public void handle(ServiceTaskRemoveEvent event) {
+    this.bungeeCall(new BungeeServiceTaskRemoveEvent(event.getTask()));
   }
 
   @EventListener

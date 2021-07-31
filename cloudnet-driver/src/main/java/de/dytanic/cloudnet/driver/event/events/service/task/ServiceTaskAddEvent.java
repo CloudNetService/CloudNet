@@ -14,19 +14,21 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.network.packet;
+package de.dytanic.cloudnet.driver.event.events.service.task;
 
-import de.dytanic.cloudnet.driver.network.def.PacketConstants;
-import de.dytanic.cloudnet.driver.network.protocol.Packet;
-import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
+import de.dytanic.cloudnet.driver.event.Event;
 import de.dytanic.cloudnet.driver.service.ServiceTask;
-import de.dytanic.cloudnet.network.NetworkUpdateType;
-import java.util.Collection;
 
-public final class PacketServerSetServiceTaskList extends Packet {
+public final class ServiceTaskAddEvent extends Event {
 
-  public PacketServerSetServiceTaskList(Collection<ServiceTask> tasks, NetworkUpdateType updateType) {
-    super(PacketConstants.CLUSTER_TASK_LIST_CHANNEL,
-      ProtocolBuffer.create().writeObjectCollection(tasks).writeEnumConstant(updateType));
+  private final ServiceTask task;
+
+  public ServiceTaskAddEvent(ServiceTask task) {
+    this.task = task;
   }
+
+  public ServiceTask getTask() {
+    return this.task;
+  }
+
 }
