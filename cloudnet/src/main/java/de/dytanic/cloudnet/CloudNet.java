@@ -33,6 +33,7 @@ import de.dytanic.cloudnet.command.commands.CommandExit;
 import de.dytanic.cloudnet.command.commands.CommandGroups;
 import de.dytanic.cloudnet.command.commands.CommandHelp;
 import de.dytanic.cloudnet.command.commands.CommandMe;
+import de.dytanic.cloudnet.command.commands.CommandMigrate;
 import de.dytanic.cloudnet.command.commands.CommandModules;
 import de.dytanic.cloudnet.command.commands.CommandPermissions;
 import de.dytanic.cloudnet.command.commands.CommandReload;
@@ -964,7 +965,8 @@ public final class CloudNet extends CloudNetDriver {
       new CommandScreen(),
       new CommandPermissions(),
       new CommandCopy(),
-      new CommandDebug()
+      new CommandDebug(),
+      new CommandMigrate()
     );
   }
 
