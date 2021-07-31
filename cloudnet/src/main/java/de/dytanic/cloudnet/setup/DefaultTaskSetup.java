@@ -17,6 +17,8 @@
 package de.dytanic.cloudnet.setup;
 
 import de.dytanic.cloudnet.CloudNet;
+import de.dytanic.cloudnet.command.sub.SubCommandArgumentTypes;
+import de.dytanic.cloudnet.common.JavaVersion;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.console.animation.questionlist.ConsoleQuestionListAnimation;
@@ -34,6 +36,7 @@ import de.dytanic.cloudnet.service.EmptyGroupConfiguration;
 import de.dytanic.cloudnet.template.TemplateStorageUtil;
 import de.dytanic.cloudnet.template.install.ServiceVersion;
 import de.dytanic.cloudnet.template.install.ServiceVersionType;
+import de.dytanic.cloudnet.util.JavaVersionResolver;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
@@ -166,11 +169,33 @@ public class DefaultTaskSetup implements DefaultSetup {
         }
       }
     ));
+
+    animation.addEntry(new QuestionListEntry<>(
+      "javaCommand",
+      LanguageManager.getMessage("cloudnet-init-setup-tasks-server-javacommand"),
+      SubCommandArgumentTypes.functional(
+        "java",
+        LanguageManager.getMessage("cloudnet-init-setup-tasks-server-javacommand-invalid"),
+        input -> {
+          JavaVersion version = JavaVersionResolver.resolveFromJavaExecutable(input);
+          return version == null ? null : new Pair<>(input, version);
+        },
+        Collections.emptyList()
+      )
+    ));
+
     animation.addEntry(new QuestionListEntry<>(
       "serverVersion",
       LanguageManager.getMessage("cloudnet-init-setup-tasks-server-version"),
-      new QuestionAnswerTypeServiceVersion(() -> (ServiceEnvironmentType) animation.getResult("serverEnvironment"),
-        CloudNet.getInstance().getServiceVersionProvider())
+      new QuestionAnswerTypeServiceVersion(
+        () -> (ServiceEnvironmentType) animation.getResult("serverEnvironment"),
+        CloudNet.getInstance().getServiceVersionProvider(),
+        () -> {
+          //noinspection unchecked
+          Pair<String, JavaVersion> pair = (Pair<String, JavaVersion>) animation.getResult("javaCommand");
+          return pair.getSecond();
+        }
+      )
     ));
 
     animation.addEntry(new QuestionListEntry<>(
