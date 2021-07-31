@@ -14,20 +14,34 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.ext.bridge.listener;
+package de.dytanic.cloudnet.ext.bridge.bukkit.event;
 
-import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.service.ServiceTask;
-import de.dytanic.cloudnet.event.service.task.LocalServiceTaskAddEvent;
+import org.bukkit.event.HandlerList;
+import org.jetbrains.annotations.NotNull;
 
-public class TaskConfigListener {
+public class BukkitServiceTaskRemoveEvent extends BukkitCloudNetEvent {
 
-  @EventListener
-  public void handleTaskAdd(LocalServiceTaskAddEvent event) {
-    ServiceTask serviceTask = event.getTask();
-    if (serviceTask.getProcessConfiguration().getEnvironment().isMinecraftServer()
-      && !serviceTask.getProperties().contains("requiredPermission")) {
-      serviceTask.getProperties().appendNull("requiredPermission");
-    }
+  private static final HandlerList handlerList = new HandlerList();
+
+  private final ServiceTask task;
+
+  public BukkitServiceTaskRemoveEvent(ServiceTask task) {
+    this.task = task;
   }
+
+  public static HandlerList getHandlerList() {
+    return BukkitServiceTaskRemoveEvent.handlerList;
+  }
+
+  @NotNull
+  @Override
+  public HandlerList getHandlers() {
+    return handlerList;
+  }
+
+  public ServiceTask getTask() {
+    return task;
+  }
+
 }
