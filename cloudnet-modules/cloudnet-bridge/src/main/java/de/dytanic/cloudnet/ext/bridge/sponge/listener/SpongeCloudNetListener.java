@@ -26,6 +26,8 @@ import de.dytanic.cloudnet.driver.event.events.service.CloudServiceRegisterEvent
 import de.dytanic.cloudnet.driver.event.events.service.CloudServiceStartEvent;
 import de.dytanic.cloudnet.driver.event.events.service.CloudServiceStopEvent;
 import de.dytanic.cloudnet.driver.event.events.service.CloudServiceUnregisterEvent;
+import de.dytanic.cloudnet.driver.event.events.service.task.ServiceTaskAddEvent;
+import de.dytanic.cloudnet.driver.event.events.service.task.ServiceTaskRemoveEvent;
 import de.dytanic.cloudnet.ext.bridge.event.BridgeConfigurationUpdateEvent;
 import de.dytanic.cloudnet.ext.bridge.event.BridgeProxyPlayerDisconnectEvent;
 import de.dytanic.cloudnet.ext.bridge.event.BridgeProxyPlayerLoginRequestEvent;
@@ -54,6 +56,8 @@ import de.dytanic.cloudnet.ext.bridge.sponge.event.SpongeCloudServiceStopEvent;
 import de.dytanic.cloudnet.ext.bridge.sponge.event.SpongeCloudServiceUnregisterEvent;
 import de.dytanic.cloudnet.ext.bridge.sponge.event.SpongeNetworkChannelPacketReceiveEvent;
 import de.dytanic.cloudnet.ext.bridge.sponge.event.SpongeServiceInfoSnapshotConfigureEvent;
+import de.dytanic.cloudnet.ext.bridge.sponge.event.SpongeServiceTaskAddEvent;
+import de.dytanic.cloudnet.ext.bridge.sponge.event.SpongeServiceTaskRemoveEvent;
 import de.dytanic.cloudnet.wrapper.event.service.ServiceInfoSnapshotConfigureEvent;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.event.Event;
@@ -99,6 +103,16 @@ public final class SpongeCloudNetListener {
   @EventListener
   public void handle(CloudServiceUnregisterEvent event) {
     this.spongeCall(new SpongeCloudServiceUnregisterEvent(event.getServiceInfo()));
+  }
+
+  @EventListener
+  public void handle(ServiceTaskAddEvent event) {
+    this.spongeCall(new SpongeServiceTaskAddEvent(event.getTask()));
+  }
+
+  @EventListener
+  public void handle(ServiceTaskRemoveEvent event) {
+    this.spongeCall(new SpongeServiceTaskRemoveEvent(event.getTask()));
   }
 
   @EventListener

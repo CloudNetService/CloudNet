@@ -92,7 +92,9 @@ public final class LauncherUtils {
         try {
           Files.delete(file);
         } catch (IOException exception) {
+          //CHECKSTYLE.OFF: launcher has no special logger
           exception.printStackTrace();
+          //CHECKSTYLE.ON
         }
       });
   }

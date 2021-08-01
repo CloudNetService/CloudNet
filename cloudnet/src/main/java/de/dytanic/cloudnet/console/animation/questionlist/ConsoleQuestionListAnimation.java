@@ -194,7 +194,7 @@ public class ConsoleQuestionListAnimation extends AbstractConsoleAnimation {
     this.setDefaultConsoleValues(answerType);
 
     String possibleAnswers = answerType.getPossibleAnswersAsString();
-    if (possibleAnswers != null) {
+    if (possibleAnswers != null && !possibleAnswers.trim().isEmpty()) {
       for (String line : this.updateCursor("&r" + entry.getQuestion()
         + " &r> &e" + LanguageManager.getMessage("ca-question-list-possible-answers-list")
         .replace("%values%", possibleAnswers))) {

@@ -25,11 +25,11 @@ import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
+import de.dytanic.cloudnet.driver.network.NetworkUpdateType;
 import de.dytanic.cloudnet.driver.provider.ServiceTaskProvider;
 import de.dytanic.cloudnet.driver.service.ServiceTask;
-import de.dytanic.cloudnet.event.service.task.ServiceTaskAddEvent;
-import de.dytanic.cloudnet.event.service.task.ServiceTaskRemoveEvent;
-import de.dytanic.cloudnet.network.NetworkUpdateType;
+import de.dytanic.cloudnet.event.service.task.LocalServiceTaskAddEvent;
+import de.dytanic.cloudnet.event.service.task.LocalServiceTaskRemoveEvent;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.nio.file.FileVisitOption;
@@ -189,8 +189,10 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
   public ServiceTask getServiceTask(@NotNull String name) {
     Preconditions.checkNotNull(name);
 
-    return this.permanentServiceTasks.stream().filter(serviceTask -> serviceTask.getName().equalsIgnoreCase(name))
-      .findFirst().orElse(null);
+    return this.permanentServiceTasks.stream()
+      .filter(serviceTask -> serviceTask.getName().equalsIgnoreCase(name))
+      .findFirst()
+      .orElse(null);
   }
 
   @Override
@@ -212,7 +214,7 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
   }
 
   public boolean addServiceTaskWithoutClusterSync(ServiceTask serviceTask) {
-    ServiceTaskAddEvent event = new ServiceTaskAddEvent(serviceTask);
+    LocalServiceTaskAddEvent event = new LocalServiceTaskAddEvent(serviceTask);
     CloudNetDriver.getInstance().getEventManager().callEvent(event);
 
     if (!event.isCancelled()) {
@@ -221,11 +223,11 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
       }
 
       this.permanentServiceTasks.add(serviceTask);
-
       this.writeTask(serviceTask);
 
       return true;
     }
+
     return false;
   }
 
@@ -242,7 +244,7 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
   public ServiceTask removeServiceTaskWithoutClusterSync(String name) {
     for (ServiceTask serviceTask : this.permanentServiceTasks) {
       if (serviceTask.getName().equalsIgnoreCase(name)) {
-        if (!CloudNetDriver.getInstance().getEventManager().callEvent(new ServiceTaskRemoveEvent(serviceTask))
+        if (!CloudNetDriver.getInstance().getEventManager().callEvent(new LocalServiceTaskRemoveEvent(serviceTask))
           .isCancelled()) {
           this.permanentServiceTasks.remove(serviceTask);
           this.deleteTaskFile(name);

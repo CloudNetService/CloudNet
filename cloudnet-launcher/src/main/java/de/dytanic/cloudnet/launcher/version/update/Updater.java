@@ -69,7 +69,9 @@ public interface Updater extends VersionInfo {
           }
         }
       } catch (IOException exception) {
+        //CHECKSTYLE.OFF: launcher has no special logger
         exception.printStackTrace();
+        //CHECKSTYLE.ON
         return false;
       }
 

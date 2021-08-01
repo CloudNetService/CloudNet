@@ -57,6 +57,7 @@ import de.dytanic.cloudnet.wrapper.network.listener.PacketServerAuthorizationRes
 import de.dytanic.cloudnet.wrapper.network.listener.PacketServerChannelMessageListener;
 import de.dytanic.cloudnet.wrapper.network.listener.PacketServerServiceInfoPublisherListener;
 import de.dytanic.cloudnet.wrapper.network.listener.PacketServerSetGlobalLogLevelListener;
+import de.dytanic.cloudnet.wrapper.network.listener.PacketServerSetServiceTaskListListener;
 import de.dytanic.cloudnet.wrapper.network.listener.PacketServerUpdatePermissionsListener;
 import de.dytanic.cloudnet.wrapper.network.listener.PacketServerWrapperDriverAPIListener;
 import de.dytanic.cloudnet.wrapper.network.packet.PacketClientServiceInfoUpdate;
@@ -163,6 +164,8 @@ public final class Wrapper extends CloudNetDriver implements DriverAPIUser {
     //- Packet client registry
     this.networkClient.getPacketRegistry()
       .addListener(PacketConstants.SERVICE_INFO_PUBLISH_CHANNEL, new PacketServerServiceInfoPublisherListener());
+    this.networkClient.getPacketRegistry()
+      .addListener(PacketConstants.CLUSTER_TASK_LIST_CHANNEL, new PacketServerSetServiceTaskListListener());
     this.networkClient.getPacketRegistry()
       .addListener(PacketConstants.PERMISSIONS_PUBLISH_CHANNEL, new PacketServerUpdatePermissionsListener());
     this.networkClient.getPacketRegistry()

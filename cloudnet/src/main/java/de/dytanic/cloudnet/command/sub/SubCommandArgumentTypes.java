@@ -34,10 +34,12 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collection;
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class SubCommandArgumentTypes {
 
@@ -324,4 +326,33 @@ public class SubCommandArgumentTypes {
     };
   }
 
+  public static <T> QuestionAnswerType<T> functional(String defaultValue, String invalidMessage,
+    Function<String, T> resolver, Collection<String> possibleResponses) {
+    return new QuestionAnswerType<T>() {
+      @Override
+      public @Nullable String getRecommendation() {
+        return defaultValue;
+      }
+
+      @Override
+      public @Nullable String getInvalidInputMessage(@NotNull String input) {
+        return invalidMessage != null ? invalidMessage : QuestionAnswerType.super.getInvalidInputMessage(input);
+      }
+
+      @Override
+      public boolean isValidInput(@NotNull String input) {
+        return resolver.apply(input) != null;
+      }
+
+      @Override
+      public @Nullable T parse(@NotNull String input) {
+        return resolver.apply(input);
+      }
+
+      @Override
+      public @Nullable Collection<String> getPossibleAnswers() {
+        return possibleResponses;
+      }
+    };
+  }
 }

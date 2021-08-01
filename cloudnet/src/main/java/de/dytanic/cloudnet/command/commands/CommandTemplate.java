@@ -36,6 +36,7 @@ import de.dytanic.cloudnet.driver.util.ColumnTextFormatter;
 import de.dytanic.cloudnet.template.TemplateStorageUtil;
 import de.dytanic.cloudnet.template.install.ServiceVersion;
 import de.dytanic.cloudnet.template.install.ServiceVersionType;
+import de.dytanic.cloudnet.util.JavaVersionResolver;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -108,7 +109,7 @@ public class CommandTemplate extends SubCommandHandler {
 
             Optional<ServiceVersion> optionalVersion = versionType.getVersion((String) args.argument("version").get());
 
-            if (!optionalVersion.isPresent()) { //the version might be available, but not for the given version type
+            if (!optionalVersion.isPresent()) { // the version might be available, but not for the given version type
               sender.sendMessage(LanguageManager.getMessage("command-template-invalid-version"));
               return;
             }
@@ -117,10 +118,18 @@ public class CommandTemplate extends SubCommandHandler {
 
             boolean forceInstall = properties.containsKey("force");
 
-            if (!versionType.canInstall(version)) {
+            String executable = properties.getOrDefault("executable", "java");
+            JavaVersion javaVersion = JavaVersionResolver.resolveFromJavaExecutable(executable);
+
+            if (javaVersion == null) {
+              sender.sendMessage(LanguageManager.getMessage("command-tasks-setup-question-javacommand-invalid"));
+              return;
+            }
+
+            if (!versionType.canInstall(version, javaVersion)) {
               sender.sendMessage(LanguageManager.getMessage("command-template-install-wrong-java")
                 .replace("%version%", versionType.getName() + "-" + version.getName())
-                .replace("%java%", JavaVersion.getRuntimeVersion().getName())
+                .replace("%java%", javaVersion.getName())
               );
               if (!forceInstall) {
                 return;
@@ -133,8 +142,8 @@ public class CommandTemplate extends SubCommandHandler {
                 .replace("%template%", template.toString())
               );
 
-              if (CloudNet.getInstance().getServiceVersionProvider()
-                .installServiceVersion(versionType, version, template, forceInstall)) {
+              if (CloudNet.getInstance().getServiceVersionProvider().installServiceVersion(
+                executable.equals("java") ? null : executable, versionType, version, template, forceInstall)) {
                 sender.sendMessage(LanguageManager.getMessage("command-template-install-success")
                   .replace("%version%", versionType.getName() + "-" + version.getName())
                   .replace("%template%", template.toString())
@@ -150,7 +159,8 @@ public class CommandTemplate extends SubCommandHandler {
           },
           subCommand -> subCommand
             .enableProperties()
-            .appendUsage("| --force | example: template install Lobby/default paperspigot 1.13.2"),
+            .appendUsage(
+              "| --force, --executable=\"java\" | example: template install Lobby/default paperspigot 1.13.2"),
           exactStringIgnoreCase("install"),
           template("template", true),
           dynamicString(
