@@ -121,10 +121,15 @@ public class CommandTemplate extends SubCommandHandler {
             String executable = properties.getOrDefault("executable", "java");
             JavaVersion javaVersion = JavaVersionResolver.resolveFromJavaExecutable(executable);
 
+            if (javaVersion == null) {
+              sender.sendMessage(LanguageManager.getMessage("command-tasks-setup-question-javacommand-invalid"));
+              return;
+            }
+
             if (!versionType.canInstall(version, javaVersion)) {
               sender.sendMessage(LanguageManager.getMessage("command-template-install-wrong-java")
                 .replace("%version%", versionType.getName() + "-" + version.getName())
-                .replace("%java%", JavaVersion.getRuntimeVersion().getName())
+                .replace("%java%", javaVersion.getName())
               );
               if (!forceInstall) {
                 return;
