@@ -20,8 +20,8 @@ import de.dytanic.cloudnet.driver.service.ServiceTask;
 import de.dytanic.cloudnet.ext.bridge.BridgeConfiguration;
 import de.dytanic.cloudnet.ext.bridge.BridgeConfigurationProvider;
 import de.dytanic.cloudnet.ext.bridge.BridgeHelper;
-import de.dytanic.cloudnet.ext.bridge.OnlyProxyProtection;
 import de.dytanic.cloudnet.ext.bridge.gomint.GoMintCloudNetHelper;
+import de.dytanic.cloudnet.ext.bridge.server.OnlyProxyProtection;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import io.gomint.ChatColor;
 import io.gomint.entity.EntityPlayer;
@@ -36,7 +36,6 @@ import io.gomint.server.GoMintServer;
 public final class GoMintPlayerListener implements EventListener {
 
   private final Plugin plugin;
-
   private final OnlyProxyProtection onlyProxyProtection;
 
   public GoMintPlayerListener(Plugin plugin) {

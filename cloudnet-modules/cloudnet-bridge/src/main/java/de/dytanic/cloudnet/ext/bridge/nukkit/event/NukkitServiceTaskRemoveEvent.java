@@ -14,31 +14,27 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.event.service.task;
+package de.dytanic.cloudnet.ext.bridge.nukkit.event;
 
-import de.dytanic.cloudnet.driver.event.Event;
-import de.dytanic.cloudnet.driver.event.ICancelable;
 import de.dytanic.cloudnet.driver.service.ServiceTask;
+import org.bukkit.event.HandlerList;
 
-public final class ServiceTaskAddEvent extends Event implements ICancelable {
+public class NukkitServiceTaskRemoveEvent extends NukkitCloudNetEvent {
+
+  private static final HandlerList handlers = new HandlerList();
 
   private final ServiceTask task;
 
-  private boolean cancelled;
-
-  public ServiceTaskAddEvent(ServiceTask task) {
+  public NukkitServiceTaskRemoveEvent(ServiceTask task) {
     this.task = task;
   }
 
+  public static HandlerList getHandlers() {
+    return NukkitServiceTaskRemoveEvent.handlers;
+  }
+
   public ServiceTask getTask() {
-    return this.task;
+    return task;
   }
 
-  public boolean isCancelled() {
-    return this.cancelled;
-  }
-
-  public void setCancelled(boolean cancelled) {
-    this.cancelled = cancelled;
-  }
 }

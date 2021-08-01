@@ -14,20 +14,21 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.ext.bridge.listener;
+package de.dytanic.cloudnet.driver.event.events.service.task;
 
-import de.dytanic.cloudnet.driver.event.EventListener;
+import de.dytanic.cloudnet.driver.event.Event;
 import de.dytanic.cloudnet.driver.service.ServiceTask;
-import de.dytanic.cloudnet.event.service.task.LocalServiceTaskAddEvent;
 
-public class TaskConfigListener {
+public class ServiceTaskRemoveEvent extends Event {
 
-  @EventListener
-  public void handleTaskAdd(LocalServiceTaskAddEvent event) {
-    ServiceTask serviceTask = event.getTask();
-    if (serviceTask.getProcessConfiguration().getEnvironment().isMinecraftServer()
-      && !serviceTask.getProperties().contains("requiredPermission")) {
-      serviceTask.getProperties().appendNull("requiredPermission");
-    }
+  private final ServiceTask task;
+
+  public ServiceTaskRemoveEvent(ServiceTask task) {
+    this.task = task;
   }
+
+  public ServiceTask getTask() {
+    return this.task;
+  }
+
 }

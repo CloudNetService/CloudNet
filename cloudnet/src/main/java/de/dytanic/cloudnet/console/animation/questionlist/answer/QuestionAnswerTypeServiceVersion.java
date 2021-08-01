@@ -37,20 +37,27 @@ public class QuestionAnswerTypeServiceVersion implements QuestionAnswerType<Pair
 
   private final Supplier<ServiceEnvironmentType> environmentTypeSupplier;
   private final ServiceVersionProvider serviceVersionProvider;
+  private final Supplier<JavaVersion> javaVersionSupplier;
+
+  private volatile JavaVersion javaVersion;
 
   public QuestionAnswerTypeServiceVersion(Supplier<ServiceEnvironmentType> environmentTypeSupplier,
     ServiceVersionProvider serviceVersionProvider) {
-    this.environmentTypeSupplier = environmentTypeSupplier;
-    this.serviceVersionProvider = serviceVersionProvider;
+    this(environmentTypeSupplier, serviceVersionProvider, JavaVersion::getRuntimeVersion);
   }
 
-  public QuestionAnswerTypeServiceVersion(ServiceEnvironment environment,
-    ServiceVersionProvider serviceVersionProvider) {
+  public QuestionAnswerTypeServiceVersion(Supplier<ServiceEnvironmentType> environmentTypeSupplier,
+    ServiceVersionProvider serviceVersionProvider, Supplier<JavaVersion> javaVersionSupplier) {
+    this.environmentTypeSupplier = environmentTypeSupplier;
+    this.serviceVersionProvider = serviceVersionProvider;
+    this.javaVersionSupplier = javaVersionSupplier;
+  }
+
+  public QuestionAnswerTypeServiceVersion(ServiceEnvironment environment, ServiceVersionProvider provider) {
     this(() -> Arrays.stream(ServiceEnvironmentType.values())
-        .filter(serviceEnvironmentType -> Arrays.asList(serviceEnvironmentType.getEnvironments()).contains(environment))
-        .findFirst()
-        .orElseThrow(() -> new IllegalArgumentException("Invalid ServiceEnvironment")),
-      serviceVersionProvider);
+      .filter(serviceEnvironmentType -> Arrays.asList(serviceEnvironmentType.getEnvironments()).contains(environment))
+      .findFirst()
+      .orElseThrow(() -> new IllegalArgumentException("Invalid ServiceEnvironment")), provider);
   }
 
   @Override
@@ -60,11 +67,11 @@ public class QuestionAnswerTypeServiceVersion implements QuestionAnswerType<Pair
     }
     String[] args = input.split("-");
     if (args.length == 2) {
-      Optional<ServiceVersionType> optionalVersionType = this.serviceVersionProvider.getServiceVersionType(args[0]);
-      return optionalVersionType.isPresent() &&
-        optionalVersionType.get().getTargetEnvironment().getEnvironmentType() == this.environmentTypeSupplier.get() &&
-        optionalVersionType.get().getVersion(args[1]).isPresent() &&
-        optionalVersionType.get().canInstall(optionalVersionType.get().getVersion(args[1]).get());
+      Optional<ServiceVersionType> versionType = this.serviceVersionProvider.getServiceVersionType(args[0]);
+      return versionType.isPresent()
+        && versionType.get().getTargetEnvironment().getEnvironmentType() == this.environmentTypeSupplier.get()
+        && versionType.get().getVersion(args[1]).isPresent()
+        && versionType.get().canInstall(versionType.get().getVersion(args[1]).get(), this.getJavaVersion());
     }
     return false;
   }
@@ -93,11 +100,10 @@ public class QuestionAnswerTypeServiceVersion implements QuestionAnswerType<Pair
   public @NotNull List<String> getCompletableAnswers() {
     List<String> completableAnswers = this.serviceVersionProvider.getServiceVersionTypes().values()
       .stream()
-      .filter(serviceVersionType -> serviceVersionType.getTargetEnvironment().getEnvironmentType()
-        == this.environmentTypeSupplier.get())
+      .filter(type -> type.getTargetEnvironment().getEnvironmentType() == this.environmentTypeSupplier.get())
       .flatMap(serviceVersionType -> serviceVersionType.getVersions()
         .stream()
-        .filter(version -> version.canRun(JavaVersion.getRuntimeVersion()))
+        .filter(version -> version.canRun(this.getJavaVersion()))
         .map(serviceVersion -> serviceVersionType.getName() + "-" + serviceVersion.getName()))
       .collect(Collectors.toList());
     completableAnswers.add("none");
@@ -116,16 +122,23 @@ public class QuestionAnswerTypeServiceVersion implements QuestionAnswerType<Pair
         if (optionalVersion.isPresent()) {
           ServiceVersion version = optionalVersion.get();
 
-          if (!versionType.canInstall(version)) {
+          if (!versionType.canInstall(version, this.getJavaVersion())) {
             return "&c" + LanguageManager.getMessage("command-template-install-wrong-java")
               .replace("%version%", versionType.getName() + "-" + version.getName())
-              .replace("%java%", JavaVersion.getRuntimeVersion().getName());
+              .replace("%java%", this.getJavaVersion().getName());
           }
         }
       }
     }
+
     return LanguageManager.getMessage("ca-question-list-invalid-service-version");
   }
 
+  private @NotNull JavaVersion getJavaVersion() {
+    if (this.javaVersion == null) {
+      this.javaVersion = this.javaVersionSupplier.get();
+    }
+    return this.javaVersion;
+  }
 }
 

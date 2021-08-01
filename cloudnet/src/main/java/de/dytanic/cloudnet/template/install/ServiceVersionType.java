@@ -16,6 +16,7 @@
 
 package de.dytanic.cloudnet.template.install;
 
+import de.dytanic.cloudnet.common.JavaVersion;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironment;
 import de.dytanic.cloudnet.template.install.run.step.InstallStep;
 import java.util.ArrayList;
@@ -49,6 +50,10 @@ public class ServiceVersionType {
 
   public boolean canInstall(ServiceVersion serviceVersion) {
     return !this.installSteps.contains(InstallStep.BUILD) || serviceVersion.canRun();
+  }
+
+  public boolean canInstall(ServiceVersion serviceVersion, JavaVersion javaVersion) {
+    return !this.installSteps.contains(InstallStep.BUILD) || serviceVersion.canRun(javaVersion);
   }
 
   public String getName() {

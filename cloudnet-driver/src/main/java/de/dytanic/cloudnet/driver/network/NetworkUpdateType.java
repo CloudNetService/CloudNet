@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.network;
+package de.dytanic.cloudnet.driver.network;
 
 public enum NetworkUpdateType {
-  ADD, REMOVE, SET
+  ADD,
+  REMOVE,
+  SET
 }
