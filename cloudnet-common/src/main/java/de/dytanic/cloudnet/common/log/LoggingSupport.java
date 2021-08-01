@@ -35,8 +35,7 @@ final class LoggingSupport {
 
   public static void reportError(@NotNull String message, @NotNull Throwable throwable) {
     LOGGER.severe("ERROR: " + message);
-    LOGGER.severe("Reported exception:");
-    throwable.printStackTrace();
+    LOGGER.severe("Reported exception:", throwable);
   }
 
   public static @Nullable Class<?> getCallingClass() {
