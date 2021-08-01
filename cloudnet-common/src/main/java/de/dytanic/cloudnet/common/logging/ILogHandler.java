@@ -16,12 +16,15 @@
 
 package de.dytanic.cloudnet.common.logging;
 
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * A LogHandler should handle an incoming LogEntry. The Operation can be execute asynchronously or synchronously. It
  * depends on the implementation of the logger and the setting of the LogLevel
  */
+@Deprecated
+@ScheduledForRemoval
 public interface ILogHandler extends AutoCloseable {
 
   /**

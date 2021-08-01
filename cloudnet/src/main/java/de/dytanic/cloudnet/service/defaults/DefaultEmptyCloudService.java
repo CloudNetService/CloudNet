@@ -17,6 +17,8 @@
 package de.dytanic.cloudnet.service.defaults;
 
 import de.dytanic.cloudnet.common.StringUtil;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
 import de.dytanic.cloudnet.driver.service.ServiceId;
@@ -35,6 +37,8 @@ public abstract class DefaultEmptyCloudService implements ICloudService {
   protected final ICloudServiceManager cloudServiceManager;
   protected final ServiceConfiguration serviceConfiguration;
   protected final CloudServiceHandler handler;
+  protected static final Logger LOGGER = LogManager.getLogger(DefaultEmptyCloudService.class);
+
   private final String runtime;
   private final String connectionKey;
   protected volatile ServiceLifeCycle lifeCycle;

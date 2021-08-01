@@ -73,7 +73,7 @@ public class FTPQueueStorage extends DefaultAsyncTemplateStorage implements Runn
           nextFTPTask.call();
         }
       } catch (Exception exception) {
-        exception.printStackTrace();
+        LOGGER.severe("Exception while calling ftp tasks", exception);
       }
 
     }

@@ -20,8 +20,11 @@ import de.dytanic.cloudnet.common.logging.IFormatter;
 import de.dytanic.cloudnet.common.logging.LogEntry;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 import org.jetbrains.annotations.NotNull;
 
+@Deprecated
+@ScheduledForRemoval
 public final class WrapperLogFormatter implements IFormatter {
 
   @Override

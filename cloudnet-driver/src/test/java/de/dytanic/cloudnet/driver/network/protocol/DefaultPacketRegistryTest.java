@@ -38,7 +38,12 @@ public class DefaultPacketRegistryTest {
 
     Assert.assertEquals(1, registry.getListeners().size());
 
-    registry.handlePacket(null, new Packet(channelId, new JsonDocument("testProperty", 65), "TestValue".getBytes()));
+    registry.handlePacket(null, new Packet(channelId, new JsonDocument("testProperty", 65), "TestValue".getBytes()) {
+      @Override
+      public boolean isShowDebug() {
+        return false;
+      }
+    });
 
     Assert.assertEquals(65, this.property);
     Assert.assertEquals("TestValue", this.testValue);

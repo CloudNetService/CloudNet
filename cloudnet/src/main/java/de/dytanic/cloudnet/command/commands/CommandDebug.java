@@ -16,10 +16,12 @@
 
 package de.dytanic.cloudnet.command.commands;
 
-import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.command.ICommandSender;
 import de.dytanic.cloudnet.common.Properties;
-import de.dytanic.cloudnet.common.logging.LogLevel;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
+import de.dytanic.cloudnet.common.log.LoggingUtils;
+import java.util.logging.Level;
 
 public class CommandDebug extends CommandDefault {
 
@@ -29,11 +31,11 @@ public class CommandDebug extends CommandDefault {
 
   @Override
   public void execute(ICommandSender sender, String command, String[] args, String commandLine, Properties properties) {
-    if (CloudNet.getInstance().getLogger().getLevel() == LogLevel.DEBUG.getLevel()) {
-      CloudNet.getInstance().setGlobalLogLevel(CloudNet.getInstance().getDefaultLogLevel());
+    Logger rootLogger = LogManager.getRootLogger();
+    if (rootLogger.isLoggable(Level.FINEST)) {
+      rootLogger.setLevel(LoggingUtils.getDefaultLogLevel());
     } else {
-      CloudNet.getInstance().setGlobalLogLevel(LogLevel.DEBUG);
+      rootLogger.setLevel(Level.FINEST);
     }
   }
-
 }

@@ -19,11 +19,14 @@ package de.dytanic.cloudnet.common.logging;
 import java.util.Collection;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 
 /**
  * The default implementation of the ILogger interface. The the logger executes the registered logHandlers
  * asynchronously by default or synchronously if the LogLevel disallow async log handling
  */
+@Deprecated
+@ScheduledForRemoval
 public class DefaultAsyncLogger implements ILogger {
 
   protected final AtomicInteger level = new AtomicInteger(-1);

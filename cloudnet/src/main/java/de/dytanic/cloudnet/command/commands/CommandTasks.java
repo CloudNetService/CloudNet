@@ -194,7 +194,7 @@ public class CommandTasks extends CommandServiceConfigurationBase {
             }
 
           } catch (IOException exception) {
-            exception.printStackTrace();
+            LOGGER.severe("Exception while creating task", exception);
           }
         },
         exactStringIgnoreCase("create"),
@@ -671,7 +671,7 @@ public class CommandTasks extends CommandServiceConfigurationBase {
       try {
         TemplateStorageUtil.createAndPrepareTemplate(template, environmentType);
       } catch (IOException exception) {
-        exception.printStackTrace();
+        LOGGER.severe("Exception while creating templates", exception);
       }
 
       if (serviceVersion != null) {

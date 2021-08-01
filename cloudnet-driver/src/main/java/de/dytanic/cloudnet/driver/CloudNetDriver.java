@@ -22,6 +22,7 @@ import de.dytanic.cloudnet.common.concurrent.CompletedTask;
 import de.dytanic.cloudnet.common.concurrent.DefaultTaskScheduler;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.concurrent.ITaskScheduler;
+import de.dytanic.cloudnet.common.logging.DefaultAsyncLogger;
 import de.dytanic.cloudnet.common.logging.ILogger;
 import de.dytanic.cloudnet.common.logging.LogLevel;
 import de.dytanic.cloudnet.common.registry.DefaultServicesRegistry;
@@ -50,30 +51,44 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.logging.Level;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class CloudNetDriver {
 
   private static CloudNetDriver instance;
-  protected final IServicesRegistry servicesRegistry = new DefaultServicesRegistry();
+
   protected final IEventManager eventManager = new DefaultEventManager();
   protected final IModuleProvider moduleProvider = new DefaultModuleProvider();
-  protected final ITaskScheduler taskScheduler = new DefaultTaskScheduler();
+  protected final IServicesRegistry servicesRegistry = new DefaultServicesRegistry();
   protected final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(4);
-  protected final ILogger logger;
-  protected IPermissionManagement permissionManagement;
-  protected CloudServiceFactory cloudServiceFactory;
-  protected GeneralCloudServiceProvider generalCloudServiceProvider;
-  protected ServiceTaskProvider serviceTaskProvider;
-  protected GroupConfigurationProvider groupConfigurationProvider;
-  protected NodeInfoProvider nodeInfoProvider;
+
+  @Deprecated
+  protected final ITaskScheduler taskScheduler = new DefaultTaskScheduler();
+  @Deprecated
+  protected final ILogger iLogger;
+
   protected CloudMessenger messenger;
+  protected NodeInfoProvider nodeInfoProvider;
+  protected CloudServiceFactory cloudServiceFactory;
+  protected ServiceTaskProvider serviceTaskProvider;
+  protected IPermissionManagement permissionManagement;
+  protected GroupConfigurationProvider groupConfigurationProvider;
+  protected GeneralCloudServiceProvider generalCloudServiceProvider;
+
   protected DriverEnvironment driverEnvironment = DriverEnvironment.EMBEDDED;
 
-  public CloudNetDriver(@NotNull ILogger logger) {
-    this.logger = logger;
+  public CloudNetDriver() {
+    this.iLogger = new DefaultAsyncLogger();
+  }
+
+  @Deprecated
+  @ScheduledForRemoval
+  public CloudNetDriver(@NotNull ILogger iLogger) {
+    this.iLogger = iLogger;
   }
 
   public static CloudNetDriver getInstance() {
@@ -247,9 +262,40 @@ public abstract class CloudNetDriver {
     return storage != null ? storage.getTemplates() : Collections.emptyList();
   }
 
-  public abstract void setGlobalLogLevel(@NotNull LogLevel logLevel);
+  @Deprecated
+  @ScheduledForRemoval
+  public void setGlobalLogLevel(@NotNull LogLevel logLevel) {
+    this.setGlobalLogLevel(logLevel.getLevel());
+  }
 
-  public abstract void setGlobalLogLevel(int logLevel);
+  @Deprecated
+  @ScheduledForRemoval
+  public void setGlobalLogLevel(int logLevel) {
+    switch (logLevel) {
+      case 0:
+      case 1:
+        this.setGlobalLogLevel(Level.INFO);
+        break;
+      case 125:
+        this.setGlobalLogLevel(Level.WARNING);
+        break;
+      case 126:
+      case 127:
+        this.setGlobalLogLevel(Level.SEVERE);
+        break;
+      case 128:
+      case 129:
+        this.setGlobalLogLevel(Level.FINE);
+        break;
+      case Integer.MAX_VALUE:
+        this.setGlobalLogLevel(Level.ALL);
+        break;
+      default:
+        break;
+    }
+  }
+
+  public abstract void setGlobalLogLevel(Level logLevel);
 
   public abstract Pair<Boolean, String[]> sendCommandLineAsPermissionUser(@NotNull UUID uniqueId,
     @NotNull String commandLine);
@@ -294,9 +340,15 @@ public abstract class CloudNetDriver {
     return this.scheduler;
   }
 
+  /**
+   * @deprecated Don't use this logger instance - create your own one using a lib or the build in {@link
+   * de.dytanic.cloudnet.common.log.LogManager}.
+   */
   @NotNull
+  @Deprecated
+  @ScheduledForRemoval
   public ILogger getLogger() {
-    return this.logger;
+    return this.iLogger;
   }
 
   @NotNull

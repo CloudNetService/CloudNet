@@ -19,6 +19,8 @@ package de.dytanic.cloudnet.setup;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.concurrent.ListenableTask;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.console.IConsole;
 import de.dytanic.cloudnet.console.animation.questionlist.ConsoleQuestionListAnimation;
 import de.dytanic.cloudnet.driver.permission.IPermissionGroup;
@@ -29,6 +31,8 @@ import java.util.Collection;
 import java.util.concurrent.ExecutionException;
 
 public class DefaultInstallation {
+
+  private static final Logger LOGGER = LogManager.getLogger(DefaultInstallation.class);
 
   private final Collection<DefaultSetup> setups = Arrays.asList(
     new DefaultConfigSetup(),
@@ -85,14 +89,14 @@ public class DefaultInstallation {
         try {
           task.call();
         } catch (Exception exception) {
-          exception.printStackTrace();
+          LOGGER.severe("Exception while restarting service", exception);
         }
       });
 
       try {
         task.get(); //wait for the results by the user
       } catch (InterruptedException | ExecutionException exception) {
-        exception.printStackTrace();
+        LOGGER.severe("Exception while waiting for the result by the users", exception);
       }
 
     }

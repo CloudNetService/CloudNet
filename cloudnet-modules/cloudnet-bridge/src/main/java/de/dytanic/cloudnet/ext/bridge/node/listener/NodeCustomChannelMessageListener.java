@@ -18,6 +18,8 @@ package de.dytanic.cloudnet.ext.bridge.node.listener;
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.language.LanguageManager;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.driver.event.EventListener;
@@ -46,10 +48,12 @@ public final class NodeCustomChannelMessageListener {
 
   private final NodePlayerManager nodePlayerManager;
   private final BridgeConfiguration bridgeConfiguration;
+  private final Logger logger;
 
   public NodeCustomChannelMessageListener(NodePlayerManager nodePlayerManager) {
     this.nodePlayerManager = nodePlayerManager;
     this.bridgeConfiguration = CloudNetBridgeModule.getInstance().getBridgeConfiguration();
+    this.logger = LogManager.getLogger(NodeCustomChannelMessageListener.class);
   }
 
   @EventListener
@@ -98,11 +102,10 @@ public final class NodeCustomChannelMessageListener {
       .callEvent(new BridgeProxyPlayerLoginRequestEvent(networkConnectionInfo));
 
     if (this.bridgeConfiguration.isLogPlayerConnections()) {
-      System.out.println(LanguageManager.getMessage("module-bridge-player-proxy-login-request")
+      this.logger.info(LanguageManager.getMessage("module-bridge-player-proxy-login-request")
         .replace("%uniqueId%", String.valueOf(networkConnectionInfo.getUniqueId()))
         .replace("%name%", networkConnectionInfo.getName())
-        .replace("%proxy%", networkConnectionInfo.getNetworkService().getServerName())
-      );
+        .replace("%proxy%", networkConnectionInfo.getNetworkService().getServerName()));
     }
   }
 
@@ -134,7 +137,7 @@ public final class NodeCustomChannelMessageListener {
           .callEvent(new BridgeProxyPlayerLoginSuccessEvent(networkConnectionInfo));
 
         if (this.bridgeConfiguration.isLogPlayerConnections()) {
-          System.out.println(LanguageManager.getMessage("module-bridge-player-proxy-login-success")
+          this.logger.info(LanguageManager.getMessage("module-bridge-player-proxy-login-success")
             .replace("%uniqueId%", String.valueOf(networkConnectionInfo.getUniqueId()))
             .replace("%name%", networkConnectionInfo.getName())
             .replace("%proxy%", networkConnectionInfo.getNetworkService().getServerName())
@@ -149,7 +152,7 @@ public final class NodeCustomChannelMessageListener {
         NetworkServiceInfo networkServiceInfo = event.getBuffer().readObject(NetworkServiceInfo.class);
 
         if (this.bridgeConfiguration.isLogPlayerConnections()) {
-          System.out.println(LanguageManager.getMessage("module-bridge-player-proxy-server-connect-request")
+          this.logger.info(LanguageManager.getMessage("module-bridge-player-proxy-server-connect-request")
             .replace("%uniqueId%", String.valueOf(networkConnectionInfo.getUniqueId()))
             .replace("%name%", networkConnectionInfo.getName())
             .replace("%proxy%", networkConnectionInfo.getNetworkService().getServerName())
@@ -166,7 +169,7 @@ public final class NodeCustomChannelMessageListener {
         NetworkServiceInfo networkServiceInfo = event.getBuffer().readObject(NetworkServiceInfo.class);
 
         if (this.bridgeConfiguration.isLogPlayerConnections()) {
-          System.out.println(LanguageManager.getMessage("module-bridge-player-proxy-server-switch")
+          this.logger.info(LanguageManager.getMessage("module-bridge-player-proxy-server-switch")
             .replace("%uniqueId%", String.valueOf(networkConnectionInfo.getUniqueId()))
             .replace("%name%", networkConnectionInfo.getName())
             .replace("%proxy%", networkConnectionInfo.getNetworkService().getServerName())
@@ -182,7 +185,7 @@ public final class NodeCustomChannelMessageListener {
         NetworkConnectionInfo networkConnectionInfo = event.getBuffer().readObject(NetworkConnectionInfo.class);
 
         if (this.bridgeConfiguration.isLogPlayerConnections()) {
-          System.out.println(LanguageManager.getMessage("module-bridge-player-proxy-disconnect")
+          this.logger.info(LanguageManager.getMessage("module-bridge-player-proxy-disconnect")
             .replace("%uniqueId%", String.valueOf(networkConnectionInfo.getUniqueId()))
             .replace("%name%", networkConnectionInfo.getName())
             .replace("%proxy%", networkConnectionInfo.getNetworkService().getServerName())
@@ -200,7 +203,7 @@ public final class NodeCustomChannelMessageListener {
         NetworkServiceInfo proxy = event.getBuffer().readObject(NetworkServiceInfo.class);
 
         if (this.bridgeConfiguration.isLogPlayerConnections()) {
-          System.out.println(LanguageManager.getMessage("module-bridge-player-proxy-disconnect")
+          this.logger.info(LanguageManager.getMessage("module-bridge-player-proxy-disconnect")
             .replace("%uniqueId%", String.valueOf(playerId))
             .replace("%name%", playerName)
             .replace("%proxy%", proxy.getServerName())
@@ -215,7 +218,7 @@ public final class NodeCustomChannelMessageListener {
         NetworkPlayerServerInfo networkPlayerServerInfo = event.getBuffer().readObject(NetworkPlayerServerInfo.class);
 
         if (this.bridgeConfiguration.isLogPlayerConnections()) {
-          System.out.println(LanguageManager.getMessage("module-bridge-player-server-login-request")
+          this.logger.info(LanguageManager.getMessage("module-bridge-player-server-login-request")
             .replace("%uniqueId%", String.valueOf(networkPlayerServerInfo.getUniqueId()))
             .replace("%name%", networkPlayerServerInfo.getName())
             .replace("%server%", networkPlayerServerInfo.getNetworkService().getServerName())
@@ -231,7 +234,7 @@ public final class NodeCustomChannelMessageListener {
         NetworkPlayerServerInfo networkPlayerServerInfo = event.getBuffer().readObject(NetworkPlayerServerInfo.class);
 
         if (this.bridgeConfiguration.isLogPlayerConnections()) {
-          System.out.println(LanguageManager.getMessage("module-bridge-player-server-login-success")
+          this.logger.info(LanguageManager.getMessage("module-bridge-player-server-login-success")
             .replace("%uniqueId%", String.valueOf(networkPlayerServerInfo.getUniqueId()))
             .replace("%name%", networkPlayerServerInfo.getName())
             .replace("%server%", networkPlayerServerInfo.getNetworkService().getServerName())
@@ -248,7 +251,7 @@ public final class NodeCustomChannelMessageListener {
         NetworkPlayerServerInfo networkPlayerServerInfo = event.getBuffer().readObject(NetworkPlayerServerInfo.class);
 
         if (this.bridgeConfiguration.isLogPlayerConnections()) {
-          System.out.println(LanguageManager.getMessage("module-bridge-player-server-disconnect")
+          this.logger.info(LanguageManager.getMessage("module-bridge-player-server-disconnect")
             .replace("%uniqueId%", String.valueOf(networkPlayerServerInfo.getUniqueId()))
             .replace("%name%", networkPlayerServerInfo.getName())
             .replace("%server%", networkPlayerServerInfo.getNetworkService().getServerName())

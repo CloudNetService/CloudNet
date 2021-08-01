@@ -17,17 +17,16 @@
 package de.dytanic.cloudnet.command;
 
 import com.google.common.base.Preconditions;
-import de.dytanic.cloudnet.common.logging.ILogger;
-import de.dytanic.cloudnet.common.logging.LogLevel;
+import de.dytanic.cloudnet.common.log.Logger;
 
 /**
  * The ConsoleCommandSender represents the console of the application. The console has all needed permissions.
  */
 public final class ConsoleCommandSender implements ICommandSender {
 
-  private final ILogger logger;
+  private final Logger logger;
 
-  public ConsoleCommandSender(ILogger logger) {
+  public ConsoleCommandSender(Logger logger) {
     this.logger = logger;
   }
 
@@ -41,7 +40,7 @@ public final class ConsoleCommandSender implements ICommandSender {
 
   @Override
   public void sendMessage(String message) {
-    this.logger.log(LogLevel.COMMAND, message);
+    this.logger.info(message);
   }
 
   @Override

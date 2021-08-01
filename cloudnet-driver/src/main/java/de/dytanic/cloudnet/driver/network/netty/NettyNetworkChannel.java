@@ -17,7 +17,8 @@
 package de.dytanic.cloudnet.driver.network.netty;
 
 import com.google.common.base.Preconditions;
-import de.dytanic.cloudnet.common.logging.LogLevel;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.event.events.network.NetworkChannelPacketSendEvent;
 import de.dytanic.cloudnet.driver.network.DefaultNetworkChannel;
@@ -33,6 +34,8 @@ import org.jetbrains.annotations.NotNull;
 
 @ApiStatus.Internal
 public final class NettyNetworkChannel extends DefaultNetworkChannel implements INetworkChannel {
+
+  private static final Logger LOGGER = LogManager.getLogger(NettyNetworkChannel.class);
 
   private final Channel channel;
 
@@ -80,20 +83,17 @@ public final class NettyNetworkChannel extends DefaultNetworkChannel implements 
 
     if (!event.isCancelled()) {
       if (packet.isShowDebug()) {
-        CloudNetDriver.optionalInstance().ifPresent(cloudNetDriver -> {
-          if (cloudNetDriver.getLogger().getLevel() >= LogLevel.DEBUG.getLevel()) {
-            cloudNetDriver.getLogger().debug(
-              String.format(
-                "Sending packet to %s on channel %d with id %s, header=%s;body=%d",
-                this.getClientAddress().toString(),
-                packet.getChannel(),
-                packet.getUniqueId(),
-                packet.getHeader().toJson(),
-                packet.getBuffer() != null ? packet.getBuffer().readableBytes() : 0
-              )
-            );
-          }
-        });
+        LOGGER.finer(
+          String.format(
+            "Sending packet to %s on channel %d with id %s, header=%s;body=%d",
+            this.getClientAddress().toString(),
+            packet.getChannel(),
+            packet.getUniqueId(),
+            packet.getHeader().toJson(),
+            packet.getBuffer() != null ? packet.getBuffer().readableBytes() : 0
+          )
+        );
+
       }
 
       return this.channel.writeAndFlush(packet);

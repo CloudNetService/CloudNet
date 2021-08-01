@@ -18,16 +18,14 @@ package de.dytanic.cloudnet.ext.report;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.primitives.Ints;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.Properties;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.common.io.HttpConnectionProvider;
-import de.dytanic.cloudnet.common.logging.DefaultFileLogHandler;
-import de.dytanic.cloudnet.common.logging.DefaultLogFormatter;
-import de.dytanic.cloudnet.common.logging.IFormatter;
-import de.dytanic.cloudnet.common.logging.ILogHandler;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
+import de.dytanic.cloudnet.common.log.defaults.DefaultLogFormatter;
 import de.dytanic.cloudnet.common.unsafe.CPUUsageResolver;
 import de.dytanic.cloudnet.driver.event.Event;
 import de.dytanic.cloudnet.driver.module.IModuleProvider;
@@ -53,7 +51,6 @@ import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
 import java.net.HttpURLConnection;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -64,9 +61,9 @@ import java.util.stream.Collectors;
 
 public final class CloudNetReportModule extends NodeCloudNetModule {
 
-  private static CloudNetReportModule instance;
-  private final IFormatter logFormatter = new DefaultLogFormatter();
+  private static final Logger LOGGER = LogManager.getLogger(CloudNetReportModule.class);
 
+  private static CloudNetReportModule instance;
   private DateFormat dateFormat;
   private Path savingRecordsDirectory;
   private volatile Class<? extends Event> eventClass;
@@ -156,7 +153,7 @@ public final class CloudNetReportModule extends NodeCloudNetModule {
       return this.getPasteURL() + "/" + jsonDocument.getString("key") +
         (jsonDocument.contains("deleteSecret") ? " DeleteSecret: " + jsonDocument.getString("deleteSecret") : "");
     } catch (IOException exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while creating paste", exception);
     }
 
     return null;
@@ -278,43 +275,14 @@ public final class CloudNetReportModule extends NodeCloudNetModule {
 
     builder.append('\n');
 
-    Path logFile = null;
-    for (ILogHandler logHandler : CloudNet.getInstance().getLogger().getLogHandlers()) {
-      if (logHandler instanceof DefaultFileLogHandler) {
-        logFile = ((DefaultFileLogHandler) logHandler).getEntry();
-      }
-    }
+    List<String> logLines;
 
-    try {
-      Integer parsedMaxLines;
+    logLines = CloudNet.getInstance().getQueuedConsoleLogHandler().getCachedLogEntries().stream()
+      .map(DefaultLogFormatter.END_LINE_SEPARATOR::format)
+      .collect(Collectors.toList());
 
-      int maxLines =
-        properties.containsKey("maxLines") && (parsedMaxLines = Ints.tryParse(properties.get("maxLines"))) != null
-          ? parsedMaxLines : -1;
-      if (maxLines <= 0) {
-        maxLines = 512;
-      }
-
-      List<String> logLines;
-
-      if (logFile != null) {
-        List<String> lines = Files.readAllLines(logFile);
-        if (lines.size() >= maxLines) {
-          logLines = lines.stream().skip(lines.size() - maxLines).collect(Collectors.toList());
-        } else {
-          logLines = lines;
-        }
-      } else {
-        logLines = CloudNet.getInstance().getQueuedConsoleLogHandler().getCachedQueuedLogEntries().stream()
-          .map(this.logFormatter::format)
-          .collect(Collectors.toList());
-      }
-
-      for (String logLine : logLines) {
-        builder.append(logLine).append('\n');
-      }
-    } catch (IOException exception) {
-      exception.printStackTrace();
+    for (String logLine : logLines) {
+      builder.append(logLine).append('\n');
     }
 
     builder.append("\nConfig:\n");

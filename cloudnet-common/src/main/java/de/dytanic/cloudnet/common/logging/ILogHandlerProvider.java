@@ -16,9 +16,13 @@
 
 package de.dytanic.cloudnet.common.logging;
 
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
+
 /**
  * An interface for a provider, which provides all log handlers for a log handlers
  */
+@Deprecated
+@ScheduledForRemoval
 public interface ILogHandlerProvider<T extends ILogHandlerProvider<?>> {
 
   /**

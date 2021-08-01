@@ -16,6 +16,8 @@
 
 package de.dytanic.cloudnet.ext.cloudperms;
 
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.permission.CachedPermissionManagement;
 import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
@@ -27,6 +29,8 @@ import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 
 public final class CloudPermissionsHelper {
+
+  private static final Logger LOGGER = LogManager.getLogger(CloudPermissionsHelper.class);
 
   private CloudPermissionsHelper() {
     throw new UnsupportedOperationException();
@@ -43,8 +47,7 @@ public final class CloudPermissionsHelper {
     try {
       permissionUser = permissionsManagement.getOrCreateUserAsync(uniqueId, name).get(5, TimeUnit.SECONDS);
     } catch (InterruptedException | ExecutionException | TimeoutException exception) {
-      CloudNetDriver.getInstance().getLogger()
-        .error("Error while loading permission user: " + uniqueId + "/" + name, exception);
+      LOGGER.severe("Error while loading permission user: " + uniqueId + "/" + name, exception);
     }
 
     if (permissionUser != null) {

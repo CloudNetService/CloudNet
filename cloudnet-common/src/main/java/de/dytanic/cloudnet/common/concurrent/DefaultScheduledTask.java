@@ -244,7 +244,9 @@ public final class DefaultScheduledTask<V> implements IScheduledTask<V> {
             listener.onComplete(this, this.value);
           }
         } catch (Exception exception) {
+          //CHECKSTYLE.OFF: deprecated class - no need for special logging as not needed internally anymore
           exception.printStackTrace();
+          //CHECKSTYLE.ON
         }
       }
     }
@@ -256,7 +258,9 @@ public final class DefaultScheduledTask<V> implements IScheduledTask<V> {
         try {
           listener.onFailure(this, throwable);
         } catch (Exception exception) {
+          //CHECKSTYLE.OFF: deprecated class - no need for special logging as not needed internally anymore
           exception.printStackTrace();
+          //CHECKSTYLE.ON
         }
       }
     }

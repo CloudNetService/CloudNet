@@ -16,9 +16,13 @@
 
 package de.dytanic.cloudnet.command;
 
+import de.dytanic.cloudnet.command.sub.SubCommandHandler;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.command.CommandInfo;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.jetbrains.annotations.ApiStatus.Internal;
 
 /**
  * Represents a command that should be execute
@@ -26,6 +30,9 @@ import lombok.ToString;
 @ToString
 @EqualsAndHashCode
 public abstract class Command implements ICommandExecutor {
+
+  @Internal
+  protected static final Logger LOGGER = LogManager.getLogger(SubCommandHandler.class);
 
   protected String[] names;
 

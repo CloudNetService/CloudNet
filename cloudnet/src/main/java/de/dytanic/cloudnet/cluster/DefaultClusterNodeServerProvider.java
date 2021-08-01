@@ -20,6 +20,8 @@ import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.language.LanguageManager;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkCluster;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
@@ -46,6 +48,7 @@ public final class DefaultClusterNodeServerProvider extends DefaultNodeServerPro
 
   private static final Format TIME_FORMAT = new DecimalFormat("##.###");
   private static final long MAX_NO_UPDATE_MILLIS = Long.getLong("cloudnet.max.node.idle.millis", 30_000);
+  private static final Logger LOGGER = LogManager.getLogger(DefaultClusterNodeServerProvider.class);
 
   public DefaultClusterNodeServerProvider(CloudNet cloudNet) {
     super(cloudNet);
@@ -55,7 +58,7 @@ public final class DefaultClusterNodeServerProvider extends DefaultNodeServerPro
         cloudNet.publishNetworkClusterNodeInfoSnapshotUpdate();
         this.checkForDeadNodes();
       } catch (Throwable throwable) {
-        cloudNet.getLogger().error("Exception while ticking node server provider", throwable);
+        LOGGER.severe("Exception while ticking node server provider", throwable);
       }
     }, 1, 1, TimeUnit.SECONDS);
   }
@@ -137,7 +140,7 @@ public final class DefaultClusterNodeServerProvider extends DefaultNodeServerPro
           .target(channels)
           .complete();
       } catch (IOException exception) {
-        exception.printStackTrace();
+        LOGGER.severe("Exception while deploying into cluster", exception);
       }
     }
   }
@@ -163,13 +166,13 @@ public final class DefaultClusterNodeServerProvider extends DefaultNodeServerPro
         NetworkClusterNodeInfoSnapshot snapshot = nodeServer.getNodeInfoSnapshot();
         if (snapshot != null && snapshot.getCreationTime() + MAX_NO_UPDATE_MILLIS < System.currentTimeMillis()) {
           try {
-            System.out.println(LanguageManager.getMessage("cluster-server-idling-too-long")
+            LOGGER.info(LanguageManager.getMessage("cluster-server-idling-too-long")
               .replace("%id%", nodeServer.getNodeInfo().getUniqueId())
               .replace("%time%", TIME_FORMAT.format((System.currentTimeMillis() - snapshot.getCreationTime()) / 1000))
             );
             nodeServer.close();
           } catch (Exception exception) {
-            exception.printStackTrace();
+            LOGGER.severe("Exception while closing server", exception);
           }
         }
       }

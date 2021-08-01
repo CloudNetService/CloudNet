@@ -16,6 +16,9 @@
 
 package de.dytanic.cloudnet.driver.service;
 
+import de.dytanic.cloudnet.common.io.FileUtils;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -94,6 +97,8 @@ public enum ServiceEnvironmentType {
     19132
   );
 
+  private static final Logger LOGGER = LogManager.getLogger(ServiceEnvironmentType.class);
+
   private final ServiceEnvironment[] environments;
   private final MinecraftServiceType type;
 
@@ -123,7 +128,7 @@ public enum ServiceEnvironmentType {
         Manifest manifest = jarFile.getManifest();
         return manifest == null ? null : manifest.getMainAttributes().getValue("Main-Class");
       } catch (IOException exception) {
-        exception.printStackTrace();
+        LOGGER.severe("Exception while resolving main class", exception);
       }
     }
     return null;

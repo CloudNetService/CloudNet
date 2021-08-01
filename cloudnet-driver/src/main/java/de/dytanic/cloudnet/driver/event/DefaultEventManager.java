@@ -17,7 +17,8 @@
 package de.dytanic.cloudnet.driver.event;
 
 import com.google.common.base.Preconditions;
-import de.dytanic.cloudnet.common.logging.LogLevel;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.event.invoker.ListenerInvoker;
 import de.dytanic.cloudnet.driver.event.invoker.ListenerInvokerGenerator;
@@ -31,6 +32,8 @@ import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public final class DefaultEventManager implements IEventManager {
+
+  private static final Logger LOGGER = LogManager.getLogger(DefaultEventManager.class);
 
   private final Map<String, List<IRegisteredEventListener>> registeredListeners = new HashMap<>();
 
@@ -181,14 +184,12 @@ public final class DefaultEventManager implements IEventManager {
         listenerInvoker);
 
       CloudNetDriver.optionalInstance().ifPresent(cloudNetDriver -> {
-        if (cloudNetDriver.getLogger().getLevel() >= LogLevel.DEBUG.getLevel()) {
-          cloudNetDriver.getLogger().debug(String.format(
-            "Registering listener method %s:%s from class loader %s",
-            listener.getClass().getName(),
-            method.getName(),
-            listener.getClass().getClassLoader().getClass().getName()
-          ));
-        }
+        LOGGER.finer(String.format(
+          "Registering listener method %s:%s from class loader %s",
+          listener.getClass().getName(),
+          method.getName(),
+          listener.getClass().getClassLoader().getClass().getName()
+        ));
       });
 
       this.registeredListeners.computeIfAbsent(eventListener.channel(),

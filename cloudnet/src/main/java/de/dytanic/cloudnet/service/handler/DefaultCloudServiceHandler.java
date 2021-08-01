@@ -17,6 +17,8 @@
 package de.dytanic.cloudnet.service.handler;
 
 import de.dytanic.cloudnet.common.language.LanguageManager;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.event.service.CloudServicePostDeleteEvent;
 import de.dytanic.cloudnet.event.service.CloudServicePostPrepareEvent;
@@ -33,6 +35,7 @@ import de.dytanic.cloudnet.service.ICloudService;
 public class DefaultCloudServiceHandler implements CloudServiceHandler {
 
   public static final CloudServiceHandler INSTANCE = new DefaultCloudServiceHandler();
+  private static final Logger LOGGER = LogManager.getLogger(DefaultCloudServiceHandler.class);
 
   @Override
   public boolean handlePreDelete(ICloudService service) {
@@ -41,7 +44,7 @@ public class DefaultCloudServiceHandler implements CloudServiceHandler {
       return false;
     }
 
-    System.out.println(LanguageManager.getMessage("cloud-service-pre-delete-message")
+    LOGGER.info(LanguageManager.getMessage("cloud-service-pre-delete-message")
       .replace("%task%", service.getServiceId().getTaskName())
       .replace("%serviceId%", String.valueOf(service.getServiceId().getTaskServiceId()))
       .replace("%id%", service.getServiceId().getUniqueId().toString())
@@ -52,7 +55,7 @@ public class DefaultCloudServiceHandler implements CloudServiceHandler {
   @Override
   public void handlePostDelete(ICloudService service) {
     CloudNetDriver.getInstance().getEventManager().callEvent(new CloudServicePostDeleteEvent(service));
-    CloudNetDriver.getInstance().getLogger().extended(LanguageManager.getMessage("cloud-service-post-delete-message")
+    LOGGER.fine(LanguageManager.getMessage("cloud-service-post-delete-message")
       .replace("%task%", service.getServiceId().getTaskName())
       .replace("%serviceId%", String.valueOf(service.getServiceId().getTaskServiceId()))
       .replace("%id%", service.getServiceId().getUniqueId().toString())
@@ -66,7 +69,7 @@ public class DefaultCloudServiceHandler implements CloudServiceHandler {
       return false;
     }
 
-    System.out.println(LanguageManager.getMessage("cloud-service-pre-prepared-message")
+    LOGGER.info(LanguageManager.getMessage("cloud-service-pre-prepared-message")
       .replace("%task%", service.getServiceId().getTaskName())
       .replace("%serviceId%", String.valueOf(service.getServiceId().getTaskServiceId()))
       .replace("%id%", service.getServiceId().getUniqueId().toString())
@@ -77,7 +80,7 @@ public class DefaultCloudServiceHandler implements CloudServiceHandler {
   @Override
   public void handlePostPrepare(ICloudService service) {
     CloudNetDriver.getInstance().getEventManager().callEvent(new CloudServicePostPrepareEvent(service));
-    CloudNetDriver.getInstance().getLogger().extended(LanguageManager.getMessage("cloud-service-post-prepared-message")
+    LOGGER.fine(LanguageManager.getMessage("cloud-service-post-prepared-message")
       .replace("%serviceId%", String.valueOf(service.getServiceId().getTaskServiceId()))
       .replace("%task%", service.getServiceId().getTaskName())
       .replace("%id%", service.getServiceId().getUniqueId().toString())
@@ -91,8 +94,8 @@ public class DefaultCloudServiceHandler implements CloudServiceHandler {
       return false;
     }
 
-    CloudNetDriver.getInstance().getLogger()
-      .extended(LanguageManager.getMessage("cloud-service-pre-start-prepared-message")
+    LOGGER
+      .fine(LanguageManager.getMessage("cloud-service-pre-start-prepared-message")
         .replace("%task%", service.getServiceId().getTaskName())
         .replace("%serviceId%", String.valueOf(service.getServiceId().getTaskServiceId()))
         .replace("%id%", service.getServiceId().getUniqueId().toString())
@@ -103,8 +106,8 @@ public class DefaultCloudServiceHandler implements CloudServiceHandler {
   @Override
   public void handlePostPrepareStart(ICloudService service) {
     CloudNetDriver.getInstance().getEventManager().callEvent(new CloudServicePostStartPrepareEvent(service));
-    CloudNetDriver.getInstance().getLogger()
-      .extended(LanguageManager.getMessage("cloud-service-post-start-prepared-message")
+    LOGGER
+      .fine(LanguageManager.getMessage("cloud-service-post-start-prepared-message")
         .replace("%task%", service.getServiceId().getTaskName())
         .replace("%serviceId%", String.valueOf(service.getServiceId().getTaskServiceId()))
         .replace("%id%", service.getServiceId().getUniqueId().toString())
@@ -113,7 +116,7 @@ public class DefaultCloudServiceHandler implements CloudServiceHandler {
 
   @Override
   public void handlePreStart(ICloudService service) {
-    System.out.println(LanguageManager.getMessage("cloud-service-pre-start-message")
+    LOGGER.info(LanguageManager.getMessage("cloud-service-pre-start-message")
       .replace("%task%", service.getServiceId().getTaskName())
       .replace("%serviceId%", String.valueOf(service.getServiceId().getTaskServiceId()))
       .replace("%id%", service.getServiceId().getUniqueId().toString())
@@ -124,7 +127,7 @@ public class DefaultCloudServiceHandler implements CloudServiceHandler {
   @Override
   public void handlePostStart(ICloudService service) {
     CloudNetDriver.getInstance().getEventManager().callEvent(new CloudServicePostStartEvent(service));
-    CloudNetDriver.getInstance().getLogger().extended(LanguageManager.getMessage("cloud-service-post-start-message")
+    LOGGER.fine(LanguageManager.getMessage("cloud-service-post-start-message")
       .replace("%serviceId%", String.valueOf(service.getServiceId().getTaskServiceId()))
       .replace("%task%", service.getServiceId().getTaskName())
       .replace("%id%", service.getServiceId().getUniqueId().toString())
@@ -137,7 +140,7 @@ public class DefaultCloudServiceHandler implements CloudServiceHandler {
       return false;
     }
 
-    System.out.println(LanguageManager.getMessage("cloud-service-pre-stop-message")
+    LOGGER.info(LanguageManager.getMessage("cloud-service-pre-stop-message")
       .replace("%task%", service.getServiceId().getTaskName())
       .replace("%serviceId%", String.valueOf(service.getServiceId().getTaskServiceId()))
       .replace("%id%", service.getServiceId().getUniqueId().toString())
@@ -148,7 +151,7 @@ public class DefaultCloudServiceHandler implements CloudServiceHandler {
   @Override
   public void handlePostStop(ICloudService service, int exitValue) {
     CloudNetDriver.getInstance().getEventManager().callEvent(new CloudServicePostStopEvent(service, exitValue));
-    CloudNetDriver.getInstance().getLogger().extended(LanguageManager.getMessage("cloud-service-post-stop-message")
+    LOGGER.fine(LanguageManager.getMessage("cloud-service-post-stop-message")
       .replace("%task%", service.getServiceId().getTaskName())
       .replace("%serviceId%", String.valueOf(service.getServiceId().getTaskServiceId()))
       .replace("%id%", service.getServiceId().getUniqueId().toString())

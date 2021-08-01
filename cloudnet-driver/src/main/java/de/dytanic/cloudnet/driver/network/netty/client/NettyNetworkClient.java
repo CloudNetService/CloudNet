@@ -74,7 +74,7 @@ public final class NettyNetworkClient implements DefaultNetworkComponent, INetwo
     try {
       this.init();
     } catch (Exception exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while initializing the netty network client", exception);
     }
   }
 
@@ -144,7 +144,7 @@ public final class NettyNetworkClient implements DefaultNetworkComponent, INetwo
 
       return true;
     } catch (Exception exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while connection to the channel", exception);
     }
 
     return false;

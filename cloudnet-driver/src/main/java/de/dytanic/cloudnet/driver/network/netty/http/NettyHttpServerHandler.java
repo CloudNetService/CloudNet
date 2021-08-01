@@ -16,7 +16,8 @@
 
 package de.dytanic.cloudnet.driver.network.netty.http;
 
-import de.dytanic.cloudnet.driver.CloudNetDriver;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -41,6 +42,8 @@ import org.jetbrains.annotations.ApiStatus;
 
 @ApiStatus.Internal
 final class NettyHttpServerHandler extends SimpleChannelInboundHandler<HttpRequest> {
+
+  private static final Logger LOGGER = LogManager.getLogger(NettyHttpServerHandler.class);
 
   private final NettyHttpServer nettyHttpServer;
   private final HostAndPort connectedAddress;
@@ -68,7 +71,7 @@ final class NettyHttpServerHandler extends SimpleChannelInboundHandler<HttpReque
   @Override
   public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
     if (!(cause instanceof IOException)) {
-      cause.printStackTrace();
+      LOGGER.severe("Exception was caught", cause);
     }
   }
 
@@ -194,7 +197,7 @@ final class NettyHttpServerHandler extends SimpleChannelInboundHandler<HttpReque
       httpHandlerEntry.httpHandler.handle(fullPath.toLowerCase(), context);
       return true;
     } catch (Exception exception) {
-      CloudNetDriver.getInstance().getLogger().error(String.format("Exception posting http request to handler %s",
+      LOGGER.severe(String.format("Exception posting http request to handler %s",
         httpHandlerEntry.httpHandler.getClass().getName()), exception);
       return false;
     }

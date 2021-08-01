@@ -20,6 +20,8 @@ import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.cluster.IClusterNodeServer;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.language.LanguageManager;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
@@ -45,6 +47,8 @@ import java.util.UUID;
 
 public final class PacketClientAuthorizationListener implements IPacketListener {
 
+  private static final Logger LOGGER = LogManager.getLogger(PacketClientAuthorizationListener.class);
+
   @Override
   public void handle(INetworkChannel channel, IPacket packet) throws Exception {
     if (packet.getHeader().contains("authorization") && packet.getHeader().contains("credentials")) {
@@ -63,13 +67,13 @@ public final class PacketClientAuthorizationListener implements IPacketListener 
                 this.getCloudNet().registerClusterPacketRegistryListeners(channel.getPacketRegistry(), false);
 
                 channel.sendPacket(new PacketServerAuthorizationResponse(true, "successful"));
-                channel.sendPacket(new PacketServerSetGlobalLogLevel(CloudNet.getInstance().getLogger().getLevel()));
+                channel.sendPacket(new PacketServerSetGlobalLogLevel(LOGGER.getLevel().getName()));
 
                 clusterNodeServer.setChannel(channel);
                 CloudNetDriver.getInstance().getEventManager()
                   .callEvent(new NetworkChannelAuthClusterNodeSuccessEvent(clusterNodeServer, channel));
 
-                this.getCloudNet().getLogger().info(
+                LOGGER.info(
                   LanguageManager.getMessage("cluster-server-networking-connected")
                     .replace("%id%", clusterNode.getUniqueId())
                     .replace("%serverAddress%",
@@ -117,7 +121,7 @@ public final class PacketClientAuthorizationListener implements IPacketListener 
               //-
 
               channel.sendPacket(new PacketServerAuthorizationResponse(true, "successful"));
-              channel.sendPacket(new PacketServerSetGlobalLogLevel(CloudNet.getInstance().getLogger().getLevel()));
+              channel.sendPacket(new PacketServerSetGlobalLogLevel(LOGGER.getLevel().getName()));
 
               cloudService.setNetworkChannel(channel);
               cloudService.getServiceInfoSnapshot().setConnectedTime(System.currentTimeMillis());
@@ -125,7 +129,7 @@ public final class PacketClientAuthorizationListener implements IPacketListener 
               CloudNetDriver.getInstance().getEventManager()
                 .callEvent(new NetworkChannelAuthCloudServiceSuccessEvent(cloudService, channel));
 
-              this.getCloudNet().getLogger().info(LanguageManager.getMessage("cloud-service-networking-connected")
+              LOGGER.info(LanguageManager.getMessage("cloud-service-networking-connected")
                 .replace("%id%", cloudService.getServiceId().getUniqueId().toString())
                 .replace("%task%", cloudService.getServiceId().getTaskName())
                 .replace("%serviceId%", String.valueOf(cloudService.getServiceId().getTaskServiceId()))

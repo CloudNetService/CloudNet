@@ -16,6 +16,8 @@
 
 package de.dytanic.cloudnet.common.document;
 
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,6 +34,8 @@ import org.jetbrains.annotations.Nullable;
  * This interface is interesting to read data, of the implement object
  */
 public interface IReadable {
+
+  Logger LOGGER = LogManager.getLogger(IReadable.class);
 
   @NotNull
   IReadable read(@NotNull Reader reader);
@@ -51,7 +55,7 @@ public interface IReadable {
       try (InputStream inputStream = Files.newInputStream(path)) {
         return this.read(inputStream);
       } catch (IOException exception) {
-        exception.printStackTrace();
+        LOGGER.severe("Exception while reading inputstream", exception);
       }
     }
     return this;
@@ -110,7 +114,7 @@ public interface IReadable {
     try (InputStreamReader reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8)) {
       return this.append(reader);
     } catch (IOException exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while reading inputstream", exception);
       return this;
     }
   }

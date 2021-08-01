@@ -39,9 +39,9 @@ public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
   private static final long NEW_CREATION_DELAY = 600_000;
   private static final String CONNECT_URL_FORMAT = "jdbc:mysql://%s:%d/%s?serverTimezone=UTC&useSSL=%b&trustServerCertificate=%b";
 
-  protected final JsonDocument config;
+  private final JsonDocument config;
 
-  protected HikariDataSource hikariDataSource;
+  private HikariDataSource hikariDataSource;
   private List<MySQLConnectionEndpoint> addresses;
 
   public MySQLDatabaseProvider(JsonDocument config, ExecutorService executorService) {
@@ -166,7 +166,7 @@ public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
       return preparedStatement.executeUpdate();
 
     } catch (SQLException exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while executing database update", exception);
     }
 
     return -1;
@@ -187,8 +187,8 @@ public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
       try (ResultSet resultSet = preparedStatement.executeQuery()) {
         return callback.call(resultSet);
       }
-    } catch (Throwable e) {
-      e.printStackTrace();
+    } catch (Throwable throwable) {
+      LOGGER.severe("Exception while executing database query", throwable);
     }
 
     return null;

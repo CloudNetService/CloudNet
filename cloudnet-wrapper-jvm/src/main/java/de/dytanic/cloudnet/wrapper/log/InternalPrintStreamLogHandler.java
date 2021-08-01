@@ -16,40 +16,47 @@
 
 package de.dytanic.cloudnet.wrapper.log;
 
-import de.dytanic.cloudnet.common.logging.AbstractLogHandler;
-import de.dytanic.cloudnet.common.logging.LogEntry;
-import de.dytanic.cloudnet.common.logging.LogLevel;
+import de.dytanic.cloudnet.common.log.AbstractHandler;
 import java.io.PrintStream;
+import java.util.logging.Formatter;
+import java.util.logging.Level;
+import java.util.logging.LogRecord;
+import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * A redirect log handler, to the origin output and error stream. The LogOutputStream will replace the System.out and
  * System.err stream after this initialization by the Wrapper
  */
-public final class InternalPrintStreamLogHandler extends AbstractLogHandler {
+@Internal
+public final class InternalPrintStreamLogHandler extends AbstractHandler {
 
   private final PrintStream outputStream;
   private final PrintStream errorStream;
 
-  public InternalPrintStreamLogHandler(PrintStream outputStream, PrintStream errorStream) {
+  private InternalPrintStreamLogHandler(PrintStream outputStream, PrintStream errorStream) {
     this.outputStream = outputStream;
     this.errorStream = errorStream;
+    // set defaults
+    super.setLevel(Level.ALL);
+  }
+
+  public static @NotNull InternalPrintStreamLogHandler forSystemStreams() {
+    return InternalPrintStreamLogHandler.newInstance(System.out, System.err);
+  }
+
+  public static @NotNull InternalPrintStreamLogHandler newInstance(PrintStream out, PrintStream err) {
+    return new InternalPrintStreamLogHandler(out, err);
   }
 
   @Override
-  public void handle(@NotNull LogEntry logEntry) {
-    PrintStream targetStream =
-      logEntry.getLogLevel().equals(LogLevel.ERROR) || logEntry.getLogLevel().equals(LogLevel.WARNING)
-        ? this.errorStream
-        : this.outputStream;
-
-    for (String line : super.getFormatter().format(logEntry).split(System.lineSeparator())) {
-      targetStream.println(line);
-    }
+  public void publish(LogRecord record) {
+    PrintStream stream = record.getLevel().intValue() > Level.INFO.intValue() ? this.errorStream : this.outputStream;
+    stream.println(super.getFormatter().format(record));
   }
 
-  @Override
-  public void close() {
-
+  public @NotNull InternalPrintStreamLogHandler withFormatter(@NotNull Formatter formatter) {
+    super.setFormatter(formatter);
+    return this;
   }
 }

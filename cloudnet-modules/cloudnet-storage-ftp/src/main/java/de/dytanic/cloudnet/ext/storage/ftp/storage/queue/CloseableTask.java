@@ -20,6 +20,8 @@ import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.concurrent.ITaskListener;
 import de.dytanic.cloudnet.common.concurrent.function.ThrowableFunction;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.common.stream.WrappedInputStream;
 import de.dytanic.cloudnet.common.stream.WrappedOutputStream;
 import java.io.Closeable;
@@ -33,6 +35,8 @@ import org.jetbrains.annotations.NotNull;
 
 @NotNull
 public class CloseableTask<C extends Closeable> implements ITask<C>, Closeable {
+
+  private static final Logger LOGGER = LogManager.getLogger(CloseableTask.class);
 
   private final C closeable;
   private boolean done;
@@ -114,7 +118,7 @@ public class CloseableTask<C extends Closeable> implements ITask<C>, Closeable {
       try {
         this.notifyAll();
       } catch (Throwable throwable) {
-        throwable.printStackTrace();
+        LOGGER.severe("Exception while calling", throwable);
       }
     }
 
@@ -143,7 +147,7 @@ public class CloseableTask<C extends Closeable> implements ITask<C>, Closeable {
         try {
           this.wait();
         } catch (InterruptedException exception) {
-          exception.printStackTrace();
+          LOGGER.severe("Exception while awaiting get", exception);
         }
       }
     }

@@ -17,7 +17,8 @@
 package de.dytanic.cloudnet.examples;
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
-import de.dytanic.cloudnet.common.logging.LogLevel;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.event.events.service.CloudServiceConnectNetworkEvent;
 import de.dytanic.cloudnet.driver.event.events.service.CloudServiceStartEvent;
@@ -34,10 +35,11 @@ import de.dytanic.cloudnet.driver.service.ThreadSnapshot;
 
 public final class ExampleListener {
 
+  private static final Logger LOGGER = LogManager.getLogger(ExampleListener.class);
+
   @EventListener
   public void handleServiceStart(CloudServiceStartEvent event) {
-    event.getDriver().getLogger()
-      .log(LogLevel.INFO, "Service " + event.getServiceInfo().getServiceId().getName() + " is starting...");
+    LOGGER.info("Service " + event.getServiceInfo().getServiceId().getName() + " is starting...");
   }
 
   @EventListener
@@ -58,7 +60,7 @@ public final class ExampleListener {
     ServiceLifeCycle serviceLifeCycle = serviceInfoSnapshot.getLifeCycle();
 
     if (serviceLifeCycle == ServiceLifeCycle.RUNNING) {
-      event.getDriver().getLogger().info("Service is running");
+      LOGGER.info("Service is running");
     }
 
     ProcessSnapshot processSnapshot = serviceInfoSnapshot.getProcessSnapshot();
@@ -114,18 +116,17 @@ public final class ExampleListener {
 
   @EventListener(channel = "test_channel") //listen the ExampleOwnEvent, which called on "test_channel"
   public void handleExampleOwnEvent(ExampleOwnEvent event) {
-    System.out.println(event.getModuleWrapper().getModule().getName()); //print the module name
+    LOGGER.info(event.getModuleWrapper().getModule().getName()); //print the module name
   }
 
   @EventListener
   public void handleNotCalledEvent(ExampleOwnEvent event) {
     // On this example module, this listener won't called
-    System.out.println("No event listening on public channel");
+    LOGGER.info("No event listening on public channel");
   }
 
   @EventListener
   public void handleServiceStop(CloudServiceStopEvent event) {
-    event.getDriver().getLogger()
-      .log(LogLevel.INFO, "Service " + event.getServiceInfo().getServiceId().getName() + " is stopped...");
+    LOGGER.info("Service " + event.getServiceInfo().getServiceId().getName() + " is stopped...");
   }
 }
