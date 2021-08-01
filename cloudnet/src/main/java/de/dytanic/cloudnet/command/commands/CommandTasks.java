@@ -606,7 +606,7 @@ public class CommandTasks extends CommandServiceConfigurationBase {
         LanguageManager.getMessage("command-tasks-setup-question-javacommand-invalid"),
         input -> {
           JavaVersion version = JavaVersionResolver.resolveFromJavaExecutable(input);
-          return version == null ? null : new Pair<>(input, version);
+          return version == null ? null : new Pair<>(input.equals("java") ? null : input, version);
         },
         Collections.emptyList()
       )
@@ -676,6 +676,7 @@ public class CommandTasks extends CommandServiceConfigurationBase {
 
       if (serviceVersion != null) {
         CloudNet.getInstance().getServiceVersionProvider().installServiceVersion(
+          javaCommand,
           serviceVersion.getFirst(),
           serviceVersion.getSecond(),
           template
@@ -687,7 +688,7 @@ public class CommandTasks extends CommandServiceConfigurationBase {
         .name(name)
         .maintenance(maintenance)
         .autoDeleteOnStop(autoDeleteOnStop)
-        .javaCommand("java".equalsIgnoreCase(javaCommand) ? null : javaCommand)
+        .javaCommand(javaCommand)
         .staticServices(staticServices)
         .associatedNodes(associatedNodes)
         .groups(Collections.singletonList(name))

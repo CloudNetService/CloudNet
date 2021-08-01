@@ -20,20 +20,30 @@ import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import de.dytanic.cloudnet.driver.template.TemplateStorage;
 import de.dytanic.cloudnet.template.install.ServiceVersion;
 import de.dytanic.cloudnet.template.install.ServiceVersionType;
+import java.util.Optional;
 
 public class InstallInformation {
 
-  private final ServiceVersionType serviceVersionType;
+  private final String installerExecutable;
   private final ServiceVersion serviceVersion;
   private final TemplateStorage templateStorage;
   private final ServiceTemplate serviceTemplate;
+  private final ServiceVersionType serviceVersionType;
 
-  public InstallInformation(ServiceVersionType serviceVersionType, ServiceVersion serviceVersion,
-    TemplateStorage templateStorage, ServiceTemplate serviceTemplate) {
-    this.serviceVersionType = serviceVersionType;
+  public InstallInformation(ServiceVersion version, TemplateStorage storage, ServiceTemplate template,
+    ServiceVersionType type) {
+    this(null, version, storage, template, type);
+  }
+
+  public InstallInformation(
+    String installerExecutable, ServiceVersion serviceVersion, TemplateStorage templateStorage,
+    ServiceTemplate serviceTemplate, ServiceVersionType serviceVersionType
+  ) {
+    this.installerExecutable = installerExecutable;
     this.serviceVersion = serviceVersion;
     this.templateStorage = templateStorage;
     this.serviceTemplate = serviceTemplate;
+    this.serviceVersionType = serviceVersionType;
   }
 
   public ServiceVersionType getServiceVersionType() {
@@ -52,4 +62,7 @@ public class InstallInformation {
     return this.serviceTemplate;
   }
 
+  public Optional<String> getInstallerExecutable() {
+    return Optional.ofNullable(this.installerExecutable);
+  }
 }
