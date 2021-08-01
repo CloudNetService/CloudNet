@@ -275,16 +275,23 @@ public abstract class CloudNetDriver {
       case 0:
       case 1:
         this.setGlobalLogLevel(Level.INFO);
+        break;
       case 125:
         this.setGlobalLogLevel(Level.WARNING);
+        break;
       case 126:
       case 127:
         this.setGlobalLogLevel(Level.SEVERE);
+        break;
       case 128:
       case 129:
         this.setGlobalLogLevel(Level.FINE);
+        break;
       case Integer.MAX_VALUE:
         this.setGlobalLogLevel(Level.ALL);
+        break;
+      default:
+        break;
     }
   }
 

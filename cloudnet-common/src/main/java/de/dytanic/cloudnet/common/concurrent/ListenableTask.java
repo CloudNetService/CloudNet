@@ -206,7 +206,7 @@ public class ListenableTask<V> implements ITask<V> {
         listener.onComplete(this, this.value);
       }
     } catch (Exception exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while invoking task listeners", exception);
     }
   }
 

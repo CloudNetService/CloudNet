@@ -36,7 +36,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class LocalNodeSpecificCloudServiceProvider implements SpecificCloudServiceProvider {
 
-  private final static Logger LOGGER = LogManager.getLogger(LocalNodeSpecificCloudServiceProvider.class);
+  private static final Logger LOGGER = LogManager.getLogger(LocalNodeSpecificCloudServiceProvider.class);
 
   private final CloudNet cloudNet;
   private final ICloudService service;
