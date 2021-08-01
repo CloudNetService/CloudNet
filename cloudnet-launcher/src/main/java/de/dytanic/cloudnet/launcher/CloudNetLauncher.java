@@ -193,7 +193,9 @@ public final class CloudNetLauncher {
         try {
           LauncherUtils.deleteFile(versionInfo.getTargetDirectory());
         } catch (IOException exception) {
+          //CHECKSTYLE.OFF: launcher has no special logger
           exception.printStackTrace();
+          //CHECKSTYLE.ON
         }
       });
 
@@ -239,7 +241,9 @@ public final class CloudNetLauncher {
         .forEach(
           path -> versionInfo.put(path.getFileName().toString(), new InstalledVersionInfo(path, gitHubRepository)));
     } catch (IOException exception) {
+      //CHECKSTYLE.OFF: launcher has no special logger
       exception.printStackTrace();
+      //CHECKSTYLE.ON
     }
 
     return versionInfo;
@@ -323,7 +327,9 @@ public final class CloudNetLauncher {
       try {
         method.invoke(null, (Object) args);
       } catch (IllegalAccessException | InvocationTargetException exception) {
+        //CHECKSTYLE.OFF: launcher has no special logger
         exception.printStackTrace();
+        //CHECKSTYLE.ON
       }
     }, "Application-Thread");
     thread.setPriority(Thread.MIN_PRIORITY);

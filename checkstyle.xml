@@ -46,7 +46,7 @@
       <property name="ignoreComments" value="true"/>
       <property name="message"
         value="Using Throwable#printStackTrace() is forbidden. Rethrow, log or handle the exception."/>
-    </module> <!-- TODO: exclude launcher etc -->
+    </module>
     <module name="OuterTypeFilename"/>
     <module name="IllegalTokenText">
       <property name="tokens" value="STRING_LITERAL, CHAR_LITERAL"/>

@@ -51,7 +51,9 @@ public final class RepositoryUpdater extends DefaultVersionInfo implements Updat
       }
 
     } catch (Exception exception) {
+      //CHECKSTYLE.OFF: launcher has no special logger
       exception.printStackTrace();
+      //CHECKSTYLE.ON
     }
 
     return false;
@@ -73,7 +75,9 @@ public final class RepositoryUpdater extends DefaultVersionInfo implements Updat
       return true;
 
     } catch (Exception exception) {
+      //CHECKSTYLE.OFF: launcher has no special logger
       exception.printStackTrace();
+      //CHECKSTYLE.ON
     }
 
     return false;
