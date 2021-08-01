@@ -116,14 +116,14 @@ public final class CloudNetReportListener {
           try {
             FileUtils.copy(current, targetDirectory.resolve(root.relativize(current)));
           } catch (IOException exception) {
-            exception.printStackTrace();
+            LOGGER.severe("Exception while copying directories", exception);
           }
         }, false, "proxy.log*");
       } else {
         FileUtils.copyFilesToDirectory(cloudService.getDirectoryPath().resolve("logs"), targetDirectory);
       }
     } catch (Exception exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while creating directory", exception);
     }
   }
 
@@ -135,11 +135,11 @@ public final class CloudNetReportListener {
             (current.toAbsolutePath() + " | " + Files.size(current) + " Bytes\n").getBytes(StandardCharsets.UTF_8));
           outputStream.flush();
         } catch (IOException exception) {
-          exception.printStackTrace();
+          LOGGER.severe("Exception while writing into an Ouputsteam", exception);
         }
       });
     } catch (IOException exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while opening an Outputstream", exception);
     }
   }
 
@@ -166,7 +166,7 @@ public final class CloudNetReportListener {
         outputStream.flush();
       }
     } catch (IOException exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while writing into Outputstream", exception);
     }
   }
 

@@ -18,6 +18,8 @@ package de.dytanic.cloudnet.common.concurrent;
 
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.concurrent.function.ThrowableFunction;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import java.util.Collection;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -28,6 +30,8 @@ import org.jetbrains.annotations.NotNull;
 
 @NotNull
 public class ListenableTask<V> implements ITask<V> {
+
+  private static final Logger LOGGER = LogManager.getLogger(ListenableTask.class);
 
   private final Callable<V> callable;
   private Collection<ITaskListener<V>> listeners;
@@ -169,7 +173,7 @@ public class ListenableTask<V> implements ITask<V> {
       try {
         this.notifyAll();
       } catch (Throwable throwable) {
-        throwable.printStackTrace();
+        LOGGER.severe("Exception while calling task", throwable);
       }
     }
 
