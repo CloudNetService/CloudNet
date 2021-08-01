@@ -48,8 +48,12 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.jetbrains.annotations.NotNull;
 
 public class ServiceVersionProvider {
+
+  private static final Path VERSION_CACHE_PATH = Paths.get(
+    System.getProperty("cloudnet.versioncache.path", "local/versioncache"));
 
   private static final int VERSIONS_FILE_VERSION = 1;
   private static final Type COLLECTION_SERVICE_VERSION_TYPE = TypeToken
@@ -78,8 +82,7 @@ public class ServiceVersionProvider {
       return false;
     }
 
-    JsonDocument document = new JsonDocument().read(inputStream);
-
+    JsonDocument document = JsonDocument.newDocument(inputStream);
     int fileVersion = document.getInt("fileVersion", -1);
 
     if (VERSIONS_FILE_VERSION == fileVersion && document.contains("versions")) {
@@ -90,6 +93,7 @@ public class ServiceVersionProvider {
 
       return true;
     }
+
     return false;
   }
 
@@ -103,52 +107,76 @@ public class ServiceVersionProvider {
     this.serviceVersionTypes.put(serviceVersionType.getName().toLowerCase(), serviceVersionType);
   }
 
-  public Optional<ServiceVersionType> getServiceVersionType(String name) {
+  public Optional<ServiceVersionType> getServiceVersionType(@NotNull String name) {
     return Optional.ofNullable(this.serviceVersionTypes.get(name.toLowerCase()));
   }
 
-  public boolean installServiceVersion(ServiceVersionType serviceVersionType, ServiceVersion serviceVersion,
-    ServiceTemplate serviceTemplate) {
-    return this.installServiceVersion(serviceVersionType, serviceVersion, serviceTemplate.storage().getWrappedStorage(),
-      serviceTemplate);
+  public boolean installServiceVersion(ServiceVersionType type, ServiceVersion version, ServiceTemplate template) {
+    return this.installServiceVersion(type, version, template.storage().getWrappedStorage(), template);
   }
 
-  public boolean installServiceVersion(ServiceVersionType serviceVersionType, ServiceVersion serviceVersion,
-    ServiceTemplate serviceTemplate, boolean force) {
-    return this.installServiceVersion(serviceVersionType, serviceVersion, serviceTemplate.storage().getWrappedStorage(),
-      serviceTemplate, force);
+  public boolean installServiceVersion(String executable, ServiceVersionType type,
+    ServiceVersion version, ServiceTemplate template) {
+    return this.installServiceVersion(
+      new InstallInformation(executable, version, template.storage().getWrappedStorage(), template, type), false);
   }
 
-  public boolean installServiceVersion(ServiceVersionType serviceVersionType, ServiceVersion serviceVersion,
-    TemplateStorage storage, ServiceTemplate serviceTemplate) {
-    return this.installServiceVersion(serviceVersionType, serviceVersion, storage, serviceTemplate, false);
+  public boolean installServiceVersion(ServiceVersionType type, ServiceVersion version, ServiceTemplate template,
+    boolean force) {
+    return this.installServiceVersion(type, version, template.storage().getWrappedStorage(), template, force);
   }
 
-  public boolean installServiceVersion(ServiceVersionType serviceVersionType, ServiceVersion serviceVersion,
-    TemplateStorage storage, ServiceTemplate serviceTemplate, boolean forceInstall) {
-    if (!forceInstall && !serviceVersionType.canInstall(serviceVersion)) {
-      throw new IllegalStateException(
-        "Cannot run " + serviceVersionType.getName() + "-" + serviceVersion.getName() + " on " + JavaVersion
-          .getRuntimeVersion().getName());
+  public boolean installServiceVersion(String executable, ServiceVersionType type, ServiceVersion version,
+    ServiceTemplate template, boolean force) {
+    return this.installServiceVersion(
+      new InstallInformation(executable, version, template.storage().getWrappedStorage(), template, type), force);
+  }
+
+  public boolean installServiceVersion(ServiceVersionType type, ServiceVersion version, TemplateStorage storage,
+    ServiceTemplate template) {
+    return this.installServiceVersion(type, version, storage, template, false);
+  }
+
+  public boolean installServiceVersion(
+    ServiceVersionType serviceVersionType, ServiceVersion serviceVersion,
+    TemplateStorage storage, ServiceTemplate serviceTemplate, boolean forceInstall
+  ) {
+    return this.installServiceVersion(
+      new InstallInformation(serviceVersion, storage, serviceTemplate, serviceVersionType), forceInstall);
+  }
+
+  public boolean installServiceVersion(InstallInformation information, boolean force) {
+    String fullVersionIdentifier =
+      information.getServiceVersionType().getName() + "-" + information.getServiceVersion().getName();
+
+    if (!force
+      && !information.getInstallerExecutable().isPresent()
+      && !information.getServiceVersionType().canInstall(information.getServiceVersion())
+    ) {
+      throw new IllegalArgumentException(String.format(
+        "Cannot run %s on %s",
+        fullVersionIdentifier,
+        JavaVersion.getRuntimeVersion().getName()
+      ));
     }
 
-    if (serviceVersion.isDeprecated()) {
+    if (information.getServiceVersion().isDeprecated()) {
       CloudNet.getInstance().getLogger().warning(LanguageManager.getMessage("versions-installer-deprecated-version")
-        .replace("%version%", serviceVersionType.getName() + "-" + serviceVersion.getName())
+        .replace("%version%", fullVersionIdentifier)
       );
     }
 
-    if (!storage.has(serviceTemplate)) {
-      storage.create(serviceTemplate);
+    if (!information.getTemplateStorage().has(information.getServiceTemplate())) {
+      information.getTemplateStorage().create(information.getServiceTemplate());
     }
 
     try {
-      //delete all old application files if they exist to prevent that they are used to start the server
-      for (FileInfo file : storage.listFiles(serviceTemplate, "", false)) {
+      // delete all old application files to prevent that they are used to start the service
+      for (FileInfo file : information.getTemplateStorage().listFiles(information.getServiceTemplate(), "", false)) {
         if (file != null) {
-          for (ServiceEnvironment environment : ServiceEnvironment.values()) {
+          for (ServiceEnvironment environment : ServiceEnvironment.VALUES) {
             if (file.getName().toLowerCase().contains(environment.getName()) && file.getName().endsWith(".jar")) {
-              storage.deleteFile(serviceTemplate, file.getPath());
+              information.getTemplateStorage().deleteFile(information.getServiceTemplate(), file.getPath());
             }
           }
         }
@@ -158,32 +186,25 @@ public class ServiceVersionProvider {
     }
 
     Path workingDirectory = FileUtils.createTempFile();
-
-    Path versionCacheDirectory = Paths.get(System.getProperty("cloudnet.versioncache.path", "local/versioncache"),
-      serviceVersionType.getName() + "-" + serviceVersion.getName());
-
-    InstallInformation installInformation = new InstallInformation(serviceVersionType, serviceVersion, storage,
-      serviceTemplate);
+    Path cacheDir = VERSION_CACHE_PATH.resolve(fullVersionIdentifier);
 
     try {
-      if (serviceVersion.isCacheFiles() && Files.exists(versionCacheDirectory)) {
-        InstallStep.DEPLOY.execute(installInformation, versionCacheDirectory,
-          Files.walk(versionCacheDirectory).collect(Collectors.toSet()));
+      if (information.getServiceVersion().isCacheFiles() && Files.exists(cacheDir)) {
+        InstallStep.DEPLOY.execute(information, cacheDir, Files.walk(cacheDir).collect(Collectors.toSet()));
       } else {
         Files.createDirectories(workingDirectory);
 
-        List<InstallStep> installSteps = new ArrayList<>(serviceVersionType.getInstallSteps());
+        List<InstallStep> installSteps = new ArrayList<>(information.getServiceVersionType().getInstallSteps());
         installSteps.add(InstallStep.DEPLOY);
 
         Set<Path> lastStepResult = new HashSet<>();
-
         for (InstallStep installStep : installSteps) {
-          lastStepResult = installStep.execute(installInformation, workingDirectory, lastStepResult);
+          lastStepResult = installStep.execute(information, workingDirectory, lastStepResult);
         }
 
-        if (serviceVersion.isCacheFiles()) {
+        if (information.getServiceVersion().isCacheFiles()) {
           for (Path path : lastStepResult) {
-            Path targetPath = versionCacheDirectory.resolve(workingDirectory.relativize(path));
+            Path targetPath = cacheDir.resolve(workingDirectory.relativize(path));
             Files.createDirectories(targetPath.getParent());
 
             Files.copy(path, targetPath, StandardCopyOption.REPLACE_EXISTING);
@@ -191,13 +212,13 @@ public class ServiceVersionProvider {
         }
       }
 
-      for (Map.Entry<String, String> downloadEntry : serviceVersion.getAdditionalDownloads().entrySet()) {
-        String path = downloadEntry.getKey();
-        String url = downloadEntry.getValue();
+      for (Map.Entry<String, String> entry : information.getServiceVersion().getAdditionalDownloads().entrySet()) {
+        String path = entry.getKey();
+        String url = entry.getValue();
 
         try (InputStream inputStream = ProgressBarInputStream.wrapDownload(CloudNet.getInstance().getConsole(), url);
-          OutputStream outputStream = storage.newOutputStream(serviceTemplate, path)) {
-          FileUtils.copy(inputStream, outputStream);
+          OutputStream out = information.getTemplateStorage().newOutputStream(information.getServiceTemplate(), path)) {
+          FileUtils.copy(inputStream, out);
         }
       }
 

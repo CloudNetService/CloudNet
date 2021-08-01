@@ -46,6 +46,8 @@ public enum ServiceEnvironment {
   //Velocity
   VELOCITY_DEFAULT("velocity");
 
+  public static final ServiceEnvironment[] VALUES = ServiceEnvironment.values();
+
   private final String name;
 
   ServiceEnvironment(String name) {
