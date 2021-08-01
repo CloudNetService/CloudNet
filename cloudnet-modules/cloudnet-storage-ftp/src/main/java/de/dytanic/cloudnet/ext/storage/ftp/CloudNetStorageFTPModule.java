@@ -16,6 +16,8 @@
 
 package de.dytanic.cloudnet.ext.storage.ftp;
 
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.module.ModuleLifeCycle;
 import de.dytanic.cloudnet.driver.module.ModuleTask;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
@@ -26,6 +28,8 @@ import de.dytanic.cloudnet.module.NodeCloudNetModule;
 import java.util.Arrays;
 
 public final class CloudNetStorageFTPModule extends NodeCloudNetModule {
+
+  private static final Logger LOGGER = LogManager.getLogger(CloudNetStorageFTPModule.class);
 
   private FTPQueueStorage templateStorage;
 
@@ -78,7 +82,7 @@ public final class CloudNetStorageFTPModule extends NodeCloudNetModule {
       try {
         this.templateStorage.close();
       } catch (Exception exception) {
-        exception.printStackTrace();
+        LOGGER.severe("Exception while closing template storage", exception);
       }
     }
   }

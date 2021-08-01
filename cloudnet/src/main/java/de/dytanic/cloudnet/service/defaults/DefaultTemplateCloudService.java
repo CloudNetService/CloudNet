@@ -16,7 +16,6 @@
 
 package de.dytanic.cloudnet.service.defaults;
 
-import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.encrypt.EncryptTo;
 import de.dytanic.cloudnet.common.io.FileUtils;
@@ -83,14 +82,13 @@ public abstract class DefaultTemplateCloudService extends DefaultCloudService {
 
       if (inclusion != null && inclusion.getDestination() != null && inclusion.getUrl() != null) {
         try {
-          CloudNet.getInstance().getLogger()
-            .extended(LanguageManager.getMessage("cloud-service-include-inclusion-message")
-              .replace("%task%", this.getServiceId().getTaskName())
-              .replace("%id%", this.getServiceId().getUniqueId().toString())
-              .replace("%serviceId%", String.valueOf(this.getServiceId().getTaskServiceId()))
-              .replace("%url%", inclusion.getUrl())
-              .replace("%destination%", inclusion.getDestination())
-            );
+          LOGGER.fine(LanguageManager.getMessage("cloud-service-include-inclusion-message")
+            .replace("%task%", this.getServiceId().getTaskName())
+            .replace("%id%", this.getServiceId().getUniqueId().toString())
+            .replace("%serviceId%", String.valueOf(this.getServiceId().getTaskServiceId()))
+            .replace("%url%", inclusion.getUrl())
+            .replace("%destination%", inclusion.getDestination())
+          );
 
           Path cacheDestination = Paths.get(
             System.getProperty("cloudnet.tempDir.includes", "temp/includes"),
@@ -115,7 +113,7 @@ public abstract class DefaultTemplateCloudService extends DefaultCloudService {
 
           this.includes.add(inclusion);
         } catch (Exception exception) {
-          exception.printStackTrace();
+          LOGGER.severe("Exception while including inclusions", exception);
         }
       }
     }
@@ -175,14 +173,13 @@ public abstract class DefaultTemplateCloudService extends DefaultCloudService {
         try {
           if (!this.getServiceConfiguration().isStaticService() || template.shouldAlwaysCopyToStaticServices()
             || this.firstStartupOnStaticService) {
-            CloudNet.getInstance().getLogger()
-              .extended(LanguageManager.getMessage("cloud-service-include-template-message")
-                .replace("%task%", this.getServiceId().getTaskName())
-                .replace("%id%", this.getServiceId().getUniqueId().toString())
-                .replace("%serviceId%", String.valueOf(this.getServiceId().getTaskServiceId()))
-                .replace("%template%", template.getTemplatePath())
-                .replace("%storage%", template.getStorage())
-              );
+            LOGGER.fine(LanguageManager.getMessage("cloud-service-include-template-message")
+              .replace("%task%", this.getServiceId().getTaskName())
+              .replace("%id%", this.getServiceId().getUniqueId().toString())
+              .replace("%serviceId%", String.valueOf(this.getServiceId().getTaskServiceId()))
+              .replace("%template%", template.getTemplatePath())
+              .replace("%storage%", template.getStorage())
+            );
 
             storage.copy(template, this.getDirectoryPath());
           }
@@ -190,7 +187,7 @@ public abstract class DefaultTemplateCloudService extends DefaultCloudService {
           this.templates.add(template);
 
         } catch (Exception exception) {
-          exception.printStackTrace();
+          LOGGER.severe("Exception while including templates", exception);
         }
       }
     }
@@ -214,7 +211,7 @@ public abstract class DefaultTemplateCloudService extends DefaultCloudService {
             continue;
           }
 
-          System.out.println(LanguageManager.getMessage("cloud-service-deploy-message")
+          LOGGER.info(LanguageManager.getMessage("cloud-service-deploy-message")
             .replace("%task%", this.getServiceId().getTaskName())
             .replace("%id%", this.getServiceId().getUniqueId().toString())
             .replace("%serviceId%", String.valueOf(this.getServiceId().getTaskServiceId()))

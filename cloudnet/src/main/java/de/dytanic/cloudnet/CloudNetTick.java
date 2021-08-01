@@ -20,6 +20,8 @@ import de.dytanic.cloudnet.cluster.NodeServer;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.concurrent.ListenableTask;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
 import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
@@ -41,6 +43,8 @@ public class CloudNetTick {
 
   public static final int TPS = CloudNet.TPS;
   public static final int MILLIS_BETWEEN_TICKS = 1000 / TPS;
+
+  private static final Logger LOGGER = LogManager.getLogger(CloudNetTick.class);
 
   private final CloudNet cloudNet;
   private final Queue<ITask<?>> processQueue = new ConcurrentLinkedQueue<>();
@@ -70,7 +74,7 @@ public class CloudNetTick {
           try {
             Thread.sleep(MILLIS_BETWEEN_TICKS - lastTickLength);
           } catch (Exception exception) {
-            exception.printStackTrace();
+            LOGGER.severe("Exception while ticking", exception);
           }
         }
 
@@ -90,7 +94,7 @@ public class CloudNetTick {
 
         this.cloudNet.getEventManager().callEvent(new CloudNetTickEvent());
       } catch (Exception exception) {
-        exception.printStackTrace();
+        LOGGER.severe("Exception while ticking", exception);
       }
     }
   }

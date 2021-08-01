@@ -16,6 +16,8 @@
 
 package de.dytanic.cloudnet.common.encrypt;
 
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -24,6 +26,8 @@ import java.security.NoSuchAlgorithmException;
  * This class includes simple hash operations, which should use, to sign data or some other operations.
  */
 public final class EncryptTo {
+
+  private static final Logger LOGGER = LogManager.getLogger(EncryptTo.class);
 
   private EncryptTo() {
     throw new UnsupportedOperationException();
@@ -48,7 +52,7 @@ public final class EncryptTo {
       messageDigest.update(bytes);
       return messageDigest.digest();
     } catch (NoSuchAlgorithmException exception) {
-      exception.printStackTrace();
+      LOGGER.severe("No algorithm found", exception);
     }
 
     return null;
@@ -74,7 +78,7 @@ public final class EncryptTo {
       messageDigest.update(bytes);
       return messageDigest.digest();
     } catch (NoSuchAlgorithmException exception) {
-      exception.printStackTrace();
+      LOGGER.severe("No algorithm found", exception);
     }
 
     return null;

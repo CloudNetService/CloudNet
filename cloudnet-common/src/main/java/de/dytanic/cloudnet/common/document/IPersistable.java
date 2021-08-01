@@ -17,6 +17,8 @@
 package de.dytanic.cloudnet.common.document;
 
 import de.dytanic.cloudnet.common.io.FileUtils;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -34,6 +36,8 @@ import org.jetbrains.annotations.Nullable;
  */
 public interface IPersistable {
 
+  Logger LOGGER = LogManager.getLogger(IPersistable.class);
+
   @NotNull
   IPersistable write(Writer writer);
 
@@ -42,7 +46,7 @@ public interface IPersistable {
     try (OutputStreamWriter writer = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8)) {
       return this.write(writer);
     } catch (IOException exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while writing output stream", exception);
       return this;
     }
   }
@@ -54,7 +58,7 @@ public interface IPersistable {
       try (OutputStream stream = Files.newOutputStream(path)) {
         return this.write(stream);
       } catch (IOException exception) {
-        exception.printStackTrace();
+        LOGGER.severe("Exception while writing output stream", exception);
       }
     }
     return this;

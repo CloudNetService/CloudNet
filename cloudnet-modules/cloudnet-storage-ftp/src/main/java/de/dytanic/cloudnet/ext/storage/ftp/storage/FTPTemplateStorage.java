@@ -19,10 +19,9 @@ package de.dytanic.cloudnet.ext.storage.ftp.storage;
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.common.language.LanguageManager;
-import de.dytanic.cloudnet.common.logging.ILogger;
-import de.dytanic.cloudnet.common.logging.LogLevel;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.common.stream.WrappedOutputStream;
-import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import de.dytanic.cloudnet.driver.template.FileInfo;
 import de.dytanic.cloudnet.ext.storage.ftp.client.FTPCredentials;
@@ -55,7 +54,7 @@ import org.jetbrains.annotations.Nullable;
 
 public final class FTPTemplateStorage extends AbstractFTPStorage {
 
-  private static final LogLevel LOG_LEVEL = new LogLevel("ftp", "FTP", 1, true, true);
+  private static final Logger LOGGER = LogManager.getLogger(FTPTemplateStorage.class);
 
   private final FTPClient ftpClient;
 
@@ -76,11 +75,9 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
       try {
         this.ftpClient.disconnect();
       } catch (IOException exception) {
-        exception.printStackTrace();
+        LOGGER.severe("Exception disconnecting from the server", exception);
       }
     }
-
-    ILogger logger = CloudNetDriver.getInstance().getLogger();
 
     try {
       this.ftpClient.setAutodetectUTF8(true);
@@ -95,10 +92,10 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
         return true;
       }
     } catch (IOException exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception connecting to the server", exception);
     }
 
-    logger.log(LOG_LEVEL, LanguageManager.getMessage("module-storage-ftp-connect-failed")
+    LOGGER.warning(LanguageManager.getMessage("module-storage-ftp-connect-failed")
       .replace("%ftpType%", this.ftpType.toString()));
 
     return false;
@@ -166,7 +163,7 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
 
       return true;
     } catch (IOException exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while deploying templates", exception);
     }
 
     return false;
@@ -225,7 +222,7 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
       }
       return true;
     } catch (IOException exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while copying templates", exception);
     }
     return false;
   }
@@ -274,7 +271,7 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
     try {
       return this.deleteDir(template.getTemplatePath());
     } catch (IOException exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while deleting templates", exception);
       return false;
     }
   }
@@ -290,7 +287,7 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
       this.createDirectories(template.getTemplatePath());
       return true;
     } catch (IOException exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while creating templates", exception);
       return false;
     }
   }
@@ -318,7 +315,7 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
     try {
       return this.ftpClient.listFiles(template.getTemplatePath()).length > 0;
     } catch (IOException exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while listing files", exception);
       return false;
     }
   }
@@ -350,7 +347,7 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
     try {
       this.ftpClient.completePendingCommand();
     } catch (IOException exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while completing data transfer", exception);
     }
   }
 
@@ -507,7 +504,7 @@ public final class FTPTemplateStorage extends AbstractFTPStorage {
         }
       }
     } catch (IOException exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while resolving templates", exception);
     }
 
     return templates;

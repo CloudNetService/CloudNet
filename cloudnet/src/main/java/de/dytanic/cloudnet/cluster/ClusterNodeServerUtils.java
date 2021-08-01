@@ -18,6 +18,8 @@ package de.dytanic.cloudnet.cluster;
 
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.language.LanguageManager;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.def.packet.PacketClientServerServiceInfoPublisher;
 import de.dytanic.cloudnet.driver.network.protocol.Packet;
@@ -27,6 +29,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 final class ClusterNodeServerUtils {
+
+  private static final Logger LOGGER = LogManager.getLogger(ClusterNodeServerUtils.class);
 
   private ClusterNodeServerUtils() {
     throw new UnsupportedOperationException();
@@ -52,7 +56,7 @@ final class ClusterNodeServerUtils {
       }
     }
 
-    System.out.println(LanguageManager.getMessage("cluster-server-networking-disconnected")
+    LOGGER.info(LanguageManager.getMessage("cluster-server-networking-disconnected")
       .replace("%id%", server.getNodeInfo().getUniqueId())
       .replace("%serverAddress%", channel.getServerAddress().getHost() + ":" + channel.getServerAddress().getPort())
       .replace("%clientAddress%", channel.getClientAddress().getHost() + ":" + channel.getClientAddress().getPort())

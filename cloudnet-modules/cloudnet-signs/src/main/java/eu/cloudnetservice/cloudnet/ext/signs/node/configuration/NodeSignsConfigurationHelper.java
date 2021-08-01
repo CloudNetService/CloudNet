@@ -17,7 +17,8 @@
 package eu.cloudnetservice.cloudnet.ext.signs.node.configuration;
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
-import de.dytanic.cloudnet.driver.CloudNetDriver;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.ext.signs.configuration.SignConfiguration;
 import de.dytanic.cloudnet.ext.signs.configuration.SignConfigurationReaderAndWriter;
 import de.dytanic.cloudnet.ext.signs.configuration.entry.SignLayoutConfiguration;
@@ -36,6 +37,8 @@ import org.jetbrains.annotations.NotNull;
 
 public final class NodeSignsConfigurationHelper {
 
+  private static final Logger LOGGER = LogManager.getLogger(NodeSignsConfigurationHelper.class);
+
   private NodeSignsConfigurationHelper() {
     throw new UnsupportedOperationException();
   }
@@ -48,7 +51,7 @@ public final class NodeSignsConfigurationHelper {
     JsonDocument configurationDocument = JsonDocument.newDocument(path);
     if (configurationDocument.contains("config")) {
       // old document - run conversation now
-      CloudNetDriver.getInstance().getLogger()
+      LOGGER
         .warning("Detected old signs configuration file, running conversation...");
       // save old configuration as a backup before backup
       configurationDocument.write(path.getParent().resolve("config.json.old"));
@@ -56,7 +59,7 @@ public final class NodeSignsConfigurationHelper {
       SignsConfiguration configuration = convertOldConfiguration(configurationDocument, path);
       write(configuration, path);
       // notify that the convert was successful
-      CloudNetDriver.getInstance().getLogger().info("Successfully converted the old signs configuration file");
+      LOGGER.info("Successfully converted the old signs configuration file");
       // no need to load the configuration from the file again
       return configuration;
     }

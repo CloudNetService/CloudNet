@@ -60,7 +60,9 @@ public class LogEntryDispatcher extends Thread {
       try {
         logHandler.handle(entry);
       } catch (Exception exception) {
+        //CHECKSTYLE.OFF: deprecated class - no need for special logging as not needed internally anymore
         exception.printStackTrace();
+        //CHECKSTYLE.ON
       }
     }
   }

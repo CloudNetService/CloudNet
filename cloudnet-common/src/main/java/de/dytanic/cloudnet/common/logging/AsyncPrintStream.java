@@ -52,7 +52,9 @@ public class AsyncPrintStream extends PrintStream {
           Runnable runnable = ASYNC_QUEUE.take();
           runnable.run();
         } catch (InterruptedException exception) {
+          //CHECKSTYLE.OFF: deprecated class - no need for special logging as not needed internally anymore
           exception.printStackTrace();
+          //CHECKSTYLE.ON
         }
       }
     }

@@ -24,10 +24,15 @@ import java.util.logging.LogRecord;
 
 public final class DefaultLogFormatter extends Formatter {
 
-  public static final DefaultLogFormatter INSTANCE = new DefaultLogFormatter();
+  public static final DefaultLogFormatter END_CLEAN = new DefaultLogFormatter(false);
+  public static final DefaultLogFormatter END_LINE_SEPARATOR = new DefaultLogFormatter(true);
+
   private static final DateFormat DATE_FORMAT = new SimpleDateFormat("dd.MM HH:mm:ss.SSS");
 
-  private DefaultLogFormatter() {
+  private final boolean closeWithLineSeparator;
+
+  private DefaultLogFormatter(boolean closeWithLineSeparator) {
+    this.closeWithLineSeparator = closeWithLineSeparator;
   }
 
   @Override
@@ -38,7 +43,8 @@ public final class DefaultLogFormatter extends Formatter {
       .append("] ")
       .append(record.getLevel().getLocalizedName())
       .append(": ")
-      .append(super.formatMessage(record));
+      .append(super.formatMessage(record))
+      .append(this.closeWithLineSeparator ? System.lineSeparator() : "");
     LoggingUtils.printStackTraceInto(builder, record);
 
     return builder.toString();

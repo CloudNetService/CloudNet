@@ -22,6 +22,8 @@ import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.language.LanguageManager;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.network.NetworkUpdateType;
 import de.dytanic.cloudnet.driver.provider.ServiceTaskProvider;
@@ -51,6 +53,7 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
     .get(System.getProperty("cloudnet.config.tasks.directory.path", "local/tasks"));
   private static final Type COLLECTION_SERVICE_TASK_TYPE = TypeToken
     .getParameterized(Collection.class, ServiceTask.class).getType();
+  private static final Logger LOGGER = LogManager.getLogger(NodeServiceTaskProvider.class);
 
   private final CloudNet cloudNet;
   private final Collection<ServiceTask> permanentServiceTasks = new CopyOnWriteArrayList<>();
@@ -76,7 +79,7 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
     Files.walkFileTree(TASKS_DIRECTORY, EnumSet.noneOf(FileVisitOption.class), 1, new SimpleFileVisitor<Path>() {
       @Override
       public FileVisitResult visitFile(Path path, BasicFileAttributes attrs) {
-        System.out.println(LanguageManager.getMessage("cloudnet-load-task")
+        LOGGER.info(LanguageManager.getMessage("cloudnet-load-task")
           .replace("%path%", path.toString()));
 
         ServiceTask task = JsonDocument.newDocument(path).toInstanceOf(ServiceTask.class);
@@ -86,16 +89,16 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
           // check if we can load the task
           if (task.getName() != null) {
             NodeServiceTaskProvider.this.permanentServiceTasks.add(task);
-            System.out.println(LanguageManager.getMessage("cloudnet-load-task-success")
+            LOGGER.info(LanguageManager.getMessage("cloudnet-load-task-success")
               .replace("%path%", path.toString()).replace("%name%", task.getName()));
             // just a notify for the user that cloudnet is not attempting to start new services
             if (task.isMaintenance()) {
-              CloudNet.getInstance().getLogger().warning(LanguageManager.getMessage(
+              LOGGER.warning(LanguageManager.getMessage(
                 "cloudnet-load-task-maintenance-warning").replace("%task%", task.getName()));
             }
           }
         } else {
-          System.err.println(LanguageManager.getMessage("cloudnet-load-task-failed")
+          LOGGER.severe(LanguageManager.getMessage("cloudnet-load-task-failed")
             .replace("%path%", path.toString()));
         }
 
@@ -113,7 +116,7 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
       try {
         Files.delete(OLD_TASK_CONFIG_FILE);
       } catch (IOException exception) {
-        exception.printStackTrace();
+        LOGGER.severe("Exception while deleting file", exception);
       }
     }
   }
@@ -142,7 +145,7 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
     try {
       Files.deleteIfExists(TASKS_DIRECTORY.resolve(name + ".json"));
     } catch (IOException exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while deleting task file", exception);
     }
   }
 
@@ -155,7 +158,7 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
     try {
       this.load();
     } catch (IOException exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while reloading", exception);
     }
   }
 
@@ -178,7 +181,7 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
     try {
       this.save();
     } catch (IOException exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while saving service tasks", exception);
     }
   }
 

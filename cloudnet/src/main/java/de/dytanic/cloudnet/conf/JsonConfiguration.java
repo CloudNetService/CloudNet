@@ -19,6 +19,8 @@ package de.dytanic.cloudnet.conf;
 import com.google.common.base.Preconditions;
 import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.common.unsafe.CPUUsageResolver;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkCluster;
@@ -43,6 +45,8 @@ public final class JsonConfiguration implements IConfiguration {
 
   private static final Path CONFIG_FILE_PATH = Paths
     .get(System.getProperty("cloudnet.config.json.path", "config.json"));
+
+  private static final Logger LOGGER = LogManager.getLogger(JsonConfiguration.class);
 
   private static final Type SET_STRING = TypeToken.getParameterized(Set.class, String.class).getType();
   private static final Type HOST_AND_PORT_COLLECTION = TypeToken.getParameterized(Collection.class, HostAndPort.class)
@@ -99,7 +103,7 @@ public final class JsonConfiguration implements IConfiguration {
         Collections.list(networkInterface.getInetAddresses())
           .forEach(inetAddress -> addresses.add(inetAddress.getHostAddress())));
     } catch (SocketException exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while resolving network interfaces", exception);
     }
 
     String address = this.defaultHostAddress;

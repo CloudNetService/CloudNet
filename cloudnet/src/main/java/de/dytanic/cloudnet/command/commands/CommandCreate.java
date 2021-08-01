@@ -130,7 +130,7 @@ public class CommandCreate extends SubCommandHandler {
 
               sender.sendMessage(LanguageManager.getMessage("command-create-new-service-success"));
             } catch (Exception exception) {
-              exception.printStackTrace();
+              LOGGER.severe("Exception while creating services", exception);
             }
           },
           subCommand -> subCommand.async().enableProperties()

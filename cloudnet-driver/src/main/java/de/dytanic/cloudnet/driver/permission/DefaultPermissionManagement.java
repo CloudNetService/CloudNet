@@ -18,6 +18,8 @@ package de.dytanic.cloudnet.driver.permission;
 
 import com.google.common.collect.Iterables;
 import de.dytanic.cloudnet.common.concurrent.ITask;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -34,6 +36,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class DefaultPermissionManagement implements IPermissionManagement {
+
+  private static final Logger LOGGER = LogManager.getLogger(DefaultPermissionManagement.class);
 
   @Override
   public IPermissionManagement getChildPermissionManagement() {
@@ -266,7 +270,7 @@ public abstract class DefaultPermissionManagement implements IPermissionManageme
       return PermissionCheckResult.DENIED;
     }
     if (layer >= 30) {
-      System.err.println("Detected recursive permission group implementation on group " + firstGroup);
+      LOGGER.severe("Detected recursive permission group implementation on group " + firstGroup);
       return PermissionCheckResult.DENIED;
     }
     layer++;
@@ -300,7 +304,7 @@ public abstract class DefaultPermissionManagement implements IPermissionManageme
       return PermissionCheckResult.DENIED;
     }
     if (layer >= 30) {
-      System.err.println("Detected recursive permission group implementation on group " + firstGroup);
+      LOGGER.severe("Detected recursive permission group implementation on group " + firstGroup);
       return PermissionCheckResult.DENIED;
     }
     layer++;

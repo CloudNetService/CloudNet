@@ -17,12 +17,16 @@
 package de.dytanic.cloudnet.examples;
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
 import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 
 public final class ExampleChannelPublishAndSubscribe {
+
+  private static final Logger LOGGER = LogManager.getLogger(ExampleChannelPublishAndSubscribe.class);
 
   public void publishGlobalMessage() {
     ChannelMessage.builder()
@@ -76,7 +80,7 @@ public final class ExampleChannelPublishAndSubscribe {
 
     if (event.getChannel().equalsIgnoreCase("user_channel")) {
       if ("user_info_publishing".equals(event.getMessage().toLowerCase())) {
-        System.out.println("Name: " + event.getData().getString("name") + " | Age: " + event.getData().getInt("age"));
+        LOGGER.info("Name: " + event.getData().getString("name") + " | Age: " + event.getData().getInt("age"));
       }
     }
     //Receive a channel message in the network

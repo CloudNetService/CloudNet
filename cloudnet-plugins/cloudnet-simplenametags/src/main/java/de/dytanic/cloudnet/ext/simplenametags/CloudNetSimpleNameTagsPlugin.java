@@ -17,6 +17,8 @@
 package de.dytanic.cloudnet.ext.simplenametags;
 
 import com.google.common.base.Preconditions;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.permission.IPermissionGroup;
 import de.dytanic.cloudnet.driver.permission.IPermissionUser;
@@ -34,6 +36,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scoreboard.Team;
 
 public final class CloudNetSimpleNameTagsPlugin extends JavaPlugin {
+
+  private static final Logger LOGGER = LogManager.getLogger(CloudNetSimpleNameTagsPlugin.class);
 
   private static CloudNetSimpleNameTagsPlugin instance;
 
@@ -165,7 +169,7 @@ public final class CloudNetSimpleNameTagsPlugin extends JavaPlugin {
       }
     } catch (NoSuchMethodException ignored) {
     } catch (IllegalAccessException | InvocationTargetException exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while applying color", exception);
     }
 
     team.setPrefix(ChatColor.translateAlternateColorCodes('&', prefix));

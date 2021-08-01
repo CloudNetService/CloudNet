@@ -26,6 +26,7 @@ import de.dytanic.cloudnet.ext.bridge.player.IPlayerManager;
 import de.dytanic.cloudnet.ext.bridge.server.BridgeServerHelper;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import java.net.InetSocketAddress;
+import java.util.logging.Level;
 import org.bukkit.Bukkit;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.server.ServerListPingEvent;
@@ -102,7 +103,7 @@ public final class BukkitCloudNetBridgePlugin extends JavaPlugin {
           BridgeHelper.updateServiceInfo();
         }
       } catch (Exception exception) {
-        exception.printStackTrace();
+        this.getLogger().log(Level.SEVERE, "Exception while firing a serverlist ping", exception);
       }
     }, 0, 10);
   }

@@ -17,7 +17,8 @@
 package de.dytanic.cloudnet.service.defaults;
 
 import de.dytanic.cloudnet.CloudNet;
-import de.dytanic.cloudnet.common.logging.LogLevel;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
@@ -31,8 +32,11 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.logging.Level;
 
 public final class DefaultServiceConsoleLogCache implements IServiceConsoleLogCache {
+
+  private static final Logger LOGGER = LogManager.getLogger(DefaultServiceConsoleLogCache.class);
 
   private final Queue<String> cachedLogMessages = new ConcurrentLinkedQueue<>();
   private final byte[] buffer = new byte[1024];
@@ -115,7 +119,7 @@ public final class DefaultServiceConsoleLogCache implements IServiceConsoleLogCa
         printErrorIntoConsole));
 
     if (this.autoPrintReceivedInput || this.screenEnabled || printErrorIntoConsole) {
-      CloudNetDriver.getInstance().getLogger().log((printErrorIntoConsole ? LogLevel.WARNING : LogLevel.INFO),
+      LOGGER.log((printErrorIntoConsole ? Level.WARNING : Level.INFO),
         "[" + this.cloudService.getServiceId().getName() + "] " + text);
     }
   }

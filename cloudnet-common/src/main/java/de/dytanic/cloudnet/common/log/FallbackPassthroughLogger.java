@@ -89,7 +89,8 @@ final class FallbackPassthroughLogger extends Logger {
 
   @Override
   public Level getLevel() {
-    return this.logger.getLevel();
+    Level thisLevel = this.logger.getLevel();
+    return thisLevel == null ? LogManager.getRootLogger().getLevel() : thisLevel;
   }
 
   @Override

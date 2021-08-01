@@ -22,6 +22,8 @@ import de.dytanic.cloudnet.common.concurrent.function.ThrowableBiFunction;
 import de.dytanic.cloudnet.common.concurrent.function.ThrowableFunction;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.io.FileUtils;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.api.DriverAPICategory;
 import de.dytanic.cloudnet.driver.api.DriverAPIRequestType;
@@ -39,6 +41,8 @@ import java.util.Collection;
 import java.util.stream.Collectors;
 
 public class DriverTemplateStorageListener extends CategorizedDriverAPIListener {
+
+  private static final Logger LOGGER = LogManager.getLogger(DriverTemplateStorageListener.class);
 
   public DriverTemplateStorageListener() {
     super(DriverAPICategory.TEMPLATE_STORAGE);
@@ -122,7 +126,7 @@ public class DriverTemplateStorageListener extends CategorizedDriverAPIListener 
         channel.sendChunkedPacketsResponse(packet.getUniqueId(), JsonDocument.newDocument("response", response),
           inputStream);
       } catch (IOException exception) {
-        exception.printStackTrace();
+        LOGGER.severe("Exception while sending packet response", exception);
       }
 
       return null;

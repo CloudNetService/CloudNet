@@ -17,7 +17,8 @@
 package de.dytanic.cloudnet.ext.bridge.bungee;
 
 import com.google.common.base.Preconditions;
-import de.dytanic.cloudnet.common.logging.LogLevel;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
@@ -49,6 +50,8 @@ public final class BungeeCloudNetHelper {
   @Deprecated
   public static final Map<String, ServiceInfoSnapshot> SERVER_TO_SERVICE_INFO_SNAPSHOT_ASSOCIATION = BridgeProxyHelper.SERVICE_CACHE;
   private static int lastOnlineCount = -1;
+
+  private static final Logger LOGGER = LogManager.getLogger(BungeeCloudNetHelper.class);
 
   private BungeeCloudNetHelper() {
     throw new UnsupportedOperationException();
@@ -199,8 +202,7 @@ public final class BungeeCloudNetHelper {
         return (ServerInfo) method
           .invoke(ProxyServer.getInstance(), name, address, "CloudNet provided serverInfo", false, true, "default");
       } catch (IllegalAccessException | NoSuchMethodException | InvocationTargetException exception) {
-        Wrapper.getInstance().getLogger()
-          .log(LogLevel.ERROR, "Unable to enable rakNet, although using Waterdog: ", exception);
+        LOGGER.severe("Unable to enable rakNet, although using Waterdog: ", exception);
       }
     }
 

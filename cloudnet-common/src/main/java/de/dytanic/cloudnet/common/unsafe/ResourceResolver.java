@@ -17,6 +17,8 @@
 package de.dytanic.cloudnet.common.unsafe;
 
 import com.google.common.base.Preconditions;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import java.net.URI;
 import java.net.URISyntaxException;
 import org.jetbrains.annotations.ApiStatus;
@@ -26,6 +28,8 @@ import org.jetbrains.annotations.ApiStatus;
  */
 @ApiStatus.Internal
 public final class ResourceResolver {
+
+  private static final Logger LOGGER = LogManager.getLogger(ResourceResolver.class);
 
   private ResourceResolver() {
     throw new UnsupportedOperationException();
@@ -46,7 +50,7 @@ public final class ResourceResolver {
     try {
       return clazz.getProtectionDomain().getCodeSource().getLocation().toURI();
     } catch (URISyntaxException exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Could not resolve URI", exception);
     }
 
     return null;

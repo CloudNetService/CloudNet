@@ -86,7 +86,7 @@ public final class LocalTemplateStorage extends ClusterSynchronizedTemplateStora
       FileUtils.extract0(new ZipInputStream(inputStream), this.storageDirectory.resolve(target.getTemplatePath()));
       return true;
     } catch (IOException exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while extracting the Inputstream", exception);
     }
 
     return false;
@@ -280,7 +280,7 @@ public final class LocalTemplateStorage extends ClusterSynchronizedTemplateStora
         })
         .collect(Collectors.toList());
     } catch (IOException exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while resolving templates", exception);
       return Collections.emptyList();
     }
   }

@@ -17,10 +17,12 @@
 package de.dytanic.cloudnet.database.util;
 
 import de.dytanic.cloudnet.common.language.LanguageManager;
-import de.dytanic.cloudnet.common.logging.ILogger;
-import de.dytanic.cloudnet.driver.CloudNetDriver;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 
 public final class LocalDatabaseUtils {
+
+  private static final Logger LOGGER = LogManager.getLogger(LocalDatabaseUtils.class);
 
   private LocalDatabaseUtils() {
     throw new UnsupportedOperationException();
@@ -28,15 +30,13 @@ public final class LocalDatabaseUtils {
 
   public static void bigWarningThatEveryoneCanSeeWhenRunningInCluster(boolean runsInCluster) {
     if (runsInCluster) {
-      ILogger logger = CloudNetDriver.getInstance().getLogger();
-
-      logger.warning("╔══════════════════════════════════════════════════════════════════╗");
-      logger.warning("║                               WARNING                             ");
-      logger.warning("║   " + LanguageManager.getMessage("cloudnet-cluster-local-db-warning"));
-      logger.warning("║                                                                   ");
-      logger.warning("║                                                                   ");
-      logger.warning("║        https://cloudnetservice.eu/docs/3.4/setup/cluster          ");
-      logger.warning("╚══════════════════════════════════════════════════════════════════╝");
+      LOGGER.warning("╔══════════════════════════════════════════════════════════════════╗");
+      LOGGER.warning("║                               WARNING                             ");
+      LOGGER.warning("║   " + LanguageManager.getMessage("cloudnet-cluster-local-db-warning"));
+      LOGGER.warning("║                                                                   ");
+      LOGGER.warning("║                                                                   ");
+      LOGGER.warning("║        https://cloudnetservice.eu/docs/3.4/setup/cluster          ");
+      LOGGER.warning("╚══════════════════════════════════════════════════════════════════╝");
     }
   }
 }

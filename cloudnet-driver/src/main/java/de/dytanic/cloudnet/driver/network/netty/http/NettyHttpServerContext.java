@@ -17,7 +17,8 @@
 package de.dytanic.cloudnet.driver.network.netty.http;
 
 import com.google.common.base.Preconditions;
-import de.dytanic.cloudnet.driver.CloudNetDriver;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.network.http.HttpCookie;
 import de.dytanic.cloudnet.driver.network.http.IHttpChannel;
 import de.dytanic.cloudnet.driver.network.http.IHttpComponent;
@@ -49,26 +50,28 @@ import org.jetbrains.annotations.ApiStatus;
 @ApiStatus.Internal
 final class NettyHttpServerContext implements IHttpContext {
 
-  protected final Collection<HttpCookie> cookies = new ArrayList<>();
+  private static final Logger LOGGER = LogManager.getLogger(NettyHttpServerContext.class);
 
-  protected final Channel nettyChannel;
+  private final Collection<HttpCookie> cookies = new ArrayList<>();
 
-  protected final NettyHttpChannel channel;
-  protected final NettyHttpServer nettyHttpServer;
+  private final Channel nettyChannel;
 
-  protected final HttpRequest httpRequest;
+  private final NettyHttpChannel channel;
+  private final NettyHttpServer nettyHttpServer;
 
-  protected final NettyHttpServerRequest httpServerRequest;
-  protected final NettyHttpServerResponse httpServerResponse;
+  private final HttpRequest httpRequest;
 
-  protected volatile boolean closeAfter = true;
-  protected volatile boolean cancelNext = false;
-  protected volatile boolean cancelSendResponse = false;
+  private final NettyHttpServerRequest httpServerRequest;
+  final NettyHttpServerResponse httpServerResponse;
 
-  protected volatile NettyWebSocketServerChannel webSocketServerChannel;
+  volatile boolean closeAfter = true;
+  volatile boolean cancelNext = false;
+  volatile boolean cancelSendResponse = false;
 
-  protected IHttpHandler lastHandler;
-  protected String pathPrefix;
+  private volatile NettyWebSocketServerChannel webSocketServerChannel;
+
+  private IHttpHandler lastHandler;
+  private String pathPrefix;
 
   public NettyHttpServerContext(NettyHttpServer nettyHttpServer, NettyHttpChannel channel, URI uri,
     Map<String, String> pathParameters, HttpRequest httpRequest) {
@@ -120,7 +123,7 @@ final class NettyHttpServerContext implements IHttpContext {
             HttpResponseStatus.OK,
             Unpooled.wrappedBuffer("Unable to upgrade connection".getBytes())
           ));
-          CloudNetDriver.getInstance().getLogger().error("Exception during websocket handshake", exception);
+          LOGGER.severe("Exception during websocket handshake", exception);
           return null;
         }
       }

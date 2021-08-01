@@ -235,7 +235,7 @@ public class CommandTemplate extends SubCommandHandler {
                 .replace("%template%", template.getTemplatePath())
                 .replace("%storage%", template.getStorage())
               );
-              exception.printStackTrace();
+              LOGGER.severe("Exception while creating templates", exception);
             }
           },
           anyStringIgnoreCase("create", "new"),

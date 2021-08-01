@@ -18,7 +18,8 @@ package eu.cloudnetservice.cloudnet.ext.npcs.node.listener;
 
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.common.io.HttpConnectionProvider;
-import de.dytanic.cloudnet.driver.CloudNetDriver;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.util.DefaultModuleHelper;
 import de.dytanic.cloudnet.event.service.CloudServicePreStartEvent;
@@ -38,6 +39,8 @@ public class IncludePluginListener {
   private static final Path PROTOCOLLIB_CACHE_PATH = Paths
     .get(System.getProperty("cloudnet.tempDir", "temp"), "caches", "ProtocolLib.jar");
 
+  private static final Logger LOGGER = LogManager.getLogger(IncludePluginListener.class);
+
   private final CloudNetNPCModule npcModule;
 
   public IncludePluginListener(CloudNetNPCModule npcModule) {
@@ -55,7 +58,7 @@ public class IncludePluginListener {
         Files.copy(inputStream, PROTOCOLLIB_CACHE_PATH, StandardCopyOption.REPLACE_EXISTING);
       }
     } catch (IOException exception) {
-      CloudNetDriver.getInstance().getLogger().warning("Unable to download ProtocolLib!", exception);
+      LOGGER.warning("Unable to download ProtocolLib!", exception);
     }
   }
 
@@ -81,7 +84,7 @@ public class IncludePluginListener {
         try {
           Files.copy(PROTOCOLLIB_CACHE_PATH, protocolLibTargetPath, StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException exception) {
-          CloudNetDriver.getInstance().getLogger().error("Unable to copy ProtocolLib!", exception);
+          LOGGER.severe("Unable to copy ProtocolLib!", exception);
           return;
         }
       }

@@ -174,7 +174,9 @@ public final class DefaultFileLogHandler extends AbstractLogHandler {
       try {
         currentTargetStream.close();
       } catch (IOException exception) {
+        //CHECKSTYLE.OFF: deprecated class - no need for special logging as not needed internally anymore
         exception.printStackTrace();
+        //CHECKSTYLE.ON
       }
     }
 
@@ -191,7 +193,9 @@ public final class DefaultFileLogHandler extends AbstractLogHandler {
           return path;
         }
       } catch (IOException exception) {
+        //CHECKSTYLE.OFF: deprecated class - no need for special logging as not needed internally anymore
         exception.printStackTrace();
+        //CHECKSTYLE.ON
       }
     }
   }
@@ -200,7 +204,9 @@ public final class DefaultFileLogHandler extends AbstractLogHandler {
     try {
       this.outputStream = Files.newOutputStream(file, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
     } catch (IOException exception) {
+      //CHECKSTYLE.OFF: deprecated class - no need for special logging as not needed internally anymore
       exception.printStackTrace();
+      //CHECKSTYLE.ON
     }
     return file;
   }
@@ -209,7 +215,9 @@ public final class DefaultFileLogHandler extends AbstractLogHandler {
     try {
       this.errorWriter = Files.newOutputStream(file, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
     } catch (IOException exception) {
+      //CHECKSTYLE.OFF: deprecated class - no need for special logging as not needed internally anymore
       exception.printStackTrace();
+      //CHECKSTYLE.ON
     }
     return file;
   }

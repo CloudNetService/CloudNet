@@ -17,6 +17,8 @@
 package de.dytanic.cloudnet.common;
 
 import com.google.common.base.Preconditions;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.regex.Pattern;
@@ -27,6 +29,8 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.VisibleForTesting;
 
 public final class WildcardUtil {
+
+  private static final Logger LOGGER = LogManager.getLogger(WildcardUtil.class);
 
   private WildcardUtil() {
     throw new UnsupportedOperationException();
@@ -170,8 +174,7 @@ public final class WildcardUtil {
         return tryCompile(fixUnclosedGroups(pattern), caseSensitive);
       }
     }
-    System.err.println("Unable to fix pattern input " + exception.getPattern());
-    exception.printStackTrace();
+    LOGGER.severe("Unable to fix pattern input " + exception.getPattern(), exception);
     return null;
   }
 

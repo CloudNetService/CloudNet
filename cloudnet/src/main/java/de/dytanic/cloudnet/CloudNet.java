@@ -164,6 +164,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
@@ -174,6 +175,7 @@ public final class CloudNet extends CloudNetDriver {
 
   public static final int TPS = 10;
   private static CloudNet instance;
+  private static final Logger LOGGER = LogManager.getLogger(CloudNet.class);
 
   private final CloudNetTick mainLoop = new CloudNetTick(this);
   private final long startupMillis = System.currentTimeMillis();
@@ -270,8 +272,7 @@ public final class CloudNet extends CloudNetDriver {
     HeaderReader.readAndPrintHeader(this.console);
 
     if (this.config.getMaxMemory() < 2048) {
-      CloudNetDriver.getInstance().getLogger()
-        .warning(LanguageManager.getMessage("cloudnet-init-config-low-memory-warning"));
+      LOGGER.warning(LanguageManager.getMessage("cloudnet-init-config-low-memory-warning"));
     }
 
     this.networkClient = new NettyNetworkClient(
@@ -331,14 +332,14 @@ public final class CloudNet extends CloudNetDriver {
 
   private void setNetworkListeners() {
     for (HostAndPort hostAndPort : this.config.getIdentity().getListeners()) {
-      this.logger.info(LanguageManager.getMessage("cloudnet-network-server-bind")
+      LOGGER.info(LanguageManager.getMessage("cloudnet-network-server-bind")
         .replace("%address%", hostAndPort.getHost() + ":" + hostAndPort.getPort()));
 
       this.networkServer.addListener(hostAndPort);
     }
 
     for (HostAndPort hostAndPort : this.config.getHttpListeners()) {
-      this.logger.info(LanguageManager.getMessage("cloudnet-http-server-bind")
+      LOGGER.info(LanguageManager.getMessage("cloudnet-http-server-bind")
         .replace("%address%", hostAndPort.getHost() + ":" + hostAndPort.getPort()));
 
       this.httpServer.addListener(hostAndPort);
@@ -347,13 +348,13 @@ public final class CloudNet extends CloudNetDriver {
     Random random = new Random();
     for (NetworkClusterNode node : this.config.getClusterConfig().getNodes()) {
       if (!this.networkClient.connect(node.getListeners()[random.nextInt(node.getListeners().length)])) {
-        this.logger.log(LogLevel.WARNING, LanguageManager.getMessage("cluster-server-networking-connection-refused"));
+        LOGGER.warning(LanguageManager.getMessage("cluster-server-networking-connection-refused"));
       }
     }
   }
 
   public void reload() {
-    this.logger.info(LanguageManager.getMessage("reload-start-message"));
+    LOGGER.info(LanguageManager.getMessage("reload-start-message"));
 
     this.config.load();
     this.getConfigurationRegistry().load();
@@ -368,7 +369,7 @@ public final class CloudNet extends CloudNetDriver {
 
     this.enableModules();
 
-    this.logger.info(LanguageManager.getMessage("reload-end-message"));
+    LOGGER.info(LanguageManager.getMessage("reload-end-message"));
   }
 
   @Override
@@ -379,7 +380,7 @@ public final class CloudNet extends CloudNetDriver {
       return;
     }
 
-    this.logger.info(LanguageManager.getMessage("stop-start-message"));
+    LOGGER.info(LanguageManager.getMessage("stop-start-message"));
 
     this.serviceVersionProvider.interruptInstallSteps();
 
@@ -398,23 +399,22 @@ public final class CloudNet extends CloudNetDriver {
         }
       }
 
-      this.logger.info(LanguageManager.getMessage("stop-network-client"));
+      LOGGER.info(LanguageManager.getMessage("stop-network-client"));
       this.networkClient.close();
 
-      this.logger.info(LanguageManager.getMessage("stop-network-server"));
+      LOGGER.info(LanguageManager.getMessage("stop-network-server"));
       this.networkServer.close();
 
-      this.logger.info(LanguageManager.getMessage("stop-http-server"));
+      LOGGER.info(LanguageManager.getMessage("stop-http-server"));
       this.httpServer.close();
 
       this.networkTaskScheduler.shutdown();
       FileUtils.delete(Paths.get(System.getProperty("cloudnet.tempDir", "temp")));
 
-      this.logger.close();
       this.console.close();
 
     } catch (Exception exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while closing the console", exception);
     }
 
     if (!Thread.currentThread().getName().equals("Shutdown Thread")) {
@@ -518,18 +518,18 @@ public final class CloudNet extends CloudNetDriver {
 
   private void initServiceVersions() {
     String url = System.getProperty("cloudnet.versions.url", "https://cloudnetservice.eu/cloudnet/versions.json");
-    System.out.println(LanguageManager.getMessage("versions-load").replace("%url%", url));
+    LOGGER.info(LanguageManager.getMessage("versions-load").replace("%url%", url));
 
     try {
       if (this.serviceVersionProvider.loadServiceVersionTypes(url)) {
-        System.out.println(LanguageManager.getMessage("versions-load-success")
+        LOGGER.info(LanguageManager.getMessage("versions-load-success")
           .replace("%url%", url)
           .replace("%versions%", Integer.toString(this.serviceVersionProvider.getServiceVersionTypes().size()))
         );
       } else {
         this.serviceVersionProvider.loadDefaultVersionTypes();
 
-        System.err.println(LanguageManager.getMessage("versions-load-failed")
+        LOGGER.warning(LanguageManager.getMessage("versions-load-failed")
           .replace("%url%", url)
           .replace("%versions%", Integer.toString(this.serviceVersionProvider.getServiceVersionTypes().size()))
           .replace("%error%", "invalid json or incompatible file version")
@@ -538,7 +538,7 @@ public final class CloudNet extends CloudNetDriver {
     } catch (IOException exception) {
       this.serviceVersionProvider.loadDefaultVersionTypes();
 
-      System.err.println(LanguageManager.getMessage("versions-load-failed")
+      LOGGER.warning(LanguageManager.getMessage("versions-load-failed")
         .replace("%url%", url)
         .replace("%versions%", Integer.toString(this.serviceVersionProvider.getServiceVersionTypes().size()))
         .replace("%error%", exception.getClass().getName() + ": " + exception.getMessage())
@@ -567,14 +567,8 @@ public final class CloudNet extends CloudNetDriver {
   }
 
   @Override
-  public void setGlobalLogLevel(@NotNull LogLevel logLevel) {
-    this.setGlobalLogLevel(logLevel.getLevel());
-  }
-
-  @Override
-  public void setGlobalLogLevel(int logLevel) {
-    this.logger.setLevel(logLevel);
-    this.sendAll(new PacketServerSetGlobalLogLevel(logLevel));
+  public void setGlobalLogLevel(Level logLevel) {
+    this.sendAll(new PacketServerSetGlobalLogLevel(logLevel.getName()));
   }
 
   @Override
@@ -944,7 +938,7 @@ public final class CloudNet extends CloudNetDriver {
     this.getNetworkServer().getPacketRegistry().removeListeners(moduleWrapper.getClassLoader());
 
     moduleWrapper.unloadModule();
-    this.logger.info(LanguageManager.getMessage("cloudnet-unload-module")
+    LOGGER.info(LanguageManager.getMessage("cloudnet-unload-module")
       .replace("%module_group%", moduleWrapper.getModuleConfiguration().getGroup())
       .replace("%module_name%", moduleWrapper.getModuleConfiguration().getName())
       .replace("%module_version%", moduleWrapper.getModuleConfiguration().getVersion())
@@ -952,7 +946,7 @@ public final class CloudNet extends CloudNetDriver {
   }
 
   private void registerDefaultCommands() {
-    this.logger.info(LanguageManager.getMessage("reload-register-defaultCommands"));
+    LOGGER.info(LanguageManager.getMessage("reload-register-defaultCommands"));
 
     this.commandMap.registerCommand(
       //Runtime commands
@@ -990,12 +984,12 @@ public final class CloudNet extends CloudNetDriver {
   }
 
   private void loadModules() {
-    this.logger.info(LanguageManager.getMessage("cloudnet-load-modules-createDirectory"));
+    LOGGER.info(LanguageManager.getMessage("cloudnet-load-modules-createDirectory"));
     FileUtils.createDirectoryReported(this.moduleDirectory);
 
-    this.logger.info(LanguageManager.getMessage("cloudnet-load-modules"));
+    LOGGER.info(LanguageManager.getMessage("cloudnet-load-modules"));
     FileUtils.walkFileTree(this.moduleDirectory, (root, current) -> {
-      this.logger.info(LanguageManager.getMessage("cloudnet-load-modules-found")
+      LOGGER.info(LanguageManager.getMessage("cloudnet-load-modules-found")
         .replace("%file_name%", current.getFileName().toString()));
       this.moduleProvider.loadModule(current);
     }, false, "*.{jar,war,zip}");
@@ -1042,7 +1036,7 @@ public final class CloudNet extends CloudNetDriver {
   }
 
   private void runConsole() {
-    this.logger.info(LanguageManager.getMessage("console-ready"));
+    LOGGER.info(LanguageManager.getMessage("console-ready"));
 
     this.getConsole().addCommandHandler(UUID.randomUUID(), input -> {
       try {
@@ -1060,15 +1054,15 @@ public final class CloudNet extends CloudNetDriver {
 
         if (!this.getCommandMap().dispatchCommand(this.getConsoleCommandSender(), input)) {
           this.getEventManager().callEvent(new CommandNotFoundEvent(input));
-          this.logger.warning(LanguageManager.getMessage("command-not-found"));
+          LOGGER.warning(LanguageManager.getMessage("command-not-found"));
 
           return;
         }
 
         this.getEventManager().callEvent(new CommandPostProcessEvent(input, this.getConsoleCommandSender()));
 
-      } catch (Throwable ex) {
-        ex.printStackTrace();
+      } catch (Throwable throwable) {
+        LOGGER.severe("Exception while starting the console", throwable);
       }
     });
   }

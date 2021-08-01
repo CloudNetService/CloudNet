@@ -17,6 +17,9 @@
 package de.dytanic.cloudnet.driver.network.def.internal;
 
 import com.google.common.base.Preconditions;
+import de.dytanic.cloudnet.common.io.FileUtils;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.network.protocol.Packet;
@@ -33,6 +36,7 @@ import org.jetbrains.annotations.ApiStatus;
 @ApiStatus.Internal
 public final class InternalSyncPacketChannel {
 
+  private static final Logger LOGGER = LogManager.getLogger(InternalSyncPacketChannel.class);
   private static final Map<UUID, SynchronizedCallback> WAITING_PACKETS = new ConcurrentHashMap<>();
 
   private InternalSyncPacketChannel() {
@@ -48,8 +52,8 @@ public final class InternalSyncPacketChannel {
       try {
         syncEntry = WAITING_PACKETS.get(packet.getUniqueId());
         syncEntry.consumer.accept(channel, packet);
-      } catch (Throwable e) {
-        e.printStackTrace();
+      } catch (Throwable throwable) {
+        LOGGER.severe("Exception while awaiting packet", throwable);
       }
 
       if (syncEntry != null && syncEntry.autoRemove) {
@@ -77,7 +81,7 @@ public final class InternalSyncPacketChannel {
       try {
         listener.handle(channel, packet);
       } catch (Exception exception) {
-        exception.printStackTrace();
+        LOGGER.severe("Exception while registering handler", exception);
       }
     });
   }
@@ -102,7 +106,7 @@ public final class InternalSyncPacketChannel {
         try {
           entry.getValue().consumer.accept(null, Packet.EMPTY);
         } catch (Throwable throwable) {
-          throwable.printStackTrace();
+          LOGGER.severe("Exception while checking validation", throwable);
         }
       }
     }

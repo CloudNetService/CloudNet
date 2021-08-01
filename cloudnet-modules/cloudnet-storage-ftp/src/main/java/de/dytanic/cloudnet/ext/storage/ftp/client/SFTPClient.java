@@ -23,9 +23,8 @@ import com.jcraft.jsch.Session;
 import com.jcraft.jsch.SftpATTRS;
 import com.jcraft.jsch.SftpException;
 import de.dytanic.cloudnet.common.language.LanguageManager;
-import de.dytanic.cloudnet.common.logging.ILogger;
-import de.dytanic.cloudnet.common.logging.LogLevel;
-import de.dytanic.cloudnet.driver.CloudNetDriver;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
@@ -47,7 +46,7 @@ import java.util.zip.ZipOutputStream;
 
 public class SFTPClient implements Closeable {
 
-  private static final LogLevel LOG_LEVEL = new LogLevel("ftp", "FTP", 1, true, true);
+  private static final Logger LOGGER = LogManager.getLogger(SFTPClient.class);
 
   private static final FTPType FTP_TYPE = FTPType.SFTP;
 
@@ -56,7 +55,6 @@ public class SFTPClient implements Closeable {
   private ChannelSftp channel;
 
   public boolean connect(FTPCredentials credentials) {
-    ILogger logger = CloudNetDriver.getInstance().getLogger();
 
     try {
       boolean sshKey = credentials.getSshKeyPath() != null && !credentials.getSshKeyPath().isEmpty();
@@ -84,8 +82,7 @@ public class SFTPClient implements Closeable {
       this.session.setConfig("StrictHostKeyChecking", "no");
       this.session.connect(2500);
     } catch (JSchException exception) {
-      logger.log(
-        LOG_LEVEL,
+      LOGGER.severe(
         LanguageManager.getMessage("module-storage-ftp-connect-failed")
           .replace("%ftpType%", FTP_TYPE.toString()),
         exception);
@@ -102,10 +99,8 @@ public class SFTPClient implements Closeable {
 
       this.channel.connect();
     } catch (JSchException exception) {
-      logger.log(
-        LOG_LEVEL,
-        LanguageManager.getMessage("module-storage-ftp-connect-failed")
-          .replace("%ftpType%", FTP_TYPE.toString()),
+      LOGGER.severe(
+        LanguageManager.getMessage("module-storage-ftp-connect-failed").replace("%ftpType%", FTP_TYPE.toString()),
         exception);
       return false;
     }
@@ -140,7 +135,7 @@ public class SFTPClient implements Closeable {
       this.channel.put(remotePath);
       return true;
     } catch (SftpException exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while creating a file", exception);
       return false;
     }
   }
@@ -162,7 +157,7 @@ public class SFTPClient implements Closeable {
     try {
       this.channel.put(localPath, remotePath);
     } catch (SftpException exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while uploading a file", exception);
     }
   }
 
@@ -174,7 +169,7 @@ public class SFTPClient implements Closeable {
       this.uploadFile(inputStream, remotePath);
       return true;
     } catch (IOException exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while uploading a file", exception);
       return false;
     }
   }
@@ -184,7 +179,7 @@ public class SFTPClient implements Closeable {
     try {
       this.channel.put(inputStream, remotePath);
     } catch (SftpException exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while uploading a file", exception);
     }
   }
 
@@ -193,7 +188,7 @@ public class SFTPClient implements Closeable {
     try {
       return this.channel.put(remotePath, ChannelSftp.APPEND);
     } catch (SftpException exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while appending an outputstream", exception);
     }
     return null;
   }
@@ -203,7 +198,7 @@ public class SFTPClient implements Closeable {
     try {
       return this.channel.put(remotePath);
     } catch (SftpException exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while opening an outputstream", exception);
     }
     return null;
   }
@@ -296,7 +291,7 @@ public class SFTPClient implements Closeable {
       }
 
     } catch (SftpException | IOException exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while downloading a directory", exception);
       return false;
     }
     return true;
@@ -313,7 +308,7 @@ public class SFTPClient implements Closeable {
         this.zip(zipOutputStream, remotePath, "");
       }
     } catch (SftpException | IOException exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while zipping a directory", exception);
     }
   }
 
@@ -367,7 +362,7 @@ public class SFTPClient implements Closeable {
               try {
                 SFTPClient.this.channel.put(file.toString(), path);
               } catch (SftpException exception) {
-                exception.printStackTrace();
+                LOGGER.severe("Exception while uploading a directory", exception);
               }
             }
             return FileVisitResult.CONTINUE;
@@ -375,7 +370,7 @@ public class SFTPClient implements Closeable {
         });
       return true;
     } catch (IOException exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while uploading a directory", exception);
       return false;
     }
   }
@@ -394,7 +389,7 @@ public class SFTPClient implements Closeable {
       }
       return true;
     } catch (IOException exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while uploading a directory", exception);
       return false;
     }
   }
@@ -414,7 +409,7 @@ public class SFTPClient implements Closeable {
           try {
             this.channel.rm(path + "/" + entry.getFilename());
           } catch (SftpException exception) {
-            exception.printStackTrace();
+            LOGGER.severe("Exception while deleting a directory", exception);
           }
         }
       }

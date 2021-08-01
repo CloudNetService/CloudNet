@@ -27,6 +27,8 @@ public final class CNLCommandEcho extends CNLCommand {
 
   @Override
   public void execute(Map<String, String> variables, String commandLine, String... args) {
+    //CHECKSTYLE.OFF: launcher has no special logger
     System.out.println(String.join(" ", args));
+    // CHECKSTYLE.ON
   }
 }

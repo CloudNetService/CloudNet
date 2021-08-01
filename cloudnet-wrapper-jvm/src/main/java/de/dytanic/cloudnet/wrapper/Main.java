@@ -23,7 +23,6 @@ import de.dytanic.cloudnet.common.log.LoggingUtils;
 import de.dytanic.cloudnet.common.log.defaults.DefaultFileHandler;
 import de.dytanic.cloudnet.common.log.defaults.DefaultLogFormatter;
 import de.dytanic.cloudnet.common.log.defaults.ThreadedLogRecordDispatcher;
-import de.dytanic.cloudnet.common.log.io.LogOutputStream;
 import de.dytanic.cloudnet.wrapper.log.InternalPrintStreamLogHandler;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -62,10 +61,7 @@ public final class Main {
     logger.setLogRecordDispatcher(ThreadedLogRecordDispatcher.forLogger(logger));
 
     logger.addHandler(DefaultFileHandler.newInstance(logFilePattern, false)
-      .withFormatter(DefaultLogFormatter.INSTANCE));
-    logger.addHandler(InternalPrintStreamLogHandler.forSystemStreams().withFormatter(DefaultLogFormatter.INSTANCE));
-
-    System.setErr(LogOutputStream.forSevere(logger).toPrintStream());
-    System.setOut(LogOutputStream.forInformative(logger).toPrintStream());
+      .withFormatter(DefaultLogFormatter.END_LINE_SEPARATOR));
+    logger.addHandler(InternalPrintStreamLogHandler.forSystemStreams().withFormatter(DefaultLogFormatter.END_CLEAN));
   }
 }

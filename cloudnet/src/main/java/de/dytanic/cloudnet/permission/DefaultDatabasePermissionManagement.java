@@ -26,6 +26,8 @@ import de.dytanic.cloudnet.common.concurrent.ListenableTask;
 import de.dytanic.cloudnet.common.concurrent.NullCompletableTask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.io.FileUtils;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.database.AbstractDatabaseProvider;
 import de.dytanic.cloudnet.driver.database.Database;
 import de.dytanic.cloudnet.driver.permission.DefaultSynchronizedPermissionManagement;
@@ -54,6 +56,7 @@ import org.jetbrains.annotations.Nullable;
 public class DefaultDatabasePermissionManagement extends ClusterSynchronizedPermissionManagement implements
   DefaultSynchronizedPermissionManagement {
 
+  private static final Logger LOGGER = LogManager.getLogger(DefaultDatabasePermissionManagement.class);
   private static final String DATABASE_USERS_NAME = "cloudnet_permission_users";
   private static final Type COLLECTION_GROUP_TYPE = TypeToken.getParameterized(Collection.class, PermissionGroup.class)
     .getType();
@@ -255,7 +258,7 @@ public class DefaultDatabasePermissionManagement extends ClusterSynchronizedPerm
       try {
         latch.await();
       } catch (InterruptedException exception) {
-        exception.printStackTrace();
+        LOGGER.severe("Exception while awaiting latch", exception);
       }
 
       task.call();
@@ -281,7 +284,7 @@ public class DefaultDatabasePermissionManagement extends ClusterSynchronizedPerm
       try {
         task.call();
       } catch (Exception exception) {
-        exception.printStackTrace();
+        LOGGER.severe("Exception while finding users by group", exception);
       }
     });
 
@@ -355,7 +358,7 @@ public class DefaultDatabasePermissionManagement extends ClusterSynchronizedPerm
         try {
           task.call();
         } catch (Exception exception) {
-          exception.printStackTrace();
+          LOGGER.severe("Exception while resolving group", exception);
         }
       });
 

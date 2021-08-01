@@ -16,6 +16,8 @@
 
 package de.dytanic.cloudnet.console.animation;
 
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.console.IConsole;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -24,6 +26,8 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 public abstract class AbstractConsoleAnimation implements Runnable {
+
+  protected static final Logger LOGGER = LogManager.getLogger(AbstractConsoleAnimation.class);
 
   private final Collection<Runnable> finishHandler = new ArrayList<>();
   private String name;
@@ -123,7 +127,7 @@ public abstract class AbstractConsoleAnimation implements Runnable {
       try {
         Thread.sleep(this.updateInterval);
       } catch (InterruptedException exception) {
-        exception.printStackTrace();
+        LOGGER.severe("Exception while awaiting console update", exception);
       }
     }
 

@@ -17,6 +17,9 @@
 package de.dytanic.cloudnet.driver.serialization;
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import de.dytanic.cloudnet.common.io.FileUtils;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.network.netty.NettyUtils;
 import de.dytanic.cloudnet.driver.serialization.json.SerializableJsonDocument;
 import io.netty.buffer.ByteBuf;
@@ -50,6 +53,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class DefaultProtocolBuffer extends ProtocolBuffer {
 
+  private static final Logger LOGGER = LogManager.getLogger(DefaultProtocolBuffer.class);
   private final ByteBuf wrapped;
 
   public DefaultProtocolBuffer(ByteBuf wrapped) {
@@ -389,7 +393,7 @@ public class DefaultProtocolBuffer extends ProtocolBuffer {
       ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream)) {
       objectOutputStream.writeObject(throwable);
     } catch (IOException exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while writing a throwable in the stream", exception);
     }
     return this;
   }
@@ -400,7 +404,7 @@ public class DefaultProtocolBuffer extends ProtocolBuffer {
       ObjectInputStream objectInputStream = new ObjectInputStream(inputStream)) {
       return (Throwable) objectInputStream.readObject();
     } catch (IOException | ClassNotFoundException exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while reading a throwable from the stream", exception);
     }
     return null;
   }

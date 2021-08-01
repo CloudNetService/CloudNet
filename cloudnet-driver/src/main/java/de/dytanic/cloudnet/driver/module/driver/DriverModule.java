@@ -26,6 +26,7 @@ import de.dytanic.cloudnet.driver.event.IEventManager;
 import de.dytanic.cloudnet.driver.module.DefaultModule;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 
 public class DriverModule extends DefaultModule {
 
@@ -66,6 +67,8 @@ public class DriverModule extends DefaultModule {
     return JsonDocument.newDocument(configuration);
   }
 
+  @Deprecated
+  @ScheduledForRemoval
   public final ILogger log(LogLevel level, String message) {
     return this.getLogger().log(level, message);
   }
@@ -82,6 +85,8 @@ public class DriverModule extends DefaultModule {
     return this.getDriver().getServicesRegistry();
   }
 
+  @Deprecated
+  @ScheduledForRemoval
   public final ILogger getLogger() {
     return this.getDriver().getLogger();
   }

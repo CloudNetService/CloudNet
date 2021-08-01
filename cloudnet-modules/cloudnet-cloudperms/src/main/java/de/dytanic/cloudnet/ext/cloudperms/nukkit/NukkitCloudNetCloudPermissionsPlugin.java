@@ -57,7 +57,7 @@ public final class NukkitCloudNetCloudPermissionsPlugin extends PluginBase {
         new NukkitCloudNetCloudPermissionsPermissible(player, CloudNetDriver.getInstance().getPermissionManagement()));
 
     } catch (Exception exception) {
-      exception.printStackTrace();
+      this.getLogger().error("Exception while injection permissions", exception);
     }
   }
 

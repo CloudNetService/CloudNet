@@ -23,6 +23,8 @@ import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.common.io.HttpConnectionProvider;
 import de.dytanic.cloudnet.common.language.LanguageManager;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.console.animation.progressbar.ProgressBarInputStream;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironment;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
@@ -51,6 +53,8 @@ import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
 
 public class ServiceVersionProvider {
+
+  protected static final Logger LOGGER = LogManager.getLogger(ServiceVersionProvider.class);
 
   private static final Path VERSION_CACHE_PATH = Paths.get(
     System.getProperty("cloudnet.versioncache.path", "local/versioncache"));
@@ -161,9 +165,8 @@ public class ServiceVersionProvider {
     }
 
     if (information.getServiceVersion().isDeprecated()) {
-      CloudNet.getInstance().getLogger().warning(LanguageManager.getMessage("versions-installer-deprecated-version")
-        .replace("%version%", fullVersionIdentifier)
-      );
+      LOGGER.warning(LanguageManager.getMessage("versions-installer-deprecated-version")
+        .replace("%version%", fullVersionIdentifier));
     }
 
     if (!information.getTemplateStorage().has(information.getServiceTemplate())) {
@@ -182,7 +185,7 @@ public class ServiceVersionProvider {
         }
       }
     } catch (IOException exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while deleting old application files", exception);
     }
 
     Path workingDirectory = FileUtils.createTempFile();
@@ -224,7 +227,7 @@ public class ServiceVersionProvider {
 
       return true;
     } catch (Exception exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while installing application files", exception);
     } finally {
       FileUtils.delete(workingDirectory);
     }

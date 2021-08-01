@@ -17,6 +17,8 @@
 package eu.cloudnetservice.cloudnet.ext.signs.bukkit;
 
 import com.google.common.base.Enums;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import eu.cloudnetservice.cloudnet.ext.signs.configuration.SignLayout;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
@@ -33,6 +35,8 @@ import org.jetbrains.annotations.Nullable;
 
 @ApiStatus.Internal
 public final class BukkitCompatibility {
+
+  private static final Logger LOGGER = LogManager.getLogger(BukkitCompatibility.class);
 
   private static final Class<?> WALL_SIGN_CLASS;
 
@@ -99,7 +103,7 @@ public final class BukkitCompatibility {
           return (BlockFace) WALL_SIGN_GET_FACING.invoke(blockData);
         }
       } catch (Throwable throwable) {
-        throwable.printStackTrace();
+        LOGGER.severe("Exception while checking the BlockFace", throwable);
       }
       return BlockFace.UP;
     }
@@ -123,7 +127,7 @@ public final class BukkitCompatibility {
           SET_GLOWING.invoke(sign, Boolean.TRUE);
           SET_DYE_COLOR.invoke(sign, color);
         } catch (Throwable throwable) {
-          throwable.printStackTrace();
+          LOGGER.severe("Exception while invoking glowing signs", throwable);
         }
       }
     }

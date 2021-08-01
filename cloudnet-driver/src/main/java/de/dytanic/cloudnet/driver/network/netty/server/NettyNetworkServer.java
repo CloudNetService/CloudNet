@@ -71,7 +71,7 @@ public final class NettyNetworkServer extends NettySSLServer implements DefaultN
     try {
       this.init();
     } catch (Exception exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while initializing the netty network server", exception);
     }
   }
 
@@ -120,7 +120,7 @@ public final class NettyNetworkServer extends NettySSLServer implements DefaultN
 
         return true;
       } catch (InterruptedException exception) {
-        exception.printStackTrace();
+        LOGGER.severe("Exception while listening to the channel", exception);
       }
     }
 
