@@ -212,9 +212,9 @@ public class DefaultModuleWrapper implements IModuleWrapper {
             if (moduleWrapper != null) {
               moduleWrapper.startModule();
             } else {
-              new ModuleDependencyNotFoundException(
-                "Module Dependency for " + moduleDependency.getGroup() + ":" + moduleDependency.getName() +
-                  ":" + moduleDependency.getVersion()).printStackTrace();
+              LOGGER.severe("Exception while starting module", new ModuleDependencyNotFoundException(
+                "Module Dependency for " + moduleDependency.getGroup() + ":" + moduleDependency.getName() + ":"
+                  + moduleDependency.getVersion()));
               return this;
             }
           }
