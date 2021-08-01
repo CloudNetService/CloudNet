@@ -33,6 +33,8 @@ public enum JavaVersion {
   JAVA_17(17, 61D, "Java 17"),
   JAVA_18(18, 62D, "Java 18");
 
+  private static final JavaVersion[] JAVA_VERSIONS = JavaVersion.values();
+
   private final int version;
   private final double versionId;
   private final String name;
@@ -49,11 +51,11 @@ public enum JavaVersion {
   }
 
   public static Optional<JavaVersion> fromVersionId(double versionId) {
-    return Arrays.stream(values()).filter(javaVersion -> javaVersion.versionId == versionId).findFirst();
+    return Arrays.stream(JAVA_VERSIONS).filter(javaVersion -> javaVersion.versionId == versionId).findFirst();
   }
 
   public static Optional<JavaVersion> fromVersion(int version) {
-    return Arrays.stream(values()).filter(javaVersion -> javaVersion.version == version).findFirst();
+    return Arrays.stream(JAVA_VERSIONS).filter(javaVersion -> javaVersion.version == version).findFirst();
   }
 
   public int getVersion() {

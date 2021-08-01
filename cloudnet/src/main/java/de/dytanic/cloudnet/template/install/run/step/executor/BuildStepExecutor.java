@@ -50,19 +50,22 @@ public class BuildStepExecutor implements InstallStepExecutor {
   private final Collection<Process> runningBuildProcesses = new CopyOnWriteArrayList<>();
 
   @Override
-  public @NotNull Set<Path> execute(@NotNull InstallInformation installInformation, @NotNull Path workingDirectory,
-    @NotNull Set<Path> inputPaths) throws IOException {
-    ServiceVersion version = installInformation.getServiceVersion();
+  public @NotNull Set<Path> execute(@NotNull InstallInformation information, @NotNull Path workDir,
+    @NotNull Set<Path> paths) throws IOException {
+    ServiceVersion version = information.getServiceVersion();
 
     Collection<String> jvmOptions = version.getProperties().get("jvmOptions", STRING_LIST_TYPE);
     List<String> parameters = version.getProperties().get("parameters", STRING_LIST_TYPE, new ArrayList<>());
 
-    for (Path path : inputPaths) {
+    for (Path path : paths) {
       List<String> processArguments = new ArrayList<>();
-      processArguments.add(CloudNet.getInstance().getConfig().getJVMCommand());
+
+      processArguments.add(
+        information.getInstallerExecutable().orElse(CloudNet.getInstance().getConfig().getJVMCommand()));
       if (jvmOptions != null) {
         processArguments.addAll(jvmOptions);
       }
+
       processArguments.add("-jar");
       processArguments.add(path.getFileName().toString());
       processArguments.addAll(
@@ -72,7 +75,7 @@ public class BuildStepExecutor implements InstallStepExecutor {
       );
 
       int expectedExitCode = version.getProperties().getInt("exitCode", 0);
-      int exitCode = this.buildProcessAndWait(processArguments, workingDirectory);
+      int exitCode = this.buildProcessAndWait(processArguments, workDir);
 
       if (exitCode != expectedExitCode) {
         throw new IllegalStateException(
@@ -80,7 +83,7 @@ public class BuildStepExecutor implements InstallStepExecutor {
       }
     }
 
-    return Files.walk(workingDirectory).collect(Collectors.toSet());
+    return Files.walk(workDir).collect(Collectors.toSet());
   }
 
   @Override

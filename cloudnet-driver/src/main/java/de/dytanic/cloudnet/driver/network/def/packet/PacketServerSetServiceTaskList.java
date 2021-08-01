@@ -14,18 +14,19 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.network.packet;
+package de.dytanic.cloudnet.driver.network.def.packet;
 
-import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.network.NetworkUpdateType;
 import de.dytanic.cloudnet.driver.network.def.PacketConstants;
 import de.dytanic.cloudnet.driver.network.protocol.Packet;
-import java.util.Map;
+import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
+import de.dytanic.cloudnet.driver.service.ServiceTask;
+import java.util.Collection;
 
-public final class PacketServerSetLocalDatabaseData extends Packet {
+public final class PacketServerSetServiceTaskList extends Packet {
 
-  public PacketServerSetLocalDatabaseData(Map<String, Map<String, JsonDocument>> documents, NetworkUpdateType type) {
-    super(PacketConstants.INTERNAL_LOCAL_DATABASE_SET_DATA_CHANNEL, JsonDocument.newDocument("documents", documents)
-      .append("updateType", type));
+  public PacketServerSetServiceTaskList(Collection<ServiceTask> tasks, NetworkUpdateType updateType) {
+    super(PacketConstants.CLUSTER_TASK_LIST_CHANNEL,
+      ProtocolBuffer.create().writeObjectCollection(tasks).writeEnumConstant(updateType));
   }
 }

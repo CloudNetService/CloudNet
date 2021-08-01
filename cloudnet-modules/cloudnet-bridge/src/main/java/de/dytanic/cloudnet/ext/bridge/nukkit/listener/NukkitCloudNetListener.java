@@ -28,6 +28,8 @@ import de.dytanic.cloudnet.driver.event.events.service.CloudServiceRegisterEvent
 import de.dytanic.cloudnet.driver.event.events.service.CloudServiceStartEvent;
 import de.dytanic.cloudnet.driver.event.events.service.CloudServiceStopEvent;
 import de.dytanic.cloudnet.driver.event.events.service.CloudServiceUnregisterEvent;
+import de.dytanic.cloudnet.driver.event.events.service.task.ServiceTaskAddEvent;
+import de.dytanic.cloudnet.driver.event.events.service.task.ServiceTaskRemoveEvent;
 import de.dytanic.cloudnet.ext.bridge.event.BridgeConfigurationUpdateEvent;
 import de.dytanic.cloudnet.ext.bridge.event.BridgeProxyPlayerDisconnectEvent;
 import de.dytanic.cloudnet.ext.bridge.event.BridgeProxyPlayerLoginRequestEvent;
@@ -56,6 +58,8 @@ import de.dytanic.cloudnet.ext.bridge.nukkit.event.NukkitCloudServiceStopEvent;
 import de.dytanic.cloudnet.ext.bridge.nukkit.event.NukkitCloudServiceUnregisterEvent;
 import de.dytanic.cloudnet.ext.bridge.nukkit.event.NukkitNetworkChannelPacketReceiveEvent;
 import de.dytanic.cloudnet.ext.bridge.nukkit.event.NukkitServiceInfoSnapshotConfigureEvent;
+import de.dytanic.cloudnet.ext.bridge.nukkit.event.NukkitServiceTaskAddEvent;
+import de.dytanic.cloudnet.ext.bridge.nukkit.event.NukkitServiceTaskRemoveEvent;
 import de.dytanic.cloudnet.wrapper.event.service.ServiceInfoSnapshotConfigureEvent;
 
 public final class NukkitCloudNetListener {
@@ -99,6 +103,16 @@ public final class NukkitCloudNetListener {
   @EventListener
   public void handle(CloudServiceUnregisterEvent event) {
     this.nukkitCall(new NukkitCloudServiceUnregisterEvent(event.getServiceInfo()));
+  }
+
+  @EventListener
+  public void handle(ServiceTaskAddEvent event) {
+    this.nukkitCall(new NukkitServiceTaskAddEvent(event.getTask()));
+  }
+
+  @EventListener
+  public void handle(ServiceTaskRemoveEvent event) {
+    this.nukkitCall(new NukkitServiceTaskRemoveEvent(event.getTask()));
   }
 
   @EventListener
@@ -164,5 +178,4 @@ public final class NukkitCloudNetListener {
   private void nukkitCall(Event event) {
     Server.getInstance().getPluginManager().callEvent(event);
   }
-
 }
