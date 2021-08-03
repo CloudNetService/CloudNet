@@ -23,6 +23,9 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * This is the configuration that every module needs in the form of a modules.json
+ */
 @ToString
 @EqualsAndHashCode
 public class ModuleConfiguration implements SerializableObject {
@@ -37,8 +40,6 @@ public class ModuleConfiguration implements SerializableObject {
   protected String description;
   protected String author;
   protected String website;
-
-  //protected ModuleUpdateServiceConfiguration updateServiceConfiguration;
 
   protected ModuleRepository[] repos;
 

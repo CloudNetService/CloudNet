@@ -16,7 +16,6 @@
 
 package de.dytanic.cloudnet.driver.service;
 
-import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import java.io.File;
@@ -30,6 +29,10 @@ import java.util.jar.Manifest;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * The ServiceEnvironmentType groups the single {@link ServiceEnvironment} and provides methods to retrieve the main
+ * class needed for the start of the ServiceEnvironment
+ */
 public enum ServiceEnvironmentType {
 
   MINECRAFT_SERVER(
@@ -98,6 +101,7 @@ public enum ServiceEnvironmentType {
   );
 
   private static final Logger LOGGER = LogManager.getLogger(ServiceEnvironmentType.class);
+  public static final ServiceEnvironmentType[] VALUES = ServiceEnvironmentType.values();
 
   private final ServiceEnvironment[] environments;
   private final MinecraftServiceType type;
