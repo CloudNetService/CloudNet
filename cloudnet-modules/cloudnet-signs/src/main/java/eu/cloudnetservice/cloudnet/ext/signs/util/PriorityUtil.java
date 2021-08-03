@@ -23,6 +23,9 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * Util for priorities of signs on a sign wall
+ */
 @ApiStatus.Internal
 public final class PriorityUtil {
 

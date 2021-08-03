@@ -20,7 +20,7 @@ import de.dytanic.cloudnet.common.Properties;
 import java.util.Collection;
 
 /**
- * A interface, for all commands, an additional completer for that.
+ * An interface, for all commands, an additional completer for that.
  *
  * @see Command
  */
