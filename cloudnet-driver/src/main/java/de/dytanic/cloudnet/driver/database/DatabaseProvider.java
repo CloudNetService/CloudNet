@@ -20,23 +20,53 @@ import de.dytanic.cloudnet.common.concurrent.ITask;
 import java.util.Collection;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * This DatabaseProvider gives access to different {@link Database}
+ */
 public interface DatabaseProvider {
 
+  /**
+   * Returns the already existing database or creates a new one with the given name
+   *
+   * @param name the name of the database
+   * @return the corresponding database
+   */
   Database getDatabase(String name);
 
+  /**
+   * @param name the name of the database
+   * @return whether a database with the given name exists
+   */
   boolean containsDatabase(String name);
 
+  /**
+   * @param name the name of the database
+   * @return true if the database was deleted successfully, false if not
+   */
   boolean deleteDatabase(String name);
 
+  /**
+   * @return all present database names
+   */
   Collection<String> getDatabaseNames();
 
-
+  /**
+   * @param name the name of the database
+   * @return whether a database with the given name exists
+   */
   @NotNull
   ITask<Boolean> containsDatabaseAsync(String name);
 
+  /**
+   * @param name the name of the database
+   * @return true if the database was deleted successfully, false if not
+   */
   @NotNull
   ITask<Boolean> deleteDatabaseAsync(String name);
 
+  /**
+   * @return all present database names
+   */
   @NotNull
   ITask<Collection<String>> getDatabaseNamesAsync();
 
