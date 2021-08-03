@@ -29,6 +29,9 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
+/**
+ * Util containing constants for the {@link CloudNetLauncher}
+ */
 public final class LauncherUtils {
 
   public static final Gson GSON = new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").create();

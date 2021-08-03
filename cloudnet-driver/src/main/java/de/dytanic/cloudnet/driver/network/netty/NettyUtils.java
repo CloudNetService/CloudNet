@@ -50,6 +50,9 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import org.jetbrains.annotations.ApiStatus;
 
+/**
+ * Internal util for Netty and its ByteBuf
+ */
 @ApiStatus.Internal
 public final class NettyUtils {
 

@@ -91,6 +91,10 @@ public abstract class CloudNetDriver {
     this.iLogger = iLogger;
   }
 
+  /**
+   * @return a singleton instance of the CloudNetDriver
+   */
+  @NotNull
   public static CloudNetDriver getInstance() {
     return CloudNetDriver.instance;
   }
@@ -120,45 +124,74 @@ public abstract class CloudNetDriver {
   public abstract String getComponentName();
 
   /**
-   * Gets the component name if it is called on a node and the name of the node if it is called on a wrapper.
+   * Gets the component name if it is called on a node and the name of the node that the service is started on if called
+   * on the wrapper
    *
    * @return the uniqueId of the current node
    */
   @NotNull
   public abstract String getNodeUniqueId();
 
+  /**
+   * @return the set {@link CloudServiceFactory} for creating new services in the cloud
+   */
   @NotNull
   public CloudServiceFactory getCloudServiceFactory() {
     return this.cloudServiceFactory;
   }
 
+  /**
+   * @return the set {@link ServiceTaskProvider} for the management of service tasks
+   */
   @NotNull
   public ServiceTaskProvider getServiceTaskProvider() {
     return this.serviceTaskProvider;
   }
 
+  /**
+   * @return the set {@link NodeInfoProvider} which provides access to the local node or nodes in the cluster.
+   */
   @NotNull
   public NodeInfoProvider getNodeInfoProvider() {
     return this.nodeInfoProvider;
   }
 
+  /**
+   * @return the set {@link GroupConfigurationProvider} which manages the services groups
+   */
   @NotNull
   public GroupConfigurationProvider getGroupConfigurationProvider() {
     return this.groupConfigurationProvider;
   }
 
+  /**
+   * @return the set {@link CloudMessenger} to communicate between services and nodes
+   */
   @NotNull
   public CloudMessenger getMessenger() {
     return this.messenger;
   }
 
+  /**
+   * @return the current {@link IPermissionManagement}
+   * @throws NullPointerException if there is no PermissionManagement available
+   */
   @NotNull
   public IPermissionManagement getPermissionManagement() {
     Preconditions.checkNotNull(this.permissionManagement, "no permission management available");
     return this.permissionManagement;
   }
 
+  /**
+   * Sets an {@link IPermissionManagement} as current PermissionManagement.
+   *
+   * @param permissionManagement the {@link IPermissionManagement} to be set
+   * @throws IllegalStateException if the current {@link IPermissionManagement} does not allow overwriting it and the
+   *                               class names are not the same
+   */
   public void setPermissionManagement(@NotNull IPermissionManagement permissionManagement) {
+    Preconditions.checkNotNull(permissionManagement, "new permission management is null");
+
     if (this.permissionManagement != null && !this.permissionManagement.canBeOverwritten() && !this.permissionManagement
       .getClass().getName().equals(permissionManagement.getClass().getName())) {
       throw new IllegalStateException("Current permission management (" + this.permissionManagement.getClass().getName()
@@ -168,18 +201,41 @@ public abstract class CloudNetDriver {
     this.permissionManagement = permissionManagement;
   }
 
+  /**
+   * Returns the local {@link TemplateStorage} of the Node.
+   *
+   * @return the local {@link TemplateStorage}
+   * @throws IllegalStateException if the TemplateStorage is not present
+   */
   @NotNull
   public abstract TemplateStorage getLocalTemplateStorage();
 
+  /**
+   * @param storage the name of the storage
+   * @return the registered {@link TemplateStorage}, null if the storage does not exist
+   */
   @Nullable
   public abstract TemplateStorage getTemplateStorage(String storage);
 
+  /**
+   * This method retrieves all {@link TemplateStorage} from the Nodes {@link IServicesRegistry}
+   *
+   * @return a Collection with all available TemplatesStorages
+   */
   @NotNull
   public abstract Collection<TemplateStorage> getAvailableTemplateStorages();
 
+  /**
+   * This method retrieves all {@link TemplateStorage} from the Nodes {@link IServicesRegistry} async
+   *
+   * @return a Collection with all available TemplatesStorages
+   */
   @NotNull
   public abstract ITask<Collection<TemplateStorage>> getAvailableTemplateStoragesAsync();
 
+  /**
+   * @return the active DatabaseProvider specified by the local/registry
+   */
   @NotNull
   public abstract DatabaseProvider getDatabaseProvider();
 
@@ -221,6 +277,9 @@ public abstract class CloudNetDriver {
     return this.generalCloudServiceProvider;
   }
 
+  /**
+   * @return the network client used for communication
+   */
   @NotNull
   public abstract INetworkClient getNetworkClient();
 
@@ -295,6 +354,11 @@ public abstract class CloudNetDriver {
     }
   }
 
+  /**
+   * Sets the log level for the root logger of the {@link de.dytanic.cloudnet.common.log.LogManager}
+   *
+   * @param logLevel the {@link Level} to be set as global level
+   */
   public abstract void setGlobalLogLevel(Level logLevel);
 
   public abstract Pair<Boolean, String[]> sendCommandLineAsPermissionUser(@NotNull UUID uniqueId,
@@ -313,16 +377,25 @@ public abstract class CloudNetDriver {
     return ProcessSnapshot.getOwnPID();
   }
 
+  /**
+   * @return the {@link IServicesRegistry} for the management of implementations
+   */
   @NotNull
   public IServicesRegistry getServicesRegistry() {
     return this.servicesRegistry;
   }
 
+  /**
+   * @return the {@link IEventManager} for event management
+   */
   @NotNull
   public IEventManager getEventManager() {
     return this.eventManager;
   }
 
+  /**
+   * @return the {@link IModuleProvider} for module management
+   */
   @NotNull
   public IModuleProvider getModuleProvider() {
     return this.moduleProvider;
@@ -335,6 +408,11 @@ public abstract class CloudNetDriver {
     return this.taskScheduler;
   }
 
+  /**
+   * Use this {@link ScheduledExecutorService} to schedule actions
+   *
+   * @return the set {@link ScheduledExecutorService}
+   */
   @NotNull
   public ScheduledExecutorService getTaskExecutor() {
     return this.scheduler;
@@ -351,6 +429,9 @@ public abstract class CloudNetDriver {
     return this.iLogger;
   }
 
+  /**
+   * @return the {@link DriverEnvironment} this driver is running on.
+   */
   @NotNull
   public DriverEnvironment getDriverEnvironment() {
     return this.driverEnvironment;

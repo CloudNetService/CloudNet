@@ -22,6 +22,9 @@ import java.nio.file.Path;
 import java.util.Set;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Interface for install steps when downloading and patching server software
+ */
 public interface InstallStepExecutor {
 
   @NotNull Set<Path> execute(@NotNull InstallInformation installInformation, @NotNull Path workingDirectory,

@@ -29,6 +29,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Path;
 
+/**
+ * An util class to prepare created templates with needed files
+ */
 public final class TemplateStorageUtil {
 
   private TemplateStorageUtil() {

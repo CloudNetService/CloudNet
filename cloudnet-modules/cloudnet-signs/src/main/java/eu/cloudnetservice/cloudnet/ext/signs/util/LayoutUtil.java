@@ -26,6 +26,9 @@ import eu.cloudnetservice.cloudnet.ext.signs.configuration.SignLayoutsHolder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * Util to resolve the layout of a sign
+ */
 public final class LayoutUtil {
 
   private LayoutUtil() {

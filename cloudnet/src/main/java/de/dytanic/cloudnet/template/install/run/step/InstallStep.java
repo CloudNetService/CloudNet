@@ -29,6 +29,10 @@ import java.nio.file.Path;
 import java.util.Set;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * This constant provides implementations for different install steps needed for {@link
+ * de.dytanic.cloudnet.command.commands.CommandTemplate}
+ */
 public enum InstallStep {
   DOWNLOAD(new DownloadStepExecutor()),
   BUILD(new BuildStepExecutor()),
