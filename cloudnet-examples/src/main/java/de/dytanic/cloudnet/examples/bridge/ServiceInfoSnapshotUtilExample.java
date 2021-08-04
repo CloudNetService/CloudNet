@@ -43,6 +43,9 @@ public final class ServiceInfoSnapshotUtilExample {
 
     String state = event.getServiceInfo().getProperty(BridgeServiceProperty.STATE).orElse(null); //State string or null
 
+    boolean isIngame = event.getServiceInfo().getProperty(BridgeServiceProperty.IS_IN_GAME)
+      .orElse(false); //true if ingame, false otherwise
+
     event.getServiceInfo().getProperty(BridgeServiceProperty.PLUGINS)
       .ifPresent(pluginInfos -> { //The pluginInfo items with the important information about the plugin
         for (PluginInfo pluginInfo : pluginInfos) {
