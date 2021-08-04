@@ -372,7 +372,7 @@ public final class NodePlayerManager extends DefaultPlayerManager implements IPl
     this.handleOfflinePlayerUpdate(CloudOfflinePlayer.of(cloudPlayer));
   }
 
-  protected void updateOnlinePlayerInCache(ICloudPlayer cloudPlayer) {
+  private void updateOnlinePlayerInCache(ICloudPlayer cloudPlayer) {
     Lock handlingLock = this.managementLocks.get(cloudPlayer.getUniqueId());
     try {
       // lock the management lock of the player to ensure only one update at a time
@@ -442,7 +442,7 @@ public final class NodePlayerManager extends DefaultPlayerManager implements IPl
     this.processLogin(cloudPlayer);
   }
 
-  protected CloudPlayer selectPlayerForLogin(NetworkConnectionInfo connectionInfo,
+  private CloudPlayer selectPlayerForLogin(NetworkConnectionInfo connectionInfo,
     NetworkPlayerServerInfo networkPlayerServerInfo) {
     // check if the player is already loaded
     CloudPlayer cloudPlayer = this.getOnlinePlayer(connectionInfo.getUniqueId());
@@ -475,7 +475,7 @@ public final class NodePlayerManager extends DefaultPlayerManager implements IPl
     return cloudPlayer;
   }
 
-  protected void processLogin(@NotNull CloudPlayer cloudPlayer) {
+  private void processLogin(@NotNull CloudPlayer cloudPlayer) {
     // update the player into the database
     this.updateOnlinePlayer0(cloudPlayer);
     // notify the other nodes that we received the login

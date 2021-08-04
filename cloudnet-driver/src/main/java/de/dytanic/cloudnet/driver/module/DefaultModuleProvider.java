@@ -29,10 +29,10 @@ import java.util.stream.Collectors;
 
 public final class DefaultModuleProvider implements IModuleProvider {
 
-  protected final Collection<DefaultModuleWrapper> moduleWrappers = new CopyOnWriteArrayList<>();
+  final Collection<DefaultModuleWrapper> moduleWrappers = new CopyOnWriteArrayList<>();
 
-  protected IModuleProviderHandler moduleProviderHandler = new ModuleProviderHandlerAdapter();
-  protected IModuleDependencyLoader moduleDependencyLoader = new DefaultMemoryModuleDependencyLoader();
+  private IModuleProviderHandler moduleProviderHandler = new ModuleProviderHandlerAdapter();
+  private IModuleDependencyLoader moduleDependencyLoader = new DefaultMemoryModuleDependencyLoader();
 
   private Path moduleDirectory = Paths.get("modules");
 

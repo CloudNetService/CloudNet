@@ -277,9 +277,9 @@ public class DefaultTaskScheduler implements ITaskScheduler {
 
   private final class Worker extends Thread implements IWorkableThread {
 
-    protected volatile IScheduledTask<?> scheduledTask = null;
+    private volatile IScheduledTask<?> scheduledTask = null;
 
-    protected long lifeMillis = System.currentTimeMillis();
+    private long lifeMillis = System.currentTimeMillis();
 
     public Worker() {
       super(DefaultTaskScheduler.this.threadGroup,

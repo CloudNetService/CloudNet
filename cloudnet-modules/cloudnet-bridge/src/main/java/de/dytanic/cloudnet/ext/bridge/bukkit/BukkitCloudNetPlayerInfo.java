@@ -26,19 +26,19 @@ import lombok.ToString;
 @EqualsAndHashCode
 public final class BukkitCloudNetPlayerInfo {
 
-  protected UUID uniqueId;
+  private UUID uniqueId;
 
-  protected String name;
+  private String name;
 
-  protected double health;
-  protected double maxHealth;
-  protected double saturation;
+  private double health;
+  private double maxHealth;
+  private double saturation;
 
-  protected int level;
+  private int level;
 
-  protected WorldPosition location;
+  private WorldPosition location;
 
-  protected HostAndPort address;
+  private HostAndPort address;
 
   public BukkitCloudNetPlayerInfo(UUID uniqueId, String name, double health, double maxHealth, double saturation,
     int level, WorldPosition location, HostAndPort address) {

@@ -41,9 +41,9 @@ public final class H2DatabaseProvider extends SQLDatabaseProvider {
     Driver.load();
   }
 
-  protected final Path h2dbFile;
-  protected final boolean runsInCluster;
-  protected Connection connection;
+  private final Path h2dbFile;
+  private final boolean runsInCluster;
+  private Connection connection;
 
   public H2DatabaseProvider(String h2File, boolean runsInCluster) {
     this(h2File, runsInCluster, null);

@@ -47,7 +47,7 @@ import org.jetbrains.annotations.Nullable;
 
 final class JVMCloudService extends DefaultMinecraftCloudService implements ICloudService {
 
-  protected static final String RUNTIME = "jvm";
+  static final String RUNTIME = "jvm";
 
   private final DefaultServiceConsoleLogCache serviceConsoleLogCache = new DefaultServiceConsoleLogCache(this);
 
