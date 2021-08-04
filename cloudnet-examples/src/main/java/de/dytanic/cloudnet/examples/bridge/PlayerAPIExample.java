@@ -26,6 +26,7 @@ import de.dytanic.cloudnet.ext.bridge.event.BridgeUpdateCloudPlayerEvent;
 import de.dytanic.cloudnet.ext.bridge.player.ICloudOfflinePlayer;
 import de.dytanic.cloudnet.ext.bridge.player.ICloudPlayer;
 import de.dytanic.cloudnet.ext.bridge.player.IPlayerManager;
+import de.dytanic.cloudnet.ext.bridge.player.executor.ServerSelectorType;
 import java.util.List;
 import java.util.function.Consumer;
 import org.bukkit.entity.Player;
@@ -95,6 +96,9 @@ public final class PlayerAPIExample {
       this.playerManager.getPlayerExecutor(entry)
         .connect("Lobby-3"); //send a player to the target server if the player is login on a proxy
       this.playerManager.getPlayerExecutor(entry).sendChatMessage("Hello, player!"); //send the player a text message
+      this.playerManager.getPlayerExecutor(entry)
+        .connectToTask("Bedwars",
+          ServerSelectorType.HIGHEST_PLAYERS); //sends the player to the service with the highest players of the given task
     }
   }
 

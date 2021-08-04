@@ -47,6 +47,8 @@ public final class ExampleIncludeTemplate {
       .templates(new ArrayList<>(Collections.singletonList(new ServiceTemplate(
         "Lobby", "test1", "local"
       ))))
+      .javaCommand(
+        "/usr/lib/jvm/java-11-openjdk-amd64/bin/java") //set a custom java executable for the task. Services are started using this executable
       // the deployments to add to the service to deploy them later
       .deployments(new ArrayList<>())
       // the group of the service, all templates, inclusions and deployments of the groups gets loaded too

@@ -33,6 +33,9 @@ import de.dytanic.cloudnet.driver.service.ServiceRemoteInclusion;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import de.dytanic.cloudnet.driver.service.ThreadSnapshot;
 
+/**
+ * Example for listener registration can be found at {@link ExampleModule#registerListeners()}
+ */
 public final class ExampleListener {
 
   private static final Logger LOGGER = LogManager.getLogger(ExampleListener.class);

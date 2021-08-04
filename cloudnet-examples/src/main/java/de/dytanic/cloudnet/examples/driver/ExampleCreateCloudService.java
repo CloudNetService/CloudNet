@@ -24,11 +24,14 @@ import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
 import de.dytanic.cloudnet.driver.service.ServiceTask;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
+import de.dytanic.cloudnet.ext.bridge.BridgeServiceProperty;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public final class ExampleCreateCloudService {
 
@@ -57,6 +60,24 @@ public final class ExampleCreateCloudService {
     } else {
       //Service is not online or doesn't exist
     }
+  }
+
+  public void getServicesByTaskOrGroup() {
+    String task = "Bedwars";
+    // get the services by a task
+    Collection<ServiceInfoSnapshot> taskServices = CloudNetDriver.getInstance().getCloudServiceProvider()
+      .getCloudServices(task);
+
+    String group = "Lobby";
+    // get the services by a group
+    Collection<ServiceInfoSnapshot> groupServices = CloudNetDriver.getInstance().getCloudServiceProvider()
+      .getCloudServicesByGroup(group);
+
+    // filter for ingame services
+    Collection<ServiceInfoSnapshot> ingameServices = taskServices
+      .stream()
+      .filter(service -> service.getProperty(BridgeServiceProperty.IS_IN_GAME).orElse(false))
+      .collect(Collectors.toList());
   }
 
   public void getServiceByNameAsync(String name) {
