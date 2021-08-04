@@ -51,11 +51,6 @@ allprojects {
     }
 
     maven {
-      name 'nukkix'
-      url 'https://repo.nukkitx.com/maven-snapshots'
-    }
-
-    maven {
       name 'sonatype'
       url 'https://oss.sonatype.org/content/repositories/snapshots'
     }
@@ -70,6 +65,10 @@ allprojects {
       url 'https://jitpack.io'
     }
 
+    maven {
+      name 'nukkix'
+      url 'https://repo.nukkitx.com/maven-snapshots'
+    }
   }
 
   project.ext {
@@ -94,9 +93,9 @@ allprojects {
     dependencyGoMintVersion = '1.0.0-SNAPSHOT'
     dependencyWaterdogPEVersion = '1.1.2-SNAPSHOT'
     dependencyMysqlConnectorJavaVersion = '8.0.26'
-    dependencyMongoJavaDriverVersion = '4.3.0'
+    dependencyMongoJavaDriverVersion = '4.3.1'
     dependencyHikariCpVersion = '5.0.0'
-    dependencyVaultVersion = '1.7'
+    dependencyVaultVersion = '1.7.1'
     dependencyProtocolLibVersion = 'master-SNAPSHOT'
     dependencyNpcLibVersion = 'development-SNAPSHOT'
     dependencyCommonsNetVersion = '3.8.0'
@@ -108,7 +107,7 @@ allprojects {
     testJunitVersion = '4.13.2'
     testBcpkixJdk15OnVersion = '1.69'
 
-    buildCheckstyleToolVersion = '8.44'
+    buildCheckstyleToolVersion = '8.45'
 
     //file
     cloudnetLauncherFile = 'launcher.jar'
