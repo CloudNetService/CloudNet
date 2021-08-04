@@ -24,7 +24,7 @@ import lombok.EqualsAndHashCode;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * This class holds a easy IP/Hostname and port configuration for a server or a client bind address
+ * This class holds an easy IP/Hostname and port configuration for a server or a client bind address
  */
 @EqualsAndHashCode
 public class HostAndPort implements SerializableObject {

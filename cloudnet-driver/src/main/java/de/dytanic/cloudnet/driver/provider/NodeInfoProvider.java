@@ -24,54 +24,141 @@ import java.util.Collection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * This interface provides access to the cluster
+ */
 public interface NodeInfoProvider {
 
+  /**
+   * @return the {@link CommandInfo} for each registered command
+   */
   Collection<CommandInfo> getConsoleCommands();
 
+  /**
+   * @param commandLine the whole console input containing the command
+   * @return the {@link CommandInfo} if there is a registered command - null otherwise
+   */
   @Nullable
   CommandInfo getConsoleCommand(@NotNull String commandLine);
 
+  /**
+   * Gets all tab complete results for the specific command line. If the line contains at least one space, it will get
+   * the command and then the tab complete results out of it. If the line doesn't contain any spaces, it will return the
+   * names of all registered commands that begin with the {@code commandLine} (case-insensitive).
+   *
+   * @param commandLine the command with arguments to get the results from
+   * @return a collection containing all unsorted results
+   */
   Collection<String> getConsoleTabCompleteResults(@NotNull String commandLine);
 
+  /**
+   * Sends the given commandLine to the node, executes the commandLine and returns the response
+   *
+   * @param commandLine the commandLine to be sent
+   * @return the reponse of the node
+   */
   String[] sendCommandLine(@NotNull String commandLine);
 
+  /**
+   * Sends the given commandLine to a specific node in the cluster, executes the commandLine and returns the response
+   *
+   * @param commandLine the commandLine to be sent
+   * @return the response of the node
+   */
   String[] sendCommandLine(@NotNull String nodeUniqueId, @NotNull String commandLine);
 
-  @NotNull
-  ITask<Collection<CommandInfo>> getConsoleCommandsAsync();
-
-  @NotNull
-  ITask<CommandInfo> getConsoleCommandAsync(@NotNull String commandLine);
-
-  @NotNull
-  ITask<Collection<String>> getConsoleTabCompleteResultsAsync(@NotNull String commandLine);
-
-  @NotNull
-  ITask<String[]> sendCommandLineAsync(@NotNull String commandLine);
-
-  @NotNull
-  ITask<String[]> sendCommandLineAsync(@NotNull String nodeUniqueId, @NotNull String commandLine);
-
-  @NotNull
-  ITask<NetworkClusterNode[]> getNodesAsync();
-
-  @NotNull
-  ITask<NetworkClusterNode> getNodeAsync(@NotNull String uniqueId);
-
-  @NotNull
-  ITask<NetworkClusterNodeInfoSnapshot[]> getNodeInfoSnapshotsAsync();
-
-  @NotNull
-  ITask<NetworkClusterNodeInfoSnapshot> getNodeInfoSnapshotAsync(@NotNull String uniqueId);
-
+  /**
+   * @return all nodes from the config of the node where the method is called on
+   */
   NetworkClusterNode[] getNodes();
 
+  /**
+   * @param uniqueId the uniqueId of the target node
+   * @return {@link NetworkClusterNode} from the config of the node where the method is called on, null if there is no
+   * entry in the config
+   */
   @Nullable
   NetworkClusterNode getNode(@NotNull String uniqueId);
 
+  /**
+   * @return all {@link NetworkClusterNodeInfoSnapshot} of nodes that are still connected
+   */
   NetworkClusterNodeInfoSnapshot[] getNodeInfoSnapshots();
 
+  /**
+   * @param uniqueId the uniqueId of the target node
+   * @return the {@link NetworkClusterNodeInfoSnapshot} for the given uniqueId, null if there is no snapshot
+   */
   @Nullable
   NetworkClusterNodeInfoSnapshot getNodeInfoSnapshot(@NotNull String uniqueId);
+
+  /**
+   * @return the {@link CommandInfo} for each registered command
+   */
+  @NotNull
+  ITask<Collection<CommandInfo>> getConsoleCommandsAsync();
+
+  /**
+   * @param commandLine the whole console input containing the command
+   * @return the {@link CommandInfo} if there is a registered command - null otherwise
+   */
+  @NotNull
+  ITask<CommandInfo> getConsoleCommandAsync(@NotNull String commandLine);
+
+  /**
+   * Gets all tab complete results for the specific command line. If the line contains at least one space, it will get
+   * the command and then the tab complete results out of it. If the line doesn't contain any spaces, it will return the
+   * names of all registered commands that begin with the {@code commandLine} (case-insensitive).
+   *
+   * @param commandLine the command with arguments to get the results from
+   * @return a collection containing all unsorted results
+   */
+  @NotNull
+  ITask<Collection<String>> getConsoleTabCompleteResultsAsync(@NotNull String commandLine);
+
+  /**
+   * Sends the given commandLine to the node, executes the commandLine and returns the response
+   *
+   * @param commandLine the commandLine to be sent
+   * @return the reponse of the node
+   */
+  @NotNull
+  ITask<String[]> sendCommandLineAsync(@NotNull String commandLine);
+
+  /**
+   * Sends the given commandLine to a specific node in the cluster, executes the commandLine and returns the response
+   *
+   * @param commandLine the commandLine to be sent
+   * @return the response of the node
+   */
+  @NotNull
+  ITask<String[]> sendCommandLineAsync(@NotNull String nodeUniqueId, @NotNull String commandLine);
+
+  /**
+   * @return all nodes from the config of the node where the method is called on
+   */
+  @NotNull
+  ITask<NetworkClusterNode[]> getNodesAsync();
+
+  /**
+   * @param uniqueId the uniqueId of the target node
+   * @return {@link NetworkClusterNode} from the config of the node where the method is called on, null if there is no
+   * entry in the config
+   */
+  @NotNull
+  ITask<NetworkClusterNode> getNodeAsync(@NotNull String uniqueId);
+
+  /**
+   * @return all {@link NetworkClusterNodeInfoSnapshot} of nodes that are still connected
+   */
+  @NotNull
+  ITask<NetworkClusterNodeInfoSnapshot[]> getNodeInfoSnapshotsAsync();
+
+  /**
+   * @param uniqueId the uniqueId of the target node
+   * @return the {@link NetworkClusterNodeInfoSnapshot} for the given uniqueId, null if there is no snapshot
+   */
+  @NotNull
+  ITask<NetworkClusterNodeInfoSnapshot> getNodeInfoSnapshotAsync(@NotNull String uniqueId);
 
 }
