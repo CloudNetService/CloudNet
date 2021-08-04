@@ -325,7 +325,9 @@ public class DefaultTaskScheduler implements ITaskScheduler {
         try {
           this.scheduledTask.call();
         } catch (Throwable throwable) {
+          //CHECKSTYLE.OFF: deprecated class - no need for special logging as not needed internally anymore
           throwable.printStackTrace();
+          //CHECKSTYLE.ON
         }
 
         if (this.checkScheduledTask()) {
@@ -347,7 +349,9 @@ public class DefaultTaskScheduler implements ITaskScheduler {
       try {
         Thread.sleep(value);
       } catch (InterruptedException exception) {
+        //CHECKSTYLE.OFF: deprecated class - no need for special logging as not needed internally anymore
         exception.printStackTrace();
+        //CHECKSTYLE.ON
       }
     }
 

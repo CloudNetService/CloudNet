@@ -26,6 +26,8 @@ import de.dytanic.cloudnet.driver.event.events.service.CloudServiceRegisterEvent
 import de.dytanic.cloudnet.driver.event.events.service.CloudServiceStartEvent;
 import de.dytanic.cloudnet.driver.event.events.service.CloudServiceStopEvent;
 import de.dytanic.cloudnet.driver.event.events.service.CloudServiceUnregisterEvent;
+import de.dytanic.cloudnet.driver.event.events.service.task.ServiceTaskAddEvent;
+import de.dytanic.cloudnet.driver.event.events.service.task.ServiceTaskRemoveEvent;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.ext.bridge.event.BridgeConfigurationUpdateEvent;
 import de.dytanic.cloudnet.ext.bridge.event.BridgeProxyPlayerDisconnectEvent;
@@ -57,6 +59,8 @@ import de.dytanic.cloudnet.ext.bridge.waterdogpe.event.WaterdogPECloudServiceSto
 import de.dytanic.cloudnet.ext.bridge.waterdogpe.event.WaterdogPECloudServiceUnregisterEvent;
 import de.dytanic.cloudnet.ext.bridge.waterdogpe.event.WaterdogPENetworkChannelPacketReceiveEvent;
 import de.dytanic.cloudnet.ext.bridge.waterdogpe.event.WaterdogPEServiceInfoSnapshotConfigureEvent;
+import de.dytanic.cloudnet.ext.bridge.waterdogpe.event.WaterdogPEServiceTaskAddEvent;
+import de.dytanic.cloudnet.ext.bridge.waterdogpe.event.WaterdogPEServiceTaskRemoveEvent;
 import de.dytanic.cloudnet.wrapper.event.service.ServiceInfoSnapshotConfigureEvent;
 import dev.waterdog.waterdogpe.ProxyServer;
 import dev.waterdog.waterdogpe.event.Event;
@@ -160,6 +164,16 @@ public final class WaterdogPECloudNetListener {
     }
 
     this.waterdogPECall(new WaterdogPECloudServiceUnregisterEvent(event.getServiceInfo()));
+  }
+
+  @EventListener
+  public void handle(ServiceTaskAddEvent event) {
+    this.waterdogPECall(new WaterdogPEServiceTaskAddEvent(event.getTask()));
+  }
+
+  @EventListener
+  public void handle(ServiceTaskRemoveEvent event) {
+    this.waterdogPECall(new WaterdogPEServiceTaskRemoveEvent(event.getTask()));
   }
 
   @EventListener

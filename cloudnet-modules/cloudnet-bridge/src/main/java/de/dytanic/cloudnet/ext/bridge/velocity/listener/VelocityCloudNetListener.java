@@ -28,6 +28,8 @@ import de.dytanic.cloudnet.driver.event.events.service.CloudServiceRegisterEvent
 import de.dytanic.cloudnet.driver.event.events.service.CloudServiceStartEvent;
 import de.dytanic.cloudnet.driver.event.events.service.CloudServiceStopEvent;
 import de.dytanic.cloudnet.driver.event.events.service.CloudServiceUnregisterEvent;
+import de.dytanic.cloudnet.driver.event.events.service.task.ServiceTaskAddEvent;
+import de.dytanic.cloudnet.driver.event.events.service.task.ServiceTaskRemoveEvent;
 import de.dytanic.cloudnet.ext.bridge.event.BridgeConfigurationUpdateEvent;
 import de.dytanic.cloudnet.ext.bridge.event.BridgeProxyPlayerDisconnectEvent;
 import de.dytanic.cloudnet.ext.bridge.event.BridgeProxyPlayerLoginRequestEvent;
@@ -57,6 +59,8 @@ import de.dytanic.cloudnet.ext.bridge.velocity.event.VelocityCloudServiceStopEve
 import de.dytanic.cloudnet.ext.bridge.velocity.event.VelocityCloudServiceUnregisterEvent;
 import de.dytanic.cloudnet.ext.bridge.velocity.event.VelocityNetworkChannelPacketReceiveEvent;
 import de.dytanic.cloudnet.ext.bridge.velocity.event.VelocityServiceInfoSnapshotConfigureEvent;
+import de.dytanic.cloudnet.ext.bridge.velocity.event.VelocityServiceTaskAddEvent;
+import de.dytanic.cloudnet.ext.bridge.velocity.event.VelocityServiceTaskRemoveEvent;
 import de.dytanic.cloudnet.wrapper.event.service.ServiceInfoSnapshotConfigureEvent;
 import java.net.InetSocketAddress;
 import java.util.concurrent.CompletableFuture;
@@ -149,6 +153,16 @@ public final class VelocityCloudNetListener {
     }
 
     this.velocityCall(new VelocityCloudServiceUnregisterEvent(event.getServiceInfo()));
+  }
+
+  @EventListener
+  public void handle(ServiceTaskAddEvent event) {
+    this.velocityCall(new VelocityServiceTaskAddEvent(event.getTask()));
+  }
+
+  @EventListener
+  public void handle(ServiceTaskRemoveEvent event) {
+    this.velocityCall(new VelocityServiceTaskRemoveEvent(event.getTask()));
   }
 
   @EventListener

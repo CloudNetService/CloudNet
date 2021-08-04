@@ -20,6 +20,8 @@ import de.dytanic.cloudnet.common.concurrent.CompletableTask;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.concurrent.ListenableTask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.api.RemoteDatabaseRequestType;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
@@ -38,6 +40,8 @@ import java.util.function.Function;
 import org.jetbrains.annotations.NotNull;
 
 public class WrapperDatabase implements IDatabase {
+
+  private static final Logger LOGGER = LogManager.getLogger(WrapperDatabase.class);
 
   private final String name;
   private final DefaultWrapperDatabaseProvider databaseProvider;
@@ -258,7 +262,7 @@ public class WrapperDatabase implements IDatabase {
       try {
         task.call();
       } catch (Exception exception) {
-        exception.printStackTrace();
+        LOGGER.severe("Exception while calling response", exception);
       }
     });
     return task;

@@ -26,6 +26,8 @@ import de.dytanic.cloudnet.driver.event.events.service.CloudServiceRegisterEvent
 import de.dytanic.cloudnet.driver.event.events.service.CloudServiceStartEvent;
 import de.dytanic.cloudnet.driver.event.events.service.CloudServiceStopEvent;
 import de.dytanic.cloudnet.driver.event.events.service.CloudServiceUnregisterEvent;
+import de.dytanic.cloudnet.driver.event.events.service.task.ServiceTaskAddEvent;
+import de.dytanic.cloudnet.driver.event.events.service.task.ServiceTaskRemoveEvent;
 import de.dytanic.cloudnet.ext.bridge.bukkit.BukkitCloudNetHelper;
 import de.dytanic.cloudnet.ext.bridge.bukkit.event.BukkitBridgeConfigurationUpdateEvent;
 import de.dytanic.cloudnet.ext.bridge.bukkit.event.BukkitBridgeProxyPlayerDisconnectEvent;
@@ -45,6 +47,8 @@ import de.dytanic.cloudnet.ext.bridge.bukkit.event.BukkitCloudServiceStopEvent;
 import de.dytanic.cloudnet.ext.bridge.bukkit.event.BukkitCloudServiceUnregisterEvent;
 import de.dytanic.cloudnet.ext.bridge.bukkit.event.BukkitNetworkChannelPacketReceiveEvent;
 import de.dytanic.cloudnet.ext.bridge.bukkit.event.BukkitServiceInfoSnapshotConfigureEvent;
+import de.dytanic.cloudnet.ext.bridge.bukkit.event.BukkitServiceTaskAddEvent;
+import de.dytanic.cloudnet.ext.bridge.bukkit.event.BukkitServiceTaskRemoveEvent;
 import de.dytanic.cloudnet.ext.bridge.event.BridgeConfigurationUpdateEvent;
 import de.dytanic.cloudnet.ext.bridge.event.BridgeProxyPlayerDisconnectEvent;
 import de.dytanic.cloudnet.ext.bridge.event.BridgeProxyPlayerLoginRequestEvent;
@@ -57,6 +61,7 @@ import de.dytanic.cloudnet.ext.bridge.event.BridgeServerPlayerLoginSuccessEvent;
 import de.dytanic.cloudnet.wrapper.event.service.ServiceInfoSnapshotConfigureEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
+import org.bukkit.plugin.Plugin;
 
 public final class BukkitCloudNetListener {
 
@@ -99,6 +104,16 @@ public final class BukkitCloudNetListener {
   @EventListener
   public void handle(CloudServiceUnregisterEvent event) {
     this.bukkitCall(new BukkitCloudServiceUnregisterEvent(event.getServiceInfo()));
+  }
+
+  @EventListener
+  public void handle(ServiceTaskAddEvent event) {
+    this.bukkitCall(new BukkitServiceTaskAddEvent(event.getTask()));
+  }
+
+  @EventListener
+  public void handle(ServiceTaskRemoveEvent event) {
+    this.bukkitCall(new BukkitServiceTaskRemoveEvent(event.getTask()));
   }
 
   @EventListener
@@ -164,5 +179,4 @@ public final class BukkitCloudNetListener {
   private void bukkitCall(Event event) {
     Bukkit.getPluginManager().callEvent(event);
   }
-
 }

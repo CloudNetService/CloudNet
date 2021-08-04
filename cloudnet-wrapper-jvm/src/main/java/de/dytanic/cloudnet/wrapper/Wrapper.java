@@ -20,8 +20,8 @@ import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.io.FileUtils;
-import de.dytanic.cloudnet.common.logging.ILogger;
-import de.dytanic.cloudnet.common.logging.LogLevel;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.DriverEnvironment;
 import de.dytanic.cloudnet.driver.api.DriverAPIRequestType;
@@ -57,6 +57,7 @@ import de.dytanic.cloudnet.wrapper.network.listener.PacketServerAuthorizationRes
 import de.dytanic.cloudnet.wrapper.network.listener.PacketServerChannelMessageListener;
 import de.dytanic.cloudnet.wrapper.network.listener.PacketServerServiceInfoPublisherListener;
 import de.dytanic.cloudnet.wrapper.network.listener.PacketServerSetGlobalLogLevelListener;
+import de.dytanic.cloudnet.wrapper.network.listener.PacketServerSetServiceTaskListListener;
 import de.dytanic.cloudnet.wrapper.network.listener.PacketServerUpdatePermissionsListener;
 import de.dytanic.cloudnet.wrapper.network.listener.PacketServerWrapperDriverAPIListener;
 import de.dytanic.cloudnet.wrapper.network.packet.PacketClientServiceInfoUpdate;
@@ -78,6 +79,7 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
@@ -89,6 +91,8 @@ import org.jetbrains.annotations.NotNull;
  * @see CloudNetDriver
  */
 public final class Wrapper extends CloudNetDriver implements DriverAPIUser {
+
+  private static final Logger LOGGER = LogManager.getLogger(Wrapper.class);
 
   /**
    * The configuration of the wrapper, which was created from the CloudNet node. The properties are mirrored from the
@@ -126,8 +130,7 @@ public final class Wrapper extends CloudNetDriver implements DriverAPIUser {
   private ServiceInfoSnapshot lastServiceInfoSnapShot = this.config.getServiceInfoSnapshot();
   private ServiceInfoSnapshot currentServiceInfoSnapshot = this.config.getServiceInfoSnapshot();
 
-  Wrapper(List<String> commandLineArguments, ILogger logger) {
-    super(logger);
+  Wrapper(List<String> commandLineArguments) {
     setInstance(this);
 
     super.cloudServiceFactory = new RemoteCloudServiceFactory(this::getNetworkChannel);
@@ -161,6 +164,8 @@ public final class Wrapper extends CloudNetDriver implements DriverAPIUser {
     //- Packet client registry
     this.networkClient.getPacketRegistry()
       .addListener(PacketConstants.SERVICE_INFO_PUBLISH_CHANNEL, new PacketServerServiceInfoPublisherListener());
+    this.networkClient.getPacketRegistry()
+      .addListener(PacketConstants.CLUSTER_TASK_LIST_CHANNEL, new PacketServerSetServiceTaskListListener());
     this.networkClient.getPacketRegistry()
       .addListener(PacketConstants.PERMISSIONS_PUBLISH_CHANNEL, new PacketServerUpdatePermissionsListener());
     this.networkClient.getPacketRegistry()
@@ -223,9 +228,8 @@ public final class Wrapper extends CloudNetDriver implements DriverAPIUser {
   public void stop() {
     try {
       this.networkClient.close();
-      this.logger.close();
     } catch (Exception exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while closing the network client", exception);
     }
 
     this.scheduler.shutdownNow();
@@ -285,13 +289,8 @@ public final class Wrapper extends CloudNetDriver implements DriverAPIUser {
   }
 
   @Override
-  public void setGlobalLogLevel(@NotNull LogLevel logLevel) {
-    this.setGlobalLogLevel(logLevel.getLevel());
-  }
-
-  @Override
-  public void setGlobalLogLevel(int logLevel) {
-    this.networkClient.sendPacket(new PacketServerSetGlobalLogLevel(logLevel));
+  public void setGlobalLogLevel(Level logLevel) {
+    this.networkClient.sendPacket(new PacketServerSetGlobalLogLevel(logLevel.getName()));
   }
 
   /**
@@ -448,12 +447,12 @@ public final class Wrapper extends CloudNetDriver implements DriverAPIUser {
 
     Thread applicationThread = new Thread(() -> {
       try {
-        this.logger.info(
+        LOGGER.info(
           "Starting Application-Thread based of " + Wrapper.this.getServiceConfiguration().getProcessConfig()
             .getEnvironment() + "\n");
         method.invoke(null, new Object[]{arguments.toArray(new String[0])});
       } catch (Exception exception) {
-        exception.printStackTrace();
+        LOGGER.severe("Exception while starting application", exception);
       }
     }, "Application-Thread");
     applicationThread.setContextClassLoader(ClassLoader.getSystemClassLoader());

@@ -16,6 +16,8 @@
 
 package de.dytanic.cloudnet.common.logging;
 
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
+
 /**
  * Represents a full log record from the logger. Important for the most loggers are the following information
  *
@@ -25,6 +27,8 @@ package de.dytanic.cloudnet.common.logging;
  * <li>thread: the Thread in that the record was created</li>
  * </ol>
  */
+@Deprecated
+@ScheduledForRemoval
 public class LogEntry {
 
   /**

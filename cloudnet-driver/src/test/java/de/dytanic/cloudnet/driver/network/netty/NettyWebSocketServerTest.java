@@ -129,7 +129,7 @@ public final class NettyWebSocketServerTest {
                   try {
                     webSocketClientHandshaker.finishHandshake(ctx.channel(), (FullHttpResponse) msg);
                   } catch (Exception exception) {
-                    exception.printStackTrace();
+                    throw new RuntimeException();
                   }
 
                   ctx.channel().eventLoop().execute(() -> ctx.channel()

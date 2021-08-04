@@ -26,7 +26,9 @@ import static de.dytanic.cloudnet.command.sub.SubCommandArgumentTypes.integer;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.command.ICommandSender;
 import de.dytanic.cloudnet.command.sub.SubCommand;
+import de.dytanic.cloudnet.command.sub.SubCommandArgumentTypes;
 import de.dytanic.cloudnet.command.sub.SubCommandBuilder;
+import de.dytanic.cloudnet.common.JavaVersion;
 import de.dytanic.cloudnet.common.WildcardUtil;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.language.LanguageManager;
@@ -53,6 +55,7 @@ import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import de.dytanic.cloudnet.template.TemplateStorageUtil;
 import de.dytanic.cloudnet.template.install.ServiceVersion;
 import de.dytanic.cloudnet.template.install.ServiceVersionType;
+import de.dytanic.cloudnet.util.JavaVersionResolver;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -191,7 +194,7 @@ public class CommandTasks extends CommandServiceConfigurationBase {
             }
 
           } catch (IOException exception) {
-            exception.printStackTrace();
+            LOGGER.severe("Exception while creating task", exception);
           }
         },
         exactStringIgnoreCase("create"),
@@ -595,13 +598,32 @@ public class CommandTasks extends CommandServiceConfigurationBase {
       )
     );
 
+    animation.addEntry(new QuestionListEntry<>(
+      "javaCommand",
+      LanguageManager.getMessage("command-tasks-setup-question-javacommand"),
+      SubCommandArgumentTypes.functional(
+        "java",
+        LanguageManager.getMessage("command-tasks-setup-question-javacommand-invalid"),
+        input -> {
+          JavaVersion version = JavaVersionResolver.resolveFromJavaExecutable(input);
+          return version == null ? null : new Pair<>(input.equals("java") ? null : input, version);
+        },
+        Collections.emptyList()
+      )
+    ));
+
     animation.addEntry(
       new QuestionListEntry<>(
         "serviceVersion",
         LanguageManager.getMessage("command-tasks-setup-question-application"),
         new QuestionAnswerTypeServiceVersion(
           () -> (ServiceEnvironmentType) animation.getResult("environment"),
-          CloudNet.getInstance().getServiceVersionProvider()
+          CloudNet.getInstance().getServiceVersionProvider(),
+          () -> {
+            //noinspection unchecked
+            Pair<String, JavaVersion> pair = (Pair<String, JavaVersion>) animation.getResult("javaCommand");
+            return pair.getSecond();
+          }
         )
       )
     );
@@ -636,6 +658,7 @@ public class CommandTasks extends CommandServiceConfigurationBase {
       int startPort = (int) animation.getResult("startPort");
       int minServiceCount = (int) animation.getResult("minServiceCount");
       ServiceEnvironmentType environmentType = (ServiceEnvironmentType) animation.getResult("environment");
+      String javaCommand = ((Pair<String, ?>) animation.getResult("javaCommand")).getFirst();
       Collection<String> associatedNodes =
         animation.hasResult("nodes") ? (Collection<String>) animation.getResult("nodes") :
           new ArrayList<>(Collections.singletonList(CloudNet.getInstance().getConfig().getIdentity().getUniqueId()));
@@ -648,11 +671,12 @@ public class CommandTasks extends CommandServiceConfigurationBase {
       try {
         TemplateStorageUtil.createAndPrepareTemplate(template, environmentType);
       } catch (IOException exception) {
-        exception.printStackTrace();
+        LOGGER.severe("Exception while creating templates", exception);
       }
 
       if (serviceVersion != null) {
         CloudNet.getInstance().getServiceVersionProvider().installServiceVersion(
+          javaCommand,
           serviceVersion.getFirst(),
           serviceVersion.getSecond(),
           template
@@ -664,6 +688,7 @@ public class CommandTasks extends CommandServiceConfigurationBase {
         .name(name)
         .maintenance(maintenance)
         .autoDeleteOnStop(autoDeleteOnStop)
+        .javaCommand(javaCommand)
         .staticServices(staticServices)
         .associatedNodes(associatedNodes)
         .groups(Collections.singletonList(name))
@@ -691,5 +716,4 @@ public class CommandTasks extends CommandServiceConfigurationBase {
       consumer.accept((ServiceTask) configuration);
     }
   }
-
 }

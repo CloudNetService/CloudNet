@@ -17,12 +17,16 @@
 package de.dytanic.cloudnet.network;
 
 import de.dytanic.cloudnet.cluster.IClusterNodeServer;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.event.events.network.ChannelType;
 import de.dytanic.cloudnet.driver.event.events.network.NetworkChannelInitEvent;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 
 final class NetworkChannelHandlerUtils {
+
+  private static final Logger LOGGER = LogManager.getLogger(NetworkChannelHandlerUtils.class);
 
   private NetworkChannelHandlerUtils() {
     throw new UnsupportedOperationException();
@@ -36,7 +40,7 @@ final class NetworkChannelHandlerUtils {
       try {
         channel.close();
       } catch (Exception exception) {
-        exception.printStackTrace();
+        LOGGER.severe("Exception while closing channel", exception);
       }
       return false;
     }
@@ -48,7 +52,7 @@ final class NetworkChannelHandlerUtils {
     try {
       clusterNodeServer.close();
     } catch (Exception exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while closing service", exception);
     }
   }
 }

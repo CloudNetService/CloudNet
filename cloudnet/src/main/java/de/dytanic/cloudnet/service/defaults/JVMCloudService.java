@@ -19,7 +19,6 @@ package de.dytanic.cloudnet.service.defaults;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.language.LanguageManager;
-import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironment;
@@ -67,7 +66,7 @@ final class JVMCloudService extends DefaultMinecraftCloudService implements IClo
         outputStream.write((commandLine + "\n").getBytes(StandardCharsets.UTF_8));
         outputStream.flush();
       } catch (Exception exception) {
-        exception.printStackTrace();
+        LOGGER.severe("Exception while running the command", exception);
       }
     }
   }
@@ -158,11 +157,10 @@ final class JVMCloudService extends DefaultMinecraftCloudService implements IClo
     String applicationMainClass = type.getMainClass(applicationFile);
 
     if (applicationMainClass == null) {
-      CloudNetDriver.getInstance().getLogger()
-        .error(LanguageManager.getMessage("cloud-service-jar-file-not-found-error")
-          .replace("%task%", this.getServiceId().getTaskName())
-          .replace("%serviceId%", String.valueOf(this.getServiceId().getTaskServiceId()))
-          .replace("%id%", this.getServiceId().getUniqueId().toString()));
+      LOGGER.severe(LanguageManager.getMessage("cloud-service-jar-file-not-found-error")
+        .replace("%task%", this.getServiceId().getTaskName())
+        .replace("%serviceId%", String.valueOf(this.getServiceId().getTaskServiceId()))
+        .replace("%id%", this.getServiceId().getUniqueId().toString()));
 
       ServiceTask serviceTask = CloudNet.getInstance().getServiceTaskProvider()
         .getServiceTask(this.getServiceId().getTaskName());
@@ -210,7 +208,7 @@ final class JVMCloudService extends DefaultMinecraftCloudService implements IClo
         try {
           this.getNetworkChannel().close();
         } catch (Exception exception) {
-          exception.printStackTrace();
+          LOGGER.severe("Exception while closing the network channel", exception);
         }
       }
 
@@ -237,7 +235,7 @@ final class JVMCloudService extends DefaultMinecraftCloudService implements IClo
             return this.process.exitValue();
           }
         } catch (Exception exception) {
-          exception.printStackTrace();
+          LOGGER.severe("Exception while stopping the process", exception);
         }
       }
 

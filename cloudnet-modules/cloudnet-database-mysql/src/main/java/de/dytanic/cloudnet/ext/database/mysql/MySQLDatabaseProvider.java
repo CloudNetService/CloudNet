@@ -166,7 +166,7 @@ public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
       return preparedStatement.executeUpdate();
 
     } catch (SQLException exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while executing database update", exception);
     }
 
     return -1;
@@ -187,8 +187,8 @@ public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
       try (ResultSet resultSet = preparedStatement.executeQuery()) {
         return callback.call(resultSet);
       }
-    } catch (Throwable e) {
-      e.printStackTrace();
+    } catch (Throwable throwable) {
+      LOGGER.severe("Exception while executing database query", throwable);
     }
 
     return null;

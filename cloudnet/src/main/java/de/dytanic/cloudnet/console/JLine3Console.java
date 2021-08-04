@@ -19,6 +19,8 @@ package de.dytanic.cloudnet.console;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.command.ITabCompleter;
 import de.dytanic.cloudnet.common.concurrent.ITask;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.console.animation.AbstractConsoleAnimation;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -49,6 +51,7 @@ public final class JLine3Console implements IConsole {
 
   private static final String USER = System.getProperty("user.name");
   private static final String VERSION = CloudNet.class.getPackage().getImplementationVersion();
+  private static final Logger LOGGER = LogManager.getLogger(JLine3Console.class);
 
   private final Map<UUID, ConsoleHandler<Consumer<String>>> consoleInputHandler = new ConcurrentHashMap<>();
   private final Map<UUID, ConsoleHandler<ITabCompleter>> tabCompletionHandler = new ConcurrentHashMap<>();
@@ -132,7 +135,7 @@ public final class JLine3Console implements IConsole {
     try {
       this.lineReader.getHistory().purge();
     } catch (IOException exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while purging the console history", exception);
     }
 
     if (history != null) {

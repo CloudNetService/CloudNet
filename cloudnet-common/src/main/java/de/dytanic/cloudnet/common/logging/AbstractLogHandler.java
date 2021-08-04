@@ -16,11 +16,14 @@
 
 package de.dytanic.cloudnet.common.logging;
 
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * This is a basic abstract implementation of the ILogHandler class. It should help, to create a simple
  */
+@Deprecated
+@ScheduledForRemoval
 public abstract class AbstractLogHandler implements ILogHandler {
 
   /**

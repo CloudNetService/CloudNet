@@ -19,6 +19,7 @@ package de.dytanic.cloudnet.ext.rest.v2;
 import com.google.common.io.ByteStreams;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.network.http.HttpResponseCode;
 import de.dytanic.cloudnet.driver.network.http.IHttpContext;
 import de.dytanic.cloudnet.driver.network.http.IHttpResponse;
@@ -37,6 +38,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class V2HttpHandlerTemplate extends V2HttpHandler {
+
 
   public V2HttpHandlerTemplate(String requiredPermission) {
     super(requiredPermission, "GET", "POST", "DELETE");
@@ -363,7 +365,7 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
   }
 
   protected void notifyException(IHttpContext context, Exception exception) {
-    this.getCloudNet().getLogger().debug("Exception handling template request", exception);
+    LOGGER.fine("Exception handling template request", exception);
     this.response(context, HttpResponseCode.HTTP_INTERNAL_ERROR)
       .body(this.failure().append("reason", "Exception processing request").toByteArray())
       .context()

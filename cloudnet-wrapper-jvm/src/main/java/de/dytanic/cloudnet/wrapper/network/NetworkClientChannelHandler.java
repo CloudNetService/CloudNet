@@ -17,6 +17,8 @@
 package de.dytanic.cloudnet.wrapper.network;
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.event.events.network.ChannelType;
 import de.dytanic.cloudnet.driver.event.events.network.NetworkChannelCloseEvent;
@@ -31,6 +33,8 @@ import de.dytanic.cloudnet.wrapper.Wrapper;
 
 public class NetworkClientChannelHandler implements INetworkChannelHandler {
 
+  private static final Logger LOGGER = LogManager.getLogger(NetworkClientChannelHandler.class);
+
   @Override
   public void handleChannelInitialize(INetworkChannel channel) {
     NetworkChannelInitEvent networkChannelInitEvent = new NetworkChannelInitEvent(channel, ChannelType.SERVER_CHANNEL);
@@ -40,7 +44,7 @@ public class NetworkClientChannelHandler implements INetworkChannelHandler {
       try {
         channel.close();
       } catch (Exception exception) {
-        exception.printStackTrace();
+        LOGGER.severe("Exception while closing channel", exception);
       }
       return;
     }

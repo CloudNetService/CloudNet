@@ -194,7 +194,7 @@ public class ConsoleQuestionListAnimation extends AbstractConsoleAnimation {
     this.setDefaultConsoleValues(answerType);
 
     String possibleAnswers = answerType.getPossibleAnswersAsString();
-    if (possibleAnswers != null) {
+    if (possibleAnswers != null && !possibleAnswers.trim().isEmpty()) {
       for (String line : this.updateCursor("&r" + entry.getQuestion()
         + " &r> &e" + LanguageManager.getMessage("ca-question-list-possible-answers-list")
         .replace("%values%", possibleAnswers))) {
@@ -219,7 +219,7 @@ public class ConsoleQuestionListAnimation extends AbstractConsoleAnimation {
         try {
           task.call();
         } catch (Exception exception) {
-          exception.printStackTrace();
+          LOGGER.severe("Exception while handling tick", exception);
         }
       }
     });
@@ -227,7 +227,7 @@ public class ConsoleQuestionListAnimation extends AbstractConsoleAnimation {
     try {
       task.get();
     } catch (Exception exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while handling tick", exception);
     }
 
     return false;
@@ -277,7 +277,7 @@ public class ConsoleQuestionListAnimation extends AbstractConsoleAnimation {
         .writeRaw(this.eraseLines(Ansi.ansi().reset(), lines.length).toString()); //erase invalid input message
       super.getConsole().setCommandHistory(answerType.getCompletableAnswers());
     } catch (InterruptedException exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while validating input", exception);
     }
 
     return false;
@@ -310,7 +310,7 @@ public class ConsoleQuestionListAnimation extends AbstractConsoleAnimation {
     try {
       Thread.sleep(1000);
     } catch (InterruptedException exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while resetting console", exception);
     }
 
     super.getConsole().clearScreen();

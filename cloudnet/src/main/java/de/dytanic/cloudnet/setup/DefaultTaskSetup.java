@@ -17,8 +17,12 @@
 package de.dytanic.cloudnet.setup;
 
 import de.dytanic.cloudnet.CloudNet;
+import de.dytanic.cloudnet.command.sub.SubCommandArgumentTypes;
+import de.dytanic.cloudnet.common.JavaVersion;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.language.LanguageManager;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.console.animation.questionlist.ConsoleQuestionListAnimation;
 import de.dytanic.cloudnet.console.animation.questionlist.QuestionListEntry;
 import de.dytanic.cloudnet.console.animation.questionlist.answer.QuestionAnswerTypeBoolean;
@@ -34,12 +38,14 @@ import de.dytanic.cloudnet.service.EmptyGroupConfiguration;
 import de.dytanic.cloudnet.template.TemplateStorageUtil;
 import de.dytanic.cloudnet.template.install.ServiceVersion;
 import de.dytanic.cloudnet.template.install.ServiceVersionType;
+import de.dytanic.cloudnet.util.JavaVersionResolver;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 
 public class DefaultTaskSetup implements DefaultSetup {
 
+  private static final Logger LOGGER = LogManager.getLogger(DefaultTaskSetup.class);
   private static final String GLOBAL_TEMPLATE_PREFIX = "Global";
   private static final String GLOBAL_PROXY_GROUP_NAME = "Global-Proxy";
   private static final String GLOBAL_SERVER_GROUP_NAME = "Global-Server";
@@ -49,6 +55,7 @@ public class DefaultTaskSetup implements DefaultSetup {
   private boolean shouldExecute = false;
 
   @Override
+  @SuppressWarnings("unchecked")
   public void postExecute(ConsoleQuestionListAnimation animation) {
     if (!this.shouldExecute) {
       return;
@@ -65,24 +72,28 @@ public class DefaultTaskSetup implements DefaultSetup {
     Pair<ServiceVersionType, ServiceVersion> serverVersion = (Pair<ServiceVersionType, ServiceVersion>) animation
       .getResult("serverVersion");
 
+    String lobbyJavaCommand = ((Pair<String, ?>) animation.getResult("javaCommand")).getFirst();
+
     GroupConfiguration globalServerGroup = new EmptyGroupConfiguration(GLOBAL_SERVER_GROUP_NAME);
     GroupConfiguration globalProxyGroup = new EmptyGroupConfiguration(GLOBAL_PROXY_GROUP_NAME);
     globalProxyGroup.getTargetEnvironments().add(proxyEnvironment);
     globalServerGroup.getTargetEnvironments().add(serverEnvironment);
 
     if (installProxy) {
-      this.createDefaultTask(proxyEnvironment, PROXY_TASK_NAME, 256);
+      this.createDefaultTask(proxyEnvironment, PROXY_TASK_NAME, null, 256);
     }
 
     if (installServer) {
-      this.createDefaultTask(serverEnvironment, LOBBY_TASK_NAME, 512);
+      this.createDefaultTask(serverEnvironment, LOBBY_TASK_NAME, lobbyJavaCommand, 512);
     }
 
     if (proxyVersion != null) {
-      this.installGlobalTemplate(globalProxyGroup, "proxy", proxyVersion.getFirst(), proxyVersion.getSecond());
+      this.installGlobalTemplate(null, globalProxyGroup, "proxy", proxyVersion.getFirst(), proxyVersion.getSecond());
     }
+
     if (serverVersion != null) {
-      this.installGlobalTemplate(globalServerGroup, "server", serverVersion.getFirst(), serverVersion.getSecond());
+      this.installGlobalTemplate(lobbyJavaCommand, globalServerGroup, "server", serverVersion.getFirst(),
+        serverVersion.getSecond());
     }
 
     CloudNet.getInstance().getGroupConfigurationProvider().addGroupConfiguration(globalServerGroup);
@@ -97,26 +108,31 @@ public class DefaultTaskSetup implements DefaultSetup {
     return !taskProvider.isFileCreated() && !groupProvider.isFileCreated();
   }
 
-  private void installGlobalTemplate(GroupConfiguration globalGroup, String name, ServiceVersionType versionType,
-    ServiceVersion version) {
+  private void installGlobalTemplate(
+    String javaCommand, GroupConfiguration group, String name,
+    ServiceVersionType type, ServiceVersion version
+  ) {
     ServiceTemplate globalTemplate = ServiceTemplate.local(GLOBAL_TEMPLATE_PREFIX, name);
-    globalGroup.getTemplates().add(globalTemplate);
+    group.getTemplates().add(globalTemplate);
 
     try {
       TemplateStorageUtil
-        .createAndPrepareTemplate(globalTemplate, versionType.getTargetEnvironment().getEnvironmentType());
+        .createAndPrepareTemplate(globalTemplate, type.getTargetEnvironment().getEnvironmentType());
     } catch (IOException exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while creating templates", exception);
     }
 
-    CloudNet.getInstance().getServiceVersionProvider().installServiceVersion(versionType, version, globalTemplate);
+    CloudNet.getInstance().getServiceVersionProvider()
+      .installServiceVersion(javaCommand, type, version, globalTemplate);
   }
 
-  private void createDefaultTask(ServiceEnvironmentType environment, String taskName, int maxHeapMemorySize) {
+  private void createDefaultTask(ServiceEnvironmentType environment, String taskName, String javaCommand,
+    int maxHeapMemorySize) {
     ServiceTask serviceTask = ServiceTask.builder()
       .templates(Collections.singletonList(new ServiceTemplate(taskName, "default", "local")))
       .name(taskName)
       .autoDeleteOnStop(true)
+      .javaCommand(javaCommand)
       .groups(Collections.singletonList(taskName))
       .serviceEnvironmentType(environment)
       .maxHeapMemory(maxHeapMemorySize)
@@ -128,7 +144,7 @@ public class DefaultTaskSetup implements DefaultSetup {
       try {
         TemplateStorageUtil.createAndPrepareTemplate(template, environment);
       } catch (IOException exception) {
-        exception.printStackTrace();
+        LOGGER.severe("Exception while creating templates", exception);
       }
     }
     CloudNet.getInstance().getServiceTaskProvider().addPermanentServiceTask(serviceTask);
@@ -166,11 +182,33 @@ public class DefaultTaskSetup implements DefaultSetup {
         }
       }
     ));
+
+    animation.addEntry(new QuestionListEntry<>(
+      "javaCommand",
+      LanguageManager.getMessage("cloudnet-init-setup-tasks-server-javacommand"),
+      SubCommandArgumentTypes.functional(
+        "java",
+        LanguageManager.getMessage("cloudnet-init-setup-tasks-server-javacommand-invalid"),
+        input -> {
+          JavaVersion version = JavaVersionResolver.resolveFromJavaExecutable(input);
+          return version == null ? null : new Pair<>(input.equals("java") ? null : input, version);
+        },
+        Collections.emptyList()
+      )
+    ));
+
     animation.addEntry(new QuestionListEntry<>(
       "serverVersion",
       LanguageManager.getMessage("cloudnet-init-setup-tasks-server-version"),
-      new QuestionAnswerTypeServiceVersion(() -> (ServiceEnvironmentType) animation.getResult("serverEnvironment"),
-        CloudNet.getInstance().getServiceVersionProvider())
+      new QuestionAnswerTypeServiceVersion(
+        () -> (ServiceEnvironmentType) animation.getResult("serverEnvironment"),
+        CloudNet.getInstance().getServiceVersionProvider(),
+        () -> {
+          //noinspection unchecked
+          Pair<String, JavaVersion> pair = (Pair<String, JavaVersion>) animation.getResult("javaCommand");
+          return pair.getSecond();
+        }
+      )
     ));
 
     animation.addEntry(new QuestionListEntry<>(

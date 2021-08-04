@@ -17,7 +17,8 @@
 package de.dytanic.cloudnet.ext.cloudflare.listener;
 
 import de.dytanic.cloudnet.common.language.LanguageManager;
-import de.dytanic.cloudnet.driver.CloudNetDriver;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.event.service.CloudServicePostStartEvent;
 import de.dytanic.cloudnet.event.service.CloudServicePostStopEvent;
@@ -32,6 +33,8 @@ import java.util.Arrays;
 import java.util.function.BiConsumer;
 
 public final class CloudflareStartAndStopListener {
+
+  private static final Logger LOGGER = LogManager.getLogger(CloudflareStartAndStopListener.class);
 
   private final CloudFlareAPI cloudFlareAPI;
 
@@ -49,7 +52,7 @@ public final class CloudflareStartAndStopListener {
       );
 
       if (recordDetail != null) {
-        CloudNetDriver.getInstance().getLogger()
+        LOGGER
           .info(LanguageManager.getMessage("module-cloudflare-create-dns-record-for-service")
             .replace("%service%", event.getCloudService().getServiceId().getName())
             .replace("%domain%", entry.getDomainName())
@@ -63,7 +66,7 @@ public final class CloudflareStartAndStopListener {
   public void handle(CloudServicePostStopEvent event) {
     this.handle0(event.getCloudService(), (entry, configuration) -> {
       for (DnsRecordDetail detail : this.cloudFlareAPI.deleteAllRecords(event.getCloudService())) {
-        CloudNetDriver.getInstance().getLogger()
+        LOGGER
           .info(LanguageManager.getMessage("module-cloudflare-delete-dns-record-for-service")
             .replace("%service%", event.getCloudService().getServiceId().getName())
             .replace("%domain%", entry.getDomainName())

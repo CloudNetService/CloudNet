@@ -27,6 +27,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
+import java.util.logging.Level;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -170,7 +171,7 @@ public final class BukkitCloudNetCloudPermissionsPlugin extends JavaPlugin {
       }
     } catch (NoSuchMethodException ignored) {
     } catch (IllegalAccessException | InvocationTargetException exception) {
-      exception.printStackTrace();
+      this.getLogger().log(Level.SEVERE, "Exception while accessing team color", exception);
     }
 
     team.setPrefix(ChatColor.translateAlternateColorCodes('&', prefix));
@@ -188,7 +189,7 @@ public final class BukkitCloudNetCloudPermissionsPlugin extends JavaPlugin {
     try {
       BukkitPermissionInjectionHelper.injectPlayer(player);
     } catch (Throwable exception) {
-      exception.printStackTrace();
+      this.getLogger().log(Level.SEVERE, "Exception while injecting cloud permissible", exception);
     }
   }
 
@@ -210,8 +211,8 @@ public final class BukkitCloudNetCloudPermissionsPlugin extends JavaPlugin {
         enableMethod.invoke(null, this, CloudNetDriver.getInstance().getPermissionManagement());
 
         super.getLogger().info("Enabled Vault support!");
-      } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException exception) {
-        exception.printStackTrace();
+      } catch (ReflectiveOperationException exception) {
+        this.getLogger().log(Level.SEVERE, "Exception while checking for vault support", exception);
       }
     }
   }

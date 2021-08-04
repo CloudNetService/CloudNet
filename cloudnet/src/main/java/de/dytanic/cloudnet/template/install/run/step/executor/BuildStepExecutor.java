@@ -18,6 +18,8 @@ package de.dytanic.cloudnet.template.install.run.step.executor;
 
 import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.CloudNet;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.template.install.ServiceVersion;
 import de.dytanic.cloudnet.template.install.run.InstallInformation;
 import java.io.BufferedReader;
@@ -41,25 +43,29 @@ import org.jetbrains.annotations.NotNull;
 
 public class BuildStepExecutor implements InstallStepExecutor {
 
+  private static final Logger LOGGER = LogManager.getLogger(BuildStepExecutor.class);
   private static final Type STRING_LIST_TYPE = TypeToken.getParameterized(List.class, String.class).getType();
   private static final ExecutorService OUTPUT_READER_EXECUTOR = Executors.newCachedThreadPool();
 
   private final Collection<Process> runningBuildProcesses = new CopyOnWriteArrayList<>();
 
   @Override
-  public @NotNull Set<Path> execute(@NotNull InstallInformation installInformation, @NotNull Path workingDirectory,
-    @NotNull Set<Path> inputPaths) throws IOException {
-    ServiceVersion version = installInformation.getServiceVersion();
+  public @NotNull Set<Path> execute(@NotNull InstallInformation information, @NotNull Path workDir,
+    @NotNull Set<Path> paths) throws IOException {
+    ServiceVersion version = information.getServiceVersion();
 
     Collection<String> jvmOptions = version.getProperties().get("jvmOptions", STRING_LIST_TYPE);
     List<String> parameters = version.getProperties().get("parameters", STRING_LIST_TYPE, new ArrayList<>());
 
-    for (Path path : inputPaths) {
+    for (Path path : paths) {
       List<String> processArguments = new ArrayList<>();
-      processArguments.add(CloudNet.getInstance().getConfig().getJVMCommand());
+
+      processArguments.add(
+        information.getInstallerExecutable().orElse(CloudNet.getInstance().getConfig().getJVMCommand()));
       if (jvmOptions != null) {
         processArguments.addAll(jvmOptions);
       }
+
       processArguments.add("-jar");
       processArguments.add(path.getFileName().toString());
       processArguments.addAll(
@@ -69,7 +75,7 @@ public class BuildStepExecutor implements InstallStepExecutor {
       );
 
       int expectedExitCode = version.getProperties().getInt("exitCode", 0);
-      int exitCode = this.buildProcessAndWait(processArguments, workingDirectory);
+      int exitCode = this.buildProcessAndWait(processArguments, workDir);
 
       if (exitCode != expectedExitCode) {
         throw new IllegalStateException(
@@ -77,7 +83,7 @@ public class BuildStepExecutor implements InstallStepExecutor {
       }
     }
 
-    return Files.walk(workingDirectory).collect(Collectors.toSet());
+    return Files.walk(workDir).collect(Collectors.toSet());
   }
 
   @Override
@@ -104,7 +110,7 @@ public class BuildStepExecutor implements InstallStepExecutor {
 
       return exitCode;
     } catch (IOException | InterruptedException exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while awaiting build process", exception);
     }
     return -1;
   }
@@ -129,7 +135,7 @@ public class BuildStepExecutor implements InstallStepExecutor {
           this.outputStream.println(line);
         }
       } catch (IOException exception) {
-        exception.printStackTrace();
+        LOGGER.severe("Exception while reading output", exception);
       }
     }
 

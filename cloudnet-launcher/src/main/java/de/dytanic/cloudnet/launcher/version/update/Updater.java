@@ -60,7 +60,9 @@ public interface Updater extends VersionInfo {
 
             // avoiding the installation of manual removed modules
             if (!modulesExist || Files.exists(modulePath)) {
+              //CHECKSTYLE.OFF: launcher has no special logger
               System.out.printf("Installing module %s...%n", module.getName());
+              //CHECKSTYLE.ON
 
               if (!this.installFile(module.getFileName(), modulePath)) {
                 successful = false;
@@ -69,7 +71,9 @@ public interface Updater extends VersionInfo {
           }
         }
       } catch (IOException exception) {
+        //CHECKSTYLE.OFF: launcher has no special logger
         exception.printStackTrace();
+        //CHECKSTYLE.ON
         return false;
       }
 

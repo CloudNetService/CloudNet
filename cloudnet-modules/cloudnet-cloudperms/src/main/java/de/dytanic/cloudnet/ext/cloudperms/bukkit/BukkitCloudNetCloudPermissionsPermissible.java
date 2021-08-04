@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
+import java.util.logging.Level;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissibleBase;
 import org.bukkit.permissions.Permission;
@@ -120,7 +121,7 @@ public final class BukkitCloudNetCloudPermissionsPermissible extends Permissible
       return this
         .testParents(inName, perm -> this.permissionsManagement.getPermissionResult(permissionUser, perm.getName()));
     } catch (Exception ex) {
-      ex.printStackTrace();
+      this.player.getServer().getLogger().log(Level.SEVERE, "Exception while checking permissions", ex);
       return false;
     }
   }

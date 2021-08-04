@@ -16,6 +16,8 @@
 
 package de.dytanic.cloudnet.examples;
 
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.module.ModuleLifeCycle;
 import de.dytanic.cloudnet.driver.module.ModuleTask;
@@ -24,10 +26,12 @@ import de.dytanic.cloudnet.driver.module.driver.DriverModule;
 public final class ExampleModule extends
   DriverModule { //Defines the module class for a driver based module. It can be used for a wrapper or node instance
 
+  private static final Logger LOGGER = LogManager.getLogger(ExampleModule.class);
+
   @ModuleTask(event = ModuleLifeCycle.LOADED)
   //Defines a module task method. You can create more as one module task for one event
   public void printLoadMessage() {
-    System.out.println("Module is successfully loaded");
+    LOGGER.info("Module is successfully loaded");
   }
 
   @ModuleTask(event = ModuleLifeCycle.STARTED)

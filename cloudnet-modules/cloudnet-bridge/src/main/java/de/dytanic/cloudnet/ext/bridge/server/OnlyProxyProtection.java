@@ -14,16 +14,20 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.ext.bridge;
+package de.dytanic.cloudnet.ext.bridge.server;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.event.events.service.CloudServiceStartEvent;
 import de.dytanic.cloudnet.driver.event.events.service.CloudServiceStopEvent;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
+import de.dytanic.cloudnet.ext.bridge.BridgeConfiguration;
+import de.dytanic.cloudnet.ext.bridge.BridgeConfigurationProvider;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -31,6 +35,8 @@ import java.util.Arrays;
 import java.util.UUID;
 
 public class OnlyProxyProtection {
+
+  private static final Logger LOGGER = LogManager.getLogger(OnlyProxyProtection.class);
 
   public final Multimap<UUID, String> proxyIpAddress = ArrayListMultimap.create();
 
@@ -81,7 +87,7 @@ public class OnlyProxyProtection {
         InetAddress proxyConnectAddress = InetAddress.getByName(proxySnapshot.getConnectAddress().getHost());
 
         if (proxyAddress.isAnyLocalAddress() && proxyConnectAddress.isAnyLocalAddress()) {
-          CloudNetDriver.getInstance().getLogger().warning(
+          LOGGER.warning(
             String.format(
               "[OnlyProxyJoin] Proxy %s is bound on a wildcard address and connects users to a wildcard address! " +
                 "This might cause issues with OnlyProxyJoin, please set either the 'hostAddress'- or 'connectHostAddress'-property "
@@ -95,7 +101,7 @@ public class OnlyProxyProtection {
         this.proxyIpAddress.putAll(proxySnapshot.getServiceId().getUniqueId(),
           Arrays.asList(proxyAddress.getHostAddress(), proxyConnectAddress.getHostAddress()));
       } catch (UnknownHostException exception) {
-        exception.printStackTrace();
+        LOGGER.severe("Exception while resolving host", exception);
       }
     }
   }

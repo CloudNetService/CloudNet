@@ -19,7 +19,8 @@ package de.dytanic.cloudnet.network.listener.auth;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.cluster.IClusterNodeServer;
 import de.dytanic.cloudnet.common.language.LanguageManager;
-import de.dytanic.cloudnet.common.logging.LogLevel;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
@@ -30,6 +31,8 @@ import de.dytanic.cloudnet.event.cluster.NetworkChannelAuthClusterNodeSuccessEve
 import de.dytanic.cloudnet.network.ClusterUtils;
 
 public final class PacketServerAuthorizationResponseListener implements IPacketListener {
+
+  private static final Logger LOGGER = LogManager.getLogger(PacketServerAuthorizationResponseListener.class);
 
   @Override
   public void handle(INetworkChannel channel, IPacket packet) {
@@ -52,7 +55,7 @@ public final class PacketServerAuthorizationResponseListener implements IPacketL
                 CloudNetDriver.getInstance().getEventManager()
                   .callEvent(new NetworkChannelAuthClusterNodeSuccessEvent(nodeServer, channel));
 
-                CloudNet.getInstance().getLogger().info(
+                LOGGER.info(
                   LanguageManager.getMessage("cluster-server-networking-connected")
                     .replace("%id%", node.getUniqueId())
                     .replace("%serverAddress%",
@@ -66,8 +69,7 @@ public final class PacketServerAuthorizationResponseListener implements IPacketL
           }
         }
       } else {
-        CloudNet.getInstance().getLogger()
-          .log(LogLevel.WARNING, LanguageManager.getMessage("cluster-server-networking-authorization-failed"));
+        LOGGER.warning(LanguageManager.getMessage("cluster-server-networking-authorization-failed"));
       }
     }
   }

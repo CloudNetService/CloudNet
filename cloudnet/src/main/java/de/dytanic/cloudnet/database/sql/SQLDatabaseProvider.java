@@ -18,6 +18,8 @@ package de.dytanic.cloudnet.database.sql;
 
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.concurrent.IThrowableCallback;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.database.AbstractDatabaseProvider;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -30,6 +32,7 @@ import java.util.concurrent.Executors;
 
 public abstract class SQLDatabaseProvider extends AbstractDatabaseProvider {
 
+  protected static final Logger LOGGER = LogManager.getLogger(SQLDatabaseProvider.class);
   protected final ExecutorService executorService;
   protected final Map<String, SQLDatabase> cachedDatabaseInstances;
 

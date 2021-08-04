@@ -67,7 +67,9 @@ public class JenkinsUpdater implements Updater {
 
       return true;
     } catch (Exception exception) {
+      //CHECKSTYLE.OFF: launcher has no special logger
       exception.printStackTrace();
+      //CHECKSTYLE.ON
     }
 
     return false;
@@ -105,7 +107,9 @@ public class JenkinsUpdater implements Updater {
       return true;
 
     } catch (Exception exception) {
+      //CHECKSTYLE.OFF: launcher has no special logger
       exception.printStackTrace();
+      //CHECKSTYLE.ON
     }
 
     return false;

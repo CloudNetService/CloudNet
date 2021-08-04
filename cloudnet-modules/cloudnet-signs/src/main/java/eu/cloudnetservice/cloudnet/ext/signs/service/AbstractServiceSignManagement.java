@@ -18,6 +18,8 @@ package eu.cloudnetservice.cloudnet.ext.signs.service;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.MapMaker;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
@@ -56,6 +58,8 @@ public abstract class AbstractServiceSignManagement<T> extends ServiceSignManage
   public static final String SIGN_DELETE = "signs_sign_delete";
   public static final String SIGN_ALL_DELETE = "signs_sign_delete_all";
   public static final String SIGN_BULK_DELETE = "signs_sign_bulk_delete";
+
+  private static final Logger LOGGER = LogManager.getLogger(AbstractServiceSignManagement.class);
 
   protected static final int TPS = 20;
 
@@ -177,8 +181,7 @@ public abstract class AbstractServiceSignManagement<T> extends ServiceSignManage
         try {
           this.tick(signsNeedingTicking);
         } catch (Throwable throwable) {
-          System.err.println("Exception ticking signs");
-          throwable.printStackTrace();
+          LOGGER.severe("Exception ticking signs");
         }
       }, 0, 1000 / TPS, TimeUnit.MILLISECONDS);
       this.startKnockbackTask();

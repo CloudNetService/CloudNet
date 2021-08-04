@@ -17,6 +17,8 @@
 package eu.cloudnetservice.cloudnet.ext.signs.node;
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.database.Database;
 import de.dytanic.cloudnet.driver.module.ModuleLifeCycle;
 import de.dytanic.cloudnet.driver.module.ModuleTask;
@@ -36,6 +38,8 @@ import java.util.Collection;
 public class CloudNetSignsModule extends NodeCloudNetModule {
 
   protected static final String DATABASE_NAME = "cloudnet_signs";
+
+  private static final Logger LOGGER = LogManager.getLogger(CloudNetSignsModule.class);
 
   protected Database database;
   protected Path configurationPath;
@@ -82,7 +86,7 @@ public class CloudNetSignsModule extends NodeCloudNetModule {
     // when the document is null the conversation already happened
     if (document != null) {
       // notify the user about the change
-      this.getCloudNet().getLogger().warning("Detected old signs database, running conversation...");
+      LOGGER.warning("Detected old signs database, running conversation...");
       // remove the old document from the database
       database.delete("signs_store");
       // check if the old sign document even contains the signs

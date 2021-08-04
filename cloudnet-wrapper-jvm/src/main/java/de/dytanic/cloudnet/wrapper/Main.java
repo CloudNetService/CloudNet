@@ -17,16 +17,14 @@
 package de.dytanic.cloudnet.wrapper;
 
 import de.dytanic.cloudnet.common.language.LanguageManager;
-import de.dytanic.cloudnet.common.logging.AbstractLogHandler;
-import de.dytanic.cloudnet.common.logging.DefaultAsyncLogger;
-import de.dytanic.cloudnet.common.logging.DefaultFileLogHandler;
-import de.dytanic.cloudnet.common.logging.ILogger;
-import de.dytanic.cloudnet.common.logging.LogLevel;
-import de.dytanic.cloudnet.common.logging.LogOutputStream;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
+import de.dytanic.cloudnet.common.log.LoggingUtils;
+import de.dytanic.cloudnet.common.log.defaults.DefaultFileHandler;
+import de.dytanic.cloudnet.common.log.defaults.DefaultLogFormatter;
+import de.dytanic.cloudnet.common.log.defaults.ThreadedLogRecordDispatcher;
 import de.dytanic.cloudnet.wrapper.log.InternalPrintStreamLogHandler;
-import de.dytanic.cloudnet.wrapper.log.WrapperLogFormatter;
-import java.io.PrintStream;
-import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -48,23 +46,22 @@ public final class Main {
     LanguageManager
       .addLanguageFile("chinese", Main.class.getClassLoader().getResourceAsStream("lang/chinese.properties"));
 
-    ILogger logger = new DefaultAsyncLogger();
+    Logger logger = LogManager.getRootLogger();
     initLogger(logger);
 
-    logger.setLevel(LogLevel.FATAL);
-
-    Wrapper wrapper = new Wrapper(new ArrayList<>(Arrays.asList(args)), logger);
+    Wrapper wrapper = new Wrapper(new ArrayList<>(Arrays.asList(args)));
     wrapper.start();
   }
 
-  private static void initLogger(ILogger logger) throws Throwable {
-    for (AbstractLogHandler logHandler : new AbstractLogHandler[]{
-      new DefaultFileLogHandler(Paths.get(".wrapper", "logs"), "wrapper.%d.log", DefaultFileLogHandler.SIZE_8MB),
-      new InternalPrintStreamLogHandler(System.out, System.err)}) {
-      logger.addLogHandler(logHandler.setFormatter(new WrapperLogFormatter()));
-    }
+  private static void initLogger(Logger logger) {
+    LoggingUtils.removeHandlers(logger);
+    Path logFilePattern = Paths.get(".wrapper", "logs", "wrapper.%g.log");
 
-    System.setOut(new PrintStream(new LogOutputStream(logger, LogLevel.INFO), true, StandardCharsets.UTF_8.name()));
-    System.setErr(new PrintStream(new LogOutputStream(logger, LogLevel.ERROR), true, StandardCharsets.UTF_8.name()));
+    logger.setLevel(LoggingUtils.getDefaultLogLevel());
+    logger.setLogRecordDispatcher(ThreadedLogRecordDispatcher.forLogger(logger));
+
+    logger.addHandler(DefaultFileHandler.newInstance(logFilePattern, false)
+      .withFormatter(DefaultLogFormatter.END_LINE_SEPARATOR));
+    logger.addHandler(InternalPrintStreamLogHandler.forSystemStreams().withFormatter(DefaultLogFormatter.END_CLEAN));
   }
 }

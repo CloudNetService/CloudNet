@@ -18,7 +18,10 @@ package de.dytanic.cloudnet.common.logging;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 
+@Deprecated
+@ScheduledForRemoval
 public class LogEntryDispatcher extends Thread {
 
   private final ILogger parentLogger;
@@ -57,7 +60,9 @@ public class LogEntryDispatcher extends Thread {
       try {
         logHandler.handle(entry);
       } catch (Exception exception) {
+        //CHECKSTYLE.OFF: deprecated class - no need for special logging as not needed internally anymore
         exception.printStackTrace();
+        //CHECKSTYLE.ON
       }
     }
   }

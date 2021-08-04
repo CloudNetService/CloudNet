@@ -81,10 +81,10 @@ public abstract class ClusterSynchronizedTemplateStorage extends DefaultSyncTemp
     @Nullable Predicate<Path> fileFilter) {
     if (this.deployWithoutSynchronization(directory, target, fileFilter)) {
       if (this.requiresSynchronization()) {
-        try (InputStream inputStream = FileUtils.zipToStream(directory, fileFilter != null ? fileFilter::test : null)) {
+        try (InputStream inputStream = FileUtils.zipToStream(directory, fileFilter)) {
           this.sendChunks(DriverAPIRequestType.DEPLOY_TEMPLATE_STREAM, inputStream, target, JsonDocument.newDocument());
         } catch (IOException exception) {
-          exception.printStackTrace();
+          LOGGER.severe("Exception while deploying templates", exception);
         }
       }
 
@@ -120,7 +120,7 @@ public abstract class ClusterSynchronizedTemplateStorage extends DefaultSyncTemp
         Files.delete(tempFile);
       }
     } catch (IOException exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while deploying templates", exception);
     }
 
     return false;

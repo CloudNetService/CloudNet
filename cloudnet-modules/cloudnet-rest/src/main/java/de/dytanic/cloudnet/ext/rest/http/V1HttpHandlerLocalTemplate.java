@@ -61,7 +61,7 @@ public final class V1HttpHandlerLocalTemplate extends V1HttpHandler {
             return;
           }
         } catch (IOException exception) {
-          exception.printStackTrace();
+          LOGGER.severe("Exception while reading inputstream", exception);
         }
       }
 

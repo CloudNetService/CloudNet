@@ -19,6 +19,8 @@ package de.dytanic.cloudnet.network;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.cluster.IClusterNodeServer;
 import de.dytanic.cloudnet.common.language.LanguageManager;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.event.events.network.ChannelType;
 import de.dytanic.cloudnet.driver.event.events.network.NetworkChannelCloseEvent;
@@ -32,6 +34,8 @@ import de.dytanic.cloudnet.service.ICloudService;
 
 public final class NetworkServerChannelHandlerImpl implements INetworkChannelHandler {
 
+  private static final Logger LOGGER = LogManager.getLogger(NetworkServerChannelHandlerImpl.class);
+
   @Override
   public void handleChannelInitialize(INetworkChannel channel) {
     //Whitelist check
@@ -39,7 +43,7 @@ public final class NetworkServerChannelHandlerImpl implements INetworkChannelHan
       try {
         channel.close();
       } catch (Exception exception) {
-        exception.printStackTrace();
+        LOGGER.severe("Exception while closing channel", exception);
       }
       return;
     }
@@ -48,11 +52,10 @@ public final class NetworkServerChannelHandlerImpl implements INetworkChannelHan
       return;
     }
 
-    CloudNetDriver.optionalInstance().ifPresent(
-      cloudNetDriver -> cloudNetDriver.getLogger().extended(LanguageManager.getMessage("server-network-channel-init")
-        .replace("%serverAddress%", channel.getServerAddress().getHost() + ":" + channel.getServerAddress().getPort())
-        .replace("%clientAddress%", channel.getClientAddress().getHost() + ":" + channel.getClientAddress().getPort())
-      ));
+    LOGGER.fine(LanguageManager.getMessage("server-network-channel-init")
+      .replace("%serverAddress%", channel.getServerAddress().getHost() + ":" + channel.getServerAddress().getPort())
+      .replace("%clientAddress%", channel.getClientAddress().getHost() + ":" + channel.getClientAddress().getPort())
+    );
   }
 
   @Override
@@ -70,11 +73,10 @@ public final class NetworkServerChannelHandlerImpl implements INetworkChannelHan
     CloudNetDriver.getInstance().getEventManager()
       .callEvent(new NetworkChannelCloseEvent(channel, ChannelType.SERVER_CHANNEL));
 
-    CloudNetDriver.optionalInstance().ifPresent(
-      cloudNetDriver -> cloudNetDriver.getLogger().extended(LanguageManager.getMessage("server-network-channel-close")
-        .replace("%serverAddress%", channel.getServerAddress().getHost() + ":" + channel.getServerAddress().getPort())
-        .replace("%clientAddress%", channel.getClientAddress().getHost() + ":" + channel.getClientAddress().getPort())
-      ));
+    LOGGER.fine(LanguageManager.getMessage("server-network-channel-close")
+      .replace("%serverAddress%", channel.getServerAddress().getHost() + ":" + channel.getServerAddress().getPort())
+      .replace("%clientAddress%", channel.getClientAddress().getHost() + ":" + channel.getClientAddress().getPort())
+    );
 
     ICloudService cloudService = CloudNet.getInstance().getCloudServiceManager().getCloudService(service ->
       service.getNetworkChannel() != null && service.getNetworkChannel().equals(channel));
@@ -93,7 +95,7 @@ public final class NetworkServerChannelHandlerImpl implements INetworkChannelHan
 
   private void closeAsCloudService(ICloudService cloudService, INetworkChannel channel) {
     cloudService.setNetworkChannel(null);
-    System.out.println(LanguageManager.getMessage("cloud-service-networking-disconnected")
+    LOGGER.info(LanguageManager.getMessage("cloud-service-networking-disconnected")
       .replace("%id%", cloudService.getServiceId().getUniqueId().toString())
       .replace("%task%", cloudService.getServiceId().getTaskName())
       .replace("%serviceId%", String.valueOf(cloudService.getServiceId().getTaskServiceId()))

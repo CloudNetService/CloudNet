@@ -18,7 +18,6 @@ package de.dytanic.cloudnet;
 
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.concurrent.ITask;
-import de.dytanic.cloudnet.common.logging.LogLevel;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.database.DatabaseProvider;
 import de.dytanic.cloudnet.driver.network.INetworkClient;
@@ -27,6 +26,7 @@ import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.driver.template.TemplateStorage;
 import java.util.Collection;
 import java.util.UUID;
+import java.util.logging.Level;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -103,12 +103,7 @@ public class EmptyCloudNetDriver extends CloudNetDriver {
   }
 
   @Override
-  public void setGlobalLogLevel(@NotNull LogLevel logLevel) {
-
-  }
-
-  @Override
-  public void setGlobalLogLevel(int logLevel) {
+  public void setGlobalLogLevel(Level logLevel) {
 
   }
 

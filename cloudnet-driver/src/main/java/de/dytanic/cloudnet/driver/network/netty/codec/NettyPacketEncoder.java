@@ -16,8 +16,8 @@
 
 package de.dytanic.cloudnet.driver.network.netty.codec;
 
-import de.dytanic.cloudnet.common.logging.LogLevel;
-import de.dytanic.cloudnet.driver.CloudNetDriver;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.network.netty.NettyUtils;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import io.netty.buffer.ByteBuf;
@@ -28,22 +28,20 @@ import org.jetbrains.annotations.ApiStatus;
 @ApiStatus.Internal
 public final class NettyPacketEncoder extends MessageToByteEncoder<IPacket> {
 
+  private static final Logger LOGGER = LogManager.getLogger(NettyPacketEncoder.class);
+
   @Override
   protected void encode(ChannelHandlerContext ctx, IPacket packet, ByteBuf byteBuf) {
     if (packet.isShowDebug()) {
-      CloudNetDriver.optionalInstance().ifPresent(cloudNetDriver -> {
-        if (cloudNetDriver.getLogger().getLevel() >= LogLevel.DEBUG.getLevel()) {
-          cloudNetDriver.getLogger().debug(
-            String.format(
-              "Encoding packet on channel %d with id %s, header=%s;body=%d",
-              packet.getChannel(),
-              packet.getUniqueId(),
-              packet.getHeader().toJson(),
-              packet.getBuffer() != null ? packet.getBuffer().readableBytes() : 0
-            )
-          );
-        }
-      });
+      LOGGER.fine(
+        String.format(
+          "Encoding packet on channel %d with id %s, header=%s;body=%d",
+          packet.getChannel(),
+          packet.getUniqueId(),
+          packet.getHeader().toJson(),
+          packet.getBuffer() != null ? packet.getBuffer().readableBytes() : 0
+        )
+      );
     }
 
     // channel

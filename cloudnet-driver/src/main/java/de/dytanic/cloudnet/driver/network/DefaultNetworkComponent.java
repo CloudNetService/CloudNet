@@ -17,11 +17,15 @@
 package de.dytanic.cloudnet.driver.network;
 
 import com.google.common.base.Preconditions;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import java.util.Collection;
 import org.jetbrains.annotations.NotNull;
 
 public interface DefaultNetworkComponent extends INetworkComponent {
+
+  Logger LOGGER = LogManager.getLogger(DefaultNetworkComponent.class);
 
   Collection<INetworkChannel> getModifiableChannels();
 
@@ -31,7 +35,7 @@ public interface DefaultNetworkComponent extends INetworkComponent {
       try {
         channel.close();
       } catch (Exception exception) {
-        exception.printStackTrace();
+        LOGGER.severe("Exception while closing channels", exception);
       }
     }
 

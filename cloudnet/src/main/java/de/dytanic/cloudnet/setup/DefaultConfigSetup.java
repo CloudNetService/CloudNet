@@ -18,6 +18,8 @@ package de.dytanic.cloudnet.setup;
 
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.language.LanguageManager;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.common.unsafe.CPUUsageResolver;
 import de.dytanic.cloudnet.console.animation.questionlist.ConsoleQuestionListAnimation;
 import de.dytanic.cloudnet.console.animation.questionlist.QuestionListEntry;
@@ -40,6 +42,8 @@ import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
 
 public class DefaultConfigSetup implements DefaultSetup {
+
+  private static final Logger LOGGER = LogManager.getLogger(DefaultConfigSetup.class);
 
   private final List<String> suggestionIPs = new ArrayList<>();
   private final List<String> whitelistDefaultIPs = new ArrayList<>();
@@ -233,7 +237,7 @@ public class DefaultConfigSetup implements DefaultSetup {
     try {
       ipv6 = InetAddress.getByName(host) instanceof Inet6Address;
     } catch (UnknownHostException exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while formatting hosts", exception);
     }
 
     return ipv6 ? String.format("[%s]", host) : host;

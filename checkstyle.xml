@@ -39,7 +39,18 @@
     <module name="SuppressionCommentFilter">
       <property name="offCommentFormat" value="CHECKSTYLE.OFF\: ([\w\|]+)"/>
       <property name="onCommentFormat" value="CHECKSTYLE.ON"/>
-      <property name="checkFormat" value="$1"/>
+    </module>
+    <module name="RegexpSinglelineJava">
+      <property name="format" value="\.printStackTrace\(\)"/>
+      <property name="ignoreComments" value="true"/>
+      <property name="message"
+        value="Using Throwable#printStackTrace() is forbidden. Rethrow, log or handle the exception."/>
+    </module>
+    <module name="RegexpSinglelineJava">
+      <property name="format" value="System\.(out|err)\..+;"/>
+      <property name="ignoreComments" value="true"/>
+      <property name="message"
+        value="Using System.our or System.err is forbidden. Use a proper logger to log messages into the console."/>
     </module>
     <module name="OuterTypeFilename"/>
     <module name="IllegalTokenText">
@@ -121,6 +132,7 @@
       <property name="allowEmptyConstructors" value="true"/>
       <property name="allowEmptyLambdas" value="true"/>
     </module>
+    <module name="NoWhitespaceBeforeCaseDefaultColon"/>
     <module name="OneStatementPerLine"/>
     <module name="MultipleVariableDeclarations"/>
     <module name="ArrayTypeStyle"/>

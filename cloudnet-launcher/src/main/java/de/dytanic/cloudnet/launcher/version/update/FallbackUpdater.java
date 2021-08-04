@@ -56,7 +56,9 @@ public class FallbackUpdater extends InstalledVersionInfo implements Updater {
       return true;
 
     } catch (Exception exception) {
+      //CHECKSTYLE.OFF: launcher has no special logger
       exception.printStackTrace();
+      //CHECKSTYLE.ON
     }
 
     return false;

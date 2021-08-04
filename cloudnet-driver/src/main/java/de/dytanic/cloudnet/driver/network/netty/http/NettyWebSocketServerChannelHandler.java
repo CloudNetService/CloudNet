@@ -16,6 +16,9 @@
 
 package de.dytanic.cloudnet.driver.network.netty.http;
 
+import de.dytanic.cloudnet.common.io.FileUtils;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.network.http.websocket.IWebSocketListener;
 import de.dytanic.cloudnet.driver.network.http.websocket.WebSocketFrameType;
 import io.netty.channel.ChannelHandlerContext;
@@ -32,6 +35,8 @@ import org.jetbrains.annotations.ApiStatus;
 @ApiStatus.Internal
 final class NettyWebSocketServerChannelHandler extends SimpleChannelInboundHandler<WebSocketFrame> {
 
+  private static final Logger LOGGER = LogManager.getLogger(NettyWebSocketServerChannelHandler.class);
+
   private final NettyWebSocketServerChannel webSocketServerChannel;
 
   public NettyWebSocketServerChannelHandler(NettyWebSocketServerChannel webSocketServerChannel) {
@@ -41,7 +46,7 @@ final class NettyWebSocketServerChannelHandler extends SimpleChannelInboundHandl
   @Override
   public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
     if (!(cause instanceof IOException)) {
-      cause.printStackTrace();
+      LOGGER.severe("Exception was caught", cause);
     }
   }
 
@@ -87,7 +92,7 @@ final class NettyWebSocketServerChannelHandler extends SimpleChannelInboundHandl
       try {
         listener.handle(this.webSocketServerChannel, type, bytes);
       } catch (Exception exception) {
-        exception.printStackTrace();
+        LOGGER.severe("Exception while invoking handle", exception);
       }
     }
   }

@@ -17,6 +17,8 @@
 package de.dytanic.cloudnet.driver.module;
 
 import com.google.common.base.Preconditions;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -28,6 +30,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
 public final class DefaultModuleProvider implements IModuleProvider {
+
+  private static final Logger LOGGER = LogManager.getLogger(DefaultModuleProvider.class);
 
   final Collection<DefaultModuleWrapper> moduleWrappers = new CopyOnWriteArrayList<>();
 
@@ -73,7 +77,7 @@ public final class DefaultModuleProvider implements IModuleProvider {
       this.moduleWrappers.add(moduleWrapper = new DefaultModuleWrapper(this, url, this.moduleDirectory));
       moduleWrapper.loadModule();
     } catch (Throwable throwable) {
-      throwable.printStackTrace();
+      LOGGER.severe("Exception while loading module", throwable);
 
       if (moduleWrapper != null) {
         moduleWrapper.unloadModule();
@@ -97,7 +101,7 @@ public final class DefaultModuleProvider implements IModuleProvider {
     try {
       return this.loadModule(path.toUri().toURL());
     } catch (MalformedURLException exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while loading module", exception);
     }
 
     return null;

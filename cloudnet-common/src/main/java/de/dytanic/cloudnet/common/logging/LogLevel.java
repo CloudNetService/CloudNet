@@ -19,6 +19,7 @@ package de.dytanic.cloudnet.common.logging;
 import java.util.Optional;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 
 /**
  * The LogLevel indicates how relevant and essential information is to be output. All LogEntry instances has a LogLevel,
@@ -31,6 +32,8 @@ import lombok.ToString;
  */
 @ToString
 @EqualsAndHashCode
+@Deprecated
+@ScheduledForRemoval
 public class LogLevel implements ILevelable {
 
   /**

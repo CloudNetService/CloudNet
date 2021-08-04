@@ -16,19 +16,20 @@
 
 package de.dytanic.cloudnet.event.log;
 
-import de.dytanic.cloudnet.common.logging.LogEntry;
 import de.dytanic.cloudnet.driver.event.events.DriverEvent;
+import java.util.logging.LogRecord;
+import org.jetbrains.annotations.NotNull;
 
 public final class LoggingEntryEvent extends DriverEvent {
 
-  private final LogEntry logEntry;
+  private final LogRecord record;
 
-  public LoggingEntryEvent(LogEntry logEntry) {
-    this.logEntry = logEntry;
+  public LoggingEntryEvent(LogRecord record) {
+    this.record = record;
   }
 
-  public LogEntry getLogEntry() {
-    return this.logEntry;
+  public @NotNull LogRecord getLogEntry() {
+    return this.record;
   }
 
   @Override

@@ -18,6 +18,8 @@ package de.dytanic.cloudnet.examples.node;
 
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.event.Event;
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.network.http.websocket.IWebSocketChannel;
@@ -29,6 +31,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class ExampleWebSocket {
+
+  private static final Logger LOGGER = LogManager.getLogger(ExampleWebSocket.class);
 
   private final Collection<IWebSocketChannel> channels = new CopyOnWriteArrayList<>();
 
@@ -72,7 +76,7 @@ public class ExampleWebSocket {
             }
 
             ExampleWebSocket.this.channels.remove(channel);
-            System.out.println("I close");
+            LOGGER.info("I close");
           }
         });
 

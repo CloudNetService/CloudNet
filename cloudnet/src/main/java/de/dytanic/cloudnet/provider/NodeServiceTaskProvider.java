@@ -22,12 +22,14 @@ import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.language.LanguageManager;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
+import de.dytanic.cloudnet.driver.network.NetworkUpdateType;
 import de.dytanic.cloudnet.driver.provider.ServiceTaskProvider;
 import de.dytanic.cloudnet.driver.service.ServiceTask;
-import de.dytanic.cloudnet.event.service.task.ServiceTaskAddEvent;
-import de.dytanic.cloudnet.event.service.task.ServiceTaskRemoveEvent;
-import de.dytanic.cloudnet.network.NetworkUpdateType;
+import de.dytanic.cloudnet.event.service.task.LocalServiceTaskAddEvent;
+import de.dytanic.cloudnet.event.service.task.LocalServiceTaskRemoveEvent;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.nio.file.FileVisitOption;
@@ -51,6 +53,7 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
     .get(System.getProperty("cloudnet.config.tasks.directory.path", "local/tasks"));
   private static final Type COLLECTION_SERVICE_TASK_TYPE = TypeToken
     .getParameterized(Collection.class, ServiceTask.class).getType();
+  private static final Logger LOGGER = LogManager.getLogger(NodeServiceTaskProvider.class);
 
   private final CloudNet cloudNet;
   private final Collection<ServiceTask> permanentServiceTasks = new CopyOnWriteArrayList<>();
@@ -76,7 +79,7 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
     Files.walkFileTree(TASKS_DIRECTORY, EnumSet.noneOf(FileVisitOption.class), 1, new SimpleFileVisitor<Path>() {
       @Override
       public FileVisitResult visitFile(Path path, BasicFileAttributes attrs) {
-        System.out.println(LanguageManager.getMessage("cloudnet-load-task")
+        LOGGER.info(LanguageManager.getMessage("cloudnet-load-task")
           .replace("%path%", path.toString()));
 
         ServiceTask task = JsonDocument.newDocument(path).toInstanceOf(ServiceTask.class);
@@ -86,16 +89,16 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
           // check if we can load the task
           if (task.getName() != null) {
             NodeServiceTaskProvider.this.permanentServiceTasks.add(task);
-            System.out.println(LanguageManager.getMessage("cloudnet-load-task-success")
+            LOGGER.info(LanguageManager.getMessage("cloudnet-load-task-success")
               .replace("%path%", path.toString()).replace("%name%", task.getName()));
             // just a notify for the user that cloudnet is not attempting to start new services
             if (task.isMaintenance()) {
-              CloudNet.getInstance().getLogger().warning(LanguageManager.getMessage(
+              LOGGER.warning(LanguageManager.getMessage(
                 "cloudnet-load-task-maintenance-warning").replace("%task%", task.getName()));
             }
           }
         } else {
-          System.err.println(LanguageManager.getMessage("cloudnet-load-task-failed")
+          LOGGER.severe(LanguageManager.getMessage("cloudnet-load-task-failed")
             .replace("%path%", path.toString()));
         }
 
@@ -113,7 +116,7 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
       try {
         Files.delete(OLD_TASK_CONFIG_FILE);
       } catch (IOException exception) {
-        exception.printStackTrace();
+        LOGGER.severe("Exception while deleting file", exception);
       }
     }
   }
@@ -142,7 +145,7 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
     try {
       Files.deleteIfExists(TASKS_DIRECTORY.resolve(name + ".json"));
     } catch (IOException exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while deleting task file", exception);
     }
   }
 
@@ -155,7 +158,7 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
     try {
       this.load();
     } catch (IOException exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while reloading", exception);
     }
   }
 
@@ -178,7 +181,7 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
     try {
       this.save();
     } catch (IOException exception) {
-      exception.printStackTrace();
+      LOGGER.severe("Exception while saving service tasks", exception);
     }
   }
 
@@ -186,8 +189,10 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
   public ServiceTask getServiceTask(@NotNull String name) {
     Preconditions.checkNotNull(name);
 
-    return this.permanentServiceTasks.stream().filter(serviceTask -> serviceTask.getName().equalsIgnoreCase(name))
-      .findFirst().orElse(null);
+    return this.permanentServiceTasks.stream()
+      .filter(serviceTask -> serviceTask.getName().equalsIgnoreCase(name))
+      .findFirst()
+      .orElse(null);
   }
 
   @Override
@@ -209,7 +214,7 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
   }
 
   public boolean addServiceTaskWithoutClusterSync(ServiceTask serviceTask) {
-    ServiceTaskAddEvent event = new ServiceTaskAddEvent(serviceTask);
+    LocalServiceTaskAddEvent event = new LocalServiceTaskAddEvent(serviceTask);
     CloudNetDriver.getInstance().getEventManager().callEvent(event);
 
     if (!event.isCancelled()) {
@@ -218,11 +223,11 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
       }
 
       this.permanentServiceTasks.add(serviceTask);
-
       this.writeTask(serviceTask);
 
       return true;
     }
+
     return false;
   }
 
@@ -239,7 +244,7 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
   public ServiceTask removeServiceTaskWithoutClusterSync(String name) {
     for (ServiceTask serviceTask : this.permanentServiceTasks) {
       if (serviceTask.getName().equalsIgnoreCase(name)) {
-        if (!CloudNetDriver.getInstance().getEventManager().callEvent(new ServiceTaskRemoveEvent(serviceTask))
+        if (!CloudNetDriver.getInstance().getEventManager().callEvent(new LocalServiceTaskRemoveEvent(serviceTask))
           .isCancelled()) {
           this.permanentServiceTasks.remove(serviceTask);
           this.deleteTaskFile(name);

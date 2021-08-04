@@ -16,6 +16,8 @@
 
 package de.dytanic.cloudnet.ext.bridge.gomint;
 
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.ext.bridge.BridgeHelper;
@@ -38,6 +40,8 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 public final class GoMintCloudNetHelper extends BridgeServerHelper {
+
+  private static final Logger LOGGER = LogManager.getLogger(GoMintCloudNetHelper.class);
 
   private GoMintCloudNetHelper() {
     throw new UnsupportedOperationException();
@@ -103,7 +107,7 @@ public final class GoMintCloudNetHelper extends BridgeServerHelper {
               gameRules.put(gameRule.name(), String.valueOf(world.gamerule(gameRule)));
 
             } catch (IllegalAccessException exception) {
-              exception.printStackTrace();
+              LOGGER.severe("Exception while accessing gamerules", exception);
             }
           }
         }
