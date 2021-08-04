@@ -34,7 +34,6 @@ announce-forge = false
 [servers]
 # Configure your servers here. Each key represents the server's name, and the value
 # represents the IP address of the server to connect to.
-#fallback = "127.0.0.1:30066"
 
 # In what order we should try servers when a player logs in or is kicked from aserver.
 try = []
