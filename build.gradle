@@ -51,11 +51,6 @@ allprojects {
     }
 
     maven {
-      name 'nukkix'
-      url 'https://repo.nukkitx.com/maven-snapshots'
-    }
-
-    maven {
       name 'sonatype'
       url 'https://oss.sonatype.org/content/repositories/snapshots'
     }
@@ -70,6 +65,10 @@ allprojects {
       url 'https://jitpack.io'
     }
 
+    maven {
+      name 'nukkix'
+      url 'https://repo.nukkitx.com/maven-snapshots'
+    }
   }
 
   project.ext {
