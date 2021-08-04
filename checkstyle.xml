@@ -132,6 +132,7 @@
       <property name="allowEmptyConstructors" value="true"/>
       <property name="allowEmptyLambdas" value="true"/>
     </module>
+    <module name="NoWhitespaceBeforeCaseDefaultColon"/>
     <module name="OneStatementPerLine"/>
     <module name="MultipleVariableDeclarations"/>
     <module name="ArrayTypeStyle"/>
