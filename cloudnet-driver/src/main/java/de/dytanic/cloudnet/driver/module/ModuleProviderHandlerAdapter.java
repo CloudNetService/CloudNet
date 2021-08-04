@@ -16,6 +16,10 @@
 
 package de.dytanic.cloudnet.driver.module;
 
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
+
+@Deprecated
+@ScheduledForRemoval
 public class ModuleProviderHandlerAdapter implements IModuleProviderHandler {
 
   @Override

@@ -20,7 +20,12 @@ import java.io.File;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.Collection;
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Unmodifiable;
 
+// TODO: add documentation to this
 public interface IModuleProvider {
 
   @Deprecated
@@ -33,40 +38,66 @@ public interface IModuleProvider {
     this.setModuleDirectoryPath(moduleDirectory.toPath());
   }
 
-  Path getModuleDirectoryPath();
+  @NotNull Path getModuleDirectoryPath();
 
-  void setModuleDirectoryPath(Path moduleDirectory);
+  void setModuleDirectoryPath(@NotNull Path moduleDirectory);
 
-  IModuleProviderHandler getModuleProviderHandler();
+  @Nullable IModuleProviderHandler getModuleProviderHandler();
 
-  void setModuleProviderHandler(IModuleProviderHandler moduleProviderHandler);
+  void setModuleProviderHandler(@Nullable IModuleProviderHandler moduleProviderHandler);
 
-  IModuleDependencyLoader getModuleDependencyLoader();
+  @NotNull IModuleDependencyLoader getModuleDependencyLoader();
 
-  void setModuleDependencyLoader(IModuleDependencyLoader moduleDependencyLoader);
+  void setModuleDependencyLoader(@NotNull IModuleDependencyLoader moduleDependencyLoader);
 
-  Collection<IModuleWrapper> getModules();
+  @NotNull
+  @Unmodifiable Collection<IModuleWrapper> getModules();
 
-  Collection<IModuleWrapper> getModules(String group);
+  @NotNull
+  @Unmodifiable Collection<IModuleWrapper> getModules(@NotNull String group);
 
-  IModuleWrapper getModule(String name);
+  @Nullable IModuleWrapper getModule(@NotNull String name);
 
-  IModuleWrapper loadModule(URL url);
+  @Nullable IModuleWrapper loadModule(@NotNull URL url);
 
-  IModuleWrapper loadModule(File file);
+  @Deprecated
+  @ScheduledForRemoval
+  default IModuleWrapper loadModule(@NotNull File file) {
+    return this.loadModule(file.toPath());
+  }
 
-  IModuleWrapper loadModule(Path path);
+  @Nullable IModuleWrapper loadModule(@NotNull Path path);
 
-  IModuleProvider loadModule(URL... urls);
+  @Deprecated
+  @ScheduledForRemoval
+  default IModuleProvider loadModule(URL... urls) {
+    for (URL url : urls) {
+      this.loadModule(url);
+    }
+    return this;
+  }
 
-  IModuleProvider loadModule(File... files);
+  @Deprecated
+  @ScheduledForRemoval
+  default IModuleProvider loadModule(File... files) {
+    for (File file : files) {
+      this.loadModule(file);
+    }
+    return this;
+  }
 
-  IModuleProvider loadModule(Path... paths);
+  @Deprecated
+  @ScheduledForRemoval
+  default IModuleProvider loadModule(Path... paths) {
+    for (Path path : paths) {
+      this.loadModule(path);
+    }
+    return this;
+  }
 
-  IModuleProvider startAll();
+  @NotNull IModuleProvider startAll();
 
-  IModuleProvider stopAll();
+  @NotNull IModuleProvider stopAll();
 
-  IModuleProvider unloadAll();
-
+  @NotNull IModuleProvider unloadAll();
 }

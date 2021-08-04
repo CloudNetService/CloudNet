@@ -19,7 +19,6 @@ package de.dytanic.cloudnet.driver.module;
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
-import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Path;
@@ -28,168 +27,115 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-public final class DefaultModuleProvider implements IModuleProvider {
+public class DefaultModuleProvider implements IModuleProvider {
 
-  private static final Logger LOGGER = LogManager.getLogger(DefaultModuleProvider.class);
+  protected static final Path DEFAULT_MODULE_DIR = Paths.get("modules");
+  protected static final Logger LOGGER = LogManager.getLogger(DefaultModuleProvider.class);
+  protected static final IModuleDependencyLoader DEFAULT_DEPENDENCY_LOADER = new DefaultMemoryModuleDependencyLoader();
 
-  protected final Collection<DefaultModuleWrapper> moduleWrappers = new CopyOnWriteArrayList<>();
+  protected final Collection<DefaultModuleWrapper> modules = new CopyOnWriteArrayList<>();
 
-  protected IModuleProviderHandler moduleProviderHandler = new ModuleProviderHandlerAdapter();
-  protected IModuleDependencyLoader moduleDependencyLoader = new DefaultMemoryModuleDependencyLoader();
+  protected Path moduleDirectory;
+  protected IModuleProviderHandler moduleProviderHandler;
+  protected IModuleDependencyLoader moduleDependencyLoader;
 
-  private Path moduleDirectory = Paths.get("modules");
+  public DefaultModuleProvider() {
+    this(DEFAULT_MODULE_DIR, DEFAULT_DEPENDENCY_LOADER);
+  }
 
-  @Override
-  public Collection<IModuleWrapper> getModules() {
-    return Collections.unmodifiableCollection(this.moduleWrappers);
+  public DefaultModuleProvider(Path moduleDirectory, IModuleDependencyLoader moduleDependencyLoader) {
+    this.moduleDirectory = moduleDirectory;
+    this.moduleDependencyLoader = moduleDependencyLoader;
   }
 
   @Override
-  public Collection<IModuleWrapper> getModules(String group) {
-    Preconditions.checkNotNull(group);
-
-    return this.getModules().stream()
-      .filter(defaultModuleWrapper -> defaultModuleWrapper.getModuleConfiguration().group.equals(group))
-      .collect(Collectors.toList());
-  }
-
-  @Override
-  public IModuleWrapper getModule(String name) {
-    Preconditions.checkNotNull(name);
-
-    return this.moduleWrappers.stream()
-      .filter(defaultModuleWrapper -> defaultModuleWrapper.getModuleConfiguration().getName().equals(name)).findFirst()
-      .orElse(null);
-  }
-
-  @Override
-  public IModuleWrapper loadModule(URL url) {
-    Preconditions.checkNotNull(url);
-
-    DefaultModuleWrapper moduleWrapper = null;
-    if (this.moduleWrappers.stream()
-      .anyMatch(defaultModuleWrapper -> defaultModuleWrapper.getUrl().toString().equalsIgnoreCase(url.toString()))) {
-      return null;
-    }
-
-    try {
-      this.moduleWrappers.add(moduleWrapper = new DefaultModuleWrapper(this, url, this.moduleDirectory));
-      moduleWrapper.loadModule();
-    } catch (Throwable throwable) {
-      LOGGER.severe("Exception while loading module", throwable);
-
-      if (moduleWrapper != null) {
-        moduleWrapper.unloadModule();
-      }
-    }
-
-    return moduleWrapper;
-  }
-
-  @Override
-  public IModuleWrapper loadModule(File file) {
-    Preconditions.checkNotNull(file);
-
-    return this.loadModule(file.toPath());
-  }
-
-  @Override
-  public IModuleWrapper loadModule(Path path) {
-    Preconditions.checkNotNull(path);
-
-    try {
-      return this.loadModule(path.toUri().toURL());
-    } catch (MalformedURLException exception) {
-      LOGGER.severe("Exception while loading module", exception);
-    }
-
-    return null;
-  }
-
-  @Override
-  public IModuleProvider loadModule(URL... urls) {
-    Preconditions.checkNotNull(urls);
-
-    for (URL url : urls) {
-      this.loadModule(url);
-    }
-
-    return this;
-  }
-
-  @Override
-  public IModuleProvider loadModule(File... files) {
-    Preconditions.checkNotNull(files);
-
-    for (File file : files) {
-      this.loadModule(file);
-    }
-
-    return this;
-  }
-
-  @Override
-  public IModuleProvider loadModule(Path... paths) {
-    Preconditions.checkNotNull(paths);
-
-    for (Path path : paths) {
-      this.loadModule(path);
-    }
-
-    return this;
-  }
-
-  @Override
-  public IModuleProvider startAll() {
-    for (DefaultModuleWrapper moduleWrapper : this.moduleWrappers) {
-      moduleWrapper.startModule();
-    }
-
-    return this;
-  }
-
-  @Override
-  public IModuleProvider stopAll() {
-    for (DefaultModuleWrapper moduleWrapper : this.moduleWrappers) {
-      moduleWrapper.stopModule();
-    }
-
-    return this;
-  }
-
-  @Override
-  public IModuleProvider unloadAll() {
-    for (DefaultModuleWrapper moduleWrapper : this.moduleWrappers) {
-      moduleWrapper.unloadModule();
-    }
-
-    return this;
-  }
-
-  @Override
-  public Path getModuleDirectoryPath() {
+  public @NotNull Path getModuleDirectoryPath() {
     return this.moduleDirectory;
   }
 
   @Override
-  public void setModuleDirectoryPath(Path moduleDirectory) {
-    this.moduleDirectory = Preconditions.checkNotNull(moduleDirectory);
+  public void setModuleDirectoryPath(@NotNull Path moduleDirectory) {
+    this.moduleDirectory = Preconditions.checkNotNull(moduleDirectory, "moduleDirectory");
   }
 
-  public IModuleProviderHandler getModuleProviderHandler() {
+  @Override
+  public @Nullable IModuleProviderHandler getModuleProviderHandler() {
     return this.moduleProviderHandler;
   }
 
-  public void setModuleProviderHandler(IModuleProviderHandler moduleProviderHandler) {
+  @Override
+  public void setModuleProviderHandler(@Nullable IModuleProviderHandler moduleProviderHandler) {
     this.moduleProviderHandler = moduleProviderHandler;
   }
 
-  public IModuleDependencyLoader getModuleDependencyLoader() {
+  @Override
+  public @NotNull IModuleDependencyLoader getModuleDependencyLoader() {
     return this.moduleDependencyLoader;
   }
 
-  public void setModuleDependencyLoader(IModuleDependencyLoader moduleDependencyLoader) {
-    this.moduleDependencyLoader = moduleDependencyLoader;
+  @Override
+  public void setModuleDependencyLoader(@NotNull IModuleDependencyLoader moduleDependencyLoader) {
+    this.moduleDependencyLoader = Preconditions.checkNotNull(moduleDependencyLoader, "moduleDependencyLoader");
+  }
+
+  @Override
+  public @NotNull Collection<IModuleWrapper> getModules() {
+    return Collections.unmodifiableCollection(this.modules);
+  }
+
+  @Override
+  public @NotNull Collection<IModuleWrapper> getModules(@NotNull String group) {
+    return this.modules.stream()
+      .filter(module -> module.getModuleConfiguration().getGroup().equals(group))
+      .collect(Collectors.toList());
+  }
+
+  @Override
+  public IModuleWrapper getModule(@NotNull String name) {
+    return this.modules.stream()
+      .filter(module -> module.getModuleConfiguration().getName().equals(name))
+      .findFirst().orElse(null);
+  }
+
+  @Override
+  public IModuleWrapper loadModule(@NotNull URL url) {
+    return null; // TODO
+  }
+
+  @Override
+  public IModuleWrapper loadModule(@NotNull Path path) {
+    try {
+      return this.loadModule(Preconditions.checkNotNull(path, "path").toUri().toURL());
+    } catch (MalformedURLException exception) {
+      LOGGER.severe("Unable to resolve url of module path", exception);
+      return null;
+    }
+  }
+
+  @Override
+  public @NotNull IModuleProvider startAll() {
+    for (DefaultModuleWrapper module : this.modules) {
+      module.startModule();
+    }
+    return this;
+  }
+
+  @Override
+  public @NotNull IModuleProvider stopAll() {
+    for (DefaultModuleWrapper module : this.modules) {
+      module.stopModule();
+    }
+    return this;
+  }
+
+  @Override
+  public @NotNull IModuleProvider unloadAll() {
+    for (DefaultModuleWrapper module : this.modules) {
+      module.unloadModule();
+    }
+    return this;
   }
 }
