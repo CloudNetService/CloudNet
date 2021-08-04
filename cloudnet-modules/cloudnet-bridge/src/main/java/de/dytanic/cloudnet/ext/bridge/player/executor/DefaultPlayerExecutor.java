@@ -89,7 +89,7 @@ public class DefaultPlayerExecutor implements PlayerExecutor {
   }
 
   @Override
-  public void sendPluginMessage(@NotNull String tag, @NotNull byte[] data) {
+  public void sendPluginMessage(@NotNull String tag, byte[] data) {
     Preconditions.checkNotNull(tag);
     Preconditions.checkNotNull(data);
 

@@ -43,7 +43,7 @@ public interface ICloudOfflinePlayer extends INameable, IJsonDocPropertyable, Se
   void setName(@NotNull String name);
 
   /**
-   * Returns the XBoxId from the offlinePlayer if the player has to be connect from the Minecraft Bedrock Edition
+   * Returns the XBoxId from the offlinePlayer if the player ever connected using the Minecraft Bedrock Edition
    */
   String getXBoxId();
 
