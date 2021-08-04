@@ -25,6 +25,9 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * This interfaces provides access to cloud players
+ */
 public interface IPlayerManager {
 
   /**

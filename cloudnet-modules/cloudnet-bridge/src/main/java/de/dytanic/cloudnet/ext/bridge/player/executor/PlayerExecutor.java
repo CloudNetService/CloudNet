@@ -94,7 +94,7 @@ public interface PlayerExecutor {
    * @param tag  the tag of the plugin message
    * @param data the data of the plugin message
    */
-  void sendPluginMessage(@NotNull String tag, @NotNull byte[] data);
+  void sendPluginMessage(@NotNull String tag, byte[] data);
 
   /**
    * Dispatches a command on the proxy the player is connected with as the player.
