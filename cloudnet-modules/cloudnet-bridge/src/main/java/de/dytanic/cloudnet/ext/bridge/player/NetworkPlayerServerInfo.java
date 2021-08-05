@@ -32,22 +32,22 @@ public final class NetworkPlayerServerInfo implements SerializableObject {
 
   public static final Type TYPE = NetworkPlayerServerInfo.class;
 
-  protected UUID uniqueId;
+  private UUID uniqueId;
 
-  protected String name;
-  protected String xBoxId;
+  private String name;
+  private String xBoxId;
 
-  protected double health;
-  protected double maxHealth;
-  protected double saturation;
+  private double health;
+  private double maxHealth;
+  private double saturation;
 
-  protected int level;
+  private int level;
 
-  protected WorldPosition location;
+  private WorldPosition location;
 
-  protected HostAndPort address;
+  private HostAndPort address;
 
-  protected NetworkServiceInfo networkService;
+  private NetworkServiceInfo networkService;
 
   public NetworkPlayerServerInfo(UUID uniqueId, String name, String xBoxId, double health, double maxHealth,
     double saturation, int level, WorldPosition location, HostAndPort address, NetworkServiceInfo networkService) {

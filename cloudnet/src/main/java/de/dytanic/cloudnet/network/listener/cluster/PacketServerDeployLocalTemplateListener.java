@@ -42,7 +42,7 @@ public final class PacketServerDeployLocalTemplateListener extends CachedChunked
     }
   }
 
-  protected void deployToStorage(TemplateStorage templateStorage, ServiceTemplate template, InputStream stream,
+  private void deployToStorage(TemplateStorage templateStorage, ServiceTemplate template, InputStream stream,
     boolean preClear) {
     if (templateStorage instanceof ClusterSynchronizedTemplateStorage) {
       ClusterSynchronizedTemplateStorage synchronizedStorage = (ClusterSynchronizedTemplateStorage) templateStorage;

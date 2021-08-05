@@ -26,15 +26,15 @@ import lombok.ToString;
 @EqualsAndHashCode
 public final class NukkitCloudNetPlayerInfo {
 
-  protected double health;
-  protected double maxHealth;
-  protected double saturation;
+  private double health;
+  private double maxHealth;
+  private double saturation;
 
-  protected int level;
-  protected int ping;
+  private int level;
+  private int ping;
 
-  protected WorldPosition location;
-  protected HostAndPort address;
+  private WorldPosition location;
+  private HostAndPort address;
 
   private UUID uniqueId;
   private String name;

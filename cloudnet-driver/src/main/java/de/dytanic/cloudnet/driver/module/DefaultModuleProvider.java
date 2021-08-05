@@ -33,10 +33,10 @@ public final class DefaultModuleProvider implements IModuleProvider {
 
   private static final Logger LOGGER = LogManager.getLogger(DefaultModuleProvider.class);
 
-  protected final Collection<DefaultModuleWrapper> moduleWrappers = new CopyOnWriteArrayList<>();
+  final Collection<DefaultModuleWrapper> moduleWrappers = new CopyOnWriteArrayList<>();
 
-  protected IModuleProviderHandler moduleProviderHandler = new ModuleProviderHandlerAdapter();
-  protected IModuleDependencyLoader moduleDependencyLoader = new DefaultMemoryModuleDependencyLoader();
+  private IModuleProviderHandler moduleProviderHandler = new ModuleProviderHandlerAdapter();
+  private IModuleDependencyLoader moduleDependencyLoader = new DefaultMemoryModuleDependencyLoader();
 
   private Path moduleDirectory = Paths.get("modules");
 

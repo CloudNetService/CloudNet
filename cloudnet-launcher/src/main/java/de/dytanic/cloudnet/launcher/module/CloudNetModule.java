@@ -23,9 +23,9 @@ import lombok.ToString;
 @EqualsAndHashCode
 public final class CloudNetModule {
 
-  protected final String name;
+  private final String name;
 
-  protected final String fileName;
+  private final String fileName;
 
   public CloudNetModule(String name, String fileName) {
     this.name = name;
