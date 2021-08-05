@@ -19,55 +19,51 @@ package de.dytanic.cloudnet.driver.module;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.Collection;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
+import org.jetbrains.annotations.NotNull;
 
 public final class FinalizeURLClassLoader extends URLClassLoader {
 
-  private static final Collection<FinalizeURLClassLoader> CLASS_LOADERS = new CopyOnWriteArrayList<>();
+  private static final Set<FinalizeURLClassLoader> LOADERS = new CopyOnWriteArraySet<>();
 
   static {
     ClassLoader.registerAsParallelCapable();
   }
 
-  public FinalizeURLClassLoader(URL[] urls) {
-    super(urls, FinalizeURLClassLoader.class.getClassLoader());
-
-    CLASS_LOADERS.add(this);
+  public FinalizeURLClassLoader(URL pluginFileUrl) {
+    super(new URL[]{pluginFileUrl});
   }
 
-  public FinalizeURLClassLoader(URL url) {
-    this(new URL[]{url});
-  }
-
-  @Override
-  public Class<?> loadClass(String name, boolean resolve)
-    throws ClassNotFoundException {
-    try {
-      return this.loadClass0(name, resolve);
-    } catch (ClassNotFoundException ignored) {
-    }
-
-    for (FinalizeURLClassLoader classLoader : CLASS_LOADERS) {
-      if (classLoader != this) {
-        try {
-          return classLoader.loadClass0(name, resolve);
-        } catch (ClassNotFoundException ignored) {
-        }
-      }
-    }
-
-    throw new ClassNotFoundException(name);
-  }
-
-  private Class<?> loadClass0(String name, boolean resolve)
-    throws ClassNotFoundException {
-    return super.loadClass(name, resolve);
+  public void registerGlobally() {
+    LOADERS.add(this);
   }
 
   @Override
   public void close() throws IOException {
     super.close();
-    CLASS_LOADERS.remove(this);
+    LOADERS.remove(this);
+  }
+
+  @Override
+  protected @NotNull Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
+    try {
+      super.loadClass(name, resolve);
+    } catch (ClassNotFoundException ignored) {
+      // ignore for now, we'll try the other loaders first
+    }
+
+    for (FinalizeURLClassLoader loader : LOADERS) {
+      if (loader != this) {
+        try {
+          return loader.loadClass(name, resolve);
+        } catch (ClassNotFoundException exception) {
+          // there may be still other to come
+        }
+      }
+    }
+
+    // nothing found
+    throw new ClassNotFoundException(name);
   }
 }

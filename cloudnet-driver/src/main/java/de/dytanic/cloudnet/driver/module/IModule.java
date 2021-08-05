@@ -16,6 +16,7 @@
 
 package de.dytanic.cloudnet.driver.module;
 
+// TODO: cleanup here
 public interface IModule {
 
   IModuleWrapper getModuleWrapper();

@@ -313,7 +313,7 @@ public final class CloudNetReportModule extends NodeCloudNetModule {
           }
         }
       }
-      repositoryURLs.putAll(moduleWrapper.getDefaultRepositories());
+      repositoryURLs.putAll(moduleWrapper.getProvidedRepositories());
 
       builder.append(configuration.getGroup()).append(":").append(configuration.getName()).append(":")
         .append(configuration.getVersion()).append(":\n");

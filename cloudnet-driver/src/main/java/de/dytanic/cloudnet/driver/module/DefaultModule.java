@@ -16,23 +16,35 @@
 
 package de.dytanic.cloudnet.driver.module;
 
+import com.google.common.base.Preconditions;
+import org.jetbrains.annotations.NotNull;
+
 public class DefaultModule implements IModule {
 
-  IModuleWrapper moduleWrapper;
+  protected ClassLoader classLoader;
+  protected IModuleWrapper moduleWrapper;
+  protected ModuleConfiguration moduleConfig;
 
-  ClassLoader classLoader;
+  protected void init(@NotNull ClassLoader loader, @NotNull IModuleWrapper wrapper,
+    @NotNull ModuleConfiguration config) {
+    // ensure that this is not initialized
+    Preconditions.checkArgument(this.classLoader == null || this.moduleWrapper == null || this.moduleConfig == null,
+      "Cannot call init twice");
 
-  ModuleConfiguration moduleConfig;
+    this.classLoader = Preconditions.checkNotNull(loader, "loader");
+    this.moduleWrapper = Preconditions.checkNotNull(wrapper, "wrapper");
+    this.moduleConfig = Preconditions.checkNotNull(config, "config");
+  }
 
-  public IModuleWrapper getModuleWrapper() {
+  public @NotNull IModuleWrapper getModuleWrapper() {
     return this.moduleWrapper;
   }
 
-  public ClassLoader getClassLoader() {
+  public @NotNull ClassLoader getClassLoader() {
     return this.classLoader;
   }
 
-  public ModuleConfiguration getModuleConfig() {
+  public @NotNull ModuleConfiguration getModuleConfig() {
     return this.moduleConfig;
   }
 }

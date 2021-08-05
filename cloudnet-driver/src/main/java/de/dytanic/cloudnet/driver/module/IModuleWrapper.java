@@ -20,45 +20,60 @@ import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import java.io.File;
 import java.net.URL;
 import java.nio.file.Path;
-import java.util.EnumMap;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Unmodifiable;
 
+// TODO: docs
 public interface IModuleWrapper {
 
-  EnumMap<ModuleLifeCycle, List<IModuleTaskEntry>> getModuleTasks();
+  @NotNull
+  @Unmodifiable Map<ModuleLifeCycle, List<IModuleTaskEntry>> getModuleTasks();
 
-  IModule getModule();
+  @NotNull IModule getModule();
 
-  ModuleLifeCycle getModuleLifeCycle();
+  @NotNull ModuleLifeCycle getModuleLifeCycle();
 
-  IModuleProvider getModuleProvider();
+  @NotNull IModuleProvider getModuleProvider();
 
-  ModuleConfiguration getModuleConfiguration();
+  @NotNull ModuleConfiguration getModuleConfiguration();
 
-  JsonDocument getModuleConfigurationSource();
+  /**
+   * @deprecated Use {@link #getModuleConfiguration()} instead - same result but unwrapped.
+   */
+  @Deprecated
+  default JsonDocument getModuleConfigurationSource() {
+    return JsonDocument.newDocument(this.getModuleConfiguration());
+  }
 
-  ClassLoader getClassLoader();
+  @NotNull ClassLoader getClassLoader();
 
-  IModuleWrapper loadModule();
+  @NotNull IModuleWrapper loadModule();
 
-  IModuleWrapper startModule();
+  @NotNull IModuleWrapper startModule();
 
-  IModuleWrapper stopModule();
+  @NotNull IModuleWrapper stopModule();
 
-  IModuleWrapper unloadModule();
+  @NotNull IModuleWrapper unloadModule();
 
   @Deprecated
   default File getDataFolder() {
     return this.getDataDirectory().toFile();
   }
 
-  @NotNull
-  Path getDataDirectory();
+  @NotNull Path getDataDirectory();
 
   @NotNull URL getUrl();
 
-  Map<String, String> getDefaultRepositories();
-
+  /**
+   * @deprecated Use {@link ModuleConfiguration#getRepos()} instead.
+   */
+  @Deprecated
+  default Map<String, String> getDefaultRepositories() {
+    return Arrays.stream(this.getModuleConfiguration().getRepos())
+      .collect(Collectors.toMap(ModuleRepository::getName, ModuleRepository::getUrl));
+  }
 }

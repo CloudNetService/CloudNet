@@ -138,4 +138,52 @@ public class DefaultModuleProvider implements IModuleProvider {
     }
     return this;
   }
+
+  @Override
+  public boolean notifyPreModuleLifecycleChange(@NotNull IModuleWrapper wrapper, @NotNull ModuleLifeCycle lifeCycle) {
+    // todo: handle here (or in post) when the module gets unloaded (f. Ex. remove it from the known modules)
+    // post the change to the handler (if one is set)
+    IModuleProviderHandler handler = this.moduleProviderHandler;
+    if (handler != null) {
+      switch (lifeCycle) {
+        case LOADED:
+          return handler.handlePreModuleLoad(wrapper);
+        case STARTED:
+          return handler.handlePreModuleStart(wrapper);
+        case STOPPED:
+          return handler.handlePreModuleStop(wrapper);
+        case UNLOADED:
+          handler.handlePreModuleUnload(wrapper);
+          break;
+        default:
+          break;
+      }
+    }
+    // if there is no handler or the handler can't change the result - just do it
+    return true;
+  }
+
+  @Override
+  public void notifyPostModuleLifecycleChange(@NotNull IModuleWrapper wrapper, @NotNull ModuleLifeCycle lifeCycle) {
+    // post the change to the handler (if one is set)
+    IModuleProviderHandler handler = this.moduleProviderHandler;
+    if (handler != null) {
+      switch (lifeCycle) {
+        case LOADED:
+          handler.handlePostModuleLoad(wrapper);
+          break;
+        case STARTED:
+          handler.handlePostModuleStart(wrapper);
+          break;
+        case STOPPED:
+          handler.handlePostModuleStop(wrapper);
+          break;
+        case UNLOADED:
+          handler.handlePostModuleUnload(wrapper);
+          break;
+        default:
+          break;
+      }
+    }
+  }
 }

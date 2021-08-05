@@ -220,7 +220,7 @@ public final class CommandReport extends SubCommandHandler {
       for (IModuleWrapper moduleWrapper : CloudNetDriver.getInstance().getModuleProvider().getModules()) {
         writer.println(moduleWrapper.getModuleConfiguration().getName() + " | " + moduleWrapper.getModuleLifeCycle());
         writer.println();
-        this.gson.toJson(moduleWrapper.getModuleConfigurationSource(), writer);
+        this.gson.toJson(moduleWrapper.getModuleConfiguration(), writer);
         writer.println();
         writer.println("- ModuleTasks");
 
