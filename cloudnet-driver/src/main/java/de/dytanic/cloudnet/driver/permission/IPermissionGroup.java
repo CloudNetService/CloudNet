@@ -83,6 +83,9 @@ public interface IPermissionGroup extends IPermissible {
   void setColor(@NotNull String color);
 
 
+  /**
+   * @return the suffix of this group
+   */
   String getSuffix();
 
   /**

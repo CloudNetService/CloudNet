@@ -22,6 +22,7 @@ import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.serialization.SerializableObject;
 import java.util.UUID;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents the data of an offlinePlayer instance that is saved on the database on CloudNet The player does not need
@@ -43,8 +44,9 @@ public interface ICloudOfflinePlayer extends INameable, IJsonDocPropertyable, Se
   void setName(@NotNull String name);
 
   /**
-   * Returns the XBoxId from the offlinePlayer if the player ever connected using the Minecraft Bedrock Edition
+   * @return the XBoxId from the offlinePlayer if the player ever connected using the Minecraft Bedrock Edition
    */
+  @Nullable
   String getXBoxId();
 
   long getFirstLoginTimeMillis();

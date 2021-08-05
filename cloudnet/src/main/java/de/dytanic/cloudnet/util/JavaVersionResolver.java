@@ -24,6 +24,7 @@ import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * An util class for resolving the java version for a given path.
@@ -44,6 +45,7 @@ public final class JavaVersionResolver {
    * @param input the path to the java executable to check the version for
    * @return the java version of the executable, null if the input is no valid path to an executable
    */
+  @Nullable
   public static JavaVersion resolveFromJavaExecutable(String input) {
     // the default java command input can always evaluate in the current runtime version
     if (input.equals("java")) {
