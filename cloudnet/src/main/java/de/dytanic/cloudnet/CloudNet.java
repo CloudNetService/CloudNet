@@ -178,7 +178,9 @@ public final class CloudNet extends CloudNetDriver {
 
   public static final int TPS = 10;
   private static final Logger LOGGER = LogManager.getLogger(CloudNet.class);
+
   private static CloudNet instance;
+
   private final CloudNetTick mainLoop = new CloudNetTick(this);
   private final long startupMillis = System.currentTimeMillis();
 
