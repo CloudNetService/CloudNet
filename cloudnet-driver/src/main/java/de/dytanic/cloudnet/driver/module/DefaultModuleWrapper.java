@@ -233,27 +233,28 @@ public class DefaultModuleWrapper implements IModuleWrapper {
     List<IModuleTaskEntry> tasks = this.tasks.get(lifeCycle);
     if (tasks != null && !tasks.isEmpty()) {
       this.moduleLifecycleUpdateLock.lock();
-      // todo: check here if the module can change into the lifecycle in the current state before doing it
       try {
         // notify the provider for changes which are required based on the lifecycle and other stuff (like to invoke
         // of the associated methods in the module provider handler)
-        this.getModuleProvider().notifyPreModuleLifecycleChange(this, lifeCycle);
-        // The tasks are always in the logical order in the backing map, so there is no need to sort here
-        for (IModuleTaskEntry task : tasks) {
-          if (this.fireModuleTaskEntry(task)) {
-            // we couldn't complete firing all tasks as one failed, so we break here and warn the user about that.
-            LOGGER.warning(String.format(
-              "Stopping lifecycle update to %s for %s because the task %s failed. See console log for more details.",
-              lifeCycle, this.moduleConfiguration.getName(), task.getFullMethodSignature()
-            ));
-            break;
+        // todo: check here if the module can change into the lifecycle in the current state before doing it
+        if (this.getModuleProvider().notifyPreModuleLifecycleChange(this, lifeCycle)) {
+          // The tasks are always in the logical order in the backing map, so there is no need to sort here
+          for (IModuleTaskEntry task : tasks) {
+            if (this.fireModuleTaskEntry(task)) {
+              // we couldn't complete firing all tasks as one failed, so we break here and warn the user about that.
+              LOGGER.warning(String.format(
+                "Stopping lifecycle update to %s for %s because the task %s failed. See console log for more details.",
+                lifeCycle, this.moduleConfiguration.getName(), task.getFullMethodSignature()
+              ));
+              break;
+            }
           }
+          // actually set the current life cycle of this module
+          this.lifeCycle.set(lifeCycle);
+          // notify after the change again
+          this.getModuleProvider().notifyPostModuleLifecycleChange(this, lifeCycle);
         }
-        // notify after the change again
-        this.getModuleProvider().notifyPostModuleLifecycleChange(this, lifeCycle);
       } finally {
-        // actually set the current life cycle of this module
-        this.lifeCycle.set(lifeCycle);
         this.moduleLifecycleUpdateLock.unlock();
       }
     }
