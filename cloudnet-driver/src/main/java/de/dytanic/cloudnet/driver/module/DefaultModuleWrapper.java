@@ -233,6 +233,7 @@ public class DefaultModuleWrapper implements IModuleWrapper {
     List<IModuleTaskEntry> tasks = this.tasks.get(lifeCycle);
     if (tasks != null && !tasks.isEmpty()) {
       this.moduleLifecycleUpdateLock.lock();
+      // todo: check here if the module can change into the lifecycle in the current state before doing it
       try {
         // notify the provider for changes which are required based on the lifecycle and other stuff (like to invoke
         // of the associated methods in the module provider handler)
