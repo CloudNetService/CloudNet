@@ -48,7 +48,7 @@ public final class FinalizeURLClassLoader extends URLClassLoader {
   @Override
   protected @NotNull Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
     try {
-      super.loadClass(name, resolve);
+      return super.loadClass(name, resolve);
     } catch (ClassNotFoundException ignored) {
       // ignore for now, we'll try the other loaders first
     }
