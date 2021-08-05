@@ -102,6 +102,6 @@ public interface IModuleProvider {
   @NotNull IModuleProvider unloadAll();
 
   boolean notifyPreModuleLifecycleChange(@NotNull IModuleWrapper wrapper, @NotNull ModuleLifeCycle lifeCycle);
-  u
+
   void notifyPostModuleLifecycleChange(@NotNull IModuleWrapper wrapper, @NotNull ModuleLifeCycle lifeCycle);
 }
