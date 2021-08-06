@@ -22,6 +22,7 @@ import de.dytanic.cloudnet.driver.serialization.SerializableObject;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 @ToString
 @EqualsAndHashCode
@@ -116,6 +117,20 @@ public class ModuleConfiguration implements SerializableObject {
 
   public JsonDocument getProperties() {
     return this.properties;
+  }
+
+  public @Nullable String getFirstMissingProperty() {
+    if (this.group == null) {
+      return "group";
+    } else if (this.name == null) {
+      return "name";
+    } else if (this.version == null) {
+      return "version";
+    } else if (this.main == null) {
+      return "main";
+    } else {
+      return null;
+    }
   }
 
   @Override

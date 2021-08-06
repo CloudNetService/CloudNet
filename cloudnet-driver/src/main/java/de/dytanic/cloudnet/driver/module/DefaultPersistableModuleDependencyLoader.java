@@ -18,53 +18,52 @@ package de.dytanic.cloudnet.driver.module;
 
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.common.io.HttpConnectionProvider;
-import de.dytanic.cloudnet.common.log.LogManager;
-import de.dytanic.cloudnet.common.log.Logger;
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Map;
+import org.jetbrains.annotations.NotNull;
 
-public class DefaultPersistableModuleDependencyLoader implements IModuleDependencyLoader {
+public class DefaultPersistableModuleDependencyLoader extends DefaultMemoryModuleDependencyLoader {
 
-  private static final Logger LOGGER = LogManager.getLogger(DefaultPersistableModuleDependencyLoader.class);
+  // format: <name>-<version>.jar
+  protected static final String FILE_NAME_FORMAT = "%s-%s.jar";
 
   protected final Path baseDirectory;
 
   public DefaultPersistableModuleDependencyLoader(Path baseDirectory) {
     this.baseDirectory = baseDirectory;
-    try {
-      Files.createDirectories(baseDirectory);
-    } catch (IOException exception) {
-      LOGGER.severe("Exception while creating directories", exception);
-    }
+    FileUtils.createDirectoryReported(baseDirectory);
   }
 
   @Override
-  public URL loadModuleDependencyByUrl(ModuleConfiguration moduleConfiguration, ModuleDependency moduleDependency,
-    Map<String, String> moduleRepositoriesUrls) throws Exception {
-    return this.loadModuleDependency0(moduleDependency, moduleDependency.getUrl());
+  public @NotNull URL loadModuleDependencyByUrl(
+    @NotNull ModuleConfiguration configuration,
+    @NotNull ModuleDependency dependency
+  ) throws Exception {
+    URL memoryBasedUrl = super.loadModuleDependencyByUrl(configuration, dependency);
+    return this.loadDependency(dependency, memoryBasedUrl);
   }
 
   @Override
-  public URL loadModuleDependencyByRepository(ModuleConfiguration moduleConfiguration,
-    ModuleDependency moduleDependency, Map<String, String> moduleRepositoriesUrls) throws Exception {
-    return this.loadModuleDependency0(moduleDependency, moduleRepositoriesUrls.get(moduleDependency.getRepo()) +
-      moduleDependency.getGroup().replace(".", "/") + "/" +
-      moduleDependency.getName() + "/" + moduleDependency.getVersion() + "/" +
-      moduleDependency.getName() + "-" + moduleDependency.getVersion() + ".jar");
+  public @NotNull URL loadModuleDependencyByRepository(
+    @NotNull ModuleConfiguration configuration,
+    @NotNull ModuleDependency dependency,
+    @NotNull String repositoryUrl
+  ) throws Exception {
+    URL memoryBasedUrl = super.loadModuleDependencyByRepository(configuration, dependency, repositoryUrl);
+    return this.loadDependency(dependency, memoryBasedUrl);
   }
 
-  private URL loadModuleDependency0(ModuleDependency moduleDependency, String url) throws Exception {
-    Path destFile = this.baseDirectory
-      .resolve(moduleDependency.getGroup().replace(".", "/") + "/" + moduleDependency.getName() +
-        "/" + moduleDependency.getVersion() + "/" + moduleDependency.getName() + "-" + moduleDependency.getVersion()
-        + ".jar");
+  protected @NotNull URL loadDependency(@NotNull ModuleDependency dependency, @NotNull URL url) throws Exception {
+    Path destFile = FileUtils.resolve(this.baseDirectory, dependency.getGroup().split("\\."))
+      .resolve(dependency.getName())
+      .resolve(dependency.getVersion())
+      .resolve(String.format(FILE_NAME_FORMAT, dependency.getName(), dependency.getVersion()));
+    FileUtils.ensureChild(this.baseDirectory, destFile);
 
-    if (!Files.exists(destFile)) {
+    if (Files.notExists(destFile)) {
       Files.createDirectories(destFile.getParent());
 
       HttpURLConnection urlConnection = HttpConnectionProvider.provideConnection(url);

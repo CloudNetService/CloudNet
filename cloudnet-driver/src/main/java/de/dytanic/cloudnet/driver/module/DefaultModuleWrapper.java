@@ -18,7 +18,11 @@ package de.dytanic.cloudnet.driver.module;
 
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
+import de.dytanic.cloudnet.driver.module.util.ModuleDependencyUtils;
+import java.io.IOException;
 import java.lang.reflect.Method;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Path;
@@ -28,10 +32,12 @@ import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Unmodifiable;
 
 /**
  * A default implementation of an {@link IModuleWrapper}.
@@ -43,10 +49,12 @@ public class DefaultModuleWrapper implements IModuleWrapper {
     entry -> entry.getTaskInfo().order());
 
   private final URL source;
+  private final URI sourceUri;
   private final IModule module;
   private final Path dataDirectory;
   private final IModuleProvider provider;
   private final URLClassLoader classLoader;
+  private final Set<ModuleDependency> dependingModules;
   private final ModuleConfiguration moduleConfiguration;
 
   private final Lock moduleLifecycleUpdateLock = new ReentrantLock();
@@ -61,7 +69,9 @@ public class DefaultModuleWrapper implements IModuleWrapper {
    * @param dataDirectory       the data directory of this module relative to the module provider directory.
    * @param provider            the provider which loaded this module.
    * @param classLoader         the class loader which was used to load the main class from the file.
+   * @param dependingModules    the modules this module depends on and which need to get loaded first.
    * @param moduleConfiguration the parsed module configuration located in the module file.
+   * @throws URISyntaxException if the given module source is not formatted strictly according to RFC2396.
    */
   public DefaultModuleWrapper(
     URL source,
@@ -69,14 +79,18 @@ public class DefaultModuleWrapper implements IModuleWrapper {
     Path dataDirectory,
     IModuleProvider provider,
     URLClassLoader classLoader,
+    Set<ModuleDependency> dependingModules,
     ModuleConfiguration moduleConfiguration
-  ) {
+  ) throws URISyntaxException {
     this.source = source;
     this.module = module;
     this.dataDirectory = dataDirectory;
     this.provider = provider;
     this.classLoader = classLoader;
+    this.dependingModules = dependingModules;
     this.moduleConfiguration = moduleConfiguration;
+    // initialize the uri of the module now as it's always required in order for the default provider to work
+    this.sourceUri = source.toURI();
     // resolve all tasks the module must execute now as we need them later anyways
     this.tasks.putAll(this.resolveModuleTasks(module));
   }
@@ -87,6 +101,14 @@ public class DefaultModuleWrapper implements IModuleWrapper {
   @Override
   public @NotNull Map<ModuleLifeCycle, List<IModuleTaskEntry>> getModuleTasks() {
     return Collections.unmodifiableMap(this.tasks);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public @NotNull @Unmodifiable Set<ModuleDependency> getDependingModules() {
+    return Collections.unmodifiableSet(this.dependingModules);
   }
 
   /**
@@ -134,7 +156,7 @@ public class DefaultModuleWrapper implements IModuleWrapper {
    */
   @Override
   public @NotNull IModuleWrapper loadModule() {
-    this.pushLifecycleChange(ModuleLifeCycle.LOADED);
+    this.pushLifecycleChange(ModuleLifeCycle.LOADED, true);
     return this;
   }
 
@@ -143,7 +165,17 @@ public class DefaultModuleWrapper implements IModuleWrapper {
    */
   @Override
   public @NotNull IModuleWrapper startModule() {
-    this.pushLifecycleChange(ModuleLifeCycle.STARTED);
+    if (this.getModuleLifeCycle().canChangeTo(ModuleLifeCycle.STARTED)
+      && this.provider.notifyPreModuleLifecycleChange(this, ModuleLifeCycle.STARTED)) {
+      // Resolve all dependencies of this module to start them before this module
+      for (IModuleWrapper wrapper : ModuleDependencyUtils.collectDependencies(this, this.provider)) {
+        wrapper.startModule();
+      }
+      // now we can start this module
+      this.pushLifecycleChange(ModuleLifeCycle.STARTED, false);
+      // and we now need to notify the provider here
+      this.provider.notifyPostModuleLifecycleChange(this, ModuleLifeCycle.STARTED);
+    }
     return this;
   }
 
@@ -152,7 +184,7 @@ public class DefaultModuleWrapper implements IModuleWrapper {
    */
   @Override
   public @NotNull IModuleWrapper stopModule() {
-    this.pushLifecycleChange(ModuleLifeCycle.STOPPED);
+    this.pushLifecycleChange(ModuleLifeCycle.STOPPED, true);
     return this;
   }
 
@@ -161,7 +193,23 @@ public class DefaultModuleWrapper implements IModuleWrapper {
    */
   @Override
   public @NotNull IModuleWrapper unloadModule() {
-    this.pushLifecycleChange(ModuleLifeCycle.UNLOADED);
+    if (this.getModuleLifeCycle().canChangeTo(ModuleLifeCycle.UNLOADED)) {
+      this.pushLifecycleChange(ModuleLifeCycle.UNLOADED, true);
+      // remove all known module tasks & dependencies
+      this.tasks.clear();
+      this.dependingModules.clear();
+      // close the class loader
+      try {
+        this.classLoader.close();
+      } catch (IOException exception) {
+        LOGGER.severe(
+          String.format("Exception closing class loader of module %s", this.moduleConfiguration.getName()),
+          exception
+        );
+      }
+      // set the state to unusable
+      this.lifeCycle.set(ModuleLifeCycle.UNUSEABLE);
+    }
     return this;
   }
 
@@ -179,6 +227,14 @@ public class DefaultModuleWrapper implements IModuleWrapper {
   @Override
   public @NotNull URL getUrl() {
     return this.source;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public @NotNull URI getUri() {
+    return this.sourceUri;
   }
 
   /**
@@ -227,32 +283,36 @@ public class DefaultModuleWrapper implements IModuleWrapper {
   /**
    * Fires all handlers registered for the specified {@code lifeCycle}.
    *
-   * @param lifeCycle the lifecycle to fire the tasks of.
+   * @param lifeCycle      the lifecycle to fire the tasks of.
+   * @param notifyProvider if the module provider should be notified about the change or not.
    */
-  protected void pushLifecycleChange(@NotNull ModuleLifeCycle lifeCycle) {
+  protected void pushLifecycleChange(@NotNull ModuleLifeCycle lifeCycle, boolean notifyProvider) {
     List<IModuleTaskEntry> tasks = this.tasks.get(lifeCycle);
-    if (tasks != null && !tasks.isEmpty()) {
+    if (this.getModuleLifeCycle().canChangeTo(lifeCycle)) {
       this.moduleLifecycleUpdateLock.lock();
       try {
         // notify the provider for changes which are required based on the lifecycle and other stuff (like to invoke
         // of the associated methods in the module provider handler)
-        // todo: check here if the module can change into the lifecycle in the current state before doing it
-        if (this.getModuleProvider().notifyPreModuleLifecycleChange(this, lifeCycle)) {
+        if (!notifyProvider || this.getModuleProvider().notifyPreModuleLifecycleChange(this, lifeCycle)) {
           // The tasks are always in the logical order in the backing map, so there is no need to sort here
-          for (IModuleTaskEntry task : tasks) {
-            if (this.fireModuleTaskEntry(task)) {
-              // we couldn't complete firing all tasks as one failed, so we break here and warn the user about that.
-              LOGGER.warning(String.format(
-                "Stopping lifecycle update to %s for %s because the task %s failed. See console log for more details.",
-                lifeCycle, this.moduleConfiguration.getName(), task.getFullMethodSignature()
-              ));
-              break;
+          if (tasks != null && !tasks.isEmpty()) {
+            for (IModuleTaskEntry task : tasks) {
+              if (this.fireModuleTaskEntry(task)) {
+                // we couldn't complete firing all tasks as one failed, so we break here and warn the user about that.
+                LOGGER.warning(String.format(
+                  "Stopping lifecycle update to %s for %s because the task %s failed. See console log for more details.",
+                  lifeCycle, this.moduleConfiguration.getName(), task.getFullMethodSignature()
+                ));
+                break;
+              }
             }
           }
           // actually set the current life cycle of this module
           this.lifeCycle.set(lifeCycle);
-          // notify after the change again
-          this.getModuleProvider().notifyPostModuleLifecycleChange(this, lifeCycle);
+          // notify after the change again if we have to
+          if (notifyProvider) {
+            this.getModuleProvider().notifyPostModuleLifecycleChange(this, lifeCycle);
+          }
         }
       } finally {
         this.moduleLifecycleUpdateLock.unlock();

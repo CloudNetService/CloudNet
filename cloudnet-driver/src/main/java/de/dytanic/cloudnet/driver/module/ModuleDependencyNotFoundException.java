@@ -16,7 +16,7 @@
 
 package de.dytanic.cloudnet.driver.module;
 
-public class ModuleDependencyNotFoundException extends Exception {
+public class ModuleDependencyNotFoundException extends RuntimeException {
 
   public ModuleDependencyNotFoundException(String message) {
     super(message);

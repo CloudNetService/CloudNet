@@ -434,4 +434,11 @@ public final class FileUtils {
       throw new IllegalStateException("Child " + childNormal + " is not in root path " + rootNormal);
     }
   }
+
+  public static @NotNull Path resolve(@NotNull Path base, @NotNull String... more) {
+    for (String child : more) {
+      base = base.resolve(child);
+    }
+    return base;
+  }
 }

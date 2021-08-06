@@ -17,24 +17,35 @@
 package de.dytanic.cloudnet.driver.module;
 
 import java.net.URL;
-import java.util.Map;
+import org.jetbrains.annotations.NotNull;
 
 public class DefaultMemoryModuleDependencyLoader implements IModuleDependencyLoader {
 
+  // format: <repo-url><group>/<name>/<version>/<name>-<version>.jar
+  private static final String REMOTE_DEPENDENCY_URL_FORMAT = "%s%s/%s/%s/%s-%s.jar";
+
   @Override
-  public URL loadModuleDependencyByUrl(ModuleConfiguration moduleConfiguration, ModuleDependency moduleDependency,
-    Map<String, String> moduleRepositoriesUrls) throws Exception {
-    return new URL(moduleDependency.getUrl());
+  public @NotNull URL loadModuleDependencyByUrl(
+    @NotNull ModuleConfiguration configuration,
+    @NotNull ModuleDependency dependency
+  ) throws Exception {
+    return new URL(dependency.getUrl());
   }
 
   @Override
-  public URL loadModuleDependencyByRepository(ModuleConfiguration moduleConfiguration,
-    ModuleDependency moduleDependency, Map<String, String> moduleRepositoriesUrls) throws Exception {
-    return new URL(
-      moduleRepositoriesUrls.get(moduleDependency.getRepo()) +
-        moduleDependency.getGroup().replace(".", "/") + "/" +
-        moduleDependency.getName() + "/" + moduleDependency.getVersion() + "/" +
-        moduleDependency.getName() + "-" + moduleDependency.getVersion() + ".jar"
-    );
+  public @NotNull URL loadModuleDependencyByRepository(
+    @NotNull ModuleConfiguration configuration,
+    @NotNull ModuleDependency dependency,
+    @NotNull String repositoryUrl
+  ) throws Exception {
+    return new URL(String.format(
+      REMOTE_DEPENDENCY_URL_FORMAT,
+      repositoryUrl,
+      dependency.getGroup().replace('.', '/'),
+      dependency.getName(),
+      dependency.getVersion(),
+      dependency.getName(),
+      dependency.getVersion()
+    ));
   }
 }

@@ -18,13 +18,35 @@ package de.dytanic.cloudnet.driver.module;
 
 import java.net.URL;
 import java.util.Map;
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
+import org.jetbrains.annotations.NotNull;
 
 public interface IModuleDependencyLoader {
 
-  URL loadModuleDependencyByUrl(ModuleConfiguration moduleConfiguration, ModuleDependency moduleDependency,
-    Map<String, String> moduleRepositoriesUrls) throws Exception;
+  @NotNull URL loadModuleDependencyByUrl(
+    @NotNull ModuleConfiguration configuration, @NotNull ModuleDependency dependency) throws Exception;
 
-  URL loadModuleDependencyByRepository(ModuleConfiguration moduleConfiguration, ModuleDependency moduleDependency,
-    Map<String, String> moduleRepositoriesUrls) throws Exception;
+  /**
+   * @deprecated Use {@link #loadModuleDependencyByUrl(ModuleConfiguration, ModuleDependency)} instead.
+   */
+  @Deprecated
+  @ScheduledForRemoval
+  default URL loadModuleDependencyByUrl(ModuleConfiguration moduleConfiguration, ModuleDependency moduleDependency,
+    Map<String, String> moduleRepositoriesUrls) throws Exception {
+    return this.loadModuleDependencyByUrl(moduleConfiguration, moduleDependency);
+  }
 
+  @NotNull URL loadModuleDependencyByRepository(@NotNull ModuleConfiguration configuration,
+    @NotNull ModuleDependency dependency, @NotNull String repositoryUrl) throws Exception;
+
+  /**
+   * @deprecated Use {@link #loadModuleDependencyByRepository(ModuleConfiguration, ModuleDependency, String)} instead.
+   */
+  @Deprecated
+  @ScheduledForRemoval
+  default URL loadModuleDependencyByRepository(ModuleConfiguration moduleConfiguration,
+    ModuleDependency moduleDependency, Map<String, String> moduleRepositoriesUrls) throws Exception {
+    return this.loadModuleDependencyByRepository(moduleConfiguration, moduleDependency,
+      moduleRepositoriesUrls.get(moduleDependency.getRepo()));
+  }
 }

@@ -16,13 +16,12 @@
 
 package de.dytanic.cloudnet.driver.module;
 
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import de.dytanic.cloudnet.driver.serialization.SerializableObject;
 import lombok.EqualsAndHashCode;
-import lombok.ToString;
 import org.jetbrains.annotations.NotNull;
 
-@ToString
 @EqualsAndHashCode
 public class ModuleDependency implements SerializableObject {
 
@@ -72,6 +71,17 @@ public class ModuleDependency implements SerializableObject {
 
   public String getVersion() {
     return this.version;
+  }
+
+  public void assertDefaultPropertiesSet() {
+    Preconditions.checkNotNull(this.group, "Missing group of module dependency");
+    Preconditions.checkNotNull(this.name, "Missing name of module dependency");
+    Preconditions.checkNotNull(this.version, "Missing version of module dependency");
+  }
+
+  @Override
+  public String toString() {
+    return this.group + ':' + this.name + ':' + this.version;
   }
 
   @Override

@@ -18,11 +18,13 @@ package de.dytanic.cloudnet.driver.module;
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import java.io.File;
+import java.net.URI;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
@@ -32,6 +34,9 @@ public interface IModuleWrapper {
 
   @NotNull
   @Unmodifiable Map<ModuleLifeCycle, List<IModuleTaskEntry>> getModuleTasks();
+
+  @NotNull
+  @Unmodifiable Set<ModuleDependency> getDependingModules();
 
   @NotNull IModule getModule();
 
@@ -68,12 +73,14 @@ public interface IModuleWrapper {
 
   @NotNull URL getUrl();
 
+  @NotNull URI getUri();
+
   /**
    * @deprecated Use {@link ModuleConfiguration#getRepos()} instead.
    */
   @Deprecated
   default Map<String, String> getDefaultRepositories() {
     return Arrays.stream(this.getModuleConfiguration().getRepos())
-      .collect(Collectors.toMap(ModuleRepository::getName, ModuleRepository::getUrl));
+        .collect(Collectors.toMap(ModuleRepository::getName, ModuleRepository::getUrl));
   }
 }

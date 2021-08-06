@@ -16,17 +16,52 @@
 
 package de.dytanic.cloudnet.driver.module;
 
+import java.util.Arrays;
+import org.jetbrains.annotations.NotNull;
+
 public enum ModuleLifeCycle {
+  /**
+   * Used when the module instance was just created. In this stage no modules the module might depend on must be
+   * loaded.
+   */
+  LOADED(1),
+  /**
+   * In this state the module ist started and every module dependency declared by the module was started before.
+   */
+  STARTED(2),
+  /**
+   * In this state the module is still loadable, it's only idling and not doing anything anymore.
+   */
+  STOPPED(1, 3),
+  /**
+   * In this state the module is completely unloaded and will switch to the {@link #UNUSEABLE} state shortly.
+   */
+  UNLOADED(0, 4),
+  /**
+   * In this state the module wrapper instance is empty, it is not associated with a module anymore. Defined module
+   * tasks for this state will never fire.
+   */
+  UNUSEABLE;
 
-  //Calls if the Module instance is now created,
-  LOADED,
-  //Calls when the Module should start
-  STARTED,
-  //Calls when the Module should stop
-  STOPPED,
-  //Calls when the Module want be unload
-  UNLOADED,
-  //If the classLoader is finalized
-  UNUSEABLE
+  private final int[] possibleChangeTargetOrdinals;
 
+  /**
+   * Creates a new module lifecycle enum constant instance.
+   *
+   * @param possibleChangeTargetOrdinals all ordinal indexes of other lifecycles this lifecycle can be changed to.
+   */
+  ModuleLifeCycle(int... possibleChangeTargetOrdinals) {
+    this.possibleChangeTargetOrdinals = possibleChangeTargetOrdinals;
+    Arrays.sort(this.possibleChangeTargetOrdinals);
+  }
+
+  /**
+   * Checks if a module can change from this state to the given {@code target}.
+   *
+   * @param target the target state the module want's to change to.
+   * @return If the module can change from the current into the {@code target} state.
+   */
+  public boolean canChangeTo(@NotNull ModuleLifeCycle target) {
+    return Arrays.binarySearch(this.possibleChangeTargetOrdinals, target.ordinal()) >= 0;
+  }
 }

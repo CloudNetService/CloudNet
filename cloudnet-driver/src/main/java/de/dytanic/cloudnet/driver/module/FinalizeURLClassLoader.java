@@ -16,6 +16,7 @@
 
 package de.dytanic.cloudnet.driver.module;
 
+import com.google.common.collect.ObjectArrays;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -31,8 +32,8 @@ public final class FinalizeURLClassLoader extends URLClassLoader {
     ClassLoader.registerAsParallelCapable();
   }
 
-  public FinalizeURLClassLoader(URL pluginFileUrl) {
-    super(new URL[]{pluginFileUrl});
+  public FinalizeURLClassLoader(@NotNull URL moduleFileUrl, @NotNull Set<URL> moduleDependencyUrls) {
+    super(ObjectArrays.concat(moduleFileUrl, moduleDependencyUrls.toArray(new URL[0])));
   }
 
   public void registerGlobally() {

@@ -110,7 +110,7 @@ public class DefaultModuleProviderHandler implements IModuleProviderHandler {
   }
 
   @Override
-  public void handlePreInstallDependency(IModuleWrapper moduleWrapper, ModuleDependency dependency) {
+  public void handlePreInstallDependency(ModuleConfiguration configuration, ModuleDependency dependency) {
     this.callEvent(new ModulePreInstallDependencyEvent(this.getModuleProvider(), moduleWrapper, dependency));
     LOGGER.fine(this.replaceAll(LanguageManager.getMessage("cloudnet-pre-install-dependency-module")
         .replace("%group%", dependency.getGroup())
@@ -120,7 +120,7 @@ public class DefaultModuleProviderHandler implements IModuleProviderHandler {
   }
 
   @Override
-  public void handlePostInstallDependency(IModuleWrapper moduleWrapper, ModuleDependency dependency) {
+  public void handlePostInstallDependency(ModuleConfiguration configuration, ModuleDependency dependency) {
     this.callEvent(new ModulePostInstallDependencyEvent(this.getModuleProvider(), moduleWrapper, dependency));
     LOGGER.fine(this.replaceAll(LanguageManager.getMessage("cloudnet-post-install-dependency-module")
         .replace("%group%", dependency.getGroup())

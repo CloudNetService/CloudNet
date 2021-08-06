@@ -16,6 +16,7 @@
 
 package de.dytanic.cloudnet.driver.module;
 
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import de.dytanic.cloudnet.driver.serialization.SerializableObject;
 import lombok.EqualsAndHashCode;
@@ -43,6 +44,11 @@ public class ModuleRepository implements SerializableObject {
 
   public String getUrl() {
     return this.url;
+  }
+
+  public void assertComplete() {
+    Preconditions.checkNotNull(this.name, "Missing repository name");
+    Preconditions.checkNotNull(this.url, "Missing repository url");
   }
 
   @Override
