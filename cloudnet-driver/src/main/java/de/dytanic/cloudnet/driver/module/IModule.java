@@ -16,14 +16,43 @@
 
 package de.dytanic.cloudnet.driver.module;
 
+import com.google.common.base.VerifyException;
+import org.jetbrains.annotations.NotNull;
+
 // TODO: cleanup here
 public interface IModule {
 
-  IModuleWrapper getModuleWrapper();
+  /**
+   * Initializes the module with the necessary information. This method can only be called once.
+   *
+   * @param loader  the class loader used to load all dependencies and the main class of the module.
+   * @param wrapper the created module wrapper which wraps this module.
+   * @param config  the deserialized module configuration located in the module file.
+   * @throws VerifyException      if this module instance is already initialized.
+   * @throws NullPointerException if the provided loader, wrapper or module config is null.
+   */
+  void init(@NotNull ClassLoader loader, @NotNull IModuleWrapper wrapper, @NotNull ModuleConfiguration config);
 
-  ClassLoader getClassLoader();
+  /**
+   * Get the module wrapper which is associated with this module.
+   *
+   * @return the module wrapper which is associated with this module.
+   */
+  @NotNull IModuleWrapper getModuleWrapper();
 
-  ModuleConfiguration getModuleConfig();
+  /**
+   * Get the class loader which is responsible for this module.
+   *
+   * @return the class loader which is responsible for this module.
+   */
+  @NotNull ClassLoader getClassLoader();
+
+  /**
+   * Get the module configuration which was deserialized based on the information located in the module.
+   *
+   * @return the module configuration located in this module file.
+   */
+  @NotNull ModuleConfiguration getModuleConfig();
 
   default String getGroup() {
     return this.getModuleConfig().group;

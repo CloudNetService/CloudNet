@@ -150,6 +150,8 @@ public class DefaultModuleProvider implements IModuleProvider {
       IModule moduleInstance = (IModule) mainModuleClass.getConstructor().newInstance();
       IModuleWrapper moduleWrapper = new DefaultModuleWrapper(url, moduleInstance, dataDirectory,
         this, loader, dependencies.getSecond(), moduleConfiguration);
+      // initialize the module instance now
+      moduleInstance.init(loader, moduleWrapper, moduleConfiguration);
       // register the module, load it and return the created wrapper
       this.modules.add(moduleWrapper);
       moduleWrapper.loadModule();

@@ -19,11 +19,19 @@ package de.dytanic.cloudnet.driver.module;
 import java.net.URL;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * A dependency loader which only creates a new url instance but will not save the dependency anywhere persistently.
+ */
 public class DefaultMemoryModuleDependencyLoader implements IModuleDependencyLoader {
 
-  // format: <repo-url><group>/<name>/<version>/<name>-<version>.jar
-  private static final String REMOTE_DEPENDENCY_URL_FORMAT = "%s%s/%s/%s/%s-%s.jar";
+  /**
+   * Represents a maven dependency download url in the format: {@code <repo-url><group>/<name>/<version>/<name>-<version>.jar}.
+   */
+  protected static final String REMOTE_DEPENDENCY_URL_FORMAT = "%s%s/%s/%s/%s-%s.jar";
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NotNull URL loadModuleDependencyByUrl(
     @NotNull ModuleConfiguration configuration,
@@ -32,6 +40,9 @@ public class DefaultMemoryModuleDependencyLoader implements IModuleDependencyLoa
     return new URL(dependency.getUrl());
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NotNull URL loadModuleDependencyByRepository(
     @NotNull ModuleConfiguration configuration,

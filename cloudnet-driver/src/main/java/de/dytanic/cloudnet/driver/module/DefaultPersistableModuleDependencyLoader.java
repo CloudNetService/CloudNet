@@ -25,18 +25,32 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * A dependency loader which will download and save the provided module dependencies persistently on the local file
+ * system.
+ */
 public class DefaultPersistableModuleDependencyLoader extends DefaultMemoryModuleDependencyLoader {
 
-  // format: <name>-<version>.jar
+  /**
+   * A format for the file name with which the module will be stored: {@code <name>-<version>.jar}
+   */
   protected static final String FILE_NAME_FORMAT = "%s-%s.jar";
 
   protected final Path baseDirectory;
 
+  /**
+   * Constructs a new instance of this class.
+   *
+   * @param baseDirectory the base directory in which the dependencies should be stored.
+   */
   public DefaultPersistableModuleDependencyLoader(Path baseDirectory) {
     this.baseDirectory = baseDirectory;
     FileUtils.createDirectoryReported(baseDirectory);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NotNull URL loadModuleDependencyByUrl(
     @NotNull ModuleConfiguration configuration,
@@ -46,6 +60,9 @@ public class DefaultPersistableModuleDependencyLoader extends DefaultMemoryModul
     return this.loadDependency(dependency, memoryBasedUrl);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NotNull URL loadModuleDependencyByRepository(
     @NotNull ModuleConfiguration configuration,
@@ -56,6 +73,15 @@ public class DefaultPersistableModuleDependencyLoader extends DefaultMemoryModul
     return this.loadDependency(dependency, memoryBasedUrl);
   }
 
+  /**
+   * Loads and stores a dependency on the local file system. This method will not override existing versions of the
+   * file.
+   *
+   * @param dependency the dependency which gets loaded.
+   * @param url        the url from where the dependency should be loaded.
+   * @return the url to the file on the local file system after the load.
+   * @throws Exception if any exception occurs during the load of the dependency.
+   */
   protected @NotNull URL loadDependency(@NotNull ModuleDependency dependency, @NotNull URL url) throws Exception {
     Path destFile = FileUtils.resolve(this.baseDirectory, dependency.getGroup().split("\\."))
       .resolve(dependency.getName())
@@ -78,7 +104,12 @@ public class DefaultPersistableModuleDependencyLoader extends DefaultMemoryModul
     return destFile.toUri().toURL();
   }
 
-  public Path getBaseDirectory() {
+  /**
+   * Get the base directory in which the dependencies should be stored.
+   *
+   * @return the base directory in which the dependencies should be stored.
+   */
+  public @NotNull Path getBaseDirectory() {
     return this.baseDirectory;
   }
 }

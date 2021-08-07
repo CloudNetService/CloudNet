@@ -23,6 +23,9 @@ import org.jetbrains.annotations.NotNull;
 
 public class DefaultModuleTaskEntry implements IModuleTaskEntry {
 
+  /**
+   * A simple format which allows unique method identifiers. Format: {@code <declaring class>@<method name>()}
+   */
   protected static final String METHOD_SIGNATURE_FORMAT = "%s@%s()";
 
   protected final Method jlrMethod;
@@ -31,6 +34,14 @@ public class DefaultModuleTaskEntry implements IModuleTaskEntry {
   protected final IModuleWrapper moduleWrapper;
   protected final String fullMethodSignatureCached;
 
+  /**
+   * Constructs a new instance of this class.
+   *
+   * @param wrapper the module wrapper associated with this task entry.
+   * @param task    the module task annotation based on which this entry was created.
+   * @param method  the method which was annotated with {@link ModuleTask}.
+   * @throws IllegalAccessException if access checking for the provided method fails.
+   */
   public DefaultModuleTaskEntry(IModuleWrapper wrapper, ModuleTask task, Method method) throws IllegalAccessException {
     this.jlrMethod = method;
     this.moduleTask = task;
@@ -41,37 +52,58 @@ public class DefaultModuleTaskEntry implements IModuleTaskEntry {
       METHOD_SIGNATURE_FORMAT, method.getDeclaringClass().getCanonicalName(), method.getName());
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NotNull IModule getModule() {
     return this.moduleWrapper.getModule();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NotNull IModuleWrapper getModuleWrapper() {
     return this.moduleWrapper;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NotNull ModuleTask getTaskInfo() {
     return this.moduleTask;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NotNull MethodHandle getMethod() {
     return this.method;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   @Deprecated
   public Method getHandler() {
     return this.jlrMethod;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NotNull String getFullMethodSignature() {
     return this.fullMethodSignatureCached;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void fire() throws Throwable {
     this.method.invokeExact(this.getModuleWrapper().getModule());
