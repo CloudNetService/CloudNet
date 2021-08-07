@@ -24,28 +24,47 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import org.jetbrains.annotations.NotNull;
 
-public final class FinalizeURLClassLoader extends URLClassLoader {
+public class FinalizeURLClassLoader extends URLClassLoader {
 
-  private static final Set<FinalizeURLClassLoader> LOADERS = new CopyOnWriteArraySet<>();
+  /**
+   * All loaders which were created and of which the associated module is still loaded.
+   */
+  protected static final Set<FinalizeURLClassLoader> LOADERS = new CopyOnWriteArraySet<>();
 
   static {
     ClassLoader.registerAsParallelCapable();
   }
 
+  /**
+   * Creates an instance of this class loader.
+   *
+   * @param moduleFileUrl        the module file to which this loader is associated.
+   * @param moduleDependencyUrls all dependencies which were loaded for the module.
+   */
   public FinalizeURLClassLoader(@NotNull URL moduleFileUrl, @NotNull Set<URL> moduleDependencyUrls) {
     super(ObjectArrays.concat(moduleFileUrl, moduleDependencyUrls.toArray(new URL[0])));
   }
 
+  /**
+   * Registers this loader to all loaders. This causes all other instances of this class to search for classes in this
+   * loader too.
+   */
   public void registerGlobally() {
     LOADERS.add(this);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void close() throws IOException {
     super.close();
     LOADERS.remove(this);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   protected @NotNull Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
     try {

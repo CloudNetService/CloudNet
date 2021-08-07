@@ -16,9 +16,20 @@
 
 package de.dytanic.cloudnet.driver.module;
 
+import org.jetbrains.annotations.NotNull;
+
+/**
+ * Thrown when a module depends on another module which is not loaded.
+ */
 public class ModuleDependencyNotFoundException extends RuntimeException {
 
-  public ModuleDependencyNotFoundException(String message) {
-    super(message);
+  /**
+   * Constructs a new instance of this class.
+   *
+   * @param dependency      the name of the dependency which is missing.
+   * @param requiringModule the module which required the dependency to be present.
+   */
+  public ModuleDependencyNotFoundException(@NotNull String dependency, @NotNull String requiringModule) {
+    super(String.format("Missing module dependency %s required by %s", dependency, requiringModule));
   }
 }

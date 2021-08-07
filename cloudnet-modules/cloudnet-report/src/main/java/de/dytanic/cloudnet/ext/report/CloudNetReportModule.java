@@ -308,12 +308,9 @@ public final class CloudNetReportModule extends NodeCloudNetModule {
       Map<String, String> repositoryURLs = new HashMap<>();
       if (configuration.getRepos() != null) {
         for (ModuleRepository repository : configuration.getRepos()) {
-          if (repository.getName() != null && repository.getUrl() != null) {
-            repositoryURLs.put(repository.getName(), repository.getUrl());
-          }
+          repositoryURLs.put(repository.getName(), repository.getUrl());
         }
       }
-      repositoryURLs.putAll(moduleWrapper.getProvidedRepositories());
 
       builder.append(configuration.getGroup()).append(":").append(configuration.getName()).append(":")
         .append(configuration.getVersion()).append(":\n");
@@ -321,17 +318,12 @@ public final class CloudNetReportModule extends NodeCloudNetModule {
       builder.append("  Website: ").append(configuration.getWebsite()).append('\n');
       builder.append("  Author: ").append(configuration.getAuthor()).append('\n');
       builder.append("  Version: ").append(configuration.getVersion()).append('\n');
-      builder.append("  Main: ").append(configuration.getMain()).append('\n');
+      builder.append("  Main: ").append(configuration.getMainClass()).append('\n');
       builder.append("  Restart on CloudNet reload: ").append(!configuration.isRuntimeModule()).append('\n');
 
       if (configuration.getDependencies() != null) {
         builder.append("  Dependencies: \n");
         for (ModuleDependency dependency : configuration.getDependencies()) {
-          if (dependency == null || dependency.getGroup() == null || dependency.getName() == null
-            || dependency.getVersion() == null) {
-            continue;
-          }
-
           if (dependency.getUrl() == null && dependency.getRepo() == null) {
 
             builder.append("    Cloud Module - ").append(dependency.getGroup()).append(":").append(dependency.getName())

@@ -21,17 +21,26 @@ import de.dytanic.cloudnet.driver.module.IModuleProvider;
 import de.dytanic.cloudnet.driver.module.IModuleWrapper;
 import de.dytanic.cloudnet.driver.module.ModuleDependency;
 import de.dytanic.cloudnet.driver.module.ModuleDependencyNotFoundException;
+import de.dytanic.cloudnet.driver.module.ModuleDependencyOutdatedException;
 import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.Deque;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * Utility to find dependencies of a module, ensure that they are loaded and that there is no circular dependency.
  */
 public final class ModuleDependencyUtils {
+
+  /**
+   * A regex to match semver versions. See <a href="https://regex101.com/r/Gqy0sh/1">here</a> for testing.
+   */
+  private static final Pattern SEMVER_PATTERN = Pattern.compile(
+    "(0|[1-9]\\d*)(?:\\.(0|[1-9]\\d*)(?:\\.(0|[1-9]\\d*))?)?");
 
   private ModuleDependencyUtils() {
     throw new UnsupportedOperationException();
@@ -44,6 +53,7 @@ public final class ModuleDependencyUtils {
    * @param moduleProvider the provider which loaded the calling module.
    * @return a set of all dependencies which need to be enabled before the caller can be enabled.
    * @throws ModuleDependencyNotFoundException if a module dependency is missing.
+   * @throws ModuleDependencyOutdatedException if the running module can not provide the minimum required version.
    */
   public static @NotNull Set<IModuleWrapper> collectDependencies(
     @NotNull IModuleWrapper caller,
@@ -73,6 +83,7 @@ public final class ModuleDependencyUtils {
    * @param dependencyHolder the module of which the dependencies are checked currently.
    * @param moduleProvider   the module provider which originally loaded the dependencies.
    * @throws ModuleDependencyNotFoundException if a module dependency is missing.
+   * @throws ModuleDependencyOutdatedException if the running module can not provide the minimum required version.
    */
   private static void visitDependencies(
     @NotNull Deque<IModuleWrapper> visitedNodes,
@@ -104,6 +115,7 @@ public final class ModuleDependencyUtils {
    * @param dependencyHolder the holder which needs the dependency to be present.
    * @return the associated module wrapper with the given module dependency.
    * @throws ModuleDependencyNotFoundException if a module dependency is missing.
+   * @throws ModuleDependencyOutdatedException if the running module can not provide the minimum required version.
    */
   private static @NotNull IModuleWrapper getAssociatedModuleWrapper(
     @NotNull ModuleDependency dependency,
@@ -113,13 +125,52 @@ public final class ModuleDependencyUtils {
     IModuleWrapper wrapper = provider.getModule(dependency.getName());
     // ensure that the wrapper is present
     if (wrapper == null) {
-      throw new ModuleDependencyNotFoundException(String.format("Missing module dependency %s from %s",
-        dependency.getName(), dependencyHolder.getModule().getName()));
+      throw new ModuleDependencyNotFoundException(dependency.getName(), dependencyHolder.getModule().getName());
     }
-    // todo: ensure that the version of the module is compatible by doing the following
-    // if major != dependency.major = exception
-    // if minor < dependency.minor = exception
-    // for patch do nothing - these versions shouldn't contain new methods nor removed ones
+    // try to make a semver check
+    Matcher dependencyVersion = SEMVER_PATTERN.matcher(dependency.getVersion());
+    Matcher moduleVersion = SEMVER_PATTERN.matcher(wrapper.getModule().getVersion());
+    // check if both of the matchers had at least one match
+    if (dependencyVersion.matches() && moduleVersion.matches()) {
+      // assert that the versions are compatible
+      checkDependencyVersion(dependencyHolder, dependency, dependencyVersion, moduleVersion);
+    }
     return wrapper;
+  }
+
+  /**
+   * Validates that the dependency of the module is compatible with the actual running module. This only checks for the
+   * major and minor version of the module as a patch version should only patch bugs not add new features nor contain
+   * breaking changes.
+   *
+   * @param requiringModule   the module which holds the dependency.
+   * @param dependency        the dependency which gets checked.
+   * @param dependencyVersion a matcher for the semver versioning of the dependency.
+   * @param moduleVersion     a matcher for the semver versioning of the running module.
+   * @throws ModuleDependencyOutdatedException if the running module can not provide the minimum required version.
+   */
+  private static void checkDependencyVersion(
+    @NotNull IModuleWrapper requiringModule,
+    @NotNull ModuleDependency dependency,
+    @NotNull Matcher dependencyVersion,
+    @NotNull Matcher moduleVersion
+  ) {
+    // extract both major versions
+    int moduleMajor = Integer.parseInt(moduleVersion.group(1));
+    int dependencyMajor = Integer.parseInt(dependencyVersion.group(1));
+    // fail if the dependency major is higher than the actual major
+    if (dependencyMajor > moduleMajor) {
+      throw new ModuleDependencyOutdatedException(requiringModule, dependency, "major", dependencyMajor, moduleMajor);
+    }
+    // check if a minor version is required
+    if (dependencyVersion.groupCount() > 1) {
+      // extract both minor versions
+      int dependencyMinor = Integer.parseInt(dependencyVersion.group(2));
+      int moduleMinor = moduleVersion.groupCount() == 1 ? 0 : Integer.parseInt(moduleVersion.group(2));
+      // fail if the dependency minor is higher than the actual major
+      if (dependencyMinor > moduleMinor) {
+        throw new ModuleDependencyOutdatedException(requiringModule, dependency, "minor", dependencyMinor, moduleMinor);
+      }
+    }
   }
 }

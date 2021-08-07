@@ -17,6 +17,7 @@
 package de.dytanic.cloudnet.driver.module;
 
 import com.google.common.base.Preconditions;
+import de.dytanic.cloudnet.common.JavaVersion;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.log.LogManager;
@@ -127,9 +128,12 @@ public class DefaultModuleProvider implements IModuleProvider {
         throw new ModuleConfigurationNotFoundException(url);
       }
       // validate that the module configuration contains all necessary information
-      String firstMissingProperty = moduleConfiguration.getFirstMissingProperty();
-      if (firstMissingProperty != null) {
-        throw new ModuleConfigurationPropertyNotFoundException(firstMissingProperty);
+      moduleConfiguration.assertRequiredPropertiesSet();
+      // check if the module can run on the current java version release.
+      if (!moduleConfiguration.canRunOn(JavaVersion.getRuntimeVersion())) {
+        LOGGER.warning(String.format("Unable to load module %s:%s because it only supports Java %d+",
+          moduleConfiguration.getGroup(), moduleConfiguration.getName(), moduleConfiguration.getMinJavaVersionId()));
+        return null;
       }
       // initialize all dependencies of the module
       Map<String, String> repositories = this.collectModuleProvidedRepositories(moduleConfiguration);
@@ -145,7 +149,7 @@ public class DefaultModuleProvider implements IModuleProvider {
           mainModuleClass.getCanonicalName(), IModule.class.getCanonicalName()));
       }
       // get the data directory of the module
-      Path dataDirectory = this.moduleDirectory.resolve(moduleConfiguration.getName());
+      Path dataDirectory = moduleConfiguration.getDataFolder(this.moduleDirectory);
       // create an instance of the class and the main module wrapper
       IModule moduleInstance = (IModule) mainModuleClass.getConstructor().newInstance();
       IModuleWrapper moduleWrapper = new DefaultModuleWrapper(url, moduleInstance, dataDirectory,
@@ -304,6 +308,9 @@ public class DefaultModuleProvider implements IModuleProvider {
     if (configuration.getRepos() != null) {
       // iterate over all repositories and ensure that the repository url is in a readable format.
       for (ModuleRepository repo : configuration.getRepos()) {
+        if (repo == null) {
+          continue;
+        }
         // ensure that all properties of the repo are present
         repo.assertComplete();
         repositories.putIfAbsent(repo.getName(), repo.getUrl().endsWith("/") ? repo.getUrl() : repo.getUrl() + "/");
@@ -331,6 +338,9 @@ public class DefaultModuleProvider implements IModuleProvider {
       IModuleProviderHandler handler = this.moduleProviderHandler;
       // iterate over all dependencies - these may be a module or a remote dependency (visible by the given properties)
       for (ModuleDependency dependency : configuration.getDependencies()) {
+        if (dependency == null) {
+          continue;
+        }
         // ensure that the required properties are set
         dependency.assertDefaultPropertiesSet();
         // decide which way to go (by url or repository). In this case we start with the more common repository way

@@ -19,7 +19,11 @@ package de.dytanic.cloudnet.driver.module;
 import com.google.common.base.VerifyException;
 import org.jetbrains.annotations.NotNull;
 
-// TODO: cleanup here
+/**
+ * Represents the main class of a module.
+ *
+ * @see de.dytanic.cloudnet.driver.module.driver.DriverModule
+ */
 public interface IModule {
 
   /**
@@ -54,24 +58,48 @@ public interface IModule {
    */
   @NotNull ModuleConfiguration getModuleConfig();
 
+  /**
+   * Get the group of this module.
+   *
+   * @return the group id of this module.
+   */
   default String getGroup() {
-    return this.getModuleConfig().group;
+    return this.getModuleConfig().getGroup();
   }
 
+  /**
+   * Get the name of this module.
+   *
+   * @return the name of this module.
+   */
   default String getName() {
-    return this.getModuleConfig().name;
+    return this.getModuleConfig().getName();
   }
 
+  /**
+   * Get the version of this module.
+   *
+   * @return the version of this module.
+   */
   default String getVersion() {
-    return this.getModuleConfig().version;
+    return this.getModuleConfig().getVersion();
   }
 
+  /**
+   * Get the website of this module.
+   *
+   * @return the website of this module.
+   */
   default String getWebsite() {
-    return this.getModuleConfig().website;
+    return this.getModuleConfig().getWebsite();
   }
 
+  /**
+   * Get the description of this module.
+   *
+   * @return the description of this module.
+   */
   default String getDescription() {
-    return this.getModuleConfig().description;
+    return this.getModuleConfig().getDescription();
   }
-
 }

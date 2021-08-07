@@ -16,9 +16,19 @@
 
 package de.dytanic.cloudnet.driver.module;
 
-public final class ModuleConfigurationPropertyNotFoundException extends RuntimeException {
+import org.jetbrains.annotations.NotNull;
 
-  public ModuleConfigurationPropertyNotFoundException(String field) {
-    super("Required property in module configuration not found: " + field);
+/**
+ * An exception thrown when a required property was not found in a module.json file.
+ */
+public class ModuleConfigurationPropertyNotFoundException extends RuntimeException {
+
+  /**
+   * Creates a new instance of this class.
+   *
+   * @param field the field which was missing in the module configuration.
+   */
+  public ModuleConfigurationPropertyNotFoundException(@NotNull String field) {
+    super(String.format("Required property in module configuration not found: %s", field));
   }
 }
