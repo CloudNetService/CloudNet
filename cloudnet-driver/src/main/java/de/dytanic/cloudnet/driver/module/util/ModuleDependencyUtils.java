@@ -158,8 +158,8 @@ public final class ModuleDependencyUtils {
     // extract both major versions
     int moduleMajor = Integer.parseInt(moduleVersion.group(1));
     int dependencyMajor = Integer.parseInt(dependencyVersion.group(1));
-    // fail if the dependency major is higher than the actual major
-    if (dependencyMajor > moduleMajor) {
+    // fail if the dependency major is not the actual major as breaking changes may be introduced
+    if (dependencyMajor != moduleMajor) {
       throw new ModuleDependencyOutdatedException(requiringModule, dependency, "major", dependencyMajor, moduleMajor);
     }
     // check if a minor version is required
