@@ -69,18 +69,33 @@ public class FinalizeURLClassLoader extends URLClassLoader {
    */
   @Override
   protected @NotNull Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
+    return this.loadClass(name, resolve, true);
+  }
+
+  /**
+   * Tries to load a class by the provided name.
+   *
+   * @param name    The name of the class to load.
+   * @param resolve If the class should be resolved.
+   * @param global  If all loaders registered in {@link FinalizeURLClassLoader#LOADERS} should be checked.
+   * @return The resulting {@code Class} object
+   * @throws ClassNotFoundException If the class could not be found
+   */
+  protected @NotNull Class<?> loadClass(String name, boolean resolve, boolean global) throws ClassNotFoundException {
     try {
       return super.loadClass(name, resolve);
     } catch (ClassNotFoundException ignored) {
       // ignore for now, we'll try the other loaders first
     }
 
-    for (FinalizeURLClassLoader loader : LOADERS) {
-      if (loader != this) {
-        try {
-          return loader.loadClass(name, resolve);
-        } catch (ClassNotFoundException exception) {
-          // there may be still other to come
+    if (global) {
+      for (FinalizeURLClassLoader loader : LOADERS) {
+        if (loader != this) {
+          try {
+            return loader.loadClass(name, resolve, false);
+          } catch (ClassNotFoundException exception) {
+            // there may be still other to come
+          }
         }
       }
     }
