@@ -104,7 +104,7 @@ public interface IModuleProvider {
   /**
    * Get all loaded, started, stopped modules provided by this provider.
    *
-   * @return all loaded, started, stopped modules provided by this provider.
+   * @return an immutable set of all loaded, started, stopped modules provided by this provider.
    * @see ModuleLifeCycle
    */
   @NotNull
@@ -114,7 +114,8 @@ public interface IModuleProvider {
    * Get all loaded, started, stopped modules provided by this provider which have the specific given group.
    *
    * @param group the group id of the modules to get.
-   * @return all loaded, started, stopped modules provided by this provider which have the specific given group.
+   * @return an immutable set of all loaded, started, stopped modules provided by this provider which have the specific
+   * given group.
    * @see ModuleLifeCycle
    */
   @NotNull

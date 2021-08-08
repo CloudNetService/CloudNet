@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
 
@@ -37,7 +38,7 @@ public interface IModuleWrapper {
   /**
    * Get all module tasks which were detected in the main class of the module.
    *
-   * @return all module tasks which were detected in the main class of the module.
+   * @return an immutable map of all module tasks which were detected in the main class of the module.
    */
   @NotNull
   @Unmodifiable Map<ModuleLifeCycle, List<IModuleTaskEntry>> getModuleTasks();
@@ -45,7 +46,7 @@ public interface IModuleWrapper {
   /**
    * Get all modules this module is depending on.
    *
-   * @return all modules this module is depending on.
+   * @return an immutable set of all modules this module is depending on.
    */
   @NotNull
   @Unmodifiable Set<ModuleDependency> getDependingModules();
@@ -82,6 +83,7 @@ public interface IModuleWrapper {
    * @deprecated Use {@link #getModuleConfiguration()} instead - same result but unwrapped.
    */
   @Deprecated
+  @ScheduledForRemoval
   default JsonDocument getModuleConfigurationSource() {
     return JsonDocument.newDocument(this.getModuleConfiguration());
   }
@@ -170,6 +172,7 @@ public interface IModuleWrapper {
    * @deprecated Use {@link ModuleConfiguration#getRepos()} instead.
    */
   @Deprecated
+  @ScheduledForRemoval
   default Map<String, String> getDefaultRepositories() {
     return Arrays.stream(this.getModuleConfiguration().getRepos())
       .collect(Collectors.toMap(ModuleRepository::getName, ModuleRepository::getUrl));
