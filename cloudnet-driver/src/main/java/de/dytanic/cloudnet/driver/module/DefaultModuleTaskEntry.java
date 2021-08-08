@@ -106,6 +106,6 @@ public class DefaultModuleTaskEntry implements IModuleTaskEntry {
    */
   @Override
   public void fire() throws Throwable {
-    this.method.invokeExact(this.getModuleWrapper().getModule());
+    this.method.invoke(this.getModuleWrapper().getModule());
   }
 }

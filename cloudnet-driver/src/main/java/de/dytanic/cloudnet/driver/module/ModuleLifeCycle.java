@@ -21,22 +21,26 @@ import org.jetbrains.annotations.NotNull;
 
 public enum ModuleLifeCycle {
   /**
+   * The initial state of a module until the module gets loaded. Defined module tasks for this state will never fire.
+   */
+  CREATED(1),
+  /**
    * Used when the module instance was just created. In this stage no modules the module might depend on must be
    * loaded.
    */
-  LOADED(1),
+  LOADED(2),
   /**
    * In this state the module ist started and every module dependency declared by the module was started before.
    */
-  STARTED(2),
+  STARTED(3),
   /**
    * In this state the module is still loadable, it's only idling and not doing anything anymore.
    */
-  STOPPED(1, 3),
+  STOPPED(2, 4),
   /**
    * In this state the module is completely unloaded and will switch to the {@link #UNUSEABLE} state shortly.
    */
-  UNLOADED(0, 4),
+  UNLOADED(1, 5),
   /**
    * In this state the module wrapper instance is empty, it is not associated with a module anymore. Defined module
    * tasks for this state will never fire.

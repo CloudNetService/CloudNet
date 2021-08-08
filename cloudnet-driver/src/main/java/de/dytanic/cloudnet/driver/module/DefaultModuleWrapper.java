@@ -59,7 +59,7 @@ public class DefaultModuleWrapper implements IModuleWrapper {
 
   private final Lock moduleLifecycleUpdateLock = new ReentrantLock();
   private final Map<ModuleLifeCycle, List<IModuleTaskEntry>> tasks = new EnumMap<>(ModuleLifeCycle.class);
-  private final AtomicReference<ModuleLifeCycle> lifeCycle = new AtomicReference<>(ModuleLifeCycle.UNUSEABLE);
+  private final AtomicReference<ModuleLifeCycle> lifeCycle = new AtomicReference<>(ModuleLifeCycle.CREATED);
 
   /**
    * Creates a new instance of a default module wrapper.
