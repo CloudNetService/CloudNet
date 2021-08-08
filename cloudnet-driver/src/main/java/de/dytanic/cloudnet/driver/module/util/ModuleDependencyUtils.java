@@ -66,6 +66,8 @@ public final class ModuleDependencyUtils {
     // we iterate over the root layer here to collect the first layer of dependencies of the module
     for (ModuleDependency dependingModule : caller.getDependingModules()) {
       IModuleWrapper wrapper = getAssociatedModuleWrapper(dependingModule, moduleProvider, caller);
+      // register the module as a root dependency of the calling module
+      rootDependencyNodes.add(wrapper);
       // now we visit every dependency of the module giving in a new tree to build
       visitedNodes.add(wrapper);
       visitDependencies(visitedNodes, wrapper.getDependingModules(), caller, wrapper, moduleProvider);
