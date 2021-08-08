@@ -42,7 +42,9 @@ public class FinalizeURLClassLoader extends URLClassLoader {
    * @param moduleDependencyUrls all dependencies which were loaded for the module.
    */
   public FinalizeURLClassLoader(@NotNull URL moduleFileUrl, @NotNull Set<URL> moduleDependencyUrls) {
-    super(ObjectArrays.concat(moduleFileUrl, moduleDependencyUrls.toArray(new URL[0])));
+    super(
+      ObjectArrays.concat(moduleFileUrl, moduleDependencyUrls.toArray(new URL[0])),
+      FinalizeURLClassLoader.class.getClassLoader());
   }
 
   /**
