@@ -66,41 +66,65 @@ public class DefaultModuleProvider implements IModuleProvider {
     this.moduleDependencyLoader = moduleDependencyLoader;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NotNull Path getModuleDirectoryPath() {
     return this.moduleDirectory;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void setModuleDirectoryPath(@NotNull Path moduleDirectory) {
     this.moduleDirectory = Preconditions.checkNotNull(moduleDirectory, "moduleDirectory");
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @Nullable IModuleProviderHandler getModuleProviderHandler() {
     return this.moduleProviderHandler;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void setModuleProviderHandler(@Nullable IModuleProviderHandler moduleProviderHandler) {
     this.moduleProviderHandler = moduleProviderHandler;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NotNull IModuleDependencyLoader getModuleDependencyLoader() {
     return this.moduleDependencyLoader;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void setModuleDependencyLoader(@NotNull IModuleDependencyLoader moduleDependencyLoader) {
     this.moduleDependencyLoader = Preconditions.checkNotNull(moduleDependencyLoader, "moduleDependencyLoader");
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NotNull Collection<IModuleWrapper> getModules() {
     return Collections.unmodifiableCollection(this.modules);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NotNull Collection<IModuleWrapper> getModules(@NotNull String group) {
     return this.modules.stream()
@@ -108,6 +132,9 @@ public class DefaultModuleProvider implements IModuleProvider {
       .collect(Collectors.toList());
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public IModuleWrapper getModule(@NotNull String name) {
     return this.modules.stream()
@@ -115,6 +142,9 @@ public class DefaultModuleProvider implements IModuleProvider {
       .findFirst().orElse(null);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public IModuleWrapper loadModule(@NotNull URL url) {
     try {
@@ -158,8 +188,7 @@ public class DefaultModuleProvider implements IModuleProvider {
       moduleInstance.init(loader, moduleWrapper, moduleConfiguration);
       // register the module, load it and return the created wrapper
       this.modules.add(moduleWrapper);
-      moduleWrapper.loadModule();
-      return moduleWrapper;
+      return moduleWrapper.loadModule();
     } catch (IOException | URISyntaxException exception) {
       throw new AssertionError("Exception reading module information", exception);
     } catch (ReflectiveOperationException exception) {
@@ -167,6 +196,9 @@ public class DefaultModuleProvider implements IModuleProvider {
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public IModuleWrapper loadModule(@NotNull Path path) {
     try {
@@ -177,6 +209,9 @@ public class DefaultModuleProvider implements IModuleProvider {
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NotNull IModuleProvider startAll() {
     for (IModuleWrapper module : this.modules) {
@@ -185,6 +220,9 @@ public class DefaultModuleProvider implements IModuleProvider {
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NotNull IModuleProvider stopAll() {
     for (IModuleWrapper module : this.modules) {
@@ -193,6 +231,9 @@ public class DefaultModuleProvider implements IModuleProvider {
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NotNull IModuleProvider unloadAll() {
     for (IModuleWrapper module : this.modules) {
@@ -201,6 +242,9 @@ public class DefaultModuleProvider implements IModuleProvider {
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean notifyPreModuleLifecycleChange(@NotNull IModuleWrapper wrapper, @NotNull ModuleLifeCycle lifeCycle) {
     // remove the module from the loaded ones
@@ -228,6 +272,9 @@ public class DefaultModuleProvider implements IModuleProvider {
     return true;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void notifyPostModuleLifecycleChange(@NotNull IModuleWrapper wrapper, @NotNull ModuleLifeCycle lifeCycle) {
     // post the change to the handler (if one is set)

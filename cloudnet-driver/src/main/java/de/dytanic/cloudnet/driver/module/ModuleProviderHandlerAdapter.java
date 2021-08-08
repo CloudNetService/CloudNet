@@ -17,51 +17,52 @@
 package de.dytanic.cloudnet.driver.module;
 
 import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
+import org.jetbrains.annotations.NotNull;
 
 @Deprecated
 @ScheduledForRemoval
 public class ModuleProviderHandlerAdapter implements IModuleProviderHandler {
 
   @Override
-  public boolean handlePreModuleLoad(IModuleWrapper moduleWrapper) {
+  public boolean handlePreModuleLoad(@NotNull IModuleWrapper moduleWrapper) {
     return true;
   }
 
   @Override
-  public void handlePostModuleLoad(IModuleWrapper moduleWrapper) {
+  public void handlePostModuleLoad(@NotNull IModuleWrapper moduleWrapper) {
   }
 
   @Override
-  public boolean handlePreModuleStart(IModuleWrapper moduleWrapper) {
+  public boolean handlePreModuleStart(@NotNull IModuleWrapper moduleWrapper) {
     return true;
   }
 
   @Override
-  public void handlePostModuleStart(IModuleWrapper moduleWrapper) {
+  public void handlePostModuleStart(@NotNull IModuleWrapper moduleWrapper) {
   }
 
   @Override
-  public boolean handlePreModuleStop(IModuleWrapper moduleWrapper) {
+  public boolean handlePreModuleStop(@NotNull IModuleWrapper moduleWrapper) {
     return true;
   }
 
   @Override
-  public void handlePostModuleStop(IModuleWrapper moduleWrapper) {
+  public void handlePostModuleStop(@NotNull IModuleWrapper moduleWrapper) {
   }
 
   @Override
-  public void handlePreModuleUnload(IModuleWrapper moduleWrapper) {
+  public void handlePreModuleUnload(@NotNull IModuleWrapper moduleWrapper) {
   }
 
   @Override
-  public void handlePostModuleUnload(IModuleWrapper moduleWrapper) {
+  public void handlePostModuleUnload(@NotNull IModuleWrapper moduleWrapper) {
   }
 
   @Override
-  public void handlePreInstallDependency(ModuleConfiguration configuration, ModuleDependency dependency) {
+  public void handlePreInstallDependency(@NotNull ModuleConfiguration configuration, @NotNull ModuleDependency dependency) {
   }
 
   @Override
-  public void handlePostInstallDependency(ModuleConfiguration configuration, ModuleDependency dependency) {
+  public void handlePostInstallDependency(@NotNull ModuleConfiguration configuration, @NotNull ModuleDependency dependency) {
   }
 }

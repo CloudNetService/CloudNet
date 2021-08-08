@@ -17,24 +17,71 @@
 package de.dytanic.cloudnet.driver.module;
 
 import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
+import org.jetbrains.annotations.NotNull;
 
+/**
+ * Represents a handler for module provider actions.
+ */
 public interface IModuleProviderHandler {
 
-  boolean handlePreModuleLoad(IModuleWrapper moduleWrapper);
+  /**
+   * Called when a module is about to get loaded.
+   *
+   * @param moduleWrapper the module wrapper which will be loaded.
+   * @return if the module is allowed to load.
+   */
+  boolean handlePreModuleLoad(@NotNull IModuleWrapper moduleWrapper);
 
-  void handlePostModuleLoad(IModuleWrapper moduleWrapper);
+  /**
+   * Called when a module was loaded.
+   *
+   * @param moduleWrapper the module which was loaded.
+   */
+  void handlePostModuleLoad(@NotNull IModuleWrapper moduleWrapper);
 
-  boolean handlePreModuleStart(IModuleWrapper moduleWrapper);
+  /**
+   * Called when a module is about to get started.
+   *
+   * @param moduleWrapper the module which will be started.
+   * @return if the module is allowed to start.
+   */
+  boolean handlePreModuleStart(@NotNull IModuleWrapper moduleWrapper);
 
-  void handlePostModuleStart(IModuleWrapper moduleWrapper);
+  /**
+   * Called when a module was started.
+   *
+   * @param moduleWrapper the module which was started.
+   */
+  void handlePostModuleStart(@NotNull IModuleWrapper moduleWrapper);
 
-  boolean handlePreModuleStop(IModuleWrapper moduleWrapper);
+  /**
+   * Called when a module is about to get stopped.
+   *
+   * @param moduleWrapper the module which will be stopped.
+   * @return if the module is allowed to stop.
+   */
+  boolean handlePreModuleStop(@NotNull IModuleWrapper moduleWrapper);
 
-  void handlePostModuleStop(IModuleWrapper moduleWrapper);
+  /**
+   * Called when a module was stopped.
+   *
+   * @param moduleWrapper the module which was stopped.
+   */
+  void handlePostModuleStop(@NotNull IModuleWrapper moduleWrapper);
 
-  void handlePreModuleUnload(IModuleWrapper moduleWrapper);
+  /**
+   * Called when a module is about to get unloaded.
+   *
+   * @param moduleWrapper the module which will be unloaded.
+   */
+  void handlePreModuleUnload(@NotNull IModuleWrapper moduleWrapper);
 
-  void handlePostModuleUnload(IModuleWrapper moduleWrapper);
+  /**
+   * Called when a module was unloaded.
+   *
+   * @param moduleWrapper the module which was unloaded.
+   */
+  void handlePostModuleUnload(@NotNull IModuleWrapper moduleWrapper);
 
   /**
    * @deprecated This method will not get called anymore. Use {@link #handlePreInstallDependency(ModuleConfiguration,
@@ -45,7 +92,13 @@ public interface IModuleProviderHandler {
   default void handlePreInstallDependency(IModuleWrapper moduleWrapper, ModuleDependency dependency) {
   }
 
-  void handlePreInstallDependency(ModuleConfiguration configuration, ModuleDependency dependency);
+  /**
+   * Called when a dependency for a module is about to get loaded.
+   *
+   * @param configuration the configuration of the module in which the dependency is declared.
+   * @param dependency    the dependency which will be loaded.
+   */
+  void handlePreInstallDependency(@NotNull ModuleConfiguration configuration, @NotNull ModuleDependency dependency);
 
   /**
    * @deprecated This method will not get called anymore. Use {@link #handlePostInstallDependency(ModuleConfiguration,
@@ -56,5 +109,11 @@ public interface IModuleProviderHandler {
   default void handlePostInstallDependency(IModuleWrapper moduleWrapper, ModuleDependency dependency) {
   }
 
-  void handlePostInstallDependency(ModuleConfiguration configuration, ModuleDependency dependency);
+  /**
+   * Called when a dependency for a module was loaded.
+   *
+   * @param configuration the configuration of the module in which the dependency is declared.
+   * @param dependency    the dependency which was loaded.
+   */
+  void handlePostInstallDependency(@NotNull ModuleConfiguration configuration, @NotNull ModuleDependency dependency);
 }
