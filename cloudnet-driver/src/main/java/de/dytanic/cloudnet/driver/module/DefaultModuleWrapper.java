@@ -45,8 +45,12 @@ import org.jetbrains.annotations.Unmodifiable;
 public class DefaultModuleWrapper implements IModuleWrapper {
 
   protected static final Logger LOGGER = LogManager.getLogger(DefaultModuleWrapper.class);
-  protected static final Comparator<IModuleTaskEntry> TASK_COMPARATOR = Comparator.comparingInt(
-    entry -> entry.getTaskInfo().order());
+  // This looks strange in the first place but is the only way to go as java generics are a bit strange.
+  // When using Comparator.comparingInt(...).reverse() the type is now a Comparator<Object> which leads to problems
+  // extracting the key of the task entry... And yes, reversing is necessary as the module task with the highest order
+  // should be called first but the natural ordering of java sorts the lowest number first.
+  protected static final Comparator<IModuleTaskEntry> TASK_COMPARATOR = Comparator.comparing(
+    entry -> entry.getTaskInfo().order(), Comparator.reverseOrder());
 
   private final URL source;
   private final URI sourceUri;
