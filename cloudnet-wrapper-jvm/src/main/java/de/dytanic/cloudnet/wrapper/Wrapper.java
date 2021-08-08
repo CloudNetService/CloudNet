@@ -239,6 +239,9 @@ public final class Wrapper extends CloudNetDriver implements DriverAPIUser {
     this.servicesRegistry.unregisterAll();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NotNull String getComponentName() {
     return this.getServiceId().getName();
@@ -249,6 +252,9 @@ public final class Wrapper extends CloudNetDriver implements DriverAPIUser {
     return this.getTemplateStorage(ServiceTemplate.LOCAL_STORAGE);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NotNull String getNodeUniqueId() {
     return this.getServiceId().getNodeUniqueId();
@@ -259,11 +265,17 @@ public final class Wrapper extends CloudNetDriver implements DriverAPIUser {
     return new RemoteTemplateStorage(storage, this::getNetworkChannel);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NotNull Collection<TemplateStorage> getAvailableTemplateStorages() {
     return this.getAvailableTemplateStoragesAsync().get(5, TimeUnit.SECONDS, Collections.emptyList());
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NotNull ITask<Collection<TemplateStorage>> getAvailableTemplateStoragesAsync() {
     return this.executeDriverAPIMethod(
@@ -272,22 +284,34 @@ public final class Wrapper extends CloudNetDriver implements DriverAPIUser {
     ).map(names -> names.stream().map(this::getTemplateStorage).collect(Collectors.toList()));
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NotNull SpecificCloudServiceProvider getCloudServiceProvider(@NotNull String name) {
     return new RemoteSpecificCloudServiceProvider(this.getNetworkChannel(), this.generalCloudServiceProvider, name);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NotNull SpecificCloudServiceProvider getCloudServiceProvider(@NotNull UUID uniqueId) {
     return new RemoteSpecificCloudServiceProvider(this.getNetworkChannel(), this.generalCloudServiceProvider, uniqueId);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NotNull SpecificCloudServiceProvider getCloudServiceProvider(
     @NotNull ServiceInfoSnapshot serviceInfoSnapshot) {
     return new RemoteSpecificCloudServiceProvider(this.getNetworkChannel(), serviceInfoSnapshot);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void setGlobalLogLevel(Level logLevel) {
     this.networkClient.sendPacket(new PacketServerSetGlobalLogLevel(logLevel.getName()));
@@ -484,6 +508,9 @@ public final class Wrapper extends CloudNetDriver implements DriverAPIUser {
     return this.commandLineArguments;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @NotNull
   public INetworkClient getNetworkClient() {
     return this.networkClient;

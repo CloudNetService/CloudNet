@@ -28,6 +28,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.VisibleForTesting;
 
+/**
+ * Util for RegEx pattern matching and pattern fixing
+ */
 public final class WildcardUtil {
 
   private static final Logger LOGGER = LogManager.getLogger(WildcardUtil.class);

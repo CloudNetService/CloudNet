@@ -171,11 +171,15 @@ import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * Represents the implementation of the {@link CloudNetDriver} for nodes.
+ */
 public final class CloudNet extends CloudNetDriver {
 
   public static final int TPS = 10;
-  private static CloudNet instance;
   private static final Logger LOGGER = LogManager.getLogger(CloudNet.class);
+
+  private static CloudNet instance;
 
   private final CloudNetTick mainLoop = new CloudNetTick(this);
   private final long startupMillis = System.currentTimeMillis();
@@ -353,6 +357,9 @@ public final class CloudNet extends CloudNetDriver {
     }
   }
 
+  /**
+   * Reloads the whole CloudNet node including the nodes config, tasks, groups and all modules
+   */
   public void reload() {
     LOGGER.info(LanguageManager.getMessage("reload-start-message"));
 
@@ -422,11 +429,17 @@ public final class CloudNet extends CloudNetDriver {
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NotNull String getComponentName() {
     return this.config.getIdentity().getUniqueId();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NotNull String getNodeUniqueId() {
     return this.getComponentName();
@@ -442,6 +455,9 @@ public final class CloudNet extends CloudNetDriver {
     return LogLevel.getDefaultLogLevel(LogManager.getRootLogger().getLevel().getName()).orElse(null);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void setPermissionManagement(@NotNull IPermissionManagement permissionManagement) {
     super.setPermissionManagement(permissionManagement);
@@ -452,6 +468,9 @@ public final class CloudNet extends CloudNetDriver {
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NotNull TemplateStorage getLocalTemplateStorage() {
     TemplateStorage storage = this.getTemplateStorage(ServiceTemplate.LOCAL_STORAGE);
@@ -461,33 +480,51 @@ public final class CloudNet extends CloudNetDriver {
     return storage;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @Nullable TemplateStorage getTemplateStorage(String storage) {
     return this.servicesRegistry.getService(TemplateStorage.class, storage);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NotNull Collection<TemplateStorage> getAvailableTemplateStorages() {
     return this.servicesRegistry.getServices(TemplateStorage.class);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NotNull ITask<Collection<TemplateStorage>> getAvailableTemplateStoragesAsync() {
     return CompletedTask.create(this.getAvailableTemplateStorages());
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NotNull SpecificCloudServiceProvider getCloudServiceProvider(@NotNull String name) {
     ServiceInfoSnapshot snapshot = this.generalCloudServiceProvider.getCloudServiceByName(name);
     return this.selectCloudServiceProvider(snapshot);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NotNull SpecificCloudServiceProvider getCloudServiceProvider(@NotNull UUID uniqueId) {
     ServiceInfoSnapshot snapshot = this.generalCloudServiceProvider.getCloudService(uniqueId);
     return this.selectCloudServiceProvider(snapshot);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NotNull SpecificCloudServiceProvider getCloudServiceProvider(
     @NotNull ServiceInfoSnapshot serviceInfoSnapshot) {
@@ -566,6 +603,9 @@ public final class CloudNet extends CloudNetDriver {
       );
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void setGlobalLogLevel(Level logLevel) {
     this.sendAll(new PacketServerSetGlobalLogLevel(logLevel.getName()));
@@ -1122,6 +1162,9 @@ public final class CloudNet extends CloudNetDriver {
     return this.consoleCommandSender;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @NotNull
   public INetworkClient getNetworkClient() {
     return this.networkClient;
@@ -1135,14 +1178,26 @@ public final class CloudNet extends CloudNetDriver {
     return this.httpServer;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public @NotNull AbstractDatabaseProvider getDatabaseProvider() {
     return this.databaseProvider;
   }
 
+  /**
+   * @return the previous {@link NetworkClusterNodeInfoSnapshot} of the local node.
+   */
   public NetworkClusterNodeInfoSnapshot getLastNetworkClusterNodeInfoSnapshot() {
     return this.clusterNodeServerProvider.getSelfNode().getLastNodeInfoSnapshot();
   }
 
+  /**
+   * Returns the current {@link NetworkClusterNodeInfoSnapshot} of the local node. The returned Snapshot is not
+   * retrieved when the method is called.
+   *
+   * @return the current {@link NetworkClusterNodeInfoSnapshot} of the local node.
+   */
   public NetworkClusterNodeInfoSnapshot getCurrentNetworkClusterNodeInfoSnapshot() {
     return this.clusterNodeServerProvider.getSelfNode().getNodeInfoSnapshot();
   }

@@ -23,6 +23,9 @@ import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Util for the {@link Logger}
+ */
 public final class LoggingUtils {
 
   private LoggingUtils() {

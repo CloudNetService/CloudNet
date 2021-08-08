@@ -30,15 +30,15 @@ import org.jetbrains.annotations.NotNull;
 @EqualsAndHashCode
 public final class ServiceId implements INameable, SerializableObject {
 
-  protected UUID uniqueId;
+  UUID uniqueId;
 
-  protected String taskName;
-  protected int taskServiceId = -1;
+  String taskName;
+  int taskServiceId = -1;
 
-  protected String nodeUniqueId;
-  protected Collection<String> allowedNodes;
+  String nodeUniqueId;
+  Collection<String> allowedNodes;
 
-  protected ServiceEnvironmentType environment;
+  ServiceEnvironmentType environment;
 
   public ServiceId(@NotNull UUID uniqueId, String nodeUniqueId, String taskName, int taskServiceId,
     ServiceEnvironmentType environment) {

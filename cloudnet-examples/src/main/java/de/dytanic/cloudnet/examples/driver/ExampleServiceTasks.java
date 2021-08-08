@@ -44,6 +44,8 @@ public final class ExampleServiceTasks {
       .name("Lobby") //name
       .runtime("jvm") //runtime can be null for the default jvm wrapper or "jvm"
       .maintenance(true) //maintenance
+      .javaCommand(
+        "/usr/lib/jvm/java-11-openjdk-amd64/bin/java") //set a custom java executable for the task. Services are started using this executable
       .autoDeleteOnStop(true) //autoDeleteOnStop => if the service stops naturally it will be automatic deleted
       //The service won't be deleted fully and will store in the configured directory. The default is /local/services
       .staticServices(true)

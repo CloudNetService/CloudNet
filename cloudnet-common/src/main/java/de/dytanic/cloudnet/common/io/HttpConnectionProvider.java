@@ -23,6 +23,9 @@ import java.net.URL;
 import java.util.Map;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Provides a {@link HttpURLConnection} with some common settings
+ */
 public final class HttpConnectionProvider {
 
   public static final Map<String, String> DEFAULT_REQUEST_PROPERTIES = ImmutableMap.of(

@@ -24,11 +24,11 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 public final class DefaultPermissionUserCommandSender implements IPermissionUserCommandSender {
 
-  protected final IPermissionUser permissionUser;
+  private final IPermissionUser permissionUser;
 
-  protected final IPermissionManagement permissionManagement;
+  private final IPermissionManagement permissionManagement;
 
-  protected final Queue<String> writtenMessages = new ConcurrentLinkedQueue<>();
+  private final Queue<String> writtenMessages = new ConcurrentLinkedQueue<>();
 
   public DefaultPermissionUserCommandSender(IPermissionUser permissionUser,
     IPermissionManagement permissionManagement) {

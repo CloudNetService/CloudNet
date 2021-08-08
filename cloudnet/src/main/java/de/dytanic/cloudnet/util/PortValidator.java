@@ -20,6 +20,9 @@ import java.net.BindException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 
+/**
+ * An util class to check if ports & hosts can be assigned
+ */
 public final class PortValidator {
 
   public static boolean checkPort(int port) {

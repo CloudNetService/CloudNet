@@ -24,11 +24,11 @@ import lombok.ToString;
 @EqualsAndHashCode
 public final class MySQLConnectionEndpoint {
 
-  protected final boolean useSsl;
+  private final boolean useSsl;
 
-  protected final String database;
+  private final String database;
 
-  protected final HostAndPort address;
+  private final HostAndPort address;
 
   public MySQLConnectionEndpoint(boolean useSsl, String database, HostAndPort address) {
     this.useSsl = useSsl;

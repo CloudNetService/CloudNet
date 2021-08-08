@@ -37,7 +37,6 @@ public interface IPermissionUser extends IPermissible {
 
   boolean checkPassword(String password);
 
-
   default IPermissionUser addGroup(@NotNull String group) {
     return this.addGroup(group, 0L);
   }

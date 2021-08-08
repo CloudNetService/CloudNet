@@ -59,7 +59,7 @@ public enum ServiceEnvironment {
   }
 
   public ServiceEnvironmentType getEnvironmentType() {
-    return Arrays.stream(ServiceEnvironmentType.values())
+    return Arrays.stream(ServiceEnvironmentType.VALUES)
       .filter(serviceEnvironmentType -> Arrays.asList(serviceEnvironmentType.getEnvironments()).contains(this))
       .findFirst()
       .orElse(null);
