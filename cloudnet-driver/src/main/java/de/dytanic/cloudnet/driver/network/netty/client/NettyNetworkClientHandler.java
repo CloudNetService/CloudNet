@@ -25,8 +25,7 @@ import java.util.Collection;
 import java.util.concurrent.Executor;
 import org.jetbrains.annotations.ApiStatus;
 
-@ApiStatus.Internal
-final class NettyNetworkClientHandler extends NettyNetworkHandler {
+public class NettyNetworkClientHandler extends NettyNetworkHandler {
 
   private final HostAndPort connectedAddress;
   private final NettyNetworkClient nettyNetworkClient;
@@ -44,8 +43,7 @@ final class NettyNetworkClientHandler extends NettyNetworkHandler {
       this.nettyNetworkClient.networkChannelHandler.call(),
       this.connectedAddress,
       HostAndPort.fromSocketAddress(ctx.channel().localAddress()),
-      true
-    );
+      true);
     this.nettyNetworkClient.channels.add(super.channel);
 
     if (this.channel.getHandler() != null) {

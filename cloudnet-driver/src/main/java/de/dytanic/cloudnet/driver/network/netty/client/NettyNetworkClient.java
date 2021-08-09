@@ -17,7 +17,6 @@
 package de.dytanic.cloudnet.driver.network.netty.client;
 
 import com.google.common.base.Preconditions;
-import de.dytanic.cloudnet.common.concurrent.ITaskScheduler;
 import de.dytanic.cloudnet.driver.network.DefaultNetworkComponent;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
@@ -43,11 +42,9 @@ import java.util.Collections;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executor;
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
-@ApiStatus.Internal
-public final class NettyNetworkClient implements DefaultNetworkComponent, INetworkClient {
+public class NettyNetworkClient implements DefaultNetworkComponent, INetworkClient {
 
   private static final int CONNECTION_TIMEOUT_MILLIS = 5_000;
 
@@ -57,10 +54,9 @@ public final class NettyNetworkClient implements DefaultNetworkComponent, INetwo
   protected final Collection<INetworkChannel> channels = new ConcurrentLinkedQueue<>();
   protected final IPacketListenerRegistry packetRegistry = new DefaultPacketListenerRegistry();
 
-  protected final Callable<INetworkChannelHandler> networkChannelHandler;
   protected final SSLConfiguration sslConfiguration;
+  protected final Callable<INetworkChannelHandler> networkChannelHandler;
 
-  protected long connectedTime;
   protected SslContext sslContext;
 
   public NettyNetworkClient(Callable<INetworkChannelHandler> networkChannelHandler) {
@@ -78,15 +74,69 @@ public final class NettyNetworkClient implements DefaultNetworkComponent, INetwo
     }
   }
 
-  @Deprecated
-  @ApiStatus.ScheduledForRemoval(inVersion = "3.6")
-  public NettyNetworkClient(Callable<INetworkChannelHandler> networkChannelHandler, SSLConfiguration sslConfiguration,
-    ITaskScheduler taskScheduler) {
-    this(networkChannelHandler, sslConfiguration);
+  @Override
+  public boolean isSslEnabled() {
+    return this.sslContext != null;
+  }
+
+  @Override
+  public boolean connect(@NotNull HostAndPort hostAndPort) {
+    Preconditions.checkNotNull(hostAndPort);
+    Preconditions.checkNotNull(hostAndPort.getHost());
+
+    try {
+      new Bootstrap()
+        .group(this.eventLoopGroup)
+        .channelFactory(NettyUtils.getClientChannelFactory())
+        .handler(new NettyNetworkClientInitializer(hostAndPort, this))
+
+        .option(ChannelOption.AUTO_READ, true)
+        .option(ChannelOption.IP_TOS, 24)
+        .option(ChannelOption.TCP_NODELAY, true)
+        .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, CONNECTION_TIMEOUT_MILLIS)
+
+        .connect(hostAndPort.getHost(), hostAndPort.getPort())
+
+        .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE)
+        .addListener(ChannelFutureListener.CLOSE_ON_FAILURE)
+        .syncUninterruptibly();
+
+      return true;
+    } catch (Exception exception) {
+      LOGGER.severe(String.format("Exception while opening network connection to %s", hostAndPort), exception);
+    }
+
+    return false;
+  }
+
+  @Override
+  public void close() {
+    this.closeChannels();
+    this.eventLoopGroup.shutdownGracefully();
+  }
+
+  @Override
+  public @NotNull Collection<INetworkChannel> getChannels() {
+    return Collections.unmodifiableCollection(this.channels);
+  }
+
+  @Override
+  public Executor getPacketDispatcher() {
+    return this.packetDispatcher;
+  }
+
+  @Override
+  public Collection<INetworkChannel> getModifiableChannels() {
+    return this.channels;
+  }
+
+  @Override
+  public IPacketListenerRegistry getPacketRegistry() {
+    return this.packetRegistry;
   }
 
   private void init() throws Exception {
-    if (this.sslConfiguration != null) {
+    if (this.sslConfiguration != null && this.sslConfiguration.isEnabled()) {
       if (this.sslConfiguration.getCertificate() != null && this.sslConfiguration.getPrivateKey() != null) {
         SslContextBuilder builder = SslContextBuilder.forClient();
 
@@ -113,70 +163,5 @@ public final class NettyNetworkClient implements DefaultNetworkComponent, INetwo
           .build();
       }
     }
-  }
-
-  @Override
-  public boolean isSslEnabled() {
-    return this.sslContext != null;
-  }
-
-
-  @Override
-  public boolean connect(@NotNull HostAndPort hostAndPort) {
-    Preconditions.checkNotNull(hostAndPort);
-    Preconditions.checkNotNull(hostAndPort.getHost());
-
-    try {
-      new Bootstrap()
-        .group(this.eventLoopGroup)
-        .option(ChannelOption.AUTO_READ, true)
-        .option(ChannelOption.IP_TOS, 24)
-        .option(ChannelOption.TCP_NODELAY, true)
-        .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, CONNECTION_TIMEOUT_MILLIS)
-        .channelFactory(NettyUtils.getClientChannelFactory())
-        .handler(
-          new NettyNetworkClientInitializer(this, hostAndPort, () -> this.connectedTime = System.currentTimeMillis()))
-        .connect(hostAndPort.getHost(), hostAndPort.getPort())
-        .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE)
-        .addListener(ChannelFutureListener.CLOSE_ON_FAILURE)
-        .sync()
-        .channel();
-
-      return true;
-    } catch (Exception exception) {
-      LOGGER.severe("Exception while connection to the channel", exception);
-    }
-
-    return false;
-  }
-
-  @Override
-  public void close() {
-    this.closeChannels();
-    this.eventLoopGroup.shutdownGracefully();
-  }
-
-  @Override
-  public Collection<INetworkChannel> getChannels() {
-    return Collections.unmodifiableCollection(this.channels);
-  }
-
-  @Override
-  public Executor getPacketDispatcher() {
-    return this.packetDispatcher;
-  }
-
-  @Override
-  public Collection<INetworkChannel> getModifiableChannels() {
-    return this.channels;
-  }
-
-  @Override
-  public long getConnectedTime() {
-    return this.connectedTime;
-  }
-
-  public IPacketListenerRegistry getPacketRegistry() {
-    return this.packetRegistry;
   }
 }

@@ -16,10 +16,14 @@
 
 package de.dytanic.cloudnet.driver.network;
 
+import com.google.common.collect.Iterables;
 import de.dytanic.cloudnet.driver.network.protocol.IPacketListenerRegistry;
 import de.dytanic.cloudnet.driver.network.protocol.IPacketSender;
 import java.util.Collection;
 import java.util.concurrent.Executor;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Unmodifiable;
 
 /**
  * Includes the basic functions for the client and the server
@@ -27,29 +31,45 @@ import java.util.concurrent.Executor;
 interface INetworkComponent extends IPacketSender {
 
   /**
-   * Returns true if the network component allows to create a ssl connection
+   * Get if this component has ssl enabled.
+   *
+   * @return if this component has ssl enabled.
    */
   boolean isSslEnabled();
 
   /**
-   * Returns all running enabled connections from the network component
+   * Get an immutable collection of all channels which are associated with this component.
+   *
+   * @return an immutable collection of all channels which are associated with this component.
    */
-  Collection<INetworkChannel> getChannels();
+  @NotNull
+  @Unmodifiable Collection<INetworkChannel> getChannels();
 
-  default INetworkChannel getFirstChannel() {
-    Collection<INetworkChannel> channels = this.getChannels();
-    return channels.isEmpty() ? null : channels.iterator().next();
+  /**
+   * Get the first channel which is known to this component or {@code null} if no channel is known.
+   *
+   * @return the first channel which is known to this component or {@code null} if no channel is known.
+   */
+  default @Nullable INetworkChannel getFirstChannel() {
+    return Iterables.getFirst(this.getChannels(), null);
   }
 
-  Executor getPacketDispatcher();
+  /**
+   * Get the dispatching executor for received packets in this channel.
+   *
+   * @return the dispatching executor for received packets in this channel.
+   */
+  @NotNull Executor getPacketDispatcher();
 
   /**
-   * Close all open connections from this network component
+   * Get the packet listener registry which will be the root registry for all channels initialized by this component.
+   *
+   * @return the root packet listener for all associated channels.
+   */
+  @NotNull IPacketListenerRegistry getPacketRegistry();
+
+  /**
+   * Closes all open connections associated with this network component.
    */
   void closeChannels();
-
-  /**
-   * Returns the parent packet registry from all channels, that are this network component provide
-   */
-  IPacketListenerRegistry getPacketRegistry();
 }

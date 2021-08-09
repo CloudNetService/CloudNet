@@ -20,9 +20,12 @@ import de.dytanic.cloudnet.driver.network.ssl.SSLConfiguration;
 import java.nio.file.Paths;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 
 @ToString
 @EqualsAndHashCode
+@Deprecated
+@ScheduledForRemoval
 public class ConfigurationOptionSSL {
 
   private boolean enabled;
@@ -31,6 +34,8 @@ public class ConfigurationOptionSSL {
   private String trustCertificatePath;
   private String certificatePath;
   private String privateKeyPath;
+
+  private transient SSLConfiguration cachedSslConfiguration;
 
   public ConfigurationOptionSSL(boolean enabled, boolean clientAuth, String trustCertificatePath,
     String certificatePath, String privateKeyPath) {

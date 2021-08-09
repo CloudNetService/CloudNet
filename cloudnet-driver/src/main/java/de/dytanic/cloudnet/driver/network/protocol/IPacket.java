@@ -17,76 +17,82 @@
 package de.dytanic.cloudnet.driver.network.protocol;
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
-import de.dytanic.cloudnet.driver.network.INetworkClient;
+import de.dytanic.cloudnet.driver.serialization.DataBuf;
 import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import java.util.UUID;
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
- * A packet represents the message format between a INetworkConnector and a INetworkServer instance Every packet has a
- * channel id, from that the IPacketListenerRegistry, can filter its listeners for handle the IPacket instance
- * <p>
- * The default implementation of the IPacket class is the Packet class in the same package
- * <p>
- * All packets require a channel, header and a body.
- * <p>
- * The channel id is the id from that the listeners should be filter The header has the specify information or the data
- * that is important The body has binary packet information like for files, or zip compressed data
+ * A packet represents the main communication unit between to network participants within the CloudNet network. This can
+ * be between two nodes or between the Wrapper and the node.
  *
  * @see Packet
- * @see INetworkClient
- * @see de.dytanic.cloudnet.driver.network.INetworkServer
+ * @see de.dytanic.cloudnet.driver.network.INetworkChannel
  */
 public interface IPacket {
 
   /**
-   * Returns the uuid of the packet. Each packet should has a own defined UUID instance, less the callback packets for
-   * synchronized messages between client and server
+   * Get the unique id of this packet. This field must not be defined if the packet has no unique id set. If the unique
+   * id is set a response to this packet is expected by the client receiving it. Not responding to the packet can lead
+   * to internal issues or thread deadlocks.
    *
-   * @return the own uniqueId
+   * @return the query unique id of the packet or {@code null} if this packet is not a query packet.
    */
-  @NotNull
+  @Nullable
   UUID getUniqueId();
 
   /**
-   * Returns the channel id, in that the IPacketListenerRegistry class should the listeners work with that packet
+   * Get the channel id to which this packet was sent. Listeners can be registered to that channel and will be notified
+   * if a packet was received for the specified channel.
    *
-   * @return the channel id in that the packet is defined
+   * @return the channel id to which this packet was sent.
    */
   int getChannel();
 
   /**
-   * The header, contain all important information from the packet, to specify the packet type as channel does and/or
-   * can has the data, which that are important to handle with
-   * <p>
-   * The encoding should be UTF-8
-   *
-   * @return the header as JsonDocument instance from this packet
+   * @deprecated use the {@link #getContent()} method to read from the packet buffer and send information.
    */
+  @Deprecated
+  @ScheduledForRemoval
   JsonDocument getHeader();
 
   /**
-   * Returns the packet body, for transport for extra data, like files or zip archives or something else
-   *
-   * @return the body as a ProtocolBuffer
+   * @deprecated Use {@link #getContent()} instead.
    */
-  ProtocolBuffer getBuffer();
+  @NotNull ProtocolBuffer getBuffer();
 
   /**
-   * @return the body as a byte array
+   * Get the content of this packet. Data written to the buffer must not be accepted but will never throw an exception.
+   * If the packet was sent by a network participant the buffer will never be writable.
+   *
+   * @return the content of this packet.
    */
+  @NotNull DataBuf getContent();
+
+  /**
+   * @deprecated Use {@link #getContent()} instead.
+   */
+  @Deprecated
+  @ScheduledForRemoval
   byte[] getBodyAsArray();
 
   /**
-   * @return the creation milliseconds of this packet
+   * Get a unix timestamp of the creation milliseconds of this packet. When the packet is created by a decoder, the time
+   * will be used as the creation millis.
+   *
+   * @return the creation milliseconds of this packet.
    */
   long getCreationMillis();
 
   /**
+   * Defines if there should be a debug message when the packet get encoded, sent, received etc. This setting will be
+   * enabled by default but should be disabled for very high rated packets.
+   *
    * @return if there should be debug messages for this type of packet
    */
   default boolean isShowDebug() {
     return true;
   }
-
 }

@@ -28,13 +28,8 @@ import io.netty.channel.epoll.Epoll;
 import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.epoll.EpollServerSocketChannel;
 import io.netty.channel.epoll.EpollSocketChannel;
-import io.netty.channel.kqueue.KQueue;
-import io.netty.channel.kqueue.KQueueEventLoopGroup;
-import io.netty.channel.kqueue.KQueueServerSocketChannel;
-import io.netty.channel.kqueue.KQueueSocketChannel;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.ServerSocketChannel;
-import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.util.ResourceLeakDetector;
@@ -76,11 +71,7 @@ public final class NettyUtils {
   }
 
   public static EventLoopGroup newEventLoopGroup() {
-    return Epoll.isAvailable() ?
-      new EpollEventLoopGroup(4, threadFactory()) :
-      KQueue.isAvailable() ?
-        new KQueueEventLoopGroup(4, threadFactory()) :
-        new NioEventLoopGroup(4, threadFactory());
+    return Epoll.isAvailable() ? new EpollEventLoopGroup(4, THREAD_FACTORY) : new NioEventLoopGroup(4, threadFactory());
   }
 
   public static Executor newPacketDispatcher() {
@@ -90,38 +81,22 @@ public final class NettyUtils {
       30L, TimeUnit.SECONDS, new SynchronousQueue<>(true), DEFAULT_REJECT_HANDLER);
   }
 
-  @Deprecated
-  @ApiStatus.ScheduledForRemoval(inVersion = "3.6")
-  public static Class<? extends SocketChannel> getSocketChannelClass() {
-    return Epoll.isAvailable() ? EpollSocketChannel.class
-      : KQueue.isAvailable() ? KQueueSocketChannel.class : NioSocketChannel.class;
-  }
-
   public static ChannelFactory<? extends Channel> getClientChannelFactory() {
-    return Epoll.isAvailable() ? EpollSocketChannel::new
-      : KQueue.isAvailable() ? KQueueSocketChannel::new : NioSocketChannel::new;
+    return Epoll.isAvailable() ? EpollSocketChannel::new : NioSocketChannel::new;
   }
 
   @Deprecated
   @ApiStatus.ScheduledForRemoval(inVersion = "3.6")
   public static Class<? extends ServerSocketChannel> getServerSocketChannelClass() {
-    return Epoll.isAvailable() ? EpollServerSocketChannel.class
-      : KQueue.isAvailable() ? KQueueServerSocketChannel.class : NioServerSocketChannel.class;
+    return Epoll.isAvailable() ? EpollServerSocketChannel.class : NioServerSocketChannel.class;
   }
 
   public static ChannelFactory<? extends ServerChannel> getServerChannelFactory() {
-    return Epoll.isAvailable() ? EpollServerSocketChannel::new
-      : KQueue.isAvailable() ? KQueueServerSocketChannel::new : NioServerSocketChannel::new;
+    return Epoll.isAvailable() ? EpollServerSocketChannel::new : NioServerSocketChannel::new;
   }
 
   public static ThreadFactory threadFactory() {
     return THREAD_FACTORY;
-  }
-
-  @Deprecated
-  @ApiStatus.ScheduledForRemoval(inVersion = "3.6")
-  public static byte[] toByteArray(ByteBuf byteBuf, int size) {
-    return readByteArray(byteBuf, size);
   }
 
   public static byte[] readByteArray(ByteBuf byteBuf, int size) {
@@ -188,9 +163,7 @@ public final class NettyUtils {
   }
 
   public static int getThreadAmount() {
-    return CloudNetDriver.optionalInstance()
-      .filter(cloudNetDriver -> cloudNetDriver.getDriverEnvironment() == DriverEnvironment.CLOUDNET)
-      .map(cloudNetDriver -> Runtime.getRuntime().availableProcessors() * 2)
-      .orElse(8);
+    DriverEnvironment environment = CloudNetDriver.getInstance().getDriverEnvironment();
+    return environment == DriverEnvironment.CLOUDNET ? Runtime.getRuntime().availableProcessors() * 2 : 8;
   }
 }

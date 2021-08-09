@@ -14,20 +14,8 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.driver.network;
+package de.dytanic.cloudnet.driver.serialization;
 
-import org.jetbrains.annotations.NotNull;
+public interface DataBuf {
 
-/**
- * Represents a client in the network which connect to a network server.
- */
-public interface INetworkClient extends INetworkComponent, AutoCloseable {
-
-  /**
-   * Connects this network client to a network server.
-   *
-   * @param hostAndPort the target host to which the client should connect.
-   * @return {@code true} if the connection was established successfully, {@code false} otherwise.
-   */
-  boolean connect(@NotNull HostAndPort hostAndPort);
 }
