@@ -276,7 +276,7 @@ public class ModuleConfiguration implements SerializableObject {
    */
   public boolean canRunOn(@NotNull JavaVersion javaVersion) {
     JavaVersion minJavaVersion = this.getMinJavaVersion();
-    return minJavaVersion == null || minJavaVersion.isSupportedByMin(javaVersion);
+    return minJavaVersion == null || minJavaVersion.isSupportedByMax(javaVersion);
   }
 
   /**

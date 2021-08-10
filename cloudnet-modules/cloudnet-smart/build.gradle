@@ -16,14 +16,16 @@
 
 jar {
   archiveFileName.set(cloudnetModuleSmartFileName)
-
-  manifest {
-    attributes 'Implementation-Version': archiveVersion.get() + "-" + getCurrentCommitHash()
-    attributes 'Implementation-Title': cloudNetCodeName
-  }
 }
 
 dependencies {
   compileOnly project(':cloudnet')
-  compileOnly project(':cloudnet-modules:cloudnet-bridge')
+  moduleDependency project(':cloudnet-modules:cloudnet-bridge')
+}
+
+moduleJson {
+  main = 'de.dytanic.cloudnet.ext.smart.CloudNetSmartModule'
+  author = 'CloudNetService'
+  description = 'CloudNet extension, which implement smart network handling and automatic services providing'
+  runtimeModule = true
 }
