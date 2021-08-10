@@ -30,7 +30,6 @@ dependencies {
 
 moduleJson {
   main = 'eu.cloudnetservice.cloudnet.ext.signs.node.CloudNetSignsModule'
-  group = 'de.dytanic.cloudnet.modules'
   author = 'CloudNetService'
   description = 'CloudNet extension which adds sign connector support for Bukkit, Nukkit and Sponge'
 }

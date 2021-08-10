@@ -25,7 +25,6 @@ dependencies {
 
 moduleJson {
   main = 'de.dytanic.cloudnet.ext.smart.CloudNetSmartModule'
-  group = 'de.dytanic.cloudnet.modules'
   author = 'CloudNetService'
   description = 'CloudNet extension, which implement smart network handling and automatic services providing'
   runtimeModule = true

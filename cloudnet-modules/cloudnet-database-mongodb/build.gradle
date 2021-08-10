@@ -26,7 +26,6 @@ dependencies {
 
 moduleJson {
   main = 'eu.cloudnetservice.cloudnet.ext.mongodb.CloudNetMongoDatabaseModule'
-  group = 'de.dytanic.cloudnet.modules'
   author = 'CloudNetService'
   description = 'CloudNet extension, which includes the database support for MongoDB'
   runtimeModule = true

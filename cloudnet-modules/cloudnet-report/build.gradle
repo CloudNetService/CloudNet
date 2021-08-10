@@ -24,7 +24,6 @@ dependencies {
 
 moduleJson {
   main = 'de.dytanic.cloudnet.ext.report.CloudNetReportModule'
-  group = 'de.dytanic.cloudnet.modules'
   author = 'CloudNetService'
   description = 'Node extension for develop modules and reporting bugs'
 }
