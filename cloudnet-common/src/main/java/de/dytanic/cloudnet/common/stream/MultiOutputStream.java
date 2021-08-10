@@ -18,7 +18,6 @@ package de.dytanic.cloudnet.common.stream;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import org.jetbrains.annotations.NotNull;
 
 public class MultiOutputStream extends OutputStream {
 
@@ -36,14 +35,14 @@ public class MultiOutputStream extends OutputStream {
   }
 
   @Override
-  public void write(@NotNull byte[] b) throws IOException {
+  public void write(byte[] b) throws IOException {
     for (OutputStream wrapped : this.wrapped) {
       wrapped.write(b);
     }
   }
 
   @Override
-  public void write(@NotNull byte[] b, int off, int len) throws IOException {
+  public void write(byte[] b, int off, int len) throws IOException {
     for (OutputStream wrapped : this.wrapped) {
       wrapped.write(b, off, len);
     }

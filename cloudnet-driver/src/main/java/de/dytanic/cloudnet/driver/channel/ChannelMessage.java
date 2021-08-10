@@ -166,7 +166,7 @@ public class ChannelMessage implements SerializableObject {
       return this;
     }
 
-    public Builder buffer(@NotNull byte[] bytes) {
+    public Builder buffer(byte[] bytes) {
       return this.buffer(bytes == null ? null : ProtocolBuffer.wrap(bytes));
     }
 

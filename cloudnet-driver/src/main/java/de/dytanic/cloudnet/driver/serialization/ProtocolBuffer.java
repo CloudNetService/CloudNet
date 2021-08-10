@@ -59,17 +59,14 @@ public abstract class ProtocolBuffer extends ByteBuf {
 
   public abstract ProtocolBuffer writeOptionalString(@Nullable String stringToWrite);
 
-  @NotNull
   public abstract byte[] readArray();
 
-  public abstract ProtocolBuffer writeArray(@NotNull byte[] bytes);
+  public abstract ProtocolBuffer writeArray(byte[] bytes);
 
-  @Nullable
   public abstract byte[] readOptionalArray();
 
-  public abstract ProtocolBuffer writeOptionalArray(@Nullable byte[] bytes);
+  public abstract ProtocolBuffer writeOptionalArray(byte[] bytes);
 
-  @NotNull
   public abstract byte[] toArray();
 
   @NotNull
