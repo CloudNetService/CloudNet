@@ -47,7 +47,6 @@ dependencies {
 moduleJson {
   main = 'de.dytanic.cloudnet.ext.bridge.node.CloudNetBridgeModule'
   name = 'CloudNet-Bridge'
-  group = 'de.dytanic.cloudnet.modules'
   author = 'CloudNetService'
   description = 'Node extension for the CloudNet runtime, which includes platform player support'
   runtimeModule = true
