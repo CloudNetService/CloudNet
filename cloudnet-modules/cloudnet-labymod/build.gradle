@@ -20,8 +20,16 @@ jar {
 
 dependencies {
   compileOnly project(':cloudnet')
-  compileOnly project(':cloudnet-modules:cloudnet-bridge')
+  moduleDependency project(':cloudnet-modules:cloudnet-bridge')
   compileOnly project(':cloudnet-wrapper-jvm')
   compileOnly group: 'net.md-5', name: 'bungeecord-api', version: dependencyBungeeCordVersion
   compileOnly group: 'com.velocitypowered', name: 'velocity-api', version: dependencyVelocityVersion
+}
+
+moduleJson {
+  main = 'eu.cloudnetservice.cloudnet.ext.labymod.node.CloudNetLabyModModule'
+  name = 'CloudNet-LabyMod'
+  group = 'de.dytanic.cloudnet.modules'
+  author = 'CloudNetService'
+  description = 'This module adds support for the LabyMod Discord RPC Protocol and the ingame messages when a player plays a gamemode'
 }

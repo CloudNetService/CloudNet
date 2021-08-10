@@ -20,6 +20,16 @@ jar {
 
 dependencies {
   compileOnly project(':cloudnet')
-  compileOnly group: 'commons-net', name: 'commons-net', version: dependencyCommonsNetVersion
-  compileOnly group: 'com.jcraft', name: 'jsch', version: dependencyJschVersion
+  moduleLibrary group: 'commons-net', name: 'commons-net', version: dependencyCommonsNetVersion
+  moduleLibrary group: 'com.jcraft', name: 'jsch', version: dependencyJschVersion
+}
+
+moduleJson {
+  main = 'de.dytanic.cloudnet.ext.storage.ftp.CloudNetStorageFTPModule'
+  group = 'de.dytanic.cloudnet.modules'
+  name = 'CloudNet-Storage-FTP'
+  author = 'CloudNetService'
+  description = 'CloudNet extension, which includes the ftp storage system'
+  storesSensitiveData = true
+  runtimeModule = true
 }

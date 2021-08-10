@@ -38,8 +38,17 @@ dependencies {
   compileOnly group: 'com.velocitypowered', name: 'velocity-api', version: dependencyVelocityVersion
   compileOnly group: 'dev.waterdog.waterdogpe', name: 'waterdog', version: dependencyWaterdogPEVersion
   // DEPRECATED: will be removed completely in 3.6 (See VelocityComponentMessenger for further information)
-  implementation group: 'net.kyori', name: 'text-api', version: '3.0.4'
-  implementation(group: 'net.kyori', name: 'adventure-text-serializer-legacy-text3', version: '4.0.0-SNAPSHOT') {
+  api group: 'net.kyori', name: 'text-api', version: '3.0.4'
+  api(group: 'net.kyori', name: 'adventure-text-serializer-legacy-text3', version: '4.0.0-SNAPSHOT') {
     transitive = false
   }
+}
+
+moduleJson {
+  main = 'de.dytanic.cloudnet.ext.bridge.node.CloudNetBridgeModule'
+  name = 'CloudNet-Bridge'
+  group = 'de.dytanic.cloudnet.modules'
+  author = 'CloudNetService'
+  description = 'Node extension for the CloudNet runtime, which includes platform player support'
+  runtimeModule = true
 }

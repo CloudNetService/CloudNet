@@ -1,9 +1,0 @@
-{
-  "group": "de.dytanic.cloudnet.modules",
-  "name": "CloudNet-Report",
-  "version": "1.2",
-  "author": "CloudNetService",
-  "website": "https://cloudnetservice.eu",
-  "description": "Node extension for develop modules and reporting bugs",
-  "main": "de.dytanic.cloudnet.ext.report.CloudNetReportModule"
-}

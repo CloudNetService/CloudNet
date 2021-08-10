@@ -21,3 +21,11 @@ jar {
 dependencies {
   compileOnly project(':cloudnet')
 }
+
+moduleJson {
+  main = 'de.dytanic.cloudnet.ext.rest.CloudNetRestModule'
+  name = 'CloudNet-REST'
+  group = 'de.dytanic.cloudnet.modules'
+  author = 'CloudNetService'
+  description = 'Node extension for the CloudNet runtime, which includes the default HTTP REST API for CloudNet'
+}

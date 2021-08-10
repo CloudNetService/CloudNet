@@ -13,4 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+plugins {
+  id 'eu.cloudnetservice.juppiter' version '0.1.1' apply false
+}
 
+subprojects {
+  apply plugin: 'eu.cloudnetservice.juppiter'
+}

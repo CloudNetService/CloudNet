@@ -1,9 +1,0 @@
-{
-  "group": "de.dytanic.cloudnet.modules",
-  "name": "CloudNet-CloudPerms",
-  "version": "1.2",
-  "author": "CloudNetService",
-  "website": "https://cloudnetservice.eu",
-  "description": "Node extension for the CloudNet node runtime, which include a player permission system",
-  "main": "de.dytanic.cloudnet.ext.cloudperms.node.CloudNetCloudPermissionsModule"
-}

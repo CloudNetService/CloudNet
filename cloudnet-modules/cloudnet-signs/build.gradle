@@ -12,6 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
 jar {
@@ -21,8 +22,16 @@ jar {
 dependencies {
   compileOnly project(':cloudnet')
   compileOnly project(':cloudnet-wrapper-jvm')
-  compileOnly project(':cloudnet-modules:cloudnet-bridge')
+  moduleDependency project(':cloudnet-modules:cloudnet-bridge')
   compileOnly group: 'cn.nukkit', name: 'nukkit', version: dependencyNukkitXVersion
   compileOnly group: 'org.spigotmc', name: 'spigot-api', version: dependencySpigotApiVersion
   compileOnly group: 'org.spongepowered', name: 'spongeapi', version: dependencySpongeVersion
+}
+
+moduleJson {
+  main = 'eu.cloudnetservice.cloudnet.ext.signs.node.CloudNetSignsModule'
+  name = 'CloudNet-Signs'
+  group = 'de.dytanic.cloudnet.modules'
+  author = 'CloudNetService'
+  description = 'CloudNet extension which adds sign connector support for Bukkit, Nukkit and Sponge'
 }
