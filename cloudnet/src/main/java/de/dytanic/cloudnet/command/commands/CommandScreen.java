@@ -26,7 +26,6 @@ import de.dytanic.cloudnet.command.sub.SubCommandHandler;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
-import de.dytanic.cloudnet.common.logging.LogLevel;
 import de.dytanic.cloudnet.driver.service.ServiceId;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.service.ICloudService;
@@ -164,7 +163,7 @@ public class CommandScreen extends SubCommandHandler {
             }
           },
           subCommand -> subCommand.setMinArgs(subCommand.getRequiredArguments().length).setMaxArgs(Integer.MAX_VALUE),
-          anyStringIgnoreCase("write", "send"),
+          anyStringIgnoreCase("write", "send", "w"),
           dynamicString("command")
         )
 
