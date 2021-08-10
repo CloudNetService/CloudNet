@@ -28,7 +28,6 @@ dependencies {
 
 moduleJson {
   main = 'eu.cloudnetservice.cloudnet.ext.labymod.node.CloudNetLabyModModule'
-  name = 'CloudNet-LabyMod'
   group = 'de.dytanic.cloudnet.modules'
   author = 'CloudNetService'
   description = 'This module adds support for the LabyMod Discord RPC Protocol and the ingame messages when a player plays a gamemode'

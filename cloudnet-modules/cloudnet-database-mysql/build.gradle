@@ -30,7 +30,6 @@ dependencies {
 
 moduleJson {
   main = 'de.dytanic.cloudnet.ext.database.mysql.CloudNetMySQLDatabaseModule'
-  name = 'CloudNet-Database-MySQL'
   group = 'de.dytanic.cloudnet.modules'
   author = 'CloudNetService'
   description = 'CloudNet extension, which includes the database support for MySQL and MariaDB'

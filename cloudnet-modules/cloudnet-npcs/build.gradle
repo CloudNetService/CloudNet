@@ -33,7 +33,6 @@ dependencies {
 
 moduleJson {
   main = 'eu.cloudnetservice.cloudnet.ext.npcs.node.CloudNetNPCModule'
-  name = 'CloudNet-NPCs'
   group = 'de.dytanic.cloudnet.modules'
   author = 'CloudNetService'
   description = 'CloudNet extension which adds NPCs for server selection'
