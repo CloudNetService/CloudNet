@@ -24,6 +24,7 @@ import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import java.io.BufferedInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -307,7 +308,10 @@ public class DefaultModuleProvider implements IModuleProvider {
    * @throws IOException if an I/O or deserialize exception occurs.
    */
   protected @NotNull Optional<ModuleConfiguration> findModuleConfiguration(@NotNull URL moduleFile) throws IOException {
-    try (JarInputStream inputStream = new JarInputStream(new BufferedInputStream(moduleFile.openStream()))) {
+    try (
+      InputStream buffered = new BufferedInputStream(moduleFile.openStream());
+      JarInputStream inputStream = new JarInputStream(buffered)
+    ) {
       JarEntry entry;
       while ((entry = inputStream.getNextJarEntry()) != null) {
         if (entry.getName().equals("module.json")) {
