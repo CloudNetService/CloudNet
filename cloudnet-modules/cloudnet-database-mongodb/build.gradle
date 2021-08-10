@@ -20,5 +20,14 @@ jar {
 
 dependencies {
   compileOnly project(':cloudnet')
-  compileOnly group: 'org.mongodb', name: 'mongodb-driver-sync', version: dependencyMongoJavaDriverVersion
+  moduleLibrary group: 'org.mongodb', name: 'mongodb-driver-sync', version: dependencyMongoJavaDriverVersion
+  moduleLibrary group: 'org.slf4j', name: 'slf4j-nop', version: dependencySlf4jVersion
+}
+
+moduleJson {
+  main = 'eu.cloudnetservice.cloudnet.ext.mongodb.CloudNetMongoDatabaseModule'
+  author = 'CloudNetService'
+  description = 'CloudNet extension, which includes the database support for MongoDB'
+  runtimeModule = true
+  storesSensitiveData = true
 }
