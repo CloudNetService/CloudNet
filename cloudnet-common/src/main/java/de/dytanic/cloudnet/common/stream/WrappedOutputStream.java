@@ -18,7 +18,6 @@ package de.dytanic.cloudnet.common.stream;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import org.jetbrains.annotations.NotNull;
 
 public class WrappedOutputStream extends OutputStream {
 
@@ -34,12 +33,12 @@ public class WrappedOutputStream extends OutputStream {
   }
 
   @Override
-  public void write(@NotNull byte[] b) throws IOException {
+  public void write(byte[] b) throws IOException {
     this.wrapped.write(b);
   }
 
   @Override
-  public void write(@NotNull byte[] b, int off, int len) throws IOException {
+  public void write(byte[] b, int off, int len) throws IOException {
     this.wrapped.write(b, off, len);
   }
 
