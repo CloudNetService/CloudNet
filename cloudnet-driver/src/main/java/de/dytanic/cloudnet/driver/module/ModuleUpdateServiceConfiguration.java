@@ -18,9 +18,16 @@ package de.dytanic.cloudnet.driver.module;
 
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 
+/**
+ * @deprecated this class is present but unused within the internal code. There is no intention to implement this update
+ * service in any way so this class will be gone soon.
+ */
 @ToString
 @EqualsAndHashCode
+@Deprecated
+@ScheduledForRemoval
 public class ModuleUpdateServiceConfiguration {
 
   protected boolean autoInstall;

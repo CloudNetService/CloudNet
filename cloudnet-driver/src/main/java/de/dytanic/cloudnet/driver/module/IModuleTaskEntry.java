@@ -16,16 +16,65 @@
 
 package de.dytanic.cloudnet.driver.module;
 
+import java.lang.invoke.MethodHandle;
 import java.lang.reflect.Method;
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
+import org.jetbrains.annotations.NotNull;
 
+/**
+ * A task which will be dynamically created in the runtime for every method in a module's main class which is annotated
+ * with {@link ModuleTask}. This annotation will hold all information about the task, and it's invocation lifecycle.
+ */
 public interface IModuleTaskEntry {
 
-  IModuleWrapper getModuleWrapper();
+  /**
+   * The associated module wrapper this task was detected by.
+   *
+   * @return the associated module wrapper to this task.
+   * @see DefaultModuleWrapper#resolveModuleTasks(IModule)
+   */
+  @NotNull IModuleWrapper getModuleWrapper();
 
-  IModule getModule();
+  /**
+   * The module (or module main class) this task was detected in.
+   *
+   * @return the associated module to this task.
+   */
+  @NotNull IModule getModule();
 
-  ModuleTask getTaskInfo();
+  /**
+   * The annotation holding the information about this task.
+   *
+   * @return the task information.
+   */
+  @NotNull ModuleTask getTaskInfo();
 
+  /**
+   * The method handle this task will invoke when calling {@link #fire()}.
+   *
+   * @return the annotated detected method.
+   */
+  @NotNull MethodHandle getMethod();
+
+  /**
+   * @deprecated use {@link #getMethod()} or to invoke the method use {@link #fire()} instead.
+   */
+  @Deprecated
+  @ScheduledForRemoval
   Method getHandler();
 
+  /**
+   * Get the full method signature of the detected method. This must not be in the standard java signature declaration
+   * format. However, this descriptor must be unique for debug reasons.
+   *
+   * @return a unique descriptor of the method in the main module class.
+   */
+  @NotNull String getFullMethodSignature();
+
+  /**
+   * Fires this module task.
+   *
+   * @throws Throwable anything thrown by the underlying method.
+   */
+  void fire() throws Throwable;
 }

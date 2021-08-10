@@ -53,7 +53,7 @@ public class NodeInfoSnapshotSerializerTest {
           null,
           null,
           new ModuleDependency[]{
-            new ModuleDependency("URL")
+            new ModuleDependency("eu.cloudnetservice", "derklaro-was-here", "1.23.4")
           },
           null
         ),

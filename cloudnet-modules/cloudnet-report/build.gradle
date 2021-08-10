@@ -21,3 +21,9 @@ jar {
 dependencies {
   compileOnly project(':cloudnet')
 }
+
+moduleJson {
+  main = 'de.dytanic.cloudnet.ext.report.CloudNetReportModule'
+  author = 'CloudNetService'
+  description = 'Node extension for develop modules and reporting bugs'
+}

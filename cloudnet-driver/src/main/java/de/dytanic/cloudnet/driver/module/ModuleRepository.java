@@ -16,12 +16,17 @@
 
 package de.dytanic.cloudnet.driver.module;
 
+import com.google.common.base.Verify;
 import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import de.dytanic.cloudnet.driver.serialization.SerializableObject;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Represents a repository in which a {@link ModuleDependency} can be located.
+ */
 @ToString
 @EqualsAndHashCode
 public class ModuleRepository implements SerializableObject {
@@ -29,28 +34,65 @@ public class ModuleRepository implements SerializableObject {
   private String name;
   private String url;
 
-  public ModuleRepository(String name, String url) {
+  /**
+   * Constructs a new instance of this class.
+   *
+   * @param name the name of the repository, must be unique. Duplicate names will override each other.
+   * @param url  the url of the repository.
+   */
+  public ModuleRepository(@NotNull String name, @NotNull String url) {
     this.name = name;
     this.url = url;
   }
 
+  /**
+   * This constructor is for internal use only. The name and url of this repository is required. Creating a repository
+   * using this constructor will cause an exception when loading the module. See {@link #assertComplete()}.
+   */
+  @Internal
   public ModuleRepository() {
   }
 
-  public String getName() {
+  /**
+   * Get the name of this repository.
+   *
+   * @return the name of this repository.
+   */
+  public @NotNull String getName() {
     return this.name;
   }
 
-  public String getUrl() {
+  /**
+   * Get the url of this repository.
+   *
+   * @return the url of this repository.
+   */
+  public @NotNull String getUrl() {
     return this.url;
   }
 
+  /**
+   * Asserts that the required properties (name, url) are present.
+   *
+   * @throws com.google.common.base.VerifyException if one of required properties is not set.
+   */
+  public void assertComplete() {
+    Verify.verifyNotNull(this.name, "Missing repository name");
+    Verify.verifyNotNull(this.url, "Missing repository url");
+  }
+
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void write(@NotNull ProtocolBuffer buffer) {
     buffer.writeString(this.name);
     buffer.writeString(this.url);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void read(@NotNull ProtocolBuffer buffer) {
     this.name = buffer.readString();

@@ -31,3 +31,9 @@ dependencies {
   compileOnly group: 'com.velocitypowered', name: 'velocity-api', version: dependencyVelocityVersion
   compileOnly group: 'dev.waterdog.waterdogpe', name: 'waterdog', version: dependencyWaterdogPEVersion
 }
+
+moduleJson {
+  main = 'de.dytanic.cloudnet.ext.cloudperms.node.CloudNetCloudPermissionsModule'
+  author = 'CloudNetService'
+  description = 'Node extension for the CloudNet node runtime, which include a player permission system'
+}

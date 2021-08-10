@@ -16,32 +16,90 @@
 
 package de.dytanic.cloudnet.driver.module;
 
+import com.google.common.base.VerifyException;
+import org.jetbrains.annotations.NotNull;
+
+/**
+ * Represents the main class of a module.
+ *
+ * @see de.dytanic.cloudnet.driver.module.driver.DriverModule
+ */
 public interface IModule {
 
-  IModuleWrapper getModuleWrapper();
+  /**
+   * Initializes the module with the necessary information. This method can only be called once.
+   *
+   * @param loader  the class loader used to load all dependencies and the main class of the module.
+   * @param wrapper the created module wrapper which wraps this module.
+   * @param config  the deserialized module configuration located in the module file.
+   * @throws VerifyException      if this module instance is already initialized.
+   * @throws NullPointerException if the provided loader, wrapper or module config is null.
+   */
+  void init(@NotNull ClassLoader loader, @NotNull IModuleWrapper wrapper, @NotNull ModuleConfiguration config);
 
-  ClassLoader getClassLoader();
+  /**
+   * Get the module wrapper which is associated with this module.
+   *
+   * @return the module wrapper which is associated with this module.
+   */
+  @NotNull IModuleWrapper getModuleWrapper();
 
-  ModuleConfiguration getModuleConfig();
+  /**
+   * Get the class loader which is responsible for this module.
+   *
+   * @return the class loader which is responsible for this module.
+   */
+  @NotNull ClassLoader getClassLoader();
 
+  /**
+   * Get the module configuration which was deserialized based on the information located in the module.
+   *
+   * @return the module configuration located in this module file.
+   */
+  @NotNull ModuleConfiguration getModuleConfig();
+
+  /**
+   * Get the group of this module.
+   *
+   * @return the group id of this module.
+   */
   default String getGroup() {
-    return this.getModuleConfig().group;
+    return this.getModuleConfig().getGroup();
   }
 
+  /**
+   * Get the name of this module.
+   *
+   * @return the name of this module.
+   */
   default String getName() {
-    return this.getModuleConfig().name;
+    return this.getModuleConfig().getName();
   }
 
+  /**
+   * Get the version of this module.
+   *
+   * @return the version of this module.
+   */
   default String getVersion() {
-    return this.getModuleConfig().version;
+    return this.getModuleConfig().getVersion();
   }
 
+  /**
+   * Get the website of this module.
+   *
+   * @return the website of this module.
+   */
   default String getWebsite() {
-    return this.getModuleConfig().website;
+    return this.getModuleConfig().getWebsite();
   }
 
+  /**
+   * Get the description of this module.
+   *
+   * @return the description of this module.
+   */
   default String getDescription() {
-    return this.getModuleConfig().description;
+    return this.getModuleConfig().getDescription();
   }
-
 }

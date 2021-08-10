@@ -16,36 +16,96 @@
 
 package de.dytanic.cloudnet.driver.module;
 
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
+import org.jetbrains.annotations.NotNull;
 
-public final class DefaultModuleTaskEntry implements IModuleTaskEntry {
+public class DefaultModuleTaskEntry implements IModuleTaskEntry {
 
-  private final IModuleWrapper moduleWrapper;
+  /**
+   * A simple format which allows unique method identifiers. Format: {@code <declaring class>@<method name>()}
+   */
+  protected static final String METHOD_SIGNATURE_FORMAT = "%s@%s()";
 
-  private final ModuleTask taskInfo;
+  protected final Method jlrMethod;
+  protected final MethodHandle method;
+  protected final ModuleTask moduleTask;
+  protected final IModuleWrapper moduleWrapper;
+  protected final String fullMethodSignatureCached;
 
-  private final Method handler;
-
-  public DefaultModuleTaskEntry(IModuleWrapper moduleWrapper, ModuleTask taskInfo, Method handler) {
-    this.moduleWrapper = moduleWrapper;
-    this.taskInfo = taskInfo;
-    this.handler = handler;
+  /**
+   * Constructs a new instance of this class.
+   *
+   * @param wrapper the module wrapper associated with this task entry.
+   * @param task    the module task annotation based on which this entry was created.
+   * @param method  the method which was annotated with {@link ModuleTask}.
+   * @throws IllegalAccessException if access checking for the provided method fails.
+   */
+  public DefaultModuleTaskEntry(IModuleWrapper wrapper, ModuleTask task, Method method) throws IllegalAccessException {
+    this.jlrMethod = method;
+    this.moduleTask = task;
+    this.moduleWrapper = wrapper;
+    this.method = MethodHandles.lookup().unreflect(method);
+    // init the method signature here, later when the jlrMethod field is gone there is no way to get this information.
+    this.fullMethodSignatureCached = String.format(
+      METHOD_SIGNATURE_FORMAT, method.getDeclaringClass().getCanonicalName(), method.getName());
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
-  public IModule getModule() {
+  public @NotNull IModule getModule() {
     return this.moduleWrapper.getModule();
   }
 
-  public IModuleWrapper getModuleWrapper() {
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public @NotNull IModuleWrapper getModuleWrapper() {
     return this.moduleWrapper;
   }
 
-  public ModuleTask getTaskInfo() {
-    return this.taskInfo;
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public @NotNull ModuleTask getTaskInfo() {
+    return this.moduleTask;
   }
 
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public @NotNull MethodHandle getMethod() {
+    return this.method;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  @Deprecated
   public Method getHandler() {
-    return this.handler;
+    return this.jlrMethod;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public @NotNull String getFullMethodSignature() {
+    return this.fullMethodSignatureCached;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void fire() throws Throwable {
+    this.method.invoke(this.getModuleWrapper().getModule());
   }
 }

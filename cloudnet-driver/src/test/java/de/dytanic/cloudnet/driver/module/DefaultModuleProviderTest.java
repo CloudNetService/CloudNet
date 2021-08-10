@@ -16,19 +16,21 @@
 
 package de.dytanic.cloudnet.driver.module;
 
+import java.net.URL;
 import org.junit.Assert;
 import org.junit.Test;
 
 public final class DefaultModuleProviderTest {
 
   @Test
-  public void testModule() throws Throwable {
+  public void testModule() {
     IModuleProvider moduleProvider = new DefaultModuleProvider();
+    URL testModuleResource = DefaultModuleProviderTest.class.getClassLoader().getResource("module.jar");
 
-    IModuleWrapper moduleWrapper = moduleProvider
-      .loadModule(DefaultModuleProviderTest.class.getClassLoader().getResource("module.jar"));
-    Assert.assertNull(
-      moduleProvider.loadModule(DefaultModuleProviderTest.class.getClassLoader().getResource("module.jar")));
+    Assert.assertNotNull(testModuleResource);
+
+    IModuleWrapper moduleWrapper = moduleProvider.loadModule(testModuleResource);
+    Assert.assertNull(moduleProvider.loadModule(testModuleResource));
 
     Assert.assertNotNull(moduleWrapper);
     Assert.assertNotNull(System.getProperty("module_test_state"));
