@@ -51,7 +51,7 @@ public class ModuleConfiguration implements SerializableObject {
   protected String website;
   protected String dataFolder;
 
-  protected ModuleRepository[] repos;
+  protected ModuleRepository[] repositories;
   protected ModuleDependency[] dependencies;
 
   protected int minJavaVersionId;
@@ -75,7 +75,7 @@ public class ModuleConfiguration implements SerializableObject {
     this.description = description;
     this.author = author;
     this.website = website;
-    this.repos = repos;
+    this.repositories = repos;
     this.dependencies = dependencies;
     this.properties = properties;
   }
@@ -93,7 +93,7 @@ public class ModuleConfiguration implements SerializableObject {
     this.website = website;
     this.dataFolder = dataFolder;
 
-    this.repos = repos;
+    this.repositories = repos;
     this.dependencies = dependencies;
 
     this.properties = properties;
@@ -228,7 +228,7 @@ public class ModuleConfiguration implements SerializableObject {
    * @return all defined repositories of this module.
    */
   public @Nullable ModuleRepository[] getRepos() {
-    return this.repos;
+    return this.repositories;
   }
 
   /**
@@ -319,9 +319,9 @@ public class ModuleConfiguration implements SerializableObject {
     buffer.writeOptionalString(this.author);
     buffer.writeOptionalString(this.website);
     buffer.writeOptionalString(this.dataFolder);
-    buffer.writeBoolean(this.repos != null);
-    if (this.repos != null) {
-      buffer.writeObjectArray(this.repos);
+    buffer.writeBoolean(this.repositories != null);
+    if (this.repositories != null) {
+      buffer.writeObjectArray(this.repositories);
     }
     buffer.writeBoolean(this.dependencies != null);
     if (this.dependencies != null) {
@@ -346,7 +346,7 @@ public class ModuleConfiguration implements SerializableObject {
     this.author = buffer.readOptionalString();
     this.website = buffer.readOptionalString();
     this.dataFolder = buffer.readOptionalString();
-    this.repos = buffer.readBoolean() ? buffer.readObjectArray(ModuleRepository.class) : null;
+    this.repositories = buffer.readBoolean() ? buffer.readObjectArray(ModuleRepository.class) : null;
     this.dependencies = buffer.readBoolean() ? buffer.readObjectArray(ModuleDependency.class) : null;
     this.properties = buffer.readOptionalJsonDocument();
     this.minJavaVersionId = buffer.readShort();
