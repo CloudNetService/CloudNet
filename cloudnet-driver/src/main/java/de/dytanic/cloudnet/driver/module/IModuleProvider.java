@@ -20,53 +20,230 @@ import java.io.File;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.Collection;
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Unmodifiable;
 
+/**
+ * Represents a loader and holder of modules.
+ */
 public interface IModuleProvider {
 
+  /**
+   * Get the base directory of this module provider. It will be used to provide the data directory for modules which did
+   * not specifically set a data directory.
+   *
+   * @return the base directory of this module provider.
+   * @see #setModuleDirectoryPath(Path)
+   */
+  @NotNull Path getModuleDirectoryPath();
+
+  /**
+   * Sets the base directory of this module provider. It will be used to provide the data directory for modules which
+   * did not specifically set a data directory.
+   *
+   * @param moduleDirectory the module directory to use.
+   * @see #getModuleDirectoryPath()
+   */
+  void setModuleDirectoryPath(@NotNull Path moduleDirectory);
+
+  /**
+   * @deprecated Use {@link #getModuleDirectoryPath()} instead.
+   */
   @Deprecated
   default File getModuleDirectory() {
     return this.getModuleDirectoryPath().toFile();
   }
 
+  /**
+   * @deprecated Use {@link #setModuleDirectoryPath(Path)} instead.
+   */
   @Deprecated
   default void setModuleDirectory(File moduleDirectory) {
     this.setModuleDirectoryPath(moduleDirectory.toPath());
   }
 
-  Path getModuleDirectoryPath();
+  /**
+   * Get the module provider handler of this provider or {@code null} when no handler is specified.
+   *
+   * @return the module provider handler of this provider or {@code null}.
+   * @see #setModuleProviderHandler(IModuleProviderHandler)
+   */
+  @Nullable IModuleProviderHandler getModuleProviderHandler();
 
-  void setModuleDirectoryPath(Path moduleDirectory);
+  /**
+   * Sets the module provider handler of this provider.
+   *
+   * @param moduleProviderHandler the new module provider to use or {@code null} when no handler should be used.
+   * @see #getModuleProviderHandler()
+   */
+  void setModuleProviderHandler(@Nullable IModuleProviderHandler moduleProviderHandler);
 
-  IModuleProviderHandler getModuleProviderHandler();
+  /**
+   * Get the module dependency loader. It's used to load all dependencies of all modules.
+   * <p>This handler is by default {@link DefaultMemoryModuleDependencyLoader}.</p>
+   *
+   * @return the module provider handler used for this provider.
+   * @see #setModuleDependencyLoader(IModuleDependencyLoader)
+   * @see DefaultMemoryModuleDependencyLoader
+   * @see DefaultPersistableModuleDependencyLoader
+   */
+  @NotNull IModuleDependencyLoader getModuleDependencyLoader();
 
-  void setModuleProviderHandler(IModuleProviderHandler moduleProviderHandler);
+  /**
+   * Sets the module dependency loader which should be used by this provider.
+   *
+   * @param moduleDependencyLoader the module dependency loader to use.
+   * @see #getModuleDependencyLoader()
+   * @see DefaultMemoryModuleDependencyLoader
+   * @see DefaultPersistableModuleDependencyLoader
+   */
+  void setModuleDependencyLoader(@NotNull IModuleDependencyLoader moduleDependencyLoader);
 
-  IModuleDependencyLoader getModuleDependencyLoader();
+  /**
+   * Get all loaded, started, stopped modules provided by this provider.
+   *
+   * @return an immutable set of all loaded, started, stopped modules provided by this provider.
+   * @see ModuleLifeCycle
+   */
+  @NotNull
+  @Unmodifiable Collection<IModuleWrapper> getModules();
 
-  void setModuleDependencyLoader(IModuleDependencyLoader moduleDependencyLoader);
+  /**
+   * Get all loaded, started, stopped modules provided by this provider which have the specific given group.
+   *
+   * @param group the group id of the modules to get.
+   * @return an immutable set of all loaded, started, stopped modules provided by this provider which have the specific
+   * given group.
+   * @see ModuleLifeCycle
+   */
+  @NotNull
+  @Unmodifiable Collection<IModuleWrapper> getModules(@NotNull String group);
 
-  Collection<IModuleWrapper> getModules();
+  /**
+   * Get a module by the given name.
+   *
+   * @param name the name of the module to get.
+   * @return the module associated with the name or {@code null} if no such module is loaded.
+   */
+  @Nullable IModuleWrapper getModule(@NotNull String name);
 
-  Collection<IModuleWrapper> getModules(String group);
+  /**
+   * Loads a module from the given {@code url}.
+   *
+   * @param url the url to load the module from.
+   * @return the loaded module or {@code null} if checks failed or a module from this url is already loaded.
+   * @throws ModuleConfigurationNotFoundException         if the file associated with the url doesn't contain a
+   *                                                      module.json.
+   * @throws ModuleConfigurationPropertyNotFoundException if a required property is missing in the module.json file.
+   * @throws com.google.common.base.VerifyException       if required properties are missing in dependency or repository
+   *                                                      information.
+   * @throws AssertionError                               if any exception occurs during the load of the module.
+   */
+  @Nullable IModuleWrapper loadModule(@NotNull URL url);
 
-  IModuleWrapper getModule(String name);
+  /**
+   * @deprecated Use {@link #loadModule(Path)} instead.
+   */
+  @Deprecated
+  @ScheduledForRemoval
+  default IModuleWrapper loadModule(@NotNull File file) {
+    return this.loadModule(file.toPath());
+  }
 
-  IModuleWrapper loadModule(URL url);
+  /**
+   * Loads the module by the file provided by the given {@code path}.
+   *
+   * @param path the path to load the module from.
+   * @return the loaded module or {@code null} if checks failed or a module from this path is already loaded.
+   * @throws ModuleConfigurationNotFoundException         if the file associated with the url doesn't contain a
+   *                                                      module.json.
+   * @throws ModuleConfigurationPropertyNotFoundException if a required property is missing in the module.json file.
+   * @throws com.google.common.base.VerifyException       if required properties are missing in dependency or repository
+   *                                                      information.
+   * @throws AssertionError                               if any exception occurs during the load of the module.
+   * @see #loadModule(URL)
+   */
+  @Nullable IModuleWrapper loadModule(@NotNull Path path);
 
-  IModuleWrapper loadModule(File file);
+  /**
+   * @deprecated use {@link #loadModule(URL)} instead.
+   */
+  @Deprecated
+  @ScheduledForRemoval
+  default IModuleProvider loadModule(URL... urls) {
+    for (URL url : urls) {
+      this.loadModule(url);
+    }
+    return this;
+  }
 
-  IModuleWrapper loadModule(Path path);
+  /**
+   * @deprecated use {@link #loadModule(File)} instead.
+   */
+  @Deprecated
+  @ScheduledForRemoval
+  default IModuleProvider loadModule(File... files) {
+    for (File file : files) {
+      this.loadModule(file);
+    }
+    return this;
+  }
 
-  IModuleProvider loadModule(URL... urls);
+  /**
+   * @deprecated use {@link #loadModule(Path)} instead.
+   */
+  @Deprecated
+  @ScheduledForRemoval
+  default IModuleProvider loadModule(Path... paths) {
+    for (Path path : paths) {
+      this.loadModule(path);
+    }
+    return this;
+  }
 
-  IModuleProvider loadModule(File... files);
+  /**
+   * Starts all modules which are loaded by this provided and can change to the started state.
+   *
+   * @return the same instance of the class, for chaining.
+   * @see IModuleWrapper#getModuleLifeCycle()
+   * @see ModuleLifeCycle#canChangeTo(ModuleLifeCycle)
+   */
+  @NotNull IModuleProvider startAll();
 
-  IModuleProvider loadModule(Path... paths);
+  /**
+   * Stops all modules which are loaded by this provided and can change to the stopped state.
+   *
+   * @return the same instance of the class, for chaining.
+   * @see IModuleWrapper#getModuleLifeCycle()
+   * @see ModuleLifeCycle#canChangeTo(ModuleLifeCycle)
+   */
+  @NotNull IModuleProvider stopAll();
 
-  IModuleProvider startAll();
+  /**
+   * Unloads all modules which are loaded by this provided and can change to the unloaded state.
+   *
+   * @return the same instance of the class, for chaining.
+   * @see IModuleWrapper#getModuleLifeCycle()
+   * @see ModuleLifeCycle#canChangeTo(ModuleLifeCycle)
+   */
+  @NotNull IModuleProvider unloadAll();
 
-  IModuleProvider stopAll();
+  /**
+   * Called by an {@link IModuleWrapper} when the module is about to change its lifecycle state.
+   *
+   * @param wrapper   the wrapper which is changing the lifecycle.
+   * @param lifeCycle the lifecycle the wrapper want's to change to.
+   * @return If the wrapper is allowed to change the lifecycle to the provided lifecycle.
+   */
+  boolean notifyPreModuleLifecycleChange(@NotNull IModuleWrapper wrapper, @NotNull ModuleLifeCycle lifeCycle);
 
-  IModuleProvider unloadAll();
-
+  /**
+   * Called by an {@link IModuleWrapper} when the module changed its lifecycle state.
+   *
+   * @param wrapper   the wrapper which changed the lifecycle.
+   * @param lifeCycle the lifecycle the wrapper changed to.
+   */
+  void notifyPostModuleLifecycleChange(@NotNull IModuleWrapper wrapper, @NotNull ModuleLifeCycle lifeCycle);
 }

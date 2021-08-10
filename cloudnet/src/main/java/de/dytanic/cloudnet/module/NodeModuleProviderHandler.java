@@ -20,11 +20,12 @@ import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.driver.module.DefaultModuleProviderHandler;
 import de.dytanic.cloudnet.driver.module.IModuleProviderHandler;
 import de.dytanic.cloudnet.driver.module.IModuleWrapper;
+import org.jetbrains.annotations.NotNull;
 
 public final class NodeModuleProviderHandler extends DefaultModuleProviderHandler implements IModuleProviderHandler {
 
   @Override
-  public void handlePostModuleStop(IModuleWrapper moduleWrapper) {
+  public void handlePostModuleStop(@NotNull IModuleWrapper moduleWrapper) {
     super.handlePostModuleStop(moduleWrapper);
 
     CloudNet.getInstance().unregisterPacketListenersByClassLoader(moduleWrapper.getClassLoader());
