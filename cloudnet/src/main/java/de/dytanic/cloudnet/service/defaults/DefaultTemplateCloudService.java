@@ -292,7 +292,7 @@ public abstract class DefaultTemplateCloudService extends DefaultCloudService {
 
   @Override
   public List<ServiceTemplate> getQueuedTemplates() {
-    return this.queuedTemplates;
+    return Collections.unmodifiableList(this.queuedTemplates);
   }
 
   @Override
