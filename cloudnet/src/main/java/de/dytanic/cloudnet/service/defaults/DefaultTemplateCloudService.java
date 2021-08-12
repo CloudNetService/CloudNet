@@ -57,7 +57,7 @@ public abstract class DefaultTemplateCloudService extends DefaultCloudService {
   private final List<ServiceTemplate> templates = new ArrayList<>();
   private final List<ServiceDeployment> deployments = new CopyOnWriteArrayList<>();
   private final Queue<ServiceRemoteInclusion> waitingIncludes = new ConcurrentLinkedQueue<>();
-  private final Queue<ServiceTemplate> waitingTemplates = new ConcurrentLinkedQueue<>();
+  private final List<ServiceTemplate> waitingTemplates = new CopyOnWriteArrayList<>();
 
   public DefaultTemplateCloudService(String runtime, ICloudServiceManager cloudServiceManager,
     ServiceConfiguration serviceConfiguration, @NotNull CloudServiceHandler handler) {
@@ -151,8 +151,9 @@ public abstract class DefaultTemplateCloudService extends DefaultCloudService {
 
   @Override
   public void includeTemplates() {
+    Collections.sort(this.waitingTemplates);
     while (!this.waitingTemplates.isEmpty()) {
-      ServiceTemplate template = this.waitingTemplates.poll();
+      ServiceTemplate template = this.waitingTemplates.remove(0);
 
       if (template != null && template.getName() != null && template.getPrefix() != null
         && template.getStorage() != null) {
@@ -241,7 +242,7 @@ public abstract class DefaultTemplateCloudService extends DefaultCloudService {
 
   @Override
   public void offerTemplate(@NotNull ServiceTemplate template) {
-    this.waitingTemplates.offer(template);
+    this.waitingTemplates.add(template);
     this.updateServiceInfoSnapshot(this.createServiceInfoSnapshot(this.lifeCycle));
   }
 
@@ -291,7 +292,13 @@ public abstract class DefaultTemplateCloudService extends DefaultCloudService {
   }
 
   @Override
-  public Queue<ServiceTemplate> getWaitingTemplates() {
+  public List<ServiceTemplate> getWaitingTemplatesList() {
     return this.waitingTemplates;
   }
+
+  @Override
+  public Queue<ServiceTemplate> getWaitingTemplates() {
+    return new ConcurrentLinkedQueue<>(this.waitingTemplates);
+  }
+
 }

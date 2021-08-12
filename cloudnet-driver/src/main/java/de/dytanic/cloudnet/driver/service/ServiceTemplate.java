@@ -34,7 +34,7 @@ import org.jetbrains.annotations.Nullable;
  * using a {@link ServiceDeployment}. CloudNet's default storage is "local".
  */
 @EqualsAndHashCode
-public class ServiceTemplate implements INameable, SerializableObject {
+public class ServiceTemplate implements INameable, SerializableObject, Comparable<ServiceTemplate> {
 
   public static final String LOCAL_STORAGE = "local";
 
@@ -43,6 +43,7 @@ public class ServiceTemplate implements INameable, SerializableObject {
   private String storage;
 
   private boolean alwaysCopyToStaticServices;
+  private int priority;
 
   public ServiceTemplate(String prefix, String name, String storage) {
     Preconditions.checkNotNull(prefix);
@@ -57,6 +58,11 @@ public class ServiceTemplate implements INameable, SerializableObject {
   public ServiceTemplate(String prefix, String name, String storage, boolean alwaysCopyToStaticServices) {
     this(prefix, name, storage);
     this.alwaysCopyToStaticServices = alwaysCopyToStaticServices;
+  }
+
+  public ServiceTemplate(String prefix, String name, String storage, boolean alwaysCopyToStaticServices, int priority) {
+    this(prefix, name, storage, alwaysCopyToStaticServices);
+    this.priority = priority;
   }
 
   public ServiceTemplate() {
@@ -137,6 +143,16 @@ public class ServiceTemplate implements INameable, SerializableObject {
   }
 
   /**
+   * This priority is used to determine in which order the template should be installed e.g. a Template with a priority
+   * of 1 (high prio) is installed after Templates with a lower prio (e.g. 5) are installed
+   *
+   * @return the priority of the template
+   */
+  public int getPriority() {
+    return this.priority;
+  }
+
+  /**
    * Creates a new {@link SpecificTemplateStorage} for this template.
    *
    * @return a new instance of the {@link SpecificTemplateStorage}
@@ -164,6 +180,7 @@ public class ServiceTemplate implements INameable, SerializableObject {
     buffer.writeString(this.name);
     buffer.writeString(this.storage);
     buffer.writeBoolean(this.alwaysCopyToStaticServices);
+    buffer.writeInt(this.priority);
   }
 
   @Override
@@ -172,5 +189,11 @@ public class ServiceTemplate implements INameable, SerializableObject {
     this.name = buffer.readString();
     this.storage = buffer.readString();
     this.alwaysCopyToStaticServices = buffer.readBoolean();
+    this.priority = buffer.readInt();
+  }
+
+  @Override
+  public int compareTo(@NotNull ServiceTemplate serviceTemplate) {
+    return Integer.compare(serviceTemplate.priority, this.priority);
   }
 }

@@ -30,6 +30,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Queue;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -52,7 +53,17 @@ public interface ICloudService {
 
   Queue<ServiceRemoteInclusion> getWaitingIncludes();
 
+  /**
+   * @deprecated use {@link #getWaitingTemplatesList()} instead
+   */
+  @Deprecated
+  @ScheduledForRemoval(inVersion = "3.7")
   Queue<ServiceTemplate> getWaitingTemplates();
+
+  /**
+   * @return all templates that are waiting to be included (copied) to the service
+   */
+  List<ServiceTemplate> getWaitingTemplatesList();
 
   List<String> getGroups();
 
@@ -99,7 +110,6 @@ public interface ICloudService {
 
   @NotNull
   IServiceConsoleLogCache getServiceConsoleLogCache();
-
 
   void start() throws Exception;
 
