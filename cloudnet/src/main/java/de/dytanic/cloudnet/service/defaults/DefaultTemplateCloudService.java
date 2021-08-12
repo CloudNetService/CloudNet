@@ -192,7 +192,6 @@ public abstract class DefaultTemplateCloudService extends DefaultCloudService {
         }
       }
     }
-
   }
 
   @Override

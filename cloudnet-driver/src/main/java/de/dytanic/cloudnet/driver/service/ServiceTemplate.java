@@ -144,7 +144,8 @@ public class ServiceTemplate implements INameable, SerializableObject, Comparabl
 
   /**
    * This priority is used to determine in which order the template should be installed e.g. a Template with a priority
-   * of 1 (high prio) is installed after Templates with a lower prio (e.g. 5) are installed
+   * of 10 (high prio) is installed after Templates with a lower prio (e.g. 1) are installed to prevent that Templates
+   * with lower priorities overwrite Templates with a higher one
    *
    * @return the priority of the template
    */
@@ -180,7 +181,7 @@ public class ServiceTemplate implements INameable, SerializableObject, Comparabl
     buffer.writeString(this.name);
     buffer.writeString(this.storage);
     buffer.writeBoolean(this.alwaysCopyToStaticServices);
-    buffer.writeInt(this.priority);
+    buffer.writeVarInt(this.priority);
   }
 
   @Override
@@ -189,11 +190,11 @@ public class ServiceTemplate implements INameable, SerializableObject, Comparabl
     this.name = buffer.readString();
     this.storage = buffer.readString();
     this.alwaysCopyToStaticServices = buffer.readBoolean();
-    this.priority = buffer.readInt();
+    this.priority = buffer.readVarInt();
   }
 
   @Override
   public int compareTo(@NotNull ServiceTemplate serviceTemplate) {
-    return Integer.compare(serviceTemplate.priority, this.priority);
+    return Integer.compare(this.priority, serviceTemplate.priority);
   }
 }
