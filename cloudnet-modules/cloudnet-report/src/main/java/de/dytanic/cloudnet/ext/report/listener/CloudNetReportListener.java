@@ -146,7 +146,7 @@ public final class CloudNetReportListener {
   private void writeWaitingIncludesAndDeployments(Path directory, ICloudService cloudService) {
     new JsonDocument()
       .append("waitingIncludes", cloudService.getWaitingIncludes())
-      .append("waitingTemplates", cloudService.getWaitingTemplates())
+      .append("waitingTemplates", cloudService.getQueuedTemplates())
       .append("deployments", cloudService.getDeployments())
       .write(directory.resolve("waitingIncludesAndDeployments.json"))
     ;
