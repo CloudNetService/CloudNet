@@ -54,7 +54,7 @@ public interface ICloudService {
   Queue<ServiceRemoteInclusion> getWaitingIncludes();
 
   /**
-   * @deprecated use {@link #getWaitingTemplatesList()} instead
+   * @deprecated use {@link #getQueuedTemplates()} instead
    */
   @Deprecated
   @ScheduledForRemoval(inVersion = "3.7")
@@ -63,7 +63,7 @@ public interface ICloudService {
   /**
    * @return all templates that are waiting to be included (copied) to the service
    */
-  List<ServiceTemplate> getWaitingTemplatesList();
+  List<ServiceTemplate> getQueuedTemplates();
 
   List<String> getGroups();
 
