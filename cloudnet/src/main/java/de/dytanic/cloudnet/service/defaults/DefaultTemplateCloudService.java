@@ -152,8 +152,8 @@ public abstract class DefaultTemplateCloudService extends DefaultCloudService {
   @Override
   public void includeTemplates() {
     Collections.sort(this.waitingTemplates);
-    while (!this.waitingTemplates.isEmpty()) {
-      ServiceTemplate template = this.waitingTemplates.remove(0);
+    for (ServiceTemplate template : this.waitingTemplates) {
+      this.waitingTemplates.remove(template);
 
       if (template != null && template.getName() != null && template.getPrefix() != null
         && template.getStorage() != null) {
