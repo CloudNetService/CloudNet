@@ -17,7 +17,7 @@
 package de.dytanic.cloudnet.driver.network.protocol;
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
-import de.dytanic.cloudnet.driver.serialization.DataBuf;
+import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import java.util.UUID;
 import lombok.EqualsAndHashCode;

@@ -14,8 +14,20 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.driver.serialization;
+package de.dytanic.cloudnet.driver.network.buffer;
+
+import java.util.function.Consumer;
+import java.util.function.Function;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public interface DataBuf {
 
+  boolean readBoolean();
+
+  @NotNull String readString();
+
+  @NotNull <T> DataBuf writeNullable(@Nullable T object, @NotNull Consumer<T> handlerWhenNonNull);
+
+  @Nullable <T> T readNullable(@NotNull Function<DataBuf, T> readerWhenNonNull);
 }

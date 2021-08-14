@@ -28,7 +28,7 @@ import org.jetbrains.annotations.Unmodifiable;
 /**
  * Includes the basic functions for the client and the server
  */
-interface INetworkComponent extends IPacketSender {
+public interface INetworkComponent extends IPacketSender {
 
   /**
    * Get if this component has ssl enabled.

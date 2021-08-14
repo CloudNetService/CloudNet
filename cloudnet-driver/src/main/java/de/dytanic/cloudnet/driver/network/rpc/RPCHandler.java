@@ -14,20 +14,13 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.driver.event.invoker;
+package de.dytanic.cloudnet.driver.network.rpc;
 
-import java.security.SecureClassLoader;
+import de.dytanic.cloudnet.driver.network.INetworkChannel;
+import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
+import org.jetbrains.annotations.NotNull;
 
-/**
- * {@link SecureClassLoader} giving the possibility to define new classes.
- */
-public class ListenerInvokerClassLoader extends SecureClassLoader {
+public interface RPCHandler extends RPCProvider {
 
-  public ListenerInvokerClassLoader(ClassLoader parent) {
-    super(parent);
-  }
-
-  public Class<?> defineClass(String className, byte[] bytes) {
-    return super.defineClass(className, bytes, 0, bytes.length);
-  }
+  @NotNull DataBuf handleRPC(@NotNull INetworkChannel channel, @NotNull DataBuf received);
 }
