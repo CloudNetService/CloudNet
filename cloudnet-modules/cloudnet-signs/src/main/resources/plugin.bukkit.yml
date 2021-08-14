@@ -11,6 +11,6 @@ depend: [ CloudNet-Bridge ]
 
 commands:
   cloudsign:
-    aliases: [ cs ]
+    aliases: [ cs, signs, cloudsigns ]
     permission: 'cloudnet.command.cloudsign'
     description: 'Management of the signs'

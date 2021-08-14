@@ -106,10 +106,10 @@ public class CommandSigns implements CommandExecutor {
       return true;
     }
 
-    sender.sendMessage("/signs create <targetGroup> [templatePath]");
-    sender.sendMessage("/signs remove");
-    sender.sendMessage("/signs removeAll");
-    sender.sendMessage("/signs cleanup");
+    sender.sendMessage("§7/cloudsigns create <targetGroup> [templatePath]");
+    sender.sendMessage("§7/cloudsigns remove");
+    sender.sendMessage("§7/cloudsigns removeAll");
+    sender.sendMessage("§7/cloudsigns cleanup");
 
     return true;
   }

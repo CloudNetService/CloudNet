@@ -20,6 +20,8 @@ import com.google.common.collect.ImmutableList;
 import eu.cloudnetservice.cloudnet.ext.signs.Sign;
 import eu.cloudnetservice.cloudnet.ext.signs.configuration.SignConfigurationEntry;
 import eu.cloudnetservice.cloudnet.ext.signs.service.ServiceSignManagement;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import org.bukkit.Material;
@@ -28,15 +30,19 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
+import org.bukkit.util.StringUtil;
 
 public class CommandSigns implements TabExecutor {
 
   protected static final String[] HELP = new String[]{
-    "/signs create <targetGroup> [templatePath]",
-    "/signs remove",
-    "/signs removeAll",
-    "/signs cleanup"
+    "§7/cloudsigns create <targetGroup> [templatePath]",
+    "§7/cloudsigns remove",
+    "§7/cloudsigns removeAll",
+    "§7/cloudsigns cleanup"
   };
+
+  // all subcommands of the signs command
+  protected static final List<String> COMMANDS = Arrays.asList("create", "remove", "removeall", "cleanup");
 
   protected final ServiceSignManagement<org.bukkit.block.Sign> signManagement;
 
@@ -120,7 +126,8 @@ public class CommandSigns implements TabExecutor {
   @Override
   public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
     if (args.length == 1) {
-      return ImmutableList.of("create", "remove", "removeAll", "cleanup");
+      // filter for all strings that partially match the input of the player
+      return StringUtil.copyPartialMatches(args[0], COMMANDS, new ArrayList<>());
     }
     return ImmutableList.of();
   }
