@@ -16,58 +16,91 @@
 
 package de.dytanic.cloudnet.driver.module;
 
+import com.google.common.collect.ObjectArrays;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.Collection;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
+import org.jetbrains.annotations.NotNull;
 
-public final class FinalizeURLClassLoader extends URLClassLoader {
+public class FinalizeURLClassLoader extends URLClassLoader {
 
-  private static final Collection<FinalizeURLClassLoader> CLASS_LOADERS = new CopyOnWriteArrayList<>();
+  /**
+   * All loaders which were created and of which the associated module is still loaded.
+   */
+  protected static final Set<FinalizeURLClassLoader> LOADERS = new CopyOnWriteArraySet<>();
 
   static {
     ClassLoader.registerAsParallelCapable();
   }
 
-  public FinalizeURLClassLoader(URL[] urls) {
-    super(urls, FinalizeURLClassLoader.class.getClassLoader());
-
-    CLASS_LOADERS.add(this);
+  /**
+   * Creates an instance of this class loader.
+   *
+   * @param moduleFileUrl        the module file to which this loader is associated.
+   * @param moduleDependencyUrls all dependencies which were loaded for the module.
+   */
+  public FinalizeURLClassLoader(@NotNull URL moduleFileUrl, @NotNull Set<URL> moduleDependencyUrls) {
+    super(
+      ObjectArrays.concat(moduleFileUrl, moduleDependencyUrls.toArray(new URL[0])),
+      FinalizeURLClassLoader.class.getClassLoader());
   }
 
-  public FinalizeURLClassLoader(URL url) {
-    this(new URL[]{url});
+  /**
+   * Registers this loader to all loaders. This causes all other instances of this class to search for classes in this
+   * loader too.
+   */
+  public void registerGlobally() {
+    LOADERS.add(this);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
-  public Class<?> loadClass(String name, boolean resolve)
-    throws ClassNotFoundException {
+  public void close() throws IOException {
+    super.close();
+    LOADERS.remove(this);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  protected @NotNull Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
+    return this.loadClass(name, resolve, true);
+  }
+
+  /**
+   * Tries to load a class by the provided name.
+   *
+   * @param name    The name of the class to load.
+   * @param resolve If the class should be resolved.
+   * @param global  If all loaders registered in {@link FinalizeURLClassLoader#LOADERS} should be checked.
+   * @return The resulting {@code Class} object
+   * @throws ClassNotFoundException If the class could not be found
+   */
+  protected @NotNull Class<?> loadClass(String name, boolean resolve, boolean global) throws ClassNotFoundException {
     try {
-      return this.loadClass0(name, resolve);
+      return super.loadClass(name, resolve);
     } catch (ClassNotFoundException ignored) {
+      // ignore for now, we'll try the other loaders first
     }
 
-    for (FinalizeURLClassLoader classLoader : CLASS_LOADERS) {
-      if (classLoader != this) {
-        try {
-          return classLoader.loadClass0(name, resolve);
-        } catch (ClassNotFoundException ignored) {
+    if (global) {
+      for (FinalizeURLClassLoader loader : LOADERS) {
+        if (loader != this) {
+          try {
+            return loader.loadClass(name, resolve, false);
+          } catch (ClassNotFoundException exception) {
+            // there may be still other to come
+          }
         }
       }
     }
 
+    // nothing found
     throw new ClassNotFoundException(name);
-  }
-
-  private Class<?> loadClass0(String name, boolean resolve)
-    throws ClassNotFoundException {
-    return super.loadClass(name, resolve);
-  }
-
-  @Override
-  public void close() throws IOException {
-    super.close();
-    CLASS_LOADERS.remove(this);
   }
 }

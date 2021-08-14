@@ -22,7 +22,6 @@ import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * All println and print methods can be executed completely asynchronously at each instance of this class, and these are
@@ -145,7 +144,7 @@ public class AsyncPrintStream extends PrintStream {
   }
 
   @Override
-  public void println(@NotNull char[] x) {
+  public void println(char[] x) {
     ASYNC_QUEUE.offer(() -> this.println0(x));
   }
 
@@ -255,7 +254,7 @@ public class AsyncPrintStream extends PrintStream {
   }
 
   @Override
-  public void print(@NotNull char[] x) {
+  public void print(char[] x) {
     if (!this.isWorkerThread()) {
       ASYNC_QUEUE.offer(() -> this.print0(x));
     } else {

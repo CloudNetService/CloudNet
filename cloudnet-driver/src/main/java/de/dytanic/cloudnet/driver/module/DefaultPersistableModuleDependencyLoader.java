@@ -18,53 +18,78 @@ package de.dytanic.cloudnet.driver.module;
 
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.common.io.HttpConnectionProvider;
-import de.dytanic.cloudnet.common.log.LogManager;
-import de.dytanic.cloudnet.common.log.Logger;
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Map;
+import org.jetbrains.annotations.NotNull;
 
-public class DefaultPersistableModuleDependencyLoader implements IModuleDependencyLoader {
+/**
+ * A dependency loader which will download and save the provided module dependencies persistently on the local file
+ * system.
+ */
+public class DefaultPersistableModuleDependencyLoader extends DefaultMemoryModuleDependencyLoader {
 
-  private static final Logger LOGGER = LogManager.getLogger(DefaultPersistableModuleDependencyLoader.class);
+  /**
+   * A format for the file name with which the module will be stored: {@code <name>-<version>.jar}
+   */
+  protected static final String FILE_NAME_FORMAT = "%s-%s.jar";
 
   protected final Path baseDirectory;
 
+  /**
+   * Constructs a new instance of this class.
+   *
+   * @param baseDirectory the base directory in which the dependencies should be stored.
+   */
   public DefaultPersistableModuleDependencyLoader(Path baseDirectory) {
     this.baseDirectory = baseDirectory;
-    try {
-      Files.createDirectories(baseDirectory);
-    } catch (IOException exception) {
-      LOGGER.severe("Exception while creating directories", exception);
-    }
+    FileUtils.createDirectoryReported(baseDirectory);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
-  public URL loadModuleDependencyByUrl(ModuleConfiguration moduleConfiguration, ModuleDependency moduleDependency,
-    Map<String, String> moduleRepositoriesUrls) throws Exception {
-    return this.loadModuleDependency0(moduleDependency, moduleDependency.getUrl());
+  public @NotNull URL loadModuleDependencyByUrl(
+    @NotNull ModuleConfiguration configuration,
+    @NotNull ModuleDependency dependency
+  ) throws Exception {
+    URL memoryBasedUrl = super.loadModuleDependencyByUrl(configuration, dependency);
+    return this.loadDependency(dependency, memoryBasedUrl);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
-  public URL loadModuleDependencyByRepository(ModuleConfiguration moduleConfiguration,
-    ModuleDependency moduleDependency, Map<String, String> moduleRepositoriesUrls) throws Exception {
-    return this.loadModuleDependency0(moduleDependency, moduleRepositoriesUrls.get(moduleDependency.getRepo()) +
-      moduleDependency.getGroup().replace(".", "/") + "/" +
-      moduleDependency.getName() + "/" + moduleDependency.getVersion() + "/" +
-      moduleDependency.getName() + "-" + moduleDependency.getVersion() + ".jar");
+  public @NotNull URL loadModuleDependencyByRepository(
+    @NotNull ModuleConfiguration configuration,
+    @NotNull ModuleDependency dependency,
+    @NotNull String repositoryUrl
+  ) throws Exception {
+    URL memoryBasedUrl = super.loadModuleDependencyByRepository(configuration, dependency, repositoryUrl);
+    return this.loadDependency(dependency, memoryBasedUrl);
   }
 
-  private URL loadModuleDependency0(ModuleDependency moduleDependency, String url) throws Exception {
-    Path destFile = this.baseDirectory
-      .resolve(moduleDependency.getGroup().replace(".", "/") + "/" + moduleDependency.getName() +
-        "/" + moduleDependency.getVersion() + "/" + moduleDependency.getName() + "-" + moduleDependency.getVersion()
-        + ".jar");
+  /**
+   * Loads and stores a dependency on the local file system. This method will not override existing versions of the
+   * file.
+   *
+   * @param dependency the dependency which gets loaded.
+   * @param url        the url from where the dependency should be loaded.
+   * @return the url to the file on the local file system after the load.
+   * @throws Exception if any exception occurs during the load of the dependency.
+   */
+  protected @NotNull URL loadDependency(@NotNull ModuleDependency dependency, @NotNull URL url) throws Exception {
+    Path destFile = FileUtils.resolve(this.baseDirectory, dependency.getGroup().split("\\."))
+      .resolve(dependency.getName())
+      .resolve(dependency.getVersion())
+      .resolve(String.format(FILE_NAME_FORMAT, dependency.getName(), dependency.getVersion()));
+    FileUtils.ensureChild(this.baseDirectory, destFile);
 
-    if (!Files.exists(destFile)) {
+    if (Files.notExists(destFile)) {
       Files.createDirectories(destFile.getParent());
 
       HttpURLConnection urlConnection = HttpConnectionProvider.provideConnection(url);
@@ -79,7 +104,12 @@ public class DefaultPersistableModuleDependencyLoader implements IModuleDependen
     return destFile.toUri().toURL();
   }
 
-  public Path getBaseDirectory() {
+  /**
+   * Get the base directory in which the dependencies should be stored.
+   *
+   * @return the base directory in which the dependencies should be stored.
+   */
+  public @NotNull Path getBaseDirectory() {
     return this.baseDirectory;
   }
 }

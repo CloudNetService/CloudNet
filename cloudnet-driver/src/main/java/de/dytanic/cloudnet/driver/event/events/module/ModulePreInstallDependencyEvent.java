@@ -18,25 +18,61 @@ package de.dytanic.cloudnet.driver.event.events.module;
 
 import de.dytanic.cloudnet.driver.module.IModuleProvider;
 import de.dytanic.cloudnet.driver.module.IModuleWrapper;
+import de.dytanic.cloudnet.driver.module.ModuleConfiguration;
 import de.dytanic.cloudnet.driver.module.ModuleDependency;
-import de.dytanic.cloudnet.driver.module.ModuleLifeCycle;
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
+import org.jetbrains.annotations.NotNull;
 
 /**
- * This event is being called before a dependency for a module is being downloaded. {@link
- * IModuleWrapper#getModuleLifeCycle()} is still {@link ModuleLifeCycle#UNLOADED}
+ * This event is being called before a dependency for a module is being loaded.
  */
-public final class ModulePreInstallDependencyEvent extends ModuleEvent {
+public final class ModulePreInstallDependencyEvent extends UnloadedModuleEvent {
 
   private final ModuleDependency moduleDependency;
 
-  public ModulePreInstallDependencyEvent(IModuleProvider moduleProvider, IModuleWrapper module,
-    ModuleDependency moduleDependency) {
-    super(moduleProvider, module);
-
-    this.moduleDependency = moduleDependency;
+  /**
+   * @deprecated use {@link #ModulePreInstallDependencyEvent(IModuleProvider, ModuleConfiguration, ModuleDependency)}
+   * instead.
+   */
+  @Deprecated
+  @ScheduledForRemoval
+  public ModulePreInstallDependencyEvent(
+    IModuleProvider moduleProvider,
+    IModuleWrapper module,
+    ModuleDependency moduleDependency
+  ) {
+    this(moduleProvider, module.getModuleConfiguration(), moduleDependency);
   }
 
-  public ModuleDependency getModuleDependency() {
+  /**
+   * {@inheritDoc}
+   *
+   * @param dependency the dependency which got loaded.
+   */
+  public ModulePreInstallDependencyEvent(
+    IModuleProvider provider,
+    ModuleConfiguration configuration,
+    ModuleDependency dependency
+  ) {
+    super(provider, configuration);
+    this.moduleDependency = dependency;
+  }
+
+  /**
+   * Get the dependency which got loaded for the module.
+   *
+   * @return the dependency which got loaded for the module.
+   */
+  public @NotNull ModuleDependency getModuleDependency() {
     return this.moduleDependency;
+  }
+
+  /**
+   * @deprecated The module instance is created after this event call. Use {@link #getModuleConfiguration()} instead.
+   */
+  @Deprecated
+  @ScheduledForRemoval
+  public IModuleWrapper getModule() {
+    throw new UnsupportedOperationException("Unable to retrieve module wrapper in ModulePostInstallDependencyEvent.");
   }
 }

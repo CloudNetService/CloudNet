@@ -32,35 +32,43 @@ import de.dytanic.cloudnet.driver.event.events.module.ModulePreLoadEvent;
 import de.dytanic.cloudnet.driver.event.events.module.ModulePreStartEvent;
 import de.dytanic.cloudnet.driver.event.events.module.ModulePreStopEvent;
 import de.dytanic.cloudnet.driver.event.events.module.ModulePreUnloadEvent;
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
+import org.jetbrains.annotations.NotNull;
 
 public class DefaultModuleProviderHandler implements IModuleProviderHandler {
 
   private static final Logger LOGGER = LogManager.getLogger(DefaultModuleProviderHandler.class);
 
   @Override
-  public boolean handlePreModuleLoad(IModuleWrapper moduleWrapper) {
+  public boolean handlePreModuleLoad(@NotNull IModuleWrapper moduleWrapper) {
     boolean cancelled = this.callEvent(new ModulePreLoadEvent(this.getModuleProvider(), moduleWrapper)).isCancelled();
     if (!cancelled) {
-      LOGGER.info(this
-        .replaceAll(LanguageManager.getMessage("cloudnet-pre-load-module"), this.getModuleProvider(), moduleWrapper));
+      LOGGER.info(this.replaceAll(
+        LanguageManager.getMessage("cloudnet-pre-load-module"),
+        this.getModuleProvider(),
+        moduleWrapper.getModuleConfiguration()));
     }
 
     return !cancelled;
   }
 
   @Override
-  public void handlePostModuleLoad(IModuleWrapper moduleWrapper) {
+  public void handlePostModuleLoad(@NotNull IModuleWrapper moduleWrapper) {
     this.callEvent(new ModulePostLoadEvent(this.getModuleProvider(), moduleWrapper));
-    LOGGER.fine(this
-      .replaceAll(LanguageManager.getMessage("cloudnet-post-load-module"), this.getModuleProvider(), moduleWrapper));
+    LOGGER.fine(this.replaceAll(
+      LanguageManager.getMessage("cloudnet-post-load-module"),
+      this.getModuleProvider(),
+      moduleWrapper.getModuleConfiguration()));
   }
 
   @Override
-  public boolean handlePreModuleStart(IModuleWrapper moduleWrapper) {
+  public boolean handlePreModuleStart(@NotNull IModuleWrapper moduleWrapper) {
     boolean cancelled = this.callEvent(new ModulePreStartEvent(this.getModuleProvider(), moduleWrapper)).isCancelled();
     if (!cancelled) {
-      LOGGER.info(this
-        .replaceAll(LanguageManager.getMessage("cloudnet-pre-start-module"), this.getModuleProvider(), moduleWrapper));
+      LOGGER.info(this.replaceAll(
+        LanguageManager.getMessage("cloudnet-pre-start-module"),
+        this.getModuleProvider(),
+        moduleWrapper.getModuleConfiguration()));
       CloudNetDriver.getInstance().getEventManager().registerListener(moduleWrapper.getModule());
     }
 
@@ -68,65 +76,75 @@ public class DefaultModuleProviderHandler implements IModuleProviderHandler {
   }
 
   @Override
-  public void handlePostModuleStart(IModuleWrapper moduleWrapper) {
+  public void handlePostModuleStart(@NotNull IModuleWrapper moduleWrapper) {
     this.callEvent(new ModulePostStartEvent(this.getModuleProvider(), moduleWrapper));
-    LOGGER.fine(this
-      .replaceAll(LanguageManager.getMessage("cloudnet-post-start-module"), this.getModuleProvider(), moduleWrapper));
+    LOGGER.fine(this.replaceAll(
+      LanguageManager.getMessage("cloudnet-post-start-module"),
+      this.getModuleProvider(),
+      moduleWrapper.getModuleConfiguration()));
   }
 
   @Override
-  public boolean handlePreModuleStop(IModuleWrapper moduleWrapper) {
+  public boolean handlePreModuleStop(@NotNull IModuleWrapper moduleWrapper) {
     boolean cancelled = this.callEvent(new ModulePreStopEvent(this.getModuleProvider(), moduleWrapper)).isCancelled();
     if (!cancelled) {
-      LOGGER.info(this
-        .replaceAll(LanguageManager.getMessage("cloudnet-pre-stop-module"), this.getModuleProvider(), moduleWrapper));
+      LOGGER.info(this.replaceAll(
+        LanguageManager.getMessage("cloudnet-pre-stop-module"),
+        this.getModuleProvider(),
+        moduleWrapper.getModuleConfiguration()));
     }
 
     return !cancelled;
   }
 
   @Override
-  public void handlePostModuleStop(IModuleWrapper moduleWrapper) {
+  public void handlePostModuleStop(@NotNull IModuleWrapper moduleWrapper) {
     CloudNetDriver.getInstance().getServicesRegistry().unregisterAll(moduleWrapper.getClassLoader());
     CloudNetDriver.getInstance().getEventManager().unregisterListeners(moduleWrapper.getClassLoader());
 
     this.callEvent(new ModulePostStopEvent(this.getModuleProvider(), moduleWrapper));
-    LOGGER.fine(this
-      .replaceAll(LanguageManager.getMessage("cloudnet-post-stop-module"), this.getModuleProvider(), moduleWrapper));
+    LOGGER.fine(this.replaceAll(
+      LanguageManager.getMessage("cloudnet-post-stop-module"),
+      this.getModuleProvider(),
+      moduleWrapper.getModuleConfiguration()));
   }
 
   @Override
-  public void handlePreModuleUnload(IModuleWrapper moduleWrapper) {
+  public void handlePreModuleUnload(@NotNull IModuleWrapper moduleWrapper) {
     this.callEvent(new ModulePreUnloadEvent(this.getModuleProvider(), moduleWrapper));
-    LOGGER.info(this
-      .replaceAll(LanguageManager.getMessage("cloudnet-pre-unload-module"), this.getModuleProvider(), moduleWrapper));
+    LOGGER.info(this.replaceAll(
+      LanguageManager.getMessage("cloudnet-pre-unload-module"),
+      this.getModuleProvider(),
+      moduleWrapper.getModuleConfiguration()));
   }
 
   @Override
-  public void handlePostModuleUnload(IModuleWrapper moduleWrapper) {
+  public void handlePostModuleUnload(@NotNull IModuleWrapper moduleWrapper) {
     this.callEvent(new ModulePostUnloadEvent(this.getModuleProvider(), moduleWrapper));
-    LOGGER.fine(this
-      .replaceAll(LanguageManager.getMessage("cloudnet-post-unload-module"), this.getModuleProvider(), moduleWrapper));
+    LOGGER.fine(this.replaceAll(
+      LanguageManager.getMessage("cloudnet-post-unload-module"),
+      this.getModuleProvider(),
+      moduleWrapper.getModuleConfiguration()));
   }
 
   @Override
-  public void handlePreInstallDependency(IModuleWrapper moduleWrapper, ModuleDependency dependency) {
-    this.callEvent(new ModulePreInstallDependencyEvent(this.getModuleProvider(), moduleWrapper, dependency));
+  public void handlePreInstallDependency(@NotNull ModuleConfiguration configuration, @NotNull ModuleDependency dependency) {
+    this.callEvent(new ModulePreInstallDependencyEvent(this.getModuleProvider(), configuration, dependency));
     LOGGER.fine(this.replaceAll(LanguageManager.getMessage("cloudnet-pre-install-dependency-module")
         .replace("%group%", dependency.getGroup())
         .replace("%name%", dependency.getName())
         .replace("%version%", dependency.getVersion()),
-      this.getModuleProvider(), moduleWrapper));
+      this.getModuleProvider(), configuration));
   }
 
   @Override
-  public void handlePostInstallDependency(IModuleWrapper moduleWrapper, ModuleDependency dependency) {
-    this.callEvent(new ModulePostInstallDependencyEvent(this.getModuleProvider(), moduleWrapper, dependency));
+  public void handlePostInstallDependency(@NotNull ModuleConfiguration configuration, @NotNull ModuleDependency dependency) {
+    this.callEvent(new ModulePostInstallDependencyEvent(this.getModuleProvider(), configuration, dependency));
     LOGGER.fine(this.replaceAll(LanguageManager.getMessage("cloudnet-post-install-dependency-module")
         .replace("%group%", dependency.getGroup())
         .replace("%name%", dependency.getName())
         .replace("%version%", dependency.getVersion()),
-      this.getModuleProvider(), moduleWrapper));
+      this.getModuleProvider(), configuration));
   }
 
   protected IModuleProvider getModuleProvider() {
@@ -137,16 +155,23 @@ public class DefaultModuleProviderHandler implements IModuleProviderHandler {
     return CloudNetDriver.getInstance().getEventManager().callEvent(event);
   }
 
-
+  /**
+   * @deprecated use {@link #replaceAll(String, IModuleProvider, ModuleConfiguration)} instead.
+   */
+  @Deprecated
+  @ScheduledForRemoval
   protected String replaceAll(String text, IModuleProvider moduleProvider, IModuleWrapper moduleWrapper) {
-    Preconditions.checkNotNull(text);
-    Preconditions.checkNotNull(moduleProvider);
-    Preconditions.checkNotNull(moduleWrapper);
-
-    return text.replace("%module_group%", moduleWrapper.getModuleConfiguration().getGroup())
-      .replace("%module_name%", moduleWrapper.getModuleConfiguration().getName())
-      .replace("%module_version%", moduleWrapper.getModuleConfiguration().getVersion())
-      .replace("%module_author%", moduleWrapper.getModuleConfiguration().getAuthor());
+    return this.replaceAll(text, moduleProvider, moduleWrapper.getModuleConfiguration());
   }
 
+  protected String replaceAll(String text, IModuleProvider moduleProvider, ModuleConfiguration configuration) {
+    Preconditions.checkNotNull(text);
+    Preconditions.checkNotNull(moduleProvider);
+    Preconditions.checkNotNull(configuration);
+
+    return text.replace("%module_group%", configuration.getGroup())
+      .replace("%module_name%", configuration.getName())
+      .replace("%module_version%", configuration.getVersion())
+      .replace("%module_author%", configuration.getAuthor());
+  }
 }

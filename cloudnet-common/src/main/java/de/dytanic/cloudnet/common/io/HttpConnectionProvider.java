@@ -41,8 +41,21 @@ public final class HttpConnectionProvider {
     return provideConnection(endpoint, DEFAULT_REQUEST_PROPERTIES);
   }
 
-  public static @NotNull HttpURLConnection provideConnection(@NotNull String endpoint,
-    @NotNull Map<String, String> requestProperties) {
+  public static @NotNull HttpURLConnection provideConnection(@NotNull URL endpoint) {
+    return provideConnection(endpoint, DEFAULT_REQUEST_PROPERTIES);
+  }
+
+  public static @NotNull HttpURLConnection provideConnection(
+    @NotNull String endpoint,
+    @NotNull Map<String, String> requestProperties
+  ) {
+    return provideConnection(endpoint, requestProperties, 5_000);
+  }
+
+  public static @NotNull HttpURLConnection provideConnection(
+    @NotNull URL endpoint,
+    @NotNull Map<String, String> requestProperties
+  ) {
     return provideConnection(endpoint, requestProperties, 5_000);
   }
 
@@ -50,10 +63,29 @@ public final class HttpConnectionProvider {
     return provideConnection(endpoint, DEFAULT_REQUEST_PROPERTIES, timeout);
   }
 
-  public static @NotNull HttpURLConnection provideConnection(@NotNull String endpoint,
-    @NotNull Map<String, String> requestProperties, int timeout) {
+  public static @NotNull HttpURLConnection provideConnection(@NotNull URL endpoint, int timeout) {
+    return provideConnection(endpoint, DEFAULT_REQUEST_PROPERTIES, timeout);
+  }
+
+  public static @NotNull HttpURLConnection provideConnection(
+    @NotNull String endpoint,
+    @NotNull Map<String, String> requestProperties,
+    int timeout
+  ) {
     try {
-      HttpURLConnection connection = (HttpURLConnection) new URL(endpoint).openConnection();
+      return provideConnection(new URL(endpoint), requestProperties, timeout);
+    } catch (IOException exception) {
+      throw new IllegalStateException("Unable to provide http connection", exception);
+    }
+  }
+
+  public static @NotNull HttpURLConnection provideConnection(
+    @NotNull URL endpoint,
+    @NotNull Map<String, String> requestProperties,
+    int timeout
+  ) {
+    try {
+      HttpURLConnection connection = (HttpURLConnection) endpoint.openConnection();
       // timeout
       connection.setReadTimeout(timeout);
       connection.setConnectTimeout(timeout);

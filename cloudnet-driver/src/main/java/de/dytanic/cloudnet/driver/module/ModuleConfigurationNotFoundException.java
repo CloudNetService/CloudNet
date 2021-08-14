@@ -17,10 +17,19 @@
 package de.dytanic.cloudnet.driver.module;
 
 import java.net.URL;
+import org.jetbrains.annotations.NotNull;
 
-public final class ModuleConfigurationNotFoundException extends Exception {
+/**
+ * Represents an exception thrown when the module configuration of a module cannot be found in the module file.
+ */
+public class ModuleConfigurationNotFoundException extends RuntimeException {
 
-  public ModuleConfigurationNotFoundException(URL url) {
-    super("module configuration not found in " + url.toString());
+  /**
+   * Creates a new instance of this class.
+   *
+   * @param url the url of the module which didn't contain a module.json file.
+   */
+  public ModuleConfigurationNotFoundException(@NotNull URL url) {
+    super("No module configuration found in " + url.toExternalForm());
   }
 }

@@ -18,47 +18,163 @@ package de.dytanic.cloudnet.driver.module;
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import java.io.File;
+import java.net.URI;
 import java.net.URL;
 import java.nio.file.Path;
-import java.util.EnumMap;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Unmodifiable;
 
+/**
+ * Represents a wrapper for a module.
+ */
 public interface IModuleWrapper {
 
-  EnumMap<ModuleLifeCycle, List<IModuleTaskEntry>> getModuleTasks();
+  /**
+   * Get all module tasks which were detected in the main class of the module.
+   *
+   * @return an immutable map of all module tasks which were detected in the main class of the module.
+   */
+  @NotNull
+  @Unmodifiable Map<ModuleLifeCycle, List<IModuleTaskEntry>> getModuleTasks();
 
-  IModule getModule();
+  /**
+   * Get all modules this module is depending on.
+   *
+   * @return an immutable set of all modules this module is depending on.
+   */
+  @NotNull
+  @Unmodifiable Set<ModuleDependency> getDependingModules();
 
-  ModuleLifeCycle getModuleLifeCycle();
+  /**
+   * Get the wrapped module instance of this wrapper.
+   *
+   * @return the wrapped module instance of this wrapper.
+   */
+  @NotNull IModule getModule();
 
-  IModuleProvider getModuleProvider();
+  /**
+   * Get the current lifecycle of this wrapper.
+   *
+   * @return the current lifecycle of this wrapper.
+   */
+  @NotNull ModuleLifeCycle getModuleLifeCycle();
 
-  ModuleConfiguration getModuleConfiguration();
+  /**
+   * Get the module provider which loaded this module.
+   *
+   * @return the module provider which loaded this module.
+   */
+  @NotNull IModuleProvider getModuleProvider();
 
-  JsonDocument getModuleConfigurationSource();
+  /**
+   * Get the module configuration on which base the module was created.
+   *
+   * @return the module configuration on which base the module was created.
+   */
+  @NotNull ModuleConfiguration getModuleConfiguration();
 
-  ClassLoader getClassLoader();
+  /**
+   * @deprecated Use {@link #getModuleConfiguration()} instead - same result but unwrapped.
+   */
+  @Deprecated
+  @ScheduledForRemoval
+  default JsonDocument getModuleConfigurationSource() {
+    return JsonDocument.newDocument(this.getModuleConfiguration());
+  }
 
-  IModuleWrapper loadModule();
+  /**
+   * Get the class loader which is responsible for this module.
+   *
+   * @return the class loader which is responsible for this module.
+   */
+  @NotNull ClassLoader getClassLoader();
 
-  IModuleWrapper startModule();
+  /**
+   * Changes the lifecycle of this module to {@link ModuleLifeCycle#LOADED} if possible and fires all associated tasks.
+   *
+   * @return the same instance of this class, for chaining.
+   * @see #getModuleTasks()
+   * @see ModuleLifeCycle#canChangeTo(ModuleLifeCycle)
+   * @see IModuleProvider#notifyPreModuleLifecycleChange(IModuleWrapper, ModuleLifeCycle)
+   */
+  @NotNull IModuleWrapper loadModule();
 
-  IModuleWrapper stopModule();
+  /**
+   * Changes the lifecycle of this module to {@link ModuleLifeCycle#STARTED} if possible and fires all associated
+   * tasks.
+   *
+   * @return the same instance of this class, for chaining.
+   * @see #getModuleTasks()
+   * @see ModuleLifeCycle#canChangeTo(ModuleLifeCycle)
+   * @see IModuleProvider#notifyPreModuleLifecycleChange(IModuleWrapper, ModuleLifeCycle)
+   */
+  @NotNull IModuleWrapper startModule();
 
-  IModuleWrapper unloadModule();
+  /**
+   * Changes the lifecycle of this module to {@link ModuleLifeCycle#STOPPED} if possible and fires all associated
+   * tasks.
+   *
+   * @return the same instance of this class, for chaining.
+   * @see #getModuleTasks()
+   * @see ModuleLifeCycle#canChangeTo(ModuleLifeCycle)
+   * @see IModuleProvider#notifyPreModuleLifecycleChange(IModuleWrapper, ModuleLifeCycle)
+   */
+  @NotNull IModuleWrapper stopModule();
 
+  /**
+   * Changes the lifecycle of this module to {@link ModuleLifeCycle#UNLOADED} if possible and fires all associated
+   * tasks. The module will be unregistered from the provider, the class loader will be closed and the state of this
+   * module changes to {@link ModuleLifeCycle#UNUSEABLE}.
+   *
+   * @return the same instance of this class, for chaining.
+   * @see #getModuleTasks()
+   * @see ModuleLifeCycle#canChangeTo(ModuleLifeCycle)
+   * @see IModuleProvider#notifyPreModuleLifecycleChange(IModuleWrapper, ModuleLifeCycle)
+   */
+  @NotNull IModuleWrapper unloadModule();
+
+  /**
+   * @deprecated Use {@link #getDataDirectory()} instead.
+   */
   @Deprecated
   default File getDataFolder() {
     return this.getDataDirectory().toFile();
   }
 
-  @NotNull
-  Path getDataDirectory();
+  /**
+   * Get the data directory of this module in which the module should store its configuration files.
+   *
+   * @return the data directory of this module.
+   */
+  @NotNull Path getDataDirectory();
 
+  /**
+   * Get the url from where the module was loaded.
+   *
+   * @return the url from where the module was loaded.
+   */
   @NotNull URL getUrl();
 
-  Map<String, String> getDefaultRepositories();
+  /**
+   * Get the uri from where the module was loaded.
+   *
+   * @return the uri from where the module was loaded.
+   */
+  @NotNull URI getUri();
 
+  /**
+   * @deprecated Use {@link ModuleConfiguration#getRepos()} instead.
+   */
+  @Deprecated
+  @ScheduledForRemoval
+  default Map<String, String> getDefaultRepositories() {
+    return Arrays.stream(this.getModuleConfiguration().getRepos())
+      .collect(Collectors.toMap(ModuleRepository::getName, ModuleRepository::getUrl));
+  }
 }

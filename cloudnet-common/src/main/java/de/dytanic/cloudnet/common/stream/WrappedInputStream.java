@@ -18,7 +18,6 @@ package de.dytanic.cloudnet.common.stream;
 
 import java.io.IOException;
 import java.io.InputStream;
-import org.jetbrains.annotations.NotNull;
 
 public class WrappedInputStream extends InputStream {
 
@@ -34,12 +33,12 @@ public class WrappedInputStream extends InputStream {
   }
 
   @Override
-  public int read(@NotNull byte[] b) throws IOException {
+  public int read(byte[] b) throws IOException {
     return this.wrapped.read(b);
   }
 
   @Override
-  public int read(@NotNull byte[] b, int off, int len) throws IOException {
+  public int read(byte[] b, int off, int len) throws IOException {
     return this.wrapped.read(b, off, len);
   }
 
