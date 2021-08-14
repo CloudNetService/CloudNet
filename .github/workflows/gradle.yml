@@ -18,14 +18,13 @@ jobs:
           java-version: '16'
           check-latest: true
 
-      - name: Validate license headers
-        run: ./gradlew checkLicenses
-
-      - name: Test with Gradle
-        run: ./gradlew test
-
-      - name: Build with Gradle
-        run: ./gradlew jar
+      - uses: burrunan/gradle-cache-action@v1
+        name: Run gradle build
+        with:
+          job-id: jdk16
+          concurrent: true
+          gradle-build-scan-report: false
+          arguments: build checkLicenses test jar --stacktrace
 
       - name: Release ZIP
         run: |
