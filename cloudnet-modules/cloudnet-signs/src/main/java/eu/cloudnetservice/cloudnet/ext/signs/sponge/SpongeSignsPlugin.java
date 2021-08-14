@@ -60,7 +60,7 @@ public class SpongeSignsPlugin {
       )
       .executor(new CommandSigns(signManagement))
       .build();
-    Sponge.getCommandManager().register(this, signsCommand, "cloudsign", "cs");
+    Sponge.getCommandManager().register(this, signsCommand, "cloudsigns", "cs", "signs", "cloudsign");
     // sponge events
     Sponge.getEventManager().registerListeners(this, new SignInteractListener(this, signManagement));
     // cloudnet events
