@@ -18,6 +18,7 @@ package de.dytanic.cloudnet.ext.syncproxy.configuration;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
+import com.google.gson.JsonParseException;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import java.io.File;
 import java.nio.file.Path;
@@ -59,15 +60,22 @@ public final class SyncProxyConfigurationWriterAndReader {
   public static SyncProxyConfiguration read(Path file) {
     Preconditions.checkNotNull(file);
 
-    JsonDocument document = JsonDocument.newDocument(file);
-    if (!document.contains("config")) {
-      write(new SyncProxyConfiguration(
-        new ArrayList<>(),
-        new ArrayList<>(),
-        DEFAULT_MESSAGES,
-        true
-      ), file);
-      document = JsonDocument.newDocument(file);
+    JsonDocument document;
+    try {
+      // try to parse the content of the file and rethrow the exception
+      document = JsonDocument.newDocumentExceptionally(file);
+
+      if (!document.contains("config")) {
+        write(new SyncProxyConfiguration(
+          new ArrayList<>(),
+          new ArrayList<>(),
+          DEFAULT_MESSAGES,
+          true
+        ), file);
+        document = JsonDocument.newDocument(file);
+      }
+    } catch (Exception exception) {
+      throw new JsonParseException("Exception while parsing syncproxy configuration. Your configuration is invalid.");
     }
 
     SyncProxyConfiguration configuration = document.get("config", SyncProxyConfiguration.class);

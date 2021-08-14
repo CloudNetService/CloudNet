@@ -16,6 +16,8 @@
 
 package eu.cloudnetservice.cloudnet.ext.mongodb;
 
+import com.google.gson.JsonParseException;
+import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.database.AbstractDatabaseProvider;
 import de.dytanic.cloudnet.driver.module.ModuleLifeCycle;
 import de.dytanic.cloudnet.driver.module.ModuleTask;
@@ -28,8 +30,15 @@ public class CloudNetMongoDatabaseModule extends NodeCloudNetModule {
 
   @ModuleTask(order = 126, event = ModuleLifeCycle.LOADED)
   public void loadConfig() {
-    this.config = this.getConfig().get("config", MongoDBConnectionConfig.class, new MongoDBConnectionConfig());
-    this.saveConfig();
+    JsonDocument configuration;
+    try {
+      configuration = super.getConfigExceptionally();
+    } catch (Exception exception) {
+      throw new JsonParseException(
+        "Exception while parsing mysql-module configuration. Your configuration is invalid.");
+    }
+    this.config = configuration.get("config", MongoDBConnectionConfig.class, new MongoDBConnectionConfig());
+    super.saveConfig();
   }
 
   @ModuleTask(order = 125, event = ModuleLifeCycle.LOADED)

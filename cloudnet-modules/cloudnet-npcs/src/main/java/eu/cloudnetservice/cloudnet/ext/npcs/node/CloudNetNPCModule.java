@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.cloudnet.ext.npcs.node;
 
+import com.google.gson.JsonParseException;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.driver.database.Database;
@@ -57,7 +58,14 @@ public class CloudNetNPCModule extends NodeCloudNetModule {
   }
 
   public NPCConfiguration readConfiguration() {
-    this.npcConfiguration = super.reloadConfig()
+    JsonDocument configuration;
+    try {
+      configuration = super.reloadConfigExceptionally();
+    } catch (Exception exception) {
+      throw new JsonParseException("Exception while parsing npcs configuration. Your configuration is invalid.");
+    }
+
+    this.npcConfiguration = configuration
       .get("config", NPCConfiguration.class, NPCConfiguration.EMPTY_CONFIGURATION);
     for (Map.Entry<String, String> entry : NPCConfiguration.DEFAULT_MESSAGES.entrySet()) {
       if (!this.npcConfiguration.getMessages().containsKey(entry.getKey())) {
