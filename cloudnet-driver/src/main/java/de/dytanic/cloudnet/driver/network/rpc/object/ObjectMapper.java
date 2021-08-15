@@ -23,11 +23,12 @@ import org.jetbrains.annotations.Nullable;
 
 public interface ObjectMapper {
 
-  @NotNull ObjectMapper unregisterBinding(@NotNull Type type);
+  @NotNull ObjectMapper unregisterBinding(@NotNull Type type, boolean superTypes);
 
-  @NotNull <T> ObjectMapper registerBinding(@NotNull Type type, @NotNull ObjectSerializer<T> serializer);
+  @NotNull <T> ObjectMapper registerBinding(@NotNull Type type, @NotNull ObjectSerializer<T> serializer,
+    boolean superTypes);
 
-  void writeObject(@NotNull DataBuf dataBuf, @Nullable Object object);
+  @NotNull DataBuf.Mutable writeObject(@NotNull DataBuf.Mutable dataBuf, @Nullable Object object);
 
   @Nullable <T> T readObject(@NotNull DataBuf dataBuf, @NotNull Type type);
 }

@@ -14,16 +14,18 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.driver.network.rpc.object;
+package de.dytanic.cloudnet.driver.network.rpc.annotation;
 
-import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
-import java.lang.reflect.Type;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-public interface ObjectSerializer<T> {
+@Documented
+@Target(ElementType.FIELD)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface RPCFieldGetter {
 
-  @Nullable T read(@NotNull DataBuf source, @NotNull Type type, @NotNull ObjectMapper caller);
-
-  void write(@NotNull DataBuf.Mutable dataBuf, @NotNull T object, @NotNull Type type, @NotNull ObjectMapper caller);
+  String value();
 }

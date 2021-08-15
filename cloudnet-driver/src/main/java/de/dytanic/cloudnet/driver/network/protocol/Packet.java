@@ -38,14 +38,31 @@ import org.jetbrains.annotations.Nullable;
 @EqualsAndHashCode
 public class Packet implements IPacket {
 
+  private final int channel;
+  private final DataBuf dataBuf;
+  private final long creationMillis;
+
+  private UUID uniqueId;
+
+  public Packet(int channel, DataBuf dataBuf) {
+    this.channel = channel;
+    this.dataBuf = dataBuf;
+    this.creationMillis = System.currentTimeMillis();
+  }
+
   @Override
   public @Nullable UUID getUniqueId() {
-    return null;
+    return this.uniqueId;
+  }
+
+  @Override
+  public void setUniqueId(@Nullable UUID uniqueId) {
+    this.uniqueId = uniqueId;
   }
 
   @Override
   public int getChannel() {
-    return 0;
+    return this.channel;
   }
 
   @Override
@@ -60,7 +77,7 @@ public class Packet implements IPacket {
 
   @Override
   public @NotNull DataBuf getContent() {
-    return null;
+    return this.dataBuf;
   }
 
   @Override
@@ -70,6 +87,6 @@ public class Packet implements IPacket {
 
   @Override
   public long getCreationMillis() {
-    return 0;
+    return this.creationMillis;
   }
 }

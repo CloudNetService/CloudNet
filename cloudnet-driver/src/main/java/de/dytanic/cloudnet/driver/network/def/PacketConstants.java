@@ -18,6 +18,9 @@ package de.dytanic.cloudnet.driver.network.def;
 
 public final class PacketConstants {
 
+  // rpc
+  public static final int INTERNAL_RPC_COM_CHANNEL = 0;
+
   // general
   public static final int INTERNAL_AUTHORIZATION_CHANNEL = 1;
   public static final int INTERNAL_WRAPPER_TO_NODE_INFO_CHANNEL = 2;

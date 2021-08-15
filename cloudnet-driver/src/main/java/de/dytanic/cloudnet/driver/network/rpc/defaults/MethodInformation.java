@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.driver.network.rpc.defaults.handler;
+package de.dytanic.cloudnet.driver.network.rpc.defaults;
 
 import de.dytanic.cloudnet.driver.network.rpc.annotation.RPCIgnore;
 import de.dytanic.cloudnet.driver.network.rpc.defaults.handler.invoker.MethodInvoker;
@@ -24,40 +24,44 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class MethodInformation {
 
   private final String name;
   private final Type returnType;
   private final Type[] arguments;
+  private final boolean voidMethod;
   private final Object sourceInstance;
   private final Class<?> definingClass;
   private final MethodInvoker methodInvoker;
 
   public MethodInformation(
-    String name,
-    Type rType,
-    Type[] arguments,
-    Object sourceInstance,
-    Class<?> definingClass,
-    MethodInvokerGenerator generator
+    @NotNull String name,
+    @NotNull Type rType,
+    @NotNull Type[] arguments,
+    @Nullable Object sourceInstance,
+    @NotNull Class<?> definingClass,
+    @Nullable MethodInvokerGenerator generator
   ) {
     this.name = name;
     this.returnType = rType;
     this.arguments = arguments;
+    this.voidMethod = rType.equals(void.class);
     this.sourceInstance = sourceInstance;
     this.definingClass = definingClass;
-    this.methodInvoker = generator.makeInvoker(this);
+    this.methodInvoker = generator == null ? null : generator.makeMethodInvoker(this);
   }
 
   public static @NotNull MethodInformation find(
-    @NotNull Object instance,
+    @Nullable Object instance,
+    @NotNull Class<?> sourceClass,
     @NotNull String name,
-    @NotNull MethodInvokerGenerator generator
+    @Nullable MethodInvokerGenerator generator
   ) {
     // filter all technically possible methods
     Method method = null;
-    for (Method declaredMethod : instance.getClass().getDeclaredMethods()) {
+    for (Method declaredMethod : sourceClass.getDeclaredMethods()) {
       // check if the method might be a candidate
       if (declaredMethod.getName().equals(name)
         && Modifier.isPublic(declaredMethod.getModifiers())
@@ -97,7 +101,11 @@ public class MethodInformation {
     return this.arguments;
   }
 
-  public @NotNull Object getSourceInstance() {
+  public boolean isVoidMethod() {
+    return this.voidMethod;
+  }
+
+  public Object getSourceInstance() {
     return this.sourceInstance;
   }
 
@@ -105,7 +113,7 @@ public class MethodInformation {
     return this.definingClass;
   }
 
-  public @NotNull MethodInvoker getMethodInvoker() {
+  public MethodInvoker getMethodInvoker() {
     return this.methodInvoker;
   }
 }

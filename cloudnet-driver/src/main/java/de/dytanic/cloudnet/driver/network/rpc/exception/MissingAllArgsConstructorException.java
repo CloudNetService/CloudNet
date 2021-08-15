@@ -14,16 +14,17 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.driver.network.rpc.object;
+package de.dytanic.cloudnet.driver.network.rpc.exception;
 
-import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
-import java.lang.reflect.Type;
+import java.util.Arrays;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-public interface ObjectSerializer<T> {
+public class MissingAllArgsConstructorException extends IllegalStateException {
 
-  @Nullable T read(@NotNull DataBuf source, @NotNull Type type, @NotNull ObjectMapper caller);
-
-  void write(@NotNull DataBuf.Mutable dataBuf, @NotNull T object, @NotNull Type type, @NotNull ObjectMapper caller);
+  public MissingAllArgsConstructorException(@NotNull Class<?> clazz, @NotNull Class<?>[] arguments) {
+    super(String.format(
+      "Missing all args constructor for class %s with args %s",
+      clazz.getCanonicalName(),
+      Arrays.asList(arguments)));
+  }
 }

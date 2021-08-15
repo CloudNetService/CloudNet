@@ -44,6 +44,14 @@ public interface IPacket {
   UUID getUniqueId();
 
   /**
+   * Sets the unique id of this packet. If the unique id is set and the packet is sent the packet will be handled as a
+   * query packet.
+   *
+   * @param uniqueId the unique id of the packet or {@code null} if the packet should not be a query packet.
+   */
+  void setUniqueId(@Nullable UUID uniqueId);
+
+  /**
    * Get the channel id to which this packet was sent. Listeners can be registered to that channel and will be notified
    * if a packet was received for the specified channel.
    *

@@ -18,25 +18,45 @@ package de.dytanic.cloudnet.driver.network.rpc.defaults;
 
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
+import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
+import de.dytanic.cloudnet.driver.network.buffer.DataBufFactory;
+import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.network.rpc.RPC;
 import de.dytanic.cloudnet.driver.network.rpc.RPCSender;
+import de.dytanic.cloudnet.driver.network.rpc.object.ObjectMapper;
+import de.dytanic.cloudnet.driver.network.rpc.packet.RPCQueryPacket;
+import java.lang.reflect.Type;
+import java.util.Arrays;
 import java.util.Objects;
+import java.util.concurrent.ExecutionException;
 import org.jetbrains.annotations.NotNull;
 
-public class DefaultRPC implements RPC {
+public class DefaultRPC extends DefaultRPCProvider implements RPC {
 
   private final RPCSender sender;
   private final String className;
   private final String methodName;
   private final Object[] arguments;
+  private final Type expectedResultType;
 
   private boolean resultExpectation = true;
 
-  public DefaultRPC(RPCSender sender, String className, String methodName, Object[] arguments) {
+  public DefaultRPC(
+    @NotNull RPCSender sender,
+    @NotNull String className,
+    @NotNull String methodName,
+    @NotNull Object[] arguments,
+    @NotNull ObjectMapper objectMapper,
+    @NotNull Type expectedResultType,
+    @NotNull DataBufFactory dataBufFactory
+  ) {
+    super(className, objectMapper, dataBufFactory);
+
     this.sender = sender;
     this.className = className;
     this.methodName = methodName;
     this.arguments = arguments;
+    this.expectedResultType = expectedResultType;
   }
 
   @Override
@@ -87,11 +107,33 @@ public class DefaultRPC implements RPC {
 
   @Override
   public <T> @NotNull T fireSync(@NotNull INetworkChannel component) {
-    return null;
+    try {
+      ITask<T> queryTask = this.fire(component);
+      return queryTask.get();
+    } catch (InterruptedException | ExecutionException exception) {
+      throw new RuntimeException(String.format(
+        "Unable to get future result of rpc %s@%s with argument %s",
+        this.className,
+        this.methodName,
+        Arrays.toString(this.arguments)
+      ), exception);
+    }
   }
 
   @Override
   public @NotNull <T> ITask<T> fire(@NotNull INetworkChannel component) {
-    return null;
+    // write the default needed information we need
+    DataBuf.Mutable dataBuf = this.dataBufFactory.createEmpty()
+      .writeString(this.className)
+      .writeString(this.methodName)
+      .writeBoolean(this.resultExpectation);
+    // write the arguments provided
+    for (Object argument : this.arguments) {
+      this.objectMapper.writeObject(dataBuf, argument);
+    }
+    // now send the query and read the response
+    return component.sendQueryAsync(new RPCQueryPacket(dataBuf))
+      .map(IPacket::getContent)
+      .map(content -> this.objectMapper.readObject(content, this.expectedResultType));
   }
 }

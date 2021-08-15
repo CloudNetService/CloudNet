@@ -16,7 +16,7 @@
 
 package de.dytanic.cloudnet.driver.network.buffer;
 
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -25,9 +25,61 @@ public interface DataBuf {
 
   boolean readBoolean();
 
+  byte readByte();
+
+  int readInt();
+
+  short readShort();
+
+  long readLong();
+
+  float readFloat();
+
+  double readDouble();
+
+  char readChar();
+
   @NotNull String readString();
 
-  @NotNull <T> DataBuf writeNullable(@Nullable T object, @NotNull Consumer<T> handlerWhenNonNull);
-
   @Nullable <T> T readNullable(@NotNull Function<DataBuf, T> readerWhenNonNull);
+
+  // utility for reading
+
+  @NotNull DataBuf startTransaction();
+
+  @NotNull DataBuf redoTransaction();
+
+  interface Mutable extends DataBuf {
+
+    @NotNull DataBuf.Mutable writeBoolean(boolean b);
+
+    @NotNull DataBuf.Mutable writeInt(int integer);
+
+    @NotNull DataBuf.Mutable writeByte(byte b);
+
+    @NotNull DataBuf.Mutable writeShort(short s);
+
+    @NotNull DataBuf.Mutable writeLong(long l);
+
+    @NotNull DataBuf.Mutable writeFloat(float f);
+
+    @NotNull DataBuf.Mutable writeDouble(double d);
+
+    @NotNull DataBuf.Mutable writeChar(char c);
+
+    @NotNull DataBuf.Mutable writeString(@NotNull String string);
+
+    @NotNull <T> DataBuf.Mutable writeNullable(@Nullable T object,
+      @NotNull BiConsumer<DataBuf.Mutable, T> handlerWhenNonNull);
+
+    // utility for reading
+
+    @NotNull
+    @Override
+    DataBuf.Mutable startTransaction();
+
+    @NotNull
+    @Override
+    DataBuf.Mutable redoTransaction();
+  }
 }

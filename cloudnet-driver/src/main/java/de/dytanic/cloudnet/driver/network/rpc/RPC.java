@@ -22,7 +22,7 @@ import org.jetbrains.annotations.Blocking;
 import org.jetbrains.annotations.NonBlocking;
 import org.jetbrains.annotations.NotNull;
 
-public interface RPC {
+public interface RPC extends RPCProvider {
 
   @NotNull RPCSender getSender();
 

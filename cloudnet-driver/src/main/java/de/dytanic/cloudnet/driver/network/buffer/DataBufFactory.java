@@ -14,16 +14,23 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.driver.network.rpc.object;
+package de.dytanic.cloudnet.driver.network.buffer;
 
-import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
-import java.lang.reflect.Type;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-public interface ObjectSerializer<T> {
+public interface DataBufFactory {
 
-  @Nullable T read(@NotNull DataBuf source, @NotNull Type type, @NotNull ObjectMapper caller);
+  @NotNull DataBuf.Mutable createEmpty();
 
-  void write(@NotNull DataBuf.Mutable dataBuf, @NotNull T object, @NotNull Type type, @NotNull ObjectMapper caller);
+  @NotNull DataBuf createReadOnly();
+
+  @NotNull DataBuf copyOf(@NotNull DataBuf dataBuf);
+
+  @NotNull DataBuf.Mutable mutableCopyOf(@NotNull DataBuf dataBuf);
+
+  @NotNull DataBuf.Mutable createWithExpectedSize(int byteSize);
+
+  @NotNull DataBuf toReadOnly(@NotNull DataBuf dataBuf);
+
+  @NotNull DataBuf readOnlyCopyOf(@NotNull DataBuf dataBuf);
 }

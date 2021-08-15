@@ -14,16 +14,14 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.driver.network.rpc.object;
+package de.dytanic.cloudnet.driver.network.rpc.exception;
 
-import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import java.lang.reflect.Type;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-public interface ObjectSerializer<T> {
+public class MissingObjectSerializerException extends IllegalStateException {
 
-  @Nullable T read(@NotNull DataBuf source, @NotNull Type type, @NotNull ObjectMapper caller);
-
-  void write(@NotNull DataBuf.Mutable dataBuf, @NotNull T object, @NotNull Type type, @NotNull ObjectMapper caller);
+  public MissingObjectSerializerException(@NotNull Type type) {
+    super(String.format("Missing object type serializer for %s", type.getTypeName()));
+  }
 }

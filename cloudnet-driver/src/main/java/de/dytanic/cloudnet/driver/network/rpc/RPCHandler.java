@@ -19,8 +19,9 @@ package de.dytanic.cloudnet.driver.network.rpc;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public interface RPCHandler extends RPCProvider {
 
-  @NotNull DataBuf handleRPC(@NotNull INetworkChannel channel, @NotNull DataBuf received);
+  @Nullable DataBuf handleRPC(@NotNull INetworkChannel channel, @NotNull DataBuf received);
 }

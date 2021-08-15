@@ -25,7 +25,5 @@ public interface RPCSender extends RPCProvider {
 
   @NotNull RPC invokeMethod(@NotNull String methodName);
 
-  @NotNull RPC invokeMethod(@NotNull String methodName, Object arg1);
-
   @NotNull RPC invokeMethod(@NotNull String methodName, Object... args);
 }

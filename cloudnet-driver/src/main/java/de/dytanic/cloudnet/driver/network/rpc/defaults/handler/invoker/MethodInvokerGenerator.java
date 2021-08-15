@@ -16,10 +16,11 @@
 
 package de.dytanic.cloudnet.driver.network.rpc.defaults.handler.invoker;
 
-import de.dytanic.cloudnet.driver.network.rpc.defaults.handler.MethodInformation;
+import de.dytanic.cloudnet.driver.network.rpc.defaults.MethodInformation;
 import de.dytanic.cloudnet.driver.network.rpc.exception.ClassCreationException;
 import de.dytanic.cloudnet.driver.util.DefiningClassLoader;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import javassist.ClassPool;
 import javassist.CtClass;
@@ -34,7 +35,8 @@ public class MethodInvokerGenerator {
   private static final String CLASS_NAME_FORMAT = "%s.GeneratedInvoker%s_%s";
   private static final String INSTANCE_FIELD_FORMAT = "private final %s instance;";
   private static final String CONSTRUCTOR_FORMAT = "public %s(%s instance) { this.instance = instance; }";
-  private static final String OVERRIDDEN_METHOD_FORMAT = "public Object callMethod(Object... args) { return this.instance.%s(%s); }";
+  private static final String OVERRIDDEN_METHOD_FORMAT = "public Object callMethod(Object... args) { %s this.instance.%s(%s); %s }";
+  private static final String OVERRIDDEN_METHOD_NO_ARGS_CONST_FORMAT = "public Object callMethod(Object... args) { return new %s(); }";
   private static final String METHOD_INVOKER_CLASS_NAME = MethodInvoker.class.getName();
 
   private final ClassPool classPool;
@@ -45,7 +47,7 @@ public class MethodInvokerGenerator {
     this.classLoaders = new ConcurrentHashMap<>();
   }
 
-  public @NotNull MethodInvoker makeInvoker(@NotNull MethodInformation methodInfo) {
+  public @NotNull MethodInvoker makeMethodInvoker(@NotNull MethodInformation methodInfo) {
     try {
       // get the class loader which is responsible for the class we want to invoke
       DefiningClassLoader loader = this.classLoaders.computeIfAbsent(
@@ -87,11 +89,20 @@ public class MethodInvokerGenerator {
         // add the method
         ctClass.addMethod(CtMethod.make(String.format(
           OVERRIDDEN_METHOD_FORMAT,
+          methodInfo.isVoidMethod() ? "" : "return",
           methodInfo.getName(),
-          arguments.substring(0, arguments.length() - 1)), ctClass));
+          arguments.substring(0, arguments.length() - 1),
+          methodInfo.isVoidMethod() ? "return null;" : ""
+        ), ctClass));
       } else {
         // just invoke the method without arguments as we don't one
-        ctClass.addMethod(CtMethod.make(String.format(OVERRIDDEN_METHOD_FORMAT, methodInfo.getName(), ""), ctClass));
+        ctClass.addMethod(CtMethod.make(String.format(
+          OVERRIDDEN_METHOD_FORMAT,
+          methodInfo.isVoidMethod() ? "" : "return",
+          methodInfo.getName(),
+          "",
+          methodInfo.isVoidMethod() ? "return null;" : ""
+        ), ctClass));
       }
 
       // now we can define the class and make an instance of the created invoker
@@ -103,6 +114,37 @@ public class MethodInvokerGenerator {
         "Cannot generate rpc handler for method %s defined in class %s",
         methodInfo.getName(),
         methodInfo.getDefiningClass().getCanonicalName()
+      ), exception);
+    }
+  }
+
+  public @NotNull MethodInvoker makeNoArgsConstructorInvoker(@NotNull Class<?> clazz) {
+    try {
+      // get the class loader which is responsible for the class we want to invoke
+      DefiningClassLoader loader = this.classLoaders.computeIfAbsent(
+        clazz.getClassLoader(),
+        classLoader -> {
+          // append the loader to the class pool after creation
+          DefiningClassLoader definingClassLoader = new DefiningClassLoader(classLoader);
+          this.classPool.appendClassPath(new LoaderClassPath(definingClassLoader));
+          return definingClassLoader;
+        });
+      // now make the class
+      CtClass ctClass = this.classPool.makeClass(String.format(
+        CLASS_NAME_FORMAT,
+        clazz.getPackage().getName(),
+        clazz.getSimpleName(),
+        UUID.randomUUID()));
+      // override the invoke method
+      ctClass.addMethod(CtMethod.make(String.format(OVERRIDDEN_METHOD_NO_ARGS_CONST_FORMAT, clazz.getName()), ctClass));
+      // now we can define the class and make an instance of the created invoker
+      return (MethodInvoker) loader.defineClass(ctClass.getName(), ctClass.toBytecode())
+        .getDeclaredConstructor()
+        .newInstance();
+    } catch (Exception exception) {
+      throw new ClassCreationException(String.format(
+        "Cannot generate rpc no args constructor for class %s",
+        clazz.getCanonicalName()
       ), exception);
     }
   }

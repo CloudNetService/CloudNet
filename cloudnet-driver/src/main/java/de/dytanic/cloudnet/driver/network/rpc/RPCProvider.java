@@ -16,6 +16,7 @@
 
 package de.dytanic.cloudnet.driver.network.rpc;
 
+import de.dytanic.cloudnet.driver.network.buffer.DataBufFactory;
 import de.dytanic.cloudnet.driver.network.rpc.object.ObjectMapper;
 import org.jetbrains.annotations.NotNull;
 
@@ -24,4 +25,6 @@ public interface RPCProvider {
   @NotNull String getTargetClassName();
 
   @NotNull ObjectMapper getObjectMapper();
+
+  @NotNull DataBufFactory getDataBufFactory();
 }
