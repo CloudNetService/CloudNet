@@ -47,7 +47,7 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
     super(
       requiredPermission,
       (context, path) -> context.request().method().equalsIgnoreCase("GET") && path.endsWith("/livelog"),
-      "GET", "POST", "DELETE"
+      "GET", "POST", "DELETE", "PATCH"
     );
   }
 
