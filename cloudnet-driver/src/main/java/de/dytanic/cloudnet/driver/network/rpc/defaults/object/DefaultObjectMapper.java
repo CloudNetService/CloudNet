@@ -86,6 +86,7 @@ public class DefaultObjectMapper implements ObjectMapper {
     //    ==== object data class types ====
     // data classes
     .put(DataBufable.class, new DataBufableObjectSerializer())
+    .put(Enum.class, new EnumObjectSerializer())
     .put(Object.class, new DataClassSerializer())
     .build();
 
