@@ -83,7 +83,7 @@ public class DataClassInvokerGenerator {
       // create the method body
       StringBuilder stringBuilder = new StringBuilder();
       for (int i = 0; i < types.length; i++) {
-        stringBuilder.append("m.readObject(b, this.types[").append(i).append("],");
+        stringBuilder.append("m.readObject(b, this.types[").append(i).append("]),");
       }
       // override the method
       ctClass.addMethod(CtMethod.make(String.format(

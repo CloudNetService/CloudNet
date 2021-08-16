@@ -44,6 +44,10 @@ public class Packet implements IPacket {
 
   private UUID uniqueId;
 
+  public Packet() {
+    this(0, null);
+  }
+
   public Packet(int channel, DataBuf dataBuf) {
     this.channel = channel;
     this.dataBuf = dataBuf;

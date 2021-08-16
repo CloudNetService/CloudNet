@@ -35,7 +35,7 @@ public class ChunkedPacket extends Packet {
 
   protected ChunkedPacket(int channel, @NotNull UUID uniqueId, @NotNull JsonDocument header, int chunkId, int chunkSize,
     int dataLength, boolean end, byte[] data, int chunks) {
-    super(channel, uniqueId, header);
+    //TODO: super(channel, uniqueId, header);
     this.chunkId = chunkId;
     this.chunkSize = chunkSize;
     this.dataLength = dataLength;
@@ -45,7 +45,7 @@ public class ChunkedPacket extends Packet {
   }
 
   protected ChunkedPacket(int channel, @NotNull UUID uniqueId, @NotNull JsonDocument header, ProtocolBuffer body) {
-    super(channel, uniqueId, header, body);
+    //TODO:  super(channel, uniqueId, header, body);
   }
 
   public static ChunkedPacket createIncomingPacket(int channel, @NotNull UUID uniqueId, @NotNull JsonDocument header,
