@@ -24,6 +24,9 @@ import java.util.UUID;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.chat.ComponentSerializer;
 
+/**
+ * This class represents an util to send BungeeCord BaseComponents ({@link BaseComponent}) using the cloud player
+ */
 public class BaseComponentMessenger {
 
   private BaseComponentMessenger() {

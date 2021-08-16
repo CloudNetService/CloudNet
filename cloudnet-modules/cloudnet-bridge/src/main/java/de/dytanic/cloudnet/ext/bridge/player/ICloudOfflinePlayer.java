@@ -77,6 +77,7 @@ public interface ICloudOfflinePlayer extends INameable, IJsonDocPropertyable, Se
    * @return the last {@link NetworkConnectionInfo} with information like the protocol version, the uuid See {@link
    * NetworkConnectionInfo}
    */
+  @NotNull
   NetworkConnectionInfo getLastNetworkConnectionInfo();
 
   /**
@@ -89,6 +90,7 @@ public interface ICloudOfflinePlayer extends INameable, IJsonDocPropertyable, Se
   /**
    * @return a {@link JsonDocument} containing properties that are set for the player
    */
+  @NotNull
   JsonDocument getProperties();
 
   /**

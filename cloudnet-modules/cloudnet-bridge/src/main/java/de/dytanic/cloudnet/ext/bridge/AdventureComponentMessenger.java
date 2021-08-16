@@ -24,6 +24,9 @@ import java.util.UUID;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 
+/**
+ * This class represents an util to send Adventure components ({@link Component}) using the cloud player
+ */
 public final class AdventureComponentMessenger {
 
   private AdventureComponentMessenger() {

@@ -120,7 +120,7 @@ public class CloudOfflinePlayer extends SerializableJsonDocPropertyable implemen
     this.lastLoginTimeMillis = lastLoginTimeMillis;
   }
 
-  public NetworkConnectionInfo getLastNetworkConnectionInfo() {
+  public @NotNull NetworkConnectionInfo getLastNetworkConnectionInfo() {
     return this.lastNetworkConnectionInfo;
   }
 

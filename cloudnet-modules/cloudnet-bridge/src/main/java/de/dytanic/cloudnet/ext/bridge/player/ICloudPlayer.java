@@ -20,6 +20,7 @@ import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.serialization.SerializableObject;
 import de.dytanic.cloudnet.ext.bridge.player.executor.PlayerExecutor;
 import java.util.UUID;
+import org.jetbrains.annotations.NotNull;
 
 public interface ICloudPlayer extends ICloudOfflinePlayer, SerializableObject {
 
@@ -84,6 +85,7 @@ public interface ICloudPlayer extends ICloudOfflinePlayer, SerializableObject {
    *
    * @return the players online properties
    */
+  @NotNull
   JsonDocument getOnlineProperties();
 
   /**
