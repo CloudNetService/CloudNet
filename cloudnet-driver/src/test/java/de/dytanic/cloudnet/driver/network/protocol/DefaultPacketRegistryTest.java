@@ -37,7 +37,7 @@ public class DefaultPacketRegistryTest {
     registry.addListener(channelId, listener);
 
     Assert.assertEquals(1, registry.getListeners().size());
-
+    //TODO: packet
     registry.handlePacket(null, new Packet(channelId, new JsonDocument("testProperty", 65), "TestValue".getBytes()) {
       @Override
       public boolean isShowDebug() {

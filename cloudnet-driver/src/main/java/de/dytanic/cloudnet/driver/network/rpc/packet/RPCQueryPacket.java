@@ -17,12 +17,11 @@
 package de.dytanic.cloudnet.driver.network.rpc.packet;
 
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
-import de.dytanic.cloudnet.driver.network.def.PacketConstants;
 import de.dytanic.cloudnet.driver.network.protocol.Packet;
 
 public class RPCQueryPacket extends Packet {
 
   public RPCQueryPacket(DataBuf dataBuf) {
-    super(PacketConstants.INTERNAL_RPC_COM_CHANNEL, dataBuf);
+    //TODO: super(PacketConstants.INTERNAL_RPC_COM_CHANNEL, dataBuf);
   }
 }
