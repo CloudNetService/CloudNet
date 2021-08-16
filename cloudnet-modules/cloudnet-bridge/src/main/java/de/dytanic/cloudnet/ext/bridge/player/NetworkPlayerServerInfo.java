@@ -26,6 +26,10 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * This class represents basic information of the underlying player. Modifications to this information do not have an
+ * impact on the player
+ */
 @ToString
 @EqualsAndHashCode
 public final class NetworkPlayerServerInfo implements SerializableObject {

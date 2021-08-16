@@ -73,11 +73,28 @@ public interface ICloudOfflinePlayer extends INameable, IJsonDocPropertyable, Se
    */
   void setLastLoginTimeMillis(long lastLoginTimeMillis);
 
+  /**
+   * @return the last {@link NetworkConnectionInfo} with information like the protocol version, the uuid See {@link
+   * NetworkConnectionInfo}
+   */
   NetworkConnectionInfo getLastNetworkConnectionInfo();
 
+  /**
+   * Sets the {@link NetworkConnectionInfo} to the given one
+   *
+   * @param lastNetworkConnectionInfo the last known {@link NetworkConnectionInfo}
+   */
   void setLastNetworkConnectionInfo(@NotNull NetworkConnectionInfo lastNetworkConnectionInfo);
 
+  /**
+   * @return a {@link JsonDocument} containing properties that are set for the player
+   */
   JsonDocument getProperties();
 
+  /**
+   * Sets the players properties to the given one
+   *
+   * @param properties the properties to set
+   */
   void setProperties(@NotNull JsonDocument properties);
 }
