@@ -80,10 +80,20 @@ public class ServiceInfoSnapshot extends SerializableJsonDocPropertyable impleme
   public ServiceInfoSnapshot() {
   }
 
+  /**
+   * Returns the creation time of this ServiceInfoSnapshot. Used is a Unix timestamp {@link System#currentTimeMillis()}
+   *
+   * @return the creation time of the ServiceInfoSnapshot
+   */
   public long getCreationTime() {
     return this.creationTime;
   }
 
+  /**
+   * Returns the {@link ServiceId}, containing the name of the Task, the uniqueId and more
+   *
+   * @return the serviceId of this ServiceInfoSnapshot
+   */
   public ServiceId getServiceId() {
     return this.configuration.getServiceId();
   }
@@ -96,52 +106,112 @@ public class ServiceInfoSnapshot extends SerializableJsonDocPropertyable impleme
     return this.connectAddress;
   }
 
+  /**
+   * @return if the service is connected to the Node or not.
+   */
   public boolean isConnected() {
     return this.connectedTime != -1;
   }
 
+  /**
+   * @return the unix timestamp when this ServiceInfoSnapshot was connected to it's Node
+   */
   public long getConnectedTime() {
     return this.connectedTime;
   }
 
+  /**
+   * Sets the unix timestamp since which the service is connected to the Node
+   *
+   * @param connectedTime the unix timestamp
+   */
   public void setConnectedTime(long connectedTime) {
     this.connectedTime = connectedTime;
   }
 
+  /**
+   * @return the current {@link ServiceLifeCycle} of the ServiceInfoSnapshot
+   */
   public ServiceLifeCycle getLifeCycle() {
     return this.lifeCycle;
   }
 
+  /**
+   * Sets the lifeCycle of this ServiceInfoSnapshot to the given one
+   *
+   * @param lifeCycle the lifecycle to be set
+   */
   public void setLifeCycle(ServiceLifeCycle lifeCycle) {
     this.lifeCycle = lifeCycle;
   }
 
+  /**
+   * @return the {@link ProcessSnapshot} of this ServiceInfoSnapshot, containing the cpu usage, memory usage and other
+   * process related things
+   */
   public ProcessSnapshot getProcessSnapshot() {
     return this.processSnapshot;
   }
 
+  /**
+   * Sets the processSnapshot of this ServiceInfoSnapshot to the given one
+   *
+   * @param processSnapshot the new {@link ProcessSnapshot} for this ServiceInfoSnapshot
+   */
   public void setProcessSnapshot(ProcessSnapshot processSnapshot) {
     this.processSnapshot = processSnapshot;
   }
 
+  /**
+   * @return the corresponding ServiceConfiguration for this ServiceInfoSnapshot, containing mostly settings from the
+   * {@link GroupConfiguration} and {@link ServiceTask}
+   */
   public ServiceConfiguration getConfiguration() {
     return this.configuration;
   }
 
+  /**
+   * Returns a new service specific CloudServiceProvider
+   * <p>
+   * See {@link CloudNetDriver#getCloudServiceProvider(ServiceInfoSnapshot)}
+   *
+   * @return the new instance of the {@link SpecificCloudServiceProvider}
+   */
   @NotNull
   public SpecificCloudServiceProvider provider() {
     return CloudNetDriver.getInstance().getCloudServiceProvider(this);
   }
 
+  /**
+   * Reads a specific property out of all the properties of the ServiceInfoSnapshot.
+   * <p>
+   * See {@link ServiceConfiguration#getProperties()} and {@link ServiceProperty#get(ServiceInfoSnapshot)}
+   *
+   * @param property the property to look for
+   * @param <T>      the return type of the property
+   * @return a {@link Optional<T>} with the result of the lookup
+   */
   @NotNull
   public <T> Optional<T> getProperty(@NotNull ServiceProperty<T> property) {
     return property.get(this);
   }
 
+  /**
+   * Sets a specific property in the ServiceInfoSnapshot
+   * <p>
+   * See {@link ServiceProperty#set(ServiceInfoSnapshot, Object)}
+   *
+   * @param property the property to assign the new value to
+   * @param value    the new value to be assigned
+   * @param <T>      the generic type of the {@link ServiceProperty}
+   */
   public <T> void setProperty(@NotNull ServiceProperty<T> property, @Nullable T value) {
     property.set(this, value);
   }
 
+  /**
+   * @return the name of this ServiceInfoSnapshot (e.g. "Lobby-187")
+   */
   @Override
   public String getName() {
     return this.getServiceId().getName();

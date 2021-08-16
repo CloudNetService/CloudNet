@@ -49,12 +49,28 @@ public interface ICloudOfflinePlayer extends INameable, IJsonDocPropertyable, Se
   @Nullable
   String getXBoxId();
 
+  /**
+   * @return the unix timestamp when the player joined for the first time
+   */
   long getFirstLoginTimeMillis();
 
+  /**
+   * Sets the firstLogin timestamp to the given one
+   *
+   * @param firstLoginTimeMillis the unix timestamp when the player joined for the first time
+   */
   void setFirstLoginTimeMillis(long firstLoginTimeMillis);
 
+  /**
+   * @return the timestamp at which the player was last online
+   */
   long getLastLoginTimeMillis();
 
+  /**
+   * Sets the lastLogin timestamp to the given one
+   *
+   * @param lastLoginTimeMillis the unix timestamp when the player was last online
+   */
   void setLastLoginTimeMillis(long lastLoginTimeMillis);
 
   NetworkConnectionInfo getLastNetworkConnectionInfo();

@@ -123,47 +123,90 @@ public class ServiceConfiguration extends SerializableJsonDocPropertyable implem
   public ServiceConfiguration() {
   }
 
+  /**
+   * @return a new {@link Builder} for a ServiceConfiguration
+   */
   @NotNull
   public static Builder builder() {
     return new Builder();
   }
 
+  /**
+   * This creates a new {@link Builder} for a ServiceConfiguration but applies all properties of the given {@link
+   * ServiceTask}
+   *
+   * @param task the task to use the properties of
+   * @return the new instance of the Builder
+   */
   @NotNull
   public static Builder builder(@NotNull ServiceTask task) {
     return builder().task(task);
   }
 
+  /**
+   * Returns the {@link ServiceId}, containing the name of the Task, the uniqueId and more
+   *
+   * @return the serviceId of this {@link ServiceConfiguration}
+   */
   @NotNull
   public ServiceId getServiceId() {
     return this.serviceId;
   }
 
+  /**
+   * Set the serviceId for this {@link ServiceConfiguration}
+   *
+   * @param serviceId the serviceId to be set
+   */
   public void setServiceId(@NotNull ServiceId serviceId) {
     this.serviceId = serviceId;
   }
 
+  /**
+   * @return if autoDeleteOnStop is enabled in this {@link ServiceConfiguration} If enabled the Service will switch its
+   * ServiceLifeCycle to {@link ServiceLifeCycle#DELETED}
+   */
   public boolean isAutoDeleteOnStop() {
     return this.autoDeleteOnStop;
   }
 
+  /**
+   * Sets whether to autoDeleteOnStop or not
+   *
+   * @param autoDeleteOnStop whether to switch to {@link ServiceLifeCycle#DELETED} after the Service is stopped.
+   */
   public void setAutoDeleteOnStop(boolean autoDeleteOnStop) {
     this.autoDeleteOnStop = autoDeleteOnStop;
   }
 
+  /**
+   * @return whether this {@link ServiceConfiguration} is static or not, if that's the case no files are deleted
+   */
   public boolean isStaticService() {
     return this.staticService;
   }
 
+  /**
+   * Sets whether this {@link ServiceConfiguration} is static or not, if its static no files are deleted
+   *
+   * @param staticService whether this {@link ServiceConfiguration} is static or not
+   */
   public void setStaticService(boolean staticService) {
     this.staticService = staticService;
   }
 
+  /**
+   * Returns the path to the java executable for this task. This is null if no executable is provided. If it's null the
+   * path to the executable of the Node is used.
+   *
+   * @return the path to the java executable for this task
+   */
   @Nullable
   public String getJavaCommand() {
     return this.javaCommand;
   }
 
-  public void setJavaCommand(String javaCommand) {
+  public void setJavaCommand(@Nullable String javaCommand) {
     this.javaCommand = javaCommand;
   }
 
