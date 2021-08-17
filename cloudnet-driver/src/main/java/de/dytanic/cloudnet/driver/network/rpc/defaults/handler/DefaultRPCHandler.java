@@ -43,7 +43,7 @@ public class DefaultRPCHandler extends DefaultRPCProvider implements RPCHandler 
     @NotNull ObjectMapper objectMapper,
     @NotNull DataBufFactory dataBufFactory
   ) {
-    super(clazz.getCanonicalName(), objectMapper, dataBufFactory);
+    super(clazz, objectMapper, dataBufFactory);
 
     this.bindingClass = clazz;
     this.bindingInstance = binding;

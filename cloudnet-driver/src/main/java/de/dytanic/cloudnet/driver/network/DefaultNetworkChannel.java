@@ -17,15 +17,15 @@
 package de.dytanic.cloudnet.driver.network;
 
 import com.google.common.base.Preconditions;
-import de.dytanic.cloudnet.common.concurrent.CompletableTask;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
-import de.dytanic.cloudnet.driver.network.def.internal.InternalSyncPacketChannel;
-import de.dytanic.cloudnet.driver.network.protocol.DefaultPacketListenerRegistry;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.network.protocol.IPacketListenerRegistry;
+import de.dytanic.cloudnet.driver.network.protocol.QueryPacketManager;
 import de.dytanic.cloudnet.driver.network.protocol.chunk.ChunkedPacketBuilder;
 import de.dytanic.cloudnet.driver.network.protocol.chunk.ChunkedQueryResponse;
+import de.dytanic.cloudnet.driver.network.protocol.defaults.DefaultPacketListenerRegistry;
+import de.dytanic.cloudnet.driver.network.protocol.defaults.DefaultQueryPacketManager;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.UUID;
@@ -39,6 +39,7 @@ public abstract class DefaultNetworkChannel implements INetworkChannel {
 
   private final long channelId = CHANNEL_ID_COUNTER.addAndGet(1);
 
+  private final QueryPacketManager queryPacketManager;
   private final IPacketListenerRegistry packetRegistry;
 
   private final HostAndPort serverAddress;
@@ -48,8 +49,14 @@ public abstract class DefaultNetworkChannel implements INetworkChannel {
 
   private INetworkChannelHandler handler;
 
-  public DefaultNetworkChannel(IPacketListenerRegistry packetRegistry, HostAndPort serverAddress,
-    HostAndPort clientAddress, boolean clientProvidedChannel, INetworkChannelHandler handler) {
+  public DefaultNetworkChannel(
+    IPacketListenerRegistry packetRegistry,
+    HostAndPort serverAddress,
+    HostAndPort clientAddress,
+    boolean clientProvidedChannel,
+    INetworkChannelHandler handler
+  ) {
+    this.queryPacketManager = new DefaultQueryPacketManager(this);
     this.packetRegistry = new DefaultPacketListenerRegistry(packetRegistry);
     this.serverAddress = serverAddress;
     this.clientAddress = clientAddress;
@@ -68,9 +75,7 @@ public abstract class DefaultNetworkChannel implements INetworkChannel {
 
   @Override
   public ITask<IPacket> sendQueryAsync(@NotNull IPacket packet) {
-    ITask<IPacket> task = this.registerQueryResponseHandler(packet.getUniqueId());
-    this.sendPacket(packet);
-    return task;
+    return this.queryPacketManager.sendQueryPacket(packet);
   }
 
   @Override
@@ -80,17 +85,14 @@ public abstract class DefaultNetworkChannel implements INetworkChannel {
 
   @Override
   public ITask<IPacket> registerQueryResponseHandler(UUID uniqueId) {
-    CompletableTask<IPacket> task = new CompletableTask<>();
-    InternalSyncPacketChannel.registerQueryHandler(uniqueId, task::complete);
-    return task;
+    // todo: this is not needed at all, remove
+    return null;
   }
 
   @Override
   public ITask<ChunkedQueryResponse> sendChunkedPacketQuery(@NotNull IPacket packet) {
-    CompletableTask<ChunkedQueryResponse> task = new CompletableTask<>();
-    InternalSyncPacketChannel.registerChunkedQueryHandler(packet.getUniqueId(), task::complete);
-    this.sendPacket(packet);
-    return task;
+    // todo: fix this abomination
+    return null;
   }
 
   @Override
@@ -124,6 +126,11 @@ public abstract class DefaultNetworkChannel implements INetworkChannel {
   @Override
   public IPacketListenerRegistry getPacketRegistry() {
     return this.packetRegistry;
+  }
+
+  @Override
+  public @NotNull QueryPacketManager getQueryPacketManager() {
+    return this.queryPacketManager;
   }
 
   @Override

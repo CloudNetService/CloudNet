@@ -14,12 +14,15 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.driver.network.protocol;
+package de.dytanic.cloudnet.driver.network.protocol.defaults;
 
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
+import de.dytanic.cloudnet.driver.network.protocol.IPacket;
+import de.dytanic.cloudnet.driver.network.protocol.IPacketListener;
+import de.dytanic.cloudnet.driver.network.protocol.IPacketListenerRegistry;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;

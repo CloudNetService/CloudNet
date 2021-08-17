@@ -26,7 +26,7 @@ import de.dytanic.cloudnet.driver.network.INetworkChannelHandler;
 import de.dytanic.cloudnet.driver.network.INetworkServer;
 import de.dytanic.cloudnet.driver.network.netty.NettySSLServer;
 import de.dytanic.cloudnet.driver.network.netty.NettyUtils;
-import de.dytanic.cloudnet.driver.network.protocol.DefaultPacketListenerRegistry;
+import de.dytanic.cloudnet.driver.network.protocol.defaults.DefaultPacketListenerRegistry;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.network.protocol.IPacketListenerRegistry;
 import de.dytanic.cloudnet.driver.network.ssl.SSLConfiguration;

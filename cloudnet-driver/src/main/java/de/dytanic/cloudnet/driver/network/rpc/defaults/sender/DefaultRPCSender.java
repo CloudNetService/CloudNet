@@ -42,7 +42,7 @@ public class DefaultRPCSender extends DefaultRPCProvider implements RPCSender {
     @NotNull ObjectMapper objectMapper,
     @NotNull DataBufFactory dataBufFactory
   ) {
-    super(targetClass.getCanonicalName(), objectMapper, dataBufFactory);
+    super(targetClass, objectMapper, dataBufFactory);
 
     this.targetClass = targetClass;
     this.networkComponent = component;
@@ -68,7 +68,7 @@ public class DefaultRPCSender extends DefaultRPCProvider implements RPCSender {
     // generate the rpc from this information
     return new DefaultRPC(
       this,
-      this.targetClassName,
+      this.targetClass,
       methodName,
       args,
       this.objectMapper,

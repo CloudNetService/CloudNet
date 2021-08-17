@@ -23,23 +23,23 @@ import org.jetbrains.annotations.NotNull;
 
 public abstract class DefaultRPCProvider implements RPCProvider {
 
-  protected final String targetClassName;
+  protected final Class<?> targetClass;
   protected final ObjectMapper objectMapper;
   protected final DataBufFactory dataBufFactory;
 
   protected DefaultRPCProvider(
-    @NotNull String targetClassName,
+    @NotNull Class<?> targetClass,
     @NotNull ObjectMapper objectMapper,
     @NotNull DataBufFactory dataBufFactory
   ) {
-    this.targetClassName = targetClassName;
+    this.targetClass = targetClass;
     this.objectMapper = objectMapper;
     this.dataBufFactory = dataBufFactory;
   }
 
   @Override
-  public @NotNull String getTargetClassName() {
-    return this.targetClassName;
+  public @NotNull Class<?> getTargetClass() {
+    return this.targetClass;
   }
 
   @Override

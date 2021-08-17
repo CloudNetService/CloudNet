@@ -22,7 +22,7 @@ import org.jetbrains.annotations.NotNull;
 
 public interface RPCProvider {
 
-  @NotNull String getTargetClassName();
+  @NotNull Class<?> getTargetClass();
 
   @NotNull ObjectMapper getObjectMapper();
 

@@ -38,6 +38,8 @@ import org.jetbrains.annotations.Nullable;
 @EqualsAndHashCode
 public class Packet implements IPacket {
 
+  public static final IPacket EMPTY = new Packet(-1, null);
+
   private final int channel;
   private final DataBuf dataBuf;
   private final long creationMillis;

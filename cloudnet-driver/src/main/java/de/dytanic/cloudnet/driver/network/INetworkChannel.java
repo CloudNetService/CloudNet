@@ -21,6 +21,7 @@ import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.network.protocol.IPacketListenerRegistry;
 import de.dytanic.cloudnet.driver.network.protocol.IPacketSender;
+import de.dytanic.cloudnet.driver.network.protocol.QueryPacketManager;
 import de.dytanic.cloudnet.driver.network.protocol.chunk.ChunkedQueryResponse;
 import java.io.IOException;
 import java.io.InputStream;
@@ -65,6 +66,8 @@ public interface INetworkChannel extends IPacketSender, AutoCloseable {
    * listener registry
    */
   IPacketListenerRegistry getPacketRegistry();
+
+  @NotNull QueryPacketManager getQueryPacketManager();
 
   /**
    * Returns that, the channel based of the client site connection

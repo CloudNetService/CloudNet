@@ -43,17 +43,17 @@ public class DefaultRPC extends DefaultRPCProvider implements RPC {
 
   public DefaultRPC(
     @NotNull RPCSender sender,
-    @NotNull String className,
+    @NotNull Class<?> clazz,
     @NotNull String methodName,
     @NotNull Object[] arguments,
     @NotNull ObjectMapper objectMapper,
     @NotNull Type expectedResultType,
     @NotNull DataBufFactory dataBufFactory
   ) {
-    super(className, objectMapper, dataBufFactory);
+    super(clazz, objectMapper, dataBufFactory);
 
     this.sender = sender;
-    this.className = className;
+    this.className = clazz.getName();
     this.methodName = methodName;
     this.arguments = arguments;
     this.expectedResultType = expectedResultType;
