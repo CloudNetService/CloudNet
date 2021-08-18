@@ -26,9 +26,9 @@ import de.dytanic.cloudnet.driver.network.INetworkChannelHandler;
 import de.dytanic.cloudnet.driver.network.INetworkServer;
 import de.dytanic.cloudnet.driver.network.netty.NettySSLServer;
 import de.dytanic.cloudnet.driver.network.netty.NettyUtils;
-import de.dytanic.cloudnet.driver.network.protocol.defaults.DefaultPacketListenerRegistry;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.network.protocol.IPacketListenerRegistry;
+import de.dytanic.cloudnet.driver.network.protocol.defaults.DefaultPacketListenerRegistry;
 import de.dytanic.cloudnet.driver.network.ssl.SSLConfiguration;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
@@ -42,11 +42,9 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executor;
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
-@ApiStatus.Internal
-public final class NettyNetworkServer extends NettySSLServer implements DefaultNetworkComponent, INetworkServer {
+public class NettyNetworkServer extends NettySSLServer implements DefaultNetworkComponent, INetworkServer {
 
   protected final Collection<INetworkChannel> channels = new ConcurrentLinkedQueue<>();
   protected final Map<Integer, Pair<HostAndPort, ChannelFuture>> channelFutures = new ConcurrentHashMap<>();
@@ -139,12 +137,12 @@ public final class NettyNetworkServer extends NettySSLServer implements DefaultN
     this.workerEventLoopGroup.shutdownGracefully();
   }
 
-  public Collection<INetworkChannel> getChannels() {
+  public @NotNull Collection<INetworkChannel> getChannels() {
     return Collections.unmodifiableCollection(this.channels);
   }
 
   @Override
-  public Executor getPacketDispatcher() {
+  public @NotNull Executor getPacketDispatcher() {
     return this.packetDispatcher;
   }
 
@@ -162,7 +160,7 @@ public final class NettyNetworkServer extends NettySSLServer implements DefaultN
     }
   }
 
-  public IPacketListenerRegistry getPacketRegistry() {
+  public @NotNull IPacketListenerRegistry getPacketRegistry() {
     return this.packetRegistry;
   }
 }

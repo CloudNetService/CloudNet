@@ -40,11 +40,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
-@ApiStatus.Internal
-public final class NettyHttpServer extends NettySSLServer implements IHttpServer {
+public class NettyHttpServer extends NettySSLServer implements IHttpServer {
 
   private static final Logger LOGGER = LogManager.getLogger(NettyHttpServer.class);
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.driver.network.rpc.defaults.object;
+package de.dytanic.cloudnet.driver.network.rpc.defaults.object.serializers;
 
 import com.google.common.base.Verify;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;

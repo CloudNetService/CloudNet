@@ -21,6 +21,13 @@ import com.google.common.reflect.TypeToken;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import de.dytanic.cloudnet.driver.network.buffer.DataBufable;
 import de.dytanic.cloudnet.driver.network.rpc.defaults.object.data.DataClassSerializer;
+import de.dytanic.cloudnet.driver.network.rpc.defaults.object.serializers.ClassObjectSerializer;
+import de.dytanic.cloudnet.driver.network.rpc.defaults.object.serializers.CollectionObjectSerializer;
+import de.dytanic.cloudnet.driver.network.rpc.defaults.object.serializers.DataBufableObjectSerializer;
+import de.dytanic.cloudnet.driver.network.rpc.defaults.object.serializers.EnumObjectSerializer;
+import de.dytanic.cloudnet.driver.network.rpc.defaults.object.serializers.FunctionalObjectSerializer;
+import de.dytanic.cloudnet.driver.network.rpc.defaults.object.serializers.MapObjectSerializer;
+import de.dytanic.cloudnet.driver.network.rpc.defaults.object.serializers.OptionalObjectSerializer;
 import de.dytanic.cloudnet.driver.network.rpc.exception.MissingObjectSerializerException;
 import de.dytanic.cloudnet.driver.network.rpc.object.ObjectMapper;
 import de.dytanic.cloudnet.driver.network.rpc.object.ObjectSerializer;
@@ -88,6 +95,7 @@ public class DefaultObjectMapper implements ObjectMapper {
     .put(DataBufable.class, new DataBufableObjectSerializer())
     .put(Enum.class, new EnumObjectSerializer())
     .put(Object.class, new DataClassSerializer())
+    .put(Class.class, new ClassObjectSerializer())
     .build();
 
   private final Map<Type, TypeToken<?>> typeTokenCache = new ConcurrentHashMap<>();
@@ -140,7 +148,6 @@ public class DefaultObjectMapper implements ObjectMapper {
   }
 
   @Override
-  @SuppressWarnings("unchecked")
   public @NotNull DataBuf.Mutable writeObject(@NotNull DataBuf.Mutable dataBuf, @Nullable Object object) {
     return dataBuf.writeNullable(object, (buffer, obj) -> {
       // Get the type token of the type
@@ -158,7 +165,7 @@ public class DefaultObjectMapper implements ObjectMapper {
         throw new MissingObjectSerializerException(obj.getClass());
       }
       // serialize the object into the buffer
-      ((ObjectSerializer<Object>) serializer).write(buffer, obj, obj.getClass(), this);
+      serializer.writeObject(buffer, obj, obj.getClass(), this);
     });
   }
 
@@ -181,7 +188,7 @@ public class DefaultObjectMapper implements ObjectMapper {
         throw new MissingObjectSerializerException(type);
       }
       // read the object from the buffer
-      return ((ObjectSerializer<T>) serializer).read(buffer, type, this);
+      return (T) serializer.read(buffer, type, this);
     });
   }
 

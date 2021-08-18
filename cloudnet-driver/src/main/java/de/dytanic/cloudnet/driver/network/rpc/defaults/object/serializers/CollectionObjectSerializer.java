@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.driver.network.rpc.defaults.object;
+package de.dytanic.cloudnet.driver.network.rpc.defaults.object.serializers;
 
 import com.google.common.base.Verify;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
@@ -22,62 +22,60 @@ import de.dytanic.cloudnet.driver.network.rpc.object.ObjectMapper;
 import de.dytanic.cloudnet.driver.network.rpc.object.ObjectSerializer;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.Map;
+import java.util.Collection;
 import java.util.function.Supplier;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class MapObjectSerializer implements ObjectSerializer<Map<?, ?>> {
+public class CollectionObjectSerializer implements ObjectSerializer<Collection<?>> {
 
-  private final Supplier<Map<?, ?>> mapFactory;
+  private final Supplier<Collection<?>> collectionFactory;
 
-  protected MapObjectSerializer(Supplier<Map<?, ?>> mapFactory) {
-    this.mapFactory = mapFactory;
+  protected CollectionObjectSerializer(Supplier<Collection<?>> collectionFactory) {
+    this.collectionFactory = collectionFactory;
   }
 
-  public static @NotNull MapObjectSerializer of(@NotNull Supplier<Map<?, ?>> mapFactory) {
-    return new MapObjectSerializer(mapFactory);
+  public static @NotNull CollectionObjectSerializer of(@NotNull Supplier<Collection<?>> collectionFactory) {
+    return new CollectionObjectSerializer(collectionFactory);
   }
 
   @Override
-  public @Nullable Map<?, ?> read(
+  public @Nullable Collection<?> read(
     @NotNull DataBuf source,
     @NotNull Type type,
     @NotNull ObjectMapper caller
   ) {
-    // create a new instance of the map
-    Map<?, ?> map = this.mapFactory.get();
-    // read the size of the map
-    int mapSize = source.readInt();
-    // if the map is empty, break
-    if (mapSize == 0) {
-      return map;
+    // create a new instance of the collection
+    Collection<?> collection = this.collectionFactory.get();
+    // read the size of the collection
+    int collectionSize = source.readInt();
+    // if the collection is empty, break
+    if (collectionSize == 0) {
+      return collection;
     }
     // ensure that the type is parameterized
-    Verify.verify(type instanceof ParameterizedType, "Map rpc read called without parameterized type");
+    Verify.verify(type instanceof ParameterizedType, "Collection rpc read called without parameterized type");
     // read the parameter type of the collection
-    Type keyType = ((ParameterizedType) type).getActualTypeArguments()[0];
-    Type valueType = ((ParameterizedType) type).getActualTypeArguments()[1];
-    // read the map content
-    for (int i = 0; i < mapSize; i++) {
-      map.put(caller.readObject(source, keyType), caller.readObject(source, valueType));
+    Type parameterType = ((ParameterizedType) type).getActualTypeArguments()[0];
+    // read the collection content
+    for (int i = 0; i < collectionSize; i++) {
+      collection.add(caller.readObject(source, parameterType));
     }
     // read done
-    return map;
+    return collection;
   }
 
   @Override
   public void write(
     @NotNull DataBuf.Mutable dataBuf,
-    @Nullable Map<?, ?> object,
+    @Nullable Collection<?> object,
     @NotNull Type type,
     @NotNull ObjectMapper caller
   ) {
     dataBuf.writeInt(object == null ? 0 : object.size());
     if (object != null) {
-      for (Map.Entry<?, ?> entry : object.entrySet()) {
-        caller.writeObject(dataBuf, entry.getKey());
-        caller.writeObject(dataBuf, entry.getValue());
+      for (Object o : object) {
+        caller.writeObject(dataBuf, o);
       }
     }
   }

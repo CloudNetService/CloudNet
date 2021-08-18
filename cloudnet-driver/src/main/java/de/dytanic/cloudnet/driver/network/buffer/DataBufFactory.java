@@ -16,9 +16,14 @@
 
 package de.dytanic.cloudnet.driver.network.buffer;
 
+import de.dytanic.cloudnet.driver.network.netty.buffer.NettyDataBufFactory;
 import org.jetbrains.annotations.NotNull;
 
 public interface DataBufFactory {
+
+  static @NotNull DataBufFactory defaultFactory() {
+    return NettyDataBufFactory.INSTANCE;
+  }
 
   @NotNull DataBuf.Mutable createEmpty();
 
@@ -29,8 +34,4 @@ public interface DataBufFactory {
   @NotNull DataBuf.Mutable mutableCopyOf(@NotNull DataBuf dataBuf);
 
   @NotNull DataBuf.Mutable createWithExpectedSize(int byteSize);
-
-  @NotNull DataBuf toReadOnly(@NotNull DataBuf dataBuf);
-
-  @NotNull DataBuf readOnlyCopyOf(@NotNull DataBuf dataBuf);
 }

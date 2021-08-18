@@ -14,51 +14,49 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.driver.network.rpc.defaults.object;
+package de.dytanic.cloudnet.driver.network.rpc.defaults.object.serializers;
 
+import com.google.common.base.Verify;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
-import de.dytanic.cloudnet.driver.network.buffer.DataBuf.Mutable;
 import de.dytanic.cloudnet.driver.network.rpc.object.ObjectMapper;
 import de.dytanic.cloudnet.driver.network.rpc.object.ObjectSerializer;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.function.BiConsumer;
-import java.util.function.Function;
+import java.util.Optional;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class FunctionalObjectSerializer<T> implements ObjectSerializer<T> {
-
-  private final Function<DataBuf, T> reader;
-  private final BiConsumer<DataBuf.Mutable, T> writer;
-
-  protected FunctionalObjectSerializer(Function<DataBuf, T> reader, BiConsumer<Mutable, T> writer) {
-    this.reader = reader;
-    this.writer = writer;
-  }
-
-  public static @NotNull <T> FunctionalObjectSerializer<T> of(
-    @NotNull Function<DataBuf, T> reader,
-    @NotNull BiConsumer<Mutable, T> writer
-  ) {
-    return new FunctionalObjectSerializer<>(reader, writer);
-  }
+public class OptionalObjectSerializer implements ObjectSerializer<Optional<?>> {
 
   @Override
-  public @Nullable T read(
+  public @Nullable Optional<?> read(
     @NotNull DataBuf source,
     @NotNull Type type,
     @NotNull ObjectMapper caller
   ) {
-    return this.reader.apply(source);
+    // check if the optional value was present
+    boolean isPresent = source.startTransaction().readBoolean();
+    if (isPresent) {
+      // ensure that the given type is parametrized
+      Verify.verify(type instanceof ParameterizedType, "Optional rpc read called without parameterized type");
+      // read the argument type
+      Type argumentType = ((ParameterizedType) type).getActualTypeArguments()[0];
+      // read the value of the buffer at the last index
+      // (this can not be null by to suppress the warning we treat it as nullable)
+      return Optional.ofNullable(caller.readObject(source.redoTransaction(), argumentType));
+    } else {
+      // the optional value was not present
+      return Optional.empty();
+    }
   }
 
   @Override
   public void write(
     @NotNull DataBuf.Mutable dataBuf,
-    @Nullable T object,
+    @NotNull Optional<?> object,
     @NotNull Type type,
     @NotNull ObjectMapper caller
   ) {
-    this.writer.accept(dataBuf, object);
+    caller.writeObject(dataBuf, object.orElse(null));
   }
 }

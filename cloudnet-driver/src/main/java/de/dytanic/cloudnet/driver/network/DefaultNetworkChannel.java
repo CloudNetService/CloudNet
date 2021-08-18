@@ -65,15 +65,6 @@ public abstract class DefaultNetworkChannel implements INetworkChannel {
   }
 
   @Override
-  public void sendPacket(@NotNull IPacket... packets) {
-    Preconditions.checkNotNull(packets);
-
-    for (IPacket packet : packets) {
-      this.sendPacket(packet);
-    }
-  }
-
-  @Override
   public ITask<IPacket> sendQueryAsync(@NotNull IPacket packet) {
     return this.queryPacketManager.sendQueryPacket(packet);
   }

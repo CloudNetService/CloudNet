@@ -20,6 +20,7 @@ import de.dytanic.cloudnet.driver.network.rpc.RPCHandler;
 import de.dytanic.cloudnet.driver.network.rpc.RPCHandlerRegistry;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -72,5 +73,14 @@ public class DefaultRPCHandlerRegistry implements RPCHandlerRegistry {
   @Override
   public boolean unregisterHandler(@NotNull String rpcHandlerTargetClassName) {
     return this.handlers.remove(rpcHandlerTargetClassName) != null;
+  }
+
+  @Override
+  public void unregisterHandlers(@NotNull ClassLoader classLoader) {
+    for (Entry<String, RPCHandler> entry : this.handlers.entrySet()) {
+      if (entry.getValue().getClass().getClassLoader().equals(classLoader)) {
+        this.handlers.remove(entry.getKey(), entry.getValue());
+      }
+    }
   }
 }

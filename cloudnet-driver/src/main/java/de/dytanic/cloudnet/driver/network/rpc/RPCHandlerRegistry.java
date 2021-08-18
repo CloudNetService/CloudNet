@@ -41,4 +41,6 @@ public interface RPCHandlerRegistry {
   boolean unregisterHandler(@NotNull Class<?> rpcHandlerTargetClass);
 
   boolean unregisterHandler(@NotNull String rpcHandlerTargetClassName);
+
+  void unregisterHandlers(@NotNull ClassLoader classLoader);
 }

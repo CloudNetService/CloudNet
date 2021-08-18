@@ -121,7 +121,7 @@ public class NettyNetworkClient implements DefaultNetworkComponent, INetworkClie
   }
 
   @Override
-  public Executor getPacketDispatcher() {
+  public @NotNull Executor getPacketDispatcher() {
     return this.packetDispatcher;
   }
 
@@ -131,7 +131,7 @@ public class NettyNetworkClient implements DefaultNetworkComponent, INetworkClie
   }
 
   @Override
-  public IPacketListenerRegistry getPacketRegistry() {
+  public @NotNull IPacketListenerRegistry getPacketRegistry() {
     return this.packetRegistry;
   }
 

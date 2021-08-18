@@ -16,14 +16,18 @@
 
 package de.dytanic.cloudnet.driver.network.netty;
 
+import de.dytanic.cloudnet.common.concurrent.CompletableTask;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
+import de.dytanic.cloudnet.driver.network.netty.buffer.NettyImmutableDataBuf;
+import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.network.protocol.Packet;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.UUID;
 import java.util.concurrent.Executor;
 import org.jetbrains.annotations.ApiStatus;
 
@@ -66,11 +70,23 @@ public abstract class NettyNetworkHandler extends SimpleChannelInboundHandler<Pa
   protected void channelRead0(ChannelHandlerContext ctx, Packet msg) {
     this.getPacketDispatcher().execute(() -> {
       try {
+        UUID uuid = msg.getUniqueId();
+        if (uuid != null) {
+          CompletableTask<IPacket> task = this.channel.getQueryPacketManager().getWaitingHandler(uuid);
+          if (task != null) {
+            task.complete(msg);
+            // don't post a query response packet to another handler at all
+            return;
+          }
+        }
+
         if (this.channel.getHandler() == null || this.channel.getHandler().handlePacketReceive(this.channel, msg)) {
           this.channel.getPacketRegistry().handlePacket(this.channel, msg);
         }
       } catch (Exception exception) {
         LOGGER.severe("Exception whilst handling packet " + msg, exception);
+      } finally {
+        ((NettyImmutableDataBuf) msg.getContent()).getByteBuf().release();
       }
     });
   }

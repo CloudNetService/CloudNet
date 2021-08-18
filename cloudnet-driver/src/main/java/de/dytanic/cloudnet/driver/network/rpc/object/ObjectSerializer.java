@@ -23,7 +23,24 @@ import org.jetbrains.annotations.Nullable;
 
 public interface ObjectSerializer<T> {
 
-  @Nullable T read(@NotNull DataBuf source, @NotNull Type type, @NotNull ObjectMapper caller);
+  @Nullable Object read(@NotNull DataBuf source, @NotNull Type type, @NotNull ObjectMapper caller);
 
-  void write(@NotNull DataBuf.Mutable dataBuf, @NotNull T object, @NotNull Type type, @NotNull ObjectMapper caller);
+  @SuppressWarnings("unchecked")
+  default void writeObject(
+    @NotNull DataBuf.Mutable dataBuf,
+    @NotNull Object object,
+    @NotNull Type type,
+    @NotNull ObjectMapper caller
+  ) {
+    this.write(dataBuf, (T) object, type, caller);
+  }
+
+  default void write(
+    @NotNull DataBuf.Mutable dataBuf,
+    @NotNull T object,
+    @NotNull Type type,
+    @NotNull ObjectMapper caller
+  ) {
+    throw new UnsupportedOperationException();
+  }
 }

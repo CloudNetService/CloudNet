@@ -49,6 +49,8 @@ public interface DataBuf {
 
   @NotNull DataBuf redoTransaction();
 
+  @NotNull DataBuf.Mutable asMutable();
+
   interface Mutable extends DataBuf {
 
     @NotNull DataBuf.Mutable writeBoolean(boolean b);
@@ -74,12 +76,6 @@ public interface DataBuf {
 
     // utility for reading
 
-    @NotNull
-    @Override
-    DataBuf.Mutable startTransaction();
-
-    @NotNull
-    @Override
-    DataBuf.Mutable redoTransaction();
+    @NotNull DataBuf asImmutable();
   }
 }
