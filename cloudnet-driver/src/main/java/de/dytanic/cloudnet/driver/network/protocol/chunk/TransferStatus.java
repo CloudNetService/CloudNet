@@ -14,15 +14,11 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.driver.network.rpc.packet;
+package de.dytanic.cloudnet.driver.network.protocol.chunk;
 
-import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
-import de.dytanic.cloudnet.driver.network.def.PacketConstants;
-import de.dytanic.cloudnet.driver.network.protocol.Packet;
+public enum TransferStatus {
 
-public class RPCQueryPacket extends Packet {
-
-  public RPCQueryPacket(DataBuf dataBuf) {
-    super(PacketConstants.INTERNAL_RPC_COM_CHANNEL, dataBuf);
-  }
+  RUNNING,
+  SUCCESS,
+  FAILURE
 }

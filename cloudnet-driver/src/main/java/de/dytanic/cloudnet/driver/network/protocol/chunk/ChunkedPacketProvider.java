@@ -16,11 +16,12 @@
 
 package de.dytanic.cloudnet.driver.network.protocol.chunk;
 
-public final class ChunkInterrupt extends RuntimeException {
+import de.dytanic.cloudnet.driver.network.protocol.chunk.data.ChunkSessionInformation;
+import org.jetbrains.annotations.NotNull;
 
-  public static final ChunkInterrupt INSTANCE = new ChunkInterrupt();
+public interface ChunkedPacketProvider {
 
-  private ChunkInterrupt() {
-  }
+  @NotNull TransferStatus getTransferStatus();
 
+  @NotNull ChunkSessionInformation getSessionInformation();
 }

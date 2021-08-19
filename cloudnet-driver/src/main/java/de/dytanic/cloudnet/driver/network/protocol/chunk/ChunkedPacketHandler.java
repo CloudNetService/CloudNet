@@ -14,24 +14,21 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.driver.network.protocol.chunk.listener;
+package de.dytanic.cloudnet.driver.network.protocol.chunk;
 
-import de.dytanic.cloudnet.driver.network.protocol.chunk.ChunkedQueryResponse;
+import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
+import de.dytanic.cloudnet.driver.network.protocol.chunk.data.ChunkSessionInformation;
 import java.io.InputStream;
-import java.util.function.Consumer;
 import org.jetbrains.annotations.NotNull;
 
-public class ConsumingChunkedPacketListener extends CachedChunkedPacketListener {
+public interface ChunkedPacketHandler extends ChunkedPacketProvider {
 
-  private final Consumer<ChunkedQueryResponse> consumer;
+  @NotNull Callback getCallback();
 
-  public ConsumingChunkedPacketListener(Consumer<ChunkedQueryResponse> consumer) {
-    this.consumer = consumer;
-  }
+  void handleChunkPart(int chunkPosition, @NotNull DataBuf dataBuf);
 
-  @Override
-  protected void handleComplete(@NotNull ChunkedPacketSession session, @NotNull InputStream inputStream) {
-    this.consumer
-      .accept(new ChunkedQueryResponse(session, session.getFirstPacket(), session.getLastPacket(), inputStream));
+  interface Callback {
+
+    void handleSessionComplete(@NotNull ChunkSessionInformation information, @NotNull InputStream dataInput);
   }
 }

@@ -20,6 +20,7 @@ public final class PacketConstants {
 
   // rpc
   public static final int INTERNAL_RPC_COM_CHANNEL = 0;
+  public static final int CHUNKED_PACKET_COM_CHANNEL = 1;
 
   // general
   public static final int INTERNAL_AUTHORIZATION_CHANNEL = 1;

@@ -16,6 +16,7 @@
 
 package de.dytanic.cloudnet.driver.network.buffer;
 
+import java.util.UUID;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import org.jetbrains.annotations.NotNull;
@@ -38,6 +39,10 @@ public interface DataBuf {
   double readDouble();
 
   char readChar();
+
+  byte[] readByteArray();
+
+  @NotNull UUID readUniqueId();
 
   @NotNull String readString();
 
@@ -68,6 +73,10 @@ public interface DataBuf {
     @NotNull DataBuf.Mutable writeDouble(double d);
 
     @NotNull DataBuf.Mutable writeChar(char c);
+
+    @NotNull DataBuf.Mutable writeByteArray(byte[] b);
+
+    @NotNull DataBuf.Mutable writeUniqueId(@NotNull UUID uuid);
 
     @NotNull DataBuf.Mutable writeString(@NotNull String string);
 
