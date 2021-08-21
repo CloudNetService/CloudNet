@@ -29,6 +29,7 @@ import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.network.protocol.IPacketListener;
 import de.dytanic.cloudnet.driver.network.protocol.Packet;
 import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
+import org.jetbrains.annotations.NotNull;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -84,17 +85,17 @@ public class NettyNetworkQueryTest {
   private final class NetworkChannelServerHandler implements INetworkChannelHandler {
 
     @Override
-    public void handleChannelInitialize(INetworkChannel channel) {
+    public void handleChannelInitialize(@NotNull INetworkChannel channel) {
       NettyNetworkQueryTest.this.connectedServer = true;
     }
 
     @Override
-    public boolean handlePacketReceive(INetworkChannel channel, Packet packet) {
+    public boolean handlePacketReceive(@NotNull INetworkChannel channel, @NotNull Packet packet) {
       return true;
     }
 
     @Override
-    public void handleChannelClose(INetworkChannel channel) {
+    public void handleChannelClose(@NotNull INetworkChannel channel) {
 
     }
   }
@@ -102,17 +103,17 @@ public class NettyNetworkQueryTest {
   private final class NetworkChannelClientHandler implements INetworkChannelHandler {
 
     @Override
-    public void handleChannelInitialize(INetworkChannel channel) {
+    public void handleChannelInitialize(@NotNull INetworkChannel channel) {
       NettyNetworkQueryTest.this.connectedClient = true;
     }
 
     @Override
-    public boolean handlePacketReceive(INetworkChannel channel, Packet packet) {
+    public boolean handlePacketReceive(@NotNull INetworkChannel channel, @NotNull Packet packet) {
       return !InternalSyncPacketChannel.handleIncomingChannel(channel, packet);
     }
 
     @Override
-    public void handleChannelClose(INetworkChannel channel) {
+    public void handleChannelClose(@NotNull INetworkChannel channel) {
 
     }
   }

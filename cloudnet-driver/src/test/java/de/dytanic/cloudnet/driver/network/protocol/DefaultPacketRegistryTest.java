@@ -18,6 +18,7 @@ package de.dytanic.cloudnet.driver.network.protocol;
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
+import de.dytanic.cloudnet.driver.network.protocol.defaults.DefaultPacketListenerRegistry;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -37,7 +38,7 @@ public class DefaultPacketRegistryTest {
     registry.addListener(channelId, listener);
 
     Assert.assertEquals(1, registry.getListeners().size());
-
+    //TODO: packet
     registry.handlePacket(null, new Packet(channelId, new JsonDocument("testProperty", 65), "TestValue".getBytes()) {
       @Override
       public boolean isShowDebug() {

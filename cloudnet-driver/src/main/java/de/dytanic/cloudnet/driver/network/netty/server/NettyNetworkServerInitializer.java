@@ -23,25 +23,22 @@ import de.dytanic.cloudnet.driver.network.netty.codec.NettyPacketLengthDeseriali
 import de.dytanic.cloudnet.driver.network.netty.codec.NettyPacketLengthSerializer;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
-import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.NotNull;
 
-@ApiStatus.Internal
-final class NettyNetworkServerInitializer extends ChannelInitializer<Channel> {
+public class NettyNetworkServerInitializer extends ChannelInitializer<Channel> {
 
-  private final NettyNetworkServer nettyNetworkServer;
+  private final HostAndPort serverLocalAddress;
+  private final NettyNetworkServer networkServer;
 
-  private final HostAndPort hostAndPort;
-
-  public NettyNetworkServerInitializer(NettyNetworkServer nettyNetworkServer, HostAndPort hostAndPort) {
-    this.nettyNetworkServer = nettyNetworkServer;
-    this.hostAndPort = hostAndPort;
+  public NettyNetworkServerInitializer(NettyNetworkServer networkServer, HostAndPort serverLocalAddress) {
+    this.networkServer = networkServer;
+    this.serverLocalAddress = serverLocalAddress;
   }
 
   @Override
-  protected void initChannel(Channel ch) {
-    if (this.nettyNetworkServer.sslContext != null) {
-      ch.pipeline()
-        .addLast(this.nettyNetworkServer.sslContext.newHandler(ch.alloc()));
+  protected void initChannel(@NotNull Channel ch) {
+    if (this.networkServer.sslContext != null) {
+      ch.pipeline().addLast("ssl-handler", this.networkServer.sslContext.newHandler(ch.alloc()));
     }
 
     ch.pipeline()
@@ -49,7 +46,7 @@ final class NettyNetworkServerInitializer extends ChannelInitializer<Channel> {
       .addLast("packet-decoder", new NettyPacketDecoder())
       .addLast("packet-length-serializer", new NettyPacketLengthSerializer())
       .addLast("packet-encoder", new NettyPacketEncoder())
-      .addLast("network-server-handler", new NettyNetworkServerHandler(this.nettyNetworkServer, this.hostAndPort))
+      .addLast("network-server-handler", new NettyNetworkServerHandler(this.networkServer, this.serverLocalAddress))
     ;
   }
 }

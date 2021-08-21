@@ -16,7 +16,6 @@
 
 package de.dytanic.cloudnet.driver.network.netty.http;
 
-import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.network.http.websocket.IWebSocketListener;

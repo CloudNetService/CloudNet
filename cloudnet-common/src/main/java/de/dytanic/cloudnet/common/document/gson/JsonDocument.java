@@ -156,7 +156,7 @@ public class JsonDocument implements IDocument<JsonDocument>, Cloneable {
 
 
   public static JsonDocument newDocument(byte[] bytes) {
-    return newDocument(new String(bytes, StandardCharsets.UTF_8));
+    return bytes.length == 0 ? EMPTY : newDocument(new String(bytes, StandardCharsets.UTF_8));
   }
 
   public static JsonDocument newDocument(Object object) {

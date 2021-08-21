@@ -16,19 +16,12 @@
 
 package de.dytanic.cloudnet.driver.network;
 
-import com.google.common.base.Preconditions;
-import de.dytanic.cloudnet.common.concurrent.CompletableTask;
 import de.dytanic.cloudnet.common.concurrent.ITask;
-import de.dytanic.cloudnet.common.document.gson.JsonDocument;
-import de.dytanic.cloudnet.driver.network.def.internal.InternalSyncPacketChannel;
-import de.dytanic.cloudnet.driver.network.protocol.DefaultPacketListenerRegistry;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.network.protocol.IPacketListenerRegistry;
-import de.dytanic.cloudnet.driver.network.protocol.chunk.ChunkedPacketBuilder;
-import de.dytanic.cloudnet.driver.network.protocol.chunk.ChunkedQueryResponse;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.UUID;
+import de.dytanic.cloudnet.driver.network.protocol.QueryPacketManager;
+import de.dytanic.cloudnet.driver.network.protocol.defaults.DefaultPacketListenerRegistry;
+import de.dytanic.cloudnet.driver.network.protocol.defaults.DefaultQueryPacketManager;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import org.jetbrains.annotations.NotNull;
@@ -39,6 +32,7 @@ public abstract class DefaultNetworkChannel implements INetworkChannel {
 
   private final long channelId = CHANNEL_ID_COUNTER.addAndGet(1);
 
+  private final QueryPacketManager queryPacketManager;
   private final IPacketListenerRegistry packetRegistry;
 
   private final HostAndPort serverAddress;
@@ -48,8 +42,14 @@ public abstract class DefaultNetworkChannel implements INetworkChannel {
 
   private INetworkChannelHandler handler;
 
-  public DefaultNetworkChannel(IPacketListenerRegistry packetRegistry, HostAndPort serverAddress,
-    HostAndPort clientAddress, boolean clientProvidedChannel, INetworkChannelHandler handler) {
+  public DefaultNetworkChannel(
+    IPacketListenerRegistry packetRegistry,
+    HostAndPort serverAddress,
+    HostAndPort clientAddress,
+    boolean clientProvidedChannel,
+    INetworkChannelHandler handler
+  ) {
+    this.queryPacketManager = new DefaultQueryPacketManager(this);
     this.packetRegistry = new DefaultPacketListenerRegistry(packetRegistry);
     this.serverAddress = serverAddress;
     this.clientAddress = clientAddress;
@@ -58,62 +58,13 @@ public abstract class DefaultNetworkChannel implements INetworkChannel {
   }
 
   @Override
-  public void sendPacket(@NotNull IPacket... packets) {
-    Preconditions.checkNotNull(packets);
-
-    for (IPacket packet : packets) {
-      this.sendPacket(packet);
-    }
-  }
-
-  @Override
   public ITask<IPacket> sendQueryAsync(@NotNull IPacket packet) {
-    ITask<IPacket> task = this.registerQueryResponseHandler(packet.getUniqueId());
-    this.sendPacket(packet);
-    return task;
+    return this.queryPacketManager.sendQueryPacket(packet);
   }
 
   @Override
   public IPacket sendQuery(@NotNull IPacket packet) {
     return this.sendQueryAsync(packet).get(5, TimeUnit.SECONDS, null);
-  }
-
-  @Override
-  public ITask<IPacket> registerQueryResponseHandler(UUID uniqueId) {
-    CompletableTask<IPacket> task = new CompletableTask<>();
-    InternalSyncPacketChannel.registerQueryHandler(uniqueId, task::complete);
-    return task;
-  }
-
-  @Override
-  public ITask<ChunkedQueryResponse> sendChunkedPacketQuery(@NotNull IPacket packet) {
-    CompletableTask<ChunkedQueryResponse> task = new CompletableTask<>();
-    InternalSyncPacketChannel.registerChunkedQueryHandler(packet.getUniqueId(), task::complete);
-    this.sendPacket(packet);
-    return task;
-  }
-
-  @Override
-  public boolean sendChunkedPackets(@NotNull UUID uniqueId, @NotNull JsonDocument header,
-    @NotNull InputStream inputStream, int channel) throws IOException {
-    return ChunkedPacketBuilder.newBuilder(channel, inputStream)
-      .uniqueId(uniqueId)
-      .header(header)
-      .target(this)
-      .complete()
-      .isSuccess();
-  }
-
-  @Override
-  public boolean sendChunkedPacketsResponse(@NotNull UUID uniqueId, @NotNull JsonDocument header,
-    @NotNull InputStream inputStream) throws IOException {
-    return this.sendChunkedPackets(uniqueId, header, inputStream, -1);
-  }
-
-  @Override
-  public boolean sendChunkedPackets(@NotNull JsonDocument header, @NotNull InputStream inputStream, int channel)
-    throws IOException {
-    return this.sendChunkedPackets(UUID.randomUUID(), header, inputStream, channel);
   }
 
   @Override
@@ -124,6 +75,11 @@ public abstract class DefaultNetworkChannel implements INetworkChannel {
   @Override
   public IPacketListenerRegistry getPacketRegistry() {
     return this.packetRegistry;
+  }
+
+  @Override
+  public @NotNull QueryPacketManager getQueryPacketManager() {
+    return this.queryPacketManager;
   }
 
   @Override

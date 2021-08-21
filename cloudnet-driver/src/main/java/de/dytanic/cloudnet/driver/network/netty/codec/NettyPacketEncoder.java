@@ -16,57 +16,36 @@
 
 package de.dytanic.cloudnet.driver.network.netty.codec;
 
-import de.dytanic.cloudnet.common.log.LogManager;
-import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.network.netty.NettyUtils;
+import de.dytanic.cloudnet.driver.network.netty.buffer.NettyImmutableDataBuf;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
+import java.util.UUID;
 import org.jetbrains.annotations.ApiStatus;
 
 @ApiStatus.Internal
 public final class NettyPacketEncoder extends MessageToByteEncoder<IPacket> {
 
-  private static final Logger LOGGER = LogManager.getLogger(NettyPacketEncoder.class);
-
   @Override
   protected void encode(ChannelHandlerContext ctx, IPacket packet, ByteBuf byteBuf) {
-    if (packet.isShowDebug()) {
-      LOGGER.fine(
-        String.format(
-          "Encoding packet on channel %d with id %s, header=%s;body=%d",
-          packet.getChannel(),
-          packet.getUniqueId(),
-          packet.getHeader().toJson(),
-          packet.getBuffer() != null ? packet.getBuffer().readableBytes() : 0
-        )
-      );
-    }
-
     // channel
     NettyUtils.writeVarInt(byteBuf, packet.getChannel());
-    // unique id
-    byteBuf
-      .writeLong(packet.getUniqueId().getMostSignificantBits())
-      .writeLong(packet.getUniqueId().getLeastSignificantBits());
-    // header
-    this.writeHeader(packet, byteBuf);
+    // query id (if present)
+    UUID queryUniqueId = packet.getUniqueId();
+    byteBuf.writeBoolean(queryUniqueId != null);
+    if (queryUniqueId != null) {
+      byteBuf
+        .writeLong(queryUniqueId.getMostSignificantBits())
+        .writeLong(queryUniqueId.getLeastSignificantBits());
+    }
     // body
-    if (packet.getBuffer() != null) {
-      int amount = packet.getBuffer().readableBytes();
-      NettyUtils.writeVarInt(byteBuf, amount);
-      byteBuf.writeBytes(packet.getBuffer(), 0, amount);
-    } else {
-      NettyUtils.writeVarInt(byteBuf, 0);
-    }
-  }
-
-  private void writeHeader(IPacket packet, ByteBuf byteBuf) {
-    if (packet.getHeader() == null || packet.getHeader().isEmpty()) {
-      NettyUtils.writeVarInt(byteBuf, 0);
-    } else {
-      NettyUtils.writeString(byteBuf, packet.getHeader().toJson());
-    }
+    // we only support netty buf
+    ByteBuf buf = ((NettyImmutableDataBuf) packet.getContent()).getByteBuf();
+    // write information to buffer
+    int length = buf.readableBytes();
+    NettyUtils.writeVarInt(byteBuf, length);
+    byteBuf.writeBytes(buf, 0, length);
   }
 }

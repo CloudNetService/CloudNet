@@ -30,6 +30,7 @@ import de.dytanic.cloudnet.driver.network.protocol.Packet;
 import de.dytanic.cloudnet.driver.network.ssl.SSLConfiguration;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
 import java.util.concurrent.TimeUnit;
+import org.jetbrains.annotations.NotNull;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -84,12 +85,12 @@ public final class NettySSLNetworkClientServerTest implements INetworkChannelHan
   }
 
   @Override
-  public boolean handlePacketReceive(INetworkChannel channel, Packet packet) throws Exception {
+  public boolean handlePacketReceive(@NotNull INetworkChannel channel, @NotNull Packet packet) throws Exception {
     return true;
   }
 
   @Override
-  public void handleChannelClose(INetworkChannel channel) throws Exception {
+  public void handleChannelClose(@NotNull INetworkChannel channel) throws Exception {
 
   }
 }

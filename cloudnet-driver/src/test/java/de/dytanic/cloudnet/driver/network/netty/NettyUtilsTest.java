@@ -16,29 +16,23 @@
 
 package de.dytanic.cloudnet.driver.network.netty;
 
-import de.dytanic.cloudnet.common.StringUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import java.util.concurrent.ThreadLocalRandom;
+import java.security.SecureRandom;
+import java.util.Random;
 import org.junit.Assert;
 import org.junit.Test;
 
 public class NettyUtilsTest {
 
-  @Test
+  private final Random random = new SecureRandom();
+
+  @Test // todo: repeat this
   public void testNettyUtils() {
+    int number = this.random.nextInt();
     ByteBuf byteBuf = Unpooled.buffer();
 
-    int randomInt = ThreadLocalRandom.current().nextInt();
-    long randomLong = ThreadLocalRandom.current().nextLong();
-    String randomString = StringUtil.generateRandomString(10);
-
-    NettyUtils.writeVarInt(byteBuf, randomInt);
-    NettyUtils.writeVarLong(byteBuf, randomLong);
-    NettyUtils.writeString(byteBuf, randomString);
-
-    Assert.assertEquals(randomInt, NettyUtils.readVarInt(byteBuf));
-    Assert.assertEquals(randomLong, NettyUtils.readVarLong(byteBuf));
-    Assert.assertEquals(randomString, NettyUtils.readString(byteBuf));
+    Assert.assertNotNull(NettyUtils.writeVarInt(byteBuf, number));
+    Assert.assertEquals(number, NettyUtils.readVarInt(byteBuf));
   }
 }

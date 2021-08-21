@@ -26,7 +26,6 @@ import lombok.ToString;
 public class NetworkCluster {
 
   private UUID clusterId;
-
   private Collection<NetworkClusterNode> nodes;
 
   public NetworkCluster(UUID clusterId, Collection<NetworkClusterNode> nodes) {

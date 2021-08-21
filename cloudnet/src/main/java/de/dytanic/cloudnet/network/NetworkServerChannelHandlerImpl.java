@@ -27,17 +27,17 @@ import de.dytanic.cloudnet.driver.event.events.network.NetworkChannelCloseEvent;
 import de.dytanic.cloudnet.driver.event.events.network.NetworkChannelPacketReceiveEvent;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.INetworkChannelHandler;
-import de.dytanic.cloudnet.driver.network.def.internal.InternalSyncPacketChannel;
 import de.dytanic.cloudnet.driver.network.def.packet.PacketClientServerServiceInfoPublisher;
 import de.dytanic.cloudnet.driver.network.protocol.Packet;
 import de.dytanic.cloudnet.service.ICloudService;
+import org.jetbrains.annotations.NotNull;
 
 public final class NetworkServerChannelHandlerImpl implements INetworkChannelHandler {
 
   private static final Logger LOGGER = LogManager.getLogger(NetworkServerChannelHandlerImpl.class);
 
   @Override
-  public void handleChannelInitialize(INetworkChannel channel) {
+  public void handleChannelInitialize(@NotNull INetworkChannel channel) {
     //Whitelist check
     if (!this.inWhitelist(channel)) {
       try {
@@ -59,17 +59,13 @@ public final class NetworkServerChannelHandlerImpl implements INetworkChannelHan
   }
 
   @Override
-  public boolean handlePacketReceive(INetworkChannel channel, Packet packet) {
-    if (InternalSyncPacketChannel.handleIncomingChannel(channel, packet)) {
-      return false;
-    }
-
+  public boolean handlePacketReceive(@NotNull INetworkChannel channel, @NotNull Packet packet) {
     return !CloudNetDriver.getInstance().getEventManager()
       .callEvent(new NetworkChannelPacketReceiveEvent(channel, packet)).isCancelled();
   }
 
   @Override
-  public void handleChannelClose(INetworkChannel channel) {
+  public void handleChannelClose(@NotNull INetworkChannel channel) {
     CloudNetDriver.getInstance().getEventManager()
       .callEvent(new NetworkChannelCloseEvent(channel, ChannelType.SERVER_CHANNEL));
 

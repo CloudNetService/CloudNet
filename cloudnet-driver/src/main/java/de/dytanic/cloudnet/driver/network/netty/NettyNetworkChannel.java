@@ -31,6 +31,7 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 @ApiStatus.Internal
 public final class NettyNetworkChannel extends DefaultNetworkChannel implements INetworkChannel {
@@ -46,13 +47,32 @@ public final class NettyNetworkChannel extends DefaultNetworkChannel implements 
   }
 
   @Override
+  public void sendPacket(@NotNull IPacket... packets) {
+    for (IPacket packet : packets) {
+      this.writePacket(packet, false);
+    }
+    this.channel.flush(); // reduces i/o load
+  }
+
+  @Override
+  public void sendPacketSync(@NotNull IPacket... packets) {
+    for (IPacket packet : packets) {
+      ChannelFuture future = this.writePacket(packet, false);
+      if (future != null) {
+        future.syncUninterruptibly();
+      }
+    }
+    this.channel.flush(); // reduces i/o load
+  }
+
+  @Override
   public void sendPacket(@NotNull IPacket packet) {
     Preconditions.checkNotNull(packet);
 
     if (this.channel.eventLoop().inEventLoop()) {
-      this.writePacket(packet);
+      this.writePacket(packet, true);
     } else {
-      this.channel.eventLoop().execute(() -> this.writePacket(packet));
+      this.channel.eventLoop().execute(() -> this.writePacket(packet, true));
     }
   }
 
@@ -60,7 +80,7 @@ public final class NettyNetworkChannel extends DefaultNetworkChannel implements 
   public void sendPacketSync(@NotNull IPacket packet) {
     Preconditions.checkNotNull(packet);
 
-    ChannelFuture future = this.writePacket(packet);
+    ChannelFuture future = this.writePacket(packet, true);
     if (future != null) {
       future.syncUninterruptibly();
     }
@@ -76,30 +96,14 @@ public final class NettyNetworkChannel extends DefaultNetworkChannel implements 
     return this.channel.isActive();
   }
 
-  private ChannelFuture writePacket(IPacket packet) {
-    NetworkChannelPacketSendEvent event = new NetworkChannelPacketSendEvent(this, packet);
-
-    CloudNetDriver.optionalInstance().ifPresent(cloudNetDriver -> cloudNetDriver.getEventManager().callEvent(event));
-
-    if (!event.isCancelled()) {
-      if (packet.isShowDebug()) {
-        LOGGER.finer(
-          String.format(
-            "Sending packet to %s on channel %d with id %s, header=%s;body=%d",
-            this.getClientAddress().toString(),
-            packet.getChannel(),
-            packet.getUniqueId(),
-            packet.getHeader().toJson(),
-            packet.getBuffer() != null ? packet.getBuffer().readableBytes() : 0
-          )
-        );
-
-      }
-
-      return this.channel.writeAndFlush(packet);
+  private @Nullable ChannelFuture writePacket(IPacket packet, boolean flushAfter) {
+    if (!CloudNetDriver.getInstance().getEventManager().callEvent(
+      new NetworkChannelPacketSendEvent(this, packet)
+    ).isCancelled()) {
+      return flushAfter ? this.channel.writeAndFlush(packet) : this.channel.write(packet);
+    } else {
+      return null;
     }
-
-    return null;
   }
 
   @Override

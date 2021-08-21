@@ -17,6 +17,7 @@
 package de.dytanic.cloudnet.driver.network;
 
 import de.dytanic.cloudnet.driver.network.protocol.Packet;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * A networkChannelHandler provides the operation with the INetworkChannel
@@ -30,7 +31,7 @@ public interface INetworkChannelHandler {
    *
    * @param channel the providing channel on that this handler is sets on this
    */
-  void handleChannelInitialize(INetworkChannel channel) throws Exception;
+  void handleChannelInitialize(@NotNull INetworkChannel channel) throws Exception;
 
   /**
    * Handles a incoming packet from a provided channel, that contains that channel handler
@@ -40,12 +41,12 @@ public interface INetworkChannelHandler {
    * @return should return true that, the packet that was received is allowed to handle from the packet listeners at the
    * packetListenerRegistry
    */
-  boolean handlePacketReceive(INetworkChannel channel, Packet packet) throws Exception;
+  boolean handlePacketReceive(@NotNull INetworkChannel channel, @NotNull Packet packet) throws Exception;
 
   /**
    * Handles the close phase from a NetworkChannel
    *
    * @param channel the providing channel on that this handler is sets on this
    */
-  void handleChannelClose(INetworkChannel channel) throws Exception;
+  void handleChannelClose(@NotNull INetworkChannel channel) throws Exception;
 }

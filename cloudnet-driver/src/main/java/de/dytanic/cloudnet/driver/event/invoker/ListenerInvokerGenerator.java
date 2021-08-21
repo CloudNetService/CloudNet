@@ -18,6 +18,7 @@ package de.dytanic.cloudnet.driver.event.invoker;
 
 import de.dytanic.cloudnet.driver.event.Event;
 import de.dytanic.cloudnet.driver.event.EventListenerException;
+import de.dytanic.cloudnet.driver.util.DefiningClassLoader;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
@@ -48,7 +49,7 @@ public class ListenerInvokerGenerator {
 
   private final ClassPool classPool;
 
-  private final Map<ClassLoader, ListenerInvokerClassLoader> invokerClassLoaders;
+  private final Map<ClassLoader, DefiningClassLoader> invokerClassLoaders;
 
   public ListenerInvokerGenerator() {
     this.classPool = new ClassPool(ClassPool.getDefault());
@@ -76,9 +77,9 @@ public class ListenerInvokerGenerator {
         throw new IllegalStateException(String.format("Event class %s has to be public", eventClass.getName()));
       }
 
-      ListenerInvokerClassLoader invokerClassLoader = this.invokerClassLoaders.computeIfAbsent(
+      DefiningClassLoader invokerClassLoader = this.invokerClassLoaders.computeIfAbsent(
         listenerClass.getClassLoader(),
-        ListenerInvokerClassLoader::new);
+        DefiningClassLoader::new);
 
       // listener classes might be loaded by another class loader (for example module listeners),
       // add them to the class path of the class pool

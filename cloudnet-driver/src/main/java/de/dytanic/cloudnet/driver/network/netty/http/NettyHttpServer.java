@@ -32,6 +32,7 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
+import java.net.SocketAddress;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -40,11 +41,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
-@ApiStatus.Internal
-public final class NettyHttpServer extends NettySSLServer implements IHttpServer {
+public class NettyHttpServer extends NettySSLServer implements IHttpServer {
 
   private static final Logger LOGGER = LogManager.getLogger(NettyHttpServer.class);
 
@@ -75,29 +74,38 @@ public final class NettyHttpServer extends NettySSLServer implements IHttpServer
   }
 
   @Override
-  public boolean addListener(HostAndPort hostAndPort) {
+  public boolean addListener(@NotNull SocketAddress socketAddress) {
+    return this.addListener(HostAndPort.fromSocketAddress(socketAddress));
+  }
+
+  @Override
+  public boolean addListener(@NotNull HostAndPort hostAndPort) {
     Preconditions.checkNotNull(hostAndPort);
     Preconditions.checkNotNull(hostAndPort.getHost());
 
-    if (!this.channelFutures.containsKey(hostAndPort.getPort())) {
-      try {
+    try {
+
+      if (!this.channelFutures.containsKey(hostAndPort.getPort())) {
         return this.channelFutures.putIfAbsent(hostAndPort.getPort(), new Pair<>(hostAndPort, new ServerBootstrap()
           .group(this.bossGroup, this.workerGroup)
-          .childOption(ChannelOption.TCP_NODELAY, true)
-          .childOption(ChannelOption.IP_TOS, 24)
-          .childOption(ChannelOption.AUTO_READ, true)
-          .childOption(ChannelOption.ALLOCATOR, ByteBufAllocator.DEFAULT)
           .channelFactory(NettyUtils.getServerChannelFactory())
           .childHandler(new NettyHttpServerInitializer(this, hostAndPort))
+
+          .childOption(ChannelOption.IP_TOS, 24)
+          .childOption(ChannelOption.AUTO_READ, true)
+          .childOption(ChannelOption.TCP_NODELAY, true)
+          .childOption(ChannelOption.ALLOCATOR, ByteBufAllocator.DEFAULT)
+
           .bind(hostAndPort.getHost(), hostAndPort.getPort())
-          .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE)
           .addListener(ChannelFutureListener.CLOSE_ON_FAILURE)
+          .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE)
+
           .sync()
           .channel()
           .closeFuture())) == null;
-      } catch (InterruptedException exception) {
-        LOGGER.severe("Exception while listening to the channel", exception);
       }
+    } catch (InterruptedException exception) {
+      LOGGER.severe("Exception while binding http server to %s", exception, hostAndPort);
     }
 
     return false;

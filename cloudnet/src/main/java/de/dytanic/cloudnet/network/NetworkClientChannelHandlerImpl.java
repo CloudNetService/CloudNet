@@ -28,18 +28,18 @@ import de.dytanic.cloudnet.driver.event.events.network.NetworkChannelCloseEvent;
 import de.dytanic.cloudnet.driver.event.events.network.NetworkChannelPacketReceiveEvent;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.INetworkChannelHandler;
-import de.dytanic.cloudnet.driver.network.def.internal.InternalSyncPacketChannel;
 import de.dytanic.cloudnet.driver.network.def.packet.PacketClientAuthorization;
 import de.dytanic.cloudnet.driver.network.protocol.Packet;
 import java.util.concurrent.atomic.AtomicLong;
+import org.jetbrains.annotations.NotNull;
 
 public final class NetworkClientChannelHandlerImpl implements INetworkChannelHandler {
 
+  private static final AtomicLong CONNECTION_COUNTER = new AtomicLong();
   private static final Logger LOGGER = LogManager.getLogger(NetworkClientChannelHandlerImpl.class);
-  private static final AtomicLong connectionWhichSendRequest = new AtomicLong();
 
   @Override
-  public void handleChannelInitialize(INetworkChannel channel) {
+  public void handleChannelInitialize(@NotNull INetworkChannel channel) {
     if (!NetworkChannelHandlerUtils.handleInitChannel(channel, ChannelType.CLIENT_CHANNEL)) {
       return;
     }
@@ -48,7 +48,7 @@ public final class NetworkClientChannelHandlerImpl implements INetworkChannelHan
       PacketClientAuthorization.PacketAuthorizationType.NODE_TO_NODE,
       new JsonDocument("clusterNode", CloudNet.getInstance().getConfig().getIdentity())
         .append("clusterId", CloudNet.getInstance().getConfig().getClusterConfig().getClusterId())
-        .append("secondNodeConnection", connectionWhichSendRequest.incrementAndGet() > 1)
+        .append("secondNodeConnection", CONNECTION_COUNTER.incrementAndGet() > 1)
     ));
 
     LOGGER.fine(LanguageManager.getMessage("client-network-channel-init")
@@ -58,20 +58,16 @@ public final class NetworkClientChannelHandlerImpl implements INetworkChannelHan
   }
 
   @Override
-  public boolean handlePacketReceive(INetworkChannel channel, Packet packet) {
-    if (InternalSyncPacketChannel.handleIncomingChannel(channel, packet)) {
-      return false;
-    }
-
+  public boolean handlePacketReceive(@NotNull INetworkChannel channel, @NotNull Packet packet) {
     return !CloudNetDriver.getInstance().getEventManager()
       .callEvent(new NetworkChannelPacketReceiveEvent(channel, packet)).isCancelled();
   }
 
   @Override
-  public void handleChannelClose(INetworkChannel channel) {
+  public void handleChannelClose(@NotNull INetworkChannel channel) {
     CloudNetDriver.getInstance().getEventManager()
       .callEvent(new NetworkChannelCloseEvent(channel, ChannelType.CLIENT_CHANNEL));
-    connectionWhichSendRequest.decrementAndGet();
+    CONNECTION_COUNTER.decrementAndGet();
 
     LOGGER.fine(LanguageManager.getMessage("client-network-channel-close")
       .replace("%serverAddress%", channel.getServerAddress().getHost() + ":" + channel.getServerAddress().getPort())

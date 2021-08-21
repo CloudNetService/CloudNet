@@ -17,16 +17,15 @@
 package de.dytanic.cloudnet.network.packet;
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
-import de.dytanic.cloudnet.driver.network.def.PacketConstants;
 import de.dytanic.cloudnet.driver.network.protocol.Packet;
 
 public final class PacketServerLocalDatabase extends Packet {
 
   public PacketServerLocalDatabase(OperationType operationType, String name, String key, JsonDocument document) {
-    super(PacketConstants.INTERNAL_LOCAL_DATABASE_SYNC_CHANNEL, JsonDocument.newDocument("operationType", operationType)
-      .append("name", name)
-      .append("key", key)
-      .append("document", document));
+    //TODO:  super(PacketConstants.INTERNAL_LOCAL_DATABASE_SYNC_CHANNEL, JsonDocument.newDocument("operationType", operationType)
+    //TODO:   .append("name", name)
+    //TODO:   .append("key", key)
+    //TODO:   .append("document", document));
   }
 
   public enum OperationType {

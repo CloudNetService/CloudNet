@@ -23,45 +23,34 @@ import de.dytanic.cloudnet.driver.network.netty.codec.NettyPacketLengthDeseriali
 import de.dytanic.cloudnet.driver.network.netty.codec.NettyPacketLengthSerializer;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
-import org.jetbrains.annotations.ApiStatus;
+import io.netty.handler.ssl.SslHandler;
 import org.jetbrains.annotations.NotNull;
 
-@ApiStatus.Internal
-final class NettyNetworkClientInitializer extends ChannelInitializer<Channel> {
+public class NettyNetworkClientInitializer extends ChannelInitializer<Channel> {
 
-  private final NettyNetworkClient nettyNetworkClient;
-  private final HostAndPort hostAndPort;
+  protected final HostAndPort hostAndPort;
+  protected final NettyNetworkClient nettyNetworkClient;
 
-  private final Runnable handler;
-
-  public NettyNetworkClientInitializer(NettyNetworkClient nettyNetworkClient, HostAndPort hostAndPort) {
-    this(nettyNetworkClient, hostAndPort, null);
-  }
-
-  public NettyNetworkClientInitializer(NettyNetworkClient nettyNetworkClient, HostAndPort hostAndPort,
-    Runnable handler) {
-    this.nettyNetworkClient = nettyNetworkClient;
-    this.hostAndPort = hostAndPort;
-    this.handler = handler;
+  public NettyNetworkClientInitializer(HostAndPort targetHost, NettyNetworkClient networkClient) {
+    this.hostAndPort = targetHost;
+    this.nettyNetworkClient = networkClient;
   }
 
   @Override
-  protected void initChannel(@NotNull Channel ch) {
+  protected void initChannel(@NotNull Channel channel) {
     if (this.nettyNetworkClient.sslContext != null) {
-      ch.pipeline()
-        .addLast(this.nettyNetworkClient.sslContext
-          .newHandler(ch.alloc(), this.hostAndPort.getHost(), this.hostAndPort.getPort()));
+      SslHandler handler = this.nettyNetworkClient.sslContext.newHandler(
+        channel.alloc(),
+        this.hostAndPort.getHost(),
+        this.hostAndPort.getPort());
+      channel.pipeline().addLast("ssl-handler", handler);
     }
 
-    ch.pipeline()
+    channel.pipeline()
       .addLast("packet-length-deserializer", new NettyPacketLengthDeserializer())
       .addLast("packet-decoder", new NettyPacketDecoder())
       .addLast("packet-length-serializer", new NettyPacketLengthSerializer())
       .addLast("packet-encoder", new NettyPacketEncoder())
       .addLast("network-client-handler", new NettyNetworkClientHandler(this.nettyNetworkClient, this.hostAndPort));
-
-    if (this.handler != null) {
-      this.handler.run();
-    }
   }
 }

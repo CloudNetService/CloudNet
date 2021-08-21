@@ -21,7 +21,7 @@ import de.dytanic.cloudnet.common.concurrent.function.ThrowableFunction;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.def.packet.PacketClientDriverAPI;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
-import de.dytanic.cloudnet.driver.network.protocol.chunk.ChunkedQueryResponse;
+import de.dytanic.cloudnet.driver.network.chunk.ChunkedQueryResponse;
 import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import java.util.function.Consumer;
 

@@ -19,38 +19,29 @@ package de.dytanic.cloudnet.driver.network.protocol;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * All implementations of this interface, can send a packet into the network Its not specific that the sender is a
- * client or a server.
+ * Represents a sender of packets who can receive packets too.
  */
 public interface IPacketSender {
 
   /**
-   * Transport a packet instance into the network to the receiver. The receiver will handle the packet if he knows the
-   * channel and has listeners for the channel
-   * <p>
-   * The packet are doesn't allow to be null
+   * Sends a packet to this sender.
    *
-   * @param packet the packet, which should transport into the network
+   * @param packet the packet to send.
    */
   void sendPacket(@NotNull IPacket packet);
 
   /**
-   * Transport packet instances into the network to the receiver synchronously. The receiver will handle the packets if
-   * he knows the channel and has listeners for the channel
-   * <p>
-   * A packet are doesn't allow to be null All elements should be checked that be not null and send after that
+   * Sends a packet to this sender and blocks until the packet was flushed into the channel.
    *
-   * @param packet the packets, which should transport into the network
+   * @param packet the packet to send.
    */
   void sendPacketSync(@NotNull IPacket packet);
 
   /**
-   * Transport packet instances into the network to the receiver. The receiver will handle the packets if he knows the
-   * channel and has listeners for the channel
-   * <p>
-   * A packet are doesn't allow to be null All elements should be checked that be not null and send after that
+   * Sends all given packets to this sender.
    *
-   * @param packets the packets, which should transport into the network
+   * @param packets the packets to send.
+   * @see #sendPacket(IPacket)
    */
   default void sendPacket(@NotNull IPacket... packets) {
     for (IPacket packet : packets) {
@@ -59,17 +50,14 @@ public interface IPacketSender {
   }
 
   /**
-   * Transport packet instances into the network to the receiver synchronously. The receiver will handle the packets if
-   * he knows the channel and has listeners for the channel
-   * <p>
-   * A packet are doesn't allow to be null All elements should be checked that be not null and send after that
+   * Sends all given packets to this sender and waits until the packets were flushed into the channel.
    *
-   * @param packets the packets, which should transport into the network
+   * @param packets the packets to send.
+   * @see #sendPacketSync(IPacket)
    */
   default void sendPacketSync(@NotNull IPacket... packets) {
     for (IPacket packet : packets) {
       this.sendPacketSync(packet);
     }
   }
-
 }
