@@ -17,64 +17,69 @@
 package de.dytanic.cloudnet.wrapper.provider;
 
 import com.google.common.base.Preconditions;
+import de.dytanic.cloudnet.common.concurrent.CompletableTask;
+import de.dytanic.cloudnet.common.concurrent.CompletedTask;
 import de.dytanic.cloudnet.common.concurrent.ITask;
-import de.dytanic.cloudnet.driver.api.DriverAPIRequestType;
 import de.dytanic.cloudnet.driver.api.DriverAPIUser;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
+import de.dytanic.cloudnet.driver.network.rpc.RPCSender;
 import de.dytanic.cloudnet.driver.provider.GroupConfigurationProvider;
 import de.dytanic.cloudnet.driver.service.GroupConfiguration;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import java.util.Collection;
-import java.util.concurrent.TimeUnit;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class WrapperGroupConfigurationProvider implements GroupConfigurationProvider, DriverAPIUser {
 
   private final Wrapper wrapper;
+  private final RPCSender rpcSender;
 
   public WrapperGroupConfigurationProvider(Wrapper wrapper) {
     this.wrapper = wrapper;
+    this.rpcSender = wrapper.getRPCProviderFactory()
+      .providerForClass(wrapper.getNetworkClient(), GroupConfigurationProvider.class);
   }
 
   @Override
   public void reload() {
-    this.reloadAsync().get(5, TimeUnit.SECONDS, null);
+    this.rpcSender.invokeMethod("reload").fireAndForget();
   }
 
   @Override
   public Collection<GroupConfiguration> getGroupConfigurations() {
-    return this.getGroupConfigurationsAsync().get(5, TimeUnit.SECONDS, null);
+    return this.rpcSender.invokeMethod("getGroupConfigurations").fireSync();
   }
 
   @Override
   public void setGroupConfigurations(@NotNull Collection<GroupConfiguration> groupConfigurations) {
-    this.setGroupConfigurationsAsync(groupConfigurations).get(5, TimeUnit.SECONDS, null);
+    Preconditions.checkNotNull(groupConfigurations);
+    this.rpcSender.invokeMethod("setGroupConfigurations").fireAndForget();
   }
 
   @Nullable
   @Override
   public GroupConfiguration getGroupConfiguration(@NotNull String name) {
     Preconditions.checkNotNull(name);
-    return this.getGroupConfigurationAsync(name).get(5, TimeUnit.SECONDS, null);
+    return this.rpcSender.invokeMethod("getGroupConfiguration").fireSync();
   }
 
   @Override
   public boolean isGroupConfigurationPresent(@NotNull String name) {
     Preconditions.checkNotNull(name);
-    return this.isGroupConfigurationPresentAsync(name).get(5, TimeUnit.SECONDS, false);
+    return this.rpcSender.invokeMethod("isGroupConfigurationPresent", name).fireSync();
   }
 
   @Override
   public void addGroupConfiguration(@NotNull GroupConfiguration groupConfiguration) {
     Preconditions.checkNotNull(groupConfiguration);
-    this.addGroupConfigurationAsync(groupConfiguration).get(5, TimeUnit.SECONDS, null);
+    this.rpcSender.invokeMethod("addGroupConfiguration", groupConfiguration).fireAndForget();
   }
 
   @Override
   public void removeGroupConfiguration(@NotNull String name) {
     Preconditions.checkNotNull(name);
-    this.removeGroupConfigurationAsync(name).get(5, TimeUnit.SECONDS, null);
+    this.rpcSender.invokeMethod("removeGroupConfiguration", name).fireAndForget();
   }
 
   @Override
@@ -85,78 +90,54 @@ public class WrapperGroupConfigurationProvider implements GroupConfigurationProv
 
   @Override
   public @NotNull ITask<Void> reloadAsync() {
-    return this.executeVoidDriverAPIMethod(DriverAPIRequestType.RELOAD_GROUPS, null);
+    this.reload();
+    return CompletedTask.voidTask();
   }
+
 
   @Override
   @NotNull
   public ITask<Collection<GroupConfiguration>> getGroupConfigurationsAsync() {
-    return this.executeDriverAPIMethod(
-      DriverAPIRequestType.GET_GROUP_CONFIGURATIONS,
-      packet -> packet.getBuffer().readObjectCollection(GroupConfiguration.class)
-    );
+    return CompletableTask.supplyAsync(this::getGroupConfigurations);
   }
 
   @Override
   public @NotNull ITask<Void> setGroupConfigurationsAsync(@NotNull Collection<GroupConfiguration> groupConfigurations) {
-    return this.executeVoidDriverAPIMethod(
-      DriverAPIRequestType.SET_GROUP_CONFIGURATIONS,
-      buffer -> buffer.writeObjectCollection(groupConfigurations)
-    );
+    this.setGroupConfigurations(groupConfigurations);
+    return CompletedTask.voidTask();
   }
 
   @Override
   @NotNull
   public ITask<GroupConfiguration> getGroupConfigurationAsync(@NotNull String name) {
-    Preconditions.checkNotNull(name);
-
-    return this.executeDriverAPIMethod(
-      DriverAPIRequestType.GET_GROUP_CONFIGURATION_BY_NAME,
-      buffer -> buffer.writeString(name),
-      packet -> packet.getBuffer().readOptionalObject(GroupConfiguration.class)
-    );
+    return CompletableTask.supplyAsync(() -> this.getGroupConfiguration(name));
   }
 
   @Override
   @NotNull
   public ITask<Boolean> isGroupConfigurationPresentAsync(@NotNull String name) {
-    Preconditions.checkNotNull(name);
-
-    return this.executeDriverAPIMethod(
-      DriverAPIRequestType.IS_GROUP_CONFIGURATION_PRESENT,
-      buffer -> buffer.writeString(name),
-      packet -> packet.getBuffer().readBoolean()
-    );
+    return CompletableTask.supplyAsync(() -> this.isGroupConfigurationPresent(name));
   }
 
   @Override
   @NotNull
   public ITask<Void> addGroupConfigurationAsync(@NotNull GroupConfiguration groupConfiguration) {
-    Preconditions.checkNotNull(groupConfiguration);
-
-    return this.executeVoidDriverAPIMethod(
-      DriverAPIRequestType.ADD_GROUP_CONFIGURATION,
-      buffer -> buffer.writeObject(groupConfiguration)
-    );
+    this.addGroupConfiguration(groupConfiguration);
+    return CompletedTask.voidTask();
   }
 
   @Override
   @NotNull
   public ITask<Void> removeGroupConfigurationAsync(@NotNull String name) {
-    Preconditions.checkNotNull(name);
-
-    return this.executeVoidDriverAPIMethod(
-      DriverAPIRequestType.REMOVE_GROUP_CONFIGURATION,
-      buffer -> buffer.writeString(name)
-    );
+    this.removeGroupConfiguration(name);
+    return CompletedTask.voidTask();
   }
 
   @Override
   @NotNull
   public ITask<Void> removeGroupConfigurationAsync(@NotNull GroupConfiguration groupConfiguration) {
-    Preconditions.checkNotNull(groupConfiguration);
-
-    return this.removeGroupConfigurationAsync(groupConfiguration.getName());
+    this.removeGroupConfiguration(groupConfiguration);
+    return CompletedTask.voidTask();
   }
 
   @Override

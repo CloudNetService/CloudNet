@@ -18,13 +18,13 @@ package de.dytanic.cloudnet.wrapper;
 
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.collection.Pair;
+import de.dytanic.cloudnet.common.concurrent.CompletableTask;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.DriverEnvironment;
-import de.dytanic.cloudnet.driver.api.DriverAPIRequestType;
 import de.dytanic.cloudnet.driver.api.DriverAPIUser;
 import de.dytanic.cloudnet.driver.module.DefaultModuleProviderHandler;
 import de.dytanic.cloudnet.driver.module.IModuleWrapper;
@@ -33,7 +33,7 @@ import de.dytanic.cloudnet.driver.network.INetworkClient;
 import de.dytanic.cloudnet.driver.network.def.PacketConstants;
 import de.dytanic.cloudnet.driver.network.def.packet.PacketServerSetGlobalLogLevel;
 import de.dytanic.cloudnet.driver.network.netty.client.NettyNetworkClient;
-import de.dytanic.cloudnet.driver.network.ssl.SSLConfiguration;
+import de.dytanic.cloudnet.driver.network.rpc.RPCSender;
 import de.dytanic.cloudnet.driver.provider.service.RemoteCloudServiceFactory;
 import de.dytanic.cloudnet.driver.provider.service.RemoteSpecificCloudServiceProvider;
 import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
@@ -73,14 +73,11 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
-import java.util.stream.Collectors;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
@@ -118,6 +115,7 @@ public final class Wrapper extends CloudNetDriver implements DriverAPIUser {
    * @see CloudNetDriver
    */
   private final INetworkClient networkClient;
+  private final RPCSender rpcSender;
   /**
    * The single task thread of the scheduler of the wrapper application
    */
@@ -133,31 +131,17 @@ public final class Wrapper extends CloudNetDriver implements DriverAPIUser {
   Wrapper(List<String> commandLineArguments) {
     setInstance(this);
 
+    this.networkClient = new NettyNetworkClient(NetworkClientChannelHandler::new, this.config.getSSLConfig());
+    this.rpcSender = this.rpcProviderFactory.providerForClass(this.getNetworkClient(), CloudNetDriver.class);
+
     super.cloudServiceFactory = new RemoteCloudServiceFactory(this::getNetworkChannel);
     super.generalCloudServiceProvider = new WrapperGeneralCloudServiceProvider(this);
     super.serviceTaskProvider = new WrapperServiceTaskProvider(this);
     super.groupConfigurationProvider = new WrapperGroupConfigurationProvider(this);
     super.nodeInfoProvider = new WrapperNodeInfoProvider(this);
-    super.messenger = new WrapperMessenger(this);
+    super.messenger = new WrapperMessenger(this.rpcProviderFactory, this.networkClient);
 
     this.commandLineArguments = commandLineArguments;
-
-    if (this.config.getSslConfig().getBoolean("enabled")) {
-      this.networkClient = new NettyNetworkClient(NetworkClientChannelHandler::new, new SSLConfiguration(
-        this.config.getSslConfig().getBoolean("clientAuth"),
-        this.config.getSslConfig().contains("trustCertificatePath")
-          ? Paths.get(".wrapper", "trustCertificate")
-          : null,
-        this.config.getSslConfig().contains("certificatePath")
-          ? Paths.get(".wrapper", "certificate")
-          : null,
-        this.config.getSslConfig().contains("privateKeyPath")
-          ? Paths.get(".wrapper", "privateKey")
-          : null
-      ));
-    } else {
-      this.networkClient = new NettyNetworkClient(NetworkClientChannelHandler::new);
-    }
 
     super.setPermissionManagement(new WrapperPermissionManagement(this));
 
@@ -183,7 +167,7 @@ public final class Wrapper extends CloudNetDriver implements DriverAPIUser {
     this.driverEnvironment = DriverEnvironment.WRAPPER;
   }
 
-  public static Wrapper getInstance() {
+  public static @NotNull Wrapper getInstance() {
     return (Wrapper) CloudNetDriver.getInstance();
   }
 
@@ -270,7 +254,7 @@ public final class Wrapper extends CloudNetDriver implements DriverAPIUser {
    */
   @Override
   public @NotNull Collection<TemplateStorage> getAvailableTemplateStorages() {
-    return this.getAvailableTemplateStoragesAsync().get(5, TimeUnit.SECONDS, Collections.emptyList());
+    return this.rpcSender.invokeMethod("getAvailableTemplateStorages").fireSync();
   }
 
   /**
@@ -278,10 +262,7 @@ public final class Wrapper extends CloudNetDriver implements DriverAPIUser {
    */
   @Override
   public @NotNull ITask<Collection<TemplateStorage>> getAvailableTemplateStoragesAsync() {
-    return this.executeDriverAPIMethod(
-      DriverAPIRequestType.GET_TEMPLATE_STORAGES,
-      packet -> packet.getBuffer().readStringCollection()
-    ).map(names -> names.stream().map(this::getTemplateStorage).collect(Collectors.toList()));
+    return CompletableTask.supplyAsync(this::getAvailableTemplateStorages);
   }
 
   /**
@@ -327,7 +308,7 @@ public final class Wrapper extends CloudNetDriver implements DriverAPIUser {
     Preconditions.checkNotNull(uniqueId);
     Preconditions.checkNotNull(commandLine);
 
-    return this.sendCommandLineAsPermissionUserAsync(uniqueId, commandLine).get(5, TimeUnit.SECONDS, null);
+    return this.rpcSender.invokeMethod("sendCommandLineAsPermissionUser", uniqueId, commandLine).fireSync();
   }
 
   /**
@@ -339,14 +320,7 @@ public final class Wrapper extends CloudNetDriver implements DriverAPIUser {
   @NotNull
   public ITask<Pair<Boolean, String[]>> sendCommandLineAsPermissionUserAsync(@NotNull UUID uniqueId,
     @NotNull String commandLine) {
-    Preconditions.checkNotNull(uniqueId);
-    Preconditions.checkNotNull(commandLine);
-
-    return this.executeDriverAPIMethod(
-      DriverAPIRequestType.SEND_COMMAND_LINE_AS_PERMISSION_USER,
-      buffer -> buffer.writeUUID(uniqueId).writeString(commandLine),
-      packet -> new Pair<>(packet.getBuffer().readBoolean(), packet.getBuffer().readStringArray())
-    );
+    return CompletableTask.supplyAsync(() -> this.sendCommandLineAsPermissionUser(uniqueId, commandLine));
   }
 
 
@@ -380,7 +354,7 @@ public final class Wrapper extends CloudNetDriver implements DriverAPIUser {
       System.currentTimeMillis(),
       this.currentServiceInfoSnapshot.getAddress(),
       this.currentServiceInfoSnapshot.getConnectAddress(),
-      this.networkClient.getConnectedTime(),
+      this.currentServiceInfoSnapshot.getConnectedTime(),
       ServiceLifeCycle.RUNNING,
       ProcessSnapshot.self(),
       this.currentServiceInfoSnapshot.getProperties(),
@@ -440,7 +414,9 @@ public final class Wrapper extends CloudNetDriver implements DriverAPIUser {
     FileUtils.createDirectoryReported(moduleDirectory);
     FileUtils.walkFileTree(moduleDirectory, (root, current) -> {
       IModuleWrapper wrapper = this.moduleProvider.loadModule(current);
-      wrapper.startModule();
+      if (wrapper != null) {
+        wrapper.startModule();
+      }
     }, false, "*.{jar,war,zip}");
   }
 
@@ -548,7 +524,6 @@ public final class Wrapper extends CloudNetDriver implements DriverAPIUser {
     this.databaseProvider = databaseProvider;
   }
 
-  @Override
   public INetworkChannel getNetworkChannel() {
     return this.networkClient.getFirstChannel();
   }

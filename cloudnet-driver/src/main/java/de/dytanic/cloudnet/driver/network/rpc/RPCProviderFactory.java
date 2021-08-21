@@ -32,7 +32,6 @@ public interface RPCProviderFactory {
   @NotNull RPCSender providerForClass(@NotNull INetworkComponent component, @NotNull Class<?> clazz,
     @NotNull ObjectMapper objectMapper, @NotNull DataBufFactory dataBufFactory);
 
-
   @NotNull RPCHandler newHandler(@NotNull Class<?> clazz, @NotNull Object binding);
 
   @NotNull RPCHandler newHandler(@NotNull Class<?> clazz, @NotNull Object binding,

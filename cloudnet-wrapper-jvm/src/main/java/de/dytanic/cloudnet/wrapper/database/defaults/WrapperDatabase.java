@@ -144,82 +144,55 @@ public class WrapperDatabase implements IDatabase {
   @Override
   @NotNull
   public ITask<Boolean> insertAsync(String key, JsonDocument document) {
-    return this.databaseProvider.executeQuery(
-      RemoteDatabaseRequestType.DATABASE_INSERT,
-      buffer -> this.writeDefaults(buffer).writeString(key).writeJsonDocument(document)
-    ).map(packet -> packet.getBuffer().readBoolean());
+    return CompletableTask.supplyAsync(() ->);
   }
 
   @Override
   @NotNull
   public ITask<Boolean> containsAsync(String key) {
-    return this.databaseProvider.executeQuery(
-      RemoteDatabaseRequestType.DATABASE_CONTAINS,
-      buffer -> this.writeDefaults(buffer).writeString(key)
-    ).map(packet -> packet.getBuffer().readBoolean());
+    return CompletableTask.supplyAsync(() ->);
   }
 
   @Override
   @NotNull
   public ITask<Boolean> updateAsync(String key, JsonDocument document) {
-    return this.databaseProvider.executeQuery(
-      RemoteDatabaseRequestType.DATABASE_UPDATE,
-      buffer -> this.writeDefaults(buffer).writeString(key).writeJsonDocument(document)
-    ).map(packet -> packet.getBuffer().readBoolean());
+    return CompletableTask.supplyAsync(() ->);
   }
 
   @Override
   @NotNull
   public ITask<Boolean> deleteAsync(String key) {
-    return this.databaseProvider.executeQuery(
-      RemoteDatabaseRequestType.DATABASE_DELETE,
-      buffer -> this.writeDefaults(buffer).writeString(key)
-    ).map(packet -> packet.getBuffer().readBoolean());
+    return CompletableTask.supplyAsync(() ->);
   }
 
   @Override
   @NotNull
   public ITask<JsonDocument> getAsync(String key) {
-    return this.databaseProvider.executeQuery(
-      RemoteDatabaseRequestType.DATABASE_GET_BY_KEY,
-      buffer -> this.writeDefaults(buffer).writeString(key)
-    ).map(packet -> packet.getBuffer().readOptionalJsonDocument());
+    return CompletableTask.supplyAsync(() ->);
   }
 
   @Override
   @NotNull
   public ITask<List<JsonDocument>> getAsync(String fieldName, Object fieldValue) {
-    return this.databaseProvider.executeQuery(
-      RemoteDatabaseRequestType.DATABASE_GET_BY_FIELD,
-      buffer -> this.writeDefaults(buffer).writeString(fieldName).writeString(String.valueOf(fieldValue))
-    ).map(packet -> this.asJsonDocumentList(packet.getBuffer()));
+    return CompletableTask.supplyAsync(() ->);
   }
 
   @Override
   @NotNull
   public ITask<List<JsonDocument>> getAsync(JsonDocument filters) {
-    return this.databaseProvider.executeQuery(
-      RemoteDatabaseRequestType.DATABASE_GET_BY_FILTERS,
-      buffer -> this.writeDefaults(buffer).writeJsonDocument(filters)
-    ).map(packet -> this.asJsonDocumentList(packet.getBuffer()));
+    return CompletableTask.supplyAsync(() ->);
   }
 
   @Override
   @NotNull
   public ITask<Collection<String>> keysAsync() {
-    return this.databaseProvider.executeQuery(
-      RemoteDatabaseRequestType.DATABASE_KEYS,
-      this::writeDefaults
-    ).map(packet -> packet.getBuffer().readStringCollection());
+    return CompletableTask.supplyAsync(() ->);
   }
 
   @Override
   @NotNull
   public ITask<Collection<JsonDocument>> documentsAsync() {
-    return this.databaseProvider.executeQuery(
-      RemoteDatabaseRequestType.DATABASE_DOCUMENTS,
-      this::writeDefaults
-    ).map(packet -> this.asJsonDocumentList(packet.getBuffer()));
+    return CompletableTask.supplyAsync(() ->);
   }
 
   private List<JsonDocument> asJsonDocumentList(ProtocolBuffer buffer) {
@@ -234,10 +207,7 @@ public class WrapperDatabase implements IDatabase {
   @Override
   @NotNull
   public ITask<Map<String, JsonDocument>> entriesAsync() {
-    return this.databaseProvider.executeQuery(
-      RemoteDatabaseRequestType.DATABASE_ENTRIES,
-      this::writeDefaults
-    ).map(this.dataMapReader());
+    return CompletableTask.supplyAsync(() ->);
   }
 
   @Override
@@ -315,19 +285,13 @@ public class WrapperDatabase implements IDatabase {
   @Override
   @NotNull
   public ITask<Void> clearAsync() {
-    return this.databaseProvider.executeQuery(
-      RemoteDatabaseRequestType.DATABASE_CLEAR,
-      this::writeDefaults
-    ).map(packet -> null);
+    return CompletableTask.supplyAsync(() ->);
   }
 
   @Override
   @NotNull
   public ITask<Long> getDocumentsCountAsync() {
-    return this.databaseProvider.executeQuery(
-      RemoteDatabaseRequestType.DATABASE_CLEAR,
-      this::writeDefaults
-    ).map(packet -> packet.getBuffer().readLong());
+    return CompletableTask.supplyAsync(() ->);
   }
 
   @Override

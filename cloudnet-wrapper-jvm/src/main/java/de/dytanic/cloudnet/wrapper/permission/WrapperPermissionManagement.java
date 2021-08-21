@@ -23,6 +23,7 @@ import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.api.DriverAPIRequestType;
 import de.dytanic.cloudnet.driver.api.DriverAPIUser;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
+import de.dytanic.cloudnet.driver.network.rpc.RPCSender;
 import de.dytanic.cloudnet.driver.permission.DefaultCachedPermissionManagement;
 import de.dytanic.cloudnet.driver.permission.DefaultSynchronizedPermissionManagement;
 import de.dytanic.cloudnet.driver.permission.IPermissible;
@@ -39,7 +40,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -47,9 +47,12 @@ public class WrapperPermissionManagement extends DefaultCachedPermissionManageme
   DefaultSynchronizedPermissionManagement, DriverAPIUser {
 
   private final Wrapper wrapper;
+  private final RPCSender rpcSender;
 
   public WrapperPermissionManagement(Wrapper wrapper) {
     this.wrapper = wrapper;
+    this.rpcSender = wrapper.getRPCProviderFactory()
+      .providerForClass(wrapper.getNetworkClient(), DefaultSynchronizedPermissionManagement.class);
   }
 
   @Override
@@ -66,10 +69,7 @@ public class WrapperPermissionManagement extends DefaultCachedPermissionManageme
 
   @Override
   public boolean reload() {
-    boolean success = this.executeDriverAPIMethod(
-      DriverAPIRequestType.PERMISSION_MANAGEMENT_RELOAD,
-      packet -> packet.getBuffer().readBoolean()
-    ).get(5, TimeUnit.SECONDS, false);
+    boolean success = this.rpcSender.invokeMethod("reload").fireSync();
 
     if (success) {
       Collection<IPermissionGroup> permissionGroups = this.loadGroupsAsync().getDef(null);
@@ -369,10 +369,7 @@ public class WrapperPermissionManagement extends DefaultCachedPermissionManageme
   @Override
   @NotNull
   public ITask<Void> setGroupsAsync(Collection<? extends IPermissionGroup> groups) {
-    return this.executeVoidDriverAPIMethod(
-      DriverAPIRequestType.PERMISSION_MANAGEMENT_SET_GROUPS,
-      buffer -> buffer.writeObjectCollection(groups)
-    );
+    return CompletedTask.voidTask();
   }
 
   @Override

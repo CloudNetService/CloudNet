@@ -17,60 +17,67 @@
 package de.dytanic.cloudnet.wrapper.provider;
 
 import com.google.common.base.Preconditions;
+import de.dytanic.cloudnet.common.concurrent.CompletableTask;
+import de.dytanic.cloudnet.common.concurrent.CompletedTask;
 import de.dytanic.cloudnet.common.concurrent.ITask;
-import de.dytanic.cloudnet.driver.api.DriverAPIRequestType;
 import de.dytanic.cloudnet.driver.api.DriverAPIUser;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
+import de.dytanic.cloudnet.driver.network.rpc.RPCSender;
 import de.dytanic.cloudnet.driver.provider.ServiceTaskProvider;
 import de.dytanic.cloudnet.driver.service.ServiceTask;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import java.util.Collection;
-import java.util.concurrent.TimeUnit;
 import org.jetbrains.annotations.NotNull;
 
 public class WrapperServiceTaskProvider implements ServiceTaskProvider, DriverAPIUser {
 
   private final Wrapper wrapper;
+  private final RPCSender rpcSender;
 
   public WrapperServiceTaskProvider(Wrapper wrapper) {
     this.wrapper = wrapper;
+    this.rpcSender = wrapper.getRPCProviderFactory()
+      .providerForClass(wrapper.getNetworkClient(), ServiceTaskProvider.class);
   }
 
   @Override
   public void reload() {
-    this.reloadAsync().get(5, TimeUnit.SECONDS, null);
+    this.rpcSender.invokeMethod("reload").fireAndForget();
   }
 
   @Override
   public Collection<ServiceTask> getPermanentServiceTasks() {
-    return this.getPermanentServiceTasksAsync().get(5, TimeUnit.SECONDS, null);
+    return this.rpcSender.invokeMethod("getPermanentServiceTasks").fireSync();
   }
 
   @Override
   public void setPermanentServiceTasks(@NotNull Collection<ServiceTask> serviceTasks) {
-    this.setPermanentServiceTasksAsync(serviceTasks).get(5, TimeUnit.SECONDS, null);
+    Preconditions.checkNotNull(serviceTasks);
+    this.rpcSender.invokeMethod("setPermanentServiceTasks", serviceTasks).fireAndForget();
   }
 
   @Override
   public ServiceTask getServiceTask(@NotNull String name) {
     Preconditions.checkNotNull(name);
-    return this.getServiceTaskAsync(name).get(5, TimeUnit.SECONDS, null);
+    return this.rpcSender.invokeMethod("getServiceTask", name).fireSync();
   }
 
   @Override
   public boolean isServiceTaskPresent(@NotNull String name) {
     Preconditions.checkNotNull(name);
-    return this.isServiceTaskPresentAsync(name).get(5, TimeUnit.SECONDS, false);
+    return this.rpcSender.invokeMethod("isServiceTaskPresent", name).fireSync();
   }
 
   @Override
   public boolean addPermanentServiceTask(@NotNull ServiceTask serviceTask) {
-    return this.addPermanentServiceTaskAsync(serviceTask).get(5, TimeUnit.SECONDS, false);
+    Preconditions.checkNotNull(serviceTask);
+    return this.rpcSender.invokeMethod("addPermanentServiceTask", serviceTask).fireSync();
   }
 
   @Override
   public void removePermanentServiceTask(@NotNull String name) {
-    this.removePermanentServiceTaskAsync(name).get(5, TimeUnit.SECONDS, null);
+    Preconditions.checkNotNull(name);
+    this.rpcSender.invokeMethod("removePermanentServiceTask", name).fireAndForget();
   }
 
   @Override
@@ -81,78 +88,50 @@ public class WrapperServiceTaskProvider implements ServiceTaskProvider, DriverAP
 
   @Override
   public @NotNull ITask<Void> reloadAsync() {
-    return this.executeVoidDriverAPIMethod(DriverAPIRequestType.RELOAD_TASKS, null);
+    this.reload();
+    return CompletedTask.voidTask();
   }
 
   @Override
   @NotNull
   public ITask<Collection<ServiceTask>> getPermanentServiceTasksAsync() {
-    return this.executeDriverAPIMethod(
-      DriverAPIRequestType.GET_PERMANENT_SERVICE_TASKS,
-      packet -> packet.getBuffer().readObjectCollection(ServiceTask.class)
-    );
+    return CompletableTask.supplyAsync(this::getPermanentServiceTasks);
   }
 
   @Override
   public @NotNull ITask<Void> setPermanentServiceTasksAsync(@NotNull Collection<ServiceTask> serviceTasks) {
-    return this.executeVoidDriverAPIMethod(
-      DriverAPIRequestType.SET_PERMANENT_SERVICE_TASKS,
-      buffer -> buffer.writeObjectCollection(serviceTasks)
-    );
+    this.setPermanentServiceTasks(serviceTasks);
+    return CompletedTask.voidTask();
   }
 
   @Override
   @NotNull
   public ITask<ServiceTask> getServiceTaskAsync(@NotNull String name) {
-    Preconditions.checkNotNull(name);
-
-    return this.executeDriverAPIMethod(
-      DriverAPIRequestType.GET_PERMANENT_SERVICE_TASK_BY_NAME,
-      buffer -> buffer.writeString(name),
-      packet -> packet.getBuffer().readOptionalObject(ServiceTask.class)
-    );
+    return CompletableTask.supplyAsync(() -> this.getServiceTask(name));
   }
 
   @Override
   @NotNull
   public ITask<Boolean> isServiceTaskPresentAsync(@NotNull String name) {
-    Preconditions.checkNotNull(name);
-
-    return this.executeDriverAPIMethod(
-      DriverAPIRequestType.IS_SERVICE_TASK_PRESENT,
-      buffer -> buffer.writeString(name),
-      packet -> packet.getBuffer().readBoolean()
-    );
+    return CompletableTask.supplyAsync(() -> this.isServiceTaskPresent(name));
   }
 
   @Override
   @NotNull
   public ITask<Boolean> addPermanentServiceTaskAsync(@NotNull ServiceTask serviceTask) {
-    Preconditions.checkNotNull(serviceTask);
-
-    return this.executeDriverAPIMethod(
-      DriverAPIRequestType.ADD_PERMANENT_SERVICE_TASK,
-      buffer -> buffer.writeObject(serviceTask),
-      packet -> packet.getBuffer().readBoolean()
-    );
+    return CompletableTask.supplyAsync(() -> this.addPermanentServiceTask(serviceTask));
   }
 
   @Override
   @NotNull
   public ITask<Void> removePermanentServiceTaskAsync(@NotNull String name) {
-    Preconditions.checkNotNull(name);
-
-    return this.executeVoidDriverAPIMethod(
-      DriverAPIRequestType.REMOVE_PERMANENT_SERVICE_TASK,
-      buffer -> buffer.writeString(name)
-    );
+    this.removePermanentServiceTask(name);
+    return CompletedTask.voidTask();
   }
 
   @Override
   @NotNull
   public ITask<Void> removePermanentServiceTaskAsync(@NotNull ServiceTask serviceTask) {
-    Preconditions.checkNotNull(serviceTask);
-
     return this.removePermanentServiceTaskAsync(serviceTask.getName());
   }
 
