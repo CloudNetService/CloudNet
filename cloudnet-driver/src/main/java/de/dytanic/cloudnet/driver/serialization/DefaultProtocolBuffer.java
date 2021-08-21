@@ -174,13 +174,12 @@ public class DefaultProtocolBuffer extends ProtocolBuffer {
 
   @Override
   public long readVarLong() {
-    return NettyUtils.readVarLong(this);
+    return this.readLong();
   }
 
   @Override
   public ProtocolBuffer writeVarLong(long value) {
-    NettyUtils.writeVarLong(this, value);
-    return this;
+    return this.writeLong(value);
   }
 
   @Override

@@ -17,11 +17,13 @@
 package de.dytanic.cloudnet.driver.network.protocol;
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import java.util.UUID;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * The default simple implementation of the IPacket interface. You can create with the constructor all new packets or
@@ -36,100 +38,61 @@ import org.jetbrains.annotations.NotNull;
 @EqualsAndHashCode
 public class Packet implements IPacket {
 
-  /**
-   * An one length size byte[] for empty packet bodies
-   */
-  public static final byte[] EMPTY_PACKET_BYTE_ARRAY = new byte[]{0};
-  public static final Packet EMPTY = new Packet(-1, JsonDocument.EMPTY, EMPTY_PACKET_BYTE_ARRAY);
+  public static final IPacket EMPTY = new Packet(-1, null);
 
-  protected final long creationMillis = System.currentTimeMillis();
+  private final int channel;
+  private final DataBuf dataBuf;
+  private final long creationMillis;
 
-  protected int channel;
-  protected UUID uniqueId;
-  protected JsonDocument header;
-  protected ProtocolBuffer body;
-
-  public Packet(int channel, @NotNull JsonDocument header) {
-    this(channel, header, (ProtocolBuffer) null);
-  }
-
-  public Packet(int channel, @NotNull JsonDocument header, byte[] body) {
-    this(channel, UUID.randomUUID(), header, body);
-  }
-
-  public Packet(int channel, @NotNull UUID uniqueId, @NotNull JsonDocument header, byte[] body) {
-    this.channel = channel;
-    this.uniqueId = uniqueId;
-    this.header = header;
-    this.body = body == null ? null : ProtocolBuffer.wrap(body);
-  }
-
-
-  public Packet(int channel, ProtocolBuffer body) {
-    this(channel, JsonDocument.EMPTY, body);
-  }
-
-  public Packet(int channel, @NotNull JsonDocument header, ProtocolBuffer body) {
-    this(channel, UUID.randomUUID(), header, body);
-  }
-
-  public Packet(int channel, @NotNull UUID uniqueId, @NotNull JsonDocument header) {
-    this(channel, uniqueId, header, (ProtocolBuffer) null);
-  }
-
-  public Packet(int channel, @NotNull UUID uniqueId, @NotNull JsonDocument header, ProtocolBuffer body) {
-    this.channel = channel;
-    this.uniqueId = uniqueId;
-    this.header = header;
-    this.body = body;
-  }
+  private UUID uniqueId;
 
   public Packet() {
+    this(0, null);
   }
 
-  public static Packet createResponseFor(IPacket packet, JsonDocument header, ProtocolBuffer body) {
-    return new Packet(-1, packet.getUniqueId(), header, body);
+  public Packet(int channel, DataBuf dataBuf) {
+    this.channel = channel;
+    this.dataBuf = dataBuf;
+    this.creationMillis = System.currentTimeMillis();
   }
 
-  public static Packet createResponseFor(IPacket packet, JsonDocument header) {
-    return new Packet(-1, packet.getUniqueId(), header);
+  @Override
+  public @Nullable UUID getUniqueId() {
+    return this.uniqueId;
   }
 
-  public static Packet createResponseFor(IPacket packet, ProtocolBuffer body) {
-    return new Packet(-1, packet.getUniqueId(), JsonDocument.EMPTY, body);
+  @Override
+  public void setUniqueId(@Nullable UUID uniqueId) {
+    this.uniqueId = uniqueId;
   }
 
-  public static Packet createResponseFor(IPacket packet) {
-    return new Packet(-1, packet.getUniqueId(), JsonDocument.EMPTY);
-  }
-
+  @Override
   public int getChannel() {
     return this.channel;
   }
 
-  public @NotNull UUID getUniqueId() {
-    if (this.uniqueId == null) {
-      this.uniqueId = UUID.randomUUID();
-    }
-    return this.uniqueId;
-  }
-
+  @Override
   public JsonDocument getHeader() {
-    return this.header;
+    return null;
   }
 
-  public ProtocolBuffer getBuffer() {
-    return this.body;
+  @Override
+  public @NotNull ProtocolBuffer getBuffer() {
+    return null;
+  }
+
+  @Override
+  public @NotNull DataBuf getContent() {
+    return this.dataBuf;
   }
 
   @Override
   public byte[] getBodyAsArray() {
-    return this.body == null ? EMPTY_PACKET_BYTE_ARRAY : this.body.toArray();
+    return new byte[0];
   }
 
   @Override
   public long getCreationMillis() {
     return this.creationMillis;
   }
-
 }

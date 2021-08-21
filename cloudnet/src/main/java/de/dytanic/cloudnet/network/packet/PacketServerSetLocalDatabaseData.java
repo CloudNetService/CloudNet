@@ -18,14 +18,13 @@ package de.dytanic.cloudnet.network.packet;
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.network.NetworkUpdateType;
-import de.dytanic.cloudnet.driver.network.def.PacketConstants;
 import de.dytanic.cloudnet.driver.network.protocol.Packet;
 import java.util.Map;
 
 public final class PacketServerSetLocalDatabaseData extends Packet {
 
   public PacketServerSetLocalDatabaseData(Map<String, Map<String, JsonDocument>> documents, NetworkUpdateType type) {
-    super(PacketConstants.INTERNAL_LOCAL_DATABASE_SET_DATA_CHANNEL, JsonDocument.newDocument("documents", documents)
-      .append("updateType", type));
+    //TODO:  super(PacketConstants.INTERNAL_LOCAL_DATABASE_SET_DATA_CHANNEL, JsonDocument.newDocument("documents", documents)
+    //TODO:  .append("updateType", type));
   }
 }

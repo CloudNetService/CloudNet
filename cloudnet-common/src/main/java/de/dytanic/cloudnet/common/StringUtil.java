@@ -17,6 +17,7 @@
 package de.dytanic.cloudnet.common;
 
 import java.util.Random;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -52,6 +53,11 @@ public final class StringUtil {
     }
 
     return stringBuilder.toString();
+  }
+
+  public static boolean endsWithIgnoreCase(@NotNull String s, @NotNull String suffix) {
+    int suffixLength = suffix.length();
+    return s.regionMatches(true, s.length() - suffixLength, suffix, 0, suffixLength);
   }
 
   public static boolean isNullOrEmpty(@Nullable String string) {

@@ -28,20 +28,13 @@ import io.netty.channel.epoll.Epoll;
 import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.epoll.EpollServerSocketChannel;
 import io.netty.channel.epoll.EpollSocketChannel;
-import io.netty.channel.kqueue.KQueue;
-import io.netty.channel.kqueue.KQueueEventLoopGroup;
-import io.netty.channel.kqueue.KQueueServerSocketChannel;
-import io.netty.channel.kqueue.KQueueSocketChannel;
 import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.ServerSocketChannel;
-import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.util.ResourceLeakDetector;
 import io.netty.util.concurrent.FastThreadLocalThread;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 import io.netty.util.internal.logging.JdkLoggerFactory;
-import java.nio.charset.StandardCharsets;
 import java.util.concurrent.Executor;
 import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.SynchronousQueue;
@@ -49,6 +42,8 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Range;
 
 /**
  * Internal util for Netty and its ByteBuf
@@ -56,9 +51,9 @@ import org.jetbrains.annotations.ApiStatus;
 @ApiStatus.Internal
 public final class NettyUtils {
 
-  private static final ThreadFactory THREAD_FACTORY = FastThreadLocalThread::new;
-  private static final SilentDecoderException INVALID_VAR_INT = new SilentDecoderException("Invalid var int");
-  private static final RejectedExecutionHandler DEFAULT_REJECT_HANDLER = new ThreadPoolExecutor.CallerRunsPolicy();
+  public static final ThreadFactory THREAD_FACTORY = FastThreadLocalThread::new;
+  public static final SilentDecoderException INVALID_VAR_INT = new SilentDecoderException("Invalid var int");
+  public static final RejectedExecutionHandler DEFAULT_REJECT_HANDLER = new ThreadPoolExecutor.CallerRunsPolicy();
 
   static {
     // use jdk logger to prevent issues with older slf4j versions
@@ -75,99 +70,102 @@ public final class NettyUtils {
     throw new UnsupportedOperationException();
   }
 
-  public static EventLoopGroup newEventLoopGroup() {
-    return Epoll.isAvailable() ?
-      new EpollEventLoopGroup(4, threadFactory()) :
-      KQueue.isAvailable() ?
-        new KQueueEventLoopGroup(4, threadFactory()) :
-        new NioEventLoopGroup(4, threadFactory());
-  }
-
-  public static Executor newPacketDispatcher() {
+  /**
+   * Get a so-called "packet dispatcher" which represents an executor handling the received packets sent to a network
+   * component. The executor is optimized for the currently running-in environment - this represents the default
+   * settings applied to the dispatcher. If running in a node env the packet dispatcher uses the amount of processors
+   * multiplied by 2 for the maximum thread amount, in a wrapper env this is fixed to {@code 8}. All threads in the
+   * dispatcher can idle for 30 seconds before they are terminated forcefully. One thread will always idle in the
+   * handler to speed up just-in-time handling of packets. Given tasks are queued in the order they are given into the
+   * dispatcher and if the dispatcher has no capacity to run the task, the caller will automatically call the task
+   * instead.
+   *
+   * @return a new packet dispatcher instance.
+   * @see #getThreadAmount()
+   */
+  public static @NotNull Executor newPacketDispatcher() {
     // a cached pool with a thread idle-lifetime of 30 seconds
     // rejected tasks will be executed on the calling thread (See ThreadPoolExecutor.CallerRunsPolicy)
-    return new ThreadPoolExecutor(0, getThreadAmount(),
-      30L, TimeUnit.SECONDS, new SynchronousQueue<>(true), DEFAULT_REJECT_HANDLER);
+    // at least one thread is always idling in this executor
+    return new ThreadPoolExecutor(
+      1,
+      getThreadAmount(),
+      30L,
+      TimeUnit.SECONDS,
+      new SynchronousQueue<>(true),
+      DEFAULT_REJECT_HANDLER);
   }
 
-  @Deprecated
-  @ApiStatus.ScheduledForRemoval(inVersion = "3.6")
-  public static Class<? extends SocketChannel> getSocketChannelClass() {
-    return Epoll.isAvailable() ? EpollSocketChannel.class
-      : KQueue.isAvailable() ? KQueueSocketChannel.class : NioSocketChannel.class;
+  /**
+   * Creates a new nio or epoll event loop group based on their availability.
+   *
+   * @return a new nio or epoll event loop group based on their availability.
+   */
+  public static @NotNull EventLoopGroup newEventLoopGroup() {
+    return Epoll.isAvailable()
+      ? new EpollEventLoopGroup(4, THREAD_FACTORY)
+      : new NioEventLoopGroup(4, THREAD_FACTORY);
   }
 
-  public static ChannelFactory<? extends Channel> getClientChannelFactory() {
-    return Epoll.isAvailable() ? EpollSocketChannel::new
-      : KQueue.isAvailable() ? KQueueSocketChannel::new : NioSocketChannel::new;
+  /**
+   * Creates a new channel factory for network clients based on the epoll availability.
+   *
+   * @return a new channel factory for network clients based on the epoll availability.
+   */
+  public static @NotNull ChannelFactory<? extends Channel> getClientChannelFactory() {
+    return Epoll.isAvailable() ? EpollSocketChannel::new : NioSocketChannel::new;
   }
 
-  @Deprecated
-  @ApiStatus.ScheduledForRemoval(inVersion = "3.6")
-  public static Class<? extends ServerSocketChannel> getServerSocketChannelClass() {
-    return Epoll.isAvailable() ? EpollServerSocketChannel.class
-      : KQueue.isAvailable() ? KQueueServerSocketChannel.class : NioServerSocketChannel.class;
+  /**
+   * Creates a new channel factory for network servers based on the epoll availability.
+   *
+   * @return a new channel factory for network servers based on the epoll availability.
+   */
+  public static @NotNull ChannelFactory<? extends ServerChannel> getServerChannelFactory() {
+    return Epoll.isAvailable() ? EpollServerSocketChannel::new : NioServerSocketChannel::new;
   }
 
-  public static ChannelFactory<? extends ServerChannel> getServerChannelFactory() {
-    return Epoll.isAvailable() ? EpollServerSocketChannel::new
-      : KQueue.isAvailable() ? KQueueServerSocketChannel::new : NioServerSocketChannel::new;
-  }
+  /**
+   * Writes the given integer value as a var int into the buffer.
+   *
+   * @param byteBuf the buffer to write to.
+   * @param value   the value to write into the buffer.
+   * @return the buffer used to call the method, for chaining.
+   */
+  public static @NotNull ByteBuf writeVarInt(@NotNull ByteBuf byteBuf, int value) {
+    if ((value & -128) == 0) {
+      byteBuf.writeByte(value);
+    } else if ((value & -16384) == 0) {
+      int shortValue = (value & 0x7F | 0x80) << 8 | (value >>> 7);
+      byteBuf.writeShort(shortValue);
+    } else {
+      while (true) {
+        if ((value & -128) == 0) {
+          byteBuf.writeByte(value);
+          return byteBuf;
+        }
 
-  public static ThreadFactory threadFactory() {
-    return THREAD_FACTORY;
-  }
-
-  @Deprecated
-  @ApiStatus.ScheduledForRemoval(inVersion = "3.6")
-  public static byte[] toByteArray(ByteBuf byteBuf, int size) {
-    return readByteArray(byteBuf, size);
-  }
-
-  public static byte[] readByteArray(ByteBuf byteBuf, int size) {
-    byte[] data = new byte[size];
-    byteBuf.readBytes(data);
-    return data;
-  }
-
-  public static int readVarInt(ByteBuf byteBuf) {
-    return (int) readVarVariant(byteBuf, 5);
-  }
-
-  public static ByteBuf writeVarInt(ByteBuf byteBuf, int value) {
-    while (true) {
-      if ((value & -128) == 0) {
-        byteBuf.writeByte(value);
-        return byteBuf;
+        byteBuf.writeByte(value & 0x7F | 0x80);
+        value >>>= 7;
       }
-
-      byteBuf.writeByte(value & 0x7F | 0x80);
-      value >>>= 7;
     }
+
+    return byteBuf;
   }
 
-  public static long readVarLong(ByteBuf byteBuf) {
-    return readVarVariant(byteBuf, 10);
-  }
-
-  public static ByteBuf writeVarLong(ByteBuf byteBuf, long value) {
-    while (true) {
-      if ((value & -128) == 0) {
-        byteBuf.writeByte((int) value);
-        return byteBuf;
-      }
-
-      byteBuf.writeByte((int) value & 0x7F | 0x80);
-      value >>>= 7;
-    }
-  }
-
-  private static long readVarVariant(ByteBuf byteBuf, int maxReadUpperBound) {
-    long i = 0;
-    int maxRead = Math.min(maxReadUpperBound, byteBuf.readableBytes());
+  /**
+   * Reads a var int from the given buffer.
+   *
+   * @param byteBuf the buffer to read from.
+   * @return the var int read from the buffer.
+   * @throws SilentDecoderException if the buf current position has no var int.
+   */
+  public static int readVarInt(@NotNull ByteBuf byteBuf) {
+    int i = 0;
+    int maxRead = Math.min(5, byteBuf.readableBytes());
     for (int j = 0; j < maxRead; j++) {
       int nextByte = byteBuf.readByte();
-      i |= (long) (nextByte & 0x7F) << j * 7;
+      i |= (nextByte & 0x7F) << j * 7;
       if ((nextByte & 0x80) != 128) {
         return i;
       }
@@ -175,22 +173,15 @@ public final class NettyUtils {
     throw INVALID_VAR_INT;
   }
 
-  public static ByteBuf writeString(ByteBuf byteBuf, String string) {
-    byte[] content = string.getBytes(StandardCharsets.UTF_8);
-    writeVarInt(byteBuf, content.length);
-    byteBuf.writeBytes(content);
-    return byteBuf;
-  }
-
-  public static String readString(ByteBuf byteBuf) {
-    int size = readVarInt(byteBuf);
-    return new String(readByteArray(byteBuf, size), StandardCharsets.UTF_8);
-  }
-
-  public static int getThreadAmount() {
-    return CloudNetDriver.optionalInstance()
-      .filter(cloudNetDriver -> cloudNetDriver.getDriverEnvironment() == DriverEnvironment.CLOUDNET)
-      .map(cloudNetDriver -> Runtime.getRuntime().availableProcessors() * 2)
-      .orElse(8);
+  /**
+   * Get the thread amount used by the packet dispatcher to dispatch incoming packets. This method returns always {@code
+   * 8} when running in {@link DriverEnvironment#WRAPPER} and the amount of processors cores multiplied by 2 when
+   * running on a node.
+   *
+   * @return the thread amount used by the packet dispatcher to dispatch incoming packets.
+   */
+  public static @Range(from = 2, to = Integer.MAX_VALUE) int getThreadAmount() {
+    DriverEnvironment environment = CloudNetDriver.getInstance().getDriverEnvironment();
+    return environment == DriverEnvironment.CLOUDNET ? Runtime.getRuntime().availableProcessors() * 2 : 8;
   }
 }
