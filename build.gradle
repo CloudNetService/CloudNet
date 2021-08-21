@@ -81,8 +81,8 @@ allprojects {
     dependencyLombokVersion = '1.18.20'
     dependencyH2Version = '1.4.197' // do not update, leads to database incompatibility
     dependencyXodusVersion = '1.3.232'
-    dependencyGsonVersion = '2.8.7'
-    dependencyNettyVersion = '4.1.66.Final'
+    dependencyGsonVersion = '2.8.8'
+    dependencyNettyVersion = '4.1.67.Final'
     dependencyJLineVersion = '3.20.0'
     dependencyJAnsiVersion = '2.3.4'
     dependencySpigotApiVersion = '1.17-R0.1-SNAPSHOT'
