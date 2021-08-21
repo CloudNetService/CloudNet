@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.driver.network.protocol.chunk;
+package de.dytanic.cloudnet.driver.network.chunk;
 
-import de.dytanic.cloudnet.driver.network.protocol.chunk.data.ChunkSessionInformation;
+import de.dytanic.cloudnet.driver.network.chunk.data.ChunkSessionInformation;
 import org.jetbrains.annotations.NotNull;
 
 public interface ChunkedPacketProvider {

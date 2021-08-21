@@ -22,7 +22,7 @@ import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.common.stream.MultiOutputStream;
 import de.dytanic.cloudnet.driver.api.DriverAPIRequestType;
 import de.dytanic.cloudnet.driver.network.def.PacketConstants;
-import de.dytanic.cloudnet.driver.network.protocol.chunk.ChunkedPacketBuilder;
+import de.dytanic.cloudnet.driver.network.chunk.ChunkedPacketBuilder;
 import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import de.dytanic.cloudnet.driver.template.defaults.DefaultSyncTemplateStorage;

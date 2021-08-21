@@ -16,11 +16,17 @@
 
 package de.dytanic.cloudnet.driver.network.def;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 public final class PacketConstants {
 
+  private static final AtomicInteger CHANNEL_ID_COUNTER = new AtomicInteger();
+
   // rpc
-  public static final int INTERNAL_RPC_COM_CHANNEL = 0;
-  public static final int CHUNKED_PACKET_COM_CHANNEL = 1;
+  public static final int INTERNAL_RPC_COM_CHANNEL = CHANNEL_ID_COUNTER.getAndIncrement();
+  public static final int CHUNKED_PACKET_COM_CHANNEL = CHANNEL_ID_COUNTER.getAndIncrement();
+
+  // TODO: find out out which of these we still need
 
   // general
   public static final int INTERNAL_AUTHORIZATION_CHANNEL = 1;

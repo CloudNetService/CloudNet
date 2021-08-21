@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.driver.network.protocol.chunk.defaults;
+package de.dytanic.cloudnet.driver.network.chunk.defaults;
 
-import de.dytanic.cloudnet.driver.network.protocol.chunk.ChunkedPacketProvider;
-import de.dytanic.cloudnet.driver.network.protocol.chunk.TransferStatus;
-import de.dytanic.cloudnet.driver.network.protocol.chunk.data.ChunkSessionInformation;
+import de.dytanic.cloudnet.driver.network.chunk.ChunkedPacketProvider;
+import de.dytanic.cloudnet.driver.network.chunk.TransferStatus;
+import de.dytanic.cloudnet.driver.network.chunk.data.ChunkSessionInformation;
 import org.jetbrains.annotations.NotNull;
 
 public abstract class DefaultChunkedPacketProvider implements ChunkedPacketProvider {

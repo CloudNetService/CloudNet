@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.driver.network.protocol.chunk;
+package de.dytanic.cloudnet.driver.network.chunk;
 
 public enum TransferStatus {
 

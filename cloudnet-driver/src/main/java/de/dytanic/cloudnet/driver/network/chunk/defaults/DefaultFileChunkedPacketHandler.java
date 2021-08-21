@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.driver.network.protocol.chunk.defaults;
+package de.dytanic.cloudnet.driver.network.chunk.defaults;
 
 import com.google.common.base.Verify;
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
-import de.dytanic.cloudnet.driver.network.protocol.chunk.ChunkedPacketHandler;
-import de.dytanic.cloudnet.driver.network.protocol.chunk.TransferStatus;
-import de.dytanic.cloudnet.driver.network.protocol.chunk.data.ChunkSessionInformation;
+import de.dytanic.cloudnet.driver.network.chunk.ChunkedPacketHandler;
+import de.dytanic.cloudnet.driver.network.chunk.TransferStatus;
+import de.dytanic.cloudnet.driver.network.chunk.data.ChunkSessionInformation;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -62,10 +62,10 @@ public class DefaultFileChunkedPacketHandler extends DefaultChunkedPacketProvide
   }
 
   @Override
-  public void handleChunkPart(int chunkPosition, @NotNull DataBuf dataBuf) {
+  public boolean handleChunkPart(int chunkPosition, @NotNull DataBuf dataBuf) {
     // if the handling failed before we skip the handling of the packet
     if (this.transferStatus == TransferStatus.FAILURE) {
-      return;
+      return false;
     }
     // validate that this is still in the running state when receiving the packet
     Verify.verify(this.transferStatus == TransferStatus.RUNNING, "Received transfer part after success");
@@ -89,8 +89,11 @@ public class DefaultFileChunkedPacketHandler extends DefaultChunkedPacketProvide
         // post the result to the complete handler
         try (InputStream inputStream = Files.newInputStream(this.tempFilePath, StandardOpenOption.DELETE_ON_CLOSE)) {
           this.writeCompleteHandler.handleSessionComplete(this.chunkSessionInformation, inputStream);
+          return true;
         }
       }
+      // not completed yet
+      return false;
     } catch (IOException exception) {
       this.transferStatus = TransferStatus.FAILURE;
       throw new IllegalStateException("Unexpected exception handling chunk part", exception);

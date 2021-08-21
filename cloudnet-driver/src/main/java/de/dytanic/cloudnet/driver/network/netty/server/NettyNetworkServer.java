@@ -35,6 +35,8 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
+import io.netty.channel.WriteBufferWaterMark;
+import java.net.SocketAddress;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
@@ -46,17 +48,18 @@ import org.jetbrains.annotations.NotNull;
 
 public class NettyNetworkServer extends NettySSLServer implements DefaultNetworkComponent, INetworkServer {
 
-  protected final Collection<INetworkChannel> channels = new ConcurrentLinkedQueue<>();
-  protected final Map<Integer, Pair<HostAndPort, ChannelFuture>> channelFutures = new ConcurrentHashMap<>();
-
-  protected final IPacketListenerRegistry packetRegistry = new DefaultPacketListenerRegistry();
-
-  protected final Executor packetDispatcher = NettyUtils.newPacketDispatcher();
+  protected static final WriteBufferWaterMark WATER_MARK = new WriteBufferWaterMark(1 << 20, 1 << 21);
 
   protected final EventLoopGroup bossEventLoopGroup = NettyUtils.newEventLoopGroup();
   protected final EventLoopGroup workerEventLoopGroup = NettyUtils.newEventLoopGroup();
 
-  protected final Callable<INetworkChannelHandler> networkChannelHandler;
+  protected final Collection<INetworkChannel> channels = new ConcurrentLinkedQueue<>();
+  protected final Map<Integer, Pair<HostAndPort, ChannelFuture>> channelFutures = new ConcurrentHashMap<>();
+
+  protected final Executor packetDispatcher = NettyUtils.newPacketDispatcher();
+  protected final IPacketListenerRegistry packetRegistry = new DefaultPacketListenerRegistry();
+
+  protected final Callable<INetworkChannelHandler> networkChannelHandlerFactory;
 
   public NettyNetworkServer(Callable<INetworkChannelHandler> networkChannelHandler) {
     this(null, networkChannelHandler);
@@ -64,7 +67,8 @@ public class NettyNetworkServer extends NettySSLServer implements DefaultNetwork
 
   public NettyNetworkServer(SSLConfiguration sslConfiguration, Callable<INetworkChannelHandler> networkChannelHandler) {
     super(sslConfiguration);
-    this.networkChannelHandler = networkChannelHandler;
+
+    this.networkChannelHandlerFactory = networkChannelHandler;
 
     try {
       this.init();
@@ -89,10 +93,14 @@ public class NettyNetworkServer extends NettySSLServer implements DefaultNetwork
     return this.sslContext != null;
   }
 
-
   @Override
   public boolean addListener(int port) {
     return this.addListener(new HostAndPort("0.0.0.0", port));
+  }
+
+  @Override
+  public boolean addListener(@NotNull SocketAddress socketAddress) {
+    return this.addListener(HostAndPort.fromSocketAddress(socketAddress));
   }
 
   @Override
@@ -100,26 +108,28 @@ public class NettyNetworkServer extends NettySSLServer implements DefaultNetwork
     Preconditions.checkNotNull(hostAndPort);
     Preconditions.checkNotNull(hostAndPort.getHost());
 
-    if (!this.channelFutures.containsKey(hostAndPort.getPort())) {
-      try {
-        this.channelFutures.put(hostAndPort.getPort(), new Pair<>(hostAndPort, new ServerBootstrap()
-          .group(this.bossEventLoopGroup, this.workerEventLoopGroup)
-          .childOption(ChannelOption.TCP_NODELAY, true)
-          .childOption(ChannelOption.IP_TOS, 24)
-          .childOption(ChannelOption.AUTO_READ, true)
-          .channelFactory(NettyUtils.getServerChannelFactory())
-          .childHandler(new NettyNetworkServerInitializer(this, hostAndPort))
-          .bind(hostAndPort.getHost(), hostAndPort.getPort())
-          .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE)
-          .addListener(ChannelFutureListener.CLOSE_ON_FAILURE)
-          .sync()
-          .channel()
-          .closeFuture()));
+    try {
+      return this.channelFutures.putIfAbsent(hostAndPort.getPort(), new Pair<>(hostAndPort, new ServerBootstrap()
+        .channelFactory(NettyUtils.getServerChannelFactory())
+        .group(this.bossEventLoopGroup, this.workerEventLoopGroup)
+        .childHandler(new NettyNetworkServerInitializer(this, hostAndPort))
 
-        return true;
-      } catch (InterruptedException exception) {
-        LOGGER.severe("Exception while listening to the channel", exception);
-      }
+        .childOption(ChannelOption.IP_TOS, 24)
+        .childOption(ChannelOption.AUTO_READ, true)
+        .childOption(ChannelOption.TCP_NODELAY, true)
+        .childOption(ChannelOption.SO_KEEPALIVE, true)
+        .childOption(ChannelOption.SO_REUSEADDR, true)
+        .childOption(ChannelOption.WRITE_BUFFER_WATER_MARK, WATER_MARK)
+
+        .bind(hostAndPort.getHost(), hostAndPort.getPort())
+        .addListener(ChannelFutureListener.CLOSE_ON_FAILURE)
+        .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE)
+
+        .sync()
+        .channel()
+        .closeFuture())) == null;
+    } catch (InterruptedException exception) {
+      LOGGER.severe("Exception binding network server instance to %s", exception, hostAndPort);
     }
 
     return false;
@@ -137,6 +147,7 @@ public class NettyNetworkServer extends NettySSLServer implements DefaultNetwork
     this.workerEventLoopGroup.shutdownGracefully();
   }
 
+  @Override
   public @NotNull Collection<INetworkChannel> getChannels() {
     return Collections.unmodifiableCollection(this.channels);
   }
@@ -160,6 +171,7 @@ public class NettyNetworkServer extends NettySSLServer implements DefaultNetwork
     }
   }
 
+  @Override
   public @NotNull IPacketListenerRegistry getPacketRegistry() {
     return this.packetRegistry;
   }

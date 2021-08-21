@@ -19,6 +19,7 @@ package de.dytanic.cloudnet.driver.network.netty.http;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.network.http.IHttpChannel;
 import io.netty.channel.Channel;
+import org.jetbrains.annotations.NotNull;
 
 public class NettyHttpChannel implements IHttpChannel {
 
@@ -34,12 +35,12 @@ public class NettyHttpChannel implements IHttpChannel {
   }
 
   @Override
-  public HostAndPort serverAddress() {
+  public @NotNull HostAndPort serverAddress() {
     return this.serverAddress;
   }
 
   @Override
-  public HostAndPort clientAddress() {
+  public @NotNull HostAndPort clientAddress() {
     return this.clientAddress;
   }
 
@@ -50,13 +51,5 @@ public class NettyHttpChannel implements IHttpChannel {
 
   public Channel getChannel() {
     return this.channel;
-  }
-
-  public HostAndPort getServerAddress() {
-    return this.serverAddress;
-  }
-
-  public HostAndPort getClientAddress() {
-    return this.clientAddress;
   }
 }

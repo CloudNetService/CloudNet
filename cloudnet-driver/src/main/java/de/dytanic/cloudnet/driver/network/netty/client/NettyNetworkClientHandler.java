@@ -23,7 +23,6 @@ import de.dytanic.cloudnet.driver.network.netty.NettyNetworkHandler;
 import io.netty.channel.ChannelHandlerContext;
 import java.util.Collection;
 import java.util.concurrent.Executor;
-import org.jetbrains.annotations.ApiStatus;
 
 public class NettyNetworkClientHandler extends NettyNetworkHandler {
 

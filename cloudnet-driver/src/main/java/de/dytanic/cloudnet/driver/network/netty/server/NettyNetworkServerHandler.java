@@ -24,29 +24,29 @@ import io.netty.channel.ChannelHandlerContext;
 import java.util.Collection;
 import java.util.concurrent.Executor;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.NotNull;
 
 @ApiStatus.Internal
-final class NettyNetworkServerHandler extends NettyNetworkHandler {
+public class NettyNetworkServerHandler extends NettyNetworkHandler {
 
-  private final HostAndPort connectedAddress;
-  private final NettyNetworkServer nettyNetworkServer;
+  private final HostAndPort serverLocalAddress;
+  private final NettyNetworkServer networkServer;
 
-  public NettyNetworkServerHandler(NettyNetworkServer nettyNetworkServer, HostAndPort connectedAddress) {
-    this.nettyNetworkServer = nettyNetworkServer;
-    this.connectedAddress = connectedAddress;
+  public NettyNetworkServerHandler(NettyNetworkServer networkServer, HostAndPort serverLocalAddress) {
+    this.networkServer = networkServer;
+    this.serverLocalAddress = serverLocalAddress;
   }
 
   @Override
-  public void channelActive(ChannelHandlerContext ctx) throws Exception {
-    this.channel = new NettyNetworkChannel(
+  public void channelActive(@NotNull ChannelHandlerContext ctx) throws Exception {
+    this.networkServer.channels.add(this.channel = new NettyNetworkChannel(
       ctx.channel(),
-      this.nettyNetworkServer.getPacketRegistry(),
-      this.nettyNetworkServer.networkChannelHandler.call(),
-      this.connectedAddress,
+      this.networkServer.getPacketRegistry(),
+      this.networkServer.networkChannelHandlerFactory.call(),
+      this.serverLocalAddress,
       HostAndPort.fromSocketAddress(ctx.channel().remoteAddress()),
       false
-    );
-    this.nettyNetworkServer.channels.add(this.channel);
+    ));
 
     if (this.channel.getHandler() != null) {
       this.channel.getHandler().handleChannelInitialize(this.channel);
@@ -54,12 +54,12 @@ final class NettyNetworkServerHandler extends NettyNetworkHandler {
   }
 
   @Override
-  protected Collection<INetworkChannel> getChannels() {
-    return this.nettyNetworkServer.channels;
+  protected @NotNull Collection<INetworkChannel> getChannels() {
+    return this.networkServer.channels;
   }
 
   @Override
-  protected Executor getPacketDispatcher() {
-    return this.nettyNetworkServer.getPacketDispatcher();
+  protected @NotNull Executor getPacketDispatcher() {
+    return this.networkServer.getPacketDispatcher();
   }
 }

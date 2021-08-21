@@ -17,8 +17,8 @@
 package de.dytanic.cloudnet.network.listener.cluster;
 
 import de.dytanic.cloudnet.driver.CloudNetDriver;
-import de.dytanic.cloudnet.driver.network.protocol.chunk.listener.CachedChunkedPacketListener;
-import de.dytanic.cloudnet.driver.network.protocol.chunk.listener.ChunkedPacketSession;
+import de.dytanic.cloudnet.driver.network.chunk.listener.CachedChunkedPacketListener;
+import de.dytanic.cloudnet.driver.network.chunk.listener.ChunkedPacketSession;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import de.dytanic.cloudnet.driver.template.TemplateStorage;
 import de.dytanic.cloudnet.template.ClusterSynchronizedTemplateStorage;

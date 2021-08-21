@@ -30,17 +30,14 @@ import java.util.Collection;
 import java.util.UUID;
 import java.util.concurrent.Executor;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.NotNull;
 
 @ApiStatus.Internal
 public abstract class NettyNetworkHandler extends SimpleChannelInboundHandler<Packet> {
 
   private static final Logger LOGGER = LogManager.getLogger(NettyNetworkHandler.class);
 
-  protected NettyNetworkChannel channel;
-
-  protected abstract Collection<INetworkChannel> getChannels();
-
-  protected abstract Executor getPacketDispatcher();
+  protected volatile NettyNetworkChannel channel;
 
   @Override
   public void channelInactive(ChannelHandlerContext ctx) throws Exception {
@@ -57,12 +54,12 @@ public abstract class NettyNetworkHandler extends SimpleChannelInboundHandler<Pa
   @Override
   public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
     if (!(cause instanceof IOException)) {
-      LOGGER.severe("Exception was caught", cause);
+      LOGGER.severe("Exception in network handler", cause);
     }
   }
 
   @Override
-  public void channelReadComplete(ChannelHandlerContext ctx) {
+  public void channelReadComplete(@NotNull ChannelHandlerContext ctx) {
     ctx.flush();
   }
 
@@ -90,4 +87,8 @@ public abstract class NettyNetworkHandler extends SimpleChannelInboundHandler<Pa
       }
     });
   }
+
+  protected abstract Collection<INetworkChannel> getChannels();
+
+  protected abstract Executor getPacketDispatcher();
 }

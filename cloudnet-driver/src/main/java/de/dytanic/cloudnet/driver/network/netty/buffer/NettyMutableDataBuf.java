@@ -17,8 +17,9 @@
 package de.dytanic.cloudnet.driver.network.netty.buffer;
 
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
-import de.dytanic.cloudnet.driver.network.netty.NettyUtils;
 import io.netty.buffer.ByteBuf;
+import java.nio.charset.StandardCharsets;
+import java.util.UUID;
 import java.util.function.BiConsumer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -78,9 +79,24 @@ public class NettyMutableDataBuf extends NettyImmutableDataBuf implements DataBu
   }
 
   @Override
-  public @NotNull DataBuf.Mutable writeString(@NotNull String string) {
-    NettyUtils.writeString(this.byteBuf, string);
+  public @NotNull DataBuf.Mutable writeByteArray(byte[] b) {
+    return this.writeByteArray(b, b.length);
+  }
+
+  @Override
+  public @NotNull DataBuf.Mutable writeByteArray(byte[] b, int amount) {
+    this.byteBuf.writeBytes(b, 0, amount);
     return this;
+  }
+
+  @Override
+  public @NotNull DataBuf.Mutable writeUniqueId(@NotNull UUID uuid) {
+    return this.writeLong(uuid.getMostSignificantBits()).writeLong(uuid.getLeastSignificantBits());
+  }
+
+  @Override
+  public @NotNull DataBuf.Mutable writeString(@NotNull String string) {
+    return this.writeByteArray(string.getBytes(StandardCharsets.UTF_8));
   }
 
   @Override

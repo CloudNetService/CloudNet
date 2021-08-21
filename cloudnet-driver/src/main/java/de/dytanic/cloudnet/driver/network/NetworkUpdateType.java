@@ -16,7 +16,7 @@
 
 package de.dytanic.cloudnet.driver.network;
 
-public enum NetworkUpdateType {
+public enum NetworkUpdateType { // TODO: i don't think this should stay here should it?
   ADD,
   REMOVE,
   SET

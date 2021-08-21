@@ -76,6 +76,8 @@ public interface DataBuf {
 
     @NotNull DataBuf.Mutable writeByteArray(byte[] b);
 
+    @NotNull DataBuf.Mutable writeByteArray(byte[] b, int amount);
+
     @NotNull DataBuf.Mutable writeUniqueId(@NotNull UUID uuid);
 
     @NotNull DataBuf.Mutable writeString(@NotNull String string);

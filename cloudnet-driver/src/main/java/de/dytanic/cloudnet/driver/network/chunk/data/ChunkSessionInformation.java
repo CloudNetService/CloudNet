@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.driver.network.protocol.chunk.data;
+package de.dytanic.cloudnet.driver.network.chunk.data;
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import java.util.UUID;
@@ -53,5 +53,22 @@ public class ChunkSessionInformation {
 
   public @NotNull JsonDocument getTransferInformation() {
     return this.transferInformation;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    } else if (!(o instanceof ChunkSessionInformation)) {
+      return false;
+    } else {
+      ChunkSessionInformation that = (ChunkSessionInformation) o;
+      return this.getSessionUniqueId().equals(that.getSessionUniqueId());
+    }
+  }
+
+  @Override
+  public int hashCode() {
+    return this.getSessionUniqueId().hashCode();
   }
 }

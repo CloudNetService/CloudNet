@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.driver.network.protocol.chunk;
+package de.dytanic.cloudnet.driver.network.chunk;
 
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
-import de.dytanic.cloudnet.driver.network.protocol.chunk.data.ChunkSessionInformation;
+import de.dytanic.cloudnet.driver.network.chunk.data.ChunkSessionInformation;
 import java.io.InputStream;
 import org.jetbrains.annotations.NotNull;
 
@@ -25,7 +25,7 @@ public interface ChunkedPacketHandler extends ChunkedPacketProvider {
 
   @NotNull Callback getCallback();
 
-  void handleChunkPart(int chunkPosition, @NotNull DataBuf dataBuf);
+  boolean handleChunkPart(int chunkPosition, @NotNull DataBuf dataBuf);
 
   interface Callback {
 

@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.driver.network.protocol.chunk.defaults.builder;
+package de.dytanic.cloudnet.driver.network.chunk.defaults.builder;
 
 import com.google.common.base.Verify;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
-import de.dytanic.cloudnet.driver.network.protocol.chunk.ChunkedPacketSender;
-import de.dytanic.cloudnet.driver.network.protocol.chunk.defaults.splitter.NetworkChannelsPacketSplitter;
+import de.dytanic.cloudnet.driver.network.chunk.ChunkedPacketSender;
+import de.dytanic.cloudnet.driver.network.chunk.defaults.splitter.NetworkChannelsPacketSplitter;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collection;

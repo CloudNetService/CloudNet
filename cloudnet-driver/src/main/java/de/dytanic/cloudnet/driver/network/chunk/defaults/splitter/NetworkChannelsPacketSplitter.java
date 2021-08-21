@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.driver.network.protocol.chunk.defaults.splitter;
+package de.dytanic.cloudnet.driver.network.chunk.defaults.splitter;
 
 import com.google.common.collect.ImmutableList;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;

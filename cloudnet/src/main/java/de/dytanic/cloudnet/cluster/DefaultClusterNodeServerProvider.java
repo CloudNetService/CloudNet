@@ -28,7 +28,7 @@ import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
 import de.dytanic.cloudnet.driver.network.def.PacketConstants;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
-import de.dytanic.cloudnet.driver.network.protocol.chunk.ChunkedPacketBuilder;
+import de.dytanic.cloudnet.driver.network.chunk.ChunkedPacketBuilder;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import java.io.IOException;
 import java.io.InputStream;

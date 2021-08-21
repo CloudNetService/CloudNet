@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.driver.network.protocol.chunk.defaults.builder;
+package de.dytanic.cloudnet.driver.network.chunk.defaults.builder;
 
-import de.dytanic.cloudnet.driver.network.protocol.chunk.ChunkedPacketSender;
-import de.dytanic.cloudnet.driver.network.protocol.chunk.data.ChunkSessionInformation;
-import de.dytanic.cloudnet.driver.network.protocol.chunk.defaults.DefaultFileChunkPacketSender;
+import de.dytanic.cloudnet.driver.network.chunk.ChunkedPacketSender;
+import de.dytanic.cloudnet.driver.network.chunk.data.ChunkSessionInformation;
+import de.dytanic.cloudnet.driver.network.chunk.defaults.DefaultFileChunkPacketSender;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;

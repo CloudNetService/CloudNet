@@ -17,8 +17,8 @@
 package de.dytanic.cloudnet.driver.network.protocol;
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
-import de.dytanic.cloudnet.driver.network.protocol.chunk.ChunkedPacketBuilder;
-import de.dytanic.cloudnet.driver.network.protocol.chunk.listener.ChunkedPacketListener;
+import de.dytanic.cloudnet.driver.network.chunk.ChunkedPacketBuilder;
+import de.dytanic.cloudnet.driver.network.chunk.listener.ChunkedPacketListener;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;

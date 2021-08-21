@@ -17,11 +17,11 @@
 package de.dytanic.cloudnet.driver.network.http;
 
 import de.dytanic.cloudnet.driver.network.HostAndPort;
+import org.jetbrains.annotations.NotNull;
 
 public interface IHttpChannel extends AutoCloseable {
 
-  HostAndPort serverAddress();
+  @NotNull HostAndPort serverAddress();
 
-  HostAndPort clientAddress();
-
+  @NotNull HostAndPort clientAddress();
 }

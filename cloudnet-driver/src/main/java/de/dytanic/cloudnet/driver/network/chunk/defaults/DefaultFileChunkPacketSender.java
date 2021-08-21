@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.driver.network.protocol.chunk.defaults;
+package de.dytanic.cloudnet.driver.network.chunk.defaults;
 
 import de.dytanic.cloudnet.common.concurrent.CompletableTask;
 import de.dytanic.cloudnet.common.concurrent.ITask;
+import de.dytanic.cloudnet.driver.network.chunk.ChunkedPacketSender;
+import de.dytanic.cloudnet.driver.network.chunk.TransferStatus;
+import de.dytanic.cloudnet.driver.network.chunk.data.ChunkSessionInformation;
+import de.dytanic.cloudnet.driver.network.chunk.network.ChunkedPacket;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
-import de.dytanic.cloudnet.driver.network.protocol.chunk.ChunkedPacketSender;
-import de.dytanic.cloudnet.driver.network.protocol.chunk.TransferStatus;
-import de.dytanic.cloudnet.driver.network.protocol.chunk.data.ChunkSessionInformation;
-import de.dytanic.cloudnet.driver.network.protocol.chunk.network.ChunkedPacket;
 import java.io.InputStream;
 import java.util.function.Consumer;
 import org.jetbrains.annotations.NotNull;
@@ -61,11 +61,12 @@ public class DefaultFileChunkPacketSender extends DefaultChunkedPacketProvider i
 
       while (true) {
         int bytesRead = this.source.read(backingArray);
-        if (bytesRead != -1) {
-          this.packetSplitter.accept(ChunkedPacket.createChunk(this.chunkSessionInformation, backingArray));
-          readCalls++;
+        if (bytesRead == backingArray.length) {
+          this.packetSplitter.accept(
+            ChunkedPacket.createChunk(this.chunkSessionInformation, readCalls++, backingArray));
         } else {
-          this.packetSplitter.accept(ChunkedPacket.createChunk(this.chunkSessionInformation, readCalls, backingArray));
+          this.packetSplitter.accept(
+            ChunkedPacket.createChunk(this.chunkSessionInformation, readCalls, readCalls, bytesRead, backingArray));
           return TransferStatus.SUCCESS;
         }
       }

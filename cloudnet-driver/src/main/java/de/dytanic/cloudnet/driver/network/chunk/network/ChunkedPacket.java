@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.driver.network.protocol.chunk.network;
+package de.dytanic.cloudnet.driver.network.chunk.network;
 
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import de.dytanic.cloudnet.driver.network.buffer.DataBufFactory;
+import de.dytanic.cloudnet.driver.network.chunk.data.ChunkSessionInformation;
 import de.dytanic.cloudnet.driver.network.def.PacketConstants;
 import de.dytanic.cloudnet.driver.network.protocol.Packet;
-import de.dytanic.cloudnet.driver.network.protocol.chunk.data.ChunkSessionInformation;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -30,22 +30,30 @@ public class ChunkedPacket extends Packet {
     super(PacketConstants.CHUNKED_PACKET_COM_CHANNEL, dataBuf);
   }
 
-  public static @NotNull ChunkedPacket createChunk(@NotNull ChunkSessionInformation information, byte[] data) {
-    return createChunk(information, null, data);
+  public static @NotNull ChunkedPacket createChunk(
+    @NotNull ChunkSessionInformation information,
+    int chunkIndex,
+    byte[] data
+  ) {
+    return createChunk(information, null, chunkIndex, data.length, data);
   }
 
   public static @NotNull ChunkedPacket createChunk(
     @NotNull ChunkSessionInformation information,
     @Nullable Integer chunkAmount,
+    int chunkIndex,
+    int dataLength,
     byte[] data
   ) {
     DataBuf.Mutable dataBuf = DataBufFactory.defaultFactory().createEmpty();
     // transfer information
     dataBuf
-      .writeInt(information.getTransferType())
       .writeInt(information.getChunkSize())
+      .writeInt(information.getTransferType())
       .writeUniqueId(information.getSessionUniqueId())
       .writeByteArray(information.getTransferInformation().toByteArray())
+      // the index of the chunk we are sending
+      .writeInt(chunkIndex)
       // if the packet is the ending packet holding the information about the chunk amount
       .writeBoolean(chunkAmount != null);
     // if we know the chunk amount => write it
@@ -53,6 +61,6 @@ public class ChunkedPacket extends Packet {
       dataBuf.writeInt(chunkAmount);
     }
     // write the actual content of the chunk
-    return new ChunkedPacket(dataBuf.writeByteArray(data));
+    return new ChunkedPacket(dataBuf.writeByteArray(data, dataLength));
   }
 }

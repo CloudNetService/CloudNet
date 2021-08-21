@@ -17,8 +17,9 @@
 package de.dytanic.cloudnet.driver.network.netty.buffer;
 
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
-import de.dytanic.cloudnet.driver.network.netty.NettyUtils;
 import io.netty.buffer.ByteBuf;
+import java.nio.charset.StandardCharsets;
+import java.util.UUID;
 import java.util.function.Function;
 import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.NotNull;
@@ -73,8 +74,20 @@ public class NettyImmutableDataBuf implements DataBuf {
   }
 
   @Override
+  public byte[] readByteArray() {
+    byte[] bytes = new byte[this.readInt()];
+    this.byteBuf.readBytes(bytes);
+    return bytes;
+  }
+
+  @Override
+  public @NotNull UUID readUniqueId() {
+    return new UUID(this.readLong(), this.readLong());
+  }
+
+  @Override
   public @NotNull String readString() {
-    return NettyUtils.readString(this.byteBuf);
+    return new String(this.readByteArray(), StandardCharsets.UTF_8);
   }
 
   @Override
