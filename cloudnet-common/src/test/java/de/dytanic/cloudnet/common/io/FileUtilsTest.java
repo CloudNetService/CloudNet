@@ -48,8 +48,8 @@ public final class FileUtilsTest {
   @Test
   void testByteArrayUtils() throws Exception {
     try (ByteArrayInputStream is = new ByteArrayInputStream("Hello, world!".getBytes(StandardCharsets.UTF_8))) {
-      Assertions.assertEquals(
-        "Hello, world! Hello Peter!".getBytes(StandardCharsets.UTF_8),
+      Assertions.assertArrayEquals(
+        "Hello, world!".getBytes(StandardCharsets.UTF_8),
         FileUtils.toByteArray(is));
     }
   }
