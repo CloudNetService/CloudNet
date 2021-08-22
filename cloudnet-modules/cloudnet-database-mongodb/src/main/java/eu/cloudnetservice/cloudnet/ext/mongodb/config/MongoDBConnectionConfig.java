@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.cloudnet.ext.mongodb.config;
 
-import de.dytanic.cloudnet.common.StringUtil;
+import com.google.common.base.Strings;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -98,14 +98,14 @@ public class MongoDBConnectionConfig {
   }
 
   public String buildConnectionUri() throws UnsupportedEncodingException {
-    if (!StringUtil.isNullOrEmpty(this.overridingConnectionUri)) {
+    if (!Strings.isNullOrEmpty(this.overridingConnectionUri)) {
       return this.overridingConnectionUri;
     }
 
-    String authParams = StringUtil.isNullOrEmpty(this.username) && StringUtil.isNullOrEmpty(this.password)
-      ? "" : String.format("%s:%s@", this.encodeUrl(this.username), this.encodeUrl(this.password));
-    String authSource =
-      StringUtil.isNullOrEmpty(this.authSource) ? "" : String.format("/?authSource=%s", this.authSource);
+    String authParams = Strings.isNullOrEmpty(this.username) && Strings.isNullOrEmpty(this.password)
+      ? ""
+      : String.format("%s:%s@", this.encodeUrl(this.username), this.encodeUrl(this.password));
+    String authSource = Strings.isNullOrEmpty(this.authSource) ? "" : String.format("/?authSource=%s", this.authSource);
     // auth @ host:port / auth source
     return String.format("mongodb://%s%s:%d%s", authParams, this.host, this.port, authSource);
   }

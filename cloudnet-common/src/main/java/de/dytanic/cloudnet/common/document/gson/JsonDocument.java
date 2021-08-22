@@ -16,6 +16,7 @@
 
 package de.dytanic.cloudnet.common.document.gson;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
@@ -56,7 +57,6 @@ import org.jetbrains.annotations.NotNull;
 @EqualsAndHashCode
 public class JsonDocument implements IDocument<JsonDocument>, Cloneable {
 
-  private static final Logger LOGGER = LogManager.getLogger(JsonDocument.class);
   public static final JsonDocument EMPTY = newDocument();
   public static final Gson GSON = new GsonBuilder()
     .serializeNulls()
@@ -64,6 +64,7 @@ public class JsonDocument implements IDocument<JsonDocument>, Cloneable {
     .setPrettyPrinting()
     .registerTypeAdapterFactory(TypeAdapters.newTypeHierarchyFactory(JsonDocument.class, new JsonDocumentTypeAdapter()))
     .create();
+  private static final Logger LOGGER = LogManager.getLogger(JsonDocument.class);
   protected final JsonObject jsonObject;
 
   private JsonDocument(JsonObject jsonObject) {
@@ -211,8 +212,8 @@ public class JsonDocument implements IDocument<JsonDocument>, Cloneable {
 
   @Override
   public JsonDocument clear() {
-    for (Map.Entry<String, JsonElement> elementEntry : this.jsonObject.entrySet()) {
-      this.jsonObject.remove(elementEntry.getKey());
+    for (String key : ImmutableSet.copyOf(this.jsonObject.keySet())) {
+      this.jsonObject.remove(key);
     }
 
     return this;

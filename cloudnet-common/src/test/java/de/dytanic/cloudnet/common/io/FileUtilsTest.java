@@ -26,69 +26,83 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 public final class FileUtilsTest {
 
+  private static final Path TEST_DIR = Paths.get("build", "testDirectory");
+
+  @BeforeAll
+  static void setupTestDirectories() {
+    FileUtils.createDirectoryReported(TEST_DIR);
+  }
+
+  @AfterAll
+  static void removeTestDirectories() {
+    FileUtils.delete(TEST_DIR);
+  }
+
   @Test
-  public void testFileUtils() throws Exception {
-    Path testDirectory = Paths.get("build", "testDirectory");
-    FileUtils.createDirectoryReported(testDirectory);
-
-    Path zip = testDirectory.resolve("test.zip");
-    try (OutputStream outputStream = Files.newOutputStream(zip)) {
-      outputStream.write(FileUtils.emptyZipByteArray());
+  void testByteArrayUtils() throws Exception {
+    try (ByteArrayInputStream is = new ByteArrayInputStream("Hello, world!".getBytes(StandardCharsets.UTF_8))) {
+      Assertions.assertEquals(
+        "Hello, world! Hello Peter!".getBytes(StandardCharsets.UTF_8),
+        FileUtils.toByteArray(is));
     }
+  }
 
-    Assert.assertEquals(FileUtils.emptyZipByteArray().length, Files.size(zip));
+  @Test
+  void testZipUtils() throws Exception {
+    Path zipFilePath = TEST_DIR.resolve("test.zip");
+    Files.write(zipFilePath, FileUtils.emptyZipByteArray());
 
-    try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(
-      "Hello, world! Hello Peter!".getBytes(StandardCharsets.UTF_8))) {
-      Assert.assertEquals("Hello, world! Hello Peter!",
-        new String(FileUtils.toByteArray(byteArrayInputStream), StandardCharsets.UTF_8));
-    }
-
-    byte[] buffer = new byte[2048];
-    FileUtils.openZipFileSystem(zip, fileSystem -> {
+    FileUtils.openZipFileSystem(zipFilePath, fileSystem -> {
       Path zipEntryInfoFile = fileSystem.getPath("info.txt");
 
-      try (OutputStream outputStream = Files.newOutputStream(zipEntryInfoFile);
-        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream("Info message :3".getBytes())) {
-        FileUtils.copy(byteArrayInputStream, outputStream, buffer);
+      try (
+        OutputStream out = Files.newOutputStream(zipEntryInfoFile);
+        ByteArrayInputStream is = new ByteArrayInputStream("Info message :3".getBytes())
+      ) {
+        FileUtils.copy(is, out);
       }
 
       return null;
     });
 
-    try (ByteArrayOutputStream out = new ByteArrayOutputStream(); ZipFile zipFile = new ZipFile(zip.toFile())) {
+    try (ByteArrayOutputStream out = new ByteArrayOutputStream(); ZipFile zipFile = new ZipFile(zipFilePath.toFile())) {
       ZipEntry zipEntry = zipFile.getEntry("info.txt");
-      Assert.assertNotNull(zipEntry);
+      Assertions.assertNotNull(zipEntry);
 
       try (InputStream inputStream = zipFile.getInputStream(zipEntry)) {
         FileUtils.copy(inputStream, out);
       }
 
-      Assert.assertEquals("Info message :3", out.toString(StandardCharsets.UTF_8.name()));
+      Assertions.assertEquals("Info message :3", out.toString(StandardCharsets.UTF_8.name()));
     }
 
-    FileUtils.delete(testDirectory);
-    Assert.assertFalse(Files.exists(testDirectory));
+    FileUtils.delete(TEST_DIR);
+    Assertions.assertFalse(Files.exists(TEST_DIR));
+  }
 
-    zip = Paths.get("build", "test.zip");
-    try (OutputStream outputStream = Files.newOutputStream(zip);
-      InputStream inputStream = FileUtilsTest.class.getClassLoader().getResourceAsStream("file_utils_resources.zip")) {
-      FileUtils.copy(inputStream, outputStream, buffer);
+  @Test
+  void testExtractZip() throws Exception {
+    Path zipFilePath = TEST_DIR.resolve("test.zip");
+
+    try (
+      OutputStream outputStream = Files.newOutputStream(zipFilePath);
+      InputStream is = FileUtilsTest.class.getClassLoader().getResourceAsStream("file_utils_resources.zip")
+    ) {
+      FileUtils.copy(is, outputStream);
     }
 
-    FileUtils.extract(zip, testDirectory);
+    FileUtils.extract(zipFilePath, TEST_DIR);
 
-    Assert.assertTrue(Files.exists(testDirectory));
-    Assert.assertTrue(Files.exists(testDirectory.resolve("bungee/config.yml")));
-    Assert.assertTrue(Files.exists(testDirectory.resolve("nms/bukkit.yml")));
-    Assert.assertTrue(Files.exists(testDirectory.resolve("nms/server.properties")));
-
-    FileUtils.delete(testDirectory);
-    Assert.assertTrue(Files.notExists(testDirectory));
+    Assertions.assertTrue(Files.exists(TEST_DIR));
+    Assertions.assertTrue(Files.exists(TEST_DIR.resolve("bungee/config.yml")));
+    Assertions.assertTrue(Files.exists(TEST_DIR.resolve("nms/bukkit.yml")));
+    Assertions.assertTrue(Files.exists(TEST_DIR.resolve("nms/server.properties")));
   }
 }

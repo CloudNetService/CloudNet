@@ -17,7 +17,7 @@
 package de.dytanic.cloudnet.common.log.defaults;
 
 import com.google.common.base.Preconditions;
-import de.dytanic.cloudnet.common.StringUtil;
+import com.google.common.base.Strings;
 import de.dytanic.cloudnet.common.log.LogRecordDispatcher;
 import de.dytanic.cloudnet.common.log.Logger;
 import java.util.concurrent.BlockingQueue;
@@ -49,7 +49,7 @@ public final class ThreadedLogRecordDispatcher extends Thread implements LogReco
 
   public static @NotNull ThreadedLogRecordDispatcher newInstance(@NotNull Logger logger, @NotNull String threadName) {
     Preconditions.checkNotNull(logger, "logger");
-    Preconditions.checkArgument(!StringUtil.isNullOrEmpty(threadName), "Thread name must not be null or empty");
+    Preconditions.checkArgument(!Strings.isNullOrEmpty(threadName), "Thread name must not be null or empty");
 
     return new ThreadedLogRecordDispatcher(logger, threadName);
   }

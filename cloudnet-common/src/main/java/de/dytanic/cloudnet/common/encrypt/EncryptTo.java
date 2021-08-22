@@ -16,28 +16,26 @@
 
 package de.dytanic.cloudnet.common.encrypt;
 
-import de.dytanic.cloudnet.common.log.LogManager;
-import de.dytanic.cloudnet.common.log.Logger;
+import com.google.common.hash.Hashing;
 import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 
 /**
- * This class includes simple hash operations, which should use, to sign data or some other operations.
+ * Shortcut class to guava hashing methods.
  */
 public final class EncryptTo {
-
-  private static final Logger LOGGER = LogManager.getLogger(EncryptTo.class);
 
   private EncryptTo() {
     throw new UnsupportedOperationException();
   }
 
   /**
-   * Invokes the encryptToSHA256(byte[] bytes) method
+   * Hashes the given string to sha256.
+   *
+   * @param text the text to hash.
+   * @return the same input text hashed with the sha256 algorithm.
    */
   public static byte[] encryptToSHA256(String text) {
-    return encryptToSHA256(text.getBytes(StandardCharsets.UTF_8));
+    return Hashing.sha256().hashString(text, StandardCharsets.UTF_8).asBytes();
   }
 
   /**
@@ -47,40 +45,32 @@ public final class EncryptTo {
    * @return the output SHA-256 hash
    */
   public static byte[] encryptToSHA256(byte[] bytes) {
-    try {
-      MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
-      messageDigest.update(bytes);
-      return messageDigest.digest();
-    } catch (NoSuchAlgorithmException exception) {
-      LOGGER.severe("No algorithm found", exception);
-    }
-
-    return null;
+    return Hashing.sha256().hashBytes(bytes).asBytes();
   }
 
   /**
-   * Invokes the encryptToSHA1(byte[] bytes) method
-   */
-  public static byte[] encryptToSHA1(String text) {
-    return encryptToSHA1(text.getBytes(StandardCharsets.UTF_8));
-  }
-
-
-  /**
-   * Encrypts the following byte array to an SHA-1 hash
+   * Hashes the given string to sha1.
    *
-   * @param bytes the following bytes which should encrypt
-   * @return the output SHA-1 hash
+   * @param text the text to hash.
+   * @return the same input text hashed with the sha1 algorithm.
+   * @deprecated This hashing method is everything but secure. It is not used internally anymore and will be removed.
+   * Use {@link #encryptToSHA256(String)} instead.
    */
-  public static byte[] encryptToSHA1(byte[] bytes) {
-    try {
-      MessageDigest messageDigest = MessageDigest.getInstance("SHA-1");
-      messageDigest.update(bytes);
-      return messageDigest.digest();
-    } catch (NoSuchAlgorithmException exception) {
-      LOGGER.severe("No algorithm found", exception);
-    }
+  @Deprecated
+  public static byte[] encryptToSHA1(String text) {
+    return Hashing.sha1().hashString(text, StandardCharsets.UTF_8).asBytes();
+  }
 
-    return null;
+  /**
+   * Hashes the given string to sha1.
+   *
+   * @param bytes the text as bytes to hash.
+   * @return the same input text hashed with the sha1 algorithm.
+   * @deprecated This hashing method is everything but secure. It is not used internally anymore and will be removed.
+   * Use {@link #encryptToSHA256(byte[])} instead.
+   */
+  @Deprecated
+  public static byte[] encryptToSHA1(byte[] bytes) {
+    return Hashing.sha1().hashBytes(bytes).asBytes();
   }
 }

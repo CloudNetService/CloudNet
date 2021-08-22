@@ -16,58 +16,70 @@
 
 package de.dytanic.cloudnet.common.document.gson;
 
-import de.dytanic.cloudnet.common.collection.Pair;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class JsonDocumentTest {
 
   @Test
-  public void testDocument() {
-    JsonDocument document = new JsonDocument();
-
-    Assert.assertNotNull(document.append("foo", "bar"));
-
-    document.append("number", 4).append("test", new TestClass("myData"));
-
-    Assert.assertNotNull(document);
-    Assert.assertEquals("bar", document.getString("foo"));
-    Assert.assertEquals(4, document.getInt("number"));
-    Assert.assertEquals("myData", document.get("test", TestClass.class).data);
-    Assert.assertEquals("Hello, world!", new String(document.getBinary("test_binary", "Hello, world!".getBytes())));
+  void testDocumentSize() {
+    Assertions.assertEquals(3, this.getDummyDocument().size());
   }
 
   @Test
-  public void testProperties() {
-    JsonDocProperty<Pair<String, String>> docProperty = new JsonDocProperty<>(
+  void testDocumentRead() {
+    JsonDocument document = this.getDummyDocument();
 
-      (stringStringPair, document) -> document
-        .append("firstProp", stringStringPair.getFirst())
-        .append("secondProp", stringStringPair.getSecond()),
-      document -> {
-        if (!document.contains("firstProp") || !document.contains("secondProp")) {
-          return null;
-        }
+    Assertions.assertEquals("bar", document.getString("foo"));
+    Assertions.assertEquals(4, document.getInt("number"));
+    Assertions.assertEquals("myData", document.get("test", TestClass.class).data);
+  }
 
-        return new Pair<>(document.getString("firstProp"), document.getString("secondProp"));
-      },
-      document -> {
-        document.remove("firstProp");
-        document.remove("secondProp");
-      },
-      jsonDocument -> jsonDocument.contains("firstProp") && jsonDocument.contains("secondProp")
+  @Test
+  void testDocumentRemove() {
+    JsonDocument document = this.getDummyDocument();
+
+    Assertions.assertNull(document.remove("foo").getString("foo"));
+    Assertions.assertNull(document.remove("test").get("test", TestClass.class));
+    Assertions.assertEquals(0, document.remove("number").getInt("number"));
+  }
+
+  @Test
+  void testClear() {
+    Assertions.assertTrue(this.getDummyDocument().clear().isEmpty());
+  }
+
+  @Test
+  void testJsonDocPropertyAppend() {
+    Assertions.assertEquals(4, this.getDummyDocument().setProperty(this.getJsonDocProperty(), "test124").size());
+  }
+
+  @Test
+  void testJsonDocPropertyRead() {
+    JsonDocument document = this.getDummyDocument().setProperty(this.getJsonDocProperty(), "test124");
+    Assertions.assertEquals("test124", document.getProperty(this.getJsonDocProperty()));
+  }
+
+  @Test
+  void testJsonDocPropertyRemove() {
+    JsonDocument document = this.getDummyDocument().setProperty(this.getJsonDocProperty(), "test124");
+    Assertions.assertNull(document.removeProperty(this.getJsonDocProperty()).getProperty(this.getJsonDocProperty()));
+  }
+
+  private JsonDocument getDummyDocument() {
+    return JsonDocument.newDocument()
+      .append("foo", "bar")
+      .append("number", 4)
+      .append("test", new TestClass("myData"));
+  }
+
+  private JsonDocProperty<String> getJsonDocProperty() {
+    return new JsonDocProperty<>(
+      (s, document) -> document.append("content", s),
+      document -> document.getString("content"),
+      document -> document.remove("content"),
+      document -> document.contains("content")
     );
-
-    JsonDocument document = new JsonDocument();
-    document.setProperty(docProperty, new Pair<>("foo", "bar"));
-
-    Assert.assertTrue(document.hasProperty(docProperty));
-    Assert.assertEquals("foo", document.getProperty(docProperty).getFirst());
-    Assert.assertEquals("bar", document.getProperty(docProperty).getSecond());
-
-    document.removeProperty(docProperty);
-
-    Assert.assertEquals(0, document.size());
   }
 
   private static class TestClass {
@@ -77,10 +89,5 @@ public class JsonDocumentTest {
     public TestClass(String data) {
       this.data = data;
     }
-
-    public String getData() {
-      return this.data;
-    }
   }
-
 }
