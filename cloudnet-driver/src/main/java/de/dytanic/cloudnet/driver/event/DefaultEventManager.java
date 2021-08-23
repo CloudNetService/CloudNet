@@ -26,18 +26,17 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-public final class DefaultEventManager implements IEventManager {
+public class DefaultEventManager implements IEventManager {
 
   private static final Logger LOGGER = LogManager.getLogger(DefaultEventManager.class);
 
-  private final Map<String, List<IRegisteredEventListener>> registeredListeners = new HashMap<>();
-
-  private final ListenerInvokerGenerator invokerGenerator = new ListenerInvokerGenerator();
+  protected final ListenerInvokerGenerator invokerGenerator = new ListenerInvokerGenerator();
+  protected final Map<String, List<IRegisteredEventListener>> registeredListeners = new ConcurrentHashMap<>();
 
   @Override
   public IEventManager registerListener(Object listener) {
@@ -53,18 +52,23 @@ public final class DefaultEventManager implements IEventManager {
 
     for (Map.Entry<String, List<IRegisteredEventListener>> listeners : this.registeredListeners.entrySet()) {
       listeners.getValue().removeIf(registeredEventListener -> registeredEventListener.getInstance().equals(listener));
+      if (listeners.getValue().isEmpty()) {
+        this.registeredListeners.remove(listeners.getKey());
+      }
     }
 
     return this;
   }
 
   @Override
-  public IEventManager unregisterListener(Class<?> listener) {
-    Preconditions.checkNotNull(listener);
+  public IEventManager unregisterListener(Class<?> clazz) {
+    Preconditions.checkNotNull(clazz);
 
     for (Map.Entry<String, List<IRegisteredEventListener>> listeners : this.registeredListeners.entrySet()) {
-      listeners.getValue()
-        .removeIf(registeredEventListener -> registeredEventListener.getInstance().getClass().equals(listener));
+      listeners.getValue().removeIf(listener -> listener.getInstance().getClass().equals(clazz));
+      if (listeners.getValue().isEmpty()) {
+        this.registeredListeners.remove(listeners.getKey());
+      }
     }
 
     return this;
@@ -75,9 +79,10 @@ public final class DefaultEventManager implements IEventManager {
     Preconditions.checkNotNull(classLoader);
 
     for (Map.Entry<String, List<IRegisteredEventListener>> listeners : this.registeredListeners.entrySet()) {
-      listeners.getValue().removeIf(
-        registeredEventListener -> registeredEventListener.getInstance().getClass().getClassLoader()
-          .equals(classLoader));
+      listeners.getValue().removeIf(listener -> listener.getInstance().getClass().getClassLoader().equals(classLoader));
+      if (listeners.getValue().isEmpty()) {
+        this.registeredListeners.remove(listeners.getKey());
+      }
     }
 
     return this;

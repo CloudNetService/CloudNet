@@ -16,105 +16,125 @@
 
 package de.dytanic.cloudnet.driver.event;
 
-import java.util.concurrent.atomic.AtomicInteger;
-import org.junit.Assert;
-import org.junit.Test;
+import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import de.dytanic.cloudnet.driver.channel.ChannelMessage;
+import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
+import de.dytanic.cloudnet.driver.event.events.service.CloudServiceStartEvent;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
+import org.mockito.Mockito;
 
-public final class DefaultEventManagerTest {
-
-  private final AtomicInteger publisherCounter = new AtomicInteger(45);
+@TestMethodOrder(OrderAnnotation.class)
+public class DefaultEventManagerTest {
 
   @Test
-  public void testListenerCall() throws Throwable {
+  void testNullListenerRegistration() {
     IEventManager eventManager = new DefaultEventManager();
-
-    Assert.assertNotNull(eventManager.registerListener(new ListenerTest()));
-
-    TestEvent testEvent = new TestEvent("Test_value1234");
-
-    Assert.assertNotNull(eventManager.callEvent("set", testEvent));
-    Assert.assertEquals("test_result", testEvent.value);
-
-    testEvent.value = "Test_value1234";
-
-    Assert.assertNotNull(eventManager.unregisterListener(ListenerTest.class));
-    Assert.assertNotNull(eventManager.callEvent("set", testEvent));
-    Assert.assertEquals(46, this.publisherCounter.get());
-
-    Assert.assertEquals("Test_value1234", testEvent.value);
-
-    ListenerTest listenerTest = new ListenerTest();
-    Assert.assertNotNull(eventManager.registerListener(listenerTest));
-    Assert.assertNotNull(eventManager.unregisterListener(listenerTest));
-    Assert.assertNotNull(eventManager.callEvent("set", testEvent));
-
-    Assert.assertEquals("Test_value1234", testEvent.value);
-    Assert.assertNotNull(eventManager.registerListener(listenerTest));
-    Assert.assertNotNull(eventManager.callEvent("test_channel", testEvent));
-
-    Assert.assertEquals("test_channel_result", testEvent.value);
-    eventManager.unregisterAll();
+    Assertions.assertThrows(NullPointerException.class, () -> eventManager.registerListener(null));
   }
 
   @Test
-  public void testEventPriority() {
+  @Order(0)
+  void testListenerRegistration() {
+    DefaultEventManager eventManager = new DefaultEventManager();
+    eventManager.registerListeners(new TestListener());
+
+    Assertions.assertEquals(2, eventManager.registeredListeners.size());
+
+    Assertions.assertNotNull(eventManager.registeredListeners.get("123"));
+    Assertions.assertEquals(1, eventManager.registeredListeners.get("123").size());
+
+    Assertions.assertNotNull(eventManager.registeredListeners.get("*"));
+    Assertions.assertEquals(1, eventManager.registeredListeners.get("*").size());
+
+    Assertions.assertEquals(EventPriority.HIGH, eventManager.registeredListeners.get("*").get(0).getPriority());
+    Assertions.assertEquals(EventPriority.NORMAL, eventManager.registeredListeners.get("123").get(0).getPriority());
+
+    Assertions.assertEquals("listenerA", eventManager.registeredListeners.get("*").get(0).getMethodName());
+    Assertions.assertEquals("listenerB", eventManager.registeredListeners.get("123").get(0).getMethodName());
+
+    Assertions.assertEquals(ChannelMessageReceiveEvent.class,
+      eventManager.registeredListeners.get("*").get(0).getEventClass());
+    Assertions.assertEquals(CloudServiceStartEvent.class,
+      eventManager.registeredListeners.get("123").get(0).getEventClass());
+  }
+
+  @Test
+  @Order(10)
+  void testEventCall() {
     IEventManager eventManager = new DefaultEventManager();
+    eventManager.registerListener(new TestListener());
 
-    Assert.assertNotNull(eventManager.registerListener(new ListenerTest2()));
+    ChannelMessage channelMessage = Mockito.mock(ChannelMessage.class);
+    Mockito.when(channelMessage.getChannel()).thenReturn("passed");
 
-    TestEvent testEvent = new TestEvent("value_123");
+    ChannelMessageReceiveEvent event = new ChannelMessageReceiveEvent(channelMessage, true);
 
-    Assert.assertNotNull(eventManager.callEvent("test_channel_2", testEvent));
-    Assert.assertEquals("value_456", testEvent.value);
+    Assertions.assertSame(event, eventManager.callEvent(event));
 
-    Assert.assertNotNull(eventManager.callEvent("test_channel_3", testEvent));
-    Assert.assertEquals("value_789", testEvent.value);
+    Assertions.assertNotNull(event.getQueryResponse());
+    Assertions.assertEquals("abc", event.getQueryResponse().getChannel());
 
-    testEvent.value = "value_123";
-    Assert.assertNotNull(eventManager.callEvent(testEvent));
-    Assert.assertEquals("value_789", testEvent.value);
+    Assertions.assertNotNull(event.getQueryResponse().getJson());
+    Assertions.assertEquals("passed", event.getQueryResponse().getJson().getString("test"));
   }
 
-  public static final class TestEvent extends Event {
+  @Test
+  @Order(20)
+  void testUnregisterListenerByInstance() {
+    DefaultEventManager eventManager = this.newEventManagerWithListener();
+    eventManager.unregisterListener(new TestListener());
 
-    public String value;
-
-    public TestEvent(String value) {
-      this.value = value;
-    }
+    Assertions.assertEquals(0, eventManager.registeredListeners.size());
   }
 
+  @Test
+  @Order(30)
+  void testUnregisterListenerByClass() {
+    DefaultEventManager eventManager = this.newEventManagerWithListener();
+    eventManager.unregisterListener(TestListener.class);
 
-  public final class ListenerTest {
-
-    @EventListener(channel = "set")
-    public void onTestExecute(TestEvent testEvent) {
-      Assert.assertEquals("Test_value1234", testEvent.value);
-
-      testEvent.value = "test_result";
-      DefaultEventManagerTest.this.publisherCounter.incrementAndGet();
-    }
-
-    @EventListener(channel = "test_channel")
-    public void onTestExecute2(TestEvent testEvent) {
-      testEvent.value = "test_channel_result";
-    }
+    Assertions.assertEquals(0, eventManager.registeredListeners.size());
   }
 
-  public final class ListenerTest2 {
+  @Test
+  @Order(40)
+  void testUnregisterListenerByClassLoader() {
+    DefaultEventManager eventManager = this.newEventManagerWithListener();
+    eventManager.unregisterListeners(TestListener.class.getClassLoader());
 
-    @EventListener(channel = "test_channel_2", priority = EventPriority.HIGHEST)
-    public void onTestExecute(TestEvent testEvent) {
-      Assert.assertEquals("value_123", testEvent.value);
+    Assertions.assertEquals(0, eventManager.registeredListeners.size());
+  }
 
-      testEvent.value = "value_456";
+  private DefaultEventManager newEventManagerWithListener() {
+    DefaultEventManager eventManager = new DefaultEventManager();
+
+    eventManager.registerListener(new TestListener());
+    Assertions.assertEquals(2, eventManager.registeredListeners.size());
+
+    return eventManager;
+  }
+
+  public static final class TestListener {
+
+    @EventListener(priority = EventPriority.HIGH)
+    public void listenerA(ChannelMessageReceiveEvent event) {
+      event.setQueryResponse(ChannelMessage.builder(null)
+        .channel("abc")
+        .json(JsonDocument.newDocument("test", event.getChannel()))
+        .build());
     }
 
-    @EventListener(channel = "test_channel_3", priority = EventPriority.LOWEST)
-    public void onTestExecute2(TestEvent testEvent) {
-      Assert.assertEquals("value_456", testEvent.value);
+    @EventListener(channel = "123")
+    public void listenerB(CloudServiceStartEvent event) {
+    }
 
-      testEvent.value = "value_789";
+    @Override
+    public boolean equals(Object obj) {
+      return super.equals(obj) || (obj != null && obj.getClass() == this.getClass());
     }
   }
 }

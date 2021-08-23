@@ -17,34 +17,35 @@
 package de.dytanic.cloudnet.driver.module;
 
 import java.net.URL;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public final class DefaultModuleProviderTest {
 
   @Test
-  public void testModule() {
+  void testModuleLifecycles() {
     IModuleProvider moduleProvider = new DefaultModuleProvider();
     URL testModuleResource = DefaultModuleProviderTest.class.getClassLoader().getResource("module.jar");
 
-    Assert.assertNotNull(testModuleResource);
+    Assertions.assertNotNull(testModuleResource);
 
     IModuleWrapper moduleWrapper = moduleProvider.loadModule(testModuleResource);
-    Assert.assertNull(moduleProvider.loadModule(testModuleResource));
+    Assertions.assertNull(moduleProvider.loadModule(testModuleResource));
 
-    Assert.assertNotNull(moduleWrapper);
-    Assert.assertNotNull(System.getProperty("module_test_state"));
-    Assert.assertEquals("loaded", System.getProperty("module_test_state"));
+    Assertions.assertNotNull(moduleWrapper);
+    Assertions.assertNotNull(System.getProperty("module_test_state"));
 
-    Assert.assertNotNull(moduleWrapper.startModule());
-    Assert.assertEquals("started", System.getProperty("module_test_state"));
+    Assertions.assertEquals("loaded", System.getProperty("module_test_state"));
 
-    Assert.assertNotNull(moduleWrapper.stopModule());
-    Assert.assertEquals("stopped", System.getProperty("module_test_state"));
+    Assertions.assertNotNull(moduleWrapper.startModule());
+    Assertions.assertEquals("started", System.getProperty("module_test_state"));
 
-    Assert.assertNotNull(moduleWrapper.unloadModule());
-    Assert.assertEquals("unloaded", System.getProperty("module_test_state"));
+    Assertions.assertNotNull(moduleWrapper.stopModule());
+    Assertions.assertEquals("stopped", System.getProperty("module_test_state"));
 
-    Assert.assertEquals(0, moduleProvider.getModules().size());
+    Assertions.assertNotNull(moduleWrapper.unloadModule());
+    Assertions.assertEquals("unloaded", System.getProperty("module_test_state"));
+
+    Assertions.assertEquals(0, moduleProvider.getModules().size());
   }
 }

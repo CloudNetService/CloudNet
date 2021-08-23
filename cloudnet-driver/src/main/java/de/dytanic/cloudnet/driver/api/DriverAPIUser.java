@@ -21,18 +21,12 @@ import de.dytanic.cloudnet.common.concurrent.function.ThrowableFunction;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.def.packet.PacketClientDriverAPI;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
-import de.dytanic.cloudnet.driver.network.chunk.ChunkedQueryResponse;
 import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import java.util.function.Consumer;
 
 public interface DriverAPIUser {
 
   INetworkChannel getNetworkChannel();
-
-  default ITask<ChunkedQueryResponse> executeChunkedDriverAPIMethod(DriverAPIRequestType requestType,
-    Consumer<ProtocolBuffer> modifier) {
-    return this.getNetworkChannel().sendChunkedPacketQuery(new PacketClientDriverAPI(requestType, modifier));
-  }
 
   default <T> ITask<T> executeDriverAPIMethod(DriverAPIRequestType requestType, Consumer<ProtocolBuffer> modifier,
     ThrowableFunction<IPacket, T, Throwable> responseMapper) {
