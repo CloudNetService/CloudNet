@@ -16,6 +16,7 @@
 
 package de.dytanic.cloudnet.common.document.gson;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
@@ -226,8 +227,8 @@ public class JsonDocument implements IDocument<JsonDocument>, Cloneable {
 
   @Override
   public JsonDocument clear() {
-    for (Map.Entry<String, JsonElement> elementEntry : this.jsonObject.entrySet()) {
-      this.jsonObject.remove(elementEntry.getKey());
+    for (String key : ImmutableSet.copyOf(this.jsonObject.keySet())) {
+      this.jsonObject.remove(key);
     }
 
     return this;

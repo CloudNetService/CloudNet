@@ -18,8 +18,8 @@ package de.dytanic.cloudnet.common;
 
 import java.util.Arrays;
 import java.util.Collection;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class WildcardUtilTest {
 
@@ -43,27 +43,27 @@ public class WildcardUtilTest {
 
   @Test
   public void testValidSuppliedPattern() {
-    Assert.assertTrue(WildcardUtil.anyMatch(VALID_NAMEABLES, VALID_PATTERN));
-    Assert.assertTrue(WildcardUtil.anyMatch(VALID_NAMEABLES, VALID_PATTERN, false));
+    Assertions.assertTrue(WildcardUtil.anyMatch(VALID_NAMEABLES, VALID_PATTERN));
+    Assertions.assertTrue(WildcardUtil.anyMatch(VALID_NAMEABLES, VALID_PATTERN, false));
 
-    Assert.assertEquals(2, WildcardUtil.filterWildcard(VALID_NAMEABLES, VALID_PATTERN).size());
-    Assert.assertEquals(3, WildcardUtil.filterWildcard(VALID_NAMEABLES, VALID_PATTERN, false).size());
+    Assertions.assertEquals(2, WildcardUtil.filterWildcard(VALID_NAMEABLES, VALID_PATTERN).size());
+    Assertions.assertEquals(3, WildcardUtil.filterWildcard(VALID_NAMEABLES, VALID_PATTERN, false).size());
   }
 
   @Test
   public void testInvalidSuppliedPattern() {
-    Assert.assertTrue(WildcardUtil.anyMatch(INVALID_NAMEABLES, INVALID_PATTERN));
-    Assert.assertTrue(WildcardUtil.anyMatch(INVALID_NAMEABLES, INVALID_PATTERN, false));
+    Assertions.assertTrue(WildcardUtil.anyMatch(INVALID_NAMEABLES, INVALID_PATTERN));
+    Assertions.assertTrue(WildcardUtil.anyMatch(INVALID_NAMEABLES, INVALID_PATTERN, false));
 
-    Assert.assertEquals(1, WildcardUtil.filterWildcard(INVALID_NAMEABLES, INVALID_PATTERN).size());
-    Assert.assertEquals(2, WildcardUtil.filterWildcard(INVALID_NAMEABLES, INVALID_PATTERN, false).size());
+    Assertions.assertEquals(1, WildcardUtil.filterWildcard(INVALID_NAMEABLES, INVALID_PATTERN).size());
+    Assertions.assertEquals(2, WildcardUtil.filterWildcard(INVALID_NAMEABLES, INVALID_PATTERN, false).size());
   }
 
   @Test
   public void testFixUnclosedGroups() {
-    Assert.assertEquals("Lobby-\\(56(.*)(.)$",
+    Assertions.assertEquals("Lobby-\\(56(.*)(.)$",
       WildcardUtil.fixUnclosedGroups("Lobby-(56(.*)(.)$"));
-    Assert.assertEquals("Lobby-\\(56\\(.*(.)\\(\\d+(\\D)",
+    Assertions.assertEquals("Lobby-\\(56\\(.*(.)\\(\\d+(\\D)",
       WildcardUtil.fixUnclosedGroups("Lobby-(56(.*(.)(\\d+(\\D)"));
   }
 

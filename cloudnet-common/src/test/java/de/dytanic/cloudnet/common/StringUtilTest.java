@@ -16,18 +16,26 @@
 
 package de.dytanic.cloudnet.common;
 
+import java.security.SecureRandom;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.RepeatedTest;
 
-public class PropertiesTest {
+class StringUtilTest {
 
-  @Test
-  public void testPropertiesParser() {
-    Properties properties = Properties.parseLine("test=true --foo -xfy");
+  @RepeatedTest(100)
+  void testGenerateRandomString() {
+    int stringLength = Math.abs(new SecureRandom().nextInt(100));
+    String randomString = StringUtil.generateRandomString(stringLength);
 
-    Assertions.assertNotNull(properties);
-    Assertions.assertEquals(3, properties.size());
-    Assertions.assertTrue(properties.getBoolean("test"));
+    Assertions.assertNotNull(randomString);
+    Assertions.assertEquals(stringLength, randomString.length());
   }
 
+  @RepeatedTest(100)
+  void testEndsWithIgnoreCase() {
+    String randomString = StringUtil.generateRandomString(20);
+    String randomStringSuffix = randomString.substring(15);
+
+    Assertions.assertTrue(StringUtil.endsWithIgnoreCase(randomString, randomStringSuffix));
+  }
 }
