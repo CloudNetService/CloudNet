@@ -24,7 +24,7 @@ class StringUtilTest {
 
   @RepeatedTest(100)
   void testGenerateRandomString() {
-    int stringLength = Math.abs(new SecureRandom().nextInt()); // don't use ThreadLocalRandom here to prevent init of it
+    int stringLength = Math.abs(new SecureRandom().nextInt(100));
     String randomString = StringUtil.generateRandomString(stringLength);
 
     Assertions.assertNotNull(randomString);
