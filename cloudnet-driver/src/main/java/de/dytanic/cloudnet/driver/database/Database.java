@@ -17,6 +17,7 @@
 package de.dytanic.cloudnet.driver.database;
 
 import de.dytanic.cloudnet.common.INameable;
+import de.dytanic.cloudnet.common.concurrent.CompletableTask;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import java.util.Collection;
@@ -262,7 +263,9 @@ public interface Database extends INameable, AutoCloseable {
    * Clears the whole database
    */
   @NotNull
-  ITask<Void> clearAsync();
+  default ITask<Void> clearAsync() {
+    return CompletableTask.supplyAsync(this::clear);
+  }
 
   /**
    * @return the count of all persistent documents

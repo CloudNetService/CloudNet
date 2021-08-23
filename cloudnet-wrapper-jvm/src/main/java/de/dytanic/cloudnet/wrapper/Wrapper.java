@@ -25,7 +25,6 @@ import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.DriverEnvironment;
-import de.dytanic.cloudnet.driver.api.DriverAPIUser;
 import de.dytanic.cloudnet.driver.module.DefaultModuleProviderHandler;
 import de.dytanic.cloudnet.driver.module.IModuleWrapper;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
@@ -87,7 +86,7 @@ import org.jetbrains.annotations.NotNull;
  *
  * @see CloudNetDriver
  */
-public final class Wrapper extends CloudNetDriver implements DriverAPIUser {
+public final class Wrapper extends CloudNetDriver {
 
   private static final Logger LOGGER = LogManager.getLogger(Wrapper.class);
 
@@ -120,7 +119,7 @@ public final class Wrapper extends CloudNetDriver implements DriverAPIUser {
    * The single task thread of the scheduler of the wrapper application
    */
   private final Thread mainThread = Thread.currentThread();
-  private IDatabaseProvider databaseProvider = new DefaultWrapperDatabaseProvider();
+  private IDatabaseProvider databaseProvider;
   /**
    * The ServiceInfoSnapshot instances. The current ServiceInfoSnapshot instance is the last send object snapshot from
    * this process. The lastServiceInfoSnapshot is the element which was send before.
@@ -132,6 +131,7 @@ public final class Wrapper extends CloudNetDriver implements DriverAPIUser {
     setInstance(this);
 
     this.networkClient = new NettyNetworkClient(NetworkClientChannelHandler::new, this.config.getSSLConfig());
+    this.databaseProvider = new DefaultWrapperDatabaseProvider(this);
     this.rpcSender = this.rpcProviderFactory.providerForClass(this.getNetworkClient(), CloudNetDriver.class);
 
     super.cloudServiceFactory = new RemoteCloudServiceFactory(this::getNetworkChannel);

@@ -19,7 +19,6 @@ package de.dytanic.cloudnet.provider;
 import com.google.common.base.Preconditions;
 import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.CloudNet;
-import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.common.log.LogManager;
@@ -261,66 +260,4 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
 
     this.removePermanentServiceTask(serviceTask.getName());
   }
-
-  @Override
-  public @NotNull ITask<Void> reloadAsync() {
-    return this.cloudNet.scheduleTask(() -> {
-      this.reload();
-      return null;
-    });
-  }
-
-  @Override
-  @NotNull
-  public ITask<Collection<ServiceTask>> getPermanentServiceTasksAsync() {
-    return this.cloudNet.scheduleTask(this::getPermanentServiceTasks);
-  }
-
-  @Override
-  public @NotNull ITask<Void> setPermanentServiceTasksAsync(@NotNull Collection<ServiceTask> serviceTasks) {
-    return this.cloudNet.scheduleTask(() -> {
-      this.setPermanentServiceTasks(serviceTasks);
-      return null;
-    });
-  }
-
-  @Override
-  @NotNull
-  public ITask<ServiceTask> getServiceTaskAsync(@NotNull String name) {
-    return this.cloudNet.scheduleTask(() -> this.getServiceTask(name));
-  }
-
-  @Override
-  @NotNull
-  public ITask<Boolean> isServiceTaskPresentAsync(@NotNull String name) {
-    return this.cloudNet.scheduleTask(() -> this.isServiceTaskPresent(name));
-  }
-
-  @Override
-  @NotNull
-  public ITask<Boolean> addPermanentServiceTaskAsync(@NotNull ServiceTask serviceTask) {
-    return this.cloudNet.scheduleTask(() -> {
-      this.addPermanentServiceTask(serviceTask);
-      return null;
-    });
-  }
-
-  @Override
-  @NotNull
-  public ITask<Void> removePermanentServiceTaskAsync(@NotNull String name) {
-    return this.cloudNet.scheduleTask(() -> {
-      this.removePermanentServiceTask(name);
-      return null;
-    });
-  }
-
-  @Override
-  @NotNull
-  public ITask<Void> removePermanentServiceTaskAsync(@NotNull ServiceTask serviceTask) {
-    return this.cloudNet.scheduleTask(() -> {
-      this.removePermanentServiceTask(serviceTask);
-      return null;
-    });
-  }
-
 }

@@ -23,16 +23,17 @@ import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.api.RemoteDatabaseRequestType;
+import de.dytanic.cloudnet.driver.database.Database;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
+import de.dytanic.cloudnet.driver.network.rpc.RPCSender;
 import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
+import de.dytanic.cloudnet.wrapper.Wrapper;
 import de.dytanic.cloudnet.wrapper.database.IDatabase;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 import java.util.function.BiPredicate;
 import java.util.function.Consumer;
@@ -45,10 +46,12 @@ public class WrapperDatabase implements IDatabase {
 
   private final String name;
   private final DefaultWrapperDatabaseProvider databaseProvider;
+  private final RPCSender rpcSender;
 
-  public WrapperDatabase(String name, DefaultWrapperDatabaseProvider databaseProvider) {
+  public WrapperDatabase(String name, DefaultWrapperDatabaseProvider databaseProvider, Wrapper wrapper) {
     this.name = name;
     this.databaseProvider = databaseProvider;
+    this.rpcSender = wrapper.getRPCProviderFactory().providerForClass(wrapper.getNetworkClient(), Database.class);
   }
 
   private ProtocolBuffer writeDefaults(ProtocolBuffer buffer) {
@@ -62,77 +65,77 @@ public class WrapperDatabase implements IDatabase {
 
   @Override
   public boolean insert(String key, JsonDocument document) {
-    return this.insertAsync(key, document).getDef(false);
+    return this.rpcSender.invokeMethod("insert", key, document).fireSync();
   }
 
   @Override
   public boolean update(String key, JsonDocument document) {
-    return this.updateAsync(key, document).getDef(false);
+    return this.rpcSender.invokeMethod("update", key, document).fireSync();
   }
 
   @Override
   public boolean contains(String key) {
-    return this.containsAsync(key).getDef(false);
+    return this.rpcSender.invokeMethod("contains", key).fireSync();
   }
 
   @Override
   public boolean delete(String key) {
-    return this.deleteAsync(key).getDef(false);
+    return this.rpcSender.invokeMethod("delete", key).fireSync();
   }
 
   @Override
   public JsonDocument get(String key) {
-    return this.getAsync(key).getDef(null);
+    return this.rpcSender.invokeMethod("get", key).fireSync();
   }
 
   @Override
   public List<JsonDocument> get(String fieldName, Object fieldValue) {
-    return this.getAsync(fieldName, fieldValue).getDef(Collections.emptyList());
+    return this.rpcSender.invokeMethod("get", fieldName, fieldValue).fireSync();
   }
 
   @Override
   public List<JsonDocument> get(JsonDocument filters) {
-    return this.getAsync(filters).getDef(Collections.emptyList());
+    return this.rpcSender.invokeMethod("get", filters).fireSync();
   }
 
   @Override
   public Collection<String> keys() {
-    return this.keysAsync().getDef(Collections.emptyList());
+    return this.rpcSender.invokeMethod("keys").fireSync();
   }
 
   @Override
   public Collection<JsonDocument> documents() {
-    return this.documentsAsync().getDef(Collections.emptyList());
+    return this.rpcSender.invokeMethod("documents").fireSync();
   }
 
   @Override
   public Map<String, JsonDocument> entries() {
-    return this.entriesAsync().getDef(Collections.emptyMap());
+    return this.rpcSender.invokeMethod("entries").fireSync();
   }
 
   @Override
   public Map<String, JsonDocument> filter(BiPredicate<String, JsonDocument> predicate) {
-    return this.filterAsync(predicate).get(5, TimeUnit.SECONDS, Collections.emptyMap());
+    return this.rpcSender.invokeMethod("filter", predicate).fireSync();
   }
 
   @Override
   public void iterate(BiConsumer<String, JsonDocument> consumer) {
-    this.iterateAsync(consumer).getDef(null);
+    this.rpcSender.invokeMethod("iterate", consumer).fireAndForget();
   }
 
   @Override
   public void iterate(BiConsumer<String, JsonDocument> consumer, int chunkSize) {
-    this.iterateAsync(consumer, chunkSize).getDef(null);
+    this.rpcSender.invokeMethod("iterate", consumer, chunkSize).fireAndForget();
   }
 
   @Override
   public void clear() {
-    this.clearAsync().getDef(null);
+    this.rpcSender.invokeMethod("clear").fireSync();
   }
 
   @Override
   public long getDocumentsCount() {
-    Long result = this.getDocumentsCountAsync().getDef(-1L);
+    Long result = this.rpcSender.invokeMethod("getDocumentsCount").fireSync();
     return result != null ? result : -1;
   }
 
@@ -144,55 +147,55 @@ public class WrapperDatabase implements IDatabase {
   @Override
   @NotNull
   public ITask<Boolean> insertAsync(String key, JsonDocument document) {
-    return CompletableTask.supplyAsync(() ->);
+    return CompletableTask.supplyAsync(() -> this.insert(key, document));
   }
 
   @Override
   @NotNull
   public ITask<Boolean> containsAsync(String key) {
-    return CompletableTask.supplyAsync(() ->);
+    return CompletableTask.supplyAsync(() -> this.contains(key));
   }
 
   @Override
   @NotNull
   public ITask<Boolean> updateAsync(String key, JsonDocument document) {
-    return CompletableTask.supplyAsync(() ->);
+    return CompletableTask.supplyAsync(() -> this.update(key, document));
   }
 
   @Override
   @NotNull
   public ITask<Boolean> deleteAsync(String key) {
-    return CompletableTask.supplyAsync(() ->);
+    return CompletableTask.supplyAsync(() -> this.delete(key));
   }
 
   @Override
   @NotNull
   public ITask<JsonDocument> getAsync(String key) {
-    return CompletableTask.supplyAsync(() ->);
+    return CompletableTask.supplyAsync(() -> this.get(key));
   }
 
   @Override
   @NotNull
   public ITask<List<JsonDocument>> getAsync(String fieldName, Object fieldValue) {
-    return CompletableTask.supplyAsync(() ->);
+    return CompletableTask.supplyAsync(() -> this.get(fieldName, fieldValue));
   }
 
   @Override
   @NotNull
   public ITask<List<JsonDocument>> getAsync(JsonDocument filters) {
-    return CompletableTask.supplyAsync(() ->);
+    return CompletableTask.supplyAsync(() -> this.get(filters));
   }
 
   @Override
   @NotNull
   public ITask<Collection<String>> keysAsync() {
-    return CompletableTask.supplyAsync(() ->);
+    return CompletableTask.supplyAsync(this::keys);
   }
 
   @Override
   @NotNull
   public ITask<Collection<JsonDocument>> documentsAsync() {
-    return CompletableTask.supplyAsync(() ->);
+    return CompletableTask.supplyAsync(this::documents);
   }
 
   private List<JsonDocument> asJsonDocumentList(ProtocolBuffer buffer) {
@@ -207,7 +210,7 @@ public class WrapperDatabase implements IDatabase {
   @Override
   @NotNull
   public ITask<Map<String, JsonDocument>> entriesAsync() {
-    return CompletableTask.supplyAsync(() ->);
+    return CompletableTask.supplyAsync(this::entries);
   }
 
   @Override
@@ -246,6 +249,7 @@ public class WrapperDatabase implements IDatabase {
     return completeTask;
   }
 
+  //TODO: replace this
   private @NotNull ITask<Map<String, JsonDocument>> readNextDataChunk(long beginIndex, int chunkSize) {
     return this.databaseProvider.executeQuery(
       RemoteDatabaseRequestType.DATABASE_ITERATE_CHUNKED,
@@ -273,10 +277,10 @@ public class WrapperDatabase implements IDatabase {
 
   private @NotNull Function<IPacket, Map<String, JsonDocument>> dataMapReader() {
     return packet -> {
-      int size = packet.getBuffer().readVarInt();
+      int size = packet.getContent().readInt();
       Map<String, JsonDocument> documents = new HashMap<>();
       for (int i = 0; i < size; i++) {
-        documents.put(packet.getBuffer().readString(), packet.getBuffer().readJsonDocument());
+        documents.put(packet.getContent().readString(), packet.getBuffer().readJsonDocument());
       }
       return documents;
     };
@@ -285,21 +289,17 @@ public class WrapperDatabase implements IDatabase {
   @Override
   @NotNull
   public ITask<Void> clearAsync() {
-    return CompletableTask.supplyAsync(() ->);
+    return CompletableTask.supplyAsync(this::clear);
   }
 
   @Override
   @NotNull
   public ITask<Long> getDocumentsCountAsync() {
-    return CompletableTask.supplyAsync(() ->);
+    return CompletableTask.supplyAsync(this::getDocumentsCount);
   }
 
   @Override
   public void close() {
-    this.databaseProvider.executeQuery(
-      RemoteDatabaseRequestType.DATABASE_CLOSE,
-      this::writeDefaults
-    ).get(5, TimeUnit.SECONDS, null);
+    this.rpcSender.invokeMethod("close").fireAndForget();
   }
-
 }

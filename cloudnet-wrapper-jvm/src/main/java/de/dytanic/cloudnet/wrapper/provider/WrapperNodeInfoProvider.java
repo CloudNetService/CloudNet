@@ -17,11 +17,7 @@
 package de.dytanic.cloudnet.wrapper.provider;
 
 import com.google.common.base.Preconditions;
-import de.dytanic.cloudnet.common.concurrent.CompletableTask;
-import de.dytanic.cloudnet.common.concurrent.ITask;
-import de.dytanic.cloudnet.driver.api.DriverAPIUser;
 import de.dytanic.cloudnet.driver.command.CommandInfo;
-import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
 import de.dytanic.cloudnet.driver.network.rpc.RPCSender;
@@ -31,13 +27,11 @@ import java.util.Collection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class WrapperNodeInfoProvider implements NodeInfoProvider, DriverAPIUser {
+public class WrapperNodeInfoProvider implements NodeInfoProvider {
 
   private final RPCSender rpcSender;
-  private final Wrapper wrapper;
 
   public WrapperNodeInfoProvider(Wrapper wrapper) {
-    this.wrapper = wrapper;
     this.rpcSender = wrapper.getRPCProviderFactory()
       .providerForClass(wrapper.getNetworkClient(), NodeInfoProvider.class);
   }
@@ -94,64 +88,5 @@ public class WrapperNodeInfoProvider implements NodeInfoProvider, DriverAPIUser 
   public NetworkClusterNodeInfoSnapshot getNodeInfoSnapshot(@NotNull String uniqueId) {
     Preconditions.checkNotNull(uniqueId);
     return this.rpcSender.invokeMethod("getNodeInfoSnapshot", uniqueId).fireSync();
-  }
-
-  @Override
-  @NotNull
-  public ITask<Collection<CommandInfo>> getConsoleCommandsAsync() {
-    return CompletableTask.supplyAsync(this::getConsoleCommands);
-  }
-
-  @Override
-  @NotNull
-  public ITask<CommandInfo> getConsoleCommandAsync(@NotNull String commandLine) {
-    return CompletableTask.supplyAsync(() -> this.getConsoleCommand(commandLine));
-  }
-
-  @Override
-  @NotNull
-  public ITask<Collection<String>> getConsoleTabCompleteResultsAsync(@NotNull String commandLine) {
-    return CompletableTask.supplyAsync(() -> this.getConsoleTabCompleteResults(commandLine));
-  }
-
-  @Override
-  @NotNull
-  public ITask<String[]> sendCommandLineAsync(@NotNull String commandLine) {
-    return CompletableTask.supplyAsync(() -> this.sendCommandLine(commandLine));
-  }
-
-  @Override
-  @NotNull
-  public ITask<String[]> sendCommandLineAsync(@NotNull String nodeUniqueId, @NotNull String commandLine) {
-    return CompletableTask.supplyAsync(() -> this.sendCommandLine(nodeUniqueId, commandLine));
-  }
-
-  @Override
-  @NotNull
-  public ITask<NetworkClusterNode[]> getNodesAsync() {
-    return CompletableTask.supplyAsync(this::getNodes);
-  }
-
-  @Override
-  @NotNull
-  public ITask<NetworkClusterNode> getNodeAsync(@NotNull String uniqueId) {
-    return CompletableTask.supplyAsync(() -> this.getNode(uniqueId));
-  }
-
-  @Override
-  @NotNull
-  public ITask<NetworkClusterNodeInfoSnapshot[]> getNodeInfoSnapshotsAsync() {
-    return CompletableTask.supplyAsync(this::getNodeInfoSnapshots);
-  }
-
-  @Override
-  @NotNull
-  public ITask<NetworkClusterNodeInfoSnapshot> getNodeInfoSnapshotAsync(@NotNull String uniqueId) {
-    return CompletableTask.supplyAsync(() -> this.getNodeInfoSnapshot(uniqueId));
-  }
-
-  @Override
-  public INetworkChannel getNetworkChannel() {
-    return this.wrapper.getNetworkChannel();
   }
 }

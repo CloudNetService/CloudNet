@@ -21,11 +21,10 @@ import de.dytanic.cloudnet.driver.network.INetworkComponent;
 import de.dytanic.cloudnet.driver.network.rpc.RPCProviderFactory;
 import de.dytanic.cloudnet.driver.network.rpc.RPCSender;
 import de.dytanic.cloudnet.driver.provider.CloudMessenger;
-import de.dytanic.cloudnet.driver.provider.DefaultMessenger;
 import java.util.Collection;
 import org.jetbrains.annotations.NotNull;
 
-public class WrapperMessenger extends DefaultMessenger implements CloudMessenger {
+public class WrapperMessenger implements CloudMessenger {
 
   protected final RPCSender rpcSender;
 
@@ -35,7 +34,7 @@ public class WrapperMessenger extends DefaultMessenger implements CloudMessenger
 
   @Override
   public void sendChannelMessage(@NotNull ChannelMessage channelMessage) {
-    this.rpcSender.invokeMethod("sendChannelMessage", channelMessage).fireAndForget();
+    this.rpcSender.invokeMethod("sendChannelMessage", channelMessage).fireSync();
   }
 
   @Override

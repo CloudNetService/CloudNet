@@ -21,6 +21,7 @@ import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.api.RemoteDatabaseRequestType;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
+import de.dytanic.cloudnet.wrapper.Wrapper;
 import de.dytanic.cloudnet.wrapper.database.IDatabase;
 import de.dytanic.cloudnet.wrapper.database.IDatabaseProvider;
 import de.dytanic.cloudnet.wrapper.network.packet.PacketClientDatabaseAction;
@@ -31,9 +32,15 @@ import org.jetbrains.annotations.NotNull;
 
 public class DefaultWrapperDatabaseProvider implements IDatabaseProvider {
 
+  private final Wrapper wrapper;
+
+  public DefaultWrapperDatabaseProvider(Wrapper wrapper) {
+    this.wrapper = wrapper;
+  }
+
   @Override
   public IDatabase getDatabase(String name) {
-    return new WrapperDatabase(name, this);
+    return new WrapperDatabase(name, this, this.wrapper);
   }
 
   @Override

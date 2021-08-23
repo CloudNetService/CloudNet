@@ -19,8 +19,6 @@ package de.dytanic.cloudnet.wrapper.provider.service;
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.concurrent.CompletableTask;
 import de.dytanic.cloudnet.common.concurrent.ITask;
-import de.dytanic.cloudnet.driver.api.DriverAPIUser;
-import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.rpc.RPCSender;
 import de.dytanic.cloudnet.driver.provider.service.GeneralCloudServiceProvider;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
@@ -31,13 +29,11 @@ import java.util.UUID;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class WrapperGeneralCloudServiceProvider implements GeneralCloudServiceProvider, DriverAPIUser {
+public class WrapperGeneralCloudServiceProvider implements GeneralCloudServiceProvider {
 
-  private final Wrapper wrapper;
   private final RPCSender rpcSender;
 
   public WrapperGeneralCloudServiceProvider(Wrapper wrapper) {
-    this.wrapper = wrapper;
     this.rpcSender = wrapper.getRPCProviderFactory()
       .providerForClass(wrapper.getNetworkClient(), GeneralCloudServiceProvider.class);
   }
@@ -168,10 +164,5 @@ public class WrapperGeneralCloudServiceProvider implements GeneralCloudServicePr
   @NotNull
   public ITask<ServiceInfoSnapshot> getCloudServiceAsync(@NotNull UUID uniqueId) {
     return CompletableTask.supplyAsync(() -> this.getCloudService(uniqueId));
-  }
-
-  @Override
-  public INetworkChannel getNetworkChannel() {
-    return this.wrapper.getNetworkChannel();
   }
 }

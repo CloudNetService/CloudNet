@@ -21,7 +21,6 @@ import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.cluster.IClusterNodeServer;
 import de.dytanic.cloudnet.command.Command;
 import de.dytanic.cloudnet.command.DriverCommandSender;
-import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.command.CommandInfo;
@@ -156,63 +155,5 @@ public class NodeNodeInfoProvider implements NodeInfoProvider {
   @Override
   public Collection<String> getConsoleTabCompleteResults(@NotNull String commandLine) {
     return this.cloudNet.getCommandMap().tabCompleteCommand(commandLine);
-  }
-
-  @Override
-  @NotNull
-  public ITask<Collection<CommandInfo>> getConsoleCommandsAsync() {
-    return this.cloudNet.scheduleTask(this::getConsoleCommands);
-  }
-
-  @Override
-  @NotNull
-  public ITask<CommandInfo> getConsoleCommandAsync(@NotNull String commandLine) {
-    return this.cloudNet.scheduleTask(() -> this.getConsoleCommand(commandLine));
-  }
-
-  @Override
-  @NotNull
-  public ITask<Collection<String>> getConsoleTabCompleteResultsAsync(@NotNull String commandLine) {
-    return this.cloudNet.scheduleTask(() -> this.getConsoleTabCompleteResults(commandLine));
-  }
-
-  @Override
-  @NotNull
-  public ITask<String[]> sendCommandLineAsync(@NotNull String commandLine) {
-    return this.cloudNet.scheduleTask(() -> this.sendCommandLine(commandLine));
-  }
-
-  @Override
-  @NotNull
-  public ITask<String[]> sendCommandLineAsync(@NotNull String nodeUniqueId, @NotNull String commandLine) {
-    return this.cloudNet.scheduleTask(() -> this.sendCommandLine(nodeUniqueId, commandLine));
-  }
-
-  @Override
-  @NotNull
-  public ITask<NetworkClusterNode[]> getNodesAsync() {
-    return this.cloudNet.scheduleTask(this::getNodes);
-  }
-
-  @Override
-  @NotNull
-  public ITask<NetworkClusterNode> getNodeAsync(@NotNull String uniqueId) {
-    Preconditions.checkNotNull(uniqueId);
-
-    return this.cloudNet.scheduleTask(() -> this.getNode(uniqueId));
-  }
-
-  @Override
-  @NotNull
-  public ITask<NetworkClusterNodeInfoSnapshot[]> getNodeInfoSnapshotsAsync() {
-    return this.cloudNet.scheduleTask(this::getNodeInfoSnapshots);
-  }
-
-  @Override
-  @NotNull
-  public ITask<NetworkClusterNodeInfoSnapshot> getNodeInfoSnapshotAsync(@NotNull String uniqueId) {
-    Preconditions.checkNotNull(uniqueId);
-
-    return this.cloudNet.scheduleTask(() -> this.getNodeInfoSnapshot(uniqueId));
   }
 }

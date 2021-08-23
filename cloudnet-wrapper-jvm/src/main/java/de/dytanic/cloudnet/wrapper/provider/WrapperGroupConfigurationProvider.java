@@ -17,11 +17,6 @@
 package de.dytanic.cloudnet.wrapper.provider;
 
 import com.google.common.base.Preconditions;
-import de.dytanic.cloudnet.common.concurrent.CompletableTask;
-import de.dytanic.cloudnet.common.concurrent.CompletedTask;
-import de.dytanic.cloudnet.common.concurrent.ITask;
-import de.dytanic.cloudnet.driver.api.DriverAPIUser;
-import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.rpc.RPCSender;
 import de.dytanic.cloudnet.driver.provider.GroupConfigurationProvider;
 import de.dytanic.cloudnet.driver.service.GroupConfiguration;
@@ -30,13 +25,11 @@ import java.util.Collection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class WrapperGroupConfigurationProvider implements GroupConfigurationProvider, DriverAPIUser {
+public class WrapperGroupConfigurationProvider implements GroupConfigurationProvider {
 
-  private final Wrapper wrapper;
   private final RPCSender rpcSender;
 
   public WrapperGroupConfigurationProvider(Wrapper wrapper) {
-    this.wrapper = wrapper;
     this.rpcSender = wrapper.getRPCProviderFactory()
       .providerForClass(wrapper.getNetworkClient(), GroupConfigurationProvider.class);
   }
@@ -54,7 +47,7 @@ public class WrapperGroupConfigurationProvider implements GroupConfigurationProv
   @Override
   public void setGroupConfigurations(@NotNull Collection<GroupConfiguration> groupConfigurations) {
     Preconditions.checkNotNull(groupConfigurations);
-    this.rpcSender.invokeMethod("setGroupConfigurations").fireAndForget();
+    this.rpcSender.invokeMethod("setGroupConfigurations").fireSync();
   }
 
   @Nullable
@@ -86,62 +79,5 @@ public class WrapperGroupConfigurationProvider implements GroupConfigurationProv
   public void removeGroupConfiguration(@NotNull GroupConfiguration groupConfiguration) {
     Preconditions.checkNotNull(groupConfiguration);
     this.removeGroupConfiguration(groupConfiguration.getName());
-  }
-
-  @Override
-  public @NotNull ITask<Void> reloadAsync() {
-    this.reload();
-    return CompletedTask.voidTask();
-  }
-
-
-  @Override
-  @NotNull
-  public ITask<Collection<GroupConfiguration>> getGroupConfigurationsAsync() {
-    return CompletableTask.supplyAsync(this::getGroupConfigurations);
-  }
-
-  @Override
-  public @NotNull ITask<Void> setGroupConfigurationsAsync(@NotNull Collection<GroupConfiguration> groupConfigurations) {
-    this.setGroupConfigurations(groupConfigurations);
-    return CompletedTask.voidTask();
-  }
-
-  @Override
-  @NotNull
-  public ITask<GroupConfiguration> getGroupConfigurationAsync(@NotNull String name) {
-    return CompletableTask.supplyAsync(() -> this.getGroupConfiguration(name));
-  }
-
-  @Override
-  @NotNull
-  public ITask<Boolean> isGroupConfigurationPresentAsync(@NotNull String name) {
-    return CompletableTask.supplyAsync(() -> this.isGroupConfigurationPresent(name));
-  }
-
-  @Override
-  @NotNull
-  public ITask<Void> addGroupConfigurationAsync(@NotNull GroupConfiguration groupConfiguration) {
-    this.addGroupConfiguration(groupConfiguration);
-    return CompletedTask.voidTask();
-  }
-
-  @Override
-  @NotNull
-  public ITask<Void> removeGroupConfigurationAsync(@NotNull String name) {
-    this.removeGroupConfiguration(name);
-    return CompletedTask.voidTask();
-  }
-
-  @Override
-  @NotNull
-  public ITask<Void> removeGroupConfigurationAsync(@NotNull GroupConfiguration groupConfiguration) {
-    this.removeGroupConfiguration(groupConfiguration);
-    return CompletedTask.voidTask();
-  }
-
-  @Override
-  public INetworkChannel getNetworkChannel() {
-    return this.wrapper.getNetworkChannel();
   }
 }

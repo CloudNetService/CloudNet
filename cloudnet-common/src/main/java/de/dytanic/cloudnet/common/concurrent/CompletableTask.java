@@ -51,6 +51,13 @@ public class CompletableTask<V> implements ITask<V> {
     });
   }
 
+  public static <V> CompletableTask<V> supplyAsync(Runnable runnable) {
+    return supplyAsync(() -> {
+      runnable.run();
+      return null;
+    });
+  }
+
   public static <V> CompletableTask<V> supplyAsync(ThrowableSupplier<V, Throwable> supplier) {
     CompletableTask<V> task = new CompletableTask<>();
     SERVICE.execute(() -> {
