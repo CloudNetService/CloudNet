@@ -155,7 +155,9 @@ public interface Database extends INameable, AutoCloseable {
    * @return whether the operation was successful or not
    */
   @NotNull
-  ITask<Boolean> insertAsync(String key, JsonDocument document);
+  default ITask<Boolean> insertAsync(String key, JsonDocument document) {
+    return CompletableTask.supplyAsync(() -> this.insert(key, document));
+  }
 
   /**
    * Updates the given document for the given key
@@ -165,14 +167,18 @@ public interface Database extends INameable, AutoCloseable {
    * @return whether the operation was successful or not
    */
   @NotNull
-  ITask<Boolean> updateAsync(String key, JsonDocument document);
+  default ITask<Boolean> updateAsync(String key, JsonDocument document) {
+    return CompletableTask.supplyAsync(() -> this.update(key, document));
+  }
 
   /**
    * @param key the key to look for
    * @return whether the database contains the given key
    */
   @NotNull
-  ITask<Boolean> containsAsync(String key);
+  default ITask<Boolean> containsAsync(String key) {
+    return CompletableTask.supplyAsync(() -> this.contains(key));
+  }
 
   /**
    * Deletes the given key and corresponding data
@@ -181,7 +187,9 @@ public interface Database extends INameable, AutoCloseable {
    * @return whether the operation was successful or not
    */
   @NotNull
-  ITask<Boolean> deleteAsync(String key);
+  default ITask<Boolean> deleteAsync(String key) {
+    return CompletableTask.supplyAsync(() -> this.delete(key));
+  }
 
   /**
    * Searches for a {@link JsonDocument} by the given key
@@ -190,7 +198,9 @@ public interface Database extends INameable, AutoCloseable {
    * @return the document associated with the key
    */
   @NotNull
-  ITask<JsonDocument> getAsync(String key);
+  default ITask<JsonDocument> getAsync(String key) {
+    return CompletableTask.supplyAsync(() -> this.get(key));
+  }
 
   /**
    * Searches the database for a field that has the given fieldValue
@@ -200,7 +210,9 @@ public interface Database extends INameable, AutoCloseable {
    * @return a List with the documents containing the field and fieldValue
    */
   @NotNull
-  ITask<List<JsonDocument>> getAsync(String fieldName, Object fieldValue);
+  default ITask<List<JsonDocument>> getAsync(String fieldName, Object fieldValue) {
+    return CompletableTask.supplyAsync(() -> this.get(fieldName, fieldValue));
+  }
 
   /**
    * Filters the database by the given document filters
@@ -209,19 +221,25 @@ public interface Database extends INameable, AutoCloseable {
    * @return all documents that passed the filter
    */
   @NotNull
-  ITask<List<JsonDocument>> getAsync(JsonDocument filters);
+  default ITask<List<JsonDocument>> getAsync(JsonDocument filters) {
+    return CompletableTask.supplyAsync(() -> this.get(filters));
+  }
 
   /**
    * @return all keys of the database
    */
   @NotNull
-  ITask<Collection<String>> keysAsync();
+  default ITask<Collection<String>> keysAsync() {
+    return CompletableTask.supplyAsync(this::keys);
+  }
 
   /**
    * @return all documents of the database
    */
   @NotNull
-  ITask<Collection<JsonDocument>> documentsAsync();
+  default ITask<Collection<JsonDocument>> documentsAsync() {
+    return CompletableTask.supplyAsync(this::documents);
+  }
 
   /**
    * Retrieves all keys and corresponding documents from the database. This option should not be used with big databases
@@ -230,7 +248,9 @@ public interface Database extends INameable, AutoCloseable {
    * @return all entries of the database
    */
   @NotNull
-  ITask<Map<String, JsonDocument>> entriesAsync();
+  default ITask<Map<String, JsonDocument>> entriesAsync() {
+    return CompletableTask.supplyAsync(this::entries);
+  }
 
   /**
    * Retrieves all entries that match the given filter predicate
@@ -239,7 +259,9 @@ public interface Database extends INameable, AutoCloseable {
    * @return all entries that match the filter
    */
   @NotNull
-  ITask<Map<String, JsonDocument>> filterAsync(BiPredicate<String, JsonDocument> predicate);
+  default ITask<Map<String, JsonDocument>> filterAsync(BiPredicate<String, JsonDocument> predicate) {
+    return CompletableTask.supplyAsync(() -> this.filter(predicate));
+  }
 
   /**
    * Iterates over all entries in the database This option should not be used with big databases Use {@link
@@ -248,7 +270,9 @@ public interface Database extends INameable, AutoCloseable {
    * @param consumer the consumer to pass the entries into
    */
   @NotNull
-  ITask<Void> iterateAsync(BiConsumer<String, JsonDocument> consumer);
+  default ITask<Void> iterateAsync(BiConsumer<String, JsonDocument> consumer) {
+    return CompletableTask.supplyAsync(() -> this.iterate(consumer));
+  }
 
   /**
    * Iterates over all entries in the database, but in chunks in the given size
@@ -257,7 +281,9 @@ public interface Database extends INameable, AutoCloseable {
    * @param chunkSize the chunkSize of the entries
    */
   @NotNull
-  ITask<Void> iterateAsync(BiConsumer<String, JsonDocument> consumer, int chunkSize);
+  default ITask<Void> iterateAsync(BiConsumer<String, JsonDocument> consumer, int chunkSize) {
+    return CompletableTask.supplyAsync(() -> this.iterate(consumer, chunkSize));
+  }
 
   /**
    * Clears the whole database
@@ -271,6 +297,8 @@ public interface Database extends INameable, AutoCloseable {
    * @return the count of all persistent documents
    */
   @NotNull
-  ITask<Long> getDocumentsCountAsync();
+  default ITask<Long> getDocumentsCountAsync() {
+    return CompletableTask.supplyAsync(this::getDocumentsCount);
+  }
 
 }

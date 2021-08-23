@@ -115,7 +115,7 @@ public class WrapperGeneralCloudServiceProvider implements GeneralCloudServicePr
   @Override
   @NotNull
   public ITask<Collection<ServiceInfoSnapshot>> getCloudServicesAsync() {
-    return CompletableTask.supplyAsync(this::getCloudServices);
+    return CompletableTask.supplyAsync(() -> this.getCloudServices());
   }
 
   @Override

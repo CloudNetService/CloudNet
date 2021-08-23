@@ -18,7 +18,6 @@ package de.dytanic.cloudnet.wrapper.database.defaults;
 
 import de.dytanic.cloudnet.common.concurrent.CompletableTask;
 import de.dytanic.cloudnet.common.concurrent.ITask;
-import de.dytanic.cloudnet.common.concurrent.ListenableTask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
@@ -120,12 +119,12 @@ public class WrapperDatabase implements IDatabase {
 
   @Override
   public void iterate(BiConsumer<String, JsonDocument> consumer) {
-    this.rpcSender.invokeMethod("iterate", consumer).fireAndForget();
+    this.rpcSender.invokeMethod("iterate", consumer).fireSync();
   }
 
   @Override
   public void iterate(BiConsumer<String, JsonDocument> consumer, int chunkSize) {
-    this.rpcSender.invokeMethod("iterate", consumer, chunkSize).fireAndForget();
+    this.rpcSender.invokeMethod("iterate", consumer, chunkSize).fireSync();
   }
 
   @Override
@@ -144,60 +143,6 @@ public class WrapperDatabase implements IDatabase {
     return true;
   }
 
-  @Override
-  @NotNull
-  public ITask<Boolean> insertAsync(String key, JsonDocument document) {
-    return CompletableTask.supplyAsync(() -> this.insert(key, document));
-  }
-
-  @Override
-  @NotNull
-  public ITask<Boolean> containsAsync(String key) {
-    return CompletableTask.supplyAsync(() -> this.contains(key));
-  }
-
-  @Override
-  @NotNull
-  public ITask<Boolean> updateAsync(String key, JsonDocument document) {
-    return CompletableTask.supplyAsync(() -> this.update(key, document));
-  }
-
-  @Override
-  @NotNull
-  public ITask<Boolean> deleteAsync(String key) {
-    return CompletableTask.supplyAsync(() -> this.delete(key));
-  }
-
-  @Override
-  @NotNull
-  public ITask<JsonDocument> getAsync(String key) {
-    return CompletableTask.supplyAsync(() -> this.get(key));
-  }
-
-  @Override
-  @NotNull
-  public ITask<List<JsonDocument>> getAsync(String fieldName, Object fieldValue) {
-    return CompletableTask.supplyAsync(() -> this.get(fieldName, fieldValue));
-  }
-
-  @Override
-  @NotNull
-  public ITask<List<JsonDocument>> getAsync(JsonDocument filters) {
-    return CompletableTask.supplyAsync(() -> this.get(filters));
-  }
-
-  @Override
-  @NotNull
-  public ITask<Collection<String>> keysAsync() {
-    return CompletableTask.supplyAsync(this::keys);
-  }
-
-  @Override
-  @NotNull
-  public ITask<Collection<JsonDocument>> documentsAsync() {
-    return CompletableTask.supplyAsync(this::documents);
-  }
-
   private List<JsonDocument> asJsonDocumentList(ProtocolBuffer buffer) {
     int size = buffer.readVarInt();
     List<JsonDocument> documents = new ArrayList<>();
@@ -205,40 +150,6 @@ public class WrapperDatabase implements IDatabase {
       documents.add(buffer.readJsonDocument());
     }
     return documents;
-  }
-
-  @Override
-  @NotNull
-  public ITask<Map<String, JsonDocument>> entriesAsync() {
-    return CompletableTask.supplyAsync(this::entries);
-  }
-
-  @Override
-  public @NotNull ITask<Map<String, JsonDocument>> filterAsync(BiPredicate<String, JsonDocument> predicate) {
-    return this.entriesAsync().map(map -> {
-      Map<String, JsonDocument> result = new HashMap<>();
-      map.forEach((key, document) -> {
-        if (predicate.test(key, document)) {
-          result.put(key, document);
-        }
-      });
-      return result;
-    });
-  }
-
-  @Override
-  @NotNull
-  public ITask<Void> iterateAsync(BiConsumer<String, JsonDocument> consumer) {
-    ITask<Void> task = new ListenableTask<>(() -> null);
-    this.entriesAsync().onComplete(response -> {
-      response.forEach(consumer);
-      try {
-        task.call();
-      } catch (Exception exception) {
-        LOGGER.severe("Exception while calling response", exception);
-      }
-    });
-    return task;
   }
 
   @Override
@@ -280,6 +191,7 @@ public class WrapperDatabase implements IDatabase {
       int size = packet.getContent().readInt();
       Map<String, JsonDocument> documents = new HashMap<>();
       for (int i = 0; i < size; i++) {
+        //TODO: resolve this
         documents.put(packet.getContent().readString(), packet.getBuffer().readJsonDocument());
       }
       return documents;
@@ -287,19 +199,7 @@ public class WrapperDatabase implements IDatabase {
   }
 
   @Override
-  @NotNull
-  public ITask<Void> clearAsync() {
-    return CompletableTask.supplyAsync(this::clear);
-  }
-
-  @Override
-  @NotNull
-  public ITask<Long> getDocumentsCountAsync() {
-    return CompletableTask.supplyAsync(this::getDocumentsCount);
-  }
-
-  @Override
   public void close() {
-    this.rpcSender.invokeMethod("close").fireAndForget();
+    this.rpcSender.invokeMethod("close").fireSync();
   }
 }
