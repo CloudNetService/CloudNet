@@ -28,7 +28,7 @@ public final class PacketClientAuthorization extends Packet {
     Preconditions.checkNotNull(packetAuthorizationType);
     Preconditions.checkNotNull(credentials);
 
-    this.header.append("authorization", packetAuthorizationType).append("credentials", credentials);
+    // this.header.append("authorization", packetAuthorizationType).append("credentials", credentials);
   }
 
   public enum PacketAuthorizationType {

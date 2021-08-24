@@ -30,11 +30,6 @@ public interface DriverAPIUser {
 
   INetworkChannel getNetworkChannel();
 
-  default ITask<ChunkedQueryResponse> executeChunkedDriverAPIMethod(DriverAPIRequestType requestType,
-    Consumer<ProtocolBuffer> modifier) {
-    return this.getNetworkChannel().sendChunkedPacketQuery(new PacketClientDriverAPI(requestType, modifier));
-  }
-
   default <T> ITask<T> executeDriverAPIMethod(DriverAPIRequestType requestType, Consumer<ProtocolBuffer> modifier,
     ThrowableFunction<IPacket, T, Throwable> responseMapper) {
     return this.getNetworkChannel().sendQueryAsync(new PacketClientDriverAPI(requestType, modifier))
