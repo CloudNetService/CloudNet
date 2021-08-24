@@ -17,6 +17,7 @@
 package de.dytanic.cloudnet.permission;
 
 import com.google.common.base.Preconditions;
+import com.google.gson.JsonParseException;
 import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.common.concurrent.CompletableTask;
 import de.dytanic.cloudnet.common.concurrent.CompletedTask;
@@ -454,7 +455,13 @@ public class DefaultDatabasePermissionManagement extends ClusterSynchronizedPerm
   }
 
   private void loadGroups() {
-    JsonDocument document = JsonDocument.newDocument(this.file);
+    JsonDocument document;
+    try {
+      document = JsonDocument.newDocumentExceptionally(this.file);
+    } catch (Exception exception) {
+      throw new JsonParseException(
+        "Exception while parsing permissions.json. The file is invalid, cannot load groups.");
+    }
 
     if (document.contains("groups")) {
       Collection<PermissionGroup> permissionGroups = document.get("groups", COLLECTION_GROUP_TYPE);
