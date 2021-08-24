@@ -85,7 +85,9 @@ public class NettyMutableDataBuf extends NettyImmutableDataBuf implements DataBu
 
   @Override
   public @NotNull DataBuf.Mutable writeByteArray(byte[] b, int amount) {
-    this.byteBuf.writeBytes(b, 0, amount);
+    this.byteBuf
+      .writeInt(amount)
+      .writeBytes(b, 0, amount);
     return this;
   }
 
