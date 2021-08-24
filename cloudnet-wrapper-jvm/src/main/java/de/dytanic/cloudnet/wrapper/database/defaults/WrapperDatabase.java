@@ -166,6 +166,7 @@ public class WrapperDatabase implements IDatabase {
       RemoteDatabaseRequestType.DATABASE_ITERATE_CHUNKED,
       buffer -> this.writeDefaults(buffer).writeVarLong(beginIndex).writeVarInt(chunkSize)
     ).map(this.dataMapReader());
+
   }
 
   private @NotNull Consumer<Map<String, JsonDocument>> chunkedIterateResultHandler(
