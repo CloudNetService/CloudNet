@@ -59,6 +59,7 @@ public interface CloudMessenger {
    * @param message                   the message to identify the message, this can be anything and doesn't have to be
    *                                  registered
    * @param data                      extra data for the message
+   * @deprecated use {@link ChannelMessage.Builder}
    */
   @Deprecated
   @ScheduledForRemoval
@@ -72,14 +73,13 @@ public interface CloudMessenger {
    * Sends a channel message to all services of a specific task in the cluster. It can be received with the {@link
    * ChannelMessageReceiveEvent}.
    *
-   * @deprecated use {@link ChannelMessage.Builder}
-   *
    * @param targetServiceTask the task which will receive the message
    * @param channel           the channel to identify the message, this can be anything and doesn't have to be
    *                          registered
    * @param message           the message to identify the message, this can be anything and doesn't have to be
    *                          registered
    * @param data              extra data for the message
+   * @deprecated use {@link ChannelMessage.Builder}
    */
   @Deprecated
   @ScheduledForRemoval
@@ -94,14 +94,13 @@ public interface CloudMessenger {
    * Sends a channel message to all services of a specific environment in the cluster. It can be received with the
    * {@link ChannelMessageReceiveEvent}.
    *
-   * @deprecated use {@link ChannelMessage.Builder}
-   *
    * @param targetEnvironment the environment which will receive the message
    * @param channel           the channel to identify the message, this can be anything and doesn't have to be
    *                          registered
    * @param message           the message to identify the message, this can be anything and doesn't have to be
    *                          registered
    * @param data              extra data for the message
+   * @deprecated use {@link ChannelMessage.Builder}
    */
   @Deprecated
   @ScheduledForRemoval

@@ -20,9 +20,7 @@ import com.google.common.base.Preconditions;
 import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.common.concurrent.CompletableTask;
 import de.dytanic.cloudnet.common.concurrent.CompletedTask;
-import de.dytanic.cloudnet.common.concurrent.CountingTask;
 import de.dytanic.cloudnet.common.concurrent.ITask;
-import de.dytanic.cloudnet.common.concurrent.ListenableTask;
 import de.dytanic.cloudnet.common.concurrent.NullCompletableTask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.io.FileUtils;
@@ -30,13 +28,12 @@ import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.database.AbstractDatabaseProvider;
 import de.dytanic.cloudnet.driver.database.Database;
-import de.dytanic.cloudnet.driver.permission.DefaultSynchronizedPermissionManagement;
 import de.dytanic.cloudnet.driver.permission.IPermissionGroup;
+import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
 import de.dytanic.cloudnet.driver.permission.IPermissionManagementHandler;
 import de.dytanic.cloudnet.driver.permission.IPermissionUser;
 import de.dytanic.cloudnet.driver.permission.PermissionGroup;
 import de.dytanic.cloudnet.driver.permission.PermissionUser;
-import de.dytanic.cloudnet.driver.permission.PermissionUserGroupInfo;
 import java.lang.reflect.Type;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -45,16 +42,14 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
-import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class DefaultDatabasePermissionManagement extends ClusterSynchronizedPermissionManagement implements
-  DefaultSynchronizedPermissionManagement {
+  IPermissionManagement {
 
   private static final Logger LOGGER = LogManager.getLogger(DefaultDatabasePermissionManagement.class);
   private static final String DATABASE_USERS_NAME = "cloudnet_permission_users";
@@ -122,120 +117,121 @@ public class DefaultDatabasePermissionManagement extends ClusterSynchronizedPerm
   }
 
   @Override
-  public @NotNull ITask<Boolean> containsUserAsync(@NotNull UUID uniqueId) {
-    Preconditions.checkNotNull(uniqueId);
-
-    IPermissionUser user = this.permissionUserCache.getIfPresent(uniqueId);
-    return user != null ? CompletedTask.create(true) : this.getDatabase().containsAsync(uniqueId.toString());
-  }
-
-  @Override
-  public @NotNull ITask<Boolean> containsUserAsync(@NotNull String name) {
+  public boolean containsUser(@NotNull String name) {
     Preconditions.checkNotNull(name);
 
-    if (this.permissionUserCache.asMap().values().stream()
-      .anyMatch(permissionUser -> permissionUser.getName().equals(name))) {
-      return CompletedTask.create(true);
-    }
-
-    return this.getUsersAsync(name).map(users -> !users.isEmpty());
-  }
-
-  @Override
-  public @NotNull ITask<IPermissionUser> getUserAsync(@NotNull UUID uniqueId) {
-    Preconditions.checkNotNull(uniqueId);
-
-    IPermissionUser user = this.permissionUserCache.getIfPresent(uniqueId);
-    if (user != null) {
-      return CompletedTask.create(user);
-    }
-
-    CompletableTask<IPermissionUser> task = new CompletableTask<>();
-    this.getDatabase().getAsync(uniqueId.toString()).onComplete(document -> {
-      if (document == null) {
-        task.complete(null);
-      } else {
-        IPermissionUser permissionUser = document.toInstanceOf(PermissionUser.class);
-
-        if (this.testPermissionUser(permissionUser)) {
-          this.updateUser(permissionUser);
-        }
-
-        this.permissionUserCache.put(permissionUser.getUniqueId(), permissionUser);
-        task.complete(permissionUser);
-      }
-    })
-      .onCancelled(listITask -> task.cancel(true))
-      .onFailure(throwable -> task.complete(null));
-
-    return task;
-  }
-
-  @Override
-  public @NotNull ITask<IPermissionUser> getOrCreateUserAsync(@NotNull UUID uniqueId, @NotNull String name) {
-    Preconditions.checkNotNull(uniqueId);
-    Preconditions.checkNotNull(name);
-
-    IPermissionUser user = this.permissionUserCache.getIfPresent(uniqueId);
-    if (user != null) {
-      return CompletedTask.create(user);
-    }
-
-    return this.getUserAsync(uniqueId).map(permissionUser -> {
-      if (permissionUser == null) {
-        PermissionUser newUser = new PermissionUser(uniqueId, name, null, 0);
-        this.addUserAsync(newUser);
-        return newUser;
-      } else {
-        if (this.testPermissionUser(permissionUser)) {
-          this.updateUserAsync(permissionUser);
-        }
-
-        this.permissionUserCache.put(uniqueId, permissionUser);
-        return permissionUser;
-      }
-    });
-  }
-
-  @Override
-  public @NotNull ITask<List<IPermissionUser>> getUsersAsync(@NotNull String name) {
-    Preconditions.checkNotNull(name);
-
-    return this.getDatabase().getAsync("name", name)
-      .map(documents -> documents.stream().map(document -> {
-        IPermissionUser permissionUser = document.toInstanceOf(PermissionUser.class);
-
-        if (this.testPermissionUser(permissionUser)) {
-          this.updateUser(permissionUser);
-        }
-
-        this.permissionUserCache.put(permissionUser.getUniqueId(), permissionUser);
-        return permissionUser;
-      }).collect(Collectors.toList()));
-  }
-
-  @Override
-  public @NotNull ITask<IPermissionUser> getFirstUserAsync(String name) {
     for (IPermissionUser permissionUser : this.permissionUserCache.asMap().values()) {
       if (permissionUser.getName().equals(name)) {
-        return CompletedTask.create(permissionUser);
+        return true;
       }
     }
 
-    return this.getUsersAsync(name)
-      .map(users -> users.isEmpty() ? null : users.get(0));
+    for (IPermissionUser permissionUser : this.getUsers(name)) {
+      if (permissionUser.getName().equals(name)) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   @Override
-  public @NotNull ITask<Collection<IPermissionUser>> getUsersAsync() {
+  public @Nullable IPermissionUser getUser(@NotNull UUID uniqueId) {
+    Preconditions.checkNotNull(uniqueId);
+
+    IPermissionUser user = this.permissionUserCache.getIfPresent(uniqueId);
+    if (user != null) {
+      return user;
+    }
+
+    JsonDocument document = this.getDatabase().get(uniqueId.toString());
+    if (document == null) {
+      return null;
+    }
+
+    IPermissionUser permissionUser = document.toInstanceOf(PermissionUser.class);
+    if (this.testPermissionUser(permissionUser)) {
+      this.updateUser(permissionUser);
+    }
+
+    this.permissionUserCache.put(permissionUser.getUniqueId(), permissionUser);
+    return permissionUser;
+  }
+
+  @Override
+  public @NotNull IPermissionUser getOrCreateUser(@NotNull UUID uniqueId, @NotNull String name) {
+    Preconditions.checkNotNull(uniqueId);
+    Preconditions.checkNotNull(name);
+
+    IPermissionUser permissionUser = this.permissionUserCache.getIfPresent(uniqueId);
+    if (permissionUser != null) {
+      return permissionUser;
+    }
+
+    permissionUser = this.getUser(uniqueId);
+    if (permissionUser == null) {
+      PermissionUser newUser = new PermissionUser(uniqueId, name, null, 0);
+      this.addUser(newUser);
+      return newUser;
+    } else {
+      if (this.testPermissionUser(permissionUser)) {
+        this.updateUser(permissionUser);
+      }
+
+      this.permissionUserCache.put(uniqueId, permissionUser);
+      return permissionUser;
+    }
+  }
+
+  @Override
+  public @NotNull List<IPermissionUser> getUsers(@NotNull String name) {
+    Preconditions.checkNotNull(name);
+
+    List<IPermissionUser> permissionUsers = new ArrayList<>();
+    for (JsonDocument jsonDocument : this.getDatabase().get("name", name)) {
+      IPermissionUser permissionUser = jsonDocument.toInstanceOf(PermissionUser.class);
+
+      if (this.testPermissionUser(permissionUser)) {
+        this.updateUser(permissionUser);
+      }
+
+      this.permissionUserCache.put(permissionUser.getUniqueId(), permissionUser);
+      permissionUsers.add(permissionUser);
+    }
+
+    return permissionUsers;
+  }
+
+  @Override
+  public @Nullable IPermissionUser getFirstUser(String name) {
+    for (IPermissionUser permissionUser : this.permissionUserCache.asMap().values()) {
+      if (permissionUser.getName().equals(name)) {
+        return permissionUser;
+      }
+    }
+
+    List<IPermissionUser> permissionUsers = this.getUsers(name);
+
+    return permissionUsers.isEmpty() ? null : permissionUsers.get(0);
+  }
+
+  @Override
+  public @NotNull Collection<IPermissionUser> getUsers() {
     Collection<IPermissionUser> permissionUsers = new ArrayList<>();
 
-    return this.getDatabase().iterateAsync((key, document) -> {
+    this.getDatabase().iterate((key, document) -> {
       IPermissionUser permissionUser = document.toInstanceOf(PermissionUser.class);
       this.testPermissionUser(permissionUser);
 
       permissionUsers.add(permissionUser);
-    }).map($ -> permissionUsers);
+    });
+
+    return permissionUsers;
+  }
+
+  @Override
+  public void setUsers(@NotNull Collection<? extends IPermissionUser> users) {
+
   }
 
   @Override
@@ -267,40 +263,79 @@ public class DefaultDatabasePermissionManagement extends ClusterSynchronizedPerm
   }
 
   @Override
-  public @NotNull ITask<Collection<IPermissionUser>> getUsersByGroupAsync(@NotNull String group) {
+  public @NotNull Collection<IPermissionUser> getUsersByGroup(@NotNull String group) {
     Preconditions.checkNotNull(group);
 
     Collection<IPermissionUser> permissionUsers = new ArrayList<>();
-    ITask<Collection<IPermissionUser>> task = new ListenableTask<>(() -> permissionUsers);
 
-    this.getDatabase().iterateAsync((key, document) -> {
+    this.getDatabase().iterate((key, document) -> {
       IPermissionUser permissionUser = document.toInstanceOf(PermissionUser.class);
 
       this.testPermissionUser(permissionUser);
       if (permissionUser.inGroup(group)) {
         permissionUsers.add(permissionUser);
       }
-    }).onComplete($ -> {
-      try {
-        task.call();
-      } catch (Exception exception) {
-        LOGGER.severe("Exception while finding users by group", exception);
-      }
     });
 
-    return task;
+    return permissionUsers;
   }
 
   @Override
-  public @NotNull ITask<IPermissionGroup> addGroupAsync(@NotNull String role, int potency) {
-    return this.addGroupAsync(new PermissionGroup(role, potency));
+  public IPermissionGroup addGroup(
+    @NotNull IPermissionGroup permissionGroup) {
+    return null;
   }
 
   @Override
-  public @NotNull ITask<Boolean> containsGroupAsync(@NotNull String group) {
+  public void updateGroup(
+    @NotNull IPermissionGroup permissionGroup) {
+
+  }
+
+  @Override
+  public void deleteGroup(@NotNull String name) {
+
+  }
+
+  @Override
+  public void deleteGroup(
+    @NotNull IPermissionGroup permissionGroup) {
+
+  }
+
+  @Override
+  public @NotNull IPermissionGroup addGroup(@NotNull String role, int potency) {
+    return this.addGroup(new PermissionGroup(role, potency));
+  }
+
+  @Override
+  public IPermissionUser addUser(
+    @NotNull IPermissionUser permissionUser) {
+    return null;
+  }
+
+  @Override
+  public void updateUser(
+    @NotNull IPermissionUser permissionUser) {
+
+  }
+
+  @Override
+  public boolean deleteUser(@NotNull String name) {
+    return false;
+  }
+
+  @Override
+  public boolean deleteUser(
+    @NotNull IPermissionUser permissionUser) {
+    return false;
+  }
+
+  @Override
+  public boolean containsGroup(@NotNull String group) {
     Preconditions.checkNotNull(group);
 
-    return CompletedTask.create(this.permissionGroupCache.getIfPresent(group) != null);
+    return this.permissionGroupCache.getIfPresent(group) != null;
   }
 
   @Override
@@ -320,7 +355,7 @@ public class DefaultDatabasePermissionManagement extends ClusterSynchronizedPerm
     this.permissionGroupCache.put(permissionGroup.getName(), permissionGroup);
     this.saveGroups();
 
-    return CompletedTask.voidTask();
+    return CompletedTask.emptyTask();
   }
 
   @Override
@@ -330,7 +365,7 @@ public class DefaultDatabasePermissionManagement extends ClusterSynchronizedPerm
     this.permissionGroupCache.invalidate(group);
     this.saveGroups();
 
-    return CompletedTask.voidTask();
+    return CompletedTask.emptyTask();
   }
 
   @Override
@@ -341,61 +376,26 @@ public class DefaultDatabasePermissionManagement extends ClusterSynchronizedPerm
   }
 
   @Override
-  public boolean containsGroup(@NotNull String name) {
-    Preconditions.checkNotNull(name);
-
-    return this.permissionGroupCache.getIfPresent(name) != null;
-  }
-
-  @Override
-  public @NotNull ITask<IPermissionGroup> getGroupAsync(@NotNull String name) {
+  public @Nullable IPermissionGroup getGroup(@NotNull String name) {
     Preconditions.checkNotNull(name);
 
     IPermissionGroup permissionGroup = this.permissionGroupCache.getIfPresent(name);
     if (permissionGroup != null && this.testPermissible(permissionGroup)) {
-      ITask<IPermissionGroup> task = new ListenableTask<>(() -> permissionGroup);
-      this.updateGroupAsync(permissionGroup).onComplete($ -> {
-        try {
-          task.call();
-        } catch (Exception exception) {
-          LOGGER.severe("Exception while resolving group", exception);
-        }
-      });
-
-      return task;
-    } else {
-      return CompletedTask.create(permissionGroup);
+      this.updateGroup(permissionGroup);
     }
+
+    return permissionGroup;
   }
 
   @Override
-  public @NotNull ITask<IPermissionGroup> getDefaultPermissionGroupAsync() {
+  public @Nullable IPermissionGroup getDefaultPermissionGroup() {
     for (IPermissionGroup group : this.permissionGroupCache.asMap().values()) {
       if (group != null && group.isDefaultGroup()) {
-        return CompletedTask.create(group);
+        return group;
       }
     }
 
-    return CompletedTask.create(null);
-  }
-
-  @Override
-  public @NotNull ITask<Collection<IPermissionGroup>> getGroupsAsync() {
-    Collection<IPermissionGroup> groups = this.permissionGroupCache.asMap().values();
-    CountingTask<Collection<IPermissionGroup>> task = new CountingTask<>(groups, groups.size());
-
-    for (IPermissionGroup permissionGroup : groups) {
-      if (this.testPermissible(permissionGroup)) {
-        this.updateGroupAsync(permissionGroup)
-          .onComplete($ -> task.countDown())
-          .onCancelled($ -> task.countDown())
-          .onFailure($ -> task.countDown());
-      } else {
-        task.countDown();
-      }
-    }
-
-    return task;
+    return null;
   }
 
   @Override
@@ -411,19 +411,8 @@ public class DefaultDatabasePermissionManagement extends ClusterSynchronizedPerm
   }
 
   @Override
-  public @NotNull ITask<Collection<IPermissionGroup>> getGroupsAsync(@Nullable IPermissionUser permissionUser) {
-    return permissionUser == null ? CompletedTask.create(Collections.emptyList()) : CompletedTask.create(
-      permissionUser.getGroups().stream()
-        .map(PermissionUserGroupInfo::getGroup)
-        .map(this::getGroup)
-        .filter(Objects::nonNull)
-        .collect(Collectors.toList())
-    );
-  }
-
-  @Override
-  public @NotNull ITask<IPermissionUser> addUserAsync(@NotNull String name, @NotNull String password, int potency) {
-    return this.addUserAsync(new PermissionUser(UUID.randomUUID(), name, password, potency));
+  public @NotNull IPermissionUser addUser(@NotNull String name, @NotNull String password, int potency) {
+    return this.addUser(new PermissionUser(UUID.randomUUID(), name, password, potency));
   }
 
   @Override
@@ -439,7 +428,7 @@ public class DefaultDatabasePermissionManagement extends ClusterSynchronizedPerm
     }
 
     this.saveGroups();
-    return CompletedTask.voidTask();
+    return CompletedTask.emptyTask();
   }
 
   @Override

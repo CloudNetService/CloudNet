@@ -36,7 +36,7 @@ public class ClassObjectSerializer implements ObjectSerializer<Class<?>> {
     // verify & unwrap the type
     Verify.verify(type instanceof Class, "Cannot call class serializer without providing a class type");
     Class<?> clazz = (Class<?>) type;
-    // special case are arrays: their root type is a class - but they are actually an array so we need to check here
+    // special case are arrays: their root type is a class - but they are actually an array, so we need to check here
     if (clazz.isArray()) {
       // read the array component type information
       Type arrayType = clazz.getComponentType();
