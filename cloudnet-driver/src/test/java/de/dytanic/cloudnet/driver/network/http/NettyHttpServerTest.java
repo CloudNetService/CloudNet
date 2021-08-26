@@ -20,17 +20,22 @@ import com.google.common.collect.Iterables;
 import de.dytanic.cloudnet.common.concurrent.function.ThrowableConsumer;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.network.NetworkTestCase;
+import de.dytanic.cloudnet.driver.network.http.websocket.WebSocketFrameType;
 import de.dytanic.cloudnet.driver.network.netty.http.NettyHttpServer;
 import io.netty.handler.codec.http.cookie.ClientCookieDecoder;
 import io.netty.handler.codec.http.cookie.ClientCookieEncoder;
 import io.netty.handler.codec.http.cookie.Cookie;
 import io.netty.handler.codec.http.cookie.DefaultCookie;
+import jakarta.websocket.Session;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.glassfish.tyrus.client.ClientManager;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.junit.jupiter.api.Order;
@@ -309,6 +314,47 @@ public class NettyHttpServerTest extends NetworkTestCase {
 
     Assertions.assertEquals(404, this.connectTo(port, "test2").getResponseCode());
     Assertions.assertEquals(200, this.connectTo(secondPort, "test2").getResponseCode());
+  }
+
+  @Test
+  @Order(90)
+  void testWebSocketHandling() throws Exception {
+    int port = this.getRandomFreePort();
+    IHttpServer server = new NettyHttpServer();
+
+    server.registerHandler(
+      "/test",
+      ($, context) -> context.upgrade().addListener((channel, type, content) -> {
+        switch (type) {
+          case TEXT:
+            Assertions.assertEquals("request", new String(content, StandardCharsets.UTF_8));
+            channel.sendWebSocketFrame(WebSocketFrameType.TEXT, "response");
+            break;
+          case PING:
+            channel.sendWebSocketFrame(WebSocketFrameType.PONG, "response2");
+            break;
+          case BINARY:
+            Assertions.assertArrayEquals(new byte[]{0, 5, 6}, content);
+            channel.close(1001, "Successful close");
+            break;
+          default:
+            Assertions.fail("Unexpected frame type " + type);
+            break;
+        }
+      })
+    );
+    Assertions.assertTrue(server.addListener(port));
+
+    AtomicInteger eventCounter = new AtomicInteger();
+    Session session = ClientManager.createClient().connectToServer(
+      new WebSocketClientEndpoint(eventCounter),
+      URI.create(String.format("ws://127.0.0.1:%d/test", port)));
+
+    while (session.isOpen()) {
+      Thread.sleep(50);
+    }
+
+    Assertions.assertEquals(3, eventCounter.get());
   }
 
   private HttpURLConnection connectTo(int port, String path) throws Exception {

@@ -36,7 +36,7 @@ public final class NettyPacketDecoder extends ByteToMessageDecoder {
 
   @Override
   protected void decode(ChannelHandlerContext ctx, ByteBuf byteBuf, List<Object> out) {
-    if (ctx != null && (!ctx.channel().isActive() || !byteBuf.isReadable())) {
+    if (!ctx.channel().isActive() || !byteBuf.isReadable()) {
       byteBuf.clear();
       return;
     }
