@@ -16,11 +16,12 @@
 
 package de.dytanic.cloudnet.driver.network.http;
 
+import jakarta.websocket.ClientEndpoint;
 import jakarta.websocket.CloseReason;
 import jakarta.websocket.CloseReason.CloseCodes;
-import jakarta.websocket.Endpoint;
-import jakarta.websocket.EndpointConfig;
-import jakarta.websocket.MessageHandler.Whole;
+import jakarta.websocket.OnClose;
+import jakarta.websocket.OnMessage;
+import jakarta.websocket.OnOpen;
 import jakarta.websocket.PongMessage;
 import jakarta.websocket.Session;
 import java.io.IOException;
@@ -30,48 +31,37 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.glassfish.tyrus.core.Utils;
 import org.junit.jupiter.api.Assertions;
 
-public class WebSocketClientEndpoint extends Endpoint {
+@ClientEndpoint
+public class WebSocketClientEndpoint {
 
-  private final AtomicInteger eventCounter;
+  private final AtomicInteger eventCounter = new AtomicInteger();
 
-  public WebSocketClientEndpoint(AtomicInteger eventCounter) {
-    this.eventCounter = eventCounter;
-  }
-
-  @Override
-  public void onOpen(Session session, EndpointConfig config) {
+  @OnOpen
+  public void onOpen(Session session) {
     Assertions.assertEquals(0, this.eventCounter.getAndIncrement());
-
-    session.addMessageHandler(new Whole<String>() { // this cannot be replaced with lambda - causes type lookup to fail
-      @Override
-      public void onMessage(String message) {
-        try {
-          Assertions.assertEquals(1, WebSocketClientEndpoint.this.eventCounter.getAndIncrement());
-          Assertions.assertEquals("response", message);
-
-          session.getAsyncRemote().sendPing(null);
-        } catch (IOException exception) {
-          Assertions.fail(exception);
-        }
-      }
-    });
-    session.addMessageHandler(new Whole<PongMessage>() { // see above
-      @Override
-      public void onMessage(PongMessage message) {
-        Assertions.assertEquals(2, WebSocketClientEndpoint.this.eventCounter.getAndIncrement());
-
-        String content = new String(Utils.getRemainingArray(message.getApplicationData()), StandardCharsets.UTF_8);
-        Assertions.assertEquals("response2", content);
-
-        session.getAsyncRemote().sendBinary(ByteBuffer.wrap(new byte[]{0, 5, 6}));
-      }
-    });
-
     session.getAsyncRemote().sendText("request");
   }
 
-  @Override
-  public void onClose(Session session, CloseReason closeReason) {
+  @OnMessage
+  public void onStringMessage(Session session, String message) throws IOException {
+    Assertions.assertEquals(1, WebSocketClientEndpoint.this.eventCounter.getAndIncrement());
+    Assertions.assertEquals("response", message);
+
+    session.getAsyncRemote().sendPing(null);
+  }
+
+  @OnMessage
+  public void onPongMessage(Session session, PongMessage message) {
+    Assertions.assertEquals(2, WebSocketClientEndpoint.this.eventCounter.getAndIncrement());
+
+    String content = new String(Utils.getRemainingArray(message.getApplicationData()), StandardCharsets.UTF_8);
+    Assertions.assertEquals("response2", content);
+
+    session.getAsyncRemote().sendBinary(ByteBuffer.wrap(new byte[]{0, 5, 6}));
+  }
+
+  @OnClose
+  public void onClose(CloseReason closeReason) {
     Assertions.assertEquals(3, this.eventCounter.get());
     Assertions.assertEquals(CloseCodes.GOING_AWAY, closeReason.getCloseCode());
     Assertions.assertEquals("Successful close", closeReason.getReasonPhrase());
