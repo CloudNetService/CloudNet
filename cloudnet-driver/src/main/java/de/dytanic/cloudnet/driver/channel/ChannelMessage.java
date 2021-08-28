@@ -34,6 +34,7 @@ import org.jetbrains.annotations.Nullable;
 
 @ToString
 @EqualsAndHashCode
+//TODO: look into this
 public class ChannelMessage implements SerializableObject {
 
   private ChannelMessageSender sender;

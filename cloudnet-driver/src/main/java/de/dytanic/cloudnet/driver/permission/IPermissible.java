@@ -17,9 +17,7 @@
 package de.dytanic.cloudnet.driver.permission;
 
 import de.dytanic.cloudnet.common.INameable;
-import de.dytanic.cloudnet.common.document.gson.IJsonDocPropertyable;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
-import de.dytanic.cloudnet.driver.serialization.SerializableObject;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -27,7 +25,7 @@ import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public interface IPermissible extends INameable, IJsonDocPropertyable, Comparable<IPermissible>, SerializableObject {
+public interface IPermissible extends INameable, Comparable<IPermissible> {
 
   Collection<String> getGroupNames();
 

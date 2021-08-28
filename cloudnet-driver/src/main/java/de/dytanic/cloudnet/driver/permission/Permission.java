@@ -16,8 +16,6 @@
 
 package de.dytanic.cloudnet.driver.permission;
 
-import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
-import de.dytanic.cloudnet.driver.serialization.SerializableObject;
 import java.util.concurrent.TimeUnit;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -25,7 +23,7 @@ import org.jetbrains.annotations.NotNull;
 
 @ToString
 @EqualsAndHashCode
-public final class Permission implements SerializableObject, Comparable<Permission> {
+public final class Permission implements Comparable<Permission> {
 
   private String name;
 
@@ -76,20 +74,6 @@ public final class Permission implements SerializableObject, Comparable<Permissi
 
   public void setTimeOutMillis(long timeOutMillis) {
     this.timeOutMillis = timeOutMillis;
-  }
-
-  @Override
-  public void write(@NotNull ProtocolBuffer buffer) {
-    buffer.writeString(this.name);
-    buffer.writeInt(this.potency);
-    buffer.writeLong(this.timeOutMillis);
-  }
-
-  @Override
-  public void read(@NotNull ProtocolBuffer buffer) {
-    this.name = buffer.readString();
-    this.potency = buffer.readInt();
-    this.timeOutMillis = buffer.readLong();
   }
 
   @Override

@@ -17,17 +17,14 @@
 package de.dytanic.cloudnet.ext.bridge.player;
 
 import de.dytanic.cloudnet.driver.network.HostAndPort;
-import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
-import de.dytanic.cloudnet.driver.serialization.SerializableObject;
 import java.lang.reflect.Type;
 import java.util.UUID;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import org.jetbrains.annotations.NotNull;
 
 @ToString
 @EqualsAndHashCode
-public class NetworkConnectionInfo implements SerializableObject {
+public class NetworkConnectionInfo {
 
   @Deprecated
   public static final Type TYPE = NetworkConnectionInfo.class;
@@ -123,25 +120,4 @@ public class NetworkConnectionInfo implements SerializableObject {
   public void setNetworkService(NetworkServiceInfo networkService) {
     this.networkService = networkService;
   }
-
-  @Override
-  public void write(@NotNull ProtocolBuffer buffer) {
-    buffer.writeUUID(this.uniqueId);
-    buffer.writeString(this.name);
-    buffer.writeInt(this.version);
-    buffer.writeObject(this.address);
-    buffer.writeObject(this.listener);
-    buffer.writeObject(this.networkService);
-  }
-
-  @Override
-  public void read(@NotNull ProtocolBuffer buffer) {
-    this.uniqueId = buffer.readUUID();
-    this.name = buffer.readString();
-    this.version = buffer.readInt();
-    this.address = buffer.readObject(HostAndPort.class);
-    this.listener = buffer.readObject(HostAndPort.class);
-    this.networkService = buffer.readObject(NetworkServiceInfo.class);
-  }
-
 }

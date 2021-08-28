@@ -28,6 +28,7 @@ moduleJson {
   main = 'de.dytanic.cloudnet.ext.storage.ftp.CloudNetStorageFTPModule'
   author = 'CloudNetService'
   description = 'CloudNet extension, which includes the ftp storage system'
+  name = 'CloudNet-Storage-FTP'
   storesSensitiveData = true
   runtimeModule = true
 }
