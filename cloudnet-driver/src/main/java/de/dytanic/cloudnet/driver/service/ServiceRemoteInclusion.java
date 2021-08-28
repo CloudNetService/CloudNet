@@ -16,27 +16,26 @@
 
 package de.dytanic.cloudnet.driver.service;
 
-import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
-import de.dytanic.cloudnet.driver.serialization.SerializableObject;
-import de.dytanic.cloudnet.driver.serialization.json.SerializableJsonDocPropertyable;
+import de.dytanic.cloudnet.common.document.gson.BasicJsonDocPropertyable;
+import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import org.jetbrains.annotations.NotNull;
 
 @ToString
 @EqualsAndHashCode(callSuper = false)
-public final class ServiceRemoteInclusion extends SerializableJsonDocPropertyable implements SerializableObject {
+public final class ServiceRemoteInclusion extends BasicJsonDocPropertyable {
 
-  private String url;
-
-  private String destination;
+  private final String url;
+  private final String destination;
 
   public ServiceRemoteInclusion(String url, String destination) {
-    this.url = url;
-    this.destination = destination;
+    this(url, destination, JsonDocument.newDocument());
   }
 
-  public ServiceRemoteInclusion() {
+  public ServiceRemoteInclusion(String url, String destination, JsonDocument properties) {
+    this.url = url;
+    this.destination = destination;
+    this.properties = properties;
   }
 
   public String getUrl() {
@@ -45,21 +44,5 @@ public final class ServiceRemoteInclusion extends SerializableJsonDocPropertyabl
 
   public String getDestination() {
     return this.destination;
-  }
-
-  @Override
-  public void write(@NotNull ProtocolBuffer buffer) {
-    buffer.writeString(this.url);
-    buffer.writeString(this.destination);
-
-    super.write(buffer);
-  }
-
-  @Override
-  public void read(@NotNull ProtocolBuffer buffer) {
-    this.url = buffer.readString();
-    this.destination = buffer.readString();
-
-    super.read(buffer);
   }
 }

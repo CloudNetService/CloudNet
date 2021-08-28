@@ -16,13 +16,11 @@
 
 package de.dytanic.cloudnet.driver.service;
 
-import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
-import de.dytanic.cloudnet.driver.serialization.SerializableObject;
-import de.dytanic.cloudnet.driver.serialization.json.SerializableJsonDocPropertyable;
+import de.dytanic.cloudnet.common.document.gson.BasicJsonDocPropertyable;
+import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import java.util.Collection;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Defines the properties for a service that is copied to a specified template. It contains the {@link ServiceTemplate}
@@ -31,17 +29,19 @@ import org.jetbrains.annotations.NotNull;
  */
 @ToString
 @EqualsAndHashCode(callSuper = false)
-public final class ServiceDeployment extends SerializableJsonDocPropertyable implements SerializableObject {
+public final class ServiceDeployment extends BasicJsonDocPropertyable {
 
-  private ServiceTemplate template;
-  private Collection<String> excludes;
+  private final ServiceTemplate template;
+  private final Collection<String> excludes;
 
   public ServiceDeployment(ServiceTemplate template, Collection<String> excludes) {
-    this.template = template;
-    this.excludes = excludes;
+    this(template, excludes, JsonDocument.newDocument());
   }
 
-  public ServiceDeployment() {
+  public ServiceDeployment(ServiceTemplate template, Collection<String> excludes, JsonDocument properties) {
+    this.template = template;
+    this.excludes = excludes;
+    this.properties = properties;
   }
 
   public ServiceTemplate getTemplate() {
@@ -50,21 +50,5 @@ public final class ServiceDeployment extends SerializableJsonDocPropertyable imp
 
   public Collection<String> getExcludes() {
     return this.excludes;
-  }
-
-  @Override
-  public void write(@NotNull ProtocolBuffer buffer) {
-    buffer.writeObject(this.template);
-    buffer.writeStringCollection(this.excludes);
-
-    super.write(buffer);
-  }
-
-  @Override
-  public void read(@NotNull ProtocolBuffer buffer) {
-    this.template = buffer.readObject(ServiceTemplate.class);
-    this.excludes = buffer.readStringCollection();
-
-    super.read(buffer);
   }
 }

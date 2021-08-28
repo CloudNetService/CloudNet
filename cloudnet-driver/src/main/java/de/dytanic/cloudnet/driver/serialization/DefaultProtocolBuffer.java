@@ -48,9 +48,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+@Deprecated
+@ScheduledForRemoval
 public class DefaultProtocolBuffer extends ProtocolBuffer {
 
   private static final Logger LOGGER = LogManager.getLogger(DefaultProtocolBuffer.class);

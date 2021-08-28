@@ -23,8 +23,11 @@ import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.Properties;
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 import org.jetbrains.annotations.NotNull;
 
+@Deprecated
+@ScheduledForRemoval
 public class SerializableJsonDocument extends JsonDocument implements SerializableObject {
 
   private SerializableJsonDocument(JsonDocument document) {

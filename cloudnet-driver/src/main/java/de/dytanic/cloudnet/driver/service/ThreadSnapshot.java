@@ -16,10 +16,10 @@
 
 package de.dytanic.cloudnet.driver.service;
 
-import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
-import de.dytanic.cloudnet.driver.serialization.SerializableObject;
+import java.lang.Thread.State;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -27,38 +27,42 @@ import org.jetbrains.annotations.NotNull;
  */
 @ToString
 @EqualsAndHashCode
-public class ThreadSnapshot implements SerializableObject {
+public class ThreadSnapshot {
 
-  private long id;
+  private final long id;
+  private final int priority;
+  private final boolean daemon;
 
-  private String name;
+  private final String name;
+  private final Thread.State threadState;
 
-  private Thread.State threadState;
-
-  private boolean daemon;
-
-  private int priority;
-
+  @Deprecated
+  @ScheduledForRemoval
   public ThreadSnapshot(long id, String name, Thread.State threadState, boolean daemon, int priority) {
-    this.id = id;
-    this.name = name;
-    this.threadState = threadState;
-    this.daemon = daemon;
-    this.priority = priority;
+    this(id, priority, daemon, name, threadState);
   }
 
-  public ThreadSnapshot() {
+  public ThreadSnapshot(@NotNull Thread thread) {
+    this(thread.getId(), thread.getPriority(), thread.isDaemon(), thread.getName(), thread.getState());
+  }
+
+  public ThreadSnapshot(long id, int priority, boolean daemon, String name, State threadState) {
+    this.id = id;
+    this.priority = priority;
+    this.daemon = daemon;
+    this.name = name;
+    this.threadState = threadState;
   }
 
   public long getId() {
     return this.id;
   }
 
-  public String getName() {
+  public @NotNull String getName() {
     return this.name;
   }
 
-  public Thread.State getThreadState() {
+  public @NotNull Thread.State getThreadState() {
     return this.threadState;
   }
 
@@ -68,23 +72,5 @@ public class ThreadSnapshot implements SerializableObject {
 
   public int getPriority() {
     return this.priority;
-  }
-
-  @Override
-  public void write(@NotNull ProtocolBuffer buffer) {
-    buffer.writeLong(this.id);
-    buffer.writeString(this.name);
-    buffer.writeEnumConstant(this.threadState);
-    buffer.writeBoolean(this.daemon);
-    buffer.writeVarInt(this.priority);
-  }
-
-  @Override
-  public void read(@NotNull ProtocolBuffer buffer) {
-    this.id = buffer.readLong();
-    this.name = buffer.readString();
-    this.threadState = buffer.readEnumConstant(Thread.State.class);
-    this.daemon = buffer.readBoolean();
-    this.priority = buffer.readVarInt();
   }
 }

@@ -18,16 +18,18 @@ package de.dytanic.cloudnet.driver.network.rpc.defaults.object;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.reflect.TypeToken;
+import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import de.dytanic.cloudnet.driver.network.buffer.DataBufable;
 import de.dytanic.cloudnet.driver.network.rpc.defaults.object.data.DataClassSerializer;
-import de.dytanic.cloudnet.driver.network.rpc.defaults.object.serializers.ClassObjectSerializer;
 import de.dytanic.cloudnet.driver.network.rpc.defaults.object.serializers.CollectionObjectSerializer;
 import de.dytanic.cloudnet.driver.network.rpc.defaults.object.serializers.DataBufableObjectSerializer;
 import de.dytanic.cloudnet.driver.network.rpc.defaults.object.serializers.EnumObjectSerializer;
 import de.dytanic.cloudnet.driver.network.rpc.defaults.object.serializers.FunctionalObjectSerializer;
+import de.dytanic.cloudnet.driver.network.rpc.defaults.object.serializers.JsonDocumentObjectSerializer;
 import de.dytanic.cloudnet.driver.network.rpc.defaults.object.serializers.MapObjectSerializer;
 import de.dytanic.cloudnet.driver.network.rpc.defaults.object.serializers.OptionalObjectSerializer;
+import de.dytanic.cloudnet.driver.network.rpc.defaults.object.serializers.UUIDObjectSerializer;
 import de.dytanic.cloudnet.driver.network.rpc.exception.MissingObjectSerializerException;
 import de.dytanic.cloudnet.driver.network.rpc.object.ObjectMapper;
 import de.dytanic.cloudnet.driver.network.rpc.object.ObjectSerializer;
@@ -42,6 +44,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.UUID;
 import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -78,6 +81,8 @@ public class DefaultObjectMapper implements ObjectMapper {
     .put(Character.class, FunctionalObjectSerializer.of(DataBuf::readChar, DataBuf.Mutable::writeChar))
     // string
     .put(String.class, FunctionalObjectSerializer.of(DataBuf::readString, DataBuf.Mutable::writeString))
+    // uuid
+    .put(UUID.class, new UUIDObjectSerializer())
     //    ==== nested types ====
     // optional
     .put(Optional.class, new OptionalObjectSerializer())
@@ -93,9 +98,9 @@ public class DefaultObjectMapper implements ObjectMapper {
     //    ==== object data class types ====
     // data classes
     .put(DataBufable.class, new DataBufableObjectSerializer())
+    .put(JsonDocument.class, new JsonDocumentObjectSerializer())
     .put(Enum.class, new EnumObjectSerializer())
     .put(Object.class, new DataClassSerializer())
-    .put(Class.class, new ClassObjectSerializer())
     .build();
 
   private final Map<Type, TypeToken<?>> typeTokenCache = new ConcurrentHashMap<>();
@@ -156,12 +161,12 @@ public class DefaultObjectMapper implements ObjectMapper {
       ObjectSerializer<?> serializer = null;
       for (TypeToken<?> type : typeToken.getTypes()) {
         serializer = this.getSerializerForType(type);
-        if (serializer != null) {
+        if (serializer != null && serializer.preWriteCheckAccepts(obj)) {
           break;
         }
       }
       // check if a serializer was found
-      if (serializer == null) {
+      if (serializer == null || !serializer.preWriteCheckAccepts(obj)) {
         throw new MissingObjectSerializerException(obj.getClass());
       }
       // serialize the object into the buffer
@@ -179,12 +184,12 @@ public class DefaultObjectMapper implements ObjectMapper {
       ObjectSerializer<?> serializer = null;
       for (TypeToken<?> subType : typeToken.getTypes()) {
         serializer = this.getSerializerForType(subType);
-        if (serializer != null) {
+        if (serializer != null && serializer.preReadCheckAccepts(type)) {
           break;
         }
       }
       // check if a serializer was found
-      if (serializer == null) {
+      if (serializer == null || !serializer.preReadCheckAccepts(type)) {
         throw new MissingObjectSerializerException(type);
       }
       // read the object from the buffer

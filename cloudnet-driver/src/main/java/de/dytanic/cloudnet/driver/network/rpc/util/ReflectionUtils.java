@@ -14,17 +14,22 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.driver.serialization;
+package de.dytanic.cloudnet.driver.network.rpc.util;
 
-import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
+import java.lang.reflect.Field;
 import org.jetbrains.annotations.NotNull;
 
-@Deprecated
-@ScheduledForRemoval
-public interface SerializableObject {
+public final class ReflectionUtils {
 
-  void write(@NotNull ProtocolBuffer buffer);
+  private ReflectionUtils() {
+    throw new UnsupportedOperationException();
+  }
 
-  void read(@NotNull ProtocolBuffer buffer);
-
+  public static @NotNull String fieldToReadableString(@NotNull Field field) {
+    return String.format(
+      "%s:%s@%s",
+      field.getDeclaringClass().getCanonicalName(),
+      field.getName(),
+      field.getGenericType().getTypeName());
+  }
 }

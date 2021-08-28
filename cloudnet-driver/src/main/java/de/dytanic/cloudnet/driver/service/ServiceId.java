@@ -28,30 +28,53 @@ import org.jetbrains.annotations.NotNull;
 
 @ToString
 @EqualsAndHashCode
-public final class ServiceId implements INameable, SerializableObject {
+public class ServiceId implements INameable, SerializableObject {
 
-  UUID uniqueId;
+  protected UUID uniqueId;
 
-  String taskName;
-  int taskServiceId = -1;
+  protected String taskName;
+  protected int taskServiceId = -1;
 
-  String nodeUniqueId;
-  Collection<String> allowedNodes;
+  protected String nodeUniqueId;
+  protected Collection<String> allowedNodes;
 
-  ServiceEnvironmentType environment;
+  protected ServiceEnvironmentType environment;
 
-  public ServiceId(@NotNull UUID uniqueId, String nodeUniqueId, String taskName, int taskServiceId,
-    ServiceEnvironmentType environment) {
+  public ServiceId(
+    @NotNull UUID uniqueId,
+    String nodeUniqueId,
+    String taskName,
+    int taskServiceId,
+    ServiceEnvironmentType environment
+  ) {
     this(uniqueId, nodeUniqueId, taskName, null, taskServiceId, environment);
   }
 
-  public ServiceId(@NotNull UUID uniqueId, String nodeUniqueId, String taskName, Collection<String> allowedNodes,
-    int taskServiceId, ServiceEnvironmentType environment) {
+  @Deprecated
+  public ServiceId(
+    @NotNull UUID uniqueId,
+    String nodeUniqueId,
+    String taskName,
+    Collection<String> allowedNodes,
+    int taskServiceId,
+    ServiceEnvironmentType environment
+  ) {
+    this(uniqueId, taskName, taskServiceId, nodeUniqueId, allowedNodes, environment);
+  }
+
+  public ServiceId(
+    UUID uniqueId,
+    String taskName,
+    int taskServiceId,
+    String nodeUniqueId,
+    Collection<String> allowedNodes,
+    ServiceEnvironmentType environment
+  ) {
     this.uniqueId = uniqueId;
-    this.nodeUniqueId = nodeUniqueId;
     this.taskName = taskName;
-    this.allowedNodes = allowedNodes;
     this.taskServiceId = taskServiceId;
+    this.nodeUniqueId = nodeUniqueId;
+    this.allowedNodes = allowedNodes;
     this.environment = environment;
   }
 
