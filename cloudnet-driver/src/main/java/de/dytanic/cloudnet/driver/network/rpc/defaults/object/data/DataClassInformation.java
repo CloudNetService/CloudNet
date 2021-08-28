@@ -44,12 +44,7 @@ public class DataClassInformation {
     @NotNull DataClassInvokerGenerator generator
   ) {
     // get all types of the fields we want to include into the constructor lookup
-    List<Field> includedFields = new ArrayList<>();
-    for (Field field : clazz.getDeclaredFields()) {
-      if (!Modifier.isTransient(field.getModifiers()) && !field.isAnnotationPresent(RPCIgnore.class)) {
-        includedFields.add(field);
-      }
-    }
+    List<Field> includedFields = collectFields(clazz);
     // transform the included fields to the required type arrays
     Type[] types = transformToArray(Type.class, includedFields, Field::getGenericType);
     Class<?>[] arguments = transformToArray(Class.class, includedFields, Field::getType);
@@ -64,6 +59,24 @@ public class DataClassInformation {
     DataClassInformationWriter informationWriter = generator.createWriter(clazz, includedFields);
     // done
     return new DataClassInformation(instanceCreator, informationWriter);
+  }
+
+  protected static @NotNull List<Field> collectFields(@NotNull Class<?> clazz) {
+    List<Field> result = new ArrayList<>();
+
+    Class<?> processing = clazz;
+    do {
+      for (Field field : processing.getDeclaredFields()) {
+        if (!Modifier.isTransient(field.getModifiers())
+          && !Modifier.isStatic(field.getModifiers())
+          && !field.isAnnotationPresent(RPCIgnore.class)
+        ) {
+          result.add(field);
+        }
+      }
+    } while ((processing = processing.getSuperclass()) != Object.class);
+
+    return result;
   }
 
   @SuppressWarnings("unchecked")

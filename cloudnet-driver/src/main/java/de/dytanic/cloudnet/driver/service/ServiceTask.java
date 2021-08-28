@@ -18,20 +18,17 @@ package de.dytanic.cloudnet.driver.service;
 
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.INameable;
-import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
-import de.dytanic.cloudnet.driver.serialization.SerializableObject;
 import java.util.ArrayList;
 import java.util.Collection;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = false)
-public class ServiceTask extends ServiceConfigurationBase implements INameable, SerializableObject {
+public class ServiceTask extends ServiceConfigurationBase implements INameable {
 
   private String name;
   private String runtime;
@@ -55,6 +52,10 @@ public class ServiceTask extends ServiceConfigurationBase implements INameable, 
    * Represents the time in millis where this task is able to start new services again
    */
   private transient long serviceStartAbilityTime = -1;
+
+  protected ServiceTask() {
+    super(new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+  }
 
   @Deprecated
   @ScheduledForRemoval(inVersion = "3.6")
@@ -135,10 +136,6 @@ public class ServiceTask extends ServiceConfigurationBase implements INameable, 
     this.minServiceCount = minServiceCount;
     this.staticServices = staticServices;
     this.javaCommand = javaCommand;
-  }
-
-  @Internal
-  public ServiceTask() {
   }
 
   @NotNull
@@ -301,42 +298,6 @@ public class ServiceTask extends ServiceConfigurationBase implements INameable, 
       .minServiceCount(this.minServiceCount)
       .javaCommand(this.javaCommand)
       .build();
-  }
-
-  @Override
-  public void write(@NotNull ProtocolBuffer buffer) {
-    super.write(buffer);
-    buffer.writeString(this.name);
-    buffer.writeString(this.runtime);
-    buffer.writeOptionalString(this.javaCommand);
-    buffer.writeBoolean(this.disableIpRewrite);
-    buffer.writeBoolean(this.maintenance);
-    buffer.writeBoolean(this.autoDeleteOnStop);
-    buffer.writeBoolean(this.staticServices);
-    buffer.writeStringCollection(this.associatedNodes);
-    buffer.writeStringCollection(this.groups);
-    buffer.writeStringCollection(this.deletedFilesAfterStop);
-    buffer.writeObject(this.processConfiguration);
-    buffer.writeInt(this.startPort);
-    buffer.writeInt(this.minServiceCount);
-  }
-
-  @Override
-  public void read(@NotNull ProtocolBuffer buffer) {
-    super.read(buffer);
-    this.name = buffer.readString();
-    this.runtime = buffer.readString();
-    this.javaCommand = buffer.readOptionalString();
-    this.disableIpRewrite = buffer.readBoolean();
-    this.maintenance = buffer.readBoolean();
-    this.autoDeleteOnStop = buffer.readBoolean();
-    this.staticServices = buffer.readBoolean();
-    this.associatedNodes = buffer.readStringCollection();
-    this.groups = buffer.readStringCollection();
-    this.deletedFilesAfterStop = buffer.readStringCollection();
-    this.processConfiguration = buffer.readObject(ProcessConfiguration.class);
-    this.startPort = buffer.readInt();
-    this.minServiceCount = buffer.readInt();
   }
 
   public static class Builder {

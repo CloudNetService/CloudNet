@@ -25,9 +25,12 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+@Deprecated
+@ScheduledForRemoval
 public abstract class ProtocolBuffer extends ByteBuf {
 
   public static final ProtocolBuffer EMPTY = create();

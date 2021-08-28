@@ -14,17 +14,18 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.driver.serialization;
+package de.dytanic.cloudnet.driver.network.rpc.exception;
 
-import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
+import de.dytanic.cloudnet.driver.network.rpc.util.ReflectionUtils;
+import java.lang.reflect.Field;
 import org.jetbrains.annotations.NotNull;
 
-@Deprecated
-@ScheduledForRemoval
-public interface SerializableObject {
+public class MissingFieldGetterException extends IllegalStateException {
 
-  void write(@NotNull ProtocolBuffer buffer);
-
-  void read(@NotNull ProtocolBuffer buffer);
-
+  public MissingFieldGetterException(@NotNull Class<?> sourceClass, @NotNull Field field) {
+    super(String.format(
+      "Missing getter method for field %s from super serialisation class %s",
+      ReflectionUtils.fieldToReadableString(field),
+      sourceClass.getCanonicalName()));
+  }
 }

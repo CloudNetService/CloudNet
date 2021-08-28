@@ -14,41 +14,35 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.driver.network.rpc.object;
+package de.dytanic.cloudnet.driver.network.rpc.defaults.object.serializers;
 
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
+import de.dytanic.cloudnet.driver.network.rpc.object.ObjectMapper;
+import de.dytanic.cloudnet.driver.network.rpc.object.ObjectSerializer;
 import java.lang.reflect.Type;
+import java.util.UUID;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public interface ObjectSerializer<T> {
+public class UUIDObjectSerializer implements ObjectSerializer<UUID> {
 
-  @Nullable Object read(@NotNull DataBuf source, @NotNull Type type, @NotNull ObjectMapper caller);
-
-  @SuppressWarnings("unchecked")
-  default void writeObject(
-    @NotNull DataBuf.Mutable dataBuf,
-    @NotNull Object object,
+  @Override
+  public @Nullable Object read(
+    @NotNull DataBuf source,
     @NotNull Type type,
     @NotNull ObjectMapper caller
   ) {
-    this.write(dataBuf, (T) object, type, caller);
+    return new UUID(source.readLong(), source.readLong());
   }
 
-  default void write(
+  @Override
+  public void write(
     @NotNull DataBuf.Mutable dataBuf,
-    @NotNull T object,
+    @NotNull UUID object,
     @NotNull Type type,
     @NotNull ObjectMapper caller
   ) {
-    throw new UnsupportedOperationException();
-  }
-
-  default boolean preWriteCheckAccepts(@NotNull Object object) {
-    return true;
-  }
-
-  default boolean preReadCheckAccepts(@NotNull Type type) {
-    return true;
+    dataBuf.writeLong(object.getMostSignificantBits());
+    dataBuf.writeLong(object.getLeastSignificantBits());
   }
 }

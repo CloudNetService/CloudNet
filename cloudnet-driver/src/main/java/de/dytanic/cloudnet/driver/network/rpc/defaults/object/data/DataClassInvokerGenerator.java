@@ -16,18 +16,19 @@
 
 package de.dytanic.cloudnet.driver.network.rpc.defaults.object.data;
 
-import com.google.common.base.Predicate;
-import com.google.common.base.Predicates;
-import com.google.common.collect.Iterables;
+import com.google.common.primitives.Primitives;
+import com.google.common.reflect.TypeToken;
 import de.dytanic.cloudnet.common.StringUtil;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import de.dytanic.cloudnet.driver.network.rpc.annotation.RPCFieldGetter;
 import de.dytanic.cloudnet.driver.network.rpc.annotation.RPCIgnore;
 import de.dytanic.cloudnet.driver.network.rpc.exception.ClassCreationException;
+import de.dytanic.cloudnet.driver.network.rpc.exception.MissingFieldGetterException;
 import de.dytanic.cloudnet.driver.network.rpc.object.ObjectMapper;
 import de.dytanic.cloudnet.driver.util.DefiningClassLoader;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.HashMap;
@@ -35,6 +36,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javassist.ClassPool;
 import javassist.CtClass;
@@ -46,7 +48,8 @@ import org.jetbrains.annotations.NotNull;
 
 public class DataClassInvokerGenerator {
 
-  private static final String DATA_BUF_CLASS_NAME = DataBuf.Mutable.class.getCanonicalName();
+  private static final String DATA_BUF_CLASS_NAME = DataBuf.class.getCanonicalName();
+  private static final String DATA_BUF_MUTABLE_CLASS_NAME = DataBuf.Mutable.class.getCanonicalName();
   private static final String OBJECT_MAPPER_CLASS_NAME = ObjectMapper.class.getCanonicalName();
 
   private static final String INSTANCE_CREATOR_NAME_FORMAT = "%sInstanceCreator";
@@ -56,7 +59,8 @@ public class DataClassInvokerGenerator {
     "public Object makeInstance(" + DATA_BUF_CLASS_NAME + " b, " + OBJECT_MAPPER_CLASS_NAME
       + " m) { return new %s(%s); }";
   private static final String WRITE_INFO_OVERRIDDEN_FORMAT =
-    "public void writeInformation(" + DATA_BUF_CLASS_NAME + " b, Object obj," + OBJECT_MAPPER_CLASS_NAME + " m) { %s }";
+    "public void writeInformation(" + DATA_BUF_MUTABLE_CLASS_NAME + " b, Object obj," + OBJECT_MAPPER_CLASS_NAME
+      + " m) { %s }";
 
   private final ClassPool classPool;
   private final Map<ClassLoader, DefiningClassLoader> classLoaders;
@@ -74,21 +78,35 @@ public class DataClassInvokerGenerator {
       CtClass ctClass = this.classPool.makeClass(String.format(INSTANCE_CREATOR_NAME_FORMAT, clazz.getCanonicalName()));
       ctClass.addInterface(this.classPool.getCtClass(DataClassInstanceCreator.class.getName()));
       // add the types as a field to the class
-      ctClass.addField(CtField.make("private final Type[] types;", ctClass));
+      ctClass.addField(CtField.make("private final java.lang.reflect.Type[] types;", ctClass));
       // add a constructor to initialize the field
       ctClass.addConstructor(CtNewConstructor.make(String.format(
-        "public %s(Type[] types) { this.types = types; }",
+        "public %s(java.lang.reflect.Type[] types) { this.types = types; }",
         ctClass.getSimpleName()
       ), ctClass));
       // create the method body
       StringBuilder stringBuilder = new StringBuilder();
       for (int i = 0; i < types.length; i++) {
-        stringBuilder.append("m.readObject(b, this.types[").append(i).append("]),");
+        // more than the raw type is not supported anyways
+        String wrapper;
+        Class<?> rawType = TypeToken.of(types[i]).getRawType();
+        if (rawType.isPrimitive()) {
+          // unwrap all primitives classes as they are causing verify errors by the runtime
+          Class<?> wrapped = Primitives.wrap(rawType);
+          // this hacky trick allows us to convert a wrapped type to a primitive type by calling the <primitive>Value
+          // method. For example: ((Boolean) <decoding code (added later)>).booleanValue()
+          wrapper = String.format("((%s) %s).%sValue()", wrapped.getTypeName(), "%s", rawType.getTypeName());
+        } else {
+          // we can just cast non-primitive types
+          wrapper = String.format("(%s) %s", rawType.getTypeName(), "%s");
+        }
+        // generate the method
+        stringBuilder.append(String.format(wrapper, String.format("m.readObject(b, this.types[%d])", i))).append(',');
       }
       // override the method
       ctClass.addMethod(CtMethod.make(String.format(
         INSTANCE_MAKER_OVERRIDDEN_FORMAT,
-        clazz.getName(),
+        clazz.getCanonicalName(),
         stringBuilder.length() == 0 ? "" : stringBuilder.substring(0, stringBuilder.length() - 1)
       ), ctClass));
       // now we can define the class and make an instance of the created invoker
@@ -113,38 +131,75 @@ public class DataClassInvokerGenerator {
       if (fields.size() > 0) {
         // get the methods of the class
         Set<Method> includedMethods = new HashSet<>();
-        for (Method method : clazz.getDeclaredMethods()) {
-          if (!method.isAnnotationPresent(RPCIgnore.class)) {
-            includedMethods.add(method);
+        Class<?> processing = clazz;
+        do {
+          // only use the methods of the current class, not of the subclasses to prevent deep methods.
+          for (Method method : processing.getDeclaredMethods()) {
+            // we search for getter methods which
+            //  - have no parameters
+            //  - are not annotated with @RPCIgnore
+            //  - is public
+            //  - is not static
+            if (method.getParameterCount() == 0
+              && !method.isAnnotationPresent(RPCIgnore.class)
+              && Modifier.isPublic(method.getModifiers())
+              && !Modifier.isStatic(method.getModifiers())) {
+              includedMethods.add(method);
+            }
           }
-        }
+        } while ((processing = processing.getSuperclass()) != Object.class);
         // associate each field to a method getter
         Map<Field, Method> fieldGetters = new HashMap<>();
         for (Field field : fields) {
           RPCFieldGetter overriddenGetter = field.getAnnotation(RPCFieldGetter.class);
           if (overriddenGetter != null) {
-            fieldGetters.put(field, Iterables.find(
+            // in this case the associated getter method is given, try to find it in the methods list
+            fieldGetters.put(field, this.findGetterForField(
+              clazz,
               includedMethods,
-              Predicates.and(this.commonFilter(field), method -> method.getName().equals(overriddenGetter.value()))));
+              field,
+              m -> m.getName().equals(overriddenGetter.value())));
           } else {
-            fieldGetters.put(field, Iterables.find(
+            // here we just search for a method which ends with the field name, covering any case.
+            // Example: field name: cpuUsage will find methods like:
+            //  - getCpuUsage()
+            //  - cpuUsage()
+            //  - getFullCpuUsage()
+            fieldGetters.put(field, this.findGetterForField(
+              clazz,
               includedMethods,
-              Predicates.and(this.commonFilter(field),
-                m -> StringUtil.endsWithIgnoreCase(m.getName(), field.getName()))));
+              field,
+              m -> StringUtil.endsWithIgnoreCase(m.getName(), field.getName())));
           }
         }
         // create the method body builder
         StringBuilder stringBuilder = new StringBuilder();
         for (Field field : fields) {
+          // more than the raw type is not supported anyways
+          String wrapper;
+          Class<?> rawType = TypeToken.of(field.getGenericType()).getRawType();
+          if (rawType.isPrimitive()) {
+            // unwrap all primitives classes as they are causing verify errors by the runtime
+            Class<?> wrapped = Primitives.wrap(rawType);
+            // convert the primitive type when the method is called to the object wrapper of the type by using the
+            // valueOf method. For example: Integer.valueOf(<decoding code (added later)>)
+            wrapper = String.format("%s.valueOf(%s)", wrapped.getCanonicalName(), "%s");
+          } else {
+            // just write, no wrapping required for objects
+            wrapper = "%s";
+          }
+          // use the associated getter to access the field value
           Method associatedMethod = fieldGetters.get(field);
           stringBuilder
-            .append("m.writeObject(b, obj.")
-            .append(associatedMethod.getName())
+            .append("m.writeObject(b, ")
+            .append(String.format(
+              wrapper,
+              String.format("((%s) obj).%s()", clazz.getCanonicalName(), associatedMethod.getName())))
             .append(");");
         }
         // override the method
         ctClass.addMethod(CtMethod.make(
-          String.format(WRITE_INFO_OVERRIDDEN_FORMAT, clazz.getName(), stringBuilder),
+          String.format(WRITE_INFO_OVERRIDDEN_FORMAT, stringBuilder),
           ctClass));
       } else {
         // override the method
@@ -157,7 +212,7 @@ public class DataClassInvokerGenerator {
         .newInstance();
     } catch (Exception exception) {
       throw new ClassCreationException(String.format(
-        "Unable to generate DataClassInformationWriter for class %s and fields",
+        "Unable to generate DataClassInformationWriter for class %s and fields %s",
         clazz.getName(), fields.stream().map(Field::getName).collect(Collectors.joining(", "))), exception);
     }
   }
@@ -173,8 +228,36 @@ public class DataClassInvokerGenerator {
       });
   }
 
+  protected @NotNull Method findGetterForField(
+    @NotNull Class<?> clazz,
+    @NotNull Collection<Method> methods,
+    @NotNull Field field,
+    @NotNull Predicate<Method> extraFilter
+  ) {
+    Method choice = null;
+    Predicate<Method> fullFilter = this.commonFilter(field).and(extraFilter);
+    // search for the best choice
+    for (Method method : methods) {
+      if (fullFilter.test(method)) {
+        if (choice == null) {
+          // if there is no choice yet the method is the choice
+          choice = method;
+        } else if (choice.getName().length() > method.getName().length()) {
+          // if the method name is shorter than the current choice we assume that the method is better to use
+          choice = method;
+        }
+      }
+    }
+    // check if we found a getter method
+    if (choice == null) {
+      throw new MissingFieldGetterException(clazz, field);
+    }
+    // success!
+    return choice;
+  }
+
   protected @NotNull Predicate<Method> commonFilter(@NotNull Field field) {
-    return method -> method.getParameterCount() == 0 && method.getReturnType().equals(field.getType());
+    return method -> method.getReturnType().equals(field.getType());
   }
 
   public interface DataClassInstanceCreator {
