@@ -105,8 +105,9 @@ allprojects {
     dependencySlf4jVersion = '1.7.32'
 
     testJunitVersion = '5.8.0-RC1'
-    testMockitoVersion = '3.12.1'
+    testMockitoVersion = '3.12.3'
     testBcpkixJdk15OnVersion = '1.69'
+    testTyrusVersion = '2.0.0'
 
     buildCheckstyleToolVersion = '8.45.1'
 

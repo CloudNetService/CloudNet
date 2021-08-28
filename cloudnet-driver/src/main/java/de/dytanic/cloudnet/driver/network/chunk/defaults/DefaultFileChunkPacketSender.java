@@ -29,6 +29,8 @@ import org.jetbrains.annotations.NotNull;
 
 public class DefaultFileChunkPacketSender extends DefaultChunkedPacketProvider implements ChunkedPacketSender {
 
+  protected static final byte[] EMPTY_BYTE_ARRAY = new byte[0];
+
   protected final InputStream source;
   protected final Consumer<IPacket> packetSplitter;
 
@@ -61,12 +63,16 @@ public class DefaultFileChunkPacketSender extends DefaultChunkedPacketProvider i
 
       while (true) {
         int bytesRead = this.source.read(backingArray);
-        if (bytesRead == backingArray.length) {
+        if (bytesRead != -1 && bytesRead == backingArray.length) {
           this.packetSplitter.accept(
             ChunkedPacket.createChunk(this.chunkSessionInformation, readCalls++, backingArray));
         } else {
-          this.packetSplitter.accept(
-            ChunkedPacket.createChunk(this.chunkSessionInformation, readCalls, readCalls, bytesRead, backingArray));
+          this.packetSplitter.accept(ChunkedPacket.createChunk(
+            this.chunkSessionInformation,
+            readCalls,
+            readCalls,
+            bytesRead == -1 ? 0 : bytesRead,
+            bytesRead == -1 ? EMPTY_BYTE_ARRAY : backingArray));
           return TransferStatus.SUCCESS;
         }
       }

@@ -14,25 +14,24 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.driver.network.netty;
+package de.dytanic.cloudnet.driver;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
-import java.security.SecureRandom;
-import java.util.Random;
-import org.junit.Assert;
-import org.junit.Test;
+import org.mockito.Mockito;
 
-public class NettyUtilsTest {
+/**
+ * A utility class for testing code that is driver method dependant.
+ */
+public final class DriverTestUtility {
 
-  private final Random random = new SecureRandom();
+  /**
+   * Mocks the {@link CloudNetDriver} class and sets the instance of the CloudNet driver to the mocked one.
+   *
+   * @return the mocked driver instance.
+   */
+  public static CloudNetDriver mockAndSetDriverInstance() {
+    CloudNetDriver driver = Mockito.mock(CloudNetDriver.class);
+    CloudNetDriver.setInstance(driver);
 
-  @Test // todo: repeat this
-  public void testNettyUtils() {
-    int number = this.random.nextInt();
-    ByteBuf byteBuf = Unpooled.buffer();
-
-    Assert.assertNotNull(NettyUtils.writeVarInt(byteBuf, number));
-    Assert.assertEquals(number, NettyUtils.readVarInt(byteBuf));
+    return driver;
   }
 }

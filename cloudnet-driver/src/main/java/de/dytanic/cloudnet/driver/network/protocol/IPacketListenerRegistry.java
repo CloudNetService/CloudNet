@@ -90,7 +90,7 @@ public interface IPacketListenerRegistry {
   @UnmodifiableView Collection<IPacketListener> getListeners();
 
   @NotNull
-  @UnmodifiableView Map<Integer, ? super Collection<IPacketListener>> getPacketListeners();
+  @UnmodifiableView Map<Integer, Collection<IPacketListener>> getPacketListeners();
 
   /**
    * Handles an incoming packet and invoke all listeners that are registered in this registry

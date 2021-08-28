@@ -175,13 +175,13 @@ public final class NettyUtils {
 
   /**
    * Get the thread amount used by the packet dispatcher to dispatch incoming packets. This method returns always {@code
-   * 8} when running in {@link DriverEnvironment#WRAPPER} and the amount of processors cores multiplied by 2 when
+   * 4} when running in {@link DriverEnvironment#WRAPPER} and the amount of processors cores multiplied by 2 when
    * running on a node.
    *
    * @return the thread amount used by the packet dispatcher to dispatch incoming packets.
    */
   public static @Range(from = 2, to = Integer.MAX_VALUE) int getThreadAmount() {
     DriverEnvironment environment = CloudNetDriver.getInstance().getDriverEnvironment();
-    return environment == DriverEnvironment.CLOUDNET ? Runtime.getRuntime().availableProcessors() * 2 : 8;
+    return environment == DriverEnvironment.CLOUDNET ? Runtime.getRuntime().availableProcessors() * 2 : 4;
   }
 }

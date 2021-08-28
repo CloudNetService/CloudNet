@@ -113,7 +113,7 @@ final class NettyHttpServerHandler extends SimpleChannelInboundHandler<HttpReque
 
       if (this.handleMessage0(httpHandlerEntry, context, fullPath, pathEntries, handlerPathEntries)) {
         context.setLastHandler(httpHandlerEntry.httpHandler);
-        if (context.cancelNext()) {
+        if (context.cancelNext) {
           break;
         }
       }
@@ -126,7 +126,7 @@ final class NettyHttpServerHandler extends SimpleChannelInboundHandler<HttpReque
       }
 
       FullHttpResponse netty = response.httpResponse;
-      if (!context.closeAfter()) {
+      if (!context.closeAfter) {
         netty.headers().set(HttpHeaderNames.CONNECTION, HttpHeaderValues.KEEP_ALIVE);
       }
 
@@ -144,7 +144,7 @@ final class NettyHttpServerHandler extends SimpleChannelInboundHandler<HttpReque
       }
 
       channelFuture.addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
-      if (context.closeAfter()) {
+      if (context.closeAfter) {
         channelFuture.addListener(ChannelFutureListener.CLOSE);
       }
     }

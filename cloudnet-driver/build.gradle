@@ -40,4 +40,5 @@ dependencies {
   // jdk 15-ea removed the sun.security.x509 package, leading test (which uses the self signed certificate)
   // to fail. This dependency adds backward support (and is only needed during the tests)
   testImplementation group: 'org.bouncycastle', name: 'bcpkix-jdk15on', version: testBcpkixJdk15OnVersion
+  testImplementation group: 'org.glassfish.tyrus.bundles', name: 'tyrus-standalone-client', version: testTyrusVersion
 }
