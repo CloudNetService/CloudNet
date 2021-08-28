@@ -118,7 +118,7 @@ public class DefaultPacketListenerRegistry implements IPacketListenerRegistry {
   }
 
   @Override
-  public @NotNull @UnmodifiableView Map<Integer, ? super Collection<IPacketListener>> getPacketListeners() {
+  public @NotNull @UnmodifiableView Map<Integer, Collection<IPacketListener>> getPacketListeners() {
     return Collections.unmodifiableMap(this.listeners);
   }
 
