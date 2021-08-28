@@ -16,6 +16,7 @@
 
 package de.dytanic.cloudnet.driver.network.rpc.defaults;
 
+import de.dytanic.cloudnet.common.concurrent.CompletedTask;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
@@ -53,7 +54,7 @@ public class DefaultRPC extends DefaultRPCProvider implements RPC {
     super(clazz, objectMapper, dataBufFactory);
 
     this.sender = sender;
-    this.className = clazz.getName();
+    this.className = clazz.getCanonicalName();
     this.methodName = methodName;
     this.arguments = arguments;
     this.expectedResultType = expectedResultType;
@@ -131,9 +132,16 @@ public class DefaultRPC extends DefaultRPCProvider implements RPC {
     for (Object argument : this.arguments) {
       this.objectMapper.writeObject(dataBuf, argument);
     }
-    // now send the query and read the response
-    return component.sendQueryAsync(new RPCQueryPacket(dataBuf))
-      .map(IPacket::getContent)
-      .map(content -> this.objectMapper.readObject(content, this.expectedResultType));
+    // send query if result is needed
+    if (this.resultExpectation) {
+      // now send the query and read the response
+      return component.sendQueryAsync(new RPCQueryPacket(dataBuf))
+        .map(IPacket::getContent)
+        .map(content -> this.objectMapper.readObject(content, this.expectedResultType));
+    } else {
+      // just send the method invocation request
+      component.sendPacket(new RPCQueryPacket(dataBuf));
+      return CompletedTask.create(null); // todo
+    }
   }
 }
