@@ -54,7 +54,7 @@ public class DefaultRPC extends DefaultRPCProvider implements RPC {
     super(clazz, objectMapper, dataBufFactory);
 
     this.sender = sender;
-    this.className = clazz.getName();
+    this.className = clazz.getCanonicalName();
     this.methodName = methodName;
     this.arguments = arguments;
     this.expectedResultType = expectedResultType;
@@ -138,10 +138,10 @@ public class DefaultRPC extends DefaultRPCProvider implements RPC {
       return component.sendQueryAsync(new RPCQueryPacket(dataBuf))
         .map(IPacket::getContent)
         .map(content -> this.objectMapper.readObject(content, this.expectedResultType));
+    } else {
+      // just send the method invocation request
+      component.sendPacket(new RPCQueryPacket(dataBuf));
+      return CompletedTask.emptyTask();
     }
-
-    // just send the method invocation request
-    component.sendPacket(new RPCQueryPacket(dataBuf));
-    return CompletedTask.emptyTask();
   }
 }

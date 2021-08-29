@@ -16,6 +16,8 @@
 
 package de.dytanic.cloudnet.driver.network.rpc.defaults.handler.invoker;
 
+import com.google.common.primitives.Primitives;
+import com.google.common.reflect.TypeToken;
 import de.dytanic.cloudnet.driver.network.rpc.defaults.MethodInformation;
 import de.dytanic.cloudnet.driver.network.rpc.exception.ClassCreationException;
 import de.dytanic.cloudnet.driver.util.DefiningClassLoader;
@@ -35,7 +37,7 @@ public class MethodInvokerGenerator {
   private static final String CLASS_NAME_FORMAT = "%s.GeneratedInvoker%s_%s";
   private static final String INSTANCE_FIELD_FORMAT = "private final %s instance;";
   private static final String CONSTRUCTOR_FORMAT = "public %s(%s instance) { this.instance = instance; }";
-  private static final String OVERRIDDEN_METHOD_FORMAT = "public Object callMethod(Object... args) { %s this.instance.%s(%s); %s }";
+  private static final String OVERRIDDEN_METHOD_FORMAT = "public Object callMethod(Object[] args) { %s this.instance.%s(%s); %s }";
   private static final String OVERRIDDEN_METHOD_NO_ARGS_CONST_FORMAT = "public Object callMethod(Object... args) { return new %s(); }";
   private static final String METHOD_INVOKER_CLASS_NAME = MethodInvoker.class.getName();
 
@@ -73,18 +75,28 @@ public class MethodInvokerGenerator {
       // add a constructor which initialized the field
       ctClass.addConstructor(CtNewConstructor.make(String.format(
         CONSTRUCTOR_FORMAT,
-        ctClass.getName(),
+        ctClass.getSimpleName(),
         methodInfo.getSourceInstance().getClass().getCanonicalName()), ctClass));
       // override the invoke method
       if (methodInfo.getArguments().length > 0) {
         // the real magic happens here
         StringBuilder arguments = new StringBuilder();
         for (int i = 0; i < methodInfo.getArguments().length; i++) {
-          arguments
-            // cast the expected argument
-            .append('(').append(methodInfo.getArguments()[i].getTypeName()).append(')')
-            // read from the provided argument array
-            .append("args[").append(i).append("],");
+          // more than the raw type is not supported anyways
+          String wrapper;
+          Class<?> rawType = TypeToken.of(methodInfo.getArguments()[i]).getRawType();
+          if (rawType.isPrimitive()) {
+            // unwrap all primitives classes as they are causing verify errors by the runtime
+            Class<?> wrapped = Primitives.wrap(rawType);
+            // this hacky trick allows us to convert a wrapped type to a primitive type by calling the <primitive>Value
+            // method. For example: ((Boolean) <decoding code (added later)>).booleanValue()
+            wrapper = String.format("((%s) %s).%sValue()", wrapped.getTypeName(), "%s", rawType.getTypeName());
+          } else {
+            // we can just cast non-primitive types
+            wrapper = String.format("(%s) %s", rawType.getTypeName(), "%s");
+          }
+          // generate the argument
+          arguments.append(String.format(wrapper, String.format("args[%d]", i))).append(',');
         }
         // add the method
         ctClass.addMethod(CtMethod.make(String.format(
