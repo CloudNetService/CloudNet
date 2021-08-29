@@ -18,7 +18,6 @@ package de.dytanic.cloudnet.provider.service;
 
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.CloudNet;
-import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.driver.provider.service.GeneralCloudServiceProvider;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
@@ -49,10 +48,14 @@ public class NodeGeneralCloudServiceProvider implements GeneralCloudServiceProvi
   @Nullable
   @Override
   public ServiceInfoSnapshot getCloudServiceByName(@NotNull String name) {
-    return this.cloudNet.getCloudServiceManager().getGlobalServiceInfoSnapshots().values().stream()
-      .filter(serviceInfoSnapshot -> serviceInfoSnapshot.getServiceId().getName().equalsIgnoreCase(name))
-      .findFirst()
-      .orElse(null);
+    Preconditions.checkNotNull(name);
+    for (ServiceInfoSnapshot serviceInfoSnapshot : this.cloudNet.getCloudServiceManager()
+      .getGlobalServiceInfoSnapshots().values()) {
+      if (serviceInfoSnapshot.getServiceId().getName().equalsIgnoreCase(name)) {
+        return serviceInfoSnapshot;
+      }
+    }
+    return null;
   }
 
   @Override
@@ -138,81 +141,5 @@ public class NodeGeneralCloudServiceProvider implements GeneralCloudServiceProvi
     }
 
     return amount;
-  }
-
-  @Override
-  @NotNull
-  public ITask<Collection<UUID>> getServicesAsUniqueIdAsync() {
-    return this.cloudNet.scheduleTask(this::getServicesAsUniqueId);
-  }
-
-  @Override
-  @NotNull
-  public ITask<ServiceInfoSnapshot> getCloudServiceByNameAsync(@NotNull String name) {
-    return this.cloudNet.scheduleTask(() -> this.getCloudServiceByName(name));
-  }
-
-  @Override
-  @NotNull
-  public ITask<Collection<ServiceInfoSnapshot>> getCloudServicesAsync() {
-    return this.cloudNet.scheduleTask(this::getCloudServices);
-  }
-
-  @Override
-  @NotNull
-  public ITask<Collection<ServiceInfoSnapshot>> getStartedCloudServicesAsync() {
-    return this.cloudNet.scheduleTask(this::getStartedCloudServices);
-  }
-
-  @Override
-  @NotNull
-  public ITask<Collection<ServiceInfoSnapshot>> getCloudServicesAsync(@NotNull String taskName) {
-    Preconditions.checkNotNull(taskName);
-
-    return this.cloudNet.scheduleTask(() -> this.getCloudServices(taskName));
-  }
-
-  @Override
-  @NotNull
-  public ITask<Collection<ServiceInfoSnapshot>> getCloudServicesAsync(@NotNull ServiceEnvironmentType environment) {
-    return this.cloudNet.scheduleTask(() -> this.getCloudServices(environment));
-  }
-
-  @Override
-  @NotNull
-  public ITask<Collection<ServiceInfoSnapshot>> getCloudServicesByGroupAsync(@NotNull String group) {
-    Preconditions.checkNotNull(group);
-
-    return this.cloudNet.scheduleTask(() -> this.getCloudServicesByGroup(group));
-  }
-
-  @Override
-  @NotNull
-  public ITask<Integer> getServicesCountAsync() {
-    return this.cloudNet.scheduleTask(this::getServicesCount);
-  }
-
-  @Override
-  @NotNull
-  public ITask<Integer> getServicesCountByGroupAsync(@NotNull String group) {
-    Preconditions.checkNotNull(group);
-
-    return this.cloudNet.scheduleTask(() -> this.getServicesCountByGroup(group));
-  }
-
-  @Override
-  @NotNull
-  public ITask<Integer> getServicesCountByTaskAsync(@NotNull String taskName) {
-    Preconditions.checkNotNull(taskName);
-
-    return this.cloudNet.scheduleTask(() -> this.getServicesCountByTask(taskName));
-  }
-
-  @Override
-  @NotNull
-  public ITask<ServiceInfoSnapshot> getCloudServiceAsync(@NotNull UUID uniqueId) {
-    Preconditions.checkNotNull(uniqueId);
-
-    return this.cloudNet.scheduleTask(() -> this.getCloudService(uniqueId));
   }
 }

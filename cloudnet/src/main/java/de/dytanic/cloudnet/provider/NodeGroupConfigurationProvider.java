@@ -19,7 +19,6 @@ package de.dytanic.cloudnet.provider;
 import com.google.common.base.Preconditions;
 import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.CloudNet;
-import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.network.NetworkUpdateType;
 import de.dytanic.cloudnet.driver.provider.GroupConfigurationProvider;
@@ -153,66 +152,4 @@ public class NodeGroupConfigurationProvider implements GroupConfigurationProvide
 
     this.removeGroupConfiguration(groupConfiguration.getName());
   }
-
-  @Override
-  public @NotNull ITask<Void> reloadAsync() {
-    return this.cloudNet.scheduleTask(() -> {
-      this.reload();
-      return null;
-    });
-  }
-
-  @Override
-  @NotNull
-  public ITask<Collection<GroupConfiguration>> getGroupConfigurationsAsync() {
-    return this.cloudNet.scheduleTask(this::getGroupConfigurations);
-  }
-
-  @Override
-  public @NotNull ITask<Void> setGroupConfigurationsAsync(@NotNull Collection<GroupConfiguration> groupConfigurations) {
-    return this.cloudNet.scheduleTask(() -> {
-      this.setGroupConfigurations(groupConfigurations);
-      return null;
-    });
-  }
-
-  @Override
-  @NotNull
-  public ITask<GroupConfiguration> getGroupConfigurationAsync(@NotNull String name) {
-    return this.cloudNet.scheduleTask(() -> this.getGroupConfiguration(name));
-  }
-
-  @Override
-  @NotNull
-  public ITask<Boolean> isGroupConfigurationPresentAsync(@NotNull String name) {
-    return this.cloudNet.scheduleTask(() -> this.isGroupConfigurationPresent(name));
-  }
-
-  @Override
-  @NotNull
-  public ITask<Void> addGroupConfigurationAsync(@NotNull GroupConfiguration groupConfiguration) {
-    return this.cloudNet.scheduleTask(() -> {
-      this.addGroupConfiguration(groupConfiguration);
-      return null;
-    });
-  }
-
-  @Override
-  @NotNull
-  public ITask<Void> removeGroupConfigurationAsync(@NotNull String name) {
-    return this.cloudNet.scheduleTask(() -> {
-      this.removeGroupConfiguration(name);
-      return null;
-    });
-  }
-
-  @Override
-  @NotNull
-  public ITask<Void> removeGroupConfigurationAsync(@NotNull GroupConfiguration groupConfiguration) {
-    return this.cloudNet.scheduleTask(() -> {
-      this.removeGroupConfiguration(groupConfiguration);
-      return null;
-    });
-  }
-
 }

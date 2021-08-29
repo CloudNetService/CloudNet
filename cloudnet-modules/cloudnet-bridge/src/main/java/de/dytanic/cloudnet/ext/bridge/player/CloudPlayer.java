@@ -17,14 +17,12 @@
 package de.dytanic.cloudnet.ext.bridge.player;
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
-import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import de.dytanic.cloudnet.ext.bridge.player.executor.DefaultPlayerExecutor;
 import de.dytanic.cloudnet.ext.bridge.player.executor.PlayerExecutor;
 import java.lang.reflect.Type;
 import java.util.UUID;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import org.jetbrains.annotations.NotNull;
 
 @ToString
 @EqualsAndHashCode(callSuper = false)
@@ -139,25 +137,4 @@ public class CloudPlayer extends CloudOfflinePlayer implements ICloudPlayer {
   public PlayerExecutor getPlayerExecutor() {
     return new DefaultPlayerExecutor(this.getUniqueId());
   }
-
-  @Override
-  public void write(@NotNull ProtocolBuffer buffer) {
-    super.write(buffer);
-    buffer.writeObject(this.loginService);
-    buffer.writeObject(this.connectedService);
-    buffer.writeObject(this.networkConnectionInfo);
-    buffer.writeOptionalObject(this.networkPlayerServerInfo);
-    buffer.writeJsonDocument(this.onlineProperties);
-  }
-
-  @Override
-  public void read(@NotNull ProtocolBuffer buffer) {
-    super.read(buffer);
-    this.loginService = buffer.readObject(NetworkServiceInfo.class);
-    this.connectedService = buffer.readObject(NetworkServiceInfo.class);
-    this.networkConnectionInfo = buffer.readObject(NetworkConnectionInfo.class);
-    this.networkPlayerServerInfo = buffer.readOptionalObject(NetworkPlayerServerInfo.class);
-    this.onlineProperties = buffer.readJsonDocument();
-  }
-
 }

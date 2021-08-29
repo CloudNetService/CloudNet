@@ -16,7 +16,6 @@
 
 package de.dytanic.cloudnet.ext.bridge;
 
-import de.dytanic.cloudnet.common.document.gson.BasicJsonDocPropertyable;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,7 +27,7 @@ import lombok.ToString;
 
 @ToString
 @EqualsAndHashCode(callSuper = false)
-public final class BridgeConfiguration extends BasicJsonDocPropertyable {
+public final class BridgeConfiguration {
 
   @Deprecated
   public static final Type TYPE = BridgeConfiguration.class;

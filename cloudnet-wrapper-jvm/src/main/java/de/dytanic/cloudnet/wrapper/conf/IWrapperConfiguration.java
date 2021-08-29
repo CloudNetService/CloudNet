@@ -18,8 +18,10 @@ package de.dytanic.cloudnet.wrapper.conf;
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
+import de.dytanic.cloudnet.driver.network.ssl.SSLConfiguration;
 import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 
 /**
  * The configuration mirror of the .wrapper/wrapper.json file in the working folder from the service process. It
@@ -59,9 +61,18 @@ public interface IWrapperConfiguration {
   ServiceInfoSnapshot getServiceInfoSnapshot();
 
   /**
+   * @return a document instance, which includes all important ssl settings, for a client ssl connection
+   * @deprecated use {@link IWrapperConfiguration#getSSLConfig()} The ssl configuration, which needs for an optional ssl
+   * client connection.
+   */
+  @Deprecated
+  @ScheduledForRemoval(inVersion = "3.7")
+  JsonDocument getSslConfig();
+
+  /**
    * The ssl configuration, which needs for an optional ssl client connection.
    *
-   * @return a document instance, which includes all important ssl settings, for a client ssl connection
+   * @return the configuration instance, which includes all important ssl settings, for a client ssl connection
    */
-  JsonDocument getSslConfig();
+  SSLConfiguration getSSLConfig();
 }

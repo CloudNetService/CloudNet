@@ -22,6 +22,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.internal.bind.TypeAdapters;
@@ -176,6 +177,20 @@ public class JsonDocument implements IDocument<JsonDocument>, Cloneable {
     JsonDocument document = new JsonDocument();
 
     document.read(path);
+    return document;
+  }
+
+  /**
+   * Reads the file located at the given path and tries to parse it
+   *
+   * @param path the path to the file
+   * @return the parsed JsonDocument
+   * @throws JsonParseException if parsing the file fails
+   */
+  public static JsonDocument newDocumentExceptionally(Path path) throws Exception {
+    JsonDocument document = new JsonDocument();
+
+    document.readExceptionally(path);
     return document;
   }
 
@@ -764,10 +779,20 @@ public class JsonDocument implements IDocument<JsonDocument>, Cloneable {
 
   @Override
   public @NotNull JsonDocument read(@NotNull Reader reader) {
+    try {
+      return this.readExceptionally(reader);
+    } catch (JsonParseException exception) {
+      LOGGER.severe("Exception while parsing json", exception);
+    }
+    return this;
+  }
+
+  @Override
+  public @NotNull JsonDocument readExceptionally(@NotNull Reader reader) throws JsonParseException {
     try (BufferedReader bufferedReader = new BufferedReader(reader)) {
       return this.append(JsonParser.parseReader(bufferedReader).getAsJsonObject());
-    } catch (Exception ex) {
-      ex.getStackTrace();
+    } catch (IOException exception) {
+      LOGGER.severe("Exception while reading from reader", exception);
     }
     return this;
   }
@@ -782,6 +807,16 @@ public class JsonDocument implements IDocument<JsonDocument>, Cloneable {
   public @NotNull JsonDocument read(@NotNull InputStream inputStream) {
     try (InputStreamReader reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8)) {
       return this.read(reader);
+    } catch (IOException exception) {
+      LOGGER.severe("Exception while reading input stream", exception);
+      return this;
+    }
+  }
+
+  @Override
+  public @NotNull JsonDocument readExceptionally(@NotNull InputStream inputStream) throws JsonParseException {
+    try (InputStreamReader reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8)) {
+      return this.readExceptionally(reader);
     } catch (IOException exception) {
       LOGGER.severe("Exception while reading input stream", exception);
       return this;

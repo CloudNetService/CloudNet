@@ -16,6 +16,8 @@
 
 package de.dytanic.cloudnet.ext.storage.ftp;
 
+import com.google.gson.JsonParseException;
+import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.module.ModuleLifeCycle;
@@ -35,22 +37,30 @@ public final class CloudNetStorageFTPModule extends NodeCloudNetModule {
 
   @ModuleTask(order = 127, event = ModuleLifeCycle.STARTED)
   public void initConfiguration() {
-    if (super.getConfig().contains("ssl")) {
-      super.getConfig().remove("ssl");
-      super.getConfig().remove("bufferSize");
+
+    JsonDocument configuration;
+    try {
+      configuration = super.getConfigExceptionally();
+    } catch (Exception exception) {
+      throw new JsonParseException("Exception while parsing storage-ftp configuration. Your configuration is invalid.");
     }
 
-    super.getConfig().get("type", FTPType.class, FTPType.FTP);
-    super.getConfig().get("address", HostAndPort.class, new HostAndPort("127.0.0.1", 21));
+    if (configuration.contains("ssl")) {
+      configuration.remove("ssl");
+      configuration.remove("bufferSize");
+    }
 
-    super.getConfig().getString("storage", "ftp");
-    super.getConfig().getString("username", "root");
-    super.getConfig().getString("password", "password");
+    configuration.get("type", FTPType.class, FTPType.FTP);
+    configuration.get("address", HostAndPort.class, new HostAndPort("127.0.0.1", 21));
 
-    super.getConfig().getString("sshKeyPath", "");
-    super.getConfig().getString("sshKeyPassword", "");
+    configuration.getString("storage", "ftp");
+    configuration.getString("username", "root");
+    configuration.getString("password", "password");
 
-    super.getConfig().getString("baseDirectory", "/home/cloudnet");
+    configuration.getString("sshKeyPath", "");
+    configuration.getString("sshKeyPassword", "");
+
+    configuration.getString("baseDirectory", "/home/cloudnet");
 
     super.saveConfig();
   }

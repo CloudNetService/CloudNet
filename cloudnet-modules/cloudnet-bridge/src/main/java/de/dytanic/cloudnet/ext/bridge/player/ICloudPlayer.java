@@ -17,10 +17,9 @@
 package de.dytanic.cloudnet.ext.bridge.player;
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
-import de.dytanic.cloudnet.driver.serialization.SerializableObject;
 import de.dytanic.cloudnet.ext.bridge.player.executor.PlayerExecutor;
 
-public interface ICloudPlayer extends ICloudOfflinePlayer, SerializableObject {
+public interface ICloudPlayer extends ICloudOfflinePlayer {
 
   NetworkServiceInfo getLoginService();
 

@@ -17,15 +17,13 @@
 package eu.cloudnetservice.cloudnet.ext.signs.configuration;
 
 import com.google.common.base.Strings;
-import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
-import de.dytanic.cloudnet.driver.serialization.SerializableObject;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import org.jetbrains.annotations.NotNull;
 
-public class SignConfigurationEntry implements SerializableObject, Cloneable {
+public class SignConfigurationEntry implements Cloneable {
 
   protected String targetGroup;
   protected boolean switchToSearchingWhenServiceIsFull;
@@ -221,36 +219,26 @@ public class SignConfigurationEntry implements SerializableObject, Cloneable {
   }
 
   @Override
-  public void write(@NotNull ProtocolBuffer buffer) {
-    buffer.writeString(this.targetGroup);
-    buffer.writeBoolean(this.switchToSearchingWhenServiceIsFull);
-    buffer.writeObject(this.knockbackConfiguration);
-
-    buffer.writeObjectCollection(this.groupConfigurations);
-
-    buffer.writeObject(this.searchingLayout);
-    buffer.writeObject(this.startingLayout);
-    buffer.writeObject(this.emptyLayout);
-    buffer.writeObject(this.onlineLayout);
-    buffer.writeObject(this.fullLayout);
+  public SignConfigurationEntry clone() {
+    try {
+      SignConfigurationEntry clone = (SignConfigurationEntry) super.clone();
+      return clone;
+    } catch (CloneNotSupportedException e) {
+      return new SignConfigurationEntry(
+        this.targetGroup,
+        this.switchToSearchingWhenServiceIsFull,
+        this.knockbackConfiguration.clone(),
+        new ArrayList<>(this.groupConfigurations),
+        this.searchingLayout,
+        this.startingLayout,
+        this.emptyLayout,
+        this.onlineLayout,
+        this.fullLayout
+      );
+    }
   }
 
-  @Override
-  public void read(@NotNull ProtocolBuffer buffer) {
-    this.targetGroup = buffer.readString();
-    this.switchToSearchingWhenServiceIsFull = buffer.readBoolean();
-    this.knockbackConfiguration = buffer.readObject(KnockbackConfiguration.class);
-
-    this.groupConfigurations = buffer.readObjectCollection(SignGroupConfiguration.class);
-
-    this.searchingLayout = buffer.readObject(SignLayoutsHolder.class);
-    this.startingLayout = buffer.readObject(SignLayoutsHolder.class);
-    this.emptyLayout = buffer.readObject(SignLayoutsHolder.class);
-    this.onlineLayout = buffer.readObject(SignLayoutsHolder.class);
-    this.fullLayout = buffer.readObject(SignLayoutsHolder.class);
-  }
-
-  public static class KnockbackConfiguration implements SerializableObject, Cloneable {
+  public static class KnockbackConfiguration implements Cloneable {
 
     protected static final KnockbackConfiguration DEFAULT = new KnockbackConfiguration(true, 1,
       0.8, "cloudnet.signs.knockback.bypass");
@@ -322,22 +310,6 @@ public class SignConfigurationEntry implements SerializableObject, Cloneable {
       } catch (CloneNotSupportedException exception) {
         return new KnockbackConfiguration(this.enabled, this.distance, this.strength, this.bypassPermission);
       }
-    }
-
-    @Override
-    public void write(@NotNull ProtocolBuffer buffer) {
-      buffer.writeBoolean(this.enabled);
-      buffer.writeDouble(this.distance);
-      buffer.writeDouble(this.strength);
-      buffer.writeOptionalString(this.bypassPermission);
-    }
-
-    @Override
-    public void read(@NotNull ProtocolBuffer buffer) {
-      this.enabled = buffer.readBoolean();
-      this.distance = buffer.readDouble();
-      this.strength = buffer.readDouble();
-      this.bypassPermission = buffer.readOptionalString();
     }
   }
 }

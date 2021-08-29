@@ -16,18 +16,15 @@
 
 package de.dytanic.cloudnet.driver.network;
 
-import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
-import de.dytanic.cloudnet.driver.serialization.SerializableObject;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import lombok.EqualsAndHashCode;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * This class holds an easy IP/Hostname and port configuration for a server or a client bind address
  */
 @EqualsAndHashCode
-public class HostAndPort implements SerializableObject {
+public class HostAndPort {
 
   /**
    * The host address which is configured by the constructors The host string can be an IPv4, IPv6 and a string
@@ -98,17 +95,4 @@ public class HostAndPort implements SerializableObject {
   public int getPort() {
     return this.port;
   }
-
-  @Override
-  public void write(@NotNull ProtocolBuffer buffer) {
-    buffer.writeOptionalString(this.host);
-    buffer.writeInt(this.port);
-  }
-
-  @Override
-  public void read(@NotNull ProtocolBuffer buffer) {
-    this.host = buffer.readOptionalString();
-    this.port = buffer.readInt();
-  }
-
 }

@@ -17,8 +17,6 @@
 package de.dytanic.cloudnet.driver.module;
 
 import com.google.common.base.Verify;
-import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
-import de.dytanic.cloudnet.driver.serialization.SerializableObject;
 import lombok.EqualsAndHashCode;
 import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
@@ -29,7 +27,7 @@ import org.jetbrains.annotations.Nullable;
  * Represents a dependency of a module.
  */
 @EqualsAndHashCode
-public class ModuleDependency implements SerializableObject {
+public class ModuleDependency {
 
   private String repo;
   private String url;
@@ -169,29 +167,5 @@ public class ModuleDependency implements SerializableObject {
   @Override
   public String toString() {
     return this.group + ':' + this.name + ':' + this.version;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public void write(@NotNull ProtocolBuffer buffer) {
-    buffer.writeString(this.name);
-    buffer.writeString(this.group);
-    buffer.writeString(this.version);
-    buffer.writeOptionalString(this.url);
-    buffer.writeOptionalString(this.repo);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public void read(@NotNull ProtocolBuffer buffer) {
-    this.name = buffer.readString();
-    this.group = buffer.readString();
-    this.version = buffer.readString();
-    this.url = buffer.readOptionalString();
-    this.repo = buffer.readOptionalString();
   }
 }

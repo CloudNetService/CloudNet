@@ -17,19 +17,15 @@
 package de.dytanic.cloudnet.driver.network.cluster;
 
 import de.dytanic.cloudnet.driver.module.ModuleConfiguration;
-import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
-import de.dytanic.cloudnet.driver.serialization.SerializableObject;
-import de.dytanic.cloudnet.driver.serialization.json.SerializableJsonDocPropertyable;
 import de.dytanic.cloudnet.driver.service.ProcessSnapshot;
 import java.lang.reflect.Type;
 import java.util.Collection;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import org.jetbrains.annotations.NotNull;
 
 @ToString
 @EqualsAndHashCode(callSuper = false)
-public class NetworkClusterNodeInfoSnapshot extends SerializableJsonDocPropertyable implements SerializableObject {
+public class NetworkClusterNodeInfoSnapshot {
 
   @Deprecated
   public static final Type TYPE = NetworkClusterNodeInfoSnapshot.class;
@@ -201,41 +197,5 @@ public class NetworkClusterNodeInfoSnapshot extends SerializableJsonDocPropertya
 
   public void setSystemCpuUsage(double systemCpuUsage) {
     this.systemCpuUsage = systemCpuUsage;
-  }
-
-  @Override
-  public void write(@NotNull ProtocolBuffer buffer) {
-    buffer.writeLong(this.creationTime);
-    buffer.writeLong(this.startupMillis);
-    buffer.writeObject(this.node);
-    buffer.writeString(this.version);
-    buffer.writeInt(this.currentServicesCount);
-    buffer.writeInt(this.usedMemory);
-    buffer.writeInt(this.reservedMemory);
-    buffer.writeInt(this.maxMemory);
-    buffer.writeDouble(this.maxCPUUsageToStartServices);
-    buffer.writeObject(this.processSnapshot);
-    buffer.writeObjectCollection(this.modules);
-    buffer.writeDouble(this.systemCpuUsage);
-
-    super.write(buffer);
-  }
-
-  @Override
-  public void read(@NotNull ProtocolBuffer buffer) {
-    this.creationTime = buffer.readLong();
-    this.startupMillis = buffer.readLong();
-    this.node = buffer.readObject(NetworkClusterNode.class);
-    this.version = buffer.readString();
-    this.currentServicesCount = buffer.readInt();
-    this.usedMemory = buffer.readInt();
-    this.reservedMemory = buffer.readInt();
-    this.maxMemory = buffer.readInt();
-    this.maxCPUUsageToStartServices = buffer.readDouble();
-    this.processSnapshot = buffer.readObject(ProcessSnapshot.class);
-    this.modules = buffer.readObjectCollection(ModuleConfiguration.class);
-    this.systemCpuUsage = buffer.readDouble();
-
-    super.read(buffer);
   }
 }

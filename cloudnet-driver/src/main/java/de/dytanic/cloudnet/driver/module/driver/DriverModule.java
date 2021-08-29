@@ -44,8 +44,19 @@ public class DriverModule extends DefaultModule {
     this.config = config;
   }
 
+  public final JsonDocument getConfigExceptionally() throws Exception {
+    if (this.config == null) {
+      this.config = this.reloadConfigExceptionally0();
+    }
+    return this.config;
+  }
+
   public JsonDocument reloadConfig() {
     return this.config = this.reloadConfig0();
+  }
+
+  public JsonDocument reloadConfigExceptionally() throws Exception {
+    return this.config = this.reloadConfigExceptionally0();
   }
 
   public final DriverModule saveConfig() {
@@ -65,6 +76,17 @@ public class DriverModule extends DefaultModule {
     }
 
     return JsonDocument.newDocument(configuration);
+  }
+
+  private JsonDocument reloadConfigExceptionally0() throws Exception {
+    FileUtils.createDirectoryReported(this.getModuleWrapper().getDataDirectory());
+
+    Path configuration = this.getModuleWrapper().getDataDirectory().resolve("config.json");
+    if (Files.notExists(configuration)) {
+      JsonDocument.EMPTY.write(configuration);
+    }
+
+    return JsonDocument.newDocumentExceptionally(configuration);
   }
 
   @Deprecated

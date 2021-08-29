@@ -16,15 +16,12 @@
 
 package eu.cloudnetservice.cloudnet.ext.signs.configuration;
 
-import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
-import de.dytanic.cloudnet.driver.serialization.SerializableObject;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import org.jetbrains.annotations.NotNull;
 
 @ToString
 @EqualsAndHashCode
-public class SignLayout implements SerializableObject {
+public class SignLayout {
 
   protected String[] lines;
   protected String blockMaterial;
@@ -70,21 +67,5 @@ public class SignLayout implements SerializableObject {
 
   public void setGlowingColor(String glowingColor) {
     this.glowingColor = glowingColor;
-  }
-
-  @Override
-  public void write(@NotNull ProtocolBuffer buffer) {
-    buffer.writeStringArray(this.lines);
-    buffer.writeOptionalString(this.blockMaterial);
-    buffer.writeInt(this.blockSubId);
-    buffer.writeOptionalString(this.glowingColor);
-  }
-
-  @Override
-  public void read(@NotNull ProtocolBuffer buffer) {
-    this.lines = buffer.readStringArray();
-    this.blockMaterial = buffer.readOptionalString();
-    this.blockSubId = buffer.readInt();
-    this.glowingColor = buffer.readOptionalString();
   }
 }

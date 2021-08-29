@@ -16,16 +16,13 @@
 
 package eu.cloudnetservice.cloudnet.ext.signs.configuration;
 
-import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
-import de.dytanic.cloudnet.driver.serialization.SerializableObject;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import lombok.ToString;
-import org.jetbrains.annotations.NotNull;
 
 @ToString
-public class SignLayoutsHolder implements SerializableObject {
+public class SignLayoutsHolder {
 
   protected int animationsPerSecond;
   protected List<SignLayout> signLayouts;
@@ -103,17 +100,5 @@ public class SignLayoutsHolder implements SerializableObject {
     } else {
       return this.currentAnimation;
     }
-  }
-
-  @Override
-  public void write(@NotNull ProtocolBuffer buffer) {
-    buffer.writeInt(this.animationsPerSecond);
-    buffer.writeObjectCollection(this.signLayouts);
-  }
-
-  @Override
-  public void read(@NotNull ProtocolBuffer buffer) {
-    this.animationsPerSecond = buffer.readInt();
-    this.signLayouts = buffer.readObjectCollection(SignLayout.class);
   }
 }

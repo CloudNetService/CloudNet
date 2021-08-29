@@ -65,7 +65,7 @@ public class SyncProxyCloudNetListener {
       return;
     }
 
-    if (SyncProxyConstants.SYNC_PROXY_UPDATE_CONFIGURATION.equals(event.getMessage().toLowerCase())) {
+    if (SyncProxyConstants.SYNC_PROXY_UPDATE_CONFIGURATION.equalsIgnoreCase(event.getMessage())) {
       SyncProxyConfiguration syncProxyConfiguration = event.getData()
         .get("syncProxyConfiguration", SyncProxyConfiguration.class);
 

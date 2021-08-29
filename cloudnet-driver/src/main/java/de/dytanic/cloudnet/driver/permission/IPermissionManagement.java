@@ -16,6 +16,7 @@
 
 package de.dytanic.cloudnet.driver.permission;
 
+import de.dytanic.cloudnet.common.concurrent.CompletableTask;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import java.util.Collection;
 import java.util.List;
@@ -178,7 +179,7 @@ public interface IPermissionManagement {
    * @see #getPermissionResult(IPermissible, String, Permission)
    */
   default boolean hasPermission(@NotNull IPermissible permissible, @NotNull String group,
-    @NotNull Permission permission) {
+      @NotNull Permission permission) {
     return this.getPermissionResult(permissible, group, permission).asBoolean();
   }
 
@@ -215,7 +216,7 @@ public interface IPermissionManagement {
    */
   @NotNull
   PermissionCheckResult getPermissionResult(@NotNull IPermissible permissible, @NotNull String group,
-    @NotNull Permission permission);
+      @NotNull Permission permission);
 
   /**
    * Checks if the given {@code permissible} has the given {@code permission}.
@@ -228,7 +229,7 @@ public interface IPermissionManagement {
    */
   @NotNull
   PermissionCheckResult getPermissionResult(@NotNull IPermissible permissible, @NotNull Iterable<String> groups,
-    @NotNull Permission permission);
+      @NotNull Permission permission);
 
   /**
    * Checks if the given {@code permissible} has the given {@code permission}.
@@ -241,7 +242,7 @@ public interface IPermissionManagement {
    */
   @NotNull
   PermissionCheckResult getPermissionResult(@NotNull IPermissible permissible, @NotNull String[] groups,
-    @NotNull Permission permission);
+      @NotNull Permission permission);
 
   /**
    * Finds the highest permission (sorted by the potency) in the given {@code permissions} array using the given {@code
@@ -481,7 +482,9 @@ public interface IPermissionManagement {
    * @return a collection of all group objects the user is in
    */
   @NotNull
-  ITask<Collection<IPermissionGroup>> getGroupsAsync(@Nullable IPermissionUser permissionUser);
+  default ITask<Collection<IPermissionGroup>> getGroupsAsync(@Nullable IPermissionUser permissionUser) {
+    return CompletableTask.supplyAsync(() -> this.getGroups(permissionUser));
+  }
 
   /**
    * Adds a new user to the database.
@@ -490,7 +493,9 @@ public interface IPermissionManagement {
    * @return the created permission user
    */
   @NotNull
-  ITask<IPermissionUser> addUserAsync(@NotNull IPermissionUser permissionUser);
+  default ITask<IPermissionUser> addUserAsync(@NotNull IPermissionUser permissionUser) {
+    return CompletableTask.supplyAsync(() -> this.addUser(permissionUser));
+  }
 
   /**
    * Adds a new user to the database.
@@ -501,7 +506,9 @@ public interface IPermissionManagement {
    * @return the created permission user
    */
   @NotNull
-  ITask<IPermissionUser> addUserAsync(@NotNull String name, @NotNull String password, int potency);
+  default ITask<IPermissionUser> addUserAsync(@NotNull String name, @NotNull String password, int potency) {
+    return CompletableTask.supplyAsync(() -> this.addUser(name, password, potency));
+  }
 
   /**
    * Updates an already existing user in the database.
@@ -510,7 +517,9 @@ public interface IPermissionManagement {
    * @return a task completed when the operation was executed
    */
   @NotNull
-  ITask<Void> updateUserAsync(@NotNull IPermissionUser permissionUser);
+  default ITask<Void> updateUserAsync(@NotNull IPermissionUser permissionUser) {
+    return CompletableTask.supplyAsync(() -> this.updateUser(permissionUser));
+  }
 
   /**
    * Deletes all users in the database matching the given name. This method is case-sensitive.
@@ -519,7 +528,9 @@ public interface IPermissionManagement {
    * @return if the operation was successful
    */
   @NotNull
-  ITask<Boolean> deleteUserAsync(@NotNull String name);
+  default ITask<Boolean> deleteUserAsync(@NotNull String name) {
+    return CompletableTask.supplyAsync(() -> this.deleteUser(name));
+  }
 
   /**
    * Deletes one user with the uniqueId of the given user.
@@ -528,7 +539,9 @@ public interface IPermissionManagement {
    * @return if the operation was successful
    */
   @NotNull
-  ITask<Boolean> deleteUserAsync(@NotNull IPermissionUser permissionUser);
+  default ITask<Boolean> deleteUserAsync(@NotNull IPermissionUser permissionUser) {
+    return CompletableTask.supplyAsync(() -> this.deleteUser(permissionUser));
+  }
 
   /**
    * Checks if a user with the given uniqueId is stored in the database.
@@ -537,7 +550,9 @@ public interface IPermissionManagement {
    * @return {@code true} if there is a user with that uniqueId, {@code false} otherwise
    */
   @NotNull
-  ITask<Boolean> containsUserAsync(@NotNull UUID uniqueId);
+  default ITask<Boolean> containsUserAsync(@NotNull UUID uniqueId) {
+    return CompletableTask.supplyAsync(() -> this.containsUser(uniqueId));
+  }
 
   /**
    * Checks if at least one user with the given name is stored in the database. This method is case-sensitive.
@@ -546,7 +561,9 @@ public interface IPermissionManagement {
    * @return {@code true} if there is a user with that name, {@code false} otherwise
    */
   @NotNull
-  ITask<Boolean> containsUserAsync(@NotNull String name);
+  default ITask<Boolean> containsUserAsync(@NotNull String name) {
+    return CompletableTask.supplyAsync(() -> this.containsUser(name));
+  }
 
   /**
    * Gets a user with the given uniqueId out of the database.
@@ -555,7 +572,9 @@ public interface IPermissionManagement {
    * @return the {@link IPermissionUser} from the database or {@code null} if there is no user with that uniqueId stored
    */
   @NotNull
-  ITask<IPermissionUser> getUserAsync(@NotNull UUID uniqueId);
+  default ITask<IPermissionUser> getUserAsync(@NotNull UUID uniqueId) {
+    return CompletableTask.supplyAsync(() -> this.getUser(uniqueId));
+  }
 
   /**
    * Gets a user with the given uniqueId out of the database or creates a new one if the database contains no such
@@ -566,7 +585,9 @@ public interface IPermissionManagement {
    * @return the {@link IPermissionUser} from the database or a newly created one.
    */
   @NotNull
-  ITask<IPermissionUser> getOrCreateUserAsync(@NotNull UUID uniqueId, @NotNull String name);
+  default ITask<IPermissionUser> getOrCreateUserAsync(@NotNull UUID uniqueId, @NotNull String name) {
+    return CompletableTask.supplyAsync(() -> this.getOrCreateUser(uniqueId, name));
+  }
 
   /**
    * Gets a list of all users with the given name out of the database. This can only return null when the connection to
@@ -577,7 +598,9 @@ public interface IPermissionManagement {
    * that name stored.
    */
   @NotNull
-  ITask<List<IPermissionUser>> getUsersAsync(@NotNull String name);
+  default ITask<List<IPermissionUser>> getUsersAsync(@NotNull String name) {
+    return CompletableTask.supplyAsync(() -> this.getUsers(name));
+  }
 
   /**
    * Gets the first user with the specified {@code name}.
@@ -586,7 +609,9 @@ public interface IPermissionManagement {
    * @return the {@link IPermissionUser} from the database or {@code null} if there is no user with that name stored
    */
   @NotNull
-  ITask<IPermissionUser> getFirstUserAsync(String name);
+  default ITask<IPermissionUser> getFirstUserAsync(String name) {
+    return CompletableTask.supplyAsync(() -> this.getFirstUser(name));
+  }
 
   /**
    * Gets a list of all users stored in the database. This can only return null when the connection to the database (or
@@ -599,7 +624,9 @@ public interface IPermissionManagement {
    * that name stored.
    */
   @NotNull
-  ITask<Collection<IPermissionUser>> getUsersAsync();
+  default ITask<Collection<IPermissionUser>> getUsersAsync() {
+    return CompletableTask.supplyAsync(() -> this.getUsers());
+  }
 
   /**
    * Clears all users stored in the database and inserts the given list.
@@ -608,7 +635,9 @@ public interface IPermissionManagement {
    * @return a task completed when the operation was executed
    */
   @NotNull
-  ITask<Void> setUsersAsync(@NotNull Collection<? extends IPermissionUser> users);
+  default ITask<Void> setUsersAsync(@NotNull Collection<? extends IPermissionUser> users) {
+    return CompletableTask.supplyAsync(() -> this.setUsers(users));
+  }
 
   /**
    * Gets a list of all users stored in the database with the given group. This can only return null when the connection
@@ -622,7 +651,9 @@ public interface IPermissionManagement {
    * that name stored.
    */
   @NotNull
-  ITask<Collection<IPermissionUser>> getUsersByGroupAsync(@NotNull String group);
+  default ITask<Collection<IPermissionUser>> getUsersByGroupAsync(@NotNull String group) {
+    return CompletableTask.supplyAsync(() -> this.getUsersByGroup(group));
+  }
 
   /**
    * Adds a new permission group to the list of groups. If a group with that name already exists, it will be deleted and
@@ -632,7 +663,9 @@ public interface IPermissionManagement {
    * @return the created permission group.
    */
   @NotNull
-  ITask<IPermissionGroup> addGroupAsync(@NotNull IPermissionGroup permissionGroup);
+  default ITask<IPermissionGroup> addGroupAsync(@NotNull IPermissionGroup permissionGroup) {
+    return CompletableTask.supplyAsync(() -> this.addGroup(permissionGroup));
+  }
 
   /**
    * Adds a new permission group to the list of groups. If a group with that name already exists, it will be deleted and
@@ -643,7 +676,9 @@ public interface IPermissionManagement {
    * @return the created permission group.
    */
   @NotNull
-  ITask<IPermissionGroup> addGroupAsync(@NotNull String role, int potency);
+  default ITask<IPermissionGroup> addGroupAsync(@NotNull String role, int potency) {
+    return CompletableTask.supplyAsync(() -> this.addGroup(role, potency));
+  }
 
   /**
    * Updates a permission group in the list of groups. If a group with that name doesn't exist, it will be created.
@@ -652,7 +687,9 @@ public interface IPermissionManagement {
    * @return a task completed when the operation was executed
    */
   @NotNull
-  ITask<Void> updateGroupAsync(@NotNull IPermissionGroup permissionGroup);
+  default ITask<Void> updateGroupAsync(@NotNull IPermissionGroup permissionGroup) {
+    return CompletableTask.supplyAsync(() -> this.updateGroup(permissionGroup));
+  }
 
   /**
    * Deletes a group by its name out of the list of groups. If a group with that name doesn't exist, nothing happens.
@@ -661,7 +698,9 @@ public interface IPermissionManagement {
    * @return a task completed when the operation was executed
    */
   @NotNull
-  ITask<Void> deleteGroupAsync(@NotNull String name);
+  default ITask<Void> deleteGroupAsync(@NotNull String name) {
+    return CompletableTask.supplyAsync(() -> this.deleteGroup(name));
+  }
 
   /**
    * Deletes a group by its name out of the list of groups. If a group with that name doesn't exist, nothing happens.
@@ -670,7 +709,9 @@ public interface IPermissionManagement {
    * @return a task completed when the operation was executed
    */
   @NotNull
-  ITask<Void> deleteGroupAsync(@NotNull IPermissionGroup permissionGroup);
+  default ITask<Void> deleteGroupAsync(@NotNull IPermissionGroup permissionGroup) {
+    return CompletableTask.supplyAsync(() -> this.deleteGroup(permissionGroup));
+  }
 
   /**
    * Checks if a specific group exists.
@@ -679,7 +720,9 @@ public interface IPermissionManagement {
    * @return {@code true} if the group exists, {@code false} otherwise
    */
   @NotNull
-  ITask<Boolean> containsGroupAsync(@NotNull String group);
+  default ITask<Boolean> containsGroupAsync(@NotNull String group) {
+    return CompletableTask.supplyAsync(() -> this.containsGroup(group));
+  }
 
   /**
    * Gets a specific group by its name.
@@ -688,7 +731,9 @@ public interface IPermissionManagement {
    * @return the {@link IPermissionUser} if it exists, {@code null} otherwise
    */
   @NotNull
-  ITask<IPermissionGroup> getGroupAsync(@NotNull String name);
+  default ITask<IPermissionGroup> getGroupAsync(@NotNull String name) {
+    return CompletableTask.supplyAsync(() -> this.getGroup(name));
+  }
 
   /**
    * Gets the default permission group.
@@ -696,7 +741,9 @@ public interface IPermissionManagement {
    * @return the default permission group.
    */
   @NotNull
-  ITask<IPermissionGroup> getDefaultPermissionGroupAsync();
+  default ITask<IPermissionGroup> getDefaultPermissionGroupAsync() {
+    return CompletableTask.supplyAsync(this::getDefaultPermissionGroup);
+  }
 
   /**
    * Gets the list of all groups in the Cloud.
@@ -705,7 +752,9 @@ public interface IPermissionManagement {
    * registered
    */
   @NotNull
-  ITask<Collection<IPermissionGroup>> getGroupsAsync();
+  default ITask<Collection<IPermissionGroup>> getGroupsAsync() {
+    return CompletableTask.supplyAsync(() -> this.getGroups());
+  }
 
   /**
    * Clears all groups in the Cloud and sets given groups.
@@ -713,7 +762,9 @@ public interface IPermissionManagement {
    * @param groups the new groups
    */
   @NotNull
-  ITask<Void> setGroupsAsync(@Nullable Collection<? extends IPermissionGroup> groups);
+  default ITask<Void> setGroupsAsync(@Nullable Collection<? extends IPermissionGroup> groups) {
+    return CompletableTask.supplyAsync(() -> this.setGroups(groups));
+  }
 
   /**
    * Gets the permission group with the given name by using {@link #getGroupAsync(String)} and, if not null, puts it
@@ -724,7 +775,10 @@ public interface IPermissionManagement {
    * @return the modified user
    */
   @NotNull
-  ITask<IPermissionGroup> modifyGroupAsync(@NotNull String name, @NotNull Consumer<IPermissionGroup> modifier);
+  default ITask<IPermissionGroup> modifyGroupAsync(@NotNull String name,
+      @NotNull Consumer<IPermissionGroup> modifier) {
+    return CompletableTask.supplyAsync(() -> this.modifyGroup(name, modifier));
+  }
 
   /**
    * Gets the permission user with the given uniqueId by using {@link #getUserAsync(UUID)} and, if not null, puts them
@@ -735,7 +789,10 @@ public interface IPermissionManagement {
    * @return the modified user
    */
   @NotNull
-  ITask<IPermissionUser> modifyUserAsync(@NotNull UUID uniqueId, @NotNull Consumer<IPermissionUser> modifier);
+  default ITask<IPermissionUser> modifyUserAsync(@NotNull UUID uniqueId,
+      @NotNull Consumer<IPermissionUser> modifier) {
+    return CompletableTask.supplyAsync(() -> this.modifyUser(uniqueId, modifier));
+  }
 
   /**
    * Gets every user matching the given name by using {@link #getUsersAsync(String)} and puts them into the consumer,
@@ -746,5 +803,8 @@ public interface IPermissionManagement {
    * @return a list of all modified users
    */
   @NotNull
-  ITask<List<IPermissionUser>> modifyUsersAsync(@NotNull String name, @NotNull Consumer<IPermissionUser> modifier);
+  default ITask<List<IPermissionUser>> modifyUsersAsync(@NotNull String name,
+      @NotNull Consumer<IPermissionUser> modifier) {
+    return CompletableTask.supplyAsync(() -> this.modifyUsers(name, modifier));
+  }
 }

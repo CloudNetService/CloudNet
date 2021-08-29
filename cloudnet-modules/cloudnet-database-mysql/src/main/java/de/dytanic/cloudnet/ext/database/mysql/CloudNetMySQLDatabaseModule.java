@@ -16,7 +16,9 @@
 
 package de.dytanic.cloudnet.ext.database.mysql;
 
+import com.google.gson.JsonParseException;
 import com.google.gson.reflect.TypeToken;
+import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.database.AbstractDatabaseProvider;
 import de.dytanic.cloudnet.driver.module.ModuleLifeCycle;
 import de.dytanic.cloudnet.driver.module.ModuleTask;
@@ -44,25 +46,34 @@ public final class CloudNetMySQLDatabaseModule extends NodeCloudNetModule {
 
   @ModuleTask(order = 126, event = ModuleLifeCycle.LOADED)
   public void initConfig() {
-    this.getConfig().getString("database", "mysql");
-    this.getConfig().get("addresses", TYPE, Collections.singletonList(
+
+    JsonDocument configuration;
+    try {
+      configuration = super.getConfigExceptionally();
+    } catch (Exception exception) {
+      throw new JsonParseException(
+        "Exception while parsing mysql-module configuration. Your configuration is invalid.");
+    }
+
+    configuration.getString("database", "mysql");
+    configuration.get("addresses", TYPE, Collections.singletonList(
       new MySQLConnectionEndpoint(false, "CloudNet", new HostAndPort("127.0.0.1", 3306))
     ));
 
-    this.getConfig().getString("username", "root");
-    this.getConfig().getString("password", "root");
+    configuration.getString("username", "root");
+    configuration.getString("password", "root");
 
     int connectionMaxPoolSize = 20;
 
-    if (this.getConfig().contains("connectionPoolSize")) {
+    if (configuration.contains("connectionPoolSize")) {
       connectionMaxPoolSize = this.getConfig().getInt("connectionPoolSize");
-      this.getConfig().remove("connectionPoolSize");
+      configuration.remove("connectionPoolSize");
     }
 
-    this.getConfig().getInt("connectionMaxPoolSize", connectionMaxPoolSize);
-    this.getConfig().getInt("connectionMinPoolSize", 10);
-    this.getConfig().getInt("connectionTimeout", 5000);
-    this.getConfig().getInt("validationTimeout", 5000);
+    configuration.getInt("connectionMaxPoolSize", connectionMaxPoolSize);
+    configuration.getInt("connectionMinPoolSize", 10);
+    configuration.getInt("connectionTimeout", 5000);
+    configuration.getInt("validationTimeout", 5000);
 
     this.saveConfig();
   }
