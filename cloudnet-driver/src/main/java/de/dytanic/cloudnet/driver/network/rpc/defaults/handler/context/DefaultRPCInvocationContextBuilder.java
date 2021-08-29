@@ -40,6 +40,12 @@ public class DefaultRPCInvocationContextBuilder implements RPCInvocationContext.
   }
 
   @Override
+  public @NotNull RPCInvocationContext.Builder strictInstanceUsage(boolean strictInstanceUsage) {
+    this.context.strictInstanceUsage = strictInstanceUsage;
+    return this;
+  }
+
+  @Override
   public @NotNull RPCInvocationContext.Builder methodName(@NotNull String methodName) {
     this.context.methodName = methodName;
     return this;

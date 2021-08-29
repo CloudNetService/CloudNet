@@ -26,6 +26,7 @@ public class DefaultRPCInvocationContext implements RPCInvocationContext {
 
   protected boolean expectsMethodResult;
   protected boolean normalizePrimitives;
+  protected boolean strictInstanceUsage;
 
   protected String methodName;
   protected INetworkChannel channel;
@@ -60,6 +61,11 @@ public class DefaultRPCInvocationContext implements RPCInvocationContext {
   @Override
   public boolean normalizePrimitives() {
     return this.normalizePrimitives;
+  }
+
+  @Override
+  public boolean strictInstanceUsage() {
+    return this.strictInstanceUsage;
   }
 
   @Override

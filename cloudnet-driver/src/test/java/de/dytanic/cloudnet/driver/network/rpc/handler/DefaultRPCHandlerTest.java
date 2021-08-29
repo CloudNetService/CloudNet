@@ -62,8 +62,8 @@ public class DefaultRPCHandlerTest {
     // handler initialize
     AtomicLong backingHandler = new AtomicLong();
     RPCHandler handlerNested = factory.newHandler(TestApiClassNested.class, null);
-    RPCHandler veryHandlerNested = factory.newHandler(TestApiClassVeryNested.class, null);
     RPCHandler handler = factory.newHandler(TestApiClass.class, new TestApiClass(backingHandler));
+    RPCHandler veryHandlerNested = factory.newHandler(TestApiClassVeryNested.class, new TestApiClassVeryNested());
     // register the handler
     registry.registerHandler(handler);
     registry.registerHandler(handlerNested);

@@ -56,6 +56,14 @@ public interface DataBuf {
 
   @NotNull DataBuf.Mutable asMutable();
 
+  // direct memory access
+
+  @NotNull DataBuf disableReleasing();
+
+  @NotNull DataBuf enableReleasing();
+
+  void release();
+
   interface Mutable extends DataBuf {
 
     @NotNull DataBuf.Mutable writeBoolean(boolean b);

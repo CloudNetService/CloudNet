@@ -33,6 +33,8 @@ public interface RPCInvocationContext {
 
   boolean normalizePrimitives();
 
+  boolean strictInstanceUsage();
+
   @NotNull String getMethodName();
 
   @NotNull INetworkChannel getChannel();
@@ -46,6 +48,8 @@ public interface RPCInvocationContext {
     @NotNull Builder expectsMethodResult(boolean expectsResult);
 
     @NotNull Builder normalizePrimitives(boolean normalizePrimitives);
+
+    @NotNull Builder strictInstanceUsage(boolean strictInstanceUsage);
 
     @NotNull Builder methodName(@NotNull String methodName);
 

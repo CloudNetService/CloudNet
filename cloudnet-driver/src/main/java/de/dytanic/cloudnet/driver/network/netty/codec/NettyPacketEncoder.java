@@ -47,5 +47,7 @@ public final class NettyPacketEncoder extends MessageToByteEncoder<IPacket> {
     int length = buf.readableBytes();
     NettyUtils.writeVarInt(byteBuf, length);
     byteBuf.writeBytes(buf, 0, length);
+    // release the content of the packet now
+    packet.getContent().release();
   }
 }
