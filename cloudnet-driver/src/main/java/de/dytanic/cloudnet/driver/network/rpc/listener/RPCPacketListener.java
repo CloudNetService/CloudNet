@@ -23,6 +23,8 @@ import de.dytanic.cloudnet.driver.network.protocol.IPacketListener;
 import de.dytanic.cloudnet.driver.network.protocol.Packet;
 import de.dytanic.cloudnet.driver.network.rpc.RPCHandler;
 import de.dytanic.cloudnet.driver.network.rpc.RPCHandlerRegistry;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class RPCPacketListener implements IPacketListener {
 
@@ -34,13 +36,61 @@ public class RPCPacketListener implements IPacketListener {
 
   @Override
   public void handle(INetworkChannel channel, IPacket packet) throws Exception {
-    RPCHandler handler = this.rpcHandlerRegistry.getHandler(packet.getContent().readString());
-    if (handler != null) {
-      DataBuf response = handler.handleRPC(channel, packet.getContent());
-      // if the response is null the sender is not expecting a result
-      if (response != null && packet.getUniqueId() != null) {
-        channel.getQueryPacketManager().sendQueryPacket(new Packet(-1, response), packet.getUniqueId());
+    // the result of the invocation, encoded
+    DataBuf result;
+    // check if the invocation is chained
+    if (packet.getContent().readBoolean()) {
+      // get the chain size
+      int chainSize = packet.getContent().readInt();
+      // invoke the method on the current result
+      Object lastResult = null;
+      for (int i = 1; i < chainSize; i++) {
+        if (i == 1) {
+          // always invoke the first method
+          lastResult = this.handleRPC(channel, packet, null);
+        } else if (lastResult != null) {
+          // only invoke upcoming methods if there was a previous result
+          lastResult = this.handleRPC(channel, packet, lastResult);
+        } else {
+          // just process over to remove the content from the buffer
+          this.handleRPC(channel, packet, null);
+        }
       }
+      // the last handler decides over the method invocation result
+      result = this.handle(channel, packet, lastResult);
+    } else {
+      // just invoke the method
+      result = this.handle(channel, packet, null);
+    }
+    // check if we need to send a result
+    if (result != null && packet.getUniqueId() != null) {
+      channel.getQueryPacketManager().sendQueryPacket(new Packet(-1, result), packet.getUniqueId());
+    }
+  }
+
+  protected @Nullable DataBuf handle(@NotNull INetworkChannel channel, @NotNull IPacket packet, @Nullable Object on) {
+    // get the handler associated with the class of the rpc
+    RPCHandler handler = this.rpcHandlerRegistry.getHandler(packet.getContent().readString());
+    // check if the method gets called on a specific instance
+    if (on != null) {
+      // invoke the handler with the information
+      return handler == null ? null : handler.handleOn(on, channel, packet.getContent());
+    } else {
+      // invoke the handler with the information
+      return handler == null ? null : handler.handleRPC(channel, packet.getContent());
+    }
+  }
+
+  protected @Nullable Object handleRPC(@NotNull INetworkChannel channel, @NotNull IPacket packet, @Nullable Object on) {
+    // get the handler associated with the class of the rpc
+    RPCHandler handler = this.rpcHandlerRegistry.getHandler(packet.getContent().readString());
+    // check if the method gets called on a specific instance
+    if (on != null) {
+      // invoke the handler with the information
+      return handler == null ? null : handler.handleRawOn(on, channel, packet.getContent());
+    } else {
+      // invoke the handler with the information
+      return handler == null ? null : handler.handleRaw(channel, packet.getContent());
     }
   }
 }

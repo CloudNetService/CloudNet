@@ -19,7 +19,6 @@ package de.dytanic.cloudnet.driver.event;
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
-import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.event.invoker.ListenerInvoker;
 import de.dytanic.cloudnet.driver.event.invoker.ListenerInvokerGenerator;
 import java.lang.reflect.Method;
@@ -188,14 +187,12 @@ public class DefaultEventManager implements IEventManager {
         methodName,
         listenerInvoker);
 
-      CloudNetDriver.optionalInstance().ifPresent(cloudNetDriver -> {
-        LOGGER.finer(String.format(
-          "Registering listener method %s:%s from class loader %s",
-          listener.getClass().getName(),
-          method.getName(),
-          listener.getClass().getClassLoader().getClass().getName()
-        ));
-      });
+      LOGGER.finer(String.format(
+        "Registering listener method %s:%s from class loader %s",
+        listener.getClass().getName(),
+        method.getName(),
+        listener.getClass().getClassLoader().getClass().getName()
+      ));
 
       this.registeredListeners.computeIfAbsent(eventListener.channel(),
         key -> new CopyOnWriteArrayList<>()).add(registeredEventListener);

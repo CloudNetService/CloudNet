@@ -16,6 +16,7 @@
 
 package de.dytanic.cloudnet.driver.network.rpc.defaults;
 
+import com.google.common.reflect.TypeToken;
 import de.dytanic.cloudnet.driver.network.rpc.annotation.RPCIgnore;
 import de.dytanic.cloudnet.driver.network.rpc.defaults.handler.invoker.MethodInvoker;
 import de.dytanic.cloudnet.driver.network.rpc.defaults.handler.invoker.MethodInvokerGenerator;
@@ -33,6 +34,7 @@ public class MethodInformation {
   private final Type[] arguments;
   private final boolean voidMethod;
   private final Object sourceInstance;
+  private final Class<?> rawReturnType;
   private final Class<?> definingClass;
   private final MethodInvoker methodInvoker;
 
@@ -49,6 +51,7 @@ public class MethodInformation {
     this.arguments = arguments;
     this.voidMethod = rType.equals(void.class);
     this.sourceInstance = sourceInstance;
+    this.rawReturnType = TypeToken.of(rType).getRawType();
     this.definingClass = definingClass;
     this.methodInvoker = generator == null ? null : generator.makeMethodInvoker(this);
   }
@@ -95,6 +98,10 @@ public class MethodInformation {
 
   public @NotNull Type getReturnType() {
     return this.returnType;
+  }
+
+  public @NotNull Class<?> getRawReturnType() {
+    return this.rawReturnType;
   }
 
   public Type @NotNull [] getArguments() {

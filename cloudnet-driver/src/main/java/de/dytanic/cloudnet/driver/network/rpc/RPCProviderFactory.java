@@ -20,6 +20,7 @@ import de.dytanic.cloudnet.driver.network.INetworkComponent;
 import de.dytanic.cloudnet.driver.network.buffer.DataBufFactory;
 import de.dytanic.cloudnet.driver.network.rpc.object.ObjectMapper;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public interface RPCProviderFactory {
 
@@ -32,8 +33,8 @@ public interface RPCProviderFactory {
   @NotNull RPCSender providerForClass(@NotNull INetworkComponent component, @NotNull Class<?> clazz,
     @NotNull ObjectMapper objectMapper, @NotNull DataBufFactory dataBufFactory);
 
-  @NotNull RPCHandler newHandler(@NotNull Class<?> clazz, @NotNull Object binding);
+  @NotNull RPCHandler newHandler(@NotNull Class<?> clazz, @Nullable Object binding);
 
-  @NotNull RPCHandler newHandler(@NotNull Class<?> clazz, @NotNull Object binding,
+  @NotNull RPCHandler newHandler(@NotNull Class<?> clazz, @Nullable Object binding,
     @NotNull ObjectMapper objectMapper, @NotNull DataBufFactory dataBufFactory);
 }

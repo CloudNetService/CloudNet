@@ -20,7 +20,7 @@ import de.dytanic.cloudnet.driver.network.INetworkComponent;
 import de.dytanic.cloudnet.driver.network.buffer.DataBufFactory;
 import de.dytanic.cloudnet.driver.network.rpc.RPC;
 import de.dytanic.cloudnet.driver.network.rpc.RPCSender;
-import de.dytanic.cloudnet.driver.network.rpc.defaults.DefaultRPC;
+import de.dytanic.cloudnet.driver.network.rpc.defaults.rpc.DefaultRPC;
 import de.dytanic.cloudnet.driver.network.rpc.defaults.DefaultRPCProvider;
 import de.dytanic.cloudnet.driver.network.rpc.defaults.MethodInformation;
 import de.dytanic.cloudnet.driver.network.rpc.object.ObjectMapper;

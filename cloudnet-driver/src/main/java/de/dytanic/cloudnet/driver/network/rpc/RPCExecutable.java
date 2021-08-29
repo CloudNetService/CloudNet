@@ -16,22 +16,28 @@
 
 package de.dytanic.cloudnet.driver.network.rpc;
 
-import de.dytanic.cloudnet.common.collection.Pair;
+import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
-import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
-import de.dytanic.cloudnet.driver.network.rpc.defaults.MethodInformation;
+import org.jetbrains.annotations.Blocking;
+import org.jetbrains.annotations.NonBlocking;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public interface RPCHandler extends RPCProvider {
+public interface RPCExecutable {
 
-  @Nullable Object handleRawOn(@Nullable Object instance, @NotNull INetworkChannel channel, @NotNull DataBuf received);
+  @NonBlocking
+  void fireAndForget();
 
-  @Nullable DataBuf handleOn(@Nullable Object instance, @NotNull INetworkChannel channel, @NotNull DataBuf received);
+  @Blocking
+  @Nullable <T> T fireSync();
 
-  @Nullable Object handleRaw(@NotNull INetworkChannel channel, @NotNull DataBuf received);
+  @NotNull <T> ITask<T> fire();
 
-  @Nullable DataBuf handleRPC(@NotNull INetworkChannel channel, @NotNull DataBuf received);
+  @NonBlocking
+  void fireAndForget(@NotNull INetworkChannel component);
 
-  @NotNull Pair<Object, MethodInformation> handle(@NotNull RPCInvocationContext context);
+  @Blocking
+  @Nullable <T> T fireSync(@NotNull INetworkChannel component);
+
+  @NotNull <T> ITask<T> fire(@NotNull INetworkChannel component);
 }

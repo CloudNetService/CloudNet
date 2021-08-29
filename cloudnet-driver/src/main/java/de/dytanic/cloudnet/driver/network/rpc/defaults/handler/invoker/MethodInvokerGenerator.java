@@ -18,6 +18,7 @@ package de.dytanic.cloudnet.driver.network.rpc.defaults.handler.invoker;
 
 import com.google.common.primitives.Primitives;
 import com.google.common.reflect.TypeToken;
+import de.dytanic.cloudnet.common.StringUtil;
 import de.dytanic.cloudnet.driver.network.rpc.defaults.MethodInformation;
 import de.dytanic.cloudnet.driver.network.rpc.exception.ClassCreationException;
 import de.dytanic.cloudnet.driver.util.DefiningClassLoader;
@@ -34,7 +35,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class MethodInvokerGenerator {
 
-  private static final String CLASS_NAME_FORMAT = "%s.GeneratedInvoker%s_%s";
+  private static final String CLASS_NAME_FORMAT = "%s.GeneratedInvoker%s_%s_%s";
   private static final String INSTANCE_FIELD_FORMAT = "private final %s instance;";
   private static final String CONSTRUCTOR_FORMAT = "public %s(%s instance) { this.instance = instance; }";
   private static final String OVERRIDDEN_METHOD_FORMAT = "public Object callMethod(Object[] args) { %s this.instance.%s(%s); %s }";
@@ -65,7 +66,8 @@ public class MethodInvokerGenerator {
         CLASS_NAME_FORMAT,
         methodInfo.getDefiningClass().getPackage().getName(),
         methodInfo.getDefiningClass().getSimpleName(),
-        methodInfo.getName()));
+        methodInfo.getName(),
+        StringUtil.generateRandomString(25)));
       // append the super interface
       ctClass.addInterface(this.classPool.get(METHOD_INVOKER_CLASS_NAME));
       // append the field to the class

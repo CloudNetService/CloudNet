@@ -37,7 +37,7 @@ public class DefaultRPCHandlerRegistry implements RPCHandlerRegistry {
 
   @Override
   public boolean hasHandler(@NotNull Class<?> targetClass) {
-    return this.hasHandler(targetClass.getName());
+    return this.hasHandler(targetClass.getCanonicalName());
   }
 
   @Override
@@ -47,7 +47,7 @@ public class DefaultRPCHandlerRegistry implements RPCHandlerRegistry {
 
   @Override
   public @Nullable RPCHandler getHandler(@NotNull Class<?> targetClass) {
-    return this.getHandler(targetClass.getName());
+    return this.getHandler(targetClass.getCanonicalName());
   }
 
   @Override
@@ -57,7 +57,7 @@ public class DefaultRPCHandlerRegistry implements RPCHandlerRegistry {
 
   @Override
   public boolean registerHandler(@NotNull RPCHandler rpcHandler) {
-    return this.handlers.putIfAbsent(rpcHandler.getTargetClass().getName(), rpcHandler) == null;
+    return this.handlers.putIfAbsent(rpcHandler.getTargetClass().getCanonicalName(), rpcHandler) == null;
   }
 
   @Override
@@ -67,7 +67,7 @@ public class DefaultRPCHandlerRegistry implements RPCHandlerRegistry {
 
   @Override
   public boolean unregisterHandler(@NotNull Class<?> rpcHandlerTargetClass) {
-    return this.unregisterHandler(rpcHandlerTargetClass.getName());
+    return this.unregisterHandler(rpcHandlerTargetClass.getCanonicalName());
   }
 
   @Override

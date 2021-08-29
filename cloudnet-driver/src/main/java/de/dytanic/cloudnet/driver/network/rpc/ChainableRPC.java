@@ -16,22 +16,12 @@
 
 package de.dytanic.cloudnet.driver.network.rpc;
 
-import java.lang.reflect.Type;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-public interface RPC extends RPCProvider, RPCExecutable, ChainableRPC {
+public interface ChainableRPC extends RPCProvider {
 
-  @NotNull RPCSender getSender();
-
-  @NotNull String getClassName();
-
-  @NotNull String getMethodName();
-
-  @NotNull Object[] getArguments();
-
-  @NotNull Type getExpectedResultType();
-
-  @NotNull RPC disableResultExpectation();
-
-  boolean expectsResult();
+  @NotNull
+  @Contract("_ -> new")
+  RPCChain join(@NotNull RPC rpc);
 }

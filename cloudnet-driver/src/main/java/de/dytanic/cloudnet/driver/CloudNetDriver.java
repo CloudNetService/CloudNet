@@ -113,7 +113,10 @@ public abstract class CloudNetDriver {
    * The CloudNetDriver instance won't be null usually, this method is only relevant for tests
    *
    * @return optional CloudNetDriver
+   * @deprecated In the runtime the driver instance is always present, use {@link #getInstance()} instead.
    */
+  @Deprecated
+  @ScheduledForRemoval
   public static Optional<CloudNetDriver> optionalInstance() {
     return Optional.ofNullable(CloudNetDriver.instance);
   }

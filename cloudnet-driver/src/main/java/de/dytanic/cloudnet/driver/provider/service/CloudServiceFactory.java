@@ -16,6 +16,7 @@
 
 package de.dytanic.cloudnet.driver.provider.service;
 
+import de.dytanic.cloudnet.common.concurrent.CompletableTask;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.service.ProcessConfiguration;
@@ -27,6 +28,7 @@ import de.dytanic.cloudnet.driver.service.ServiceTask;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import java.util.Collection;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -41,8 +43,9 @@ public interface CloudServiceFactory {
    * @param serviceTask the task the service should be created from
    * @return the info of the created service or null if the service couldn't be created
    */
-  @Nullable
-  ServiceInfoSnapshot createCloudService(ServiceTask serviceTask);
+  default @Nullable ServiceInfoSnapshot createCloudService(ServiceTask serviceTask) {
+    return this.createCloudService(ServiceConfiguration.builder(serviceTask).build());
+  }
 
   /**
    * Creates and prepares a new cloud service
@@ -50,9 +53,13 @@ public interface CloudServiceFactory {
    * @param serviceTask the task the service should be created from
    * @param taskId      the id of the service
    * @return the info of the created service or null if the service couldn't be created
+   * @deprecated Use {@link #createCloudService(ServiceConfiguration)} instead.
    */
-  @Nullable
-  ServiceInfoSnapshot createCloudService(ServiceTask serviceTask, int taskId);
+  @Deprecated
+  @ScheduledForRemoval
+  default @Nullable ServiceInfoSnapshot createCloudService(ServiceTask serviceTask, int taskId) {
+    return this.createCloudService(ServiceConfiguration.builder(serviceTask).taskId(taskId).build());
+  }
 
   /**
    * Creates and prepares a new cloud service
@@ -85,18 +92,28 @@ public interface CloudServiceFactory {
   @Deprecated
   @ApiStatus.ScheduledForRemoval(inVersion = "3.6")
   default ServiceInfoSnapshot createCloudService(String name,
-    String runtime,
-    boolean autoDeleteOnStop,
-    boolean staticService,
-    Collection<ServiceRemoteInclusion> includes,
-    Collection<ServiceTemplate> templates,
-    Collection<ServiceDeployment> deployments,
-    Collection<String> groups,
-    ProcessConfiguration processConfiguration,
-    Integer port) {
-    return this
-      .createCloudService(name, runtime, autoDeleteOnStop, staticService, includes, templates, deployments, groups,
-        processConfiguration, JsonDocument.newDocument(), port);
+      String runtime,
+      boolean autoDeleteOnStop,
+      boolean staticService,
+      Collection<ServiceRemoteInclusion> includes,
+      Collection<ServiceTemplate> templates,
+      Collection<ServiceDeployment> deployments,
+      Collection<String> groups,
+      ProcessConfiguration processConfiguration,
+      Integer port
+  ) {
+    return this.createCloudService(
+        name,
+        runtime,
+        autoDeleteOnStop,
+        staticService,
+        includes,
+        templates,
+        deployments,
+        groups,
+        processConfiguration,
+        JsonDocument.newDocument(),
+        port);
   }
 
   /**
@@ -122,19 +139,36 @@ public interface CloudServiceFactory {
   @Nullable
   @Deprecated
   @ApiStatus.ScheduledForRemoval(inVersion = "3.6")
-  ServiceInfoSnapshot createCloudService(
-    String name,
-    String runtime,
-    boolean autoDeleteOnStop,
-    boolean staticService,
-    Collection<ServiceRemoteInclusion> includes,
-    Collection<ServiceTemplate> templates,
-    Collection<ServiceDeployment> deployments,
-    Collection<String> groups,
-    ProcessConfiguration processConfiguration,
-    JsonDocument properties,
-    Integer port
-  );
+  default ServiceInfoSnapshot createCloudService(
+      String name,
+      String runtime,
+      boolean autoDeleteOnStop,
+      boolean staticService,
+      Collection<ServiceRemoteInclusion> includes,
+      Collection<ServiceTemplate> templates,
+      Collection<ServiceDeployment> deployments,
+      Collection<String> groups,
+      ProcessConfiguration processConfiguration,
+      JsonDocument properties,
+      Integer port
+  ) {
+    return this.createCloudService(ServiceConfiguration.builder()
+        .task(name)
+        .runtime(runtime)
+        .autoDeleteOnStop(autoDeleteOnStop)
+        .staticService(staticService)
+        .inclusions(includes)
+        .templates(templates)
+        .deployments(deployments)
+        .groups(groups)
+        .maxHeapMemory(processConfiguration.getMaxHeapMemorySize())
+        .jvmOptions(processConfiguration.getJvmOptions())
+        .processParameters(processConfiguration.getProcessParameters())
+        .environment(processConfiguration.getEnvironment())
+        .properties(properties)
+        .startPort(port == null ? 44955 : port)
+        .build());
+  }
 
   /**
    * Creates and prepares a new cloud service
@@ -160,20 +194,31 @@ public interface CloudServiceFactory {
   @Deprecated
   @ApiStatus.ScheduledForRemoval(inVersion = "3.6")
   default Collection<ServiceInfoSnapshot> createCloudService(String nodeUniqueId,
-    int amount,
-    String name,
-    String runtime,
-    boolean autoDeleteOnStop,
-    boolean staticService,
-    Collection<ServiceRemoteInclusion> includes,
-    Collection<ServiceTemplate> templates,
-    Collection<ServiceDeployment> deployments,
-    Collection<String> groups,
-    ProcessConfiguration processConfiguration,
-    Integer port) {
-    return this
-      .createCloudService(nodeUniqueId, amount, name, runtime, autoDeleteOnStop, staticService, includes, templates,
-        deployments, groups, processConfiguration, JsonDocument.newDocument(), port);
+      int amount,
+      String name,
+      String runtime,
+      boolean autoDeleteOnStop,
+      boolean staticService,
+      Collection<ServiceRemoteInclusion> includes,
+      Collection<ServiceTemplate> templates,
+      Collection<ServiceDeployment> deployments,
+      Collection<String> groups,
+      ProcessConfiguration processConfiguration,
+      Integer port) {
+    return this.createCloudService(
+        nodeUniqueId,
+        amount,
+        name,
+        runtime,
+        autoDeleteOnStop,
+        staticService,
+        includes,
+        templates,
+        deployments,
+        groups,
+        processConfiguration,
+        JsonDocument.newDocument(),
+        port);
   }
 
   /**
@@ -202,20 +247,19 @@ public interface CloudServiceFactory {
   @Deprecated
   @ApiStatus.ScheduledForRemoval(inVersion = "3.6")
   Collection<ServiceInfoSnapshot> createCloudService(
-    String nodeUniqueId,
-    int amount,
-    String name,
-    String runtime,
-    boolean autoDeleteOnStop,
-    boolean staticService,
-    Collection<ServiceRemoteInclusion> includes,
-    Collection<ServiceTemplate> templates,
-    Collection<ServiceDeployment> deployments,
-    Collection<String> groups,
-    ProcessConfiguration processConfiguration,
-    JsonDocument properties,
-    Integer port
-  );
+      String nodeUniqueId,
+      int amount,
+      String name,
+      String runtime,
+      boolean autoDeleteOnStop,
+      boolean staticService,
+      Collection<ServiceRemoteInclusion> includes,
+      Collection<ServiceTemplate> templates,
+      Collection<ServiceDeployment> deployments,
+      Collection<String> groups,
+      ProcessConfiguration processConfiguration,
+      JsonDocument properties,
+      Integer port);
 
   /**
    * Creates and prepares a new cloud service
@@ -223,8 +267,9 @@ public interface CloudServiceFactory {
    * @param serviceTask the task the service should be created from
    * @return the info of the created service or null if the service couldn't be created
    */
-  @NotNull
-  ITask<ServiceInfoSnapshot> createCloudServiceAsync(ServiceTask serviceTask);
+  default @NotNull ITask<ServiceInfoSnapshot> createCloudServiceAsync(@NotNull ServiceTask serviceTask) {
+    return CompletableTask.supplyAsync(() -> this.createCloudService(serviceTask));
+  }
 
   /**
    * Creates and prepares a new cloud service
@@ -232,18 +277,24 @@ public interface CloudServiceFactory {
    * @param serviceTask the task the service should be created from
    * @param taskId      the id of the service
    * @return the info of the created service or null if the service couldn't be created
+   * @deprecated Use {@link #createCloudServiceAsync(ServiceConfiguration)} instead.
    */
   @NotNull
-  ITask<ServiceInfoSnapshot> createCloudServiceAsync(ServiceTask serviceTask, int taskId);
+  @Deprecated
+  @ScheduledForRemoval
+  default ITask<ServiceInfoSnapshot> createCloudServiceAsync(ServiceTask serviceTask, int taskId) {
+    return CompletableTask.supplyAsync(() -> this.createCloudService(serviceTask, taskId));
+  }
 
   /**
    * Creates and prepares a new cloud service
    *
-   * @param serviceConfiguration the configuration for the new service
+   * @param configuration the configuration for the new service
    * @return the info of the created service or null if the service couldn't be created
    */
-  @NotNull
-  ITask<ServiceInfoSnapshot> createCloudServiceAsync(ServiceConfiguration serviceConfiguration);
+  default @NotNull ITask<ServiceInfoSnapshot> createCloudServiceAsync(@NotNull ServiceConfiguration configuration) {
+    return CompletableTask.supplyAsync(() -> this.createCloudService(configuration));
+  }
 
   /**
    * Creates and prepares a new cloud service
@@ -266,17 +317,31 @@ public interface CloudServiceFactory {
   @NotNull
   @Deprecated
   @ApiStatus.ScheduledForRemoval(inVersion = "3.6")
-  ITask<ServiceInfoSnapshot> createCloudServiceAsync(String name,
-    String runtime,
-    boolean autoDeleteOnStop,
-    boolean staticService,
-    Collection<ServiceRemoteInclusion> includes,
-    Collection<ServiceTemplate> templates,
-    Collection<ServiceDeployment> deployments,
-    Collection<String> groups,
-    ProcessConfiguration processConfiguration,
-    JsonDocument properties,
-    Integer port);
+  default ITask<ServiceInfoSnapshot> createCloudServiceAsync(String name,
+      String runtime,
+      boolean autoDeleteOnStop,
+      boolean staticService,
+      Collection<ServiceRemoteInclusion> includes,
+      Collection<ServiceTemplate> templates,
+      Collection<ServiceDeployment> deployments,
+      Collection<String> groups,
+      ProcessConfiguration processConfiguration,
+      JsonDocument properties,
+      Integer port
+  ) {
+    return CompletableTask.supplyAsync(() -> this.createCloudService(
+        name,
+        runtime,
+        autoDeleteOnStop,
+        staticService,
+        includes,
+        templates,
+        deployments,
+        groups,
+        processConfiguration,
+        properties,
+        port));
+  }
 
   /**
    * Creates and prepares a new cloud service
@@ -301,19 +366,35 @@ public interface CloudServiceFactory {
   @NotNull
   @Deprecated
   @ApiStatus.ScheduledForRemoval(inVersion = "3.6")
-  ITask<Collection<ServiceInfoSnapshot>> createCloudServiceAsync(String nodeUniqueId,
-    int amount,
-    String name,
-    String runtime,
-    boolean autoDeleteOnStop,
-    boolean staticService,
-    Collection<ServiceRemoteInclusion> includes,
-    Collection<ServiceTemplate> templates,
-    Collection<ServiceDeployment> deployments,
-    Collection<String> groups,
-    ProcessConfiguration processConfiguration,
-    JsonDocument properties,
-    Integer port);
+  default ITask<Collection<ServiceInfoSnapshot>> createCloudServiceAsync(
+      String nodeUniqueId,
+      int amount,
+      String name,
+      String runtime,
+      boolean autoDeleteOnStop,
+      boolean staticService,
+      Collection<ServiceRemoteInclusion> includes,
+      Collection<ServiceTemplate> templates,
+      Collection<ServiceDeployment> deployments,
+      Collection<String> groups,
+      ProcessConfiguration processConfiguration,
+      JsonDocument properties,
+      Integer port
+  ) {
+    return CompletableTask.supplyAsync(() -> this.createCloudService(
+        nodeUniqueId,
+        amount,
+        name,
+        runtime,
+        autoDeleteOnStop,
+        staticService,
+        includes,
+        templates,
+        deployments,
+        groups,
+        processConfiguration,
+        port));
+  }
 
   /**
    * Creates and prepares a new cloud service
@@ -337,18 +418,27 @@ public interface CloudServiceFactory {
   @Deprecated
   @ApiStatus.ScheduledForRemoval(inVersion = "3.6")
   default ITask<ServiceInfoSnapshot> createCloudServiceAsync(String name,
-    String runtime,
-    boolean autoDeleteOnStop,
-    boolean staticService,
-    Collection<ServiceRemoteInclusion> includes,
-    Collection<ServiceTemplate> templates,
-    Collection<ServiceDeployment> deployments,
-    Collection<String> groups,
-    ProcessConfiguration processConfiguration,
-    Integer port) {
-    return this
-      .createCloudServiceAsync(name, runtime, autoDeleteOnStop, staticService, includes, templates, deployments, groups,
-        processConfiguration, JsonDocument.newDocument(), port);
+      String runtime,
+      boolean autoDeleteOnStop,
+      boolean staticService,
+      Collection<ServiceRemoteInclusion> includes,
+      Collection<ServiceTemplate> templates,
+      Collection<ServiceDeployment> deployments,
+      Collection<String> groups,
+      ProcessConfiguration processConfiguration,
+      Integer port) {
+    return this.createCloudServiceAsync(
+        name,
+        runtime,
+        autoDeleteOnStop,
+        staticService,
+        includes,
+        templates,
+        deployments,
+        groups,
+        processConfiguration,
+        JsonDocument.newDocument(),
+        port);
   }
 
   /**
@@ -375,19 +465,30 @@ public interface CloudServiceFactory {
   @Deprecated
   @ApiStatus.ScheduledForRemoval(inVersion = "3.6")
   default ITask<Collection<ServiceInfoSnapshot>> createCloudServiceAsync(String nodeUniqueId,
-    int amount,
-    String name,
-    String runtime,
-    boolean autoDeleteOnStop,
-    boolean staticService,
-    Collection<ServiceRemoteInclusion> includes,
-    Collection<ServiceTemplate> templates,
-    Collection<ServiceDeployment> deployments,
-    Collection<String> groups,
-    ProcessConfiguration processConfiguration,
-    Integer port) {
-    return this.createCloudServiceAsync(nodeUniqueId, amount, name, runtime, autoDeleteOnStop, staticService, includes,
-      templates, deployments, groups, processConfiguration, JsonDocument.newDocument(), port);
+      int amount,
+      String name,
+      String runtime,
+      boolean autoDeleteOnStop,
+      boolean staticService,
+      Collection<ServiceRemoteInclusion> includes,
+      Collection<ServiceTemplate> templates,
+      Collection<ServiceDeployment> deployments,
+      Collection<String> groups,
+      ProcessConfiguration processConfiguration,
+      Integer port) {
+    return this.createCloudServiceAsync(
+        nodeUniqueId,
+        amount,
+        name,
+        runtime,
+        autoDeleteOnStop,
+        staticService,
+        includes,
+        templates,
+        deployments,
+        groups,
+        processConfiguration,
+        JsonDocument.newDocument(),
+        port);
   }
-
 }
