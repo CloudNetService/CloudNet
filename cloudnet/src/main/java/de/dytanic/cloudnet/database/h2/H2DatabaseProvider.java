@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.ExecutorService;
 import org.h2.Driver;
+import org.jetbrains.annotations.NotNull;
 
 public final class H2DatabaseProvider extends SQLDatabaseProvider {
 
@@ -115,7 +116,7 @@ public final class H2DatabaseProvider extends SQLDatabaseProvider {
   }
 
   @Override
-  public String getName() {
+  public @NotNull String getName() {
     return "h2";
   }
 

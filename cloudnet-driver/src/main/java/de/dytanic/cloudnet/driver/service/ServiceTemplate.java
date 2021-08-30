@@ -129,7 +129,7 @@ public class ServiceTemplate implements INameable, Comparable<ServiceTemplate> {
     return this.prefix;
   }
 
-  public String getName() {
+  public @NotNull String getName() {
     return this.name;
   }
 

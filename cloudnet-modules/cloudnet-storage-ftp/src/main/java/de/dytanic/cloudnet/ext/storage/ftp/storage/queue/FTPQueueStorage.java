@@ -239,7 +239,7 @@ public class FTPQueueStorage extends DefaultAsyncTemplateStorage implements Runn
   }
 
   @Override
-  public String getName() {
+  public @NotNull String getName() {
     return this.executingStorage.getName();
   }
 }

@@ -180,7 +180,7 @@ public class ServiceTask extends ServiceConfigurationBase implements INameable {
     this.disableIpRewrite = disableIpRewrite;
   }
 
-  public String getName() {
+  public @NotNull String getName() {
     return this.name;
   }
 
@@ -387,7 +387,7 @@ public class ServiceTask extends ServiceConfigurationBase implements INameable {
     public Builder processConfiguration(@NotNull ProcessConfiguration processConfiguration) {
       Preconditions.checkNotNull(processConfiguration, "processConfiguration");
 
-      this.serviceTask.setProcessConfiguration(processConfiguration.makeClone());
+      this.serviceTask.setProcessConfiguration(processConfiguration.clone());
       return this;
     }
 

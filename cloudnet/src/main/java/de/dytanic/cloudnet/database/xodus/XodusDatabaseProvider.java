@@ -30,6 +30,7 @@ import jetbrains.exodus.env.EnvironmentConfig;
 import jetbrains.exodus.env.Environments;
 import jetbrains.exodus.env.Store;
 import jetbrains.exodus.env.StoreConfig;
+import org.jetbrains.annotations.NotNull;
 
 public class XodusDatabaseProvider extends AbstractDatabaseProvider {
 
@@ -112,7 +113,7 @@ public class XodusDatabaseProvider extends AbstractDatabaseProvider {
   }
 
   @Override
-  public String getName() {
+  public @NotNull String getName() {
     return "xodus";
   }
 }

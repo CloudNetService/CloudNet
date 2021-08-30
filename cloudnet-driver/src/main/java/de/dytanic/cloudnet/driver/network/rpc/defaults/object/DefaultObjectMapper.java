@@ -23,6 +23,7 @@ import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import de.dytanic.cloudnet.driver.network.buffer.DataBufable;
 import de.dytanic.cloudnet.driver.network.rpc.defaults.object.data.DataClassSerializer;
 import de.dytanic.cloudnet.driver.network.rpc.defaults.object.serializers.CollectionObjectSerializer;
+import de.dytanic.cloudnet.driver.network.rpc.defaults.object.serializers.DataBufObjectSerializer;
 import de.dytanic.cloudnet.driver.network.rpc.defaults.object.serializers.DataBufableObjectSerializer;
 import de.dytanic.cloudnet.driver.network.rpc.defaults.object.serializers.EnumObjectSerializer;
 import de.dytanic.cloudnet.driver.network.rpc.defaults.object.serializers.FunctionalObjectSerializer;
@@ -97,6 +98,7 @@ public class DefaultObjectMapper implements ObjectMapper {
     .put(SortedMap.class, MapObjectSerializer.of(TreeMap::new))
     //    ==== object data class types ====
     // data classes
+    .put(DataBuf.class, new DataBufObjectSerializer())
     .put(DataBufable.class, new DataBufableObjectSerializer())
     .put(JsonDocument.class, new JsonDocumentObjectSerializer())
     .put(Enum.class, new EnumObjectSerializer())

@@ -19,6 +19,7 @@ package de.dytanic.cloudnet.ext.storage.ftp.storage;
 import de.dytanic.cloudnet.driver.template.defaults.DefaultSyncTemplateStorage;
 import de.dytanic.cloudnet.ext.storage.ftp.client.FTPCredentials;
 import de.dytanic.cloudnet.ext.storage.ftp.client.FTPType;
+import org.jetbrains.annotations.NotNull;
 
 public abstract class AbstractFTPStorage extends DefaultSyncTemplateStorage {
 
@@ -45,7 +46,7 @@ public abstract class AbstractFTPStorage extends DefaultSyncTemplateStorage {
   public abstract void completeDataTransfer();
 
   @Override
-  public String getName() {
+  public @NotNull String getName() {
     return this.name;
   }
 

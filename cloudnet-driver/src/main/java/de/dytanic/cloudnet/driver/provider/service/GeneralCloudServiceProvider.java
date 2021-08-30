@@ -24,32 +24,45 @@ import java.util.Collection;
 import java.util.UUID;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnmodifiableView;
 
 /**
  * This class provides methods to get information to the services in the cluster.
  */
 public interface GeneralCloudServiceProvider {
 
+  default @NotNull SpecificCloudServiceProvider getSpecificProvider(@NotNull ServiceInfoSnapshot snapshot) {
+    return this.getSpecificProvider(
+      snapshot.getServiceId().getUniqueId()); // todo: i am tired right now: is this a good idea?
+  }
+
+  @NotNull SpecificCloudServiceProvider getSpecificProvider(@NotNull UUID serviceUniqueId);
+
+  @NotNull SpecificCloudServiceProvider getSpecificProviderByName(@NotNull String serviceName);
+
   /**
    * Gets a list with the uniqueIds of all services in the cloud
    *
    * @return a list containing the uniqueIds of every service in the whole cloud
    */
-  Collection<UUID> getServicesAsUniqueId();
+  @UnmodifiableView
+  @NotNull Collection<UUID> getServicesAsUniqueId();
 
   /**
    * Gets a list with the infos of all services in the cloud
    *
    * @return a list containing the infos of every service in the whole cloud
    */
-  Collection<ServiceInfoSnapshot> getCloudServices();
+  @UnmodifiableView
+  @NotNull Collection<ServiceInfoSnapshot> getCloudServices();
 
   /**
    * Gets a list with the infos of all started services in the cloud
    *
    * @return a list containing the infos of every started service in the whole cloud
    */
-  Collection<ServiceInfoSnapshot> getStartedCloudServices();
+  @UnmodifiableView
+  @NotNull Collection<ServiceInfoSnapshot> getStartedCloudServices();
 
   /**
    * Gets a list with the infos of all services in the cloud that are from the given task
@@ -57,8 +70,8 @@ public interface GeneralCloudServiceProvider {
    * @param taskName the case-insensitive name of the task every service in the list should have
    * @return a list containing the infos of every service with the given task in the whole cloud
    */
-  Collection<ServiceInfoSnapshot> getCloudServices(@NotNull String taskName);
-
+  @UnmodifiableView
+  @NotNull Collection<ServiceInfoSnapshot> getCloudServices(@NotNull String taskName);
 
   /**
    * Gets a list with the infos of all services in the cloud that have the given environment
@@ -66,7 +79,8 @@ public interface GeneralCloudServiceProvider {
    * @param environment the environment every service in the list should have
    * @return a list containing the infos of every service with the given environment in the whole cloud
    */
-  Collection<ServiceInfoSnapshot> getCloudServices(@NotNull ServiceEnvironmentType environment);
+  @UnmodifiableView
+  @NotNull Collection<ServiceInfoSnapshot> getCloudServices(@NotNull ServiceEnvironmentType environment);
 
   /**
    * Gets a list with the infos of all services in the cloud that have the given group
@@ -74,7 +88,8 @@ public interface GeneralCloudServiceProvider {
    * @param group the case-insensitive name of the task every service in the list should have
    * @return a list containing the infos of every service with the given group in the whole cloud
    */
-  Collection<ServiceInfoSnapshot> getCloudServicesByGroup(@NotNull String group);
+  @UnmodifiableView
+  @NotNull Collection<ServiceInfoSnapshot> getCloudServicesByGroup(@NotNull String group);
 
   /**
    * Gets the amount of services in the cloud
@@ -117,6 +132,17 @@ public interface GeneralCloudServiceProvider {
   @Nullable
   ServiceInfoSnapshot getCloudService(@NotNull UUID uniqueId);
 
+  default @NotNull ITask<SpecificCloudServiceProvider> getSpecificProviderAsync(@NotNull ServiceInfoSnapshot snapshot) {
+    return CompletableTask.supplyAsync(() -> this.getSpecificProvider(snapshot));
+  }
+
+  default @NotNull ITask<SpecificCloudServiceProvider> getSpecificProviderAsync(@NotNull UUID serviceUniqueId) {
+    return CompletableTask.supplyAsync(() -> this.getSpecificProvider(serviceUniqueId));
+  }
+
+  default @NotNull ITask<SpecificCloudServiceProvider> getSpecificProviderByNameAsync(@NotNull String serviceName) {
+    return CompletableTask.supplyAsync(() -> this.getSpecificProviderByName(serviceName));
+  }
 
   /**
    * Gets a list with the uniqueIds of all services in the cloud

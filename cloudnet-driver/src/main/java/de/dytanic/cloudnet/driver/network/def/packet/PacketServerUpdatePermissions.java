@@ -40,7 +40,7 @@ public class PacketServerUpdatePermissions extends Packet {
   }
 
   public static PacketServerUpdatePermissions setGroups(Collection<? extends IPermissionGroup> permissionGroups) {
-    return null;// new PacketServerUpdatePermissions(UpdateType.SET_GROUPS, permissionGroups);
+    return null; // new PacketServerUpdatePermissions(UpdateType.SET_GROUPS, permissionGroups);
   }
 
   public static PacketServerUpdatePermissions setUsers(Collection<? extends IPermissionUser> permissionUsers) {

@@ -177,7 +177,7 @@ public class ServiceInfoSnapshot extends BasicJsonDocPropertyable implements INa
   }
 
   @Override
-  public String getName() {
+  public @NotNull String getName() {
     return this.getServiceId().getName();
   }
 

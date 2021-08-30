@@ -255,7 +255,7 @@ public abstract class CloudNetDriver {
    * @return the new instance of the {@link SpecificCloudServiceProvider}
    */
   @NotNull
-  public abstract SpecificCloudServiceProvider getCloudServiceProvider(@NotNull String name);
+  public abstract SpecificCloudServiceProvider getCloudServiceProvider(@NotNull String name); // todo: deprecate
 
   /**
    * Returns a new service specific CloudServiceProvider
@@ -264,7 +264,7 @@ public abstract class CloudNetDriver {
    * @return the new instance of the {@link SpecificCloudServiceProvider}
    */
   @NotNull
-  public abstract SpecificCloudServiceProvider getCloudServiceProvider(@NotNull UUID uniqueId);
+  public abstract SpecificCloudServiceProvider getCloudServiceProvider(@NotNull UUID uniqueId); // todo: deprecate
 
   /**
    * Returns a new service specific CloudServiceProvider
@@ -274,7 +274,7 @@ public abstract class CloudNetDriver {
    */
   @NotNull
   public abstract SpecificCloudServiceProvider getCloudServiceProvider(
-    @NotNull ServiceInfoSnapshot serviceInfoSnapshot);
+    @NotNull ServiceInfoSnapshot serviceInfoSnapshot); // todo: deprecate
 
   /**
    * Returns the general CloudServiceProvider

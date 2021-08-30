@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.stream.Collectors;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * A snapshot of a process in the Cloud which provides information about the cpu and memory usage, the running threads
@@ -32,12 +33,15 @@ import lombok.ToString;
  */
 @ToString
 @EqualsAndHashCode
-public class ProcessSnapshot {
+public class ProcessSnapshot implements Cloneable {
 
   private static final ProcessSnapshot EMPTY = new ProcessSnapshot(
     -1, -1, -1, -1, -1, -1, Collections.emptyList(), -1, -1);
 
   private static final int OWN_PID;
+  // init them here to reduce lookup load
+  private static final MemoryMXBean MEMORY_MX_BEAN = ManagementFactory.getMemoryMXBean();
+  private static final ClassLoadingMXBean CLASS_LOADING_MX_BEAN = ManagementFactory.getClassLoadingMXBean();
 
   static {
     String runtimeName = ManagementFactory.getRuntimeMXBean().getName();
@@ -128,18 +132,15 @@ public class ProcessSnapshot {
    * @return a new {@link ProcessSnapshot}
    */
   public static ProcessSnapshot self() {
-    MemoryMXBean memoryMXBean = ManagementFactory.getMemoryMXBean();
-    ClassLoadingMXBean classLoadingMXBean = ManagementFactory.getClassLoadingMXBean();
-
     return new ProcessSnapshot(
       getOwnPID(),
       CPUUsageResolver.getProcessCPUUsage(),
-      memoryMXBean.getHeapMemoryUsage().getMax(),
-      memoryMXBean.getHeapMemoryUsage().getUsed(),
-      memoryMXBean.getNonHeapMemoryUsage().getUsed(),
-      classLoadingMXBean.getUnloadedClassCount(),
-      classLoadingMXBean.getTotalLoadedClassCount(),
-      classLoadingMXBean.getLoadedClassCount(),
+      MEMORY_MX_BEAN.getHeapMemoryUsage().getMax(),
+      MEMORY_MX_BEAN.getHeapMemoryUsage().getUsed(),
+      MEMORY_MX_BEAN.getNonHeapMemoryUsage().getUsed(),
+      CLASS_LOADING_MX_BEAN.getUnloadedClassCount(),
+      CLASS_LOADING_MX_BEAN.getTotalLoadedClassCount(),
+      CLASS_LOADING_MX_BEAN.getLoadedClassCount(),
       Thread.getAllStackTraces().keySet().stream().map(ThreadSnapshot::new).collect(Collectors.toList())
     );
   }
@@ -175,7 +176,7 @@ public class ProcessSnapshot {
     return this.unloadedClassCount;
   }
 
-  public Collection<ThreadSnapshot> getThreads() {
+  public @NotNull Collection<ThreadSnapshot> getThreads() {
     return this.threads;
   }
 
@@ -185,5 +186,14 @@ public class ProcessSnapshot {
 
   public int getPid() {
     return this.pid;
+  }
+
+  @Override
+  public ProcessSnapshot clone() {
+    try {
+      return (ProcessSnapshot) super.clone();
+    } catch (CloneNotSupportedException exception) {
+      throw new IllegalStateException();
+    }
   }
 }

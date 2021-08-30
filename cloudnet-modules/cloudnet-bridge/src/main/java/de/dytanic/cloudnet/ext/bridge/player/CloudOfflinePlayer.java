@@ -89,7 +89,7 @@ public class CloudOfflinePlayer implements ICloudOfflinePlayer {
     this.uniqueId = uniqueId;
   }
 
-  public String getName() {
+  public @NotNull String getName() {
     return this.name;
   }
 

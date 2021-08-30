@@ -294,7 +294,7 @@ public final class LocalTemplateStorage extends ClusterSynchronizedTemplateStora
   }
 
   @Override
-  public String getName() {
+  public @NotNull String getName() {
     return ServiceTemplate.LOCAL_STORAGE;
   }
 }

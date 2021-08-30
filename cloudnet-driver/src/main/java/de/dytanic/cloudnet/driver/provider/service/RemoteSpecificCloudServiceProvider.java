@@ -16,13 +16,8 @@
 
 package de.dytanic.cloudnet.driver.provider.service;
 
-import com.google.common.base.Preconditions;
-import de.dytanic.cloudnet.common.concurrent.CompletedTask;
-import de.dytanic.cloudnet.common.concurrent.ITask;
-import de.dytanic.cloudnet.driver.api.DriverAPIRequestType;
-import de.dytanic.cloudnet.driver.api.ServiceDriverAPIResponse;
-import de.dytanic.cloudnet.driver.network.INetworkChannel;
-import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
+import de.dytanic.cloudnet.driver.network.rpc.RPC;
+import de.dytanic.cloudnet.driver.network.rpc.RPCSender;
 import de.dytanic.cloudnet.driver.service.ServiceDeployment;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
@@ -30,110 +25,120 @@ import de.dytanic.cloudnet.driver.service.ServiceRemoteInclusion;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import java.util.Queue;
 import java.util.UUID;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class RemoteSpecificCloudServiceProvider implements SpecificCloudServiceProvider {
 
-  private final INetworkChannel channel;
+  // identity information
+  private final String name;
+  private final UUID uniqueId;
+  // rpc
+  private final RPCSender providerSender;
+  private final RPCSender thisProviderSender;
+  // provider
   private final GeneralCloudServiceProvider provider;
-  private UUID uniqueId;
-  private String name;
-  private ServiceInfoSnapshot serviceInfoSnapshot;
 
-  public RemoteSpecificCloudServiceProvider(INetworkChannel channel, GeneralCloudServiceProvider provider,
-    UUID uniqueId) {
-    this.channel = channel;
+  public RemoteSpecificCloudServiceProvider(GeneralCloudServiceProvider provider, RPCSender providerSender, UUID id) {
     this.provider = provider;
-    this.uniqueId = uniqueId;
+    // rpc
+    this.providerSender = providerSender;
+    this.thisProviderSender = providerSender
+      .getFactory()
+      .providerForClass(providerSender.getAssociatedComponent(), SpecificCloudServiceProvider.class);
+    // identity
+    this.name = null;
+    this.uniqueId = id;
   }
 
-  public RemoteSpecificCloudServiceProvider(INetworkChannel channel, GeneralCloudServiceProvider provider,
-    String name) {
-    this.channel = channel;
+  public RemoteSpecificCloudServiceProvider(GeneralCloudServiceProvider provider, RPCSender providerSender, String id) {
     this.provider = provider;
-    this.name = name;
-  }
-
-  public RemoteSpecificCloudServiceProvider(INetworkChannel channel, ServiceInfoSnapshot serviceInfoSnapshot) {
-    this.channel = channel;
-    this.provider = null;
-    this.serviceInfoSnapshot = serviceInfoSnapshot;
+    // rpc
+    this.providerSender = providerSender;
+    this.thisProviderSender = providerSender
+      .getFactory()
+      .providerForClass(providerSender.getAssociatedComponent(), SpecificCloudServiceProvider.class);
+    // identity
+    this.name = id;
+    this.uniqueId = null;
   }
 
   @Override
   public @Nullable ServiceInfoSnapshot getServiceInfoSnapshot() {
-    return null;
+    return this.name == null
+      ? this.provider.getCloudService(this.uniqueId)
+      : this.provider.getCloudServiceByName(this.name);
   }
 
   @Override
   public boolean isValid() {
-    return false;
+    //noinspection ConstantConditions
+    return this.getBaseRPC().join(this.thisProviderSender.invokeMethod("isValid")).fireSync();
   }
 
   @Override
   public @Nullable ServiceInfoSnapshot forceUpdateServiceInfo() {
-    return null;
+    return this.getBaseRPC().join(this.thisProviderSender.invokeMethod("forceUpdateServiceInfo")).fireSync();
   }
 
   @Override
-  public void addServiceTemplate(
-    @NotNull ServiceTemplate serviceTemplate) {
-
+  public void addServiceTemplate(@NotNull ServiceTemplate template) {
+    this.getBaseRPC().join(this.thisProviderSender.invokeMethod("addServiceTemplate", template)).fireSync();
   }
 
   @Override
-  public void addServiceRemoteInclusion(
-    @NotNull ServiceRemoteInclusion serviceRemoteInclusion) {
-
+  public void addServiceRemoteInclusion(@NotNull ServiceRemoteInclusion inclusion) {
+    this.getBaseRPC().join(this.thisProviderSender.invokeMethod("addServiceRemoteInclusion", inclusion)).fireSync();
   }
 
   @Override
-  public void addServiceDeployment(
-    @NotNull ServiceDeployment serviceDeployment) {
-
+  public void addServiceDeployment(@NotNull ServiceDeployment deployment) {
+    this.getBaseRPC().join(this.thisProviderSender.invokeMethod("addServiceDeployment", deployment)).fireSync();
   }
 
   @Override
   public Queue<String> getCachedLogMessages() {
-    return null;
+    return this.getBaseRPC().join(this.thisProviderSender.invokeMethod("getCachedLogMessages")).fireSync();
   }
 
   @Override
-  public void setCloudServiceLifeCycle(
-    @NotNull ServiceLifeCycle lifeCycle) {
-
+  public void setCloudServiceLifeCycle(@NotNull ServiceLifeCycle lifeCycle) {
+    this.getBaseRPC().join(this.thisProviderSender.invokeMethod("setCloudServiceLifeCycle", lifeCycle)).fireSync();
   }
 
   @Override
   public void restart() {
-
+    this.getBaseRPC().join(this.thisProviderSender.invokeMethod("restart")).fireSync();
   }
 
   @Override
   public void kill() {
-
+    this.getBaseRPC().join(this.thisProviderSender.invokeMethod("kill")).fireSync();
   }
 
   @Override
   public void runCommand(@NotNull String command) {
-
+    this.getBaseRPC().join(this.thisProviderSender.invokeMethod("runCommand", command)).fireSync();
   }
 
   @Override
   public void includeWaitingServiceTemplates() {
-
+    this.getBaseRPC().join(this.thisProviderSender.invokeMethod("includeWaitingServiceTemplates")).fireSync();
   }
 
   @Override
   public void includeWaitingServiceInclusions() {
-
+    this.getBaseRPC().join(this.thisProviderSender.invokeMethod("includeWaitingServiceInclusions")).fireSync();
   }
 
   @Override
   public void deployResources(boolean removeDeployments) {
+    this.getBaseRPC().join(this.thisProviderSender.invokeMethod("deployResources", removeDeployments)).fireSync();
+  }
 
+  protected @NotNull RPC getBaseRPC() {
+    return this.name == null
+      ? this.providerSender.invokeMethod("getSpecificProvider", this.uniqueId)
+      : this.providerSender.invokeMethod("getSpecificProviderByName", this.name);
   }
 }
