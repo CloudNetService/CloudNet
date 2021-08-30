@@ -16,16 +16,18 @@
 
 package de.dytanic.cloudnet.driver.network.rpc.listener;
 
-import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
+import de.dytanic.cloudnet.driver.network.buffer.DataBufFactory;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.network.protocol.IPacketListener;
 import de.dytanic.cloudnet.driver.network.protocol.Packet;
 import de.dytanic.cloudnet.driver.network.rpc.RPCHandler;
+import de.dytanic.cloudnet.driver.network.rpc.RPCHandler.HandlingResult;
 import de.dytanic.cloudnet.driver.network.rpc.RPCHandlerRegistry;
 import de.dytanic.cloudnet.driver.network.rpc.RPCInvocationContext;
-import de.dytanic.cloudnet.driver.network.rpc.defaults.MethodInformation;
+import de.dytanic.cloudnet.driver.network.rpc.defaults.handler.util.ExceptionalResultUtils;
+import de.dytanic.cloudnet.driver.network.rpc.object.ObjectMapper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -40,7 +42,7 @@ public class RPCPacketListener implements IPacketListener {
   @Override
   public void handle(INetworkChannel channel, IPacket packet) throws Exception {
     // the result of the invocation, encoded
-    DataBuf result;
+    DataBuf result = null;
     // the input information we get
     DataBuf buf = packet.getContent();
     // check if the invocation is chained
@@ -48,21 +50,39 @@ public class RPCPacketListener implements IPacketListener {
       // get the chain size
       int chainSize = buf.readInt();
       // invoke the method on the current result
-      Object lastResult = null;
+      HandlingResult lastResult = null;
       for (int i = 1; i < chainSize; i++) {
         if (i == 1) {
           // always invoke the first method
           lastResult = this.handleRaw(buf.readString(), this.buildContext(channel, buf, null, false));
         } else if (lastResult != null) {
-          // only invoke upcoming methods if there was a previous result
-          lastResult = this.handleRaw(buf.readString(), this.buildContext(channel, buf, lastResult, true));
+          if (lastResult.wasSuccessful()) {
+            // only invoke upcoming methods if there was a previous result
+            lastResult = this.handleRaw(
+              buf.readString(),
+              this.buildContext(channel, buf, lastResult.getInvocationResult(), true));
+          } else {
+            // an exception was thrown previously, break
+            buf.readString(); // remove the handler information which is not necessary
+            result = this.serializeResult(
+              lastResult,
+              lastResult.getHandler().getDataBufFactory(),
+              lastResult.getHandler().getObjectMapper(),
+              this.buildContext(channel, buf, null, true));
+            break;
+          }
         } else {
           // just process over to remove the content from the buffer
           this.handleRaw(buf.readString(), this.buildContext(channel, buf, null, true));
         }
       }
-      // the last handler decides over the method invocation result
-      result = this.handle(buf.readString(), this.buildContext(channel, buf, lastResult, true));
+      // check if there is already a result (which is caused by an exception - we can skip the handling step then)
+      if (result == null && lastResult != null) {
+        // the last handler decides over the method invocation result
+        result = this.handle(
+          buf.readString(),
+          this.buildContext(channel, buf, lastResult.getInvocationResult(), true));
+      }
     } else {
       // just invoke the method
       result = this.handle(buf.readString(), this.buildContext(channel, buf, null, false));
@@ -79,29 +99,45 @@ public class RPCPacketListener implements IPacketListener {
     // check if the method gets called on a specific instance
     if (handler != null) {
       // invoke the method
-      Pair<Object, MethodInformation> methodInvocationResult = handler.handle(context);
-      // check if the sender expect the result of the method
-      if (context.expectsMethodResult()) {
-        // check if the method return void
-        if (methodInvocationResult.getSecond().isVoidMethod()) {
-          return handler.getDataBufFactory().createWithExpectedSize(1).writeBoolean(false);
-        } else {
-          // write the result of the invocation
-          return handler.getObjectMapper().writeObject(
-            handler.getDataBufFactory().createEmpty(),
-            methodInvocationResult.getFirst());
-        }
+      HandlingResult handlingResult = handler.handle(context);
+      // serialize the result
+      return this.serializeResult(handlingResult, handler.getDataBufFactory(), handler.getObjectMapper(), context);
+    }
+    // no handler for the class - no result
+    return null;
+  }
+
+  protected @Nullable DataBuf serializeResult(
+    @NotNull HandlingResult result,
+    @NotNull DataBufFactory dataBufFactory,
+    @NotNull ObjectMapper objectMapper,
+    @NotNull RPCInvocationContext context
+  ) {
+    // check if the sender expect the result of the method
+    if (context.expectsMethodResult()) {
+      // check if the method return void
+      if (result.wasSuccessful() && result.getTargetMethodInformation().isVoidMethod()) {
+        return dataBufFactory.createWithExpectedSize(2)
+          .writeBoolean(true) // was successful
+          .writeBoolean(false);
+      } else if (result.wasSuccessful()) {
+        // successful - write the result of the invocation
+        return objectMapper.writeObject(dataBufFactory.createEmpty().writeBoolean(true), result.getInvocationResult());
+      } else {
+        // not successful - send some basic information about the result
+        Throwable throwable = (Throwable) result.getInvocationResult();
+        return ExceptionalResultUtils.serializeThrowable(dataBufFactory.createEmpty().writeBoolean(false), throwable);
       }
     }
     // no result expected or no handler
     return null;
   }
 
-  protected @Nullable Object handleRaw(@NotNull String clazz, @NotNull RPCInvocationContext context) {
+  protected @Nullable HandlingResult handleRaw(@NotNull String clazz, @NotNull RPCInvocationContext context) {
     // get the handler associated with the class of the rpc
     RPCHandler handler = this.rpcHandlerRegistry.getHandler(clazz);
     // invoke the handler with the information
-    return handler == null ? null : handler.handle(context).getFirst();
+    return handler == null ? null : handler.handle(context);
   }
 
   protected @NotNull RPCInvocationContext buildContext(

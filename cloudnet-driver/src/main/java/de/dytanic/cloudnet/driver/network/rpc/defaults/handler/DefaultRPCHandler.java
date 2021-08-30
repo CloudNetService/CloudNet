@@ -17,7 +17,6 @@
 package de.dytanic.cloudnet.driver.network.rpc.defaults.handler;
 
 import com.google.common.base.Defaults;
-import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.driver.network.buffer.DataBufFactory;
 import de.dytanic.cloudnet.driver.network.rpc.RPCHandler;
 import de.dytanic.cloudnet.driver.network.rpc.RPCInvocationContext;
@@ -52,7 +51,7 @@ public class DefaultRPCHandler extends DefaultRPCProvider implements RPCHandler 
   }
 
   @Override
-  public @NotNull Pair<Object, MethodInformation> handle(@NotNull RPCInvocationContext context) {
+  public @NotNull HandlingResult handle(@NotNull RPCInvocationContext context) {
     // get the working instance
     Object instance = context
       .getWorkingInstance()
@@ -70,13 +69,33 @@ public class DefaultRPCHandler extends DefaultRPCProvider implements RPCHandler 
     for (int i = 0; i < arguments.length; i++) {
       arguments[i] = this.objectMapper.readObject(context.getArgumentInformation(), information.getArguments()[i]);
     }
-    // invoke the method in the target class
-    Object result = instance == null ? null : information.getMethodInvoker().callMethod(arguments);
-    // check if we need to normalize if the result is a primitive
-    if (result == null && information.getRawReturnType().isPrimitive() && context.normalizePrimitives()) {
-      result = Defaults.defaultValue(information.getRawReturnType());
+    // get the method invocation result
+    HandlingResult result;
+    if (instance == null) {
+      // no instance provided, no invocation we can make - just check if the result is primitive and return the default
+      // primitive value associated
+      if (information.getRawReturnType().isPrimitive() && context.normalizePrimitives()) {
+        result = DefaultHandlingResult.success(
+          information,
+          this,
+          Defaults.defaultValue(information.getRawReturnType()));
+      } else {
+        // no instance and not primitive means null
+        result = DefaultHandlingResult.success(information, this, null);
+      }
+    } else {
+      // there is an instance we can work on, do it!
+      try {
+        // spare the result allocation if the method invocation fails
+        Object methodResult = information.getMethodInvoker().callMethod(arguments);
+        // now we can create the result as the method invocation succeeded
+        result = DefaultHandlingResult.success(information, this, methodResult);
+      } catch (Throwable throwable) {
+        // an exception occurred when invoking the method - not good
+        result = DefaultHandlingResult.failure(information, this, throwable);
+      }
     }
     // return the result
-    return new Pair<>(result, information);
+    return result;
   }
 }

@@ -14,23 +14,13 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.driver.network.rpc;
+package de.dytanic.cloudnet.driver.network.rpc.exception;
 
-import de.dytanic.cloudnet.driver.network.rpc.defaults.MethodInformation;
 import org.jetbrains.annotations.NotNull;
 
-public interface RPCHandler extends RPCProvider {
+public class RPCExecutionException extends RuntimeException {
 
-  @NotNull HandlingResult handle(@NotNull RPCInvocationContext context);
-
-  interface HandlingResult {
-
-    boolean wasSuccessful();
-
-    Object getInvocationResult();
-
-    @NotNull RPCHandler getHandler();
-
-    @NotNull MethodInformation getTargetMethodInformation();
+  public RPCExecutionException(@NotNull String exceptionName, @NotNull String message, @NotNull String firstElement) {
+    super(String.format("%s(%s @ %s)", exceptionName, message, firstElement));
   }
 }

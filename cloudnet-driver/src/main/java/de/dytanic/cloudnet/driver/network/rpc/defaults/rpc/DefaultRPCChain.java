@@ -16,7 +16,6 @@
 
 package de.dytanic.cloudnet.driver.network.rpc.defaults.rpc;
 
-import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import de.dytanic.cloudnet.common.concurrent.CompletedTask;
 import de.dytanic.cloudnet.common.concurrent.ITask;
@@ -26,8 +25,10 @@ import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.network.rpc.RPC;
 import de.dytanic.cloudnet.driver.network.rpc.RPCChain;
 import de.dytanic.cloudnet.driver.network.rpc.defaults.DefaultRPCProvider;
+import de.dytanic.cloudnet.driver.network.rpc.defaults.handler.util.ExceptionalResultUtils;
+import de.dytanic.cloudnet.driver.network.rpc.exception.RPCException;
+import de.dytanic.cloudnet.driver.network.rpc.exception.RPCExecutionException;
 import de.dytanic.cloudnet.driver.network.rpc.packet.RPCQueryPacket;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -105,13 +106,13 @@ public class DefaultRPCChain extends DefaultRPCProvider implements RPCChain {
       ITask<T> queryTask = this.fire(component);
       return queryTask.get();
     } catch (InterruptedException | ExecutionException exception) {
-      throw new RuntimeException(String.format(
-        "Unable to get future result of rpc %s@%s with argument %s; chain: %s",
-        this.headRPC.getClassName(),
-        this.headRPC.getMethodName(),
-        Arrays.toString(this.headRPC.getArguments()),
-        Joiner.on(", ").join(this.rpcChain)
-      ), exception);
+      if (exception.getCause() instanceof RPCExecutionException) {
+        // may be thrown when the handler did throw an exception, just rethrow that one
+        throw (RPCExecutionException) exception.getCause();
+      } else {
+        // any other exception should get wrapped
+        throw new RPCException(this, exception);
+      }
     }
   }
 
@@ -132,7 +133,16 @@ public class DefaultRPCChain extends DefaultRPCProvider implements RPCChain {
       // now send the query and read the response
       return component.sendQueryAsync(new RPCQueryPacket(dataBuf))
         .map(IPacket::getContent)
-        .map(content -> this.objectMapper.readObject(content, this.headRPC.getExpectedResultType()));
+        .map(content -> {
+          if (content.readBoolean()) {
+            // the execution did not throw an exception
+            return this.objectMapper.readObject(content, this.headRPC.getExpectedResultType());
+          } else {
+            // rethrow the execution exception
+            ExceptionalResultUtils.rethrowException(content);
+            return null; // ok fine, but this will never happen - no one was seen again after entering the rethrowException method
+          }
+        });
     } else {
       // just send the method invocation request
       component.sendPacket(new RPCQueryPacket(dataBuf));

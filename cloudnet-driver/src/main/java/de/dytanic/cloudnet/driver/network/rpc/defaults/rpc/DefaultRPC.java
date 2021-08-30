@@ -26,10 +26,12 @@ import de.dytanic.cloudnet.driver.network.rpc.RPC;
 import de.dytanic.cloudnet.driver.network.rpc.RPCChain;
 import de.dytanic.cloudnet.driver.network.rpc.RPCSender;
 import de.dytanic.cloudnet.driver.network.rpc.defaults.DefaultRPCProvider;
+import de.dytanic.cloudnet.driver.network.rpc.defaults.handler.util.ExceptionalResultUtils;
+import de.dytanic.cloudnet.driver.network.rpc.exception.RPCException;
+import de.dytanic.cloudnet.driver.network.rpc.exception.RPCExecutionException;
 import de.dytanic.cloudnet.driver.network.rpc.object.ObjectMapper;
 import de.dytanic.cloudnet.driver.network.rpc.packet.RPCQueryPacket;
 import java.lang.reflect.Type;
-import java.util.Arrays;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import org.jetbrains.annotations.NotNull;
@@ -130,12 +132,13 @@ public class DefaultRPC extends DefaultRPCProvider implements RPC {
       ITask<T> queryTask = this.fire(component);
       return queryTask.get();
     } catch (InterruptedException | ExecutionException exception) {
-      throw new RuntimeException(String.format(
-        "Unable to get future result of rpc %s@%s with argument %s",
-        this.className,
-        this.methodName,
-        Arrays.toString(this.arguments)
-      ), exception);
+      if (exception.getCause() instanceof RPCExecutionException) {
+        // may be thrown when the handler did throw an exception, just rethrow that one
+        throw (RPCExecutionException) exception.getCause();
+      } else {
+        // any other exception should get wrapped
+        throw new RPCException(this, exception);
+      }
     }
   }
 
@@ -156,7 +159,16 @@ public class DefaultRPC extends DefaultRPCProvider implements RPC {
       // now send the query and read the response
       return component.sendQueryAsync(new RPCQueryPacket(dataBuf))
         .map(IPacket::getContent)
-        .map(content -> this.objectMapper.readObject(content, this.expectedResultType));
+        .map(content -> {
+          if (content.readBoolean()) {
+            // the execution did not throw an exception
+            return this.objectMapper.readObject(content, this.expectedResultType);
+          } else {
+            // rethrow the execution exception
+            ExceptionalResultUtils.rethrowException(content);
+            return null; // ok fine, but this will never happen - no one was seen again after entering the rethrowException method
+          }
+        });
     } else {
       // just send the method invocation request
       component.sendPacket(new RPCQueryPacket(dataBuf));

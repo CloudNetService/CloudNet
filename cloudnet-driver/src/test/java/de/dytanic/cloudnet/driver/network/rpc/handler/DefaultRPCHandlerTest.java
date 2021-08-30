@@ -32,6 +32,7 @@ import de.dytanic.cloudnet.driver.network.rpc.RPCSender;
 import de.dytanic.cloudnet.driver.network.rpc.defaults.DefaultRPCProviderFactory;
 import de.dytanic.cloudnet.driver.network.rpc.defaults.handler.DefaultRPCHandlerRegistry;
 import de.dytanic.cloudnet.driver.network.rpc.defaults.object.DefaultObjectMapper;
+import de.dytanic.cloudnet.driver.network.rpc.exception.RPCExecutionException;
 import de.dytanic.cloudnet.driver.network.rpc.listener.RPCPacketListener;
 import de.dytanic.cloudnet.driver.service.ProcessSnapshot;
 import de.dytanic.cloudnet.driver.service.ThreadSnapshot;
@@ -136,6 +137,22 @@ public class DefaultRPCHandlerTest {
     Assertions.assertTrue(Maps
       .difference(ImmutableMap.of("test1", "test2", "test3", "test4"), result.get(key))
       .areEqual());
+    // with a correct call to get a result & but with an invalid to handleProcessSnapshot1 (should result in an exception)
+    resultListener.set(new CompletableTask<>());
+    try {
+      sender
+        .invokeMethod("getNestedClass", "Test123")
+        .join(nestedSender.invokeMethod("handleProcessSnapshot1", snapshot, integers, 185))
+        .fireSync();
+      Assertions.fail("A call to handleProcessSnapshot1 with the invalid argument '185' should result in an exception");
+    } catch (Exception exception) {
+      Assertions.assertTrue(exception instanceof RPCExecutionException);
+      Assertions.assertTrue(exception.getMessage().startsWith(String.format(
+        "IllegalArgumentException(Come on dude!! IS IT THAT BAD? @ %s.handleProcessSnapshot1(%s.java:",
+        DefaultRPCHandlerTest.TestApiClassNested.class.getName(),
+        this.getClass().getSimpleName()
+      )));
+    }
     // triple join :)
     resultListener.set(new CompletableTask<>());
     result = sender
@@ -182,9 +199,13 @@ public class DefaultRPCHandlerTest {
   public static final class TestApiClassNested {
 
     public Map<Long, Map<String, String>> handleProcessSnapshot1(ProcessSnapshot s, List<Integer> i, int primaryId) {
-      return ImmutableMap.of(
-        TestApiClass.calculateResult(s, i, primaryId),
-        ImmutableMap.of("test1", "test2", "test3", "test4"));
+      if (primaryId != 187) {
+        throw new IllegalArgumentException("Come on dude!! IS IT THAT BAD?");
+      } else {
+        return ImmutableMap.of(
+          TestApiClass.calculateResult(s, i, primaryId),
+          ImmutableMap.of("test1", "test2", "test3", "test4"));
+      }
     }
 
     public TestApiClassVeryNested toVeryNested(int abc) {

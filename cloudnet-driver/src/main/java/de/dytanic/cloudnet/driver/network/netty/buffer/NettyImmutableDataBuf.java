@@ -93,9 +93,24 @@ public class NettyImmutableDataBuf implements DataBuf {
   }
 
   @Override
+  public @NotNull DataBuf readDataBuf() {
+    return new NettyImmutableDataBuf(this.byteBuf.readBytes(this.readInt()));
+  }
+
+  @Override
   public <T> @Nullable T readNullable(@NotNull Function<DataBuf, T> readerWhenNonNull) {
+    return this.readNullable(readerWhenNonNull, null);
+  }
+
+  @Override
+  public <T> T readNullable(@NotNull Function<DataBuf, T> readerWhenNonNull, T valueWhenNull) {
     boolean isNonNull = this.readBoolean();
-    return isNonNull ? readerWhenNonNull.apply(this) : null;
+    return isNonNull ? readerWhenNonNull.apply(this) : valueWhenNull;
+  }
+
+  @Override
+  public int getReadableBytes() {
+    return this.byteBuf.readableBytes();
   }
 
   @Override
