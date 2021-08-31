@@ -33,6 +33,9 @@ public class NetworkChannelsPacketSplitter implements Consumer<IPacket> {
 
   @Override
   public void accept(IPacket packet) {
+    // disable releasing of the content as we need to content multiple times
+    packet.getContent().disableReleasing();
+    // write to all channels
     for (INetworkChannel channel : this.channels) {
       // mark the current indexes of the packet
       packet.getContent().startTransaction();
@@ -41,5 +44,7 @@ public class NetworkChannelsPacketSplitter implements Consumer<IPacket> {
       // redo the transaction to allow further writes
       packet.getContent().redoTransaction();
     }
+    // enable the releasing and free the memory
+    packet.getContent().enableReleasing().release();
   }
 }

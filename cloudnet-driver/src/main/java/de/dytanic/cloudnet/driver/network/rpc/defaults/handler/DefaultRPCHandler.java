@@ -16,10 +16,10 @@
 
 package de.dytanic.cloudnet.driver.network.rpc.defaults.handler;
 
-import de.dytanic.cloudnet.driver.network.INetworkChannel;
-import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
+import com.google.common.base.Defaults;
 import de.dytanic.cloudnet.driver.network.buffer.DataBufFactory;
 import de.dytanic.cloudnet.driver.network.rpc.RPCHandler;
+import de.dytanic.cloudnet.driver.network.rpc.RPCInvocationContext;
 import de.dytanic.cloudnet.driver.network.rpc.defaults.DefaultRPCProvider;
 import de.dytanic.cloudnet.driver.network.rpc.defaults.MethodInformation;
 import de.dytanic.cloudnet.driver.network.rpc.defaults.handler.invoker.MethodInvokerGenerator;
@@ -39,7 +39,7 @@ public class DefaultRPCHandler extends DefaultRPCProvider implements RPCHandler 
 
   public DefaultRPCHandler(
     @NotNull Class<?> clazz,
-    @NotNull Object binding,
+    @Nullable Object binding,
     @NotNull ObjectMapper objectMapper,
     @NotNull DataBufFactory dataBufFactory
   ) {
@@ -51,30 +51,51 @@ public class DefaultRPCHandler extends DefaultRPCProvider implements RPCHandler 
   }
 
   @Override
-  public @Nullable DataBuf handleRPC(@NotNull INetworkChannel channel, @NotNull DataBuf received) {
-    // read contract (the class name to which the rpc points is already gone from the buffer)
-    String targetMethodName = received.readString();
-    boolean expectsMethodResult = received.readBoolean();
+  public @NotNull HandlingResult handle(@NotNull RPCInvocationContext context) {
+    // get the working instance
+    Object instance = context
+      .getWorkingInstance()
+      .orElse(context.strictInstanceUsage() ? null : this.bindingInstance);
     // now we try to find the associated method information to the given method name or try to read it
     MethodInformation information = this.methodCache.computeIfAbsent(
-      targetMethodName,
-      $ -> MethodInformation.find(this.bindingInstance, this.bindingClass, targetMethodName, this.generator));
+      String.format("%d@%s", instance == null ? -1 : instance.hashCode(), context.getMethodName()),
+      $ -> MethodInformation.find(
+        instance,
+        this.bindingClass,
+        context.getMethodName(),
+        instance == null ? null : this.generator));
     // now as we have the method info, try to read all arguments needed
     Object[] arguments = new Object[information.getArguments().length];
     for (int i = 0; i < arguments.length; i++) {
-      arguments[i] = this.objectMapper.readObject(received, information.getArguments()[i]);
+      arguments[i] = this.objectMapper.readObject(context.getArgumentInformation(), information.getArguments()[i]);
     }
-    // invoke the method in the target class
-    Object result = information.getMethodInvoker().callMethod(arguments);
-    if (!expectsMethodResult) {
-      // break here, we don't need to write something
-      return null;
+    // get the method invocation result
+    HandlingResult result;
+    if (instance == null) {
+      // no instance provided, no invocation we can make - just check if the result is primitive and return the default
+      // primitive value associated
+      if (information.getRawReturnType().isPrimitive() && context.normalizePrimitives()) {
+        result = DefaultHandlingResult.success(
+          information,
+          this,
+          Defaults.defaultValue(information.getRawReturnType()));
+      } else {
+        // no instance and not primitive means null
+        result = DefaultHandlingResult.success(information, this, null);
+      }
+    } else {
+      // there is an instance we can work on, do it!
+      try {
+        // spare the result allocation if the method invocation fails
+        Object methodResult = information.getMethodInvoker().callMethod(arguments);
+        // now we can create the result as the method invocation succeeded
+        result = DefaultHandlingResult.success(information, this, methodResult);
+      } catch (Throwable throwable) {
+        // an exception occurred when invoking the method - not good
+        result = DefaultHandlingResult.failure(information, this, throwable);
+      }
     }
-    // check if the method is a void method, if so just write null into the buffer and send
-    if (information.isVoidMethod()) {
-      return this.dataBufFactory.createWithExpectedSize(1).writeBoolean(false);
-    }
-    // write the result into the buffer
-    return this.objectMapper.writeObject(this.dataBufFactory.createEmpty(), result);
+    // return the result
+    return result;
   }
 }

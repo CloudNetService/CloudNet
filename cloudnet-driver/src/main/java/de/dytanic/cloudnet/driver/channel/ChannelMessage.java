@@ -21,35 +21,36 @@ import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.DriverEnvironment;
+import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
+import de.dytanic.cloudnet.driver.network.netty.buffer.NettyImmutableDataBuf;
 import de.dytanic.cloudnet.driver.provider.CloudMessenger;
+import de.dytanic.cloudnet.driver.serialization.DefaultProtocolBuffer;
 import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
-import de.dytanic.cloudnet.driver.serialization.SerializableObject;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import java.util.ArrayList;
 import java.util.Collection;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @ToString
 @EqualsAndHashCode
-//TODO: look into this
-public class ChannelMessage implements SerializableObject {
+public class ChannelMessage {
 
-  private ChannelMessageSender sender;
   private String channel;
   private String message;
+
+  private DataBuf content;
+  private ChannelMessageSender sender;
+
   private JsonDocument json = JsonDocument.EMPTY;
-  private ProtocolBuffer buffer = ProtocolBuffer.EMPTY;
   private Collection<ChannelMessageTarget> targets;
 
-  private ChannelMessage(@NotNull ChannelMessageSender sender) {
+  protected ChannelMessage(@NotNull ChannelMessageSender sender) {
     this.sender = sender;
     this.targets = new ArrayList<>();
-  }
-
-  public ChannelMessage() {
   }
 
   public static Builder builder() {
@@ -84,9 +85,17 @@ public class ChannelMessage implements SerializableObject {
     return this.json;
   }
 
-  @NotNull
-  public ProtocolBuffer getBuffer() {
-    return this.buffer;
+  /**
+   * @deprecated Use {@link #getContent()} instead.
+   */
+  @Deprecated
+  @ScheduledForRemoval
+  public @NotNull ProtocolBuffer getBuffer() {
+    return ProtocolBuffer.wrap(((NettyImmutableDataBuf) this.content).getByteBuf());
+  }
+
+  public @NotNull DataBuf getContent() {
+    return this.content;
   }
 
   @NotNull
@@ -122,28 +131,6 @@ public class ChannelMessage implements SerializableObject {
     return CloudNetDriver.getInstance().getMessenger();
   }
 
-  @Override
-  public void write(@NotNull ProtocolBuffer buffer) {
-    buffer.writeObject(this.sender);
-    buffer.writeString(this.channel);
-    buffer.writeOptionalString(this.message);
-    buffer.writeOptionalString(this.json != null ? this.json.toJson() : null);
-    buffer.writeOptionalArray(this.buffer != null ? this.buffer.toArray() : null);
-    buffer.writeObjectCollection(this.targets);
-  }
-
-  @Override
-  public void read(@NotNull ProtocolBuffer buffer) {
-    this.sender = buffer.readObject(ChannelMessageSender.class);
-    this.channel = buffer.readString();
-    this.message = buffer.readOptionalString();
-    String headerJson = buffer.readOptionalString();
-    this.json = headerJson != null ? JsonDocument.newDocument(headerJson) : null;
-    byte[] body = buffer.readOptionalArray();
-    this.buffer = body != null ? ProtocolBuffer.wrap(body) : null;
-    this.targets = buffer.readObjectCollection(ChannelMessageTarget.class);
-  }
-
   public static class Builder {
 
     private final ChannelMessage channelMessage;
@@ -167,12 +154,29 @@ public class ChannelMessage implements SerializableObject {
       return this;
     }
 
+    /**
+     * @deprecated Use the enhanced {@link #buffer(DataBuf)} instead.
+     */
+    @Deprecated
+    @ScheduledForRemoval
     public Builder buffer(byte[] bytes) {
       return this.buffer(bytes == null ? null : ProtocolBuffer.wrap(bytes));
     }
 
+    /**
+     * @deprecated Use {@link #buffer(DataBuf)} instead.
+     */
+    @Deprecated
+    @ScheduledForRemoval
     public Builder buffer(@Nullable ProtocolBuffer buffer) {
-      this.channelMessage.buffer = buffer == null ? ProtocolBuffer.EMPTY : buffer;
+      this.channelMessage.content = buffer == null
+        ? null
+        : new NettyImmutableDataBuf(((DefaultProtocolBuffer) buffer).wrapped);
+      return this;
+    }
+
+    public @NotNull Builder buffer(@Nullable DataBuf dataBuf) {
+      this.channelMessage.content = dataBuf;
       return this;
     }
 
@@ -186,9 +190,9 @@ public class ChannelMessage implements SerializableObject {
     }
 
     public Builder target(@NotNull DriverEnvironment environment, @Nullable String name) {
-      return this.target(
-        environment == DriverEnvironment.CLOUDNET ? ChannelMessageTarget.Type.NODE : ChannelMessageTarget.Type.SERVICE,
-        name);
+      return this.target(environment == DriverEnvironment.CLOUDNET
+        ? ChannelMessageTarget.Type.NODE
+        : ChannelMessageTarget.Type.SERVICE, name);
     }
 
     public Builder targetAll(@NotNull ChannelMessageTarget.Type type) {
@@ -230,7 +234,5 @@ public class ChannelMessage implements SerializableObject {
       }
       return this.channelMessage;
     }
-
   }
-
 }

@@ -16,8 +16,6 @@
 
 package de.dytanic.cloudnet.driver.channel;
 
-import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
-import de.dytanic.cloudnet.driver.serialization.SerializableObject;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -26,54 +24,41 @@ import org.jetbrains.annotations.Nullable;
 
 @ToString
 @EqualsAndHashCode
-public class ChannelMessageTarget implements SerializableObject {
+public class ChannelMessageTarget {
 
-  private Type type;
-  private String name;
-  private ServiceEnvironmentType environment;
+  private final Type type;
+  private final String name;
+  private final ServiceEnvironmentType environment;
 
   public ChannelMessageTarget(@NotNull Type type, @Nullable String name) {
-    this.type = type;
-    this.name = name;
+    this(type, name, null);
   }
 
   public ChannelMessageTarget(@NotNull ServiceEnvironmentType environment) {
-    this.type = Type.ENVIRONMENT;
+    this(Type.ENVIRONMENT, null, environment);
+  }
+
+  public ChannelMessageTarget(Type type, String name, ServiceEnvironmentType environment) {
+    this.type = type;
+    this.name = name;
     this.environment = environment;
   }
 
-  public ChannelMessageTarget() {
-  }
-
-  public Type getType() {
+  public @NotNull Type getType() {
     return this.type;
   }
 
-  public String getName() {
+  public @NotNull String getName() {
     return this.name;
   }
 
-  public ServiceEnvironmentType getEnvironment() {
+  public @NotNull ServiceEnvironmentType getEnvironment() {
     return this.environment;
   }
 
-  public boolean includesNode(String uniqueId) {
-    return this.type.equals(Type.ALL) || (this.type.equals(Type.NODE) && (this.name == null || this.name
-      .equals(uniqueId)));
-  }
-
-  @Override
-  public void write(@NotNull ProtocolBuffer buffer) {
-    buffer.writeEnumConstant(this.type);
-    buffer.writeOptionalString(this.name);
-    buffer.writeOptionalEnumConstant(this.environment);
-  }
-
-  @Override
-  public void read(@NotNull ProtocolBuffer buffer) {
-    this.type = buffer.readEnumConstant(Type.class);
-    this.name = buffer.readOptionalString();
-    this.environment = buffer.readOptionalEnumConstant(ServiceEnvironmentType.class);
+  public boolean includesNode(@NotNull String uniqueId) {
+    return this.type.equals(Type.ALL)
+      || (this.type.equals(Type.NODE) && (this.name == null || this.name.equals(uniqueId)));
   }
 
   public enum Type {
@@ -84,5 +69,4 @@ public class ChannelMessageTarget implements SerializableObject {
     GROUP,
     ENVIRONMENT
   }
-
 }

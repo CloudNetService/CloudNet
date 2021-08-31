@@ -20,10 +20,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 
 @ToString
 @EqualsAndHashCode
-public class ProcessConfiguration {
+public class ProcessConfiguration implements Cloneable {
 
   protected int maxHeapMemorySize;
   protected ServiceEnvironmentType environment;
@@ -100,12 +101,21 @@ public class ProcessConfiguration {
     this.processParameters = processParameters;
   }
 
+  @Override
+  public ProcessConfiguration clone() {
+    try {
+      return (ProcessConfiguration) super.clone();
+    } catch (CloneNotSupportedException exception) {
+      throw new IllegalStateException(); // cannot happen, just explode
+    }
+  }
+
+  /**
+   * @deprecated Use {@link #clone()} instead.
+   */
+  @Deprecated
+  @ScheduledForRemoval
   public ProcessConfiguration makeClone() {
-    return new ProcessConfiguration(
-      this.environment,
-      this.maxHeapMemorySize,
-      new ArrayList<>(this.jvmOptions),
-      new ArrayList<>(this.processParameters)
-    );
+    return this.clone();
   }
 }

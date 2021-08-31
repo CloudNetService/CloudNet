@@ -96,7 +96,7 @@ public abstract class AbstractPermissible implements IPermissible {
     return this.createdTime;
   }
 
-  public String getName() {
+  public @NotNull String getName() {
     return this.name;
   }
 

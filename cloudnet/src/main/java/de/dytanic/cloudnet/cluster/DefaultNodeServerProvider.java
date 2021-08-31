@@ -27,12 +27,15 @@ import org.jetbrains.annotations.Nullable;
 
 public abstract class DefaultNodeServerProvider<T extends NodeServer> implements NodeServerProvider<T> {
 
+  protected final CloudNet cloudNet;
   protected final NodeServer localNode;
   protected final Set<T> nodeServers = new CopyOnWriteArraySet<>();
 
   protected volatile NodeServer headNode;
 
   public DefaultNodeServerProvider(CloudNet cloudNet) {
+    this.cloudNet = cloudNet;
+
     this.localNode = new LocalNodeServer(cloudNet, this);
     this.refreshHeadNode();
   }

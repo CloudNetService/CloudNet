@@ -21,6 +21,8 @@ import org.jetbrains.annotations.NotNull;
 
 public interface RPCSender extends RPCProvider {
 
+  @NotNull RPCProviderFactory getFactory();
+
   @NotNull INetworkComponent getAssociatedComponent();
 
   @NotNull RPC invokeMethod(@NotNull String methodName);

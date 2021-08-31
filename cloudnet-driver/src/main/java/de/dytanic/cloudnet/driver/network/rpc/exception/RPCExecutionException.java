@@ -14,15 +14,13 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.driver.api;
+package de.dytanic.cloudnet.driver.network.rpc.exception;
 
-import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
+import org.jetbrains.annotations.NotNull;
 
-@Deprecated
-@ScheduledForRemoval
-public enum ServiceDriverAPIResponse {
+public class RPCExecutionException extends RuntimeException {
 
-  SERVICE_NOT_FOUND,
-  SUCCESS
-
+  public RPCExecutionException(@NotNull String exceptionName, @NotNull String message, @NotNull String firstElement) {
+    super(String.format("%s(%s @ %s)", exceptionName, message, firstElement));
+  }
 }

@@ -22,16 +22,17 @@ import java.util.ArrayList;
 import java.util.Collection;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.jetbrains.annotations.NotNull;
 
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = false)
 public class GroupConfiguration extends ServiceConfigurationBase implements INameable {
 
   protected String name;
-  protected Collection<String> jvmOptions = new ArrayList<>();
-  protected Collection<String> processParameters = new ArrayList<>();
 
-  protected Collection<ServiceEnvironmentType> targetEnvironments = new ArrayList<>();
+  protected Collection<String> jvmOptions;
+  protected Collection<String> processParameters;
+  protected Collection<ServiceEnvironmentType> targetEnvironments;
 
   public GroupConfiguration(
     Collection<ServiceRemoteInclusion> includes,
@@ -79,6 +80,7 @@ public class GroupConfiguration extends ServiceConfigurationBase implements INam
     this.targetEnvironments = targetEnvironments;
   }
 
+  @Override
   public Collection<String> getJvmOptions() {
     return this.jvmOptions;
   }
@@ -92,7 +94,8 @@ public class GroupConfiguration extends ServiceConfigurationBase implements INam
     return this.targetEnvironments;
   }
 
-  public String getName() {
+  @Override
+  public @NotNull String getName() {
     return this.name;
   }
 }

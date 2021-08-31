@@ -46,15 +46,29 @@ public interface DataBuf {
 
   @NotNull String readString();
 
+  @NotNull DataBuf readDataBuf();
+
   @Nullable <T> T readNullable(@NotNull Function<DataBuf, T> readerWhenNonNull);
 
+  <T> T readNullable(@NotNull Function<DataBuf, T> readerWhenNonNull, T valueWhenNull);
+
   // utility for reading
+
+  int getReadableBytes();
 
   @NotNull DataBuf startTransaction();
 
   @NotNull DataBuf redoTransaction();
 
   @NotNull DataBuf.Mutable asMutable();
+
+  // direct memory access
+
+  @NotNull DataBuf disableReleasing();
+
+  @NotNull DataBuf enableReleasing();
+
+  void release();
 
   interface Mutable extends DataBuf {
 
@@ -81,6 +95,8 @@ public interface DataBuf {
     @NotNull DataBuf.Mutable writeUniqueId(@NotNull UUID uuid);
 
     @NotNull DataBuf.Mutable writeString(@NotNull String string);
+
+    @NotNull DataBuf.Mutable writeDataBuf(@NotNull DataBuf buf);
 
     @NotNull <T> DataBuf.Mutable writeNullable(@Nullable T object,
       @NotNull BiConsumer<DataBuf.Mutable, T> handlerWhenNonNull);

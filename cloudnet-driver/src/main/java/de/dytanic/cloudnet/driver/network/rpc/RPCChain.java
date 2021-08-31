@@ -14,14 +14,16 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.network.listener.driver;
+package de.dytanic.cloudnet.driver.network.rpc;
 
-import de.dytanic.cloudnet.driver.network.INetworkChannel;
-import de.dytanic.cloudnet.driver.network.protocol.IPacket;
-import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
+import java.util.Collection;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.UnmodifiableView;
 
-public interface DriverAPIHandler {
+public interface RPCChain extends RPCProvider, RPCExecutable, ChainableRPC {
 
-  ProtocolBuffer handle(INetworkChannel channel, IPacket packet, ProtocolBuffer buffer);
+  @NotNull RPC getRootRPC();
 
+  @NotNull
+  @UnmodifiableView Collection<RPC> getJoins();
 }

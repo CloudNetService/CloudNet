@@ -57,7 +57,7 @@ import org.jetbrains.annotations.Nullable;
 public class DefaultProtocolBuffer extends ProtocolBuffer {
 
   private static final Logger LOGGER = LogManager.getLogger(DefaultProtocolBuffer.class);
-  private final ByteBuf wrapped;
+  public final ByteBuf wrapped;
 
   public DefaultProtocolBuffer(ByteBuf wrapped) {
     this.wrapped = wrapped;

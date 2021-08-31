@@ -28,9 +28,11 @@ import org.jetbrains.annotations.Nullable;
 public class NettyImmutableDataBuf implements DataBuf {
 
   protected final ByteBuf byteBuf;
+  protected boolean releasable;
 
   public NettyImmutableDataBuf(ByteBuf byteBuf) {
     this.byteBuf = byteBuf;
+    this.enableReleasing();
   }
 
   @Override
@@ -91,9 +93,24 @@ public class NettyImmutableDataBuf implements DataBuf {
   }
 
   @Override
+  public @NotNull DataBuf readDataBuf() {
+    return new NettyImmutableDataBuf(this.byteBuf.readBytes(this.readInt()));
+  }
+
+  @Override
   public <T> @Nullable T readNullable(@NotNull Function<DataBuf, T> readerWhenNonNull) {
+    return this.readNullable(readerWhenNonNull, null);
+  }
+
+  @Override
+  public <T> T readNullable(@NotNull Function<DataBuf, T> readerWhenNonNull, T valueWhenNull) {
     boolean isNonNull = this.readBoolean();
-    return isNonNull ? readerWhenNonNull.apply(this) : null;
+    return isNonNull ? readerWhenNonNull.apply(this) : valueWhenNull;
+  }
+
+  @Override
+  public int getReadableBytes() {
+    return this.byteBuf.readableBytes();
   }
 
   @Override
@@ -115,6 +132,25 @@ public class NettyImmutableDataBuf implements DataBuf {
   @Override
   public @NotNull DataBuf.Mutable asMutable() {
     return new NettyMutableDataBuf(this.byteBuf);
+  }
+
+  @Override
+  public @NotNull DataBuf disableReleasing() {
+    this.releasable = false;
+    return this;
+  }
+
+  @Override
+  public @NotNull DataBuf enableReleasing() {
+    this.releasable = true;
+    return this;
+  }
+
+  @Override
+  public void release() {
+    if (this.releasable && this.byteBuf.refCnt() > 0) {
+      this.byteBuf.release(this.byteBuf.refCnt());
+    }
   }
 
   @Internal

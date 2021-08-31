@@ -16,37 +16,22 @@
 
 package de.dytanic.cloudnet.driver.network.rpc;
 
-import de.dytanic.cloudnet.common.concurrent.ITask;
-import de.dytanic.cloudnet.driver.network.INetworkChannel;
-import org.jetbrains.annotations.Blocking;
-import org.jetbrains.annotations.NonBlocking;
+import java.lang.reflect.Type;
 import org.jetbrains.annotations.NotNull;
 
-public interface RPC extends RPCProvider {
+public interface RPC extends RPCProvider, RPCExecutable, ChainableRPC {
 
   @NotNull RPCSender getSender();
 
   @NotNull String getClassName();
 
-  @NotNull String getMethodeName();
+  @NotNull String getMethodName();
 
   @NotNull Object[] getArguments();
 
+  @NotNull Type getExpectedResultType();
+
   @NotNull RPC disableResultExpectation();
 
-  @NonBlocking
-  void fireAndForget();
-
-  @Blocking
-  @NotNull <T> T fireSync();
-
-  @NotNull <T> ITask<T> fire();
-
-  @NonBlocking
-  void fireAndForget(@NotNull INetworkChannel component);
-
-  @Blocking
-  @NotNull <T> T fireSync(@NotNull INetworkChannel component);
-
-  @NotNull <T> ITask<T> fire(@NotNull INetworkChannel component);
+  boolean expectsResult();
 }

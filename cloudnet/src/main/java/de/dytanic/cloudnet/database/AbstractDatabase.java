@@ -20,6 +20,7 @@ import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.function.BiConsumer;
+import org.jetbrains.annotations.NotNull;
 
 public abstract class AbstractDatabase implements LocalDatabase, IDatabase {
 
@@ -34,7 +35,7 @@ public abstract class AbstractDatabase implements LocalDatabase, IDatabase {
   }
 
   @Override
-  public String getName() {
+  public @NotNull String getName() {
     return this.name;
   }
 

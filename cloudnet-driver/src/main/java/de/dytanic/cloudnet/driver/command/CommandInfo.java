@@ -53,9 +53,6 @@ public class CommandInfo {
     this.usage = usage;
   }
 
-  public CommandInfo() {
-  }
-
   public String[] getNames() {
     return this.names;
   }

@@ -102,6 +102,13 @@ public class NettyMutableDataBuf extends NettyImmutableDataBuf implements DataBu
   }
 
   @Override
+  public @NotNull DataBuf.Mutable writeDataBuf(@NotNull DataBuf buf) {
+    this.writeInt(buf.getReadableBytes());
+    this.byteBuf.writeBytes(((NettyImmutableDataBuf) buf).byteBuf);
+    return this;
+  }
+
+  @Override
   public @NotNull <T> Mutable writeNullable(@Nullable T object, @NotNull BiConsumer<Mutable, T> handlerWhenNonNull) {
     this.writeBoolean(object != null);
     if (object != null) {

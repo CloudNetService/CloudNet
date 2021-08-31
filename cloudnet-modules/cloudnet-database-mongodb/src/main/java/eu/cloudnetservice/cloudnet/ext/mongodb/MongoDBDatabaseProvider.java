@@ -30,6 +30,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.bson.Document;
+import org.jetbrains.annotations.NotNull;
 
 public class MongoDBDatabaseProvider extends AbstractDatabaseProvider {
 
@@ -102,7 +103,7 @@ public class MongoDBDatabaseProvider extends AbstractDatabaseProvider {
   }
 
   @Override
-  public String getName() {
+  public @NotNull String getName() {
     return "mongodb";
   }
 }

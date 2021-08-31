@@ -33,7 +33,7 @@ import org.jetbrains.annotations.Nullable;
 public class RemoteTemplateStorage extends DefaultAsyncTemplateStorage implements DriverAPIUser {
 
   @Override
-  public String getName() {
+  public @NotNull String getName() {
     return null;
   }
 

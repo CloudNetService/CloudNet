@@ -134,7 +134,7 @@ public final class Wrapper extends CloudNetDriver {
     this.databaseProvider = new DefaultWrapperDatabaseProvider(this);
     this.rpcSender = this.rpcProviderFactory.providerForClass(this.getNetworkClient(), CloudNetDriver.class);
 
-    super.cloudServiceFactory = new RemoteCloudServiceFactory(this::getNetworkChannel);
+    super.cloudServiceFactory = new RemoteCloudServiceFactory(this::getNetworkChannel, this.networkClient, this.rpcProviderFactory);
     super.generalCloudServiceProvider = new WrapperGeneralCloudServiceProvider(this);
     super.serviceTaskProvider = new WrapperServiceTaskProvider(this);
     super.groupConfigurationProvider = new WrapperGroupConfigurationProvider(this);

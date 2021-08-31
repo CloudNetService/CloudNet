@@ -16,6 +16,10 @@
 
 package de.dytanic.cloudnet.driver.api;
 
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
+
+@Deprecated
+@ScheduledForRemoval
 public enum DriverAPICategory {
 
   SERVICE_TASKS,

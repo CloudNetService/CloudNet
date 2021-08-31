@@ -113,7 +113,10 @@ public abstract class CloudNetDriver {
    * The CloudNetDriver instance won't be null usually, this method is only relevant for tests
    *
    * @return optional CloudNetDriver
+   * @deprecated In the runtime the driver instance is always present, use {@link #getInstance()} instead.
    */
+  @Deprecated
+  @ScheduledForRemoval
   public static Optional<CloudNetDriver> optionalInstance() {
     return Optional.ofNullable(CloudNetDriver.instance);
   }
@@ -252,7 +255,7 @@ public abstract class CloudNetDriver {
    * @return the new instance of the {@link SpecificCloudServiceProvider}
    */
   @NotNull
-  public abstract SpecificCloudServiceProvider getCloudServiceProvider(@NotNull String name);
+  public abstract SpecificCloudServiceProvider getCloudServiceProvider(@NotNull String name); // todo: deprecate
 
   /**
    * Returns a new service specific CloudServiceProvider
@@ -261,7 +264,7 @@ public abstract class CloudNetDriver {
    * @return the new instance of the {@link SpecificCloudServiceProvider}
    */
   @NotNull
-  public abstract SpecificCloudServiceProvider getCloudServiceProvider(@NotNull UUID uniqueId);
+  public abstract SpecificCloudServiceProvider getCloudServiceProvider(@NotNull UUID uniqueId); // todo: deprecate
 
   /**
    * Returns a new service specific CloudServiceProvider
@@ -271,7 +274,7 @@ public abstract class CloudNetDriver {
    */
   @NotNull
   public abstract SpecificCloudServiceProvider getCloudServiceProvider(
-    @NotNull ServiceInfoSnapshot serviceInfoSnapshot);
+    @NotNull ServiceInfoSnapshot serviceInfoSnapshot); // todo: deprecate
 
   /**
    * Returns the general CloudServiceProvider

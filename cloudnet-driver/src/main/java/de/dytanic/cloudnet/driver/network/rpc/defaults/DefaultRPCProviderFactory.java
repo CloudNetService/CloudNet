@@ -25,6 +25,7 @@ import de.dytanic.cloudnet.driver.network.rpc.defaults.handler.DefaultRPCHandler
 import de.dytanic.cloudnet.driver.network.rpc.defaults.sender.DefaultRPCSender;
 import de.dytanic.cloudnet.driver.network.rpc.object.ObjectMapper;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class DefaultRPCProviderFactory implements RPCProviderFactory {
 
@@ -58,18 +59,18 @@ public class DefaultRPCProviderFactory implements RPCProviderFactory {
     @NotNull ObjectMapper objectMapper,
     @NotNull DataBufFactory dataBufFactory
   ) {
-    return new DefaultRPCSender(component, clazz, objectMapper, dataBufFactory);
+    return new DefaultRPCSender(this, component, clazz, objectMapper, dataBufFactory);
   }
 
   @Override
-  public @NotNull RPCHandler newHandler(@NotNull Class<?> clazz, @NotNull Object binding) {
+  public @NotNull RPCHandler newHandler(@NotNull Class<?> clazz, @Nullable Object binding) {
     return this.newHandler(clazz, binding, this.defaultObjectMapper, this.defaultDataBufFactory);
   }
 
   @Override
   public @NotNull RPCHandler newHandler(
     @NotNull Class<?> clazz,
-    @NotNull Object binding,
+    @Nullable Object binding,
     @NotNull ObjectMapper objectMapper,
     @NotNull DataBufFactory dataBufFactory
   ) {

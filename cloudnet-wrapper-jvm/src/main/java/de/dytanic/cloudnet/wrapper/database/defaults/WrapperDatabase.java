@@ -58,7 +58,7 @@ public class WrapperDatabase implements IDatabase {
   }
 
   @Override
-  public String getName() {
+  public @NotNull String getName() {
     return this.name;
   }
 

@@ -19,10 +19,11 @@ package de.dytanic.cloudnet.driver.network.rpc.defaults.sender;
 import de.dytanic.cloudnet.driver.network.INetworkComponent;
 import de.dytanic.cloudnet.driver.network.buffer.DataBufFactory;
 import de.dytanic.cloudnet.driver.network.rpc.RPC;
+import de.dytanic.cloudnet.driver.network.rpc.RPCProviderFactory;
 import de.dytanic.cloudnet.driver.network.rpc.RPCSender;
-import de.dytanic.cloudnet.driver.network.rpc.defaults.DefaultRPC;
 import de.dytanic.cloudnet.driver.network.rpc.defaults.DefaultRPCProvider;
 import de.dytanic.cloudnet.driver.network.rpc.defaults.MethodInformation;
+import de.dytanic.cloudnet.driver.network.rpc.defaults.rpc.DefaultRPC;
 import de.dytanic.cloudnet.driver.network.rpc.object.ObjectMapper;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -33,10 +34,12 @@ public class DefaultRPCSender extends DefaultRPCProvider implements RPCSender {
   protected static final Object[] EMPTY_OBJECT_ARRAY = new Object[0];
 
   protected final Class<?> targetClass;
+  protected final RPCProviderFactory factory;
   protected final INetworkComponent networkComponent;
   protected final Map<String, MethodInformation> cachedMethodInformation;
 
   public DefaultRPCSender(
+    @NotNull RPCProviderFactory factory,
     @NotNull INetworkComponent component,
     @NotNull Class<?> targetClass,
     @NotNull ObjectMapper objectMapper,
@@ -44,9 +47,15 @@ public class DefaultRPCSender extends DefaultRPCProvider implements RPCSender {
   ) {
     super(targetClass, objectMapper, dataBufFactory);
 
+    this.factory = factory;
     this.targetClass = targetClass;
     this.networkComponent = component;
     this.cachedMethodInformation = new ConcurrentHashMap<>();
+  }
+
+  @Override
+  public @NotNull RPCProviderFactory getFactory() {
+    return this.factory;
   }
 
   @Override

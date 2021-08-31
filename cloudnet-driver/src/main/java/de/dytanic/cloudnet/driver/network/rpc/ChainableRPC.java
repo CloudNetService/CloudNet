@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.driver.api;
+package de.dytanic.cloudnet.driver.network.rpc;
 
-import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 
-@Deprecated
-@ScheduledForRemoval
-public enum ServiceDriverAPIResponse {
+public interface ChainableRPC extends RPCProvider {
 
-  SERVICE_NOT_FOUND,
-  SUCCESS
-
+  @NotNull
+  @Contract("_ -> new")
+  RPCChain join(@NotNull RPC rpc);
 }
