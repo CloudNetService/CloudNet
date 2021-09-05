@@ -222,6 +222,9 @@ public class BukkitNPCManagement extends AbstractNPCManagement {
       .replace("%online_players%", onlinePlayers).replace("%o_p%", onlinePlayers)
       .replace("%max_players%", maxPlayers).replace("%m_p%", maxPlayers)
       .replace("%online_servers%", onlineServers).replace("%o_s%", onlineServers);
+    
+    //How do i get the Player??
+    //infoLine = PlaceholderAPI.setPlaceholders(PLAYER_HERE, infoLine);
 
     this.getInfoLineStand(cloudNPC).ifPresent(infoLineStand -> infoLineStand.setCustomName(infoLine));
   }
