@@ -22,6 +22,13 @@ jar {
   }
 }
 
+repositories {
+    maven {
+        url = 'https://repo.extendedclip.com/content/repositories/placeholderapi/'
+    }
+}
+
+
 dependencies {
   compileOnly project(':cloudnet')
   compileOnly project(':cloudnet-wrapper-jvm')
@@ -29,4 +36,6 @@ dependencies {
   compileOnly group: 'org.spigotmc', name: 'spigot-api', version: dependencySpigotApiVersion
   compileOnly group: 'com.github.dmulloy2', name: 'ProtocolLib', version: dependencyProtocolLibVersion
   api group: 'com.github.juliarn', name: 'npc-lib', version: dependencyNpcLibVersion
+  
+  compileOnly 'me.clip:placeholderapi:2.10.10'
 }
