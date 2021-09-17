@@ -41,6 +41,9 @@ public interface IReadable {
   IReadable read(@NotNull Reader reader);
 
   @NotNull
+  IReadable readExceptionally(@NotNull Reader reader) throws Exception;
+
+  @NotNull
   IReadable read(byte[] bytes);
 
   @NotNull
@@ -50,10 +53,25 @@ public interface IReadable {
   IReadable read(@NotNull InputStream inputStream);
 
   @NotNull
+  IReadable readExceptionally(@NotNull InputStream inputStream) throws Exception;
+
+  @NotNull
   default IReadable read(@Nullable Path path) {
     if (path != null && Files.exists(path)) {
       try (InputStream inputStream = Files.newInputStream(path)) {
         return this.read(inputStream);
+      } catch (IOException exception) {
+        LOGGER.severe("Exception while reading inputstream", exception);
+      }
+    }
+    return this;
+  }
+
+  @NotNull
+  default IReadable readExceptionally(@Nullable Path path) throws Exception {
+    if (path != null && Files.exists(path)) {
+      try (InputStream inputStream = Files.newInputStream(path)) {
+        return this.readExceptionally(inputStream);
       } catch (IOException exception) {
         LOGGER.severe("Exception while reading inputstream", exception);
       }

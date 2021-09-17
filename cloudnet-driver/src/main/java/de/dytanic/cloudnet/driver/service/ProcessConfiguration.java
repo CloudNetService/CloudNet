@@ -16,46 +16,57 @@
 
 package de.dytanic.cloudnet.driver.service;
 
-import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
-import de.dytanic.cloudnet.driver.serialization.SerializableObject;
 import java.util.ArrayList;
 import java.util.Collection;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 
 @ToString
 @EqualsAndHashCode
-public final class ProcessConfiguration implements SerializableObject {
+public class ProcessConfiguration implements Cloneable {
 
+  protected int maxHeapMemorySize;
   protected ServiceEnvironmentType environment;
 
-  protected int maxHeapMemorySize = -1;
-
   protected Collection<String> jvmOptions;
-  protected Collection<String> processParameters = new ArrayList<>();
+  protected Collection<String> processParameters;
+
+  protected ProcessConfiguration() {
+  }
 
   public ProcessConfiguration(ServiceEnvironmentType environment, int maxHeapMemorySize) {
     this(environment, maxHeapMemorySize, new ArrayList<>());
   }
 
-  public ProcessConfiguration(ServiceEnvironmentType environment, int maxHeapMemorySize,
-    Collection<String> jvmOptions) {
-    this(environment, maxHeapMemorySize, jvmOptions, new ArrayList<>());
+  public ProcessConfiguration(
+    ServiceEnvironmentType environment,
+    int maxHeapMemorySize,
+    Collection<String> jvmOptions
+  ) {
+    this(maxHeapMemorySize, environment, jvmOptions, new ArrayList<>());
   }
 
-  public ProcessConfiguration(ServiceEnvironmentType environment, int maxHeapMemorySize, Collection<String> jvmOptions,
-    Collection<String> processParameters) {
-    this.environment = environment;
+  @Deprecated
+  public ProcessConfiguration(
+    ServiceEnvironmentType environment,
+    int maxHeapMemorySize,
+    Collection<String> jvmOptions,
+    Collection<String> processParameters
+  ) {
+    this(maxHeapMemorySize, environment, jvmOptions, processParameters);
+  }
+
+  public ProcessConfiguration(
+    int maxHeapMemorySize,
+    ServiceEnvironmentType environment,
+    Collection<String> jvmOptions,
+    Collection<String> processParameters
+  ) {
     this.maxHeapMemorySize = maxHeapMemorySize;
+    this.environment = environment;
     this.jvmOptions = jvmOptions;
-
-    if (processParameters != null) {
-      this.processParameters = processParameters;
-    }
-  }
-
-  public ProcessConfiguration() {
+    this.processParameters = processParameters;
   }
 
   public ServiceEnvironmentType getEnvironment() {
@@ -90,28 +101,21 @@ public final class ProcessConfiguration implements SerializableObject {
     this.processParameters = processParameters;
   }
 
+  @Override
+  public ProcessConfiguration clone() {
+    try {
+      return (ProcessConfiguration) super.clone();
+    } catch (CloneNotSupportedException exception) {
+      throw new IllegalStateException(); // cannot happen, just explode
+    }
+  }
+
+  /**
+   * @deprecated Use {@link #clone()} instead.
+   */
+  @Deprecated
+  @ScheduledForRemoval
   public ProcessConfiguration makeClone() {
-    return new ProcessConfiguration(
-      this.environment,
-      this.maxHeapMemorySize,
-      new ArrayList<>(this.jvmOptions),
-      new ArrayList<>(this.processParameters)
-    );
-  }
-
-  @Override
-  public void write(@NotNull ProtocolBuffer buffer) {
-    buffer.writeEnumConstant(this.environment);
-    buffer.writeInt(this.maxHeapMemorySize);
-    buffer.writeStringCollection(this.jvmOptions);
-    buffer.writeStringCollection(this.processParameters);
-  }
-
-  @Override
-  public void read(@NotNull ProtocolBuffer buffer) {
-    this.environment = buffer.readEnumConstant(ServiceEnvironmentType.class);
-    this.maxHeapMemorySize = buffer.readInt();
-    this.jvmOptions = buffer.readStringCollection();
-    this.processParameters = buffer.readStringCollection();
+    return this.clone();
   }
 }

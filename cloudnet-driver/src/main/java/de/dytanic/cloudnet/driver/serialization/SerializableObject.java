@@ -16,8 +16,11 @@
 
 package de.dytanic.cloudnet.driver.serialization;
 
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 import org.jetbrains.annotations.NotNull;
 
+@Deprecated
+@ScheduledForRemoval
 public interface SerializableObject {
 
   void write(@NotNull ProtocolBuffer buffer);

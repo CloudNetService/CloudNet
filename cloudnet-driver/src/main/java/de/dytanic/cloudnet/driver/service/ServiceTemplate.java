@@ -16,11 +16,8 @@
 
 package de.dytanic.cloudnet.driver.service;
 
-import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.INameable;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
-import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
-import de.dytanic.cloudnet.driver.serialization.SerializableObject;
 import de.dytanic.cloudnet.driver.template.SpecificTemplateStorage;
 import de.dytanic.cloudnet.driver.template.TemplateStorage;
 import java.util.ArrayList;
@@ -34,38 +31,36 @@ import org.jetbrains.annotations.Nullable;
  * using a {@link ServiceDeployment}. CloudNet's default storage is "local".
  */
 @EqualsAndHashCode
-public class ServiceTemplate implements INameable, SerializableObject, Comparable<ServiceTemplate> {
+public class ServiceTemplate implements INameable, Comparable<ServiceTemplate> {
 
   public static final String LOCAL_STORAGE = "local";
 
-  private String prefix;
-  private String name;
-  private String storage;
+  private final String prefix;
+  private final String name;
+  private final String storage;
 
-  private boolean alwaysCopyToStaticServices;
-  private int priority;
+  private final int priority;
+  private final boolean alwaysCopyToStaticServices;
 
   public ServiceTemplate(String prefix, String name, String storage) {
-    Preconditions.checkNotNull(prefix);
-    Preconditions.checkNotNull(name);
-    Preconditions.checkNotNull(storage);
-
-    this.prefix = prefix;
-    this.name = name;
-    this.storage = storage;
+    this(prefix, name, storage, 0, false);
   }
 
   public ServiceTemplate(String prefix, String name, String storage, boolean alwaysCopyToStaticServices) {
-    this(prefix, name, storage);
-    this.alwaysCopyToStaticServices = alwaysCopyToStaticServices;
+    this(prefix, name, storage, 0, alwaysCopyToStaticServices);
   }
 
+  @Deprecated
   public ServiceTemplate(String prefix, String name, String storage, boolean alwaysCopyToStaticServices, int priority) {
-    this(prefix, name, storage, alwaysCopyToStaticServices);
-    this.priority = priority;
+    this(prefix, name, storage, priority, alwaysCopyToStaticServices);
   }
 
-  public ServiceTemplate() {
+  public ServiceTemplate(String prefix, String name, String storage, int priority, boolean alwaysCopyToStaticServices) {
+    this.prefix = prefix;
+    this.name = name;
+    this.storage = storage;
+    this.priority = priority;
+    this.alwaysCopyToStaticServices = alwaysCopyToStaticServices;
   }
 
   public static ServiceTemplate local(String prefix, String name) {
@@ -134,7 +129,7 @@ public class ServiceTemplate implements INameable, SerializableObject, Comparabl
     return this.prefix;
   }
 
-  public String getName() {
+  public @NotNull String getName() {
     return this.name;
   }
 
@@ -173,24 +168,6 @@ public class ServiceTemplate implements INameable, SerializableObject, Comparabl
   public SpecificTemplateStorage nullableStorage() {
     TemplateStorage storage = CloudNetDriver.getInstance().getTemplateStorage(this.storage);
     return storage != null ? SpecificTemplateStorage.of(this, storage) : null;
-  }
-
-  @Override
-  public void write(@NotNull ProtocolBuffer buffer) {
-    buffer.writeString(this.prefix);
-    buffer.writeString(this.name);
-    buffer.writeString(this.storage);
-    buffer.writeBoolean(this.alwaysCopyToStaticServices);
-    buffer.writeVarInt(this.priority);
-  }
-
-  @Override
-  public void read(@NotNull ProtocolBuffer buffer) {
-    this.prefix = buffer.readString();
-    this.name = buffer.readString();
-    this.storage = buffer.readString();
-    this.alwaysCopyToStaticServices = buffer.readBoolean();
-    this.priority = buffer.readVarInt();
   }
 
   @Override

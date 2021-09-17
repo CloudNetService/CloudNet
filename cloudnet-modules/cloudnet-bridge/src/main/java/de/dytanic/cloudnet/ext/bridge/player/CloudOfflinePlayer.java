@@ -18,8 +18,6 @@ package de.dytanic.cloudnet.ext.bridge.player;
 
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
-import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
-import de.dytanic.cloudnet.driver.serialization.json.SerializableJsonDocPropertyable;
 import java.lang.reflect.Type;
 import java.util.UUID;
 import lombok.EqualsAndHashCode;
@@ -28,7 +26,7 @@ import org.jetbrains.annotations.NotNull;
 
 @ToString
 @EqualsAndHashCode(callSuper = false)
-public class CloudOfflinePlayer extends SerializableJsonDocPropertyable implements ICloudOfflinePlayer {
+public class CloudOfflinePlayer implements ICloudOfflinePlayer {
 
   @Deprecated
   public static final Type TYPE = CloudOfflinePlayer.class;
@@ -43,6 +41,8 @@ public class CloudOfflinePlayer extends SerializableJsonDocPropertyable implemen
 
   protected NetworkConnectionInfo lastNetworkConnectionInfo;
 
+  protected JsonDocument properties;
+
   public CloudOfflinePlayer(UUID uniqueId, String name, String xBoxId, long firstLoginTimeMillis,
     long lastLoginTimeMillis, NetworkConnectionInfo lastNetworkConnectionInfo) {
     this.uniqueId = uniqueId;
@@ -51,6 +51,7 @@ public class CloudOfflinePlayer extends SerializableJsonDocPropertyable implemen
     this.firstLoginTimeMillis = firstLoginTimeMillis;
     this.lastLoginTimeMillis = lastLoginTimeMillis;
     this.lastNetworkConnectionInfo = lastNetworkConnectionInfo;
+    this.properties = JsonDocument.newDocument();
   }
 
   public CloudOfflinePlayer() {
@@ -88,7 +89,7 @@ public class CloudOfflinePlayer extends SerializableJsonDocPropertyable implemen
     this.uniqueId = uniqueId;
   }
 
-  public String getName() {
+  public @NotNull String getName() {
     return this.name;
   }
 
@@ -129,27 +130,7 @@ public class CloudOfflinePlayer extends SerializableJsonDocPropertyable implemen
   }
 
   @Override
-  public void write(@NotNull ProtocolBuffer buffer) {
-    buffer.writeUUID(this.uniqueId);
-    buffer.writeString(this.name);
-    buffer.writeOptionalString(this.xBoxId);
-    buffer.writeLong(this.firstLoginTimeMillis);
-    buffer.writeLong(this.lastLoginTimeMillis);
-    buffer.writeObject(this.lastNetworkConnectionInfo);
-
-    super.write(buffer);
+  public JsonDocument getProperties() {
+    return this.properties;
   }
-
-  @Override
-  public void read(@NotNull ProtocolBuffer buffer) {
-    this.uniqueId = buffer.readUUID();
-    this.name = buffer.readString();
-    this.xBoxId = buffer.readOptionalString();
-    this.firstLoginTimeMillis = buffer.readLong();
-    this.lastLoginTimeMillis = buffer.readLong();
-    this.lastNetworkConnectionInfo = buffer.readObject(NetworkConnectionInfo.class);
-
-    super.read(buffer);
-  }
-
 }

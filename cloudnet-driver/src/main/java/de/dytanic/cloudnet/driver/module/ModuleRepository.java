@@ -17,8 +17,6 @@
 package de.dytanic.cloudnet.driver.module;
 
 import com.google.common.base.Verify;
-import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
-import de.dytanic.cloudnet.driver.serialization.SerializableObject;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.jetbrains.annotations.ApiStatus.Internal;
@@ -29,7 +27,7 @@ import org.jetbrains.annotations.NotNull;
  */
 @ToString
 @EqualsAndHashCode
-public class ModuleRepository implements SerializableObject {
+public class ModuleRepository {
 
   private String name;
   private String url;
@@ -79,23 +77,5 @@ public class ModuleRepository implements SerializableObject {
   public void assertComplete() {
     Verify.verifyNotNull(this.name, "Missing repository name");
     Verify.verifyNotNull(this.url, "Missing repository url");
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public void write(@NotNull ProtocolBuffer buffer) {
-    buffer.writeString(this.name);
-    buffer.writeString(this.url);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public void read(@NotNull ProtocolBuffer buffer) {
-    this.name = buffer.readString();
-    this.url = buffer.readString();
   }
 }

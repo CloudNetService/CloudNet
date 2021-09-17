@@ -25,7 +25,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class CompletedTask<V> implements ITask<V> {
 
-  private static final ITask<Void> VOID_TASK = new CompletedTask<>(null, null);
+  private static final ITask<?> EMPTY_TASK = new CompletedTask<>(null, null);
 
   private final V value;
   private final Throwable throwable;
@@ -43,8 +43,14 @@ public class CompletedTask<V> implements ITask<V> {
     return new CompletedTask<>(value, null);
   }
 
-  public static ITask<Void> voidTask() {
-    return VOID_TASK;
+  @Deprecated
+  public static <T> ITask<T> voidTask() {
+    return emptyTask();
+  }
+
+  @SuppressWarnings("unchecked")
+  public static <T> ITask<T> emptyTask() {
+    return (ITask<T>) EMPTY_TASK;
   }
 
   @Override

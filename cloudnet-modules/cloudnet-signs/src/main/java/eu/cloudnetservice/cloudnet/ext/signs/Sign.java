@@ -16,8 +16,6 @@
 
 package eu.cloudnetservice.cloudnet.ext.signs;
 
-import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
-import de.dytanic.cloudnet.driver.serialization.SerializableObject;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.ext.bridge.WorldPosition;
 import eu.cloudnetservice.cloudnet.ext.signs.configuration.SignConfigurationEntry;
@@ -33,7 +31,7 @@ import org.jetbrains.annotations.Nullable;
  */
 @ToString
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class Sign implements SerializableObject, Comparable<Sign> {
+public class Sign implements Comparable<Sign> {
 
   protected String targetGroup;
   protected String createdGroup;
@@ -147,22 +145,6 @@ public class Sign implements SerializableObject, Comparable<Sign> {
     ServiceInfoSnapshot target = this.getCurrentTarget();
     // no target has the lowest priority
     return target == null ? 0 : PriorityUtil.getPriority(target);
-  }
-
-  @Override
-  public void write(@NotNull ProtocolBuffer buffer) {
-    buffer.writeString(this.targetGroup);
-    buffer.writeString(this.createdGroup);
-    buffer.writeOptionalString(this.templatePath);
-    buffer.writeObject(this.worldPosition);
-  }
-
-  @Override
-  public void read(@NotNull ProtocolBuffer buffer) {
-    this.targetGroup = buffer.readString();
-    this.createdGroup = buffer.readString();
-    this.templatePath = buffer.readOptionalString();
-    this.worldPosition = buffer.readObject(WorldPosition.class);
   }
 
   @Override

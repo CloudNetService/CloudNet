@@ -16,6 +16,7 @@
 
 package de.dytanic.cloudnet.driver.provider;
 
+import de.dytanic.cloudnet.common.concurrent.CompletableTask;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.driver.command.CommandInfo;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
@@ -96,14 +97,18 @@ public interface NodeInfoProvider {
    * @return the {@link CommandInfo} for each registered command
    */
   @NotNull
-  ITask<Collection<CommandInfo>> getConsoleCommandsAsync();
+  default ITask<Collection<CommandInfo>> getConsoleCommandsAsync() {
+    return CompletableTask.supplyAsync(this::getConsoleCommands);
+  }
 
   /**
    * @param commandLine the whole console input containing the command
    * @return the {@link CommandInfo} if there is a registered command - null otherwise
    */
   @NotNull
-  ITask<CommandInfo> getConsoleCommandAsync(@NotNull String commandLine);
+  default ITask<CommandInfo> getConsoleCommandAsync(@NotNull String commandLine) {
+    return CompletableTask.supplyAsync(() -> this.getConsoleCommand(commandLine));
+  }
 
   /**
    * Gets all tab complete results for the specific command line. If the line contains at least one space, it will get
@@ -114,7 +119,9 @@ public interface NodeInfoProvider {
    * @return a collection containing all unsorted results
    */
   @NotNull
-  ITask<Collection<String>> getConsoleTabCompleteResultsAsync(@NotNull String commandLine);
+  default ITask<Collection<String>> getConsoleTabCompleteResultsAsync(@NotNull String commandLine) {
+    return CompletableTask.supplyAsync(() -> this.getConsoleTabCompleteResults(commandLine));
+  }
 
   /**
    * Sends the given commandLine to the node, executes the commandLine and returns the response
@@ -123,7 +130,9 @@ public interface NodeInfoProvider {
    * @return the reponse of the node
    */
   @NotNull
-  ITask<String[]> sendCommandLineAsync(@NotNull String commandLine);
+  default ITask<String[]> sendCommandLineAsync(@NotNull String commandLine) {
+    return CompletableTask.supplyAsync(() -> this.sendCommandLine(commandLine));
+  }
 
   /**
    * Sends the given commandLine to a specific node in the cluster, executes the commandLine and returns the response
@@ -132,13 +141,17 @@ public interface NodeInfoProvider {
    * @return the response of the node
    */
   @NotNull
-  ITask<String[]> sendCommandLineAsync(@NotNull String nodeUniqueId, @NotNull String commandLine);
+  default ITask<String[]> sendCommandLineAsync(@NotNull String nodeUniqueId, @NotNull String commandLine) {
+    return CompletableTask.supplyAsync(() -> this.sendCommandLine(nodeUniqueId, commandLine));
+  }
 
   /**
    * @return all nodes from the config of the node where the method is called on
    */
   @NotNull
-  ITask<NetworkClusterNode[]> getNodesAsync();
+  default ITask<NetworkClusterNode[]> getNodesAsync() {
+    return CompletableTask.supplyAsync(this::getNodes);
+  }
 
   /**
    * @param uniqueId the uniqueId of the target node
@@ -146,19 +159,25 @@ public interface NodeInfoProvider {
    * entry in the config
    */
   @NotNull
-  ITask<NetworkClusterNode> getNodeAsync(@NotNull String uniqueId);
+  default ITask<NetworkClusterNode> getNodeAsync(@NotNull String uniqueId) {
+    return CompletableTask.supplyAsync(() -> this.getNode(uniqueId));
+  }
 
   /**
    * @return all {@link NetworkClusterNodeInfoSnapshot} of nodes that are still connected
    */
   @NotNull
-  ITask<NetworkClusterNodeInfoSnapshot[]> getNodeInfoSnapshotsAsync();
+  default ITask<NetworkClusterNodeInfoSnapshot[]> getNodeInfoSnapshotsAsync() {
+    return CompletableTask.supplyAsync(this::getNodeInfoSnapshots);
+  }
 
   /**
    * @param uniqueId the uniqueId of the target node
    * @return the {@link NetworkClusterNodeInfoSnapshot} for the given uniqueId, null if there is no snapshot
    */
   @NotNull
-  ITask<NetworkClusterNodeInfoSnapshot> getNodeInfoSnapshotAsync(@NotNull String uniqueId);
+  default ITask<NetworkClusterNodeInfoSnapshot> getNodeInfoSnapshotAsync(@NotNull String uniqueId) {
+    return CompletableTask.supplyAsync(() -> this.getNodeInfoSnapshot(uniqueId));
+  }
 
 }

@@ -17,14 +17,11 @@
 package de.dytanic.cloudnet.ext.bridge.player;
 
 import de.dytanic.cloudnet.driver.network.HostAndPort;
-import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
-import de.dytanic.cloudnet.driver.serialization.SerializableObject;
 import de.dytanic.cloudnet.ext.bridge.WorldPosition;
 import java.lang.reflect.Type;
 import java.util.UUID;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * This class represents basic information of the underlying player. Modifications to this information do not have an
@@ -32,7 +29,7 @@ import org.jetbrains.annotations.NotNull;
  */
 @ToString
 @EqualsAndHashCode
-public final class NetworkPlayerServerInfo implements SerializableObject {
+public final class NetworkPlayerServerInfo {
 
   public static final Type TYPE = NetworkPlayerServerInfo.class;
 
@@ -148,33 +145,5 @@ public final class NetworkPlayerServerInfo implements SerializableObject {
 
   public void setNetworkService(NetworkServiceInfo networkService) {
     this.networkService = networkService;
-  }
-
-  @Override
-  public void write(@NotNull ProtocolBuffer buffer) {
-    buffer.writeUUID(this.uniqueId);
-    buffer.writeString(this.name);
-    buffer.writeOptionalString(this.xBoxId);
-    buffer.writeDouble(this.health);
-    buffer.writeDouble(this.maxHealth);
-    buffer.writeDouble(this.saturation);
-    buffer.writeInt(this.level);
-    buffer.writeObject(this.location);
-    buffer.writeObject(this.address);
-    buffer.writeObject(this.networkService);
-  }
-
-  @Override
-  public void read(@NotNull ProtocolBuffer buffer) {
-    this.uniqueId = buffer.readUUID();
-    this.name = buffer.readString();
-    this.xBoxId = buffer.readOptionalString();
-    this.health = buffer.readDouble();
-    this.maxHealth = buffer.readDouble();
-    this.saturation = buffer.readDouble();
-    this.level = buffer.readInt();
-    this.location = buffer.readObject(WorldPosition.class);
-    this.address = buffer.readObject(HostAndPort.class);
-    this.networkService = buffer.readObject(NetworkServiceInfo.class);
   }
 }

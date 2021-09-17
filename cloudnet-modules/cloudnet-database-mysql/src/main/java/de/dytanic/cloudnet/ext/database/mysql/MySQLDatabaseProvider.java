@@ -33,6 +33,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ExecutorService;
+import org.jetbrains.annotations.NotNull;
 
 public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
 
@@ -125,7 +126,7 @@ public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
   }
 
   @Override
-  public String getName() {
+  public @NotNull String getName() {
     return this.config.getString("database");
   }
 

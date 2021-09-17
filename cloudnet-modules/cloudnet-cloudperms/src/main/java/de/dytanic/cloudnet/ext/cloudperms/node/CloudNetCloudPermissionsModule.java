@@ -16,7 +16,9 @@
 
 package de.dytanic.cloudnet.ext.cloudperms.node;
 
+import com.google.gson.JsonParseException;
 import com.google.gson.reflect.TypeToken;
+import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.module.ModuleLifeCycle;
 import de.dytanic.cloudnet.driver.module.ModuleTask;
 import de.dytanic.cloudnet.ext.cloudperms.node.listener.ConfigurationUpdateListener;
@@ -43,9 +45,18 @@ public final class CloudNetCloudPermissionsModule extends NodeCloudNetModule {
 
   @ModuleTask(order = 126, event = ModuleLifeCycle.STARTED)
   public void initConfig() {
-    this.getConfig().getBoolean("enabled", true);
-    this.getConfig().get("excludedGroups", LIST_STRING, new ArrayList<>());
-    this.saveConfig();
+    JsonDocument configuration;
+
+    try {
+      configuration = super.getConfigExceptionally();
+    } catch (Exception exception) {
+      throw new JsonParseException(
+        "Exception while parsing cloudperms-module configuration. Your configuration is invalid.");
+    }
+
+    configuration.getBoolean("enabled", true);
+    configuration.get("excludedGroups", LIST_STRING, new ArrayList<>());
+    super.saveConfig();
   }
 
   @ModuleTask(order = 124, event = ModuleLifeCycle.STARTED)

@@ -18,9 +18,9 @@ package de.dytanic.cloudnet.wrapper.conf;
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
+import de.dytanic.cloudnet.driver.network.ssl.SSLConfiguration;
 import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
-import java.lang.reflect.Type;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -35,18 +35,12 @@ public final class DocumentWrapperConfiguration implements IWrapperConfiguration
   private static final Path WRAPPER_CONFIG = Paths
     .get(System.getProperty("cloudnet.wrapper.config.path", ".wrapper/wrapper.json"));
 
-  private static final Type SERVICE_CFG_TYPE = ServiceConfiguration.class;
-  private static final Type SERVICE_INFO_TYPE = ServiceInfoSnapshot.class;
-
   private String connectionKey;
-
   private HostAndPort targetListener;
-
   private ServiceInfoSnapshot serviceInfoSnapshot;
-
   private ServiceConfiguration serviceConfiguration;
 
-  private JsonDocument sslConfig;
+  private SSLConfiguration sslConfiguration;
 
   public DocumentWrapperConfiguration() {
     this.load();
@@ -57,28 +51,38 @@ public final class DocumentWrapperConfiguration implements IWrapperConfiguration
 
     this.connectionKey = document.getString("connectionKey");
     this.targetListener = document.get("listener", HostAndPort.class);
-    this.serviceConfiguration = document.get("serviceConfiguration", SERVICE_CFG_TYPE);
-    this.serviceInfoSnapshot = document.get("serviceInfoSnapshot", SERVICE_INFO_TYPE);
-    this.sslConfig = document.getDocument("sslConfig");
+    this.serviceConfiguration = document.get("serviceConfiguration", ServiceConfiguration.class);
+    this.serviceInfoSnapshot = document.get("serviceInfoSnapshot", ServiceInfoSnapshot.class);
+    this.sslConfiguration = document.get("sslConfig", SSLConfiguration.class);
   }
 
+  @Override
   public String getConnectionKey() {
     return this.connectionKey;
   }
 
+  @Override
   public HostAndPort getTargetListener() {
     return this.targetListener;
   }
 
+  @Override
   public ServiceInfoSnapshot getServiceInfoSnapshot() {
     return this.serviceInfoSnapshot;
   }
 
+  @Override
   public ServiceConfiguration getServiceConfiguration() {
     return this.serviceConfiguration;
   }
 
+  @Override
   public JsonDocument getSslConfig() {
-    return this.sslConfig;
+    return JsonDocument.newDocument("sslConfig", this.sslConfiguration);
+  }
+
+  @Override
+  public SSLConfiguration getSSLConfig() {
+    return this.sslConfiguration;
   }
 }

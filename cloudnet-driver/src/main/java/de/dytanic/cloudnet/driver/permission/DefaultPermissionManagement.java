@@ -17,7 +17,6 @@
 package de.dytanic.cloudnet.driver.permission;
 
 import com.google.common.collect.Iterables;
-import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import java.util.ArrayList;
@@ -345,47 +344,38 @@ public abstract class DefaultPermissionManagement implements IPermissionManageme
   }
 
   @Override
-  public @NotNull ITask<IPermissionGroup> modifyGroupAsync(@NotNull String name,
-    @NotNull Consumer<IPermissionGroup> modifier) {
-    ITask<IPermissionGroup> task = this.getGroupAsync(name);
+  public IPermissionGroup modifyGroup(@NotNull String name, @NotNull Consumer<IPermissionGroup> modifier) {
+    IPermissionGroup group = this.getGroup(name);
 
-    task.onComplete(group -> {
-      if (group != null) {
-        modifier.accept(group);
-        this.updateGroup(group);
-      }
-    });
+    if (group != null) {
+      modifier.accept(group);
+      this.updateGroup(group);
+    }
 
-    return task;
+    return group;
   }
 
   @Override
-  public @NotNull ITask<IPermissionUser> modifyUserAsync(@NotNull UUID uniqueId,
-    @NotNull Consumer<IPermissionUser> modifier) {
-    ITask<IPermissionUser> task = this.getUserAsync(uniqueId);
+  public IPermissionUser modifyUser(@NotNull UUID uniqueId, @NotNull Consumer<IPermissionUser> modifier) {
+    IPermissionUser user = this.getUser(uniqueId);
 
-    task.onComplete(user -> {
-      if (user != null) {
-        modifier.accept(user);
-        this.updateUser(user);
-      }
-    });
+    if (user != null) {
+      modifier.accept(user);
+      this.updateUser(user);
+    }
 
-    return task;
+    return user;
   }
 
   @Override
-  public @NotNull ITask<List<IPermissionUser>> modifyUsersAsync(@NotNull String name,
-    @NotNull Consumer<IPermissionUser> modifier) {
-    ITask<List<IPermissionUser>> task = this.getUsersAsync(name);
+  public List<IPermissionUser> modifyUsers(@NotNull String name, @NotNull Consumer<IPermissionUser> modifier) {
+    List<IPermissionUser> users = this.getUsers(name);
 
-    task.onComplete(users -> {
-      for (IPermissionUser user : users) {
-        modifier.accept(user);
-        this.updateUser(user);
-      }
-    });
+    for (IPermissionUser user : users) {
+      modifier.accept(user);
+      this.updateUser(user);
+    }
 
-    return task;
+    return users;
   }
 }

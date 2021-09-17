@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.cloudnet.ext.labymod.node;
 
+import com.google.gson.JsonParseException;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.driver.module.ModuleLifeCycle;
@@ -65,8 +66,15 @@ public class CloudNetLabyModModule extends NodeCloudNetModule {
   public void loadConfig() {
     FileUtils.createDirectoryReported(super.getModuleWrapper().getDataDirectory());
 
-    JsonDocument previousConfig = super.getConfig().clone();
-    this.configuration = super.getConfig().get("config", LabyModConfiguration.class, new LabyModConfiguration(
+    JsonDocument configuration;
+    try {
+      configuration = super.getConfigExceptionally();
+    } catch (Exception exception) {
+      throw new JsonParseException(
+        "Exception while parsing labymod-module configuration. Your configuration is invalid.");
+    }
+
+    this.configuration = configuration.get("config", LabyModConfiguration.class, new LabyModConfiguration(
       false,
       new ServiceDisplay(true, ServiceDisplay.DisplayType.SERVICE, "Playing on %display%"),
       new DiscordJoinMatchConfig(true, new ArrayList<>()),
@@ -86,11 +94,8 @@ public class CloudNetLabyModModule extends NodeCloudNetModule {
       this.configuration.setBannerConfig(BANNER_CONFIG);
     }
 
-    super.getConfig().append("config", this.configuration);
-
-    if (!previousConfig.equals(super.getConfig())) {
-      super.saveConfig();
-    }
+    configuration.append("config", this.configuration);
+    super.saveConfig();
   }
 
   @ModuleTask(event = ModuleLifeCycle.STARTED)

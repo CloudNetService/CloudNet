@@ -20,8 +20,6 @@ import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.JavaVersion;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.io.FileUtils;
-import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
-import de.dytanic.cloudnet.driver.serialization.SerializableObject;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import lombok.EqualsAndHashCode;
@@ -36,7 +34,7 @@ import org.jetbrains.annotations.Nullable;
  */
 @ToString
 @EqualsAndHashCode
-public class ModuleConfiguration implements SerializableObject {
+public class ModuleConfiguration {
 
   protected boolean runtimeModule;
   protected boolean storesSensitiveData;
@@ -302,53 +300,5 @@ public class ModuleConfiguration implements SerializableObject {
     if (field == null || field.trim().isEmpty()) {
       throw new ModuleConfigurationPropertyNotFoundException(fieldName);
     }
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public void write(@NotNull ProtocolBuffer buffer) {
-    buffer.writeBoolean(this.runtimeModule);
-    buffer.writeBoolean(this.storesSensitiveData);
-    buffer.writeString(this.group);
-    buffer.writeString(this.name);
-    buffer.writeString(this.version);
-    buffer.writeString(this.main);
-    buffer.writeOptionalString(this.description);
-    buffer.writeOptionalString(this.author);
-    buffer.writeOptionalString(this.website);
-    buffer.writeOptionalString(this.dataFolder);
-    buffer.writeBoolean(this.repositories != null);
-    if (this.repositories != null) {
-      buffer.writeObjectArray(this.repositories);
-    }
-    buffer.writeBoolean(this.dependencies != null);
-    if (this.dependencies != null) {
-      buffer.writeObjectArray(this.dependencies);
-    }
-    buffer.writeOptionalJsonDocument(this.properties);
-    buffer.writeShort(this.minJavaVersionId);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public void read(@NotNull ProtocolBuffer buffer) {
-    this.runtimeModule = buffer.readBoolean();
-    this.storesSensitiveData = buffer.readBoolean();
-    this.group = buffer.readString();
-    this.name = buffer.readString();
-    this.version = buffer.readString();
-    this.main = buffer.readString();
-    this.description = buffer.readOptionalString();
-    this.author = buffer.readOptionalString();
-    this.website = buffer.readOptionalString();
-    this.dataFolder = buffer.readOptionalString();
-    this.repositories = buffer.readBoolean() ? buffer.readObjectArray(ModuleRepository.class) : null;
-    this.dependencies = buffer.readBoolean() ? buffer.readObjectArray(ModuleDependency.class) : null;
-    this.properties = buffer.readOptionalJsonDocument();
-    this.minJavaVersionId = buffer.readShort();
   }
 }

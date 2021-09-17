@@ -30,7 +30,6 @@ import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.def.packet.PacketClientServerChannelMessage;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.provider.CloudMessenger;
-import de.dytanic.cloudnet.driver.provider.DefaultMessenger;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.service.ICloudService;
 import java.util.ArrayList;
@@ -38,8 +37,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.concurrent.CopyOnWriteArrayList;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
+public class NodeMessenger implements CloudMessenger {
 
   private final CloudNet cloudNet;
 
@@ -206,6 +206,19 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
   public @NotNull ITask<Collection<ChannelMessage>> sendChannelMessageQueryAsync(
     @NotNull ChannelMessage channelMessage) {
     return this.sendChannelMessageQueryAsync(channelMessage, false);
+  }
+
+  //TODO: have a look at the channel messages in the node
+  @Override
+  public @NotNull Collection<ChannelMessage> sendChannelMessageQuery(
+    @NotNull ChannelMessage channelMessage) {
+    return null;
+  }
+
+  @Override
+  public @Nullable ChannelMessage sendSingleChannelMessageQuery(
+    @NotNull ChannelMessage channelMessage) {
+    return null;
   }
 
   public @NotNull ITask<Collection<ChannelMessage>> sendChannelMessageQueryAsync(@NotNull ChannelMessage channelMessage,

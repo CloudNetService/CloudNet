@@ -16,29 +16,46 @@
 
 package de.dytanic.cloudnet.driver.network.netty;
 
-import de.dytanic.cloudnet.common.StringUtil;
+import de.dytanic.cloudnet.driver.DriverEnvironment;
+import de.dytanic.cloudnet.driver.DriverTestUtility;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.concurrent.ThreadLocalRandom;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.RepeatedTest;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 public class NettyUtilsTest {
 
   @Test
-  public void testNettyUtils() {
+  void testWrapperThreadAmount() {
+    Mockito
+      .when(DriverTestUtility.mockAndSetDriverInstance().getDriverEnvironment())
+      .thenReturn(DriverEnvironment.WRAPPER);
+
+    Assertions.assertEquals(4, NettyUtils.getThreadAmount());
+  }
+
+  @Test
+  void testNodeThreadAmount() {
+    Mockito
+      .when(DriverTestUtility.mockAndSetDriverInstance().getDriverEnvironment())
+      .thenReturn(DriverEnvironment.CLOUDNET);
+
+    Assertions.assertEquals(Runtime.getRuntime().availableProcessors() * 2, NettyUtils.getThreadAmount());
+  }
+
+  @RepeatedTest(30)
+  public void testVarIntCoding() {
     ByteBuf byteBuf = Unpooled.buffer();
+    int i = ThreadLocalRandom.current().nextInt();
 
-    int randomInt = ThreadLocalRandom.current().nextInt();
-    long randomLong = ThreadLocalRandom.current().nextLong();
-    String randomString = StringUtil.generateRandomString(10);
-
-    NettyUtils.writeVarInt(byteBuf, randomInt);
-    NettyUtils.writeVarLong(byteBuf, randomLong);
-    NettyUtils.writeString(byteBuf, randomString);
-
-    Assert.assertEquals(randomInt, NettyUtils.readVarInt(byteBuf));
-    Assert.assertEquals(randomLong, NettyUtils.readVarLong(byteBuf));
-    Assert.assertEquals(randomString, NettyUtils.readString(byteBuf));
+    try {
+      Assertions.assertNotNull(NettyUtils.writeVarInt(byteBuf, i));
+      Assertions.assertEquals(i, NettyUtils.readVarInt(byteBuf));
+    } finally {
+      byteBuf.release();
+    }
   }
 }

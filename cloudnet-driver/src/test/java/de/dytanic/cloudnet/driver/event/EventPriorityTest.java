@@ -19,27 +19,20 @@ package de.dytanic.cloudnet.driver.event;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.RepeatedTest;
 
 public class EventPriorityTest {
 
-  @Test
+  @RepeatedTest(15)
   public void testEventPriorityComparator() {
-    List<EventPriority> eventPriorities = Arrays.asList(
-      EventPriority.HIGH,
-      EventPriority.LOWEST,
-      EventPriority.LOW,
-      EventPriority.NORMAL,
-      EventPriority.HIGHEST
-    );
+    List<EventPriority> eventPriorities = Arrays.asList(EventPriority.values());
 
+    Collections.shuffle(eventPriorities);
     Collections.sort(eventPriorities);
 
-    Assert.assertEquals(EventPriority.HIGHEST, eventPriorities.get(0));
-    Assert.assertEquals(EventPriority.HIGH, eventPriorities.get(1));
-    Assert.assertEquals(EventPriority.NORMAL, eventPriorities.get(2));
-    Assert.assertEquals(EventPriority.LOW, eventPriorities.get(3));
-    Assert.assertEquals(EventPriority.LOWEST, eventPriorities.get(4));
+    for (int i = 0; i < EventPriority.values().length; i++) {
+      Assertions.assertSame(EventPriority.values()[i], eventPriorities.get(i));
+    }
   }
 }

@@ -59,7 +59,7 @@ public class DefaultSpecificTemplateStorage implements SpecificTemplateStorage {
   }
 
   @Override
-  public String getName() {
+  public @NotNull String getName() {
     return this.storage.getName();
   }
 

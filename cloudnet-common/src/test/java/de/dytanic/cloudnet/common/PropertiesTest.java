@@ -16,8 +16,8 @@
 
 package de.dytanic.cloudnet.common;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class PropertiesTest {
 
@@ -25,8 +25,9 @@ public class PropertiesTest {
   public void testPropertiesParser() {
     Properties properties = Properties.parseLine("test=true --foo -xfy");
 
-    Assert.assertEquals(3, properties.size());
-    Assert.assertTrue(properties.getBoolean("test"));
+    Assertions.assertNotNull(properties);
+    Assertions.assertEquals(3, properties.size());
+    Assertions.assertTrue(properties.getBoolean("test"));
   }
 
 }

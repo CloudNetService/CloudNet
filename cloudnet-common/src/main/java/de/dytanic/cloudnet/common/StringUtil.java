@@ -16,45 +16,52 @@
 
 package de.dytanic.cloudnet.common;
 
-import java.util.Random;
-import org.jetbrains.annotations.Nullable;
+import com.google.common.base.Preconditions;
+import java.util.concurrent.ThreadLocalRandom;
+import org.jetbrains.annotations.NotNull;
 
 /**
- * Includes string operations that are needed. Within the project and which are needed more frequently
+ * Utility class all around strings to shortcut longer methods within the project.
  */
 public final class StringUtil {
 
-
   /**
-   * A char array of all letters from A to Z and 1 to 9
+   * A char array of all letters from A to Z and 1 to 9 for the random string generation.
    */
   private static final char[] DEFAULT_ALPHABET_UPPERCASE = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".toCharArray();
-
-  private static final Random RANDOM = new Random();
 
   private StringUtil() {
     throw new UnsupportedOperationException();
   }
 
   /**
-   * Generates a random string with a array of chars
+   * Generates a random string with the provided length.
    *
-   * @param length the length of the generated string
-   * @return the string, which was build with all random chars
+   * @param length the length the generated string should have.
+   * @return the randomly generated string.
    */
-  public static String generateRandomString(int length) {
-    StringBuilder stringBuilder = new StringBuilder();
-
-    synchronized (StringUtil.class) {
-      for (int i = 0; i < length; i++) {
-        stringBuilder.append(DEFAULT_ALPHABET_UPPERCASE[RANDOM.nextInt(DEFAULT_ALPHABET_UPPERCASE.length)]);
-      }
+  public static @NotNull String generateRandomString(int length) {
+    Preconditions.checkArgument(length > 0, "Can only generate string which is longer to 0 chars");
+    // init the backing api
+    StringBuilder buffer = new StringBuilder(length);
+    ThreadLocalRandom random = ThreadLocalRandom.current();
+    // loop over the string and put a new random char from the DEFAULT_ALPHABET_UPPERCASE constant
+    for (int i = 0; i < length; i++) {
+      buffer.append(DEFAULT_ALPHABET_UPPERCASE[random.nextInt(DEFAULT_ALPHABET_UPPERCASE.length)]);
     }
-
-    return stringBuilder.toString();
+    // convert to string
+    return buffer.toString();
   }
 
-  public static boolean isNullOrEmpty(@Nullable String string) {
-    return string == null || string.isEmpty();
+  /**
+   * Checks if the given string ends with the given suffix ignoring the string casing.
+   *
+   * @param s      the string to check.
+   * @param suffix the suffix to validate the string ends with.
+   * @return {@code true} if the given string ends with the given suffix.
+   */
+  public static boolean endsWithIgnoreCase(@NotNull String s, @NotNull String suffix) {
+    int suffixLength = suffix.length();
+    return s.regionMatches(true, s.length() - suffixLength, suffix, 0, suffixLength);
   }
 }

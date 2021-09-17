@@ -18,6 +18,7 @@ package de.dytanic.cloudnet.ext.report;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
+import com.google.gson.JsonParseException;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.Properties;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
@@ -79,13 +80,21 @@ public final class CloudNetReportModule extends NodeCloudNetModule {
 
   @ModuleTask(order = 127, event = ModuleLifeCycle.STARTED)
   public void initConfig() {
-    this.getConfig().getBoolean("savingRecords", true);
-    this.getConfig().getString("recordDestinationDirectory", "records");
-    this.getConfig().getBoolean("addCustomDate", true);
-    this.getConfig().getString("dateFormat", "yyyy-MM-dd");
-    this.getConfig().get("pasteServerType", PasteServerType.class, PasteServerType.HASTE);
-    this.getConfig().getString("pasteServerUrl", "https://just-paste.it");
-    this.getConfig().getLong("serviceLifetimeLogPrint", 5000L);
+    JsonDocument configuration;
+    try {
+      configuration = super.getConfigExceptionally();
+    } catch (Exception exception) {
+      throw new JsonParseException(
+        "Exception while parsing report-module configuration. Your configuration is invalid.");
+    }
+
+    configuration.getBoolean("savingRecords", true);
+    configuration.getString("recordDestinationDirectory", "records");
+    configuration.getBoolean("addCustomDate", true);
+    configuration.getString("dateFormat", "yyyy-MM-dd");
+    configuration.get("pasteServerType", PasteServerType.class, PasteServerType.HASTE);
+    configuration.getString("pasteServerUrl", "https://just-paste.it");
+    configuration.getLong("serviceLifetimeLogPrint", 5000L);
     this.saveConfig();
     String dateFormat = this.getConfig().getString("dateFormat");
     if (dateFormat != null && this.getConfig().getBoolean("addCustomDate")) {

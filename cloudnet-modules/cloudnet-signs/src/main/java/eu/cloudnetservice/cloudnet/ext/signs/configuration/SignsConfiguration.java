@@ -17,8 +17,6 @@
 package eu.cloudnetservice.cloudnet.ext.signs.configuration;
 
 import com.google.common.collect.ImmutableMap;
-import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
-import de.dytanic.cloudnet.driver.serialization.SerializableObject;
 import eu.cloudnetservice.cloudnet.ext.signs.node.configuration.SignConfigurationType;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -30,7 +28,7 @@ import java.util.function.Function;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class SignsConfiguration implements SerializableObject {
+public class SignsConfiguration {
 
   public static final Map<String, String> DEFAULT_MESSAGES = ImmutableMap.<String, String>builder()
     .put("server-connecting-message", "§7You will be moved to §c%server%§7...")
@@ -100,17 +98,5 @@ public class SignsConfiguration implements SerializableObject {
 
   public void setConfigurationEntries(Collection<SignConfigurationEntry> configurationEntries) {
     this.configurationEntries = configurationEntries;
-  }
-
-  @Override
-  public void write(@NotNull ProtocolBuffer buffer) {
-    buffer.writeStringMap(this.messages);
-    buffer.writeObjectCollection(this.configurationEntries);
-  }
-
-  @Override
-  public void read(@NotNull ProtocolBuffer buffer) {
-    this.messages = buffer.readStringMap();
-    this.configurationEntries = buffer.readObjectCollection(SignConfigurationEntry.class);
   }
 }

@@ -18,13 +18,11 @@ package de.dytanic.cloudnet.driver.service;
 
 import com.google.common.collect.ComparisonChain;
 import de.dytanic.cloudnet.common.INameable;
+import de.dytanic.cloudnet.common.document.gson.BasicJsonDocPropertyable;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
-import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
-import de.dytanic.cloudnet.driver.serialization.SerializableObject;
-import de.dytanic.cloudnet.driver.serialization.json.SerializableJsonDocPropertyable;
 import de.dytanic.cloudnet.driver.service.property.ServiceProperty;
 import java.lang.reflect.Type;
 import java.util.Optional;
@@ -35,38 +33,57 @@ import org.jetbrains.annotations.Nullable;
 
 @ToString
 @EqualsAndHashCode(callSuper = false)
-public class ServiceInfoSnapshot extends SerializableJsonDocPropertyable implements INameable,
-  Comparable<ServiceInfoSnapshot>, SerializableObject {
+public class ServiceInfoSnapshot extends BasicJsonDocPropertyable implements INameable,
+  Comparable<ServiceInfoSnapshot> {
 
+  @Deprecated
   public static final Type TYPE = ServiceInfoSnapshot.class;
 
   protected long creationTime;
-
-  protected HostAndPort address;
-
-  protected HostAndPort connectAddress;
-
   protected long connectedTime;
 
-  protected ServiceLifeCycle lifeCycle;
+  protected HostAndPort address;
+  protected HostAndPort connectAddress;
 
+  protected ServiceLifeCycle lifeCycle;
   protected ProcessSnapshot processSnapshot;
 
   protected ServiceConfiguration configuration;
 
-  public ServiceInfoSnapshot(long creationTime, HostAndPort address, long connectedTime, ServiceLifeCycle lifeCycle,
-    ProcessSnapshot processSnapshot, ServiceConfiguration configuration) {
+  public ServiceInfoSnapshot(
+    long creationTime,
+    HostAndPort address,
+    long connectedTime,
+    ServiceLifeCycle lifeCycle,
+    ProcessSnapshot processSnapshot,
+    ServiceConfiguration configuration
+  ) {
     this(creationTime, address, connectedTime, lifeCycle, processSnapshot, JsonDocument.newDocument(), configuration);
   }
 
-  public ServiceInfoSnapshot(long creationTime, HostAndPort address, long connectedTime, ServiceLifeCycle lifeCycle,
-    ProcessSnapshot processSnapshot, JsonDocument properties, ServiceConfiguration configuration) {
-    this(creationTime, address, address, connectedTime, lifeCycle, processSnapshot, properties, configuration);
+  public ServiceInfoSnapshot(
+    long creationTime,
+    HostAndPort address,
+    long connectedTime,
+    ServiceLifeCycle lifeCycle,
+    ProcessSnapshot processSnapshot,
+    JsonDocument properties,
+    ServiceConfiguration configuration
+  ) {
+    this(creationTime, connectedTime, address, address, lifeCycle, processSnapshot, configuration, properties);
   }
 
-  public ServiceInfoSnapshot(long creationTime, HostAndPort address, HostAndPort connectAddress, long connectedTime,
-    ServiceLifeCycle lifeCycle, ProcessSnapshot processSnapshot, JsonDocument properties,
-    ServiceConfiguration configuration) {
+  @Deprecated
+  public ServiceInfoSnapshot(
+    long creationTime,
+    HostAndPort address,
+    HostAndPort connectAddress,
+    long connectedTime,
+    ServiceLifeCycle lifeCycle,
+    ProcessSnapshot processSnapshot,
+    ServiceConfiguration configuration,
+    JsonDocument properties
+  ) {
     this.creationTime = creationTime;
     this.address = address;
     this.connectAddress = connectAddress;
@@ -77,7 +94,24 @@ public class ServiceInfoSnapshot extends SerializableJsonDocPropertyable impleme
     this.configuration = configuration;
   }
 
-  public ServiceInfoSnapshot() {
+  public ServiceInfoSnapshot(
+    long creationTime,
+    long connectedTime,
+    HostAndPort address,
+    HostAndPort connectAddress,
+    ServiceLifeCycle lifeCycle,
+    ProcessSnapshot processSnapshot,
+    ServiceConfiguration configuration,
+    JsonDocument properties
+  ) {
+    this.creationTime = creationTime;
+    this.connectedTime = connectedTime;
+    this.address = address;
+    this.connectAddress = connectAddress;
+    this.lifeCycle = lifeCycle;
+    this.processSnapshot = processSnapshot;
+    this.configuration = configuration;
+    this.properties = properties;
   }
 
   /**
@@ -213,7 +247,7 @@ public class ServiceInfoSnapshot extends SerializableJsonDocPropertyable impleme
    * @return the name of this ServiceInfoSnapshot (e.g. "Lobby-187")
    */
   @Override
-  public String getName() {
+  public @NotNull String getName() {
     return this.getServiceId().getName();
   }
 
@@ -223,31 +257,5 @@ public class ServiceInfoSnapshot extends SerializableJsonDocPropertyable impleme
       .compare(this.getServiceId().getTaskName(), serviceInfoSnapshot.getServiceId().getTaskName())
       .compare(this.getServiceId().getTaskServiceId(), serviceInfoSnapshot.getServiceId().getTaskServiceId())
       .result();
-  }
-
-  @Override
-  public void write(@NotNull ProtocolBuffer buffer) {
-    buffer.writeLong(this.creationTime);
-    buffer.writeObject(this.address);
-    buffer.writeObject(this.connectAddress);
-    buffer.writeLong(this.connectedTime);
-    buffer.writeEnumConstant(this.lifeCycle);
-    buffer.writeObject(this.processSnapshot);
-    buffer.writeObject(this.configuration);
-
-    super.write(buffer);
-  }
-
-  @Override
-  public void read(@NotNull ProtocolBuffer buffer) {
-    this.creationTime = buffer.readLong();
-    this.address = buffer.readObject(HostAndPort.class);
-    this.connectAddress = buffer.readObject(HostAndPort.class);
-    this.connectedTime = buffer.readLong();
-    this.lifeCycle = buffer.readEnumConstant(ServiceLifeCycle.class);
-    this.processSnapshot = buffer.readObject(ProcessSnapshot.class);
-    this.configuration = buffer.readObject(ServiceConfiguration.class);
-
-    super.read(buffer);
   }
 }

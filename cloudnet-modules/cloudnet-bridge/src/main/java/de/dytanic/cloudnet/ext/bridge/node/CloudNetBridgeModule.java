@@ -16,6 +16,7 @@
 
 package de.dytanic.cloudnet.ext.bridge.node;
 
+import com.google.gson.JsonParseException;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.driver.module.ModuleLifeCycle;
@@ -63,15 +64,23 @@ public final class CloudNetBridgeModule extends NodeCloudNetModule {
   public void createConfiguration() {
     FileUtils.createDirectoryReported(this.getModuleWrapper().getDataDirectory());
 
-    this.bridgeConfiguration = this.getConfig().get("config", BridgeConfiguration.class, new BridgeConfiguration());
+    JsonDocument configuration;
+    try {
+      configuration = super.getConfigExceptionally();
+    } catch (Exception exception) {
+      throw new JsonParseException(
+        "Exception while parsing bridge-module configuration. Your configuration is invalid.");
+    }
+
+    this.bridgeConfiguration = configuration.get("config", BridgeConfiguration.class, new BridgeConfiguration());
     for (Map.Entry<String, String> entry : BridgeConfiguration.DEFAULT_MESSAGES.entrySet()) {
       if (!this.bridgeConfiguration.getMessages().containsKey(entry.getKey())) {
         this.bridgeConfiguration.getMessages().put(entry.getKey(), entry.getValue());
       }
     }
 
-    this.getConfig().append("config", this.bridgeConfiguration);
-    this.saveConfig();
+    configuration.append("config", this.bridgeConfiguration);
+    super.saveConfig();
   }
 
   public ProxyFallbackConfiguration createDefaultFallbackConfiguration(String targetGroup) {

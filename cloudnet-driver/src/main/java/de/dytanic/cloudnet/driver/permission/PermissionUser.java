@@ -17,7 +17,6 @@
 package de.dytanic.cloudnet.driver.permission;
 
 import de.dytanic.cloudnet.common.encrypt.EncryptTo;
-import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -79,26 +78,6 @@ public class PermissionUser extends AbstractPermissible implements IPermissionUs
 
   public String getHashedPassword() {
     return this.hashedPassword;
-  }
-
-  @Override
-  public void write(@NotNull ProtocolBuffer buffer) {
-    super.write(buffer);
-
-    buffer.writeUUID(this.uniqueId);
-    buffer.writeObjectCollection(this.groups);
-
-    buffer.writeOptionalString(this.hashedPassword);
-  }
-
-  @Override
-  public void read(@NotNull ProtocolBuffer buffer) {
-    super.read(buffer);
-
-    this.uniqueId = buffer.readUUID();
-    this.groups = buffer.readObjectCollection(PermissionUserGroupInfo.class);
-
-    this.hashedPassword = buffer.readOptionalString();
   }
 
   @Override

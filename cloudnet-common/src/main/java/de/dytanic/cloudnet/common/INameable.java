@@ -16,16 +16,18 @@
 
 package de.dytanic.cloudnet.common;
 
+import org.jetbrains.annotations.NotNull;
+
 /**
- * Allows a class, to has a name removes the declaration that a class should have a name
+ * Represents a class which is identified by a name.
  */
+@FunctionalInterface
 public interface INameable {
 
   /**
-   * Returns the name of the current class instance
+   * Get the name of this instance.
    *
-   * @return the name of the instance and cannot be null
+   * @return the name of this instance.
    */
-  String getName();
-
+  @NotNull String getName();
 }

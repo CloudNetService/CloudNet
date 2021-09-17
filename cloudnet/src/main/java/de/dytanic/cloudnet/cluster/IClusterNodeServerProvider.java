@@ -16,13 +16,19 @@
 
 package de.dytanic.cloudnet.cluster;
 
+import de.dytanic.cloudnet.common.concurrent.ITask;
+import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
+import de.dytanic.cloudnet.driver.network.chunk.TransferStatus;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkCluster;
 import de.dytanic.cloudnet.driver.network.protocol.IPacketSender;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.Collection;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -68,8 +74,20 @@ public interface IClusterNodeServerProvider extends NodeServerProvider<IClusterN
    *
    * @param serviceTemplate the specific template prefix and name configuration
    * @param inputStream     the template data as a zip archive
+   * @deprecated Use {@link #deployTemplateToCluster(ServiceTemplate, InputStream)} instead.
    */
-  void deployTemplateInCluster(@NotNull ServiceTemplate serviceTemplate, @NotNull InputStream inputStream);
+  default void deployTemplateInCluster(@NotNull ServiceTemplate serviceTemplate, @NotNull InputStream inputStream) {
+    try {
+      this.deployTemplateToCluster(serviceTemplate, inputStream).get(10, TimeUnit.SECONDS);
+    } catch (InterruptedException | TimeoutException | ExecutionException exception) {
+      LogManager
+        .getLogger(IClusterNodeServerProvider.class)
+        .severe("Unable to deploy template in cluster", exception);
+    }
+  }
+
+  @NotNull
+  ITask<TransferStatus> deployTemplateToCluster(@NotNull ServiceTemplate template, @NotNull InputStream stream);
 
   /**
    * Get all node server network channels which are currently connected and recognized by this provider.

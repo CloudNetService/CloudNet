@@ -33,6 +33,10 @@ import de.dytanic.cloudnet.driver.event.IEventManager;
 import de.dytanic.cloudnet.driver.module.DefaultModuleProvider;
 import de.dytanic.cloudnet.driver.module.IModuleProvider;
 import de.dytanic.cloudnet.driver.network.INetworkClient;
+import de.dytanic.cloudnet.driver.network.buffer.DataBufFactory;
+import de.dytanic.cloudnet.driver.network.rpc.RPCProviderFactory;
+import de.dytanic.cloudnet.driver.network.rpc.defaults.DefaultRPCProviderFactory;
+import de.dytanic.cloudnet.driver.network.rpc.defaults.object.DefaultObjectMapper;
 import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
 import de.dytanic.cloudnet.driver.provider.CloudMessenger;
 import de.dytanic.cloudnet.driver.provider.GroupConfigurationProvider;
@@ -65,6 +69,8 @@ public abstract class CloudNetDriver {
   protected final IModuleProvider moduleProvider = new DefaultModuleProvider();
   protected final IServicesRegistry servicesRegistry = new DefaultServicesRegistry();
   protected final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(4);
+  protected final RPCProviderFactory rpcProviderFactory = new DefaultRPCProviderFactory(new DefaultObjectMapper(),
+    DataBufFactory.defaultFactory());
 
   @Deprecated
   protected final ITaskScheduler taskScheduler = new DefaultTaskScheduler();
@@ -107,7 +113,10 @@ public abstract class CloudNetDriver {
    * The CloudNetDriver instance won't be null usually, this method is only relevant for tests
    *
    * @return optional CloudNetDriver
+   * @deprecated In the runtime the driver instance is always present, use {@link #getInstance()} instead.
    */
+  @Deprecated
+  @ScheduledForRemoval
   public static Optional<CloudNetDriver> optionalInstance() {
     return Optional.ofNullable(CloudNetDriver.instance);
   }
@@ -246,7 +255,7 @@ public abstract class CloudNetDriver {
    * @return the new instance of the {@link SpecificCloudServiceProvider}
    */
   @NotNull
-  public abstract SpecificCloudServiceProvider getCloudServiceProvider(@NotNull String name);
+  public abstract SpecificCloudServiceProvider getCloudServiceProvider(@NotNull String name); // todo: deprecate
 
   /**
    * Returns a new service specific CloudServiceProvider
@@ -255,7 +264,7 @@ public abstract class CloudNetDriver {
    * @return the new instance of the {@link SpecificCloudServiceProvider}
    */
   @NotNull
-  public abstract SpecificCloudServiceProvider getCloudServiceProvider(@NotNull UUID uniqueId);
+  public abstract SpecificCloudServiceProvider getCloudServiceProvider(@NotNull UUID uniqueId); // todo: deprecate
 
   /**
    * Returns a new service specific CloudServiceProvider
@@ -265,7 +274,7 @@ public abstract class CloudNetDriver {
    */
   @NotNull
   public abstract SpecificCloudServiceProvider getCloudServiceProvider(
-    @NotNull ServiceInfoSnapshot serviceInfoSnapshot);
+    @NotNull ServiceInfoSnapshot serviceInfoSnapshot); // todo: deprecate
 
   /**
    * Returns the general CloudServiceProvider
@@ -427,6 +436,10 @@ public abstract class CloudNetDriver {
   @ScheduledForRemoval
   public ILogger getLogger() {
     return this.iLogger;
+  }
+
+  public RPCProviderFactory getRPCProviderFactory() {
+    return this.rpcProviderFactory;
   }
 
   /**

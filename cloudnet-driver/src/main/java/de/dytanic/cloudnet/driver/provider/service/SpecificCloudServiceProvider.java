@@ -16,6 +16,7 @@
 
 package de.dytanic.cloudnet.driver.provider.service;
 
+import de.dytanic.cloudnet.common.concurrent.CompletableTask;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.driver.service.ServiceDeployment;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
@@ -177,16 +178,18 @@ public interface SpecificCloudServiceProvider {
    * @return the info or {@code null}, if the service doesn't exist
    * @throws IllegalArgumentException if no uniqueId/name/serviceInfo was given on creating this provider
    */
-  @NotNull
-  ITask<ServiceInfoSnapshot> getServiceInfoSnapshotAsync();
+  default @NotNull ITask<ServiceInfoSnapshot> getServiceInfoSnapshotAsync() {
+    return CompletableTask.supplyAsync(this::getServiceInfoSnapshot);
+  }
 
   /**
    * Checks whether the service info on this provider is available or not.
    *
    * @return {@code true} if it is or {@code false} if not
    */
-  @NotNull
-  ITask<Boolean> isValidAsync();
+  default @NotNull ITask<Boolean> isValidAsync() {
+    return CompletableTask.supplyAsync(this::isValid);
+  }
 
   /**
    * Forces this service to update its {@link ServiceInfoSnapshot}, instead of {@link #getServiceInfoSnapshot()}, this
@@ -195,8 +198,9 @@ public interface SpecificCloudServiceProvider {
    * @return the current info or {@code null} if the service is not connected
    * @throws IllegalArgumentException if no uniqueId/name/serviceInfo was given on creating this provider
    */
-  @NotNull
-  ITask<ServiceInfoSnapshot> forceUpdateServiceInfoAsync();
+  default @NotNull ITask<ServiceInfoSnapshot> forceUpdateServiceInfoAsync() {
+    return CompletableTask.supplyAsync(this::forceUpdateServiceInfo);
+  }
 
   /**
    * Adds a service template to this service. This template won't be copied directly after adding it but when the
@@ -204,8 +208,9 @@ public interface SpecificCloudServiceProvider {
    *
    * @param serviceTemplate the template to be added to the list of templates of this service
    */
-  @NotNull
-  ITask<Void> addServiceTemplateAsync(@NotNull ServiceTemplate serviceTemplate);
+  default @NotNull ITask<Void> addServiceTemplateAsync(@NotNull ServiceTemplate serviceTemplate) {
+    return CompletableTask.supplyAsync(() -> this.addServiceTemplate(serviceTemplate));
+  }
 
   /**
    * Adds a remote inclusion to this service. This remote inclusion won't be included directly after adding it but when
@@ -213,8 +218,9 @@ public interface SpecificCloudServiceProvider {
    *
    * @param serviceRemoteInclusion the inclusion to be added to the list of inclusions of this service
    */
-  @NotNull
-  ITask<Void> addServiceRemoteInclusionAsync(@NotNull ServiceRemoteInclusion serviceRemoteInclusion);
+  default @NotNull ITask<Void> addServiceRemoteInclusionAsync(@NotNull ServiceRemoteInclusion serviceRemoteInclusion) {
+    return CompletableTask.supplyAsync(() -> this.addServiceRemoteInclusion(serviceRemoteInclusion));
+  }
 
   /**
    * Adds a deployment to this service, which will be used when {@link #deployResources()} or {@link
@@ -222,8 +228,9 @@ public interface SpecificCloudServiceProvider {
    *
    * @param serviceDeployment the deployment to be added to the list of deployments of this service
    */
-  @NotNull
-  ITask<Void> addServiceDeploymentAsync(@NotNull ServiceDeployment serviceDeployment);
+  default @NotNull ITask<Void> addServiceDeploymentAsync(@NotNull ServiceDeployment serviceDeployment) {
+    return CompletableTask.supplyAsync(() -> this.addServiceDeployment(serviceDeployment));
+  }
 
   /**
    * Gets a queue containing the last messages of this services console. The max size of this queue can be configured in
@@ -231,8 +238,9 @@ public interface SpecificCloudServiceProvider {
    *
    * @return a queue with the cached messages of this services console
    */
-  @NotNull
-  ITask<Queue<String>> getCachedLogMessagesAsync();
+  default @NotNull ITask<Queue<String>> getCachedLogMessagesAsync() {
+    return CompletableTask.supplyAsync(this::getCachedLogMessages);
+  }
 
   /**
    * Stops this service by executing the "stop" and "end" commands in its console if it is running.
@@ -264,29 +272,33 @@ public interface SpecificCloudServiceProvider {
    *
    * @param lifeCycle the lifeCycle to be set
    */
-  @NotNull
-  ITask<Void> setCloudServiceLifeCycleAsync(@NotNull ServiceLifeCycle lifeCycle);
+  default @NotNull ITask<Void> setCloudServiceLifeCycleAsync(@NotNull ServiceLifeCycle lifeCycle) {
+    return CompletableTask.supplyAsync(() -> this.setCloudServiceLifeCycle(lifeCycle));
+  }
 
   /**
    * Stops this service like {@link #stop()} and starts it after it like {@link #start()}.
    */
-  @NotNull
-  ITask<Void> restartAsync();
+  default @NotNull ITask<Void> restartAsync() {
+    return CompletableTask.supplyAsync(this::restart);
+  }
 
   /**
    * Tries to stop this service like {@link #stop()} but if the service is still running after 5 seconds, it is
    * destroyed forcibly
    */
-  @NotNull
-  ITask<Void> killAsync();
+  default @NotNull ITask<Void> killAsync() {
+    return CompletableTask.supplyAsync(this::kill);
+  }
 
   /**
    * Executes the given command in the console of this service if it is running
    *
    * @param command the command to be executed
    */
-  @NotNull
-  ITask<Void> runCommandAsync(@NotNull String command);
+  default @NotNull ITask<Void> runCommandAsync(@NotNull String command) {
+    return CompletableTask.supplyAsync(() -> this.runCommand(command));
+  }
 
   /**
    * Copies all templates of this service into the directory where this service is located in
@@ -294,8 +306,9 @@ public interface SpecificCloudServiceProvider {
    * @see #addServiceTemplate(ServiceTemplate)
    * @see #addServiceTemplateAsync(ServiceTemplate)
    */
-  @NotNull
-  ITask<Void> includeWaitingServiceTemplatesAsync();
+  default @NotNull ITask<Void> includeWaitingServiceTemplatesAsync() {
+    return CompletableTask.supplyAsync(this::includeWaitingServiceTemplates);
+  }
 
   /**
    * Copies all inclusions of this service into the directory where this service is located in
@@ -303,8 +316,9 @@ public interface SpecificCloudServiceProvider {
    * @see #addServiceRemoteInclusion(ServiceRemoteInclusion)
    * @see #addServiceRemoteInclusionAsync(ServiceRemoteInclusion)
    */
-  @NotNull
-  ITask<Void> includeWaitingServiceInclusionsAsync();
+  default @NotNull ITask<Void> includeWaitingServiceInclusionsAsync() {
+    return CompletableTask.supplyAsync(this::includeWaitingServiceInclusions);
+  }
 
   /**
    * Writes all deployments to their defined templates of this service.
@@ -313,8 +327,9 @@ public interface SpecificCloudServiceProvider {
    * @see #addServiceDeployment(ServiceDeployment)
    * @see #addServiceDeploymentAsync(ServiceDeployment)
    */
-  @NotNull
-  ITask<Void> deployResourcesAsync(boolean removeDeployments);
+  default @NotNull ITask<Void> deployResourcesAsync(boolean removeDeployments) {
+    return CompletableTask.supplyAsync(() -> this.deployResources(removeDeployments));
+  }
 
   /**
    * Writes all deployments to their defined templates of this service and removes them after writing.
@@ -322,9 +337,7 @@ public interface SpecificCloudServiceProvider {
    * @see #addServiceDeployment(ServiceDeployment)
    * @see #addServiceDeploymentAsync(ServiceDeployment)
    */
-  @NotNull
-  default ITask<Void> deployResourcesAsync() {
+  default @NotNull ITask<Void> deployResourcesAsync() {
     return this.deployResourcesAsync(true);
   }
-
 }

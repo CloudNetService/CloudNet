@@ -16,15 +16,13 @@
 
 package de.dytanic.cloudnet.driver.network.def.packet;
 
-import de.dytanic.cloudnet.driver.network.def.PacketConstants;
 import de.dytanic.cloudnet.driver.network.protocol.Packet;
-import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import org.jetbrains.annotations.NotNull;
 
 public class PacketServerSetGlobalLogLevel extends Packet {
 
   public PacketServerSetGlobalLogLevel(@NotNull String levelName) {
-    super(PacketConstants.INTERNAL_DEBUGGING_CHANNEL, ProtocolBuffer.create().writeString(levelName));
+    //TODO:  super(PacketConstants.INTERNAL_DEBUGGING_CHANNEL, ProtocolBuffer.create().writeString(levelName));
   }
 
 }

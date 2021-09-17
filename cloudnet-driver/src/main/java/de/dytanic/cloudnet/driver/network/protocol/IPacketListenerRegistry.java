@@ -18,6 +18,10 @@ package de.dytanic.cloudnet.driver.network.protocol;
 
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import java.util.Collection;
+import java.util.Map;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnmodifiableView;
 
 /**
  * The packet listener registry allows to manage listeners that can handle input packet messages.
@@ -27,7 +31,7 @@ public interface IPacketListenerRegistry {
   /**
    * Returns the parent PacketListenerRegistry implementation instance if exists
    */
-  IPacketListenerRegistry getParent();
+  @Nullable IPacketListenerRegistry getParent();
 
   /**
    * Adds a new listeners for packets that are received on a specific channel
@@ -35,7 +39,7 @@ public interface IPacketListenerRegistry {
    * @param channel   the channel, that the listener should listen on
    * @param listeners the listeners that should be add for this channel
    */
-  void addListener(int channel, IPacketListener... listeners);
+  void addListener(int channel, @NotNull IPacketListener... listeners);
 
   /**
    * Removes the listeners if they are registered on this listener registry. If the listeners items are null, then it
@@ -44,7 +48,7 @@ public interface IPacketListenerRegistry {
    * @param channel   the channel, that the listener should listen on
    * @param listeners the listeners, that should remove on this registry
    */
-  void removeListener(int channel, IPacketListener... listeners);
+  void removeListener(int channel, @NotNull IPacketListener... listeners);
 
   /**
    * Removes all listeners on a specific channel
@@ -58,12 +62,15 @@ public interface IPacketListenerRegistry {
    *
    * @param classLoader the classLoader, from that all listeners that are contained on the registry should remove
    */
-  void removeListeners(ClassLoader classLoader);
+  void removeListeners(@NotNull ClassLoader classLoader);
 
   /**
    * Returns true if the a specific listener class is contain in this registry
    */
-  boolean hasListener(Class<? extends IPacketListener> clazz);
+  @Deprecated
+  boolean hasListener(@NotNull Class<? extends IPacketListener> clazz);
+
+  boolean hasListeners(int channel);
 
   /**
    * Removes all listeners by all channel from the registry
@@ -73,12 +80,17 @@ public interface IPacketListenerRegistry {
   /**
    * Returns all channelIds that the packet listener registry has listeners registered
    */
-  Collection<Integer> getChannels();
+  @NotNull
+  @UnmodifiableView Collection<Integer> getChannels();
 
   /**
    * Returns all listeners by all channels from the registry
    */
-  Collection<IPacketListener> getListeners();
+  @NotNull
+  @UnmodifiableView Collection<IPacketListener> getListeners();
+
+  @NotNull
+  @UnmodifiableView Map<Integer, Collection<IPacketListener>> getPacketListeners();
 
   /**
    * Handles an incoming packet and invoke all listeners that are registered in this registry
@@ -86,5 +98,5 @@ public interface IPacketListenerRegistry {
    * @param channel the channel, from that the packet was received
    * @param packet  the packet that should handle
    */
-  void handlePacket(INetworkChannel channel, IPacket packet);
+  void handlePacket(@NotNull INetworkChannel channel, @NotNull IPacket packet);
 }

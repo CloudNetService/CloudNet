@@ -16,6 +16,7 @@
 
 package de.dytanic.cloudnet.driver.provider;
 
+import de.dytanic.cloudnet.common.concurrent.CompletableTask;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.driver.service.ServiceTask;
 import java.util.Collection;
@@ -89,7 +90,9 @@ public interface ServiceTaskProvider {
    * Reloads all tasks
    */
   @NotNull
-  ITask<Void> reloadAsync();
+  default ITask<Void> reloadAsync() {
+    return CompletableTask.supplyAsync(this::reload);
+  }
 
   /**
    * Gets all tasks that are registered in the cloud
@@ -97,7 +100,9 @@ public interface ServiceTaskProvider {
    * @return a list containing the task configurations of all tasks
    */
   @NotNull
-  ITask<Collection<ServiceTask>> getPermanentServiceTasksAsync();
+  default ITask<Collection<ServiceTask>> getPermanentServiceTasksAsync() {
+    return CompletableTask.supplyAsync(this::getPermanentServiceTasks);
+  }
 
   /**
    * Clears all existing service tasks and sets the given collection as the new service tasks
@@ -105,7 +110,9 @@ public interface ServiceTaskProvider {
    * @param serviceTasks the new service tasks
    */
   @NotNull
-  ITask<Void> setPermanentServiceTasksAsync(@NotNull Collection<ServiceTask> serviceTasks);
+  default ITask<Void> setPermanentServiceTasksAsync(@NotNull Collection<ServiceTask> serviceTasks) {
+    return CompletableTask.supplyAsync(() -> this.setPermanentServiceTasks(serviceTasks));
+  }
 
   /**
    * Gets a specific task by its name
@@ -114,7 +121,9 @@ public interface ServiceTaskProvider {
    * @return the task or {@code null} if no task with that name exists
    */
   @NotNull
-  ITask<ServiceTask> getServiceTaskAsync(@NotNull String name);
+  default ITask<ServiceTask> getServiceTaskAsync(@NotNull String name) {
+    return CompletableTask.supplyAsync(() -> this.getServiceTask(name));
+  }
 
   /**
    * Checks whether the task with a specific name exists
@@ -123,7 +132,9 @@ public interface ServiceTaskProvider {
    * @return {@code true} if the task exists or {@code false} otherwise
    */
   @NotNull
-  ITask<Boolean> isServiceTaskPresentAsync(@NotNull String name);
+  default ITask<Boolean> isServiceTaskPresentAsync(@NotNull String name) {
+    return CompletableTask.supplyAsync(() -> this.isServiceTaskPresent(name));
+  }
 
   /**
    * Adds a new task to the cloud
@@ -131,7 +142,9 @@ public interface ServiceTaskProvider {
    * @param serviceTask the task to be added
    */
   @NotNull
-  ITask<Boolean> addPermanentServiceTaskAsync(@NotNull ServiceTask serviceTask);
+  default ITask<Boolean> addPermanentServiceTaskAsync(@NotNull ServiceTask serviceTask) {
+    return CompletableTask.supplyAsync(() -> this.addPermanentServiceTask(serviceTask));
+  }
 
   /**
    * Removes a task from the cloud
@@ -139,7 +152,9 @@ public interface ServiceTaskProvider {
    * @param name the name of the task to be removed
    */
   @NotNull
-  ITask<Void> removePermanentServiceTaskAsync(@NotNull String name);
+  default ITask<Void> removePermanentServiceTaskAsync(@NotNull String name) {
+    return CompletableTask.supplyAsync(() -> this.removePermanentServiceTask(name));
+  }
 
   /**
    * Removes a task from the cloud
@@ -148,6 +163,8 @@ public interface ServiceTaskProvider {
    *                    ignored)
    */
   @NotNull
-  ITask<Void> removePermanentServiceTaskAsync(@NotNull ServiceTask serviceTask);
+  default ITask<Void> removePermanentServiceTaskAsync(@NotNull ServiceTask serviceTask) {
+    return this.removePermanentServiceTaskAsync(serviceTask.getName());
+  }
 
 }

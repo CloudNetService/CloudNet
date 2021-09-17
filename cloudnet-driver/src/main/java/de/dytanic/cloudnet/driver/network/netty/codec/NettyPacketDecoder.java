@@ -16,17 +16,15 @@
 
 package de.dytanic.cloudnet.driver.network.netty.codec;
 
-import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
+import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import de.dytanic.cloudnet.driver.network.netty.NettyUtils;
-import de.dytanic.cloudnet.driver.network.protocol.IPacket;
+import de.dytanic.cloudnet.driver.network.netty.buffer.NettyImmutableDataBuf;
 import de.dytanic.cloudnet.driver.network.protocol.Packet;
-import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.UUID;
 import org.jetbrains.annotations.ApiStatus;
@@ -38,48 +36,22 @@ public final class NettyPacketDecoder extends ByteToMessageDecoder {
 
   @Override
   protected void decode(ChannelHandlerContext ctx, ByteBuf byteBuf, List<Object> out) {
-    if (ctx != null && (!ctx.channel().isActive() || !byteBuf.isReadable())) {
+    if (!ctx.channel().isActive() || !byteBuf.isReadable()) {
       byteBuf.clear();
       return;
     }
 
     try {
       int channel = NettyUtils.readVarInt(byteBuf);
-      UUID uniqueId = new UUID(byteBuf.readLong(), byteBuf.readLong());
-      JsonDocument header = this.readHeader(byteBuf);
-      ProtocolBuffer body = ProtocolBuffer.wrap(NettyUtils.readByteArray(byteBuf, NettyUtils.readVarInt(byteBuf)));
+      UUID queryUniqueId = byteBuf.readBoolean() ? new UUID(byteBuf.readLong(), byteBuf.readLong()) : null;
+      DataBuf body = new NettyImmutableDataBuf(byteBuf.readBytes(NettyUtils.readVarInt(byteBuf)));
 
-      Packet packet = new Packet(channel, uniqueId, header, body);
+      Packet packet = new Packet(channel, body);
+      packet.setUniqueId(queryUniqueId);
+
       out.add(packet);
-
-      this.showDebug(packet);
     } catch (Exception exception) {
       LOGGER.severe("Exception while decoding packet", exception);
-    }
-  }
-
-  private void showDebug(IPacket packet) {
-    if (packet.isShowDebug()) {
-      LOGGER.fine(
-        String.format(
-          "Successfully decoded packet on channel %d with id %s, header=%s;body=%d",
-          packet.getChannel(),
-          packet.getUniqueId(),
-          packet.getHeader().toJson(),
-          packet.getBuffer() != null ? packet.getBuffer().readableBytes() : 0
-        )
-      );
-    }
-  }
-
-  private JsonDocument readHeader(ByteBuf buf) {
-    int length = NettyUtils.readVarInt(buf);
-    if (length == 0) {
-      return JsonDocument.EMPTY;
-    } else {
-      byte[] content = new byte[length];
-      buf.readBytes(content);
-      return JsonDocument.newDocument(new String(content, StandardCharsets.UTF_8));
     }
   }
 }

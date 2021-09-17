@@ -16,9 +16,7 @@
 
 package de.dytanic.cloudnet.ext.bridge;
 
-import de.dytanic.cloudnet.common.document.gson.BasicJsonDocPropertyable;
-
-public class PluginInfo extends BasicJsonDocPropertyable {
+public class PluginInfo {
 
   private final String name;
   private final String version;

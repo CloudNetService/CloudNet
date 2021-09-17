@@ -16,27 +16,28 @@
 
 package de.dytanic.cloudnet.driver.network.netty;
 
+import de.dytanic.cloudnet.common.concurrent.CompletableTask;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
+import de.dytanic.cloudnet.driver.network.netty.buffer.NettyImmutableDataBuf;
+import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.network.protocol.Packet;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.UUID;
 import java.util.concurrent.Executor;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.NotNull;
 
 @ApiStatus.Internal
 public abstract class NettyNetworkHandler extends SimpleChannelInboundHandler<Packet> {
 
   private static final Logger LOGGER = LogManager.getLogger(NettyNetworkHandler.class);
 
-  protected NettyNetworkChannel channel;
-
-  protected abstract Collection<INetworkChannel> getChannels();
-
-  protected abstract Executor getPacketDispatcher();
+  protected volatile NettyNetworkChannel channel;
 
   @Override
   public void channelInactive(ChannelHandlerContext ctx) throws Exception {
@@ -53,12 +54,12 @@ public abstract class NettyNetworkHandler extends SimpleChannelInboundHandler<Pa
   @Override
   public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
     if (!(cause instanceof IOException)) {
-      LOGGER.severe("Exception was caught", cause);
+      LOGGER.severe("Exception in network handler", cause);
     }
   }
 
   @Override
-  public void channelReadComplete(ChannelHandlerContext ctx) {
+  public void channelReadComplete(@NotNull ChannelHandlerContext ctx) {
     ctx.flush();
   }
 
@@ -66,12 +67,28 @@ public abstract class NettyNetworkHandler extends SimpleChannelInboundHandler<Pa
   protected void channelRead0(ChannelHandlerContext ctx, Packet msg) {
     this.getPacketDispatcher().execute(() -> {
       try {
+        UUID uuid = msg.getUniqueId();
+        if (uuid != null) {
+          CompletableTask<IPacket> task = this.channel.getQueryPacketManager().getWaitingHandler(uuid);
+          if (task != null) {
+            task.complete(msg);
+            // don't post a query response packet to another handler at all
+            return;
+          }
+        }
+
         if (this.channel.getHandler() == null || this.channel.getHandler().handlePacketReceive(this.channel, msg)) {
           this.channel.getPacketRegistry().handlePacket(this.channel, msg);
         }
       } catch (Exception exception) {
         LOGGER.severe("Exception whilst handling packet " + msg, exception);
+      } finally {
+        ((NettyImmutableDataBuf) msg.getContent()).getByteBuf().release();
       }
     });
   }
+
+  protected abstract Collection<INetworkChannel> getChannels();
+
+  protected abstract Executor getPacketDispatcher();
 }

@@ -31,4 +31,5 @@ moduleJson {
   author = 'CloudNetService'
   main = 'de.dytanic.cloudnet.ext.syncproxy.node.CloudNetSyncProxyModule'
   description = 'CloudNet extension which serves proxy utils with CloudNet support'
+  name = 'CloudNet-SyncProxy'
 }

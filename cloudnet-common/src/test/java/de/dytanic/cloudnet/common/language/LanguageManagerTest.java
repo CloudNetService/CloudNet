@@ -17,8 +17,10 @@
 package de.dytanic.cloudnet.common.language;
 
 import de.dytanic.cloudnet.common.Properties;
-import org.junit.Assert;
-import org.junit.Test;
+import de.dytanic.cloudnet.common.StringUtil;
+import java.util.Map.Entry;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class LanguageManagerTest {
 
@@ -30,7 +32,17 @@ public class LanguageManagerTest {
     LanguageManager.setLanguage("en");
     LanguageManager.addLanguageFile("en", properties);
 
-    Assert.assertNotNull(LanguageManager.getMessage("test_message"));
-    Assert.assertEquals("Test_Message", LanguageManager.getMessage("test_message"));
+    Assertions.assertNotNull(LanguageManager.getMessage("test_message"));
+    Assertions.assertEquals("Test_Message", LanguageManager.getMessage("test_message"));
+
+    properties = new Properties();
+    for (int i = 0; i < 100; i++) {
+      properties.put(StringUtil.generateRandomString(5), StringUtil.generateRandomString(5));
+    }
+
+    LanguageManager.addLanguageFile("en", properties);
+    for (Entry<String, String> entry : properties.entrySet()) {
+      Assertions.assertEquals(entry.getValue(), LanguageManager.getMessage(entry.getKey()));
+    }
   }
 }

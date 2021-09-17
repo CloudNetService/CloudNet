@@ -17,12 +17,11 @@
 package de.dytanic.cloudnet.ext.bridge.player;
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
-import de.dytanic.cloudnet.driver.serialization.SerializableObject;
 import de.dytanic.cloudnet.ext.bridge.player.executor.PlayerExecutor;
 import java.util.UUID;
 import org.jetbrains.annotations.NotNull;
 
-public interface ICloudPlayer extends ICloudOfflinePlayer, SerializableObject {
+public interface ICloudPlayer extends ICloudOfflinePlayer {
 
   /**
    * Gets the {@link NetworkServiceInfo} for the service the players used to connect. In most cases this is a proxy.

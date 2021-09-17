@@ -18,12 +18,10 @@ package de.dytanic.cloudnet.driver.service;
 
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.concurrent.ITask;
+import de.dytanic.cloudnet.common.document.gson.BasicJsonDocPropertyable;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
-import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
-import de.dytanic.cloudnet.driver.serialization.SerializableObject;
-import de.dytanic.cloudnet.driver.serialization.json.SerializableJsonDocPropertyable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -37,7 +35,7 @@ import org.jetbrains.annotations.Nullable;
 
 @ToString
 @EqualsAndHashCode(callSuper = false)
-public class ServiceConfiguration extends SerializableJsonDocPropertyable implements SerializableObject {
+public class ServiceConfiguration extends BasicJsonDocPropertyable {
 
   protected ServiceId serviceId;
 
@@ -47,80 +45,251 @@ public class ServiceConfiguration extends SerializableJsonDocPropertyable implem
   protected boolean autoDeleteOnStop;
   protected boolean staticService;
 
-  protected String[] groups;
+  protected int port;
+  protected ProcessConfiguration processConfig;
 
-  protected ServiceRemoteInclusion[] includes;
+  protected String[] groups;
+  protected String[] deletedFilesAfterStop;
+
   protected ServiceTemplate[] templates;
   protected ServiceDeployment[] deployments;
-  protected String[] deletedFilesAfterStop;
-  protected ProcessConfiguration processConfig;
-  protected int port;
-  private ServiceRemoteInclusion[] initIncludes;
+  protected ServiceRemoteInclusion[] includes;
+
   private ServiceTemplate[] initTemplates;
   private ServiceDeployment[] initDeployments;
+  private ServiceRemoteInclusion[] initIncludes;
 
-  public ServiceConfiguration(ServiceId serviceId, String runtime, boolean autoDeleteOnStop, boolean staticService,
-    String[] groups, ServiceRemoteInclusion[] includes, ServiceTemplate[] templates, ServiceDeployment[] deployments,
-    ProcessConfiguration processConfig, int port) {
-    this(serviceId, runtime, autoDeleteOnStop, staticService, groups, includes, templates, deployments, new String[0],
-      processConfig, port, null);
+  protected ServiceConfiguration() {
   }
 
-  public ServiceConfiguration(ServiceId serviceId, String runtime, boolean autoDeleteOnStop, boolean staticService,
-    String[] groups, ServiceRemoteInclusion[] includes, ServiceTemplate[] templates, ServiceDeployment[] deployments,
-    String[] deletedFilesAfterStop, ProcessConfiguration processConfig, int port) {
-    this(serviceId, runtime, autoDeleteOnStop, staticService, groups, includes, templates, deployments,
-      deletedFilesAfterStop, processConfig, JsonDocument.newDocument(), port, null);
+  public ServiceConfiguration(
+    ServiceId serviceId,
+    String runtime,
+    boolean autoDeleteOnStop,
+    boolean staticService,
+    String[] groups,
+    ServiceRemoteInclusion[] includes,
+    ServiceTemplate[] templates,
+    ServiceDeployment[] deployments,
+    ProcessConfiguration processConfig,
+    int port
+  ) {
+    this(
+      serviceId,
+      runtime,
+      null,
+      autoDeleteOnStop,
+      staticService,
+      port,
+      processConfig,
+      groups,
+      new String[0],
+      templates,
+      deployments,
+      includes,
+      new ServiceTemplate[0],
+      new ServiceDeployment[0],
+      new ServiceRemoteInclusion[0],
+      JsonDocument.newDocument());
   }
 
-  public ServiceConfiguration(ServiceId serviceId, String runtime, boolean autoDeleteOnStop, boolean staticService,
-    String[] groups, ServiceRemoteInclusion[] includes, ServiceTemplate[] templates, ServiceDeployment[] deployments,
-    String[] deletedFilesAfterStop, ProcessConfiguration processConfig, int port, String javaCommand) {
-    this(serviceId, runtime, autoDeleteOnStop, staticService, groups, includes, templates, deployments,
-      deletedFilesAfterStop, processConfig, JsonDocument.newDocument(), port, javaCommand);
+  public ServiceConfiguration(
+    ServiceId serviceId,
+    String runtime,
+    boolean autoDeleteOnStop,
+    boolean staticService,
+    String[] groups,
+    ServiceRemoteInclusion[] includes,
+    ServiceTemplate[] templates,
+    ServiceDeployment[] deployments,
+    String[] deletedFilesAfterStop,
+    ProcessConfiguration processConfig,
+    int port
+  ) {
+    this(
+      serviceId,
+      runtime,
+      null,
+      autoDeleteOnStop,
+      staticService,
+      port,
+      processConfig,
+      groups,
+      deletedFilesAfterStop,
+      templates,
+      deployments,
+      includes,
+      new ServiceTemplate[0],
+      new ServiceDeployment[0],
+      new ServiceRemoteInclusion[0],
+      JsonDocument.newDocument());
   }
 
-  public ServiceConfiguration(ServiceId serviceId, String runtime, boolean autoDeleteOnStop, boolean staticService,
-    String[] groups, ServiceRemoteInclusion[] includes, ServiceTemplate[] templates, ServiceDeployment[] deployments,
-    ProcessConfiguration processConfig, JsonDocument properties, int port) {
-    this(serviceId, runtime, autoDeleteOnStop, staticService, groups, includes, templates, deployments, new String[0],
-      processConfig, properties, port, null);
+  public ServiceConfiguration(
+    ServiceId serviceId,
+    String runtime,
+    boolean autoDeleteOnStop,
+    boolean staticService,
+    String[] groups,
+    ServiceRemoteInclusion[] includes,
+    ServiceTemplate[] templates,
+    ServiceDeployment[] deployments,
+    String[] deletedFilesAfterStop,
+    ProcessConfiguration processConfig,
+    int port,
+    String javaCommand
+  ) {
+    this(
+      serviceId,
+      runtime,
+      javaCommand,
+      autoDeleteOnStop,
+      staticService,
+      port,
+      processConfig,
+      groups,
+      deletedFilesAfterStop,
+      templates,
+      deployments,
+      includes,
+      new ServiceTemplate[0],
+      new ServiceDeployment[0],
+      new ServiceRemoteInclusion[0],
+      JsonDocument.newDocument());
   }
 
-  public ServiceConfiguration(ServiceId serviceId, String runtime, boolean autoDeleteOnStop, boolean staticService,
-    String[] groups, ServiceRemoteInclusion[] includes, ServiceTemplate[] templates, ServiceDeployment[] deployments,
-    ProcessConfiguration processConfig, JsonDocument properties, int port, String javaCommand) {
-    this(serviceId, runtime, autoDeleteOnStop, staticService, groups, includes, templates, deployments, new String[0],
-      processConfig, properties, port, javaCommand);
+  public ServiceConfiguration(
+    ServiceId serviceId,
+    String runtime,
+    boolean autoDeleteOnStop,
+    boolean staticService,
+    String[] groups,
+    ServiceRemoteInclusion[] includes,
+    ServiceTemplate[] templates,
+    ServiceDeployment[] deployments,
+    ProcessConfiguration processConfig,
+    JsonDocument properties,
+    int port
+  ) {
+    this(
+      serviceId,
+      runtime,
+      null,
+      autoDeleteOnStop,
+      staticService,
+      port,
+      processConfig,
+      groups,
+      new String[0],
+      templates,
+      deployments,
+      includes,
+      new ServiceTemplate[0],
+      new ServiceDeployment[0],
+      new ServiceRemoteInclusion[0],
+      properties);
   }
 
-  public ServiceConfiguration(ServiceId serviceId, String runtime, boolean autoDeleteOnStop, boolean staticService,
-    String[] groups, ServiceRemoteInclusion[] includes, ServiceTemplate[] templates, ServiceDeployment[] deployments,
-    String[] deletedFilesAfterStop, ProcessConfiguration processConfig, JsonDocument properties, int port) {
-    this(serviceId, runtime, autoDeleteOnStop, staticService, groups, includes, templates, deployments,
-      deletedFilesAfterStop, processConfig, properties, port, null);
+  public ServiceConfiguration(
+    ServiceId serviceId,
+    String runtime,
+    boolean autoDeleteOnStop,
+    boolean staticService,
+    String[] groups,
+    ServiceRemoteInclusion[] includes,
+    ServiceTemplate[] templates,
+    ServiceDeployment[] deployments,
+    ProcessConfiguration processConfig,
+    JsonDocument properties,
+    int port,
+    String javaCommand
+  ) {
+    this(
+      serviceId,
+      runtime,
+      javaCommand,
+      autoDeleteOnStop,
+      staticService,
+      port,
+      processConfig,
+      groups,
+      new String[0],
+      templates,
+      deployments,
+      includes,
+      new ServiceTemplate[0],
+      new ServiceDeployment[0],
+      new ServiceRemoteInclusion[0],
+      properties);
   }
 
-  public ServiceConfiguration(ServiceId serviceId, String runtime, boolean autoDeleteOnStop, boolean staticService,
-    String[] groups, ServiceRemoteInclusion[] includes, ServiceTemplate[] templates, ServiceDeployment[] deployments,
-    String[] deletedFilesAfterStop, ProcessConfiguration processConfig, JsonDocument properties, int port,
-    String javaCommand) {
+  public ServiceConfiguration(
+    ServiceId serviceId,
+    String runtime,
+    boolean autoDeleteOnStop,
+    boolean staticService,
+    String[] groups,
+    ServiceRemoteInclusion[] includes,
+    ServiceTemplate[] templates,
+    ServiceDeployment[] deployments,
+    String[] deletedFilesAfterStop,
+    ProcessConfiguration processConfig,
+    JsonDocument properties,
+    int port
+  ) {
+    this(
+      serviceId,
+      runtime,
+      null,
+      autoDeleteOnStop,
+      staticService,
+      port,
+      processConfig,
+      groups,
+      deletedFilesAfterStop,
+      templates,
+      deployments,
+      includes,
+      new ServiceTemplate[0],
+      new ServiceDeployment[0],
+      new ServiceRemoteInclusion[0],
+      properties);
+  }
+
+  public ServiceConfiguration(
+    ServiceId serviceId,
+    String runtime,
+    String javaCommand,
+    boolean autoDeleteOnStop,
+    boolean staticService,
+    int port,
+    ProcessConfiguration processConfig,
+    String[] groups,
+    String[] deletedFilesAfterStop,
+    ServiceTemplate[] templates,
+    ServiceDeployment[] deployments,
+    ServiceRemoteInclusion[] includes,
+    ServiceTemplate[] initTemplates,
+    ServiceDeployment[] initDeployments,
+    ServiceRemoteInclusion[] initIncludes,
+    JsonDocument properties
+  ) {
     this.serviceId = serviceId;
     this.runtime = runtime;
+    this.javaCommand = javaCommand;
     this.autoDeleteOnStop = autoDeleteOnStop;
     this.staticService = staticService;
-    this.groups = groups;
-    this.includes = this.initIncludes = includes;
-    this.templates = this.initTemplates = templates;
-    this.deployments = this.initDeployments = deployments;
-    this.deletedFilesAfterStop = deletedFilesAfterStop;
-    this.processConfig = processConfig;
-    this.properties = properties;
     this.port = port;
-    this.javaCommand = javaCommand;
-  }
-
-  public ServiceConfiguration() {
+    this.processConfig = processConfig;
+    this.groups = groups;
+    this.deletedFilesAfterStop = deletedFilesAfterStop;
+    this.templates = templates;
+    this.deployments = deployments;
+    this.includes = includes;
+    this.initTemplates = initTemplates;
+    this.initDeployments = initDeployments;
+    this.initIncludes = initIncludes;
+    this.properties = properties;
   }
 
   /**
@@ -313,63 +482,6 @@ public class ServiceConfiguration extends SerializableJsonDocPropertyable implem
   @NotNull
   public ITask<ServiceInfoSnapshot> createNewServiceAsync() {
     return CloudNetDriver.getInstance().getCloudServiceFactory().createCloudServiceAsync(this);
-  }
-
-  @Override
-  public void write(@NotNull ProtocolBuffer buffer) {
-    buffer.writeObject(this.serviceId);
-    buffer.writeOptionalString(this.runtime);
-    buffer.writeOptionalString(this.javaCommand);
-    buffer.writeBoolean(this.autoDeleteOnStop);
-    buffer.writeBoolean(this.staticService);
-    buffer.writeStringCollection(this.groups == null ? Collections.emptyList() : Arrays.asList(this.groups));
-
-    buffer.writeObjectArray(this.includes);
-    buffer.writeObjectArray(this.templates);
-    buffer.writeObjectArray(this.deployments);
-
-    buffer.writeBoolean(this.initIncludes != null);
-    if (this.initIncludes != null) {
-      buffer.writeObjectArray(this.initIncludes);
-    }
-    buffer.writeBoolean(this.initTemplates != null);
-    if (this.initTemplates != null) {
-      buffer.writeObjectArray(this.initTemplates);
-    }
-    buffer.writeBoolean(this.initDeployments != null);
-    if (this.initDeployments != null) {
-      buffer.writeObjectArray(this.initDeployments);
-    }
-
-    buffer.writeStringCollection(
-      this.deletedFilesAfterStop == null ? Collections.emptyList() : Arrays.asList(this.deletedFilesAfterStop));
-    buffer.writeObject(this.processConfig);
-    buffer.writeInt(this.port);
-
-    super.write(buffer);
-  }
-
-  @Override
-  public void read(@NotNull ProtocolBuffer buffer) {
-    this.serviceId = buffer.readObject(ServiceId.class);
-    this.runtime = buffer.readOptionalString();
-    this.javaCommand = buffer.readOptionalString();
-    this.autoDeleteOnStop = buffer.readBoolean();
-    this.staticService = buffer.readBoolean();
-    this.groups = buffer.readStringCollection().toArray(new String[0]);
-
-    this.includes = buffer.readObjectArray(ServiceRemoteInclusion.class);
-    this.templates = buffer.readObjectArray(ServiceTemplate.class);
-    this.deployments = buffer.readObjectArray(ServiceDeployment.class);
-    this.initIncludes = buffer.readBoolean() ? buffer.readObjectArray(ServiceRemoteInclusion.class) : null;
-    this.initTemplates = buffer.readBoolean() ? buffer.readObjectArray(ServiceTemplate.class) : null;
-    this.initDeployments = buffer.readBoolean() ? buffer.readObjectArray(ServiceDeployment.class) : null;
-
-    this.deletedFilesAfterStop = buffer.readStringCollection().toArray(new String[0]);
-    this.processConfig = buffer.readObject(ProcessConfiguration.class);
-    this.port = buffer.readInt();
-
-    super.read(buffer);
   }
 
   @NotNull

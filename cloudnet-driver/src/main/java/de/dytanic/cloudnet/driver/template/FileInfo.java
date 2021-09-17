@@ -16,8 +16,6 @@
 
 package de.dytanic.cloudnet.driver.template;
 
-import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
-import de.dytanic.cloudnet.driver.serialization.SerializableObject;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -30,7 +28,7 @@ import org.jetbrains.annotations.Nullable;
 
 @ToString
 @EqualsAndHashCode
-public class FileInfo implements SerializableObject {
+public class FileInfo {
 
   private String path;
   private String name;
@@ -123,30 +121,6 @@ public class FileInfo implements SerializableObject {
 
   public long getSize() {
     return this.size;
-  }
-
-  @Override
-  public void write(@NotNull ProtocolBuffer buffer) {
-    buffer.writeString(this.path);
-    buffer.writeString(this.name);
-    buffer.writeBoolean(this.directory);
-    buffer.writeBoolean(this.hidden);
-    buffer.writeLong(this.creationTime);
-    buffer.writeLong(this.lastModified);
-    buffer.writeLong(this.lastAccess);
-    buffer.writeLong(this.size);
-  }
-
-  @Override
-  public void read(@NotNull ProtocolBuffer buffer) {
-    this.path = buffer.readString();
-    this.name = buffer.readString();
-    this.directory = buffer.readBoolean();
-    this.hidden = buffer.readBoolean();
-    this.creationTime = buffer.readLong();
-    this.lastModified = buffer.readLong();
-    this.lastAccess = buffer.readLong();
-    this.size = buffer.readLong();
   }
 }
 

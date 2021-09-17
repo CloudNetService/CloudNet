@@ -16,33 +16,45 @@
 
 package de.dytanic.cloudnet.cluster;
 
+import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
-import de.dytanic.cloudnet.driver.api.DriverAPIRequestType;
-import de.dytanic.cloudnet.driver.api.DriverAPIUser;
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
 import de.dytanic.cloudnet.driver.network.def.packet.PacketClientServerChannelMessage;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
+import de.dytanic.cloudnet.driver.network.rpc.RPCSender;
+import de.dytanic.cloudnet.driver.provider.NodeInfoProvider;
 import de.dytanic.cloudnet.driver.provider.service.CloudServiceFactory;
 import de.dytanic.cloudnet.driver.provider.service.RemoteCloudServiceFactory;
 import de.dytanic.cloudnet.driver.provider.service.RemoteSpecificCloudServiceProvider;
 import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
-import java.util.concurrent.TimeUnit;
 import org.jetbrains.annotations.NotNull;
 
-public class DefaultClusterNodeServer extends DefaultNodeServer implements IClusterNodeServer, DriverAPIUser {
+public class DefaultClusterNodeServer extends DefaultNodeServer implements IClusterNodeServer {
 
-  private final DefaultClusterNodeServerProvider provider;
+  private final RPCSender rpcSender;
   private final CloudServiceFactory cloudServiceFactory;
+  private final DefaultClusterNodeServerProvider provider;
 
   private INetworkChannel channel;
 
-  protected DefaultClusterNodeServer(DefaultClusterNodeServerProvider provider, NetworkClusterNode nodeInfo) {
+  protected DefaultClusterNodeServer(
+    CloudNet cloudNet,
+    DefaultClusterNodeServerProvider provider,
+    NetworkClusterNode nodeInfo
+  ) {
     this.provider = provider;
-    this.cloudServiceFactory = new RemoteCloudServiceFactory(this::getChannel);
+
+    this.rpcSender = cloudNet.getRPCProviderFactory().providerForClass(
+      cloudNet.getNetworkClient(),
+      NodeInfoProvider.class);
+    this.cloudServiceFactory = new RemoteCloudServiceFactory(
+      this::getChannel,
+      cloudNet.getNetworkClient(),
+      cloudNet.getRPCProviderFactory());
 
     this.setNodeInfo(nodeInfo);
   }
@@ -89,11 +101,7 @@ public class DefaultClusterNodeServer extends DefaultNodeServer implements IClus
   @Override
   public String[] sendCommandLine(@NotNull String commandLine) {
     if (this.channel != null) {
-      return this.executeDriverAPIMethod(
-        DriverAPIRequestType.SEND_COMMAND_LINE,
-        buffer -> buffer.writeString(commandLine),
-        packet -> packet.getBuffer().readStringArray()
-      ).get(5, TimeUnit.SECONDS, null);
+      return this.rpcSender.invokeMethod("sendCommandLine", commandLine).fireSync(this.channel);
     }
 
     return null;
@@ -137,11 +145,6 @@ public class DefaultClusterNodeServer extends DefaultNodeServer implements IClus
   @Override
   public void setChannel(@NotNull INetworkChannel channel) {
     this.channel = channel;
-  }
-
-  @Override
-  public INetworkChannel getNetworkChannel() {
-    return this.channel;
   }
 
   @Override

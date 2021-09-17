@@ -16,6 +16,7 @@
 
 package de.dytanic.cloudnet.driver.database;
 
+import de.dytanic.cloudnet.common.concurrent.CompletableTask;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import java.util.Collection;
 import org.jetbrains.annotations.NotNull;
@@ -55,19 +56,25 @@ public interface DatabaseProvider {
    * @return whether a database with the given name exists
    */
   @NotNull
-  ITask<Boolean> containsDatabaseAsync(String name);
+  default ITask<Boolean> containsDatabaseAsync(String name) {
+    return CompletableTask.supplyAsync(() -> this.containsDatabase(name));
+  }
 
   /**
    * @param name the name of the database
    * @return true if the database was deleted successfully, false if not
    */
   @NotNull
-  ITask<Boolean> deleteDatabaseAsync(String name);
+  default ITask<Boolean> deleteDatabaseAsync(String name) {
+    return CompletableTask.supplyAsync(() -> this.deleteDatabase(name));
+  }
 
   /**
    * @return all present database names
    */
   @NotNull
-  ITask<Collection<String>> getDatabaseNamesAsync();
+  default ITask<Collection<String>> getDatabaseNamesAsync() {
+    return CompletableTask.supplyAsync(this::getDatabaseNames);
+  }
 
 }

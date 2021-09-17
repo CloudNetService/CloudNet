@@ -16,6 +16,7 @@
 
 package de.dytanic.cloudnet.driver.provider;
 
+import de.dytanic.cloudnet.common.concurrent.CompletableTask;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.driver.service.GroupConfiguration;
 import java.util.Collection;
@@ -89,7 +90,9 @@ public interface GroupConfigurationProvider {
    * Reloads the groups.json file
    */
   @NotNull
-  ITask<Void> reloadAsync();
+  default ITask<Void> reloadAsync() {
+    return CompletableTask.supplyAsync(this::reload);
+  }
 
   /**
    * Gets all groups that are registered in the cloud
@@ -97,7 +100,9 @@ public interface GroupConfigurationProvider {
    * @return a list containing the group configurations of all groups
    */
   @NotNull
-  ITask<Collection<GroupConfiguration>> getGroupConfigurationsAsync();
+  default ITask<Collection<GroupConfiguration>> getGroupConfigurationsAsync() {
+    return CompletableTask.supplyAsync(this::getGroupConfigurations);
+  }
 
   /**
    * Clears all existing groups and sets the given collection as the new groups
@@ -105,7 +110,9 @@ public interface GroupConfigurationProvider {
    * @param groupConfigurations the new groups
    */
   @NotNull
-  ITask<Void> setGroupConfigurationsAsync(@NotNull Collection<GroupConfiguration> groupConfigurations);
+  default ITask<Void> setGroupConfigurationsAsync(@NotNull Collection<GroupConfiguration> groupConfigurations) {
+    return CompletableTask.supplyAsync(() -> this.setGroupConfigurations(groupConfigurations));
+  }
 
   /**
    * Gets a specific group by its name
@@ -114,7 +121,9 @@ public interface GroupConfigurationProvider {
    * @return the group or {@code null} if no group with that name exists
    */
   @NotNull
-  ITask<GroupConfiguration> getGroupConfigurationAsync(@NotNull String name);
+  default ITask<GroupConfiguration> getGroupConfigurationAsync(@NotNull String name) {
+    return CompletableTask.supplyAsync(() -> this.getGroupConfiguration(name));
+  }
 
   /**
    * Checks whether the group with a specific name exists
@@ -123,7 +132,9 @@ public interface GroupConfigurationProvider {
    * @return {@code true} if the group exists or {@code false} otherwise
    */
   @NotNull
-  ITask<Boolean> isGroupConfigurationPresentAsync(@NotNull String name);
+  default ITask<Boolean> isGroupConfigurationPresentAsync(@NotNull String name) {
+    return CompletableTask.supplyAsync(() -> this.isGroupConfigurationPresent(name));
+  }
 
   /**
    * Adds a new group to the cloud
@@ -131,7 +142,9 @@ public interface GroupConfigurationProvider {
    * @param groupConfiguration the group to be added
    */
   @NotNull
-  ITask<Void> addGroupConfigurationAsync(@NotNull GroupConfiguration groupConfiguration);
+  default ITask<Void> addGroupConfigurationAsync(@NotNull GroupConfiguration groupConfiguration) {
+    return CompletableTask.supplyAsync(() -> this.addGroupConfiguration(groupConfiguration));
+  }
 
   /**
    * Removes a group from the cloud
@@ -139,7 +152,9 @@ public interface GroupConfigurationProvider {
    * @param name the name of the group to be removed
    */
   @NotNull
-  ITask<Void> removeGroupConfigurationAsync(@NotNull String name);
+  default ITask<Void> removeGroupConfigurationAsync(@NotNull String name) {
+    return CompletableTask.supplyAsync(() -> this.removeGroupConfiguration(name));
+  }
 
   /**
    * Removes a group from the cloud
@@ -148,6 +163,8 @@ public interface GroupConfigurationProvider {
    *                           is ignored)
    */
   @NotNull
-  ITask<Void> removeGroupConfigurationAsync(@NotNull GroupConfiguration groupConfiguration);
+  default ITask<Void> removeGroupConfigurationAsync(@NotNull GroupConfiguration groupConfiguration) {
+    return CompletableTask.supplyAsync(() -> this.removeGroupConfiguration(groupConfiguration));
+  }
 
 }

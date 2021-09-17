@@ -30,13 +30,14 @@ import de.dytanic.cloudnet.driver.network.def.internal.InternalSyncPacketChannel
 import de.dytanic.cloudnet.driver.network.def.packet.PacketClientAuthorization;
 import de.dytanic.cloudnet.driver.network.protocol.Packet;
 import de.dytanic.cloudnet.wrapper.Wrapper;
+import org.jetbrains.annotations.NotNull;
 
 public class NetworkClientChannelHandler implements INetworkChannelHandler {
 
   private static final Logger LOGGER = LogManager.getLogger(NetworkClientChannelHandler.class);
 
   @Override
-  public void handleChannelInitialize(INetworkChannel channel) {
+  public void handleChannelInitialize(@NotNull INetworkChannel channel) {
     NetworkChannelInitEvent networkChannelInitEvent = new NetworkChannelInitEvent(channel, ChannelType.SERVER_CHANNEL);
     CloudNetDriver.getInstance().getEventManager().callEvent(networkChannelInitEvent);
 
@@ -58,7 +59,7 @@ public class NetworkClientChannelHandler implements INetworkChannelHandler {
   }
 
   @Override
-  public boolean handlePacketReceive(INetworkChannel channel, Packet packet) {
+  public boolean handlePacketReceive(@NotNull INetworkChannel channel, @NotNull Packet packet) {
     if (InternalSyncPacketChannel.handleIncomingChannel(channel, packet)) {
       return false;
     }
@@ -68,7 +69,7 @@ public class NetworkClientChannelHandler implements INetworkChannelHandler {
   }
 
   @Override
-  public void handleChannelClose(INetworkChannel channel) {
+  public void handleChannelClose(@NotNull INetworkChannel channel) {
     CloudNetDriver.getInstance().getEventManager()
       .callEvent(new NetworkChannelCloseEvent(channel, ChannelType.CLIENT_CHANNEL));
   }

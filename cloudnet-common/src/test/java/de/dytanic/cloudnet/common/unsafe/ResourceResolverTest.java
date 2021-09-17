@@ -16,13 +16,13 @@
 
 package de.dytanic.cloudnet.common.unsafe;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class ResourceResolverTest {
 
   @Test
   public void testResourceResolver() {
-    Assert.assertNotNull(ResourceResolver.resolveURIFromResourceByClass(ResourceResolverTest.class));
+    Assertions.assertNotNull(ResourceResolver.resolveURIFromResourceByClass(ResourceResolverTest.class));
   }
 }

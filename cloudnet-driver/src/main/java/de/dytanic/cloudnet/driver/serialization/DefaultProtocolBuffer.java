@@ -47,13 +47,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+@Deprecated
+@ScheduledForRemoval
 public class DefaultProtocolBuffer extends ProtocolBuffer {
 
   private static final Logger LOGGER = LogManager.getLogger(DefaultProtocolBuffer.class);
-  private final ByteBuf wrapped;
+  public final ByteBuf wrapped;
 
   public DefaultProtocolBuffer(ByteBuf wrapped) {
     this.wrapped = wrapped;
@@ -173,13 +176,12 @@ public class DefaultProtocolBuffer extends ProtocolBuffer {
 
   @Override
   public long readVarLong() {
-    return NettyUtils.readVarLong(this);
+    return this.readLong();
   }
 
   @Override
   public ProtocolBuffer writeVarLong(long value) {
-    NettyUtils.writeVarLong(this, value);
-    return this;
+    return this.writeLong(value);
   }
 
   @Override

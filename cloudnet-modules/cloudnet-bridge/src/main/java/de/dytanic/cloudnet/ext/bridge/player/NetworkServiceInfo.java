@@ -16,18 +16,15 @@
 
 package de.dytanic.cloudnet.ext.bridge.player;
 
-import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
-import de.dytanic.cloudnet.driver.serialization.SerializableObject;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceId;
 import java.util.UUID;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import org.jetbrains.annotations.NotNull;
 
 @ToString
 @EqualsAndHashCode
-public class NetworkServiceInfo implements SerializableObject {
+public class NetworkServiceInfo {
 
   protected ServiceId serviceId;
   protected String[] groups;
@@ -70,17 +67,5 @@ public class NetworkServiceInfo implements SerializableObject {
 
   public void setServiceId(ServiceId serviceId) {
     this.serviceId = serviceId;
-  }
-
-  @Override
-  public void write(@NotNull ProtocolBuffer buffer) {
-    buffer.writeObject(this.serviceId);
-    buffer.writeStringArray(this.groups);
-  }
-
-  @Override
-  public void read(@NotNull ProtocolBuffer buffer) {
-    this.serviceId = buffer.readObject(ServiceId.class);
-    this.groups = buffer.readStringArray();
   }
 }

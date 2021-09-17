@@ -16,6 +16,7 @@
 
 package de.dytanic.cloudnet.driver.network;
 
+import java.net.SocketAddress;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -34,6 +35,8 @@ public interface INetworkServer extends INetworkComponent, AutoCloseable {
    * @return true when the binding was successful or false if an error was threw or the port is already bind
    */
   boolean addListener(int port);
+
+  boolean addListener(@NotNull SocketAddress socketAddress);
 
   /**
    * Binds the server to a specific address that is as parameter defined

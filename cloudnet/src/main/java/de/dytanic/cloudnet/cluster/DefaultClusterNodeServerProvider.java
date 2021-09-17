@@ -18,19 +18,20 @@ package de.dytanic.cloudnet.cluster;
 
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.CloudNet;
+import de.dytanic.cloudnet.common.concurrent.CompletedTask;
+import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
+import de.dytanic.cloudnet.driver.network.chunk.ChunkedPacketSender;
+import de.dytanic.cloudnet.driver.network.chunk.TransferStatus;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkCluster;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
-import de.dytanic.cloudnet.driver.network.def.PacketConstants;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
-import de.dytanic.cloudnet.driver.network.protocol.chunk.ChunkedPacketBuilder;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
-import java.io.IOException;
 import java.io.InputStream;
 import java.text.DecimalFormat;
 import java.text.Format;
@@ -68,8 +69,8 @@ public final class DefaultClusterNodeServerProvider extends DefaultNodeServerPro
     Preconditions.checkNotNull(channel);
 
     for (IClusterNodeServer clusterNodeServer : this.getNodeServers()) {
-      if (clusterNodeServer.getChannel() != null && clusterNodeServer.getChannel().getChannelId() == channel
-        .getChannelId()) {
+      if (clusterNodeServer.getChannel() != null
+        && clusterNodeServer.getChannel().getChannelId() == channel.getChannelId()) {
         return clusterNodeServer;
       }
     }
@@ -84,20 +85,19 @@ public final class DefaultClusterNodeServerProvider extends DefaultNodeServerPro
       if (nodeServer != null) {
         nodeServer.setNodeInfo(clusterNode);
       } else {
-        this.nodeServers.add(new DefaultClusterNodeServer(this, clusterNode));
+        this.nodeServers.add(new DefaultClusterNodeServer(this.cloudNet, this, clusterNode));
       }
     }
 
     for (IClusterNodeServer clusterNodeServer : this.nodeServers) {
       NetworkClusterNode node = networkCluster.getNodes()
         .stream()
-        .filter(networkClusterNode -> networkClusterNode.getUniqueId()
-          .equalsIgnoreCase(clusterNodeServer.getNodeInfo().getUniqueId()))
+        .filter(cluNode -> cluNode.getUniqueId().equalsIgnoreCase(clusterNodeServer.getNodeInfo().getUniqueId()))
         .findFirst()
         .orElse(null);
       if (node == null) {
-        this.nodeServers
-          .removeIf(n -> n.getNodeInfo().getUniqueId().equals(clusterNodeServer.getNodeInfo().getUniqueId()));
+        this.nodeServers.removeIf(
+          nodeServer -> nodeServer.getNodeInfo().getUniqueId().equals(clusterNodeServer.getNodeInfo().getUniqueId()));
       }
     }
   }
@@ -121,28 +121,34 @@ public final class DefaultClusterNodeServerProvider extends DefaultNodeServerPro
   }
 
   @Override
-  public void deployTemplateInCluster(@NotNull ServiceTemplate serviceTemplate, @NotNull InputStream inputStream) {
+  public @NotNull ITask<TransferStatus> deployTemplateToCluster(@NotNull ServiceTemplate template,
+    @NotNull InputStream stream) {
     if (!this.nodeServers.isEmpty()) {
+      // collect the network channels of the connected nodes
       Collection<INetworkChannel> channels = this.nodeServers
         .stream()
-        .filter(IClusterNodeServer::isConnected)
+        .filter(IClusterNodeServer::isAvailable)
         .map(IClusterNodeServer::getChannel)
         .filter(Objects::nonNull)
         .collect(Collectors.toList());
-
-      try {
-        JsonDocument header = JsonDocument.newDocument()
-          .append("template", serviceTemplate)
+      // check if there is at least one channel to deploy to
+      if (!channels.isEmpty()) {
+        // generate the deployment information
+        JsonDocument deploymentData = JsonDocument.newDocument()
+          .append("template", template)
           .append("preClear", true);
-
-        ChunkedPacketBuilder.newBuilder(PacketConstants.CLUSTER_TEMPLATE_DEPLOY_CHANNEL, inputStream)
-          .header(header)
-          .target(channels)
-          .complete();
-      } catch (IOException exception) {
-        LOGGER.severe("Exception while deploying into cluster", exception);
+        // send the template chunked to the cluster
+        // todo: should we set the transfer "mode" here?
+        return ChunkedPacketSender.forFileTransfer()
+          .withExtraData(deploymentData)
+          .toChannels(channels)
+          .source(stream)
+          .build()
+          .transferChunkedData();
       }
     }
+    // always successful if there is no node to deploy to
+    return CompletedTask.create(TransferStatus.SUCCESS);
   }
 
   @Override
@@ -168,8 +174,7 @@ public final class DefaultClusterNodeServerProvider extends DefaultNodeServerPro
           try {
             LOGGER.info(LanguageManager.getMessage("cluster-server-idling-too-long")
               .replace("%id%", nodeServer.getNodeInfo().getUniqueId())
-              .replace("%time%", TIME_FORMAT.format((System.currentTimeMillis() - snapshot.getCreationTime()) / 1000))
-            );
+              .replace("%time%", TIME_FORMAT.format((System.currentTimeMillis() - snapshot.getCreationTime()) / 1000)));
             nodeServer.close();
           } catch (Exception exception) {
             LOGGER.severe("Exception while closing server", exception);
