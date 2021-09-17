@@ -17,10 +17,18 @@
 package de.dytanic.cloudnet.examples.permissions;
 
 import de.dytanic.cloudnet.driver.CloudNetDriver;
+import de.dytanic.cloudnet.driver.permission.IPermissionGroup;
+import de.dytanic.cloudnet.driver.permission.IPermissionUser;
 import java.util.concurrent.TimeUnit;
 import org.bukkit.entity.Player;
 
-public final class PlayerAddOrRemovePermissionAndGroups {
+public final class PlayerPermissions {
+
+  public IPermissionGroup getHighestGroup(Player player) {
+    IPermissionUser permissionUser = CloudNetDriver.getInstance().getPermissionManagement()
+      .getUser(player.getUniqueId());
+    return CloudNetDriver.getInstance().getPermissionManagement().getHighestPermissionGroup(permissionUser);
+  }
 
   public void addPermission(Player player) {
     CloudNetDriver.getInstance().getPermissionManagement().modifyUser(player.getUniqueId(), permissionUser -> {

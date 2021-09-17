@@ -43,43 +43,68 @@ public class ChannelMessage {
   private String message;
 
   private DataBuf content;
-  private ChannelMessageSender sender;
+  private final ChannelMessageSender sender;
 
   private JsonDocument json = JsonDocument.EMPTY;
-  private Collection<ChannelMessageTarget> targets;
+  private final Collection<ChannelMessageTarget> targets;
 
   protected ChannelMessage(@NotNull ChannelMessageSender sender) {
     this.sender = sender;
     this.targets = new ArrayList<>();
   }
 
+  /**
+   * @return a new {@link Builder} with {@link ChannelMessageSender#self()} as sender.
+   */
   public static Builder builder() {
     return builder(ChannelMessageSender.self());
   }
 
+  /**
+   * @param sender the sender of the channel message
+   * @return a new {@link Builder} with the given sender as sender.
+   */
   public static Builder builder(ChannelMessageSender sender) {
     return new Builder(sender);
   }
 
+  /**
+   * Creates a response for the given received channel message.
+   *
+   * @param input the received channel message
+   * @return the new {@link Builder} as response for the input
+   */
   public static Builder buildResponseFor(@NotNull ChannelMessage input) {
     return builder().channel("").target(input.sender.getType(), input.sender.getName());
   }
 
+  /**
+   * @return the {@link ChannelMessageSender} of this channel message
+   */
   @NotNull
   public ChannelMessageSender getSender() {
     return this.sender;
   }
 
+  /**
+   * @return the channel of the channel message
+   */
   @NotNull
   public String getChannel() {
     return this.channel;
   }
 
+  /**
+   * @return the message of the channel message, null if no message is provided
+   */
   @Nullable
   public String getMessage() {
     return this.message;
   }
 
+  /**
+   * @return the {@link JsonDocument} that was sent with the channel message
+   */
   @NotNull
   public JsonDocument getJson() {
     return this.json;
@@ -175,11 +200,23 @@ public class ChannelMessage {
       return this;
     }
 
+    /**
+     * Writes the given DataBuf into the channel message
+     *
+     * @param dataBuf the DataBuf of the channel message
+     * @return this Builder instance
+     */
     public @NotNull Builder buffer(@Nullable DataBuf dataBuf) {
       this.channelMessage.content = dataBuf;
       return this;
     }
 
+    /**
+     * Sets the target of the channel message
+     *
+     * @param target the target of the channel message {@link ChannelMessageTarget}
+     * @return this Builder instance
+     */
     public Builder target(@NotNull ChannelMessageTarget target) {
       this.channelMessage.targets.add(target);
       return this;
@@ -199,34 +236,76 @@ public class ChannelMessage {
       return this.target(type, null);
     }
 
+    /**
+     * Sets the target of the channel message to ALL, every cloud component receives this message
+     *
+     * @return this Builder instance
+     */
     public Builder targetAll() {
       return this.target(ChannelMessageTarget.Type.ALL, null);
     }
 
+    /**
+     * Sets the target of the channel message to target all services of the cloud
+     *
+     * @return this Builder instance
+     */
     public Builder targetServices() {
       return this.targetAll(ChannelMessageTarget.Type.SERVICE);
     }
 
+    /**
+     * Sets the target of the channel message to a specific cloud service
+     *
+     * @param name the name of the service
+     * @return this Builder instance
+     */
     public Builder targetService(@Nullable String name) {
       return this.target(ChannelMessageTarget.Type.SERVICE, name);
     }
 
+    /**
+     * Sets the target of the channel message to a specific cloud task
+     *
+     * @param name the name of the task
+     * @return this Builder instance
+     */
     public Builder targetTask(@Nullable String name) {
       return this.target(ChannelMessageTarget.Type.TASK, name);
     }
 
+    /**
+     * Sets the target of the channel message to a specific node in the cluster
+     *
+     * @param name the name of the node
+     * @return this Builder instance
+     */
     public Builder targetNode(@Nullable String name) {
       return this.target(ChannelMessageTarget.Type.NODE, name);
     }
 
+    /**
+     * Sets the target of the channel message to all nodes in the cluster
+     *
+     * @return this Builder instance
+     */
     public Builder targetNodes() {
       return this.targetAll(ChannelMessageTarget.Type.NODE);
     }
 
+    /**
+     * Sets the target of the channel message to a specific {@link ServiceEnvironmentType}
+     *
+     * @param environment the environment to target
+     * @return this Builder instance
+     */
     public Builder targetEnvironment(@NotNull ServiceEnvironmentType environment) {
       return this.target(new ChannelMessageTarget(environment));
     }
 
+    /**
+     * @return the resulting channel message
+     */
     public ChannelMessage build() {
       Preconditions.checkNotNull(this.channelMessage.channel, "No channel provided");
       if (this.channelMessage.targets.isEmpty()) {

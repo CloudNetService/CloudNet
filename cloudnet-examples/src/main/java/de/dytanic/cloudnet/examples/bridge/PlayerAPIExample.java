@@ -49,6 +49,15 @@ public final class PlayerAPIExample {
     return counter;
   }
 
+  public int countTaskPlayers() {
+    return this.playerManager.taskOnlinePlayers("Lobby").count();
+  }
+
+  public int countGroupPlayers() {
+    return this.playerManager.groupOnlinePlayers("BedWars").count();
+  }
+
+
   //Asynchronous variant of count the player count from a task
   public void countServiceInfoSnapshotPlayerCount(Consumer<Integer> consumer) {
     CloudNetDriver.getInstance().getCloudServiceProvider().getCloudServicesAsync("Lobby")
@@ -69,6 +78,8 @@ public final class PlayerAPIExample {
   public void getPlayerExample(Player player) { // Bukkit player
     Preconditions.checkNotNull(player);
 
+    List<? extends ICloudPlayer> cloudPlayers = this.playerManager.getOnlinePlayers(player.getName());
+
     ICloudPlayer cloudPlayer = this.playerManager
       .getOnlinePlayer(player.getUniqueId()); //Returns an online cloudPlayers
 
@@ -88,19 +99,17 @@ public final class PlayerAPIExample {
       cloudOfflinePlayer.getLastLoginTimeMillis(); //Last login or the current login in milliseconds
     }
 
-    List<? extends ICloudPlayer> cloudPlayers = this.playerManager.getOnlinePlayers(player.getName());
-    if (!cloudPlayers.isEmpty()) {
-      ICloudPlayer entry = cloudPlayers.get(0);
-
-      this.playerManager.getPlayerExecutor(entry).kick("Kick message"); //kicks a player from the network
-      this.playerManager.getPlayerExecutor(entry)
-        .connect("Lobby-3"); //send a player to the target server if the player is login on a proxy
-      this.playerManager.getPlayerExecutor(entry).sendChatMessage("Hello, player!"); //send the player a text message
-      this.playerManager.getPlayerExecutor(entry)
-        .connectToTask("Bedwars",
-          ServerSelectorType.HIGHEST_PLAYERS); //sends the player to the service with the highest players of the given task
-    }
+    this.playerManager.getPlayerExecutor(player.getUniqueId()).kick("Kick message"); //kicks a player from the network
+    this.playerManager.getPlayerExecutor(player.getUniqueId())
+      .connect("Lobby-3"); //send a player to the target server if the player is login on a proxy
+    this.playerManager.getPlayerExecutor(player.getUniqueId())
+      .sendChatMessage("Hello, player!"); //send the player a text message
+    this.playerManager.getPlayerExecutor(player.getUniqueId())
+      .connectToTask("Bedwars",
+        ServerSelectorType.HIGHEST_PLAYERS); //sends the player to the service with the highest players of the given task
   }
+
+}
 
   //Add additional properties
   public void addPropertiesToPlayer(Player player) { // Bukkit org.bukkit.entity.Player

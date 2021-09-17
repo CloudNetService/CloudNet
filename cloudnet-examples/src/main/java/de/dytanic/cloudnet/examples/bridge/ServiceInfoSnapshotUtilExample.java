@@ -17,8 +17,8 @@
 package de.dytanic.cloudnet.examples.bridge;
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
-import de.dytanic.cloudnet.driver.event.EventListener;
-import de.dytanic.cloudnet.driver.event.events.service.CloudServiceInfoUpdateEvent;
+import de.dytanic.cloudnet.driver.CloudNetDriver;
+import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.ext.bridge.BridgeServiceProperty;
 import de.dytanic.cloudnet.ext.bridge.PluginInfo;
 import de.dytanic.cloudnet.ext.bridge.player.ServicePlayer;
@@ -26,27 +26,34 @@ import java.util.UUID;
 
 public final class ServiceInfoSnapshotUtilExample {
 
-  @EventListener
-  public void handle(CloudServiceInfoUpdateEvent event) {
-    int onlineCount = event.getServiceInfo().getProperty(BridgeServiceProperty.ONLINE_COUNT)
+  public void serviceInfoProperties() {
+    ServiceInfoSnapshot serviceInfoSnapshot = CloudNetDriver.getInstance().getCloudServiceProvider()
+      .getCloudServiceByName("Lobby-187");
+
+    if (serviceInfoSnapshot == null) {
+      // there is no service with the name "Lobby-187"
+      return;
+    }
+
+    int onlineCount = serviceInfoSnapshot.getProperty(BridgeServiceProperty.ONLINE_COUNT)
       .orElse(0); //The online players count
 
-    int maxPlayers = event.getServiceInfo().getProperty(BridgeServiceProperty.MAX_PLAYERS)
+    int maxPlayers = serviceInfoSnapshot.getProperty(BridgeServiceProperty.MAX_PLAYERS)
       .orElse(0); //The API set PlayerLimit
 
-    String version = event.getServiceInfo().getProperty(BridgeServiceProperty.VERSION)
+    String version = serviceInfoSnapshot.getProperty(BridgeServiceProperty.VERSION)
       .orElse(null); //The version of the service
 
-    String motd = event.getServiceInfo().getProperty(BridgeServiceProperty.MOTD).orElse(null); //State motd or null
+    String motd = serviceInfoSnapshot.getProperty(BridgeServiceProperty.MOTD).orElse(null); //State motd or null
 
-    String extra = event.getServiceInfo().getProperty(BridgeServiceProperty.EXTRA).orElse(null); //Extra string or null
+    String extra = serviceInfoSnapshot.getProperty(BridgeServiceProperty.EXTRA).orElse(null); //Extra string or null
 
-    String state = event.getServiceInfo().getProperty(BridgeServiceProperty.STATE).orElse(null); //State string or null
+    String state = serviceInfoSnapshot.getProperty(BridgeServiceProperty.STATE).orElse(null); //State string or null
 
-    boolean isIngame = event.getServiceInfo().getProperty(BridgeServiceProperty.IS_IN_GAME)
+    boolean isIngame = serviceInfoSnapshot.getProperty(BridgeServiceProperty.IS_IN_GAME)
       .orElse(false); //true if ingame, false otherwise
 
-    event.getServiceInfo().getProperty(BridgeServiceProperty.PLUGINS)
+    serviceInfoSnapshot.getProperty(BridgeServiceProperty.PLUGINS)
       .ifPresent(pluginInfos -> { //The pluginInfo items with the important information about the plugin
         for (PluginInfo pluginInfo : pluginInfos) {
           String pluginInfoName = pluginInfo.getName();
@@ -55,12 +62,11 @@ public final class ServiceInfoSnapshotUtilExample {
         }
       });
 
-    event.getServiceInfo().getProperty(BridgeServiceProperty.PLAYERS).ifPresent(players -> {
+    serviceInfoSnapshot.getProperty(BridgeServiceProperty.PLAYERS).ifPresent(players -> {
       for (ServicePlayer player : players) {
         UUID uniqueId = player.getUniqueId();
         String name = player.getName();
       }
     });
-
   }
 }
