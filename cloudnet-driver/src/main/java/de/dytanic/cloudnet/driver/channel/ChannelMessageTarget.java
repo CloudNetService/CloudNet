@@ -61,6 +61,9 @@ public class ChannelMessageTarget {
       || (this.type.equals(Type.NODE) && (this.name == null || this.name.equals(uniqueId)));
   }
 
+  /**
+   * Represents different components that can be targeted
+   */
   public enum Type {
     ALL,
     NODE,

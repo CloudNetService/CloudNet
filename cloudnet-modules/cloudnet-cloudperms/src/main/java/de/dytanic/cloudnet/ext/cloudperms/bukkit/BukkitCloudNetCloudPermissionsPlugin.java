@@ -34,6 +34,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scoreboard.Team;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 
 public final class BukkitCloudNetCloudPermissionsPlugin extends JavaPlugin {
 
@@ -63,17 +64,29 @@ public final class BukkitCloudNetCloudPermissionsPlugin extends JavaPlugin {
     Wrapper.getInstance().unregisterPacketListenersByClassLoader(this.getClass().getClassLoader());
   }
 
+  /**
+   * @deprecated the code was moved in the actual NameTag Plugin.
+   */
   @Deprecated
+  @ScheduledForRemoval
   public void updateNameTags(Player player) {
     this.updateNameTags(player, null);
   }
 
+  /**
+   * @deprecated the code was moved in the actual NameTag Plugin.
+   */
   @Deprecated
+  @ScheduledForRemoval
   public void updateNameTags(Player player, Function<Player, IPermissionGroup> playerIPermissionGroupFunction) {
     this.updateNameTags(player, playerIPermissionGroupFunction, null);
   }
 
+  /**
+   * @deprecated the code was moved in the actual NameTag Plugin.
+   */
   @Deprecated
+  @ScheduledForRemoval
   public void updateNameTags(Player player, Function<Player, IPermissionGroup> playerIPermissionGroupFunction,
     Function<Player, IPermissionGroup> allOtherPlayerPermissionGroupFunction) {
     Preconditions.checkNotNull(player);
@@ -128,6 +141,11 @@ public final class BukkitCloudNetCloudPermissionsPlugin extends JavaPlugin {
     });
   }
 
+  /**
+   * @deprecated the code was moved in the actual NameTag Plugin.
+   */
+  @Deprecated
+  @ScheduledForRemoval
   private void addTeamEntry(Player target, Player all, IPermissionGroup permissionGroup, int highestSortIdLength) {
     int sortIdLength = String.valueOf(permissionGroup.getSortId()).length();
     String teamName = (
@@ -193,6 +211,11 @@ public final class BukkitCloudNetCloudPermissionsPlugin extends JavaPlugin {
     }
   }
 
+  /**
+   * @deprecated the code was moved in the actual NameTag Plugin.
+   */
+  @Deprecated
+  @ScheduledForRemoval
   private void initScoreboard(Player all) {
     if (all.getScoreboard().equals(all.getServer().getScoreboardManager().getMainScoreboard())) {
       all.setScoreboard(all.getServer().getScoreboardManager().getNewScoreboard());

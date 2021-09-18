@@ -45,12 +45,13 @@ public final class BukkitCloudNetCloudPermissionsPermissible extends Permissible
     this.permissionsManagement = permissionsManagement;
   }
 
+  @NotNull
   private Set<Permission> getDefaultPermissions() {
     return this.player.getServer().getPluginManager().getDefaultPermissions(false);
   }
 
   @Override
-  public Set<PermissionAttachmentInfo> getEffectivePermissions() {
+  public @NotNull Set<PermissionAttachmentInfo> getEffectivePermissions() {
     Set<PermissionAttachmentInfo> infos = new HashSet<>();
 
     IPermissionUser permissionUser = CloudNetDriver.getInstance().getPermissionManagement()

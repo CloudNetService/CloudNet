@@ -94,6 +94,7 @@ public interface ICloudPlayer extends ICloudOfflinePlayer {
    *
    * @return a new {@link PlayerExecutor} for this player
    */
+  @NotNull
   PlayerExecutor getPlayerExecutor();
 
 }

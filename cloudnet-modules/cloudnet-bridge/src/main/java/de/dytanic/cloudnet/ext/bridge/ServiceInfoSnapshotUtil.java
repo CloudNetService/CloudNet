@@ -18,6 +18,7 @@ package de.dytanic.cloudnet.ext.bridge;
 
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.ext.bridge.player.IPlayerManager;
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 
 public final class ServiceInfoSnapshotUtil {
 
@@ -25,12 +26,22 @@ public final class ServiceInfoSnapshotUtil {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * @deprecated use {@link IPlayerManager#taskOnlinePlayers(String)}
+   */
+  @Deprecated
+  @ScheduledForRemoval
   public static int getTaskOnlineCount(String taskName) {
     return CloudNetDriver.getInstance().getServicesRegistry().getFirstService(IPlayerManager.class)
       .taskOnlinePlayers(taskName)
       .count();
   }
 
+  /**
+   * @deprecated use {@link IPlayerManager#groupOnlinePlayers(String)}
+   */
+  @Deprecated
+  @ScheduledForRemoval
   public static int getGroupOnlineCount(String groupName) {
     return CloudNetDriver.getInstance().getServicesRegistry().getFirstService(IPlayerManager.class)
       .groupOnlinePlayers(groupName)

@@ -20,7 +20,7 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 /**
- * The commandInfo class allows to easy serialize the command information
+ * The commandInfo class allows to easily serialize the command information
  */
 @ToString
 @EqualsAndHashCode

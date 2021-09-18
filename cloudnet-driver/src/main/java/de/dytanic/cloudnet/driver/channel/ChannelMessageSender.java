@@ -28,6 +28,15 @@ import org.jetbrains.annotations.NotNull;
 @EqualsAndHashCode
 public class ChannelMessageSender {
 
+  private static final ChannelMessageSender selfSender;
+
+  static {
+    selfSender = new ChannelMessageSender(
+      CloudNetDriver.getInstance().getComponentName(),
+      CloudNetDriver.getInstance().getDriverEnvironment()
+    );
+  }
+
   private final String name;
   private final DriverEnvironment type;
 
@@ -36,24 +45,44 @@ public class ChannelMessageSender {
     this.type = type;
   }
 
+  /**
+   * @return a sender that corresponds to the component the method is called on
+   */
   public static @NotNull ChannelMessageSender self() {
-    return new ChannelMessageSender(
-      CloudNetDriver.getInstance().getComponentName(),
-      CloudNetDriver.getInstance().getDriverEnvironment());
+    return selfSender;
   }
 
+  /**
+   * @return the name of the channel message sender
+   */
   public @NotNull String getName() {
     return this.name;
   }
 
+  /**
+   * @return the environment of the sender
+   * @see DriverEnvironment
+   */
   public @NotNull DriverEnvironment getType() {
     return this.type;
   }
 
+  /**
+   * Check if the given ServiceInfoSnapshot is the sender of the channel message
+   *
+   * @param serviceInfoSnapshot the {@link ServiceInfoSnapshot} to check
+   * @return whether the given ServiceInfoSnapshot is the sender of the channel message
+   */
   public boolean isEqual(@NotNull ServiceInfoSnapshot serviceInfoSnapshot) {
     return this.type == DriverEnvironment.WRAPPER && this.name.equals(serviceInfoSnapshot.getName());
   }
 
+  /**
+   * Check if the given NetworkClusterNode is the sender of the channel message
+   *
+   * @param node the {@link NetworkClusterNode} to check
+   * @return whether the given NetworkClusterNode is the sender of the channel message
+   */
   public boolean isEqual(@NotNull NetworkClusterNode node) {
     return this.type == DriverEnvironment.CLOUDNET && this.name.equals(node.getUniqueId());
   }

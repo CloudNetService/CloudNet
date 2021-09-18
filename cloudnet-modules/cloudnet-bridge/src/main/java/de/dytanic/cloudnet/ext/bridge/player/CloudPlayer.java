@@ -23,6 +23,7 @@ import java.lang.reflect.Type;
 import java.util.UUID;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.jetbrains.annotations.NotNull;
 
 @ToString
 @EqualsAndHashCode(callSuper = false)
@@ -132,7 +133,7 @@ public class CloudPlayer extends CloudOfflinePlayer implements ICloudPlayer {
   }
 
   @Override
-  public PlayerExecutor getPlayerExecutor() {
+  public @NotNull PlayerExecutor getPlayerExecutor() {
     return new DefaultPlayerExecutor(this.getUniqueId());
   }
 }

@@ -87,6 +87,7 @@ public interface ICloudService {
 
   @NotNull
   @Deprecated
+  @ScheduledForRemoval
   File getDirectory();
 
   @NotNull

@@ -19,6 +19,7 @@ package de.dytanic.cloudnet.ext.syncproxy.configuration;
 import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 
 @ToString
 @EqualsAndHashCode
@@ -63,6 +64,7 @@ public class SyncProxyTabListConfiguration {
    * Use {@link #setAnimationsPerSecond(double)} instead.
    */
   @Deprecated
+  @ScheduledForRemoval
   public void setAnimationsPerSecond(int animationsPerSecond) {
     this.animationsPerSecond = animationsPerSecond;
   }

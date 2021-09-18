@@ -78,6 +78,7 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -134,7 +135,8 @@ public final class Wrapper extends CloudNetDriver {
     this.databaseProvider = new DefaultWrapperDatabaseProvider(this);
     this.rpcSender = this.rpcProviderFactory.providerForClass(this.getNetworkClient(), CloudNetDriver.class);
 
-    super.cloudServiceFactory = new RemoteCloudServiceFactory(this::getNetworkChannel, this.networkClient, this.rpcProviderFactory);
+    super.cloudServiceFactory = new RemoteCloudServiceFactory(this::getNetworkChannel, this.networkClient,
+      this.rpcProviderFactory);
     super.generalCloudServiceProvider = new WrapperGeneralCloudServiceProvider(this);
     super.serviceTaskProvider = new WrapperServiceTaskProvider(this);
     super.groupConfigurationProvider = new WrapperGroupConfigurationProvider(this);
@@ -352,13 +354,13 @@ public final class Wrapper extends CloudNetDriver {
   public ServiceInfoSnapshot createServiceInfoSnapshot() {
     return new ServiceInfoSnapshot(
       System.currentTimeMillis(),
+      this.currentServiceInfoSnapshot.getConnectedTime(),
       this.currentServiceInfoSnapshot.getAddress(),
       this.currentServiceInfoSnapshot.getConnectAddress(),
-      this.currentServiceInfoSnapshot.getConnectedTime(),
       ServiceLifeCycle.RUNNING,
       ProcessSnapshot.self(),
-      this.currentServiceInfoSnapshot.getProperties(),
-      this.getServiceConfiguration()
+      this.getServiceConfiguration(),
+      this.currentServiceInfoSnapshot.getProperties()
     );
   }
 
@@ -470,6 +472,7 @@ public final class Wrapper extends CloudNetDriver {
 
   @NotNull
   @Deprecated
+  @ScheduledForRemoval
   public File getWorkDirectory() {
     return this.workDirectory.toFile();
   }

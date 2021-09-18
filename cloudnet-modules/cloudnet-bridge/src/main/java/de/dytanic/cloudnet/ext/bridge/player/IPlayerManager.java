@@ -26,7 +26,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * This interfaces provides access to cloud players
+ * This interfaces provides access to cloud players.
+ * <p>
+ * To retrieve an instance of this interface use {@link de.dytanic.cloudnet.common.registry.IServicesRegistry#getFirstService(Class)}
  */
 public interface IPlayerManager {
 
@@ -101,7 +103,7 @@ public interface IPlayerManager {
    * Gets a list of all online players on the whole network.
    *
    * @return a list containing all players that are online on the network
-   * @deprecated Replace with {@link #onlinePlayers()}
+   * @deprecated Replaced with {@link #onlinePlayers()}
    */
   @NotNull
   @Deprecated

@@ -17,7 +17,7 @@
 package de.dytanic.cloudnet.driver;
 
 /**
- * Defines the environment, which the CloudNetDriver is implement
+ * Defines the implementation type of the driver
  *
  * @see CloudNetDriver
  */
