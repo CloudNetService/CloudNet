@@ -46,15 +46,15 @@ public final class ExampleServiceTasks {
       .maintenance(true) //maintenance
       .javaCommand(
         "/usr/lib/jvm/java-11-openjdk-amd64/bin/java") //set a custom java executable for the task. Services are started using this executable
-      .autoDeleteOnStop(true) //autoDeleteOnStop => if the service stops naturally it will be automatic deleted
+      .autoDeleteOnStop(true) //autoDeleteOnStop => if the service stops naturally it will be automatically deleted
       //The service won't be deleted fully and will store in the configured directory. The default is /local/services
       .staticServices(true)
-      .associatedNodes(Arrays.asList("Node-1", "Node-2")) //node ids
+      .associatedNodes(Arrays.asList("Node-1", "Node-2")) //node ids the services of the task are allowed to start on
       .groups(Arrays.asList("Global", "Lobby", "Global-Server")) //groups
-      .serviceEnvironmentType(ServiceEnvironmentType.MINECRAFT_SERVER) //environement type
+      .serviceEnvironmentType(ServiceEnvironmentType.MINECRAFT_SERVER) //environment type
       .maxHeapMemory(1234) //max heap memory size
       .startPort(25565) //start port
-      .minServiceCount(187) //min services count with auto creation
+      .minServiceCount(187) //number of services that are online (at least)
       .build();
     CloudNetDriver.getInstance().getServiceTaskProvider().addPermanentServiceTask(serviceTask);
   }

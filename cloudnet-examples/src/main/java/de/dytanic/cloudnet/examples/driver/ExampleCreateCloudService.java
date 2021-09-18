@@ -120,6 +120,26 @@ public final class ExampleCreateCloudService {
     }
   }
 
+  public void createCustomCloudServiceByTask() {
+    ServiceTask task = CloudNetDriver.getInstance().getServiceTaskProvider().getServiceTask("Bedwars");
+
+    //check if a task with the given name exists
+    if (task == null) {
+      return;
+    }
+    //apply all settings of the given task to the new ServiceInfoSnapshot to keep templates etc.
+    ServiceInfoSnapshot serviceInfoSnapshot = ServiceConfiguration.builder(task)
+      // set a custom property like the owner of the service
+      .properties(JsonDocument.newDocument("ownerId", UUID.randomUUID()))
+      .build()
+      .createNewService();
+
+    // check if the service is created
+    if (serviceInfoSnapshot != null) {
+      serviceInfoSnapshot.provider().start();
+    }
+  }
+
   public void createCustomCloudService() {
     ServiceInfoSnapshot serviceInfoSnapshot = ServiceConfiguration.builder()
       .task("Lobby")
