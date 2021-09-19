@@ -32,6 +32,7 @@ import de.dytanic.cloudnet.common.WildcardUtil;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.common.unsafe.CPUUsageResolver;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
+import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
 import de.dytanic.cloudnet.driver.service.ServiceDeployment;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceRemoteInclusion;
@@ -46,11 +47,14 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class CommandService extends SubCommandHandler {
 
   private static final DateFormat DATE_FORMAT = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
+  private static final Pattern SERVICE_NAME_PATTERN = Pattern.compile("([\\w+-]+)-(\\d+)");
 
   public CommandService() {
     super(
@@ -120,10 +124,11 @@ public class CommandService extends SubCommandHandler {
               .anyMatch(CloudNetDriver.getInstance().getCloudServiceProvider().getCloudServices(), input, false)) {
               return true;
             }
-            String[] splitName = input.split("-");
-            return splitName.length == 2 &&
-              CloudNetDriver.getInstance().getServiceTaskProvider().isServiceTaskPresent(splitName[0]) &&
-              Ints.tryParse(splitName[1]) != null;
+            Matcher nameMatcher = SERVICE_NAME_PATTERN.matcher(input);
+
+            return nameMatcher.groupCount() == 3 &&
+              CloudNetDriver.getInstance().getServiceTaskProvider().isServiceTaskPresent(nameMatcher.group(1)) &&
+              Ints.tryParse(nameMatcher.group(2)) != null;
           },
           () -> {
             Collection<String> values = CloudNetDriver.getInstance().getCloudServiceProvider().getCloudServices()
@@ -147,15 +152,18 @@ public class CommandService extends SubCommandHandler {
             false
           );
           if (serviceInfoSnapshots.isEmpty() && "start".equalsIgnoreCase(String.valueOf(args.argument(1)))) {
-            String[] splitName = name.split("-");
-            String taskName = splitName[0];
-            Integer id = Ints.tryParse(splitName[1]);
+            Matcher matcher = SERVICE_NAME_PATTERN.matcher(name);
+
+            String taskName = matcher.group(1);
+            Integer id = Ints.tryParse(matcher.group(2));
 
             if (id != null) {
               ServiceTask task = CloudNetDriver.getInstance().getServiceTaskProvider().getServiceTask(taskName);
               if (task != null) {
-                ServiceInfoSnapshot serviceInfoSnapshot = CloudNetDriver.getInstance().getCloudServiceFactory()
-                  .createCloudService(task, id);
+                ServiceInfoSnapshot serviceInfoSnapshot = ServiceConfiguration.builder(task)
+                  .taskId(id)
+                  .build()
+                  .createNewService();
                 if (serviceInfoSnapshot != null) {
                   serviceInfoSnapshots.add(serviceInfoSnapshot);
                 }
