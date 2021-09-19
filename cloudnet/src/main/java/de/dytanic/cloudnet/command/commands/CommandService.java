@@ -126,7 +126,7 @@ public class CommandService extends SubCommandHandler {
             }
             Matcher nameMatcher = SERVICE_NAME_PATTERN.matcher(input);
 
-            return nameMatcher.groupCount() == 3 &&
+            return nameMatcher.matches() &&
               CloudNetDriver.getInstance().getServiceTaskProvider().isServiceTaskPresent(nameMatcher.group(1)) &&
               Ints.tryParse(nameMatcher.group(2)) != null;
           },
