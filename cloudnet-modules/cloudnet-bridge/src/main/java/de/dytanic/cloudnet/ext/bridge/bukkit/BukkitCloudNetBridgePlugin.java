@@ -39,7 +39,7 @@ public final class BukkitCloudNetBridgePlugin extends JavaPlugin {
     BukkitCloudNetHelper.init();
 
     CloudNetDriver.getInstance().getServicesRegistry()
-      .registerService(IPlayerManager.class, "BridgePlayerManager", new BridgePlayerManager());
+      .registerService(IPlayerManager.class, "BridgePlayerManager", new BridgePlayerManager(Wrapper.getInstance()));
 
     this.initListeners();
 
