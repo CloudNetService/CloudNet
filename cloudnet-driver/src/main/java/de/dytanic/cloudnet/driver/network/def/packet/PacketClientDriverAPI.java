@@ -17,10 +17,16 @@
 package de.dytanic.cloudnet.driver.network.def.packet;
 
 import de.dytanic.cloudnet.driver.api.DriverAPIRequestType;
+import de.dytanic.cloudnet.driver.network.buffer.DataBufFactory;
+import de.dytanic.cloudnet.driver.network.def.PacketConstants;
+import de.dytanic.cloudnet.driver.network.netty.buffer.NettyImmutableDataBuf;
 import de.dytanic.cloudnet.driver.network.protocol.Packet;
 import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import java.util.function.Consumer;
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 
+@Deprecated
+@ScheduledForRemoval
 public class PacketClientDriverAPI extends Packet {
 
   public PacketClientDriverAPI(DriverAPIRequestType type) {
@@ -28,10 +34,11 @@ public class PacketClientDriverAPI extends Packet {
   }
 
   public PacketClientDriverAPI(DriverAPIRequestType type, Consumer<ProtocolBuffer> modifier) {
-    //TODO: super(PacketConstants.INTERNAL_DRIVER_API_CHANNEL, ProtocolBuffer.create().writeEnumConstant(type));
+    super(
+      PacketConstants.INTERNAL_DRIVER_API_CHANNEL,
+      DataBufFactory.defaultFactory().createEmpty().writeInt(type.ordinal()));
     if (modifier != null) {
-      // modifier.accept(super.body);
+      modifier.accept(ProtocolBuffer.wrap(((NettyImmutableDataBuf) this.getContent()).getByteBuf()));
     }
   }
-
 }

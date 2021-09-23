@@ -17,24 +17,28 @@
 package de.dytanic.cloudnet.driver;
 
 /**
- * Defines the implementation type of the driver
+ * Represents the current environment of the currently running CloudNet driver implementation. By default, every running
+ * instance is marked as {@link #EMBEDDED}. A {@link #CLOUDNET} representation is every implementation which is capable
+ * of managing services like the default node implementation. A {@link #WRAPPER} implementation on the other hand means
+ * that CloudNet manages a service process like a Paper server software instance.
  *
- * @see CloudNetDriver
+ * @author Pasqual K. (derklaro@cloudnetservice.eu)
+ * @see CloudNetDriver#getDriverEnvironment()
  */
 public enum DriverEnvironment {
 
   /**
-   * The driver implementation is on the node like the CloudNet class in node
+   * A CloudNet implementation which is capable of managing services.
    */
   CLOUDNET,
 
   /**
-   * The driver implementation is on an application wrapper which runs on the JVM
+   * A CloudNet implementation which manages a service process like a Paper server software instance.
    */
   WRAPPER,
 
   /**
-   * The driver is implement in the driver module of this project
+   * The default environment when running embedded in another environment.
    */
   EMBEDDED
 }

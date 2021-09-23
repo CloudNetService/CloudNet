@@ -41,7 +41,7 @@ public class WaterdogPECloudNetBridgePlugin extends Plugin {
   @Override
   public void onEnable() {
     CloudNetDriver.getInstance().getServicesRegistry()
-      .registerService(IPlayerManager.class, "BridgePlayerManager", new BridgePlayerManager());
+      .registerService(IPlayerManager.class, "BridgePlayerManager", new BridgePlayerManager(Wrapper.getInstance()));
 
     this.initListeners();
     this.registerCommands();

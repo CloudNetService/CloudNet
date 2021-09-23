@@ -17,13 +17,12 @@
 package de.dytanic.cloudnet.ext.bridge;
 
 import com.google.common.base.Preconditions;
-import de.dytanic.cloudnet.common.concurrent.CompletedTask;
+import de.dytanic.cloudnet.common.concurrent.CompletableTask;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
+import de.dytanic.cloudnet.driver.network.rpc.RPCSender;
 import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
-import de.dytanic.cloudnet.ext.bridge.player.CloudOfflinePlayer;
-import de.dytanic.cloudnet.ext.bridge.player.CloudPlayer;
 import de.dytanic.cloudnet.ext.bridge.player.DefaultPlayerManager;
 import de.dytanic.cloudnet.ext.bridge.player.ICloudOfflinePlayer;
 import de.dytanic.cloudnet.ext.bridge.player.ICloudPlayer;
@@ -31,11 +30,8 @@ import de.dytanic.cloudnet.ext.bridge.player.IPlayerManager;
 import de.dytanic.cloudnet.ext.bridge.player.PlayerProvider;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -43,7 +39,14 @@ import org.jetbrains.annotations.Nullable;
 @ApiStatus.Internal
 public final class BridgePlayerManager extends DefaultPlayerManager implements IPlayerManager {
 
-  private final PlayerProvider allPlayersProvider = new BridgePlayerProvider(this, "online_players", null);
+  private final PlayerProvider allPlayersProvider;
+  private final RPCSender rpcSender;
+
+  public BridgePlayerManager(Wrapper wrapper) {
+    this.rpcSender = wrapper.getRPCProviderFactory()
+      .providerForClass(wrapper.getNetworkClient(), IPlayerManager.class);
+    this.allPlayersProvider = new BridgePlayerProvider(this.rpcSender.invokeMethod("onlinePlayers"));
+  }
 
   /**
    * @deprecated IPlayerManager should be accessed through the {@link de.dytanic.cloudnet.common.registry.IServicesRegistry}
@@ -55,28 +58,28 @@ public final class BridgePlayerManager extends DefaultPlayerManager implements I
 
   @Override
   public int getOnlineCount() {
-    return this.getOnlineCountAsync().get(5, TimeUnit.SECONDS, -1);
+    return this.rpcSender.invokeMethod("getOnlineCount").fireSync();
   }
 
   @Override
   public long getRegisteredCount() {
-    return this.getRegisteredCountAsync().get(5, TimeUnit.SECONDS, -1L);
+    return this.rpcSender.invokeMethod("getRegisteredCount").fireSync();
   }
 
   @Nullable
   @Override
   public ICloudPlayer getOnlinePlayer(@NotNull UUID uniqueId) {
-    return this.getOnlinePlayerAsync(uniqueId).get(5, TimeUnit.SECONDS, null);
+    return this.rpcSender.invokeMethod("getOnlinePlayer", uniqueId).fireSync();
   }
 
   @Override
   public @NotNull List<? extends ICloudPlayer> getOnlinePlayers(@NotNull String name) {
-    return this.getOnlinePlayersAsync(name).get(5, TimeUnit.SECONDS, Collections.emptyList());
+    return this.rpcSender.invokeMethod("getOnlinePlayers", name).fireSync();
   }
 
   @Override
   public @NotNull List<? extends ICloudPlayer> getOnlinePlayers(@NotNull ServiceEnvironmentType environment) {
-    return this.getOnlinePlayersAsync(environment).get(5, TimeUnit.SECONDS, Collections.emptyList());
+    return this.rpcSender.invokeMethod("getOnlinePlayers", environment).fireSync();
   }
 
   @Override
@@ -91,92 +94,58 @@ public final class BridgePlayerManager extends DefaultPlayerManager implements I
 
   @Override
   public @NotNull PlayerProvider taskOnlinePlayers(@NotNull String task) {
-    return new BridgePlayerProvider(this, "online_players_task", ProtocolBuffer.create().writeString(task));
+    return new BridgePlayerProvider(this.rpcSender.invokeMethod("taskOnlinePlayers", task));
   }
 
   @Override
   public @NotNull PlayerProvider groupOnlinePlayers(@NotNull String group) {
-    return new BridgePlayerProvider(this, "online_players_group", ProtocolBuffer.create().writeString(group));
+    return new BridgePlayerProvider(this.rpcSender.invokeMethod("groupOnlinePlayers", group));
   }
 
   @Override
   public ICloudOfflinePlayer getOfflinePlayer(@NotNull UUID uniqueId) {
-    return this.getOfflinePlayerAsync(uniqueId).get(5, TimeUnit.SECONDS, null);
+    return this.rpcSender.invokeMethod("getOfflinePlayer", uniqueId).fireSync();
   }
 
   @Override
   public @NotNull List<? extends ICloudOfflinePlayer> getOfflinePlayers(@NotNull String name) {
-    return this.getOfflinePlayersAsync(name).get(5, TimeUnit.SECONDS, null);
+    return this.rpcSender.invokeMethod("getOnlinePlayers", name).fireSync();
   }
 
   @Override
   public List<? extends ICloudOfflinePlayer> getRegisteredPlayers() {
-    return this.getRegisteredPlayersAsync().get(5, TimeUnit.MINUTES, null);
+    return this.rpcSender.invokeMethod("getRegisteredPlayers").fireSync();
   }
 
   @Override
   @NotNull
   public ITask<Integer> getOnlineCountAsync() {
-    return this.messageBuilder()
-      .message("get_online_count")
-      .targetNode(Wrapper.getInstance().getServiceId().getNodeUniqueId())
-      .build()
-      .sendSingleQueryAsync()
-      .map(message -> message.getBuffer().readInt());
+    return CompletableTask.supplyAsync(this::getOnlineCount);
   }
 
   @Override
   @NotNull
   public ITask<Long> getRegisteredCountAsync() {
-    return this.messageBuilder()
-      .message("get_registered_count")
-      .targetNode(Wrapper.getInstance().getServiceId().getNodeUniqueId())
-      .build()
-      .sendSingleQueryAsync()
-      .map(message -> message.getBuffer().readLong());
+    return CompletableTask.supplyAsync(this::getRegisteredCount);
   }
 
 
   @Override
   @NotNull
   public ITask<? extends ICloudPlayer> getOnlinePlayerAsync(@NotNull UUID uniqueId) {
-    Preconditions.checkNotNull(uniqueId);
-
-    return this.messageBuilder()
-      .message("get_online_player_by_uuid")
-      .buffer(ProtocolBuffer.create().writeUUID(uniqueId))
-      .targetNode(Wrapper.getInstance().getServiceId().getNodeUniqueId())
-      .build()
-      .sendSingleQueryAsync()
-      .map(message -> message.getBuffer().readOptionalObject(CloudPlayer.class));
+    return CompletableTask.supplyAsync(() -> this.getOnlinePlayer(uniqueId));
   }
 
   @Override
   @NotNull
   public ITask<List<? extends ICloudPlayer>> getOnlinePlayersAsync(@NotNull String name) {
-    Preconditions.checkNotNull(name);
-
-    return this.messageBuilder()
-      .message("get_online_players_by_name")
-      .targetNode(Wrapper.getInstance().getServiceId().getNodeUniqueId())
-      .buffer(ProtocolBuffer.create().writeString(name))
-      .build()
-      .sendSingleQueryAsync()
-      .map(message -> Arrays.asList(message.getBuffer().readObjectArray(CloudPlayer.class)));
+    return CompletableTask.supplyAsync(() -> this.getOnlinePlayers(name));
   }
 
   @Override
   @NotNull
   public ITask<List<? extends ICloudPlayer>> getOnlinePlayersAsync(@NotNull ServiceEnvironmentType environment) {
-    Preconditions.checkNotNull(environment);
-
-    return this.messageBuilder()
-      .message("get_online_players_by_environment")
-      .targetNode(Wrapper.getInstance().getServiceId().getNodeUniqueId())
-      .buffer(ProtocolBuffer.create().writeEnumConstant(environment))
-      .build()
-      .sendSingleQueryAsync()
-      .map(message -> Arrays.asList(message.getBuffer().readObjectArray(CloudPlayer.class)));
+    return CompletableTask.supplyAsync(() -> this.getOnlinePlayers(environment));
   }
 
   @Override
@@ -188,43 +157,23 @@ public final class BridgePlayerManager extends DefaultPlayerManager implements I
   @Override
   @NotNull
   public ITask<ICloudOfflinePlayer> getOfflinePlayerAsync(@NotNull UUID uniqueId) {
-    Preconditions.checkNotNull(uniqueId);
-
-    return this.messageBuilder()
-      .message("get_offline_player_by_uuid")
-      .targetNode(Wrapper.getInstance().getServiceId().getNodeUniqueId())
-      .buffer(ProtocolBuffer.create().writeUUID(uniqueId))
-      .build()
-      .sendSingleQueryAsync()
-      .map(message -> message.getBuffer().readOptionalObject(CloudOfflinePlayer.class));
+    return CompletableTask.supplyAsync(() -> this.getOfflinePlayer(uniqueId));
   }
 
   @Override
   @NotNull
   public ITask<List<? extends ICloudOfflinePlayer>> getOfflinePlayersAsync(@NotNull String name) {
-    Preconditions.checkNotNull(name);
-
-    return this.messageBuilder()
-      .message("get_offline_players_by_name")
-      .targetNode(Wrapper.getInstance().getServiceId().getNodeUniqueId())
-      .buffer(ProtocolBuffer.create().writeString(name))
-      .build()
-      .sendSingleQueryAsync()
-      .map(message -> Arrays.asList(message.getBuffer().readObjectArray(CloudOfflinePlayer.class)));
+    return CompletableTask.supplyAsync(() -> this.getOfflinePlayers(name));
   }
 
   @Override
   @NotNull
   public ITask<List<? extends ICloudOfflinePlayer>> getRegisteredPlayersAsync() {
-    return this.messageBuilder()
-      .message("get_offline_players")
-      .targetNode(Wrapper.getInstance().getServiceId().getNodeUniqueId())
-      .build()
-      .sendSingleQueryAsync()
-      .map(message -> Arrays.asList(message.getBuffer().readObjectArray(CloudOfflinePlayer.class)));
+    return CompletableTask.supplyAsync(this::getRegisteredPlayers);
   }
 
 
+  //TODO: look into this
   @Override
   public void updateOfflinePlayer(@NotNull ICloudOfflinePlayer cloudOfflinePlayer) {
     Preconditions.checkNotNull(cloudOfflinePlayer);
@@ -251,19 +200,11 @@ public final class BridgePlayerManager extends DefaultPlayerManager implements I
 
   @Override
   public void deleteCloudOfflinePlayer(@NotNull ICloudOfflinePlayer cloudOfflinePlayer) {
-    this.deleteCloudOfflinePlayerAsync(cloudOfflinePlayer).get(5L, TimeUnit.SECONDS, null);
+    this.rpcSender.invokeMethod("deleteCloudOfflinePlayer", cloudOfflinePlayer).fireSync();
   }
 
   @Override
   public ITask<Void> deleteCloudOfflinePlayerAsync(@NotNull ICloudOfflinePlayer cloudOfflinePlayer) {
-    Preconditions.checkNotNull(cloudOfflinePlayer);
-
-    this.messageBuilder()
-      .message("delete_offline_player")
-      .targetNode(Wrapper.getInstance().getNodeUniqueId())
-      .buffer(ProtocolBuffer.create().writeObject(cloudOfflinePlayer))
-      .build()
-      .send();
-    return CompletedTask.voidTask();
+    return CompletableTask.supplyAsync(() -> this.deleteCloudOfflinePlayer(cloudOfflinePlayer));
   }
 }

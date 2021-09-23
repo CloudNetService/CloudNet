@@ -17,43 +17,36 @@
 package de.dytanic.cloudnet.common.unsafe;
 
 import com.google.common.base.Preconditions;
-import de.dytanic.cloudnet.common.log.LogManager;
-import de.dytanic.cloudnet.common.log.Logger;
 import java.net.URI;
 import java.net.URISyntaxException;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.NotNull;
 
 /**
- * Allows you to provide the URI of a class whose classpath item
+ * A resolver for elements in the class path.
  */
 @ApiStatus.Internal
 public final class ResourceResolver {
-
-  private static final Logger LOGGER = LogManager.getLogger(ResourceResolver.class);
 
   private ResourceResolver() {
     throw new UnsupportedOperationException();
   }
 
   /**
-   * Allows you to provide the URI of a class whose classpath item
+   * Resolves the location of the given {@code clazz} in the class path.
    *
-   * @param clazz the class, which should resolve the classpath item URI from
-   * @return the uri of the classpath element or null if an exception was caught
-   * @see Class
-   * @see java.security.ProtectionDomain
-   * @see java.security.CodeSource
+   * @param clazz the clazz to get the location of.
+   * @return the uri of the clazz location in the class path.
+   * @throws NullPointerException if {@code clazz} is null.
    */
-  public static URI resolveURIFromResourceByClass(Class<?> clazz) {
-    Preconditions.checkNotNull(clazz);
+  public static @NotNull URI resolveURIFromResourceByClass(Class<?> clazz) {
+    Preconditions.checkNotNull(clazz, "clazz");
 
     try {
       return clazz.getProtectionDomain().getCodeSource().getLocation().toURI();
     } catch (URISyntaxException exception) {
-      LOGGER.severe("Could not resolve URI", exception);
+      // this can not happen - a file has always a valid location
+      throw new IllegalStateException("Unable to resolve uri for " + clazz, exception);
     }
-
-    return null;
   }
-
 }

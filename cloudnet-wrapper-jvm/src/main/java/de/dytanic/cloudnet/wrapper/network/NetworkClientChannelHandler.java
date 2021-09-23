@@ -16,6 +16,7 @@
 
 package de.dytanic.cloudnet.wrapper.network;
 
+import de.dytanic.cloudnet.common.concurrent.CompletableTask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
@@ -26,8 +27,8 @@ import de.dytanic.cloudnet.driver.event.events.network.NetworkChannelInitEvent;
 import de.dytanic.cloudnet.driver.event.events.network.NetworkChannelPacketReceiveEvent;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.INetworkChannelHandler;
-import de.dytanic.cloudnet.driver.network.def.internal.InternalSyncPacketChannel;
 import de.dytanic.cloudnet.driver.network.def.packet.PacketClientAuthorization;
+import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.network.protocol.Packet;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import org.jetbrains.annotations.NotNull;
@@ -60,10 +61,12 @@ public class NetworkClientChannelHandler implements INetworkChannelHandler {
 
   @Override
   public boolean handlePacketReceive(@NotNull INetworkChannel channel, @NotNull Packet packet) {
-    if (InternalSyncPacketChannel.handleIncomingChannel(channel, packet)) {
-      return false;
+    if (packet.getUniqueId() != null) {
+      CompletableTask<IPacket> waitingHandler = channel.getQueryPacketManager().getWaitingHandler(packet.getUniqueId());
+      if (waitingHandler != null) {
+        waitingHandler.complete(packet);
+      }
     }
-
     return !CloudNetDriver.getInstance().getEventManager()
       .callEvent(new NetworkChannelPacketReceiveEvent(channel, packet)).isCancelled();
   }

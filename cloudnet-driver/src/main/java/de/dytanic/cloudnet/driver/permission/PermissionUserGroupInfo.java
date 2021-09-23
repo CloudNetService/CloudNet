@@ -16,13 +16,14 @@
 
 package de.dytanic.cloudnet.driver.permission;
 
+import de.dytanic.cloudnet.common.document.gson.BasicJsonDocPropertyable;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.jetbrains.annotations.NotNull;
 
 @ToString
 @EqualsAndHashCode(callSuper = false)
-public class PermissionUserGroupInfo {
+public class PermissionUserGroupInfo extends BasicJsonDocPropertyable {
 
   protected String group;
 

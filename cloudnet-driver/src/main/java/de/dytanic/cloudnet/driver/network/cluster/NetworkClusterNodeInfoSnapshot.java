@@ -16,6 +16,7 @@
 
 package de.dytanic.cloudnet.driver.network.cluster;
 
+import de.dytanic.cloudnet.common.document.gson.BasicJsonDocPropertyable;
 import de.dytanic.cloudnet.driver.module.ModuleConfiguration;
 import de.dytanic.cloudnet.driver.service.ProcessSnapshot;
 import java.lang.reflect.Type;
@@ -25,7 +26,7 @@ import lombok.ToString;
 
 @ToString
 @EqualsAndHashCode(callSuper = false)
-public class NetworkClusterNodeInfoSnapshot {
+public class NetworkClusterNodeInfoSnapshot extends BasicJsonDocPropertyable {
 
   @Deprecated
   public static final Type TYPE = NetworkClusterNodeInfoSnapshot.class;

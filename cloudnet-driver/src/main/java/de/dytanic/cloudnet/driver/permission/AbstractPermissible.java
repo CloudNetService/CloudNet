@@ -16,6 +16,7 @@
 
 package de.dytanic.cloudnet.driver.permission;
 
+import de.dytanic.cloudnet.common.document.gson.BasicJsonDocPropertyable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -28,7 +29,7 @@ import org.jetbrains.annotations.NotNull;
 
 @ToString
 @EqualsAndHashCode(callSuper = false)
-public abstract class AbstractPermissible implements IPermissible {
+public abstract class AbstractPermissible extends BasicJsonDocPropertyable implements IPermissible {
 
   protected long createdTime;
   protected String name;
