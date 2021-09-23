@@ -27,95 +27,114 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
-import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 
 /**
  * This class is for utility methods for the base modules in this multi module project
  */
 public final class DefaultModuleHelper {
 
-  private static final Logger LOGGER = LogManager.getLogger(DefaultModuleHelper.class);
+  /**
+   * @deprecated use an appropriate database name or another database instead.
+   */
+  @Deprecated
+  @ScheduledForRemoval
   public static final String DEFAULT_CONFIGURATION_DATABASE_NAME = "cloudNet_module_configuration";
+
+  private static final Logger LOGGER = LogManager.getLogger(DefaultModuleHelper.class);
 
   private DefaultModuleHelper() {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * @deprecated use {@link #copyCurrentModuleInstanceFromClass(Class, Path)} instead.
+   */
   @Deprecated
   @ApiStatus.ScheduledForRemoval(inVersion = "3.6")
   public static boolean copyCurrentModuleInstanceFromClass(Class<?> clazz, File target) {
     return copyCurrentModuleInstanceFromClass(clazz, target.toPath());
   }
 
+  /**
+   * Copies the caller {@code clazz} location from the class path to the given {@code target} path.
+   *
+   * @param clazz  the class of which the associated class path entry should get copied.
+   * @param target the target file to copy the file into - the file is not required to exist.
+   * @return true if the entry was copied successfully, false otherwise.
+   * @throws NullPointerException if {@code clazz} or {@code target} is null.
+   */
   public static boolean copyCurrentModuleInstanceFromClass(Class<?> clazz, Path target) {
     Preconditions.checkNotNull(clazz);
     Preconditions.checkNotNull(target);
 
     try {
+      // get the location of the class path entry associated with the given class
       URI uri = ResourceResolver.resolveURIFromResourceByClass(clazz);
-      if (uri != null) {
-        URLConnection connection = uri.toURL().openConnection();
-        connection.setRequestProperty("User-Agent",
-          "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11");
-        connection.connect();
-
-        try (InputStream inputStream = connection.getInputStream(); OutputStream outputStream = Files
-          .newOutputStream(target)) {
-          FileUtils.copy(inputStream, outputStream);
-        }
-
+      // copy the file
+      try (OutputStream out = Files.newOutputStream(target)) {
+        FileUtils.copy(uri.toURL().openStream(), out);
         return true;
       }
     } catch (IOException exception) {
-      LOGGER.severe("Exception while resolving URI", exception);
+      LOGGER.severe("Unable to copy class path entry of " + clazz + " to " + target, exception);
+      return false;
     }
-    return false;
   }
 
-  public static void copyPluginConfigurationFileForEnvironment(Class<?> targetClass, ServiceEnvironmentType type,
-    Path file) {
-    FileUtils.openZipFileSystem(file, fileSystem -> {
-      Path pluginPath = fileSystem.getPath("plugin.yml");
+  /**
+   * Copies the appropriate plugin configuration file for the given service environment {@code type}. All the listed
+   * files will be copied and renamed to {@code plugin.yml}:
+   *
+   * <ul>
+   *   <li>plugin.bungee.yml if the given environment is BUNGEECORD.</li>
+   *   <li>plugin.waterdogpe.yml if the given environment is WATERDOG_PE.</li>
+   *   <li>plugin.nukkit.yml if the given environment is NUKKIT.</li>
+   *   <li>plugin.bukkit.yml is used as a fallback - if the file does not exist it will not be used.</li>
+   * </ul>
+   *
+   * @param clazz the class of which the associated class path entry should get copied.
+   * @param type  the current {@link ServiceEnvironmentType} of the service the file gets copied for.
+   * @param file  the target file of the plugin to copy the file for.
+   * @throws NullPointerException if clazz, type or file is null.
+   */
+  public static void copyPluginConfigurationFileForEnvironment(Class<?> clazz, ServiceEnvironmentType type, Path file) {
+    Preconditions.checkNotNull(clazz, "clazz");
+    Preconditions.checkNotNull(type, "type");
+    Preconditions.checkNotNull(file, "file");
 
+    FileUtils.openZipFileSystem(file, fileSystem -> {
+      // check if there is a plugin.yml file already - delete if it exists
+      Path pluginPath = fileSystem.getPath("plugin.yml");
       if (Files.exists(pluginPath)) {
         Files.delete(pluginPath);
       }
-
+      // select the input stream to copy the file from
+      InputStream in;
       switch (type) {
-        case VELOCITY:
-          break;
         case BUNGEECORD:
-          try (InputStream inputStream = targetClass.getClassLoader().getResourceAsStream("plugin.bungee.yml")) {
-            if (inputStream != null) {
-              Files.copy(inputStream, pluginPath);
-            }
-          }
+          in = clazz.getClassLoader().getResourceAsStream("plugin.bungee.yml");
           break;
         case WATERDOG_PE:
-          try (InputStream inputStream = targetClass.getClassLoader().getResourceAsStream("plugin.waterdogpe.yml")) {
-            if (inputStream != null) {
-              Files.copy(inputStream, pluginPath);
-            }
-          }
+          in = clazz.getClassLoader().getResourceAsStream("plugin.waterdogpe.yml");
           break;
         case NUKKIT:
-          try (InputStream inputStream = targetClass.getClassLoader().getResourceAsStream("plugin.nukkit.yml")) {
-            if (inputStream != null) {
-              Files.copy(inputStream, pluginPath);
-            }
-          }
+          in = clazz.getClassLoader().getResourceAsStream("plugin.nukkit.yml");
           break;
         default:
-          try (InputStream inputStream = targetClass.getClassLoader().getResourceAsStream("plugin.bukkit.yml")) {
-            if (inputStream != null) {
-              Files.copy(inputStream, pluginPath);
-            }
-          }
+          in = clazz.getClassLoader().getResourceAsStream("plugin.bukkit.yml");
           break;
       }
+      // copy the file if the file exists
+      if (in != null) {
+        Files.copy(in, pluginPath);
+        // close the stream to avoid resource leaks
+        in.close();
+      }
+
       return null;
     });
   }

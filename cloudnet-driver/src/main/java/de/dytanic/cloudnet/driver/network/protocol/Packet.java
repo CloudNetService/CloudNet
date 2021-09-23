@@ -18,6 +18,8 @@ package de.dytanic.cloudnet.driver.network.protocol;
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
+import de.dytanic.cloudnet.driver.network.netty.buffer.NettyImmutableDataBuf;
+import de.dytanic.cloudnet.driver.serialization.DefaultProtocolBuffer;
 import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import java.util.UUID;
 import lombok.EqualsAndHashCode;
@@ -40,11 +42,11 @@ public class Packet implements IPacket {
 
   public static final IPacket EMPTY = new Packet(-1, null);
 
-  private final int channel;
-  private final DataBuf dataBuf;
-  private final long creationMillis;
+  protected final int channel;
+  protected final DataBuf dataBuf;
+  protected final long creationMillis;
 
-  private UUID uniqueId;
+  protected UUID uniqueId;
 
   public Packet() {
     this(0, null);
@@ -78,7 +80,7 @@ public class Packet implements IPacket {
 
   @Override
   public @NotNull ProtocolBuffer getBuffer() {
-    return null;
+    return new DefaultProtocolBuffer(((NettyImmutableDataBuf) this.dataBuf).getByteBuf());
   }
 
   @Override

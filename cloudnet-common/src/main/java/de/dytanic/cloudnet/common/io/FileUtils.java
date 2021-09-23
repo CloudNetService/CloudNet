@@ -90,8 +90,7 @@ public final class FileUtils {
   }
 
   public static void openZipFileSystem(Path path, IVoidThrowableCallback<FileSystem> consumer) {
-    try (FileSystem fileSystem = FileSystems
-      .newFileSystem(URI.create("jar:" + path.toUri()), ZIP_FILE_SYSTEM_PROPERTIES)) {
+    try (FileSystem fileSystem = FileSystems.newFileSystem(URI.create("jar:" + path.toUri()), ZIP_FILE_SYSTEM_PROPERTIES)) {
       consumer.call(fileSystem);
     } catch (Throwable throwable) {
       LOGGER.severe("Exception while opening file", throwable);

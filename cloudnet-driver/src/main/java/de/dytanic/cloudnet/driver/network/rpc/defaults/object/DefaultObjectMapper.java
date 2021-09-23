@@ -54,6 +54,8 @@ import org.jetbrains.annotations.Nullable;
 
 public class DefaultObjectMapper implements ObjectMapper {
 
+  public static final ObjectMapper DEFAULT_MAPPER = new DefaultObjectMapper();
+
   private static final Map<Type, ObjectSerializer<?>> DEFAULT_SERIALIZERS = ImmutableMap.<Type, ObjectSerializer<?>>builder()
     //    ==== primitive types ====
     // boolean
