@@ -16,6 +16,10 @@
 
 package de.dytanic.cloudnet.driver.template;
 
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
+
+@Deprecated
+@ScheduledForRemoval
 public enum TemplateStorageResponse {
 
   SUCCESS,

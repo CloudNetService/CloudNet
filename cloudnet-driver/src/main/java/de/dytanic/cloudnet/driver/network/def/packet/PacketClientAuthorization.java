@@ -16,34 +16,24 @@
 
 package de.dytanic.cloudnet.driver.network.def.packet;
 
-import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import de.dytanic.cloudnet.driver.network.buffer.DataBufFactory;
+import de.dytanic.cloudnet.driver.network.def.PacketConstants;
 import de.dytanic.cloudnet.driver.network.protocol.Packet;
+import de.dytanic.cloudnet.driver.network.rpc.defaults.object.DefaultObjectMapper;
 
 public final class PacketClientAuthorization extends Packet {
 
-  public PacketClientAuthorization(PacketAuthorizationType packetAuthorizationType, JsonDocument credentials) {
-    //TODO: super(PacketConstants.INTERNAL_AUTHORIZATION_CHANNEL, new JsonDocument());
-
-    Preconditions.checkNotNull(packetAuthorizationType);
-    Preconditions.checkNotNull(credentials);
-
-    // this.header.append("authorization", packetAuthorizationType).append("credentials", credentials);
+  public PacketClientAuthorization(PacketAuthorizationType type, JsonDocument data) {
+    super(PacketConstants.INTERNAL_AUTHORIZATION_CHANNEL, DefaultObjectMapper.DEFAULT_MAPPER.writeObject(
+      DataBufFactory.defaultFactory().createEmpty(),
+      data
+    ).writeInt(type.ordinal()));
   }
 
   public enum PacketAuthorizationType {
 
-    NODE_TO_NODE(0),
-    WRAPPER_TO_NODE(1);
-
-    private final int value;
-
-    PacketAuthorizationType(int value) {
-      this.value = value;
-    }
-
-    public int getValue() {
-      return this.value;
-    }
+    NODE_TO_NODE,
+    WRAPPER_TO_NODE
   }
 }

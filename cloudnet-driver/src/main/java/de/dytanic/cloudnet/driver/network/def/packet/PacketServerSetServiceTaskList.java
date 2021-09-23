@@ -20,7 +20,10 @@ import de.dytanic.cloudnet.driver.network.NetworkUpdateType;
 import de.dytanic.cloudnet.driver.network.protocol.Packet;
 import de.dytanic.cloudnet.driver.service.ServiceTask;
 import java.util.Collection;
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 
+@Deprecated
+@ScheduledForRemoval
 public final class PacketServerSetServiceTaskList extends Packet {
 
   public PacketServerSetServiceTaskList(Collection<ServiceTask> tasks, NetworkUpdateType updateType) {

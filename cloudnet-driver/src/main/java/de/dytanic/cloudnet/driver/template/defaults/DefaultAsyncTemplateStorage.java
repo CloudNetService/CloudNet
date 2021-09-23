@@ -33,9 +33,12 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Predicate;
 import java.util.zip.ZipInputStream;
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+@Deprecated
+@ScheduledForRemoval
 public abstract class DefaultAsyncTemplateStorage implements TemplateStorage {
 
   protected static final Logger LOGGER = LogManager.getLogger(DefaultAsyncTemplateStorage.class);

@@ -28,16 +28,46 @@ import org.jetbrains.annotations.UnmodifiableView;
 
 /**
  * This class provides methods to get information to the services in the cluster.
+ *
+ * @author derrop (derrop@cloudnetservice.eu)
+ * @author Pasqual K. (derklaro@cloudnetservice.eu)
  */
 public interface GeneralCloudServiceProvider {
 
+  /**
+   * Get a provider for the specified service snapshot based on the unique id of it.
+   *
+   * @param snapshot the snapshot to get the provider for.
+   * @return a {@link SpecificCloudServiceProvider} to manage the specific given service.
+   * @see #getSpecificProvider(UUID)
+   * @since 3.5
+   */
   default @NotNull SpecificCloudServiceProvider getSpecificProvider(@NotNull ServiceInfoSnapshot snapshot) {
-    return this.getSpecificProvider(
-      snapshot.getServiceId().getUniqueId()); // todo: i am tired right now: is this a good idea?
+    return this.getSpecificProvider(snapshot.getServiceId().getUniqueId());
   }
 
+  /**
+   * Gets a provider for the specific service snapshot with the given unique id. No check is made if the service this
+   * provider was created for actually exists. If a provider gets created for a not-existing service, then calling any
+   * method will result in a dummy return value and do nothing. Any service which will be created with the given unique
+   * id at any time can be managed with the created provider.
+   *
+   * @param serviceUniqueId the unique id of the service to get the provider for.
+   * @return a {@link SpecificCloudServiceProvider} to manage the service with the given unique id.
+   * @since 3.5
+   */
   @NotNull SpecificCloudServiceProvider getSpecificProvider(@NotNull UUID serviceUniqueId);
 
+  /**
+   * Gets a provider for the specific service snapshot with the given name. A service name is unique within a CloudNet
+   * cluster. No check is made if the service this provider was created for actually exists. If a provider gets created
+   * for a not-existing service, then calling any method will result in a dummy return value and do nothing. Any service
+   * which will be created with the given name at any time can be managed with the created provider.
+   *
+   * @param serviceName the name of the service to get the provider for.
+   * @return a {@link SpecificCloudServiceProvider} to manage the service with the given name.
+   * @since 3.5
+   */
   @NotNull SpecificCloudServiceProvider getSpecificProviderByName(@NotNull String serviceName);
 
   /**

@@ -18,11 +18,13 @@ package de.dytanic.cloudnet.driver.network.def.packet;
 
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.driver.network.protocol.Packet;
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 
+@Deprecated
+@ScheduledForRemoval
 public final class PacketClientServerChannelMessage extends Packet {
 
   public PacketClientServerChannelMessage(ChannelMessage message, boolean query) {
     //TODO: super(PacketConstants.CHANNEL_MESSAGING_CHANNEL, ProtocolBuffer.create().writeObject(message).writeBoolean(query));
   }
-
 }

@@ -69,7 +69,8 @@ public abstract class CloudNetDriver {
   protected final IModuleProvider moduleProvider = new DefaultModuleProvider();
   protected final IServicesRegistry servicesRegistry = new DefaultServicesRegistry();
   protected final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(4);
-  protected final RPCProviderFactory rpcProviderFactory = new DefaultRPCProviderFactory(new DefaultObjectMapper(),
+  protected final RPCProviderFactory rpcProviderFactory = new DefaultRPCProviderFactory(
+    DefaultObjectMapper.DEFAULT_MAPPER,
     DataBufFactory.defaultFactory());
 
   @Deprecated
@@ -253,28 +254,36 @@ public abstract class CloudNetDriver {
    *
    * @param name the name of the service
    * @return the new instance of the {@link SpecificCloudServiceProvider}
+   * @deprecated use {@link GeneralCloudServiceProvider#getSpecificProviderByName(String)} instead.
    */
   @NotNull
-  public abstract SpecificCloudServiceProvider getCloudServiceProvider(@NotNull String name); // todo: deprecate
+  @Deprecated
+  @ScheduledForRemoval
+  public abstract SpecificCloudServiceProvider getCloudServiceProvider(@NotNull String name);
 
   /**
    * Returns a new service specific CloudServiceProvider
    *
    * @param uniqueId the uniqueId of the service
    * @return the new instance of the {@link SpecificCloudServiceProvider}
+   * @deprecated use {@link GeneralCloudServiceProvider#getSpecificProvider(UUID)} instead.
    */
   @NotNull
-  public abstract SpecificCloudServiceProvider getCloudServiceProvider(@NotNull UUID uniqueId); // todo: deprecate
+  @Deprecated
+  @ScheduledForRemoval
+  public abstract SpecificCloudServiceProvider getCloudServiceProvider(@NotNull UUID uniqueId);
 
   /**
    * Returns a new service specific CloudServiceProvider
    *
-   * @param serviceInfoSnapshot the info of the service to create a provider for
+   * @param snapshot the info of the service to create a provider for
    * @return the new instance of the {@link SpecificCloudServiceProvider}
+   * @deprecated use {@link GeneralCloudServiceProvider#getSpecificProvider(ServiceInfoSnapshot)} instead.
    */
   @NotNull
-  public abstract SpecificCloudServiceProvider getCloudServiceProvider(
-    @NotNull ServiceInfoSnapshot serviceInfoSnapshot); // todo: deprecate
+  @Deprecated
+  @ScheduledForRemoval
+  public abstract SpecificCloudServiceProvider getCloudServiceProvider(@NotNull ServiceInfoSnapshot snapshot);
 
   /**
    * Returns the general CloudServiceProvider

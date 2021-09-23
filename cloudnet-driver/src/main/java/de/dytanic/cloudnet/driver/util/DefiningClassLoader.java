@@ -18,7 +18,8 @@ package de.dytanic.cloudnet.driver.util;
 
 import java.security.SecureClassLoader;
 
-public class DefiningClassLoader extends SecureClassLoader {
+@Deprecated
+public final class DefiningClassLoader extends SecureClassLoader {
 
   public DefiningClassLoader(ClassLoader parent) {
     super(parent);

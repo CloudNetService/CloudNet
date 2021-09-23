@@ -29,9 +29,12 @@ import java.nio.file.Path;
 import java.util.Collection;
 import java.util.function.Predicate;
 import java.util.zip.ZipInputStream;
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+@Deprecated
+@ScheduledForRemoval
 public abstract class DefaultSyncTemplateStorage implements TemplateStorage {
 
   protected static final Logger LOGGER = LogManager.getLogger(DefaultSyncTemplateStorage.class);

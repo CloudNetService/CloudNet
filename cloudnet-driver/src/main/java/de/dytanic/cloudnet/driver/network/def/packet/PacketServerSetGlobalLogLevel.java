@@ -17,8 +17,11 @@
 package de.dytanic.cloudnet.driver.network.def.packet;
 
 import de.dytanic.cloudnet.driver.network.protocol.Packet;
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 import org.jetbrains.annotations.NotNull;
 
+@Deprecated
+@ScheduledForRemoval
 public class PacketServerSetGlobalLogLevel extends Packet {
 
   public PacketServerSetGlobalLogLevel(@NotNull String levelName) {
