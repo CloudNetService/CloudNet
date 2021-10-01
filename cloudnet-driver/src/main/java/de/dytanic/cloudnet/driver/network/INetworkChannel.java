@@ -26,7 +26,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * A NetworkChannel instance represents an open connection
  */
-public interface INetworkChannel extends IPacketSender, AutoCloseable {
+public interface INetworkChannel extends IPacketSender {
 
   /**
    * Returns the unique channelId. The Channel Id begins with 1 and ends with Long.MAX_VALUE
@@ -77,4 +77,5 @@ public interface INetworkChannel extends IPacketSender, AutoCloseable {
 
   boolean isActive();
 
+  void close();
 }

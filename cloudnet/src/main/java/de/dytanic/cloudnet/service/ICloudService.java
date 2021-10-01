@@ -16,8 +16,8 @@
 
 package de.dytanic.cloudnet.service;
 
-import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
+import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
 import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
 import de.dytanic.cloudnet.driver.service.ServiceDeployment;
 import de.dytanic.cloudnet.driver.service.ServiceId;
@@ -25,51 +25,27 @@ import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
 import de.dytanic.cloudnet.driver.service.ServiceRemoteInclusion;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
-import java.io.File;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Queue;
-import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
+import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.Unmodifiable;
+import org.jetbrains.annotations.UnmodifiableView;
 
-public interface ICloudService {
-
-  @ApiStatus.Internal
-  void init();
-
-  @Nullable
-  String getJavaCommand();
+public interface ICloudService extends SpecificCloudServiceProvider {
 
   @NotNull
   String getRuntime();
 
-  List<ServiceRemoteInclusion> getIncludes();
+  @UnmodifiableView
+  @NotNull Queue<ServiceRemoteInclusion> getWaitingIncludes();
 
-  List<ServiceTemplate> getTemplates();
+  @UnmodifiableView
+  @NotNull Queue<ServiceTemplate> getWaitingTemplates();
 
-  List<ServiceDeployment> getDeployments();
-
-  Queue<ServiceRemoteInclusion> getWaitingIncludes();
-
-  /**
-   * @deprecated use {@link #getQueuedTemplates()} instead
-   */
-  @Deprecated
-  @ScheduledForRemoval(inVersion = "3.7")
-  Queue<ServiceTemplate> getWaitingTemplates();
-
-  /**
-   * The returned list is not modifiable
-   *
-   * @return all templates that are waiting to be included (copied) to the service
-   */
-  @Unmodifiable
-  List<ServiceTemplate> getQueuedTemplates();
-
-  List<String> getGroups();
+  @UnmodifiableView
+  @NotNull Queue<ServiceDeployment> getWaitingDeployments();
 
   @NotNull
   ServiceLifeCycle getLifeCycle();
@@ -83,70 +59,28 @@ public interface ICloudService {
   @NotNull
   ServiceId getServiceId();
 
+  @NotNull
   String getConnectionKey();
 
   @NotNull
-  @Deprecated
-  File getDirectory();
+  Path getDirectory();
 
-  @NotNull
-  Path getDirectoryPath();
-
+  @Nullable
   INetworkChannel getNetworkChannel();
 
-  @ApiStatus.Internal
-  void setNetworkChannel(INetworkChannel channel);
-
-  @NotNull
-  ServiceInfoSnapshot getServiceInfoSnapshot();
+  @Internal
+  void setNetworkChannel(@Nullable INetworkChannel channel);
 
   @NotNull
   ServiceInfoSnapshot getLastServiceInfoSnapshot();
 
-  ITask<ServiceInfoSnapshot> forceUpdateServiceInfoSnapshotAsync();
-
-  @Nullable
-  Process getProcess();
-
-  void runCommand(@NotNull String commandLine);
-
-  int getConfiguredMaxHeapMemory();
-
   @NotNull
   IServiceConsoleLogCache getServiceConsoleLogCache();
-
-  void start() throws Exception;
-
-  void restart() throws Exception;
-
-  int stop();
-
-  int kill();
-
-  default void delete() {
-    this.delete(true);
-  }
 
   void delete(boolean sendUpdate);
 
   boolean isAlive();
 
-  void includeInclusions();
-
-  void includeTemplates();
-
-  void deployResources(boolean removeDeployments);
-
-  default void deployResources() {
-    this.deployResources(true);
-  }
-
-  void offerTemplate(@NotNull ServiceTemplate template);
-
-  void offerInclusion(@NotNull ServiceRemoteInclusion inclusion);
-
-  void addDeployment(@NotNull ServiceDeployment deployment);
-
+  @Internal
   void updateServiceInfoSnapshot(@NotNull ServiceInfoSnapshot serviceInfoSnapshot);
-
 }

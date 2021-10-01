@@ -105,8 +105,7 @@ public interface SpecificCloudServiceProvider {
   }
 
   /**
-   * Deletes this service if it is not deleted yet. If this service is running, it will be stopped like {@link #kill()}
-   * does.
+   * Deletes this service if it is not deleted yet.
    */
   default void delete() {
     this.setCloudServiceLifeCycle(ServiceLifeCycle.DELETED);
@@ -123,12 +122,6 @@ public interface SpecificCloudServiceProvider {
    * Stops this service like {@link #stop()} and starts it after it like {@link #start()}.
    */
   void restart();
-
-  /**
-   * Tries to stop this service like {@link #stop()} but if the service is still running after 5 seconds, it is
-   * destroyed forcibly
-   */
-  void kill();
 
   /**
    * Executes the given command in the console of this service if it is running
@@ -259,8 +252,7 @@ public interface SpecificCloudServiceProvider {
   }
 
   /**
-   * Deletes this service if it is not deleted yet. If this service is running, it will be stopped like {@link #kill()}
-   * does.
+   * Deletes this service if it is not deleted yet.
    */
   @NotNull
   default ITask<Void> deleteAsync() {
@@ -281,14 +273,6 @@ public interface SpecificCloudServiceProvider {
    */
   default @NotNull ITask<Void> restartAsync() {
     return CompletableTask.supplyAsync(this::restart);
-  }
-
-  /**
-   * Tries to stop this service like {@link #stop()} but if the service is still running after 5 seconds, it is
-   * destroyed forcibly
-   */
-  default @NotNull ITask<Void> killAsync() {
-    return CompletableTask.supplyAsync(this::kill);
   }
 
   /**

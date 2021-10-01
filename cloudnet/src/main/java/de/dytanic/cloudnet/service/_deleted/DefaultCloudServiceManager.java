@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.service.defaults;
+package de.dytanic.cloudnet.service._deleted;
 
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.CloudNet;

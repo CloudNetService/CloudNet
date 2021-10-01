@@ -112,11 +112,6 @@ public class RemoteSpecificCloudServiceProvider implements SpecificCloudServiceP
   }
 
   @Override
-  public void kill() {
-    this.getBaseRPC().join(this.thisProviderSender.invokeMethod("kill")).fireSync();
-  }
-
-  @Override
   public void runCommand(@NotNull String command) {
     this.getBaseRPC().join(this.thisProviderSender.invokeMethod("runCommand", command)).fireSync();
   }

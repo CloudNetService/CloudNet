@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.service.defaults;
+package de.dytanic.cloudnet.service._deleted;
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.encrypt.EncryptTo;

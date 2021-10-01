@@ -32,22 +32,22 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.logging.Formatter;
 
-public final class Main {
+final class BootLogic {
 
-  private Main() {
+  private BootLogic() {
     throw new UnsupportedOperationException();
   }
 
-  public static synchronized void main(String... args) throws Throwable {
+  public static synchronized void main(String[] args) throws Throwable {
     LanguageManager.setLanguage(System.getProperty("cloudnet.messages.language", "english"));
     LanguageManager
-      .addLanguageFile("german", Main.class.getClassLoader().getResourceAsStream("lang/german.properties"));
+      .addLanguageFile("german", BootLogic.class.getClassLoader().getResourceAsStream("lang/german.properties"));
     LanguageManager
-      .addLanguageFile("english", Main.class.getClassLoader().getResourceAsStream("lang/english.properties"));
+      .addLanguageFile("english", BootLogic.class.getClassLoader().getResourceAsStream("lang/english.properties"));
     LanguageManager
-      .addLanguageFile("french", Main.class.getClassLoader().getResourceAsStream("lang/french.properties"));
+      .addLanguageFile("french", BootLogic.class.getClassLoader().getResourceAsStream("lang/french.properties"));
     LanguageManager
-      .addLanguageFile("chinese", Main.class.getClassLoader().getResourceAsStream("lang/chinese.properties"));
+      .addLanguageFile("chinese", BootLogic.class.getClassLoader().getResourceAsStream("lang/chinese.properties"));
 
     IConsole console = new JLine3Console();
     Logger logger = LogManager.getRootLogger();

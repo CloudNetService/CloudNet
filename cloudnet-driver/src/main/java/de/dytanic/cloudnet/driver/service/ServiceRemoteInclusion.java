@@ -21,6 +21,7 @@ import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
+// @todo: add checksum to prevent re-download every time
 @ToString
 @EqualsAndHashCode(callSuper = false)
 public final class ServiceRemoteInclusion extends BasicJsonDocPropertyable {

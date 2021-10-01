@@ -29,7 +29,7 @@ import de.dytanic.cloudnet.driver.provider.service.DefaultCloudServiceFactory;
 import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.service.ICloudService;
-import de.dytanic.cloudnet.service.defaults.DefaultCloudServiceManager;
+import de.dytanic.cloudnet.service._deleted.DefaultCloudServiceManager;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.concurrent.TimeUnit;

@@ -20,13 +20,9 @@ import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+@FunctionalInterface
 public interface ICloudServiceFactory {
 
-  @NotNull
-  String getRuntime();
-
   @Nullable
-  ICloudService createCloudService(@NotNull ICloudServiceManager cloudServiceManager,
-    @NotNull ServiceConfiguration serviceConfiguration);
-
+  ICloudService createCloudService(@NotNull ICloudServiceManager manager, @NotNull ServiceConfiguration configuration);
 }
