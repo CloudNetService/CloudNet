@@ -17,6 +17,7 @@
 package de.dytanic.cloudnet.ext.bridge.player;
 
 import com.google.common.base.Preconditions;
+import de.dytanic.cloudnet.common.document.gson.BasicJsonDocPropertyable;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import java.lang.reflect.Type;
 import java.util.UUID;
@@ -26,7 +27,7 @@ import org.jetbrains.annotations.NotNull;
 
 @ToString
 @EqualsAndHashCode(callSuper = false)
-public class CloudOfflinePlayer implements ICloudOfflinePlayer {
+public class CloudOfflinePlayer extends BasicJsonDocPropertyable implements ICloudOfflinePlayer {
 
   @Deprecated
   public static final Type TYPE = CloudOfflinePlayer.class;
@@ -41,8 +42,6 @@ public class CloudOfflinePlayer implements ICloudOfflinePlayer {
 
   protected NetworkConnectionInfo lastNetworkConnectionInfo;
 
-  protected JsonDocument properties;
-
   public CloudOfflinePlayer(UUID uniqueId, String name, String xBoxId, long firstLoginTimeMillis,
     long lastLoginTimeMillis, NetworkConnectionInfo lastNetworkConnectionInfo) {
     this.uniqueId = uniqueId;
@@ -51,7 +50,6 @@ public class CloudOfflinePlayer implements ICloudOfflinePlayer {
     this.firstLoginTimeMillis = firstLoginTimeMillis;
     this.lastLoginTimeMillis = lastLoginTimeMillis;
     this.lastNetworkConnectionInfo = lastNetworkConnectionInfo;
-    this.properties = JsonDocument.newDocument();
   }
 
   public CloudOfflinePlayer() {
@@ -127,10 +125,5 @@ public class CloudOfflinePlayer implements ICloudOfflinePlayer {
 
   public void setLastNetworkConnectionInfo(@NotNull NetworkConnectionInfo lastNetworkConnectionInfo) {
     this.lastNetworkConnectionInfo = lastNetworkConnectionInfo;
-  }
-
-  @Override
-  public JsonDocument getProperties() {
-    return this.properties;
   }
 }

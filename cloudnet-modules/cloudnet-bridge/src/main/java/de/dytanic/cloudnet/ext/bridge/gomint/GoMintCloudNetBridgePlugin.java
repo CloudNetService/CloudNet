@@ -41,7 +41,7 @@ public final class GoMintCloudNetBridgePlugin extends Plugin {
     GoMintCloudNetHelper.init();
 
     CloudNetDriver.getInstance().getServicesRegistry()
-      .registerService(IPlayerManager.class, "BridgePlayerManager", new BridgePlayerManager());
+      .registerService(IPlayerManager.class, "BridgePlayerManager", new BridgePlayerManager(Wrapper.getInstance()));
 
     this.initListeners();
 

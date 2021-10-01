@@ -44,7 +44,7 @@ public final class BungeeCloudNetBridgePlugin extends Plugin {
   @Override
   public synchronized void onEnable() {
     CloudNetDriver.getInstance().getServicesRegistry()
-      .registerService(IPlayerManager.class, "BridgePlayerManager", new BridgePlayerManager());
+      .registerService(IPlayerManager.class, "BridgePlayerManager", new BridgePlayerManager(Wrapper.getInstance()));
 
     BungeeCloudNetHelper.init();
     this.initListeners();
