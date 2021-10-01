@@ -56,7 +56,7 @@ public final class SpongeCloudNetBridgePlugin {
     SpongeCloudNetHelper.init();
 
     CloudNetDriver.getInstance().getServicesRegistry()
-      .registerService(IPlayerManager.class, "BridgePlayerManager", new BridgePlayerManager());
+      .registerService(IPlayerManager.class, "BridgePlayerManager", new BridgePlayerManager(Wrapper.getInstance()));
 
     Sponge.getChannelRegistrar().createChannel(this, "bungeecord:main");
     Sponge.getChannelRegistrar().createChannel(this, "cloudnet:main");

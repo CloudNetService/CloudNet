@@ -29,7 +29,7 @@ public interface RPCExecutable {
   void fireAndForget();
 
   @Blocking
-  @Nullable <T> T fireSync();
+  <T> T fireSync();
 
   @NotNull <T> ITask<T> fire();
 
