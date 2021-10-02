@@ -18,8 +18,6 @@ package de.dytanic.cloudnet.provider.service;
 
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.CloudNet;
-import de.dytanic.cloudnet.common.concurrent.CompletedTask;
-import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
@@ -63,35 +61,10 @@ public class LocalNodeSpecificCloudServiceProvider implements SpecificCloudServi
   }
 
   @Override
-  @NotNull
-  public ITask<ServiceInfoSnapshot> getServiceInfoSnapshotAsync() {
-    return this.cloudNet.scheduleTask(this::getServiceInfoSnapshot);
-  }
-
-  @Override
-  public @NotNull ITask<Boolean> isValidAsync() {
-    return CompletedTask.create(this.isValid());
-  }
-
-  @Override
-  public @NotNull ITask<ServiceInfoSnapshot> forceUpdateServiceInfoAsync() {
-    return this.service.forceUpdateServiceInfoSnapshotAsync();
-  }
-
-  @Override
   public void addServiceTemplate(@NotNull ServiceTemplate serviceTemplate) {
     Preconditions.checkNotNull(serviceTemplate);
 
     this.service.offerTemplate(serviceTemplate);
-  }
-
-  @Override
-  @NotNull
-  public ITask<Void> addServiceTemplateAsync(@NotNull ServiceTemplate serviceTemplate) {
-    return this.cloudNet.scheduleTask(() -> {
-      this.addServiceTemplate(serviceTemplate);
-      return null;
-    });
   }
 
   @Override
@@ -102,15 +75,6 @@ public class LocalNodeSpecificCloudServiceProvider implements SpecificCloudServi
   }
 
   @Override
-  @NotNull
-  public ITask<Void> addServiceRemoteInclusionAsync(@NotNull ServiceRemoteInclusion serviceRemoteInclusion) {
-    return this.cloudNet.scheduleTask(() -> {
-      this.addServiceRemoteInclusion(serviceRemoteInclusion);
-      return null;
-    });
-  }
-
-  @Override
   public void addServiceDeployment(@NotNull ServiceDeployment serviceDeployment) {
     Preconditions.checkNotNull(serviceDeployment);
 
@@ -118,23 +82,8 @@ public class LocalNodeSpecificCloudServiceProvider implements SpecificCloudServi
   }
 
   @Override
-  @NotNull
-  public ITask<Void> addServiceDeploymentAsync(@NotNull ServiceDeployment serviceDeployment) {
-    return this.cloudNet.scheduleTask(() -> {
-      this.addServiceDeployment(serviceDeployment);
-      return null;
-    });
-  }
-
-  @Override
   public Queue<String> getCachedLogMessages() {
     return this.service.getServiceConsoleLogCache().getCachedLogMessages();
-  }
-
-  @Override
-  @NotNull
-  public ITask<Queue<String>> getCachedLogMessagesAsync() {
-    return this.cloudNet.scheduleTask(this::getCachedLogMessages);
   }
 
   @Override
@@ -167,30 +116,12 @@ public class LocalNodeSpecificCloudServiceProvider implements SpecificCloudServi
   }
 
   @Override
-  @NotNull
-  public ITask<Void> setCloudServiceLifeCycleAsync(@NotNull ServiceLifeCycle lifeCycle) {
-    return this.cloudNet.scheduleTask(() -> {
-      this.setCloudServiceLifeCycle(lifeCycle);
-      return null;
-    });
-  }
-
-  @Override
   public void restart() {
     try {
       this.service.restart();
     } catch (Exception exception) {
       LOGGER.severe("Exception while restarting service", exception);
     }
-  }
-
-  @Override
-  @NotNull
-  public ITask<Void> restartAsync() {
-    return this.cloudNet.scheduleTask(() -> {
-      this.restart();
-      return null;
-    });
   }
 
   @Override
@@ -203,26 +134,8 @@ public class LocalNodeSpecificCloudServiceProvider implements SpecificCloudServi
   }
 
   @Override
-  @NotNull
-  public ITask<Void> killAsync() {
-    return this.cloudNet.scheduleTask(() -> {
-      this.kill();
-      return null;
-    });
-  }
-
-  @Override
   public void runCommand(@NotNull String command) {
     this.service.runCommand(command);
-  }
-
-  @Override
-  @NotNull
-  public ITask<Void> runCommandAsync(@NotNull String command) {
-    return this.cloudNet.scheduleTask(() -> {
-      this.runCommand(command);
-      return null;
-    });
   }
 
   @Override
@@ -238,32 +151,5 @@ public class LocalNodeSpecificCloudServiceProvider implements SpecificCloudServi
   @Override
   public void deployResources(boolean removeDeployments) {
     this.service.deployResources(removeDeployments);
-  }
-
-  @Override
-  @NotNull
-  public ITask<Void> includeWaitingServiceTemplatesAsync() {
-    return this.cloudNet.scheduleTask(() -> {
-      this.includeWaitingServiceTemplates();
-      return null;
-    });
-  }
-
-  @Override
-  @NotNull
-  public ITask<Void> includeWaitingServiceInclusionsAsync() {
-    return this.cloudNet.scheduleTask(() -> {
-      this.includeWaitingServiceInclusions();
-      return null;
-    });
-  }
-
-  @Override
-  @NotNull
-  public ITask<Void> deployResourcesAsync(boolean removeDeployments) {
-    return this.cloudNet.scheduleTask(() -> {
-      this.deployResources(removeDeployments);
-      return null;
-    });
   }
 }

@@ -23,9 +23,12 @@ import de.dytanic.cloudnet.driver.channel.ChannelMessageTarget;
 import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
 import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import java.util.Collection;
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+@Deprecated
+@ScheduledForRemoval(inVersion = "3.6")
 public interface WrappedChannelMessageReceiveEvent {
 
   ChannelMessageReceiveEvent getWrapped();

@@ -18,6 +18,7 @@ package de.dytanic.cloudnet.ext.bridge.bungee.event;
 
 import net.md_5.bungee.api.plugin.Event;
 
+@Deprecated
 abstract class BungeeBridgeEvent extends Event {
 
 }

@@ -23,7 +23,8 @@ import org.jetbrains.annotations.Nullable;
 public interface NodeServerProvider<T extends NodeServer> {
 
   /**
-   * Returns the represent nodes that are configured on the application. The nodes shouldn't be online
+   * Returns the represented nodes that are configured on the application. The nodes may be online, but they don't have
+   * to
    */
   Collection<T> getNodeServers();
 

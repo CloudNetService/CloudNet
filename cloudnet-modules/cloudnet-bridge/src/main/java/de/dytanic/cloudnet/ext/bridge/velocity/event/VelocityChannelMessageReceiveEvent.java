@@ -18,7 +18,14 @@ package de.dytanic.cloudnet.ext.bridge.velocity.event;
 
 import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
 import de.dytanic.cloudnet.ext.bridge.WrappedChannelMessageReceiveEvent;
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 
+/**
+ * Use {@link ChannelMessageReceiveEvent} instead with the {@link de.dytanic.cloudnet.driver.event.EventListener}
+ * annotation and register it using {@link de.dytanic.cloudnet.driver.event.IEventManager#registerListener(Object)}
+ */
+@Deprecated
+@ScheduledForRemoval(inVersion = "3.6")
 public final class VelocityChannelMessageReceiveEvent extends VelocityCloudNetEvent implements
   WrappedChannelMessageReceiveEvent {
 

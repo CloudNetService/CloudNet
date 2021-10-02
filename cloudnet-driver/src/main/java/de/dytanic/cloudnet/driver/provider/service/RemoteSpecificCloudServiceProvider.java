@@ -72,7 +72,6 @@ public class RemoteSpecificCloudServiceProvider implements SpecificCloudServiceP
 
   @Override
   public boolean isValid() {
-    //noinspection ConstantConditions
     return this.getBaseRPC().join(this.thisProviderSender.invokeMethod("isValid")).fireSync();
   }
 

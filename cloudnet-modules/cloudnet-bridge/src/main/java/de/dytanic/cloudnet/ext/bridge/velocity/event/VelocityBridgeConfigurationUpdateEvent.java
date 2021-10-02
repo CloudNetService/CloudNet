@@ -17,7 +17,15 @@
 package de.dytanic.cloudnet.ext.bridge.velocity.event;
 
 import de.dytanic.cloudnet.ext.bridge.BridgeConfiguration;
+import de.dytanic.cloudnet.ext.bridge.event.BridgeConfigurationUpdateEvent;
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 
+/**
+ * Use {@link BridgeConfigurationUpdateEvent} instead with the {@link de.dytanic.cloudnet.driver.event.EventListener}
+ * annotation and register it using {@link de.dytanic.cloudnet.driver.event.IEventManager#registerListener(Object)}
+ */
+@Deprecated
+@ScheduledForRemoval(inVersion = "3.6")
 public final class VelocityBridgeConfigurationUpdateEvent extends VelocityBridgeEvent {
 
   private final BridgeConfiguration bridgeConfiguration;

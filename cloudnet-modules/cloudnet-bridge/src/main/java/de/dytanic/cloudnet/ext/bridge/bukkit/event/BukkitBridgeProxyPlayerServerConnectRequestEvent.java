@@ -19,11 +19,16 @@ package de.dytanic.cloudnet.ext.bridge.bukkit.event;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkConnectionInfo;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkServiceInfo;
 import org.bukkit.event.HandlerList;
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * {@inheritDoc}
+ * Use {@link de.dytanic.cloudnet.ext.bridge.event.BridgeProxyPlayerServerConnectRequestEvent} instead with the {@link
+ * de.dytanic.cloudnet.driver.event.EventListener} annotation and register it using {@link
+ * de.dytanic.cloudnet.driver.event.IEventManager#registerListener(Object)}
  */
+@Deprecated
+@ScheduledForRemoval(inVersion = "3.6")
 public class BukkitBridgeProxyPlayerServerConnectRequestEvent extends BukkitBridgeEvent {
 
   private static final HandlerList handlerList = new HandlerList();

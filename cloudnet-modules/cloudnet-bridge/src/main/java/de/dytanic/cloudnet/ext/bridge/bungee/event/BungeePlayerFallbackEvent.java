@@ -18,10 +18,11 @@ package de.dytanic.cloudnet.ext.bridge.bungee.event;
 
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
+import net.md_5.bungee.api.plugin.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class BungeePlayerFallbackEvent extends BungeeCloudNetEvent {
+public class BungeePlayerFallbackEvent extends Event {
 
   private final ProxiedPlayer player;
   private ServiceInfoSnapshot fallback;

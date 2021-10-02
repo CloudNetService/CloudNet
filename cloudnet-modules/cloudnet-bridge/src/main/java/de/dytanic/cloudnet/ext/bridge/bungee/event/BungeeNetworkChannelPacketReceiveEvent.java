@@ -18,7 +18,15 @@ package de.dytanic.cloudnet.ext.bridge.bungee.event;
 
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 
+/**
+ * Use {@link de.dytanic.cloudnet.driver.event.events.network.NetworkChannelPacketReceiveEvent} instead with the {@link
+ * de.dytanic.cloudnet.driver.event.EventListener} annotation and register it using {@link
+ * de.dytanic.cloudnet.driver.event.IEventManager#registerListener(Object)}
+ */
+@Deprecated
+@ScheduledForRemoval(inVersion = "3.6")
 public final class BungeeNetworkChannelPacketReceiveEvent extends BungeeCloudNetEvent {
 
   private final INetworkChannel channel;

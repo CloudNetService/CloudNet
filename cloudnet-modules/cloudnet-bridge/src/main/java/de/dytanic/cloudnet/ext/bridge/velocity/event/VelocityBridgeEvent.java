@@ -16,6 +16,7 @@
 
 package de.dytanic.cloudnet.ext.bridge.velocity.event;
 
+@Deprecated
 abstract class VelocityBridgeEvent {
 
 }

@@ -18,8 +18,16 @@ package de.dytanic.cloudnet.ext.bridge.bukkit.event;
 
 import de.dytanic.cloudnet.driver.service.ServiceTask;
 import org.bukkit.event.HandlerList;
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Use {@link de.dytanic.cloudnet.driver.event.events.service.task.ServiceTaskRemoveEvent} instead with the {@link
+ * de.dytanic.cloudnet.driver.event.EventListener} annotation and register it using {@link
+ * de.dytanic.cloudnet.driver.event.IEventManager#registerListener(Object)}
+ */
+@Deprecated
+@ScheduledForRemoval(inVersion = "3.6")
 public class BukkitServiceTaskRemoveEvent extends BukkitCloudNetEvent {
 
   private static final HandlerList handlerList = new HandlerList();

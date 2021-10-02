@@ -19,11 +19,16 @@ package de.dytanic.cloudnet.ext.bridge.bukkit.event;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import org.bukkit.event.HandlerList;
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * {@inheritDoc}
+ * Use {@link de.dytanic.cloudnet.driver.event.events.network.NetworkChannelPacketReceiveEvent} instead with the {@link
+ * de.dytanic.cloudnet.driver.event.EventListener} annotation and register it using {@link
+ * de.dytanic.cloudnet.driver.event.IEventManager#registerListener(Object)}
  */
+@Deprecated
+@ScheduledForRemoval(inVersion = "3.6")
 public final class BukkitNetworkChannelPacketReceiveEvent extends BukkitCloudNetEvent {
 
   private static final HandlerList handlerList = new HandlerList();

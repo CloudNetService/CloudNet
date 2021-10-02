@@ -17,7 +17,15 @@
 package de.dytanic.cloudnet.ext.bridge.velocity.event;
 
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 
+/**
+ * Use {@link de.dytanic.cloudnet.driver.event.events.service.CloudServiceStartEvent} instead with the {@link
+ * de.dytanic.cloudnet.driver.event.EventListener} annotation and register it using {@link
+ * de.dytanic.cloudnet.driver.event.IEventManager#registerListener(Object)}
+ */
+@Deprecated
+@ScheduledForRemoval(inVersion = "3.6")
 public final class VelocityCloudServiceStartEvent extends VelocityCloudNetEvent {
 
   private final ServiceInfoSnapshot serviceInfoSnapshot;
