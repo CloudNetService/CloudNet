@@ -19,6 +19,7 @@ package de.dytanic.cloudnet.ext.bridge.velocity.event;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 
+@Deprecated
 abstract class VelocityCloudNetEvent {
 
   public final CloudNetDriver getDriver() {

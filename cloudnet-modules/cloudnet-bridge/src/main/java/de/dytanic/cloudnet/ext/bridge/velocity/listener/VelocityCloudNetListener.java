@@ -225,6 +225,7 @@ public final class VelocityCloudNetListener {
       event.getNetworkPlayerServerInfo()));
   }
 
+  @Deprecated
   private <E> CompletableFuture<E> velocityCall(E event) {
     return VelocityCloudNetHelper.getProxyServer().getEventManager().fire(event);
   }

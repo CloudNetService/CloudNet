@@ -21,7 +21,7 @@ import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class VelocityPlayerFallbackEvent extends VelocityCloudNetEvent {
+public class VelocityPlayerFallbackEvent {
 
   private final Player player;
   private ServiceInfoSnapshot fallback;

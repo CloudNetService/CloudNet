@@ -23,6 +23,7 @@ import org.bukkit.event.Event;
  * All CloudNet events will mostly fire asynchronously, depending on how they were triggered. Check {@link
  * Event#isAsynchronous()} and treat the event appropriately.
  */
+@Deprecated
 abstract class BukkitBridgeEvent extends Event {
 
   public BukkitBridgeEvent() {

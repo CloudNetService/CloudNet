@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Path;
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 
 /**
  * An util class to prepare created templates with needed files
@@ -44,6 +45,7 @@ public final class TemplateStorageUtil {
   }
 
   @Deprecated
+  @ScheduledForRemoval(inVersion = "3.6")
   public static File getFile(ServiceTemplate serviceTemplate, String path) {
     return getPath(serviceTemplate, path).toFile();
   }

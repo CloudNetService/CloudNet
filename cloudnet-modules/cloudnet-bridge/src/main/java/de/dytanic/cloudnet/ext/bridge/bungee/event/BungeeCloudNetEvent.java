@@ -20,6 +20,7 @@ import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import net.md_5.bungee.api.plugin.Event;
 
+@Deprecated
 abstract class BungeeCloudNetEvent extends Event {
 
   public final CloudNetDriver getDriver() {

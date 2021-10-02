@@ -90,7 +90,7 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
             NodeServiceTaskProvider.this.permanentServiceTasks.add(task);
             LOGGER.info(LanguageManager.getMessage("cloudnet-load-task-success")
               .replace("%path%", path.toString()).replace("%name%", task.getName()));
-            // just a notify for the user that cloudnet is not attempting to start new services
+            // just a notification for the user that cloudnet is not attempting to start new services
             if (task.isMaintenance()) {
               LOGGER.warning(LanguageManager.getMessage(
                 "cloudnet-load-task-maintenance-warning").replace("%task%", task.getName()));

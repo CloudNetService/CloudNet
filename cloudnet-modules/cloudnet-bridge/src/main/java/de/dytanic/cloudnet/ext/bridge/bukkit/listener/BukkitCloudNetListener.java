@@ -61,8 +61,10 @@ import de.dytanic.cloudnet.ext.bridge.event.BridgeServerPlayerLoginSuccessEvent;
 import de.dytanic.cloudnet.wrapper.event.service.ServiceInfoSnapshotConfigureEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
-import org.bukkit.plugin.Plugin;
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 
+@Deprecated
+@ScheduledForRemoval(inVersion = "3.6")
 public final class BukkitCloudNetListener {
 
   @EventListener

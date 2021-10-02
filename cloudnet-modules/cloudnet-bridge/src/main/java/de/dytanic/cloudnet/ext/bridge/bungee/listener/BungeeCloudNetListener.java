@@ -218,6 +218,7 @@ public final class BungeeCloudNetListener {
       event.getNetworkPlayerServerInfo()));
   }
 
+  @Deprecated
   private void bungeeCall(Event event) {
     ProxyServer.getInstance().getPluginManager().callEvent(event);
   }
