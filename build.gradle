@@ -22,10 +22,10 @@ defaultTasks 'build', 'checkLicenses', 'test', 'jar'
 
 allprojects {
 
-  def major = 3, minor = 5, patch = 0, versionType = "SNAPSHOT"
+  def major = 4, minor = 0, patch = 0, versionType = "alpha"
 
   group 'de.dytanic.cloudnet'
-  version "$major.$minor.$patch-$versionType"
+  version "$major.$minor.$patch${versionType.isEmpty() ? '' : '-' + versionType}"
 
   repositories {
     mavenCentral()
@@ -275,10 +275,10 @@ subprojects {
 
     repositories {
       maven {
-        if (project.version.endsWith("RELEASE")) {
-          url 'https://repo.cloudnetservice.eu/repository/releases/'
-        } else {
+        if (project.version.matches(".+-.+")) {
           url 'https://repo.cloudnetservice.eu/repository/snapshots/'
+        } else {
+          url 'https://repo.cloudnetservice.eu/repository/releases/'
         }
 
         credentials {
