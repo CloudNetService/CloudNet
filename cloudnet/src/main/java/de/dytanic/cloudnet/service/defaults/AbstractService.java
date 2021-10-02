@@ -22,11 +22,15 @@ import de.dytanic.cloudnet.common.StringUtil;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.common.io.HttpConnectionProvider;
+import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
+import de.dytanic.cloudnet.common.unsafe.CPUUsageResolver;
+import de.dytanic.cloudnet.conf.IConfiguration;
 import de.dytanic.cloudnet.driver.event.IEventManager;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
+import de.dytanic.cloudnet.driver.network.ssl.SSLConfiguration;
 import de.dytanic.cloudnet.driver.service.ProcessSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
 import de.dytanic.cloudnet.driver.service.ServiceDeployment;
@@ -41,6 +45,8 @@ import de.dytanic.cloudnet.event.service.CloudServicePreLoadInclusionEvent;
 import de.dytanic.cloudnet.event.service.CloudServiceTemplateLoadEvent;
 import de.dytanic.cloudnet.service.ICloudService;
 import de.dytanic.cloudnet.service.ICloudServiceManager;
+import de.dytanic.cloudnet.service.IServiceConsoleLogCache;
+import de.dytanic.cloudnet.service.ServiceConfigurationPreparer;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -54,6 +60,9 @@ import java.util.Base64;
 import java.util.Collection;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
@@ -62,21 +71,25 @@ public abstract class AbstractService implements ICloudService {
 
   protected static final Logger LOGGER = LogManager.getLogger(AbstractService.class);
 
+  protected static final Path INCLUSION_TEMP_DIR = FileUtils.TEMP_DIR.resolve("inclusions");
+  protected static final Path WRAPPER_CONFIG_PATH = Paths.get(".wrapper", "wrapper.json");
   protected static final Collection<String> DEFAULT_DEPLOYMENT_EXCLUSIONS = Arrays.asList("wrapper.jar", ".wrapper/");
-  protected static final Path INCLUSION_TEMP_DIR = Paths.get(
-    System.getProperty("cloudnet.tempDir", "temp"),
-    "inclusions");
 
   protected final IEventManager eventManager;
 
   protected final String connectionKey;
   protected final Path serviceDirectory;
+  protected final CloudNet nodeInstance;
   protected final ICloudServiceManager cloudServiceManager;
+  protected final ServiceConfigurationPreparer serviceConfigurationPreparer;
+
+  protected final Lock lifecycleLock = new ReentrantLock(true);
 
   protected final Queue<ServiceTemplate> waitingTemplates = new ConcurrentLinkedQueue<>();
   protected final Queue<ServiceDeployment> waitingDeployments = new ConcurrentLinkedQueue<>();
   protected final Queue<ServiceRemoteInclusion> waitingRemoteInclusions = new ConcurrentLinkedQueue<>();
 
+  protected IServiceConsoleLogCache logCache;
   protected volatile INetworkChannel networkChannel;
 
   protected volatile ServiceInfoSnapshot lastServiceInfo;
@@ -85,10 +98,14 @@ public abstract class AbstractService implements ICloudService {
   protected AbstractService(
     @NotNull ServiceConfiguration configuration,
     @NotNull ICloudServiceManager manager,
-    @NotNull IEventManager eventManager
+    @NotNull IEventManager eventManager,
+    @NotNull CloudNet nodeInstance,
+    @NotNull ServiceConfigurationPreparer serviceConfigurationPreparer
   ) {
     this.eventManager = eventManager;
+    this.nodeInstance = nodeInstance;
     this.cloudServiceManager = manager;
+    this.serviceConfigurationPreparer = serviceConfigurationPreparer;
 
     this.connectionKey = StringUtil.generateRandomString(64);
     this.serviceDirectory = resolveServicePath(configuration.getServiceId(), manager, configuration.isStaticService());
@@ -96,9 +113,9 @@ public abstract class AbstractService implements ICloudService {
     this.currentServiceInfo = this.lastServiceInfo = new ServiceInfoSnapshot(
       System.currentTimeMillis(),
       -1,
-      new HostAndPort(CloudNet.getInstance().getConfig().getHostAddress(), configuration.getPort()),
-      new HostAndPort(CloudNet.getInstance().getConfig().getConnectHostAddress(), configuration.getPort()),
-      ServiceLifeCycle.DEFINED,
+      new HostAndPort(this.getNodeConfiguration().getHostAddress(), configuration.getPort()),
+      new HostAndPort(this.getNodeConfiguration().getConnectHostAddress(), configuration.getPort()),
+      ServiceLifeCycle.PREPARED,
       ProcessSnapshot.empty(),
       configuration,
       configuration.getProperties());
@@ -145,6 +162,61 @@ public abstract class AbstractService implements ICloudService {
   }
 
   @Override
+  public @NotNull IServiceConsoleLogCache getServiceConsoleLogCache() {
+    return this.logCache;
+  }
+
+  @Override
+  public void setCloudServiceLifeCycle(@NotNull ServiceLifeCycle lifeCycle) {
+    try {
+      // prevent multiple service updates at the same time
+      this.lifecycleLock.lock();
+      // select the appropriate method for the lifecycle
+      switch (lifeCycle) {
+        case DELETED: {
+          this.doDelete();
+          // update the current service info
+          this.pushServiceInfoSnapshotUpdate(ServiceLifeCycle.DELETED);
+          break;
+        }
+
+        case RUNNING: {
+          // check if we can start the process now
+          if (this.getLifeCycle() == ServiceLifeCycle.PREPARED && this.canStartNow()) {
+            this.prepareService();
+            this.startProcess();
+            // update the current service info
+            this.pushServiceInfoSnapshotUpdate(ServiceLifeCycle.RUNNING);
+          }
+          break;
+        }
+
+        case STOPPED: {
+          // check if we should delete the service when stopping
+          if (this.getServiceConfiguration().isAutoDeleteOnStop()) {
+            this.doDelete();
+            // update the current service info
+            this.pushServiceInfoSnapshotUpdate(ServiceLifeCycle.DELETED);
+          } else if (this.getLifeCycle() == ServiceLifeCycle.RUNNING) {
+            this.stopProcess();
+            // reset the service lifecycle to prepared
+            this.pushServiceInfoSnapshotUpdate(ServiceLifeCycle.PREPARED);
+          }
+          break;
+        }
+
+        case PREPARED:
+          break; // cannot be set - just ignore
+
+        default:
+          throw new IllegalStateException("Unhandled ServiceLifeCycle: " + lifeCycle);
+      }
+    } finally {
+      this.lifecycleLock.unlock();
+    }
+  }
+
+  @Override
   public void restart() {
     this.stop();
     this.start();
@@ -152,16 +224,7 @@ public abstract class AbstractService implements ICloudService {
 
   @Override
   public void includeWaitingServiceTemplates() {
-    this.waitingTemplates.stream().sorted().forEachOrdered(template -> {
-      // remove the entry
-      this.waitingTemplates.remove(template);
-      // check if we should load the template
-      TemplateStorage storage = template.storage().getWrappedStorage();
-      if (!this.eventManager.callEvent(new CloudServiceTemplateLoadEvent(this, storage, template)).isCancelled()) {
-        // the event is not cancelled - copy the template
-        storage.copy(template, this.serviceDirectory);
-      }
-    });
+    this.includeWaitingServiceTemplates(false);
   }
 
   @Override
@@ -183,7 +246,7 @@ public abstract class AbstractService implements ICloudService {
         // get a target path based on the download url
         Path destination = INCLUSION_TEMP_DIR.resolve(
           Base64.getEncoder().encodeToString(inclusion.getUrl().getBytes(StandardCharsets.UTF_8)).replace('/', '_'));
-        // download the file from the given url to the temp path if it does not exists
+        // download the file from the given url to the temp path if it does not exist
         if (Files.notExists(destination)) {
           try {
             con.connect();
@@ -215,23 +278,31 @@ public abstract class AbstractService implements ICloudService {
 
   @Override
   public void deployResources(boolean removeDeployments) {
-    ServiceDeployment deployment;
-    while ((deployment = this.waitingDeployments.poll()) != null) {
-      // check if we should execute the deployment
-      TemplateStorage storage = deployment.getTemplate().storage().getWrappedStorage();
-      if (!this.eventManager.callEvent(new CloudServiceDeploymentEvent(this, storage, deployment)).isCancelled()) {
-        // store the excludes locally to allow access in the lambda
-        Collection<String> excludes = deployment.getExcludes();
-        // execute the deployment
-        storage.deploy(this.serviceDirectory, deployment.getTemplate(), path -> {
-          // normalize the name of the path
-          String fileName = Files.isDirectory(path)
-            ? path.getFileName().toString() + '/'
-            : path.getFileName().toString();
-          // check if the file is ignored
-          return !excludes.contains(fileName) && !DEFAULT_DEPLOYMENT_EXCLUSIONS.contains(fileName);
-        });
+    if (removeDeployments) {
+      // remove all deployments while execute the deployments
+      ServiceDeployment deployment;
+      while ((deployment = this.waitingDeployments.poll()) != null) {
+        this.executeDeployment(deployment);
       }
+    } else {
+      // just execute all deployments
+      for (ServiceDeployment deployment : this.waitingDeployments) {
+        this.executeDeployment(deployment);
+      }
+    }
+  }
+
+  @Override
+  public void doDelete() {
+    // stop the process if it's running
+    if (this.currentServiceInfo.getLifeCycle() == ServiceLifeCycle.RUNNING || this.isAlive()) {
+      this.stopProcess();
+    }
+    // execute all deployments which are still waiting
+    this.deployResources();
+    // remove the current directory if the service is not static
+    if (!this.getServiceConfiguration().isStaticService()) {
+      FileUtils.delete(this.serviceDirectory);
     }
   }
 
@@ -311,15 +382,142 @@ public abstract class AbstractService implements ICloudService {
     return this.getServiceConsoleLogCache().getCachedLogMessages();
   }
 
-  protected @NotNull ServiceInfoSnapshot generateServiceInfoSnapshot(@NotNull ServiceLifeCycle lifeCycle) {
-    return new ServiceInfoSnapshot(
-      this.currentServiceInfo.getCreationTime(),
-      this.networkChannel == null ? -1 : this.currentServiceInfo.getConnectedTime(),
-      this.currentServiceInfo.getAddress(),
-      this.currentServiceInfo.getConnectAddress(),
-      Preconditions.checkNotNull(lifeCycle, "lifecycle"),
-      this.isAlive() ? this.currentServiceInfo.getProcessSnapshot() : ProcessSnapshot.empty(),
-      this.currentServiceInfo.getConfiguration(),
-      this.currentServiceInfo.getProperties());
+  protected @NotNull IConfiguration getNodeConfiguration() {
+    return this.nodeInstance.getConfig();
   }
+
+  protected void includeWaitingServiceTemplates(boolean automaticRequest) {
+    this.waitingTemplates.stream()
+      .filter(template -> {
+        // always allow manual requests & non-static service copies
+        if (!automaticRequest || !this.getServiceConfiguration().isStaticService()) {
+          return true;
+        }
+        // only allow this template to be copied if explicitly defined
+        return template.shouldAlwaysCopyToStaticServices();
+      })
+      .sorted()
+      .forEachOrdered(template -> {
+        // remove the entry
+        this.waitingTemplates.remove(template);
+        // check if we should load the template
+        TemplateStorage storage = template.storage().getWrappedStorage();
+        if (!this.eventManager.callEvent(new CloudServiceTemplateLoadEvent(this, storage, template)).isCancelled()) {
+          // the event is not cancelled - copy the template
+          storage.copy(template, this.serviceDirectory);
+        }
+      });
+  }
+
+  protected void executeDeployment(@NotNull ServiceDeployment deployment) {
+    // check if we should execute the deployment
+    TemplateStorage storage = deployment.getTemplate().storage().getWrappedStorage();
+    if (!this.eventManager.callEvent(new CloudServiceDeploymentEvent(this, storage, deployment)).isCancelled()) {
+      // execute the deployment
+      storage.deploy(this.serviceDirectory, deployment.getTemplate(), path -> {
+        // normalize the name of the path
+        String fileName = Files.isDirectory(path)
+          ? path.getFileName().toString() + '/'
+          : path.getFileName().toString();
+        // check if the file is ignored
+        return !deployment.getExcludes().contains(fileName) && !DEFAULT_DEPLOYMENT_EXCLUSIONS.contains(fileName);
+      });
+    }
+  }
+
+  protected void pushServiceInfoSnapshotUpdate(@NotNull ServiceLifeCycle lifeCycle) {
+    // save the current service info
+    this.lastServiceInfo = this.currentServiceInfo;
+    // update the current info
+    this.currentServiceInfo = new ServiceInfoSnapshot(
+      this.lastServiceInfo.getCreationTime(),
+      this.networkChannel == null ? -1 : this.lastServiceInfo.getConnectedTime(),
+      this.lastServiceInfo.getAddress(),
+      this.lastServiceInfo.getConnectAddress(),
+      Preconditions.checkNotNull(lifeCycle, "lifecycle"),
+      this.isAlive() ? this.lastServiceInfo.getProcessSnapshot() : ProcessSnapshot.empty(),
+      this.lastServiceInfo.getConfiguration(),
+      this.lastServiceInfo.getProperties());
+  }
+
+  protected boolean canStartNow() {
+    // check jvm heap size
+    if (this.cloudServiceManager.getCurrentUsedHeapMemory()
+      + this.getServiceConfiguration().getProcessConfig().getMaxHeapMemorySize()
+      >= this.getNodeConfiguration().getMaxMemory()) {
+      // schedule a retry
+      if (this.getNodeConfiguration().isRunBlockedServiceStartTryLaterAutomatic()) {
+        CloudNet.getInstance().runTask(this::start);
+      } else {
+        LOGGER.info(LanguageManager.getMessage("cloud-service-manager-max-memory-error"));
+      }
+      // no starting now
+      return false;
+    }
+    // check for cpu usage
+    if (CPUUsageResolver.getSystemCPUUsage() >= this.getNodeConfiguration().getMaxCPUUsageToStartServices()) {
+      // schedule a retry
+      if (this.getNodeConfiguration().isRunBlockedServiceStartTryLaterAutomatic()) {
+        CloudNet.getInstance().runTask(this::start);
+      } else {
+        LOGGER.info(LanguageManager.getMessage("cloud-service-manager-cpu-usage-to-high-error"));
+      }
+      // no starting now
+      return false;
+    }
+    // ok to start now
+    return true;
+  }
+
+  protected void prepareService() {
+    // initialize the service directory
+    boolean firstStartup = Files.notExists(this.serviceDirectory);
+    FileUtils.createDirectoryReported(this.serviceDirectory);
+    // write the configuration file for the service
+    HostAndPort[] listeners = this.getNodeConfiguration().getIdentity().getListeners();
+    JsonDocument.newDocument()
+      .append("connectionKey", this.getConnectionKey())
+      .append("serviceInfoSnapshot", this.currentServiceInfo)
+      .append("serviceConfiguration", this.getServiceConfiguration())
+      .append("sslConfig", this.getNodeConfiguration().getServerSslConfig())
+      .append("listener", listeners[ThreadLocalRandom.current().nextInt(listeners.length)])
+      .write(this.serviceDirectory.resolve(WRAPPER_CONFIG_PATH));
+    // load the ssl configuration if enabled
+    SSLConfiguration sslConfiguration = this.getNodeConfiguration().getServerSslConfig();
+    if (sslConfiguration.isEnabled()) {
+      this.copySslConfiguration(sslConfiguration);
+    }
+    // load the inclusions
+    this.includeWaitingServiceInclusions();
+    // check if we should load the templates of the service
+    this.includeWaitingServiceTemplates(!firstStartup);
+    // update the service configuration
+    this.serviceConfigurationPreparer.configure(this);
+  }
+
+  protected void copySslConfiguration(@NotNull SSLConfiguration configuration) {
+    try {
+      Path wrapperDir = this.serviceDirectory.resolve(".wrapper");
+      // copy the certificate if available
+      if (configuration.getCertificate() != null && Files.exists(configuration.getCertificate())) {
+        FileUtils.copy(configuration.getCertificate(), wrapperDir.resolve("certificate"));
+      }
+      // copy the private key if available
+      if (configuration.getPrivateKey() != null && Files.exists(configuration.getPrivateKey())) {
+        FileUtils.copy(configuration.getPrivateKey(), wrapperDir.resolve("privateKey"));
+      }
+      // copy the trust certificate if available
+      if (configuration.getTrustCertificate() != null && Files.exists(configuration.getTrustCertificate())) {
+        FileUtils.copy(configuration.getTrustCertificate(), wrapperDir.resolve("trustCertificate"));
+      }
+    } catch (IOException exception) {
+      LOGGER.severe("Exception copying ssl configuration files into service directory %s:",
+        exception,
+        this.serviceDirectory);
+    }
+  }
+
+  protected abstract void startProcess();
+
+  protected abstract void stopProcess();
 }

@@ -1,0 +1,85 @@
+/*
+ * Copyright 2019-2021 CloudNetService team & contributors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package de.dytanic.cloudnet.service.defaults.log;
+
+import de.dytanic.cloudnet.CloudNet;
+import de.dytanic.cloudnet.service.ICloudService;
+import de.dytanic.cloudnet.service.IServiceConsoleLogCache;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.function.Supplier;
+import org.jetbrains.annotations.NotNull;
+
+public class ProcessServiceLogCache extends AbstractServiceLogCache {
+
+  protected final Supplier<Process> processSupplier;
+
+  protected final byte[] buffer = new byte[2048];
+  protected final StringBuffer stringBuffer = new StringBuffer();
+
+  public ProcessServiceLogCache(
+    @NotNull Supplier<Process> processSupplier,
+    @NotNull CloudNet cloudNet,
+    @NotNull ICloudService service
+  ) {
+    super(cloudNet, service);
+    this.processSupplier = processSupplier;
+  }
+
+  @Override
+  public @NotNull IServiceConsoleLogCache update() {
+    // check if we can currently update
+    Process process = this.processSupplier.get();
+    if (process != null) {
+      try {
+        this.readStream(process.getInputStream(), false);
+        this.readStream(process.getErrorStream(), true);
+      } catch (IOException exception) {
+        LOGGER.severe("Exception updating content of console for service %s",
+          exception,
+          this.service.getServiceId().getName());
+        // reset the string buffer
+        this.stringBuffer.setLength(0);
+      }
+    }
+    // for chaining
+    return this;
+  }
+
+  protected void readStream(@NotNull InputStream stream, boolean isErrorStream) throws IOException {
+    int len;
+    while (stream.available() > 0 && (len = stream.read(this.buffer, 0, this.buffer.length)) != -1) {
+      this.stringBuffer.append(new String(this.buffer, 0, len, StandardCharsets.UTF_8));
+    }
+
+    // check if we got a result we can work with
+    String content = this.stringBuffer.toString();
+    if (content.contains("\n") || content.contains("\r")) {
+      for (String input : content.split("\r")) {
+        for (String text : input.split("\n")) {
+          if (!text.trim().isEmpty()) {
+            this.handleItem(text, isErrorStream);
+          }
+        }
+      }
+    }
+
+    // reset the string buffer
+    this.stringBuffer.setLength(0);
+  }
+}

@@ -26,12 +26,6 @@ import java.util.UUID;
 public enum ServiceLifeCycle {
 
   /**
-   * This will only be for a very short time after the creation of a service if the {@code CloudServicePrePrepareEvent}
-   * in the node isn't cancelled. After that event has been called, CloudNet will only copy the SSL certificates if
-   * necessary and directly switch to the {@code PREPARED} state after it.
-   */
-  DEFINED,
-  /**
    * This is the state directly after {@code DEFINED} or after {@code STOPPED} (only if autoDeleteOnStop is disabled for
    * the service). It will be prepared until it is changed to {@code RUNNING} by {@link
    * SpecificCloudServiceProvider#start()}.
@@ -54,5 +48,4 @@ public enum ServiceLifeCycle {
    * methods like {@link GeneralCloudServiceProvider#getCloudService(UUID)} won't return this service anymore.
    */
   DELETED,
-
 }

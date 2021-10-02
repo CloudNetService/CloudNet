@@ -26,7 +26,6 @@ import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
 import de.dytanic.cloudnet.driver.service.ServiceRemoteInclusion;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import java.nio.file.Path;
-import java.util.List;
 import java.util.Queue;
 import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.NotNull;
@@ -77,7 +76,7 @@ public interface ICloudService extends SpecificCloudServiceProvider {
   @NotNull
   IServiceConsoleLogCache getServiceConsoleLogCache();
 
-  void delete(boolean sendUpdate);
+  void doDelete();
 
   boolean isAlive();
 

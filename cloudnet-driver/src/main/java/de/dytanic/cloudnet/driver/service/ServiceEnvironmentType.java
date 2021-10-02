@@ -24,6 +24,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 import org.jetbrains.annotations.NotNull;
@@ -48,7 +49,12 @@ public enum ServiceEnvironmentType {
     },
     MinecraftServiceType.JAVA_SERVER,
     44955
-  ),
+  ) {
+    @Override
+    public @NotNull Collection<String> getProcessArguments() {
+      return Collections.singleton("nogui");
+    }
+  },
   GLOWSTONE(new ServiceEnvironment[]{ServiceEnvironment.GLOWSTONE_DEFAULT},
     MinecraftServiceType.JAVA_SERVER,
     44955
@@ -57,7 +63,12 @@ public enum ServiceEnvironmentType {
     new ServiceEnvironment[]{ServiceEnvironment.NUKKIT_DEFAULT},
     MinecraftServiceType.BEDROCK_SERVER,
     44955
-  ),
+  ) {
+    @Override
+    public @NotNull Collection<String> getProcessArguments() {
+      return Collections.singleton("disable-ansi");
+    }
+  },
   GO_MINT(
     new ServiceEnvironment[]{ServiceEnvironment.GO_MINT_DEFAULT},
     MinecraftServiceType.BEDROCK_SERVER,
@@ -100,9 +111,8 @@ public enum ServiceEnvironmentType {
     19132
   );
 
-  private static final Logger LOGGER = LogManager.getLogger(ServiceEnvironmentType.class);
   public static final ServiceEnvironmentType[] VALUES = ServiceEnvironmentType.values();
-
+  private static final Logger LOGGER = LogManager.getLogger(ServiceEnvironmentType.class);
   private final ServiceEnvironment[] environments;
   private final MinecraftServiceType type;
 
@@ -121,11 +131,6 @@ public enum ServiceEnvironmentType {
     this.ignoredConsoleLines = Arrays.asList(ignoredConsoleLines);
   }
 
-  @Deprecated
-  public @Nullable String getMainClass(@Nullable File applicationFile) {
-    return applicationFile == null ? null : this.getMainClass(applicationFile.toPath());
-  }
-
   public @Nullable String getMainClass(@Nullable Path applicationFile) {
     if (applicationFile != null && Files.exists(applicationFile)) {
       try (JarFile jarFile = new JarFile(applicationFile.toFile())) {
@@ -138,14 +143,13 @@ public enum ServiceEnvironmentType {
     return null;
   }
 
-  @Deprecated
-  public @NotNull String getClasspath(@NotNull File wrapperFile, @Nullable File applicationFile) {
-    return this.getClasspath(wrapperFile.toPath(), applicationFile == null ? null : applicationFile.toPath());
-  }
-
   public @NotNull String getClasspath(@NotNull Path wrapperFile, @Nullable Path applicationFile) {
     return wrapperFile.toAbsolutePath() + File.pathSeparator + (applicationFile == null ? ""
       : applicationFile.toAbsolutePath());
+  }
+
+  public @NotNull Collection<String> getProcessArguments() {
+    return Collections.emptyList();
   }
 
   public ServiceEnvironment[] getEnvironments() {

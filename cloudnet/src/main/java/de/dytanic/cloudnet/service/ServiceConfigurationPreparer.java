@@ -16,17 +16,10 @@
 
 package de.dytanic.cloudnet.service;
 
-import de.dytanic.cloudnet.driver.service.GroupConfiguration;
-import java.util.ArrayList;
+import org.jetbrains.annotations.NotNull;
 
-public final class EmptyGroupConfiguration extends GroupConfiguration {
+@FunctionalInterface
+public interface ServiceConfigurationPreparer {
 
-  public EmptyGroupConfiguration(String name) {
-    super(name);
-
-    super.includes = new ArrayList<>();
-    super.templates = new ArrayList<>();
-    super.deployments = new ArrayList<>();
-  }
-
+  void configure(@NotNull ICloudService cloudService);
 }

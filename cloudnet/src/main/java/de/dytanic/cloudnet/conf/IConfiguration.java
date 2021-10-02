@@ -19,6 +19,7 @@ package de.dytanic.cloudnet.conf;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkCluster;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
+import de.dytanic.cloudnet.driver.network.ssl.SSLConfiguration;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -58,11 +59,11 @@ public interface IConfiguration {
 
   void setHttpListeners(Collection<HostAndPort> httpListeners);
 
-  ConfigurationOptionSSL getClientSslConfig();
+  SSLConfiguration getClientSslConfig();
 
-  ConfigurationOptionSSL getServerSslConfig();
+  SSLConfiguration getServerSslConfig();
 
-  ConfigurationOptionSSL getWebSslConfig();
+  SSLConfiguration getWebSslConfig();
 
   double getMaxCPUUsageToStartServices();
 

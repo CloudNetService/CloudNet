@@ -62,6 +62,8 @@ import org.jetbrains.annotations.Nullable;
 public final class FileUtils {
 
   public static final InputStream EMPTY_STREAM = new ByteArrayInputStream(new byte[0]);
+  public static final Path TEMP_DIR = Paths.get(System.getProperty("cloudnet.tempDir", "temp"));
+
   private static final Map<String, String> ZIP_FILE_SYSTEM_PROPERTIES = ImmutableMap
     .of("create", "false", "encoding", "UTF-8");
   private static final Logger LOGGER = LogManager.getLogger(FileUtils.class);
@@ -90,7 +92,8 @@ public final class FileUtils {
   }
 
   public static void openZipFileSystem(Path path, IVoidThrowableCallback<FileSystem> consumer) {
-    try (FileSystem fileSystem = FileSystems.newFileSystem(URI.create("jar:" + path.toUri()), ZIP_FILE_SYSTEM_PROPERTIES)) {
+    try (FileSystem fileSystem = FileSystems.newFileSystem(URI.create("jar:" + path.toUri()),
+      ZIP_FILE_SYSTEM_PROPERTIES)) {
       consumer.call(fileSystem);
     } catch (Throwable throwable) {
       LOGGER.severe("Exception while opening file", throwable);

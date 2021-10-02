@@ -16,25 +16,31 @@
 
 package de.dytanic.cloudnet.service;
 
+import java.util.Collection;
 import java.util.Queue;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.UnmodifiableView;
 
 public interface IServiceConsoleLogCache {
 
-  ICloudService getCloudService();
-
+  @NotNull
   Queue<String> getCachedLogMessages();
 
+  @NotNull
   IServiceConsoleLogCache update();
 
-  boolean isAutoPrintReceivedInput();
+  int getLogCacheSize();
 
-  void setAutoPrintReceivedInput(boolean value);
+  void setLogCacheSize(int cacheSize);
 
-  boolean isScreenEnabled();
+  boolean alwaysPrintErrorStreamToConsole();
 
-  void setScreenEnabled(boolean value);
+  void setAlwaysPrintErrorStreamToConsole(boolean value);
 
-  void addHandler(ServiceConsoleLineHandler handler);
+  void addHandler(@NotNull ServiceConsoleLineHandler handler);
 
-  void removeHandler(ServiceConsoleLineHandler handler);
+  void removeHandler(@NotNull ServiceConsoleLineHandler handler);
+
+  @NotNull
+  @UnmodifiableView Collection<ServiceConsoleLineHandler> getHandlers();
 }
