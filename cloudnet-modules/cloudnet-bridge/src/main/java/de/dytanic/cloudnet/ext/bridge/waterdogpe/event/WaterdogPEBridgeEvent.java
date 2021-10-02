@@ -18,6 +18,7 @@ package de.dytanic.cloudnet.ext.bridge.waterdogpe.event;
 
 import dev.waterdog.waterdogpe.event.Event;
 
+@Deprecated
 abstract class WaterdogPEBridgeEvent extends Event {
 
 }

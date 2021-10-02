@@ -17,7 +17,14 @@
 package de.dytanic.cloudnet.ext.bridge.waterdogpe.event;
 
 import de.dytanic.cloudnet.ext.bridge.BridgeConfiguration;
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 
+/**
+ * Use the driver event without the "WaterdogPE" - prefix instead with the {@link de.dytanic.cloudnet.driver.event.EventListener}
+ * annotation and register it using {@link de.dytanic.cloudnet.driver.event.IEventManager#registerListener(Object)}
+ */
+@Deprecated
+@ScheduledForRemoval(inVersion = "3.6")
 public final class WaterdogPEBridgeConfigurationUpdateEvent extends WaterdogPEBridgeEvent {
 
   private final BridgeConfiguration bridgeConfiguration;

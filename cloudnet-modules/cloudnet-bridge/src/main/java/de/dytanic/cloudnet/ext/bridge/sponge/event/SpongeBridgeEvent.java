@@ -23,6 +23,7 @@ import org.spongepowered.api.event.Event;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.cause.EventContext;
 
+@Deprecated
 abstract class SpongeBridgeEvent implements Event {
 
   public final CloudNetDriver getDriver() {

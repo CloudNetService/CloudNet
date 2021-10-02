@@ -16,13 +16,14 @@
 
 package de.dytanic.cloudnet.ext.bridge.bukkit.listener;
 
+import de.dytanic.cloudnet.driver.event.EventListener;
+import de.dytanic.cloudnet.driver.event.events.service.task.ServiceTaskAddEvent;
 import de.dytanic.cloudnet.driver.service.ServiceTask;
 import de.dytanic.cloudnet.ext.bridge.BridgeConfiguration;
 import de.dytanic.cloudnet.ext.bridge.BridgeConfigurationProvider;
 import de.dytanic.cloudnet.ext.bridge.BridgeHelper;
 import de.dytanic.cloudnet.ext.bridge.bukkit.BukkitCloudNetBridgePlugin;
 import de.dytanic.cloudnet.ext.bridge.bukkit.BukkitCloudNetHelper;
-import de.dytanic.cloudnet.ext.bridge.bukkit.event.BukkitServiceTaskAddEvent;
 import de.dytanic.cloudnet.ext.bridge.server.OnlyProxyProtection;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import java.util.Optional;
@@ -50,6 +51,8 @@ public final class BukkitPlayerListener implements Listener {
 
     String currentTaskName = Wrapper.getInstance().getServiceId().getTaskName();
     this.serviceTask = Wrapper.getInstance().getServiceTaskProvider().getServiceTask(currentTaskName);
+
+    Wrapper.getInstance().getEventManager().registerListener(this);
   }
 
   private Optional<String> getPlayerKickMessage(Player player) {
@@ -73,14 +76,16 @@ public final class BukkitPlayerListener implements Listener {
     return Optional.empty();
   }
 
-  @EventHandler
-  public void handle(BukkitServiceTaskAddEvent event) {
+  @EventListener
+  public void handle(ServiceTaskAddEvent event) {
     ServiceTask task = event.getTask();
 
     if (this.serviceTask != null && this.serviceTask.getName().equals(task.getName())) {
       this.serviceTask = task;
 
-      Bukkit.getOnlinePlayers().forEach(player -> this.getPlayerKickMessage(player).ifPresent(player::kickPlayer));
+      for (Player player : Bukkit.getOnlinePlayers()) {
+        this.getPlayerKickMessage(player).ifPresent(player::kickPlayer);
+      }
     }
   }
 
