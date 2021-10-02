@@ -20,6 +20,7 @@ import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import dev.waterdog.waterdogpe.event.Event;
 
+@Deprecated
 abstract class WaterdogPECloudNetEvent extends Event {
 
   public final CloudNetDriver getDriver() {

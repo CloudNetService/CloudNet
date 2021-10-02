@@ -31,6 +31,7 @@ import de.dytanic.cloudnet.driver.event.events.service.task.ServiceTaskRemoveEve
 import de.dytanic.cloudnet.ext.bridge.bukkit.BukkitCloudNetHelper;
 import de.dytanic.cloudnet.ext.bridge.bukkit.event.BukkitBridgeConfigurationUpdateEvent;
 import de.dytanic.cloudnet.ext.bridge.bukkit.event.BukkitBridgeProxyPlayerDisconnectEvent;
+import de.dytanic.cloudnet.ext.bridge.bukkit.event.BukkitBridgeProxyPlayerLoginRequestEvent;
 import de.dytanic.cloudnet.ext.bridge.bukkit.event.BukkitBridgeProxyPlayerLoginSuccessEvent;
 import de.dytanic.cloudnet.ext.bridge.bukkit.event.BukkitBridgeProxyPlayerServerConnectRequestEvent;
 import de.dytanic.cloudnet.ext.bridge.bukkit.event.BukkitBridgeProxyPlayerServerSwitchEvent;
@@ -61,10 +62,7 @@ import de.dytanic.cloudnet.ext.bridge.event.BridgeServerPlayerLoginSuccessEvent;
 import de.dytanic.cloudnet.wrapper.event.service.ServiceInfoSnapshotConfigureEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
-import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 
-@Deprecated
-@ScheduledForRemoval(inVersion = "3.6")
 public final class BukkitCloudNetListener {
 
   @EventListener
@@ -135,7 +133,7 @@ public final class BukkitCloudNetListener {
 
   @EventListener
   public void handle(BridgeProxyPlayerLoginRequestEvent event) {
-    this.bukkitCall(new BukkitBridgeProxyPlayerLoginSuccessEvent(event.getNetworkConnectionInfo()));
+    this.bukkitCall(new BukkitBridgeProxyPlayerLoginRequestEvent(event.getNetworkConnectionInfo()));
   }
 
   @EventListener
@@ -178,6 +176,7 @@ public final class BukkitCloudNetListener {
       event.getNetworkPlayerServerInfo()));
   }
 
+  @Deprecated
   private void bukkitCall(Event event) {
     Bukkit.getPluginManager().callEvent(event);
   }

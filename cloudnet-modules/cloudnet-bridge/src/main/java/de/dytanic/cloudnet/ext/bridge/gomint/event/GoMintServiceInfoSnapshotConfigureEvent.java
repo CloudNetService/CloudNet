@@ -17,11 +17,14 @@
 package de.dytanic.cloudnet.ext.bridge.gomint.event;
 
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 
 /**
- * This event will only fire synchronously, because CloudNet has to initialize the GoMint service properties
- * synchronously anyway.
+ * Use the driver event without the "GoMint" - prefix instead with the {@link de.dytanic.cloudnet.driver.event.EventListener}
+ * annotation and register it using {@link de.dytanic.cloudnet.driver.event.IEventManager#registerListener(Object)}
  */
+@Deprecated
+@ScheduledForRemoval(inVersion = "3.6")
 public final class GoMintServiceInfoSnapshotConfigureEvent extends GoMintCloudNetEvent {
 
   private final ServiceInfoSnapshot serviceInfoSnapshot;

@@ -39,7 +39,6 @@ public class BridgePlayerProvider implements PlayerProvider {
     this.rpcSender = factory.providerForClass(this.rpc.getSender().getAssociatedComponent(), PlayerProvider.class);
   }
 
-
   @Override
   public @NotNull Collection<? extends ICloudPlayer> asPlayers() {
     return this.rpc.join(this.rpcSender.invokeMethod("asPlayers")).fireSync();

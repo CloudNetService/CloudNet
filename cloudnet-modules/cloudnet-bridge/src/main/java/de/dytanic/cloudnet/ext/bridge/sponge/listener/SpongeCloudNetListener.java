@@ -175,6 +175,7 @@ public final class SpongeCloudNetListener {
       event.getNetworkPlayerServerInfo()));
   }
 
+  @Deprecated
   private void spongeCall(Event event) {
     Sponge.getEventManager().post(event);
   }

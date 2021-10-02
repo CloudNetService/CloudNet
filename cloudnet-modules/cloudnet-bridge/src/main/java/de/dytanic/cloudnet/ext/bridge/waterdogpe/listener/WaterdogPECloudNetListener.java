@@ -236,6 +236,7 @@ public final class WaterdogPECloudNetListener {
       event.getNetworkPlayerServerInfo()));
   }
 
+  @Deprecated
   private void waterdogPECall(Event event) {
     ProxyServer.getInstance().getEventManager().callEvent(event);
   }

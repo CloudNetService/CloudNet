@@ -18,10 +18,14 @@ package de.dytanic.cloudnet.ext.bridge.nukkit.event;
 
 import cn.nukkit.event.HandlerList;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 
 /**
- * {@inheritDoc}
+ * Use the driver event without the "GoMint" - prefix instead with the {@link de.dytanic.cloudnet.driver.event.EventListener}
+ * annotation and register it using {@link de.dytanic.cloudnet.driver.event.IEventManager#registerListener(Object)}
  */
+@Deprecated
+@ScheduledForRemoval(inVersion = "3.6")
 public final class NukkitCloudServiceConnectNetworkEvent extends NukkitCloudNetEvent {
 
   private static final HandlerList handlers = new HandlerList();

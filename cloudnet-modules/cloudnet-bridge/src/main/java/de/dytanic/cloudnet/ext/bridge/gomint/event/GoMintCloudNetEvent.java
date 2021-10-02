@@ -18,13 +18,15 @@ package de.dytanic.cloudnet.ext.bridge.gomint.event;
 
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.wrapper.Wrapper;
-import io.gomint.GoMint;
 import io.gomint.event.Event;
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 
 /**
- * All CloudNet events will mostly fire asynchronously, depending on how they were triggered. Check {@link
- * GoMint#mainThread()} ()} and treat the event appropriately.
+ * Use the driver event without the "GoMint" - prefix instead with the {@link de.dytanic.cloudnet.driver.event.EventListener}
+ * annotation and register it using {@link de.dytanic.cloudnet.driver.event.IEventManager#registerListener(Object)}
  */
+@Deprecated
+@ScheduledForRemoval(inVersion = "3.6")
 abstract class GoMintCloudNetEvent extends Event {
 
   public final CloudNetDriver getDriver() {

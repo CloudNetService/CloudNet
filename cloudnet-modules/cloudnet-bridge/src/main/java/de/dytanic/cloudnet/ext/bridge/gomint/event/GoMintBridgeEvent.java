@@ -23,6 +23,7 @@ import io.gomint.event.Event;
  * All CloudNet events will mostly fire asynchronously, depending on how they were triggered. Check {@link
  * GoMint#mainThread()} ()} and treat the event appropriately.
  */
+@Deprecated
 abstract class GoMintBridgeEvent extends Event {
 
 }
