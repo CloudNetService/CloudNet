@@ -19,7 +19,7 @@ settings:
   user-cache-size: 1000
   netty-threads: 4
   timeout-time: 60
-  restart-on-crash: true
+  restart-on-crash: false
   restart-script: ./start.sh
   log-villager-deaths: true
   log-named-deaths: true
