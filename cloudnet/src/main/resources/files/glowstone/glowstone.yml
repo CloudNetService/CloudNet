@@ -1,12 +1,13 @@
-# glowstone.yml is the main configuration file for a Glowstone++ server
+# glowstone.yml is the main configuration file for a Glowstone server
 # It contains everything from server.properties and bukkit.yml in a
 # normal CraftBukkit installation.
-# 
-# For help, join us on Gitter: https://gitter.im/GlowstonePlusPlus/GlowstonePlusPlus
+#
+# Configuration entries are documented on the wiki: https://docs.glowstone.net/en/latest/Configuration_Guide/index.html
+# For help, join us on Discord: https://discord.gg/TFJqhsC
 server:
   ip: ''
   port: 25565
-  name: Glowstone++ Server
+  name: Glowstone Server
   log-file: logs/log-%D.txt
   online-mode: false
   max-players: 20
@@ -14,15 +15,17 @@ server:
   motd: A CloudNet provided Glowstone server
   shutdown-message: Server shutting down.
   allow-client-mods: true
+  dns: []
   snooper-enabled: false
+  prevent-proxy-connections: true
 console:
-  use-jline: false
-  prompt: ''
+  use-jline: true
+  prompt: '> '
   date-format: HH:mm:ss
   log-date-format: yyyy/MM/dd HH:mm:ss
 game:
   gamemode: SURVIVAL
-  gamemode-force: 'false'
+  gamemode-force: false
   difficulty: NORMAL
   hardcore: false
   pvp: true
@@ -49,12 +52,13 @@ folders:
   plugins: plugins
   update: update
   worlds: worlds
+  libraries: lib
 files:
   permissions: permissions.yml
   commands: commands.yml
   help: help.yml
 advanced:
-  connection-throttle: 0
+  connection-throttle: 4000
   idle-timeout: 0
   warn-on-overload: true
   exact-login-location: false
@@ -63,6 +67,14 @@ advanced:
   compression-threshold: 256
   proxy-support: true
   player-sample-count: 12
+  graphics-compute:
+    enable: false
+    use-any-device: false
+  region-file:
+    cache-size: 256
+    compression: true
+  profile-lookup-timeout: 5
+  suggest-player-name-when-null-tab-completions: true
 extras:
   query-enabled: false
   query-port: 25614
@@ -74,18 +86,19 @@ extras:
 world:
   name: world
   seed: ''
-  level-type: MINECRAFT_SERVER
+  level-type: DEFAULT
   spawn-radius: 16
   view-distance: 8
   gen-structures: true
-  gen-settings: ''
   allow-nether: false
   allow-end: false
   keep-spawn-loaded: true
   populate-anchored-chunks: true
-database:
-  driver: org.sqlite.JDBC
-  url: jdbc:sqlite:config/database.db
-  username: glowstone
-  password: nether
-  isolation: SERIALIZABLE
+  classic-style-water: false
+  disable-generation: false
+libraries:
+  checksum-validation: true
+  repository-url: https://repo.glowstone.net/repository/maven-public/
+  download-attempts: 2
+  compatibility-bundle: CRAFTBUKKIT
+  list: []

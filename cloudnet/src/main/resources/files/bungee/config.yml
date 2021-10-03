@@ -1,3 +1,5 @@
+server_connect_timeout: 5000
+remote_ping_cache: -1
 forge_support: true
 player_limit: -1
 permissions:
@@ -13,14 +15,15 @@ permissions:
     - cloudnet.syncproxy.fulljoin
     - cloudnet.syncproxy.maintenance
 timeout: 30000
-log_commands: true
+log_commands: false
+network_compression_threshold: 256
 online_mode: true
 disabled_commands:
   - disabledcommandhere
 servers:
-  fallback:
-    motd: '&7Just another &bCloudNet &7service - Forced Host'
-    address: localhost:16073
+  lobby:
+    motd: '&1Just another BungeeCord - Forced Host'
+    address: localhost:25565
     restricted: false
 listeners:
   - query_port: 25577
@@ -32,19 +35,19 @@ listeners:
       pvp.md-5.net: pvp
     ping_passthrough: false
     priorities:
-      - fallback
-    default_server: fallback
-    fallback_server: fallback
+      - lobby
     bind_local_address: true
     host: 0.0.0.0:25577
-    max_players: -1
+    max_players: 1
     tab_size: 60
     force_default_server: false
 ip_forward: true
-network_compression_threshold: 256
+remote_ping_timeout: 5000
 prevent_proxy_connections: false
 groups:
-  Dytanic:
-    - admin
-connection_throttle: 0
+  md_5:
+    - default
+connection_throttle: 4000
+stats: da8bee9a-093b-4c47-83e7-8558741c7941
+connection_throttle_limit: 3
 log_pings: true

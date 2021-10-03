@@ -37,12 +37,9 @@ public enum ServiceEnvironment {
   BUNGEECORD_TRAVERTINE("travertine"),
   BUNGEECORD_HEXACORD("hexacord"),
   //Waterdog
-  WATERDOG_DEFAULT("waterdog"),
   WATERDOG_PE("waterdog-pe"),
   //Nukkit
   NUKKIT_DEFAULT("nukkit"),
-  //GoMint
-  GO_MINT_DEFAULT("gomint"),
   //Velocity
   VELOCITY_DEFAULT("velocity");
 

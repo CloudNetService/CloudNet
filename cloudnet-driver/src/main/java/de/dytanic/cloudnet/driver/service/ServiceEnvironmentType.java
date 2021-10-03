@@ -69,21 +69,6 @@ public enum ServiceEnvironmentType {
       return Collections.singleton("disable-ansi");
     }
   },
-  GO_MINT(
-    new ServiceEnvironment[]{ServiceEnvironment.GO_MINT_DEFAULT},
-    MinecraftServiceType.BEDROCK_SERVER,
-    44955
-  ) {
-    @Override
-    public String getMainClass(@Nullable Path applicationFile) {
-      return "io.gomint.server.Bootstrap";
-    }
-
-    @Override
-    public @NotNull String getClasspath(@NotNull Path wrapperFile, @Nullable Path applicationFile) {
-      return wrapperFile.toAbsolutePath() + File.pathSeparator + "modules/*";
-    }
-  },
   BUNGEECORD(
     new ServiceEnvironment[]{
       ServiceEnvironment.BUNGEECORD_HEXACORD,
@@ -99,11 +84,6 @@ public enum ServiceEnvironmentType {
     new ServiceEnvironment[]{ServiceEnvironment.VELOCITY_DEFAULT},
     MinecraftServiceType.JAVA_PROXY,
     25565
-  ),
-  WATERDOG(
-    new ServiceEnvironment[]{ServiceEnvironment.WATERDOG_DEFAULT},
-    MinecraftServiceType.BEDROCK_PROXY,
-    19132
   ),
   WATERDOG_PE(
     new ServiceEnvironment[]{ServiceEnvironment.WATERDOG_PE},

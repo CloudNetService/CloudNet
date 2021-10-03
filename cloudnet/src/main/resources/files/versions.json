@@ -697,21 +697,6 @@
       ]
     },
     {
-      "name": "waterdog",
-      "targetEnvironment": "WATERDOG_DEFAULT",
-      "website": "https://ci.codemc.org/job/yesdog/job/Waterdog",
-      "installSteps": [
-        "DOWNLOAD"
-      ],
-      "versions": [
-        {
-          "name": "latest",
-          "url": "https://ci.codemc.org/job/yesdog/job/Waterdog/lastStableBuild/artifact/Waterfall-Proxy/bootstrap/target/Waterdog.jar",
-          "cacheFiles": false
-        }
-      ]
-    },
-    {
       "name": "waterdogpe",
       "targetEnvironment": "WATERDOG_PE",
       "website": "https://waterdog.dev",
@@ -830,32 +815,6 @@
           "url": "https://ci.nukkitx.com/job/NukkitX/job/Nukkit/job/master/lastSuccessfulBuild/artifact/target/nukkit-1.0-SNAPSHOT.jar",
           "cacheFiles": false,
           "maxJavaVersion": 11
-        }
-      ]
-    },
-    {
-      "name": "gomint",
-      "targetEnvironment": "GO_MINT_DEFAULT",
-      "installSteps": [
-        "DOWNLOAD",
-        "UNZIP",
-        "COPY_FILTER"
-      ],
-      "website": "https://gomint.io",
-      "versions": [
-        {
-          "name": "latest",
-          "url": "https://gomint-artifacts.s3.amazonaws.com/latest.zip",
-          "minJavaVersion": 9,
-          "cacheFiles": false,
-          "properties": {
-            "copy": {
-              "modules/.*": "/"
-            }
-          },
-          "additionalDownloads": {
-            "modules/gson-2.8.6.jar": "https://repo1.maven.org/maven2/com/google/code/gson/gson/2.8.6/gson-2.8.6.jar"
-          }
         }
       ]
     }

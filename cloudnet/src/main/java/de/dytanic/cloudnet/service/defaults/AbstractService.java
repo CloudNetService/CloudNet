@@ -492,7 +492,7 @@ public abstract class AbstractService implements ICloudService {
     // check if we should load the templates of the service
     this.includeWaitingServiceTemplates(!firstStartup);
     // update the service configuration
-    this.serviceConfigurationPreparer.configure(this);
+    this.serviceConfigurationPreparer.configure(this.nodeInstance, this);
   }
 
   protected void copySslConfiguration(@NotNull SSLConfiguration configuration) {
