@@ -16,8 +16,8 @@
 
 package de.dytanic.cloudnet;
 
-import de.dytanic.cloudnet.common.language.LanguageManager;
-import de.dytanic.cloudnet.common.log.LogManager;
+import aerogel.Injector;
+import aerogel.auto.AutoAnnotationRegistry;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.common.log.LoggingUtils;
 import de.dytanic.cloudnet.common.log.defaults.AcceptingLogHandler;
@@ -26,7 +26,6 @@ import de.dytanic.cloudnet.common.log.defaults.DefaultLogFormatter;
 import de.dytanic.cloudnet.common.log.defaults.ThreadedLogRecordDispatcher;
 import de.dytanic.cloudnet.common.log.io.LogOutputStream;
 import de.dytanic.cloudnet.console.IConsole;
-import de.dytanic.cloudnet.console.JLine3Console;
 import de.dytanic.cloudnet.console.log.ColouredLogFormatter;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -39,6 +38,14 @@ final class BootLogic {
   }
 
   public static synchronized void main(String[] args) throws Throwable {
+    // prepare the injector
+    Injector injector = Injector.newInjector();
+    AutoAnnotationRegistry.newInstance()
+      .installBindings(BootLogic.class.getClassLoader(), "auto-factories.txt", injector);
+    // boot CloudNet
+    CloudNet nodeInstance = injector.instance(CloudNet.class);
+    nodeInstance.start();
+/*
     LanguageManager.setLanguage(System.getProperty("cloudnet.messages.language", "english"));
     LanguageManager
       .addLanguageFile("german", BootLogic.class.getClassLoader().getResourceAsStream("lang/german.properties"));
@@ -56,6 +63,8 @@ final class BootLogic {
 
     CloudNet cloudNet = new CloudNet(args, logger, console);
     cloudNet.start();
+
+ */
   }
 
   private static void initLoggerAndConsole(IConsole console, Logger logger) {
