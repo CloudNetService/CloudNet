@@ -122,7 +122,6 @@ import de.dytanic.cloudnet.network.listener.cluster.PacketServerSetServiceTaskLi
 import de.dytanic.cloudnet.network.listener.cluster.PacketServerSyncTemplateStorageChunkListener;
 import de.dytanic.cloudnet.network.listener.cluster.PacketServerSyncTemplateStorageListener;
 import de.dytanic.cloudnet.network.listener.cluster.PacketServerUpdatePermissionsListener;
-import de.dytanic.cloudnet.network.listener.driver.PacketServerDriverAPIListener;
 import de.dytanic.cloudnet.network.packet.PacketServerClusterNodeInfoUpdate;
 import de.dytanic.cloudnet.network.packet.PacketServerSetGroupConfigurationList;
 import de.dytanic.cloudnet.network.packet.PacketServerSetLocalDatabaseData;
@@ -140,7 +139,7 @@ import de.dytanic.cloudnet.provider.service.EmptySpecificCloudServiceProvider;
 import de.dytanic.cloudnet.provider.service.NodeCloudServiceFactory;
 import de.dytanic.cloudnet.provider.service.NodeGeneralCloudServiceProvider;
 import de.dytanic.cloudnet.service.ICloudService;
-import de.dytanic.cloudnet.service._deleted.DefaultCloudServiceManager;
+import de.dytanic.cloudnet.service.defaults.DefaultCloudServiceManager;
 import de.dytanic.cloudnet.setup.DefaultInstallation;
 import de.dytanic.cloudnet.template.LocalTemplateStorage;
 import de.dytanic.cloudnet.template.install.ServiceVersionProvider;
@@ -281,14 +280,14 @@ public final class CloudNet extends CloudNetDriver {
 
     this.networkClient = new NettyNetworkClient(
       NetworkClientChannelHandlerImpl::new,
-      this.config.getClientSslConfig().isEnabled() ? this.config.getClientSslConfig().toSslConfiguration() : null
+      this.config.getClientSslConfig().isEnabled() ? this.config.getClientSslConfig() : null
     );
     this.networkServer = new NettyNetworkServer(
-      this.config.getServerSslConfig().isEnabled() ? this.config.getServerSslConfig().toSslConfiguration() : null,
+      this.config.getServerSslConfig().isEnabled() ? this.config.getServerSslConfig() : null,
       NetworkServerChannelHandlerImpl::new
     );
     this.httpServer = new NettyHttpServer(
-      this.config.getWebSslConfig().isEnabled() ? this.config.getWebSslConfig().toSslConfiguration() : null);
+      this.config.getWebSslConfig().isEnabled() ? this.config.getWebSslConfig() : null);
 
     this.initPacketRegistryListeners();
     this.clusterNodeServerProvider.setClusterServers(this.config.getClusterConfig());
@@ -677,7 +676,7 @@ public final class CloudNet extends CloudNetDriver {
   }
 
   public void sendAllServices(IPacket... packets) {
-    for (ICloudService cloudService : this.getCloudServiceManager().getCloudServices().values()) {
+    for (ICloudService cloudService : this.getCloudServiceManager().getLocalCloudServices()) {
       if (cloudService.getNetworkChannel() != null) {
         cloudService.getNetworkChannel().sendPacket(packets);
       }
@@ -689,7 +688,7 @@ public final class CloudNet extends CloudNetDriver {
 
     this.getClusterNodeServerProvider().sendPacketSync(packets);
 
-    for (ICloudService cloudService : this.getCloudServiceManager().getCloudServices().values()) {
+    for (ICloudService cloudService : this.getCloudServiceManager().getLocalCloudServices()) {
       if (cloudService.getNetworkChannel() != null) {
         cloudService.getNetworkChannel().sendPacketSync(packets);
       }

@@ -47,6 +47,7 @@ import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
+import java.util.function.Supplier;
 import lombok.EqualsAndHashCode;
 import org.jetbrains.annotations.NotNull;
 
@@ -725,6 +726,14 @@ public class JsonDocument implements IDocument<JsonDocument>, Cloneable {
   public <T> T get(String key, Type type, T def) {
     if (!this.contains(key)) {
       this.append(key, def);
+    }
+
+    return this.get(key, type);
+  }
+
+  public <T> T get(String key, Type type, Supplier<T> def) {
+    if (!this.contains(key)) {
+      this.append(key, def.get());
     }
 
     return this.get(key, type);
