@@ -40,6 +40,7 @@ import de.dytanic.cloudnet.permission.ClusterSynchronizedPermissionManagement;
 import de.dytanic.cloudnet.service.ICloudService;
 import java.util.Collection;
 
+//TODO: replace with channel messages
 public final class PacketServerUpdatePermissionsListener implements IPacketListener {
 
   @Override

@@ -28,6 +28,7 @@ import de.dytanic.cloudnet.provider.NodeServiceTaskProvider;
 import java.util.ArrayList;
 import java.util.List;
 
+//TODO: replace with channel messages
 public final class PacketServerSetServiceTaskListListener implements IPacketListener {
 
   @Override

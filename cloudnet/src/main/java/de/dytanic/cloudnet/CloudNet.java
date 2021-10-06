@@ -77,7 +77,7 @@ import de.dytanic.cloudnet.driver.network.INetworkServer;
 import de.dytanic.cloudnet.driver.network.NetworkUpdateType;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
-import de.dytanic.cloudnet.driver.network.def.PacketConstants;
+import de.dytanic.cloudnet.driver.network.def.NetworkConstants;
 import de.dytanic.cloudnet.driver.network.def.packet.PacketServerSetGlobalLogLevel;
 import de.dytanic.cloudnet.driver.network.def.packet.PacketServerSetServiceTaskList;
 import de.dytanic.cloudnet.driver.network.http.IHttpServer;
@@ -909,35 +909,36 @@ public final class CloudNet extends CloudNetDriver {
   public void registerClusterPacketRegistryListeners(IPacketListenerRegistry registry, boolean client) {
     if (client) {
       registry
-        .addListener(PacketConstants.INTERNAL_AUTHORIZATION_CHANNEL, new PacketServerAuthorizationResponseListener());
+        .addListener(NetworkConstants.INTERNAL_AUTHORIZATION_CHANNEL, new PacketServerAuthorizationResponseListener());
     }
 
-    registry.addListener(PacketConstants.SERVICE_INFO_PUBLISH_CHANNEL, new PacketServerServiceInfoPublisherListener());
-    registry.addListener(PacketConstants.PERMISSIONS_PUBLISH_CHANNEL, new PacketServerUpdatePermissionsListener());
-    registry.addListener(PacketConstants.CHANNEL_MESSAGING_CHANNEL, new PacketServerChannelMessageListener(false));
+    registry.addListener(NetworkConstants.SERVICE_INFO_PUBLISH_CHANNEL, new PacketServerServiceInfoPublisherListener());
+    registry.addListener(NetworkConstants.PERMISSIONS_PUBLISH_CHANNEL, new PacketServerUpdatePermissionsListener());
+    registry.addListener(NetworkConstants.CHANNEL_MESSAGING_CHANNEL, new PacketServerChannelMessageListener(false));
 
-    registry.addListener(PacketConstants.CLUSTER_SERVICE_INFO_LIST_CHANNEL,
+    registry.addListener(NetworkConstants.CLUSTER_SERVICE_INFO_LIST_CHANNEL,
       new PacketServerSetGlobalServiceInfoListListener());
-    registry.addListener(PacketConstants.CLUSTER_GROUP_CONFIG_LIST_CHANNEL,
+    registry.addListener(NetworkConstants.CLUSTER_GROUP_CONFIG_LIST_CHANNEL,
       new PacketServerSetGroupConfigurationListListener());
-    registry.addListener(PacketConstants.CLUSTER_TASK_LIST_CHANNEL, new PacketServerSetServiceTaskListListener());
-    registry.addListener(PacketConstants.CLUSTER_TEMPLATE_STORAGE_SYNC_CHANNEL,
+    registry.addListener(NetworkConstants.CLUSTER_TASK_LIST_CHANNEL, new PacketServerSetServiceTaskListListener());
+    registry.addListener(NetworkConstants.CLUSTER_TEMPLATE_STORAGE_SYNC_CHANNEL,
       new PacketServerSyncTemplateStorageListener());
-    registry.addListener(PacketConstants.CLUSTER_TEMPLATE_STORAGE_CHUNK_SYNC_CHANNEL,
+    registry.addListener(NetworkConstants.CLUSTER_TEMPLATE_STORAGE_CHUNK_SYNC_CHANNEL,
       new PacketServerSyncTemplateStorageChunkListener(false));
-    registry.addListener(PacketConstants.CLUSTER_PERMISSION_DATA_CHANNEL, new PacketServerSetPermissionDataListener());
+    registry.addListener(NetworkConstants.CLUSTER_PERMISSION_DATA_CHANNEL, new PacketServerSetPermissionDataListener());
     registry
-      .addListener(PacketConstants.CLUSTER_TEMPLATE_DEPLOY_CHANNEL, new PacketServerDeployLocalTemplateListener());
-    registry.addListener(PacketConstants.CLUSTER_NODE_INFO_CHANNEL, new PacketServerClusterNodeInfoUpdateListener());
+      .addListener(NetworkConstants.CLUSTER_TEMPLATE_DEPLOY_CHANNEL, new PacketServerDeployLocalTemplateListener());
+    registry.addListener(NetworkConstants.CLUSTER_NODE_INFO_CHANNEL, new PacketServerClusterNodeInfoUpdateListener());
 
-    registry.addListener(PacketConstants.INTERNAL_LOCAL_DATABASE_SYNC_CHANNEL, new PacketServerLocalDatabaseListener());
-    registry.addListener(PacketConstants.INTERNAL_LOCAL_DATABASE_SET_DATA_CHANNEL,
+    registry.addListener(NetworkConstants.INTERNAL_LOCAL_DATABASE_SYNC_CHANNEL,
+      new PacketServerLocalDatabaseListener());
+    registry.addListener(NetworkConstants.INTERNAL_LOCAL_DATABASE_SET_DATA_CHANNEL,
       new PacketServerSetLocalDatabaseDataListener());
 
-    registry.addListener(PacketConstants.INTERNAL_DEBUGGING_CHANNEL, new PacketServerSetGlobalLogLevelListener(false));
+    registry.addListener(NetworkConstants.INTERNAL_DEBUGGING_CHANNEL, new PacketServerSetGlobalLogLevelListener(false));
 
     // Node server API
-    registry.addListener(PacketConstants.INTERNAL_DRIVER_API_CHANNEL, new PacketServerDriverAPIListener());
+    registry.addListener(NetworkConstants.INTERNAL_DRIVER_API_CHANNEL, new PacketServerDriverAPIListener());
   }
 
   private void initPacketRegistryListeners() {
@@ -946,7 +947,7 @@ public final class CloudNet extends CloudNetDriver {
     this.registerClusterPacketRegistryListeners(registry, true);
 
     this.getNetworkServer().getPacketRegistry()
-      .addListener(PacketConstants.INTERNAL_AUTHORIZATION_CHANNEL, new PacketClientAuthorizationListener());
+      .addListener(NetworkConstants.INTERNAL_AUTHORIZATION_CHANNEL, new PacketClientAuthorizationListener());
   }
 
   private void unloadAll() {

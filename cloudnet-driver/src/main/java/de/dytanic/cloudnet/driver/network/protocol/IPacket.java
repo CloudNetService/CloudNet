@@ -34,6 +34,14 @@ import org.jetbrains.annotations.Nullable;
 public interface IPacket {
 
   /**
+   * Constructs a new packet that holds the same uuid as the packet used to create the response
+   *
+   * @param content the content of the new packet
+   * @return the new constructed packet
+   */
+  IPacket constructResponse(DataBuf content);
+
+  /**
    * Get the unique id of this packet. This field must not be defined if the packet has no unique id set. If the unique
    * id is set a response to this packet is expected by the client receiving it. Not responding to the packet can lead
    * to internal issues or thread deadlocks.

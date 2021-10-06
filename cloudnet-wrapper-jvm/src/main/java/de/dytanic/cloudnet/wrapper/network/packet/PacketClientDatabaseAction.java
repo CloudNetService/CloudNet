@@ -25,9 +25,9 @@ public class PacketClientDatabaseAction extends Packet {
 
   public PacketClientDatabaseAction(RemoteDatabaseRequestType type, Consumer<ProtocolBuffer> modifier) {
     //TODO:  super(PacketConstants.INTERNAL_DATABASE_API_CHANNEL, ProtocolBuffer.create().writeEnumConstant(type));
-    if (modifier != null) {
+   /* if (modifier != null) {
       modifier.accept(super.body);
-    }
+    }*/
   }
 
 }

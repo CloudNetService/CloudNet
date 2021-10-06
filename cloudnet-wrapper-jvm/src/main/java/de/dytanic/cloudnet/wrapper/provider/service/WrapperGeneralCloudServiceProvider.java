@@ -19,6 +19,7 @@ package de.dytanic.cloudnet.wrapper.provider.service;
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.driver.network.rpc.RPCSender;
 import de.dytanic.cloudnet.driver.provider.service.GeneralCloudServiceProvider;
+import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.wrapper.Wrapper;
@@ -27,6 +28,9 @@ import java.util.UUID;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * @author Aldin S. (0utplay@cloudnetservice.eu)
+ */
 public class WrapperGeneralCloudServiceProvider implements GeneralCloudServiceProvider {
 
   private final RPCSender rpcSender;
@@ -37,7 +41,19 @@ public class WrapperGeneralCloudServiceProvider implements GeneralCloudServicePr
   }
 
   @Override
-  public Collection<UUID> getServicesAsUniqueId() {
+  public @NotNull SpecificCloudServiceProvider getSpecificProvider(@NotNull UUID serviceUniqueId) {
+    Preconditions.checkNotNull(serviceUniqueId, "serviceUniqueId");
+    return this.rpcSender.invokeMethod("getSpecificProvider", serviceUniqueId).fireSync();
+  }
+
+  @Override
+  public @NotNull SpecificCloudServiceProvider getSpecificProviderByName(@NotNull String serviceName) {
+    Preconditions.checkNotNull(serviceName, "serviceName");
+    return this.rpcSender.invokeMethod("getSpecificProviderByName", serviceName).fireSync();
+  }
+
+  @Override
+  public @NotNull Collection<UUID> getServicesAsUniqueId() {
     return this.rpcSender.invokeMethod("getServicesAsUniqueId").fireSync();
   }
 
@@ -49,29 +65,29 @@ public class WrapperGeneralCloudServiceProvider implements GeneralCloudServicePr
   }
 
   @Override
-  public Collection<ServiceInfoSnapshot> getCloudServices() {
+  public @NotNull Collection<ServiceInfoSnapshot> getCloudServices() {
     return this.rpcSender.invokeMethod("getCloudServices").fireSync();
   }
 
   @Override
-  public Collection<ServiceInfoSnapshot> getStartedCloudServices() {
+  public @NotNull Collection<ServiceInfoSnapshot> getStartedCloudServices() {
     return this.rpcSender.invokeMethod("getStartedCloudServices").fireSync();
   }
 
   @Override
-  public Collection<ServiceInfoSnapshot> getCloudServices(@NotNull String taskName) {
+  public @NotNull Collection<ServiceInfoSnapshot> getCloudServices(@NotNull String taskName) {
     Preconditions.checkNotNull(taskName);
     return this.rpcSender.invokeMethod("getCloudServices", taskName).fireSync();
   }
 
   @Override
-  public Collection<ServiceInfoSnapshot> getCloudServices(@NotNull ServiceEnvironmentType environment) {
+  public @NotNull Collection<ServiceInfoSnapshot> getCloudServices(@NotNull ServiceEnvironmentType environment) {
     Preconditions.checkNotNull(environment);
     return this.rpcSender.invokeMethod("getCloudServices", environment).fireSync();
   }
 
   @Override
-  public Collection<ServiceInfoSnapshot> getCloudServicesByGroup(@NotNull String group) {
+  public @NotNull Collection<ServiceInfoSnapshot> getCloudServicesByGroup(@NotNull String group) {
     Preconditions.checkNotNull(group);
     return this.rpcSender.invokeMethod("getCloudServicesByGroup", group).fireSync();
   }

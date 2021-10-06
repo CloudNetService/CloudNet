@@ -34,7 +34,6 @@ import de.dytanic.cloudnet.driver.service.ServiceTask;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import de.dytanic.cloudnet.provider.NodeGroupConfigurationProvider;
 import de.dytanic.cloudnet.provider.NodeServiceTaskProvider;
-import de.dytanic.cloudnet.service.EmptyGroupConfiguration;
 import de.dytanic.cloudnet.template.TemplateStorageUtil;
 import de.dytanic.cloudnet.template.install.ServiceVersion;
 import de.dytanic.cloudnet.template.install.ServiceVersionType;
@@ -74,8 +73,8 @@ public class DefaultTaskSetup implements DefaultSetup {
 
     String lobbyJavaCommand = ((Pair<String, ?>) animation.getResult("javaCommand")).getFirst();
 
-    GroupConfiguration globalServerGroup = new EmptyGroupConfiguration(GLOBAL_SERVER_GROUP_NAME);
-    GroupConfiguration globalProxyGroup = new EmptyGroupConfiguration(GLOBAL_PROXY_GROUP_NAME);
+    GroupConfiguration globalServerGroup = GroupConfiguration.empty(GLOBAL_SERVER_GROUP_NAME);
+    GroupConfiguration globalProxyGroup = GroupConfiguration.empty(GLOBAL_PROXY_GROUP_NAME);
     globalProxyGroup.getTargetEnvironments().add(proxyEnvironment);
     globalServerGroup.getTargetEnvironments().add(serverEnvironment);
 
@@ -148,7 +147,7 @@ public class DefaultTaskSetup implements DefaultSetup {
       }
     }
     CloudNet.getInstance().getServiceTaskProvider().addPermanentServiceTask(serviceTask);
-    CloudNet.getInstance().getGroupConfigurationProvider().addGroupConfiguration(new EmptyGroupConfiguration(taskName));
+    CloudNet.getInstance().getGroupConfigurationProvider().addGroupConfiguration(GroupConfiguration.empty(taskName));
   }
 
   @Override

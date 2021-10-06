@@ -26,6 +26,7 @@ import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.network.protocol.IPacketListener;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 
+//TODO: replace with channel message
 public final class PacketServerServiceInfoPublisherListener implements IPacketListener {
 
   private static final Logger LOGGER = LogManager.getLogger(PacketServerServiceInfoPublisherListener.class);

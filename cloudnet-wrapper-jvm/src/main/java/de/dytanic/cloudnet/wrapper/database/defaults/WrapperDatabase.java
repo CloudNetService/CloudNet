@@ -19,7 +19,6 @@ package de.dytanic.cloudnet.wrapper.database.defaults;
 import de.dytanic.cloudnet.common.concurrent.CompletableTask;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
-import de.dytanic.cloudnet.driver.api.RemoteDatabaseRequestType;
 import de.dytanic.cloudnet.driver.database.Database;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.network.rpc.RPCSender;
@@ -158,11 +157,11 @@ public class WrapperDatabase implements IDatabase {
 
   //TODO: replace this
   private @NotNull ITask<Map<String, JsonDocument>> readNextDataChunk(long beginIndex, int chunkSize) {
-    return this.databaseProvider.executeQuery(
+    return CompletableTask.supplyAsync(() -> new HashMap<>());
+    /* return this.databaseProvider.executeQuery(
       RemoteDatabaseRequestType.DATABASE_ITERATE_CHUNKED,
       buffer -> this.writeDefaults(buffer).writeVarLong(beginIndex).writeVarInt(chunkSize)
-    ).map(this.dataMapReader());
-
+    ).map(this.dataMapReader());*/
   }
 
   private @NotNull Consumer<Map<String, JsonDocument>> chunkedIterateResultHandler(

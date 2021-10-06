@@ -93,10 +93,6 @@ public final class TemplateStorageUtil {
           prepareProxyTemplate(storage, buffer, "config.yml", "files/bungee/config.yml");
         }
         break;
-        case WATERDOG: {
-          prepareProxyTemplate(storage, buffer, "config.yml", "files/waterdog/config.yml");
-        }
-        break;
         case VELOCITY: {
           prepareProxyTemplate(storage, buffer, "velocity.toml", "files/velocity/velocity.toml");
         }
@@ -112,15 +108,6 @@ public final class TemplateStorageUtil {
 
           try (OutputStream outputStream = storage.newOutputStream("nukkit.yml");
             InputStream inputStream = CloudNet.class.getClassLoader().getResourceAsStream("files/nukkit/nukkit.yml")) {
-            if (inputStream != null) {
-              FileUtils.copy(inputStream, outputStream, buffer);
-            }
-          }
-        }
-        break;
-        case GO_MINT: {
-          try (OutputStream outputStream = storage.newOutputStream("server.yml");
-            InputStream inputStream = CloudNet.class.getClassLoader().getResourceAsStream("files/gomint/server.yml")) {
             if (inputStream != null) {
               FileUtils.copy(inputStream, outputStream, buffer);
             }

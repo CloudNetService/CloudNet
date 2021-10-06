@@ -18,7 +18,7 @@ package de.dytanic.cloudnet.driver.network.def.packet;
 
 import de.dytanic.cloudnet.driver.api.DriverAPIRequestType;
 import de.dytanic.cloudnet.driver.network.buffer.DataBufFactory;
-import de.dytanic.cloudnet.driver.network.def.PacketConstants;
+import de.dytanic.cloudnet.driver.network.def.NetworkConstants;
 import de.dytanic.cloudnet.driver.network.netty.buffer.NettyImmutableDataBuf;
 import de.dytanic.cloudnet.driver.network.protocol.Packet;
 import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
@@ -35,7 +35,7 @@ public class PacketClientDriverAPI extends Packet {
 
   public PacketClientDriverAPI(DriverAPIRequestType type, Consumer<ProtocolBuffer> modifier) {
     super(
-      PacketConstants.INTERNAL_DRIVER_API_CHANNEL,
+      NetworkConstants.INTERNAL_DRIVER_API_CHANNEL,
       DataBufFactory.defaultFactory().createEmpty().writeInt(type.ordinal()));
     if (modifier != null) {
       modifier.accept(ProtocolBuffer.wrap(((NettyImmutableDataBuf) this.getContent()).getByteBuf()));

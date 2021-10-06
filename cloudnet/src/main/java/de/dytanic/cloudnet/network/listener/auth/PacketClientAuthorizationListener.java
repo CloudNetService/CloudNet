@@ -25,7 +25,7 @@ import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
-import de.dytanic.cloudnet.driver.network.def.PacketConstants;
+import de.dytanic.cloudnet.driver.network.def.NetworkConstants;
 import de.dytanic.cloudnet.driver.network.def.packet.PacketClientAuthorization;
 import de.dytanic.cloudnet.driver.network.def.packet.PacketClientServerServiceInfoPublisher;
 import de.dytanic.cloudnet.driver.network.def.packet.PacketServerSetGlobalLogLevel;
@@ -102,20 +102,20 @@ public final class PacketClientAuthorizationListener implements IPacketListener 
               cloudService.getServiceId().getNodeUniqueId().equals(serviceId.getNodeUniqueId())) {
               //- packet channel registry
               channel.getPacketRegistry()
-                .addListener(PacketConstants.CHANNEL_MESSAGING_CHANNEL, new PacketServerChannelMessageListener(true));
-              channel.getPacketRegistry().addListener(PacketConstants.INTERNAL_WRAPPER_TO_NODE_INFO_CHANNEL,
+                .addListener(NetworkConstants.CHANNEL_MESSAGING_CHANNEL, new PacketServerChannelMessageListener(true));
+              channel.getPacketRegistry().addListener(NetworkConstants.INTERNAL_WRAPPER_TO_NODE_INFO_CHANNEL,
                 new PacketClientServiceInfoUpdateListener());
 
-              channel.getPacketRegistry().addListener(PacketConstants.INTERNAL_DEBUGGING_CHANNEL,
+              channel.getPacketRegistry().addListener(NetworkConstants.INTERNAL_DEBUGGING_CHANNEL,
                 new PacketServerSetGlobalLogLevelListener(true));
 
-              channel.getPacketRegistry().addListener(PacketConstants.INTERNAL_DATABASE_API_CHANNEL,
+              channel.getPacketRegistry().addListener(NetworkConstants.INTERNAL_DATABASE_API_CHANNEL,
                 new PacketServerRemoteDatabaseActionListener());
 
               channel.getPacketRegistry()
-                .addListener(PacketConstants.INTERNAL_DRIVER_API_CHANNEL, new PacketServerDriverAPIListener());
+                .addListener(NetworkConstants.INTERNAL_DRIVER_API_CHANNEL, new PacketServerDriverAPIListener());
 
-              channel.getPacketRegistry().addListener(PacketConstants.CLUSTER_TEMPLATE_STORAGE_CHUNK_SYNC_CHANNEL,
+              channel.getPacketRegistry().addListener(NetworkConstants.CLUSTER_TEMPLATE_STORAGE_CHUNK_SYNC_CHANNEL,
                 new PacketServerSyncTemplateStorageChunkListener(true));
 
               //-

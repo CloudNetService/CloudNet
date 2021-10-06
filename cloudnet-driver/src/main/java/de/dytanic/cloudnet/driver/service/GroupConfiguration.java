@@ -80,6 +80,11 @@ public class GroupConfiguration extends ServiceConfigurationBase implements INam
     this.targetEnvironments = targetEnvironments;
   }
 
+  public static GroupConfiguration empty(@NotNull String name) {
+    return new GroupConfiguration(new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), name, new ArrayList<>(),
+      new ArrayList<>());
+  }
+
   @Override
   public Collection<String> getJvmOptions() {
     return this.jvmOptions;

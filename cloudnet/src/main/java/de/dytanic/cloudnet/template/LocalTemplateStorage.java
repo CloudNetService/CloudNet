@@ -274,8 +274,8 @@ public final class LocalTemplateStorage extends ClusterSynchronizedTemplateStora
         })
         .filter(Objects::nonNull)
         .map(path -> {
-          Path relativize = this.storageDirectory.relativize(path);
-          return new ServiceTemplate(relativize.getName(0).toString(), relativize.getName(1).toString(),
+          Path relativized = this.storageDirectory.relativize(path);
+          return new ServiceTemplate(relativized.getName(0).toString(), relativized.getName(1).toString(),
             LOCAL_TEMPLATE_STORAGE);
         })
         .collect(Collectors.toList());

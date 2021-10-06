@@ -23,8 +23,10 @@ import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.driver.channel.ChannelMessageSender;
 import de.dytanic.cloudnet.driver.channel.ChannelMessageTarget;
 import de.dytanic.cloudnet.driver.event.Event;
+import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import java.util.Collection;
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -74,9 +76,16 @@ public final class ChannelMessageReceiveEvent extends Event {
     return this.channelMessage.getJson();
   }
 
+  @Deprecated
+  @ScheduledForRemoval
   @NotNull
   public ProtocolBuffer getBuffer() {
     return this.channelMessage.getBuffer();
+  }
+
+  @NotNull
+  public DataBuf getContent() {
+    return this.channelMessage.getContent();
   }
 
   public boolean isQuery() {

@@ -21,8 +21,8 @@ import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.common.stream.MultiOutputStream;
 import de.dytanic.cloudnet.driver.api.DriverAPIRequestType;
-import de.dytanic.cloudnet.driver.network.def.PacketConstants;
 import de.dytanic.cloudnet.driver.network.chunk.ChunkedPacketBuilder;
+import de.dytanic.cloudnet.driver.network.def.NetworkConstants;
 import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import de.dytanic.cloudnet.driver.template.defaults.DefaultSyncTemplateStorage;
@@ -70,7 +70,7 @@ public abstract class ClusterSynchronizedTemplateStorage extends DefaultSyncTemp
 
   private void sendChunks(DriverAPIRequestType requestType, InputStream inputStream, ServiceTemplate template,
     JsonDocument header) throws IOException {
-    ChunkedPacketBuilder.newBuilder(PacketConstants.CLUSTER_TEMPLATE_STORAGE_CHUNK_SYNC_CHANNEL, inputStream)
+    ChunkedPacketBuilder.newBuilder(NetworkConstants.CLUSTER_TEMPLATE_STORAGE_CHUNK_SYNC_CHANNEL, inputStream)
       .header(header.append("type", requestType).append("template", template))
       .target(CloudNet.getInstance().getClusterNodeServerProvider().getConnectedChannels())
       .complete();

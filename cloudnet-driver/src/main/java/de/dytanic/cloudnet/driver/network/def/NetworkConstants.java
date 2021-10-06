@@ -19,7 +19,7 @@ package de.dytanic.cloudnet.driver.network.def;
 import org.jetbrains.annotations.ApiStatus.Internal;
 
 @Internal
-public final class PacketConstants {
+public final class NetworkConstants {
 
   // rpc (reserved ids: 0 - 50)
   public static final int INTERNAL_RPC_COM_CHANNEL = 0;
@@ -49,7 +49,12 @@ public final class PacketConstants {
   public static final int PERMISSIONS_PUBLISH_CHANNEL = 152;
   public static final int CHANNEL_MESSAGING_CHANNEL = 153;
 
-  private PacketConstants() {
+  // channel message channels
+  public static final String WRAPPER_TO_NODE = "wrapper_node";
+  public static final String NODE_TO_WRAPPER = "node_wrapper";
+  public static final String NODE_TO_NODE = "node_node";
+
+  private NetworkConstants() {
     throw new UnsupportedOperationException();
   }
 }

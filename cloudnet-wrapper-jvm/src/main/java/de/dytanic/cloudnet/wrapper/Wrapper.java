@@ -29,7 +29,7 @@ import de.dytanic.cloudnet.driver.module.DefaultModuleProviderHandler;
 import de.dytanic.cloudnet.driver.module.IModuleWrapper;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.INetworkClient;
-import de.dytanic.cloudnet.driver.network.def.PacketConstants;
+import de.dytanic.cloudnet.driver.network.def.NetworkConstants;
 import de.dytanic.cloudnet.driver.network.def.packet.PacketServerSetGlobalLogLevel;
 import de.dytanic.cloudnet.driver.network.netty.client.NettyNetworkClient;
 import de.dytanic.cloudnet.driver.network.rpc.RPCSender;
@@ -42,7 +42,6 @@ import de.dytanic.cloudnet.driver.service.ServiceId;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
-import de.dytanic.cloudnet.driver.template.RemoteTemplateStorage;
 import de.dytanic.cloudnet.driver.template.TemplateStorage;
 import de.dytanic.cloudnet.wrapper.conf.DocumentWrapperConfiguration;
 import de.dytanic.cloudnet.wrapper.conf.IWrapperConfiguration;
@@ -54,11 +53,6 @@ import de.dytanic.cloudnet.wrapper.event.service.ServiceInfoSnapshotConfigureEve
 import de.dytanic.cloudnet.wrapper.network.NetworkClientChannelHandler;
 import de.dytanic.cloudnet.wrapper.network.listener.PacketServerAuthorizationResponseListener;
 import de.dytanic.cloudnet.wrapper.network.listener.PacketServerChannelMessageListener;
-import de.dytanic.cloudnet.wrapper.network.listener.PacketServerServiceInfoPublisherListener;
-import de.dytanic.cloudnet.wrapper.network.listener.PacketServerSetGlobalLogLevelListener;
-import de.dytanic.cloudnet.wrapper.network.listener.PacketServerSetServiceTaskListListener;
-import de.dytanic.cloudnet.wrapper.network.listener.PacketServerUpdatePermissionsListener;
-import de.dytanic.cloudnet.wrapper.network.listener.PacketServerWrapperDriverAPIListener;
 import de.dytanic.cloudnet.wrapper.network.packet.PacketClientServiceInfoUpdate;
 import de.dytanic.cloudnet.wrapper.permission.WrapperPermissionManagement;
 import de.dytanic.cloudnet.wrapper.provider.WrapperGroupConfigurationProvider;
@@ -134,7 +128,8 @@ public final class Wrapper extends CloudNetDriver {
     this.databaseProvider = new DefaultWrapperDatabaseProvider(this);
     this.rpcSender = this.rpcProviderFactory.providerForClass(this.getNetworkClient(), CloudNetDriver.class);
 
-    super.cloudServiceFactory = new RemoteCloudServiceFactory(this::getNetworkChannel, this.networkClient, this.rpcProviderFactory);
+    super.cloudServiceFactory = new RemoteCloudServiceFactory(this::getNetworkChannel, this.networkClient,
+      this.rpcProviderFactory);
     super.generalCloudServiceProvider = new WrapperGeneralCloudServiceProvider(this);
     super.serviceTaskProvider = new WrapperServiceTaskProvider(this);
     super.groupConfigurationProvider = new WrapperGroupConfigurationProvider(this);
@@ -147,20 +142,7 @@ public final class Wrapper extends CloudNetDriver {
 
     //- Packet client registry
     this.networkClient.getPacketRegistry()
-      .addListener(PacketConstants.SERVICE_INFO_PUBLISH_CHANNEL, new PacketServerServiceInfoPublisherListener());
-    this.networkClient.getPacketRegistry()
-      .addListener(PacketConstants.CLUSTER_TASK_LIST_CHANNEL, new PacketServerSetServiceTaskListListener());
-    this.networkClient.getPacketRegistry()
-      .addListener(PacketConstants.PERMISSIONS_PUBLISH_CHANNEL, new PacketServerUpdatePermissionsListener());
-    this.networkClient.getPacketRegistry()
-      .addListener(PacketConstants.CHANNEL_MESSAGING_CHANNEL, new PacketServerChannelMessageListener());
-
-    this.networkClient.getPacketRegistry()
-      .addListener(PacketConstants.INTERNAL_DEBUGGING_CHANNEL, new PacketServerSetGlobalLogLevelListener());
-
-    this.networkClient.getPacketRegistry()
-      .addListener(PacketConstants.INTERNAL_DRIVER_API_CHANNEL, new PacketServerWrapperDriverAPIListener());
-    //-
+      .addListener(NetworkConstants.CHANNEL_MESSAGING_CHANNEL, new PacketServerChannelMessageListener());
 
     this.moduleProvider.setModuleDirectoryPath(Paths.get(".wrapper", "modules"));
     this.moduleProvider.setModuleProviderHandler(new DefaultModuleProviderHandler());
@@ -184,7 +166,7 @@ public final class Wrapper extends CloudNetDriver {
       Condition condition = lock.newCondition();
       listener = new PacketServerAuthorizationResponseListener(lock, condition);
 
-      this.networkClient.getPacketRegistry().addListener(PacketConstants.INTERNAL_AUTHORIZATION_CHANNEL, listener);
+      this.networkClient.getPacketRegistry().addListener(NetworkConstants.INTERNAL_AUTHORIZATION_CHANNEL, listener);
       this.networkClient.connect(this.config.getTargetListener());
 
       condition.await();
@@ -193,7 +175,7 @@ public final class Wrapper extends CloudNetDriver {
       lock.unlock();
     }
 
-    this.networkClient.getPacketRegistry().removeListener(PacketConstants.INTERNAL_AUTHORIZATION_CHANNEL);
+    this.networkClient.getPacketRegistry().removeListener(NetworkConstants.INTERNAL_AUTHORIZATION_CHANNEL);
 
     this.permissionManagement.init();
 
@@ -244,9 +226,10 @@ public final class Wrapper extends CloudNetDriver {
     return this.getServiceId().getNodeUniqueId();
   }
 
+  //TODO: add back when the TemplateStorage is implemented
   @Override
   public @NotNull TemplateStorage getTemplateStorage(String storage) {
-    return new RemoteTemplateStorage(storage, this::getNetworkChannel);
+    return null;
   }
 
   /**
@@ -270,7 +253,7 @@ public final class Wrapper extends CloudNetDriver {
    */
   @Override
   public @NotNull SpecificCloudServiceProvider getCloudServiceProvider(@NotNull String name) {
-    return new RemoteSpecificCloudServiceProvider(this.getNetworkChannel(), this.generalCloudServiceProvider, name);
+    return new RemoteSpecificCloudServiceProvider(this.getCloudServiceProvider(), this.rpcSender, name);
   }
 
   /**
@@ -278,7 +261,7 @@ public final class Wrapper extends CloudNetDriver {
    */
   @Override
   public @NotNull SpecificCloudServiceProvider getCloudServiceProvider(@NotNull UUID uniqueId) {
-    return new RemoteSpecificCloudServiceProvider(this.getNetworkChannel(), this.generalCloudServiceProvider, uniqueId);
+    return new RemoteSpecificCloudServiceProvider(this.getCloudServiceProvider(), this.rpcSender, uniqueId);
   }
 
   /**
@@ -287,7 +270,8 @@ public final class Wrapper extends CloudNetDriver {
   @Override
   public @NotNull SpecificCloudServiceProvider getCloudServiceProvider(
     @NotNull ServiceInfoSnapshot serviceInfoSnapshot) {
-    return new RemoteSpecificCloudServiceProvider(this.getNetworkChannel(), serviceInfoSnapshot);
+    return new RemoteSpecificCloudServiceProvider(this.getCloudServiceProvider(), this.rpcSender,
+      serviceInfoSnapshot.getServiceId().getUniqueId());
   }
 
   /**
@@ -357,8 +341,8 @@ public final class Wrapper extends CloudNetDriver {
       this.currentServiceInfoSnapshot.getConnectedTime(),
       ServiceLifeCycle.RUNNING,
       ProcessSnapshot.self(),
-      this.currentServiceInfoSnapshot.getProperties(),
-      this.getServiceConfiguration()
+      this.getServiceConfiguration(),
+      this.currentServiceInfoSnapshot.getProperties()
     );
   }
 

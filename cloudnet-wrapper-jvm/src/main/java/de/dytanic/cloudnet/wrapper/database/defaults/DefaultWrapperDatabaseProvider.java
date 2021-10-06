@@ -16,10 +16,10 @@
 
 package de.dytanic.cloudnet.wrapper.database.defaults;
 
+import de.dytanic.cloudnet.driver.database.Database;
 import de.dytanic.cloudnet.driver.database.DatabaseProvider;
 import de.dytanic.cloudnet.driver.network.rpc.RPCSender;
 import de.dytanic.cloudnet.wrapper.Wrapper;
-import de.dytanic.cloudnet.wrapper.database.IDatabase;
 import de.dytanic.cloudnet.wrapper.database.IDatabaseProvider;
 import java.util.Collection;
 
@@ -35,7 +35,7 @@ public class DefaultWrapperDatabaseProvider implements IDatabaseProvider {
   }
 
   @Override
-  public IDatabase getDatabase(String name) {
+  public Database getDatabase(String name) {
     return new WrapperDatabase(name, this, this.wrapper);
   }
 
