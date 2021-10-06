@@ -17,12 +17,14 @@
 package de.dytanic.cloudnet.service.defaults;
 
 import aerogel.Inject;
+import aerogel.Name;
 import aerogel.Singleton;
 import aerogel.auto.Provides;
 import de.dytanic.cloudnet.driver.network.rpc.RPCProviderFactory;
 import de.dytanic.cloudnet.driver.network.rpc.RPCSender;
 import de.dytanic.cloudnet.driver.provider.service.GeneralCloudServiceProvider;
 import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
+import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
@@ -30,6 +32,13 @@ import de.dytanic.cloudnet.provider.service.EmptySpecificCloudServiceProvider;
 import de.dytanic.cloudnet.service.ICloudService;
 import de.dytanic.cloudnet.service.ICloudServiceFactory;
 import de.dytanic.cloudnet.service.ICloudServiceManager;
+import de.dytanic.cloudnet.service.ServiceConfigurationPreparer;
+import de.dytanic.cloudnet.service.defaults.config.BungeeConfigurationPreparer;
+import de.dytanic.cloudnet.service.defaults.config.GlowstoneConfigurationPreparer;
+import de.dytanic.cloudnet.service.defaults.config.NukkitConfigurationPreparer;
+import de.dytanic.cloudnet.service.defaults.config.VanillaServiceConfigurationPreparer;
+import de.dytanic.cloudnet.service.defaults.config.VelocityConfigurationPreparer;
+import de.dytanic.cloudnet.service.defaults.config.WaterdogPEConfigurationPreparer;
 import de.dytanic.cloudnet.service.defaults.provider.RemoteNodeCloudServiceProvider;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -59,11 +68,24 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
 
   protected final Map<UUID, SpecificCloudServiceProvider> knownServices = new ConcurrentHashMap<>();
   protected final Map<String, ICloudServiceFactory> cloudServiceFactories = new ConcurrentHashMap<>();
+  protected final Map<ServiceEnvironmentType, ServiceConfigurationPreparer> preparers = new ConcurrentHashMap<>();
 
   @Inject
-  public DefaultCloudServiceManager(@NotNull RPCProviderFactory factory) {
+  public DefaultCloudServiceManager(
+    @NotNull RPCProviderFactory factory,
+    @Name("JVMServiceFactory") ICloudServiceFactory cloudServiceFactory
+  ) {
     // @todo: make the component actually nullable
     this.sender = factory.providerForClass(null, GeneralCloudServiceProvider.class);
+    // register the default factory
+    this.addCloudServiceFactory("jvm", cloudServiceFactory);
+    // register the default configuration preparers
+    this.addServicePreparer(ServiceEnvironmentType.NUKKIT, new NukkitConfigurationPreparer());
+    this.addServicePreparer(ServiceEnvironmentType.VELOCITY, new VelocityConfigurationPreparer());
+    this.addServicePreparer(ServiceEnvironmentType.BUNGEECORD, new BungeeConfigurationPreparer());
+    this.addServicePreparer(ServiceEnvironmentType.GLOWSTONE, new GlowstoneConfigurationPreparer());
+    this.addServicePreparer(ServiceEnvironmentType.WATERDOG_PE, new WaterdogPEConfigurationPreparer());
+    this.addServicePreparer(ServiceEnvironmentType.MINECRAFT_SERVER, new VanillaServiceConfigurationPreparer());
   }
 
   @Override
@@ -180,6 +202,29 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
   }
 
   @Override
+  public @NotNull Collection<ServiceConfigurationPreparer> getServicePreparers() {
+    return Collections.unmodifiableCollection(this.preparers.values());
+  }
+
+  @Override
+  public @NotNull Optional<ServiceConfigurationPreparer> getServicePreparer(@NotNull ServiceEnvironmentType type) {
+    return Optional.ofNullable(this.preparers.get(type));
+  }
+
+  @Override
+  public void addServicePreparer(
+    @NotNull ServiceEnvironmentType type,
+    @NotNull ServiceConfigurationPreparer preparer
+  ) {
+    this.preparers.putIfAbsent(type, preparer);
+  }
+
+  @Override
+  public void removeServicePreparer(@NotNull ServiceEnvironmentType type) {
+    this.preparers.remove(type);
+  }
+
+  @Override
   public @NotNull Path getTempDirectoryPath() {
     return TEMP_SERVICE_DIR;
   }
@@ -254,5 +299,16 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
         ((RemoteNodeCloudServiceProvider) provider).setSnapshot(snapshot);
       }
     }
+  }
+
+  @Override
+  public @NotNull ICloudService createLocalCloudService(@NotNull ServiceConfiguration configuration) {
+    // get the cloud service factory for the configuration
+    ICloudServiceFactory factory = this.cloudServiceFactories.get(configuration.getRuntime());
+    if (factory == null) {
+      throw new IllegalArgumentException("No service factory for runtime " + configuration.getRuntime());
+    }
+    // create the new service using the factory
+    return factory.createCloudService(this, configuration);
   }
 }

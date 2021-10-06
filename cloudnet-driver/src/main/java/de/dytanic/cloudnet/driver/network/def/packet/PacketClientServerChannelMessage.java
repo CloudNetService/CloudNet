@@ -20,8 +20,6 @@ import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.driver.network.protocol.Packet;
 import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 
-@Deprecated
-@ScheduledForRemoval
 public final class PacketClientServerChannelMessage extends Packet {
 
   public PacketClientServerChannelMessage(ChannelMessage message, boolean query) {

@@ -17,6 +17,8 @@
 package de.dytanic.cloudnet.service;
 
 import de.dytanic.cloudnet.driver.provider.service.GeneralCloudServiceProvider;
+import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
+import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import java.nio.file.Path;
 import java.util.Collection;
@@ -36,6 +38,16 @@ public interface ICloudServiceManager extends GeneralCloudServiceProvider {
   void addCloudServiceFactory(@NotNull String runtime, @NotNull ICloudServiceFactory factory);
 
   void removeCloudServiceFactory(@NotNull String runtime);
+
+  @NotNull
+  Collection<ServiceConfigurationPreparer> getServicePreparers();
+
+  @NotNull
+  Optional<ServiceConfigurationPreparer> getServicePreparer(@NotNull ServiceEnvironmentType environmentType);
+
+  void addServicePreparer(@NotNull ServiceEnvironmentType type, @NotNull ServiceConfigurationPreparer preparer);
+
+  void removeServicePreparer(@NotNull ServiceEnvironmentType type);
 
   @NotNull
   Path getTempDirectoryPath();
@@ -61,4 +73,7 @@ public interface ICloudServiceManager extends GeneralCloudServiceProvider {
 
   @Internal
   void handleServiceUpdate(@NotNull ServiceInfoSnapshot snapshot);
+
+  @Internal
+  @NotNull ICloudService createLocalCloudService(@NotNull ServiceConfiguration serviceConfiguration);
 }

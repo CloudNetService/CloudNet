@@ -48,6 +48,8 @@ public interface DataBuf {
 
   @NotNull DataBuf readDataBuf();
 
+  @Nullable <T> T readObject(@NotNull Class<T> type);
+
   @Nullable <T> T readNullable(@NotNull Function<DataBuf, T> readerWhenNonNull);
 
   <T> T readNullable(@NotNull Function<DataBuf, T> readerWhenNonNull, T valueWhenNull);
@@ -97,6 +99,8 @@ public interface DataBuf {
     @NotNull DataBuf.Mutable writeString(@NotNull String string);
 
     @NotNull DataBuf.Mutable writeDataBuf(@NotNull DataBuf buf);
+
+    @NotNull DataBuf.Mutable writeObject(@Nullable Object obj);
 
     @NotNull <T> DataBuf.Mutable writeNullable(@Nullable T object,
       @NotNull BiConsumer<DataBuf.Mutable, T> handlerWhenNonNull);

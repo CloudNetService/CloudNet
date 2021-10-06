@@ -121,7 +121,7 @@ public class DefaultObjectMapperTest {
         System.currentTimeMillis(),
         new HostAndPort("127.0.1.1", 99),
         0,
-        ServiceLifeCycle.DEFINED,
+        ServiceLifeCycle.PREPARED,
         ProcessSnapshot.self(),
         JsonDocument.newDocument("test", 1234),
         ServiceConfiguration.builder()

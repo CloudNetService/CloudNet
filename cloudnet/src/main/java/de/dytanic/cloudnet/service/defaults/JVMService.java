@@ -61,7 +61,7 @@ public class JVMService extends AbstractService {
 
   protected volatile Process process;
 
-  protected JVMService(
+  public JVMService(
     @NotNull ServiceConfiguration configuration,
     @NotNull ICloudServiceManager manager,
     @NotNull IEventManager eventManager,

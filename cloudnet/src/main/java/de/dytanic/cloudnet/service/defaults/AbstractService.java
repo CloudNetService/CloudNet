@@ -119,6 +119,8 @@ public abstract class AbstractService implements ICloudService {
       ProcessSnapshot.empty(),
       configuration,
       configuration.getProperties());
+
+    manager.registerLocalService(this);
   }
 
   protected static @NotNull Path resolveServicePath(
@@ -438,6 +440,8 @@ public abstract class AbstractService implements ICloudService {
       this.isAlive() ? this.lastServiceInfo.getProcessSnapshot() : ProcessSnapshot.empty(),
       this.lastServiceInfo.getConfiguration(),
       this.lastServiceInfo.getProperties());
+    // push the service change to the current manager
+    this.cloudServiceManager.handleServiceUpdate(this.currentServiceInfo);
   }
 
   protected boolean canStartNow() {

@@ -16,31 +16,27 @@
 
 package de.dytanic.cloudnet.common.document.gson;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import com.google.gson.TypeAdapter;
 import com.google.gson.internal.bind.TypeAdapters;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import org.jetbrains.annotations.ApiStatus.Internal;
-import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.NotNull;
 
 @Internal
-public final class JsonDocumentTypeAdapter extends TypeAdapter<JsonDocument> {
+public final class PathTypeAdapter extends TypeAdapter<Path> {
 
   @Override
-  public void write(JsonWriter jsonWriter, JsonDocument document) throws IOException {
-    TypeAdapters.JSON_ELEMENT.write(jsonWriter, document == null ? new JsonObject() : document.jsonObject);
+  public void write(@NotNull JsonWriter out, @NotNull Path value) throws IOException {
+    TypeAdapters.STRING.write(out, value.toString().replace(File.separatorChar, '/'));
   }
 
   @Override
-  public @Nullable JsonDocument read(JsonReader jsonReader) throws IOException {
-    JsonElement jsonElement = TypeAdapters.JSON_ELEMENT.read(jsonReader);
-    if (jsonElement != null && jsonElement.isJsonObject()) {
-      return new JsonDocument(jsonElement);
-    } else {
-      return null;
-    }
+  public @NotNull Path read(JsonReader in) throws IOException {
+    return Paths.get(TypeAdapters.STRING.read(in));
   }
 }

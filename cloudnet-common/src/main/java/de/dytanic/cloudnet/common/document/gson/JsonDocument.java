@@ -25,7 +25,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
-import com.google.gson.internal.bind.TypeAdapters;
 import de.dytanic.cloudnet.common.document.IDocument;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
@@ -63,7 +62,8 @@ public class JsonDocument implements IDocument<JsonDocument>, Cloneable {
     .serializeNulls()
     .disableHtmlEscaping()
     .setPrettyPrinting()
-    .registerTypeAdapterFactory(TypeAdapters.newTypeHierarchyFactory(JsonDocument.class, new JsonDocumentTypeAdapter()))
+    .registerTypeHierarchyAdapter(Path.class, new PathTypeAdapter())
+    .registerTypeHierarchyAdapter(JsonDocument.class, new JsonDocumentTypeAdapter())
     .create();
   private static final Logger LOGGER = LogManager.getLogger(JsonDocument.class);
   protected final JsonObject jsonObject;

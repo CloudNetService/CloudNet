@@ -22,6 +22,7 @@ import de.dytanic.cloudnet.driver.service.GroupConfiguration;
 import java.util.Collection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnmodifiableView;
 
 /**
  * This class provides access to the groups of the cloud (groups.json file).
@@ -38,7 +39,8 @@ public interface GroupConfigurationProvider {
    *
    * @return a list containing the group configurations of all groups
    */
-  Collection<GroupConfiguration> getGroupConfigurations();
+  @NotNull
+  @UnmodifiableView Collection<GroupConfiguration> getGroupConfigurations();
 
   /**
    * Clears all existing groups and sets the given collection as the new groups

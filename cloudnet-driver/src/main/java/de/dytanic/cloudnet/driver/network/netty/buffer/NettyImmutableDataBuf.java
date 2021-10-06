@@ -17,6 +17,7 @@
 package de.dytanic.cloudnet.driver.network.netty.buffer;
 
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
+import de.dytanic.cloudnet.driver.network.rpc.defaults.object.DefaultObjectMapper;
 import io.netty.buffer.ByteBuf;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
@@ -95,6 +96,11 @@ public class NettyImmutableDataBuf implements DataBuf {
   @Override
   public @NotNull DataBuf readDataBuf() {
     return new NettyImmutableDataBuf(this.byteBuf.readBytes(this.readInt()));
+  }
+
+  @Override
+  public <T> @Nullable T readObject(@NotNull Class<T> type) {
+    return DefaultObjectMapper.DEFAULT_MAPPER.readObject(this, type);
   }
 
   @Override

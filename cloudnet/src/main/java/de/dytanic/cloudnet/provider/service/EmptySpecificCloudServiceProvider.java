@@ -75,10 +75,6 @@ public class EmptySpecificCloudServiceProvider implements SpecificCloudServicePr
   }
 
   @Override
-  public void kill() {
-  }
-
-  @Override
   public void runCommand(@NotNull String command) {
   }
 
