@@ -21,6 +21,7 @@ import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.common.unsafe.CPUUsageResolver;
+import de.dytanic.cloudnet.conf.IConfiguration;
 import de.dytanic.cloudnet.console.animation.questionlist.ConsoleQuestionListAnimation;
 import de.dytanic.cloudnet.console.animation.questionlist.QuestionListEntry;
 import de.dytanic.cloudnet.console.animation.questionlist.answer.QuestionAnswerTypeBoolean;
@@ -189,10 +190,11 @@ public class DefaultConfigSetup implements DefaultSetup {
 
   @Override
   public void execute(ConsoleQuestionListAnimation animation) {
+    IConfiguration cloudConfiguration = CloudNet.getInstance().getConfig();
     if (animation.hasResult("internalHost")) {
       HostAndPort internalAddress = (HostAndPort) animation.getResult("internalHost");
 
-      CloudNet.getInstance().getConfig().setIdentity(new NetworkClusterNode(
+      cloudConfiguration.setIdentity(new NetworkClusterNode(
         animation.hasResult("nodeId") ? (String) animation.getResult("nodeId") : "Node-1",
         new HostAndPort[]{
           new HostAndPort(this.whiteListAndFormatHost(internalAddress.getHost()), internalAddress.getPort())
@@ -204,23 +206,24 @@ public class DefaultConfigSetup implements DefaultSetup {
       String hostAddress = ((HostAndPort) animation.getResult("hostAddress")).getHost();
       String formattedHostAddress = this.whiteListAndFormatHost(hostAddress);
 
-      CloudNet.getInstance().getConfig().setHostAddress(formattedHostAddress);
-      CloudNet.getInstance().getConfig().setConnectHostAddress(formattedHostAddress);
+      cloudConfiguration.setHostAddress(formattedHostAddress);
+      cloudConfiguration.setConnectHostAddress(formattedHostAddress);
     }
 
     if (animation.hasResult("webHost")) {
       HostAndPort webAddress = (HostAndPort) animation.getResult("webHost");
 
-      CloudNet.getInstance().getConfig().setHttpListeners(new ArrayList<>(Collections.singletonList(
+      cloudConfiguration.setHttpListeners(new ArrayList<>(Collections.singletonList(
         new HostAndPort(this.whiteListAndFormatHost(webAddress.getHost()), webAddress.getPort())
       )));
     }
 
-    CloudNet.getInstance().getConfig().getIpWhitelist().addAll(this.whitelistDefaultIPs);
-
+    cloudConfiguration.getIpWhitelist().addAll(this.whitelistDefaultIPs);
     if (animation.hasResult("memory")) {
-      CloudNet.getInstance().getConfig().setMaxMemory((int) animation.getResult("memory"));
+      cloudConfiguration.setMaxMemory((int) animation.getResult("memory"));
     }
+
+    cloudConfiguration.save();
   }
 
   @Override

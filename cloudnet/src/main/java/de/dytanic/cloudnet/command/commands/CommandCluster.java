@@ -30,6 +30,7 @@ import de.dytanic.cloudnet.command.sub.SubCommandBuilder;
 import de.dytanic.cloudnet.command.sub.SubCommandHandler;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.common.unsafe.CPUUsageResolver;
+import de.dytanic.cloudnet.conf.IConfiguration;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.network.NetworkUpdateType;
@@ -65,15 +66,18 @@ public final class CommandCluster extends SubCommandHandler {
         )
         .generateCommand(
           (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
-            NetworkCluster networkCluster = CloudNet.getInstance().getConfig().getClusterConfig();
+            IConfiguration cloudConfiguration = CloudNet.getInstance().getConfig();
+
+            NetworkCluster networkCluster = cloudConfiguration.getClusterConfig();
             HostAndPort hostAndPort = (HostAndPort) args.argument(2);
             networkCluster.getNodes().add(new NetworkClusterNode(
               (String) args.argument(1),
               new HostAndPort[]{hostAndPort}
             ));
-            CloudNet.getInstance().getConfig().getIpWhitelist().add(hostAndPort
-              .getHost()); //setClusterConfig already saves, so we don't have to call the save method again to save the ipWhitelist
-            CloudNet.getInstance().getConfig().setClusterConfig(networkCluster);
+            cloudConfiguration.getIpWhitelist().add(hostAndPort.getHost());
+            cloudConfiguration.setClusterConfig(networkCluster);
+            cloudConfiguration.save();
+
             CloudNet.getInstance().getClusterNodeServerProvider().setClusterServers(networkCluster);
 
             sender.sendMessage(LanguageManager.getMessage("command-cluster-create-node-success"));
@@ -89,12 +93,14 @@ public final class CommandCluster extends SubCommandHandler {
         )
         .generateCommand(
           (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
-            NetworkCluster networkCluster = CloudNet.getInstance().getConfig().getClusterConfig();
+            IConfiguration cloudConfiguration = CloudNet.getInstance().getConfig();
+            NetworkCluster networkCluster = cloudConfiguration.getClusterConfig();
 
             networkCluster.getNodes().removeIf(node -> node.getUniqueId().equals(args.argument(
               1))); //always true because the predicate given in the arguments of this SubCommand returns false if no node with that id is found
 
-            CloudNet.getInstance().getConfig().setClusterConfig(networkCluster);
+            cloudConfiguration.setClusterConfig(networkCluster);
+            cloudConfiguration.save();
             CloudNet.getInstance().getClusterNodeServerProvider().setClusterServers(networkCluster);
 
             sender.sendMessage(LanguageManager.getMessage("command-cluster-remove-node-success"));

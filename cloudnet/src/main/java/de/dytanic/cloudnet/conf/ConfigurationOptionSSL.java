@@ -17,7 +17,6 @@
 package de.dytanic.cloudnet.conf;
 
 import de.dytanic.cloudnet.driver.network.ssl.SSLConfiguration;
-import java.nio.file.Paths;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
@@ -51,10 +50,11 @@ public class ConfigurationOptionSSL {
 
   public SSLConfiguration toSslConfiguration() {
     return new SSLConfiguration(
+      this.enabled,
       this.clientAuth,
-      this.trustCertificatePath == null ? null : Paths.get(this.trustCertificatePath),
-      this.certificatePath == null ? null : Paths.get(this.certificatePath),
-      this.privateKeyPath == null ? null : Paths.get(this.privateKeyPath)
+      this.trustCertificatePath,
+      this.certificatePath,
+      this.privateKeyPath
     );
   }
 

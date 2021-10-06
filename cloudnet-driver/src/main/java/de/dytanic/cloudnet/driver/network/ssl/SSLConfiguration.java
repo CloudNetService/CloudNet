@@ -58,7 +58,7 @@ public class SSLConfiguration {
 
   public Path getCertificate() {
     if (this.certificatePathCached == null) {
-      this.certificatePathCached = Paths.get(certificatePath);
+      this.certificatePathCached = Paths.get(this.certificatePath);
     }
     return this.certificatePathCached;
   }

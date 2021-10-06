@@ -25,6 +25,7 @@ import de.dytanic.cloudnet.common.unsafe.CPUUsageResolver;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkCluster;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
+import de.dytanic.cloudnet.driver.network.ssl.SSLConfiguration;
 import java.lang.reflect.Type;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -40,6 +41,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
+import org.jetbrains.annotations.NotNull;
 
 public final class JsonConfiguration implements IConfiguration {
 
@@ -76,9 +78,9 @@ public final class JsonConfiguration implements IConfiguration {
 
   private Collection<HostAndPort> httpListeners;
 
-  private ConfigurationOptionSSL clientSslConfig;
-  private ConfigurationOptionSSL serverSslConfig;
-  private ConfigurationOptionSSL webSslConfig;
+  private SSLConfiguration clientSslConfig;
+  private SSLConfiguration serverSslConfig;
+  private SSLConfiguration webSslConfig;
 
   private String jvmCommand;
   private String defaultHostAddress;
@@ -94,46 +96,7 @@ public final class JsonConfiguration implements IConfiguration {
   public void load() {
     this.document = JsonDocument.newDocument(CONFIG_FILE_PATH);
 
-    Collection<String> addresses = new HashSet<>();
-    addresses.add("127.0.0.1");
-    addresses.add("127.0.1.1");
-
-    try {
-      Collections.list(NetworkInterface.getNetworkInterfaces()).forEach(networkInterface ->
-        Collections.list(networkInterface.getInetAddresses())
-          .forEach(inetAddress -> addresses.add(inetAddress.getHostAddress())));
-    } catch (SocketException exception) {
-      LOGGER.severe("Exception while resolving network interfaces", exception);
-    }
-
-    String address = this.defaultHostAddress;
-
-    if (address == null) {
-      try {
-        address = InetAddress.getLocalHost().getHostAddress();
-      } catch (UnknownHostException e) {
-        address = "127.0.0.1";
-      }
-    }
-
-    addresses.add(address);
-
-    if (this.identity == null) {
-      this.identity = this.document.get("identity", NetworkClusterNode.class, new NetworkClusterNode(
-        System.getenv("CLOUDNET_CLUSTER_NODE_UNIQUE_ID") != null ?
-          System.getenv("CLOUDNET_CLUSTER_NODE_UNIQUE_ID") :
-          "Node-" + UUID.randomUUID().toString().split("-")[0],
-        new HostAndPort[]{
-          new HostAndPort(address, 1410)
-        }
-      ));
-    }
-
-    if (System.getenv("CLOUDNET_DEFAULT_IP_WHITELIST") != null) {
-      addresses.addAll(Arrays.asList(System.getenv("CLOUDNET_DEFAULT_IP_WHITELIST").split(",")));
-    }
-
-    this.ipWhitelist = this.document.get("ipWhitelist", SET_STRING, addresses);
+    this.ipWhitelist = this.document.get("ipWhitelist", SET_STRING, this::buildAddresses);
 
     this.clusterConfig = this.document.get("cluster", NetworkCluster.class, new NetworkCluster(
       System.getenv("CLOUDNET_CLUSTER_ID") != null ?
@@ -164,12 +127,12 @@ public final class JsonConfiguration implements IConfiguration {
     );
     this.processTerminationTimeoutSeconds = this.document.getInt("processTerminationTimeoutSeconds", 5);
 
-    this.hostAddress = this.document.getString("hostAddress", address);
+    this.hostAddress = this.document.getString("hostAddress", this.getLocalHostAddress());
     this.connectHostAddress = this.document.getString("connectHostAddress", this.hostAddress);
     this.httpListeners = this.document
       .get("httpListeners", HOST_AND_PORT_COLLECTION, Collections.singletonList(new HostAndPort("0.0.0.0", 2812)));
 
-    ConfigurationOptionSSL fallback = new ConfigurationOptionSSL(
+    SSLConfiguration fallback = new SSLConfiguration(
       false,
       false,
       null,
@@ -177,9 +140,9 @@ public final class JsonConfiguration implements IConfiguration {
       "local/privateKey.key"
     );
 
-    this.clientSslConfig = this.document.get("clientSslConfig", ConfigurationOptionSSL.class, fallback);
-    this.serverSslConfig = this.document.get("serverSslConfig", ConfigurationOptionSSL.class, fallback);
-    this.webSslConfig = this.document.get("webSslConfig", ConfigurationOptionSSL.class, fallback);
+    this.clientSslConfig = this.document.get("clientSslConfig", SSLConfiguration.class, fallback);
+    this.serverSslConfig = this.document.get("serverSslConfig", SSLConfiguration.class, fallback);
+    this.webSslConfig = this.document.get("webSslConfig", SSLConfiguration.class, fallback);
 
     if (System.getProperty("cloudnet.cluster.id") != null) {
       this.clusterConfig.setClusterId(UUID.fromString(System.getProperty("cloudnet.cluster.id")));
@@ -227,7 +190,6 @@ public final class JsonConfiguration implements IConfiguration {
   @Override
   public void setIdentity(NetworkClusterNode identity) {
     this.identity = identity;
-    this.save();
   }
 
   public NetworkCluster getClusterConfig() {
@@ -235,11 +197,10 @@ public final class JsonConfiguration implements IConfiguration {
   }
 
   @Override
-  public void setClusterConfig(NetworkCluster clusterConfig) {
+  public void setClusterConfig(@NotNull NetworkCluster clusterConfig) {
     Preconditions.checkNotNull(clusterConfig);
 
     this.clusterConfig = clusterConfig;
-    this.save();
   }
 
   public Collection<String> getIpWhitelist() {
@@ -247,11 +208,10 @@ public final class JsonConfiguration implements IConfiguration {
   }
 
   @Override
-  public void setIpWhitelist(Collection<String> whitelist) {
+  public void setIpWhitelist(@NotNull Collection<String> whitelist) {
     Preconditions.checkNotNull(whitelist);
 
     this.ipWhitelist = whitelist;
-    this.save();
   }
 
   public double getMaxCPUUsageToStartServices() {
@@ -261,7 +221,6 @@ public final class JsonConfiguration implements IConfiguration {
   @Override
   public void setMaxCPUUsageToStartServices(double value) {
     this.maxCPUUsageToStartServices = value;
-    this.save();
   }
 
   public boolean isParallelServiceStartSequence() {
@@ -271,7 +230,6 @@ public final class JsonConfiguration implements IConfiguration {
   @Override
   public void setParallelServiceStartSequence(boolean parallelServiceStartSequence) {
     this.parallelServiceStartSequence = parallelServiceStartSequence;
-    this.save();
   }
 
   public boolean isRunBlockedServiceStartTryLaterAutomatic() {
@@ -281,7 +239,6 @@ public final class JsonConfiguration implements IConfiguration {
   @Override
   public void setRunBlockedServiceStartTryLaterAutomatic(boolean runBlockedServiceStartTryLaterAutomatic) {
     this.runBlockedServiceStartTryLaterAutomatic = runBlockedServiceStartTryLaterAutomatic;
-    this.save();
   }
 
   public int getMaxMemory() {
@@ -291,7 +248,6 @@ public final class JsonConfiguration implements IConfiguration {
   @Override
   public void setMaxMemory(int memory) {
     this.maxMemory = memory;
-    this.save();
   }
 
   public int getMaxServiceConsoleLogCacheSize() {
@@ -301,7 +257,6 @@ public final class JsonConfiguration implements IConfiguration {
   @Override
   public void setMaxServiceConsoleLogCacheSize(int maxServiceConsoleLogCacheSize) {
     this.maxServiceConsoleLogCacheSize = maxServiceConsoleLogCacheSize;
-    this.save();
   }
 
   public boolean isPrintErrorStreamLinesFromServices() {
@@ -311,7 +266,6 @@ public final class JsonConfiguration implements IConfiguration {
   @Override
   public void setPrintErrorStreamLinesFromServices(boolean printErrorStreamLinesFromServices) {
     this.printErrorStreamLinesFromServices = printErrorStreamLinesFromServices;
-    this.save();
   }
 
   @Override
@@ -322,7 +276,6 @@ public final class JsonConfiguration implements IConfiguration {
   @Override
   public void setDefaultJVMFlags(DefaultJVMFlags defaultJVMFlags) {
     this.defaultJVMFlags = defaultJVMFlags;
-    this.save();
   }
 
   public String getHostAddress() {
@@ -332,7 +285,6 @@ public final class JsonConfiguration implements IConfiguration {
   @Override
   public void setHostAddress(String hostAddress) {
     this.hostAddress = hostAddress;
-    this.save();
   }
 
   public Collection<HostAndPort> getHttpListeners() {
@@ -340,11 +292,10 @@ public final class JsonConfiguration implements IConfiguration {
   }
 
   @Override
-  public void setHttpListeners(Collection<HostAndPort> httpListeners) {
+  public void setHttpListeners(@NotNull Collection<HostAndPort> httpListeners) {
     Preconditions.checkNotNull(httpListeners);
 
     this.httpListeners = httpListeners;
-    this.save();
   }
 
   @Override
@@ -355,18 +306,17 @@ public final class JsonConfiguration implements IConfiguration {
   @Override
   public void setConnectHostAddress(String connectHostAddress) {
     this.connectHostAddress = connectHostAddress;
-    this.save();
   }
 
-  public ConfigurationOptionSSL getClientSslConfig() {
+  public SSLConfiguration getClientSslConfig() {
     return this.clientSslConfig;
   }
 
-  public ConfigurationOptionSSL getServerSslConfig() {
+  public SSLConfiguration getServerSslConfig() {
     return this.serverSslConfig;
   }
 
-  public ConfigurationOptionSSL getWebSslConfig() {
+  public SSLConfiguration getWebSslConfig() {
     return this.webSslConfig;
   }
 
@@ -384,12 +334,59 @@ public final class JsonConfiguration implements IConfiguration {
     this.processTerminationTimeoutSeconds = processTerminationTimeoutSeconds;
   }
 
+  @Override
   public String getDefaultHostAddress() {
     return this.defaultHostAddress;
   }
 
+  @Override
   public void setDefaultHostAddress(String defaultHostAddress) {
     this.defaultHostAddress = defaultHostAddress;
+  }
+
+  public Collection<String> buildAddresses() {
+    Collection<String> addresses = new HashSet<>();
+    addresses.add("127.0.0.1");
+    addresses.add("127.0.1.1");
+
+    try {
+      Collections.list(NetworkInterface.getNetworkInterfaces()).forEach(networkInterface ->
+        Collections.list(networkInterface.getInetAddresses())
+          .forEach(inetAddress -> addresses.add(inetAddress.getHostAddress())));
+    } catch (SocketException exception) {
+      LOGGER.severe("Exception while resolving network interfaces", exception);
+    }
+
+    String address = this.getLocalHostAddress();
+    addresses.add(address);
+
+    if (this.identity == null) {
+      this.identity = this.document.get("identity", NetworkClusterNode.class, new NetworkClusterNode(
+        System.getenv("CLOUDNET_CLUSTER_NODE_UNIQUE_ID") != null ?
+          System.getenv("CLOUDNET_CLUSTER_NODE_UNIQUE_ID") :
+          "Node-" + UUID.randomUUID().toString().split("-")[0],
+        new HostAndPort[]{
+          new HostAndPort(address, 1410)
+        }
+      ));
+    }
+
+    if (System.getenv("CLOUDNET_DEFAULT_IP_WHITELIST") != null) {
+      addresses.addAll(Arrays.asList(System.getenv("CLOUDNET_DEFAULT_IP_WHITELIST").split(",")));
+    }
+    return addresses;
+  }
+
+  private String getLocalHostAddress() {
+    String address = this.defaultHostAddress;
+    if (address == null) {
+      try {
+        address = InetAddress.getLocalHost().getHostAddress();
+      } catch (UnknownHostException e) {
+        address = "127.0.0.1";
+      }
+    }
+    return address;
   }
 
 }

@@ -31,7 +31,8 @@ public enum JavaVersion {
   JAVA_15(15, 59D, "Java 15"),
   JAVA_16(16, 60D, "Java 16"),
   JAVA_17(17, 61D, "Java 17"),
-  JAVA_18(18, 62D, "Java 18");
+  JAVA_18(18, 62D, "Java 18"),
+  JAVA_19(19, 63D, "Java 19");
 
   private static final JavaVersion[] JAVA_VERSIONS = JavaVersion.values();
 

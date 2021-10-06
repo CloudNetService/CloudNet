@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import org.jetbrains.annotations.NotNull;
 
 public interface IConfiguration {
 
@@ -34,6 +35,8 @@ public interface IConfiguration {
   void save();
 
   void setDefaultHostAddress(String hostAddress);
+
+  String getDefaultHostAddress();
 
   String getHostAddress();
 
@@ -49,20 +52,25 @@ public interface IConfiguration {
 
   NetworkCluster getClusterConfig();
 
-  void setClusterConfig(NetworkCluster clusterConfig);
+  void setClusterConfig(@NotNull NetworkCluster clusterConfig);
 
+  @NotNull
   Collection<String> getIpWhitelist();
 
-  void setIpWhitelist(Collection<String> whitelist);
+  void setIpWhitelist(@NotNull Collection<String> whitelist);
 
+  @NotNull
   Collection<HostAndPort> getHttpListeners();
 
-  void setHttpListeners(Collection<HostAndPort> httpListeners);
+  void setHttpListeners(@NotNull Collection<HostAndPort> httpListeners);
 
+  @NotNull
   SSLConfiguration getClientSslConfig();
 
+  @NotNull
   SSLConfiguration getServerSslConfig();
 
+  @NotNull
   SSLConfiguration getWebSslConfig();
 
   double getMaxCPUUsageToStartServices();
