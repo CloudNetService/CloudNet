@@ -20,8 +20,8 @@ import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.concurrent.CompletableTask;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
+import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import de.dytanic.cloudnet.driver.network.rpc.RPCSender;
-import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.ext.bridge.player.DefaultPlayerManager;
 import de.dytanic.cloudnet.ext.bridge.player.ICloudOfflinePlayer;
@@ -32,11 +32,11 @@ import de.dytanic.cloudnet.wrapper.Wrapper;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-@ApiStatus.Internal
+@Internal
 public final class BridgePlayerManager extends DefaultPlayerManager implements IPlayerManager {
 
   private final PlayerProvider allPlayersProvider;
@@ -180,7 +180,7 @@ public final class BridgePlayerManager extends DefaultPlayerManager implements I
 
     this.messageBuilder()
       .message("update_offline_cloud_player")
-      .buffer(ProtocolBuffer.create().writeObject(cloudOfflinePlayer))
+      .buffer(DataBuf.empty().writeObject(cloudOfflinePlayer))
       .targetAll()
       .build()
       .send();
@@ -192,7 +192,7 @@ public final class BridgePlayerManager extends DefaultPlayerManager implements I
 
     this.messageBuilder()
       .message("update_online_cloud_player")
-      .buffer(ProtocolBuffer.create().writeObject(cloudPlayer))
+      .buffer(DataBuf.empty().writeObject(cloudPlayer))
       .targetAll()
       .build()
       .send();

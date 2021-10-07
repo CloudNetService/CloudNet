@@ -24,6 +24,14 @@ import org.jetbrains.annotations.Nullable;
 
 public interface DataBuf {
 
+  /**
+   * @see DataBufFactory#createEmpty()
+   */
+  @NotNull
+  static DataBuf.Mutable empty() {
+    return DataBufFactory.defaultFactory().createEmpty();
+  }
+
   boolean readBoolean();
 
   byte readByte();

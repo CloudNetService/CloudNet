@@ -53,18 +53,18 @@ public final class BridgeCustomChannelMessageListener {
 
     switch (event.getMessage().toLowerCase()) {
       case "update_offline_cloud_player": {
-        ICloudOfflinePlayer offlineCloudPlayer = event.getBuffer().readObject(CloudOfflinePlayer.class);
+        ICloudOfflinePlayer offlineCloudPlayer = event.getContent().readObject(CloudOfflinePlayer.class);
         CloudNetDriver.getInstance().getEventManager()
           .callEvent(new BridgeUpdateCloudOfflinePlayerEvent(offlineCloudPlayer));
       }
       break;
       case "update_online_cloud_player": {
-        ICloudPlayer cloudPlayer = event.getBuffer().readObject(CloudPlayer.class);
+        ICloudPlayer cloudPlayer = event.getContent().readObject(CloudPlayer.class);
         CloudNetDriver.getInstance().getEventManager().callEvent(new BridgeUpdateCloudPlayerEvent(cloudPlayer));
       }
       break;
       case "delete_offline_player": {
-        ICloudOfflinePlayer offlinePlayer = event.getBuffer().readObject(CloudOfflinePlayer.class);
+        ICloudOfflinePlayer offlinePlayer = event.getContent().readObject(CloudOfflinePlayer.class);
         CloudNetDriver.getInstance().getEventManager()
           .callEvent(new BridgeDeleteCloudOfflinePlayerEvent(offlinePlayer));
       }
@@ -93,54 +93,54 @@ public final class BridgeCustomChannelMessageListener {
       }
       break;
       case BridgeConstants.BRIDGE_EVENT_CHANNEL_MESSAGE_NAME_PROXY_LOGIN_REQUEST: {
-        NetworkConnectionInfo networkConnectionInfo = event.getBuffer().readObject(NetworkConnectionInfo.class);
+        NetworkConnectionInfo networkConnectionInfo = event.getContent().readObject(NetworkConnectionInfo.class);
         CloudNetDriver.getInstance().getEventManager()
           .callEvent(new BridgeProxyPlayerLoginRequestEvent(networkConnectionInfo));
       }
       break;
       case BridgeConstants.BRIDGE_EVENT_CHANNEL_MESSAGE_NAME_PROXY_LOGIN_SUCCESS: {
-        NetworkConnectionInfo networkConnectionInfo = event.getBuffer().readObject(NetworkConnectionInfo.class);
+        NetworkConnectionInfo networkConnectionInfo = event.getContent().readObject(NetworkConnectionInfo.class);
         CloudNetDriver.getInstance().getEventManager()
           .callEvent(new BridgeProxyPlayerLoginSuccessEvent(networkConnectionInfo));
       }
       break;
       case BridgeConstants.BRIDGE_EVENT_CHANNEL_MESSAGE_NAME_PROXY_DISCONNECT: {
-        NetworkConnectionInfo networkConnectionInfo = event.getBuffer().readObject(NetworkConnectionInfo.class);
+        NetworkConnectionInfo networkConnectionInfo = event.getContent().readObject(NetworkConnectionInfo.class);
         CloudNetDriver.getInstance().getEventManager()
           .callEvent(new BridgeProxyPlayerDisconnectEvent(networkConnectionInfo));
       }
       break;
       case BridgeConstants.BRIDGE_EVENT_CHANNEL_MESSAGE_NAME_PROXY_SERVER_CONNECT_REQUEST: {
-        NetworkConnectionInfo networkConnectionInfo = event.getBuffer().readObject(NetworkConnectionInfo.class);
-        NetworkServiceInfo networkServiceInfo = event.getBuffer().readObject(NetworkServiceInfo.class);
+        NetworkConnectionInfo networkConnectionInfo = event.getContent().readObject(NetworkConnectionInfo.class);
+        NetworkServiceInfo networkServiceInfo = event.getContent().readObject(NetworkServiceInfo.class);
         CloudNetDriver.getInstance().getEventManager()
           .callEvent(new BridgeProxyPlayerServerConnectRequestEvent(networkConnectionInfo, networkServiceInfo));
       }
       break;
       case BridgeConstants.BRIDGE_EVENT_CHANNEL_MESSAGE_NAME_PROXY_SERVER_SWITCH: {
-        NetworkConnectionInfo networkConnectionInfo = event.getBuffer().readObject(NetworkConnectionInfo.class);
-        NetworkServiceInfo networkServiceInfo = event.getBuffer().readObject(NetworkServiceInfo.class);
+        NetworkConnectionInfo networkConnectionInfo = event.getContent().readObject(NetworkConnectionInfo.class);
+        NetworkServiceInfo networkServiceInfo = event.getContent().readObject(NetworkServiceInfo.class);
         CloudNetDriver.getInstance().getEventManager()
           .callEvent(new BridgeProxyPlayerServerSwitchEvent(networkConnectionInfo, networkServiceInfo));
       }
       break;
       case BridgeConstants.BRIDGE_EVENT_CHANNEL_MESSAGE_NAME_SERVER_LOGIN_REQUEST: {
-        NetworkConnectionInfo networkConnectionInfo = event.getBuffer().readObject(NetworkConnectionInfo.class);
-        NetworkPlayerServerInfo networkPlayerServerInfo = event.getBuffer().readObject(NetworkPlayerServerInfo.class);
+        NetworkConnectionInfo networkConnectionInfo = event.getContent().readObject(NetworkConnectionInfo.class);
+        NetworkPlayerServerInfo networkPlayerServerInfo = event.getContent().readObject(NetworkPlayerServerInfo.class);
         CloudNetDriver.getInstance().getEventManager()
           .callEvent(new BridgeServerPlayerLoginRequestEvent(networkConnectionInfo, networkPlayerServerInfo));
       }
       break;
       case BridgeConstants.BRIDGE_EVENT_CHANNEL_MESSAGE_NAME_SERVER_LOGIN_SUCCESS: {
-        NetworkConnectionInfo networkConnectionInfo = event.getBuffer().readObject(NetworkConnectionInfo.class);
-        NetworkPlayerServerInfo networkPlayerServerInfo = event.getBuffer().readObject(NetworkPlayerServerInfo.class);
+        NetworkConnectionInfo networkConnectionInfo = event.getContent().readObject(NetworkConnectionInfo.class);
+        NetworkPlayerServerInfo networkPlayerServerInfo = event.getContent().readObject(NetworkPlayerServerInfo.class);
         CloudNetDriver.getInstance().getEventManager()
           .callEvent(new BridgeServerPlayerLoginSuccessEvent(networkConnectionInfo, networkPlayerServerInfo));
       }
       break;
       case BridgeConstants.BRIDGE_EVENT_CHANNEL_MESSAGE_NAME_SERVER_DISCONNECT: {
-        NetworkConnectionInfo networkConnectionInfo = event.getBuffer().readObject(NetworkConnectionInfo.class);
-        NetworkPlayerServerInfo networkPlayerServerInfo = event.getBuffer().readObject(NetworkPlayerServerInfo.class);
+        NetworkConnectionInfo networkConnectionInfo = event.getContent().readObject(NetworkConnectionInfo.class);
+        NetworkPlayerServerInfo networkPlayerServerInfo = event.getContent().readObject(NetworkPlayerServerInfo.class);
         CloudNetDriver.getInstance().getEventManager()
           .callEvent(new BridgeServerPlayerDisconnectEvent(networkConnectionInfo, networkPlayerServerInfo));
       }

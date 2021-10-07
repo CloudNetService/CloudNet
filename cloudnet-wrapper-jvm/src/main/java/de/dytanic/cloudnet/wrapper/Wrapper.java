@@ -51,6 +51,7 @@ import de.dytanic.cloudnet.wrapper.event.ApplicationPostStartEvent;
 import de.dytanic.cloudnet.wrapper.event.ApplicationPreStartEvent;
 import de.dytanic.cloudnet.wrapper.event.service.ServiceInfoSnapshotConfigureEvent;
 import de.dytanic.cloudnet.wrapper.network.NetworkClientChannelHandler;
+import de.dytanic.cloudnet.wrapper.network.listener.ChannelMessageServerListener;
 import de.dytanic.cloudnet.wrapper.network.listener.PacketServerAuthorizationResponseListener;
 import de.dytanic.cloudnet.wrapper.network.listener.PacketServerChannelMessageListener;
 import de.dytanic.cloudnet.wrapper.network.packet.PacketClientServiceInfoUpdate;
@@ -143,6 +144,8 @@ public final class Wrapper extends CloudNetDriver {
     //- Packet client registry
     this.networkClient.getPacketRegistry()
       .addListener(NetworkConstants.CHANNEL_MESSAGING_CHANNEL, new PacketServerChannelMessageListener());
+
+    new ChannelMessageServerListener();
 
     this.moduleProvider.setModuleDirectoryPath(Paths.get(".wrapper", "modules"));
     this.moduleProvider.setModuleProviderHandler(new DefaultModuleProviderHandler());
@@ -336,9 +339,9 @@ public final class Wrapper extends CloudNetDriver {
   public ServiceInfoSnapshot createServiceInfoSnapshot() {
     return new ServiceInfoSnapshot(
       System.currentTimeMillis(),
+      this.currentServiceInfoSnapshot.getConnectedTime(),
       this.currentServiceInfoSnapshot.getAddress(),
       this.currentServiceInfoSnapshot.getConnectAddress(),
-      this.currentServiceInfoSnapshot.getConnectedTime(),
       ServiceLifeCycle.RUNNING,
       ProcessSnapshot.self(),
       this.getServiceConfiguration(),

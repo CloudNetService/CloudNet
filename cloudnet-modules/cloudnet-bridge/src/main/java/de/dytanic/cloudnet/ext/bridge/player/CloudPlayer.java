@@ -16,10 +16,12 @@
 
 package de.dytanic.cloudnet.ext.bridge.player;
 
+import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.ext.bridge.player.executor.DefaultPlayerExecutor;
 import de.dytanic.cloudnet.ext.bridge.player.executor.PlayerExecutor;
 import java.lang.reflect.Type;
+import java.util.Collection;
 import java.util.UUID;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -27,6 +29,8 @@ import lombok.ToString;
 @ToString
 @EqualsAndHashCode(callSuper = false)
 public class CloudPlayer extends CloudOfflinePlayer implements ICloudPlayer {
+
+  public static final Type COLLECTION_TYPE = TypeToken.getParameterized(Collection.class, CloudPlayer.class).getType();
 
   @Deprecated
   public static final Type TYPE = CloudPlayer.class;

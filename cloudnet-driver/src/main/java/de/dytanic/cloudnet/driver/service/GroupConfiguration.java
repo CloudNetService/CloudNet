@@ -81,7 +81,12 @@ public class GroupConfiguration extends ServiceConfigurationBase implements INam
   }
 
   public static GroupConfiguration empty(@NotNull String name) {
-    return new GroupConfiguration(new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), name, new ArrayList<>(),
+    return new GroupConfiguration(
+      new ArrayList<>(),
+      new ArrayList<>(),
+      new ArrayList<>(),
+      name,
+      new ArrayList<>(),
       new ArrayList<>());
   }
 

@@ -92,18 +92,38 @@ public final class ChannelMessageReceiveEvent extends Event {
     return this.query;
   }
 
+  /**
+   * @deprecated use {@link ChannelMessageReceiveEvent#setBinaryResponse(DataBuf)}
+   */
+  @Deprecated
   public void setJsonResponse(@NotNull JsonDocument json) {
     this.setQueryResponse(ChannelMessage.buildResponseFor(this.channelMessage).json(json).build());
   }
 
+  /**
+   * @deprecated use {@link ChannelMessageReceiveEvent#setBinaryResponse(DataBuf)}
+   */
+  @Deprecated
   public void setBinaryResponse(@NotNull ProtocolBuffer buffer) {
     this.setQueryResponse(ChannelMessage.buildResponseFor(this.channelMessage).buffer(buffer).build());
   }
 
+  public void setBinaryResponse(@NotNull DataBuf dataBuf) {
+    this.setQueryResponse(ChannelMessage.buildResponseFor(this.channelMessage).buffer(dataBuf).build());
+  }
+
+  @Deprecated
+  @ScheduledForRemoval
   public ProtocolBuffer createBinaryResponse() {
     ProtocolBuffer buffer = ProtocolBuffer.create();
     this.setBinaryResponse(buffer);
     return buffer;
+  }
+
+  public DataBuf.Mutable response() {
+    DataBuf.Mutable dataBuf = DataBuf.empty();
+    this.setBinaryResponse(dataBuf);
+    return dataBuf;
   }
 
   @Nullable

@@ -39,8 +39,6 @@ import de.dytanic.cloudnet.network.listener.PacketClientServiceInfoUpdateListene
 import de.dytanic.cloudnet.network.listener.PacketServerChannelMessageListener;
 import de.dytanic.cloudnet.network.listener.PacketServerSetGlobalLogLevelListener;
 import de.dytanic.cloudnet.network.listener.cluster.PacketServerSyncTemplateStorageChunkListener;
-import de.dytanic.cloudnet.network.listener.driver.PacketServerDriverAPIListener;
-import de.dytanic.cloudnet.network.listener.driver.PacketServerRemoteDatabaseActionListener;
 import de.dytanic.cloudnet.network.packet.PacketServerAuthorizationResponse;
 import de.dytanic.cloudnet.service.ICloudService;
 import java.util.UUID;
@@ -108,12 +106,6 @@ public final class PacketClientAuthorizationListener implements IPacketListener 
 
               channel.getPacketRegistry().addListener(NetworkConstants.INTERNAL_DEBUGGING_CHANNEL,
                 new PacketServerSetGlobalLogLevelListener(true));
-
-              channel.getPacketRegistry().addListener(NetworkConstants.INTERNAL_DATABASE_API_CHANNEL,
-                new PacketServerRemoteDatabaseActionListener());
-
-              channel.getPacketRegistry()
-                .addListener(NetworkConstants.INTERNAL_DRIVER_API_CHANNEL, new PacketServerDriverAPIListener());
 
               channel.getPacketRegistry().addListener(NetworkConstants.CLUSTER_TEMPLATE_STORAGE_CHUNK_SYNC_CHANNEL,
                 new PacketServerSyncTemplateStorageChunkListener(true));

@@ -56,6 +56,9 @@ import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.logging.Level;
 
+/**
+ * @author Aldin S. (0utplay@cloudnetservice.eu)
+ */
 public class ChannelMessageServerListener {
 
   public static final Type SERVICE_TASK_COLLECTION = TypeToken.getParameterized(Collection.class, ServiceTask.class)

@@ -33,7 +33,7 @@ public final class IncludePluginListener {
       .noneMatch(excludedGroup -> Arrays.asList(event.getCloudService().getServiceConfiguration().getGroups())
         .contains(excludedGroup));
 
-    Path pluginsFolder = event.getCloudService().getDirectoryPath().resolve("plugins");
+    Path pluginsFolder = event.getCloudService().getDirectory().resolve("plugins");
     FileUtils.createDirectoryReported(pluginsFolder);
 
     Path targetFile = pluginsFolder.resolve("cloudnet-bridge.jar");
