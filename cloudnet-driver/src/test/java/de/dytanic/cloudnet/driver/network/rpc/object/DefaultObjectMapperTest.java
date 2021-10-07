@@ -24,7 +24,6 @@ import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.network.NetworkUpdateType;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
-import de.dytanic.cloudnet.driver.network.buffer.DataBufFactory;
 import de.dytanic.cloudnet.driver.network.rpc.defaults.object.DefaultObjectMapper;
 import de.dytanic.cloudnet.driver.service.ProcessSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
@@ -142,7 +141,7 @@ public class DefaultObjectMapperTest {
   @MethodSource("nonNestedTypesProvider")
   void testNonNestedTypes(Object o, Type type) {
     ObjectMapper mapper = new DefaultObjectMapper();
-    DataBuf.Mutable buf = DataBufFactory.defaultFactory().createEmpty();
+    DataBuf.Mutable buf = DataBuf.empty();
 
     mapper.writeObject(buf, o);
     Assertions.assertEquals(o, mapper.readObject(buf, type == null ? o.getClass() : type));
@@ -153,7 +152,7 @@ public class DefaultObjectMapperTest {
   @MethodSource("enumDataProvider")
   void testEnumSerialization(Enum<?> constant) {
     ObjectMapper mapper = new DefaultObjectMapper();
-    DataBuf.Mutable buf = DataBufFactory.defaultFactory().createEmpty();
+    DataBuf.Mutable buf = DataBuf.empty();
 
     mapper.writeObject(buf, constant);
     Assertions.assertEquals(constant, mapper.readObject(buf, constant.getClass()));
@@ -164,7 +163,7 @@ public class DefaultObjectMapperTest {
   @MethodSource("arrayDataProvider")
   <T> void testArraySerialization(T[] array) {
     ObjectMapper mapper = new DefaultObjectMapper();
-    DataBuf.Mutable buf = DataBufFactory.defaultFactory().createEmpty();
+    DataBuf.Mutable buf = DataBuf.empty();
 
     mapper.writeObject(buf, array);
     Assertions.assertArrayEquals(array, mapper.readObject(buf, array.getClass()));
@@ -175,7 +174,7 @@ public class DefaultObjectMapperTest {
   @MethodSource("listDataProvider")
   <T> void testListSerialization(List<T> list, Type parameterType) {
     ObjectMapper mapper = new DefaultObjectMapper();
-    DataBuf.Mutable buf = DataBufFactory.defaultFactory().createEmpty();
+    DataBuf.Mutable buf = DataBuf.empty();
 
     mapper.writeObject(buf, list);
     List<T> result = mapper.readObject(buf, getParameterized(List.class, parameterType));
@@ -189,7 +188,7 @@ public class DefaultObjectMapperTest {
   @MethodSource("mapDataProvider")
   <K, V> void testMapSerialization(Map<K, V> map, Type keyType, Type valueType) {
     ObjectMapper mapper = new DefaultObjectMapper();
-    DataBuf.Mutable buf = DataBufFactory.defaultFactory().createEmpty();
+    DataBuf.Mutable buf = DataBuf.empty();
 
     mapper.writeObject(buf, map);
     Map<K, V> result = mapper.readObject(buf, getParameterized(Map.class, keyType, valueType));
@@ -203,7 +202,7 @@ public class DefaultObjectMapperTest {
   @MethodSource("optionalDataProvider")
   <T> void testOptionalSerialization(Optional<T> o, Type parameterType) {
     ObjectMapper mapper = new DefaultObjectMapper();
-    DataBuf.Mutable buf = DataBufFactory.defaultFactory().createEmpty();
+    DataBuf.Mutable buf = DataBuf.empty();
 
     mapper.writeObject(buf, o);
     Optional<T> result = mapper.readObject(buf, getParameterized(Optional.class, parameterType));
@@ -218,7 +217,7 @@ public class DefaultObjectMapperTest {
   @MethodSource("dataClassProvider")
   void testDataClassSerialization(Object o) {
     ObjectMapper mapper = new DefaultObjectMapper();
-    DataBuf.Mutable buf = DataBufFactory.defaultFactory().createEmpty();
+    DataBuf.Mutable buf = DataBuf.empty();
 
     mapper.writeObject(buf, o);
     Object result = mapper.readObject(buf, o.getClass());

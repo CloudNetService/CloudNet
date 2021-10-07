@@ -17,7 +17,8 @@
 package de.dytanic.cloudnet.ext.bridge;
 
 import com.google.common.base.Preconditions;
-import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
+import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
+import de.dytanic.cloudnet.driver.network.buffer.DataBuf.Mutable;
 import de.dytanic.cloudnet.ext.bridge.player.ICloudPlayer;
 import de.dytanic.cloudnet.ext.bridge.player.executor.DefaultPlayerExecutor;
 import java.util.UUID;
@@ -42,8 +43,8 @@ public final class AdventureComponentMessenger {
 
     DefaultPlayerExecutor.builder()
       .message("send_message_component")
-      .buffer(ProtocolBuffer.create()
-        .writeUUID(uniqueId)
+      .buffer(DataBuf.empty()
+        .writeUniqueId(uniqueId)
         .writeString(GsonComponentSerializer.gson().serialize(message))
       )
       .build().send();
@@ -60,9 +61,9 @@ public final class AdventureComponentMessenger {
 
     DefaultPlayerExecutor.builder()
       .message("broadcast_message_component")
-      .buffer(ProtocolBuffer.create()
+      .buffer(DataBuf.empty()
         .writeString(GsonComponentSerializer.gson().serialize(message))
-        .writeOptionalString(permission)
+        .writeNullable(permission, Mutable::writeString)
       )
       .build().send();
   }

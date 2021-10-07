@@ -16,11 +16,17 @@
 
 package de.dytanic.cloudnet.ext.bridge;
 
+import com.google.gson.reflect.TypeToken;
+import java.lang.reflect.Type;
+import java.util.Collection;
 import java.util.Objects;
 import lombok.ToString;
 
 @ToString
 public class WorldPosition {
+
+  public static final Type COLLECTION_TYPE = TypeToken.getParameterized(Collection.class, WorldPosition.class)
+    .getType();
 
   protected double x;
   protected double y;

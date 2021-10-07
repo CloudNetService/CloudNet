@@ -135,7 +135,7 @@ public final class Wrapper extends CloudNetDriver {
     super.serviceTaskProvider = new WrapperServiceTaskProvider(this);
     super.groupConfigurationProvider = new WrapperGroupConfigurationProvider(this);
     super.nodeInfoProvider = new WrapperNodeInfoProvider(this);
-    super.messenger = new WrapperMessenger(this.rpcProviderFactory, this.networkClient);
+    super.messenger = new WrapperMessenger(this);
 
     this.commandLineArguments = commandLineArguments;
 

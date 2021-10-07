@@ -18,6 +18,7 @@ package eu.cloudnetservice.cloudnet.ext.labymod;
 
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 
 public class LabyModChannelUtils {
@@ -27,12 +28,13 @@ public class LabyModChannelUtils {
   }
 
   public static byte[] getLMCMessageContents(String messageKey, JsonDocument messageContents) {
-    return ProtocolBuffer.create()
+    return DataBuf.empty()
       .writeString(messageKey)
       .writeString(messageContents.toJson())
-      .toArray();
+      .readByteArray();
   }
 
+  //TODO: can we just write the data?
   public static Pair<String, JsonDocument> readLMCMessageContents(byte[] data) {
     ProtocolBuffer buffer = ProtocolBuffer.wrap(data);
 

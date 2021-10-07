@@ -23,7 +23,6 @@ import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEven
 import de.dytanic.cloudnet.driver.event.events.service.CloudServiceStopEvent;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import de.dytanic.cloudnet.driver.network.rpc.defaults.object.DefaultObjectMapper;
-import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.event.cluster.NetworkChannelAuthClusterNodeSuccessEvent;
 import de.dytanic.cloudnet.ext.bridge.BridgeConstants;
 import de.dytanic.cloudnet.ext.bridge.event.BridgeDeleteCloudOfflinePlayerEvent;
@@ -122,112 +121,6 @@ public final class PlayerManagerListener {
         this.nodePlayerManager.deleteCloudOfflinePlayer0(cloudOfflinePlayer);
         CloudNetDriver.getInstance().getEventManager()
           .callEvent(new BridgeDeleteCloudOfflinePlayerEvent(cloudOfflinePlayer));
-      }
-      break;
-      default:
-        break;
-    }
-  }
-
-  @EventListener
-  public void handleQuery(ChannelMessageReceiveEvent event) {
-    if (!event.getChannel().equals(BridgeConstants.BRIDGE_CUSTOM_CHANNEL_MESSAGING_CHANNEL) || !event.isQuery()
-      || event.getMessage() == null) {
-      return;
-    }
-
-    switch (event.getMessage().toLowerCase()) {
-      case "get_online_count": {
-        event.response().writeInt(this.nodePlayerManager.getOnlineCount());
-      }
-      break;
-      case "get_registered_count": {
-        event.response().writeLong(this.nodePlayerManager.getRegisteredCount());
-      }
-      break;
-      case "get_online_player_by_uuid": {
-        UUID uniqueId = event.getContent().readUniqueId();
-        event.response().writeObject(this.nodePlayerManager.getOnlinePlayer(uniqueId));
-      }
-      break;
-      case "get_online_players_by_name": {
-        String name = event.getContent().readString();
-        event.response().writeObject(this.nodePlayerManager.getOnlinePlayers(name));
-      }
-      break;
-      case "get_online_players_by_environment": {
-        ServiceEnvironmentType environment = event.getContent().readObject(ServiceEnvironmentType.class);
-        event.response().writeObject(this.nodePlayerManager.getOnlinePlayers(environment));
-      }
-      break;
-      case "online_players_player": {
-        event.response().writeObject(this.nodePlayerManager.onlinePlayers().asPlayers());
-      }
-      break;
-      case "online_players_uuid": {
-        event.response().writeObject(this.nodePlayerManager.onlinePlayers().asUUIDs());
-      }
-      break;
-      case "online_players_name": {
-        event.response().writeObject(this.nodePlayerManager.onlinePlayers().asNames());
-      }
-      break;
-      case "online_players_count": {
-        event.response().writeInt(this.nodePlayerManager.onlinePlayers().count());
-      }
-      break;
-      case "online_players_task_player": {
-        String task = event.getContent().readString();
-        event.response().writeObject(this.nodePlayerManager.taskOnlinePlayers(task).asPlayers());
-      }
-      break;
-      case "online_players_task_uuid": {
-        String task = event.getContent().readString();
-        event.response().writeObject(this.nodePlayerManager.taskOnlinePlayers(task).asUUIDs());
-      }
-      break;
-      case "online_players_task_name": {
-        String task = event.getContent().readString();
-        event.response().writeObject(this.nodePlayerManager.taskOnlinePlayers(task).asNames());
-      }
-      break;
-      case "online_players_task_count": {
-        String task = event.getContent().readString();
-        event.response().writeInt(this.nodePlayerManager.taskOnlinePlayers(task).count());
-      }
-      break;
-      case "online_players_group_player": {
-        String group = event.getContent().readString();
-        event.response().writeObject(this.nodePlayerManager.groupOnlinePlayers(group).asPlayers());
-      }
-      break;
-      case "online_players_group_uuid": {
-        String group = event.getContent().readString();
-        event.response().writeObject(this.nodePlayerManager.groupOnlinePlayers(group).asUUIDs());
-      }
-      break;
-      case "online_players_group_name": {
-        String group = event.getContent().readString();
-        event.response().writeObject(this.nodePlayerManager.groupOnlinePlayers(group).asNames());
-      }
-      break;
-      case "online_players_group_count": {
-        String group = event.getContent().readString();
-        event.response().writeInt(this.nodePlayerManager.groupOnlinePlayers(group).count());
-      }
-      break;
-      case "get_offline_player_by_uuid": {
-        UUID uniqueId = event.getContent().readUniqueId();
-        event.response().writeObject(this.nodePlayerManager.getOfflinePlayer(uniqueId));
-      }
-      break;
-      case "get_offline_players_by_name": {
-        String name = event.getContent().readString();
-        event.response().writeObject(this.nodePlayerManager.getOfflinePlayers(name));
-      }
-      break;
-      case "get_offline_players": {
-        event.response().writeObject(this.nodePlayerManager.getRegisteredPlayers());
       }
       break;
       default:

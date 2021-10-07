@@ -16,10 +16,13 @@
 
 package eu.cloudnetservice.cloudnet.ext.signs;
 
+import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.ext.bridge.WorldPosition;
 import eu.cloudnetservice.cloudnet.ext.signs.configuration.SignConfigurationEntry;
 import eu.cloudnetservice.cloudnet.ext.signs.util.PriorityUtil;
+import java.lang.reflect.Type;
+import java.util.Collection;
 import java.util.concurrent.atomic.AtomicReference;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -32,6 +35,8 @@ import org.jetbrains.annotations.Nullable;
 @ToString
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Sign implements Comparable<Sign> {
+
+  public static final Type COLLECTION_TYPE = TypeToken.getParameterized(Collection.class, Sign.class).getType();
 
   protected String targetGroup;
   protected String createdGroup;

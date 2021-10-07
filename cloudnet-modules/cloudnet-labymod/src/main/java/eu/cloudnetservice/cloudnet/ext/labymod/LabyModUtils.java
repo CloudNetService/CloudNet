@@ -22,7 +22,7 @@ import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;
-import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
+import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.ext.bridge.BridgeServiceProperty;
 import de.dytanic.cloudnet.ext.bridge.player.CloudPlayer;
@@ -75,11 +75,11 @@ public class LabyModUtils {
     return ChannelMessage.builder()
       .channel(LabyModConstants.CLOUDNET_CHANNEL_NAME)
       .message(LabyModConstants.GET_PLAYER_JOIN_SECRET)
-      .buffer(ProtocolBuffer.create().writeUUID(joinSecret))
+      .buffer(DataBuf.empty().writeUniqueId(joinSecret))
       .targetNode(Wrapper.getInstance().getServiceId().getNodeUniqueId())
       .build()
       .sendSingleQueryAsync()
-      .map(message -> message.getBuffer().readOptionalObject(CloudPlayer.class));
+      .map(message -> message.getContent().readObject(CloudPlayer.class));
   }
 
   @NotNull
@@ -87,11 +87,11 @@ public class LabyModUtils {
     return ChannelMessage.builder()
       .channel(LabyModConstants.CLOUDNET_CHANNEL_NAME)
       .message(LabyModConstants.GET_PLAYER_SPECTATE_SECRET)
-      .buffer(ProtocolBuffer.create().writeUUID(spectateSecret))
+      .buffer(DataBuf.empty().writeUniqueId(spectateSecret))
       .targetNode(Wrapper.getInstance().getServiceId().getNodeUniqueId())
       .build()
       .sendSingleQueryAsync()
-      .map(message -> message.getBuffer().readOptionalObject(CloudPlayer.class));
+      .map(message -> message.getContent().readObject(CloudPlayer.class));
   }
 
   private static String getDisplay(ServiceInfoSnapshot serviceInfoSnapshot, ServiceDisplay serviceDisplay) {

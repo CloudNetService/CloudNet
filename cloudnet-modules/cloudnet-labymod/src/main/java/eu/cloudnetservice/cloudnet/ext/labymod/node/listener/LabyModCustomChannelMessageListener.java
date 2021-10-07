@@ -20,6 +20,7 @@ import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
+import de.dytanic.cloudnet.driver.network.buffer.DataBuf.Mutable;
 import de.dytanic.cloudnet.ext.bridge.player.ICloudPlayer;
 import de.dytanic.cloudnet.ext.bridge.player.IPlayerManager;
 import eu.cloudnetservice.cloudnet.ext.labymod.LabyModConstants;
@@ -51,13 +52,13 @@ public class LabyModCustomChannelMessageListener {
         break;
 
       case LabyModConstants.GET_PLAYER_JOIN_SECRET:
-        UUID joinSecret = event.getBuffer().readUUID();
-        event.createBinaryResponse().writeOptionalObject(this.getPlayerByJoinSecret(joinSecret));
+        UUID joinSecret = event.getContent().readUniqueId();
+        event.response().writeNullable(this.getPlayerByJoinSecret(joinSecret), Mutable::writeObject);
         break;
 
       case LabyModConstants.GET_PLAYER_SPECTATE_SECRET:
-        UUID spectateSecret = event.getBuffer().readUUID();
-        event.createBinaryResponse().writeOptionalObject(this.getPlayerBySpectateSecret(spectateSecret));
+        UUID spectateSecret = event.getContent().readUniqueId();
+        event.response().writeNullable(this.getPlayerBySpectateSecret(spectateSecret), Mutable::writeObject);
         break;
       default:
         break;

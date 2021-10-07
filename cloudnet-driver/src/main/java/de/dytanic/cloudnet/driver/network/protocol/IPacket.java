@@ -77,6 +77,8 @@ public interface IPacket {
   /**
    * @deprecated Use {@link #getContent()} instead.
    */
+  @Deprecated
+  @ScheduledForRemoval
   @NotNull ProtocolBuffer getBuffer();
 
   /**

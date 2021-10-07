@@ -18,7 +18,7 @@ package eu.cloudnetservice.cloudnet.ext.signs.node;
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.database.Database;
-import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
+import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import de.dytanic.cloudnet.ext.bridge.WorldPosition;
 import eu.cloudnetservice.cloudnet.ext.signs.AbstractSignManagement;
 import eu.cloudnetservice.cloudnet.ext.signs.Sign;
@@ -62,7 +62,7 @@ public class NodeSignManagement extends AbstractSignManagement implements SignMa
     this.signs.put(sign.getWorldPosition(), sign);
 
     this.channelMessage(SIGN_CREATED)
-      .buffer(ProtocolBuffer.create().writeObject(sign))
+      .buffer(DataBuf.empty().writeObject(sign))
       .targetAll()
       .build().send();
   }
@@ -73,7 +73,7 @@ public class NodeSignManagement extends AbstractSignManagement implements SignMa
     this.signs.remove(position);
 
     this.channelMessage(SIGN_DELETED)
-      .buffer(ProtocolBuffer.create().writeObject(position))
+      .buffer(DataBuf.empty().writeObject(position))
       .targetAll()
       .build().send();
   }
@@ -92,7 +92,7 @@ public class NodeSignManagement extends AbstractSignManagement implements SignMa
     }
 
     this.channelMessage(SIGN_BULK_DELETE)
-      .buffer(ProtocolBuffer.create().writeObjectCollection(positions))
+      .buffer(DataBuf.empty().writeObject(positions))
       .targetAll()
       .build().send();
     return positions.size();
@@ -107,7 +107,7 @@ public class NodeSignManagement extends AbstractSignManagement implements SignMa
     }
 
     this.channelMessage(SIGN_BULK_DELETE)
-      .buffer(ProtocolBuffer.create().writeObjectCollection(positions))
+      .buffer(DataBuf.empty().writeObject(positions))
       .targetAll()
       .build().send();
     return positions.size();
@@ -126,7 +126,7 @@ public class NodeSignManagement extends AbstractSignManagement implements SignMa
     super.setSignsConfiguration(signsConfiguration);
 
     this.channelMessage(SIGN_CONFIGURATION_UPDATE)
-      .buffer(ProtocolBuffer.create().writeObject(signsConfiguration))
+      .buffer(DataBuf.empty().writeObject(signsConfiguration))
       .targetAll()
       .build().send();
     NodeSignsConfigurationHelper.write(signsConfiguration, this.configurationFilePath);

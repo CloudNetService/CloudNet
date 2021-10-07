@@ -18,7 +18,8 @@ package de.dytanic.cloudnet.ext.bridge.player.executor;
 
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;
-import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
+import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
+import de.dytanic.cloudnet.driver.network.buffer.DataBuf.Mutable;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.ext.bridge.BridgeConstants;
 import java.util.Arrays;
@@ -59,7 +60,7 @@ public class DefaultPlayerExecutor implements PlayerExecutor {
 
     builder()
       .message("connect_server")
-      .buffer(ProtocolBuffer.create().writeUUID(this.uniqueId).writeString(serviceName))
+      .buffer(DataBuf.empty().writeUniqueId(this.uniqueId).writeString(serviceName))
       .build().send();
   }
 
@@ -69,7 +70,7 @@ public class DefaultPlayerExecutor implements PlayerExecutor {
 
     builder()
       .message("kick")
-      .buffer(ProtocolBuffer.create().writeUUID(this.uniqueId).writeString(message))
+      .buffer(DataBuf.empty().writeUniqueId(this.uniqueId).writeString(message))
       .build().send();
   }
 
@@ -84,7 +85,8 @@ public class DefaultPlayerExecutor implements PlayerExecutor {
 
     builder()
       .message("send_message")
-      .buffer(ProtocolBuffer.create().writeUUID(this.uniqueId).writeString(message).writeOptionalString(permission))
+      .buffer(DataBuf.empty().writeUniqueId(this.uniqueId).writeString(message)
+        .writeNullable(permission, Mutable::writeString))
       .build().send();
   }
 
@@ -95,7 +97,7 @@ public class DefaultPlayerExecutor implements PlayerExecutor {
 
     builder()
       .message("send_plugin_message")
-      .buffer(ProtocolBuffer.create().writeUUID(this.uniqueId).writeString(tag).writeArray(data))
+      .buffer(DataBuf.empty().writeUniqueId(this.uniqueId).writeString(tag).writeByteArray(data))
       .build().send();
   }
 
@@ -105,7 +107,7 @@ public class DefaultPlayerExecutor implements PlayerExecutor {
 
     builder()
       .message("dispatch_proxy_command")
-      .buffer(ProtocolBuffer.create().writeUUID(this.uniqueId).writeString(command))
+      .buffer(DataBuf.empty().writeUniqueId(this.uniqueId).writeString(command))
       .build().send();
   }
 
@@ -113,7 +115,7 @@ public class DefaultPlayerExecutor implements PlayerExecutor {
   public void connect(@NotNull ServerSelectorType selectorType) {
     builder()
       .message("connect_type")
-      .buffer(ProtocolBuffer.create().writeUUID(this.uniqueId).writeEnumConstant(selectorType))
+      .buffer(DataBuf.empty().writeUniqueId(this.uniqueId).writeObject(selectorType))
       .build().send();
   }
 
@@ -121,7 +123,7 @@ public class DefaultPlayerExecutor implements PlayerExecutor {
   public void connectToFallback() {
     builder()
       .message("connect_fallback")
-      .buffer(ProtocolBuffer.create().writeUUID(this.uniqueId))
+      .buffer(DataBuf.empty().writeUniqueId(this.uniqueId))
       .build().send();
   }
 
@@ -129,7 +131,7 @@ public class DefaultPlayerExecutor implements PlayerExecutor {
   public void connectToGroup(@NotNull String group, @NotNull ServerSelectorType selectorType) {
     builder()
       .message("connect_group")
-      .buffer(ProtocolBuffer.create().writeUUID(this.uniqueId).writeString(group).writeEnumConstant(selectorType))
+      .buffer(DataBuf.empty().writeUniqueId(this.uniqueId).writeString(group).writeObject(selectorType))
       .build().send();
   }
 
@@ -137,7 +139,7 @@ public class DefaultPlayerExecutor implements PlayerExecutor {
   public void connectToTask(@NotNull String task, @NotNull ServerSelectorType selectorType) {
     builder()
       .message("connect_task")
-      .buffer(ProtocolBuffer.create().writeUUID(this.uniqueId).writeString(task).writeEnumConstant(selectorType))
+      .buffer(DataBuf.empty().writeUniqueId(this.uniqueId).writeString(task).writeObject(selectorType))
       .build().send();
   }
 

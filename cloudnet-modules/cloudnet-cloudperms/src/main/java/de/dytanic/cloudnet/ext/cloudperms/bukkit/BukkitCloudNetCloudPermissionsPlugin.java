@@ -33,7 +33,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scoreboard.Team;
-import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.ApiStatus.Internal;
 
 public final class BukkitCloudNetCloudPermissionsPlugin extends JavaPlugin {
 
@@ -183,7 +183,7 @@ public final class BukkitCloudNetCloudPermissionsPlugin extends JavaPlugin {
     target.setDisplayName(ChatColor.translateAlternateColorCodes('&', permissionGroup.getDisplay() + target.getName()));
   }
 
-  @ApiStatus.Internal
+  @Internal
   public void injectCloudPermissible(Player player) {
     Preconditions.checkNotNull(player);
     try {

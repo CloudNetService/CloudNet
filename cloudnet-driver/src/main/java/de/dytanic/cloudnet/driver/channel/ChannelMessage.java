@@ -17,6 +17,7 @@
 package de.dytanic.cloudnet.driver.channel;
 
 import com.google.common.base.Preconditions;
+import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
@@ -27,6 +28,7 @@ import de.dytanic.cloudnet.driver.provider.CloudMessenger;
 import de.dytanic.cloudnet.driver.serialization.DefaultProtocolBuffer;
 import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
 import lombok.EqualsAndHashCode;
@@ -38,6 +40,9 @@ import org.jetbrains.annotations.Nullable;
 @ToString
 @EqualsAndHashCode
 public class ChannelMessage {
+
+  public static final Type COLLECTION_TYPE = TypeToken.getParameterized(Collection.class, ChannelMessage.class)
+    .getType();
 
   private String channel;
   private String message;

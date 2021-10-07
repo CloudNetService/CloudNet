@@ -28,6 +28,7 @@ import de.dytanic.cloudnet.common.WildcardUtil;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
+import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.driver.service.GroupConfiguration;
 import de.dytanic.cloudnet.driver.service.ServiceTask;
 import de.dytanic.cloudnet.ext.bridge.BridgeConfiguration;
@@ -48,11 +49,11 @@ public final class CommandBridge extends SubCommandHandler {
               .get("config", BridgeConfiguration.class);
             bridgeModule.setBridgeConfiguration(bridgeConfiguration);
 
-            CloudNetDriver.getInstance().getMessenger().sendChannelMessage(
-              BridgeConstants.BRIDGE_CUSTOM_CHANNEL_MESSAGING_CHANNEL,
-              "update_bridge_configuration",
-              new JsonDocument("bridgeConfiguration", bridgeConfiguration)
-            );
+            ChannelMessage channelMessage = ChannelMessage.builder()
+              .channel(BridgeConstants.BRIDGE_CUSTOM_CHANNEL_MESSAGING_CHANNEL).message("update_bridge_configuration")
+              .json(JsonDocument.newDocument("bridgeConfiguration", bridgeConfiguration))
+              .build();
+            CloudNetDriver.getInstance().getMessenger().sendChannelMessage(channelMessage);
 
             sender.sendMessage(LanguageManager.getMessage("module-bridge-command-bridge-execute-success"));
           },

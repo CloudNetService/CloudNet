@@ -172,8 +172,6 @@ public final class BridgePlayerManager extends DefaultPlayerManager implements I
     return CompletableTask.supplyAsync(this::getRegisteredPlayers);
   }
 
-
-  //TODO: look into this
   @Override
   public void updateOfflinePlayer(@NotNull ICloudOfflinePlayer cloudOfflinePlayer) {
     Preconditions.checkNotNull(cloudOfflinePlayer);

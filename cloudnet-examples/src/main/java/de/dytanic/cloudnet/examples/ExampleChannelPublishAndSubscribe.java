@@ -22,7 +22,7 @@ import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
-import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
+import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 
 public final class ExampleChannelPublishAndSubscribe {
 
@@ -65,7 +65,7 @@ public final class ExampleChannelPublishAndSubscribe {
       return null;
     }
 
-    String binaryResponse = response.getBuffer().readString();
+    String binaryResponse = response.getContent().readString();
     String jsonResponse = response.getJson().getString("test");
     JsonDocument requested = response.getJson().getDocument("requested");
 
@@ -79,7 +79,7 @@ public final class ExampleChannelPublishAndSubscribe {
     }
 
     if (event.getChannel().equalsIgnoreCase("user_channel")) {
-      if ("user_info_publishing".equals(event.getMessage().toLowerCase())) {
+      if ("user_info_publishing".equalsIgnoreCase(event.getMessage())) {
         LOGGER.info("Name: " + event.getData().getString("name") + " | Age: " + event.getData().getInt("age"));
       }
     }
@@ -96,7 +96,7 @@ public final class ExampleChannelPublishAndSubscribe {
       if ("user_info".equals(event.getMessage().toLowerCase())) {
         event.setQueryResponse(ChannelMessage.buildResponseFor(event.getChannelMessage())
           .json(JsonDocument.newDocument("test", "response string").append("requested", event.getData()))
-          .buffer(ProtocolBuffer.create().writeString("binary response"))
+          .buffer(DataBuf.empty().writeString("binary response"))
           .build());
       }
     }

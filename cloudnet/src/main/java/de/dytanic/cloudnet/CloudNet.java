@@ -137,7 +137,6 @@ import de.dytanic.cloudnet.provider.NodeNodeInfoProvider;
 import de.dytanic.cloudnet.provider.NodeServiceTaskProvider;
 import de.dytanic.cloudnet.provider.service.EmptySpecificCloudServiceProvider;
 import de.dytanic.cloudnet.provider.service.NodeCloudServiceFactory;
-import de.dytanic.cloudnet.provider.service.NodeGeneralCloudServiceProvider;
 import de.dytanic.cloudnet.service.ICloudService;
 import de.dytanic.cloudnet.service.defaults.DefaultCloudServiceManager;
 import de.dytanic.cloudnet.setup.DefaultInstallation;

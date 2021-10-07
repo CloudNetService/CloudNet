@@ -22,7 +22,8 @@ import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;
-import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
+import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
+import de.dytanic.cloudnet.driver.network.buffer.DataBuf.Mutable;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
@@ -77,35 +78,35 @@ public abstract class AbstractServiceSignManagement<T> extends ServiceSignManage
       .targetNode(Wrapper.getInstance().getNodeUniqueId())
       .build()
       .sendSingleQuery();
-    return response == null ? null : response.getBuffer().readObject(SignsConfiguration.class);
+    return response == null ? null : response.getContent().readObject(SignsConfiguration.class);
   }
 
   @Override
   public void createSign(@NotNull Sign sign) {
     this.channelMessage(SIGN_CREATE)
-      .buffer(ProtocolBuffer.create().writeObject(sign))
+      .buffer(DataBuf.empty().writeObject(sign))
       .build().send();
   }
 
   @Override
   public void deleteSign(@NotNull WorldPosition position) {
     this.channelMessage(SIGN_DELETE)
-      .buffer(ProtocolBuffer.create().writeObject(position))
+      .buffer(DataBuf.empty().writeObject(position))
       .build().send();
   }
 
   @Override
   public int deleteAllSigns(@NotNull String group, @Nullable String templatePath) {
     ChannelMessage response = this.channelMessage(SIGN_BULK_DELETE)
-      .buffer(ProtocolBuffer.create().writeString(group).writeOptionalString(templatePath))
+      .buffer(DataBuf.empty().writeString(group).writeNullable(templatePath, Mutable::writeString))
       .build().sendSingleQuery();
-    return response == null ? 0 : response.getBuffer().readVarInt();
+    return response == null ? 0 : response.getContent().readInt();
   }
 
   @Override
   public int deleteAllSigns() {
     this.channelMessage(SIGN_ALL_DELETE)
-      .buffer(ProtocolBuffer.create().writeObjectCollection(this.signs.keySet()))
+      .buffer(DataBuf.empty().writeObject(this.signs.keySet()))
       .build().send();
     return this.signs.size();
   }
@@ -165,7 +166,7 @@ public abstract class AbstractServiceSignManagement<T> extends ServiceSignManage
   @Override
   public void setSignsConfiguration(@NotNull SignsConfiguration signsConfiguration) {
     this.channelMessage(SET_SIGN_CONFIG)
-      .buffer(ProtocolBuffer.create().writeObject(signsConfiguration))
+      .buffer(DataBuf.empty().writeObject(signsConfiguration))
       .build().send();
   }
 

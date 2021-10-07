@@ -30,5 +30,5 @@ public interface ObjectMapper {
 
   @NotNull DataBuf.Mutable writeObject(@NotNull DataBuf.Mutable dataBuf, @Nullable Object object);
 
-  @Nullable <T> T readObject(@NotNull DataBuf dataBuf, @NotNull Type type);
+  <T> T readObject(@NotNull DataBuf dataBuf, @NotNull Type type);
 }

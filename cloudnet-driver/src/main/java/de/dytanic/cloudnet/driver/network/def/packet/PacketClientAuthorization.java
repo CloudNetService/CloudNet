@@ -17,7 +17,7 @@
 package de.dytanic.cloudnet.driver.network.def.packet;
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
-import de.dytanic.cloudnet.driver.network.buffer.DataBufFactory;
+import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import de.dytanic.cloudnet.driver.network.def.NetworkConstants;
 import de.dytanic.cloudnet.driver.network.protocol.Packet;
 import de.dytanic.cloudnet.driver.network.rpc.defaults.object.DefaultObjectMapper;
@@ -26,7 +26,7 @@ public final class PacketClientAuthorization extends Packet {
 
   public PacketClientAuthorization(PacketAuthorizationType type, JsonDocument data) {
     super(NetworkConstants.INTERNAL_AUTHORIZATION_CHANNEL, DefaultObjectMapper.DEFAULT_MAPPER.writeObject(
-      DataBufFactory.defaultFactory().createEmpty(),
+      DataBuf.empty(),
       data
     ).writeInt(type.ordinal()));
   }

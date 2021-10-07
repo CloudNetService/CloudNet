@@ -16,7 +16,6 @@
 
 package de.dytanic.cloudnet.driver.provider;
 
-import de.dytanic.cloudnet.common.concurrent.CompletableTask;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;
@@ -41,7 +40,7 @@ public interface CloudMessenger {
    * @param channel the channel to identify the message, this can be anything and doesn't have to be registered
    * @param message the message to identify the message, this can be anything and doesn't have to be registered
    * @param data    extra data for the message
-   * @deprecated use {@link ChannelMessage.Builder}
+   * @deprecated use {@link CloudMessenger#sendChannelMessage(ChannelMessage)} instead
    */
   @Deprecated
   @ScheduledForRemoval
@@ -59,10 +58,9 @@ public interface CloudMessenger {
    * @param message                   the message to identify the message, this can be anything and doesn't have to be
    *                                  registered
    * @param data                      extra data for the message
-   * @deprecated use {@link ChannelMessage.Builder}
+   * @deprecated use {@link CloudMessenger#sendChannelMessage(ChannelMessage)} instead
    */
   @Deprecated
-  @ScheduledForRemoval
   default void sendChannelMessage(@NotNull ServiceInfoSnapshot targetServiceInfoSnapshot, @NotNull String channel,
     @NotNull String message, @NotNull JsonDocument data) {
     this.sendChannelMessage(ChannelMessage.builder().channel(channel).message(message).json(data)
@@ -79,10 +77,9 @@ public interface CloudMessenger {
    * @param message           the message to identify the message, this can be anything and doesn't have to be
    *                          registered
    * @param data              extra data for the message
-   * @deprecated use {@link ChannelMessage.Builder}
+   * @deprecated use {@link CloudMessenger#sendChannelMessage(ChannelMessage)} instead
    */
   @Deprecated
-  @ScheduledForRemoval
   default void sendChannelMessage(@NotNull ServiceTask targetServiceTask, @NotNull String channel,
     @NotNull String message, @NotNull JsonDocument data) {
     this.sendChannelMessage(
@@ -100,10 +97,9 @@ public interface CloudMessenger {
    * @param message           the message to identify the message, this can be anything and doesn't have to be
    *                          registered
    * @param data              extra data for the message
-   * @deprecated use {@link ChannelMessage.Builder}
+   * @deprecated use {@link CloudMessenger#sendChannelMessage(ChannelMessage)} instead
    */
   @Deprecated
-  @ScheduledForRemoval
   default void sendChannelMessage(@NotNull ServiceEnvironmentType targetEnvironment, @NotNull String channel,
     @NotNull String message, @NotNull JsonDocument data) {
     this.sendChannelMessage(
@@ -125,9 +121,7 @@ public interface CloudMessenger {
    * @return a collection containing the responses from all receivers
    */
   @NotNull
-  default ITask<Collection<ChannelMessage>> sendChannelMessageQueryAsync(@NotNull ChannelMessage channelMessage) {
-    return CompletableTask.supplyAsync(() -> this.sendChannelMessageQuery(channelMessage));
-  }
+  ITask<Collection<ChannelMessage>> sendChannelMessageQueryAsync(@NotNull ChannelMessage channelMessage);
 
   /**
    * Sends a channel message into the cluster and waits for the result from the receivers.
@@ -146,9 +140,7 @@ public interface CloudMessenger {
    * @return the response of the first receiver
    */
   @NotNull
-  default ITask<ChannelMessage> sendSingleChannelMessageQueryAsync(@NotNull ChannelMessage channelMessage) {
-    return CompletableTask.supplyAsync(() -> this.sendSingleChannelMessageQuery(channelMessage));
-  }
+  ITask<ChannelMessage> sendSingleChannelMessageQueryAsync(@NotNull ChannelMessage channelMessage);
 
   /**
    * Sends a channel message into the cluster and waits for the result from the receivers. This method only returns the

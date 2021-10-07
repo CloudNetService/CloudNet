@@ -19,7 +19,8 @@ package eu.cloudnetservice.cloudnet.ext.signs.node;
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
-import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
+import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
+import de.dytanic.cloudnet.driver.network.rpc.defaults.object.DefaultObjectMapper;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.event.cluster.NetworkChannelAuthClusterNodeSuccessEvent;
 import de.dytanic.cloudnet.event.service.CloudServicePreStartEvent;
@@ -49,7 +50,7 @@ public class NodeSignsListener {
     event.getNode().sendCustomChannelMessage(ChannelMessage.builder()
       .channel(AbstractSignManagement.SIGN_CHANNEL_NAME)
       .message(NodeSignManagement.NODE_TO_NODE_SET_SIGN_CONFIGURATION)
-      .buffer(ProtocolBuffer.create().writeObject(this.signManagement.getSignsConfiguration()))
+      .buffer(DataBuf.empty().writeObject(this.signManagement.getSignsConfiguration()))
       .build());
   }
 
@@ -76,33 +77,36 @@ public class NodeSignsListener {
     if (event.getChannel().equals(AbstractSignManagement.SIGN_CHANNEL_NAME) && event.getMessage() != null) {
       switch (event.getMessage()) {
         case AbstractServiceSignManagement.REQUEST_CONFIG:
-          event.setBinaryResponse(ProtocolBuffer.create().writeObject(this.signManagement.getSignsConfiguration()));
+          event.setBinaryResponse(DataBuf.empty().writeObject(this.signManagement.getSignsConfiguration()));
           break;
         case AbstractServiceSignManagement.SIGN_ALL_DELETE:
-          for (WorldPosition position : event.getBuffer().readObjectCollection(WorldPosition.class)) {
+          Collection<WorldPosition> positions = DefaultObjectMapper.DEFAULT_MAPPER.readObject(event.getContent(),
+            WorldPosition.COLLECTION_TYPE);
+          for (WorldPosition position : positions) {
             this.signManagement.deleteSign(position);
           }
           break;
         case AbstractServiceSignManagement.SIGN_CREATE:
-          this.signManagement.createSign(event.getBuffer().readObject(Sign.class));
+          this.signManagement.createSign(event.getContent().readObject(Sign.class));
           break;
         case AbstractServiceSignManagement.SIGN_DELETE:
-          this.signManagement.deleteSign(event.getBuffer().readObject(WorldPosition.class));
+          this.signManagement.deleteSign(event.getContent().readObject(WorldPosition.class));
           break;
         case AbstractServiceSignManagement.SIGN_BULK_DELETE:
           int deleted = this.signManagement
-            .deleteAllSigns(event.getBuffer().readString(), event.getBuffer().readOptionalString());
-          event.setBinaryResponse(ProtocolBuffer.create().writeVarInt(deleted));
+            .deleteAllSigns(event.getContent().readString(),
+              event.getContent().readNullable(DataBuf::readString));
+          event.setBinaryResponse(DataBuf.empty().writeInt(deleted));
           break;
         case AbstractServiceSignManagement.SET_SIGN_CONFIG:
-          this.signManagement.setSignsConfiguration(event.getBuffer().readObject(SignsConfiguration.class));
+          this.signManagement.setSignsConfiguration(event.getContent().readObject(SignsConfiguration.class));
           break;
         case ServiceSignManagement.SIGN_GET_SIGNS_BY_GROUPS:
-          Collection<Sign> signs = this.signManagement.getSigns(event.getBuffer().readStringArray());
-          event.setBinaryResponse(ProtocolBuffer.create().writeObjectCollection(signs));
+          Collection<Sign> signs = this.signManagement.getSigns(event.getContent().readObject(String[].class));
+          event.setBinaryResponse(DataBuf.empty().writeObject(signs));
           break;
         case NodeSignManagement.NODE_TO_NODE_SET_SIGN_CONFIGURATION:
-          this.signManagement.handleInternalSignConfigUpdate(event.getBuffer().readObject(SignsConfiguration.class));
+          this.signManagement.handleInternalSignConfigUpdate(event.getContent().readObject(SignsConfiguration.class));
           break;
         default:
           break;

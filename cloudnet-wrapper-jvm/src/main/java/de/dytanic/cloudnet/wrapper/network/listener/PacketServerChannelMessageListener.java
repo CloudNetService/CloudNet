@@ -21,7 +21,6 @@ import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
-import de.dytanic.cloudnet.driver.network.buffer.DataBufFactory;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.network.protocol.IPacketListener;
 
@@ -36,7 +35,7 @@ public final class PacketServerChannelMessageListener implements IPacketListener
     CloudNetDriver.getInstance().getEventManager().callEvent(event);
 
     if (query) {
-      DataBuf.Mutable dataBuf = DataBufFactory.defaultFactory().createEmpty();
+      DataBuf.Mutable dataBuf = DataBuf.empty();
       dataBuf.writeBoolean(event.getQueryResponse() != null);
       if (event.getQueryResponse() != null) {
         dataBuf.writeObject(event.getQueryResponse());

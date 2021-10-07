@@ -18,7 +18,7 @@ package de.dytanic.cloudnet.ext.bridge;
 
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
-import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
+import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkConnectionInfo;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkPlayerServerInfo;
@@ -66,17 +66,17 @@ public final class BridgeHelper {
   public static String sendChannelMessageProxyLoginRequest(NetworkConnectionInfo networkConnectionInfo) {
     ChannelMessage response = messageBuilder()
       .message(BridgeConstants.BRIDGE_EVENT_CHANNEL_MESSAGE_NAME_PROXY_LOGIN_REQUEST)
-      .buffer(ProtocolBuffer.create().writeObject(networkConnectionInfo))
+      .buffer(DataBuf.empty().writeObject(networkConnectionInfo))
       .targetNode(Wrapper.getInstance().getServiceId().getNodeUniqueId())
       .build()
       .sendSingleQuery();
-    return response != null ? response.getBuffer().readOptionalString() : null;
+    return response != null ? response.getContent().readNullable(DataBuf::readString) : null;
   }
 
   public static void sendChannelMessageProxyLoginSuccess(NetworkConnectionInfo networkConnectionInfo) {
     messageBuilder()
       .message(BridgeConstants.BRIDGE_EVENT_CHANNEL_MESSAGE_NAME_PROXY_LOGIN_SUCCESS)
-      .buffer(ProtocolBuffer.create().writeObject(networkConnectionInfo))
+      .buffer(DataBuf.empty().writeObject(networkConnectionInfo))
       .targetAll()
       .build()
       .send();
@@ -85,7 +85,7 @@ public final class BridgeHelper {
   public static void sendChannelMessageProxyDisconnect(NetworkConnectionInfo networkConnectionInfo) {
     messageBuilder()
       .message(BridgeConstants.BRIDGE_EVENT_CHANNEL_MESSAGE_NAME_PROXY_DISCONNECT)
-      .buffer(ProtocolBuffer.create().writeObject(networkConnectionInfo))
+      .buffer(DataBuf.empty().writeObject(networkConnectionInfo))
       .targetAll()
       .build()
       .send();
@@ -95,7 +95,7 @@ public final class BridgeHelper {
     NetworkServiceInfo networkServiceInfo) {
     messageBuilder()
       .message(BridgeConstants.BRIDGE_EVENT_CHANNEL_MESSAGE_NAME_PROXY_SERVER_SWITCH)
-      .buffer(ProtocolBuffer.create().writeObject(networkConnectionInfo).writeObject(networkServiceInfo))
+      .buffer(DataBuf.empty().writeObject(networkConnectionInfo).writeObject(networkServiceInfo))
       .targetAll()
       .build()
       .send();
@@ -105,7 +105,7 @@ public final class BridgeHelper {
     NetworkServiceInfo networkServiceInfo) {
     messageBuilder()
       .message(BridgeConstants.BRIDGE_EVENT_CHANNEL_MESSAGE_NAME_PROXY_SERVER_CONNECT_REQUEST)
-      .buffer(ProtocolBuffer.create().writeObject(networkConnectionInfo).writeObject(networkServiceInfo))
+      .buffer(DataBuf.empty().writeObject(networkConnectionInfo).writeObject(networkServiceInfo))
       .targetAll()
       .build()
       .send();
@@ -115,7 +115,7 @@ public final class BridgeHelper {
     NetworkPlayerServerInfo networkPlayerServerInfo) {
     messageBuilder()
       .message(BridgeConstants.BRIDGE_EVENT_CHANNEL_MESSAGE_NAME_SERVER_LOGIN_REQUEST)
-      .buffer(ProtocolBuffer.create().writeObject(networkConnectionInfo).writeObject(networkPlayerServerInfo))
+      .buffer(DataBuf.empty().writeObject(networkConnectionInfo).writeObject(networkPlayerServerInfo))
       .targetAll()
       .build()
       .send();
@@ -125,7 +125,7 @@ public final class BridgeHelper {
     NetworkPlayerServerInfo networkPlayerServerInfo) {
     messageBuilder()
       .message(BridgeConstants.BRIDGE_EVENT_CHANNEL_MESSAGE_NAME_SERVER_LOGIN_SUCCESS)
-      .buffer(ProtocolBuffer.create().writeObject(networkConnectionInfo).writeObject(networkPlayerServerInfo))
+      .buffer(DataBuf.empty().writeObject(networkConnectionInfo).writeObject(networkPlayerServerInfo))
       .targetAll()
       .build()
       .send();
@@ -135,7 +135,7 @@ public final class BridgeHelper {
     NetworkPlayerServerInfo networkPlayerServerInfo) {
     messageBuilder()
       .message(BridgeConstants.BRIDGE_EVENT_CHANNEL_MESSAGE_NAME_SERVER_DISCONNECT)
-      .buffer(ProtocolBuffer.create().writeObject(networkConnectionInfo).writeObject(networkPlayerServerInfo))
+      .buffer(DataBuf.empty().writeObject(networkConnectionInfo).writeObject(networkPlayerServerInfo))
       .targetAll()
       .build()
       .send();
@@ -144,7 +144,7 @@ public final class BridgeHelper {
   public static void sendChannelMessageMissingDisconnect(ServicePlayer player) {
     messageBuilder()
       .message(BridgeConstants.BRIDGE_EVENT_CHANNEL_MESSAGE_NAME_PROXY_MISSING_DISCONNECT)
-      .buffer(ProtocolBuffer.create().writeUUID(player.getUniqueId())
+      .buffer(DataBuf.empty().writeUniqueId(player.getUniqueId())
         .writeString(player.getName()).writeObject(createOwnNetworkServiceInfo()))
       .targetNodes()
       .build()

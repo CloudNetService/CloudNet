@@ -36,7 +36,7 @@ public interface SpecificCloudServiceProvider {
    * Gets the info of the service this provider is for.
    *
    * @return the info or {@code null}, if the service doesn't exist
-   * @throws IllegalArgumentException if no uniqueId/name/serviceInfo was given on creating this provider
+   * @throws IllegalArgumentException if no uniqueId/name/serviceInfo was given when creating this provider
    */
   @Nullable
   ServiceInfoSnapshot getServiceInfoSnapshot();

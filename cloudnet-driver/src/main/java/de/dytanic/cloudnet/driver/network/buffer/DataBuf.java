@@ -56,7 +56,12 @@ public interface DataBuf {
 
   @NotNull DataBuf readDataBuf();
 
-  @Nullable <T> T readObject(@NotNull Class<T> type);
+  /**
+   * @param type
+   * @param <T>
+   * @return WENN NULL REIN DANN NULL RAUS (~ derklaro)
+   */
+  <T> T readObject(@NotNull Class<T> type);
 
   @Nullable <T> T readNullable(@NotNull Function<DataBuf, T> readerWhenNonNull);
 

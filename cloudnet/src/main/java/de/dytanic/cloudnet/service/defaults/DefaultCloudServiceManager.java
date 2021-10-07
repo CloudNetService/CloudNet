@@ -75,7 +75,7 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
     @NotNull RPCProviderFactory factory,
     @Name("JVMServiceFactory") ICloudServiceFactory cloudServiceFactory
   ) {
-    // @todo: make the component actually nullable
+    //todo: make the component actually nullable
     this.sender = factory.providerForClass(null, GeneralCloudServiceProvider.class);
     // register the default factory
     this.addCloudServiceFactory("jvm", cloudServiceFactory);

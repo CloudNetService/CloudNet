@@ -25,7 +25,6 @@ import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
-import de.dytanic.cloudnet.driver.network.buffer.DataBufFactory;
 import de.dytanic.cloudnet.ext.bridge.BridgeConfiguration;
 import de.dytanic.cloudnet.ext.bridge.BridgeConstants;
 import de.dytanic.cloudnet.ext.bridge.event.BridgeConfigurationUpdateEvent;
@@ -74,7 +73,7 @@ public final class NodeCustomChannelMessageListener {
 
       this.nodePlayerManager.messageBuilder()
         .message(BridgeConstants.BRIDGE_EVENT_CHANNEL_MESSAGE_NAME_PROXY_LOGIN_REQUEST)
-        .buffer(DataBufFactory.defaultFactory().createEmpty().writeObject(networkConnectionInfo))
+        .buffer(DataBuf.empty().writeObject(networkConnectionInfo))
         .targetAll()
         .build()
         .send();
@@ -93,9 +92,9 @@ public final class NodeCustomChannelMessageListener {
       if (requestEvent.getKickReason() == null) {
         requestEvent.setKickReason("§cNo kick reason given");
       }
-      return DataBufFactory.defaultFactory().createEmpty().writeString(requestEvent.getKickReason());
+      return DataBuf.empty().writeString(requestEvent.getKickReason());
     }
-    return DataBufFactory.defaultFactory().createEmpty();
+    return DataBuf.empty();
   }
 
   private void callProxyLoginRequest(NetworkConnectionInfo networkConnectionInfo) {

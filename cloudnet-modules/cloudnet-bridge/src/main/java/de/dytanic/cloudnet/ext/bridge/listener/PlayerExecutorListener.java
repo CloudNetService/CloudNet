@@ -18,6 +18,7 @@ package de.dytanic.cloudnet.ext.bridge.listener;
 
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
+import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.ext.bridge.BridgeConstants;
 import de.dytanic.cloudnet.ext.bridge.player.executor.ServerSelectorType;
@@ -39,14 +40,14 @@ public abstract class PlayerExecutorListener<P> {
     }
 
     if (event.getMessage().equals("broadcast_message_component")) {
-      String data = event.getBuffer().readString();
-      String permission = event.getBuffer().readOptionalString();
+      String data = event.getContent().readString();
+      String permission = event.getContent().readNullable(DataBuf::readString);
 
       this.broadcastMessageComponent(data, permission);
       return;
     }
 
-    UUID uniqueId = event.getBuffer().readUUID();
+    UUID uniqueId = event.getContent().readUniqueId();
 
     Collection<P> players;
     if (uniqueId.getLeastSignificantBits() == 0 && uniqueId.getMostSignificantBits() == 0) {
@@ -61,7 +62,7 @@ public abstract class PlayerExecutorListener<P> {
 
     switch (event.getMessage()) {
       case "connect_server": {
-        String service = event.getBuffer().readString();
+        String service = event.getContent().readString();
 
         for (P player : players) {
           this.connect(player, service);
@@ -70,7 +71,7 @@ public abstract class PlayerExecutorListener<P> {
       break;
 
       case "connect_type": {
-        ServerSelectorType selectorType = event.getBuffer().readEnumConstant(ServerSelectorType.class);
+        ServerSelectorType selectorType = event.getContent().readObject(ServerSelectorType.class);
 
         this.connect(players, serviceInfoSnapshot -> true, selectorType);
       }
@@ -84,8 +85,8 @@ public abstract class PlayerExecutorListener<P> {
       break;
 
       case "connect_group": {
-        String group = event.getBuffer().readString();
-        ServerSelectorType selectorType = event.getBuffer().readEnumConstant(ServerSelectorType.class);
+        String group = event.getContent().readString();
+        ServerSelectorType selectorType = event.getContent().readObject(ServerSelectorType.class);
 
         this.connect(players, serviceInfoSnapshot -> serviceInfoSnapshot.getConfiguration().hasGroup(group),
           selectorType);
@@ -93,8 +94,8 @@ public abstract class PlayerExecutorListener<P> {
       break;
 
       case "connect_task": {
-        String task = event.getBuffer().readString();
-        ServerSelectorType selectorType = event.getBuffer().readEnumConstant(ServerSelectorType.class);
+        String task = event.getContent().readString();
+        ServerSelectorType selectorType = event.getContent().readObject(ServerSelectorType.class);
 
         this.connect(players,
           serviceInfoSnapshot -> serviceInfoSnapshot.getServiceId().getTaskName().equalsIgnoreCase(task), selectorType);
@@ -102,7 +103,7 @@ public abstract class PlayerExecutorListener<P> {
       break;
 
       case "kick": {
-        String reason = event.getBuffer().readString();
+        String reason = event.getContent().readString();
 
         for (P player : players) {
           this.kick(player, reason.replace('&', '§'));
@@ -111,7 +112,7 @@ public abstract class PlayerExecutorListener<P> {
       break;
 
       case "send_message": {
-        String message = event.getBuffer().readString();
+        String message = event.getContent().readString();
 
         for (P player : players) {
           this.sendMessage(player, message);
@@ -119,7 +120,7 @@ public abstract class PlayerExecutorListener<P> {
       }
       break;
       case "send_message_component": {
-        String data = event.getBuffer().readString();
+        String data = event.getContent().readString();
 
         for (P player : players) {
           this.sendMessageComponent(player, data);
@@ -128,8 +129,8 @@ public abstract class PlayerExecutorListener<P> {
       break;
 
       case "send_plugin_message": {
-        String tag = event.getBuffer().readString();
-        byte[] data = event.getBuffer().readArray();
+        String tag = event.getContent().readString();
+        byte[] data = event.getContent().readByteArray();
 
         for (P player : players) {
           this.sendPluginMessage(player, tag, data);
@@ -138,7 +139,7 @@ public abstract class PlayerExecutorListener<P> {
       break;
 
       case "dispatch_proxy_command": {
-        String command = event.getBuffer().readString();
+        String command = event.getContent().readString();
 
         for (P player : players) {
           this.dispatchCommand(player, command);

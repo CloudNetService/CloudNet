@@ -48,7 +48,7 @@ public class ChannelMessageTarget {
     return this.type;
   }
 
-  public @NotNull String getName() {
+  public String getName() {
     return this.name;
   }
 

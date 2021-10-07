@@ -16,13 +16,14 @@
 
 package de.dytanic.cloudnet.driver.network.cluster;
 
+import de.dytanic.cloudnet.common.document.gson.BasicJsonDocPropertyable;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 @ToString
 @EqualsAndHashCode(callSuper = false)
-public class NetworkClusterNode {
+public class NetworkClusterNode extends BasicJsonDocPropertyable {
 
   private String uniqueId;
   private HostAndPort[] listeners;

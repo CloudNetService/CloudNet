@@ -92,10 +92,6 @@ public final class ChannelMessageReceiveEvent extends Event {
     return this.query;
   }
 
-  /**
-   * @deprecated use {@link ChannelMessageReceiveEvent#setBinaryResponse(DataBuf)}
-   */
-  @Deprecated
   public void setJsonResponse(@NotNull JsonDocument json) {
     this.setQueryResponse(ChannelMessage.buildResponseFor(this.channelMessage).json(json).build());
   }

@@ -22,10 +22,8 @@ import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.database.Database;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.network.rpc.RPCSender;
-import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import de.dytanic.cloudnet.wrapper.database.IDatabase;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -46,10 +44,6 @@ public class WrapperDatabase implements IDatabase {
     this.name = name;
     this.databaseProvider = databaseProvider;
     this.rpcSender = wrapper.getRPCProviderFactory().providerForClass(wrapper.getNetworkClient(), Database.class);
-  }
-
-  private ProtocolBuffer writeDefaults(ProtocolBuffer buffer) {
-    return buffer.writeString(this.name);
   }
 
   @Override
@@ -138,15 +132,6 @@ public class WrapperDatabase implements IDatabase {
     return true;
   }
 
-  private List<JsonDocument> asJsonDocumentList(ProtocolBuffer buffer) {
-    int size = buffer.readVarInt();
-    List<JsonDocument> documents = new ArrayList<>();
-    for (int i = 0; i < size; i++) {
-      documents.add(buffer.readJsonDocument());
-    }
-    return documents;
-  }
-
   @Override
   public @NotNull ITask<Void> iterateAsync(BiConsumer<String, JsonDocument> consumer, int chunkSize) {
     CompletableTask<Void> completeTask = new CompletableTask<>();
@@ -187,8 +172,7 @@ public class WrapperDatabase implements IDatabase {
       int size = packet.getContent().readInt();
       Map<String, JsonDocument> documents = new HashMap<>();
       for (int i = 0; i < size; i++) {
-        //TODO: resolve this
-        documents.put(packet.getContent().readString(), packet.getBuffer().readJsonDocument());
+        documents.put(packet.getContent().readString(), packet.getContent().readObject(JsonDocument.class));
       }
       return documents;
     };
