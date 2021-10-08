@@ -27,9 +27,12 @@ import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.common.unsafe.CPUUsageResolver;
 import de.dytanic.cloudnet.conf.IConfiguration;
+import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.driver.event.IEventManager;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
+import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
+import de.dytanic.cloudnet.driver.network.def.NetworkConstants;
 import de.dytanic.cloudnet.driver.network.ssl.SSLConfiguration;
 import de.dytanic.cloudnet.driver.service.ProcessSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
@@ -119,6 +122,7 @@ public abstract class AbstractService implements ICloudService {
       ProcessSnapshot.empty(),
       configuration,
       configuration.getProperties());
+    this.publishServiceInfoSnapshot();
 
     manager.registerLocalService(this);
   }
@@ -134,7 +138,7 @@ public abstract class AbstractService implements ICloudService {
   }
 
   @Override
-  public @Nullable ServiceInfoSnapshot getServiceInfoSnapshot() {
+  public @NotNull ServiceInfoSnapshot getServiceInfoSnapshot() {
     return this.currentServiceInfo;
   }
 
@@ -375,6 +379,16 @@ public abstract class AbstractService implements ICloudService {
   }
 
   @Override
+  public void publishServiceInfoSnapshot() {
+    ChannelMessage.builder()
+      .targetAll()
+      .message("update_service_info")
+      .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
+      .buffer(DataBuf.empty().writeObject(this.currentServiceInfo))
+      .build();
+  }
+
+  @Override
   public void updateServiceInfoSnapshot(@NotNull ServiceInfoSnapshot serviceInfoSnapshot) {
     this.currentServiceInfo = Preconditions.checkNotNull(serviceInfoSnapshot, "serviceInfoSnapshot");
   }
@@ -442,6 +456,8 @@ public abstract class AbstractService implements ICloudService {
       this.lastServiceInfo.getProperties());
     // push the service change to the current manager
     this.cloudServiceManager.handleServiceUpdate(this.currentServiceInfo);
+    // publish the change to all services and nodes
+    this.publishServiceInfoSnapshot();
   }
 
   protected boolean canStartNow() {

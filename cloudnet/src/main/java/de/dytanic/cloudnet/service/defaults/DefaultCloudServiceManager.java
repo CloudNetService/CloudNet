@@ -258,6 +258,23 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
   }
 
   @Override
+  public @Nullable ICloudService getLocalCloudService(@NotNull String name) {
+    SpecificCloudServiceProvider provider = this.getSpecificProviderByName(name);
+    return provider instanceof ICloudService ? (ICloudService) provider : null;
+  }
+
+  @Override
+  public @Nullable ICloudService getLocalCloudService(@NotNull UUID uniqueId) {
+    SpecificCloudServiceProvider provider = this.knownServices.get(uniqueId);
+    return provider instanceof ICloudService ? (ICloudService) provider : null;
+  }
+
+  @Override
+  public @Nullable ICloudService getLocalCloudService(@NotNull ServiceInfoSnapshot snapshot) {
+    return this.getLocalCloudService(snapshot.getServiceId().getUniqueId());
+  }
+
+  @Override
   public int getCurrentUsedHeapMemory() {
     return this.knownServices.values().stream()
       .map(SpecificCloudServiceProvider::getServiceInfoSnapshot)

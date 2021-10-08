@@ -50,9 +50,7 @@ public final class NetworkConstants {
   public static final int CHANNEL_MESSAGING_CHANNEL = 153;
 
   // channel message channels
-  public static final String WRAPPER_TO_NODE = "wrapper_node";
-  public static final String NODE_TO_WRAPPER = "node_wrapper";
-  public static final String NODE_TO_NODE = "node_node";
+  public static final String INTERNAL_MSG_CHANNEL = "cloudnet:internal";
 
   private NetworkConstants() {
     throw new UnsupportedOperationException();

@@ -29,10 +29,11 @@ findProject(':cloudnet-wrapper-jvm:minecraft-launchwrapper-api')?.name = 'minecr
 
 // launcher
 include 'cloudnet-launcher'
-include 'cloudnet-modules'
-include 'cloudnet-plugins'
+// include 'cloudnet-modules'
+// include 'cloudnet-plugins'
 
 // modules
+/*
 include 'cloudnet-modules:cloudnet-signs'
 findProject(':cloudnet-modules:cloudnet-signs')?.name = 'cloudnet-signs'
 include 'cloudnet-modules:cloudnet-npcs'
@@ -69,3 +70,4 @@ findProject(':cloudnet-plugins:cloudnet-simplenametags')?.name = 'cloudnet-simpl
 // examples
 include 'cloudnet-examples'
 
+*/

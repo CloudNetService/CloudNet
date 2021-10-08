@@ -40,11 +40,7 @@ public final class NetworkServerChannelHandlerImpl implements INetworkChannelHan
   public void handleChannelInitialize(@NotNull INetworkChannel channel) {
     //Whitelist check
     if (!this.inWhitelist(channel)) {
-      try {
-        channel.close();
-      } catch (Exception exception) {
-        LOGGER.severe("Exception while closing channel", exception);
-      }
+      channel.close();
       return;
     }
 
@@ -74,9 +70,13 @@ public final class NetworkServerChannelHandlerImpl implements INetworkChannelHan
       .replace("%clientAddress%", channel.getClientAddress().getHost() + ":" + channel.getClientAddress().getPort())
     );
 
-    ICloudService cloudService = CloudNet.getInstance().getCloudServiceManager().getCloudService(service ->
-      service.getNetworkChannel() != null && service.getNetworkChannel().equals(channel));
-
+    ICloudService cloudService = CloudNet.getInstance()
+      .getCloudServiceManager()
+      .getLocalCloudServices()
+      .stream()
+      .filter(service -> service.getNetworkChannel() != null && service.getNetworkChannel().equals(channel))
+      .findFirst()
+      .orElse(null);
     if (cloudService != null) {
       this.closeAsCloudService(cloudService, channel);
       return;

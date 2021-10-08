@@ -23,8 +23,10 @@ import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Optional;
+import java.util.UUID;
 import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
 
 public interface ICloudServiceManager extends GeneralCloudServiceProvider {
@@ -61,12 +63,21 @@ public interface ICloudServiceManager extends GeneralCloudServiceProvider {
 
   void deleteAllCloudServices();
 
-  @NotNull
-  @UnmodifiableView Collection<ICloudService> getLocalCloudServices();
-
   int getCurrentUsedHeapMemory();
 
   int getCurrentReservedMemory();
+
+  @NotNull
+  @UnmodifiableView Collection<ICloudService> getLocalCloudServices();
+
+  @Nullable
+  ICloudService getLocalCloudService(@NotNull String name);
+
+  @Nullable
+  ICloudService getLocalCloudService(@NotNull UUID uniqueId);
+
+  @Nullable
+  ICloudService getLocalCloudService(@NotNull ServiceInfoSnapshot snapshot);
 
   @Internal
   void registerLocalService(@NotNull ICloudService service);

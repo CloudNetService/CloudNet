@@ -22,7 +22,6 @@ import de.dytanic.cloudnet.driver.provider.service.CloudServiceFactory;
 import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.provider.service.EmptySpecificCloudServiceProvider;
-import de.dytanic.cloudnet.provider.service.LocalNodeSpecificCloudServiceProvider;
 import de.dytanic.cloudnet.service.ICloudService;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -66,11 +65,8 @@ public class LocalNodeServer extends DefaultNodeServer implements NodeServer {
 
   @Override
   public @Nullable SpecificCloudServiceProvider getCloudServiceProvider(@NotNull ServiceInfoSnapshot snapshot) {
-    ICloudService service = this.cloudNet.getCloudServiceManager()
-      .getCloudService(snapshot.getServiceId().getUniqueId());
-    return service == null
-      ? EmptySpecificCloudServiceProvider.INSTANCE
-      : new LocalNodeSpecificCloudServiceProvider(this.cloudNet, service);
+    ICloudService service = this.cloudNet.getCloudServiceManager().getLocalCloudService(snapshot);
+    return service == null ? EmptySpecificCloudServiceProvider.INSTANCE : service;
   }
 
   @Override

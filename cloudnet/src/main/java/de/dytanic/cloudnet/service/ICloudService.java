@@ -34,6 +34,9 @@ import org.jetbrains.annotations.UnmodifiableView;
 
 public interface ICloudService extends SpecificCloudServiceProvider {
 
+  @Override
+  @NotNull ServiceInfoSnapshot getServiceInfoSnapshot();
+
   @NotNull
   String getRuntime();
 
@@ -79,6 +82,8 @@ public interface ICloudService extends SpecificCloudServiceProvider {
   void doDelete();
 
   boolean isAlive();
+
+  void publishServiceInfoSnapshot();
 
   @Internal
   void updateServiceInfoSnapshot(@NotNull ServiceInfoSnapshot serviceInfoSnapshot);

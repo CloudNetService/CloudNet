@@ -18,7 +18,6 @@ package de.dytanic.cloudnet.network;
 
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.cluster.IClusterNodeServer;
-import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
@@ -28,6 +27,7 @@ import de.dytanic.cloudnet.driver.event.events.network.NetworkChannelCloseEvent;
 import de.dytanic.cloudnet.driver.event.events.network.NetworkChannelPacketReceiveEvent;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.INetworkChannelHandler;
+import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import de.dytanic.cloudnet.driver.network.def.packet.PacketClientAuthorization;
 import de.dytanic.cloudnet.driver.network.protocol.Packet;
 import java.util.concurrent.atomic.AtomicLong;
@@ -46,10 +46,9 @@ public final class NetworkClientChannelHandlerImpl implements INetworkChannelHan
 
     channel.sendPacket(new PacketClientAuthorization(
       PacketClientAuthorization.PacketAuthorizationType.NODE_TO_NODE,
-      new JsonDocument("clusterNode", CloudNet.getInstance().getConfig().getIdentity())
-        .append("clusterId", CloudNet.getInstance().getConfig().getClusterConfig().getClusterId())
-        .append("secondNodeConnection", CONNECTION_COUNTER.incrementAndGet() > 1)
-    ));
+      DataBuf.empty()
+        .writeUniqueId(CloudNet.getInstance().getConfig().getClusterConfig().getClusterId())
+        .writeObject(CloudNet.getInstance().getConfig().getIdentity())));
 
     LOGGER.fine(LanguageManager.getMessage("client-network-channel-init")
       .replace("%serverAddress%", channel.getServerAddress().getHost() + ":" + channel.getServerAddress().getPort())

@@ -30,7 +30,8 @@ public final class NodeModuleProviderHandler extends DefaultModuleProviderHandle
 
     CloudNet.getInstance().unregisterPacketListenersByClassLoader(moduleWrapper.getClassLoader());
     CloudNet.getInstance().getHttpServer().removeHandler(moduleWrapper.getClassLoader());
-    CloudNet.getInstance().getCommandMap().unregisterCommands(moduleWrapper.getClassLoader());
+    // todo
+    // CloudNet.getInstance().getCommandMap().unregisterCommands(moduleWrapper.getClassLoader());
   }
 
 }

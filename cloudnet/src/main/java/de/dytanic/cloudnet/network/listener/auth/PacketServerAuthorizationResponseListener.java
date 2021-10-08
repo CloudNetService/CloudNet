@@ -17,18 +17,15 @@
 package de.dytanic.cloudnet.network.listener.auth;
 
 import de.dytanic.cloudnet.CloudNet;
-import de.dytanic.cloudnet.cluster.IClusterNodeServer;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
-import de.dytanic.cloudnet.driver.CloudNetDriver;
-import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
-import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.network.protocol.IPacketListener;
-import de.dytanic.cloudnet.event.cluster.NetworkChannelAuthClusterNodeSuccessEvent;
-import de.dytanic.cloudnet.network.ClusterUtils;
+import de.dytanic.cloudnet.network.packet.PacketServerSetGlobalServiceInfoList;
+import java.util.Arrays;
+import java.util.Objects;
 
 public final class PacketServerAuthorizationResponseListener implements IPacketListener {
 
@@ -36,41 +33,23 @@ public final class PacketServerAuthorizationResponseListener implements IPacketL
 
   @Override
   public void handle(INetworkChannel channel, IPacket packet) {
-    if (packet.getHeader().contains("access")) {
-      if (packet.getHeader().getBoolean("access")) {
-        for (NetworkClusterNode node : CloudNet.getInstance().getConfig().getClusterConfig().getNodes()) {
-          for (HostAndPort hostAndPort : node.getListeners()) {
-            if (hostAndPort.getPort() == channel.getServerAddress().getPort() &&
-              hostAndPort.getHost().equals(channel.getServerAddress().getHost())) {
-
-              IClusterNodeServer nodeServer = CloudNet.getInstance().getClusterNodeServerProvider().getNodeServers()
-                .stream()
-                .filter(clusterNodeServer -> clusterNodeServer.getNodeInfo().getUniqueId().equals(node.getUniqueId()))
-                .findFirst().orElse(null);
-
-              if (nodeServer != null && nodeServer.isAcceptableConnection(channel, node.getUniqueId())) {
-                nodeServer.setChannel(channel);
-                ClusterUtils.sendSetupInformationPackets(channel);
-
-                CloudNetDriver.getInstance().getEventManager()
-                  .callEvent(new NetworkChannelAuthClusterNodeSuccessEvent(nodeServer, channel));
-
-                LOGGER.info(
-                  LanguageManager.getMessage("cluster-server-networking-connected")
-                    .replace("%id%", node.getUniqueId())
-                    .replace("%serverAddress%",
-                      channel.getServerAddress().getHost() + ":" + channel.getServerAddress().getPort())
-                    .replace("%clientAddress%",
-                      channel.getClientAddress().getHost() + ":" + channel.getClientAddress().getPort())
-                );
-                break;
-              }
-            }
-          }
-        }
-      } else {
-        LOGGER.warning(LanguageManager.getMessage("cluster-server-networking-authorization-failed"));
-      }
+    // check if the auth was successful
+    if (packet.getContent().readBoolean()) {
+      // search for the node to which the auth succeeded
+      CloudNet.getInstance().getConfig().getClusterConfig().getNodes().stream()
+        .filter(node -> Arrays.stream(node.getListeners()).anyMatch(host -> channel.getServerAddress().equals(host)))
+        .map(node -> CloudNet.getInstance().getClusterNodeServerProvider().getNodeServer(node.getUniqueId()))
+        .filter(Objects::nonNull)
+        .filter(node -> node.isAcceptableConnection(channel, node.getNodeInfo().getUniqueId()))
+        .findFirst()
+        .ifPresent(nodeServer -> {
+          // init the node server
+          nodeServer.setChannel(channel);
+          channel.sendPacket(new PacketServerSetGlobalServiceInfoList(
+            CloudNet.getInstance().getCloudServiceManager().getCloudServices()));
+        });
+    } else {
+      LOGGER.warning(LanguageManager.getMessage("cluster-server-networking-authorization-failed"));
     }
   }
 }
