@@ -48,10 +48,10 @@ public class ChannelMessage {
   private String message;
 
   private DataBuf content;
-  private ChannelMessageSender sender;
+  private final ChannelMessageSender sender;
 
   private JsonDocument json = JsonDocument.EMPTY;
-  private Collection<ChannelMessageTarget> targets;
+  private final Collection<ChannelMessageTarget> targets;
 
   protected ChannelMessage(@NotNull ChannelMessageSender sender) {
     this.sender = sender;

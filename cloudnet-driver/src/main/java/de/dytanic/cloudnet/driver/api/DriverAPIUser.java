@@ -23,8 +23,10 @@ import de.dytanic.cloudnet.driver.network.def.packet.PacketClientDriverAPI;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import java.util.function.Consumer;
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 
 @Deprecated
+@ScheduledForRemoval
 public interface DriverAPIUser {
 
   INetworkChannel getNetworkChannel();

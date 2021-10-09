@@ -17,7 +17,7 @@
 package de.dytanic.cloudnet.cluster;
 
 import de.dytanic.cloudnet.CloudNet;
-import de.dytanic.cloudnet.command.DriverCommandSender;
+import de.dytanic.cloudnet.deleted.command.DriverCommandSender;
 import de.dytanic.cloudnet.driver.provider.service.CloudServiceFactory;
 import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;

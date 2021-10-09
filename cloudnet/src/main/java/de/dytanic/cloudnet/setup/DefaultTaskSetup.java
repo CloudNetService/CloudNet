@@ -17,7 +17,6 @@
 package de.dytanic.cloudnet.setup;
 
 import de.dytanic.cloudnet.CloudNet;
-import de.dytanic.cloudnet.command.sub.SubCommandArgumentTypes;
 import de.dytanic.cloudnet.common.JavaVersion;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.language.LanguageManager;
@@ -28,6 +27,7 @@ import de.dytanic.cloudnet.console.animation.questionlist.QuestionListEntry;
 import de.dytanic.cloudnet.console.animation.questionlist.answer.QuestionAnswerTypeBoolean;
 import de.dytanic.cloudnet.console.animation.questionlist.answer.QuestionAnswerTypeEnum;
 import de.dytanic.cloudnet.console.animation.questionlist.answer.QuestionAnswerTypeServiceVersion;
+import de.dytanic.cloudnet.deleted.command.sub.SubCommandArgumentTypes;
 import de.dytanic.cloudnet.driver.service.GroupConfiguration;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceTask;

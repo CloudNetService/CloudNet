@@ -49,6 +49,8 @@ dependencies {
   api group: 'io.jsonwebtoken', name: 'jjwt-api', version: dependencyJJWTVersion
   api group: 'io.jsonwebtoken', name: 'jjwt-impl', version: dependencyJJWTVersion
   api group: 'io.jsonwebtoken', name: 'jjwt-gson', version: dependencyJJWTVersion
+  api group: 'cloud.commandframework', name: 'cloud-core', version: '1.5.0'
+  api group: 'cloud.commandframework', name: 'cloud-annotations', version: '1.5.0'
   // just for slf4j to disable the warning message
   api group: 'org.slf4j', name: 'slf4j-nop', version: dependencySlf4jVersion
 }

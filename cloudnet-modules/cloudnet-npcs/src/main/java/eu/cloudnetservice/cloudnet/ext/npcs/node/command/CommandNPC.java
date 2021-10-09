@@ -16,14 +16,14 @@
 
 package eu.cloudnetservice.cloudnet.ext.npcs.node.command;
 
-import static de.dytanic.cloudnet.command.sub.SubCommandArgumentTypes.anyStringIgnoreCase;
-import static de.dytanic.cloudnet.command.sub.SubCommandArgumentTypes.dynamicString;
-import static de.dytanic.cloudnet.command.sub.SubCommandArgumentTypes.exactStringIgnoreCase;
+import static de.dytanic.cloudnet.deleted.command.sub.SubCommandArgumentTypes.anyStringIgnoreCase;
+import static de.dytanic.cloudnet.deleted.command.sub.SubCommandArgumentTypes.dynamicString;
+import static de.dytanic.cloudnet.deleted.command.sub.SubCommandArgumentTypes.exactStringIgnoreCase;
 
 import de.dytanic.cloudnet.CloudNet;
-import de.dytanic.cloudnet.command.sub.SubCommandBuilder;
-import de.dytanic.cloudnet.command.sub.SubCommandHandler;
 import de.dytanic.cloudnet.common.language.LanguageManager;
+import de.dytanic.cloudnet.deleted.command.sub.SubCommandBuilder;
+import de.dytanic.cloudnet.deleted.command.sub.SubCommandHandler;
 import de.dytanic.cloudnet.driver.service.GroupConfiguration;
 import eu.cloudnetservice.cloudnet.ext.npcs.configuration.NPCConfiguration;
 import eu.cloudnetservice.cloudnet.ext.npcs.configuration.NPCConfigurationEntry;

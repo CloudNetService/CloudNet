@@ -16,9 +16,9 @@
 
 package de.dytanic.cloudnet.examples.node;
 
-import de.dytanic.cloudnet.command.Command;
-import de.dytanic.cloudnet.command.ICommandSender;
 import de.dytanic.cloudnet.common.Properties;
+import de.dytanic.cloudnet.deleted.command.Command;
+import de.dytanic.cloudnet.deleted.command.ICommandSender;
 
 public final class ExampleCommand extends Command {
 

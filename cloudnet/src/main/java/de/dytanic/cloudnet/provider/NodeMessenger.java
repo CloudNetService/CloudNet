@@ -186,9 +186,9 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
   public void sendChannelMessage(@NotNull ChannelMessage channelMessage, boolean serviceOnly) {
     if (channelMessage.getTargets().stream()
       .anyMatch(target -> target.includesNode(CloudNetDriver.getInstance().getComponentName()))) {
-      channelMessage.getBuffer().markReaderIndex();
+      channelMessage.getContent().startTransaction();
       CloudNetDriver.getInstance().getEventManager().callEvent(new ChannelMessageReceiveEvent(channelMessage, false));
-      channelMessage.getBuffer().resetReaderIndex();
+      channelMessage.getContent().redoTransaction();
     }
 
     Collection<ChannelMessageTargetChannel> channels = this
@@ -215,7 +215,7 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
 
     if (channelMessage.getTargets().stream()
       .anyMatch(target -> target.includesNode(CloudNetDriver.getInstance().getComponentName()))) {
-      channelMessage.getBuffer().markReaderIndex();
+      channelMessage.getContent().startTransaction();
 
       ChannelMessage queryResponse = CloudNetDriver.getInstance().getEventManager()
         .callEvent(new ChannelMessageReceiveEvent(channelMessage, true)).getQueryResponse();
@@ -223,7 +223,7 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
         result.add(queryResponse);
       }
 
-      channelMessage.getBuffer().resetReaderIndex();
+      channelMessage.getContent().redoTransaction();
     }
 
     Collection<ChannelMessageTargetChannel> channels = this
@@ -236,7 +236,7 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
     CountingTask<Collection<ChannelMessage>> task = new CountingTask<>(result, channels.size());
 
     for (ChannelMessageTargetChannel channel : channels) {
-      channelMessage.getBuffer().markReaderIndex();
+      channelMessage.getContent().startTransaction();
       IPacket packet = new PacketClientServerChannelMessage(channelMessage, true);
 
       channel.getChannel().sendQueryAsync(packet).onComplete(response -> {
@@ -250,7 +250,7 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
         }
         task.countDown();
       });
-      channelMessage.getBuffer().resetReaderIndex();
+      channelMessage.getContent().redoTransaction();
     }
 
     return task;

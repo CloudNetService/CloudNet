@@ -17,11 +17,11 @@
 package de.dytanic.cloudnet.console;
 
 import de.dytanic.cloudnet.CloudNet;
-import de.dytanic.cloudnet.command.ITabCompleter;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.console.animation.AbstractConsoleAnimation;
+import de.dytanic.cloudnet.deleted.command.ITabCompleter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;

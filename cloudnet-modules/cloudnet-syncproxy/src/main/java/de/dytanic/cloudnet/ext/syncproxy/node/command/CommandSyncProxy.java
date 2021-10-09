@@ -16,18 +16,18 @@
 
 package de.dytanic.cloudnet.ext.syncproxy.node.command;
 
-import static de.dytanic.cloudnet.command.sub.SubCommandArgumentTypes.anyStringIgnoreCase;
-import static de.dytanic.cloudnet.command.sub.SubCommandArgumentTypes.bool;
-import static de.dytanic.cloudnet.command.sub.SubCommandArgumentTypes.dynamicString;
-import static de.dytanic.cloudnet.command.sub.SubCommandArgumentTypes.exactStringIgnoreCase;
-import static de.dytanic.cloudnet.command.sub.SubCommandArgumentTypes.positiveInteger;
+import static de.dytanic.cloudnet.deleted.command.sub.SubCommandArgumentTypes.anyStringIgnoreCase;
+import static de.dytanic.cloudnet.deleted.command.sub.SubCommandArgumentTypes.bool;
+import static de.dytanic.cloudnet.deleted.command.sub.SubCommandArgumentTypes.dynamicString;
+import static de.dytanic.cloudnet.deleted.command.sub.SubCommandArgumentTypes.exactStringIgnoreCase;
+import static de.dytanic.cloudnet.deleted.command.sub.SubCommandArgumentTypes.positiveInteger;
 
 import de.dytanic.cloudnet.CloudNet;
-import de.dytanic.cloudnet.command.ICommandSender;
-import de.dytanic.cloudnet.command.sub.SubCommandBuilder;
-import de.dytanic.cloudnet.command.sub.SubCommandHandler;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.language.LanguageManager;
+import de.dytanic.cloudnet.deleted.command.ICommandSender;
+import de.dytanic.cloudnet.deleted.command.sub.SubCommandBuilder;
+import de.dytanic.cloudnet.deleted.command.sub.SubCommandHandler;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.service.GroupConfiguration;
 import de.dytanic.cloudnet.ext.syncproxy.SyncProxyConstants;

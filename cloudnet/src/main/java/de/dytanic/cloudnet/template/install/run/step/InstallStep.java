@@ -16,6 +16,7 @@
 
 package de.dytanic.cloudnet.template.install.run.step;
 
+import de.dytanic.cloudnet.deleted.command.commands.CommandTemplate;
 import de.dytanic.cloudnet.template.install.run.InstallInformation;
 import de.dytanic.cloudnet.template.install.run.step.executor.BuildStepExecutor;
 import de.dytanic.cloudnet.template.install.run.step.executor.CopyFilterStepExecutor;
@@ -31,7 +32,7 @@ import org.jetbrains.annotations.NotNull;
 
 /**
  * This constant provides implementations for different install steps needed for {@link
- * de.dytanic.cloudnet.command.commands.CommandTemplate}
+ * CommandTemplate}
  */
 public enum InstallStep {
   DOWNLOAD(new DownloadStepExecutor()),

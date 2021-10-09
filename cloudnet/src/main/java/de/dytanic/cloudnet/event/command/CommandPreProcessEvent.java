@@ -16,7 +16,7 @@
 
 package de.dytanic.cloudnet.event.command;
 
-import de.dytanic.cloudnet.command.ICommandSender;
+import de.dytanic.cloudnet.deleted.command.ICommandSender;
 import de.dytanic.cloudnet.driver.event.Event;
 import de.dytanic.cloudnet.driver.event.ICancelable;
 
