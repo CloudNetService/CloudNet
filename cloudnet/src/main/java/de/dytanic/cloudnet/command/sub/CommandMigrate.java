@@ -16,15 +16,24 @@
 
 package de.dytanic.cloudnet.command.sub;
 
+import cloud.commandframework.annotations.Argument;
+import cloud.commandframework.annotations.CommandMethod;
+import cloud.commandframework.annotations.Flag;
 import cloud.commandframework.annotations.parsers.Parser;
 import cloud.commandframework.context.CommandContext;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.command.exception.SyntaxException;
 import de.dytanic.cloudnet.command.source.CommandSource;
+import de.dytanic.cloudnet.common.concurrent.function.ThrowableConsumer;
+import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.database.AbstractDatabaseProvider;
+import de.dytanic.cloudnet.driver.database.Database;
 import java.util.Queue;
+import org.jetbrains.annotations.NotNull;
 
 public class CommandMigrate {
+
+  private static final int DEFAULT_CHUNK_SIZE = 100;
 
   @Parser
   public AbstractDatabaseProvider defaultDatabaseProviderParser(CommandContext<CommandSource> sender,
@@ -36,6 +45,65 @@ public class CommandMigrate {
       throw new SyntaxException("we dont have this");
     }
     return abstractDatabaseProvider;
+  }
+
+  @CommandMethod("migrate database <database-from> <database-to>")
+  public void migrateDatabase(
+    CommandSource source,
+    @Argument("database-from") AbstractDatabaseProvider sourceDatabaseProvider,
+    @Argument("database-to") AbstractDatabaseProvider targetDatabaseProvider,
+    @Flag("chunk-size") Integer chunkSize
+  ) {
+    if (sourceDatabaseProvider.equals(targetDatabaseProvider)) {
+      source.sendMessage("Target and source are same");
+      return;
+    }
+
+    if (chunkSize == null || chunkSize <= 0) {
+      chunkSize = DEFAULT_CHUNK_SIZE;
+    }
+
+    if (!this.executeIfNotCurrentProvider(sourceDatabaseProvider, AbstractDatabaseProvider::init)
+      || this.executeIfNotCurrentProvider(targetDatabaseProvider, AbstractDatabaseProvider::init)) {
+      return;
+    }
+
+    try {
+      for (String databaseName : sourceDatabaseProvider.getDatabaseNames()) {
+        source.sendMessage(
+          LanguageManager.getMessage("command-migrate-current-database").replace("%db%", databaseName));
+
+        Database sourceDatabase = sourceDatabaseProvider.getDatabase(databaseName);
+        Database targetDatabase = targetDatabaseProvider.getDatabase(databaseName);
+
+        sourceDatabase.iterate(targetDatabase::insert, chunkSize);
+      }
+    } catch (Exception exception) {
+      CloudNet.getInstance().getLogger().error(
+        LanguageManager.getMessage("command-migrate-database-connection-failed"), exception);
+      return;
+    }
+
+    executeIfNotCurrentProvider(sourceDatabaseProvider, AbstractDatabaseProvider::close);
+    executeIfNotCurrentProvider(targetDatabaseProvider, AbstractDatabaseProvider::close);
+
+    source.sendMessage(LanguageManager.getMessage("command-migrate-success")
+      .replace("%source%", sourceDatabaseProvider.getName())
+      .replace("%target%", targetDatabaseProvider.getName()));
+  }
+
+  private boolean executeIfNotCurrentProvider(@NotNull AbstractDatabaseProvider sourceProvider,
+    @NotNull ThrowableConsumer<AbstractDatabaseProvider, ?> handler) {
+    if (!CloudNet.getInstance().getDatabaseProvider().equals(sourceProvider)) {
+      try {
+        handler.accept(sourceProvider);
+      } catch (Throwable throwable) {
+        CloudNet.getInstance().getLogger().error(
+          LanguageManager.getMessage("command-migrate-database-connection-failed"), throwable);
+        return false;
+      }
+    }
+    return true;
   }
 
 }
