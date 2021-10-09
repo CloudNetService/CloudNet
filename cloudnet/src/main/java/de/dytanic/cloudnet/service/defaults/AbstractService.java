@@ -149,7 +149,14 @@ public abstract class AbstractService implements ICloudService {
 
   @Override
   public @Nullable ServiceInfoSnapshot forceUpdateServiceInfo() {
-    return null;
+    return ChannelMessage.builder()
+      .targetService(this.getServiceId().getName())
+      .message("request_update_service_information")
+      .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
+      .build()
+      .sendSingleQuery()
+      .getContent()
+      .readObject(ServiceInfoSnapshot.class);
   }
 
   @Override
@@ -366,8 +373,11 @@ public abstract class AbstractService implements ICloudService {
   public void setNetworkChannel(@Nullable INetworkChannel channel) {
     Preconditions.checkArgument(this.networkChannel == null || channel == null);
     // close the channel if the new channel is null
-    if (channel == null && this.networkChannel != null) {
+    if (this.networkChannel != null) {
       this.networkChannel.close();
+      this.currentServiceInfo.setConnectedTime(0);
+    } else {
+      this.currentServiceInfo.setConnectedTime(System.currentTimeMillis());
     }
     // set the new channel
     this.networkChannel = channel;

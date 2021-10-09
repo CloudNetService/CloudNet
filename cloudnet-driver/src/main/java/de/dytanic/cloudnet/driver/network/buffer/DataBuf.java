@@ -16,6 +16,7 @@
 
 package de.dytanic.cloudnet.driver.network.buffer;
 
+import java.lang.reflect.Type;
 import java.util.UUID;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -56,12 +57,9 @@ public interface DataBuf {
 
   @NotNull DataBuf readDataBuf();
 
-  /**
-   * @param type
-   * @param <T>
-   * @return WENN NULL REIN DANN NULL RAUS (~ derklaro)
-   */
   <T> T readObject(@NotNull Class<T> type);
+
+  <T> T readObject(@NotNull Type type);
 
   @Nullable <T> T readNullable(@NotNull Function<DataBuf, T> readerWhenNonNull);
 
@@ -116,7 +114,7 @@ public interface DataBuf {
     @NotNull DataBuf.Mutable writeObject(@Nullable Object obj);
 
     @NotNull <T> DataBuf.Mutable writeNullable(@Nullable T object,
-      @NotNull BiConsumer<DataBuf.Mutable, T> handlerWhenNonNull);
+        @NotNull BiConsumer<DataBuf.Mutable, T> handlerWhenNonNull);
 
     // utility for reading
 

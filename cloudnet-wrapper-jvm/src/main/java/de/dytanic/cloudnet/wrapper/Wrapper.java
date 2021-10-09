@@ -30,12 +30,9 @@ import de.dytanic.cloudnet.driver.module.IModuleWrapper;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.INetworkClient;
 import de.dytanic.cloudnet.driver.network.def.NetworkConstants;
-import de.dytanic.cloudnet.driver.network.def.packet.PacketServerSetGlobalLogLevel;
 import de.dytanic.cloudnet.driver.network.netty.client.NettyNetworkClient;
 import de.dytanic.cloudnet.driver.network.rpc.RPCSender;
 import de.dytanic.cloudnet.driver.provider.service.RemoteCloudServiceFactory;
-import de.dytanic.cloudnet.driver.provider.service.RemoteSpecificCloudServiceProvider;
-import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
 import de.dytanic.cloudnet.driver.service.ProcessSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
 import de.dytanic.cloudnet.driver.service.ServiceId;
@@ -71,7 +68,6 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.logging.Level;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
@@ -202,7 +198,6 @@ public final class Wrapper extends CloudNetDriver {
     }
 
     this.scheduler.shutdownNow();
-    this.taskScheduler.shutdown();
     this.moduleProvider.unloadAll();
     this.eventManager.unregisterAll();
     this.servicesRegistry.unregisterAll();
@@ -249,40 +244,6 @@ public final class Wrapper extends CloudNetDriver {
   @Override
   public @NotNull ITask<Collection<TemplateStorage>> getAvailableTemplateStoragesAsync() {
     return CompletableTask.supplyAsync(this::getAvailableTemplateStorages);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public @NotNull SpecificCloudServiceProvider getCloudServiceProvider(@NotNull String name) {
-    return new RemoteSpecificCloudServiceProvider(this.getCloudServiceProvider(), this.rpcSender, name);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public @NotNull SpecificCloudServiceProvider getCloudServiceProvider(@NotNull UUID uniqueId) {
-    return new RemoteSpecificCloudServiceProvider(this.getCloudServiceProvider(), this.rpcSender, uniqueId);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public @NotNull SpecificCloudServiceProvider getCloudServiceProvider(
-    @NotNull ServiceInfoSnapshot serviceInfoSnapshot) {
-    return new RemoteSpecificCloudServiceProvider(this.getCloudServiceProvider(), this.rpcSender,
-      serviceInfoSnapshot.getServiceId().getUniqueId());
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public void setGlobalLogLevel(Level logLevel) {
-    this.networkClient.sendPacket(new PacketServerSetGlobalLogLevel(logLevel.getName()));
   }
 
   /**

@@ -16,140 +16,185 @@
 
 package de.dytanic.cloudnet.provider;
 
-import com.google.common.base.Preconditions;
+import aerogel.Singleton;
+import aerogel.auto.Provides;
 import com.google.gson.reflect.TypeToken;
-import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
-import de.dytanic.cloudnet.driver.network.NetworkUpdateType;
+import de.dytanic.cloudnet.common.io.FileUtils;
+import de.dytanic.cloudnet.driver.channel.ChannelMessage;
+import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
+import de.dytanic.cloudnet.driver.network.def.NetworkConstants;
 import de.dytanic.cloudnet.driver.provider.GroupConfigurationProvider;
 import de.dytanic.cloudnet.driver.service.GroupConfiguration;
 import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnmodifiableView;
 
+@Singleton
+@Provides(GroupConfigurationProvider.class)
 public class NodeGroupConfigurationProvider implements GroupConfigurationProvider {
 
-  private static final Path GROUPS_FILE = Paths
-    .get(System.getProperty("cloudnet.config.groups.path", "local/groups.json"));
+  private static final Path OLD_GROUPS_FILE = Paths.get(
+    System.getProperty("cloudnet.config.groups.path", "local/groups.json"));
+  private static final Path GROUP_DIRECTORY_PATH = Paths.get(
+    System.getProperty("cloudnet.config.groups.directory.path", "local/groups"));
+
   private static final Type TYPE = TypeToken.getParameterized(Collection.class, GroupConfiguration.class).getType();
 
-  private final CloudNet cloudNet;
+  private final Set<GroupConfiguration> groupConfigurations = ConcurrentHashMap.newKeySet();
 
-  private final Collection<GroupConfiguration> groups = new CopyOnWriteArrayList<>();
-
-  public NodeGroupConfigurationProvider(CloudNet cloudNet) {
-    this.cloudNet = cloudNet;
-  }
-
-  public boolean isFileCreated() {
-    return Files.exists(GROUPS_FILE);
-  }
-
-  private void loadGroups() {
-    this.groups.clear();
-    JsonDocument document = JsonDocument.newDocument(GROUPS_FILE);
-    if (document.contains("groups")) {
-      this.groups.addAll(document.get("groups", TYPE));
+  public NodeGroupConfigurationProvider() {
+    if (Files.exists(GROUP_DIRECTORY_PATH)) {
+      this.loadGroupConfigurations();
+    } else {
+      FileUtils.createDirectoryReported(GROUP_DIRECTORY_PATH);
     }
-  }
-
-  public void writeGroups() {
-    new JsonDocument().append("groups", this.groups).write(GROUPS_FILE);
+    // run the conversion of the old file
+    this.upgrade();
   }
 
   @Override
   public void reload() {
-    this.loadGroups();
+    // clear the local cache
+    this.groupConfigurations.clear();
+    // load the group files
+    this.loadGroupConfigurations();
   }
 
   @Override
-  public Collection<GroupConfiguration> getGroupConfigurations() {
-    return Collections.unmodifiableCollection(this.groups);
+  public @NotNull @UnmodifiableView Collection<GroupConfiguration> getGroupConfigurations() {
+    return Collections.unmodifiableCollection(this.groupConfigurations);
   }
 
   @Override
   public void setGroupConfigurations(@NotNull Collection<GroupConfiguration> groupConfigurations) {
-    this.setGroupConfigurationsWithoutClusterSync(groupConfigurations);
-    this.cloudNet.updateGroupConfigurationsInCluster(groupConfigurations, NetworkUpdateType.SET);
+    // update the local cache
+    this.groupConfigurations.clear();
+    this.groupConfigurations.addAll(groupConfigurations);
+    // save the group files
+    this.writeAllGroupConfigurations();
+    // publish the change to the cluster
+    ChannelMessage.builder()
+      .targetAll()
+      .message("set_group_configurations")
+      .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
+      .buffer(DataBuf.empty().writeObject(groupConfigurations))
+      .build()
+      .send();
   }
 
-  public void setGroupConfigurationsWithoutClusterSync(Collection<GroupConfiguration> groupConfigurations) {
-    this.groups.clear();
-    this.groups.addAll(groupConfigurations);
-    this.writeGroups();
-  }
-
-  @Nullable
   @Override
-  public GroupConfiguration getGroupConfiguration(@NotNull String name) {
-    Preconditions.checkNotNull(name);
-
-    return this.getGroupConfigurations().stream()
-      .filter(groupConfiguration -> groupConfiguration.getName().equalsIgnoreCase(name)).findFirst().orElse(null);
+  public @Nullable GroupConfiguration getGroupConfiguration(@NotNull String name) {
+    return this.groupConfigurations.stream()
+      .filter(group -> group.getName().equals(name))
+      .findFirst()
+      .orElse(null);
   }
 
   @Override
   public boolean isGroupConfigurationPresent(@NotNull String name) {
-    Preconditions.checkNotNull(name);
-
-    return this.getGroupConfiguration(name) != null;
+    return this.groupConfigurations.stream().anyMatch(group -> group.getName().equals(name));
   }
 
   @Override
   public void addGroupConfiguration(@NotNull GroupConfiguration groupConfiguration) {
-    Preconditions.checkNotNull(groupConfiguration);
-
-    this.addGroupConfigurationWithoutClusterSync(groupConfiguration);
-    CloudNet.getInstance()
-      .updateGroupConfigurationsInCluster(Collections.singletonList(groupConfiguration), NetworkUpdateType.ADD);
-  }
-
-  public void addGroupConfigurationWithoutClusterSync(@NotNull GroupConfiguration groupConfiguration) {
-    Preconditions.checkNotNull(groupConfiguration);
-
-    for (GroupConfiguration group : this.groups) {
-      if (group.getName().equalsIgnoreCase(groupConfiguration.getName())) {
-        this.groups.remove(groupConfiguration);
-      }
-    }
-
-    this.groups.add(groupConfiguration);
-    this.writeGroups();
+    // add the group to the local cache
+    this.groupConfigurations.add(groupConfiguration);
+    // store the configuration files
+    this.writeAllGroupConfigurations();
+    // publish the change to the cluster
+    ChannelMessage.builder()
+      .targetAll()
+      .message("add_group_configuration")
+      .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
+      .buffer(DataBuf.empty().writeObject(groupConfiguration))
+      .build()
+      .send();
   }
 
   @Override
   public void removeGroupConfiguration(@NotNull String name) {
-    Preconditions.checkNotNull(name);
-
-    GroupConfiguration configuration = this.removeGroupConfigurationWithoutClusterSync(name);
-    if (configuration != null) {
-      this.cloudNet
-        .updateGroupConfigurationsInCluster(Collections.singletonList(configuration), NetworkUpdateType.REMOVE);
-    }
-  }
-
-  public GroupConfiguration removeGroupConfigurationWithoutClusterSync(@NotNull String name) {
-    Preconditions.checkNotNull(name);
-
     GroupConfiguration configuration = this.getGroupConfiguration(name);
     if (configuration != null) {
-      this.groups.remove(configuration);
-      this.writeGroups();
+      this.removeGroupConfiguration(configuration);
     }
-
-    return configuration;
   }
 
   @Override
   public void removeGroupConfiguration(@NotNull GroupConfiguration groupConfiguration) {
-    Preconditions.checkNotNull(groupConfiguration);
+    // remove the group from the cache
+    this.groupConfigurations.remove(groupConfiguration);
+    // remove the local file
+    FileUtils.delete(this.getGroupFile(groupConfiguration));
+    // publish the change to the cluster
+    ChannelMessage.builder()
+      .targetAll()
+      .message("remove_group_configuration")
+      .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
+      .buffer(DataBuf.empty().writeObject(groupConfiguration))
+      .build()
+      .send();
+  }
 
-    this.removeGroupConfiguration(groupConfiguration.getName());
+  @Internal
+  private void upgrade() {
+    if (Files.exists(OLD_GROUPS_FILE)) {
+      // read all groups from the old file
+      Collection<GroupConfiguration> oldConfigurations = JsonDocument.newDocument(OLD_GROUPS_FILE).get("groups", TYPE);
+      // add all configurations to the current configurations
+      this.groupConfigurations.addAll(oldConfigurations);
+      // save the new configurations
+      this.writeAllGroupConfigurations();
+      // delete the old file
+      FileUtils.delete(OLD_GROUPS_FILE);
+    }
+  }
+
+  protected @NotNull Path getGroupFile(@NotNull GroupConfiguration configuration) {
+    return GROUP_DIRECTORY_PATH.resolve(configuration.getName() + ".json");
+  }
+
+  protected void writeGroupConfiguration(@NotNull GroupConfiguration configuration) {
+    JsonDocument.newDocument(configuration).write(this.getGroupFile(configuration));
+  }
+
+  protected void writeAllGroupConfigurations() {
+    // write all configurations
+    for (GroupConfiguration configuration : this.groupConfigurations) {
+      this.writeGroupConfiguration(configuration);
+    }
+    // delete all group files which do not exist anymore
+    FileUtils.walkFileTree(GROUP_DIRECTORY_PATH, ($, file) -> {
+      // check if we know the file name
+      String groupName = file.getFileName().toString().replace(".json", "");
+      if (this.groupConfigurations.stream().noneMatch(group -> groupName.equals(group.getName()))) {
+        FileUtils.delete(file);
+      }
+    }, false, "*.json");
+  }
+
+  protected void loadGroupConfigurations() {
+    FileUtils.walkFileTree(GROUP_DIRECTORY_PATH, ($, file) -> {
+      // load the group
+      GroupConfiguration group = JsonDocument.newDocument(file).toInstanceOf(GroupConfiguration.class);
+      // check if the file name is still up-to-date
+      String groupName = file.getFileName().toString().replace(".json", "");
+      if (!groupName.equals(group.getName())) {
+        // rename the file
+        FileUtils.move(file, this.getGroupFile(group), StandardCopyOption.REPLACE_EXISTING);
+      }
+      // cache the task
+      this.groupConfigurations.add(group);
+    }, false, "*.json");
   }
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.network.listener.auth;
+package de.dytanic.cloudnet.network.listener;
 
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.language.LanguageManager;
@@ -23,7 +23,6 @@ import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.network.protocol.IPacketListener;
-import de.dytanic.cloudnet.network.packet.PacketServerSetGlobalServiceInfoList;
 import java.util.Arrays;
 import java.util.Objects;
 

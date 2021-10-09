@@ -16,12 +16,12 @@
 
 package de.dytanic.cloudnet.permission.command;
 
-import de.dytanic.cloudnet.command.ICommandSender;
 import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
 import de.dytanic.cloudnet.driver.permission.IPermissionUser;
 import java.util.Queue;
 
-public interface IPermissionUserCommandSender extends ICommandSender {
+// TODO: do we need this?
+public interface IPermissionUserCommandSender {
 
   Queue<String> getWrittenMessages();
 

@@ -54,8 +54,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class DefaultObjectMapper implements ObjectMapper {
 
-  public static final ObjectMapper DEFAULT_MAPPER = new DefaultObjectMapper();
-
+  public static final ObjectMapper DEFAULT_MAPPER;
   private static final Map<Type, ObjectSerializer<?>> DEFAULT_SERIALIZERS = ImmutableMap.<Type, ObjectSerializer<?>>builder()
     //    ==== primitive types ====
     // boolean
@@ -106,6 +105,11 @@ public class DefaultObjectMapper implements ObjectMapper {
     .put(Enum.class, new EnumObjectSerializer())
     .put(Object.class, new DataClassSerializer())
     .build();
+
+  static {
+    // This is required as IJ wants the field ABOVE the map with the default types which results in an error
+    DEFAULT_MAPPER = new DefaultObjectMapper();
+  }
 
   private final Map<Type, TypeToken<?>> typeTokenCache = new ConcurrentHashMap<>();
   private final Map<Type, ObjectSerializer<?>> registeredSerializers = new ConcurrentHashMap<>();

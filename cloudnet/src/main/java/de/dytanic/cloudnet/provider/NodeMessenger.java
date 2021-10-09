@@ -16,265 +16,206 @@
 
 package de.dytanic.cloudnet.provider;
 
-import de.dytanic.cloudnet.CloudNet;
+import aerogel.Inject;
+import aerogel.Singleton;
+import aerogel.auto.Provides;
+import com.google.common.collect.Iterables;
+import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.cluster.IClusterNodeServer;
-import de.dytanic.cloudnet.common.concurrent.CompletedTask;
+import de.dytanic.cloudnet.cluster.IClusterNodeServerProvider;
 import de.dytanic.cloudnet.common.concurrent.CountingTask;
 import de.dytanic.cloudnet.common.concurrent.ITask;
-import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;
-import de.dytanic.cloudnet.driver.channel.ChannelMessageSender;
 import de.dytanic.cloudnet.driver.channel.ChannelMessageTarget;
-import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
-import de.dytanic.cloudnet.driver.network.def.packet.PacketClientServerChannelMessage;
-import de.dytanic.cloudnet.driver.network.protocol.IPacket;
-import de.dytanic.cloudnet.driver.network.rpc.defaults.object.DefaultObjectMapper;
+import de.dytanic.cloudnet.driver.network.protocol.Packet;
 import de.dytanic.cloudnet.driver.provider.CloudMessenger;
 import de.dytanic.cloudnet.driver.provider.DefaultMessenger;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
+import de.dytanic.cloudnet.network.packet.PacketServerChannelMessage;
 import de.dytanic.cloudnet.service.ICloudService;
-import java.util.ArrayList;
+import de.dytanic.cloudnet.service.ICloudServiceManager;
+import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
 
+@Singleton
+@Provides(CloudMessenger.class)
 public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
 
-  private final CloudNet cloudNet;
+  protected static final Type COL_MSG = TypeToken.getParameterized(Collection.class, ChannelMessage.class).getType();
 
-  public NodeMessenger(CloudNet cloudNet) {
-    this.cloudNet = cloudNet;
-  }
+  protected final ICloudServiceManager cloudServiceManager;
+  protected final IClusterNodeServerProvider nodeServerProvider;
 
-  public Collection<ChannelMessageTargetChannel> getTargetChannels(ChannelMessageSender sender,
-    Collection<ChannelMessageTarget> targets, boolean serviceOnly) {
-    Collection<ChannelMessageTargetChannel> allChannels = new ArrayList<>();
-    for (ChannelMessageTarget target : targets) {
-      Collection<ChannelMessageTargetChannel> channels = this.getTargetChannels(sender, target, serviceOnly);
-      if (channels != null) {
-        allChannels.addAll(channels);
-      }
-    }
-    return allChannels;
-  }
-
-  public Collection<ChannelMessageTargetChannel> getTargetChannels(ChannelMessageSender sender,
-    ChannelMessageTarget target, boolean serviceOnly) {
-    switch (target.getType()) {
-      case NODE: {
-        if (serviceOnly) {
-          return null;
-        }
-        if (target.getName() == null) {
-          Collection<ChannelMessageTargetChannel> channels = new ArrayList<>();
-          for (IClusterNodeServer server : this.cloudNet.getClusterNodeServerProvider().getNodeServers()) {
-            if (server.getChannel() != null) {
-              channels.add(new ChannelMessageTargetChannel(server.getChannel(), true));
-            }
-          }
-          return channels;
-        }
-
-        IClusterNodeServer server = this.cloudNet.getClusterNodeServerProvider().getNodeServer(target.getName());
-        return server != null ? Collections.singletonList(new ChannelMessageTargetChannel(server.getChannel(), true))
-          : null;
-      }
-      case TASK: {
-        if (target.getName() == null) {
-          return this.getAll(sender, serviceOnly);
-        }
-        Collection<ServiceInfoSnapshot> services = this.cloudNet.getCloudServiceProvider()
-          .getCloudServices(target.getName());
-        return this.getSendersFromServices(services, serviceOnly);
-      }
-      case GROUP: {
-        if (target.getName() == null) {
-          return this.getAll(sender, serviceOnly);
-        }
-        Collection<ServiceInfoSnapshot> services = this.cloudNet.getCloudServiceProvider()
-          .getCloudServicesByGroup(target.getName());
-        return this.getSendersFromServices(services, serviceOnly);
-      }
-      case SERVICE: {
-        if (target.getName() == null) {
-          return this.getAll(sender, serviceOnly);
-        }
-        ServiceInfoSnapshot service = this.cloudNet.getCloudServiceProvider().getCloudServiceByName(target.getName());
-        if (service == null) {
-          return null;
-        }
-        ICloudService localService = this.cloudNet.getCloudServiceManager()
-          .getCloudService(service.getServiceId().getUniqueId());
-        if (localService != null) {
-          return localService.getNetworkChannel() != null ? Collections
-            .singletonList(new ChannelMessageTargetChannel(localService.getNetworkChannel(), false)) : null;
-        }
-        if (serviceOnly) {
-          return null;
-        }
-        IClusterNodeServer server = this.cloudNet.getClusterNodeServerProvider()
-          .getNodeServer(service.getServiceId().getNodeUniqueId());
-        return server != null && server.getChannel() != null ? Collections
-          .singletonList(new ChannelMessageTargetChannel(server.getChannel(), true)) : null;
-      }
-      case ENVIRONMENT: {
-        Collection<ServiceInfoSnapshot> services = this.cloudNet.getCloudServiceProvider()
-          .getCloudServices(target.getEnvironment());
-        return this.getSendersFromServices(services, serviceOnly);
-      }
-      case ALL: {
-        return this.getAll(sender, serviceOnly);
-      }
-      default:
-        break;
-    }
-    return null;
-  }
-
-  private Collection<ChannelMessageTargetChannel> getAll(ChannelMessageSender sender, boolean serviceOnly) {
-    Collection<ChannelMessageTargetChannel> channels = new ArrayList<>();
-    for (ICloudService localService : this.cloudNet.getCloudServiceManager().getLocalCloudServices()) {
-      if (localService.getNetworkChannel() != null) {
-        channels.add(new ChannelMessageTargetChannel(localService.getNetworkChannel(), false));
-      }
-    }
-    if (!serviceOnly) {
-      for (IClusterNodeServer server : this.cloudNet.getClusterNodeServerProvider().getNodeServers()) {
-        if (server.getChannel() != null && !sender.isEqual(server.getNodeInfo())) {
-          channels.add(new ChannelMessageTargetChannel(server.getChannel(), true));
-        }
-      }
-    }
-    return channels;
-  }
-
-  private Collection<ChannelMessageTargetChannel> getSendersFromServices(Collection<ServiceInfoSnapshot> services,
-    boolean serviceOnly) {
-    if (services.isEmpty()) {
-      return Collections.emptyList();
-    }
-    Collection<ChannelMessageTargetChannel> channels = new ArrayList<>();
-    for (ServiceInfoSnapshot service : services) {
-      if (service.getServiceId().getNodeUniqueId().equals(this.cloudNet.getComponentName())) {
-        ICloudService localService = this.cloudNet.getCloudServiceManager()
-          .getCloudService(service.getServiceId().getUniqueId());
-        if (localService != null && localService.getNetworkChannel() != null) {
-          channels.add(new ChannelMessageTargetChannel(localService.getNetworkChannel(), false));
-        }
-      } else if (!serviceOnly) {
-        IClusterNodeServer server = this.cloudNet.getClusterNodeServerProvider()
-          .getNodeServer(service.getServiceId().getNodeUniqueId());
-        if (server == null || server.getChannel() == null) {
-          continue;
-        }
-        if (channels.stream().anyMatch(channel -> channel.getChannel().equals(server.getChannel()))) {
-          continue;
-        }
-        channels.add(new ChannelMessageTargetChannel(server.getChannel(), true));
-      }
-    }
-    return channels;
+  @Inject
+  public NodeMessenger(ICloudServiceManager cloudServiceManager, IClusterNodeServerProvider nodeServerProvider) {
+    this.cloudServiceManager = cloudServiceManager;
+    this.nodeServerProvider = nodeServerProvider;
   }
 
   @Override
-  public void sendChannelMessage(@NotNull ChannelMessage channelMessage) {
-    this.sendChannelMessage(channelMessage, false);
-  }
-
-  public void sendChannelMessage(@NotNull ChannelMessage channelMessage, boolean serviceOnly) {
-    if (channelMessage.getTargets().stream()
-      .anyMatch(target -> target.includesNode(CloudNetDriver.getInstance().getComponentName()))) {
-      channelMessage.getBuffer().markReaderIndex();
-      CloudNetDriver.getInstance().getEventManager().callEvent(new ChannelMessageReceiveEvent(channelMessage, false));
-      channelMessage.getBuffer().resetReaderIndex();
-    }
-
-    Collection<ChannelMessageTargetChannel> channels = this
-      .getTargetChannels(channelMessage.getSender(), channelMessage.getTargets(), serviceOnly);
-    if (channels == null || channels.isEmpty()) {
-      return;
-    }
-
-    IPacket packet = new PacketClientServerChannelMessage(channelMessage, false);
-    for (ChannelMessageTargetChannel channel : channels) {
-      channel.getChannel().sendPacket(packet);
-    }
+  public void sendChannelMessage(@NotNull ChannelMessage message) {
+    this.sendChannelMessage(message, true);
   }
 
   @Override
+  public @NotNull ITask<Collection<ChannelMessage>> sendChannelMessageQueryAsync(@NotNull ChannelMessage message) {
+    return this.sendChannelMessageQueryAsync(message, true);
+  }
+
+  public void sendChannelMessage(@NotNull ChannelMessage message, boolean allowClusterRedirect) {
+    for (INetworkChannel channel : this.findChannels(message.getTargets(), allowClusterRedirect)) {
+      channel.sendPacket(new PacketServerChannelMessage(message));
+    }
+  }
+
   public @NotNull ITask<Collection<ChannelMessage>> sendChannelMessageQueryAsync(
-    @NotNull ChannelMessage channelMessage) {
-    return this.sendChannelMessageQueryAsync(channelMessage, false);
-  }
-
-  public @NotNull ITask<Collection<ChannelMessage>> sendChannelMessageQueryAsync(@NotNull ChannelMessage channelMessage,
-    boolean serviceOnly) {
-    Collection<ChannelMessage> result = new CopyOnWriteArrayList<>();
-
-    if (channelMessage.getTargets().stream()
-      .anyMatch(target -> target.includesNode(CloudNetDriver.getInstance().getComponentName()))) {
-      channelMessage.getBuffer().markReaderIndex();
-
-      ChannelMessage queryResponse = CloudNetDriver.getInstance().getEventManager()
-        .callEvent(new ChannelMessageReceiveEvent(channelMessage, true)).getQueryResponse();
-      if (queryResponse != null) {
-        result.add(queryResponse);
-      }
-
-      channelMessage.getBuffer().resetReaderIndex();
-    }
-
-    Collection<ChannelMessageTargetChannel> channels = this
-      .getTargetChannels(channelMessage.getSender(), channelMessage.getTargets(), serviceOnly);
-
-    if (channels == null || channels.isEmpty()) {
-      return CompletedTask.create(result);
-    }
-
+    @NotNull ChannelMessage message,
+    boolean allowClusterRedirect
+  ) {
+    // filter the channels we need to send the message to
+    Collection<INetworkChannel> channels = this.findChannels(message.getTargets(), allowClusterRedirect);
+    // the result we generate
+    Set<ChannelMessage> result = new HashSet<>();
     CountingTask<Collection<ChannelMessage>> task = new CountingTask<>(result, channels.size());
-
-    for (ChannelMessageTargetChannel channel : channels) {
-      channelMessage.getBuffer().markReaderIndex();
-      IPacket packet = new PacketClientServerChannelMessage(channelMessage, true);
-
-      channel.getChannel().sendQueryAsync(packet).onComplete(response -> {
-        if (response != null) {
-          if (channel.isNode()) {
-            result.addAll(
-              DefaultObjectMapper.DEFAULT_MAPPER.readObject(response.getContent(), ChannelMessage.COLLECTION_TYPE));
-          } else if (response.getContent().readBoolean()) {
-            result.add(response.getContent().readObject(ChannelMessage.class));
-          }
+    // send the packet to each channel
+    for (INetworkChannel channel : channels) {
+      channel.sendQueryAsync(new PacketServerChannelMessage(message)).onComplete(resultPacket -> {
+        // check if we got an actual result from the request
+        if (resultPacket != Packet.EMPTY) {
+          // add all resulting messages we got
+          result.addAll(resultPacket.getContent().readObject(COL_MSG));
         }
+        // count down - one channel responded
         task.countDown();
       });
-      channelMessage.getBuffer().resetReaderIndex();
     }
-
+    // return the task on which the user can wait
     return task;
   }
 
-  public static class ChannelMessageTargetChannel {
-
-    private final INetworkChannel channel;
-
-    private final boolean node;
-
-    public ChannelMessageTargetChannel(INetworkChannel channel, boolean node) {
-      this.channel = channel;
-      this.node = node;
+  protected @NotNull Collection<INetworkChannel> findChannels(
+    @NotNull Collection<ChannelMessageTarget> targets,
+    boolean allowClusterRedirect
+  ) {
+    // check if there is only one channel
+    if (targets.size() == 1) {
+      // get the target
+      return this.findTargetChannels(Iterables.getOnlyElement(targets), allowClusterRedirect);
+    } else {
+      // filter all the channels for the targets
+      return targets.stream()
+        .flatMap(target -> this.findTargetChannels(target, allowClusterRedirect).stream())
+        .collect(Collectors.toSet());
     }
-
-    public INetworkChannel getChannel() {
-      return this.channel;
-    }
-
-    public boolean isNode() {
-      return this.node;
-    }
-
   }
 
+  protected @NotNull Collection<INetworkChannel> findTargetChannels(
+    @NotNull ChannelMessageTarget target,
+    boolean allowClusterRedirect
+  ) {
+    switch (target.getType()) {
+      // just include all known channels
+      case ALL: {
+        Set<INetworkChannel> result = new HashSet<>();
+        // all local services
+        this.cloudServiceManager.getLocalCloudServices().stream()
+          .map(ICloudService::getNetworkChannel)
+          .filter(Objects::nonNull)
+          .forEach(result::add);
+        // all connected nodes
+        if (allowClusterRedirect) {
+          result.addAll(this.nodeServerProvider.getConnectedChannels());
+        }
+        return result;
+      }
+      case NODE: {
+        // search for the matching node server
+        if (allowClusterRedirect) {
+          IClusterNodeServer server = this.nodeServerProvider.getNodeServer(target.getName());
+          return server == null || !server.isConnected()
+            ? Collections.emptySet()
+            : Collections.singleton(server.getChannel());
+        } else {
+          // not allowed to redirect the message
+          return Collections.emptySet();
+        }
+      }
+      case SERVICE: {
+        // check if the service is running locally - use the known channel then
+        ICloudService localService = this.cloudServiceManager.getLocalCloudService(target.getName());
+        if (localService != null) {
+          return localService.getNetworkChannel() == null
+            ? Collections.emptySet()
+            : Collections.singleton(localService.getNetworkChannel());
+        }
+        // check if we are allowed to redirect the message to the node running the service
+        if (allowClusterRedirect) {
+          // check if we know the service from the cluster
+          ServiceInfoSnapshot service = this.cloudServiceManager.getCloudServiceByName(target.getName());
+          if (service != null) {
+            // check if we know the target node server to send the channel message to instead
+            IClusterNodeServer server = this.nodeServerProvider.getNodeServer(service.getServiceId().getNodeUniqueId());
+            return server == null || !server.isConnected()
+              ? Collections.emptySet()
+              : Collections.singleton(server.getChannel());
+          }
+        }
+        // unable to retrieve information about the target - just an empty set then
+        return Collections.emptySet();
+      }
+      case TASK: {
+        // lookup all services of the given task
+        return this.filterChannels(
+          this.cloudServiceManager.getCloudServices(target.getName()),
+          allowClusterRedirect);
+      }
+      case ENVIRONMENT: {
+        // lookup all services of the given environment
+        return this.filterChannels(
+          this.cloudServiceManager.getCloudServices(target.getEnvironment()),
+          allowClusterRedirect);
+      }
+      case GROUP: {
+        // lookup all services of the given group
+        return this.filterChannels(
+          this.cloudServiceManager.getCloudServicesByGroup(target.getName()),
+          allowClusterRedirect);
+      }
+      default: {
+        throw new IllegalArgumentException("Unhandled ChannelMessageTarget.Type: " + target.getType());
+      }
+    }
+  }
+
+  protected @NotNull Collection<INetworkChannel> filterChannels(
+    @NotNull Collection<ServiceInfoSnapshot> snapshots,
+    boolean allowClusterRedirect
+  ) {
+    return snapshots.stream()
+      .map(service -> {
+        // check if the service is running locally
+        ICloudService localService = this.cloudServiceManager.getLocalCloudService(service.getServiceId().getName());
+        if (localService != null) {
+          return localService.getNetworkChannel();
+        }
+        // check if we are allowed to redirect the message to the node running the service
+        if (allowClusterRedirect) {
+          // check if we know the node on which the service is running
+          IClusterNodeServer nodeServer = this.nodeServerProvider.getNodeServer(
+            service.getServiceId().getNodeUniqueId());
+          return nodeServer == null ? null : nodeServer.getChannel();
+        }
+        // no target found
+        return null;
+      })
+      .filter(Objects::nonNull)
+      .collect(Collectors.toSet());
+  }
 }

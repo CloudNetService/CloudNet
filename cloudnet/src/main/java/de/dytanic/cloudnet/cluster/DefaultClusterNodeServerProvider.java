@@ -16,6 +16,8 @@
 
 package de.dytanic.cloudnet.cluster;
 
+import aerogel.Singleton;
+import aerogel.auto.Provides;
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.concurrent.CompletedTask;
@@ -44,6 +46,8 @@ import java.util.stream.Collectors;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
+@Singleton
+@Provides(IClusterNodeServerProvider.class)
 public final class DefaultClusterNodeServerProvider extends DefaultNodeServerProvider<IClusterNodeServer> implements
   IClusterNodeServerProvider {
 
@@ -56,7 +60,7 @@ public final class DefaultClusterNodeServerProvider extends DefaultNodeServerPro
 
     cloudNet.getTaskExecutor().scheduleAtFixedRate(() -> {
       try {
-        cloudNet.publishNetworkClusterNodeInfoSnapshotUpdate();
+        // TODO cloudNet.publishNetworkClusterNodeInfoSnapshotUpdate();
         this.checkForDeadNodes();
       } catch (Throwable throwable) {
         LOGGER.severe("Exception while ticking node server provider", throwable);

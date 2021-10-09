@@ -16,7 +16,6 @@
 
 package de.dytanic.cloudnet.console;
 
-import de.dytanic.cloudnet.command.ITabCompleter;
 import de.dytanic.cloudnet.common.Properties;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -51,12 +50,13 @@ public class JLine3Completer implements Completer {
     }
 
     Collection<String> responses = new ArrayList<>();
-    for (ITabCompleter completer : this.console.getTabCompletionHandler()) {
+    // TODO: re-add tab complete
+    /*for (ITabCompleter completer : this.console.getTabCompletionHandler()) {
       Collection<String> completerResponses = completer.complete(buffer, args, Properties.parseLine(args));
       if (completerResponses != null && !completerResponses.isEmpty()) {
         responses.addAll(completerResponses);
       }
-    }
+    }*/
 
     if (!responses.isEmpty()) {
       responses

@@ -14,18 +14,19 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.network.listener.auth;
+package de.dytanic.cloudnet.network.listener;
 
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.cluster.IClusterNodeServer;
+import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
+import de.dytanic.cloudnet.driver.network.def.NetworkConstants;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.network.protocol.IPacketListener;
 import de.dytanic.cloudnet.driver.service.ServiceId;
 import de.dytanic.cloudnet.network.packet.PacketServerAuthorizationResponse;
-import de.dytanic.cloudnet.network.packet.PacketServerSetGlobalServiceInfoList;
 import de.dytanic.cloudnet.service.ICloudService;
 import java.util.UUID;
 
@@ -54,8 +55,13 @@ public final class PacketClientAuthorizationListener implements IPacketListener 
             nodeServer.setChannel(channel);
             // successful auth
             channel.sendPacket(new PacketServerAuthorizationResponse(true));
-            channel.sendPacket(new PacketServerSetGlobalServiceInfoList(
-              CloudNet.getInstance().getCloudServiceManager().getCloudServices()));
+            ChannelMessage.builder()
+              .targetNode(node.getUniqueId())
+              .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
+              .message("initial_service_list_information")
+              .buffer(DataBuf.empty().writeObject(CloudNet.getInstance().getCloudServiceManager().getCloudServices()))
+              .build()
+              .send();
             // do not search for more nodes
             return;
           }
@@ -73,7 +79,6 @@ public final class PacketClientAuthorizationListener implements IPacketListener 
         if (service != null && service.getConnectionKey().equals(connectionKey)) {
           // update the cloud service
           service.setNetworkChannel(channel);
-          service.getServiceInfoSnapshot().setConnectedTime(System.currentTimeMillis());
           // send the update to the network
           service.publishServiceInfoSnapshot();
           // successful auth

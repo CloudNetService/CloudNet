@@ -18,6 +18,7 @@ package de.dytanic.cloudnet.provider.service;
 
 import aerogel.Inject;
 import aerogel.Singleton;
+import aerogel.auto.Provides;
 import com.google.common.collect.ComparisonChain;
 import de.dytanic.cloudnet.cluster.IClusterNodeServer;
 import de.dytanic.cloudnet.cluster.IClusterNodeServerProvider;
@@ -34,6 +35,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @Singleton
+@Provides(CloudServiceFactory.class)
 public class NodeCloudServiceFactory extends DefaultCloudServiceFactory implements CloudServiceFactory {
 
   private final ICloudServiceManager serviceManager;

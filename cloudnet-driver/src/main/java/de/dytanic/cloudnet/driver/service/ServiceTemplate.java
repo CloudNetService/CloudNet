@@ -121,10 +121,6 @@ public class ServiceTemplate implements INameable, Comparable<ServiceTemplate> {
     return this.storage + ":" + this.prefix + "/" + this.name;
   }
 
-  public String getTemplatePath() {
-    return this.prefix + "/" + this.name;
-  }
-
   public String getPrefix() {
     return this.prefix;
   }

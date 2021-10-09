@@ -17,7 +17,6 @@
 package de.dytanic.cloudnet.cluster;
 
 import de.dytanic.cloudnet.CloudNet;
-import de.dytanic.cloudnet.command.DriverCommandSender;
 import de.dytanic.cloudnet.driver.provider.service.CloudServiceFactory;
 import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
@@ -54,7 +53,7 @@ public class LocalNodeServer extends DefaultNodeServer implements NodeServer {
   @Override
   public @NotNull String[] sendCommandLine(@NotNull String commandLine) {
     Collection<String> result = new ArrayList<>();
-    this.cloudNet.getCommandMap().dispatchCommand(new DriverCommandSender(result), commandLine);
+    // TODO this.cloudNet.getCommandMap().dispatchCommand(new DriverCommandSender(result), commandLine);
     return result.toArray(new String[0]);
   }
 

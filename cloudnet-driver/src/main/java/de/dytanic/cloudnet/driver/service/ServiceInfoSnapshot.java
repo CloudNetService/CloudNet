@@ -164,7 +164,7 @@ public class ServiceInfoSnapshot extends BasicJsonDocPropertyable implements INa
 
   @NotNull
   public SpecificCloudServiceProvider provider() {
-    return CloudNetDriver.getInstance().getCloudServiceProvider(this);
+    return CloudNetDriver.getInstance().getCloudServiceProvider().getSpecificProvider(this);
   }
 
   @NotNull

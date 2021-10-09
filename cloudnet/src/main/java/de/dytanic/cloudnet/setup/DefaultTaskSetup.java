@@ -17,17 +17,10 @@
 package de.dytanic.cloudnet.setup;
 
 import de.dytanic.cloudnet.CloudNet;
-import de.dytanic.cloudnet.command.sub.SubCommandArgumentTypes;
-import de.dytanic.cloudnet.common.JavaVersion;
 import de.dytanic.cloudnet.common.collection.Pair;
-import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.console.animation.questionlist.ConsoleQuestionListAnimation;
-import de.dytanic.cloudnet.console.animation.questionlist.QuestionListEntry;
-import de.dytanic.cloudnet.console.animation.questionlist.answer.QuestionAnswerTypeBoolean;
-import de.dytanic.cloudnet.console.animation.questionlist.answer.QuestionAnswerTypeEnum;
-import de.dytanic.cloudnet.console.animation.questionlist.answer.QuestionAnswerTypeServiceVersion;
 import de.dytanic.cloudnet.driver.service.GroupConfiguration;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceTask;
@@ -37,11 +30,10 @@ import de.dytanic.cloudnet.provider.NodeServiceTaskProvider;
 import de.dytanic.cloudnet.template.TemplateStorageUtil;
 import de.dytanic.cloudnet.template.install.ServiceVersion;
 import de.dytanic.cloudnet.template.install.ServiceVersionType;
-import de.dytanic.cloudnet.util.JavaVersionResolver;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Collections;
 
+// TODO
 public class DefaultTaskSetup implements DefaultSetup {
 
   private static final Logger LOGGER = LogManager.getLogger(DefaultTaskSetup.class);
@@ -104,7 +96,7 @@ public class DefaultTaskSetup implements DefaultSetup {
     NodeServiceTaskProvider taskProvider = (NodeServiceTaskProvider) CloudNet.getInstance().getServiceTaskProvider();
     NodeGroupConfigurationProvider groupProvider = (NodeGroupConfigurationProvider) CloudNet.getInstance()
       .getGroupConfigurationProvider();
-    return !taskProvider.isFileCreated() && !groupProvider.isFileCreated();
+    return false; //return !taskProvider.isFileCreated() && !groupProvider.isFileCreated();
   }
 
   private void installGlobalTemplate(
@@ -121,8 +113,8 @@ public class DefaultTaskSetup implements DefaultSetup {
       LOGGER.severe("Exception while creating templates", exception);
     }
 
-    CloudNet.getInstance().getServiceVersionProvider()
-      .installServiceVersion(javaCommand, type, version, globalTemplate);
+    //CloudNet.getInstance().getServiceVersionProvider()
+    //  .installServiceVersion(javaCommand, type, version, globalTemplate);
   }
 
   private void createDefaultTask(ServiceEnvironmentType environment, String taskName, String javaCommand,
@@ -152,6 +144,7 @@ public class DefaultTaskSetup implements DefaultSetup {
 
   @Override
   public void applyQuestions(ConsoleQuestionListAnimation animation) {
+    /*
     animation.addEntry(new QuestionListEntry<>(
       "proxyEnvironment",
       LanguageManager.getMessage("cloudnet-init-setup-tasks-proxy-environment"),
@@ -232,6 +225,8 @@ public class DefaultTaskSetup implements DefaultSetup {
     ));
 
     this.shouldExecute = true;
+
+     */
   }
 
 }

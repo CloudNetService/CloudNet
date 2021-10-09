@@ -18,13 +18,8 @@ package de.dytanic.cloudnet.driver;
 
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.collection.Pair;
-import de.dytanic.cloudnet.common.concurrent.CompletedTask;
-import de.dytanic.cloudnet.common.concurrent.DefaultTaskScheduler;
+import de.dytanic.cloudnet.common.concurrent.CompletableTask;
 import de.dytanic.cloudnet.common.concurrent.ITask;
-import de.dytanic.cloudnet.common.concurrent.ITaskScheduler;
-import de.dytanic.cloudnet.common.logging.DefaultAsyncLogger;
-import de.dytanic.cloudnet.common.logging.ILogger;
-import de.dytanic.cloudnet.common.logging.LogLevel;
 import de.dytanic.cloudnet.common.registry.DefaultServicesRegistry;
 import de.dytanic.cloudnet.common.registry.IServicesRegistry;
 import de.dytanic.cloudnet.driver.database.DatabaseProvider;
@@ -44,20 +39,12 @@ import de.dytanic.cloudnet.driver.provider.NodeInfoProvider;
 import de.dytanic.cloudnet.driver.provider.ServiceTaskProvider;
 import de.dytanic.cloudnet.driver.provider.service.CloudServiceFactory;
 import de.dytanic.cloudnet.driver.provider.service.GeneralCloudServiceProvider;
-import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
 import de.dytanic.cloudnet.driver.service.ProcessSnapshot;
-import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
-import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import de.dytanic.cloudnet.driver.template.TemplateStorage;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.logging.Level;
-import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -73,11 +60,6 @@ public abstract class CloudNetDriver {
     DefaultObjectMapper.DEFAULT_MAPPER,
     DataBufFactory.defaultFactory());
 
-  @Deprecated
-  protected final ITaskScheduler taskScheduler = new DefaultTaskScheduler();
-  @Deprecated
-  protected final ILogger iLogger;
-
   protected CloudMessenger messenger;
   protected NodeInfoProvider nodeInfoProvider;
   protected CloudServiceFactory cloudServiceFactory;
@@ -87,16 +69,6 @@ public abstract class CloudNetDriver {
   protected GeneralCloudServiceProvider generalCloudServiceProvider;
 
   protected DriverEnvironment driverEnvironment = DriverEnvironment.EMBEDDED;
-
-  public CloudNetDriver() {
-    this.iLogger = new DefaultAsyncLogger();
-  }
-
-  @Deprecated
-  @ScheduledForRemoval
-  public CloudNetDriver(@NotNull ILogger iLogger) {
-    this.iLogger = iLogger;
-  }
 
   /**
    * @return a singleton instance of the CloudNetDriver
@@ -108,18 +80,6 @@ public abstract class CloudNetDriver {
 
   protected static void setInstance(@NotNull CloudNetDriver instance) {
     CloudNetDriver.instance = instance;
-  }
-
-  /**
-   * The CloudNetDriver instance won't be null usually, this method is only relevant for tests
-   *
-   * @return optional CloudNetDriver
-   * @deprecated In the runtime the driver instance is always present, use {@link #getInstance()} instead.
-   */
-  @Deprecated
-  @ScheduledForRemoval
-  public static Optional<CloudNetDriver> optionalInstance() {
-    return Optional.ofNullable(CloudNetDriver.instance);
   }
 
   public abstract void start() throws Exception;
@@ -241,49 +201,15 @@ public abstract class CloudNetDriver {
    * @return a Collection with all available TemplatesStorages
    */
   @NotNull
-  public abstract ITask<Collection<TemplateStorage>> getAvailableTemplateStoragesAsync();
+  public ITask<Collection<TemplateStorage>> getAvailableTemplateStoragesAsync() {
+    return CompletableTask.supplyAsync(this::getAvailableTemplateStorages);
+  }
 
   /**
    * @return the active DatabaseProvider specified by the local/registry
    */
   @NotNull
   public abstract DatabaseProvider getDatabaseProvider();
-
-  /**
-   * Returns a new service specific CloudServiceProvider
-   *
-   * @param name the name of the service
-   * @return the new instance of the {@link SpecificCloudServiceProvider}
-   * @deprecated use {@link GeneralCloudServiceProvider#getSpecificProviderByName(String)} instead.
-   */
-  @NotNull
-  @Deprecated
-  @ScheduledForRemoval
-  public abstract SpecificCloudServiceProvider getCloudServiceProvider(@NotNull String name);
-
-  /**
-   * Returns a new service specific CloudServiceProvider
-   *
-   * @param uniqueId the uniqueId of the service
-   * @return the new instance of the {@link SpecificCloudServiceProvider}
-   * @deprecated use {@link GeneralCloudServiceProvider#getSpecificProvider(UUID)} instead.
-   */
-  @NotNull
-  @Deprecated
-  @ScheduledForRemoval
-  public abstract SpecificCloudServiceProvider getCloudServiceProvider(@NotNull UUID uniqueId);
-
-  /**
-   * Returns a new service specific CloudServiceProvider
-   *
-   * @param snapshot the info of the service to create a provider for
-   * @return the new instance of the {@link SpecificCloudServiceProvider}
-   * @deprecated use {@link GeneralCloudServiceProvider#getSpecificProvider(ServiceInfoSnapshot)} instead.
-   */
-  @NotNull
-  @Deprecated
-  @ScheduledForRemoval
-  public abstract SpecificCloudServiceProvider getCloudServiceProvider(@NotNull ServiceInfoSnapshot snapshot);
 
   /**
    * Returns the general CloudServiceProvider
@@ -301,90 +227,16 @@ public abstract class CloudNetDriver {
   @NotNull
   public abstract INetworkClient getNetworkClient();
 
-  /**
-   * @deprecated use {@link #getLocalTemplateStorage()} instead
-   */
-  @Deprecated
-  @NotNull
-  public ITask<Collection<ServiceTemplate>> getLocalTemplateStorageTemplatesAsync() {
-    return this.getLocalTemplateStorage().getTemplatesAsync();
-  }
-
-  /**
-   * @deprecated use {@link #getTemplateStorage(String)} instead
-   */
-  @Deprecated
-  @NotNull
-  public ITask<Collection<ServiceTemplate>> getTemplateStorageTemplatesAsync(@NotNull String serviceName) {
-    TemplateStorage storage = this.getTemplateStorage(serviceName);
-    return storage != null ? storage.getTemplatesAsync() : CompletedTask.create(Collections.emptyList());
-  }
-
-  /**
-   * @deprecated use {@link #getLocalTemplateStorage()} instead
-   */
-  @Deprecated
-  @NotNull
-  public Collection<ServiceTemplate> getLocalTemplateStorageTemplates() {
-    return this.getLocalTemplateStorage().getTemplates();
-  }
-
-  /**
-   * @deprecated use {@link #getTemplateStorage(String)} instead
-   */
-  @Deprecated
-  @NotNull
-  public Collection<ServiceTemplate> getTemplateStorageTemplates(@NotNull String serviceName) {
-    TemplateStorage storage = this.getTemplateStorage(serviceName);
-    return storage != null ? storage.getTemplates() : Collections.emptyList();
-  }
-
-  @Deprecated
-  @ScheduledForRemoval
-  public void setGlobalLogLevel(@NotNull LogLevel logLevel) {
-    this.setGlobalLogLevel(logLevel.getLevel());
-  }
-
-  @Deprecated
-  @ScheduledForRemoval
-  public void setGlobalLogLevel(int logLevel) {
-    switch (logLevel) {
-      case 0:
-      case 1:
-        this.setGlobalLogLevel(Level.INFO);
-        break;
-      case 125:
-        this.setGlobalLogLevel(Level.WARNING);
-        break;
-      case 126:
-      case 127:
-        this.setGlobalLogLevel(Level.SEVERE);
-        break;
-      case 128:
-      case 129:
-        this.setGlobalLogLevel(Level.FINE);
-        break;
-      case Integer.MAX_VALUE:
-        this.setGlobalLogLevel(Level.ALL);
-        break;
-      default:
-        break;
-    }
-  }
-
-  /**
-   * Sets the log level for the root logger of the {@link de.dytanic.cloudnet.common.log.LogManager}
-   *
-   * @param logLevel the {@link Level} to be set as global level
-   */
-  public abstract void setGlobalLogLevel(Level logLevel);
-
   public abstract Pair<Boolean, String[]> sendCommandLineAsPermissionUser(@NotNull UUID uniqueId,
     @NotNull String commandLine);
 
   @NotNull
-  public abstract ITask<Pair<Boolean, String[]>> sendCommandLineAsPermissionUserAsync(@NotNull UUID uniqueId,
-    @NotNull String commandLine);
+  public ITask<Pair<Boolean, String[]>> sendCommandLineAsPermissionUserAsync(
+    @NotNull UUID uniqueId,
+    @NotNull String commandLine
+  ) {
+    return CompletableTask.supplyAsync(() -> this.sendCommandLineAsPermissionUser(uniqueId, commandLine));
+  }
 
   /**
    * Fetches the PID of this process.
@@ -419,13 +271,6 @@ public abstract class CloudNetDriver {
     return this.moduleProvider;
   }
 
-  @NotNull
-  @Deprecated
-  @ApiStatus.ScheduledForRemoval(inVersion = "3.6")
-  public ITaskScheduler getTaskScheduler() {
-    return this.taskScheduler;
-  }
-
   /**
    * Use this {@link ScheduledExecutorService} to schedule actions
    *
@@ -436,17 +281,7 @@ public abstract class CloudNetDriver {
     return this.scheduler;
   }
 
-  /**
-   * @deprecated Don't use this logger instance - create your own one using a lib or the build in {@link
-   * de.dytanic.cloudnet.common.log.LogManager}.
-   */
   @NotNull
-  @Deprecated
-  @ScheduledForRemoval
-  public ILogger getLogger() {
-    return this.iLogger;
-  }
-
   public RPCProviderFactory getRPCProviderFactory() {
     return this.rpcProviderFactory;
   }

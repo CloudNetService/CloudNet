@@ -103,7 +103,7 @@ allprojects {
     dependencyJavassistVersion = '3.28.0-GA'
     dependencyJJWTVersion = '0.11.2'
     dependencySlf4jVersion = '1.7.32'
-    dependencyAerogelVersion = '1.2.0'
+    dependencyAerogelVersion = '1.3.0'
 
     testJunitVersion = '5.8.0-RC1'
     testMockitoVersion = '3.12.3'
