@@ -19,7 +19,7 @@ jar {
   dependsOn ':cloudnet-wrapper-jvm:jar'
 
   manifest {
-    attributes 'Main-Class': 'de.dytanic.cloudnet.Main'
+    attributes 'Main-Class': 'de.dytanic.cloudnet.BootLogic'
     attributes 'Implementation-Version': archiveVersion.get() + "-" + getCurrentCommitHash()
     attributes 'Implementation-Title': cloudNetCodeName
   }

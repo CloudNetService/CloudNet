@@ -16,9 +16,6 @@
 
 package de.dytanic.cloudnet.provider;
 
-import aerogel.Inject;
-import aerogel.Singleton;
-import aerogel.auto.Provides;
 import com.google.common.collect.Iterables;
 import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.cluster.IClusterNodeServer;
@@ -44,8 +41,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
 
-@Singleton
-@Provides(CloudMessenger.class)
 public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
 
   protected static final Type COL_MSG = TypeToken.getParameterized(Collection.class, ChannelMessage.class).getType();
@@ -53,7 +48,6 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
   protected final ICloudServiceManager cloudServiceManager;
   protected final IClusterNodeServerProvider nodeServerProvider;
 
-  @Inject
   public NodeMessenger(ICloudServiceManager cloudServiceManager, IClusterNodeServerProvider nodeServerProvider) {
     this.cloudServiceManager = cloudServiceManager;
     this.nodeServerProvider = nodeServerProvider;

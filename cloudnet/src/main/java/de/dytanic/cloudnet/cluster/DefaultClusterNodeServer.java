@@ -65,7 +65,7 @@ public class DefaultClusterNodeServer extends DefaultNodeServer implements IClus
     this.saveSendPacket(new PacketClientServerChannelMessage(channelMessage, false));
   }
 
-  @Override
+  @Override // TODO: remove
   public void sendCustomChannelMessage(@NotNull String channel, @NotNull String message, @NotNull JsonDocument data) {
     this.sendCustomChannelMessage(ChannelMessage.builder()
       .channel(channel)
@@ -116,7 +116,7 @@ public class DefaultClusterNodeServer extends DefaultNodeServer implements IClus
 
   @Override
   public SpecificCloudServiceProvider getCloudServiceProvider(@NotNull ServiceInfoSnapshot snapshot) {
-    return this.cloudNet.getCloudServiceManager().getSpecificProvider(snapshot);
+    return this.cloudNet.getCloudServiceProvider().getSpecificProvider(snapshot);
   }
 
   @Override

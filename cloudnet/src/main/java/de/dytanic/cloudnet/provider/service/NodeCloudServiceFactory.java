@@ -16,9 +16,6 @@
 
 package de.dytanic.cloudnet.provider.service;
 
-import aerogel.Inject;
-import aerogel.Singleton;
-import aerogel.auto.Provides;
 import com.google.common.collect.ComparisonChain;
 import de.dytanic.cloudnet.cluster.IClusterNodeServer;
 import de.dytanic.cloudnet.cluster.IClusterNodeServerProvider;
@@ -34,14 +31,11 @@ import java.util.concurrent.TimeUnit;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-@Singleton
-@Provides(CloudServiceFactory.class)
 public class NodeCloudServiceFactory extends DefaultCloudServiceFactory implements CloudServiceFactory {
 
   private final ICloudServiceManager serviceManager;
   private final IClusterNodeServerProvider nodeServerProvider;
 
-  @Inject
   public NodeCloudServiceFactory(ICloudServiceManager serviceManager, IClusterNodeServerProvider nodeServerProvider) {
     this.serviceManager = serviceManager;
     this.nodeServerProvider = nodeServerProvider;

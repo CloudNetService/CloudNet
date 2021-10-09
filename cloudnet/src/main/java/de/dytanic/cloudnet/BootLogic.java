@@ -16,8 +16,6 @@
 
 package de.dytanic.cloudnet;
 
-import aerogel.Injector;
-import aerogel.auto.AutoAnnotationRegistry;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.common.log.LoggingUtils;
 import de.dytanic.cloudnet.common.log.defaults.AcceptingLogHandler;
@@ -31,19 +29,14 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.logging.Formatter;
 
-final class BootLogic {
+public final class BootLogic {
 
   private BootLogic() {
     throw new UnsupportedOperationException();
   }
 
   public static synchronized void main(String[] args) throws Throwable {
-    // prepare the injector
-    Injector injector = Injector.newInjector();
-    AutoAnnotationRegistry.newInstance()
-      .installBindings(BootLogic.class.getClassLoader(), "auto-factories.txt", injector);
-    // boot CloudNet
-    CloudNet nodeInstance = injector.instance(CloudNet.class);
+    CloudNet nodeInstance = new CloudNet(args);
     nodeInstance.start();
 /*
     LanguageManager.setLanguage(System.getProperty("cloudnet.messages.language", "english"));

@@ -16,8 +16,6 @@
 
 package de.dytanic.cloudnet.provider;
 
-import aerogel.Singleton;
-import aerogel.auto.Provides;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;
@@ -36,8 +34,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-@Singleton
-@Provides(ServiceTaskProvider.class)
 public class NodeServiceTaskProvider implements ServiceTaskProvider {
 
   private static final Path TASKS_DIRECTORY = Paths.get(

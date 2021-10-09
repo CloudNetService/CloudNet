@@ -35,7 +35,7 @@ public final class DefaultPermissionUserCommandSender implements IPermissionUser
     this.permissionUser = permissionUser;
     this.permissionManagement = permissionManagement;
   }
-
+/*
   @Override
   public String getName() {
     return this.permissionUser.getName();
@@ -65,7 +65,7 @@ public final class DefaultPermissionUserCommandSender implements IPermissionUser
   public boolean hasPermission(String permission) {
     return this.permissionManagement.hasPermission(this.permissionUser, permission);
   }
-
+*/
   public IPermissionUser getPermissionUser() {
     return this.permissionUser;
   }

@@ -16,8 +16,6 @@
 
 package de.dytanic.cloudnet.conf;
 
-import aerogel.Singleton;
-import aerogel.auto.Provides;
 import com.google.common.base.Preconditions;
 import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
@@ -45,8 +43,6 @@ import java.util.Set;
 import java.util.UUID;
 import org.jetbrains.annotations.NotNull;
 
-@Singleton
-@Provides(IConfiguration.class)
 public final class JsonConfiguration implements IConfiguration {
 
   private static final Path CONFIG_FILE_PATH = Paths

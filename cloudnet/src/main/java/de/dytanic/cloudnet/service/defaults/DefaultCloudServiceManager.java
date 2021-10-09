@@ -16,11 +16,7 @@
 
 package de.dytanic.cloudnet.service.defaults;
 
-import aerogel.Inject;
-import aerogel.Name;
-import aerogel.Singleton;
-import aerogel.auto.Provides;
-import de.dytanic.cloudnet.driver.network.rpc.RPCProviderFactory;
+import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.driver.network.rpc.RPCSender;
 import de.dytanic.cloudnet.driver.provider.service.GeneralCloudServiceProvider;
 import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
@@ -39,6 +35,7 @@ import de.dytanic.cloudnet.service.defaults.config.NukkitConfigurationPreparer;
 import de.dytanic.cloudnet.service.defaults.config.VanillaServiceConfigurationPreparer;
 import de.dytanic.cloudnet.service.defaults.config.VelocityConfigurationPreparer;
 import de.dytanic.cloudnet.service.defaults.config.WaterdogPEConfigurationPreparer;
+import de.dytanic.cloudnet.service.defaults.factory.JVMServiceFactory;
 import de.dytanic.cloudnet.service.defaults.provider.RemoteNodeCloudServiceProvider;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -55,8 +52,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
 
-@Singleton
-@Provides({ICloudServiceManager.class, GeneralCloudServiceProvider.class})
 public class DefaultCloudServiceManager implements ICloudServiceManager {
 
   protected static final Path TEMP_SERVICE_DIR = Paths.get(
@@ -70,15 +65,11 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
   protected final Map<String, ICloudServiceFactory> cloudServiceFactories = new ConcurrentHashMap<>();
   protected final Map<ServiceEnvironmentType, ServiceConfigurationPreparer> preparers = new ConcurrentHashMap<>();
 
-  @Inject
-  public DefaultCloudServiceManager(
-    @NotNull RPCProviderFactory factory,
-    @Name("JVMServiceFactory") ICloudServiceFactory cloudServiceFactory
-  ) {
+  public DefaultCloudServiceManager(@NotNull CloudNet nodeInstance) {
     //todo: make the component actually nullable
-    this.sender = factory.providerForClass(null, GeneralCloudServiceProvider.class);
+    this.sender = nodeInstance.getRPCProviderFactory().providerForClass(null, GeneralCloudServiceProvider.class);
     // register the default factory
-    this.addCloudServiceFactory("jvm", cloudServiceFactory);
+    this.addCloudServiceFactory("jvm", new JVMServiceFactory(nodeInstance, nodeInstance.getEventManager()));
     // register the default configuration preparers
     this.addServicePreparer(ServiceEnvironmentType.NUKKIT, new NukkitConfigurationPreparer());
     this.addServicePreparer(ServiceEnvironmentType.VELOCITY, new VelocityConfigurationPreparer());

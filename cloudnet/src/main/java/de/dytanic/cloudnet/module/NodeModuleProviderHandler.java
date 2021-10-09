@@ -28,8 +28,8 @@ public final class NodeModuleProviderHandler extends DefaultModuleProviderHandle
   public void handlePostModuleStop(@NotNull IModuleWrapper moduleWrapper) {
     super.handlePostModuleStop(moduleWrapper);
 
-    CloudNet.getInstance().unregisterPacketListenersByClassLoader(moduleWrapper.getClassLoader());
-    CloudNet.getInstance().getHttpServer().removeHandler(moduleWrapper.getClassLoader());
+//    CloudNet.getInstance().unregisterPacketListenersByClassLoader(moduleWrapper.getClassLoader());
+//    CloudNet.getInstance().getHttpServer().removeHandler(moduleWrapper.getClassLoader());
     // todo
     // CloudNet.getInstance().getCommandMap().unregisterCommands(moduleWrapper.getClassLoader());
   }

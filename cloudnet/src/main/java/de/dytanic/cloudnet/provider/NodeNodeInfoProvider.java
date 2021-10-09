@@ -16,9 +16,6 @@
 
 package de.dytanic.cloudnet.provider;
 
-import aerogel.Inject;
-import aerogel.Singleton;
-import aerogel.auto.Provides;
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.cluster.IClusterNodeServer;
 import de.dytanic.cloudnet.cluster.IClusterNodeServerProvider;
@@ -33,13 +30,10 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 // TODO: re-add command stuff
-@Singleton
-@Provides(NodeInfoProvider.class)
 public class NodeNodeInfoProvider implements NodeInfoProvider {
 
   private final IClusterNodeServerProvider clusterNodeServerProvider;
 
-  @Inject
   public NodeNodeInfoProvider(IClusterNodeServerProvider clusterNodeServerProvider) {
     this.clusterNodeServerProvider = clusterNodeServerProvider;
   }

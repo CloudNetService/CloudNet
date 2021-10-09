@@ -477,7 +477,7 @@ public abstract class AbstractService implements ICloudService {
       >= this.getNodeConfiguration().getMaxMemory()) {
       // schedule a retry
       if (this.getNodeConfiguration().isRunBlockedServiceStartTryLaterAutomatic()) {
-        CloudNet.getInstance().runTask(this::start);
+        // TODO: CloudNet.getInstance().runTask(this::start);
       } else {
         LOGGER.info(LanguageManager.getMessage("cloud-service-manager-max-memory-error"));
       }
@@ -488,7 +488,7 @@ public abstract class AbstractService implements ICloudService {
     if (CPUUsageResolver.getSystemCPUUsage() >= this.getNodeConfiguration().getMaxCPUUsageToStartServices()) {
       // schedule a retry
       if (this.getNodeConfiguration().isRunBlockedServiceStartTryLaterAutomatic()) {
-        CloudNet.getInstance().runTask(this::start);
+        // TODO: CloudNet.getInstance().runTask(this::start);
       } else {
         LOGGER.info(LanguageManager.getMessage("cloud-service-manager-cpu-usage-to-high-error"));
       }

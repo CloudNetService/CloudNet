@@ -33,9 +33,8 @@ public abstract class DefaultNodeServerProvider<T extends NodeServer> implements
 
   protected volatile NodeServer headNode;
 
-  public DefaultNodeServerProvider(CloudNet cloudNet) {
+  public DefaultNodeServerProvider(@NotNull CloudNet cloudNet) {
     this.cloudNet = cloudNet;
-
     this.localNode = new LocalNodeServer(cloudNet, this);
     this.refreshHeadNode();
   }

@@ -59,7 +59,7 @@ public final class PacketClientAuthorizationListener implements IPacketListener 
               .targetNode(node.getUniqueId())
               .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
               .message("initial_service_list_information")
-              .buffer(DataBuf.empty().writeObject(CloudNet.getInstance().getCloudServiceManager().getCloudServices()))
+              .buffer(DataBuf.empty().writeObject(CloudNet.getInstance().getCloudServiceProvider().getCloudServices()))
               .build()
               .send();
             // do not search for more nodes
@@ -74,7 +74,7 @@ public final class PacketClientAuthorizationListener implements IPacketListener 
         String connectionKey = content.readString();
         ServiceId id = content.readObject(ServiceId.class);
         // get the cloud service associated with the service id
-        ICloudService service = CloudNet.getInstance().getCloudServiceManager().getLocalCloudService(id.getUniqueId());
+        ICloudService service = CloudNet.getInstance().getCloudServiceProvider().getLocalCloudService(id.getUniqueId());
         // we can only accept the connection if the service is present, and the connection key is correct
         if (service != null && service.getConnectionKey().equals(connectionKey)) {
           // update the cloud service

@@ -32,12 +32,15 @@ public class LocalNodeServer extends DefaultNodeServer implements NodeServer {
   private final CloudNet cloudNet;
   private final NodeServerProvider<? extends NodeServer> provider;
 
-  protected LocalNodeServer(CloudNet cloudNet, NodeServerProvider<? extends NodeServer> provider) {
+  protected LocalNodeServer(
+    @NotNull CloudNet cloudNet,
+    @NotNull NodeServerProvider<? extends NodeServer> provider
+  ) {
     this.cloudNet = cloudNet;
     this.provider = provider;
 
-    this.setNodeInfoSnapshot(this.cloudNet.createClusterNodeInfoSnapshot());
-    this.setNodeInfo(this.cloudNet.getConfig().getIdentity());
+    // TODO this.setNodeInfoSnapshot(this.cloudNet.createClusterNodeInfoSnapshot());
+    // TODO this.setNodeInfo(this.cloudNet.getConfig().getIdentity());
   }
 
   @Override
@@ -64,7 +67,7 @@ public class LocalNodeServer extends DefaultNodeServer implements NodeServer {
 
   @Override
   public @Nullable SpecificCloudServiceProvider getCloudServiceProvider(@NotNull ServiceInfoSnapshot snapshot) {
-    ICloudService service = this.cloudNet.getCloudServiceManager().getLocalCloudService(snapshot);
+    ICloudService service = this.cloudNet.getCloudServiceProvider().getLocalCloudService(snapshot);
     return service == null ? EmptySpecificCloudServiceProvider.INSTANCE : service;
   }
 

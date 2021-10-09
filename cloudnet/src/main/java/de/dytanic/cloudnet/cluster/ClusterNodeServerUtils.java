@@ -45,18 +45,18 @@ final class ClusterNodeServerUtils {
         // mark the service as deleted
         snapshot.setLifeCycle(ServiceLifeCycle.DELETED);
         // publish the update to the manager and to the network
-        CloudNet.getInstance().getCloudServiceManager().handleServiceUpdate(snapshot);
+        CloudNet.getInstance().getCloudServiceProvider().handleServiceUpdate(snapshot);
       }
     }
-
-    for (ICloudService cloudService : CloudNet.getInstance().getCloudServiceManager().getCloudServices().values()) {
+/* TODO
+    for (ICloudService cloudService : CloudNet.getInstance().getCloudServiceProvider().getCloudServices().values()) {
       if (cloudService.getNetworkChannel() != null) {
         for (Packet packet : removed) {
           cloudService.getNetworkChannel().sendPacket(packet);
         }
       }
     }
-
+*/
     LOGGER.info(LanguageManager.getMessage("cluster-server-networking-disconnected")
       .replace("%id%", server.getNodeInfo().getUniqueId())
       .replace("%serverAddress%", channel.getServerAddress().getHost() + ":" + channel.getServerAddress().getPort())

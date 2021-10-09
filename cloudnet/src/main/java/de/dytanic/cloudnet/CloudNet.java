@@ -16,64 +16,55 @@
 
 package de.dytanic.cloudnet;
 
-import aerogel.Inject;
-import aerogel.Singleton;
-import aerogel.auto.Provides;
+import de.dytanic.cloudnet.cluster.DefaultClusterNodeServerProvider;
 import de.dytanic.cloudnet.cluster.IClusterNodeServerProvider;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.conf.IConfiguration;
+import de.dytanic.cloudnet.conf.JsonConfiguration;
 import de.dytanic.cloudnet.database.AbstractDatabaseProvider;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.DriverEnvironment;
 import de.dytanic.cloudnet.driver.network.INetworkClient;
-import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
-import de.dytanic.cloudnet.driver.provider.CloudMessenger;
-import de.dytanic.cloudnet.driver.provider.GroupConfigurationProvider;
-import de.dytanic.cloudnet.driver.provider.NodeInfoProvider;
-import de.dytanic.cloudnet.driver.provider.ServiceTaskProvider;
-import de.dytanic.cloudnet.driver.provider.service.CloudServiceFactory;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import de.dytanic.cloudnet.driver.template.TemplateStorage;
+import de.dytanic.cloudnet.provider.NodeGroupConfigurationProvider;
+import de.dytanic.cloudnet.provider.NodeMessenger;
+import de.dytanic.cloudnet.provider.NodeNodeInfoProvider;
+import de.dytanic.cloudnet.provider.NodeServiceTaskProvider;
+import de.dytanic.cloudnet.provider.service.NodeCloudServiceFactory;
 import de.dytanic.cloudnet.service.ICloudServiceManager;
+import de.dytanic.cloudnet.service.defaults.DefaultCloudServiceManager;
 import java.util.Collection;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents the implementation of the {@link CloudNetDriver} for nodes.
  */
-@Singleton
-@Provides(CloudNetDriver.class)
 public final class CloudNet extends CloudNetDriver {
 
   private final IConfiguration configuration;
   private final INetworkClient networkClient;
   private final IClusterNodeServerProvider nodeServerProvider;
 
-  @Inject
-  public CloudNet(
-    IConfiguration configuration,
-    IClusterNodeServerProvider nodeServerProvider,
-    CloudMessenger messenger,
-    NodeInfoProvider nodeInfoProvider,
-    CloudServiceFactory cloudServiceFactory,
-    ServiceTaskProvider serviceTaskProvider,
-    IPermissionManagement permissionManagement,
-    GroupConfigurationProvider groupConfigurationProvider,
-    ICloudServiceManager generalCloudServiceProvider
-  ) {
+  private final AtomicBoolean running = new AtomicBoolean();
+
+  public CloudNet(@NotNull String[] args) {
     setInstance(this);
 
-    this.configuration = configuration;
-    this.nodeServerProvider = nodeServerProvider;
-    this.messenger = messenger;
-    this.nodeInfoProvider = nodeInfoProvider;
-    this.cloudServiceFactory = cloudServiceFactory;
-    this.serviceTaskProvider = serviceTaskProvider;
-    this.permissionManagement = permissionManagement;
-    this.groupConfigurationProvider = groupConfigurationProvider;
-    this.generalCloudServiceProvider = generalCloudServiceProvider;
+    this.configuration = new JsonConfiguration();
+    this.nodeServerProvider = new DefaultClusterNodeServerProvider(this);
+    this.generalCloudServiceProvider = new DefaultCloudServiceManager(this);
+
+    this.serviceTaskProvider = new NodeServiceTaskProvider();
+    this.groupConfigurationProvider = new NodeGroupConfigurationProvider();
+    this.nodeInfoProvider = new NodeNodeInfoProvider(this.nodeServerProvider);
+    this.messenger = new NodeMessenger(this.getCloudServiceProvider(), this.nodeServerProvider);
+    this.cloudServiceFactory = new NodeCloudServiceFactory(this.getCloudServiceProvider(), this.nodeServerProvider);
+
+    this.permissionManagement = null; // TODO
 
     this.networkClient = null;
     this.driverEnvironment = DriverEnvironment.CLOUDNET;
@@ -85,7 +76,7 @@ public final class CloudNet extends CloudNetDriver {
 
   @Override
   public void start() throws Exception {
-
+    System.out.println("HELLO");
   }
 
   @Override
@@ -151,5 +142,9 @@ public final class CloudNet extends CloudNetDriver {
 
   public @NotNull IClusterNodeServerProvider getClusterNodeServerProvider() {
     return this.nodeServerProvider;
+  }
+
+  public boolean isRunning() {
+    return this.running.get();
   }
 }

@@ -16,10 +16,6 @@
 
 package de.dytanic.cloudnet.service.defaults.factory;
 
-import aerogel.Inject;
-import aerogel.Name;
-import aerogel.Singleton;
-import aerogel.auto.Provides;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.driver.event.IEventManager;
 import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
@@ -31,15 +27,11 @@ import de.dytanic.cloudnet.service.defaults.JVMService;
 import de.dytanic.cloudnet.util.PortValidator;
 import org.jetbrains.annotations.NotNull;
 
-@Singleton
-@Name("JVMServiceFactory")
-@Provides(ICloudServiceFactory.class)
 public class JVMServiceFactory implements ICloudServiceFactory {
 
   private final CloudNet nodeInstance;
   private final IEventManager eventManager;
 
-  @Inject
   public JVMServiceFactory(CloudNet nodeInstance, IEventManager eventManager) {
     this.nodeInstance = nodeInstance;
     this.eventManager = eventManager;

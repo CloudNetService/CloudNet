@@ -16,7 +16,6 @@
 
 package de.dytanic.cloudnet.wrapper;
 
-import aerogel.Injector;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
@@ -27,6 +26,8 @@ import de.dytanic.cloudnet.common.log.defaults.ThreadedLogRecordDispatcher;
 import de.dytanic.cloudnet.wrapper.log.InternalPrintStreamLogHandler;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 public final class Main {
 
@@ -35,7 +36,6 @@ public final class Main {
   }
 
   public static synchronized void main(String... args) throws Throwable {
-    Injector injector = Injector.newInjector();
     LanguageManager.setLanguage(System.getProperty("cloudnet.wrapper.messages.language", "english"));
     LanguageManager
       .addLanguageFile("german", Main.class.getClassLoader().getResourceAsStream("lang/german.properties"));
@@ -49,8 +49,7 @@ public final class Main {
     Logger logger = LogManager.getRootLogger();
     initLogger(logger);
 
-    //TODO: new Wrapper(new ArrayList<>(Arrays.asList(args)));
-    Wrapper wrapper = injector.instance(Wrapper.class);
+    Wrapper wrapper = new Wrapper(new ArrayList<>(Arrays.asList(args)));
     wrapper.start();
   }
 

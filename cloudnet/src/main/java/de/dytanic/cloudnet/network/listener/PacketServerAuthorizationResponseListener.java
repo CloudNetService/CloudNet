@@ -44,8 +44,8 @@ public final class PacketServerAuthorizationResponseListener implements IPacketL
         .ifPresent(nodeServer -> {
           // init the node server
           nodeServer.setChannel(channel);
-          channel.sendPacket(new PacketServerSetGlobalServiceInfoList(
-            CloudNet.getInstance().getCloudServiceManager().getCloudServices()));
+          // TODO: channel.sendPacket(new PacketServerSetGlobalServiceInfoList(
+          //  CloudNet.getInstance().getCloudServiceManager().getCloudServices()));
         });
     } else {
       LOGGER.warning(LanguageManager.getMessage("cluster-server-networking-authorization-failed"));

@@ -16,8 +16,6 @@
 
 package de.dytanic.cloudnet.provider;
 
-import aerogel.Singleton;
-import aerogel.auto.Provides;
 import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.io.FileUtils;
@@ -40,8 +38,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
 
-@Singleton
-@Provides(GroupConfigurationProvider.class)
 public class NodeGroupConfigurationProvider implements GroupConfigurationProvider {
 
   private static final Path OLD_GROUPS_FILE = Paths.get(
