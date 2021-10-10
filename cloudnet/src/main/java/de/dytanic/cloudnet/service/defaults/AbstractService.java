@@ -477,7 +477,7 @@ public abstract class AbstractService implements ICloudService {
       >= this.getNodeConfiguration().getMaxMemory()) {
       // schedule a retry
       if (this.getNodeConfiguration().isRunBlockedServiceStartTryLaterAutomatic()) {
-        // TODO: CloudNet.getInstance().runTask(this::start);
+        CloudNet.getInstance().getMainThread().runTask(this::start);
       } else {
         LOGGER.info(LanguageManager.getMessage("cloud-service-manager-max-memory-error"));
       }
@@ -488,7 +488,7 @@ public abstract class AbstractService implements ICloudService {
     if (CPUUsageResolver.getSystemCPUUsage() >= this.getNodeConfiguration().getMaxCPUUsageToStartServices()) {
       // schedule a retry
       if (this.getNodeConfiguration().isRunBlockedServiceStartTryLaterAutomatic()) {
-        // TODO: CloudNet.getInstance().runTask(this::start);
+        CloudNet.getInstance().getMainThread().runTask(this::start);
       } else {
         LOGGER.info(LanguageManager.getMessage("cloud-service-manager-cpu-usage-to-high-error"));
       }
@@ -529,16 +529,16 @@ public abstract class AbstractService implements ICloudService {
     try {
       Path wrapperDir = this.serviceDirectory.resolve(".wrapper");
       // copy the certificate if available
-      if (configuration.getCertificate() != null && Files.exists(configuration.getCertificate())) {
-        FileUtils.copy(configuration.getCertificate(), wrapperDir.resolve("certificate"));
+      if (configuration.getCertificatePath() != null && Files.exists(configuration.getCertificatePath())) {
+        FileUtils.copy(configuration.getCertificatePath(), wrapperDir.resolve("certificate"));
       }
       // copy the private key if available
-      if (configuration.getPrivateKey() != null && Files.exists(configuration.getPrivateKey())) {
-        FileUtils.copy(configuration.getPrivateKey(), wrapperDir.resolve("privateKey"));
+      if (configuration.getPrivateKeyPath() != null && Files.exists(configuration.getPrivateKeyPath())) {
+        FileUtils.copy(configuration.getPrivateKeyPath(), wrapperDir.resolve("privateKey"));
       }
       // copy the trust certificate if available
-      if (configuration.getTrustCertificate() != null && Files.exists(configuration.getTrustCertificate())) {
-        FileUtils.copy(configuration.getTrustCertificate(), wrapperDir.resolve("trustCertificate"));
+      if (configuration.getTrustCertificatePath() != null && Files.exists(configuration.getTrustCertificatePath())) {
+        FileUtils.copy(configuration.getTrustCertificatePath(), wrapperDir.resolve("trustCertificate"));
       }
     } catch (IOException exception) {
       LOGGER.severe("Exception copying ssl configuration files into service directory %s:",

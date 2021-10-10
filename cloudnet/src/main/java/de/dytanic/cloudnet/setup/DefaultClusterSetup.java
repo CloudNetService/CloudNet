@@ -93,7 +93,7 @@ public class DefaultClusterSetup implements DefaultSetup {
     if (animation.hasResult("clusterId")) {
       UUID clusterId = (UUID) animation.getResult("clusterId");
 
-      CloudNet.getInstance().getConfig().getClusterConfig().setClusterId(clusterId);
+      // CloudNet.getInstance().getConfig().getClusterConfig().setClusterId(clusterId);
       CloudNet.getInstance().getConfig().save();
     }
 

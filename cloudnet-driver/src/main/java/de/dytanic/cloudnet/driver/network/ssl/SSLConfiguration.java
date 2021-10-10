@@ -17,23 +17,24 @@
 package de.dytanic.cloudnet.driver.network.ssl;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
+import org.jetbrains.annotations.Nullable;
 
 public class SSLConfiguration {
 
   protected final boolean enabled;
   protected final boolean clientAuth;
 
-  protected final String trustCertificatePath;
-  protected final String certificatePath;
-  protected final String privateKeyPath;
+  protected final Path trustCertificatePath;
+  protected final Path certificatePath;
+  protected final Path privateKeyPath;
 
-  protected transient Path trustCertificatePathCached;
-  protected transient Path certificatePathCached;
-  protected transient Path privateKeyPathCached;
-
-  public SSLConfiguration(boolean enabled, boolean clientAuth,
-    String trustCertificatePath, String certificatePath, String privateKeyPath) {
+  public SSLConfiguration(
+    boolean enabled,
+    boolean clientAuth,
+    @Nullable Path trustCertificatePath,
+    @Nullable Path certificatePath,
+    @Nullable Path privateKeyPath
+  ) {
     this.enabled = enabled;
     this.clientAuth = clientAuth;
     this.trustCertificatePath = trustCertificatePath;
@@ -49,24 +50,15 @@ public class SSLConfiguration {
     return this.clientAuth;
   }
 
-  public Path getTrustCertificate() {
-    if (this.trustCertificatePathCached == null) {
-      this.trustCertificatePathCached = Paths.get(this.trustCertificatePath);
-    }
-    return this.trustCertificatePathCached;
+  public @Nullable Path getTrustCertificatePath() {
+    return this.trustCertificatePath;
   }
 
-  public Path getCertificate() {
-    if (this.certificatePathCached == null) {
-      this.certificatePathCached = Paths.get(this.certificatePath);
-    }
-    return this.certificatePathCached;
+  public @Nullable Path getCertificatePath() {
+    return this.certificatePath;
   }
 
-  public Path getPrivateKey() {
-    if (this.privateKeyPathCached == null) {
-      this.privateKeyPathCached = Paths.get(this.privateKeyPath);
-    }
-    return this.privateKeyPathCached;
+  public @Nullable Path getPrivateKeyPath() {
+    return this.privateKeyPath;
   }
 }

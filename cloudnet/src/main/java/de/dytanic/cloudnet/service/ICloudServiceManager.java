@@ -17,9 +17,11 @@
 package de.dytanic.cloudnet.service;
 
 import de.dytanic.cloudnet.driver.provider.service.GeneralCloudServiceProvider;
+import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
 import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
+import de.dytanic.cloudnet.driver.service.ServiceTask;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Optional;
@@ -87,4 +89,7 @@ public interface ICloudServiceManager extends GeneralCloudServiceProvider {
 
   @Internal
   @NotNull ICloudService createLocalCloudService(@NotNull ServiceConfiguration serviceConfiguration);
+
+  @Internal
+  @Nullable SpecificCloudServiceProvider startService(@NotNull ServiceTask task);
 }

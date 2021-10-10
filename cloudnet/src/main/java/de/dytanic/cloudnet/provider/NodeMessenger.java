@@ -38,6 +38,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
 
@@ -61,6 +62,11 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
   @Override
   public @NotNull ITask<Collection<ChannelMessage>> sendChannelMessageQueryAsync(@NotNull ChannelMessage message) {
     return this.sendChannelMessageQueryAsync(message, true);
+  }
+
+  @Override
+  public @NotNull Collection<ChannelMessage> sendChannelMessageQuery(@NotNull ChannelMessage channelMessage) {
+    return this.sendChannelMessageQueryAsync(channelMessage).get(20, TimeUnit.SECONDS, Collections.emptyList());
   }
 
   public void sendChannelMessage(@NotNull ChannelMessage message, boolean allowClusterRedirect) {

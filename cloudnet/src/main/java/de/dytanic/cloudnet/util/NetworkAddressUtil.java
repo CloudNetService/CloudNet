@@ -1,0 +1,86 @@
+/*
+ * Copyright 2019-2021 CloudNetService team & contributors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package de.dytanic.cloudnet.util;
+
+import java.net.Inet6Address;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.net.UnknownHostException;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Enumeration;
+import java.util.HashSet;
+import org.jetbrains.annotations.NotNull;
+
+public final class NetworkAddressUtil {
+
+  private static final String LOCAL_ADDRESS = findLocalAddress();
+
+  private NetworkAddressUtil() {
+    throw new UnsupportedOperationException();
+  }
+
+  public static @NotNull Collection<String> getAvailableIpAddresses() {
+    try {
+      Collection<String> addresses = new HashSet<>();
+      // try to resolve all ip addresses available on the system
+      Enumeration<NetworkInterface> networkInterfaces = NetworkInterface.getNetworkInterfaces();
+      while (networkInterfaces.hasMoreElements()) {
+        // get all addresses of the interface
+        Enumeration<InetAddress> inetAddresses = networkInterfaces.nextElement().getInetAddresses();
+        while (inetAddresses.hasMoreElements()) {
+          addresses.add(getHostAddress(inetAddresses.nextElement()));
+        }
+      }
+      // return the located addresses
+      return addresses;
+    } catch (SocketException exception) {
+      return Arrays.asList("127.0.0.1", "127.0.1.1");
+    }
+  }
+
+  public static String getLocalAddress() {
+    return LOCAL_ADDRESS;
+  }
+
+  private static @NotNull String findLocalAddress() {
+    try {
+      return getHostAddress(InetAddress.getLocalHost());
+    } catch (UnknownHostException exception) {
+      return "127.0.0.1";
+    }
+  }
+
+  private static @NotNull String getHostAddress(@NotNull InetAddress address) {
+    if (address instanceof Inet6Address) {
+      // get the host address of the inet address
+      String hostAddress = address.getHostAddress();
+      // check if the host address contains '%' which separates the address from the source adapter name
+      int percentile = hostAddress.indexOf('%');
+      if (percentile != -1) {
+        // strip the host address from the "full" address
+        hostAddress = hostAddress.substring(0, percentile);
+      }
+      // the "better" host address
+      return hostAddress;
+    } else {
+      // just add the address
+      return address.getHostAddress();
+    }
+  }
+}

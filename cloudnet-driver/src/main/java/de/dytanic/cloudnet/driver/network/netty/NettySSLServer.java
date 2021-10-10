@@ -39,13 +39,13 @@ public abstract class NettySSLServer {
 
   protected void init() throws Exception {
     if (this.sslConfiguration != null) {
-      if (this.sslConfiguration.getCertificate() != null && this.sslConfiguration.getPrivateKey() != null) {
-        try (InputStream cert = Files.newInputStream(this.sslConfiguration.getCertificate());
-          InputStream privateKey = Files.newInputStream(this.sslConfiguration.getPrivateKey())) {
+      if (this.sslConfiguration.getCertificatePath() != null && this.sslConfiguration.getPrivateKeyPath() != null) {
+        try (InputStream cert = Files.newInputStream(this.sslConfiguration.getCertificatePath());
+          InputStream privateKey = Files.newInputStream(this.sslConfiguration.getPrivateKeyPath())) {
           SslContextBuilder builder = SslContextBuilder.forServer(cert, privateKey);
 
-          if (this.sslConfiguration.getTrustCertificate() != null) {
-            try (InputStream stream = Files.newInputStream(this.sslConfiguration.getTrustCertificate())) {
+          if (this.sslConfiguration.getTrustCertificatePath() != null) {
+            try (InputStream stream = Files.newInputStream(this.sslConfiguration.getTrustCertificatePath())) {
               builder.trustManager(stream);
             }
           } else {

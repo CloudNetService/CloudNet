@@ -61,6 +61,7 @@ public abstract class CloudNetDriver {
     DataBufFactory.defaultFactory());
 
   protected CloudMessenger messenger;
+  protected CloudNetVersion cloudNetVersion;
   protected NodeInfoProvider nodeInfoProvider;
   protected CloudServiceFactory cloudServiceFactory;
   protected ServiceTaskProvider serviceTaskProvider;
@@ -294,4 +295,8 @@ public abstract class CloudNetDriver {
     return this.driverEnvironment;
   }
 
+  @NotNull
+  public CloudNetVersion getVersion() {
+    return this.cloudNetVersion;
+  }
 }

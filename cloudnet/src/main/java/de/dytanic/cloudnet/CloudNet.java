@@ -21,8 +21,11 @@ import de.dytanic.cloudnet.cluster.IClusterNodeServerProvider;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.conf.IConfiguration;
 import de.dytanic.cloudnet.conf.JsonConfiguration;
+import de.dytanic.cloudnet.console.IConsole;
+import de.dytanic.cloudnet.console.util.HeaderReader;
 import de.dytanic.cloudnet.database.AbstractDatabaseProvider;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
+import de.dytanic.cloudnet.driver.CloudNetVersion;
 import de.dytanic.cloudnet.driver.DriverEnvironment;
 import de.dytanic.cloudnet.driver.network.INetworkClient;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
@@ -45,18 +48,26 @@ import org.jetbrains.annotations.Nullable;
  */
 public final class CloudNet extends CloudNetDriver {
 
+  private final IConsole console;
+
   private final IConfiguration configuration;
   private final INetworkClient networkClient;
-  private final IClusterNodeServerProvider nodeServerProvider;
+  private final DefaultClusterNodeServerProvider nodeServerProvider;
 
   private final AtomicBoolean running = new AtomicBoolean();
+  private final CloudNetTick mainThread = new CloudNetTick(this);
 
-  public CloudNet(@NotNull String[] args) {
+  public CloudNet(@NotNull String[] args, @NotNull IConsole console) {
     setInstance(this);
 
-    this.configuration = new JsonConfiguration();
-    this.nodeServerProvider = new DefaultClusterNodeServerProvider(this);
+    this.console = console;
+    this.cloudNetVersion = CloudNetVersion.fromClassInformation(CloudNet.class.getPackage());
+
+    this.configuration = JsonConfiguration.loadFromFile();
+    this.configuration.load();
+
     this.generalCloudServiceProvider = new DefaultCloudServiceManager(this);
+    this.nodeServerProvider = new DefaultClusterNodeServerProvider(this);
 
     this.serviceTaskProvider = new NodeServiceTaskProvider();
     this.groupConfigurationProvider = new NodeGroupConfigurationProvider();
@@ -76,7 +87,9 @@ public final class CloudNet extends CloudNetDriver {
 
   @Override
   public void start() throws Exception {
-    System.out.println("HELLO");
+    HeaderReader.readAndPrintHeader(this.console);
+
+    // this.nodeServerProvider.getSelfNode().publishNodeInfoSnapshotUpdate();
   }
 
   @Override
@@ -142,6 +155,14 @@ public final class CloudNet extends CloudNetDriver {
 
   public @NotNull IClusterNodeServerProvider getClusterNodeServerProvider() {
     return this.nodeServerProvider;
+  }
+
+  public @NotNull CloudNetTick getMainThread() {
+    return this.mainThread;
+  }
+
+  public @NotNull IConsole getConsole() {
+    return this.console;
   }
 
   public boolean isRunning() {

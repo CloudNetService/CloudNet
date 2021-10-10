@@ -21,6 +21,7 @@ import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.network.protocol.IPacketListener;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
+import org.jetbrains.annotations.NotNull;
 
 public final class PacketServerAuthorizationResponseListener implements IPacketListener {
 
@@ -36,7 +37,7 @@ public final class PacketServerAuthorizationResponseListener implements IPacketL
   }
 
   @Override
-  public void handle(INetworkChannel channel, IPacket packet) {
+  public void handle(@NotNull INetworkChannel channel, IPacket packet) {
     if (packet.getHeader().contains("access") && packet.getHeader().contains("text")) {
       this.result = packet.getHeader().getBoolean("access");
 

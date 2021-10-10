@@ -19,7 +19,6 @@ package de.dytanic.cloudnet.module;
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.conf.IConfiguration;
-import de.dytanic.cloudnet.conf.IConfigurationRegistry;
 import de.dytanic.cloudnet.database.AbstractDatabaseProvider;
 import de.dytanic.cloudnet.deleted.command.Command;
 import de.dytanic.cloudnet.driver.module.driver.DriverModule;
@@ -75,11 +74,6 @@ public abstract class NodeCloudNetModule extends DriverModule {
 
   public final IConfiguration getCloudNetConfig() {
     return CloudNet.getInstance().getConfig();
-  }
-
-  public final IConfigurationRegistry getCloudRegistry() {
-    //TODO return CloudNet.getInstance().getConfigurationRegistry();
-    return null;
   }
 
   public final CloudNet getCloudNet() {

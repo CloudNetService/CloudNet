@@ -93,12 +93,12 @@ public class NodeCloudServiceFactory extends DefaultCloudServiceFactory implemen
         ComparisonChain chain = ComparisonChain.start()
           .compare(left.getNodeInfoSnapshot().getUsedMemory() + mh, right.getNodeInfoSnapshot().getUsedMemory() + mh);
         // only include the cpu usage if both nodes can provide a value
-        if (left.getNodeInfoSnapshot().getSystemCpuUsage() >= 0
-          && right.getNodeInfoSnapshot().getSystemCpuUsage() >= 0) {
+        if (left.getNodeInfoSnapshot().getProcessSnapshot().getSystemCpuUsage() >= 0
+          && right.getNodeInfoSnapshot().getProcessSnapshot().getSystemCpuUsage() >= 0) {
           // add the system usage to the chain
-          chain.compare(
-            left.getNodeInfoSnapshot().getSystemCpuUsage(),
-            right.getNodeInfoSnapshot().getSystemCpuUsage());
+          chain = chain.compare(
+            left.getNodeInfoSnapshot().getProcessSnapshot().getSystemCpuUsage(),
+            right.getNodeInfoSnapshot().getProcessSnapshot().getSystemCpuUsage());
         }
         // use the result of the comparison
         return chain.result();

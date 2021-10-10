@@ -137,19 +137,19 @@ public class NettyNetworkClient implements DefaultNetworkComponent, INetworkClie
 
   private void init() throws Exception {
     if (this.sslConfiguration != null && this.sslConfiguration.isEnabled()) {
-      if (this.sslConfiguration.getCertificate() != null && this.sslConfiguration.getPrivateKey() != null) {
+      if (this.sslConfiguration.getCertificatePath() != null && this.sslConfiguration.getPrivateKeyPath() != null) {
         SslContextBuilder builder = SslContextBuilder.forClient();
 
-        if (this.sslConfiguration.getTrustCertificate() != null) {
-          try (InputStream stream = Files.newInputStream(this.sslConfiguration.getTrustCertificate())) {
+        if (this.sslConfiguration.getTrustCertificatePath() != null) {
+          try (InputStream stream = Files.newInputStream(this.sslConfiguration.getTrustCertificatePath())) {
             builder.trustManager(stream);
           }
         } else {
           builder.trustManager(InsecureTrustManagerFactory.INSTANCE);
         }
 
-        try (InputStream cert = Files.newInputStream(this.sslConfiguration.getCertificate());
-          InputStream privateKey = Files.newInputStream(this.sslConfiguration.getPrivateKey())) {
+        try (InputStream cert = Files.newInputStream(this.sslConfiguration.getCertificatePath());
+          InputStream privateKey = Files.newInputStream(this.sslConfiguration.getPrivateKeyPath())) {
           this.sslContext = builder
             .keyManager(cert, privateKey)
             .clientAuth(this.sslConfiguration.isClientAuth() ? ClientAuth.REQUIRE : ClientAuth.OPTIONAL)

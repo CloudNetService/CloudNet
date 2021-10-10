@@ -25,6 +25,7 @@ import de.dytanic.cloudnet.driver.network.protocol.IPacketListener;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
+import org.jetbrains.annotations.NotNull;
 
 public class ChunkedPacketListener implements IPacketListener {
 
@@ -36,7 +37,7 @@ public class ChunkedPacketListener implements IPacketListener {
   }
 
   @Override
-  public void handle(INetworkChannel channel, IPacket packet) throws Exception {
+  public void handle(@NotNull INetworkChannel channel, IPacket packet) throws Exception {
     // read the chunk information from the buffer
     ChunkSessionInformation information = new ChunkSessionInformation(
       packet.getContent().readInt(),

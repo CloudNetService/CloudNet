@@ -16,7 +16,12 @@
 
 package de.dytanic.cloudnet.service.defaults;
 
+import com.google.common.collect.ComparisonChain;
 import de.dytanic.cloudnet.CloudNet;
+import de.dytanic.cloudnet.cluster.IClusterNodeServer;
+import de.dytanic.cloudnet.cluster.IClusterNodeServerProvider;
+import de.dytanic.cloudnet.common.collection.Pair;
+import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
 import de.dytanic.cloudnet.driver.network.rpc.RPCSender;
 import de.dytanic.cloudnet.driver.provider.service.GeneralCloudServiceProvider;
 import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
@@ -24,6 +29,7 @@ import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
+import de.dytanic.cloudnet.driver.service.ServiceTask;
 import de.dytanic.cloudnet.provider.service.EmptySpecificCloudServiceProvider;
 import de.dytanic.cloudnet.service.ICloudService;
 import de.dytanic.cloudnet.service.ICloudServiceFactory;
@@ -60,6 +66,7 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
     System.getProperty("cloudnet.persistable.services.path", "local/services"));
 
   protected final RPCSender sender;
+  protected final IClusterNodeServerProvider clusterNodeServerProvider;
 
   protected final Map<UUID, SpecificCloudServiceProvider> knownServices = new ConcurrentHashMap<>();
   protected final Map<String, ICloudServiceFactory> cloudServiceFactories = new ConcurrentHashMap<>();
@@ -67,6 +74,7 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
 
   public DefaultCloudServiceManager(@NotNull CloudNet nodeInstance) {
     //todo: make the component actually nullable
+    this.clusterNodeServerProvider = nodeInstance.getClusterNodeServerProvider();
     this.sender = nodeInstance.getRPCProviderFactory().providerForClass(null, GeneralCloudServiceProvider.class);
     // register the default factory
     this.addCloudServiceFactory("jvm", new JVMServiceFactory(nodeInstance, nodeInstance.getEventManager()));
@@ -318,5 +326,48 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
     }
     // create the new service using the factory
     return factory.createCloudService(this, configuration);
+  }
+
+  @Override
+  public @Nullable SpecificCloudServiceProvider startService(@NotNull ServiceTask task) {
+    // get all services of the given task, map it to its node unique id
+    Pair<ServiceInfoSnapshot, IClusterNodeServer> prepared = this.getCloudServices(task.getName())
+      .stream()
+      .filter(taskService -> taskService.getLifeCycle() == ServiceLifeCycle.PREPARED)
+      .map(service -> {
+        // get the node server associated with the node
+        IClusterNodeServer nodeServer = this.clusterNodeServerProvider.getNodeServer(
+          service.getServiceId().getNodeUniqueId());
+        // the server should never be null - just to be sure
+        return nodeServer == null ? null : new Pair<>(service, nodeServer);
+      })
+      .filter(Objects::nonNull)
+      .filter(pair -> pair.getSecond().isAvailable())
+      .filter(pair -> {
+        // filter out all nodes which are not able to start the service
+        NetworkClusterNodeInfoSnapshot nodeInfoSnapshot = pair.getSecond().getNodeInfoSnapshot();
+        int maxHeapMemory = pair.getFirst().getConfiguration().getProcessConfig().getMaxHeapMemorySize();
+        // used + heap_of_service <= max
+        return nodeInfoSnapshot.getUsedMemory() + maxHeapMemory <= nodeInfoSnapshot.getMaxMemory();
+      })
+      .min((left, right) -> {
+        // begin by comparing the heap memory usage
+        ComparisonChain chain = ComparisonChain.start().compare(
+          left.getSecond().getNodeInfoSnapshot().getUsedMemory()
+            + left.getFirst().getConfiguration().getProcessConfig().getMaxHeapMemorySize(),
+          right.getSecond().getNodeInfoSnapshot().getUsedMemory()
+            + right.getFirst().getConfiguration().getProcessConfig().getMaxHeapMemorySize());
+        // only include the cpu usage if both nodes can provide a value
+        if (left.getSecond().getNodeInfoSnapshot().getProcessSnapshot().getSystemCpuUsage() >= 0
+          && right.getSecond().getNodeInfoSnapshot().getProcessSnapshot().getSystemCpuUsage() >= 0) {
+          // add the system usage to the chain
+          chain = chain.compare(
+            left.getSecond().getNodeInfoSnapshot().getProcessSnapshot().getSystemCpuUsage(),
+            right.getSecond().getNodeInfoSnapshot().getProcessSnapshot().getSystemCpuUsage());
+        }
+        // use the result of the comparison
+        return chain.result();
+      }).orElse(null);
+    return null; // TODO
   }
 }

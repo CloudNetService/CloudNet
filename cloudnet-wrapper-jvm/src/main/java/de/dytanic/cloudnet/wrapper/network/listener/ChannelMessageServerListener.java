@@ -44,7 +44,6 @@ import de.dytanic.cloudnet.driver.network.NetworkUpdateType;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import de.dytanic.cloudnet.driver.network.def.NetworkConstants;
 import de.dytanic.cloudnet.driver.network.def.packet.PacketClientServerServiceInfoPublisher.PublisherType;
-import de.dytanic.cloudnet.driver.network.def.packet.PacketServerUpdatePermissions.UpdateType;
 import de.dytanic.cloudnet.driver.network.rpc.defaults.object.DefaultObjectMapper;
 import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
 import de.dytanic.cloudnet.driver.permission.PermissionGroup;
@@ -118,6 +117,7 @@ public class ChannelMessageServerListener {
       }
       break;
       case "update_permissions": {
+        /*
         UpdateType updateType = content.readObject(UpdateType.class);
         if (updateType == null) {
           return;
@@ -160,7 +160,7 @@ public class ChannelMessageServerListener {
             break;
           default:
             break;
-        }
+        }*/
       }
       break;
       case "wrapper_force_update": {
