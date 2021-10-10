@@ -27,9 +27,12 @@ import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.common.unsafe.CPUUsageResolver;
 import de.dytanic.cloudnet.conf.IConfiguration;
+import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.driver.event.IEventManager;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
+import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
+import de.dytanic.cloudnet.driver.network.def.NetworkConstants;
 import de.dytanic.cloudnet.driver.network.ssl.SSLConfiguration;
 import de.dytanic.cloudnet.driver.service.ProcessSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
@@ -119,6 +122,7 @@ public abstract class AbstractService implements ICloudService {
       ProcessSnapshot.empty(),
       configuration,
       configuration.getProperties());
+    this.publishServiceInfoSnapshot();
 
     manager.registerLocalService(this);
   }
@@ -134,7 +138,7 @@ public abstract class AbstractService implements ICloudService {
   }
 
   @Override
-  public @Nullable ServiceInfoSnapshot getServiceInfoSnapshot() {
+  public @NotNull ServiceInfoSnapshot getServiceInfoSnapshot() {
     return this.currentServiceInfo;
   }
 
@@ -145,7 +149,14 @@ public abstract class AbstractService implements ICloudService {
 
   @Override
   public @Nullable ServiceInfoSnapshot forceUpdateServiceInfo() {
-    return null;
+    return ChannelMessage.builder()
+      .targetService(this.getServiceId().getName())
+      .message("request_update_service_information")
+      .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
+      .build()
+      .sendSingleQuery()
+      .getContent()
+      .readObject(ServiceInfoSnapshot.class);
   }
 
   @Override
@@ -362,8 +373,11 @@ public abstract class AbstractService implements ICloudService {
   public void setNetworkChannel(@Nullable INetworkChannel channel) {
     Preconditions.checkArgument(this.networkChannel == null || channel == null);
     // close the channel if the new channel is null
-    if (channel == null && this.networkChannel != null) {
+    if (this.networkChannel != null) {
       this.networkChannel.close();
+      this.currentServiceInfo.setConnectedTime(0);
+    } else {
+      this.currentServiceInfo.setConnectedTime(System.currentTimeMillis());
     }
     // set the new channel
     this.networkChannel = channel;
@@ -372,6 +386,16 @@ public abstract class AbstractService implements ICloudService {
   @Override
   public @NotNull ServiceInfoSnapshot getLastServiceInfoSnapshot() {
     return this.lastServiceInfo;
+  }
+
+  @Override
+  public void publishServiceInfoSnapshot() {
+    ChannelMessage.builder()
+      .targetAll()
+      .message("update_service_info")
+      .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
+      .buffer(DataBuf.empty().writeObject(this.currentServiceInfo))
+      .build();
   }
 
   @Override
@@ -442,6 +466,8 @@ public abstract class AbstractService implements ICloudService {
       this.lastServiceInfo.getProperties());
     // push the service change to the current manager
     this.cloudServiceManager.handleServiceUpdate(this.currentServiceInfo);
+    // publish the change to all services and nodes
+    this.publishServiceInfoSnapshot();
   }
 
   protected boolean canStartNow() {
@@ -451,7 +477,7 @@ public abstract class AbstractService implements ICloudService {
       >= this.getNodeConfiguration().getMaxMemory()) {
       // schedule a retry
       if (this.getNodeConfiguration().isRunBlockedServiceStartTryLaterAutomatic()) {
-        CloudNet.getInstance().runTask(this::start);
+        // TODO: CloudNet.getInstance().runTask(this::start);
       } else {
         LOGGER.info(LanguageManager.getMessage("cloud-service-manager-max-memory-error"));
       }
@@ -462,7 +488,7 @@ public abstract class AbstractService implements ICloudService {
     if (CPUUsageResolver.getSystemCPUUsage() >= this.getNodeConfiguration().getMaxCPUUsageToStartServices()) {
       // schedule a retry
       if (this.getNodeConfiguration().isRunBlockedServiceStartTryLaterAutomatic()) {
-        CloudNet.getInstance().runTask(this::start);
+        // TODO: CloudNet.getInstance().runTask(this::start);
       } else {
         LOGGER.info(LanguageManager.getMessage("cloud-service-manager-cpu-usage-to-high-error"));
       }

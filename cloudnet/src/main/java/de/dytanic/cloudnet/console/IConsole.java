@@ -60,10 +60,6 @@ public interface IConsole extends AutoCloseable {
 
   void disableAllHandlers();
 
-  void enableAllTabCompletionHandlers();
-
-  void disableAllTabCompletionHandlers();
-
   void enableAllCommandHandlers();
 
   void disableAllCommandHandlers();
@@ -71,10 +67,6 @@ public interface IConsole extends AutoCloseable {
   void addCommandHandler(@NotNull UUID uniqueId, @NotNull Consumer<String> inputConsumer);
 
   void removeCommandHandler(@NotNull UUID uniqueId);
-
-  void addTabCompletionHandler(@NotNull UUID uniqueId, @NotNull ITabCompleter completer);
-
-  void removeTabCompletionHandler(@NotNull UUID uniqueId);
 
   @NotNull IConsole writeRaw(@NotNull String rawText);
 

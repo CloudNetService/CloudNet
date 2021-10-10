@@ -51,8 +51,7 @@ public final class TemplateStorageUtil {
   }
 
   public static Path getPath(ServiceTemplate serviceTemplate, String path) {
-    return getLocalTemplateStorage().getStorageDirectory().resolve(serviceTemplate.getTemplatePath()).resolve(path)
-      .normalize();
+    return getLocalTemplateStorage().getTemplatePath(serviceTemplate).resolve(path).normalize();
   }
 
   private static void prepareProxyTemplate(SpecificTemplateStorage storage, byte[] buffer, String configPath,

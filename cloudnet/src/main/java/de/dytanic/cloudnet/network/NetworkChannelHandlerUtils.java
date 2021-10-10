@@ -32,20 +32,9 @@ final class NetworkChannelHandlerUtils {
     throw new UnsupportedOperationException();
   }
 
-  static boolean handleInitChannel(INetworkChannel channel, ChannelType channelType) {
-    NetworkChannelInitEvent networkChannelInitEvent = new NetworkChannelInitEvent(channel, channelType);
-    CloudNetDriver.getInstance().getEventManager().callEvent(networkChannelInitEvent);
-
-    if (networkChannelInitEvent.isCancelled()) {
-      try {
-        channel.close();
-      } catch (Exception exception) {
-        LOGGER.severe("Exception while closing channel", exception);
-      }
-      return false;
-    }
-
-    return true;
+  static boolean shouldInitializeChannel(INetworkChannel channel, ChannelType type) {
+    return !CloudNetDriver.getInstance().getEventManager().callEvent(
+      new NetworkChannelInitEvent(channel, type)).isCancelled();
   }
 
   public static void closeNodeServer(IClusterNodeServer clusterNodeServer) {

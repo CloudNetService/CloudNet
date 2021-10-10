@@ -27,7 +27,7 @@ import java.util.concurrent.LinkedBlockingDeque;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class EmptySpecificCloudServiceProvider implements SpecificCloudServiceProvider {
+public final class EmptySpecificCloudServiceProvider implements SpecificCloudServiceProvider {
 
   public static final EmptySpecificCloudServiceProvider INSTANCE = new EmptySpecificCloudServiceProvider();
 

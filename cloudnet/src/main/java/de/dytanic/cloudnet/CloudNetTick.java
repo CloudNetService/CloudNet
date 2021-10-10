@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+/*
 package de.dytanic.cloudnet;
 
 import de.dytanic.cloudnet.cluster.NodeServer;
@@ -38,10 +38,10 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
+TODO
 public class CloudNetTick {
 
-  public static final int TPS = CloudNet.TPS;
+  public static final int TPS = 10;
   public static final int MILLIS_BETWEEN_TICKS = 1000 / TPS;
 
   private static final Logger LOGGER = LogManager.getLogger(CloudNetTick.class);
@@ -162,3 +162,4 @@ public class CloudNetTick {
     return false;
   }
 }
+*/

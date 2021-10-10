@@ -218,11 +218,11 @@ public class ServiceVersionProvider {
       for (Map.Entry<String, String> entry : information.getServiceVersion().getAdditionalDownloads().entrySet()) {
         String path = entry.getKey();
         String url = entry.getValue();
-
+/*
         try (InputStream inputStream = ProgressBarInputStream.wrapDownload(CloudNet.getInstance().getConsole(), url);
           OutputStream out = information.getTemplateStorage().newOutputStream(information.getServiceTemplate(), path)) {
           FileUtils.copy(inputStream, out);
-        }
+        }*/
       }
 
       return true;

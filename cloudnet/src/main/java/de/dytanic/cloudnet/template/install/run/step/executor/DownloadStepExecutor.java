@@ -25,6 +25,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -38,11 +39,12 @@ public class DownloadStepExecutor implements InstallStepExecutor {
     Path targetPath = workingDirectory
       .resolve(Paths.get(installInformation.getServiceVersionType().getTargetEnvironment().getName() + ".jar"));
 
-    try (InputStream inputStream = ProgressBarInputStream
+    /*TODO try (InputStream inputStream = ProgressBarInputStream
       .wrapDownload(CloudNet.getInstance().getConsole(), installInformation.getServiceVersion().getUrl())) {
       Files.copy(inputStream, targetPath, StandardCopyOption.REPLACE_EXISTING);
 
       return new HashSet<>(Collections.singleton(targetPath));
-    }
+    }*/
+    return Collections.emptySet();
   }
 }

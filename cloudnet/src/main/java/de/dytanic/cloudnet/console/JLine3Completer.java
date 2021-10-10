@@ -51,12 +51,13 @@ public class JLine3Completer implements Completer {
     }
 
     Collection<String> responses = new ArrayList<>();
-    for (ITabCompleter completer : this.console.getTabCompletionHandler()) {
+    // TODO: re-add tab complete
+    /*for (ITabCompleter completer : this.console.getTabCompletionHandler()) {
       Collection<String> completerResponses = completer.complete(buffer, args, Properties.parseLine(args));
       if (completerResponses != null && !completerResponses.isEmpty()) {
         responses.addAll(completerResponses);
       }
-    }
+    }*/
 
     if (!responses.isEmpty()) {
       responses

@@ -51,17 +51,17 @@ public final class DefaultClusterNodeServerProvider extends DefaultNodeServerPro
   private static final long MAX_NO_UPDATE_MILLIS = Long.getLong("cloudnet.max.node.idle.millis", 30_000);
   private static final Logger LOGGER = LogManager.getLogger(DefaultClusterNodeServerProvider.class);
 
-  public DefaultClusterNodeServerProvider(CloudNet cloudNet) {
+  public DefaultClusterNodeServerProvider(@NotNull CloudNet cloudNet) {
     super(cloudNet);
 
-    cloudNet.getTaskExecutor().scheduleAtFixedRate(() -> {
+    /*cloudNet.getTaskExecutor().scheduleAtFixedRate(() -> {
       try {
-        cloudNet.publishNetworkClusterNodeInfoSnapshotUpdate();
+        // TODO cloudNet.publishNetworkClusterNodeInfoSnapshotUpdate();
         this.checkForDeadNodes();
       } catch (Throwable throwable) {
         LOGGER.severe("Exception while ticking node server provider", throwable);
       }
-    }, 1, 1, TimeUnit.SECONDS);
+    }, 1, 1, TimeUnit.SECONDS);*/
   }
 
   @Override

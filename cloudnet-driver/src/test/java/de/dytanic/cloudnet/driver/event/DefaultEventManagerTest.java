@@ -16,10 +16,10 @@
 
 package de.dytanic.cloudnet.driver.event;
 
-import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
 import de.dytanic.cloudnet.driver.event.events.service.CloudServiceStartEvent;
+import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.junit.jupiter.api.Order;
@@ -78,8 +78,8 @@ public class DefaultEventManagerTest {
     Assertions.assertNotNull(event.getQueryResponse());
     Assertions.assertEquals("abc", event.getQueryResponse().getChannel());
 
-    Assertions.assertNotNull(event.getQueryResponse().getJson());
-    Assertions.assertEquals("passed", event.getQueryResponse().getJson().getString("test"));
+    Assertions.assertNotNull(event.getQueryResponse().getContent());
+    Assertions.assertEquals("passed", event.getQueryResponse().getContent().readString());
   }
 
   @Test
@@ -124,7 +124,7 @@ public class DefaultEventManagerTest {
     public void listenerA(ChannelMessageReceiveEvent event) {
       event.setQueryResponse(ChannelMessage.builder(null)
         .channel("abc")
-        .json(JsonDocument.newDocument("test", event.getChannel()))
+        .buffer(DataBuf.empty().writeString(event.getChannel()))
         .build());
     }
 

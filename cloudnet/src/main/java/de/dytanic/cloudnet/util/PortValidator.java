@@ -53,12 +53,4 @@ public final class PortValidator {
         && exception.getMessage().startsWith("Address already in use");
     }
   }
-
-  public static int findFreePort(int startPort) {
-    while (!checkPort(startPort)) {
-      ++startPort;
-    }
-    return startPort;
-  }
-
 }

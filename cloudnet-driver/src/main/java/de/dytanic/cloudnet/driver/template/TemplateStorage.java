@@ -17,6 +17,7 @@
 package de.dytanic.cloudnet.driver.template;
 
 import de.dytanic.cloudnet.common.INameable;
+import de.dytanic.cloudnet.common.concurrent.CompletableTask;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import java.io.IOException;
@@ -288,8 +289,13 @@ public interface TemplateStorage extends AutoCloseable, INameable {
    * @return whether it was copied successfully
    */
   @NotNull
-  ITask<Boolean> deployAsync(@NotNull Path directory, @NotNull ServiceTemplate target,
-    @Nullable Predicate<Path> fileFilter);
+  default ITask<Boolean> deployAsync(
+    @NotNull Path directory,
+    @NotNull ServiceTemplate target,
+    @Nullable Predicate<Path> fileFilter
+  ) {
+    return CompletableTask.supplyAsync(() -> this.deploy(directory, target, fileFilter));
+  }
 
   /**
    * Copies the given directory into the given template.
@@ -311,7 +317,9 @@ public interface TemplateStorage extends AutoCloseable, INameable {
    * @return whether it was copied successfully
    */
   @NotNull
-  ITask<Boolean> deployAsync(@NotNull InputStream inputStream, @NotNull ServiceTemplate target);
+  default ITask<Boolean> deployAsync(@NotNull InputStream inputStream, @NotNull ServiceTemplate target) {
+    return CompletableTask.supplyAsync(() -> this.deploy(inputStream, target));
+  }
 
   /**
    * Copies the given template into the given directory
@@ -321,7 +329,9 @@ public interface TemplateStorage extends AutoCloseable, INameable {
    * @return whether it was copied successfully
    */
   @NotNull
-  ITask<Boolean> copyAsync(@NotNull ServiceTemplate template, @NotNull Path directory);
+  default ITask<Boolean> copyAsync(@NotNull ServiceTemplate template, @NotNull Path directory) {
+    return CompletableTask.supplyAsync(() -> this.copy(template, directory));
+  }
 
   /**
    * Gets a template into a {@link ZipInputStream}.
@@ -342,7 +352,9 @@ public interface TemplateStorage extends AutoCloseable, INameable {
    * @return a new {@link InputStream} or null if it the template doesn't exist
    */
   @NotNull
-  ITask<InputStream> zipTemplateAsync(@NotNull ServiceTemplate template);
+  default ITask<InputStream> zipTemplateAsync(@NotNull ServiceTemplate template) {
+    return CompletableTask.supplyAsync(() -> this.zipTemplate(template));
+  }
 
   /**
    * Deletes the given template if it exists.
@@ -351,7 +363,9 @@ public interface TemplateStorage extends AutoCloseable, INameable {
    * @return whether the template was successfully deleted, {@code false} if it doesn't exists
    */
   @NotNull
-  ITask<Boolean> deleteAsync(@NotNull ServiceTemplate template);
+  default ITask<Boolean> deleteAsync(@NotNull ServiceTemplate template) {
+    return CompletableTask.supplyAsync(() -> this.delete(template));
+  }
 
   /**
    * Creates the given template if it doesn't exists.
@@ -360,7 +374,9 @@ public interface TemplateStorage extends AutoCloseable, INameable {
    * @return whether the template was successfully created, {@code false} if it already exists
    */
   @NotNull
-  ITask<Boolean> createAsync(@NotNull ServiceTemplate template);
+  default ITask<Boolean> createAsync(@NotNull ServiceTemplate template) {
+    return CompletableTask.supplyAsync(() -> this.create(template));
+  }
 
   /**
    * Checks whether the given template exists.
@@ -369,7 +385,9 @@ public interface TemplateStorage extends AutoCloseable, INameable {
    * @return whether the template exists or not
    */
   @NotNull
-  ITask<Boolean> hasAsync(@NotNull ServiceTemplate template);
+  default ITask<Boolean> hasAsync(@NotNull ServiceTemplate template) {
+    return CompletableTask.supplyAsync(() -> this.has(template));
+  }
 
   /**
    * Creates a new {@link OutputStream} that will append its content to the file at the given path. If the file at the
@@ -381,7 +399,9 @@ public interface TemplateStorage extends AutoCloseable, INameable {
    * @return a new {@link OutputStream} or {@code null} if it couldn't be opened
    */
   @NotNull
-  ITask<OutputStream> appendOutputStreamAsync(@NotNull ServiceTemplate template, @NotNull String path);
+  default ITask<OutputStream> appendOutputStreamAsync(@NotNull ServiceTemplate template, @NotNull String path) {
+    return CompletableTask.supplyAsync(() -> this.appendOutputStream(template, path));
+  }
 
   /**
    * Creates a new {@link OutputStream} that will override its content to the file at the given path. If the file at the
@@ -393,7 +413,9 @@ public interface TemplateStorage extends AutoCloseable, INameable {
    * @return a new {@link OutputStream} or {@code null} if it couldn't be opened
    */
   @NotNull
-  ITask<OutputStream> newOutputStreamAsync(@NotNull ServiceTemplate template, @NotNull String path);
+  default ITask<OutputStream> newOutputStreamAsync(@NotNull ServiceTemplate template, @NotNull String path) {
+    return CompletableTask.supplyAsync(() -> this.newOutputStream(template, path));
+  }
 
   /**
    * Creates a new file in the given template at the given path if it doesn't exist.
@@ -403,7 +425,9 @@ public interface TemplateStorage extends AutoCloseable, INameable {
    * @return whether the file was created successfully, {@code false} if it already exists
    */
   @NotNull
-  ITask<Boolean> createFileAsync(@NotNull ServiceTemplate template, @NotNull String path);
+  default ITask<Boolean> createFileAsync(@NotNull ServiceTemplate template, @NotNull String path) {
+    return CompletableTask.supplyAsync(() -> this.createFile(template, path));
+  }
 
   /**
    * Creates a new directory in the given template at the given path if it doesn't exist.
@@ -413,7 +437,9 @@ public interface TemplateStorage extends AutoCloseable, INameable {
    * @return whether the directory was created successfully, {@code false} if it already exists
    */
   @NotNull
-  ITask<Boolean> createDirectoryAsync(@NotNull ServiceTemplate template, @NotNull String path);
+  default ITask<Boolean> createDirectoryAsync(@NotNull ServiceTemplate template, @NotNull String path) {
+    return CompletableTask.supplyAsync(() -> this.createDirectory(template, path));
+  }
 
   /**
    * Checks whether the given path/directory exists in the given template, it doesn't matter if it is a directory or a
@@ -424,7 +450,9 @@ public interface TemplateStorage extends AutoCloseable, INameable {
    * @return whether the file exists
    */
   @NotNull
-  ITask<Boolean> hasFileAsync(@NotNull ServiceTemplate template, @NotNull String path);
+  default ITask<Boolean> hasFileAsync(@NotNull ServiceTemplate template, @NotNull String path) {
+    return CompletableTask.supplyAsync(() -> this.hasFile(template, path));
+  }
 
   /**
    * Deletes a file in the given template at the given path if it doesn't exist.
@@ -434,7 +462,9 @@ public interface TemplateStorage extends AutoCloseable, INameable {
    * @return whether the file was deleted successfully, {@code false} if it already exists
    */
   @NotNull
-  ITask<Boolean> deleteFileAsync(@NotNull ServiceTemplate template, @NotNull String path);
+  default ITask<Boolean> deleteFileAsync(@NotNull ServiceTemplate template, @NotNull String path) {
+    return CompletableTask.supplyAsync(() -> this.deleteFile(template, path));
+  }
 
   /**
    * Creates a new {@link InputStream} with the data of the file at the given path in the given template.
@@ -444,7 +474,9 @@ public interface TemplateStorage extends AutoCloseable, INameable {
    * @return the new {@link InputStream} or {@code null} if the file doesn't exist/is a directory
    */
   @NotNull
-  ITask<InputStream> newInputStreamAsync(@NotNull ServiceTemplate template, @NotNull String path);
+  default ITask<InputStream> newInputStreamAsync(@NotNull ServiceTemplate template, @NotNull String path) {
+    return CompletableTask.supplyAsync(() -> this.newInputStream(template, path));
+  }
 
   /**
    * Retrieves information about a specified file/directory.
@@ -454,7 +486,9 @@ public interface TemplateStorage extends AutoCloseable, INameable {
    * @return the {@link FileInfo} or {@code null} if the file/directory doesn't exist
    */
   @NotNull
-  ITask<FileInfo> getFileInfoAsync(@NotNull ServiceTemplate template, @NotNull String path);
+  default ITask<FileInfo> getFileInfoAsync(@NotNull ServiceTemplate template, @NotNull String path) {
+    return CompletableTask.supplyAsync(() -> this.getFileInfo(template, path));
+  }
 
   /**
    * Lists all files in the given directory.
@@ -466,7 +500,9 @@ public interface TemplateStorage extends AutoCloseable, INameable {
    * directory
    */
   @NotNull
-  ITask<FileInfo[]> listFilesAsync(@NotNull ServiceTemplate template, @NotNull String dir, boolean deep);
+  default ITask<FileInfo[]> listFilesAsync(@NotNull ServiceTemplate template, @NotNull String dir, boolean deep) {
+    return CompletableTask.supplyAsync(() -> this.listFiles(template, dir, deep));
+  }
 
   /**
    * Lists all files in the root directory of the template.
@@ -512,13 +548,19 @@ public interface TemplateStorage extends AutoCloseable, INameable {
    * @return a list of all templates
    */
   @NotNull
-  ITask<Collection<ServiceTemplate>> getTemplatesAsync();
+  default ITask<Collection<ServiceTemplate>> getTemplatesAsync() {
+    return CompletableTask.supplyAsync(this::getTemplates);
+  }
 
   /**
    * Closes this storage, after it has been closed, no more interaction to this storage should be done and might lead to
    * errors.
    */
   @NotNull
-  ITask<Void> closeAsync();
-
+  default ITask<Void> closeAsync() {
+    return CompletableTask.supplyAsync(() -> {
+      this.close();
+      return null;
+    });
+  }
 }

@@ -17,12 +17,10 @@
 package de.dytanic.cloudnet.cluster;
 
 import de.dytanic.cloudnet.CloudNet;
-import de.dytanic.cloudnet.deleted.command.DriverCommandSender;
 import de.dytanic.cloudnet.driver.provider.service.CloudServiceFactory;
 import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.provider.service.EmptySpecificCloudServiceProvider;
-import de.dytanic.cloudnet.provider.service.LocalNodeSpecificCloudServiceProvider;
 import de.dytanic.cloudnet.service.ICloudService;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -34,12 +32,15 @@ public class LocalNodeServer extends DefaultNodeServer implements NodeServer {
   private final CloudNet cloudNet;
   private final NodeServerProvider<? extends NodeServer> provider;
 
-  protected LocalNodeServer(CloudNet cloudNet, NodeServerProvider<? extends NodeServer> provider) {
+  protected LocalNodeServer(
+    @NotNull CloudNet cloudNet,
+    @NotNull NodeServerProvider<? extends NodeServer> provider
+  ) {
     this.cloudNet = cloudNet;
     this.provider = provider;
 
-    this.setNodeInfoSnapshot(this.cloudNet.createClusterNodeInfoSnapshot());
-    this.setNodeInfo(this.cloudNet.getConfig().getIdentity());
+    // TODO this.setNodeInfoSnapshot(this.cloudNet.createClusterNodeInfoSnapshot());
+    // TODO this.setNodeInfo(this.cloudNet.getConfig().getIdentity());
   }
 
   @Override
@@ -55,7 +56,7 @@ public class LocalNodeServer extends DefaultNodeServer implements NodeServer {
   @Override
   public @NotNull String[] sendCommandLine(@NotNull String commandLine) {
     Collection<String> result = new ArrayList<>();
-    this.cloudNet.getCommandMap().dispatchCommand(new DriverCommandSender(result), commandLine);
+    // TODO this.cloudNet.getCommandMap().dispatchCommand(new DriverCommandSender(result), commandLine);
     return result.toArray(new String[0]);
   }
 
@@ -66,11 +67,8 @@ public class LocalNodeServer extends DefaultNodeServer implements NodeServer {
 
   @Override
   public @Nullable SpecificCloudServiceProvider getCloudServiceProvider(@NotNull ServiceInfoSnapshot snapshot) {
-    ICloudService service = this.cloudNet.getCloudServiceManager()
-      .getCloudService(snapshot.getServiceId().getUniqueId());
-    return service == null
-      ? EmptySpecificCloudServiceProvider.INSTANCE
-      : new LocalNodeSpecificCloudServiceProvider(this.cloudNet, service);
+    ICloudService service = this.cloudNet.getCloudServiceProvider().getLocalCloudService(snapshot);
+    return service == null ? EmptySpecificCloudServiceProvider.INSTANCE : service;
   }
 
   @Override

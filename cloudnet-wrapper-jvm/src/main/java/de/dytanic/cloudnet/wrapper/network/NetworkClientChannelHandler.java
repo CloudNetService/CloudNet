@@ -17,9 +17,6 @@
 package de.dytanic.cloudnet.wrapper.network;
 
 import de.dytanic.cloudnet.common.concurrent.CompletableTask;
-import de.dytanic.cloudnet.common.document.gson.JsonDocument;
-import de.dytanic.cloudnet.common.log.LogManager;
-import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.event.events.network.ChannelType;
 import de.dytanic.cloudnet.driver.event.events.network.NetworkChannelCloseEvent;
@@ -27,6 +24,7 @@ import de.dytanic.cloudnet.driver.event.events.network.NetworkChannelInitEvent;
 import de.dytanic.cloudnet.driver.event.events.network.NetworkChannelPacketReceiveEvent;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.INetworkChannelHandler;
+import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import de.dytanic.cloudnet.driver.network.def.packet.PacketClientAuthorization;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.network.protocol.Packet;
@@ -35,28 +33,21 @@ import org.jetbrains.annotations.NotNull;
 
 public class NetworkClientChannelHandler implements INetworkChannelHandler {
 
-  private static final Logger LOGGER = LogManager.getLogger(NetworkClientChannelHandler.class);
-
   @Override
   public void handleChannelInitialize(@NotNull INetworkChannel channel) {
     NetworkChannelInitEvent networkChannelInitEvent = new NetworkChannelInitEvent(channel, ChannelType.SERVER_CHANNEL);
     CloudNetDriver.getInstance().getEventManager().callEvent(networkChannelInitEvent);
 
     if (networkChannelInitEvent.isCancelled()) {
-      try {
-        channel.close();
-      } catch (Exception exception) {
-        LOGGER.severe("Exception while closing channel", exception);
-      }
+      channel.close();
       return;
     }
 
     networkChannelInitEvent.getChannel().sendPacket(new PacketClientAuthorization(
       PacketClientAuthorization.PacketAuthorizationType.WRAPPER_TO_NODE,
-      new JsonDocument()
-        .append("connectionKey", Wrapper.getInstance().getConfig().getConnectionKey())
-        .append("serviceId", Wrapper.getInstance().getConfig().getServiceConfiguration().getServiceId())
-    ));
+      DataBuf.empty()
+        .writeString(Wrapper.getInstance().getConfig().getConnectionKey())
+        .writeObject(Wrapper.getInstance().getConfig().getServiceConfiguration().getServiceId())));
   }
 
   @Override

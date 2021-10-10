@@ -24,6 +24,7 @@ import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.def.packet.PacketClientServerServiceInfoPublisher;
 import de.dytanic.cloudnet.driver.network.protocol.Packet;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
+import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
 import de.dytanic.cloudnet.service.ICloudService;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -41,21 +42,21 @@ final class ClusterNodeServerUtils {
 
     for (ServiceInfoSnapshot snapshot : CloudNet.getInstance().getCloudServiceProvider().getCloudServices()) {
       if (snapshot.getServiceId().getNodeUniqueId().equalsIgnoreCase(server.getNodeInfo().getUniqueId())) {
-        CloudNet.getInstance().getCloudServiceManager()
-          .handleServiceUpdate(PacketClientServerServiceInfoPublisher.PublisherType.UNREGISTER, snapshot);
-        removed.add(new PacketClientServerServiceInfoPublisher(snapshot,
-          PacketClientServerServiceInfoPublisher.PublisherType.UNREGISTER));
+        // mark the service as deleted
+        snapshot.setLifeCycle(ServiceLifeCycle.DELETED);
+        // publish the update to the manager and to the network
+        CloudNet.getInstance().getCloudServiceProvider().handleServiceUpdate(snapshot);
       }
     }
-
-    for (ICloudService cloudService : CloudNet.getInstance().getCloudServiceManager().getCloudServices().values()) {
+/* TODO
+    for (ICloudService cloudService : CloudNet.getInstance().getCloudServiceProvider().getCloudServices().values()) {
       if (cloudService.getNetworkChannel() != null) {
         for (Packet packet : removed) {
           cloudService.getNetworkChannel().sendPacket(packet);
         }
       }
     }
-
+*/
     LOGGER.info(LanguageManager.getMessage("cluster-server-networking-disconnected")
       .replace("%id%", server.getNodeInfo().getUniqueId())
       .replace("%serverAddress%", channel.getServerAddress().getHost() + ":" + channel.getServerAddress().getPort())

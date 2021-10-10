@@ -74,7 +74,7 @@ public class ChannelMessageServerListener {
 
   @EventListener
   public void handleChannelMessage(ChannelMessageReceiveEvent event) {
-    if (!event.getChannel().equals(NetworkConstants.NODE_TO_WRAPPER)) {
+    if (!event.getChannel().equals(NetworkConstants.INTERNAL_MSG_CHANNEL)) {
       return;
     }
 

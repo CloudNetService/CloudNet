@@ -33,7 +33,8 @@ var cloudnet.logging.defaultlevel FATAL
 #var cloudnet.storage.local local/templates
 #var cloudnet.versioncache.path local/versioncache
 #var cloudnet.persistable.services.path local/services
-#var cloudnet.config.task.path local/tasks.json
+#var cloudnet.config.tasks.directory.path local/tasks
+#var cloudnet.config.groups.directory.path local/groups
 #var cloudnet.config.json.path config.json
 #var cloudnet.permissions.json.path local/permissions.json
 #var cloudnet.database.h2.path local/database/h2

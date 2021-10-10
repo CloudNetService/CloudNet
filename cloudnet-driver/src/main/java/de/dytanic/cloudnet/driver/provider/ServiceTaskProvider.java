@@ -22,6 +22,7 @@ import de.dytanic.cloudnet.driver.service.ServiceTask;
 import java.util.Collection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnmodifiableView;
 
 /**
  * This class provides access to the tasks of the cloud (tasks folder)
@@ -38,7 +39,8 @@ public interface ServiceTaskProvider {
    *
    * @return a list containing the task configurations of all tasks
    */
-  Collection<ServiceTask> getPermanentServiceTasks();
+  @UnmodifiableView
+  @NotNull Collection<ServiceTask> getPermanentServiceTasks();
 
   /**
    * Clears all existing service tasks and sets the given collection as the new service tasks

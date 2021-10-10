@@ -18,7 +18,7 @@ jar {
 
   dependsOn ':cloudnet-driver:jar'
   dependsOn ':cloudnet:jar'
-
+/*
   //Depends modules
   dependsOn ':cloudnet-modules:cloudnet-bridge:shadowJar'
   dependsOn ':cloudnet-modules:cloudnet-labymod:jar'
@@ -34,7 +34,7 @@ jar {
   dependsOn ':cloudnet-modules:cloudnet-database-mysql:jar'
   dependsOn ':cloudnet-modules:cloudnet-database-mongodb:jar'
   dependsOn ':cloudnet-modules:cloudnet-labymod:jar'
-
+*/
   archiveFileName.set(cloudnetLauncherFile)
 
   manifest {

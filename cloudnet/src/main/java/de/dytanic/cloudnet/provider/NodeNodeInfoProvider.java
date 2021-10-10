@@ -17,143 +17,119 @@
 package de.dytanic.cloudnet.provider;
 
 import com.google.common.base.Preconditions;
-import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.cluster.IClusterNodeServer;
-import de.dytanic.cloudnet.common.log.LogManager;
-import de.dytanic.cloudnet.common.log.Logger;
-import de.dytanic.cloudnet.deleted.command.Command;
-import de.dytanic.cloudnet.deleted.command.DriverCommandSender;
+import de.dytanic.cloudnet.cluster.IClusterNodeServerProvider;
 import de.dytanic.cloudnet.driver.command.CommandInfo;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
 import de.dytanic.cloudnet.driver.provider.NodeInfoProvider;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
+import java.util.Collections;
+import java.util.Objects;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+// TODO: re-add command stuff
 public class NodeNodeInfoProvider implements NodeInfoProvider {
 
-  private static final Logger LOGGER = LogManager.getLogger(NodeNodeInfoProvider.class);
+  private final IClusterNodeServerProvider clusterNodeServerProvider;
 
-  private final CloudNet cloudNet;
-
-  public NodeNodeInfoProvider(CloudNet cloudNet) {
-    this.cloudNet = cloudNet;
+  public NodeNodeInfoProvider(IClusterNodeServerProvider clusterNodeServerProvider) {
+    this.clusterNodeServerProvider = clusterNodeServerProvider;
   }
 
   @Override
   public Collection<CommandInfo> getConsoleCommands() {
-    return this.cloudNet.getCommandMap().getCommandInfos();
+    // TODO: return this.cloudNet.getCommandMap().getCommandInfos();
+    return null;
   }
 
   @Override
   public NetworkClusterNode[] getNodes() {
-    return this.cloudNet.getConfig().getClusterConfig().getNodes().toArray(new NetworkClusterNode[0]);
+    return this.clusterNodeServerProvider.getNodeServers().stream()
+      .map(IClusterNodeServer::getNodeInfo)
+      .toArray(NetworkClusterNode[]::new);
   }
 
   @Nullable
   @Override
   public NetworkClusterNode getNode(@NotNull String uniqueId) {
     Preconditions.checkNotNull(uniqueId);
-
-    if (uniqueId.equals(this.cloudNet.getConfig().getIdentity().getUniqueId())) {
-      return this.cloudNet.getConfig().getIdentity();
+    // check if the current node is requested
+    if (uniqueId.equals(this.clusterNodeServerProvider.getSelfNode().getNodeInfo().getUniqueId())) {
+      return this.clusterNodeServerProvider.getSelfNode().getNodeInfo();
     }
-    return this.cloudNet.getConfig().getClusterConfig().getNodes().stream()
-      .filter(networkClusterNode -> networkClusterNode.getUniqueId().equals(uniqueId))
+    // find the node info
+    return this.clusterNodeServerProvider.getNodeServers().stream()
+      .map(IClusterNodeServer::getNodeInfo)
+      .filter(nodeInfo -> nodeInfo.getUniqueId().equals(uniqueId))
       .findFirst()
       .orElse(null);
   }
 
   @Override
   public NetworkClusterNodeInfoSnapshot[] getNodeInfoSnapshots() {
-    Collection<NetworkClusterNodeInfoSnapshot> nodeInfoSnapshots = new ArrayList<>();
-
-    for (IClusterNodeServer clusterNodeServer : this.cloudNet.getClusterNodeServerProvider().getNodeServers()) {
-      if (clusterNodeServer.isConnected()) {
-        if (clusterNodeServer.getNodeInfoSnapshot() != null) {
-          nodeInfoSnapshots.add(clusterNodeServer.getNodeInfoSnapshot());
-        }
-      }
-    }
-
-    return nodeInfoSnapshots.toArray(new NetworkClusterNodeInfoSnapshot[0]);
+    return this.clusterNodeServerProvider.getNodeServers().stream()
+      .map(IClusterNodeServer::getNodeInfoSnapshot)
+      .filter(Objects::nonNull)
+      .toArray(NetworkClusterNodeInfoSnapshot[]::new);
   }
 
   @Nullable
   @Override
   public NetworkClusterNodeInfoSnapshot getNodeInfoSnapshot(@NotNull String uniqueId) {
-    if (uniqueId.equals(this.cloudNet.getConfig().getIdentity().getUniqueId())) {
-      return this.cloudNet.getCurrentNetworkClusterNodeInfoSnapshot();
+    // check if the current node is requested
+    if (uniqueId.equals(this.clusterNodeServerProvider.getSelfNode().getNodeInfo().getUniqueId())) {
+      return this.clusterNodeServerProvider.getSelfNode().getNodeInfoSnapshot();
     }
-
-    for (IClusterNodeServer clusterNodeServer : this.cloudNet.getClusterNodeServerProvider().getNodeServers()) {
-      if (clusterNodeServer.getNodeInfo().getUniqueId().equals(uniqueId) && clusterNodeServer.isConnected()) {
-        if (clusterNodeServer.getNodeInfoSnapshot() != null) {
-          return clusterNodeServer.getNodeInfoSnapshot();
-        }
-      }
-    }
-
-    return null;
+    // find the node we are looking for
+    return this.clusterNodeServerProvider.getNodeServers().stream()
+      .filter(nodeServer -> nodeServer.getNodeInfo().getUniqueId().equals(uniqueId))
+      .map(IClusterNodeServer::getNodeInfoSnapshot)
+      .filter(Objects::nonNull)
+      .findFirst()
+      .orElse(null);
   }
 
   @Override
   public String[] sendCommandLine(@NotNull String commandLine) {
     Preconditions.checkNotNull(commandLine);
 
-    Collection<String> collection = new ArrayList<>();
-
-    if (this.cloudNet.isMainThread()) {
-      this.sendCommandLine0(collection, commandLine);
-    } else {
-      try {
-        this.cloudNet.runTask((Callable<Void>) () -> {
-          this.sendCommandLine0(collection, commandLine);
-          return null;
-        }).get();
-      } catch (InterruptedException | ExecutionException exception) {
-        LOGGER.severe("Exception sending commandline", exception);
-      }
-    }
-
-    return collection.toArray(new String[0]);
+    return new String[0];
   }
 
   @Override
   public String[] sendCommandLine(@NotNull String nodeUniqueId, @NotNull String commandLine) {
     Preconditions.checkNotNull(nodeUniqueId);
     Preconditions.checkNotNull(commandLine);
-
-    if (this.cloudNet.getConfig().getIdentity().getUniqueId().equals(nodeUniqueId)) {
+    // check if we should execute the command on the current node
+    if (nodeUniqueId.equals(this.clusterNodeServerProvider.getSelfNode().getNodeInfo().getUniqueId())) {
       return this.sendCommandLine(commandLine);
     }
-
-    IClusterNodeServer clusterNodeServer = this.cloudNet.getClusterNodeServerProvider().getNodeServer(nodeUniqueId);
-
-    if (clusterNodeServer != null && clusterNodeServer.isConnected() && clusterNodeServer.getChannel() != null) {
+    // find the node server and execute the command on there
+    IClusterNodeServer clusterNodeServer = this.clusterNodeServerProvider.getNodeServer(nodeUniqueId);
+    if (clusterNodeServer != null && clusterNodeServer.isConnected()) {
       return clusterNodeServer.sendCommandLine(commandLine);
     }
-
+    // unable to execute the command
     return null;
   }
 
   private void sendCommandLine0(Collection<String> collection, String commandLine) {
-    this.cloudNet.getCommandMap().dispatchCommand(new DriverCommandSender(collection), commandLine);
+    //  this.cloudNet.getCommandMap().dispatchCommand(new DriverCommandSender(collection), commandLine);
   }
 
   @Nullable
   @Override
   public CommandInfo getConsoleCommand(@NotNull String commandLine) {
-    Command command = this.cloudNet.getCommandMap().getCommandFromLine(commandLine);
-    return command != null ? command.getInfo() : null;
+    //  Command command = this.cloudNet.getCommandMap().getCommandFromLine(commandLine);
+    //  return command != null ? command.getInfo() : null;
+    return null;
   }
 
   @Override
   public Collection<String> getConsoleTabCompleteResults(@NotNull String commandLine) {
-    return this.cloudNet.getCommandMap().tabCompleteCommand(commandLine);
+    // return this.cloudNet.getCommandMap().tabCompleteCommand(commandLine);
+    return Collections.emptyList();
   }
 }

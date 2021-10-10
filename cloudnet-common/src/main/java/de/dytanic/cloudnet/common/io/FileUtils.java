@@ -27,6 +27,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.CopyOption;
 import java.nio.file.DirectoryStream;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
@@ -97,6 +98,14 @@ public final class FileUtils {
       consumer.call(fileSystem);
     } catch (Throwable throwable) {
       LOGGER.severe("Exception while opening file", throwable);
+    }
+  }
+
+  public static void move(@NotNull Path from, @NotNull Path to, @NotNull CopyOption... options) {
+    try {
+      Files.move(from, to, options);
+    } catch (IOException exception) {
+      LOGGER.severe("Unable to move file " + from + " to " + to, exception);
     }
   }
 

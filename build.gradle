@@ -103,7 +103,6 @@ allprojects {
     dependencyJavassistVersion = '3.28.0-GA'
     dependencyJJWTVersion = '0.11.2'
     dependencySlf4jVersion = '1.7.32'
-    dependencyAerogelVersion = '1.2.0'
 
     testJunitVersion = '5.8.0-RC1'
     testMockitoVersion = '3.12.3'
@@ -230,9 +229,6 @@ subprojects {
   targetCompatibility = 1.8
 
   dependencies {
-    // dependency injection
-    implementation group: 'io.github.derklaro', name: 'aerogel', version: dependencyAerogelVersion
-    implementation group: 'io.github.derklaro', name: 'aerogel-auto', version: dependencyAerogelVersion
     // lombok
     compileOnly group: 'org.projectlombok', name: 'lombok', version: dependencyLombokVersion
     annotationProcessor group: 'org.projectlombok', name: 'lombok', version: dependencyLombokVersion

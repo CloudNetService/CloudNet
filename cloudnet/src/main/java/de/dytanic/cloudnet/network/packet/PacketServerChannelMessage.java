@@ -14,15 +14,17 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.deleted.command.sub;
+package de.dytanic.cloudnet.network.packet;
 
-import de.dytanic.cloudnet.common.Properties;
-import de.dytanic.cloudnet.deleted.command.ICommandSender;
-import java.util.Map;
+import de.dytanic.cloudnet.driver.channel.ChannelMessage;
+import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
+import de.dytanic.cloudnet.driver.network.def.NetworkConstants;
+import de.dytanic.cloudnet.driver.network.protocol.Packet;
+import org.jetbrains.annotations.NotNull;
 
-public interface SubCommandExecutor {
+public class PacketServerChannelMessage extends Packet {
 
-  void execute(SubCommand subCommand, ICommandSender sender, String command, SubCommandArgumentWrapper args,
-    String commandLine, Properties properties, Map<String, Object> internalProperties);
-
+  public PacketServerChannelMessage(@NotNull ChannelMessage message) {
+    super(NetworkConstants.CHANNEL_MESSAGING_CHANNEL, DataBuf.empty().writeObject(message));
+  }
 }

@@ -28,13 +28,13 @@ import de.dytanic.cloudnet.driver.network.rpc.RPCSender;
 import de.dytanic.cloudnet.driver.provider.NodeInfoProvider;
 import de.dytanic.cloudnet.driver.provider.service.CloudServiceFactory;
 import de.dytanic.cloudnet.driver.provider.service.RemoteCloudServiceFactory;
-import de.dytanic.cloudnet.driver.provider.service.RemoteSpecificCloudServiceProvider;
 import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import org.jetbrains.annotations.NotNull;
 
 public class DefaultClusterNodeServer extends DefaultNodeServer implements IClusterNodeServer {
 
+  private final CloudNet cloudNet;
   private final RPCSender rpcSender;
   private final CloudServiceFactory cloudServiceFactory;
   private final DefaultClusterNodeServerProvider provider;
@@ -46,6 +46,7 @@ public class DefaultClusterNodeServer extends DefaultNodeServer implements IClus
     DefaultClusterNodeServerProvider provider,
     NetworkClusterNode nodeInfo
   ) {
+    this.cloudNet = cloudNet;
     this.provider = provider;
 
     this.rpcSender = cloudNet.getRPCProviderFactory().providerForClass(
@@ -64,7 +65,7 @@ public class DefaultClusterNodeServer extends DefaultNodeServer implements IClus
     this.saveSendPacket(new PacketClientServerChannelMessage(channelMessage, false));
   }
 
-  @Override
+  @Override // TODO: remove
   public void sendCustomChannelMessage(@NotNull String channel, @NotNull String message, @NotNull JsonDocument data) {
     this.sendCustomChannelMessage(ChannelMessage.builder()
       .channel(channel)
@@ -114,8 +115,8 @@ public class DefaultClusterNodeServer extends DefaultNodeServer implements IClus
   }
 
   @Override
-  public SpecificCloudServiceProvider getCloudServiceProvider(@NotNull ServiceInfoSnapshot serviceInfoSnapshot) {
-    return this.channel == null ? null : new RemoteSpecificCloudServiceProvider(this.channel, serviceInfoSnapshot);
+  public SpecificCloudServiceProvider getCloudServiceProvider(@NotNull ServiceInfoSnapshot snapshot) {
+    return this.cloudNet.getCloudServiceProvider().getSpecificProvider(snapshot);
   }
 
   @Override

@@ -48,10 +48,23 @@ public class ChannelMessage {
   private String message;
 
   private DataBuf content;
-  private final ChannelMessageSender sender;
+  private ChannelMessageSender sender;
 
-  private JsonDocument json = JsonDocument.EMPTY;
-  private final Collection<ChannelMessageTarget> targets;
+  private Collection<ChannelMessageTarget> targets;
+
+  public ChannelMessage(
+    String channel,
+    String message,
+    DataBuf content,
+    ChannelMessageSender sender,
+    Collection<ChannelMessageTarget> targets
+  ) {
+    this.channel = channel;
+    this.message = message;
+    this.content = content;
+    this.sender = sender;
+    this.targets = targets;
+  }
 
   protected ChannelMessage(@NotNull ChannelMessageSender sender) {
     this.sender = sender;
@@ -86,8 +99,9 @@ public class ChannelMessage {
   }
 
   @NotNull
+  @Deprecated
   public JsonDocument getJson() {
-    return this.json;
+    return JsonDocument.newDocument();
   }
 
   /**
@@ -127,8 +141,7 @@ public class ChannelMessage {
     return this.getMessenger().sendChannelMessageQuery(this);
   }
 
-  @Nullable
-  public ChannelMessage sendSingleQuery() {
+  public @NotNull ChannelMessage sendSingleQuery() {
     return this.getMessenger().sendSingleChannelMessageQuery(this);
   }
 
@@ -154,8 +167,9 @@ public class ChannelMessage {
       return this;
     }
 
+    @Deprecated
     public Builder json(@NotNull JsonDocument document) {
-      this.channelMessage.json = document;
+      // this.channelMessage.json = document;
       return this;
     }
 

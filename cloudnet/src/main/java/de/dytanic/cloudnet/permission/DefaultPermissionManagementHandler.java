@@ -103,7 +103,7 @@ public final class DefaultPermissionManagementHandler implements IPermissionMana
   }
 
   private void sendAll(IPacket packet) {
-    CloudNet.getInstance().sendAll(packet);
+    // TODO CloudNet.getInstance().sendAll(packet);
   }
 
 }

@@ -18,7 +18,6 @@ package de.dytanic.cloudnet.network;
 
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.cluster.IClusterNodeServer;
-import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
@@ -28,6 +27,7 @@ import de.dytanic.cloudnet.driver.event.events.network.NetworkChannelCloseEvent;
 import de.dytanic.cloudnet.driver.event.events.network.NetworkChannelPacketReceiveEvent;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.INetworkChannelHandler;
+import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import de.dytanic.cloudnet.driver.network.def.packet.PacketClientAuthorization;
 import de.dytanic.cloudnet.driver.network.protocol.Packet;
 import java.util.concurrent.atomic.AtomicLong;
@@ -40,42 +40,38 @@ public final class NetworkClientChannelHandlerImpl implements INetworkChannelHan
 
   @Override
   public void handleChannelInitialize(@NotNull INetworkChannel channel) {
-    if (!NetworkChannelHandlerUtils.handleInitChannel(channel, ChannelType.CLIENT_CHANNEL)) {
-      return;
+    if (NetworkChannelHandlerUtils.shouldInitializeChannel(channel, ChannelType.CLIENT_CHANNEL)) {
+      channel.sendPacket(new PacketClientAuthorization(
+        PacketClientAuthorization.PacketAuthorizationType.NODE_TO_NODE,
+        DataBuf.empty()
+          .writeUniqueId(CloudNet.getInstance().getConfig().getClusterConfig().getClusterId())
+          .writeObject(CloudNet.getInstance().getConfig().getIdentity())));
+
+      LOGGER.fine(LanguageManager.getMessage("client-network-channel-init")
+        .replace("%serverAddress%", channel.getServerAddress().getHost() + ":" + channel.getServerAddress().getPort())
+        .replace("%clientAddress%", channel.getClientAddress().getHost() + ":" + channel.getClientAddress().getPort()));
+    } else {
+      channel.close();
     }
-
-    channel.sendPacket(new PacketClientAuthorization(
-      PacketClientAuthorization.PacketAuthorizationType.NODE_TO_NODE,
-      new JsonDocument("clusterNode", CloudNet.getInstance().getConfig().getIdentity())
-        .append("clusterId", CloudNet.getInstance().getConfig().getClusterConfig().getClusterId())
-        .append("secondNodeConnection", CONNECTION_COUNTER.incrementAndGet() > 1)
-    ));
-
-    LOGGER.fine(LanguageManager.getMessage("client-network-channel-init")
-      .replace("%serverAddress%", channel.getServerAddress().getHost() + ":" + channel.getServerAddress().getPort())
-      .replace("%clientAddress%", channel.getClientAddress().getHost() + ":" + channel.getClientAddress().getPort())
-    );
   }
 
   @Override
   public boolean handlePacketReceive(@NotNull INetworkChannel channel, @NotNull Packet packet) {
-    return !CloudNetDriver.getInstance().getEventManager()
-      .callEvent(new NetworkChannelPacketReceiveEvent(channel, packet)).isCancelled();
+    return !CloudNetDriver.getInstance().getEventManager().callEvent(
+      new NetworkChannelPacketReceiveEvent(channel, packet)).isCancelled();
   }
 
   @Override
   public void handleChannelClose(@NotNull INetworkChannel channel) {
-    CloudNetDriver.getInstance().getEventManager()
-      .callEvent(new NetworkChannelCloseEvent(channel, ChannelType.CLIENT_CHANNEL));
+    CloudNetDriver.getInstance().getEventManager().callEvent(
+      new NetworkChannelCloseEvent(channel, ChannelType.CLIENT_CHANNEL));
     CONNECTION_COUNTER.decrementAndGet();
 
     LOGGER.fine(LanguageManager.getMessage("client-network-channel-close")
       .replace("%serverAddress%", channel.getServerAddress().getHost() + ":" + channel.getServerAddress().getPort())
-      .replace("%clientAddress%", channel.getClientAddress().getHost() + ":" + channel.getClientAddress().getPort())
-    );
+      .replace("%clientAddress%", channel.getClientAddress().getHost() + ":" + channel.getClientAddress().getPort()));
 
     IClusterNodeServer clusterNodeServer = CloudNet.getInstance().getClusterNodeServerProvider().getNodeServer(channel);
-
     if (clusterNodeServer != null) {
       NetworkChannelHandlerUtils.closeNodeServer(clusterNodeServer);
     }

@@ -16,12 +16,13 @@
 
 package de.dytanic.cloudnet.network.packet;
 
+import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
+import de.dytanic.cloudnet.driver.network.def.NetworkConstants;
 import de.dytanic.cloudnet.driver.network.protocol.Packet;
 
 public final class PacketServerAuthorizationResponse extends Packet {
 
-  public PacketServerAuthorizationResponse(boolean access, String text) {
-    //TODO:  super(PacketConstants.INTERNAL_AUTHORIZATION_CHANNEL, new JsonDocument("access", access).append("text", text),
-    //TODO:    Packet.EMPTY_PACKET_BYTE_ARRAY);
+  public PacketServerAuthorizationResponse(boolean success) {
+    super(NetworkConstants.INTERNAL_AUTHORIZATION_CHANNEL, DataBuf.empty().writeBoolean(success));
   }
 }
