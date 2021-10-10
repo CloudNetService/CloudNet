@@ -16,37 +16,29 @@
 
 package de.dytanic.cloudnet.wrapper.provider;
 
-import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;
-import de.dytanic.cloudnet.driver.network.def.packet.PacketClientServerChannelMessage;
-import de.dytanic.cloudnet.driver.network.rpc.defaults.object.DefaultObjectMapper;
+import de.dytanic.cloudnet.driver.network.rpc.RPCSender;
 import de.dytanic.cloudnet.driver.provider.CloudMessenger;
 import de.dytanic.cloudnet.driver.provider.DefaultMessenger;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import java.util.Collection;
-import java.util.Collections;
 import org.jetbrains.annotations.NotNull;
 
 public class WrapperMessenger extends DefaultMessenger implements CloudMessenger {
 
-  private final Wrapper wrapper;
+  private final RPCSender rpcSender;
 
   public WrapperMessenger(Wrapper wrapper) {
-    this.wrapper = wrapper;
+    this.rpcSender = wrapper.getRPCProviderFactory().providerForClass(wrapper.getNetworkClient(), CloudMessenger.class);
   }
 
   @Override
   public void sendChannelMessage(@NotNull ChannelMessage channelMessage) {
-    this.wrapper.getNetworkClient().sendPacket(new PacketClientServerChannelMessage(channelMessage, false));
+    this.rpcSender.invokeMethod("sendChannelMessage", channelMessage).fireSync();
   }
 
   @Override
-  public @NotNull ITask<Collection<ChannelMessage>> sendChannelMessageQueryAsync(
-    @NotNull ChannelMessage channelMessage) {
-    return this.wrapper.getNetworkClient().getFirstChannel()
-      .sendQueryAsync(new PacketClientServerChannelMessage(channelMessage, true))
-      .map(packet -> packet.getContent().getReadableBytes() <= 1 ? Collections.emptyList()
-        : DefaultObjectMapper.DEFAULT_MAPPER.readObject(packet.getContent(), ChannelMessage.COLLECTION_TYPE));
+  public @NotNull Collection<ChannelMessage> sendChannelMessageQuery(@NotNull ChannelMessage channelMessage) {
+    return this.rpcSender.invokeMethod("sendChannelMessageQuery", channelMessage).fireSync();
   }
-
 }

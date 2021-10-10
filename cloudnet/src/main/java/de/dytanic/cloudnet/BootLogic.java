@@ -16,6 +16,7 @@
 
 package de.dytanic.cloudnet;
 
+import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.common.log.LoggingUtils;
 import de.dytanic.cloudnet.common.log.defaults.AcceptingLogHandler;
@@ -24,6 +25,7 @@ import de.dytanic.cloudnet.common.log.defaults.DefaultLogFormatter;
 import de.dytanic.cloudnet.common.log.defaults.ThreadedLogRecordDispatcher;
 import de.dytanic.cloudnet.common.log.io.LogOutputStream;
 import de.dytanic.cloudnet.console.IConsole;
+import de.dytanic.cloudnet.console.JLine3Console;
 import de.dytanic.cloudnet.console.log.ColouredLogFormatter;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -36,7 +38,11 @@ public final class BootLogic {
   }
 
   public static synchronized void main(String[] args) throws Throwable {
-    CloudNet nodeInstance = new CloudNet(args);
+    // init logger and console
+    IConsole console = new JLine3Console();
+    initLoggerAndConsole(console, LogManager.getRootLogger());
+    // boot CloudNet
+    CloudNet nodeInstance = new CloudNet(args, console);
     nodeInstance.start();
 /*
     LanguageManager.setLanguage(System.getProperty("cloudnet.messages.language", "english"));

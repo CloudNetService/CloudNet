@@ -17,19 +17,27 @@
 package de.dytanic.cloudnet.cluster;
 
 import de.dytanic.cloudnet.CloudNet;
+import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import de.dytanic.cloudnet.driver.channel.ChannelMessage;
+import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
+import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
+import de.dytanic.cloudnet.driver.network.def.NetworkConstants;
 import de.dytanic.cloudnet.driver.provider.service.CloudServiceFactory;
 import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
+import de.dytanic.cloudnet.driver.service.ProcessSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.provider.service.EmptySpecificCloudServiceProvider;
 import de.dytanic.cloudnet.service.ICloudService;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class LocalNodeServer extends DefaultNodeServer implements NodeServer {
 
   private final CloudNet cloudNet;
+  private final long startupMillis;
   private final NodeServerProvider<? extends NodeServer> provider;
 
   protected LocalNodeServer(
@@ -38,9 +46,9 @@ public class LocalNodeServer extends DefaultNodeServer implements NodeServer {
   ) {
     this.cloudNet = cloudNet;
     this.provider = provider;
+    this.startupMillis = System.currentTimeMillis();
 
-    // TODO this.setNodeInfoSnapshot(this.cloudNet.createClusterNodeInfoSnapshot());
-    // TODO this.setNodeInfo(this.cloudNet.getConfig().getIdentity());
+    this.setNodeInfo(cloudNet.getConfig().getIdentity());
   }
 
   @Override
@@ -74,5 +82,31 @@ public class LocalNodeServer extends DefaultNodeServer implements NodeServer {
   @Override
   public void close() throws Exception {
     this.cloudNet.stop();
+  }
+
+  // TODO: modules are missing
+  public void publishNodeInfoSnapshotUpdate() {
+    // create a new node info snapshot
+    this.setNodeInfoSnapshot(new NetworkClusterNodeInfoSnapshot(
+      System.currentTimeMillis(),
+      this.startupMillis,
+      this.cloudNet.getConfig().getMaxMemory(),
+      this.cloudNet.getCloudServiceProvider().getCurrentUsedHeapMemory(),
+      this.cloudNet.getCloudServiceProvider().getCurrentReservedMemory(),
+      this.cloudNet.getCloudServiceProvider().getLocalCloudServices().size(),
+      this.nodeInfo,
+      CloudNet.getInstance().getVersion(),
+      ProcessSnapshot.self(),
+      this.cloudNet.getConfig().getMaxCPUUsageToStartServices(),
+      Collections.emptyList(),
+      this.currentSnapshot == null ? JsonDocument.newDocument() : this.currentSnapshot.getProperties()));
+    // send the new node info to all nodes
+    ChannelMessage.builder()
+      .targetNodes()
+      .message("update_node_info_snapshot")
+      .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
+      .buffer(DataBuf.empty().writeObject(this.currentSnapshot))
+      .build()
+      .send();
   }
 }

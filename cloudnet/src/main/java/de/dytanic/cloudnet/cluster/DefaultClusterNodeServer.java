@@ -17,12 +17,10 @@
 package de.dytanic.cloudnet.cluster;
 
 import de.dytanic.cloudnet.CloudNet;
-import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
-import de.dytanic.cloudnet.driver.network.def.packet.PacketClientServerChannelMessage;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.network.rpc.RPCSender;
 import de.dytanic.cloudnet.driver.provider.NodeInfoProvider;
@@ -30,6 +28,7 @@ import de.dytanic.cloudnet.driver.provider.service.CloudServiceFactory;
 import de.dytanic.cloudnet.driver.provider.service.RemoteCloudServiceFactory;
 import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
+import de.dytanic.cloudnet.network.packet.PacketServerChannelMessage;
 import org.jetbrains.annotations.NotNull;
 
 public class DefaultClusterNodeServer extends DefaultNodeServer implements IClusterNodeServer {
@@ -62,17 +61,7 @@ public class DefaultClusterNodeServer extends DefaultNodeServer implements IClus
 
   @Override
   public void sendCustomChannelMessage(@NotNull ChannelMessage channelMessage) {
-    this.saveSendPacket(new PacketClientServerChannelMessage(channelMessage, false));
-  }
-
-  @Override // TODO: remove
-  public void sendCustomChannelMessage(@NotNull String channel, @NotNull String message, @NotNull JsonDocument data) {
-    this.sendCustomChannelMessage(ChannelMessage.builder()
-      .channel(channel)
-      .message(message)
-      .json(data)
-      .targetNode(this.nodeInfo.getUniqueId())
-      .build());
+    this.saveSendPacket(new PacketServerChannelMessage(channelMessage));
   }
 
   @Override

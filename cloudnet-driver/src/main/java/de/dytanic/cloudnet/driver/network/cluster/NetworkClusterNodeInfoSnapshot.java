@@ -17,186 +17,104 @@
 package de.dytanic.cloudnet.driver.network.cluster;
 
 import de.dytanic.cloudnet.common.document.gson.BasicJsonDocPropertyable;
+import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import de.dytanic.cloudnet.driver.CloudNetVersion;
 import de.dytanic.cloudnet.driver.module.ModuleConfiguration;
 import de.dytanic.cloudnet.driver.service.ProcessSnapshot;
-import java.lang.reflect.Type;
 import java.util.Collection;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.jetbrains.annotations.NotNull;
 
 @ToString
 @EqualsAndHashCode(callSuper = false)
 public class NetworkClusterNodeInfoSnapshot extends BasicJsonDocPropertyable {
 
-  @Deprecated
-  public static final Type TYPE = NetworkClusterNodeInfoSnapshot.class;
+  protected final long creationTime;
+  protected final long startupMillis;
 
-  protected long creationTime;
-  protected long startupMillis;
-  protected NetworkClusterNode node;
-  protected String version;
-  protected int currentServicesCount;
-  protected int usedMemory;
-  protected int reservedMemory;
-  protected int maxMemory;
-  protected double maxCPUUsageToStartServices;
-  protected ProcessSnapshot processSnapshot;
-  protected Collection<ModuleConfiguration> modules;
-  private double systemCpuUsage;
+  protected final int maxMemory;
+  protected final int usedMemory;
+  protected final int reservedMemory;
+  protected final int currentServicesCount;
 
-  /**
-   * @deprecated Use {@link #NetworkClusterNodeInfoSnapshot(long, long, NetworkClusterNode, String, int, int, int, int,
-   * double, ProcessSnapshot, Collection, double)} instead
-   */
-  @Deprecated
-  public NetworkClusterNodeInfoSnapshot(long creationTime,
-    NetworkClusterNode node,
-    String version,
-    int currentServicesCount,
-    int usedMemory,
-    int reservedMemory,
-    int maxMemory,
-    ProcessSnapshot processSnapshot,
-    Collection<ModuleConfiguration> modules,
-    double systemCpuUsage) {
-    this(
-      creationTime,
-      System.nanoTime(),
-      node,
-      version,
-      currentServicesCount,
-      usedMemory,
-      reservedMemory,
-      maxMemory,
-      0,
-      processSnapshot,
-      modules,
-      systemCpuUsage
-    );
-  }
+  protected final NetworkClusterNode node;
+  protected final CloudNetVersion version;
 
-  public NetworkClusterNodeInfoSnapshot(long creationTime,
+  protected final ProcessSnapshot processSnapshot;
+  protected final double maxCPUUsageToStartServices;
+
+  protected final Collection<ModuleConfiguration> modules;
+
+  public NetworkClusterNodeInfoSnapshot(
+    long creationTime,
     long startupMillis,
-    NetworkClusterNode node,
-    String version,
-    int currentServicesCount,
+    int maxMemory,
     int usedMemory,
     int reservedMemory,
-    int maxMemory,
+    int currentServicesCount,
+    @NotNull NetworkClusterNode node,
+    @NotNull CloudNetVersion version,
+    @NotNull ProcessSnapshot processSnapshot,
     double maxCPUUsageToStartServices,
-    ProcessSnapshot processSnapshot,
-    Collection<ModuleConfiguration> modules,
-    double systemCpuUsage) {
+    @NotNull Collection<ModuleConfiguration> modules,
+    @NotNull JsonDocument properties
+  ) {
     this.creationTime = creationTime;
     this.startupMillis = startupMillis;
-    this.node = node;
-    this.version = version;
-    this.currentServicesCount = currentServicesCount;
+    this.maxMemory = maxMemory;
     this.usedMemory = usedMemory;
     this.reservedMemory = reservedMemory;
-    this.maxMemory = maxMemory;
-    this.maxCPUUsageToStartServices = maxCPUUsageToStartServices;
+    this.currentServicesCount = currentServicesCount;
+    this.node = node;
+    this.version = version;
     this.processSnapshot = processSnapshot;
+    this.maxCPUUsageToStartServices = maxCPUUsageToStartServices;
     this.modules = modules;
-    this.systemCpuUsage = systemCpuUsage;
-  }
-
-  public NetworkClusterNodeInfoSnapshot() {
+    this.properties = properties;
   }
 
   public long getCreationTime() {
     return this.creationTime;
   }
 
-  public void setCreationTime(long creationTime) {
-    this.creationTime = creationTime;
-  }
-
   public long getStartupMillis() {
     return this.startupMillis;
-  }
-
-  public NetworkClusterNode getNode() {
-    return this.node;
-  }
-
-  public void setNode(NetworkClusterNode node) {
-    this.node = node;
-  }
-
-  public String getVersion() {
-    return this.version;
-  }
-
-  public void setVersion(String version) {
-    this.version = version;
-  }
-
-  public int getCurrentServicesCount() {
-    return this.currentServicesCount;
-  }
-
-  public void setCurrentServicesCount(int currentServicesCount) {
-    this.currentServicesCount = currentServicesCount;
-  }
-
-  public int getUsedMemory() {
-    return this.usedMemory;
-  }
-
-  public void setUsedMemory(int usedMemory) {
-    this.usedMemory = usedMemory;
-  }
-
-  public int getReservedMemory() {
-    return this.reservedMemory;
-  }
-
-  public void setReservedMemory(int reservedMemory) {
-    this.reservedMemory = reservedMemory;
-  }
-
-  public void addReservedMemory(int reservedMemory) {
-    this.reservedMemory += reservedMemory;
   }
 
   public int getMaxMemory() {
     return this.maxMemory;
   }
 
-  public void setMaxMemory(int maxMemory) {
-    this.maxMemory = maxMemory;
+  public int getUsedMemory() {
+    return this.usedMemory;
+  }
+
+  public int getReservedMemory() {
+    return this.reservedMemory;
+  }
+
+  public int getCurrentServicesCount() {
+    return this.currentServicesCount;
+  }
+
+  public @NotNull NetworkClusterNode getNode() {
+    return this.node;
+  }
+
+  public @NotNull CloudNetVersion getVersion() {
+    return this.version;
+  }
+
+  public @NotNull ProcessSnapshot getProcessSnapshot() {
+    return this.processSnapshot;
   }
 
   public double getMaxCPUUsageToStartServices() {
     return this.maxCPUUsageToStartServices;
   }
 
-  public void setMaxCPUUsageToStartServices(double maxCPUUsageToStartServices) {
-    this.maxCPUUsageToStartServices = maxCPUUsageToStartServices;
-  }
-
-  public ProcessSnapshot getProcessSnapshot() {
-    return this.processSnapshot;
-  }
-
-  public void setProcessSnapshot(ProcessSnapshot processSnapshot) {
-    this.processSnapshot = processSnapshot;
-  }
-
-  public Collection<ModuleConfiguration> getModules() {
+  public @NotNull Collection<ModuleConfiguration> getModules() {
     return this.modules;
-  }
-
-  public void setModules(Collection<ModuleConfiguration> modules) {
-    this.modules = modules;
-  }
-
-  public double getSystemCpuUsage() {
-    return this.systemCpuUsage;
-  }
-
-  public void setSystemCpuUsage(double systemCpuUsage) {
-    this.systemCpuUsage = systemCpuUsage;
   }
 }

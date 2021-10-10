@@ -32,25 +32,21 @@ public interface IConfiguration {
 
   void load();
 
-  void save();
+  @NotNull IConfiguration save();
 
-  void setDefaultHostAddress(String hostAddress);
+  @NotNull String getHostAddress();
 
-  String getDefaultHostAddress();
+  void setHostAddress(@NotNull String hostAddress);
 
-  String getHostAddress();
+  @NotNull String getConnectHostAddress();
 
-  void setHostAddress(String hostAddress);
+  void setConnectHostAddress(@NotNull String connectHostAddress);
 
-  String getConnectHostAddress();
+  @NotNull NetworkClusterNode getIdentity();
 
-  void setConnectHostAddress(String connectHostAddress);
+  void setIdentity(@NotNull NetworkClusterNode identity);
 
-  NetworkClusterNode getIdentity();
-
-  void setIdentity(NetworkClusterNode identity);
-
-  NetworkCluster getClusterConfig();
+  @NotNull NetworkCluster getClusterConfig();
 
   void setClusterConfig(@NotNull NetworkCluster clusterConfig);
 
@@ -67,11 +63,17 @@ public interface IConfiguration {
   @NotNull
   SSLConfiguration getClientSslConfig();
 
+  void setClientSslConfig(@NotNull SSLConfiguration clientSslConfig);
+
   @NotNull
   SSLConfiguration getServerSslConfig();
 
+  void setServerSslConfig(@NotNull SSLConfiguration serverSslConfig);
+
   @NotNull
   SSLConfiguration getWebSslConfig();
+
+  void setWebSslConfig(@NotNull SSLConfiguration webSslConfig);
 
   double getMaxCPUUsageToStartServices();
 
@@ -89,19 +91,17 @@ public interface IConfiguration {
 
   void setPrintErrorStreamLinesFromServices(boolean printErrorStreamLinesFromServices);
 
-  boolean isParallelServiceStartSequence();
-
-  void setParallelServiceStartSequence(boolean value);
-
   boolean isRunBlockedServiceStartTryLaterAutomatic();
 
   void setRunBlockedServiceStartTryLaterAutomatic(boolean runBlockedServiceStartTryLaterAutomatic);
 
-  DefaultJVMFlags getDefaultJVMFlags();
+  @NotNull DefaultJVMFlags getDefaultJVMFlags();
 
-  void setDefaultJVMFlags(DefaultJVMFlags defaultJVMFlags);
+  void setDefaultJVMFlags(@NotNull DefaultJVMFlags defaultJVMFlags);
 
-  String getJVMCommand();
+  @NotNull String getJVMCommand();
+
+  void setJVMCommand(@NotNull String jvmCommand);
 
   int getProcessTerminationTimeoutSeconds();
 

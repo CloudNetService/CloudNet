@@ -16,6 +16,7 @@
 
 package de.dytanic.cloudnet.driver.service;
 
+import com.sun.management.OperatingSystemMXBean;
 import de.dytanic.cloudnet.common.unsafe.CPUUsageResolver;
 import java.lang.management.ClassLoadingMXBean;
 import java.lang.management.ManagementFactory;
@@ -35,13 +36,14 @@ import org.jetbrains.annotations.NotNull;
 @EqualsAndHashCode
 public class ProcessSnapshot implements Cloneable {
 
-  private static final ProcessSnapshot EMPTY = new ProcessSnapshot(
-    -1, -1, -1, -1, -1, -1, Collections.emptyList(), -1, -1);
+  // init them here to reduce lookup load
+  public static final MemoryMXBean MEMORY_MX_BEAN = ManagementFactory.getMemoryMXBean();
+  public static final ClassLoadingMXBean CLASS_LOADING_MX_BEAN = ManagementFactory.getClassLoadingMXBean();
+  public static final OperatingSystemMXBean OS_BEAN = ManagementFactory.getPlatformMXBean(OperatingSystemMXBean.class);
 
   private static final int OWN_PID;
-  // init them here to reduce lookup load
-  private static final MemoryMXBean MEMORY_MX_BEAN = ManagementFactory.getMemoryMXBean();
-  private static final ClassLoadingMXBean CLASS_LOADING_MX_BEAN = ManagementFactory.getClassLoadingMXBean();
+  private static final ProcessSnapshot EMPTY = new ProcessSnapshot(
+    -1, -1, -1, -1, -1, -1, -1, -1, -1, Collections.emptyList());
 
   static {
     String runtimeName = ManagementFactory.getRuntimeMXBean().getName();
@@ -61,6 +63,8 @@ public class ProcessSnapshot implements Cloneable {
   private final int pid;
 
   private final double cpuUsage;
+  private final double systemCpuUsage;
+
   private final long maxHeapMemory;
   private final long heapUsageMemory;
   private final long noHeapUsageMemory;
@@ -71,33 +75,10 @@ public class ProcessSnapshot implements Cloneable {
 
   private final Collection<ThreadSnapshot> threads;
 
-  @Deprecated
-  public ProcessSnapshot(
-    long heapUsageMemory,
-    long noHeapUsageMemory,
-    long maxHeapMemory,
-    int currentLoadedClassCount,
-    long totalLoadedClassCount,
-    long unloadedClassCount,
-    Collection<ThreadSnapshot> threads,
-    double cpuUsage,
-    int pid
-  ) {
-    this(
-      pid,
-      cpuUsage,
-      maxHeapMemory,
-      heapUsageMemory,
-      noHeapUsageMemory,
-      unloadedClassCount,
-      totalLoadedClassCount,
-      currentLoadedClassCount,
-      threads);
-  }
-
   public ProcessSnapshot(
     int pid,
     double cpuUsage,
+    double systemCpuUsage,
     long maxHeapMemory,
     long heapUsageMemory,
     long noHeapUsageMemory,
@@ -108,6 +89,7 @@ public class ProcessSnapshot implements Cloneable {
   ) {
     this.pid = pid;
     this.cpuUsage = cpuUsage;
+    this.systemCpuUsage = systemCpuUsage;
     this.maxHeapMemory = maxHeapMemory;
     this.heapUsageMemory = heapUsageMemory;
     this.noHeapUsageMemory = noHeapUsageMemory;
@@ -135,14 +117,14 @@ public class ProcessSnapshot implements Cloneable {
     return new ProcessSnapshot(
       getOwnPID(),
       CPUUsageResolver.getProcessCPUUsage(),
+      CPUUsageResolver.getSystemCPUUsage(),
       MEMORY_MX_BEAN.getHeapMemoryUsage().getMax(),
       MEMORY_MX_BEAN.getHeapMemoryUsage().getUsed(),
       MEMORY_MX_BEAN.getNonHeapMemoryUsage().getUsed(),
       CLASS_LOADING_MX_BEAN.getUnloadedClassCount(),
       CLASS_LOADING_MX_BEAN.getTotalLoadedClassCount(),
       CLASS_LOADING_MX_BEAN.getLoadedClassCount(),
-      Thread.getAllStackTraces().keySet().stream().map(ThreadSnapshot::new).collect(Collectors.toList())
-    );
+      Thread.getAllStackTraces().keySet().stream().map(ThreadSnapshot::new).collect(Collectors.toList()));
   }
 
   /**
@@ -182,6 +164,10 @@ public class ProcessSnapshot implements Cloneable {
 
   public double getCpuUsage() {
     return this.cpuUsage;
+  }
+
+  public double getSystemCpuUsage() {
+    return this.systemCpuUsage;
   }
 
   public int getPid() {

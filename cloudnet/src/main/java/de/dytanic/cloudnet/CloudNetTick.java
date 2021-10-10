@@ -13,33 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/*
+
 package de.dytanic.cloudnet;
 
-import de.dytanic.cloudnet.cluster.NodeServer;
-import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.concurrent.ListenableTask;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
-import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
-import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
-import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
 import de.dytanic.cloudnet.driver.service.ServiceTask;
 import de.dytanic.cloudnet.event.instance.CloudNetTickEvent;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.Map;
 import java.util.Queue;
-import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.stream.Collectors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-TODO
-public class CloudNetTick {
+
+public final class CloudNetTick {
 
   public static final int TPS = 10;
   public static final int MILLIS_BETWEEN_TICKS = 1000 / TPS;
@@ -47,49 +38,75 @@ public class CloudNetTick {
   private static final Logger LOGGER = LogManager.getLogger(CloudNetTick.class);
 
   private final CloudNet cloudNet;
-  private final Queue<ITask<?>> processQueue = new ConcurrentLinkedQueue<>();
+  private final AtomicLong currentTick = new AtomicLong();
+  private final Queue<ScheduledTask<?>> processQueue = new ConcurrentLinkedQueue<>();
 
   public CloudNetTick(CloudNet cloudNet) {
     this.cloudNet = cloudNet;
   }
 
-  @NotNull
-  public <T> ITask<T> runTask(@NotNull Callable<T> callable) {
-    ITask<T> task = new ListenableTask<>(callable);
+  public @NotNull ITask<Void> runTask(@NotNull Runnable runnable) {
+    return this.runTask(() -> {
+      runnable.run();
+      return null;
+    });
+  }
+
+  public @NotNull <T> ITask<T> runTask(@NotNull Callable<T> callable) {
+    ScheduledTask<T> task = new ScheduledTask<>(callable, this.currentTick.get() + 1);
+    this.processQueue.offer(task);
+    return task;
+  }
+
+  public @NotNull ITask<Void> runDelayedTask(@NotNull Runnable runnable, long delay, @NotNull TimeUnit timeUnit) {
+    return this.runDelayedTask(() -> {
+      runnable.run();
+      return null;
+    }, delay, timeUnit);
+  }
+
+  public @NotNull <T> ITask<T> runDelayedTask(@NotNull Callable<T> callable, long delay, @NotNull TimeUnit timeUnit) {
+    ScheduledTask<T> task = new ScheduledTask<>(
+      callable,
+      this.currentTick.get() + (timeUnit.toMillis(delay) / MILLIS_BETWEEN_TICKS));
     this.processQueue.offer(task);
     return task;
   }
 
   public void start() {
+    long tick;
     long lastTickLength;
-    long currentTickNumber = 0;
     long lastTick = System.currentTimeMillis();
 
     while (this.cloudNet.isRunning()) {
       try {
-        currentTickNumber++;
-
+        // update the current tick we are in
+        tick = this.currentTick.getAndIncrement();
+        // calculate oversleep time
         lastTickLength = System.currentTimeMillis() - lastTick;
         if (lastTickLength < MILLIS_BETWEEN_TICKS) {
           try {
+            //noinspection BusyWait
             Thread.sleep(MILLIS_BETWEEN_TICKS - lastTickLength);
           } catch (Exception exception) {
-            LOGGER.severe("Exception while ticking", exception);
+            LOGGER.severe("Exception while oversleeping tick time", exception);
           }
         }
 
+        // update the last tick time
         lastTick = System.currentTimeMillis();
-        while (!this.processQueue.isEmpty()) {
-          ITask<?> task = this.processQueue.poll();
-          if (task != null) {
+
+        // execute all scheduled tasks for this tick
+        for (ScheduledTask<?> task : this.processQueue) {
+          if (task.scheduledTick <= tick) {
             task.call();
+            this.processQueue.remove(task);
           }
         }
 
-        if (this.cloudNet.getClusterNodeServerProvider().getSelfNode().isHeadNode()) {
-          if (currentTickNumber % TPS * 2 == 0) {
-            this.startService();
-          }
+        // check if we should start a service now
+        if (this.cloudNet.getClusterNodeServerProvider().getSelfNode().isHeadNode() && tick % TPS == 0) {
+          this.startService();
         }
 
         this.cloudNet.getEventManager().callEvent(new CloudNetTickEvent());
@@ -100,66 +117,27 @@ public class CloudNetTick {
   }
 
   private void startService() {
-    for (ServiceTask serviceTask : this.cloudNet.getServiceTaskProvider().getPermanentServiceTasks()) {
-      if (serviceTask.canStartServices()) {
-        Collection<ServiceInfoSnapshot> taskServices = this.cloudNet.getCloudServiceProvider()
-          .getCloudServices(serviceTask.getName());
-
-        long runningServicesCount = taskServices.stream()
+    for (ServiceTask task : this.cloudNet.getServiceTaskProvider().getPermanentServiceTasks()) {
+      if (task.canStartServices()) {
+        // get the count of running services
+        long runningServiceCount = this.cloudNet.getCloudServiceProvider().getCloudServices(task.getName()).stream()
           .filter(taskService -> taskService.getLifeCycle() == ServiceLifeCycle.RUNNING)
           .count();
-
-        if (serviceTask.getMinServiceCount() > runningServicesCount) {
-          // checking if there is a prepared service that can be started instead of creating a new service
-          if (this.startPreparedService(taskServices)) {
-            return;
-          }
-          // start a new service if no service is available
-          NodeServer nodeServer = this.cloudNet.searchLogicNodeServer(serviceTask);
-          if (nodeServer != null) {
-            // found the best node server to start the service on
-            nodeServer.getCloudServiceFactory()
-              .createCloudServiceAsync(ServiceConfiguration.builder(serviceTask).build())
-              .onComplete(snapshot -> this.startPreparedService(nodeServer, snapshot));
-          }
+        // check if we need to start a service
+        if (task.getMinServiceCount() > runningServiceCount) {
+          this.cloudNet.getCloudServiceProvider().startService(task);
         }
       }
     }
   }
 
-  private boolean startPreparedService(@NotNull Collection<ServiceInfoSnapshot> taskServices) {
-    Map<String, Set<ServiceInfoSnapshot>> preparedServices = taskServices.stream()
-      .filter(taskService -> taskService.getLifeCycle() == ServiceLifeCycle.PREPARED)
-      .collect(Collectors.groupingBy(info -> info.getServiceId().getNodeUniqueId(), Collectors.toSet()));
+  private static final class ScheduledTask<T> extends ListenableTask<T> {
 
-    if (!preparedServices.isEmpty()) {
-      Pair<NodeServer, Set<ServiceInfoSnapshot>> logicServices = this.cloudNet.searchLogicNodeServer(preparedServices);
-      if (logicServices != null && !logicServices.getSecond().isEmpty()) {
-        Set<ServiceInfoSnapshot> services = logicServices.getSecond();
-        if (services.size() == 1) {
-          return this.startPreparedService(logicServices.getFirst(), services.iterator().next());
-        } else {
-          ServiceInfoSnapshot snapshot = services.stream()
-            .min(Comparator.comparingInt(info -> info.getServiceId().getTaskServiceId()))
-            .orElse(null);
-          if (snapshot != null) {
-            return this.startPreparedService(logicServices.getFirst(), snapshot);
-          }
-        }
-      }
-    }
-    return false;
-  }
+    private final long scheduledTick;
 
-  private boolean startPreparedService(@NotNull NodeServer nodeServer, @Nullable ServiceInfoSnapshot snapshot) {
-    if (snapshot != null) {
-      SpecificCloudServiceProvider provider = nodeServer.getCloudServiceProvider(snapshot);
-      if (provider != null) {
-        provider.start();
-        return true;
-      }
+    public ScheduledTask(@NotNull Callable<T> callable, long scheduledTick) {
+      super(callable);
+      this.scheduledTick = scheduledTick;
     }
-    return false;
   }
 }
-*/

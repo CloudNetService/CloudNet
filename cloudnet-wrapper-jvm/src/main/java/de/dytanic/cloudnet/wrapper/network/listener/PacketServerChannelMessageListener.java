@@ -23,11 +23,12 @@ import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.network.protocol.IPacketListener;
+import org.jetbrains.annotations.NotNull;
 
 public final class PacketServerChannelMessageListener implements IPacketListener {
 
   @Override
-  public void handle(INetworkChannel channel, IPacket packet) {
+  public void handle(@NotNull INetworkChannel channel, IPacket packet) {
     ChannelMessage message = packet.getContent().readObject(ChannelMessage.class);
     boolean query = packet.getContent().readBoolean();
 

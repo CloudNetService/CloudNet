@@ -40,7 +40,7 @@ public class RPCPacketListener implements IPacketListener {
   }
 
   @Override
-  public void handle(INetworkChannel channel, IPacket packet) throws Exception {
+  public void handle(@NotNull INetworkChannel channel, IPacket packet) throws Exception {
     // the result of the invocation, encoded
     DataBuf result = null;
     // the input information we get

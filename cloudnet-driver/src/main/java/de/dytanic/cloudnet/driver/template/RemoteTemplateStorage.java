@@ -17,7 +17,6 @@
 package de.dytanic.cloudnet.driver.template;
 
 import de.dytanic.cloudnet.common.concurrent.ITask;
-import de.dytanic.cloudnet.driver.api.DriverAPIUser;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import de.dytanic.cloudnet.driver.template.defaults.DefaultAsyncTemplateStorage;
@@ -30,15 +29,10 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 // todo: re-implement later
-public class RemoteTemplateStorage extends DefaultAsyncTemplateStorage implements DriverAPIUser {
+public class RemoteTemplateStorage extends DefaultAsyncTemplateStorage {
 
   @Override
   public @NotNull String getName() {
-    return null;
-  }
-
-  @Override
-  public INetworkChannel getNetworkChannel() {
     return null;
   }
 

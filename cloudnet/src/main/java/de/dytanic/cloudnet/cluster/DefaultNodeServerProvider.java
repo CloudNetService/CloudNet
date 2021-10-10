@@ -28,7 +28,7 @@ import org.jetbrains.annotations.Nullable;
 public abstract class DefaultNodeServerProvider<T extends NodeServer> implements NodeServerProvider<T> {
 
   protected final CloudNet cloudNet;
-  protected final NodeServer localNode;
+  protected final LocalNodeServer localNode;
   protected final Set<T> nodeServers = new CopyOnWriteArraySet<>();
 
   protected volatile NodeServer headNode;
@@ -36,6 +36,7 @@ public abstract class DefaultNodeServerProvider<T extends NodeServer> implements
   public DefaultNodeServerProvider(@NotNull CloudNet cloudNet) {
     this.cloudNet = cloudNet;
     this.localNode = new LocalNodeServer(cloudNet, this);
+
     this.refreshHeadNode();
   }
 
@@ -60,25 +61,23 @@ public abstract class DefaultNodeServerProvider<T extends NodeServer> implements
   }
 
   @Override
-  public NodeServer getSelfNode() {
+  public LocalNodeServer getSelfNode() {
     return this.localNode;
   }
 
   @Override
   public void refreshHeadNode() {
-    NodeServer currentChoice = this.localNode;
-    if (!this.nodeServers.isEmpty()) {
-      for (T nodeServer : this.nodeServers) {
-        if (nodeServer.isAvailable()) {
-          NetworkClusterNodeInfoSnapshot snapshot = nodeServer.getNodeInfoSnapshot();
-          if (snapshot != null && snapshot.getStartupMillis() < currentChoice.getNodeInfoSnapshot()
-            .getStartupMillis()) {
-            currentChoice = nodeServer;
-          }
+    NodeServer choice = this.localNode;
+    for (T nodeServer : this.nodeServers) {
+      if (nodeServer.isAvailable()) {
+        // the head node is always the node which runs the longest
+        NetworkClusterNodeInfoSnapshot snapshot = nodeServer.getNodeInfoSnapshot();
+        if (snapshot != null && snapshot.getStartupMillis() < choice.getNodeInfoSnapshot().getStartupMillis()) {
+          choice = nodeServer;
         }
       }
     }
 
-    this.headNode = currentChoice;
+    this.headNode = choice;
   }
 }

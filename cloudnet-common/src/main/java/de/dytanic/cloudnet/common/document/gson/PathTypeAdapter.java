@@ -26,17 +26,19 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 @Internal
 public final class PathTypeAdapter extends TypeAdapter<Path> {
 
   @Override
-  public void write(@NotNull JsonWriter out, @NotNull Path value) throws IOException {
-    TypeAdapters.STRING.write(out, value.toString().replace(File.separatorChar, '/'));
+  public void write(@NotNull JsonWriter out, @Nullable Path value) throws IOException {
+    TypeAdapters.STRING.write(out, value == null ? null : value.toString().replace(File.separatorChar, '/'));
   }
 
   @Override
-  public @NotNull Path read(JsonReader in) throws IOException {
-    return Paths.get(TypeAdapters.STRING.read(in));
+  public @Nullable Path read(JsonReader in) throws IOException {
+    String path = TypeAdapters.STRING.read(in);
+    return path == null ? null : Paths.get(path);
   }
 }

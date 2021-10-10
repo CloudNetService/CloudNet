@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+/*
 package de.dytanic.cloudnet.permission;
 
 import de.dytanic.cloudnet.CloudNet;
@@ -107,3 +107,4 @@ public final class DefaultPermissionManagementHandler implements IPermissionMana
   }
 
 }
+*/

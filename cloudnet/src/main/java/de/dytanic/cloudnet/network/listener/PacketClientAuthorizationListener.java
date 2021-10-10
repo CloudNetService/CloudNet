@@ -29,11 +29,12 @@ import de.dytanic.cloudnet.driver.service.ServiceId;
 import de.dytanic.cloudnet.network.packet.PacketServerAuthorizationResponse;
 import de.dytanic.cloudnet.service.ICloudService;
 import java.util.UUID;
+import org.jetbrains.annotations.NotNull;
 
 public final class PacketClientAuthorizationListener implements IPacketListener {
 
   @Override
-  public void handle(INetworkChannel channel, IPacket packet) throws Exception {
+  public void handle(@NotNull INetworkChannel channel, IPacket packet) throws Exception {
     // read the core data
     int type = packet.getContent().readInt();
     DataBuf content = packet.getContent().readDataBuf();
