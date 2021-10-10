@@ -299,8 +299,7 @@ public class DefaultDatabasePermissionManagement extends ClusterSynchronizedPerm
   }
 
   @Override
-  public void deleteGroup(
-    @NotNull IPermissionGroup permissionGroup) {
+  public void deleteGroup(@NotNull IPermissionGroup permissionGroup) {
 
   }
 
@@ -310,14 +309,12 @@ public class DefaultDatabasePermissionManagement extends ClusterSynchronizedPerm
   }
 
   @Override
-  public IPermissionUser addUser(
-    @NotNull IPermissionUser permissionUser) {
+  public IPermissionUser addUser(@NotNull IPermissionUser permissionUser) {
     return null;
   }
 
   @Override
-  public void updateUser(
-    @NotNull IPermissionUser permissionUser) {
+  public void updateUser(@NotNull IPermissionUser permissionUser) {
 
   }
 
@@ -327,8 +324,7 @@ public class DefaultDatabasePermissionManagement extends ClusterSynchronizedPerm
   }
 
   @Override
-  public boolean deleteUser(
-    @NotNull IPermissionUser permissionUser) {
+  public boolean deleteUser(@NotNull IPermissionUser permissionUser) {
     return false;
   }
 

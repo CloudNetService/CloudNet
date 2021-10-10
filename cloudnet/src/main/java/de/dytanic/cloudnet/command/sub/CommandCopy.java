@@ -35,7 +35,7 @@ public class CommandCopy {
   @CommandMethod("copy|cp <service>")
   public void copyService(
     CommandSource source,
-    @Argument("service") ServiceInfoSnapshot service,
+    @Argument(value = "service", parserName = "single") ServiceInfoSnapshot service,
     @Flag("template") ServiceTemplate template
   ) {
     ServiceTemplate targetTemplate = template;

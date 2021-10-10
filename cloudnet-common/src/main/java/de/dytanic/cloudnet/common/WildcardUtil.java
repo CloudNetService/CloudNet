@@ -19,8 +19,8 @@ package de.dytanic.cloudnet.common;
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
@@ -91,7 +91,7 @@ public final class WildcardUtil {
       return inputValues;
     } else {
       Pattern pattern = prepare(regex, caseSensitive);
-      return pattern == null ? Collections.emptyList() : inputValues.stream()
+      return pattern == null ? new ArrayList<>() : inputValues.stream()
         .filter(t -> pattern.matcher(t.getName()).matches())
         .collect(Collectors.toList());
     }

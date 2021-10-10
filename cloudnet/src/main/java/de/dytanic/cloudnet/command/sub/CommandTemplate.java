@@ -85,7 +85,7 @@ public class CommandTemplate {
       .replace("%storage%", resultingStorage.getName()));
 
     for (ServiceTemplate template : resultingStorage.getTemplates()) {
-      messages.add("  " + template.getTemplatePath());
+      messages.add("  " + template.toString());
     }
 
     source.sendMessage(messages);
