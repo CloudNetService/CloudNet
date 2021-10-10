@@ -43,4 +43,6 @@ shadowJar {
 
   relocate 'com.google.common', 'de.dytanic.cloudnet.wrapper.relocate.guava'
   relocate 'com.google.gson', 'de.dytanic.cloudnet.wrapper.relocate.gson'
+
+  minimize()
 }

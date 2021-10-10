@@ -105,4 +105,16 @@ public class CloudNetVersion {
   public @NotNull String getVersionTitle() {
     return this.versionTitle;
   }
+
+  @Override
+  public String toString() {
+    // CloudNet Blizzard 3.5.0-SNAPSHOT
+    String toString =
+      "CloudNet " + this.versionTitle + ' ' + this.major + '.' + this.minor + '.' + this.patch + '-' + this.versionType;
+    if (!this.revision.isEmpty()) {
+      // CloudNet Blizzard 3.5.0-SNAPSHOT 5dd7f63
+      toString += ' ' + this.revision;
+    }
+    return toString;
+  }
 }

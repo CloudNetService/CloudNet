@@ -17,18 +17,15 @@
 package de.dytanic.cloudnet.console.log;
 
 import de.dytanic.cloudnet.common.log.LoggingUtils;
-import de.dytanic.cloudnet.common.logging.IFormatter;
-import de.dytanic.cloudnet.common.logging.LogEntry;
 import de.dytanic.cloudnet.console.ConsoleColor;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.logging.Formatter;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
-import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 import org.jetbrains.annotations.NotNull;
 
-public final class ColouredLogFormatter extends Formatter implements IFormatter {
+public final class ColouredLogFormatter extends Formatter {
 
   private final DateFormat dateFormat = new SimpleDateFormat("dd.MM HH:mm:ss.SSS");
 
@@ -64,35 +61,5 @@ public final class ColouredLogFormatter extends Formatter implements IFormatter 
     }
 
     return color + level.getLocalizedName();
-  }
-
-  @Override
-  @Deprecated
-  @ScheduledForRemoval
-  public @NotNull String format(@NotNull LogEntry logEntry) {
-    StringBuilder builder = new StringBuilder();
-    de.dytanic.cloudnet.common.logging.LoggingUtils.printStackTraceToStringBuilder(builder, logEntry.getThrowable());
-
-    StringBuilder stringBuilder = new StringBuilder();
-
-    for (String message : logEntry.getMessages()) {
-      if (message != null) {
-        stringBuilder
-          .append(ConsoleColor.DARK_GRAY)
-          .append("[")
-          .append(ConsoleColor.WHITE)
-          .append(this.dateFormat.format(logEntry.getTimeStamp()))
-          .append(ConsoleColor.DARK_GRAY)
-          .append("] ")
-          .append(logEntry.getLogLevel().isColorized() ? ConsoleColor.RED : ConsoleColor.GRAY)
-          .append(logEntry.getLogLevel().getUpperName())
-          .append(ConsoleColor.DARK_GRAY)
-          .append(": ")
-          .append(logEntry.getLogLevel().isColorized() ? ConsoleColor.YELLOW : ConsoleColor.DEFAULT)
-          .append(message);
-      }
-    }
-
-    return stringBuilder.append(builder).toString();
   }
 }
