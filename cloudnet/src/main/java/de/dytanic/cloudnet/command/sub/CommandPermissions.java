@@ -40,6 +40,7 @@ import java.util.Queue;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class CommandPermissions {
@@ -75,6 +76,45 @@ public class CommandPermissions {
     }
 
     return group;
+  }
+
+  @Parser(name = "timeUnit")
+  public long timeUnitParser(Queue<String> input) {
+    String time = input.remove();
+
+    if (time.equalsIgnoreCase("lifetime")) {
+      return -1;
+    }
+
+    Long nonUnitTime = Longs.tryParse(time);
+    if (nonUnitTime != null) {
+      return System.currentTimeMillis() + TimeUnit.DAYS.toMillis(nonUnitTime);
+    }
+    int length = time.length();
+    if (length < 2) {
+      return -1;
+    }
+
+    String actualTime = time.substring(0, length - 2);
+    Long unitTime = Longs.tryParse(actualTime);
+    if (unitTime == null) {
+      return -1;
+    }
+
+    char unit = time.charAt(length - 1);
+
+    switch (unit) {
+      case 'm': {
+        return TimeUnit.MINUTES.toMillis(unitTime) + System.currentTimeMillis();
+      }
+      case 'h': {
+        return TimeUnit.HOURS.toMillis(unitTime) + System.currentTimeMillis();
+      }
+      default:
+      case 'd': {
+        return TimeUnit.DAYS.toMillis(unitTime) + System.currentTimeMillis();
+      }
+    }
   }
 
   @CommandMethod("permissions|perms reload")
@@ -164,15 +204,15 @@ public class CommandPermissions {
     }
   }
 
-  @CommandMethod("permissions|perms user <user> add group <name> [time in days | lifetime]")
+  @CommandMethod("permissions|perms user <user> add group <name> [time (h,m,d) | lifetime]")
   public void addGroupToUser(
     CommandSource source,
     @Argument("user") IPermissionUser permissionUser,
     @Argument("name") IPermissionGroup permissionGroup,
-    @Argument("time in days | lifetime") String time
+    @Argument(value = "time (h,m,d) | lifetime", parserName = "timeUnit") Long time
   ) {
     this.updateUser(permissionUser,
-      user -> user.addGroup(permissionGroup.getName(), this.parseTimeOutDays(time), TimeUnit.DAYS));
+      user -> user.addGroup(permissionGroup.getName(), time == null ? 0 : time));
   }
 
   @CommandMethod("permissions|perms user <user> add permission <permission>")
@@ -194,13 +234,13 @@ public class CommandPermissions {
     this.addPermission(permissionUser, permission, potency, null, targetGroup);
   }
 
-  @CommandMethod("permissions|perms user <user> add permission <permission> <potency> <time in days | lifetime> [targetGroup]")
+  @CommandMethod("permissions|perms user <user> add permission <permission> <potency> <time (h,m,d) | lifetime> [targetGroup]")
   public void addUserPermission(
     CommandSource source,
     @Argument("user") IPermissionUser permissionUser,
     @Argument("permission") String rawPermission,
     @Argument("potency") int potency,
-    @Argument("time in days | lifetime") String timeOut,
+    @Argument(value = "time (h,m,d) | lifetime", parserName = "timeUnit") Long timeOut,
     @Argument("targetGroup") GroupConfiguration targetGroup
   ) {
     this.addPermission(permissionUser, rawPermission, potency, timeOut, targetGroup);
@@ -301,13 +341,13 @@ public class CommandPermissions {
     this.addPermission(permissionGroup, permission, potency, null, targetGroup);
   }
 
-  @CommandMethod("permissions|perms group <group> add permission <permission> <potency> <time in days | lifetime> [targetGroup]")
+  @CommandMethod("permissions|perms group <group> add permission <permission> <potency> <time (h,m,d) | lifetime> [targetGroup]")
   public void addGroupPermission(
     CommandSource source,
     @Argument("group") IPermissionGroup permissionGroup,
     @Argument("permission") String rawPermission,
     @Argument("potency") int potency,
-    @Argument("time in days | lifetime") String timeOut,
+    @Argument(value = "time (h,m,d) | lifetime", parserName = "timeUnit") Long timeOut,
     @Argument("targetGroup") GroupConfiguration targetGroup
   ) {
     this.addPermission(permissionGroup, rawPermission, potency, timeOut, targetGroup);
@@ -368,24 +408,10 @@ public class CommandPermissions {
     return "- " + permission.getName() + " | Potency: " + permission.getPotency() + " | Timeout: " + timeout;
   }
 
-  //TODO: write an actual parser to parse minutes, hours and days
-  private long parseTimeOutDays(String input) {
-    long timeOutDays = -1;
-    if (input != null && !input.equalsIgnoreCase("lifetime")) {
-      Long parsedTime = Longs.tryParse(input);
-      if (parsedTime != null) {
-        timeOutDays = parsedTime;
-      }
-
-    }
-
-    return timeOutDays;
-  }
-
   private void addPermission(IPermissible permissible,
-    String rawPermission,
+    @NotNull String rawPermission,
     @Nullable Integer potency,
-    @Nullable String timeOut,
+    @Nullable Long timeOut,
     @Nullable GroupConfiguration targetGroup
   ) {
     Permission permission = new Permission(rawPermission);
@@ -393,7 +419,10 @@ public class CommandPermissions {
       permission.setPotency(potency);
     }
 
-    permission.setTimeOutMillis(this.parseTimeOutDays(timeOut));
+    if (timeOut != null) {
+      permission.setTimeOutMillis(timeOut);
+    }
+
     if (targetGroup != null) {
       permissible.addPermission(targetGroup.getName(), permission);
     } else {
