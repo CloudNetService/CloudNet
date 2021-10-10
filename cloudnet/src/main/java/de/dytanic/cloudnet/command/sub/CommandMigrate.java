@@ -26,6 +26,8 @@ import de.dytanic.cloudnet.command.exception.SyntaxException;
 import de.dytanic.cloudnet.command.source.CommandSource;
 import de.dytanic.cloudnet.common.concurrent.function.ThrowableConsumer;
 import de.dytanic.cloudnet.common.language.LanguageManager;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.database.AbstractDatabaseProvider;
 import de.dytanic.cloudnet.driver.database.Database;
 import java.util.Queue;
@@ -34,6 +36,7 @@ import org.jetbrains.annotations.NotNull;
 public class CommandMigrate {
 
   private static final int DEFAULT_CHUNK_SIZE = 100;
+  private static final Logger LOGGER = LogManager.getLogger(CommandMigrate.class);
 
   @Parser
   public AbstractDatabaseProvider defaultDatabaseProviderParser(CommandContext<CommandSource> sender,
@@ -79,7 +82,7 @@ public class CommandMigrate {
         sourceDatabase.iterate(targetDatabase::insert, chunkSize);
       }
     } catch (Exception exception) {
-      CloudNet.getInstance().getLogger().error(
+      LOGGER.severe(
         LanguageManager.getMessage("command-migrate-database-connection-failed"), exception);
       return;
     }
@@ -98,7 +101,7 @@ public class CommandMigrate {
       try {
         handler.accept(sourceProvider);
       } catch (Throwable throwable) {
-        CloudNet.getInstance().getLogger().error(
+        LOGGER.severe(
           LanguageManager.getMessage("command-migrate-database-connection-failed"), throwable);
         return false;
       }

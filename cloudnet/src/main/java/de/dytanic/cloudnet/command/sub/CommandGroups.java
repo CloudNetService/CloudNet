@@ -16,10 +16,19 @@
 
 package de.dytanic.cloudnet.command.sub;
 
+import cloud.commandframework.annotations.Argument;
+import cloud.commandframework.annotations.CommandMethod;
 import cloud.commandframework.annotations.parsers.Parser;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.command.exception.ArgumentNotAvailableException;
+import de.dytanic.cloudnet.command.source.CommandSource;
 import de.dytanic.cloudnet.driver.service.GroupConfiguration;
+import de.dytanic.cloudnet.driver.service.ServiceDeployment;
+import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
+import de.dytanic.cloudnet.driver.service.ServiceRemoteInclusion;
+import de.dytanic.cloudnet.driver.service.ServiceTemplate;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Queue;
 
 public class CommandGroups {
@@ -36,5 +45,89 @@ public class CommandGroups {
 
     return configuration;
   }
+
+  @CommandMethod("groups delete <name>")
+  public void deleteGroup(CommandSource source, @Argument("name") GroupConfiguration configuration) {
+    CloudNet.getInstance().getGroupConfigurationProvider().removeGroupConfiguration(configuration);
+  }
+
+  @CommandMethod("groups create <name>")
+  public void createGroup(CommandSource source, @Argument("name") String groupName) {
+    if (!CloudNet.getInstance().getGroupConfigurationProvider().isGroupConfigurationPresent(groupName)) {
+      CloudNet.getInstance().getGroupConfigurationProvider().addGroupConfiguration(GroupConfiguration.empty(groupName));
+    }
+  }
+
+  @CommandMethod("groups reload")
+  public void reloadGroups(CommandSource source) {
+    CloudNet.getInstance().getGroupConfigurationProvider().reload();
+  }
+
+  @CommandMethod("groups list")
+  public void listGroups(CommandSource source) {
+    Collection<GroupConfiguration> groups = CloudNet.getInstance().getGroupConfigurationProvider()
+      .getGroupConfigurations();
+    if (groups.isEmpty()) {
+      return;
+    }
+
+    source.sendMessage("- Groups");
+    source.sendMessage(" ");
+    for (GroupConfiguration group : groups) {
+      source.sendMessage("- " + group.getName());
+    }
+  }
+
+  @CommandMethod("groups group <name>")
+  public void displayGroup(CommandSource source, @Argument("name") GroupConfiguration group) {
+    source.sendMessage(" ");
+    source.sendMessage("Name: " + group.getName());
+    source.sendMessage(" ");
+
+    source.sendMessage("Environments:" + Arrays.toString(group.getTargetEnvironments().toArray()));
+    source.sendMessage("Includes:");
+
+    for (ServiceRemoteInclusion inclusion : group.getIncludes()) {
+      source.sendMessage("- " + inclusion.getUrl() + " => " + inclusion.getDestination());
+    }
+
+    source.sendMessage(" ");
+    source.sendMessage("Templates:");
+
+    for (ServiceTemplate template : group.getTemplates()) {
+      source.sendMessage("- " + template);
+    }
+
+    source.sendMessage(" ");
+    source.sendMessage("Deployments:");
+
+    for (ServiceDeployment deployment : group.getDeployments()) {
+      source.sendMessage("- ");
+      source.sendMessage(
+        "Template:  " + deployment.getTemplate());
+      source.sendMessage("Excludes: " + deployment.getExcludes());
+    }
+  }
+
+  @CommandMethod("groups group <name> add environment <environment>")
+  public void addEnvironment(
+    CommandSource source,
+    @Argument("name") GroupConfiguration group,
+    @Argument("environment") ServiceEnvironmentType environmentType
+  ) {
+    group.getTargetEnvironments().add(environmentType);
+    CloudNet.getInstance().getGroupConfigurationProvider().addGroupConfiguration(group);
+  }
+
+  @CommandMethod("groups group <name> remove environment <environment>")
+  public void removeEnvironment(
+    CommandSource source,
+    @Argument("name") GroupConfiguration group,
+    @Argument("environment") ServiceEnvironmentType environmentType
+  ) {
+    group.getTargetEnvironments().remove(environmentType);
+    CloudNet.getInstance().getGroupConfigurationProvider().addGroupConfiguration(group);
+  }
+
 
 }
