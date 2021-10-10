@@ -146,7 +146,7 @@ public class CommandTemplate {
       }
     }
 
-    CloudNet.getInstance().scheduleTask(() -> {
+    CloudNet.getInstance().getMainThread().runTask(() -> {
       source.sendMessage(LanguageManager.getMessage("command-template-install-try")
         .replace("%version%", versionType.getName() + "-" + serviceVersion.getName())
         .replace("%template%", serviceTemplate.toString())
@@ -165,7 +165,6 @@ public class CommandTemplate {
           .replace("%template%", serviceTemplate.toString())
         );
       }
-      return null;
     });
 
   }
@@ -197,13 +196,13 @@ public class CommandTemplate {
     try {
       if (TemplateStorageUtil.createAndPrepareTemplate(template, environmentType)) {
         source.sendMessage(LanguageManager.getMessage("command-template-create-success")
-          .replace("%template%", template.getTemplatePath())
+          .replace("%template%", template.getFullName())
           .replace("%storage%", template.getStorage())
         );
       }
     } catch (IOException exception) {
       source.sendMessage(LanguageManager.getMessage("command-template-create-failed")
-        .replace("%template%", template.getTemplatePath())
+        .replace("%template%", template.getFullName())
         .replace("%storage%", template.getStorage())
       );
     }
@@ -223,7 +222,7 @@ public class CommandTemplate {
     SpecificTemplateStorage sourceStorage = sourceTemplate.storage();
     SpecificTemplateStorage targetStorage = targetTemplate.storage();
 
-    CloudNet.getInstance().scheduleTask(() -> {
+    CloudNet.getInstance().getMainThread().runTask(() -> {
       source.sendMessage(LanguageManager.getMessage("command-template-copy")
         .replace("%sourceTemplate%", sourceTemplate.toString())
         .replace("%targetTemplate%", targetTemplate.toString())
@@ -234,7 +233,6 @@ public class CommandTemplate {
       try (ZipInputStream stream = sourceStorage.asZipInputStream()) {
         if (stream == null) {
           source.sendMessage(LanguageManager.getMessage("command-template-copy-failed"));
-          return null;
         }
 
         targetStorage.deploy(stream);
@@ -243,8 +241,6 @@ public class CommandTemplate {
           .replace("%targetTemplate%", targetTemplate.toString())
         );
       }
-
-      return null;
     });
   }
 }

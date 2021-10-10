@@ -21,6 +21,7 @@ import cloud.commandframework.annotations.CommandMethod;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.command.source.CommandSource;
 import de.dytanic.cloudnet.common.unsafe.CPUUsageResolver;
+import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
 import java.util.Arrays;
@@ -34,11 +35,12 @@ public class CommandMe {
     CloudNet cloudNet = CloudNet.getInstance();
     MemoryMXBean memoryMXBean = ManagementFactory.getMemoryMXBean();
 
+    NetworkClusterNodeInfoSnapshot nodeInfoSnapshot = cloudNet.getClusterNodeServerProvider().getSelfNode()
+      .getNodeInfoSnapshot();
+
     List<String> messages = Arrays.asList(
       " ",
-      "CloudNet " + de.dytanic.cloudnet.deleted.command.commands.CommandMe.class.getPackage().getImplementationTitle()
-        + " " + de.dytanic.cloudnet.deleted.command.commands.CommandMe.class.getPackage().getImplementationVersion()
-        + " by Dytanic & the CloudNet Community",
+      CloudNet.getInstance().getVersion() + " by Dytanic & the CloudNet Community",
       "Discord: https://discord.cloudnetservice.eu/",
       " ",
       "ClusterId: " + cloudNet.getConfig().getClusterConfig().getClusterId(),
@@ -47,10 +49,8 @@ public class CommandMe {
       "CPU usage: (P/S) " + CPUUsageResolver.CPU_USAGE_OUTPUT_FORMAT.format(CPUUsageResolver.getProcessCPUUsage()) + "/"
         +
         CPUUsageResolver.CPU_USAGE_OUTPUT_FORMAT.format(CPUUsageResolver.getSystemCPUUsage()) + "/100%",
-      "Node services memory allocation (U/R/M): " + cloudNet.getCurrentNetworkClusterNodeInfoSnapshot()
-        .getUsedMemory() + "/" +
-        cloudNet.getCurrentNetworkClusterNodeInfoSnapshot().getReservedMemory() + "/" +
-        cloudNet.getCurrentNetworkClusterNodeInfoSnapshot().getMaxMemory() + " MB",
+      "Node services memory allocation (U/R/M): " + nodeInfoSnapshot.getUsedMemory() + "/" +
+        nodeInfoSnapshot.getReservedMemory() + "/" + nodeInfoSnapshot.getMaxMemory() + " MB",
       "Threads: " + Thread.getAllStackTraces().keySet().size(),
       "Heap usage: " + (memoryMXBean.getHeapMemoryUsage().getUsed() / 1048576) + "/" + (
         memoryMXBean.getHeapMemoryUsage().getMax() / 1048576) + "MB",

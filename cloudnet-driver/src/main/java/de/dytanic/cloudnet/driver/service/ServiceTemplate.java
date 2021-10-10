@@ -118,7 +118,12 @@ public class ServiceTemplate implements INameable, Comparable<ServiceTemplate> {
 
   @Override
   public String toString() {
-    return this.storage + ":" + this.prefix + "/" + this.name;
+    return this.storage + ':' + this.prefix + '/' + this.name;
+  }
+
+  @NotNull
+  public String getFullName() {
+    return this.prefix + '/' + this.name;
   }
 
   public String getPrefix() {
