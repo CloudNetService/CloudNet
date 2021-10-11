@@ -108,7 +108,7 @@ public class DefaultTaskSetup implements DefaultSetup {
 
     try {
       TemplateStorageUtil
-        .createAndPrepareTemplate(globalTemplate, type.getTargetEnvironment().getEnvironmentType());
+        .createAndPrepareTemplate(globalTemplate.storage(), type.getTargetEnvironment().getEnvironmentType());
     } catch (IOException exception) {
       LOGGER.severe("Exception while creating templates", exception);
     }
@@ -133,7 +133,7 @@ public class DefaultTaskSetup implements DefaultSetup {
 
     for (ServiceTemplate template : serviceTask.getTemplates()) {
       try {
-        TemplateStorageUtil.createAndPrepareTemplate(template, environment);
+        TemplateStorageUtil.createAndPrepareTemplate(template.storage(), environment);
       } catch (IOException exception) {
         LOGGER.severe("Exception while creating templates", exception);
       }

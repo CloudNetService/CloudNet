@@ -19,6 +19,7 @@ package de.dytanic.cloudnet.command.defaults;
 import cloud.commandframework.Command;
 import cloud.commandframework.CommandManager;
 import cloud.commandframework.annotations.AnnotationParser;
+import cloud.commandframework.exceptions.InvalidSyntaxException;
 import cloud.commandframework.exceptions.NoPermissionException;
 import cloud.commandframework.exceptions.NoSuchCommandException;
 import cloud.commandframework.extra.confirmation.CommandConfirmationManager;
@@ -27,6 +28,11 @@ import cloud.commandframework.meta.SimpleCommandMeta;
 import de.dytanic.cloudnet.command.CommandProvider;
 import de.dytanic.cloudnet.command.exception.ArgumentNotAvailableException;
 import de.dytanic.cloudnet.command.source.CommandSource;
+import de.dytanic.cloudnet.command.sub.CommandExit;
+import de.dytanic.cloudnet.command.sub.CommandGroups;
+import de.dytanic.cloudnet.command.sub.CommandServiceConfiguration;
+import de.dytanic.cloudnet.command.sub.CommandTasks;
+import de.dytanic.cloudnet.command.sub.CommandTemplate;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.driver.command.CommandInfo;
 import java.util.ArrayList;
@@ -57,6 +63,12 @@ public class DefaultCommandProvider implements CommandProvider {
       sender -> sender.sendMessage("No requests.")  //TODO: message configurable
     );
     this.registeredCommands = new ArrayList<>();
+
+    this.register(new CommandTemplate());
+    this.register(new CommandExit());
+    this.register(new CommandServiceConfiguration());
+    this.register(new CommandGroups());
+    this.register(new CommandTasks());
   }
 
   @Override
@@ -69,12 +81,14 @@ public class DefaultCommandProvider implements CommandProvider {
     try {
       this.commandManager.executeCommand(source, input).join();
     } catch (Exception exception) {
-      if (exception instanceof ArgumentNotAvailableException) {
+      if (exception.getCause() instanceof ArgumentNotAvailableException) {
         source.sendMessage(exception.getMessage());
-      } else if (exception instanceof NoSuchCommandException) {
+      } else if (exception.getCause() instanceof NoSuchCommandException) {
         source.sendMessage(LanguageManager.getMessage("command-not-found"));
-      } else if (exception instanceof NoPermissionException) {
+      } else if (exception.getCause() instanceof NoPermissionException) {
         source.sendMessage(LanguageManager.getMessage("command-sub-no-permission"));
+      } else if (exception.getCause() instanceof InvalidSyntaxException) {
+        source.sendMessage(((InvalidSyntaxException) exception.getCause()).getCorrectSyntax());
       }
     }
   }

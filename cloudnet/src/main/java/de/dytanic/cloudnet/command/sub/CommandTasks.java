@@ -47,7 +47,7 @@ import java.util.stream.Collectors;
 public class CommandTasks {
 
   @Parser(suggestions = "serviceTask")
-  public ServiceTask defaultTaskParser(CommandContext<CommandSource> context, Queue<String> input) {
+  public ServiceTask defaultTaskParser(CommandContext<CommandSource> $, Queue<String> input) {
     String name = input.remove();
     ServiceTask task = CloudNet.getInstance().getServiceTaskProvider().getServiceTask(name);
     if (task == null) {
@@ -58,12 +58,12 @@ public class CommandTasks {
   }
 
   @Suggestions("serviceTask")
-  public List<String> suggestTask(CommandContext<CommandSource> context, String input) {
+  public List<String> suggestTask(CommandContext<CommandSource> $, String input) {
     return this.taskProvider().getPermanentServiceTasks().stream().map(INameable::getName).collect(Collectors.toList());
   }
 
   @Parser
-  public Pair<String, JavaVersion> javaCommandParser(CommandContext<CommandSource> context, Queue<String> input) {
+  public Pair<String, JavaVersion> javaCommandParser(CommandContext<CommandSource> $, Queue<String> input) {
     String command = String.join(" ", input);
     JavaVersion version = JavaVersionResolver.resolveFromJavaExecutable(command);
     if (version == null) {
@@ -74,7 +74,7 @@ public class CommandTasks {
   }
 
   @Parser(name = "nodeId", suggestions = "clusterNode")
-  public String defaultClusterNodeParser(CommandContext<CommandSource> context, Queue<String> input) {
+  public String defaultClusterNodeParser(CommandContext<CommandSource> $, Queue<String> input) {
     String nodeId = input.remove();
     for (NetworkClusterNode node : CloudNet.getInstance().getConfig().getClusterConfig().getNodes()) {
       if (node.getUniqueId().equals(nodeId)) {
@@ -85,7 +85,7 @@ public class CommandTasks {
   }
 
   @Suggestions("clusterNode")
-  public List<String> suggestNode(CommandContext<CommandSource> context, String input) {
+  public List<String> suggestNode(CommandContext<CommandSource> $, String input) {
     return CloudNet.getInstance().getConfig().getClusterConfig().getNodes()
       .stream()
       .map(NetworkClusterNode::getUniqueId)
@@ -184,7 +184,7 @@ public class CommandTasks {
   public void setStartPort(
     CommandSource source,
     @Argument("name") ServiceTask task,
-    @Argument("enabled") @Range(min = "0") Integer amount
+    @Argument("amount") @Range(min = "0") Integer amount
   ) {
     this.updateTask(task, serviceTask -> serviceTask.setStartPort(amount));
   }

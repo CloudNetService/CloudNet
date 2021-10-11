@@ -20,7 +20,6 @@ import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.conf.IConfiguration;
 import de.dytanic.cloudnet.database.AbstractDatabaseProvider;
-import de.dytanic.cloudnet.deleted.command.Command;
 import de.dytanic.cloudnet.driver.module.driver.DriverModule;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
 import de.dytanic.cloudnet.driver.network.http.IHttpHandler;
@@ -29,10 +28,9 @@ import de.dytanic.cloudnet.driver.template.TemplateStorage;
 
 public abstract class NodeCloudNetModule extends DriverModule {
 
-  /* TODO
-  public final void registerCommand(Command command) {
-    this.getCloudNet().getCommandMap().registerCommand(command);
-  }*/
+  public final void registerCommand(Object command) {
+    this.getCloudNet().getCommandProvider().register(command);
+  }
 
   public final <T extends TemplateStorage> T registerTemplateStorage(String serviceName, T templateStorage) {
     Preconditions.checkNotNull(serviceName);

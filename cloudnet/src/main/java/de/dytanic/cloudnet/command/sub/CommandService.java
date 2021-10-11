@@ -246,9 +246,9 @@ public class CommandService {
     }
   }
 
-  @CommandMethod("service|ser <name> add deployment <storage:prefix/name>")
+  @CommandMethod("service|ser <name> add deployment <deployment>")
   public void addDeployment(CommandSource source, @Argument("name") Collection<ServiceInfoSnapshot> matchedServices,
-    @Argument("<storage:prefix/name>") ServiceTemplate template) {
+    @Argument("storage:prefix/name") ServiceTemplate template) {
     ServiceDeployment deployment = new ServiceDeployment(template, new ArrayList<>());
     for (ServiceInfoSnapshot matchedService : matchedServices) {
       matchedService.provider().addServiceDeployment(deployment);
@@ -257,18 +257,18 @@ public class CommandService {
 
   @CommandMethod("service|ser <name> add template <storage:prefix/name>")
   public void addTemplate(CommandSource source, @Argument("name") Collection<ServiceInfoSnapshot> matchedServices,
-    @Argument("<storage:prefix/name>") ServiceTemplate template) {
+    @Argument("storage:prefix/name") ServiceTemplate template) {
     for (ServiceInfoSnapshot matchedService : matchedServices) {
       matchedService.provider().addServiceTemplate(template);
     }
   }
 
-  @CommandMethod("service|ser <name> add inclusion <url> <targetPath>")
+  @CommandMethod("service|ser <name> add inclusion <url> <path>")
   public void addInclusion(
     CommandSource source,
     @Argument("name") Collection<ServiceInfoSnapshot> matchedServices,
     @Argument("url") String url,
-    @Argument("targetPath") String path
+    @Argument("path") String path
   ) {
     ServiceRemoteInclusion remoteInclusion = new ServiceRemoteInclusion(url, path);
     for (ServiceInfoSnapshot matchedService : matchedServices) {

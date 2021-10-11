@@ -18,11 +18,11 @@ package de.dytanic.cloudnet.driver.service;
 
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.INameable;
+import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import java.util.ArrayList;
 import java.util.Collection;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -57,85 +57,39 @@ public class ServiceTask extends ServiceConfigurationBase implements INameable {
     super(new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
   }
 
-  @Deprecated
-  @ScheduledForRemoval(inVersion = "3.6")
-  public ServiceTask(Collection<ServiceRemoteInclusion> includes, Collection<ServiceTemplate> templates,
-    Collection<ServiceDeployment> deployments,
-    String name, String runtime, boolean autoDeleteOnStop, boolean staticServices, Collection<String> associatedNodes,
-    Collection<String> groups,
-    ProcessConfiguration processConfiguration, int startPort, int minServiceCount) {
-    this(includes, templates, deployments, name, runtime, false, autoDeleteOnStop,
-      staticServices, associatedNodes, groups, processConfiguration, startPort, minServiceCount);
-  }
-
-  @Deprecated
-  @ScheduledForRemoval(inVersion = "3.6")
-  public ServiceTask(Collection<ServiceRemoteInclusion> includes, Collection<ServiceTemplate> templates,
-    Collection<ServiceDeployment> deployments,
-    String name, String runtime, boolean autoDeleteOnStop, boolean staticServices, Collection<String> associatedNodes,
-    Collection<String> groups,
-    Collection<String> deletedFilesAfterStop, ProcessConfiguration processConfiguration, int startPort,
-    int minServiceCount) {
-    this(includes, templates, deployments, name, runtime, false, autoDeleteOnStop, staticServices, associatedNodes,
-      groups, deletedFilesAfterStop, processConfiguration, startPort, minServiceCount);
-  }
-
-  @Deprecated
-  @ScheduledForRemoval(inVersion = "3.6")
-  public ServiceTask(Collection<ServiceRemoteInclusion> includes, Collection<ServiceTemplate> templates,
-    Collection<ServiceDeployment> deployments,
-    String name, String runtime, boolean autoDeleteOnStop, boolean staticServices, Collection<String> associatedNodes,
-    Collection<String> groups,
-    Collection<String> deletedFilesAfterStop, ProcessConfiguration processConfiguration, int startPort,
-    int minServiceCount, String javaCommand) {
-    this(includes, templates, deployments, name, runtime, false, autoDeleteOnStop, staticServices, associatedNodes,
-      groups, deletedFilesAfterStop, processConfiguration, startPort, minServiceCount, javaCommand);
-  }
-
-  @Deprecated
-  @ScheduledForRemoval(inVersion = "3.6")
-  public ServiceTask(Collection<ServiceRemoteInclusion> includes, Collection<ServiceTemplate> templates,
-    Collection<ServiceDeployment> deployments,
-    String name, String runtime, boolean maintenance, boolean autoDeleteOnStop, boolean staticServices,
-    Collection<String> associatedNodes, Collection<String> groups,
-    ProcessConfiguration processConfiguration, int startPort, int minServiceCount) {
-    this(includes, templates, deployments, name, runtime, maintenance, autoDeleteOnStop, staticServices,
-      associatedNodes, groups, new ArrayList<>(), processConfiguration, startPort, minServiceCount);
-  }
-
-  @Deprecated
-  @ScheduledForRemoval(inVersion = "3.6")
-  public ServiceTask(Collection<ServiceRemoteInclusion> includes, Collection<ServiceTemplate> templates,
-    Collection<ServiceDeployment> deployments,
-    String name, String runtime, boolean maintenance, boolean autoDeleteOnStop, boolean staticServices,
-    Collection<String> associatedNodes, Collection<String> groups,
-    Collection<String> deletedFilesAfterStop, ProcessConfiguration processConfiguration, int startPort,
-    int minServiceCount) {
-    this(includes, templates, deployments, name, runtime, maintenance, autoDeleteOnStop, staticServices,
-      associatedNodes, groups, deletedFilesAfterStop, processConfiguration, startPort, minServiceCount, null);
-  }
-
-  @Deprecated
-  @ScheduledForRemoval(inVersion = "3.6")
-  public ServiceTask(Collection<ServiceRemoteInclusion> includes, Collection<ServiceTemplate> templates,
-    Collection<ServiceDeployment> deployments,
-    String name, String runtime, boolean maintenance, boolean autoDeleteOnStop, boolean staticServices,
-    Collection<String> associatedNodes, Collection<String> groups,
-    Collection<String> deletedFilesAfterStop, ProcessConfiguration processConfiguration, int startPort,
-    int minServiceCount, String javaCommand) {
-    super(includes, templates, deployments);
+  protected ServiceTask(
+    @NotNull String name,
+    @NotNull String runtime,
+    @Nullable String javaCommand,
+    boolean disableIpRewrite,
+    boolean maintenance,
+    boolean autoDeleteOnStop,
+    boolean staticServices,
+    @NotNull Collection<String> associatedNodes,
+    @NotNull Collection<String> groups,
+    @NotNull Collection<String> deletedFilesAfterStop,
+    @NotNull ProcessConfiguration processConfiguration,
+    int startPort,
+    int minServiceCount,
+    @NotNull Collection<ServiceTemplate> templates,
+    @NotNull Collection<ServiceDeployment> deployments,
+    @NotNull Collection<ServiceRemoteInclusion> includes,
+    @NotNull JsonDocument properties
+  ) {
+    super(templates, deployments, includes, properties);
     this.name = name;
     this.runtime = runtime;
+    this.javaCommand = javaCommand;
+    this.disableIpRewrite = disableIpRewrite;
     this.maintenance = maintenance;
     this.autoDeleteOnStop = autoDeleteOnStop;
+    this.staticServices = staticServices;
     this.associatedNodes = associatedNodes;
     this.groups = groups;
     this.deletedFilesAfterStop = deletedFilesAfterStop;
     this.processConfiguration = processConfiguration;
     this.startPort = startPort;
     this.minServiceCount = minServiceCount;
-    this.staticServices = staticServices;
-    this.javaCommand = javaCommand;
   }
 
   @NotNull

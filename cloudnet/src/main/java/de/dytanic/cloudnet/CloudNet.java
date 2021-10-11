@@ -19,6 +19,7 @@ package de.dytanic.cloudnet;
 import de.dytanic.cloudnet.cluster.DefaultClusterNodeServerProvider;
 import de.dytanic.cloudnet.cluster.IClusterNodeServerProvider;
 import de.dytanic.cloudnet.command.CommandProvider;
+import de.dytanic.cloudnet.command.source.ConsoleCommandSource;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.conf.IConfiguration;
 import de.dytanic.cloudnet.conf.JsonConfiguration;
@@ -47,6 +48,7 @@ import de.dytanic.cloudnet.provider.NodeServiceTaskProvider;
 import de.dytanic.cloudnet.provider.service.NodeCloudServiceFactory;
 import de.dytanic.cloudnet.service.ICloudServiceManager;
 import de.dytanic.cloudnet.service.defaults.DefaultCloudServiceManager;
+import de.dytanic.cloudnet.template.LocalTemplateStorage;
 import de.dytanic.cloudnet.template.install.ServiceVersionProvider;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -114,6 +116,15 @@ public final class CloudNet extends CloudNetDriver {
     this.httpServer = new NettyHttpServer(this.configuration.getWebSslConfig());
 
     this.driverEnvironment = DriverEnvironment.CLOUDNET;
+
+    this.servicesRegistry.registerService(TemplateStorage.class, "local",
+      new LocalTemplateStorage(Paths.get("local/templates")));
+    this.console.addCommandHandler(UUID.randomUUID(), input -> {
+      if (input.trim().isEmpty()) {
+        return;
+      }
+      this.commandProvider.execute(ConsoleCommandSource.INSTANCE, input);
+    });
   }
 
   public static @NotNull CloudNet getInstance() {

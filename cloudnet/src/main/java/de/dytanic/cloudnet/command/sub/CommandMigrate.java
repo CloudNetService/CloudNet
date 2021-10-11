@@ -23,6 +23,7 @@ import cloud.commandframework.annotations.parsers.Parser;
 import cloud.commandframework.annotations.suggestions.Suggestions;
 import cloud.commandframework.context.CommandContext;
 import de.dytanic.cloudnet.CloudNet;
+import de.dytanic.cloudnet.command.exception.ArgumentNotAvailableException;
 import de.dytanic.cloudnet.command.source.CommandSource;
 import de.dytanic.cloudnet.common.INameable;
 import de.dytanic.cloudnet.common.concurrent.function.ThrowableConsumer;
@@ -48,7 +49,7 @@ public class CommandMigrate {
       .getService(AbstractDatabaseProvider.class, input.remove());
 
     if (abstractDatabaseProvider == null) {
-      throw new SyntaxException("we dont have this");
+      throw new ArgumentNotAvailableException("we dont have this");
     }
     return abstractDatabaseProvider;
   }

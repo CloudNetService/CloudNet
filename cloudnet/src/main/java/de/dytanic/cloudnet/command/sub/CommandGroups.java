@@ -38,7 +38,7 @@ import java.util.stream.Collectors;
 public class CommandGroups {
 
   @Parser(suggestions = "groupConfiguration")
-  public GroupConfiguration defaultGroupParser(Queue<String> input) {
+  public GroupConfiguration defaultGroupParser(CommandContext<CommandSource> $, Queue<String> input) {
     String name = input.remove();
 
     GroupConfiguration configuration = this.groupProvider().getGroupConfiguration(name);
@@ -50,10 +50,9 @@ public class CommandGroups {
   }
 
   @Suggestions("groupConfiguration")
-  public List<String> suggestGroups(CommandContext<CommandSource> context, String input) {
+  public List<String> suggestGroups(CommandContext<CommandSource> $, String input) {
     return this.groupProvider().getGroupConfigurations().stream().map(INameable::getName).collect(Collectors.toList());
   }
-
 
   @CommandMethod("groups delete <name>")
   public void deleteGroup(CommandSource source, @Argument("name") GroupConfiguration configuration) {

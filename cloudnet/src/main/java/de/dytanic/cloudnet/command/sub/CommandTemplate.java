@@ -50,16 +50,16 @@ import java.util.zip.ZipInputStream;
 public class CommandTemplate {
 
   @Parser(suggestions = "serviceTemplate")
-  public ServiceTemplate defaultServiceTemplateParser(CommandContext<CommandSource> sender, Queue<String> input) {
+  public ServiceTemplate defaultServiceTemplateParser(CommandContext<CommandSource> $, Queue<String> input) {
     ServiceTemplate template = ServiceTemplate.parse(input.remove());
     if (template == null || template.nullableStorage() == null) {
-      throw new ArgumentNotAvailableException("");
+      throw new ArgumentNotAvailableException("Test");
     }
     return template;
   }
 
   @Suggestions("serviceTemplate")
-  public List<String> suggestServiceTemplate(CommandContext<CommandSource> sender, String input) {
+  public List<String> suggestServiceTemplate(CommandContext<CommandSource> $, String input) {
     return CloudNet.getInstance().getLocalTemplateStorage().getTemplates()
       .stream()
       .map(ServiceTemplate::toString)
@@ -67,7 +67,7 @@ public class CommandTemplate {
   }
 
   @Parser
-  public TemplateStorage defaultTemplateStorageParser(CommandContext<CommandSource> sender, Queue<String> input) {
+  public TemplateStorage defaultTemplateStorageParser(CommandContext<CommandSource> $, Queue<String> input) {
     TemplateStorage templateStorage = CloudNet.getInstance().getTemplateStorage(input.remove());
     if (templateStorage == null) {
       throw new ArgumentNotAvailableException("");
@@ -76,7 +76,7 @@ public class CommandTemplate {
   }
 
   @Suggestions("templateStorage")
-  public List<String> suggestTemplateStorage(CommandContext<CommandSource> sender, String input) {
+  public List<String> suggestTemplateStorage(CommandContext<CommandSource> $, String input) {
     return CloudNet.getInstance().getAvailableTemplateStorages()
       .stream()
       .map(INameable::getName)
@@ -84,15 +84,14 @@ public class CommandTemplate {
   }
 
   @Parser
-  public ServiceVersionType defaultVersionTypeParser(CommandContext<CommandSource> sender, Queue<String> input) {
+  public ServiceVersionType defaultVersionTypeParser(CommandContext<CommandSource> $, Queue<String> input) {
     String versionTypeName = input.remove().toLowerCase();
     return CloudNet.getInstance().getServiceVersionProvider().getServiceVersionType(versionTypeName)
       .orElseThrow(() -> new ArgumentNotAvailableException(""));
   }
 
   @Parser
-  public ServiceEnvironmentType defaultEnvironmentTypeParser(CommandContext<CommandSource> sender,
-    Queue<String> input) {
+  public ServiceEnvironmentType defaultEnvironmentTypeParser(CommandContext<CommandSource> $, Queue<String> input) {
     return ServiceEnvironmentType.valueOf(input.remove());
   }
 
@@ -232,11 +231,11 @@ public class CommandTemplate {
     }
   }
 
-  @CommandMethod("template|t copy|cp <storage:prefix/name (sourceTemplate)> <storage:prefix/name (targetTemplate)>")
+  @CommandMethod("template|t copy|cp <sourceTemplate> <targetTemplate>")
   public void copyTemplate(
     CommandSource source,
-    @Argument("storage:prefix/name (sourceTemplate)") ServiceTemplate sourceTemplate,
-    @Argument("storage:prefix/name (targetTemplate)") ServiceTemplate targetTemplate
+    @Argument("sourceTemplate") ServiceTemplate sourceTemplate,
+    @Argument("targetTemplate") ServiceTemplate targetTemplate
   ) {
     if (sourceTemplate.equals(targetTemplate)) {
       source.sendMessage("Cannot copy template it self");

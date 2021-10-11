@@ -20,11 +20,13 @@ import cloud.commandframework.annotations.Argument;
 import cloud.commandframework.annotations.CommandMethod;
 import cloud.commandframework.annotations.parsers.Parser;
 import cloud.commandframework.annotations.specifier.Greedy;
+import cloud.commandframework.annotations.suggestions.Suggestions;
 import cloud.commandframework.arguments.StaticArgument;
 import cloud.commandframework.context.CommandContext;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.command.exception.ArgumentNotAvailableException;
 import de.dytanic.cloudnet.command.source.CommandSource;
+import de.dytanic.cloudnet.common.INameable;
 import de.dytanic.cloudnet.driver.service.GroupConfiguration;
 import de.dytanic.cloudnet.driver.service.ServiceConfigurationBase;
 import de.dytanic.cloudnet.driver.service.ServiceDeployment;
@@ -34,168 +36,13 @@ import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.Queue;
+import java.util.stream.Collectors;
 
 public class CommandServiceConfiguration {
 
   private static final StaticArgument<CommandSource> TASK_ARGUMENT = StaticArgument.of("tasks");
-
-  @Parser
-  public ServiceConfigurationBase dualServiceConfigurationParser(CommandContext<CommandSource> context,
-    Queue<String> input) {
-    String name = input.remove();
-
-    ServiceConfigurationBase configurationBase;
-    if (context.getArgumentTimings().containsKey(TASK_ARGUMENT)) {
-      configurationBase = CloudNet.getInstance().getServiceTaskProvider().getServiceTask(name);
-    } else {
-      configurationBase = CloudNet.getInstance().getGroupConfigurationProvider().getGroupConfiguration(name);
-    }
-
-    if (configurationBase == null) {
-      throw new ArgumentNotAvailableException("Group / task not found");
-    }
-
-    return configurationBase;
-  }
-
-  @Parser
-  public Queue<String> greedyParameterParser(CommandContext<CommandSource> context, Queue<String> input) {
-    return input;
-  }
-
-  @CommandMethod("tasks|groups tasks|group <name> add deployment <storage:prefix/name>")
-  public void addDeployment(
-    CommandSource source,
-    @Argument("name") ServiceConfigurationBase configurationBase,
-    @Argument("storage:prefix/name") ServiceTemplate template
-  ) {
-    ServiceDeployment deployment = new ServiceDeployment(template, new ArrayList<>());
-
-    configurationBase.getDeployments().add(deployment);
-    this.updateConfigurationBase(configurationBase);
-  }
-
-  @CommandMethod("tasks|groups tasks|group <name> add template <storage:prefix/name>")
-  public void addTemplate(
-    CommandSource source,
-    @Argument("name") ServiceConfigurationBase configurationBase,
-    @Argument("storage:prefix/name") ServiceTemplate template
-  ) {
-    configurationBase.getTemplates().add(template);
-    this.updateConfigurationBase(configurationBase);
-  }
-
-  @CommandMethod("tasks|groups tasks|group <name> add inclusion <url> <path>")
-  public void addInclusion(
-    CommandSource source,
-    @Argument("name") ServiceConfigurationBase configurationBase,
-    @Argument("url") String url,
-    @Argument("targetPath") String path
-  ) {
-    ServiceRemoteInclusion inclusion = new ServiceRemoteInclusion(url, path);
-
-    configurationBase.getIncludes().add(inclusion);
-    this.updateConfigurationBase(configurationBase);
-  }
-
-  @CommandMethod("tasks|groups tasks|group <name> add jvmOption <options>")
-  public void addJvmOption(
-    CommandSource source,
-    @Argument("name") ServiceConfigurationBase configurationBase,
-    @Greedy @Argument("options") Queue<String> jvmOptions
-  ) {
-    for (String jvmOption : jvmOptions) {
-      configurationBase.getJvmOptions().add(jvmOption);
-    }
-    this.updateConfigurationBase(configurationBase);
-  }
-
-  @CommandMethod("tasks|groups tasks|group <name> add processParameter <options>")
-  public void addProcessParameter(
-    CommandSource source,
-    @Argument("name") ServiceConfigurationBase configurationBase,
-    @Greedy @Argument("options") Queue<String> processParameters
-  ) {
-    for (String processParameter : processParameters) {
-      configurationBase.getProcessParameters().add(processParameter);
-    }
-    this.updateConfigurationBase(configurationBase);
-  }
-
-  @CommandMethod("tasks|groups tasks|group <name> remove deployment <storage:prefix/name>")
-  public void removeDeployment(
-    CommandSource source,
-    @Argument("name") ServiceConfigurationBase configurationBase,
-    @Argument("storage:prefix/name") ServiceTemplate template
-  ) {
-    ServiceDeployment deployment = new ServiceDeployment(template, new ArrayList<>());
-
-    configurationBase.getDeployments().remove(deployment);
-    this.updateConfigurationBase(configurationBase);
-  }
-
-  @CommandMethod("tasks|groups tasks|group <name> remove template <storage:prefix/name>")
-  public void removeTemplate(
-    CommandSource source,
-    @Argument("name") ServiceConfigurationBase configurationBase,
-    @Argument("storage:prefix/name") ServiceTemplate template
-  ) {
-    configurationBase.getTemplates().remove(template);
-    this.updateConfigurationBase(configurationBase);
-  }
-
-  @CommandMethod("tasks|groups tasks|group <name> remove inclusion <url> <path>")
-  public void removeInclusion(
-    CommandSource source,
-    @Argument("name") ServiceConfigurationBase configurationBase,
-    @Argument("url") String url,
-    @Argument("targetPath") String path
-  ) {
-    ServiceRemoteInclusion inclusion = new ServiceRemoteInclusion(url, path);
-
-    configurationBase.getIncludes().remove(inclusion);
-    this.updateConfigurationBase(configurationBase);
-  }
-
-  @CommandMethod("tasks|groups task|group <name> remove jvmOption <options>")
-  public void removeJvmOption(
-    CommandSource source,
-    @Argument("name") ServiceConfigurationBase configurationBase,
-    @Greedy @Argument("options") Queue<String> jvmOptions
-  ) {
-    for (String jvmOption : jvmOptions) {
-      configurationBase.getJvmOptions().remove(jvmOption);
-    }
-    this.updateConfigurationBase(configurationBase);
-  }
-
-  @CommandMethod("tasks|groups task|group <name> remove processParameter <options>")
-  public void removeProcessParameter(
-    CommandSource source,
-    @Argument("name") ServiceConfigurationBase configurationBase,
-    @Greedy @Argument("options") Queue<String> processParameters
-  ) {
-    for (String processParameter : processParameters) {
-      configurationBase.getProcessParameters().remove(processParameter);
-    }
-    this.updateConfigurationBase(configurationBase);
-  }
-
-  @CommandMethod("tasks|groups tasks|group <name> clear jvmOptions")
-  public void clearJvmOptions(CommandSource source, @Argument("name") ServiceConfigurationBase configurationBase) {
-    configurationBase.getJvmOptions().clear();
-    this.updateConfigurationBase(configurationBase);
-  }
-
-  protected void updateConfigurationBase(ServiceConfigurationBase configurationBase) {
-    if (configurationBase instanceof ServiceTask) {
-      CloudNet.getInstance().getServiceTaskProvider().addPermanentServiceTask((ServiceTask) configurationBase);
-    } else {
-      CloudNet.getInstance().getGroupConfigurationProvider()
-        .addGroupConfiguration((GroupConfiguration) configurationBase);
-    }
-  }
 
   public static void applyServiceConfigurationDisplay(Collection<String> messages,
     ServiceConfigurationBase configurationBase) {
@@ -240,6 +87,177 @@ public class CommandServiceConfiguration {
 
     messages.addAll(Arrays.asList(configurationBase.getProperties().toPrettyJson().split("\n")));
     messages.add(" ");
+  }
+
+  @Parser(suggestions = "dualServiceConfiguration")
+  public ServiceConfigurationBase dualServiceConfigurationParser(CommandContext<CommandSource> context,
+    Queue<String> input) {
+    String name = input.remove();
+
+    ServiceConfigurationBase configurationBase;
+    if (context.getArgumentTimings().containsKey(TASK_ARGUMENT)) {
+      configurationBase = CloudNet.getInstance().getServiceTaskProvider().getServiceTask(name);
+    } else {
+      configurationBase = CloudNet.getInstance().getGroupConfigurationProvider().getGroupConfiguration(name);
+    }
+
+    if (configurationBase == null) {
+      throw new ArgumentNotAvailableException("Group / task not found");
+    }
+
+    return configurationBase;
+  }
+
+  @Suggestions("dualServiceConfiguration")
+  public List<String> suggestServiceConfiguration(CommandContext<CommandSource> context, String input) {
+    if (context.getRawInputJoined().toLowerCase().startsWith("tasks")) {
+      return CloudNet.getInstance().getServiceTaskProvider().getPermanentServiceTasks()
+        .stream()
+        .map(INameable::getName)
+        .collect(Collectors.toList());
+    }
+    return CloudNet.getInstance().getGroupConfigurationProvider().getGroupConfigurations()
+      .stream()
+      .map(INameable::getName)
+      .collect(Collectors.toList());
+  }
+
+  @Parser
+  public Queue<String> greedyParameterParser(CommandContext<CommandSource> context, Queue<String> input) {
+    return input;
+  }
+
+  @CommandMethod("tasks1|groups1 task|group <name> add deployment <deployment>")
+  public void addDeployment(
+    CommandSource source,
+    @Argument("name") ServiceConfigurationBase configurationBase,
+    @Argument("deployment") ServiceTemplate template
+  ) {
+    ServiceDeployment deployment = new ServiceDeployment(template, new ArrayList<>());
+
+    configurationBase.getDeployments().add(deployment);
+    this.updateConfigurationBase(configurationBase);
+  }
+
+  @CommandMethod("tasks1|groups1 task|group <name> add template <template>")
+  public void addTemplate(
+    CommandSource source,
+    @Argument("name") ServiceConfigurationBase configurationBase,
+    @Argument("template") ServiceTemplate template
+  ) {
+    configurationBase.getTemplates().add(template);
+    this.updateConfigurationBase(configurationBase);
+  }
+
+  @CommandMethod("tasks1|groups1 task|group <name> add inclusion <url> <path>")
+  public void addInclusion(
+    CommandSource source,
+    @Argument("name") ServiceConfigurationBase configurationBase,
+    @Argument("url") String url,
+    @Argument("path") String path
+  ) {
+    ServiceRemoteInclusion inclusion = new ServiceRemoteInclusion(url, path);
+
+    configurationBase.getIncludes().add(inclusion);
+    this.updateConfigurationBase(configurationBase);
+  }
+
+  @CommandMethod("tasks1|groups1 task|group <name> add jvmOption <options>")
+  public void addJvmOption(
+    CommandSource source,
+    @Argument("name") ServiceConfigurationBase configurationBase,
+    @Argument("options") Queue<String> jvmOptions
+  ) {
+    for (String jvmOption : jvmOptions) {
+      configurationBase.getJvmOptions().add(jvmOption);
+    }
+    this.updateConfigurationBase(configurationBase);
+  }
+
+  @CommandMethod("tasks1|groups1 task|group <name> add processParameter <options>")
+  public void addProcessParameter(
+    CommandSource source,
+    @Argument("name") ServiceConfigurationBase configurationBase,
+    @Greedy @Argument("options") Queue<String> processParameters
+  ) {
+    for (String processParameter : processParameters) {
+      configurationBase.getProcessParameters().add(processParameter);
+    }
+    this.updateConfigurationBase(configurationBase);
+  }
+
+  @CommandMethod("tasks1|groups1 task|group <name> remove deployment <deployment>")
+  public void removeDeployment(
+    CommandSource source,
+    @Argument("name") ServiceConfigurationBase configurationBase,
+    @Argument("deployment") ServiceTemplate template
+  ) {
+    ServiceDeployment deployment = new ServiceDeployment(template, new ArrayList<>());
+
+    configurationBase.getDeployments().remove(deployment);
+    this.updateConfigurationBase(configurationBase);
+  }
+
+  @CommandMethod("tasks1|groups1 task|group <name> remove template <template>")
+  public void removeTemplate(
+    CommandSource source,
+    @Argument("name") ServiceConfigurationBase configurationBase,
+    @Argument("template") ServiceTemplate template
+  ) {
+    configurationBase.getTemplates().remove(template);
+    this.updateConfigurationBase(configurationBase);
+  }
+
+  @CommandMethod("tasks1|groups1 task|group <name> remove inclusion <url> <path>")
+  public void removeInclusion(
+    CommandSource source,
+    @Argument("name") ServiceConfigurationBase configurationBase,
+    @Argument("url") String url,
+    @Argument("path") String path
+  ) {
+    ServiceRemoteInclusion inclusion = new ServiceRemoteInclusion(url, path);
+
+    configurationBase.getIncludes().remove(inclusion);
+    this.updateConfigurationBase(configurationBase);
+  }
+
+  @CommandMethod("tasks1|groups1 task|group <name> remove jvmOption <options>")
+  public void removeJvmOption(
+    CommandSource source,
+    @Argument("name") ServiceConfigurationBase configurationBase,
+    @Greedy @Argument("options") Queue<String> jvmOptions
+  ) {
+    for (String jvmOption : jvmOptions) {
+      configurationBase.getJvmOptions().remove(jvmOption);
+    }
+    this.updateConfigurationBase(configurationBase);
+  }
+
+  @CommandMethod("tasks1|groups1 task|group <name> remove processParameter <options>")
+  public void removeProcessParameter(
+    CommandSource source,
+    @Argument("name") ServiceConfigurationBase configurationBase,
+    @Greedy @Argument("options") Queue<String> processParameters
+  ) {
+    for (String processParameter : processParameters) {
+      configurationBase.getProcessParameters().remove(processParameter);
+    }
+    this.updateConfigurationBase(configurationBase);
+  }
+
+  @CommandMethod("tasks1|groups1 task|group <name> clear jvmOptions")
+  public void clearJvmOptions(CommandSource source, @Argument("name") ServiceConfigurationBase configurationBase) {
+    configurationBase.getJvmOptions().clear();
+    this.updateConfigurationBase(configurationBase);
+  }
+
+  protected void updateConfigurationBase(ServiceConfigurationBase configurationBase) {
+    if (configurationBase instanceof ServiceTask) {
+      CloudNet.getInstance().getServiceTaskProvider().addPermanentServiceTask((ServiceTask) configurationBase);
+    } else {
+      CloudNet.getInstance().getGroupConfigurationProvider()
+        .addGroupConfiguration((GroupConfiguration) configurationBase);
+    }
   }
 
 }
