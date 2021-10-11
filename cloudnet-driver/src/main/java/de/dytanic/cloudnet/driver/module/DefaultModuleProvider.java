@@ -20,6 +20,7 @@ import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.JavaVersion;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import java.io.BufferedInputStream;
@@ -208,6 +209,16 @@ public class DefaultModuleProvider implements IModuleProvider {
       LOGGER.severe("Unable to resolve url of module path", exception);
       return null;
     }
+  }
+
+  @Override
+  public @NotNull IModuleProvider loadAll() {
+    FileUtils.walkFileTree(
+      this.moduleDirectory,
+      ($, current) -> this.loadModule(current),
+      false,
+      "*.{jar,war,zip}");
+    return this;
   }
 
   /**

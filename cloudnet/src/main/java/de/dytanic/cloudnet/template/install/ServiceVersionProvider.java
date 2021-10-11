@@ -53,7 +53,10 @@ import org.jetbrains.annotations.UnmodifiableView;
 
 public class ServiceVersionProvider {
 
-  protected static final Logger LOGGER = LogManager.getLogger(ServiceVersionProvider.class);
+  public static final String DEFAULT_FILE_URL = System.getProperty(
+    "cloudnet.versions.url",
+    "https://cloudnetservice.eu/cloudnet/versions.json");
+  private static final Logger LOGGER = LogManager.getLogger(ServiceVersionProvider.class);
 
   private static final Path VERSION_CACHE_PATH = Paths.get(
     System.getProperty("cloudnet.versioncache.path", "local/versioncache"));
@@ -66,6 +69,16 @@ public class ServiceVersionProvider {
 
   public ServiceVersionProvider(@NotNull IConsole console) {
     this.console = console;
+  }
+
+  public void loadServiceVersionTypesOrDefaults(@NotNull String url) {
+    try {
+      if (!this.loadServiceVersionTypes(url)) {
+        this.loadDefaultVersionTypes();
+      }
+    } catch (IOException exception) {
+      this.loadDefaultVersionTypes();
+    }
   }
 
   public boolean loadServiceVersionTypes(@NotNull String url) throws IOException {

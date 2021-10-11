@@ -16,11 +16,9 @@
 
 package de.dytanic.cloudnet.driver.module;
 
-import java.io.File;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.Collection;
-import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
@@ -47,22 +45,6 @@ public interface IModuleProvider {
    * @see #getModuleDirectoryPath()
    */
   void setModuleDirectoryPath(@NotNull Path moduleDirectory);
-
-  /**
-   * @deprecated Use {@link #getModuleDirectoryPath()} instead.
-   */
-  @Deprecated
-  default File getModuleDirectory() {
-    return this.getModuleDirectoryPath().toFile();
-  }
-
-  /**
-   * @deprecated Use {@link #setModuleDirectoryPath(Path)} instead.
-   */
-  @Deprecated
-  default void setModuleDirectory(File moduleDirectory) {
-    this.setModuleDirectoryPath(moduleDirectory.toPath());
-  }
 
   /**
    * Get the module provider handler of this provider or {@code null} when no handler is specified.
@@ -144,15 +126,6 @@ public interface IModuleProvider {
   @Nullable IModuleWrapper loadModule(@NotNull URL url);
 
   /**
-   * @deprecated Use {@link #loadModule(Path)} instead.
-   */
-  @Deprecated
-  @ScheduledForRemoval
-  default IModuleWrapper loadModule(@NotNull File file) {
-    return this.loadModule(file.toPath());
-  }
-
-  /**
    * Loads the module by the file provided by the given {@code path}.
    *
    * @param path the path to load the module from.
@@ -167,41 +140,8 @@ public interface IModuleProvider {
    */
   @Nullable IModuleWrapper loadModule(@NotNull Path path);
 
-  /**
-   * @deprecated use {@link #loadModule(URL)} instead.
-   */
-  @Deprecated
-  @ScheduledForRemoval
-  default IModuleProvider loadModule(URL... urls) {
-    for (URL url : urls) {
-      this.loadModule(url);
-    }
-    return this;
-  }
-
-  /**
-   * @deprecated use {@link #loadModule(File)} instead.
-   */
-  @Deprecated
-  @ScheduledForRemoval
-  default IModuleProvider loadModule(File... files) {
-    for (File file : files) {
-      this.loadModule(file);
-    }
-    return this;
-  }
-
-  /**
-   * @deprecated use {@link #loadModule(Path)} instead.
-   */
-  @Deprecated
-  @ScheduledForRemoval
-  default IModuleProvider loadModule(Path... paths) {
-    for (Path path : paths) {
-      this.loadModule(path);
-    }
-    return this;
-  }
+  // TODO: docs
+  @NotNull IModuleProvider loadAll();
 
   /**
    * Starts all modules which are loaded by this provided and can change to the started state.
