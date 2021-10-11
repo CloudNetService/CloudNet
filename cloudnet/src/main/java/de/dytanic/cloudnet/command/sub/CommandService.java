@@ -21,10 +21,13 @@ import cloud.commandframework.annotations.CommandMethod;
 import cloud.commandframework.annotations.Flag;
 import cloud.commandframework.annotations.parsers.Parser;
 import cloud.commandframework.annotations.specifier.Greedy;
+import cloud.commandframework.annotations.suggestions.Suggestions;
+import cloud.commandframework.context.CommandContext;
 import com.google.common.primitives.Ints;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.command.exception.ArgumentNotAvailableException;
 import de.dytanic.cloudnet.command.source.CommandSource;
+import de.dytanic.cloudnet.common.INameable;
 import de.dytanic.cloudnet.common.WildcardUtil;
 import de.dytanic.cloudnet.common.unsafe.CPUUsageResolver;
 import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
@@ -40,6 +43,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -53,7 +57,7 @@ public class CommandService {
   public static final Pattern SERVICE_NAME_PATTERN = Pattern.compile("([\\w+-]+)-(\\d+)");
   private static final DateFormat DATE_FORMAT = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
 
-  @Parser(name = "single")
+  @Parser(name = "single", suggestions = "single")
   public ServiceInfoSnapshot singleServiceParser(Queue<String> input) {
     String name = input.remove();
     ServiceInfoSnapshot serviceInfoSnapshot = CloudNet.getInstance().getCloudServiceProvider()
@@ -64,7 +68,15 @@ public class CommandService {
     return serviceInfoSnapshot;
   }
 
-  @Parser
+  @Suggestions("single")
+  public List<String> suggestSingleService(CommandContext<CommandSource> context, String input) {
+    return CloudNet.getInstance().getCloudServiceProvider().getCloudServices()
+      .stream()
+      .map(INameable::getName)
+      .collect(Collectors.toList());
+  }
+
+  @Parser(suggestions = "serviceWildcard")
   public Collection<ServiceInfoSnapshot> wildcardServiceParser(Queue<String> input) {
     String name = input.remove();
     Collection<ServiceInfoSnapshot> knownServices = CloudNet.getInstance().getCloudServiceProvider().getCloudServices();
@@ -81,6 +93,15 @@ public class CommandService {
     String name = input.remove();
     Collection<ServiceInfoSnapshot> knownServices = CloudNet.getInstance().getCloudServiceProvider().getCloudServices();
     return WildcardUtil.filterWildcard(knownServices, name);
+  }
+
+  @Suggestions("serviceWildcard")
+  public List<String> suggestService(CommandContext<CommandSource> context, String input) {
+    Collection<ServiceInfoSnapshot> knownServices = CloudNet.getInstance().getCloudServiceProvider().getCloudServices();
+    return WildcardUtil.filterWildcard(knownServices, input)
+      .stream()
+      .map(INameable::getName)
+      .collect(Collectors.toList());
   }
 
   @CommandMethod("service|ser list|l")

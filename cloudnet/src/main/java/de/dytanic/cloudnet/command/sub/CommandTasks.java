@@ -20,10 +20,12 @@ import cloud.commandframework.annotations.Argument;
 import cloud.commandframework.annotations.CommandMethod;
 import cloud.commandframework.annotations.parsers.Parser;
 import cloud.commandframework.annotations.specifier.Range;
+import cloud.commandframework.annotations.suggestions.Suggestions;
 import cloud.commandframework.context.CommandContext;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.command.exception.ArgumentNotAvailableException;
 import de.dytanic.cloudnet.command.source.CommandSource;
+import de.dytanic.cloudnet.common.INameable;
 import de.dytanic.cloudnet.common.JavaVersion;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
@@ -37,12 +39,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Queue;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 public class CommandTasks {
 
-  @Parser
+  @Parser(suggestions = "serviceTask")
   public ServiceTask defaultTaskParser(CommandContext<CommandSource> context, Queue<String> input) {
     String name = input.remove();
     ServiceTask task = CloudNet.getInstance().getServiceTaskProvider().getServiceTask(name);
@@ -51,6 +55,11 @@ public class CommandTasks {
     }
 
     return task;
+  }
+
+  @Suggestions("serviceTask")
+  public List<String> suggestTask(CommandContext<CommandSource> context, String input) {
+    return this.taskProvider().getPermanentServiceTasks().stream().map(INameable::getName).collect(Collectors.toList());
   }
 
   @Parser
@@ -64,7 +73,7 @@ public class CommandTasks {
     return new Pair<>(command, version);
   }
 
-  @Parser(name = "nodeId")
+  @Parser(name = "nodeId", suggestions = "clusterNode")
   public String defaultClusterNodeParser(CommandContext<CommandSource> context, Queue<String> input) {
     String nodeId = input.remove();
     for (NetworkClusterNode node : CloudNet.getInstance().getConfig().getClusterConfig().getNodes()) {
@@ -73,6 +82,14 @@ public class CommandTasks {
       }
     }
     throw new ArgumentNotAvailableException("That node does not exist");
+  }
+
+  @Suggestions("clusterNode")
+  public List<String> suggestNode(CommandContext<CommandSource> context, String input) {
+    return CloudNet.getInstance().getConfig().getClusterConfig().getNodes()
+      .stream()
+      .map(NetworkClusterNode::getUniqueId)
+      .collect(Collectors.toList());
   }
 
   @CommandMethod("tasks setup")

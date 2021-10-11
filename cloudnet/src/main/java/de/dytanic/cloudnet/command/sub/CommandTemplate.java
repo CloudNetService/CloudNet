@@ -22,10 +22,12 @@ import cloud.commandframework.annotations.CommandMethod;
 import cloud.commandframework.annotations.Flag;
 import cloud.commandframework.annotations.parsers.Parser;
 import cloud.commandframework.annotations.specifier.Quoted;
+import cloud.commandframework.annotations.suggestions.Suggestions;
 import cloud.commandframework.context.CommandContext;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.command.exception.SyntaxException;
 import de.dytanic.cloudnet.command.source.CommandSource;
+import de.dytanic.cloudnet.common.INameable;
 import de.dytanic.cloudnet.common.JavaVersion;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
@@ -40,18 +42,27 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
+import java.util.stream.Collectors;
 import java.util.zip.ZipInputStream;
 
 @CommandDescription("Manages the templates and allows installation of .jar files")
 public class CommandTemplate {
 
-  @Parser
+  @Parser(suggestions = "serviceTemplate")
   public ServiceTemplate defaultServiceTemplateParser(CommandContext<CommandSource> sender, Queue<String> input) {
     ServiceTemplate template = ServiceTemplate.parse(input.remove());
     if (template == null || template.nullableStorage() == null) {
       throw new SyntaxException("");
     }
     return template;
+  }
+
+  @Suggestions("serviceTemplate")
+  public List<String> suggestServiceTemplate(CommandContext<CommandSource> sender, String input) {
+    return CloudNet.getInstance().getLocalTemplateStorage().getTemplates()
+      .stream()
+      .map(ServiceTemplate::toString)
+      .collect(Collectors.toList());
   }
 
   @Parser
@@ -61,6 +72,14 @@ public class CommandTemplate {
       throw new SyntaxException("");
     }
     return templateStorage;
+  }
+
+  @Suggestions("templateStorage")
+  public List<String> suggestTemplateStorage(CommandContext<CommandSource> sender, String input) {
+    return CloudNet.getInstance().getAvailableTemplateStorages()
+      .stream()
+      .map(INameable::getName)
+      .collect(Collectors.toList());
   }
 
   @Parser
@@ -234,6 +253,7 @@ public class CommandTemplate {
       try (ZipInputStream stream = sourceStorage.asZipInputStream()) {
         if (stream == null) {
           source.sendMessage(LanguageManager.getMessage("command-template-copy-failed"));
+          return;
         }
 
         targetStorage.deploy(stream);
@@ -241,6 +261,8 @@ public class CommandTemplate {
           .replace("%sourceTemplate%", sourceTemplate.toString())
           .replace("%targetTemplate%", targetTemplate.toString())
         );
+      } catch (IOException exception) {
+        source.sendMessage(LanguageManager.getMessage("command-template-copy-failed"));
       }
     });
   }

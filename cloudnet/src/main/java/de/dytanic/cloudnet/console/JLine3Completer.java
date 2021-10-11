@@ -16,8 +16,6 @@
 
 package de.dytanic.cloudnet.console;
 
-import de.dytanic.cloudnet.common.Properties;
-import de.dytanic.cloudnet.deleted.command.ITabCompleter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;

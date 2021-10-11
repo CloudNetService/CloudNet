@@ -64,7 +64,7 @@ public class CommandServiceConfiguration {
     return input;
   }
 
-  @CommandMethod("tasks|configurationBases task|configurationBase <name> add deployment <storage:prefix/name>")
+  @CommandMethod("tasks|groups tasks|group <name> add deployment <storage:prefix/name>")
   public void addDeployment(
     CommandSource source,
     @Argument("name") ServiceConfigurationBase configurationBase,
@@ -76,7 +76,7 @@ public class CommandServiceConfiguration {
     this.updateConfigurationBase(configurationBase);
   }
 
-  @CommandMethod("tasks|configurationBases task|configurationBase <name> add template <storage:prefix/name>")
+  @CommandMethod("tasks|groups tasks|group <name> add template <storage:prefix/name>")
   public void addTemplate(
     CommandSource source,
     @Argument("name") ServiceConfigurationBase configurationBase,
@@ -86,7 +86,7 @@ public class CommandServiceConfiguration {
     this.updateConfigurationBase(configurationBase);
   }
 
-  @CommandMethod("tasks|configurationBases task|configurationBase <name> add inclusion <url> <path>")
+  @CommandMethod("tasks|groups tasks|group <name> add inclusion <url> <path>")
   public void addInclusion(
     CommandSource source,
     @Argument("name") ServiceConfigurationBase configurationBase,
@@ -99,7 +99,7 @@ public class CommandServiceConfiguration {
     this.updateConfigurationBase(configurationBase);
   }
 
-  @CommandMethod("tasks|configurationBases task|configurationBase <name> add jvmOption <options>")
+  @CommandMethod("tasks|groups tasks|group <name> add jvmOption <options>")
   public void addJvmOption(
     CommandSource source,
     @Argument("name") ServiceConfigurationBase configurationBase,
@@ -111,7 +111,7 @@ public class CommandServiceConfiguration {
     this.updateConfigurationBase(configurationBase);
   }
 
-  @CommandMethod("tasks|configurationBases task|configurationBase <name> add processParameter <options>")
+  @CommandMethod("tasks|groups tasks|group <name> add processParameter <options>")
   public void addProcessParameter(
     CommandSource source,
     @Argument("name") ServiceConfigurationBase configurationBase,
@@ -123,7 +123,7 @@ public class CommandServiceConfiguration {
     this.updateConfigurationBase(configurationBase);
   }
 
-  @CommandMethod("tasks|configurationBases task|configurationBase <name> remove deployment <storage:prefix/name>")
+  @CommandMethod("tasks|groups tasks|group <name> remove deployment <storage:prefix/name>")
   public void removeDeployment(
     CommandSource source,
     @Argument("name") ServiceConfigurationBase configurationBase,
@@ -135,7 +135,7 @@ public class CommandServiceConfiguration {
     this.updateConfigurationBase(configurationBase);
   }
 
-  @CommandMethod("tasks|configurationBases task|configurationBase <name> remove template <storage:prefix/name>")
+  @CommandMethod("tasks|groups tasks|group <name> remove template <storage:prefix/name>")
   public void removeTemplate(
     CommandSource source,
     @Argument("name") ServiceConfigurationBase configurationBase,
@@ -145,7 +145,7 @@ public class CommandServiceConfiguration {
     this.updateConfigurationBase(configurationBase);
   }
 
-  @CommandMethod("tasks|configurationBases task|configurationBase <name> remove inclusion <url> <path>")
+  @CommandMethod("tasks|groups tasks|group <name> remove inclusion <url> <path>")
   public void removeInclusion(
     CommandSource source,
     @Argument("name") ServiceConfigurationBase configurationBase,
@@ -158,7 +158,7 @@ public class CommandServiceConfiguration {
     this.updateConfigurationBase(configurationBase);
   }
 
-  @CommandMethod("tasks|configurationBases task|configurationBase <name> remove jvmOption <options>")
+  @CommandMethod("tasks|groups task|group <name> remove jvmOption <options>")
   public void removeJvmOption(
     CommandSource source,
     @Argument("name") ServiceConfigurationBase configurationBase,
@@ -170,7 +170,7 @@ public class CommandServiceConfiguration {
     this.updateConfigurationBase(configurationBase);
   }
 
-  @CommandMethod("tasks|configurationBases task|configurationBase <name> remove processParameter <options>")
+  @CommandMethod("tasks|groups task|group <name> remove processParameter <options>")
   public void removeProcessParameter(
     CommandSource source,
     @Argument("name") ServiceConfigurationBase configurationBase,
@@ -182,7 +182,7 @@ public class CommandServiceConfiguration {
     this.updateConfigurationBase(configurationBase);
   }
 
-  @CommandMethod("tasks|configurationBases task|configurationBase <name> clear jvmOptions")
+  @CommandMethod("tasks|groups tasks|group <name> clear jvmOptions")
   public void clearJvmOptions(CommandSource source, @Argument("name") ServiceConfigurationBase configurationBase) {
     configurationBase.getJvmOptions().clear();
     this.updateConfigurationBase(configurationBase);

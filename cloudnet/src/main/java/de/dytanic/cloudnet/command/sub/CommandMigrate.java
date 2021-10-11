@@ -20,17 +20,21 @@ import cloud.commandframework.annotations.Argument;
 import cloud.commandframework.annotations.CommandMethod;
 import cloud.commandframework.annotations.Flag;
 import cloud.commandframework.annotations.parsers.Parser;
+import cloud.commandframework.annotations.suggestions.Suggestions;
 import cloud.commandframework.context.CommandContext;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.command.exception.SyntaxException;
 import de.dytanic.cloudnet.command.source.CommandSource;
+import de.dytanic.cloudnet.common.INameable;
 import de.dytanic.cloudnet.common.concurrent.function.ThrowableConsumer;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.database.AbstractDatabaseProvider;
 import de.dytanic.cloudnet.driver.database.Database;
+import java.util.List;
 import java.util.Queue;
+import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
 
 public class CommandMigrate {
@@ -38,7 +42,7 @@ public class CommandMigrate {
   private static final int DEFAULT_CHUNK_SIZE = 100;
   private static final Logger LOGGER = LogManager.getLogger(CommandMigrate.class);
 
-  @Parser
+  @Parser(suggestions = "databaseProvider")
   public AbstractDatabaseProvider defaultDatabaseProviderParser(CommandContext<CommandSource> sender,
     Queue<String> input) {
     AbstractDatabaseProvider abstractDatabaseProvider = CloudNet.getInstance().getServicesRegistry()
@@ -48,6 +52,14 @@ public class CommandMigrate {
       throw new SyntaxException("we dont have this");
     }
     return abstractDatabaseProvider;
+  }
+
+  @Suggestions("databaseProvider")
+  public List<String> suggestDatabaseProvider(CommandContext<CommandSource> sender, String input) {
+    return CloudNet.getInstance().getServicesRegistry().getServices(AbstractDatabaseProvider.class)
+      .stream()
+      .map(INameable::getName)
+      .collect(Collectors.toList());
   }
 
   @CommandMethod("migrate database <database-from> <database-to>")

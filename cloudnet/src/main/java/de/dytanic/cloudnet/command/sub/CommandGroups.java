@@ -19,30 +19,41 @@ package de.dytanic.cloudnet.command.sub;
 import cloud.commandframework.annotations.Argument;
 import cloud.commandframework.annotations.CommandMethod;
 import cloud.commandframework.annotations.parsers.Parser;
+import cloud.commandframework.annotations.suggestions.Suggestions;
+import cloud.commandframework.context.CommandContext;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.command.exception.ArgumentNotAvailableException;
 import de.dytanic.cloudnet.command.source.CommandSource;
+import de.dytanic.cloudnet.common.INameable;
+import de.dytanic.cloudnet.driver.provider.GroupConfigurationProvider;
 import de.dytanic.cloudnet.driver.service.GroupConfiguration;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.Queue;
+import java.util.stream.Collectors;
 
 public class CommandGroups {
 
-  @Parser
+  @Parser(suggestions = "groupConfiguration")
   public GroupConfiguration defaultGroupParser(Queue<String> input) {
     String name = input.remove();
 
-    GroupConfiguration configuration = CloudNet.getInstance().getGroupConfigurationProvider()
-      .getGroupConfiguration(name);
+    GroupConfiguration configuration = this.groupProvider().getGroupConfiguration(name);
     if (configuration == null) {
       throw new ArgumentNotAvailableException("Group not found");
     }
 
     return configuration;
   }
+
+  @Suggestions("groupConfiguration")
+  public List<String> suggestGroups(CommandContext<CommandSource> context, String input) {
+    return this.groupProvider().getGroupConfigurations().stream().map(INameable::getName).collect(Collectors.toList());
+  }
+
 
   @CommandMethod("groups delete <name>")
   public void deleteGroup(CommandSource source, @Argument("name") GroupConfiguration configuration) {
@@ -51,8 +62,8 @@ public class CommandGroups {
 
   @CommandMethod("groups create <name>")
   public void createGroup(CommandSource source, @Argument("name") String groupName) {
-    if (!CloudNet.getInstance().getGroupConfigurationProvider().isGroupConfigurationPresent(groupName)) {
-      CloudNet.getInstance().getGroupConfigurationProvider().addGroupConfiguration(GroupConfiguration.empty(groupName));
+    if (!this.groupProvider().isGroupConfigurationPresent(groupName)) {
+      this.groupProvider().addGroupConfiguration(GroupConfiguration.empty(groupName));
     }
   }
 
@@ -95,7 +106,7 @@ public class CommandGroups {
     @Argument("environment") ServiceEnvironmentType environmentType
   ) {
     group.getTargetEnvironments().add(environmentType);
-    CloudNet.getInstance().getGroupConfigurationProvider().addGroupConfiguration(group);
+    this.groupProvider().addGroupConfiguration(group);
   }
 
   @CommandMethod("groups group <name> remove environment <environment>")
@@ -105,7 +116,11 @@ public class CommandGroups {
     @Argument("environment") ServiceEnvironmentType environmentType
   ) {
     group.getTargetEnvironments().remove(environmentType);
-    CloudNet.getInstance().getGroupConfigurationProvider().addGroupConfiguration(group);
+    this.groupProvider().addGroupConfiguration(group);
+  }
+
+  private GroupConfigurationProvider groupProvider() {
+    return CloudNet.getInstance().getGroupConfigurationProvider();
   }
 
 
