@@ -14,27 +14,22 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.template.install.run.step;
+package de.dytanic.cloudnet.template.install.execute;
 
-import de.dytanic.cloudnet.deleted.command.commands.CommandTemplate;
-import de.dytanic.cloudnet.template.install.run.InstallInformation;
-import de.dytanic.cloudnet.template.install.run.step.executor.BuildStepExecutor;
-import de.dytanic.cloudnet.template.install.run.step.executor.CopyFilterStepExecutor;
-import de.dytanic.cloudnet.template.install.run.step.executor.DeployStepExecutor;
-import de.dytanic.cloudnet.template.install.run.step.executor.DownloadStepExecutor;
-import de.dytanic.cloudnet.template.install.run.step.executor.InstallStepExecutor;
-import de.dytanic.cloudnet.template.install.run.step.executor.PaperApiVersionFetchStepExecutor;
-import de.dytanic.cloudnet.template.install.run.step.executor.UnzipStepExecutor;
+import de.dytanic.cloudnet.template.install.InstallInformation;
+import de.dytanic.cloudnet.template.install.execute.defaults.BuildStepExecutor;
+import de.dytanic.cloudnet.template.install.execute.defaults.CopyFilterStepExecutor;
+import de.dytanic.cloudnet.template.install.execute.defaults.DeployStepExecutor;
+import de.dytanic.cloudnet.template.install.execute.defaults.DownloadStepExecutor;
+import de.dytanic.cloudnet.template.install.execute.defaults.PaperApiVersionFetchStepExecutor;
+import de.dytanic.cloudnet.template.install.execute.defaults.UnzipStepExecutor;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Set;
 import org.jetbrains.annotations.NotNull;
 
-/**
- * This constant provides implementations for different install steps needed for {@link
- * CommandTemplate}
- */
 public enum InstallStep {
+
   DOWNLOAD(new DownloadStepExecutor()),
   BUILD(new BuildStepExecutor()),
   UNZIP(new UnzipStepExecutor()),
@@ -48,13 +43,15 @@ public enum InstallStep {
     this.executor = executor;
   }
 
-  public @NotNull Set<Path> execute(@NotNull InstallInformation installInformation, @NotNull Path workingDirectory,
-    @NotNull Set<Path> inputPaths) throws IOException {
+  public @NotNull Set<Path> execute(
+    @NotNull InstallInformation installInformation,
+    @NotNull Path workingDirectory,
+    @NotNull Set<Path> inputPaths
+  ) throws IOException {
     return this.executor.execute(installInformation, workingDirectory, inputPaths);
   }
 
   public void interrupt() {
     this.executor.interrupt();
   }
-
 }

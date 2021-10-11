@@ -28,6 +28,7 @@ import de.dytanic.cloudnet.driver.network.rpc.object.ObjectMapper;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class DefaultRPCSender extends DefaultRPCProvider implements RPCSender {
 
@@ -40,7 +41,7 @@ public class DefaultRPCSender extends DefaultRPCProvider implements RPCSender {
 
   public DefaultRPCSender(
     @NotNull RPCProviderFactory factory,
-    @NotNull INetworkComponent component,
+    @Nullable INetworkComponent component,
     @NotNull Class<?> targetClass,
     @NotNull ObjectMapper objectMapper,
     @NotNull DataBufFactory dataBufFactory
@@ -60,6 +61,10 @@ public class DefaultRPCSender extends DefaultRPCProvider implements RPCSender {
 
   @Override
   public @NotNull INetworkComponent getAssociatedComponent() {
+    // possible to create without an associated component - throw an exception if so
+    if (this.networkComponent == null) {
+      throw new UnsupportedOperationException("Sender has no associated component");
+    }
     return this.networkComponent;
   }
 

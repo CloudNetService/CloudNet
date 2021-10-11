@@ -14,14 +14,15 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.template.install.run.step.executor;
+package de.dytanic.cloudnet.template.install.execute.defaults;
 
 import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
+import de.dytanic.cloudnet.template.install.InstallInformation;
 import de.dytanic.cloudnet.template.install.ServiceVersion;
-import de.dytanic.cloudnet.template.install.run.InstallInformation;
+import de.dytanic.cloudnet.template.install.execute.InstallStepExecutor;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -44,42 +45,45 @@ import org.jetbrains.annotations.NotNull;
 public class BuildStepExecutor implements InstallStepExecutor {
 
   private static final Logger LOGGER = LogManager.getLogger(BuildStepExecutor.class);
-  private static final Type STRING_LIST_TYPE = TypeToken.getParameterized(List.class, String.class).getType();
   private static final ExecutorService OUTPUT_READER_EXECUTOR = Executors.newCachedThreadPool();
+  private static final Type STRING_LIST_TYPE = TypeToken.getParameterized(List.class, String.class).getType();
 
   private final Collection<Process> runningBuildProcesses = new CopyOnWriteArrayList<>();
 
   @Override
-  public @NotNull Set<Path> execute(@NotNull InstallInformation information, @NotNull Path workDir,
-    @NotNull Set<Path> paths) throws IOException {
+  public @NotNull Set<Path> execute(
+    @NotNull InstallInformation information,
+    @NotNull Path workDir,
+    @NotNull Set<Path> paths
+  ) throws IOException {
     ServiceVersion version = information.getServiceVersion();
 
     Collection<String> jvmOptions = version.getProperties().get("jvmOptions", STRING_LIST_TYPE);
     List<String> parameters = version.getProperties().get("parameters", STRING_LIST_TYPE, new ArrayList<>());
 
     for (Path path : paths) {
-      List<String> processArguments = new ArrayList<>();
+      List<String> arguments = new ArrayList<>();
 
-      processArguments.add(
-        information.getInstallerExecutable().orElse(CloudNet.getInstance().getConfig().getJVMCommand()));
+      arguments.add(information.getInstallerExecutable().orElse(CloudNet.getInstance().getConfig().getJVMCommand()));
       if (jvmOptions != null) {
-        processArguments.addAll(jvmOptions);
+        arguments.addAll(jvmOptions);
       }
 
-      processArguments.add("-jar");
-      processArguments.add(path.getFileName().toString());
-      processArguments.addAll(
+      arguments.add("-jar");
+      arguments.add(path.getFileName().toString());
+      arguments.addAll(
         parameters.stream()
           .map(parameter -> parameter.replace("%version%", version.getName()))
-          .collect(Collectors.toList())
-      );
+          .collect(Collectors.toList()));
 
       int expectedExitCode = version.getProperties().getInt("exitCode", 0);
-      int exitCode = this.buildProcessAndWait(processArguments, workDir);
+      int exitCode = this.buildProcessAndWait(arguments, workDir);
 
       if (exitCode != expectedExitCode) {
-        throw new IllegalStateException(
-          String.format("Process returned unexpected exit code! Got %d, expected %d", exitCode, expectedExitCode));
+        throw new IllegalStateException(String.format(
+          "Process returned unexpected exit code! Got %d, expected %d",
+          exitCode,
+          expectedExitCode));
       }
     }
 
@@ -102,8 +106,8 @@ public class BuildStepExecutor implements InstallStepExecutor {
 
       this.runningBuildProcesses.add(process);
 
-      OUTPUT_READER_EXECUTOR.execute(new BuildOutputRunnable(process.getInputStream(), System.out));
-      OUTPUT_READER_EXECUTOR.execute(new BuildOutputRunnable(process.getErrorStream(), System.err));
+      OUTPUT_READER_EXECUTOR.execute(new BuildOutputRedirector(process.getInputStream(), System.out));
+      OUTPUT_READER_EXECUTOR.execute(new BuildOutputRedirector(process.getErrorStream(), System.err));
 
       int exitCode = process.waitFor();
       this.runningBuildProcesses.remove(process);
@@ -115,30 +119,26 @@ public class BuildStepExecutor implements InstallStepExecutor {
     return -1;
   }
 
-  private static class BuildOutputRunnable implements Runnable {
+  private static class BuildOutputRedirector implements Runnable {
 
     private final InputStream inputStream;
-
     private final PrintStream outputStream;
 
-    public BuildOutputRunnable(InputStream inputStream, PrintStream outputStream) {
+    public BuildOutputRedirector(InputStream inputStream, PrintStream outputStream) {
       this.inputStream = inputStream;
       this.outputStream = outputStream;
     }
 
     @Override
     public void run() {
-      try (BufferedReader bufferedReader = new BufferedReader(
-        new InputStreamReader(this.inputStream, StandardCharsets.UTF_8))) {
+      try (BufferedReader in = new BufferedReader(new InputStreamReader(this.inputStream, StandardCharsets.UTF_8))) {
         String line;
-        while ((line = bufferedReader.readLine()) != null) {
+        while ((line = in.readLine()) != null) {
           this.outputStream.println(line);
         }
       } catch (IOException exception) {
         LOGGER.severe("Exception while reading output", exception);
       }
     }
-
   }
-
 }

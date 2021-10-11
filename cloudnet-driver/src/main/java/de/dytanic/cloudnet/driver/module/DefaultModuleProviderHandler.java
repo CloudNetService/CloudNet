@@ -32,7 +32,6 @@ import de.dytanic.cloudnet.driver.event.events.module.ModulePreLoadEvent;
 import de.dytanic.cloudnet.driver.event.events.module.ModulePreStartEvent;
 import de.dytanic.cloudnet.driver.event.events.module.ModulePreStopEvent;
 import de.dytanic.cloudnet.driver.event.events.module.ModulePreUnloadEvent;
-import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 import org.jetbrains.annotations.NotNull;
 
 public class DefaultModuleProviderHandler implements IModuleProviderHandler {
@@ -128,7 +127,10 @@ public class DefaultModuleProviderHandler implements IModuleProviderHandler {
   }
 
   @Override
-  public void handlePreInstallDependency(@NotNull ModuleConfiguration configuration, @NotNull ModuleDependency dependency) {
+  public void handlePreInstallDependency(
+    @NotNull ModuleConfiguration configuration,
+    @NotNull ModuleDependency dependency
+  ) {
     this.callEvent(new ModulePreInstallDependencyEvent(this.getModuleProvider(), configuration, dependency));
     LOGGER.fine(this.replaceAll(LanguageManager.getMessage("cloudnet-pre-install-dependency-module")
         .replace("%group%", dependency.getGroup())
@@ -138,7 +140,10 @@ public class DefaultModuleProviderHandler implements IModuleProviderHandler {
   }
 
   @Override
-  public void handlePostInstallDependency(@NotNull ModuleConfiguration configuration, @NotNull ModuleDependency dependency) {
+  public void handlePostInstallDependency(
+    @NotNull ModuleConfiguration configuration,
+    @NotNull ModuleDependency dependency
+  ) {
     this.callEvent(new ModulePostInstallDependencyEvent(this.getModuleProvider(), configuration, dependency));
     LOGGER.fine(this.replaceAll(LanguageManager.getMessage("cloudnet-post-install-dependency-module")
         .replace("%group%", dependency.getGroup())
@@ -151,17 +156,8 @@ public class DefaultModuleProviderHandler implements IModuleProviderHandler {
     return CloudNetDriver.getInstance().getModuleProvider();
   }
 
-  protected <T extends Event> T callEvent(T event) {
+  protected @NotNull <T extends Event> T callEvent(@NotNull T event) {
     return CloudNetDriver.getInstance().getEventManager().callEvent(event);
-  }
-
-  /**
-   * @deprecated use {@link #replaceAll(String, IModuleProvider, ModuleConfiguration)} instead.
-   */
-  @Deprecated
-  @ScheduledForRemoval
-  protected String replaceAll(String text, IModuleProvider moduleProvider, IModuleWrapper moduleWrapper) {
-    return this.replaceAll(text, moduleProvider, moduleWrapper.getModuleConfiguration());
   }
 
   protected String replaceAll(String text, IModuleProvider moduleProvider, ModuleConfiguration configuration) {
@@ -172,6 +168,6 @@ public class DefaultModuleProviderHandler implements IModuleProviderHandler {
     return text.replace("%module_group%", configuration.getGroup())
       .replace("%module_name%", configuration.getName())
       .replace("%module_version%", configuration.getVersion())
-      .replace("%module_author%", configuration.getAuthor());
+      .replace("%module_author%", configuration.getAuthor() == null ? "" : configuration.getAuthor());
   }
 }

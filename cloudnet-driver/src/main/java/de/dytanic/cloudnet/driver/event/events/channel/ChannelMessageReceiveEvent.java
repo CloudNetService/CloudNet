@@ -17,16 +17,13 @@
 package de.dytanic.cloudnet.driver.event.events.channel;
 
 import com.google.common.base.Preconditions;
-import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.driver.channel.ChannelMessageSender;
 import de.dytanic.cloudnet.driver.channel.ChannelMessageTarget;
 import de.dytanic.cloudnet.driver.event.Event;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
-import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import java.util.Collection;
-import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -72,18 +69,6 @@ public final class ChannelMessageReceiveEvent extends Event {
   }
 
   @NotNull
-  public JsonDocument getData() {
-    return this.channelMessage.getJson();
-  }
-
-  @Deprecated
-  @ScheduledForRemoval
-  @NotNull
-  public ProtocolBuffer getBuffer() {
-    return this.channelMessage.getBuffer();
-  }
-
-  @NotNull
   public DataBuf getContent() {
     return this.channelMessage.getContent();
   }
@@ -92,28 +77,8 @@ public final class ChannelMessageReceiveEvent extends Event {
     return this.query;
   }
 
-  public void setJsonResponse(@NotNull JsonDocument json) {
-    this.setQueryResponse(ChannelMessage.buildResponseFor(this.channelMessage).json(json).build());
-  }
-
-  /**
-   * @deprecated use {@link ChannelMessageReceiveEvent#setBinaryResponse(DataBuf)}
-   */
-  @Deprecated
-  public void setBinaryResponse(@NotNull ProtocolBuffer buffer) {
-    this.setQueryResponse(ChannelMessage.buildResponseFor(this.channelMessage).buffer(buffer).build());
-  }
-
   public void setBinaryResponse(@NotNull DataBuf dataBuf) {
     this.setQueryResponse(ChannelMessage.buildResponseFor(this.channelMessage).buffer(dataBuf).build());
-  }
-
-  @Deprecated
-  @ScheduledForRemoval
-  public ProtocolBuffer createBinaryResponse() {
-    ProtocolBuffer buffer = ProtocolBuffer.create();
-    this.setBinaryResponse(buffer);
-    return buffer;
   }
 
   public DataBuf.Mutable response() {

@@ -38,7 +38,8 @@ public final class PacketServerAuthorizationResponseListener implements IPacketL
 
   @Override
   public void handle(@NotNull INetworkChannel channel, IPacket packet) {
-    if (packet.getHeader().contains("access") && packet.getHeader().contains("text")) {
+    // TODO: implement with new auth
+    /*if (packet.getHeader().contains("access") && packet.getHeader().contains("text")) {
       this.result = packet.getHeader().getBoolean("access");
 
       try {
@@ -48,6 +49,7 @@ public final class PacketServerAuthorizationResponseListener implements IPacketL
         this.lock.unlock();
       }
     }
+     */
   }
 
   public boolean isResult() {

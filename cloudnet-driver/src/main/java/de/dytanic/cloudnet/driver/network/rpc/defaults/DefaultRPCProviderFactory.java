@@ -48,13 +48,13 @@ public class DefaultRPCProviderFactory implements RPCProviderFactory {
   }
 
   @Override
-  public @NotNull RPCSender providerForClass(@NotNull INetworkComponent component, @NotNull Class<?> clazz) {
+  public @NotNull RPCSender providerForClass(@Nullable INetworkComponent component, @NotNull Class<?> clazz) {
     return this.providerForClass(component, clazz, this.defaultObjectMapper, this.defaultDataBufFactory);
   }
 
   @Override
   public @NotNull RPCSender providerForClass(
-    @NotNull INetworkComponent component,
+    @Nullable INetworkComponent component,
     @NotNull Class<?> clazz,
     @NotNull ObjectMapper objectMapper,
     @NotNull DataBufFactory dataBufFactory

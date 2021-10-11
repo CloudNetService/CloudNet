@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.template.install.run.step.executor;
+package de.dytanic.cloudnet.template.install.execute;
 
-import de.dytanic.cloudnet.template.install.run.InstallInformation;
+import de.dytanic.cloudnet.template.install.InstallInformation;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Set;
@@ -25,12 +25,14 @@ import org.jetbrains.annotations.NotNull;
 /**
  * Interface for install steps when downloading and patching server software
  */
+@FunctionalInterface
 public interface InstallStepExecutor {
 
-  @NotNull Set<Path> execute(@NotNull InstallInformation installInformation, @NotNull Path workingDirectory,
-    @NotNull Set<Path> inputPaths) throws IOException;
+  @NotNull Set<Path> execute(
+    @NotNull InstallInformation info,
+    @NotNull Path workingDirectory,
+    @NotNull Set<Path> files) throws IOException;
 
   default void interrupt() {
   }
-
 }

@@ -16,11 +16,8 @@
 
 package de.dytanic.cloudnet.driver.network.protocol;
 
-import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
-import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import java.util.UUID;
-import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -68,33 +65,12 @@ public interface IPacket {
   int getChannel();
 
   /**
-   * @deprecated use the {@link #getContent()} method to read from the packet buffer and send information.
-   */
-  @Deprecated
-  @ScheduledForRemoval
-  JsonDocument getHeader();
-
-  /**
-   * @deprecated Use {@link #getContent()} instead.
-   */
-  @Deprecated
-  @ScheduledForRemoval
-  @NotNull ProtocolBuffer getBuffer();
-
-  /**
    * Get the content of this packet. Data written to the buffer must not be accepted but will never throw an exception.
    * If the packet was sent by a network participant the buffer will never be writable.
    *
    * @return the content of this packet.
    */
   @NotNull DataBuf getContent();
-
-  /**
-   * @deprecated Use {@link #getContent()} instead.
-   */
-  @Deprecated
-  @ScheduledForRemoval
-  byte[] getBodyAsArray();
 
   /**
    * Get a unix timestamp of the creation milliseconds of this packet. When the packet is created by a decoder, the time

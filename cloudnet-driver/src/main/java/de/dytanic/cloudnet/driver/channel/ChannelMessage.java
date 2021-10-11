@@ -17,32 +17,22 @@
 package de.dytanic.cloudnet.driver.channel;
 
 import com.google.common.base.Preconditions;
-import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.common.concurrent.ITask;
-import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.DriverEnvironment;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
-import de.dytanic.cloudnet.driver.network.netty.buffer.NettyImmutableDataBuf;
 import de.dytanic.cloudnet.driver.provider.CloudMessenger;
-import de.dytanic.cloudnet.driver.serialization.DefaultProtocolBuffer;
-import de.dytanic.cloudnet.driver.serialization.ProtocolBuffer;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @ToString
 @EqualsAndHashCode
 public class ChannelMessage {
-
-  public static final Type COLLECTION_TYPE = TypeToken.getParameterized(Collection.class, ChannelMessage.class)
-    .getType();
 
   private String channel;
   private String message;
@@ -98,21 +88,6 @@ public class ChannelMessage {
     return this.message;
   }
 
-  @NotNull
-  @Deprecated
-  public JsonDocument getJson() {
-    return JsonDocument.newDocument();
-  }
-
-  /**
-   * @deprecated Use {@link #getContent()} instead.
-   */
-  @Deprecated
-  @ScheduledForRemoval
-  public @NotNull ProtocolBuffer getBuffer() {
-    return ProtocolBuffer.wrap(((NettyImmutableDataBuf) this.content).getByteBuf());
-  }
-
   public @NotNull DataBuf getContent() {
     return this.content;
   }
@@ -164,33 +139,6 @@ public class ChannelMessage {
 
     public Builder message(@Nullable String message) {
       this.channelMessage.message = message;
-      return this;
-    }
-
-    @Deprecated
-    public Builder json(@NotNull JsonDocument document) {
-      // this.channelMessage.json = document;
-      return this;
-    }
-
-    /**
-     * @deprecated Use the enhanced {@link #buffer(DataBuf)} instead.
-     */
-    @Deprecated
-    @ScheduledForRemoval
-    public Builder buffer(byte[] bytes) {
-      return this.buffer(bytes == null ? null : ProtocolBuffer.wrap(bytes));
-    }
-
-    /**
-     * @deprecated Use {@link #buffer(DataBuf)} instead.
-     */
-    @Deprecated
-    @ScheduledForRemoval
-    public Builder buffer(@Nullable ProtocolBuffer buffer) {
-      this.channelMessage.content = buffer == null
-        ? null
-        : new NettyImmutableDataBuf(((DefaultProtocolBuffer) buffer).wrapped);
       return this;
     }
 

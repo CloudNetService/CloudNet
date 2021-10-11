@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.template.install.run.step.executor;
+package de.dytanic.cloudnet.template.install.execute.defaults;
 
 import com.google.gson.reflect.TypeToken;
-import de.dytanic.cloudnet.template.install.run.InstallInformation;
+import de.dytanic.cloudnet.template.install.InstallInformation;
+import de.dytanic.cloudnet.template.install.execute.InstallStepExecutor;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.nio.file.Files;
@@ -34,17 +35,20 @@ import org.jetbrains.annotations.NotNull;
 
 public class CopyFilterStepExecutor implements InstallStepExecutor {
 
-  private static final Type STRING_MAP_TYPE = TypeToken.getParameterized(Map.class, String.class, String.class)
-    .getType();
+  private static final Type STRING_MAP = TypeToken.getParameterized(Map.class, String.class, String.class).getType();
 
   @Override
-  public @NotNull Set<Path> execute(@NotNull InstallInformation installInformation, @NotNull Path workingDirectory,
-    @NotNull Set<Path> inputPaths) throws IOException {
-    Map<String, String> copy = installInformation.getServiceVersion().getProperties().get("copy", STRING_MAP_TYPE);
+  public @NotNull Set<Path> execute(
+    @NotNull InstallInformation installInformation,
+    @NotNull Path workingDirectory,
+    @NotNull Set<Path> inputPaths
+  ) throws IOException {
+    Map<String, String> copy = installInformation.getServiceVersion().getProperties().get("copy", STRING_MAP);
 
     if (copy == null) {
-      throw new IllegalStateException(String
-        .format("Missing copy property on service version %s!", installInformation.getServiceVersion().getName()));
+      throw new IllegalStateException(String.format(
+        "Missing copy property on service version %s!",
+        installInformation.getServiceVersion().getName()));
     }
 
     List<Map.Entry<Pattern, String>> patterns = copy.entrySet().stream()
@@ -52,23 +56,20 @@ public class CopyFilterStepExecutor implements InstallStepExecutor {
       .collect(Collectors.toList());
 
     Set<Path> resultPaths = new HashSet<>();
-
     for (Path path : inputPaths) {
       if (Files.isDirectory(path)) {
         continue;
       }
 
       String relativePath = workingDirectory.relativize(path).toString().replace("\\", "/").toLowerCase();
-
       for (Map.Entry<Pattern, String> patternEntry : patterns) {
         Pattern pattern = patternEntry.getKey();
         String target = patternEntry.getValue();
 
         if (pattern.matcher(relativePath).matches()) {
-          Path targetPath = workingDirectory.resolve(
-            target.replace("%path%", relativePath)
-              .replace("%fileName%", path.getFileName().toString())
-          );
+          Path targetPath = workingDirectory.resolve(target
+            .replace("%path%", relativePath)
+            .replace("%fileName%", path.getFileName().toString()));
 
           if (Files.isDirectory(targetPath)) {
             targetPath = path;
@@ -87,5 +88,4 @@ public class CopyFilterStepExecutor implements InstallStepExecutor {
 
     return resultPaths;
   }
-
 }

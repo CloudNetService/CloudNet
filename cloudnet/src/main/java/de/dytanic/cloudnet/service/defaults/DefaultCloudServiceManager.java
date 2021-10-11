@@ -73,7 +73,6 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
   protected final Map<ServiceEnvironmentType, ServiceConfigurationPreparer> preparers = new ConcurrentHashMap<>();
 
   public DefaultCloudServiceManager(@NotNull CloudNet nodeInstance) {
-    //todo: make the component actually nullable
     this.clusterNodeServerProvider = nodeInstance.getClusterNodeServerProvider();
     this.sender = nodeInstance.getRPCProviderFactory().providerForClass(null, GeneralCloudServiceProvider.class);
     // register the default factory
@@ -368,6 +367,16 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
         // use the result of the comparison
         return chain.result();
       }).orElse(null);
-    return null; // TODO
+    // check if we found a prepared service
+    if (prepared != null) {
+      // start the service
+      SpecificCloudServiceProvider provider = prepared.getFirst().provider();
+      provider.start();
+      return provider;
+    } else {
+      // create a new service
+      ServiceInfoSnapshot service = CloudNet.getInstance().getCloudServiceFactory().createCloudService(task);
+      return service == null ? null : service.provider();
+    }
   }
 }

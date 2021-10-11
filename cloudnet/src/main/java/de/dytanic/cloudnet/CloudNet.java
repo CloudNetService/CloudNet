@@ -27,9 +27,18 @@ import de.dytanic.cloudnet.database.AbstractDatabaseProvider;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.CloudNetVersion;
 import de.dytanic.cloudnet.driver.DriverEnvironment;
+import de.dytanic.cloudnet.driver.module.DefaultPersistableModuleDependencyLoader;
 import de.dytanic.cloudnet.driver.network.INetworkClient;
+import de.dytanic.cloudnet.driver.network.INetworkServer;
+import de.dytanic.cloudnet.driver.network.http.IHttpServer;
+import de.dytanic.cloudnet.driver.network.netty.client.NettyNetworkClient;
+import de.dytanic.cloudnet.driver.network.netty.http.NettyHttpServer;
+import de.dytanic.cloudnet.driver.network.netty.server.NettyNetworkServer;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import de.dytanic.cloudnet.driver.template.TemplateStorage;
+import de.dytanic.cloudnet.module.NodeModuleProviderHandler;
+import de.dytanic.cloudnet.network.NetworkClientChannelHandlerImpl;
+import de.dytanic.cloudnet.network.NetworkServerChannelHandlerImpl;
 import de.dytanic.cloudnet.provider.NodeGroupConfigurationProvider;
 import de.dytanic.cloudnet.provider.NodeMessenger;
 import de.dytanic.cloudnet.provider.NodeNodeInfoProvider;
@@ -37,6 +46,9 @@ import de.dytanic.cloudnet.provider.NodeServiceTaskProvider;
 import de.dytanic.cloudnet.provider.service.NodeCloudServiceFactory;
 import de.dytanic.cloudnet.service.ICloudServiceManager;
 import de.dytanic.cloudnet.service.defaults.DefaultCloudServiceManager;
+import de.dytanic.cloudnet.template.install.ServiceVersionProvider;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -48,10 +60,16 @@ import org.jetbrains.annotations.Nullable;
  */
 public final class CloudNet extends CloudNetDriver {
 
-  private final IConsole console;
+  private static final Path LAUNCHER_DIR = Paths.get(System.getProperty("cloudnet.launcher.dir", "launcher"));
 
+  private final IConsole console;
   private final IConfiguration configuration;
+
+  private final IHttpServer httpServer;
   private final INetworkClient networkClient;
+  private final INetworkServer networkServer;
+
+  private final ServiceVersionProvider serviceVersionProvider;
   private final DefaultClusterNodeServerProvider nodeServerProvider;
 
   private final AtomicBoolean running = new AtomicBoolean();
@@ -61,13 +79,16 @@ public final class CloudNet extends CloudNetDriver {
     setInstance(this);
 
     this.console = console;
+    this.serviceVersionProvider = new ServiceVersionProvider(console);
     this.cloudNetVersion = CloudNetVersion.fromClassInformation(CloudNet.class.getPackage());
 
     this.configuration = JsonConfiguration.loadFromFile();
     this.configuration.load();
 
     this.generalCloudServiceProvider = new DefaultCloudServiceManager(this);
+
     this.nodeServerProvider = new DefaultClusterNodeServerProvider(this);
+    this.nodeServerProvider.setClusterServers(this.configuration.getClusterConfig());
 
     this.serviceTaskProvider = new NodeServiceTaskProvider();
     this.groupConfigurationProvider = new NodeGroupConfigurationProvider();
@@ -77,7 +98,18 @@ public final class CloudNet extends CloudNetDriver {
 
     this.permissionManagement = null; // TODO
 
-    this.networkClient = null;
+    this.moduleProvider.setModuleDependencyLoader(
+      new DefaultPersistableModuleDependencyLoader(LAUNCHER_DIR.resolve("libs")));
+    this.moduleProvider.setModuleProviderHandler(new NodeModuleProviderHandler());
+
+    this.networkClient = new NettyNetworkClient(
+      NetworkClientChannelHandlerImpl::new,
+      this.configuration.getClientSslConfig());
+    this.networkServer = new NettyNetworkServer(
+      NetworkServerChannelHandlerImpl::new,
+      this.configuration.getServerSslConfig());
+    this.httpServer = new NettyHttpServer(this.configuration.getWebSslConfig());
+
     this.driverEnvironment = DriverEnvironment.CLOUDNET;
   }
 
@@ -163,6 +195,10 @@ public final class CloudNet extends CloudNetDriver {
 
   public @NotNull IConsole getConsole() {
     return this.console;
+  }
+
+  public @NotNull ServiceVersionProvider getServiceVersionProvider() {
+    return this.serviceVersionProvider;
   }
 
   public boolean isRunning() {
