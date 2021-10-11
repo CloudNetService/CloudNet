@@ -38,7 +38,7 @@ public abstract class NettySSLServer {
   }
 
   protected void init() throws Exception {
-    if (this.sslConfiguration != null) {
+    if (this.sslConfiguration != null && this.sslConfiguration.isEnabled()) {
       if (this.sslConfiguration.getCertificatePath() != null && this.sslConfiguration.getPrivateKeyPath() != null) {
         try (InputStream cert = Files.newInputStream(this.sslConfiguration.getCertificatePath());
           InputStream privateKey = Files.newInputStream(this.sslConfiguration.getPrivateKeyPath())) {

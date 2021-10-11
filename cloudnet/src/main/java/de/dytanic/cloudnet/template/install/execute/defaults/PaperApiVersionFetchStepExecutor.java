@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.template.install.run.step.executor;
+package de.dytanic.cloudnet.template.install.execute.defaults;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.reflect.TypeToken;
@@ -22,8 +22,9 @@ import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.io.HttpConnectionProvider;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
+import de.dytanic.cloudnet.template.install.InstallInformation;
 import de.dytanic.cloudnet.template.install.ServiceVersionType;
-import de.dytanic.cloudnet.template.install.run.InstallInformation;
+import de.dytanic.cloudnet.template.install.execute.InstallStepExecutor;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Type;
@@ -42,17 +43,27 @@ public class PaperApiVersionFetchStepExecutor implements InstallStepExecutor {
   private static final Type INT_SET_TYPE = TypeToken.getParameterized(Set.class, Integer.class).getType();
 
   @Override
-  public @NotNull Set<Path> execute(@NotNull InstallInformation installInformation, @NotNull Path workingDirectory,
-    @NotNull Set<Path> inputPaths) throws IOException {
+  public @NotNull Set<Path> execute(
+    @NotNull InstallInformation installInformation,
+    @NotNull Path workingDirectory,
+    @NotNull Set<Path> inputPaths
+  ) throws IOException {
+    // check if we need to fetch using the paper api
     boolean enabled = installInformation.getServiceVersion().getProperties().getBoolean("fetchOverPaperApi");
     String versionGroup = installInformation.getServiceVersion().getProperties().getString("versionGroup");
     if (enabled && versionGroup != null) {
+      // resolve the project name we should use for the api request
       String project = this.decideApiProjectName(installInformation.getServiceVersionType());
       JsonDocument versionInformation = this.makeRequest(String.format(VERSION_LIST_URL, project, versionGroup));
+      // check if there are any builds for the version
       if (versionInformation.contains("builds")) {
+        // extract the build numbers from the response
         Set<Integer> builds = versionInformation.get("builds", INT_SET_TYPE);
+        // find the highest build number (the newest build)
         Optional<Integer> newestBuild = builds.stream().reduce(Math::max);
+        // check if there is a build
         if (newestBuild.isPresent()) {
+          // set the download url of the service version required in the download step
           int build = newestBuild.get();
           installInformation.getServiceVersion()
             .setUrl(String.format(DOWNLOAD_URL, project, versionGroup, build, project, versionGroup, build));
@@ -65,7 +76,7 @@ public class PaperApiVersionFetchStepExecutor implements InstallStepExecutor {
           "Unable to load build information for papermc project " + project + " version-group " + versionGroup);
       }
     }
-
+    // we generated no paths
     return Collections.emptySet();
   }
 

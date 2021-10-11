@@ -18,24 +18,29 @@ package de.dytanic.cloudnet.template.install;
 
 import de.dytanic.cloudnet.common.JavaVersion;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironment;
-import de.dytanic.cloudnet.template.install.run.step.InstallStep;
+import de.dytanic.cloudnet.template.install.execute.InstallStep;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import org.jetbrains.annotations.NotNull;
 
 public class ServiceVersionType {
 
   private String name;
+  private Collection<ServiceVersion> versions;
   private ServiceEnvironment targetEnvironment;
   private List<InstallStep> installSteps = new ArrayList<>();
-  private Collection<ServiceVersion> versions;
 
   public ServiceVersionType() {
   }
 
-  public ServiceVersionType(String name, ServiceEnvironment targetEnvironment, List<InstallStep> installSteps,
-    Collection<ServiceVersion> versions) {
+  public ServiceVersionType(
+    @NotNull String name,
+    @NotNull ServiceEnvironment targetEnvironment,
+    @NotNull List<InstallStep> installSteps,
+    @NotNull Collection<ServiceVersion> versions
+  ) {
     this.name = name;
     this.targetEnvironment = targetEnvironment;
     this.installSteps = installSteps;
@@ -56,20 +61,19 @@ public class ServiceVersionType {
     return !this.installSteps.contains(InstallStep.BUILD) || serviceVersion.canRun(javaVersion);
   }
 
-  public String getName() {
+  public @NotNull String getName() {
     return this.name;
   }
 
-  public ServiceEnvironment getTargetEnvironment() {
+  public @NotNull ServiceEnvironment getTargetEnvironment() {
     return this.targetEnvironment;
   }
 
-  public List<InstallStep> getInstallSteps() {
+  public @NotNull List<InstallStep> getInstallSteps() {
     return this.installSteps;
   }
 
-  public Collection<ServiceVersion> getVersions() {
+  public @NotNull Collection<ServiceVersion> getVersions() {
     return this.versions;
   }
-
 }

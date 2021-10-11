@@ -16,6 +16,7 @@
 
 package de.dytanic.cloudnet.driver.network;
 
+import com.google.common.base.Preconditions;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import lombok.EqualsAndHashCode;
@@ -35,22 +36,6 @@ public class HostAndPort {
    */
   protected int port;
 
-  /**
-   * @deprecated unsafe, doesn't work with IPv6-addresses because they contain ":", use {@link
-   * HostAndPort#fromSocketAddress(SocketAddress)} instead
-   */
-  @Deprecated
-  public HostAndPort(SocketAddress socketAddress) {
-    if (socketAddress == null) {
-      return;
-    }
-
-    String[] address = socketAddress.toString().split(":");
-
-    this.host = address[0].replaceFirst("/", "");
-    this.port = Integer.parseInt(address[1]);
-  }
-
   public HostAndPort(InetSocketAddress socketAddress) {
     if (socketAddress == null) {
       return;
@@ -61,11 +46,11 @@ public class HostAndPort {
   }
 
   public HostAndPort(String host, int port) {
+    Preconditions.checkNotNull(host, "host");
+    Preconditions.checkArgument(port >= 0 && port <= 65535, "Illegal port: " + port);
+
     this.host = host.trim();
     this.port = port;
-  }
-
-  public HostAndPort() {
   }
 
   /**

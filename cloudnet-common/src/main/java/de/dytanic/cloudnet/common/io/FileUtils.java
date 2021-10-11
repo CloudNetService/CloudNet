@@ -17,6 +17,7 @@
 package de.dytanic.cloudnet.common.io;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.io.ByteStreams;
 import de.dytanic.cloudnet.common.concurrent.IVoidThrowableCallback;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
@@ -109,8 +110,10 @@ public final class FileUtils {
     }
   }
 
-  public static void copy(InputStream inputStream, OutputStream outputStream) throws IOException {
-    copy(inputStream, outputStream, new byte[8192]);
+  public static void copy(@Nullable InputStream inputStream, @Nullable OutputStream outputStream) throws IOException {
+    if (inputStream != null && outputStream != null) {
+      ByteStreams.copy(inputStream, outputStream);
+    }
   }
 
   public static void copy(InputStream inputStream, OutputStream outputStream, byte[] buffer) throws IOException {

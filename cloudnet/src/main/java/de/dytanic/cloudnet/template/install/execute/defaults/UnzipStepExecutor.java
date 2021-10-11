@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.template.install.run.step.executor;
+package de.dytanic.cloudnet.template.install.execute.defaults;
 
-import de.dytanic.cloudnet.template.install.run.InstallInformation;
+import de.dytanic.cloudnet.template.install.InstallInformation;
+import de.dytanic.cloudnet.template.install.execute.InstallStepExecutor;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -30,8 +31,11 @@ import org.jetbrains.annotations.NotNull;
 public class UnzipStepExecutor implements InstallStepExecutor {
 
   @Override
-  public @NotNull Set<Path> execute(@NotNull InstallInformation installInformation, @NotNull Path workingDirectory,
-    @NotNull Set<Path> inputPaths) throws IOException {
+  public @NotNull Set<Path> execute(
+    @NotNull InstallInformation installInformation,
+    @NotNull Path workingDirectory,
+    @NotNull Set<Path> inputPaths
+  ) throws IOException {
     Set<Path> resultPaths = new HashSet<>();
 
     for (Path path : inputPaths) {
@@ -57,5 +61,4 @@ public class UnzipStepExecutor implements InstallStepExecutor {
 
     return resultPaths;
   }
-
 }

@@ -18,7 +18,6 @@ package de.dytanic.cloudnet.driver.network.netty.server;
 
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.collection.Pair;
-import de.dytanic.cloudnet.common.concurrent.ITaskScheduler;
 import de.dytanic.cloudnet.driver.network.DefaultNetworkComponent;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
@@ -62,10 +61,10 @@ public class NettyNetworkServer extends NettySSLServer implements DefaultNetwork
   protected final Callable<INetworkChannelHandler> networkChannelHandlerFactory;
 
   public NettyNetworkServer(Callable<INetworkChannelHandler> networkChannelHandler) {
-    this(null, networkChannelHandler);
+    this(networkChannelHandler, null);
   }
 
-  public NettyNetworkServer(SSLConfiguration sslConfiguration, Callable<INetworkChannelHandler> networkChannelHandler) {
+  public NettyNetworkServer(Callable<INetworkChannelHandler> networkChannelHandler, SSLConfiguration sslConfiguration) {
     super(sslConfiguration);
 
     this.networkChannelHandlerFactory = networkChannelHandler;
@@ -75,17 +74,6 @@ public class NettyNetworkServer extends NettySSLServer implements DefaultNetwork
     } catch (Exception exception) {
       LOGGER.severe("Exception while initializing the netty network server", exception);
     }
-  }
-
-  @Deprecated
-  public NettyNetworkServer(Callable<INetworkChannelHandler> networkChannelHandler, ITaskScheduler taskScheduler) {
-    this(null, networkChannelHandler);
-  }
-
-  @Deprecated
-  public NettyNetworkServer(Callable<INetworkChannelHandler> networkChannelHandler, SSLConfiguration sslConfiguration,
-    ITaskScheduler taskScheduler) {
-    this(sslConfiguration, networkChannelHandler);
   }
 
   @Override

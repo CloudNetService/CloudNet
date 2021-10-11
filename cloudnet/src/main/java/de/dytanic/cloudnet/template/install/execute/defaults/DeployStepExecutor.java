@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.template.install.run.step.executor;
+package de.dytanic.cloudnet.template.install.execute.defaults;
 
-import de.dytanic.cloudnet.template.install.run.InstallInformation;
+import de.dytanic.cloudnet.template.install.InstallInformation;
+import de.dytanic.cloudnet.template.install.execute.InstallStepExecutor;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
@@ -28,21 +29,22 @@ import org.jetbrains.annotations.NotNull;
 public class DeployStepExecutor implements InstallStepExecutor {
 
   @Override
-  public @NotNull Set<Path> execute(@NotNull InstallInformation installInformation, @NotNull Path workingDirectory,
-    @NotNull Set<Path> inputPaths) throws IOException {
+  public @NotNull Set<Path> execute(
+    @NotNull InstallInformation info,
+    @NotNull Path workingDirectory,
+    @NotNull Set<Path> inputPaths
+  ) throws IOException {
     for (Path path : inputPaths) {
       if (Files.isDirectory(path)) {
         continue;
       }
 
       String relativePath = workingDirectory.relativize(path).toString().replace("\\", "/");
-
-      try (OutputStream outputStream = installInformation.getTemplateStorage()
-        .newOutputStream(installInformation.getServiceTemplate(), relativePath)) {
+      try (OutputStream outputStream = info.getTemplateStorage().newOutputStream(relativePath)) {
         Files.copy(path, Objects.requireNonNull(outputStream));
       }
     }
+
     return inputPaths;
   }
-
 }

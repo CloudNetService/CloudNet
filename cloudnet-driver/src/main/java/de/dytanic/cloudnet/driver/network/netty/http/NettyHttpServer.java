@@ -57,10 +57,14 @@ public class NettyHttpServer extends NettySSLServer implements IHttpServer {
     this(null);
   }
 
-  public NettyHttpServer(SSLConfiguration sslConfiguration) throws Exception {
+  public NettyHttpServer(SSLConfiguration sslConfiguration) {
     super(sslConfiguration);
 
-    this.init();
+    try {
+      this.init();
+    } catch (Exception exception) {
+      LOGGER.severe("Exception initializing web server", exception);
+    }
   }
 
   @Override

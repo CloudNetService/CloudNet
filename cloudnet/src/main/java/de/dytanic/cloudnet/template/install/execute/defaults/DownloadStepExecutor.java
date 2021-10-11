@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.template.install.run.step.executor;
+package de.dytanic.cloudnet.template.install.execute.defaults;
 
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.console.animation.progressbar.ProgressBarInputStream;
-import de.dytanic.cloudnet.template.install.run.InstallInformation;
+import de.dytanic.cloudnet.template.install.InstallInformation;
+import de.dytanic.cloudnet.template.install.execute.InstallStepExecutor;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -34,17 +34,19 @@ import org.jetbrains.annotations.NotNull;
 public class DownloadStepExecutor implements InstallStepExecutor {
 
   @Override
-  public @NotNull Set<Path> execute(@NotNull InstallInformation installInformation, @NotNull Path workingDirectory,
-    @NotNull Set<Path> inputPaths) throws IOException {
-    Path targetPath = workingDirectory
-      .resolve(Paths.get(installInformation.getServiceVersionType().getTargetEnvironment().getName() + ".jar"));
+  public @NotNull Set<Path> execute(
+    @NotNull InstallInformation installInformation,
+    @NotNull Path workingDirectory,
+    @NotNull Set<Path> inputPaths
+  ) throws IOException {
+    Path targetPath = workingDirectory.resolve(
+      Paths.get(installInformation.getServiceVersionType().getTargetEnvironment().getName() + ".jar"));
 
-    /*TODO try (InputStream inputStream = ProgressBarInputStream
-      .wrapDownload(CloudNet.getInstance().getConsole(), installInformation.getServiceVersion().getUrl())) {
-      Files.copy(inputStream, targetPath, StandardCopyOption.REPLACE_EXISTING);
+    try (InputStream in = ProgressBarInputStream.wrapDownload(
+      CloudNet.getInstance().getConsole(), installInformation.getServiceVersion().getUrl())) {
 
+      Files.copy(in, targetPath, StandardCopyOption.REPLACE_EXISTING);
       return new HashSet<>(Collections.singleton(targetPath));
-    }*/
-    return Collections.emptySet();
+    }
   }
 }
