@@ -18,6 +18,8 @@ package de.dytanic.cloudnet;
 
 import de.dytanic.cloudnet.cluster.DefaultClusterNodeServerProvider;
 import de.dytanic.cloudnet.cluster.IClusterNodeServerProvider;
+import de.dytanic.cloudnet.command.CommandProvider;
+import de.dytanic.cloudnet.command.source.ConsoleCommandSource;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.conf.IConfiguration;
 import de.dytanic.cloudnet.conf.JsonConfiguration;
@@ -69,6 +71,7 @@ public final class CloudNet extends CloudNetDriver {
 
   private static final Path LAUNCHER_DIR = Paths.get(System.getProperty("cloudnet.launcher.dir", "launcher"));
 
+  private final CommandProvider commandProvider;
   private final IConsole console;
   private final IConfiguration configuration;
 
@@ -84,9 +87,10 @@ public final class CloudNet extends CloudNetDriver {
 
   private volatile AbstractDatabaseProvider databaseProvider;
 
-  public CloudNet(@NotNull String[] args, @NotNull IConsole console) {
+  public CloudNet(@NotNull String[] args, @NotNull IConsole console, @NotNull CommandProvider commandProvider) {
     setInstance(this);
 
+    this.commandProvider = commandProvider;
     this.console = console;
     this.serviceVersionProvider = new ServiceVersionProvider(console);
     this.cloudNetVersion = CloudNetVersion.fromClassInformation(CloudNet.class.getPackage());
@@ -120,6 +124,12 @@ public final class CloudNet extends CloudNetDriver {
     this.httpServer = new NettyHttpServer(this.configuration.getWebSslConfig());
 
     this.driverEnvironment = DriverEnvironment.CLOUDNET;
+    this.console.addCommandHandler(UUID.randomUUID(), input -> {
+      if (input.trim().isEmpty()) {
+        return;
+      }
+      this.commandProvider.execute(ConsoleCommandSource.INSTANCE, input);
+    });
   }
 
   public static @NotNull CloudNet getInstance() {
@@ -255,6 +265,11 @@ public final class CloudNet extends CloudNetDriver {
 
   public @NotNull CloudNetTick getMainThread() {
     return this.mainThread;
+  }
+
+  @NotNull
+  public CommandProvider getCommandProvider() {
+    return this.commandProvider;
   }
 
   public @NotNull IConsole getConsole() {

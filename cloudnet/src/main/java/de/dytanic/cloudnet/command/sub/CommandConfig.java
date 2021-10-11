@@ -21,3 +21,4 @@ public class CommandConfig {
   //TODO: reload command and other node config stuff
 
 }
+

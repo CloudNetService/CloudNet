@@ -28,6 +28,7 @@ import cloud.commandframework.meta.SimpleCommandMeta;
 import de.dytanic.cloudnet.command.CommandProvider;
 import de.dytanic.cloudnet.command.exception.ArgumentNotAvailableException;
 import de.dytanic.cloudnet.command.source.CommandSource;
+import de.dytanic.cloudnet.command.sub.CommandCreate;
 import de.dytanic.cloudnet.command.sub.CommandExit;
 import de.dytanic.cloudnet.command.sub.CommandGroups;
 import de.dytanic.cloudnet.command.sub.CommandServiceConfiguration;
@@ -69,6 +70,7 @@ public class DefaultCommandProvider implements CommandProvider {
     this.register(new CommandServiceConfiguration());
     this.register(new CommandGroups());
     this.register(new CommandTasks());
+    this.register(new CommandCreate());
   }
 
   @Override
