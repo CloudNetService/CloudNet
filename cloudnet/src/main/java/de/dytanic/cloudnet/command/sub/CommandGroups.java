@@ -23,10 +23,8 @@ import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.command.exception.ArgumentNotAvailableException;
 import de.dytanic.cloudnet.command.source.CommandSource;
 import de.dytanic.cloudnet.driver.service.GroupConfiguration;
-import de.dytanic.cloudnet.driver.service.ServiceDeployment;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
-import de.dytanic.cloudnet.driver.service.ServiceRemoteInclusion;
-import de.dytanic.cloudnet.driver.service.ServiceTemplate;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Queue;
@@ -80,33 +78,14 @@ public class CommandGroups {
 
   @CommandMethod("groups group <name>")
   public void displayGroup(CommandSource source, @Argument("name") GroupConfiguration group) {
-    source.sendMessage(" ");
-    source.sendMessage("Name: " + group.getName());
-    source.sendMessage(" ");
+    Collection<String> messages = new ArrayList<>();
+    messages.add(" ");
+    messages.add("Name: " + group.getName());
+    messages.add(" ");
 
-    source.sendMessage("Environments:" + Arrays.toString(group.getTargetEnvironments().toArray()));
-    source.sendMessage("Includes:");
-
-    for (ServiceRemoteInclusion inclusion : group.getIncludes()) {
-      source.sendMessage("- " + inclusion.getUrl() + " => " + inclusion.getDestination());
-    }
-
-    source.sendMessage(" ");
-    source.sendMessage("Templates:");
-
-    for (ServiceTemplate template : group.getTemplates()) {
-      source.sendMessage("- " + template);
-    }
-
-    source.sendMessage(" ");
-    source.sendMessage("Deployments:");
-
-    for (ServiceDeployment deployment : group.getDeployments()) {
-      source.sendMessage("- ");
-      source.sendMessage(
-        "Template:  " + deployment.getTemplate());
-      source.sendMessage("Excludes: " + deployment.getExcludes());
-    }
+    messages.add("Environments:" + Arrays.toString(group.getTargetEnvironments().toArray()));
+    CommandServiceConfiguration.applyServiceConfigurationDisplay(messages, group);
+    source.sendMessage(messages);
   }
 
   @CommandMethod("groups group <name> add environment <environment>")

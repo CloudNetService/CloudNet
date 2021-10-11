@@ -32,6 +32,8 @@ import de.dytanic.cloudnet.driver.service.ServiceRemoteInclusion;
 import de.dytanic.cloudnet.driver.service.ServiceTask;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Queue;
 
 public class CommandServiceConfiguration {
@@ -62,7 +64,7 @@ public class CommandServiceConfiguration {
     return input;
   }
 
-  @CommandMethod("tasks|groups task|group <name> add deployment <storage:prefix/name>")
+  @CommandMethod("tasks|configurationBases task|configurationBase <name> add deployment <storage:prefix/name>")
   public void addDeployment(
     CommandSource source,
     @Argument("name") ServiceConfigurationBase configurationBase,
@@ -74,7 +76,7 @@ public class CommandServiceConfiguration {
     this.updateConfigurationBase(configurationBase);
   }
 
-  @CommandMethod("tasks|groups task|group <name> add template <storage:prefix/name>")
+  @CommandMethod("tasks|configurationBases task|configurationBase <name> add template <storage:prefix/name>")
   public void addTemplate(
     CommandSource source,
     @Argument("name") ServiceConfigurationBase configurationBase,
@@ -84,7 +86,7 @@ public class CommandServiceConfiguration {
     this.updateConfigurationBase(configurationBase);
   }
 
-  @CommandMethod("tasks|groups task|group <name> add inclusion <url> <path>")
+  @CommandMethod("tasks|configurationBases task|configurationBase <name> add inclusion <url> <path>")
   public void addInclusion(
     CommandSource source,
     @Argument("name") ServiceConfigurationBase configurationBase,
@@ -97,7 +99,7 @@ public class CommandServiceConfiguration {
     this.updateConfigurationBase(configurationBase);
   }
 
-  @CommandMethod("tasks|groups task|group <name> add jvmOption <options>")
+  @CommandMethod("tasks|configurationBases task|configurationBase <name> add jvmOption <options>")
   public void addJvmOption(
     CommandSource source,
     @Argument("name") ServiceConfigurationBase configurationBase,
@@ -109,7 +111,7 @@ public class CommandServiceConfiguration {
     this.updateConfigurationBase(configurationBase);
   }
 
-  @CommandMethod("tasks|groups task|group <name> add processParameter <options>")
+  @CommandMethod("tasks|configurationBases task|configurationBase <name> add processParameter <options>")
   public void addProcessParameter(
     CommandSource source,
     @Argument("name") ServiceConfigurationBase configurationBase,
@@ -121,7 +123,7 @@ public class CommandServiceConfiguration {
     this.updateConfigurationBase(configurationBase);
   }
 
-  @CommandMethod("tasks|groups task|group <name> remove deployment <storage:prefix/name>")
+  @CommandMethod("tasks|configurationBases task|configurationBase <name> remove deployment <storage:prefix/name>")
   public void removeDeployment(
     CommandSource source,
     @Argument("name") ServiceConfigurationBase configurationBase,
@@ -133,7 +135,7 @@ public class CommandServiceConfiguration {
     this.updateConfigurationBase(configurationBase);
   }
 
-  @CommandMethod("tasks|groups task|group <name> remove template <storage:prefix/name>")
+  @CommandMethod("tasks|configurationBases task|configurationBase <name> remove template <storage:prefix/name>")
   public void removeTemplate(
     CommandSource source,
     @Argument("name") ServiceConfigurationBase configurationBase,
@@ -143,7 +145,7 @@ public class CommandServiceConfiguration {
     this.updateConfigurationBase(configurationBase);
   }
 
-  @CommandMethod("tasks|groups task|group <name> remove inclusion <url> <path>")
+  @CommandMethod("tasks|configurationBases task|configurationBase <name> remove inclusion <url> <path>")
   public void removeInclusion(
     CommandSource source,
     @Argument("name") ServiceConfigurationBase configurationBase,
@@ -156,7 +158,7 @@ public class CommandServiceConfiguration {
     this.updateConfigurationBase(configurationBase);
   }
 
-  @CommandMethod("tasks|groups task|group <name> remove jvmOption <options>")
+  @CommandMethod("tasks|configurationBases task|configurationBase <name> remove jvmOption <options>")
   public void removeJvmOption(
     CommandSource source,
     @Argument("name") ServiceConfigurationBase configurationBase,
@@ -168,7 +170,7 @@ public class CommandServiceConfiguration {
     this.updateConfigurationBase(configurationBase);
   }
 
-  @CommandMethod("tasks|groups task|group <name> remove processParameter <options>")
+  @CommandMethod("tasks|configurationBases task|configurationBase <name> remove processParameter <options>")
   public void removeProcessParameter(
     CommandSource source,
     @Argument("name") ServiceConfigurationBase configurationBase,
@@ -180,7 +182,7 @@ public class CommandServiceConfiguration {
     this.updateConfigurationBase(configurationBase);
   }
 
-  @CommandMethod("tasks|groups task|group <name> clear jvmOptions")
+  @CommandMethod("tasks|configurationBases task|configurationBase <name> clear jvmOptions")
   public void clearJvmOptions(CommandSource source, @Argument("name") ServiceConfigurationBase configurationBase) {
     configurationBase.getJvmOptions().clear();
     this.updateConfigurationBase(configurationBase);
@@ -193,6 +195,51 @@ public class CommandServiceConfiguration {
       CloudNet.getInstance().getGroupConfigurationProvider()
         .addGroupConfiguration((GroupConfiguration) configurationBase);
     }
+  }
+
+  public static void applyServiceConfigurationDisplay(Collection<String> messages,
+    ServiceConfigurationBase configurationBase) {
+    messages.add("Includes:");
+
+    for (ServiceRemoteInclusion inclusion : configurationBase.getIncludes()) {
+      messages.add("- " + inclusion.getUrl() + " => " + inclusion.getDestination());
+    }
+
+    messages.add(" ");
+    messages.add("Templates:");
+
+    for (ServiceTemplate template : configurationBase.getTemplates()) {
+      messages.add("- " + template);
+    }
+
+    messages.add(" ");
+    messages.add("Deployments:");
+
+    for (ServiceDeployment deployment : configurationBase.getDeployments()) {
+      messages.add("- ");
+      messages.add(
+        "Template:  " + deployment.getTemplate());
+      messages.add("Excludes: " + deployment.getExcludes());
+    }
+
+    messages.add(" ");
+    messages.add("JVM Options:");
+
+    for (String jvmOption : configurationBase.getJvmOptions()) {
+      messages.add("- " + jvmOption);
+    }
+
+    messages.add(" ");
+    messages.add("Process Parameters:");
+
+    for (String processParameters : configurationBase.getProcessParameters()) {
+      messages.add("- " + processParameters);
+    }
+
+    messages.add("Properties: ");
+
+    messages.addAll(Arrays.asList(configurationBase.getProperties().toPrettyJson().split("\n")));
+    messages.add(" ");
   }
 
 }

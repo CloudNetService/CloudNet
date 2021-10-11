@@ -21,6 +21,7 @@ import cloud.commandframework.annotations.CommandDescription;
 import cloud.commandframework.annotations.CommandMethod;
 import cloud.commandframework.annotations.Flag;
 import cloud.commandframework.annotations.parsers.Parser;
+import cloud.commandframework.annotations.specifier.Quoted;
 import cloud.commandframework.context.CommandContext;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.command.exception.SyntaxException;
@@ -120,7 +121,7 @@ public class CommandTemplate {
     @Argument("versionType") ServiceVersionType versionType,
     @Argument("version") String version,
     @Flag("force") boolean forceInstall,
-    @Flag("executable") String executable
+    @Flag("executable") @Quoted String executable
   ) {
 
     ServiceVersion serviceVersion = versionType.getVersion(version).orElse(null);
