@@ -16,6 +16,8 @@
 
 package de.dytanic.cloudnet;
 
+import de.dytanic.cloudnet.command.CommandProvider;
+import de.dytanic.cloudnet.command.defaults.DefaultCommandProvider;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.common.log.LoggingUtils;
@@ -39,10 +41,11 @@ public final class BootLogic {
 
   public static synchronized void main(String[] args) throws Throwable {
     // init logger and console
-    IConsole console = new JLine3Console();
+    CommandProvider commandProvider = new DefaultCommandProvider();
+    IConsole console = new JLine3Console(commandProvider);
     initLoggerAndConsole(console, LogManager.getRootLogger());
     // boot CloudNet
-    CloudNet nodeInstance = new CloudNet(args, console);
+    CloudNet nodeInstance = new CloudNet(args, console, commandProvider);
     nodeInstance.start();
 /*
     LanguageManager.setLanguage(System.getProperty("cloudnet.messages.language", "english"));

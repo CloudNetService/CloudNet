@@ -18,6 +18,7 @@ package de.dytanic.cloudnet;
 
 import de.dytanic.cloudnet.cluster.DefaultClusterNodeServerProvider;
 import de.dytanic.cloudnet.cluster.IClusterNodeServerProvider;
+import de.dytanic.cloudnet.command.CommandProvider;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.conf.IConfiguration;
 import de.dytanic.cloudnet.conf.JsonConfiguration;
@@ -62,6 +63,7 @@ public final class CloudNet extends CloudNetDriver {
 
   private static final Path LAUNCHER_DIR = Paths.get(System.getProperty("cloudnet.launcher.dir", "launcher"));
 
+  private final CommandProvider commandProvider;
   private final IConsole console;
   private final IConfiguration configuration;
 
@@ -75,9 +77,10 @@ public final class CloudNet extends CloudNetDriver {
   private final AtomicBoolean running = new AtomicBoolean();
   private final CloudNetTick mainThread = new CloudNetTick(this);
 
-  public CloudNet(@NotNull String[] args, @NotNull IConsole console) {
+  public CloudNet(@NotNull String[] args, @NotNull IConsole console, @NotNull CommandProvider commandProvider) {
     setInstance(this);
 
+    this.commandProvider = commandProvider;
     this.console = console;
     this.serviceVersionProvider = new ServiceVersionProvider(console);
     this.cloudNetVersion = CloudNetVersion.fromClassInformation(CloudNet.class.getPackage());
@@ -191,6 +194,10 @@ public final class CloudNet extends CloudNetDriver {
 
   public @NotNull CloudNetTick getMainThread() {
     return this.mainThread;
+  }
+
+  public @NotNull CommandProvider getCommandProvider() {
+    return this.commandProvider;
   }
 
   public @NotNull IConsole getConsole() {

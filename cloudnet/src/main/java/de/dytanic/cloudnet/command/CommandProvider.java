@@ -16,17 +16,28 @@
 
 package de.dytanic.cloudnet.command;
 
-import cloud.commandframework.CommandManager;
-import cloud.commandframework.annotations.AnnotationParser;
-import cloud.commandframework.extra.confirmation.CommandConfirmationManager;
 import de.dytanic.cloudnet.command.source.CommandSource;
+import de.dytanic.cloudnet.driver.command.CommandInfo;
+import java.util.Collection;
+import java.util.List;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnmodifiableView;
 
 public interface CommandProvider {
 
-  CommandManager<CommandSource> commandManager();
+  @NotNull
+  List<String> suggest(@NotNull CommandSource source, @NotNull String input);
 
-  AnnotationParser<CommandSource> annotationParser();
+  void execute(@NotNull CommandSource source, @NotNull String input);
 
-  CommandConfirmationManager<CommandSource> defaultCommandConfirmation();
+  @NotNull
+  Collection<CommandInfo> register(@NotNull Object command);
 
+  @Nullable
+  CommandInfo getCommand(@NotNull String input);
+
+  @NotNull
+  @UnmodifiableView
+  Collection<CommandInfo> getCommands();
 }

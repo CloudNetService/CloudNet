@@ -18,15 +18,16 @@ package de.dytanic.cloudnet.command.source;
 
 import de.dytanic.cloudnet.common.INameable;
 import java.util.Collection;
+import org.jetbrains.annotations.NotNull;
 
 public interface CommandSource extends INameable {
 
-  void sendMessage(String message);
+  void sendMessage(@NotNull String message);
 
-  void sendMessage(String... message);
+  void sendMessage(@NotNull String... messages);
 
-  void sendMessage(Collection<String> messages);
+  void sendMessage(@NotNull Collection<String> messages);
 
-  boolean checkPermission(String permission);
+  boolean checkPermission(@NotNull String permission);
 
 }

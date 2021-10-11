@@ -17,37 +17,17 @@
 package de.dytanic.cloudnet.command.defaults;
 
 import cloud.commandframework.CommandManager;
-import cloud.commandframework.CommandTree;
-import cloud.commandframework.execution.AsynchronousCommandExecutionCoordinator;
 import cloud.commandframework.execution.CommandExecutionCoordinator;
 import cloud.commandframework.internal.CommandRegistrationHandler;
 import cloud.commandframework.meta.CommandMeta;
 import cloud.commandframework.meta.SimpleCommandMeta;
 import de.dytanic.cloudnet.command.source.CommandSource;
-import java.util.function.Function;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
 public class DefaultCommandManager extends CommandManager<CommandSource> {
 
-  /**
-   * Create a new command manager instance
-   *
-   * @param commandExecutionCoordinator Execution coordinator instance. The coordinator is in charge of executing
-   *                                    incoming commands. Some considerations must be made when picking a suitable
-   *                                    execution coordinator for your platform. For example, an entirely asynchronous
-   *                                    coordinator is not suitable when the parsers used in that particular platform
-   *                                    are not thread safe. If you have commands that perform blocking operations,
-   *                                    however, it might not be a good idea to use a synchronous execution coordinator.
-   *                                    In most cases you will want to pick between {@link CommandExecutionCoordinator#simpleCoordinator()}
-   *                                    and {@link AsynchronousCommandExecutionCoordinator}
-   * @param commandRegistrationHandler  Command registration handler. This will get called every time a new command is
-   *                                    registered to the command manager. This may be used to forward command
-   *                                    registration
-   */
-  protected DefaultCommandManager(
-    @NonNull Function<@NonNull CommandTree<CommandSource>, @NonNull CommandExecutionCoordinator<CommandSource>> commandExecutionCoordinator,
-    @NonNull CommandRegistrationHandler commandRegistrationHandler) {
-    super(commandExecutionCoordinator, commandRegistrationHandler);
+  protected DefaultCommandManager() {
+    super(CommandExecutionCoordinator.simpleCoordinator(), CommandRegistrationHandler.nullCommandRegistrationHandler());
   }
 
   @Override

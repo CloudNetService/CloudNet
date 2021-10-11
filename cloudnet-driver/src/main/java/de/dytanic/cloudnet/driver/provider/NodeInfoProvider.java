@@ -58,7 +58,7 @@ public interface NodeInfoProvider {
    * @param commandLine the commandLine to be sent
    * @return the reponse of the node
    */
-  String[] sendCommandLine(@NotNull String commandLine);
+  Collection<String> sendCommandLine(@NotNull String commandLine);
 
   /**
    * Sends the given commandLine to a specific node in the cluster, executes the commandLine and returns the response
@@ -66,7 +66,7 @@ public interface NodeInfoProvider {
    * @param commandLine the commandLine to be sent
    * @return the response of the node
    */
-  String[] sendCommandLine(@NotNull String nodeUniqueId, @NotNull String commandLine);
+  Collection<String> sendCommandLine(@NotNull String nodeUniqueId, @NotNull String commandLine);
 
   /**
    * @return all nodes from the config of the node where the method is called on
@@ -130,7 +130,7 @@ public interface NodeInfoProvider {
    * @return the reponse of the node
    */
   @NotNull
-  default ITask<String[]> sendCommandLineAsync(@NotNull String commandLine) {
+  default ITask<Collection<String>> sendCommandLineAsync(@NotNull String commandLine) {
     return CompletableTask.supplyAsync(() -> this.sendCommandLine(commandLine));
   }
 
@@ -141,7 +141,7 @@ public interface NodeInfoProvider {
    * @return the response of the node
    */
   @NotNull
-  default ITask<String[]> sendCommandLineAsync(@NotNull String nodeUniqueId, @NotNull String commandLine) {
+  default ITask<Collection<String>> sendCommandLineAsync(@NotNull String nodeUniqueId, @NotNull String commandLine) {
     return CompletableTask.supplyAsync(() -> this.sendCommandLine(nodeUniqueId, commandLine));
   }
 

@@ -17,11 +17,11 @@
 package de.dytanic.cloudnet.console;
 
 import de.dytanic.cloudnet.CloudNet;
+import de.dytanic.cloudnet.command.CommandProvider;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.console.animation.AbstractConsoleAnimation;
-import de.dytanic.cloudnet.deleted.command.ITabCompleter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -66,7 +66,7 @@ public final class JLine3Console implements IConsole {
   private boolean printingEnabled = true;
   private boolean matchingHistorySearch = true;
 
-  public JLine3Console() throws Exception {
+  public JLine3Console(CommandProvider commandProvider) throws Exception {
     System.setProperty("library.jansi.version", "CloudNET");
 
     try {
@@ -76,7 +76,7 @@ public final class JLine3Console implements IConsole {
 
     this.terminal = TerminalBuilder.builder().system(true).encoding(StandardCharsets.UTF_8).build();
     this.lineReader = new InternalLineReaderBuilder(this.terminal)
-      .completer(new JLine3Completer(this))
+      .completer(new JLine3Completer(this, commandProvider))
       .option(LineReader.Option.DISABLE_EVENT_EXPANSION, true)
       .variable(LineReader.BELL_STYLE, "off")
       .build();

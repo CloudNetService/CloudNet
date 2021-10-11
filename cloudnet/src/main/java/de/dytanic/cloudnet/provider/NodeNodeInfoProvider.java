@@ -17,14 +17,16 @@
 package de.dytanic.cloudnet.provider;
 
 import com.google.common.base.Preconditions;
+import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.cluster.IClusterNodeServer;
 import de.dytanic.cloudnet.cluster.IClusterNodeServerProvider;
+import de.dytanic.cloudnet.command.source.ConsoleCommandSource;
+import de.dytanic.cloudnet.command.source.DriverCommandSource;
 import de.dytanic.cloudnet.driver.command.CommandInfo;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
 import de.dytanic.cloudnet.driver.provider.NodeInfoProvider;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Objects;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -40,8 +42,7 @@ public class NodeNodeInfoProvider implements NodeInfoProvider {
 
   @Override
   public Collection<CommandInfo> getConsoleCommands() {
-    // TODO: return this.cloudNet.getCommandMap().getCommandInfos();
-    return null;
+    return CloudNet.getInstance().getCommandProvider().getCommands();
   }
 
   @Override
@@ -92,14 +93,16 @@ public class NodeNodeInfoProvider implements NodeInfoProvider {
   }
 
   @Override
-  public String[] sendCommandLine(@NotNull String commandLine) {
+  public Collection<String> sendCommandLine(@NotNull String commandLine) {
     Preconditions.checkNotNull(commandLine);
 
-    return new String[0];
+    DriverCommandSource driverCommandSource = new DriverCommandSource();
+    CloudNet.getInstance().getCommandProvider().execute(driverCommandSource, commandLine);
+    return driverCommandSource.getMessages();
   }
 
   @Override
-  public String[] sendCommandLine(@NotNull String nodeUniqueId, @NotNull String commandLine) {
+  public Collection<String> sendCommandLine(@NotNull String nodeUniqueId, @NotNull String commandLine) {
     Preconditions.checkNotNull(nodeUniqueId);
     Preconditions.checkNotNull(commandLine);
     // check if we should execute the command on the current node
@@ -115,21 +118,14 @@ public class NodeNodeInfoProvider implements NodeInfoProvider {
     return null;
   }
 
-  private void sendCommandLine0(Collection<String> collection, String commandLine) {
-    //  this.cloudNet.getCommandMap().dispatchCommand(new DriverCommandSender(collection), commandLine);
-  }
-
   @Nullable
   @Override
   public CommandInfo getConsoleCommand(@NotNull String commandLine) {
-    //  Command command = this.cloudNet.getCommandMap().getCommandFromLine(commandLine);
-    //  return command != null ? command.getInfo() : null;
-    return null;
+    return CloudNet.getInstance().getCommandProvider().getCommand(commandLine);
   }
 
   @Override
   public Collection<String> getConsoleTabCompleteResults(@NotNull String commandLine) {
-    // return this.cloudNet.getCommandMap().tabCompleteCommand(commandLine);
-    return Collections.emptyList();
+    return CloudNet.getInstance().getCommandProvider().suggest(ConsoleCommandSource.INSTANCE, commandLine);
   }
 }

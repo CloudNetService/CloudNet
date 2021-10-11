@@ -18,7 +18,6 @@ package de.dytanic.cloudnet.console;
 
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.console.animation.AbstractConsoleAnimation;
-import de.dytanic.cloudnet.deleted.command.ITabCompleter;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;

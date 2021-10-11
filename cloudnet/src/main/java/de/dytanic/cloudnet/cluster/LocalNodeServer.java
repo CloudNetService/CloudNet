@@ -17,6 +17,7 @@
 package de.dytanic.cloudnet.cluster;
 
 import de.dytanic.cloudnet.CloudNet;
+import de.dytanic.cloudnet.command.source.DriverCommandSource;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
@@ -28,7 +29,6 @@ import de.dytanic.cloudnet.driver.service.ProcessSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.provider.service.EmptySpecificCloudServiceProvider;
 import de.dytanic.cloudnet.service.ICloudService;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import org.jetbrains.annotations.NotNull;
@@ -62,10 +62,11 @@ public class LocalNodeServer extends DefaultNodeServer implements NodeServer {
   }
 
   @Override
-  public @NotNull String[] sendCommandLine(@NotNull String commandLine) {
-    Collection<String> result = new ArrayList<>();
-    // TODO this.cloudNet.getCommandMap().dispatchCommand(new DriverCommandSender(result), commandLine);
-    return result.toArray(new String[0]);
+  public @NotNull Collection<String> sendCommandLine(@NotNull String commandLine) {
+    DriverCommandSource commandSource = new DriverCommandSource();
+    this.cloudNet.getCommandProvider().execute(new DriverCommandSource(), commandLine);
+
+    return commandSource.getMessages();
   }
 
   @Override

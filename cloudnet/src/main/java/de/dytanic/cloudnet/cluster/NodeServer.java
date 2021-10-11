@@ -21,6 +21,7 @@ import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot
 import de.dytanic.cloudnet.driver.provider.service.CloudServiceFactory;
 import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
+import java.util.Collection;
 import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -48,7 +49,7 @@ public interface NodeServer extends AutoCloseable {
   NetworkClusterNodeInfoSnapshot getLastNodeInfoSnapshot();
 
   @NotNull
-  String[] sendCommandLine(@NotNull String commandLine);
+  Collection<String> sendCommandLine(@NotNull String commandLine);
 
   @NotNull
   CloudServiceFactory getCloudServiceFactory();

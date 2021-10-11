@@ -25,7 +25,7 @@ import cloud.commandframework.annotations.specifier.Quoted;
 import cloud.commandframework.annotations.suggestions.Suggestions;
 import cloud.commandframework.context.CommandContext;
 import de.dytanic.cloudnet.CloudNet;
-import de.dytanic.cloudnet.command.exception.SyntaxException;
+import de.dytanic.cloudnet.command.exception.ArgumentNotAvailableException;
 import de.dytanic.cloudnet.command.source.CommandSource;
 import de.dytanic.cloudnet.common.INameable;
 import de.dytanic.cloudnet.common.JavaVersion;
@@ -35,6 +35,7 @@ import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import de.dytanic.cloudnet.driver.template.SpecificTemplateStorage;
 import de.dytanic.cloudnet.driver.template.TemplateStorage;
 import de.dytanic.cloudnet.template.TemplateStorageUtil;
+import de.dytanic.cloudnet.template.install.InstallInformation;
 import de.dytanic.cloudnet.template.install.ServiceVersion;
 import de.dytanic.cloudnet.template.install.ServiceVersionType;
 import de.dytanic.cloudnet.util.JavaVersionResolver;
@@ -52,7 +53,7 @@ public class CommandTemplate {
   public ServiceTemplate defaultServiceTemplateParser(CommandContext<CommandSource> sender, Queue<String> input) {
     ServiceTemplate template = ServiceTemplate.parse(input.remove());
     if (template == null || template.nullableStorage() == null) {
-      throw new SyntaxException("");
+      throw new ArgumentNotAvailableException("");
     }
     return template;
   }
@@ -69,7 +70,7 @@ public class CommandTemplate {
   public TemplateStorage defaultTemplateStorageParser(CommandContext<CommandSource> sender, Queue<String> input) {
     TemplateStorage templateStorage = CloudNet.getInstance().getTemplateStorage(input.remove());
     if (templateStorage == null) {
-      throw new SyntaxException("");
+      throw new ArgumentNotAvailableException("");
     }
     return templateStorage;
   }
@@ -86,7 +87,7 @@ public class CommandTemplate {
   public ServiceVersionType defaultVersionTypeParser(CommandContext<CommandSource> sender, Queue<String> input) {
     String versionTypeName = input.remove().toLowerCase();
     return CloudNet.getInstance().getServiceVersionProvider().getServiceVersionType(versionTypeName)
-      .orElseThrow(() -> new SyntaxException(""));
+      .orElseThrow(() -> new ArgumentNotAvailableException(""));
   }
 
   @Parser
@@ -172,9 +173,12 @@ public class CommandTemplate {
         .replace("%template%", serviceTemplate.toString())
       );
 
-      if (CloudNet.getInstance().getServiceVersionProvider().installServiceVersion(
-        resolvedExecutable.equals("java") ? null : resolvedExecutable, versionType, serviceVersion, serviceTemplate,
-        forceInstall)) {
+      InstallInformation installInformation = InstallInformation.builder(versionType, serviceVersion)
+        .toTemplate(serviceTemplate)
+        .executable(resolvedExecutable.equals("java") ? null : resolvedExecutable)
+        .build();
+
+      if (CloudNet.getInstance().getServiceVersionProvider().installServiceVersion(installInformation, forceInstall)) {
         source.sendMessage(LanguageManager.getMessage("command-template-install-success")
           .replace("%version%", versionType.getName() + "-" + serviceVersion.getName())
           .replace("%template%", serviceTemplate.toString())
@@ -214,7 +218,7 @@ public class CommandTemplate {
     }
 
     try {
-      if (TemplateStorageUtil.createAndPrepareTemplate(template, environmentType)) {
+      if (TemplateStorageUtil.createAndPrepareTemplate(template.storage(), environmentType)) {
         source.sendMessage(LanguageManager.getMessage("command-template-create-success")
           .replace("%template%", template.getFullName())
           .replace("%storage%", template.getStorage())

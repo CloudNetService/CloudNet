@@ -16,8 +16,8 @@
 
 package de.dytanic.cloudnet.console;
 
-import java.util.ArrayList;
-import java.util.Arrays;
+import de.dytanic.cloudnet.command.CommandProvider;
+import de.dytanic.cloudnet.command.source.ConsoleCommandSource;
 import java.util.Collection;
 import java.util.List;
 import org.jline.reader.Candidate;
@@ -28,40 +28,19 @@ import org.jline.reader.ParsedLine;
 public class JLine3Completer implements Completer {
 
   private final JLine3Console console;
+  private final CommandProvider commandProvider;
 
-  public JLine3Completer(JLine3Console console) {
+  public JLine3Completer(JLine3Console console, CommandProvider commandProvider) {
     this.console = console;
+    this.commandProvider = commandProvider;
   }
 
   @Override
   public void complete(LineReader reader, ParsedLine line, List<Candidate> candidates) {
-    String buffer = line.line();
-    String[] args = buffer.split(" ");
-    String testString = args.length <= 1 || buffer.endsWith(" ") ? "" : args[args.length - 1].toLowerCase().trim();
-
-    if (args.length > 1) {
-      if (buffer.endsWith(" ")) {
-        args = Arrays.copyOfRange(args, 1, args.length + 1);
-        args[args.length - 1] = "";
-      } else {
-        args = Arrays.copyOfRange(args, 1, args.length);
-      }
-    }
-
-    Collection<String> responses = new ArrayList<>();
-    // TODO: re-add tab complete
-    /*for (ITabCompleter completer : this.console.getTabCompletionHandler()) {
-      Collection<String> completerResponses = completer.complete(buffer, args, Properties.parseLine(args));
-      if (completerResponses != null && !completerResponses.isEmpty()) {
-        responses.addAll(completerResponses);
-      }
-    }*/
-
+    Collection<String> responses = this.commandProvider.suggest(ConsoleCommandSource.INSTANCE, line.line());
     if (!responses.isEmpty()) {
       responses
         .stream()
-        .filter(response -> response != null && (testString.isEmpty() || response.toLowerCase().startsWith(testString)))
-        .sorted()
         .map(Candidate::new)
         .forEach(candidates::add);
     }

@@ -55,13 +55,14 @@ public class WrapperNodeInfoProvider implements NodeInfoProvider {
   }
 
   @Override
-  public String[] sendCommandLine(@NotNull String commandLine) {
+  public Collection<String> sendCommandLine(@NotNull String commandLine) {
     Preconditions.checkNotNull(commandLine);
     return this.rpcSender.invokeMethod("sendCommandLine", commandLine).fireSync();
   }
 
+  //TODO: rpc
   @Override
-  public String[] sendCommandLine(@NotNull String nodeUniqueId, @NotNull String commandLine) {
+  public Collection<String> sendCommandLine(@NotNull String nodeUniqueId, @NotNull String commandLine) {
     Preconditions.checkNotNull(nodeUniqueId, commandLine);
     return this.rpcSender.invokeMethod("sendCommandLine", nodeUniqueId, commandLine).fireSync();
   }
