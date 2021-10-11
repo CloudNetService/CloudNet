@@ -18,20 +18,22 @@ package de.dytanic.cloudnet;
 
 import de.dytanic.cloudnet.cluster.DefaultClusterNodeServerProvider;
 import de.dytanic.cloudnet.cluster.IClusterNodeServerProvider;
-import de.dytanic.cloudnet.command.CommandProvider;
-import de.dytanic.cloudnet.command.source.ConsoleCommandSource;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.conf.IConfiguration;
 import de.dytanic.cloudnet.conf.JsonConfiguration;
 import de.dytanic.cloudnet.console.IConsole;
 import de.dytanic.cloudnet.console.util.HeaderReader;
 import de.dytanic.cloudnet.database.AbstractDatabaseProvider;
+import de.dytanic.cloudnet.database.h2.H2DatabaseProvider;
+import de.dytanic.cloudnet.database.xodus.XodusDatabaseProvider;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.CloudNetVersion;
 import de.dytanic.cloudnet.driver.DriverEnvironment;
 import de.dytanic.cloudnet.driver.module.DefaultPersistableModuleDependencyLoader;
+import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.network.INetworkClient;
 import de.dytanic.cloudnet.driver.network.INetworkServer;
+import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
 import de.dytanic.cloudnet.driver.network.http.IHttpServer;
 import de.dytanic.cloudnet.driver.network.netty.client.NettyNetworkClient;
 import de.dytanic.cloudnet.driver.network.netty.http.NettyHttpServer;
@@ -50,10 +52,12 @@ import de.dytanic.cloudnet.service.ICloudServiceManager;
 import de.dytanic.cloudnet.service.defaults.DefaultCloudServiceManager;
 import de.dytanic.cloudnet.template.LocalTemplateStorage;
 import de.dytanic.cloudnet.template.install.ServiceVersionProvider;
+import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -65,7 +69,6 @@ public final class CloudNet extends CloudNetDriver {
 
   private static final Path LAUNCHER_DIR = Paths.get(System.getProperty("cloudnet.launcher.dir", "launcher"));
 
-  private final CommandProvider commandProvider;
   private final IConsole console;
   private final IConfiguration configuration;
 
@@ -79,10 +82,11 @@ public final class CloudNet extends CloudNetDriver {
   private final AtomicBoolean running = new AtomicBoolean();
   private final CloudNetTick mainThread = new CloudNetTick(this);
 
-  public CloudNet(@NotNull String[] args, @NotNull IConsole console, @NotNull CommandProvider commandProvider) {
+  private volatile AbstractDatabaseProvider databaseProvider;
+
+  public CloudNet(@NotNull String[] args, @NotNull IConsole console) {
     setInstance(this);
 
-    this.commandProvider = commandProvider;
     this.console = console;
     this.serviceVersionProvider = new ServiceVersionProvider(console);
     this.cloudNetVersion = CloudNetVersion.fromClassInformation(CloudNet.class.getPackage());
@@ -116,15 +120,6 @@ public final class CloudNet extends CloudNetDriver {
     this.httpServer = new NettyHttpServer(this.configuration.getWebSslConfig());
 
     this.driverEnvironment = DriverEnvironment.CLOUDNET;
-
-    this.servicesRegistry.registerService(TemplateStorage.class, "local",
-      new LocalTemplateStorage(Paths.get("local/templates")));
-    this.console.addCommandHandler(UUID.randomUUID(), input -> {
-      if (input.trim().isEmpty()) {
-        return;
-      }
-      this.commandProvider.execute(ConsoleCommandSource.INSTANCE, input);
-    });
   }
 
   public static @NotNull CloudNet getInstance() {
@@ -134,7 +129,58 @@ public final class CloudNet extends CloudNetDriver {
   @Override
   public void start() throws Exception {
     HeaderReader.readAndPrintHeader(this.console);
+    // load the service versions
+    this.serviceVersionProvider.loadServiceVersionTypesOrDefaults(ServiceVersionProvider.DEFAULT_FILE_URL);
 
+    // init the default services
+    this.servicesRegistry.registerService(
+      TemplateStorage.class,
+      "local",
+      new LocalTemplateStorage(Paths.get(System.getProperty("cloudnet.storage.local", "local/templates"))));
+    // init the default database providers
+    this.servicesRegistry.registerService(
+      AbstractDatabaseProvider.class,
+      "h2",
+      new H2DatabaseProvider(
+        System.getProperty("cloudnet.database.h2.path", "local/database/h2"),
+        !this.configuration.getClusterConfig().getNodes().isEmpty()));
+    this.servicesRegistry.registerService(
+      AbstractDatabaseProvider.class,
+      "xodus",
+      new XodusDatabaseProvider(
+        new File(System.getProperty("cloudnet.database.xodus.path", "local/database/xodus")),
+        !this.configuration.getClusterConfig().getNodes().isEmpty()));
+
+    // load the modules before proceeding for example to allow the database provider init
+    this.moduleProvider.loadAll();
+
+    // check if there is a database provider or initialize the default one
+    if (this.databaseProvider == null || !this.databaseProvider.init()) {
+      this.databaseProvider = this.servicesRegistry.getService(AbstractDatabaseProvider.class, "xodus");
+      this.databaseProvider.init();
+    }
+
+    // network server init
+    for (HostAndPort listener : this.configuration.getIdentity().getListeners()) {
+      this.networkServer.addListener(listener);
+    }
+    // http server init
+    for (HostAndPort httpListener : this.configuration.getHttpListeners()) {
+      this.httpServer.addListener(httpListener);
+    }
+    // network client init
+    for (NetworkClusterNode node : this.configuration.getClusterConfig().getNodes()) {
+      HostAndPort[] listeners = node.getListeners();
+      // check if there are any listeners
+      if (listeners.length > 0) {
+        // get a random listener of the node
+        HostAndPort listener = listeners[ThreadLocalRandom.current().nextInt(0, listeners.length)];
+        this.networkClient.connect(listener);
+      }
+    }
+
+    this.moduleProvider.startAll();
+    this.mainThread.start();
     // this.nodeServerProvider.getSelfNode().publishNodeInfoSnapshotUpdate();
   }
 
@@ -176,7 +222,11 @@ public final class CloudNet extends CloudNetDriver {
 
   @Override
   public @NotNull AbstractDatabaseProvider getDatabaseProvider() {
-    return this.servicesRegistry.getFirstService(AbstractDatabaseProvider.class);
+    return this.databaseProvider;
+  }
+
+  public void setDatabaseProvider(@NotNull AbstractDatabaseProvider databaseProvider) {
+    this.databaseProvider = databaseProvider;
   }
 
   @Override
@@ -205,10 +255,6 @@ public final class CloudNet extends CloudNetDriver {
 
   public @NotNull CloudNetTick getMainThread() {
     return this.mainThread;
-  }
-
-  public @NotNull CommandProvider getCommandProvider() {
-    return this.commandProvider;
   }
 
   public @NotNull IConsole getConsole() {
