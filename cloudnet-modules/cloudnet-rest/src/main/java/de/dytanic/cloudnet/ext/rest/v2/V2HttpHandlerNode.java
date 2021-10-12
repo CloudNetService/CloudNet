@@ -21,7 +21,7 @@ import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.log.AbstractHandler;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.defaults.DefaultLogFormatter;
-import de.dytanic.cloudnet.conf.JsonConfiguration;
+import de.dytanic.cloudnet.config.JsonConfiguration;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.http.HttpResponseCode;
 import de.dytanic.cloudnet.driver.network.http.IHttpContext;
