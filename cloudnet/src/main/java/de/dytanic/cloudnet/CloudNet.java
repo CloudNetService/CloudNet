@@ -90,8 +90,8 @@ public class CloudNet extends CloudNetDriver {
   private final ServiceVersionProvider serviceVersionProvider;
   private final DefaultClusterNodeServerProvider nodeServerProvider;
 
-  private final AtomicBoolean running = new AtomicBoolean();
   private final CloudNetTick mainThread = new CloudNetTick(this);
+  private final AtomicBoolean running = new AtomicBoolean(true);
 
   private volatile AbstractDatabaseProvider databaseProvider;
 
