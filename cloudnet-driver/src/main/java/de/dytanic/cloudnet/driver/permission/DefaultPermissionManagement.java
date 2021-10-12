@@ -17,8 +17,6 @@
 package de.dytanic.cloudnet.driver.permission;
 
 import com.google.common.collect.Iterables;
-import de.dytanic.cloudnet.common.log.LogManager;
-import de.dytanic.cloudnet.common.log.Logger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -27,16 +25,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.function.Supplier;
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class DefaultPermissionManagement implements IPermissionManagement {
-
-  private static final Logger LOGGER = LogManager.getLogger(DefaultPermissionManagement.class);
 
   @Override
   public IPermissionManagement getChildPermissionManagement() {
@@ -48,16 +41,11 @@ public abstract class DefaultPermissionManagement implements IPermissionManageme
     return true;
   }
 
-  @Deprecated
-  public Collection<IPermissionUser> getUserByGroup(String group) {
-    return this.getUsersByGroup(group);
-  }
-
   @Override
-  public IPermissionGroup getHighestPermissionGroup(@NotNull IPermissionUser permissionUser) {
-    IPermissionGroup permissionGroup = null;
+  public PermissionGroup getHighestPermissionGroup(@NotNull PermissionUser permissionUser) {
+    PermissionGroup permissionGroup = null;
 
-    for (IPermissionGroup group : this.getGroups(permissionUser)) {
+    for (PermissionGroup group : this.getGroups(permissionUser)) {
       if (permissionGroup == null) {
         permissionGroup = group;
         continue;
@@ -72,19 +60,13 @@ public abstract class DefaultPermissionManagement implements IPermissionManageme
   }
 
   @Override
-  public boolean testPermissionGroup(@Nullable IPermissionGroup permissionGroup) {
-    return this.testPermissible(permissionGroup);
-  }
-
-  @Override
-  public boolean testPermissionUser(@Nullable IPermissionUser permissionUser) {
+  public boolean testPermissionUser(@Nullable PermissionUser permissionUser) {
     if (permissionUser == null) {
       return false;
     }
 
-    return this.testPermissible(permissionUser) ||
-      permissionUser.getGroups().removeIf(
-        groupInfo -> groupInfo.getTimeOutMillis() > 0 && groupInfo.getTimeOutMillis() < System.currentTimeMillis());
+    return this.testPermissible(permissionUser) || permissionUser.getGroups().removeIf(
+      groupInfo -> groupInfo.getTimeOutMillis() > 0 && groupInfo.getTimeOutMillis() < System.currentTimeMillis());
   }
 
   @Override
@@ -97,9 +79,8 @@ public abstract class DefaultPermissionManagement implements IPermissionManageme
       && permission.getTimeOutMillis() < System.currentTimeMillis();
 
     boolean result = permissible.getPermissions().removeIf(tester);
-
     for (Map.Entry<String, Collection<Permission>> entry : permissible.getGroupPermissions().entrySet()) {
-      result = result || entry.getValue().removeIf(tester);
+      result |= entry.getValue().removeIf(tester);
     }
 
     return result;
@@ -107,22 +88,21 @@ public abstract class DefaultPermissionManagement implements IPermissionManageme
 
   @Override
   @NotNull
-  public Collection<IPermissionGroup> getGroups(@Nullable IPermissible permissible) {
-    List<IPermissionGroup> permissionGroups = new ArrayList<>();
+  public Collection<PermissionGroup> getGroups(@Nullable IPermissible permissible) {
+    List<PermissionGroup> permissionGroups = new ArrayList<>();
 
     if (permissible == null) {
       return permissionGroups;
     }
 
     for (String group : permissible.getGroupNames()) {
-      IPermissionGroup permissionGroup = this.getGroup(group);
-
+      PermissionGroup permissionGroup = this.getGroup(group);
       if (permissionGroup != null) {
         permissionGroups.add(permissionGroup);
       }
     }
 
-    if (permissionGroups.isEmpty() && permissible instanceof IPermissionUser) {
+    if (permissionGroups.isEmpty() && permissible instanceof PermissionUser) {
       permissionGroups.add(this.getDefaultPermissionGroup());
     }
 
@@ -130,27 +110,28 @@ public abstract class DefaultPermissionManagement implements IPermissionManageme
   }
 
   @Override
-  public Collection<IPermissionGroup> getExtendedGroups(@Nullable IPermissionGroup group) {
-    return this.getGroups(group);
-  }
-
-  @Override
-  @NotNull
-  public PermissionCheckResult getPermissionResult(@NotNull IPermissible permissible, @NotNull String permission) {
+  public @NotNull PermissionCheckResult getPermissionResult(
+    @NotNull IPermissible permissible,
+    @NotNull String permission
+  ) {
     return this.getPermissionResult(permissible, new Permission(permission));
   }
 
   @Override
-  @NotNull
-  public PermissionCheckResult getPermissionResult(@NotNull IPermissible permissible, @NotNull Permission permission) {
-    return PermissionCheckResult
-      .fromPermission(this.findHighestPermission(this.collectAllPermissions(permissible, null), permission));
+  public @NotNull PermissionCheckResult getPermissionResult(
+    @NotNull IPermissible permissible,
+    @NotNull Permission permission
+  ) {
+    return PermissionCheckResult.fromPermission(
+      this.findHighestPermission(this.collectAllPermissions(permissible, null), permission));
   }
 
   @Override
-  @NotNull
-  public PermissionCheckResult getPermissionResult(@NotNull IPermissible permissible, @NotNull String group,
-    @NotNull Permission permission) {
+  public @NotNull PermissionCheckResult getPermissionResult(
+    @NotNull IPermissible permissible,
+    @NotNull String group,
+    @NotNull Permission permission
+  ) {
     return this.getPermissionResult(permissible, Collections.singleton(group), permission);
   }
 
@@ -209,9 +190,9 @@ public abstract class DefaultPermissionManagement implements IPermissionManageme
   }
 
   protected void collectAllGroupPermissionsInto(@NotNull Collection<Permission> target,
-    @NotNull Collection<IPermissionGroup> groups,
+    @NotNull Collection<PermissionGroup> groups,
     @Nullable String[] taskGroups, @NotNull Collection<String> travelledGroups) {
-    for (IPermissionGroup permissionGroup : groups) {
+    for (PermissionGroup permissionGroup : groups) {
       if (permissionGroup != null && travelledGroups.add(permissionGroup.getName())) {
         this.collectPermissionsInto(target, permissionGroup, taskGroups);
         this.collectAllGroupPermissionsInto(target, this.getGroups(permissionGroup), taskGroups, travelledGroups);
@@ -229,103 +210,6 @@ public abstract class DefaultPermissionManagement implements IPermissionManageme
     }
   }
 
-  /**
-   * @deprecated has no use internally anymore, will be removed in a further release.
-   */
-  @Deprecated
-  @ApiStatus.ScheduledForRemoval(inVersion = "3.6")
-  public PermissionCheckResult getPermissionResult(IPermissible permissible,
-    Supplier<PermissionCheckResult> permissionTester,
-    Function<IPermissionGroup, PermissionCheckResult> extendedGroupsTester) {
-    switch (permissionTester.get()) {
-      case ALLOWED:
-        return PermissionCheckResult.ALLOWED;
-      case FORBIDDEN:
-        return PermissionCheckResult.FORBIDDEN;
-      default:
-        for (IPermissionGroup permissionGroup : this.getGroups(permissible)) {
-          if (permissionGroup != null) {
-            PermissionCheckResult result = extendedGroupsTester.apply(permissionGroup);
-            if (result == PermissionCheckResult.ALLOWED || result == PermissionCheckResult.FORBIDDEN) {
-              return result;
-            }
-          }
-        }
-        break;
-    }
-
-    IPermissionGroup publicGroup = this.getDefaultPermissionGroup();
-    return publicGroup != null ? extendedGroupsTester.apply(publicGroup) : PermissionCheckResult.DENIED;
-  }
-
-  /**
-   * @deprecated has no use internally anymore, will be removed in a further release.
-   */
-  @Deprecated
-  @ApiStatus.ScheduledForRemoval(inVersion = "3.6")
-  public PermissionCheckResult tryExtendedGroups(@NotNull String firstGroup, @Nullable IPermissionGroup permissionGroup,
-    @NotNull Permission permission, int layer) {
-    if (permissionGroup == null) {
-      return PermissionCheckResult.DENIED;
-    }
-    if (layer >= 30) {
-      LOGGER.severe("Detected recursive permission group implementation on group " + firstGroup);
-      return PermissionCheckResult.DENIED;
-    }
-    layer++;
-
-    switch (permissionGroup.hasPermission(permission)) {
-      case ALLOWED:
-        return PermissionCheckResult.ALLOWED;
-      case FORBIDDEN:
-        return PermissionCheckResult.FORBIDDEN;
-      default:
-        for (IPermissionGroup extended : this.getGroups(permissionGroup)) {
-          PermissionCheckResult result = this.tryExtendedGroups(firstGroup, extended, permission, layer);
-          if (result == PermissionCheckResult.ALLOWED || result == PermissionCheckResult.FORBIDDEN) {
-            return result;
-          }
-        }
-        break;
-    }
-
-    return PermissionCheckResult.DENIED;
-  }
-
-  /**
-   * @deprecated has no use internally anymore, will be removed in a further release.
-   */
-  @Deprecated
-  @ApiStatus.ScheduledForRemoval(inVersion = "3.6")
-  public PermissionCheckResult tryExtendedGroups(@NotNull String firstGroup, @Nullable IPermissionGroup permissionGroup,
-    @NotNull String group, @NotNull Permission permission, int layer) {
-    if (permissionGroup == null) {
-      return PermissionCheckResult.DENIED;
-    }
-    if (layer >= 30) {
-      LOGGER.severe("Detected recursive permission group implementation on group " + firstGroup);
-      return PermissionCheckResult.DENIED;
-    }
-    layer++;
-
-    switch (permissionGroup.hasPermission(group, permission)) {
-      case ALLOWED:
-        return PermissionCheckResult.ALLOWED;
-      case FORBIDDEN:
-        return PermissionCheckResult.FORBIDDEN;
-      default:
-        for (IPermissionGroup extended : this.getExtendedGroups(permissionGroup)) {
-          PermissionCheckResult result = this.tryExtendedGroups(firstGroup, extended, group, permission, layer);
-          if (result == PermissionCheckResult.ALLOWED || result == PermissionCheckResult.FORBIDDEN) {
-            return result;
-          }
-        }
-        break;
-    }
-
-    return PermissionCheckResult.DENIED;
-  }
-
   @Override
   public @NotNull Collection<Permission> getAllPermissions(@NotNull IPermissible permissible) {
     return this.getAllPermissions(permissible, null);
@@ -337,15 +221,15 @@ public abstract class DefaultPermissionManagement implements IPermissionManageme
     if (group != null && permissible.getGroupPermissions().containsKey(group)) {
       permissions.addAll(permissible.getGroupPermissions().get(group));
     }
-    for (IPermissionGroup permissionGroup : this.getGroups(permissible)) {
+    for (PermissionGroup permissionGroup : this.getGroups(permissible)) {
       permissions.addAll(this.getAllPermissions(permissionGroup, group));
     }
     return permissions;
   }
 
   @Override
-  public IPermissionGroup modifyGroup(@NotNull String name, @NotNull Consumer<IPermissionGroup> modifier) {
-    IPermissionGroup group = this.getGroup(name);
+  public PermissionGroup modifyGroup(@NotNull String name, @NotNull Consumer<PermissionGroup> modifier) {
+    PermissionGroup group = this.getGroup(name);
 
     if (group != null) {
       modifier.accept(group);
@@ -356,8 +240,8 @@ public abstract class DefaultPermissionManagement implements IPermissionManageme
   }
 
   @Override
-  public IPermissionUser modifyUser(@NotNull UUID uniqueId, @NotNull Consumer<IPermissionUser> modifier) {
-    IPermissionUser user = this.getUser(uniqueId);
+  public PermissionUser modifyUser(@NotNull UUID uniqueId, @NotNull Consumer<PermissionUser> modifier) {
+    PermissionUser user = this.getUser(uniqueId);
 
     if (user != null) {
       modifier.accept(user);
@@ -368,10 +252,10 @@ public abstract class DefaultPermissionManagement implements IPermissionManageme
   }
 
   @Override
-  public List<IPermissionUser> modifyUsers(@NotNull String name, @NotNull Consumer<IPermissionUser> modifier) {
-    List<IPermissionUser> users = this.getUsers(name);
+  public @NotNull List<PermissionUser> modifyUsers(@NotNull String name, @NotNull Consumer<PermissionUser> modifier) {
+    List<PermissionUser> users = this.getUsers(name);
 
-    for (IPermissionUser user : users) {
+    for (PermissionUser user : users) {
       modifier.accept(user);
       this.updateUser(user);
     }

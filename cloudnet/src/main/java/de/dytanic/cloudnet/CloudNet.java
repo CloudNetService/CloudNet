@@ -16,6 +16,7 @@
 
 package de.dytanic.cloudnet;
 
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.cluster.DefaultClusterNodeServerProvider;
 import de.dytanic.cloudnet.cluster.IClusterNodeServerProvider;
 import de.dytanic.cloudnet.command.CommandProvider;
@@ -40,11 +41,15 @@ import de.dytanic.cloudnet.driver.network.http.IHttpServer;
 import de.dytanic.cloudnet.driver.network.netty.client.NettyNetworkClient;
 import de.dytanic.cloudnet.driver.network.netty.http.NettyHttpServer;
 import de.dytanic.cloudnet.driver.network.netty.server.NettyNetworkServer;
+import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import de.dytanic.cloudnet.driver.template.TemplateStorage;
 import de.dytanic.cloudnet.module.NodeModuleProviderHandler;
 import de.dytanic.cloudnet.network.NetworkClientChannelHandlerImpl;
 import de.dytanic.cloudnet.network.NetworkServerChannelHandlerImpl;
+import de.dytanic.cloudnet.permission.DefaultDatabasePermissionManagement;
+import de.dytanic.cloudnet.permission.DefaultPermissionManagementHandler;
+import de.dytanic.cloudnet.permission.NodePermissionManagement;
 import de.dytanic.cloudnet.provider.NodeGroupConfigurationProvider;
 import de.dytanic.cloudnet.provider.NodeMessenger;
 import de.dytanic.cloudnet.provider.NodeNodeInfoProvider;
@@ -109,7 +114,10 @@ public final class CloudNet extends CloudNetDriver {
     this.messenger = new NodeMessenger(this.getCloudServiceProvider(), this.nodeServerProvider);
     this.cloudServiceFactory = new NodeCloudServiceFactory(this.getCloudServiceProvider(), this.nodeServerProvider);
 
-    this.permissionManagement = null; // TODO
+    // permission management init
+    this.setPermissionManagement(new DefaultDatabasePermissionManagement(this));
+    this.getPermissionManagement().setPermissionManagementHandler(
+      new DefaultPermissionManagementHandler(this.eventManager));
 
     this.moduleProvider.setModuleDependencyLoader(
       new DefaultPersistableModuleDependencyLoader(LAUNCHER_DIR.resolve("libs")));
@@ -253,6 +261,18 @@ public final class CloudNet extends CloudNetDriver {
   @Override
   public @NotNull ICloudServiceManager getCloudServiceProvider() {
     return (ICloudServiceManager) super.getCloudServiceProvider();
+  }
+
+  @Override
+  public @NotNull NodePermissionManagement getPermissionManagement() {
+    return (NodePermissionManagement) super.getPermissionManagement();
+  }
+
+  @Override
+  public void setPermissionManagement(@NotNull IPermissionManagement management) {
+    // nodes can only use node permission managements
+    Preconditions.checkArgument(management instanceof NodePermissionManagement);
+    super.setPermissionManagement(management);
   }
 
   public @NotNull IConfiguration getConfig() {

@@ -28,22 +28,22 @@ import org.jetbrains.annotations.Nullable;
 
 public interface IPermissible extends INameable, IJsonDocPropertyable, Comparable<IPermissible> {
 
-  Collection<String> getGroupNames();
+  @NotNull Collection<String> getGroupNames();
 
   /**
    * Sets the name of this permissible.
    * <p>
-   * An update via {@link IPermissionManagement#updateGroup(IPermissionGroup)} or {@link
-   * IPermissionManagement#updateGroup(IPermissionGroup)} is required.
+   * An update via {@link IPermissionManagement#updateGroup(PermissionGroup)} or {@link
+   * IPermissionManagement#updateGroup(PermissionGroup)} is required.
    *
    * @param name the new name
    */
   void setName(@NotNull String name);
 
   /**
-   * Gets the potency of this permissible. If this permissible is an {@link IPermissionGroup}, {@link
-   * IPermissionManagement#getHighestPermissionGroup(IPermissionUser)} is sorted by the potency. If this permissible is
-   * an {@link IPermissionUser}, in CloudNet it has no specific meaning, but of course you can use it for whatever you
+   * Gets the potency of this permissible. If this permissible is an {@link PermissionGroup}, {@link
+   * IPermissionManagement#getHighestPermissionGroup(PermissionUser)} is sorted by the potency. If this permissible is
+   * an {@link PermissionUser}, in CloudNet it has no specific meaning, but of course you can use it for whatever you
    * want.
    *
    * @return the potency of this permissible
@@ -53,8 +53,8 @@ public interface IPermissible extends INameable, IJsonDocPropertyable, Comparabl
   /**
    * Sets the potency of this permissible.
    * <p>
-   * An update via {@link IPermissionManagement#updateGroup(IPermissionGroup)} or {@link
-   * IPermissionManagement#updateGroup(IPermissionGroup)} is required.
+   * An update via {@link IPermissionManagement#updateGroup(PermissionGroup)} or {@link
+   * IPermissionManagement#updateGroup(PermissionGroup)} is required.
    *
    * @param potency the new potency
    */
@@ -63,8 +63,8 @@ public interface IPermissible extends INameable, IJsonDocPropertyable, Comparabl
   /**
    * Adds a new permission to this permissible and updates it if a permission with that name already exists.
    * <p>
-   * An update via {@link IPermissionManagement#updateGroup(IPermissionGroup)} or {@link
-   * IPermissionManagement#updateGroup(IPermissionGroup)} is required.
+   * An update via {@link IPermissionManagement#updateGroup(PermissionGroup)} or {@link
+   * IPermissionManagement#updateGroup(PermissionGroup)} is required.
    *
    * @param permission the permission
    * @return {@code true} if the permission has been added successfully or {@code false} if the given {@code permission}
@@ -76,8 +76,8 @@ public interface IPermissible extends INameable, IJsonDocPropertyable, Comparabl
    * Adds a new permission to this permissible and updates it if a permission with that name already exists. This
    * permission will be only effective on servers which have the specified group.
    * <p>
-   * An update via {@link IPermissionManagement#updateGroup(IPermissionGroup)} or {@link
-   * IPermissionManagement#updateGroup(IPermissionGroup)} is required.
+   * An update via {@link IPermissionManagement#updateGroup(PermissionGroup)} or {@link
+   * IPermissionManagement#updateGroup(PermissionGroup)} is required.
    *
    * @param group      the group where this permission should be effective
    * @param permission the permission
@@ -89,8 +89,8 @@ public interface IPermissible extends INameable, IJsonDocPropertyable, Comparabl
   /**
    * Removes a permission out of this permissible.
    * <p>
-   * An update via {@link IPermissionManagement#updateGroup(IPermissionGroup)} or {@link
-   * IPermissionManagement#updateGroup(IPermissionGroup)} is required.
+   * An update via {@link IPermissionManagement#updateGroup(PermissionGroup)} or {@link
+   * IPermissionManagement#updateGroup(PermissionGroup)} is required.
    *
    * @param permission the permission
    * @return {@code true} if the permission has been removed successfully or {@code false} if the given {@code
@@ -101,8 +101,8 @@ public interface IPermissible extends INameable, IJsonDocPropertyable, Comparabl
   /**
    * Removes a permission for a specific group out of this permissible.
    * <p>
-   * An update via {@link IPermissionManagement#updateGroup(IPermissionGroup)} or {@link
-   * IPermissionManagement#updateGroup(IPermissionGroup)} is required.
+   * An update via {@link IPermissionManagement#updateGroup(PermissionGroup)} or {@link
+   * IPermissionManagement#updateGroup(PermissionGroup)} is required.
    *
    * @param group      the group where this permission is effective
    * @param permission the permission
@@ -116,14 +116,14 @@ public interface IPermissible extends INameable, IJsonDocPropertyable, Comparabl
    *
    * @return a mutable list of all permissions
    */
-  Collection<Permission> getPermissions();
+  @NotNull Collection<Permission> getPermissions();
 
   /**
    * Gets all effective permissions on a specific group. Global permissions are not included.
    *
    * @return a mutable map containing mutable lists of permissions
    */
-  Map<String, Collection<Permission>> getGroupPermissions();
+  @NotNull Map<String, Collection<Permission>> getGroupPermissions();
 
   /**
    * Gets a permission of this permissible by its name.
@@ -132,13 +132,10 @@ public interface IPermissible extends INameable, IJsonDocPropertyable, Comparabl
    * @return the {@link Permission} if the permission exists or {@code null} if the permission doesn't exist in this
    * permissible or the name is null
    */
-  @Nullable
-  default Permission getPermission(String name) {
-    if (name == null) {
-      return null;
-    }
-
-    return this.getPermissions().stream().filter(permission -> permission.getName().equalsIgnoreCase(name)).findFirst()
+  default @Nullable Permission getPermission(@Nullable String name) {
+    return name == null ? null : this.getPermissions().stream()
+      .filter(permission -> permission.getName().equalsIgnoreCase(name))
+      .findFirst()
       .orElse(null);
   }
 
@@ -156,8 +153,8 @@ public interface IPermissible extends INameable, IJsonDocPropertyable, Comparabl
   /**
    * Adds a new permission to this permissible and updates it if a permission with that name already exists.
    * <p>
-   * An update via {@link IPermissionManagement#updateGroup(IPermissionGroup)} or {@link
-   * IPermissionManagement#updateGroup(IPermissionGroup)} is required.
+   * An update via {@link IPermissionManagement#updateGroup(PermissionGroup)} or {@link
+   * IPermissionManagement#updateGroup(PermissionGroup)} is required.
    * <p>
    * Equivalent to {@code #addPermission(permission, 0)}
    *
@@ -172,8 +169,8 @@ public interface IPermissible extends INameable, IJsonDocPropertyable, Comparabl
   /**
    * Adds a new permission to this permissible and updates it if a permission with that name already exists.
    * <p>
-   * An update via {@link IPermissionManagement#updateGroup(IPermissionGroup)} or {@link
-   * IPermissionManagement#updateGroup(IPermissionGroup)} is required.
+   * An update via {@link IPermissionManagement#updateGroup(PermissionGroup)} or {@link
+   * IPermissionManagement#updateGroup(PermissionGroup)} is required.
    * <p>
    * Equivalent to {@code #addPermission(permission, value ? 1 : -1)}
    *
@@ -189,8 +186,8 @@ public interface IPermissible extends INameable, IJsonDocPropertyable, Comparabl
   /**
    * Adds a new permission to this permissible and updates it if a permission with that name already exists.
    * <p>
-   * An update via {@link IPermissionManagement#updateGroup(IPermissionGroup)} or {@link
-   * IPermissionManagement#updateGroup(IPermissionGroup)} is required.
+   * An update via {@link IPermissionManagement#updateGroup(PermissionGroup)} or {@link
+   * IPermissionManagement#updateGroup(PermissionGroup)} is required.
    * <p>
    * Equivalent to {@code #addPermission(new Permission(permission, potency))}
    *
@@ -206,8 +203,8 @@ public interface IPermissible extends INameable, IJsonDocPropertyable, Comparabl
   /**
    * Adds a new permission to this permissible and updates it if a permission with that name already exists.
    * <p>
-   * An update via {@link IPermissionManagement#updateGroup(IPermissionGroup)} or {@link
-   * IPermissionManagement#updateGroup(IPermissionGroup)} is required.
+   * An update via {@link IPermissionManagement#updateGroup(PermissionGroup)} or {@link
+   * IPermissionManagement#updateGroup(PermissionGroup)} is required.
    * <p>
    * Equivalent to {@code #addPermission(group, permission, 0)}
    *
@@ -223,8 +220,8 @@ public interface IPermissible extends INameable, IJsonDocPropertyable, Comparabl
   /**
    * Adds a new permission to this permissible and updates it if a permission with that name already exists.
    * <p>
-   * An update via {@link IPermissionManagement#updateGroup(IPermissionGroup)} or {@link
-   * IPermissionManagement#updateGroup(IPermissionGroup)} is required.
+   * An update via {@link IPermissionManagement#updateGroup(PermissionGroup)} or {@link
+   * IPermissionManagement#updateGroup(PermissionGroup)} is required.
    * <p>
    * Equivalent to {@code #addPermission(group, permission, 0)}
    *
@@ -241,8 +238,8 @@ public interface IPermissible extends INameable, IJsonDocPropertyable, Comparabl
   /**
    * Adds a new permission to this permissible and updates it if a permission with that name already exists.
    * <p>
-   * An update via {@link IPermissionManagement#updateGroup(IPermissionGroup)} or {@link
-   * IPermissionManagement#updateGroup(IPermissionGroup)} is required.
+   * An update via {@link IPermissionManagement#updateGroup(PermissionGroup)} or {@link
+   * IPermissionManagement#updateGroup(PermissionGroup)} is required.
    * <p>
    * Equivalent to {@code #addPermission(group, new Permission(permission, potency, (System.currentTimeMillis() +
    * millis.toMillis(time))))}
@@ -255,10 +252,17 @@ public interface IPermissible extends INameable, IJsonDocPropertyable, Comparabl
    * @return {@code true} if the permission has been added successfully or {@code false} if the given {@code permission}
    * was null
    */
-  default boolean addPermission(@NotNull String group, @NotNull String permission, int potency, long time,
-    TimeUnit unit) {
-    return this
-      .addPermission(group, new Permission(permission, potency, (System.currentTimeMillis() + unit.toMillis(time))));
+  default boolean addPermission(
+    @NotNull String group,
+    @NotNull String permission,
+    int potency,
+    long time,
+    @NotNull TimeUnit unit
+  ) {
+    return this.addPermission(group, new Permission(
+      permission,
+      potency,
+      System.currentTimeMillis() + unit.toMillis(time)));
   }
 
   /**
@@ -277,8 +281,10 @@ public interface IPermissible extends INameable, IJsonDocPropertyable, Comparabl
    * @param permission  the permission to check
    * @return the result of this check
    */
-  default PermissionCheckResult hasPermission(@NotNull Collection<Permission> permissions,
-    @NotNull Permission permission) {
+  default PermissionCheckResult hasPermission(
+    @NotNull Collection<Permission> permissions,
+    @NotNull Permission permission
+  ) {
     return PermissionCheckResult.fromPermission(this.findMatchingPermission(permissions, permission));
   }
 
@@ -290,8 +296,10 @@ public interface IPermissible extends INameable, IJsonDocPropertyable, Comparabl
    * @param permission  the initial permission to check against.
    * @return the logic permission which has the highest potency.
    */
-  default @Nullable Permission findMatchingPermission(@NotNull Collection<Permission> permissions,
-    @NotNull Permission permission) {
+  default @Nullable Permission findMatchingPermission(
+    @NotNull Collection<Permission> permissions,
+    @NotNull Permission permission
+  ) {
     return CloudNetDriver.getInstance().getPermissionManagement().findHighestPermission(permissions, permission);
   }
 
@@ -304,8 +312,9 @@ public interface IPermissible extends INameable, IJsonDocPropertyable, Comparabl
    * @return the result of this check
    */
   default PermissionCheckResult hasPermission(@NotNull String group, @NotNull Permission permission) {
-    return this.getGroupPermissions().containsKey(group) ? this
-      .hasPermission(this.getGroupPermissions().get(group), permission) : PermissionCheckResult.DENIED;
+    return this.getGroupPermissions().containsKey(group)
+      ? this.hasPermission(this.getGroupPermissions().get(group), permission)
+      : PermissionCheckResult.DENIED;
   }
 
   /**
@@ -331,7 +340,7 @@ public interface IPermissible extends INameable, IJsonDocPropertyable, Comparabl
   }
 
   @Override
-  default int compareTo(IPermissible o) {
+  default int compareTo(@NotNull IPermissible o) {
     return this.getPotency() + o.getPotency();
   }
 }

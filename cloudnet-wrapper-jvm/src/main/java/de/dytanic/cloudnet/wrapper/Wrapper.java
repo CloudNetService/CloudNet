@@ -170,18 +170,17 @@ public final class Wrapper extends CloudNetDriver {
 
       condition.await();
 
+      if (!listener.wasAuthSuccessful()) {
+        throw new IllegalStateException("Unable to authorize wrapper with node");
+      }
     } finally {
       lock.unlock();
     }
 
     this.networkClient.getPacketRegistry().removeListener(NetworkConstants.INTERNAL_AUTHORIZATION_CHANNEL);
 
+
     this.permissionManagement.init();
-
-    if (!listener.isResult()) {
-      throw new IllegalStateException("authorization response is: denied");
-    }
-
     Runtime.getRuntime().addShutdownHook(new Thread(this::stop));
 
     if (!this.startApplication()) {

@@ -17,12 +17,23 @@
 package de.dytanic.cloudnet.permission;
 
 import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
-import de.dytanic.cloudnet.driver.permission.IPermissionManagementHandler;
+import de.dytanic.cloudnet.driver.permission.PermissionGroup;
+import de.dytanic.cloudnet.permission.handler.IPermissionManagementHandler;
+import java.util.Collection;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public interface NodePermissionManagement extends IPermissionManagement {
 
-  IPermissionManagementHandler getPermissionManagementHandler();
+  void addGroupSilently(@NotNull PermissionGroup permissionGroup);
 
-  void setPermissionManagementHandler(IPermissionManagementHandler permissionManagementHandler);
+  void updateGroupSilently(@NotNull PermissionGroup permissionGroup);
 
+  void deleteGroupSilently(@NotNull PermissionGroup permissionGroup);
+
+  void setGroupsSilently(@Nullable Collection<? extends PermissionGroup> groups);
+
+  @NotNull IPermissionManagementHandler getPermissionManagementHandler();
+
+  void setPermissionManagementHandler(@NotNull IPermissionManagementHandler permissionManagementHandler);
 }

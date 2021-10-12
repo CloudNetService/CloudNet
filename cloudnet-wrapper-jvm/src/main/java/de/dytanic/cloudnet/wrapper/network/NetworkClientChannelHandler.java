@@ -16,7 +16,6 @@
 
 package de.dytanic.cloudnet.wrapper.network;
 
-import de.dytanic.cloudnet.common.concurrent.CompletableTask;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.event.events.network.ChannelType;
 import de.dytanic.cloudnet.driver.event.events.network.NetworkChannelCloseEvent;
@@ -26,7 +25,6 @@ import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.INetworkChannelHandler;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import de.dytanic.cloudnet.driver.network.def.packet.PacketClientAuthorization;
-import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.network.protocol.Packet;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import org.jetbrains.annotations.NotNull;
@@ -52,19 +50,13 @@ public class NetworkClientChannelHandler implements INetworkChannelHandler {
 
   @Override
   public boolean handlePacketReceive(@NotNull INetworkChannel channel, @NotNull Packet packet) {
-    if (packet.getUniqueId() != null) {
-      CompletableTask<IPacket> waitingHandler = channel.getQueryPacketManager().getWaitingHandler(packet.getUniqueId());
-      if (waitingHandler != null) {
-        waitingHandler.complete(packet);
-      }
-    }
-    return !CloudNetDriver.getInstance().getEventManager()
-      .callEvent(new NetworkChannelPacketReceiveEvent(channel, packet)).isCancelled();
+    return !CloudNetDriver.getInstance().getEventManager().callEvent(
+      new NetworkChannelPacketReceiveEvent(channel, packet)).isCancelled();
   }
 
   @Override
   public void handleChannelClose(@NotNull INetworkChannel channel) {
-    CloudNetDriver.getInstance().getEventManager()
-      .callEvent(new NetworkChannelCloseEvent(channel, ChannelType.CLIENT_CHANNEL));
+    CloudNetDriver.getInstance().getEventManager().callEvent(
+      new NetworkChannelCloseEvent(channel, ChannelType.CLIENT_CHANNEL));
   }
 }

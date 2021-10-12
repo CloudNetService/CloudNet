@@ -27,69 +27,73 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public abstract class DefaultCachedPermissionManagement extends DefaultPermissionManagement implements
-  CachedPermissionManagement {
+public abstract class DefaultCachedPermissionManagement extends DefaultPermissionManagement
+  implements CachedPermissionManagement {
 
   protected final Map<UUID, AtomicInteger> permissionUserLocks = new ConcurrentHashMap<>();
-  protected final Cache<UUID, IPermissionUser> permissionUserCache = CacheBuilder.newBuilder()
+  protected final Map<String, AtomicInteger> permissionGroupLocks = new ConcurrentHashMap<>();
+
+  protected final Cache<UUID, PermissionUser> permissionUserCache = CacheBuilder.newBuilder()
     .expireAfterAccess(5, TimeUnit.MINUTES)
     .concurrencyLevel(4)
-    .removalListener(notification -> this
-      .handleUserRemove((UUID) notification.getKey(), (IPermissionUser) notification.getValue(),
-        notification.getCause()))
+    .removalListener(notification -> this.handleUserRemove(
+      (UUID) notification.getKey(),
+      (PermissionUser) notification.getValue(),
+      notification.getCause()))
     .build();
-  protected final Map<String, AtomicInteger> permissionGroupLocks = new ConcurrentHashMap<>();
-  protected final Cache<String, IPermissionGroup> permissionGroupCache = CacheBuilder.newBuilder()
+
+  protected final Cache<String, PermissionGroup> permissionGroupCache = CacheBuilder.newBuilder()
     .concurrencyLevel(4)
-    .removalListener(notification -> this
-      .handleGroupRemove((String) notification.getKey(), (IPermissionGroup) notification.getValue(),
-        notification.getCause()))
+    .removalListener(notification -> this.handleGroupRemove(
+      (String) notification.getKey(),
+      (PermissionGroup) notification.getValue(),
+      notification.getCause()))
     .build();
 
   @Override
-  public Map<UUID, IPermissionUser> getCachedPermissionUsers() {
+  public @NotNull Map<UUID, PermissionUser> getCachedPermissionUsers() {
     return this.permissionUserCache.asMap();
   }
 
   @Override
-  public Map<String, IPermissionGroup> getCachedPermissionGroups() {
+  public @NotNull Map<String, PermissionGroup> getCachedPermissionGroups() {
     return this.permissionGroupCache.asMap();
   }
 
   @Override
-  public @Nullable IPermissionUser getCachedUser(UUID uniqueId) {
+  public @Nullable PermissionUser getCachedUser(@NotNull UUID uniqueId) {
     return this.permissionUserCache.getIfPresent(uniqueId);
   }
 
   @Override
-  public @Nullable IPermissionGroup getCachedGroup(String name) {
+  public @Nullable PermissionGroup getCachedGroup(@NotNull String name) {
     return this.permissionGroupCache.getIfPresent(name);
   }
 
   @Override
-  public void acquireLock(IPermissionUser user) {
+  public void acquireLock(@NotNull PermissionUser user) {
     this.permissionUserLocks.computeIfAbsent(user.getUniqueId(), uuid -> new AtomicInteger()).incrementAndGet();
   }
 
   @Override
-  public void acquireLock(IPermissionGroup group) {
+  public void acquireLock(@NotNull PermissionGroup group) {
     this.permissionGroupLocks.computeIfAbsent(group.getName(), name -> new AtomicInteger()).incrementAndGet();
   }
 
   @Override
-  public boolean isLocked(IPermissionUser user) {
+  public boolean isLocked(@NotNull PermissionUser user) {
     AtomicInteger lockCount = this.permissionUserLocks.get(user.getUniqueId());
     return lockCount != null && lockCount.get() > 0;
   }
 
   @Override
-  public boolean isLocked(IPermissionGroup group) {
+  public boolean isLocked(@NotNull PermissionGroup group) {
     AtomicInteger lockCount = this.permissionGroupLocks.get(group.getName());
     return lockCount != null && lockCount.get() > 0;
   }
 
   @Override
-  public void unlock(IPermissionUser user) {
+  public void unlock(@NotNull PermissionUser user) {
     AtomicInteger lockCount = this.permissionUserLocks.get(user.getUniqueId());
     if (lockCount != null) {
       lockCount.decrementAndGet();
@@ -97,7 +101,7 @@ public abstract class DefaultCachedPermissionManagement extends DefaultPermissio
   }
 
   @Override
-  public void unlock(IPermissionGroup group) {
+  public void unlock(@NotNull PermissionGroup group) {
     AtomicInteger lockCount = this.permissionGroupLocks.get(group.getName());
     if (lockCount != null) {
       lockCount.decrementAndGet();
@@ -105,22 +109,22 @@ public abstract class DefaultCachedPermissionManagement extends DefaultPermissio
   }
 
   @Override
-  public void unlockFully(IPermissionUser user) {
+  public void unlockFully(@NotNull PermissionUser user) {
     this.permissionUserLocks.remove(user.getUniqueId());
   }
 
   @Override
-  public void unlockFully(IPermissionGroup group) {
+  public void unlockFully(@NotNull PermissionGroup group) {
     this.permissionGroupLocks.remove(group.getName());
   }
 
-  protected void handleUserRemove(@NotNull UUID key, @NotNull IPermissionUser user, @NotNull RemovalCause cause) {
+  protected void handleUserRemove(@NotNull UUID key, @NotNull PermissionUser user, @NotNull RemovalCause cause) {
     if (cause != RemovalCause.REPLACED && this.isLocked(user)) {
       this.permissionUserCache.put(key, user);
     }
   }
 
-  protected void handleGroupRemove(@NotNull String key, @NotNull IPermissionGroup group, @NotNull RemovalCause cause) {
+  protected void handleGroupRemove(@NotNull String key, @NotNull PermissionGroup group, @NotNull RemovalCause cause) {
     if (cause != RemovalCause.REPLACED && this.isLocked(group)) {
       this.permissionGroupCache.put(key, group);
     }

@@ -17,11 +17,11 @@
 package de.dytanic.cloudnet.driver.event.events.permission;
 
 import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
-import de.dytanic.cloudnet.driver.permission.IPermissionUser;
+import de.dytanic.cloudnet.driver.permission.PermissionUser;
 
 public final class PermissionAddUserEvent extends PermissionUserEvent {
 
-  public PermissionAddUserEvent(IPermissionManagement permissionManagement, IPermissionUser permissionUser) {
+  public PermissionAddUserEvent(IPermissionManagement permissionManagement, PermissionUser permissionUser) {
     super(permissionManagement, permissionUser);
   }
 }

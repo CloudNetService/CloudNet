@@ -23,25 +23,25 @@ import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.network.protocol.IPacketListener;
+import java.util.Collections;
 import org.jetbrains.annotations.NotNull;
 
 public final class PacketServerChannelMessageListener implements IPacketListener {
 
   @Override
-  public void handle(@NotNull INetworkChannel channel, IPacket packet) {
+  public void handle(@NotNull INetworkChannel channel, @NotNull IPacket packet) {
+    // read the channel message from the buffer
     ChannelMessage message = packet.getContent().readObject(ChannelMessage.class);
-    boolean query = packet.getContent().readBoolean();
-
-    ChannelMessageReceiveEvent event = new ChannelMessageReceiveEvent(message, query);
-    CloudNetDriver.getInstance().getEventManager().callEvent(event);
-
-    if (query) {
-      DataBuf.Mutable dataBuf = DataBuf.empty();
-      dataBuf.writeBoolean(event.getQueryResponse() != null);
-      if (event.getQueryResponse() != null) {
-        dataBuf.writeObject(event.getQueryResponse());
-      }
-      channel.sendPacket(packet.constructResponse(dataBuf));
+    // get the query response if available
+    ChannelMessage response = CloudNetDriver.getInstance().getEventManager().callEvent(
+      new ChannelMessageReceiveEvent(message, packet.getUniqueId() != null)).getQueryResponse();
+    // check if we need to respond to the channel message
+    if (response != null || packet.getUniqueId() != null) {
+      // respond either using the query result or an empty result
+      DataBuf content = response == null
+        ? DataBuf.empty()
+        : DataBuf.empty().writeObject(Collections.singleton(response));
+      channel.sendPacket(packet.constructResponse(content));
     }
   }
 }

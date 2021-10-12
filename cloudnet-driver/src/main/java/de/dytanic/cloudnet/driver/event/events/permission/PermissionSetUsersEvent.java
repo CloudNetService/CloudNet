@@ -17,21 +17,21 @@
 package de.dytanic.cloudnet.driver.event.events.permission;
 
 import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
-import de.dytanic.cloudnet.driver.permission.IPermissionUser;
+import de.dytanic.cloudnet.driver.permission.PermissionUser;
 import java.util.Collection;
 
 public final class PermissionSetUsersEvent extends PermissionEvent {
 
-  private final Collection<? extends IPermissionUser> users;
+  private final Collection<? extends PermissionUser> users;
 
   public PermissionSetUsersEvent(IPermissionManagement permissionManagement,
-    Collection<? extends IPermissionUser> users) {
+    Collection<? extends PermissionUser> users) {
     super(permissionManagement);
 
     this.users = users;
   }
 
-  public Collection<? extends IPermissionUser> getUsers() {
+  public Collection<? extends PermissionUser> getUsers() {
     return this.users;
   }
 }

@@ -27,7 +27,7 @@ import de.dytanic.cloudnet.driver.network.http.IHttpContext;
 import de.dytanic.cloudnet.driver.network.http.IHttpHandler;
 import de.dytanic.cloudnet.driver.network.http.IHttpRequest;
 import de.dytanic.cloudnet.driver.network.http.IHttpResponse;
-import de.dytanic.cloudnet.driver.permission.IPermissionUser;
+import de.dytanic.cloudnet.driver.permission.PermissionUser;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import org.jetbrains.annotations.NotNull;
@@ -90,7 +90,7 @@ public abstract class V2HttpHandler implements IHttpHandler {
           return;
         }
         // try the basic auth method
-        V2HttpAuthentication.LoginResult<IPermissionUser> user = this.authentication
+        V2HttpAuthentication.LoginResult<PermissionUser> user = this.authentication
           .handleBasicLoginRequest(context.request());
         if (user.isSuccess()) {
           if (this.testPermission(user.getResult(), context.request())) {
@@ -116,13 +116,13 @@ public abstract class V2HttpHandler implements IHttpHandler {
     this.send403(context, "Authentication required");
   }
 
-  protected void handleBasicAuthorized(String path, IHttpContext context, IPermissionUser user) throws Exception {
+  protected void handleBasicAuthorized(String path, IHttpContext context, PermissionUser user) throws Exception {
   }
 
   protected void handleBearerAuthorized(String path, IHttpContext context, HttpSession session) throws Exception {
   }
 
-  protected boolean testPermission(@NotNull IPermissionUser user, @NotNull IHttpRequest request) {
+  protected boolean testPermission(@NotNull PermissionUser user, @NotNull IHttpRequest request) {
     if (this.requiredPermission == null || this.requiredPermission.isEmpty()) {
       return true;
     } else {

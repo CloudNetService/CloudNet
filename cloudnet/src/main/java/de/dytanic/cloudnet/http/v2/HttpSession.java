@@ -16,7 +16,7 @@
 
 package de.dytanic.cloudnet.http.v2;
 
-import de.dytanic.cloudnet.driver.permission.IPermissionUser;
+import de.dytanic.cloudnet.driver.permission.PermissionUser;
 import java.util.Map;
 import java.util.UUID;
 import org.jetbrains.annotations.NotNull;
@@ -32,7 +32,7 @@ public interface HttpSession {
 
   @NotNull UUID getUserId();
 
-  IPermissionUser getUser();
+  PermissionUser getUser();
 
   <T> T getProperty(@NotNull String key);
 

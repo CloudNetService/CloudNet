@@ -21,7 +21,7 @@ import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.encrypt.EncryptTo;
 import de.dytanic.cloudnet.driver.network.http.HttpCookie;
 import de.dytanic.cloudnet.driver.network.http.IHttpContext;
-import de.dytanic.cloudnet.driver.permission.IPermissionUser;
+import de.dytanic.cloudnet.driver.permission.PermissionUser;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Collection;
@@ -66,8 +66,8 @@ public final class V1HttpSession {
       return false;
     }
 
-    List<IPermissionUser> permissionUsers = CloudNet.getInstance().getPermissionManagement().getUsers(credentials[0]);
-    IPermissionUser permissionUser = permissionUsers.stream()
+    List<PermissionUser> permissionUsers = CloudNet.getInstance().getPermissionManagement().getUsers(credentials[0]);
+    PermissionUser permissionUser = permissionUsers.stream()
       .filter(user -> user.checkPassword(credentials[1])).findFirst().orElse(null);
 
     if (permissionUser == null) {
@@ -142,7 +142,7 @@ public final class V1HttpSession {
     context.removeCookie(COOKIE_NAME);
   }
 
-  public IPermissionUser getUser(IHttpContext context) {
+  public PermissionUser getUser(IHttpContext context) {
     Preconditions.checkNotNull(context);
 
     SessionEntry sessionEntry = this.getValidSessionEntry(this.getCookieValue(context), context);
@@ -150,7 +150,7 @@ public final class V1HttpSession {
     return this.getUser(sessionEntry, context);
   }
 
-  private IPermissionUser getUser(SessionEntry sessionEntry, IHttpContext context) {
+  private PermissionUser getUser(SessionEntry sessionEntry, IHttpContext context) {
     if (sessionEntry == null || context == null) {
       return null;
     }

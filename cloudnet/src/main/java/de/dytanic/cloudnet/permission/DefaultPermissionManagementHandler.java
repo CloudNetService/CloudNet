@@ -13,98 +13,107 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/*
+
 package de.dytanic.cloudnet.permission;
 
-import de.dytanic.cloudnet.CloudNet;
-import de.dytanic.cloudnet.driver.CloudNetDriver;
+import de.dytanic.cloudnet.driver.channel.ChannelMessage;
+import de.dytanic.cloudnet.driver.event.IEventManager;
 import de.dytanic.cloudnet.driver.event.events.permission.PermissionAddGroupEvent;
 import de.dytanic.cloudnet.driver.event.events.permission.PermissionAddUserEvent;
 import de.dytanic.cloudnet.driver.event.events.permission.PermissionDeleteGroupEvent;
 import de.dytanic.cloudnet.driver.event.events.permission.PermissionDeleteUserEvent;
 import de.dytanic.cloudnet.driver.event.events.permission.PermissionSetGroupsEvent;
-import de.dytanic.cloudnet.driver.event.events.permission.PermissionSetUsersEvent;
 import de.dytanic.cloudnet.driver.event.events.permission.PermissionUpdateGroupEvent;
 import de.dytanic.cloudnet.driver.event.events.permission.PermissionUpdateUserEvent;
-import de.dytanic.cloudnet.driver.network.def.packet.PacketServerUpdatePermissions;
-import de.dytanic.cloudnet.driver.network.protocol.IPacket;
-import de.dytanic.cloudnet.driver.permission.IPermissionGroup;
+import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
+import de.dytanic.cloudnet.driver.network.def.NetworkConstants;
 import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
-import de.dytanic.cloudnet.driver.permission.IPermissionManagementHandler;
-import de.dytanic.cloudnet.driver.permission.IPermissionUser;
+import de.dytanic.cloudnet.driver.permission.PermissionGroup;
+import de.dytanic.cloudnet.driver.permission.PermissionUser;
+import de.dytanic.cloudnet.permission.handler.IPermissionManagementHandler;
 import java.util.Collection;
+import org.jetbrains.annotations.NotNull;
 
 public final class DefaultPermissionManagementHandler implements IPermissionManagementHandler {
 
-  @Override
-  public void handleAddUser(IPermissionManagement permissionManagement, IPermissionUser permissionUser) {
-    CloudNetDriver.getInstance().getEventManager()
-      .callEvent(new PermissionAddUserEvent(permissionManagement, permissionUser));
-    this.sendAll(new PacketServerUpdatePermissions(PacketServerUpdatePermissions.UpdateType.ADD_USER, permissionUser));
+  private final IEventManager eventManager;
+
+  public DefaultPermissionManagementHandler(@NotNull IEventManager eventManager) {
+    this.eventManager = eventManager;
   }
 
   @Override
-  public void handleUpdateUser(IPermissionManagement permissionManagement, IPermissionUser permissionUser) {
-    CloudNetDriver.getInstance().getEventManager()
-      .callEvent(new PermissionUpdateUserEvent(permissionManagement, permissionUser));
-    this
-      .sendAll(new PacketServerUpdatePermissions(PacketServerUpdatePermissions.UpdateType.UPDATE_USER, permissionUser));
+  public void handleAddUser(
+    @NotNull IPermissionManagement management,
+    @NotNull PermissionUser user
+  ) {
+    this.eventManager.callEvent(new PermissionAddUserEvent(management, user));
+    this.baseMessage("add_user").buffer(DataBuf.empty().writeObject(user)).build().send();
   }
 
   @Override
-  public void handleDeleteUser(IPermissionManagement permissionManagement, IPermissionUser permissionUser) {
-    CloudNetDriver.getInstance().getEventManager()
-      .callEvent(new PermissionDeleteUserEvent(permissionManagement, permissionUser));
-    this
-      .sendAll(new PacketServerUpdatePermissions(PacketServerUpdatePermissions.UpdateType.DELETE_USER, permissionUser));
+  public void handleUpdateUser(
+    @NotNull IPermissionManagement management,
+    @NotNull PermissionUser user
+  ) {
+    this.eventManager.callEvent(new PermissionUpdateUserEvent(management, user));
+    this.baseMessage("update_user").buffer(DataBuf.empty().writeObject(user)).build().send();
   }
 
   @Override
-  public void handleSetUsers(IPermissionManagement permissionManagement, Collection<? extends IPermissionUser> users) {
-    CloudNetDriver.getInstance().getEventManager().callEvent(new PermissionSetUsersEvent(permissionManagement, users));
-    this.sendAll(PacketServerUpdatePermissions.setUsers(users));
+  public void handleDeleteUser(
+    @NotNull IPermissionManagement management,
+    @NotNull PermissionUser user
+  ) {
+    this.eventManager.callEvent(new PermissionDeleteUserEvent(management, user));
+    this.baseMessage("delete_user").buffer(DataBuf.empty().writeObject(user)).build().send();
   }
 
   @Override
-  public void handleAddGroup(IPermissionManagement permissionManagement, IPermissionGroup permissionGroup) {
-    CloudNetDriver.getInstance().getEventManager()
-      .callEvent(new PermissionAddGroupEvent(permissionManagement, permissionGroup));
-    this
-      .sendAll(new PacketServerUpdatePermissions(PacketServerUpdatePermissions.UpdateType.ADD_GROUP, permissionGroup));
+  public void handleAddGroup(
+    @NotNull IPermissionManagement management,
+    @NotNull PermissionGroup group
+  ) {
+    this.eventManager.callEvent(new PermissionAddGroupEvent(management, group));
+    this.baseMessage("add_group").buffer(DataBuf.empty().writeObject(group)).build().send();
   }
 
   @Override
-  public void handleUpdateGroup(IPermissionManagement permissionManagement, IPermissionGroup permissionGroup) {
-    CloudNetDriver.getInstance().getEventManager()
-      .callEvent(new PermissionUpdateGroupEvent(permissionManagement, permissionGroup));
-    this.sendAll(
-      new PacketServerUpdatePermissions(PacketServerUpdatePermissions.UpdateType.UPDATE_GROUP, permissionGroup));
+  public void handleUpdateGroup(
+    @NotNull IPermissionManagement management,
+    @NotNull PermissionGroup group
+  ) {
+    this.eventManager.callEvent(new PermissionUpdateGroupEvent(management, group));
+    this.baseMessage("update_group").buffer(DataBuf.empty().writeObject(group)).build().send();
   }
 
   @Override
-  public void handleDeleteGroup(IPermissionManagement permissionManagement, IPermissionGroup permissionGroup) {
-    CloudNetDriver.getInstance().getEventManager()
-      .callEvent(new PermissionDeleteGroupEvent(permissionManagement, permissionGroup));
-    this.sendAll(
-      new PacketServerUpdatePermissions(PacketServerUpdatePermissions.UpdateType.DELETE_GROUP, permissionGroup));
+  public void handleDeleteGroup(
+    @NotNull IPermissionManagement management,
+    @NotNull PermissionGroup group
+  ) {
+    this.eventManager.callEvent(new PermissionDeleteGroupEvent(management, group));
+    this.baseMessage("delete_group").buffer(DataBuf.empty().writeObject(group)).build().send();
   }
 
   @Override
-  public void handleSetGroups(IPermissionManagement permissionManagement,
-    Collection<? extends IPermissionGroup> groups) {
-    CloudNetDriver.getInstance().getEventManager()
-      .callEvent(new PermissionSetGroupsEvent(permissionManagement, groups));
-    this.sendAll(PacketServerUpdatePermissions.setGroups(groups));
+  public void handleSetGroups(
+    @NotNull IPermissionManagement management,
+    @NotNull Collection<? extends PermissionGroup> groups
+  ) {
+    this.eventManager.callEvent(new PermissionSetGroupsEvent(management, groups));
+    this.baseMessage("set_groups").buffer(DataBuf.empty().writeObject(groups)).build().send();
   }
 
   @Override
-  public void handleReloaded(IPermissionManagement permissionManagement) {
-    this.sendAll(PacketServerUpdatePermissions.setGroups(permissionManagement.getGroups()));
+  public void handleReloaded(@NotNull IPermissionManagement management) {
+    this.handleSetGroups(management, management.getGroups());
   }
 
-  private void sendAll(IPacket packet) {
-    // TODO CloudNet.getInstance().sendAll(packet);
+  private @NotNull ChannelMessage.Builder baseMessage(@NotNull String subMessage) {
+    return ChannelMessage.builder()
+      .targetAll()
+      .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
+      .message("permissions_" + subMessage);
   }
-
 }
-*/

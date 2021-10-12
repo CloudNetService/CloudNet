@@ -18,31 +18,32 @@ package de.dytanic.cloudnet.driver.permission;
 
 import java.util.Map;
 import java.util.UUID;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public interface CachedPermissionManagement extends IPermissionManagement {
 
-  Map<UUID, IPermissionUser> getCachedPermissionUsers();
+  @NotNull Map<UUID, PermissionUser> getCachedPermissionUsers();
 
-  Map<String, IPermissionGroup> getCachedPermissionGroups();
+  @NotNull Map<String, PermissionGroup> getCachedPermissionGroups();
 
-  @Nullable IPermissionUser getCachedUser(UUID uniqueId);
+  @Nullable PermissionUser getCachedUser(@NotNull UUID uniqueId);
 
-  @Nullable IPermissionGroup getCachedGroup(String name);
+  @Nullable PermissionGroup getCachedGroup(@NotNull String name);
 
-  void acquireLock(IPermissionUser user);
+  void acquireLock(@NotNull PermissionUser user);
 
-  void acquireLock(IPermissionGroup group);
+  void acquireLock(@NotNull PermissionGroup group);
 
-  boolean isLocked(IPermissionUser user);
+  boolean isLocked(@NotNull PermissionUser user);
 
-  boolean isLocked(IPermissionGroup group);
+  boolean isLocked(@NotNull PermissionGroup group);
 
-  void unlock(IPermissionUser user);
+  void unlock(@NotNull PermissionUser user);
 
-  void unlock(IPermissionGroup group);
+  void unlock(@NotNull PermissionGroup group);
 
-  void unlockFully(IPermissionUser user);
+  void unlockFully(@NotNull PermissionUser user);
 
-  void unlockFully(IPermissionGroup group);
+  void unlockFully(@NotNull PermissionGroup group);
 }

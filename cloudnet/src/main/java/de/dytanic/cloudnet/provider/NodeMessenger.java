@@ -88,7 +88,7 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
     for (INetworkChannel channel : channels) {
       channel.sendQueryAsync(new PacketServerChannelMessage(message)).onComplete(resultPacket -> {
         // check if we got an actual result from the request
-        if (resultPacket != Packet.EMPTY) {
+        if (resultPacket != Packet.EMPTY && resultPacket.getContent().getReadableBytes() > 0) {
           // add all resulting messages we got
           result.addAll(resultPacket.getContent().readObject(COL_MSG));
         }

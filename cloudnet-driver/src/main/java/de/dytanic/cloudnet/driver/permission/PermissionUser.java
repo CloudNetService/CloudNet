@@ -16,72 +16,120 @@
 
 package de.dytanic.cloudnet.driver.permission;
 
+import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.encrypt.EncryptTo;
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-/**
- * The default implementation of the IPermissionUser class. This class should use if you want to add new PermissionUsers
- * into the IPermissionManagement implementation
- */
 @ToString
 @EqualsAndHashCode(callSuper = false)
-public class PermissionUser extends AbstractPermissible implements IPermissionUser {
-
-  @Deprecated
-  public static final Type TYPE = PermissionUser.class;
+public class PermissionUser extends AbstractPermissible {
 
   protected UUID uniqueId;
-
+  protected String hashedPassword;
   protected Collection<PermissionUserGroupInfo> groups;
-
-  private String hashedPassword;
 
   public PermissionUser(@NotNull UUID uniqueId, @NotNull String name, @Nullable String password, int potency) {
     this.uniqueId = uniqueId;
     this.name = name;
-    this.hashedPassword =
-      password == null ? null : Base64.getEncoder().encodeToString(EncryptTo.encryptToSHA256(password));
+    this.hashedPassword = password == null
+      ? null
+      : Base64.getEncoder().encodeToString(EncryptTo.encryptToSHA256(password));
     this.potency = potency;
     this.groups = new ArrayList<>();
   }
 
-  public PermissionUser() {
+  public PermissionUser(
+    @NotNull UUID uniqueId,
+    @NotNull String hashedPassword,
+    @NotNull Collection<PermissionUserGroupInfo> groups,
+    @NotNull String name,
+    int potency,
+    long createdTime,
+    @NotNull List<Permission> permissions,
+    @NotNull Map<String, Collection<Permission>> groupPermissions,
+    @NotNull JsonDocument properties
+  ) {
+    super(name, potency, createdTime, permissions, groupPermissions, properties);
+    this.uniqueId = uniqueId;
+    this.hashedPassword = hashedPassword;
+    this.groups = groups;
   }
 
-  public void changePassword(String password) {
-    this.hashedPassword =
-      password == null ? null : Base64.getEncoder().encodeToString(EncryptTo.encryptToSHA256(password));
+  public void changePassword(@Nullable String password) {
+    this.hashedPassword = password == null
+      ? null
+      : Base64.getEncoder().encodeToString(EncryptTo.encryptToSHA256(password));
   }
 
-  public boolean checkPassword(String password) {
-    return this.hashedPassword != null && password != null && this.hashedPassword
-      .equals(Base64.getEncoder().encodeToString(EncryptTo.encryptToSHA256(password)));
+  public boolean checkPassword(@Nullable String password) {
+    return this.hashedPassword != null
+      && password != null
+      && this.hashedPassword.equals(Base64.getEncoder().encodeToString(EncryptTo.encryptToSHA256(password)));
   }
 
-  @NotNull
-  public UUID getUniqueId() {
+  public @NotNull UUID getUniqueId() {
     return this.uniqueId;
   }
 
-  public Collection<PermissionUserGroupInfo> getGroups() {
+  public @NotNull Collection<PermissionUserGroupInfo> getGroups() {
     return this.groups;
   }
 
-  public String getHashedPassword() {
+  public @NotNull String getHashedPassword() {
     return this.hashedPassword;
   }
 
   @Override
-  public Collection<String> getGroupNames() {
+  public @NotNull Collection<String> getGroupNames() {
     return this.getGroups().stream().map(PermissionUserGroupInfo::getGroup).collect(Collectors.toList());
+  }
+
+  public @NotNull Optional<PermissionUserGroupInfo> getAssignedGroup(@NotNull String group) {
+    return this.groups.stream().filter(info -> info.getGroup().equalsIgnoreCase(group)).findFirst();
+  }
+
+  public @NotNull PermissionUser addGroup(@NotNull String group) {
+    return this.addGroup(group, 0L);
+  }
+
+  public @NotNull PermissionUser addGroup(@NotNull String group, long time, @NotNull TimeUnit timeUnit) {
+    return this.addGroup(group, System.currentTimeMillis() + timeUnit.toMillis(time));
+  }
+
+  public @NotNull PermissionUser addGroup(@NotNull String group, long timeOutMillis) {
+    PermissionUserGroupInfo groupInfo = this.getGroups().stream()
+      .filter(info -> info.getGroup().equalsIgnoreCase(group))
+      .findFirst()
+      .orElse(null);
+    // remove the old group before adding the new one
+    if (groupInfo != null) {
+      this.removeGroup(groupInfo.getGroup());
+    }
+    // add the new group info
+    groupInfo = new PermissionUserGroupInfo(group, timeOutMillis);
+    this.getGroups().add(groupInfo);
+    // for chaining
+    return this;
+  }
+
+  public @NotNull PermissionUser removeGroup(@NotNull String group) {
+    this.groups.removeIf(info -> info.getGroup().equalsIgnoreCase(group));
+    return this;
+  }
+
+  public @NotNull boolean inGroup(@NotNull String group) {
+    return this.getGroups().stream().anyMatch(info -> info.getGroup().equalsIgnoreCase(group));
   }
 }

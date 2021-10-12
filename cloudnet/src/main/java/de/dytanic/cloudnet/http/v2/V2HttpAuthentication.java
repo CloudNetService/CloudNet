@@ -22,7 +22,7 @@ import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.network.http.IHttpRequest;
-import de.dytanic.cloudnet.driver.permission.IPermissionUser;
+import de.dytanic.cloudnet.driver.permission.PermissionUser;
 import de.dytanic.cloudnet.http.v2.ticket.WebSocketTicketManager;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -62,7 +62,7 @@ public class V2HttpAuthentication {
     "Unable to process bearer login");
   protected static final LoginResult<HttpSession> ERROR_HANDLING_BEARER_LOGIN_USER_GONE = LoginResult.failure(
     "Unable to process bearer login: user gone");
-  protected static final LoginResult<IPermissionUser> ERROR_HANDLING_BASIC_LOGIN = LoginResult.failure(
+  protected static final LoginResult<PermissionUser> ERROR_HANDLING_BASIC_LOGIN = LoginResult.failure(
     "No matching user for provided basic login credentials");
 
   protected static final Logger LOGGER = LogManager.getLogger(V2HttpAuthentication.class);
@@ -78,13 +78,13 @@ public class V2HttpAuthentication {
     this.webSocketTicketManager = webSocketTicketManager;
   }
 
-  public @NotNull String createJwt(@NotNull IPermissionUser subject, long sessionTimeMillis) {
+  public @NotNull String createJwt(@NotNull PermissionUser subject, long sessionTimeMillis) {
     HttpSession session = this.getSessions().computeIfAbsent(subject.getUniqueId().toString(),
       userUniqueId -> new DefaultHttpSession(System.currentTimeMillis() + sessionTimeMillis, subject.getUniqueId()));
     return this.generateJwt(subject, session);
   }
 
-  public @NotNull LoginResult<IPermissionUser> handleBasicLoginRequest(@NotNull IHttpRequest request) {
+  public @NotNull LoginResult<PermissionUser> handleBasicLoginRequest(@NotNull IHttpRequest request) {
     String authenticationHeader = request.header("Authorization");
     if (authenticationHeader == null) {
       return LoginResult.undefinedFailure();
@@ -95,8 +95,8 @@ public class V2HttpAuthentication {
       String[] credentials = new String(Base64.getDecoder().decode(matcher.group(1)), StandardCharsets.UTF_8)
         .split(":");
       if (credentials.length == 2) {
-        List<IPermissionUser> users = CloudNetDriver.getInstance().getPermissionManagement().getUsers(credentials[0]);
-        for (IPermissionUser user : users) {
+        List<PermissionUser> users = CloudNetDriver.getInstance().getPermissionManagement().getUsers(credentials[0]);
+        for (PermissionUser user : users) {
           if (user.checkPassword(credentials[1])) {
             return LoginResult.success(user);
           }
@@ -120,7 +120,7 @@ public class V2HttpAuthentication {
         Jws<Claims> jws = PARSER.parseClaimsJws(matcher.group(1));
         HttpSession session = this.getSessionById(jws.getBody().getId());
         if (session != null) {
-          IPermissionUser user = session.getUser();
+          PermissionUser user = session.getUser();
           if (user == null) {
             // the user associated with the session no longer exists
             this.sessions.remove(session.getUserId().toString());
@@ -182,7 +182,7 @@ public class V2HttpAuthentication {
     return null;
   }
 
-  protected @NotNull String generateJwt(@NotNull IPermissionUser subject, @NotNull HttpSession session) {
+  protected @NotNull String generateJwt(@NotNull PermissionUser subject, @NotNull HttpSession session) {
     return Jwts.builder()
       .setIssuer(ISSUER)
       .signWith(SIGN_KEY)

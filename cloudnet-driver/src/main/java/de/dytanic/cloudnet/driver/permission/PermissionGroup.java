@@ -16,69 +16,71 @@
 
 package de.dytanic.cloudnet.driver.permission;
 
+import com.google.gson.reflect.TypeToken;
+import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
+import java.util.List;
+import java.util.Map;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * The default implementation of the IPermissionGroup class. This class should use if you want to add new
- * PermissionGroups into the IPermissionManagement implementation
+ * This interfaces provides access to the properties of a permission group
  */
-@ToString
-@EqualsAndHashCode(callSuper = false)
-public class PermissionGroup extends AbstractPermissible implements IPermissionGroup {
+public class PermissionGroup extends AbstractPermissible {
 
-  @Deprecated
-  public static final Type TYPE = PermissionGroup.class;
+  public static final Type COL_GROUPS = TypeToken.getParameterized(Collection.class, PermissionGroup.class).getType();
+
+  protected String color = "&7";
+  protected String prefix = "&7";
+  protected String suffix = "&f";
+  protected String display = "&7";
+
+  protected int sortId = 0;
+  protected boolean defaultGroup = false;
 
   protected Collection<String> groups = new ArrayList<>();
 
-  private String prefix = "&7";
-  private String color = "&7";
-  private String suffix = "&f";
-  private String display = "&7";
-
-  private int sortId = 0;
-
-  private boolean defaultGroup = false;
-
-  public PermissionGroup() {
-  }
-
-  public PermissionGroup(String name, int potency) {
-    super();
-
+  public PermissionGroup(@NotNull String name, int potency) {
     this.name = name;
     this.potency = potency;
   }
 
-  public PermissionGroup(String name, int potency, Collection<String> groups, String prefix, String color,
-    String suffix, String display, int sortId, boolean defaultGroup) {
-    super();
-
-    this.name = name;
-    this.potency = potency;
-    this.groups = groups;
-    this.prefix = prefix;
+  public PermissionGroup(
+    @NotNull String color,
+    @NotNull String prefix,
+    @NotNull String suffix,
+    @NotNull String display,
+    int sortId,
+    boolean defaultGroup,
+    @NotNull Collection<String> groups,
+    @NotNull String name,
+    int potency,
+    long createdTime,
+    @NotNull List<Permission> permissions,
+    @NotNull Map<String, Collection<Permission>> groupPermissions,
+    @NotNull JsonDocument properties
+  ) {
+    super(name, potency, createdTime, permissions, groupPermissions, properties);
     this.color = color;
+    this.prefix = prefix;
     this.suffix = suffix;
     this.display = display;
     this.sortId = sortId;
     this.defaultGroup = defaultGroup;
-  }
-
-  public Collection<String> getGroups() {
-    return this.groups;
-  }
-
-  public void setGroups(Collection<String> groups) {
     this.groups = groups;
   }
 
-  public String getPrefix() {
+  public @NotNull Collection<String> getGroups() {
+    return this.groups;
+  }
+
+  public void setGroups(@NotNull Collection<String> groups) {
+    this.groups = groups;
+  }
+
+  public @NotNull String getPrefix() {
     return this.prefix;
   }
 
@@ -86,7 +88,7 @@ public class PermissionGroup extends AbstractPermissible implements IPermissionG
     this.prefix = prefix;
   }
 
-  public String getColor() {
+  public @NotNull String getColor() {
     return this.color;
   }
 
@@ -94,7 +96,7 @@ public class PermissionGroup extends AbstractPermissible implements IPermissionG
     this.color = color;
   }
 
-  public String getSuffix() {
+  public @NotNull String getSuffix() {
     return this.suffix;
   }
 
@@ -102,7 +104,7 @@ public class PermissionGroup extends AbstractPermissible implements IPermissionG
     this.suffix = suffix;
   }
 
-  public String getDisplay() {
+  public @NotNull String getDisplay() {
     return this.display;
   }
 
@@ -127,7 +129,7 @@ public class PermissionGroup extends AbstractPermissible implements IPermissionG
   }
 
   @Override
-  public Collection<String> getGroupNames() {
+  public @NotNull Collection<String> getGroupNames() {
     return this.getGroups();
   }
 }

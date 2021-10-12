@@ -17,6 +17,7 @@
 package de.dytanic.cloudnet.driver.permission;
 
 import de.dytanic.cloudnet.common.document.gson.BasicJsonDocPropertyable;
+import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.jetbrains.annotations.NotNull;
@@ -26,7 +27,6 @@ import org.jetbrains.annotations.NotNull;
 public class PermissionUserGroupInfo extends BasicJsonDocPropertyable {
 
   protected String group;
-
   protected long timeOutMillis;
 
   public PermissionUserGroupInfo(@NotNull String group, long timeOutMillis) {
@@ -34,11 +34,13 @@ public class PermissionUserGroupInfo extends BasicJsonDocPropertyable {
     this.timeOutMillis = timeOutMillis;
   }
 
-  public PermissionUserGroupInfo() {
+  public PermissionUserGroupInfo(@NotNull String group, long timeOutMillis, @NotNull JsonDocument properties) {
+    this.group = group;
+    this.timeOutMillis = timeOutMillis;
+    this.properties = properties;
   }
 
-  @NotNull
-  public String getGroup() {
+  public @NotNull String getGroup() {
     return this.group;
   }
 

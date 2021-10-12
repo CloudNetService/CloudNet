@@ -23,7 +23,6 @@ import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.console.IConsole;
 import de.dytanic.cloudnet.console.animation.questionlist.ConsoleQuestionListAnimation;
-import de.dytanic.cloudnet.driver.permission.IPermissionGroup;
 import de.dytanic.cloudnet.driver.permission.PermissionGroup;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -111,7 +110,7 @@ public class DefaultInstallation {
   public void initDefaultPermissionGroups() {
     if (CloudNet.getInstance().getPermissionManagement().getGroups().isEmpty()
       && System.getProperty("cloudnet.default.permissions.skip") == null) {
-      IPermissionGroup adminPermissionGroup = new PermissionGroup("Admin", 100);
+      PermissionGroup adminPermissionGroup = new PermissionGroup("Admin", 100);
       adminPermissionGroup.addPermission("*");
       adminPermissionGroup.addPermission("Proxy", "*");
       adminPermissionGroup.setPrefix("&4Admin &8| &7");
@@ -122,7 +121,7 @@ public class DefaultInstallation {
 
       CloudNet.getInstance().getPermissionManagement().addGroup(adminPermissionGroup);
 
-      IPermissionGroup defaultPermissionGroup = new PermissionGroup("default", 100);
+      PermissionGroup defaultPermissionGroup = new PermissionGroup("default", 100);
       defaultPermissionGroup.addPermission("bukkit.broadcast.user", true);
       defaultPermissionGroup.setDefaultGroup(true);
       defaultPermissionGroup.setPrefix("&7");

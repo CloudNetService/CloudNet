@@ -156,20 +156,34 @@ public abstract class CloudNetDriver {
   /**
    * Sets an {@link IPermissionManagement} as current PermissionManagement.
    *
-   * @param permissionManagement the {@link IPermissionManagement} to be set
+   * @param management the {@link IPermissionManagement} to be set
    * @throws IllegalStateException if the current {@link IPermissionManagement} does not allow overwriting it and the
    *                               class names are not the same
    */
-  public void setPermissionManagement(@NotNull IPermissionManagement permissionManagement) {
-    Preconditions.checkNotNull(permissionManagement, "new permission management is null");
-
-    if (this.permissionManagement != null && !this.permissionManagement.canBeOverwritten() && !this.permissionManagement
-      .getClass().getName().equals(permissionManagement.getClass().getName())) {
-      throw new IllegalStateException("Current permission management (" + this.permissionManagement.getClass().getName()
-        + ") cannot be overwritten by " + permissionManagement.getClass().getName());
+  public void setPermissionManagement(@NotNull IPermissionManagement management) {
+    Preconditions.checkNotNull(management, "new permission management is null");
+    // if there is no old permission management or the old permission management can be overridden
+    // we can just set the new one
+    if (this.permissionManagement == null || this.permissionManagement.canBeOverwritten()) {
+      // close the old permission management
+      if (this.permissionManagement != null) {
+        this.permissionManagement.close();
+      }
+      // update the current permission management
+      this.permissionManagement = management;
+      return;
     }
-
-    this.permissionManagement = permissionManagement;
+    // check if the new permission management is assignable to the old permission management
+    if (this.permissionManagement.getClass().isAssignableFrom(management.getClass())) {
+      this.permissionManagement.close();
+      this.permissionManagement = management;
+      return;
+    }
+    // the permission management cannot be set
+    throw new IllegalArgumentException(String.format(
+      "Permission management %s does not meet the requirements to override the current permission management %s",
+      management,
+      this.permissionManagement));
   }
 
   /**
