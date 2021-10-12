@@ -20,14 +20,12 @@ import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.driver.event.IEventManager;
 import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
 import de.dytanic.cloudnet.service.ICloudService;
-import de.dytanic.cloudnet.service.ICloudServiceFactory;
 import de.dytanic.cloudnet.service.ICloudServiceManager;
 import de.dytanic.cloudnet.service.ServiceConfigurationPreparer;
 import de.dytanic.cloudnet.service.defaults.JVMService;
-import de.dytanic.cloudnet.util.PortValidator;
 import org.jetbrains.annotations.NotNull;
 
-public class JVMServiceFactory implements ICloudServiceFactory {
+public class JVMServiceFactory extends AbstractServiceFactory {
 
   private final CloudNet nodeInstance;
   private final IEventManager eventManager;
@@ -42,29 +40,13 @@ public class JVMServiceFactory implements ICloudServiceFactory {
     @NotNull ICloudServiceManager manager,
     @NotNull ServiceConfiguration configuration
   ) {
+    // validates the settings of the configuration
+    this.validateConfiguration(manager, configuration);
     // select the configuration preparer for the environment
     ServiceConfigurationPreparer preparer = manager
       .getServicePreparer(configuration.getProcessConfig().getEnvironment())
       .orElseThrow(() -> new IllegalArgumentException("Unable to prepare config for " + configuration.getServiceId()));
-    // find a free port for the service
-    int port = configuration.getPort();
-    while (this.isPortInUse(manager, port)) {
-      port++;
-    }
-    // set the port
-    configuration.setPort(port);
     // create the service
     return new JVMService(configuration, manager, this.eventManager, this.nodeInstance, preparer);
-  }
-
-  protected boolean isPortInUse(@NotNull ICloudServiceManager manager, int port) {
-    // check if any local service has the port
-    for (ICloudService cloudService : manager.getLocalCloudServices()) {
-      if (cloudService.getServiceConfiguration().getPort() == port) {
-        return true;
-      }
-    }
-    // validate that the port is free
-    return !PortValidator.checkPort(port);
   }
 }

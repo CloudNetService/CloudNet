@@ -115,7 +115,13 @@ public class DefaultObjectMapperTest {
     return Stream.of(
       Arguments.of(new AllPrimitiveTypesDataClass()),
       Arguments.of(new ThreadSnapshot(Thread.currentThread())),
-      Arguments.of(new ServiceId(UUID.randomUUID(), "Node-1", "Lobby", 1, ServiceEnvironmentType.GLOWSTONE)),
+      Arguments.of(new ServiceId(
+        UUID.randomUUID(),
+        "Lobby",
+        1,
+        "Node-1",
+        Collections.emptyList(),
+        ServiceEnvironmentType.GLOWSTONE)),
       Arguments.of(new ServiceInfoSnapshot(
         System.currentTimeMillis(),
         new HostAndPort("127.0.1.1", 99),
@@ -200,6 +206,7 @@ public class DefaultObjectMapperTest {
   @Order(50)
   @ParameterizedTest
   @MethodSource("optionalDataProvider")
+  @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
   <T> void testOptionalSerialization(Optional<T> o, Type parameterType) {
     ObjectMapper mapper = new DefaultObjectMapper();
     DataBuf.Mutable buf = DataBuf.empty();
