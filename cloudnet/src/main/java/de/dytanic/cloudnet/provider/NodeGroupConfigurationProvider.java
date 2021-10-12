@@ -20,10 +20,14 @@ import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;
+import de.dytanic.cloudnet.driver.event.IEventManager;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import de.dytanic.cloudnet.driver.network.def.NetworkConstants;
 import de.dytanic.cloudnet.driver.provider.GroupConfigurationProvider;
 import de.dytanic.cloudnet.driver.service.GroupConfiguration;
+import de.dytanic.cloudnet.event.group.LocalGroupConfigurationAddEvent;
+import de.dytanic.cloudnet.event.group.LocalGroupConfigurationRemoveEvent;
+import de.dytanic.cloudnet.network.listener.message.GroupChannelMessageListener;
 import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -47,9 +51,13 @@ public class NodeGroupConfigurationProvider implements GroupConfigurationProvide
 
   private static final Type TYPE = TypeToken.getParameterized(Collection.class, GroupConfiguration.class).getType();
 
+  private final IEventManager eventManager;
   private final Set<GroupConfiguration> groupConfigurations = ConcurrentHashMap.newKeySet();
 
-  public NodeGroupConfigurationProvider() {
+  public NodeGroupConfigurationProvider(@NotNull IEventManager eventManager) {
+    this.eventManager = eventManager;
+    this.eventManager.registerListener(new GroupChannelMessageListener(eventManager, this));
+
     if (Files.exists(GROUP_DIRECTORY_PATH)) {
       this.loadGroupConfigurations();
     } else {
@@ -74,14 +82,10 @@ public class NodeGroupConfigurationProvider implements GroupConfigurationProvide
 
   @Override
   public void setGroupConfigurations(@NotNull Collection<GroupConfiguration> groupConfigurations) {
-    // update the local cache
-    this.groupConfigurations.clear();
-    this.groupConfigurations.addAll(groupConfigurations);
-    // save the group files
-    this.writeAllGroupConfigurations();
+    this.setGroupConfigurationsSilently(groupConfigurations);
     // publish the change to the cluster
     ChannelMessage.builder()
-      .targetAll()
+      .targetNodes()
       .message("set_group_configurations")
       .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
       .buffer(DataBuf.empty().writeObject(groupConfigurations))
@@ -104,18 +108,17 @@ public class NodeGroupConfigurationProvider implements GroupConfigurationProvide
 
   @Override
   public void addGroupConfiguration(@NotNull GroupConfiguration groupConfiguration) {
-    // add the group to the local cache
-    this.groupConfigurations.add(groupConfiguration);
-    // store the configuration files
-    this.writeAllGroupConfigurations();
-    // publish the change to the cluster
-    ChannelMessage.builder()
-      .targetAll()
-      .message("add_group_configuration")
-      .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
-      .buffer(DataBuf.empty().writeObject(groupConfiguration))
-      .build()
-      .send();
+    if (!this.eventManager.callEvent(new LocalGroupConfigurationAddEvent(groupConfiguration)).isCancelled()) {
+      this.addGroupConfigurationSilently(groupConfiguration);
+      // publish the change to the cluster
+      ChannelMessage.builder()
+        .targetAll()
+        .message("add_group_configuration")
+        .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
+        .buffer(DataBuf.empty().writeObject(groupConfiguration))
+        .build()
+        .send();
+    }
   }
 
   @Override
@@ -128,18 +131,39 @@ public class NodeGroupConfigurationProvider implements GroupConfigurationProvide
 
   @Override
   public void removeGroupConfiguration(@NotNull GroupConfiguration groupConfiguration) {
+    if (!this.eventManager.callEvent(new LocalGroupConfigurationRemoveEvent(groupConfiguration)).isCancelled()) {
+      this.removeGroupConfigurationSilently(groupConfiguration);
+      // publish the change to the cluster
+      ChannelMessage.builder()
+        .targetAll()
+        .message("remove_group_configuration")
+        .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
+        .buffer(DataBuf.empty().writeObject(groupConfiguration))
+        .build()
+        .send();
+    }
+  }
+
+  public void addGroupConfigurationSilently(@NotNull GroupConfiguration groupConfiguration) {
+    // add the group to the local cache
+    this.groupConfigurations.add(groupConfiguration);
+    // store the configuration files
+    this.writeAllGroupConfigurations();
+  }
+
+  public void removeGroupConfigurationSilently(@NotNull GroupConfiguration groupConfiguration) {
     // remove the group from the cache
     this.groupConfigurations.remove(groupConfiguration);
     // remove the local file
     FileUtils.delete(this.getGroupFile(groupConfiguration));
-    // publish the change to the cluster
-    ChannelMessage.builder()
-      .targetAll()
-      .message("remove_group_configuration")
-      .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
-      .buffer(DataBuf.empty().writeObject(groupConfiguration))
-      .build()
-      .send();
+  }
+
+  public void setGroupConfigurationsSilently(@NotNull Collection<GroupConfiguration> groupConfigurations) {
+    // update the local cache
+    this.groupConfigurations.clear();
+    this.groupConfigurations.addAll(groupConfigurations);
+    // save the group files
+    this.writeAllGroupConfigurations();
   }
 
   @Internal

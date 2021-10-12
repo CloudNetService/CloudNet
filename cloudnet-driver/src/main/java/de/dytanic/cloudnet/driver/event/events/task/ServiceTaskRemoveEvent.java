@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.driver.event.events.service.task;
+package de.dytanic.cloudnet.driver.event.events.task;
 
 import de.dytanic.cloudnet.driver.event.Event;
 import de.dytanic.cloudnet.driver.service.ServiceTask;
 
-public final class ServiceTaskAddEvent extends Event {
+public class ServiceTaskRemoveEvent extends Event {
 
   private final ServiceTask task;
 
-  public ServiceTaskAddEvent(ServiceTask task) {
+  public ServiceTaskRemoveEvent(ServiceTask task) {
     this.task = task;
   }
 

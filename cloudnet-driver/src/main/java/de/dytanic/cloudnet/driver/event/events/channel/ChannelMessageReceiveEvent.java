@@ -22,6 +22,8 @@ import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.driver.channel.ChannelMessageSender;
 import de.dytanic.cloudnet.driver.channel.ChannelMessageTarget;
 import de.dytanic.cloudnet.driver.event.Event;
+import de.dytanic.cloudnet.driver.event.events.network.NetworkEvent;
+import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import java.util.Collection;
 import org.jetbrains.annotations.NotNull;
@@ -31,14 +33,20 @@ import org.jetbrains.annotations.Nullable;
  * This event is being called whenever a channel message is received. You can send channel messages with the methods in
  * {@link CloudNetDriver#getMessenger()}.
  */
-public final class ChannelMessageReceiveEvent extends Event {
+public final class ChannelMessageReceiveEvent extends NetworkEvent {
 
   private final ChannelMessage channelMessage;
   private final boolean query;
 
   private ChannelMessage queryResponse;
 
-  public ChannelMessageReceiveEvent(@NotNull ChannelMessage message, boolean query) {
+  public ChannelMessageReceiveEvent(
+    @NotNull ChannelMessage message,
+    @NotNull INetworkChannel networkChannel,
+    boolean query
+  ) {
+    super(networkChannel);
+
     this.channelMessage = message;
     this.query = query;
   }

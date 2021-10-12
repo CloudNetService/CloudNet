@@ -1,0 +1,56 @@
+/*
+ * Copyright 2019-2021 CloudNetService team & contributors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package de.dytanic.cloudnet.driver.network.chunk.defaults.factory;
+
+import de.dytanic.cloudnet.driver.CloudNetDriver;
+import de.dytanic.cloudnet.driver.event.IEventManager;
+import de.dytanic.cloudnet.driver.event.events.chunk.ChunkedPacketSessionOpenEvent;
+import de.dytanic.cloudnet.driver.network.chunk.ChunkedPacketHandler;
+import de.dytanic.cloudnet.driver.network.chunk.data.ChunkSessionInformation;
+import java.util.function.Function;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+
+public final class EventChunkHandlerFactory implements Function<ChunkSessionInformation, ChunkedPacketHandler> {
+
+  private final IEventManager eventManager;
+
+  private EventChunkHandlerFactory(@NotNull IEventManager eventManager) {
+    this.eventManager = eventManager;
+  }
+
+  public static @NotNull EventChunkHandlerFactory withDefaultEventManager() {
+    return withEventManager(CloudNetDriver.getInstance().getEventManager());
+  }
+
+  public static @NotNull EventChunkHandlerFactory withEventManager(@NotNull IEventManager manager) {
+    return new EventChunkHandlerFactory(manager);
+  }
+
+  @Override
+  @Contract(pure = true)
+  public @NotNull ChunkedPacketHandler apply(@NotNull ChunkSessionInformation info) {
+    // get the chunked packet handler for the session
+    ChunkedPacketHandler handler = this.eventManager.callEvent(new ChunkedPacketSessionOpenEvent(info)).getHandler();
+    // check if there was a handler supplied
+    if (handler == null) {
+      throw new IllegalStateException("No chunked handler for " + info);
+    }
+    // return the created handler
+    return handler;
+  }
+}

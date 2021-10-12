@@ -44,7 +44,7 @@ public class PacketServerChannelMessageListener implements IPacketListener {
     ChannelMessage message = packet.getContent().readObject(ChannelMessage.class);
     // call the receive event
     ChannelMessage response = this.eventManager.callEvent(
-      new ChannelMessageReceiveEvent(message, packet.getUniqueId() != null)).getQueryResponse();
+      new ChannelMessageReceiveEvent(message, channel, packet.getUniqueId() != null)).getQueryResponse();
     // if the response is already present do not redirect the message to the messenger
     if (response != null) {
       channel.sendPacket(packet.constructResponse(DataBuf.empty().writeObject(Collections.singleton(response))));

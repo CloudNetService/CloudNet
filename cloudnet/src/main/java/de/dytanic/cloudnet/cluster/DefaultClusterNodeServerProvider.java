@@ -32,20 +32,20 @@ import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
+import de.dytanic.cloudnet.network.listener.message.NodeChannelMessageListener;
 import java.io.InputStream;
 import java.text.DecimalFormat;
 import java.text.Format;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
-public final class DefaultClusterNodeServerProvider extends DefaultNodeServerProvider<IClusterNodeServer> implements
-  IClusterNodeServerProvider {
+public final class DefaultClusterNodeServerProvider extends DefaultNodeServerProvider<IClusterNodeServer>
+  implements IClusterNodeServerProvider {
 
   private static final Format TIME_FORMAT = new DecimalFormat("##.###");
   private static final long MAX_NO_UPDATE_MILLIS = Long.getLong("cloudnet.max.node.idle.millis", 30_000);
@@ -53,6 +53,8 @@ public final class DefaultClusterNodeServerProvider extends DefaultNodeServerPro
 
   public DefaultClusterNodeServerProvider(@NotNull CloudNet cloudNet) {
     super(cloudNet);
+
+    cloudNet.getEventManager().registerListener(new NodeChannelMessageListener(cloudNet.getEventManager(), this));
 
     /*cloudNet.getTaskExecutor().scheduleAtFixedRate(() -> {
       try {

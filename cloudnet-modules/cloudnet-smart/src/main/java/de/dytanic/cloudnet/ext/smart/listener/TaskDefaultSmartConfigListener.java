@@ -17,7 +17,7 @@
 package de.dytanic.cloudnet.ext.smart.listener;
 
 import de.dytanic.cloudnet.driver.event.EventListener;
-import de.dytanic.cloudnet.event.service.task.LocalServiceTaskAddEvent;
+import de.dytanic.cloudnet.event.task.LocalServiceTaskAddEvent;
 import de.dytanic.cloudnet.ext.smart.CloudNetSmartModule;
 import de.dytanic.cloudnet.ext.smart.util.SmartServiceTaskConfig;
 

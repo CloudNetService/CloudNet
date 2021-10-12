@@ -23,18 +23,18 @@ import org.jetbrains.annotations.NotNull;
 public class ChunkSessionInformation {
 
   private final int chunkSize;
-  private final int transferType;
   private final UUID sessionUniqueId;
+  private final String transferChannel;
   private final JsonDocument transferInformation;
 
   public ChunkSessionInformation(
     int chunkSize,
-    int transferType,
     @NotNull UUID sessionUniqueId,
+    @NotNull String transferChannel,
     @NotNull JsonDocument transferInformation
   ) {
     this.chunkSize = chunkSize;
-    this.transferType = transferType;
+    this.transferChannel = transferChannel;
     this.sessionUniqueId = sessionUniqueId;
     this.transferInformation = transferInformation;
   }
@@ -43,8 +43,8 @@ public class ChunkSessionInformation {
     return this.chunkSize;
   }
 
-  public int getTransferType() {
-    return this.transferType;
+  public @NotNull String getTransferChannel() {
+    return this.transferChannel;
   }
 
   public @NotNull UUID getSessionUniqueId() {

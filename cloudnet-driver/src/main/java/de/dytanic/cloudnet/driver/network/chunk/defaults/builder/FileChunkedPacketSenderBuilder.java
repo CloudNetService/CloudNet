@@ -39,8 +39,8 @@ public class FileChunkedPacketSenderBuilder extends DefaultChunkedPacketSenderBu
   protected @NotNull ChunkedPacketSender doBuild() {
     return new DefaultFileChunkPacketSender(new ChunkSessionInformation(
       this.chunkSize,
-      this.transferType,
       this.sessionUniqueId,
+      this.transferChannel,
       this.transferInformation
     ), this.source, this.packetSplitter);
   }

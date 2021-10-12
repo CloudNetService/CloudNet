@@ -21,13 +21,12 @@ import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.database.LocalDatabase;
-import de.dytanic.cloudnet.driver.database.Database;
 import de.dytanic.cloudnet.driver.permission.DefaultPermissionManagement;
 import de.dytanic.cloudnet.driver.permission.PermissionGroup;
 import de.dytanic.cloudnet.driver.permission.PermissionUser;
+import de.dytanic.cloudnet.network.listener.message.PermissionChannelMessageListener;
 import de.dytanic.cloudnet.permission.handler.IPermissionManagementHandler;
 import de.dytanic.cloudnet.permission.handler.PermissionManagementHandlerAdapter;
-import de.dytanic.cloudnet.permission.network.PermissionNetworkListener;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -50,14 +49,14 @@ public class DefaultDatabasePermissionManagement extends DefaultPermissionManage
 
   protected final CloudNet nodeInstance;
   protected final Map<String, PermissionGroup> groups;
-  protected final PermissionNetworkListener networkListener;
+  protected final PermissionChannelMessageListener networkListener;
 
   protected volatile IPermissionManagementHandler handler = PermissionManagementHandlerAdapter.NO_OP;
 
   public DefaultDatabasePermissionManagement(@NotNull CloudNet nodeInstance) {
     this.nodeInstance = nodeInstance;
     this.groups = new ConcurrentHashMap<>();
-    this.networkListener = new PermissionNetworkListener(nodeInstance.getEventManager(), this);
+    this.networkListener = new PermissionChannelMessageListener(nodeInstance.getEventManager(), this);
   }
 
   @Override

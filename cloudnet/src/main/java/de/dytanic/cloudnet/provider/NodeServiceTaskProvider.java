@@ -19,10 +19,14 @@ package de.dytanic.cloudnet.provider;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;
+import de.dytanic.cloudnet.driver.event.IEventManager;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import de.dytanic.cloudnet.driver.network.def.NetworkConstants;
 import de.dytanic.cloudnet.driver.provider.ServiceTaskProvider;
 import de.dytanic.cloudnet.driver.service.ServiceTask;
+import de.dytanic.cloudnet.event.task.LocalServiceTaskAddEvent;
+import de.dytanic.cloudnet.event.task.LocalServiceTaskRemoveEvent;
+import de.dytanic.cloudnet.network.listener.message.TaskChannelMessageListener;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -39,9 +43,13 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
   private static final Path TASKS_DIRECTORY = Paths.get(
     System.getProperty("cloudnet.config.tasks.directory.path", "local/tasks"));
 
+  private final IEventManager eventManager;
   private final Set<ServiceTask> serviceTasks = ConcurrentHashMap.newKeySet();
 
-  public NodeServiceTaskProvider() {
+  public NodeServiceTaskProvider(@NotNull IEventManager eventManager) {
+    this.eventManager = eventManager;
+    this.eventManager.registerListener(new TaskChannelMessageListener(eventManager, this));
+
     if (Files.exists(TASKS_DIRECTORY)) {
       this.loadServiceTasks();
     } else {
@@ -64,14 +72,10 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
 
   @Override
   public void setPermanentServiceTasks(@NotNull Collection<ServiceTask> serviceTasks) {
-    // update the cache
-    this.serviceTasks.clear();
-    this.serviceTasks.addAll(serviceTasks);
-    // store all tasks
-    this.writeAllServiceTasks();
+    this.setPermanentServiceTasksSilently(serviceTasks);
     // notify the cluster
     ChannelMessage.builder()
-      .targetAll()
+      .targetNodes()
       .message("set_service_tasks")
       .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
       .buffer(DataBuf.empty().writeObject(serviceTasks))
@@ -94,18 +98,19 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
 
   @Override
   public boolean addPermanentServiceTask(@NotNull ServiceTask serviceTask) {
-    // cache locally
-    this.serviceTasks.add(serviceTask);
-    this.writeServiceTask(serviceTask);
-    // notify the cluster
-    ChannelMessage.builder()
-      .targetAll()
-      .message("add_service_task")
-      .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
-      .buffer(DataBuf.empty().writeObject(serviceTask))
-      .build()
-      .send();
-    return true;
+    if (!this.eventManager.callEvent(new LocalServiceTaskAddEvent(serviceTask)).isCancelled()) {
+      this.addPermanentServiceTaskSilently(serviceTask);
+      // notify the cluster
+      ChannelMessage.builder()
+        .targetAll()
+        .message("add_service_task")
+        .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
+        .buffer(DataBuf.empty().writeObject(serviceTask))
+        .build()
+        .send();
+      return true;
+    }
+    return false;
   }
 
   @Override
@@ -118,18 +123,38 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
 
   @Override
   public void removePermanentServiceTask(@NotNull ServiceTask serviceTask) {
+    if (!this.eventManager.callEvent(new LocalServiceTaskRemoveEvent(serviceTask)).isCancelled()) {
+      this.removePermanentServiceTaskSilently(serviceTask);
+      // notify the whole network
+      ChannelMessage.builder()
+        .targetAll()
+        .message("remove_service_task")
+        .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
+        .buffer(DataBuf.empty().writeObject(serviceTask))
+        .build()
+        .send();
+    }
+  }
+
+  public void addPermanentServiceTaskSilently(@NotNull ServiceTask serviceTask) {
+    // cache locally
+    this.serviceTasks.add(serviceTask);
+    this.writeServiceTask(serviceTask);
+  }
+
+  public void removePermanentServiceTaskSilently(@NotNull ServiceTask serviceTask) {
     // remove from cache
     this.serviceTasks.remove(serviceTask);
     // remove the local file if it exists
     FileUtils.delete(this.getTaskFile(serviceTask));
-    // notify the whole network
-    ChannelMessage.builder()
-      .targetAll()
-      .message("remove_service_task")
-      .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
-      .buffer(DataBuf.empty().writeObject(serviceTask))
-      .build()
-      .send();
+  }
+
+  public void setPermanentServiceTasksSilently(@NotNull Collection<ServiceTask> serviceTasks) {
+    // update the cache
+    this.serviceTasks.clear();
+    this.serviceTasks.addAll(serviceTasks);
+    // store all tasks
+    this.writeAllServiceTasks();
   }
 
   protected @NotNull Path getTaskFile(@NotNull ServiceTask task) {

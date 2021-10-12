@@ -22,6 +22,7 @@ import de.dytanic.cloudnet.event.log.LoggingEntryEvent;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.LogRecord;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * A logging handler for developers, that can easy handle and get the logging outputs from this node instance
@@ -43,7 +44,7 @@ public final class QueuedConsoleLogHandler extends AbstractHandler {
     CloudNetDriver.getInstance().getEventManager().callEvent(new LoggingEntryEvent(record));
   }
 
-  public Queue<LogRecord> getCachedLogEntries() {
+  public @NotNull Queue<LogRecord> getCachedLogEntries() {
     return this.cachedQueuedLogEntries;
   }
 }

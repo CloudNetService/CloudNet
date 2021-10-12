@@ -30,7 +30,6 @@ import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
 import de.dytanic.cloudnet.driver.service.ServiceTask;
-import de.dytanic.cloudnet.provider.service.EmptySpecificCloudServiceProvider;
 import de.dytanic.cloudnet.service.ICloudService;
 import de.dytanic.cloudnet.service.ICloudServiceFactory;
 import de.dytanic.cloudnet.service.ICloudServiceManager;
@@ -42,6 +41,7 @@ import de.dytanic.cloudnet.service.defaults.config.VanillaServiceConfigurationPr
 import de.dytanic.cloudnet.service.defaults.config.VelocityConfigurationPreparer;
 import de.dytanic.cloudnet.service.defaults.config.WaterdogPEConfigurationPreparer;
 import de.dytanic.cloudnet.service.defaults.factory.JVMServiceFactory;
+import de.dytanic.cloudnet.service.defaults.provider.EmptySpecificCloudServiceProvider;
 import de.dytanic.cloudnet.service.defaults.provider.RemoteNodeCloudServiceProvider;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -304,7 +304,7 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
     } else {
       // register the service if the provider is available
       SpecificCloudServiceProvider provider = this.knownServices.get(snapshot.getServiceId().getUniqueId());
-      if (provider == null && snapshot.getLifeCycle() == ServiceLifeCycle.PREPARED) {
+      if (provider == null) {
         this.knownServices.putIfAbsent(
           snapshot.getServiceId().getUniqueId(),
           new RemoteNodeCloudServiceProvider(this, this.sender, snapshot));
@@ -312,6 +312,20 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
         // update the provider if possible - we need only to handle remote node providers as local providers will update
         // the snapshot directly "in" them
         ((RemoteNodeCloudServiceProvider) provider).setSnapshot(snapshot);
+      }
+    }
+  }
+
+  @Override
+  public void handleInitialSetServices(@NotNull Collection<ServiceInfoSnapshot> snapshots) {
+    // register all the services
+    for (ServiceInfoSnapshot snapshot : snapshots) {
+      // ignore deleted services
+      if (snapshot.getLifeCycle() != ServiceLifeCycle.DELETED) {
+        // register a remote provider for that
+        this.knownServices.put(
+          snapshot.getServiceId().getUniqueId(),
+          new RemoteNodeCloudServiceProvider(this, this.sender, snapshot));
       }
     }
   }

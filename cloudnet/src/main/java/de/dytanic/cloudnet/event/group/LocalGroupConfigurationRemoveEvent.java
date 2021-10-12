@@ -14,28 +14,31 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.event.cluster;
+package de.dytanic.cloudnet.event.group;
 
-import de.dytanic.cloudnet.cluster.IClusterNodeServer;
 import de.dytanic.cloudnet.driver.event.Event;
-import de.dytanic.cloudnet.driver.network.INetworkChannel;
+import de.dytanic.cloudnet.driver.event.ICancelable;
+import de.dytanic.cloudnet.driver.service.GroupConfiguration;
+import org.jetbrains.annotations.NotNull;
 
-public final class NetworkChannelAuthClusterNodeSuccessEvent extends Event {
+public class LocalGroupConfigurationRemoveEvent extends Event implements ICancelable {
 
-  private final IClusterNodeServer node;
+  private final GroupConfiguration group;
+  private volatile boolean cancelled;
 
-  private final INetworkChannel channel;
-
-  public NetworkChannelAuthClusterNodeSuccessEvent(IClusterNodeServer node, INetworkChannel channel) {
-    this.node = node;
-    this.channel = channel;
+  public LocalGroupConfigurationRemoveEvent(@NotNull GroupConfiguration group) {
+    this.group = group;
   }
 
-  public IClusterNodeServer getNode() {
-    return this.node;
+  public @NotNull GroupConfiguration getTask() {
+    return this.group;
   }
 
-  public INetworkChannel getChannel() {
-    return this.channel;
+  public boolean isCancelled() {
+    return this.cancelled;
+  }
+
+  public void setCancelled(boolean cancelled) {
+    this.cancelled = cancelled;
   }
 }

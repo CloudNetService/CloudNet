@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.permission.network;
+package de.dytanic.cloudnet.network.listener.message;
 
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.event.IEventManager;
@@ -33,12 +33,15 @@ import de.dytanic.cloudnet.permission.NodePermissionManagement;
 import java.util.Collection;
 import org.jetbrains.annotations.NotNull;
 
-public final class PermissionNetworkListener {
+public final class PermissionChannelMessageListener {
 
   private final IEventManager eventManager;
   private final NodePermissionManagement permissionManagement;
 
-  public PermissionNetworkListener(@NotNull IEventManager eventManager, @NotNull NodePermissionManagement management) {
+  public PermissionChannelMessageListener(
+    @NotNull IEventManager eventManager,
+    @NotNull NodePermissionManagement management
+  ) {
     this.eventManager = eventManager;
     this.permissionManagement = management;
   }

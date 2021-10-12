@@ -45,7 +45,7 @@ public interface ChunkedPacketSender extends ChunkedPacketProvider {
 
     @NotNull Builder sessionUniqueId(@NotNull UUID uuid);
 
-    @NotNull Builder transferMode(int transferMode);
+    @NotNull Builder transferChannel(@NotNull String transferChannel);
 
     @NotNull Builder source(@NotNull InputStream source);
 

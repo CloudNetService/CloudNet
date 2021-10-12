@@ -26,8 +26,8 @@ import de.dytanic.cloudnet.driver.event.events.service.CloudServiceRegisterEvent
 import de.dytanic.cloudnet.driver.event.events.service.CloudServiceStartEvent;
 import de.dytanic.cloudnet.driver.event.events.service.CloudServiceStopEvent;
 import de.dytanic.cloudnet.driver.event.events.service.CloudServiceUnregisterEvent;
-import de.dytanic.cloudnet.driver.event.events.service.task.ServiceTaskAddEvent;
-import de.dytanic.cloudnet.driver.event.events.service.task.ServiceTaskRemoveEvent;
+import de.dytanic.cloudnet.driver.event.events.task.ServiceTaskAddEvent;
+import de.dytanic.cloudnet.driver.event.events.task.ServiceTaskRemoveEvent;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.ext.bridge.event.BridgeConfigurationUpdateEvent;
 import de.dytanic.cloudnet.ext.bridge.event.BridgeProxyPlayerDisconnectEvent;

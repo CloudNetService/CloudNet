@@ -32,7 +32,7 @@ public class NetworkChannelsPacketSplitter implements Consumer<IPacket> {
   }
 
   @Override
-  public void accept(IPacket packet) {
+  public void accept(@NotNull IPacket packet) {
     // disable releasing of the content as we need to content multiple times
     packet.getContent().disableReleasing();
     // write to all channels

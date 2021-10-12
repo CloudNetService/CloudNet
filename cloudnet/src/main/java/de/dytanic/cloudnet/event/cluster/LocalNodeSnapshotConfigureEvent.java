@@ -14,24 +14,21 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.event.network;
+package de.dytanic.cloudnet.event.cluster;
 
-import de.dytanic.cloudnet.driver.event.events.network.NetworkEvent;
-import de.dytanic.cloudnet.driver.network.INetworkChannel;
+import de.dytanic.cloudnet.driver.event.events.DriverEvent;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
+import org.jetbrains.annotations.NotNull;
 
-public final class NetworkClusterNodeInfoUpdateEvent extends NetworkEvent {
+public final class LocalNodeSnapshotConfigureEvent extends DriverEvent {
 
   private final NetworkClusterNodeInfoSnapshot networkClusterNodeInfoSnapshot;
 
-  public NetworkClusterNodeInfoUpdateEvent(INetworkChannel channel,
-    NetworkClusterNodeInfoSnapshot networkClusterNodeInfoSnapshot) {
-    super(channel);
-
+  public LocalNodeSnapshotConfigureEvent(@NotNull NetworkClusterNodeInfoSnapshot networkClusterNodeInfoSnapshot) {
     this.networkClusterNodeInfoSnapshot = networkClusterNodeInfoSnapshot;
   }
 
-  public NetworkClusterNodeInfoSnapshot getNetworkClusterNodeInfoSnapshot() {
+  public @NotNull NetworkClusterNodeInfoSnapshot getSnapshot() {
     return this.networkClusterNodeInfoSnapshot;
   }
 }

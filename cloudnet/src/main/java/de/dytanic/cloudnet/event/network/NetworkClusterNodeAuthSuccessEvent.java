@@ -14,23 +14,23 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.driver.network.def.packet;
+package de.dytanic.cloudnet.event.network;
 
-import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
-import de.dytanic.cloudnet.driver.network.def.NetworkConstants;
-import de.dytanic.cloudnet.driver.network.protocol.Packet;
+import de.dytanic.cloudnet.cluster.IClusterNodeServer;
+import de.dytanic.cloudnet.driver.event.events.network.NetworkEvent;
+import de.dytanic.cloudnet.driver.network.INetworkChannel;
+import org.jetbrains.annotations.NotNull;
 
-public final class PacketClientAuthorization extends Packet {
+public final class NetworkClusterNodeAuthSuccessEvent extends NetworkEvent {
 
-  public PacketClientAuthorization(PacketAuthorizationType type, DataBuf dataBuf) {
-    super(
-      NetworkConstants.INTERNAL_AUTHORIZATION_CHANNEL,
-      DataBuf.empty().writeObject(type).writeDataBuf(dataBuf));
+  private final IClusterNodeServer node;
+
+  public NetworkClusterNodeAuthSuccessEvent(@NotNull IClusterNodeServer node, @NotNull INetworkChannel channel) {
+    super(channel);
+    this.node = node;
   }
 
-  public enum PacketAuthorizationType {
-
-    NODE_TO_NODE,
-    WRAPPER_TO_NODE
+  public @NotNull IClusterNodeServer getNode() {
+    return this.node;
   }
 }
