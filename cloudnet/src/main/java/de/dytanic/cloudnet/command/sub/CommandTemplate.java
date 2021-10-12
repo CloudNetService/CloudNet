@@ -84,12 +84,17 @@ public class CommandTemplate {
       .collect(Collectors.toList());
   }
 
-  @Parser
+  @Parser(suggestions = "serviceVersionType")
   public ServiceVersionType defaultVersionTypeParser(CommandContext<CommandSource> $, Queue<String> input) {
     String versionTypeName = input.remove().toLowerCase();
     return CloudNet.getInstance().getServiceVersionProvider().getServiceVersionType(versionTypeName)
       .orElseThrow(() -> new ArgumentNotAvailableException(
         LanguageManager.getMessage("ca-question-list-invalid-service-version")));
+  }
+
+  @Suggestions("serviceVersionType")
+  public List<String> suggestServiceVersionType(CommandContext<CommandSource> $, String input) {
+    return new ArrayList<>(CloudNet.getInstance().getServiceVersionProvider().getServiceVersionTypes().keySet());
   }
 
   @Parser(suggestions = "environmentType")
