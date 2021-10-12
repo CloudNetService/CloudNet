@@ -26,7 +26,7 @@ import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.common.unsafe.CPUUsageResolver;
-import de.dytanic.cloudnet.conf.IConfiguration;
+import de.dytanic.cloudnet.config.IConfiguration;
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.driver.event.IEventManager;
 import de.dytanic.cloudnet.driver.network.HostAndPort;

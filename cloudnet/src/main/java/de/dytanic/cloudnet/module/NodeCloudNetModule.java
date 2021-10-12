@@ -18,7 +18,7 @@ package de.dytanic.cloudnet.module;
 
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.CloudNet;
-import de.dytanic.cloudnet.conf.IConfiguration;
+import de.dytanic.cloudnet.config.IConfiguration;
 import de.dytanic.cloudnet.database.AbstractDatabaseProvider;
 import de.dytanic.cloudnet.driver.module.driver.DriverModule;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;

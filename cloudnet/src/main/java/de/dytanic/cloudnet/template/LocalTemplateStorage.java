@@ -48,8 +48,9 @@ public class LocalTemplateStorage implements TemplateStorage {
 
   private final Path storageDirectory;
 
-  public LocalTemplateStorage(Path storageDirectory) {
+  public LocalTemplateStorage(@NotNull Path storageDirectory) {
     this.storageDirectory = storageDirectory;
+    FileUtils.createDirectoryReported(storageDirectory);
   }
 
   @Override

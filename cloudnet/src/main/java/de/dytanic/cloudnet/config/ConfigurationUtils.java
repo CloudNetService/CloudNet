@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.conf;
+package de.dytanic.cloudnet.config;
 
 import com.google.common.primitives.Ints;
 import de.dytanic.cloudnet.driver.network.HostAndPort;

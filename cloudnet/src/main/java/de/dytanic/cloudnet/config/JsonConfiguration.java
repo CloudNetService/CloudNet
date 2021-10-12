@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.conf;
+package de.dytanic.cloudnet.config;
 
 import com.google.common.base.Enums;
 import com.google.common.base.Preconditions;
@@ -102,7 +102,9 @@ public final class JsonConfiguration implements IConfiguration {
   public void load() {
     if (identity == null) {
       this.identity = new NetworkClusterNode(
-        ConfigurationUtils.get("cloudnet.config.identity", StringUtil.generateRandomString(8)),
+        ConfigurationUtils.get(
+          "cloudnet.config.identity",
+          "Node-" + StringUtil.generateRandomString(4)),
         ConfigurationUtils.get(
           "cloudnet.config.listeners",
           new HostAndPort[]{new HostAndPort(NetworkAddressUtil.getLocalAddress(), 1410)},
