@@ -17,7 +17,7 @@
 package de.dytanic.cloudnet.permission.command;
 
 import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
-import de.dytanic.cloudnet.driver.permission.IPermissionUser;
+import de.dytanic.cloudnet.driver.permission.PermissionUser;
 import java.util.Queue;
 
 // TODO: do we need this?
@@ -27,6 +27,6 @@ public interface IPermissionUserCommandSender {
 
   IPermissionManagement getPermissionManagement();
 
-  IPermissionUser getPermissionUser();
+  PermissionUser getPermissionUser();
 
 }

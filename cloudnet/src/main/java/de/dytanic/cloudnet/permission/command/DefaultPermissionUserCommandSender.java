@@ -16,21 +16,20 @@
 
 package de.dytanic.cloudnet.permission.command;
 
-import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
-import de.dytanic.cloudnet.driver.permission.IPermissionUser;
+import de.dytanic.cloudnet.driver.permission.PermissionUser;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public final class DefaultPermissionUserCommandSender implements IPermissionUserCommandSender {
 
-  private final IPermissionUser permissionUser;
+  private final PermissionUser permissionUser;
 
   private final IPermissionManagement permissionManagement;
 
   private final Queue<String> writtenMessages = new ConcurrentLinkedQueue<>();
 
-  public DefaultPermissionUserCommandSender(IPermissionUser permissionUser,
+  public DefaultPermissionUserCommandSender(PermissionUser permissionUser,
     IPermissionManagement permissionManagement) {
     this.permissionUser = permissionUser;
     this.permissionManagement = permissionManagement;
@@ -66,7 +65,7 @@ public final class DefaultPermissionUserCommandSender implements IPermissionUser
     return this.permissionManagement.hasPermission(this.permissionUser, permission);
   }
 */
-  public IPermissionUser getPermissionUser() {
+  public PermissionUser getPermissionUser() {
     return this.permissionUser;
   }
 

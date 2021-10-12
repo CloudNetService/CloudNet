@@ -16,20 +16,20 @@
 
 package de.dytanic.cloudnet.driver.event.events.permission;
 
-import de.dytanic.cloudnet.driver.permission.IPermissionGroup;
+import de.dytanic.cloudnet.driver.permission.PermissionGroup;
 import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
 
 abstract class PermissionGroupEvent extends PermissionEvent {
 
-  private final IPermissionGroup permissionGroup;
+  private final PermissionGroup permissionGroup;
 
-  public PermissionGroupEvent(IPermissionManagement permissionManagement, IPermissionGroup permissionGroup) {
+  public PermissionGroupEvent(IPermissionManagement permissionManagement, PermissionGroup permissionGroup) {
     super(permissionManagement);
 
     this.permissionGroup = permissionGroup;
   }
 
-  public IPermissionGroup getPermissionGroup() {
+  public PermissionGroup getPermissionGroup() {
     return this.permissionGroup;
   }
 }

@@ -17,7 +17,7 @@
 package de.dytanic.cloudnet.http.v2;
 
 import de.dytanic.cloudnet.driver.CloudNetDriver;
-import de.dytanic.cloudnet.driver.permission.IPermissionUser;
+import de.dytanic.cloudnet.driver.permission.PermissionUser;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -68,7 +68,7 @@ public class DefaultHttpSession implements HttpSession {
   }
 
   @Override
-  public IPermissionUser getUser() {
+  public PermissionUser getUser() {
     return CloudNetDriver.getInstance().getPermissionManagement().getUser(this.userId);
   }
 

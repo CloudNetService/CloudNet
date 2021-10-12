@@ -47,7 +47,7 @@ public class PacketServerChannelMessageListener implements IPacketListener {
       new ChannelMessageReceiveEvent(message, packet.getUniqueId() != null)).getQueryResponse();
     // if the response is already present do not redirect the message to the messenger
     if (response != null) {
-      channel.sendPacket(packet.constructResponse(DataBuf.empty().writeObject(response)));
+      channel.sendPacket(packet.constructResponse(DataBuf.empty().writeObject(Collections.singleton(response))));
     } else {
       // do not redirect the channel message to the cluster to prevent infinite loops
       if (packet.getUniqueId() != null) {

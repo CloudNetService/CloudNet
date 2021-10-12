@@ -17,25 +17,26 @@
 package de.dytanic.cloudnet.driver.permission;
 
 import de.dytanic.cloudnet.common.document.gson.BasicJsonDocPropertyable;
+import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 @ToString
 @EqualsAndHashCode(callSuper = false)
 public abstract class AbstractPermissible extends BasicJsonDocPropertyable implements IPermissible {
 
-  protected long createdTime;
   protected String name;
   protected int potency;
-  protected List<Permission> permissions;
+  protected long createdTime;
 
+  protected List<Permission> permissions;
   protected Map<String, Collection<Permission>> groupPermissions;
 
   public AbstractPermissible() {
@@ -44,7 +45,23 @@ public abstract class AbstractPermissible extends BasicJsonDocPropertyable imple
     this.groupPermissions = new HashMap<>();
   }
 
-  private boolean addPermission(Collection<Permission> permissions, Permission permission) {
+  public AbstractPermissible(
+    @NotNull String name,
+    int potency,
+    long createdTime,
+    @NotNull List<Permission> permissions,
+    @NotNull Map<String, Collection<Permission>> groupPermissions,
+    @NotNull JsonDocument properties
+  ) {
+    this.name = name;
+    this.potency = potency;
+    this.createdTime = createdTime;
+    this.permissions = permissions;
+    this.groupPermissions = groupPermissions;
+    this.properties = properties;
+  }
+
+  private boolean addPermission(@NotNull Collection<Permission> permissions, @Nullable Permission permission) {
     if (permission == null) {
       return false;
     }
@@ -79,15 +96,12 @@ public abstract class AbstractPermissible extends BasicJsonDocPropertyable imple
   @Override
   public boolean removePermission(@NotNull String group, @NotNull String permission) {
     if (this.groupPermissions.containsKey(group)) {
-      Optional<Permission> optionalPermission = this.groupPermissions.get(group).stream()
-        .filter(perm -> perm.getName().equalsIgnoreCase(permission)).findFirst();
-      if (optionalPermission.isPresent()) {
-        this.groupPermissions.get(group).remove(optionalPermission.get());
-        if (this.groupPermissions.get(group).isEmpty()) {
-          this.groupPermissions.remove(group);
-        }
-        return true;
+      boolean removed = this.groupPermissions.get(group).removeIf(perm -> perm.getName().equalsIgnoreCase(permission));
+      if (removed && this.groupPermissions.get(group).isEmpty()) {
+        this.groupPermissions.remove(group);
       }
+
+      return removed;
     }
 
     return false;
@@ -97,23 +111,28 @@ public abstract class AbstractPermissible extends BasicJsonDocPropertyable imple
     return this.createdTime;
   }
 
+  @Override
   public @NotNull String getName() {
     return this.name;
   }
 
+  @Override
   public void setName(@NotNull String name) {
     this.name = name;
   }
 
+  @Override
   public int getPotency() {
     return this.potency;
   }
 
+  @Override
   public void setPotency(int potency) {
     this.potency = potency;
   }
 
-  public List<Permission> getPermissions() {
+  @Override
+  public @NotNull List<Permission> getPermissions() {
     return this.permissions;
   }
 
@@ -121,7 +140,8 @@ public abstract class AbstractPermissible extends BasicJsonDocPropertyable imple
     this.permissions = permissions;
   }
 
-  public Map<String, Collection<Permission>> getGroupPermissions() {
+  @Override
+  public @NotNull Map<String, Collection<Permission>> getGroupPermissions() {
     return this.groupPermissions;
   }
 }

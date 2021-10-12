@@ -25,10 +25,9 @@ import org.jetbrains.annotations.NotNull;
 @EqualsAndHashCode
 public final class Permission implements Comparable<Permission> {
 
-  private String name;
+  private final String name;
 
   private int potency;
-
   private long timeOutMillis;
 
   public Permission(@NotNull String name, int potency) {
@@ -52,11 +51,7 @@ public final class Permission implements Comparable<Permission> {
     this.timeOutMillis = timeOutMillis;
   }
 
-  public Permission() {
-  }
-
-  @NotNull
-  public String getName() {
+  public @NotNull String getName() {
     return this.name;
   }
 
