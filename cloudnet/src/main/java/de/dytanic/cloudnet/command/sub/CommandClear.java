@@ -22,7 +22,7 @@ import de.dytanic.cloudnet.CloudNet;
 
 public class CommandClear {
 
-  @CommandMethod("cloudnet.command.clear")
+  @CommandMethod("clear")
   @CommandDescription("Clears the entire console of the node to get a better overview")
   public void clearConsole() {
     CloudNet.getInstance().getConsole().clearScreen();

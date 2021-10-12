@@ -123,7 +123,6 @@ public class CommandTasks {
       .templates(Collections.singletonList(ServiceTemplate.local(taskName, "default")))
       .name(taskName)
       .autoDeleteOnStop(true)
-      .associatedNodes(Collections.singletonList(CloudNet.getInstance().getComponentName()))
       .groups(Collections.singletonList(taskName))
       .serviceEnvironmentType(environmentType)
       .maxHeapMemory(environmentType.isMinecraftProxy() ? 256 : 512)
