@@ -28,9 +28,10 @@ public class WrapperServiceTaskProvider implements ServiceTaskProvider {
 
   private final RPCSender rpcSender;
 
-  public WrapperServiceTaskProvider(Wrapper wrapper) {
-    this.rpcSender = wrapper.getRPCProviderFactory()
-      .providerForClass(wrapper.getNetworkClient(), ServiceTaskProvider.class);
+  public WrapperServiceTaskProvider(@NotNull Wrapper wrapper) {
+    this.rpcSender = wrapper.getRPCProviderFactory().providerForClass(
+      wrapper.getNetworkClient(),
+      ServiceTaskProvider.class);
   }
 
   @Override
@@ -39,7 +40,7 @@ public class WrapperServiceTaskProvider implements ServiceTaskProvider {
   }
 
   @Override
-  public Collection<ServiceTask> getPermanentServiceTasks() {
+  public @NotNull Collection<ServiceTask> getPermanentServiceTasks() {
     return this.rpcSender.invokeMethod("getPermanentServiceTasks").fireSync();
   }
 

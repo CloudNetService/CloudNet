@@ -16,7 +16,6 @@
 
 package de.dytanic.cloudnet.wrapper.provider;
 
-import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.driver.command.CommandInfo;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
@@ -31,38 +30,34 @@ public class WrapperNodeInfoProvider implements NodeInfoProvider {
 
   private final RPCSender rpcSender;
 
-  public WrapperNodeInfoProvider(Wrapper wrapper) {
-    this.rpcSender = wrapper.getRPCProviderFactory()
-      .providerForClass(wrapper.getNetworkClient(), NodeInfoProvider.class);
+  public WrapperNodeInfoProvider(@NotNull Wrapper wrapper) {
+    this.rpcSender = wrapper.getRPCProviderFactory().providerForClass(
+      wrapper.getNetworkClient(),
+      NodeInfoProvider.class);
   }
 
   @Override
-  public Collection<CommandInfo> getConsoleCommands() {
+  public @NotNull Collection<CommandInfo> getConsoleCommands() {
     return this.rpcSender.invokeMethod("getConsoleCommands").fireSync();
   }
 
-  @Nullable
   @Override
-  public CommandInfo getConsoleCommand(@NotNull String commandLine) {
-    Preconditions.checkNotNull(commandLine);
+  public @Nullable CommandInfo getConsoleCommand(@NotNull String commandLine) {
     return this.rpcSender.invokeMethod("getConsoleCommand", commandLine).fireSync();
   }
 
   @Override
-  public Collection<String> getConsoleTabCompleteResults(@NotNull String commandLine) {
-    Preconditions.checkNotNull(commandLine);
+  public @NotNull Collection<String> getConsoleTabCompleteResults(@NotNull String commandLine) {
     return this.rpcSender.invokeMethod("getConsoleTabCompleteResults", commandLine).fireSync();
   }
 
   @Override
   public String[] sendCommandLine(@NotNull String commandLine) {
-    Preconditions.checkNotNull(commandLine);
     return this.rpcSender.invokeMethod("sendCommandLine", commandLine).fireSync();
   }
 
   @Override
   public String[] sendCommandLine(@NotNull String nodeUniqueId, @NotNull String commandLine) {
-    Preconditions.checkNotNull(nodeUniqueId, commandLine);
     return this.rpcSender.invokeMethod("sendCommandLine", nodeUniqueId, commandLine).fireSync();
   }
 
@@ -71,10 +66,8 @@ public class WrapperNodeInfoProvider implements NodeInfoProvider {
     return this.rpcSender.invokeMethod("getNodes").fireSync();
   }
 
-  @Nullable
   @Override
-  public NetworkClusterNode getNode(@NotNull String uniqueId) {
-    Preconditions.checkNotNull(uniqueId);
+  public @Nullable NetworkClusterNode getNode(@NotNull String uniqueId) {
     return this.rpcSender.invokeMethod("getNode", uniqueId).fireSync();
   }
 
@@ -83,10 +76,8 @@ public class WrapperNodeInfoProvider implements NodeInfoProvider {
     return this.rpcSender.invokeMethod("getNodeInfoSnapshots").fireSync();
   }
 
-  @Nullable
   @Override
-  public NetworkClusterNodeInfoSnapshot getNodeInfoSnapshot(@NotNull String uniqueId) {
-    Preconditions.checkNotNull(uniqueId);
+  public @Nullable NetworkClusterNodeInfoSnapshot getNodeInfoSnapshot(@NotNull String uniqueId) {
     return this.rpcSender.invokeMethod("getNodeInfoSnapshot", uniqueId).fireSync();
   }
 }

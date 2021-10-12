@@ -32,31 +32,30 @@ public interface DatabaseProvider {
    * @param name the name of the database
    * @return the corresponding database
    */
-  Database getDatabase(String name);
+  @NotNull Database getDatabase(@NotNull String name);
 
   /**
    * @param name the name of the database
    * @return whether a database with the given name exists
    */
-  boolean containsDatabase(String name);
+  boolean containsDatabase(@NotNull String name);
 
   /**
    * @param name the name of the database
    * @return true if the database was deleted successfully, false if not
    */
-  boolean deleteDatabase(String name);
+  boolean deleteDatabase(@NotNull String name);
 
   /**
    * @return all present database names
    */
-  Collection<String> getDatabaseNames();
+  @NotNull Collection<String> getDatabaseNames();
 
   /**
    * @param name the name of the database
    * @return whether a database with the given name exists
    */
-  @NotNull
-  default ITask<Boolean> containsDatabaseAsync(String name) {
+  default @NotNull ITask<Boolean> containsDatabaseAsync(@NotNull String name) {
     return CompletableTask.supplyAsync(() -> this.containsDatabase(name));
   }
 
@@ -64,17 +63,14 @@ public interface DatabaseProvider {
    * @param name the name of the database
    * @return true if the database was deleted successfully, false if not
    */
-  @NotNull
-  default ITask<Boolean> deleteDatabaseAsync(String name) {
+  default @NotNull ITask<Boolean> deleteDatabaseAsync(@NotNull String name) {
     return CompletableTask.supplyAsync(() -> this.deleteDatabase(name));
   }
 
   /**
    * @return all present database names
    */
-  @NotNull
-  default ITask<Collection<String>> getDatabaseNamesAsync() {
+  default @NotNull ITask<Collection<String>> getDatabaseNamesAsync() {
     return CompletableTask.supplyAsync(this::getDatabaseNames);
   }
-
 }

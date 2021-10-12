@@ -16,7 +16,6 @@
 
 package de.dytanic.cloudnet.database.h2;
 
-import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.concurrent.IThrowableCallback;
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.database.sql.SQLDatabaseProvider;
@@ -30,9 +29,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.concurrent.ExecutorService;
 import org.h2.Driver;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public final class H2DatabaseProvider extends SQLDatabaseProvider {
 
@@ -46,11 +47,11 @@ public final class H2DatabaseProvider extends SQLDatabaseProvider {
   private final boolean runsInCluster;
   private Connection connection;
 
-  public H2DatabaseProvider(String h2File, boolean runsInCluster) {
+  public H2DatabaseProvider(@NotNull String h2File, boolean runsInCluster) {
     this(h2File, runsInCluster, null);
   }
 
-  public H2DatabaseProvider(String h2File, boolean runsInCluster, ExecutorService executorService) {
+  public H2DatabaseProvider(@NotNull String h2File, boolean runsInCluster, @Nullable ExecutorService executorService) {
     super(executorService);
     this.h2dbFile = Paths.get(h2File);
     this.runsInCluster = runsInCluster;
@@ -67,42 +68,25 @@ public final class H2DatabaseProvider extends SQLDatabaseProvider {
   }
 
   @Override
-  public boolean needsClusterSync() {
-    return true;
-  }
-
-  @Override
-  public H2Database getDatabase(String name) {
-    Preconditions.checkNotNull(name);
-
+  public @NotNull H2Database getDatabase(@NotNull String name) {
     this.removedOutdatedEntries();
     return (H2Database) this.cachedDatabaseInstances.computeIfAbsent(name,
       $ -> new H2Database(this, name, NEW_CREATION_DELAY, super.executorService));
   }
 
   @Override
-  public boolean deleteDatabase(String name) {
-    Preconditions.checkNotNull(name);
-
+  public boolean deleteDatabase(@NotNull String name) {
     if (!this.containsDatabase(name)) {
       return false;
     }
 
     this.cachedDatabaseInstances.remove(name);
-
-    try (PreparedStatement preparedStatement = this.connection
-      .prepareStatement("DROP TABLE IF EXISTS `" + name + "`")) {
-      return preparedStatement.executeUpdate() != -1;
-    } catch (SQLException exception) {
-      LOGGER.severe("Exception while deleting database", exception);
-    }
-
-    return false;
+    return this.executeUpdate("DROP TABLE IF EXISTS `" + name + "`") != -1;
   }
 
   @Override
-  public Collection<String> getDatabaseNames() {
-    return this.executeQuery(
+  public @NotNull Collection<String> getDatabaseNames() {
+    Collection<String> tableNames = this.executeQuery(
       "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA='PUBLIC'",
       resultSet -> {
         Collection<String> collection = new ArrayList<>();
@@ -111,8 +95,8 @@ public final class H2DatabaseProvider extends SQLDatabaseProvider {
         }
 
         return collection;
-      }
-    );
+      });
+    return tableNames == null ? Collections.emptyList() : tableNames;
   }
 
   @Override
@@ -130,49 +114,39 @@ public final class H2DatabaseProvider extends SQLDatabaseProvider {
   }
 
   @Override
-  public Connection getConnection() {
+  public @NotNull Connection getConnection() {
     return this.connection;
   }
 
-  public int executeUpdate(String query, Object... objects) {
-    Preconditions.checkNotNull(query);
-    Preconditions.checkNotNull(objects);
-
+  public int executeUpdate(@NotNull String query, @NotNull Object... objects) {
     try (PreparedStatement preparedStatement = this.getConnection().prepareStatement(query)) {
-      int i = 1;
-      for (Object object : objects) {
-        preparedStatement.setString(i++, object.toString());
+      for (int i = 0; i < objects.length; i++) {
+        preparedStatement.setString(i + 1, objects[i].toString());
       }
 
       return preparedStatement.executeUpdate();
-
     } catch (SQLException exception) {
       LOGGER.severe("Exception while executing database update", exception);
+      return -1;
     }
-
-    return -1;
   }
 
-  public <T> T executeQuery(String query, IThrowableCallback<ResultSet, T> callback, Object... objects) {
-    Preconditions.checkNotNull(query);
-    Preconditions.checkNotNull(callback);
-    Preconditions.checkNotNull(objects);
-
+  public @Nullable <T> T executeQuery(
+    @NotNull String query,
+    @NotNull IThrowableCallback<ResultSet, T> callback,
+    @NotNull Object... objects
+  ) {
     try (PreparedStatement preparedStatement = this.getConnection().prepareStatement(query)) {
-      int i = 1;
-      for (Object object : objects) {
-        preparedStatement.setString(i++, object.toString());
+      for (int i = 0; i < objects.length; i++) {
+        preparedStatement.setString(i + 1, objects[i].toString());
       }
 
       try (ResultSet resultSet = preparedStatement.executeQuery()) {
         return callback.call(resultSet);
       }
-
     } catch (Throwable throwable) {
       LOGGER.severe("Exception while executing database query", throwable);
+      return null;
     }
-
-    return null;
   }
-
 }

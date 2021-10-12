@@ -18,6 +18,7 @@ package de.dytanic.cloudnet.wrapper.event;
 
 import de.dytanic.cloudnet.driver.event.events.DriverEvent;
 import de.dytanic.cloudnet.wrapper.Wrapper;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * This event is only interesting for wrapper modules. It will called if the app is successful started and will called
@@ -37,7 +38,7 @@ public final class ApplicationPostStartEvent extends DriverEvent {
   /**
    * The class, which is set in the manifest as 'Main-Class' by the archive of the wrapped application
    */
-  private final Class<?> clazz;
+  private final Class<?> applicationMainClass;
 
   /**
    * The application thread, which invoked the main() method of the Main-Class from the application
@@ -49,27 +50,31 @@ public final class ApplicationPostStartEvent extends DriverEvent {
    */
   private final ClassLoader classLoader;
 
-  public ApplicationPostStartEvent(Wrapper cloudNetWrapper, Class<?> clazz, Thread applicationThread,
-    ClassLoader classLoader) {
+  public ApplicationPostStartEvent(
+    @NotNull Wrapper cloudNetWrapper,
+    @NotNull Class<?> applicationMainClass,
+    @NotNull Thread applicationThread,
+    @NotNull ClassLoader classLoader
+  ) {
     this.cloudNetWrapper = cloudNetWrapper;
-    this.clazz = clazz;
+    this.applicationMainClass = applicationMainClass;
     this.applicationThread = applicationThread;
     this.classLoader = classLoader;
   }
 
-  public Wrapper getCloudNetWrapper() {
+  public @NotNull Wrapper getCloudNetWrapper() {
     return this.cloudNetWrapper;
   }
 
-  public Class<?> getClazz() {
-    return this.clazz;
+  public @NotNull Class<?> getApplicationMainClass() {
+    return this.applicationMainClass;
   }
 
-  public Thread getApplicationThread() {
+  public @NotNull Thread getApplicationThread() {
     return this.applicationThread;
   }
 
-  public ClassLoader getClassLoader() {
+  public @NotNull ClassLoader getClassLoader() {
     return this.classLoader;
   }
 }

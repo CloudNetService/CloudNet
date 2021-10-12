@@ -18,20 +18,22 @@ package de.dytanic.cloudnet.database;
 
 import de.dytanic.cloudnet.common.INameable;
 import de.dytanic.cloudnet.driver.database.DatabaseProvider;
+import org.jetbrains.annotations.NotNull;
 
 public abstract class AbstractDatabaseProvider implements DatabaseProvider, INameable, AutoCloseable {
 
-  protected IDatabaseHandler databaseHandler;
+  protected IDatabaseHandler databaseHandler = new DefaultDatabaseHandler();
 
   public abstract boolean init() throws Exception;
 
-  public abstract boolean needsClusterSync();
-
-  public IDatabaseHandler getDatabaseHandler() {
+  public @NotNull IDatabaseHandler getDatabaseHandler() {
     return this.databaseHandler;
   }
 
-  public void setDatabaseHandler(IDatabaseHandler databaseHandler) {
+  public void setDatabaseHandler(@NotNull IDatabaseHandler databaseHandler) {
     this.databaseHandler = databaseHandler;
   }
+
+  @Override
+  public abstract @NotNull LocalDatabase getDatabase(@NotNull String name);
 }

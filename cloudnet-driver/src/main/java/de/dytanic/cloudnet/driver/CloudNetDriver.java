@@ -60,12 +60,16 @@ public abstract class CloudNetDriver {
     DefaultObjectMapper.DEFAULT_MAPPER,
     DataBufFactory.defaultFactory());
 
-  protected CloudMessenger messenger;
   protected CloudNetVersion cloudNetVersion;
-  protected NodeInfoProvider nodeInfoProvider;
-  protected CloudServiceFactory cloudServiceFactory;
-  protected ServiceTaskProvider serviceTaskProvider;
   protected IPermissionManagement permissionManagement;
+
+  protected INetworkClient networkClient;
+  protected CloudServiceFactory cloudServiceFactory;
+
+  protected CloudMessenger messenger;
+  protected NodeInfoProvider nodeInfoProvider;
+  protected DatabaseProvider databaseProvider;
+  protected ServiceTaskProvider serviceTaskProvider;
   protected GroupConfigurationProvider groupConfigurationProvider;
   protected GeneralCloudServiceProvider generalCloudServiceProvider;
 
@@ -223,8 +227,9 @@ public abstract class CloudNetDriver {
   /**
    * @return the active DatabaseProvider specified by the local/registry
    */
-  @NotNull
-  public abstract DatabaseProvider getDatabaseProvider();
+  public @NotNull DatabaseProvider getDatabaseProvider() {
+    return this.databaseProvider;
+  }
 
   /**
    * Returns the general CloudServiceProvider
@@ -239,10 +244,12 @@ public abstract class CloudNetDriver {
   /**
    * @return the network client used for communication
    */
-  @NotNull
-  public abstract INetworkClient getNetworkClient();
+  public @NotNull INetworkClient getNetworkClient() {
+    return this.networkClient;
+  }
 
-  public abstract Pair<Boolean, String[]> sendCommandLineAsPermissionUser(@NotNull UUID uniqueId,
+  public abstract Pair<Boolean, String[]> sendCommandLineAsPermissionUser(
+    @NotNull UUID uniqueId,
     @NotNull String commandLine);
 
   @NotNull

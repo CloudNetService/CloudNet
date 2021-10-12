@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.wrapper.conf;
+package de.dytanic.cloudnet.wrapper.configuration;
 
-import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.network.ssl.SSLConfiguration;
 import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
-import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * The configuration mirror of the .wrapper/wrapper.json file in the working folder from the service process. It
@@ -36,21 +35,21 @@ public interface IWrapperConfiguration {
    *
    * @return the string which includes the key
    */
-  String getConnectionKey();
+  @NotNull String getConnectionKey();
 
   /**
    * The address of a listener by the node
    *
    * @return the target local listener address of the node
    */
-  HostAndPort getTargetListener();
+  @NotNull HostAndPort getTargetListener();
 
   /**
    * The first own serviceConfiguration with all important information about the service
    *
    * @return the instance of the ServiceConfiguration class
    */
-  ServiceConfiguration getServiceConfiguration();
+  @NotNull ServiceConfiguration getServiceConfiguration();
 
   /**
    * The first serviceInfoSnapshot which has the important data for all next serviceInfoSnapshots, which the wrapper has
@@ -58,21 +57,12 @@ public interface IWrapperConfiguration {
    *
    * @return the serviceInfoSnapshot sample
    */
-  ServiceInfoSnapshot getServiceInfoSnapshot();
-
-  /**
-   * @return a document instance, which includes all important ssl settings, for a client ssl connection
-   * @deprecated use {@link IWrapperConfiguration#getSSLConfig()} The ssl configuration, which needs for an optional ssl
-   * client connection.
-   */
-  @Deprecated
-  @ScheduledForRemoval(inVersion = "3.7")
-  JsonDocument getSslConfig();
+  @NotNull ServiceInfoSnapshot getServiceInfoSnapshot();
 
   /**
    * The ssl configuration, which needs for an optional ssl client connection.
    *
    * @return the configuration instance, which includes all important ssl settings, for a client ssl connection
    */
-  SSLConfiguration getSSLConfig();
+  @NotNull SSLConfiguration getSSLConfig();
 }

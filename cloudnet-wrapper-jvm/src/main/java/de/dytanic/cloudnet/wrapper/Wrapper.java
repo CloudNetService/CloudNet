@@ -16,19 +16,16 @@
 
 package de.dytanic.cloudnet.wrapper;
 
-import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.collection.Pair;
-import de.dytanic.cloudnet.common.concurrent.CompletableTask;
-import de.dytanic.cloudnet.common.concurrent.ITask;
-import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
+import de.dytanic.cloudnet.driver.CloudNetVersion;
 import de.dytanic.cloudnet.driver.DriverEnvironment;
+import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.driver.module.DefaultModuleProviderHandler;
-import de.dytanic.cloudnet.driver.module.IModuleWrapper;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
-import de.dytanic.cloudnet.driver.network.INetworkClient;
+import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import de.dytanic.cloudnet.driver.network.def.NetworkConstants;
 import de.dytanic.cloudnet.driver.network.netty.client.NettyNetworkClient;
 import de.dytanic.cloudnet.driver.network.rpc.RPCSender;
@@ -40,36 +37,35 @@ import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import de.dytanic.cloudnet.driver.template.TemplateStorage;
-import de.dytanic.cloudnet.wrapper.conf.DocumentWrapperConfiguration;
-import de.dytanic.cloudnet.wrapper.conf.IWrapperConfiguration;
-import de.dytanic.cloudnet.wrapper.database.IDatabaseProvider;
-import de.dytanic.cloudnet.wrapper.database.defaults.DefaultWrapperDatabaseProvider;
+import de.dytanic.cloudnet.wrapper.configuration.DocumentWrapperConfiguration;
+import de.dytanic.cloudnet.wrapper.configuration.IWrapperConfiguration;
+import de.dytanic.cloudnet.wrapper.database.DefaultWrapperDatabaseProvider;
 import de.dytanic.cloudnet.wrapper.event.ApplicationPostStartEvent;
 import de.dytanic.cloudnet.wrapper.event.ApplicationPreStartEvent;
 import de.dytanic.cloudnet.wrapper.event.service.ServiceInfoSnapshotConfigureEvent;
 import de.dytanic.cloudnet.wrapper.network.NetworkClientChannelHandler;
-import de.dytanic.cloudnet.wrapper.network.listener.ChannelMessageServerListener;
-import de.dytanic.cloudnet.wrapper.network.listener.PacketServerAuthorizationResponseListener;
-import de.dytanic.cloudnet.wrapper.network.listener.PacketServerChannelMessageListener;
-import de.dytanic.cloudnet.wrapper.network.packet.PacketClientServiceInfoUpdate;
+import de.dytanic.cloudnet.wrapper.network.listener.PacketAuthorizationResponseListener;
 import de.dytanic.cloudnet.wrapper.permission.WrapperPermissionManagement;
 import de.dytanic.cloudnet.wrapper.provider.WrapperGroupConfigurationProvider;
 import de.dytanic.cloudnet.wrapper.provider.WrapperMessenger;
 import de.dytanic.cloudnet.wrapper.provider.WrapperNodeInfoProvider;
 import de.dytanic.cloudnet.wrapper.provider.WrapperServiceTaskProvider;
-import de.dytanic.cloudnet.wrapper.provider.service.WrapperGeneralCloudServiceProvider;
-import java.io.File;
+import de.dytanic.cloudnet.wrapper.provider.WrapperGeneralCloudServiceProvider;
 import java.lang.reflect.Method;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.UnmodifiableView;
 
 /**
  * This class is the main class of the application wrapper, which performs the basic driver functions and the setup of
@@ -77,8 +73,9 @@ import org.jetbrains.annotations.NotNull;
  *
  * @see CloudNetDriver
  */
-public final class Wrapper extends CloudNetDriver {
+public class Wrapper extends CloudNetDriver {
 
+  private static final Path WORKING_DIRECTORY = Paths.get("");
   private static final Logger LOGGER = LogManager.getLogger(Wrapper.class);
 
   /**
@@ -87,12 +84,9 @@ public final class Wrapper extends CloudNetDriver {
    *
    * @see IWrapperConfiguration
    */
-  private final IWrapperConfiguration config = new DocumentWrapperConfiguration();
+  private final IWrapperConfiguration config = DocumentWrapperConfiguration.load();
 
-  /**
-   * The default workDirectory of this process as File instance
-   */
-  private final Path workDirectory = Paths.get("");
+  private final RPCSender rpcSender;
 
   /**
    * The commandline arguments from the main() method of Main class by the application wrapper
@@ -100,17 +94,10 @@ public final class Wrapper extends CloudNetDriver {
   private final List<String> commandLineArguments;
 
   /**
-   * CloudNetDriver.getNetworkClient()
-   *
-   * @see CloudNetDriver
-   */
-  private final INetworkClient networkClient;
-  private final RPCSender rpcSender;
-  /**
    * The single task thread of the scheduler of the wrapper application
    */
   private final Thread mainThread = Thread.currentThread();
-  private IDatabaseProvider databaseProvider;
+
   /**
    * The ServiceInfoSnapshot instances. The current ServiceInfoSnapshot instance is the last send object snapshot from
    * this process. The lastServiceInfoSnapshot is the element which was send before.
@@ -118,34 +105,33 @@ public final class Wrapper extends CloudNetDriver {
   private ServiceInfoSnapshot lastServiceInfoSnapShot = this.config.getServiceInfoSnapshot();
   private ServiceInfoSnapshot currentServiceInfoSnapshot = this.config.getServiceInfoSnapshot();
 
-  Wrapper(List<String> commandLineArguments) {
+  protected Wrapper(@NotNull List<String> commandLineArguments) {
     setInstance(this);
 
-    this.networkClient = new NettyNetworkClient(NetworkClientChannelHandler::new, this.config.getSSLConfig());
-    this.databaseProvider = new DefaultWrapperDatabaseProvider(this);
-    this.rpcSender = this.rpcProviderFactory.providerForClass(this.getNetworkClient(), CloudNetDriver.class);
+    this.commandLineArguments = commandLineArguments;
+    this.cloudNetVersion = CloudNetVersion.fromClassInformation(Wrapper.class.getPackage());
 
-    super.cloudServiceFactory = new RemoteCloudServiceFactory(this::getNetworkChannel, this.networkClient,
-      this.rpcProviderFactory);
-    super.generalCloudServiceProvider = new WrapperGeneralCloudServiceProvider(this);
+    super.networkClient = new NettyNetworkClient(NetworkClientChannelHandler::new, this.config.getSSLConfig());
+    this.rpcSender = this.rpcProviderFactory.providerForClass(this.networkClient, CloudNetDriver.class);
+
+    super.databaseProvider = new DefaultWrapperDatabaseProvider(this);
+
+    super.messenger = new WrapperMessenger(this);
+    super.nodeInfoProvider = new WrapperNodeInfoProvider(this);
     super.serviceTaskProvider = new WrapperServiceTaskProvider(this);
     super.groupConfigurationProvider = new WrapperGroupConfigurationProvider(this);
-    super.nodeInfoProvider = new WrapperNodeInfoProvider(this);
-    super.messenger = new WrapperMessenger(this);
+    super.generalCloudServiceProvider = new WrapperGeneralCloudServiceProvider(this);
 
-    this.commandLineArguments = commandLineArguments;
+    super.cloudServiceFactory = new RemoteCloudServiceFactory(
+      this.networkClient::getFirstChannel,
+      this.networkClient,
+      this.rpcProviderFactory);
+
+    super.moduleProvider.setModuleProviderHandler(new DefaultModuleProviderHandler());
+    super.moduleProvider.setModuleDirectoryPath(Paths.get(".wrapper", "modules"));
 
     super.setPermissionManagement(new WrapperPermissionManagement(this));
-
-    //- Packet client registry
-    this.networkClient.getPacketRegistry()
-      .addListener(NetworkConstants.CHANNEL_MESSAGING_CHANNEL, new PacketServerChannelMessageListener());
-
-    new ChannelMessageServerListener();
-
-    this.moduleProvider.setModuleDirectoryPath(Paths.get(".wrapper", "modules"));
-    this.moduleProvider.setModuleProviderHandler(new DefaultModuleProviderHandler());
-    this.driverEnvironment = DriverEnvironment.WRAPPER;
+    super.driverEnvironment = DriverEnvironment.WRAPPER;
   }
 
   public static @NotNull Wrapper getInstance() {
@@ -154,35 +140,17 @@ public final class Wrapper extends CloudNetDriver {
 
   @Override
   public synchronized void start() throws Exception {
-    this.enableModules();
+    // load & enable the modules
+    this.moduleProvider.loadAll().startAll();
 
-    ReentrantLock lock = new ReentrantLock();
-    PacketServerAuthorizationResponseListener listener;
+    // connect to the node
+    this.connectToNode();
 
-    try {
-      lock.lock();
-
-      Condition condition = lock.newCondition();
-      listener = new PacketServerAuthorizationResponseListener(lock, condition);
-
-      this.networkClient.getPacketRegistry().addListener(NetworkConstants.INTERNAL_AUTHORIZATION_CHANNEL, listener);
-      this.networkClient.connect(this.config.getTargetListener());
-
-      condition.await();
-
-      if (!listener.wasAuthSuccessful()) {
-        throw new IllegalStateException("Unable to authorize wrapper with node");
-      }
-    } finally {
-      lock.unlock();
-    }
-
-    this.networkClient.getPacketRegistry().removeListener(NetworkConstants.INTERNAL_AUTHORIZATION_CHANNEL);
-
-
+    // initialize
     this.permissionManagement.init();
     Runtime.getRuntime().addShutdownHook(new Thread(this::stop));
 
+    // start the application
     if (!this.startApplication()) {
       System.exit(-1);
     }
@@ -238,46 +206,22 @@ public final class Wrapper extends CloudNetDriver {
   }
 
   /**
-   * {@inheritDoc}
-   */
-  @Override
-  public @NotNull ITask<Collection<TemplateStorage>> getAvailableTemplateStoragesAsync() {
-    return CompletableTask.supplyAsync(this::getAvailableTemplateStorages);
-  }
-
-  /**
    * Application wrapper implementation of this method. See the full documentation at the CloudNetDriver class.
    *
    * @see CloudNetDriver
    */
   @Override
   public Pair<Boolean, String[]> sendCommandLineAsPermissionUser(@NotNull UUID uniqueId, @NotNull String commandLine) {
-    Preconditions.checkNotNull(uniqueId);
-    Preconditions.checkNotNull(commandLine);
-
     return this.rpcSender.invokeMethod("sendCommandLineAsPermissionUser", uniqueId, commandLine).fireSync();
   }
-
-  /**
-   * Application wrapper implementation of this method. See the full documentation at the CloudNetDriver class.
-   *
-   * @see CloudNetDriver
-   */
-  @Override
-  @NotNull
-  public ITask<Pair<Boolean, String[]>> sendCommandLineAsPermissionUserAsync(@NotNull UUID uniqueId,
-    @NotNull String commandLine) {
-    return CompletableTask.supplyAsync(() -> this.sendCommandLineAsPermissionUser(uniqueId, commandLine));
-  }
-
 
   /**
    * Is an shortcut for Wrapper.getConfig().getServiceId()
    *
    * @return the ServiceId instance which was set in the config by the node
    */
-  public ServiceId getServiceId() {
-    return this.config.getServiceConfiguration().getServiceId();
+  public @NotNull ServiceId getServiceId() {
+    return this.getServiceConfiguration().getServiceId();
   }
 
   /**
@@ -285,7 +229,7 @@ public final class Wrapper extends CloudNetDriver {
    *
    * @return the first instance which was set in the config by the node
    */
-  public ServiceConfiguration getServiceConfiguration() {
+  public @NotNull ServiceConfiguration getServiceConfiguration() {
     return this.config.getServiceConfiguration();
   }
 
@@ -305,11 +249,10 @@ public final class Wrapper extends CloudNetDriver {
       ServiceLifeCycle.RUNNING,
       ProcessSnapshot.self(),
       this.getServiceConfiguration(),
-      this.currentServiceInfoSnapshot.getProperties()
-    );
+      this.currentServiceInfoSnapshot.getProperties());
   }
 
-  @ApiStatus.Internal
+  @Internal
   public ServiceInfoSnapshot configureServiceInfoSnapshot() {
     ServiceInfoSnapshot serviceInfoSnapshot = this.createServiceInfoSnapshot();
     this.configureServiceInfoSnapshot(serviceInfoSnapshot);
@@ -334,13 +277,20 @@ public final class Wrapper extends CloudNetDriver {
   }
 
   public void publishServiceInfoUpdate(@NotNull ServiceInfoSnapshot serviceInfoSnapshot) {
+    // add configuration stuff when updating the current service snapshot
     if (this.currentServiceInfoSnapshot.getServiceId().equals(serviceInfoSnapshot.getServiceId())) {
       this.configureServiceInfoSnapshot(serviceInfoSnapshot);
     }
 
-    this.networkClient.sendPacket(new PacketClientServiceInfoUpdate(serviceInfoSnapshot));
+    // send the update to all nodes and services
+    ChannelMessage.builder()
+      .targetAll()
+      .message("update_service_information")
+      .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
+      .buffer(DataBuf.empty().writeObject(serviceInfoSnapshot))
+      .build()
+      .send();
   }
-
 
   /**
    * Removes all PacketListeners from all channels of the Network Connctor from a specific ClassLoader. It is
@@ -356,21 +306,35 @@ public final class Wrapper extends CloudNetDriver {
     }
   }
 
-  private void enableModules() {
-    Path moduleDirectory = Paths.get(System.getProperty("cloudnet.module.dir", ".wrapper/modules"));
-    FileUtils.createDirectoryReported(moduleDirectory);
-    FileUtils.walkFileTree(moduleDirectory, (root, current) -> {
-      IModuleWrapper wrapper = this.moduleProvider.loadModule(current);
-      if (wrapper != null) {
-        wrapper.startModule();
+  private void connectToNode() throws InterruptedException {
+    Lock lock = new ReentrantLock();
+
+    try {
+      // acquire the lock on the current thread
+      lock.lock();
+      // create a new condition and the auth listener
+      Condition condition = lock.newCondition();
+      PacketAuthorizationResponseListener listener = new PacketAuthorizationResponseListener(lock, condition);
+      // register the listener to the packet registry and connect to the target listener
+      this.networkClient.getPacketRegistry().addListener(NetworkConstants.INTERNAL_AUTHORIZATION_CHANNEL, listener);
+      this.networkClient.connect(this.config.getTargetListener());
+
+      // wait for the authentication response
+      boolean wasDone = condition.await(30, TimeUnit.SECONDS);
+      // check if the auth was successful - explode if not
+      if (!wasDone || !listener.wasAuthSuccessful()) {
+        throw new IllegalStateException("Unable to authorize wrapper with node");
       }
-    }, false, "*.{jar,war,zip}");
+
+      // remove the auth listener
+      this.networkClient.getPacketRegistry().removeListener(NetworkConstants.INTERNAL_AUTHORIZATION_CHANNEL);
+    } finally {
+      lock.unlock();
+    }
   }
 
   private boolean startApplication() throws Exception {
-    String mainClass = this.commandLineArguments.remove(0);
-
-    return this.startApplication(mainClass);
+    return this.startApplication(this.commandLineArguments.remove(0));
   }
 
   private boolean startApplication(@NotNull String mainClass) throws Exception {
@@ -388,15 +352,14 @@ public final class Wrapper extends CloudNetDriver {
       // adds a tweak class to the LaunchWrapper which will prevent doubled loading of the CloudNet classes
       arguments.add("--tweakClass");
       arguments.add("de.dytanic.cloudnet.wrapper.tweak.CloudNetTweaker");
-    } catch (ClassNotFoundException exception) {
+    } catch (ClassNotFoundException ignored) {
       // the LaunchWrapper is not available, doing nothing
     }
 
     Thread applicationThread = new Thread(() -> {
       try {
-        LOGGER.info(
-          "Starting Application-Thread based of " + Wrapper.this.getServiceConfiguration().getProcessConfig()
-            .getEnvironment() + "\n");
+        LOGGER.info(String.format("Starting Application-Thread based of %s",
+          this.getServiceConfiguration().getProcessConfig().getEnvironment()));
         method.invoke(null, new Object[]{arguments.toArray(new String[0])});
       } catch (Exception exception) {
         LOGGER.severe("Exception while starting application", exception);
@@ -405,73 +368,33 @@ public final class Wrapper extends CloudNetDriver {
     applicationThread.setContextClassLoader(ClassLoader.getSystemClassLoader());
     applicationThread.start();
 
-    this.eventManager
-      .callEvent(new ApplicationPostStartEvent(this, main, applicationThread, ClassLoader.getSystemClassLoader()));
+    this.eventManager.callEvent(
+      new ApplicationPostStartEvent(this, main, applicationThread, ClassLoader.getSystemClassLoader()));
     return true;
   }
 
-  @NotNull
-  public IWrapperConfiguration getConfig() {
+  public @NotNull IWrapperConfiguration getConfig() {
     return this.config;
   }
 
-  @NotNull
-  @Deprecated
-  public File getWorkDirectory() {
-    return this.workDirectory.toFile();
+  public @NotNull Path getWorkingDirectoryPath() {
+    return WORKING_DIRECTORY;
   }
 
-  @NotNull
-  public Path getWorkingDirectoryPath() {
-    return this.workDirectory;
+  @UnmodifiableView
+  public @NotNull List<String> getCommandLineArguments() {
+    return Collections.unmodifiableList(this.commandLineArguments);
   }
 
-  @NotNull
-  public List<String> getCommandLineArguments() {
-    return this.commandLineArguments;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @NotNull
-  public INetworkClient getNetworkClient() {
-    return this.networkClient;
-  }
-
-  @NotNull
-  public Thread getMainThread() {
+  public @NotNull Thread getMainThread() {
     return this.mainThread;
   }
 
-  @NotNull
-  public ServiceInfoSnapshot getLastServiceInfoSnapShot() {
+  public @NotNull ServiceInfoSnapshot getLastServiceInfoSnapShot() {
     return this.lastServiceInfoSnapShot;
   }
 
-  @NotNull
-  public ServiceInfoSnapshot getCurrentServiceInfoSnapshot() {
+  public @NotNull ServiceInfoSnapshot getCurrentServiceInfoSnapshot() {
     return this.currentServiceInfoSnapshot;
-  }
-
-  /**
-   * @deprecated use {@link CloudNetDriver#getDatabaseProvider()} instead
-   */
-  @NotNull
-  @Deprecated
-  @ApiStatus.ScheduledForRemoval(inVersion = "3.6")
-  public IDatabaseProvider getDatabaseProvider() {
-    return this.databaseProvider;
-  }
-
-  @Deprecated
-  @ApiStatus.ScheduledForRemoval(inVersion = "3.6")
-  public void setDatabaseProvider(@NotNull IDatabaseProvider databaseProvider) {
-    Preconditions.checkNotNull(databaseProvider);
-    this.databaseProvider = databaseProvider;
-  }
-
-  public INetworkChannel getNetworkChannel() {
-    return this.networkClient.getFirstChannel();
   }
 }

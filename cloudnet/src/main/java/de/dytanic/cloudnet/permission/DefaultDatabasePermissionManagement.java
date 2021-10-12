@@ -20,6 +20,7 @@ import com.google.common.collect.Iterables;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.io.FileUtils;
+import de.dytanic.cloudnet.database.LocalDatabase;
 import de.dytanic.cloudnet.driver.database.Database;
 import de.dytanic.cloudnet.driver.permission.DefaultPermissionManagement;
 import de.dytanic.cloudnet.driver.permission.PermissionGroup;
@@ -341,7 +342,7 @@ public class DefaultDatabasePermissionManagement extends DefaultPermissionManage
     this.handler = handler;
   }
 
-  protected @NotNull Database getUserDatabaseTable() {
+  protected @NotNull LocalDatabase getUserDatabaseTable() {
     return this.nodeInstance.getDatabaseProvider().getDatabase(USER_DB_NAME);
   }
 

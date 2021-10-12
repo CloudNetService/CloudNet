@@ -39,7 +39,7 @@ public class NodeNodeInfoProvider implements NodeInfoProvider {
   }
 
   @Override
-  public Collection<CommandInfo> getConsoleCommands() {
+  public @NotNull Collection<CommandInfo> getConsoleCommands() {
     // TODO: return this.cloudNet.getCommandMap().getCommandInfos();
     return null;
   }
@@ -128,7 +128,7 @@ public class NodeNodeInfoProvider implements NodeInfoProvider {
   }
 
   @Override
-  public Collection<String> getConsoleTabCompleteResults(@NotNull String commandLine) {
+  public @NotNull Collection<String> getConsoleTabCompleteResults(@NotNull String commandLine) {
     // return this.cloudNet.getCommandMap().tabCompleteCommand(commandLine);
     return Collections.emptyList();
   }

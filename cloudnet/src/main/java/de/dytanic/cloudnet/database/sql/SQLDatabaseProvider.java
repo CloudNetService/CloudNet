@@ -16,7 +16,6 @@
 
 package de.dytanic.cloudnet.database.sql;
 
-import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.concurrent.IThrowableCallback;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
@@ -29,27 +28,26 @@ import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public abstract class SQLDatabaseProvider extends AbstractDatabaseProvider {
 
   protected static final Logger LOGGER = LogManager.getLogger(SQLDatabaseProvider.class);
+
   protected final ExecutorService executorService;
+  protected final boolean autoShutdownExecutorService;
   protected final Map<String, SQLDatabase> cachedDatabaseInstances;
 
-  private final boolean autoShutdownExecutorService;
-
-  public SQLDatabaseProvider(ExecutorService executorService) {
+  public SQLDatabaseProvider(@Nullable ExecutorService executorService) {
     this.cachedDatabaseInstances = new ConcurrentHashMap<>();
     this.autoShutdownExecutorService = executorService == null;
     this.executorService = executorService == null ? Executors.newCachedThreadPool() : executorService;
   }
 
   @Override
-  public boolean containsDatabase(String name) {
-    Preconditions.checkNotNull(name);
-
+  public boolean containsDatabase(@NotNull String name) {
     this.removedOutdatedEntries();
-
     for (String database : this.getDatabaseNames()) {
       if (database.equalsIgnoreCase(name)) {
         return true;
@@ -74,10 +72,12 @@ public abstract class SQLDatabaseProvider extends AbstractDatabaseProvider {
     }
   }
 
-  public abstract Connection getConnection() throws SQLException;
+  public abstract @NotNull Connection getConnection() throws SQLException;
 
-  public abstract int executeUpdate(String query, Object... objects);
+  public abstract int executeUpdate(@NotNull String query, @NotNull Object... objects);
 
-  public abstract <T> T executeQuery(String query, IThrowableCallback<ResultSet, T> callback, Object... objects);
-
+  public abstract <T> T executeQuery(
+    @NotNull String query,
+    @NotNull IThrowableCallback<ResultSet, T> callback,
+    @NotNull Object... objects);
 }

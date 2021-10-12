@@ -60,8 +60,8 @@ public final class Main {
     logger.setLevel(LoggingUtils.getDefaultLogLevel());
     logger.setLogRecordDispatcher(ThreadedLogRecordDispatcher.forLogger(logger));
 
-    logger.addHandler(DefaultFileHandler.newInstance(logFilePattern, false)
-      .withFormatter(DefaultLogFormatter.END_LINE_SEPARATOR));
     logger.addHandler(InternalPrintStreamLogHandler.forSystemStreams().withFormatter(DefaultLogFormatter.END_CLEAN));
+    logger.addHandler(
+      DefaultFileHandler.newInstance(logFilePattern, false).withFormatter(DefaultLogFormatter.END_LINE_SEPARATOR));
   }
 }

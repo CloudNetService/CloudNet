@@ -19,6 +19,7 @@ package de.dytanic.cloudnet.wrapper.event;
 import de.dytanic.cloudnet.driver.event.events.DriverEvent;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import java.util.Collection;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * This event is only interesting for wrapper modules. It is called before the actual program is started in a new
@@ -38,27 +39,31 @@ public final class ApplicationPreStartEvent extends DriverEvent {
   /**
    * The class, which is set in the manifest as 'Main-Class' by the archive of the wrapped application
    */
-  private final Class<?> clazz;
+  private final Class<?> applicationMainClass;
   /**
    * The arguments for the main method of the application
    */
   private final Collection<String> arguments;
 
-  public ApplicationPreStartEvent(Wrapper cloudNetWrapper, Class<?> clazz, Collection<String> arguments) {
+  public ApplicationPreStartEvent(
+    @NotNull Wrapper cloudNetWrapper,
+    @NotNull Class<?> applicationMainClass,
+    @NotNull Collection<String> arguments
+  ) {
     this.cloudNetWrapper = cloudNetWrapper;
-    this.clazz = clazz;
+    this.applicationMainClass = applicationMainClass;
     this.arguments = arguments;
   }
 
-  public Wrapper getCloudNetWrapper() {
+  public @NotNull Wrapper getCloudNetWrapper() {
     return this.cloudNetWrapper;
   }
 
-  public Class<?> getClazz() {
-    return this.clazz;
+  public @NotNull Class<?> getClazz() {
+    return this.applicationMainClass;
   }
 
-  public Collection<String> getArguments() {
+  public @NotNull Collection<String> getArguments() {
     return this.arguments;
   }
 }

@@ -23,9 +23,8 @@ import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.function.BiConsumer;
-import java.util.function.BiPredicate;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * The database is used to store cloudnet related data, these databases can be used by an api user too. To create or
@@ -40,7 +39,7 @@ public interface Database extends INameable, AutoCloseable {
    * @param document the document to be stored
    * @return whether the operation was successful or not
    */
-  boolean insert(String key, JsonDocument document);
+  boolean insert(@NotNull String key, @NotNull JsonDocument document);
 
   /**
    * Updates the given document for the given key
@@ -49,13 +48,13 @@ public interface Database extends INameable, AutoCloseable {
    * @param document the document to be stored
    * @return whether the operation was successful or not
    */
-  boolean update(String key, JsonDocument document);
+  boolean update(@NotNull String key, @NotNull JsonDocument document);
 
   /**
    * @param key the key to look for
    * @return whether the database contains the given key
    */
-  boolean contains(String key);
+  boolean contains(@NotNull String key);
 
   /**
    * Deletes the given key and corresponding data
@@ -63,7 +62,7 @@ public interface Database extends INameable, AutoCloseable {
    * @param key the key to be deleted
    * @return whether the operation was successful or not
    */
-  boolean delete(String key);
+  boolean delete(@NotNull String key);
 
   /**
    * Searches for a {@link JsonDocument} by the given key
@@ -71,7 +70,7 @@ public interface Database extends INameable, AutoCloseable {
    * @param key the key to the document
    * @return the document associated with the key
    */
-  JsonDocument get(String key);
+  @Nullable JsonDocument get(String key);
 
   /**
    * Searches the database for a field that has the given fieldValue
@@ -80,7 +79,7 @@ public interface Database extends INameable, AutoCloseable {
    * @param fieldValue the fieldValue associated with the fieldName
    * @return a List with the documents containing the field and fieldValue
    */
-  List<JsonDocument> get(String fieldName, Object fieldValue);
+  @NotNull List<JsonDocument> get(@NotNull String fieldName, @Nullable Object fieldValue);
 
   /**
    * Filters the database by the given document filters
@@ -88,49 +87,24 @@ public interface Database extends INameable, AutoCloseable {
    * @param filters the filter to filter with
    * @return all documents that passed the filter
    */
-  List<JsonDocument> get(JsonDocument filters);
+  @NotNull List<JsonDocument> get(@NotNull JsonDocument filters);
 
   /**
    * @return all keys of the database
    */
-  Collection<String> keys();
+  @NotNull Collection<String> keys();
 
   /**
    * @return all documents of the database
    */
-  Collection<JsonDocument> documents();
+  @NotNull Collection<JsonDocument> documents();
 
   /**
-   * Retrieves all keys and corresponding documents from the database. This option should not be used with big databases
-   * Use {@link Database#iterate(BiConsumer, int)}} instead
+   * Retrieves all keys and corresponding documents from the database.
    *
    * @return all entries of the database
    */
-  Map<String, JsonDocument> entries();
-
-  /**
-   * Retrieves all entries that match the given filter predicate
-   *
-   * @param predicate the filter for the entries
-   * @return all entries that match the filter
-   */
-  Map<String, JsonDocument> filter(BiPredicate<String, JsonDocument> predicate);
-
-  /**
-   * Iterates over all entries in the database This option should not be used with big databases Use {@link
-   * Database#iterate(BiConsumer, int)}} instead
-   *
-   * @param consumer the consumer to pass the entries into
-   */
-  void iterate(BiConsumer<String, JsonDocument> consumer);
-
-  /**
-   * Iterates over all entries in the database, but in chunks in the given size
-   *
-   * @param consumer  the consumer to pass the entries into
-   * @param chunkSize the chunkSize of the entries
-   */
-  void iterate(BiConsumer<String, JsonDocument> consumer, int chunkSize);
+  @NotNull Map<String, JsonDocument> entries();
 
   /**
    * Clears the whole database
@@ -154,8 +128,7 @@ public interface Database extends INameable, AutoCloseable {
    * @param document the document to be stored
    * @return whether the operation was successful or not
    */
-  @NotNull
-  default ITask<Boolean> insertAsync(String key, JsonDocument document) {
+  default @NotNull ITask<Boolean> insertAsync(@NotNull String key, @NotNull JsonDocument document) {
     return CompletableTask.supplyAsync(() -> this.insert(key, document));
   }
 
@@ -166,8 +139,7 @@ public interface Database extends INameable, AutoCloseable {
    * @param document the document to be stored
    * @return whether the operation was successful or not
    */
-  @NotNull
-  default ITask<Boolean> updateAsync(String key, JsonDocument document) {
+  default @NotNull ITask<Boolean> updateAsync(@NotNull String key, @NotNull JsonDocument document) {
     return CompletableTask.supplyAsync(() -> this.update(key, document));
   }
 
@@ -175,8 +147,7 @@ public interface Database extends INameable, AutoCloseable {
    * @param key the key to look for
    * @return whether the database contains the given key
    */
-  @NotNull
-  default ITask<Boolean> containsAsync(String key) {
+  default @NotNull ITask<Boolean> containsAsync(@NotNull String key) {
     return CompletableTask.supplyAsync(() -> this.contains(key));
   }
 
@@ -186,8 +157,7 @@ public interface Database extends INameable, AutoCloseable {
    * @param key the key to be deleted
    * @return whether the operation was successful or not
    */
-  @NotNull
-  default ITask<Boolean> deleteAsync(String key) {
+  default @NotNull ITask<Boolean> deleteAsync(@NotNull String key) {
     return CompletableTask.supplyAsync(() -> this.delete(key));
   }
 
@@ -197,8 +167,7 @@ public interface Database extends INameable, AutoCloseable {
    * @param key the key to the document
    * @return the document associated with the key
    */
-  @NotNull
-  default ITask<JsonDocument> getAsync(String key) {
+  default @NotNull ITask<JsonDocument> getAsync(@NotNull String key) {
     return CompletableTask.supplyAsync(() -> this.get(key));
   }
 
@@ -209,8 +178,7 @@ public interface Database extends INameable, AutoCloseable {
    * @param fieldValue the fieldValue associated with the fieldName
    * @return a List with the documents containing the field and fieldValue
    */
-  @NotNull
-  default ITask<List<JsonDocument>> getAsync(String fieldName, Object fieldValue) {
+  default @NotNull ITask<List<JsonDocument>> getAsync(@NotNull String fieldName, @Nullable Object fieldValue) {
     return CompletableTask.supplyAsync(() -> this.get(fieldName, fieldValue));
   }
 
@@ -220,85 +188,44 @@ public interface Database extends INameable, AutoCloseable {
    * @param filters the filter to filter with
    * @return all documents that passed the filter
    */
-  @NotNull
-  default ITask<List<JsonDocument>> getAsync(JsonDocument filters) {
+  default @NotNull ITask<List<JsonDocument>> getAsync(@NotNull JsonDocument filters) {
     return CompletableTask.supplyAsync(() -> this.get(filters));
   }
 
   /**
    * @return all keys of the database
    */
-  @NotNull
-  default ITask<Collection<String>> keysAsync() {
+  default @NotNull ITask<Collection<String>> keysAsync() {
     return CompletableTask.supplyAsync(this::keys);
   }
 
   /**
    * @return all documents of the database
    */
-  @NotNull
-  default ITask<Collection<JsonDocument>> documentsAsync() {
+  default @NotNull ITask<Collection<JsonDocument>> documentsAsync() {
     return CompletableTask.supplyAsync(this::documents);
   }
 
   /**
-   * Retrieves all keys and corresponding documents from the database. This option should not be used with big databases
-   * Use {@link Database#iterate(BiConsumer, int)}} instead
+   * Retrieves all keys and corresponding documents from the database.
    *
    * @return all entries of the database
    */
-  @NotNull
-  default ITask<Map<String, JsonDocument>> entriesAsync() {
+  default @NotNull ITask<Map<String, JsonDocument>> entriesAsync() {
     return CompletableTask.supplyAsync(this::entries);
-  }
-
-  /**
-   * Retrieves all entries that match the given filter predicate
-   *
-   * @param predicate the filter for the entries
-   * @return all entries that match the filter
-   */
-  @NotNull
-  default ITask<Map<String, JsonDocument>> filterAsync(BiPredicate<String, JsonDocument> predicate) {
-    return CompletableTask.supplyAsync(() -> this.filter(predicate));
-  }
-
-  /**
-   * Iterates over all entries in the database This option should not be used with big databases Use {@link
-   * Database#iterate(BiConsumer, int)}} instead
-   *
-   * @param consumer the consumer to pass the entries into
-   */
-  @NotNull
-  default ITask<Void> iterateAsync(BiConsumer<String, JsonDocument> consumer) {
-    return CompletableTask.supplyAsync(() -> this.iterate(consumer));
-  }
-
-  /**
-   * Iterates over all entries in the database, but in chunks in the given size
-   *
-   * @param consumer  the consumer to pass the entries into
-   * @param chunkSize the chunkSize of the entries
-   */
-  @NotNull
-  default ITask<Void> iterateAsync(BiConsumer<String, JsonDocument> consumer, int chunkSize) {
-    return CompletableTask.supplyAsync(() -> this.iterate(consumer, chunkSize));
   }
 
   /**
    * Clears the whole database
    */
-  @NotNull
-  default ITask<Void> clearAsync() {
+  default @NotNull ITask<Void> clearAsync() {
     return CompletableTask.supplyAsync(this::clear);
   }
 
   /**
    * @return the count of all persistent documents
    */
-  @NotNull
-  default ITask<Long> getDocumentsCountAsync() {
+  default @NotNull ITask<Long> getDocumentsCountAsync() {
     return CompletableTask.supplyAsync(this::getDocumentsCount);
   }
-
 }

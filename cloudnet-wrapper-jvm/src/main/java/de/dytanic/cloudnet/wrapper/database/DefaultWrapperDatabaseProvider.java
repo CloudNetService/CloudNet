@@ -14,43 +14,44 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.wrapper.database.defaults;
+package de.dytanic.cloudnet.wrapper.database;
 
 import de.dytanic.cloudnet.driver.database.Database;
 import de.dytanic.cloudnet.driver.database.DatabaseProvider;
 import de.dytanic.cloudnet.driver.network.rpc.RPCSender;
 import de.dytanic.cloudnet.wrapper.Wrapper;
-import de.dytanic.cloudnet.wrapper.database.IDatabaseProvider;
 import java.util.Collection;
+import org.jetbrains.annotations.NotNull;
 
-public class DefaultWrapperDatabaseProvider implements IDatabaseProvider {
+public class DefaultWrapperDatabaseProvider implements DatabaseProvider {
 
   private final Wrapper wrapper;
   private final RPCSender rpcSender;
 
-  public DefaultWrapperDatabaseProvider(Wrapper wrapper) {
+  public DefaultWrapperDatabaseProvider(@NotNull Wrapper wrapper) {
     this.wrapper = wrapper;
-    this.rpcSender = wrapper.getRPCProviderFactory()
-      .providerForClass(wrapper.getNetworkClient(), DatabaseProvider.class);
+    this.rpcSender = wrapper.getRPCProviderFactory().providerForClass(
+      wrapper.getNetworkClient(),
+      DatabaseProvider.class);
   }
 
   @Override
-  public Database getDatabase(String name) {
-    return new WrapperDatabase(name, this, this.wrapper);
+  public @NotNull Database getDatabase(@NotNull String name) {
+    return new WrapperDatabase(name, this.wrapper, this.rpcSender.invokeMethod("getDatabase", name));
   }
 
   @Override
-  public boolean containsDatabase(String name) {
+  public boolean containsDatabase(@NotNull String name) {
     return this.rpcSender.invokeMethod("containsDatabase", name).fireSync();
   }
 
   @Override
-  public boolean deleteDatabase(String name) {
+  public boolean deleteDatabase(@NotNull String name) {
     return this.rpcSender.invokeMethod("deleteDatabase", name).fireSync();
   }
 
   @Override
-  public Collection<String> getDatabaseNames() {
+  public @NotNull Collection<String> getDatabaseNames() {
     return this.rpcSender.invokeMethod("getDatabaseNames").fireSync();
   }
 }

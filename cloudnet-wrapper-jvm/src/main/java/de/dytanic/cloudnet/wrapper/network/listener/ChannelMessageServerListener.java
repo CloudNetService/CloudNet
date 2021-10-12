@@ -45,6 +45,7 @@ import de.dytanic.cloudnet.wrapper.Wrapper;
 import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.logging.Level;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * @author Aldin S. (0utplay@cloudnetservice.eu)
@@ -63,7 +64,7 @@ public class ChannelMessageServerListener {
   }
 
   @EventListener
-  public void handleChannelMessage(ChannelMessageReceiveEvent event) {
+  public void handleChannelMessage(@NotNull ChannelMessageReceiveEvent event) {
     if (!event.getChannel().equals(NetworkConstants.INTERNAL_MSG_CHANNEL)) {
       return;
     }

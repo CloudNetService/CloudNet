@@ -16,23 +16,20 @@
 
 package de.dytanic.cloudnet.event.database;
 
-import de.dytanic.cloudnet.database.IDatabase;
+import de.dytanic.cloudnet.driver.database.Database;
+import org.jetbrains.annotations.NotNull;
 
 public class DatabaseDeleteEntryEvent extends DatabaseEvent {
 
-  private String key;
+  private final String key;
 
-  public DatabaseDeleteEntryEvent(IDatabase database, String key) {
+  public DatabaseDeleteEntryEvent(@NotNull Database database, @NotNull String key) {
     super(database);
 
     this.key = key;
   }
 
-  public String getKey() {
+  public @NotNull String getKey() {
     return this.key;
-  }
-
-  public void setKey(String key) {
-    this.key = key;
   }
 }

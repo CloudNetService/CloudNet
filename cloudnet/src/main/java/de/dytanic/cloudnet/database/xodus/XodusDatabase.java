@@ -45,7 +45,12 @@ public class XodusDatabase extends AbstractDatabase {
   protected final Environment environment;
   protected final AtomicReference<Store> store;
 
-  protected XodusDatabase(String name, ExecutorService executorService, Store store, XodusDatabaseProvider provider) {
+  protected XodusDatabase(
+    @NotNull String name,
+    @NotNull ExecutorService executorService,
+    @NotNull Store store,
+    @NotNull XodusDatabaseProvider provider
+  ) {
     super(name, executorService, provider);
 
     this.environment = store.getEnvironment();
@@ -53,19 +58,15 @@ public class XodusDatabase extends AbstractDatabase {
   }
 
   @Override
-  public boolean insert(String key, JsonDocument document) {
-    if (this.databaseProvider.getDatabaseHandler() != null) {
-      this.databaseProvider.getDatabaseHandler().handleInsert(this, key, document);
-    }
+  public boolean insert(@NotNull String key, @NotNull JsonDocument document) {
+    this.databaseProvider.getDatabaseHandler().handleInsert(this, key, document);
 
     return this.insert0(key, document);
   }
 
   @Override
-  public boolean update(String key, JsonDocument document) {
-    if (this.databaseProvider.getDatabaseHandler() != null) {
-      this.databaseProvider.getDatabaseHandler().handleUpdate(this, key, document);
-    }
+  public boolean update(@NotNull String key, @NotNull JsonDocument document) {
+    this.databaseProvider.getDatabaseHandler().handleUpdate(this, key, document);
 
     return this.insert0(key, document);
   }
@@ -76,16 +77,14 @@ public class XodusDatabase extends AbstractDatabase {
   }
 
   @Override
-  public boolean contains(String key) {
+  public boolean contains(@NotNull String key) {
     return this.environment.computeInReadonlyTransaction(
       txn -> this.getStore().get(txn, StringBinding.stringToEntry(key)) != null);
   }
 
   @Override
-  public boolean delete(String key) {
-    if (this.databaseProvider.getDatabaseHandler() != null) {
-      this.databaseProvider.getDatabaseHandler().handleDelete(this, key);
-    }
+  public boolean delete(@NotNull String key) {
+    this.databaseProvider.getDatabaseHandler().handleDelete(this, key);
 
     return this.delete0(key);
   }
@@ -103,7 +102,7 @@ public class XodusDatabase extends AbstractDatabase {
   }
 
   @Override
-  public List<JsonDocument> get(String fieldName, Object fieldValue) {
+  public @NotNull List<JsonDocument> get(@NotNull String fieldName, Object fieldValue) {
     JsonElement like = JsonDocument.GSON.toJsonTree(fieldValue);
     return this.handleWithCursor(($, document) -> {
       if (document.contains(fieldName) && document.getElement(fieldName).equals(like)) {
@@ -114,7 +113,7 @@ public class XodusDatabase extends AbstractDatabase {
   }
 
   @Override
-  public List<JsonDocument> get(JsonDocument filters) {
+  public @NotNull List<JsonDocument> get(@NotNull JsonDocument filters) {
     Map<String, Object> filterObjects = new HashMap<>();
     if (!filters.isEmpty()) {
       for (String key : filters) {
@@ -134,24 +133,24 @@ public class XodusDatabase extends AbstractDatabase {
   }
 
   @Override
-  public Collection<String> keys() {
+  public @NotNull Collection<String> keys() {
     return this.handleWithCursor((key, $) -> key);
   }
 
   @Override
-  public Collection<JsonDocument> documents() {
+  public @NotNull Collection<JsonDocument> documents() {
     return this.handleWithCursor(($, document) -> document);
   }
 
   @Override
-  public Map<String, JsonDocument> entries() {
+  public @NotNull Map<String, JsonDocument> entries() {
     Map<String, JsonDocument> result = new HashMap<>();
     this.acceptWithCursor(result::put);
     return result;
   }
 
   @Override
-  public Map<String, JsonDocument> filter(BiPredicate<String, JsonDocument> predicate) {
+  public @NotNull Map<String, JsonDocument> filter(@NotNull BiPredicate<String, JsonDocument> predicate) {
     Map<String, JsonDocument> result = new HashMap<>();
     this.acceptWithCursor((key, document) -> {
       if (predicate.test(key, document)) {
@@ -162,17 +161,17 @@ public class XodusDatabase extends AbstractDatabase {
   }
 
   @Override
-  public void iterate(BiConsumer<String, JsonDocument> consumer) {
+  public void iterate(@NotNull BiConsumer<String, JsonDocument> consumer) {
     this.acceptWithCursor(consumer);
   }
 
   @Override
   public void clear() {
-    if (this.databaseProvider.getDatabaseHandler() != null) {
-      this.databaseProvider.getDatabaseHandler().handleClear(this);
-    }
-
-    this.clearWithoutHandlerCall();
+    this.databaseProvider.getDatabaseHandler().handleClear(this);
+    this.environment.executeInExclusiveTransaction(txn -> {
+      this.environment.truncateStore(this.name, txn);
+      this.store.set(this.environment.openStore(this.name, this.getStore().getConfig(), txn));
+    });
   }
 
   @Override
@@ -211,33 +210,6 @@ public class XodusDatabase extends AbstractDatabase {
     });
   }
 
-  protected @NotNull Store getStore() {
-    return this.store.get();
-  }
-
-  @Override
-  public void insertWithoutHandlerCall(@NotNull String key, @NotNull JsonDocument document) {
-    this.insert0(key, document);
-  }
-
-  @Override
-  public void updateWithoutHandlerCall(@NotNull String key, @NotNull JsonDocument document) {
-    this.insert0(key, document);
-  }
-
-  @Override
-  public void deleteWithoutHandlerCall(@NotNull String key) {
-    this.delete0(key);
-  }
-
-  @Override
-  public void clearWithoutHandlerCall() {
-    this.environment.executeInExclusiveTransaction(txn -> {
-      this.environment.truncateStore(this.name, txn);
-      this.store.set(this.environment.openStore(this.name, this.getStore().getConfig(), txn));
-    });
-  }
-
   @Override
   public @Nullable Map<String, JsonDocument> readChunk(long beginIndex, int chunkSize) {
     return this.environment.computeInReadonlyTransaction(txn -> {
@@ -261,5 +233,9 @@ public class XodusDatabase extends AbstractDatabase {
         return result.isEmpty() ? null : result;
       }
     });
+  }
+
+  protected @NotNull Store getStore() {
+    return this.store.get();
   }
 }

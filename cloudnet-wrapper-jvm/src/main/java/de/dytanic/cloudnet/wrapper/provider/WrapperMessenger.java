@@ -28,7 +28,7 @@ public class WrapperMessenger extends DefaultMessenger implements CloudMessenger
 
   private final RPCSender rpcSender;
 
-  public WrapperMessenger(Wrapper wrapper) {
+  public WrapperMessenger(@NotNull Wrapper wrapper) {
     this.rpcSender = wrapper.getRPCProviderFactory().providerForClass(wrapper.getNetworkClient(), CloudMessenger.class);
   }
 

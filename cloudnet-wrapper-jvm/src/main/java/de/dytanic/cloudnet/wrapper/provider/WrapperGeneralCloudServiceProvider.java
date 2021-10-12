@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.wrapper.provider.service;
+package de.dytanic.cloudnet.wrapper.provider;
 
-import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.driver.network.rpc.RPCSender;
 import de.dytanic.cloudnet.driver.provider.service.GeneralCloudServiceProvider;
 import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
@@ -28,27 +27,22 @@ import java.util.UUID;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-/**
- * @author Aldin S. (0utplay@cloudnetservice.eu)
- */
 public class WrapperGeneralCloudServiceProvider implements GeneralCloudServiceProvider {
 
   private final RPCSender rpcSender;
 
-  public WrapperGeneralCloudServiceProvider(Wrapper wrapper) {
+  public WrapperGeneralCloudServiceProvider(@NotNull Wrapper wrapper) {
     this.rpcSender = wrapper.getRPCProviderFactory()
       .providerForClass(wrapper.getNetworkClient(), GeneralCloudServiceProvider.class);
   }
 
   @Override
   public @NotNull SpecificCloudServiceProvider getSpecificProvider(@NotNull UUID serviceUniqueId) {
-    Preconditions.checkNotNull(serviceUniqueId, "serviceUniqueId");
     return this.rpcSender.invokeMethod("getSpecificProvider", serviceUniqueId).fireSync();
   }
 
   @Override
   public @NotNull SpecificCloudServiceProvider getSpecificProviderByName(@NotNull String serviceName) {
-    Preconditions.checkNotNull(serviceName, "serviceName");
     return this.rpcSender.invokeMethod("getSpecificProviderByName", serviceName).fireSync();
   }
 
@@ -57,10 +51,8 @@ public class WrapperGeneralCloudServiceProvider implements GeneralCloudServicePr
     return this.rpcSender.invokeMethod("getServicesAsUniqueId").fireSync();
   }
 
-  @Nullable
   @Override
-  public ServiceInfoSnapshot getCloudServiceByName(@NotNull String name) {
-    Preconditions.checkNotNull(name);
+  public @Nullable ServiceInfoSnapshot getCloudServiceByName(@NotNull String name) {
     return this.rpcSender.invokeMethod("getCloudServiceByName", name).fireSync();
   }
 
@@ -76,26 +68,21 @@ public class WrapperGeneralCloudServiceProvider implements GeneralCloudServicePr
 
   @Override
   public @NotNull Collection<ServiceInfoSnapshot> getCloudServices(@NotNull String taskName) {
-    Preconditions.checkNotNull(taskName);
     return this.rpcSender.invokeMethod("getCloudServices", taskName).fireSync();
   }
 
   @Override
   public @NotNull Collection<ServiceInfoSnapshot> getCloudServices(@NotNull ServiceEnvironmentType environment) {
-    Preconditions.checkNotNull(environment);
     return this.rpcSender.invokeMethod("getCloudServices", environment).fireSync();
   }
 
   @Override
   public @NotNull Collection<ServiceInfoSnapshot> getCloudServicesByGroup(@NotNull String group) {
-    Preconditions.checkNotNull(group);
     return this.rpcSender.invokeMethod("getCloudServicesByGroup", group).fireSync();
   }
 
-  @Nullable
   @Override
-  public ServiceInfoSnapshot getCloudService(@NotNull UUID uniqueId) {
-    Preconditions.checkNotNull(uniqueId);
+  public @Nullable ServiceInfoSnapshot getCloudService(@NotNull UUID uniqueId) {
     return this.rpcSender.invokeMethod("getCloudService", uniqueId).fireSync();
   }
 
@@ -106,13 +93,11 @@ public class WrapperGeneralCloudServiceProvider implements GeneralCloudServicePr
 
   @Override
   public int getServicesCountByGroup(@NotNull String group) {
-    Preconditions.checkNotNull(group);
     return this.rpcSender.invokeMethod("getServicesCountByGroup", group).fireSync();
   }
 
   @Override
   public int getServicesCountByTask(@NotNull String taskName) {
-    Preconditions.checkNotNull(taskName);
     return this.rpcSender.invokeMethod("getServicesCountByTask", taskName).fireSync();
   }
 }

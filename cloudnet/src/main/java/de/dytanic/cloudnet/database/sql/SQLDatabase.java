@@ -38,26 +38,22 @@ public abstract class SQLDatabase extends AbstractDatabase {
   protected static final String TABLE_COLUMN_KEY = "Name";
   protected static final String TABLE_COLUMN_VALUE = "Document";
 
-  protected final SQLDatabaseProvider databaseProvider;
   protected final String name;
+  protected final SQLDatabaseProvider databaseProvider;
 
   protected final long cacheTimeoutTime;
   protected final ExecutorService executorService;
 
-  public SQLDatabase(SQLDatabaseProvider databaseProvider, String name, ExecutorService executorService) {
-    this(databaseProvider, name, 600_000, executorService);
-  }
-
   public SQLDatabase(
-    SQLDatabaseProvider databaseProvider,
-    String name,
+    @NotNull SQLDatabaseProvider databaseProvider,
+    @NotNull String name,
     long cacheRemovalDelay,
-    ExecutorService executorService
+    @NotNull ExecutorService executorService
   ) {
     super(name, executorService, databaseProvider);
 
-    this.databaseProvider = databaseProvider;
     this.name = name;
+    this.databaseProvider = databaseProvider;
 
     this.executorService = executorService;
     this.cacheTimeoutTime = System.currentTimeMillis() + cacheRemovalDelay;
@@ -69,24 +65,16 @@ public abstract class SQLDatabase extends AbstractDatabase {
   }
 
   @Override
-  public SQLDatabaseProvider getDatabaseProvider() {
-    return this.databaseProvider;
-  }
-
-  @Override
   public void close() {
     this.databaseProvider.cachedDatabaseInstances.remove(this.name);
   }
 
   @Override
-  public boolean insert(String key, JsonDocument document) {
+  public boolean insert(@NotNull String key, @NotNull JsonDocument document) {
     Preconditions.checkNotNull(key);
     Preconditions.checkNotNull(document);
 
-    if (this.databaseProvider.getDatabaseHandler() != null) {
-      this.databaseProvider.getDatabaseHandler().handleInsert(this, key, document);
-    }
-
+    this.databaseProvider.getDatabaseHandler().handleInsert(this, key, document);
     return this.insertOrUpdate(key, document);
   }
 
@@ -101,14 +89,11 @@ public abstract class SQLDatabase extends AbstractDatabase {
   }
 
   @Override
-  public boolean update(String key, JsonDocument document) {
+  public boolean update(@NotNull String key, @NotNull JsonDocument document) {
     Preconditions.checkNotNull(key);
     Preconditions.checkNotNull(document);
 
-    if (this.databaseProvider.getDatabaseHandler() != null) {
-      this.databaseProvider.getDatabaseHandler().handleUpdate(this, key, document);
-    }
-
+    this.databaseProvider.getDatabaseHandler().handleUpdate(this, key, document);
     return this.insertOrUpdate(key, document);
   }
 
@@ -127,7 +112,7 @@ public abstract class SQLDatabase extends AbstractDatabase {
   }
 
   @Override
-  public boolean contains(String key) {
+  public boolean contains(@NotNull String key) {
     Preconditions.checkNotNull(key);
 
     return this.databaseProvider.executeQuery(
@@ -138,13 +123,10 @@ public abstract class SQLDatabase extends AbstractDatabase {
   }
 
   @Override
-  public boolean delete(String key) {
+  public boolean delete(@NotNull String key) {
     Preconditions.checkNotNull(key);
 
-    if (this.databaseProvider.getDatabaseHandler() != null) {
-      this.databaseProvider.getDatabaseHandler().handleDelete(this, key);
-    }
-
+    this.databaseProvider.getDatabaseHandler().handleDelete(this, key);
     return this.delete0(key);
   }
 
@@ -167,7 +149,7 @@ public abstract class SQLDatabase extends AbstractDatabase {
   }
 
   @Override
-  public List<JsonDocument> get(String fieldName, Object fieldValue) {
+  public @NotNull List<JsonDocument> get(@NotNull String fieldName, Object fieldValue) {
     Preconditions.checkNotNull(fieldName);
     Preconditions.checkNotNull(fieldValue);
 
@@ -186,7 +168,7 @@ public abstract class SQLDatabase extends AbstractDatabase {
   }
 
   @Override
-  public List<JsonDocument> get(JsonDocument filters) {
+  public @NotNull List<JsonDocument> get(@NotNull JsonDocument filters) {
     Preconditions.checkNotNull(filters);
 
     StringBuilder stringBuilder = new StringBuilder("SELECT ").append(TABLE_COLUMN_VALUE).append(" FROM `")
@@ -227,7 +209,7 @@ public abstract class SQLDatabase extends AbstractDatabase {
   }
 
   @Override
-  public Collection<String> keys() {
+  public @NotNull Collection<String> keys() {
     return this.databaseProvider.executeQuery(
       String.format("SELECT %s FROM `%s`;", TABLE_COLUMN_KEY, this.name),
       resultSet -> {
@@ -242,7 +224,7 @@ public abstract class SQLDatabase extends AbstractDatabase {
   }
 
   @Override
-  public Collection<JsonDocument> documents() {
+  public @NotNull Collection<JsonDocument> documents() {
     return this.databaseProvider.executeQuery(
       String.format("SELECT %s FROM `%s`;", TABLE_COLUMN_VALUE, this.name),
       resultSet -> {
@@ -257,7 +239,7 @@ public abstract class SQLDatabase extends AbstractDatabase {
   }
 
   @Override
-  public Map<String, JsonDocument> entries() {
+  public @NotNull Map<String, JsonDocument> entries() {
     return this.databaseProvider.executeQuery(
       String.format("SELECT * FROM `%s`;", this.name),
       resultSet -> {
@@ -273,7 +255,7 @@ public abstract class SQLDatabase extends AbstractDatabase {
   }
 
   @Override
-  public Map<String, JsonDocument> filter(BiPredicate<String, JsonDocument> predicate) {
+  public @NotNull Map<String, JsonDocument> filter(@NotNull BiPredicate<String, JsonDocument> predicate) {
     Preconditions.checkNotNull(predicate);
 
     return this.databaseProvider.executeQuery(
@@ -295,7 +277,7 @@ public abstract class SQLDatabase extends AbstractDatabase {
   }
 
   @Override
-  public void iterate(BiConsumer<String, JsonDocument> consumer) {
+  public void iterate(@NotNull BiConsumer<String, JsonDocument> consumer) {
     Preconditions.checkNotNull(consumer);
 
     this.databaseProvider.executeQuery(
@@ -314,11 +296,8 @@ public abstract class SQLDatabase extends AbstractDatabase {
 
   @Override
   public void clear() {
-    if (this.databaseProvider.getDatabaseHandler() != null) {
-      this.databaseProvider.getDatabaseHandler().handleClear(this);
-    }
-
-    this.clearWithoutHandlerCall();
+    this.databaseProvider.getDatabaseHandler().handleClear(this);
+    this.databaseProvider.executeUpdate(String.format("TRUNCATE TABLE `%s`", this.name));
   }
 
   @Override
@@ -329,25 +308,5 @@ public abstract class SQLDatabase extends AbstractDatabase {
       }
       return -1L;
     });
-  }
-
-  @Override
-  public void insertWithoutHandlerCall(@NotNull String key, @NotNull JsonDocument document) {
-    this.insertOrUpdate(key, document);
-  }
-
-  @Override
-  public void updateWithoutHandlerCall(@NotNull String key, @NotNull JsonDocument document) {
-    this.insertOrUpdate(key, document);
-  }
-
-  @Override
-  public void deleteWithoutHandlerCall(@NotNull String key) {
-    this.delete0(key);
-  }
-
-  @Override
-  public void clearWithoutHandlerCall() {
-    this.databaseProvider.executeUpdate(String.format("TRUNCATE TABLE `%s`", this.name));
   }
 }
