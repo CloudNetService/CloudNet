@@ -26,8 +26,10 @@ public final class PermissionUserCommandSource extends DriverCommandSource {
   private final PermissionUser permissionUser;
   private final IPermissionManagement permissionManagement;
 
-  public PermissionUserCommandSource(PermissionUser permissionUser, IPermissionManagement permissionManagement) {
-    super();
+  public PermissionUserCommandSource(
+    @NotNull PermissionUser permissionUser,
+    @NotNull IPermissionManagement permissionManagement
+  ) {
     this.permissionUser = permissionUser;
     this.permissionManagement = permissionManagement;
   }

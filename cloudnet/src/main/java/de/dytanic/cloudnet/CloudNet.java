@@ -21,7 +21,6 @@ import de.dytanic.cloudnet.cluster.DefaultClusterNodeServerProvider;
 import de.dytanic.cloudnet.cluster.IClusterNodeServerProvider;
 import de.dytanic.cloudnet.command.CommandProvider;
 import de.dytanic.cloudnet.command.source.ConsoleCommandSource;
-import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.conf.IConfiguration;
 import de.dytanic.cloudnet.conf.JsonConfiguration;
 import de.dytanic.cloudnet.console.IConsole;
@@ -42,6 +41,7 @@ import de.dytanic.cloudnet.driver.network.netty.client.NettyNetworkClient;
 import de.dytanic.cloudnet.driver.network.netty.http.NettyHttpServer;
 import de.dytanic.cloudnet.driver.network.netty.server.NettyNetworkServer;
 import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
+import de.dytanic.cloudnet.driver.permission.PermissionUser;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import de.dytanic.cloudnet.driver.template.TemplateStorage;
 import de.dytanic.cloudnet.event.CloudNetNodePostInitializationEvent;
@@ -51,6 +51,7 @@ import de.dytanic.cloudnet.network.NetworkServerChannelHandlerImpl;
 import de.dytanic.cloudnet.permission.DefaultDatabasePermissionManagement;
 import de.dytanic.cloudnet.permission.DefaultPermissionManagementHandler;
 import de.dytanic.cloudnet.permission.NodePermissionManagement;
+import de.dytanic.cloudnet.permission.command.PermissionUserCommandSource;
 import de.dytanic.cloudnet.provider.NodeGroupConfigurationProvider;
 import de.dytanic.cloudnet.provider.NodeMessenger;
 import de.dytanic.cloudnet.provider.NodeNodeInfoProvider;
@@ -78,9 +79,9 @@ public class CloudNet extends CloudNetDriver {
 
   private static final Path LAUNCHER_DIR = Paths.get(System.getProperty("cloudnet.launcher.dir", "launcher"));
 
-  private final CommandProvider commandProvider;
   private final IConsole console;
   private final IConfiguration configuration;
+  private final CommandProvider commandProvider;
 
   private final IHttpServer httpServer;
   private final INetworkClient networkClient;
@@ -263,9 +264,17 @@ public class CloudNet extends CloudNetDriver {
   }
 
   @Override
-  public Pair<Boolean, String[]> sendCommandLineAsPermissionUser(@NotNull UUID uniqueId, @NotNull String commandLine) {
-    // TODO: re-implement when the commands are back
-    return null;
+  public String[] sendCommandLineAsPermissionUser(@NotNull UUID uniqueId, @NotNull String commandLine) {
+    // get the permission user
+    PermissionUser user = this.permissionManagement.getUser(uniqueId);
+    if (user == null) {
+      return new String[0];
+    } else {
+      PermissionUserCommandSource source = new PermissionUserCommandSource(user, this.permissionManagement);
+      this.commandProvider.execute(source, commandLine);
+
+      return source.getMessages().toArray(new String[0]);
+    }
   }
 
   @Override

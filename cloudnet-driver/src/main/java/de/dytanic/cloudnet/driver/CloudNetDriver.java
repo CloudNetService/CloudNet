@@ -17,7 +17,6 @@
 package de.dytanic.cloudnet.driver;
 
 import com.google.common.base.Preconditions;
-import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.concurrent.CompletableTask;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.registry.DefaultServicesRegistry;
@@ -264,12 +263,12 @@ public abstract class CloudNetDriver {
     return this.networkClient;
   }
 
-  public abstract Pair<Boolean, String[]> sendCommandLineAsPermissionUser(
+  public abstract String[] sendCommandLineAsPermissionUser(
     @NotNull UUID uniqueId,
     @NotNull String commandLine);
 
   @NotNull
-  public ITask<Pair<Boolean, String[]>> sendCommandLineAsPermissionUserAsync(
+  public ITask<String[]> sendCommandLineAsPermissionUserAsync(
     @NotNull UUID uniqueId,
     @NotNull String commandLine
   ) {

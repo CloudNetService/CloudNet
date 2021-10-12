@@ -16,7 +16,6 @@
 
 package de.dytanic.cloudnet.wrapper;
 
-import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
@@ -208,7 +207,7 @@ public class Wrapper extends CloudNetDriver {
    * @see CloudNetDriver
    */
   @Override
-  public Pair<Boolean, String[]> sendCommandLineAsPermissionUser(@NotNull UUID uniqueId, @NotNull String commandLine) {
+  public String[] sendCommandLineAsPermissionUser(@NotNull UUID uniqueId, @NotNull String commandLine) {
     return this.rpcSender.invokeMethod("sendCommandLineAsPermissionUser", uniqueId, commandLine).fireSync();
   }
 
