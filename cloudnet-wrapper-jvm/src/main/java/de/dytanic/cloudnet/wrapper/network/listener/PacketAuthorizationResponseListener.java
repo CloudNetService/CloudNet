@@ -23,14 +23,14 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import org.jetbrains.annotations.NotNull;
 
-public final class PacketServerAuthorizationResponseListener implements IPacketListener {
+public final class PacketAuthorizationResponseListener implements IPacketListener {
 
   private final Lock lock;
   private final Condition condition;
 
   private volatile boolean result;
 
-  public PacketServerAuthorizationResponseListener(@NotNull Lock lock, @NotNull Condition condition) {
+  public PacketAuthorizationResponseListener(@NotNull Lock lock, @NotNull Condition condition) {
     this.lock = lock;
     this.condition = condition;
   }

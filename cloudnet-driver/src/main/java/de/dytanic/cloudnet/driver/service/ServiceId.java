@@ -40,29 +40,7 @@ public class ServiceId implements INameable {
 
   public ServiceId(
     @NotNull UUID uniqueId,
-    String nodeUniqueId,
-    String taskName,
-    int taskServiceId,
-    ServiceEnvironmentType environment
-  ) {
-    this(uniqueId, nodeUniqueId, taskName, null, taskServiceId, environment);
-  }
-
-  @Deprecated
-  public ServiceId(
-    @NotNull UUID uniqueId,
-    String nodeUniqueId,
-    String taskName,
-    Collection<String> allowedNodes,
-    int taskServiceId,
-    ServiceEnvironmentType environment
-  ) {
-    this(uniqueId, taskName, taskServiceId, nodeUniqueId, allowedNodes, environment);
-  }
-
-  public ServiceId(
-    UUID uniqueId,
-    String taskName,
+    @NotNull String taskName,
     int taskServiceId,
     String nodeUniqueId,
     Collection<String> allowedNodes,
@@ -76,7 +54,7 @@ public class ServiceId implements INameable {
     this.environment = environment;
   }
 
-  protected ServiceId() {
+  ServiceId() {
   }
 
   public @NotNull String getName() {

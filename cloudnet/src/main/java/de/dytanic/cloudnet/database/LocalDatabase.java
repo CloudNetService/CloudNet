@@ -17,19 +17,38 @@
 package de.dytanic.cloudnet.database;
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import de.dytanic.cloudnet.driver.database.Database;
 import java.util.Map;
+import java.util.function.BiConsumer;
+import java.util.function.BiPredicate;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public interface LocalDatabase extends IDatabase {
+public interface LocalDatabase extends Database {
 
-  void insertWithoutHandlerCall(@NotNull String key, @NotNull JsonDocument document);
+  /**
+   * Retrieves all entries that match the given filter predicate
+   *
+   * @param predicate the filter for the entries
+   * @return all entries that match the filter
+   */
+  @NotNull Map<String, JsonDocument> filter(@NotNull BiPredicate<String, JsonDocument> predicate);
 
-  void updateWithoutHandlerCall(@NotNull String key, @NotNull JsonDocument document);
+  /**
+   * Iterates over all entries in the database This option should not be used with big databases Use {@link
+   * #iterate(BiConsumer, int)}} instead
+   *
+   * @param consumer the consumer to pass the entries into
+   */
+  void iterate(@NotNull BiConsumer<String, JsonDocument> consumer);
 
-  void deleteWithoutHandlerCall(@NotNull String key);
-
-  void clearWithoutHandlerCall();
+  /**
+   * Iterates over all entries in the database, but in chunks in the given size
+   *
+   * @param consumer  the consumer to pass the entries into
+   * @param chunkSize the chunkSize of the entries
+   */
+  void iterate(@NotNull BiConsumer<String, JsonDocument> consumer, int chunkSize);
 
   @Nullable Map<String, JsonDocument> readChunk(long beginIndex, int chunkSize);
 }

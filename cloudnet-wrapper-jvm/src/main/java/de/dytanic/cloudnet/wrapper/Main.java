@@ -28,6 +28,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import org.jetbrains.annotations.NotNull;
 
 public final class Main {
 
@@ -46,22 +47,21 @@ public final class Main {
     LanguageManager
       .addLanguageFile("chinese", Main.class.getClassLoader().getResourceAsStream("lang/chinese.properties"));
 
-    Logger logger = LogManager.getRootLogger();
-    initLogger(logger);
+    initLogger(LogManager.getRootLogger());
 
     Wrapper wrapper = new Wrapper(new ArrayList<>(Arrays.asList(args)));
     wrapper.start();
   }
 
-  private static void initLogger(Logger logger) {
+  private static void initLogger(@NotNull Logger logger) {
     LoggingUtils.removeHandlers(logger);
     Path logFilePattern = Paths.get(".wrapper", "logs", "wrapper.%g.log");
 
     logger.setLevel(LoggingUtils.getDefaultLogLevel());
     logger.setLogRecordDispatcher(ThreadedLogRecordDispatcher.forLogger(logger));
 
-    logger.addHandler(DefaultFileHandler.newInstance(logFilePattern, false)
-      .withFormatter(DefaultLogFormatter.END_LINE_SEPARATOR));
     logger.addHandler(InternalPrintStreamLogHandler.forSystemStreams().withFormatter(DefaultLogFormatter.END_CLEAN));
+    logger.addHandler(
+      DefaultFileHandler.newInstance(logFilePattern, false).withFormatter(DefaultLogFormatter.END_LINE_SEPARATOR));
   }
 }

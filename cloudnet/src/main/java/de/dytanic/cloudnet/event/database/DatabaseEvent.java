@@ -16,18 +16,19 @@
 
 package de.dytanic.cloudnet.event.database;
 
-import de.dytanic.cloudnet.database.IDatabase;
+import de.dytanic.cloudnet.driver.database.Database;
 import de.dytanic.cloudnet.driver.event.events.DriverEvent;
+import org.jetbrains.annotations.NotNull;
 
 abstract class DatabaseEvent extends DriverEvent {
 
-  private final IDatabase database;
+  private final Database database;
 
-  public DatabaseEvent(IDatabase database) {
+  public DatabaseEvent(@NotNull Database database) {
     this.database = database;
   }
 
-  public IDatabase getDatabase() {
+  public @NotNull Database getDatabase() {
     return this.database;
   }
 }

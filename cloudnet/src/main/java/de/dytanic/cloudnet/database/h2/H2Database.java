@@ -22,19 +22,16 @@ import de.dytanic.cloudnet.database.sql.SQLDatabaseProvider;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public final class H2Database extends SQLDatabase {
 
-  public H2Database(H2DatabaseProvider databaseProvider, String name, ExecutorService executorService) {
-    super(databaseProvider, name, executorService);
-  }
-
   public H2Database(
-    SQLDatabaseProvider databaseProvider,
-    String name,
+    @NotNull SQLDatabaseProvider databaseProvider,
+    @NotNull String name,
     long cacheRemovalDelay,
-    ExecutorService executorService
+    @NotNull ExecutorService executorService
   ) {
     super(databaseProvider, name, cacheRemovalDelay, executorService);
   }

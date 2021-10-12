@@ -23,17 +23,18 @@ import de.dytanic.cloudnet.driver.network.rpc.RPCSender;
 import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import java.util.function.Supplier;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class RemoteCloudServiceFactory extends DefaultCloudServiceFactory implements CloudServiceFactory {
+public class RemoteCloudServiceFactory implements CloudServiceFactory {
 
   private final RPCSender rpcSender;
   private final Supplier<INetworkChannel> channelSupplier;
 
   public RemoteCloudServiceFactory(
-    Supplier<INetworkChannel> channelSupplier,
-    INetworkComponent defaultComponent,
-    RPCProviderFactory factory
+    @NotNull Supplier<INetworkChannel> channelSupplier,
+    @NotNull INetworkComponent defaultComponent,
+    @NotNull RPCProviderFactory factory
   ) {
     this.channelSupplier = channelSupplier;
     this.rpcSender = factory.providerForClass(defaultComponent, CloudServiceFactory.class);

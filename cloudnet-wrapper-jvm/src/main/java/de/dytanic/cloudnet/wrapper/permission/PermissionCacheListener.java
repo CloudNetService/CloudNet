@@ -29,7 +29,7 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 @ApiStatus.Internal
-public final class PermissionCacheListener {
+final class PermissionCacheListener {
 
   private final WrapperPermissionManagement permissionManagement;
 
@@ -53,13 +53,15 @@ public final class PermissionCacheListener {
   @EventListener
   public void handle(@NotNull PermissionAddGroupEvent event) {
     this.permissionManagement.getCachedPermissionGroups().put(
-      event.getPermissionGroup().getName(), event.getPermissionGroup());
+      event.getPermissionGroup().getName(),
+      event.getPermissionGroup());
   }
 
   @EventListener
   public void handle(@NotNull PermissionUpdateGroupEvent event) {
     this.permissionManagement.getCachedPermissionGroups().put(
-      event.getPermissionGroup().getName(), event.getPermissionGroup());
+      event.getPermissionGroup().getName(),
+      event.getPermissionGroup());
   }
 
   @EventListener

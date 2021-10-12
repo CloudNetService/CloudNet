@@ -32,6 +32,7 @@ import de.dytanic.cloudnet.console.log.ColouredLogFormatter;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.logging.Formatter;
+import org.jetbrains.annotations.NotNull;
 
 public final class BootLogic {
 
@@ -69,7 +70,7 @@ public final class BootLogic {
  */
   }
 
-  private static void initLoggerAndConsole(IConsole console, Logger logger) {
+  private static void initLoggerAndConsole(@NotNull IConsole console, @NotNull Logger logger) {
     Path logFilePattern = Paths.get("local", "logs", "cloudnet.%g.log");
     Formatter consoleFormatter = console.hasColorSupport() ? new ColouredLogFormatter() : DefaultLogFormatter.END_CLEAN;
 
@@ -78,9 +79,9 @@ public final class BootLogic {
     logger.setLevel(LoggingUtils.getDefaultLogLevel());
     logger.setLogRecordDispatcher(ThreadedLogRecordDispatcher.forLogger(logger));
 
+    logger.addHandler(AcceptingLogHandler.newInstance(console::writeLine).withFormatter(consoleFormatter));
     logger.addHandler(
       DefaultFileHandler.newInstance(logFilePattern, true).withFormatter(DefaultLogFormatter.END_LINE_SEPARATOR));
-    logger.addHandler(AcceptingLogHandler.newInstance(console::writeLine).withFormatter(consoleFormatter));
 
     System.setErr(LogOutputStream.forSevere(logger).toPrintStream());
     System.setOut(LogOutputStream.forInformative(logger).toPrintStream());

@@ -17,8 +17,8 @@
 package de.dytanic.cloudnet.database.xodus;
 
 import de.dytanic.cloudnet.database.AbstractDatabaseProvider;
+import de.dytanic.cloudnet.database.LocalDatabase;
 import de.dytanic.cloudnet.database.util.LocalDatabaseUtils;
-import de.dytanic.cloudnet.driver.database.Database;
 import java.io.File;
 import java.util.Collection;
 import java.util.Map;
@@ -39,7 +39,7 @@ public class XodusDatabaseProvider extends AbstractDatabaseProvider {
   protected final File databaseDirectory;
   protected final ExecutorService executorService;
   protected final boolean autoShutdownExecutorService;
-  protected final Map<String, Database> cachedDatabaseInstances;
+  protected final Map<String, LocalDatabase> cachedDatabaseInstances;
 
   protected final EnvironmentConfig environmentConfig;
 
@@ -72,12 +72,7 @@ public class XodusDatabaseProvider extends AbstractDatabaseProvider {
   }
 
   @Override
-  public boolean needsClusterSync() {
-    return true;
-  }
-
-  @Override
-  public Database getDatabase(String name) {
+  public @NotNull LocalDatabase getDatabase(@NotNull String name) {
     return this.cachedDatabaseInstances.computeIfAbsent(name, $ -> this.environment.computeInTransaction(txn -> {
       Store store = this.environment.openStore(name, StoreConfig.WITHOUT_DUPLICATES_WITH_PREFIXING, txn);
       return new XodusDatabase(name, this.executorService, store, this);
@@ -85,12 +80,12 @@ public class XodusDatabaseProvider extends AbstractDatabaseProvider {
   }
 
   @Override
-  public boolean containsDatabase(String name) {
+  public boolean containsDatabase(@NotNull String name) {
     return this.environment.computeInReadonlyTransaction(txn -> this.environment.storeExists(name, txn));
   }
 
   @Override
-  public boolean deleteDatabase(String name) {
+  public boolean deleteDatabase(@NotNull String name) {
     this.cachedDatabaseInstances.remove(name);
     this.environment.executeInTransaction(txn -> this.environment.removeStore(name, txn));
 
@@ -98,7 +93,7 @@ public class XodusDatabaseProvider extends AbstractDatabaseProvider {
   }
 
   @Override
-  public Collection<String> getDatabaseNames() {
+  public @NotNull Collection<String> getDatabaseNames() {
     return this.environment.computeInReadonlyTransaction(txn -> this.environment.getAllStoreNames(txn));
   }
 

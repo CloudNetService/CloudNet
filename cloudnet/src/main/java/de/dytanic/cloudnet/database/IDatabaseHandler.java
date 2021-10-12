@@ -17,16 +17,15 @@
 package de.dytanic.cloudnet.database;
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
-import de.dytanic.cloudnet.driver.database.Database;
+import org.jetbrains.annotations.NotNull;
 
 public interface IDatabaseHandler {
 
-  void handleInsert(Database database, String key, JsonDocument document);
+  void handleInsert(@NotNull LocalDatabase database, @NotNull String key, @NotNull JsonDocument document);
 
-  void handleUpdate(Database database, String key, JsonDocument document);
+  void handleUpdate(@NotNull LocalDatabase database, @NotNull String key, @NotNull JsonDocument document);
 
-  void handleDelete(Database database, String key);
+  void handleDelete(@NotNull LocalDatabase database, @NotNull String key);
 
-  void handleClear(Database database);
-
+  void handleClear(@NotNull LocalDatabase database);
 }

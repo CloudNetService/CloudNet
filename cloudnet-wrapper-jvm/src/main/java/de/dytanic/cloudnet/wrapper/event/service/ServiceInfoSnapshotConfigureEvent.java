@@ -17,7 +17,9 @@
 package de.dytanic.cloudnet.wrapper.event.service;
 
 import de.dytanic.cloudnet.driver.event.Event;
+import de.dytanic.cloudnet.driver.event.events.service.CloudServiceEvent;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * The event is called when a new ServiceInfoSnapshot has been created to update this service. With the getProperties()
@@ -28,19 +30,9 @@ import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
  * @see ServiceInfoSnapshot
  * @see Event
  */
-public class ServiceInfoSnapshotConfigureEvent extends Event {
+public class ServiceInfoSnapshotConfigureEvent extends CloudServiceEvent {
 
-  /**
-   * The new created serviceInfoSnapshot, which was created with the Wrapper.getInstance().publishServiceInfoUpdate()
-   * Method.
-   */
-  private final ServiceInfoSnapshot serviceInfoSnapshot;
-
-  public ServiceInfoSnapshotConfigureEvent(ServiceInfoSnapshot serviceInfoSnapshot) {
-    this.serviceInfoSnapshot = serviceInfoSnapshot;
-  }
-
-  public ServiceInfoSnapshot getServiceInfoSnapshot() {
-    return this.serviceInfoSnapshot;
+  public ServiceInfoSnapshotConfigureEvent(@NotNull ServiceInfoSnapshot serviceInfoSnapshot) {
+    super(serviceInfoSnapshot);
   }
 }
