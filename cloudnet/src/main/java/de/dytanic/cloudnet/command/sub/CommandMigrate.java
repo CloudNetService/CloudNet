@@ -31,7 +31,7 @@ import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.database.AbstractDatabaseProvider;
-import de.dytanic.cloudnet.driver.database.Database;
+import de.dytanic.cloudnet.database.LocalDatabase;
 import java.util.List;
 import java.util.Queue;
 import java.util.stream.Collectors;
@@ -87,8 +87,8 @@ public class CommandMigrate {
         source.sendMessage(
           LanguageManager.getMessage("command-migrate-current-database").replace("%db%", databaseName));
 
-        Database sourceDatabase = sourceDatabaseProvider.getDatabase(databaseName);
-        Database targetDatabase = targetDatabaseProvider.getDatabase(databaseName);
+        LocalDatabase sourceDatabase = sourceDatabaseProvider.getDatabase(databaseName);
+        LocalDatabase targetDatabase = targetDatabaseProvider.getDatabase(databaseName);
 
         sourceDatabase.iterate(targetDatabase::insert, chunkSize);
       }

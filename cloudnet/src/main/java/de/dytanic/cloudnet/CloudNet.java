@@ -94,7 +94,7 @@ public class CloudNet extends CloudNetDriver {
 
   private volatile AbstractDatabaseProvider databaseProvider;
 
-  protected CloudNet(@NotNull String[] args, @NotNull IConsole console) {
+  protected CloudNet(@NotNull String[] args, @NotNull IConsole console, CommandProvider commandProvider) {
     super(Arrays.asList(args));
 
     setInstance(this);

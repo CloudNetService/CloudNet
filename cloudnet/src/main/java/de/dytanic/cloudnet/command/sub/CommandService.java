@@ -36,7 +36,6 @@ import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceRemoteInclusion;
 import de.dytanic.cloudnet.driver.service.ServiceTask;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
-import de.dytanic.cloudnet.event.ServiceListCommandEvent;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -44,7 +43,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.regex.Matcher;
@@ -121,7 +119,7 @@ public class CommandService {
       .sorted()
       .collect(Collectors.toList());
 
-    ServiceListCommandEvent event = CloudNet.getInstance().getEventManager()
+    /*ServiceListCommandEvent event = CloudNet.getInstance().getEventManager()
       .callEvent(new ServiceListCommandEvent(services));
     for (ServiceInfoSnapshot serviceInfoSnapshot : services) {
       String extension = event.getAdditionalParameters()
@@ -150,7 +148,7 @@ public class CommandService {
     for (String parameter : event.getAdditionalSummary()) {
       builder.append("; ").append(parameter);
     }
-    source.sendMessage(builder.toString());
+    source.sendMessage(builder.toString());*/
   }
 
   @CommandMethod("service|ser <name>")
