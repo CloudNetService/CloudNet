@@ -30,6 +30,7 @@ import de.dytanic.cloudnet.common.log.io.LogOutputStream;
 import de.dytanic.cloudnet.console.IConsole;
 import de.dytanic.cloudnet.console.JLine3Console;
 import de.dytanic.cloudnet.console.log.ColouredLogFormatter;
+import de.dytanic.cloudnet.log.QueuedConsoleLogHandler;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.logging.Formatter;
@@ -80,6 +81,7 @@ public final class BootLogic {
     logger.setLevel(LoggingUtils.getDefaultLogLevel());
     logger.setLogRecordDispatcher(ThreadedLogRecordDispatcher.forLogger(logger));
 
+    logger.addHandler(new QueuedConsoleLogHandler());
     logger.addHandler(AcceptingLogHandler.newInstance(console::writeLine).withFormatter(consoleFormatter));
     logger.addHandler(
       DefaultFileHandler.newInstance(logFilePattern, true).withFormatter(DefaultLogFormatter.END_LINE_SEPARATOR));

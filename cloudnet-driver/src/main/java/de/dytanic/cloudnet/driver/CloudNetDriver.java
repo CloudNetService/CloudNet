@@ -25,6 +25,7 @@ import de.dytanic.cloudnet.common.registry.IServicesRegistry;
 import de.dytanic.cloudnet.driver.database.DatabaseProvider;
 import de.dytanic.cloudnet.driver.event.DefaultEventManager;
 import de.dytanic.cloudnet.driver.event.IEventManager;
+import de.dytanic.cloudnet.driver.event.events.permission.PermissionServiceSetEvent;
 import de.dytanic.cloudnet.driver.module.DefaultModuleProvider;
 import de.dytanic.cloudnet.driver.module.IModuleProvider;
 import de.dytanic.cloudnet.driver.network.INetworkClient;
@@ -42,15 +43,21 @@ import de.dytanic.cloudnet.driver.provider.service.GeneralCloudServiceProvider;
 import de.dytanic.cloudnet.driver.service.ProcessSnapshot;
 import de.dytanic.cloudnet.driver.template.TemplateStorage;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnmodifiableView;
+import org.jetbrains.annotations.VisibleForTesting;
 
 public abstract class CloudNetDriver {
 
   private static CloudNetDriver instance;
+
+  protected final List<String> commandLineArguments;
 
   protected final IEventManager eventManager = new DefaultEventManager();
   protected final IModuleProvider moduleProvider = new DefaultModuleProvider();
@@ -75,6 +82,10 @@ public abstract class CloudNetDriver {
 
   protected DriverEnvironment driverEnvironment = DriverEnvironment.EMBEDDED;
 
+  public CloudNetDriver(@NotNull List<String> args) {
+    this.commandLineArguments = args;
+  }
+
   /**
    * @return a singleton instance of the CloudNetDriver
    */
@@ -83,6 +94,7 @@ public abstract class CloudNetDriver {
     return CloudNetDriver.instance;
   }
 
+  @VisibleForTesting
   protected static void setInstance(@NotNull CloudNetDriver instance) {
     CloudNetDriver.instance = instance;
   }
@@ -175,12 +187,16 @@ public abstract class CloudNetDriver {
       }
       // update the current permission management
       this.permissionManagement = management;
+      this.eventManager.callEvent(new PermissionServiceSetEvent(management));
       return;
     }
     // check if the new permission management is assignable to the old permission management
     if (this.permissionManagement.getClass().isAssignableFrom(management.getClass())) {
+      // close the old permission management
       this.permissionManagement.close();
+      // update the current permission management
       this.permissionManagement = management;
+      this.eventManager.callEvent(new PermissionServiceSetEvent(management));
       return;
     }
     // the permission management cannot be set
@@ -319,5 +335,10 @@ public abstract class CloudNetDriver {
   @NotNull
   public CloudNetVersion getVersion() {
     return this.cloudNetVersion;
+  }
+
+  @UnmodifiableView
+  public @NotNull List<String> getCommandLineArguments() {
+    return Collections.unmodifiableList(this.commandLineArguments);
   }
 }

@@ -24,5 +24,4 @@ public abstract class DriverEvent extends Event {
   public CloudNetDriver getDriver() {
     return CloudNetDriver.getInstance();
   }
-
 }

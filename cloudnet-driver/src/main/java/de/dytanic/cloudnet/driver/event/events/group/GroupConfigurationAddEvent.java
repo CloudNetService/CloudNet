@@ -14,20 +14,21 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.event.permission;
+package de.dytanic.cloudnet.driver.event.events.group;
 
-import de.dytanic.cloudnet.driver.event.events.DriverEvent;
-import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
+import de.dytanic.cloudnet.driver.event.Event;
+import de.dytanic.cloudnet.driver.service.GroupConfiguration;
+import org.jetbrains.annotations.NotNull;
 
-public final class PermissionServiceSetEvent extends DriverEvent {
+public class GroupConfigurationAddEvent extends Event {
 
-  private final IPermissionManagement permissionManager;
+  private final GroupConfiguration configuration;
 
-  public PermissionServiceSetEvent(IPermissionManagement permissionManager) {
-    this.permissionManager = permissionManager;
+  public GroupConfigurationAddEvent(@NotNull GroupConfiguration configuration) {
+    this.configuration = configuration;
   }
 
-  public IPermissionManagement getPermissionManager() {
-    return this.permissionManager;
+  public @NotNull GroupConfiguration getConfiguration() {
+    return configuration;
   }
 }

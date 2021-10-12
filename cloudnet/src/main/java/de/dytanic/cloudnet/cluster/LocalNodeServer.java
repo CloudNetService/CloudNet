@@ -20,6 +20,7 @@ import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.command.source.DriverCommandSource;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;
+import de.dytanic.cloudnet.driver.module.IModuleWrapper;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
 import de.dytanic.cloudnet.driver.network.def.NetworkConstants;
@@ -27,10 +28,12 @@ import de.dytanic.cloudnet.driver.provider.service.CloudServiceFactory;
 import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
 import de.dytanic.cloudnet.driver.service.ProcessSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
-import de.dytanic.cloudnet.provider.service.EmptySpecificCloudServiceProvider;
+import de.dytanic.cloudnet.event.cluster.LocalNodeSnapshotConfigureEvent;
 import de.dytanic.cloudnet.service.ICloudService;
+import de.dytanic.cloudnet.service.defaults.provider.EmptySpecificCloudServiceProvider;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -85,10 +88,9 @@ public class LocalNodeServer extends DefaultNodeServer implements NodeServer {
     this.cloudNet.stop();
   }
 
-  // TODO: modules are missing
   public void publishNodeInfoSnapshotUpdate() {
     // create a new node info snapshot
-    this.setNodeInfoSnapshot(new NetworkClusterNodeInfoSnapshot(
+    NetworkClusterNodeInfoSnapshot snapshot = new NetworkClusterNodeInfoSnapshot(
       System.currentTimeMillis(),
       this.startupMillis,
       this.cloudNet.getConfig().getMaxMemory(),
@@ -96,11 +98,17 @@ public class LocalNodeServer extends DefaultNodeServer implements NodeServer {
       this.cloudNet.getCloudServiceProvider().getCurrentReservedMemory(),
       this.cloudNet.getCloudServiceProvider().getLocalCloudServices().size(),
       this.nodeInfo,
-      CloudNet.getInstance().getVersion(),
+      this.cloudNet.getVersion(),
       ProcessSnapshot.self(),
       this.cloudNet.getConfig().getMaxCPUUsageToStartServices(),
-      Collections.emptyList(),
-      this.currentSnapshot == null ? JsonDocument.newDocument() : this.currentSnapshot.getProperties()));
+      this.cloudNet.getModuleProvider().getModules().stream()
+        .map(IModuleWrapper::getModuleConfiguration)
+        .collect(Collectors.toSet()),
+      this.currentSnapshot == null ? JsonDocument.newDocument() : this.currentSnapshot.getProperties());
+    // configure the snapshot
+    snapshot = this.cloudNet.getEventManager().callEvent(new LocalNodeSnapshotConfigureEvent(snapshot)).getSnapshot();
+    // set the snapshot
+    this.setNodeInfoSnapshot(snapshot);
     // send the new node info to all nodes
     ChannelMessage.builder()
       .targetNodes()

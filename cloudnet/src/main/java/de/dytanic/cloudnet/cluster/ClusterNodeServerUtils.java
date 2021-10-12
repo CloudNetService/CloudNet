@@ -21,11 +21,9 @@ import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
-import de.dytanic.cloudnet.driver.network.def.packet.PacketClientServerServiceInfoPublisher;
 import de.dytanic.cloudnet.driver.network.protocol.Packet;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
-import de.dytanic.cloudnet.service.ICloudService;
 import java.util.ArrayList;
 import java.util.Collection;
 

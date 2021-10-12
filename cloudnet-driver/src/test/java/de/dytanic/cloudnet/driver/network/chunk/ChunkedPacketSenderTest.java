@@ -18,6 +18,7 @@ package de.dytanic.cloudnet.driver.network.chunk;
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
+import de.dytanic.cloudnet.driver.network.chunk.data.ChunkSessionInformation;
 import de.dytanic.cloudnet.driver.network.chunk.defaults.splitter.NetworkChannelsPacketSplitter;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import java.io.ByteArrayInputStream;
@@ -51,9 +52,9 @@ public class ChunkedPacketSenderTest {
 
     Assertions.assertEquals(TransferStatus.SUCCESS, ChunkedPacketSender.forFileTransfer()
       .chunkSize(256)
-      .transferMode(45)
       .withExtraData(jsonData)
       .sessionUniqueId(sessionId)
+      .transferChannel("hello_world")
       .source(new ByteArrayInputStream(chunkData))
       .packetSplitter(packet -> {
         this.validatePacket(packet, sessionId, jsonData, packetSplits, chunkData);
@@ -81,9 +82,9 @@ public class ChunkedPacketSenderTest {
 
     Assertions.assertEquals(TransferStatus.SUCCESS, ChunkedPacketSender.forFileTransfer()
       .chunkSize(256)
-      .transferMode(45)
       .withExtraData(jsonData)
       .sessionUniqueId(sessionId)
+      .transferChannel("hello_world")
       .source(new ByteArrayInputStream(chunkData))
       .packetSplitter(packet -> {
         splitter.accept(packet);
@@ -101,10 +102,12 @@ public class ChunkedPacketSenderTest {
   }
 
   private void validatePacket(IPacket packet, UUID sessionId, JsonDocument extra, AtomicInteger splits, byte[] data) {
-    Assertions.assertEquals(256, packet.getContent().readInt());
-    Assertions.assertEquals(45, packet.getContent().readInt());
-    Assertions.assertEquals(sessionId, packet.getContent().readUniqueId());
-    Assertions.assertArrayEquals(extra.toByteArray(), packet.getContent().readByteArray());
+    ChunkSessionInformation info = packet.getContent().readObject(ChunkSessionInformation.class);
+
+    Assertions.assertEquals(256, info.getChunkSize());
+    Assertions.assertEquals(sessionId, info.getSessionUniqueId());
+    Assertions.assertEquals("hello_world", info.getTransferChannel());
+    Assertions.assertArrayEquals(extra.toByteArray(), info.getTransferInformation().toByteArray());
     Assertions.assertEquals(splits.get(), packet.getContent().readInt());
 
     boolean isFinalPacket = packet.getContent().readBoolean();
@@ -124,8 +127,7 @@ public class ChunkedPacketSenderTest {
 
     Assertions.assertArrayEquals(
       contentAtPosition,
-      packet.getContent().readByteArray()
-    );
+      packet.getContent().readByteArray());
   }
 
   private INetworkChannel mockNetworkChannel(Consumer<IPacket> packetSyncSendHandler) {

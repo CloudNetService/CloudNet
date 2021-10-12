@@ -33,8 +33,8 @@ public abstract class DefaultChunkedPacketSenderBuilder implements ChunkedPacket
 
   public static final int DEFAULT_CHUNK_SIZE = 1024 * 1024;
 
-  protected int transferType;
   protected InputStream source;
+  protected String transferChannel;
   protected Consumer<IPacket> packetSplitter;
 
   protected int chunkSize = DEFAULT_CHUNK_SIZE;
@@ -54,8 +54,8 @@ public abstract class DefaultChunkedPacketSenderBuilder implements ChunkedPacket
   }
 
   @Override
-  public @NotNull ChunkedPacketSender.Builder transferMode(int transferMode) {
-    this.transferType = transferMode;
+  public @NotNull ChunkedPacketSender.Builder transferChannel(@NotNull String transferChannel) {
+    this.transferChannel = transferChannel;
     return this;
   }
 
@@ -91,6 +91,7 @@ public abstract class DefaultChunkedPacketSenderBuilder implements ChunkedPacket
   public @NotNull ChunkedPacketSender build() {
     Verify.verifyNotNull(this.source, "no source given to send");
     Verify.verifyNotNull(this.packetSplitter, "no packet splitter provided");
+    Verify.verifyNotNull(this.transferChannel, "no transfer channel provided");
     Verify.verifyNotNull(this.sessionUniqueId, "no session unique id provided");
     Verify.verify(this.chunkSize > 0, "chunk size must be more than 0");
 

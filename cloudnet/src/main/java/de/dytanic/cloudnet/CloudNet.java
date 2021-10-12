@@ -44,6 +44,7 @@ import de.dytanic.cloudnet.driver.network.netty.server.NettyNetworkServer;
 import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import de.dytanic.cloudnet.driver.template.TemplateStorage;
+import de.dytanic.cloudnet.event.CloudNetNodePostInitializationEvent;
 import de.dytanic.cloudnet.module.NodeModuleProviderHandler;
 import de.dytanic.cloudnet.network.NetworkClientChannelHandlerImpl;
 import de.dytanic.cloudnet.network.NetworkServerChannelHandlerImpl;
@@ -54,14 +55,15 @@ import de.dytanic.cloudnet.provider.NodeGroupConfigurationProvider;
 import de.dytanic.cloudnet.provider.NodeMessenger;
 import de.dytanic.cloudnet.provider.NodeNodeInfoProvider;
 import de.dytanic.cloudnet.provider.NodeServiceTaskProvider;
-import de.dytanic.cloudnet.provider.service.NodeCloudServiceFactory;
 import de.dytanic.cloudnet.service.ICloudServiceManager;
 import de.dytanic.cloudnet.service.defaults.DefaultCloudServiceManager;
+import de.dytanic.cloudnet.service.defaults.NodeCloudServiceFactory;
 import de.dytanic.cloudnet.template.LocalTemplateStorage;
 import de.dytanic.cloudnet.template.install.ServiceVersionProvider;
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
@@ -72,7 +74,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Represents the implementation of the {@link CloudNetDriver} for nodes.
  */
-public final class CloudNet extends CloudNetDriver {
+public class CloudNet extends CloudNetDriver {
 
   private static final Path LAUNCHER_DIR = Paths.get(System.getProperty("cloudnet.launcher.dir", "launcher"));
 
@@ -92,7 +94,9 @@ public final class CloudNet extends CloudNetDriver {
 
   private volatile AbstractDatabaseProvider databaseProvider;
 
-  public CloudNet(@NotNull String[] args, @NotNull IConsole console, @NotNull CommandProvider commandProvider) {
+  protected CloudNet(@NotNull String[] args, @NotNull IConsole console) {
+    super(Arrays.asList(args));
+
     setInstance(this);
 
     this.commandProvider = commandProvider;
@@ -108,11 +112,15 @@ public final class CloudNet extends CloudNetDriver {
     this.nodeServerProvider = new DefaultClusterNodeServerProvider(this);
     this.nodeServerProvider.setClusterServers(this.configuration.getClusterConfig());
 
-    this.serviceTaskProvider = new NodeServiceTaskProvider();
-    this.groupConfigurationProvider = new NodeGroupConfigurationProvider();
     this.nodeInfoProvider = new NodeNodeInfoProvider(this.nodeServerProvider);
+    this.serviceTaskProvider = new NodeServiceTaskProvider(this.eventManager);
+    this.groupConfigurationProvider = new NodeGroupConfigurationProvider(this.eventManager);
+
     this.messenger = new NodeMessenger(this.getCloudServiceProvider(), this.nodeServerProvider);
-    this.cloudServiceFactory = new NodeCloudServiceFactory(this.getCloudServiceProvider(), this.nodeServerProvider);
+    this.cloudServiceFactory = new NodeCloudServiceFactory(
+      this.eventManager,
+      this.getCloudServiceProvider(),
+      this.nodeServerProvider);
 
     // permission management init
     this.setPermissionManagement(new DefaultDatabasePermissionManagement(this));
@@ -121,7 +129,7 @@ public final class CloudNet extends CloudNetDriver {
 
     this.moduleProvider.setModuleDependencyLoader(
       new DefaultPersistableModuleDependencyLoader(LAUNCHER_DIR.resolve("libs")));
-    this.moduleProvider.setModuleProviderHandler(new NodeModuleProviderHandler());
+    this.moduleProvider.setModuleProviderHandler(new NodeModuleProviderHandler(this));
 
     this.networkClient = new NettyNetworkClient(
       NetworkClientChannelHandlerImpl::new,
@@ -198,8 +206,10 @@ public final class CloudNet extends CloudNetDriver {
     }
 
     this.moduleProvider.startAll();
+    this.eventManager.callEvent(new CloudNetNodePostInitializationEvent(this));
+
     this.mainThread.start();
-    // this.nodeServerProvider.getSelfNode().publishNodeInfoSnapshotUpdate();
+    // todo this.nodeServerProvider.getSelfNode().publishNodeInfoSnapshotUpdate();
   }
 
   @Override
@@ -298,6 +308,14 @@ public final class CloudNet extends CloudNetDriver {
 
   public @NotNull ServiceVersionProvider getServiceVersionProvider() {
     return this.serviceVersionProvider;
+  }
+
+  public @NotNull INetworkServer getNetworkServer() {
+    return this.networkServer;
+  }
+
+  public @NotNull IHttpServer getHttpServer() {
+    return this.httpServer;
   }
 
   public boolean isRunning() {

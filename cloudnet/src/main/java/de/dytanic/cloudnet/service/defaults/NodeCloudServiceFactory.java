@@ -14,17 +14,20 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.provider.service;
+package de.dytanic.cloudnet.service.defaults;
 
 import com.google.common.collect.ComparisonChain;
 import de.dytanic.cloudnet.cluster.IClusterNodeServer;
 import de.dytanic.cloudnet.cluster.IClusterNodeServerProvider;
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.driver.channel.ChannelMessageTarget.Type;
+import de.dytanic.cloudnet.driver.event.IEventManager;
 import de.dytanic.cloudnet.driver.network.buffer.DataBufFactory;
+import de.dytanic.cloudnet.driver.network.def.NetworkConstants;
 import de.dytanic.cloudnet.driver.provider.service.CloudServiceFactory;
 import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
+import de.dytanic.cloudnet.network.listener.message.ServiceChannelMessageListener;
 import de.dytanic.cloudnet.service.ICloudServiceManager;
 import java.util.concurrent.TimeUnit;
 import org.jetbrains.annotations.NotNull;
@@ -35,15 +38,21 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
   private final ICloudServiceManager serviceManager;
   private final IClusterNodeServerProvider nodeServerProvider;
 
-  public NodeCloudServiceFactory(ICloudServiceManager serviceManager, IClusterNodeServerProvider nodeServerProvider) {
+  public NodeCloudServiceFactory(
+    @NotNull IEventManager eventManager,
+    @NotNull ICloudServiceManager serviceManager,
+    @NotNull IClusterNodeServerProvider nodeServerProvider
+  ) {
     this.serviceManager = serviceManager;
     this.nodeServerProvider = nodeServerProvider;
+
+    eventManager.registerListener(new ServiceChannelMessageListener(eventManager, serviceManager, this));
   }
 
   @Override
   public @Nullable ServiceInfoSnapshot createCloudService(ServiceConfiguration serviceConfiguration) {
     // check if this node can start services
-    if (this.nodeServerProvider.getHeadNode() == this.nodeServerProvider.getSelfNode()) {
+    if (this.nodeServerProvider.getHeadNode().equals(this.nodeServerProvider.getSelfNode())) {
       // get the logic node server to start the service on
       IClusterNodeServer nodeServer = this.peekLogicNodeServer(serviceConfiguration);
       // if there is a node server send a request to start a service
@@ -65,14 +74,15 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
   }
 
   protected @Nullable ServiceInfoSnapshot sendNodeServerStartRequest(
-    @NotNull String channel,
+    @NotNull String message,
     @NotNull String targetNode,
     @NotNull ServiceConfiguration configuration
   ) {
     // send a request to the node to start a service
     ChannelMessage result = ChannelMessage.builder()
-      .channel(channel)
       .target(Type.NODE, targetNode)
+      .message(message)
+      .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
       .buffer(DataBufFactory.defaultFactory().createEmpty().writeObject(configuration))
       .build()
       .sendSingleQueryAsync()

@@ -14,24 +14,23 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.driver.event.events.permission;
+package de.dytanic.cloudnet.driver.network.def;
 
-import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
-import de.dytanic.cloudnet.driver.permission.PermissionGroup;
-import java.util.Collection;
+import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
+import de.dytanic.cloudnet.driver.network.def.NetworkConstants;
+import de.dytanic.cloudnet.driver.network.protocol.Packet;
 
-public final class PermissionSetGroupsEvent extends PermissionEvent {
+public final class PacketClientAuthorization extends Packet {
 
-  private final Collection<? extends PermissionGroup> groups;
-
-  public PermissionSetGroupsEvent(IPermissionManagement permissionManagement,
-    Collection<? extends PermissionGroup> groups) {
-    super(permissionManagement);
-
-    this.groups = groups;
+  public PacketClientAuthorization(PacketAuthorizationType type, DataBuf dataBuf) {
+    super(
+      NetworkConstants.INTERNAL_AUTHORIZATION_CHANNEL,
+      DataBuf.empty().writeObject(type).writeDataBuf(dataBuf));
   }
 
-  public Collection<? extends PermissionGroup> getGroups() {
-    return this.groups;
+  public enum PacketAuthorizationType {
+
+    NODE_TO_NODE,
+    WRAPPER_TO_NODE
   }
 }

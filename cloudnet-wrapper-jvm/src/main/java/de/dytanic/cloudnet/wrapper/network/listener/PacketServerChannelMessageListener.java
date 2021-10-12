@@ -34,7 +34,7 @@ public final class PacketServerChannelMessageListener implements IPacketListener
     ChannelMessage message = packet.getContent().readObject(ChannelMessage.class);
     // get the query response if available
     ChannelMessage response = CloudNetDriver.getInstance().getEventManager().callEvent(
-      new ChannelMessageReceiveEvent(message, packet.getUniqueId() != null)).getQueryResponse();
+      new ChannelMessageReceiveEvent(message, channel, packet.getUniqueId() != null)).getQueryResponse();
     // check if we need to respond to the channel message
     if (response != null || packet.getUniqueId() != null) {
       // respond either using the query result or an empty result

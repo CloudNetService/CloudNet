@@ -24,7 +24,7 @@ import de.dytanic.cloudnet.driver.event.events.network.NetworkChannelPacketRecei
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.INetworkChannelHandler;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
-import de.dytanic.cloudnet.driver.network.def.packet.PacketClientAuthorization;
+import de.dytanic.cloudnet.driver.network.def.PacketClientAuthorization;
 import de.dytanic.cloudnet.driver.network.protocol.Packet;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import org.jetbrains.annotations.NotNull;
@@ -41,7 +41,7 @@ public class NetworkClientChannelHandler implements INetworkChannelHandler {
       return;
     }
 
-    networkChannelInitEvent.getChannel().sendPacket(new PacketClientAuthorization(
+    networkChannelInitEvent.getNetworkChannel().sendPacket(new PacketClientAuthorization(
       PacketClientAuthorization.PacketAuthorizationType.WRAPPER_TO_NODE,
       DataBuf.empty()
         .writeString(Wrapper.getInstance().getConfig().getConnectionKey())

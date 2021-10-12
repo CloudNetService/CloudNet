@@ -24,17 +24,11 @@ public final class LoggingEntryEvent extends DriverEvent {
 
   private final LogRecord record;
 
-  public LoggingEntryEvent(LogRecord record) {
+  public LoggingEntryEvent(@NotNull LogRecord record) {
     this.record = record;
   }
 
   public @NotNull LogRecord getLogEntry() {
     return this.record;
   }
-
-  @Override
-  public boolean isShowDebug() {
-    return false;
-  }
-
 }

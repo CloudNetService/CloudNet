@@ -14,28 +14,21 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.event.network;
+package de.dytanic.cloudnet.driver.event.events.task;
 
 import de.dytanic.cloudnet.driver.event.Event;
-import de.dytanic.cloudnet.driver.network.INetworkChannel;
-import de.dytanic.cloudnet.service.ICloudService;
+import de.dytanic.cloudnet.driver.service.ServiceTask;
 
-public final class NetworkChannelAuthCloudServiceSuccessEvent extends Event {
+public final class ServiceTaskAddEvent extends Event {
 
-  private final ICloudService cloudService;
+  private final ServiceTask task;
 
-  private final INetworkChannel channel;
-
-  public NetworkChannelAuthCloudServiceSuccessEvent(ICloudService cloudService, INetworkChannel channel) {
-    this.cloudService = cloudService;
-    this.channel = channel;
+  public ServiceTaskAddEvent(ServiceTask task) {
+    this.task = task;
   }
 
-  public ICloudService getCloudService() {
-    return this.cloudService;
+  public ServiceTask getTask() {
+    return this.task;
   }
 
-  public INetworkChannel getChannel() {
-    return this.channel;
-  }
 }

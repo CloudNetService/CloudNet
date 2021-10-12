@@ -138,6 +138,11 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
       case NODE: {
         // search for the matching node server
         if (allowClusterRedirect) {
+          // check if a specific node server was selected or all node servers are targeted
+          if (target.getName() == null) {
+            return this.nodeServerProvider.getConnectedChannels();
+          }
+          // check if we know the target node server
           IClusterNodeServer server = this.nodeServerProvider.getNodeServer(target.getName());
           return server == null || !server.isConnected()
             ? Collections.emptySet()
@@ -148,15 +153,34 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
         }
       }
       case SERVICE: {
-        // check if the service is running locally - use the known channel then
-        ICloudService localService = this.cloudServiceManager.getLocalCloudService(target.getName());
-        if (localService != null) {
-          return localService.getNetworkChannel() == null
-            ? Collections.emptySet()
-            : Collections.singleton(localService.getNetworkChannel());
+        // check if a specific service was requested
+        if (target.getName() == null) {
+          // if no specific name is given just get all local channels
+          Collection<INetworkChannel> channels = this.cloudServiceManager.getLocalCloudServices().stream()
+            .map(ICloudService::getNetworkChannel)
+            .filter(Objects::nonNull)
+            .collect(Collectors.toSet());
+          // check if cluster redirect is allowed - add all connected node channels then
+          if (allowClusterRedirect) {
+            channels.addAll(this.nodeServerProvider.getConnectedChannels());
+          }
+          // return here
+          return channels;
+        } else {
+          // check if the service is running locally - use the known channel then
+          ICloudService localService = this.cloudServiceManager.getLocalCloudService(target.getName());
+          if (localService != null) {
+            return localService.getNetworkChannel() == null
+              ? Collections.emptySet()
+              : Collections.singleton(localService.getNetworkChannel());
+          }
         }
         // check if we are allowed to redirect the message to the node running the service
         if (allowClusterRedirect) {
+          // if no specific service is given just send it to all nodes
+          if (target.getName() == null) {
+            return this.nodeServerProvider.getConnectedChannels();
+          }
           // check if we know the service from the cluster
           ServiceInfoSnapshot service = this.cloudServiceManager.getCloudServiceByName(target.getName());
           if (service != null) {

@@ -19,6 +19,7 @@ package de.dytanic.cloudnet.driver.event;
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
 import de.dytanic.cloudnet.driver.event.events.service.CloudServiceStartEvent;
+import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
@@ -71,7 +72,10 @@ public class DefaultEventManagerTest {
     ChannelMessage channelMessage = Mockito.mock(ChannelMessage.class);
     Mockito.when(channelMessage.getChannel()).thenReturn("passed");
 
-    ChannelMessageReceiveEvent event = new ChannelMessageReceiveEvent(channelMessage, true);
+    ChannelMessageReceiveEvent event = new ChannelMessageReceiveEvent(
+      channelMessage,
+      Mockito.mock(INetworkChannel.class),
+      true);
 
     Assertions.assertSame(event, eventManager.callEvent(event));
 

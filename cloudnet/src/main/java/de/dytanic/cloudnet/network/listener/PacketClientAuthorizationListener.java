@@ -26,6 +26,8 @@ import de.dytanic.cloudnet.driver.network.def.NetworkConstants;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.network.protocol.IPacketListener;
 import de.dytanic.cloudnet.driver.service.ServiceId;
+import de.dytanic.cloudnet.event.network.NetworkClusterNodeAuthSuccessEvent;
+import de.dytanic.cloudnet.event.network.NetworkServiceAuthSuccessEvent;
 import de.dytanic.cloudnet.network.packet.PacketServerAuthorizationResponse;
 import de.dytanic.cloudnet.service.ICloudService;
 import java.util.UUID;
@@ -63,6 +65,9 @@ public final class PacketClientAuthorizationListener implements IPacketListener 
               .buffer(DataBuf.empty().writeObject(CloudNet.getInstance().getCloudServiceProvider().getCloudServices()))
               .build()
               .send();
+            // call the auth success event
+            CloudNet.getInstance().getEventManager().callEvent(
+              new NetworkClusterNodeAuthSuccessEvent(nodeServer, channel));
             // do not search for more nodes
             return;
           }
@@ -84,6 +89,9 @@ public final class PacketClientAuthorizationListener implements IPacketListener 
           service.publishServiceInfoSnapshot();
           // successful auth
           channel.sendPacket(new PacketServerAuthorizationResponse(true));
+          // call the auth success event
+          CloudNet.getInstance().getEventManager().callEvent(new NetworkServiceAuthSuccessEvent(service, channel));
+          // do not search for other services
           return;
         }
         break;

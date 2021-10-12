@@ -23,23 +23,22 @@ import de.dytanic.cloudnet.driver.provider.service.GeneralCloudServiceProvider;
 import de.dytanic.cloudnet.driver.provider.service.RemoteSpecificCloudServiceProvider;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 public class RemoteNodeCloudServiceProvider extends RemoteSpecificCloudServiceProvider {
 
   private volatile ServiceInfoSnapshot snapshot;
 
   public RemoteNodeCloudServiceProvider(
-    GeneralCloudServiceProvider provider,
-    RPCSender providerSender,
-    ServiceInfoSnapshot snapshot
+    @NotNull GeneralCloudServiceProvider provider,
+    @NotNull RPCSender providerSender,
+    @NotNull ServiceInfoSnapshot snapshot
   ) {
     super(provider, providerSender, snapshot.getServiceId().getUniqueId());
     this.snapshot = snapshot;
   }
 
   @Override
-  public @Nullable ServiceInfoSnapshot getServiceInfoSnapshot() {
+  public @NotNull ServiceInfoSnapshot getServiceInfoSnapshot() {
     return this.snapshot;
   }
 
@@ -48,7 +47,7 @@ public class RemoteNodeCloudServiceProvider extends RemoteSpecificCloudServicePr
     return CompletedTask.create(this.snapshot);
   }
 
-  public void setSnapshot(ServiceInfoSnapshot snapshot) {
+  public void setSnapshot(@NotNull ServiceInfoSnapshot snapshot) {
     this.snapshot = snapshot;
   }
 }

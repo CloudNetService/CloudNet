@@ -17,7 +17,6 @@
 package de.dytanic.cloudnet.driver.network.chunk.network;
 
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
-import de.dytanic.cloudnet.driver.network.buffer.DataBufFactory;
 import de.dytanic.cloudnet.driver.network.chunk.data.ChunkSessionInformation;
 import de.dytanic.cloudnet.driver.network.def.NetworkConstants;
 import de.dytanic.cloudnet.driver.network.protocol.Packet;
@@ -45,13 +44,9 @@ public class ChunkedPacket extends Packet {
     int dataLength,
     byte[] data
   ) {
-    DataBuf.Mutable dataBuf = DataBufFactory.defaultFactory().createEmpty();
-    // transfer information
-    dataBuf
-      .writeInt(information.getChunkSize())
-      .writeInt(information.getTransferType())
-      .writeUniqueId(information.getSessionUniqueId())
-      .writeByteArray(information.getTransferInformation().toByteArray())
+    DataBuf.Mutable dataBuf = DataBuf.empty()
+      // transfer information
+      .writeObject(information)
       // the index of the chunk we are sending
       .writeInt(chunkIndex)
       // if the packet is the ending packet holding the information about the chunk amount

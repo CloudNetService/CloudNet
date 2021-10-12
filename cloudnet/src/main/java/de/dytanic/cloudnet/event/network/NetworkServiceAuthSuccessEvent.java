@@ -14,31 +14,23 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.event.service.task;
+package de.dytanic.cloudnet.event.network;
 
-import de.dytanic.cloudnet.driver.event.Event;
-import de.dytanic.cloudnet.driver.event.ICancelable;
-import de.dytanic.cloudnet.driver.service.ServiceTask;
+import de.dytanic.cloudnet.driver.event.events.network.NetworkEvent;
+import de.dytanic.cloudnet.driver.network.INetworkChannel;
+import de.dytanic.cloudnet.service.ICloudService;
+import org.jetbrains.annotations.NotNull;
 
-public class LocalServiceTaskRemoveEvent extends Event implements ICancelable {
+public final class NetworkServiceAuthSuccessEvent extends NetworkEvent {
 
-  private final ServiceTask task;
+  private final ICloudService cloudService;
 
-  private boolean cancelled;
-
-  public LocalServiceTaskRemoveEvent(ServiceTask task) {
-    this.task = task;
+  public NetworkServiceAuthSuccessEvent(@NotNull ICloudService cloudService, @NotNull INetworkChannel channel) {
+    super(channel);
+    this.cloudService = cloudService;
   }
 
-  public ServiceTask getTask() {
-    return this.task;
-  }
-
-  public boolean isCancelled() {
-    return this.cancelled;
-  }
-
-  public void setCancelled(boolean cancelled) {
-    this.cancelled = cancelled;
+  public @NotNull ICloudService getCloudService() {
+    return this.cloudService;
   }
 }

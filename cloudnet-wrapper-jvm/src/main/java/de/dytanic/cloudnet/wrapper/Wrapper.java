@@ -46,15 +46,16 @@ import de.dytanic.cloudnet.wrapper.event.service.ServiceInfoSnapshotConfigureEve
 import de.dytanic.cloudnet.wrapper.network.NetworkClientChannelHandler;
 import de.dytanic.cloudnet.wrapper.network.listener.PacketAuthorizationResponseListener;
 import de.dytanic.cloudnet.wrapper.permission.WrapperPermissionManagement;
+import de.dytanic.cloudnet.wrapper.provider.WrapperGeneralCloudServiceProvider;
 import de.dytanic.cloudnet.wrapper.provider.WrapperGroupConfigurationProvider;
 import de.dytanic.cloudnet.wrapper.provider.WrapperMessenger;
 import de.dytanic.cloudnet.wrapper.provider.WrapperNodeInfoProvider;
 import de.dytanic.cloudnet.wrapper.provider.WrapperServiceTaskProvider;
-import de.dytanic.cloudnet.wrapper.provider.WrapperGeneralCloudServiceProvider;
 import java.lang.reflect.Method;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -89,11 +90,6 @@ public class Wrapper extends CloudNetDriver {
   private final RPCSender rpcSender;
 
   /**
-   * The commandline arguments from the main() method of Main class by the application wrapper
-   */
-  private final List<String> commandLineArguments;
-
-  /**
    * The single task thread of the scheduler of the wrapper application
    */
   private final Thread mainThread = Thread.currentThread();
@@ -105,10 +101,11 @@ public class Wrapper extends CloudNetDriver {
   private ServiceInfoSnapshot lastServiceInfoSnapShot = this.config.getServiceInfoSnapshot();
   private ServiceInfoSnapshot currentServiceInfoSnapshot = this.config.getServiceInfoSnapshot();
 
-  protected Wrapper(@NotNull List<String> commandLineArguments) {
+  protected Wrapper(@NotNull String[] args) {
+    super(new ArrayList<>(Arrays.asList(args)));
+
     setInstance(this);
 
-    this.commandLineArguments = commandLineArguments;
     this.cloudNetVersion = CloudNetVersion.fromClassInformation(Wrapper.class.getPackage());
 
     super.networkClient = new NettyNetworkClient(NetworkClientChannelHandler::new, this.config.getSSLConfig());

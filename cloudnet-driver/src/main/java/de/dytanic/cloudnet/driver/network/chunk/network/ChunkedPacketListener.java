@@ -16,7 +16,6 @@
 
 package de.dytanic.cloudnet.driver.network.chunk.network;
 
-import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.chunk.ChunkedPacketHandler;
 import de.dytanic.cloudnet.driver.network.chunk.data.ChunkSessionInformation;
@@ -32,19 +31,14 @@ public class ChunkedPacketListener implements IPacketListener {
   private final Function<ChunkSessionInformation, ChunkedPacketHandler> handlerFactory;
   private final Map<ChunkSessionInformation, ChunkedPacketHandler> runningSessions = new ConcurrentHashMap<>();
 
-  public ChunkedPacketListener(Function<ChunkSessionInformation, ChunkedPacketHandler> handlerFactory) {
+  public ChunkedPacketListener(@NotNull Function<ChunkSessionInformation, ChunkedPacketHandler> handlerFactory) {
     this.handlerFactory = handlerFactory;
   }
 
   @Override
-  public void handle(@NotNull INetworkChannel channel, IPacket packet) throws Exception {
+  public void handle(@NotNull INetworkChannel channel, @NotNull IPacket packet) throws Exception {
     // read the chunk information from the buffer
-    ChunkSessionInformation information = new ChunkSessionInformation(
-      packet.getContent().readInt(),
-      packet.getContent().readInt(),
-      packet.getContent().readUniqueId(),
-      JsonDocument.newDocument(packet.getContent().readByteArray())
-    );
+    ChunkSessionInformation information = packet.getContent().readObject(ChunkSessionInformation.class);
     // read the chunk index
     int chunkIndex = packet.getContent().readInt();
     // get or create the session associated with the packet

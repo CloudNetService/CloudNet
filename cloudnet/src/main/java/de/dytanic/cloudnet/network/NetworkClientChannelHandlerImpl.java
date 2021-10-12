@@ -28,7 +28,7 @@ import de.dytanic.cloudnet.driver.event.events.network.NetworkChannelPacketRecei
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.INetworkChannelHandler;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
-import de.dytanic.cloudnet.driver.network.def.packet.PacketClientAuthorization;
+import de.dytanic.cloudnet.driver.network.def.PacketClientAuthorization;
 import de.dytanic.cloudnet.driver.network.protocol.Packet;
 import java.util.concurrent.atomic.AtomicLong;
 import org.jetbrains.annotations.NotNull;

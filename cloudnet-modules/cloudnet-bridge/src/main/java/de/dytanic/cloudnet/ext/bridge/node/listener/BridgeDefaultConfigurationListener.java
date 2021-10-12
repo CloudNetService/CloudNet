@@ -18,7 +18,7 @@ package de.dytanic.cloudnet.ext.bridge.node.listener;
 
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.service.ServiceTask;
-import de.dytanic.cloudnet.event.service.task.LocalServiceTaskAddEvent;
+import de.dytanic.cloudnet.event.task.LocalServiceTaskAddEvent;
 import de.dytanic.cloudnet.ext.bridge.BridgeConfiguration;
 import de.dytanic.cloudnet.ext.bridge.node.CloudNetBridgeModule;
 

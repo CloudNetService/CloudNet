@@ -14,23 +14,23 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.event.service.task;
+package de.dytanic.cloudnet.event.task;
 
 import de.dytanic.cloudnet.driver.event.Event;
 import de.dytanic.cloudnet.driver.event.ICancelable;
 import de.dytanic.cloudnet.driver.service.ServiceTask;
+import org.jetbrains.annotations.NotNull;
 
-public final class LocalServiceTaskAddEvent extends Event implements ICancelable {
+public class LocalServiceTaskRemoveEvent extends Event implements ICancelable {
 
   private final ServiceTask task;
+  private volatile boolean cancelled;
 
-  private boolean cancelled;
-
-  public LocalServiceTaskAddEvent(ServiceTask task) {
+  public LocalServiceTaskRemoveEvent(@NotNull ServiceTask task) {
     this.task = task;
   }
 
-  public ServiceTask getTask() {
+  public @NotNull ServiceTask getTask() {
     return this.task;
   }
 

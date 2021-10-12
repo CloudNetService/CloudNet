@@ -26,8 +26,6 @@ import de.dytanic.cloudnet.common.log.defaults.ThreadedLogRecordDispatcher;
 import de.dytanic.cloudnet.wrapper.log.InternalPrintStreamLogHandler;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
 import org.jetbrains.annotations.NotNull;
 
 public final class Main {
@@ -49,7 +47,7 @@ public final class Main {
 
     initLogger(LogManager.getRootLogger());
 
-    Wrapper wrapper = new Wrapper(new ArrayList<>(Arrays.asList(args)));
+    Wrapper wrapper = new Wrapper(args);
     wrapper.start();
   }
 

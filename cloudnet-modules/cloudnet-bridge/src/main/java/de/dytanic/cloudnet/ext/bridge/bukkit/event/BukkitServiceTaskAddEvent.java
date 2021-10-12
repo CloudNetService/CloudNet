@@ -22,7 +22,7 @@ import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Use {@link de.dytanic.cloudnet.driver.event.events.service.task.ServiceTaskAddEvent} instead with the {@link
+ * Use {@link de.dytanic.cloudnet.driver.event.events.task.ServiceTaskAddEvent} instead with the {@link
  * de.dytanic.cloudnet.driver.event.EventListener} annotation and register it using {@link
  * de.dytanic.cloudnet.driver.event.IEventManager#registerListener(Object)}
  */
