@@ -19,28 +19,40 @@ package de.dytanic.cloudnet.command.defaults;
 import cloud.commandframework.Command;
 import cloud.commandframework.CommandManager;
 import cloud.commandframework.annotations.AnnotationParser;
+import cloud.commandframework.exceptions.ArgumentParseException;
 import cloud.commandframework.exceptions.InvalidSyntaxException;
 import cloud.commandframework.exceptions.NoPermissionException;
 import cloud.commandframework.exceptions.NoSuchCommandException;
 import cloud.commandframework.extra.confirmation.CommandConfirmationManager;
 import cloud.commandframework.meta.CommandMeta;
 import cloud.commandframework.meta.SimpleCommandMeta;
+import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.command.CommandProvider;
 import de.dytanic.cloudnet.command.exception.ArgumentNotAvailableException;
 import de.dytanic.cloudnet.command.source.CommandSource;
+import de.dytanic.cloudnet.command.sub.CommandClear;
+import de.dytanic.cloudnet.command.sub.CommandCopy;
 import de.dytanic.cloudnet.command.sub.CommandCreate;
+import de.dytanic.cloudnet.command.sub.CommandDebug;
 import de.dytanic.cloudnet.command.sub.CommandExit;
 import de.dytanic.cloudnet.command.sub.CommandGroups;
+import de.dytanic.cloudnet.command.sub.CommandMe;
+import de.dytanic.cloudnet.command.sub.CommandMigrate;
+import de.dytanic.cloudnet.command.sub.CommandPermissions;
+import de.dytanic.cloudnet.command.sub.CommandService;
 import de.dytanic.cloudnet.command.sub.CommandServiceConfiguration;
 import de.dytanic.cloudnet.command.sub.CommandTasks;
 import de.dytanic.cloudnet.command.sub.CommandTemplate;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.driver.command.CommandInfo;
+import de.dytanic.cloudnet.event.command.CommandInvalidSyntaxEvent;
+import de.dytanic.cloudnet.event.command.CommandNotFoundEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.TimeUnit;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -63,14 +75,23 @@ public class DefaultCommandProvider implements CommandProvider {
       //TODO: message configurable
       sender -> sender.sendMessage("No requests.")  //TODO: message configurable
     );
+    this.confirmationManager.registerConfirmationProcessor(this.commandManager);
     this.registeredCommands = new ArrayList<>();
 
+    //TODO move this to another class
     this.register(new CommandTemplate());
     this.register(new CommandExit());
     this.register(new CommandServiceConfiguration());
     this.register(new CommandGroups());
     this.register(new CommandTasks());
     this.register(new CommandCreate());
+    this.register(new CommandMe());
+    this.register(new CommandService());
+    this.register(new CommandPermissions());
+    this.register(new CommandClear());
+    this.register(new CommandDebug());
+    this.register(new CommandCopy());
+    this.register(new CommandMigrate());
   }
 
   @Override
@@ -83,20 +104,29 @@ public class DefaultCommandProvider implements CommandProvider {
     try {
       this.commandManager.executeCommand(source, input).join();
     } catch (Exception exception) {
-      if (exception.getCause() instanceof ArgumentNotAvailableException) {
-        source.sendMessage(exception.getMessage());
-      } else if (exception.getCause() instanceof NoSuchCommandException) {
-        source.sendMessage(LanguageManager.getMessage("command-not-found"));
-      } else if (exception.getCause() instanceof NoPermissionException) {
-        source.sendMessage(LanguageManager.getMessage("command-sub-no-permission"));
-      } else if (exception.getCause() instanceof InvalidSyntaxException) {
-        source.sendMessage(((InvalidSyntaxException) exception.getCause()).getCorrectSyntax());
+      if (exception instanceof CompletionException) {
+        Throwable cause = exception.getCause();
+        if (cause == null) {
+          return;
+        }
+        if (cause instanceof InvalidSyntaxException) {
+          this.handleInvalidSyntaxException(source, (InvalidSyntaxException) cause);
+        } else if (cause instanceof NoPermissionException) {
+          this.handleNoPermissionException(source, (NoPermissionException) cause);
+        } else if (cause instanceof NoSuchCommandException) {
+          this.handleNoSuchCommandException(source, (NoSuchCommandException) cause);
+        } else if (cause instanceof ArgumentParseException) {
+          Throwable deepCause = cause.getCause();
+          if (deepCause instanceof ArgumentNotAvailableException) {
+            this.handleArgumentNotAvailableException(source, (ArgumentNotAvailableException) deepCause);
+          }
+        }
       }
     }
   }
 
   @Override
-  public @NotNull Collection<CommandInfo> register(@NotNull Object command) {
+  public void register(@NotNull Object command) {
     Collection<CommandInfo> commandInfos = new ArrayList<>();
     for (Command<CommandSource> cloudCommand : this.annotationParser.parse(command)) {
       String permission = cloudCommand.getCommandPermission().toString();
@@ -105,8 +135,6 @@ public class DefaultCommandProvider implements CommandProvider {
     }
 
     this.registeredCommands.addAll(commandInfos);
-
-    return commandInfos;
   }
 
   @Override
@@ -120,5 +148,38 @@ public class DefaultCommandProvider implements CommandProvider {
   @Override
   public @NotNull Collection<CommandInfo> getCommands() {
     return Collections.unmodifiableCollection(this.registeredCommands);
+  }
+
+  private void handleArgumentParseException(CommandSource source, ArgumentParseException exception) {
+    source.sendMessage(exception.getMessage());
+  }
+
+  private void handleArgumentNotAvailableException(CommandSource source, ArgumentNotAvailableException exception) {
+    source.sendMessage(exception.getMessage());
+  }
+
+  private void handleInvalidSyntaxException(CommandSource source, InvalidSyntaxException exception) {
+    CommandInvalidSyntaxEvent invalidSyntaxEvent = CloudNet.getInstance().getEventManager().callEvent(
+      new CommandInvalidSyntaxEvent(
+        exception.getCorrectSyntax(),
+        LanguageManager.getMessage("command-invalid-syntax")
+          .replace("%syntax%", exception.getCorrectSyntax())
+      )
+    );
+    source.sendMessage(invalidSyntaxEvent.getResponse());
+  }
+
+  private void handleNoSuchCommandException(CommandSource source, NoSuchCommandException exception) {
+    CommandNotFoundEvent notFoundEvent = CloudNet.getInstance().getEventManager().callEvent(
+      new CommandNotFoundEvent(
+        exception.getSuppliedCommand(),
+        LanguageManager.getMessage("command-not-found")
+      )
+    );
+    source.sendMessage(notFoundEvent.getResponse());
+  }
+
+  private void handleNoPermissionException(CommandSource source, NoPermissionException exception) {
+    source.sendMessage(LanguageManager.getMessage("command-sub-no-permission"));
   }
 }

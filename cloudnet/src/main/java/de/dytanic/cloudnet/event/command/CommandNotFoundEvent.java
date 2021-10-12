@@ -21,12 +21,22 @@ import de.dytanic.cloudnet.driver.event.Event;
 public class CommandNotFoundEvent extends Event {
 
   private final String commandLine;
+  private String response;
 
-  public CommandNotFoundEvent(String commandLine) {
+  public CommandNotFoundEvent(String commandLine, String response) {
     this.commandLine = commandLine;
+    this.response = response;
   }
 
   public String getCommandLine() {
     return this.commandLine;
+  }
+
+  public String getResponse() {
+    return this.response;
+  }
+
+  public void setResponse(String response) {
+    this.response = response;
   }
 }

@@ -14,19 +14,30 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.permission.command;
+package de.dytanic.cloudnet.event.command;
 
-import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
-import de.dytanic.cloudnet.driver.permission.PermissionUser;
-import java.util.Queue;
+import de.dytanic.cloudnet.driver.event.Event;
+import org.jetbrains.annotations.Nullable;
 
-// TODO: do we need this?
-public interface IPermissionUserCommandSender {
+public class CommandInvalidSyntaxEvent extends Event {
 
-  Queue<String> getWrittenMessages();
+  private final String correctSyntax;
+  private String response;
 
-  IPermissionManagement getPermissionManagement();
+  public CommandInvalidSyntaxEvent(String correctSyntax, String response) {
+    this.correctSyntax = correctSyntax;
+    this.response = response;
+  }
 
-  PermissionUser getPermissionUser();
+  public String getCorrectSyntax() {
+    return this.correctSyntax;
+  }
 
+  public String getResponse() {
+    return this.response;
+  }
+
+  public void setResponse(@Nullable String response) {
+    this.response = response;
+  }
 }

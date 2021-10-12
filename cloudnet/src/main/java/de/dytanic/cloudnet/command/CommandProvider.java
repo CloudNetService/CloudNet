@@ -31,8 +31,7 @@ public interface CommandProvider {
 
   void execute(@NotNull CommandSource source, @NotNull String input);
 
-  @NotNull
-  Collection<CommandInfo> register(@NotNull Object command);
+  void register(@NotNull Object command);
 
   @Nullable
   CommandInfo getCommand(@NotNull String input);

@@ -18,7 +18,6 @@ package de.dytanic.cloudnet.command.sub;
 
 import cloud.commandframework.annotations.Argument;
 import cloud.commandframework.annotations.CommandMethod;
-import cloud.commandframework.annotations.Flag;
 import de.dytanic.cloudnet.command.source.CommandSource;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
@@ -32,11 +31,11 @@ import java.util.List;
 
 public class CommandCopy {
 
-  @CommandMethod("copy|cp <service>")
+  @CommandMethod("copy|cp <service> [template]")
   public void copyService(
     CommandSource source,
     @Argument(value = "service", parserName = "single") ServiceInfoSnapshot service,
-    @Flag("template") ServiceTemplate template
+    @Argument("template") ServiceTemplate template
   ) {
     ServiceTemplate targetTemplate = template;
     if (template == null) {

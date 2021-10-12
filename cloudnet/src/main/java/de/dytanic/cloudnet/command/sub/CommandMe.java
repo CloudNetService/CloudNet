@@ -29,6 +29,7 @@ import java.util.List;
 
 public class CommandMe {
 
+  //TODO klaro du willst hier komische java sachen anzeigen
   @CommandDescription("Displays all important information about this process and the JVM")
   @CommandMethod("me|info")
   public void me(CommandSource commandSource) {

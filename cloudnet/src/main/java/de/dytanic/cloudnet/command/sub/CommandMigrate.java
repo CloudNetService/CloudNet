@@ -43,8 +43,7 @@ public class CommandMigrate {
   private static final Logger LOGGER = LogManager.getLogger(CommandMigrate.class);
 
   @Parser(suggestions = "databaseProvider")
-  public AbstractDatabaseProvider defaultDatabaseProviderParser(CommandContext<CommandSource> sender,
-    Queue<String> input) {
+  public AbstractDatabaseProvider defaultDatabaseProviderParser(CommandContext<CommandSource> $, Queue<String> input) {
     AbstractDatabaseProvider abstractDatabaseProvider = CloudNet.getInstance().getServicesRegistry()
       .getService(AbstractDatabaseProvider.class, input.remove());
 
@@ -55,7 +54,7 @@ public class CommandMigrate {
   }
 
   @Suggestions("databaseProvider")
-  public List<String> suggestDatabaseProvider(CommandContext<CommandSource> sender, String input) {
+  public List<String> suggestDatabaseProvider(CommandContext<CommandSource> $, String input) {
     return CloudNet.getInstance().getServicesRegistry().getServices(AbstractDatabaseProvider.class)
       .stream()
       .map(INameable::getName)

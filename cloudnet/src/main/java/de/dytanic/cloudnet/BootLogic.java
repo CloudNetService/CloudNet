@@ -18,6 +18,7 @@ package de.dytanic.cloudnet;
 
 import de.dytanic.cloudnet.command.CommandProvider;
 import de.dytanic.cloudnet.command.defaults.DefaultCommandProvider;
+import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.common.log.LoggingUtils;
@@ -48,7 +49,7 @@ public final class BootLogic {
     // boot CloudNet
     CloudNet nodeInstance = new CloudNet(args, console, commandProvider);
     nodeInstance.start();
-/*
+
     LanguageManager.setLanguage(System.getProperty("cloudnet.messages.language", "english"));
     LanguageManager
       .addLanguageFile("german", BootLogic.class.getClassLoader().getResourceAsStream("lang/german.properties"));
@@ -59,7 +60,7 @@ public final class BootLogic {
     LanguageManager
       .addLanguageFile("chinese", BootLogic.class.getClassLoader().getResourceAsStream("lang/chinese.properties"));
 
-    IConsole console = new JLine3Console();
+    /*IConsole console = new JLine3Console();
     Logger logger = LogManager.getRootLogger();
 
     initLoggerAndConsole(console, logger);

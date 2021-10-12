@@ -58,7 +58,7 @@ public class CommandService {
   private static final DateFormat DATE_FORMAT = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
 
   @Parser(name = "single", suggestions = "single")
-  public ServiceInfoSnapshot singleServiceParser(Queue<String> input) {
+  public ServiceInfoSnapshot singleServiceParser(CommandContext<CommandSource> $, Queue<String> input) {
     String name = input.remove();
     ServiceInfoSnapshot serviceInfoSnapshot = CloudNet.getInstance().getCloudServiceProvider()
       .getCloudServiceByName(name);
@@ -69,7 +69,7 @@ public class CommandService {
   }
 
   @Suggestions("single")
-  public List<String> suggestSingleService(CommandContext<CommandSource> context, String input) {
+  public List<String> suggestSingleService(CommandContext<CommandSource> $, String input) {
     return CloudNet.getInstance().getCloudServiceProvider().getCloudServices()
       .stream()
       .map(INameable::getName)
@@ -77,26 +77,27 @@ public class CommandService {
   }
 
   @Parser(suggestions = "serviceWildcard")
-  public Collection<ServiceInfoSnapshot> wildcardServiceParser(Queue<String> input) {
+  public Collection<ServiceInfoSnapshot> wildcardServiceParser(CommandContext<CommandSource> $, Queue<String> input) {
     String name = input.remove();
     Collection<ServiceInfoSnapshot> knownServices = CloudNet.getInstance().getCloudServiceProvider().getCloudServices();
     Collection<ServiceInfoSnapshot> matchedServices = WildcardUtil.filterWildcard(knownServices, name);
     if (matchedServices.isEmpty()) {
-      throw new ArgumentNotAvailableException("");
+      throw new ArgumentNotAvailableException("No services found");
     }
 
     return matchedServices;
   }
 
   @Parser(name = "staticWildcard")
-  public Collection<ServiceInfoSnapshot> staticWildcardServiceParser(Queue<String> input) {
+  public Collection<ServiceInfoSnapshot> staticWildcardServiceParser(CommandContext<CommandSource> $,
+    Queue<String> input) {
     String name = input.remove();
     Collection<ServiceInfoSnapshot> knownServices = CloudNet.getInstance().getCloudServiceProvider().getCloudServices();
     return WildcardUtil.filterWildcard(knownServices, name);
   }
 
   @Suggestions("serviceWildcard")
-  public List<String> suggestService(CommandContext<CommandSource> context, String input) {
+  public List<String> suggestService(CommandContext<CommandSource> $, String input) {
     Collection<ServiceInfoSnapshot> knownServices = CloudNet.getInstance().getCloudServiceProvider().getCloudServices();
     return WildcardUtil.filterWildcard(knownServices, input)
       .stream()
@@ -137,18 +138,19 @@ public class CommandService {
           serviceInfoSnapshot.getServiceId().getName() + " | " + serviceInfoSnapshot.getServiceId().getUniqueId());
       } else {
         source.sendMessage(
-          "Name: " + serviceInfoSnapshot.getServiceId().getName() +
-            "2 | " + (serviceInfoSnapshot.isConnected() ? "Connected" : "Not Connected") + extension
+          "Name: " + serviceInfoSnapshot.getServiceId().getName() + " | Lifecycle: "
+            + serviceInfoSnapshot.getLifeCycle() +
+            " | " + (serviceInfoSnapshot.isConnected()
+            ? "Connected" : "Not Connected") + extension
         );
       }
-
-      StringBuilder builder = new StringBuilder(
-        String.format("=> Showing %d service(s)", services.size()));
-      for (String parameter : event.getAdditionalSummary()) {
-        builder.append("; ").append(parameter);
-      }
-      source.sendMessage(builder.toString());
     }
+    StringBuilder builder = new StringBuilder(
+      String.format("=> Showing %d service(s)", services.size()));
+    for (String parameter : event.getAdditionalSummary()) {
+      builder.append("; ").append(parameter);
+    }
+    source.sendMessage(builder.toString());
   }
 
   @CommandMethod("service|ser <name>")
@@ -165,7 +167,7 @@ public class CommandService {
     @Argument("name") String serviceName) {
 
     Collection<ServiceInfoSnapshot> matchedServices = this.staticWildcardServiceParser(
-      new ConcurrentLinkedQueue<>(Collections.singletonList(serviceName)));
+      null, new ConcurrentLinkedQueue<>(Collections.singletonList(serviceName)));
     // there may be a static service with that name, but as it can be started even if it's not prepared we need to check
     if (matchedServices.isEmpty()) {
       Matcher nameMatcher = SERVICE_NAME_PATTERN.matcher(serviceName);
@@ -248,16 +250,16 @@ public class CommandService {
 
   @CommandMethod("service|ser <name> add deployment <deployment>")
   public void addDeployment(CommandSource source, @Argument("name") Collection<ServiceInfoSnapshot> matchedServices,
-    @Argument("storage:prefix/name") ServiceTemplate template) {
+    @Argument("deployment") ServiceTemplate template) {
     ServiceDeployment deployment = new ServiceDeployment(template, new ArrayList<>());
     for (ServiceInfoSnapshot matchedService : matchedServices) {
       matchedService.provider().addServiceDeployment(deployment);
     }
   }
 
-  @CommandMethod("service|ser <name> add template <storage:prefix/name>")
+  @CommandMethod("service|ser <name> add template <template>")
   public void addTemplate(CommandSource source, @Argument("name") Collection<ServiceInfoSnapshot> matchedServices,
-    @Argument("storage:prefix/name") ServiceTemplate template) {
+    @Argument("template") ServiceTemplate template) {
     for (ServiceInfoSnapshot matchedService : matchedServices) {
       matchedService.provider().addServiceTemplate(template);
     }

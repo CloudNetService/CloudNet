@@ -53,7 +53,7 @@ public class CommandTemplate {
   public ServiceTemplate defaultServiceTemplateParser(CommandContext<CommandSource> $, Queue<String> input) {
     ServiceTemplate template = ServiceTemplate.parse(input.remove());
     if (template == null || template.nullableStorage() == null) {
-      throw new ArgumentNotAvailableException("Test");
+      throw new ArgumentNotAvailableException(LanguageManager.getMessage("ca-question-list-invalid-template"));
     }
     return template;
   }
@@ -70,7 +70,7 @@ public class CommandTemplate {
   public TemplateStorage defaultTemplateStorageParser(CommandContext<CommandSource> $, Queue<String> input) {
     TemplateStorage templateStorage = CloudNet.getInstance().getTemplateStorage(input.remove());
     if (templateStorage == null) {
-      throw new ArgumentNotAvailableException("");
+      throw new ArgumentNotAvailableException(LanguageManager.getMessage("ca-question-list-template-invalid-storage"));
     }
     return templateStorage;
   }
@@ -87,7 +87,8 @@ public class CommandTemplate {
   public ServiceVersionType defaultVersionTypeParser(CommandContext<CommandSource> $, Queue<String> input) {
     String versionTypeName = input.remove().toLowerCase();
     return CloudNet.getInstance().getServiceVersionProvider().getServiceVersionType(versionTypeName)
-      .orElseThrow(() -> new ArgumentNotAvailableException(""));
+      .orElseThrow(() -> new ArgumentNotAvailableException(
+        LanguageManager.getMessage("ca-question-list-invalid-service-version")));
   }
 
   @Parser
@@ -145,14 +146,14 @@ public class CommandTemplate {
 
     ServiceVersion serviceVersion = versionType.getVersion(version).orElse(null);
     if (serviceVersion == null) {
-      source.sendMessage("Invalid version bla bla");
+      source.sendMessage(LanguageManager.getMessage("ca-question-list-invalid-service-version"));
       return;
     }
 
     String resolvedExecutable = executable == null ? "java" : executable;
     JavaVersion javaVersion = JavaVersionResolver.resolveFromJavaExecutable(resolvedExecutable);
     if (javaVersion == null) {
-      source.sendMessage("Java executable invalid");
+      source.sendMessage(LanguageManager.getMessage("ca-question-list-invalid-java-executable"));
       return;
     }
 
