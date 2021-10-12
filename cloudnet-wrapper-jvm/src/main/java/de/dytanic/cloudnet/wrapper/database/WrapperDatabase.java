@@ -100,13 +100,12 @@ public class WrapperDatabase implements Database {
 
   @Override
   public long getDocumentsCount() {
-    Long result = this.baseRPC.join(this.sender.invokeMethod("getDocumentsCount")).fireSync();
-    return result != null ? result : -1;
+    return this.baseRPC.join(this.sender.invokeMethod("getDocumentsCount")).fireSync();
   }
 
   @Override
   public boolean isSynced() {
-    return true;
+    return this.baseRPC.join(this.sender.invokeMethod("isSynced")).fireSync();
   }
 
   @Override

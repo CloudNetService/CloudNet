@@ -39,7 +39,11 @@ public class RemoteSpecificCloudServiceProvider implements SpecificCloudServiceP
   // provider
   private final GeneralCloudServiceProvider provider;
 
-  public RemoteSpecificCloudServiceProvider(GeneralCloudServiceProvider provider, RPCSender providerSender, UUID id) {
+  public RemoteSpecificCloudServiceProvider(
+    @NotNull GeneralCloudServiceProvider provider,
+    @NotNull RPCSender providerSender,
+    @NotNull UUID id
+  ) {
     this.provider = provider;
     // rpc
     this.providerSender = providerSender;
@@ -51,7 +55,11 @@ public class RemoteSpecificCloudServiceProvider implements SpecificCloudServiceP
     this.uniqueId = id;
   }
 
-  public RemoteSpecificCloudServiceProvider(GeneralCloudServiceProvider provider, RPCSender providerSender, String id) {
+  public RemoteSpecificCloudServiceProvider(
+    @NotNull GeneralCloudServiceProvider provider,
+    @NotNull RPCSender providerSender,
+    @NotNull String id
+  ) {
     this.provider = provider;
     // rpc
     this.providerSender = providerSender;

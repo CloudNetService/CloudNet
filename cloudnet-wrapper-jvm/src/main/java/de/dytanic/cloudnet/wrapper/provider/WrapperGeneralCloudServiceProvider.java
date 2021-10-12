@@ -18,6 +18,7 @@ package de.dytanic.cloudnet.wrapper.provider;
 
 import de.dytanic.cloudnet.driver.network.rpc.RPCSender;
 import de.dytanic.cloudnet.driver.provider.service.GeneralCloudServiceProvider;
+import de.dytanic.cloudnet.driver.provider.service.RemoteSpecificCloudServiceProvider;
 import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
@@ -32,18 +33,19 @@ public class WrapperGeneralCloudServiceProvider implements GeneralCloudServicePr
   private final RPCSender rpcSender;
 
   public WrapperGeneralCloudServiceProvider(@NotNull Wrapper wrapper) {
-    this.rpcSender = wrapper.getRPCProviderFactory()
-      .providerForClass(wrapper.getNetworkClient(), GeneralCloudServiceProvider.class);
+    this.rpcSender = wrapper.getRPCProviderFactory().providerForClass(
+      wrapper.getNetworkClient(),
+      GeneralCloudServiceProvider.class);
   }
 
   @Override
   public @NotNull SpecificCloudServiceProvider getSpecificProvider(@NotNull UUID serviceUniqueId) {
-    return this.rpcSender.invokeMethod("getSpecificProvider", serviceUniqueId).fireSync();
+    return new RemoteSpecificCloudServiceProvider(this, this.rpcSender, serviceUniqueId);
   }
 
   @Override
   public @NotNull SpecificCloudServiceProvider getSpecificProviderByName(@NotNull String serviceName) {
-    return this.rpcSender.invokeMethod("getSpecificProviderByName", serviceName).fireSync();
+    return new RemoteSpecificCloudServiceProvider(this, this.rpcSender, serviceName);
   }
 
   @Override
