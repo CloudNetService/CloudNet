@@ -20,7 +20,7 @@ import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.cluster.IClusterNodeServer;
 import de.dytanic.cloudnet.cluster.IClusterNodeServerProvider;
-import de.dytanic.cloudnet.command.source.ConsoleCommandSource;
+import de.dytanic.cloudnet.command.source.CommandSource;
 import de.dytanic.cloudnet.command.source.DriverCommandSource;
 import de.dytanic.cloudnet.driver.command.CommandInfo;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
@@ -126,6 +126,6 @@ public class NodeNodeInfoProvider implements NodeInfoProvider {
 
   @Override
   public Collection<String> getConsoleTabCompleteResults(@NotNull String commandLine) {
-    return CloudNet.getInstance().getCommandProvider().suggest(ConsoleCommandSource.INSTANCE, commandLine);
+    return CloudNet.getInstance().getCommandProvider().suggest(CommandSource.console(), commandLine);
   }
 }

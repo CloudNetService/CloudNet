@@ -16,9 +16,25 @@
 
 package de.dytanic.cloudnet.command.sub;
 
+import cloud.commandframework.annotations.CommandMethod;
+import de.dytanic.cloudnet.CloudNet;
+import de.dytanic.cloudnet.command.source.CommandSource;
+import de.dytanic.cloudnet.common.language.LanguageManager;
+import de.dytanic.cloudnet.config.JsonConfiguration;
+
 public class CommandConfig {
 
   //TODO: reload command and other node config stuff
+
+  @CommandMethod("config reload")
+  public void reloadConfigs(CommandSource source) {
+    CloudNet.getInstance().setConfig(JsonConfiguration.loadFromFile());
+    CloudNet.getInstance().getServiceTaskProvider().reload();
+    CloudNet.getInstance().getGroupConfigurationProvider().reload();
+    CloudNet.getInstance().getPermissionManagement().reload();
+    source.sendMessage(LanguageManager.getMessage("command-reload-reload-config-success"));
+  }
+
 
 }
 

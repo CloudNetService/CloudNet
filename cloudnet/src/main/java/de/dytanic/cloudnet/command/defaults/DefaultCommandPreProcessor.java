@@ -22,7 +22,6 @@ import cloud.commandframework.execution.preprocessor.CommandPreprocessor;
 import cloud.commandframework.services.types.ConsumerService;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.command.source.CommandSource;
-import de.dytanic.cloudnet.command.source.ConsoleCommandSource;
 import de.dytanic.cloudnet.event.command.CommandPreProcessEvent;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
@@ -31,14 +30,10 @@ public class DefaultCommandPreProcessor implements CommandPreprocessor<CommandSo
   @Override
   public void accept(@NonNull CommandPreprocessingContext<CommandSource> context) {
     CommandContext<CommandSource> commandContext = context.getCommandContext();
-    CommandSource sender = context.getCommandContext().getSender();
-    // the ConsoleOnly Annotation adds this property, interrupt if the command is console only
-    if (commandContext.contains("consoleOnly") && !(sender instanceof ConsoleCommandSource)) {
-      ConsumerService.interrupt();
-    }
+    CommandSource source = context.getCommandContext().getSender();
 
     CommandPreProcessEvent preProcessEvent = CloudNet.getInstance().getEventManager()
-      .callEvent(new CommandPreProcessEvent(commandContext.getRawInputJoined(), sender));
+      .callEvent(new CommandPreProcessEvent(commandContext.getRawInputJoined(), source));
     if (preProcessEvent.isCancelled()) {
       ConsumerService.interrupt();
     }

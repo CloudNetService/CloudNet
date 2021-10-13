@@ -20,18 +20,18 @@ import cloud.commandframework.Command;
 import cloud.commandframework.CommandManager;
 import cloud.commandframework.annotations.AnnotationParser;
 import cloud.commandframework.exceptions.ArgumentParseException;
+import cloud.commandframework.exceptions.InvalidCommandSenderException;
 import cloud.commandframework.exceptions.InvalidSyntaxException;
 import cloud.commandframework.exceptions.NoPermissionException;
 import cloud.commandframework.exceptions.NoSuchCommandException;
 import cloud.commandframework.extra.confirmation.CommandConfirmationManager;
 import cloud.commandframework.meta.CommandMeta;
-import cloud.commandframework.meta.CommandMeta.Key;
 import cloud.commandframework.meta.SimpleCommandMeta;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.command.CommandProvider;
-import de.dytanic.cloudnet.command.annotations.ConsoleOnly;
 import de.dytanic.cloudnet.command.exception.ArgumentNotAvailableException;
 import de.dytanic.cloudnet.command.source.CommandSource;
+import de.dytanic.cloudnet.command.source.ConsoleCommandSource;
 import de.dytanic.cloudnet.command.sub.CommandClear;
 import de.dytanic.cloudnet.command.sub.CommandCopy;
 import de.dytanic.cloudnet.command.sub.CommandCreate;
@@ -61,8 +61,6 @@ import org.jetbrains.annotations.Nullable;
 
 public class DefaultCommandProvider implements CommandProvider {
 
-  private static final Key<Boolean> CONSOLE_ONLY = Key.of(Boolean.class, "consoleOnly");
-
   private final CommandManager<CommandSource> commandManager;
   private final AnnotationParser<CommandSource> annotationParser;
   private final CommandConfirmationManager<CommandSource> confirmationManager;
@@ -82,8 +80,6 @@ public class DefaultCommandProvider implements CommandProvider {
     this.confirmationManager.registerConfirmationProcessor(this.commandManager);
     this.registeredCommands = new ArrayList<>();
     //TODO: maybe this should be moved too
-    this.annotationParser.registerBuilderModifier(ConsoleOnly.class,
-      (consoleOnly, builder) -> builder.meta(CONSOLE_ONLY, true));
     this.commandManager.registerCommandPreProcessor(new DefaultCommandPreProcessor());
     this.commandManager.registerCommandPostProcessor(new DefaultCommandPostProcessor());
 
@@ -111,24 +107,31 @@ public class DefaultCommandProvider implements CommandProvider {
   @Override
   public void execute(@NotNull CommandSource source, @NotNull String input) {
     try {
+      //join the future to handle the occurring exceptions
       this.commandManager.executeCommand(source, input).join();
-    } catch (Exception exception) {
-      if (exception instanceof CompletionException) {
-        Throwable cause = exception.getCause();
-        if (cause == null) {
-          return;
-        }
-        if (cause instanceof InvalidSyntaxException) {
-          this.handleInvalidSyntaxException(source, (InvalidSyntaxException) cause);
-        } else if (cause instanceof NoPermissionException) {
-          this.handleNoPermissionException(source, (NoPermissionException) cause);
-        } else if (cause instanceof NoSuchCommandException) {
-          this.handleNoSuchCommandException(source, (NoSuchCommandException) cause);
-        } else if (cause instanceof ArgumentParseException) {
-          Throwable deepCause = cause.getCause();
-          if (deepCause instanceof ArgumentNotAvailableException) {
-            this.handleArgumentNotAvailableException(source, (ArgumentNotAvailableException) deepCause);
-          }
+    } catch (CompletionException exception) {
+      Throwable cause = exception.getCause();
+
+      // cloud wraps the exception in the cause, if no cause is found we can't handle the exception
+      if (cause == null) {
+        return;
+      }
+
+      // determine the exception type and apply the specific handler
+      if (cause instanceof InvalidSyntaxException) {
+        this.handleInvalidSyntaxException(source, (InvalidSyntaxException) cause);
+      } else if (cause instanceof NoPermissionException) {
+        this.handleNoPermissionException(source, (NoPermissionException) cause);
+      } else if (cause instanceof NoSuchCommandException) {
+        this.handleNoSuchCommandException(source, (NoSuchCommandException) cause);
+      } else if (cause instanceof InvalidCommandSenderException) {
+        this.handleInvalidCommandSourceException(source, (InvalidCommandSenderException) cause);
+      } else if (cause instanceof ArgumentParseException) {
+        Throwable deepCause = cause.getCause();
+        if (deepCause instanceof ArgumentNotAvailableException) {
+          this.handleArgumentNotAvailableException(source, (ArgumentNotAvailableException) deepCause);
+        } else {
+          this.handleArgumentParseException(source, (ArgumentParseException) cause);
         }
       }
     }
@@ -192,5 +195,13 @@ public class DefaultCommandProvider implements CommandProvider {
 
   private void handleNoPermissionException(CommandSource source, NoPermissionException exception) {
     source.sendMessage(LanguageManager.getMessage("command-sub-no-permission"));
+  }
+
+  private void handleInvalidCommandSourceException(CommandSource source, InvalidCommandSenderException exception) {
+    if (exception.getRequiredSender() == ConsoleCommandSource.class) {
+      source.sendMessage(LanguageManager.getMessage("command-console-only"));
+    } else {
+      source.sendMessage(LanguageManager.getMessage("command-driver-only"));
+    }
   }
 }

@@ -76,7 +76,7 @@ public final class JLine3Console implements IConsole {
 
     this.terminal = TerminalBuilder.builder().system(true).encoding(StandardCharsets.UTF_8).build();
     this.lineReader = new InternalLineReaderBuilder(this.terminal)
-      .completer(new JLine3Completer(this, commandProvider))
+      .completer(new JLine3Completer(commandProvider))
       .option(LineReader.Option.DISABLE_EVENT_EXPANSION, true)
       .variable(LineReader.BELL_STYLE, "off")
       .build();

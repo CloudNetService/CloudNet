@@ -26,6 +26,13 @@ import org.jetbrains.annotations.UnmodifiableView;
 
 public interface CommandProvider {
 
+  /**
+   * Get command suggestions for the "next" argument that would yield a correctly parsing command input.
+   *
+   * @param source the command source that
+   * @param input  the input to get the suggestions for
+   * @return the suggestions for the current input
+   */
   @NotNull
   List<String> suggest(@NotNull CommandSource source, @NotNull String input);
 

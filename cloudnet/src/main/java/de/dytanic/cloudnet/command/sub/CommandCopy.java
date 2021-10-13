@@ -18,6 +18,7 @@ package de.dytanic.cloudnet.command.sub;
 
 import cloud.commandframework.annotations.Argument;
 import cloud.commandframework.annotations.CommandMethod;
+import cloud.commandframework.annotations.CommandPermission;
 import de.dytanic.cloudnet.command.source.CommandSource;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
@@ -29,6 +30,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+@CommandPermission("cloudnet.command.copy")
 public class CommandCopy {
 
   @CommandMethod("copy|cp <service> [template]")

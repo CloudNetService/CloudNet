@@ -17,7 +17,7 @@
 package de.dytanic.cloudnet.console;
 
 import de.dytanic.cloudnet.command.CommandProvider;
-import de.dytanic.cloudnet.command.source.ConsoleCommandSource;
+import de.dytanic.cloudnet.command.source.CommandSource;
 import java.util.Collection;
 import java.util.List;
 import org.jline.reader.Candidate;
@@ -27,17 +27,15 @@ import org.jline.reader.ParsedLine;
 
 public class JLine3Completer implements Completer {
 
-  private final JLine3Console console;
   private final CommandProvider commandProvider;
 
-  public JLine3Completer(JLine3Console console, CommandProvider commandProvider) {
-    this.console = console;
+  public JLine3Completer(CommandProvider commandProvider) {
     this.commandProvider = commandProvider;
   }
 
   @Override
   public void complete(LineReader reader, ParsedLine line, List<Candidate> candidates) {
-    Collection<String> responses = this.commandProvider.suggest(ConsoleCommandSource.INSTANCE, line.line());
+    Collection<String> responses = this.commandProvider.suggest(CommandSource.console(), line.line());
     if (!responses.isEmpty()) {
       responses
         .stream()

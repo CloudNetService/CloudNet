@@ -208,7 +208,9 @@ public class CommandTemplate {
   public void deleteTemplate(CommandSource source, @Argument("template") ServiceTemplate template) {
     SpecificTemplateStorage templateStorage = template.storage();
     if (!templateStorage.exists()) {
-      source.sendMessage("Template not found");
+      source.sendMessage(LanguageManager.getMessage("command-template-delete-template-not-found")
+        .replace("%template%", template.getFullName())
+        .replace("%storage%", template.getStorage()));
       return;
     }
 
@@ -224,7 +226,7 @@ public class CommandTemplate {
   ) {
     SpecificTemplateStorage templateStorage = template.storage();
     if (templateStorage.exists()) {
-      source.sendMessage("Already exists");
+      source.sendMessage(LanguageManager.getMessage("command-template-create-template-already-exists"));
       return;
     }
 
@@ -250,7 +252,7 @@ public class CommandTemplate {
     @Argument("targetTemplate") ServiceTemplate targetTemplate
   ) {
     if (sourceTemplate.equals(targetTemplate)) {
-      source.sendMessage("Cannot copy template it self");
+      source.sendMessage(LanguageManager.getMessage("command-template-copy-same-source-and-target"));
       return;
     }
 

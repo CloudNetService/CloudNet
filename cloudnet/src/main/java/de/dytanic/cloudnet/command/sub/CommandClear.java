@@ -18,8 +18,10 @@ package de.dytanic.cloudnet.command.sub;
 
 import cloud.commandframework.annotations.CommandDescription;
 import cloud.commandframework.annotations.CommandMethod;
+import cloud.commandframework.annotations.CommandPermission;
 import de.dytanic.cloudnet.CloudNet;
 
+@CommandPermission("cloudnet.command.clear")
 public class CommandClear {
 
   @CommandMethod("clear")

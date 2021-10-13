@@ -18,9 +18,11 @@ package de.dytanic.cloudnet.command.sub;
 
 import cloud.commandframework.annotations.CommandDescription;
 import cloud.commandframework.annotations.CommandMethod;
+import cloud.commandframework.annotations.CommandPermission;
 import cloud.commandframework.annotations.Confirmation;
 import de.dytanic.cloudnet.CloudNet;
 
+@CommandPermission("cloudnet.command.exit")
 public class CommandExit {
 
   @Confirmation

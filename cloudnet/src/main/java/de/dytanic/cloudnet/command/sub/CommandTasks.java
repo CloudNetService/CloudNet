@@ -23,9 +23,9 @@ import cloud.commandframework.annotations.specifier.Range;
 import cloud.commandframework.annotations.suggestions.Suggestions;
 import cloud.commandframework.context.CommandContext;
 import de.dytanic.cloudnet.CloudNet;
-import de.dytanic.cloudnet.command.annotations.ConsoleOnly;
 import de.dytanic.cloudnet.command.exception.ArgumentNotAvailableException;
 import de.dytanic.cloudnet.command.source.CommandSource;
+import de.dytanic.cloudnet.command.source.ConsoleCommandSource;
 import de.dytanic.cloudnet.common.INameable;
 import de.dytanic.cloudnet.common.JavaVersion;
 import de.dytanic.cloudnet.common.collection.Pair;
@@ -93,8 +93,7 @@ public class CommandTasks {
       .collect(Collectors.toList());
   }
 
-  @ConsoleOnly
-  @CommandMethod("tasks setup")
+  @CommandMethod(value = "tasks setup", requiredSender = ConsoleCommandSource.class)
   public void taskSetup(CommandSource source) {
     //TODO: start the setup
   }

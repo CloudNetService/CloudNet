@@ -18,6 +18,7 @@ package de.dytanic.cloudnet.command.sub;
 
 import cloud.commandframework.annotations.Argument;
 import cloud.commandframework.annotations.CommandMethod;
+import cloud.commandframework.annotations.CommandPermission;
 import cloud.commandframework.annotations.Flag;
 import cloud.commandframework.annotations.parsers.Parser;
 import cloud.commandframework.annotations.suggestions.Suggestions;
@@ -37,6 +38,7 @@ import java.util.Queue;
 import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
 
+@CommandPermission("cloudnet.command.migrate")
 public class CommandMigrate {
 
   private static final int DEFAULT_CHUNK_SIZE = 100;

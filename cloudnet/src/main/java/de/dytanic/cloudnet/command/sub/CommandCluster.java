@@ -14,19 +14,8 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.command.annotations;
+package de.dytanic.cloudnet.command.sub;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
-/**
- * The ConsoleOnly annotation is used to mark a command for console only use. Every other command source is rejected and
- * not allowed to execute the annotated command.
- */
-@Target(ElementType.METHOD)
-@Retention(RetentionPolicy.RUNTIME)
-public @interface ConsoleOnly {
+public class CommandCluster {
 
 }

@@ -20,7 +20,7 @@ import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.cluster.DefaultClusterNodeServerProvider;
 import de.dytanic.cloudnet.cluster.IClusterNodeServerProvider;
 import de.dytanic.cloudnet.command.CommandProvider;
-import de.dytanic.cloudnet.command.source.ConsoleCommandSource;
+import de.dytanic.cloudnet.command.source.CommandSource;
 import de.dytanic.cloudnet.config.IConfiguration;
 import de.dytanic.cloudnet.config.JsonConfiguration;
 import de.dytanic.cloudnet.console.IConsole;
@@ -80,7 +80,7 @@ public class CloudNet extends CloudNetDriver {
   private static final Path LAUNCHER_DIR = Paths.get(System.getProperty("cloudnet.launcher.dir", "launcher"));
 
   private final IConsole console;
-  private final IConfiguration configuration;
+  private IConfiguration configuration;
   private final CommandProvider commandProvider;
 
   private final IHttpServer httpServer;
@@ -91,7 +91,8 @@ public class CloudNet extends CloudNetDriver {
   private final DefaultClusterNodeServerProvider nodeServerProvider;
 
   private final CloudNetTick mainThread = new CloudNetTick(this);
-  private final AtomicBoolean running = new AtomicBoolean(true);
+  //TODO: reimplement
+  private final AtomicBoolean running = new AtomicBoolean(false);
 
   private volatile AbstractDatabaseProvider databaseProvider;
 
@@ -145,7 +146,7 @@ public class CloudNet extends CloudNetDriver {
       if (input.trim().isEmpty()) {
         return;
       }
-      this.commandProvider.execute(ConsoleCommandSource.INSTANCE, input);
+      this.commandProvider.execute(CommandSource.console(), input);
     });
   }
 
@@ -296,6 +297,11 @@ public class CloudNet extends CloudNetDriver {
 
   public @NotNull IConfiguration getConfig() {
     return this.configuration;
+  }
+
+  public void setConfig(@NotNull IConfiguration configuration) {
+    Preconditions.checkNotNull(configuration);
+    this.configuration = configuration;
   }
 
   public @NotNull IClusterNodeServerProvider getClusterNodeServerProvider() {

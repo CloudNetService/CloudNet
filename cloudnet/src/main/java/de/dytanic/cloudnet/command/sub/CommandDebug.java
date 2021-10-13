@@ -18,11 +18,13 @@ package de.dytanic.cloudnet.command.sub;
 
 import cloud.commandframework.annotations.CommandDescription;
 import cloud.commandframework.annotations.CommandMethod;
+import cloud.commandframework.annotations.CommandPermission;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.common.log.LoggingUtils;
 import java.util.logging.Level;
 
+@CommandPermission("cloudnet.command.debug")
 public class CommandDebug {
 
   @CommandDescription("Toggle the global debug mode")

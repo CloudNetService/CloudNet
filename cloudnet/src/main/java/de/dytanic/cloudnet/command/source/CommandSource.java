@@ -22,6 +22,10 @@ import org.jetbrains.annotations.NotNull;
 
 public interface CommandSource extends INameable {
 
+  static CommandSource console() {
+    return ConsoleCommandSource.INSTANCE;
+  }
+
   void sendMessage(@NotNull String message);
 
   void sendMessage(@NotNull String... messages);
