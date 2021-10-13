@@ -25,9 +25,11 @@ import cloud.commandframework.exceptions.NoPermissionException;
 import cloud.commandframework.exceptions.NoSuchCommandException;
 import cloud.commandframework.extra.confirmation.CommandConfirmationManager;
 import cloud.commandframework.meta.CommandMeta;
+import cloud.commandframework.meta.CommandMeta.Key;
 import cloud.commandframework.meta.SimpleCommandMeta;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.command.CommandProvider;
+import de.dytanic.cloudnet.command.annotations.ConsoleOnly;
 import de.dytanic.cloudnet.command.exception.ArgumentNotAvailableException;
 import de.dytanic.cloudnet.command.source.CommandSource;
 import de.dytanic.cloudnet.command.sub.CommandClear;
@@ -59,6 +61,8 @@ import org.jetbrains.annotations.Nullable;
 
 public class DefaultCommandProvider implements CommandProvider {
 
+  private static final Key<Boolean> CONSOLE_ONLY = Key.of(Boolean.class, "consoleOnly");
+
   private final CommandManager<CommandSource> commandManager;
   private final AnnotationParser<CommandSource> annotationParser;
   private final CommandConfirmationManager<CommandSource> confirmationManager;
@@ -77,6 +81,11 @@ public class DefaultCommandProvider implements CommandProvider {
     );
     this.confirmationManager.registerConfirmationProcessor(this.commandManager);
     this.registeredCommands = new ArrayList<>();
+    //TODO: maybe this should be moved too
+    this.annotationParser.registerBuilderModifier(ConsoleOnly.class,
+      (consoleOnly, builder) -> builder.meta(CONSOLE_ONLY, true));
+    this.commandManager.registerCommandPreProcessor(new DefaultCommandPreProcessor());
+    this.commandManager.registerCommandPostProcessor(new DefaultCommandPostProcessor());
 
     //TODO move this to another class
     this.register(new CommandTemplate());
@@ -161,6 +170,7 @@ public class DefaultCommandProvider implements CommandProvider {
   private void handleInvalidSyntaxException(CommandSource source, InvalidSyntaxException exception) {
     CommandInvalidSyntaxEvent invalidSyntaxEvent = CloudNet.getInstance().getEventManager().callEvent(
       new CommandInvalidSyntaxEvent(
+        source,
         exception.getCorrectSyntax(),
         LanguageManager.getMessage("command-invalid-syntax")
           .replace("%syntax%", exception.getCorrectSyntax())
@@ -172,6 +182,7 @@ public class DefaultCommandProvider implements CommandProvider {
   private void handleNoSuchCommandException(CommandSource source, NoSuchCommandException exception) {
     CommandNotFoundEvent notFoundEvent = CloudNet.getInstance().getEventManager().callEvent(
       new CommandNotFoundEvent(
+        source,
         exception.getSuppliedCommand(),
         LanguageManager.getMessage("command-not-found")
       )

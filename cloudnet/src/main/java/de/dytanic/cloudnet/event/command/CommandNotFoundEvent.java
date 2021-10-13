@@ -16,27 +16,38 @@
 
 package de.dytanic.cloudnet.event.command;
 
+import de.dytanic.cloudnet.command.source.CommandSource;
 import de.dytanic.cloudnet.driver.event.Event;
+import org.jetbrains.annotations.NotNull;
 
 public class CommandNotFoundEvent extends Event {
 
+  private final CommandSource commandSource;
   private final String commandLine;
   private String response;
 
-  public CommandNotFoundEvent(String commandLine, String response) {
+  public CommandNotFoundEvent(CommandSource commandSource, String commandLine, String response) {
+    this.commandSource = commandSource;
     this.commandLine = commandLine;
     this.response = response;
   }
 
+  @NotNull
+  public CommandSource getCommandSource() {
+    return this.commandSource;
+  }
+
+  @NotNull
   public String getCommandLine() {
     return this.commandLine;
   }
 
+  @NotNull
   public String getResponse() {
     return this.response;
   }
 
-  public void setResponse(String response) {
+  public void setResponse(@NotNull String response) {
     this.response = response;
   }
 }

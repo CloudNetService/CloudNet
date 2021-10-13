@@ -16,28 +16,38 @@
 
 package de.dytanic.cloudnet.event.command;
 
+import de.dytanic.cloudnet.command.source.CommandSource;
 import de.dytanic.cloudnet.driver.event.Event;
-import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.NotNull;
 
 public class CommandInvalidSyntaxEvent extends Event {
 
+  private final CommandSource source;
   private final String correctSyntax;
   private String response;
 
-  public CommandInvalidSyntaxEvent(String correctSyntax, String response) {
+  public CommandInvalidSyntaxEvent(CommandSource source, String correctSyntax, String response) {
+    this.source = source;
     this.correctSyntax = correctSyntax;
     this.response = response;
   }
 
+  @NotNull
+  public CommandSource getCommandSource() {
+    return this.source;
+  }
+
+  @NotNull
   public String getCorrectSyntax() {
     return this.correctSyntax;
   }
 
+  @NotNull
   public String getResponse() {
     return this.response;
   }
 
-  public void setResponse(@Nullable String response) {
+  public void setResponse(@NotNull String response) {
     this.response = response;
   }
 }

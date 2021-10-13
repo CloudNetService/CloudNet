@@ -16,19 +16,27 @@
 
 package de.dytanic.cloudnet.event.command;
 
+import de.dytanic.cloudnet.command.source.CommandSource;
 import de.dytanic.cloudnet.driver.event.Event;
+import org.jetbrains.annotations.NotNull;
 
-// TODO
 public class CommandPostProcessEvent extends Event {
 
-  // private final String commandLine;
+  private final String commandLine;
+  private final CommandSource commandSource;
 
-  /*public CommandPostProcessEvent(String commandLine, ICommandSender commandSender) {
+  public CommandPostProcessEvent(String commandLine, CommandSource commandSource) {
     this.commandLine = commandLine;
-    this.commandSender = commandSender;
+    this.commandSource = commandSource;
   }
 
+  @NotNull
+  public CommandSource getCommandSource() {
+    return this.commandSource;
+  }
+
+  @NotNull
   public String getCommandLine() {
     return this.commandLine;
-  }*/
+  }
 }
