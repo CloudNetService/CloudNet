@@ -19,13 +19,13 @@ package de.dytanic.cloudnet.common.unsafe;
 import com.google.common.base.Preconditions;
 import java.net.URI;
 import java.net.URISyntaxException;
-import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * A resolver for elements in the class path.
  */
-@ApiStatus.Internal
+@Internal
 public final class ResourceResolver {
 
   private ResourceResolver() {

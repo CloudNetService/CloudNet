@@ -25,10 +25,10 @@ import de.dytanic.cloudnet.driver.event.events.permission.PermissionUpdateGroupE
 import de.dytanic.cloudnet.driver.event.events.permission.PermissionUpdateUserEvent;
 import de.dytanic.cloudnet.driver.permission.PermissionGroup;
 import de.dytanic.cloudnet.driver.permission.PermissionUser;
-import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.NotNull;
 
-@ApiStatus.Internal
+@Internal
 final class PermissionCacheListener {
 
   private final WrapperPermissionManagement permissionManagement;

@@ -204,10 +204,11 @@ public class Wrapper extends CloudNetDriver {
   /**
    * Application wrapper implementation of this method. See the full documentation at the CloudNetDriver class.
    *
-   * @see CloudNetDriver
+   * @see CloudNetDriver#sendCommandLineAsPermissionUser(UUID, String)
    */
   @Override
-  public String @NotNull [] sendCommandLineAsPermissionUser(@NotNull UUID uniqueId, @NotNull String commandLine) {
+  public @NotNull Collection<String> sendCommandLineAsPermissionUser(@NotNull UUID uniqueId,
+    @NotNull String commandLine) {
     return this.rpcSender.invokeMethod("sendCommandLineAsPermissionUser", uniqueId, commandLine).fireSync();
   }
 

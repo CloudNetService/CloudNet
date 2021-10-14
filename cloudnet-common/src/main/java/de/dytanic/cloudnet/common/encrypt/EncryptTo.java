@@ -47,30 +47,4 @@ public final class EncryptTo {
   public static byte[] encryptToSHA256(byte[] bytes) {
     return Hashing.sha256().hashBytes(bytes).asBytes();
   }
-
-  /**
-   * Hashes the given string to sha1.
-   *
-   * @param text the text to hash.
-   * @return the same input text hashed with the sha1 algorithm.
-   * @deprecated This hashing method is everything but secure. It is not used internally anymore and will be removed.
-   * Use {@link #encryptToSHA256(String)} instead.
-   */
-  @Deprecated
-  public static byte[] encryptToSHA1(String text) {
-    return Hashing.sha1().hashString(text, StandardCharsets.UTF_8).asBytes();
-  }
-
-  /**
-   * Hashes the given string to sha1.
-   *
-   * @param bytes the text as bytes to hash.
-   * @return the same input text hashed with the sha1 algorithm.
-   * @deprecated This hashing method is everything but secure. It is not used internally anymore and will be removed.
-   * Use {@link #encryptToSHA256(byte[])} instead.
-   */
-  @Deprecated
-  public static byte[] encryptToSHA1(byte[] bytes) {
-    return Hashing.sha1().hashBytes(bytes).asBytes();
-  }
 }

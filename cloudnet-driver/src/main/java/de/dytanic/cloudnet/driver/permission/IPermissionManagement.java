@@ -26,6 +26,7 @@ import java.util.function.Consumer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+@SuppressWarnings("unused")
 public interface IPermissionManagement {
 
   /**
@@ -647,7 +648,7 @@ public interface IPermissionManagement {
    * @param name the case-sensitive name of the group
    * @return a task completed when the operation was executed
    */
-  default @NotNull ITask<Void> deleteGroupAsync(@NotNull String name) {
+  default @NotNull ITask<Boolean> deleteGroupAsync(@NotNull String name) {
     return CompletableTask.supplyAsync(() -> this.deleteGroup(name));
   }
 
@@ -657,7 +658,7 @@ public interface IPermissionManagement {
    * @param permissionGroup the {@link PermissionGroup} to be deleted
    * @return a task completed when the operation was executed
    */
-  default @NotNull ITask<Void> deleteGroupAsync(@NotNull PermissionGroup permissionGroup) {
+  default @NotNull ITask<Boolean> deleteGroupAsync(@NotNull PermissionGroup permissionGroup) {
     return CompletableTask.supplyAsync(() -> this.deleteGroup(permissionGroup));
   }
 

@@ -141,7 +141,8 @@ public class DefaultCommandProvider implements CommandProvider {
   public void register(@NotNull Object command) {
     Collection<CommandInfo> commandInfos = new ArrayList<>();
     for (Command<CommandSource> cloudCommand : this.annotationParser.parse(command)) {
-      String permission = cloudCommand.getCommandPermission().toString();
+      String permission = cloudCommand.getCommandPermission()
+        .toString(); //TODO: if our change is merged we need to rethink this
       String description = cloudCommand.getCommandMeta().get(CommandMeta.DESCRIPTION).orElse("No description provided");
       //TODO: sort name and aliases
     }
