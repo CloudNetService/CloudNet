@@ -31,7 +31,7 @@ public class CommandPreProcessEvent extends Event implements ICancelable {
   private final CommandSource commandSource;
   private boolean cancelled = false;
 
-  public CommandPreProcessEvent(String commandLine, CommandSource commandSource) {
+  public CommandPreProcessEvent(@NotNull String commandLine, @NotNull CommandSource commandSource) {
     this.commandLine = commandLine;
     this.commandSource = commandSource;
   }

@@ -22,16 +22,34 @@ import org.jetbrains.annotations.NotNull;
 
 public interface CommandSource extends INameable {
 
+  /**
+   * @return the console command source instance
+   */
   static CommandSource console() {
     return ConsoleCommandSource.INSTANCE;
   }
 
+  /**
+   * @param message the message that is sent to the source
+   */
   void sendMessage(@NotNull String message);
 
+  /**
+   * @param messages the messages that are sent to the source
+   */
   void sendMessage(@NotNull String... messages);
 
+  /**
+   * @param messages the messages that are sent to the source
+   */
   void sendMessage(@NotNull Collection<String> messages);
 
+  /**
+   * Used to check if the command source has the given permission
+   *
+   * @param permission the permission to check for
+   * @return whether the source has the permission
+   */
   boolean checkPermission(@NotNull String permission);
 
 }

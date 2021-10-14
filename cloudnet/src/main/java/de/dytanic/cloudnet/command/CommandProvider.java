@@ -36,8 +36,19 @@ public interface CommandProvider {
   @NotNull
   List<String> suggest(@NotNull CommandSource source, @NotNull String input);
 
+  /**
+   * Executes a command with the given command source and responds to the input.
+   *
+   * @param source the command source that is used to execute the command
+   * @param input  the commandline that is executed
+   */
   void execute(@NotNull CommandSource source, @NotNull String input);
 
+  /**
+   * Register a command for the node
+   *
+   * @param command the command to register
+   */
   void register(@NotNull Object command);
 
   @Nullable

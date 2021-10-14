@@ -26,6 +26,7 @@ import cloud.commandframework.context.CommandContext;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.command.exception.ArgumentNotAvailableException;
 import de.dytanic.cloudnet.command.source.CommandSource;
+import de.dytanic.cloudnet.command.source.ConsoleCommandSource;
 import de.dytanic.cloudnet.common.INameable;
 import de.dytanic.cloudnet.common.concurrent.function.ThrowableConsumer;
 import de.dytanic.cloudnet.common.language.LanguageManager;
@@ -50,7 +51,7 @@ public class CommandMigrate {
       .getService(AbstractDatabaseProvider.class, input.remove());
 
     if (abstractDatabaseProvider == null) {
-      throw new ArgumentNotAvailableException("we dont have this");
+      throw new ArgumentNotAvailableException(LanguageManager.getMessage("command-migrate-unknown-database-provider"));
     }
     return abstractDatabaseProvider;
   }
@@ -63,7 +64,7 @@ public class CommandMigrate {
       .collect(Collectors.toList());
   }
 
-  @CommandMethod("migrate database <database-from> <database-to>")
+  @CommandMethod(value = "migrate database <database-from> <database-to>", requiredSender = ConsoleCommandSource.class)
   public void migrateDatabase(
     CommandSource source,
     @Argument("database-from") AbstractDatabaseProvider sourceDatabaseProvider,
@@ -71,7 +72,7 @@ public class CommandMigrate {
     @Flag("chunk-size") Integer chunkSize
   ) {
     if (sourceDatabaseProvider.equals(targetDatabaseProvider)) {
-      source.sendMessage("Target and source are same");
+      source.sendMessage(LanguageManager.getMessage("command-migrate-source-equals-target"));
       return;
     }
 

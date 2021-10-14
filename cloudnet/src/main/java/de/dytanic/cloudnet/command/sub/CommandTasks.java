@@ -18,6 +18,7 @@ package de.dytanic.cloudnet.command.sub;
 
 import cloud.commandframework.annotations.Argument;
 import cloud.commandframework.annotations.CommandMethod;
+import cloud.commandframework.annotations.CommandPermission;
 import cloud.commandframework.annotations.parsers.Parser;
 import cloud.commandframework.annotations.specifier.Range;
 import cloud.commandframework.annotations.suggestions.Suggestions;
@@ -29,6 +30,7 @@ import de.dytanic.cloudnet.command.source.ConsoleCommandSource;
 import de.dytanic.cloudnet.common.INameable;
 import de.dytanic.cloudnet.common.JavaVersion;
 import de.dytanic.cloudnet.common.collection.Pair;
+import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
 import de.dytanic.cloudnet.driver.provider.ServiceTaskProvider;
 import de.dytanic.cloudnet.driver.service.GroupConfiguration;
@@ -45,6 +47,7 @@ import java.util.Queue;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+@CommandPermission("cloudnet.command.tasks")
 public class CommandTasks {
 
   @Parser(suggestions = "serviceTask")
@@ -52,7 +55,7 @@ public class CommandTasks {
     String name = input.remove();
     ServiceTask task = CloudNet.getInstance().getServiceTaskProvider().getServiceTask(name);
     if (task == null) {
-      throw new ArgumentNotAvailableException("No task found");
+      throw new ArgumentNotAvailableException(LanguageManager.getMessage("command-tasks-task-not-found"));
     }
 
     return task;
@@ -68,7 +71,8 @@ public class CommandTasks {
     String command = String.join(" ", input);
     JavaVersion version = JavaVersionResolver.resolveFromJavaExecutable(command);
     if (version == null) {
-      throw new ArgumentNotAvailableException("Version not resolved");
+      throw new ArgumentNotAvailableException(
+        LanguageManager.getMessage("command-tasks-setup-question-javacommand-invalid"));
     }
 
     return new Pair<>(command, version);
@@ -82,7 +86,7 @@ public class CommandTasks {
         return nodeId;
       }
     }
-    throw new ArgumentNotAvailableException("That node does not exist");
+    throw new ArgumentNotAvailableException(LanguageManager.getMessage("command-tasks-node-not-found"));
   }
 
   @Suggestions("clusterNode")
@@ -116,7 +120,7 @@ public class CommandTasks {
     @Argument("environment") ServiceEnvironmentType environmentType
   ) {
     if (this.taskProvider().isServiceTaskPresent(taskName)) {
-      source.sendMessage("already exists");
+      source.sendMessage(LanguageManager.getMessage("command-tasks-task-already-existing"));
       return;
     }
 

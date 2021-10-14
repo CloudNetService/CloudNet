@@ -212,13 +212,13 @@ public class WrapperPermissionManagement extends DefaultCachedPermissionManageme
   }
 
   @Override
-  public void deleteGroup(@NotNull String name) {
-    this.rpcSender.invokeMethod("deleteGroup", name).fireSync();
+  public boolean deleteGroup(@NotNull String name) {
+    return this.rpcSender.invokeMethod("deleteGroup", name).fireSync();
   }
 
   @Override
-  public void deleteGroup(@NotNull PermissionGroup permissionGroup) {
-    this.rpcSender.invokeMethod("deleteGroup", permissionGroup).fireSync();
+  public boolean deleteGroup(@NotNull PermissionGroup permissionGroup) {
+    return this.rpcSender.invokeMethod("deleteGroup", permissionGroup).fireSync();
   }
 
   @Override

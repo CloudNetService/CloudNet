@@ -19,6 +19,7 @@ package de.dytanic.cloudnet.command.sub;
 import cloud.commandframework.annotations.Argument;
 import cloud.commandframework.annotations.CommandDescription;
 import cloud.commandframework.annotations.CommandMethod;
+import cloud.commandframework.annotations.CommandPermission;
 import cloud.commandframework.annotations.Flag;
 import cloud.commandframework.annotations.parsers.Parser;
 import cloud.commandframework.annotations.specifier.Quoted;
@@ -48,6 +49,7 @@ import java.util.stream.Collectors;
 import java.util.zip.ZipInputStream;
 
 @CommandDescription("Manages the templates and allows installation of .jar files")
+@CommandPermission("cloudnet.command.templates")
 public class CommandTemplate {
 
   @Parser(suggestions = "serviceTemplate")

@@ -71,6 +71,7 @@ public class CommandCreate {
       return;
     }
 
+    source.sendMessage(LanguageManager.getMessage("command-create-by-task-success"));
     if (startService) {
       for (ServiceInfoSnapshot createdService : createdServices) {
         createdService.provider().start();

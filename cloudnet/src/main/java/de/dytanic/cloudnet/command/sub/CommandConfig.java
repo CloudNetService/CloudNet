@@ -17,11 +17,13 @@
 package de.dytanic.cloudnet.command.sub;
 
 import cloud.commandframework.annotations.CommandMethod;
+import cloud.commandframework.annotations.CommandPermission;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.command.source.CommandSource;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.config.JsonConfiguration;
 
+@CommandPermission("cloudnet.command.config")
 public class CommandConfig {
 
   //TODO: reload command and other node config stuff

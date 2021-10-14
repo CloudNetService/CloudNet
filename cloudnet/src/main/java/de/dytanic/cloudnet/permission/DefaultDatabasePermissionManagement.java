@@ -258,18 +258,19 @@ public class DefaultDatabasePermissionManagement extends DefaultPermissionManage
   }
 
   @Override
-  public void deleteGroup(@NotNull String name) {
+  public boolean deleteGroup(@NotNull String name) {
     PermissionGroup group = this.groups.get(name);
     if (group != null) {
-      this.deleteGroup(group);
+      return this.deleteGroup(group);
     }
+    return false;
   }
 
   @Override
-  public void deleteGroup(@NotNull PermissionGroup permissionGroup) {
+  public boolean deleteGroup(@NotNull PermissionGroup permissionGroup) {
     this.deleteGroupSilently(permissionGroup);
-    // notify the listener
     this.handler.handleDeleteGroup(this, permissionGroup);
+    return true;
   }
 
   @Override

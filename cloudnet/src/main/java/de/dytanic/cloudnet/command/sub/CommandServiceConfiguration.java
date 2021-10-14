@@ -27,6 +27,7 @@ import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.command.exception.ArgumentNotAvailableException;
 import de.dytanic.cloudnet.command.source.CommandSource;
 import de.dytanic.cloudnet.common.INameable;
+import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.driver.service.GroupConfiguration;
 import de.dytanic.cloudnet.driver.service.ServiceConfigurationBase;
 import de.dytanic.cloudnet.driver.service.ServiceDeployment;
@@ -95,14 +96,19 @@ public class CommandServiceConfiguration {
     String name = input.remove();
 
     ServiceConfigurationBase configurationBase;
-    if (context.getArgumentTimings().containsKey(TASK_ARGUMENT)) {
+    boolean checkForTask = context.getArgumentTimings().containsKey(TASK_ARGUMENT);
+    if (checkForTask) {
       configurationBase = CloudNet.getInstance().getServiceTaskProvider().getServiceTask(name);
     } else {
       configurationBase = CloudNet.getInstance().getGroupConfigurationProvider().getGroupConfiguration(name);
     }
 
     if (configurationBase == null) {
-      throw new ArgumentNotAvailableException("Group / task not found");
+      if (checkForTask) {
+        throw new ArgumentNotAvailableException(LanguageManager.getMessage("command-tasks-task-not-found"));
+      } else {
+        throw new ArgumentNotAvailableException(LanguageManager.getMessage("command-service-base-group-not-found"));
+      }
     }
 
     return configurationBase;

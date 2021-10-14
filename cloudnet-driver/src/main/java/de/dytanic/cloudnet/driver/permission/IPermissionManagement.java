@@ -384,14 +384,14 @@ public interface IPermissionManagement {
    *
    * @param name the case-sensitive name of the group
    */
-  void deleteGroup(@NotNull String name);
+  boolean deleteGroup(@NotNull String name);
 
   /**
    * Deletes a group by its name out of the list of groups. If a group with that name doesn't exist, nothing happens.
    *
    * @param permissionGroup the {@link PermissionGroup} to be deleted
    */
-  void deleteGroup(@NotNull PermissionGroup permissionGroup);
+  boolean deleteGroup(@NotNull PermissionGroup permissionGroup);
 
   /**
    * Checks if a specific group exists.

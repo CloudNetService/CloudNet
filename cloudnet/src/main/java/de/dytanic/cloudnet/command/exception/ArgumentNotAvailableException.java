@@ -16,6 +16,10 @@
 
 package de.dytanic.cloudnet.command.exception;
 
+/**
+ * This exception is thrown if a command parser can not find a corresponding argument. The provided message is an
+ * already translated and formatted message for the user.
+ */
 public class ArgumentNotAvailableException extends RuntimeException {
 
   public ArgumentNotAvailableException(String message) {

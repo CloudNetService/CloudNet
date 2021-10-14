@@ -26,6 +26,7 @@ import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.command.exception.ArgumentNotAvailableException;
 import de.dytanic.cloudnet.command.source.CommandSource;
 import de.dytanic.cloudnet.common.INameable;
+import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.driver.provider.GroupConfigurationProvider;
 import de.dytanic.cloudnet.driver.service.GroupConfiguration;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
@@ -45,7 +46,7 @@ public class CommandGroups {
 
     GroupConfiguration configuration = this.groupProvider().getGroupConfiguration(name);
     if (configuration == null) {
-      throw new ArgumentNotAvailableException("Group not found");
+      throw new ArgumentNotAvailableException(LanguageManager.getMessage("command-service-base-group-not-found"));
     }
 
     return configuration;
@@ -59,6 +60,7 @@ public class CommandGroups {
   @CommandMethod("groups delete <name>")
   public void deleteGroup(CommandSource source, @Argument("name") GroupConfiguration configuration) {
     CloudNet.getInstance().getGroupConfigurationProvider().removeGroupConfiguration(configuration);
+    source.sendMessage(LanguageManager.getMessage("command-groups-delete-group"));
   }
 
   @CommandMethod("groups create <name>")
@@ -108,6 +110,7 @@ public class CommandGroups {
   ) {
     group.getTargetEnvironments().add(environmentType);
     this.groupProvider().addGroupConfiguration(group);
+    source.sendMessage(LanguageManager.getMessage("command-groups-add-environment-success"));
   }
 
   @CommandMethod("groups group <name> remove environment <environment>")
@@ -116,8 +119,12 @@ public class CommandGroups {
     @Argument("name") GroupConfiguration group,
     @Argument("environment") ServiceEnvironmentType environmentType
   ) {
-    group.getTargetEnvironments().remove(environmentType);
-    this.groupProvider().addGroupConfiguration(group);
+    if (group.getTargetEnvironments().remove(environmentType)) {
+      this.groupProvider().addGroupConfiguration(group);
+      source.sendMessage(LanguageManager.getMessage("command-groups-remove-environment-success"));
+    } else {
+      source.sendMessage(LanguageManager.getMessage("command-groups-remove-environment-not-found"));
+    }
   }
 
   private GroupConfigurationProvider groupProvider() {

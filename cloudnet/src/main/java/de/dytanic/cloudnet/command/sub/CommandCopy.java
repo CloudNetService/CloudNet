@@ -56,7 +56,7 @@ public class CommandCopy {
     }
 
     if (template == null) {
-      source.sendMessage("No default template");
+      source.sendMessage(LanguageManager.getMessage("command-copy-service-no-default-template"));
       return;
     }
 

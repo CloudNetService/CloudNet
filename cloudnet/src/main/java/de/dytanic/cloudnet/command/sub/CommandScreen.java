@@ -16,6 +16,9 @@
 
 package de.dytanic.cloudnet.command.sub;
 
+import cloud.commandframework.annotations.CommandPermission;
+
+@CommandPermission("cloudnet.command.screen")
 public class CommandScreen {
 
 }

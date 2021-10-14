@@ -26,16 +26,25 @@ public class ConsoleCommandSource implements CommandSource {
   private static final Logger LOGGER = LogManager.getLogger(ConsoleCommandSource.class);
   public static final ConsoleCommandSource INSTANCE = new ConsoleCommandSource();
 
+  /**
+   * @return "Console" for the console command source.
+   */
   @Override
   public @NotNull String getName() {
-    return "console";
+    return "Console";
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void sendMessage(@NotNull String message) {
     LOGGER.info(message);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void sendMessage(@NotNull String... messages) {
     for (String message : messages) {
@@ -43,6 +52,9 @@ public class ConsoleCommandSource implements CommandSource {
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void sendMessage(@NotNull Collection<String> messages) {
     for (String message : messages) {
@@ -50,6 +62,10 @@ public class ConsoleCommandSource implements CommandSource {
     }
   }
 
+  /**
+   * @param permission the permission to check for
+   * @return always {@code true} as the console is allowed to execute every command
+   */
   @Override
   public boolean checkPermission(@NotNull String permission) {
     return true;

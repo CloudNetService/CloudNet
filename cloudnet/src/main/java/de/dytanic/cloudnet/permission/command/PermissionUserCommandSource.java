@@ -34,11 +34,18 @@ public final class PermissionUserCommandSource extends DriverCommandSource {
     this.permissionManagement = permissionManagement;
   }
 
+  /**
+   * @return the name of the backing permission user
+   */
   @Override
   public @NotNull String getName() {
     return this.permissionUser.getName();
   }
 
+  /**
+   * @param permission the permission to check for
+   * @return whether the backing permission user has the permission
+   */
   @Override
   public boolean checkPermission(@NotNull String permission) {
     return this.permissionManagement.hasPermission(this.permissionUser, permission);

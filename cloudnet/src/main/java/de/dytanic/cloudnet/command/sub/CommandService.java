@@ -18,6 +18,7 @@ package de.dytanic.cloudnet.command.sub;
 
 import cloud.commandframework.annotations.Argument;
 import cloud.commandframework.annotations.CommandMethod;
+import cloud.commandframework.annotations.CommandPermission;
 import cloud.commandframework.annotations.Flag;
 import cloud.commandframework.annotations.parsers.Parser;
 import cloud.commandframework.annotations.specifier.Greedy;
@@ -29,6 +30,7 @@ import de.dytanic.cloudnet.command.exception.ArgumentNotAvailableException;
 import de.dytanic.cloudnet.command.source.CommandSource;
 import de.dytanic.cloudnet.common.INameable;
 import de.dytanic.cloudnet.common.WildcardUtil;
+import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.common.unsafe.CPUUsageResolver;
 import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
 import de.dytanic.cloudnet.driver.service.ServiceDeployment;
@@ -50,6 +52,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.jetbrains.annotations.Nullable;
 
+@CommandPermission("cloudnet.command.service")
 public class CommandService {
 
   public static final Pattern SERVICE_NAME_PATTERN = Pattern.compile("([\\w+-]+)-(\\d+)");
@@ -61,7 +64,7 @@ public class CommandService {
     ServiceInfoSnapshot serviceInfoSnapshot = CloudNet.getInstance().getCloudServiceProvider()
       .getCloudServiceByName(name);
     if (serviceInfoSnapshot == null) {
-      throw new ArgumentNotAvailableException("No service found");
+      throw new ArgumentNotAvailableException(LanguageManager.getMessage("command-service-service-not-found"));
     }
     return serviceInfoSnapshot;
   }
@@ -80,7 +83,7 @@ public class CommandService {
     Collection<ServiceInfoSnapshot> knownServices = CloudNet.getInstance().getCloudServiceProvider().getCloudServices();
     Collection<ServiceInfoSnapshot> matchedServices = WildcardUtil.filterWildcard(knownServices, name);
     if (matchedServices.isEmpty()) {
-      throw new ArgumentNotAvailableException("No services found");
+      throw new ArgumentNotAvailableException(LanguageManager.getMessage("command-service-service-not-found"));
     }
 
     return matchedServices;

@@ -26,27 +26,45 @@ public class CommandInvalidSyntaxEvent extends Event {
   private final String correctSyntax;
   private String response;
 
-  public CommandInvalidSyntaxEvent(CommandSource source, String correctSyntax, String response) {
+  public CommandInvalidSyntaxEvent(
+    @NotNull CommandSource source,
+    @NotNull String correctSyntax,
+    @NotNull String response
+  ) {
     this.source = source;
     this.correctSyntax = correctSyntax;
     this.response = response;
   }
 
+  /**
+   * @return the command source that executed the commandline.
+   */
   @NotNull
   public CommandSource getCommandSource() {
     return this.source;
   }
 
+  /**
+   * @return the correct syntax for the executed command
+   */
   @NotNull
   public String getCorrectSyntax() {
     return this.correctSyntax;
   }
 
+  /**
+   * @return the translated invalid syntax message that is the user will receive
+   */
   @NotNull
   public String getResponse() {
     return this.response;
   }
 
+  /**
+   * Set the translated invalid syntax message that is the user will receive
+   *
+   * @param response the message that the user will receive
+   */
   public void setResponse(@NotNull String response) {
     this.response = response;
   }

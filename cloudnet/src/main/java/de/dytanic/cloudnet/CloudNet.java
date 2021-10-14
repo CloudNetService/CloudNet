@@ -66,6 +66,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -265,16 +266,17 @@ public class CloudNet extends CloudNetDriver {
   }
 
   @Override
-  public String[] sendCommandLineAsPermissionUser(@NotNull UUID uniqueId, @NotNull String commandLine) {
+  public @NotNull Collection<String> sendCommandLineAsPermissionUser(@NotNull UUID uniqueId,
+    @NotNull String commandLine) {
     // get the permission user
     PermissionUser user = this.permissionManagement.getUser(uniqueId);
     if (user == null) {
-      return new String[0];
+      return Collections.emptyList();
     } else {
       PermissionUserCommandSource source = new PermissionUserCommandSource(user, this.permissionManagement);
       this.commandProvider.execute(source, commandLine);
 
-      return source.getMessages().toArray(new String[0]);
+      return source.getMessages();
     }
   }
 

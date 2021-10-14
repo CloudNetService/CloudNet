@@ -25,31 +25,50 @@ public class DriverCommandSource implements CommandSource {
 
   private final Collection<String> messages = new ArrayList<>();
 
+  /**
+   * @return "Driver" for the driver command source.
+   */
   @Override
   public @NotNull String getName() {
     return "Driver";
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void sendMessage(@NotNull String message) {
     this.messages.add(message);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void sendMessage(@NotNull String... messages) {
     this.messages.addAll(Arrays.asList(messages));
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void sendMessage(@NotNull Collection<String> messages) {
     this.messages.addAll(messages);
   }
 
+  /**
+   * @param permission the permission to check for
+   * @return always {@code true} as the driver is allowed to execute every command
+   */
   @Override
   public boolean checkPermission(@NotNull String permission) {
     return true;
   }
 
+  /**
+   * @return all captured messages for the driver
+   */
   @NotNull
   public Collection<String> getMessages() {
     return this.messages;

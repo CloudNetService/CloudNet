@@ -25,16 +25,22 @@ public class CommandPostProcessEvent extends Event {
   private final String commandLine;
   private final CommandSource commandSource;
 
-  public CommandPostProcessEvent(String commandLine, CommandSource commandSource) {
+  public CommandPostProcessEvent(@NotNull String commandLine, @NotNull CommandSource commandSource) {
     this.commandLine = commandLine;
     this.commandSource = commandSource;
   }
 
+  /**
+   * @return the command source that executed the given commandline.
+   */
   @NotNull
   public CommandSource getCommandSource() {
     return this.commandSource;
   }
 
+  /**
+   * @return the command line that was executed.
+   */
   @NotNull
   public String getCommandLine() {
     return this.commandLine;

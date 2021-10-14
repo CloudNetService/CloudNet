@@ -263,13 +263,11 @@ public abstract class CloudNetDriver {
     return this.networkClient;
   }
 
-  public abstract String[] sendCommandLineAsPermissionUser(
-    @NotNull UUID uniqueId,
+  public abstract @NotNull Collection<String> sendCommandLineAsPermissionUser(@NotNull UUID uniqueId,
     @NotNull String commandLine);
 
   @NotNull
-  public ITask<String[]> sendCommandLineAsPermissionUserAsync(
-    @NotNull UUID uniqueId,
+  public ITask<Collection<String>> sendCommandLineAsPermissionUserAsync(@NotNull UUID uniqueId,
     @NotNull String commandLine
   ) {
     return CompletableTask.supplyAsync(() -> this.sendCommandLineAsPermissionUser(uniqueId, commandLine));
