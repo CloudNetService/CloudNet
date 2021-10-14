@@ -236,6 +236,17 @@ public class DefaultModuleProvider implements IModuleProvider {
    * {@inheritDoc}
    */
   @Override
+  public @NotNull IModuleProvider reloadAll() {
+    for (IModuleWrapper module : this.modules) {
+      module.reloadModule();
+    }
+    return this;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public @NotNull IModuleProvider stopAll() {
     for (IModuleWrapper module : this.modules) {
       module.stopModule();
@@ -271,6 +282,8 @@ public class DefaultModuleProvider implements IModuleProvider {
           return handler.handlePreModuleLoad(wrapper);
         case STARTED:
           return handler.handlePreModuleStart(wrapper);
+        case RELOAD:
+          return handler.handlePreModuleReload(wrapper);
         case STOPPED:
           return handler.handlePreModuleStop(wrapper);
         case UNLOADED:
@@ -298,6 +311,9 @@ public class DefaultModuleProvider implements IModuleProvider {
           break;
         case STARTED:
           handler.handlePostModuleStart(wrapper);
+          break;
+        case RELOAD:
+          handler.handlePostModuleReload(wrapper);
           break;
         case STOPPED:
           handler.handlePostModuleStop(wrapper);

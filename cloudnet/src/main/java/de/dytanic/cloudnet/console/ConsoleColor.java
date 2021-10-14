@@ -51,7 +51,7 @@ public enum ConsoleColor {
 
   private static final ConsoleColor[] VALUES = values();
   private static final String LOOKUP = "0123456789abcdefklmnor";
-  private static final String RGB_ANSI = "\u001B[38;2;%d;%d;%dm";
+  public static final String RGB_ANSI = "\u001B[38;2;%d;%d;%dm";
 
   private final String name;
   private final String ansiCode;
@@ -134,7 +134,7 @@ public enum ConsoleColor {
     return null;
   }
 
-  public static @Nullable ConsoleColor getLastColour(char triggerChar, @NotNull String text) {
+  public static @Nullable ConsoleColor getLastColor(char triggerChar, @NotNull String text) {
     text = text.trim();
     if (text.length() > 2 && text.charAt(text.length() - 2) == triggerChar) {
       return getByChar(text.charAt(text.length() - 1));

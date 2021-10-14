@@ -153,6 +153,15 @@ public interface IModuleProvider {
   @NotNull IModuleProvider startAll();
 
   /**
+   * Reloads all modules which are loaded by this provided and can change to the started state.
+   *
+   * @return the same instance of the class, for chaining.
+   * @see IModuleWrapper#getModuleLifeCycle()
+   * @see ModuleLifeCycle#canChangeTo(ModuleLifeCycle)
+   */
+  @NotNull IModuleProvider reloadAll();
+
+  /**
    * Stops all modules which are loaded by this provided and can change to the stopped state.
    *
    * @return the same instance of the class, for chaining.

@@ -34,7 +34,6 @@ import de.dytanic.cloudnet.command.source.CommandSource;
 import de.dytanic.cloudnet.command.source.ConsoleCommandSource;
 import de.dytanic.cloudnet.command.sub.CommandClear;
 import de.dytanic.cloudnet.command.sub.CommandCopy;
-import de.dytanic.cloudnet.command.sub.CommandCreate;
 import de.dytanic.cloudnet.command.sub.CommandDebug;
 import de.dytanic.cloudnet.command.sub.CommandExit;
 import de.dytanic.cloudnet.command.sub.CommandGroups;
@@ -89,7 +88,7 @@ public class DefaultCommandProvider implements CommandProvider {
     this.register(new CommandServiceConfiguration());
     this.register(new CommandGroups());
     this.register(new CommandTasks());
-    this.register(new CommandCreate());
+  //  this.register(new CommandCreate());
     this.register(new CommandMe());
     this.register(new CommandService());
     this.register(new CommandPermissions());
