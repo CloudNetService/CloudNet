@@ -55,6 +55,21 @@ public interface IModuleProviderHandler {
   void handlePostModuleStart(@NotNull IModuleWrapper moduleWrapper);
 
   /**
+   * Called when a module is about to get reloaded.
+   *
+   * @param moduleWrapper the module which will be reloaded.
+   * @return if the module is allowed to be reloaded.
+   */
+  boolean handlePreModuleReload(@NotNull IModuleWrapper moduleWrapper);
+
+  /**
+   * Called when a module was reloaded.
+   *
+   * @param moduleWrapper the module which was reloaded.
+   */
+  void handlePostModuleReload(@NotNull IModuleWrapper moduleWrapper);
+
+  /**
    * Called when a module is about to get stopped.
    *
    * @param moduleWrapper the module which will be stopped.

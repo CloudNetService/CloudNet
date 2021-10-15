@@ -89,7 +89,7 @@ public class DefaultCommandProvider implements CommandProvider {
     this.register(new CommandServiceConfiguration());
     this.register(new CommandGroups());
     this.register(new CommandTasks());
-    this.register(new CommandCreate());
+    // this.register(new CommandCreate());
     this.register(new CommandMe());
     this.register(new CommandService());
     this.register(new CommandPermissions());

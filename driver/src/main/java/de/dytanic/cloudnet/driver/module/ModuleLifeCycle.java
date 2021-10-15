@@ -30,17 +30,22 @@ public enum ModuleLifeCycle {
    */
   LOADED(2),
   /**
-   * In this state the module ist started and every module dependency declared by the module was started before.
+   * In this state the module is started and every module dependency declared by the module was started before.
    */
-  STARTED(3),
+  STARTED(3, 4),
+  /**
+   * In this state the reloaded task of the module is called. The module itself is actually not unloaded
+   */
+  RELOADING(2),
   /**
    * In this state the module is still loadable, it's only idling and not doing anything anymore.
    */
-  STOPPED(2, 4),
+  STOPPED(2, 5),
   /**
-   * In this state the module is completely unloaded and will switch to the {@link #UNUSEABLE} state shortly.
+   * In this state the module is completely unloaded and will switch to the {@link ModuleLifeCycle#UNUSEABLE} state
+   * shortly.
    */
-  UNLOADED(1, 5),
+  UNLOADED(1, 6),
   /**
    * In this state the module wrapper instance is empty, it is not associated with a module anymore. Defined module
    * tasks for this state will never fire.

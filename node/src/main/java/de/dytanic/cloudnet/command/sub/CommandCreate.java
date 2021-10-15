@@ -41,7 +41,7 @@ public class CommandCreate {
     @Argument("amount") @Range(min = "1") int amount,
     @Flag("start") boolean startService,
     @Flag("id") Integer id,
-    @Flag(value = "javaCommand", parserName = "javaVersion") Pair<String, JavaVersion> javaCommand,
+    @Flag("javaCommand") Pair<String, JavaVersion> javaCommand,
     @Flag("memory") Integer memory
   ) {
     ServiceConfiguration.Builder configurationBuilder = ServiceConfiguration.builder(task);

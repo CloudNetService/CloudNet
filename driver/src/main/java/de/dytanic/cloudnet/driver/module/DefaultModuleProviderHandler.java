@@ -24,11 +24,13 @@ import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.event.Event;
 import de.dytanic.cloudnet.driver.event.events.module.ModulePostInstallDependencyEvent;
 import de.dytanic.cloudnet.driver.event.events.module.ModulePostLoadEvent;
+import de.dytanic.cloudnet.driver.event.events.module.ModulePostReloadEvent;
 import de.dytanic.cloudnet.driver.event.events.module.ModulePostStartEvent;
 import de.dytanic.cloudnet.driver.event.events.module.ModulePostStopEvent;
 import de.dytanic.cloudnet.driver.event.events.module.ModulePostUnloadEvent;
 import de.dytanic.cloudnet.driver.event.events.module.ModulePreInstallDependencyEvent;
 import de.dytanic.cloudnet.driver.event.events.module.ModulePreLoadEvent;
+import de.dytanic.cloudnet.driver.event.events.module.ModulePreReloadEvent;
 import de.dytanic.cloudnet.driver.event.events.module.ModulePreStartEvent;
 import de.dytanic.cloudnet.driver.event.events.module.ModulePreStopEvent;
 import de.dytanic.cloudnet.driver.event.events.module.ModulePreUnloadEvent;
@@ -82,6 +84,29 @@ public class DefaultModuleProviderHandler implements IModuleProviderHandler {
       this.getModuleProvider(),
       moduleWrapper.getModuleConfiguration()));
   }
+
+  @Override
+  public boolean handlePreModuleReload(@NotNull IModuleWrapper moduleWrapper) {
+    boolean cancelled = this.callEvent(new ModulePreReloadEvent(this.getModuleProvider(), moduleWrapper)).isCancelled();
+    if (!cancelled) {
+      LOGGER.info(this.replaceAll(
+        LanguageManager.getMessage("cloudnet-pre-reload-module"),
+        this.getModuleProvider(),
+        moduleWrapper.getModuleConfiguration()));
+    }
+
+    return !cancelled;
+  }
+
+  @Override
+  public void handlePostModuleReload(@NotNull IModuleWrapper moduleWrapper) {
+    this.callEvent(new ModulePostReloadEvent(this.getModuleProvider(), moduleWrapper));
+    LOGGER.fine(this.replaceAll(
+      LanguageManager.getMessage("cloudnet-post-reload-module"),
+      this.getModuleProvider(),
+      moduleWrapper.getModuleConfiguration()));
+  }
+
 
   @Override
   public boolean handlePreModuleStop(@NotNull IModuleWrapper moduleWrapper) {

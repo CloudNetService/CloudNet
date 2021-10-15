@@ -17,15 +17,12 @@
 package de.dytanic.cloudnet.driver.module;
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
-import java.io.File;
 import java.net.URI;
 import java.net.URL;
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
@@ -117,6 +114,16 @@ public interface IModuleWrapper {
   @NotNull IModuleWrapper startModule();
 
   /**
+   * Changes the lifecycle of this module to {@link ModuleLifeCycle#RELOADING} if possible and fires all associated tasks.
+   *
+   * @return the same instance of this class, for chaining.
+   * @see #getModuleTasks()
+   * @see ModuleLifeCycle#canChangeTo(ModuleLifeCycle)
+   * @see IModuleProvider#notifyPreModuleLifecycleChange(IModuleWrapper, ModuleLifeCycle)
+   */
+  @NotNull IModuleWrapper reloadModule();
+
+  /**
    * Changes the lifecycle of this module to {@link ModuleLifeCycle#STOPPED} if possible and fires all associated
    * tasks.
    *
@@ -140,14 +147,6 @@ public interface IModuleWrapper {
   @NotNull IModuleWrapper unloadModule();
 
   /**
-   * @deprecated Use {@link #getDataDirectory()} instead.
-   */
-  @Deprecated
-  default File getDataFolder() {
-    return this.getDataDirectory().toFile();
-  }
-
-  /**
    * Get the data directory of this module in which the module should store its configuration files.
    *
    * @return the data directory of this module.
@@ -167,14 +166,4 @@ public interface IModuleWrapper {
    * @return the uri from where the module was loaded.
    */
   @NotNull URI getUri();
-
-  /**
-   * @deprecated Use {@link ModuleConfiguration#getRepos()} instead.
-   */
-  @Deprecated
-  @ScheduledForRemoval
-  default Map<String, String> getDefaultRepositories() {
-    return Arrays.stream(this.getModuleConfiguration().getRepos())
-      .collect(Collectors.toMap(ModuleRepository::getName, ModuleRepository::getUrl));
-  }
 }

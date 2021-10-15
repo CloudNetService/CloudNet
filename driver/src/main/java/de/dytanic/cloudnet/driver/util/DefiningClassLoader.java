@@ -17,8 +17,9 @@
 package de.dytanic.cloudnet.driver.util;
 
 import java.security.SecureClassLoader;
+import org.jetbrains.annotations.ApiStatus.Internal;
 
-@Deprecated
+@Internal
 public final class DefiningClassLoader extends SecureClassLoader {
 
   public DefiningClassLoader(ClassLoader parent) {

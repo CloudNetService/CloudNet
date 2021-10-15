@@ -187,6 +187,27 @@ public class DefaultModuleWrapper implements IModuleWrapper {
    * {@inheritDoc}
    */
   @Override
+  public @NotNull IModuleWrapper reloadModule() {
+    if (this.getModuleLifeCycle().canChangeTo(ModuleLifeCycle.RELOADING)
+      && this.provider.notifyPreModuleLifecycleChange(this, ModuleLifeCycle.RELOADING)) {
+      // Resolve all dependencies of this module to reload them before this module
+      for (IModuleWrapper wrapper : ModuleDependencyUtils.collectDependencies(this, this.provider)) {
+        wrapper.reloadModule();
+      }
+      //now we can reload this module
+      this.pushLifecycleChange(ModuleLifeCycle.RELOADING, false);
+      // and we now need to notify the provider here
+      this.provider.notifyPostModuleLifecycleChange(this, ModuleLifeCycle.RELOADING);
+      //push the module back to started
+      this.lifeCycle.set(ModuleLifeCycle.STARTED);
+    }
+    return this;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public @NotNull IModuleWrapper stopModule() {
     this.pushLifecycleChange(ModuleLifeCycle.STOPPED, true);
     return this;
