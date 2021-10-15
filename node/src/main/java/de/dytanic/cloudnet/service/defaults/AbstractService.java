@@ -314,7 +314,7 @@ public abstract class AbstractService implements ICloudService {
       this.stopProcess();
     }
     // execute all deployments which are still waiting
-    this.deployResources();
+    this.removeAndExecuteDeployments();
     // remove the current directory if the service is not static
     if (!this.getServiceConfiguration().isStaticService()) {
       FileUtils.delete(this.serviceDirectory);
@@ -442,7 +442,7 @@ public abstract class AbstractService implements ICloudService {
     TemplateStorage storage = deployment.getTemplate().storage().getWrappedStorage();
     if (!this.eventManager.callEvent(new CloudServiceDeploymentEvent(this, storage, deployment)).isCancelled()) {
       // execute the deployment
-      storage.deploy(this.serviceDirectory, deployment.getTemplate(), path -> {
+      storage.deployDirectory(this.serviceDirectory, deployment.getTemplate(), path -> {
         // normalize the name of the path
         String fileName = Files.isDirectory(path)
           ? path.getFileName().toString() + '/'

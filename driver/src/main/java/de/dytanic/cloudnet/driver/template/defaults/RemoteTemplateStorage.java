@@ -46,7 +46,7 @@ public class RemoteTemplateStorage implements TemplateStorage {
   }
 
   @Override
-  public boolean deploy(@NotNull Path directory,
+  public boolean deployDirectory(@NotNull Path directory,
     @NotNull ServiceTemplate target,
     @Nullable Predicate<Path> fileFilter) {
     return false;

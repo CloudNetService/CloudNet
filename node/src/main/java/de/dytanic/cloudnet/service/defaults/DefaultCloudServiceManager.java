@@ -126,7 +126,7 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
   }
 
   @Override
-  public @UnmodifiableView @NotNull Collection<ServiceInfoSnapshot> getCloudServices(@NotNull String taskName) {
+  public @UnmodifiableView @NotNull Collection<ServiceInfoSnapshot> getCloudServicesByTask(@NotNull String taskName) {
     return this.knownServices.values().stream()
       .map(SpecificCloudServiceProvider::getServiceInfoSnapshot)
       .filter(Objects::nonNull)
@@ -135,7 +135,7 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
   }
 
   @Override
-  public @UnmodifiableView @NotNull Collection<ServiceInfoSnapshot> getCloudServices(
+  public @UnmodifiableView @NotNull Collection<ServiceInfoSnapshot> getCloudServicesByEnvironment(
     @NotNull ServiceEnvironmentType environment
   ) {
     return this.knownServices.values().stream()
@@ -166,7 +166,7 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
 
   @Override
   public int getServicesCountByTask(@NotNull String taskName) {
-    return this.getCloudServices(taskName).size();
+    return this.getCloudServicesByTask(taskName).size();
   }
 
   @Override
@@ -344,7 +344,7 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
   @Override
   public @NotNull SpecificCloudServiceProvider startService(@NotNull ServiceTask task) {
     // get all services of the given task, map it to its node unique id
-    Pair<ServiceInfoSnapshot, IClusterNodeServer> prepared = this.getCloudServices(task.getName())
+    Pair<ServiceInfoSnapshot, IClusterNodeServer> prepared = this.getCloudServicesByTask(task.getName())
       .stream()
       .filter(taskService -> taskService.getLifeCycle() == ServiceLifeCycle.PREPARED)
       .map(service -> {
@@ -389,7 +389,9 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
       return provider;
     } else {
       // create a new service
-      ServiceInfoSnapshot service = CloudNet.getInstance().getCloudServiceFactory().createCloudService(task);
+      ServiceInfoSnapshot service = CloudNet.getInstance()
+        .getCloudServiceFactory()
+        .createCloudService(ServiceConfiguration.builder(task).build());
       return service == null ? EmptySpecificCloudServiceProvider.INSTANCE : service.provider();
     }
   }

@@ -35,9 +35,17 @@ tasks.withType<Test>() {
   dependsOn(":cloudnet-common:jar")
 }
 
+extensions.configure<JavaPluginExtension>() {
+  sourceSets {
+    create("ap")
+  }
+}
+
 dependencies {
   "api"(project(":cloudnet-common"))
   "testImplementation"(project(":cloudnet-common").sourceSets().main.get().output)
+
+  "annotationProcessor"(project.sourceSets()["ap"].output)
 
   "implementation"("org.javassist", "javassist", Versions.javassist)
   "implementation"("io.netty", "netty-handler", Versions.netty)

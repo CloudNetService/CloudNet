@@ -102,7 +102,7 @@ public class NodeNodeInfoProvider implements NodeInfoProvider {
   }
 
   @Override
-  public Collection<String> sendCommandLine(@NotNull String nodeUniqueId, @NotNull String commandLine) {
+  public Collection<String> sendCommandLineToNode(@NotNull String nodeUniqueId, @NotNull String commandLine) {
     Preconditions.checkNotNull(nodeUniqueId);
     Preconditions.checkNotNull(commandLine);
     // check if we should execute the command on the current node

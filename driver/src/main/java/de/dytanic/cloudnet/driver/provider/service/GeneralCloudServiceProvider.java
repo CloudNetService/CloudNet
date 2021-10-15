@@ -18,6 +18,7 @@ package de.dytanic.cloudnet.driver.provider.service;
 
 import de.dytanic.cloudnet.common.concurrent.CompletableTask;
 import de.dytanic.cloudnet.common.concurrent.ITask;
+import de.dytanic.cloudnet.driver.network.rpc.annotation.RPCValidation;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import java.util.Collection;
@@ -32,19 +33,8 @@ import org.jetbrains.annotations.UnmodifiableView;
  * @author derrop (derrop@cloudnetservice.eu)
  * @author Pasqual K. (derklaro@cloudnetservice.eu)
  */
+@RPCValidation
 public interface GeneralCloudServiceProvider {
-
-  /**
-   * Get a provider for the specified service snapshot based on the unique id of it.
-   *
-   * @param snapshot the snapshot to get the provider for.
-   * @return a {@link SpecificCloudServiceProvider} to manage the specific given service.
-   * @see #getSpecificProvider(UUID)
-   * @since 3.5
-   */
-  default @NotNull SpecificCloudServiceProvider getSpecificProvider(@NotNull ServiceInfoSnapshot snapshot) {
-    return this.getSpecificProvider(snapshot.getServiceId().getUniqueId());
-  }
 
   /**
    * Gets a provider for the specific service snapshot with the given unique id. No check is made if the service this
@@ -101,7 +91,7 @@ public interface GeneralCloudServiceProvider {
    * @return a list containing the infos of every service with the given task in the whole cloud
    */
   @UnmodifiableView
-  @NotNull Collection<ServiceInfoSnapshot> getCloudServices(@NotNull String taskName);
+  @NotNull Collection<ServiceInfoSnapshot> getCloudServicesByTask(@NotNull String taskName);
 
   /**
    * Gets a list with the infos of all services in the cloud that have the given environment
@@ -110,7 +100,7 @@ public interface GeneralCloudServiceProvider {
    * @return a list containing the infos of every service with the given environment in the whole cloud
    */
   @UnmodifiableView
-  @NotNull Collection<ServiceInfoSnapshot> getCloudServices(@NotNull ServiceEnvironmentType environment);
+  @NotNull Collection<ServiceInfoSnapshot> getCloudServicesByEnvironment(@NotNull ServiceEnvironmentType environment);
 
   /**
    * Gets a list with the infos of all services in the cloud that have the given group
@@ -162,10 +152,6 @@ public interface GeneralCloudServiceProvider {
   @Nullable
   ServiceInfoSnapshot getCloudService(@NotNull UUID uniqueId);
 
-  default @NotNull ITask<SpecificCloudServiceProvider> getSpecificProviderAsync(@NotNull ServiceInfoSnapshot snapshot) {
-    return CompletableTask.supplyAsync(() -> this.getSpecificProvider(snapshot));
-  }
-
   default @NotNull ITask<SpecificCloudServiceProvider> getSpecificProviderAsync(@NotNull UUID serviceUniqueId) {
     return CompletableTask.supplyAsync(() -> this.getSpecificProvider(serviceUniqueId));
   }
@@ -211,19 +197,19 @@ public interface GeneralCloudServiceProvider {
    * @return a list containing the infos of every service with the given task in the whole cloud
    */
   @NotNull
-  default ITask<Collection<ServiceInfoSnapshot>> getCloudServicesAsync(@NotNull String taskName) {
-    return CompletableTask.supplyAsync(() -> this.getCloudServices(taskName));
+  default ITask<Collection<ServiceInfoSnapshot>> getCloudServicesByTaskAsync(@NotNull String taskName) {
+    return CompletableTask.supplyAsync(() -> this.getCloudServicesByTask(taskName));
   }
 
   /**
    * Gets a list with the infos of all services in the cloud that have the given environment
    *
-   * @param environment the environment every service in the list should have
+   * @param e the environment every service in the list should have
    * @return a list containing the infos of every service with the given environment in the whole cloud
    */
   @NotNull
-  default ITask<Collection<ServiceInfoSnapshot>> getCloudServicesAsync(@NotNull ServiceEnvironmentType environment) {
-    return CompletableTask.supplyAsync(() -> this.getCloudServices(environment));
+  default ITask<Collection<ServiceInfoSnapshot>> getCloudServicesByEnvironmentAsync(@NotNull ServiceEnvironmentType e) {
+    return CompletableTask.supplyAsync(() -> this.getCloudServicesByEnvironment(e));
   }
 
   /**

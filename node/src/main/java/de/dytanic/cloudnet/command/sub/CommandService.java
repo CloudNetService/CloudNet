@@ -240,7 +240,7 @@ public class CommandService {
   @CommandMethod("service|ser <name> deployResources")
   public void deployResources(CommandSource source, @Argument("name") Collection<ServiceInfoSnapshot> matchedServices) {
     for (ServiceInfoSnapshot matchedService : matchedServices) {
-      matchedService.provider().deployResources();
+      matchedService.provider().removeAndExecuteDeployments();
     }
   }
 

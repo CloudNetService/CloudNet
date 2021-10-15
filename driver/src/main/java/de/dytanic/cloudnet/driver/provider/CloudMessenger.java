@@ -19,6 +19,7 @@ package de.dytanic.cloudnet.driver.provider;
 import de.dytanic.cloudnet.common.concurrent.CompletableTask;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;
+import de.dytanic.cloudnet.driver.network.rpc.annotation.RPCValidation;
 import java.util.Collection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -26,6 +27,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * A messenger to communicate between services in CloudNet.
  */
+@RPCValidation
 public interface CloudMessenger {
 
   /**

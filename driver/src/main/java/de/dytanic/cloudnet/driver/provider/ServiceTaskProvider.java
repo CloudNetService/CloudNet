@@ -18,6 +18,7 @@ package de.dytanic.cloudnet.driver.provider;
 
 import de.dytanic.cloudnet.common.concurrent.CompletableTask;
 import de.dytanic.cloudnet.common.concurrent.ITask;
+import de.dytanic.cloudnet.driver.network.rpc.annotation.RPCValidation;
 import de.dytanic.cloudnet.driver.service.ServiceTask;
 import java.util.Collection;
 import org.jetbrains.annotations.NotNull;
@@ -27,6 +28,7 @@ import org.jetbrains.annotations.UnmodifiableView;
 /**
  * This class provides access to the tasks of the cloud (tasks folder)
  */
+@RPCValidation
 public interface ServiceTaskProvider {
 
   /**
@@ -78,7 +80,7 @@ public interface ServiceTaskProvider {
    *
    * @param name the name of the task to be removed
    */
-  void removePermanentServiceTask(@NotNull String name);
+  void removePermanentServiceTaskByName(@NotNull String name);
 
   /**
    * Removes a task from the cloud
@@ -154,8 +156,8 @@ public interface ServiceTaskProvider {
    * @param name the name of the task to be removed
    */
   @NotNull
-  default ITask<Void> removePermanentServiceTaskAsync(@NotNull String name) {
-    return CompletableTask.supplyAsync(() -> this.removePermanentServiceTask(name));
+  default ITask<Void> removePermanentServiceTaskByNameAsync(@NotNull String name) {
+    return CompletableTask.supplyAsync(() -> this.removePermanentServiceTaskByName(name));
   }
 
   /**
@@ -166,7 +168,7 @@ public interface ServiceTaskProvider {
    */
   @NotNull
   default ITask<Void> removePermanentServiceTaskAsync(@NotNull ServiceTask serviceTask) {
-    return this.removePermanentServiceTaskAsync(serviceTask.getName());
+    return this.removePermanentServiceTaskByNameAsync(serviceTask.getName());
   }
 
 }

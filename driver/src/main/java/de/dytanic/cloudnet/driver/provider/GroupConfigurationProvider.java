@@ -18,6 +18,7 @@ package de.dytanic.cloudnet.driver.provider;
 
 import de.dytanic.cloudnet.common.concurrent.CompletableTask;
 import de.dytanic.cloudnet.common.concurrent.ITask;
+import de.dytanic.cloudnet.driver.network.rpc.annotation.RPCValidation;
 import de.dytanic.cloudnet.driver.service.GroupConfiguration;
 import java.util.Collection;
 import org.jetbrains.annotations.NotNull;
@@ -27,6 +28,7 @@ import org.jetbrains.annotations.UnmodifiableView;
 /**
  * This class provides access to the groups of the cloud (groups.json file).
  */
+@RPCValidation
 public interface GroupConfigurationProvider {
 
   /**
@@ -78,7 +80,7 @@ public interface GroupConfigurationProvider {
    *
    * @param name the name of the group to be removed
    */
-  void removeGroupConfiguration(@NotNull String name);
+  void removeGroupConfigurationByName(@NotNull String name);
 
   /**
    * Removes a group from the cloud
@@ -154,8 +156,8 @@ public interface GroupConfigurationProvider {
    * @param name the name of the group to be removed
    */
   @NotNull
-  default ITask<Void> removeGroupConfigurationAsync(@NotNull String name) {
-    return CompletableTask.supplyAsync(() -> this.removeGroupConfiguration(name));
+  default ITask<Void> removeGroupConfigurationByNameAsync(@NotNull String name) {
+    return CompletableTask.supplyAsync(() -> this.removeGroupConfigurationByName(name));
   }
 
   /**

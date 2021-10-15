@@ -95,7 +95,7 @@ public class V2HttpAuthentication {
       String[] credentials = new String(Base64.getDecoder().decode(matcher.group(1)), StandardCharsets.UTF_8)
         .split(":");
       if (credentials.length == 2) {
-        List<PermissionUser> users = CloudNetDriver.getInstance().getPermissionManagement().getUsers(credentials[0]);
+        List<PermissionUser> users = CloudNetDriver.getInstance().getPermissionManagement().getUsersByName(credentials[0]);
         for (PermissionUser user : users) {
           if (user.checkPassword(credentials[1])) {
             return LoginResult.success(user);

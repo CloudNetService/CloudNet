@@ -197,13 +197,13 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
       case TASK: {
         // lookup all services of the given task
         return this.filterChannels(
-          this.cloudServiceManager.getCloudServices(target.getName()),
+          this.cloudServiceManager.getCloudServicesByTask(target.getName()),
           allowClusterRedirect);
       }
       case ENVIRONMENT: {
         // lookup all services of the given environment
         return this.filterChannels(
-          this.cloudServiceManager.getCloudServices(target.getEnvironment()),
+          this.cloudServiceManager.getCloudServicesByEnvironment(target.getEnvironment()),
           allowClusterRedirect);
       }
       case GROUP: {

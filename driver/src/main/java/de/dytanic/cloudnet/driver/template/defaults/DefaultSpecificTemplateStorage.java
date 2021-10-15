@@ -76,7 +76,7 @@ public class DefaultSpecificTemplateStorage implements SpecificTemplateStorage {
 
   @Override
   public boolean deploy(@NotNull Path directory, @Nullable Predicate<Path> fileFilter) {
-    return this.storage.deploy(directory, this.template, fileFilter);
+    return this.storage.deployDirectory(directory, this.template, fileFilter);
   }
 
   @Override
@@ -161,12 +161,12 @@ public class DefaultSpecificTemplateStorage implements SpecificTemplateStorage {
 
   @Override
   public FileInfo[] listFiles(boolean deep) throws IOException {
-    return this.storage.listFiles(this.template, deep);
+    return this.storage.listFiles(this.template, "", deep);
   }
 
   @Override
   public @NotNull ITask<Boolean> deployAsync(@NotNull Path directory, @Nullable Predicate<Path> fileFilter) {
-    return this.storage.deployAsync(directory, this.template, fileFilter);
+    return this.storage.deployDirectoryAsync(directory, this.template, fileFilter);
   }
 
   @Override
@@ -176,7 +176,7 @@ public class DefaultSpecificTemplateStorage implements SpecificTemplateStorage {
 
   @Override
   public @NotNull ITask<Boolean> copyAsync(@NotNull Path directory) {
-    return this.storage.deployAsync(directory, this.template);
+    return this.storage.deployDirectoryAsync(directory, this.template);
   }
 
   @Override
@@ -251,6 +251,6 @@ public class DefaultSpecificTemplateStorage implements SpecificTemplateStorage {
 
   @Override
   public @NotNull ITask<FileInfo[]> listFilesAsync(boolean deep) {
-    return this.storage.listFilesAsync(this.template, deep);
+    return this.storage.listFilesAsync(this.template, "", deep);
   }
 }

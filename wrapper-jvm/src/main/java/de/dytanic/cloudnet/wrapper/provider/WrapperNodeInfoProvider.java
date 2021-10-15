@@ -58,10 +58,9 @@ public class WrapperNodeInfoProvider implements NodeInfoProvider {
     return this.rpcSender.invokeMethod("sendCommandLine", commandLine).fireSync();
   }
 
-  //TODO: these methods have the same name, might cause problems with rpc
   @Override
-  public @NotNull Collection<String> sendCommandLine(@NotNull String nodeUniqueId, @NotNull String commandLine) {
-    return this.rpcSender.invokeMethod("sendCommandLine", nodeUniqueId, commandLine).fireSync();
+  public @NotNull Collection<String> sendCommandLineToNode(@NotNull String nodeUniqueId, @NotNull String commandLine) {
+    return this.rpcSender.invokeMethod("sendCommandLineToNode", nodeUniqueId, commandLine).fireSync();
   }
 
   @Override

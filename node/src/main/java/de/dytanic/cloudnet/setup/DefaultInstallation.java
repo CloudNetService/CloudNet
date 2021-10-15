@@ -119,7 +119,7 @@ public class DefaultInstallation {
       adminPermissionGroup.setDisplay("&4");
       adminPermissionGroup.setSortId(10);
 
-      CloudNet.getInstance().getPermissionManagement().addGroup(adminPermissionGroup);
+      CloudNet.getInstance().getPermissionManagement().addPermissionGroup(adminPermissionGroup);
 
       PermissionGroup defaultPermissionGroup = new PermissionGroup("default", 100);
       defaultPermissionGroup.addPermission("bukkit.broadcast.user", true);
@@ -130,7 +130,7 @@ public class DefaultInstallation {
       defaultPermissionGroup.setDisplay("&7");
       defaultPermissionGroup.setSortId(10);
 
-      CloudNet.getInstance().getPermissionManagement().addGroup(defaultPermissionGroup);
+      CloudNet.getInstance().getPermissionManagement().addPermissionGroup(defaultPermissionGroup);
     }
   }
 

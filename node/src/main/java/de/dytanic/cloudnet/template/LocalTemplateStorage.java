@@ -59,7 +59,7 @@ public class LocalTemplateStorage implements TemplateStorage {
   }
 
   @Override
-  public boolean deploy(
+  public boolean deployDirectory(
     @NotNull Path directory,
     @NotNull ServiceTemplate target,
     @Nullable Predicate<Path> fileFilter
