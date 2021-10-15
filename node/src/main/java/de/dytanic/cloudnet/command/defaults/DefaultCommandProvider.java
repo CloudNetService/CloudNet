@@ -46,6 +46,8 @@ import de.dytanic.cloudnet.command.sub.CommandService;
 import de.dytanic.cloudnet.command.sub.CommandTasks;
 import de.dytanic.cloudnet.command.sub.CommandTemplate;
 import de.dytanic.cloudnet.common.language.LanguageManager;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.command.CommandInfo;
 import de.dytanic.cloudnet.event.command.CommandInvalidSyntaxEvent;
 import de.dytanic.cloudnet.event.command.CommandNotFoundEvent;
@@ -63,6 +65,8 @@ import org.jetbrains.annotations.Nullable;
 
 public class DefaultCommandProvider implements CommandProvider {
 
+
+  private static final Logger LOGGER = LogManager.getLogger(DefaultCommandProvider.class);
   private static final Key<Collection<String>> ALIAS_KEY = Key.of(new TypeToken<Collection<String>>() {
   }, "alias");
 
@@ -119,7 +123,7 @@ public class DefaultCommandProvider implements CommandProvider {
   public void execute(@NotNull CommandSource source, @NotNull String input) {
     try {
       //join the future to handle the occurring exceptions
-      this.commandManager.executeCommand(source, input).join();
+      this.commandManager.executeCommand(source, input.trim()).join();
     } catch (CompletionException exception) {
       Throwable cause = exception.getCause();
 
@@ -144,6 +148,8 @@ public class DefaultCommandProvider implements CommandProvider {
         } else {
           this.handleArgumentParseException(source, (ArgumentParseException) cause);
         }
+      } else {
+        LOGGER.severe("Exception during command execution", exception.getCause());
       }
     }
   }

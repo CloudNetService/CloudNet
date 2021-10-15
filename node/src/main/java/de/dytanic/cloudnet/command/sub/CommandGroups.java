@@ -97,11 +97,9 @@ public class CommandGroups {
   @CommandMethod("groups group <name>")
   public void displayGroup(CommandSource source, @Argument("name") GroupConfiguration group) {
     Collection<String> messages = new ArrayList<>();
-    messages.add(" ");
     messages.add("Name: " + group.getName());
-    messages.add(" ");
-
     messages.add("Environments:" + Arrays.toString(group.getTargetEnvironments().toArray()));
+
     CommandServiceConfiguration.applyServiceConfigurationDisplay(messages, group);
     source.sendMessage(messages);
   }

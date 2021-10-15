@@ -27,6 +27,8 @@ public class CommandServiceConfiguration {
 
   public static void applyServiceConfigurationDisplay(Collection<String> messages,
     ServiceConfigurationBase configurationBase) {
+    messages.add(" ");
+
     messages.add("Includes:");
 
     for (ServiceRemoteInclusion inclusion : configurationBase.getIncludes()) {
@@ -63,6 +65,8 @@ public class CommandServiceConfiguration {
     for (String processParameters : configurationBase.getProcessParameters()) {
       messages.add("- " + processParameters);
     }
+
+    messages.add(" ");
 
     messages.add("Properties: ");
 

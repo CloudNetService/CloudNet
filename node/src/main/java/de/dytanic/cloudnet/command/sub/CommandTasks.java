@@ -144,7 +144,7 @@ public class CommandTasks {
     Collection<String> messages = new ArrayList<>();
     messages.add("Name: " + task.getName());
     messages.add("Groups: " + Arrays.toString(task.getGroups().toArray()));
-    messages.add("Max Heap: " + task.getProcessConfiguration().getMaxHeapMemorySize());
+    messages.add("Max heap memory: " + task.getProcessConfiguration().getMaxHeapMemorySize());
     messages.add("Maintenance: " + task.isMaintenance());
     messages.add(
       "Nodes:" + (task.getAssociatedNodes().isEmpty() ? "All"
@@ -156,6 +156,8 @@ public class CommandTasks {
     messages.add("Auto delete on stop: " + task.isAutoDeleteOnStop());
     messages.add("Deleted files after stop: " + Arrays.toString(task.getDeletedFilesAfterStop().toArray()));
     messages.add("Environment: " + task.getProcessConfiguration().getEnvironment());
+
+    CommandServiceConfiguration.applyServiceConfigurationDisplay(messages, task);
 
     source.sendMessage(messages);
   }
