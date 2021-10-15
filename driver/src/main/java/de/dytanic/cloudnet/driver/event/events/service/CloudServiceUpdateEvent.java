@@ -14,20 +14,16 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.event.service;
+package de.dytanic.cloudnet.driver.event.events.service;
 
-import de.dytanic.cloudnet.driver.event.events.DriverEvent;
-import de.dytanic.cloudnet.service.ICloudService;
+import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 
-public final class CloudServicePostStartPrepareEvent extends DriverEvent {
+/**
+ * This event will be called when any service is updated.
+ */
+public final class CloudServiceUpdateEvent extends CloudServiceEvent {
 
-  private final ICloudService cloudService;
-
-  public CloudServicePostStartPrepareEvent(ICloudService cloudService) {
-    this.cloudService = cloudService;
-  }
-
-  public ICloudService getCloudService() {
-    return this.cloudService;
+  public CloudServiceUpdateEvent(ServiceInfoSnapshot serviceInfo) {
+    super(serviceInfo);
   }
 }

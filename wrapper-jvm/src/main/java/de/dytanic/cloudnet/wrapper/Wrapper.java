@@ -284,7 +284,7 @@ public class Wrapper extends CloudNetDriver {
     // send the update to all nodes and services
     ChannelMessage.builder()
       .targetAll()
-      .message("update_service_information")
+      .message("update_service_info")
       .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
       .buffer(DataBuf.empty().writeObject(serviceInfoSnapshot))
       .build()

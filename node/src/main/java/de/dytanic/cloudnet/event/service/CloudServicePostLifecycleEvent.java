@@ -14,17 +14,25 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.driver.event.events.service;
+package de.dytanic.cloudnet.event.service;
 
-import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
+import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
+import de.dytanic.cloudnet.service.ICloudService;
+import org.jetbrains.annotations.NotNull;
 
-/**
- * This event will be called when a service is disconnected from their node. It will NEVER be called for local services
- * on a node.
- */
-public final class CloudServiceDisconnectNetworkEvent extends CloudServiceEvent {
+public final class CloudServicePostLifecycleEvent extends CloudServiceEvent {
 
-  public CloudServiceDisconnectNetworkEvent(ServiceInfoSnapshot serviceInfo) {
-    super(serviceInfo);
+  private final ServiceLifeCycle newLifeCycle;
+
+  public CloudServicePostLifecycleEvent(
+    @NotNull ICloudService service,
+    @NotNull ServiceLifeCycle newLifeCycle
+  ) {
+    super(service);
+    this.newLifeCycle = newLifeCycle;
+  }
+
+  public @NotNull ServiceLifeCycle getNewLifeCycle() {
+    return this.newLifeCycle;
   }
 }

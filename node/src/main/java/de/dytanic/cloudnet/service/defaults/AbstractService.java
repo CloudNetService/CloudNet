@@ -43,7 +43,10 @@ import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
 import de.dytanic.cloudnet.driver.service.ServiceRemoteInclusion;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import de.dytanic.cloudnet.driver.template.TemplateStorage;
+import de.dytanic.cloudnet.event.service.CloudServiceCreateEvent;
 import de.dytanic.cloudnet.event.service.CloudServiceDeploymentEvent;
+import de.dytanic.cloudnet.event.service.CloudServicePostLifecycleEvent;
+import de.dytanic.cloudnet.event.service.CloudServicePreLifecycleEvent;
 import de.dytanic.cloudnet.event.service.CloudServicePreLoadInclusionEvent;
 import de.dytanic.cloudnet.event.service.CloudServiceTemplateLoadEvent;
 import de.dytanic.cloudnet.service.ICloudService;
@@ -115,7 +118,7 @@ public abstract class AbstractService implements ICloudService {
     this.connectionKey = StringUtil.generateRandomString(64);
     this.serviceDirectory = resolveServicePath(configuration.getServiceId(), manager, configuration.isStaticService());
 
-    this.currentServiceInfo = this.lastServiceInfo = new ServiceInfoSnapshot(
+    this.currentServiceInfo = new ServiceInfoSnapshot(
       System.currentTimeMillis(),
       -1,
       new HostAndPort(this.getNodeConfiguration().getHostAddress(), configuration.getPort()),
@@ -124,9 +127,10 @@ public abstract class AbstractService implements ICloudService {
       ProcessSnapshot.empty(),
       configuration,
       configuration.getProperties());
-    this.publishServiceInfoSnapshot();
+    this.pushServiceInfoSnapshotUpdate(ServiceLifeCycle.PREPARED);
 
     manager.registerLocalService(this);
+    nodeInstance.getEventManager().callEvent(new CloudServiceCreateEvent(this));
   }
 
   protected static @NotNull Path resolveServicePath(
@@ -189,33 +193,39 @@ public abstract class AbstractService implements ICloudService {
       // select the appropriate method for the lifecycle
       switch (lifeCycle) {
         case DELETED: {
-          this.doDelete();
-          // update the current service info
-          this.pushServiceInfoSnapshotUpdate(ServiceLifeCycle.DELETED);
+          if (this.preLifecycleChange(ServiceLifeCycle.DELETED)) {
+            this.doDelete();
+            // update the current service info
+            this.pushServiceInfoSnapshotUpdate(ServiceLifeCycle.DELETED);
+          }
           break;
         }
 
         case RUNNING: {
-          // check if we can start the process now
-          if (this.getLifeCycle() == ServiceLifeCycle.PREPARED && this.canStartNow()) {
-            this.prepareService();
-            this.startProcess();
-            // update the current service info
-            this.pushServiceInfoSnapshotUpdate(ServiceLifeCycle.RUNNING);
+          if (this.preLifecycleChange(ServiceLifeCycle.RUNNING)) {
+            // check if we can start the process now
+            if (this.getLifeCycle() == ServiceLifeCycle.PREPARED && this.canStartNow()) {
+              this.prepareService();
+              this.startProcess();
+              // update the current service info
+              this.pushServiceInfoSnapshotUpdate(ServiceLifeCycle.RUNNING);
+            }
           }
           break;
         }
 
         case STOPPED: {
-          // check if we should delete the service when stopping
-          if (this.getServiceConfiguration().isAutoDeleteOnStop()) {
-            this.doDelete();
-            // update the current service info
-            this.pushServiceInfoSnapshotUpdate(ServiceLifeCycle.DELETED);
-          } else if (this.getLifeCycle() == ServiceLifeCycle.RUNNING) {
-            this.stopProcess();
-            // reset the service lifecycle to prepared
-            this.pushServiceInfoSnapshotUpdate(ServiceLifeCycle.PREPARED);
+          if (this.preLifecycleChange(ServiceLifeCycle.STOPPED)) {
+            // check if we should delete the service when stopping
+            if (this.getServiceConfiguration().isAutoDeleteOnStop()) {
+              this.doDelete();
+              // update the current service info
+              this.pushServiceInfoSnapshotUpdate(ServiceLifeCycle.DELETED);
+            } else if (this.getLifeCycle() == ServiceLifeCycle.RUNNING) {
+              this.stopProcess();
+              // reset the service lifecycle to prepared
+              this.pushServiceInfoSnapshotUpdate(ServiceLifeCycle.PREPARED);
+            }
           }
           break;
         }
@@ -453,6 +463,10 @@ public abstract class AbstractService implements ICloudService {
     }
   }
 
+  protected boolean preLifecycleChange(@NotNull ServiceLifeCycle targetLifecycle) {
+    return !this.eventManager.callEvent(new CloudServicePreLifecycleEvent(this, targetLifecycle)).isCancelled();
+  }
+
   protected void pushServiceInfoSnapshotUpdate(@NotNull ServiceLifeCycle lifeCycle) {
     // save the current service info
     this.lastServiceInfo = this.currentServiceInfo;
@@ -468,8 +482,14 @@ public abstract class AbstractService implements ICloudService {
       this.lastServiceInfo.getProperties());
     // push the service change to the current manager
     this.cloudServiceManager.handleServiceUpdate(this.currentServiceInfo);
+    this.eventManager.callEvent(new CloudServicePostLifecycleEvent(this, lifeCycle));
     // publish the change to all services and nodes
-    this.publishServiceInfoSnapshot();
+    ChannelMessage.builder()
+      .targetAll()
+      .message("update_service_lifecycle")
+      .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
+      .buffer(DataBuf.empty().writeObject(this.lastServiceInfo.getLifeCycle()).writeObject(this.currentServiceInfo))
+      .build();
   }
 
   protected boolean canStartNow() {

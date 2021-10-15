@@ -17,36 +17,34 @@
 package de.dytanic.cloudnet.event.service;
 
 import de.dytanic.cloudnet.driver.event.ICancelable;
-import de.dytanic.cloudnet.driver.event.events.DriverEvent;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import de.dytanic.cloudnet.driver.template.TemplateStorage;
 import de.dytanic.cloudnet.service.ICloudService;
+import org.jetbrains.annotations.NotNull;
 
-public final class CloudServiceTemplateLoadEvent extends DriverEvent implements ICancelable {
-
-  private final ICloudService cloudService;
+public final class CloudServiceTemplateLoadEvent extends CloudServiceEvent implements ICancelable {
 
   private final TemplateStorage storage;
-
   private final ServiceTemplate template;
 
-  private boolean cancelled;
+  private volatile boolean cancelled;
 
-  public CloudServiceTemplateLoadEvent(ICloudService cloudService, TemplateStorage storage, ServiceTemplate template) {
-    this.cloudService = cloudService;
+  public CloudServiceTemplateLoadEvent(
+    @NotNull ICloudService cloudService,
+    @NotNull TemplateStorage storage,
+    @NotNull ServiceTemplate template
+  ) {
+    super(cloudService);
+
     this.storage = storage;
     this.template = template;
   }
 
-  public ICloudService getCloudService() {
-    return this.cloudService;
-  }
-
-  public TemplateStorage getStorage() {
+  public @NotNull TemplateStorage getStorage() {
     return this.storage;
   }
 
-  public ServiceTemplate getTemplate() {
+  public @NotNull ServiceTemplate getTemplate() {
     return this.template;
   }
 

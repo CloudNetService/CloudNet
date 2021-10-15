@@ -17,14 +17,23 @@
 package de.dytanic.cloudnet.driver.event.events.service;
 
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
+import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
+import org.jetbrains.annotations.NotNull;
 
-/**
- * This event will be called when a service is unregistered on any node or a node with registered services disconnects.
- * It will NEVER be called for local services on a node.
- */
-public final class CloudServiceUnregisterEvent extends CloudServiceEvent {
+public final class CloudServiceLifecycleChangeEvent extends CloudServiceEvent {
 
-  public CloudServiceUnregisterEvent(ServiceInfoSnapshot serviceInfo) {
-    super(serviceInfo);
+  private final ServiceLifeCycle lastLifeCycle;
+
+  public CloudServiceLifecycleChangeEvent(@NotNull ServiceLifeCycle lastLifeCycle, @NotNull ServiceInfoSnapshot info) {
+    super(info);
+    this.lastLifeCycle = lastLifeCycle;
+  }
+
+  public @NotNull ServiceLifeCycle getLastLifeCycle() {
+    return this.lastLifeCycle;
+  }
+
+  public @NotNull ServiceLifeCycle getNewLifeCycle() {
+    return this.serviceInfo.getLifeCycle();
   }
 }

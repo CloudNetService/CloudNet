@@ -20,12 +20,14 @@ import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.event.IEventManager;
 import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
-import de.dytanic.cloudnet.driver.event.events.service.CloudServiceInfoUpdateEvent;
+import de.dytanic.cloudnet.driver.event.events.service.CloudServiceLifecycleChangeEvent;
+import de.dytanic.cloudnet.driver.event.events.service.CloudServiceUpdateEvent;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import de.dytanic.cloudnet.driver.network.def.NetworkConstants;
 import de.dytanic.cloudnet.driver.provider.service.CloudServiceFactory;
 import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
+import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
 import de.dytanic.cloudnet.service.ICloudServiceManager;
 import java.lang.reflect.Type;
 import java.util.Collection;
@@ -72,7 +74,16 @@ public final class ServiceChannelMessageListener {
           ServiceInfoSnapshot snapshot = event.getContent().readObject(ServiceInfoSnapshot.class);
           // update locally and call the event
           this.serviceManager.handleServiceUpdate(snapshot);
-          this.eventManager.callEvent(new CloudServiceInfoUpdateEvent(snapshot));
+          this.eventManager.callEvent(new CloudServiceUpdateEvent(snapshot));
+        }
+        break;
+        // update of a service lifecycle in the network
+        case "update_service_lifecycle": {
+          ServiceLifeCycle lifeCycle = event.getContent().readObject(ServiceLifeCycle.class);
+          ServiceInfoSnapshot snapshot = event.getContent().readObject(ServiceInfoSnapshot.class);
+          // update locally and call the event
+          this.serviceManager.handleServiceUpdate(snapshot);
+          this.eventManager.callEvent(new CloudServiceLifecycleChangeEvent(lifeCycle, snapshot));
         }
         break;
         // the initial information about all services which are currently running on all nodes when connecting

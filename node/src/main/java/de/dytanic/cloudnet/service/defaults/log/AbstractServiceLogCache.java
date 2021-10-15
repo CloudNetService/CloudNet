@@ -20,6 +20,8 @@ import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
+import de.dytanic.cloudnet.driver.CloudNetDriver;
+import de.dytanic.cloudnet.event.service.CloudServiceLogEntryEvent;
 import de.dytanic.cloudnet.service.ICloudService;
 import de.dytanic.cloudnet.service.IServiceConsoleLogCache;
 import de.dytanic.cloudnet.service.ServiceConsoleLineHandler;
@@ -108,5 +110,10 @@ public abstract class AbstractServiceLogCache implements IServiceConsoleLogCache
         handler.handleLine(this, entry);
       }
     }
+    // call the log entry event
+    CloudNetDriver.getInstance().getEventManager().callEvent(new CloudServiceLogEntryEvent(
+      this.service,
+      entry,
+      comesFromErrorStream));
   }
 }
