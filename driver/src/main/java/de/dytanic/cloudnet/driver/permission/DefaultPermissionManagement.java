@@ -45,7 +45,7 @@ public abstract class DefaultPermissionManagement implements IPermissionManageme
   public PermissionGroup getHighestPermissionGroup(@NotNull PermissionUser permissionUser) {
     PermissionGroup permissionGroup = null;
 
-    for (PermissionGroup group : this.getGroups(permissionUser)) {
+    for (PermissionGroup group : this.getGroupsOf(permissionUser)) {
       if (permissionGroup == null) {
         permissionGroup = group;
         continue;
@@ -88,7 +88,7 @@ public abstract class DefaultPermissionManagement implements IPermissionManageme
 
   @Override
   @NotNull
-  public Collection<PermissionGroup> getGroups(@Nullable IPermissible permissible) {
+  public Collection<PermissionGroup> getGroupsOf(@Nullable IPermissible permissible) {
     List<PermissionGroup> permissionGroups = new ArrayList<>();
 
     if (permissible == null) {
@@ -184,7 +184,7 @@ public abstract class DefaultPermissionManagement implements IPermissionManageme
     @NotNull IPermissible permissible,
     @Nullable String[] groups) {
     this.collectPermissionsInto(target, permissible, groups);
-    this.collectAllGroupPermissionsInto(target, this.getGroups(permissible), groups, new HashSet<>());
+    this.collectAllGroupPermissionsInto(target, this.getGroupsOf(permissible), groups, new HashSet<>());
 
     return target;
   }
@@ -195,7 +195,7 @@ public abstract class DefaultPermissionManagement implements IPermissionManageme
     for (PermissionGroup permissionGroup : groups) {
       if (permissionGroup != null && travelledGroups.add(permissionGroup.getName())) {
         this.collectPermissionsInto(target, permissionGroup, taskGroups);
-        this.collectAllGroupPermissionsInto(target, this.getGroups(permissionGroup), taskGroups, travelledGroups);
+        this.collectAllGroupPermissionsInto(target, this.getGroupsOf(permissionGroup), taskGroups, travelledGroups);
       }
     }
   }
@@ -221,7 +221,7 @@ public abstract class DefaultPermissionManagement implements IPermissionManageme
     if (group != null && permissible.getGroupPermissions().containsKey(group)) {
       permissions.addAll(permissible.getGroupPermissions().get(group));
     }
-    for (PermissionGroup permissionGroup : this.getGroups(permissible)) {
+    for (PermissionGroup permissionGroup : this.getGroupsOf(permissible)) {
       permissions.addAll(this.getAllPermissions(permissionGroup, group));
     }
     return permissions;

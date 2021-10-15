@@ -126,7 +126,7 @@ public interface IPermissionManagement {
    * @return the extended groups of the given {@code permissible}.
    */
   @NotNull
-  Collection<PermissionGroup> getGroups(@Nullable IPermissible permissible);
+  Collection<PermissionGroup> getGroupsOf(@Nullable IPermissible permissible);
 
   /**
    * Checks if the given {@code permissible} has the given {@code permission}.
@@ -460,8 +460,8 @@ public interface IPermissionManagement {
    * @param permissionUser the user to get the groups of
    * @return a collection of all group objects the user is in
    */
-  default @NotNull ITask<Collection<PermissionGroup>> getGroupsAsync(@Nullable PermissionUser permissionUser) {
-    return CompletableTask.supplyAsync(() -> this.getGroups(permissionUser));
+  default @NotNull ITask<Collection<PermissionGroup>> getGroupsOfAsync(@Nullable PermissionUser permissionUser) {
+    return CompletableTask.supplyAsync(() -> this.getGroupsOf(permissionUser));
   }
 
   /**

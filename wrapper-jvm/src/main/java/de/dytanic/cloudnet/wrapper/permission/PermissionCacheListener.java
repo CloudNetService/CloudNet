@@ -29,7 +29,7 @@ import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.NotNull;
 
 @Internal
-final class PermissionCacheListener {
+public final class PermissionCacheListener {
 
   private final WrapperPermissionManagement permissionManagement;
 
