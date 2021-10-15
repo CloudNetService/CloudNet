@@ -170,9 +170,9 @@ public class CommandGroups {
   public void addJvmOption(
     CommandSource source,
     @Argument("name") GroupConfiguration group,
-    @Argument(value = "options", parserName = "greedyParameter") Queue<String> jvmOptions
+    @Greedy @Argument("options") String jvmOptions
   ) {
-    for (String jvmOption : jvmOptions) {
+    for (String jvmOption : jvmOptions.split(" ")) {
       group.getJvmOptions().add(jvmOption);
     }
     this.updateGroup(group);
@@ -182,9 +182,9 @@ public class CommandGroups {
   public void addProcessParameter(
     CommandSource source,
     @Argument("name") GroupConfiguration group,
-    @Greedy @Argument(value = "options", parserName = "greedyParameter") Queue<String> processParameters
+    @Greedy @Argument("options") String processParameters
   ) {
-    for (String processParameter : processParameters) {
+    for (String processParameter : processParameters.split(" ")) {
       group.getProcessParameters().add(processParameter);
     }
     this.updateGroup(group);
@@ -229,9 +229,9 @@ public class CommandGroups {
   public void removeJvmOption(
     CommandSource source,
     @Argument("name") GroupConfiguration group,
-    @Greedy @Argument(value = "options", parserName = "greedyParameter") Queue<String> jvmOptions
+    @Greedy @Argument(value = "options") String jvmOptions
   ) {
-    for (String jvmOption : jvmOptions) {
+    for (String jvmOption : jvmOptions.split(" ")) {
       group.getJvmOptions().remove(jvmOption);
     }
     this.updateGroup(group);
@@ -241,9 +241,9 @@ public class CommandGroups {
   public void removeProcessParameter(
     CommandSource source,
     @Argument("name") GroupConfiguration group,
-    @Greedy @Argument(value = "options", parserName = "greedyParameter") Queue<String> processParameters
+    @Greedy @Argument("options") String processParameters
   ) {
-    for (String processParameter : processParameters) {
+    for (String processParameter : processParameters.split(" ")) {
       group.getProcessParameters().remove(processParameter);
     }
     this.updateGroup(group);

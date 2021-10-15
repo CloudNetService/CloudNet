@@ -320,9 +320,9 @@ public class CommandTasks {
   public void addJvmOption(
     CommandSource source,
     @Argument("name") ServiceTask serviceTask,
-    @Argument(value = "options", parserName = "greedyParameter") Queue<String> jvmOptions
+    @Greedy @Argument("options") String jvmOptions
   ) {
-    for (String jvmOption : jvmOptions) {
+    for (String jvmOption : jvmOptions.split(" ")) {
       serviceTask.getJvmOptions().add(jvmOption);
     }
     this.updateTask(serviceTask);
@@ -332,9 +332,9 @@ public class CommandTasks {
   public void addProcessParameter(
     CommandSource source,
     @Argument("name") ServiceTask serviceTask,
-    @Greedy @Argument(value = "options", parserName = "greedyParameter") Queue<String> processParameters
+    @Greedy @Argument("options") String processParameters
   ) {
-    for (String processParameter : processParameters) {
+    for (String processParameter : processParameters.split(" ")) {
       serviceTask.getProcessParameters().add(processParameter);
     }
     this.updateTask(serviceTask);
@@ -376,9 +376,9 @@ public class CommandTasks {
   public void removeJvmOption(
     CommandSource source,
     @Argument("name") ServiceTask serviceTask,
-    @Greedy @Argument(value = "options", parserName = "greedyParameter") Queue<String> jvmOptions
+    @Greedy @Argument("options") String jvmOptions
   ) {
-    for (String jvmOption : jvmOptions) {
+    for (String jvmOption : jvmOptions.split(" ")) {
       serviceTask.getJvmOptions().remove(jvmOption);
     }
     this.updateTask(serviceTask);
@@ -388,9 +388,9 @@ public class CommandTasks {
   public void removeProcessParameter(
     CommandSource source,
     @Argument("name") ServiceTask serviceTask,
-    @Greedy @Argument(value = "options", parserName = "greedyParameter") Queue<String> processParameters
+    @Greedy @Argument("options") String processParameters
   ) {
-    for (String processParameter : processParameters) {
+    for (String processParameter : processParameters.split(" ")) {
       serviceTask.getProcessParameters().remove(processParameter);
     }
     this.updateTask(serviceTask);
