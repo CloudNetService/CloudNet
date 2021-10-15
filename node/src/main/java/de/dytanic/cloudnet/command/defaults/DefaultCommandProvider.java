@@ -33,6 +33,7 @@ import de.dytanic.cloudnet.command.sub.CommandCreate;
 import de.dytanic.cloudnet.command.sub.CommandDebug;
 import de.dytanic.cloudnet.command.sub.CommandExit;
 import de.dytanic.cloudnet.command.sub.CommandGroups;
+import de.dytanic.cloudnet.command.sub.CommandHelp;
 import de.dytanic.cloudnet.command.sub.CommandMe;
 import de.dytanic.cloudnet.command.sub.CommandMigrate;
 import de.dytanic.cloudnet.command.sub.CommandPermissions;
@@ -70,14 +71,14 @@ public class DefaultCommandProvider implements CommandProvider {
     this.annotationParser = new AnnotationParser<>(this.commandManager, CommandSource.class,
       parameters -> SimpleCommandMeta.empty());
     this.registeredCommands = new ArrayList<>();
+    // handle our @CommandAlias annotation and apply the found aliases
+    this.annotationParser.registerBuilderModifier(CommandAlias.class,
+      (alias, builder) -> builder.meta(ALIAS_KEY, Arrays.asList(alias.value())));
     // register pre- and post-processor to call our events
     this.commandManager.registerCommandPreProcessor(new DefaultCommandPreProcessor());
     this.commandManager.registerCommandPostProcessor(new DefaultCommandPostProcessor());
     // register the command confirmation handling
     this.registerCommandConfirmation();
-    // handle our @CommandAlias annotation and apply the found aliases
-    this.annotationParser.registerBuilderModifier(CommandAlias.class,
-      (alias, builder) -> builder.meta(ALIAS_KEY, Arrays.asList(alias.value())));
     this.exceptionHandler = new CommandExceptionHandler();
   }
 
@@ -140,6 +141,7 @@ public class DefaultCommandProvider implements CommandProvider {
     this.register(new CommandDebug());
     this.register(new CommandCopy());
     this.register(new CommandMigrate());
+    this.register(new CommandHelp(this));
   }
 
   @Override

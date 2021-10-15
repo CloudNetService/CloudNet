@@ -14,13 +14,9 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.command.sub;
+package de.dytanic.cloudnet.console.util;
 
-import cloud.commandframework.annotations.CommandPermission;
-import de.dytanic.cloudnet.command.annotation.CommandAlias;
+public class ConsoleFormatter {
 
-@CommandAlias("scr")
-@CommandPermission("cloudnet.command.screen")
-public class CommandScreen {
 
 }

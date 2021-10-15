@@ -53,8 +53,8 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.jetbrains.annotations.Nullable;
 
-@CommandPermission("cloudnet.command.service")
 @CommandAlias("ser")
+@CommandPermission("cloudnet.command.service")
 public class CommandService {
 
   public static final Pattern SERVICE_NAME_PATTERN = Pattern.compile("([\\w+-]+)-(\\d+)");

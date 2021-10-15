@@ -22,10 +22,10 @@ import cloud.commandframework.annotations.CommandPermission;
 import de.dytanic.cloudnet.CloudNet;
 
 @CommandPermission("cloudnet.command.clear")
+@CommandDescription("Clears the entire console of the node to get a better overview")
 public class CommandClear {
 
   @CommandMethod("clear")
-  @CommandDescription("Clears the entire console of the node to get a better overview")
   public void clearConsole() {
     CloudNet.getInstance().getConsole().clearScreen();
   }

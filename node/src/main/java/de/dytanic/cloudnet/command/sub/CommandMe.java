@@ -29,12 +29,12 @@ import java.lang.management.MemoryMXBean;
 import java.util.Arrays;
 import java.util.List;
 
-@CommandPermission("cloudnet.command.me")
 @CommandAlias("info")
+@CommandPermission("cloudnet.command.me")
+@CommandDescription("Displays all important information about this process and the JVM")
 public class CommandMe {
 
   //TODO klaro du willst hier komische java sachen anzeigen
-  @CommandDescription("Displays all important information about this process and the JVM")
   @CommandMethod("me|info")
   public void me(CommandSource commandSource) {
     CloudNet cloudNet = CloudNet.getInstance();

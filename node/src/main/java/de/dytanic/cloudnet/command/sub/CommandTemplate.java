@@ -49,9 +49,9 @@ import java.util.Queue;
 import java.util.stream.Collectors;
 import java.util.zip.ZipInputStream;
 
-@CommandDescription("Manages the templates and allows installation of .jar files")
-@CommandPermission("cloudnet.command.templates")
 @CommandAlias("t")
+@CommandPermission("cloudnet.command.templates")
+@CommandDescription("Manages the templates and allows installation of .jar files")
 public class CommandTemplate {
 
   @Parser(suggestions = "serviceTemplate")

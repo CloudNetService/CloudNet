@@ -32,7 +32,6 @@ import java.util.Objects;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-// TODO: re-add command stuff
 public class NodeNodeInfoProvider implements NodeInfoProvider {
 
   private final IClusterNodeServerProvider clusterNodeServerProvider;
@@ -42,7 +41,7 @@ public class NodeNodeInfoProvider implements NodeInfoProvider {
   }
 
   @Override
-  public Collection<CommandInfo> getConsoleCommands() {
+  public @NotNull Collection<CommandInfo> getConsoleCommands() {
     return CloudNet.getInstance().getCommandProvider().getCommands();
   }
 

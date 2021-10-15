@@ -50,8 +50,8 @@ import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-@CommandPermission("cloudnet.command.permissions")
 @CommandAlias("perms")
+@CommandPermission("cloudnet.command.permissions")
 public class CommandPermissions {
 
   private static final DateFormat DATE_FORMAT = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
