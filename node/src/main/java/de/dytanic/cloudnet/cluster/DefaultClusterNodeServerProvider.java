@@ -25,6 +25,7 @@ import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
+import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import de.dytanic.cloudnet.driver.network.chunk.ChunkedPacketSender;
 import de.dytanic.cloudnet.driver.network.chunk.TransferStatus;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkCluster;
@@ -142,7 +143,8 @@ public final class DefaultClusterNodeServerProvider extends DefaultNodeServerPro
         // send the template chunked to the cluster
         // todo: should we set the transfer "mode" here?
         return ChunkedPacketSender.forFileTransfer()
-          .withExtraData(deploymentData)
+          .transferChannel("deploy_service_template")
+          .withExtraData(DataBuf.empty().writeObject(template).writeBoolean(true))
           .toChannels(channels)
           .source(stream)
           .build()
