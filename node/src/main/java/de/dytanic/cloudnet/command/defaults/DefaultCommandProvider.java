@@ -19,18 +19,12 @@ package de.dytanic.cloudnet.command.defaults;
 import cloud.commandframework.Command;
 import cloud.commandframework.CommandManager;
 import cloud.commandframework.annotations.AnnotationParser;
-import cloud.commandframework.exceptions.ArgumentParseException;
-import cloud.commandframework.exceptions.InvalidCommandSenderException;
-import cloud.commandframework.exceptions.InvalidSyntaxException;
-import cloud.commandframework.exceptions.NoPermissionException;
-import cloud.commandframework.exceptions.NoSuchCommandException;
 import cloud.commandframework.extra.confirmation.CommandConfirmationManager;
 import cloud.commandframework.meta.CommandMeta;
 import cloud.commandframework.meta.CommandMeta.Key;
 import cloud.commandframework.meta.SimpleCommandMeta;
 import de.dytanic.cloudnet.command.CommandProvider;
 import de.dytanic.cloudnet.command.annotation.CommandAlias;
-import de.dytanic.cloudnet.command.exception.ArgumentNotAvailableException;
 import de.dytanic.cloudnet.command.exception.CommandExceptionHandler;
 import de.dytanic.cloudnet.command.source.CommandSource;
 import de.dytanic.cloudnet.command.sub.CommandClear;
@@ -45,8 +39,7 @@ import de.dytanic.cloudnet.command.sub.CommandPermissions;
 import de.dytanic.cloudnet.command.sub.CommandService;
 import de.dytanic.cloudnet.command.sub.CommandTasks;
 import de.dytanic.cloudnet.command.sub.CommandTemplate;
-import de.dytanic.cloudnet.common.log.LogManager;
-import de.dytanic.cloudnet.common.log.Logger;
+import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.console.IConsole;
 import de.dytanic.cloudnet.driver.command.CommandInfo;
 import io.leangen.geantyref.TypeToken;
@@ -64,13 +57,11 @@ import org.jetbrains.annotations.Nullable;
 
 public class DefaultCommandProvider implements CommandProvider {
 
-  private static final Logger LOGGER = LogManager.getLogger(DefaultCommandProvider.class);
   private static final Key<Collection<String>> ALIAS_KEY = Key.of(new TypeToken<Collection<String>>() {
   }, "alias");
 
   private final CommandManager<CommandSource> commandManager;
   private final AnnotationParser<CommandSource> annotationParser;
-  private final CommandConfirmationManager<CommandSource> confirmationManager;
   private final Collection<CommandInfo> registeredCommands;
   private final CommandExceptionHandler exceptionHandler;
 
@@ -78,28 +69,16 @@ public class DefaultCommandProvider implements CommandProvider {
     this.commandManager = new DefaultCommandManager();
     this.annotationParser = new AnnotationParser<>(this.commandManager, CommandSource.class,
       parameters -> SimpleCommandMeta.empty());
-
     this.registeredCommands = new ArrayList<>();
-    //TODO: maybe this should be moved too
+    // register pre- and post-processor to call our events
     this.commandManager.registerCommandPreProcessor(new DefaultCommandPreProcessor());
     this.commandManager.registerCommandPostProcessor(new DefaultCommandPostProcessor());
-
+    // register the command confirmation handling
+    this.registerCommandConfirmation();
+    // handle our @CommandAlias annotation and apply the found aliases
     this.annotationParser.registerBuilderModifier(CommandAlias.class,
       (alias, builder) -> builder.meta(ALIAS_KEY, Arrays.asList(alias.value())));
-
-    this.confirmationManager = new CommandConfirmationManager<>(
-      30L,
-      TimeUnit.SECONDS,
-      context -> context.getCommandContext().getSender().sendMessage("Confirmation required."),
-      //TODO: message configurable
-      sender -> sender.sendMessage("No requests.")  //TODO: message configurable
-    );
-    this.confirmationManager.registerConfirmationProcessor(this.commandManager);
-    this.commandManager.command(this.commandManager.commandBuilder("confirm")
-      .handler(this.confirmationManager.createConfirmationExecutionHandler()));
-
     this.exceptionHandler = new CommandExceptionHandler();
-
   }
 
   @Override
@@ -113,46 +92,23 @@ public class DefaultCommandProvider implements CommandProvider {
       //join the future to handle the occurring exceptions
       this.commandManager.executeCommand(source, input).join();
     } catch (CompletionException exception) {
-      Throwable cause = exception.getCause();
-
-      // cloud wraps the exception in the cause, if no cause is found we can't handle the exception
-      if (cause == null) {
-        return;
-      }
-
-      // determine the exception type and apply the specific handler
-      if (cause instanceof InvalidSyntaxException) {
-        this.exceptionHandler.handleInvalidSyntaxException(source, (InvalidSyntaxException) cause);
-      } else if (cause instanceof NoPermissionException) {
-        this.exceptionHandler.handleNoPermissionException(source, (NoPermissionException) cause);
-      } else if (cause instanceof NoSuchCommandException) {
-        this.exceptionHandler.handleNoSuchCommandException(source, (NoSuchCommandException) cause);
-      } else if (cause instanceof InvalidCommandSenderException) {
-        this.exceptionHandler.handleInvalidCommandSourceException(source, (InvalidCommandSenderException) cause);
-      } else if (cause instanceof ArgumentParseException) {
-        Throwable deepCause = cause.getCause();
-        if (deepCause instanceof ArgumentNotAvailableException) {
-          this.exceptionHandler.handleArgumentNotAvailableException(source, (ArgumentNotAvailableException) deepCause);
-        } else {
-          this.exceptionHandler.handleArgumentParseException(source, (ArgumentParseException) cause);
-        }
-      } else {
-        LOGGER.severe("Exception during command execution", exception.getCause());
-      }
+      this.exceptionHandler.handleCompletionException(source, exception);
     }
   }
 
   @Override
   public void register(@NotNull Object command) {
     Iterator<Command<CommandSource>> cloudCommands = this.annotationParser.parse(command).iterator();
+    // just get the first command of the object as we don't want to register each method
     if (cloudCommands.hasNext()) {
       Command<CommandSource> parsedCommand = cloudCommands.next();
-      String permission = parsedCommand.getCommandPermission()
-        .toString();
+      String permission = parsedCommand.getCommandPermission().toString();
       String description = parsedCommand.getCommandMeta().get(CommandMeta.DESCRIPTION)
         .orElse("No description provided");
 
+      // retrieve the aliases processed by the @CommandAlias annotation
       Collection<String> aliases = parsedCommand.getCommandMeta().getOrDefault(ALIAS_KEY, Collections.emptyList());
+      // get the name by using the first argument of the command
       String name = parsedCommand.getArguments().get(0).getName();
 
       this.registeredCommands.add(new CommandInfo(name, aliases, permission, description, "")); //TODO: usage
@@ -190,8 +146,8 @@ public class DefaultCommandProvider implements CommandProvider {
   public @Nullable CommandInfo getCommand(@NotNull String input) {
     String lowerCaseInput = input.toLowerCase();
     return this.registeredCommands.stream()
-      .filter(commandInfo -> commandInfo.getAliases().contains(input.toLowerCase())
-        || commandInfo.getName().equals(lowerCaseInput))
+      .filter(commandInfo -> commandInfo.getAliases().contains(lowerCaseInput) || commandInfo.getName()
+        .equals(lowerCaseInput))
       .findFirst()
       .orElse(null);
   }
@@ -201,5 +157,19 @@ public class DefaultCommandProvider implements CommandProvider {
     return Collections.unmodifiableCollection(this.registeredCommands);
   }
 
-
+  private void registerCommandConfirmation() {
+    // create a new confirmation manager
+    CommandConfirmationManager<CommandSource> confirmationManager = new CommandConfirmationManager<>(
+      30L,
+      TimeUnit.SECONDS,
+      context -> context.getCommandContext().getSender()
+        .sendMessage(LanguageManager.getMessage("command-confirmation-required")),
+      sender -> sender.sendMessage(LanguageManager.getMessage("command-confirmation-no-requests"))
+    );
+    // register the confirmation manager to the command manager
+    confirmationManager.registerConfirmationProcessor(this.commandManager);
+    // register the command that is used for confirmations
+    this.commandManager.command(this.commandManager.commandBuilder("confirm")
+      .handler(confirmationManager.createConfirmationExecutionHandler()));
+  }
 }

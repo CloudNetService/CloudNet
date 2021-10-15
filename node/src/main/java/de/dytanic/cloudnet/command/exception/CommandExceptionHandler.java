@@ -25,10 +25,42 @@ import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.command.source.CommandSource;
 import de.dytanic.cloudnet.command.source.ConsoleCommandSource;
 import de.dytanic.cloudnet.common.language.LanguageManager;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.event.command.CommandInvalidSyntaxEvent;
 import de.dytanic.cloudnet.event.command.CommandNotFoundEvent;
+import java.util.concurrent.CompletionException;
 
 public class CommandExceptionHandler {
+
+  private static final Logger LOGGER = LogManager.getLogger(CommandExceptionHandler.class);
+
+  public void handleCompletionException(CommandSource source, CompletionException exception) {
+    Throwable cause = exception.getCause();
+    // cloud wraps the exception in the cause, if no cause is found we can't handle the exception
+    if (cause == null) {
+      return;
+    }
+    // determine the exception type and apply the specific handler
+    if (cause instanceof InvalidSyntaxException) {
+      this.handleInvalidSyntaxException(source, (InvalidSyntaxException) cause);
+    } else if (cause instanceof NoPermissionException) {
+      this.handleNoPermissionException(source, (NoPermissionException) cause);
+    } else if (cause instanceof NoSuchCommandException) {
+      this.handleNoSuchCommandException(source, (NoSuchCommandException) cause);
+    } else if (cause instanceof InvalidCommandSenderException) {
+      this.handleInvalidCommandSourceException(source, (InvalidCommandSenderException) cause);
+    } else if (cause instanceof ArgumentParseException) {
+      Throwable deepCause = cause.getCause();
+      if (deepCause instanceof ArgumentNotAvailableException) {
+        this.handleArgumentNotAvailableException(source, (ArgumentNotAvailableException) deepCause);
+      } else {
+        this.handleArgumentParseException(source, (ArgumentParseException) cause);
+      }
+    } else {
+      LOGGER.severe("Exception during command execution", exception.getCause());
+    }
+  }
 
   public void handleArgumentParseException(CommandSource source, ArgumentParseException exception) {
     source.sendMessage(exception.getMessage());
@@ -72,5 +104,4 @@ public class CommandExceptionHandler {
       source.sendMessage(LanguageManager.getMessage("command-driver-only"));
     }
   }
-
 }

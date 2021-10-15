@@ -27,6 +27,7 @@ import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
 import de.dytanic.cloudnet.driver.provider.NodeInfoProvider;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Objects;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -93,7 +94,7 @@ public class NodeNodeInfoProvider implements NodeInfoProvider {
   }
 
   @Override
-  public Collection<String> sendCommandLine(@NotNull String commandLine) {
+  public @NotNull Collection<String> sendCommandLine(@NotNull String commandLine) {
     Preconditions.checkNotNull(commandLine);
 
     DriverCommandSource driverCommandSource = new DriverCommandSource();
@@ -102,9 +103,8 @@ public class NodeNodeInfoProvider implements NodeInfoProvider {
   }
 
   @Override
-  public Collection<String> sendCommandLine(@NotNull String nodeUniqueId, @NotNull String commandLine) {
+  public @NotNull Collection<String> sendCommandLine(@NotNull String nodeUniqueId, @NotNull String commandLine) {
     Preconditions.checkNotNull(nodeUniqueId);
-    Preconditions.checkNotNull(commandLine);
     // check if we should execute the command on the current node
     if (nodeUniqueId.equals(this.clusterNodeServerProvider.getSelfNode().getNodeInfo().getUniqueId())) {
       return this.sendCommandLine(commandLine);
@@ -115,7 +115,7 @@ public class NodeNodeInfoProvider implements NodeInfoProvider {
       return clusterNodeServer.sendCommandLine(commandLine);
     }
     // unable to execute the command
-    return null;
+    return Collections.emptyList();
   }
 
   @Nullable
@@ -125,7 +125,7 @@ public class NodeNodeInfoProvider implements NodeInfoProvider {
   }
 
   @Override
-  public Collection<String> getConsoleTabCompleteResults(@NotNull String commandLine) {
+  public @NotNull Collection<String> getConsoleTabCompleteResults(@NotNull String commandLine) {
     return CloudNet.getInstance().getCommandProvider().suggest(CommandSource.console(), commandLine);
   }
 }
