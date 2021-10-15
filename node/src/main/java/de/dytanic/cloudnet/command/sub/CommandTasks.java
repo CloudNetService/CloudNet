@@ -255,7 +255,7 @@ public class CommandTasks {
   public void addGroup(
     CommandSource source,
     @Argument("name") ServiceTask task,
-    @Argument(value = "group") GroupConfiguration group
+    @Argument("group") GroupConfiguration group
   ) {
     if (task.getGroups().contains(group.getName())) {
       return;

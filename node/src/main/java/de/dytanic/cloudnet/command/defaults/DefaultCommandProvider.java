@@ -83,7 +83,6 @@ public class DefaultCommandProvider implements CommandProvider {
       sender -> sender.sendMessage("No requests.")  //TODO: message configurable
     );
     this.confirmationManager.registerConfirmationProcessor(this.commandManager);
-
     this.commandManager.command(this.commandManager.commandBuilder("confirm")
       .handler(this.confirmationManager.createConfirmationExecutionHandler()));
 
