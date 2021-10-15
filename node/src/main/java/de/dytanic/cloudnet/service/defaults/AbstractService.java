@@ -155,14 +155,18 @@ public abstract class AbstractService implements ICloudService {
 
   @Override
   public @Nullable ServiceInfoSnapshot forceUpdateServiceInfo() {
-    return ChannelMessage.builder()
-      .targetService(this.getServiceId().getName())
-      .message("request_update_service_information")
-      .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
-      .build()
-      .sendSingleQuery()
-      .getContent()
-      .readObject(ServiceInfoSnapshot.class);
+    // check if the service is able to serve the request
+    if (this.networkChannel != null) {
+      ChannelMessage response = ChannelMessage.builder()
+        .targetService(this.getServiceId().getName())
+        .message("request_update_service_information")
+        .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
+        .build()
+        .sendSingleQuery();
+      return response == null ? null : response.getContent().readObject(ServiceInfoSnapshot.class);
+    } else {
+      return null;
+    }
   }
 
   @Override
