@@ -51,7 +51,7 @@ public abstract class AbstractServiceFactory implements ICloudServiceFactory {
       serviceId = 1;
     }
     // check if it is already taken
-    Collection<Integer> takenIds = manager.getCloudServices(configuration.getServiceId().getTaskName())
+    Collection<Integer> takenIds = manager.getCloudServicesByTask(configuration.getServiceId().getTaskName())
       .stream()
       .map(service -> service.getServiceId().getTaskServiceId())
       .collect(Collectors.toSet());

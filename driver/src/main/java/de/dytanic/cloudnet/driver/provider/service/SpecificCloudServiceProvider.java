@@ -18,6 +18,7 @@ package de.dytanic.cloudnet.driver.provider.service;
 
 import de.dytanic.cloudnet.common.concurrent.CompletableTask;
 import de.dytanic.cloudnet.common.concurrent.ITask;
+import de.dytanic.cloudnet.driver.network.rpc.annotation.RPCValidation;
 import de.dytanic.cloudnet.driver.service.ServiceDeployment;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
@@ -30,6 +31,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * This class provides access to a specific service in the cluster.
  */
+@RPCValidation
 public interface SpecificCloudServiceProvider {
 
   /**
@@ -75,7 +77,7 @@ public interface SpecificCloudServiceProvider {
   void addServiceRemoteInclusion(@NotNull ServiceRemoteInclusion serviceRemoteInclusion);
 
   /**
-   * Adds a deployment to this service, which will be used when {@link #deployResources()} or {@link
+   * Adds a deployment to this service, which will be used when {@link #removeAndExecuteDeployments()} or {@link
    * #deployResources(boolean)} is called.
    *
    * @param serviceDeployment the deployment to be added to the list of deployments of this service
@@ -161,7 +163,7 @@ public interface SpecificCloudServiceProvider {
    * @see #addServiceDeployment(ServiceDeployment)
    * @see #addServiceDeploymentAsync(ServiceDeployment)
    */
-  default void deployResources() {
+  default void removeAndExecuteDeployments() {
     this.deployResources(true);
   }
 
@@ -216,7 +218,7 @@ public interface SpecificCloudServiceProvider {
   }
 
   /**
-   * Adds a deployment to this service, which will be used when {@link #deployResources()} or {@link
+   * Adds a deployment to this service, which will be used when {@link #removeAndExecuteDeployments()} or {@link
    * #deployResources(boolean)} is called
    *
    * @param serviceDeployment the deployment to be added to the list of deployments of this service
@@ -321,7 +323,7 @@ public interface SpecificCloudServiceProvider {
    * @see #addServiceDeployment(ServiceDeployment)
    * @see #addServiceDeploymentAsync(ServiceDeployment)
    */
-  default @NotNull ITask<Void> deployResourcesAsync() {
+  default @NotNull ITask<Void> executeAndRemoveDeploymentsAsync() {
     return this.deployResourcesAsync(true);
   }
 }

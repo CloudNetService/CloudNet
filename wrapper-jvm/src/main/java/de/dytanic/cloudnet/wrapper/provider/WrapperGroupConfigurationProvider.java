@@ -65,12 +65,12 @@ public class WrapperGroupConfigurationProvider implements GroupConfigurationProv
   }
 
   @Override
-  public void removeGroupConfiguration(@NotNull String name) {
-    this.rpcSender.invokeMethod("removeGroupConfiguration", name).fireAndForget();
+  public void removeGroupConfigurationByName(@NotNull String name) {
+    this.rpcSender.invokeMethod("removeGroupConfigurationByName", name).fireAndForget();
   }
 
   @Override
   public void removeGroupConfiguration(@NotNull GroupConfiguration groupConfiguration) {
-    this.removeGroupConfiguration(groupConfiguration.getName());
+    this.removeGroupConfigurationByName(groupConfiguration.getName());
   }
 }

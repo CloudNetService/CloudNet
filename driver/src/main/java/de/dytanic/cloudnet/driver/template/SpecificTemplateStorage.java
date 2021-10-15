@@ -69,12 +69,12 @@ public interface SpecificTemplateStorage extends INameable {
   TemplateStorage getWrappedStorage();
 
   /**
-   * @see TemplateStorage#deploy(Path, ServiceTemplate, Predicate)
+   * @see TemplateStorage#deployDirectory(Path, ServiceTemplate, Predicate)
    */
   boolean deploy(@NotNull Path directory, @Nullable Predicate<Path> fileFilter);
 
   /**
-   * @see TemplateStorage#deploy(Path, ServiceTemplate)
+   * @see TemplateStorage#deployDirectory(Path, ServiceTemplate)
    */
   default boolean deploy(@NotNull Path directory) {
     return this.deploy(directory, null);
@@ -192,13 +192,13 @@ public interface SpecificTemplateStorage extends INameable {
   }
 
   /**
-   * @see TemplateStorage#deployAsync(Path, ServiceTemplate, Predicate)
+   * @see TemplateStorage#deployDirectoryAsync(Path, ServiceTemplate, Predicate)
    */
   @NotNull
   ITask<Boolean> deployAsync(@NotNull Path directory, @Nullable Predicate<Path> fileFilter);
 
   /**
-   * @see TemplateStorage#deployAsync(Path, ServiceTemplate)
+   * @see TemplateStorage#deployDirectoryAsync(Path, ServiceTemplate)
    */
   @NotNull
   default ITask<Boolean> deployAsync(@NotNull Path directory) {

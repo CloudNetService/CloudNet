@@ -21,6 +21,7 @@ import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.driver.command.CommandInfo;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
+import de.dytanic.cloudnet.driver.network.rpc.annotation.RPCValidation;
 import java.util.Collection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -28,6 +29,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * This interface provides access to the cluster
  */
+@RPCValidation
 public interface NodeInfoProvider {
 
   /**
@@ -65,7 +67,7 @@ public interface NodeInfoProvider {
    * @param commandLine the commandLine to be sent
    * @return the response of the node
    */
-  @NotNull Collection<String> sendCommandLine(@NotNull String nodeUniqueId, @NotNull String commandLine);
+  @NotNull Collection<String> sendCommandLineToNode(@NotNull String nodeUniqueId, @NotNull String commandLine);
 
   /**
    * @return all nodes from the config of the node where the method is called on
@@ -131,12 +133,12 @@ public interface NodeInfoProvider {
   /**
    * Sends the given commandLine to a specific node in the cluster, executes the commandLine and returns the response
    *
-   * @param commandLine the commandLine to be sent
+   * @param line the commandLine to be sent
    * @return the response of the node
    */
   @NotNull
-  default ITask<Collection<String>> sendCommandLineAsync(@NotNull String nodeUniqueId, @NotNull String commandLine) {
-    return CompletableTask.supplyAsync(() -> this.sendCommandLine(nodeUniqueId, commandLine));
+  default ITask<Collection<String>> sendCommandLineToNodeAsync(@NotNull String nodeUniqueId, @NotNull String line) {
+    return CompletableTask.supplyAsync(() -> this.sendCommandLineToNode(nodeUniqueId, line));
   }
 
   /**

@@ -19,6 +19,7 @@ package de.dytanic.cloudnet.driver.template;
 import de.dytanic.cloudnet.common.INameable;
 import de.dytanic.cloudnet.common.concurrent.CompletableTask;
 import de.dytanic.cloudnet.common.concurrent.ITask;
+import de.dytanic.cloudnet.driver.network.rpc.annotation.RPCValidation;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,6 +31,7 @@ import java.util.zip.ZipInputStream;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+@RPCValidation("deployDirectory.*")
 public interface TemplateStorage extends AutoCloseable, INameable {
 
   /**
@@ -41,7 +43,7 @@ public interface TemplateStorage extends AutoCloseable, INameable {
    * @param fileFilter the filter for files that should be deployed
    * @return whether it was copied successfully
    */
-  boolean deploy(@NotNull Path directory, @NotNull ServiceTemplate target, @Nullable Predicate<Path> fileFilter);
+  boolean deployDirectory(@NotNull Path directory, @NotNull ServiceTemplate target, @Nullable Predicate<Path> fileFilter);
 
   /**
    * Copies the given directory into the given template.
@@ -50,8 +52,8 @@ public interface TemplateStorage extends AutoCloseable, INameable {
    * @param target    the template to be deployed to
    * @return whether it was copied successfully
    */
-  default boolean deploy(@NotNull Path directory, @NotNull ServiceTemplate target) {
-    return this.deploy(directory, target, null);
+  default boolean deployDirectory(@NotNull Path directory, @NotNull ServiceTemplate target) {
+    return this.deployDirectory(directory, target, null);
   }
 
   /**
@@ -220,48 +222,6 @@ public interface TemplateStorage extends AutoCloseable, INameable {
    */
   @Nullable
   FileInfo[] listFiles(@NotNull ServiceTemplate template, @NotNull String dir, boolean deep) throws IOException;
-
-  /**
-   * Lists all files in the root directory of the template.
-   *
-   * @param template the template where the target file is located at
-   * @param deep     whether the contents of sub directories should also be discovered
-   * @return a list of all files in the given directory or {@code null} if the given directory doesn't exist/is not a
-   * directory
-   * @throws IOException if an I/O error occurred
-   */
-  @Nullable
-  default FileInfo[] listFiles(@NotNull ServiceTemplate template, boolean deep) throws IOException {
-    return this.listFiles(template, "", deep);
-  }
-
-  /**
-   * Lists all files in the given directory (including sub directories).
-   *
-   * @param template the template where the target file is located at
-   * @param dir      the directory
-   * @return a list of all files in the given directory or {@code null} if the given directory doesn't exist/is not a
-   * directory
-   * @throws IOException if an I/O error occurred
-   */
-  @Nullable
-  default FileInfo[] listFiles(@NotNull ServiceTemplate template, @NotNull String dir) throws IOException {
-    return this.listFiles(template, dir, true);
-  }
-
-  /**
-   * Lists all files in the root directory of the template (including sub directories).
-   *
-   * @param template the template where the target file is located at
-   * @return a list of all files in the given directory or {@code null} if the given directory doesn't exist/is not a
-   * directory
-   * @throws IOException if an I/O error occurred
-   */
-  @Nullable
-  default FileInfo[] listFiles(@NotNull ServiceTemplate template) throws IOException {
-    return this.listFiles(template, true);
-  }
-
   /**
    * Gets a list of all templates that exist in this storage. Modifications to the collection won't have any effect.
    *
@@ -289,12 +249,12 @@ public interface TemplateStorage extends AutoCloseable, INameable {
    * @return whether it was copied successfully
    */
   @NotNull
-  default ITask<Boolean> deployAsync(
+  default ITask<Boolean> deployDirectoryAsync(
     @NotNull Path directory,
     @NotNull ServiceTemplate target,
     @Nullable Predicate<Path> fileFilter
   ) {
-    return CompletableTask.supplyAsync(() -> this.deploy(directory, target, fileFilter));
+    return CompletableTask.supplyAsync(() -> this.deployDirectory(directory, target, fileFilter));
   }
 
   /**
@@ -305,8 +265,8 @@ public interface TemplateStorage extends AutoCloseable, INameable {
    * @return whether it was copied successfully
    */
   @NotNull
-  default ITask<Boolean> deployAsync(@NotNull Path directory, @NotNull ServiceTemplate target) {
-    return this.deployAsync(directory, target, null);
+  default ITask<Boolean> deployDirectoryAsync(@NotNull Path directory, @NotNull ServiceTemplate target) {
+    return this.deployDirectoryAsync(directory, target, null);
   }
 
   /**
@@ -502,44 +462,6 @@ public interface TemplateStorage extends AutoCloseable, INameable {
   @NotNull
   default ITask<FileInfo[]> listFilesAsync(@NotNull ServiceTemplate template, @NotNull String dir, boolean deep) {
     return CompletableTask.supplyAsync(() -> this.listFiles(template, dir, deep));
-  }
-
-  /**
-   * Lists all files in the root directory of the template.
-   *
-   * @param template the template where the target file is located at
-   * @param deep     whether the contents of sub directories should also be discovered
-   * @return a list of all files in the given directory or {@code null} if the given directory doesn't exist/is not a
-   * directory
-   */
-  @NotNull
-  default ITask<FileInfo[]> listFilesAsync(@NotNull ServiceTemplate template, boolean deep) {
-    return this.listFilesAsync(template, "", deep);
-  }
-
-  /**
-   * Lists all files in the given directory (including sub directories).
-   *
-   * @param template the template where the target file is located at
-   * @param dir      the directory
-   * @return a list of all files in the given directory or {@code null} if the given directory doesn't exist/is not a
-   * directory
-   */
-  @NotNull
-  default ITask<FileInfo[]> listFilesAsync(@NotNull ServiceTemplate template, @NotNull String dir) {
-    return this.listFilesAsync(template, dir, true);
-  }
-
-  /**
-   * Lists all files in the root directory of the template (including sub directories).
-   *
-   * @param template the template where the target file is located at
-   * @return a list of all files in the given directory or {@code null} if the given directory doesn't exist/is not a
-   * directory
-   */
-  @NotNull
-  default ITask<FileInfo[]> listFilesAsync(@NotNull ServiceTemplate template) {
-    return this.listFilesAsync(template, true);
   }
 
   /**

@@ -106,7 +106,7 @@ public class DefaultClusterNodeServer extends DefaultNodeServer implements IClus
 
   @Override
   public SpecificCloudServiceProvider getCloudServiceProvider(@NotNull ServiceInfoSnapshot snapshot) {
-    return this.cloudNet.getCloudServiceProvider().getSpecificProvider(snapshot);
+    return this.cloudNet.getCloudServiceProvider().getSpecificProvider(snapshot.getServiceId().getUniqueId());
   }
 
   @Override

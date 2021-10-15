@@ -100,24 +100,28 @@ public class WrapperPermissionManagement extends DefaultCachedPermissionManageme
 
   @Override
   public @NotNull PermissionUser addUser(@NotNull String name, @NotNull String password, int potency) {
-    return this.addUser(new PermissionUser(UUID.randomUUID(), name, password, potency));
+    return this.addPermissionUser(new PermissionUser(UUID.randomUUID(), name, password, potency));
   }
 
   @Override
   public @NotNull PermissionGroup addGroup(@NotNull String role, int potency) {
-    return this.addGroup(new PermissionGroup(role, potency));
+    return this.addPermissionGroup(new PermissionGroup(role, potency));
   }
 
   @Override
-  public @NotNull PermissionCheckResult getPermissionResult(@NotNull IPermissible permissible,
-    @NotNull Permission permission) {
-    return this.getPermissionResult(permissible,
-      this.wrapper.getCurrentServiceInfoSnapshot().getConfiguration().getGroups(), permission);
+  public @NotNull PermissionCheckResult getPermissionResult(
+    @NotNull IPermissible permissible,
+    @NotNull Permission permission
+  ) {
+    return this.getGroupsPermissionResult(
+      permissible,
+      this.wrapper.getCurrentServiceInfoSnapshot().getConfiguration().getGroups().toArray(new String[0]),
+      permission);
   }
 
   @Override
-  public @NotNull PermissionUser addUser(@NotNull PermissionUser permissionUser) {
-    return this.rpcSender.invokeMethod("addUser", permissionUser).fireSync();
+  public @NotNull PermissionUser addPermissionUser(@NotNull PermissionUser permissionUser) {
+    return this.rpcSender.invokeMethod("addPermissionUser", permissionUser).fireSync();
   }
 
   @Override
@@ -131,8 +135,8 @@ public class WrapperPermissionManagement extends DefaultCachedPermissionManageme
   }
 
   @Override
-  public boolean deleteUser(@NotNull PermissionUser permissionUser) {
-    return this.rpcSender.invokeMethod("deleteUser", permissionUser).fireSync();
+  public boolean deletePermissionUser(@NotNull PermissionUser permissionUser) {
+    return this.rpcSender.invokeMethod("deletePermissionUser", permissionUser).fireSync();
   }
 
   @Override
@@ -146,14 +150,14 @@ public class WrapperPermissionManagement extends DefaultCachedPermissionManageme
   }
 
   @Override
-  public boolean containsUser(@NotNull String name) {
+  public boolean containsOneUser(@NotNull String name) {
     for (PermissionUser permissionUser : this.permissionUserCache.asMap().values()) {
       if (permissionUser.getName().equals(name)) {
         return true;
       }
     }
 
-    return this.rpcSender.invokeMethod("containsUser", name).fireSync();
+    return this.rpcSender.invokeMethod("containsOneUser", name).fireSync();
   }
 
   @Override
@@ -183,8 +187,8 @@ public class WrapperPermissionManagement extends DefaultCachedPermissionManageme
   }
 
   @Override
-  public @NotNull List<PermissionUser> getUsers(@NotNull String name) {
-    return this.rpcSender.invokeMethod("getUsers", name).fireSync();
+  public @NotNull List<PermissionUser> getUsersByName(@NotNull String name) {
+    return this.rpcSender.invokeMethod("getUsersByName", name).fireSync();
   }
 
   @Override
@@ -198,8 +202,8 @@ public class WrapperPermissionManagement extends DefaultCachedPermissionManageme
   }
 
   @Override
-  public @NotNull PermissionGroup addGroup(@NotNull PermissionGroup permissionGroup) {
-    return this.rpcSender.invokeMethod("addGroup", permissionGroup).fireSync();
+  public @NotNull PermissionGroup addPermissionGroup(@NotNull PermissionGroup permissionGroup) {
+    return this.rpcSender.invokeMethod("addPermissionGroup", permissionGroup).fireSync();
   }
 
   @Override
@@ -213,8 +217,8 @@ public class WrapperPermissionManagement extends DefaultCachedPermissionManageme
   }
 
   @Override
-  public boolean deleteGroup(@NotNull PermissionGroup permissionGroup) {
-    return this.rpcSender.invokeMethod("deleteGroup", permissionGroup).fireSync();
+  public boolean deletePermissionGroup(@NotNull PermissionGroup permissionGroup) {
+    return this.rpcSender.invokeMethod("deletePermissionGroup", permissionGroup).fireSync();
   }
 
   @Override

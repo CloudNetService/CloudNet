@@ -66,7 +66,7 @@ public final class V1HttpSession {
       return false;
     }
 
-    List<PermissionUser> permissionUsers = CloudNet.getInstance().getPermissionManagement().getUsers(credentials[0]);
+    List<PermissionUser> permissionUsers = CloudNet.getInstance().getPermissionManagement().getUsersByName(credentials[0]);
     PermissionUser permissionUser = permissionUsers.stream()
       .filter(user -> user.checkPassword(credentials[1])).findFirst().orElse(null);
 

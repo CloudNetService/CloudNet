@@ -103,7 +103,7 @@ public class NodeNodeInfoProvider implements NodeInfoProvider {
   }
 
   @Override
-  public @NotNull Collection<String> sendCommandLine(@NotNull String nodeUniqueId, @NotNull String commandLine) {
+  public @NotNull Collection<String> sendCommandLineToNode(@NotNull String nodeUniqueId, @NotNull String commandLine) {
     Preconditions.checkNotNull(nodeUniqueId);
     // check if we should execute the command on the current node
     if (nodeUniqueId.equals(this.clusterNodeServerProvider.getSelfNode().getNodeInfo().getUniqueId())) {

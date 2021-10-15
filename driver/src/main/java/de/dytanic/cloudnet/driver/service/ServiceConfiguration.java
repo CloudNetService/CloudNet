@@ -555,7 +555,7 @@ public class ServiceConfiguration extends BasicJsonDocPropertyable {
 
     /**
      * The deployments for the new service. They will be copied into the template after the service is stopped or by
-     * calling {@link SpecificCloudServiceProvider#deployResources()}.
+     * calling {@link SpecificCloudServiceProvider#removeAndExecuteDeployments()}.
      */
     @NotNull
     public Builder deployments(ServiceDeployment @NotNull ... deployments) {
@@ -564,7 +564,7 @@ public class ServiceConfiguration extends BasicJsonDocPropertyable {
 
     /**
      * The deployments for the new service. They will be copied into the template after the service is stopped or by
-     * calling {@link SpecificCloudServiceProvider#deployResources()}.
+     * calling {@link SpecificCloudServiceProvider#removeAndExecuteDeployments()}.
      */
     @NotNull
     public Builder deployments(@NotNull Collection<ServiceDeployment> deployments) {
@@ -574,7 +574,7 @@ public class ServiceConfiguration extends BasicJsonDocPropertyable {
 
     /**
      * The deployments for the new service. They will be copied into the template after the service is stopped or by
-     * calling {@link SpecificCloudServiceProvider#deployResources()}.
+     * calling {@link SpecificCloudServiceProvider#removeAndExecuteDeployments()}.
      */
     @NotNull
     public Builder addDeployments(ServiceDeployment @NotNull ... deployments) {
@@ -583,7 +583,7 @@ public class ServiceConfiguration extends BasicJsonDocPropertyable {
 
     /**
      * The deployments for the new service. They will be copied into the template after the service is stopped or by
-     * calling {@link SpecificCloudServiceProvider#deployResources()}.
+     * calling {@link SpecificCloudServiceProvider#removeAndExecuteDeployments()}.
      */
     @NotNull
     public Builder addDeployments(@NotNull Collection<ServiceDeployment> deployments) {

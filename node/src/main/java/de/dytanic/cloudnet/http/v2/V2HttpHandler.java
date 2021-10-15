@@ -27,6 +27,7 @@ import de.dytanic.cloudnet.driver.network.http.IHttpContext;
 import de.dytanic.cloudnet.driver.network.http.IHttpHandler;
 import de.dytanic.cloudnet.driver.network.http.IHttpRequest;
 import de.dytanic.cloudnet.driver.network.http.IHttpResponse;
+import de.dytanic.cloudnet.driver.permission.Permission;
 import de.dytanic.cloudnet.driver.permission.PermissionUser;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -126,8 +127,9 @@ public abstract class V2HttpHandler implements IHttpHandler {
     if (this.requiredPermission == null || this.requiredPermission.isEmpty()) {
       return true;
     } else {
-      return CloudNetDriver.getInstance().getPermissionManagement().hasPermission(user,
-        this.requiredPermission + '.' + request.method().toLowerCase());
+      return CloudNetDriver.getInstance().getPermissionManagement().hasPermission(
+        user,
+        new Permission(this.requiredPermission + '.' + request.method().toLowerCase()));
     }
   }
 

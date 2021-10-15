@@ -114,7 +114,7 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
   }
 
   @Override
-  public void removePermanentServiceTask(@NotNull String name) {
+  public void removePermanentServiceTaskByName(@NotNull String name) {
     ServiceTask task = this.getServiceTask(name);
     if (task != null) {
       this.removePermanentServiceTask(task);

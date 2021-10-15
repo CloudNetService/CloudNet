@@ -170,7 +170,7 @@ public class CommandPermissions {
 
   @CommandMethod("permissions|perms delete user <name>")
   public void deleteUser(CommandSource source, @Argument("name") PermissionUser permissionUser) {
-    if (this.permissionManagement().deleteUser(permissionUser)) {
+    if (this.permissionManagement().deletePermissionUser(permissionUser)) {
       source.sendMessage(LanguageManager.getMessage("command-permissions-delete-user-successful"));
     } else {
       source.sendMessage(LanguageManager.getMessage("command-permissions-user-not-found"));
@@ -179,7 +179,7 @@ public class CommandPermissions {
 
   @CommandMethod("permissions|perms delete group <name>")
   public void deleteGroup(CommandSource source, @Argument("name") PermissionGroup permissionGroup) {
-    if (this.permissionManagement().deleteGroup(permissionGroup)) {
+    if (this.permissionManagement().deletePermissionGroup(permissionGroup)) {
       source.sendMessage(LanguageManager.getMessage("command-permissions-delete-group-successful"));
     } else {
       source.sendMessage(LanguageManager.getMessage("command-permissions-group-not-found"));

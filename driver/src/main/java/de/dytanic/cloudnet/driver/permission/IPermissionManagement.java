@@ -19,6 +19,7 @@ package de.dytanic.cloudnet.driver.permission;
 import de.dytanic.cloudnet.common.concurrent.CompletableTask;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.concurrent.function.ThrowableSupplier;
+import de.dytanic.cloudnet.driver.network.rpc.annotation.RPCValidation;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
@@ -26,6 +27,7 @@ import java.util.function.Consumer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+@RPCValidation
 @SuppressWarnings("unused")
 public interface IPermissionManagement {
 
@@ -134,18 +136,6 @@ public interface IPermissionManagement {
    * @param permissible the permissible to check if the permission is set.
    * @param permission  the permission to check.
    * @return the check result.
-   * @see #getPermissionResult(IPermissible, String)
-   */
-  default boolean hasPermission(@NotNull IPermissible permissible, @NotNull String permission) {
-    return this.getPermissionResult(permissible, permission).asBoolean();
-  }
-
-  /**
-   * Checks if the given {@code permissible} has the given {@code permission}.
-   *
-   * @param permissible the permissible to check if the permission is set.
-   * @param permission  the permission to check.
-   * @return the check result.
    * @see #getPermissionResult(IPermissible, Permission)
    */
   default boolean hasPermission(@NotNull IPermissible permissible, @NotNull Permission permission) {
@@ -159,26 +149,15 @@ public interface IPermissionManagement {
    * @param group       the group to get the permissions on.
    * @param permission  the permission to check.
    * @return the check result.
-   * @see #getPermissionResult(IPermissible, String, Permission)
+   * @see #getGroupPermissionResult(IPermissible, String, Permission)
    */
-  default boolean hasPermission(
+  default boolean hasGroupPermission(
     @NotNull IPermissible permissible,
     @NotNull String group,
     @NotNull Permission permission
   ) {
-    return this.getPermissionResult(permissible, group, permission).asBoolean();
+    return this.getGroupPermissionResult(permissible, group, permission).asBoolean();
   }
-
-  /**
-   * Checks if the given {@code permissible} has the given {@code permission}.
-   *
-   * @param permissible the permissible to check if the permission is set.
-   * @param permission  the permission to check.
-   * @return the check result. {@link PermissionCheckResult#DENIED} indicates that there was no allowing/forbidding
-   * permission.
-   */
-  @NotNull
-  PermissionCheckResult getPermissionResult(@NotNull IPermissible permissible, @NotNull String permission);
 
   /**
    * Checks if the given {@code permissible} has the given {@code permission}.
@@ -201,7 +180,7 @@ public interface IPermissionManagement {
    * permission.
    */
   @NotNull
-  PermissionCheckResult getPermissionResult(
+  PermissionCheckResult getGroupPermissionResult(
     @NotNull IPermissible permissible,
     @NotNull String group,
     @NotNull Permission permission);
@@ -216,22 +195,7 @@ public interface IPermissionManagement {
    * permission.
    */
   @NotNull
-  PermissionCheckResult getPermissionResult(
-    @NotNull IPermissible permissible,
-    @NotNull Iterable<String> groups,
-    @NotNull Permission permission);
-
-  /**
-   * Checks if the given {@code permissible} has the given {@code permission}.
-   *
-   * @param permissible the permissible to check if the permission is set.
-   * @param groups      the groups to get the permissions on.
-   * @param permission  the permission to check.
-   * @return the check result. {@link PermissionCheckResult#DENIED} indicates that there was no allowing/forbidding
-   * permission.
-   */
-  @NotNull
-  PermissionCheckResult getPermissionResult(
+  PermissionCheckResult getGroupsPermissionResult(
     @NotNull IPermissible permissible,
     @NotNull String[] groups,
     @NotNull Permission permission);
@@ -265,7 +229,7 @@ public interface IPermissionManagement {
    * @return all permissions of the permissible on the specified group if provided
    */
   @NotNull
-  Collection<Permission> getAllPermissions(@NotNull IPermissible permissible, @Nullable String group);
+  Collection<Permission> getAllGroupPermissions(@NotNull IPermissible permissible, @Nullable String group);
 
   /**
    * Adds a new user to the database.
@@ -273,7 +237,7 @@ public interface IPermissionManagement {
    * @param permissionUser the user to be added
    * @return the new user
    */
-  @NotNull PermissionUser addUser(@NotNull PermissionUser permissionUser);
+  @NotNull PermissionUser addPermissionUser(@NotNull PermissionUser permissionUser);
 
   /**
    * Updates an already existing user in the database.
@@ -294,7 +258,7 @@ public interface IPermissionManagement {
    *
    * @param permissionUser the user to be deleted
    */
-  boolean deleteUser(@NotNull PermissionUser permissionUser);
+  boolean deletePermissionUser(@NotNull PermissionUser permissionUser);
 
   /**
    * Checks if a user with the given uniqueId is stored in the database.
@@ -310,7 +274,7 @@ public interface IPermissionManagement {
    * @param name the name of the user
    * @return {@code true} if there is a user with that name, {@code false} otherwise
    */
-  boolean containsUser(@NotNull String name);
+  boolean containsOneUser(@NotNull String name);
 
   /**
    * Gets a user with the given uniqueId out of the database.
@@ -338,7 +302,7 @@ public interface IPermissionManagement {
    * @return a list of all {@link PermissionUser}s stored in the database or an empty list if there is no user with that
    * name stored.
    */
-  @NotNull List<PermissionUser> getUsers(@NotNull String name);
+  @NotNull List<PermissionUser> getUsersByName(@NotNull String name);
 
   /**
    * Gets a list of all users stored in the database. This can only return null when the connection to the database (or
@@ -371,7 +335,7 @@ public interface IPermissionManagement {
    * @param permissionGroup the {@link PermissionGroup} to be added
    * @return the new group
    */
-  @NotNull PermissionGroup addGroup(@NotNull PermissionGroup permissionGroup);
+  @NotNull PermissionGroup addPermissionGroup(@NotNull PermissionGroup permissionGroup);
 
   /**
    * Updates a permission group in the list of groups. If a group with that name doesn't exist, it will be created.
@@ -392,7 +356,7 @@ public interface IPermissionManagement {
    *
    * @param permissionGroup the {@link PermissionGroup} to be deleted
    */
-  boolean deleteGroup(@NotNull PermissionGroup permissionGroup);
+  boolean deletePermissionGroup(@NotNull PermissionGroup permissionGroup);
 
   /**
    * Checks if a specific group exists.
@@ -445,7 +409,7 @@ public interface IPermissionManagement {
   @Nullable PermissionUser modifyUser(@NotNull UUID uniqueId, @NotNull Consumer<PermissionUser> modifier);
 
   /**
-   * Gets every user matching the given name by using {@link #getUsers(String)} and puts them into the consumer, after
+   * Gets every user matching the given name by using {@link #getUsersByName(String)} and puts them into the consumer, after
    * that, every user will be updated by using {@link #updateUser(PermissionUser)}.
    *
    * @param name     the name of the users
@@ -470,8 +434,8 @@ public interface IPermissionManagement {
    * @param permissionUser the user to be added
    * @return the created permission user
    */
-  default @NotNull ITask<PermissionUser> addUserAsync(@NotNull PermissionUser permissionUser) {
-    return CompletableTask.supplyAsync(() -> this.addUser(permissionUser));
+  default @NotNull ITask<PermissionUser> addPermissionUserAsync(@NotNull PermissionUser permissionUser) {
+    return CompletableTask.supplyAsync(() -> this.addPermissionUser(permissionUser));
   }
 
   /**
@@ -512,8 +476,8 @@ public interface IPermissionManagement {
    * @param permissionUser the user to be deleted
    * @return if the operation was successful
    */
-  default @NotNull ITask<Boolean> deleteUserAsync(@NotNull PermissionUser permissionUser) {
-    return CompletableTask.supplyAsync(() -> this.deleteUser(permissionUser));
+  default @NotNull ITask<Boolean> deletePermissionUserAsync(@NotNull PermissionUser permissionUser) {
+    return CompletableTask.supplyAsync(() -> this.deletePermissionUser(permissionUser));
   }
 
   /**
@@ -532,8 +496,8 @@ public interface IPermissionManagement {
    * @param name the name of the user
    * @return {@code true} if there is a user with that name, {@code false} otherwise
    */
-  default @NotNull ITask<Boolean> containsUserAsync(@NotNull String name) {
-    return CompletableTask.supplyAsync(() -> this.containsUser(name));
+  default @NotNull ITask<Boolean> containsOneUserAsync(@NotNull String name) {
+    return CompletableTask.supplyAsync(() -> this.containsOneUser(name));
   }
 
   /**
@@ -566,8 +530,8 @@ public interface IPermissionManagement {
    * @return a list of all {@link PermissionUser}s stored in the database or an empty list if there is no user with that
    * name stored.
    */
-  default @NotNull ITask<List<PermissionUser>> getUsersAsync(@NotNull String name) {
-    return CompletableTask.supplyAsync(() -> this.getUsers(name));
+  default @NotNull ITask<List<PermissionUser>> getUsersByNameAsync(@NotNull String name) {
+    return CompletableTask.supplyAsync(() -> this.getUsersByName(name));
   }
 
   /**
@@ -616,8 +580,8 @@ public interface IPermissionManagement {
    * @param permissionGroup the {@link PermissionGroup} to be added
    * @return the created permission group.
    */
-  default @NotNull ITask<PermissionGroup> addGroupAsync(@NotNull PermissionGroup permissionGroup) {
-    return CompletableTask.supplyAsync(() -> this.addGroup(permissionGroup));
+  default @NotNull ITask<PermissionGroup> addPermissionGroupAsync(@NotNull PermissionGroup permissionGroup) {
+    return CompletableTask.supplyAsync(() -> this.addPermissionGroup(permissionGroup));
   }
 
   /**
@@ -658,8 +622,8 @@ public interface IPermissionManagement {
    * @param permissionGroup the {@link PermissionGroup} to be deleted
    * @return a task completed when the operation was executed
    */
-  default @NotNull ITask<Boolean> deleteGroupAsync(@NotNull PermissionGroup permissionGroup) {
-    return CompletableTask.supplyAsync(() -> this.deleteGroup(permissionGroup));
+  default @NotNull ITask<Boolean> deletePermissionGroupAsync(@NotNull PermissionGroup permissionGroup) {
+    return CompletableTask.supplyAsync(() -> this.deletePermissionGroup(permissionGroup));
   }
 
   /**
@@ -740,7 +704,7 @@ public interface IPermissionManagement {
   }
 
   /**
-   * Gets every user matching the given name by using {@link #getUsersAsync(String)} and puts them into the consumer,
+   * Gets every user matching the given name by using {@link #getUsersByNameAsync(String)} and puts them into the consumer,
    * after that, every user will be updated by using {@link #updateUser(PermissionUser)}.
    *
    * @param name     the name of the users

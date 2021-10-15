@@ -153,10 +153,10 @@ public class JVMService extends AbstractService {
       try {
         OutputStream out = this.process.getOutputStream();
         // write & flush
-        out.write(command.getBytes(StandardCharsets.UTF_8));
+        out.write((command + "\n").getBytes(StandardCharsets.UTF_8));
         out.flush();
       } catch (IOException exception) {
-        LOGGER.severe("Unable to dispatch command %s on service %s", exception, command, this.getServiceId());
+        LOGGER.finer("Unable to dispatch command %s on service %s", exception, command, this.getServiceId());
       }
     }
   }

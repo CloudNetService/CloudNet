@@ -61,7 +61,7 @@ public class DefaultDatabasePermissionManagement extends DefaultPermissionManage
 
   @Override
   public PermissionUser getFirstUser(String name) {
-    return Iterables.getFirst(this.getUsers(name), null);
+    return Iterables.getFirst(this.getUsersByName(name), null);
   }
 
   @Override
@@ -95,16 +95,16 @@ public class DefaultDatabasePermissionManagement extends DefaultPermissionManage
 
   @Override
   public @NotNull PermissionUser addUser(@NotNull String name, @NotNull String password, int potency) {
-    return this.addUser(new PermissionUser(UUID.randomUUID(), name, password, potency));
+    return this.addPermissionUser(new PermissionUser(UUID.randomUUID(), name, password, potency));
   }
 
   @Override
   public @NotNull PermissionGroup addGroup(@NotNull String role, int potency) {
-    return this.addGroup(new PermissionGroup(role, potency));
+    return this.addPermissionGroup(new PermissionGroup(role, potency));
   }
 
   @Override
-  public @NotNull PermissionUser addUser(@NotNull PermissionUser user) {
+  public @NotNull PermissionUser addPermissionUser(@NotNull PermissionUser user) {
     // insert the user into the database
     this.getUserDatabaseTable().insert(user.getUniqueId().toString(), JsonDocument.newDocument(user));
     // notify the listener
@@ -123,12 +123,12 @@ public class DefaultDatabasePermissionManagement extends DefaultPermissionManage
   @Override
   public boolean deleteUser(@NotNull String name) {
     // get all users with the name
-    Collection<PermissionUser> users = this.getUsers(name);
+    Collection<PermissionUser> users = this.getUsersByName(name);
     // delete all the users if there are any
     if (!users.isEmpty()) {
       boolean success = false;
       for (PermissionUser user : users) {
-        success |= this.deleteUser(user);
+        success |= this.deletePermissionUser(user);
       }
       // all users deleted
       return success;
@@ -138,7 +138,7 @@ public class DefaultDatabasePermissionManagement extends DefaultPermissionManage
   }
 
   @Override
-  public boolean deleteUser(@NotNull PermissionUser permissionUser) {
+  public boolean deletePermissionUser(@NotNull PermissionUser permissionUser) {
     if (this.getUserDatabaseTable().delete(permissionUser.getUniqueId().toString())) {
       // notify the listener
       this.handler.handleDeleteUser(this, permissionUser);
@@ -153,7 +153,7 @@ public class DefaultDatabasePermissionManagement extends DefaultPermissionManage
   }
 
   @Override
-  public boolean containsUser(@NotNull String name) {
+  public boolean containsOneUser(@NotNull String name) {
     return this.getFirstUser(name) != null;
   }
 
@@ -183,14 +183,14 @@ public class DefaultDatabasePermissionManagement extends DefaultPermissionManage
     // create a new user if the current one is not present
     if (user == null) {
       user = new PermissionUser(uniqueId, name, null, 0);
-      this.addUserAsync(user);
+      this.addPermissionUserAsync(user);
     }
     // return the created or old user
     return user;
   }
 
   @Override
-  public @NotNull List<PermissionUser> getUsers(@NotNull String name) {
+  public @NotNull List<PermissionUser> getUsersByName(@NotNull String name) {
     return this.getUserDatabaseTable().get("name", name).stream()
       .map(userData -> {
         // deserialize the permission user
@@ -243,7 +243,7 @@ public class DefaultDatabasePermissionManagement extends DefaultPermissionManage
   }
 
   @Override
-  public @NotNull PermissionGroup addGroup(@NotNull PermissionGroup permissionGroup) {
+  public @NotNull PermissionGroup addPermissionGroup(@NotNull PermissionGroup permissionGroup) {
     this.addGroupSilently(permissionGroup);
     // notify the listener
     this.handler.handleAddGroup(this, permissionGroup);
@@ -261,13 +261,13 @@ public class DefaultDatabasePermissionManagement extends DefaultPermissionManage
   public boolean deleteGroup(@NotNull String name) {
     PermissionGroup group = this.groups.get(name);
     if (group != null) {
-      return this.deleteGroup(group);
+      return this.deletePermissionGroup(group);
     }
     return false;
   }
 
   @Override
-  public boolean deleteGroup(@NotNull PermissionGroup permissionGroup) {
+  public boolean deletePermissionGroup(@NotNull PermissionGroup permissionGroup) {
     this.deleteGroupSilently(permissionGroup);
     this.handler.handleDeleteGroup(this, permissionGroup);
     return true;

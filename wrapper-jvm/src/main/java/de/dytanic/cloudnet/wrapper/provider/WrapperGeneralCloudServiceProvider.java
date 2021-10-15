@@ -69,13 +69,15 @@ public class WrapperGeneralCloudServiceProvider implements GeneralCloudServicePr
   }
 
   @Override
-  public @NotNull Collection<ServiceInfoSnapshot> getCloudServices(@NotNull String taskName) {
-    return this.rpcSender.invokeMethod("getCloudServices", taskName).fireSync();
+  public @NotNull Collection<ServiceInfoSnapshot> getCloudServicesByTask(@NotNull String taskName) {
+    return this.rpcSender.invokeMethod("getCloudServicesByTask", taskName).fireSync();
   }
 
   @Override
-  public @NotNull Collection<ServiceInfoSnapshot> getCloudServices(@NotNull ServiceEnvironmentType environment) {
-    return this.rpcSender.invokeMethod("getCloudServices", environment).fireSync();
+  public @NotNull Collection<ServiceInfoSnapshot> getCloudServicesByEnvironment(
+    @NotNull ServiceEnvironmentType environment
+  ) {
+    return this.rpcSender.invokeMethod("getCloudServicesByEnvironment", environment).fireSync();
   }
 
   @Override

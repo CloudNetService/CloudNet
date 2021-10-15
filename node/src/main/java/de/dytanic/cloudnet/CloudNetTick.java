@@ -120,7 +120,7 @@ public final class CloudNetTick {
     for (ServiceTask task : this.cloudNet.getServiceTaskProvider().getPermanentServiceTasks()) {
       if (task.canStartServices()) {
         // get the count of running services
-        long runningServiceCount = this.cloudNet.getCloudServiceProvider().getCloudServices(task.getName()).stream()
+        long runningServiceCount = this.cloudNet.getCloudServiceProvider().getCloudServicesByTask(task.getName()).stream()
           .filter(taskService -> taskService.getLifeCycle() == ServiceLifeCycle.RUNNING)
           .count();
         // check if we need to start a service

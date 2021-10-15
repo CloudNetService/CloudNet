@@ -16,7 +16,6 @@
 
 package de.dytanic.cloudnet.wrapper.provider;
 
-import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.driver.network.rpc.RPCSender;
 import de.dytanic.cloudnet.driver.provider.ServiceTaskProvider;
 import de.dytanic.cloudnet.driver.service.ServiceTask;
@@ -46,37 +45,31 @@ public class WrapperServiceTaskProvider implements ServiceTaskProvider {
 
   @Override
   public void setPermanentServiceTasks(@NotNull Collection<ServiceTask> serviceTasks) {
-    Preconditions.checkNotNull(serviceTasks);
     this.rpcSender.invokeMethod("setPermanentServiceTasks", serviceTasks).fireSync();
   }
 
   @Override
   public ServiceTask getServiceTask(@NotNull String name) {
-    Preconditions.checkNotNull(name);
     return this.rpcSender.invokeMethod("getServiceTask", name).fireSync();
   }
 
   @Override
   public boolean isServiceTaskPresent(@NotNull String name) {
-    Preconditions.checkNotNull(name);
     return this.rpcSender.invokeMethod("isServiceTaskPresent", name).fireSync();
   }
 
   @Override
   public boolean addPermanentServiceTask(@NotNull ServiceTask serviceTask) {
-    Preconditions.checkNotNull(serviceTask);
     return this.rpcSender.invokeMethod("addPermanentServiceTask", serviceTask).fireSync();
   }
 
   @Override
-  public void removePermanentServiceTask(@NotNull String name) {
-    Preconditions.checkNotNull(name);
-    this.rpcSender.invokeMethod("removePermanentServiceTask", name).fireSync();
+  public void removePermanentServiceTaskByName(@NotNull String name) {
+    this.rpcSender.invokeMethod("removePermanentServiceTaskByName", name).fireSync();
   }
 
   @Override
   public void removePermanentServiceTask(@NotNull ServiceTask serviceTask) {
-    Preconditions.checkNotNull(serviceTask);
-    this.removePermanentServiceTask(serviceTask.getName());
+    this.removePermanentServiceTaskByName(serviceTask.getName());
   }
 }

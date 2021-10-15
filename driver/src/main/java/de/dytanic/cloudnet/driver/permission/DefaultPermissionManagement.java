@@ -16,7 +16,6 @@
 
 package de.dytanic.cloudnet.driver.permission;
 
-import com.google.common.collect.Iterables;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -112,14 +111,6 @@ public abstract class DefaultPermissionManagement implements IPermissionManageme
   @Override
   public @NotNull PermissionCheckResult getPermissionResult(
     @NotNull IPermissible permissible,
-    @NotNull String permission
-  ) {
-    return this.getPermissionResult(permissible, new Permission(permission));
-  }
-
-  @Override
-  public @NotNull PermissionCheckResult getPermissionResult(
-    @NotNull IPermissible permissible,
     @NotNull Permission permission
   ) {
     return PermissionCheckResult.fromPermission(
@@ -127,22 +118,17 @@ public abstract class DefaultPermissionManagement implements IPermissionManageme
   }
 
   @Override
-  public @NotNull PermissionCheckResult getPermissionResult(
+  public @NotNull PermissionCheckResult getGroupPermissionResult(
     @NotNull IPermissible permissible,
     @NotNull String group,
     @NotNull Permission permission
   ) {
-    return this.getPermissionResult(permissible, Collections.singleton(group), permission);
+    return this.getGroupsPermissionResult(permissible, new String[]{group}, permission);
   }
 
   @Override
-  public @NotNull PermissionCheckResult getPermissionResult(@NotNull IPermissible permissible,
-    @NotNull Iterable<String> groups, @NotNull Permission permission) {
-    return this.getPermissionResult(permissible, Iterables.toArray(groups, String.class), permission);
-  }
-
-  @Override
-  public @NotNull PermissionCheckResult getPermissionResult(@NotNull IPermissible permissible, @NotNull String[] groups,
+  public @NotNull PermissionCheckResult getGroupsPermissionResult(@NotNull IPermissible permissible,
+    @NotNull String[] groups,
     @NotNull Permission permission) {
     return PermissionCheckResult
       .fromPermission(this.findHighestPermission(this.collectAllPermissions(permissible, groups), permission));
@@ -212,17 +198,17 @@ public abstract class DefaultPermissionManagement implements IPermissionManageme
 
   @Override
   public @NotNull Collection<Permission> getAllPermissions(@NotNull IPermissible permissible) {
-    return this.getAllPermissions(permissible, null);
+    return this.getAllGroupPermissions(permissible, null);
   }
 
   @Override
-  public @NotNull Collection<Permission> getAllPermissions(@NotNull IPermissible permissible, String group) {
+  public @NotNull Collection<Permission> getAllGroupPermissions(@NotNull IPermissible permissible, String group) {
     Collection<Permission> permissions = new ArrayList<>(permissible.getPermissions());
     if (group != null && permissible.getGroupPermissions().containsKey(group)) {
       permissions.addAll(permissible.getGroupPermissions().get(group));
     }
     for (PermissionGroup permissionGroup : this.getGroupsOf(permissible)) {
-      permissions.addAll(this.getAllPermissions(permissionGroup, group));
+      permissions.addAll(this.getAllGroupPermissions(permissionGroup, group));
     }
     return permissions;
   }
@@ -253,7 +239,7 @@ public abstract class DefaultPermissionManagement implements IPermissionManageme
 
   @Override
   public @NotNull List<PermissionUser> modifyUsers(@NotNull String name, @NotNull Consumer<PermissionUser> modifier) {
-    List<PermissionUser> users = this.getUsers(name);
+    List<PermissionUser> users = this.getUsersByName(name);
 
     for (PermissionUser user : users) {
       modifier.accept(user);

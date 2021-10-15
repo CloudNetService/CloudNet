@@ -122,7 +122,7 @@ public class NodeGroupConfigurationProvider implements GroupConfigurationProvide
   }
 
   @Override
-  public void removeGroupConfiguration(@NotNull String name) {
+  public void removeGroupConfigurationByName(@NotNull String name) {
     GroupConfiguration configuration = this.getGroupConfiguration(name);
     if (configuration != null) {
       this.removeGroupConfiguration(configuration);

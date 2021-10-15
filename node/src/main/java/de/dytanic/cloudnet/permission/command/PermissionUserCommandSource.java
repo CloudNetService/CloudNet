@@ -18,6 +18,7 @@ package de.dytanic.cloudnet.permission.command;
 
 import de.dytanic.cloudnet.command.source.DriverCommandSource;
 import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
+import de.dytanic.cloudnet.driver.permission.Permission;
 import de.dytanic.cloudnet.driver.permission.PermissionUser;
 import org.jetbrains.annotations.NotNull;
 
@@ -48,6 +49,6 @@ public final class PermissionUserCommandSource extends DriverCommandSource {
    */
   @Override
   public boolean checkPermission(@NotNull String permission) {
-    return this.permissionManagement.hasPermission(this.permissionUser, permission);
+    return this.permissionManagement.hasPermission(this.permissionUser, new Permission(permission));
   }
 }

@@ -18,6 +18,7 @@ package de.dytanic.cloudnet.driver.provider.service;
 
 import de.dytanic.cloudnet.common.concurrent.CompletableTask;
 import de.dytanic.cloudnet.common.concurrent.ITask;
+import de.dytanic.cloudnet.driver.network.rpc.annotation.RPCValidation;
 import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceTask;
@@ -27,17 +28,8 @@ import org.jetbrains.annotations.Nullable;
 /**
  * This class provides methods to create and prepare services in the network.
  */
+@RPCValidation
 public interface CloudServiceFactory {
-
-  /**
-   * Creates and prepares a new cloud service
-   *
-   * @param serviceTask the task the service should be created from
-   * @return the info of the created service or null if the service couldn't be created
-   */
-  default @Nullable ServiceInfoSnapshot createCloudService(ServiceTask serviceTask) {
-    return this.createCloudService(ServiceConfiguration.builder(serviceTask).build());
-  }
 
   /**
    * Creates and prepares a new cloud service
@@ -46,16 +38,6 @@ public interface CloudServiceFactory {
    * @return the info of the created service or null if the service couldn't be created
    */
   @Nullable ServiceInfoSnapshot createCloudService(ServiceConfiguration serviceConfiguration);
-
-  /**
-   * Creates and prepares a new cloud service
-   *
-   * @param serviceTask the task the service should be created from
-   * @return the info of the created service or null if the service couldn't be created
-   */
-  default @NotNull ITask<ServiceInfoSnapshot> createCloudServiceAsync(@NotNull ServiceTask serviceTask) {
-    return CompletableTask.supplyAsync(() -> this.createCloudService(serviceTask));
-  }
 
   /**
    * Creates and prepares a new cloud service
