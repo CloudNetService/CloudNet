@@ -61,7 +61,7 @@ public final class LauncherUtils {
   public static final String CLOUDNET_SNAPSHOTS_JOB_URL = "cloudnet.snapshots.job.url";
   public static final String CLOUDNET_REPOSITORY_GITHUB = "cloudnet.repository.github";
   public static final String CLOUDNET_SELECTED_VERSION = "cloudnet.launcher.select.version";
-  public static final String FALLBACK_VERSION = LauncherUtils.class.getPackage().getSpecificationVersion();
+  public static final String FALLBACK_VERSION = LauncherUtils.class.getPackage().getImplementationVersion();
 
   private LauncherUtils() {
     throw new UnsupportedOperationException();

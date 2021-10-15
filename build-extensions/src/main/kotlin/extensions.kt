@@ -35,9 +35,9 @@ fun Project.applyJarMetadata(mainClass: String, module: String) {
       manifest.attributes(
         "Main-Class" to mainClass,
         "Automatic-Module-Name" to module,
-        "Specification-Vendor" to "CloudNetService",
-        "Specification-Title" to Versions.cloudNetCodeName,
-        "Specification-Version" to project.version.toString() + "-${shortCommitHash()}")
+        "Implementation-Vendor" to "CloudNetService",
+        "Implementation-Title" to Versions.cloudNetCodeName,
+        "Implementation-Version" to project.version.toString() + "-${shortCommitHash()}")
       // apply git information to manifest
       git()?.applyVcsInformationToManifest(manifest)
     }
@@ -69,7 +69,7 @@ fun Project.exportCnlFile(fileName: String) {
   configurations.getByName("runtimeClasspath").resolvedConfiguration.resolvedArtifacts.forEach {
     resolveRepository(it.moduleVersion.id, mavenRepositories())?.run {
       stringBuilder
-        .append("include $name ${it.moduleVersion.id.group} ${it.moduleVersion.id.name} ${it.moduleVersion.id.version}\n")
+        .append("include $name ${it.moduleVersion.id.group} ${it.moduleVersion.id.name} ${it.moduleVersion.id.version} ${it.classifier ?: ""}\n")
     }
   }
 

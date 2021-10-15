@@ -16,12 +16,10 @@
 
 object Files {
 
+  const val driver = "driver.jar"
   const val common = "common.jar"
   const val wrapper = "wrapper.jar"
   const val launcher = "launcher.jar"
-
-  const val driver = "driver.jar"
-  const val driverCnl = "driver.cnl"
 
   const val node = "cloudnet.jar"
   const val nodeCnl = "cloudnet.cnl"

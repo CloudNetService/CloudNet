@@ -250,7 +250,6 @@ public final class CloudNetLauncher {
   }
 
   private Collection<URL> installDependencies() throws IOException, CNLCommandExecuteException {
-    CNLInterpreter.runInterpreter(this.selectedVersion.getTargetDirectory().resolve("driver.cnl"));
     CNLInterpreter.runInterpreter(this.selectedVersion.getTargetDirectory().resolve("cloudnet.cnl"));
 
     Collection<URL> dependencyResources = new ArrayList<>();
