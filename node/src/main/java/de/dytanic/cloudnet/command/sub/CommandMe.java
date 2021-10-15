@@ -20,6 +20,7 @@ import cloud.commandframework.annotations.CommandDescription;
 import cloud.commandframework.annotations.CommandMethod;
 import cloud.commandframework.annotations.CommandPermission;
 import de.dytanic.cloudnet.CloudNet;
+import de.dytanic.cloudnet.command.annotation.CommandAlias;
 import de.dytanic.cloudnet.command.source.CommandSource;
 import de.dytanic.cloudnet.common.unsafe.CPUUsageResolver;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
@@ -29,6 +30,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @CommandPermission("cloudnet.command.me")
+@CommandAlias("info")
 public class CommandMe {
 
   //TODO klaro du willst hier komische java sachen anzeigen

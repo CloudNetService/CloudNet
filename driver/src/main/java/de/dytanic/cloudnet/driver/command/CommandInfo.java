@@ -16,6 +16,7 @@
 
 package de.dytanic.cloudnet.driver.command;
 
+import java.util.Collection;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
@@ -26,10 +27,12 @@ import lombok.ToString;
 @EqualsAndHashCode
 public class CommandInfo {
 
+  protected String name;
+
   /**
    * The configured names by the command
    */
-  protected String[] names;
+  protected Collection<String> aliases;
 
   /**
    * The permission, that is configured by this command, that the command sender should has
@@ -46,15 +49,20 @@ public class CommandInfo {
    */
   protected String usage;
 
-  public CommandInfo(String[] names, String permission, String description, String usage) {
-    this.names = names;
+  public CommandInfo(String name, Collection<String> aliases, String permission, String description, String usage) {
+    this.name = name;
+    this.aliases = aliases;
     this.permission = permission;
     this.description = description;
     this.usage = usage;
   }
 
-  public String[] getNames() {
-    return this.names;
+  public String getName() {
+    return this.name;
+  }
+
+  public Collection<String> getAliases() {
+    return this.aliases;
   }
 
   public String getPermission() {

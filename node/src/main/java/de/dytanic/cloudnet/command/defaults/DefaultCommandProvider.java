@@ -26,9 +26,11 @@ import cloud.commandframework.exceptions.NoPermissionException;
 import cloud.commandframework.exceptions.NoSuchCommandException;
 import cloud.commandframework.extra.confirmation.CommandConfirmationManager;
 import cloud.commandframework.meta.CommandMeta;
+import cloud.commandframework.meta.CommandMeta.Key;
 import cloud.commandframework.meta.SimpleCommandMeta;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.command.CommandProvider;
+import de.dytanic.cloudnet.command.annotation.CommandAlias;
 import de.dytanic.cloudnet.command.exception.ArgumentNotAvailableException;
 import de.dytanic.cloudnet.command.source.CommandSource;
 import de.dytanic.cloudnet.command.source.ConsoleCommandSource;
@@ -41,17 +43,18 @@ import de.dytanic.cloudnet.command.sub.CommandMe;
 import de.dytanic.cloudnet.command.sub.CommandMigrate;
 import de.dytanic.cloudnet.command.sub.CommandPermissions;
 import de.dytanic.cloudnet.command.sub.CommandService;
-import de.dytanic.cloudnet.command.sub.CommandServiceConfiguration;
 import de.dytanic.cloudnet.command.sub.CommandTasks;
 import de.dytanic.cloudnet.command.sub.CommandTemplate;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.driver.command.CommandInfo;
 import de.dytanic.cloudnet.event.command.CommandInvalidSyntaxEvent;
 import de.dytanic.cloudnet.event.command.CommandNotFoundEvent;
+import io.leangen.geantyref.TypeToken;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.TimeUnit;
@@ -59,6 +62,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class DefaultCommandProvider implements CommandProvider {
+
+  private static final Key<Collection<String>> ALIAS_KEY = Key.of(new TypeToken<Collection<String>>() {
+  }, "alias");
 
   private final CommandManager<CommandSource> commandManager;
   private final AnnotationParser<CommandSource> annotationParser;
@@ -75,6 +81,9 @@ public class DefaultCommandProvider implements CommandProvider {
     this.commandManager.registerCommandPreProcessor(new DefaultCommandPreProcessor());
     this.commandManager.registerCommandPostProcessor(new DefaultCommandPostProcessor());
 
+    this.annotationParser.registerBuilderModifier(CommandAlias.class,
+      (alias, builder) -> builder.meta(ALIAS_KEY, Arrays.asList(alias.value())));
+
     this.confirmationManager = new CommandConfirmationManager<>(
       30L,
       TimeUnit.SECONDS,
@@ -89,7 +98,6 @@ public class DefaultCommandProvider implements CommandProvider {
     //TODO move this to another class
     this.register(new CommandTemplate());
     this.register(new CommandExit());
-    this.register(new CommandServiceConfiguration());
     this.register(new CommandGroups());
     this.register(new CommandTasks());
     // this.register(new CommandCreate());
@@ -142,21 +150,27 @@ public class DefaultCommandProvider implements CommandProvider {
 
   @Override
   public void register(@NotNull Object command) {
-    Collection<CommandInfo> commandInfos = new ArrayList<>();
-    for (Command<CommandSource> cloudCommand : this.annotationParser.parse(command)) {
-      String permission = cloudCommand.getCommandPermission()
-        .toString(); //TODO: if our change is merged we need to rethink this
-      String description = cloudCommand.getCommandMeta().get(CommandMeta.DESCRIPTION).orElse("No description provided");
-      //TODO: sort name and aliases
-    }
+    Iterator<Command<CommandSource>> cloudCommands = this.annotationParser.parse(command).iterator();
+    if (cloudCommands.hasNext()) {
+      Command<CommandSource> parsedCommand = cloudCommands.next();
+      String permission = parsedCommand.getCommandPermission()
+        .toString();
+      String description = parsedCommand.getCommandMeta().get(CommandMeta.DESCRIPTION)
+        .orElse("No description provided");
 
-    this.registeredCommands.addAll(commandInfos);
+      Collection<String> aliases = parsedCommand.getCommandMeta().getOrDefault(ALIAS_KEY, Collections.emptyList());
+      String name = parsedCommand.getArguments().get(0).getName();
+
+      this.registeredCommands.add(new CommandInfo(name, aliases, permission, description, "")); //TODO: usage
+    }
   }
 
   @Override
   public @Nullable CommandInfo getCommand(@NotNull String input) {
+    String lowerCaseInput = input.toLowerCase();
     return this.registeredCommands.stream()
-      .filter(commandInfo -> Arrays.binarySearch(commandInfo.getNames(), input) >= 0)
+      .filter(commandInfo -> commandInfo.getAliases().contains(input.toLowerCase())
+        || commandInfo.getName().equals(lowerCaseInput))
       .findFirst()
       .orElse(null);
   }

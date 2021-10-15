@@ -14,13 +14,17 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.command.sub;
+package de.dytanic.cloudnet.command.annotation;
 
-import cloud.commandframework.annotations.CommandPermission;
-import de.dytanic.cloudnet.command.annotation.CommandAlias;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-@CommandPermission("cloudnet.command.screen")
-@CommandAlias("scr")
-public class CommandScreen {
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface CommandAlias {
+
+  String[] value();
 
 }

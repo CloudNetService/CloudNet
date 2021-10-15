@@ -21,8 +21,10 @@ import cloud.commandframework.annotations.CommandMethod;
 import cloud.commandframework.annotations.CommandPermission;
 import cloud.commandframework.annotations.Confirmation;
 import de.dytanic.cloudnet.CloudNet;
+import de.dytanic.cloudnet.command.annotation.CommandAlias;
 
 @CommandPermission("cloudnet.command.exit")
+@CommandAlias({"shutdown", "stop"})
 public class CommandExit {
 
   @Confirmation

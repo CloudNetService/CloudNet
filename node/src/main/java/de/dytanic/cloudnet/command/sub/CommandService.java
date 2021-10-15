@@ -26,6 +26,7 @@ import cloud.commandframework.annotations.suggestions.Suggestions;
 import cloud.commandframework.context.CommandContext;
 import com.google.common.primitives.Ints;
 import de.dytanic.cloudnet.CloudNet;
+import de.dytanic.cloudnet.command.annotation.CommandAlias;
 import de.dytanic.cloudnet.command.exception.ArgumentNotAvailableException;
 import de.dytanic.cloudnet.command.source.CommandSource;
 import de.dytanic.cloudnet.common.INameable;
@@ -53,6 +54,7 @@ import java.util.stream.Collectors;
 import org.jetbrains.annotations.Nullable;
 
 @CommandPermission("cloudnet.command.service")
+@CommandAlias("ser")
 public class CommandService {
 
   public static final Pattern SERVICE_NAME_PATTERN = Pattern.compile("([\\w+-]+)-(\\d+)");

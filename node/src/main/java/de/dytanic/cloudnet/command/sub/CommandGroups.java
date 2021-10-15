@@ -20,6 +20,7 @@ import cloud.commandframework.annotations.Argument;
 import cloud.commandframework.annotations.CommandMethod;
 import cloud.commandframework.annotations.CommandPermission;
 import cloud.commandframework.annotations.parsers.Parser;
+import cloud.commandframework.annotations.specifier.Greedy;
 import cloud.commandframework.annotations.suggestions.Suggestions;
 import cloud.commandframework.context.CommandContext;
 import de.dytanic.cloudnet.CloudNet;
@@ -29,7 +30,10 @@ import de.dytanic.cloudnet.common.INameable;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.driver.provider.GroupConfigurationProvider;
 import de.dytanic.cloudnet.driver.service.GroupConfiguration;
+import de.dytanic.cloudnet.driver.service.ServiceDeployment;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
+import de.dytanic.cloudnet.driver.service.ServiceRemoteInclusion;
+import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -125,6 +129,134 @@ public class CommandGroups {
     } else {
       source.sendMessage(LanguageManager.getMessage("command-groups-remove-environment-not-found"));
     }
+  }
+
+  @CommandMethod("groups group <name> add deployment <deployment>")
+  public void addDeployment(
+    CommandSource source,
+    @Argument("name") GroupConfiguration group,
+    @Argument("deployment") ServiceTemplate template
+  ) {
+    ServiceDeployment deployment = new ServiceDeployment(template, new ArrayList<>());
+
+    group.getDeployments().add(deployment);
+    this.updateGroup(group);
+  }
+
+  @CommandMethod("groups group <name> add template <template>")
+  public void addTemplate(
+    CommandSource source,
+    @Argument("name") GroupConfiguration group,
+    @Argument("template") ServiceTemplate template
+  ) {
+    group.getTemplates().add(template);
+    this.updateGroup(group);
+  }
+
+  @CommandMethod("groups group <name> add inclusion <url> <path>")
+  public void addInclusion(
+    CommandSource source,
+    @Argument("name") GroupConfiguration group,
+    @Argument("url") String url,
+    @Argument("path") String path
+  ) {
+    ServiceRemoteInclusion inclusion = new ServiceRemoteInclusion(url, path);
+
+    group.getIncludes().add(inclusion);
+    this.updateGroup(group);
+  }
+
+  @CommandMethod("groups group <name> add jvmOption <options>")
+  public void addJvmOption(
+    CommandSource source,
+    @Argument("name") GroupConfiguration group,
+    @Argument(value = "options", parserName = "greedyParameter") Queue<String> jvmOptions
+  ) {
+    for (String jvmOption : jvmOptions) {
+      group.getJvmOptions().add(jvmOption);
+    }
+    this.updateGroup(group);
+  }
+
+  @CommandMethod("groups group <name> add processParameter <options>")
+  public void addProcessParameter(
+    CommandSource source,
+    @Argument("name") GroupConfiguration group,
+    @Greedy @Argument(value = "options", parserName = "greedyParameter") Queue<String> processParameters
+  ) {
+    for (String processParameter : processParameters) {
+      group.getProcessParameters().add(processParameter);
+    }
+    this.updateGroup(group);
+  }
+
+  @CommandMethod("groups group <name> remove deployment <deployment>")
+  public void removeDeployment(
+    CommandSource source,
+    @Argument("name") GroupConfiguration group,
+    @Argument("deployment") ServiceTemplate template
+  ) {
+    ServiceDeployment deployment = new ServiceDeployment(template, new ArrayList<>());
+
+    group.getDeployments().remove(deployment);
+    this.updateGroup(group);
+  }
+
+  @CommandMethod("groups group <name> remove template <template>")
+  public void removeTemplate(
+    CommandSource source,
+    @Argument("name") GroupConfiguration group,
+    @Argument("template") ServiceTemplate template
+  ) {
+    group.getTemplates().remove(template);
+    this.updateGroup(group);
+  }
+
+  @CommandMethod("groups group <name> remove inclusion <url> <path>")
+  public void removeInclusion(
+    CommandSource source,
+    @Argument("name") GroupConfiguration group,
+    @Argument("url") String url,
+    @Argument("path") String path
+  ) {
+    ServiceRemoteInclusion inclusion = new ServiceRemoteInclusion(url, path);
+
+    group.getIncludes().remove(inclusion);
+    this.updateGroup(group);
+  }
+
+  @CommandMethod("groups group <name> remove jvmOption <options>")
+  public void removeJvmOption(
+    CommandSource source,
+    @Argument("name") GroupConfiguration group,
+    @Greedy @Argument(value = "options", parserName = "greedyParameter") Queue<String> jvmOptions
+  ) {
+    for (String jvmOption : jvmOptions) {
+      group.getJvmOptions().remove(jvmOption);
+    }
+    this.updateGroup(group);
+  }
+
+  @CommandMethod("groups group <name> remove processParameter <options>")
+  public void removeProcessParameter(
+    CommandSource source,
+    @Argument("name") GroupConfiguration group,
+    @Greedy @Argument(value = "options", parserName = "greedyParameter") Queue<String> processParameters
+  ) {
+    for (String processParameter : processParameters) {
+      group.getProcessParameters().remove(processParameter);
+    }
+    this.updateGroup(group);
+  }
+
+  @CommandMethod("groups group <name> clear jvmOptions")
+  public void clearJvmOptions(CommandSource source, @Argument("name") GroupConfiguration group) {
+    group.getJvmOptions().clear();
+    this.updateGroup(group);
+  }
+
+  private void updateGroup(GroupConfiguration groupConfiguration) {
+    this.groupProvider().addGroupConfiguration(groupConfiguration);
   }
 
   private GroupConfigurationProvider groupProvider() {

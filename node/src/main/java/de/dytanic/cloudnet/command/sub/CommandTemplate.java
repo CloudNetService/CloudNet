@@ -26,6 +26,7 @@ import cloud.commandframework.annotations.specifier.Quoted;
 import cloud.commandframework.annotations.suggestions.Suggestions;
 import cloud.commandframework.context.CommandContext;
 import de.dytanic.cloudnet.CloudNet;
+import de.dytanic.cloudnet.command.annotation.CommandAlias;
 import de.dytanic.cloudnet.command.exception.ArgumentNotAvailableException;
 import de.dytanic.cloudnet.command.source.CommandSource;
 import de.dytanic.cloudnet.common.INameable;
@@ -50,6 +51,7 @@ import java.util.zip.ZipInputStream;
 
 @CommandDescription("Manages the templates and allows installation of .jar files")
 @CommandPermission("cloudnet.command.templates")
+@CommandAlias("t")
 public class CommandTemplate {
 
   @Parser(suggestions = "serviceTemplate")

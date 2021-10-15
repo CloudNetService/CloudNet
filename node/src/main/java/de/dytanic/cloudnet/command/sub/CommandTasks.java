@@ -20,6 +20,7 @@ import cloud.commandframework.annotations.Argument;
 import cloud.commandframework.annotations.CommandMethod;
 import cloud.commandframework.annotations.CommandPermission;
 import cloud.commandframework.annotations.parsers.Parser;
+import cloud.commandframework.annotations.specifier.Greedy;
 import cloud.commandframework.annotations.specifier.Range;
 import cloud.commandframework.annotations.suggestions.Suggestions;
 import cloud.commandframework.context.CommandContext;
@@ -34,7 +35,9 @@ import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
 import de.dytanic.cloudnet.driver.provider.ServiceTaskProvider;
 import de.dytanic.cloudnet.driver.service.GroupConfiguration;
+import de.dytanic.cloudnet.driver.service.ServiceDeployment;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
+import de.dytanic.cloudnet.driver.service.ServiceRemoteInclusion;
 import de.dytanic.cloudnet.driver.service.ServiceTask;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import de.dytanic.cloudnet.util.JavaVersionResolver;
@@ -268,7 +271,7 @@ public class CommandTasks {
   public void removeNode(
     CommandSource source,
     @Argument("name") ServiceTask task,
-    @Argument(value = "uniqueId") String node
+    @Argument("uniqueId") String node
   ) {
     this.updateTask(task, serviceTask -> serviceTask.getAssociatedNodes().remove(node));
   }
@@ -277,9 +280,129 @@ public class CommandTasks {
   public void removeGroup(
     CommandSource source,
     @Argument("name") ServiceTask task,
-    @Argument(value = "group") String group
+    @Argument("group") String group
   ) {
     this.updateTask(task, serviceTask -> serviceTask.getGroups().remove(group));
+  }
+
+  @CommandMethod("tasks task <name> add deployment <deployment>")
+  public void addDeployment(
+    CommandSource source,
+    @Argument("name") ServiceTask serviceTask,
+    @Argument("deployment") ServiceTemplate template
+  ) {
+    ServiceDeployment deployment = new ServiceDeployment(template, new ArrayList<>());
+    this.updateTask(serviceTask, task -> task.getDeployments().add(deployment));
+  }
+
+  @CommandMethod("tasks task <name> add template <template>")
+  public void addTemplate(
+    CommandSource source,
+    @Argument("name") ServiceTask serviceTask,
+    @Argument("template") ServiceTemplate template
+  ) {
+    this.updateTask(serviceTask, task -> task.getTemplates().add(template));
+  }
+
+  @CommandMethod("tasks task <name> add inclusion <url> <path>")
+  public void addInclusion(
+    CommandSource source,
+    @Argument("name") ServiceTask serviceTask,
+    @Argument("url") String url,
+    @Argument("path") String path
+  ) {
+    ServiceRemoteInclusion inclusion = new ServiceRemoteInclusion(url, path);
+
+    this.updateTask(serviceTask, task -> task.getIncludes().add(inclusion));
+  }
+
+  @CommandMethod("tasks task <name> add jvmOption <options>")
+  public void addJvmOption(
+    CommandSource source,
+    @Argument("name") ServiceTask serviceTask,
+    @Argument(value = "options", parserName = "greedyParameter") Queue<String> jvmOptions
+  ) {
+    for (String jvmOption : jvmOptions) {
+      serviceTask.getJvmOptions().add(jvmOption);
+    }
+    this.updateTask(serviceTask);
+  }
+
+  @CommandMethod("tasks task <name> add processParameter <options>")
+  public void addProcessParameter(
+    CommandSource source,
+    @Argument("name") ServiceTask serviceTask,
+    @Greedy @Argument(value = "options", parserName = "greedyParameter") Queue<String> processParameters
+  ) {
+    for (String processParameter : processParameters) {
+      serviceTask.getProcessParameters().add(processParameter);
+    }
+    this.updateTask(serviceTask);
+  }
+
+  @CommandMethod("tasks task <name> remove deployment <deployment>")
+  public void removeDeployment(
+    CommandSource source,
+    @Argument("name") ServiceTask serviceTask,
+    @Argument("deployment") ServiceTemplate template
+  ) {
+    ServiceDeployment deployment = new ServiceDeployment(template, new ArrayList<>());
+
+    this.updateTask(serviceTask, task -> task.getDeployments().remove(deployment));
+  }
+
+  @CommandMethod("tasks task <name> remove template <template>")
+  public void removeTemplate(
+    CommandSource source,
+    @Argument("name") ServiceTask serviceTask,
+    @Argument("template") ServiceTemplate template
+  ) {
+    this.updateTask(serviceTask, task -> task.getTemplates().remove(template));
+  }
+
+  @CommandMethod("tasks task <name> remove inclusion <url> <path>")
+  public void removeInclusion(
+    CommandSource source,
+    @Argument("name") ServiceTask serviceTask,
+    @Argument("url") String url,
+    @Argument("path") String path
+  ) {
+    ServiceRemoteInclusion inclusion = new ServiceRemoteInclusion(url, path);
+
+    this.updateTask(serviceTask, task -> task.getIncludes().remove(inclusion));
+  }
+
+  @CommandMethod("tasks task <name> remove jvmOption <options>")
+  public void removeJvmOption(
+    CommandSource source,
+    @Argument("name") ServiceTask serviceTask,
+    @Greedy @Argument(value = "options", parserName = "greedyParameter") Queue<String> jvmOptions
+  ) {
+    for (String jvmOption : jvmOptions) {
+      serviceTask.getJvmOptions().remove(jvmOption);
+    }
+    this.updateTask(serviceTask);
+  }
+
+  @CommandMethod("tasks task <name> remove processParameter <options>")
+  public void removeProcessParameter(
+    CommandSource source,
+    @Argument("name") ServiceTask serviceTask,
+    @Greedy @Argument(value = "options", parserName = "greedyParameter") Queue<String> processParameters
+  ) {
+    for (String processParameter : processParameters) {
+      serviceTask.getProcessParameters().remove(processParameter);
+    }
+    this.updateTask(serviceTask);
+  }
+
+  @CommandMethod("tasks task <name> clear jvmOptions")
+  public void clearJvmOptions(CommandSource source, @Argument("name") ServiceTask serviceTask) {
+    this.updateTask(serviceTask, task -> task.getJvmOptions().clear());
+  }
+
+  private void updateTask(ServiceTask task) {
+    this.taskProvider().addPermanentServiceTask(task);
   }
 
   private void updateTask(ServiceTask task, Consumer<ServiceTask> consumer) {
