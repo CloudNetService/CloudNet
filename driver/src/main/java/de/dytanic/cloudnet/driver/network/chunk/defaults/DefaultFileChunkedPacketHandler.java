@@ -44,7 +44,7 @@ public class DefaultFileChunkedPacketHandler extends DefaultChunkedPacketProvide
 
   protected Integer expectedFileParts;
 
-  protected DefaultFileChunkedPacketHandler(
+  public DefaultFileChunkedPacketHandler(
     @NotNull ChunkSessionInformation sessionInformation,
     @NotNull Callback completeHandler
   ) {
