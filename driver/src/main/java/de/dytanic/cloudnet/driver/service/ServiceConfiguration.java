@@ -25,7 +25,6 @@ import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -135,7 +134,7 @@ public class ServiceConfiguration extends BasicJsonDocPropertyable {
   }
 
   public @NotNull Set<String> getGroups() {
-    return Collections.unmodifiableSet(this.groups);
+    return this.groups;
   }
 
   public @NotNull Set<String> getDeletedFilesAfterStop() {
@@ -202,7 +201,7 @@ public class ServiceConfiguration extends BasicJsonDocPropertyable {
       this.serviceId.uniqueId = UUID.randomUUID();
     }
     if (this.processConfig.jvmOptions == null) {
-      this.processConfig.jvmOptions = Collections.emptyList();
+      this.processConfig.jvmOptions = new HashSet<>();
     }
   }
 
