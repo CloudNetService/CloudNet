@@ -480,8 +480,7 @@ public abstract class AbstractService implements ICloudService {
       this.isAlive() ? this.lastServiceInfo.getProcessSnapshot() : ProcessSnapshot.empty(),
       this.lastServiceInfo.getConfiguration(),
       this.lastServiceInfo.getProperties());
-    // push the service change to the current manager
-    this.cloudServiceManager.handleServiceUpdate(this.currentServiceInfo);
+    // call the lifecycle change event
     this.eventManager.callEvent(new CloudServicePostLifecycleEvent(this, lifeCycle));
     // publish the change to all services and nodes
     ChannelMessage.builder()

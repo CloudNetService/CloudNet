@@ -25,6 +25,7 @@ import de.dytanic.cloudnet.driver.permission.PermissionCheckResult;
 import de.dytanic.cloudnet.driver.permission.PermissionGroup;
 import de.dytanic.cloudnet.driver.permission.PermissionUser;
 import de.dytanic.cloudnet.wrapper.Wrapper;
+import de.dytanic.cloudnet.wrapper.network.listener.message.PermissionChannelMessageListener;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
@@ -35,14 +36,18 @@ public class WrapperPermissionManagement extends DefaultCachedPermissionManageme
 
   private final Wrapper wrapper;
   private final RPCSender rpcSender;
-  private final PermissionCacheListener listener;
+
+  private final PermissionCacheListener cacheListener;
+  private final PermissionChannelMessageListener channelMessageListener;
 
   public WrapperPermissionManagement(@NotNull Wrapper wrapper) {
     this.wrapper = wrapper;
     this.rpcSender = wrapper.getRPCProviderFactory().providerForClass(
       wrapper.getNetworkClient(),
       IPermissionManagement.class);
-    this.listener = new PermissionCacheListener(this);
+
+    this.cacheListener = new PermissionCacheListener(this);
+    this.channelMessageListener = new PermissionChannelMessageListener(wrapper.getEventManager(), this);
   }
 
   @Override
@@ -54,12 +59,12 @@ public class WrapperPermissionManagement extends DefaultCachedPermissionManageme
       }
     }
 
-    this.wrapper.getEventManager().registerListener(this.listener);
+    this.wrapper.getEventManager().registerListeners(this.cacheListener, this.channelMessageListener);
   }
 
   @Override
   public void close() {
-    this.wrapper.getEventManager().unregisterListener(this.listener);
+    this.wrapper.getEventManager().unregisterListeners(this.cacheListener, this.channelMessageListener);
   }
 
   @Override

@@ -18,7 +18,7 @@ package de.dytanic.cloudnet.driver.event;
 
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
-import de.dytanic.cloudnet.driver.event.events.service.CloudServiceStartEvent;
+import de.dytanic.cloudnet.driver.event.events.service.CloudServiceLifecycleChangeEvent;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import org.junit.jupiter.api.Assertions;
@@ -59,7 +59,7 @@ public class DefaultEventManagerTest {
 
     Assertions.assertEquals(ChannelMessageReceiveEvent.class,
       eventManager.registeredListeners.get("*").get(0).getEventClass());
-    Assertions.assertEquals(CloudServiceStartEvent.class,
+    Assertions.assertEquals(CloudServiceLifecycleChangeEvent.class,
       eventManager.registeredListeners.get("123").get(0).getEventClass());
   }
 
@@ -133,7 +133,7 @@ public class DefaultEventManagerTest {
     }
 
     @EventListener(channel = "123")
-    public void listenerB(CloudServiceStartEvent event) {
+    public void listenerB(CloudServiceLifecycleChangeEvent event) {
     }
 
     @Override

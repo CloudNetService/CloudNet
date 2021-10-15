@@ -20,6 +20,7 @@ import de.dytanic.cloudnet.driver.network.rpc.RPCSender;
 import de.dytanic.cloudnet.driver.provider.ServiceTaskProvider;
 import de.dytanic.cloudnet.driver.service.ServiceTask;
 import de.dytanic.cloudnet.wrapper.Wrapper;
+import de.dytanic.cloudnet.wrapper.network.listener.message.TaskChannelMessageListener;
 import java.util.Collection;
 import org.jetbrains.annotations.NotNull;
 
@@ -31,6 +32,7 @@ public class WrapperServiceTaskProvider implements ServiceTaskProvider {
     this.rpcSender = wrapper.getRPCProviderFactory().providerForClass(
       wrapper.getNetworkClient(),
       ServiceTaskProvider.class);
+    wrapper.getEventManager().registerListener(new TaskChannelMessageListener(wrapper.getEventManager()));
   }
 
   @Override

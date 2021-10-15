@@ -25,6 +25,8 @@ import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.driver.module.DefaultModuleProviderHandler;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
+import de.dytanic.cloudnet.driver.network.chunk.defaults.factory.EventChunkHandlerFactory;
+import de.dytanic.cloudnet.driver.network.chunk.network.ChunkedPacketListener;
 import de.dytanic.cloudnet.driver.network.def.NetworkConstants;
 import de.dytanic.cloudnet.driver.network.netty.client.NettyNetworkClient;
 import de.dytanic.cloudnet.driver.network.rpc.RPCSender;
@@ -46,6 +48,7 @@ import de.dytanic.cloudnet.wrapper.event.service.ServiceInfoSnapshotConfigureEve
 import de.dytanic.cloudnet.wrapper.network.NetworkClientChannelHandler;
 import de.dytanic.cloudnet.wrapper.network.chunk.TemplateStorageCallbackListener;
 import de.dytanic.cloudnet.wrapper.network.listener.PacketAuthorizationResponseListener;
+import de.dytanic.cloudnet.wrapper.network.listener.PacketServerChannelMessageListener;
 import de.dytanic.cloudnet.wrapper.permission.WrapperPermissionManagement;
 import de.dytanic.cloudnet.wrapper.provider.WrapperGeneralCloudServiceProvider;
 import de.dytanic.cloudnet.wrapper.provider.WrapperGroupConfigurationProvider;
@@ -325,8 +328,19 @@ public class Wrapper extends CloudNetDriver {
         throw new IllegalStateException("Unable to authorize wrapper with node");
       }
 
+      // set connected time
+      this.currentServiceInfoSnapshot.setConnectedTime(System.currentTimeMillis());
+
       // remove the auth listener
       this.networkClient.getPacketRegistry().removeListener(NetworkConstants.INTERNAL_AUTHORIZATION_CHANNEL);
+
+      // add the runtime packet listeners
+      this.networkClient.getPacketRegistry().addListener(
+        NetworkConstants.CHUNKED_PACKET_COM_CHANNEL,
+        new ChunkedPacketListener(EventChunkHandlerFactory.withDefaultEventManager()));
+      this.networkClient.getPacketRegistry().addListener(
+        NetworkConstants.CHANNEL_MESSAGING_CHANNEL,
+        new PacketServerChannelMessageListener());
     } finally {
       lock.unlock();
     }

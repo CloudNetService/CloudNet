@@ -23,6 +23,7 @@ import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.wrapper.Wrapper;
+import de.dytanic.cloudnet.wrapper.network.listener.message.ServiceChannelMessageListener;
 import java.util.Collection;
 import java.util.UUID;
 import org.jetbrains.annotations.NotNull;
@@ -36,6 +37,7 @@ public class WrapperGeneralCloudServiceProvider implements GeneralCloudServicePr
     this.rpcSender = wrapper.getRPCProviderFactory().providerForClass(
       wrapper.getNetworkClient(),
       GeneralCloudServiceProvider.class);
+    wrapper.getEventManager().registerListener(new ServiceChannelMessageListener(wrapper.getEventManager()));
   }
 
   @Override

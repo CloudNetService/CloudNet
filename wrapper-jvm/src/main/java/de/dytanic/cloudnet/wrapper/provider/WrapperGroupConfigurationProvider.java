@@ -20,6 +20,7 @@ import de.dytanic.cloudnet.driver.network.rpc.RPCSender;
 import de.dytanic.cloudnet.driver.provider.GroupConfigurationProvider;
 import de.dytanic.cloudnet.driver.service.GroupConfiguration;
 import de.dytanic.cloudnet.wrapper.Wrapper;
+import de.dytanic.cloudnet.wrapper.network.listener.message.GroupChannelMessageListener;
 import java.util.Collection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -32,6 +33,7 @@ public class WrapperGroupConfigurationProvider implements GroupConfigurationProv
     this.rpcSender = wrapper.getRPCProviderFactory().providerForClass(
       wrapper.getNetworkClient(),
       GroupConfigurationProvider.class);
+    wrapper.getEventManager().registerListener(new GroupChannelMessageListener(wrapper.getEventManager()));
   }
 
   @Override
