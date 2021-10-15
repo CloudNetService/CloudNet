@@ -16,9 +16,9 @@
 
 import net.kyori.indra.git.IndraGitExtension
 import org.gradle.api.Project
-import org.gradle.api.artifacts.ModuleVersionIdentifier
 import org.gradle.api.artifacts.ProjectDependency
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository
+import org.gradle.api.internal.artifacts.repositories.resolver.MavenUniqueSnapshotComponentIdentifier
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.tasks.SourceSetContainer
 import org.gradle.jvm.tasks.Jar
@@ -74,9 +74,20 @@ fun Project.exportCnlFile(fileName: String) {
   // add all dependencies
   stringBuilder.append("\n\n# dependencies\n")
   configurations.getByName("runtimeClasspath").resolvedConfiguration.resolvedArtifacts.forEach {
-    resolveRepository(it.moduleVersion.id, mavenRepositories())?.run {
-      stringBuilder
-        .append("include $name ${it.moduleVersion.id.group} ${it.moduleVersion.id.name} ${it.moduleVersion.id.version} ${it.classifier ?: ""}\n")
+    // get the module version from the artifact
+    val id = it.moduleVersion.id
+    // check if the dependency is a snapshot version - in this case we need to use another artifact url
+    var version = id.version
+    if (id.version.endsWith("-SNAPSHOT") && it.id.componentIdentifier is MavenUniqueSnapshotComponentIdentifier) {
+      // little hack to get the timestamped ("snapshot") version of the identifier
+      version = (it.id.componentIdentifier as MavenUniqueSnapshotComponentIdentifier).timestampedVersion
+    }
+    // try to find the repository associated with the module
+    resolveRepository(
+      "${id.group.replace('.', '/')}/${id.name}/${id.version}/${id.name}-$version.jar",
+      mavenRepositories()
+    )?.run {
+      stringBuilder.append("include $name ${id.group} ${id.name} $version ${it.classifier ?: ""}\n")
     }
   }
 
@@ -85,14 +96,11 @@ fun Project.exportCnlFile(fileName: String) {
 }
 
 private fun resolveRepository(
-  id: ModuleVersionIdentifier,
+  testUrlPath: String,
   repositories: Iterable<MavenArtifactRepository>
 ): MavenArtifactRepository? {
   return repositories.firstOrNull {
-    val url = URL(
-      it.url.toURL(),
-      "${id.group.replace('.', '/')}/${id.name}/${id.version}/${id.name}-${id.version}.jar"
-    )
+    val url = URL(it.url.toURL(), testUrlPath)
     with(url.openConnection() as HttpURLConnection) {
       useCaches = false
       readTimeout = 5000
