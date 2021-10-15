@@ -217,7 +217,7 @@ public class CloudNet extends CloudNetDriver {
 
   @Override
   public void stop() {
-    // check if we are in the shutdown thread - execcute in the shutdown thread if not
+    // check if we are in the shutdown thread - execute in the shutdown thread if not
     if (!Thread.currentThread().getName().equals("Shutdown Thread")) {
       System.exit(0);
       return;

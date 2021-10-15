@@ -40,6 +40,6 @@ public class CommandConfig {
   @CommandMethod("config node reload")
   public void reloadNodeConfig(CommandSource source) {
     CloudNet.getInstance().setConfig(JsonConfiguration.loadFromFile());
-    source.sendMessage(LanguageManager.getMessage("node-reload"));
+    source.sendMessage(LanguageManager.getMessage("command-reload-node-config"));
   }
 }

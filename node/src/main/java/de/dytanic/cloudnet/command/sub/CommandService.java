@@ -62,7 +62,7 @@ public class CommandService {
   public static final Pattern SERVICE_NAME_PATTERN = Pattern.compile("([\\w+-]+)-(\\d+)");
   private static final DateFormat DATE_FORMAT = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
 
-  @Parser(name = "single", suggestions = "single")
+  @Parser(name = "single", suggestions = "service")
   public ServiceInfoSnapshot singleServiceParser(CommandContext<CommandSource> $, Queue<String> input) {
     String name = input.remove();
     ServiceInfoSnapshot serviceInfoSnapshot = CloudNet.getInstance().getCloudServiceProvider()
@@ -73,15 +73,15 @@ public class CommandService {
     return serviceInfoSnapshot;
   }
 
-  @Suggestions("single")
-  public List<String> suggestSingleService(CommandContext<CommandSource> $, String input) {
+  @Suggestions("service")
+  public List<String> suggestService(CommandContext<CommandSource> $, String input) {
     return CloudNet.getInstance().getCloudServiceProvider().getCloudServices()
       .stream()
       .map(INameable::getName)
       .collect(Collectors.toList());
   }
 
-  @Parser(suggestions = "serviceWildcard")
+  @Parser(suggestions = "service")
   public Collection<ServiceInfoSnapshot> wildcardServiceParser(CommandContext<CommandSource> $, Queue<String> input) {
     String name = input.remove();
     Collection<ServiceInfoSnapshot> knownServices = CloudNet.getInstance().getCloudServiceProvider().getCloudServices();
@@ -99,15 +99,6 @@ public class CommandService {
     String name = input.remove();
     Collection<ServiceInfoSnapshot> knownServices = CloudNet.getInstance().getCloudServiceProvider().getCloudServices();
     return WildcardUtil.filterWildcard(knownServices, name);
-  }
-
-  @Suggestions("serviceWildcard")
-  public List<String> suggestService(CommandContext<CommandSource> $, String input) {
-    Collection<ServiceInfoSnapshot> knownServices = CloudNet.getInstance().getCloudServiceProvider().getCloudServices();
-    return WildcardUtil.filterWildcard(knownServices, input)
-      .stream()
-      .map(INameable::getName)
-      .collect(Collectors.toList());
   }
 
   @CommandMethod("service|ser list|l")

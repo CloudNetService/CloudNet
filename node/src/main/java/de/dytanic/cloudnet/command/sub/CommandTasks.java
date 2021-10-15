@@ -31,6 +31,7 @@ import de.dytanic.cloudnet.command.source.CommandSource;
 import de.dytanic.cloudnet.command.source.ConsoleCommandSource;
 import de.dytanic.cloudnet.common.INameable;
 import de.dytanic.cloudnet.common.JavaVersion;
+import de.dytanic.cloudnet.common.WildcardUtil;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
@@ -71,6 +72,18 @@ public class CommandTasks {
     return this.taskProvider().getPermanentServiceTasks().stream().map(INameable::getName).collect(Collectors.toList());
   }
 
+  @Parser(suggestions = "serviceTask")
+  public Collection<ServiceTask> wildcardTaskParser(CommandContext<CommandSource> $, Queue<String> input) {
+    String name = input.remove();
+    Collection<ServiceTask> matchedTasks = WildcardUtil.
+      filterWildcard(this.taskProvider().getPermanentServiceTasks(), name);
+    if (matchedTasks.isEmpty()) {
+      throw new ArgumentNotAvailableException(LanguageManager.getMessage("command-tasks-task-not-found"));
+    }
+
+    return matchedTasks;
+  }
+
   @Parser(name = "javaCommand")
   public Pair<String, JavaVersion> javaCommandParser(CommandContext<CommandSource> $, Queue<String> input) {
     String command = String.join(" ", input);
@@ -91,6 +104,7 @@ public class CommandTasks {
         return nodeId;
       }
     }
+
     throw new ArgumentNotAvailableException(LanguageManager.getMessage("command-tasks-node-not-found"));
   }
 
@@ -110,6 +124,13 @@ public class CommandTasks {
   @CommandMethod("tasks reload")
   public void reloadTasks(CommandSource source) {
     this.taskProvider().reload();
+  }
+
+  @CommandMethod("tasks delete <name>")
+  public void deleteTask(CommandSource source, @Argument("name") Collection<ServiceTask> serviceTasks) {
+    for (ServiceTask serviceTask : serviceTasks) {
+      this.taskProvider().removePermanentServiceTask(serviceTask);
+    }
   }
 
   @CommandMethod("tasks list")
@@ -142,267 +163,314 @@ public class CommandTasks {
   }
 
   @CommandMethod("tasks task <name>")
-  public void displayTask(CommandSource source, @Argument("name") ServiceTask task) {
-    Collection<String> messages = new ArrayList<>();
-    messages.add("Name: " + task.getName());
-    messages.add("Groups: " + Arrays.toString(task.getGroups().toArray()));
-    messages.add("Max heap memory: " + task.getProcessConfiguration().getMaxHeapMemorySize());
-    messages.add("Maintenance: " + task.isMaintenance());
-    messages.add(
-      "Nodes:" + (task.getAssociatedNodes().isEmpty() ? "All"
-        : Arrays.toString(task.getAssociatedNodes().toArray())));
-    messages.add("Minimal Services: " + task.getMinServiceCount());
-    messages.add("Java Command: " + task.getJavaCommand());
-    messages.add("Start Port: " + task.getStartPort());
-    messages.add("Static services: " + task.isStaticServices());
-    messages.add("Auto delete on stop: " + task.isAutoDeleteOnStop());
-    messages.add("Deleted files after stop: " + Arrays.toString(task.getDeletedFilesAfterStop().toArray()));
-    messages.add("Environment: " + task.getProcessConfiguration().getEnvironment());
+  public void displayTask(CommandSource source, @Argument("name") Collection<ServiceTask> serviceTasks) {
+    for (ServiceTask serviceTask : serviceTasks) {
+      Collection<String> messages = new ArrayList<>();
+      messages.add("Name: " + serviceTask.getName());
+      messages.add("Groups: " + Arrays.toString(serviceTask.getGroups().toArray()));
+      messages.add("Max heap memory: " + serviceTask.getProcessConfiguration().getMaxHeapMemorySize());
+      messages.add("Maintenance: " + serviceTask.isMaintenance());
+      messages.add(
+        "Nodes:" + (serviceTask.getAssociatedNodes().isEmpty() ? "All"
+          : Arrays.toString(serviceTask.getAssociatedNodes().toArray())));
+      messages.add("Minimal Services: " + serviceTask.getMinServiceCount());
+      messages.add("Java Command: " + serviceTask.getJavaCommand());
+      messages.add("Start Port: " + serviceTask.getStartPort());
+      messages.add("Static services: " + serviceTask.isStaticServices());
+      messages.add("Auto delete on stop: " + serviceTask.isAutoDeleteOnStop());
+      messages.add("Deleted files after stop: " + Arrays.toString(serviceTask.getDeletedFilesAfterStop().toArray()));
+      messages.add("Environment: " + serviceTask.getProcessConfiguration().getEnvironment());
 
-    CommandServiceConfiguration.applyServiceConfigurationDisplay(messages, task);
-
-    source.sendMessage(messages);
+      CommandServiceConfiguration.applyServiceConfigurationDisplay(messages, serviceTask);
+      source.sendMessage(messages);
+    }
   }
 
   @CommandMethod("tasks task <name> set minServiceCount <amount>")
   public void setMinServiceCount(
     CommandSource source,
-    @Argument("name") ServiceTask task,
+    @Argument("name") Collection<ServiceTask> serviceTasks,
     @Argument("amount") @Range(min = "0") Integer amount
   ) {
-    this.updateTask(task, serviceTask -> serviceTask.setMinServiceCount(amount));
+    for (ServiceTask task : serviceTasks) {
+      this.updateTask(task, serviceTask -> serviceTask.setMinServiceCount(amount));
+    }
   }
 
   @CommandMethod("tasks task <name> set maintenance <enabled>")
   public void setMaintenance(
     CommandSource source,
-    @Argument("name") ServiceTask task,
+    @Argument("name") Collection<ServiceTask> serviceTasks,
     @Argument("enabled") boolean enabled
   ) {
-    this.updateTask(task, serviceTask -> serviceTask.setMaintenance(enabled));
+    for (ServiceTask task : serviceTasks) {
+      this.updateTask(task, serviceTask -> serviceTask.setMaintenance(enabled));
+    }
   }
 
   @CommandMethod("tasks task <name> set maxHeapMemory <amount>")
   public void setMaxHeapMemory(
     CommandSource source,
-    @Argument("name") ServiceTask task,
+    @Argument("name") Collection<ServiceTask> serviceTasks,
     @Argument("amount") @Range(min = "0") Integer amount
   ) {
-    this.updateTask(task, serviceTask -> serviceTask.getProcessConfiguration().setMaxHeapMemorySize(amount));
+    for (ServiceTask task : serviceTasks) {
+      this.updateTask(task, serviceTask -> serviceTask.getProcessConfiguration().setMaxHeapMemorySize(amount));
+    }
   }
 
   @CommandMethod("tasks task <name> set startPort <amount>")
   public void setStartPort(
     CommandSource source,
-    @Argument("name") ServiceTask task,
+    @Argument("name") Collection<ServiceTask> serviceTasks,
     @Argument("amount") @Range(min = "0") Integer amount
   ) {
-    this.updateTask(task, serviceTask -> serviceTask.setStartPort(amount));
+    for (ServiceTask task : serviceTasks) {
+      this.updateTask(task, serviceTask -> serviceTask.setStartPort(amount));
+    }
   }
 
   @CommandMethod("tasks task <name> set autoDeleteOnStop <enabled>")
   public void setAutoDeleteOnStop(
     CommandSource source,
-    @Argument("name") ServiceTask task,
+    @Argument("name") Collection<ServiceTask> serviceTasks,
     @Argument("enabled") boolean enabled
   ) {
-    this.updateTask(task, serviceTask -> serviceTask.setAutoDeleteOnStop(enabled));
+    for (ServiceTask task : serviceTasks) {
+      this.updateTask(task, serviceTask -> serviceTask.setAutoDeleteOnStop(enabled));
+    }
   }
 
   @CommandMethod("tasks task <name> set staticServices <enabled>")
   public void setStaticServices(
     CommandSource source,
-    @Argument("name") ServiceTask task,
+    @Argument("name") Collection<ServiceTask> serviceTasks,
     @Argument("enabled") boolean enabled
   ) {
-    this.updateTask(task, serviceTask -> serviceTask.setStaticServices(enabled));
+    for (ServiceTask task : serviceTasks) {
+      this.updateTask(task, serviceTask -> serviceTask.setStaticServices(enabled));
+    }
   }
 
   @CommandMethod("tasks task <name> set environment <environment>")
   public void setEnvironment(
     CommandSource source,
-    @Argument("name") ServiceTask task,
+    @Argument("name") Collection<ServiceTask> serviceTasks,
     @Argument("environment") ServiceEnvironmentType environmentType
   ) {
-    this.updateTask(task, serviceTask -> serviceTask.getProcessConfiguration().setEnvironment(environmentType));
+    for (ServiceTask task : serviceTasks) {
+      this.updateTask(task, serviceTask -> serviceTask.getProcessConfiguration().setEnvironment(environmentType));
+    }
   }
 
   @CommandMethod("tasks task <name> set disableIpRewrite <enabled>")
   public void setDisableIpRewrite(
     CommandSource source,
-    @Argument("name") ServiceTask task,
+    @Argument("name") Collection<ServiceTask> serviceTasks,
     @Argument("enabled") boolean enabled
   ) {
-    this.updateTask(task, serviceTask -> serviceTask.setDisableIpRewrite(enabled));
+    for (ServiceTask task : serviceTasks) {
+      this.updateTask(task, serviceTask -> serviceTask.setDisableIpRewrite(enabled));
+    }
   }
 
   @CommandMethod("tasks task <name> set javaCommand <executable>")
   public void setJavaCommand(
     CommandSource source,
-    @Argument("name") ServiceTask task,
+    @Argument("name") Collection<ServiceTask> serviceTasks,
     @Argument(value = "executable", parserName = "javaCommand") Pair<String, JavaVersion> executable
   ) {
-    this.updateTask(task, serviceTask -> serviceTask.setJavaCommand(executable.getFirst()));
+    for (ServiceTask task : serviceTasks) {
+      this.updateTask(task, serviceTask -> serviceTask.setJavaCommand(executable.getFirst()));
+    }
   }
 
   @CommandMethod("tasks task <name> add node <uniqueId>")
   public void addNode(
     CommandSource source,
-    @Argument("name") ServiceTask task,
+    @Argument("name") Collection<ServiceTask> serviceTasks,
     @Argument(value = "uniqueId", parserName = "nodeId") String node
   ) {
-    if (task.getAssociatedNodes().contains(node)) {
-      return;
-    }
+    for (ServiceTask task : serviceTasks) {
+      if (task.getAssociatedNodes().contains(node)) {
+        continue;
+      }
 
-    this.updateTask(task, serviceTask -> serviceTask.getAssociatedNodes().add(node));
+      this.updateTask(task, serviceTask -> serviceTask.getAssociatedNodes().add(node));
+    }
   }
 
   @CommandMethod("tasks task <name> add group <group>")
   public void addGroup(
     CommandSource source,
-    @Argument("name") ServiceTask task,
+    @Argument("name") Collection<ServiceTask> serviceTasks,
     @Argument("group") GroupConfiguration group
   ) {
-    if (task.getGroups().contains(group.getName())) {
-      return;
-    }
+    for (ServiceTask task : serviceTasks) {
+      if (task.getGroups().contains(group.getName())) {
+        continue;
+      }
 
-    this.updateTask(task, serviceTask -> serviceTask.getGroups().add(group.getName()));
+      this.updateTask(task, serviceTask -> serviceTask.getGroups().add(group.getName()));
+    }
   }
 
   @CommandMethod("tasks task <name> remove node <uniqueId>")
   public void removeNode(
     CommandSource source,
-    @Argument("name") ServiceTask task,
+    @Argument("name") Collection<ServiceTask> serviceTasks,
     @Argument("uniqueId") String node
   ) {
-    this.updateTask(task, serviceTask -> serviceTask.getAssociatedNodes().remove(node));
+    for (ServiceTask task : serviceTasks) {
+      this.updateTask(task, serviceTask -> serviceTask.getAssociatedNodes().remove(node));
+    }
   }
 
   @CommandMethod("tasks task <name> remove group <group>")
   public void removeGroup(
     CommandSource source,
-    @Argument("name") ServiceTask task,
+    @Argument("name") Collection<ServiceTask> serviceTasks,
     @Argument("group") String group
   ) {
-    this.updateTask(task, serviceTask -> serviceTask.getGroups().remove(group));
+    for (ServiceTask task : serviceTasks) {
+      this.updateTask(task, serviceTask -> serviceTask.getGroups().remove(group));
+    }
   }
 
   @CommandMethod("tasks task <name> add deployment <deployment>")
   public void addDeployment(
     CommandSource source,
-    @Argument("name") ServiceTask serviceTask,
+    @Argument("name") Collection<ServiceTask> serviceTasks,
     @Argument("deployment") ServiceTemplate template
   ) {
     ServiceDeployment deployment = new ServiceDeployment(template, new ArrayList<>());
-    this.updateTask(serviceTask, task -> task.getDeployments().add(deployment));
+    for (ServiceTask serviceTask : serviceTasks) {
+      this.updateTask(serviceTask, task -> task.getDeployments().add(deployment));
+    }
   }
 
   @CommandMethod("tasks task <name> add template <template>")
   public void addTemplate(
     CommandSource source,
-    @Argument("name") ServiceTask serviceTask,
+    @Argument("name") Collection<ServiceTask> serviceTasks,
     @Argument("template") ServiceTemplate template
   ) {
-    this.updateTask(serviceTask, task -> task.getTemplates().add(template));
+
+    for (ServiceTask serviceTask : serviceTasks) {
+      this.updateTask(serviceTask, task -> task.getTemplates().add(template));
+    }
   }
 
   @CommandMethod("tasks task <name> add inclusion <url> <path>")
   public void addInclusion(
     CommandSource source,
-    @Argument("name") ServiceTask serviceTask,
+    @Argument("name") Collection<ServiceTask> serviceTasks,
     @Argument("url") String url,
     @Argument("path") String path
   ) {
     ServiceRemoteInclusion inclusion = new ServiceRemoteInclusion(url, path);
 
-    this.updateTask(serviceTask, task -> task.getIncludes().add(inclusion));
+    for (ServiceTask serviceTask : serviceTasks) {
+      this.updateTask(serviceTask, task -> task.getIncludes().add(inclusion));
+    }
   }
 
   @CommandMethod("tasks task <name> add jvmOption <options>")
   public void addJvmOption(
     CommandSource source,
-    @Argument("name") ServiceTask serviceTask,
+    @Argument("name") Collection<ServiceTask> serviceTasks,
     @Greedy @Argument("options") String jvmOptions
   ) {
-    for (String jvmOption : jvmOptions.split(" ")) {
-      serviceTask.getJvmOptions().add(jvmOption);
+    Collection<String> splittedOptions = Arrays.asList(jvmOptions.split(" "));
+    for (ServiceTask serviceTask : serviceTasks) {
+      serviceTask.getJvmOptions().addAll(splittedOptions);
+      this.updateTask(serviceTask);
     }
-    this.updateTask(serviceTask);
   }
 
   @CommandMethod("tasks task <name> add processParameter <options>")
   public void addProcessParameter(
     CommandSource source,
-    @Argument("name") ServiceTask serviceTask,
+    @Argument("name") Collection<ServiceTask> serviceTasks,
     @Greedy @Argument("options") String processParameters
   ) {
-    for (String processParameter : processParameters.split(" ")) {
-      serviceTask.getProcessParameters().add(processParameter);
+    Collection<String> splittedOptions = Arrays.asList(processParameters.split(" "));
+    for (ServiceTask serviceTask : serviceTasks) {
+      serviceTask.getProcessParameters().addAll(splittedOptions);
+      this.updateTask(serviceTask);
     }
-    this.updateTask(serviceTask);
   }
 
   @CommandMethod("tasks task <name> remove deployment <deployment>")
   public void removeDeployment(
     CommandSource source,
-    @Argument("name") ServiceTask serviceTask,
+    @Argument("name") Collection<ServiceTask> serviceTasks,
     @Argument("deployment") ServiceTemplate template
   ) {
     ServiceDeployment deployment = new ServiceDeployment(template, new ArrayList<>());
-
-    this.updateTask(serviceTask, task -> task.getDeployments().remove(deployment));
+    for (ServiceTask serviceTask : serviceTasks) {
+      this.updateTask(serviceTask, task -> task.getDeployments().remove(deployment));
+    }
   }
 
   @CommandMethod("tasks task <name> remove template <template>")
   public void removeTemplate(
     CommandSource source,
-    @Argument("name") ServiceTask serviceTask,
+    @Argument("name") Collection<ServiceTask> serviceTasks,
     @Argument("template") ServiceTemplate template
   ) {
-    this.updateTask(serviceTask, task -> task.getTemplates().remove(template));
+
+    for (ServiceTask serviceTask : serviceTasks) {
+      this.updateTask(serviceTask, task -> task.getTemplates().remove(template));
+    }
   }
 
   @CommandMethod("tasks task <name> remove inclusion <url> <path>")
   public void removeInclusion(
     CommandSource source,
-    @Argument("name") ServiceTask serviceTask,
+    @Argument("name") Collection<ServiceTask> serviceTasks,
     @Argument("url") String url,
     @Argument("path") String path
   ) {
     ServiceRemoteInclusion inclusion = new ServiceRemoteInclusion(url, path);
 
-    this.updateTask(serviceTask, task -> task.getIncludes().remove(inclusion));
+    for (ServiceTask serviceTask : serviceTasks) {
+      this.updateTask(serviceTask, task -> task.getIncludes().remove(inclusion));
+    }
   }
 
   @CommandMethod("tasks task <name> remove jvmOption <options>")
   public void removeJvmOption(
     CommandSource source,
-    @Argument("name") ServiceTask serviceTask,
+    @Argument("name") Collection<ServiceTask> serviceTasks,
     @Greedy @Argument("options") String jvmOptions
   ) {
-    for (String jvmOption : jvmOptions.split(" ")) {
-      serviceTask.getJvmOptions().remove(jvmOption);
+    Collection<String> splittedOptions = Arrays.asList(jvmOptions.split(" "));
+    for (ServiceTask serviceTask : serviceTasks) {
+      serviceTask.getJvmOptions().removeAll(splittedOptions);
+      this.updateTask(serviceTask);
     }
-    this.updateTask(serviceTask);
   }
 
   @CommandMethod("tasks task <name> remove processParameter <options>")
   public void removeProcessParameter(
     CommandSource source,
-    @Argument("name") ServiceTask serviceTask,
+    @Argument("name") Collection<ServiceTask> serviceTasks,
     @Greedy @Argument("options") String processParameters
   ) {
-    for (String processParameter : processParameters.split(" ")) {
-      serviceTask.getProcessParameters().remove(processParameter);
+    Collection<String> splittedOptions = Arrays.asList(processParameters.split(" "));
+    for (ServiceTask serviceTask : serviceTasks) {
+      serviceTask.getProcessParameters().removeAll(splittedOptions);
+      this.updateTask(serviceTask);
     }
-    this.updateTask(serviceTask);
   }
 
   @CommandMethod("tasks task <name> clear jvmOptions")
-  public void clearJvmOptions(CommandSource source, @Argument("name") ServiceTask serviceTask) {
-    this.updateTask(serviceTask, task -> task.getJvmOptions().clear());
+  public void clearJvmOptions(CommandSource source, @Argument("name") Collection<ServiceTask> serviceTasks) {
+
+    for (ServiceTask serviceTask : serviceTasks) {
+      this.updateTask(serviceTask, task -> task.getJvmOptions().clear());
+    }
   }
 
   private void updateTask(ServiceTask task) {
