@@ -23,6 +23,7 @@ import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
 import de.dytanic.cloudnet.driver.network.def.NetworkConstants;
+import de.dytanic.cloudnet.driver.network.def.PacketClientAuthorization.PacketAuthorizationType;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.network.protocol.IPacketListener;
 import de.dytanic.cloudnet.driver.service.ServiceId;
@@ -38,12 +39,12 @@ public final class PacketClientAuthorizationListener implements IPacketListener 
   @Override
   public void handle(@NotNull INetworkChannel channel, @NotNull IPacket packet) throws Exception {
     // read the core data
-    int type = packet.getContent().readInt();
+    PacketAuthorizationType type = packet.getContent().readObject(PacketAuthorizationType.class);
     DataBuf content = packet.getContent().readDataBuf();
     // handle the authorization
     switch (type) {
       // NODE -> NODE
-      case 0: {
+      case NODE_TO_NODE: {
         // read the required data for the node auth
         UUID clusterId = content.readUniqueId();
         NetworkClusterNode node = content.readObject(NetworkClusterNode.class);
@@ -75,7 +76,7 @@ public final class PacketClientAuthorizationListener implements IPacketListener 
         break;
       }
       // WRAPPER -> NODE
-      case 1: {
+      case WRAPPER_TO_NODE: {
         // read the required data for the wrapper auth
         String connectionKey = content.readString();
         ServiceId id = content.readObject(ServiceId.class);
