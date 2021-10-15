@@ -16,8 +16,8 @@
 
 package de.dytanic.cloudnet.driver.network.chunk;
 
-import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
+import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import de.dytanic.cloudnet.driver.network.chunk.data.ChunkSessionInformation;
 import de.dytanic.cloudnet.driver.network.chunk.defaults.splitter.NetworkChannelsPacketSplitter;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
@@ -48,16 +48,16 @@ public class ChunkedPacketSenderTest {
     byte[] chunkData = this.generateRandomChunkData();
 
     UUID sessionId = UUID.randomUUID();
-    JsonDocument jsonData = JsonDocument.newDocument("test", "1234");
+    DataBuf dataBuf = DataBuf.empty().writeString("hello").writeInt(10).writeString("world");
 
     Assertions.assertEquals(TransferStatus.SUCCESS, ChunkedPacketSender.forFileTransfer()
       .chunkSize(256)
-      .withExtraData(jsonData)
+      .withExtraData(dataBuf)
       .sessionUniqueId(sessionId)
       .transferChannel("hello_world")
       .source(new ByteArrayInputStream(chunkData))
       .packetSplitter(packet -> {
-        this.validatePacket(packet, sessionId, jsonData, packetSplits, chunkData);
+        this.validatePacket(packet, sessionId, packetSplits, chunkData);
         packetSplits.incrementAndGet();
       })
       .build()
@@ -73,16 +73,16 @@ public class ChunkedPacketSenderTest {
     byte[] chunkData = this.generateRandomChunkData();
 
     UUID sessionId = UUID.randomUUID();
-    JsonDocument jsonData = JsonDocument.newDocument("test", "1234");
+    DataBuf dataBuf = DataBuf.empty().writeString("hello").writeInt(10).writeString("world");
 
     NetworkChannelsPacketSplitter splitter = new NetworkChannelsPacketSplitter(IntStream.range(0, 10)
       .mapToObj($ -> this.mockNetworkChannel(packet ->
-        this.validatePacket(packet, sessionId, jsonData, packetSplits, chunkData)))
+        this.validatePacket(packet, sessionId, packetSplits, chunkData)))
       .collect(Collectors.toList()));
 
     Assertions.assertEquals(TransferStatus.SUCCESS, ChunkedPacketSender.forFileTransfer()
       .chunkSize(256)
-      .withExtraData(jsonData)
+      .withExtraData(dataBuf)
       .sessionUniqueId(sessionId)
       .transferChannel("hello_world")
       .source(new ByteArrayInputStream(chunkData))
@@ -101,14 +101,17 @@ public class ChunkedPacketSenderTest {
     return data;
   }
 
-  private void validatePacket(IPacket packet, UUID sessionId, JsonDocument extra, AtomicInteger splits, byte[] data) {
+  private void validatePacket(IPacket packet, UUID sessionId, AtomicInteger splits, byte[] data) {
     ChunkSessionInformation info = packet.getContent().readObject(ChunkSessionInformation.class);
 
     Assertions.assertEquals(256, info.getChunkSize());
     Assertions.assertEquals(sessionId, info.getSessionUniqueId());
     Assertions.assertEquals("hello_world", info.getTransferChannel());
-    Assertions.assertArrayEquals(extra.toByteArray(), info.getTransferInformation().toByteArray());
     Assertions.assertEquals(splits.get(), packet.getContent().readInt());
+
+    Assertions.assertEquals("hello", info.getTransferInformation().readString());
+    Assertions.assertEquals(10, info.getTransferInformation().readInt());
+    Assertions.assertEquals("world", info.getTransferInformation().readString());
 
     boolean isFinalPacket = packet.getContent().readBoolean();
     Assertions.assertEquals(splits.get() == data.length / 256, isFinalPacket);

@@ -36,9 +36,9 @@ allprojects {
     maven("https://repo.md-5.net/repository/releases/")
     maven("https://repo.waterdog.dev/artifactory/main/")
     maven("https://repo.velocitypowered.com/snapshots/")
+    maven("https://repo.incendo.org/content/repositories/snapshots/")
     maven("https://oss.sonatype.org/content/repositories/snapshots/")
     maven("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
-    maven("https://repo.incendo.org/content/repositories/snapshots")
   }
 }
 

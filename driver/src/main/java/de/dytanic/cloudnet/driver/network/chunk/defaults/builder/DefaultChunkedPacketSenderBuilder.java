@@ -17,8 +17,8 @@
 package de.dytanic.cloudnet.driver.network.chunk.defaults.builder;
 
 import com.google.common.base.Verify;
-import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
+import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import de.dytanic.cloudnet.driver.network.chunk.ChunkedPacketSender;
 import de.dytanic.cloudnet.driver.network.chunk.defaults.splitter.NetworkChannelsPacketSplitter;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
@@ -39,7 +39,7 @@ public abstract class DefaultChunkedPacketSenderBuilder implements ChunkedPacket
 
   protected int chunkSize = DEFAULT_CHUNK_SIZE;
   protected UUID sessionUniqueId = UUID.randomUUID();
-  protected JsonDocument transferInformation = JsonDocument.newDocument();
+  protected DataBuf transferInformation = DataBuf.empty();
 
   @Override
   public @NotNull ChunkedPacketSender.Builder chunkSize(int chunkSize) {
@@ -82,8 +82,8 @@ public abstract class DefaultChunkedPacketSenderBuilder implements ChunkedPacket
   }
 
   @Override
-  public @NotNull ChunkedPacketSender.Builder withExtraData(@NotNull JsonDocument extraData) {
-    this.transferInformation.append(extraData);
+  public @NotNull ChunkedPacketSender.Builder withExtraData(@NotNull DataBuf extraData) {
+    this.transferInformation = extraData;
     return this;
   }
 

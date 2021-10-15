@@ -17,8 +17,8 @@
 package de.dytanic.cloudnet.driver.network.chunk;
 
 import de.dytanic.cloudnet.common.concurrent.ITask;
-import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
+import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import de.dytanic.cloudnet.driver.network.chunk.defaults.builder.FileChunkedPacketSenderBuilder;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import java.io.InputStream;
@@ -55,7 +55,7 @@ public interface ChunkedPacketSender extends ChunkedPacketProvider {
 
     @NotNull Builder packetSplitter(@NotNull Consumer<IPacket> splitter);
 
-    @NotNull Builder withExtraData(@NotNull JsonDocument extraData);
+    @NotNull Builder withExtraData(@NotNull DataBuf extraData);
 
     @NotNull ChunkedPacketSender build();
   }

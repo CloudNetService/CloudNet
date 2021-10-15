@@ -16,7 +16,7 @@
 
 package de.dytanic.cloudnet.driver.network.chunk.data;
 
-import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import java.util.UUID;
 import org.jetbrains.annotations.NotNull;
 
@@ -25,13 +25,13 @@ public class ChunkSessionInformation {
   private final int chunkSize;
   private final UUID sessionUniqueId;
   private final String transferChannel;
-  private final JsonDocument transferInformation;
+  private final DataBuf transferInformation;
 
   public ChunkSessionInformation(
     int chunkSize,
     @NotNull UUID sessionUniqueId,
     @NotNull String transferChannel,
-    @NotNull JsonDocument transferInformation
+    @NotNull DataBuf transferInformation
   ) {
     this.chunkSize = chunkSize;
     this.transferChannel = transferChannel;
@@ -51,7 +51,7 @@ public class ChunkSessionInformation {
     return this.sessionUniqueId;
   }
 
-  public @NotNull JsonDocument getTransferInformation() {
+  public @NotNull DataBuf getTransferInformation() {
     return this.transferInformation;
   }
 
