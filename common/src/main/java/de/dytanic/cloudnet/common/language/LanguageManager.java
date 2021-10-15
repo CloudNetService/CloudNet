@@ -17,10 +17,9 @@
 package de.dytanic.cloudnet.common.language;
 
 import de.dytanic.cloudnet.common.Properties;
-import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
-import java.io.File;
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -28,8 +27,10 @@ import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * The LanguageManager is a static service, which handles messages from different languages, which are registered or
@@ -38,8 +39,8 @@ import java.util.Map;
 public final class LanguageManager {
 
   private static final Logger LOGGER = LogManager.getLogger(LanguageManager.class);
+  private static final Map<String, Properties> LANGUAGE_CACHE = new ConcurrentHashMap<>();
 
-  private static final Map<String, Properties> LANGUAGE_CACHE = new HashMap<>();
   /**
    * The current language, which the getMessage() method will the message return
    */
@@ -47,6 +48,20 @@ public final class LanguageManager {
 
   private LanguageManager() {
     throw new UnsupportedOperationException();
+  }
+
+  public static void loadFromLanguageRegistryFile(@NotNull ClassLoader source) {
+    try (BufferedReader reader = new BufferedReader(new InputStreamReader(
+      Objects.requireNonNull(source.getResourceAsStream("languages.txt")),
+      StandardCharsets.UTF_8))
+    ) {
+      String lang;
+      while ((lang = reader.readLine()) != null) {
+        addLanguageFile(lang.replace(".properties", ""), source.getResourceAsStream("lang/" + lang));
+      }
+    } catch (IOException exception) {
+      LOGGER.severe("Unable to load language registry", exception);
+    }
   }
 
   /**
@@ -81,17 +96,6 @@ public final class LanguageManager {
     } else {
       LANGUAGE_CACHE.put(language, properties);
     }
-  }
-
-  /**
-   * Add a new language properties, which can resolve with getMessage() in the configured language.
-   *
-   * @param language the language, which should append
-   * @param file     the properties which will add in the language as parameter
-   */
-  @Deprecated
-  public static void addLanguageFile(String language, File file) {
-    addLanguageFile(language, file.toPath());
   }
 
   /**

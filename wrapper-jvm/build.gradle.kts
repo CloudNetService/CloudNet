@@ -35,6 +35,10 @@ tasks.withType<ShadowJar>() {
 
   // drop unused classes which are making the jar bigger
   minimize()
+
+  doFirst {
+    from(exportLanguageFileInformation())
+  }
 }
 
 dependencies {

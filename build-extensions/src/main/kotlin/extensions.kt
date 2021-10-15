@@ -56,6 +56,13 @@ fun ProjectDependency.sourceSets(): SourceSetContainer = dependencyProject.sourc
 
 fun Project.mavenRepositories(): Iterable<MavenArtifactRepository> = repositories.filterIsInstance<MavenArtifactRepository>()
 
+fun Project.exportLanguageFileInformation(): String {
+  val file = project.buildDir.resolve("languages.txt")
+  file.writeText(project.projectDir.resolve("src/main/resources/lang").listFiles()?.joinToString(separator = "\n") { it.name }!!)
+
+  return file.absolutePath
+}
+
 fun Project.exportCnlFile(fileName: String) {
   val stringBuilder = StringBuilder("# CloudNet ${Versions.cloudNetCodeName} ${Versions.cloudNet}\n\n")
     .append("# repositories\n");

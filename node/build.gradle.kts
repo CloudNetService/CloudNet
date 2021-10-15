@@ -18,12 +18,14 @@ tasks.withType<Jar>() {
   dependsOn(":cloudnet-wrapper-jvm:shadowJar")
 
   archiveFileName.set(Files.node)
+
   from("../wrapper-jvm/build/libs") {
     include(Files.wrapper)
   }
 
-  doLast {
+  doFirst {
     exportCnlFile(Files.nodeCnl)
+    from(exportLanguageFileInformation())
   }
 }
 

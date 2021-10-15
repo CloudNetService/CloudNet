@@ -648,7 +648,7 @@ public class ServiceConfiguration extends BasicJsonDocPropertyable {
      */
     @NotNull
     public Builder jvmOptions(@NotNull Collection<String> jvmOptions) {
-      this.config.processConfig.jvmOptions = new ArrayList<>(jvmOptions);
+      this.config.processConfig.jvmOptions = new HashSet<>(jvmOptions);
       return this;
     }
 
@@ -688,7 +688,7 @@ public class ServiceConfiguration extends BasicJsonDocPropertyable {
      */
     @NotNull
     public Builder processParameters(@NotNull Collection<String> jvmOptions) {
-      this.config.processConfig.processParameters = new ArrayList<>(jvmOptions);
+      this.config.processConfig.processParameters = new HashSet<>(jvmOptions);
       return this;
     }
 

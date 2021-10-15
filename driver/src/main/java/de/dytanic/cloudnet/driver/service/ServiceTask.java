@@ -21,6 +21,7 @@ import de.dytanic.cloudnet.common.INameable;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.jetbrains.annotations.NotNull;
@@ -361,7 +362,7 @@ public class ServiceTask extends ServiceConfigurationBase implements INameable {
     public Builder jvmOptions(@NotNull Collection<String> jvmOptions) {
       Preconditions.checkNotNull(jvmOptions, "jvmOptions");
 
-      this.serviceTask.processConfiguration.setJvmOptions(new ArrayList<>(jvmOptions));
+      this.serviceTask.processConfiguration.setJvmOptions(new HashSet<>(jvmOptions));
       return this;
     }
 
@@ -369,7 +370,7 @@ public class ServiceTask extends ServiceConfigurationBase implements INameable {
     public Builder processParameters(@NotNull Collection<String> processParameters) {
       Preconditions.checkNotNull(processParameters, "processParameters");
 
-      this.serviceTask.processConfiguration.setProcessParameters(new ArrayList<>(processParameters));
+      this.serviceTask.processConfiguration.setProcessParameters(new HashSet<>(processParameters));
       return this;
     }
 
@@ -441,10 +442,10 @@ public class ServiceTask extends ServiceConfigurationBase implements INameable {
         this.serviceTask.deployments = new ArrayList<>();
       }
       if (this.serviceTask.processConfiguration.processParameters == null) {
-        this.serviceTask.processConfiguration.processParameters = new ArrayList<>();
+        this.serviceTask.processConfiguration.processParameters = new HashSet<>();
       }
       if (this.serviceTask.processConfiguration.jvmOptions == null) {
-        this.serviceTask.processConfiguration.jvmOptions = new ArrayList<>();
+        this.serviceTask.processConfiguration.jvmOptions = new HashSet<>();
       }
 
       return this.serviceTask;

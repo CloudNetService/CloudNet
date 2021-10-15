@@ -16,8 +16,8 @@
 
 package de.dytanic.cloudnet.driver.service;
 
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
@@ -29,39 +29,29 @@ public class ProcessConfiguration implements Cloneable {
   protected int maxHeapMemorySize;
   protected ServiceEnvironmentType environment;
 
-  protected Collection<String> jvmOptions;
-  protected Collection<String> processParameters;
+  protected Set<String> jvmOptions;
+  protected Set<String> processParameters;
 
   protected ProcessConfiguration() {
   }
 
   public ProcessConfiguration(ServiceEnvironmentType environment, int maxHeapMemorySize) {
-    this(environment, maxHeapMemorySize, new ArrayList<>());
+    this(environment, maxHeapMemorySize, new HashSet<>());
   }
 
   public ProcessConfiguration(
     ServiceEnvironmentType environment,
     int maxHeapMemorySize,
-    Collection<String> jvmOptions
+    Set<String> jvmOptions
   ) {
-    this(maxHeapMemorySize, environment, jvmOptions, new ArrayList<>());
-  }
-
-  @Deprecated
-  public ProcessConfiguration(
-    ServiceEnvironmentType environment,
-    int maxHeapMemorySize,
-    Collection<String> jvmOptions,
-    Collection<String> processParameters
-  ) {
-    this(maxHeapMemorySize, environment, jvmOptions, processParameters);
+    this(maxHeapMemorySize, environment, jvmOptions, new HashSet<>());
   }
 
   public ProcessConfiguration(
     int maxHeapMemorySize,
     ServiceEnvironmentType environment,
-    Collection<String> jvmOptions,
-    Collection<String> processParameters
+    Set<String> jvmOptions,
+    Set<String> processParameters
   ) {
     this.maxHeapMemorySize = maxHeapMemorySize;
     this.environment = environment;
@@ -85,19 +75,19 @@ public class ProcessConfiguration implements Cloneable {
     this.maxHeapMemorySize = maxHeapMemorySize;
   }
 
-  public Collection<String> getJvmOptions() {
+  public Set<String> getJvmOptions() {
     return this.jvmOptions;
   }
 
-  public void setJvmOptions(Collection<String> jvmOptions) {
+  public void setJvmOptions(Set<String> jvmOptions) {
     this.jvmOptions = jvmOptions;
   }
 
-  public Collection<String> getProcessParameters() {
+  public Set<String> getProcessParameters() {
     return this.processParameters;
   }
 
-  public void setProcessParameters(Collection<String> processParameters) {
+  public void setProcessParameters(Set<String> processParameters) {
     this.processParameters = processParameters;
   }
 

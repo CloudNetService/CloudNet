@@ -43,6 +43,9 @@ public final class BootLogic {
   }
 
   public static synchronized void main(String[] args) throws Throwable {
+    // language management init
+    LanguageManager.loadFromLanguageRegistryFile(BootLogic.class.getClassLoader());
+    LanguageManager.setLanguage(System.getProperty("cloudnet.messages.language", "english"));
     // init logger and console
     CommandProvider commandProvider = new DefaultCommandProvider();
     IConsole console = new JLine3Console(commandProvider);
@@ -50,26 +53,6 @@ public final class BootLogic {
     // boot CloudNet
     CloudNet nodeInstance = new CloudNet(args, console, commandProvider);
     nodeInstance.start();
-
-    LanguageManager.setLanguage(System.getProperty("cloudnet.messages.language", "english"));
-    LanguageManager
-      .addLanguageFile("german", BootLogic.class.getClassLoader().getResourceAsStream("lang/german.properties"));
-    LanguageManager
-      .addLanguageFile("english", BootLogic.class.getClassLoader().getResourceAsStream("lang/english.properties"));
-    LanguageManager
-      .addLanguageFile("french", BootLogic.class.getClassLoader().getResourceAsStream("lang/french.properties"));
-    LanguageManager
-      .addLanguageFile("chinese", BootLogic.class.getClassLoader().getResourceAsStream("lang/chinese.properties"));
-
-    /*IConsole console = new JLine3Console();
-    Logger logger = LogManager.getRootLogger();
-
-    initLoggerAndConsole(console, logger);
-
-    CloudNet cloudNet = new CloudNet(args, logger, console);
-    cloudNet.start();
-
- */
   }
 
   private static void initLoggerAndConsole(@NotNull IConsole console, @NotNull Logger logger) {
