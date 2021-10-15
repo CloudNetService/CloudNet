@@ -28,14 +28,14 @@ import cloud.commandframework.extra.confirmation.CommandConfirmationManager;
 import cloud.commandframework.meta.CommandMeta;
 import cloud.commandframework.meta.CommandMeta.Key;
 import cloud.commandframework.meta.SimpleCommandMeta;
-import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.command.CommandProvider;
 import de.dytanic.cloudnet.command.annotation.CommandAlias;
 import de.dytanic.cloudnet.command.exception.ArgumentNotAvailableException;
+import de.dytanic.cloudnet.command.exception.CommandExceptionHandler;
 import de.dytanic.cloudnet.command.source.CommandSource;
-import de.dytanic.cloudnet.command.source.ConsoleCommandSource;
 import de.dytanic.cloudnet.command.sub.CommandClear;
 import de.dytanic.cloudnet.command.sub.CommandCopy;
+import de.dytanic.cloudnet.command.sub.CommandCreate;
 import de.dytanic.cloudnet.command.sub.CommandDebug;
 import de.dytanic.cloudnet.command.sub.CommandExit;
 import de.dytanic.cloudnet.command.sub.CommandGroups;
@@ -45,12 +45,10 @@ import de.dytanic.cloudnet.command.sub.CommandPermissions;
 import de.dytanic.cloudnet.command.sub.CommandService;
 import de.dytanic.cloudnet.command.sub.CommandTasks;
 import de.dytanic.cloudnet.command.sub.CommandTemplate;
-import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
+import de.dytanic.cloudnet.console.IConsole;
 import de.dytanic.cloudnet.driver.command.CommandInfo;
-import de.dytanic.cloudnet.event.command.CommandInvalidSyntaxEvent;
-import de.dytanic.cloudnet.event.command.CommandNotFoundEvent;
 import io.leangen.geantyref.TypeToken;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -58,13 +56,13 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.TimeUnit;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class DefaultCommandProvider implements CommandProvider {
-
 
   private static final Logger LOGGER = LogManager.getLogger(DefaultCommandProvider.class);
   private static final Key<Collection<String>> ALIAS_KEY = Key.of(new TypeToken<Collection<String>>() {
@@ -74,6 +72,7 @@ public class DefaultCommandProvider implements CommandProvider {
   private final AnnotationParser<CommandSource> annotationParser;
   private final CommandConfirmationManager<CommandSource> confirmationManager;
   private final Collection<CommandInfo> registeredCommands;
+  private final CommandExceptionHandler exceptionHandler;
 
   public DefaultCommandProvider() {
     this.commandManager = new DefaultCommandManager();
@@ -99,19 +98,8 @@ public class DefaultCommandProvider implements CommandProvider {
     this.commandManager.command(this.commandManager.commandBuilder("confirm")
       .handler(this.confirmationManager.createConfirmationExecutionHandler()));
 
-    //TODO move this to another class
-    this.register(new CommandTemplate());
-    this.register(new CommandExit());
-    this.register(new CommandGroups());
-    this.register(new CommandTasks());
-    // this.register(new CommandCreate());
-    this.register(new CommandMe());
-    this.register(new CommandService());
-    this.register(new CommandPermissions());
-    this.register(new CommandClear());
-    this.register(new CommandDebug());
-    this.register(new CommandCopy());
-    this.register(new CommandMigrate());
+    this.exceptionHandler = new CommandExceptionHandler();
+
   }
 
   @Override
@@ -123,7 +111,7 @@ public class DefaultCommandProvider implements CommandProvider {
   public void execute(@NotNull CommandSource source, @NotNull String input) {
     try {
       //join the future to handle the occurring exceptions
-      this.commandManager.executeCommand(source, input.trim()).join();
+      this.commandManager.executeCommand(source, input).join();
     } catch (CompletionException exception) {
       Throwable cause = exception.getCause();
 
@@ -134,19 +122,19 @@ public class DefaultCommandProvider implements CommandProvider {
 
       // determine the exception type and apply the specific handler
       if (cause instanceof InvalidSyntaxException) {
-        this.handleInvalidSyntaxException(source, (InvalidSyntaxException) cause);
+        this.exceptionHandler.handleInvalidSyntaxException(source, (InvalidSyntaxException) cause);
       } else if (cause instanceof NoPermissionException) {
-        this.handleNoPermissionException(source, (NoPermissionException) cause);
+        this.exceptionHandler.handleNoPermissionException(source, (NoPermissionException) cause);
       } else if (cause instanceof NoSuchCommandException) {
-        this.handleNoSuchCommandException(source, (NoSuchCommandException) cause);
+        this.exceptionHandler.handleNoSuchCommandException(source, (NoSuchCommandException) cause);
       } else if (cause instanceof InvalidCommandSenderException) {
-        this.handleInvalidCommandSourceException(source, (InvalidCommandSenderException) cause);
+        this.exceptionHandler.handleInvalidCommandSourceException(source, (InvalidCommandSenderException) cause);
       } else if (cause instanceof ArgumentParseException) {
         Throwable deepCause = cause.getCause();
         if (deepCause instanceof ArgumentNotAvailableException) {
-          this.handleArgumentNotAvailableException(source, (ArgumentNotAvailableException) deepCause);
+          this.exceptionHandler.handleArgumentNotAvailableException(source, (ArgumentNotAvailableException) deepCause);
         } else {
-          this.handleArgumentParseException(source, (ArgumentParseException) cause);
+          this.exceptionHandler.handleArgumentParseException(source, (ArgumentParseException) cause);
         }
       } else {
         LOGGER.severe("Exception during command execution", exception.getCause());
@@ -172,6 +160,33 @@ public class DefaultCommandProvider implements CommandProvider {
   }
 
   @Override
+  public void registerConsoleHandler(IConsole console) {
+    console.addCommandHandler(UUID.randomUUID(), input -> {
+      String trimmedInput = input.trim();
+      if (trimmedInput.isEmpty()) {
+        return;
+      }
+      this.execute(CommandSource.console(), trimmedInput);
+    });
+  }
+
+  @Override
+  public void registerDefaultCommands() {
+    this.register(new CommandTemplate());
+    this.register(new CommandExit());
+    this.register(new CommandGroups());
+    this.register(new CommandTasks());
+    this.register(new CommandCreate());
+    this.register(new CommandMe());
+    this.register(new CommandService());
+    this.register(new CommandPermissions());
+    this.register(new CommandClear());
+    this.register(new CommandDebug());
+    this.register(new CommandCopy());
+    this.register(new CommandMigrate());
+  }
+
+  @Override
   public @Nullable CommandInfo getCommand(@NotNull String input) {
     String lowerCaseInput = input.toLowerCase();
     return this.registeredCommands.stream()
@@ -186,46 +201,5 @@ public class DefaultCommandProvider implements CommandProvider {
     return Collections.unmodifiableCollection(this.registeredCommands);
   }
 
-  private void handleArgumentParseException(CommandSource source, ArgumentParseException exception) {
-    source.sendMessage(exception.getMessage());
-  }
 
-  private void handleArgumentNotAvailableException(CommandSource source, ArgumentNotAvailableException exception) {
-    source.sendMessage(exception.getMessage());
-  }
-
-  private void handleInvalidSyntaxException(CommandSource source, InvalidSyntaxException exception) {
-    CommandInvalidSyntaxEvent invalidSyntaxEvent = CloudNet.getInstance().getEventManager().callEvent(
-      new CommandInvalidSyntaxEvent(
-        source,
-        exception.getCorrectSyntax(),
-        LanguageManager.getMessage("command-invalid-syntax")
-          .replace("%syntax%", exception.getCorrectSyntax())
-      )
-    );
-    source.sendMessage(invalidSyntaxEvent.getResponse());
-  }
-
-  private void handleNoSuchCommandException(CommandSource source, NoSuchCommandException exception) {
-    CommandNotFoundEvent notFoundEvent = CloudNet.getInstance().getEventManager().callEvent(
-      new CommandNotFoundEvent(
-        source,
-        exception.getSuppliedCommand(),
-        LanguageManager.getMessage("command-not-found")
-      )
-    );
-    source.sendMessage(notFoundEvent.getResponse());
-  }
-
-  private void handleNoPermissionException(CommandSource source, NoPermissionException exception) {
-    source.sendMessage(LanguageManager.getMessage("command-sub-no-permission"));
-  }
-
-  private void handleInvalidCommandSourceException(CommandSource source, InvalidCommandSenderException exception) {
-    if (exception.getRequiredSender() == ConsoleCommandSource.class) {
-      source.sendMessage(LanguageManager.getMessage("command-console-only"));
-    } else {
-      source.sendMessage(LanguageManager.getMessage("command-driver-only"));
-    }
-  }
 }

@@ -46,10 +46,18 @@ public final class BootLogic {
     // language management init
     LanguageManager.loadFromLanguageRegistryFile(BootLogic.class.getClassLoader());
     LanguageManager.setLanguage(System.getProperty("cloudnet.messages.language", "english"));
-    // init logger and console
+
+    // init commands
     CommandProvider commandProvider = new DefaultCommandProvider();
+    commandProvider.registerDefaultCommands();
+
+    // init logger and console
     IConsole console = new JLine3Console(commandProvider);
     initLoggerAndConsole(console, LogManager.getRootLogger());
+
+    // init the console handling for commands
+    commandProvider.registerConsoleHandler(console);
+
     // boot CloudNet
     CloudNet nodeInstance = new CloudNet(args, console, commandProvider);
     nodeInstance.start();

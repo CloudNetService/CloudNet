@@ -69,7 +69,7 @@ public class CommandTasks {
     return this.taskProvider().getPermanentServiceTasks().stream().map(INameable::getName).collect(Collectors.toList());
   }
 
-  @Parser
+  @Parser(name = "javaCommand")
   public Pair<String, JavaVersion> javaCommandParser(CommandContext<CommandSource> $, Queue<String> input) {
     String command = String.join(" ", input);
     JavaVersion version = JavaVersionResolver.resolveFromJavaExecutable(command);
@@ -238,7 +238,7 @@ public class CommandTasks {
   public void setJavaCommand(
     CommandSource source,
     @Argument("name") ServiceTask task,
-    @Argument("executable") Pair<String, JavaVersion> executable
+    @Argument(value = "executable", parserName = "javaCommand") Pair<String, JavaVersion> executable
   ) {
     this.updateTask(task, serviceTask -> serviceTask.setJavaCommand(executable.getFirst()));
   }

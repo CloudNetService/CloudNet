@@ -120,21 +120,22 @@ public class CommandService {
       .stream()
       .filter(service -> id == null || service.getServiceId().getTaskServiceId() == id)
       .filter(service -> taskName == null || service.getServiceId().getTaskName().equalsIgnoreCase(taskName))
-      .filter(service -> groupName == null || Arrays.asList(service.getConfiguration().getGroups()).contains(groupName))
+      .filter(service -> groupName == null || service.getConfiguration().getGroups().contains(groupName))
       .sorted()
       .collect(Collectors.toList());
 
+    //TODO: think about this
     /*ServiceListCommandEvent event = CloudNet.getInstance().getEventManager()
-      .callEvent(new ServiceListCommandEvent(services));
+      .callEvent(new ServiceListCommandEvent(services));*/
     for (ServiceInfoSnapshot serviceInfoSnapshot : services) {
-      String extension = event.getAdditionalParameters()
+      /*String extension = event.getAdditionalParameters()
         .stream()
         .map(function -> function.apply(serviceInfoSnapshot))
         .filter(Objects::nonNull)
         .collect(Collectors.joining(" | "));
       if (!extension.isEmpty()) {
         extension = " | " + extension;
-      }
+      }*/
 
       if (useNamesOnly) {
         source.sendMessage(
@@ -144,16 +145,16 @@ public class CommandService {
           "Name: " + serviceInfoSnapshot.getServiceId().getName() + " | Lifecycle: "
             + serviceInfoSnapshot.getLifeCycle() +
             " | " + (serviceInfoSnapshot.isConnected()
-            ? "Connected" : "Not Connected") + extension
+            ? "Connected" : "Not Connected") //+ extension
         );
       }
     }
     StringBuilder builder = new StringBuilder(
       String.format("=> Showing %d service(s)", services.size()));
-    for (String parameter : event.getAdditionalSummary()) {
+   /* for (String parameter : event.getAdditionalSummary()) {
       builder.append("; ").append(parameter);
-    }
-    source.sendMessage(builder.toString());*/
+    }*/
+    source.sendMessage(builder.toString());
   }
 
   @CommandMethod("service|ser <name>")

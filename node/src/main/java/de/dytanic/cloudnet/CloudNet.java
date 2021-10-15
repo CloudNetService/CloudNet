@@ -20,7 +20,6 @@ import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.cluster.DefaultClusterNodeServerProvider;
 import de.dytanic.cloudnet.cluster.IClusterNodeServerProvider;
 import de.dytanic.cloudnet.command.CommandProvider;
-import de.dytanic.cloudnet.command.source.CommandSource;
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
@@ -145,12 +144,6 @@ public class CloudNet extends CloudNetDriver {
     this.httpServer = new NettyHttpServer(this.configuration.getWebSslConfig());
 
     this.driverEnvironment = DriverEnvironment.CLOUDNET;
-    this.console.addCommandHandler(UUID.randomUUID(), input -> {
-      if (input.trim().isEmpty()) {
-        return;
-      }
-      this.commandProvider.execute(CommandSource.console(), input);
-    });
   }
 
   public static @NotNull CloudNet getInstance() {

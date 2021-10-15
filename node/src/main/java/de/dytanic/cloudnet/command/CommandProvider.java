@@ -17,6 +17,7 @@
 package de.dytanic.cloudnet.command;
 
 import de.dytanic.cloudnet.command.source.CommandSource;
+import de.dytanic.cloudnet.console.IConsole;
 import de.dytanic.cloudnet.driver.command.CommandInfo;
 import java.util.Collection;
 import java.util.List;
@@ -50,6 +51,10 @@ public interface CommandProvider {
    * @param command the command to register
    */
   void register(@NotNull Object command);
+
+  void registerConsoleHandler(IConsole console);
+
+  void registerDefaultCommands();
 
   @Nullable
   CommandInfo getCommand(@NotNull String input);
