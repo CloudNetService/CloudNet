@@ -36,6 +36,7 @@ import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import de.dytanic.cloudnet.driver.template.TemplateStorage;
+import de.dytanic.cloudnet.driver.template.defaults.RemoteTemplateStorage;
 import de.dytanic.cloudnet.wrapper.configuration.DocumentWrapperConfiguration;
 import de.dytanic.cloudnet.wrapper.configuration.IWrapperConfiguration;
 import de.dytanic.cloudnet.wrapper.database.DefaultWrapperDatabaseProvider;
@@ -187,10 +188,9 @@ public class Wrapper extends CloudNetDriver {
     return this.getServiceId().getNodeUniqueId();
   }
 
-  //TODO: add back when the TemplateStorage is implemented
   @Override
-  public @NotNull TemplateStorage getTemplateStorage(String storage) {
-    return null;
+  public @NotNull TemplateStorage getTemplateStorage(@NotNull String storage) {
+    return new RemoteTemplateStorage(storage, this.rpcSender.invokeMethod("getTemplateStorage", storage));
   }
 
   /**
@@ -207,9 +207,8 @@ public class Wrapper extends CloudNetDriver {
    * @see CloudNetDriver#sendCommandLineAsPermissionUser(UUID, String)
    */
   @Override
-  public @NotNull Collection<String> sendCommandLineAsPermissionUser(@NotNull UUID uniqueId,
-    @NotNull String commandLine) {
-    return this.rpcSender.invokeMethod("sendCommandLineAsPermissionUser", uniqueId, commandLine).fireSync();
+  public @NotNull Collection<String> sendCommandLineAsPermissionUser(@NotNull UUID uniqueId, @NotNull String command) {
+    return this.rpcSender.invokeMethod("sendCommandLineAsPermissionUser", uniqueId, command).fireSync();
   }
 
   /**

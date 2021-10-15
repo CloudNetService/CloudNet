@@ -16,6 +16,7 @@
 
 package de.dytanic.cloudnet.driver.template.defaults;
 
+import de.dytanic.cloudnet.driver.network.rpc.RPC;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import de.dytanic.cloudnet.driver.template.FileInfo;
 import de.dytanic.cloudnet.driver.template.TemplateStorage;
@@ -31,9 +32,17 @@ import org.jetbrains.annotations.Nullable;
 // todo: re-implement later
 public class RemoteTemplateStorage implements TemplateStorage {
 
+  private final String name;
+  private final RPC baseRPC;
+
+  public RemoteTemplateStorage(@NotNull String name, @NotNull RPC baseRPC) {
+    this.name = name;
+    this.baseRPC = baseRPC;
+  }
+
   @Override
   public @NotNull String getName() {
-    return null;
+    return this.name;
   }
 
   @Override

@@ -223,7 +223,7 @@ public abstract class CloudNetDriver {
    * @return the registered {@link TemplateStorage}, null if the storage does not exist
    */
   @Nullable
-  public abstract TemplateStorage getTemplateStorage(String storage);
+  public abstract TemplateStorage getTemplateStorage(@NotNull String storage);
 
   /**
    * This method retrieves all {@link TemplateStorage} from the Nodes {@link IServicesRegistry}

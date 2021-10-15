@@ -221,16 +221,12 @@ public final class FileUtils {
     return emptyZipByteArray();
   }
 
-  public static Path createTempFile() {
-    Path tempDir = Paths.get(System.getProperty("cloudnet.tempDir", "temp"));
-    if (Files.notExists(tempDir)) {
-      try {
-        Files.createDirectories(tempDir);
-      } catch (IOException exception) {
-        LOGGER.severe("Exception while creating directory", exception);
-      }
+  public static @NotNull Path createTempFile() {
+    if (Files.notExists(TEMP_DIR)) {
+      createDirectoryReported(TEMP_DIR);
     }
-    return tempDir.resolve(UUID.randomUUID().toString());
+
+    return TEMP_DIR.resolve(UUID.randomUUID().toString());
   }
 
   @NotNull

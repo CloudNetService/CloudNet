@@ -21,6 +21,9 @@ import de.dytanic.cloudnet.cluster.DefaultClusterNodeServerProvider;
 import de.dytanic.cloudnet.cluster.IClusterNodeServerProvider;
 import de.dytanic.cloudnet.command.CommandProvider;
 import de.dytanic.cloudnet.command.source.CommandSource;
+import de.dytanic.cloudnet.common.io.FileUtils;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.config.IConfiguration;
 import de.dytanic.cloudnet.config.JsonConfiguration;
 import de.dytanic.cloudnet.console.IConsole;
@@ -78,6 +81,7 @@ import org.jetbrains.annotations.Nullable;
  */
 public class CloudNet extends CloudNetDriver {
 
+  private static final Logger LOGGER = LogManager.getLogger(CloudNet.class);
   private static final Path LAUNCHER_DIR = Paths.get(System.getProperty("cloudnet.launcher.dir", "launcher"));
 
   private final IConsole console;
@@ -209,13 +213,49 @@ public class CloudNet extends CloudNetDriver {
     this.moduleProvider.startAll();
     this.eventManager.callEvent(new CloudNetNodePostInitializationEvent(this));
 
+    Runtime.getRuntime().addShutdownHook(new Thread(this::stop, "Shutdown Thread"));
+
     this.mainThread.start();
     // todo this.nodeServerProvider.getSelfNode().publishNodeInfoSnapshotUpdate();
   }
 
   @Override
   public void stop() {
+    // check if we are in the shutdown thread - execcute in the shutdown thread if not
+    if (!Thread.currentThread().getName().equals("Shutdown Thread")) {
+      System.exit(0);
+      return;
+    }
+    // check if the node is still running
+    if (this.running.getAndSet(false)) {
+      try {
+        // stop task execution
+        this.scheduler.shutdownNow();
+        this.serviceVersionProvider.interruptInstallSteps();
 
+        // close all providers
+        this.nodeServerProvider.close();
+        this.permissionManagement.close();
+        this.databaseProvider.close();
+        this.moduleProvider.unloadAll();
+
+        // close all services
+        this.getCloudServiceProvider().deleteAllCloudServices();
+
+        // close all networking listeners
+        this.httpServer.close();
+        this.networkClient.close();
+        this.networkServer.close();
+
+        // remove temp directory
+        FileUtils.delete(FileUtils.TEMP_DIR);
+
+        // close console
+        this.console.close();
+      } catch (Exception exception) {
+        LOGGER.severe("Exception during node shutdown", exception);
+      }
+    }
   }
 
   @Override
@@ -240,7 +280,7 @@ public class CloudNet extends CloudNetDriver {
   }
 
   @Override
-  public @Nullable TemplateStorage getTemplateStorage(String storage) {
+  public @Nullable TemplateStorage getTemplateStorage(@NotNull String storage) {
     return this.servicesRegistry.getService(TemplateStorage.class, storage);
   }
 
