@@ -34,7 +34,6 @@ import de.dytanic.cloudnet.command.source.CommandSource;
 import de.dytanic.cloudnet.command.source.ConsoleCommandSource;
 import de.dytanic.cloudnet.command.sub.CommandClear;
 import de.dytanic.cloudnet.command.sub.CommandCopy;
-import de.dytanic.cloudnet.command.sub.CommandCreate;
 import de.dytanic.cloudnet.command.sub.CommandDebug;
 import de.dytanic.cloudnet.command.sub.CommandExit;
 import de.dytanic.cloudnet.command.sub.CommandGroups;
@@ -70,6 +69,12 @@ public class DefaultCommandProvider implements CommandProvider {
     this.commandManager = new DefaultCommandManager();
     this.annotationParser = new AnnotationParser<>(this.commandManager, CommandSource.class,
       parameters -> SimpleCommandMeta.empty());
+
+    this.registeredCommands = new ArrayList<>();
+    //TODO: maybe this should be moved too
+    this.commandManager.registerCommandPreProcessor(new DefaultCommandPreProcessor());
+    this.commandManager.registerCommandPostProcessor(new DefaultCommandPostProcessor());
+
     this.confirmationManager = new CommandConfirmationManager<>(
       30L,
       TimeUnit.SECONDS,
@@ -78,10 +83,9 @@ public class DefaultCommandProvider implements CommandProvider {
       sender -> sender.sendMessage("No requests.")  //TODO: message configurable
     );
     this.confirmationManager.registerConfirmationProcessor(this.commandManager);
-    this.registeredCommands = new ArrayList<>();
-    //TODO: maybe this should be moved too
-    this.commandManager.registerCommandPreProcessor(new DefaultCommandPreProcessor());
-    this.commandManager.registerCommandPostProcessor(new DefaultCommandPostProcessor());
+
+    this.commandManager.command(this.commandManager.commandBuilder("confirm")
+      .handler(this.confirmationManager.createConfirmationExecutionHandler()));
 
     //TODO move this to another class
     this.register(new CommandTemplate());
