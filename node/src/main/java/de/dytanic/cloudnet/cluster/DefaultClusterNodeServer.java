@@ -30,6 +30,7 @@ import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.network.packet.PacketServerChannelMessage;
 import java.util.Collection;
+import java.util.Collections;
 import org.jetbrains.annotations.NotNull;
 
 public class DefaultClusterNodeServer extends DefaultNodeServer implements IClusterNodeServer {
@@ -90,12 +91,12 @@ public class DefaultClusterNodeServer extends DefaultNodeServer implements IClus
   }
 
   @Override
-  public Collection<String> sendCommandLine(@NotNull String commandLine) {
+  public @NotNull Collection<String> sendCommandLine(@NotNull String commandLine) {
     if (this.channel != null) {
       return this.rpcSender.invokeMethod("sendCommandLine", commandLine).fireSync(this.channel);
     }
 
-    return null;
+    return Collections.emptySet();
   }
 
   @NotNull

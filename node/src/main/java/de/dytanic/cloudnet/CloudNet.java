@@ -50,6 +50,7 @@ import de.dytanic.cloudnet.event.CloudNetNodePostInitializationEvent;
 import de.dytanic.cloudnet.module.NodeModuleProviderHandler;
 import de.dytanic.cloudnet.network.NetworkClientChannelHandlerImpl;
 import de.dytanic.cloudnet.network.NetworkServerChannelHandlerImpl;
+import de.dytanic.cloudnet.network.chunk.TemplateDeployCallbackListener;
 import de.dytanic.cloudnet.permission.DefaultDatabasePermissionManagement;
 import de.dytanic.cloudnet.permission.DefaultPermissionManagementHandler;
 import de.dytanic.cloudnet.permission.NodePermissionManagement;
@@ -204,6 +205,8 @@ public class CloudNet extends CloudNetDriver {
     }
 
     this.moduleProvider.startAll();
+
+    this.eventManager.registerListener(new TemplateDeployCallbackListener());
     this.eventManager.callEvent(new CloudNetNodePostInitializationEvent(this));
 
     Runtime.getRuntime().addShutdownHook(new Thread(this::stop, "Shutdown Thread"));

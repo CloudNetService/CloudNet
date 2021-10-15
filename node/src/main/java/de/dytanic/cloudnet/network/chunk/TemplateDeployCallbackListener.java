@@ -14,29 +14,19 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.driver.network.rpc;
+package de.dytanic.cloudnet.network.chunk;
 
-import de.dytanic.cloudnet.common.concurrent.ITask;
-import de.dytanic.cloudnet.driver.network.INetworkChannel;
-import org.jetbrains.annotations.Blocking;
-import org.jetbrains.annotations.NonBlocking;
+import de.dytanic.cloudnet.driver.event.EventListener;
+import de.dytanic.cloudnet.driver.event.events.chunk.ChunkedPacketSessionOpenEvent;
+import de.dytanic.cloudnet.driver.network.chunk.defaults.DefaultFileChunkedPacketHandler;
 import org.jetbrains.annotations.NotNull;
 
-public interface RPCExecutable {
+public final class TemplateDeployCallbackListener {
 
-  @NonBlocking
-  void fireAndForget();
-
-  @Blocking
-  <T> T fireSync();
-
-  @NotNull <T> ITask<T> fire();
-
-  @NonBlocking
-  void fireAndForget(@NotNull INetworkChannel component);
-
-  @Blocking
-  <T> T fireSync(@NotNull INetworkChannel component);
-
-  @NotNull <T> ITask<T> fire(@NotNull INetworkChannel component);
+  @EventListener
+  public void handle(@NotNull ChunkedPacketSessionOpenEvent event) {
+    if (event.getSession().getTransferChannel().equals("deploy_service_template")) {
+      event.setHandler(new DefaultFileChunkedPacketHandler(event.getSession(), TemplateDeployCallback.INSTANCE));
+    }
+  }
 }
