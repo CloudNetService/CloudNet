@@ -24,6 +24,7 @@ import cloud.commandframework.annotations.parsers.Parser;
 import cloud.commandframework.annotations.suggestions.Suggestions;
 import cloud.commandframework.context.CommandContext;
 import de.dytanic.cloudnet.CloudNet;
+import de.dytanic.cloudnet.command.annotation.Description;
 import de.dytanic.cloudnet.command.exception.ArgumentNotAvailableException;
 import de.dytanic.cloudnet.command.source.CommandSource;
 import de.dytanic.cloudnet.command.source.ConsoleCommandSource;
@@ -40,6 +41,7 @@ import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
 
 @CommandPermission("cloudnet.command.migrate")
+@Description("Migrate help")
 public class CommandMigrate {
 
   private static final int DEFAULT_CHUNK_SIZE = 100;

@@ -14,19 +14,17 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.command.sub;
+package de.dytanic.cloudnet.command.annotation;
 
-import cloud.commandframework.annotations.CommandMethod;
-import cloud.commandframework.annotations.CommandPermission;
-import de.dytanic.cloudnet.CloudNet;
-import de.dytanic.cloudnet.command.annotation.Description;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-@CommandPermission("cloudnet.command.clear")
-@Description("Clears the entire console of the node to get a better overview")
-public class CommandClear {
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface Description {
 
-  @CommandMethod("clear")
-  public void clearConsole() {
-    CloudNet.getInstance().getConsole().clearScreen();
-  }
+  String value();
+
 }

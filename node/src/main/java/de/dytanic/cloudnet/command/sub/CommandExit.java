@@ -22,9 +22,11 @@ import cloud.commandframework.annotations.CommandPermission;
 import cloud.commandframework.annotations.Confirmation;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.command.annotation.CommandAlias;
+import de.dytanic.cloudnet.command.annotation.Description;
 
-@CommandPermission("cloudnet.command.exit")
 @CommandAlias({"shutdown", "stop"})
+@CommandPermission("cloudnet.command.exit")
+@Description("Stops the program and all managed subprocesses")
 public class CommandExit {
 
   @Confirmation

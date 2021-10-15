@@ -25,6 +25,7 @@ import cloud.commandframework.context.CommandContext;
 import com.google.common.primitives.Longs;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.command.annotation.CommandAlias;
+import de.dytanic.cloudnet.command.annotation.Description;
 import de.dytanic.cloudnet.command.exception.ArgumentNotAvailableException;
 import de.dytanic.cloudnet.command.source.CommandSource;
 import de.dytanic.cloudnet.common.INameable;
@@ -52,6 +53,7 @@ import org.jetbrains.annotations.Nullable;
 
 @CommandAlias("perms")
 @CommandPermission("cloudnet.command.permissions")
+@Description("Manages the permissions of users and groups")
 public class CommandPermissions {
 
   private static final DateFormat DATE_FORMAT = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");

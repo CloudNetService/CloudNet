@@ -17,8 +17,10 @@
 package de.dytanic.cloudnet.driver.command;
 
 import java.util.Collection;
+import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * The commandInfo class allows to easily serialize the command information
@@ -47,9 +49,15 @@ public class CommandInfo {
   /**
    * The easiest and important usage for the command
    */
-  protected String usage;
+  protected List<String> usage;
 
-  public CommandInfo(String name, Collection<String> aliases, String permission, String description, String usage) {
+  public CommandInfo(
+    String name,
+    Collection<String> aliases,
+    String permission,
+    String description,
+    List<String> usage
+  ) {
     this.name = name;
     this.aliases = aliases;
     this.permission = permission;
@@ -73,7 +81,16 @@ public class CommandInfo {
     return this.description;
   }
 
-  public String getUsage() {
+  public List<String> getUsage() {
     return this.usage;
+  }
+
+  public String joinNameToAliases(@NotNull String separator) {
+    String result = this.name;
+    if (!this.aliases.isEmpty()) {
+      result += separator + String.join(separator, this.aliases);
+    }
+
+    return result;
   }
 }

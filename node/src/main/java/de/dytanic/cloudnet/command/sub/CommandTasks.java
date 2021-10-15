@@ -25,6 +25,7 @@ import cloud.commandframework.annotations.specifier.Range;
 import cloud.commandframework.annotations.suggestions.Suggestions;
 import cloud.commandframework.context.CommandContext;
 import de.dytanic.cloudnet.CloudNet;
+import de.dytanic.cloudnet.command.annotation.Description;
 import de.dytanic.cloudnet.command.exception.ArgumentNotAvailableException;
 import de.dytanic.cloudnet.command.source.CommandSource;
 import de.dytanic.cloudnet.command.source.ConsoleCommandSource;
@@ -51,6 +52,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 @CommandPermission("cloudnet.command.tasks")
+@Description("Administers the configurations of all persistent tasks")
 public class CommandTasks {
 
   @Parser(suggestions = "serviceTask")

@@ -24,6 +24,7 @@ import cloud.commandframework.annotations.specifier.Greedy;
 import cloud.commandframework.annotations.suggestions.Suggestions;
 import cloud.commandframework.context.CommandContext;
 import de.dytanic.cloudnet.CloudNet;
+import de.dytanic.cloudnet.command.annotation.Description;
 import de.dytanic.cloudnet.command.exception.ArgumentNotAvailableException;
 import de.dytanic.cloudnet.command.source.CommandSource;
 import de.dytanic.cloudnet.common.INameable;
@@ -42,6 +43,7 @@ import java.util.Queue;
 import java.util.stream.Collectors;
 
 @CommandPermission("cloudnet.command.groups")
+@Description("Administers the configurations of all persistent groups")
 public class CommandGroups {
 
   @Parser(suggestions = "groupConfiguration")

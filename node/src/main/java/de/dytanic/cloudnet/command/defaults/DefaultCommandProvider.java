@@ -19,12 +19,13 @@ package de.dytanic.cloudnet.command.defaults;
 import cloud.commandframework.Command;
 import cloud.commandframework.CommandManager;
 import cloud.commandframework.annotations.AnnotationParser;
+import cloud.commandframework.arguments.CommandArgument;
 import cloud.commandframework.extra.confirmation.CommandConfirmationManager;
-import cloud.commandframework.meta.CommandMeta;
 import cloud.commandframework.meta.CommandMeta.Key;
 import cloud.commandframework.meta.SimpleCommandMeta;
 import de.dytanic.cloudnet.command.CommandProvider;
 import de.dytanic.cloudnet.command.annotation.CommandAlias;
+import de.dytanic.cloudnet.command.annotation.Description;
 import de.dytanic.cloudnet.command.exception.CommandExceptionHandler;
 import de.dytanic.cloudnet.command.source.CommandSource;
 import de.dytanic.cloudnet.command.sub.CommandClear;
@@ -60,6 +61,7 @@ public class DefaultCommandProvider implements CommandProvider {
 
   private static final Key<Collection<String>> ALIAS_KEY = Key.of(new TypeToken<Collection<String>>() {
   }, "alias");
+  private static final Key<String> DESCRIPTION_KEY = Key.of(String.class, "cloudnet:description");
 
   private final CommandManager<CommandSource> commandManager;
   private final AnnotationParser<CommandSource> annotationParser;
@@ -74,6 +76,9 @@ public class DefaultCommandProvider implements CommandProvider {
     // handle our @CommandAlias annotation and apply the found aliases
     this.annotationParser.registerBuilderModifier(CommandAlias.class,
       (alias, builder) -> builder.meta(ALIAS_KEY, Arrays.asList(alias.value())));
+    // handle our @Description annotation and apply the found description for the help command
+    this.annotationParser.registerBuilderModifier(Description.class,
+      (description, builder) -> builder.meta(DESCRIPTION_KEY, description.value()));
     // register pre- and post-processor to call our events
     this.commandManager.registerCommandPreProcessor(new DefaultCommandPreProcessor());
     this.commandManager.registerCommandPostProcessor(new DefaultCommandPostProcessor());
@@ -103,16 +108,22 @@ public class DefaultCommandProvider implements CommandProvider {
     // just get the first command of the object as we don't want to register each method
     if (cloudCommands.hasNext()) {
       Command<CommandSource> parsedCommand = cloudCommands.next();
+      // check if there are any arguments, we don't want to register an empty command
+      if (parsedCommand.getArguments().isEmpty()) {
+        return;
+      }
+
       String permission = parsedCommand.getCommandPermission().toString();
-      String description = parsedCommand.getCommandMeta().get(CommandMeta.DESCRIPTION)
-        .orElse("No description provided");
+      String description = parsedCommand.getCommandMeta().getOrDefault(DESCRIPTION_KEY, "No description provided");
 
       // retrieve the aliases processed by the @CommandAlias annotation
       Collection<String> aliases = parsedCommand.getCommandMeta().getOrDefault(ALIAS_KEY, Collections.emptyList());
+
       // get the name by using the first argument of the command
       String name = parsedCommand.getArguments().get(0).getName();
 
-      this.registeredCommands.add(new CommandInfo(name, aliases, permission, description, "")); //TODO: usage
+      this.registeredCommands.add(
+        new CommandInfo(name, aliases, permission, description, this.getCommandUsageByRoot(name)));
     }
   }
 
@@ -173,5 +184,21 @@ public class DefaultCommandProvider implements CommandProvider {
     // register the command that is used for confirmations
     this.commandManager.command(this.commandManager.commandBuilder("confirm")
       .handler(confirmationManager.createConfirmationExecutionHandler()));
+  }
+
+  private List<String> getCommandUsageByRoot(String root) {
+    List<String> commandUsage = new ArrayList<>();
+    for (Command<CommandSource> command : this.commandManager.getCommands()) {
+      List<CommandArgument<CommandSource, ?>> arguments = command.getArguments();
+      // the fist argument is the root, check if it matches
+      if (arguments.isEmpty() || !arguments.get(0).getName().equalsIgnoreCase(root)) {
+        continue;
+      }
+
+      commandUsage.add(this.commandManager.getCommandSyntaxFormatter().apply(arguments, null));
+    }
+
+    Collections.sort(commandUsage);
+    return commandUsage;
   }
 }

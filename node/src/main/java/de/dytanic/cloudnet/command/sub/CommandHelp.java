@@ -16,12 +16,24 @@
 
 package de.dytanic.cloudnet.command.sub;
 
+import cloud.commandframework.annotations.Argument;
 import cloud.commandframework.annotations.CommandMethod;
+import cloud.commandframework.annotations.CommandPermission;
+import cloud.commandframework.annotations.parsers.Parser;
+import cloud.commandframework.context.CommandContext;
 import de.dytanic.cloudnet.command.CommandProvider;
+import de.dytanic.cloudnet.command.annotation.CommandAlias;
+import de.dytanic.cloudnet.command.annotation.Description;
+import de.dytanic.cloudnet.command.exception.ArgumentNotAvailableException;
 import de.dytanic.cloudnet.command.source.CommandSource;
+import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.driver.command.CommandInfo;
 import java.util.Collection;
+import java.util.Queue;
 
+@CommandAlias({"ask", "?"})
+@CommandPermission("cloudnet.command.help")
+@Description("Shows all commands and their description")
 public class CommandHelp {
 
   private final CommandProvider commandProvider;
@@ -30,13 +42,37 @@ public class CommandHelp {
     this.commandProvider = commandProvider;
   }
 
+  @Parser
+  public CommandInfo defaultCommandInfoParser(CommandContext<CommandSource> $, Queue<String> input) {
+    String command = input.remove();
+    CommandInfo commandInfo = this.commandProvider.getCommand(command);
+    if (commandInfo == null) {
+      throw new ArgumentNotAvailableException(LanguageManager.getMessage("command-not-found"));
+    }
+
+    return commandInfo;
+  }
+
   @CommandMethod("help")
   public void displayHelp(CommandSource source) {
-    Collection<CommandInfo> registeredCommands = commandProvider.getCommands();
+    Collection<CommandInfo> registeredCommands = this.commandProvider.getCommands();
     for (CommandInfo command : registeredCommands) {
-      source.sendMessage("Name: " + command.getName() +
-        " | Aliases: " + String.join(", ", command.getAliases()) +
-        " | Permission: " + command.getPermission() + " - " + command.getDescription());
+      //TODO: format
+      source.sendMessage(
+        "Name: " + command.joinNameToAliases(", ") + " | Permission: " + command.getPermission() + " - "
+          + command.getDescription());
+    }
+  }
+
+  @CommandMethod("help <command>")
+  public void displaySpecificHelp(CommandSource source, @Argument("command") CommandInfo command) {
+    source.sendMessage(" ");
+
+    source.sendMessage("Names: " + command.joinNameToAliases(", "));
+    source.sendMessage("Description: " + command.getDescription());
+    source.sendMessage("Usage: ");
+    for (String usage : command.getUsage()) {
+      source.sendMessage(" - " + usage);
     }
   }
 

@@ -18,9 +18,11 @@ package de.dytanic.cloudnet.command.sub;
 
 import cloud.commandframework.annotations.CommandPermission;
 import de.dytanic.cloudnet.command.annotation.CommandAlias;
+import de.dytanic.cloudnet.command.annotation.Description;
 
 @CommandAlias("scr")
 @CommandPermission("cloudnet.command.screen")
+@Description("Toggles the automatic output of console messages from a service")
 public class CommandScreen {
 
 }

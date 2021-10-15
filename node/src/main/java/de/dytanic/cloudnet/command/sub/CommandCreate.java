@@ -21,6 +21,7 @@ import cloud.commandframework.annotations.CommandMethod;
 import cloud.commandframework.annotations.CommandPermission;
 import cloud.commandframework.annotations.Flag;
 import cloud.commandframework.annotations.specifier.Range;
+import de.dytanic.cloudnet.command.annotation.Description;
 import de.dytanic.cloudnet.command.source.CommandSource;
 import de.dytanic.cloudnet.common.JavaVersion;
 import de.dytanic.cloudnet.common.collection.Pair;
@@ -32,6 +33,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @CommandPermission("cloudnet.command.create")
+@Description("Creates one or more new services based on a task or completely independent")
 public class CommandCreate {
 
   @CommandMethod("create by <task> <amount>")
