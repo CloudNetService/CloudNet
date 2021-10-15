@@ -29,27 +29,30 @@ public class Dependency {
   private final String group;
   private final String name;
   private final String version;
+  private final String fileVersion;
 
   private String classifier;
 
-  public Dependency(String repository, String group, String name, String version) {
+  public Dependency(String repository, String group, String name, String version, String fileVersion) {
     this.repository = repository;
     this.group = group;
     this.name = name;
     this.version = version;
+    this.fileVersion = fileVersion;
   }
 
-  public Dependency(String repository, String group, String name, String version, String classifier) {
+  public Dependency(String repository, String group, String name, String version, String fileVersion, String classifier) {
     this.repository = repository;
     this.group = group;
     this.name = name;
     this.version = version;
     this.classifier = classifier;
+    this.fileVersion = fileVersion;
   }
 
   public Path toPath() {
     String fileName = String
-      .format("%s-%s%s.jar", this.name, this.version, (this.classifier != null ? "-" + this.classifier : ""));
+      .format("%s-%s%s.jar", this.name, this.fileVersion, (this.classifier != null ? "-" + this.classifier : ""));
 
     return Paths.get(this.group.replace(".", "/"), this.name, this.version, fileName);
   }

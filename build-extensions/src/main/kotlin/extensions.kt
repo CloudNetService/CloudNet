@@ -87,7 +87,7 @@ fun Project.exportCnlFile(fileName: String) {
       "${id.group.replace('.', '/')}/${id.name}/${id.version}/${id.name}-$version.jar",
       mavenRepositories()
     )?.run {
-      stringBuilder.append("include $name ${id.group} ${id.name} $version ${it.classifier ?: ""}\n")
+      stringBuilder.append("include $name ${id.group} ${id.name} ${id.version} $version ${it.classifier ?: ""}\n")
     }
   }
 
