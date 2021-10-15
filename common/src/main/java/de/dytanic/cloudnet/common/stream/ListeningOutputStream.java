@@ -16,15 +16,18 @@
 
 package de.dytanic.cloudnet.common.stream;
 
+import de.dytanic.cloudnet.common.concurrent.function.ThrowableConsumer;
 import java.io.IOException;
 import java.io.OutputStream;
 
-public class WrappedOutputStream extends OutputStream {
+public final class ListeningOutputStream extends OutputStream {
 
   private final OutputStream wrapped;
+  private final ThrowableConsumer<OutputStream, IOException> closeListener;
 
-  public WrappedOutputStream(OutputStream wrapped) {
+  public ListeningOutputStream(OutputStream wrapped, ThrowableConsumer<OutputStream, IOException> closeListener) {
     this.wrapped = wrapped;
+    this.closeListener = closeListener;
   }
 
   @Override
@@ -49,6 +52,7 @@ public class WrappedOutputStream extends OutputStream {
 
   @Override
   public void close() throws IOException {
+    this.closeListener.accept(this);
     this.wrapped.close();
   }
 }

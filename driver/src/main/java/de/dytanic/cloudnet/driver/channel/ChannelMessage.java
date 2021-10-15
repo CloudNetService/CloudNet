@@ -116,7 +116,7 @@ public class ChannelMessage {
     return this.getMessenger().sendChannelMessageQuery(this);
   }
 
-  public @NotNull ChannelMessage sendSingleQuery() {
+  public @Nullable ChannelMessage sendSingleQuery() {
     return this.getMessenger().sendSingleChannelMessageQuery(this);
   }
 

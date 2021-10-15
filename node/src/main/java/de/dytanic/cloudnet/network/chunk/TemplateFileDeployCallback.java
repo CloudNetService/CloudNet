@@ -17,38 +17,43 @@
 package de.dytanic.cloudnet.network.chunk;
 
 import de.dytanic.cloudnet.CloudNet;
+import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.driver.network.chunk.ChunkedPacketHandler.Callback;
 import de.dytanic.cloudnet.driver.network.chunk.data.ChunkSessionInformation;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import de.dytanic.cloudnet.driver.template.TemplateStorage;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import org.jetbrains.annotations.NotNull;
 
-final class TemplateDeployCallback implements Callback {
+final class TemplateFileDeployCallback implements Callback {
 
-  public static final TemplateDeployCallback INSTANCE = new TemplateDeployCallback();
+  public static final TemplateFileDeployCallback INSTANCE = new TemplateFileDeployCallback();
 
-  private TemplateDeployCallback() {
+  private TemplateFileDeployCallback() {
   }
 
   @Override
   public void handleSessionComplete(
     @NotNull ChunkSessionInformation information,
     @NotNull InputStream dataInput
-  ) {
-    // get the information for the deployment
+  ) throws IOException {
+    // read the information
     String storageName = information.getTransferInformation().readString();
     ServiceTemplate template = information.getTransferInformation().readObject(ServiceTemplate.class);
-    boolean overrideTemplate = information.getTransferInformation().readBoolean();
-    // get the storage of the template if present
+    String path = information.getTransferInformation().readString();
+    boolean append = information.getTransferInformation().readBoolean();
+    // get the storage for the template
     TemplateStorage storage = CloudNet.getInstance().getTemplateStorage(storageName);
     if (storage != null) {
-      // delete the template if requested
-      if (overrideTemplate) {
-        storage.delete(template);
+      // open the stream and write the data to it
+      try (OutputStream out = append
+        ? storage.appendOutputStream(template, path)
+        : storage.newOutputStream(template, path)
+      ) {
+        FileUtils.copy(dataInput, out);
       }
-      // deploy the data into the template
-      storage.deploy(dataInput, template);
     }
   }
 }

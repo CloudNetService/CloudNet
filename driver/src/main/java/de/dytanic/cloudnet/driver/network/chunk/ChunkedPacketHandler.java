@@ -18,6 +18,7 @@ package de.dytanic.cloudnet.driver.network.chunk;
 
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import de.dytanic.cloudnet.driver.network.chunk.data.ChunkSessionInformation;
+import java.io.IOException;
 import java.io.InputStream;
 import org.jetbrains.annotations.NotNull;
 
@@ -29,6 +30,8 @@ public interface ChunkedPacketHandler extends ChunkedPacketProvider {
 
   interface Callback {
 
-    void handleSessionComplete(@NotNull ChunkSessionInformation information, @NotNull InputStream dataInput);
+    void handleSessionComplete(
+      @NotNull ChunkSessionInformation information,
+      @NotNull InputStream dataInput) throws IOException;
   }
 }

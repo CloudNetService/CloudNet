@@ -22,7 +22,6 @@ import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import de.dytanic.cloudnet.driver.network.chunk.ChunkedPacketHandler;
 import de.dytanic.cloudnet.driver.network.chunk.TransferStatus;
 import de.dytanic.cloudnet.driver.network.chunk.data.ChunkSessionInformation;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
@@ -33,6 +32,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class DefaultFileChunkedPacketHandler extends DefaultChunkedPacketProvider implements ChunkedPacketHandler {
 
@@ -46,17 +46,30 @@ public class DefaultFileChunkedPacketHandler extends DefaultChunkedPacketProvide
 
   public DefaultFileChunkedPacketHandler(
     @NotNull ChunkSessionInformation sessionInformation,
-    @NotNull Callback completeHandler
+    @Nullable Callback completeHandler
+  ) {
+    this(sessionInformation, completeHandler, FileUtils.createTempFile());
+  }
+
+  public DefaultFileChunkedPacketHandler(
+    @NotNull ChunkSessionInformation sessionInformation,
+    @Nullable Callback completeHandler,
+    @NotNull Path tempFilePath
   ) {
     super(sessionInformation);
 
     // general information
+    this.tempFilePath = tempFilePath;
     this.writeCompleteHandler = completeHandler;
-    this.tempFilePath = FileUtils.createTempFile();
     // open the temp file raf access
     try {
+      // create the file
+      if (Files.notExists(tempFilePath)) {
+        Files.createFile(tempFilePath);
+      }
+      // open the file
       this.targetFile = new RandomAccessFile(this.tempFilePath.toFile(), "rwd");
-    } catch (FileNotFoundException exception) {
+    } catch (IOException exception) {
       throw new AssertionError("Unable to open raf to temp file, this should not happen", exception);
     }
   }
@@ -87,6 +100,11 @@ public class DefaultFileChunkedPacketHandler extends DefaultChunkedPacketProvide
         // the file was written completely
         this.targetFile.close();
         // post the result to the complete handler
+        if (this.writeCompleteHandler == null) {
+          // no handler - will be handled otherwise
+          return true;
+        }
+        // delete the file after posting
         try (InputStream inputStream = Files.newInputStream(this.tempFilePath, StandardOpenOption.DELETE_ON_CLOSE)) {
           this.writeCompleteHandler.handleSessionComplete(this.chunkSessionInformation, inputStream);
           return true;

@@ -30,11 +30,13 @@ import de.dytanic.cloudnet.driver.network.rpc.defaults.object.serializers.Functi
 import de.dytanic.cloudnet.driver.network.rpc.defaults.object.serializers.JsonDocumentObjectSerializer;
 import de.dytanic.cloudnet.driver.network.rpc.defaults.object.serializers.MapObjectSerializer;
 import de.dytanic.cloudnet.driver.network.rpc.defaults.object.serializers.OptionalObjectSerializer;
+import de.dytanic.cloudnet.driver.network.rpc.defaults.object.serializers.PathObjectSerializer;
 import de.dytanic.cloudnet.driver.network.rpc.defaults.object.serializers.UUIDObjectSerializer;
 import de.dytanic.cloudnet.driver.network.rpc.exception.MissingObjectSerializerException;
 import de.dytanic.cloudnet.driver.network.rpc.object.ObjectMapper;
 import de.dytanic.cloudnet.driver.network.rpc.object.ObjectSerializer;
 import java.lang.reflect.Type;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -99,6 +101,7 @@ public class DefaultObjectMapper implements ObjectMapper {
     .put(SortedMap.class, MapObjectSerializer.of(TreeMap::new))
     //    ==== object data class types ====
     // data classes
+    .put(Path.class, new PathObjectSerializer())
     .put(DataBuf.class, new DataBufObjectSerializer())
     .put(DataBufable.class, new DataBufableObjectSerializer())
     .put(JsonDocument.class, new JsonDocumentObjectSerializer())

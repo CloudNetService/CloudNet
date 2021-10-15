@@ -124,8 +124,10 @@ public final class DefaultClusterNodeServerProvider extends DefaultNodeServerPro
   }
 
   @Override
-  public @NotNull ITask<TransferStatus> deployTemplateToCluster(@NotNull ServiceTemplate template,
-    @NotNull InputStream stream) {
+  public @NotNull ITask<TransferStatus> deployTemplateToCluster(
+    @NotNull ServiceTemplate template,
+    @NotNull InputStream stream
+  ) {
     if (!this.nodeServers.isEmpty()) {
       // collect the network channels of the connected nodes
       Collection<INetworkChannel> channels = this.nodeServers
@@ -141,10 +143,9 @@ public final class DefaultClusterNodeServerProvider extends DefaultNodeServerPro
           .append("template", template)
           .append("preClear", true);
         // send the template chunked to the cluster
-        // todo: should we set the transfer "mode" here?
         return ChunkedPacketSender.forFileTransfer()
           .transferChannel("deploy_service_template")
-          .withExtraData(DataBuf.empty().writeObject(template).writeBoolean(true))
+          .withExtraData(DataBuf.empty().writeString(template.getStorage()).writeObject(template).writeBoolean(true))
           .toChannels(channels)
           .source(stream)
           .build()

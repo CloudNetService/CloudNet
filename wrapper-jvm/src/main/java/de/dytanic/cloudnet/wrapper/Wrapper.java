@@ -44,6 +44,7 @@ import de.dytanic.cloudnet.wrapper.event.ApplicationPostStartEvent;
 import de.dytanic.cloudnet.wrapper.event.ApplicationPreStartEvent;
 import de.dytanic.cloudnet.wrapper.event.service.ServiceInfoSnapshotConfigureEvent;
 import de.dytanic.cloudnet.wrapper.network.NetworkClientChannelHandler;
+import de.dytanic.cloudnet.wrapper.network.chunk.TemplateStorageCallbackListener;
 import de.dytanic.cloudnet.wrapper.network.listener.PacketAuthorizationResponseListener;
 import de.dytanic.cloudnet.wrapper.permission.WrapperPermissionManagement;
 import de.dytanic.cloudnet.wrapper.provider.WrapperGeneralCloudServiceProvider;
@@ -145,6 +146,8 @@ public class Wrapper extends CloudNetDriver {
 
     // initialize
     this.permissionManagement.init();
+    this.eventManager.registerListener(new TemplateStorageCallbackListener());
+
     Runtime.getRuntime().addShutdownHook(new Thread(this::stop));
 
     // start the application
