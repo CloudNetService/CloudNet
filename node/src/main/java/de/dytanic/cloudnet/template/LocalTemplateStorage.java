@@ -268,7 +268,7 @@ public class LocalTemplateStorage implements TemplateStorage {
   }
 
   @Override
-  public void close() throws IOException {
+  public void close() {
   }
 
   protected @NotNull Path getTemplatePath(@NotNull ServiceTemplate template) {

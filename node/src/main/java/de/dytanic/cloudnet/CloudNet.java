@@ -105,9 +105,10 @@ public class CloudNet extends CloudNetDriver {
 
     setInstance(this);
 
-    this.commandProvider = commandProvider;
     this.console = console;
-    this.serviceVersionProvider = new ServiceVersionProvider(console);
+    this.commandProvider = commandProvider;
+
+    this.serviceVersionProvider = new ServiceVersionProvider();
     this.cloudNetVersion = CloudNetVersion.fromClassInformation(CloudNet.class.getPackage());
 
     this.configuration = JsonConfiguration.loadFromFile();
@@ -212,7 +213,7 @@ public class CloudNet extends CloudNetDriver {
     // start modules
     this.moduleProvider.startAll();
     // enable console command handling
-    commandProvider.registerConsoleHandler(console);
+    this.commandProvider.registerConsoleHandler(this.console);
 
     // register listeners & post node startup finish
     this.eventManager.registerListener(new TemplateDeployCallbackListener());

@@ -31,7 +31,6 @@ import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.event.cluster.LocalNodeSnapshotConfigureEvent;
 import de.dytanic.cloudnet.service.ICloudService;
 import de.dytanic.cloudnet.service.defaults.provider.EmptySpecificCloudServiceProvider;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
@@ -84,7 +83,7 @@ public class LocalNodeServer extends DefaultNodeServer implements NodeServer {
   }
 
   @Override
-  public void close() throws Exception {
+  public void close() {
     this.cloudNet.stop();
   }
 

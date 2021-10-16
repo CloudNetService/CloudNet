@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-tasks.withType<Jar>() {
+tasks.withType<Jar> {
   dependsOn(":cloudnet-wrapper-jvm:shadowJar")
 
   archiveFileName.set(Files.node)

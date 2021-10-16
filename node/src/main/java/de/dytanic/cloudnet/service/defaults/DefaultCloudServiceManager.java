@@ -45,7 +45,6 @@ import de.dytanic.cloudnet.service.defaults.provider.EmptySpecificCloudServicePr
 import de.dytanic.cloudnet.service.defaults.provider.RemoteNodeCloudServiceProvider;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
@@ -154,7 +153,7 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
     return this.knownServices.values().stream()
       .map(SpecificCloudServiceProvider::getServiceInfoSnapshot)
       .filter(Objects::nonNull)
-      .filter(snapshot -> Arrays.asList(snapshot.getConfiguration().getGroups()).contains(group))
+      .filter(snapshot -> snapshot.getConfiguration().getGroups().contains(group))
       .collect(Collectors.toList());
   }
 

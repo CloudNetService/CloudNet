@@ -64,10 +64,10 @@ public abstract class WebSocketAbleV2HttpHandler extends V2HttpHandler {
     this.handleTicketAuthorizedRequest(path, context, ticket.getAssociatedSession());
   }
 
-  protected void handleUnauthorizedRequest(String path, IHttpContext context) throws Exception {
+  protected void handleUnauthorizedRequest(String path, IHttpContext context) {
     this.send403(context, "Authentication required");
   }
 
   protected abstract void handleTicketAuthorizedRequest(String path, IHttpContext context, HttpSession session)
-    throws Exception;
+      ;
 }

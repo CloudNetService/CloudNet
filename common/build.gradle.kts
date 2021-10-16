@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-tasks.withType<Jar>() {
+tasks.withType<Jar> {
   archiveFileName.set(Files.common)
 }
 

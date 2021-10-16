@@ -103,8 +103,8 @@ public class CommandMigrate {
       return;
     }
 
-    executeIfNotCurrentProvider(sourceDatabaseProvider, AbstractDatabaseProvider::close);
-    executeIfNotCurrentProvider(targetDatabaseProvider, AbstractDatabaseProvider::close);
+    this.executeIfNotCurrentProvider(sourceDatabaseProvider, AbstractDatabaseProvider::close);
+    this.executeIfNotCurrentProvider(targetDatabaseProvider, AbstractDatabaseProvider::close);
 
     source.sendMessage(LanguageManager.getMessage("command-migrate-success")
       .replace("%source%", sourceDatabaseProvider.getName())

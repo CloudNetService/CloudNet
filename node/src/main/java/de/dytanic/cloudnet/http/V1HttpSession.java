@@ -41,7 +41,7 @@ public final class V1HttpSession {
 
   private final Collection<SessionEntry> entries = new CopyOnWriteArrayList<>();
 
-  public boolean auth(IHttpContext context) throws Exception {
+  public boolean auth(IHttpContext context) {
     if (this.isAuthorized(context)) {
       this.logout(context);
     }

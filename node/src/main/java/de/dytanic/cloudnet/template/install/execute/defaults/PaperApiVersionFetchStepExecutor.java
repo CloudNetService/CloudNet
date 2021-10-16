@@ -47,7 +47,7 @@ public class PaperApiVersionFetchStepExecutor implements InstallStepExecutor {
     @NotNull InstallInformation installInformation,
     @NotNull Path workingDirectory,
     @NotNull Set<Path> inputPaths
-  ) throws IOException {
+  ) {
     // check if we need to fetch using the paper api
     boolean enabled = installInformation.getServiceVersion().getProperties().getBoolean("fetchOverPaperApi");
     String versionGroup = installInformation.getServiceVersion().getProperties().getString("versionGroup");

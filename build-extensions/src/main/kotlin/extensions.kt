@@ -65,7 +65,7 @@ fun Project.exportLanguageFileInformation(): String {
 
 fun Project.exportCnlFile(fileName: String) {
   val stringBuilder = StringBuilder("# CloudNet ${Versions.cloudNetCodeName} ${Versions.cloudNet}\n\n")
-    .append("# repositories\n");
+    .append("# repositories\n")
   // add all repositories
   mavenRepositories().forEach { repo ->
     stringBuilder.append("repo ${repo.name} ${repo.url.toString().dropLastWhile { it == '/' }}\n")

@@ -117,7 +117,7 @@ public final class JsonConfiguration implements IConfiguration {
 
   @Override
   public @NotNull IConfiguration load() {
-    if (identity == null) {
+    if (this.identity == null) {
       this.identity = new NetworkClusterNode(
         ConfigurationUtils.get(
           "cloudnet.config.identity",

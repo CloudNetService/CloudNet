@@ -72,7 +72,7 @@ public abstract class SQLDatabaseProvider extends AbstractDatabaseProvider {
     }
   }
 
-  public abstract @NotNull Connection getConnection() throws SQLException;
+  public abstract @NotNull Connection getConnection();
 
   public abstract int executeUpdate(@NotNull String query, @NotNull Object... objects);
 

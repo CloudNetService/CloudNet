@@ -20,7 +20,7 @@ plugins {
   id("com.github.johnrengelman.shadow") version "7.1.0"
 }
 
-tasks.withType<ShadowJar>() {
+tasks.withType<ShadowJar> {
   archiveFileName.set(Files.wrapper)
   archiveVersion.set(null as String?)
 

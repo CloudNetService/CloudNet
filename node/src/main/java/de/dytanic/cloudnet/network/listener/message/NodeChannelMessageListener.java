@@ -41,22 +41,14 @@ public final class NodeChannelMessageListener {
 
   @EventListener
   public void handleChannelMessage(@NotNull ChannelMessageReceiveEvent event) {
-    if (event.getChannel().equals(NetworkConstants.INTERNAL_MSG_CHANNEL) && event.getMessage() != null) {
-      switch (event.getMessage()) {
-        // node info update
-        case "update_node_info_snapshot": {
-          NetworkClusterNodeInfoSnapshot snapshot = event.getContent().readObject(NetworkClusterNodeInfoSnapshot.class);
-          // get the associated node server
-          IClusterNodeServer server = this.nodeServerProvider.getNodeServer(snapshot.getNode().getUniqueId());
-          if (server != null) {
-            server.setNodeInfoSnapshot(snapshot);
-            this.eventManager.callEvent(new NetworkClusterNodeInfoUpdateEvent(event.getNetworkChannel(), snapshot));
-          }
-        }
-        break;
-        // none of our business
-        default:
-          break;
+    if (event.getChannel().equals(NetworkConstants.INTERNAL_MSG_CHANNEL)
+      && "update_node_info_snapshot".equals(event.getMessage())) {
+      NetworkClusterNodeInfoSnapshot snapshot = event.getContent().readObject(NetworkClusterNodeInfoSnapshot.class);
+      // get the associated node server
+      IClusterNodeServer server = this.nodeServerProvider.getNodeServer(snapshot.getNode().getUniqueId());
+      if (server != null) {
+        server.setNodeInfoSnapshot(snapshot);
+        this.eventManager.callEvent(new NetworkClusterNodeInfoUpdateEvent(event.getNetworkChannel(), snapshot));
       }
     }
   }

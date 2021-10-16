@@ -24,7 +24,6 @@ import de.dytanic.cloudnet.common.io.HttpConnectionProvider;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
-import de.dytanic.cloudnet.console.IConsole;
 import de.dytanic.cloudnet.console.animation.progressbar.ConsoleProgressWrappers;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironment;
 import de.dytanic.cloudnet.driver.template.FileInfo;
@@ -64,12 +63,7 @@ public class ServiceVersionProvider {
   private static final int VERSIONS_FILE_VERSION = 1;
   private static final Type COL_SV = TypeToken.getParameterized(Collection.class, ServiceVersionType.class).getType();
 
-  private final IConsole console;
   private final Map<String, ServiceVersionType> serviceVersionTypes = new ConcurrentHashMap<>();
-
-  public ServiceVersionProvider(@NotNull IConsole console) {
-    this.console = console;
-  }
 
   public void loadServiceVersionTypesOrDefaults(@NotNull String url) {
     try {

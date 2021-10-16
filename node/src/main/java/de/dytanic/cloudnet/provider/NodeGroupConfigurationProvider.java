@@ -57,7 +57,7 @@ public class NodeGroupConfigurationProvider implements GroupConfigurationProvide
 
   public NodeGroupConfigurationProvider(@NotNull CloudNet nodeInstance) {
     this.eventManager = nodeInstance.getEventManager();
-    this.eventManager.registerListener(new GroupChannelMessageListener(eventManager, this));
+    this.eventManager.registerListener(new GroupChannelMessageListener(this.eventManager, this));
 
     nodeInstance.getRPCProviderFactory().newHandler(GroupConfigurationProvider.class, this).registerToDefaultRegistry();
 

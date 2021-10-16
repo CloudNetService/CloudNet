@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-tasks.withType<Jar>() {
+tasks.withType<Jar> {
   dependsOn(":cloudnet-node:jar")
   dependsOn(":cloudnet-driver:shadowJar")
 

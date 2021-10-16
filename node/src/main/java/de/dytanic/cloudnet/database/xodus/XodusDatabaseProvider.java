@@ -64,7 +64,7 @@ public class XodusDatabaseProvider extends AbstractDatabaseProvider {
   }
 
   @Override
-  public boolean init() throws Exception {
+  public boolean init() {
     LocalDatabaseUtils.bigWarningThatEveryoneCanSeeWhenRunningInCluster(this.runsInCluster);
 
     this.environment = Environments.newInstance(this.databaseDirectory, this.environmentConfig);
@@ -98,7 +98,7 @@ public class XodusDatabaseProvider extends AbstractDatabaseProvider {
   }
 
   @Override
-  public void close() throws Exception {
+  public void close() {
     this.environment.close();
     this.cachedDatabaseInstances.clear();
 

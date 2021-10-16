@@ -185,7 +185,7 @@ public class XodusDatabase extends AbstractDatabase {
   }
 
   @Override
-  public void close() throws Exception {
+  public void close() {
   }
 
   protected @NotNull <T> List<T> handleWithCursor(@NotNull BiFunction<String, JsonDocument, T> mapper) {

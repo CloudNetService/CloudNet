@@ -55,16 +55,16 @@ subprojects {
     "testImplementation"("org.mockito", "mockito-junit-jupiter", Versions.mockito)
   }
 
-  tasks.withType<Jar>() {
+  tasks.withType<Jar> {
     from(rootProject.file("LICENSE"))
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
   }
 
-  tasks.withType<Test>() {
+  tasks.withType<Test> {
     useJUnitPlatform()
   }
 
-  tasks.withType<JavaCompile>() {
+  tasks.withType<JavaCompile> {
     sourceCompatibility = JavaVersion.VERSION_1_8.toString()
     targetCompatibility = JavaVersion.VERSION_1_8.toString()
     // options
@@ -77,22 +77,22 @@ subprojects {
     options.encoding = "UTF-8"
   }
 */
-  tasks.withType<Checkstyle>() {
+  tasks.withType<Checkstyle> {
     maxErrors = 0
     maxWarnings = 0
     configFile = rootProject.file("checkstyle.xml")
   }
 
-  extensions.configure<JavaPluginExtension>() {
+  extensions.configure<JavaPluginExtension> {
     // withSourcesJar()
     // withJavadocJar()
   }
 
-  extensions.configure<CheckstyleExtension>() {
+  extensions.configure<CheckstyleExtension> {
     toolVersion = Versions.checkstyle
   }
 
-  extensions.configure<LicenseExtension>() {
+  extensions.configure<LicenseExtension> {
     include("**/*.java")
     header(rootProject.file("LICENSE_HEADER"))
   }

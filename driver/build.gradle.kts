@@ -20,7 +20,7 @@ plugins {
   id("com.github.johnrengelman.shadow") version "7.1.0"
 }
 
-tasks.withType<ShadowJar>() {
+tasks.withType<ShadowJar> {
   dependsOn(":cloudnet-common:jar")
 
   archiveFileName.set(Files.driver)
@@ -31,11 +31,11 @@ tasks.withType<ShadowJar>() {
   }
 }
 
-tasks.withType<Test>() {
+tasks.withType<Test> {
   dependsOn(":cloudnet-common:jar")
 }
 
-extensions.configure<JavaPluginExtension>() {
+extensions.configure<JavaPluginExtension> {
   sourceSets {
     create("ap")
   }

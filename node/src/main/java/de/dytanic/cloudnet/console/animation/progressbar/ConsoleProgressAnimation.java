@@ -166,7 +166,7 @@ public class ConsoleProgressAnimation extends AbstractConsoleAnimation {
       StringUtil.repeat(' ', unitedMaximum.length() - unitedCurrent.length()),
       unitedCurrent,
       unitedMaximum,
-      unitName);
+      this.unitName);
   }
 
   protected @NotNull String formatElapsedTime(@NotNull Duration duration) {

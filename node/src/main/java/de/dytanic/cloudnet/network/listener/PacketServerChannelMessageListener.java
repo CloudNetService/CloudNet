@@ -40,7 +40,7 @@ public class PacketServerChannelMessageListener implements IPacketListener {
   }
 
   @Override
-  public void handle(@NotNull INetworkChannel channel, @NotNull IPacket packet) throws Exception {
+  public void handle(@NotNull INetworkChannel channel, @NotNull IPacket packet) {
     ChannelMessage message = packet.getContent().readObject(ChannelMessage.class);
     // call the receive event
     ChannelMessage response = this.eventManager.callEvent(

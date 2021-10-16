@@ -38,7 +38,7 @@ import org.jetbrains.annotations.NotNull;
 public final class PacketClientAuthorizationListener implements IPacketListener {
 
   @Override
-  public void handle(@NotNull INetworkChannel channel, @NotNull IPacket packet) throws Exception {
+  public void handle(@NotNull INetworkChannel channel, @NotNull IPacket packet) {
     // read the core data
     PacketAuthorizationType type = packet.getContent().readObject(PacketAuthorizationType.class);
     DataBuf content = packet.getContent().readDataBuf();

@@ -43,8 +43,8 @@ public abstract class V2HttpHandler implements IHttpHandler {
   protected final String[] supportedRequestMethods;
   protected final String supportedRequestMethodsString;
 
-  protected V2HttpAuthentication authentication;
-  protected AccessControlConfiguration accessControlConfiguration;
+  protected final V2HttpAuthentication authentication;
+  protected final AccessControlConfiguration accessControlConfiguration;
 
   public V2HttpHandler(String requiredPermission, String... supportedRequestMethods) {
     this(requiredPermission, DEFAULT_AUTH, AccessControlConfiguration.defaults(), supportedRequestMethods);
@@ -117,10 +117,10 @@ public abstract class V2HttpHandler implements IHttpHandler {
     this.send403(context, "Authentication required");
   }
 
-  protected void handleBasicAuthorized(String path, IHttpContext context, PermissionUser user) throws Exception {
+  protected void handleBasicAuthorized(String path, IHttpContext context, PermissionUser user) {
   }
 
-  protected void handleBearerAuthorized(String path, IHttpContext context, HttpSession session) throws Exception {
+  protected void handleBearerAuthorized(String path, IHttpContext context, HttpSession session) {
   }
 
   protected boolean testPermission(@NotNull PermissionUser user, @NotNull IHttpRequest request) {
