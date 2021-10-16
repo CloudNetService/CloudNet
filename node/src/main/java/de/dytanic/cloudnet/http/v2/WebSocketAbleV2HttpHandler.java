@@ -68,6 +68,5 @@ public abstract class WebSocketAbleV2HttpHandler extends V2HttpHandler {
     this.send403(context, "Authentication required");
   }
 
-  protected abstract void handleTicketAuthorizedRequest(String path, IHttpContext context, HttpSession session)
-      ;
+  protected abstract void handleTicketAuthorizedRequest(String path, IHttpContext context, HttpSession session);
 }
