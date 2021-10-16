@@ -17,11 +17,11 @@
 package de.dytanic.cloudnet.service.defaults;
 
 import com.google.common.collect.ComparisonChain;
+import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.cluster.IClusterNodeServer;
 import de.dytanic.cloudnet.cluster.IClusterNodeServerProvider;
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.driver.channel.ChannelMessageTarget.Type;
-import de.dytanic.cloudnet.driver.event.IEventManager;
 import de.dytanic.cloudnet.driver.network.buffer.DataBufFactory;
 import de.dytanic.cloudnet.driver.network.def.NetworkConstants;
 import de.dytanic.cloudnet.driver.provider.service.CloudServiceFactory;
@@ -38,15 +38,15 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
   private final ICloudServiceManager serviceManager;
   private final IClusterNodeServerProvider nodeServerProvider;
 
-  public NodeCloudServiceFactory(
-    @NotNull IEventManager eventManager,
-    @NotNull ICloudServiceManager serviceManager,
-    @NotNull IClusterNodeServerProvider nodeServerProvider
-  ) {
-    this.serviceManager = serviceManager;
-    this.nodeServerProvider = nodeServerProvider;
+  public NodeCloudServiceFactory(@NotNull CloudNet nodeInstance) {
+    this.serviceManager = nodeInstance.getCloudServiceProvider();
+    this.nodeServerProvider = nodeInstance.getClusterNodeServerProvider();
 
-    eventManager.registerListener(new ServiceChannelMessageListener(eventManager, serviceManager, this));
+    nodeInstance.getEventManager().registerListener(new ServiceChannelMessageListener(
+      nodeInstance.getEventManager(),
+      this.serviceManager,
+      this));
+    nodeInstance.getRPCProviderFactory().newHandler(CloudServiceFactory.class, this).registerToDefaultRegistry();
   }
 
   @Override

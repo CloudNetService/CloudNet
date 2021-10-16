@@ -16,6 +16,7 @@
 
 package de.dytanic.cloudnet.config;
 
+import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkCluster;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
@@ -106,6 +107,10 @@ public interface IConfiguration {
   int getProcessTerminationTimeoutSeconds();
 
   void setProcessTerminationTimeoutSeconds(int processTerminationTimeoutSeconds);
+
+  @NotNull JsonDocument getProperties();
+
+  void setProperties(@NotNull JsonDocument properties);
 
   enum DefaultJVMFlags {
     NONE(Collections.emptyList()),

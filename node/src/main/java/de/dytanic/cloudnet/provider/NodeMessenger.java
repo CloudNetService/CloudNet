@@ -18,6 +18,7 @@ package de.dytanic.cloudnet.provider;
 
 import com.google.common.collect.Iterables;
 import com.google.gson.reflect.TypeToken;
+import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.cluster.IClusterNodeServer;
 import de.dytanic.cloudnet.cluster.IClusterNodeServerProvider;
 import de.dytanic.cloudnet.common.concurrent.CountingTask;
@@ -49,9 +50,11 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
   protected final ICloudServiceManager cloudServiceManager;
   protected final IClusterNodeServerProvider nodeServerProvider;
 
-  public NodeMessenger(ICloudServiceManager cloudServiceManager, IClusterNodeServerProvider nodeServerProvider) {
-    this.cloudServiceManager = cloudServiceManager;
-    this.nodeServerProvider = nodeServerProvider;
+  public NodeMessenger(@NotNull CloudNet nodeInstance) {
+    this.cloudServiceManager = nodeInstance.getCloudServiceProvider();
+    this.nodeServerProvider = nodeInstance.getClusterNodeServerProvider();
+
+    nodeInstance.getRPCProviderFactory().newHandler(CloudMessenger.class, this).registerToDefaultRegistry();
   }
 
   @Override

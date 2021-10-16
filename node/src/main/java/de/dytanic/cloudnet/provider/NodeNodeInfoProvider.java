@@ -36,8 +36,9 @@ public class NodeNodeInfoProvider implements NodeInfoProvider {
 
   private final IClusterNodeServerProvider clusterNodeServerProvider;
 
-  public NodeNodeInfoProvider(IClusterNodeServerProvider clusterNodeServerProvider) {
-    this.clusterNodeServerProvider = clusterNodeServerProvider;
+  public NodeNodeInfoProvider(@NotNull CloudNet nodeInstance) {
+    this.clusterNodeServerProvider = nodeInstance.getClusterNodeServerProvider();
+    nodeInstance.getRPCProviderFactory().newHandler(NodeInfoProvider.class, this).registerToDefaultRegistry();
   }
 
   @Override

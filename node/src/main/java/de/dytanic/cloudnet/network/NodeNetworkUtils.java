@@ -29,7 +29,6 @@ import de.dytanic.cloudnet.driver.network.chunk.network.ChunkedPacketListener;
 import de.dytanic.cloudnet.driver.network.def.NetworkConstants;
 import de.dytanic.cloudnet.driver.network.protocol.IPacketListenerRegistry;
 import de.dytanic.cloudnet.driver.network.rpc.listener.RPCPacketListener;
-import de.dytanic.cloudnet.network.listener.PacketServerAuthorizationResponseListener;
 import de.dytanic.cloudnet.network.listener.PacketServerChannelMessageListener;
 import org.jetbrains.annotations.NotNull;
 
@@ -54,18 +53,7 @@ public final class NodeNetworkUtils {
     }
   }
 
-  public static void addDefaultPacketListeners(
-    @NotNull IPacketListenerRegistry registry,
-    @NotNull CloudNet node,
-    boolean clientRegistry
-  ) {
-    // clients need the auth response listener
-    if (clientRegistry) {
-      registry.addListener(
-        NetworkConstants.INTERNAL_AUTHORIZATION_CHANNEL,
-        new PacketServerAuthorizationResponseListener());
-    }
-
+  public static void addDefaultPacketListeners(@NotNull IPacketListenerRegistry registry, @NotNull CloudNet node) {
     registry.addListener(
       NetworkConstants.CHANNEL_MESSAGING_CHANNEL,
       new PacketServerChannelMessageListener(node.getMessenger(), node.getEventManager()));

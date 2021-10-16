@@ -17,6 +17,7 @@
 package de.dytanic.cloudnet.provider;
 
 import com.google.gson.reflect.TypeToken;
+import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;
@@ -54,9 +55,11 @@ public class NodeGroupConfigurationProvider implements GroupConfigurationProvide
   private final IEventManager eventManager;
   private final Set<GroupConfiguration> groupConfigurations = ConcurrentHashMap.newKeySet();
 
-  public NodeGroupConfigurationProvider(@NotNull IEventManager eventManager) {
-    this.eventManager = eventManager;
+  public NodeGroupConfigurationProvider(@NotNull CloudNet nodeInstance) {
+    this.eventManager = nodeInstance.getEventManager();
     this.eventManager.registerListener(new GroupChannelMessageListener(eventManager, this));
+
+    nodeInstance.getRPCProviderFactory().newHandler(GroupConfigurationProvider.class, this).registerToDefaultRegistry();
 
     if (Files.exists(GROUP_DIRECTORY_PATH)) {
       this.loadGroupConfigurations();

@@ -28,8 +28,10 @@ import de.dytanic.cloudnet.driver.event.events.network.NetworkChannelPacketRecei
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.INetworkChannelHandler;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
+import de.dytanic.cloudnet.driver.network.def.NetworkConstants;
 import de.dytanic.cloudnet.driver.network.def.PacketClientAuthorization;
 import de.dytanic.cloudnet.driver.network.protocol.Packet;
+import de.dytanic.cloudnet.network.listener.PacketServerAuthorizationResponseListener;
 import java.util.concurrent.atomic.AtomicLong;
 import org.jetbrains.annotations.NotNull;
 
@@ -41,6 +43,11 @@ public final class NetworkClientChannelHandlerImpl implements INetworkChannelHan
   @Override
   public void handleChannelInitialize(@NotNull INetworkChannel channel) {
     if (NodeNetworkUtils.shouldInitializeChannel(channel, ChannelType.CLIENT_CHANNEL)) {
+      // add the result handler for the auth
+      channel.getPacketRegistry().addListener(
+        NetworkConstants.INTERNAL_AUTHORIZATION_CHANNEL,
+        new PacketServerAuthorizationResponseListener());
+      // send the authentication request
       channel.sendPacket(new PacketClientAuthorization(
         PacketClientAuthorization.PacketAuthorizationType.NODE_TO_NODE,
         DataBuf.empty()
