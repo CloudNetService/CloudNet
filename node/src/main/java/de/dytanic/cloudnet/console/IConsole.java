@@ -99,4 +99,7 @@ public interface IConsole extends AutoCloseable {
 
   void setScreenName(@NotNull String name);
 
+  int getWidth();
+
+  int getDisplayLength(@NotNull String string);
 }

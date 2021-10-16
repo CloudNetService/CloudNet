@@ -363,8 +363,7 @@ public class CloudNet extends CloudNetDriver {
     return this.mainThread;
   }
 
-  @NotNull
-  public CommandProvider getCommandProvider() {
+  public @NotNull CommandProvider getCommandProvider() {
     return this.commandProvider;
   }
 

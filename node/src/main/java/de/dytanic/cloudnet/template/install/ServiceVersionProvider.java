@@ -25,7 +25,7 @@ import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.console.IConsole;
-import de.dytanic.cloudnet.console.animation.progressbar.ProgressBarInputStream;
+import de.dytanic.cloudnet.console.animation.progressbar.ConsoleProgressWrappers;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironment;
 import de.dytanic.cloudnet.driver.template.FileInfo;
 import de.dytanic.cloudnet.template.install.execute.InstallStep;
@@ -195,7 +195,7 @@ public class ServiceVersionProvider {
       }
 
       for (Map.Entry<String, String> entry : information.getServiceVersion().getAdditionalDownloads().entrySet()) {
-        try (InputStream in = ProgressBarInputStream.wrapDownload(this.console, entry.getValue());
+        try (InputStream in = ConsoleProgressWrappers.wrapDownload(entry.getValue());
           OutputStream out = information.getTemplateStorage().newOutputStream(entry.getKey())) {
           FileUtils.copy(in, out);
         }

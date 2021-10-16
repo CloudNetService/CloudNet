@@ -64,4 +64,12 @@ public final class StringUtil {
     int suffixLength = suffix.length();
     return s.regionMatches(true, s.length() - suffixLength, suffix, 0, suffixLength);
   }
+
+  public static @NotNull String repeat(char c, int times) {
+    char[] s = new char[times];
+    for (int i = 0; i < times; i++) {
+      s[i] = c;
+    }
+    return new String(s);
+  }
 }

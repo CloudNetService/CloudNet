@@ -22,7 +22,6 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 public class ServiceVersion {
 
@@ -89,7 +88,7 @@ public class ServiceVersion {
     return this.name;
   }
 
-  public @Nullable String getUrl() {
+  public String getUrl() {
     return this.url;
   }
 

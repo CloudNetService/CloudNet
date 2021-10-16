@@ -45,6 +45,7 @@ import org.jline.reader.impl.LineReaderImpl;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 import org.jline.utils.InfoCmp;
+import org.jline.utils.WCWidth;
 
 public final class JLine3Console implements IConsole {
 
@@ -299,6 +300,21 @@ public final class JLine3Console implements IConsole {
   @Override
   public void setScreenName(@NotNull String screenName) {
     this.screenName = screenName;
+  }
+
+  @Override
+  public int getWidth() {
+    return this.terminal.getWidth();
+  }
+
+  @Override
+  public int getDisplayLength(@NotNull String string) {
+    int result = 0;
+    // count for the length of each char in the string
+    for (int i = 0; i < string.length(); i++) {
+      result += Math.max(WCWidth.wcwidth(string.charAt(i)), 0);
+    }
+    return result;
   }
 
   private void updatePrompt() {

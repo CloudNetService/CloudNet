@@ -31,7 +31,7 @@ public abstract class AbstractConsoleAnimation implements Runnable {
 
   private final Collection<Runnable> finishHandler = new ArrayList<>();
   private String name;
-  private IConsole console;
+  protected IConsole console;
   private int updateInterval = 25;
   private long startTime;
   private int cursorUp = 1;
