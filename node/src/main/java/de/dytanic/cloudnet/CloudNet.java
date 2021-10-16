@@ -173,13 +173,21 @@ public class CloudNet extends CloudNetDriver {
         new File(System.getProperty("cloudnet.database.xodus.path", "local/database/xodus")),
         !this.configuration.getClusterConfig().getNodes().isEmpty()));
 
+    // initialize the default database provider
+    this.databaseProvider = this.servicesRegistry.getService(
+      AbstractDatabaseProvider.class,
+      this.configuration.getProperties().getString("database_provider", "xodus"));
+
     // load the modules before proceeding for example to allow the database provider init
     this.moduleProvider.loadAll();
 
     // check if there is a database provider or initialize the default one
     if (this.databaseProvider == null || !this.databaseProvider.init()) {
       this.databaseProvider = this.servicesRegistry.getService(AbstractDatabaseProvider.class, "xodus");
-      this.databaseProvider.init();
+      if (this.databaseProvider == null || !this.databaseProvider.init()) {
+        // unable to start without a database
+        throw new IllegalStateException("No database provider selected for startup - Unable to proceed");
+      }
     }
 
     // network server init

@@ -20,6 +20,7 @@ import com.google.common.base.Enums;
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.StringUtil;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkCluster;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
@@ -82,6 +83,22 @@ public final class JsonConfiguration implements IConfiguration {
   private SSLConfiguration clientSslConfig;
   private SSLConfiguration serverSslConfig;
   private SSLConfiguration webSslConfig;
+
+  private JsonDocument properties;
+
+  public JsonConfiguration() {
+    // TODO: remove in 4.1
+    Path oldRegistry = Paths.get("local", "registry");
+    if (Files.exists(oldRegistry)) {
+      JsonDocument entries = JsonDocument.newDocument(oldRegistry).getDocument("entries");
+      if (entries != null) {
+        this.properties = JsonDocument.newDocument();
+        this.properties.append(entries);
+      }
+      // remove the old file
+      FileUtils.delete(oldRegistry);
+    }
+  }
 
   public static @NotNull IConfiguration loadFromFile() {
     if (Files.notExists(CONFIG_FILE_PATH)) {
@@ -241,6 +258,13 @@ public final class JsonConfiguration implements IConfiguration {
           Paths.get("cert.pem"),
           Paths.get("private.pem")),
         SSL_CONFIG_PARSER);
+    }
+
+    if (this.properties == null) {
+      this.properties = ConfigurationUtils.get(
+        "cloudnet.config.properties",
+        JsonDocument.newDocument("database_provider", "xodus"),
+        JsonDocument::newDocument);
     }
   }
 
@@ -424,5 +448,15 @@ public final class JsonConfiguration implements IConfiguration {
   @Override
   public void setProcessTerminationTimeoutSeconds(int processTerminationTimeoutSeconds) {
     this.processTerminationTimeoutSeconds = processTerminationTimeoutSeconds;
+  }
+
+  @Override
+  public @NotNull JsonDocument getProperties() {
+    return this.properties;
+  }
+
+  @Override
+  public void setProperties(@NotNull JsonDocument properties) {
+    this.properties = properties;
   }
 }
