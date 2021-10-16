@@ -17,12 +17,15 @@
 package de.dytanic.cloudnet.network.listener;
 
 import de.dytanic.cloudnet.CloudNet;
+import de.dytanic.cloudnet.cluster.IClusterNodeServer;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
+import de.dytanic.cloudnet.driver.network.def.NetworkConstants;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.network.protocol.IPacketListener;
+import de.dytanic.cloudnet.network.NodeNetworkUtils;
 import java.util.Arrays;
 import java.util.Objects;
 import org.jetbrains.annotations.NotNull;
@@ -32,24 +35,26 @@ public final class PacketServerAuthorizationResponseListener implements IPacketL
   private static final Logger LOGGER = LogManager.getLogger(PacketServerAuthorizationResponseListener.class);
 
   @Override
-  public void handle(@NotNull INetworkChannel channel, IPacket packet) {
+  public void handle(@NotNull INetworkChannel channel, @NotNull IPacket packet) {
     // check if the auth was successful
     if (packet.getContent().readBoolean()) {
       // search for the node to which the auth succeeded
-      CloudNet.getInstance().getConfig().getClusterConfig().getNodes().stream()
+      IClusterNodeServer server = CloudNet.getInstance().getConfig().getClusterConfig().getNodes().stream()
         .filter(node -> Arrays.stream(node.getListeners()).anyMatch(host -> channel.getServerAddress().equals(host)))
         .map(node -> CloudNet.getInstance().getClusterNodeServerProvider().getNodeServer(node.getUniqueId()))
         .filter(Objects::nonNull)
         .filter(node -> node.isAcceptableConnection(channel, node.getNodeInfo().getUniqueId()))
         .findFirst()
-        .ifPresent(nodeServer -> {
-          // init the node server
-          nodeServer.setChannel(channel);
-          // TODO: channel.sendPacket(new PacketServerSetGlobalServiceInfoList(
-          //  CloudNet.getInstance().getCloudServiceManager().getCloudServices()));
-        });
-    } else {
-      LOGGER.warning(LanguageManager.getMessage("cluster-server-networking-authorization-failed"));
+        .orElse(null);
+      if (server != null) {
+        server.setChannel(channel);
+        // add the packet listeners
+        channel.getPacketRegistry().removeListeners(NetworkConstants.INTERNAL_AUTHORIZATION_CHANNEL);
+        NodeNetworkUtils.addDefaultPacketListeners(channel.getPacketRegistry(), CloudNet.getInstance());
+      }
     }
+
+    channel.close();
+    LOGGER.warning(LanguageManager.getMessage("cluster-server-networking-authorization-failed"));
   }
 }

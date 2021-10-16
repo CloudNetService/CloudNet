@@ -100,7 +100,7 @@ public class CloudNet extends CloudNetDriver {
   private volatile IConfiguration configuration;
   private volatile AbstractDatabaseProvider databaseProvider;
 
-  protected CloudNet(@NotNull String[] args, @NotNull IConsole console, CommandProvider commandProvider) {
+  protected CloudNet(@NotNull String[] args, @NotNull IConsole console, @NotNull CommandProvider commandProvider) {
     super(Arrays.asList(args));
 
     setInstance(this);
@@ -116,16 +116,13 @@ public class CloudNet extends CloudNetDriver {
     this.nodeServerProvider = new DefaultClusterNodeServerProvider(this);
     this.nodeServerProvider.setClusterServers(this.configuration.getClusterConfig());
 
-    this.nodeInfoProvider = new NodeNodeInfoProvider(this.nodeServerProvider);
-    this.serviceTaskProvider = new NodeServiceTaskProvider(this.eventManager);
+    this.nodeInfoProvider = new NodeNodeInfoProvider(this);
+    this.serviceTaskProvider = new NodeServiceTaskProvider(this);
     this.generalCloudServiceProvider = new DefaultCloudServiceManager(this);
-    this.groupConfigurationProvider = new NodeGroupConfigurationProvider(this.eventManager);
+    this.groupConfigurationProvider = new NodeGroupConfigurationProvider(this);
 
-    this.messenger = new NodeMessenger(this.getCloudServiceProvider(), this.nodeServerProvider);
-    this.cloudServiceFactory = new NodeCloudServiceFactory(
-      this.eventManager,
-      this.getCloudServiceProvider(),
-      this.nodeServerProvider);
+    this.messenger = new NodeMessenger(this);
+    this.cloudServiceFactory = new NodeCloudServiceFactory(this);
 
     // permission management init
     this.setPermissionManagement(new DefaultDatabasePermissionManagement(this));
@@ -204,13 +201,18 @@ public class CloudNet extends CloudNetDriver {
       }
     }
 
+    // start modules
     this.moduleProvider.startAll();
+    // enable console command handling
+    commandProvider.registerConsoleHandler(console);
 
+    // register listeners & post node startup finish
     this.eventManager.registerListener(new TemplateDeployCallbackListener());
     this.eventManager.callEvent(new CloudNetNodePostInitializationEvent(this));
 
     Runtime.getRuntime().addShutdownHook(new Thread(this::stop, "Shutdown Thread"));
 
+    // run the main loop
     this.mainThread.start();
     // todo this.nodeServerProvider.getSelfNode().publishNodeInfoSnapshotUpdate();
   }

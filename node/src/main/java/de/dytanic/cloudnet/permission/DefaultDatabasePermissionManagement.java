@@ -22,6 +22,7 @@ import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.database.LocalDatabase;
 import de.dytanic.cloudnet.driver.permission.DefaultPermissionManagement;
+import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
 import de.dytanic.cloudnet.driver.permission.PermissionGroup;
 import de.dytanic.cloudnet.driver.permission.PermissionUser;
 import de.dytanic.cloudnet.network.listener.message.PermissionChannelMessageListener;
@@ -70,6 +71,7 @@ public class DefaultDatabasePermissionManagement extends DefaultPermissionManage
     this.loadGroups();
 
     this.nodeInstance.getEventManager().registerListener(this.networkListener);
+    this.nodeInstance.getRPCProviderFactory().newHandler(IPermissionManagement.class, this).registerToDefaultRegistry();
   }
 
   @Override

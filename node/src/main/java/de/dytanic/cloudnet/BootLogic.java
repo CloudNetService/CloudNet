@@ -55,9 +55,6 @@ public final class BootLogic {
     IConsole console = new JLine3Console(commandProvider);
     initLoggerAndConsole(console, LogManager.getRootLogger());
 
-    // init the console handling for commands
-    commandProvider.registerConsoleHandler(console);
-
     // boot CloudNet
     CloudNet nodeInstance = new CloudNet(args, console, commandProvider);
     nodeInstance.start();

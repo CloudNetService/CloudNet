@@ -64,12 +64,6 @@ public interface IPacketListenerRegistry {
    */
   void removeListeners(@NotNull ClassLoader classLoader);
 
-  /**
-   * Returns true if the a specific listener class is contain in this registry
-   */
-  @Deprecated
-  boolean hasListener(@NotNull Class<? extends IPacketListener> clazz);
-
   boolean hasListeners(int channel);
 
   /**

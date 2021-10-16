@@ -332,7 +332,7 @@ public class Wrapper extends CloudNetDriver {
       this.currentServiceInfoSnapshot.setConnectedTime(System.currentTimeMillis());
 
       // remove the auth listener
-      this.networkClient.getPacketRegistry().removeListener(NetworkConstants.INTERNAL_AUTHORIZATION_CHANNEL);
+      this.networkClient.getPacketRegistry().removeListeners(NetworkConstants.INTERNAL_AUTHORIZATION_CHANNEL);
 
       // add the runtime packet listeners
       this.networkClient.getPacketRegistry().addListener(

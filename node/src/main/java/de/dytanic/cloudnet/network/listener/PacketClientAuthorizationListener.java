@@ -29,6 +29,7 @@ import de.dytanic.cloudnet.driver.network.protocol.IPacketListener;
 import de.dytanic.cloudnet.driver.service.ServiceId;
 import de.dytanic.cloudnet.event.network.NetworkClusterNodeAuthSuccessEvent;
 import de.dytanic.cloudnet.event.network.NetworkServiceAuthSuccessEvent;
+import de.dytanic.cloudnet.network.NodeNetworkUtils;
 import de.dytanic.cloudnet.network.packet.PacketServerAuthorizationResponse;
 import de.dytanic.cloudnet.service.ICloudService;
 import java.util.UUID;
@@ -57,6 +58,9 @@ public final class PacketClientAuthorizationListener implements IPacketListener 
           if (nodeServer.isAcceptableConnection(channel, node.getUniqueId())) {
             // set up the node
             nodeServer.setChannel(channel);
+            // add the required packet listeners
+            channel.getPacketRegistry().removeListeners(NetworkConstants.INTERNAL_AUTHORIZATION_CHANNEL);
+            NodeNetworkUtils.addDefaultPacketListeners(channel.getPacketRegistry(), CloudNet.getInstance());
             // successful auth
             channel.sendPacket(new PacketServerAuthorizationResponse(true));
             ChannelMessage.builder()
@@ -88,6 +92,9 @@ public final class PacketClientAuthorizationListener implements IPacketListener 
           service.setNetworkChannel(channel);
           // send the update to the network
           service.publishServiceInfoSnapshot();
+          // add the required packet listeners
+          channel.getPacketRegistry().removeListeners(NetworkConstants.INTERNAL_AUTHORIZATION_CHANNEL);
+          NodeNetworkUtils.addDefaultPacketListeners(channel.getPacketRegistry(), CloudNet.getInstance());
           // successful auth
           channel.sendPacket(new PacketServerAuthorizationResponse(true));
           // call the auth success event

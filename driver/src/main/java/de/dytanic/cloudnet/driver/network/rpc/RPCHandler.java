@@ -21,6 +21,10 @@ import org.jetbrains.annotations.NotNull;
 
 public interface RPCHandler extends RPCProvider {
 
+  void registerToDefaultRegistry();
+
+  void registerTo(@NotNull RPCHandlerRegistry registry);
+
   @NotNull HandlingResult handle(@NotNull RPCInvocationContext context);
 
   interface HandlingResult {

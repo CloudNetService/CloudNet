@@ -17,8 +17,10 @@
 package de.dytanic.cloudnet.driver.network.rpc.defaults.handler;
 
 import com.google.common.base.Defaults;
+import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.network.buffer.DataBufFactory;
 import de.dytanic.cloudnet.driver.network.rpc.RPCHandler;
+import de.dytanic.cloudnet.driver.network.rpc.RPCHandlerRegistry;
 import de.dytanic.cloudnet.driver.network.rpc.RPCInvocationContext;
 import de.dytanic.cloudnet.driver.network.rpc.defaults.DefaultRPCProvider;
 import de.dytanic.cloudnet.driver.network.rpc.defaults.MethodInformation;
@@ -48,6 +50,16 @@ public class DefaultRPCHandler extends DefaultRPCProvider implements RPCHandler 
     this.bindingClass = clazz;
     this.bindingInstance = binding;
     this.generator = new MethodInvokerGenerator();
+  }
+
+  @Override
+  public void registerToDefaultRegistry() {
+    this.registerTo(CloudNetDriver.getInstance().getRpcHandlerRegistry());
+  }
+
+  @Override
+  public void registerTo(@NotNull RPCHandlerRegistry registry) {
+    registry.registerHandler(this);
   }
 
   @Override

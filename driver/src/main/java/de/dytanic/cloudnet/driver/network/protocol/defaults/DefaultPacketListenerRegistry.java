@@ -63,9 +63,17 @@ public class DefaultPacketListenerRegistry implements IPacketListenerRegistry {
   public void removeListener(int channel, @NotNull IPacketListener... listeners) {
     Collection<IPacketListener> registeredListeners = this.listeners.get(channel);
     if (registeredListeners != null) {
-      registeredListeners.removeAll(Arrays.asList(listeners));
-      if (registeredListeners.isEmpty()) {
-        this.listeners.remove(channel, registeredListeners);
+      // remove all listeners if no specific listeners are provided
+      if (listeners.length == 0) {
+        registeredListeners.clear();
+        this.listeners.remove(channel);
+      } else {
+        // remove the selected listeners
+        registeredListeners.removeAll(Arrays.asList(listeners));
+        // check if there are listeners still registered
+        if (registeredListeners.isEmpty()) {
+          this.listeners.remove(channel, registeredListeners);
+        }
       }
     }
   }
@@ -83,16 +91,6 @@ public class DefaultPacketListenerRegistry implements IPacketListenerRegistry {
         this.listeners.remove(entry.getKey(), entry.getValue());
       }
     }
-  }
-
-  @Override
-  public boolean hasListener(@NotNull Class<? extends IPacketListener> clazz) {
-    for (Collection<IPacketListener> value : this.listeners.values()) {
-      if (value.getClass().equals(clazz)) {
-        return true;
-      }
-    }
-    return false;
   }
 
   @Override

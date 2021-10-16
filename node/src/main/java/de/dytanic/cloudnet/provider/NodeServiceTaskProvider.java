@@ -16,6 +16,7 @@
 
 package de.dytanic.cloudnet.provider;
 
+import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;
@@ -46,9 +47,11 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
   private final IEventManager eventManager;
   private final Set<ServiceTask> serviceTasks = ConcurrentHashMap.newKeySet();
 
-  public NodeServiceTaskProvider(@NotNull IEventManager eventManager) {
-    this.eventManager = eventManager;
-    this.eventManager.registerListener(new TaskChannelMessageListener(eventManager, this));
+  public NodeServiceTaskProvider(@NotNull CloudNet nodeInstance) {
+    this.eventManager = nodeInstance.getEventManager();
+    this.eventManager.registerListener(new TaskChannelMessageListener(this.eventManager, this));
+
+    nodeInstance.getRPCProviderFactory().newHandler(ServiceTaskProvider.class, this).registerToDefaultRegistry();
 
     if (Files.exists(TASKS_DIRECTORY)) {
       this.loadServiceTasks();

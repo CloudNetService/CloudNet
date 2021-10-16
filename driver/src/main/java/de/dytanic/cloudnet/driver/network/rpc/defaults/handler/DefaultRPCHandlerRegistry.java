@@ -57,7 +57,7 @@ public class DefaultRPCHandlerRegistry implements RPCHandlerRegistry {
 
   @Override
   public boolean registerHandler(@NotNull RPCHandler rpcHandler) {
-    return this.handlers.putIfAbsent(rpcHandler.getTargetClass().getCanonicalName(), rpcHandler) == null;
+    return this.handlers.put(rpcHandler.getTargetClass().getCanonicalName(), rpcHandler) == null;
   }
 
   @Override

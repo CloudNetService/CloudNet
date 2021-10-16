@@ -74,7 +74,11 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
 
   public DefaultCloudServiceManager(@NotNull CloudNet nodeInstance) {
     this.clusterNodeServerProvider = nodeInstance.getClusterNodeServerProvider();
+    // rpc init
     this.sender = nodeInstance.getRPCProviderFactory().providerForClass(null, GeneralCloudServiceProvider.class);
+    nodeInstance.getRPCProviderFactory()
+      .newHandler(GeneralCloudServiceProvider.class, this)
+      .registerToDefaultRegistry();
     // register the default factory
     this.addCloudServiceFactory("jvm", new JVMServiceFactory(nodeInstance, nodeInstance.getEventManager()));
     // register the default configuration preparers
