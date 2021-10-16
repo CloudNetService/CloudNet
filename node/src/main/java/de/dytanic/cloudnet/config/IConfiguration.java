@@ -31,7 +31,7 @@ public interface IConfiguration {
 
   boolean isFileExists();
 
-  void load();
+  @NotNull IConfiguration load();
 
   @NotNull IConfiguration save();
 

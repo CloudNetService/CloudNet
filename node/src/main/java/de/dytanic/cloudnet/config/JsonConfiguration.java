@@ -106,7 +106,7 @@ public final class JsonConfiguration implements IConfiguration {
       configuration.load(); // initializes all fields with the default values
       return configuration.save();
     } else {
-      return JsonDocument.newDocument(CONFIG_FILE_PATH).toInstanceOf(JsonConfiguration.class);
+      return JsonDocument.newDocument(CONFIG_FILE_PATH).toInstanceOf(JsonConfiguration.class).load();
     }
   }
 
@@ -116,7 +116,7 @@ public final class JsonConfiguration implements IConfiguration {
   }
 
   @Override
-  public void load() {
+  public @NotNull IConfiguration load() {
     if (identity == null) {
       this.identity = new NetworkClusterNode(
         ConfigurationUtils.get(
@@ -266,6 +266,8 @@ public final class JsonConfiguration implements IConfiguration {
         JsonDocument.newDocument("database_provider", "xodus"),
         JsonDocument::newDocument);
     }
+
+    return this.save();
   }
 
   @Override
