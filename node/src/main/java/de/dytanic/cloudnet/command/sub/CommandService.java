@@ -135,10 +135,9 @@ public class CommandService {
           serviceInfoSnapshot.getServiceId().getName() + " | " + serviceInfoSnapshot.getServiceId().getUniqueId());
       } else {
         source.sendMessage(
-          "Name: " + serviceInfoSnapshot.getServiceId().getName() + " | Lifecycle: "
-            + serviceInfoSnapshot.getLifeCycle() +
-            " | " + (serviceInfoSnapshot.isConnected()
-            ? "Connected" : "Not Connected") //+ extension
+          "Name: " + serviceInfoSnapshot.getServiceId().getName() +
+            " | Lifecycle: " + serviceInfoSnapshot.getLifeCycle() +
+            " | " + (serviceInfoSnapshot.isConnected() ? "Connected" : "Not Connected") //+ extension
         );
       }
     }
@@ -304,9 +303,9 @@ public class CommandService {
 
     list.add("* Lifecycle: " + service.getLifeCycle());
     list.add("* Groups: " + String.join(", ", service.getConfiguration().getGroups()));
-    list.add(" ");
 
     if (!service.getConfiguration().getIncludes().isEmpty()) {
+      list.add(" ");
       list.add("* Includes:");
 
       for (ServiceRemoteInclusion inclusion : service.getConfiguration().getIncludes()) {

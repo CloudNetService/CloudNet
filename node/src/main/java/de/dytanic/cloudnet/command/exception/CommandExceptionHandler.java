@@ -22,6 +22,7 @@ import cloud.commandframework.exceptions.InvalidSyntaxException;
 import cloud.commandframework.exceptions.NoPermissionException;
 import cloud.commandframework.exceptions.NoSuchCommandException;
 import de.dytanic.cloudnet.CloudNet;
+import de.dytanic.cloudnet.command.defaults.DefaultCommandProvider;
 import de.dytanic.cloudnet.command.source.CommandSource;
 import de.dytanic.cloudnet.command.source.ConsoleCommandSource;
 import de.dytanic.cloudnet.common.language.LanguageManager;
@@ -34,6 +35,12 @@ import java.util.concurrent.CompletionException;
 public class CommandExceptionHandler {
 
   private static final Logger LOGGER = LogManager.getLogger(CommandExceptionHandler.class);
+
+  private final DefaultCommandProvider commandProvider;
+
+  public CommandExceptionHandler(DefaultCommandProvider commandProvider) {
+    this.commandProvider = commandProvider;
+  }
 
   public void handleCompletionException(CommandSource source, CompletionException exception) {
     Throwable cause = exception.getCause();
@@ -71,6 +78,10 @@ public class CommandExceptionHandler {
   }
 
   public void handleInvalidSyntaxException(CommandSource source, InvalidSyntaxException exception) {
+    if (this.commandProvider.replyWithCommandHelp(source, exception.getCurrentChain())) {
+      return;
+    }
+
     CommandInvalidSyntaxEvent invalidSyntaxEvent = CloudNet.getInstance().getEventManager().callEvent(
       new CommandInvalidSyntaxEvent(
         source,

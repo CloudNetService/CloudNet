@@ -54,6 +54,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.TimeUnit;
+import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -84,7 +85,7 @@ public class DefaultCommandProvider implements CommandProvider {
     this.commandManager.registerCommandPostProcessor(new DefaultCommandPostProcessor());
     // register the command confirmation handling
     this.registerCommandConfirmation();
-    this.exceptionHandler = new CommandExceptionHandler();
+    this.exceptionHandler = new CommandExceptionHandler(this);
   }
 
   @Override
@@ -186,7 +187,7 @@ public class DefaultCommandProvider implements CommandProvider {
       .handler(confirmationManager.createConfirmationExecutionHandler()));
   }
 
-  private List<String> getCommandUsageByRoot(String root) {
+  private List<String> getCommandUsageByRoot(@NotNull String root) {
     List<String> commandUsage = new ArrayList<>();
     for (Command<CommandSource> command : this.commandManager.getCommands()) {
       List<CommandArgument<CommandSource, ?>> arguments = command.getArguments();
@@ -200,5 +201,40 @@ public class DefaultCommandProvider implements CommandProvider {
 
     Collections.sort(commandUsage);
     return commandUsage;
+  }
+
+  @Internal
+  public boolean replyWithCommandHelp(@NotNull CommandSource source,
+    @NotNull List<CommandArgument<?, ?>> currentChain) {
+    if (currentChain.isEmpty()) {
+      return false;
+    }
+    String root = currentChain.get(0).getName();
+    CommandInfo commandInfo = this.getCommand(root);
+    if (commandInfo == null) {
+      return false;
+    }
+
+    if (currentChain.size() == 1) {
+      for (String usage : commandInfo.getUsage()) {
+        source.sendMessage(usage);
+      }
+    } else {
+      source.sendMessage(
+        this.commandManager.getCommandSyntaxFormatter().apply(this.convertCommandArguments(currentChain), null));
+    }
+
+    return true;
+  }
+
+  @SuppressWarnings("unchecked")
+  private @NotNull List<CommandArgument<CommandSource, ?>> convertCommandArguments(
+    @NotNull List<CommandArgument<?, ?>> arguments) {
+    List<CommandArgument<CommandSource, ?>> result = new ArrayList<>();
+    for (CommandArgument<?, ?> argument : arguments) {
+      result.add((CommandArgument<CommandSource, ?>) argument);
+    }
+
+    return result;
   }
 }
