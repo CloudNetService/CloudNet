@@ -92,6 +92,11 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
   }
 
   protected @Nullable IClusterNodeServer peekLogicNodeServer(@NotNull ServiceConfiguration configuration) {
+    // check if the node is already specified
+    if (configuration.getServiceId().getNodeUniqueId() != null) {
+      IClusterNodeServer server = this.nodeServerProvider.getNodeServer(configuration.getServiceId().getNodeUniqueId());
+      return server == null || !server.isAvailable() ? null : server;
+    }
     // extract the max heap memory from the snapshot which will be used for later memory usage comparison
     int mh = configuration.getProcessConfig().getMaxHeapMemorySize();
     // find the best node server
