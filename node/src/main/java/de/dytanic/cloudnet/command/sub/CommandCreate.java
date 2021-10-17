@@ -44,6 +44,7 @@ public class CommandCreate {
     @Flag("start") boolean startService,
     @Flag("id") Integer id,
     @Flag(value = "javaCommand", parserName = "javaCommand") Pair<String, JavaVersion> javaCommand,
+    @Flag("node") String nodeId,
     @Flag("memory") Integer memory
   ) {
     ServiceConfiguration.Builder configurationBuilder = ServiceConfiguration.builder(task);
@@ -53,6 +54,10 @@ public class CommandCreate {
 
     if (javaCommand != null) {
       configurationBuilder.javaCommand(javaCommand.getFirst());
+    }
+
+    if (nodeId != null) {
+      configurationBuilder.node(nodeId);
     }
 
     if (memory != null) {

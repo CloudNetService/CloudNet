@@ -124,12 +124,14 @@ public class CommandTasks {
   @CommandMethod("tasks reload")
   public void reloadTasks(CommandSource source) {
     this.taskProvider().reload();
+    source.sendMessage(LanguageManager.getMessage("command-tasks-reload-success"));
   }
 
   @CommandMethod("tasks delete <name>")
   public void deleteTask(CommandSource source, @Argument("name") Collection<ServiceTask> serviceTasks) {
     for (ServiceTask serviceTask : serviceTasks) {
       this.taskProvider().removePermanentServiceTask(serviceTask);
+      source.sendMessage(LanguageManager.getMessage("command-tasks-delete-task"));
     }
   }
 
@@ -160,6 +162,7 @@ public class CommandTasks {
       .startPort(environmentType.getDefaultStartPort())
       .build();
     this.taskProvider().addPermanentServiceTask(serviceTask);
+    source.sendMessage(LanguageManager.getMessage("command-tasks-create-task"));
   }
 
   @CommandMethod("tasks task <name>")
@@ -194,6 +197,12 @@ public class CommandTasks {
   ) {
     for (ServiceTask task : serviceTasks) {
       this.updateTask(task, serviceTask -> serviceTask.setMinServiceCount(amount));
+      source.sendMessage(
+        LanguageManager.getMessage("command-tasks-set-property-success")
+          .replace("%property%", "minServiceCount")
+          .replace("%name%", task.getName())
+          .replace("%value%", amount.toString())
+      );
     }
   }
 
@@ -205,6 +214,12 @@ public class CommandTasks {
   ) {
     for (ServiceTask task : serviceTasks) {
       this.updateTask(task, serviceTask -> serviceTask.setMaintenance(enabled));
+      source.sendMessage(
+        LanguageManager.getMessage("command-tasks-set-property-success")
+          .replace("%property%", "maintenance")
+          .replace("%name%", task.getName())
+          .replace("%value%", String.valueOf(enabled))
+      );
     }
   }
 
@@ -216,6 +231,12 @@ public class CommandTasks {
   ) {
     for (ServiceTask task : serviceTasks) {
       this.updateTask(task, serviceTask -> serviceTask.getProcessConfiguration().setMaxHeapMemorySize(amount));
+      source.sendMessage(
+        LanguageManager.getMessage("command-tasks-set-property-success")
+          .replace("%property%", "maxHeapMemory")
+          .replace("%name%", task.getName())
+          .replace("%value%", amount.toString())
+      );
     }
   }
 
@@ -227,6 +248,12 @@ public class CommandTasks {
   ) {
     for (ServiceTask task : serviceTasks) {
       this.updateTask(task, serviceTask -> serviceTask.setStartPort(amount));
+      source.sendMessage(
+        LanguageManager.getMessage("command-tasks-set-property-success")
+          .replace("%property%", "startPort")
+          .replace("%name%", task.getName())
+          .replace("%value%", amount.toString())
+      );
     }
   }
 
@@ -238,6 +265,12 @@ public class CommandTasks {
   ) {
     for (ServiceTask task : serviceTasks) {
       this.updateTask(task, serviceTask -> serviceTask.setAutoDeleteOnStop(enabled));
+      source.sendMessage(
+        LanguageManager.getMessage("command-tasks-set-property-success")
+          .replace("%property%", "autoDeleteOnStop")
+          .replace("%name%", task.getName())
+          .replace("%value%", String.valueOf(enabled))
+      );
     }
   }
 
@@ -249,6 +282,12 @@ public class CommandTasks {
   ) {
     for (ServiceTask task : serviceTasks) {
       this.updateTask(task, serviceTask -> serviceTask.setStaticServices(enabled));
+      source.sendMessage(
+        LanguageManager.getMessage("command-tasks-set-property-success")
+          .replace("%property%", "staticServices")
+          .replace("%name%", task.getName())
+          .replace("%value%", String.valueOf(enabled))
+      );
     }
   }
 
@@ -260,6 +299,12 @@ public class CommandTasks {
   ) {
     for (ServiceTask task : serviceTasks) {
       this.updateTask(task, serviceTask -> serviceTask.getProcessConfiguration().setEnvironment(environmentType));
+      source.sendMessage(
+        LanguageManager.getMessage("command-tasks-set-property-success")
+          .replace("%property%", "staticServices")
+          .replace("%name%", task.getName())
+          .replace("%value%", String.valueOf(environmentType))
+      );
     }
   }
 
@@ -271,6 +316,12 @@ public class CommandTasks {
   ) {
     for (ServiceTask task : serviceTasks) {
       this.updateTask(task, serviceTask -> serviceTask.setDisableIpRewrite(enabled));
+      source.sendMessage(
+        LanguageManager.getMessage("command-tasks-set-property-success")
+          .replace("%property%", "disableIpRewrite")
+          .replace("%name%", task.getName())
+          .replace("%value%", String.valueOf(enabled))
+      );
     }
   }
 
@@ -282,6 +333,12 @@ public class CommandTasks {
   ) {
     for (ServiceTask task : serviceTasks) {
       this.updateTask(task, serviceTask -> serviceTask.setJavaCommand(executable.getFirst()));
+      source.sendMessage(
+        LanguageManager.getMessage("command-tasks-set-property-success")
+          .replace("%property%", "javaCommand")
+          .replace("%name%", task.getName())
+          .replace("%value%", executable.getFirst())
+      );
     }
   }
 
@@ -297,6 +354,12 @@ public class CommandTasks {
       }
 
       this.updateTask(task, serviceTask -> serviceTask.getAssociatedNodes().add(node));
+      source.sendMessage(
+        LanguageManager.getMessage("command-tasks-set-property-success")
+          .replace("%property%", "node")
+          .replace("%name%", task.getName())
+          .replace("%value%", node)
+      );
     }
   }
 
@@ -312,6 +375,12 @@ public class CommandTasks {
       }
 
       this.updateTask(task, serviceTask -> serviceTask.getGroups().add(group.getName()));
+      source.sendMessage(
+        LanguageManager.getMessage("command-tasks-set-property-success")
+          .replace("%property%", "group")
+          .replace("%name%", task.getName())
+          .replace("%value%", group.getName())
+      );
     }
   }
 
@@ -323,6 +392,12 @@ public class CommandTasks {
   ) {
     for (ServiceTask task : serviceTasks) {
       this.updateTask(task, serviceTask -> serviceTask.getAssociatedNodes().remove(node));
+      source.sendMessage(
+        LanguageManager.getMessage("command-tasks-set-property-success")
+          .replace("%property%", "node")
+          .replace("%name%", task.getName())
+          .replace("%value%", node)
+      );
     }
   }
 
@@ -334,6 +409,12 @@ public class CommandTasks {
   ) {
     for (ServiceTask task : serviceTasks) {
       this.updateTask(task, serviceTask -> serviceTask.getGroups().remove(group));
+      source.sendMessage(
+        LanguageManager.getMessage("command-tasks-set-property-success")
+          .replace("%property%", "group")
+          .replace("%name%", task.getName())
+          .replace("%value%", group)
+      );
     }
   }
 
@@ -346,6 +427,12 @@ public class CommandTasks {
     ServiceDeployment deployment = new ServiceDeployment(template, new ArrayList<>());
     for (ServiceTask serviceTask : serviceTasks) {
       this.updateTask(serviceTask, task -> task.getDeployments().add(deployment));
+      source.sendMessage(
+        LanguageManager.getMessage("command-tasks-set-property-success")
+          .replace("%property%", "deployment")
+          .replace("%name%", serviceTask.getName())
+          .replace("%value%", template.getFullName())
+      );
     }
   }
 
@@ -358,6 +445,12 @@ public class CommandTasks {
 
     for (ServiceTask serviceTask : serviceTasks) {
       this.updateTask(serviceTask, task -> task.getTemplates().add(template));
+      source.sendMessage(
+        LanguageManager.getMessage("command-tasks-set-property-success")
+          .replace("%property%", "template")
+          .replace("%name%", serviceTask.getName())
+          .replace("%value%", template.getFullName())
+      );
     }
   }
 
@@ -372,6 +465,12 @@ public class CommandTasks {
 
     for (ServiceTask serviceTask : serviceTasks) {
       this.updateTask(serviceTask, task -> task.getIncludes().add(inclusion));
+      source.sendMessage(
+        LanguageManager.getMessage("command-tasks-set-property-success")
+          .replace("%property%", "inclusion")
+          .replace("%name%", serviceTask.getName())
+          .replace("%value%", inclusion.getUrl())
+      );
     }
   }
 
@@ -385,6 +484,12 @@ public class CommandTasks {
     for (ServiceTask serviceTask : serviceTasks) {
       serviceTask.getJvmOptions().addAll(splittedOptions);
       this.updateTask(serviceTask);
+      source.sendMessage(
+        LanguageManager.getMessage("command-tasks-set-property-success")
+          .replace("%property%", "jvmOptions")
+          .replace("%name%", serviceTask.getName())
+          .replace("%value%", jvmOptions)
+      );
     }
   }
 
@@ -398,6 +503,12 @@ public class CommandTasks {
     for (ServiceTask serviceTask : serviceTasks) {
       serviceTask.getProcessParameters().addAll(splittedOptions);
       this.updateTask(serviceTask);
+      source.sendMessage(
+        LanguageManager.getMessage("command-tasks-set-property-success")
+          .replace("%property%", "processParameters")
+          .replace("%name%", serviceTask.getName())
+          .replace("%value%", processParameters)
+      );
     }
   }
 
@@ -410,6 +521,12 @@ public class CommandTasks {
     ServiceDeployment deployment = new ServiceDeployment(template, new ArrayList<>());
     for (ServiceTask serviceTask : serviceTasks) {
       this.updateTask(serviceTask, task -> task.getDeployments().remove(deployment));
+      source.sendMessage(
+        LanguageManager.getMessage("command-tasks-set-property-success")
+          .replace("%property%", "deployment")
+          .replace("%name%", serviceTask.getName())
+          .replace("%value%", template.getFullName())
+      );
     }
   }
 
@@ -422,6 +539,12 @@ public class CommandTasks {
 
     for (ServiceTask serviceTask : serviceTasks) {
       this.updateTask(serviceTask, task -> task.getTemplates().remove(template));
+      source.sendMessage(
+        LanguageManager.getMessage("command-tasks-set-property-success")
+          .replace("%property%", "template")
+          .replace("%name%", serviceTask.getName())
+          .replace("%value%", template.getFullName())
+      );
     }
   }
 
@@ -436,6 +559,12 @@ public class CommandTasks {
 
     for (ServiceTask serviceTask : serviceTasks) {
       this.updateTask(serviceTask, task -> task.getIncludes().remove(inclusion));
+      source.sendMessage(
+        LanguageManager.getMessage("command-tasks-set-property-success")
+          .replace("%property%", "inclusion")
+          .replace("%name%", serviceTask.getName())
+          .replace("%value%", inclusion.getUrl())
+      );
     }
   }
 
@@ -449,6 +578,12 @@ public class CommandTasks {
     for (ServiceTask serviceTask : serviceTasks) {
       serviceTask.getJvmOptions().removeAll(splittedOptions);
       this.updateTask(serviceTask);
+      source.sendMessage(
+        LanguageManager.getMessage("command-tasks-set-property-success")
+          .replace("%property%", "jvmOptions")
+          .replace("%name%", serviceTask.getName())
+          .replace("%value%", String.join(", ", serviceTask.getJvmOptions()))
+      );
     }
   }
 
@@ -462,14 +597,25 @@ public class CommandTasks {
     for (ServiceTask serviceTask : serviceTasks) {
       serviceTask.getProcessParameters().removeAll(splittedOptions);
       this.updateTask(serviceTask);
+      source.sendMessage(
+        LanguageManager.getMessage("command-tasks-set-property-success")
+          .replace("%property%", "processParameters")
+          .replace("%name%", serviceTask.getName())
+          .replace("%value%", String.join(", ", serviceTask.getProcessParameters()))
+      );
     }
   }
 
   @CommandMethod("tasks task <name> clear jvmOptions")
   public void clearJvmOptions(CommandSource source, @Argument("name") Collection<ServiceTask> serviceTasks) {
-
     for (ServiceTask serviceTask : serviceTasks) {
       this.updateTask(serviceTask, task -> task.getJvmOptions().clear());
+      source.sendMessage(
+        LanguageManager.getMessage("command-tasks-set-property-success")
+          .replace("%property%", "jvmOptions")
+          .replace("%name%", serviceTask.getName())
+          .replace("%value%", "empty")
+      );
     }
   }
 

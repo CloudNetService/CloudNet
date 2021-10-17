@@ -111,6 +111,25 @@ public class CommandTemplate {
     return Arrays.stream(ServiceEnvironmentType.VALUES).map(Enum::name).collect(Collectors.toList());
   }
 
+  @Parser(suggestions = "version")
+  public ServiceVersion defaultVersionParser(CommandContext<CommandSource> context, Queue<String> input) {
+    String version = input.remove();
+    ServiceVersionType type = context.get("versionType");
+
+    return type.getVersion(version).orElseThrow(
+      () -> new ArgumentNotAvailableException(LanguageManager.getMessage("command-template-invalid-version")));
+  }
+
+  @Suggestions("version")
+  public List<String> suggestVersions(CommandContext<CommandSource> context, String input) {
+    ServiceVersionType type = context.get("versionType");
+    return type.getVersions()
+      .stream()
+      .filter(ServiceVersion::canRun)
+      .map(INameable::getName)
+      .collect(Collectors.toList());
+  }
+
   @CommandMethod("template|t list [storage]")
   public void displayTemplates(CommandSource source, @Argument("storage") TemplateStorage templateStorage) {
     TemplateStorage resultingStorage =
@@ -154,16 +173,10 @@ public class CommandTemplate {
     CommandSource source,
     @Argument("template") ServiceTemplate serviceTemplate,
     @Argument("versionType") ServiceVersionType versionType,
-    @Argument("version") String version,
+    @Argument("version") ServiceVersion serviceVersion,
     @Flag("force") boolean forceInstall,
     @Flag("executable") @Quoted String executable
   ) {
-
-    ServiceVersion serviceVersion = versionType.getVersion(version).orElse(null);
-    if (serviceVersion == null) {
-      source.sendMessage(LanguageManager.getMessage("ca-question-list-invalid-service-version"));
-      return;
-    }
 
     String resolvedExecutable = executable == null ? "java" : executable;
     JavaVersion javaVersion = JavaVersionResolver.resolveFromJavaExecutable(resolvedExecutable);

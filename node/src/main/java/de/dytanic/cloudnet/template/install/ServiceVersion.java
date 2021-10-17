@@ -16,6 +16,7 @@
 
 package de.dytanic.cloudnet.template.install;
 
+import de.dytanic.cloudnet.common.INameable;
 import de.dytanic.cloudnet.common.JavaVersion;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import java.util.Collections;
@@ -23,7 +24,7 @@ import java.util.Map;
 import java.util.Optional;
 import org.jetbrains.annotations.NotNull;
 
-public class ServiceVersion {
+public class ServiceVersion implements INameable {
 
   private String name;
   private String url;
