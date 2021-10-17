@@ -60,7 +60,7 @@ public class ServiceVersionProvider {
   private static final Path VERSION_CACHE_PATH = Paths.get(
     System.getProperty("cloudnet.versioncache.path", "local/versioncache"));
 
-  private static final int VERSIONS_FILE_VERSION = 1;
+  private static final int VERSIONS_FILE_VERSION = 2;
   private static final Type COL_SV = TypeToken.getParameterized(Collection.class, ServiceVersionType.class).getType();
 
   private final Map<String, ServiceVersionType> serviceVersionTypes = new ConcurrentHashMap<>();

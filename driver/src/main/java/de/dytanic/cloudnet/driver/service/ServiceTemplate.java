@@ -23,6 +23,7 @@ import de.dytanic.cloudnet.driver.template.TemplateStorage;
 import java.util.ArrayList;
 import java.util.Collection;
 import lombok.EqualsAndHashCode;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -63,7 +64,8 @@ public class ServiceTemplate implements INameable, Comparable<ServiceTemplate> {
     this.alwaysCopyToStaticServices = alwaysCopyToStaticServices;
   }
 
-  public static ServiceTemplate local(String prefix, String name) {
+  @Contract(value = "_, _ -> new", pure = true)
+  public static @NotNull ServiceTemplate local(String prefix, String name) {
     return new ServiceTemplate(prefix, name, LOCAL_STORAGE);
   }
 

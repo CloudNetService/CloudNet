@@ -86,6 +86,9 @@ public abstract class AbstractConsoleAnimation implements Runnable {
         LOGGER.severe("Exception while awaiting console update", exception);
       }
     }
+  }
+
+  public void handleDone() {
     // post the result to the finish handlers
     for (Runnable runnable : this.finishHandler) {
       runnable.run();

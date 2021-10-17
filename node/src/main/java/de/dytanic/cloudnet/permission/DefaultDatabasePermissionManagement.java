@@ -19,7 +19,6 @@ package de.dytanic.cloudnet.permission;
 import com.google.common.collect.Iterables;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
-import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.database.LocalDatabase;
 import de.dytanic.cloudnet.driver.permission.DefaultPermissionManagement;
 import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
@@ -28,6 +27,8 @@ import de.dytanic.cloudnet.driver.permission.PermissionUser;
 import de.dytanic.cloudnet.network.listener.message.PermissionChannelMessageListener;
 import de.dytanic.cloudnet.permission.handler.IPermissionManagementHandler;
 import de.dytanic.cloudnet.permission.handler.PermissionManagementHandlerAdapter;
+import de.dytanic.cloudnet.setup.PermissionGroupSetup;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -67,8 +68,11 @@ public class DefaultDatabasePermissionManagement extends DefaultPermissionManage
 
   @Override
   public void init() {
-    FileUtils.createDirectoryReported(GROUPS_FILE.getParent());
-    this.loadGroups();
+    if (Files.notExists(GROUPS_FILE)) {
+      this.nodeInstance.getInstallation().registerSetup(new PermissionGroupSetup());
+    } else {
+      this.loadGroups();
+    }
 
     this.nodeInstance.getEventManager().registerListener(this.networkListener);
     this.nodeInstance.getRPCProviderFactory().newHandler(IPermissionManagement.class, this).registerToDefaultRegistry();

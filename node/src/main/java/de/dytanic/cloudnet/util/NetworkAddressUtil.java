@@ -16,15 +16,15 @@
 
 package de.dytanic.cloudnet.util;
 
+import com.google.common.collect.ImmutableSet;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.UnknownHostException;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashSet;
+import java.util.Set;
 import org.jetbrains.annotations.NotNull;
 
 public final class NetworkAddressUtil {
@@ -35,9 +35,9 @@ public final class NetworkAddressUtil {
     throw new UnsupportedOperationException();
   }
 
-  public static @NotNull Collection<String> getAvailableIpAddresses() {
+  public static @NotNull Set<String> getAvailableIpAddresses() {
     try {
-      Collection<String> addresses = new HashSet<>();
+      Set<String> addresses = new HashSet<>();
       // try to resolve all ip addresses available on the system
       Enumeration<NetworkInterface> networkInterfaces = NetworkInterface.getNetworkInterfaces();
       while (networkInterfaces.hasMoreElements()) {
@@ -50,7 +50,7 @@ public final class NetworkAddressUtil {
       // return the located addresses
       return addresses;
     } catch (SocketException exception) {
-      return Arrays.asList("127.0.0.1", "127.0.1.1");
+      return ImmutableSet.of("127.0.0.1", "127.0.1.1");
     }
   }
 

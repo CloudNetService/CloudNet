@@ -16,32 +16,19 @@
 
 package de.dytanic.cloudnet.setup;
 
-import de.dytanic.cloudnet.CloudNet;
-import de.dytanic.cloudnet.common.concurrent.ITask;
-import de.dytanic.cloudnet.common.concurrent.ListenableTask;
-import de.dytanic.cloudnet.common.log.LogManager;
-import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.console.IConsole;
 import de.dytanic.cloudnet.console.animation.setup.ConsoleSetupAnimation;
-import de.dytanic.cloudnet.driver.permission.PermissionGroup;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.concurrent.ExecutionException;
+import java.util.concurrent.CopyOnWriteArraySet;
+import org.jetbrains.annotations.NotNull;
 
 public class DefaultInstallation {
 
-  private static final Logger LOGGER = LogManager.getLogger(DefaultInstallation.class);
+  private final Object monitor = new Object();
+  private final ConsoleSetupAnimation animation = createAnimation();
+  private final Collection<DefaultSetup> setups = new CopyOnWriteArraySet<>();
 
-  private final Collection<DefaultSetup> setups = Arrays.asList(
-    new DefaultConfigSetup(),
-    new DefaultClusterSetup(),
-    new DefaultTaskSetup()
-  );
-
-  private ConsoleSetupAnimation animation;
-
-  private ConsoleSetupAnimation createAnimation() {
+  private static @NotNull ConsoleSetupAnimation createAnimation() {
     return new ConsoleSetupAnimation(
       "&f   ___  _                    _ &b     __    __  _____  &3  _____              _           _  _ \n" +
         "&f  / __\\| |  ___   _   _   __| |&b  /\\ \\ \\  /__\\/__   \\ &3  \\_   \\ _ __   ___ | |_   __ _ | || |\n" +
@@ -54,81 +41,35 @@ public class DefaultInstallation {
       "&r> &e");
   }
 
-  public void executeFirstStartSetup(IConsole console, boolean configFileAvailable) {
-    Collection<DefaultSetup> executedSetups = new ArrayList<>();
-
-    for (DefaultSetup setup : this.setups) {
-      if (setup.shouldAsk(configFileAvailable)) {
-        if (this.animation == null) {
-          this.animation = this.createAnimation();
-        }
-
-        setup.applyQuestions(this.animation);
-        executedSetups.add(setup);
-      }
-    }
-
-    if (this.animation != null) {
+  public void executeFirstStartSetup(@NotNull IConsole console) {
+    if (!Boolean.getBoolean("cloudnet.installation.skip") && !this.setups.isEmpty()) {
+      // apply all questions of all setups to the animation
+      this.setups.forEach(setup -> setup.applyQuestions(this.animation));
+      // start the animation
       this.animation.setCancellable(false);
-
-      console.clearScreen();
       console.startAnimation(this.animation);
 
-      ITask<Void> task = new ListenableTask<>(() -> null);
-
       this.animation.addFinishHandler(() -> {
-
-        for (DefaultSetup setup : executedSetups) {
-          setup.execute(this.animation);
-        }
-
-        try {
-          task.call();
-        } catch (Exception exception) {
-          LOGGER.severe("Exception while restarting service", exception);
+        // post the finish handling to the installations
+        this.setups.forEach(setup -> setup.handleResults(animation));
+        // notify the monitor about the success
+        synchronized (this.monitor) {
+          this.monitor.notifyAll();
         }
       });
 
       try {
-        task.get(); //wait for the results by the user
-      } catch (InterruptedException | ExecutionException exception) {
-        LOGGER.severe("Exception while waiting for the result by the users", exception);
+        // wait for the finish signal
+        synchronized (this.monitor) {
+          this.monitor.wait();
+        }
+      } catch (InterruptedException exception) {
+        throw new RuntimeException("Interrupted while waiting for the setup process to complete", exception);
       }
-
     }
   }
 
-  public void postExecute() {
-    for (DefaultSetup setup : this.setups) {
-      setup.postExecute(this.animation);
-    }
+  public void registerSetup(@NotNull DefaultSetup setup) {
+    this.setups.add(setup);
   }
-
-  public void initDefaultPermissionGroups() {
-    if (CloudNet.getInstance().getPermissionManagement().getGroups().isEmpty()
-      && System.getProperty("cloudnet.default.permissions.skip") == null) {
-      PermissionGroup adminPermissionGroup = new PermissionGroup("Admin", 100);
-      adminPermissionGroup.addPermission("*");
-      adminPermissionGroup.addPermission("Proxy", "*");
-      adminPermissionGroup.setPrefix("&4Admin &8| &7");
-      adminPermissionGroup.setColor("&7");
-      adminPermissionGroup.setSuffix("&f");
-      adminPermissionGroup.setDisplay("&4");
-      adminPermissionGroup.setSortId(10);
-
-      CloudNet.getInstance().getPermissionManagement().addPermissionGroup(adminPermissionGroup);
-
-      PermissionGroup defaultPermissionGroup = new PermissionGroup("default", 100);
-      defaultPermissionGroup.addPermission("bukkit.broadcast.user", true);
-      defaultPermissionGroup.setDefaultGroup(true);
-      defaultPermissionGroup.setPrefix("&7");
-      defaultPermissionGroup.setColor("&7");
-      defaultPermissionGroup.setSuffix("&f");
-      defaultPermissionGroup.setDisplay("&7");
-      defaultPermissionGroup.setSortId(10);
-
-      CloudNet.getInstance().getPermissionManagement().addPermissionGroup(defaultPermissionGroup);
-    }
-  }
-
 }

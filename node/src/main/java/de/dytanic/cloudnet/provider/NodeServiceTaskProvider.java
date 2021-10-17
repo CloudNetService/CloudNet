@@ -28,6 +28,7 @@ import de.dytanic.cloudnet.driver.service.ServiceTask;
 import de.dytanic.cloudnet.event.task.LocalServiceTaskAddEvent;
 import de.dytanic.cloudnet.event.task.LocalServiceTaskRemoveEvent;
 import de.dytanic.cloudnet.network.listener.message.TaskChannelMessageListener;
+import de.dytanic.cloudnet.setup.DefaultTaskSetup;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -57,6 +58,7 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
       this.loadServiceTasks();
     } else {
       FileUtils.createDirectoryReported(TASKS_DIRECTORY);
+      nodeInstance.getInstallation().registerSetup(new DefaultTaskSetup());
     }
   }
 

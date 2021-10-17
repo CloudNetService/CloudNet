@@ -16,15 +16,16 @@
 
 package de.dytanic.cloudnet.console.util;
 
+import com.google.common.io.CharStreams;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.console.IConsole;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
+import org.jetbrains.annotations.NotNull;
 
 public final class HeaderReader {
 
@@ -34,16 +35,16 @@ public final class HeaderReader {
     throw new UnsupportedOperationException();
   }
 
-  public static void readAndPrintHeader(IConsole console) {
+  public static void readAndPrintHeader(@NotNull IConsole console) {
     String version = HeaderReader.class.getPackage().getImplementationVersion();
     String codename = HeaderReader.class.getPackage().getImplementationTitle();
 
-    InputStream inputStream = HeaderReader.class.getClassLoader().getResourceAsStream("header.txt");
-    try (BufferedReader bufferedReader = new BufferedReader(
-      new InputStreamReader(Objects.requireNonNull(inputStream), StandardCharsets.UTF_8))) {
-      String input;
-      while ((input = bufferedReader.readLine()) != null) {
-        console.writeLine(input.replace("%codename%", codename).replace("%version%", version));
+    try (Reader reader = new InputStreamReader(
+      Objects.requireNonNull(HeaderReader.class.getClassLoader().getResourceAsStream("header.txt")),
+      StandardCharsets.UTF_8
+    )) {
+      for (String line : CharStreams.toString(reader).split(System.lineSeparator())) {
+        console.forceWriteLine(line.replace("%codename%", codename).replace("%version%", version));
       }
     } catch (IOException exception) {
       LOGGER.severe("Exception while reading header", exception);

@@ -72,7 +72,7 @@ public class CommandGroups {
   @CommandMethod("groups create <name>")
   public void createGroup(CommandSource source, @Argument("name") String groupName) {
     if (!this.groupProvider().isGroupConfigurationPresent(groupName)) {
-      this.groupProvider().addGroupConfiguration(GroupConfiguration.empty(groupName));
+      this.groupProvider().addGroupConfiguration(GroupConfiguration.empty(groupName, null));
     }
   }
 

@@ -83,8 +83,12 @@ public class ConsoleSetupAnimation extends AbstractConsoleAnimation {
     this.staticCursor = true;
   }
 
-  public void addEntry(@NotNull QuestionListEntry<?> entry) {
-    this.entries.add(entry);
+  public void addEntries(QuestionListEntry<?> @NotNull ... entries) {
+    if (entries.length != 0) {
+      for (QuestionListEntry<?> entry : entries) {
+        this.entries.offerLast(entry);
+      }
+    }
   }
 
   public void addEntriesFirst(QuestionListEntry<?> @NotNull ... entries) {
@@ -128,6 +132,7 @@ public class ConsoleSetupAnimation extends AbstractConsoleAnimation {
     this.previousConsoleLines = CloudNet.getInstance().getLogHandler().getFormattedCachedLogLines();
 
     // apply the console settings of the animation
+    console.clearScreen();
     console.setCommandHistory(null);
     console.togglePrinting(false);
     console.setUsingMatchingHistoryComplete(false);
@@ -293,10 +298,17 @@ public class ConsoleSetupAnimation extends AbstractConsoleAnimation {
       LOGGER.severe("Exception while resetting console", exception);
     }
 
-    // write the old console lines back to the screen
+    // remove the setup from the screen
     this.getConsole().clearScreen();
-    for (String line : this.previousConsoleLines) {
-      this.getConsole().forceWriteLine(line);
+
+    // write the old lines back if there are some
+    if (this.previousConsoleLines.isEmpty()) {
+      // send an empty line to prevent bugs
+      this.getConsole().forceWriteLine("");
+    } else {
+      for (String line : this.previousConsoleLines) {
+        this.getConsole().forceWriteLine(line);
+      }
     }
 
     // reset the console settings

@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
+import java.util.function.Supplier;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
@@ -42,14 +43,14 @@ public final class QuestionAnswerType<T> {
 
   private final Parser<T> parser;
   private final String recommendation;
-  private final Collection<String> possibleResults;
+  private final Supplier<Collection<String>> possibleResults;
   private final Collection<BiConsumer<QuestionAnswerType<T>, T>> resultListener;
   private final BiFunction<QuestionAnswerType<?>, String, String> invalidInputSupplier;
 
   private QuestionAnswerType(
     @NotNull Parser<T> parser,
     @Nullable String recommendation,
-    @NotNull Collection<String> possibleResults,
+    @NotNull Supplier<Collection<String>> possibleResults,
     @NotNull Collection<BiConsumer<QuestionAnswerType<T>, T>> resultListener,
     @NotNull BiFunction<QuestionAnswerType<?>, String, String> invalidInputSupplier
   ) {
@@ -66,7 +67,7 @@ public final class QuestionAnswerType<T> {
 
   @Unmodifiable
   public @NotNull Collection<String> getPossibleAnswers() {
-    return this.possibleResults;
+    return this.possibleResults.get();
   }
 
   public @Nullable String getRecommendation() {
@@ -98,7 +99,7 @@ public final class QuestionAnswerType<T> {
 
     private Parser<T> parser;
     private String recommendation;
-    private Collection<String> possibleResults;
+    private Supplier<Collection<String>> possibleResults;
     private Collection<BiConsumer<QuestionAnswerType<T>, T>> resultListener;
     private BiFunction<QuestionAnswerType<?>, String, String> invalidInputSupplier;
 
@@ -117,7 +118,12 @@ public final class QuestionAnswerType<T> {
     }
 
     public @NotNull Builder<T> possibleResults(@NotNull Collection<String> results) {
-      this.possibleResults = new ArrayList<>(results);
+      this.possibleResults = () -> new ArrayList<>(results);
+      return this;
+    }
+
+    public @NotNull Builder<T> possibleResults(@NotNull Supplier<Collection<String>> results) {
+      this.possibleResults = results;
       return this;
     }
 
@@ -125,22 +131,9 @@ public final class QuestionAnswerType<T> {
       return this.possibleResults(Arrays.asList(results));
     }
 
-    public @NotNull Builder<T> addPossibleResult(@NotNull String result) {
-      if (this.possibleResults == null) {
-        return this.possibleResults(Collections.singleton(result));
-      } else {
-        this.possibleResults.add(result);
-        return this;
-      }
-    }
-
     public @NotNull Builder<T> resultListener(@NotNull Collection<BiConsumer<QuestionAnswerType<T>, T>> listeners) {
       this.resultListener = new ArrayList<>(listeners);
       return this;
-    }
-
-    public @NotNull Builder<T> resultListener(BiConsumer<QuestionAnswerType<T>, T> @NotNull ... listeners) {
-      return this.resultListener(Arrays.asList(listeners));
     }
 
     public @NotNull Builder<T> addResultListener(@NotNull BiConsumer<QuestionAnswerType<T>, T> listener) {
@@ -170,7 +163,7 @@ public final class QuestionAnswerType<T> {
       return new QuestionAnswerType<>(
         this.parser,
         this.recommendation,
-        this.possibleResults == null ? Collections.emptyList() : this.possibleResults,
+        this.possibleResults == null ? Collections::emptyList : this.possibleResults,
         this.resultListener == null ? Collections.emptyList() : this.resultListener,
         this.invalidInputSupplier == null ? DEFAULT_INVALID_SUPPLIER : this.invalidInputSupplier);
     }

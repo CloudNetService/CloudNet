@@ -16,9 +16,17 @@
 
 package de.dytanic.cloudnet.console.animation.setup.answer;
 
+import com.google.common.base.Enums;
+import com.google.common.base.Verify;
 import com.google.common.net.InetAddresses;
+import de.dytanic.cloudnet.CloudNet;
+import de.dytanic.cloudnet.common.JavaVersion;
+import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.console.animation.setup.answer.QuestionAnswerType.Parser;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
+import de.dytanic.cloudnet.template.install.ServiceVersion;
+import de.dytanic.cloudnet.template.install.ServiceVersionType;
+import de.dytanic.cloudnet.util.JavaVersionResolver;
 import java.net.InetAddress;
 import java.net.URI;
 import java.util.UUID;
@@ -37,6 +45,41 @@ public final class Parsers {
         throw ParserException.INSTANCE;
       }
       return input;
+    };
+  }
+
+  public static @NotNull <T extends Enum<T>> Parser<T> enumConstant(@NotNull Class<T> enumClass) {
+    return input -> Verify.verifyNotNull(Enums.getIfPresent(enumClass, input.toUpperCase()).orNull());
+  }
+
+  public static @NotNull Parser<Pair<String, JavaVersion>> javaVersion() {
+    return input -> {
+      JavaVersion version = JavaVersionResolver.resolveFromJavaExecutable(input);
+      if (version == null) {
+        throw ParserException.INSTANCE;
+      }
+      return new Pair<>(input.trim(), version);
+    };
+  }
+
+  public static @NotNull Parser<Pair<ServiceVersionType, ServiceVersion>> serviceVersion() {
+    return input -> {
+      // install no version
+      if (input.equalsIgnoreCase("none")) {
+        return null;
+      }
+      // try to split the name of the version
+      String[] result = input.split("-", 2);
+      if (result.length != 2) {
+        throw ParserException.INSTANCE;
+      }
+      // get the type and version
+      ServiceVersionType type = CloudNet.getInstance().getServiceVersionProvider()
+        .getServiceVersionType(result[0])
+        .orElseThrow(() -> ParserException.INSTANCE);
+      ServiceVersion version = type.getVersion(result[1]).orElseThrow(() -> ParserException.INSTANCE);
+      // combine the result
+      return new Pair<>(type, version);
     };
   }
 
@@ -85,8 +128,8 @@ public final class Parsers {
     return input -> combiner.apply(parser.parse(input));
   }
 
-  private static final class ParserException extends RuntimeException {
+  public static final class ParserException extends RuntimeException {
 
-    private static final ParserException INSTANCE = new ParserException();
+    public static final ParserException INSTANCE = new ParserException();
   }
 }

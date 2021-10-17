@@ -23,11 +23,6 @@ public interface DefaultSetup {
 
   void applyQuestions(@NotNull ConsoleSetupAnimation animation);
 
-  default void execute(@NotNull ConsoleSetupAnimation animation) {
+  default void handleResults(@NotNull ConsoleSetupAnimation animation) {
   }
-
-  default void postExecute(@NotNull ConsoleSetupAnimation animation) {
-  }
-
-  boolean shouldAsk(boolean configFileAvailable);
 }

@@ -30,7 +30,7 @@ public class CommandConfig {
 
   @CommandMethod("config reload")
   public void reloadConfigs(CommandSource source) {
-    CloudNet.getInstance().setConfig(JsonConfiguration.loadFromFile());
+    CloudNet.getInstance().setConfig(JsonConfiguration.loadFromFile(CloudNet.getInstance()));
     CloudNet.getInstance().getServiceTaskProvider().reload();
     CloudNet.getInstance().getGroupConfigurationProvider().reload();
     CloudNet.getInstance().getPermissionManagement().reload();
@@ -39,7 +39,7 @@ public class CommandConfig {
 
   @CommandMethod("config node reload")
   public void reloadNodeConfig(CommandSource source) {
-    CloudNet.getInstance().setConfig(JsonConfiguration.loadFromFile());
+    CloudNet.getInstance().setConfig(JsonConfiguration.loadFromFile(CloudNet.getInstance()));
     source.sendMessage(LanguageManager.getMessage("command-reload-node-config"));
   }
 }

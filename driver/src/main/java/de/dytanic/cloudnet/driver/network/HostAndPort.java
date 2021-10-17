@@ -47,7 +47,7 @@ public class HostAndPort {
 
   public HostAndPort(String host, int port) {
     Preconditions.checkNotNull(host, "host");
-    Preconditions.checkArgument(port >= 0 && port <= 65535, "Illegal port: " + port);
+    Preconditions.checkArgument(port >= -1 && port <= 65535, "Illegal port: " + port);
 
     this.host = host.trim();
     this.port = port;

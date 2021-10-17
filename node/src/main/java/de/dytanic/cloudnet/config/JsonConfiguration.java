@@ -18,6 +18,8 @@ package de.dytanic.cloudnet.config;
 
 import com.google.common.base.Enums;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableSet;
+import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.StringUtil;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.io.FileUtils;
@@ -26,6 +28,7 @@ import de.dytanic.cloudnet.driver.network.cluster.NetworkCluster;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
 import de.dytanic.cloudnet.driver.network.ssl.SSLConfiguration;
 import de.dytanic.cloudnet.driver.service.ProcessSnapshot;
+import de.dytanic.cloudnet.setup.DefaultConfigSetup;
 import de.dytanic.cloudnet.util.NetworkAddressUtil;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -35,6 +38,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
 import org.jetbrains.annotations.NotNull;
@@ -62,7 +66,7 @@ public final class JsonConfiguration implements IConfiguration {
   private NetworkClusterNode identity;
   private NetworkCluster clusterConfig;
 
-  private Collection<String> ipWhitelist;
+  private Set<String> ipWhitelist;
 
   private double maxCPUUsageToStartServices;
 
@@ -101,11 +105,11 @@ public final class JsonConfiguration implements IConfiguration {
     }
   }
 
-  public static @NotNull IConfiguration loadFromFile() {
+  public static @NotNull IConfiguration loadFromFile(@NotNull CloudNet nodeInstance) {
     if (Files.notExists(CONFIG_FILE_PATH)) {
-      JsonConfiguration configuration = new JsonConfiguration();
-      configuration.load(); // initializes all fields with the default values
-      return configuration.save();
+      // register the setup if the file does not exists
+      nodeInstance.getInstallation().registerSetup(new DefaultConfigSetup());
+      return new JsonConfiguration().load();
     } else {
       return JsonDocument.newDocument(CONFIG_FILE_PATH).toInstanceOf(JsonConfiguration.class).load();
     }
@@ -154,7 +158,7 @@ public final class JsonConfiguration implements IConfiguration {
       this.ipWhitelist = ConfigurationUtils.get(
         "cloudnet.config.ipWhitelist",
         NetworkAddressUtil.getAvailableIpAddresses(),
-        value -> Arrays.asList(value.split(",")));
+        value -> ImmutableSet.copyOf(value.split(",")));
     }
 
     if (this.maxCPUUsageToStartServices <= 0) {
@@ -301,14 +305,12 @@ public final class JsonConfiguration implements IConfiguration {
 
   @Override
   public @NotNull Collection<String> getIpWhitelist() {
-    return this.ipWhitelist != null ? this.ipWhitelist : (this.ipWhitelist = new ArrayList<>());
+    return this.ipWhitelist != null ? this.ipWhitelist : (this.ipWhitelist = new HashSet<>());
   }
 
   @Override
   public void setIpWhitelist(@NotNull Collection<String> whitelist) {
-    Preconditions.checkNotNull(whitelist);
-
-    this.ipWhitelist = whitelist;
+    this.ipWhitelist = new HashSet<>(whitelist);
   }
 
   @Override

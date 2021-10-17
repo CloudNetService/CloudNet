@@ -41,9 +41,8 @@ import org.jetbrains.annotations.NotNull;
 public class DefaultClusterSetup implements DefaultSetup {
 
   @Override
-  @SuppressWarnings("unchecked")
   public void applyQuestions(@NotNull ConsoleSetupAnimation animation) {
-    animation.addEntriesFirst(
+    animation.addEntries(
       QuestionListEntry.<Boolean>builder()
         .key("installCluster")
         .translatedQuestion("cloudnet-init-setup-cluster-install")
@@ -79,7 +78,7 @@ public class DefaultClusterSetup implements DefaultSetup {
                   .answerType(QuestionAnswerType.<Collection<String>>builder()
                     .parser(andThen(nonEmptyStr(), val -> Arrays.asList(val.split(";"))))
                     // add a question for each host of each node in the new cluster
-                    .resultListener((___, nodes) -> animation.addEntriesFirst(nodes.stream()
+                    .addResultListener((___, nodes) -> animation.addEntriesFirst(nodes.stream()
                       .map(node -> QuestionListEntry.<HostAndPort>builder()
                         .key("nodeHost-" + node)
                         .question(getMessage("cloudnet-init-setup-cluster-node-host").replace("%node%", node))
@@ -94,7 +93,7 @@ public class DefaultClusterSetup implements DefaultSetup {
   }
 
   @Override
-  public void execute(@NotNull ConsoleSetupAnimation animation) {
+  public void handleResults(@NotNull ConsoleSetupAnimation animation) {
     if (animation.getResult("installCluster")) {
       IConfiguration config = CloudNet.getInstance().getConfig();
 
@@ -114,10 +113,5 @@ public class DefaultClusterSetup implements DefaultSetup {
       // save the config to apply all changes
       config.save();
     }
-  }
-
-  @Override
-  public boolean shouldAsk(boolean configFileAvailable) {
-    return !configFileAvailable;
   }
 }

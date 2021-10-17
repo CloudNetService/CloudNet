@@ -20,9 +20,12 @@ import de.dytanic.cloudnet.common.INameable;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = false)
@@ -80,14 +83,15 @@ public class GroupConfiguration extends ServiceConfigurationBase implements INam
     this.targetEnvironments = targetEnvironments;
   }
 
-  public static GroupConfiguration empty(@NotNull String name) {
+  @Contract("_, _ -> new")
+  public static @NotNull GroupConfiguration empty(@NotNull String name, @Nullable ServiceEnvironmentType type) {
     return new GroupConfiguration(
       new ArrayList<>(),
       new ArrayList<>(),
       new ArrayList<>(),
       name,
       new ArrayList<>(),
-      new ArrayList<>());
+      new ArrayList<>(type == null ? Collections.emptySet() : Collections.singleton(type)));
   }
 
   @Override

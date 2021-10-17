@@ -100,6 +100,7 @@ public class CloudNet extends CloudNetDriver {
 
   private final CloudNetTick mainThread = new CloudNetTick(this);
   private final AtomicBoolean running = new AtomicBoolean(true);
+  private final DefaultInstallation installation = new DefaultInstallation();
   private final QueuedConsoleLogHandler logHandler = new QueuedConsoleLogHandler();
 
   private volatile IConfiguration configuration;
@@ -120,12 +121,9 @@ public class CloudNet extends CloudNetDriver {
     this.serviceVersionProvider = new ServiceVersionProvider();
     this.cloudNetVersion = CloudNetVersion.fromClassInformation(CloudNet.class.getPackage());
 
-    this.configuration = JsonConfiguration.loadFromFile();
-    // TODO
-    new DefaultInstallation().executeFirstStartSetup(console, JsonConfiguration.DID_CONFIG_EXIST);
+    this.configuration = JsonConfiguration.loadFromFile(this);
 
     this.nodeServerProvider = new DefaultClusterNodeServerProvider(this);
-    this.nodeServerProvider.setClusterServers(this.configuration.getClusterConfig());
 
     this.nodeInfoProvider = new NodeNodeInfoProvider(this);
     this.serviceTaskProvider = new NodeServiceTaskProvider(this);
@@ -200,6 +198,13 @@ public class CloudNet extends CloudNetDriver {
         throw new IllegalStateException("No database provider selected for startup - Unable to proceed");
       }
     }
+
+    // init the permission management
+    this.permissionManagement.init();
+
+    // execute the installation setup and load the config things after it
+    this.installation.executeFirstStartSetup(this.console);
+    this.nodeServerProvider.setClusterServers(this.configuration.getClusterConfig());
 
     // network server init
     for (HostAndPort listener : this.configuration.getIdentity().getListeners()) {
@@ -397,6 +402,10 @@ public class CloudNet extends CloudNetDriver {
 
   public @NotNull QueuedConsoleLogHandler getLogHandler() {
     return this.logHandler;
+  }
+
+  public @NotNull DefaultInstallation getInstallation() {
+    return this.installation;
   }
 
   public boolean isRunning() {

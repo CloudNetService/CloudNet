@@ -104,7 +104,9 @@ public final class JLine3Console implements IConsole {
 
     this.animationThreadPool.execute(() -> {
       animation.run();
+      // remove the animation - then post the result for other animations in the finish handlers to run
       this.runningAnimations.remove(uniqueId);
+      animation.handleDone();
     });
   }
 
