@@ -16,11 +16,11 @@
 
 package de.dytanic.cloudnet.event.setup;
 
-import de.dytanic.cloudnet.console.animation.questionlist.ConsoleQuestionListAnimation;
+import de.dytanic.cloudnet.console.animation.setup.ConsoleSetupAnimation;
 
 public class SetupInitiateEvent extends SetupEvent {
 
-  public SetupInitiateEvent(ConsoleQuestionListAnimation setup) {
+  public SetupInitiateEvent(ConsoleSetupAnimation setup) {
     super(setup);
   }
 }

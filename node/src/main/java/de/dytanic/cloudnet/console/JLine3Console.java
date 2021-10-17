@@ -17,11 +17,13 @@
 package de.dytanic.cloudnet.console;
 
 import de.dytanic.cloudnet.CloudNet;
-import de.dytanic.cloudnet.command.CommandProvider;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.console.animation.AbstractConsoleAnimation;
+import de.dytanic.cloudnet.console.handler.ConsoleInputHandler;
+import de.dytanic.cloudnet.console.handler.ConsoleTabCompleteHandler;
+import de.dytanic.cloudnet.console.handler.Toggleable;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -33,11 +35,11 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.function.Consumer;
 import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.AnsiConsole;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jline.reader.Completer;
 import org.jline.reader.History;
 import org.jline.reader.LineReader;
@@ -53,8 +55,10 @@ public final class JLine3Console implements IConsole {
   private static final String VERSION = CloudNet.class.getPackage().getImplementationVersion();
   private static final Logger LOGGER = LogManager.getLogger(JLine3Console.class);
 
+  private final Map<UUID, ConsoleInputHandler> consoleInputHandler = new ConcurrentHashMap<>();
+  private final Map<UUID, ConsoleTabCompleteHandler> tabCompleteHandler = new ConcurrentHashMap<>();
+
   private final Map<UUID, AbstractConsoleAnimation> runningAnimations = new ConcurrentHashMap<>();
-  private final Map<UUID, ConsoleHandler<Consumer<String>>> consoleInputHandler = new ConcurrentHashMap<>();
 
   private final ConsoleReadThread consoleReadThread = new ConsoleReadThread(this);
   private final ExecutorService animationThreadPool = Executors.newCachedThreadPool();
@@ -67,7 +71,7 @@ public final class JLine3Console implements IConsole {
   private boolean printingEnabled = true;
   private boolean matchingHistorySearch = true;
 
-  public JLine3Console(CommandProvider commandProvider) throws Exception {
+  public JLine3Console() throws Exception {
     System.setProperty("library.jansi.version", "CloudNET");
 
     try {
@@ -77,7 +81,7 @@ public final class JLine3Console implements IConsole {
 
     this.terminal = TerminalBuilder.builder().system(true).encoding(StandardCharsets.UTF_8).build();
     this.lineReader = new InternalLineReaderBuilder(this.terminal)
-      .completer(new JLine3Completer(commandProvider))
+      .completer(new JLine3Completer(this))
       .option(LineReader.Option.DISABLE_EVENT_EXPANSION, true)
       .variable(LineReader.BELL_STYLE, "off")
       .build();
@@ -120,7 +124,7 @@ public final class JLine3Console implements IConsole {
   }
 
   @Override
-  public @NotNull List<String> getCommandHistory() {
+  public @NotNull Collection<String> getCommandHistory() {
     List<String> result = new ArrayList<>();
     for (History.Entry entry : this.lineReader.getHistory()) {
       result.add(entry.line());
@@ -130,7 +134,7 @@ public final class JLine3Console implements IConsole {
   }
 
   @Override
-  public void setCommandHistory(List<String> history) {
+  public void setCommandHistory(@Nullable Collection<String> history) {
     try {
       this.lineReader.getHistory().purge();
     } catch (IOException exception) {
@@ -176,13 +180,33 @@ public final class JLine3Console implements IConsole {
   }
 
   @Override
-  public void addCommandHandler(@NotNull UUID uniqueId, @NotNull Consumer<String> inputConsumer) {
-    this.consoleInputHandler.put(uniqueId, new ConsoleHandler<>(inputConsumer));
+  public void enableAllTabCompleteHandlers() {
+    this.toggleHandlers(true, this.tabCompleteHandler.values());
+  }
+
+  @Override
+  public void disableAllTabCompleteHandlers() {
+    this.toggleHandlers(false, this.tabCompleteHandler.values());
+  }
+
+  @Override
+  public void addCommandHandler(@NotNull UUID uniqueId, @NotNull ConsoleInputHandler handler) {
+    this.consoleInputHandler.put(uniqueId, handler);
   }
 
   @Override
   public void removeCommandHandler(@NotNull UUID uniqueId) {
     this.consoleInputHandler.remove(uniqueId);
+  }
+
+  @Override
+  public void addTabCompleteHandler(@NotNull UUID uniqueId, @NotNull ConsoleTabCompleteHandler handler) {
+    this.tabCompleteHandler.put(uniqueId, handler);
+  }
+
+  @Override
+  public void removeTabCompleteHandler(@NotNull UUID uniqueId) {
+    this.tabCompleteHandler.remove(uniqueId);
   }
 
   @Override
@@ -345,7 +369,7 @@ public final class JLine3Console implements IConsole {
 
   private void toggleHandlers(boolean enabled, @NotNull Collection<?> handlers) {
     for (Object handler : handlers) {
-      ((ConsoleHandler<?>) handler).setEnabled(enabled);
+      ((Toggleable) handler).setEnabled(enabled);
     }
   }
 
@@ -357,8 +381,14 @@ public final class JLine3Console implements IConsole {
 
   @NotNull
   @ApiStatus.Internal
-  Map<UUID, ConsoleHandler<Consumer<String>>> getConsoleInputHandler() {
+  Map<UUID, ConsoleInputHandler> getConsoleInputHandler() {
     return this.consoleInputHandler;
+  }
+
+  @NotNull
+  @ApiStatus.Internal
+  Map<UUID, ConsoleTabCompleteHandler> getTabCompleteHandlers() {
+    return this.tabCompleteHandler;
   }
 
   private final class InternalLineReader extends LineReaderImpl {

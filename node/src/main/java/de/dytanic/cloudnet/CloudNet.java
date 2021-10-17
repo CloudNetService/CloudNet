@@ -20,9 +20,11 @@ import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.cluster.DefaultClusterNodeServerProvider;
 import de.dytanic.cloudnet.cluster.IClusterNodeServerProvider;
 import de.dytanic.cloudnet.command.CommandProvider;
+import de.dytanic.cloudnet.command.defaults.DefaultCommandProvider;
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
+import de.dytanic.cloudnet.common.log.defaults.DefaultLogFormatter;
 import de.dytanic.cloudnet.config.IConfiguration;
 import de.dytanic.cloudnet.config.JsonConfiguration;
 import de.dytanic.cloudnet.console.IConsole;
@@ -47,6 +49,7 @@ import de.dytanic.cloudnet.driver.permission.PermissionUser;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import de.dytanic.cloudnet.driver.template.TemplateStorage;
 import de.dytanic.cloudnet.event.CloudNetNodePostInitializationEvent;
+import de.dytanic.cloudnet.log.QueuedConsoleLogHandler;
 import de.dytanic.cloudnet.module.NodeModuleProviderHandler;
 import de.dytanic.cloudnet.network.NetworkClientChannelHandlerImpl;
 import de.dytanic.cloudnet.network.NetworkServerChannelHandlerImpl;
@@ -62,6 +65,7 @@ import de.dytanic.cloudnet.provider.NodeServiceTaskProvider;
 import de.dytanic.cloudnet.service.ICloudServiceManager;
 import de.dytanic.cloudnet.service.defaults.DefaultCloudServiceManager;
 import de.dytanic.cloudnet.service.defaults.NodeCloudServiceFactory;
+import de.dytanic.cloudnet.setup.DefaultInstallation;
 import de.dytanic.cloudnet.template.LocalTemplateStorage;
 import de.dytanic.cloudnet.template.install.ServiceVersionProvider;
 import java.io.File;
@@ -96,23 +100,29 @@ public class CloudNet extends CloudNetDriver {
 
   private final CloudNetTick mainThread = new CloudNetTick(this);
   private final AtomicBoolean running = new AtomicBoolean(true);
+  private final QueuedConsoleLogHandler logHandler = new QueuedConsoleLogHandler();
 
   private volatile IConfiguration configuration;
   private volatile AbstractDatabaseProvider databaseProvider;
 
-  protected CloudNet(@NotNull String[] args, @NotNull IConsole console, @NotNull CommandProvider commandProvider) {
+  protected CloudNet(@NotNull String[] args, @NotNull IConsole console, @NotNull Logger rootLogger) {
     super(Arrays.asList(args));
 
     setInstance(this);
 
+    // add the log handler here to capture all log lines of the startup
+    this.logHandler.setFormatter(DefaultLogFormatter.END_LINE_SEPARATOR);
+    rootLogger.addHandler(this.logHandler);
+
     this.console = console;
-    this.commandProvider = commandProvider;
+    this.commandProvider = new DefaultCommandProvider();
 
     this.serviceVersionProvider = new ServiceVersionProvider();
     this.cloudNetVersion = CloudNetVersion.fromClassInformation(CloudNet.class.getPackage());
 
     this.configuration = JsonConfiguration.loadFromFile();
-    this.configuration.load();
+    // TODO
+    new DefaultInstallation().executeFirstStartSetup(console, JsonConfiguration.DID_CONFIG_EXIST);
 
     this.nodeServerProvider = new DefaultClusterNodeServerProvider(this);
     this.nodeServerProvider.setClusterServers(this.configuration.getClusterConfig());
@@ -213,6 +223,7 @@ public class CloudNet extends CloudNetDriver {
     // start modules
     this.moduleProvider.startAll();
     // enable console command handling
+    this.commandProvider.registerDefaultCommands();
     this.commandProvider.registerConsoleHandler(this.console);
 
     // register listeners & post node startup finish
@@ -382,6 +393,10 @@ public class CloudNet extends CloudNetDriver {
 
   public @NotNull IHttpServer getHttpServer() {
     return this.httpServer;
+  }
+
+  public @NotNull QueuedConsoleLogHandler getLogHandler() {
+    return this.logHandler;
   }
 
   public boolean isRunning() {

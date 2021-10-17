@@ -16,31 +16,30 @@
 
 package de.dytanic.cloudnet.console;
 
-import de.dytanic.cloudnet.command.CommandProvider;
-import de.dytanic.cloudnet.command.source.CommandSource;
-import java.util.Collection;
+import de.dytanic.cloudnet.console.handler.Toggleable;
 import java.util.List;
+import java.util.Objects;
+import org.jetbrains.annotations.NotNull;
 import org.jline.reader.Candidate;
 import org.jline.reader.Completer;
 import org.jline.reader.LineReader;
 import org.jline.reader.ParsedLine;
 
-public class JLine3Completer implements Completer {
+final class JLine3Completer implements Completer {
 
-  private final CommandProvider commandProvider;
+  private final JLine3Console console;
 
-  public JLine3Completer(CommandProvider commandProvider) {
-    this.commandProvider = commandProvider;
+  public JLine3Completer(@NotNull JLine3Console console) {
+    this.console = console;
   }
 
   @Override
-  public void complete(LineReader reader, ParsedLine line, List<Candidate> candidates) {
-    Collection<String> responses = this.commandProvider.suggest(CommandSource.console(), line.line());
-    if (!responses.isEmpty()) {
-      responses
-        .stream()
-        .map(Candidate::new)
-        .forEach(candidates::add);
-    }
+  public void complete(LineReader reader, @NotNull ParsedLine line, @NotNull List<Candidate> candidates) {
+    this.console.getTabCompleteHandlers().values().stream()
+      .filter(Toggleable::isEnabled)
+      .flatMap(handler -> handler.completeInput(line.line()).stream())
+      .filter(Objects::nonNull)
+      .map(Candidate::new)
+      .forEach(candidates::add);
   }
 }

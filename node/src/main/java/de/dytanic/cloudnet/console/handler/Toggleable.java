@@ -14,27 +14,21 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.console.animation.questionlist.answer;
+package de.dytanic.cloudnet.console.handler;
 
-import de.dytanic.cloudnet.console.animation.questionlist.QuestionAnswerType;
-import java.util.Collection;
-import org.jetbrains.annotations.NotNull;
+public abstract class Toggleable {
 
-public class QuestionAnswerTypeString implements QuestionAnswerType<String> {
+  private boolean enabled = true;
 
-  @Override
-  public boolean isValidInput(@NotNull String input) {
-    return true;
+  public boolean isEnabled() {
+    return this.enabled;
   }
 
-  @Override
-  public @NotNull String parse(@NotNull String input) {
-    return input;
+  public void setEnabled(boolean enabled) {
+    this.enabled = enabled;
   }
 
-  @Override
-  public Collection<String> getPossibleAnswers() {
-    return null;
+  public void toggle() {
+    this.enabled = !this.enabled;
   }
-
 }

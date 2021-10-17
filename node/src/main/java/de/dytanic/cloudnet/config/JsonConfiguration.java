@@ -41,8 +41,9 @@ import org.jetbrains.annotations.NotNull;
 
 public final class JsonConfiguration implements IConfiguration {
 
-  private static final Path CONFIG_FILE_PATH = Paths.get(
+  public static final Path CONFIG_FILE_PATH = Paths.get(
     System.getProperty("cloudnet.config.json.path", "config.json"));
+  public static final boolean DID_CONFIG_EXIST = Files.exists(CONFIG_FILE_PATH);
 
   private static final Function<String, SSLConfiguration> SSL_CONFIG_PARSER = value -> {
     String[] values = value.split(";");

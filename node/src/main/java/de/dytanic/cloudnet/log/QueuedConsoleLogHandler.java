@@ -19,9 +19,11 @@ package de.dytanic.cloudnet.log;
 import de.dytanic.cloudnet.common.log.AbstractHandler;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.event.log.LoggingEntryEvent;
+import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.LogRecord;
+import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -46,5 +48,11 @@ public final class QueuedConsoleLogHandler extends AbstractHandler {
 
   public @NotNull Queue<LogRecord> getCachedLogEntries() {
     return this.cachedQueuedLogEntries;
+  }
+
+  public @NotNull Queue<String> getFormattedCachedLogLines() {
+    return this.cachedQueuedLogEntries.stream()
+      .map(this.getFormatter()::format)
+      .collect(Collectors.toCollection(LinkedList::new));
   }
 }

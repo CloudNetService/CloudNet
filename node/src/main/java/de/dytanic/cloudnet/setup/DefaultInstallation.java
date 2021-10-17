@@ -22,7 +22,7 @@ import de.dytanic.cloudnet.common.concurrent.ListenableTask;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.console.IConsole;
-import de.dytanic.cloudnet.console.animation.questionlist.ConsoleQuestionListAnimation;
+import de.dytanic.cloudnet.console.animation.setup.ConsoleSetupAnimation;
 import de.dytanic.cloudnet.driver.permission.PermissionGroup;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -39,25 +39,22 @@ public class DefaultInstallation {
     new DefaultTaskSetup()
   );
 
-  private ConsoleQuestionListAnimation animation;
+  private ConsoleSetupAnimation animation;
 
-  private ConsoleQuestionListAnimation createAnimation() {
-    return new ConsoleQuestionListAnimation(
-      "DefaultInstallation",
-      null,
-      () -> "&f   ___  _                    _ &b     __    __  _____  &3  _____              _           _  _ \n" +
+  private ConsoleSetupAnimation createAnimation() {
+    return new ConsoleSetupAnimation(
+      "&f   ___  _                    _ &b     __    __  _____  &3  _____              _           _  _ \n" +
         "&f  / __\\| |  ___   _   _   __| |&b  /\\ \\ \\  /__\\/__   \\ &3  \\_   \\ _ __   ___ | |_   __ _ | || |\n" +
         "&f / /   | | / _ \\ | | | | / _` |&b /  \\/ / /_\\    / /\\/ &3   / /\\/| '_ \\ / __|| __| / _` || || |\n" +
         "&f/ /___ | || (_) || |_| || (_| |&b/ /\\  / //__   / /    &3/\\/ /_  | | | |\\__ \\| |_ | (_| || || |\n" +
         "&f\\____/ |_| \\___/  \\__,_| \\__,_|&b\\_\\ \\/  \\__/   \\/     &3\\____/  |_| |_||___/ \\__| \\__,_||_||_|\n"
         +
         "&f                               &b                      &3                                      ",
-      () -> null,
-      "&r> &e"
-    );
+      null,
+      "&r> &e");
   }
 
-  public void executeFirstStartSetup(IConsole console, boolean configFileAvailable) throws Exception {
+  public void executeFirstStartSetup(IConsole console, boolean configFileAvailable) {
     Collection<DefaultSetup> executedSetups = new ArrayList<>();
 
     for (DefaultSetup setup : this.setups) {

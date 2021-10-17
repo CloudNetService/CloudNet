@@ -16,18 +16,18 @@
 
 package de.dytanic.cloudnet.setup;
 
-import de.dytanic.cloudnet.console.animation.questionlist.ConsoleQuestionListAnimation;
+import de.dytanic.cloudnet.console.animation.setup.ConsoleSetupAnimation;
+import org.jetbrains.annotations.NotNull;
 
 public interface DefaultSetup {
 
-  void applyQuestions(ConsoleQuestionListAnimation animation) throws Exception;
+  void applyQuestions(@NotNull ConsoleSetupAnimation animation);
 
-  default void execute(ConsoleQuestionListAnimation animation) {
+  default void execute(@NotNull ConsoleSetupAnimation animation) {
   }
 
-  default void postExecute(ConsoleQuestionListAnimation animation) {
+  default void postExecute(@NotNull ConsoleSetupAnimation animation) {
   }
 
   boolean shouldAsk(boolean configFileAvailable);
-
 }

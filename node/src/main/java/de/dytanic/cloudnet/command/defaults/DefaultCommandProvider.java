@@ -43,6 +43,8 @@ import de.dytanic.cloudnet.command.sub.CommandTasks;
 import de.dytanic.cloudnet.command.sub.CommandTemplate;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.console.IConsole;
+import de.dytanic.cloudnet.console.handler.ConsoleInputHandler;
+import de.dytanic.cloudnet.console.handler.ConsoleTabCompleteHandler;
 import de.dytanic.cloudnet.driver.command.CommandInfo;
 import io.leangen.geantyref.TypeToken;
 import java.util.ArrayList;
@@ -130,13 +132,25 @@ public class DefaultCommandProvider implements CommandProvider {
   }
 
   @Override
-  public void registerConsoleHandler(IConsole console) {
-    console.addCommandHandler(UUID.randomUUID(), input -> {
-      String trimmedInput = input.trim();
-      if (trimmedInput.isEmpty()) {
-        return;
+  public void registerConsoleHandler(@NotNull IConsole console) {
+    // command handling
+    console.addCommandHandler(UUID.randomUUID(), new ConsoleInputHandler() {
+      @Override
+      public void handleInput(@NotNull String line) {
+        // check if the input line is empty
+        String trimmedInput = line.trim();
+        if (!trimmedInput.isEmpty()) {
+          // execute the command
+          DefaultCommandProvider.this.execute(CommandSource.console(), trimmedInput);
+        }
       }
-      this.execute(CommandSource.console(), trimmedInput);
+    });
+    // tab complete handling
+    console.addTabCompleteHandler(UUID.randomUUID(), new ConsoleTabCompleteHandler() {
+      @Override
+      public @NotNull Collection<String> completeInput(@NotNull String line) {
+        return DefaultCommandProvider.this.commandManager.suggest(CommandSource.console(), line);
+      }
     });
   }
 

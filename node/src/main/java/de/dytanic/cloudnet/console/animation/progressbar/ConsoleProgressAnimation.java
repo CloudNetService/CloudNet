@@ -45,8 +45,6 @@ public class ConsoleProgressAnimation extends AbstractConsoleAnimation {
   private final String unitName;
   private final DecimalFormat unitFormat;
 
-  private final Instant startInstant;
-
   // 0            current   max
   // [============>         ]
   private long current;
@@ -65,6 +63,8 @@ public class ConsoleProgressAnimation extends AbstractConsoleAnimation {
     @NotNull DecimalFormat unitFormat,
     long maximum
   ) {
+    super(10);
+
     // style
     this.blockChar = blockChar;
     this.spaceChar = spaceChar;

@@ -14,33 +14,12 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.console;
+package de.dytanic.cloudnet.console.handler;
 
+import java.util.Collection;
 import org.jetbrains.annotations.NotNull;
 
-public class ConsoleHandler<H> {
+public abstract class ConsoleTabCompleteHandler extends Toggleable {
 
-  private final H handler;
-  private boolean enabled;
-
-  public ConsoleHandler(boolean enabled, @NotNull H handler) {
-    this.enabled = enabled;
-    this.handler = handler;
-  }
-
-  public ConsoleHandler(@NotNull H handler) {
-    this(true, handler);
-  }
-
-  public boolean isEnabled() {
-    return this.enabled;
-  }
-
-  public void setEnabled(boolean enabled) {
-    this.enabled = enabled;
-  }
-
-  public @NotNull H getHandler() {
-    return this.handler;
-  }
+  public abstract @NotNull Collection<String> completeInput(@NotNull String line);
 }

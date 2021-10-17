@@ -19,7 +19,7 @@ package de.dytanic.cloudnet.console;
 import de.dytanic.cloudnet.common.concurrent.CompletableTask;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.console.animation.AbstractConsoleAnimation;
-import java.util.function.Consumer;
+import de.dytanic.cloudnet.console.handler.ConsoleInputHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jline.reader.EndOfFileException;
@@ -43,9 +43,9 @@ public class ConsoleReadThread extends Thread {
         this.currentTask = null;
       }
 
-      for (ConsoleHandler<Consumer<String>> value : this.console.getConsoleInputHandler().values()) {
+      for (ConsoleInputHandler value : this.console.getConsoleInputHandler().values()) {
         if (value.isEnabled()) {
-          value.getHandler().accept(line);
+          value.handleInput(line);
         }
       }
 

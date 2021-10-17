@@ -18,10 +18,11 @@ package de.dytanic.cloudnet.console;
 
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.console.animation.AbstractConsoleAnimation;
+import de.dytanic.cloudnet.console.handler.ConsoleInputHandler;
+import de.dytanic.cloudnet.console.handler.ConsoleTabCompleteHandler;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
-import java.util.function.Consumer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
@@ -46,9 +47,9 @@ public interface IConsole extends AutoCloseable {
   }
 
   @Unmodifiable
-  @NotNull List<String> getCommandHistory();
+  @NotNull Collection<String> getCommandHistory();
 
-  void setCommandHistory(@Nullable List<String> history);
+  void setCommandHistory(@Nullable Collection<String> history);
 
   void setCommandInputValue(@NotNull String commandInputValue);
 
@@ -63,9 +64,17 @@ public interface IConsole extends AutoCloseable {
 
   void disableAllCommandHandlers();
 
-  void addCommandHandler(@NotNull UUID uniqueId, @NotNull Consumer<String> inputConsumer);
+  void enableAllTabCompleteHandlers();
+
+  void disableAllTabCompleteHandlers();
+
+  void addCommandHandler(@NotNull UUID uniqueId, @NotNull ConsoleInputHandler handler);
 
   void removeCommandHandler(@NotNull UUID uniqueId);
+
+  void addTabCompleteHandler(@NotNull UUID uniqueId, @NotNull ConsoleTabCompleteHandler handler);
+
+  void removeTabCompleteHandler(@NotNull UUID uniqueId);
 
   @NotNull IConsole writeRaw(@NotNull String rawText);
 

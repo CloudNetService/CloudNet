@@ -17,16 +17,10 @@
 package de.dytanic.cloudnet.setup;
 
 import de.dytanic.cloudnet.CloudNet;
-import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
-import de.dytanic.cloudnet.common.unsafe.CPUUsageResolver;
 import de.dytanic.cloudnet.config.IConfiguration;
-import de.dytanic.cloudnet.console.animation.questionlist.ConsoleQuestionListAnimation;
-import de.dytanic.cloudnet.console.animation.questionlist.QuestionListEntry;
-import de.dytanic.cloudnet.console.animation.questionlist.answer.QuestionAnswerTypeBoolean;
-import de.dytanic.cloudnet.console.animation.questionlist.answer.QuestionAnswerTypeHostAndPort;
-import de.dytanic.cloudnet.console.animation.questionlist.answer.QuestionAnswerTypeInt;
+import de.dytanic.cloudnet.console.animation.setup.ConsoleSetupAnimation;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
 import java.net.Inet6Address;
@@ -35,12 +29,9 @@ import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.stream.Collectors;
-import org.jetbrains.annotations.NotNull;
 
 public class DefaultConfigSetup implements DefaultSetup {
 
@@ -87,7 +78,7 @@ public class DefaultConfigSetup implements DefaultSetup {
   }
 
   @Override
-  public void applyQuestions(ConsoleQuestionListAnimation animation) throws Exception {
+  public void applyQuestions(ConsoleSetupAnimation animation) {/*
     this.detectAllIPAddresses();
     this.preferredIP = this.detectPreferredIP();
 
@@ -185,11 +176,11 @@ public class DefaultConfigSetup implements DefaultSetup {
             .collect(Collectors.toList());
         }
       }
-    ));
+    ));*/
   }
 
   @Override
-  public void execute(ConsoleQuestionListAnimation animation) {
+  public void execute(ConsoleSetupAnimation animation) {
     IConfiguration cloudConfiguration = CloudNet.getInstance().getConfig();
     if (animation.hasResult("internalHost")) {
       HostAndPort internalAddress = (HostAndPort) animation.getResult("internalHost");

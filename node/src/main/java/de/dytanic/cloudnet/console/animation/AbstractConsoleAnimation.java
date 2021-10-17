@@ -16,60 +16,31 @@
 
 package de.dytanic.cloudnet.console.animation;
 
+import com.google.common.base.Verify;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.console.IConsole;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import org.fusesource.jansi.Ansi;
-import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 public abstract class AbstractConsoleAnimation implements Runnable {
 
   protected static final Logger LOGGER = LogManager.getLogger(AbstractConsoleAnimation.class);
 
-  private final Collection<Runnable> finishHandler = new ArrayList<>();
-  private String name;
+  protected final int updateInterval;
+  protected final Collection<Runnable> finishHandler = new ArrayList<>();
+
+  protected int cursorUp = 1;
+  protected boolean staticCursor;
+
   protected IConsole console;
-  private int updateInterval = 25;
-  private long startTime;
-  private int cursorUp = 1;
-  private boolean staticCursor;
+  protected Instant startInstant;
 
-  public AbstractConsoleAnimation() {
-  }
-
-  public AbstractConsoleAnimation(String name) {
-    this.name = name;
-  }
-
-  public @NotNull String getName() {
-    return this.name;
-  }
-
-  public long getTimeElapsed() {
-    return System.currentTimeMillis() - this.startTime;
-  }
-
-  public boolean isStaticCursor() {
-    return this.staticCursor;
-  }
-
-  public void setStaticCursor(boolean staticCursor) {
-    this.staticCursor = staticCursor;
-  }
-
-  public @NotNull IConsole getConsole() {
-    return this.console;
-  }
-
-  public void setConsole(@NotNull IConsole console) {
-    if (this.console != null) {
-      throw new IllegalStateException("Cannot set console twice");
-    }
-
-    this.console = console;
+  public AbstractConsoleAnimation(int updateInterval) {
+    this.updateInterval = updateInterval;
   }
 
   public void addToCursor(int cursor) {
@@ -78,37 +49,19 @@ public abstract class AbstractConsoleAnimation implements Runnable {
     }
   }
 
-  public void setCursor(int cursor) {
-    this.cursorUp = cursor;
-  }
-
-  public long getStartTime() {
-    return this.startTime;
-  }
-
-  public int getUpdateInterval() {
-    return this.updateInterval;
-  }
-
-  public void setUpdateInterval(int updateInterval) {
-    this.updateInterval = updateInterval;
-  }
-
   public void addFinishHandler(@NotNull Runnable finishHandler) {
     this.finishHandler.add(finishHandler);
   }
 
-  protected void print(@NonNls String... input) {
-    if (input.length == 0) {
-      return;
-    }
+  protected void print(String @NotNull ... input) {
+    if (input.length != 0) {
+      Ansi ansi = Ansi.ansi().saveCursorPosition().cursorUp(this.cursorUp).eraseLine(Ansi.Erase.ALL);
+      for (String a : input) {
+        ansi.a(a);
+      }
 
-    Ansi ansi = Ansi.ansi().saveCursorPosition().cursorUp(this.cursorUp).eraseLine(Ansi.Erase.ALL);
-    for (String a : input) {
-      ansi.a(a);
+      this.console.forceWrite(ansi.restoreCursorPosition().toString());
     }
-
-    this.console.forceWrite(ansi.restoreCursorPosition().toString());
   }
 
   protected void eraseLastLine() {
@@ -122,17 +75,37 @@ public abstract class AbstractConsoleAnimation implements Runnable {
 
   @Override
   public final void run() {
-    this.startTime = System.currentTimeMillis();
+    // set the start time
+    this.startInstant = Instant.now();
+    // run the animation as long as the animation needs to run
     while (!Thread.interrupted() && !this.handleTick()) {
       try {
+        //noinspection BusyWait
         Thread.sleep(this.updateInterval);
       } catch (InterruptedException exception) {
         LOGGER.severe("Exception while awaiting console update", exception);
       }
     }
-
+    // post the result to the finish handlers
     for (Runnable runnable : this.finishHandler) {
       runnable.run();
     }
+  }
+
+  public boolean isStaticCursor() {
+    return this.staticCursor;
+  }
+
+  public int getUpdateInterval() {
+    return this.updateInterval;
+  }
+
+  public @NotNull IConsole getConsole() {
+    return this.console;
+  }
+
+  public void setConsole(@NotNull IConsole console) {
+    Verify.verify(this.console == null, "Cannot set console of animation twice");
+    this.console = console;
   }
 }

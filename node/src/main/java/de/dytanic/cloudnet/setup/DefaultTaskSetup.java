@@ -20,7 +20,7 @@ import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
-import de.dytanic.cloudnet.console.animation.questionlist.ConsoleQuestionListAnimation;
+import de.dytanic.cloudnet.console.animation.setup.ConsoleSetupAnimation;
 import de.dytanic.cloudnet.driver.service.GroupConfiguration;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceTask;
@@ -47,7 +47,7 @@ public class DefaultTaskSetup implements DefaultSetup {
 
   @Override
   @SuppressWarnings("unchecked")
-  public void postExecute(ConsoleQuestionListAnimation animation) {
+  public void postExecute(ConsoleSetupAnimation animation) {
     if (!this.shouldExecute) {
       return;
     }
@@ -143,7 +143,7 @@ public class DefaultTaskSetup implements DefaultSetup {
   }
 
   @Override
-  public void applyQuestions(ConsoleQuestionListAnimation animation) {
+  public void applyQuestions(ConsoleSetupAnimation animation) {
     /*
     animation.addEntry(new QuestionListEntry<>(
       "proxyEnvironment",

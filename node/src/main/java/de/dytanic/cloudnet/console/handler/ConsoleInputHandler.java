@@ -14,31 +14,11 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.console.animation.questionlist;
+package de.dytanic.cloudnet.console.handler;
 
 import org.jetbrains.annotations.NotNull;
 
-public class QuestionListEntry<T> {
+public abstract class ConsoleInputHandler extends Toggleable {
 
-  private final String key;
-  private final String question;
-  private final QuestionAnswerType<T> answerType;
-
-  public QuestionListEntry(String key, String question, QuestionAnswerType<T> answerType) {
-    this.key = key;
-    this.question = question;
-    this.answerType = answerType;
-  }
-
-  public @NotNull String getKey() {
-    return this.key;
-  }
-
-  public @NotNull String getQuestion() {
-    return this.question;
-  }
-
-  public @NotNull QuestionAnswerType<T> getAnswerType() {
-    return this.answerType;
-  }
+  public abstract void handleInput(@NotNull String line);
 }
