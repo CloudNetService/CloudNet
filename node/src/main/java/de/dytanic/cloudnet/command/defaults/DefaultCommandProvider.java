@@ -54,6 +54,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -187,7 +188,7 @@ public class DefaultCommandProvider implements CommandProvider {
       .handler(confirmationManager.createConfirmationExecutionHandler()));
   }
 
-  private List<String> getCommandUsageByRoot(@NotNull String root) {
+  private @NotNull List<String> getCommandUsageByRoot(@NotNull String root) {
     List<String> commandUsage = new ArrayList<>();
     for (Command<CommandSource> command : this.commandManager.getCommands()) {
       List<CommandArgument<CommandSource, ?>> arguments = command.getArguments();
@@ -207,34 +208,44 @@ public class DefaultCommandProvider implements CommandProvider {
   public boolean replyWithCommandHelp(@NotNull CommandSource source,
     @NotNull List<CommandArgument<?, ?>> currentChain) {
     if (currentChain.isEmpty()) {
+      // the command chain is empty, let the user handle the response
       return false;
     }
     String root = currentChain.get(0).getName();
     CommandInfo commandInfo = this.getCommand(root);
     if (commandInfo == null) {
+      // we can't find a matching command, let the user handle the response
       return false;
     }
-
+    // if the chain length is 1 we can just print usage for every sub command
     if (currentChain.size() == 1) {
-      for (String usage : commandInfo.getUsage()) {
-        source.sendMessage(usage);
-      }
+      this.printDefaultUsage(source, commandInfo);
     } else {
-      source.sendMessage(
-        this.commandManager.getCommandSyntaxFormatter().apply(this.convertCommandArguments(currentChain), null));
+      List<String> results = new ArrayList<>();
+      // rebuild the input of the user
+      String commandChain = currentChain.stream().map(CommandArgument::getName).collect(Collectors.joining(" "));
+      // check if we can find any chain specific usages
+      for (String usage : commandInfo.getUsage()) {
+        if (usage.startsWith(commandChain)) {
+          results.add(" - " + usage);
+        }
+      }
+
+      if (results.isEmpty()) {
+        // no results found, just print the default usages
+        this.printDefaultUsage(source, commandInfo);
+      } else {
+        // we have chain specific results
+        source.sendMessage(results);
+      }
     }
 
     return true;
   }
 
-  @SuppressWarnings("unchecked")
-  private @NotNull List<CommandArgument<CommandSource, ?>> convertCommandArguments(
-    @NotNull List<CommandArgument<?, ?>> arguments) {
-    List<CommandArgument<CommandSource, ?>> result = new ArrayList<>();
-    for (CommandArgument<?, ?> argument : arguments) {
-      result.add((CommandArgument<CommandSource, ?>) argument);
+  private void printDefaultUsage(@NotNull CommandSource source, @NotNull CommandInfo commandInfo) {
+    for (String usage : commandInfo.getUsage()) {
+      source.sendMessage(" - " + usage);
     }
-
-    return result;
   }
 }

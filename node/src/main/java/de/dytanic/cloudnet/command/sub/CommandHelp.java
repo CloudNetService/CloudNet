@@ -53,7 +53,7 @@ public class CommandHelp {
     return commandInfo;
   }
 
-  @CommandMethod("help")
+  @CommandMethod("help|ask|?")
   public void displayHelp(CommandSource source) {
     Collection<CommandInfo> registeredCommands = this.commandProvider.getCommands();
     for (CommandInfo command : registeredCommands) {
@@ -64,7 +64,7 @@ public class CommandHelp {
     }
   }
 
-  @CommandMethod("help <command>")
+  @CommandMethod("help|ask|? <command>")
   public void displaySpecificHelp(CommandSource source, @Argument("command") CommandInfo command) {
     source.sendMessage(" ");
 
