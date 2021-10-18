@@ -14,10 +14,16 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.ext.report.util;
-
-public enum PasteServerType {
-
-  HASTE,
-  ;
+moduleJson {
+  main = "eu.cloudnetservice.cloudnet.ext.report.CloudNetReportModule"
+  name = "CloudNet-Report"
+  author = "CloudNetService"
+  description = "Node extension for develop modules and reporting bugs"
 }
+
+tasks.withType<Jar> {
+  archiveFileName.set(Files.report)
+}
+
+
+

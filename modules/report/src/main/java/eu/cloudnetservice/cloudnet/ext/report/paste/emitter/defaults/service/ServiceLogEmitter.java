@@ -14,14 +14,18 @@
  * limitations under the License.
  */
 
-object Files {
+package eu.cloudnetservice.cloudnet.ext.report.paste.emitter.defaults.service;
 
-  const val driver = "driver.jar"
-  const val common = "common.jar"
-  const val wrapper = "wrapper.jar"
-  const val launcher = "launcher.jar"
+import de.dytanic.cloudnet.service.ICloudService;
+import eu.cloudnetservice.cloudnet.ext.report.paste.emitter.ReportDataEmitter;
 
-  const val report = "cloudnet-report.jar"
-  const val node = "cloudnet.jar"
-  const val nodeCnl = "cloudnet.cnl"
+public class ServiceLogEmitter implements ReportDataEmitter<ICloudService> {
+
+  @Override
+  public void emitData(StringBuilder builder, ICloudService context) {
+    for (String cachedLogMessage : context.getCachedLogMessages()) {
+      builder.append(cachedLogMessage).append("\n");
+    }
+    builder.append("\n");
+  }
 }

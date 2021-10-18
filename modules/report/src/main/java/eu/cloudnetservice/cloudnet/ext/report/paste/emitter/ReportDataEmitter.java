@@ -14,14 +14,11 @@
  * limitations under the License.
  */
 
-object Files {
+package eu.cloudnetservice.cloudnet.ext.report.paste.emitter;
 
-  const val driver = "driver.jar"
-  const val common = "common.jar"
-  const val wrapper = "wrapper.jar"
-  const val launcher = "launcher.jar"
+@FunctionalInterface
+public interface ReportDataEmitter<T> {
 
-  const val report = "cloudnet-report.jar"
-  const val node = "cloudnet.jar"
-  const val nodeCnl = "cloudnet.cnl"
+  void emitData(StringBuilder builder, T context);
+
 }

@@ -35,10 +35,10 @@ import de.dytanic.cloudnet.network.listener.PacketServerAuthorizationResponseLis
 import java.util.concurrent.atomic.AtomicLong;
 import org.jetbrains.annotations.NotNull;
 
-public final class NetworkClientChannelHandlerImpl implements INetworkChannelHandler {
+public final class DefaultNetworkClientChannelHandler implements INetworkChannelHandler {
 
   private static final AtomicLong CONNECTION_COUNTER = new AtomicLong();
-  private static final Logger LOGGER = LogManager.getLogger(NetworkClientChannelHandlerImpl.class);
+  private static final Logger LOGGER = LogManager.getLogger(DefaultNetworkClientChannelHandler.class);
 
   @Override
   public void handleChannelInitialize(@NotNull INetworkChannel channel) {
