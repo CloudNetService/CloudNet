@@ -27,12 +27,12 @@ import eu.cloudnetservice.cloudnet.ext.report.CloudNetReportModule;
 import eu.cloudnetservice.cloudnet.ext.report.config.ReportConfiguration;
 import eu.cloudnetservice.cloudnet.ext.report.util.Record;
 
-public final class CloudNetReportListener {
+public final class RecordReportListener {
 
-  private static final Logger LOGGER = LogManager.getLogger(CloudNetReportListener.class);
+  private static final Logger LOGGER = LogManager.getLogger(RecordReportListener.class);
   private final CloudNetReportModule reportModule;
 
-  public CloudNetReportListener(CloudNetReportModule reportModule) {
+  public RecordReportListener(CloudNetReportModule reportModule) {
     this.reportModule = reportModule;
   }
 

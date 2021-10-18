@@ -28,7 +28,7 @@ import eu.cloudnetservice.cloudnet.ext.report.command.CommandPaste;
 import eu.cloudnetservice.cloudnet.ext.report.command.CommandReport;
 import eu.cloudnetservice.cloudnet.ext.report.config.ReportConfiguration;
 import eu.cloudnetservice.cloudnet.ext.report.config.ReportConfigurationHelper;
-import eu.cloudnetservice.cloudnet.ext.report.listener.CloudNetReportListener;
+import eu.cloudnetservice.cloudnet.ext.report.listener.RecordReportListener;
 import eu.cloudnetservice.cloudnet.ext.report.paste.emitter.EmitterRegistry;
 import eu.cloudnetservice.cloudnet.ext.report.paste.emitter.defaults.node.ConsoleLogEmitter;
 import eu.cloudnetservice.cloudnet.ext.report.paste.emitter.defaults.node.ModuleEmitter;
@@ -48,6 +48,7 @@ public final class CloudNetReportModule extends NodeCloudNetModule {
 
   private static CloudNetReportModule instance;
   private ReportConfiguration reportConfiguration;
+  //TODO: maybe give access to this to api users
   private EmitterRegistry registry;
   private Path currentRecordDirectory;
 
@@ -75,7 +76,7 @@ public final class CloudNetReportModule extends NodeCloudNetModule {
       new NodeAllocationEmitter(),
       new ModuleEmitter());
     // register our listener to handle stopping and deleted services
-    this.registerListener(new CloudNetReportListener(this));
+    this.registerListener(new RecordReportListener(this));
     // register the commands of the module at the node
     this.registerCommand(new CommandPaste(this));
     this.registerCommand(new CommandReport(this));

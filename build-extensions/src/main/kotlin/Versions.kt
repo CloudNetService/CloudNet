@@ -48,5 +48,10 @@ object Versions {
   const val javassist = "3.28.0-GA"
   const val requestBuilder = "2.0.0"
 
+  // server apis
+  const val spigotApi = "1.17-R0.1-SNAPSHOT"
+  const val sponge = "7.3.0"
+  const val nukkitX = "1.0-SNAPSHOT"
+
   const val annotations = "22.0.0"
 }

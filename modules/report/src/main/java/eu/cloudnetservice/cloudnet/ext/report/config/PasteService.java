@@ -40,15 +40,27 @@ public class PasteService implements INameable {
     this.serviceUrl = serviceUrl.endsWith("/") ? serviceUrl.substring(0, serviceUrl.length() - 1) : serviceUrl;
   }
 
+  /**
+   * @return the name of this PasteService - the user can use this to decide where to upload a paste
+   */
   @Override
   public @NotNull String getName() {
     return this.name;
   }
 
+  /**
+   * @return the url of the service without trailing '/'
+   */
   public @NotNull String getServiceUrl() {
     return this.serviceUrl;
   }
 
+  /**
+   * Uploads the given content to this paste services
+   *
+   * @param content the content to upload to this service
+   * @return the result of the upload - null if the content is empty or the upload failed
+   */
   public @Nullable String pasteToService(@NotNull String content) {
     if (content.trim().isEmpty()) {
       return null;

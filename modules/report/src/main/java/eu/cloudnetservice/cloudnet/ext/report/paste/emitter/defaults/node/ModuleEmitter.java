@@ -38,7 +38,7 @@ public class ModuleEmitter implements ReportDataEmitter<NetworkClusterNodeInfoSn
         .append(JsonDocument.newDocument(module))
         .append("\n");
       if (!module.storesSensitiveData()) {
-        //TODO: add configs
+        //TODO: add configs, waiting for a way to access them using the api
         builder.append("Configuration: \n");
       }
     }

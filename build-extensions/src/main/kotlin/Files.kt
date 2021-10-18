@@ -21,6 +21,7 @@ object Files {
   const val wrapper = "wrapper.jar"
   const val launcher = "launcher.jar"
 
+  const val signs = "cloudnet-signs.jar"
   const val report = "cloudnet-report.jar"
   const val node = "cloudnet.jar"
   const val nodeCnl = "cloudnet.cnl"
