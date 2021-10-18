@@ -49,7 +49,7 @@ public class RecordCreator {
       return null;
     }
 
-    FileUtils.createDirectoryReported(directory);
+    FileUtils.createDirectory(directory);
     return of(directory, service);
   }
 
@@ -60,18 +60,14 @@ public class RecordCreator {
   public void copyLogFiles() {
     try {
       Path targetDirectory = this.directory.resolve("logs");
-      FileUtils.createDirectoryReported(targetDirectory);
+      FileUtils.createDirectory(targetDirectory);
 
       if (this.service.getServiceId().getEnvironment() == ServiceEnvironmentType.BUNGEECORD) {
         FileUtils.walkFileTree(this.service.getDirectory(), (root, current) -> {
-          try {
-            FileUtils.copy(current, targetDirectory.resolve(root.relativize(current)));
-          } catch (IOException exception) {
-            LOGGER.severe("Exception while copying directories", exception);
-          }
+          FileUtils.copy(current, targetDirectory.resolve(root.relativize(current)));
         }, false, "proxy.log*");
       } else {
-        FileUtils.copyFilesToDirectory(this.service.getDirectory().resolve("logs"), targetDirectory);
+        FileUtils.copyDirectory(this.service.getDirectory().resolve("logs"), targetDirectory);
       }
     } catch (Exception exception) {
       LOGGER.severe("Exception while creating directory", exception);

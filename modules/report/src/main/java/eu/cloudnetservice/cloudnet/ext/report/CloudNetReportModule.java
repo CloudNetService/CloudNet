@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.cloudnet.ext.report;
 
-import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
@@ -25,6 +24,7 @@ import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot
 import de.dytanic.cloudnet.module.NodeCloudNetModule;
 import de.dytanic.cloudnet.service.ICloudService;
 import eu.cloudnetservice.cloudnet.ext.report.command.CommandPaste;
+import eu.cloudnetservice.cloudnet.ext.report.command.CommandReport;
 import eu.cloudnetservice.cloudnet.ext.report.config.ReportConfiguration;
 import eu.cloudnetservice.cloudnet.ext.report.config.ReportConfigurationHelper;
 import eu.cloudnetservice.cloudnet.ext.report.listener.CloudNetReportListener;
@@ -63,20 +63,12 @@ public final class CloudNetReportModule extends NodeCloudNetModule {
       new NodeSnapshotEmitter(),
       new NodeConfigurationEmitter(), new NodeAllocationEmitter(), new ModuleEmitter());
 
-    CloudNet.getInstance().getCommandProvider().register(new CommandPaste(this));
+    this.registerCommand(new CommandPaste(this));
+    this.registerCommand(new CommandReport(this));
   }
 
   public static CloudNetReportModule getInstance() {
     return CloudNetReportModule.instance;
-  }
-
-  public void createRecordDirectory() {
-    String date = this.reportConfiguration.getDateFormat().format(System.currentTimeMillis());
-    Path recordDestination = this.moduleWrapper.getDataDirectory()
-      .resolve(this.reportConfiguration.getRecordDestination());
-    this.currentRecordDirectory = recordDestination.resolve(date);
-
-    FileUtils.createDirectoryReported(this.currentRecordDirectory);
   }
 
   public @NotNull EmitterRegistry getEmitterRegistry() {
@@ -88,6 +80,15 @@ public final class CloudNetReportModule extends NodeCloudNetModule {
   }
 
   public Path getCurrentRecordDirectory() {
-    return this.currentRecordDirectory;
+    String date = this.reportConfiguration.getDateFormat().format(System.currentTimeMillis());
+    Path recordBaseDestination = this.moduleWrapper.getDataDirectory()
+      .resolve(this.reportConfiguration.getRecordDestination());
+    Path timeBasedDestination = recordBaseDestination.resolve(date);
+    if (timeBasedDestination.equals(this.currentRecordDirectory)) {
+      return this.currentRecordDirectory;
+    }
+
+    FileUtils.createDirectory(timeBasedDestination);
+    return this.currentRecordDirectory = timeBasedDestination;
   }
 }

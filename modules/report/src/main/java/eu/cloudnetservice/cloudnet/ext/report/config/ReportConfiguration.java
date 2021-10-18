@@ -38,7 +38,7 @@ public class ReportConfiguration {
   private final Path recordDestination;
   private final long serviceLifetime;
   private final String dateFormat;
-  private final transient SimpleDateFormat parsedFormat;
+  private transient SimpleDateFormat parsedFormat;
   private final Collection<PasteService> pasteServers;
 
   public ReportConfiguration(
@@ -52,7 +52,6 @@ public class ReportConfiguration {
     this.recordDestination = recordDestination;
     this.serviceLifetime = serviceLifetime;
     this.dateFormat = dateFormat;
-    this.parsedFormat = new SimpleDateFormat(dateFormat);
     this.pasteServers = pasteServers;
   }
 
@@ -69,6 +68,9 @@ public class ReportConfiguration {
   }
 
   public @NotNull DateFormat getDateFormat() {
+    if (this.parsedFormat == null) {
+      this.parsedFormat = new SimpleDateFormat(this.dateFormat);
+    }
     return this.parsedFormat;
   }
 

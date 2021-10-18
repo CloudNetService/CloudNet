@@ -71,7 +71,6 @@ public final class CloudNetReportListener {
       return;
     }
     // we need to check and create the record directory as it's time based.
-    this.reportModule.createRecordDirectory();
     RecordCreator recordCreator = RecordCreator.forService(this.reportModule.getCurrentRecordDirectory(),
       event.getService());
     // unable to create records as the directory already exists

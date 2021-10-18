@@ -37,7 +37,9 @@ public class EmitterRegistry {
   @UnmodifiableView
   @SuppressWarnings("unchecked")
   public <T> @NotNull Collection<ReportDataEmitter<T>> getEmitters(@NotNull Class<T> clazz) {
-    return this.emitters.get(clazz).stream().map(emitter -> (ReportDataEmitter<T>) emitter)
+    return this.emitters.get(clazz)
+      .stream()
+      .map(emitter -> (ReportDataEmitter<T>) emitter)
       .collect(Collectors.toList());
   }
 
