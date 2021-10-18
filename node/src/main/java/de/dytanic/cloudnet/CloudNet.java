@@ -51,8 +51,8 @@ import de.dytanic.cloudnet.driver.template.TemplateStorage;
 import de.dytanic.cloudnet.event.CloudNetNodePostInitializationEvent;
 import de.dytanic.cloudnet.log.QueuedConsoleLogHandler;
 import de.dytanic.cloudnet.module.NodeModuleProviderHandler;
-import de.dytanic.cloudnet.network.NetworkClientChannelHandlerImpl;
-import de.dytanic.cloudnet.network.NetworkServerChannelHandlerImpl;
+import de.dytanic.cloudnet.network.DefaultNetworkClientChannelHandler;
+import de.dytanic.cloudnet.network.DefaultNetworkServerChannelHandler;
 import de.dytanic.cloudnet.network.chunk.TemplateDeployCallbackListener;
 import de.dytanic.cloudnet.permission.DefaultDatabasePermissionManagement;
 import de.dytanic.cloudnet.permission.DefaultPermissionManagementHandler;
@@ -143,10 +143,10 @@ public class CloudNet extends CloudNetDriver {
     this.moduleProvider.setModuleProviderHandler(new NodeModuleProviderHandler(this));
 
     this.networkClient = new NettyNetworkClient(
-      NetworkClientChannelHandlerImpl::new,
+      DefaultNetworkClientChannelHandler::new,
       this.configuration.getClientSslConfig());
     this.networkServer = new NettyNetworkServer(
-      NetworkServerChannelHandlerImpl::new,
+      DefaultNetworkServerChannelHandler::new,
       this.configuration.getServerSslConfig());
     this.httpServer = new NettyHttpServer(this.configuration.getWebSslConfig());
 

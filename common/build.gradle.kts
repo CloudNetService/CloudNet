@@ -21,4 +21,5 @@ tasks.withType<Jar> {
 dependencies {
   "api"("com.google.guava", "guava", Versions.guava)
   "api"("com.google.code.gson", "gson", Versions.gson)
+  "api"("com.github.derklaro", "requestbuilder", Versions.requestBuilder)
 }

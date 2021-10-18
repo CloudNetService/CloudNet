@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-jar {
-  archiveFileName.set(cloudnetModuleReportFileName)
-}
+package eu.cloudnetservice.cloudnet.ext.report.paste.emitter.defaults.node;
 
-dependencies {
-  compileOnly project(':cloudnet')
-}
+import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
+import eu.cloudnetservice.cloudnet.ext.report.paste.emitter.ReportDataEmitter;
 
-moduleJson {
-  main = 'de.dytanic.cloudnet.ext.report.CloudNetReportModule'
-  author = 'CloudNetService'
-  description = 'Node extension for develop modules and reporting bugs'
+//TODO: cpu usage and such stuff
+public class NodeAllocationEmitter implements ReportDataEmitter<NetworkClusterNodeInfoSnapshot> {
+
+  @Override
+  public void emitData(StringBuilder builder, NetworkClusterNodeInfoSnapshot context) {
+
+  }
 }

@@ -14,15 +14,13 @@
  * limitations under the License.
  */
 plugins {
-  id 'eu.cloudnetservice.juppiter' version '0.1.2' apply false
+  id("eu.cloudnetservice.juppiter") version "0.1.2" apply false
 }
 
 subprojects {
-  apply plugin: 'eu.cloudnetservice.juppiter'
-}
+  apply(plugin = "eu.cloudnetservice.juppiter")
 
-
-/*
+  repositories {
     maven("https://jitpack.io/")
     maven("https://repo.spongepowered.org/maven/")
     maven("https://repo.nukkitx.com/maven-snapshots/")
@@ -31,4 +29,9 @@ subprojects {
     maven("https://repo.velocitypowered.com/snapshots/")
     maven("https://oss.sonatype.org/content/repositories/snapshots/")
     maven("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
- */
+  }
+
+  dependencies {
+    "compileOnly"(project(":cloudnet-node"))
+  }
+}

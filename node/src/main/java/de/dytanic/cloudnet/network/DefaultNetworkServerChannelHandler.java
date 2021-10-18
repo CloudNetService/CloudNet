@@ -33,9 +33,9 @@ import de.dytanic.cloudnet.network.listener.PacketClientAuthorizationListener;
 import de.dytanic.cloudnet.service.ICloudService;
 import org.jetbrains.annotations.NotNull;
 
-public final class NetworkServerChannelHandlerImpl implements INetworkChannelHandler {
+public final class DefaultNetworkServerChannelHandler implements INetworkChannelHandler {
 
-  private static final Logger LOGGER = LogManager.getLogger(NetworkServerChannelHandlerImpl.class);
+  private static final Logger LOGGER = LogManager.getLogger(DefaultNetworkServerChannelHandler.class);
 
   @Override
   public void handleChannelInitialize(@NotNull INetworkChannel channel) {

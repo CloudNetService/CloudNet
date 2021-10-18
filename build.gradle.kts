@@ -29,6 +29,7 @@ allprojects {
 
   repositories {
     mavenCentral()
+    maven("https://jitpack.io/")
     maven("https://repo.incendo.org/content/repositories/snapshots/")
   }
 }
