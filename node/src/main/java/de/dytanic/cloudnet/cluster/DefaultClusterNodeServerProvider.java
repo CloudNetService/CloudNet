@@ -153,7 +153,7 @@ public final class DefaultClusterNodeServerProvider extends DefaultNodeServerPro
       }
     }
     // always successful if there is no node to deploy to
-    return CompletedTask.create(TransferStatus.SUCCESS);
+    return CompletedTask.done(TransferStatus.SUCCESS);
   }
 
   @Override

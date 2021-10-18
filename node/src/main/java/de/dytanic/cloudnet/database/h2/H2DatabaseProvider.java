@@ -16,7 +16,7 @@
 
 package de.dytanic.cloudnet.database.h2;
 
-import de.dytanic.cloudnet.common.concurrent.IThrowableCallback;
+import de.dytanic.cloudnet.common.function.ThrowableFunction;
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.database.sql.SQLDatabaseProvider;
 import de.dytanic.cloudnet.database.util.LocalDatabaseUtils;
@@ -61,7 +61,7 @@ public final class H2DatabaseProvider extends SQLDatabaseProvider {
   public boolean init() throws Exception {
     LocalDatabaseUtils.bigWarningThatEveryoneCanSeeWhenRunningInCluster(this.runsInCluster);
 
-    FileUtils.createDirectoryReported(this.h2dbFile.getParent());
+    FileUtils.createDirectory(this.h2dbFile.getParent());
     this.connection = DriverManager.getConnection("jdbc:h2:" + this.h2dbFile.toAbsolutePath());
 
     return this.connection != null;
@@ -133,7 +133,7 @@ public final class H2DatabaseProvider extends SQLDatabaseProvider {
 
   public @Nullable <T> T executeQuery(
     @NotNull String query,
-    @NotNull IThrowableCallback<ResultSet, T> callback,
+    @NotNull ThrowableFunction<ResultSet, T, SQLException> callback,
     @NotNull Object... objects
   ) {
     try (PreparedStatement preparedStatement = this.getConnection().prepareStatement(query)) {
@@ -142,7 +142,7 @@ public final class H2DatabaseProvider extends SQLDatabaseProvider {
       }
 
       try (ResultSet resultSet = preparedStatement.executeQuery()) {
-        return callback.call(resultSet);
+        return callback.apply(resultSet);
       }
     } catch (Throwable throwable) {
       LOGGER.severe("Exception while executing database query", throwable);

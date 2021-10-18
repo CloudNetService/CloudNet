@@ -34,13 +34,7 @@ public final class CPUUsageResolver {
    * A simple decimal format to easy display the CPU usage value.
    */
   public static final DecimalFormat CPU_USAGE_OUTPUT_FORMAT = new DecimalFormat("##.##");
-
-  //default initialization
-  static {
-    getProcessCPUUsage();
-    getSystemCPUUsage();
-    getSystemMemory();
-  }
+  public static final OperatingSystemMXBean OS_BEAN = ManagementFactory.getPlatformMXBean(OperatingSystemMXBean.class);
 
   private CPUUsageResolver() {
     throw new UnsupportedOperationException();
@@ -53,7 +47,7 @@ public final class CPUUsageResolver {
    * @see com.sun.management.OperatingSystemMXBean
    */
   public static double getSystemCPUUsage() {
-    return toPercentage(getSystemMxBean().getSystemCpuLoad());
+    return toPercentage(OS_BEAN.getSystemCpuLoad());
   }
 
   /**
@@ -63,7 +57,7 @@ public final class CPUUsageResolver {
    * @see com.sun.management.OperatingSystemMXBean
    */
   public static double getProcessCPUUsage() {
-    return toPercentage(getSystemMxBean().getProcessCpuLoad());
+    return toPercentage(OS_BEAN.getProcessCpuLoad());
   }
 
   /**
@@ -73,14 +67,10 @@ public final class CPUUsageResolver {
    * @see com.sun.management.OperatingSystemMXBean
    */
   public static long getSystemMemory() {
-    return getSystemMxBean().getTotalPhysicalMemorySize();
+    return OS_BEAN.getTotalPhysicalMemorySize();
   }
 
   private static double toPercentage(double input) {
     return input < 0 ? -1 : input * 100;
-  }
-
-  private static OperatingSystemMXBean getSystemMxBean() {
-    return (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
   }
 }

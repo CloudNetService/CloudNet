@@ -50,7 +50,7 @@ public class LocalTemplateStorage implements TemplateStorage {
 
   public LocalTemplateStorage(@NotNull Path storageDirectory) {
     this.storageDirectory = storageDirectory;
-    FileUtils.createDirectoryReported(storageDirectory);
+    FileUtils.createDirectory(storageDirectory);
   }
 
   @Override
@@ -65,7 +65,7 @@ public class LocalTemplateStorage implements TemplateStorage {
     @Nullable Predicate<Path> fileFilter
   ) {
     if (Files.exists(directory)) {
-      FileUtils.copyFilesToDirectory(
+      FileUtils.copyDirectory(
         directory,
         this.getTemplatePath(target),
         fileFilter == null ? null : fileFilter::test);
@@ -76,18 +76,13 @@ public class LocalTemplateStorage implements TemplateStorage {
 
   @Override
   public boolean deploy(@NotNull InputStream inputStream, @NotNull ServiceTemplate target) {
-    try {
-      FileUtils.extract0(new ZipInputStream(inputStream), this.getTemplatePath(target));
-      return true;
-    } catch (IOException exception) {
-      LOGGER.severe("Unable to extract template zip stream to " + target, exception);
-      return false;
-    }
+    FileUtils.extractZipStream(new ZipInputStream(inputStream), this.getTemplatePath(target));
+    return true;
   }
 
   @Override
   public boolean copy(@NotNull ServiceTemplate template, @NotNull Path directory) {
-    FileUtils.copyFilesToDirectory(this.getTemplatePath(template), directory);
+    FileUtils.copyDirectory(this.getTemplatePath(template), directory);
     return true;
   }
 
@@ -120,7 +115,7 @@ public class LocalTemplateStorage implements TemplateStorage {
   public boolean create(@NotNull ServiceTemplate template) {
     Path templateDir = this.getTemplatePath(template);
     if (Files.notExists(templateDir)) {
-      FileUtils.createDirectoryReported(templateDir);
+      FileUtils.createDirectory(templateDir);
       return true;
     }
 

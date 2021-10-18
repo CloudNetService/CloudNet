@@ -16,7 +16,11 @@
 
 package de.dytanic.cloudnet.common.registry;
 
+import com.google.common.collect.Iterables;
 import java.util.Collection;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnmodifiableView;
 
 /**
  * The ServicesRegistry, is to be able to manage and summarize implementations of interfaces and abstract classes in
@@ -34,18 +38,21 @@ public interface IServicesRegistry {
    * @param <E>     the implementation of the service type T
    * @return the current instance, of the class, which was used to offerTask this method
    */
-  <T, E extends T> IServicesRegistry registerService(Class<T> clazz, String name, E service);
+  @NotNull <T, E extends T> IServicesRegistry registerService(
+    @NotNull Class<T> clazz,
+    @NotNull String name,
+    @NotNull E service);
 
   /**
    * Unregister a all services which class equals the E type of the registered services
    *
-   * @param clazz        the interface class, which should the provider of the service
-   * @param serviceClazz the class, of the services which should unregister
-   * @param <T>          the interface or abstract type which you want the implementation providing for
-   * @param <E>          the implementation of the service type T
+   * @param clazz   the interface class, which should the provider of the service
+   * @param service the class, of the services which should unregister
+   * @param <T>     the interface or abstract type which you want the implementation providing for
+   * @param <E>     the implementation of the service type T
    * @return the current instance of the ServiceRegistry
    */
-  <T, E extends T> IServicesRegistry unregisterService(Class<T> clazz, Class<E> serviceClazz);
+  @NotNull <T, E extends T> IServicesRegistry unregisterService(@NotNull Class<T> clazz, @NotNull Class<E> service);
 
   /**
    * Unregister a all services which instance is equals one of this services that are already registered
@@ -56,7 +63,7 @@ public interface IServicesRegistry {
    * @param <E>     the implementation of the service type T
    * @return the current instance of the ServiceRegistry
    */
-  <T, E extends T> IServicesRegistry unregisterService(Class<T> clazz, E service);
+  @NotNull <T, E extends T> IServicesRegistry unregisterService(@NotNull Class<T> clazz, @NotNull E service);
 
   /**
    * Request of a service with a specific name is already exists or not
@@ -66,7 +73,7 @@ public interface IServicesRegistry {
    * @param <T>   the interface or abstract type which you want the implementation providing for
    * @return true if a service from the provider is contain in this registry
    */
-  <T> boolean containsService(Class<T> clazz, String name);
+  <T> boolean containsService(@NotNull Class<T> clazz, @NotNull String name);
 
   /**
    * Unregisters a service by the name of the service on a specific class provider
@@ -76,7 +83,7 @@ public interface IServicesRegistry {
    * @param <T>   the interface or abstract type which you want the implementation providing for
    * @return the current instance of the ServiceRegistry
    */
-  <T> IServicesRegistry unregisterService(Class<T> clazz, String name);
+  @NotNull <T> IServicesRegistry unregisterService(@NotNull Class<T> clazz, @NotNull String name);
 
   /**
    * Removes all services from the registry, which has the following provider class
@@ -85,14 +92,14 @@ public interface IServicesRegistry {
    * @param <T>   the interface or abstract type which you want the implementation providing for
    * @return the current instance of the ServiceRegistry
    */
-  <T> IServicesRegistry unregisterServices(Class<T> clazz);
+  @NotNull <T> IServicesRegistry unregisterServices(@NotNull Class<T> clazz);
 
   /**
    * Unregister all services and provider classes from the registry
    *
    * @return the current instance of the ServiceRegistry
    */
-  IServicesRegistry unregisterAll();
+  @NotNull IServicesRegistry unregisterAll();
 
   /**
    * Unregister all services which are loaded from that specific classLoader.
@@ -100,12 +107,12 @@ public interface IServicesRegistry {
    * @param classLoader the classLoader, from that all services should be removed
    * @return the current instance of the ServiceRegistry
    */
-  IServicesRegistry unregisterAll(ClassLoader classLoader);
+  @NotNull IServicesRegistry unregisterAll(@NotNull ClassLoader classLoader);
 
   /**
    * Returns all provider classes that are actual contain in on this registry
    */
-  Collection<Class<?>> getProvidedServices();
+  @NotNull Collection<Class<?>> getProvidedServices();
 
   /**
    * Returns the service implementation or null from this registry
@@ -115,7 +122,7 @@ public interface IServicesRegistry {
    * @param <T>   the interface or abstract type which you want the implementation providing for
    * @return the service implementation of the base class or the base class himself
    */
-  <T> T getService(Class<T> clazz, String name);
+  @Nullable <T> T getService(@NotNull Class<T> clazz, @NotNull String name);
 
   /**
    * Returns the service implementation or null from this registry
@@ -124,8 +131,8 @@ public interface IServicesRegistry {
    * @param <T>   the interface or abstract type which you want the implementation providing for
    * @return the first service implementation found registered for the provided class
    */
-  default <T> T getFirstService(Class<T> clazz) {
-    return this.getServices(clazz).stream().findFirst().orElse(null);
+  default @Nullable <T> T getFirstService(@NotNull Class<T> clazz) {
+    return Iterables.getFirst(this.getServices(clazz), null);
   }
 
   /**
@@ -135,5 +142,6 @@ public interface IServicesRegistry {
    * @param <T>   the interface or abstract type which you want the implementation providing for
    * @return the service implementations of the base class or the base class himself
    */
-  <T> Collection<T> getServices(Class<T> clazz);
+  @UnmodifiableView
+  @NotNull <T> Collection<T> getServices(@NotNull Class<T> clazz);
 }

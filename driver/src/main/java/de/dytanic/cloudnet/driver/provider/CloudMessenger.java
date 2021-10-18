@@ -45,7 +45,7 @@ public interface CloudMessenger {
    */
   @NotNull
   default ITask<Collection<ChannelMessage>> sendChannelMessageQueryAsync(@NotNull ChannelMessage channelMessage) {
-    return CompletableTask.supplyAsync(() -> this.sendChannelMessageQuery(channelMessage));
+    return CompletableTask.supply(() -> this.sendChannelMessageQuery(channelMessage));
   }
 
   /**
@@ -66,7 +66,7 @@ public interface CloudMessenger {
    */
   @NotNull
   default ITask<ChannelMessage> sendSingleChannelMessageQueryAsync(@NotNull ChannelMessage channelMessage) {
-    return CompletableTask.supplyAsync(() -> this.sendSingleChannelMessageQuery(channelMessage));
+    return CompletableTask.supply(() -> this.sendSingleChannelMessageQuery(channelMessage));
   }
 
   /**

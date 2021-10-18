@@ -95,7 +95,7 @@ public interface GroupConfigurationProvider {
    */
   @NotNull
   default ITask<Void> reloadAsync() {
-    return CompletableTask.supplyAsync(this::reload);
+    return CompletableTask.supply(this::reload);
   }
 
   /**
@@ -105,7 +105,7 @@ public interface GroupConfigurationProvider {
    */
   @NotNull
   default ITask<Collection<GroupConfiguration>> getGroupConfigurationsAsync() {
-    return CompletableTask.supplyAsync(this::getGroupConfigurations);
+    return CompletableTask.supply(this::getGroupConfigurations);
   }
 
   /**
@@ -115,7 +115,7 @@ public interface GroupConfigurationProvider {
    */
   @NotNull
   default ITask<Void> setGroupConfigurationsAsync(@NotNull Collection<GroupConfiguration> groupConfigurations) {
-    return CompletableTask.supplyAsync(() -> this.setGroupConfigurations(groupConfigurations));
+    return CompletableTask.supply(() -> this.setGroupConfigurations(groupConfigurations));
   }
 
   /**
@@ -126,7 +126,7 @@ public interface GroupConfigurationProvider {
    */
   @NotNull
   default ITask<GroupConfiguration> getGroupConfigurationAsync(@NotNull String name) {
-    return CompletableTask.supplyAsync(() -> this.getGroupConfiguration(name));
+    return CompletableTask.supply(() -> this.getGroupConfiguration(name));
   }
 
   /**
@@ -137,7 +137,7 @@ public interface GroupConfigurationProvider {
    */
   @NotNull
   default ITask<Boolean> isGroupConfigurationPresentAsync(@NotNull String name) {
-    return CompletableTask.supplyAsync(() -> this.isGroupConfigurationPresent(name));
+    return CompletableTask.supply(() -> this.isGroupConfigurationPresent(name));
   }
 
   /**
@@ -147,7 +147,7 @@ public interface GroupConfigurationProvider {
    */
   @NotNull
   default ITask<Void> addGroupConfigurationAsync(@NotNull GroupConfiguration groupConfiguration) {
-    return CompletableTask.supplyAsync(() -> this.addGroupConfiguration(groupConfiguration));
+    return CompletableTask.supply(() -> this.addGroupConfiguration(groupConfiguration));
   }
 
   /**
@@ -157,7 +157,7 @@ public interface GroupConfigurationProvider {
    */
   @NotNull
   default ITask<Void> removeGroupConfigurationByNameAsync(@NotNull String name) {
-    return CompletableTask.supplyAsync(() -> this.removeGroupConfigurationByName(name));
+    return CompletableTask.supply(() -> this.removeGroupConfigurationByName(name));
   }
 
   /**
@@ -168,7 +168,7 @@ public interface GroupConfigurationProvider {
    */
   @NotNull
   default ITask<Void> removeGroupConfigurationAsync(@NotNull GroupConfiguration groupConfiguration) {
-    return CompletableTask.supplyAsync(() -> this.removeGroupConfiguration(groupConfiguration));
+    return CompletableTask.supply(() -> this.removeGroupConfiguration(groupConfiguration));
   }
 
 }

@@ -17,32 +17,48 @@
 package de.dytanic.cloudnet.common.concurrent;
 
 import java.util.concurrent.atomic.AtomicInteger;
+import org.jetbrains.annotations.Nullable;
 
-public class CountingTask<V> extends CompletableTask<V> {
+public class CountingTask<V> extends CompletableTask<V> implements ITask<V> {
 
-  private final V value;
+  private final V resultValue;
   private final AtomicInteger count;
 
-  public CountingTask(V value, int initialValue) {
-    this.value = value;
-    this.count = new AtomicInteger(initialValue);
-
-    if (initialValue <= 0) {
-      this.complete(this.value);
+  public CountingTask(@Nullable V resultValue, int initialCount) {
+    if (initialCount <= 0) {
+      this.complete(resultValue);
+      // no need to populate the fields
+      this.count = null;
+      this.resultValue = null;
+    } else {
+      this.resultValue = resultValue;
+      this.count = new AtomicInteger(initialCount);
     }
   }
 
   public void countUp() {
-    this.count.getAndIncrement();
+    this.count.incrementAndGet();
+    this.publishCountChange();
   }
 
   public void countDown() {
-    if (this.count.decrementAndGet() <= 0) {
-      super.complete(this.value);
-    }
+    this.count.decrementAndGet();
+    this.publishCountChange();
   }
 
-  public int countValue() {
-    return this.count.get();
+  public void countTo(int target) {
+    this.count.set(target);
+    this.publishCountChange();
+  }
+
+  public void addToCount(int count) {
+    this.count.addAndGet(count);
+    this.publishCountChange();
+  }
+
+  protected void publishCountChange() {
+    if (this.count.get() <= 0) {
+      this.complete(this.resultValue);
+    }
   }
 }

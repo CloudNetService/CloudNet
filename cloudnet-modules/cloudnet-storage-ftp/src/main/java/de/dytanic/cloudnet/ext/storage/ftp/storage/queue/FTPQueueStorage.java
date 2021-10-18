@@ -19,7 +19,7 @@ package de.dytanic.cloudnet.ext.storage.ftp.storage.queue;
 import de.dytanic.cloudnet.common.concurrent.CompletableTask;
 import de.dytanic.cloudnet.common.concurrent.CompletedTask;
 import de.dytanic.cloudnet.common.concurrent.ITask;
-import de.dytanic.cloudnet.common.concurrent.function.ThrowableSupplier;
+import de.dytanic.cloudnet.common.function.ThrowableSupplier;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import de.dytanic.cloudnet.driver.template.FileInfo;
 import de.dytanic.cloudnet.driver.template.TemplateStorage;

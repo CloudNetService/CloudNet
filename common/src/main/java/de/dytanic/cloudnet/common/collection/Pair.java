@@ -18,6 +18,7 @@ package de.dytanic.cloudnet.common.collection;
 
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.jetbrains.annotations.UnknownNullability;
 
 /**
  * This class can capture 2 references of 2 types and set or clear the data using setFirst() / getFirst() and
@@ -36,37 +37,25 @@ public class Pair<F, S> {
    *
    * @see F
    */
-  protected F first;
+  protected final F first;
 
   /**
    * The reference of the second value and the type of S
    *
    * @see S
    */
-  protected S second;
+  protected final S second;
 
-  public Pair(F first, S second) {
+  public Pair(@UnknownNullability F first, @UnknownNullability S second) {
     this.first = first;
     this.second = second;
   }
 
-  public Pair() {
-  }
-
-  public F getFirst() {
+  public @UnknownNullability F getFirst() {
     return this.first;
   }
 
-  public void setFirst(F first) {
-    this.first = first;
-  }
-
-  public S getSecond() {
+  public @UnknownNullability S getSecond() {
     return this.second;
   }
-
-  public void setSecond(S second) {
-    this.second = second;
-  }
-
 }

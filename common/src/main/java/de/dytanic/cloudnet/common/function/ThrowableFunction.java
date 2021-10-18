@@ -14,28 +14,12 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.common.concurrent;
+package de.dytanic.cloudnet.common.function;
 
-public class CompletableTaskListener<T> implements ITaskListener<T> {
+import org.jetbrains.annotations.UnknownNullability;
 
-  private final CompletableTask<T> task;
+@FunctionalInterface
+public interface ThrowableFunction<I, O, T extends Throwable> {
 
-  public CompletableTaskListener(CompletableTask<T> task) {
-    this.task = task;
-  }
-
-  @Override
-  public void onCancelled(ITask<T> task) {
-    this.task.cancel(true);
-  }
-
-  @Override
-  public void onComplete(ITask<T> task, T t) {
-    this.task.complete(t);
-  }
-
-  @Override
-  public void onFailure(ITask<T> task, Throwable th) {
-    this.task.fail(th);
-  }
+  @UnknownNullability O apply(@UnknownNullability I i) throws T;
 }

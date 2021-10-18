@@ -44,7 +44,7 @@ public class RemoteNodeCloudServiceProvider extends RemoteSpecificCloudServicePr
 
   @Override
   public @NotNull ITask<ServiceInfoSnapshot> getServiceInfoSnapshotAsync() {
-    return CompletedTask.create(this.snapshot);
+    return CompletedTask.done(this.snapshot);
   }
 
   public void setSnapshot(@NotNull ServiceInfoSnapshot snapshot) {

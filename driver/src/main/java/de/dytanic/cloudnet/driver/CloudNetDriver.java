@@ -240,7 +240,7 @@ public abstract class CloudNetDriver {
    */
   @NotNull
   public ITask<Collection<TemplateStorage>> getAvailableTemplateStoragesAsync() {
-    return CompletableTask.supplyAsync(this::getAvailableTemplateStorages);
+    return CompletableTask.supply(this::getAvailableTemplateStorages);
   }
 
   /**
@@ -274,7 +274,7 @@ public abstract class CloudNetDriver {
   public ITask<Collection<String>> sendCommandLineAsPermissionUserAsync(@NotNull UUID uniqueId,
     @NotNull String commandLine
   ) {
-    return CompletableTask.supplyAsync(() -> this.sendCommandLineAsPermissionUser(uniqueId, commandLine));
+    return CompletableTask.supply(() -> this.sendCommandLineAsPermissionUser(uniqueId, commandLine));
   }
 
   /**

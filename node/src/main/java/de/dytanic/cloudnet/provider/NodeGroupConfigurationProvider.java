@@ -64,7 +64,7 @@ public class NodeGroupConfigurationProvider implements GroupConfigurationProvide
     if (Files.exists(GROUP_DIRECTORY_PATH)) {
       this.loadGroupConfigurations();
     } else {
-      FileUtils.createDirectoryReported(GROUP_DIRECTORY_PATH);
+      FileUtils.createDirectory(GROUP_DIRECTORY_PATH);
     }
     // run the conversion of the old file
     this.upgrade();

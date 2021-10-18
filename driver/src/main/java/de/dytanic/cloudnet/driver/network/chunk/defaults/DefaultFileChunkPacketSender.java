@@ -57,7 +57,7 @@ public class DefaultFileChunkPacketSender extends DefaultChunkedPacketProvider i
 
   @Override
   public @NotNull ITask<TransferStatus> transferChunkedData() {
-    return CompletableTask.supplyAsync(() -> {
+    return CompletableTask.supply(() -> {
       int readCalls = 0;
       byte[] backingArray = new byte[this.chunkSessionInformation.getChunkSize()];
 

@@ -57,7 +57,7 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
     if (Files.exists(TASKS_DIRECTORY)) {
       this.loadServiceTasks();
     } else {
-      FileUtils.createDirectoryReported(TASKS_DIRECTORY);
+      FileUtils.createDirectory(TASKS_DIRECTORY);
       nodeInstance.getInstallation().registerSetup(new DefaultTaskSetup());
     }
   }

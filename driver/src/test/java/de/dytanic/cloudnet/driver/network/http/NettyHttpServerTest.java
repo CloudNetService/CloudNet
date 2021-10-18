@@ -17,8 +17,8 @@
 package de.dytanic.cloudnet.driver.network.http;
 
 import com.google.common.collect.Iterables;
-import de.dytanic.cloudnet.common.concurrent.function.ThrowableConsumer;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import de.dytanic.cloudnet.common.function.ThrowableConsumer;
 import de.dytanic.cloudnet.driver.network.NetworkTestCase;
 import de.dytanic.cloudnet.driver.network.http.websocket.WebSocketFrameType;
 import de.dytanic.cloudnet.driver.network.netty.http.NettyHttpServer;

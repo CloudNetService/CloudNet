@@ -29,7 +29,7 @@ import de.dytanic.cloudnet.command.exception.ArgumentNotAvailableException;
 import de.dytanic.cloudnet.command.source.CommandSource;
 import de.dytanic.cloudnet.command.source.ConsoleCommandSource;
 import de.dytanic.cloudnet.common.INameable;
-import de.dytanic.cloudnet.common.concurrent.function.ThrowableConsumer;
+import de.dytanic.cloudnet.common.function.ThrowableConsumer;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;

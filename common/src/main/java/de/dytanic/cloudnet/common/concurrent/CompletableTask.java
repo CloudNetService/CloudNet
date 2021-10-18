@@ -16,202 +16,171 @@
 
 package de.dytanic.cloudnet.common.concurrent;
 
-import de.dytanic.cloudnet.common.concurrent.function.ThrowableFunction;
-import de.dytanic.cloudnet.common.concurrent.function.ThrowableSupplier;
-import java.util.ArrayList;
+import de.dytanic.cloudnet.common.function.ThrowableFunction;
+import de.dytanic.cloudnet.common.function.ThrowableSupplier;
 import java.util.Collection;
-import java.util.concurrent.Callable;
+import java.util.Collections;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnknownNullability;
+import org.jetbrains.annotations.UnmodifiableView;
 
-public class CompletableTask<V> implements ITask<V> {
+public class CompletableTask<V> extends CompletableFuture<V> implements ITask<V> {
 
   private static final ExecutorService SERVICE = Executors.newCachedThreadPool();
 
-  private final Collection<ITaskListener<V>> listeners = new ArrayList<>();
-
-  private final CompletableFuture<V> future;
-
-  private Throwable throwable;
+  private volatile Collection<ITaskListener<V>> listeners;
 
   public CompletableTask() {
-    this(new CompletableFuture<>());
-  }
-
-  private CompletableTask(CompletableFuture<V> future) {
-    this.future = future;
-    this.future.exceptionally(throwable -> {
-      this.throwable = throwable;
+    // handles the uni completion stage 'done' (or success)
+    this.thenAccept(result -> {
+      // check if there are registered listeners
+      if (this.listeners != null) {
+        for (ITaskListener<V> listener : this.listeners) {
+          listener.onComplete(this, result);
+        }
+        // depopulate the listeners - no more completions are possible
+        this.depopulateListeners();
+      }
+    });
+    // handles the uni completion stages 'cancel' and 'exceptionally'
+    this.exceptionally(throwable -> {
+      // check if there are registered listeners
+      if (this.listeners != null) {
+        // check if the future was cancelled
+        if (throwable instanceof CancellationException) {
+          // post the cancel result
+          for (ITaskListener<V> listener : this.listeners) {
+            listener.onCancelled(this);
+          }
+        } else {
+          // exception completion - post that
+          for (ITaskListener<V> listener : this.listeners) {
+            listener.onFailure(this, throwable);
+          }
+        }
+        // depopulate the listeners - no more completions are possible
+        this.depopulateListeners();
+      }
+      // must be a function...
       return null;
     });
   }
 
-  public static <V> CompletableTask<V> supplyAsync(Runnable runnable) {
-    return supplyAsync(() -> {
+  public static <V> @NotNull CompletableTask<V> supply(@NotNull Runnable runnable) {
+    return supply(() -> {
       runnable.run();
       return null;
     });
   }
 
-  public static <V> CompletableTask<V> supplyAsync(ThrowableSupplier<V, Throwable> supplier) {
+  public static <V> @NotNull CompletableTask<V> supply(@NotNull ThrowableSupplier<V, Throwable> supplier) {
     CompletableTask<V> task = new CompletableTask<>();
     SERVICE.execute(() -> {
       try {
         task.complete(supplier.get());
       } catch (Throwable throwable) {
-        task.fail(throwable);
+        task.completeExceptionally(throwable);
       }
     });
     return task;
   }
 
-  public static <I, O> ITask<O> mapFrom(ITask<I> source, ThrowableFunction<I, O, Throwable> mapper) {
-    CompletableTask<O> result = new CompletableTask<>();
-    source.addListener(new ITaskListener<I>() {
-      @Override
-      public void onComplete(ITask<I> task, I i) {
-        try {
-          result.complete(mapper == null ? null : mapper.apply(i));
-        } catch (Throwable throwable) {
-          result.fail(throwable);
-        }
-      }
-
-      @Override
-      public void onCancelled(ITask<I> task) {
-        result.cancel(true);
-      }
-
-      @Override
-      public void onFailure(ITask<I> task, Throwable throwable) {
-        result.fail(throwable);
-      }
-    });
-    return result;
-  }
 
   @Override
-  public @NotNull ITask<V> addListener(ITaskListener<V> listener) {
-    if (this.future.isDone()) {
-      if (this.future.isCancelled()) {
-        listener.onCancelled(this);
-      } else if (this.throwable != null) {
-        listener.onFailure(this, this.throwable);
-      } else {
-        listener.onComplete(this, this.future.getNow(null));
-      }
-      return this;
-    }
-
-    this.listeners.add(listener);
+  public @NotNull ITask<V> addListener(@NotNull ITaskListener<V> listener) {
+    this.initListeners().add(listener);
     return this;
   }
 
   @Override
   public @NotNull ITask<V> clearListeners() {
-    this.listeners.clear();
+    // we don't need to initialize the listeners field here
+    if (this.listeners != null) {
+      this.listeners.clear();
+    }
+
     return this;
   }
 
   @Override
-  public Collection<ITaskListener<V>> getListeners() {
-    return this.listeners;
+  public @UnmodifiableView @NotNull Collection<ITaskListener<V>> getListeners() {
+    return this.listeners == null ? Collections.emptyList() : Collections.unmodifiableCollection(this.listeners);
   }
 
   @Override
-  public Callable<V> getCallable() {
-    return this.future::get;
-  }
-
-  @Override
-  public V getDef(V def) {
-    return this.get(5, TimeUnit.SECONDS, def);
-  }
-
-  @Override
-  public V get(long time, TimeUnit timeUnit, V def) {
+  public @UnknownNullability V getDef(@Nullable V def) {
     try {
-      return this.get(time, timeUnit);
-    } catch (InterruptedException | ExecutionException | TimeoutException exception) {
+      return this.getNow(def);
+    } catch (CancellationException | CompletionException exception) {
       return def;
     }
   }
 
-  public void fail(Throwable throwable) {
-    this.throwable = throwable;
-    this.future.completeExceptionally(throwable);
-    for (ITaskListener<V> listener : this.listeners) {
-      listener.onFailure(this, throwable);
+  @Override
+  public @UnknownNullability V get(long time, @NotNull TimeUnit timeUnit, @Nullable V def) {
+    try {
+      return this.get(time, timeUnit);
+    } catch (CancellationException | ExecutionException | InterruptedException | TimeoutException exception) {
+      return def;
     }
   }
 
   @Override
-  public V call() {
-    if (this.future.isDone()) {
-      return this.future.getNow(null);
+  public @NotNull <T> ITask<T> map(@NotNull ThrowableFunction<V, T, Throwable> mapper) {
+    // if this task is already done we can just compute the value
+    if (this.isDone()) {
+      return CompletedTask.create(() -> mapper.apply(this.getNow(null)));
     }
-    throw new UnsupportedOperationException("Use #complete in the CompletableTask");
-  }
-
-  public void complete(V value) {
-    this.future.complete(value);
-    for (ITaskListener<V> listener : this.listeners) {
-      listener.onComplete(this, value);
-    }
-  }
-
-  @Override
-  public boolean cancel(boolean b) {
-    if (this.future.isCancelled()) {
-      return false;
-    }
-
-    if (this.future.cancel(b)) {
-      for (ITaskListener<V> listener : this.listeners) {
-        listener.onCancelled(this);
-      }
-      return true;
-    }
-    return false;
-  }
-
-  @Override
-  public boolean isCancelled() {
-    return this.future.isCancelled();
-  }
-
-  @Override
-  public boolean isDone() {
-    return this.future.isDone();
-  }
-
-  @Override
-  public V get() throws InterruptedException, ExecutionException {
-    return this.future.get();
-  }
-
-  @Override
-  public V get(long l, @NotNull TimeUnit timeUnit) throws InterruptedException, ExecutionException, TimeoutException {
-    return this.future.get(l, timeUnit);
-  }
-
-  @Override
-  public <T> ITask<T> mapThrowable(ThrowableFunction<V, T, Throwable> mapper) {
+    // create a new task mapping the current task
     CompletableTask<T> task = new CompletableTask<>();
-    this.future.thenAccept(v -> {
-      try {
-        task.complete(mapper == null ? null : mapper.apply(v));
-      } catch (Throwable throwable) {
-        task.fail(throwable);
+    // handle the result of this task and post the result to the downstream task
+    this.addListener(new ITaskListener<V>() {
+      @Override
+      public void onComplete(@NotNull ITask<V> t, @Nullable V v) {
+        try {
+          task.complete(mapper.apply(v));
+        } catch (Throwable throwable) {
+          task.completeExceptionally(throwable);
+        }
+      }
+
+      @Override
+      public void onCancelled(@NotNull ITask<V> t) {
+        task.cancel(true);
+      }
+
+      @Override
+      public void onFailure(@NotNull ITask<V> t, @NotNull Throwable th) {
+        task.completeExceptionally(th);
       }
     });
-    this.onFailure(task.future::completeExceptionally);
-    this.onCancelled(otherTask -> task.cancel(true));
+    // the new task listens now to this task
     return task;
+  }
+
+  protected @NotNull Collection<ITaskListener<V>> initListeners() {
+    if (this.listeners == null) {
+      // ConcurrentLinkedQueue gives us O(1) insertion using CAS - results under moderate
+      // load in the fastest insert and read times
+      return this.listeners = new ConcurrentLinkedQueue<>();
+    } else {
+      return this.listeners;
+    }
+  }
+
+  protected void depopulateListeners() {
+    // ensures a better gc
+    this.listeners.clear();
+    this.listeners = null;
   }
 }

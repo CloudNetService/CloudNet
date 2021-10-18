@@ -45,7 +45,7 @@ public class DefaultPersistableModuleDependencyLoader extends DefaultMemoryModul
    */
   public DefaultPersistableModuleDependencyLoader(Path baseDirectory) {
     this.baseDirectory = baseDirectory;
-    FileUtils.createDirectoryReported(baseDirectory);
+    FileUtils.createDirectory(baseDirectory);
   }
 
   /**

@@ -16,90 +16,67 @@
 
 package de.dytanic.cloudnet.common.concurrent;
 
-import com.google.common.base.Preconditions;
-import de.dytanic.cloudnet.common.concurrent.function.ThrowableFunction;
-import de.dytanic.cloudnet.common.log.LogManager;
-import de.dytanic.cloudnet.common.log.Logger;
+import de.dytanic.cloudnet.common.function.ThrowableFunction;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.concurrent.atomic.AtomicReference;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnknownNullability;
+import org.jetbrains.annotations.UnmodifiableView;
 
-@NotNull
-public class ListenableTask<V> implements ITask<V> {
+public class ListenableTask<V> extends FutureTask<V> implements ITask<V> {
 
-  private static final Logger LOGGER = LogManager.getLogger(ListenableTask.class);
+  private volatile Collection<ITaskListener<V>> listeners;
 
-  private final Callable<V> callable;
-  private Collection<ITaskListener<V>> listeners;
-
-  private volatile V value;
-  private volatile boolean done;
-  private volatile boolean cancelled;
-  private volatile Throwable throwable;
-
-  public ListenableTask(Callable<V> callable) {
-    this(callable, null);
+  public ListenableTask(@NotNull Callable<V> callable) {
+    super(callable);
   }
 
-  public ListenableTask(Callable<V> callable, ITaskListener<V> listener) {
-    Preconditions.checkNotNull(callable);
-
-    this.callable = callable;
-
-    if (listener != null) {
-      this.addListener(listener);
+  @Override
+  protected void done() {
+    // check if we have listeners
+    if (this.listeners == null) {
+      return;
     }
-  }
-
-  @Override
-  public Callable<V> getCallable() {
-    return this.callable;
-  }
-
-  @Override
-  public Collection<ITaskListener<V>> getListeners() {
-    return this.listeners;
-  }
-
-  public V getValue() {
-    return this.value;
-  }
-
-  @Override
-  public boolean isDone() {
-    return this.done;
-  }
-
-  @Override
-  public boolean isCancelled() {
-    return this.cancelled;
-  }
-
-  @Override
-  @NotNull
-  public ITask<V> addListener(ITaskListener<V> listener) {
-    if (listener == null) {
-      return this;
+    // check if the task was cancelled
+    if (this.isCancelled()) {
+      for (ITaskListener<V> listener : this.listeners) {
+        listener.onCancelled(this);
+      }
+    } else {
+      // populate the result that get() gives us
+      try {
+        V result = this.get();
+        for (ITaskListener<V> listener : this.listeners) {
+          listener.onComplete(this, result);
+        }
+      } catch (InterruptedException | ExecutionException exception) {
+        // we know that the task is done - it can only be a ExecutionException wrapping the original exception
+        for (ITaskListener<V> listener : this.listeners) {
+          listener.onFailure(this, exception.getCause());
+        }
+      }
     }
+    // remove all listeners
+    this.depopulateListeners();
+  }
 
-    this.initListenersCollectionIfNotExists();
-
-    this.listeners.add(listener);
-
-    if (this.done) {
-      this.invokeTaskListener(listener);
-    }
-
+  @Override
+  public @NotNull ITask<V> addListener(@NotNull ITaskListener<V> listener) {
+    this.initListeners().add(listener);
     return this;
   }
 
   @Override
-  @NotNull
-  public ITask<V> clearListeners() {
+  public @NotNull ITask<V> clearListeners() {
+    // we don't need to initialize the listeners field here
     if (this.listeners != null) {
       this.listeners.clear();
     }
@@ -108,128 +85,46 @@ public class ListenableTask<V> implements ITask<V> {
   }
 
   @Override
-  public V getDef(V def) {
-    return this.get(5, TimeUnit.SECONDS, def);
+  public @UnmodifiableView @NotNull Collection<ITaskListener<V>> getListeners() {
+    return this.listeners == null ? Collections.emptyList() : Collections.unmodifiableCollection(this.listeners);
   }
 
   @Override
-  public V get(long time, TimeUnit timeUnit, V def) {
-    Preconditions.checkNotNull(timeUnit);
-
+  public @UnknownNullability V getDef(@Nullable V def) {
     try {
-      return this.get(time, timeUnit);
-    } catch (Throwable ignored) {
+      return this.get();
+    } catch (InterruptedException | ExecutionException | CancellationException exception) {
       return def;
     }
-
   }
 
   @Override
-  public boolean cancel(boolean mayInterruptIfRunning) {
-    return this.cancelled = mayInterruptIfRunning;
-  }
-
-  @Override
-  public V get() throws InterruptedException {
-    synchronized (this) {
-      if (!this.isDone()) {
-        this.wait();
-      }
-    }
-
-    return this.value;
-  }
-
-  @Override
-  public V get(long timeout, @NotNull TimeUnit unit) throws InterruptedException, TimeoutException {
-    synchronized (this) {
-      if (!this.isDone()) {
-        this.wait(unit.toMillis(timeout));
-      }
-    }
-
-    if (!this.isDone()) {
-      throw new TimeoutException("Task has not been called within the given time!");
-    }
-
-    return this.value;
-  }
-
-
-  @Override
-  public V call() {
-    if (!this.isCancelled()) {
-      try {
-        this.value = this.callable.call();
-      } catch (Throwable throwable) {
-        this.throwable = throwable;
-      }
-    }
-
-    this.done = true;
-    this.invokeTaskListener();
-
-    synchronized (this) {
-      try {
-        this.notifyAll();
-      } catch (Throwable throwable) {
-        LOGGER.severe("Exception while calling task", throwable);
-      }
-    }
-
-    return this.value;
-  }
-
-
-  private void initListenersCollectionIfNotExists() {
-    if (this.listeners == null) {
-      this.listeners = new ConcurrentLinkedQueue<>();
-    }
-  }
-
-  private void invokeTaskListener() {
-    if (this.listeners != null) {
-      for (ITaskListener<V> listener : this.listeners) {
-        this.invokeTaskListener(listener);
-      }
-    }
-  }
-
-  private void invokeTaskListener(ITaskListener<V> listener) {
+  public @UnknownNullability V get(long time, @NotNull TimeUnit timeUnit, @Nullable V def) {
     try {
-      if (this.throwable != null) {
-        listener.onFailure(this, this.throwable);
-      }
-      if (this.cancelled) {
-        listener.onCancelled(this);
-      } else {
-        listener.onComplete(this, this.value);
-      }
-    } catch (Exception exception) {
-      LOGGER.severe("Exception while invoking task listeners", exception);
+      return this.get(time, TimeUnit.SECONDS);
+    } catch (InterruptedException | ExecutionException | TimeoutException | CancellationException exception) {
+      return def;
     }
   }
 
   @Override
-  public <T> ListenableTask<T> mapThrowable(ThrowableFunction<V, T, Throwable> function) {
-    AtomicReference<T> reference = new AtomicReference<>();
-    ListenableTask<T> task = new ListenableTask<>(reference::get);
-
-    this.onComplete(v -> {
-      try {
-        reference.set(function == null ? null : function.apply(v));
-      } catch (Throwable throwable) {
-        task.throwable = throwable;
-      }
-      task.call();
-    });
-    this.onCancelled(viTask -> {
-      task.cancelled = true;
-      task.invokeTaskListener();
-    });
-    this.onFailure(throwable -> task.throwable = throwable);
-
-    return task;
+  public @NotNull <T> ITask<T> map(@NotNull ThrowableFunction<V, T, Throwable> mapper) {
+    return CompletableTask.supply(() -> mapper.apply(this.get()));
   }
 
+  protected @NotNull Collection<ITaskListener<V>> initListeners() {
+    if (this.listeners == null) {
+      // ConcurrentLinkedQueue gives us O(1) insertion using CAS - results under moderate
+      // load in the fastest insert and read times
+      return this.listeners = new ConcurrentLinkedQueue<>();
+    } else {
+      return this.listeners;
+    }
+  }
+
+  protected void depopulateListeners() {
+    // ensures a better gc
+    this.listeners.clear();
+    this.listeners = null;
+  }
 }

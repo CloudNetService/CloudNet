@@ -17,7 +17,7 @@
 package de.dytanic.cloudnet.network.chunk;
 
 import de.dytanic.cloudnet.CloudNet;
-import de.dytanic.cloudnet.common.concurrent.function.ThrowableBiFunction;
+import de.dytanic.cloudnet.common.function.ThrowableBiFunction;
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
 import de.dytanic.cloudnet.driver.event.events.chunk.ChunkedPacketSessionOpenEvent;

@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.common.concurrent;
+package de.dytanic.cloudnet.common.function;
 
-public class NullCompletableTask<V> extends CompletableTask<V> {
+import org.jetbrains.annotations.UnknownNullability;
 
-  @Override
-  public V call() {
-    super.complete(null);
-    return null;
-  }
+@FunctionalInterface
+public interface ThrowableSupplier<O, T extends Throwable> {
+
+  @UnknownNullability O get() throws T;
 }

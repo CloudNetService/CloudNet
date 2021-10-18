@@ -39,14 +39,14 @@ public final class ResourceResolver {
    * @return the uri of the clazz location in the class path.
    * @throws NullPointerException if {@code clazz} is null.
    */
-  public static @NotNull URI resolveURIFromResourceByClass(Class<?> clazz) {
+  public static @NotNull URI resolveURIFromResourceByClass(@NotNull Class<?> clazz) {
     Preconditions.checkNotNull(clazz, "clazz");
 
     try {
       return clazz.getProtectionDomain().getCodeSource().getLocation().toURI();
     } catch (URISyntaxException exception) {
       // this can not happen - a file has always a valid location
-      throw new IllegalStateException("Unable to resolve uri for " + clazz, exception);
+      throw new IllegalStateException("Unable to resolve uri of " + clazz, exception);
     }
   }
 }

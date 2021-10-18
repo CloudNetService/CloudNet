@@ -95,7 +95,7 @@ public interface ServiceTaskProvider {
    */
   @NotNull
   default ITask<Void> reloadAsync() {
-    return CompletableTask.supplyAsync(this::reload);
+    return CompletableTask.supply(this::reload);
   }
 
   /**
@@ -105,7 +105,7 @@ public interface ServiceTaskProvider {
    */
   @NotNull
   default ITask<Collection<ServiceTask>> getPermanentServiceTasksAsync() {
-    return CompletableTask.supplyAsync(this::getPermanentServiceTasks);
+    return CompletableTask.supply(this::getPermanentServiceTasks);
   }
 
   /**
@@ -115,7 +115,7 @@ public interface ServiceTaskProvider {
    */
   @NotNull
   default ITask<Void> setPermanentServiceTasksAsync(@NotNull Collection<ServiceTask> serviceTasks) {
-    return CompletableTask.supplyAsync(() -> this.setPermanentServiceTasks(serviceTasks));
+    return CompletableTask.supply(() -> this.setPermanentServiceTasks(serviceTasks));
   }
 
   /**
@@ -126,7 +126,7 @@ public interface ServiceTaskProvider {
    */
   @NotNull
   default ITask<ServiceTask> getServiceTaskAsync(@NotNull String name) {
-    return CompletableTask.supplyAsync(() -> this.getServiceTask(name));
+    return CompletableTask.supply(() -> this.getServiceTask(name));
   }
 
   /**
@@ -137,7 +137,7 @@ public interface ServiceTaskProvider {
    */
   @NotNull
   default ITask<Boolean> isServiceTaskPresentAsync(@NotNull String name) {
-    return CompletableTask.supplyAsync(() -> this.isServiceTaskPresent(name));
+    return CompletableTask.supply(() -> this.isServiceTaskPresent(name));
   }
 
   /**
@@ -147,7 +147,7 @@ public interface ServiceTaskProvider {
    */
   @NotNull
   default ITask<Boolean> addPermanentServiceTaskAsync(@NotNull ServiceTask serviceTask) {
-    return CompletableTask.supplyAsync(() -> this.addPermanentServiceTask(serviceTask));
+    return CompletableTask.supply(() -> this.addPermanentServiceTask(serviceTask));
   }
 
   /**
@@ -157,7 +157,7 @@ public interface ServiceTaskProvider {
    */
   @NotNull
   default ITask<Void> removePermanentServiceTaskByNameAsync(@NotNull String name) {
-    return CompletableTask.supplyAsync(() -> this.removePermanentServiceTaskByName(name));
+    return CompletableTask.supply(() -> this.removePermanentServiceTaskByName(name));
   }
 
   /**

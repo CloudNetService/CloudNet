@@ -153,11 +153,11 @@ public interface GeneralCloudServiceProvider {
   ServiceInfoSnapshot getCloudService(@NotNull UUID uniqueId);
 
   default @NotNull ITask<SpecificCloudServiceProvider> getSpecificProviderAsync(@NotNull UUID serviceUniqueId) {
-    return CompletableTask.supplyAsync(() -> this.getSpecificProvider(serviceUniqueId));
+    return CompletableTask.supply(() -> this.getSpecificProvider(serviceUniqueId));
   }
 
   default @NotNull ITask<SpecificCloudServiceProvider> getSpecificProviderByNameAsync(@NotNull String serviceName) {
-    return CompletableTask.supplyAsync(() -> this.getSpecificProviderByName(serviceName));
+    return CompletableTask.supply(() -> this.getSpecificProviderByName(serviceName));
   }
 
   /**
@@ -167,7 +167,7 @@ public interface GeneralCloudServiceProvider {
    */
   @NotNull
   default ITask<Collection<UUID>> getServicesAsUniqueIdAsync() {
-    return CompletableTask.supplyAsync(this::getServicesAsUniqueId);
+    return CompletableTask.supply(this::getServicesAsUniqueId);
   }
 
   /**
@@ -177,7 +177,7 @@ public interface GeneralCloudServiceProvider {
    */
   @NotNull
   default ITask<Collection<ServiceInfoSnapshot>> getCloudServicesAsync() {
-    return CompletableTask.supplyAsync(() -> this.getCloudServices());
+    return CompletableTask.supply(() -> this.getCloudServices());
   }
 
   /**
@@ -187,7 +187,7 @@ public interface GeneralCloudServiceProvider {
    */
   @NotNull
   default ITask<Collection<ServiceInfoSnapshot>> getStartedCloudServicesAsync() {
-    return CompletableTask.supplyAsync(this::getStartedCloudServices);
+    return CompletableTask.supply(this::getStartedCloudServices);
   }
 
   /**
@@ -198,7 +198,7 @@ public interface GeneralCloudServiceProvider {
    */
   @NotNull
   default ITask<Collection<ServiceInfoSnapshot>> getCloudServicesByTaskAsync(@NotNull String taskName) {
-    return CompletableTask.supplyAsync(() -> this.getCloudServicesByTask(taskName));
+    return CompletableTask.supply(() -> this.getCloudServicesByTask(taskName));
   }
 
   /**
@@ -209,7 +209,7 @@ public interface GeneralCloudServiceProvider {
    */
   @NotNull
   default ITask<Collection<ServiceInfoSnapshot>> getCloudServicesByEnvironmentAsync(@NotNull ServiceEnvironmentType e) {
-    return CompletableTask.supplyAsync(() -> this.getCloudServicesByEnvironment(e));
+    return CompletableTask.supply(() -> this.getCloudServicesByEnvironment(e));
   }
 
   /**
@@ -220,7 +220,7 @@ public interface GeneralCloudServiceProvider {
    */
   @NotNull
   default ITask<Collection<ServiceInfoSnapshot>> getCloudServicesByGroupAsync(@NotNull String group) {
-    return CompletableTask.supplyAsync(() -> this.getCloudServicesByGroup(group));
+    return CompletableTask.supply(() -> this.getCloudServicesByGroup(group));
   }
 
   /**
@@ -230,7 +230,7 @@ public interface GeneralCloudServiceProvider {
    */
   @NotNull
   default ITask<Integer> getServicesCountAsync() {
-    return CompletableTask.supplyAsync(this::getServicesCount);
+    return CompletableTask.supply(this::getServicesCount);
   }
 
   /**
@@ -241,7 +241,7 @@ public interface GeneralCloudServiceProvider {
    */
   @NotNull
   default ITask<Integer> getServicesCountByGroupAsync(@NotNull String group) {
-    return CompletableTask.supplyAsync(() -> this.getServicesCountByGroup(group));
+    return CompletableTask.supply(() -> this.getServicesCountByGroup(group));
   }
 
   /**
@@ -252,7 +252,7 @@ public interface GeneralCloudServiceProvider {
    */
   @NotNull
   default ITask<Integer> getServicesCountByTaskAsync(@NotNull String taskName) {
-    return CompletableTask.supplyAsync(() -> this.getServicesCountByTask(taskName));
+    return CompletableTask.supply(() -> this.getServicesCountByTask(taskName));
   }
 
   /**
@@ -263,7 +263,7 @@ public interface GeneralCloudServiceProvider {
    */
   @NotNull
   default ITask<ServiceInfoSnapshot> getCloudServiceByNameAsync(@NotNull String name) {
-    return CompletableTask.supplyAsync(() -> this.getCloudServiceByName(name));
+    return CompletableTask.supply(() -> this.getCloudServiceByName(name));
   }
 
   /**
@@ -274,7 +274,7 @@ public interface GeneralCloudServiceProvider {
    */
   @NotNull
   default ITask<ServiceInfoSnapshot> getCloudServiceAsync(@NotNull UUID uniqueId) {
-    return CompletableTask.supplyAsync(() -> this.getCloudService(uniqueId));
+    return CompletableTask.supply(() -> this.getCloudService(uniqueId));
   }
 
 }

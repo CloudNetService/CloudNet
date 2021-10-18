@@ -19,7 +19,7 @@ package de.dytanic.cloudnet.ext.storage.ftp.storage.queue;
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.concurrent.ITaskListener;
-import de.dytanic.cloudnet.common.concurrent.function.ThrowableFunction;
+import de.dytanic.cloudnet.common.function.ThrowableFunction;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.common.stream.WrappedInputStream;

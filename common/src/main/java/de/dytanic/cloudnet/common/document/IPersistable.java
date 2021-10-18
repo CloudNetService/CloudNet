@@ -54,7 +54,7 @@ public interface IPersistable {
   @NotNull
   default IPersistable write(@Nullable Path path) {
     if (path != null) {
-      FileUtils.createDirectoryReported(path.getParent());
+      FileUtils.createDirectory(path.getParent());
       try (OutputStream stream = Files.newOutputStream(path)) {
         return this.write(stream);
       } catch (IOException exception) {

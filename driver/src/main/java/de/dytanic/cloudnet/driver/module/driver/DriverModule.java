@@ -65,7 +65,7 @@ public class DriverModule extends DefaultModule {
   }
 
   private JsonDocument reloadConfig0() {
-    FileUtils.createDirectoryReported(this.getModuleWrapper().getDataDirectory());
+    FileUtils.createDirectory(this.getModuleWrapper().getDataDirectory());
 
     Path configuration = this.getModuleWrapper().getDataDirectory().resolve("config.json");
     if (Files.notExists(configuration)) {
@@ -76,7 +76,7 @@ public class DriverModule extends DefaultModule {
   }
 
   private JsonDocument reloadConfigExceptionally0() throws Exception {
-    FileUtils.createDirectoryReported(this.getModuleWrapper().getDataDirectory());
+    FileUtils.createDirectory(this.getModuleWrapper().getDataDirectory());
 
     Path configuration = this.getModuleWrapper().getDataDirectory().resolve("config.json");
     if (Files.notExists(configuration)) {

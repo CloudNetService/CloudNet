@@ -16,6 +16,9 @@
 
 package de.dytanic.cloudnet.common.concurrent;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 /**
  * A listener for all tasks, that should handle the process
  *
@@ -24,12 +27,12 @@ package de.dytanic.cloudnet.common.concurrent;
  */
 public interface ITaskListener<T> {
 
-  default void onComplete(ITask<T> task, T t) {
+  default void onComplete(@NotNull ITask<T> task, @Nullable T t) {
   }
 
-  default void onCancelled(ITask<T> task) {
+  default void onCancelled(@NotNull ITask<T> task) {
   }
 
-  default void onFailure(ITask<T> task, Throwable th) {
+  default void onFailure(@NotNull ITask<T> task, @NotNull Throwable th) {
   }
 }

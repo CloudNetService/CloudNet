@@ -190,7 +190,7 @@ public final class WildcardUtil {
    */
   @NotNull
   @VisibleForTesting
-  protected static String fixUnclosedGroups(@NotNull String patternInput) {
+  static String fixUnclosedGroups(@NotNull String patternInput) {
     StringBuilder result = new StringBuilder();
     char[] content = patternInput.toCharArray();
     // we need to record the group closings to actually find the group opening which is not escaped

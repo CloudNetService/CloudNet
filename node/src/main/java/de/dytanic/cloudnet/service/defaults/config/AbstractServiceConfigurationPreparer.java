@@ -47,7 +47,7 @@ public abstract class AbstractServiceConfigurationPreparer implements ServiceCon
     if (Files.notExists(targetLocation)) {
       try (InputStream stream = ServiceConfigurationPreparer.class.getClassLoader().getResourceAsStream(fileName)) {
         if (stream != null) {
-          FileUtils.createDirectoryReported(targetLocation.getParent());
+          FileUtils.createDirectory(targetLocation.getParent());
           Files.copy(stream, targetLocation);
         }
       } catch (IOException exception) {

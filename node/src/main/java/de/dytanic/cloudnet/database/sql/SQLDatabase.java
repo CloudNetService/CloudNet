@@ -17,7 +17,6 @@
 package de.dytanic.cloudnet.database.sql;
 
 import com.google.common.base.Preconditions;
-import de.dytanic.cloudnet.common.concurrent.IThrowableCallback;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.database.AbstractDatabase;
 import java.sql.ResultSet;
@@ -282,7 +281,7 @@ public abstract class SQLDatabase extends AbstractDatabase {
 
     this.databaseProvider.executeQuery(
       String.format("SELECT * FROM `%s`;", this.name),
-      (IThrowableCallback<ResultSet, Void>) resultSet -> {
+      resultSet -> {
         while (resultSet.next()) {
           String key = resultSet.getString(TABLE_COLUMN_KEY);
           JsonDocument document = JsonDocument.newDocument(resultSet.getString(TABLE_COLUMN_VALUE));

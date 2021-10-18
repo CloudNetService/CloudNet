@@ -56,7 +56,7 @@ public interface DatabaseProvider {
    * @return whether a database with the given name exists
    */
   default @NotNull ITask<Boolean> containsDatabaseAsync(@NotNull String name) {
-    return CompletableTask.supplyAsync(() -> this.containsDatabase(name));
+    return CompletableTask.supply(() -> this.containsDatabase(name));
   }
 
   /**
@@ -64,13 +64,13 @@ public interface DatabaseProvider {
    * @return true if the database was deleted successfully, false if not
    */
   default @NotNull ITask<Boolean> deleteDatabaseAsync(@NotNull String name) {
-    return CompletableTask.supplyAsync(() -> this.deleteDatabase(name));
+    return CompletableTask.supply(() -> this.deleteDatabase(name));
   }
 
   /**
    * @return all present database names
    */
   default @NotNull ITask<Collection<String>> getDatabaseNamesAsync() {
-    return CompletableTask.supplyAsync(this::getDatabaseNames);
+    return CompletableTask.supply(this::getDatabaseNames);
   }
 }

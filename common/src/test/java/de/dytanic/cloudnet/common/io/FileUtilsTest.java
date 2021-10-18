@@ -37,7 +37,7 @@ public final class FileUtilsTest {
 
   @BeforeAll
   static void setupTestDirectories() {
-    FileUtils.createDirectoryReported(TEST_DIR);
+    FileUtils.createDirectory(TEST_DIR);
   }
 
   @AfterAll
@@ -46,18 +46,15 @@ public final class FileUtilsTest {
   }
 
   @Test
-  void testByteArrayUtils() throws Exception {
-    try (ByteArrayInputStream is = new ByteArrayInputStream("Hello, world!".getBytes(StandardCharsets.UTF_8))) {
-      Assertions.assertArrayEquals(
-        "Hello, world!".getBytes(StandardCharsets.UTF_8),
-        FileUtils.toByteArray(is));
-    }
-  }
-
-  @Test
   void testZipUtils() throws Exception {
     Path zipFilePath = TEST_DIR.resolve("test.zip");
-    Files.write(zipFilePath, FileUtils.emptyZipByteArray());
+
+    try (
+      OutputStream out = Files.newOutputStream(zipFilePath);
+      InputStream is = FileUtilsTest.class.getClassLoader().getResourceAsStream("empty_zip_file.zip")
+    ) {
+      FileUtils.copy(is, out);
+    }
 
     FileUtils.openZipFileSystem(zipFilePath, fileSystem -> {
       Path zipEntryInfoFile = fileSystem.getPath("info.txt");
@@ -68,8 +65,6 @@ public final class FileUtilsTest {
       ) {
         FileUtils.copy(is, out);
       }
-
-      return null;
     });
 
     try (ByteArrayOutputStream out = new ByteArrayOutputStream(); ZipFile zipFile = new ZipFile(zipFilePath.toFile())) {

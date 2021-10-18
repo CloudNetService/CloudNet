@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.common.concurrent.function;
+package de.dytanic.cloudnet.common.function;
+
+import org.jetbrains.annotations.UnknownNullability;
 
 @FunctionalInterface
-public interface ThrowableSupplier<O, T extends Throwable> {
+public interface ThrowableConsumer<E, T extends Throwable> {
 
-  O get() throws T;
-
+  void accept(@UnknownNullability E element) throws T;
 }

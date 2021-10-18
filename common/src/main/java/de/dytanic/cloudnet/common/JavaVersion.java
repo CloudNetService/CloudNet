@@ -18,8 +18,10 @@ package de.dytanic.cloudnet.common;
 
 import java.util.Arrays;
 import java.util.Optional;
+import org.jetbrains.annotations.NotNull;
 
-public enum JavaVersion {
+public enum JavaVersion implements INameable {
+
   UNKNOWN(-1, -1D, "Unknown Java"),
   JAVA_8(8, 52D, "Java 8"),
   JAVA_9(9, 53D, "Java 9"),
@@ -40,22 +42,22 @@ public enum JavaVersion {
   private final double versionId;
   private final String name;
 
-  JavaVersion(int version, double versionId, String name) {
+  JavaVersion(int version, double versionId, @NotNull String name) {
     this.version = version;
     this.versionId = versionId;
     this.name = name;
   }
 
-  public static JavaVersion getRuntimeVersion() {
+  public static @NotNull JavaVersion getRuntimeVersion() {
     double versionId = Double.parseDouble(System.getProperty("java.class.version"));
     return fromVersionId(versionId).orElse(UNKNOWN);
   }
 
-  public static Optional<JavaVersion> fromVersionId(double versionId) {
+  public static @NotNull Optional<JavaVersion> fromVersionId(double versionId) {
     return Arrays.stream(JAVA_VERSIONS).filter(javaVersion -> javaVersion.versionId == versionId).findFirst();
   }
 
-  public static Optional<JavaVersion> fromVersion(int version) {
+  public static @NotNull Optional<JavaVersion> fromVersion(int version) {
     return Arrays.stream(JAVA_VERSIONS).filter(javaVersion -> javaVersion.version == version).findFirst();
   }
 
@@ -67,7 +69,8 @@ public enum JavaVersion {
     return this.versionId;
   }
 
-  public String getName() {
+  @Override
+  public @NotNull String getName() {
     return this.name;
   }
 
@@ -75,16 +78,15 @@ public enum JavaVersion {
     return this == UNKNOWN;
   }
 
-  public boolean isSupported(JavaVersion minJavaVersion, JavaVersion maxJavaVersion) {
+  public boolean isSupported(@NotNull JavaVersion minJavaVersion, @NotNull JavaVersion maxJavaVersion) {
     return this.isUnknown() || this.versionId >= minJavaVersion.versionId && this.versionId <= maxJavaVersion.versionId;
   }
 
-  public boolean isSupportedByMin(JavaVersion minRequiredJavaVersion) {
+  public boolean isSupportedByMin(@NotNull JavaVersion minRequiredJavaVersion) {
     return this.isUnknown() || this.versionId >= minRequiredJavaVersion.versionId;
   }
 
-  public boolean isSupportedByMax(JavaVersion maxRequiredJavaVersion) {
+  public boolean isSupportedByMax(@NotNull JavaVersion maxRequiredJavaVersion) {
     return this.isUnknown() || this.versionId <= maxRequiredJavaVersion.versionId;
   }
-
 }

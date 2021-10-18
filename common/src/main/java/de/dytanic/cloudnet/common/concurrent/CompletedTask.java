@@ -16,114 +16,147 @@
 
 package de.dytanic.cloudnet.common.concurrent;
 
-import de.dytanic.cloudnet.common.concurrent.function.ThrowableFunction;
+import de.dytanic.cloudnet.common.function.ThrowableFunction;
+import de.dytanic.cloudnet.common.function.ThrowableSupplier;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.concurrent.Callable;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnknownNullability;
+import org.jetbrains.annotations.UnmodifiableView;
 
+@SuppressWarnings("unchecked") // uni result is an object - unchecked casts are required
 public class CompletedTask<V> implements ITask<V> {
 
-  private static final ITask<?> EMPTY_TASK = new CompletedTask<>(null, null);
+  protected static final int UNI_DONE = 0;
+  protected static final int UNI_CANCEL = 1;
+  protected static final int UNI_EXCEPTIONALLY = 2;
 
-  private final V value;
-  private final Throwable throwable;
+  protected static final CompletedTask<?> CANCELLED = new CompletedTask<>(UNI_CANCEL, null);
+  protected static final CompletedTask<?> NULL_SUCCESS = new CompletedTask<>(UNI_DONE, null);
 
-  public CompletedTask(V value, Throwable throwable) {
-    this.value = value;
-    this.throwable = throwable;
+  protected final int uniStage;
+  protected final Object uniResult;
+
+  protected CompletedTask(int uniStage, Object uniResult) {
+    this.uniStage = uniStage;
+    this.uniResult = uniResult;
   }
 
-  public static <V> ITask<V> createFailed(Throwable throwable) {
-    return new CompletedTask<>(null, throwable);
+  public static <T> @NotNull CompletedTask<T> cancelled() {
+    return (CompletedTask<T>) CANCELLED;
   }
 
-  public static <V> ITask<V> create(V value) {
-    return new CompletedTask<>(value, null);
+  public static <T> @NotNull CompletedTask<T> done(@Nullable T result) {
+    return result == null ? (CompletedTask<T>) NULL_SUCCESS : new CompletedTask<>(UNI_DONE, result);
   }
 
-  @Deprecated
-  public static <T> ITask<T> voidTask() {
-    return emptyTask();
+  public static <T> @NotNull CompletedTask<T> exceptionally(@NotNull Throwable throwable) {
+    return new CompletedTask<>(UNI_EXCEPTIONALLY, throwable);
   }
 
-  @SuppressWarnings("unchecked")
-  public static <T> ITask<T> emptyTask() {
-    return (ITask<T>) EMPTY_TASK;
+  public static <T> @NotNull CompletedTask<T> create(@NotNull ThrowableSupplier<T, Throwable> supplier) {
+    // 2 possibilities: ok or exception
+    try {
+      return CompletedTask.done(supplier.get());
+    } catch (Throwable throwable) {
+      return CompletedTask.exceptionally(throwable);
+    }
   }
 
   @Override
-  public @NotNull ITask<V> addListener(ITaskListener<V> listener) {
-    if (this.throwable != null) {
-      listener.onFailure(this, this.throwable);
-    } else {
-      listener.onComplete(this, this.value);
+  public @NotNull ITask<V> addListener(@NotNull ITaskListener<V> listener) {
+    // invoke the listener directly based on the result uni stage
+    switch (this.uniStage) {
+      case UNI_DONE:
+        listener.onComplete(this, (V) this.uniResult);
+        break;
+      case UNI_CANCEL:
+        listener.onCancelled(this);
+        break;
+      case UNI_EXCEPTIONALLY:
+        listener.onFailure(this, (Throwable) this.uniResult);
+        break;
+      default:
+        throw new IllegalStateException("Invalid uni completion stage " + this.uniStage);
     }
+
     return this;
   }
 
   @Override
   public @NotNull ITask<V> clearListeners() {
-    return this;
+    return this; // no-op
   }
 
   @Override
-  public Collection<ITaskListener<V>> getListeners() {
-    return Collections.emptyList();
+  public @UnmodifiableView @NotNull Collection<ITaskListener<V>> getListeners() {
+    return Collections.emptyList(); // no-op
   }
 
   @Override
-  public Callable<V> getCallable() {
-    return () -> this.value;
+  public @UnknownNullability V getDef(@Nullable V def) {
+    return this.uniStage == UNI_DONE ? (V) this.uniResult : def;
   }
 
   @Override
-  public V getDef(V def) {
-    return this.value;
+  public @UnknownNullability V get(long time, @NotNull TimeUnit timeUnit, @Nullable V def) {
+    return this.getDef(null); // redirect to that method - nothing we can wait for
   }
 
   @Override
-  public V get(long time, TimeUnit timeUnit, V def) {
-    return this.value;
-  }
-
-  @Override
-  public <T> ITask<T> mapThrowable(ThrowableFunction<V, T, Throwable> mapper) {
+  public @NotNull <T> ITask<T> map(@NotNull ThrowableFunction<V, T, Throwable> mapper) {
+    // if the current is not successful we can return a future holding the same information as this one
+    if (this.uniStage != UNI_DONE) {
+      return this.uniStage == UNI_CANCEL ? cancelled() : CompletedTask.exceptionally((Throwable) this.uniResult);
+    }
+    // map the result and create an appropriate result task
     try {
-      return create(mapper == null ? null : mapper.apply(this.value));
-    } catch (Throwable exception) {
-      return createFailed(this.throwable);
+      return CompletedTask.done(mapper.apply((V) this.uniResult));
+    } catch (Throwable throwable) {
+      return CompletedTask.exceptionally(throwable);
     }
   }
 
   @Override
-  public V call() throws Exception {
-    return this.value;
-  }
-
-  @Override
-  public boolean cancel(boolean b) {
-    return false;
+  public boolean cancel(boolean mayInterruptIfRunning) {
+    return false; // no-op
   }
 
   @Override
   public boolean isCancelled() {
-    return false;
+    return this.uniStage == UNI_CANCEL;
   }
 
   @Override
   public boolean isDone() {
-    return true;
+    return true; // no-op
   }
 
   @Override
-  public V get() {
-    return this.value;
+  public V get() throws InterruptedException, ExecutionException {
+    switch (this.uniStage) {
+      case UNI_DONE:
+        // normal completion - return the result
+        return (V) this.uniResult;
+      case UNI_CANCEL:
+        // cancelled - throw cancellation exception
+        throw new CancellationException();
+      case UNI_EXCEPTIONALLY:
+        // completed with an exception - rethrow
+        throw new ExecutionException((Throwable) this.uniResult);
+      default:
+        // should not happen
+        throw new IllegalStateException("Invalid uni stage result " + this.uniResult);
+    }
   }
 
   @Override
-  public V get(long l, @NotNull TimeUnit timeUnit) {
-    return this.value;
+  public V get(long timeout, @NotNull TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
+    return this.get(); // no-op
   }
 }

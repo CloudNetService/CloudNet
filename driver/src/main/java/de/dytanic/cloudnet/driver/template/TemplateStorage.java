@@ -254,7 +254,7 @@ public interface TemplateStorage extends AutoCloseable, INameable {
     @NotNull ServiceTemplate target,
     @Nullable Predicate<Path> fileFilter
   ) {
-    return CompletableTask.supplyAsync(() -> this.deployDirectory(directory, target, fileFilter));
+    return CompletableTask.supply(() -> this.deployDirectory(directory, target, fileFilter));
   }
 
   /**
@@ -278,7 +278,7 @@ public interface TemplateStorage extends AutoCloseable, INameable {
    */
   @NotNull
   default ITask<Boolean> deployAsync(@NotNull InputStream inputStream, @NotNull ServiceTemplate target) {
-    return CompletableTask.supplyAsync(() -> this.deploy(inputStream, target));
+    return CompletableTask.supply(() -> this.deploy(inputStream, target));
   }
 
   /**
@@ -290,7 +290,7 @@ public interface TemplateStorage extends AutoCloseable, INameable {
    */
   @NotNull
   default ITask<Boolean> copyAsync(@NotNull ServiceTemplate template, @NotNull Path directory) {
-    return CompletableTask.supplyAsync(() -> this.copy(template, directory));
+    return CompletableTask.supply(() -> this.copy(template, directory));
   }
 
   /**
@@ -313,7 +313,7 @@ public interface TemplateStorage extends AutoCloseable, INameable {
    */
   @NotNull
   default ITask<InputStream> zipTemplateAsync(@NotNull ServiceTemplate template) {
-    return CompletableTask.supplyAsync(() -> this.zipTemplate(template));
+    return CompletableTask.supply(() -> this.zipTemplate(template));
   }
 
   /**
@@ -324,7 +324,7 @@ public interface TemplateStorage extends AutoCloseable, INameable {
    */
   @NotNull
   default ITask<Boolean> deleteAsync(@NotNull ServiceTemplate template) {
-    return CompletableTask.supplyAsync(() -> this.delete(template));
+    return CompletableTask.supply(() -> this.delete(template));
   }
 
   /**
@@ -335,7 +335,7 @@ public interface TemplateStorage extends AutoCloseable, INameable {
    */
   @NotNull
   default ITask<Boolean> createAsync(@NotNull ServiceTemplate template) {
-    return CompletableTask.supplyAsync(() -> this.create(template));
+    return CompletableTask.supply(() -> this.create(template));
   }
 
   /**
@@ -346,7 +346,7 @@ public interface TemplateStorage extends AutoCloseable, INameable {
    */
   @NotNull
   default ITask<Boolean> hasAsync(@NotNull ServiceTemplate template) {
-    return CompletableTask.supplyAsync(() -> this.has(template));
+    return CompletableTask.supply(() -> this.has(template));
   }
 
   /**
@@ -360,7 +360,7 @@ public interface TemplateStorage extends AutoCloseable, INameable {
    */
   @NotNull
   default ITask<OutputStream> appendOutputStreamAsync(@NotNull ServiceTemplate template, @NotNull String path) {
-    return CompletableTask.supplyAsync(() -> this.appendOutputStream(template, path));
+    return CompletableTask.supply(() -> this.appendOutputStream(template, path));
   }
 
   /**
@@ -374,7 +374,7 @@ public interface TemplateStorage extends AutoCloseable, INameable {
    */
   @NotNull
   default ITask<OutputStream> newOutputStreamAsync(@NotNull ServiceTemplate template, @NotNull String path) {
-    return CompletableTask.supplyAsync(() -> this.newOutputStream(template, path));
+    return CompletableTask.supply(() -> this.newOutputStream(template, path));
   }
 
   /**
@@ -386,7 +386,7 @@ public interface TemplateStorage extends AutoCloseable, INameable {
    */
   @NotNull
   default ITask<Boolean> createFileAsync(@NotNull ServiceTemplate template, @NotNull String path) {
-    return CompletableTask.supplyAsync(() -> this.createFile(template, path));
+    return CompletableTask.supply(() -> this.createFile(template, path));
   }
 
   /**
@@ -398,7 +398,7 @@ public interface TemplateStorage extends AutoCloseable, INameable {
    */
   @NotNull
   default ITask<Boolean> createDirectoryAsync(@NotNull ServiceTemplate template, @NotNull String path) {
-    return CompletableTask.supplyAsync(() -> this.createDirectory(template, path));
+    return CompletableTask.supply(() -> this.createDirectory(template, path));
   }
 
   /**
@@ -411,7 +411,7 @@ public interface TemplateStorage extends AutoCloseable, INameable {
    */
   @NotNull
   default ITask<Boolean> hasFileAsync(@NotNull ServiceTemplate template, @NotNull String path) {
-    return CompletableTask.supplyAsync(() -> this.hasFile(template, path));
+    return CompletableTask.supply(() -> this.hasFile(template, path));
   }
 
   /**
@@ -423,7 +423,7 @@ public interface TemplateStorage extends AutoCloseable, INameable {
    */
   @NotNull
   default ITask<Boolean> deleteFileAsync(@NotNull ServiceTemplate template, @NotNull String path) {
-    return CompletableTask.supplyAsync(() -> this.deleteFile(template, path));
+    return CompletableTask.supply(() -> this.deleteFile(template, path));
   }
 
   /**
@@ -435,7 +435,7 @@ public interface TemplateStorage extends AutoCloseable, INameable {
    */
   @NotNull
   default ITask<InputStream> newInputStreamAsync(@NotNull ServiceTemplate template, @NotNull String path) {
-    return CompletableTask.supplyAsync(() -> this.newInputStream(template, path));
+    return CompletableTask.supply(() -> this.newInputStream(template, path));
   }
 
   /**
@@ -447,7 +447,7 @@ public interface TemplateStorage extends AutoCloseable, INameable {
    */
   @NotNull
   default ITask<FileInfo> getFileInfoAsync(@NotNull ServiceTemplate template, @NotNull String path) {
-    return CompletableTask.supplyAsync(() -> this.getFileInfo(template, path));
+    return CompletableTask.supply(() -> this.getFileInfo(template, path));
   }
 
   /**
@@ -461,7 +461,7 @@ public interface TemplateStorage extends AutoCloseable, INameable {
    */
   @NotNull
   default ITask<FileInfo[]> listFilesAsync(@NotNull ServiceTemplate template, @NotNull String dir, boolean deep) {
-    return CompletableTask.supplyAsync(() -> this.listFiles(template, dir, deep));
+    return CompletableTask.supply(() -> this.listFiles(template, dir, deep));
   }
 
   /**
@@ -471,7 +471,7 @@ public interface TemplateStorage extends AutoCloseable, INameable {
    */
   @NotNull
   default ITask<Collection<ServiceTemplate>> getTemplatesAsync() {
-    return CompletableTask.supplyAsync(this::getTemplates);
+    return CompletableTask.supply(this::getTemplates);
   }
 
   /**
@@ -480,7 +480,7 @@ public interface TemplateStorage extends AutoCloseable, INameable {
    */
   @NotNull
   default ITask<Void> closeAsync() {
-    return CompletableTask.supplyAsync(() -> {
+    return CompletableTask.supply(() -> {
       this.close();
       return null;
     });

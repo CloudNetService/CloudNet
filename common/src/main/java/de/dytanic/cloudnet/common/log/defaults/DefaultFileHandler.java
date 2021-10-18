@@ -53,7 +53,7 @@ public final class DefaultFileHandler extends FileHandler {
   public static @NotNull DefaultFileHandler newInstance(@NotNull Path pattern, int limit, int count, boolean append) {
     try {
       // check if the parent directory referenced by the pattern exists
-      FileUtils.createDirectoryReported(pattern.getParent());
+      FileUtils.createDirectory(pattern.getParent());
       return new DefaultFileHandler(pattern.toAbsolutePath().toString(), limit, count, append);
     } catch (IOException exception) {
       throw new IllegalStateException("Unable to create file handler instance", exception);

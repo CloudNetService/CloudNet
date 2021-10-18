@@ -14,20 +14,12 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.common;
+package de.dytanic.cloudnet.common.function;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import org.jetbrains.annotations.UnknownNullability;
 
-public class PropertiesTest {
+@FunctionalInterface
+public interface ThrowableBiFunction<I, U, O, T extends Throwable> {
 
-  @Test
-  public void testPropertiesParser() {
-    Properties properties = Properties.parseLine("test=true --foo -xfy");
-
-    Assertions.assertNotNull(properties);
-    Assertions.assertEquals(3, properties.size());
-    Assertions.assertTrue(properties.getBoolean("test"));
-  }
-
+  @UnknownNullability O apply(@UnknownNullability I i, @UnknownNullability U u) throws T;
 }

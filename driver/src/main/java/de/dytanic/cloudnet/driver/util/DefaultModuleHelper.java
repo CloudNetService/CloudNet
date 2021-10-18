@@ -134,8 +134,6 @@ public final class DefaultModuleHelper {
         // close the stream to avoid resource leaks
         in.close();
       }
-
-      return null;
     });
   }
 }

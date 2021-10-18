@@ -18,7 +18,7 @@ package de.dytanic.cloudnet.driver.permission;
 
 import de.dytanic.cloudnet.common.concurrent.CompletableTask;
 import de.dytanic.cloudnet.common.concurrent.ITask;
-import de.dytanic.cloudnet.common.concurrent.function.ThrowableSupplier;
+import de.dytanic.cloudnet.common.function.ThrowableSupplier;
 import de.dytanic.cloudnet.driver.network.rpc.annotation.RPCValidation;
 import java.util.Collection;
 import java.util.List;
@@ -425,7 +425,7 @@ public interface IPermissionManagement {
    * @return a collection of all group objects the user is in
    */
   default @NotNull ITask<Collection<PermissionGroup>> getGroupsOfAsync(@Nullable PermissionUser permissionUser) {
-    return CompletableTask.supplyAsync(() -> this.getGroupsOf(permissionUser));
+    return CompletableTask.supply(() -> this.getGroupsOf(permissionUser));
   }
 
   /**
@@ -435,7 +435,7 @@ public interface IPermissionManagement {
    * @return the created permission user
    */
   default @NotNull ITask<PermissionUser> addPermissionUserAsync(@NotNull PermissionUser permissionUser) {
-    return CompletableTask.supplyAsync(() -> this.addPermissionUser(permissionUser));
+    return CompletableTask.supply(() -> this.addPermissionUser(permissionUser));
   }
 
   /**
@@ -447,7 +447,7 @@ public interface IPermissionManagement {
    * @return the created permission user
    */
   default @NotNull ITask<PermissionUser> addUserAsync(@NotNull String name, @NotNull String password, int potency) {
-    return CompletableTask.supplyAsync(() -> this.addUser(name, password, potency));
+    return CompletableTask.supply(() -> this.addUser(name, password, potency));
   }
 
   /**
@@ -457,7 +457,7 @@ public interface IPermissionManagement {
    * @return a task completed when the operation was executed
    */
   default @NotNull ITask<Void> updateUserAsync(@NotNull PermissionUser permissionUser) {
-    return CompletableTask.supplyAsync(() -> this.updateUser(permissionUser));
+    return CompletableTask.supply(() -> this.updateUser(permissionUser));
   }
 
   /**
@@ -467,7 +467,7 @@ public interface IPermissionManagement {
    * @return if the operation was successful
    */
   default @NotNull ITask<Boolean> deleteUserAsync(@NotNull String name) {
-    return CompletableTask.supplyAsync(() -> this.deleteUser(name));
+    return CompletableTask.supply(() -> this.deleteUser(name));
   }
 
   /**
@@ -477,7 +477,7 @@ public interface IPermissionManagement {
    * @return if the operation was successful
    */
   default @NotNull ITask<Boolean> deletePermissionUserAsync(@NotNull PermissionUser permissionUser) {
-    return CompletableTask.supplyAsync(() -> this.deletePermissionUser(permissionUser));
+    return CompletableTask.supply(() -> this.deletePermissionUser(permissionUser));
   }
 
   /**
@@ -487,7 +487,7 @@ public interface IPermissionManagement {
    * @return {@code true} if there is a user with that uniqueId, {@code false} otherwise
    */
   default @NotNull ITask<Boolean> containsUserAsync(@NotNull UUID uniqueId) {
-    return CompletableTask.supplyAsync(() -> this.containsUser(uniqueId));
+    return CompletableTask.supply(() -> this.containsUser(uniqueId));
   }
 
   /**
@@ -497,7 +497,7 @@ public interface IPermissionManagement {
    * @return {@code true} if there is a user with that name, {@code false} otherwise
    */
   default @NotNull ITask<Boolean> containsOneUserAsync(@NotNull String name) {
-    return CompletableTask.supplyAsync(() -> this.containsOneUser(name));
+    return CompletableTask.supply(() -> this.containsOneUser(name));
   }
 
   /**
@@ -507,7 +507,7 @@ public interface IPermissionManagement {
    * @return the {@link PermissionUser} from the database or {@code null} if there is no user with that uniqueId stored
    */
   default @NotNull ITask<PermissionUser> getUserAsync(@NotNull UUID uniqueId) {
-    return CompletableTask.supplyAsync(() -> this.getUser(uniqueId));
+    return CompletableTask.supply(() -> this.getUser(uniqueId));
   }
 
   /**
@@ -519,7 +519,7 @@ public interface IPermissionManagement {
    * @return the {@link PermissionUser} from the database or a newly created one.
    */
   default @NotNull ITask<PermissionUser> getOrCreateUserAsync(@NotNull UUID uniqueId, @NotNull String name) {
-    return CompletableTask.supplyAsync(() -> this.getOrCreateUser(uniqueId, name));
+    return CompletableTask.supply(() -> this.getOrCreateUser(uniqueId, name));
   }
 
   /**
@@ -531,7 +531,7 @@ public interface IPermissionManagement {
    * name stored.
    */
   default @NotNull ITask<List<PermissionUser>> getUsersByNameAsync(@NotNull String name) {
-    return CompletableTask.supplyAsync(() -> this.getUsersByName(name));
+    return CompletableTask.supply(() -> this.getUsersByName(name));
   }
 
   /**
@@ -541,7 +541,7 @@ public interface IPermissionManagement {
    * @return the {@link PermissionUser} from the database or {@code null} if there is no user with that name stored
    */
   default @NotNull ITask<PermissionUser> getFirstUserAsync(String name) {
-    return CompletableTask.supplyAsync(() -> this.getFirstUser(name));
+    return CompletableTask.supply(() -> this.getFirstUser(name));
   }
 
   /**
@@ -555,7 +555,7 @@ public interface IPermissionManagement {
    * name stored.
    */
   default @NotNull ITask<Collection<PermissionUser>> getUsersAsync() {
-    return CompletableTask.supplyAsync((ThrowableSupplier<Collection<PermissionUser>, Throwable>) this::getUsers);
+    return CompletableTask.supply((ThrowableSupplier<Collection<PermissionUser>, Throwable>) this::getUsers);
   }
 
   /**
@@ -570,7 +570,7 @@ public interface IPermissionManagement {
    * name stored.
    */
   default @NotNull ITask<Collection<PermissionUser>> getUsersByGroupAsync(@NotNull String group) {
-    return CompletableTask.supplyAsync(() -> this.getUsersByGroup(group));
+    return CompletableTask.supply(() -> this.getUsersByGroup(group));
   }
 
   /**
@@ -581,7 +581,7 @@ public interface IPermissionManagement {
    * @return the created permission group.
    */
   default @NotNull ITask<PermissionGroup> addPermissionGroupAsync(@NotNull PermissionGroup permissionGroup) {
-    return CompletableTask.supplyAsync(() -> this.addPermissionGroup(permissionGroup));
+    return CompletableTask.supply(() -> this.addPermissionGroup(permissionGroup));
   }
 
   /**
@@ -593,7 +593,7 @@ public interface IPermissionManagement {
    * @return the created permission group.
    */
   default @NotNull ITask<PermissionGroup> addGroupAsync(@NotNull String role, int potency) {
-    return CompletableTask.supplyAsync(() -> this.addGroup(role, potency));
+    return CompletableTask.supply(() -> this.addGroup(role, potency));
   }
 
   /**
@@ -603,7 +603,7 @@ public interface IPermissionManagement {
    * @return a task completed when the operation was executed
    */
   default @NotNull ITask<Void> updateGroupAsync(@NotNull PermissionGroup permissionGroup) {
-    return CompletableTask.supplyAsync(() -> this.updateGroup(permissionGroup));
+    return CompletableTask.supply(() -> this.updateGroup(permissionGroup));
   }
 
   /**
@@ -613,7 +613,7 @@ public interface IPermissionManagement {
    * @return a task completed when the operation was executed
    */
   default @NotNull ITask<Boolean> deleteGroupAsync(@NotNull String name) {
-    return CompletableTask.supplyAsync(() -> this.deleteGroup(name));
+    return CompletableTask.supply(() -> this.deleteGroup(name));
   }
 
   /**
@@ -623,7 +623,7 @@ public interface IPermissionManagement {
    * @return a task completed when the operation was executed
    */
   default @NotNull ITask<Boolean> deletePermissionGroupAsync(@NotNull PermissionGroup permissionGroup) {
-    return CompletableTask.supplyAsync(() -> this.deletePermissionGroup(permissionGroup));
+    return CompletableTask.supply(() -> this.deletePermissionGroup(permissionGroup));
   }
 
   /**
@@ -633,7 +633,7 @@ public interface IPermissionManagement {
    * @return {@code true} if the group exists, {@code false} otherwise
    */
   default @NotNull ITask<Boolean> containsGroupAsync(@NotNull String group) {
-    return CompletableTask.supplyAsync(() -> this.containsGroup(group));
+    return CompletableTask.supply(() -> this.containsGroup(group));
   }
 
   /**
@@ -643,7 +643,7 @@ public interface IPermissionManagement {
    * @return the {@link PermissionUser} if it exists, {@code null} otherwise
    */
   default @NotNull ITask<PermissionGroup> getGroupAsync(@NotNull String name) {
-    return CompletableTask.supplyAsync(() -> this.getGroup(name));
+    return CompletableTask.supply(() -> this.getGroup(name));
   }
 
   /**
@@ -652,7 +652,7 @@ public interface IPermissionManagement {
    * @return the default permission group.
    */
   default @NotNull ITask<PermissionGroup> getDefaultPermissionGroupAsync() {
-    return CompletableTask.supplyAsync(this::getDefaultPermissionGroup);
+    return CompletableTask.supply(this::getDefaultPermissionGroup);
   }
 
   /**
@@ -661,7 +661,7 @@ public interface IPermissionManagement {
    * @return a list of {@link PermissionGroup}s registered in the cloud or an empty list if there is no group registered
    */
   default @NotNull ITask<Collection<PermissionGroup>> getGroupsAsync() {
-    return CompletableTask.supplyAsync((ThrowableSupplier<Collection<PermissionGroup>, Throwable>) this::getGroups);
+    return CompletableTask.supply((ThrowableSupplier<Collection<PermissionGroup>, Throwable>) this::getGroups);
   }
 
   /**
@@ -670,7 +670,7 @@ public interface IPermissionManagement {
    * @param groups the new groups
    */
   default @NotNull ITask<Void> setGroupsAsync(@Nullable Collection<? extends PermissionGroup> groups) {
-    return CompletableTask.supplyAsync(() -> this.setGroups(groups));
+    return CompletableTask.supply(() -> this.setGroups(groups));
   }
 
   /**
@@ -685,7 +685,7 @@ public interface IPermissionManagement {
     @NotNull String name,
     @NotNull Consumer<PermissionGroup> modifier
   ) {
-    return CompletableTask.supplyAsync(() -> this.modifyGroup(name, modifier));
+    return CompletableTask.supply(() -> this.modifyGroup(name, modifier));
   }
 
   /**
@@ -700,7 +700,7 @@ public interface IPermissionManagement {
     @NotNull UUID uniqueId,
     @NotNull Consumer<PermissionUser> modifier
   ) {
-    return CompletableTask.supplyAsync(() -> this.modifyUser(uniqueId, modifier));
+    return CompletableTask.supply(() -> this.modifyUser(uniqueId, modifier));
   }
 
   /**
@@ -715,6 +715,6 @@ public interface IPermissionManagement {
     @NotNull String name,
     @NotNull Consumer<PermissionUser> modifier
   ) {
-    return CompletableTask.supplyAsync(() -> this.modifyUsers(name, modifier));
+    return CompletableTask.supply(() -> this.modifyUsers(name, modifier));
   }
 }

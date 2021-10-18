@@ -16,9 +16,9 @@
 
 package de.dytanic.cloudnet.common.language;
 
-import de.dytanic.cloudnet.common.Properties;
 import de.dytanic.cloudnet.common.StringUtil;
 import java.util.Map.Entry;
+import java.util.Properties;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -41,8 +41,8 @@ public class LanguageManagerTest {
     }
 
     LanguageManager.addLanguageFile("en", properties);
-    for (Entry<String, String> entry : properties.entrySet()) {
-      Assertions.assertEquals(entry.getValue(), LanguageManager.getMessage(entry.getKey()));
+    for (Entry<Object, Object> entry : properties.entrySet()) {
+      Assertions.assertEquals(entry.getValue(), LanguageManager.getMessage(entry.getKey().toString()));
     }
   }
 }

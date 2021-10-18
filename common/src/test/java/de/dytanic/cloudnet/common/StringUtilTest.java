@@ -38,4 +38,12 @@ class StringUtilTest {
 
     Assertions.assertTrue(StringUtil.endsWithIgnoreCase(randomString, randomStringSuffix));
   }
+
+  @RepeatedTest(100)
+  void testCharRepeat() {
+    int length = Math.abs(new SecureRandom().nextInt(100) + 1);
+    String repeated = StringUtil.repeat(' ', length);
+
+    Assertions.assertEquals(repeated.length(), length);
+  }
 }

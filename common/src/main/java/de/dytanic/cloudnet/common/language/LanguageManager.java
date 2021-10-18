@@ -16,7 +16,6 @@
 
 package de.dytanic.cloudnet.common.language;
 
-import de.dytanic.cloudnet.common.Properties;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import java.io.BufferedReader;
@@ -29,6 +28,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import org.jetbrains.annotations.NotNull;
 
@@ -77,7 +77,7 @@ public final class LanguageManager {
     }
 
     return LANGUAGE_CACHE.get(language)
-      .getOrDefault(property, "<message " + property + " not found in language " + language + ">");
+      .getProperty(property, "<message " + property + " not found in language " + language + ">");
   }
 
   /**

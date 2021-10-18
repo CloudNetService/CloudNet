@@ -96,7 +96,7 @@ public interface NodeInfoProvider {
    * @return the {@link CommandInfo} for each registered command
    */
   default @NotNull ITask<Collection<CommandInfo>> getConsoleCommandsAsync() {
-    return CompletableTask.supplyAsync(this::getConsoleCommands);
+    return CompletableTask.supply(this::getConsoleCommands);
   }
 
   /**
@@ -104,7 +104,7 @@ public interface NodeInfoProvider {
    * @return the {@link CommandInfo} if there is a registered command - null otherwise
    */
   default @NotNull ITask<CommandInfo> getConsoleCommandAsync(@NotNull String commandLine) {
-    return CompletableTask.supplyAsync(() -> this.getConsoleCommand(commandLine));
+    return CompletableTask.supply(() -> this.getConsoleCommand(commandLine));
   }
 
   /**
@@ -116,7 +116,7 @@ public interface NodeInfoProvider {
    * @return a collection containing all unsorted results
    */
   default @NotNull ITask<Collection<String>> getConsoleTabCompleteResultsAsync(@NotNull String commandLine) {
-    return CompletableTask.supplyAsync(() -> this.getConsoleTabCompleteResults(commandLine));
+    return CompletableTask.supply(() -> this.getConsoleTabCompleteResults(commandLine));
   }
 
   /**
@@ -127,7 +127,7 @@ public interface NodeInfoProvider {
    */
   @NotNull
   default ITask<Collection<String>> sendCommandLineAsync(@NotNull String commandLine) {
-    return CompletableTask.supplyAsync(() -> this.sendCommandLine(commandLine));
+    return CompletableTask.supply(() -> this.sendCommandLine(commandLine));
   }
 
   /**
@@ -138,14 +138,14 @@ public interface NodeInfoProvider {
    */
   @NotNull
   default ITask<Collection<String>> sendCommandLineToNodeAsync(@NotNull String nodeUniqueId, @NotNull String line) {
-    return CompletableTask.supplyAsync(() -> this.sendCommandLineToNode(nodeUniqueId, line));
+    return CompletableTask.supply(() -> this.sendCommandLineToNode(nodeUniqueId, line));
   }
 
   /**
    * @return all nodes from the config of the node where the method is called on
    */
   default @NotNull ITask<NetworkClusterNode[]> getNodesAsync() {
-    return CompletableTask.supplyAsync(this::getNodes);
+    return CompletableTask.supply(this::getNodes);
   }
 
   /**
@@ -154,14 +154,14 @@ public interface NodeInfoProvider {
    * entry in the config
    */
   default @NotNull ITask<NetworkClusterNode> getNodeAsync(@NotNull String uniqueId) {
-    return CompletableTask.supplyAsync(() -> this.getNode(uniqueId));
+    return CompletableTask.supply(() -> this.getNode(uniqueId));
   }
 
   /**
    * @return all {@link NetworkClusterNodeInfoSnapshot} of nodes that are still connected
    */
   default @NotNull ITask<NetworkClusterNodeInfoSnapshot[]> getNodeInfoSnapshotsAsync() {
-    return CompletableTask.supplyAsync(this::getNodeInfoSnapshots);
+    return CompletableTask.supply(this::getNodeInfoSnapshots);
   }
 
   /**
@@ -169,6 +169,6 @@ public interface NodeInfoProvider {
    * @return the {@link NetworkClusterNodeInfoSnapshot} for the given uniqueId, null if there is no snapshot
    */
   default @NotNull ITask<NetworkClusterNodeInfoSnapshot> getNodeInfoSnapshotAsync(@NotNull String uniqueId) {
-    return CompletableTask.supplyAsync(() -> this.getNodeInfoSnapshot(uniqueId));
+    return CompletableTask.supply(() -> this.getNodeInfoSnapshot(uniqueId));
   }
 }

@@ -292,15 +292,7 @@ public abstract class AbstractService implements ICloudService {
         Path target = this.serviceDirectory.resolve(inclusion.getDestination());
         FileUtils.ensureChild(this.serviceDirectory, target);
         // copy the file to the desired output path
-        try {
-          FileUtils.copy(destination, target);
-        } catch (IOException exception) {
-          LOGGER.severe("Unable to copy the inclusion %s from %s to %s",
-            exception,
-            inclusion.getUrl(),
-            destination,
-            target);
-        }
+        FileUtils.copy(destination, target);
       }
     }
   }
@@ -527,7 +519,7 @@ public abstract class AbstractService implements ICloudService {
   protected void prepareService() {
     // initialize the service directory
     boolean firstStartup = Files.notExists(this.serviceDirectory);
-    FileUtils.createDirectoryReported(this.serviceDirectory);
+    FileUtils.createDirectory(this.serviceDirectory);
     // write the configuration file for the service
     HostAndPort[] listeners = this.getNodeConfiguration().getIdentity().getListeners();
     JsonDocument.newDocument()
@@ -555,24 +547,18 @@ public abstract class AbstractService implements ICloudService {
   }
 
   protected void copySslConfiguration(@NotNull SSLConfiguration configuration) {
-    try {
-      Path wrapperDir = this.serviceDirectory.resolve(".wrapper");
-      // copy the certificate if available
-      if (configuration.getCertificatePath() != null && Files.exists(configuration.getCertificatePath())) {
-        FileUtils.copy(configuration.getCertificatePath(), wrapperDir.resolve("certificate"));
-      }
-      // copy the private key if available
-      if (configuration.getPrivateKeyPath() != null && Files.exists(configuration.getPrivateKeyPath())) {
-        FileUtils.copy(configuration.getPrivateKeyPath(), wrapperDir.resolve("privateKey"));
-      }
-      // copy the trust certificate if available
-      if (configuration.getTrustCertificatePath() != null && Files.exists(configuration.getTrustCertificatePath())) {
-        FileUtils.copy(configuration.getTrustCertificatePath(), wrapperDir.resolve("trustCertificate"));
-      }
-    } catch (IOException exception) {
-      LOGGER.severe("Exception copying ssl configuration files into service directory %s:",
-        exception,
-        this.serviceDirectory);
+    Path wrapperDir = this.serviceDirectory.resolve(".wrapper");
+    // copy the certificate if available
+    if (configuration.getCertificatePath() != null && Files.exists(configuration.getCertificatePath())) {
+      FileUtils.copy(configuration.getCertificatePath(), wrapperDir.resolve("certificate"));
+    }
+    // copy the private key if available
+    if (configuration.getPrivateKeyPath() != null && Files.exists(configuration.getPrivateKeyPath())) {
+      FileUtils.copy(configuration.getPrivateKeyPath(), wrapperDir.resolve("privateKey"));
+    }
+    // copy the trust certificate if available
+    if (configuration.getTrustCertificatePath() != null && Files.exists(configuration.getTrustCertificatePath())) {
+      FileUtils.copy(configuration.getTrustCertificatePath(), wrapperDir.resolve("trustCertificate"));
     }
   }
 

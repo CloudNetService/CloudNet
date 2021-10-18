@@ -174,7 +174,7 @@ public class JVMService extends AbstractService {
   protected @Nullable Pair<Path, String> prepareWrapperFile() {
     // check if the wrapper file is there - unpack it if not
     if (Files.notExists(WRAPPER_TEMP_FILE)) {
-      FileUtils.createDirectoryReported(WRAPPER_TEMP_FILE.getParent());
+      FileUtils.createDirectory(WRAPPER_TEMP_FILE.getParent());
       try (InputStream stream = JVMService.class.getClassLoader().getResourceAsStream("wrapper.jar")) {
         // ensure that the wrapper file is there
         if (stream == null) {

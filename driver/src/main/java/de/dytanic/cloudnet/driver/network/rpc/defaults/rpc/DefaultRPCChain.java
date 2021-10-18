@@ -146,7 +146,7 @@ public class DefaultRPCChain extends DefaultRPCProvider implements RPCChain {
     } else {
       // just send the method invocation request
       component.sendPacket(new RPCQueryPacket(dataBuf));
-      return CompletedTask.emptyTask();
+      return CompletedTask.done(null);
     }
   }
 

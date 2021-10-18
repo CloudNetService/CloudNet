@@ -16,24 +16,32 @@
 
 package de.dytanic.cloudnet.common.concurrent;
 
-import de.dytanic.cloudnet.common.concurrent.function.ThrowableFunction;
+import de.dytanic.cloudnet.common.function.ThrowableFunction;
 import java.util.Collection;
-import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnknownNullability;
+import org.jetbrains.annotations.UnmodifiableView;
 
-public interface ITask<V> extends Future<V>, Callable<V> {
+public interface ITask<V> extends Future<V> {
 
-  @NotNull
-  ITask<V> addListener(ITaskListener<V> listener);
+  @NotNull ITask<V> addListener(@NotNull ITaskListener<V> listener);
 
-  @NotNull
-  default ITask<V> addListener(ITaskListener<V>... listeners) {
+  @NotNull ITask<V> clearListeners();
+
+  @UnmodifiableView
+  @NotNull Collection<ITaskListener<V>> getListeners();
+
+  @UnknownNullability V getDef(@Nullable V def);
+
+  @UnknownNullability V get(long time, @NotNull TimeUnit timeUnit, @Nullable V def);
+
+  @NotNull <T> ITask<T> map(@NotNull ThrowableFunction<V, T, Throwable> mapper);
+
+  default @NotNull ITask<V> addListener(ITaskListener<V> @NotNull ... listeners) {
     for (ITaskListener<V> listener : listeners) {
       this.addListener(listener);
     }
@@ -41,70 +49,34 @@ public interface ITask<V> extends Future<V>, Callable<V> {
   }
 
   @NotNull
-  default ITask<V> onComplete(BiConsumer<ITask<V>, V> consumer) {
+  default ITask<V> onComplete(@NotNull Consumer<V> consumer) {
     return this.addListener(new ITaskListener<V>() {
       @Override
-      public void onComplete(ITask<V> task, V v) {
-        consumer.accept(task, v);
+      public void onComplete(@NotNull ITask<V> task, @Nullable V v) {
+        consumer.accept(v);
       }
     });
   }
 
-  @NotNull
-  default ITask<V> onComplete(Consumer<V> consumer) {
-    return this.onComplete((task, v) -> consumer.accept(v));
-  }
-
-  @NotNull
-  default ITask<V> onFailure(BiConsumer<ITask<V>, Throwable> consumer) {
+  default @NotNull ITask<V> onFailure(@NotNull Consumer<Throwable> consumer) {
     return this.addListener(new ITaskListener<V>() {
       @Override
-      public void onFailure(ITask<V> task, Throwable th) {
-        consumer.accept(task, th);
+      public void onFailure(@NotNull ITask<V> task, @NotNull Throwable th) {
+        consumer.accept(th);
       }
     });
   }
 
-  @NotNull
-  default ITask<V> onFailure(Consumer<Throwable> consumer) {
-    return this.onFailure((task, th) -> consumer.accept(th));
-  }
-
-  @NotNull
-  default ITask<V> onCancelled(Consumer<ITask<V>> consumer) {
+  default @NotNull ITask<V> onCancelled(@NotNull Consumer<ITask<V>> consumer) {
     return this.addListener(new ITaskListener<V>() {
       @Override
-      public void onCancelled(ITask<V> task) {
+      public void onCancelled(@NotNull ITask<V> task) {
         consumer.accept(task);
       }
     });
   }
 
-  default ITask<V> fireExceptionOnFailure() {
-    return this.onFailure((Consumer<Throwable>) Throwable::printStackTrace);
+  default @NotNull ITask<V> fireExceptionOnFailure() {
+    return this.onFailure(Throwable::printStackTrace);
   }
-
-  default ITask<V> throwExceptionOnFailure() {
-    return this.onFailure(throwable -> {
-      throw new RuntimeException(throwable);
-    });
-  }
-
-  @NotNull
-  ITask<V> clearListeners();
-
-  Collection<ITaskListener<V>> getListeners();
-
-  Callable<V> getCallable();
-
-  V getDef(V def);
-
-  V get(long time, TimeUnit timeUnit, V def);
-
-  <T> ITask<T> mapThrowable(@Nullable ThrowableFunction<V, T, Throwable> mapper);
-
-  default <T> ITask<T> map(@Nullable Function<V, T> mapper) {
-    return this.mapThrowable(mapper == null ? null : mapper::apply);
-  }
-
 }

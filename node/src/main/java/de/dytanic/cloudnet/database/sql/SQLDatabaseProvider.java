@@ -16,7 +16,7 @@
 
 package de.dytanic.cloudnet.database.sql;
 
-import de.dytanic.cloudnet.common.concurrent.IThrowableCallback;
+import de.dytanic.cloudnet.common.function.ThrowableFunction;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.database.AbstractDatabaseProvider;
@@ -78,6 +78,6 @@ public abstract class SQLDatabaseProvider extends AbstractDatabaseProvider {
 
   public abstract <T> T executeQuery(
     @NotNull String query,
-    @NotNull IThrowableCallback<ResultSet, T> callback,
+    @NotNull ThrowableFunction<ResultSet, T, SQLException> callback,
     @NotNull Object... objects);
 }
