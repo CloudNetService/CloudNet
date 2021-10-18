@@ -29,19 +29,27 @@ import java.nio.file.Path;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class RecordCreator {
+public class Record {
 
-  private static final Logger LOGGER = LogManager.getLogger(RecordCreator.class);
+  private static final Logger LOGGER = LogManager.getLogger(Record.class);
 
   private final Path directory;
   private final ICloudService service;
 
-  private RecordCreator(Path directory, ICloudService service) {
+  private Record(Path directory, ICloudService service) {
     this.directory = directory;
     this.service = service;
   }
 
-  public static @Nullable RecordCreator forService(@NotNull Path baseDirectory, @NotNull ICloudService service) {
+  /**
+   * Constructs a new Record with the given baseDirectory, the resulting directory is resolved with the name and the
+   * uniqueId of the given service
+   *
+   * @param baseDirectory the baseDirectory to create the sub folder of the service in
+   * @param service       the service that this record is used for
+   * @return the new Record for the service
+   */
+  public static @Nullable Record forService(@NotNull Path baseDirectory, @NotNull ICloudService service) {
     Path directory = baseDirectory.resolve(
       service.getServiceId().getName() + "-" + service.getServiceId().getUniqueId()).normalize().toAbsolutePath();
 
@@ -53,19 +61,30 @@ public class RecordCreator {
     return of(directory, service);
   }
 
-  public static RecordCreator of(@NotNull Path directory, @NotNull ICloudService service) {
-    return new RecordCreator(directory, service);
+  /**
+   * Constructs a new record with the already resolved directory for the record.
+   *
+   * @param directory the directory to store the record files in
+   * @param service   the service that this record is used for
+   * @return the new Record for the service
+   */
+  public static Record of(@NotNull Path directory, @NotNull ICloudService service) {
+    return new Record(directory, service);
   }
 
+  /**
+   * Copies the "logs" folder from the service into the directory of this record. When running this for a BungeeCord
+   * service "proxy.log.*" is copied.
+   */
   public void copyLogFiles() {
     try {
       Path targetDirectory = this.directory.resolve("logs");
       FileUtils.createDirectory(targetDirectory);
 
       if (this.service.getServiceId().getEnvironment() == ServiceEnvironmentType.BUNGEECORD) {
-        FileUtils.walkFileTree(this.service.getDirectory(), (root, current) -> {
-          FileUtils.copy(current, targetDirectory.resolve(root.relativize(current)));
-        }, false, "proxy.log*");
+        FileUtils.walkFileTree(this.service.getDirectory(),
+          (root, current) -> FileUtils.copy(current, targetDirectory.resolve(root.relativize(current))), false,
+          "proxy.log*");
       } else {
         FileUtils.copyDirectory(this.service.getDirectory().resolve("logs"), targetDirectory);
       }
@@ -74,6 +93,9 @@ public class RecordCreator {
     }
   }
 
+  /**
+   * Creates a new file ("cachedConsoleLog.txt") with the last cached log lines of the service
+   */
   public void writeCachedConsoleLog() {
     try {
       Files.write(directory.resolve("cachedConsoleLog.txt"), this.service.getCachedLogMessages());
@@ -82,12 +104,19 @@ public class RecordCreator {
     }
   }
 
+  /**
+   * Creates a new file ("ServiceInfoSnapshots.json") with the previous and current {@link
+   * de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot} ServiceInfoSnapshot of the service
+   */
   public void writeServiceInfoSnapshot() {
     JsonDocument.newDocument("serviceInfoSnapshot", this.service.getServiceInfoSnapshot())
       .append("lastServiceInfoSnapshot", this.service.getLastServiceInfoSnapshot())
-      .write(directory.resolve("serviceInfos.json"));
+      .write(directory.resolve("ServiceInfoSnapshots.json"));
   }
 
+  /**
+   * Sends a message to the node, that the record was created
+   */
   public void notifySuccess() {
     LOGGER.info(LanguageManager.getMessage("module-report-create-record-success")
       .replace("%service%", this.service.getServiceId().getName())

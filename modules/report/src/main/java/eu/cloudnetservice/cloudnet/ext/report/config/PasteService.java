@@ -50,6 +50,10 @@ public class PasteService implements INameable {
   }
 
   public @Nullable String pasteToService(@NotNull String content) {
+    if (content.trim().isEmpty()) {
+      return null;
+    }
+
     RequestBuilder requestBuilder = RequestBuilder.newBuilder(String.format("%s/documents", this.serviceUrl))
       .requestMethod(RequestMethod.POST)
       .mimeType(MimeTypes.getMimeType("json"))
@@ -63,8 +67,6 @@ public class PasteService implements INameable {
       if (result.getStatusCode() >= 200 && result.getStatusCode() < 300) {
         return result.getSuccessResultAsString();
       }
-      LOGGER.severe(String.valueOf(result.getStatusCode()));
-      LOGGER.severe(result.getErrorResultAsString());
     } catch (Exception exception) {
       LOGGER.severe("Unable to paste content to %s", exception, this.serviceUrl);
     }

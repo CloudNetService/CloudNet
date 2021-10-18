@@ -25,7 +25,7 @@ import de.dytanic.cloudnet.event.service.CloudServicePreLifecycleEvent;
 import de.dytanic.cloudnet.service.IServiceConsoleLogCache;
 import eu.cloudnetservice.cloudnet.ext.report.CloudNetReportModule;
 import eu.cloudnetservice.cloudnet.ext.report.config.ReportConfiguration;
-import eu.cloudnetservice.cloudnet.ext.report.util.RecordCreator;
+import eu.cloudnetservice.cloudnet.ext.report.util.Record;
 
 public final class CloudNetReportListener {
 
@@ -71,7 +71,7 @@ public final class CloudNetReportListener {
       return;
     }
     // we need to check and create the record directory as it's time based.
-    RecordCreator recordCreator = RecordCreator.forService(this.reportModule.getCurrentRecordDirectory(),
+    Record recordCreator = Record.forService(this.reportModule.getCurrentRecordDirectory(),
       event.getService());
     // unable to create records as the directory already exists
     if (recordCreator == null) {

@@ -68,6 +68,8 @@ public class ReportConfigurationHelper {
     Collection<PasteService> pasteServices = Collections.singletonList(
       new PasteService("default", document.getString("pasteServerUrl", "https://just-paste.it")));
     long serviceLifetime = document.getLong("serviceLifetimeLogPrint", 5000L);
+
+    // since early 3.5 a custom date format is supported, migrate this too
     String dateFormat = document.getString("dateFormat", "yyyy-MM-dd");
 
     return new ReportConfiguration(saveRecords, recordDestination, serviceLifetime, dateFormat, pasteServices);

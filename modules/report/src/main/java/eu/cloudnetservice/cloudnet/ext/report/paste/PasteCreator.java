@@ -35,27 +35,59 @@ public class PasteCreator {
     this.registry = registry;
   }
 
+  /**
+   * Creates a new paste by emitting all ICloudService emitters and collecting their data.
+   *
+   * @param service the service to collect the data for
+   * @return the resulting url after uploading the content
+   */
   public @Nullable String createServicePaste(@NotNull ICloudService service) {
     return this.pasteContent(this.collectData(ICloudService.class, service));
   }
 
+  /**
+   * Creates a new paste by emitting all NetworkClusterNodeInfoSnapshot emitters and collecting their data.
+   *
+   * @param nodeInfoSnapshot the nodeInfoSnapshot to collect the data for
+   * @return the resulting url after uploading the content
+   */
   public @Nullable String createNodePaste(@NotNull NetworkClusterNodeInfoSnapshot nodeInfoSnapshot) {
     return this.pasteContent(this.collectData(NetworkClusterNodeInfoSnapshot.class, nodeInfoSnapshot));
   }
 
-  public <T> @NotNull String collectData(Class<T> clazz, T data) {
+  /**
+   * Collects the data from every emitter that is registered with the given class
+   *
+   * @param clazz   the class the emitters are registered for
+   * @param context the context used to collect the data
+   * @param <T>     the type to collect the data for
+   * @return the emitted data
+   */
+  public <T> @NotNull String collectData(Class<T> clazz, T context) {
     StringBuilder content = new StringBuilder();
     for (ReportDataEmitter<T> emitter : this.registry.getEmitters(clazz)) {
-      emitter.emitData(content, data);
+      emitter.emitData(content, context);
     }
 
     return content.toString();
   }
 
+  /**
+   * Pastes the given content to this {@link PasteService} and parses the resulting url
+   *
+   * @param content the content to upload to the paste service
+   * @return the resulting url
+   */
   private @Nullable String pasteContent(@NotNull String content) {
     return this.parsePasteServiceResponse(this.pasteService.pasteToService(content));
   }
 
+  /**
+   * Parses the access token from the response and rebuilds the final url for the uploaded content
+   *
+   * @param response the response
+   * @return the final url of the paste
+   */
   private @Nullable String parsePasteServiceResponse(@Nullable String response) {
     if (response == null) {
       return null;

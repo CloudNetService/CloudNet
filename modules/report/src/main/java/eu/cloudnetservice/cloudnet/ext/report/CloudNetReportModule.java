@@ -19,6 +19,7 @@ package eu.cloudnetservice.cloudnet.ext.report;
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
+import de.dytanic.cloudnet.driver.module.ModuleLifeCycle;
 import de.dytanic.cloudnet.driver.module.ModuleTask;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
 import de.dytanic.cloudnet.module.NodeCloudNetModule;
@@ -50,36 +51,50 @@ public final class CloudNetReportModule extends NodeCloudNetModule {
   private EmitterRegistry registry;
   private Path currentRecordDirectory;
 
+  public static CloudNetReportModule getInstance() {
+    return CloudNetReportModule.instance;
+  }
+
   @ModuleTask
   public void init() {
-    this.reportConfiguration = ReportConfigurationHelper.read(
-      this.moduleWrapper.getDataDirectory().resolve("config.json"));
-    this.registerListener(new CloudNetReportListener(this));
+    // read the configuration from the file and convert it if necessary
+    this.reloadConfiguration();
+    // create a new registry for our report data emitters
     this.registry = new EmitterRegistry();
-
-    this.registry.registerDataEmitter(ICloudService.class, new ServiceLogEmitter(), new ServiceInfoSnapshotEmitter(),
-      new ServiceOverviewEmitter(), new ServiceTaskEmitter());
-    this.registry.registerDataEmitter(NetworkClusterNodeInfoSnapshot.class, new ConsoleLogEmitter(),
+    // register all emitters that are used for the ICloudService report
+    this.registry.registerDataEmitter(ICloudService.class,
+      new ServiceLogEmitter(),
+      new ServiceInfoSnapshotEmitter(),
+      new ServiceOverviewEmitter(),
+      new ServiceTaskEmitter());
+    // register all emitters that are used for the Node report
+    this.registry.registerDataEmitter(NetworkClusterNodeInfoSnapshot.class,
+      new ConsoleLogEmitter(),
       new NodeSnapshotEmitter(),
-      new NodeConfigurationEmitter(), new NodeAllocationEmitter(), new ModuleEmitter());
-
+      new NodeConfigurationEmitter(),
+      new NodeAllocationEmitter(),
+      new ModuleEmitter());
+    // register our listener to handle stopping and deleted services
+    this.registerListener(new CloudNetReportListener(this));
+    // register the commands of the module at the node
     this.registerCommand(new CommandPaste(this));
     this.registerCommand(new CommandReport(this));
   }
 
-  public static CloudNetReportModule getInstance() {
-    return CloudNetReportModule.instance;
+  @ModuleTask(event = ModuleLifeCycle.RELOADING)
+  public void reload() {
+    this.reloadConfiguration();
   }
 
   public @NotNull EmitterRegistry getEmitterRegistry() {
     return this.registry;
   }
 
-  public ReportConfiguration getReportConfiguration() {
+  public @NotNull ReportConfiguration getReportConfiguration() {
     return this.reportConfiguration;
   }
 
-  public Path getCurrentRecordDirectory() {
+  public @NotNull Path getCurrentRecordDirectory() {
     String date = this.reportConfiguration.getDateFormat().format(System.currentTimeMillis());
     Path recordBaseDestination = this.moduleWrapper.getDataDirectory()
       .resolve(this.reportConfiguration.getRecordDestination());
@@ -90,5 +105,10 @@ public final class CloudNetReportModule extends NodeCloudNetModule {
 
     FileUtils.createDirectory(timeBasedDestination);
     return this.currentRecordDirectory = timeBasedDestination;
+  }
+
+  private void reloadConfiguration() {
+    this.reportConfiguration = ReportConfigurationHelper.read(
+      this.moduleWrapper.getDataDirectory().resolve("config.json"));
   }
 }
