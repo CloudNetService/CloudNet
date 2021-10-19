@@ -28,6 +28,10 @@ import org.jetbrains.annotations.NotNull;
 @EqualsAndHashCode
 public class ChannelMessageSender {
 
+  private static final ChannelMessageSender SELF = new ChannelMessageSender(
+    CloudNetDriver.getInstance().getComponentName(),
+    CloudNetDriver.getInstance().getDriverEnvironment());
+
   private final String name;
   private final DriverEnvironment type;
 
@@ -37,9 +41,7 @@ public class ChannelMessageSender {
   }
 
   public static @NotNull ChannelMessageSender self() {
-    return new ChannelMessageSender(
-      CloudNetDriver.getInstance().getComponentName(),
-      CloudNetDriver.getInstance().getDriverEnvironment());
+    return SELF;
   }
 
   public @NotNull String getName() {
@@ -50,11 +52,11 @@ public class ChannelMessageSender {
     return this.type;
   }
 
-  public boolean isEqual(@NotNull ServiceInfoSnapshot serviceInfoSnapshot) {
+  public boolean is(@NotNull ServiceInfoSnapshot serviceInfoSnapshot) {
     return this.type == DriverEnvironment.WRAPPER && this.name.equals(serviceInfoSnapshot.getName());
   }
 
-  public boolean isEqual(@NotNull NetworkClusterNode node) {
+  public boolean is(@NotNull NetworkClusterNode node) {
     return this.type == DriverEnvironment.CLOUDNET && this.name.equals(node.getUniqueId());
   }
 }

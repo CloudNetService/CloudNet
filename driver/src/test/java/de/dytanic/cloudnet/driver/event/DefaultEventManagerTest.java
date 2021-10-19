@@ -16,12 +16,16 @@
 
 package de.dytanic.cloudnet.driver.event;
 
+import de.dytanic.cloudnet.driver.CloudNetDriver;
+import de.dytanic.cloudnet.driver.DriverEnvironment;
+import de.dytanic.cloudnet.driver.DriverTestUtility;
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
 import de.dytanic.cloudnet.driver.event.events.service.CloudServiceLifecycleChangeEvent;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -30,6 +34,13 @@ import org.mockito.Mockito;
 
 @TestMethodOrder(OrderAnnotation.class)
 public class DefaultEventManagerTest {
+
+  @BeforeAll
+  public static void initDriver() {
+    CloudNetDriver driver = DriverTestUtility.mockAndSetDriverInstance();
+    Mockito.when(driver.getComponentName()).thenReturn("Node-1");
+    Mockito.when(driver.getDriverEnvironment()).thenReturn(DriverEnvironment.CLOUDNET);
+  }
 
   @Test
   void testNullListenerRegistration() {
@@ -126,8 +137,9 @@ public class DefaultEventManagerTest {
 
     @EventListener(priority = EventPriority.HIGH)
     public void listenerA(ChannelMessageReceiveEvent event) {
-      event.setQueryResponse(ChannelMessage.builder(null)
+      event.setQueryResponse(ChannelMessage.builder()
         .channel("abc")
+        .targetAll()
         .buffer(DataBuf.empty().writeString(event.getChannel()))
         .build());
     }

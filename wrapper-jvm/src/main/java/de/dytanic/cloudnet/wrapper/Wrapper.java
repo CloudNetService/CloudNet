@@ -374,8 +374,6 @@ public class Wrapper extends CloudNetDriver {
         LOGGER.info(String.format("Starting Application-Thread based of %s",
           this.getServiceConfiguration().getProcessConfig().getEnvironment()));
         method.invoke(null, new Object[]{arguments.toArray(new String[0])});
-        // shut down the current application if the method exists (which means that the application terminated)
-        System.exit(0);
       } catch (Exception exception) {
         LOGGER.severe("Exception while starting application", exception);
       }
