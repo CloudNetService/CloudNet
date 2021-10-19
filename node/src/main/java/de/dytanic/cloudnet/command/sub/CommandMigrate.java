@@ -66,7 +66,7 @@ public class CommandMigrate {
       .collect(Collectors.toList());
   }
 
-  @CommandMethod(value = "migrate database <database-from> <database-to>", requiredSender = ConsoleCommandSource.class)
+  @CommandMethod(value = "migrate database|db <database-from> <database-to>", requiredSender = ConsoleCommandSource.class)
   public void migrateDatabase(
     CommandSource source,
     @Argument("database-from") AbstractDatabaseProvider sourceDatabaseProvider,
@@ -83,7 +83,7 @@ public class CommandMigrate {
     }
 
     if (!this.executeIfNotCurrentProvider(sourceDatabaseProvider, AbstractDatabaseProvider::init)
-      || this.executeIfNotCurrentProvider(targetDatabaseProvider, AbstractDatabaseProvider::init)) {
+      || !this.executeIfNotCurrentProvider(targetDatabaseProvider, AbstractDatabaseProvider::init)) {
       return;
     }
 

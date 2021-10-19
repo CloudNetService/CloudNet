@@ -36,7 +36,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import javax.management.MBeanServer;
 
-@Description("")
+@Description("Create heap and thread dumps of the cloud for debugging purposes")
 @CommandPermission("cloudnet.command.report")
 public final class CommandReport {
 

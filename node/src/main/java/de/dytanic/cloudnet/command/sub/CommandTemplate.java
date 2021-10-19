@@ -77,6 +77,7 @@ public class CommandTemplate {
     if (templateStorage == null) {
       throw new ArgumentNotAvailableException(LanguageManager.getMessage("ca-question-list-template-invalid-storage"));
     }
+
     return templateStorage;
   }
 

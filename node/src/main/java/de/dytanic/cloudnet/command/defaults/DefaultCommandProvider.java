@@ -172,8 +172,8 @@ public class DefaultCommandProvider implements CommandProvider {
   }
 
   @Override
-  public @Nullable CommandInfo getCommand(@NotNull String input) {
-    String lowerCaseInput = input.toLowerCase();
+  public @Nullable CommandInfo getCommand(@NotNull String name) {
+    String lowerCaseInput = name.toLowerCase();
     return this.registeredCommands.stream()
       .filter(commandInfo -> commandInfo.getAliases().contains(lowerCaseInput) || commandInfo.getName()
         .equals(lowerCaseInput))

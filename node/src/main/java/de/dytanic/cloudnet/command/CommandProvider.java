@@ -52,13 +52,30 @@ public interface CommandProvider {
    */
   void register(@NotNull Object command);
 
+  /**
+   * Registers the console input and tab complete handler at the given console
+   *
+   * @param console the console to register the handler
+   */
   void registerConsoleHandler(IConsole console);
 
+  /**
+   * Registers the default commands of the cloudnet node
+   */
   void registerDefaultCommands();
 
+  /**
+   * Looks for a registered command with the given root name or alias
+   *
+   * @param name the command root name or an alias of the root
+   * @return the command with the given name - null if no command was found with the given name / alias
+   */
   @Nullable
-  CommandInfo getCommand(@NotNull String input);
+  CommandInfo getCommand(@NotNull String name);
 
+  /**
+   * @return all commands that are registered on this node
+   */
   @NotNull
   @UnmodifiableView
   Collection<CommandInfo> getCommands();

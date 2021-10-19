@@ -37,7 +37,7 @@ import java.util.List;
 import java.util.Queue;
 import java.util.stream.Collectors;
 
-@Description("")
+@Description("Upload cloud specific data to a paste service")
 @CommandPermission("cloudnet.command.paste")
 public final class CommandPaste {
 
