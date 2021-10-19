@@ -31,7 +31,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-
 @CommandAlias("cp")
 @CommandPermission("cloudnet.command.copy")
 @Description("Copies a running service to a specific template")

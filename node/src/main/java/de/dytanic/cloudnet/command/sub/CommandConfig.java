@@ -19,10 +19,12 @@ package de.dytanic.cloudnet.command.sub;
 import cloud.commandframework.annotations.CommandMethod;
 import cloud.commandframework.annotations.CommandPermission;
 import de.dytanic.cloudnet.CloudNet;
+import de.dytanic.cloudnet.command.annotation.Description;
 import de.dytanic.cloudnet.command.source.CommandSource;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.config.JsonConfiguration;
 
+@Description("")
 @CommandPermission("cloudnet.command.config")
 public class CommandConfig {
 

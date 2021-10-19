@@ -40,8 +40,8 @@ import java.util.Queue;
 import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
 
-@CommandPermission("cloudnet.command.migrate")
 @Description("Migrate help")
+@CommandPermission("cloudnet.command.migrate")
 public class CommandMigrate {
 
   private static final int DEFAULT_CHUNK_SIZE = 100;

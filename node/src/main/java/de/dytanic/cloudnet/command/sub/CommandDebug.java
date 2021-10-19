@@ -24,8 +24,8 @@ import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.common.log.LoggingUtils;
 import java.util.logging.Level;
 
-@CommandPermission("cloudnet.command.debug")
 @Description("Toggle the global debug mode")
+@CommandPermission("cloudnet.command.debug")
 public class CommandDebug {
 
   @CommandMethod("debug")

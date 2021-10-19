@@ -26,6 +26,7 @@ import com.google.common.net.InetAddresses;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.cluster.IClusterNodeServer;
 import de.dytanic.cloudnet.command.CommandProvider;
+import de.dytanic.cloudnet.command.annotation.CommandAlias;
 import de.dytanic.cloudnet.command.annotation.Description;
 import de.dytanic.cloudnet.command.exception.ArgumentNotAvailableException;
 import de.dytanic.cloudnet.command.source.CommandSource;
@@ -45,6 +46,7 @@ import java.util.List;
 import java.util.Queue;
 import java.util.stream.Collectors;
 
+@CommandAlias("clu")
 @CommandPermission("cloudnet.command.cluster")
 @Description("Manages the cluster and provides information about it")
 public class CommandCluster {

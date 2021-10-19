@@ -16,7 +16,6 @@
 
 package de.dytanic.cloudnet.command.sub;
 
-import cloud.commandframework.annotations.CommandDescription;
 import cloud.commandframework.annotations.CommandMethod;
 import cloud.commandframework.annotations.CommandPermission;
 import cloud.commandframework.annotations.Confirmation;
@@ -30,7 +29,6 @@ import de.dytanic.cloudnet.command.annotation.Description;
 public class CommandExit {
 
   @Confirmation
-  @CommandDescription("Stops the program and all managed subprocesses")
   @CommandMethod("exit|shutdown|stop")
   public void exit() {
     CloudNet.getInstance().stop();

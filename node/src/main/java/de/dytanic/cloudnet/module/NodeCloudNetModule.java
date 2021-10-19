@@ -62,8 +62,7 @@ public abstract class NodeCloudNetModule extends DriverModule {
   }
 
   public final IHttpServer getHttpServer() {
-    // TODO return this.getCloudNet().getHttpServer();
-    return null;
+    return this.getCloudNet().getHttpServer();
   }
 
   public final NetworkClusterNode getIdentity() {
