@@ -29,7 +29,7 @@ import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 import org.jetbrains.annotations.NotNull;
 
-public class PacketServerChannelMessageListener implements IPacketListener {
+public final class PacketServerChannelMessageListener implements IPacketListener {
 
   private final NodeMessenger messenger;
   private final IEventManager eventManager;

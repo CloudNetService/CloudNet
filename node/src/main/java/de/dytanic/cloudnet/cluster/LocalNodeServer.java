@@ -49,8 +49,6 @@ public class LocalNodeServer extends DefaultNodeServer implements NodeServer {
     this.cloudNet = cloudNet;
     this.provider = provider;
     this.startupMillis = System.currentTimeMillis();
-
-    this.setNodeInfo(cloudNet.getConfig().getIdentity());
   }
 
   @Override
@@ -60,7 +58,7 @@ public class LocalNodeServer extends DefaultNodeServer implements NodeServer {
 
   @Override
   public boolean isAvailable() {
-    return this.cloudNet.isRunning();
+    return this.cloudNet.isRunning() && this.nodeInfo != null;
   }
 
   @Override

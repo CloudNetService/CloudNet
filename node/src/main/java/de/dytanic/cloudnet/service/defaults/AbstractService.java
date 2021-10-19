@@ -163,9 +163,9 @@ public abstract class AbstractService implements ICloudService {
         .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
         .build()
         .sendSingleQuery();
-      return response == null ? null : response.getContent().readObject(ServiceInfoSnapshot.class);
+      return response == null ? this.currentServiceInfo : response.getContent().readObject(ServiceInfoSnapshot.class);
     } else {
-      return null;
+      return this.currentServiceInfo;
     }
   }
 
@@ -403,7 +403,8 @@ public abstract class AbstractService implements ICloudService {
       .message("update_service_info")
       .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
       .buffer(DataBuf.empty().writeObject(this.currentServiceInfo))
-      .build();
+      .build()
+      .send();
   }
 
   @Override
@@ -488,7 +489,8 @@ public abstract class AbstractService implements ICloudService {
       .message("update_service_lifecycle")
       .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
       .buffer(DataBuf.empty().writeObject(this.lastServiceInfo.getLifeCycle()).writeObject(this.currentServiceInfo))
-      .build();
+      .build()
+      .send();
   }
 
   protected boolean canStartNow() {

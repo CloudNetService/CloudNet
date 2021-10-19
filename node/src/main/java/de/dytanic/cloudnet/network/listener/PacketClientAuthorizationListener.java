@@ -62,7 +62,7 @@ public final class PacketClientAuthorizationListener implements IPacketListener 
             channel.getPacketRegistry().removeListeners(NetworkConstants.INTERNAL_AUTHORIZATION_CHANNEL);
             NodeNetworkUtils.addDefaultPacketListeners(channel.getPacketRegistry(), CloudNet.getInstance());
             // successful auth
-            channel.sendPacket(new PacketServerAuthorizationResponse(true));
+            channel.sendPacketSync(new PacketServerAuthorizationResponse(true));
             ChannelMessage.builder()
               .targetNode(node.getUniqueId())
               .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)

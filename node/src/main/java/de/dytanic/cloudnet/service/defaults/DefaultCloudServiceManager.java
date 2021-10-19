@@ -21,6 +21,7 @@ import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.cluster.IClusterNodeServer;
 import de.dytanic.cloudnet.cluster.IClusterNodeServerProvider;
 import de.dytanic.cloudnet.common.collection.Pair;
+import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
 import de.dytanic.cloudnet.driver.network.rpc.RPCSender;
 import de.dytanic.cloudnet.driver.provider.service.GeneralCloudServiceProvider;
@@ -55,6 +56,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnknownNullability;
 import org.jetbrains.annotations.UnmodifiableView;
 
 public class DefaultCloudServiceManager implements ICloudServiceManager {
@@ -77,6 +79,9 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
     this.sender = nodeInstance.getRPCProviderFactory().providerForClass(null, GeneralCloudServiceProvider.class);
     nodeInstance.getRPCProviderFactory()
       .newHandler(GeneralCloudServiceProvider.class, this)
+      .registerToDefaultRegistry();
+    nodeInstance.getRPCProviderFactory()
+      .newHandler(SpecificCloudServiceProvider.class, null)
       .registerToDefaultRegistry();
     // register the default factory
     this.addCloudServiceFactory("jvm", new JVMServiceFactory(nodeInstance, nodeInstance.getEventManager()));
@@ -305,7 +310,7 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
   }
 
   @Override
-  public void handleServiceUpdate(@NotNull ServiceInfoSnapshot snapshot) {
+  public void handleServiceUpdate(@NotNull ServiceInfoSnapshot snapshot, @UnknownNullability INetworkChannel source) {
     // deleted services were removed on the other node - remove it here too
     if (snapshot.getLifeCycle() == ServiceLifeCycle.DELETED) {
       this.knownServices.remove(snapshot.getServiceId().getUniqueId());
@@ -315,7 +320,7 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
       if (provider == null) {
         this.knownServices.putIfAbsent(
           snapshot.getServiceId().getUniqueId(),
-          new RemoteNodeCloudServiceProvider(this, this.sender, snapshot));
+          new RemoteNodeCloudServiceProvider(this, this.sender, () -> source, snapshot));
       } else if (provider instanceof RemoteNodeCloudServiceProvider) {
         // update the provider if possible - we need only to handle remote node providers as local providers will update
         // the snapshot directly "in" them
@@ -325,7 +330,10 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
   }
 
   @Override
-  public void handleInitialSetServices(@NotNull Collection<ServiceInfoSnapshot> snapshots) {
+  public void handleInitialSetServices(
+    @NotNull Collection<ServiceInfoSnapshot> snapshots,
+    @NotNull INetworkChannel source
+  ) {
     // register all the services
     for (ServiceInfoSnapshot snapshot : snapshots) {
       // ignore deleted services
@@ -333,7 +341,7 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
         // register a remote provider for that
         this.knownServices.put(
           snapshot.getServiceId().getUniqueId(),
-          new RemoteNodeCloudServiceProvider(this, this.sender, snapshot));
+          new RemoteNodeCloudServiceProvider(this, this.sender, () -> source, snapshot));
       }
     }
   }

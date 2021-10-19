@@ -16,6 +16,7 @@
 
 package de.dytanic.cloudnet.wrapper.provider;
 
+import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.rpc.RPCSender;
 import de.dytanic.cloudnet.driver.provider.service.GeneralCloudServiceProvider;
 import de.dytanic.cloudnet.driver.provider.service.RemoteSpecificCloudServiceProvider;
@@ -26,28 +27,32 @@ import de.dytanic.cloudnet.wrapper.Wrapper;
 import de.dytanic.cloudnet.wrapper.network.listener.message.ServiceChannelMessageListener;
 import java.util.Collection;
 import java.util.UUID;
+import java.util.function.Supplier;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class WrapperGeneralCloudServiceProvider implements GeneralCloudServiceProvider {
 
   private final RPCSender rpcSender;
+  private final Supplier<INetworkChannel> channelSupplier;
 
   public WrapperGeneralCloudServiceProvider(@NotNull Wrapper wrapper) {
     this.rpcSender = wrapper.getRPCProviderFactory().providerForClass(
       wrapper.getNetworkClient(),
       GeneralCloudServiceProvider.class);
+    this.channelSupplier = wrapper.getNetworkClient()::getFirstChannel;
+
     wrapper.getEventManager().registerListener(new ServiceChannelMessageListener(wrapper.getEventManager()));
   }
 
   @Override
   public @NotNull SpecificCloudServiceProvider getSpecificProvider(@NotNull UUID serviceUniqueId) {
-    return new RemoteSpecificCloudServiceProvider(this, this.rpcSender, serviceUniqueId);
+    return new RemoteSpecificCloudServiceProvider(this, this.rpcSender, this.channelSupplier, serviceUniqueId);
   }
 
   @Override
   public @NotNull SpecificCloudServiceProvider getSpecificProviderByName(@NotNull String serviceName) {
-    return new RemoteSpecificCloudServiceProvider(this, this.rpcSender, serviceName);
+    return new RemoteSpecificCloudServiceProvider(this, this.rpcSender, this.channelSupplier, serviceName);
   }
 
   @Override

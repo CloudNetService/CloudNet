@@ -40,6 +40,7 @@ import java.text.Format;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.jetbrains.annotations.ApiStatus;
@@ -48,23 +49,25 @@ import org.jetbrains.annotations.NotNull;
 public final class DefaultClusterNodeServerProvider extends DefaultNodeServerProvider<IClusterNodeServer>
   implements IClusterNodeServerProvider {
 
+  private static final Logger LOGGER = LogManager.getLogger(DefaultClusterNodeServerProvider.class);
+
   private static final Format TIME_FORMAT = new DecimalFormat("##.###");
   private static final long MAX_NO_UPDATE_MILLIS = Long.getLong("cloudnet.max.node.idle.millis", 30_000);
-  private static final Logger LOGGER = LogManager.getLogger(DefaultClusterNodeServerProvider.class);
 
   public DefaultClusterNodeServerProvider(@NotNull CloudNet cloudNet) {
     super(cloudNet);
 
     cloudNet.getEventManager().registerListener(new NodeChannelMessageListener(cloudNet.getEventManager(), this));
-
-    /*cloudNet.getTaskExecutor().scheduleAtFixedRate(() -> {
-      try {
-        // TODO cloudNet.publishNetworkClusterNodeInfoSnapshotUpdate();
-        this.checkForDeadNodes();
-      } catch (Throwable throwable) {
-        LOGGER.severe("Exception while ticking node server provider", throwable);
+    cloudNet.getTaskExecutor().scheduleAtFixedRate(() -> {
+      if (this.localNode.isAvailable()) {
+        try {
+          this.checkForDeadNodes();
+          this.localNode.publishNodeInfoSnapshotUpdate();
+        } catch (Throwable throwable) {
+          LOGGER.severe("Exception while ticking node server provider", throwable);
+        }
       }
-    }, 1, 1, TimeUnit.SECONDS);*/
+    }, 1, 1, TimeUnit.SECONDS);
   }
 
   @Override

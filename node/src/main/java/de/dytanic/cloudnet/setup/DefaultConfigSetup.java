@@ -118,10 +118,12 @@ public class DefaultConfigSetup extends DefaultClusterSetup {
     config.getIpWhitelist().add(host.getHost());
 
     // init the host address
-    config.setHostAddress(animation.getResult("hostAddress"));
-    config.setConnectHostAddress(animation.getResult("hostAddress"));
+    HostAndPort hostAddress = animation.getResult("hostAddress");
+    config.setHostAddress(hostAddress.getHost());
+    config.setConnectHostAddress(hostAddress.getHost());
 
     // init the web host address
+    config.getHttpListeners().clear();
     config.getHttpListeners().add(animation.getResult("webHost"));
 
     // set the maximum memory

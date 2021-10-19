@@ -27,6 +27,7 @@ import org.jetbrains.annotations.NotNull;
  *
  * @see IPacketListenerRegistry
  */
+@FunctionalInterface
 public interface IPacketListener {
 
   /**

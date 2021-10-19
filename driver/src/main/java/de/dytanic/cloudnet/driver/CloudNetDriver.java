@@ -63,7 +63,7 @@ public abstract class CloudNetDriver {
   protected final IEventManager eventManager = new DefaultEventManager();
   protected final IModuleProvider moduleProvider = new DefaultModuleProvider();
   protected final IServicesRegistry servicesRegistry = new DefaultServicesRegistry();
-  protected final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(4);
+  protected final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(2);
 
   protected final RPCHandlerRegistry rpcHandlerRegistry = new DefaultRPCHandlerRegistry();
   protected final RPCProviderFactory rpcProviderFactory = new DefaultRPCProviderFactory(

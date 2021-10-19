@@ -66,14 +66,14 @@ public final class ServiceChannelMessageListener {
         case "head_node_to_node_start_service": {
           ServiceConfiguration configuration = event.getContent().readObject(ServiceConfiguration.class);
           event.setBinaryResponse(DataBuf.empty().writeObject(
-            this.serviceManager.createLocalCloudService(configuration)));
+            this.serviceManager.createLocalCloudService(configuration).getServiceInfoSnapshot()));
         }
         break;
         // update of a service in the network
         case "update_service_info": {
           ServiceInfoSnapshot snapshot = event.getContent().readObject(ServiceInfoSnapshot.class);
           // update locally and call the event
-          this.serviceManager.handleServiceUpdate(snapshot);
+          this.serviceManager.handleServiceUpdate(snapshot, event.getNetworkChannel());
           this.eventManager.callEvent(new CloudServiceUpdateEvent(snapshot));
         }
         break;
@@ -82,14 +82,14 @@ public final class ServiceChannelMessageListener {
           ServiceLifeCycle lifeCycle = event.getContent().readObject(ServiceLifeCycle.class);
           ServiceInfoSnapshot snapshot = event.getContent().readObject(ServiceInfoSnapshot.class);
           // update locally and call the event
-          this.serviceManager.handleServiceUpdate(snapshot);
+          this.serviceManager.handleServiceUpdate(snapshot, event.getNetworkChannel());
           this.eventManager.callEvent(new CloudServiceLifecycleChangeEvent(lifeCycle, snapshot));
         }
         break;
         // the initial information about all services which are currently running on all nodes when connecting
         case "initial_service_list_information": {
           Collection<ServiceInfoSnapshot> snapshots = event.getContent().readObject(SNAPS);
-          this.serviceManager.handleInitialSetServices(snapshots);
+          this.serviceManager.handleInitialSetServices(snapshots, event.getNetworkChannel());
         }
         break;
         // none of our business

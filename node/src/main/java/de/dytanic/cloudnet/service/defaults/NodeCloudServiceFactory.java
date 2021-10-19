@@ -25,11 +25,14 @@ import de.dytanic.cloudnet.driver.channel.ChannelMessageTarget.Type;
 import de.dytanic.cloudnet.driver.network.buffer.DataBufFactory;
 import de.dytanic.cloudnet.driver.network.def.NetworkConstants;
 import de.dytanic.cloudnet.driver.provider.service.CloudServiceFactory;
+import de.dytanic.cloudnet.driver.service.GroupConfiguration;
 import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.network.listener.message.ServiceChannelMessageListener;
 import de.dytanic.cloudnet.service.ICloudServiceManager;
+import java.util.Collection;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -53,6 +56,9 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
   public @Nullable ServiceInfoSnapshot createCloudService(ServiceConfiguration serviceConfiguration) {
     // check if this node can start services
     if (this.nodeServerProvider.getHeadNode().equals(this.nodeServerProvider.getSelfNode())) {
+      // prepare the service configuration
+      this.replaceServiceId(serviceConfiguration);
+      this.includeGroupComponents(serviceConfiguration);
       // get the logic node server to start the service on
       IClusterNodeServer nodeServer = this.peekLogicNodeServer(serviceConfiguration);
       // if there is a node server send a request to start a service
@@ -117,5 +123,45 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
         // use the result of the comparison
         return chain.result();
       }).orElse(null);
+  }
+
+  protected void includeGroupComponents(@NotNull ServiceConfiguration configuration) {
+    // include all groups which are matching the service configuration
+    CloudNet.getInstance().getGroupConfigurationProvider().getGroupConfigurations().stream()
+      .filter(group -> group.getTargetEnvironments().contains(configuration.getServiceId().getEnvironment()))
+      .forEach(group -> configuration.getGroups().add(group.getName()));
+    // include each group component in the service configuration
+    for (String group : configuration.getGroups()) {
+      // get the group
+      GroupConfiguration config = CloudNet.getInstance().getGroupConfigurationProvider().getGroupConfiguration(group);
+      // check if the config is available - add all components if so
+      if (config != null) {
+        configuration.getIncludes().addAll(config.getIncludes());
+        configuration.getTemplates().addAll(config.getTemplates());
+        configuration.getDeployments().addAll(config.getDeployments());
+
+        configuration.getProcessConfig().getJvmOptions().addAll(config.getJvmOptions());
+        configuration.getProcessConfig().getProcessParameters().addAll(config.getProcessParameters());
+      }
+    }
+  }
+
+  protected void replaceServiceId(@NotNull ServiceConfiguration config) {
+    // check if the service id
+    int serviceId = config.getServiceId().getTaskServiceId();
+    // check if the service id is invalid
+    if (serviceId <= 0) {
+      serviceId = 1;
+    }
+    // check if it is already taken
+    Collection<Integer> takenIds = this.serviceManager.getCloudServicesByTask(config.getServiceId().getTaskName())
+      .stream()
+      .map(service -> service.getServiceId().getTaskServiceId())
+      .collect(Collectors.toSet());
+    while (takenIds.contains(serviceId)) {
+      serviceId++;
+    }
+    // update the service id
+    config.getServiceId().setTaskServiceId(serviceId);
   }
 }

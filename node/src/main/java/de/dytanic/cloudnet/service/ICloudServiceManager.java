@@ -16,6 +16,7 @@
 
 package de.dytanic.cloudnet.service;
 
+import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.provider.service.GeneralCloudServiceProvider;
 import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
 import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
@@ -29,6 +30,7 @@ import java.util.UUID;
 import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnknownNullability;
 import org.jetbrains.annotations.UnmodifiableView;
 
 public interface ICloudServiceManager extends GeneralCloudServiceProvider {
@@ -88,10 +90,10 @@ public interface ICloudServiceManager extends GeneralCloudServiceProvider {
   void unregisterLocalService(@NotNull ICloudService service);
 
   @Internal
-  void handleServiceUpdate(@NotNull ServiceInfoSnapshot snapshot);
+  void handleServiceUpdate(@NotNull ServiceInfoSnapshot snapshot, @UnknownNullability INetworkChannel source);
 
   @Internal
-  void handleInitialSetServices(@NotNull Collection<ServiceInfoSnapshot> snapshots);
+  void handleInitialSetServices(@NotNull Collection<ServiceInfoSnapshot> snapshots, @NotNull INetworkChannel source);
 
   @Internal
   @NotNull ICloudService createLocalCloudService(@NotNull ServiceConfiguration serviceConfiguration);

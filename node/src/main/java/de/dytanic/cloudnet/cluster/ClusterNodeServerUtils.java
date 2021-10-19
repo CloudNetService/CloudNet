@@ -43,7 +43,7 @@ final class ClusterNodeServerUtils {
         // mark the service as deleted
         snapshot.setLifeCycle(ServiceLifeCycle.DELETED);
         // publish the update to the manager and to the network
-        CloudNet.getInstance().getCloudServiceProvider().handleServiceUpdate(snapshot);
+        CloudNet.getInstance().getCloudServiceProvider().handleServiceUpdate(snapshot, null);
       }
     }
 /* TODO

@@ -18,10 +18,12 @@ package de.dytanic.cloudnet.service.defaults.provider;
 
 import de.dytanic.cloudnet.common.concurrent.CompletedTask;
 import de.dytanic.cloudnet.common.concurrent.ITask;
+import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.rpc.RPCSender;
 import de.dytanic.cloudnet.driver.provider.service.GeneralCloudServiceProvider;
 import de.dytanic.cloudnet.driver.provider.service.RemoteSpecificCloudServiceProvider;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
+import java.util.function.Supplier;
 import org.jetbrains.annotations.NotNull;
 
 public class RemoteNodeCloudServiceProvider extends RemoteSpecificCloudServiceProvider {
@@ -31,9 +33,10 @@ public class RemoteNodeCloudServiceProvider extends RemoteSpecificCloudServicePr
   public RemoteNodeCloudServiceProvider(
     @NotNull GeneralCloudServiceProvider provider,
     @NotNull RPCSender providerSender,
+    @NotNull Supplier<INetworkChannel> channelSupplier,
     @NotNull ServiceInfoSnapshot snapshot
   ) {
-    super(provider, providerSender, snapshot.getServiceId().getUniqueId());
+    super(provider, providerSender, channelSupplier, snapshot.getServiceId().getUniqueId());
     this.snapshot = snapshot;
   }
 

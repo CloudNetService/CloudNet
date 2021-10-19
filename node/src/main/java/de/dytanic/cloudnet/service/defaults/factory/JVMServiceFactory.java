@@ -41,7 +41,6 @@ public class JVMServiceFactory extends AbstractServiceFactory {
     @NotNull ServiceConfiguration configuration
   ) {
     // validates the settings of the configuration
-    this.includeGroupComponents(configuration);
     this.validateConfiguration(manager, configuration);
     // select the configuration preparer for the environment
     ServiceConfigurationPreparer preparer = manager

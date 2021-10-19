@@ -47,7 +47,6 @@ public final class JsonConfiguration implements IConfiguration {
 
   public static final Path CONFIG_FILE_PATH = Paths.get(
     System.getProperty("cloudnet.config.json.path", "config.json"));
-  public static final boolean DID_CONFIG_EXIST = Files.exists(CONFIG_FILE_PATH);
 
   private static final Function<String, SSLConfiguration> SSL_CONFIG_PARSER = value -> {
     String[] values = value.split(";");
@@ -96,7 +95,7 @@ public final class JsonConfiguration implements IConfiguration {
     Path oldRegistry = Paths.get("local", "registry");
     if (Files.exists(oldRegistry)) {
       JsonDocument entries = JsonDocument.newDocument(oldRegistry).getDocument("entries");
-      if (entries != null) {
+      if (!entries.isEmpty()) {
         this.properties = JsonDocument.newDocument();
         this.properties.append(entries);
       }

@@ -17,14 +17,11 @@
 package de.dytanic.cloudnet.service.defaults.factory;
 
 import de.dytanic.cloudnet.CloudNet;
-import de.dytanic.cloudnet.driver.service.GroupConfiguration;
 import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
 import de.dytanic.cloudnet.service.ICloudService;
 import de.dytanic.cloudnet.service.ICloudServiceFactory;
 import de.dytanic.cloudnet.service.ICloudServiceManager;
 import de.dytanic.cloudnet.util.PortValidator;
-import java.util.Collection;
-import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
 
 public abstract class AbstractServiceFactory implements ICloudServiceFactory {
@@ -43,44 +40,6 @@ public abstract class AbstractServiceFactory implements ICloudServiceFactory {
     }
     // set the port
     configuration.setPort(port);
-
-    // check if the service id
-    int serviceId = configuration.getServiceId().getTaskServiceId();
-    // check if the service id is invalid
-    if (serviceId <= 0) {
-      serviceId = 1;
-    }
-    // check if it is already taken
-    Collection<Integer> takenIds = manager.getCloudServicesByTask(configuration.getServiceId().getTaskName())
-      .stream()
-      .map(service -> service.getServiceId().getTaskServiceId())
-      .collect(Collectors.toSet());
-    while (takenIds.contains(serviceId)) {
-      serviceId++;
-    }
-    // update the service id
-    configuration.getServiceId().setTaskServiceId(serviceId);
-  }
-
-  protected void includeGroupComponents(@NotNull ServiceConfiguration configuration) {
-    // include all groups which are matching the service configuration
-    CloudNet.getInstance().getGroupConfigurationProvider().getGroupConfigurations().stream()
-      .filter(group -> group.getTargetEnvironments().contains(configuration.getServiceId().getEnvironment()))
-      .forEach(group -> configuration.getGroups().add(group.getName()));
-    // include each group component in the service configuration
-    for (String group : configuration.getGroups()) {
-      // get the group
-      GroupConfiguration config = CloudNet.getInstance().getGroupConfigurationProvider().getGroupConfiguration(group);
-      // check if the config is available - add all components if so
-      if (config != null) {
-        configuration.getIncludes().addAll(config.getIncludes());
-        configuration.getTemplates().addAll(config.getTemplates());
-        configuration.getDeployments().addAll(config.getDeployments());
-
-        configuration.getProcessConfig().getJvmOptions().addAll(config.getJvmOptions());
-        configuration.getProcessConfig().getProcessParameters().addAll(config.getProcessParameters());
-      }
-    }
   }
 
   protected boolean isPortInUse(@NotNull ICloudServiceManager manager, int port) {

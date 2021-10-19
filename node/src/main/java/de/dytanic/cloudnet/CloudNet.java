@@ -35,6 +35,8 @@ import de.dytanic.cloudnet.database.xodus.XodusDatabaseProvider;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.CloudNetVersion;
 import de.dytanic.cloudnet.driver.DriverEnvironment;
+import de.dytanic.cloudnet.driver.database.Database;
+import de.dytanic.cloudnet.driver.database.DatabaseProvider;
 import de.dytanic.cloudnet.driver.module.DefaultPersistableModuleDependencyLoader;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.network.INetworkClient;
@@ -150,6 +152,11 @@ public class CloudNet extends CloudNetDriver {
       this.configuration.getServerSslConfig());
     this.httpServer = new NettyHttpServer(this.configuration.getWebSslConfig());
 
+    // register all rpc handlers associated with methods of this class
+    this.rpcProviderFactory.newHandler(Database.class, null).registerToDefaultRegistry();
+    this.rpcProviderFactory.newHandler(CloudNetDriver.class, this).registerToDefaultRegistry();
+    this.rpcProviderFactory.newHandler(TemplateStorage.class, null).registerToDefaultRegistry();
+
     this.driverEnvironment = DriverEnvironment.CLOUDNET;
   }
 
@@ -183,16 +190,16 @@ public class CloudNet extends CloudNetDriver {
         !this.configuration.getClusterConfig().getNodes().isEmpty()));
 
     // initialize the default database provider
-    this.databaseProvider = this.servicesRegistry.getService(
+    this.setDatabaseProvider(this.servicesRegistry.getService(
       AbstractDatabaseProvider.class,
-      this.configuration.getProperties().getString("database_provider", "xodus"));
+      this.configuration.getProperties().getString("database_provider", "xodus")));
 
     // load the modules before proceeding for example to allow the database provider init
     this.moduleProvider.loadAll();
 
     // check if there is a database provider or initialize the default one
     if (this.databaseProvider == null || !this.databaseProvider.init()) {
-      this.databaseProvider = this.servicesRegistry.getService(AbstractDatabaseProvider.class, "xodus");
+      this.setDatabaseProvider(this.servicesRegistry.getService(AbstractDatabaseProvider.class, "xodus"));
       if (this.databaseProvider == null || !this.databaseProvider.init()) {
         // unable to start without a database
         throw new IllegalStateException("No database provider selected for startup - Unable to proceed");
@@ -205,6 +212,10 @@ public class CloudNet extends CloudNetDriver {
     // execute the installation setup and load the config things after it
     this.installation.executeFirstStartSetup(this.console);
     this.nodeServerProvider.setClusterServers(this.configuration.getClusterConfig());
+
+    // init the local node server
+    this.nodeServerProvider.getSelfNode().setNodeInfo(this.configuration.getIdentity());
+    this.nodeServerProvider.getSelfNode().publishNodeInfoSnapshotUpdate();
 
     // network server init
     for (HostAndPort listener : this.configuration.getIdentity().getListeners()) {
@@ -239,7 +250,6 @@ public class CloudNet extends CloudNetDriver {
 
     // run the main loop
     this.mainThread.start();
-    // todo this.nodeServerProvider.getSelfNode().publishNodeInfoSnapshotUpdate();
   }
 
   @Override
@@ -317,8 +327,19 @@ public class CloudNet extends CloudNetDriver {
     return this.databaseProvider;
   }
 
-  public void setDatabaseProvider(@NotNull AbstractDatabaseProvider databaseProvider) {
-    this.databaseProvider = databaseProvider;
+  public void setDatabaseProvider(@Nullable AbstractDatabaseProvider databaseProvider) {
+    if (databaseProvider != null) {
+      try {
+        // check if we have an old database provider and close that one if the new database provider is ready and connected
+        if (this.databaseProvider != null && databaseProvider.init()) {
+          this.databaseProvider.close();
+        }
+        this.databaseProvider = databaseProvider;
+        this.rpcProviderFactory.newHandler(DatabaseProvider.class, databaseProvider).registerToDefaultRegistry();
+      } catch (Exception exception) {
+        LOGGER.severe("Unable to update current database provider", exception);
+      }
+    }
   }
 
   @Override
@@ -361,6 +382,9 @@ public class CloudNet extends CloudNetDriver {
     // nodes can only use node permission managements
     Preconditions.checkArgument(management instanceof NodePermissionManagement);
     super.setPermissionManagement(management);
+    // re-register the handler for the permission management - the call to super.setPermissionManagement will not exit
+    // if the permission management is invalid
+    this.rpcProviderFactory.newHandler(IPermissionManagement.class, management).registerToDefaultRegistry();
   }
 
   public @NotNull IConfiguration getConfig() {
