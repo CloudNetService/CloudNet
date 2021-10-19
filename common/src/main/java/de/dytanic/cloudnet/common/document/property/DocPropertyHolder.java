@@ -14,48 +14,22 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.driver.network.http;
+package de.dytanic.cloudnet.common.document.property;
 
-import java.io.InputStream;
-import java.util.Map;
+import de.dytanic.cloudnet.common.document.IDocument;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 
-public interface IHttpMessage<T extends IHttpMessage<?>> {
+public interface DocPropertyHolder {
 
-  IHttpContext context();
+  @NotNull <E> DocPropertyHolder setProperty(@NotNull DocProperty<E> docProperty, @Nullable E val);
 
-  String header(String name);
+  @UnknownNullability <E> E getProperty(@NotNull DocProperty<E> docProperty);
 
-  int headerAsInt(String name);
+  @NotNull <E> DocPropertyHolder removeProperty(@NotNull DocProperty<E> docProperty);
 
-  boolean headerAsBoolean(String name);
+  <E> boolean hasProperty(@NotNull DocProperty<E> docProperty);
 
-  T header(String name, String value);
-
-  T removeHeader(String name);
-
-  T clearHeaders();
-
-  boolean hasHeader(String name);
-
-  Map<String, String> headers();
-
-  HttpVersion version();
-
-  T version(HttpVersion version);
-
-  byte[] body();
-
-  String bodyAsString();
-
-  T body(byte[] byteArray);
-
-  T body(String text);
-
-  @UnknownNullability InputStream bodyStream();
-
-  T body(@Nullable InputStream body);
-
-  boolean hasBody();
+  @NotNull IDocument<?> getProperties();
 }

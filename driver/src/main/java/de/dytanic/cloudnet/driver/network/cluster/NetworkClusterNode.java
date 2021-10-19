@@ -16,7 +16,7 @@
 
 package de.dytanic.cloudnet.driver.network.cluster;
 
-import de.dytanic.cloudnet.common.document.gson.BasicJsonDocPropertyable;
+import de.dytanic.cloudnet.common.document.property.JsonDocPropertyHolder;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import lombok.EqualsAndHashCode;
@@ -25,7 +25,7 @@ import org.jetbrains.annotations.NotNull;
 
 @ToString
 @EqualsAndHashCode(callSuper = false)
-public class NetworkClusterNode extends BasicJsonDocPropertyable {
+public class NetworkClusterNode extends JsonDocPropertyHolder {
 
   private final String uniqueId;
   private final HostAndPort[] listeners;

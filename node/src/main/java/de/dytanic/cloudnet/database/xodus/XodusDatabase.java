@@ -16,9 +16,9 @@
 
 package de.dytanic.cloudnet.database.xodus;
 
-import com.google.gson.JsonElement;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.database.AbstractDatabase;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -73,7 +73,10 @@ public class XodusDatabase extends AbstractDatabase {
 
   protected boolean insert0(String key, JsonDocument document) {
     return this.environment.computeInExclusiveTransaction(
-      txn -> this.getStore().put(txn, StringBinding.stringToEntry(key), new ArrayByteIterable(document.toByteArray())));
+      txn -> this.getStore().put(
+        txn,
+        StringBinding.stringToEntry(key),
+        new ArrayByteIterable(document.toString().getBytes(StandardCharsets.UTF_8))));
   }
 
   @Override
@@ -97,15 +100,15 @@ public class XodusDatabase extends AbstractDatabase {
   public JsonDocument get(String key) {
     return this.environment.computeInReadonlyTransaction(txn -> {
       ByteIterable entry = this.getStore().get(txn, StringBinding.stringToEntry(key));
-      return entry == null ? null : JsonDocument.newDocument(entry.getBytesUnsafe());
+      return entry == null ? null : JsonDocument.fromJsonBytes(entry.getBytesUnsafe());
     });
   }
 
   @Override
   public @NotNull List<JsonDocument> get(@NotNull String fieldName, Object fieldValue) {
-    JsonElement like = JsonDocument.GSON.toJsonTree(fieldValue);
+    JsonDocument like = JsonDocument.newDocument(fieldValue);
     return this.handleWithCursor(($, document) -> {
-      if (document.contains(fieldName) && document.getElement(fieldName).equals(like)) {
+      if (document.contains(fieldName) && JsonDocument.newDocument(document.get(fieldName)).equals(like)) {
         return document;
       }
       return null;
@@ -117,14 +120,14 @@ public class XodusDatabase extends AbstractDatabase {
     Map<String, Object> filterObjects = new HashMap<>();
     if (!filters.isEmpty()) {
       for (String key : filters) {
-        filterObjects.put(key, filters.getElement(key));
+        filterObjects.put(key, filters.get(key));
       }
     }
 
     Set<Entry<String, Object>> entries = filterObjects.entrySet();
     return this.handleWithCursor(($, document) -> {
       for (Entry<String, Object> entry : entries) {
-        if (document.contains(entry.getKey()) && document.getElement(entry.getKey()).equals(entry.getValue())) {
+        if (document.contains(entry.getKey()) && document.get(entry.getKey()).equals(entry.getValue())) {
           return document;
         }
       }
@@ -203,8 +206,9 @@ public class XodusDatabase extends AbstractDatabase {
     this.environment.executeInReadonlyTransaction(txn -> {
       try (Cursor cursor = this.getStore().openCursor(txn)) {
         while (cursor.getNext()) {
-          handler.accept(StringBinding.entryToString(cursor.getKey()),
-            JsonDocument.newDocument(cursor.getValue().getBytesUnsafe()));
+          handler.accept(
+            StringBinding.entryToString(cursor.getKey()),
+            JsonDocument.fromJsonBytes(cursor.getValue().getBytesUnsafe()));
         }
       }
     });
@@ -225,8 +229,9 @@ public class XodusDatabase extends AbstractDatabase {
 
         long currentReadCount = 0;
         while (chunkSize > currentReadCount && cursor.getNext()) {
-          result.put(StringBinding.entryToString(cursor.getKey()),
-            JsonDocument.newDocument(cursor.getValue().getBytesUnsafe()));
+          result.put(
+            StringBinding.entryToString(cursor.getKey()),
+            JsonDocument.fromJsonBytes(cursor.getValue().getBytesUnsafe()));
           currentReadCount++;
         }
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.http.v2;
+package de.dytanic.cloudnet.http;
 
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
@@ -135,7 +135,7 @@ public abstract class V2HttpHandler implements IHttpHandler {
 
   protected void send403(IHttpContext context, String reason) {
     this.response(context, HttpResponseCode.HTTP_FORBIDDEN)
-      .body(this.failure().append("reason", reason).toByteArray())
+      .body(this.failure().append("reason", reason).toString().getBytes(StandardCharsets.UTF_8))
       .context()
       .closeAfter(true)
       .cancelNext();
@@ -174,8 +174,8 @@ public abstract class V2HttpHandler implements IHttpHandler {
       .header("Access-Control-Allow-Origin", this.accessControlConfiguration.getCorsPolicy());
   }
 
-  protected JsonDocument body(IHttpRequest request) {
-    return JsonDocument.newDocument(new String(request.body(), StandardCharsets.UTF_8));
+  protected JsonDocument body(@NotNull IHttpRequest request) {
+    return JsonDocument.fromJsonBytes(request.body());
   }
 
   protected JsonDocument success() {

@@ -16,95 +16,154 @@
 
 package de.dytanic.cloudnet.common.document;
 
-import de.dytanic.cloudnet.common.document.gson.IJsonDocPropertyable;
+import de.dytanic.cloudnet.common.document.property.DocProperty;
+import de.dytanic.cloudnet.common.document.property.DocPropertyHolder;
 import java.io.Serializable;
 import java.lang.reflect.Type;
-import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.Collection;
-import java.util.Map;
-import java.util.Properties;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnknownNullability;
 
 /**
  * A document is a wrapper to persistence data or read data in the heap or easy into the following implementation format
  * of this interface.
  */
-public interface IDocument<R extends IDocument<?>> extends IJsonDocPropertyable, Serializable, IPersistable,
-  IReadable, Iterable<String> {
+public interface IDocument<R extends IDocument<R>>
+  extends Serializable, DocPropertyHolder, IPersistable, IReadable, Iterable<String>, Cloneable {
 
-  Collection<String> keys();
+  @NotNull Collection<String> keys();
 
   int size();
 
-  R clear();
+  @NotNull R clear();
 
-  R remove(String key);
+  @NotNull R remove(@NotNull String key);
 
-  boolean contains(String key);
+  boolean contains(@NotNull String key);
 
-  <T> T toInstanceOf(Class<T> clazz);
+  @UnknownNullability <T> T toInstanceOf(@NotNull Class<T> clazz);
 
-  <T> T toInstanceOf(Type clazz);
+  @UnknownNullability <T> T toInstanceOf(@NotNull Type clazz);
 
 
-  R append(String key, Object value);
+  @NotNull R append(@NotNull String key, @Nullable Object value);
 
-  R append(String key, Number value);
+  @NotNull R append(@NotNull String key, @Nullable Number value);
 
-  R append(String key, Boolean value);
+  @NotNull R append(@NotNull String key, @Nullable Boolean value);
 
-  R append(String key, String value);
+  @NotNull R append(@NotNull String key, @Nullable String value);
 
-  R append(String key, Character value);
+  @NotNull R append(@NotNull String key, @Nullable Character value);
 
-  R append(String key, R value);
+  @NotNull R append(@NotNull String key, @Nullable R value);
 
-  R append(Properties properties);
+  @NotNull R append(@Nullable R t);
 
-  R append(Map<String, Object> map);
+  @NotNull R appendNull(@NotNull String key);
 
-  R append(String key, Properties properties);
+  @NotNull R getDocument(@NotNull String key);
 
-  R append(String key, byte[] bytes);
+  default int getInt(@NotNull String key) {
+    return this.getInt(key, 0);
+  }
 
-  R append(R t);
+  default double getDouble(@NotNull String key) {
+    return this.getDouble(key, 0);
+  }
 
-  R appendNull(String key);
+  default float getFloat(@NotNull String key) {
+    return this.getFloat(key, 0);
+  }
 
-  R getDocument(String key);
+  default byte getByte(@NotNull String key) {
+    return this.getByte(key, (byte) 0);
+  }
 
-  int getInt(String key);
+  default short getShort(@NotNull String key) {
+    return this.getShort(key, (short) 0);
+  }
 
-  double getDouble(String key);
+  default long getLong(@NotNull String key) {
+    return this.getLong(key, 0);
+  }
 
-  float getFloat(String key);
+  default boolean getBoolean(@NotNull String key) {
+    return this.getBoolean(key, false);
+  }
 
-  byte getByte(String key);
+  default @UnknownNullability String getString(@NotNull String key) {
+    return this.getString(key, null);
+  }
 
-  short getShort(String key);
+  default char getChar(@NotNull String key) {
+    return this.getChar(key, (char) 0);
+  }
 
-  long getLong(String key);
+  default @UnknownNullability Object get(@NotNull String key) {
+    return this.get(key, (Object) null);
+  }
 
-  boolean getBoolean(String key);
+  default @UnknownNullability <T> T get(@NotNull String key, @NotNull Class<T> clazz) {
+    return this.get(key, clazz, null);
+  }
 
-  String getString(String key);
+  default @UnknownNullability <T> T get(@NotNull String key, @NotNull Type type) {
+    return this.get(key, type, null);
+  }
 
-  char getChar(String key);
+  @UnknownNullability R getDocument(@NotNull String key, @Nullable R def);
 
-  BigDecimal getBigDecimal(String key);
+  int getInt(@NotNull String key, int def);
 
-  BigInteger getBigInteger(String key);
+  double getDouble(@NotNull String key, double def);
 
-  Properties getProperties(String key);
+  float getFloat(@NotNull String key, float def);
 
-  byte[] getBinary(String key);
+  byte getByte(@NotNull String key, byte def);
 
-  <T> T get(String key, Class<T> clazz);
+  short getShort(@NotNull String key, short def);
 
-  <T> T get(String key, Type type);
+  long getLong(@NotNull String key, long def);
 
+  boolean getBoolean(@NotNull String key, boolean def);
+
+  @UnknownNullability String getString(@NotNull String key, @Nullable String def);
+
+  char getChar(@NotNull String key, char def);
+
+  @UnknownNullability Object get(@NotNull String key, @Nullable Object def);
+
+  @UnknownNullability <T> T get(@NotNull String key, @NotNull Class<T> clazz, @Nullable T def);
+
+  @UnknownNullability <T> T get(@NotNull String key, @NotNull Type type, @Nullable T def);
 
   default boolean isEmpty() {
     return this.size() == 0;
+  }
+
+  @Override
+  @SuppressWarnings("unchecked")
+  default @NotNull <E> R setProperty(@NotNull DocProperty<E> docProperty, @Nullable E val) {
+    docProperty.append(this, val);
+    return (R) this;
+  }
+
+  @Override
+  default <E> @UnknownNullability E getProperty(@NotNull DocProperty<E> docProperty) {
+    return docProperty.get(this);
+  }
+
+  @Override
+  @SuppressWarnings("unchecked")
+  default @NotNull <E> R removeProperty(@NotNull DocProperty<E> docProperty) {
+    docProperty.remove(this);
+    return (R) this;
+  }
+
+  @Override
+  default <E> boolean hasProperty(@NotNull DocProperty<E> docProperty) {
+    return docProperty.isAppendedTo(this);
   }
 }

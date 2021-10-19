@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.cloudnet.ext.report.config;
 
-import com.google.gson.JsonParseException;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
@@ -31,12 +30,7 @@ public class ReportConfigurationHelper {
   private static final Logger LOGGER = LogManager.getLogger(ReportConfigurationHelper.class);
 
   public static @NotNull ReportConfiguration read(@NotNull Path location) {
-    JsonDocument document;
-    try {
-      document = JsonDocument.newDocumentExceptionally(location);
-    } catch (Exception exception) {
-      throw new JsonParseException("Exception while parsing report configuration. Your configuration is invalid.");
-    }
+    JsonDocument document = JsonDocument.newDocument(location);
 
     if (document.contains("savingRecords")) {
       // we found an old config - convert the config

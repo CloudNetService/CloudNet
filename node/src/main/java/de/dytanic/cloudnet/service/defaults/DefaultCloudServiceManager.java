@@ -300,6 +300,11 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
   }
 
   @Override
+  public void unregisterLocalService(@NotNull ICloudService service) {
+    this.knownServices.remove(service.getServiceId().getUniqueId());
+  }
+
+  @Override
   public void handleServiceUpdate(@NotNull ServiceInfoSnapshot snapshot) {
     // deleted services were removed on the other node - remove it here too
     if (snapshot.getLifeCycle() == ServiceLifeCycle.DELETED) {

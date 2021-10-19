@@ -49,7 +49,7 @@ public final class H2Database extends SQLDatabase {
         Map<String, JsonDocument> result = new HashMap<>();
         while (resultSet.next()) {
           String key = resultSet.getString(TABLE_COLUMN_KEY);
-          JsonDocument document = JsonDocument.newDocument(resultSet.getString(TABLE_COLUMN_VALUE));
+          JsonDocument document = JsonDocument.fromJsonString(resultSet.getString(TABLE_COLUMN_VALUE));
           result.put(key, document);
         }
 

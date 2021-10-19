@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.http.v2;
+package de.dytanic.cloudnet.http;
 
 import com.google.common.collect.Iterables;
 import de.dytanic.cloudnet.driver.network.http.IHttpContext;
-import de.dytanic.cloudnet.http.v2.ticket.WebSocketTicket;
+import de.dytanic.cloudnet.http.ticket.WebSocketTicket;
 import java.util.List;
 import java.util.function.BiPredicate;
 

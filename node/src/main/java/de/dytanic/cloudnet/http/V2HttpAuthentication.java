@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.http.v2;
+package de.dytanic.cloudnet.http;
 
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.collection.Pair;
@@ -23,7 +23,7 @@ import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.network.http.IHttpRequest;
 import de.dytanic.cloudnet.driver.permission.PermissionUser;
-import de.dytanic.cloudnet.http.v2.ticket.WebSocketTicketManager;
+import de.dytanic.cloudnet.http.ticket.WebSocketTicketManager;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jws;

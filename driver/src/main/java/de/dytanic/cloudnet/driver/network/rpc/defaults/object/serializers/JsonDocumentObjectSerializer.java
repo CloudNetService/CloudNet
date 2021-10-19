@@ -32,7 +32,7 @@ public class JsonDocumentObjectSerializer implements ObjectSerializer<JsonDocume
     @NotNull Type type,
     @NotNull ObjectMapper caller
   ) {
-    return JsonDocument.newDocument(source.readString());
+    return JsonDocument.fromJsonString(source.readString());
   }
 
   @Override
@@ -42,6 +42,6 @@ public class JsonDocumentObjectSerializer implements ObjectSerializer<JsonDocume
     @NotNull Type type,
     @NotNull ObjectMapper caller
   ) {
-    dataBuf.writeString(object.toJson());
+    dataBuf.writeString(object.toString());
   }
 }

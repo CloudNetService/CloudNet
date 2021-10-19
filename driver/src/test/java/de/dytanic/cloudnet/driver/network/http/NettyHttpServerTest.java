@@ -193,7 +193,7 @@ public class NettyHttpServerTest extends NetworkTestCase {
         context.response()
           .statusCode(201)
           .header("derklaro_response_status", "derklaro_was_there")
-          .body(JsonDocument.newDocument("test", "passed").toByteArray())
+          .body(JsonDocument.newDocument("test", "passed").toString().getBytes(StandardCharsets.UTF_8))
           .context()
           .closeAfter(true)
           .cancelNext();

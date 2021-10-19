@@ -99,7 +99,7 @@ public class PaperApiVersionFetchStepExecutor implements InstallStepExecutor {
     } catch (IOException exception) {
       LOGGER.severe("Exception while executing request", exception);
     }
-    return JsonDocument.EMPTY;
+    return JsonDocument.empty();
   }
 
   @NotNull

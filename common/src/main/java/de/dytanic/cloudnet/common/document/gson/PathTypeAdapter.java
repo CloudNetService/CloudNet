@@ -29,7 +29,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @Internal
-public final class PathTypeAdapter extends TypeAdapter<Path> {
+final class PathTypeAdapter extends TypeAdapter<Path> {
 
   @Override
   public void write(@NotNull JsonWriter out, @Nullable Path value) throws IOException {

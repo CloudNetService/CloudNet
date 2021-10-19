@@ -16,6 +16,7 @@
 
 package de.dytanic.cloudnet.common.document.gson;
 
+import de.dytanic.cloudnet.common.document.property.FunctionalDocProperty;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -73,10 +74,10 @@ public class JsonDocumentTest {
       .append("test", new TestClass("myData"));
   }
 
-  private JsonDocProperty<String> getJsonDocProperty() {
-    return new JsonDocProperty<>(
-      (s, document) -> document.append("content", s),
+  private FunctionalDocProperty<String> getJsonDocProperty() {
+    return new FunctionalDocProperty<>(
       document -> document.getString("content"),
+      (val, doc) -> doc.append("content", val),
       document -> document.remove("content"),
       document -> document.contains("content")
     );

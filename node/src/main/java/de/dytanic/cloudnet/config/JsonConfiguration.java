@@ -269,7 +269,7 @@ public final class JsonConfiguration implements IConfiguration {
       this.properties = ConfigurationUtils.get(
         "cloudnet.config.properties",
         JsonDocument.newDocument("database_provider", "xodus"),
-        JsonDocument::newDocument);
+        JsonDocument::fromJsonString);
     }
 
     return this.save();

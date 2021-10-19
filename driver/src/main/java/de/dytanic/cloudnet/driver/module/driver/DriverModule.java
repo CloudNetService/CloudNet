@@ -69,7 +69,7 @@ public class DriverModule extends DefaultModule {
 
     Path configuration = this.getModuleWrapper().getDataDirectory().resolve("config.json");
     if (Files.notExists(configuration)) {
-      JsonDocument.EMPTY.write(configuration);
+      JsonDocument.empty().write(configuration);
     }
 
     return JsonDocument.newDocument(configuration);
@@ -80,10 +80,10 @@ public class DriverModule extends DefaultModule {
 
     Path configuration = this.getModuleWrapper().getDataDirectory().resolve("config.json");
     if (Files.notExists(configuration)) {
-      JsonDocument.EMPTY.write(configuration);
+      JsonDocument.empty().write(configuration);
     }
 
-    return JsonDocument.newDocumentExceptionally(configuration);
+    return JsonDocument.newDocument(configuration);
   }
 
   public final IEventManager registerListener(Object listener) {

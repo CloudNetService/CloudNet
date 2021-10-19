@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.http.v2.ticket;
+package de.dytanic.cloudnet.http.ticket;
 
-import de.dytanic.cloudnet.http.v2.HttpSession;
+import de.dytanic.cloudnet.http.HttpSession;
 
 public class WebSocketTicket {
 

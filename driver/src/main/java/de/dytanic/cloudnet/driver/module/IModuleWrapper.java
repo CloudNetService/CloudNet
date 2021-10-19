@@ -16,14 +16,12 @@
 
 package de.dytanic.cloudnet.driver.module;
 
-import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import java.net.URI;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
 
@@ -77,15 +75,6 @@ public interface IModuleWrapper {
   @NotNull ModuleConfiguration getModuleConfiguration();
 
   /**
-   * @deprecated Use {@link #getModuleConfiguration()} instead - same result but unwrapped.
-   */
-  @Deprecated
-  @ScheduledForRemoval
-  default JsonDocument getModuleConfigurationSource() {
-    return JsonDocument.newDocument(this.getModuleConfiguration());
-  }
-
-  /**
    * Get the class loader which is responsible for this module.
    *
    * @return the class loader which is responsible for this module.
@@ -114,7 +103,8 @@ public interface IModuleWrapper {
   @NotNull IModuleWrapper startModule();
 
   /**
-   * Changes the lifecycle of this module to {@link ModuleLifeCycle#RELOADING} if possible and fires all associated tasks.
+   * Changes the lifecycle of this module to {@link ModuleLifeCycle#RELOADING} if possible and fires all associated
+   * tasks.
    *
    * @return the same instance of this class, for chaining.
    * @see #getModuleTasks()

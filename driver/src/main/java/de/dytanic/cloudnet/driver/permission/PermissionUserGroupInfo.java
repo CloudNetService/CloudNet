@@ -16,7 +16,7 @@
 
 package de.dytanic.cloudnet.driver.permission;
 
-import de.dytanic.cloudnet.common.document.gson.BasicJsonDocPropertyable;
+import de.dytanic.cloudnet.common.document.property.JsonDocPropertyHolder;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -24,7 +24,7 @@ import org.jetbrains.annotations.NotNull;
 
 @ToString
 @EqualsAndHashCode(callSuper = false)
-public class PermissionUserGroupInfo extends BasicJsonDocPropertyable {
+public class PermissionUserGroupInfo extends JsonDocPropertyHolder {
 
   protected String group;
   protected long timeOutMillis;

@@ -27,18 +27,18 @@ import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.Nullable;
 
 @Internal
-public final class JsonDocumentTypeAdapter extends TypeAdapter<JsonDocument> {
+final class JsonDocumentTypeAdapter extends TypeAdapter<JsonDocument> {
 
   @Override
   public void write(JsonWriter jsonWriter, JsonDocument document) throws IOException {
-    TypeAdapters.JSON_ELEMENT.write(jsonWriter, document == null ? new JsonObject() : document.jsonObject);
+    TypeAdapters.JSON_ELEMENT.write(jsonWriter, document == null ? new JsonObject() : document.object);
   }
 
   @Override
   public @Nullable JsonDocument read(JsonReader jsonReader) throws IOException {
     JsonElement jsonElement = TypeAdapters.JSON_ELEMENT.read(jsonReader);
     if (jsonElement != null && jsonElement.isJsonObject()) {
-      return new JsonDocument(jsonElement);
+      return new JsonDocument(jsonElement.getAsJsonObject());
     } else {
       return null;
     }

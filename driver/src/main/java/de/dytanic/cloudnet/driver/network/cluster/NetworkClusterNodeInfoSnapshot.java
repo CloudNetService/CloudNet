@@ -16,7 +16,7 @@
 
 package de.dytanic.cloudnet.driver.network.cluster;
 
-import de.dytanic.cloudnet.common.document.gson.BasicJsonDocPropertyable;
+import de.dytanic.cloudnet.common.document.property.JsonDocPropertyHolder;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetVersion;
 import de.dytanic.cloudnet.driver.module.ModuleConfiguration;
@@ -28,7 +28,7 @@ import org.jetbrains.annotations.NotNull;
 
 @ToString
 @EqualsAndHashCode(callSuper = false)
-public class NetworkClusterNodeInfoSnapshot extends BasicJsonDocPropertyable {
+public class NetworkClusterNodeInfoSnapshot extends JsonDocPropertyHolder {
 
   protected final long creationTime;
   protected final long startupMillis;

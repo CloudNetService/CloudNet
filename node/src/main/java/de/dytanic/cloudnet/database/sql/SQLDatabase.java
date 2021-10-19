@@ -142,7 +142,7 @@ public abstract class SQLDatabase extends AbstractDatabase {
 
     return this.databaseProvider.executeQuery(
       String.format("SELECT %s FROM `%s` WHERE %s = ?", TABLE_COLUMN_VALUE, this.name, TABLE_COLUMN_KEY),
-      resultSet -> resultSet.next() ? JsonDocument.newDocument(resultSet.getString(TABLE_COLUMN_VALUE)) : null,
+      resultSet -> resultSet.next() ? JsonDocument.fromJsonString(resultSet.getString(TABLE_COLUMN_VALUE)) : null,
       key
     );
   }
@@ -157,12 +157,12 @@ public abstract class SQLDatabase extends AbstractDatabase {
       resultSet -> {
         List<JsonDocument> jsonDocuments = new ArrayList<>();
         while (resultSet.next()) {
-          jsonDocuments.add(JsonDocument.newDocument(resultSet.getString(TABLE_COLUMN_VALUE)));
+          jsonDocuments.add(JsonDocument.fromJsonString(resultSet.getString(TABLE_COLUMN_VALUE)));
         }
 
         return jsonDocuments;
       },
-      "%\"" + fieldName + "\":" + JsonDocument.GSON.toJson(fieldValue) + "%"
+      "%\"" + fieldName + "\":" + JsonDocument.newDocument(fieldValue) + "%"
     );
   }
 
@@ -185,7 +185,7 @@ public abstract class SQLDatabase extends AbstractDatabase {
         item = iterator.next();
 
         stringBuilder.append(TABLE_COLUMN_VALUE).append(" LIKE ?");
-        collection.add("%\"" + item + "\":" + filters.getElement(item).toString() + "%");
+        collection.add("%\"" + item + "\":" + filters.get(item) + "%");
 
         if (iterator.hasNext()) {
           stringBuilder.append(" and ");
@@ -198,7 +198,7 @@ public abstract class SQLDatabase extends AbstractDatabase {
       resultSet -> {
         List<JsonDocument> jsonDocuments = new ArrayList<>();
         while (resultSet.next()) {
-          jsonDocuments.add(JsonDocument.newDocument(resultSet.getString(TABLE_COLUMN_VALUE)));
+          jsonDocuments.add(JsonDocument.fromJsonString(resultSet.getString(TABLE_COLUMN_VALUE)));
         }
 
         return jsonDocuments;
@@ -229,7 +229,7 @@ public abstract class SQLDatabase extends AbstractDatabase {
       resultSet -> {
         Collection<JsonDocument> documents = new ArrayList<>();
         while (resultSet.next()) {
-          documents.add(JsonDocument.newDocument(resultSet.getString(TABLE_COLUMN_VALUE)));
+          documents.add(JsonDocument.fromJsonString(resultSet.getString(TABLE_COLUMN_VALUE)));
         }
 
         return documents;
@@ -245,7 +245,7 @@ public abstract class SQLDatabase extends AbstractDatabase {
         Map<String, JsonDocument> map = new WeakHashMap<>();
         while (resultSet.next()) {
           map.put(resultSet.getString(TABLE_COLUMN_KEY),
-            JsonDocument.newDocument(resultSet.getString(TABLE_COLUMN_VALUE)));
+            JsonDocument.fromJsonString(resultSet.getString(TABLE_COLUMN_VALUE)));
         }
 
         return map;
@@ -263,7 +263,7 @@ public abstract class SQLDatabase extends AbstractDatabase {
         Map<String, JsonDocument> map = new HashMap<>();
         while (resultSet.next()) {
           String key = resultSet.getString(TABLE_COLUMN_KEY);
-          JsonDocument document = JsonDocument.newDocument(resultSet.getString(TABLE_COLUMN_VALUE));
+          JsonDocument document = JsonDocument.fromJsonString(resultSet.getString(TABLE_COLUMN_VALUE));
 
           if (predicate.test(key, document)) {
             map.put(key, document);
@@ -284,7 +284,7 @@ public abstract class SQLDatabase extends AbstractDatabase {
       resultSet -> {
         while (resultSet.next()) {
           String key = resultSet.getString(TABLE_COLUMN_KEY);
-          JsonDocument document = JsonDocument.newDocument(resultSet.getString(TABLE_COLUMN_VALUE));
+          JsonDocument document = JsonDocument.fromJsonString(resultSet.getString(TABLE_COLUMN_VALUE));
           consumer.accept(key, document);
         }
 

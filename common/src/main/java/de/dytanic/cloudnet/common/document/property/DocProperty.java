@@ -14,18 +14,20 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.common.document.gson;
+package de.dytanic.cloudnet.common.document.property;
 
-public interface IJsonDocPropertyable {
+import de.dytanic.cloudnet.common.document.IDocument;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnknownNullability;
 
-  <E> IJsonDocPropertyable setProperty(JsonDocProperty<E> docProperty, E val);
+public interface DocProperty<E> {
 
-  <E> E getProperty(JsonDocProperty<E> docProperty);
+  void remove(@NotNull IDocument<?> from);
 
-  <E> IJsonDocPropertyable removeProperty(JsonDocProperty<E> docProperty);
+  void append(@NotNull IDocument<?> to, @Nullable E value);
 
-  <E> boolean hasProperty(JsonDocProperty<E> docProperty);
+  @UnknownNullability E get(@NotNull IDocument<?> from);
 
-  JsonDocument getProperties();
-
+  boolean isAppendedTo(@NotNull IDocument<?> document);
 }

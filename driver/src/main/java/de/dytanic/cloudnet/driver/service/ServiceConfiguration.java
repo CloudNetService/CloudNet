@@ -18,7 +18,7 @@ package de.dytanic.cloudnet.driver.service;
 
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.concurrent.ITask;
-import de.dytanic.cloudnet.common.document.gson.BasicJsonDocPropertyable;
+import de.dytanic.cloudnet.common.document.property.JsonDocPropertyHolder;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
@@ -36,7 +36,7 @@ import org.jetbrains.annotations.Range;
 
 @ToString
 @EqualsAndHashCode(callSuper = false)
-public class ServiceConfiguration extends BasicJsonDocPropertyable {
+public class ServiceConfiguration extends JsonDocPropertyHolder {
 
   protected ServiceId serviceId;
 

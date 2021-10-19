@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.http.v2;
+package de.dytanic.cloudnet.http;
 
 import lombok.EqualsAndHashCode;
 import lombok.ToString;

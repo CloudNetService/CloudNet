@@ -18,7 +18,7 @@ package de.dytanic.cloudnet.driver.service;
 
 import com.google.common.collect.ComparisonChain;
 import de.dytanic.cloudnet.common.INameable;
-import de.dytanic.cloudnet.common.document.gson.BasicJsonDocPropertyable;
+import de.dytanic.cloudnet.common.document.property.JsonDocPropertyHolder;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
@@ -33,7 +33,7 @@ import org.jetbrains.annotations.Nullable;
 
 @ToString
 @EqualsAndHashCode(callSuper = false)
-public class ServiceInfoSnapshot extends BasicJsonDocPropertyable implements INameable,
+public class ServiceInfoSnapshot extends JsonDocPropertyHolder implements INameable,
   Comparable<ServiceInfoSnapshot> {
 
   @Deprecated

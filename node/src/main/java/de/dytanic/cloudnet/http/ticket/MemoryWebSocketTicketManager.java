@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.http.v2.ticket;
+package de.dytanic.cloudnet.http.ticket;
 
 import de.dytanic.cloudnet.common.StringUtil;
 import de.dytanic.cloudnet.common.encrypt.EncryptTo;
 import de.dytanic.cloudnet.driver.network.http.IHttpRequest;
-import de.dytanic.cloudnet.http.v2.HttpSession;
+import de.dytanic.cloudnet.http.HttpSession;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Collections;

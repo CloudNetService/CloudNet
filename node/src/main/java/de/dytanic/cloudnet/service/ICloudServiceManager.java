@@ -85,6 +85,9 @@ public interface ICloudServiceManager extends GeneralCloudServiceProvider {
   void registerLocalService(@NotNull ICloudService service);
 
   @Internal
+  void unregisterLocalService(@NotNull ICloudService service);
+
+  @Internal
   void handleServiceUpdate(@NotNull ServiceInfoSnapshot snapshot);
 
   @Internal

@@ -41,13 +41,6 @@ public interface ITask<V> extends Future<V> {
 
   @NotNull <T> ITask<T> map(@NotNull ThrowableFunction<V, T, Throwable> mapper);
 
-  default @NotNull ITask<V> addListener(ITaskListener<V> @NotNull ... listeners) {
-    for (ITaskListener<V> listener : listeners) {
-      this.addListener(listener);
-    }
-    return this;
-  }
-
   @NotNull
   default ITask<V> onComplete(@NotNull Consumer<V> consumer) {
     return this.addListener(new ITaskListener<V>() {

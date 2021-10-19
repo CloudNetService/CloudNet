@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.http.v2.ticket;
+package de.dytanic.cloudnet.http.ticket;
 
 import de.dytanic.cloudnet.driver.network.http.IHttpRequest;
-import de.dytanic.cloudnet.http.v2.HttpSession;
+import de.dytanic.cloudnet.http.HttpSession;
 import java.util.Collection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
