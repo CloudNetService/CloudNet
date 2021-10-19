@@ -16,52 +16,83 @@
 
 package de.dytanic.cloudnet.driver.channel;
 
+import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnknownNullability;
 
 @ToString
 @EqualsAndHashCode
 public class ChannelMessageTarget {
 
+  private static final ChannelMessageTarget ALL = new ChannelMessageTarget(Type.ALL, null);
+  private static final ChannelMessageTarget ALL_NODES = new ChannelMessageTarget(Type.NODE, null);
+  private static final ChannelMessageTarget ALL_SERVICES = new ChannelMessageTarget(Type.SERVICE, null);
+
   private final Type type;
   private final String name;
   private final ServiceEnvironmentType environment;
 
-  public ChannelMessageTarget(@NotNull Type type, @Nullable String name) {
-    this(type, name, null);
+  protected ChannelMessageTarget(@NotNull Type type, @Nullable String name) {
+    this.type = type;
+    this.name = name;
+    this.environment = null;
   }
 
-  public ChannelMessageTarget(@NotNull ServiceEnvironmentType environment) {
-    this(Type.ENVIRONMENT, null, environment);
+  protected ChannelMessageTarget(@NotNull ServiceEnvironmentType environment) {
+    this.type = Type.ENVIRONMENT;
+    this.name = null;
+    this.environment = environment;
   }
 
+  @Internal
   public ChannelMessageTarget(Type type, String name, ServiceEnvironmentType environment) {
     this.type = type;
     this.name = name;
     this.environment = environment;
   }
 
+  public static @NotNull ChannelMessageTarget environment(@NotNull ServiceEnvironmentType type) {
+    return new ChannelMessageTarget(type);
+  }
+
+  public static @NotNull ChannelMessageTarget of(@NotNull Type type, @Nullable String name) {
+    Preconditions.checkArgument(type != Type.ENVIRONMENT, "Unable to target environment using name");
+    // check if we have a constant value for the type
+    if (name == null) {
+      switch (type) {
+        case ALL:
+          return ALL;
+        case NODE:
+          return ALL_NODES;
+        case SERVICE:
+          return ALL_SERVICES;
+        default:
+          break;
+      }
+    }
+    // create a new target for the type
+    return new ChannelMessageTarget(type, name);
+  }
+
   public @NotNull Type getType() {
     return this.type;
   }
 
-  public String getName() {
+  public @UnknownNullability String getName() {
     return this.name;
   }
 
-  public @NotNull ServiceEnvironmentType getEnvironment() {
+  public @UnknownNullability ServiceEnvironmentType getEnvironment() {
     return this.environment;
   }
 
-  public boolean includesNode(@NotNull String uniqueId) {
-    return this.type.equals(Type.ALL)
-      || (this.type.equals(Type.NODE) && (this.name == null || this.name.equals(uniqueId)));
-  }
-
   public enum Type {
+
     ALL,
     NODE,
     SERVICE,

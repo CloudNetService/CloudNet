@@ -29,6 +29,7 @@ import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.INetworkChannelHandler;
 import de.dytanic.cloudnet.driver.network.def.NetworkConstants;
 import de.dytanic.cloudnet.driver.network.protocol.Packet;
+import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
 import de.dytanic.cloudnet.network.listener.PacketClientAuthorizationListener;
 import de.dytanic.cloudnet.service.ICloudService;
 import org.jetbrains.annotations.NotNull;
@@ -95,7 +96,7 @@ public final class DefaultNetworkServerChannelHandler implements INetworkChannel
   private void closeAsCloudService(@NotNull ICloudService cloudService, @NotNull INetworkChannel channel) {
     // reset the service channel and connection time
     cloudService.setNetworkChannel(null);
-    cloudService.publishServiceInfoSnapshot();
+    cloudService.setCloudServiceLifeCycle(ServiceLifeCycle.STOPPED);
 
     LOGGER.info(LanguageManager.getMessage("cloud-service-networking-disconnected")
       .replace("%id%", cloudService.getServiceId().getUniqueId().toString())

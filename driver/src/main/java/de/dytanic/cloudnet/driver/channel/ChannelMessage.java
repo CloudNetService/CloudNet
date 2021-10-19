@@ -16,7 +16,7 @@
 
 package de.dytanic.cloudnet.driver.channel;
 
-import com.google.common.base.Preconditions;
+import com.google.common.base.Verify;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.DriverEnvironment;
@@ -27,6 +27,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.jetbrains.annotations.ApiStatus.Internal;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -34,20 +36,21 @@ import org.jetbrains.annotations.Nullable;
 @EqualsAndHashCode
 public class ChannelMessage {
 
-  private String channel;
-  private String message;
+  private final String channel;
+  private final String message;
 
-  private DataBuf content;
-  private ChannelMessageSender sender;
+  private final DataBuf content;
+  private final ChannelMessageSender sender;
 
-  private Collection<ChannelMessageTarget> targets;
+  private final Collection<ChannelMessageTarget> targets;
 
+  @Internal
   public ChannelMessage(
-    String channel,
-    String message,
-    DataBuf content,
-    ChannelMessageSender sender,
-    Collection<ChannelMessageTarget> targets
+    @NotNull String channel,
+    @Nullable String message,
+    @NotNull DataBuf content,
+    @NotNull ChannelMessageSender sender,
+    @NotNull Collection<ChannelMessageTarget> targets
   ) {
     this.channel = channel;
     this.message = message;
@@ -56,35 +59,25 @@ public class ChannelMessage {
     this.targets = targets;
   }
 
-  protected ChannelMessage(@NotNull ChannelMessageSender sender) {
-    this.sender = sender;
-    this.targets = new ArrayList<>();
+  @Contract(" -> new")
+  public static @NotNull Builder builder() {
+    return new Builder();
   }
 
-  public static Builder builder() {
-    return builder(ChannelMessageSender.self());
-  }
-
-  public static Builder builder(ChannelMessageSender sender) {
-    return new Builder(sender);
-  }
-
-  public static Builder buildResponseFor(@NotNull ChannelMessage input) {
+  @Contract("_ -> new")
+  public static @NotNull Builder buildResponseFor(@NotNull ChannelMessage input) {
     return builder().channel("").target(input.sender.getType(), input.sender.getName());
   }
 
-  @NotNull
-  public ChannelMessageSender getSender() {
+  public @NotNull ChannelMessageSender getSender() {
     return this.sender;
   }
 
-  @NotNull
-  public String getChannel() {
+  public @NotNull String getChannel() {
     return this.channel;
   }
 
-  @Nullable
-  public String getMessage() {
+  public @Nullable String getMessage() {
     return this.message;
   }
 
@@ -92,8 +85,7 @@ public class ChannelMessage {
     return this.content;
   }
 
-  @NotNull
-  public Collection<ChannelMessageTarget> getTargets() {
+  public @NotNull Collection<ChannelMessageTarget> getTargets() {
     return this.targets;
   }
 
@@ -101,18 +93,15 @@ public class ChannelMessage {
     this.getMessenger().sendChannelMessage(this);
   }
 
-  @NotNull
-  public ITask<Collection<ChannelMessage>> sendQueryAsync() {
+  public @NotNull ITask<Collection<ChannelMessage>> sendQueryAsync() {
     return this.getMessenger().sendChannelMessageQueryAsync(this);
   }
 
-  @NotNull
-  public ITask<ChannelMessage> sendSingleQueryAsync() {
+  public @NotNull ITask<ChannelMessage> sendSingleQueryAsync() {
     return this.getMessenger().sendSingleChannelMessageQueryAsync(this);
   }
 
-  @NotNull
-  public Collection<ChannelMessage> sendQuery() {
+  public @NotNull Collection<ChannelMessage> sendQuery() {
     return this.getMessenger().sendChannelMessageQuery(this);
   }
 
@@ -120,86 +109,98 @@ public class ChannelMessage {
     return this.getMessenger().sendSingleChannelMessageQuery(this);
   }
 
-  private CloudMessenger getMessenger() {
+  private @NotNull CloudMessenger getMessenger() {
     return CloudNetDriver.getInstance().getMessenger();
   }
 
-  public static class Builder {
+  public static final class Builder {
 
-    private final ChannelMessage channelMessage;
+    private final Collection<ChannelMessageTarget> targets = new ArrayList<>();
 
-    private Builder(ChannelMessageSender sender) {
-      this.channelMessage = new ChannelMessage(sender);
-    }
+    private String channel;
+    private String message;
 
-    public Builder channel(@NotNull String channel) {
-      this.channelMessage.channel = channel;
+    private DataBuf content;
+    private ChannelMessageSender sender;
+
+    public @NotNull Builder sender(@NotNull ChannelMessageSender sender) {
+      this.sender = sender;
       return this;
     }
 
-    public Builder message(@Nullable String message) {
-      this.channelMessage.message = message;
+    public @NotNull Builder channel(@NotNull String channel) {
+      this.channel = channel;
+      return this;
+    }
+
+    public @NotNull Builder message(@Nullable String message) {
+      this.message = message;
       return this;
     }
 
     public @NotNull Builder buffer(@Nullable DataBuf dataBuf) {
-      this.channelMessage.content = dataBuf;
+      this.content = dataBuf;
       return this;
     }
 
-    public Builder target(@NotNull ChannelMessageTarget target) {
-      this.channelMessage.targets.add(target);
+    public @NotNull Builder target(@NotNull ChannelMessageTarget target) {
+      this.targets.add(target);
       return this;
     }
 
-    public Builder target(@NotNull ChannelMessageTarget.Type type, @Nullable String name) {
-      return this.target(new ChannelMessageTarget(type, name));
+    public @NotNull Builder target(@NotNull ChannelMessageTarget.Type type, @Nullable String name) {
+      return this.target(ChannelMessageTarget.of(type, name));
     }
 
-    public Builder target(@NotNull DriverEnvironment environment, @Nullable String name) {
+    public @NotNull Builder target(@NotNull DriverEnvironment environment, @Nullable String name) {
       return this.target(environment == DriverEnvironment.CLOUDNET
         ? ChannelMessageTarget.Type.NODE
         : ChannelMessageTarget.Type.SERVICE, name);
     }
 
-    public Builder targetAll(@NotNull ChannelMessageTarget.Type type) {
+    public @NotNull Builder targetAll(@NotNull ChannelMessageTarget.Type type) {
       return this.target(type, null);
     }
 
-    public Builder targetAll() {
+    public @NotNull Builder targetAll() {
       return this.target(ChannelMessageTarget.Type.ALL, null);
     }
 
-    public Builder targetServices() {
+    public @NotNull Builder targetServices() {
       return this.targetAll(ChannelMessageTarget.Type.SERVICE);
     }
 
-    public Builder targetService(@Nullable String name) {
+    public @NotNull Builder targetService(@Nullable String name) {
       return this.target(ChannelMessageTarget.Type.SERVICE, name);
     }
 
-    public Builder targetTask(@Nullable String name) {
+    public @NotNull Builder targetTask(@Nullable String name) {
       return this.target(ChannelMessageTarget.Type.TASK, name);
     }
 
-    public Builder targetNode(@Nullable String name) {
+    public @NotNull Builder targetNode(@Nullable String name) {
       return this.target(ChannelMessageTarget.Type.NODE, name);
     }
 
-    public Builder targetNodes() {
+    public @NotNull Builder targetNodes() {
       return this.targetAll(ChannelMessageTarget.Type.NODE);
     }
 
-    public Builder targetEnvironment(@NotNull ServiceEnvironmentType environment) {
-      return this.target(new ChannelMessageTarget(environment));
+    public @NotNull Builder targetEnvironment(@NotNull ServiceEnvironmentType environment) {
+      return this.target(ChannelMessageTarget.environment(environment));
     }
 
-    public ChannelMessage build() {
-      Preconditions.checkNotNull(this.channelMessage.channel, "No channel provided");
-      if (this.channelMessage.targets.isEmpty()) {
-        this.targetAll();
-      }
-      return this.channelMessage;
+    @Contract(" -> new")
+    public @NotNull ChannelMessage build() {
+      Verify.verifyNotNull(this.channel, "No channel provided");
+      Verify.verify(!this.targets.isEmpty(), "No targets provided");
+
+      return new ChannelMessage(
+        this.channel,
+        this.message,
+        this.content == null ? DataBuf.empty() : this.content,
+        this.sender == null ? ChannelMessageSender.self() : this.sender,
+        this.targets);
     }
   }
 }

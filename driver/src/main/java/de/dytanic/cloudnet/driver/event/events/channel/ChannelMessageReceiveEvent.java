@@ -89,7 +89,7 @@ public final class ChannelMessageReceiveEvent extends NetworkEvent {
     this.setQueryResponse(ChannelMessage.buildResponseFor(this.channelMessage).buffer(dataBuf).build());
   }
 
-  public DataBuf.Mutable response() {
+  public @NotNull DataBuf.Mutable response() {
     DataBuf.Mutable dataBuf = DataBuf.empty();
     this.setBinaryResponse(dataBuf);
     return dataBuf;
