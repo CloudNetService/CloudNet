@@ -57,8 +57,8 @@ public class CommandMe {
       "Node services memory allocation (U/R/M): " + nodeInfoSnapshot.getUsedMemory() + "/" +
         nodeInfoSnapshot.getReservedMemory() + "/" + nodeInfoSnapshot.getMaxMemory() + " MB",
       "Threads: " + Thread.getAllStackTraces().keySet().size(),
-      "Heap usage: " + (memoryMXBean.getHeapMemoryUsage().getUsed() / 1024 * 1024) + "/" + (
-        memoryMXBean.getHeapMemoryUsage().getMax() / 1024 * 1024) + "MB",
+      "Heap usage: " + (memoryMXBean.getHeapMemoryUsage().getUsed() / (1024 * 1024)) + "/" + (
+        memoryMXBean.getHeapMemoryUsage().getMax() / (1024 * 1024)) + "MB",
       " "
     );
     commandSource.sendMessage(messages);

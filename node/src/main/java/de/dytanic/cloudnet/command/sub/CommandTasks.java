@@ -118,7 +118,7 @@ public class CommandTasks {
 
   @CommandMethod(value = "tasks setup", requiredSender = ConsoleCommandSource.class)
   public void taskSetup(CommandSource source) {
-    //TODO: start the setup
+
   }
 
   @CommandMethod("tasks reload")
