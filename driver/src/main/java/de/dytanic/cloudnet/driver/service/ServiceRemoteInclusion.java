@@ -16,12 +16,11 @@
 
 package de.dytanic.cloudnet.driver.service;
 
-import de.dytanic.cloudnet.common.document.property.JsonDocPropertyHolder;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import de.dytanic.cloudnet.common.document.property.JsonDocPropertyHolder;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
-// @todo: add checksum to prevent re-download every time
 @ToString
 @EqualsAndHashCode(callSuper = false)
 public final class ServiceRemoteInclusion extends JsonDocPropertyHolder {

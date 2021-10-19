@@ -16,8 +16,8 @@
 
 package de.dytanic.cloudnet.driver.permission;
 
-import de.dytanic.cloudnet.common.document.property.JsonDocPropertyHolder;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import de.dytanic.cloudnet.common.document.property.JsonDocPropertyHolder;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.jetbrains.annotations.NotNull;

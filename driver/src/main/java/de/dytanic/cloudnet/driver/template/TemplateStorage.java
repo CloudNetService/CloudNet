@@ -43,7 +43,8 @@ public interface TemplateStorage extends AutoCloseable, INameable {
    * @param fileFilter the filter for files that should be deployed
    * @return whether it was copied successfully
    */
-  boolean deployDirectory(@NotNull Path directory, @NotNull ServiceTemplate target, @Nullable Predicate<Path> fileFilter);
+  boolean deployDirectory(@NotNull Path directory, @NotNull ServiceTemplate target,
+    @Nullable Predicate<Path> fileFilter);
 
   /**
    * Copies the given directory into the given template.
@@ -222,6 +223,7 @@ public interface TemplateStorage extends AutoCloseable, INameable {
    */
   @Nullable
   FileInfo[] listFiles(@NotNull ServiceTemplate template, @NotNull String dir, boolean deep) throws IOException;
+
   /**
    * Gets a list of all templates that exist in this storage. Modifications to the collection won't have any effect.
    *

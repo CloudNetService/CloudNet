@@ -16,8 +16,8 @@
 
 package de.dytanic.cloudnet.driver.network.cluster;
 
-import de.dytanic.cloudnet.common.document.property.JsonDocPropertyHolder;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import de.dytanic.cloudnet.common.document.property.JsonDocPropertyHolder;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;

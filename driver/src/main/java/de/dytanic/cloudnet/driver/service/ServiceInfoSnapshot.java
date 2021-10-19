@@ -18,8 +18,8 @@ package de.dytanic.cloudnet.driver.service;
 
 import com.google.common.collect.ComparisonChain;
 import de.dytanic.cloudnet.common.INameable;
-import de.dytanic.cloudnet.common.document.property.JsonDocPropertyHolder;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import de.dytanic.cloudnet.common.document.property.JsonDocPropertyHolder;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;

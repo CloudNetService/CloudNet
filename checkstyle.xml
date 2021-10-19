@@ -193,12 +193,12 @@
     <module name="ParameterName">
       <message key="name.invalidPattern"
         value="Parameter name ''{0}'' must match pattern ''{1}''."/>
-      <property name="format" value="^[a-z]([a-zA-Z0-9]*)*$"/>
+      <property name="format" value="^[$a-z]([a-zA-Z0-9_]*)*$"/>
     </module>
     <module name="LambdaParameterName">
       <message key="name.invalidPattern"
         value="Lambda parameter name ''{0}'' must match pattern ''{1}''."/>
-      <property name="format" value="^[$a-z]([a-z0-9][a-zA-Z0-9]*)?$"/>
+      <property name="format" value="^[$a-z_]([a-z0-9_][a-zA-Z0-9_]*)?$"/>
     </module>
     <module name="CatchParameterName">
       <message key="name.invalidPattern"

@@ -75,8 +75,9 @@ public class CommandTasks {
   @Parser(suggestions = "serviceTask")
   public Collection<ServiceTask> wildcardTaskParser(CommandContext<CommandSource> $, Queue<String> input) {
     String name = input.remove();
-    Collection<ServiceTask> matchedTasks = WildcardUtil.
-      filterWildcard(this.taskProvider().getPermanentServiceTasks(), name);
+    Collection<ServiceTask> matchedTasks = WildcardUtil.filterWildcard(
+      this.taskProvider().getPermanentServiceTasks(),
+      name);
     if (matchedTasks.isEmpty()) {
       throw new ArgumentNotAvailableException(LanguageManager.getMessage("command-tasks-task-not-found"));
     }

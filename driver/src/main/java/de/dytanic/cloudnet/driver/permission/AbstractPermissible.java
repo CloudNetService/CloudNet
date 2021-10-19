@@ -16,8 +16,8 @@
 
 package de.dytanic.cloudnet.driver.permission;
 
-import de.dytanic.cloudnet.common.document.property.JsonDocPropertyHolder;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import de.dytanic.cloudnet.common.document.property.JsonDocPropertyHolder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
