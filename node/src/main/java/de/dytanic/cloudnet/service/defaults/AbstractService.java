@@ -264,10 +264,10 @@ public abstract class AbstractService implements ICloudService {
       HttpURLConnection con = HttpConnectionProvider.provideConnection(inclusion.getUrl());
       con.setUseCaches(false);
       // put the given http headers
-      if (inclusion.getProperties() != null && inclusion.getProperties().contains("httpHeaders")) {
+      if (inclusion.getProperties().contains("httpHeaders")) {
         JsonDocument headers = inclusion.getProperties().getDocument("httpHeaders");
         for (String key : headers.keys()) {
-          con.setRequestProperty(key, headers.getElement(key).toString());
+          con.setRequestProperty(key, headers.get(key).toString());
         }
       }
       // check if we should load the inclusion
@@ -476,6 +476,10 @@ public abstract class AbstractService implements ICloudService {
       this.isAlive() ? this.lastServiceInfo.getProcessSnapshot() : ProcessSnapshot.empty(),
       this.lastServiceInfo.getConfiguration(),
       this.lastServiceInfo.getProperties());
+    // remove the service in the local manager if the service was deleted
+    if (lifeCycle == ServiceLifeCycle.DELETED) {
+      this.cloudServiceManager.unregisterLocalService(this);
+    }
     // call the lifecycle change event
     this.eventManager.callEvent(new CloudServicePostLifecycleEvent(this, lifeCycle));
     // publish the change to all services and nodes
