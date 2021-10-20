@@ -44,7 +44,7 @@ public class CommandExceptionHandler {
 
   public void handleCompletionException(CommandSource source, CompletionException exception) {
     Throwable cause = exception.getCause();
-    // cloud wraps the exception in the cause, if no cause is found we can't handle the exception
+    // the completable future wraps exceptions, so this shouldn't be null
     if (cause == null) {
       return;
     }

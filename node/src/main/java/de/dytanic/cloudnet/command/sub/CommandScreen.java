@@ -31,7 +31,7 @@ import java.util.Collection;
 @CommandAlias("scr")
 @CommandPermission("cloudnet.command.screen")
 @Description("Toggles the automatic output of console messages from a service")
-public class CommandScreen {
+public final class CommandScreen {
 
   @CommandMethod("screen|ser list|l")
   public void listEnabledScreens(CommandSource source) {

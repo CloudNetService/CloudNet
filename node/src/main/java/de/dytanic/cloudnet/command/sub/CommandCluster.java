@@ -49,7 +49,7 @@ import java.util.stream.Collectors;
 @CommandAlias("clu")
 @CommandPermission("cloudnet.command.cluster")
 @Description("Manages the cluster and provides information about it")
-public class CommandCluster {
+public final class CommandCluster {
 
   private static final DateFormat DEFAULT_FORMAT = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
 

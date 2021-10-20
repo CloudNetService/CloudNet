@@ -26,7 +26,7 @@ import de.dytanic.cloudnet.command.annotation.Description;
 @CommandAlias({"shutdown", "stop"})
 @CommandPermission("cloudnet.command.exit")
 @Description("Stops the program and all managed subprocesses")
-public class CommandExit {
+public final class CommandExit {
 
   @Confirmation
   @CommandMethod("exit|shutdown|stop")

@@ -23,7 +23,7 @@ import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import java.util.Arrays;
 import java.util.Collection;
 
-public class CommandServiceConfiguration {
+public final class CommandServiceConfiguration {
 
   public static void applyServiceConfigurationDisplay(Collection<String> messages,
     ServiceConfigurationBase configurationBase) {

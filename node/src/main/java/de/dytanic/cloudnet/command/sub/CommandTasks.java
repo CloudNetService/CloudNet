@@ -54,7 +54,7 @@ import java.util.stream.Collectors;
 
 @CommandPermission("cloudnet.command.tasks")
 @Description("Administers the configurations of all persistent tasks")
-public class CommandTasks {
+public final class CommandTasks {
 
   @Parser(suggestions = "serviceTask")
   public ServiceTask defaultTaskParser(CommandContext<CommandSource> $, Queue<String> input) {

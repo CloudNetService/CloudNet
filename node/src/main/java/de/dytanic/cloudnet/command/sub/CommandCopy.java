@@ -34,7 +34,7 @@ import java.util.List;
 @CommandAlias("cp")
 @CommandPermission("cloudnet.command.copy")
 @Description("Copies a running service to a specific template")
-public class CommandCopy {
+public final class CommandCopy {
 
   @CommandMethod("copy|cp <service> [template]")
   public void copyService(

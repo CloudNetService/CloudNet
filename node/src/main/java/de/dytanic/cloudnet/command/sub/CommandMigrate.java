@@ -42,7 +42,7 @@ import org.jetbrains.annotations.NotNull;
 
 @Description("Migrate help")
 @CommandPermission("cloudnet.command.migrate")
-public class CommandMigrate {
+public final class CommandMigrate {
 
   private static final int DEFAULT_CHUNK_SIZE = 100;
   private static final Logger LOGGER = LogManager.getLogger(CommandMigrate.class);

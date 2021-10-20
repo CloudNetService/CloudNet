@@ -26,7 +26,7 @@ import de.dytanic.cloudnet.config.JsonConfiguration;
 
 @Description("")
 @CommandPermission("cloudnet.command.config")
-public class CommandConfig {
+public final class CommandConfig {
 
   //TODO: reload command and other node config stuff
 

@@ -57,7 +57,7 @@ import org.jetbrains.annotations.Nullable;
 @CommandAlias("ser")
 @CommandPermission("cloudnet.command.service")
 @Description("Manages all services in the cluster")
-public class CommandService {
+public final class CommandService {
 
   public static final Pattern SERVICE_NAME_PATTERN = Pattern.compile("([\\w+-]+)-(\\d+)");
   private static final DateFormat DATE_FORMAT = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");

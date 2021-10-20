@@ -23,7 +23,7 @@ import de.dytanic.cloudnet.command.annotation.Description;
 
 @CommandPermission("cloudnet.command.clear")
 @Description("Clears the entire console of the node to get a better overview")
-public class CommandClear {
+public final class CommandClear {
 
   @CommandMethod("clear")
   public void clearConsole() {

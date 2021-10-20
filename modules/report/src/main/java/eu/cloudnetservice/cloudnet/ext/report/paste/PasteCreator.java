@@ -25,7 +25,7 @@ import eu.cloudnetservice.cloudnet.ext.report.paste.emitter.ReportDataEmitter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class PasteCreator {
+public final class PasteCreator {
 
   private final PasteService pasteService;
   private final EmitterRegistry registry;

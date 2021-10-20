@@ -44,7 +44,7 @@ import java.util.stream.Collectors;
 
 @CommandPermission("cloudnet.command.groups")
 @Description("Administers the configurations of all persistent groups")
-public class CommandGroups {
+public final class CommandGroups {
 
   @Parser(suggestions = "groupConfiguration")
   public GroupConfiguration defaultGroupParser(CommandContext<CommandSource> $, Queue<String> input) {

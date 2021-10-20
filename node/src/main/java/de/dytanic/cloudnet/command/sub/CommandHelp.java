@@ -34,7 +34,7 @@ import java.util.Queue;
 @CommandAlias({"ask", "?"})
 @CommandPermission("cloudnet.command.help")
 @Description("Shows all commands and their description")
-public class CommandHelp {
+public final class CommandHelp {
 
   private final CommandProvider commandProvider;
 

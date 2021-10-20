@@ -29,7 +29,7 @@ import java.nio.file.Path;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class Record {
+public final class Record {
 
   private static final Logger LOGGER = LogManager.getLogger(Record.class);
 

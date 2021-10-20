@@ -32,7 +32,7 @@ import java.util.List;
 @CommandAlias("info")
 @CommandPermission("cloudnet.command.me")
 @Description("Displays all important information about this process and the JVM")
-public class CommandMe {
+public final class CommandMe {
 
   //TODO klaro du willst hier komische java sachen anzeigen
   @CommandMethod("me|info")
