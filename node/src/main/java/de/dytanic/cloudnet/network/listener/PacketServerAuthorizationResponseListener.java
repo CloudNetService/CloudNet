@@ -23,7 +23,6 @@ import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
-import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import de.dytanic.cloudnet.driver.network.def.NetworkConstants;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.network.protocol.IPacketListener;
@@ -57,8 +56,7 @@ public final class PacketServerAuthorizationResponseListener implements IPacketL
         ChannelMessage.builder()
           .targetNode(server.getNodeInfo().getUniqueId())
           .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
-          .message("initial_service_list_information")
-          .buffer(DataBuf.empty().writeObject(CloudNet.getInstance().getCloudServiceProvider().getCloudServices()))
+          .message("request_initial_service_list_information")
           .build()
           .send();
         // we are good to go :)

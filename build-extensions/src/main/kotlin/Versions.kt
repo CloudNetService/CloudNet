@@ -36,7 +36,7 @@ object Versions {
   // console
   const val jansi = "2.4.0"
   const val cloud = "1.6.0-SNAPSHOT"
-  const val jline = "3.20.0"
+  const val jline = "3.21.0"
 
   // databases
   const val h2 = "1.4.197" // do not update, leads to database incompatibility

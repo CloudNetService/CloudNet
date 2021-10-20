@@ -55,51 +55,53 @@ public class ModuleConfiguration {
   protected int minJavaVersionId;
   protected JsonDocument properties;
 
-  public ModuleConfiguration(@NotNull String group, @NotNull String name,
-    @NotNull String version, @NotNull String main) {
+  @Internal
+  public ModuleConfiguration() {
+  }
+
+  public ModuleConfiguration(
+    @NotNull String group,
+    @NotNull String name,
+    @NotNull String version,
+    @NotNull String main
+  ) {
     this.group = Preconditions.checkNotNull(group, "group cannot be null");
     this.name = Preconditions.checkNotNull(name, "name cannot be null");
     this.version = Preconditions.checkNotNull(version, "version cannot be null");
     this.main = Preconditions.checkNotNull(main, "main cannot be null");
   }
 
-  public ModuleConfiguration(boolean runtimeModule, boolean storesSensitiveData, String group, String name,
-    String version, String main, String description, String author, String website, ModuleRepository[] repos,
-    ModuleDependency[] dependencies, JsonDocument properties) {
-    this(group, name, version, main);
-
+  @Internal
+  public ModuleConfiguration(
+    boolean runtimeModule,
+    boolean storesSensitiveData,
+    @NotNull String group,
+    @NotNull String name,
+    @NotNull String version,
+    @NotNull String main,
+    @NotNull String description,
+    @NotNull String author,
+    @NotNull String website,
+    @NotNull String dataFolder,
+    @NotNull ModuleRepository[] repositories,
+    @NotNull ModuleDependency[] dependencies,
+    int minJavaVersionId,
+    @NotNull JsonDocument properties
+  ) {
     this.runtimeModule = runtimeModule;
     this.storesSensitiveData = storesSensitiveData;
-    this.description = description;
-    this.author = author;
-    this.website = website;
-    this.repositories = repos;
-    this.dependencies = dependencies;
-    this.properties = properties;
-  }
-
-  public ModuleConfiguration(boolean runtimeModule, boolean storesSensitiveData, String group, String name,
-    String version, String main, String description, String author, String website, String dataFolder,
-    ModuleRepository[] repos, ModuleDependency[] dependencies, JsonDocument properties, int minJavaVersionId) {
-    this(group, name, version, main);
-
-    this.runtimeModule = runtimeModule;
-    this.storesSensitiveData = storesSensitiveData;
-
+    this.group = group;
+    this.name = name;
+    this.version = version;
+    this.main = main;
     this.description = description;
     this.author = author;
     this.website = website;
     this.dataFolder = dataFolder;
-
-    this.repositories = repos;
+    this.repositories = repositories;
     this.dependencies = dependencies;
-
-    this.properties = properties;
     this.minJavaVersionId = minJavaVersionId;
-  }
-
-  @Internal
-  public ModuleConfiguration() {
+    this.properties = properties;
   }
 
   /**

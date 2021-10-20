@@ -18,7 +18,6 @@ package de.dytanic.cloudnet.network.listener;
 
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.cluster.IClusterNodeServer;
-import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
@@ -63,13 +62,6 @@ public final class PacketClientAuthorizationListener implements IPacketListener 
             NodeNetworkUtils.addDefaultPacketListeners(channel.getPacketRegistry(), CloudNet.getInstance());
             // successful auth
             channel.sendPacketSync(new PacketServerAuthorizationResponse(true));
-            ChannelMessage.builder()
-              .targetNode(node.getUniqueId())
-              .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
-              .message("initial_service_list_information")
-              .buffer(DataBuf.empty().writeObject(CloudNet.getInstance().getCloudServiceProvider().getCloudServices()))
-              .build()
-              .send();
             // call the auth success event
             CloudNet.getInstance().getEventManager().callEvent(
               new NetworkClusterNodeAuthSuccessEvent(nodeServer, channel));
