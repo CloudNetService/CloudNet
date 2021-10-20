@@ -383,9 +383,9 @@ public class DefaultModuleProvider implements IModuleProvider {
    */
   protected @NotNull Map<String, String> collectModuleProvidedRepositories(@NotNull ModuleConfiguration configuration) {
     Map<String, String> repositories = new HashMap<>();
-    if (configuration.getRepos() != null) {
+    if (configuration.getRepositories() != null) {
       // iterate over all repositories and ensure that the repository url is in a readable format.
-      for (ModuleRepository repo : configuration.getRepos()) {
+      for (ModuleRepository repo : configuration.getRepositories()) {
         if (repo == null) {
           continue;
         }

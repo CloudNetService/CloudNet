@@ -31,7 +31,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class DataClassSerializer implements ObjectSerializer<Object> {
 
-  private final Lock readLock = new ReentrantLock(true);
+  private final Lock readLock = new ReentrantLock();
 
   private final DataClassInvokerGenerator generator = new DataClassInvokerGenerator();
   private final Map<Type, DataClassInformation> cachedClassInformation = new ConcurrentHashMap<>();
