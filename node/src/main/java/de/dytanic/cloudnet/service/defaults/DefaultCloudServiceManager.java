@@ -339,7 +339,7 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
       // ignore deleted services
       if (snapshot.getLifeCycle() != ServiceLifeCycle.DELETED) {
         // register a remote provider for that
-        this.knownServices.put(
+        this.knownServices.putIfAbsent(
           snapshot.getServiceId().getUniqueId(),
           new RemoteNodeCloudServiceProvider(this, this.sender, () -> source, snapshot));
       }
