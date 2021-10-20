@@ -24,10 +24,14 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Type;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class DataClassSerializer implements ObjectSerializer<Object> {
+
+  private final Lock readLock = new ReentrantLock(true);
 
   private final DataClassInvokerGenerator generator = new DataClassInvokerGenerator();
   private final Map<Type, DataClassInformation> cachedClassInformation = new ConcurrentHashMap<>();
@@ -45,12 +49,18 @@ public class DataClassSerializer implements ObjectSerializer<Object> {
     if (clazz.isArray()) {
       return this.readArray(source, clazz, caller);
     }
-    // get the class information
-    DataClassInformation information = this.cachedClassInformation.computeIfAbsent(
-      type,
-      $ -> DataClassInformation.createClassInformation((Class<?>) type, this.generator));
-    // let the instance creator do the stuff
-    return information.getInstanceCreator().makeInstance(source, caller);
+    // ensure that only one thread generates data at the same time
+    this.readLock.lock();
+    try {
+      // get the class information
+      DataClassInformation information = this.cachedClassInformation.computeIfAbsent(
+        type,
+        $ -> DataClassInformation.createClassInformation((Class<?>) type, this.generator));
+      // let the instance creator do the stuff
+      return information.getInstanceCreator().makeInstance(source, caller);
+    } finally {
+      this.readLock.unlock();
+    }
   }
 
   @Override
