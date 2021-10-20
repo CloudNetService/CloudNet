@@ -39,7 +39,7 @@ object Versions {
   const val jline = "3.20.0"
 
   // databases
-  const val h2 = "1.4.197"
+  const val h2 = "1.4.197" // do not update, leads to database incompatibility
   const val xodus = "1.3.232"
 
   const val slf4j = "1.7.32"
@@ -52,6 +52,22 @@ object Versions {
   const val spigotApi = "1.17-R0.1-SNAPSHOT"
   const val sponge = "7.3.0"
   const val nukkitX = "1.0-SNAPSHOT"
+  const val bungeecord = "1.17-RO.1-SNAPSHOT"
+  const val velocity = "3.0.0"
+  const val waterdogpe = "1.1.2-SNAPSHOT"
 
   const val annotations = "22.0.0"
+  /*
+  //Dependencies
+    dependencyAnnotationsVersion = '21.0.1'
+    dependencyWaterdogPEVersion = '1.1.2-SNAPSHOT'
+    dependencyMysqlConnectorJavaVersion = '8.0.26'
+    dependencyMongoJavaDriverVersion = '4.3.1'
+    dependencyHikariCpVersion = '5.0.0'
+    dependencyVaultVersion = '1.7.1'
+    dependencyProtocolLibVersion = 'master-SNAPSHOT'
+    dependencyNpcLibVersion = 'development-SNAPSHOT'
+    dependencyCommonsNetVersion = '3.8.0'
+    dependencyJschVersion = '0.1.55'
+   */
 }
