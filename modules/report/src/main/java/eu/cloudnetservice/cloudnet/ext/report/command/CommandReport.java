@@ -60,7 +60,7 @@ public final class CommandReport {
     }
   }
 
-  @CommandMethod("report head-dump")
+  @CommandMethod("report heap-dump")
   public void reportHeapDump(CommandSource source, @Flag("live") boolean live) {
     Path file = this.reportModule.getCurrentRecordDirectory().resolve(System.currentTimeMillis() + "-heapdump.hprof");
 
