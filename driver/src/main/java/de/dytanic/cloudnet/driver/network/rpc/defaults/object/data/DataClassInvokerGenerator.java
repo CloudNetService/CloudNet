@@ -75,7 +75,7 @@ public class DataClassInvokerGenerator {
       // get the class loader which is responsible for the class we want to invoke
       DefiningClassLoader loader = this.getDefiningClassLoader(clazz.getClassLoader());
       // create the class
-      CtClass ctClass = this.makeClass(String.format(INSTANCE_CREATOR_NAME_FORMAT, clazz.getCanonicalName()));
+      CtClass ctClass = this.classPool.makeClass(String.format(INSTANCE_CREATOR_NAME_FORMAT, clazz.getCanonicalName()));
       ctClass.addInterface(this.classPool.getCtClass(DataClassInstanceCreator.class.getName()));
       // add the types as a field to the class
       ctClass.addField(CtField.make("private final java.lang.reflect.Type[] types;", ctClass));
@@ -258,19 +258,6 @@ public class DataClassInvokerGenerator {
 
   protected @NotNull Predicate<Method> commonFilter(@NotNull Field field) {
     return method -> method.getReturnType().equals(field.getType());
-  }
-
-  protected @NotNull CtClass makeClass(@NotNull String name) {
-    // check if the class was already created
-    CtClass ctClass = this.classPool.getOrNull(name);
-    if (ctClass != null) {
-      ctClass.defrost();
-      return ctClass;
-    }
-    // create a new class and stop pruning it
-    ctClass = this.classPool.makeClass(name);
-    ctClass.stopPruning(true);
-    return ctClass;
   }
 
   public interface DataClassInstanceCreator {
