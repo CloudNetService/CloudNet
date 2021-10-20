@@ -14,25 +14,26 @@
  * limitations under the License.
  */
 
-jar {
-  archiveFileName.set(cloudnetModuleDatabaseMySQLFileName)
+tasks.withType<Jar> {
+  archiveFileName.set(Files.database_mysql)
 }
 
 dependencies {
-  compileOnly project(':cloudnet')
-  moduleLibrary(group: 'mysql', name: 'mysql-connector-java', version: dependencyMysqlConnectorJavaVersion) {
-    exclude group: 'com.google.protobuf'
+  "moduleLibrary"("mysql", "mysql-connector-java", Versions.mysqlConnector) {
+    exclude("com.google.protobuf")
   }
-  moduleLibrary group: 'com.zaxxer', name: 'HikariCP', version: dependencyHikariCpVersion
-  moduleLibrary group: 'org.javassist', name: 'javassist', version: dependencyJavassistVersion
-  moduleLibrary group: 'org.slf4j', name: 'slf4j-nop', version: dependencySlf4jVersion
+  "moduleLibrary"("com.zaxxer", "HikariCP", Versions.hikariCp)
+  "moduleLibrary"("org.javassist", "javasisst", Versions.javassist)
+  "moduleLibrary"("org.slf4j", "slf4j-nop", Versions.slf4j)
 }
 
+/*
+
 moduleJson {
-  main = 'de.dytanic.cloudnet.ext.database.mysql.CloudNetMySQLDatabaseModule'
-  author = 'CloudNetService'
-  description = 'CloudNet extension, which includes the database support for MySQL and MariaDB'
+  main = "de.dytanic.cloudnet.ext.database.mysql.CloudNetMySQLDatabaseModule"
+  author = "CloudNetService"
+  description = "CloudNet extension, which includes the database support for MySQL and MariaDB"
   minJavaVersionId = JavaVersion.VERSION_11
   runtimeModule = true
   storesSensitiveData = true
-}
+}*/

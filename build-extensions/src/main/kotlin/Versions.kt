@@ -41,6 +41,9 @@ object Versions {
   // databases
   const val h2 = "1.4.197" // do not update, leads to database incompatibility
   const val xodus = "1.3.232"
+  const val mongodb = "4.3.3"
+  const val mysqlConnector = "8.0.26"
+  const val hikariCp = "5.0.0"
 
   const val slf4j = "1.7.32"
   const val jjwt = "0.11.2"
@@ -59,11 +62,6 @@ object Versions {
   const val annotations = "22.0.0"
   /*
   //Dependencies
-    dependencyAnnotationsVersion = '21.0.1'
-    dependencyWaterdogPEVersion = '1.1.2-SNAPSHOT'
-    dependencyMysqlConnectorJavaVersion = '8.0.26'
-    dependencyMongoJavaDriverVersion = '4.3.1'
-    dependencyHikariCpVersion = '5.0.0'
     dependencyVaultVersion = '1.7.1'
     dependencyProtocolLibVersion = 'master-SNAPSHOT'
     dependencyNpcLibVersion = 'development-SNAPSHOT'

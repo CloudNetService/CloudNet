@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 
-jar {
-  archiveFileName.set(cloudnetModuleDatabaseMongodbFileName)
+tasks.withType<Jar> {
+  archiveFileName.set(Files.labymod)
 }
 
 dependencies {
-  compileOnly project(':cloudnet')
-  moduleLibrary group: 'org.mongodb', name: 'mongodb-driver-sync', version: dependencyMongoJavaDriverVersion
-  moduleLibrary group: 'org.slf4j', name: 'slf4j-nop', version: dependencySlf4jVersion
+  "moduleDependency"(project(":modules:bridge"))
+  "compileOnly"(project(":cloudnet-wrapper-jvm"))
+  "compileOnly"("net.md-5", "bungeecord-api", Versions.bungeecord)
+  "compileOnly"("com.velocitypowered", "velocity-api", Versions.velocity)
 }
 
+/*
 moduleJson {
-  main = 'eu.cloudnetservice.cloudnet.ext.mongodb.CloudNetMongoDatabaseModule'
-  author = 'CloudNetService'
-  description = 'CloudNet extension, which includes the database support for MongoDB'
-  runtimeModule = true
-  storesSensitiveData = true
-}
+  main = "eu.cloudnetservice.cloudnet.ext.labymod.node.CloudNetLabyModModule"
+  author = "CloudNetService"
+  description = "This module adds support for the LabyMod Discord RPC Protocol and the ingame messages when a player plays a gamemode"
+}*/

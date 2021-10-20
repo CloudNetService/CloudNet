@@ -14,16 +14,14 @@
  * limitations under the License.
  */
 
-jar {
-  archiveFileName.set(cloudnetModuleRestFileName)
+tasks.withType<Jar> {
+  archiveFileName.set(Files.rest)
 }
 
-dependencies {
-  compileOnly project(':cloudnet')
-}
-
+/*
 moduleJson {
-  main = 'de.dytanic.cloudnet.ext.rest.CloudNetRestModule'
-  author = 'CloudNetService'
-  description = 'Node extension for the CloudNet runtime, which includes the default HTTP REST API for CloudNet'
+  main = "de.dytanic.cloudnet.ext.rest.CloudNetRestModule"
+  author = "CloudNetService"
+  description = "Node extension for the CloudNet runtime, which includes the default HTTP REST API for CloudNet"
 }
+*/

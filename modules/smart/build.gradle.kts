@@ -14,17 +14,19 @@
  * limitations under the License.
  */
 
-jar {
-  archiveFileName.set(cloudnetModuleCloudflareFileName)
+tasks.withType<Jar> {
+  archiveFileName.set(Files.smart)
 }
 
 dependencies {
-  compileOnly project(':cloudnet')
+  "moduleDependency"(project(":modules:bridge"))
 }
 
+/*
+
 moduleJson {
-  main = 'de.dytanic.cloudnet.ext.cloudflare.CloudNetCloudflareModule'
-  author = 'CloudNetService'
-  description = 'Node extension for the https://cloudflare.com REST-API'
-  storesSensitiveData = true
-}
+  main = "de.dytanic.cloudnet.ext.smart.CloudNetSmartModule"
+  author = "CloudNetService"
+  description = "CloudNet extension, which implement smart network handling and automatic services providing"
+  runtimeModule = true
+}*/

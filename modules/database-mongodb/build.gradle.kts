@@ -14,18 +14,21 @@
  * limitations under the License.
  */
 
-jar {
-  archiveFileName.set(cloudnetModuleSmartFileName)
+tasks.withType<Jar> {
+  archiveFileName.set(Files.database_mongodb)
 }
 
 dependencies {
-  compileOnly project(':cloudnet')
-  moduleDependency project(':cloudnet-modules:cloudnet-bridge')
+  "moduleLibrary"("org.mongodb", "mongodb-driver-sync", Versions.mongodb)
+  "moduleLibrary"("org.slf4j", "slf4j-nop", Versions.slf4j)
 }
 
+/*
+
 moduleJson {
-  main = 'de.dytanic.cloudnet.ext.smart.CloudNetSmartModule'
-  author = 'CloudNetService'
-  description = 'CloudNet extension, which implement smart network handling and automatic services providing'
+  main = "eu.cloudnetservice.cloudnet.ext.mongodb.CloudNetMongoDatabaseModule"
+  author = "CloudNetService"
+  description = "CloudNet extension, which includes the database support for MongoDB"
   runtimeModule = true
-}
+  storesSensitiveData = true
+}*/

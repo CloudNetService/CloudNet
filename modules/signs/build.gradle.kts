@@ -12,22 +12,25 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
-jar {
-  archiveFileName.set(cloudnetModuleLabyModFileName)
+tasks.withType<Jar> {
+  archiveFileName.set(Files.signs)
 }
 
 dependencies {
-  compileOnly project(':cloudnet')
-  moduleDependency project(':cloudnet-modules:cloudnet-bridge')
-  compileOnly project(':cloudnet-wrapper-jvm')
-  compileOnly group: 'net.md-5', name: 'bungeecord-api', version: dependencyBungeeCordVersion
-  compileOnly group: 'com.velocitypowered', name: 'velocity-api', version: dependencyVelocityVersion
+  "moduleDependency"(project(":modules:bridge"))
+  "compileOnly"(project(":cloudnet-wrapper-jvm"))
+  "compileOnly"("cn.nukkit", "nukkit", Versions.nukkitX)
+  "compileOnly"("org.spigotmc", "spigot-api", Versions.spigotApi)
+  "compileOnly"("org.spongepowered", "spongeapi", Versions.sponge)
 }
 
+/*
+
 moduleJson {
-  main = 'eu.cloudnetservice.cloudnet.ext.labymod.node.CloudNetLabyModModule'
-  author = 'CloudNetService'
-  description = 'This module adds support for the LabyMod Discord RPC Protocol and the ingame messages when a player plays a gamemode'
-}
+  main = "eu.cloudnetservice.cloudnet.ext.signs.node.CloudNetSignsModule"
+  author = "CloudNetService"
+  description = "CloudNet extension which adds sign connector support for Bukkit, Nukkit and Sponge"
+}*/
