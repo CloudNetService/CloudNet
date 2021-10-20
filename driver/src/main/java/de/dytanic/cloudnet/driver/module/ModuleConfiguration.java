@@ -227,7 +227,7 @@ public class ModuleConfiguration {
    *
    * @return all defined repositories of this module.
    */
-  public @Nullable ModuleRepository[] getRepos() {
+  public @Nullable ModuleRepository[] getRepositories() {
     return this.repositories;
   }
 
