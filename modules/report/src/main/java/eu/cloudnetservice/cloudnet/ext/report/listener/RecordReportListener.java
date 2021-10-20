@@ -37,7 +37,7 @@ public final class RecordReportListener {
   }
 
   @EventListener
-  public void handlePostStop(CloudServicePreLifecycleEvent event) {
+  public void handlePreStop(CloudServicePreLifecycleEvent event) {
     // we just want to handle the stop lifecycle
     if (event.getTargetLifecycle() != ServiceLifeCycle.STOPPED) {
       return;
@@ -61,7 +61,7 @@ public final class RecordReportListener {
   }
 
   @EventListener
-  public void handlePreDelete(CloudServicePostLifecycleEvent event) {
+  public void handlePostDelete(CloudServicePostLifecycleEvent event) {
     // we just handle the deleted lifecycle
     if (event.getNewLifeCycle() != ServiceLifeCycle.DELETED) {
       return;

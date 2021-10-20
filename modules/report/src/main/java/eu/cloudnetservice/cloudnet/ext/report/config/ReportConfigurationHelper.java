@@ -25,7 +25,7 @@ import java.util.Collection;
 import java.util.Collections;
 import org.jetbrains.annotations.NotNull;
 
-public class ReportConfigurationHelper {
+public final class ReportConfigurationHelper {
 
   private static final Logger LOGGER = LogManager.getLogger(ReportConfigurationHelper.class);
 

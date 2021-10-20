@@ -16,14 +16,37 @@
 
 package eu.cloudnetservice.cloudnet.ext.report.paste.emitter.defaults.node;
 
+import de.dytanic.cloudnet.common.unsafe.CPUUsageResolver;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
 import eu.cloudnetservice.cloudnet.ext.report.paste.emitter.ReportDataEmitter;
+import java.lang.management.ManagementFactory;
+import java.lang.management.MemoryMXBean;
 
-//TODO: cpu usage and such stuff
 public class NodeAllocationEmitter implements ReportDataEmitter<NetworkClusterNodeInfoSnapshot> {
 
   @Override
   public void emitData(StringBuilder builder, NetworkClusterNodeInfoSnapshot context) {
+    MemoryMXBean memoryMXBean = ManagementFactory.getMemoryMXBean();
 
+    builder.append("CPU usage: (P/S) ")
+      .append(CPUUsageResolver.CPU_USAGE_OUTPUT_FORMAT.format(CPUUsageResolver.getProcessCPUUsage()))
+      .append("/")
+      .append(CPUUsageResolver.CPU_USAGE_OUTPUT_FORMAT.format(CPUUsageResolver.getSystemCPUUsage()))
+      .append("/100%")
+      .append("\n")
+      .append("Node services memory allocation (U/R/M): ")
+      .append(context.getUsedMemory())
+      .append("/")
+      .append(context.getReservedMemory())
+      .append("/")
+      .append(context.getMaxMemory())
+      .append(" MB")
+      .append("\n")
+      .append("Heap usage: ")
+      .append(memoryMXBean.getHeapMemoryUsage().getUsed() / (1024 * 1024))
+      .append("/")
+      .append(memoryMXBean.getHeapMemoryUsage().getMax() / (1024 * 1024))
+      .append("MB")
+      .append("\n\n");
   }
 }
