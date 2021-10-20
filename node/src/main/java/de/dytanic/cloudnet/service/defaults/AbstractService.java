@@ -227,6 +227,7 @@ public abstract class AbstractService implements ICloudService {
               this.pushServiceInfoSnapshotUpdate(ServiceLifeCycle.DELETED);
             } else if (this.getLifeCycle() == ServiceLifeCycle.RUNNING) {
               this.stopProcess();
+              this.doRemoveFilesAfterStop();
               // reset the service lifecycle to prepared
               this.pushServiceInfoSnapshotUpdate(ServiceLifeCycle.PREPARED);
             }
@@ -319,7 +320,8 @@ public abstract class AbstractService implements ICloudService {
     if (this.currentServiceInfo.getLifeCycle() == ServiceLifeCycle.RUNNING || this.isAlive()) {
       this.stopProcess();
     }
-    // execute all deployments which are still waiting
+    // execute all deployments which are still waiting - delete all requested files before that
+    this.doRemoveFilesAfterStop();
     this.removeAndExecuteDeployments();
     // remove the current directory if the service is not static
     if (!this.getServiceConfiguration().isStaticService()) {
@@ -457,6 +459,12 @@ public abstract class AbstractService implements ICloudService {
         // check if the file is ignored
         return !deployment.getExcludes().contains(fileName) && !DEFAULT_DEPLOYMENT_EXCLUSIONS.contains(fileName);
       });
+    }
+  }
+
+  protected void doRemoveFilesAfterStop() {
+    for (String file : this.serviceConfiguration.getDeletedFilesAfterStop()) {
+      FileUtils.delete(this.serviceDirectory.resolve(file));
     }
   }
 
