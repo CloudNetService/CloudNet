@@ -36,6 +36,7 @@ import de.dytanic.cloudnet.common.JavaVersion;
 import de.dytanic.cloudnet.common.WildcardUtil;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.language.LanguageManager;
+import de.dytanic.cloudnet.console.IConsole;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
 import de.dytanic.cloudnet.driver.provider.ServiceTaskProvider;
 import de.dytanic.cloudnet.driver.service.GroupConfiguration;
@@ -58,6 +59,12 @@ import org.jetbrains.annotations.Nullable;
 @CommandPermission("cloudnet.command.tasks")
 @Description("Administers the configurations of all persistent tasks")
 public final class CommandTasks {
+
+  private final IConsole console;
+
+  public CommandTasks(IConsole console) {
+    this.console = console;
+  }
 
   @Parser(suggestions = "serviceTask")
   public ServiceTask defaultTaskParser(CommandContext<CommandSource> $, Queue<String> input) {
@@ -122,7 +129,7 @@ public final class CommandTasks {
 
   @CommandMethod(value = "tasks setup", requiredSender = ConsoleCommandSource.class)
   public void taskSetup(CommandSource source) {
-
+    //TODO: start task setup
   }
 
   @CommandMethod("tasks reload")

@@ -24,6 +24,7 @@ import de.dytanic.cloudnet.common.JavaVersion;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.console.animation.setup.answer.QuestionAnswerType.Parser;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
+import de.dytanic.cloudnet.driver.service.ServiceTask;
 import de.dytanic.cloudnet.template.install.ServiceVersion;
 import de.dytanic.cloudnet.template.install.ServiceVersionType;
 import de.dytanic.cloudnet.util.JavaVersionResolver;
@@ -80,6 +81,16 @@ public final class Parsers {
       ServiceVersion version = type.getVersion(result[1]).orElseThrow(() -> ParserException.INSTANCE);
       // combine the result
       return new Pair<>(type, version);
+    };
+  }
+
+  public static @NotNull Parser<String> nonExistingTask() {
+    return input -> {
+      ServiceTask task = CloudNet.getInstance().getServiceTaskProvider().getServiceTask(input);
+      if (task != null) {
+        throw ParserException.INSTANCE;
+      }
+      return input.trim();
     };
   }
 
