@@ -18,9 +18,12 @@ package de.dytanic.cloudnet.service.defaults;
 
 import com.google.common.collect.ComparisonChain;
 import de.dytanic.cloudnet.CloudNet;
+import de.dytanic.cloudnet.CloudNetTick;
 import de.dytanic.cloudnet.cluster.IClusterNodeServer;
 import de.dytanic.cloudnet.cluster.IClusterNodeServerProvider;
 import de.dytanic.cloudnet.common.collection.Pair;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
 import de.dytanic.cloudnet.driver.network.rpc.RPCSender;
@@ -66,6 +69,8 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
   protected static final Path PERSISTENT_SERVICE_DIR = Paths.get(
     System.getProperty("cloudnet.persistable.services.path", "local/services"));
 
+  private static final Logger LOGGER = LogManager.getLogger(ICloudServiceManager.class);
+
   protected final RPCSender sender;
   protected final IClusterNodeServerProvider clusterNodeServerProvider;
 
@@ -92,6 +97,23 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
     this.addServicePreparer(ServiceEnvironmentType.GLOWSTONE, new GlowstoneConfigurationPreparer());
     this.addServicePreparer(ServiceEnvironmentType.WATERDOG_PE, new WaterdogPEConfigurationPreparer());
     this.addServicePreparer(ServiceEnvironmentType.MINECRAFT_SERVER, new VanillaServiceConfigurationPreparer());
+    // schedule the updating of the local service log cache
+    nodeInstance.getMainThread().scheduleTask(() -> {
+      for (ICloudService service : this.getLocalCloudServices()) {
+        // we only need to look at running services
+        if (service.getLifeCycle() == ServiceLifeCycle.RUNNING) {
+          // detect dead services and stop them
+          if (service.isAlive()) {
+            service.getServiceConsoleLogCache().update();
+            LOGGER.fine("Updated service log cache of %s", null, service.getServiceId().getName());
+          } else {
+            service.stop();
+            LOGGER.fine("Stopped dead service %s", null, service.getServiceId().getName());
+          }
+        }
+      }
+      return null;
+    }, CloudNetTick.TPS);
   }
 
   @Override
@@ -314,6 +336,7 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
     // deleted services were removed on the other node - remove it here too
     if (snapshot.getLifeCycle() == ServiceLifeCycle.DELETED) {
       this.knownServices.remove(snapshot.getServiceId().getUniqueId());
+      LOGGER.fine("Deleted cloud service %s after lifecycle change to deleted", null, snapshot.getServiceId());
     } else {
       // register the service if the provider is available
       SpecificCloudServiceProvider provider = this.knownServices.get(snapshot.getServiceId().getUniqueId());
@@ -321,10 +344,12 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
         this.knownServices.putIfAbsent(
           snapshot.getServiceId().getUniqueId(),
           new RemoteNodeCloudServiceProvider(this, this.sender, () -> source, snapshot));
+        LOGGER.fine("Registered remote service %s", null, snapshot.getServiceId());
       } else if (provider instanceof RemoteNodeCloudServiceProvider) {
         // update the provider if possible - we need only to handle remote node providers as local providers will update
         // the snapshot directly "in" them
         ((RemoteNodeCloudServiceProvider) provider).setSnapshot(snapshot);
+        LOGGER.fine("Updated service snapshot of %s to %s", null, snapshot.getServiceId(), snapshot);
       }
     }
   }
@@ -342,6 +367,7 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
         this.knownServices.putIfAbsent(
           snapshot.getServiceId().getUniqueId(),
           new RemoteNodeCloudServiceProvider(this, this.sender, () -> source, snapshot));
+        LOGGER.fine("Registered remote service %s from initial service set", null, snapshot.getServiceId());
       }
     }
   }

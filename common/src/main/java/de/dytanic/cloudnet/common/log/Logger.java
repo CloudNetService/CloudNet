@@ -33,31 +33,31 @@ public abstract class Logger extends java.util.logging.Logger {
 
   public abstract void setLogRecordDispatcher(@Nullable LogRecordDispatcher dispatcher);
 
-  public void fine(@NotNull String message, @NotNull Throwable throwable, Object @NotNull ... params) {
+  public void fine(@NotNull String message, @Nullable Throwable throwable, Object @NotNull ... params) {
     this.log(Level.FINE, this.doFormat(message, params), throwable);
   }
 
-  public void finer(@NotNull String message, @NotNull Throwable throwable, Object @NotNull ... params) {
+  public void finer(@NotNull String message, @Nullable Throwable throwable, Object @NotNull ... params) {
     this.log(Level.FINER, this.doFormat(message, params), throwable);
   }
 
-  public void finest(@NotNull String message, @NotNull Throwable throwable, Object @NotNull ... params) {
+  public void finest(@NotNull String message, @Nullable Throwable throwable, Object @NotNull ... params) {
     this.log(Level.FINEST, this.doFormat(message, params), throwable);
   }
 
-  public void severe(@NotNull String message, @NotNull Throwable throwable, Object @NotNull ... params) {
+  public void severe(@NotNull String message, @Nullable Throwable throwable, Object @NotNull ... params) {
     this.log(Level.SEVERE, this.doFormat(message, params), throwable);
   }
 
-  public void warning(@NotNull String message, @NotNull Throwable throwable, Object @NotNull ... params) {
+  public void warning(@NotNull String message, @Nullable Throwable throwable, Object @NotNull ... params) {
     this.log(Level.WARNING, this.doFormat(message, params), throwable);
   }
 
-  public void info(@NotNull String message, @NotNull Throwable throwable, Object @NotNull ... params) {
+  public void info(@NotNull String message, @Nullable Throwable throwable, Object @NotNull ... params) {
     this.log(Level.INFO, this.doFormat(message, params), throwable);
   }
 
-  public void config(@NotNull String message, @NotNull Throwable throwable, Object @NotNull ... params) {
+  public void config(@NotNull String message, @Nullable Throwable throwable, Object @NotNull ... params) {
     this.log(Level.CONFIG, this.doFormat(message, params), throwable);
   }
 

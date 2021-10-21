@@ -20,11 +20,9 @@ import de.dytanic.cloudnet.common.INameable;
 import java.util.Collection;
 import java.util.UUID;
 import lombok.EqualsAndHashCode;
-import lombok.ToString;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
-@ToString
 @EqualsAndHashCode
 public class ServiceId implements INameable {
 
@@ -93,5 +91,10 @@ public class ServiceId implements INameable {
 
   public ServiceEnvironmentType getEnvironment() {
     return this.environment;
+  }
+
+  @Override
+  public String toString() {
+    return this.getName() + ':' + this.uniqueId;
   }
 }
