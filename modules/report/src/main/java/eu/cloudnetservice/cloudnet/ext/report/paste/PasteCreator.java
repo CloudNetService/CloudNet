@@ -93,7 +93,7 @@ public final class PasteCreator {
       return null;
     }
 
-    JsonDocument document = JsonDocument.newDocument(response);
+    JsonDocument document = JsonDocument.fromJsonString(response);
     return String.format("%s/%s", this.pasteService.getServiceUrl(), document.getString("key"));
   }
 }
