@@ -27,6 +27,7 @@ import java.util.Queue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import org.jetbrains.annotations.NotNull;
 
@@ -39,6 +40,8 @@ public final class CloudNetTick {
 
   private final CloudNet cloudNet;
   private final AtomicLong currentTick = new AtomicLong();
+  private final AtomicInteger tickPauseRequests = new AtomicInteger();
+
   private final Queue<ScheduledTask<?>> processQueue = new ConcurrentLinkedQueue<>();
 
   public CloudNetTick(CloudNet cloudNet) {
@@ -53,7 +56,7 @@ public final class CloudNetTick {
   }
 
   public @NotNull <T> ITask<T> runTask(@NotNull Callable<T> callable) {
-    ScheduledTask<T> task = new ScheduledTask<>(callable, this.currentTick.get() + 1);
+    ScheduledTask<T> task = new ScheduledTask<>(callable, 0, 1, this.currentTick.get() + 1);
     this.processQueue.offer(task);
     return task;
   }
@@ -68,9 +71,33 @@ public final class CloudNetTick {
   public @NotNull <T> ITask<T> runDelayedTask(@NotNull Callable<T> callable, long delay, @NotNull TimeUnit timeUnit) {
     ScheduledTask<T> task = new ScheduledTask<>(
       callable,
+      0,
+      1,
       this.currentTick.get() + (timeUnit.toMillis(delay) / MILLIS_BETWEEN_TICKS));
     this.processQueue.offer(task);
     return task;
+  }
+
+  public @NotNull <T> ITask<T> scheduleTask(@NotNull Callable<T> callable, long delay) {
+    return this.scheduleTask(callable, delay, -1);
+  }
+
+  public @NotNull <T> ITask<T> scheduleTask(@NotNull Callable<T> callable, long delay, long maxExecutions) {
+    ScheduledTask<T> task = new ScheduledTask<>(
+      callable,
+      delay,
+      maxExecutions,
+      this.currentTick.get() + delay);
+    this.processQueue.offer(task);
+    return task;
+  }
+
+  public void pause() {
+    this.tickPauseRequests.incrementAndGet();
+  }
+
+  public void resume() {
+    this.tickPauseRequests.decrementAndGet();
   }
 
   public void start() {
@@ -96,20 +123,22 @@ public final class CloudNetTick {
         // update the last tick time
         lastTick = System.currentTimeMillis();
 
-        // execute all scheduled tasks for this tick
-        for (ScheduledTask<?> task : this.processQueue) {
-          if (task.scheduledTick <= tick) {
-            task.run();
-            this.processQueue.remove(task);
+        // check if ticking is currently disabled
+        if (this.tickPauseRequests.get() <= 0) {
+          // execute all scheduled tasks for this tick
+          for (ScheduledTask<?> task : this.processQueue) {
+            if (task.execute(tick)) {
+              this.processQueue.remove(task);
+            }
           }
-        }
 
-        // check if we should start a service now
-        if (this.cloudNet.getClusterNodeServerProvider().getSelfNode().isHeadNode() && tick % TPS == 0) {
-          this.startService();
-        }
+          // check if we should start a service now
+          if (this.cloudNet.getClusterNodeServerProvider().getSelfNode().isHeadNode() && tick % TPS == 0) {
+            this.startService();
+          }
 
-        this.cloudNet.getEventManager().callEvent(new CloudNetTickEvent());
+          this.cloudNet.getEventManager().callEvent(new CloudNetTickEvent());
+        }
       } catch (Exception exception) {
         LOGGER.severe("Exception while ticking", exception);
       }
@@ -134,11 +163,54 @@ public final class CloudNetTick {
 
   private static final class ScheduledTask<T> extends ListenableTask<T> {
 
-    private final long scheduledTick;
+    /**
+     * The number of ticks between each call of this task.
+     */
+    private final long tickPeriod;
+    /**
+     * The number of times this task should execute.
+     */
+    private final long executionTimes;
 
-    public ScheduledTask(@NotNull Callable<T> callable, long scheduledTick) {
+    /**
+     * The counter keeping track of the number of times this task was executed
+     */
+    private long executionCounter;
+    /**
+     * The next tick this task is about to execute.
+     */
+    private long nextScheduledTick;
+
+    public ScheduledTask(@NotNull Callable<T> callable, long tickPeriod, long executionTimes, long nextScheduledTick) {
       super(callable);
-      this.scheduledTick = scheduledTick;
+
+      this.tickPeriod = tickPeriod;
+      this.executionTimes = executionTimes;
+      this.nextScheduledTick = nextScheduledTick;
+    }
+
+    /**
+     * Executes this task and resets the future to prepare for the next execution.
+     *
+     * @param currentTick the current tick number.
+     * @return {@code true} if this task terminated and should be unregistered after the execution.
+     */
+    private boolean execute(long currentTick) {
+      // check if the task is scheduled to run in this tick
+      if (this.nextScheduledTick <= currentTick) {
+        // check if the execution limit is reached
+        if (this.executionTimes != -1 && ++this.executionCounter >= this.executionTimes) {
+          // execute the task one last time - no reset
+          super.run();
+          return true;
+        }
+        // execute the task and reset
+        super.runAndReset();
+        // set the next scheduled tick
+        this.nextScheduledTick = currentTick + this.tickPeriod;
+      }
+      // runs again or later
+      return false;
     }
   }
 }

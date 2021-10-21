@@ -25,35 +25,33 @@ import java.util.Collection;
 import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnknownNullability;
+import org.jetbrains.annotations.UnmodifiableView;
 
 public interface NodeServer extends AutoCloseable {
 
-  @NotNull
-  NodeServerProvider<? extends NodeServer> getProvider();
+  @NotNull NodeServerProvider<? extends NodeServer> getProvider();
 
   boolean isHeadNode();
 
   boolean isAvailable();
 
-  @NotNull
-  NetworkClusterNode getNodeInfo();
+  @NotNull NetworkClusterNode getNodeInfo();
 
   @Internal
   void setNodeInfo(@NotNull NetworkClusterNode nodeInfo);
 
-  NetworkClusterNodeInfoSnapshot getNodeInfoSnapshot();
+  @UnknownNullability NetworkClusterNodeInfoSnapshot getNodeInfoSnapshot();
 
   @Internal
   void setNodeInfoSnapshot(@NotNull NetworkClusterNodeInfoSnapshot nodeInfoSnapshot);
 
-  NetworkClusterNodeInfoSnapshot getLastNodeInfoSnapshot();
+  @UnknownNullability NetworkClusterNodeInfoSnapshot getLastNodeInfoSnapshot();
 
   @NotNull
-  Collection<String> sendCommandLine(@NotNull String commandLine);
+  @UnmodifiableView Collection<String> sendCommandLine(@NotNull String commandLine);
 
-  @NotNull
-  CloudServiceFactory getCloudServiceFactory();
+  @NotNull CloudServiceFactory getCloudServiceFactory();
 
-  @Nullable
-  SpecificCloudServiceProvider getCloudServiceProvider(@NotNull ServiceInfoSnapshot serviceInfoSnapshot);
+  @Nullable SpecificCloudServiceProvider getCloudServiceProvider(@NotNull ServiceInfoSnapshot serviceInfoSnapshot);
 }
