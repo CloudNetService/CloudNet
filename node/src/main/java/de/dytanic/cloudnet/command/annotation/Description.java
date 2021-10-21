@@ -25,6 +25,9 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Description {
 
+  /**
+   * @return the description for all commands in the class that is annotated with this
+   */
   String value();
 
 }

@@ -25,6 +25,9 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface CommandAlias {
 
+  /**
+   * @return all aliases that the command has to register
+   */
   String[] value();
 
 }
