@@ -73,8 +73,10 @@ public class DefaultCommandProvider implements CommandProvider {
   private final AnnotationParser<CommandSource> annotationParser;
   private final Set<CommandInfo> registeredCommands;
   private final CommandExceptionHandler exceptionHandler;
+  private final IConsole console;
 
-  public DefaultCommandProvider() {
+  public DefaultCommandProvider(IConsole console) {
+    this.console = console;
     this.commandManager = new DefaultCommandManager();
     this.annotationParser = new AnnotationParser<>(this.commandManager, CommandSource.class,
       parameters -> SimpleCommandMeta.empty());
@@ -165,7 +167,7 @@ public class DefaultCommandProvider implements CommandProvider {
     this.register(new CommandTemplate());
     this.register(new CommandExit());
     this.register(new CommandGroups());
-    this.register(new CommandTasks());
+    this.register(new CommandTasks(this.console));
     this.register(new CommandCreate());
     this.register(new CommandMe());
     this.register(new CommandService());

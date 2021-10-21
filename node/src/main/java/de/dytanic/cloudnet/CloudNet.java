@@ -118,7 +118,7 @@ public class CloudNet extends CloudNetDriver {
     rootLogger.addHandler(this.logHandler);
 
     this.console = console;
-    this.commandProvider = new DefaultCommandProvider();
+    this.commandProvider = new DefaultCommandProvider(console);
 
     this.serviceVersionProvider = new ServiceVersionProvider();
     this.cloudNetVersion = CloudNetVersion.fromClassInformation(CloudNet.class.getPackage());

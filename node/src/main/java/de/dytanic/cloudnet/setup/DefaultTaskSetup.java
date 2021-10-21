@@ -75,7 +75,7 @@ public class DefaultTaskSetup implements DefaultSetup {
                   .translatedQuestion("cloudnet-init-setup-tasks-proxy-environment")
                   .answerType(QuestionAnswerType.<ServiceEnvironmentType>builder()
                     .parser(enumConstant(ServiceEnvironmentType.class))
-                    .possibleResults(Arrays.stream(ServiceEnvironmentType.values())
+                    .possibleResults(Arrays.stream(ServiceEnvironmentType.VALUES)
                       .filter(ServiceEnvironmentType::isMinecraftProxy)
                       .map(ServiceEnvironmentType::name)
                       .collect(Collectors.toList())))
