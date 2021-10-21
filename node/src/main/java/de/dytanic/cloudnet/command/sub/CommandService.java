@@ -158,9 +158,9 @@ public final class CommandService {
     }
   }
 
+  //TODO: fix this command
   @CommandMethod("service|ser <name> start")
-  public void startServices(CommandSource source,
-    @Argument("name") String serviceName) {
+  public void startServices(CommandSource source, @Argument(value = "name") String serviceName) {
 
     Collection<ServiceInfoSnapshot> matchedServices = this.staticWildcardServiceParser(
       null, new ConcurrentLinkedQueue<>(Collections.singletonList(serviceName)));

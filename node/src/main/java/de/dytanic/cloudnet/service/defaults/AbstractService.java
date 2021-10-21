@@ -194,6 +194,10 @@ public abstract class AbstractService implements ICloudService {
     try {
       // prevent multiple service updates at the same time
       this.lifecycleLock.lock();
+      // prevent changing the lifecycle to an incompatible lifecycle
+      if (!this.getLifeCycle().canChangeTo(lifeCycle)) {
+        return;
+      }
       // select the appropriate method for the lifecycle
       switch (lifeCycle) {
         case DELETED: {
