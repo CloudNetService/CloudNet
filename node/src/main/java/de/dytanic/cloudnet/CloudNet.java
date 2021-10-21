@@ -19,6 +19,8 @@ package de.dytanic.cloudnet;
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.cluster.DefaultClusterNodeServerProvider;
 import de.dytanic.cloudnet.cluster.IClusterNodeServerProvider;
+import de.dytanic.cloudnet.cluster.sync.DataSyncRegistry;
+import de.dytanic.cloudnet.cluster.sync.DefaultDataSyncRegistry;
 import de.dytanic.cloudnet.command.CommandProvider;
 import de.dytanic.cloudnet.command.defaults.DefaultCommandProvider;
 import de.dytanic.cloudnet.common.io.FileUtils;
@@ -103,6 +105,7 @@ public class CloudNet extends CloudNetDriver {
   private final CloudNetTick mainThread = new CloudNetTick(this);
   private final AtomicBoolean running = new AtomicBoolean(true);
   private final DefaultInstallation installation = new DefaultInstallation();
+  private final DataSyncRegistry dataSyncRegistry = new DefaultDataSyncRegistry();
   private final QueuedConsoleLogHandler logHandler = new QueuedConsoleLogHandler();
 
   private volatile IConfiguration configuration;
@@ -430,6 +433,10 @@ public class CloudNet extends CloudNetDriver {
 
   public @NotNull DefaultInstallation getInstallation() {
     return this.installation;
+  }
+
+  public @NotNull DataSyncRegistry getDataSyncRegistry() {
+    return this.dataSyncRegistry;
   }
 
   public boolean isRunning() {

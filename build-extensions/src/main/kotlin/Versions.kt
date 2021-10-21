@@ -47,6 +47,7 @@ object Versions {
 
   const val slf4j = "1.7.32"
   const val jjwt = "0.11.2"
+  const val javers = "6.4.2"
   const val netty = "4.1.69.Final"
   const val javassist = "3.28.0-GA"
   const val requestBuilder = "2.0.0"

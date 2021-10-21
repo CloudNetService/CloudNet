@@ -14,17 +14,25 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.network.packet;
+package de.dytanic.cloudnet.cluster.sync;
 
-import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
-import de.dytanic.cloudnet.driver.network.def.NetworkConstants;
-import de.dytanic.cloudnet.driver.network.protocol.Packet;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-public final class PacketServerChannelMessage extends Packet {
+public interface DataSyncRegistry {
 
-  public PacketServerChannelMessage(@NotNull ChannelMessage message) {
-    super(NetworkConstants.CHANNEL_MESSAGING_CHANNEL, DataBuf.empty().writeObject(message));
-  }
+  void registerHandler(@NotNull DataSyncHandler<?> handler);
+
+  void unregisterHandler(@NotNull DataSyncHandler<?> handler);
+
+  void unregisterHandler(@NotNull String handlerKey);
+
+  void unregisterHandler(@NotNull ClassLoader loader);
+
+  boolean hasHandler(@NotNull String handlerKey);
+
+  @Nullable DataBuf handle(@NotNull DataBuf input, boolean force);
+
+  @NotNull DataBuf.Mutable prepareClusterData(@NotNull DataBuf.Mutable to, boolean force);
 }

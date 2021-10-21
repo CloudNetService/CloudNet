@@ -34,6 +34,8 @@ dependencies {
   // console
   "api"("org.jline", "jline", Versions.jline)
   "api"("org.fusesource.jansi", "jansi", Versions.jansi)
+  // javers - diff finder for java objects (used for cluster data sync)
+  "api"("org.javers", "javers-core", Versions.javers)
   // default database implementations
   "api"("com.h2database", "h2", Versions.h2)
   "api"("org.jetbrains.xodus", "xodus-environment", Versions.xodus)
