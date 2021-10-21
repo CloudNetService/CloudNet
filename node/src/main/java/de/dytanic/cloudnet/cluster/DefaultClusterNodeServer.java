@@ -17,7 +17,6 @@
 package de.dytanic.cloudnet.cluster;
 
 import de.dytanic.cloudnet.CloudNet;
-import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
@@ -28,10 +27,10 @@ import de.dytanic.cloudnet.driver.provider.service.CloudServiceFactory;
 import de.dytanic.cloudnet.driver.provider.service.RemoteCloudServiceFactory;
 import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
-import de.dytanic.cloudnet.network.packet.PacketServerChannelMessage;
 import java.util.Collection;
 import java.util.Collections;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.UnknownNullability;
 
 public class DefaultClusterNodeServer extends DefaultNodeServer implements IClusterNodeServer {
 
@@ -43,9 +42,9 @@ public class DefaultClusterNodeServer extends DefaultNodeServer implements IClus
   private INetworkChannel channel;
 
   protected DefaultClusterNodeServer(
-    CloudNet cloudNet,
-    DefaultClusterNodeServerProvider provider,
-    NetworkClusterNode nodeInfo
+    @NotNull CloudNet cloudNet,
+    @NotNull DefaultClusterNodeServerProvider provider,
+    @NotNull NetworkClusterNode nodeInfo
   ) {
     this.cloudNet = cloudNet;
     this.provider = provider;
@@ -59,11 +58,6 @@ public class DefaultClusterNodeServer extends DefaultNodeServer implements IClus
       cloudNet.getRPCProviderFactory());
 
     this.setNodeInfo(nodeInfo);
-  }
-
-  @Override
-  public void sendCustomChannelMessage(@NotNull ChannelMessage channelMessage) {
-    this.saveSendPacket(new PacketServerChannelMessage(channelMessage));
   }
 
   @Override
@@ -99,14 +93,13 @@ public class DefaultClusterNodeServer extends DefaultNodeServer implements IClus
     return Collections.emptySet();
   }
 
-  @NotNull
   @Override
-  public CloudServiceFactory getCloudServiceFactory() {
+  public @NotNull CloudServiceFactory getCloudServiceFactory() {
     return this.cloudServiceFactory;
   }
 
   @Override
-  public SpecificCloudServiceProvider getCloudServiceProvider(@NotNull ServiceInfoSnapshot snapshot) {
+  public @NotNull SpecificCloudServiceProvider getCloudServiceProvider(@NotNull ServiceInfoSnapshot snapshot) {
     return this.cloudNet.getCloudServiceProvider().getSpecificProvider(snapshot.getServiceId().getUniqueId());
   }
 
@@ -123,14 +116,13 @@ public class DefaultClusterNodeServer extends DefaultNodeServer implements IClus
     super.close();
   }
 
-  @NotNull
   @Override
-  public DefaultClusterNodeServerProvider getProvider() {
+  public @NotNull DefaultClusterNodeServerProvider getProvider() {
     return this.provider;
   }
 
   @Override
-  public INetworkChannel getChannel() {
+  public @UnknownNullability INetworkChannel getChannel() {
     return this.channel;
   }
 

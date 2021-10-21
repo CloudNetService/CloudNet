@@ -43,12 +43,19 @@ final class TemplateDeployCallback implements Callback {
     // get the storage of the template if present
     TemplateStorage storage = CloudNet.getInstance().getTemplateStorage(storageName);
     if (storage != null) {
-      // delete the template if requested
-      if (overrideTemplate) {
-        storage.delete(template);
+      // pause the ticking of CloudNet before writing the file into the template
+      CloudNet.getInstance().getMainThread().pause();
+      try {
+        // delete the template if requested
+        if (overrideTemplate) {
+          storage.delete(template);
+        }
+        // deploy the data into the template
+        storage.deploy(dataInput, template);
+      } finally {
+        // resume the main thread execution
+        CloudNet.getInstance().getMainThread().resume();
       }
-      // deploy the data into the template
-      storage.deploy(dataInput, template);
     }
   }
 }

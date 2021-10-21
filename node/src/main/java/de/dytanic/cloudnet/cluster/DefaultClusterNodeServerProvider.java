@@ -20,7 +20,6 @@ import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.concurrent.CompletedTask;
 import de.dytanic.cloudnet.common.concurrent.ITask;
-import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
@@ -45,6 +44,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnmodifiableView;
 
 public final class DefaultClusterNodeServerProvider extends DefaultNodeServerProvider<IClusterNodeServer>
   implements IClusterNodeServerProvider {
@@ -71,7 +72,7 @@ public final class DefaultClusterNodeServerProvider extends DefaultNodeServerPro
   }
 
   @Override
-  public IClusterNodeServer getNodeServer(@NotNull INetworkChannel channel) {
+  public @Nullable IClusterNodeServer getNodeServer(@NotNull INetworkChannel channel) {
     Preconditions.checkNotNull(channel);
 
     for (IClusterNodeServer clusterNodeServer : this.getNodeServers()) {
@@ -141,10 +142,6 @@ public final class DefaultClusterNodeServerProvider extends DefaultNodeServerPro
         .collect(Collectors.toList());
       // check if there is at least one channel to deploy to
       if (!channels.isEmpty()) {
-        // generate the deployment information
-        JsonDocument deploymentData = JsonDocument.newDocument()
-          .append("template", template)
-          .append("preClear", true);
         // send the template chunked to the cluster
         return ChunkedPacketSender.forFileTransfer()
           .transferChannel("deploy_service_template")
@@ -160,7 +157,8 @@ public final class DefaultClusterNodeServerProvider extends DefaultNodeServerPro
   }
 
   @Override
-  public Collection<INetworkChannel> getConnectedChannels() {
+  @UnmodifiableView
+  public @NotNull Collection<INetworkChannel> getConnectedChannels() {
     return this.getNodeServers().stream()
       .map(IClusterNodeServer::getChannel)
       .filter(Objects::nonNull)
