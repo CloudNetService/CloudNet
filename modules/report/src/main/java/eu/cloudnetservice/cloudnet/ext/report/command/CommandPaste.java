@@ -19,27 +19,44 @@ package eu.cloudnetservice.cloudnet.ext.report.command;
 import cloud.commandframework.annotations.Argument;
 import cloud.commandframework.annotations.CommandMethod;
 import cloud.commandframework.annotations.CommandPermission;
+import cloud.commandframework.annotations.Flag;
 import cloud.commandframework.annotations.parsers.Parser;
 import cloud.commandframework.annotations.suggestions.Suggestions;
 import cloud.commandframework.context.CommandContext;
+import com.sun.management.HotSpotDiagnosticMXBean;
 import de.dytanic.cloudnet.CloudNet;
+import de.dytanic.cloudnet.command.annotation.CommandAlias;
 import de.dytanic.cloudnet.command.annotation.Description;
 import de.dytanic.cloudnet.command.exception.ArgumentNotAvailableException;
 import de.dytanic.cloudnet.command.source.CommandSource;
 import de.dytanic.cloudnet.common.INameable;
 import de.dytanic.cloudnet.common.language.LanguageManager;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
 import de.dytanic.cloudnet.service.ICloudService;
 import eu.cloudnetservice.cloudnet.ext.report.CloudNetReportModule;
 import eu.cloudnetservice.cloudnet.ext.report.config.PasteService;
 import eu.cloudnetservice.cloudnet.ext.report.paste.PasteCreator;
+import java.io.IOException;
+import java.lang.management.ManagementFactory;
+import java.lang.management.ThreadInfo;
+import java.lang.management.ThreadMXBean;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.List;
 import java.util.Queue;
 import java.util.stream.Collectors;
+import javax.management.MBeanServer;
 
-@Description("Upload cloud specific data to a paste service")
+@CommandAlias("report")
 @CommandPermission("cloudnet.command.paste")
+@Description("Upload cloud specific data to a paste service")
 public final class CommandPaste {
+
+  private static final Logger LOGGER = LogManager.getLogger(CommandPaste.class);
 
   private final CloudNetReportModule reportModule;
 
@@ -84,7 +101,7 @@ public final class CommandPaste {
       .collect(Collectors.toList());
   }
 
-  @CommandMethod("paste <pasteService> node")
+  @CommandMethod("report|paste <pasteService> node")
   public void pasteNode(CommandSource source, @Argument("pasteService") PasteService pasteService) {
     PasteCreator pasteCreator = new PasteCreator(pasteService, this.reportModule.getEmitterRegistry());
     NetworkClusterNodeInfoSnapshot selfNode = CloudNet.getInstance().getClusterNodeServerProvider().getSelfNode()
@@ -100,7 +117,7 @@ public final class CommandPaste {
     }
   }
 
-  @CommandMethod("paste <pasteService> <service>")
+  @CommandMethod("report|paste <pasteService> <service>")
   public void pasteServices(
     CommandSource source,
     @Argument("pasteService") PasteService pasteService,
@@ -115,6 +132,61 @@ public final class CommandPaste {
     } else {
       source.sendMessage(LanguageManager.getMessage("module-report-command-paste-success")
         .replace("%url%", response));
+    }
+  }
+
+  @CommandMethod("report|paste thread-dump")
+  public void reportThreadDump(CommandSource source) {
+    Path file = this.reportModule.getCurrentRecordDirectory().resolve(System.currentTimeMillis() + "-threaddump.txt");
+
+    if (this.createThreadDump(file)) {
+      source.sendMessage(
+        LanguageManager.getMessage("module-report-thread-dump-success").replace("%file%", file.toString()));
+    } else {
+      source.sendMessage(LanguageManager.getMessage("module-report-thread-dump-failed"));
+    }
+  }
+
+  @CommandMethod("report|paste heap-dump")
+  public void reportHeapDump(CommandSource source, @Flag("live") boolean live) {
+    Path file = this.reportModule.getCurrentRecordDirectory().resolve(System.currentTimeMillis() + "-heapdump.hprof");
+
+    if (this.createHeapDump(file, live)) {
+      source.sendMessage(
+        LanguageManager.getMessage("module-report-heap-dump-success").replace("%file%", file.toString()));
+    } else {
+      source.sendMessage(LanguageManager.getMessage("module-report-heap-dump-failed"));
+    }
+  }
+
+  private boolean createThreadDump(Path path) {
+    StringBuilder builder = new StringBuilder();
+    ThreadMXBean threadBean = ManagementFactory.getThreadMXBean();
+    for (ThreadInfo threadInfo : threadBean.dumpAllThreads(threadBean.isObjectMonitorUsageSupported(),
+      threadBean.isSynchronizerUsageSupported())) {
+      builder.append(threadInfo.toString());
+    }
+
+    try {
+      Files.write(path, builder.toString().getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE_NEW,
+        StandardOpenOption.WRITE);
+      return true;
+    } catch (IOException exception) {
+      LOGGER.severe("Unable to create thread dump", exception);
+      return false;
+    }
+  }
+
+  private boolean createHeapDump(Path path, boolean live) {
+    try {
+      MBeanServer server = ManagementFactory.getPlatformMBeanServer();
+      HotSpotDiagnosticMXBean mxBean = ManagementFactory.newPlatformMXBeanProxy(
+        server, "com.sun.management:type=HotSpotDiagnostic", HotSpotDiagnosticMXBean.class);
+      mxBean.dumpHeap(path.toString(), live);
+      return true;
+    } catch (IOException exception) {
+      LOGGER.severe("Unable to create heap dump", exception);
+      return false;
     }
   }
 

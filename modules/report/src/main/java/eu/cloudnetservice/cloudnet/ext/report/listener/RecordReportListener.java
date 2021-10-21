@@ -62,7 +62,8 @@ public final class RecordReportListener {
   @EventListener
   public void handlePreDelete(CloudServicePreLifecycleEvent event) {
     // we just handle the deleted lifecycle
-    if (event.getTargetLifecycle() != ServiceLifeCycle.DELETED) {
+    if (event.getTargetLifecycle() != ServiceLifeCycle.DELETED
+      && event.getTargetLifecycle() != ServiceLifeCycle.STOPPED) {
       return;
     }
     // check if the user disabled records

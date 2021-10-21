@@ -37,6 +37,7 @@ import de.dytanic.cloudnet.common.WildcardUtil;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.console.IConsole;
+import de.dytanic.cloudnet.console.animation.setup.ConsoleSetupAnimation;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
 import de.dytanic.cloudnet.driver.provider.ServiceTaskProvider;
 import de.dytanic.cloudnet.driver.service.GroupConfiguration;
@@ -45,6 +46,7 @@ import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceRemoteInclusion;
 import de.dytanic.cloudnet.driver.service.ServiceTask;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
+import de.dytanic.cloudnet.setup.SpecificTaskSetup;
 import de.dytanic.cloudnet.util.JavaVersionResolver;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -59,6 +61,17 @@ import org.jetbrains.annotations.Nullable;
 @CommandPermission("cloudnet.command.tasks")
 @Description("Administers the configurations of all persistent tasks")
 public final class CommandTasks {
+
+  private static final ConsoleSetupAnimation TASK_SETUP = new ConsoleSetupAnimation(
+    // Task Setup ASCII
+    "&f _____              _       &b           _                 \n" +
+      "&f/__   \\  __ _  ___ | | __  &b ___   ___ | |_  _   _  _ __  \n" +
+      "&f  / /\\/ / _` |/ __|| |/ /  &b/ __| / _ \\| __|| | | || '_ \\ \n" +
+      "&f / /   | (_| |\\__ \\|   <  &b \\__ \\|  __/| |_ | |_| || |_) |\n" +
+      "&f \\/     \\__,_||___/|_|\\_\\&b  |___/ \\___| \\__| \\__,_|| .__/ \n" +
+      "&f                             &b                     |_|    ",
+    "Task creation complete!",
+    "&r> &e");
 
   private final IConsole console;
 
@@ -129,7 +142,12 @@ public final class CommandTasks {
 
   @CommandMethod(value = "tasks setup", requiredSender = ConsoleCommandSource.class)
   public void taskSetup(CommandSource source) {
-    //TODO: start task setup
+    SpecificTaskSetup setup = new SpecificTaskSetup();
+    setup.applyQuestions(TASK_SETUP);
+
+    TASK_SETUP.addFinishHandler(() -> setup.handleResults(TASK_SETUP));
+
+    this.console.startAnimation(TASK_SETUP);
   }
 
   @CommandMethod("tasks reload")
