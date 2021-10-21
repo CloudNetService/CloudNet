@@ -98,7 +98,7 @@ public final class Record {
    */
   public void writeCachedConsoleLog() {
     try {
-      Files.write(directory.resolve("cachedConsoleLog.txt"), this.service.getCachedLogMessages());
+      Files.write(this.directory.resolve("cachedConsoleLog.txt"), this.service.getCachedLogMessages());
     } catch (IOException exception) {
       LOGGER.severe("Unable to write cached console logs", exception);
     }
@@ -111,7 +111,7 @@ public final class Record {
   public void writeServiceInfoSnapshot() {
     JsonDocument.newDocument("serviceInfoSnapshot", this.service.getServiceInfoSnapshot())
       .append("lastServiceInfoSnapshot", this.service.getLastServiceInfoSnapshot())
-      .write(directory.resolve("ServiceInfoSnapshots.json"));
+      .write(this.directory.resolve("ServiceInfoSnapshots.json"));
   }
 
   /**

@@ -51,8 +51,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.TimeUnit;
@@ -69,17 +71,17 @@ public class DefaultCommandProvider implements CommandProvider {
 
   private final CommandManager<CommandSource> commandManager;
   private final AnnotationParser<CommandSource> annotationParser;
-  private final Collection<CommandInfo> registeredCommands;
+  private final Set<CommandInfo> registeredCommands;
   private final CommandExceptionHandler exceptionHandler;
 
   public DefaultCommandProvider() {
     this.commandManager = new DefaultCommandManager();
     this.annotationParser = new AnnotationParser<>(this.commandManager, CommandSource.class,
       parameters -> SimpleCommandMeta.empty());
-    this.registeredCommands = new ArrayList<>();
+    this.registeredCommands = new HashSet<>();
     // handle our @CommandAlias annotation and apply the found aliases
     this.annotationParser.registerBuilderModifier(CommandAlias.class,
-      (alias, builder) -> builder.meta(ALIAS_KEY, Arrays.asList(alias.value())));
+      (alias, builder) -> builder.meta(ALIAS_KEY, new HashSet<>(Arrays.asList(alias.value()))));
     // handle our @Description annotation and apply the found description for the help command
     this.annotationParser.registerBuilderModifier(Description.class,
       (description, builder) -> builder.meta(DESCRIPTION_KEY, description.value()));
@@ -119,13 +121,17 @@ public class DefaultCommandProvider implements CommandProvider {
 
       String permission = parsedCommand.getCommandPermission().toString();
       String description = parsedCommand.getCommandMeta().getOrDefault(DESCRIPTION_KEY, "No description provided");
-
       // retrieve the aliases processed by the @CommandAlias annotation
-      Collection<String> aliases = parsedCommand.getCommandMeta().getOrDefault(ALIAS_KEY, Collections.emptyList());
-
+      Collection<String> aliases = parsedCommand.getCommandMeta().getOrDefault(ALIAS_KEY, Collections.emptySet());
       // get the name by using the first argument of the command
       String name = parsedCommand.getArguments().get(0).getName();
-
+      // create empty command info to prevent usage lookup if the command is already registered
+      CommandInfo emptyInfo = new CommandInfo(name, Collections.emptyList(), "", "", Collections.emptyList());
+      if (this.registeredCommands.contains(emptyInfo)) {
+        // a command with the same name is already registered
+        return;
+      }
+      // there is no other command registered with the given name, parse usage and register the command now
       this.registeredCommands.add(
         new CommandInfo(name, aliases, permission, description, this.getCommandUsageByRoot(name)));
     }
@@ -206,7 +212,7 @@ public class DefaultCommandProvider implements CommandProvider {
     List<String> commandUsage = new ArrayList<>();
     for (Command<CommandSource> command : this.commandManager.getCommands()) {
       List<CommandArgument<CommandSource, ?>> arguments = command.getArguments();
-      // the fist argument is the root, check if it matches
+      // the first argument is the root, check if it matches
       if (arguments.isEmpty() || !arguments.get(0).getName().equalsIgnoreCase(root)) {
         continue;
       }

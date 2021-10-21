@@ -18,7 +18,7 @@ package de.dytanic.cloudnet.driver.command;
 
 import java.util.Collection;
 import java.util.List;
-import lombok.EqualsAndHashCode;
+import java.util.Objects;
 import lombok.ToString;
 import org.jetbrains.annotations.NotNull;
 
@@ -26,7 +26,6 @@ import org.jetbrains.annotations.NotNull;
  * The commandInfo class allows to easily serialize the command information
  */
 @ToString
-@EqualsAndHashCode
 public class CommandInfo {
 
   protected String name;
@@ -58,7 +57,7 @@ public class CommandInfo {
     String description,
     List<String> usage
   ) {
-    this.name = name;
+    this.name = name.toLowerCase();
     this.aliases = aliases;
     this.permission = permission;
     this.description = description;
@@ -92,5 +91,22 @@ public class CommandInfo {
     }
 
     return result;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof CommandInfo)) {
+      return false;
+    }
+    CommandInfo that = (CommandInfo) o;
+    return this.name.equals(that.name);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(this.name);
   }
 }

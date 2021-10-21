@@ -20,7 +20,6 @@ import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
-import de.dytanic.cloudnet.event.service.CloudServicePostLifecycleEvent;
 import de.dytanic.cloudnet.event.service.CloudServicePreLifecycleEvent;
 import de.dytanic.cloudnet.service.IServiceConsoleLogCache;
 import eu.cloudnetservice.cloudnet.ext.report.CloudNetReportModule;
@@ -61,9 +60,9 @@ public final class RecordReportListener {
   }
 
   @EventListener
-  public void handlePostDelete(CloudServicePostLifecycleEvent event) {
+  public void handlePreDelete(CloudServicePreLifecycleEvent event) {
     // we just handle the deleted lifecycle
-    if (event.getNewLifeCycle() != ServiceLifeCycle.DELETED) {
+    if (event.getTargetLifecycle() != ServiceLifeCycle.DELETED) {
       return;
     }
     // check if the user disabled records
