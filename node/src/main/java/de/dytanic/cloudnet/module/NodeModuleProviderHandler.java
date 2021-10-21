@@ -47,7 +47,7 @@ public final class NodeModuleProviderHandler extends DefaultModuleProviderHandle
     // unregister all listeners
     this.nodeInstance.getEventManager().unregisterListeners(moduleWrapper.getClassLoader());
     // unregister all commands
-    CloudNet.getInstance().getCommandProvider().unregister(moduleWrapper.getClassLoader());
+    this.nodeInstance.getCommandProvider().unregister(moduleWrapper.getClassLoader());
   }
 
   private void removeListeners(@NotNull Collection<INetworkChannel> channels, @NotNull ClassLoader loader) {

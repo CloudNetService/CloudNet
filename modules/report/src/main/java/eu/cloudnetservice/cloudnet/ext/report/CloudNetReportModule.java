@@ -16,13 +16,14 @@
 
 package eu.cloudnetservice.cloudnet.ext.report;
 
+import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.module.ModuleLifeCycle;
 import de.dytanic.cloudnet.driver.module.ModuleTask;
+import de.dytanic.cloudnet.driver.module.driver.DriverModule;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
-import de.dytanic.cloudnet.module.NodeCloudNetModule;
 import de.dytanic.cloudnet.service.ICloudService;
 import eu.cloudnetservice.cloudnet.ext.report.command.CommandPaste;
 import eu.cloudnetservice.cloudnet.ext.report.config.ReportConfiguration;
@@ -41,7 +42,7 @@ import eu.cloudnetservice.cloudnet.ext.report.paste.emitter.defaults.service.Ser
 import java.nio.file.Path;
 import org.jetbrains.annotations.NotNull;
 
-public final class CloudNetReportModule extends NodeCloudNetModule {
+public final class CloudNetReportModule extends DriverModule {
 
   private static final Logger LOGGER = LogManager.getLogger(CloudNetReportModule.class);
 
@@ -77,7 +78,7 @@ public final class CloudNetReportModule extends NodeCloudNetModule {
     // register our listener to handle stopping and deleted services
     this.registerListener(new RecordReportListener(this));
     // register the command of the module at the node
-    this.registerCommand(new CommandPaste(this));
+    CloudNet.getInstance().getCommandProvider().register(new CommandPaste(this));
   }
 
   @ModuleTask(event = ModuleLifeCycle.RELOADING)
