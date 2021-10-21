@@ -52,6 +52,13 @@ public interface CommandProvider {
   void register(@NotNull Object command);
 
   /**
+   * Unregister a command by the class loader
+   *
+   * @param classLoader the class loader that
+   */
+  void unregister(@NotNull ClassLoader classLoader);
+
+  /**
    * Registers the console input and tab complete handler at the given console
    *
    * @param console the console to register the handler

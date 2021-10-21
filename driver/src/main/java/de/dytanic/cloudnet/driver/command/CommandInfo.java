@@ -17,6 +17,7 @@
 package de.dytanic.cloudnet.driver.command;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import lombok.ToString;
@@ -62,6 +63,10 @@ public class CommandInfo {
     this.permission = permission;
     this.description = description;
     this.usage = usage;
+  }
+
+  public static CommandInfo empty(@NotNull String name) {
+    return new CommandInfo(name, Collections.emptyList(), "", "", Collections.emptyList());
   }
 
   public String getName() {

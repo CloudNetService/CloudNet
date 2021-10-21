@@ -23,6 +23,8 @@ import cloud.commandframework.arguments.CommandArgument;
 import cloud.commandframework.extra.confirmation.CommandConfirmationManager;
 import cloud.commandframework.meta.CommandMeta.Key;
 import cloud.commandframework.meta.SimpleCommandMeta;
+import com.google.common.collect.Multimaps;
+import com.google.common.collect.SetMultimap;
 import de.dytanic.cloudnet.command.CommandProvider;
 import de.dytanic.cloudnet.command.annotation.CommandAlias;
 import de.dytanic.cloudnet.command.annotation.Description;
@@ -54,9 +56,9 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletionException;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import org.jetbrains.annotations.ApiStatus.Internal;
@@ -71,7 +73,7 @@ public class DefaultCommandProvider implements CommandProvider {
 
   private final CommandManager<CommandSource> commandManager;
   private final AnnotationParser<CommandSource> annotationParser;
-  private final Set<CommandInfo> registeredCommands;
+  private final SetMultimap<ClassLoader, CommandInfo> registeredCommands;
   private final CommandExceptionHandler exceptionHandler;
   private final IConsole console;
 
@@ -80,7 +82,7 @@ public class DefaultCommandProvider implements CommandProvider {
     this.commandManager = new DefaultCommandManager();
     this.annotationParser = new AnnotationParser<>(this.commandManager, CommandSource.class,
       parameters -> SimpleCommandMeta.empty());
-    this.registeredCommands = new HashSet<>();
+    this.registeredCommands = Multimaps.newSetMultimap(new ConcurrentHashMap<>(), ConcurrentHashMap::newKeySet);
     // handle our @CommandAlias annotation and apply the found aliases
     this.annotationParser.registerBuilderModifier(CommandAlias.class,
       (alias, builder) -> builder.meta(ALIAS_KEY, new HashSet<>(Arrays.asList(alias.value()))));
@@ -127,16 +129,15 @@ public class DefaultCommandProvider implements CommandProvider {
       Collection<String> aliases = parsedCommand.getCommandMeta().getOrDefault(ALIAS_KEY, Collections.emptySet());
       // get the name by using the first argument of the command
       String name = parsedCommand.getArguments().get(0).getName();
-      // create empty command info to prevent usage lookup if the command is already registered
-      CommandInfo emptyInfo = new CommandInfo(name, Collections.emptyList(), "", "", Collections.emptyList());
-      if (this.registeredCommands.contains(emptyInfo)) {
-        // a command with the same name is already registered
-        return;
-      }
       // there is no other command registered with the given name, parse usage and register the command now
-      this.registeredCommands.add(
+      this.registeredCommands.put(command.getClass().getClassLoader(),
         new CommandInfo(name, aliases, permission, description, this.getCommandUsageByRoot(name)));
     }
+  }
+
+  @Override
+  public void unregister(@NotNull ClassLoader classLoader) {
+    this.registeredCommands.removeAll(classLoader);
   }
 
   @Override
@@ -182,7 +183,7 @@ public class DefaultCommandProvider implements CommandProvider {
   @Override
   public @Nullable CommandInfo getCommand(@NotNull String name) {
     String lowerCaseInput = name.toLowerCase();
-    return this.registeredCommands.stream()
+    return this.registeredCommands.values().stream()
       .filter(commandInfo -> commandInfo.getAliases().contains(lowerCaseInput) || commandInfo.getName()
         .equals(lowerCaseInput))
       .findFirst()
@@ -191,7 +192,7 @@ public class DefaultCommandProvider implements CommandProvider {
 
   @Override
   public @NotNull Collection<CommandInfo> getCommands() {
-    return Collections.unmodifiableCollection(this.registeredCommands);
+    return Collections.unmodifiableCollection(this.registeredCommands.values());
   }
 
   private void registerCommandConfirmation() {

@@ -22,6 +22,7 @@ import cloud.commandframework.execution.preprocessor.CommandPreprocessor;
 import cloud.commandframework.services.types.ConsumerService;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.command.source.CommandSource;
+import de.dytanic.cloudnet.driver.command.CommandInfo;
 import de.dytanic.cloudnet.event.command.CommandPreProcessEvent;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
@@ -31,6 +32,13 @@ public class DefaultCommandPreProcessor implements CommandPreprocessor<CommandSo
   public void accept(@NonNull CommandPreprocessingContext<CommandSource> context) {
     CommandContext<CommandSource> commandContext = context.getCommandContext();
     CommandSource source = context.getCommandContext().getSender();
+
+    CommandInfo commandInfo = CloudNet.getInstance().getCommandProvider()
+      .getCommand(commandContext.getRawInput().getFirst());
+    // if there is no command, the command was unregistered
+    if (commandInfo == null) {
+      ConsumerService.interrupt();
+    }
 
     CommandPreProcessEvent preProcessEvent = CloudNet.getInstance().getEventManager()
       .callEvent(new CommandPreProcessEvent(commandContext.getRawInputJoined(), source));
