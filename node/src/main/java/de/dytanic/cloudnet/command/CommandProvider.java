@@ -34,8 +34,7 @@ public interface CommandProvider {
    * @param input  the input to get the suggestions for
    * @return the suggestions for the current input
    */
-  @NotNull
-  List<String> suggest(@NotNull CommandSource source, @NotNull String input);
+  @NotNull List<String> suggest(@NotNull CommandSource source, @NotNull String input);
 
   /**
    * Executes a command with the given command source and responds to the input.
@@ -70,13 +69,11 @@ public interface CommandProvider {
    * @param name the command root name or an alias of the root
    * @return the command with the given name - null if no command was found with the given name / alias
    */
-  @Nullable
-  CommandInfo getCommand(@NotNull String name);
+  @Nullable CommandInfo getCommand(@NotNull String name);
 
   /**
    * @return all commands that are registered on this node
    */
-  @NotNull
   @UnmodifiableView
-  Collection<CommandInfo> getCommands();
+  @NotNull Collection<CommandInfo> getCommands();
 }

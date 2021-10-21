@@ -19,6 +19,8 @@ package de.dytanic.cloudnet.command.sub;
 import cloud.commandframework.annotations.Argument;
 import cloud.commandframework.annotations.CommandMethod;
 import cloud.commandframework.annotations.CommandPermission;
+import cloud.commandframework.annotations.Flag;
+import cloud.commandframework.annotations.specifier.Quoted;
 import de.dytanic.cloudnet.command.annotation.CommandAlias;
 import de.dytanic.cloudnet.command.annotation.Description;
 import de.dytanic.cloudnet.command.source.CommandSource;
@@ -28,8 +30,11 @@ import de.dytanic.cloudnet.driver.service.ServiceDeployment;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import org.jetbrains.annotations.Nullable;
 
 @CommandAlias("cp")
 @CommandPermission("cloudnet.command.copy")
@@ -40,7 +45,8 @@ public final class CommandCopy {
   public void copyService(
     CommandSource source,
     @Argument(value = "service", parserName = "single") ServiceInfoSnapshot service,
-    @Argument("template") ServiceTemplate template
+    @Argument("template") ServiceTemplate template,
+    @Flag("excludes") @Quoted String excludes
   ) {
     ServiceTemplate targetTemplate = template;
     if (template == null) {
@@ -67,8 +73,7 @@ public final class CommandCopy {
 
     List<ServiceDeployment> oldDeployments = new ArrayList<>(service.getConfiguration().getDeployments());
 
-    serviceProvider.addServiceDeployment(
-      new ServiceDeployment(targetTemplate, Collections.emptyList())); //TODO: add excludes back
+    serviceProvider.addServiceDeployment(new ServiceDeployment(targetTemplate, this.parseExcludes(excludes)));
     serviceProvider.deployResources(true);
 
     for (ServiceDeployment deployment : oldDeployments) {
@@ -81,6 +86,14 @@ public final class CommandCopy {
         .replace("%template%",
           targetTemplate.getStorage() + ":" + targetTemplate.getPrefix() + "/" + targetTemplate.getName())
     );
+  }
+
+  private Collection<String> parseExcludes(@Nullable String excludes) {
+    if (excludes == null) {
+      return Collections.emptyList();
+    }
+
+    return Arrays.asList(excludes.split(";"));
   }
 
 }

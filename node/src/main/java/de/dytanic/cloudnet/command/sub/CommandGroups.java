@@ -19,8 +19,10 @@ package de.dytanic.cloudnet.command.sub;
 import cloud.commandframework.annotations.Argument;
 import cloud.commandframework.annotations.CommandMethod;
 import cloud.commandframework.annotations.CommandPermission;
+import cloud.commandframework.annotations.Flag;
 import cloud.commandframework.annotations.parsers.Parser;
 import cloud.commandframework.annotations.specifier.Greedy;
+import cloud.commandframework.annotations.specifier.Quoted;
 import cloud.commandframework.annotations.suggestions.Suggestions;
 import cloud.commandframework.context.CommandContext;
 import de.dytanic.cloudnet.CloudNet;
@@ -38,9 +40,11 @@ import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Queue;
 import java.util.stream.Collectors;
+import org.jetbrains.annotations.Nullable;
 
 @CommandPermission("cloudnet.command.groups")
 @Description("Administers the configurations of all persistent groups")
@@ -135,9 +139,10 @@ public final class CommandGroups {
   public void addDeployment(
     CommandSource source,
     @Argument("name") GroupConfiguration group,
-    @Argument("deployment") ServiceTemplate template
+    @Argument("deployment") ServiceTemplate template,
+    @Flag("excludes") @Quoted String excludes
   ) {
-    ServiceDeployment deployment = new ServiceDeployment(template, new ArrayList<>());
+    ServiceDeployment deployment = new ServiceDeployment(template, this.parseExcludes(excludes));
 
     group.getDeployments().add(deployment);
     this.updateGroup(group);
@@ -194,9 +199,10 @@ public final class CommandGroups {
   public void removeDeployment(
     CommandSource source,
     @Argument("name") GroupConfiguration group,
-    @Argument("deployment") ServiceTemplate template
+    @Argument("deployment") ServiceTemplate template,
+    @Flag("excludes") @Quoted String excludes
   ) {
-    ServiceDeployment deployment = new ServiceDeployment(template, new ArrayList<>());
+    ServiceDeployment deployment = new ServiceDeployment(template, this.parseExcludes(excludes));
 
     group.getDeployments().remove(deployment);
     this.updateGroup(group);
@@ -261,6 +267,14 @@ public final class CommandGroups {
 
   private GroupConfigurationProvider groupProvider() {
     return CloudNet.getInstance().getGroupConfigurationProvider();
+  }
+
+  private Collection<String> parseExcludes(@Nullable String excludes) {
+    if (excludes == null) {
+      return Collections.emptyList();
+    }
+
+    return Arrays.asList(excludes.split(";"));
   }
 
 

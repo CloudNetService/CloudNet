@@ -19,8 +19,10 @@ package de.dytanic.cloudnet.command.sub;
 import cloud.commandframework.annotations.Argument;
 import cloud.commandframework.annotations.CommandMethod;
 import cloud.commandframework.annotations.CommandPermission;
+import cloud.commandframework.annotations.Flag;
 import cloud.commandframework.annotations.parsers.Parser;
 import cloud.commandframework.annotations.specifier.Greedy;
+import cloud.commandframework.annotations.specifier.Quoted;
 import cloud.commandframework.annotations.specifier.Range;
 import cloud.commandframework.annotations.suggestions.Suggestions;
 import cloud.commandframework.context.CommandContext;
@@ -51,6 +53,7 @@ import java.util.List;
 import java.util.Queue;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import org.jetbrains.annotations.Nullable;
 
 @CommandPermission("cloudnet.command.tasks")
 @Description("Administers the configurations of all persistent tasks")
@@ -423,9 +426,10 @@ public final class CommandTasks {
   public void addDeployment(
     CommandSource source,
     @Argument("name") Collection<ServiceTask> serviceTasks,
-    @Argument("deployment") ServiceTemplate template
+    @Argument("deployment") ServiceTemplate template,
+    @Flag("excludes") @Quoted String excludes
   ) {
-    ServiceDeployment deployment = new ServiceDeployment(template, new ArrayList<>());
+    ServiceDeployment deployment = new ServiceDeployment(template, this.parseExcludes(excludes));
     for (ServiceTask serviceTask : serviceTasks) {
       this.updateTask(serviceTask, task -> task.getDeployments().add(deployment));
       source.sendMessage(
@@ -517,9 +521,10 @@ public final class CommandTasks {
   public void removeDeployment(
     CommandSource source,
     @Argument("name") Collection<ServiceTask> serviceTasks,
-    @Argument("deployment") ServiceTemplate template
+    @Argument("deployment") ServiceTemplate template,
+    @Flag("excludes") @Quoted String excludes
   ) {
-    ServiceDeployment deployment = new ServiceDeployment(template, new ArrayList<>());
+    ServiceDeployment deployment = new ServiceDeployment(template, this.parseExcludes(excludes));
     for (ServiceTask serviceTask : serviceTasks) {
       this.updateTask(serviceTask, task -> task.getDeployments().remove(deployment));
       source.sendMessage(
@@ -639,7 +644,15 @@ public final class CommandTasks {
     );
   }
 
-  public ServiceTaskProvider taskProvider() {
+  private Collection<String> parseExcludes(@Nullable String excludes) {
+    if (excludes == null) {
+      return Collections.emptyList();
+    }
+
+    return Arrays.asList(excludes.split(";"));
+  }
+
+  private ServiceTaskProvider taskProvider() {
     return CloudNet.getInstance().getServiceTaskProvider();
   }
 
