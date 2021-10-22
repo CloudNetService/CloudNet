@@ -58,7 +58,7 @@ public class ServiceTask extends ServiceConfigurationBase implements INameable {
     super(new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
   }
 
-  protected ServiceTask(
+  public ServiceTask(
     @NotNull String name,
     @NotNull String runtime,
     @Nullable String javaCommand,

@@ -17,9 +17,11 @@
 package de.dytanic.cloudnet.cluster;
 
 import de.dytanic.cloudnet.CloudNet;
+import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
+import de.dytanic.cloudnet.driver.network.def.NetworkConstants;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.network.rpc.RPCSender;
 import de.dytanic.cloudnet.driver.provider.NodeInfoProvider;
@@ -82,6 +84,27 @@ public class DefaultClusterNodeServer extends DefaultNodeServer implements IClus
   @Override
   public boolean isAcceptableConnection(@NotNull INetworkChannel channel, @NotNull String nodeId) {
     return this.channel == null && this.nodeInfo.getUniqueId().equals(nodeId);
+  }
+
+  @Override
+  public void syncClusterData(boolean force) {
+    ChannelMessage channelMessage = ChannelMessage.builder()
+      .message("sync_cluster_data")
+      .targetNode(this.nodeInfo.getUniqueId())
+      .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
+      .buffer(this.cloudNet.getDataSyncRegistry().prepareClusterData(force))
+      .build();
+    // if the data sync is forced there is no need to wait for a response
+    if (force) {
+      channelMessage.send();
+    } else {
+      // send and await a response
+      ChannelMessage response = channelMessage.sendSingleQuery();
+      if (response != null && response.getContent().readBoolean()) {
+        // there was overridden data we need to handle
+        this.cloudNet.getDataSyncRegistry().handle(response.getContent(), true);
+      }
+    }
   }
 
   @Override

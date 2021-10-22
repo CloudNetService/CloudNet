@@ -23,6 +23,7 @@ import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
+import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import de.dytanic.cloudnet.driver.network.chunk.ChunkedPacketSender;
@@ -30,6 +31,7 @@ import de.dytanic.cloudnet.driver.network.chunk.TransferStatus;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkCluster;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
+import de.dytanic.cloudnet.driver.network.def.NetworkConstants;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import de.dytanic.cloudnet.network.listener.message.NodeChannelMessageListener;
@@ -58,7 +60,12 @@ public final class DefaultClusterNodeServerProvider extends DefaultNodeServerPro
   public DefaultClusterNodeServerProvider(@NotNull CloudNet cloudNet) {
     super(cloudNet);
 
-    cloudNet.getEventManager().registerListener(new NodeChannelMessageListener(cloudNet.getEventManager(), this));
+    // register the event for channel message handling
+    cloudNet.getEventManager().registerListener(new NodeChannelMessageListener(
+      cloudNet.getEventManager(),
+      cloudNet.getDataSyncRegistry(),
+      this));
+    // schedule the task for updating of the local node information
     cloudNet.getTaskExecutor().scheduleAtFixedRate(() -> {
       if (this.localNode.isAvailable()) {
         try {
@@ -188,6 +195,17 @@ public final class DefaultClusterNodeServerProvider extends DefaultNodeServerPro
         }
       }
     }
+  }
+
+  @Override
+  public void syncClusterData() {
+    ChannelMessage.builder()
+      .targetNodes()
+      .message("sync_cluster_data")
+      .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
+      .buffer(cloudNet.getDataSyncRegistry().prepareClusterData(true))
+      .build()
+      .send();
   }
 
   @Override

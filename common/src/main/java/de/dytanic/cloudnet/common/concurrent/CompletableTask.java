@@ -120,7 +120,7 @@ public class CompletableTask<V> extends CompletableFuture<V> implements ITask<V>
   @Override
   public @UnknownNullability V getDef(@Nullable V def) {
     try {
-      return this.getNow(def);
+      return this.join();
     } catch (CancellationException | CompletionException exception) {
       return def;
     }

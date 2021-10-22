@@ -99,13 +99,13 @@ public class CloudNet extends CloudNetDriver {
   private final INetworkClient networkClient;
   private final INetworkServer networkServer;
 
+  private final DataSyncRegistry dataSyncRegistry;
   private final ServiceVersionProvider serviceVersionProvider;
   private final DefaultClusterNodeServerProvider nodeServerProvider;
 
   private final CloudNetTick mainThread = new CloudNetTick(this);
   private final AtomicBoolean running = new AtomicBoolean(true);
   private final DefaultInstallation installation = new DefaultInstallation();
-  private final DataSyncRegistry dataSyncRegistry = new DefaultDataSyncRegistry();
   private final QueuedConsoleLogHandler logHandler = new QueuedConsoleLogHandler();
 
   private volatile IConfiguration configuration;
@@ -130,6 +130,7 @@ public class CloudNet extends CloudNetDriver {
 
     this.nodeServerProvider = new DefaultClusterNodeServerProvider(this);
 
+    this.dataSyncRegistry = new DefaultDataSyncRegistry();
     this.nodeInfoProvider = new NodeNodeInfoProvider(this);
     this.serviceTaskProvider = new NodeServiceTaskProvider(this);
     this.generalCloudServiceProvider = new DefaultCloudServiceManager(this);

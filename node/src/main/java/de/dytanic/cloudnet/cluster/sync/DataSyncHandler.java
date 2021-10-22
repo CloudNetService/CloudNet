@@ -22,6 +22,7 @@ import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 import org.jetbrains.annotations.NotNull;
@@ -34,6 +35,7 @@ public class DataSyncHandler<T> {
 
   private final Consumer<T> writer;
   private final UnaryOperator<T> currentGetter;
+  private final Function<T, String> nameExtractor;
   private final Supplier<Collection<T>> dataCollector;
 
   protected DataSyncHandler(
@@ -41,12 +43,14 @@ public class DataSyncHandler<T> {
     @NotNull DataConverter<T> converter,
     @NotNull Consumer<T> writer,
     @NotNull UnaryOperator<T> currentGetter,
+    @NotNull Function<T, String> nameExtractor,
     @NotNull Supplier<Collection<T>> dataCollector
   ) {
     this.key = key;
     this.converter = converter;
     this.writer = writer;
     this.currentGetter = currentGetter;
+    this.nameExtractor = nameExtractor;
     this.dataCollector = dataCollector;
   }
 
@@ -58,16 +62,28 @@ public class DataSyncHandler<T> {
     return this.key;
   }
 
+  @SuppressWarnings("unchecked")
+  public @NotNull String getName(@NotNull Object obj) {
+    return this.nameExtractor.apply((T) obj);
+  }
+
   public @NotNull DataConverter<T> getConverter() {
     return this.converter;
   }
 
-  public void write(@NotNull T data) {
-    this.writer.accept(data);
+  @SuppressWarnings("unchecked")
+  public void write(@NotNull Object data) {
+    this.writer.accept((T) data);
   }
 
-  public @Nullable T getCurrent(@NotNull T toGet) {
-    return this.currentGetter.apply(toGet);
+  @SuppressWarnings("unchecked")
+  public void serialize(@NotNull DataBuf.Mutable target, @NotNull Object data) {
+    this.converter.write(target, (T) data);
+  }
+
+  @SuppressWarnings("unchecked")
+  public @Nullable T getCurrent(@NotNull Object toGet) {
+    return this.currentGetter.apply((T) toGet);
   }
 
   public @NotNull Collection<T> getData() {
@@ -76,9 +92,9 @@ public class DataSyncHandler<T> {
 
   public interface DataConverter<T> {
 
-    void write(@NotNull DataBuf.Mutable target, @Nullable T data);
+    void write(@NotNull DataBuf.Mutable target, @NotNull T data);
 
-    @Nullable T parse(@NotNull DataBuf input) throws Exception;
+    @NotNull T parse(@NotNull DataBuf input) throws Exception;
   }
 
   public static final class Builder<T> {
@@ -88,6 +104,7 @@ public class DataSyncHandler<T> {
 
     private Consumer<T> writer;
     private UnaryOperator<T> currentGetter;
+    private Function<T, String> nameExtractor;
     private Supplier<Collection<T>> dataCollector;
 
     public @NotNull Builder<T> key(@NotNull String key) {
@@ -103,12 +120,12 @@ public class DataSyncHandler<T> {
     public @NotNull Builder<T> convertObject(@NotNull Type type) {
       return this.converter(new DataConverter<T>() {
         @Override
-        public void write(@NotNull DataBuf.Mutable target, @Nullable T data) {
+        public void write(@NotNull DataBuf.Mutable target, @NotNull T data) {
           target.writeObject(data);
         }
 
         @Override
-        public @Nullable T parse(@NotNull DataBuf input) {
+        public @NotNull T parse(@NotNull DataBuf input) {
           return input.readObject(type);
         }
       });
@@ -121,6 +138,11 @@ public class DataSyncHandler<T> {
 
     public @NotNull Builder<T> currentGetter(@NotNull UnaryOperator<T> currentGetter) {
       this.currentGetter = currentGetter;
+      return this;
+    }
+
+    public @NotNull Builder<T> nameExtractor(@NotNull Function<T, String> nameExtractor) {
+      this.nameExtractor = nameExtractor;
       return this;
     }
 
@@ -138,9 +160,16 @@ public class DataSyncHandler<T> {
       Verify.verifyNotNull(this.writer, "no writer given");
       Verify.verifyNotNull(this.converter, "no converter given");
       Verify.verifyNotNull(this.dataCollector, "no data collector given");
+      Verify.verifyNotNull(this.nameExtractor, "no name extractor given");
       Verify.verifyNotNull(this.currentGetter, "no current value getter given");
 
-      return new DataSyncHandler<>(this.key, this.converter, this.writer, this.currentGetter, this.dataCollector);
+      return new DataSyncHandler<>(
+        this.key,
+        this.converter,
+        this.writer,
+        this.currentGetter,
+        this.nameExtractor,
+        this.dataCollector);
     }
   }
 }

@@ -48,6 +48,8 @@ public final class NodeModuleProviderHandler extends DefaultModuleProviderHandle
     this.nodeInstance.getEventManager().unregisterListeners(moduleWrapper.getClassLoader());
     // unregister all commands
     this.nodeInstance.getCommandProvider().unregister(moduleWrapper.getClassLoader());
+    // unregister everything the module syncs to the cluster
+    this.nodeInstance.getDataSyncRegistry().unregisterHandler(moduleWrapper.getClassLoader());
   }
 
   private void removeListeners(@NotNull Collection<INetworkChannel> channels, @NotNull ClassLoader loader) {

@@ -25,17 +25,22 @@ import cloud.commandframework.context.CommandContext;
 import com.google.common.net.InetAddresses;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.cluster.IClusterNodeServer;
+import de.dytanic.cloudnet.cluster.sync.DataSyncHandler;
 import de.dytanic.cloudnet.command.CommandProvider;
 import de.dytanic.cloudnet.command.annotation.CommandAlias;
 import de.dytanic.cloudnet.command.annotation.Description;
 import de.dytanic.cloudnet.command.exception.ArgumentNotAvailableException;
 import de.dytanic.cloudnet.command.source.CommandSource;
+import de.dytanic.cloudnet.common.INameable;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.common.unsafe.CPUUsageResolver;
 import de.dytanic.cloudnet.config.IConfiguration;
+import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkCluster;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
+import de.dytanic.cloudnet.driver.network.def.NetworkConstants;
+import de.dytanic.cloudnet.driver.service.ServiceTask;
 import java.net.InetAddress;
 import java.net.URI;
 import java.text.DateFormat;
@@ -52,7 +57,7 @@ import java.util.stream.Collectors;
 public final class CommandCluster {
 
   private static final DateFormat DEFAULT_FORMAT = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
-
+/*
   @Parser(suggestions = "clusterNodeServer")
   public IClusterNodeServer defaultClusterNodeServerParser(CommandContext<CommandSource> $, Queue<String> input) {
     String nodeId = input.remove();
@@ -161,6 +166,28 @@ public final class CommandCluster {
   @CommandMethod("cluster|clu node <nodeId>")
   public void listNode(CommandSource source, @Argument(value = "nodeId") IClusterNodeServer nodeServer) {
     this.displayNode(source, nodeServer);
+  }*/
+
+  @CommandMethod("clu sync")
+  public void sync() {
+
+    CloudNet.getInstance().getDataSyncRegistry().registerHandler(
+      DataSyncHandler.<ServiceTask>builder()
+        .key("service_task")
+        .convertObject(ServiceTask.class)
+        .nameExtractor(INameable::getName)
+        .writer(task -> CloudNet.getInstance().getServiceTaskProvider().addPermanentServiceTask(task))
+        .currentGetter(task -> CloudNet.getInstance().getServiceTaskProvider().getServiceTask(task.getName()))
+        .dataCollector(() -> CloudNet.getInstance().getServiceTaskProvider().getPermanentServiceTasks())
+        .build());
+
+    ChannelMessage.builder()
+      .message("sync_cluster_data")
+      .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
+      .buffer(CloudNet.getInstance().getDataSyncRegistry().prepareClusterData(false))
+      .targetNodes()
+      .build()
+      .send();
   }
 
   private void displayNode(CommandSource source, IClusterNodeServer node) {

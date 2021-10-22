@@ -73,4 +73,6 @@ public interface IClusterNodeServerProvider extends NodeServerProvider<IClusterN
    * Checks if all nodes had sent a node snapshot update recently or disconnects them.
    */
   void checkForDeadNodes();
+
+  void syncClusterData();
 }

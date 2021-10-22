@@ -18,7 +18,7 @@ package de.dytanic.cloudnet.cluster.sync;
 
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnknownNullability;
 
 public interface DataSyncRegistry {
 
@@ -32,7 +32,7 @@ public interface DataSyncRegistry {
 
   boolean hasHandler(@NotNull String handlerKey);
 
-  @Nullable DataBuf handle(@NotNull DataBuf input, boolean force);
+  @NotNull DataBuf.Mutable prepareClusterData(boolean force);
 
-  @NotNull DataBuf.Mutable prepareClusterData(@NotNull DataBuf.Mutable to, boolean force);
+  @UnknownNullability DataBuf handle(@NotNull DataBuf input, boolean force);
 }
