@@ -33,10 +33,12 @@ public class DefaultCommandPreProcessor implements CommandPreprocessor<CommandSo
     CommandContext<CommandSource> commandContext = context.getCommandContext();
     CommandSource source = context.getCommandContext().getSender();
 
+    String firstArgument = commandContext.getRawInput().getFirst();
+
     CommandInfo commandInfo = CloudNet.getInstance().getCommandProvider()
-      .getCommand(commandContext.getRawInput().getFirst());
-    // if there is no command, the command was unregistered
-    if (commandInfo == null) {
+      .getCommand(firstArgument);
+    // if there is no command, the command was unregistered, ignore confirm as the command is not registered.
+    if (commandInfo == null && !firstArgument.equalsIgnoreCase("confirm")) {
       ConsumerService.interrupt();
     }
 
