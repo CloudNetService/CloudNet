@@ -21,8 +21,8 @@ import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import org.jetbrains.annotations.NotNull;
 
 public final class ReportConfigurationHelper {
@@ -59,7 +59,7 @@ public final class ReportConfigurationHelper {
   private static ReportConfiguration convertConfiguration(@NotNull JsonDocument document) {
     boolean saveRecords = document.getBoolean("savingRecords", true);
     Path recordDestination = document.get("recordDestinationDirectory", Path.class, Paths.get("records"));
-    Collection<PasteService> pasteServices = Collections.singletonList(
+    List<PasteService> pasteServices = Collections.singletonList(
       new PasteService("default", document.getString("pasteServerUrl", "https://just-paste.it")));
     long serviceLifetime = document.getLong("serviceLifetimeLogPrint", 5000L);
 
