@@ -28,14 +28,14 @@ public class ModuleEmitter implements ReportDataEmitter<NetworkClusterNodeInfoSn
     builder
       .append(" - Loaded Modules ")
       .append(context.getModules().size())
-      .append(" - \n");
+      .append(" - \n\n");
 
     for (ModuleConfiguration module : context.getModules()) {
       builder
         .append(" - Module ")
         .append(module.getName())
-        .append(" loaded.\n")
-        .append(JsonDocument.newDocument(module))
+        .append(" loaded.\n\n")
+        .append(JsonDocument.newDocument(module).toPrettyJson())
         .append("\n");
       if (!module.storesSensitiveData()) {
         //TODO: add configs, waiting for a way to access them using the api
