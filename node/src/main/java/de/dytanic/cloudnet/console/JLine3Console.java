@@ -164,11 +164,13 @@ public final class JLine3Console implements IConsole {
   @Override
   public void enableAllHandlers() {
     this.enableAllCommandHandlers();
+    this.enableAllTabCompleteHandlers();
   }
 
   @Override
   public void disableAllHandlers() {
     this.disableAllCommandHandlers();
+    this.disableAllTabCompleteHandlers();
   }
 
   @Override
