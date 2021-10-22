@@ -20,8 +20,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import org.jetbrains.annotations.NotNull;
 
 public class ReportConfiguration {
@@ -39,14 +39,14 @@ public class ReportConfiguration {
   private final long serviceLifetime;
   private final String dateFormat;
   private transient SimpleDateFormat parsedFormat;
-  private final Collection<PasteService> pasteServers;
+  private final List<PasteService> pasteServers;
 
   public ReportConfiguration(
     boolean saveRecords,
     @NotNull Path recordDestination,
     long serviceLifetime,
     @NotNull String dateFormat,
-    @NotNull Collection<PasteService> pasteServers
+    @NotNull List<PasteService> pasteServers
   ) {
     this.saveRecords = saveRecords;
     this.recordDestination = recordDestination;
@@ -74,7 +74,7 @@ public class ReportConfiguration {
     return this.parsedFormat;
   }
 
-  public @NotNull Collection<PasteService> getPasteServers() {
+  public @NotNull List<PasteService> getPasteServers() {
     return this.pasteServers;
   }
 }

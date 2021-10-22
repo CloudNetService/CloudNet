@@ -50,17 +50,19 @@ import java.util.List;
 import java.util.Queue;
 import java.util.stream.Collectors;
 import javax.management.MBeanServer;
+import org.jetbrains.annotations.Nullable;
 
-@CommandAlias("report")
+//TODO: more kinds of pastes, e.g. all
+@CommandAlias("paste")
 @CommandPermission("cloudnet.command.paste")
 @Description("Upload cloud specific data to a paste service")
-public final class CommandPaste {
+public final class CommandReport {
 
-  private static final Logger LOGGER = LogManager.getLogger(CommandPaste.class);
+  private static final Logger LOGGER = LogManager.getLogger(CommandReport.class);
 
   private final CloudNetReportModule reportModule;
 
-  public CommandPaste(CloudNetReportModule reportModule) {
+  public CommandReport(CloudNetReportModule reportModule) {
     this.reportModule = reportModule;
   }
 
@@ -101,9 +103,10 @@ public final class CommandPaste {
       .collect(Collectors.toList());
   }
 
-  @CommandMethod("report|paste <pasteService> node")
+  @CommandMethod("report|paste node [pasteService]")
   public void pasteNode(CommandSource source, @Argument("pasteService") PasteService pasteService) {
-    PasteCreator pasteCreator = new PasteCreator(pasteService, this.reportModule.getEmitterRegistry());
+    PasteCreator pasteCreator = new PasteCreator(this.fallbackPasteService(pasteService),
+      this.reportModule.getEmitterRegistry());
     NetworkClusterNodeInfoSnapshot selfNode = CloudNet.getInstance().getClusterNodeServerProvider().getSelfNode()
       .getNodeInfoSnapshot();
 
@@ -117,13 +120,14 @@ public final class CommandPaste {
     }
   }
 
-  @CommandMethod("report|paste <pasteService> <service>")
+  @CommandMethod("report|paste service <service> [pasteService]")
   public void pasteServices(
     CommandSource source,
     @Argument("pasteService") PasteService pasteService,
     @Argument("service") ICloudService service
   ) {
-    PasteCreator pasteCreator = new PasteCreator(pasteService, this.reportModule.getEmitterRegistry());
+    PasteCreator pasteCreator = new PasteCreator(this.fallbackPasteService(pasteService),
+      this.reportModule.getEmitterRegistry());
 
     String response = pasteCreator.createServicePaste(service);
     if (response == null) {
@@ -188,6 +192,21 @@ public final class CommandPaste {
       LOGGER.severe("Unable to create heap dump", exception);
       return false;
     }
+  }
+
+  private PasteService fallbackPasteService(@Nullable PasteService service) {
+    // paste services are optional, but the user entered one just return it
+    if (service != null) {
+      return service;
+    }
+
+    List<PasteService> pasteServices = this.reportModule.getReportConfiguration().getPasteServers();
+    // there are no paste services, use fallback
+    if (pasteServices.isEmpty()) {
+      return PasteService.FALLBACK;
+    }
+    // use the first in the configuration
+    return this.reportModule.getReportConfiguration().getPasteServers().get(0);
   }
 
 }

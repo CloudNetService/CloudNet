@@ -30,6 +30,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class PasteService implements INameable {
 
+  public static final PasteService FALLBACK = new PasteService("fallback", "https://just-paste.it");
   private static final Logger LOGGER = LogManager.getLogger(PasteService.class);
 
   private final String name;

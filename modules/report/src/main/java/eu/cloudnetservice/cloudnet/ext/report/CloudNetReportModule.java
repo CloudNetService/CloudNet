@@ -25,7 +25,7 @@ import de.dytanic.cloudnet.driver.module.ModuleTask;
 import de.dytanic.cloudnet.driver.module.driver.DriverModule;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
 import de.dytanic.cloudnet.service.ICloudService;
-import eu.cloudnetservice.cloudnet.ext.report.command.CommandPaste;
+import eu.cloudnetservice.cloudnet.ext.report.command.CommandReport;
 import eu.cloudnetservice.cloudnet.ext.report.config.ReportConfiguration;
 import eu.cloudnetservice.cloudnet.ext.report.config.ReportConfigurationHelper;
 import eu.cloudnetservice.cloudnet.ext.report.listener.RecordReportListener;
@@ -78,7 +78,7 @@ public final class CloudNetReportModule extends DriverModule {
     // register our listener to handle stopping and deleted services
     this.registerListener(new RecordReportListener(this));
     // register the command of the module at the node
-    CloudNet.getInstance().getCommandProvider().register(new CommandPaste(this));
+    CloudNet.getInstance().getCommandProvider().register(new CommandReport(this));
   }
 
   @ModuleTask(event = ModuleLifeCycle.RELOADING)
