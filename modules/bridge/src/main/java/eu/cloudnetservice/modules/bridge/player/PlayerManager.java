@@ -73,10 +73,7 @@ public interface PlayerManager {
    * @return the first cloud player with the given name, null if no player was found.
    * @throws NullPointerException if the given name is null.
    */
-  default @Nullable CloudPlayer firstOnlinePlayer(@NonNull String name) {
-    var players = this.onlinePlayers(name);
-    return players.isEmpty() ? null : players.get(0);
-  }
+  @Nullable CloudPlayer firstOnlinePlayer(@NonNull String name);
 
   /**
    * Gets all online cloud players that have the given case-insensitive name.
@@ -165,10 +162,7 @@ public interface PlayerManager {
    * @return the first offline player with the given name or null if there is no player with the name.
    * @throws NullPointerException if the given name is null.
    */
-  default @Nullable CloudOfflinePlayer firstOfflinePlayer(@NonNull String name) {
-    var players = this.offlinePlayers(name);
-    return players.isEmpty() ? null : players.get(0);
-  }
+  @Nullable CloudOfflinePlayer firstOfflinePlayer(@NonNull String name);
 
   /**
    * Gets all registered cloud players that have the given case-insensitive name. The player must have been previously

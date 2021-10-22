@@ -186,7 +186,10 @@ public class NodePlayerManager implements PlayerManager {
       .map(Optional::get)
       .filter(player -> player.name().equalsIgnoreCase(name))
       .findFirst()
-      .orElseGet(() -> PlayerManager.super.firstOfflinePlayer(name));
+      .orElseGet(() -> {
+        var players = this.offlinePlayers(name);
+        return players.isEmpty() ? null : players.get(0);
+      });
   }
 
   @Override
