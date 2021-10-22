@@ -92,6 +92,7 @@ public class DefaultCommandProvider implements CommandProvider {
     // register pre- and post-processor to call our events
     this.commandManager.registerCommandPreProcessor(new DefaultCommandPreProcessor());
     this.commandManager.registerCommandPostProcessor(new DefaultCommandPostProcessor());
+    this.commandManager.setCommandSuggestionProcessor(new DefaultSuggestionProcessor(this));
     // register the command confirmation handling
     this.registerCommandConfirmation();
     this.exceptionHandler = new CommandExceptionHandler(this);
@@ -250,7 +251,7 @@ public class DefaultCommandProvider implements CommandProvider {
       // check if we can find any chain specific usages
       for (String usage : commandInfo.getUsage()) {
         if (usage.startsWith(commandChain)) {
-          results.add(" - " + usage);
+          results.add("- " + usage);
         }
       }
 
@@ -268,7 +269,7 @@ public class DefaultCommandProvider implements CommandProvider {
 
   private void printDefaultUsage(@NotNull CommandSource source, @NotNull CommandInfo commandInfo) {
     for (String usage : commandInfo.getUsage()) {
-      source.sendMessage(" - " + usage);
+      source.sendMessage("- " + usage);
     }
   }
 }

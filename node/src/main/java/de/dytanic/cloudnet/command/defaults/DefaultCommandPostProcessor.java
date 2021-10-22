@@ -24,7 +24,7 @@ import de.dytanic.cloudnet.command.source.CommandSource;
 import de.dytanic.cloudnet.event.command.CommandPostProcessEvent;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
-public class DefaultCommandPostProcessor implements CommandPostprocessor<CommandSource> {
+final class DefaultCommandPostProcessor implements CommandPostprocessor<CommandSource> {
 
   @Override
   public void accept(@NonNull CommandPostprocessingContext<CommandSource> context) {

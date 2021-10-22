@@ -26,12 +26,16 @@ import de.dytanic.cloudnet.driver.command.CommandInfo;
 import de.dytanic.cloudnet.event.command.CommandPreProcessEvent;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
-public class DefaultCommandPreProcessor implements CommandPreprocessor<CommandSource> {
+final class DefaultCommandPreProcessor implements CommandPreprocessor<CommandSource> {
 
   @Override
   public void accept(@NonNull CommandPreprocessingContext<CommandSource> context) {
     CommandContext<CommandSource> commandContext = context.getCommandContext();
     CommandSource source = context.getCommandContext().getSender();
+    // we only process command executions and not the tab complete handling
+    if (commandContext.isSuggestions()) {
+      return;
+    }
 
     String firstArgument = commandContext.getRawInput().getFirst();
 

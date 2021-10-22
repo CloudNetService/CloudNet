@@ -16,6 +16,7 @@
 
 package de.dytanic.cloudnet.driver.command;
 
+import de.dytanic.cloudnet.common.INameable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -27,7 +28,7 @@ import org.jetbrains.annotations.NotNull;
  * The commandInfo class allows to easily serialize the command information
  */
 @ToString
-public class CommandInfo {
+public class CommandInfo implements INameable {
 
   protected String name;
 
@@ -69,7 +70,8 @@ public class CommandInfo {
     return new CommandInfo(name, Collections.emptyList(), "", "", Collections.emptyList());
   }
 
-  public String getName() {
+  @Override
+  public @NotNull String getName() {
     return this.name;
   }
 

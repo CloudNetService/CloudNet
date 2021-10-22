@@ -24,9 +24,9 @@ import cloud.commandframework.meta.SimpleCommandMeta;
 import de.dytanic.cloudnet.command.source.CommandSource;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
-public class DefaultCommandManager extends CommandManager<CommandSource> {
+final class DefaultCommandManager extends CommandManager<CommandSource> {
 
-  protected DefaultCommandManager() {
+  public DefaultCommandManager() {
     super(CommandExecutionCoordinator.simpleCoordinator(), CommandRegistrationHandler.nullCommandRegistrationHandler());
   }
 
