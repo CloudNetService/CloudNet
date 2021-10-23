@@ -20,6 +20,7 @@ import cloud.commandframework.annotations.Argument;
 import cloud.commandframework.annotations.CommandMethod;
 import cloud.commandframework.annotations.CommandPermission;
 import cloud.commandframework.annotations.parsers.Parser;
+import cloud.commandframework.annotations.specifier.Greedy;
 import cloud.commandframework.annotations.suggestions.Suggestions;
 import cloud.commandframework.context.CommandContext;
 import com.google.common.primitives.Longs;
@@ -203,7 +204,10 @@ public final class CommandPermissions {
     }
 
     if (permissionUser.getGroups().isEmpty()) {
-      source.sendMessage(this.permissionManagement().getDefaultPermissionGroup().getName() + ": LIFETIME");
+      PermissionGroup defaultGroup = this.permissionManagement().getDefaultPermissionGroup();
+      if (defaultGroup != null) {
+        source.sendMessage(defaultGroup.getName() + ": LIFETIME");
+      }
     }
 
     this.displayPermission(source, permissionUser);
@@ -242,16 +246,15 @@ public final class CommandPermissions {
       user -> user.addGroup(permissionGroup.getName(), time == null ? 0 : time), source);
   }
 
- /* @CommandMethod("permissions|perms user <user> add permission <permission> [targetGroup]")
+  @CommandMethod("permissions|perms user <user> add permission <permission>")
   public void addUserPermission(CommandSource source,
     @Argument("user") PermissionUser permissionUser,
-    @Argument("permission") String permission,
-    @Argument("targetGroup") GroupConfiguration targetGroup
+    @Argument("permission") String permission
   ) {
-    this.addPermission(permissionUser, permission, null, null, targetGroup);
-  }*/
+    this.addPermission(permissionUser, permission, null, null, null);
+  }
 
-  @CommandMethod("permissions|perms user <user> add permission <permission> <potency> [targetGroup]")
+  @CommandMethod("permissions|perms user <user> add permission <permission> [potency] [targetGroup]")
   public void addUserPermission(CommandSource source,
     @Argument("user") PermissionUser permissionUser,
     @Argument("permission") String permission,
@@ -261,7 +264,7 @@ public final class CommandPermissions {
     this.addPermission(permissionUser, permission, potency, null, targetGroup);
   }
 
-  /*@CommandMethod("permissions|perms user <user> add permission <permission> <potency> <duration> [targetGroup]")
+  @CommandMethod("permissions|perms user <user> add permission <permission> [potency] [targetGroup] [duration]")
   public void addUserPermission(
     CommandSource source,
     @Argument("user") PermissionUser permissionUser,
@@ -289,7 +292,7 @@ public final class CommandPermissions {
     @Argument("user") PermissionUser permissionUser,
     @Argument("group") PermissionGroup permissionGroup
   ) {
-    this.updateUser(permissionUser, user -> user.removeGroup(permissionGroup.getName()));
+    this.updateUser(permissionUser, user -> user.removeGroup(permissionGroup.getName()), source);
   }
 
   @CommandMethod("permissions|perms group")
@@ -349,16 +352,15 @@ public final class CommandPermissions {
     this.updateGroup(permissionGroup, group -> permissionGroup.getGroups().add(targetGroup.getName()));
   }
 
-  @CommandMethod("permissions|perms group <group> add permission <permission> [targetGroup]")
+  @CommandMethod("permissions|perms group <group> add permission <permission>")
   public void addGroupPermission(CommandSource source,
     @Argument("group") PermissionGroup permissionGroup,
-    @Argument("permission") String permission,
-    @Argument("targetGroup") GroupConfiguration targetGroup
+    @Argument("permission") String permission
   ) {
-    this.addPermission(permissionGroup, permission, null, null, targetGroup);
+    this.addPermission(permissionGroup, permission, null, null, null);
   }
 
-  @CommandMethod("permissions|perms group <group> add permission <permission> <potency> [targetGroup]")
+  @CommandMethod("permissions|perms group <group> add permission <permission> [potency] [targetGroup]")
   public void addGroupPermission(CommandSource source,
     @Argument("group") PermissionGroup permissionGroup,
     @Argument("permission") String permission,
@@ -368,7 +370,7 @@ public final class CommandPermissions {
     this.addPermission(permissionGroup, permission, potency, null, targetGroup);
   }
 
-  @CommandMethod("permissions|perms group <group> add permission <permission> <potency> <duration> [targetGroup]")
+  @CommandMethod("permissions|perms group <group> add permission <permission> [potency] [targetGroup] [duration]")
   public void addGroupPermission(
     CommandSource source,
     @Argument("group") PermissionGroup permissionGroup,
@@ -397,7 +399,7 @@ public final class CommandPermissions {
     @Argument("name") PermissionGroup targetGroup
   ) {
     this.updateGroup(permissionGroup, group -> permissionGroup.getGroups().remove(targetGroup.getName()));
-  }*/
+  }
 
   private void displayGroup(CommandSource source, PermissionGroup permissionGroup) {
     source.sendMessage(permissionGroup.getName() + " | Potency: " + permissionGroup.getPotency());
@@ -477,10 +479,9 @@ public final class CommandPermissions {
     }
   }
 
-  private void updateGroup(PermissionGroup group, Consumer<PermissionGroup> groupConsumer, CommandSource source) {
+  private void updateGroup(PermissionGroup group, Consumer<PermissionGroup> groupConsumer) {
     groupConsumer.accept(group);
     this.permissionManagement().updateGroup(group);
-    source.sendMessage(LanguageManager.getMessage("command-permissions-group-update-property"));
   }
 
   private void updateUser(
