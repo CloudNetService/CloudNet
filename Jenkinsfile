@@ -106,6 +106,7 @@ pipeline {
         sh 'cp -r cloudnet/build/libs/*.jar temp/'
         sh 'cp -r cloudnet-driver/build/libs/*.jar temp/'
         sh 'cp -r cloudnet-modules/**/build/libs/*.jar temp/'
+        sh 'cp cloudnet-launcher/build/libs/launcher.jar temp/launcher.jar'
         sh 'cp -r **/build/libs/*.cnl temp/'
         zip archive: true, dir: 'temp', glob: '', zipFile: 'AutoUpdater.zip'
 
