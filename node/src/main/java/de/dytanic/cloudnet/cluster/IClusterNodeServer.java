@@ -40,6 +40,8 @@ public interface IClusterNodeServer extends NodeServer, AutoCloseable {
 
   void syncClusterData(boolean force);
 
+  void shutdown();
+
   @Override
   default boolean isAvailable() {
     return this.getChannel() != null && this.getNodeInfoSnapshot() != null;

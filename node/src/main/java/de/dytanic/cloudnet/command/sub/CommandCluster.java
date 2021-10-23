@@ -26,7 +26,6 @@ import com.google.common.net.InetAddresses;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.cluster.IClusterNodeServer;
 import de.dytanic.cloudnet.cluster.sync.DataSyncHandler;
-import de.dytanic.cloudnet.command.CommandProvider;
 import de.dytanic.cloudnet.command.annotation.CommandAlias;
 import de.dytanic.cloudnet.command.annotation.Description;
 import de.dytanic.cloudnet.command.exception.ArgumentNotAvailableException;
@@ -57,7 +56,7 @@ import java.util.stream.Collectors;
 public final class CommandCluster {
 
   private static final DateFormat DEFAULT_FORMAT = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
-/*
+
   @Parser(suggestions = "clusterNodeServer")
   public IClusterNodeServer defaultClusterNodeServerParser(CommandContext<CommandSource> $, Queue<String> input) {
     String nodeId = input.remove();
@@ -117,13 +116,8 @@ public final class CommandCluster {
   @CommandMethod("cluster|clu shutdown")
   public void shutdownCluster(CommandSource source) {
     for (IClusterNodeServer nodeServer : CloudNet.getInstance().getClusterNodeServerProvider().getNodeServers()) {
-      nodeServer.sendCommandLine("stop");
-      nodeServer.sendCommandLine("confirm");
+      nodeServer.shutdown();
     }
-
-    CommandProvider commandProvider = CloudNet.getInstance().getCommandProvider();
-    commandProvider.execute(source, "stop");
-    commandProvider.execute(source, "confirm");
   }
 
   @CommandMethod("cluster|clu add <nodeId> <host>")
@@ -166,9 +160,9 @@ public final class CommandCluster {
   @CommandMethod("cluster|clu node <nodeId>")
   public void listNode(CommandSource source, @Argument(value = "nodeId") IClusterNodeServer nodeServer) {
     this.displayNode(source, nodeServer);
-  }*/
+  }
 
-  @CommandMethod("clu sync")
+  @CommandMethod("cluster|clu sync")
   public void sync() {
 
     CloudNet.getInstance().getDataSyncRegistry().registerHandler(

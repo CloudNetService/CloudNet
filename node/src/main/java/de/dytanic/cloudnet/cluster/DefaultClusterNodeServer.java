@@ -108,6 +108,15 @@ public class DefaultClusterNodeServer extends DefaultNodeServer implements IClus
   }
 
   @Override
+  public void shutdown() {
+    ChannelMessage channelMessage = ChannelMessage.builder()
+      .message("cluster_node_shutdown")
+      .targetNode(this.nodeInfo.getUniqueId())
+      .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
+      .build();
+  }
+
+  @Override
   public @NotNull Collection<String> sendCommandLine(@NotNull String commandLine) {
     if (this.channel != null) {
       return this.rpcSender.invokeMethod("sendCommandLine", commandLine).fireSync(this.channel);

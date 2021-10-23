@@ -16,6 +16,7 @@
 
 package de.dytanic.cloudnet.network.listener.message;
 
+import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.cluster.IClusterNodeServer;
 import de.dytanic.cloudnet.cluster.IClusterNodeServerProvider;
 import de.dytanic.cloudnet.cluster.sync.DataSyncRegistry;
@@ -66,6 +67,11 @@ public final class NodeChannelMessageListener {
           if (result != null && event.isQuery()) {
             event.setBinaryResponse(result);
           }
+        }
+        break;
+        // handles the shutdown of a cluster node
+        case "cluster_node_shutdown": {
+          CloudNet.getInstance().stop();
         }
         break;
         // none of our business
