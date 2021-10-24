@@ -21,7 +21,6 @@ import de.dytanic.cloudnet.cluster.IClusterNodeServer;
 import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
-import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.def.NetworkConstants;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
@@ -52,13 +51,6 @@ public final class PacketServerAuthorizationResponseListener implements IPacketL
         // add the packet listeners
         channel.getPacketRegistry().removeListeners(NetworkConstants.INTERNAL_AUTHORIZATION_CHANNEL);
         NodeNetworkUtils.addDefaultPacketListeners(channel.getPacketRegistry(), CloudNet.getInstance());
-        // send all cloud services of this node to the other node
-        ChannelMessage.builder()
-          .targetNode(server.getNodeInfo().getUniqueId())
-          .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
-          .message("request_initial_service_list_information")
-          .build()
-          .send();
         // we are good to go :)
         return;
       }

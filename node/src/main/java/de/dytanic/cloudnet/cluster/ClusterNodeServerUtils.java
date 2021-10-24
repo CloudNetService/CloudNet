@@ -21,12 +21,14 @@ import de.dytanic.cloudnet.common.language.LanguageManager;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;
+import de.dytanic.cloudnet.driver.channel.ChannelMessageTarget.Type;
 import de.dytanic.cloudnet.driver.event.events.service.CloudServiceLifecycleChangeEvent;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import de.dytanic.cloudnet.driver.network.def.NetworkConstants;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
+import de.dytanic.cloudnet.service.ICloudService;
 import org.jetbrains.annotations.NotNull;
 
 final class ClusterNodeServerUtils {
@@ -47,8 +49,7 @@ final class ClusterNodeServerUtils {
         // publish the update to the local service manager
         CloudNet.getInstance().getCloudServiceProvider().handleServiceUpdate(snapshot, null);
         // send the change to all service - all other nodes will handle the close as well
-        ChannelMessage.builder()
-          .targetServices()
+        targetLocalServices()
           .message("update_service_lifecycle")
           .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
           .buffer(DataBuf.empty().writeObject(lifeCycle).writeObject(snapshot))
@@ -63,5 +64,17 @@ final class ClusterNodeServerUtils {
       .replace("%id%", server.getNodeInfo().getUniqueId())
       .replace("%serverAddress%", channel.getServerAddress().toString())
       .replace("%clientAddress%", channel.getClientAddress().toString()));
+  }
+
+  private static @NotNull ChannelMessage.Builder targetLocalServices() {
+    ChannelMessage.Builder builder = ChannelMessage.builder();
+    // iterate over all local services - if the service is connected append it as target
+    for (ICloudService service : CloudNet.getInstance().getCloudServiceProvider().getLocalCloudServices()) {
+      if (service.getNetworkChannel() != null) {
+        builder.target(Type.SERVICE, service.getServiceId().getName());
+      }
+    }
+    // for chaining
+    return builder;
   }
 }

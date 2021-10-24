@@ -16,9 +16,6 @@
 
 package de.dytanic.cloudnet.network.listener.message;
 
-import com.google.gson.reflect.TypeToken;
-import de.dytanic.cloudnet.CloudNet;
-import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.event.IEventManager;
 import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
@@ -31,13 +28,9 @@ import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
 import de.dytanic.cloudnet.service.ICloudServiceManager;
-import java.lang.reflect.Type;
-import java.util.Collection;
 import org.jetbrains.annotations.NotNull;
 
 public final class ServiceChannelMessageListener {
-
-  private static final Type SNAPS = TypeToken.getParameterized(Collection.class, ServiceInfoSnapshot.class).getType();
 
   private final IEventManager eventManager;
   private final ICloudServiceManager serviceManager;
@@ -86,22 +79,6 @@ public final class ServiceChannelMessageListener {
           // update locally and call the event
           this.serviceManager.handleServiceUpdate(snapshot, event.getNetworkChannel());
           this.eventManager.callEvent(new CloudServiceLifecycleChangeEvent(lifeCycle, snapshot));
-        }
-        break;
-        // the initial information about all services which are currently running on all nodes when connecting
-        case "initial_service_list_information": {
-          Collection<ServiceInfoSnapshot> snapshots = event.getContent().readObject(SNAPS);
-          this.serviceManager.handleInitialSetServices(snapshots, event.getNetworkChannel());
-        }
-        break;
-        // request of the initial service information of a node
-        case "request_initial_service_list_information": {
-          ChannelMessage.buildResponseFor(event.getChannelMessage())
-            .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
-            .message("initial_service_list_information")
-            .buffer(DataBuf.empty().writeObject(CloudNet.getInstance().getCloudServiceProvider().getCloudServices()))
-            .build()
-            .send();
         }
         break;
         // none of our business

@@ -23,6 +23,7 @@ import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.console.IConsole;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -77,11 +78,17 @@ public class DefaultDataSyncRegistry implements DataSyncRegistry {
 
   @Override
   @SuppressWarnings("unchecked")
-  public @NotNull DataBuf.Mutable prepareClusterData(boolean force) {
+  public @NotNull DataBuf.Mutable prepareClusterData(boolean force, String @NotNull ... selectedHandlers) {
+    // sort the handlers for later binary searches
+    Arrays.sort(selectedHandlers);
     // the result data
     DataBuf.Mutable result = DataBuf.empty().writeBoolean(force);
     // append all handler content to the buf
     for (DataSyncHandler<?> handler : this.handlers.values()) {
+      // check if we should include the handler
+      if (selectedHandlers.length > 0 && Arrays.binarySearch(selectedHandlers, handler.getKey()) < 0) {
+        continue;
+      }
       // extract the whole content from the handler
       Collection<Object> data = (Collection<Object>) handler.getData();
       // check if there is data
@@ -118,7 +125,7 @@ public class DefaultDataSyncRegistry implements DataSyncRegistry {
           Object data = handler.getConverter().parse(syncData);
           Object current = handler.getCurrent(data);
           // check if we need to ask for user input to continue the sync
-          if (force || current == null || current.equals(data)) {
+          if (force || handler.isAlwaysForceApply() || current == null || current.equals(data)) {
             // write the data and continue
             handler.write(data);
             continue;
@@ -192,6 +199,18 @@ public class DefaultDataSyncRegistry implements DataSyncRegistry {
   }
 
   protected int waitForCorrectMergeInput(@NotNull IConsole console) {
+    try {
+      // disable all handlers of the console to prevent skips
+      console.disableAllHandlers();
+      // read & wait for a correct input
+      return this.readMergeInput(console);
+    } finally {
+      // re-enable all handlers
+      console.enableAllHandlers();
+    }
+  }
+
+  protected int readMergeInput(@NotNull IConsole console) {
     while (true) {
       // wait for an input
       String input = console.readLine().getDef(null);

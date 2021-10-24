@@ -18,6 +18,8 @@ package de.dytanic.cloudnet.provider;
 
 import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.CloudNet;
+import de.dytanic.cloudnet.cluster.sync.DataSyncHandler;
+import de.dytanic.cloudnet.common.INameable;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;
@@ -59,7 +61,18 @@ public class NodeGroupConfigurationProvider implements GroupConfigurationProvide
     this.eventManager = nodeInstance.getEventManager();
     this.eventManager.registerListener(new GroupChannelMessageListener(this.eventManager, this));
 
+    // rpc
     nodeInstance.getRPCProviderFactory().newHandler(GroupConfigurationProvider.class, this).registerToDefaultRegistry();
+    // cluster data sync
+    nodeInstance.getDataSyncRegistry().registerHandler(
+      DataSyncHandler.<GroupConfiguration>builder()
+        .key("group_configuration")
+        .nameExtractor(INameable::getName)
+        .convertObject(GroupConfiguration.class)
+        .writer(this::addGroupConfigurationSilently)
+        .dataCollector(this::getGroupConfigurations)
+        .currentGetter(group -> this.getGroupConfiguration(group.getName()))
+        .build());
 
     if (Files.exists(GROUP_DIRECTORY_PATH)) {
       this.loadGroupConfigurations();

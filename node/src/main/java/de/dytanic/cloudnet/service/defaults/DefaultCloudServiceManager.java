@@ -21,6 +21,8 @@ import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.CloudNetTick;
 import de.dytanic.cloudnet.cluster.IClusterNodeServer;
 import de.dytanic.cloudnet.cluster.IClusterNodeServerProvider;
+import de.dytanic.cloudnet.cluster.sync.DataSyncHandler;
+import de.dytanic.cloudnet.common.INameable;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
@@ -97,6 +99,23 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
     this.addServicePreparer(ServiceEnvironmentType.GLOWSTONE, new GlowstoneConfigurationPreparer());
     this.addServicePreparer(ServiceEnvironmentType.WATERDOG_PE, new WaterdogPEConfigurationPreparer());
     this.addServicePreparer(ServiceEnvironmentType.MINECRAFT_SERVER, new VanillaServiceConfigurationPreparer());
+    // cluster data sync
+    nodeInstance.getDataSyncRegistry().registerHandler(
+      DataSyncHandler.<ServiceInfoSnapshot>builder()
+        .key("services")
+        .alwaysForce()
+        .nameExtractor(INameable::getName)
+        .dataCollector(this::getCloudServices)
+        .convertObject(ServiceInfoSnapshot.class)
+        .writer(ser -> {
+          // ugly hack to get the channel of the service's associated node
+          IClusterNodeServer node = this.clusterNodeServerProvider.getNodeServer(ser.getServiceId().getNodeUniqueId());
+          if (node != null && node.isAvailable()) {
+            this.handleServiceUpdate(ser, node.getChannel());
+          }
+        })
+        .currentGetter(group -> this.getSpecificProviderByName(group.getName()).getServiceInfoSnapshot())
+        .build());
     // schedule the updating of the local service log cache
     nodeInstance.getMainThread().scheduleTask(() -> {
       for (ICloudService service : this.getLocalCloudServices()) {
@@ -350,24 +369,6 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
         // the snapshot directly "in" them
         ((RemoteNodeCloudServiceProvider) provider).setSnapshot(snapshot);
         LOGGER.fine("Updated service snapshot of %s to %s", null, snapshot.getServiceId(), snapshot);
-      }
-    }
-  }
-
-  @Override
-  public void handleInitialSetServices(
-    @NotNull Collection<ServiceInfoSnapshot> snapshots,
-    @NotNull INetworkChannel source
-  ) {
-    // register all the services
-    for (ServiceInfoSnapshot snapshot : snapshots) {
-      // ignore deleted services
-      if (snapshot.getLifeCycle() != ServiceLifeCycle.DELETED) {
-        // register a remote provider for that
-        this.knownServices.putIfAbsent(
-          snapshot.getServiceId().getUniqueId(),
-          new RemoteNodeCloudServiceProvider(this, this.sender, () -> source, snapshot));
-        LOGGER.fine("Registered remote service %s from initial service set", null, snapshot.getServiceId());
       }
     }
   }
