@@ -35,7 +35,7 @@ import de.dytanic.cloudnet.common.INameable;
 import de.dytanic.cloudnet.common.JavaVersion;
 import de.dytanic.cloudnet.common.WildcardUtil;
 import de.dytanic.cloudnet.common.collection.Pair;
-import de.dytanic.cloudnet.common.language.LanguageManager;
+import de.dytanic.cloudnet.common.language.I18n;
 import de.dytanic.cloudnet.console.IConsole;
 import de.dytanic.cloudnet.console.animation.setup.ConsoleSetupAnimation;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
@@ -84,7 +84,7 @@ public final class CommandTasks {
     String name = input.remove();
     ServiceTask task = CloudNet.getInstance().getServiceTaskProvider().getServiceTask(name);
     if (task == null) {
-      throw new ArgumentNotAvailableException(LanguageManager.getMessage("command-tasks-task-not-found"));
+      throw new ArgumentNotAvailableException(I18n.trans("command-tasks-task-not-found"));
     }
 
     return task;
@@ -102,7 +102,7 @@ public final class CommandTasks {
       this.taskProvider().getPermanentServiceTasks(),
       name);
     if (matchedTasks.isEmpty()) {
-      throw new ArgumentNotAvailableException(LanguageManager.getMessage("command-tasks-task-not-found"));
+      throw new ArgumentNotAvailableException(I18n.trans("command-tasks-task-not-found"));
     }
 
     return matchedTasks;
@@ -114,7 +114,7 @@ public final class CommandTasks {
     JavaVersion version = JavaVersionResolver.resolveFromJavaExecutable(command);
     if (version == null) {
       throw new ArgumentNotAvailableException(
-        LanguageManager.getMessage("command-tasks-setup-question-javacommand-invalid"));
+        I18n.trans("command-tasks-setup-question-javacommand-invalid"));
     }
 
     return new Pair<>(command, version);
@@ -129,7 +129,7 @@ public final class CommandTasks {
       }
     }
 
-    throw new ArgumentNotAvailableException(LanguageManager.getMessage("command-tasks-node-not-found"));
+    throw new ArgumentNotAvailableException(I18n.trans("command-tasks-node-not-found"));
   }
 
   @Suggestions("clusterNode")
@@ -153,14 +153,14 @@ public final class CommandTasks {
   @CommandMethod("tasks reload")
   public void reloadTasks(CommandSource source) {
     this.taskProvider().reload();
-    source.sendMessage(LanguageManager.getMessage("command-tasks-reload-success"));
+    source.sendMessage(I18n.trans("command-tasks-reload-success"));
   }
 
   @CommandMethod("tasks delete <name>")
   public void deleteTask(CommandSource source, @Argument("name") Collection<ServiceTask> serviceTasks) {
     for (ServiceTask serviceTask : serviceTasks) {
       this.taskProvider().removePermanentServiceTask(serviceTask);
-      source.sendMessage(LanguageManager.getMessage("command-tasks-delete-task"));
+      source.sendMessage(I18n.trans("command-tasks-delete-task"));
     }
   }
 
@@ -177,7 +177,7 @@ public final class CommandTasks {
     @Argument("environment") ServiceEnvironmentType environmentType
   ) {
     if (this.taskProvider().isServiceTaskPresent(taskName)) {
-      source.sendMessage(LanguageManager.getMessage("command-tasks-task-already-existing"));
+      source.sendMessage(I18n.trans("command-tasks-task-already-existing"));
       return;
     }
 
@@ -191,7 +191,7 @@ public final class CommandTasks {
       .startPort(environmentType.getDefaultStartPort())
       .build();
     this.taskProvider().addPermanentServiceTask(serviceTask);
-    source.sendMessage(LanguageManager.getMessage("command-tasks-create-task"));
+    source.sendMessage(I18n.trans("command-tasks-create-task"));
   }
 
   @CommandMethod("tasks task <name>")
@@ -227,7 +227,7 @@ public final class CommandTasks {
     for (ServiceTask task : serviceTasks) {
       this.updateTask(task, serviceTask -> serviceTask.setMinServiceCount(amount));
       source.sendMessage(
-        LanguageManager.getMessage("command-tasks-set-property-success")
+        I18n.trans("command-tasks-set-property-success")
           .replace("%property%", "minServiceCount")
           .replace("%name%", task.getName())
           .replace("%value%", amount.toString())
@@ -244,7 +244,7 @@ public final class CommandTasks {
     for (ServiceTask task : serviceTasks) {
       this.updateTask(task, serviceTask -> serviceTask.setMaintenance(enabled));
       source.sendMessage(
-        LanguageManager.getMessage("command-tasks-set-property-success")
+        I18n.trans("command-tasks-set-property-success")
           .replace("%property%", "maintenance")
           .replace("%name%", task.getName())
           .replace("%value%", String.valueOf(enabled))
@@ -261,7 +261,7 @@ public final class CommandTasks {
     for (ServiceTask task : serviceTasks) {
       this.updateTask(task, serviceTask -> serviceTask.getProcessConfiguration().setMaxHeapMemorySize(amount));
       source.sendMessage(
-        LanguageManager.getMessage("command-tasks-set-property-success")
+        I18n.trans("command-tasks-set-property-success")
           .replace("%property%", "maxHeapMemory")
           .replace("%name%", task.getName())
           .replace("%value%", amount.toString())
@@ -278,7 +278,7 @@ public final class CommandTasks {
     for (ServiceTask task : serviceTasks) {
       this.updateTask(task, serviceTask -> serviceTask.setStartPort(amount));
       source.sendMessage(
-        LanguageManager.getMessage("command-tasks-set-property-success")
+        I18n.trans("command-tasks-set-property-success")
           .replace("%property%", "startPort")
           .replace("%name%", task.getName())
           .replace("%value%", amount.toString())
@@ -295,7 +295,7 @@ public final class CommandTasks {
     for (ServiceTask task : serviceTasks) {
       this.updateTask(task, serviceTask -> serviceTask.setAutoDeleteOnStop(enabled));
       source.sendMessage(
-        LanguageManager.getMessage("command-tasks-set-property-success")
+        I18n.trans("command-tasks-set-property-success")
           .replace("%property%", "autoDeleteOnStop")
           .replace("%name%", task.getName())
           .replace("%value%", String.valueOf(enabled))
@@ -312,7 +312,7 @@ public final class CommandTasks {
     for (ServiceTask task : serviceTasks) {
       this.updateTask(task, serviceTask -> serviceTask.setStaticServices(enabled));
       source.sendMessage(
-        LanguageManager.getMessage("command-tasks-set-property-success")
+        I18n.trans("command-tasks-set-property-success")
           .replace("%property%", "staticServices")
           .replace("%name%", task.getName())
           .replace("%value%", String.valueOf(enabled))
@@ -329,7 +329,7 @@ public final class CommandTasks {
     for (ServiceTask task : serviceTasks) {
       this.updateTask(task, serviceTask -> serviceTask.getProcessConfiguration().setEnvironment(environmentType));
       source.sendMessage(
-        LanguageManager.getMessage("command-tasks-set-property-success")
+        I18n.trans("command-tasks-set-property-success")
           .replace("%property%", "staticServices")
           .replace("%name%", task.getName())
           .replace("%value%", String.valueOf(environmentType))
@@ -346,7 +346,7 @@ public final class CommandTasks {
     for (ServiceTask task : serviceTasks) {
       this.updateTask(task, serviceTask -> serviceTask.setDisableIpRewrite(enabled));
       source.sendMessage(
-        LanguageManager.getMessage("command-tasks-set-property-success")
+        I18n.trans("command-tasks-set-property-success")
           .replace("%property%", "disableIpRewrite")
           .replace("%name%", task.getName())
           .replace("%value%", String.valueOf(enabled))
@@ -363,7 +363,7 @@ public final class CommandTasks {
     for (ServiceTask task : serviceTasks) {
       this.updateTask(task, serviceTask -> serviceTask.setJavaCommand(executable.getFirst()));
       source.sendMessage(
-        LanguageManager.getMessage("command-tasks-set-property-success")
+        I18n.trans("command-tasks-set-property-success")
           .replace("%property%", "javaCommand")
           .replace("%name%", task.getName())
           .replace("%value%", executable.getFirst())
@@ -384,7 +384,7 @@ public final class CommandTasks {
 
       this.updateTask(task, serviceTask -> serviceTask.getAssociatedNodes().add(node));
       source.sendMessage(
-        LanguageManager.getMessage("command-tasks-set-property-success")
+        I18n.trans("command-tasks-set-property-success")
           .replace("%property%", "node")
           .replace("%name%", task.getName())
           .replace("%value%", node)
@@ -405,7 +405,7 @@ public final class CommandTasks {
 
       this.updateTask(task, serviceTask -> serviceTask.getGroups().add(group.getName()));
       source.sendMessage(
-        LanguageManager.getMessage("command-tasks-set-property-success")
+        I18n.trans("command-tasks-set-property-success")
           .replace("%property%", "group")
           .replace("%name%", task.getName())
           .replace("%value%", group.getName())
@@ -422,7 +422,7 @@ public final class CommandTasks {
     for (ServiceTask task : serviceTasks) {
       this.updateTask(task, serviceTask -> serviceTask.getAssociatedNodes().remove(node));
       source.sendMessage(
-        LanguageManager.getMessage("command-tasks-set-property-success")
+        I18n.trans("command-tasks-set-property-success")
           .replace("%property%", "node")
           .replace("%name%", task.getName())
           .replace("%value%", node)
@@ -439,7 +439,7 @@ public final class CommandTasks {
     for (ServiceTask task : serviceTasks) {
       this.updateTask(task, serviceTask -> serviceTask.getGroups().remove(group));
       source.sendMessage(
-        LanguageManager.getMessage("command-tasks-set-property-success")
+        I18n.trans("command-tasks-set-property-success")
           .replace("%property%", "group")
           .replace("%name%", task.getName())
           .replace("%value%", group)
@@ -458,7 +458,7 @@ public final class CommandTasks {
     for (ServiceTask serviceTask : serviceTasks) {
       this.updateTask(serviceTask, task -> task.getDeployments().add(deployment));
       source.sendMessage(
-        LanguageManager.getMessage("command-tasks-set-property-success")
+        I18n.trans("command-tasks-set-property-success")
           .replace("%property%", "deployment")
           .replace("%name%", serviceTask.getName())
           .replace("%value%", template.getFullName())
@@ -476,7 +476,7 @@ public final class CommandTasks {
     for (ServiceTask serviceTask : serviceTasks) {
       this.updateTask(serviceTask, task -> task.getTemplates().add(template));
       source.sendMessage(
-        LanguageManager.getMessage("command-tasks-set-property-success")
+        I18n.trans("command-tasks-set-property-success")
           .replace("%property%", "template")
           .replace("%name%", serviceTask.getName())
           .replace("%value%", template.getFullName())
@@ -496,7 +496,7 @@ public final class CommandTasks {
     for (ServiceTask serviceTask : serviceTasks) {
       this.updateTask(serviceTask, task -> task.getIncludes().add(inclusion));
       source.sendMessage(
-        LanguageManager.getMessage("command-tasks-set-property-success")
+        I18n.trans("command-tasks-set-property-success")
           .replace("%property%", "inclusion")
           .replace("%name%", serviceTask.getName())
           .replace("%value%", inclusion.getUrl())
@@ -515,7 +515,7 @@ public final class CommandTasks {
       serviceTask.getJvmOptions().addAll(splittedOptions);
       this.updateTask(serviceTask);
       source.sendMessage(
-        LanguageManager.getMessage("command-tasks-set-property-success")
+        I18n.trans("command-tasks-set-property-success")
           .replace("%property%", "jvmOptions")
           .replace("%name%", serviceTask.getName())
           .replace("%value%", jvmOptions)
@@ -534,7 +534,7 @@ public final class CommandTasks {
       serviceTask.getProcessParameters().addAll(splittedOptions);
       this.updateTask(serviceTask);
       source.sendMessage(
-        LanguageManager.getMessage("command-tasks-set-property-success")
+        I18n.trans("command-tasks-set-property-success")
           .replace("%property%", "processParameters")
           .replace("%name%", serviceTask.getName())
           .replace("%value%", processParameters)
@@ -553,7 +553,7 @@ public final class CommandTasks {
     for (ServiceTask serviceTask : serviceTasks) {
       this.updateTask(serviceTask, task -> task.getDeployments().remove(deployment));
       source.sendMessage(
-        LanguageManager.getMessage("command-tasks-set-property-success")
+        I18n.trans("command-tasks-set-property-success")
           .replace("%property%", "deployment")
           .replace("%name%", serviceTask.getName())
           .replace("%value%", template.getFullName())
@@ -571,7 +571,7 @@ public final class CommandTasks {
     for (ServiceTask serviceTask : serviceTasks) {
       this.updateTask(serviceTask, task -> task.getTemplates().remove(template));
       source.sendMessage(
-        LanguageManager.getMessage("command-tasks-set-property-success")
+        I18n.trans("command-tasks-set-property-success")
           .replace("%property%", "template")
           .replace("%name%", serviceTask.getName())
           .replace("%value%", template.getFullName())
@@ -591,7 +591,7 @@ public final class CommandTasks {
     for (ServiceTask serviceTask : serviceTasks) {
       this.updateTask(serviceTask, task -> task.getIncludes().remove(inclusion));
       source.sendMessage(
-        LanguageManager.getMessage("command-tasks-set-property-success")
+        I18n.trans("command-tasks-set-property-success")
           .replace("%property%", "inclusion")
           .replace("%name%", serviceTask.getName())
           .replace("%value%", inclusion.getUrl())
@@ -610,7 +610,7 @@ public final class CommandTasks {
       serviceTask.getJvmOptions().removeAll(splittedOptions);
       this.updateTask(serviceTask);
       source.sendMessage(
-        LanguageManager.getMessage("command-tasks-set-property-success")
+        I18n.trans("command-tasks-set-property-success")
           .replace("%property%", "jvmOptions")
           .replace("%name%", serviceTask.getName())
           .replace("%value%", String.join(", ", serviceTask.getJvmOptions()))
@@ -629,7 +629,7 @@ public final class CommandTasks {
       serviceTask.getProcessParameters().removeAll(splittedOptions);
       this.updateTask(serviceTask);
       source.sendMessage(
-        LanguageManager.getMessage("command-tasks-set-property-success")
+        I18n.trans("command-tasks-set-property-success")
           .replace("%property%", "processParameters")
           .replace("%name%", serviceTask.getName())
           .replace("%value%", String.join(", ", serviceTask.getProcessParameters()))
@@ -642,7 +642,7 @@ public final class CommandTasks {
     for (ServiceTask serviceTask : serviceTasks) {
       this.updateTask(serviceTask, task -> task.getJvmOptions().clear());
       source.sendMessage(
-        LanguageManager.getMessage("command-tasks-set-property-success")
+        I18n.trans("command-tasks-set-property-success")
           .replace("%property%", "jvmOptions")
           .replace("%name%", serviceTask.getName())
           .replace("%value%", "empty")

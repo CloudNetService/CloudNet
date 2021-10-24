@@ -44,7 +44,7 @@ import de.dytanic.cloudnet.command.sub.CommandPermissions;
 import de.dytanic.cloudnet.command.sub.CommandService;
 import de.dytanic.cloudnet.command.sub.CommandTasks;
 import de.dytanic.cloudnet.command.sub.CommandTemplate;
-import de.dytanic.cloudnet.common.language.LanguageManager;
+import de.dytanic.cloudnet.common.language.I18n;
 import de.dytanic.cloudnet.console.IConsole;
 import de.dytanic.cloudnet.console.handler.ConsoleInputHandler;
 import de.dytanic.cloudnet.console.handler.ConsoleTabCompleteHandler;
@@ -204,8 +204,8 @@ public class DefaultCommandProvider implements CommandProvider {
       30L,
       TimeUnit.SECONDS,
       context -> context.getCommandContext().getSender()
-        .sendMessage(LanguageManager.getMessage("command-confirmation-required")),
-      sender -> sender.sendMessage(LanguageManager.getMessage("command-confirmation-no-requests"))
+        .sendMessage(I18n.trans("command-confirmation-required")),
+      sender -> sender.sendMessage(I18n.trans("command-confirmation-no-requests"))
     );
     // register the confirmation manager to the command manager
     confirmationManager.registerConfirmationProcessor(this.commandManager);

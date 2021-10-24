@@ -30,7 +30,7 @@ import de.dytanic.cloudnet.command.annotation.Description;
 import de.dytanic.cloudnet.command.exception.ArgumentNotAvailableException;
 import de.dytanic.cloudnet.command.source.CommandSource;
 import de.dytanic.cloudnet.common.INameable;
-import de.dytanic.cloudnet.common.language.LanguageManager;
+import de.dytanic.cloudnet.common.language.I18n;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
@@ -74,7 +74,7 @@ public final class CommandReport {
       .filter(service -> service.getName().equalsIgnoreCase(name))
       .findFirst()
       .orElseThrow(
-        () -> new ArgumentNotAvailableException(LanguageManager.getMessage("command-paste-paste-service-not-found")));
+        () -> new ArgumentNotAvailableException(I18n.trans("command-paste-paste-service-not-found")));
   }
 
   @Suggestions("pasteService")
@@ -90,7 +90,7 @@ public final class CommandReport {
     String name = input.remove();
     ICloudService cloudService = CloudNet.getInstance().getCloudServiceProvider().getLocalCloudService(name);
     if (cloudService == null) {
-      throw new ArgumentNotAvailableException(LanguageManager.getMessage("command-service-service-not-found"));
+      throw new ArgumentNotAvailableException(I18n.trans("command-service-service-not-found"));
     }
     return cloudService;
   }
@@ -112,10 +112,10 @@ public final class CommandReport {
 
     String response = pasteCreator.createNodePaste(selfNode);
     if (response == null) {
-      source.sendMessage(LanguageManager.getMessage("module-report-command-paste-failed")
+      source.sendMessage(I18n.trans("module-report-command-paste-failed")
         .replace("%url%", pasteService.getServiceUrl()));
     } else {
-      source.sendMessage(LanguageManager.getMessage("module-report-command-paste-success")
+      source.sendMessage(I18n.trans("module-report-command-paste-success")
         .replace("%url%", response));
     }
   }
@@ -131,10 +131,10 @@ public final class CommandReport {
 
     String response = pasteCreator.createServicePaste(service);
     if (response == null) {
-      source.sendMessage(LanguageManager.getMessage("module-report-command-paste-failed")
+      source.sendMessage(I18n.trans("module-report-command-paste-failed")
         .replace("%url%", pasteService.getServiceUrl()));
     } else {
-      source.sendMessage(LanguageManager.getMessage("module-report-command-paste-success")
+      source.sendMessage(I18n.trans("module-report-command-paste-success")
         .replace("%url%", response));
     }
   }
@@ -145,9 +145,9 @@ public final class CommandReport {
 
     if (this.createThreadDump(file)) {
       source.sendMessage(
-        LanguageManager.getMessage("module-report-thread-dump-success").replace("%file%", file.toString()));
+        I18n.trans("module-report-thread-dump-success").replace("%file%", file.toString()));
     } else {
-      source.sendMessage(LanguageManager.getMessage("module-report-thread-dump-failed"));
+      source.sendMessage(I18n.trans("module-report-thread-dump-failed"));
     }
   }
 
@@ -157,9 +157,9 @@ public final class CommandReport {
 
     if (this.createHeapDump(file, live)) {
       source.sendMessage(
-        LanguageManager.getMessage("module-report-heap-dump-success").replace("%file%", file.toString()));
+        I18n.trans("module-report-heap-dump-success").replace("%file%", file.toString()));
     } else {
-      source.sendMessage(LanguageManager.getMessage("module-report-heap-dump-failed"));
+      source.sendMessage(I18n.trans("module-report-heap-dump-failed"));
     }
   }
 

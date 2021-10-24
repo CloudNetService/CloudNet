@@ -17,7 +17,7 @@
 package de.dytanic.cloudnet.cluster;
 
 import de.dytanic.cloudnet.CloudNet;
-import de.dytanic.cloudnet.common.language.LanguageManager;
+import de.dytanic.cloudnet.common.language.I18n;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;
@@ -60,7 +60,7 @@ final class ClusterNodeServerUtils {
       }
     }
 
-    LOGGER.info(LanguageManager.getMessage("cluster-server-networking-disconnected")
+    LOGGER.info(I18n.trans("cluster-server-networking-disconnected")
       .replace("%id%", server.getNodeInfo().getUniqueId())
       .replace("%serverAddress%", channel.getServerAddress().toString())
       .replace("%clientAddress%", channel.getClientAddress().toString()));

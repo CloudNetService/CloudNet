@@ -20,7 +20,7 @@ import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.concurrent.CompletedTask;
 import de.dytanic.cloudnet.common.concurrent.ITask;
-import de.dytanic.cloudnet.common.language.LanguageManager;
+import de.dytanic.cloudnet.common.language.I18n;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;
@@ -185,7 +185,7 @@ public final class DefaultClusterNodeServerProvider extends DefaultNodeServerPro
         NetworkClusterNodeInfoSnapshot snapshot = nodeServer.getNodeInfoSnapshot();
         if (snapshot != null && snapshot.getCreationTime() + MAX_NO_UPDATE_MILLIS < System.currentTimeMillis()) {
           try {
-            LOGGER.info(LanguageManager.getMessage("cluster-server-idling-too-long")
+            LOGGER.info(I18n.trans("cluster-server-idling-too-long")
               .replace("%id%", nodeServer.getNodeInfo().getUniqueId())
               .replace("%time%", TIME_FORMAT.format((System.currentTimeMillis() - snapshot.getCreationTime()) / 1000)));
             nodeServer.close();

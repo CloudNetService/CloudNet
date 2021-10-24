@@ -18,7 +18,7 @@ package de.dytanic.cloudnet.network.listener;
 
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.cluster.IClusterNodeServer;
-import de.dytanic.cloudnet.common.language.LanguageManager;
+import de.dytanic.cloudnet.common.language.I18n;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
@@ -57,6 +57,6 @@ public final class PacketServerAuthorizationResponseListener implements IPacketL
     }
 
     channel.close();
-    LOGGER.warning(LanguageManager.getMessage("cluster-server-networking-authorization-failed"));
+    LOGGER.warning(I18n.trans("cluster-server-networking-authorization-failed"));
   }
 }

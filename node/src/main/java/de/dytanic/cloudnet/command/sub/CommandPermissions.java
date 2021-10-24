@@ -29,7 +29,7 @@ import de.dytanic.cloudnet.command.annotation.Description;
 import de.dytanic.cloudnet.command.exception.ArgumentNotAvailableException;
 import de.dytanic.cloudnet.command.source.CommandSource;
 import de.dytanic.cloudnet.common.INameable;
-import de.dytanic.cloudnet.common.language.LanguageManager;
+import de.dytanic.cloudnet.common.language.I18n;
 import de.dytanic.cloudnet.driver.permission.IPermissible;
 import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
 import de.dytanic.cloudnet.driver.permission.Permission;
@@ -71,7 +71,7 @@ public final class CommandPermissions {
     }
 
     if (permissionUser == null) {
-      throw new ArgumentNotAvailableException(LanguageManager.getMessage("command-permissions-user-not-found"));
+      throw new ArgumentNotAvailableException(I18n.trans("command-permissions-user-not-found"));
     }
 
     return permissionUser;
@@ -83,7 +83,7 @@ public final class CommandPermissions {
 
     PermissionGroup group = CloudNet.getInstance().getPermissionManagement().getGroup(name);
     if (group == null) {
-      throw new ArgumentNotAvailableException(LanguageManager.getMessage("command-permissions-group-not-found"));
+      throw new ArgumentNotAvailableException(I18n.trans("command-permissions-group-not-found"));
     }
 
     return group;
@@ -136,7 +136,7 @@ public final class CommandPermissions {
   @CommandMethod("permissions|perms reload")
   public void reloadPermissionSystem(CommandSource source) {
     this.permissionManagement().reload();
-    source.sendMessage(LanguageManager.getMessage("command-permissions-reload-permissions-success"));
+    source.sendMessage(I18n.trans("command-permissions-reload-permissions-success"));
   }
 
   @CommandMethod("permissions|perms create user <name> <password> <potency>")
@@ -147,7 +147,7 @@ public final class CommandPermissions {
     @Argument("potency") Integer potency
   ) {
     if (this.permissionManagement().getFirstUser(name) != null) {
-      source.sendMessage(LanguageManager.getMessage("command-permissions-create-user-already-exists"));
+      source.sendMessage(I18n.trans("command-permissions-create-user-already-exists"));
       return;
     }
     this.permissionManagement().addUser(name, password, potency);
@@ -161,30 +161,30 @@ public final class CommandPermissions {
     @Argument("potency") Integer potency
   ) {
     if (this.permissionManagement().getGroup(name) != null) {
-      source.sendMessage(LanguageManager.getMessage("command-permissions-create-group-already-exists"));
+      source.sendMessage(I18n.trans("command-permissions-create-group-already-exists"));
       return;
     }
 
     this.permissionManagement().addGroup(name, potency);
     source.sendMessage(
-      LanguageManager.getMessage("command-permissions-create-group-successful").replace("%name%", name));
+      I18n.trans("command-permissions-create-group-successful").replace("%name%", name));
   }
 
   @CommandMethod("permissions|perms delete user <name>")
   public void deleteUser(CommandSource source, @Argument("name") PermissionUser permissionUser) {
     if (this.permissionManagement().deletePermissionUser(permissionUser)) {
-      source.sendMessage(LanguageManager.getMessage("command-permissions-delete-user-successful"));
+      source.sendMessage(I18n.trans("command-permissions-delete-user-successful"));
     } else {
-      source.sendMessage(LanguageManager.getMessage("command-permissions-user-not-found"));
+      source.sendMessage(I18n.trans("command-permissions-user-not-found"));
     }
   }
 
   @CommandMethod("permissions|perms delete group <name>")
   public void deleteGroup(CommandSource source, @Argument("name") PermissionGroup permissionGroup) {
     if (this.permissionManagement().deletePermissionGroup(permissionGroup)) {
-      source.sendMessage(LanguageManager.getMessage("command-permissions-delete-group-successful"));
+      source.sendMessage(I18n.trans("command-permissions-delete-group-successful"));
     } else {
-      source.sendMessage(LanguageManager.getMessage("command-permissions-group-not-found"));
+      source.sendMessage(I18n.trans("command-permissions-group-not-found"));
     }
   }
 
@@ -480,7 +480,7 @@ public final class CommandPermissions {
   private void updateGroup(PermissionGroup group, Consumer<PermissionGroup> groupConsumer, CommandSource source) {
     groupConsumer.accept(group);
     this.permissionManagement().updateGroup(group);
-    source.sendMessage(LanguageManager.getMessage("command-permissions-group-update-property"));
+    source.sendMessage(I18n.trans("command-permissions-group-update-property"));
   }
 
   private void updateUser(
@@ -491,7 +491,7 @@ public final class CommandPermissions {
     permissionUserConsumer.accept(permissionUser);
     this.permissionManagement().updateUser(permissionUser);
     source.sendMessage(
-      LanguageManager.getMessage("command-permissions-user-update").replace("%name%", permissionUser.getName()));
+      I18n.trans("command-permissions-user-update").replace("%name%", permissionUser.getName()));
   }
 
   private IPermissionManagement permissionManagement() {

@@ -31,7 +31,7 @@ import de.dytanic.cloudnet.command.exception.ArgumentNotAvailableException;
 import de.dytanic.cloudnet.command.source.CommandSource;
 import de.dytanic.cloudnet.common.INameable;
 import de.dytanic.cloudnet.common.JavaVersion;
-import de.dytanic.cloudnet.common.language.LanguageManager;
+import de.dytanic.cloudnet.common.language.I18n;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import de.dytanic.cloudnet.driver.template.SpecificTemplateStorage;
@@ -58,7 +58,7 @@ public final class CommandTemplate {
   public ServiceTemplate defaultServiceTemplateParser(CommandContext<CommandSource> $, Queue<String> input) {
     ServiceTemplate template = ServiceTemplate.parse(input.remove());
     if (template == null || template.nullableStorage() == null) {
-      throw new ArgumentNotAvailableException(LanguageManager.getMessage("ca-question-list-invalid-template"));
+      throw new ArgumentNotAvailableException(I18n.trans("ca-question-list-invalid-template"));
     }
     return template;
   }
@@ -75,7 +75,7 @@ public final class CommandTemplate {
   public TemplateStorage defaultTemplateStorageParser(CommandContext<CommandSource> $, Queue<String> input) {
     TemplateStorage templateStorage = CloudNet.getInstance().getTemplateStorage(input.remove());
     if (templateStorage == null) {
-      throw new ArgumentNotAvailableException(LanguageManager.getMessage("ca-question-list-template-invalid-storage"));
+      throw new ArgumentNotAvailableException(I18n.trans("ca-question-list-template-invalid-storage"));
     }
 
     return templateStorage;
@@ -94,7 +94,7 @@ public final class CommandTemplate {
     String versionTypeName = input.remove().toLowerCase();
     return CloudNet.getInstance().getServiceVersionProvider().getServiceVersionType(versionTypeName)
       .orElseThrow(() -> new ArgumentNotAvailableException(
-        LanguageManager.getMessage("ca-question-list-invalid-service-version")));
+        I18n.trans("ca-question-list-invalid-service-version")));
   }
 
   @Suggestions("serviceVersionType")
@@ -118,7 +118,7 @@ public final class CommandTemplate {
     ServiceVersionType type = context.get("versionType");
 
     return type.getVersion(version).orElseThrow(
-      () -> new ArgumentNotAvailableException(LanguageManager.getMessage("command-template-invalid-version")));
+      () -> new ArgumentNotAvailableException(I18n.trans("command-template-invalid-version")));
   }
 
   @Suggestions("version")
@@ -137,7 +137,7 @@ public final class CommandTemplate {
       templateStorage == null ? CloudNet.getInstance().getLocalTemplateStorage() : templateStorage;
 
     List<String> messages = new ArrayList<>();
-    messages.add(LanguageManager.getMessage("command-template-list-templates")
+    messages.add(I18n.trans("command-template-list-templates")
       .replace("%storage%", resultingStorage.getName()));
 
     for (ServiceTemplate template : resultingStorage.getTemplates()) {
@@ -164,7 +164,7 @@ public final class CommandTemplate {
       versions.add(String.join("\n", messages));
     }
 
-    source.sendMessage(LanguageManager.getMessage("command-template-list-versions"));
+    source.sendMessage(I18n.trans("command-template-list-versions"));
 
     //todo source.sendMessage(ColumnTextFormatter.formatInColumns(versions, "\n", 4).split("\n"));
   }
@@ -182,12 +182,12 @@ public final class CommandTemplate {
     String resolvedExecutable = executable == null ? "java" : executable;
     JavaVersion javaVersion = JavaVersionResolver.resolveFromJavaExecutable(resolvedExecutable);
     if (javaVersion == null) {
-      source.sendMessage(LanguageManager.getMessage("ca-question-list-invalid-java-executable"));
+      source.sendMessage(I18n.trans("ca-question-list-invalid-java-executable"));
       return;
     }
 
     if (!versionType.canInstall(serviceVersion, javaVersion)) {
-      source.sendMessage(LanguageManager.getMessage("command-template-install-wrong-java")
+      source.sendMessage(I18n.trans("command-template-install-wrong-java")
         .replace("%version%", versionType.getName() + "-" + serviceVersion.getName())
         .replace("%java%", javaVersion.getName())
       );
@@ -197,7 +197,7 @@ public final class CommandTemplate {
     }
 
     CloudNet.getInstance().getMainThread().runTask(() -> {
-      source.sendMessage(LanguageManager.getMessage("command-template-install-try")
+      source.sendMessage(I18n.trans("command-template-install-try")
         .replace("%version%", versionType.getName() + "-" + serviceVersion.getName())
         .replace("%template%", serviceTemplate.toString())
       );
@@ -208,12 +208,12 @@ public final class CommandTemplate {
         .build();
 
       if (CloudNet.getInstance().getServiceVersionProvider().installServiceVersion(installInformation, forceInstall)) {
-        source.sendMessage(LanguageManager.getMessage("command-template-install-success")
+        source.sendMessage(I18n.trans("command-template-install-success")
           .replace("%version%", versionType.getName() + "-" + serviceVersion.getName())
           .replace("%template%", serviceTemplate.toString())
         );
       } else {
-        source.sendMessage(LanguageManager.getMessage("command-template-install-failed")
+        source.sendMessage(I18n.trans("command-template-install-failed")
           .replace("%version%", versionType.getName() + "-" + serviceVersion.getName())
           .replace("%template%", serviceTemplate.toString())
         );
@@ -226,7 +226,7 @@ public final class CommandTemplate {
   public void deleteTemplate(CommandSource source, @Argument("template") ServiceTemplate template) {
     SpecificTemplateStorage templateStorage = template.storage();
     if (!templateStorage.exists()) {
-      source.sendMessage(LanguageManager.getMessage("command-template-delete-template-not-found")
+      source.sendMessage(I18n.trans("command-template-delete-template-not-found")
         .replace("%template%", template.getFullName())
         .replace("%storage%", template.getStorage()));
       return;
@@ -244,19 +244,19 @@ public final class CommandTemplate {
   ) {
     SpecificTemplateStorage templateStorage = template.storage();
     if (templateStorage.exists()) {
-      source.sendMessage(LanguageManager.getMessage("command-template-create-template-already-exists"));
+      source.sendMessage(I18n.trans("command-template-create-template-already-exists"));
       return;
     }
 
     try {
       if (TemplateStorageUtil.createAndPrepareTemplate(template.storage(), environmentType)) {
-        source.sendMessage(LanguageManager.getMessage("command-template-create-success")
+        source.sendMessage(I18n.trans("command-template-create-success")
           .replace("%template%", template.getFullName())
           .replace("%storage%", template.getStorage())
         );
       }
     } catch (IOException exception) {
-      source.sendMessage(LanguageManager.getMessage("command-template-create-failed")
+      source.sendMessage(I18n.trans("command-template-create-failed")
         .replace("%template%", template.getFullName())
         .replace("%storage%", template.getStorage())
       );
@@ -270,7 +270,7 @@ public final class CommandTemplate {
     @Argument("targetTemplate") ServiceTemplate targetTemplate
   ) {
     if (sourceTemplate.equals(targetTemplate)) {
-      source.sendMessage(LanguageManager.getMessage("command-template-copy-same-source-and-target"));
+      source.sendMessage(I18n.trans("command-template-copy-same-source-and-target"));
       return;
     }
 
@@ -278,7 +278,7 @@ public final class CommandTemplate {
     SpecificTemplateStorage targetStorage = targetTemplate.storage();
 
     CloudNet.getInstance().getMainThread().runTask(() -> {
-      source.sendMessage(LanguageManager.getMessage("command-template-copy")
+      source.sendMessage(I18n.trans("command-template-copy")
         .replace("%sourceTemplate%", sourceTemplate.toString())
         .replace("%targetTemplate%", targetTemplate.toString())
       );
@@ -287,17 +287,17 @@ public final class CommandTemplate {
       targetStorage.create();
       try (ZipInputStream stream = sourceStorage.asZipInputStream()) {
         if (stream == null) {
-          source.sendMessage(LanguageManager.getMessage("command-template-copy-failed"));
+          source.sendMessage(I18n.trans("command-template-copy-failed"));
           return;
         }
 
         targetStorage.deploy(stream);
-        source.sendMessage(LanguageManager.getMessage("command-template-copy-success")
+        source.sendMessage(I18n.trans("command-template-copy-success")
           .replace("%sourceTemplate%", sourceTemplate.toString())
           .replace("%targetTemplate%", targetTemplate.toString())
         );
       } catch (IOException exception) {
-        source.sendMessage(LanguageManager.getMessage("command-template-copy-failed"));
+        source.sendMessage(I18n.trans("command-template-copy-failed"));
       }
     });
   }

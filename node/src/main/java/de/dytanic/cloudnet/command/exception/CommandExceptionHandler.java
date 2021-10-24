@@ -25,7 +25,7 @@ import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.command.defaults.DefaultCommandProvider;
 import de.dytanic.cloudnet.command.source.CommandSource;
 import de.dytanic.cloudnet.command.source.ConsoleCommandSource;
-import de.dytanic.cloudnet.common.language.LanguageManager;
+import de.dytanic.cloudnet.common.language.I18n;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.event.command.CommandInvalidSyntaxEvent;
@@ -86,7 +86,7 @@ public class CommandExceptionHandler {
       new CommandInvalidSyntaxEvent(
         source,
         exception.getCorrectSyntax(),
-        LanguageManager.getMessage("command-invalid-syntax")
+        I18n.trans("command-invalid-syntax")
           .replace("%syntax%", exception.getCorrectSyntax())
       )
     );
@@ -98,21 +98,21 @@ public class CommandExceptionHandler {
       new CommandNotFoundEvent(
         source,
         exception.getSuppliedCommand(),
-        LanguageManager.getMessage("command-not-found")
+        I18n.trans("command-not-found")
       )
     );
     source.sendMessage(notFoundEvent.getResponse());
   }
 
   public void handleNoPermissionException(CommandSource source, NoPermissionException exception) {
-    source.sendMessage(LanguageManager.getMessage("command-sub-no-permission"));
+    source.sendMessage(I18n.trans("command-sub-no-permission"));
   }
 
   public void handleInvalidCommandSourceException(CommandSource source, InvalidCommandSenderException exception) {
     if (exception.getRequiredSender() == ConsoleCommandSource.class) {
-      source.sendMessage(LanguageManager.getMessage("command-console-only"));
+      source.sendMessage(I18n.trans("command-console-only"));
     } else {
-      source.sendMessage(LanguageManager.getMessage("command-driver-only"));
+      source.sendMessage(I18n.trans("command-driver-only"));
     }
   }
 }

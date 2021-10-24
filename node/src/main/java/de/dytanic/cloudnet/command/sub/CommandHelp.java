@@ -26,7 +26,7 @@ import de.dytanic.cloudnet.command.annotation.CommandAlias;
 import de.dytanic.cloudnet.command.annotation.Description;
 import de.dytanic.cloudnet.command.exception.ArgumentNotAvailableException;
 import de.dytanic.cloudnet.command.source.CommandSource;
-import de.dytanic.cloudnet.common.language.LanguageManager;
+import de.dytanic.cloudnet.common.language.I18n;
 import de.dytanic.cloudnet.driver.command.CommandInfo;
 import java.util.Collection;
 import java.util.Queue;
@@ -47,7 +47,7 @@ public final class CommandHelp {
     String command = input.remove();
     CommandInfo commandInfo = this.commandProvider.getCommand(command);
     if (commandInfo == null) {
-      throw new ArgumentNotAvailableException(LanguageManager.getMessage("command-not-found"));
+      throw new ArgumentNotAvailableException(I18n.trans("command-not-found"));
     }
 
     return commandInfo;

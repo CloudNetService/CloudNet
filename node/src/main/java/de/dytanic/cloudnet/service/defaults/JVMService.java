@@ -20,7 +20,7 @@ import com.google.common.primitives.Ints;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.io.FileUtils;
-import de.dytanic.cloudnet.common.language.LanguageManager;
+import de.dytanic.cloudnet.common.language.I18n;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.event.IEventManager;
@@ -101,7 +101,7 @@ public class JVMService extends AbstractService {
 
     // override some default configuration options
     arguments.addAll(DEFAULT_JVM_SYSTEM_PROPERTIES);
-    arguments.add("-Dcloudnet.wrapper.messages.language=" + LanguageManager.getLanguage());
+    arguments.add("-Dcloudnet.wrapper.messages.language=" + I18n.getLanguage());
 
     // add the class path and the main class of the wrapper
     arguments.add("-cp");

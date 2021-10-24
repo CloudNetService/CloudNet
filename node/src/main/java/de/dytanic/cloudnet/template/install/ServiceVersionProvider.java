@@ -21,7 +21,7 @@ import de.dytanic.cloudnet.common.JavaVersion;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.common.io.HttpConnectionProvider;
-import de.dytanic.cloudnet.common.language.LanguageManager;
+import de.dytanic.cloudnet.common.language.I18n;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.console.animation.progressbar.ConsoleProgressWrappers;
@@ -142,7 +142,7 @@ public class ServiceVersionProvider {
     }
 
     if (information.getServiceVersion().isDeprecated()) {
-      LOGGER.warning(LanguageManager.getMessage("versions-installer-deprecated-version")
+      LOGGER.warning(I18n.trans("versions-installer-deprecated-version")
         .replace("%version%", fullVersionIdentifier));
     }
 

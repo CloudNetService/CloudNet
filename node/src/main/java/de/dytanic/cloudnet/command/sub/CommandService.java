@@ -32,7 +32,7 @@ import de.dytanic.cloudnet.command.exception.ArgumentNotAvailableException;
 import de.dytanic.cloudnet.command.source.CommandSource;
 import de.dytanic.cloudnet.common.INameable;
 import de.dytanic.cloudnet.common.WildcardUtil;
-import de.dytanic.cloudnet.common.language.LanguageManager;
+import de.dytanic.cloudnet.common.language.I18n;
 import de.dytanic.cloudnet.common.unsafe.CPUUsageResolver;
 import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
 import de.dytanic.cloudnet.driver.service.ServiceDeployment;
@@ -68,7 +68,7 @@ public final class CommandService {
     ServiceInfoSnapshot serviceInfoSnapshot = CloudNet.getInstance().getCloudServiceProvider()
       .getCloudServiceByName(name);
     if (serviceInfoSnapshot == null) {
-      throw new ArgumentNotAvailableException(LanguageManager.getMessage("command-service-service-not-found"));
+      throw new ArgumentNotAvailableException(I18n.trans("command-service-service-not-found"));
     }
     return serviceInfoSnapshot;
   }
@@ -87,7 +87,7 @@ public final class CommandService {
     Collection<ServiceInfoSnapshot> knownServices = CloudNet.getInstance().getCloudServiceProvider().getCloudServices();
     Collection<ServiceInfoSnapshot> matchedServices = WildcardUtil.filterWildcard(knownServices, name);
     if (matchedServices.isEmpty()) {
-      throw new ArgumentNotAvailableException(LanguageManager.getMessage("command-service-service-not-found"));
+      throw new ArgumentNotAvailableException(I18n.trans("command-service-service-not-found"));
     }
 
     return matchedServices;

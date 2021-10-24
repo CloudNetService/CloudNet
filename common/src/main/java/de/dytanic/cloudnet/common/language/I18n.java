@@ -36,9 +36,9 @@ import org.jetbrains.annotations.NotNull;
  * The LanguageManager is a static service, which handles messages from different languages, which are registered or
  * loaded there
  */
-public final class LanguageManager {
+public final class I18n {
 
-  private static final Logger LOGGER = LogManager.getLogger(LanguageManager.class);
+  private static final Logger LOGGER = LogManager.getLogger(I18n.class);
   private static final Map<String, Properties> LANGUAGE_CACHE = new ConcurrentHashMap<>();
 
   /**
@@ -46,7 +46,7 @@ public final class LanguageManager {
    */
   private static volatile String language;
 
-  private LanguageManager() {
+  private I18n() {
     throw new UnsupportedOperationException();
   }
 
@@ -57,7 +57,12 @@ public final class LanguageManager {
     ) {
       String lang;
       while ((lang = reader.readLine()) != null) {
-        addLanguageFile(lang.replace(".properties", ""), source.getResourceAsStream("lang/" + lang));
+        InputStream stream = source.getResourceAsStream("lang/" + lang);
+        if (stream != null) {
+          addLanguageFile(lang.replace(".properties", ""), stream);
+        } else {
+          LOGGER.fine("Skipping default language %s because the file is missing", null, lang);
+        }
       }
     } catch (IOException exception) {
       LOGGER.severe("Unable to load language registry", exception);
@@ -67,17 +72,17 @@ public final class LanguageManager {
   /**
    * Resolve and returns the following message in the language which is currently set as member "language"
    *
-   * @param property the following message property, which should sort out
+   * @param messageKey the following message property, which should sort out
    * @return the message which is defined in language cache or a fallback message like {@code "<language LANGUAGE not
    * found>"} or {@code "<message property not found in LANGUAGE>"}
    */
-  public static String getMessage(String property) {
+  public static String trans(@NotNull String messageKey) {
     if (language == null || !LANGUAGE_CACHE.containsKey(language)) {
       return "<language " + language + " not found>";
     }
 
     return LANGUAGE_CACHE.get(language)
-      .getProperty(property, "<message " + property + " not found in language " + language + ">");
+      .getProperty(messageKey, "<message " + messageKey + " not found in language " + language + ">");
   }
 
   /**
@@ -86,16 +91,9 @@ public final class LanguageManager {
    * @param language   the language, which should append
    * @param properties the properties which will add in the language as parameter
    */
-  public static void addLanguageFile(String language, Properties properties) {
-    if (language == null || properties == null) {
-      return;
-    }
-
-    if (LANGUAGE_CACHE.containsKey(language)) {
-      LANGUAGE_CACHE.get(language).putAll(properties);
-    } else {
-      LANGUAGE_CACHE.put(language, properties);
-    }
+  public static void addLanguageFile(@NotNull String language, @NotNull Properties properties) {
+    LANGUAGE_CACHE.computeIfAbsent(language, $ -> new Properties()).putAll(properties);
+    LOGGER.fine("Registering language file %s with %d translations", null, language, properties.size());
   }
 
   /**
@@ -104,7 +102,7 @@ public final class LanguageManager {
    * @param language the language, which should append
    * @param file     the properties which will add in the language as parameter
    */
-  public static void addLanguageFile(String language, Path file) {
+  public static void addLanguageFile(@NotNull String language, @NotNull Path file) {
     try (InputStream inputStream = Files.newInputStream(file)) {
       addLanguageFile(language, inputStream);
     } catch (IOException exception) {
@@ -118,7 +116,7 @@ public final class LanguageManager {
    * @param language    the language, which should append
    * @param inputStream the properties which will add in the language as parameter
    */
-  public static void addLanguageFile(String language, InputStream inputStream) {
+  public static void addLanguageFile(@NotNull String language, @NotNull InputStream inputStream) {
     try (Reader reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8)) {
       addLanguageFile(language, reader);
     } catch (IOException exception) {
@@ -132,7 +130,7 @@ public final class LanguageManager {
    * @param language the language, which should append
    * @param reader   the properties which will be added in the language as parameter
    */
-  public static void addLanguageFile(String language, Reader reader) {
+  public static void addLanguageFile(@NotNull String language, @NotNull Reader reader) {
     Properties properties = new Properties();
 
     try {
@@ -144,11 +142,11 @@ public final class LanguageManager {
     addLanguageFile(language, properties);
   }
 
-  public static String getLanguage() {
-    return LanguageManager.language;
+  public static @NotNull String getLanguage() {
+    return I18n.language;
   }
 
-  public static void setLanguage(String language) {
-    LanguageManager.language = language;
+  public static void selectLanguage(@NotNull String language) {
+    I18n.language = language;
   }
 }

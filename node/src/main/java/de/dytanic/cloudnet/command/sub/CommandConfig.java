@@ -21,7 +21,7 @@ import cloud.commandframework.annotations.CommandPermission;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.command.annotation.Description;
 import de.dytanic.cloudnet.command.source.CommandSource;
-import de.dytanic.cloudnet.common.language.LanguageManager;
+import de.dytanic.cloudnet.common.language.I18n;
 import de.dytanic.cloudnet.config.JsonConfiguration;
 
 @Description("")
@@ -36,12 +36,12 @@ public final class CommandConfig {
     CloudNet.getInstance().getServiceTaskProvider().reload();
     CloudNet.getInstance().getGroupConfigurationProvider().reload();
     CloudNet.getInstance().getPermissionManagement().reload();
-    source.sendMessage(LanguageManager.getMessage("command-reload-reload-config-success"));
+    source.sendMessage(I18n.trans("command-reload-reload-config-success"));
   }
 
   @CommandMethod("config node reload")
   public void reloadNodeConfig(CommandSource source) {
     CloudNet.getInstance().setConfig(JsonConfiguration.loadFromFile(CloudNet.getInstance()));
-    source.sendMessage(LanguageManager.getMessage("command-reload-node-config"));
+    source.sendMessage(I18n.trans("command-reload-node-config"));
   }
 }

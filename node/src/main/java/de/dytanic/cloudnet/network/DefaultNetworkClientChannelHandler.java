@@ -18,7 +18,7 @@ package de.dytanic.cloudnet.network;
 
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.cluster.IClusterNodeServer;
-import de.dytanic.cloudnet.common.language.LanguageManager;
+import de.dytanic.cloudnet.common.language.I18n;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
@@ -54,7 +54,7 @@ public final class DefaultNetworkClientChannelHandler implements INetworkChannel
           .writeUniqueId(CloudNet.getInstance().getConfig().getClusterConfig().getClusterId())
           .writeObject(CloudNet.getInstance().getConfig().getIdentity())));
 
-      LOGGER.fine(LanguageManager.getMessage("client-network-channel-init")
+      LOGGER.fine(I18n.trans("client-network-channel-init")
         .replace("%serverAddress%", channel.getServerAddress().getHost() + ":" + channel.getServerAddress().getPort())
         .replace("%clientAddress%", channel.getClientAddress().getHost() + ":" + channel.getClientAddress().getPort()));
     } else {
@@ -74,7 +74,7 @@ public final class DefaultNetworkClientChannelHandler implements INetworkChannel
       new NetworkChannelCloseEvent(channel, ChannelType.CLIENT_CHANNEL));
     CONNECTION_COUNTER.decrementAndGet();
 
-    LOGGER.fine(LanguageManager.getMessage("client-network-channel-close")
+    LOGGER.fine(I18n.trans("client-network-channel-close")
       .replace("%serverAddress%", channel.getServerAddress().getHost() + ":" + channel.getServerAddress().getPort())
       .replace("%clientAddress%", channel.getClientAddress().getHost() + ":" + channel.getClientAddress().getPort()));
 

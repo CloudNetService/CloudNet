@@ -18,7 +18,7 @@ package de.dytanic.cloudnet.cluster.sync;
 
 import com.google.common.primitives.Ints;
 import de.dytanic.cloudnet.CloudNet;
-import de.dytanic.cloudnet.common.language.LanguageManager;
+import de.dytanic.cloudnet.common.language.I18n;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.console.IConsole;
@@ -143,13 +143,13 @@ public class DefaultDataSyncRegistry implements DataSyncRegistry {
               LOGGER.warning(line);
             }
             // print out the possibilities the user has now
-            LOGGER.info(LanguageManager.getMessage("cluster-sync-change-decision-question"));
+            LOGGER.info(I18n.trans("cluster-sync-change-decision-question"));
             // wait for the decision and apply
             switch (this.waitForCorrectMergeInput(CloudNet.getInstance().getConsole())) {
               case 1:
                 // accept theirs - write the change
                 handler.write(data);
-                LOGGER.info(LanguageManager.getMessage("cluster-sync-accepted-theirs"));
+                LOGGER.info(I18n.trans("cluster-sync-accepted-theirs"));
                 break;
               case 2:
                 // accept yours - check if we already have a result buf
@@ -158,11 +158,11 @@ public class DefaultDataSyncRegistry implements DataSyncRegistry {
                 }
                 // write the current data to the result buf
                 this.serializeData(current, handler, result);
-                LOGGER.info(LanguageManager.getMessage("cluster-sync-accept-yours"));
+                LOGGER.info(I18n.trans("cluster-sync-accept-yours"));
                 break;
               case 3:
                 // skip the current change
-                LOGGER.info(LanguageManager.getMessage("cluster-sync-skip"));
+                LOGGER.info(I18n.trans("cluster-sync-skip"));
                 break;
               default:
                 // cannot happen

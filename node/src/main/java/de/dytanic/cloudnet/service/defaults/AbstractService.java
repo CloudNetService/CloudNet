@@ -22,7 +22,7 @@ import de.dytanic.cloudnet.common.StringUtil;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.common.io.HttpConnectionProvider;
-import de.dytanic.cloudnet.common.language.LanguageManager;
+import de.dytanic.cloudnet.common.language.I18n;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.common.unsafe.CPUUsageResolver;
@@ -514,7 +514,7 @@ public abstract class AbstractService implements ICloudService {
       if (this.getNodeConfiguration().isRunBlockedServiceStartTryLaterAutomatic()) {
         CloudNet.getInstance().getMainThread().runTask(this::start);
       } else {
-        LOGGER.info(LanguageManager.getMessage("cloud-service-manager-max-memory-error"));
+        LOGGER.info(I18n.trans("cloud-service-manager-max-memory-error"));
       }
       // no starting now
       return false;
@@ -525,7 +525,7 @@ public abstract class AbstractService implements ICloudService {
       if (this.getNodeConfiguration().isRunBlockedServiceStartTryLaterAutomatic()) {
         CloudNet.getInstance().getMainThread().runTask(this::start);
       } else {
-        LOGGER.info(LanguageManager.getMessage("cloud-service-manager-cpu-usage-to-high-error"));
+        LOGGER.info(I18n.trans("cloud-service-manager-cpu-usage-to-high-error"));
       }
       // no starting now
       return false;

@@ -24,7 +24,7 @@ import cloud.commandframework.annotations.specifier.Quoted;
 import de.dytanic.cloudnet.command.annotation.CommandAlias;
 import de.dytanic.cloudnet.command.annotation.Description;
 import de.dytanic.cloudnet.command.source.CommandSource;
-import de.dytanic.cloudnet.common.language.LanguageManager;
+import de.dytanic.cloudnet.common.language.I18n;
 import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
 import de.dytanic.cloudnet.driver.service.ServiceDeployment;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
@@ -65,7 +65,7 @@ public final class CommandCopy {
     }
 
     if (template == null) {
-      source.sendMessage(LanguageManager.getMessage("command-copy-service-no-default-template"));
+      source.sendMessage(I18n.trans("command-copy-service-no-default-template"));
       return;
     }
 
@@ -81,7 +81,7 @@ public final class CommandCopy {
     }
 
     source.sendMessage(
-      LanguageManager.getMessage("command-copy-success")
+      I18n.trans("command-copy-success")
         .replace("%name%", service.getServiceId().getName())
         .replace("%template%",
           targetTemplate.getStorage() + ":" + targetTemplate.getPrefix() + "/" + targetTemplate.getName())

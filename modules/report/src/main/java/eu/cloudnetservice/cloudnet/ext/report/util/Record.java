@@ -18,7 +18,7 @@ package eu.cloudnetservice.cloudnet.ext.report.util;
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.io.FileUtils;
-import de.dytanic.cloudnet.common.language.LanguageManager;
+import de.dytanic.cloudnet.common.language.I18n;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
@@ -118,7 +118,7 @@ public final class Record {
    * Sends a message to the node, that the record was created
    */
   public void notifySuccess() {
-    LOGGER.info(LanguageManager.getMessage("module-report-create-record-success")
+    LOGGER.info(I18n.trans("module-report-create-record-success")
       .replace("%service%", this.service.getServiceId().getName())
       .replace("%file%", this.directory.toString()));
   }

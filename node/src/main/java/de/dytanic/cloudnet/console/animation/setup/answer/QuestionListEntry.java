@@ -17,7 +17,7 @@
 package de.dytanic.cloudnet.console.animation.setup.answer;
 
 import com.google.common.base.Verify;
-import de.dytanic.cloudnet.common.language.LanguageManager;
+import de.dytanic.cloudnet.common.language.I18n;
 import org.jetbrains.annotations.NotNull;
 
 public final class QuestionListEntry<T> {
@@ -60,7 +60,7 @@ public final class QuestionListEntry<T> {
     }
 
     public @NotNull Builder<T> translatedQuestion(@NotNull String questionTranslationKey) {
-      return this.question(LanguageManager.getMessage(questionTranslationKey));
+      return this.question(I18n.trans(questionTranslationKey));
     }
 
     public @NotNull Builder<T> question(@NotNull String question) {
