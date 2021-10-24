@@ -36,6 +36,7 @@ import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map.Entry;
+import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
@@ -46,7 +47,8 @@ import org.jetbrains.annotations.UnknownNullability;
  */
 public class JsonDocument implements IDocument<JsonDocument> {
 
-  private static final Gson GSON = new GsonBuilder()
+  @Internal
+  public static final Gson GSON = new GsonBuilder()
     .serializeNulls()
     .setPrettyPrinting()
     .disableHtmlEscaping()
