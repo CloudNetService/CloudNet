@@ -39,14 +39,21 @@ final class DefaultSuggestionProcessor implements CommandSuggestionProcessor<Com
     @NonNull CommandPreprocessingContext<CommandSource> context,
     @NonNull List<String> strings
   ) {
-    if (context.getInputQueue().isEmpty()) {
+    // check if the user tries to complete all command roots
+    if (!context.getCommandContext().getRawInputJoined().contains(" ")) {
       return this.provider.getCommands().stream().map(INameable::getName).collect(Collectors.toList());
     }
+    // is the queue is empty just use a blank string.
+    String input;
+    if (context.getInputQueue().isEmpty()) {
+      input = "";
+    } else {
+      input = context.getInputQueue().peek();
+    }
 
-    String input = context.getInputQueue().peek();
     List<String> suggestions = new LinkedList<>();
-
     for (String suggestion : strings) {
+      // check if clouds suggestion matches the input and the command is registered
       if (suggestion.startsWith(input)
         && (context.getCommandContext().getRawInput().size() > 1 || this.provider.getCommand(suggestion) != null)) {
         suggestions.add(suggestion);
