@@ -96,6 +96,8 @@ subprojects {
   extensions.configure<LicenseExtension> {
     include("**/*.java")
     header(rootProject.file("LICENSE_HEADER"))
+    // third party library classes - keep their copyright
+    exclude("**/de/dytanic/cloudnet/driver/util/define/**")
   }
 }
 
