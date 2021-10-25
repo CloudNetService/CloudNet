@@ -18,7 +18,7 @@ package de.dytanic.cloudnet.network;
 
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.cluster.IClusterNodeServer;
-import de.dytanic.cloudnet.common.language.LanguageManager;
+import de.dytanic.cloudnet.common.language.I18n;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
@@ -52,7 +52,7 @@ public final class DefaultNetworkServerChannelHandler implements INetworkChannel
         NetworkConstants.INTERNAL_AUTHORIZATION_CHANNEL,
         new PacketClientAuthorizationListener());
 
-      LOGGER.fine(LanguageManager.getMessage("server-network-channel-init")
+      LOGGER.fine(I18n.trans("server-network-channel-init")
         .replace("%serverAddress%", channel.getServerAddress().getHost() + ":" + channel.getServerAddress().getPort())
         .replace("%clientAddress%", channel.getClientAddress().getHost() + ":" + channel.getClientAddress().getPort()));
     } else {
@@ -71,7 +71,7 @@ public final class DefaultNetworkServerChannelHandler implements INetworkChannel
     CloudNetDriver.getInstance().getEventManager().callEvent(
       new NetworkChannelCloseEvent(channel, ChannelType.SERVER_CHANNEL));
 
-    LOGGER.fine(LanguageManager.getMessage("server-network-channel-close")
+    LOGGER.fine(I18n.trans("server-network-channel-close")
       .replace("%serverAddress%", channel.getServerAddress().getHost() + ":" + channel.getServerAddress().getPort())
       .replace("%clientAddress%", channel.getClientAddress().getHost() + ":" + channel.getClientAddress().getPort()));
 
@@ -98,7 +98,7 @@ public final class DefaultNetworkServerChannelHandler implements INetworkChannel
     cloudService.setNetworkChannel(null);
     cloudService.setCloudServiceLifeCycle(ServiceLifeCycle.STOPPED);
 
-    LOGGER.info(LanguageManager.getMessage("cloud-service-networking-disconnected")
+    LOGGER.info(I18n.trans("cloud-service-networking-disconnected")
       .replace("%id%", cloudService.getServiceId().getUniqueId().toString())
       .replace("%task%", cloudService.getServiceId().getTaskName())
       .replace("%serviceId%", String.valueOf(cloudService.getServiceId().getTaskServiceId()))

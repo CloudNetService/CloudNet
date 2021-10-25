@@ -18,6 +18,7 @@ package de.dytanic.cloudnet;
 
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.cluster.DefaultClusterNodeServerProvider;
+import de.dytanic.cloudnet.cluster.IClusterNodeServer;
 import de.dytanic.cloudnet.cluster.IClusterNodeServerProvider;
 import de.dytanic.cloudnet.cluster.sync.DataSyncRegistry;
 import de.dytanic.cloudnet.cluster.sync.DefaultDataSyncRegistry;
@@ -37,13 +38,14 @@ import de.dytanic.cloudnet.database.xodus.XodusDatabaseProvider;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.CloudNetVersion;
 import de.dytanic.cloudnet.driver.DriverEnvironment;
+import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.driver.database.Database;
 import de.dytanic.cloudnet.driver.database.DatabaseProvider;
 import de.dytanic.cloudnet.driver.module.DefaultPersistableModuleDependencyLoader;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.network.INetworkClient;
 import de.dytanic.cloudnet.driver.network.INetworkServer;
-import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
+import de.dytanic.cloudnet.driver.network.def.NetworkConstants;
 import de.dytanic.cloudnet.driver.network.http.IHttpServer;
 import de.dytanic.cloudnet.driver.network.netty.client.NettyNetworkClient;
 import de.dytanic.cloudnet.driver.network.netty.http.NettyHttpServer;
@@ -78,8 +80,13 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -99,13 +106,13 @@ public class CloudNet extends CloudNetDriver {
   private final INetworkClient networkClient;
   private final INetworkServer networkServer;
 
-  private final DataSyncRegistry dataSyncRegistry;
   private final ServiceVersionProvider serviceVersionProvider;
   private final DefaultClusterNodeServerProvider nodeServerProvider;
 
   private final CloudNetTick mainThread = new CloudNetTick(this);
   private final AtomicBoolean running = new AtomicBoolean(true);
   private final DefaultInstallation installation = new DefaultInstallation();
+  private final DataSyncRegistry dataSyncRegistry = new DefaultDataSyncRegistry();
   private final QueuedConsoleLogHandler logHandler = new QueuedConsoleLogHandler();
 
   private volatile IConfiguration configuration;
@@ -130,7 +137,6 @@ public class CloudNet extends CloudNetDriver {
 
     this.nodeServerProvider = new DefaultClusterNodeServerProvider(this);
 
-    this.dataSyncRegistry = new DefaultDataSyncRegistry();
     this.nodeInfoProvider = new NodeNodeInfoProvider(this);
     this.serviceTaskProvider = new NodeServiceTaskProvider(this);
     this.generalCloudServiceProvider = new DefaultCloudServiceManager(this);
@@ -215,9 +221,9 @@ public class CloudNet extends CloudNetDriver {
 
     // execute the installation setup and load the config things after it
     this.installation.executeFirstStartSetup(this.console);
-    this.nodeServerProvider.setClusterServers(this.configuration.getClusterConfig());
 
     // init the local node server
+    this.nodeServerProvider.setClusterServers(this.configuration.getClusterConfig());
     this.nodeServerProvider.getSelfNode().setNodeInfo(this.configuration.getIdentity());
     this.nodeServerProvider.getSelfNode().publishNodeInfoSnapshotUpdate();
 
@@ -230,14 +236,46 @@ public class CloudNet extends CloudNetDriver {
       this.httpServer.addListener(httpListener);
     }
     // network client init
-    for (NetworkClusterNode node : this.configuration.getClusterConfig().getNodes()) {
-      HostAndPort[] listeners = node.getListeners();
+    Set<CompletableFuture<Void>> futures = new HashSet<>(); // all futures of connections
+    for (IClusterNodeServer node : this.nodeServerProvider.getNodeServers()) {
+      HostAndPort[] listeners = node.getNodeInfo().getListeners();
       // check if there are any listeners
       if (listeners.length > 0) {
         // get a random listener of the node
         HostAndPort listener = listeners[ThreadLocalRandom.current().nextInt(0, listeners.length)];
-        this.networkClient.connect(listener);
+        if (this.networkClient.connect(listener)) {
+          // register a future that waits for the node to become available
+          futures.add(CompletableFuture.runAsync(() -> {
+            while (!node.isAvailable()) {
+              try {
+                //noinspection BusyWait
+                Thread.sleep(10);
+              } catch (InterruptedException exception) {
+                Thread.currentThread().interrupt();
+              }
+            }
+          }));
+        }
       }
+    }
+
+    // now we can wait for all nodes to become available (if needed)
+    if (!futures.isEmpty()) {
+      try {
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).get(7, TimeUnit.SECONDS);
+      } catch (TimeoutException ignored) {
+        // auth failed to a node in the cluster - ignore
+      }
+    }
+
+    // we are now connected to all nodes - request the full cluster data set if the head node is not the current one
+    if (!this.nodeServerProvider.getHeadNode().equals(this.nodeServerProvider.getSelfNode())) {
+      ChannelMessage.builder()
+        .message("request_initial_cluster_data")
+        .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
+        .targetNode(this.nodeServerProvider.getHeadNode().getNodeInfo().getUniqueId())
+        .build()
+        .send();
     }
 
     // start modules

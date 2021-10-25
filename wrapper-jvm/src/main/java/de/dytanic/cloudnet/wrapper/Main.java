@@ -16,7 +16,7 @@
 
 package de.dytanic.cloudnet.wrapper;
 
-import de.dytanic.cloudnet.common.language.LanguageManager;
+import de.dytanic.cloudnet.common.language.I18n;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.common.log.LoggingUtils;
@@ -36,8 +36,8 @@ public final class Main {
 
   public static synchronized void main(String... args) throws Throwable {
     // language init
-    LanguageManager.loadFromLanguageRegistryFile(Main.class.getClassLoader());
-    LanguageManager.setLanguage(System.getProperty("cloudnet.wrapper.messages.language", "english"));
+    I18n.loadFromLanguageRegistryFile(Main.class.getClassLoader());
+    I18n.selectLanguage(System.getProperty("cloudnet.wrapper.messages.language", "english"));
     // logger init
     initLogger(LogManager.getRootLogger());
     // boot the wrapper

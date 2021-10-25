@@ -54,24 +54,22 @@ public class DefaultEventManagerTest {
     DefaultEventManager eventManager = new DefaultEventManager();
     eventManager.registerListeners(new TestListener());
 
-    Assertions.assertEquals(2, eventManager.registeredListeners.size());
+    Assertions.assertEquals(2, eventManager.listeners.size());
 
-    Assertions.assertNotNull(eventManager.registeredListeners.get("123"));
-    Assertions.assertEquals(1, eventManager.registeredListeners.get("123").size());
+    Assertions.assertNotNull(eventManager.listeners.get(ChannelMessageReceiveEvent.class));
+    Assertions.assertEquals(1, eventManager.listeners.get(ChannelMessageReceiveEvent.class).size());
 
-    Assertions.assertNotNull(eventManager.registeredListeners.get("*"));
-    Assertions.assertEquals(1, eventManager.registeredListeners.get("*").size());
+    Assertions.assertEquals(
+      EventPriority.HIGH,
+      eventManager.listeners.get(ChannelMessageReceiveEvent.class).iterator().next().getPriority());
+    Assertions.assertEquals(
+      EventPriority.NORMAL,
+      eventManager.listeners.get(CloudServiceLifecycleChangeEvent.class).iterator().next().getPriority());
 
-    Assertions.assertEquals(EventPriority.HIGH, eventManager.registeredListeners.get("*").get(0).getPriority());
-    Assertions.assertEquals(EventPriority.NORMAL, eventManager.registeredListeners.get("123").get(0).getPriority());
-
-    Assertions.assertEquals("listenerA", eventManager.registeredListeners.get("*").get(0).getMethodName());
-    Assertions.assertEquals("listenerB", eventManager.registeredListeners.get("123").get(0).getMethodName());
-
-    Assertions.assertEquals(ChannelMessageReceiveEvent.class,
-      eventManager.registeredListeners.get("*").get(0).getEventClass());
-    Assertions.assertEquals(CloudServiceLifecycleChangeEvent.class,
-      eventManager.registeredListeners.get("123").get(0).getEventClass());
+    Assertions.assertEquals("*",
+      eventManager.listeners.get(ChannelMessageReceiveEvent.class).iterator().next().getChannel());
+    Assertions.assertEquals("123",
+      eventManager.listeners.get(CloudServiceLifecycleChangeEvent.class).iterator().next().getChannel());
   }
 
   @Test
@@ -103,37 +101,28 @@ public class DefaultEventManagerTest {
     DefaultEventManager eventManager = this.newEventManagerWithListener();
     eventManager.unregisterListener(new TestListener());
 
-    Assertions.assertEquals(0, eventManager.registeredListeners.size());
+    Assertions.assertEquals(0, eventManager.listeners.size());
   }
 
   @Test
   @Order(30)
-  void testUnregisterListenerByClass() {
-    DefaultEventManager eventManager = this.newEventManagerWithListener();
-    eventManager.unregisterListener(TestListener.class);
-
-    Assertions.assertEquals(0, eventManager.registeredListeners.size());
-  }
-
-  @Test
-  @Order(40)
   void testUnregisterListenerByClassLoader() {
     DefaultEventManager eventManager = this.newEventManagerWithListener();
     eventManager.unregisterListeners(TestListener.class.getClassLoader());
 
-    Assertions.assertEquals(0, eventManager.registeredListeners.size());
+    Assertions.assertEquals(0, eventManager.listeners.size());
   }
 
   private DefaultEventManager newEventManagerWithListener() {
     DefaultEventManager eventManager = new DefaultEventManager();
 
     eventManager.registerListener(new TestListener());
-    Assertions.assertEquals(2, eventManager.registeredListeners.size());
+    Assertions.assertEquals(2, eventManager.listeners.size());
 
     return eventManager;
   }
 
-  public static final class TestListener {
+  private static final class TestListener {
 
     @EventListener(priority = EventPriority.HIGH)
     public void listenerA(ChannelMessageReceiveEvent event) {
@@ -145,7 +134,7 @@ public class DefaultEventManagerTest {
     }
 
     @EventListener(channel = "123")
-    public void listenerB(CloudServiceLifecycleChangeEvent event) {
+    private void listenerB(CloudServiceLifecycleChangeEvent event) {
     }
 
     @Override

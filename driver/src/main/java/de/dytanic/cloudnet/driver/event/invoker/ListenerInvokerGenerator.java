@@ -16,123 +16,106 @@
 
 package de.dytanic.cloudnet.driver.event.invoker;
 
+import static org.objectweb.asm.Opcodes.ACC_FINAL;
+import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
+import static org.objectweb.asm.Opcodes.ALOAD;
+import static org.objectweb.asm.Opcodes.CHECKCAST;
+import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
+import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
+import static org.objectweb.asm.Opcodes.RETURN;
+import static org.objectweb.asm.Opcodes.V1_8;
+
 import de.dytanic.cloudnet.driver.event.Event;
 import de.dytanic.cloudnet.driver.event.EventListenerException;
-import de.dytanic.cloudnet.driver.util.DefiningClassLoader;
+import de.dytanic.cloudnet.driver.util.define.ClassDefiners;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Modifier;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-import javassist.CannotCompileException;
-import javassist.ClassPool;
-import javassist.CtClass;
-import javassist.CtConstructor;
-import javassist.CtField;
-import javassist.CtMethod;
-import javassist.CtNewConstructor;
-import javassist.CtNewMethod;
-import javassist.LoaderClassPath;
+import java.lang.reflect.Method;
+import java.util.concurrent.atomic.AtomicInteger;
+import org.jetbrains.annotations.NotNull;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Type;
 
 /**
  * Generates {@link ListenerInvoker} implementations for certain event listener methods.
  *
  * @see ListenerInvoker
  */
-public class ListenerInvokerGenerator {
+public final class ListenerInvokerGenerator {
 
-  private static final String GENERATED_CLASS_TEMPLATE = "GeneratedListenerInvoker_%s";
+  private static final AtomicInteger ID = new AtomicInteger();
 
-  private static final String LISTENER_FIELD_NAME = "listener";
-
-  private static final String INVOKE_METHOD_NAME = "invoke";
-
-  private final ClassPool classPool;
-
-  private final Map<ClassLoader, DefiningClassLoader> invokerClassLoaders;
-
-  public ListenerInvokerGenerator() {
-    this.classPool = new ClassPool(ClassPool.getDefault());
-    this.invokerClassLoaders = new HashMap<>();
-  }
+  private static final String SUPER = "java/lang/Object";
+  private static final String[] INVOKER = new String[]{Type.getInternalName(ListenerInvoker.class)};
+  private static final String INVOKE_DESC = Type.getMethodDescriptor(
+    Type.VOID_TYPE,
+    Type.getType(Object.class),
+    Type.getType(Event.class));
 
   /**
    * Generates a new {@link ListenerInvoker}.
    *
-   * @param listener   The listener class instance the event listener method is in
-   * @param methodName The name of the event listener method
-   * @param eventClass The class of the event the listener method is handling
+   * @param listener The listener class instance the event listener method is in
+   * @param method   The name of the event listener method
+   * @param event    The class of the event the listener method is handling
    * @return The new generated {@link ListenerInvoker}, being able the invoke the event listener method.
    */
-  public ListenerInvoker generate(Object listener, String methodName, Class<? extends Event> eventClass) {
-    Class<?> listenerClass = listener.getClass();
-    String listenerClassName = listenerClass.getName();
-    String className = String.format(GENERATED_CLASS_TEMPLATE, UUID.randomUUID().toString().replace("-", ""));
-
+  @NotNull
+  public static ListenerInvoker generate(@NotNull Object listener, @NotNull Method method, @NotNull Class<?> event) {
     try {
-      if (!Modifier.isPublic(listenerClass.getModifiers())) {
-        throw new IllegalStateException(String.format("Listener class %s has to be public", listenerClassName));
+      // make a class name which is definitely unique for the method
+      String className = String.format(
+        "%s$%s_%d",
+        Type.getInternalName(listener.getClass()),
+        method.getName(),
+        ID.incrementAndGet());
+
+      // init the class writer for a public final class implementing the ListenerInvoker
+      ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
+      cw.visit(V1_8, ACC_PUBLIC | ACC_FINAL, className, null, SUPER, INVOKER);
+      // generate a constructor and the invoke method
+      MethodVisitor mv;
+      {
+        mv = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
+        mv.visitCode();
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitMethodInsn(INVOKESPECIAL, SUPER, "<init>", "()V", false);
+        mv.visitInsn(RETURN);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
       }
-      if (!Modifier.isPublic(eventClass.getModifiers())) {
-        throw new IllegalStateException(String.format("Event class %s has to be public", eventClass.getName()));
+      {
+        mv = cw.visitMethod(ACC_PUBLIC, "invoke", INVOKE_DESC, null, null);
+        mv.visitCode();
+        mv.visitVarInsn(ALOAD, 1);
+        mv.visitTypeInsn(CHECKCAST, Type.getInternalName(listener.getClass()));
+        mv.visitVarInsn(ALOAD, 2);
+        mv.visitTypeInsn(CHECKCAST, Type.getInternalName(event));
+        mv.visitMethodInsn(
+          INVOKEVIRTUAL,
+          Type.getInternalName(listener.getClass()),
+          method.getName(),
+          Type.getMethodDescriptor(method),
+          false);
+        mv.visitInsn(RETURN);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
       }
-
-      DefiningClassLoader invokerClassLoader = this.invokerClassLoaders.computeIfAbsent(
-        listenerClass.getClassLoader(),
-        DefiningClassLoader::new);
-
-      // listener classes might be loaded by another class loader (for example module listeners),
-      // add them to the class path of the class pool
-      this.classPool.appendClassPath(new LoaderClassPath(invokerClassLoader));
-
-      CtClass listenerInvokerClass = this.classPool.makeClass(className);
-      listenerInvokerClass.addInterface(this.classPool.get(ListenerInvoker.class.getName()));
-
-      listenerInvokerClass.addField(this.generateListenerField(listenerInvokerClass, listenerClassName));
-      listenerInvokerClass.addConstructor(this.generateInvokerConstructor(listenerInvokerClass, listenerClassName));
-      listenerInvokerClass
-        .addMethod(this.generateInvokeImplementation(listenerInvokerClass, methodName, eventClass.getName()));
-
-      Class<?> generatedListenerInvokerClass = invokerClassLoader
-        .defineClass(className, listenerInvokerClass.toBytecode());
-
-      Constructor<?> constructor = generatedListenerInvokerClass.getDeclaredConstructor(listenerClass);
-      return (ListenerInvoker) constructor.newInstance(listener);
+      // finish construction
+      cw.visitEnd();
+      // define and make the constructor accessible
+      Constructor<?> constructor = ClassDefiners.current()
+        .defineClass(className, listener.getClass(), cw.toByteArray())
+        .getDeclaredConstructor();
+      constructor.setAccessible(true);
+      // instantiate
+      return (ListenerInvoker) constructor.newInstance();
     } catch (Exception exception) {
       throw new EventListenerException(String.format(
-        "Failed to generate invoker for listener method %s:%s",
-        listenerClassName,
-        methodName), exception);
+        "Failed to generate event invoker for listener method %s in %s",
+        method.getName(),
+        listener.getClass().getCanonicalName()
+      ), exception);
     }
-  }
-
-  private CtField generateListenerField(CtClass listenerInvokerClass, String listenerClassName)
-    throws CannotCompileException {
-    return CtField.make(
-      String.format("private final %s %s;", listenerClassName, LISTENER_FIELD_NAME),
-      listenerInvokerClass);
-  }
-
-  private CtConstructor generateInvokerConstructor(CtClass listenerInvokerClass, String listenerClassName)
-    throws CannotCompileException {
-    return CtNewConstructor.make(String.format(
-      "public %s(%s %s) { this.%s = %s; }",
-      listenerInvokerClass.getSimpleName(),
-      listenerClassName,
-      LISTENER_FIELD_NAME,
-      LISTENER_FIELD_NAME,
-      LISTENER_FIELD_NAME), listenerInvokerClass);
-  }
-
-  private CtMethod generateInvokeImplementation(CtClass listenerInvokerClass, String methodName, String eventClassName)
-    throws CannotCompileException {
-    return CtNewMethod.make(String.format(
-      "public void %s(%s event) { this.%s.%s((%s) event); }",
-      INVOKE_METHOD_NAME,
-      Event.class.getName(),
-      LISTENER_FIELD_NAME,
-      methodName,
-      eventClassName
-    ), listenerInvokerClass);
   }
 }

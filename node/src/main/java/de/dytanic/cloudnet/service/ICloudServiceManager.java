@@ -93,9 +93,6 @@ public interface ICloudServiceManager extends GeneralCloudServiceProvider {
   void handleServiceUpdate(@NotNull ServiceInfoSnapshot snapshot, @UnknownNullability INetworkChannel source);
 
   @Internal
-  void handleInitialSetServices(@NotNull Collection<ServiceInfoSnapshot> snapshots, @NotNull INetworkChannel source);
-
-  @Internal
   @NotNull ICloudService createLocalCloudService(@NotNull ServiceConfiguration serviceConfiguration);
 
   @Internal

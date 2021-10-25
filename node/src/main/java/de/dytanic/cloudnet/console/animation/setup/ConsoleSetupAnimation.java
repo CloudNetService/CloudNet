@@ -17,7 +17,7 @@
 package de.dytanic.cloudnet.console.animation.setup;
 
 import de.dytanic.cloudnet.CloudNet;
-import de.dytanic.cloudnet.common.language.LanguageManager;
+import de.dytanic.cloudnet.common.language.I18n;
 import de.dytanic.cloudnet.console.IConsole;
 import de.dytanic.cloudnet.console.animation.AbstractConsoleAnimation;
 import de.dytanic.cloudnet.console.animation.setup.answer.QuestionAnswerType;
@@ -147,9 +147,9 @@ public class ConsoleSetupAnimation extends AbstractConsoleAnimation {
     }
 
     // print a general explanation of the setup process
-    console.forceWriteLine("&e" + LanguageManager.getMessage("ca-question-list-explain"));
+    console.forceWriteLine("&e" + I18n.trans("ca-question-list-explain"));
     if (this.isCancellable()) {
-      console.forceWriteLine("&e" + LanguageManager.getMessage("ca-question-list-cancel"));
+      console.forceWriteLine("&e" + I18n.trans("ca-question-list-cancel"));
     }
 
     // disable all commands of the console
@@ -182,7 +182,7 @@ public class ConsoleSetupAnimation extends AbstractConsoleAnimation {
       this.console.setCommandHistory(answerType.getPossibleAnswers());
 
       // collect the possible answers to one string
-      String answers = LanguageManager.getMessage("ca-question-list-possible-answers-list")
+      String answers = I18n.trans("ca-question-list-possible-answers-list")
         .replace("%values%", String.join(", ", answerType.getPossibleAnswers()));
       // write the answers to the console
       for (String line : this.updateCursor("&r" + entry.getQuestion() + " &r> &e" + answers)) {
@@ -281,7 +281,7 @@ public class ConsoleSetupAnimation extends AbstractConsoleAnimation {
 
   private void resetConsole() {
     if (this.cancelled) {
-      super.getConsole().forceWriteLine("&c" + LanguageManager.getMessage("ca-question-list-cancelled"));
+      super.getConsole().forceWriteLine("&c" + I18n.trans("ca-question-list-cancelled"));
       CloudNet.getInstance().getEventManager().callEvent(new SetupCancelledEvent(this));
     } else {
       // print the footer if supplied

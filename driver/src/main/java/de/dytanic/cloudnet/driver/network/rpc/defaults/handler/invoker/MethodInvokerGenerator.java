@@ -16,113 +16,136 @@
 
 package de.dytanic.cloudnet.driver.network.rpc.defaults.handler.invoker;
 
-import com.google.common.primitives.Primitives;
+import static de.dytanic.cloudnet.driver.util.asm.AsmUtils.primitiveToWrapper;
+import static de.dytanic.cloudnet.driver.util.asm.AsmUtils.pushInt;
+import static de.dytanic.cloudnet.driver.util.asm.AsmUtils.wrapperToPrimitive;
+import static org.objectweb.asm.Opcodes.AALOAD;
+import static org.objectweb.asm.Opcodes.ACC_FINAL;
+import static org.objectweb.asm.Opcodes.ACC_PRIVATE;
+import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
+import static org.objectweb.asm.Opcodes.ACONST_NULL;
+import static org.objectweb.asm.Opcodes.ALOAD;
+import static org.objectweb.asm.Opcodes.ARETURN;
+import static org.objectweb.asm.Opcodes.CHECKCAST;
+import static org.objectweb.asm.Opcodes.DUP;
+import static org.objectweb.asm.Opcodes.GETFIELD;
+import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
+import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
+import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
+import static org.objectweb.asm.Opcodes.NEW;
+import static org.objectweb.asm.Opcodes.PUTFIELD;
+import static org.objectweb.asm.Opcodes.RETURN;
+import static org.objectweb.asm.Opcodes.V1_8;
+
 import com.google.common.reflect.TypeToken;
 import de.dytanic.cloudnet.common.StringUtil;
 import de.dytanic.cloudnet.driver.network.rpc.defaults.MethodInformation;
 import de.dytanic.cloudnet.driver.network.rpc.exception.ClassCreationException;
-import de.dytanic.cloudnet.driver.util.DefiningClassLoader;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-import javassist.ClassPool;
-import javassist.CtClass;
-import javassist.CtField;
-import javassist.CtMethod;
-import javassist.CtNewConstructor;
-import javassist.LoaderClassPath;
+import de.dytanic.cloudnet.driver.util.define.ClassDefiners;
+import java.lang.reflect.Constructor;
 import org.jetbrains.annotations.NotNull;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Type;
 
 public class MethodInvokerGenerator {
 
-  private static final String CLASS_NAME_FORMAT = "%s.GeneratedInvoker%s_%s_%s";
-  private static final String INSTANCE_FIELD_FORMAT = "private final %s instance;";
-  private static final String CONSTRUCTOR_FORMAT = "public %s(%s instance) { this.instance = instance; }";
-  private static final String OVERRIDDEN_METHOD_FORMAT = "public Object callMethod(Object[] args) { %s this.instance.%s(%s); %s }";
-  private static final String OVERRIDDEN_METHOD_NO_ARGS_CONST_FORMAT = "public Object callMethod(Object... args) { return new %s(); }";
-  private static final String METHOD_INVOKER_CLASS_NAME = MethodInvoker.class.getName();
-
-  private final ClassPool classPool;
-  private final Map<ClassLoader, DefiningClassLoader> classLoaders;
-
-  public MethodInvokerGenerator() {
-    this.classPool = new ClassPool(ClassPool.getDefault());
-    this.classLoaders = new ConcurrentHashMap<>();
-  }
+  private static final String SUPER = "java/lang/Object";
+  private static final String OBJ_DESCRIPTOR = Type.getDescriptor(Object.class);
+  // MethodInvoker related stuff
+  private static final String[] METHOD_INVOKER = new String[]{Type.getInternalName(MethodInvoker.class)};
+  private static final String CALL_METHOD_DESCRIPTOR = Type.getMethodDescriptor(
+    Type.getType(Object.class),
+    Type.getType(Object[].class));
+  // Constructor stuff
+  private static final String CONSTRUCTOR_DESCRIPTOR = Type.getMethodDescriptor(
+    Type.VOID_TYPE,
+    Type.getType(Object.class));
+  // generated classes related stuff
+  private static final String CLASS_NAME_FORMAT = "%s$GeneratedInvoker_%s_%s";
+  private static final String NO_ARGS_CONSTRUCTOR_CLASS_NAME_FORMAT = "%s$GeneratedConstructorInvoker_%s";
 
   public @NotNull MethodInvoker makeMethodInvoker(@NotNull MethodInformation methodInfo) {
     try {
-      // get the class loader which is responsible for the class we want to invoke
-      DefiningClassLoader loader = this.classLoaders.computeIfAbsent(
-        methodInfo.getDefiningClass().getClassLoader(),
-        classLoader -> {
-          // append the loader to the class pool after creation
-          DefiningClassLoader definingClassLoader = new DefiningClassLoader(classLoader);
-          this.classPool.appendClassPath(new LoaderClassPath(definingClassLoader));
-          return definingClassLoader;
-        });
-      // now make the class
-      CtClass ctClass = this.classPool.makeClass(String.format(
+      String className = String.format(
         CLASS_NAME_FORMAT,
-        methodInfo.getDefiningClass().getPackage().getName(),
-        methodInfo.getDefiningClass().getSimpleName(),
+        Type.getInternalName(methodInfo.getDefiningClass()),
         methodInfo.getName(),
-        StringUtil.generateRandomString(25)));
-      // append the super interface
-      ctClass.addInterface(this.classPool.get(METHOD_INVOKER_CLASS_NAME));
-      // append the field to the class
-      ctClass.addField(CtField.make(
-        String.format(INSTANCE_FIELD_FORMAT, methodInfo.getSourceInstance().getClass().getCanonicalName()),
-        ctClass));
-      // add a constructor which initialized the field
-      ctClass.addConstructor(CtNewConstructor.make(String.format(
-        CONSTRUCTOR_FORMAT,
-        ctClass.getSimpleName(),
-        methodInfo.getSourceInstance().getClass().getCanonicalName()), ctClass));
-      // override the invoke method
-      if (methodInfo.getArguments().length > 0) {
-        // the real magic happens here
-        StringBuilder arguments = new StringBuilder();
-        for (int i = 0; i < methodInfo.getArguments().length; i++) {
-          // more than the raw type is not supported anyways
-          String wrapper;
-          Class<?> rawType = TypeToken.of(methodInfo.getArguments()[i]).getRawType();
-          if (rawType.isPrimitive()) {
-            // unwrap all primitives classes as they are causing verify errors by the runtime
-            Class<?> wrapped = Primitives.wrap(rawType);
-            // this hacky trick allows us to convert a wrapped type to a primitive type by calling the <primitive>Value
-            // method. For example: ((Boolean) <decoding code (added later)>).booleanValue()
-            wrapper = String.format("((%s) %s).%sValue()", wrapped.getTypeName(), "%s", rawType.getTypeName());
-          } else {
-            // we can just cast non-primitive types
-            wrapper = String.format("(%s) %s", rawType.getTypeName(), "%s");
-          }
-          // generate the argument
-          arguments.append(String.format(wrapper, String.format("args[%d]", i))).append(',');
-        }
-        // add the method
-        ctClass.addMethod(CtMethod.make(String.format(
-          OVERRIDDEN_METHOD_FORMAT,
-          methodInfo.isVoidMethod() ? "" : "return",
-          methodInfo.getName(),
-          arguments.substring(0, arguments.length() - 1),
-          methodInfo.isVoidMethod() ? "return null;" : ""
-        ), ctClass));
-      } else {
-        // just invoke the method without arguments as we don't one
-        ctClass.addMethod(CtMethod.make(String.format(
-          OVERRIDDEN_METHOD_FORMAT,
-          methodInfo.isVoidMethod() ? "" : "return",
-          methodInfo.getName(),
-          "",
-          methodInfo.isVoidMethod() ? "return null;" : ""
-        ), ctClass));
+        StringUtil.generateRandomString(25));
+      // init the class writer for a public final class implementing the MethodInvoker
+      ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
+      cw.visit(V1_8, ACC_PUBLIC | ACC_FINAL, className, null, SUPER, METHOD_INVOKER);
+      // visit the instance field
+      cw.visitField(ACC_PRIVATE | ACC_FINAL, "instance", OBJ_DESCRIPTOR, null, null).visitEnd();
+      // generate a no-args constructor
+      MethodVisitor mv;
+      {
+        mv = cw.visitMethod(ACC_PUBLIC, "<init>", CONSTRUCTOR_DESCRIPTOR, null, null);
+        mv.visitCode();
+        // call super()
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitMethodInsn(INVOKESPECIAL, SUPER, "<init>", "()V", false);
+        // assign the instance field
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitVarInsn(ALOAD, 1);
+        mv.visitFieldInsn(PUTFIELD, className, "instance", OBJ_DESCRIPTOR);
+        // finish the constructor
+        mv.visitInsn(RETURN);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
       }
-
-      // now we can define the class and make an instance of the created invoker
-      return (MethodInvoker) loader.defineClass(ctClass.getName(), ctClass.toBytecode())
-        .getDeclaredConstructor(methodInfo.getSourceInstance().getClass())
-        .newInstance(methodInfo.getSourceInstance());
+      {
+        mv = cw.visitMethod(ACC_PUBLIC, "callMethod", CALL_METHOD_DESCRIPTOR, null, null);
+        mv.visitCode();
+        // get the instance field
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitFieldInsn(GETFIELD, className, "instance", OBJ_DESCRIPTOR);
+        mv.visitTypeInsn(CHECKCAST, Type.getInternalName(methodInfo.getDefiningClass()));
+        // visit each argument of the method
+        Type[] arguments = new Type[methodInfo.getArguments().length];
+        for (int i = 0; i < methodInfo.getArguments().length; i++) {
+          Class<?> rawType = TypeToken.of(methodInfo.getArguments()[i]).getRawType();
+          // load the argument supplied for the index
+          mv.visitVarInsn(ALOAD, 1);
+          pushInt(mv, i);
+          mv.visitInsn(AALOAD);
+          // check if the raw type is primitive
+          if (rawType.isPrimitive()) {
+            wrapperToPrimitive(mv, rawType);
+          } else {
+            mv.visitTypeInsn(CHECKCAST, Type.getInternalName(rawType));
+          }
+          // store the argument type
+          arguments[i] = Type.getType(rawType);
+        }
+        // invoke the method
+        mv.visitMethodInsn(
+          methodInfo.getDefiningClass().isInterface() ? INVOKEINTERFACE : INVOKEVIRTUAL,
+          Type.getInternalName(methodInfo.getDefiningClass()),
+          methodInfo.getName(),
+          Type.getMethodDescriptor(Type.getType(methodInfo.getRawReturnType()), arguments),
+          methodInfo.getDefiningClass().isInterface());
+        // for a void return type return null, else return the method invocation result - respect primitives
+        if (methodInfo.isVoidMethod()) {
+          mv.visitInsn(ACONST_NULL);
+        } else if (methodInfo.getRawReturnType().isPrimitive()) {
+          primitiveToWrapper(mv, methodInfo.getRawReturnType());
+        }
+        // return the value of the stack
+        mv.visitInsn(ARETURN);
+        // finish the method
+        mv.visitEnd();
+        mv.visitMaxs(0, 0);
+      }
+      // finish the class
+      cw.visitEnd();
+      // define and make the constructor accessible
+      Constructor<?> constructor = ClassDefiners.current()
+        .defineClass(className, methodInfo.getDefiningClass(), cw.toByteArray())
+        .getDeclaredConstructor(Object.class);
+      constructor.setAccessible(true);
+      // instantiate
+      return (MethodInvoker) constructor.newInstance(methodInfo.getSourceInstance());
     } catch (Exception exception) {
       throw new ClassCreationException(String.format(
         "Cannot generate rpc handler for method %s defined in class %s",
@@ -134,27 +157,48 @@ public class MethodInvokerGenerator {
 
   public @NotNull MethodInvoker makeNoArgsConstructorInvoker(@NotNull Class<?> clazz) {
     try {
-      // get the class loader which is responsible for the class we want to invoke
-      DefiningClassLoader loader = this.classLoaders.computeIfAbsent(
-        clazz.getClassLoader(),
-        classLoader -> {
-          // append the loader to the class pool after creation
-          DefiningClassLoader definingClassLoader = new DefiningClassLoader(classLoader);
-          this.classPool.appendClassPath(new LoaderClassPath(definingClassLoader));
-          return definingClassLoader;
-        });
-      // now make the class
-      CtClass ctClass = this.classPool.makeClass(String.format(
-        CLASS_NAME_FORMAT,
-        clazz.getPackage().getName(),
-        clazz.getSimpleName(),
-        UUID.randomUUID()));
-      // override the invoke method
-      ctClass.addMethod(CtMethod.make(String.format(OVERRIDDEN_METHOD_NO_ARGS_CONST_FORMAT, clazz.getName()), ctClass));
-      // now we can define the class and make an instance of the created invoker
-      return (MethodInvoker) loader.defineClass(ctClass.getName(), ctClass.toBytecode())
-        .getDeclaredConstructor()
-        .newInstance();
+      // make a class name which is definitely unique for the class
+      String className = String.format(
+        NO_ARGS_CONSTRUCTOR_CLASS_NAME_FORMAT,
+        Type.getInternalName(clazz),
+        StringUtil.generateRandomString(25));
+
+      // init the class writer for a public final class implementing the MethodInvoker
+      ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
+      cw.visit(V1_8, ACC_PUBLIC | ACC_FINAL, className, null, SUPER, METHOD_INVOKER);
+      // generate a constructor and the invoke method
+      MethodVisitor mv;
+      {
+        mv = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
+        mv.visitCode();
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitMethodInsn(INVOKESPECIAL, SUPER, "<init>", "()V", false);
+        mv.visitInsn(RETURN);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+      }
+      {
+        mv = cw.visitMethod(ACC_PUBLIC, "callMethod", CALL_METHOD_DESCRIPTOR, null, null);
+        mv.visitCode();
+        // create the instance
+        mv.visitTypeInsn(NEW, Type.getInternalName(clazz));
+        mv.visitInsn(DUP);
+        mv.visitMethodInsn(INVOKESPECIAL, Type.getInternalName(clazz), "<init>", "()V", false);
+        mv.visitInsn(ARETURN);
+        // finish the method
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+      }
+      // finish the class
+      cw.visitEnd();
+
+      // declare the class and get the constructor
+      Constructor<?> constructor = ClassDefiners.current()
+        .defineClass(className, clazz, cw.toByteArray())
+        .getDeclaredConstructor();
+      constructor.setAccessible(true);
+      // create a new instance of the class
+      return (MethodInvoker) constructor.newInstance();
     } catch (Exception exception) {
       throw new ClassCreationException(String.format(
         "Cannot generate rpc no args constructor for class %s",

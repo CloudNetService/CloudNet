@@ -47,7 +47,7 @@ dependencies {
 
   "annotationProcessor"(project.sourceSets()["ap"].output)
 
-  "implementation"("org.javassist", "javassist", Versions.javassist)
+  "implementation"("org.ow2.asm", "asm", Versions.asm)
   "implementation"("io.netty", "netty-handler", Versions.netty)
   "implementation"("io.netty", "netty-codec-http", Versions.netty)
   "implementation"("io.netty", "netty-transport-native-epoll", Versions.netty, classifier = "linux-x86_64")

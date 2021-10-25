@@ -18,11 +18,12 @@ package de.dytanic.cloudnet.cluster.sync;
 
 import com.google.common.primitives.Ints;
 import de.dytanic.cloudnet.CloudNet;
-import de.dytanic.cloudnet.common.language.LanguageManager;
+import de.dytanic.cloudnet.common.language.I18n;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.console.IConsole;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -77,11 +78,17 @@ public class DefaultDataSyncRegistry implements DataSyncRegistry {
 
   @Override
   @SuppressWarnings("unchecked")
-  public @NotNull DataBuf.Mutable prepareClusterData(boolean force) {
+  public @NotNull DataBuf.Mutable prepareClusterData(boolean force, String @NotNull ... selectedHandlers) {
+    // sort the handlers for later binary searches
+    Arrays.sort(selectedHandlers);
     // the result data
     DataBuf.Mutable result = DataBuf.empty().writeBoolean(force);
     // append all handler content to the buf
     for (DataSyncHandler<?> handler : this.handlers.values()) {
+      // check if we should include the handler
+      if (selectedHandlers.length > 0 && Arrays.binarySearch(selectedHandlers, handler.getKey()) < 0) {
+        continue;
+      }
       // extract the whole content from the handler
       Collection<Object> data = (Collection<Object>) handler.getData();
       // check if there is data
@@ -118,7 +125,7 @@ public class DefaultDataSyncRegistry implements DataSyncRegistry {
           Object data = handler.getConverter().parse(syncData);
           Object current = handler.getCurrent(data);
           // check if we need to ask for user input to continue the sync
-          if (force || current == null || current.equals(data)) {
+          if (force || handler.isAlwaysForceApply() || current == null || current.equals(data)) {
             // write the data and continue
             handler.write(data);
             continue;
@@ -136,13 +143,13 @@ public class DefaultDataSyncRegistry implements DataSyncRegistry {
               LOGGER.warning(line);
             }
             // print out the possibilities the user has now
-            LOGGER.info(LanguageManager.getMessage("cluster-sync-change-decision-question"));
+            LOGGER.info(I18n.trans("cluster-sync-change-decision-question"));
             // wait for the decision and apply
             switch (this.waitForCorrectMergeInput(CloudNet.getInstance().getConsole())) {
               case 1:
                 // accept theirs - write the change
                 handler.write(data);
-                LOGGER.info(LanguageManager.getMessage("cluster-sync-accepted-theirs"));
+                LOGGER.info(I18n.trans("cluster-sync-accepted-theirs"));
                 break;
               case 2:
                 // accept yours - check if we already have a result buf
@@ -151,11 +158,11 @@ public class DefaultDataSyncRegistry implements DataSyncRegistry {
                 }
                 // write the current data to the result buf
                 this.serializeData(current, handler, result);
-                LOGGER.info(LanguageManager.getMessage("cluster-sync-accept-yours"));
+                LOGGER.info(I18n.trans("cluster-sync-accept-yours"));
                 break;
               case 3:
                 // skip the current change
-                LOGGER.info(LanguageManager.getMessage("cluster-sync-skip"));
+                LOGGER.info(I18n.trans("cluster-sync-skip"));
                 break;
               default:
                 // cannot happen
@@ -192,6 +199,18 @@ public class DefaultDataSyncRegistry implements DataSyncRegistry {
   }
 
   protected int waitForCorrectMergeInput(@NotNull IConsole console) {
+    try {
+      // disable all handlers of the console to prevent skips
+      console.disableAllHandlers();
+      // read & wait for a correct input
+      return this.readMergeInput(console);
+    } finally {
+      // re-enable all handlers
+      console.enableAllHandlers();
+    }
+  }
+
+  protected int readMergeInput(@NotNull IConsole console) {
     while (true) {
       // wait for an input
       String input = console.readLine().getDef(null);

@@ -64,7 +64,7 @@ public class WrapperPermissionManagement extends DefaultCachedPermissionManageme
 
   @Override
   public void close() {
-    this.wrapper.getEventManager().unregisterListeners(this.cacheListener, this.channelMessageListener);
+    this.wrapper.getEventManager().unregisterListener(this.cacheListener, this.channelMessageListener);
   }
 
   @Override

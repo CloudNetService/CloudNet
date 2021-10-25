@@ -32,7 +32,7 @@ public interface DataSyncRegistry {
 
   boolean hasHandler(@NotNull String handlerKey);
 
-  @NotNull DataBuf.Mutable prepareClusterData(boolean force);
+  @NotNull DataBuf.Mutable prepareClusterData(boolean force, String @NotNull ... selectedHandlers);
 
   @UnknownNullability DataBuf handle(@NotNull DataBuf input, boolean force);
 }

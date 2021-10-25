@@ -30,7 +30,7 @@ import de.dytanic.cloudnet.command.source.CommandSource;
 import de.dytanic.cloudnet.command.source.ConsoleCommandSource;
 import de.dytanic.cloudnet.common.INameable;
 import de.dytanic.cloudnet.common.function.ThrowableConsumer;
-import de.dytanic.cloudnet.common.language.LanguageManager;
+import de.dytanic.cloudnet.common.language.I18n;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.database.AbstractDatabaseProvider;
@@ -53,7 +53,7 @@ public final class CommandMigrate {
       .getService(AbstractDatabaseProvider.class, input.remove());
 
     if (abstractDatabaseProvider == null) {
-      throw new ArgumentNotAvailableException(LanguageManager.getMessage("command-migrate-unknown-database-provider"));
+      throw new ArgumentNotAvailableException(I18n.trans("command-migrate-unknown-database-provider"));
     }
     return abstractDatabaseProvider;
   }
@@ -74,7 +74,7 @@ public final class CommandMigrate {
     @Flag("chunk-size") Integer chunkSize
   ) {
     if (sourceDatabaseProvider.equals(targetDatabaseProvider)) {
-      source.sendMessage(LanguageManager.getMessage("command-migrate-source-equals-target"));
+      source.sendMessage(I18n.trans("command-migrate-source-equals-target"));
       return;
     }
 
@@ -90,7 +90,7 @@ public final class CommandMigrate {
     try {
       for (String databaseName : sourceDatabaseProvider.getDatabaseNames()) {
         source.sendMessage(
-          LanguageManager.getMessage("command-migrate-current-database").replace("%db%", databaseName));
+          I18n.trans("command-migrate-current-database").replace("%db%", databaseName));
 
         LocalDatabase sourceDatabase = sourceDatabaseProvider.getDatabase(databaseName);
         LocalDatabase targetDatabase = targetDatabaseProvider.getDatabase(databaseName);
@@ -99,14 +99,14 @@ public final class CommandMigrate {
       }
     } catch (Exception exception) {
       LOGGER.severe(
-        LanguageManager.getMessage("command-migrate-database-connection-failed"), exception);
+        I18n.trans("command-migrate-database-connection-failed"), exception);
       return;
     }
 
     this.executeIfNotCurrentProvider(sourceDatabaseProvider, AbstractDatabaseProvider::close);
     this.executeIfNotCurrentProvider(targetDatabaseProvider, AbstractDatabaseProvider::close);
 
-    source.sendMessage(LanguageManager.getMessage("command-migrate-success")
+    source.sendMessage(I18n.trans("command-migrate-success")
       .replace("%source%", sourceDatabaseProvider.getName())
       .replace("%target%", targetDatabaseProvider.getName()));
   }
@@ -118,7 +118,7 @@ public final class CommandMigrate {
         handler.accept(sourceProvider);
       } catch (Throwable throwable) {
         LOGGER.severe(
-          LanguageManager.getMessage("command-migrate-database-connection-failed"), throwable);
+          I18n.trans("command-migrate-database-connection-failed"), throwable);
         return false;
       }
     }

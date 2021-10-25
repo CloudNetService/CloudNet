@@ -64,7 +64,7 @@ public class DefaultRPCHandlerTest {
     AtomicLong backingHandler = new AtomicLong();
     RPCHandler handlerNested = factory.newHandler(TestApiClassNested.class, null);
     RPCHandler handler = factory.newHandler(TestApiClass.class, new TestApiClass(backingHandler));
-    RPCHandler veryHandlerNested = factory.newHandler(TestApiClassVeryNested.class, new TestApiClassVeryNested());
+    RPCHandler veryHandlerNested = factory.newHandler(TestApiClassVeryNested.class, new TestApiClassVeryNestedImpl());
     // register the handler
     registry.registerHandler(handler);
     registry.registerHandler(handlerNested);
@@ -168,6 +168,11 @@ public class DefaultRPCHandlerTest {
       .areEqual());
   }
 
+  public interface TestApiClassVeryNested {
+
+    Map<Long, Map<String, String>> handleProcessSnapshot2(ProcessSnapshot s, List<Integer> i, int primaryId);
+  }
+
   public static final class TestApiClass {
 
     private final AtomicLong eventCounter;
@@ -209,11 +214,11 @@ public class DefaultRPCHandlerTest {
     }
 
     public TestApiClassVeryNested toVeryNested(int abc) {
-      return abc == 1234 ? new TestApiClassVeryNested() : null;
+      return abc == 1234 ? new TestApiClassVeryNestedImpl() : null;
     }
   }
 
-  public static final class TestApiClassVeryNested {
+  public static final class TestApiClassVeryNestedImpl implements TestApiClassVeryNested {
 
     public Map<Long, Map<String, String>> handleProcessSnapshot2(ProcessSnapshot s, List<Integer> i, int primaryId) {
       return ImmutableMap.of(

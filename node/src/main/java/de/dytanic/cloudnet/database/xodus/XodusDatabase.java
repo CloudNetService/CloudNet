@@ -16,6 +16,7 @@
 
 package de.dytanic.cloudnet.database.xodus;
 
+import com.google.gson.JsonElement;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.database.AbstractDatabase;
 import java.nio.charset.StandardCharsets;
@@ -106,9 +107,9 @@ public class XodusDatabase extends AbstractDatabase {
 
   @Override
   public @NotNull List<JsonDocument> get(@NotNull String fieldName, Object fieldValue) {
-    JsonDocument like = JsonDocument.newDocument(fieldValue);
+    JsonElement like = JsonDocument.GSON.toJsonTree(fieldValue);
     return this.handleWithCursor(($, document) -> {
-      if (document.contains(fieldName) && JsonDocument.newDocument(document.get(fieldName)).equals(like)) {
+      if (document.contains(fieldName) && document.get(fieldName).equals(like)) {
         return document;
       }
       return null;

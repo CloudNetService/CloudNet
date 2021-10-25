@@ -20,6 +20,7 @@ import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import java.lang.reflect.Type;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnknownNullability;
 
 public interface ObjectMapper {
 
@@ -30,5 +31,5 @@ public interface ObjectMapper {
 
   @NotNull DataBuf.Mutable writeObject(@NotNull DataBuf.Mutable dataBuf, @Nullable Object object);
 
-  <T> T readObject(@NotNull DataBuf dataBuf, @NotNull Type type);
+  @UnknownNullability <T> T readObject(@NotNull DataBuf dataBuf, @NotNull Type type);
 }

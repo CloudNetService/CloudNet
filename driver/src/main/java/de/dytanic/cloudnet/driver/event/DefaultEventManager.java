@@ -16,186 +16,91 @@
 
 package de.dytanic.cloudnet.driver.event;
 
-import com.google.common.base.Preconditions;
-import de.dytanic.cloudnet.common.log.LogManager;
-import de.dytanic.cloudnet.common.log.Logger;
-import de.dytanic.cloudnet.driver.event.invoker.ListenerInvoker;
+import com.google.common.collect.Multimaps;
+import com.google.common.collect.SetMultimap;
 import de.dytanic.cloudnet.driver.event.invoker.ListenerInvokerGenerator;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.Arrays;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
+import org.jetbrains.annotations.NotNull;
 
 public class DefaultEventManager implements IEventManager {
 
-  private static final Logger LOGGER = LogManager.getLogger(DefaultEventManager.class);
-
-  protected final ListenerInvokerGenerator invokerGenerator = new ListenerInvokerGenerator();
-  protected final Map<String, List<IRegisteredEventListener>> registeredListeners = new ConcurrentHashMap<>();
-
-  @Override
-  public IEventManager registerListener(Object listener) {
-    Preconditions.checkNotNull(listener);
-
-    this.registerListener0(listener);
-    return this;
-  }
+  /**
+   * Holds all registered events mapped to all registered events listeners
+   */
+  protected final SetMultimap<Class<?>, IRegisteredEventListener> listeners = Multimaps.newSortedSetMultimap(
+    new ConcurrentHashMap<>(),
+    TreeSet::new);
 
   @Override
-  public IEventManager unregisterListener(Object listener) {
-    Preconditions.checkNotNull(listener);
-
-    for (Map.Entry<String, List<IRegisteredEventListener>> listeners : this.registeredListeners.entrySet()) {
-      listeners.getValue().removeIf(registeredEventListener -> registeredEventListener.getInstance().equals(listener));
-      if (listeners.getValue().isEmpty()) {
-        this.registeredListeners.remove(listeners.getKey());
+  public @NotNull IEventManager unregisterListeners(@NotNull ClassLoader classLoader) {
+    for (Entry<Class<?>, IRegisteredEventListener> entry : this.listeners.entries()) {
+      if (entry.getValue().getInstance().getClass().getClassLoader().equals(classLoader)) {
+        this.listeners.remove(entry.getKey(), entry.getValue());
       }
     }
-
+    // for chaining
     return this;
   }
 
   @Override
-  public IEventManager unregisterListener(Class<?> clazz) {
-    Preconditions.checkNotNull(clazz);
-
-    for (Map.Entry<String, List<IRegisteredEventListener>> listeners : this.registeredListeners.entrySet()) {
-      listeners.getValue().removeIf(listener -> listener.getInstance().getClass().equals(clazz));
-      if (listeners.getValue().isEmpty()) {
-        this.registeredListeners.remove(listeners.getKey());
+  public @NotNull IEventManager unregisterListener(Object @NotNull ... listeners) {
+    for (Entry<Class<?>, IRegisteredEventListener> entry : this.listeners.entries()) {
+      if (Arrays.stream(listeners).anyMatch(instance -> instance.equals(entry.getValue().getInstance()))) {
+        this.listeners.remove(entry.getKey(), entry.getValue());
       }
     }
-
+    // for chaining
     return this;
   }
 
   @Override
-  public IEventManager unregisterListeners(ClassLoader classLoader) {
-    Preconditions.checkNotNull(classLoader);
-
-    for (Map.Entry<String, List<IRegisteredEventListener>> listeners : this.registeredListeners.entrySet()) {
-      listeners.getValue().removeIf(listener -> listener.getInstance().getClass().getClassLoader().equals(classLoader));
-      if (listeners.getValue().isEmpty()) {
-        this.registeredListeners.remove(listeners.getKey());
+  public <T extends Event> @NotNull T callEvent(@NotNull String channel, @NotNull T event) {
+    // get all registered listeners of the event
+    Set<IRegisteredEventListener> listeners = this.listeners.get(event.getClass());
+    if (!listeners.isEmpty()) {
+      // post the event to the listeners
+      for (IRegisteredEventListener listener : listeners) {
+        // check if the event gets called on the same channel as the listener is listening to
+        if (listener.getChannel().equals(channel)) {
+          listener.fireEvent(event);
+        }
       }
     }
-
-    return this;
-  }
-
-  @Override
-  public IEventManager unregisterListeners(Object... listeners) {
-    Preconditions.checkNotNull(listeners);
-
-    for (Object listener : listeners) {
-      this.unregisterListener(listener);
-    }
-
-    return this;
-  }
-
-  @Override
-  public IEventManager unregisterListeners(Class<?>... classes) {
-    Preconditions.checkNotNull(classes);
-
-    for (Object listener : classes) {
-      this.unregisterListener(listener);
-    }
-
-    return this;
-  }
-
-  @Override
-  public IEventManager unregisterAll() {
-    this.registeredListeners.clear();
-    return this;
-  }
-
-  @Override
-  public <T extends Event> T callEvent(String channel, T event) {
-    if (channel == null) {
-      channel = "*";
-    }
-    Preconditions.checkNotNull(event);
-
-    this.fireEvent(channel, event);
+    // for chaining
     return event;
   }
 
-
-  private void fireEvent(String channel, Event event) {
-    if (channel.equals("*")) {
-      List<IRegisteredEventListener> listeners = new ArrayList<>();
-
-      for (List<IRegisteredEventListener> entry : this.registeredListeners.values()) {
-        listeners.addAll(entry);
+  @Override
+  public @NotNull IEventManager registerListener(@NotNull Object listener) {
+    // get all methods of the listener
+    for (Method method : listener.getClass().getDeclaredMethods()) {
+      // check if the method can be used
+      EventListener annotation = method.getAnnotation(EventListener.class);
+      if (annotation != null && method.getParameterCount() == 1) {
+        // check the parameter type
+        Class<?> eventClass = method.getParameterTypes()[0];
+        if (!Event.class.isAssignableFrom(eventClass)) {
+          throw new IllegalStateException(String.format(
+            "Parameter type %s (index 0) of listener method %s in %s is not a subclass of Event",
+            eventClass.getName(),
+            method.getName(),
+            listener.getClass().getName()));
+        }
+        // register the listener
+        this.listeners.put(eventClass, new DefaultRegisteredEventListener(
+          listener,
+          method.getName(),
+          eventClass,
+          annotation,
+          ListenerInvokerGenerator.generate(listener, method, eventClass)));
       }
-
-      this.fireEvent(listeners, event);
-    } else if (this.registeredListeners.containsKey(channel)) {
-      this.fireEvent(this.registeredListeners.get(channel), event);
     }
-  }
-
-  private void fireEvent(List<IRegisteredEventListener> listeners, Event event) {
-    Collections.sort(listeners);
-
-    for (IRegisteredEventListener listener : listeners) {
-      listener.fireEvent(event);
-    }
-  }
-
-  @SuppressWarnings("unchecked")
-  private void registerListener0(Object listener) {
-    for (Method method : listener.getClass().getMethods()) {
-      if (!method.isAnnotationPresent(EventListener.class)) {
-        continue;
-      }
-
-      if (method.getParameterCount() != 1 || !Modifier.isPublic(method.getModifiers())) {
-        throw new IllegalStateException(String.format(
-          "Listener method %s:%s has to be public with exactly one argument",
-          listener.getClass().getName(),
-          method.getName()));
-      }
-
-      Class<?> parameterType = method.getParameters()[0].getType();
-
-      if (!Event.class.isAssignableFrom(parameterType)) {
-        throw new IllegalStateException(String.format(
-          "Parameter type %s of listener method %s:%s is not an event",
-          parameterType.getName(),
-          listener.getClass().getName(),
-          method.getName()));
-      }
-
-      Class<Event> eventClass = (Class<Event>) parameterType;
-      String methodName = method.getName();
-
-      EventListener eventListener = method.getAnnotation(EventListener.class);
-      ListenerInvoker listenerInvoker = this.invokerGenerator.generate(listener, methodName, eventClass);
-
-      IRegisteredEventListener registeredEventListener = new DefaultRegisteredEventListener(
-        eventListener,
-        eventListener.priority(),
-        listener,
-        eventClass,
-        methodName,
-        listenerInvoker);
-
-      LOGGER.finer(String.format(
-        "Registering listener method %s:%s from class loader %s",
-        listener.getClass().getName(),
-        method.getName(),
-        listener.getClass().getClassLoader().getClass().getName()
-      ));
-
-      this.registeredListeners.computeIfAbsent(eventListener.channel(),
-        key -> new CopyOnWriteArrayList<>()).add(registeredEventListener);
-    }
+    // for chaining
+    return this;
   }
 }

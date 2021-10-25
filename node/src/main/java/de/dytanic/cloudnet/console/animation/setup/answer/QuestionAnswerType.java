@@ -17,7 +17,7 @@
 package de.dytanic.cloudnet.console.animation.setup.answer;
 
 import com.google.common.base.Verify;
-import de.dytanic.cloudnet.common.language.LanguageManager;
+import de.dytanic.cloudnet.common.language.I18n;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -34,9 +34,9 @@ public final class QuestionAnswerType<T> {
   private static final BiFunction<QuestionAnswerType<?>, String, String> DEFAULT_INVALID_SUPPLIER = (type, $) -> {
     // check if there are possible results
     if (type.getPossibleAnswers().isEmpty()) {
-      return LanguageManager.getMessage("ca-question-list-invalid-default");
+      return I18n.trans("ca-question-list-invalid-default");
     } else {
-      return LanguageManager.getMessage("ca-question-list-question-list")
+      return I18n.trans("ca-question-list-question-list")
         .replace("%values%", String.join(", ", type.getPossibleAnswers()));
     }
   };
@@ -155,7 +155,7 @@ public final class QuestionAnswerType<T> {
     }
 
     public @NotNull Builder<T> translatedInvalidInputMessage(@NotNull String messageTranslationKey) {
-      return this.invalidInputMessage(LanguageManager.getMessage(messageTranslationKey));
+      return this.invalidInputMessage(I18n.trans(messageTranslationKey));
     }
 
     public @NotNull QuestionAnswerType<T> build() {

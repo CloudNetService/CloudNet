@@ -108,6 +108,10 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
     // find the best node server
     return this.nodeServerProvider.getNodeServers().stream()
       .filter(IClusterNodeServer::isAvailable)
+      .filter(server -> {
+        Collection<String> allowedNodes = configuration.getServiceId().getAllowedNodes();
+        return allowedNodes.isEmpty() || allowedNodes.contains(server.getNodeInfo().getUniqueId());
+      })
       .min((left, right) -> {
         // begin by comparing the heap memory usage
         ComparisonChain chain = ComparisonChain.start()

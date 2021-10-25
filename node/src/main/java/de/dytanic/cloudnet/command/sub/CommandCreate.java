@@ -25,7 +25,7 @@ import de.dytanic.cloudnet.command.annotation.Description;
 import de.dytanic.cloudnet.command.source.CommandSource;
 import de.dytanic.cloudnet.common.JavaVersion;
 import de.dytanic.cloudnet.common.collection.Pair;
-import de.dytanic.cloudnet.common.language.LanguageManager;
+import de.dytanic.cloudnet.common.language.I18n;
 import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceTask;
@@ -74,11 +74,11 @@ public final class CommandCreate {
     }
 
     if (createdServices.isEmpty()) {
-      source.sendMessage(LanguageManager.getMessage("command-create-by-task-failed"));
+      source.sendMessage(I18n.trans("command-create-by-task-failed"));
       return;
     }
 
-    source.sendMessage(LanguageManager.getMessage("command-create-by-task-success"));
+    source.sendMessage(I18n.trans("command-create-by-task-success"));
     if (startService) {
       for (ServiceInfoSnapshot createdService : createdServices) {
         createdService.provider().start();

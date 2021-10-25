@@ -74,6 +74,15 @@ public final class NodeChannelMessageListener {
           CloudNet.getInstance().stop();
         }
         break;
+        // request of the full cluster data set
+        case "request_initial_cluster_data": {
+          IClusterNodeServer server = this.nodeServerProvider.getNodeServer(event.getNetworkChannel());
+          if (server != null) {
+            // do not force the sync - the user can decide which changes should be used
+            server.syncClusterData(false);
+          }
+        }
+        break;
         // none of our business
         default:
           break;

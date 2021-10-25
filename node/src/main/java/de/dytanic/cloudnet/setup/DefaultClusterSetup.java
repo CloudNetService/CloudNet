@@ -16,7 +16,7 @@
 
 package de.dytanic.cloudnet.setup;
 
-import static de.dytanic.cloudnet.common.language.LanguageManager.getMessage;
+import static de.dytanic.cloudnet.common.language.I18n.trans;
 import static de.dytanic.cloudnet.console.animation.setup.answer.Parsers.andThen;
 import static de.dytanic.cloudnet.console.animation.setup.answer.Parsers.bool;
 import static de.dytanic.cloudnet.console.animation.setup.answer.Parsers.nonEmptyStr;
@@ -81,7 +81,7 @@ public class DefaultClusterSetup implements DefaultSetup {
                     .addResultListener((___, nodes) -> animation.addEntriesFirst(nodes.stream()
                       .map(node -> QuestionListEntry.<HostAndPort>builder()
                         .key("nodeHost-" + node)
-                        .question(getMessage("cloudnet-init-setup-cluster-node-host").replace("%node%", node))
+                        .question(trans("cloudnet-init-setup-cluster-node-host").replace("%node%", node))
                         .answerType(QuestionAnswerType.<HostAndPort>builder()
                           .parser(validatedHostAndPort(true))))
                       .map(Builder::build)

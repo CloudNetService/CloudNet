@@ -16,55 +16,46 @@
 
 package de.dytanic.cloudnet.driver.event;
 
-import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.event.invoker.ListenerInvoker;
+import org.jetbrains.annotations.NotNull;
 
-public class DefaultRegisteredEventListener implements IRegisteredEventListener {
+final class DefaultRegisteredEventListener implements IRegisteredEventListener {
 
   private static final Logger LOGGER = LogManager.getLogger(DefaultRegisteredEventListener.class);
 
-  private final EventListener eventListener;
-  private final EventPriority priority;
   private final Object instance;
-  private final Class<?> eventClass;
   private final String methodName;
+  private final Class<?> eventClass;
+  private final EventListener eventListener;
   private final ListenerInvoker listenerInvoker;
 
   public DefaultRegisteredEventListener(
-    EventListener eventListener,
-    EventPriority priority,
-    Object instance,
-    Class<? extends Event> eventClass,
-    String methodName,
-    ListenerInvoker listenerInvoker) {
-    this.eventListener = eventListener;
-    this.priority = priority;
+    @NotNull Object instance,
+    @NotNull String methodName,
+    @NotNull Class<?> eventClass,
+    @NotNull EventListener eventListener,
+    @NotNull ListenerInvoker listenerInvoker
+  ) {
     this.instance = instance;
-    this.eventClass = eventClass;
     this.methodName = methodName;
+    this.eventClass = eventClass;
+    this.eventListener = eventListener;
     this.listenerInvoker = listenerInvoker;
   }
 
   @Override
-  public void fireEvent(Event event) {
-    Preconditions.checkNotNull(event);
-
-    if (!this.getEventClass().isAssignableFrom(event.getClass())) {
-      return;
-    }
-
+  public void fireEvent(@NotNull Event event) {
     if (event.isShowDebug()) {
       LOGGER.fine(String.format(
         "Calling event %s on listener %s",
         event.getClass().getName(),
-        this.getInstance().getClass().getName()
-      ));
+        this.getInstance().getClass().getName()));
     }
 
     try {
-      this.listenerInvoker.invoke(event);
+      this.listenerInvoker.invoke(this.instance, event);
     } catch (Exception exception) {
       throw new EventListenerException(String.format(
         "Error while invoking event listener %s in class %s",
@@ -74,32 +65,27 @@ public class DefaultRegisteredEventListener implements IRegisteredEventListener 
   }
 
   @Override
-  public EventListener getEventListener() {
+  public @NotNull EventListener getEventListener() {
     return this.eventListener;
   }
 
   @Override
-  public EventPriority getPriority() {
-    return this.priority;
+  public @NotNull EventPriority getPriority() {
+    return this.eventListener.priority();
   }
 
   @Override
-  public Object getInstance() {
+  public @NotNull String getChannel() {
+    return this.eventListener.channel();
+  }
+
+  @Override
+  public @NotNull Object getInstance() {
     return this.instance;
   }
 
   @Override
-  public Class<?> getEventClass() {
+  public @NotNull Class<?> getEventClass() {
     return this.eventClass;
-  }
-
-  @Override
-  public String getMethodName() {
-    return this.methodName;
-  }
-
-  @Override
-  public ListenerInvoker getInvoker() {
-    return this.listenerInvoker;
   }
 }

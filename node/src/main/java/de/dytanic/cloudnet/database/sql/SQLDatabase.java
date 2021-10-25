@@ -149,9 +149,6 @@ public abstract class SQLDatabase extends AbstractDatabase {
 
   @Override
   public @NotNull List<JsonDocument> get(@NotNull String fieldName, Object fieldValue) {
-    Preconditions.checkNotNull(fieldName);
-    Preconditions.checkNotNull(fieldValue);
-
     return this.databaseProvider.executeQuery(
       String.format("SELECT %s FROM `%s` WHERE %s LIKE ?", TABLE_COLUMN_VALUE, this.name, TABLE_COLUMN_VALUE),
       resultSet -> {
@@ -162,7 +159,7 @@ public abstract class SQLDatabase extends AbstractDatabase {
 
         return jsonDocuments;
       },
-      "%\"" + fieldName + "\":" + JsonDocument.newDocument(fieldValue) + "%"
+      "%\"" + fieldName + "\":" + JsonDocument.GSON.toJson(fieldValue) + "%"
     );
   }
 

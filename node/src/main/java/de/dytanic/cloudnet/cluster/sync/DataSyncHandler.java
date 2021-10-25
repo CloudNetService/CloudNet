@@ -31,6 +31,7 @@ import org.jetbrains.annotations.Nullable;
 public class DataSyncHandler<T> {
 
   private final String key;
+  private final boolean alwaysForceApply;
   private final DataConverter<T> converter;
 
   private final Consumer<T> writer;
@@ -40,6 +41,7 @@ public class DataSyncHandler<T> {
 
   protected DataSyncHandler(
     @NotNull String key,
+    boolean alwaysForceApply,
     @NotNull DataConverter<T> converter,
     @NotNull Consumer<T> writer,
     @NotNull UnaryOperator<T> currentGetter,
@@ -47,6 +49,7 @@ public class DataSyncHandler<T> {
     @NotNull Supplier<Collection<T>> dataCollector
   ) {
     this.key = key;
+    this.alwaysForceApply = alwaysForceApply;
     this.converter = converter;
     this.writer = writer;
     this.currentGetter = currentGetter;
@@ -60,6 +63,10 @@ public class DataSyncHandler<T> {
 
   public @NotNull String getKey() {
     return this.key;
+  }
+
+  public boolean isAlwaysForceApply() {
+    return this.alwaysForceApply;
   }
 
   @SuppressWarnings("unchecked")
@@ -100,6 +107,7 @@ public class DataSyncHandler<T> {
   public static final class Builder<T> {
 
     private String key;
+    private boolean alwaysForceApply;
     private DataConverter<T> converter;
 
     private Consumer<T> writer;
@@ -109,6 +117,11 @@ public class DataSyncHandler<T> {
 
     public @NotNull Builder<T> key(@NotNull String key) {
       this.key = key;
+      return this;
+    }
+
+    public @NotNull Builder<T> alwaysForce() {
+      this.alwaysForceApply = true;
       return this;
     }
 
@@ -165,6 +178,7 @@ public class DataSyncHandler<T> {
 
       return new DataSyncHandler<>(
         this.key,
+        this.alwaysForceApply,
         this.converter,
         this.writer,
         this.currentGetter,

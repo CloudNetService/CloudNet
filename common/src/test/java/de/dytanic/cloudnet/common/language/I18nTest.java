@@ -22,27 +22,27 @@ import java.util.Properties;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class LanguageManagerTest {
+public class I18nTest {
 
   @Test
   public void test() {
     Properties properties = new Properties();
     properties.put("test_message", "Test_Message");
 
-    LanguageManager.setLanguage("en");
-    LanguageManager.addLanguageFile("en", properties);
+    I18n.selectLanguage("en");
+    I18n.addLanguageFile("en", properties);
 
-    Assertions.assertNotNull(LanguageManager.getMessage("test_message"));
-    Assertions.assertEquals("Test_Message", LanguageManager.getMessage("test_message"));
+    Assertions.assertNotNull(I18n.trans("test_message"));
+    Assertions.assertEquals("Test_Message", I18n.trans("test_message"));
 
     properties = new Properties();
     for (int i = 0; i < 100; i++) {
       properties.put(StringUtil.generateRandomString(5), StringUtil.generateRandomString(5));
     }
 
-    LanguageManager.addLanguageFile("en", properties);
+    I18n.addLanguageFile("en", properties);
     for (Entry<Object, Object> entry : properties.entrySet()) {
-      Assertions.assertEquals(entry.getValue(), LanguageManager.getMessage(entry.getKey().toString()));
+      Assertions.assertEquals(entry.getValue(), I18n.trans(entry.getKey().toString()));
     }
   }
 }
