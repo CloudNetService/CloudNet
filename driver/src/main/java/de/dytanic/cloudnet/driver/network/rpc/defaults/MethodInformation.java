@@ -22,7 +22,6 @@ import de.dytanic.cloudnet.driver.network.rpc.defaults.handler.invoker.MethodInv
 import de.dytanic.cloudnet.driver.network.rpc.defaults.handler.invoker.MethodInvokerGenerator;
 import de.dytanic.cloudnet.driver.network.rpc.exception.CannotDecideException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -66,10 +65,7 @@ public class MethodInformation {
     Method method = null;
     for (Method declaredMethod : sourceClass.getDeclaredMethods()) {
       // check if the method might be a candidate
-      if (declaredMethod.getName().equals(name)
-        && Modifier.isPublic(declaredMethod.getModifiers())
-        && !declaredMethod.isAnnotationPresent(RPCIgnore.class)
-      ) {
+      if (declaredMethod.getName().equals(name) && !declaredMethod.isAnnotationPresent(RPCIgnore.class)) {
         if (method != null) {
           // we found more than one method we could call, fail here
           throw new CannotDecideException(name);

@@ -17,6 +17,7 @@
 package de.dytanic.cloudnet.driver.event.invoker;
 
 import de.dytanic.cloudnet.driver.event.Event;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Responsible for invoking event listener methods without reflection. An implementation is automatically generated for
@@ -31,5 +32,5 @@ public interface ListenerInvoker {
    * @param event The event the listener method should be invoked with. Passing an event with the wrong type will result
    *              in an exception
    */
-  void invoke(Event event);
+  void invoke(@NotNull Object listenerInstance, @NotNull Event event);
 }

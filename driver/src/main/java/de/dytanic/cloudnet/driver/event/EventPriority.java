@@ -17,6 +17,8 @@
 package de.dytanic.cloudnet.driver.event;
 
 import java.util.Comparator;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 
 public enum EventPriority implements Comparator<EventPriority> {
 
@@ -33,7 +35,8 @@ public enum EventPriority implements Comparator<EventPriority> {
   }
 
   @Override
-  public int compare(EventPriority o1, EventPriority o2) {
+  @Contract(pure = true)
+  public int compare(@NotNull EventPriority o1, @NotNull EventPriority o2) {
     return Integer.compare(o1.value, o2.value);
   }
 

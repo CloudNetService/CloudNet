@@ -16,33 +16,23 @@
 
 package de.dytanic.cloudnet.driver.event;
 
-import com.google.common.base.Preconditions;
+import org.jetbrains.annotations.NotNull;
 
 public interface IEventManager {
 
-  IEventManager registerListener(Object listener);
+  @NotNull IEventManager unregisterListeners(@NotNull ClassLoader classLoader);
 
-  IEventManager unregisterListener(Object listener);
+  @NotNull IEventManager unregisterListener(Object @NotNull ... listeners);
 
-  IEventManager unregisterListener(Class<?> listener);
-
-  IEventManager unregisterListeners(ClassLoader classLoader);
-
-  IEventManager unregisterListeners(Object... listeners);
-
-  IEventManager unregisterListeners(Class<?>... classes);
-
-  IEventManager unregisterAll();
-
-  <T extends Event> T callEvent(String channel, T event);
-
-  default <T extends Event> T callEvent(T event) {
+  default @NotNull <T extends Event> T callEvent(@NotNull T event) {
     return this.callEvent("*", event);
   }
 
-  default IEventManager registerListeners(Object... listeners) {
-    Preconditions.checkNotNull(listeners);
+  @NotNull <T extends Event> T callEvent(@NotNull String channel, @NotNull T event);
 
+  @NotNull IEventManager registerListener(@NotNull Object listener);
+
+  default @NotNull IEventManager registerListeners(Object @NotNull ... listeners) {
     for (Object listener : listeners) {
       this.registerListener(listener);
     }

@@ -16,26 +16,24 @@
 
 package de.dytanic.cloudnet.driver.event;
 
-import de.dytanic.cloudnet.driver.event.invoker.ListenerInvoker;
+import org.jetbrains.annotations.NotNull;
 
 public interface IRegisteredEventListener extends Comparable<IRegisteredEventListener> {
 
-  void fireEvent(Event event);
+  void fireEvent(@NotNull Event event);
 
-  EventListener getEventListener();
+  @NotNull EventListener getEventListener();
 
-  EventPriority getPriority();
+  @NotNull EventPriority getPriority();
 
-  Object getInstance();
+  @NotNull String getChannel();
 
-  ListenerInvoker getInvoker();
+  @NotNull Object getInstance();
 
-  Class<?> getEventClass();
-
-  String getMethodName();
+  @NotNull Class<?> getEventClass();
 
   @Override
-  default int compareTo(IRegisteredEventListener other) {
+  default int compareTo(@NotNull IRegisteredEventListener other) {
     return this.getPriority().compareTo(other.getPriority());
   }
 }

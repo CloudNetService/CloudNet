@@ -16,103 +16,167 @@
 
 package de.dytanic.cloudnet.driver.network.rpc.defaults.object.data;
 
-import com.google.common.primitives.Primitives;
+import static de.dytanic.cloudnet.driver.util.asm.AsmUtils.primitiveToWrapper;
+import static de.dytanic.cloudnet.driver.util.asm.AsmUtils.pushInt;
+import static de.dytanic.cloudnet.driver.util.asm.AsmUtils.wrapperToPrimitive;
+import static org.objectweb.asm.Opcodes.AALOAD;
+import static org.objectweb.asm.Opcodes.ACC_FINAL;
+import static org.objectweb.asm.Opcodes.ACC_PRIVATE;
+import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
+import static org.objectweb.asm.Opcodes.ALOAD;
+import static org.objectweb.asm.Opcodes.ARETURN;
+import static org.objectweb.asm.Opcodes.CHECKCAST;
+import static org.objectweb.asm.Opcodes.DUP;
+import static org.objectweb.asm.Opcodes.GETFIELD;
+import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
+import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
+import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
+import static org.objectweb.asm.Opcodes.NEW;
+import static org.objectweb.asm.Opcodes.PUTFIELD;
+import static org.objectweb.asm.Opcodes.RETURN;
+import static org.objectweb.asm.Opcodes.V1_8;
+
 import com.google.common.reflect.TypeToken;
 import de.dytanic.cloudnet.common.StringUtil;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import de.dytanic.cloudnet.driver.network.rpc.annotation.RPCFieldGetter;
 import de.dytanic.cloudnet.driver.network.rpc.annotation.RPCIgnore;
 import de.dytanic.cloudnet.driver.network.rpc.exception.ClassCreationException;
-import de.dytanic.cloudnet.driver.network.rpc.exception.MissingFieldGetterException;
 import de.dytanic.cloudnet.driver.network.rpc.object.ObjectMapper;
-import de.dytanic.cloudnet.driver.util.DefiningClassLoader;
+import de.dytanic.cloudnet.driver.util.define.ClassDefiners;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import javassist.ClassPool;
-import javassist.CtClass;
-import javassist.CtField;
-import javassist.CtMethod;
-import javassist.CtNewConstructor;
-import javassist.LoaderClassPath;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Type;
 
 public class DataClassInvokerGenerator {
 
-  private static final String DATA_BUF_CLASS_NAME = DataBuf.class.getCanonicalName();
-  private static final String DATA_BUF_MUTABLE_CLASS_NAME = DataBuf.Mutable.class.getCanonicalName();
-  private static final String OBJECT_MAPPER_CLASS_NAME = ObjectMapper.class.getCanonicalName();
+  private static final String SUPER = "java/lang/Object";
 
-  private static final String INSTANCE_CREATOR_NAME_FORMAT = "%sInstanceCreator";
-  private static final String INFORMATION_WRITE_NAME_FORMAT = "%sInformationWriter";
+  // DataClassInstanceCreator related stuff
+  private static final String TYPES_DESC = Type.getDescriptor(java.lang.reflect.Type[].class);
+  private static final String[] INSTANCE_CREATOR = new String[]{Type.getInternalName(DataClassInstanceCreator.class)};
+  private static final String MAKE_INSTANCE_DESCRIPTOR = Type.getMethodDescriptor(
+    Type.getType(Object.class),
+    Type.getType(DataBuf.class),
+    Type.getType(ObjectMapper.class));
+  // DataClassInformationWriter related stuff
+  private static final String[] INFO_WRITER = new String[]{Type.getInternalName(DataClassInformationWriter.class)};
+  private static final String WRITE_INFORMATION_DESCRIPTOR = Type.getMethodDescriptor(
+    Type.VOID_TYPE,
+    Type.getType(DataBuf.Mutable.class),
+    Type.getType(Object.class),
+    Type.getType(ObjectMapper.class));
+  // ObjectMapper related stuff
+  private static final String DATA_BUF_NAME = Type.getInternalName(ObjectMapper.class);
+  private static final String READ_OBJECT_DESC = Type.getMethodDescriptor(
+    Type.getType(Object.class),
+    Type.getType(DataBuf.class),
+    Type.getType(java.lang.reflect.Type.class));
+  private static final String WRITE_OBJECT_DESC = Type.getMethodDescriptor(
+    Type.getType(DataBuf.Mutable.class),
+    Type.getType(DataBuf.Mutable.class),
+    Type.getType(Object.class));
+  // Related stuff to generated classes
+  private static final String INSTANCE_CREATOR_NAME_FORMAT = "%s$InstanceCreator";
+  private static final String INFORMATION_WRITE_NAME_FORMAT = "%s$InformationWriter";
 
-  private static final String INSTANCE_MAKER_OVERRIDDEN_FORMAT =
-    "public Object makeInstance(" + DATA_BUF_CLASS_NAME + " b, " + OBJECT_MAPPER_CLASS_NAME
-      + " m) { return new %s(%s); }";
-  private static final String WRITE_INFO_OVERRIDDEN_FORMAT =
-    "public void writeInformation(" + DATA_BUF_MUTABLE_CLASS_NAME + " b, Object obj," + OBJECT_MAPPER_CLASS_NAME
-      + " m) { %s }";
-
-  private final ClassPool classPool;
-  private final Map<ClassLoader, DefiningClassLoader> classLoaders;
-
-  public DataClassInvokerGenerator() {
-    this.classPool = new ClassPool(ClassPool.getDefault());
-    this.classLoaders = new ConcurrentHashMap<>();
-  }
-
-  public @NotNull DataClassInstanceCreator createInstanceCreator(@NotNull Class<?> clazz, @NotNull Type[] types) {
+  public @NotNull DataClassInstanceCreator createInstanceCreator(
+    @NotNull Class<?> clazz,
+    @NotNull java.lang.reflect.Type[] types
+  ) {
     try {
-      // get the class loader which is responsible for the class we want to invoke
-      DefiningClassLoader loader = this.getDefiningClassLoader(clazz.getClassLoader());
-      // create the class
-      CtClass ctClass = this.classPool.makeClass(String.format(INSTANCE_CREATOR_NAME_FORMAT, clazz.getCanonicalName()));
-      ctClass.addInterface(this.classPool.getCtClass(DataClassInstanceCreator.class.getName()));
-      // add the types as a field to the class
-      ctClass.addField(CtField.make("private final java.lang.reflect.Type[] types;", ctClass));
-      // add a constructor to initialize the field
-      ctClass.addConstructor(CtNewConstructor.make(String.format(
-        "public %s(java.lang.reflect.Type[] types) { this.types = types; }",
-        ctClass.getSimpleName()
-      ), ctClass));
-      // create the method body
-      StringBuilder stringBuilder = new StringBuilder();
-      for (int i = 0; i < types.length; i++) {
-        // more than the raw type is not supported anyways
-        String wrapper;
-        Class<?> rawType = TypeToken.of(types[i]).getRawType();
-        if (rawType.isPrimitive()) {
-          // unwrap all primitives classes as they are causing verify errors by the runtime
-          Class<?> wrapped = Primitives.wrap(rawType);
-          // this hacky trick allows us to convert a wrapped type to a primitive type by calling the <primitive>Value
-          // method. For example: ((Boolean) <decoding code (added later)>).booleanValue()
-          wrapper = String.format("((%s) %s).%sValue()", wrapped.getTypeName(), "%s", rawType.getTypeName());
-        } else {
-          // we can just cast non-primitive types
-          wrapper = String.format("(%s) %s", rawType.getTypeName(), "%s");
-        }
-        // generate the method
-        stringBuilder.append(String.format(wrapper, String.format("m.readObject(b, this.types[%d])", i))).append(',');
+      String className = String.format(INSTANCE_CREATOR_NAME_FORMAT, Type.getInternalName(clazz));
+      // init the class writer for a public final class implementing the InstanceCreator
+      ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
+      cw.visit(V1_8, ACC_PUBLIC | ACC_FINAL, className, null, SUPER, INSTANCE_CREATOR);
+      // add the Type[] field which holds the information about the target constructor
+      cw
+        .visitField(ACC_PRIVATE | ACC_FINAL, "types", TYPES_DESC, null, null)
+        .visitEnd();
+      // generate a constructor and the method
+      MethodVisitor mv;
+      {
+        mv = cw.visitMethod(ACC_PUBLIC, "<init>", "(" + TYPES_DESC + ")V", null, null);
+        mv.visitCode();
+        // visit super
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitMethodInsn(INVOKESPECIAL, SUPER, "<init>", "()V", false);
+        // write the field value
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitVarInsn(ALOAD, 1);
+        mv.visitFieldInsn(PUTFIELD, className, "types", TYPES_DESC);
+        // finish
+        mv.visitInsn(RETURN);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
       }
-      // override the method
-      ctClass.addMethod(CtMethod.make(String.format(
-        INSTANCE_MAKER_OVERRIDDEN_FORMAT,
-        clazz.getCanonicalName(),
-        stringBuilder.length() == 0 ? "" : stringBuilder.substring(0, stringBuilder.length() - 1)
-      ), ctClass));
-      // now we can define the class and make an instance of the created invoker
-      return (DataClassInstanceCreator) loader.defineClass(ctClass.getName(), ctClass.toBytecode())
-        .getDeclaredConstructor(Type[].class)
-        .newInstance((Object) types);
+      {
+        mv = cw.visitMethod(ACC_PUBLIC | ACC_FINAL, "makeInstance", MAKE_INSTANCE_DESCRIPTOR, null, null);
+        mv.visitCode();
+        // visit the new call
+        mv.visitTypeInsn(NEW, Type.getInternalName(clazz));
+        mv.visitInsn(DUP);
+        // visit all types - store each parameter type for later use
+        Type[] parameters = new Type[types.length];
+        for (int i = 0; i < types.length; i++) {
+          // extract the raw type of the given type
+          Class<?> rawType = TypeToken.of(types[i]).getRawType();
+          // load the mapper, the data buf and the current class to the stack
+          mv.visitVarInsn(ALOAD, 2);
+          mv.visitVarInsn(ALOAD, 1);
+          mv.visitVarInsn(ALOAD, 0);
+          // get the types field
+          mv.visitFieldInsn(GETFIELD, className, "types", TYPES_DESC);
+          // push the index of the array access of types to the stack
+          pushInt(mv, i);
+          mv.visitInsn(AALOAD);
+          // invoke the read method of the ObjectMapper
+          mv.visitMethodInsn(INVOKEINTERFACE, DATA_BUF_NAME, "readObject", READ_OBJECT_DESC, true);
+          // check if the raw type is primitive
+          if (rawType.isPrimitive()) {
+            wrapperToPrimitive(mv, rawType);
+          } else {
+            // cast to the type
+            mv.visitTypeInsn(CHECKCAST, Type.getInternalName(rawType));
+          }
+          // store the type of the parameter
+          parameters[i] = Type.getType(rawType);
+        }
+        // invoke the init (constructor) method
+        mv.visitMethodInsn(
+          INVOKESPECIAL,
+          Type.getInternalName(clazz),
+          "<init>",
+          Type.getMethodDescriptor(Type.VOID_TYPE, parameters),
+          false);
+        // return the constructed value
+        mv.visitInsn(ARETURN);
+        // finish the method
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+      }
+      // finish the class
+      cw.visitEnd();
+      // define & select the correct constructor for the class
+      Constructor<?> constructor = ClassDefiners.current()
+        .defineClass(className, clazz, cw.toByteArray())
+        .getDeclaredConstructor(java.lang.reflect.Type[].class);
+      constructor.setAccessible(true);
+      // instantiate the new class
+      return (DataClassInstanceCreator) constructor.newInstance((Object) types);
     } catch (Exception exception) {
       throw new ClassCreationException(String.format(
         "Unable to generate DataClassInstanceCreator for class %s",
@@ -122,12 +186,25 @@ public class DataClassInvokerGenerator {
 
   public @NotNull DataClassInformationWriter createWriter(@NotNull Class<?> clazz, @NotNull Collection<Field> fields) {
     try {
-      // get the class loader which is responsible for the class we want to invoke
-      DefiningClassLoader loader = this.getDefiningClassLoader(clazz.getClassLoader());
-      // create the class
-      CtClass ctClass = this.classPool.makeClass(
-        String.format(INFORMATION_WRITE_NAME_FORMAT, clazz.getCanonicalName()));
-      ctClass.addInterface(this.classPool.getCtClass(DataClassInformationWriter.class.getName()));
+      String className = String.format(INFORMATION_WRITE_NAME_FORMAT, Type.getInternalName(clazz));
+      // init the class writer for a public final class implementing the InstanceCreator
+      ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
+      cw.visit(V1_8, ACC_PUBLIC | ACC_FINAL, className, null, SUPER, INFO_WRITER);
+      // visit an empty constructor
+      MethodVisitor mv;
+      {
+        mv = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
+        mv.visitCode();
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitMethodInsn(INVOKESPECIAL, SUPER, "<init>", "()V", false);
+        mv.visitInsn(RETURN);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+      }
+      // begin the method visit of the writeInformation method
+      mv = cw.visitMethod(ACC_PUBLIC, "writeInformation", WRITE_INFORMATION_DESCRIPTOR, null, null);
+      mv.visitCode();
+      // check if there are fields we need to include - skip that step if not
       if (fields.size() > 0) {
         // get the methods of the class
         Set<Method> includedMethods = new HashSet<>();
@@ -155,7 +232,6 @@ public class DataClassInvokerGenerator {
           if (overriddenGetter != null) {
             // in this case the associated getter method is given, try to find it in the methods list
             fieldGetters.put(field, this.findGetterForField(
-              clazz,
               includedMethods,
               field,
               m -> m.getName().equals(overriddenGetter.value())));
@@ -166,50 +242,66 @@ public class DataClassInvokerGenerator {
             //  - cpuUsage()
             //  - getFullCpuUsage()
             fieldGetters.put(field, this.findGetterForField(
-              clazz,
               includedMethods,
               field,
               m -> StringUtil.endsWithIgnoreCase(m.getName(), field.getName())));
           }
         }
-        // create the method body builder
-        StringBuilder stringBuilder = new StringBuilder();
+        // create the method body
         for (Field field : fields) {
-          // more than the raw type is not supported anyways
-          String wrapper;
-          Class<?> rawType = TypeToken.of(field.getGenericType()).getRawType();
-          if (rawType.isPrimitive()) {
-            // unwrap all primitives classes as they are causing verify errors by the runtime
-            Class<?> wrapped = Primitives.wrap(rawType);
-            // convert the primitive type when the method is called to the object wrapper of the type by using the
-            // valueOf method. For example: Integer.valueOf(<decoding code (added later)>)
-            wrapper = String.format("%s.valueOf(%s)", wrapped.getCanonicalName(), "%s");
+          // initial work for the method instantiation
+          // load the arguments of the method to the stack
+          mv.visitVarInsn(ALOAD, 3);
+          mv.visitVarInsn(ALOAD, 1);
+          mv.visitVarInsn(ALOAD, 2);
+          // get the raw type of the field
+          Class<?> rawType;
+          // get the associated getter method of the field
+          Method getter = fieldGetters.get(field);
+          if (getter != null) {
+            // extract all needed information from the method
+            rawType = TypeToken.of(getter.getGenericReturnType()).getRawType();
+            String declaring = Type.getInternalName(getter.getDeclaringClass());
+            // cast the object argument to the declaring class of the method
+            mv.visitTypeInsn(CHECKCAST, declaring);
+            // get the value of the method
+            mv.visitMethodInsn(
+              INVOKEVIRTUAL,
+              declaring,
+              getter.getName(),
+              Type.getMethodDescriptor(getter),
+              getter.getDeclaringClass().isInterface());
           } else {
-            // just write, no wrapping required for objects
-            wrapper = "%s";
+            // extract all needed information from the field
+            rawType = TypeToken.of(field.getGenericType()).getRawType();
+            String declaring = Type.getInternalName(field.getDeclaringClass());
+            // cast the object argument to the declaring class of the field
+            mv.visitTypeInsn(CHECKCAST, declaring);
+            // get the value of the field
+            mv.visitFieldInsn(GETFIELD, declaring, field.getName(), Type.getDescriptor(field.getType()));
           }
-          // use the associated getter to access the field value
-          Method associatedMethod = fieldGetters.get(field);
-          stringBuilder
-            .append("m.writeObject(b, ")
-            .append(String.format(
-              wrapper,
-              String.format("((%s) obj).%s()", clazz.getCanonicalName(), associatedMethod.getName())))
-            .append(");");
+          // check if the type of the method or field is primitive
+          if (rawType.isPrimitive()) {
+            primitiveToWrapper(mv, rawType);
+          }
+          // invoke the write method in the object mapper
+          mv.visitMethodInsn(INVOKEINTERFACE, DATA_BUF_NAME, "writeObject", WRITE_OBJECT_DESC, true);
         }
-        // override the method
-        ctClass.addMethod(CtMethod.make(
-          String.format(WRITE_INFO_OVERRIDDEN_FORMAT, stringBuilder),
-          ctClass));
-      } else {
-        // override the method
-        ctClass.addMethod(CtMethod.make(String.format(WRITE_INFO_OVERRIDDEN_FORMAT, ""), ctClass));
       }
+      // finish the method generation
+      mv.visitInsn(RETURN);
+      mv.visitMaxs(0, 0);
+      mv.visitEnd();
+      // finish the class
+      cw.visitEnd();
 
-      // now we can define the class and make an instance of the created writer
-      return (DataClassInformationWriter) loader.defineClass(ctClass.getName(), ctClass.toBytecode())
-        .getDeclaredConstructor()
-        .newInstance();
+      // declare the class and get the constructor
+      Constructor<?> constructor = ClassDefiners.current()
+        .defineClass(className, clazz, cw.toByteArray())
+        .getDeclaredConstructor();
+      constructor.setAccessible(true);
+      // create a new instance of the class
+      return (DataClassInformationWriter) constructor.newInstance();
     } catch (Exception exception) {
       throw new ClassCreationException(String.format(
         "Unable to generate DataClassInformationWriter for class %s and fields %s",
@@ -217,19 +309,7 @@ public class DataClassInvokerGenerator {
     }
   }
 
-  protected @NotNull DefiningClassLoader getDefiningClassLoader(@NotNull ClassLoader parent) {
-    return this.classLoaders.computeIfAbsent(
-      parent,
-      classLoader -> {
-        // append the loader to the class pool after creation
-        DefiningClassLoader definingClassLoader = new DefiningClassLoader(classLoader);
-        this.classPool.appendClassPath(new LoaderClassPath(definingClassLoader));
-        return definingClassLoader;
-      });
-  }
-
-  protected @NotNull Method findGetterForField(
-    @NotNull Class<?> clazz,
+  protected @Nullable Method findGetterForField(
     @NotNull Collection<Method> methods,
     @NotNull Field field,
     @NotNull Predicate<Method> extraFilter
@@ -247,10 +327,6 @@ public class DataClassInvokerGenerator {
           choice = method;
         }
       }
-    }
-    // check if we found a getter method
-    if (choice == null) {
-      throw new MissingFieldGetterException(clazz, field);
     }
     // success!
     return choice;
