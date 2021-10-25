@@ -121,7 +121,7 @@ public final class CommandService {
     /*ServiceListCommandEvent event = CloudNet.getInstance().getEventManager()
       .callEvent(new ServiceListCommandEvent(services));*/
     for (ServiceInfoSnapshot serviceInfoSnapshot : services) {
-      /*String extension = event.getAdditionalParameters()
+      /* String extension = event.getAdditionalParameters()
         .stream()
         .map(function -> function.apply(serviceInfoSnapshot))
         .filter(Objects::nonNull)
@@ -143,7 +143,7 @@ public final class CommandService {
     }
     StringBuilder builder = new StringBuilder(
       String.format("=> Showing %d service(s)", services.size()));
-   /* for (String parameter : event.getAdditionalSummary()) {
+    /* for (String parameter : event.getAdditionalSummary()) {
       builder.append("; ").append(parameter);
     }*/
     source.sendMessage(builder.toString());

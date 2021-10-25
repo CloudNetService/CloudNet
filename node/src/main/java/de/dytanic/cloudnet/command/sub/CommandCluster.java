@@ -16,25 +16,39 @@
 
 package de.dytanic.cloudnet.command.sub;
 
+import cloud.commandframework.annotations.Argument;
 import cloud.commandframework.annotations.CommandMethod;
 import cloud.commandframework.annotations.CommandPermission;
+import cloud.commandframework.annotations.parsers.Parser;
+import cloud.commandframework.annotations.suggestions.Suggestions;
+import cloud.commandframework.context.CommandContext;
+import com.google.common.net.InetAddresses;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.cluster.IClusterNodeServer;
 import de.dytanic.cloudnet.cluster.sync.DataSyncHandler;
 import de.dytanic.cloudnet.command.annotation.CommandAlias;
 import de.dytanic.cloudnet.command.annotation.Description;
+import de.dytanic.cloudnet.command.exception.ArgumentNotAvailableException;
 import de.dytanic.cloudnet.command.source.CommandSource;
 import de.dytanic.cloudnet.common.INameable;
+import de.dytanic.cloudnet.common.language.I18n;
 import de.dytanic.cloudnet.common.unsafe.CPUUsageResolver;
+import de.dytanic.cloudnet.config.IConfiguration;
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
+import de.dytanic.cloudnet.driver.network.cluster.NetworkCluster;
+import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
 import de.dytanic.cloudnet.driver.network.def.NetworkConstants;
 import de.dytanic.cloudnet.driver.service.ServiceTask;
+import java.net.InetAddress;
+import java.net.URI;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Queue;
+import java.util.stream.Collectors;
 
 @CommandAlias("clu")
 @CommandPermission("cloudnet.command.cluster")
@@ -48,7 +62,7 @@ public final class CommandCluster {
     String nodeId = input.remove();
     IClusterNodeServer nodeServer = CloudNet.getInstance().getClusterNodeServerProvider().getNodeServer(nodeId);
     if (nodeServer == null) {
-      throw new ArgumentNotAvailableException(LanguageManager.getMessage("command-cluster-node-not-found"));
+      throw new ArgumentNotAvailableException(I18n.trans("command-cluster-node-not-found"));
     }
 
     return nodeServer;
@@ -67,7 +81,7 @@ public final class CommandCluster {
     String nodeId = input.remove();
     NetworkClusterNode clusterNode = CloudNet.getInstance().getNodeInfoProvider().getNode(nodeId);
     if (clusterNode == null) {
-      throw new ArgumentNotAvailableException(LanguageManager.getMessage("command-cluster-node-not-found"));
+      throw new ArgumentNotAvailableException(I18n.trans("command-cluster-node-not-found"));
     }
 
     return clusterNode;
@@ -89,13 +103,13 @@ public final class CommandCluster {
 
       String host = uri.getHost();
       if (host == null || uri.getPort() == -1) {
-        throw new ArgumentNotAvailableException(LanguageManager.getMessage("command-cluster-invalid-host"));
+        throw new ArgumentNotAvailableException(I18n.trans("command-cluster-invalid-host"));
       }
 
       InetAddress inetAddress = InetAddresses.forUriString(host);
       return new HostAndPort(inetAddress.getHostAddress(), uri.getPort());
     } catch (IllegalArgumentException exception) {
-      throw new ArgumentNotAvailableException(LanguageManager.getMessage("command-cluster-invalid-host"));
+      throw new ArgumentNotAvailableException(I18n.trans("command-cluster-invalid-host"));
     }
   }
 
@@ -132,7 +146,7 @@ public final class CommandCluster {
       // write the node config
       nodeConfig.save();
 
-      source.sendMessage(LanguageManager.getMessage("command-cluster-remove-node-success"));
+      source.sendMessage(I18n.trans("command-cluster-remove-node-success"));
     }
   }
 
