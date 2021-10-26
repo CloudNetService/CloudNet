@@ -22,7 +22,6 @@ import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.common.StringUtil;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
-import de.dytanic.cloudnet.driver.network.NetworkUpdateType;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import de.dytanic.cloudnet.driver.network.rpc.defaults.object.DefaultObjectMapper;
 import de.dytanic.cloudnet.driver.service.ProcessSnapshot;
@@ -68,16 +67,16 @@ public class DefaultObjectMapperTest {
 
   static Stream<Arguments> enumDataProvider() {
     return Stream.of(
-      Arguments.of(NetworkUpdateType.SET),
-      Arguments.of(NetworkUpdateType.REMOVE),
-      Arguments.of(NetworkUpdateType.ADD));
+      Arguments.of(ServiceLifeCycle.PREPARED),
+      Arguments.of(ServiceLifeCycle.STOPPED),
+      Arguments.of(ServiceLifeCycle.DELETED));
   }
 
   static Stream<Arguments> arrayDataProvider() {
     return Stream.of(
       Arguments.of((Object) new String[]{"test1", "test2", "test3"}),
       Arguments.of((Object) new Integer[]{1234, 5678, 9012}),
-      Arguments.of((Object) new NetworkUpdateType[][]{NetworkUpdateType.values(), NetworkUpdateType.values()}));
+      Arguments.of((Object) new ServiceLifeCycle[][]{ServiceLifeCycle.values(), ServiceLifeCycle.values()}));
   }
 
   static Stream<Arguments> listDataProvider() {
