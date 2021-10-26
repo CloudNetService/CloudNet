@@ -83,7 +83,7 @@ public abstract class DefaultChunkedPacketSenderBuilder implements ChunkedPacket
 
   @Override
   public @NotNull ChunkedPacketSender.Builder withExtraData(@NotNull DataBuf extraData) {
-    this.transferInformation = extraData;
+    this.transferInformation = extraData.disableReleasing();
     return this;
   }
 

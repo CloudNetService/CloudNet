@@ -43,7 +43,7 @@ public final class PacketServerChannelMessageListener implements IPacketListener
   public void handle(@NotNull INetworkChannel channel, @NotNull IPacket packet) {
     ChannelMessage message = packet.getContent().readObject(ChannelMessage.class);
     // mark the index of the data buf
-    message.getContent().startTransaction();
+    message.getContent().disableReleasing().startTransaction();
     // call the receive event
     ChannelMessage response = this.eventManager.callEvent(
       new ChannelMessageReceiveEvent(message, channel, packet.getUniqueId() != null)).getQueryResponse();
@@ -51,7 +51,7 @@ public final class PacketServerChannelMessageListener implements IPacketListener
     message.getContent().redoTransaction();
     // if the response is already present do not redirect the message to the messenger
     if (response != null) {
-      channel.sendPacket(packet.constructResponse(DataBuf.empty().writeObject(Collections.singleton(response))));
+      channel.sendPacketSync(packet.constructResponse(DataBuf.empty().writeObject(Collections.singleton(response))));
     } else {
       // do not redirect the channel message to the cluster to prevent infinite loops
       if (packet.getUniqueId() != null) {
@@ -64,5 +64,7 @@ public final class PacketServerChannelMessageListener implements IPacketListener
         this.messenger.sendChannelMessage(message, false);
       }
     }
+    // force release the message
+    message.getContent().enableReleasing().release();
   }
 }

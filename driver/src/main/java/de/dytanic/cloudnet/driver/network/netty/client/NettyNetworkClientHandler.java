@@ -23,6 +23,7 @@ import de.dytanic.cloudnet.driver.network.netty.NettyNetworkHandler;
 import io.netty.channel.ChannelHandlerContext;
 import java.util.Collection;
 import java.util.concurrent.Executor;
+import org.jetbrains.annotations.NotNull;
 
 public class NettyNetworkClientHandler extends NettyNetworkHandler {
 
@@ -51,12 +52,12 @@ public class NettyNetworkClientHandler extends NettyNetworkHandler {
   }
 
   @Override
-  protected Collection<INetworkChannel> getChannels() {
+  protected @NotNull Collection<INetworkChannel> getChannels() {
     return this.nettyNetworkClient.channels;
   }
 
   @Override
-  protected Executor getPacketDispatcher() {
+  protected @NotNull Executor getPacketDispatcher() {
     return this.nettyNetworkClient.getPacketDispatcher();
   }
 }

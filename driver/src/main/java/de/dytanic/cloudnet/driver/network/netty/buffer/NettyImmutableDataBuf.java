@@ -17,6 +17,7 @@
 package de.dytanic.cloudnet.driver.network.netty.buffer;
 
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
+import de.dytanic.cloudnet.driver.network.netty.NettyUtils;
 import de.dytanic.cloudnet.driver.network.rpc.defaults.object.DefaultObjectMapper;
 import io.netty.buffer.ByteBuf;
 import java.lang.reflect.Type;
@@ -39,49 +40,51 @@ public class NettyImmutableDataBuf implements DataBuf {
 
   @Override
   public boolean readBoolean() {
-    return this.byteBuf.readBoolean();
+    return this.hotRead(ByteBuf::readBoolean);
   }
 
   @Override
   public byte readByte() {
-    return this.byteBuf.readByte();
+    return this.hotRead(ByteBuf::readByte);
   }
 
   @Override
   public int readInt() {
-    return this.byteBuf.readInt();
+    return this.hotRead(ByteBuf::readInt);
   }
 
   @Override
   public short readShort() {
-    return this.byteBuf.readShort();
+    return this.hotRead(ByteBuf::readShort);
   }
 
   @Override
   public long readLong() {
-    return this.byteBuf.readLong();
+    return this.hotRead(ByteBuf::readLong);
   }
 
   @Override
   public float readFloat() {
-    return this.byteBuf.readFloat();
+    return this.hotRead(ByteBuf::readFloat);
   }
 
   @Override
   public double readDouble() {
-    return this.byteBuf.readDouble();
+    return this.hotRead(ByteBuf::readDouble);
   }
 
   @Override
   public char readChar() {
-    return this.byteBuf.readChar();
+    return this.hotRead(ByteBuf::readChar);
   }
 
   @Override
   public byte[] readByteArray() {
-    byte[] bytes = new byte[this.readInt()];
-    this.byteBuf.readBytes(bytes);
-    return bytes;
+    return this.hotRead(buf -> {
+      byte[] bytes = new byte[buf.readInt()];
+      buf.readBytes(bytes);
+      return bytes;
+    });
   }
 
   @Override
@@ -96,7 +99,7 @@ public class NettyImmutableDataBuf implements DataBuf {
 
   @Override
   public @NotNull DataBuf readDataBuf() {
-    return new NettyImmutableDataBuf(this.byteBuf.readBytes(this.readInt()));
+    return this.hotRead(buf -> new NettyImmutableDataBuf(buf.readBytes(buf.readInt())));
   }
 
   @Override
@@ -116,8 +119,10 @@ public class NettyImmutableDataBuf implements DataBuf {
 
   @Override
   public <T> T readNullable(@NotNull Function<DataBuf, T> readerWhenNonNull, T valueWhenNull) {
-    boolean isNonNull = this.readBoolean();
-    return isNonNull ? readerWhenNonNull.apply(this) : valueWhenNull;
+    return this.hotRead(buf -> {
+      boolean isNonNull = buf.readBoolean();
+      return isNonNull ? readerWhenNonNull.apply(this) : valueWhenNull;
+    });
   }
 
   @Override
@@ -160,13 +165,29 @@ public class NettyImmutableDataBuf implements DataBuf {
 
   @Override
   public void release() {
-    if (this.releasable && this.byteBuf.refCnt() > 0) {
-      this.byteBuf.release(this.byteBuf.refCnt());
+    if (this.releasable) {
+      NettyUtils.safeRelease(this.byteBuf);
     }
+  }
+
+  @Override
+  public void close() {
+    this.release();
   }
 
   @Internal
   public @NotNull ByteBuf getByteBuf() {
     return this.byteBuf;
+  }
+
+  protected @NotNull <T> T hotRead(@NotNull Function<ByteBuf, T> reader) {
+    // get the result
+    T result = reader.apply(this.byteBuf);
+    // check if the reader index reached the end and try to release the message then
+    if (!this.byteBuf.isReadable()) {
+      this.release();
+    }
+    // return the read result
+    return result;
   }
 }

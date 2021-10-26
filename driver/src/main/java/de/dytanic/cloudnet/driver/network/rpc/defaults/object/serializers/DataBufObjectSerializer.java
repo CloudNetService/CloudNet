@@ -33,6 +33,8 @@ public class DataBufObjectSerializer implements ObjectSerializer<DataBuf> {
     @NotNull ObjectMapper caller
   ) {
     dataBuf.writeDataBuf(object);
+    // release the original buf
+    object.release();
   }
 
   @Override

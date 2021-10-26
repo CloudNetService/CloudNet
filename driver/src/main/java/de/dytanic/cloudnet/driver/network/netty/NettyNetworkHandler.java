@@ -40,7 +40,7 @@ public abstract class NettyNetworkHandler extends SimpleChannelInboundHandler<Pa
   protected volatile NettyNetworkChannel channel;
 
   @Override
-  public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+  public void channelInactive(@NotNull ChannelHandlerContext ctx) throws Exception {
     if (!ctx.channel().isActive() || !ctx.channel().isOpen() || !ctx.channel().isWritable()) {
       if (this.channel.getHandler() != null) {
         this.channel.getHandler().handleChannelClose(this.channel);
@@ -52,7 +52,7 @@ public abstract class NettyNetworkHandler extends SimpleChannelInboundHandler<Pa
   }
 
   @Override
-  public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
+  public void exceptionCaught(@NotNull ChannelHandlerContext ctx, @NotNull Throwable cause) {
     if (!(cause instanceof IOException)) {
       LOGGER.severe("Exception in network handler", cause);
     }
@@ -64,7 +64,7 @@ public abstract class NettyNetworkHandler extends SimpleChannelInboundHandler<Pa
   }
 
   @Override
-  protected void channelRead0(ChannelHandlerContext ctx, Packet msg) {
+  protected void channelRead0(@NotNull ChannelHandlerContext ctx, @NotNull Packet msg) {
     this.getPacketDispatcher().execute(() -> {
       try {
         UUID uuid = msg.getUniqueId();
@@ -83,12 +83,12 @@ public abstract class NettyNetworkHandler extends SimpleChannelInboundHandler<Pa
       } catch (Exception exception) {
         LOGGER.severe("Exception whilst handling packet " + msg, exception);
       } finally {
-        ((NettyImmutableDataBuf) msg.getContent()).getByteBuf().release();
+        NettyUtils.safeRelease(((NettyImmutableDataBuf) msg.getContent()).getByteBuf());
       }
     });
   }
 
-  protected abstract Collection<INetworkChannel> getChannels();
+  protected abstract @NotNull Collection<INetworkChannel> getChannels();
 
-  protected abstract Executor getPacketDispatcher();
+  protected abstract @NotNull Executor getPacketDispatcher();
 }

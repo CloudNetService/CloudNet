@@ -31,6 +31,7 @@ import io.netty.channel.epoll.EpollSocketChannel;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.util.ReferenceCounted;
 import io.netty.util.ResourceLeakDetector;
 import io.netty.util.concurrent.FastThreadLocalThread;
 import io.netty.util.internal.logging.InternalLoggerFactory;
@@ -171,6 +172,18 @@ public final class NettyUtils {
       }
     }
     throw INVALID_VAR_INT;
+  }
+
+  /**
+   * Releases the given {@link ReferenceCounted} object with a pre-check if the reference count is {@code > 0} before
+   * releasing the message.
+   *
+   * @param counted the object to safe release.
+   */
+  public static void safeRelease(@NotNull ReferenceCounted counted) {
+    if (counted.refCnt() > 0) {
+      counted.release(counted.refCnt());
+    }
   }
 
   /**
