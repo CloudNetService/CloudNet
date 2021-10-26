@@ -140,15 +140,17 @@ public final class CommandService {
   }
 
   @CommandMethod("service|ser <name>")
-  public void displayBasicServiceInfo(CommandSource source,
-    @Argument("name") Collection<ServiceInfoSnapshot> matchedServices, @Flag("full") boolean customProperties) {
+  public void displayBasicServiceInfo(
+    CommandSource source,
+    @Argument("name") Collection<ServiceInfoSnapshot> matchedServices,
+    @Flag("full") boolean customProperties
+  ) {
     for (ServiceInfoSnapshot matchedService : matchedServices) {
       ServiceInfoSnapshot updatedService = matchedService.provider().forceUpdateServiceInfo();
       this.displayServiceInfo(source, updatedService, customProperties);
     }
   }
 
-  //TODO: fix this command
   @CommandMethod("service|ser <name> start")
   public void startServices(
     CommandContext<CommandSource> context,
@@ -203,17 +205,28 @@ public final class CommandService {
     }
   }
 
+  @CommandMethod("service|ser <name> toggle")
+  public void toggleScreens(CommandSource source, @Argument("name") Collection<ServiceInfoSnapshot> matchedServices) {
+    for (ServiceInfoSnapshot matchedService : matchedServices) {
+
+    }
+  }
+
   @CommandMethod("service|ser <name> includeInclusions")
-  public void includeInclusions(CommandSource source,
-    @Argument("name") Collection<ServiceInfoSnapshot> matchedServices) {
+  public void includeInclusions(
+    CommandSource source,
+    @Argument("name") Collection<ServiceInfoSnapshot> matchedServices
+  ) {
     for (ServiceInfoSnapshot matchedService : matchedServices) {
       matchedService.provider().includeWaitingServiceInclusions();
     }
   }
 
   @CommandMethod("service|ser <name> includeTemplates")
-  public void includeTemplates(CommandSource source,
-    @Argument("name") Collection<ServiceInfoSnapshot> matchedServices) {
+  public void includeTemplates(
+    CommandSource source,
+    @Argument("name") Collection<ServiceInfoSnapshot> matchedServices
+  ) {
     for (ServiceInfoSnapshot matchedService : matchedServices) {
       matchedService.provider().includeWaitingServiceTemplates();
     }
@@ -227,16 +240,22 @@ public final class CommandService {
   }
 
   @CommandMethod("service|ser <name> command <command>")
-  public void sendCommand(CommandSource source, @Argument("name") Collection<ServiceInfoSnapshot> matchedServices,
-    @Greedy @Argument("command") String command) {
+  public void sendCommand(
+    CommandSource source,
+    @Argument("name") Collection<ServiceInfoSnapshot> matchedServices,
+    @Greedy @Argument("command") String command
+  ) {
     for (ServiceInfoSnapshot matchedService : matchedServices) {
       matchedService.provider().runCommand(command);
     }
   }
 
   @CommandMethod("service|ser <name> add deployment <deployment>")
-  public void addDeployment(CommandSource source, @Argument("name") Collection<ServiceInfoSnapshot> matchedServices,
-    @Argument("deployment") ServiceTemplate template) {
+  public void addDeployment(
+    CommandSource source,
+    @Argument("name") Collection<ServiceInfoSnapshot> matchedServices,
+    @Argument("deployment") ServiceTemplate template
+  ) {
     ServiceDeployment deployment = new ServiceDeployment(template, new ArrayList<>());
     for (ServiceInfoSnapshot matchedService : matchedServices) {
       matchedService.provider().addServiceDeployment(deployment);
@@ -244,8 +263,11 @@ public final class CommandService {
   }
 
   @CommandMethod("service|ser <name> add template <template>")
-  public void addTemplate(CommandSource source, @Argument("name") Collection<ServiceInfoSnapshot> matchedServices,
-    @Argument("template") ServiceTemplate template) {
+  public void addTemplate(
+    CommandSource source,
+    @Argument("name") Collection<ServiceInfoSnapshot> matchedServices,
+    @Argument("template") ServiceTemplate template
+  ) {
     for (ServiceInfoSnapshot matchedService : matchedServices) {
       matchedService.provider().addServiceTemplate(template);
     }
