@@ -48,15 +48,17 @@ final class ClusterNodeServerUtils {
         snapshot.setLifeCycle(ServiceLifeCycle.DELETED);
         // publish the update to the local service manager
         CloudNet.getInstance().getCloudServiceProvider().handleServiceUpdate(snapshot, null);
-        // send the change to all service - all other nodes will handle the close as well
-        targetLocalServices()
-          .message("update_service_lifecycle")
-          .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
-          .buffer(DataBuf.empty().writeObject(lifeCycle).writeObject(snapshot))
-          .build()
-          .send();
         // call the local change event
         CloudNet.getInstance().getEventManager().callEvent(new CloudServiceLifecycleChangeEvent(lifeCycle, snapshot));
+        // send the change to all service - all other nodes will handle the close as well (if there are any)
+        if (!CloudNet.getInstance().getCloudServiceProvider().getLocalCloudServices().isEmpty()) {
+          targetLocalServices()
+            .message("update_service_lifecycle")
+            .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
+            .buffer(DataBuf.empty().writeObject(lifeCycle).writeObject(snapshot))
+            .build()
+            .send();
+        }
       }
     }
 

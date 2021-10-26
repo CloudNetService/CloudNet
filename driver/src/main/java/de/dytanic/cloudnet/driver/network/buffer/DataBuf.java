@@ -23,7 +23,7 @@ import java.util.function.Function;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public interface DataBuf {
+public interface DataBuf extends AutoCloseable {
 
   /**
    * @see DataBufFactory#createEmpty()
@@ -83,6 +83,9 @@ public interface DataBuf {
 
   void release();
 
+  @Override
+  void close();
+
   interface Mutable extends DataBuf {
 
     @NotNull DataBuf.Mutable writeBoolean(boolean b);
@@ -114,7 +117,7 @@ public interface DataBuf {
     @NotNull DataBuf.Mutable writeObject(@Nullable Object obj);
 
     @NotNull <T> DataBuf.Mutable writeNullable(@Nullable T object,
-        @NotNull BiConsumer<DataBuf.Mutable, T> handlerWhenNonNull);
+      @NotNull BiConsumer<DataBuf.Mutable, T> handlerWhenNonNull);
 
     // utility for reading
 

@@ -40,64 +40,66 @@ public final class PacketClientAuthorizationListener implements IPacketListener 
   public void handle(@NotNull INetworkChannel channel, @NotNull IPacket packet) {
     // read the core data
     PacketAuthorizationType type = packet.getContent().readObject(PacketAuthorizationType.class);
-    DataBuf content = packet.getContent().readDataBuf();
-    // handle the authorization
-    switch (type) {
-      // NODE -> NODE
-      case NODE_TO_NODE: {
-        // read the required data for the node auth
-        UUID clusterId = content.readUniqueId();
-        NetworkClusterNode node = content.readObject(NetworkClusterNode.class);
-        // check if the cluster id matches
-        if (!CloudNet.getInstance().getConfig().getClusterConfig().getClusterId().equals(clusterId)) {
+    try (DataBuf content = packet.getContent().readDataBuf()) {
+      // handle the authorization
+      switch (type) {
+        // NODE -> NODE
+        case NODE_TO_NODE: {
+          // read the required data for the node auth
+          UUID clusterId = content.readUniqueId();
+          NetworkClusterNode node = content.readObject(NetworkClusterNode.class);
+          // check if the cluster id matches
+          if (!CloudNet.getInstance().getConfig().getClusterConfig().getClusterId().equals(clusterId)) {
+            break;
+          }
+          // search for the node server which represents the connected node and initialize it
+          for (IClusterNodeServer nodeServer : CloudNet.getInstance().getClusterNodeServerProvider().getNodeServers()) {
+            if (nodeServer.isAcceptableConnection(channel, node.getUniqueId())) {
+              // set up the node
+              nodeServer.setChannel(channel);
+              // add the required packet listeners
+              channel.getPacketRegistry().removeListeners(NetworkConstants.INTERNAL_AUTHORIZATION_CHANNEL);
+              NodeNetworkUtils.addDefaultPacketListeners(channel.getPacketRegistry(), CloudNet.getInstance());
+              // successful auth
+              channel.sendPacketSync(new PacketServerAuthorizationResponse(true));
+              // call the auth success event
+              CloudNet.getInstance().getEventManager().callEvent(
+                new NetworkClusterNodeAuthSuccessEvent(nodeServer, channel));
+              // do not search for more nodes
+              return;
+            }
+          }
           break;
         }
-        // search for the node server which represents the connected node and initialize it
-        for (IClusterNodeServer nodeServer : CloudNet.getInstance().getClusterNodeServerProvider().getNodeServers()) {
-          if (nodeServer.isAcceptableConnection(channel, node.getUniqueId())) {
-            // set up the node
-            nodeServer.setChannel(channel);
+        // WRAPPER -> NODE
+        case WRAPPER_TO_NODE: {
+          // read the required data for the wrapper auth
+          String connectionKey = content.readString();
+          ServiceId id = content.readObject(ServiceId.class);
+          // get the cloud service associated with the service id
+          ICloudService service = CloudNet.getInstance().getCloudServiceProvider()
+            .getLocalCloudService(id.getUniqueId());
+          // we can only accept the connection if the service is present, and the connection key is correct
+          if (service != null && service.getConnectionKey().equals(connectionKey)) {
+            // update the cloud service
+            service.setNetworkChannel(channel);
+            // send the update to the network
+            service.publishServiceInfoSnapshot();
             // add the required packet listeners
             channel.getPacketRegistry().removeListeners(NetworkConstants.INTERNAL_AUTHORIZATION_CHANNEL);
             NodeNetworkUtils.addDefaultPacketListeners(channel.getPacketRegistry(), CloudNet.getInstance());
             // successful auth
-            channel.sendPacketSync(new PacketServerAuthorizationResponse(true));
+            channel.sendPacket(new PacketServerAuthorizationResponse(true));
             // call the auth success event
-            CloudNet.getInstance().getEventManager().callEvent(
-              new NetworkClusterNodeAuthSuccessEvent(nodeServer, channel));
-            // do not search for more nodes
+            CloudNet.getInstance().getEventManager().callEvent(new NetworkServiceAuthSuccessEvent(service, channel));
+            // do not search for other services
             return;
           }
+          break;
         }
-        break;
+        default:
+          break;
       }
-      // WRAPPER -> NODE
-      case WRAPPER_TO_NODE: {
-        // read the required data for the wrapper auth
-        String connectionKey = content.readString();
-        ServiceId id = content.readObject(ServiceId.class);
-        // get the cloud service associated with the service id
-        ICloudService service = CloudNet.getInstance().getCloudServiceProvider().getLocalCloudService(id.getUniqueId());
-        // we can only accept the connection if the service is present, and the connection key is correct
-        if (service != null && service.getConnectionKey().equals(connectionKey)) {
-          // update the cloud service
-          service.setNetworkChannel(channel);
-          // send the update to the network
-          service.publishServiceInfoSnapshot();
-          // add the required packet listeners
-          channel.getPacketRegistry().removeListeners(NetworkConstants.INTERNAL_AUTHORIZATION_CHANNEL);
-          NodeNetworkUtils.addDefaultPacketListeners(channel.getPacketRegistry(), CloudNet.getInstance());
-          // successful auth
-          channel.sendPacket(new PacketServerAuthorizationResponse(true));
-          // call the auth success event
-          CloudNet.getInstance().getEventManager().callEvent(new NetworkServiceAuthSuccessEvent(service, channel));
-          // do not search for other services
-          return;
-        }
-        break;
-      }
-      default:
-        break;
     }
     // auth not successful
     channel.sendPacketSync(new PacketServerAuthorizationResponse(false));

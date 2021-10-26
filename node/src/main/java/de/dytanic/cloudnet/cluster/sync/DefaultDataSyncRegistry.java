@@ -116,11 +116,10 @@ public class DefaultDataSyncRegistry implements DataSyncRegistry {
     while (input.getReadableBytes() > 0) {
       // The data information
       String key = input.readString();
-      DataBuf syncData = input.readDataBuf();
-      // get the associated handler with the buf
-      DataSyncHandler<?> handler = this.handlers.get(key);
-      if (handler != null) {
-        try {
+      try (DataBuf syncData = input.readDataBuf()) {
+        // get the associated handler with the buf
+        DataSyncHandler<?> handler = this.handlers.get(key);
+        if (handler != null) {
           // read the synced data
           Object data = handler.getConverter().parse(syncData);
           Object current = handler.getCurrent(data);
@@ -173,13 +172,15 @@ public class DefaultDataSyncRegistry implements DataSyncRegistry {
           }
           // continue reading
           continue;
-        } catch (Exception exception) {
-          LOGGER.severe("Exception reading data for key %s while syncing", null, key);
         }
+      } catch (Exception exception) {
+        LOGGER.severe("Exception reading data for key %s while syncing", null, key);
       }
       // no handler for the result
       LOGGER.fine("No handler for key %s to sync data", null, key);
     }
+    // try to release the input buf
+    input.release();
     // return the created result
     return result == null ? force ? null : DataBuf.empty().writeBoolean(false) : result;
   }
