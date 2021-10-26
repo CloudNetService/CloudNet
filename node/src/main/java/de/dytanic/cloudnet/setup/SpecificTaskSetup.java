@@ -123,8 +123,6 @@ public class SpecificTaskSetup extends DefaultTaskSetup implements DefaultSetup 
           .parser(serviceVersion()))
         .build()
     );
-
-    //TODO: npc and sign module append questions
   }
 
   @Override
