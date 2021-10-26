@@ -52,7 +52,6 @@ import java.util.stream.Collectors;
 import javax.management.MBeanServer;
 import org.jetbrains.annotations.Nullable;
 
-//TODO: more kinds of pastes, e.g. all
 @CommandAlias("paste")
 @CommandPermission("cloudnet.command.paste")
 @Description("Upload cloud specific data to a paste service")

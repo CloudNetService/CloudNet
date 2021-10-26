@@ -16,6 +16,7 @@
 
 package de.dytanic.cloudnet.command.exception;
 
+import cloud.commandframework.arguments.CommandArgument;
 import cloud.commandframework.exceptions.ArgumentParseException;
 import cloud.commandframework.exceptions.InvalidCommandSenderException;
 import cloud.commandframework.exceptions.InvalidSyntaxException;
@@ -28,13 +29,18 @@ import de.dytanic.cloudnet.command.source.ConsoleCommandSource;
 import de.dytanic.cloudnet.common.language.I18n;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
+import de.dytanic.cloudnet.driver.command.CommandInfo;
 import de.dytanic.cloudnet.event.command.CommandInvalidSyntaxEvent;
 import de.dytanic.cloudnet.event.command.CommandNotFoundEvent;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CompletionException;
+import java.util.stream.Collectors;
+import org.jetbrains.annotations.NotNull;
 
 public class CommandExceptionHandler {
 
-  private static final Logger LOGGER = LogManager.getLogger(CommandExceptionHandler.class);
+  protected static final Logger LOGGER = LogManager.getLogger(CommandExceptionHandler.class);
 
   private final DefaultCommandProvider commandProvider;
 
@@ -42,6 +48,13 @@ public class CommandExceptionHandler {
     this.commandProvider = commandProvider;
   }
 
+  /**
+   * Handles occurring exceptions when executing a command and joining the result of the future. All relevant exceptions
+   * are handled, other exceptions are printed into the console.
+   *
+   * @param source    the source of the command.
+   * @param exception the exception that occurred during the execution.
+   */
   public void handleCompletionException(CommandSource source, CompletionException exception) {
     Throwable cause = exception.getCause();
     // the completable future wraps exceptions, so this shouldn't be null
@@ -69,16 +82,16 @@ public class CommandExceptionHandler {
     }
   }
 
-  public void handleArgumentParseException(CommandSource source, ArgumentParseException exception) {
+  protected void handleArgumentParseException(CommandSource source, ArgumentParseException exception) {
     source.sendMessage(exception.getMessage());
   }
 
-  public void handleArgumentNotAvailableException(CommandSource source, ArgumentNotAvailableException exception) {
+  protected void handleArgumentNotAvailableException(CommandSource source, ArgumentNotAvailableException exception) {
     source.sendMessage(exception.getMessage());
   }
 
-  public void handleInvalidSyntaxException(CommandSource source, InvalidSyntaxException exception) {
-    if (this.commandProvider.replyWithCommandHelp(source, exception.getCurrentChain())) {
+  protected void handleInvalidSyntaxException(CommandSource source, InvalidSyntaxException exception) {
+    if (this.replyWithCommandHelp(source, exception.getCurrentChain())) {
       return;
     }
 
@@ -93,7 +106,7 @@ public class CommandExceptionHandler {
     source.sendMessage(invalidSyntaxEvent.getResponse());
   }
 
-  public void handleNoSuchCommandException(CommandSource source, NoSuchCommandException exception) {
+  protected void handleNoSuchCommandException(CommandSource source, NoSuchCommandException exception) {
     CommandNotFoundEvent notFoundEvent = CloudNet.getInstance().getEventManager().callEvent(
       new CommandNotFoundEvent(
         source,
@@ -104,15 +117,74 @@ public class CommandExceptionHandler {
     source.sendMessage(notFoundEvent.getResponse());
   }
 
-  public void handleNoPermissionException(CommandSource source, NoPermissionException exception) {
+  protected void handleNoPermissionException(CommandSource source, NoPermissionException exception) {
     source.sendMessage(I18n.trans("command-sub-no-permission"));
   }
 
-  public void handleInvalidCommandSourceException(CommandSource source, InvalidCommandSenderException exception) {
+  protected void handleInvalidCommandSourceException(CommandSource source, InvalidCommandSenderException exception) {
     if (exception.getRequiredSender() == ConsoleCommandSource.class) {
       source.sendMessage(I18n.trans("command-console-only"));
     } else {
       source.sendMessage(I18n.trans("command-driver-only"));
+    }
+  }
+
+  /**
+   * Checks if the cloud itself can handle the help reply
+   *
+   * @param source       the source of the command
+   * @param currentChain the current chain of entered commands
+   * @return whether the cloud can handle the input or not
+   */
+  protected boolean replyWithCommandHelp(
+    @NotNull CommandSource source,
+    @NotNull List<CommandArgument<?, ?>> currentChain
+  ) {
+    if (currentChain.isEmpty()) {
+      // the command chain is empty, let the user handle the response
+      return false;
+    }
+    String root = currentChain.get(0).getName();
+    CommandInfo commandInfo = this.commandProvider.getCommand(root);
+    if (commandInfo == null) {
+      // we can't find a matching command, let the user handle the response
+      return false;
+    }
+    // if the chain length is 1 we can just print usage for every sub command
+    if (currentChain.size() == 1) {
+      this.printDefaultUsage(source, commandInfo);
+    } else {
+      List<String> results = new ArrayList<>();
+      // rebuild the input of the user
+      String commandChain = currentChain.stream().map(CommandArgument::getName).collect(Collectors.joining(" "));
+      // check if we can find any chain specific usages
+      for (String usage : commandInfo.getUsage()) {
+        if (usage.startsWith(commandChain)) {
+          results.add("- " + usage);
+        }
+      }
+
+      if (results.isEmpty()) {
+        // no results found, just print the default usages
+        this.printDefaultUsage(source, commandInfo);
+      } else {
+        // we have chain specific results
+        source.sendMessage(results);
+      }
+    }
+
+    return true;
+  }
+
+  /**
+   * Formats and prints the command usage of the given CommandInfo
+   *
+   * @param source      the source to send the usages to
+   * @param commandInfo the command to print the usage for
+   */
+  protected void printDefaultUsage(@NotNull CommandSource source, @NotNull CommandInfo commandInfo) {
+    for (String usage : commandInfo.getUsage()) {
+      source.sendMessage("- " + usage);
     }
   }
 }

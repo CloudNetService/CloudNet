@@ -34,7 +34,9 @@ import java.util.List;
 @Description("Displays all important information about this process and the JVM")
 public final class CommandMe {
 
-  //TODO klaro du willst hier komische java sachen anzeigen
+  private static final String VM_VERSION = System.getProperty("java.vm.version");
+  private static final String VM_NAME = System.getProperty("java.vm.name");
+
   @CommandMethod("me|info")
   public void me(CommandSource commandSource) {
     CloudNet cloudNet = CloudNet.getInstance();
@@ -59,6 +61,7 @@ public final class CommandMe {
       "Threads: " + Thread.getAllStackTraces().keySet().size(),
       "Heap usage: " + (memoryMXBean.getHeapMemoryUsage().getUsed() / (1024 * 1024)) + "/" + (
         memoryMXBean.getHeapMemoryUsage().getMax() / (1024 * 1024)) + "MB",
+      "JVM: " + VM_NAME + " " + VM_VERSION,
       " "
     );
     commandSource.sendMessage(messages);

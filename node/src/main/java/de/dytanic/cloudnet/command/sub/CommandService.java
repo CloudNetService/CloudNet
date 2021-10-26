@@ -107,19 +107,7 @@ public final class CommandService {
       .sorted()
       .collect(Collectors.toList());
 
-    //TODO: think about this
-    /*ServiceListCommandEvent event = CloudNet.getInstance().getEventManager()
-      .callEvent(new ServiceListCommandEvent(services));*/
     for (ServiceInfoSnapshot serviceInfoSnapshot : services) {
-      /* String extension = event.getAdditionalParameters()
-        .stream()
-        .map(function -> function.apply(serviceInfoSnapshot))
-        .filter(Objects::nonNull)
-        .collect(Collectors.joining(" | "));
-      if (!extension.isEmpty()) {
-        extension = " | " + extension;
-      }*/
-
       if (useNamesOnly) {
         source.sendMessage(
           serviceInfoSnapshot.getServiceId().getName() + " | " + serviceInfoSnapshot.getServiceId().getUniqueId());
@@ -131,12 +119,8 @@ public final class CommandService {
         );
       }
     }
-    StringBuilder builder = new StringBuilder(
-      String.format("=> Showing %d service(s)", services.size()));
-    /* for (String parameter : event.getAdditionalSummary()) {
-      builder.append("; ").append(parameter);
-    }*/
-    source.sendMessage(builder.toString());
+
+    source.sendMessage(String.format("=> Showing %d service(s)", services.size()));
   }
 
   @CommandMethod("service|ser <name>")

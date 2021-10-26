@@ -48,7 +48,6 @@ public final class CloudNetReportModule extends DriverModule {
 
   private static CloudNetReportModule instance;
   private ReportConfiguration reportConfiguration;
-  //TODO: maybe give access to this to api users
   private EmitterRegistry registry;
   private Path currentRecordDirectory;
 

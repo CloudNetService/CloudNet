@@ -62,11 +62,12 @@ import java.util.UUID;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * The default implementation of the {@link CommandProvider} for the cloud command framework.
+ */
 public class DefaultCommandProvider implements CommandProvider {
 
   private static final Key<Collection<String>> ALIAS_KEY = Key.of(new TypeToken<Collection<String>>() {
@@ -100,11 +101,17 @@ public class DefaultCommandProvider implements CommandProvider {
     this.exceptionHandler = new CommandExceptionHandler(this);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NotNull List<String> suggest(@NotNull CommandSource source, @NotNull String input) {
     return this.commandManager.suggest(source, input);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void execute(@NotNull CommandSource source, @NotNull String input) {
     try {
@@ -115,6 +122,9 @@ public class DefaultCommandProvider implements CommandProvider {
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void register(@NotNull Object command) {
     Iterator<Command<CommandSource>> cloudCommands = this.annotationParser.parse(command).iterator();
@@ -138,11 +148,17 @@ public class DefaultCommandProvider implements CommandProvider {
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void unregister(@NotNull ClassLoader classLoader) {
     this.registeredCommands.removeAll(classLoader);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void registerConsoleHandler(@NotNull IConsole console) {
     // command handling
@@ -166,6 +182,9 @@ public class DefaultCommandProvider implements CommandProvider {
     });
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void registerDefaultCommands() {
     this.register(new CommandTemplate());
@@ -185,22 +204,31 @@ public class DefaultCommandProvider implements CommandProvider {
     this.register(new CommandHelp(this));
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @Nullable CommandInfo getCommand(@NotNull String name) {
     String lowerCaseInput = name.toLowerCase();
     return this.registeredCommands.values().stream()
-      .filter(commandInfo -> commandInfo.getAliases().contains(lowerCaseInput) || commandInfo.getName()
-        .equals(lowerCaseInput))
+      .filter(commandInfo ->
+        commandInfo.getAliases().contains(lowerCaseInput) || commandInfo.getName().equals(lowerCaseInput))
       .findFirst()
       .orElse(null);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NotNull Collection<CommandInfo> getCommands() {
     return Collections.unmodifiableCollection(this.registeredCommands.values());
   }
 
-  private void registerCommandConfirmation() {
+  /**
+   * Registers the default confirmation handling for commands, that need a confirmation before they are executed.
+   */
+  protected void registerCommandConfirmation() {
     // create a new confirmation manager
     CommandConfirmationManager<CommandSource> confirmationManager = new CommandConfirmationManager<>(
       30L,
@@ -216,7 +244,13 @@ public class DefaultCommandProvider implements CommandProvider {
       .handler(confirmationManager.createConfirmationExecutionHandler()));
   }
 
-  private @NotNull List<String> getCommandUsageByRoot(@NotNull String root) {
+  /**
+   * Parses the command usage by the given root command.
+   *
+   * @param root the command to parse the usage for.
+   * @return the formatted and sorted usages for the command root.
+   */
+  protected @NotNull List<String> getCommandUsageByRoot(@NotNull String root) {
     List<String> commandUsage = new ArrayList<>();
     for (Command<CommandSource> command : this.commandManager.getCommands()) {
       List<CommandArgument<CommandSource, ?>> arguments = command.getArguments();
@@ -230,50 +264,5 @@ public class DefaultCommandProvider implements CommandProvider {
 
     Collections.sort(commandUsage);
     return commandUsage;
-  }
-
-  @Internal
-  public boolean replyWithCommandHelp(@NotNull CommandSource source,
-    @NotNull List<CommandArgument<?, ?>> currentChain) {
-    if (currentChain.isEmpty()) {
-      // the command chain is empty, let the user handle the response
-      return false;
-    }
-    String root = currentChain.get(0).getName();
-    CommandInfo commandInfo = this.getCommand(root);
-    if (commandInfo == null) {
-      // we can't find a matching command, let the user handle the response
-      return false;
-    }
-    // if the chain length is 1 we can just print usage for every sub command
-    if (currentChain.size() == 1) {
-      this.printDefaultUsage(source, commandInfo);
-    } else {
-      List<String> results = new ArrayList<>();
-      // rebuild the input of the user
-      String commandChain = currentChain.stream().map(CommandArgument::getName).collect(Collectors.joining(" "));
-      // check if we can find any chain specific usages
-      for (String usage : commandInfo.getUsage()) {
-        if (usage.startsWith(commandChain)) {
-          results.add("- " + usage);
-        }
-      }
-
-      if (results.isEmpty()) {
-        // no results found, just print the default usages
-        this.printDefaultUsage(source, commandInfo);
-      } else {
-        // we have chain specific results
-        source.sendMessage(results);
-      }
-    }
-
-    return true;
-  }
-
-  private void printDefaultUsage(@NotNull CommandSource source, @NotNull CommandInfo commandInfo) {
-    for (String usage : commandInfo.getUsage()) {
-      source.sendMessage("- " + usage);
-    }
   }
 }
