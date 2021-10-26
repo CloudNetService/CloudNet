@@ -20,7 +20,9 @@ import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
+import de.dytanic.cloudnet.event.service.CloudServiceCrashEvent;
 import de.dytanic.cloudnet.event.service.CloudServicePreLifecycleEvent;
+import de.dytanic.cloudnet.service.ICloudService;
 import de.dytanic.cloudnet.service.IServiceConsoleLogCache;
 import eu.cloudnetservice.cloudnet.ext.report.CloudNetReportModule;
 import eu.cloudnetservice.cloudnet.ext.report.config.ReportConfiguration;
@@ -36,7 +38,7 @@ public final class RecordReportListener {
   }
 
   @EventListener
-  public void handlePreStop(CloudServicePreLifecycleEvent event) {
+  public void handleServicePreStop(CloudServicePreLifecycleEvent event) {
     // we just want to handle the stop lifecycle
     if (event.getTargetLifecycle() != ServiceLifeCycle.STOPPED) {
       return;
@@ -60,7 +62,17 @@ public final class RecordReportListener {
   }
 
   @EventListener
-  public void handlePreDelete(CloudServicePreLifecycleEvent event) {
+  public void handleServiceCrash(CloudServiceCrashEvent event) {
+    // check if the user disabled records
+    if (!this.reportModule.getReportConfiguration().isSaveRecords()) {
+      return;
+    }
+    // we have to create the record
+    this.createRecord(event.getService());
+  }
+
+  @EventListener
+  public void handleServicePreDelete(CloudServicePreLifecycleEvent event) {
     // we just handle the deleted lifecycle
     if (event.getTargetLifecycle() != ServiceLifeCycle.DELETED
       && event.getTargetLifecycle() != ServiceLifeCycle.STOPPED) {
@@ -70,9 +82,17 @@ public final class RecordReportListener {
     if (!this.reportModule.getReportConfiguration().isSaveRecords()) {
       return;
     }
+    // check if the user only wants to save reports for crashed services
+    if (this.reportModule.getReportConfiguration().isSaveOnCrashOnly()) {
+      return;
+    }
+    // create the record
+    this.createRecord(event.getService());
+  }
+
+  private void createRecord(ICloudService cloudService) {
     // we need to check and create the record directory as it's time based.
-    Record recordCreator = Record.forService(this.reportModule.getCurrentRecordDirectory(),
-      event.getService());
+    Record recordCreator = Record.forService(this.reportModule.getCurrentRecordDirectory(), cloudService);
     // unable to create records as the directory already exists
     if (recordCreator == null) {
       return;

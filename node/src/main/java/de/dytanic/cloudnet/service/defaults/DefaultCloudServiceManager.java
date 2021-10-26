@@ -36,6 +36,7 @@ import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
 import de.dytanic.cloudnet.driver.service.ServiceTask;
+import de.dytanic.cloudnet.event.service.CloudServiceCrashEvent;
 import de.dytanic.cloudnet.service.ICloudService;
 import de.dytanic.cloudnet.service.ICloudServiceFactory;
 import de.dytanic.cloudnet.service.ICloudServiceManager;
@@ -126,6 +127,7 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
             service.getServiceConsoleLogCache().update();
             LOGGER.fine("Updated service log cache of %s", null, service.getServiceId().getName());
           } else {
+            nodeInstance.getEventManager().callEvent(new CloudServiceCrashEvent(service));
             service.stop();
             LOGGER.fine("Stopped dead service %s", null, service.getServiceId().getName());
           }

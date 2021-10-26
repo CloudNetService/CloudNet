@@ -28,6 +28,7 @@ public class ReportConfiguration {
 
   public static final ReportConfiguration DEFAULT = new ReportConfiguration(
     true,
+    false,
     Paths.get("records"),
     5000L,
     "yyyy-MM-dd",
@@ -35,6 +36,7 @@ public class ReportConfiguration {
   );
 
   private final boolean saveRecords;
+  private final boolean saveOnCrashOnly;
   private final Path recordDestination;
   private final long serviceLifetime;
   private final String dateFormat;
@@ -43,12 +45,13 @@ public class ReportConfiguration {
 
   public ReportConfiguration(
     boolean saveRecords,
-    @NotNull Path recordDestination,
+    boolean saveOnCrashOnly, @NotNull Path recordDestination,
     long serviceLifetime,
     @NotNull String dateFormat,
     @NotNull List<PasteService> pasteServers
   ) {
     this.saveRecords = saveRecords;
+    this.saveOnCrashOnly = saveOnCrashOnly;
     this.recordDestination = recordDestination;
     this.serviceLifetime = serviceLifetime;
     this.dateFormat = dateFormat;
@@ -57,6 +60,10 @@ public class ReportConfiguration {
 
   public boolean isSaveRecords() {
     return this.saveRecords;
+  }
+
+  public boolean isSaveOnCrashOnly() {
+    return this.saveOnCrashOnly;
   }
 
   public @NotNull Path getRecordDestination() {

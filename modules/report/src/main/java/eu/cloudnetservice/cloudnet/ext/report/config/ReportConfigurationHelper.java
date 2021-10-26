@@ -66,7 +66,7 @@ public final class ReportConfigurationHelper {
     // since early 3.5 a custom date format is supported, migrate this too
     String dateFormat = document.getString("dateFormat", "yyyy-MM-dd");
 
-    return new ReportConfiguration(saveRecords, recordDestination, serviceLifetime, dateFormat, pasteServices);
+    return new ReportConfiguration(saveRecords, false, recordDestination, serviceLifetime, dateFormat, pasteServices);
   }
 
 }
