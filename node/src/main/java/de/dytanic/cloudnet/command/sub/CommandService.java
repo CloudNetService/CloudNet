@@ -45,10 +45,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -86,19 +84,11 @@ public final class CommandService {
     String name = input.remove();
     Collection<ServiceInfoSnapshot> knownServices = CloudNet.getInstance().getCloudServiceProvider().getCloudServices();
     Collection<ServiceInfoSnapshot> matchedServices = WildcardUtil.filterWildcard(knownServices, name);
-    if (matchedServices.isEmpty()) {
+    if (matchedServices.isEmpty() && (input.isEmpty() && !input.remove().equalsIgnoreCase("start"))) {
       throw new ArgumentNotAvailableException(I18n.trans("command-service-service-not-found"));
     }
 
     return matchedServices;
-  }
-
-  @Parser(name = "staticWildcard")
-  public Collection<ServiceInfoSnapshot> staticWildcardServiceParser(CommandContext<CommandSource> $,
-    Queue<String> input) {
-    String name = input.remove();
-    Collection<ServiceInfoSnapshot> knownServices = CloudNet.getInstance().getCloudServiceProvider().getCloudServices();
-    return WildcardUtil.filterWildcard(knownServices, name);
   }
 
   @CommandMethod("service|ser list|l")
@@ -160,26 +150,26 @@ public final class CommandService {
 
   //TODO: fix this command
   @CommandMethod("service|ser <name> start")
-  public void startServices(CommandSource source, @Argument(value = "name") String serviceName) {
-
-    Collection<ServiceInfoSnapshot> matchedServices = this.staticWildcardServiceParser(
-      null, new ConcurrentLinkedQueue<>(Collections.singletonList(serviceName)));
+  public void startServices(
+    CommandContext<CommandSource> context,
+    CommandSource source,
+    @Argument("name") Collection<ServiceInfoSnapshot> matchedServices
+  ) {
+    String serviceName = context.getRawInput().get(1);
     // there may be a static service with that name, but as it can be started even if it's not prepared we need to check
-    if (matchedServices.isEmpty()) {
-      Matcher nameMatcher = SERVICE_NAME_PATTERN.matcher(serviceName);
-      String taskName = nameMatcher.group(1);
-      Integer id = Ints.tryParse(nameMatcher.group(2));
+    Matcher nameMatcher = SERVICE_NAME_PATTERN.matcher(serviceName);
+    String taskName = nameMatcher.group(1);
+    Integer id = Ints.tryParse(nameMatcher.group(2));
 
-      if (id != null) {
-        ServiceTask serviceTask = CloudNet.getInstance().getServiceTaskProvider().getServiceTask(taskName);
-        if (serviceTask != null) {
-          ServiceInfoSnapshot service = ServiceConfiguration.builder(serviceTask)
-            .taskId(id)
-            .build().createNewService();
+    if (id != null) {
+      ServiceTask serviceTask = CloudNet.getInstance().getServiceTaskProvider().getServiceTask(taskName);
+      if (serviceTask != null) {
+        ServiceInfoSnapshot service = ServiceConfiguration.builder(serviceTask)
+          .taskId(id)
+          .build().createNewService();
 
-          if (service != null) {
-            matchedServices.add(service);
-          }
+        if (service != null) {
+          matchedServices.add(service);
         }
       }
     }
