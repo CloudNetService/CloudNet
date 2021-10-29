@@ -461,7 +461,8 @@ public abstract class AbstractService implements ICloudService {
           ? path.getFileName().toString() + '/'
           : path.getFileName().toString();
         // check if the file is ignored
-        return !deployment.getExcludes().contains(fileName) && !DEFAULT_DEPLOYMENT_EXCLUSIONS.contains(fileName);
+        return deployment.getExcludes().stream().noneMatch(pattern -> fileName.matches(pattern.replace("*", "(.*)")))
+          && !DEFAULT_DEPLOYMENT_EXCLUSIONS.contains(fileName);
       });
     }
   }
