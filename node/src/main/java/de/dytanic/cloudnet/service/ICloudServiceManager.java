@@ -96,5 +96,5 @@ public interface ICloudServiceManager extends GeneralCloudServiceProvider {
   @NotNull ICloudService createLocalCloudService(@NotNull ServiceConfiguration serviceConfiguration);
 
   @Internal
-  @NotNull SpecificCloudServiceProvider startService(@NotNull ServiceTask task);
+  @NotNull SpecificCloudServiceProvider selectOrCreateService(@NotNull ServiceTask task);
 }

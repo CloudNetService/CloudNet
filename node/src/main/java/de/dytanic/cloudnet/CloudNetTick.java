@@ -155,7 +155,7 @@ public final class CloudNetTick {
           .count();
         // check if we need to start a service
         if (task.getMinServiceCount() > runningServiceCount) {
-          this.cloudNet.getCloudServiceProvider().startService(task).start();
+          this.cloudNet.getCloudServiceProvider().selectOrCreateService(task).start();
         }
       }
     }
