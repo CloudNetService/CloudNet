@@ -18,7 +18,6 @@ package de.dytanic.cloudnet.driver.service;
 
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -124,8 +123,7 @@ public enum ServiceEnvironmentType {
   }
 
   public @NotNull String getClasspath(@NotNull Path wrapperFile, @Nullable Path applicationFile) {
-    return wrapperFile.toAbsolutePath() + File.pathSeparator + (applicationFile == null ? ""
-      : applicationFile.toAbsolutePath());
+    return wrapperFile.toAbsolutePath().toString();
   }
 
   public @NotNull Collection<String> getProcessArguments() {

@@ -46,4 +46,7 @@ dependencies {
   "compileOnly"(project(":cloudnet-wrapper-jvm:minecraft-launchwrapper-api"))
 }
 
-applyJarMetadata("de.dytanic.cloudnet.wrapper.Main", "eu.cloudnetservice.wrapper")
+applyJarMetadata(
+  "de.dytanic.cloudnet.wrapper.Main",
+  "eu.cloudnetservice.wrapper",
+  "de.dytanic.cloudnet.wrapper.Premain")
