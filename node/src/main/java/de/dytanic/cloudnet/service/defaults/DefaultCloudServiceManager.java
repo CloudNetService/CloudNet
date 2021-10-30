@@ -387,7 +387,7 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
   }
 
   @Override
-  public @NotNull SpecificCloudServiceProvider startService(@NotNull ServiceTask task) {
+  public @NotNull SpecificCloudServiceProvider selectOrCreateService(@NotNull ServiceTask task) {
     // get all services of the given task, map it to its node unique id
     Pair<ServiceInfoSnapshot, IClusterNodeServer> prepared = this.getCloudServicesByTask(task.getName())
       .stream()
@@ -428,10 +428,7 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
       }).orElse(null);
     // check if we found a prepared service
     if (prepared != null) {
-      // start the service
-      SpecificCloudServiceProvider provider = prepared.getFirst().provider();
-      provider.start();
-      return provider;
+      return prepared.getFirst().provider();
     } else {
       // create a new service
       ServiceInfoSnapshot service = CloudNet.getInstance()

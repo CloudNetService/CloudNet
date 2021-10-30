@@ -42,6 +42,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.jar.Attributes;
 import java.util.jar.JarInputStream;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -76,16 +77,23 @@ public class JVMService extends AbstractService {
   protected void startProcess() {
     ServiceEnvironmentType environmentType = this.getServiceConfiguration().getProcessConfig().getEnvironment();
     // load the wrapper information if possible
-    Pair<Path, String> wrapperInformation = this.prepareWrapperFile();
+    Pair<Path, Attributes> wrapperInformation = this.prepareWrapperFile();
     if (wrapperInformation == null) {
       LOGGER.severe("Unable to load wrapper information for service startup");
       return;
     }
     // load the application file information if possible
-    Pair<Path, String> applicationInformation = this.prepareApplicationFile(environmentType);
+    Pair<Path, Attributes> applicationInformation = this.prepareApplicationFile(environmentType);
     if (applicationInformation == null) {
       LOGGER.severe("Unable to load application information for service startup");
       return;
+    }
+
+    // get the agent class of the application (if any)
+    String agentClass = applicationInformation.getSecond().getValue("Premain-Class");
+    if (agentClass == null) {
+      // some old versions named the agent class 'Launcher-Agent-Class' - try that
+      agentClass = applicationInformation.getSecond().getValue("Launcher-Agent-Class");
     }
 
     // prepare the service startup
@@ -101,16 +109,20 @@ public class JVMService extends AbstractService {
 
     // override some default configuration options
     arguments.addAll(DEFAULT_JVM_SYSTEM_PROPERTIES);
+    arguments.add("-javaagent:" + wrapperInformation.getFirst().toAbsolutePath());
     arguments.add("-Dcloudnet.wrapper.messages.language=" + I18n.getLanguage());
 
     // add the class path and the main class of the wrapper
     arguments.add("-cp");
     arguments.add(environmentType.getClasspath(wrapperInformation.getFirst(), applicationInformation.getFirst()));
-    arguments.add(wrapperInformation.getSecond()); // the main class we want to invoke first
+    arguments.add(wrapperInformation.getSecond().getValue("Main-Class")); // the main class we want to invoke first
+
+    // add all internal process parameters (they will be removed by the wrapper before starting the application)
+    arguments.add(applicationInformation.getSecond().getValue("Main-Class"));
+    arguments.add(String.valueOf(agentClass)); // the agent class might be null
+    arguments.add(applicationInformation.getFirst().toAbsolutePath().toString());
 
     // add all process parameters
-    arguments.add(
-      applicationInformation.getSecond()); // the application class for the wrapper to invoke the main method in there
     arguments.addAll(environmentType.getProcessArguments());
     arguments.addAll(this.getServiceConfiguration().getProcessConfig().getProcessParameters());
 
@@ -171,7 +183,7 @@ public class JVMService extends AbstractService {
     return this.process != null && this.process.isAlive();
   }
 
-  protected @Nullable Pair<Path, String> prepareWrapperFile() {
+  protected @Nullable Pair<Path, Attributes> prepareWrapperFile() {
     // check if the wrapper file is there - unpack it if not
     if (Files.notExists(WRAPPER_TEMP_FILE)) {
       FileUtils.createDirectory(WRAPPER_TEMP_FILE.getParent());
@@ -187,10 +199,10 @@ public class JVMService extends AbstractService {
       }
     }
     // read the main class
-    return this.readMainClassFromManifest(WRAPPER_TEMP_FILE);
+    return this.completeJarAttributeInformation(WRAPPER_TEMP_FILE);
   }
 
-  protected @Nullable Pair<Path, String> prepareApplicationFile(@NotNull ServiceEnvironmentType environmentType) {
+  protected @Nullable Pair<Path, Attributes> prepareApplicationFile(@NotNull ServiceEnvironmentType environmentType) {
     // collect all names of environment names
     String[] environments = Arrays.stream(environmentType.getEnvironments())
       .map(ServiceEnvironment::getName)
@@ -233,7 +245,7 @@ public class JVMService extends AbstractService {
           Integer rightNumber = Ints.tryParse(rightMatcher.group(1));
           // compare both of the numbers
           return leftNumber == null || rightNumber == null ? 0 : Integer.compare(leftNumber, rightNumber);
-        }).map(this::readMainClassFromManifest).orElse(null);
+        }).map(this::completeJarAttributeInformation).orElse(null);
     } catch (IOException exception) {
       LOGGER.severe("Unable to find application file information in %s for environment %s",
         exception,
@@ -243,10 +255,10 @@ public class JVMService extends AbstractService {
     }
   }
 
-  protected @Nullable Pair<Path, String> readMainClassFromManifest(@NotNull Path jarFilePath) {
+  protected @Nullable Pair<Path, Attributes> completeJarAttributeInformation(@NotNull Path jarFilePath) {
     // open the file and lookup the main class
     try (JarInputStream stream = new JarInputStream(Files.newInputStream(jarFilePath))) {
-      return new Pair<>(jarFilePath, stream.getManifest().getMainAttributes().getValue("Main-Class"));
+      return new Pair<>(jarFilePath, stream.getManifest().getMainAttributes());
     } catch (IOException exception) {
       LOGGER.severe("Unable to open wrapper file at %s for reading: ", exception, jarFilePath);
       return null;

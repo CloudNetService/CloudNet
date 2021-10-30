@@ -43,7 +43,7 @@
         },
         {
           "name": "1.16.5",
-          "url": "https://papermc.io/api/v2/projects/paper/versions/1.16.5/builds/778/downloads/paper-1.16.5-778.jar",
+          "url": "https://papermc.io/api/v2/projects/paper/versions/1.16.5/builds/790/downloads/paper-1.16.5-790.jar",
           "properties": {
             "copy": {
               "cache/patched.*\\.jar": "paper.jar"

@@ -30,6 +30,10 @@ import java.net.HttpURLConnection
 import java.net.URL
 
 fun Project.applyJarMetadata(mainClass: String, module: String) {
+  applyJarMetadata(mainClass, module, null)
+}
+
+fun Project.applyJarMetadata(mainClass: String, module: String, preMain: String?) {
   if ("jar" in tasks.names) {
     tasks.named<Jar>("jar") {
       manifest.attributes(
@@ -38,6 +42,10 @@ fun Project.applyJarMetadata(mainClass: String, module: String) {
         "Implementation-Vendor" to "CloudNetService",
         "Implementation-Title" to Versions.cloudNetCodeName,
         "Implementation-Version" to project.version.toString() + "-${shortCommitHash()}")
+      // apply the pre-main class if given
+      if (preMain != null) {
+        manifest.attributes("Premain-Class" to preMain)
+      }
       // apply git information to manifest
       git()?.applyVcsInformationToManifest(manifest)
     }
