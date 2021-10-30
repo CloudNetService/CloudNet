@@ -33,7 +33,6 @@ import de.dytanic.cloudnet.command.source.CommandSource;
 import de.dytanic.cloudnet.command.sub.CommandClear;
 import de.dytanic.cloudnet.command.sub.CommandCluster;
 import de.dytanic.cloudnet.command.sub.CommandConfig;
-import de.dytanic.cloudnet.command.sub.CommandCopy;
 import de.dytanic.cloudnet.command.sub.CommandCreate;
 import de.dytanic.cloudnet.command.sub.CommandDebug;
 import de.dytanic.cloudnet.command.sub.CommandExit;
@@ -197,7 +196,6 @@ public class DefaultCommandProvider implements CommandProvider {
     this.register(new CommandPermissions());
     this.register(new CommandClear());
     this.register(new CommandDebug());
-    this.register(new CommandCopy());
     this.register(new CommandMigrate());
     this.register(new CommandCluster());
     this.register(new CommandConfig());

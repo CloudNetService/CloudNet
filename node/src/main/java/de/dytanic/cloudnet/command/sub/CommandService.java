@@ -22,6 +22,7 @@ import cloud.commandframework.annotations.CommandPermission;
 import cloud.commandframework.annotations.Flag;
 import cloud.commandframework.annotations.parsers.Parser;
 import cloud.commandframework.annotations.specifier.Greedy;
+import cloud.commandframework.annotations.specifier.Quoted;
 import cloud.commandframework.annotations.suggestions.Suggestions;
 import cloud.commandframework.context.CommandContext;
 import com.google.common.primitives.Ints;
@@ -34,6 +35,7 @@ import de.dytanic.cloudnet.common.INameable;
 import de.dytanic.cloudnet.common.WildcardUtil;
 import de.dytanic.cloudnet.common.language.I18n;
 import de.dytanic.cloudnet.common.unsafe.CPUUsageResolver;
+import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
 import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
 import de.dytanic.cloudnet.driver.service.ServiceDeployment;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
@@ -45,6 +47,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Queue;
 import java.util.regex.Matcher;
@@ -180,6 +183,53 @@ public final class CommandService {
     for (ServiceInfoSnapshot matchedService : matchedServices) {
       matchedService.provider().stop();
     }
+  }
+
+  @CommandMethod("service|ser <name> <copy|cp> [template]")
+  public void copyService(
+    CommandSource source,
+    @Argument(value = "service", parserName = "single") ServiceInfoSnapshot service,
+    @Argument("template") ServiceTemplate template,
+    @Flag("excludes") @Quoted String excludes
+  ) {
+    ServiceTemplate targetTemplate = template;
+    if (template == null) {
+      for (ServiceTemplate serviceTemplate : service.getConfiguration().getTemplates()) {
+        if (!serviceTemplate.getPrefix().equalsIgnoreCase(service.getServiceId().getTaskName())) {
+          continue;
+        }
+
+        if (!serviceTemplate.getName().equalsIgnoreCase("default")) {
+          continue;
+        }
+
+        targetTemplate = serviceTemplate;
+        break;
+      }
+    }
+
+    if (template == null) {
+      source.sendMessage(I18n.trans("command-copy-service-no-default-template"));
+      return;
+    }
+
+    SpecificCloudServiceProvider serviceProvider = service.provider();
+
+    List<ServiceDeployment> oldDeployments = new ArrayList<>(service.getConfiguration().getDeployments());
+
+    serviceProvider.addServiceDeployment(new ServiceDeployment(targetTemplate, this.parseExcludes(excludes)));
+    serviceProvider.deployResources(true);
+
+    for (ServiceDeployment deployment : oldDeployments) {
+      serviceProvider.addServiceDeployment(deployment);
+    }
+
+    source.sendMessage(
+      I18n.trans("command-copy-success")
+        .replace("%name%", service.getServiceId().getName())
+        .replace("%template%",
+          targetTemplate.getStorage() + ":" + targetTemplate.getPrefix() + "/" + targetTemplate.getName())
+    );
   }
 
   @CommandMethod("service|ser <name> delete|del")
@@ -351,6 +401,14 @@ public final class CommandService {
     }
 
     source.sendMessage(list);
+  }
+
+  private Collection<String> parseExcludes(@Nullable String excludes) {
+    if (excludes == null) {
+      return Collections.emptyList();
+    }
+
+    return Arrays.asList(excludes.split(";"));
   }
 
 }
