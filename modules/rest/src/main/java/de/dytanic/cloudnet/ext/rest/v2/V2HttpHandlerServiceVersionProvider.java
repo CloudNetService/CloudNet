@@ -18,8 +18,8 @@ package de.dytanic.cloudnet.ext.rest.v2;
 
 import de.dytanic.cloudnet.driver.network.http.IHttpContext;
 import de.dytanic.cloudnet.ext.rest.RestUtils;
-import de.dytanic.cloudnet.http.v2.HttpSession;
-import de.dytanic.cloudnet.http.v2.V2HttpHandler;
+import de.dytanic.cloudnet.http.HttpSession;
+import de.dytanic.cloudnet.http.V2HttpHandler;
 import de.dytanic.cloudnet.template.install.ServiceVersionProvider;
 import de.dytanic.cloudnet.template.install.ServiceVersionType;
 import java.io.IOException;
@@ -31,7 +31,7 @@ public class V2HttpHandlerServiceVersionProvider extends V2HttpHandler {
   }
 
   @Override
-  protected void handleBearerAuthorized(String path, IHttpContext context, HttpSession session) throws Exception {
+  protected void handleBearerAuthorized(String path, IHttpContext context, HttpSession session) {
     if (context.request().method().equalsIgnoreCase("GET")) {
       if (path.endsWith("/serviceversion")) {
         this.handleVersionListRequest(context);
@@ -47,7 +47,7 @@ public class V2HttpHandlerServiceVersionProvider extends V2HttpHandler {
 
   protected void handleVersionListRequest(IHttpContext context) {
     this.ok(context)
-      .body(this.success().append("versions", this.getVersionProvider().getServiceVersionTypes()).toByteArray())
+      .body(this.success().append("versions", this.getVersionProvider().getServiceVersionTypes()).toString())
       .context()
       .closeAfter(true)
       .cancelNext();
@@ -57,7 +57,7 @@ public class V2HttpHandlerServiceVersionProvider extends V2HttpHandler {
     String version = context.request().pathParameters().get("version");
     if (version == null) {
       this.badRequest(context)
-        .body(this.failure().append("reason", "Missing version identifier").toByteArray())
+        .body(this.failure().append("reason", "Missing version identifier").toString())
         .context()
         .closeAfter(true)
         .cancelNext();
@@ -67,7 +67,7 @@ public class V2HttpHandlerServiceVersionProvider extends V2HttpHandler {
     ServiceVersionType serviceVersion = this.getVersionProvider().getServiceVersionType(version).orElse(null);
     if (serviceVersion == null) {
       this.badRequest(context)
-        .body(this.failure().append("reason", "Unknown service version").toByteArray())
+        .body(this.failure().append("reason", "Unknown service version").toString())
         .context()
         .closeAfter(true)
         .cancelNext();
@@ -75,7 +75,7 @@ public class V2HttpHandlerServiceVersionProvider extends V2HttpHandler {
     }
 
     this.ok(context)
-      .body(this.success().append("version", serviceVersion).toByteArray())
+      .body(this.success().append("version", serviceVersion).toString())
       .context()
       .closeAfter(true)
       .cancelNext();
@@ -88,12 +88,12 @@ public class V2HttpHandlerServiceVersionProvider extends V2HttpHandler {
     } else {
       try {
         if (!this.getVersionProvider().loadServiceVersionTypes(url)) {
-          this.ok(context).body(this.failure().toByteArray()).context().closeAfter(true).cancelNext();
+          this.ok(context).body(this.failure().toString()).context().closeAfter(true).cancelNext();
           return;
         }
       } catch (IOException exception) {
         this.badRequest(context)
-          .body(this.failure().append("reason", "Unable to load versions from provided url").toByteArray())
+          .body(this.failure().append("reason", "Unable to load versions from provided url").toString())
           .context()
           .closeAfter(true)
           .cancelNext();
@@ -101,14 +101,14 @@ public class V2HttpHandlerServiceVersionProvider extends V2HttpHandler {
       }
     }
 
-    this.ok(context).body(this.success().toByteArray()).context().closeAfter(true).cancelNext();
+    this.ok(context).body(this.success().toString()).context().closeAfter(true).cancelNext();
   }
 
   protected void handleVersionAddRequest(IHttpContext context) {
     ServiceVersionType type = this.body(context.request()).toInstanceOf(ServiceVersionType.class);
     if (type == null || type.getName() == null || type.getVersions() == null || type.getTargetEnvironment() == null) {
       this.badRequest(context)
-        .body(this.failure().append("reason", "Missing specific data").toByteArray())
+        .body(this.failure().append("reason", "Missing specific data").toString())
         .context()
         .closeAfter(true)
         .cancelNext();
@@ -116,7 +116,7 @@ public class V2HttpHandlerServiceVersionProvider extends V2HttpHandler {
     }
 
     this.getVersionProvider().registerServiceVersionType(type);
-    this.ok(context).body(this.success().toByteArray()).context().closeAfter(true).cancelNext();
+    this.ok(context).body(this.success().toString()).context().closeAfter(true).cancelNext();
   }
 
   protected ServiceVersionProvider getVersionProvider() {

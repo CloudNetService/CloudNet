@@ -168,7 +168,7 @@ public class CloudFlareAPI implements AutoCloseable {
     Preconditions.checkNotNull(connection, "connection");
     Preconditions.checkNotNull(record, "record");
 
-    return this.sendRequestAndReadResponse(connection, JsonDocument.newDocument(record).toJson());
+    return this.sendRequestAndReadResponse(connection, JsonDocument.newDocument(record).toString());
   }
 
   @NotNull

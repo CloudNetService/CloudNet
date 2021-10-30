@@ -20,8 +20,8 @@ import de.dytanic.cloudnet.driver.network.http.HttpResponseCode;
 import de.dytanic.cloudnet.driver.network.http.IHttpContext;
 import de.dytanic.cloudnet.driver.provider.ServiceTaskProvider;
 import de.dytanic.cloudnet.driver.service.ServiceTask;
-import de.dytanic.cloudnet.http.v2.HttpSession;
-import de.dytanic.cloudnet.http.v2.V2HttpHandler;
+import de.dytanic.cloudnet.http.HttpSession;
+import de.dytanic.cloudnet.http.V2HttpHandler;
 import java.util.function.Consumer;
 
 public class V2HttpHandlerTasks extends V2HttpHandler {
@@ -49,7 +49,7 @@ public class V2HttpHandlerTasks extends V2HttpHandler {
 
   protected void handleTaskListRequest(IHttpContext context) {
     this.ok(context)
-      .body(this.success().append("tasks", this.getTaskProvider().getPermanentServiceTasks()).toByteArray())
+      .body(this.success().append("tasks", this.getTaskProvider().getPermanentServiceTasks()).toString())
       .context()
       .closeAfter(true)
       .cancelNext();
@@ -57,7 +57,7 @@ public class V2HttpHandlerTasks extends V2HttpHandler {
 
   protected void handleTaskExistsRequest(IHttpContext context) {
     this.handleWithTaskContext(context, task -> this.ok(context)
-      .body(this.success().append("result", this.getTaskProvider().isServiceTaskPresent(task)).toByteArray())
+      .body(this.success().append("result", this.getTaskProvider().isServiceTaskPresent(task)).toString())
       .context()
       .closeAfter(true)
       .cancelNext()
@@ -69,13 +69,13 @@ public class V2HttpHandlerTasks extends V2HttpHandler {
       ServiceTask serviceTask = this.getTaskProvider().getServiceTask(task);
       if (serviceTask == null) {
         this.ok(context)
-          .body(this.failure().append("reason", "Unknown service task").toByteArray())
+          .body(this.failure().append("reason", "Unknown service task").toString())
           .context()
           .closeAfter(true)
           .cancelNext();
       } else {
         this.ok(context)
-          .body(this.success().append("task", serviceTask).toByteArray())
+          .body(this.success().append("task", serviceTask).toString())
           .context()
           .closeAfter(true)
           .cancelNext();
@@ -87,7 +87,7 @@ public class V2HttpHandlerTasks extends V2HttpHandler {
     ServiceTask serviceTask = this.body(context.request()).toInstanceOf(ServiceTask.class);
     if (serviceTask == null) {
       this.badRequest(context)
-        .body(this.failure().append("reason", "Missing service task").toByteArray())
+        .body(this.failure().append("reason", "Missing service task").toString())
         .context()
         .closeAfter(true)
         .cancelNext();
@@ -95,25 +95,26 @@ public class V2HttpHandlerTasks extends V2HttpHandler {
     }
 
     if (this.getTaskProvider().addPermanentServiceTask(serviceTask)) {
-      this.response(context, HttpResponseCode.HTTP_CREATED).body(this.success().toByteArray()).context()
+      this.response(context, HttpResponseCode.HTTP_CREATED).body(this.success().toString()).context()
         .closeAfter(true).cancelNext();
     } else {
-      this.ok(context).body(this.failure().toByteArray()).context().closeAfter(true).cancelNext();
+      this.ok(context).body(this.failure().toString()).context().closeAfter(true).cancelNext();
     }
   }
 
   protected void handleTaskDeleteRequest(IHttpContext context) {
     this.handleWithTaskContext(context, task -> {
-      if (this.getTaskProvider().isServiceTaskPresent(task)) {
-        this.getTaskProvider().removePermanentServiceTask(task);
+      ServiceTask serviceTask = this.getTaskProvider().getServiceTask(task);
+      if (serviceTask != null) {
+        this.getTaskProvider().removePermanentServiceTask(serviceTask);
         this.ok(context)
-          .body(this.success().toByteArray())
+          .body(this.success().toString())
           .context()
           .closeAfter(true)
           .cancelNext();
       } else {
         this.response(context, HttpResponseCode.HTTP_GONE)
-          .body(this.failure().append("reason", "No such service task").toByteArray())
+          .body(this.failure().append("reason", "No such service task").toString())
           .context()
           .closeAfter(true)
           .cancelNext();
@@ -125,7 +126,7 @@ public class V2HttpHandlerTasks extends V2HttpHandler {
     String taskName = context.request().pathParameters().get("task");
     if (taskName == null) {
       this.badRequest(context)
-        .body(this.failure().append("reason", "Missing task paramter").toByteArray())
+        .body(this.failure().append("reason", "Missing task paramter").toString())
         .context()
         .closeAfter(true)
         .cancelNext();

@@ -17,9 +17,9 @@
 package de.dytanic.cloudnet.ext.rest.v2;
 
 import de.dytanic.cloudnet.driver.network.http.IHttpContext;
-import de.dytanic.cloudnet.http.v2.HttpSession;
-import de.dytanic.cloudnet.http.v2.V2HttpHandler;
-import de.dytanic.cloudnet.http.v2.ticket.WebSocketTicket;
+import de.dytanic.cloudnet.http.HttpSession;
+import de.dytanic.cloudnet.http.V2HttpHandler;
+import de.dytanic.cloudnet.http.ticket.WebSocketTicket;
 
 public class V2HttpHandlerWebSocketTicket extends V2HttpHandler {
 
@@ -28,11 +28,11 @@ public class V2HttpHandlerWebSocketTicket extends V2HttpHandler {
   }
 
   @Override
-  protected void handleBearerAuthorized(String path, IHttpContext context, HttpSession session) throws Exception {
+  protected void handleBearerAuthorized(String path, IHttpContext context, HttpSession session) {
     WebSocketTicket ticket = this.authentication.getWebSocketTicketManager().issueTicket(context.request(), session);
     this.ok(context)
       .body(
-        this.success().append("id", ticket.getFullId()).append("expire", ticket.getExpirationTimestamp()).toByteArray())
+        this.success().append("id", ticket.getFullId()).append("expire", ticket.getExpirationTimestamp()).toString())
       .context()
       .closeAfter(true)
       .cancelNext();

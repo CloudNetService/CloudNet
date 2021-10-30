@@ -402,19 +402,19 @@ public final class CommandPermissions {
   }
 
   private void displayGroup(CommandSource source, PermissionGroup permissionGroup) {
-    source.sendMessage(permissionGroup.getName() + " | Potency: " + permissionGroup.getPotency());
-    source.sendMessage("Inherits: " + Arrays.toString(permissionGroup.getGroups().toArray()));
-    source.sendMessage("Default:" + permissionGroup.isDefaultGroup());
-    source.sendMessage("SortId: " + permissionGroup.getSortId());
-    source.sendMessage("Prefix: " + permissionGroup.getPrefix());
-    source.sendMessage("Color: " + permissionGroup.getColor());
-    source.sendMessage("Suffix:" + permissionGroup.getSuffix());
-    source.sendMessage("Chat-Display: " + permissionGroup.getDisplay());
+    source.sendMessage("- " + permissionGroup.getName() + " | Potency: " + permissionGroup.getPotency());
+    source.sendMessage("- Inherits: " + Arrays.toString(permissionGroup.getGroups().toArray()));
+    source.sendMessage("- Default:" + permissionGroup.isDefaultGroup());
+    source.sendMessage("- SortId: " + permissionGroup.getSortId());
+    source.sendMessage("- Prefix: " + permissionGroup.getPrefix());
+    source.sendMessage("- Color: " + permissionGroup.getColor());
+    source.sendMessage("- Suffix:" + permissionGroup.getSuffix());
+    source.sendMessage("- Chat-Display: " + permissionGroup.getDisplay());
     this.displayPermission(source, permissionGroup);
   }
 
   private void displayPermission(CommandSource source, IPermissible permissible) {
-    source.sendMessage("Permissions:");
+    source.sendMessage("- Permissions:");
     for (Permission permission : permissible.getPermissions()) {
       source.sendMessage(this.formatPermission(permission));
     }

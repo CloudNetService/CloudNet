@@ -23,8 +23,8 @@ import de.dytanic.cloudnet.driver.module.IModuleWrapper;
 import de.dytanic.cloudnet.driver.module.driver.DriverModule;
 import de.dytanic.cloudnet.driver.network.http.HttpResponseCode;
 import de.dytanic.cloudnet.driver.network.http.IHttpContext;
-import de.dytanic.cloudnet.http.v2.HttpSession;
-import de.dytanic.cloudnet.http.v2.V2HttpHandler;
+import de.dytanic.cloudnet.http.HttpSession;
+import de.dytanic.cloudnet.http.V2HttpHandler;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -41,7 +41,7 @@ public class V2HttpHandlerModule extends V2HttpHandler {
   }
 
   @Override
-  protected void handleBearerAuthorized(String path, IHttpContext context, HttpSession session) throws Exception {
+  protected void handleBearerAuthorized(String path, IHttpContext context, HttpSession session) {
     if (context.request().method().equalsIgnoreCase("GET")) {
       if (path.endsWith("/module")) {
         this.handleModuleListRequest(context);
@@ -66,18 +66,21 @@ public class V2HttpHandlerModule extends V2HttpHandler {
   }
 
   protected void handleReloadRequest(IHttpContext context) {
-    this.getCloudNet().unloadModules();
-    this.getCloudNet().enableModules();
+    this.getCloudNet().getModuleProvider().reloadAll();
 
-    this.ok(context).body(this.success().toByteArray()).context().closeAfter(true).cancelNext();
+    this.ok(context)
+      .body(this.success().toString())
+      .context()
+      .closeAfter(true)
+      .cancelNext();
   }
 
   protected void handleModuleListRequest(IHttpContext context) {
     this.ok(context).body(this.success().append("modules", this.getModuleProvider().getModules().stream()
-      .map(module -> JsonDocument.newDocument("lifecycle", module.getModuleLifeCycle())
-        .append("configuration", module.getModuleConfiguration()))
-      .collect(Collectors.toList()))
-      .toByteArray()
+        .map(module -> JsonDocument.newDocument("lifecycle", module.getModuleLifeCycle())
+          .append("configuration", module.getModuleConfiguration()))
+        .collect(Collectors.toList()))
+      .toString()
     ).context().closeAfter(true).cancelNext();
   }
 
@@ -87,17 +90,16 @@ public class V2HttpHandlerModule extends V2HttpHandler {
 
   protected void handleModuleReloadRequest(IHttpContext context) {
     this.handleWithModuleContext(context, module -> {
-      this.getCloudNet().unloadModule(module);
-      this.getModuleProvider().loadModule(module.getUrl());
+      module.reloadModule();
 
-      this.ok(context).body(this.success().toByteArray()).context().closeAfter(true).cancelNext();
+      this.ok(context).body(this.success().toString()).context().closeAfter(true).cancelNext();
     });
   }
 
   protected void handleModuleUnloadRequest(IHttpContext context) {
     this.handleWithModuleContext(context, module -> {
-      this.getCloudNet().unloadModule(module);
-      this.ok(context).body(this.success().toByteArray()).context().closeAfter(true).cancelNext();
+      module.unloadModule();
+      this.ok(context).body(this.success().toString()).context().closeAfter(true).cancelNext();
     });
   }
 
@@ -105,7 +107,7 @@ public class V2HttpHandlerModule extends V2HttpHandler {
     InputStream moduleStream = context.request().bodyStream();
     if (moduleStream == null) {
       this.badRequest(context)
-        .body(this.failure().append("reason", "Missing module data in body").toByteArray())
+        .body(this.failure().append("reason", "Missing module data in body").toString())
         .context()
         .closeAfter(true)
         .cancelNext();
@@ -115,7 +117,7 @@ public class V2HttpHandlerModule extends V2HttpHandler {
     String name = context.request().pathParameters().get("name");
     if (name == null) {
       this.badRequest(context)
-        .body(this.failure().append("reason", "Missing module name in path").toByteArray())
+        .body(this.failure().append("reason", "Missing module name in path").toString())
         .context()
         .closeAfter(true)
         .cancelNext();
@@ -129,7 +131,7 @@ public class V2HttpHandlerModule extends V2HttpHandler {
       FileUtils.copy(moduleStream, outputStream);
     } catch (IOException exception) {
       this.response(context, HttpResponseCode.HTTP_INTERNAL_ERROR)
-        .body(this.failure().append("reason", "Unable to copy module file").toByteArray())
+        .body(this.failure().append("reason", "Unable to copy module file").toString())
         .context()
         .closeAfter(true)
         .cancelNext();
@@ -145,13 +147,13 @@ public class V2HttpHandlerModule extends V2HttpHandler {
       if (module.getModule() instanceof DriverModule) {
         JsonDocument config = ((DriverModule) module.getModule()).getConfig();
         this.ok(context)
-          .body(this.success().append("config", config).toByteArray())
+          .body(this.success().append("config", config).toString())
           .context()
           .closeAfter(true)
           .cancelNext();
       } else {
         this.ok(context)
-          .body(this.failure().append("reason", "Module was not loaded by CloudNet").toByteArray())
+          .body(this.failure().append("reason", "Module was not loaded by CloudNet").toString())
           .context()
           .closeAfter(true)
           .cancelNext();
@@ -165,7 +167,7 @@ public class V2HttpHandlerModule extends V2HttpHandler {
         InputStream stream = context.request().bodyStream();
         if (stream == null) {
           this.badRequest(context)
-            .body(this.failure().append("reason", "Missing data in body").toByteArray())
+            .body(this.failure().append("reason", "Missing data in body").toString())
             .context()
             .closeAfter(true)
             .cancelNext();
@@ -174,11 +176,11 @@ public class V2HttpHandlerModule extends V2HttpHandler {
           driverModule.setConfig(JsonDocument.newDocument(stream));
           driverModule.saveConfig();
 
-          this.ok(context).body(this.success().toByteArray()).context().closeAfter(true).cancelNext();
+          this.ok(context).body(this.success().toString()).context().closeAfter(true).cancelNext();
         }
       } else {
         this.ok(context)
-          .body(this.failure().append("reason", "Module was not loaded by CloudNet").toByteArray())
+          .body(this.failure().append("reason", "Module was not loaded by CloudNet").toString())
           .context()
           .closeAfter(true)
           .cancelNext();
@@ -188,12 +190,12 @@ public class V2HttpHandlerModule extends V2HttpHandler {
 
   protected void showModule(IHttpContext context, @Nullable IModuleWrapper wrapper) {
     if (wrapper == null) {
-      this.ok(context).body(this.failure().toByteArray()).context().closeAfter(true).cancelNext();
+      this.ok(context).body(this.failure().toString()).context().closeAfter(true).cancelNext();
     } else {
       this.ok(context).body(this.success()
         .append("lifecycle", wrapper.getModuleLifeCycle())
         .append("configuration", wrapper.getModuleConfiguration())
-        .toByteArray()
+        .toString()
       ).context().closeAfter(true).cancelNext();
     }
   }
@@ -202,7 +204,7 @@ public class V2HttpHandlerModule extends V2HttpHandler {
     String name = context.request().pathParameters().get("name");
     if (name == null) {
       this.badRequest(context)
-        .body(this.failure().append("reason", "Missing module name in path").toByteArray())
+        .body(this.failure().append("reason", "Missing module name in path").toString())
         .context()
         .closeAfter(true)
         .cancelNext();
@@ -212,7 +214,7 @@ public class V2HttpHandlerModule extends V2HttpHandler {
     IModuleWrapper wrapper = this.getModuleProvider().getModule(name);
     if (wrapper == null) {
       this.notFound(context)
-        .body(this.failure().append("reason", "No such module").toByteArray())
+        .body(this.failure().append("reason", "No such module").toString())
         .context()
         .closeAfter(true)
         .cancelNext();

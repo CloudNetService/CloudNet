@@ -18,8 +18,8 @@ package de.dytanic.cloudnet.ext.rest.v2;
 
 import de.dytanic.cloudnet.driver.network.http.HttpResponseCode;
 import de.dytanic.cloudnet.driver.network.http.IHttpContext;
-import de.dytanic.cloudnet.http.v2.HttpSession;
-import de.dytanic.cloudnet.http.v2.V2HttpHandler;
+import de.dytanic.cloudnet.http.HttpSession;
+import de.dytanic.cloudnet.http.V2HttpHandler;
 import java.util.concurrent.TimeUnit;
 
 public class V2HttpHandlerSession extends V2HttpHandler {
@@ -42,7 +42,7 @@ public class V2HttpHandlerSession extends V2HttpHandler {
   protected void handleRefresh(IHttpContext context, HttpSession session) {
     String jwt = this.authentication.refreshJwt(session, TimeUnit.HOURS.toMillis(1));
     this.ok(context)
-      .body(this.success().append("token", jwt).append("uniqueId", session.getUser().getUniqueId()).toByteArray())
+      .body(this.success().append("token", jwt).append("uniqueId", session.getUser().getUniqueId()).toString())
       .context()
       .closeAfter(true)
       .cancelNext();
@@ -50,7 +50,7 @@ public class V2HttpHandlerSession extends V2HttpHandler {
 
   protected void handleLogout(IHttpContext context, HttpSession session) {
     if (this.authentication.expireSession(session)) {
-      this.ok(context).body(this.success().toByteArray()).context().closeAfter(true).cancelNext();
+      this.ok(context).body(this.success().toString()).context().closeAfter(true).cancelNext();
     } else {
       this.send403(context, "Unable to close unknown session");
     }

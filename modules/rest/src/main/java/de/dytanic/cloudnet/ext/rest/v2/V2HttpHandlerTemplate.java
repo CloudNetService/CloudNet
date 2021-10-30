@@ -19,7 +19,6 @@ package de.dytanic.cloudnet.ext.rest.v2;
 import com.google.common.io.ByteStreams;
 import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
-import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.network.http.HttpResponseCode;
 import de.dytanic.cloudnet.driver.network.http.IHttpContext;
 import de.dytanic.cloudnet.driver.network.http.IHttpResponse;
@@ -27,8 +26,9 @@ import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import de.dytanic.cloudnet.driver.template.FileInfo;
 import de.dytanic.cloudnet.driver.template.SpecificTemplateStorage;
 import de.dytanic.cloudnet.ext.rest.RestUtils;
-import de.dytanic.cloudnet.http.v2.HttpSession;
-import de.dytanic.cloudnet.http.v2.V2HttpHandler;
+import de.dytanic.cloudnet.http.HttpSession;
+import de.dytanic.cloudnet.http.V2HttpHandler;
+import de.dytanic.cloudnet.template.install.InstallInformation;
 import de.dytanic.cloudnet.template.install.ServiceVersion;
 import de.dytanic.cloudnet.template.install.ServiceVersionType;
 import java.io.IOException;
@@ -39,13 +39,12 @@ import org.jetbrains.annotations.Nullable;
 
 public class V2HttpHandlerTemplate extends V2HttpHandler {
 
-
   public V2HttpHandlerTemplate(String requiredPermission) {
     super(requiredPermission, "GET", "POST", "DELETE");
   }
 
   @Override
-  protected void handleBearerAuthorized(String path, IHttpContext context, HttpSession session) throws Exception {
+  protected void handleBearerAuthorized(String path, IHttpContext context, HttpSession session) {
     if (context.request().method().equalsIgnoreCase("GET")) {
       if (path.contains("/file/")) {
         if (path.contains("/download")) {
@@ -91,10 +90,10 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
 
   protected void handleDownloadRequest(IHttpContext context) {
     this.handleWithTemplateContext(context, (template, storage) -> {
-      InputStream stream = storage.zipTemplateAsync().throwExceptionOnFailure().get();
+      InputStream stream = storage.zipTemplateAsync().get();
       if (stream == null) {
         this.notFound(context)
-          .body(this.failure().append("reason", "Unable to zip template").toByteArray())
+          .body(this.failure().append("reason", "Unable to zip template").toString())
           .context()
           .closeAfter(true)
           .cancelNext();
@@ -102,7 +101,7 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
         this.ok(context, "application/zip; charset=UTF-8")
           .body(stream)
           .header("Content-Disposition", "attachment; filename="
-            + template.getTemplatePath().replace('/', '_') + ".zip")
+            + template.toString().replace('/', '_') + ".zip")
           .context()
           .closeAfter(true)
           .cancelNext();
@@ -112,10 +111,10 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
 
   protected void handleFileDownloadRequest(IHttpContext context) {
     this.handleWithFileTemplateContext(context, (template, storage, path) -> {
-      InputStream stream = storage.newInputStreamAsync(path).throwExceptionOnFailure().get();
+      InputStream stream = storage.newInputStreamAsync(path).get();
       if (stream == null) {
         this.notFound(context)
-          .body(this.failure().append("reason", "Missing file or path is directory").toByteArray())
+          .body(this.failure().append("reason", "Missing file or path is directory").toString())
           .context()
           .closeAfter(true)
           .cancelNext();
@@ -134,16 +133,16 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
 
   protected void handleFileInfoRequest(IHttpContext context) {
     this.handleWithFileTemplateContext(context, (template, storage, path) -> {
-      FileInfo info = storage.getFileInfoAsync(path).throwExceptionOnFailure().get();
+      FileInfo info = storage.getFileInfoAsync(path).get();
       if (info == null) {
         this.notFound(context)
-          .body(this.failure().append("reason", "Unknown file or directory").toByteArray())
+          .body(this.failure().append("reason", "Unknown file or directory").toString())
           .context()
           .closeAfter(true)
           .cancelNext();
       } else {
         this.ok(context)
-          .body(this.success().append("info", info).toByteArray())
+          .body(this.success().append("info", info).toString())
           .context()
           .closeAfter(true)
           .cancelNext();
@@ -153,9 +152,9 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
 
   protected void handleFileExistsRequest(IHttpContext context) {
     this.handleWithFileTemplateContext(context, (template, storage, path) -> {
-      boolean status = storage.hasFileAsync(path).throwExceptionOnFailure().get();
+      boolean status = storage.hasFileAsync(path).get();
       this.ok(context)
-        .body(this.success().append("exists", status).toByteArray())
+        .body(this.success().append("exists", status).toString())
         .context()
         .closeAfter(true)
         .cancelNext();
@@ -167,9 +166,9 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
       String dir = RestUtils.getFirst(context.request().queryParameters().get("directory"), "");
       boolean deep = Boolean.parseBoolean(RestUtils.getFirst(context.request().queryParameters().get("deep"), "false"));
 
-      FileInfo[] files = storage.listFilesAsync(dir, deep).throwExceptionOnFailure().get();
+      FileInfo[] files = storage.listFilesAsync(dir, deep).get();
       this.ok(context)
-        .body(this.success().append("files", files).toByteArray())
+        .body(this.success().append("files", files).toString())
         .context()
         .closeAfter(true)
         .cancelNext();
@@ -180,7 +179,7 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
     this.handleWithTemplateContext(context, (template, storage) -> {
       boolean status = storage.createAsync().fireExceptionOnFailure().get();
       this.ok(context)
-        .body(status ? this.success().toByteArray() : this.failure().toByteArray())
+        .body(status ? this.success().toString() : this.failure().toString())
         .context()
         .closeAfter(true)
         .cancelNext();
@@ -191,7 +190,7 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
     InputStream stream = context.request().bodyStream();
     if (stream == null) {
       this.badRequest(context)
-        .body(this.failure().append("reason", "Missing data in body").toByteArray())
+        .body(this.failure().append("reason", "Missing data in body").toString())
         .context()
         .closeAfter(true)
         .cancelNext();
@@ -199,9 +198,9 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
     }
 
     this.handleWithTemplateContext(context, (template, storage) -> {
-      boolean status = storage.deployAsync(stream).throwExceptionOnFailure().get();
+      boolean status = storage.deployAsync(stream).get();
       this.ok(context)
-        .body(status ? this.success().toByteArray() : this.failure().toByteArray())
+        .body(status ? this.success().toString() : this.failure().toString())
         .context()
         .closeAfter(true)
         .cancelNext();
@@ -210,9 +209,9 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
 
   protected void handleFileDeleteRequest(IHttpContext context) {
     this.handleWithFileTemplateContext(context, (template, storage, path) -> {
-      boolean status = storage.deleteFileAsync(path).throwExceptionOnFailure().get();
+      boolean status = storage.deleteFileAsync(path).get();
       this.ok(context)
-        .body(status ? this.success().toByteArray() : this.failure().toByteArray())
+        .body(status ? this.success().toString() : this.failure().toString())
         .context()
         .closeAfter(true)
         .cancelNext();
@@ -221,9 +220,9 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
 
   protected void handleTemplateDeleteRequest(IHttpContext context) {
     this.handleWithTemplateContext(context, (template, storage) -> {
-      boolean status = storage.deleteAsync().throwExceptionOnFailure().get();
+      boolean status = storage.deleteAsync().get();
       this.ok(context)
-        .body(status ? this.success().toByteArray() : this.failure().toByteArray())
+        .body(status ? this.success().toString() : this.failure().toString())
         .context()
         .closeAfter(true)
         .cancelNext();
@@ -240,7 +239,7 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
           .getServiceVersionType(body.getString("typeName", "")).orElse(null);
         if (versionType == null) {
           this.badRequest(context)
-            .body(this.failure().append("reason", "No service type or type name provided").toByteArray())
+            .body(this.failure().append("reason", "No service type or type name provided").toString())
             .context()
             .closeAfter(true)
             .cancelNext();
@@ -253,7 +252,7 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
         version = versionType.getVersion(body.getString("versionName", "")).orElse(null);
         if (version == null) {
           this.badRequest(context)
-            .body(this.failure().append("reason", "Missing version or version name").toByteArray())
+            .body(this.failure().append("reason", "Missing version or version name").toString())
             .context()
             .closeAfter(true)
             .cancelNext();
@@ -262,11 +261,15 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
       }
 
       boolean forceInstall = body.getBoolean("force", false);
+      InstallInformation installInformation = InstallInformation.builder(versionType, version)
+        .toTemplate(template)
+        .build();
+
       if (this.getCloudNet().getServiceVersionProvider()
-        .installServiceVersion(versionType, version, template, forceInstall)) {
-        this.ok(context).body(this.success().toByteArray()).context().closeAfter(true).cancelNext();
+        .installServiceVersion(installInformation, forceInstall)) {
+        this.ok(context).body(this.success().toString()).context().closeAfter(true).cancelNext();
       } else {
-        this.ok(context).body(this.failure().toByteArray()).context().closeAfter(true).cancelNext();
+        this.ok(context).body(this.failure().toString()).context().closeAfter(true).cancelNext();
       }
     });
   }
@@ -275,7 +278,7 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
     InputStream content = context.request().bodyStream();
     if (content == null) {
       this.badRequest(context)
-        .body(this.failure().append("reason", "Missing input from body").toByteArray())
+        .body(this.failure().append("reason", "Missing input from body").toString())
         .context()
         .closeAfter(true)
         .cancelNext();
@@ -284,17 +287,17 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
 
     this.handleWithFileTemplateContext(context, (template, storage, path) -> {
       ITask<OutputStream> task = append ? storage.appendOutputStreamAsync(path) : storage.newOutputStreamAsync(path);
-      OutputStream stream = task.throwExceptionOnFailure().get();
+      OutputStream stream = task.get();
       if (stream == null) {
         this.notFound(context)
-          .body(this.failure().append("reason", "Unable to open file stream").toByteArray())
+          .body(this.failure().append("reason", "Unable to open file stream").toString())
           .context()
           .closeAfter(true)
           .cancelNext();
       } else {
         try {
           ByteStreams.copy(content, stream);
-          this.ok(context).body(this.success().toByteArray()).context().closeAfter(true).cancelNext();
+          this.ok(context).body(this.success().toString()).context().closeAfter(true).cancelNext();
         } catch (IOException exception) {
           this.notifyException(context, exception);
         }
@@ -304,9 +307,9 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
 
   protected void handleDirectoryCreateRequest(IHttpContext context) {
     this.handleWithFileTemplateContext(context, (template, storage, path) -> {
-      boolean status = storage.createDirectoryAsync(path).throwExceptionOnFailure().get();
+      boolean status = storage.createDirectoryAsync(path).get();
       this.ok(context)
-        .body(status ? this.success().toByteArray() : this.failure().toByteArray())
+        .body(status ? this.success().toString() : this.failure().toString())
         .context()
         .closeAfter(true)
         .cancelNext();
@@ -321,7 +324,7 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
 
     if (storage == null || prefix == null || name == null) {
       this.badRequest(context)
-        .body(this.failure().append("reason", "Missing storage, prefix or name in path parameters").toByteArray())
+        .body(this.failure().append("reason", "Missing storage, prefix or name in path parameters").toString())
         .context()
         .closeAfter(true)
         .cancelNext();
@@ -333,7 +336,7 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
 
     if (templateStorage == null) {
       this.ok(context)
-        .body(this.failure().append("reason", "Unknown template storage").toByteArray())
+        .body(this.failure().append("reason", "Unknown template storage").toString())
         .context()
         .closeAfter(true)
         .cancelNext();
@@ -353,7 +356,7 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
       String fileName = RestUtils.getFirst(context.request().queryParameters().get("path"), null);
       if (fileName == null) {
         this.badRequest(context)
-          .body(this.failure().append("reason", "Missing file name in path").toByteArray())
+          .body(this.failure().append("reason", "Missing file name in path").toString())
           .context()
           .closeAfter(true)
           .cancelNext();
@@ -367,7 +370,7 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
   protected void notifyException(IHttpContext context, Exception exception) {
     LOGGER.fine("Exception handling template request", exception);
     this.response(context, HttpResponseCode.HTTP_INTERNAL_ERROR)
-      .body(this.failure().append("reason", "Exception processing request").toByteArray())
+      .body(this.failure().append("reason", "Exception processing request").toString())
       .context()
       .closeAfter(true)
       .cancelNext();

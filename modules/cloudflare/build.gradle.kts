@@ -18,12 +18,10 @@ tasks.withType<Jar> {
   archiveFileName.set(Files.cloudflare)
 }
 
-/*
-
 moduleJson {
   main = "de.dytanic.cloudnet.ext.cloudflare.CloudNetCloudflareModule"
   author = "CloudNetService"
   description = "Node extension for the https://cloudflare.com REST-API"
   storesSensitiveData = true
 }
-*/
+

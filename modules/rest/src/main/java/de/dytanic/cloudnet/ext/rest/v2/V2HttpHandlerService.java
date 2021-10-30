@@ -30,8 +30,8 @@ import de.dytanic.cloudnet.driver.service.ServiceRemoteInclusion;
 import de.dytanic.cloudnet.driver.service.ServiceTask;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import de.dytanic.cloudnet.ext.rest.RestUtils;
-import de.dytanic.cloudnet.http.v2.HttpSession;
-import de.dytanic.cloudnet.http.v2.WebSocketAbleV2HttpHandler;
+import de.dytanic.cloudnet.http.HttpSession;
+import de.dytanic.cloudnet.http.WebSocketAbleV2HttpHandler;
 import de.dytanic.cloudnet.service.ICloudService;
 import de.dytanic.cloudnet.service.IServiceConsoleLogCache;
 import de.dytanic.cloudnet.service.ServiceConsoleLineHandler;
@@ -83,14 +83,13 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
   }
 
   @Override
-  protected void handleTicketAuthorizedRequest(String path, IHttpContext context,
-    HttpSession session) throws Exception {
+  protected void handleTicketAuthorizedRequest(String path, IHttpContext context, HttpSession session) {
     this.handleLiveLogRequest(context);
   }
 
   protected void handleListServicesRequest(IHttpContext context) {
     this.ok(context)
-      .body(this.success().append("services", this.getGeneralServiceProvider().getCloudServices()).toByteArray())
+      .body(this.success().append("services", this.getGeneralServiceProvider().getCloudServices()).toString())
       .context()
       .closeAfter(true)
       .cancelNext();
@@ -98,7 +97,7 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
 
   protected void handleServiceRequest(IHttpContext context) {
     this.handleWithServiceContext(context, service -> this.ok(context)
-      .body(this.success().append("snapshot", service).toByteArray())
+      .body(this.success().append("snapshot", service).toString())
       .context()
       .closeAfter(true)
       .cancelNext()
@@ -110,7 +109,7 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
       String targetState = RestUtils.getFirst(context.request().queryParameters().get("target"));
       if (targetState == null) {
         this.badRequest(context)
-          .body(this.failure().append("reason", "Missing target state in query").toByteArray())
+          .body(this.failure().append("reason", "Missing target state in query").toString())
           .context()
           .closeAfter(true)
           .cancelNext();
@@ -123,18 +122,16 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
         service.provider().stop();
       } else if (targetState.equalsIgnoreCase("restart")) {
         service.provider().restart();
-      } else if (targetState.equalsIgnoreCase("kill")) {
-        service.provider().kill();
       } else {
         this.badRequest(context)
-          .body(this.failure().append("reason", "Invalid target state").toByteArray())
+          .body(this.failure().append("reason", "Invalid target state").toString())
           .context()
           .closeAfter(true)
           .cancelNext();
         return;
       }
 
-      this.ok(context).body(this.success().toByteArray()).context().closeAfter(true).cancelNext();
+      this.ok(context).body(this.success().toString()).context().closeAfter(true).cancelNext();
     });
   }
 
@@ -143,13 +140,13 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
       String commandLine = this.body(context.request()).getString("command");
       if (commandLine == null) {
         this.badRequest(context)
-          .body(this.failure().append("reason", "Missing command line").toByteArray())
+          .body(this.failure().append("reason", "Missing command line").toString())
           .context()
           .closeAfter(true)
           .cancelNext();
       } else {
         service.provider().runCommand(commandLine);
-        this.ok(context).body(this.success().toByteArray()).context().closeAfter(true).cancelNext();
+        this.ok(context).body(this.success().toString()).context().closeAfter(true).cancelNext();
       }
     });
   }
@@ -164,17 +161,17 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
           service.provider().includeWaitingServiceInclusions();
         } else {
           this.badRequest(context)
-            .body(this.failure().append("reason", "Invalid include type").toByteArray())
+            .body(this.failure().append("reason", "Invalid include type").toString())
             .context()
             .closeAfter(true)
             .cancelNext();
           return;
         }
 
-        this.ok(context).body(this.success().toByteArray()).context().closeAfter(true).cancelNext();
+        this.ok(context).body(this.success().toString()).context().closeAfter(true).cancelNext();
       } else {
         this.badRequest(context)
-          .body(this.failure().append("reason", "Missing inclusion types in query params").toByteArray())
+          .body(this.failure().append("reason", "Missing inclusion types in query params").toString())
           .context()
           .closeAfter(true)
           .cancelNext();
@@ -188,13 +185,13 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
         .getBoolean(RestUtils.getFirst(context.request().queryParameters().get("remove"), "true"));
       service.provider().deployResources(removeDeployments);
 
-      this.ok(context).body(this.success().toByteArray()).context().closeAfter(true).cancelNext();
+      this.ok(context).body(this.success().toString()).context().closeAfter(true).cancelNext();
     });
   }
 
   protected void handleLogLinesRequest(IHttpContext context) {
     this.handleWithServiceContext(context, service -> this.ok(context)
-      .body(this.success().append("lines", service.provider().getCachedLogMessages()).toByteArray())
+      .body(this.success().append("lines", service.provider().getCachedLogMessages()).toString())
       .context()
       .closeAfter(true)
       .cancelNext()
@@ -203,8 +200,8 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
 
   protected void handleLiveLogRequest(IHttpContext context) {
     this.handleWithServiceContext(context, service -> {
-      ICloudService cloudService = this.getCloudNet().getCloudServiceManager()
-        .getCloudService(service.getServiceId().getUniqueId());
+      ICloudService cloudService = this.getCloudNet().getCloudServiceProvider()
+        .getLocalCloudService(service.getServiceId().getUniqueId());
       if (cloudService != null) {
         IWebSocketChannel webSocketChannel = context.upgrade();
         if (webSocketChannel == null) {
@@ -216,10 +213,11 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
         cloudService.getServiceConsoleLogCache().addHandler(handler);
 
         webSocketChannel
-          .addListener(new ConsoleHandlerWebSocketListener(cloudService.getServiceConsoleLogCache(), handler));
+          .addListener(
+            new ConsoleHandlerWebSocketListener(cloudService, cloudService.getServiceConsoleLogCache(), handler));
       } else {
         this.badRequest(context)
-          .body(this.failure().append("reason", "Service is unknown or not running on this node").toByteArray())
+          .body(this.failure().append("reason", "Service is unknown or not running on this node").toString())
           .context()
           .closeAfter(true)
           .cancelNext();
@@ -258,7 +256,7 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
           } else {
             // we got a task but it does not exist
             this.badRequest(context)
-              .body(this.failure().append("reason", "Provided task is unknown").toByteArray())
+              .body(this.failure().append("reason", "Provided task is unknown").toString())
               .context()
               .closeAfter(true)
               .cancelNext();
@@ -285,13 +283,13 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
       }
 
       this.ok(context)
-        .body(this.success().append("snapshot", snapshot).toByteArray())
+        .body(this.success().append("snapshot", snapshot).toString())
         .context()
         .closeAfter(true)
         .cancelNext();
     } else {
       this.ok(context)
-        .body(this.failure().toByteArray())
+        .body(this.failure().toString())
         .context()
         .closeAfter(true)
         .cancelNext();
@@ -303,7 +301,7 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
       String type = RestUtils.getFirst(context.request().queryParameters().get("type"), null);
       if (type == null) {
         this.badRequest(context)
-          .body(this.failure().append("reason", "Missing type in query params").toByteArray())
+          .body(this.failure().append("reason", "Missing type in query params").toString())
           .context()
           .closeAfter(true)
           .cancelNext();
@@ -316,7 +314,7 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
           ServiceTemplate template = body.get("template", ServiceTemplate.class);
           if (template == null) {
             this.badRequest(context)
-              .body(this.failure().append("reason", "Missing template in body").toByteArray())
+              .body(this.failure().append("reason", "Missing template in body").toString())
               .context()
               .closeAfter(true)
               .cancelNext();
@@ -331,7 +329,7 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
           ServiceDeployment deployment = body.get("deployment", ServiceDeployment.class);
           if (deployment == null) {
             this.badRequest(context)
-              .body(this.failure().append("reason", "Missing deployment in body").toByteArray())
+              .body(this.failure().append("reason", "Missing deployment in body").toString())
               .context()
               .closeAfter(true)
               .cancelNext();
@@ -346,7 +344,7 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
           ServiceRemoteInclusion inclusion = body.get("inclusion", ServiceRemoteInclusion.class);
           if (inclusion == null) {
             this.badRequest(context)
-              .body(this.failure().append("reason", "Missing inclusion in body").toByteArray())
+              .body(this.failure().append("reason", "Missing inclusion in body").toString())
               .context()
               .closeAfter(true)
               .cancelNext();
@@ -359,14 +357,14 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
           }
         } else {
           this.badRequest(context)
-            .body(this.failure().append("reason", "Invalid add type").toByteArray())
+            .body(this.failure().append("reason", "Invalid add type").toString())
             .context()
             .closeAfter(true)
             .cancelNext();
           return;
         }
 
-        this.ok(context).body(this.success().toByteArray()).context().closeAfter(true).cancelNext();
+        this.ok(context).body(this.success().toString()).context().closeAfter(true).cancelNext();
       }
     });
   }
@@ -374,7 +372,7 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
   protected void handleServiceDeleteRequest(IHttpContext context) {
     this.handleWithServiceContext(context, service -> {
       service.provider().delete();
-      this.ok(context).body(this.success().toByteArray()).context().closeAfter(true).cancelNext();
+      this.ok(context).body(this.success().toString()).context().closeAfter(true).cancelNext();
     });
   }
 
@@ -382,7 +380,7 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
     String identifier = context.request().pathParameters().get("identifier");
     if (identifier == null) {
       this.badRequest(context)
-        .body(this.failure().append("reason", "Missing service identifier").toByteArray())
+        .body(this.failure().append("reason", "Missing service identifier").toString())
         .context()
         .closeAfter(true)
         .cancelNext();
@@ -400,7 +398,7 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
     // check if the snapshot is present before applying to the handler
     if (serviceInfoSnapshot == null) {
       this.ok(context)
-        .body(this.failure().append("reason", "No service with provided uniqueId/name").toByteArray())
+        .body(this.failure().append("reason", "No service with provided uniqueId/name").toString())
         .context()
         .closeAfter(true)
         .cancelNext();
@@ -412,7 +410,7 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
 
   protected void sendInvalidServiceConfigurationResponse(IHttpContext context) {
     this.badRequest(context)
-      .body(this.failure().append("reason", "Missing parameters for service creation").toByteArray())
+      .body(this.failure().append("reason", "Missing parameters for service creation").toString())
       .context()
       .closeAfter(true)
       .cancelNext();
@@ -436,11 +434,13 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
 
   protected static class ConsoleHandlerWebSocketListener implements IWebSocketListener {
 
+    protected final ICloudService service;
     protected final IServiceConsoleLogCache logCache;
     protected final ServiceConsoleLineHandler watchingHandler;
 
-    public ConsoleHandlerWebSocketListener(IServiceConsoleLogCache logCache,
-      ServiceConsoleLineHandler watchingHandler) {
+    public ConsoleHandlerWebSocketListener(ICloudService service,
+      IServiceConsoleLogCache logCache, ServiceConsoleLineHandler watchingHandler) {
+      this.service = service;
       this.logCache = logCache;
       this.watchingHandler = watchingHandler;
     }
@@ -449,7 +449,7 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
     public void handle(IWebSocketChannel channel, WebSocketFrameType type, byte[] bytes) throws Exception {
       if (type == WebSocketFrameType.TEXT) {
         String commandLine = new String(bytes, StandardCharsets.UTF_8);
-        this.logCache.getCloudService().runCommand(commandLine);
+        this.service.runCommand(commandLine);
       }
     }
 

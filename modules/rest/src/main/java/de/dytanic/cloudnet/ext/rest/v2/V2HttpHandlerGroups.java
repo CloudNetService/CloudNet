@@ -20,8 +20,8 @@ import de.dytanic.cloudnet.driver.network.http.HttpResponseCode;
 import de.dytanic.cloudnet.driver.network.http.IHttpContext;
 import de.dytanic.cloudnet.driver.provider.GroupConfigurationProvider;
 import de.dytanic.cloudnet.driver.service.GroupConfiguration;
-import de.dytanic.cloudnet.http.v2.HttpSession;
-import de.dytanic.cloudnet.http.v2.V2HttpHandler;
+import de.dytanic.cloudnet.http.HttpSession;
+import de.dytanic.cloudnet.http.V2HttpHandler;
 import java.util.function.Consumer;
 
 public class V2HttpHandlerGroups extends V2HttpHandler {
@@ -49,7 +49,7 @@ public class V2HttpHandlerGroups extends V2HttpHandler {
 
   protected void handleGroupListRequest(IHttpContext context) {
     this.ok(context)
-      .body(this.success().append("groups", this.getGroupProvider().getGroupConfigurations()).toByteArray())
+      .body(this.success().append("groups", this.getGroupProvider().getGroupConfigurations()).toString())
       .context()
       .closeAfter(true)
       .cancelNext();
@@ -57,7 +57,7 @@ public class V2HttpHandlerGroups extends V2HttpHandler {
 
   protected void handleGroupExistsRequest(IHttpContext context) {
     this.handleWithGroupContext(context, name -> this.ok(context)
-      .body(this.success().append("result", this.getGroupProvider().isGroupConfigurationPresent(name)).toByteArray())
+      .body(this.success().append("result", this.getGroupProvider().isGroupConfigurationPresent(name)).toString())
       .context()
       .closeAfter(true)
       .cancelNext()
@@ -69,13 +69,13 @@ public class V2HttpHandlerGroups extends V2HttpHandler {
       GroupConfiguration configuration = this.getGroupProvider().getGroupConfiguration(name);
       if (configuration == null) {
         this.ok(context)
-          .body(this.failure().append("reason", "Unknown configuration").toByteArray())
+          .body(this.failure().append("reason", "Unknown configuration").toString())
           .context()
           .closeAfter(true)
           .cancelNext();
       } else {
         this.ok(context)
-          .body(this.success().append("group", configuration).toByteArray())
+          .body(this.success().append("group", configuration).toString())
           .context()
           .closeAfter(true)
           .cancelNext();
@@ -87,7 +87,7 @@ public class V2HttpHandlerGroups extends V2HttpHandler {
     GroupConfiguration configuration = this.body(context.request()).toInstanceOf(GroupConfiguration.class);
     if (configuration == null) {
       this.badRequest(context)
-        .body(this.failure().append("reason", "Missing configuration").toByteArray())
+        .body(this.failure().append("reason", "Missing configuration").toString())
         .context()
         .closeAfter(true)
         .cancelNext();
@@ -96,7 +96,7 @@ public class V2HttpHandlerGroups extends V2HttpHandler {
 
     this.getGroupProvider().addGroupConfiguration(configuration);
     this.response(context, HttpResponseCode.HTTP_CREATED)
-      .body(this.success().toByteArray())
+      .body(this.success().toString())
       .context()
       .closeAfter(true)
       .cancelNext();
@@ -105,15 +105,15 @@ public class V2HttpHandlerGroups extends V2HttpHandler {
   protected void handleDeleteGroupRequest(IHttpContext context) {
     this.handleWithGroupContext(context, name -> {
       if (this.getGroupProvider().isGroupConfigurationPresent(name)) {
-        this.getGroupProvider().removeGroupConfiguration(name);
+        this.getGroupProvider().removeGroupConfigurationByName(name);
         this.ok(context)
-          .body(this.success().toByteArray())
+          .body(this.success().toString())
           .context()
           .closeAfter(true)
           .cancelNext();
       } else {
         this.response(context, HttpResponseCode.HTTP_GONE)
-          .body(this.failure().append("reason", "No such group").toByteArray())
+          .body(this.failure().append("reason", "No such group").toString())
           .context()
           .closeAfter(true)
           .cancelNext();
@@ -125,7 +125,7 @@ public class V2HttpHandlerGroups extends V2HttpHandler {
     String groupName = context.request().pathParameters().get("group");
     if (groupName == null) {
       this.badRequest(context)
-        .body(this.failure().append("reason", "Missing group parameter").toByteArray())
+        .body(this.failure().append("reason", "Missing group parameter").toString())
         .context()
         .closeAfter(true)
         .cancelNext();

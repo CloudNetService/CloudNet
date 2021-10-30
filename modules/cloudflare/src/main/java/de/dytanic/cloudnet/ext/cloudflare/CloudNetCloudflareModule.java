@@ -17,19 +17,20 @@
 package de.dytanic.cloudnet.ext.cloudflare;
 
 import com.google.gson.JsonParseException;
+import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
-import de.dytanic.cloudnet.common.language.LanguageManager;
+import de.dytanic.cloudnet.common.language.I18n;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
+import de.dytanic.cloudnet.config.IConfiguration;
 import de.dytanic.cloudnet.driver.module.ModuleLifeCycle;
 import de.dytanic.cloudnet.driver.module.ModuleTask;
+import de.dytanic.cloudnet.driver.module.driver.DriverModule;
 import de.dytanic.cloudnet.ext.cloudflare.cloudflare.CloudFlareAPI;
 import de.dytanic.cloudnet.ext.cloudflare.cloudflare.DnsRecordDetail;
 import de.dytanic.cloudnet.ext.cloudflare.dns.DNSType;
 import de.dytanic.cloudnet.ext.cloudflare.dns.DefaultDNSRecord;
-import de.dytanic.cloudnet.ext.cloudflare.http.V1CloudflareConfigurationHttpHandler;
 import de.dytanic.cloudnet.ext.cloudflare.listener.CloudflareStartAndStopListener;
-import de.dytanic.cloudnet.module.NodeCloudNetModule;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -37,7 +38,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.UUID;
 
-public final class CloudNetCloudflareModule extends NodeCloudNetModule {
+public final class CloudNetCloudflareModule extends DriverModule {
 
   private static final Logger LOGGER = LogManager.getLogger(CloudNetCloudflareModule.class);
   private static CloudNetCloudflareModule instance;
@@ -90,6 +91,8 @@ public final class CloudNetCloudflareModule extends NodeCloudNetModule {
 
   @ModuleTask(order = 125, event = ModuleLifeCycle.STARTED)
   public void addedDefaultCloudflareDNSServices() {
+    IConfiguration cloudConfig = CloudNet.getInstance().getConfig();
+
     for (CloudflareConfigurationEntry entry : this.getCloudflareConfiguration().getEntries()) {
       if (entry.isEnabled()) {
         boolean ipv6Address;
@@ -105,15 +108,15 @@ public final class CloudNetCloudflareModule extends NodeCloudNetModule {
           entry,
           new DefaultDNSRecord(
             ipv6Address ? DNSType.AAAA : DNSType.A,
-            this.getCloudNetConfig().getIdentity().getUniqueId() + "." + entry.getDomainName(),
+            cloudConfig.getIdentity().getUniqueId() + "." + entry.getDomainName(),
             entry.getHostAddress(),
-            JsonDocument.EMPTY
+            JsonDocument.empty()
           )
         );
         if (recordDetail != null) {
           LOGGER
-            .info(LanguageManager.getMessage("module-cloudflare-create-dns-record-for-service")
-              .replace("%service%", this.getCloudNet().getConfig().getIdentity().getUniqueId())
+            .info(I18n.trans("module-cloudflare-create-dns-record-for-service")
+              .replace("%service%", cloudConfig.getIdentity().getUniqueId())
               .replace("%domain%", entry.getDomainName())
               .replace("%recordId%", recordDetail.getId())
             );
@@ -125,14 +128,6 @@ public final class CloudNetCloudflareModule extends NodeCloudNetModule {
   @ModuleTask(order = 124, event = ModuleLifeCycle.STARTED)
   public void registerListeners() {
     this.registerListener(new CloudflareStartAndStopListener(this.cloudFlareAPI));
-  }
-
-  @ModuleTask(order = 123, event = ModuleLifeCycle.STARTED)
-  public void registerHttpHandlers() {
-    this.getHttpServer().registerHandler(
-      "/api/v1/modules/cloudflare/config",
-      new V1CloudflareConfigurationHttpHandler("cloudnet.http.v1.modules.cloudflare.config")
-    );
   }
 
   public void updateConfiguration(CloudflareConfiguration cloudflareConfiguration) {

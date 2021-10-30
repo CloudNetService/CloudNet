@@ -24,8 +24,8 @@ import de.dytanic.cloudnet.config.IConfiguration;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
 import de.dytanic.cloudnet.driver.network.http.HttpResponseCode;
 import de.dytanic.cloudnet.driver.network.http.IHttpContext;
-import de.dytanic.cloudnet.http.v2.HttpSession;
-import de.dytanic.cloudnet.http.v2.V2HttpHandler;
+import de.dytanic.cloudnet.http.HttpSession;
+import de.dytanic.cloudnet.http.V2HttpHandler;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
@@ -66,13 +66,13 @@ public class V2HttpHandlerCluster extends V2HttpHandler {
     NodeServer server = this.getNodeServer(context, true);
     if (server != null) {
       this.ok(context)
-        .body(this.success().append("node", this.createNodeInfoDocument(server)).toByteArray())
+        .body(this.success().append("node", this.createNodeInfoDocument(server)).toString())
         .context()
         .closeAfter(true)
         .cancelNext();
     } else {
       this.response(context, HttpResponseCode.HTTP_NOT_FOUND)
-        .body(this.failure().append("reason", "No such node found").toByteArray())
+        .body(this.failure().append("reason", "No such node found").toString())
         .context()
         .closeAfter(true)
         .cancelNext();
@@ -87,7 +87,7 @@ public class V2HttpHandlerCluster extends V2HttpHandler {
     nodes.add(this.createNodeInfoDocument(this.getNodeProvider().getSelfNode()));
 
     this.ok(context)
-      .body(this.success().append("nodes", nodes).toByteArray())
+      .body(this.success().append("nodes", nodes).toString())
       .context()
       .closeAfter(true)
       .cancelNext();
@@ -99,16 +99,16 @@ public class V2HttpHandlerCluster extends V2HttpHandler {
     if (commandLine == null || nodeServer == null) {
       this.badRequest(context)
         .body(this.failure().append("reason", nodeServer == null ? "Unknown node server" : "Missing command line")
-          .toByteArray())
+          .toString())
         .context()
         .closeAfter(true)
         .cancelNext();
       return;
     }
 
-    String[] result = nodeServer.sendCommandLine(commandLine);
+    Collection<String> result = nodeServer.sendCommandLine(commandLine);
     this.ok(context)
-      .body(this.success().append("result", result).toByteArray())
+      .body(this.success().append("result", result).toString())
       .context()
       .closeAfter(true)
       .cancelNext();
@@ -118,7 +118,7 @@ public class V2HttpHandlerCluster extends V2HttpHandler {
     NetworkClusterNode server = this.body(context.request()).toInstanceOf(NetworkClusterNode.class);
     if (server == null || server.getUniqueId() == null || server.getListeners() == null) {
       this.badRequest(context)
-        .body(this.failure().append("reason", "Missing node server information").toByteArray())
+        .body(this.failure().append("reason", "Missing node server information").toString())
         .context()
         .closeAfter(true)
         .cancelNext();
@@ -127,7 +127,7 @@ public class V2HttpHandlerCluster extends V2HttpHandler {
 
     if (this.getNodeServer(server.getUniqueId(), true) != null) {
       this.badRequest(context)
-        .body(this.failure().append("reason", "The node server is already registered").toByteArray())
+        .body(this.failure().append("reason", "The node server is already registered").toString())
         .context()
         .closeAfter(true)
         .cancelNext();
@@ -141,7 +141,7 @@ public class V2HttpHandlerCluster extends V2HttpHandler {
     this.getNodeProvider().setClusterServers(configuration.getClusterConfig());
 
     this.response(context, HttpResponseCode.HTTP_CREATED)
-      .body(this.success().toByteArray())
+      .body(this.success().toString())
       .context()
       .closeAfter(true)
       .cancelNext();
@@ -151,7 +151,7 @@ public class V2HttpHandlerCluster extends V2HttpHandler {
     String uniqueId = context.request().pathParameters().get("node");
     if (uniqueId == null) {
       this.badRequest(context)
-        .body(this.failure().append("reason", "No node unique id provided").toByteArray())
+        .body(this.failure().append("reason", "No node unique id provided").toString())
         .context()
         .closeAfter(true)
         .cancelNext();
@@ -165,13 +165,13 @@ public class V2HttpHandlerCluster extends V2HttpHandler {
       this.getNodeProvider().setClusterServers(this.getConfiguration().getClusterConfig());
 
       this.response(context, HttpResponseCode.HTTP_OK)
-        .body(this.success().toByteArray())
+        .body(this.success().toString())
         .context()
         .closeAfter(true)
         .cancelNext();
     } else {
       this.response(context, HttpResponseCode.HTTP_NOT_FOUND)
-        .body(this.failure().append("reason", "No node with that unique id present").toByteArray())
+        .body(this.failure().append("reason", "No node with that unique id present").toString())
         .context()
         .closeAfter(true)
         .cancelNext();
@@ -182,7 +182,7 @@ public class V2HttpHandlerCluster extends V2HttpHandler {
     NetworkClusterNode server = this.body(context.request()).toInstanceOf(NetworkClusterNode.class);
     if (server == null) {
       this.badRequest(context)
-        .body(this.failure().append("reason", "Missing node server information").toByteArray())
+        .body(this.failure().append("reason", "Missing node server information").toString())
         .context()
         .closeAfter(true)
         .cancelNext();
@@ -196,18 +196,18 @@ public class V2HttpHandlerCluster extends V2HttpHandler {
       .orElse(null);
     if (registered == null) {
       this.response(context, HttpResponseCode.HTTP_NOT_FOUND)
-        .body(this.failure().append("reason", "No node with that unique id present").toByteArray())
+        .body(this.failure().append("reason", "No node with that unique id present").toString())
         .context()
         .closeAfter(true)
         .cancelNext();
     } else {
-      registered.setListeners(server.getListeners());
+      //TODO: registered.setListeners(server.getListeners());
       registered.getProperties().append(server.getProperties());
       this.getConfiguration().save();
       this.getNodeProvider().setClusterServers(this.getConfiguration().getClusterConfig());
 
       this.ok(context)
-        .body(this.success().toByteArray())
+        .body(this.success().toString())
         .context()
         .closeAfter(true)
         .cancelNext();

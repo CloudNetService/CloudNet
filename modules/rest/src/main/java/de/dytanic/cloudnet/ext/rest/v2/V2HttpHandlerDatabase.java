@@ -21,8 +21,8 @@ import de.dytanic.cloudnet.driver.database.Database;
 import de.dytanic.cloudnet.driver.database.DatabaseProvider;
 import de.dytanic.cloudnet.driver.network.http.IHttpContext;
 import de.dytanic.cloudnet.ext.rest.RestUtils;
-import de.dytanic.cloudnet.http.v2.HttpSession;
-import de.dytanic.cloudnet.http.v2.V2HttpHandler;
+import de.dytanic.cloudnet.http.HttpSession;
+import de.dytanic.cloudnet.http.V2HttpHandler;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.function.BiConsumer;
@@ -71,7 +71,7 @@ public class V2HttpHandlerDatabase extends V2HttpHandler {
 
   protected void handleNamesRequest(IHttpContext context) {
     this.ok(context)
-      .body(this.success().append("names", this.getDatabaseProvider().getDatabaseNames()).toByteArray())
+      .body(this.success().append("names", this.getDatabaseProvider().getDatabaseNames()).toString())
       .context()
       .closeAfter(true)
       .cancelNext();
@@ -85,7 +85,10 @@ public class V2HttpHandlerDatabase extends V2HttpHandler {
     }
 
     database.clear();
-    this.ok(context).body(this.success().toByteArray()).context().closeAfter(true).cancelNext();
+    this.ok(context)
+      .body(this.success().toString())
+      .context().closeAfter(true)
+      .cancelNext();
   }
 
   protected void handleContainsRequest(IHttpContext context) {
@@ -98,14 +101,14 @@ public class V2HttpHandlerDatabase extends V2HttpHandler {
     String key = RestUtils.getFirst(context.request().queryParameters().get("key"));
     if (key == null) {
       this.badRequest(context)
-        .body(this.failure().append("reason", "Missing key in request").toByteArray())
+        .body(this.failure().append("reason", "Missing key in request").toString())
         .context()
         .closeAfter(true)
         .cancelNext();
     }
 
     this.ok(context)
-      .body(this.success().append("result", database.contains(key)).toByteArray())
+      .body(this.success().append("result", database.contains(key)).toString())
       .context()
       .closeAfter(true)
       .cancelNext();
@@ -124,7 +127,7 @@ public class V2HttpHandlerDatabase extends V2HttpHandler {
 
     if (key == null && filter == null) {
       this.badRequest(context)
-        .body(this.failure().append("reason", "Key or filter is required").toByteArray())
+        .body(this.failure().append("reason", "Key or filter is required").toString())
         .context()
         .closeAfter(true)
         .cancelNext();
@@ -133,7 +136,7 @@ public class V2HttpHandlerDatabase extends V2HttpHandler {
 
     Collection<JsonDocument> result = filter == null ? Collections.singleton(database.get(key)) : database.get(filter);
     this.ok(context)
-      .body(this.success().append("result", result).toByteArray())
+      .body(this.success().append("result", result).toString())
       .context()
       .closeAfter(true)
       .cancelNext();
@@ -147,7 +150,7 @@ public class V2HttpHandlerDatabase extends V2HttpHandler {
     }
 
     this.ok(context)
-      .body(this.success().append("keys", database.keys()).toByteArray())
+      .body(this.success().append("keys", database.keys()).toString())
       .context()
       .closeAfter(true)
       .cancelNext();
@@ -162,7 +165,7 @@ public class V2HttpHandlerDatabase extends V2HttpHandler {
     }
 
     this.ok(context)
-      .body(this.success().append("count", database.getDocumentsCount()).toByteArray())
+      .body(this.success().append("count", database.getDocumentsCount()).toString())
       .context()
       .closeAfter(true)
       .cancelNext();
@@ -177,9 +180,9 @@ public class V2HttpHandlerDatabase extends V2HttpHandler {
 
     this.withContextData(context, (key, data) -> {
       if (database.insert(key, data)) {
-        this.ok(context).body(this.success().toByteArray()).context().closeAfter(true).cancelNext();
+        this.ok(context).body(this.success().toString()).context().closeAfter(true).cancelNext();
       } else {
-        this.ok(context).body(this.failure().toByteArray()).context().closeAfter(true).cancelNext();
+        this.ok(context).body(this.failure().toString()).context().closeAfter(true).cancelNext();
       }
     });
   }
@@ -193,9 +196,9 @@ public class V2HttpHandlerDatabase extends V2HttpHandler {
 
     this.withContextData(context, (key, data) -> {
       if (database.update(key, data)) {
-        this.ok(context).body(this.success().toByteArray()).context().closeAfter(true).cancelNext();
+        this.ok(context).body(this.success().toString()).context().closeAfter(true).cancelNext();
       } else {
-        this.ok(context).body(this.failure().toByteArray()).context().closeAfter(true).cancelNext();
+        this.ok(context).body(this.failure().toString()).context().closeAfter(true).cancelNext();
       }
     });
   }
@@ -209,9 +212,9 @@ public class V2HttpHandlerDatabase extends V2HttpHandler {
 
     String key = RestUtils.getFirst(context.request().queryParameters().get("key"));
     if (database.delete(key)) {
-      this.ok(context).body(this.success().toByteArray()).context().closeAfter(true).cancelNext();
+      this.ok(context).body(this.success().toString()).context().closeAfter(true).cancelNext();
     } else {
-      this.ok(context).body(this.failure().toByteArray()).context().closeAfter(true).cancelNext();
+      this.ok(context).body(this.failure().toString()).context().closeAfter(true).cancelNext();
     }
   }
 
@@ -222,7 +225,7 @@ public class V2HttpHandlerDatabase extends V2HttpHandler {
 
     if (key == null || data == null) {
       this.badRequest(context)
-        .body(this.failure().append("reason", key == null ? "Missing key" : "Missing value").toByteArray())
+        .body(this.failure().append("reason", key == null ? "Missing key" : "Missing value").toString())
         .context()
         .closeAfter(true)
         .cancelNext();
@@ -234,7 +237,7 @@ public class V2HttpHandlerDatabase extends V2HttpHandler {
 
   protected void sendInvalidDatabaseName(IHttpContext context) {
     this.badRequest(context)
-      .body(this.failure().append("reason", "No such database").toByteArray())
+      .body(this.failure().append("reason", "No such database").toString())
       .context()
       .closeAfter(true)
       .cancelNext();

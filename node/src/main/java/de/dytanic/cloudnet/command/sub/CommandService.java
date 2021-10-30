@@ -228,8 +228,7 @@ public final class CommandService {
       I18n.trans("command-copy-success")
         .replace("%name%", service.getServiceId().getName())
         .replace("%template%",
-          targetTemplate.getStorage() + ":" + targetTemplate.getPrefix() + "/" + targetTemplate.getName())
-    );
+          targetTemplate.getStorage() + ":" + targetTemplate.getPrefix() + "/" + targetTemplate.getName()));
   }
 
   @CommandMethod("service|ser <name> delete|del")
@@ -410,5 +409,4 @@ public final class CommandService {
 
     return Arrays.asList(excludes.split(";"));
   }
-
 }
