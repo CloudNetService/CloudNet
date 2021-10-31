@@ -26,10 +26,6 @@ import org.jetbrains.annotations.Nullable;
 
 public final class MySQLDatabase extends SQLDatabase {
 
-  public MySQLDatabase(MySQLDatabaseProvider databaseProvider, String name, ExecutorService executorService) {
-    super(databaseProvider, name, executorService);
-  }
-
   public MySQLDatabase(
     SQLDatabaseProvider databaseProvider,
     String name,

@@ -19,9 +19,9 @@ package de.dytanic.cloudnet.ext.database.mysql;
 import com.google.common.base.Preconditions;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import de.dytanic.cloudnet.common.concurrent.IThrowableCallback;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
-import de.dytanic.cloudnet.database.IDatabase;
+import de.dytanic.cloudnet.common.function.ThrowableFunction;
+import de.dytanic.cloudnet.database.LocalDatabase;
 import de.dytanic.cloudnet.database.sql.SQLDatabaseProvider;
 import de.dytanic.cloudnet.ext.database.mysql.util.MySQLConnectionEndpoint;
 import java.sql.Connection;
@@ -89,12 +89,7 @@ public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
   }
 
   @Override
-  public boolean needsClusterSync() {
-    return false;
-  }
-
-  @Override
-  public IDatabase getDatabase(String name) {
+  public @NotNull LocalDatabase getDatabase(@NotNull String name) {
     Preconditions.checkNotNull(name);
 
     this.removedOutdatedEntries();
@@ -103,7 +98,7 @@ public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
   }
 
   @Override
-  public boolean deleteDatabase(String name) {
+  public boolean deleteDatabase(@NotNull String name) {
     Preconditions.checkNotNull(name);
 
     this.cachedDatabaseInstances.remove(name);
@@ -111,7 +106,7 @@ public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
   }
 
   @Override
-  public Collection<String> getDatabaseNames() {
+  public @NotNull Collection<String> getDatabaseNames() {
     return this.executeQuery(
       "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA='PUBLIC'",
       resultSet -> {
@@ -137,8 +132,15 @@ public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
     this.hikariDataSource.close();
   }
 
-  public Connection getConnection() throws SQLException {
-    return this.hikariDataSource.getConnection();
+  @Override
+  public @NotNull Connection getConnection() {
+    try {
+      return this.hikariDataSource.getConnection();
+    } catch (SQLException exception) {
+      LOGGER.severe("Exception while opening connection", exception);
+    }
+
+    return null;
   }
 
   public HikariDataSource getHikariDataSource() {
@@ -153,7 +155,8 @@ public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
     return this.addresses;
   }
 
-  public int executeUpdate(String query, Object... objects) {
+  @Override
+  public int executeUpdate(@NotNull String query, Object... objects) {
     Preconditions.checkNotNull(query);
     Preconditions.checkNotNull(objects);
 
@@ -173,7 +176,9 @@ public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
     return -1;
   }
 
-  public <T> T executeQuery(String query, IThrowableCallback<ResultSet, T> callback, Object... objects) {
+  @Override
+  public <T> T executeQuery(@NotNull String query, @NotNull ThrowableFunction<ResultSet, T, SQLException> callback,
+    Object... objects) {
     Preconditions.checkNotNull(query);
     Preconditions.checkNotNull(callback);
     Preconditions.checkNotNull(objects);
@@ -186,7 +191,7 @@ public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
       }
 
       try (ResultSet resultSet = preparedStatement.executeQuery()) {
-        return callback.call(resultSet);
+        return callback.apply(resultSet);
       }
     } catch (Throwable throwable) {
       LOGGER.severe("Exception while executing database query", throwable);

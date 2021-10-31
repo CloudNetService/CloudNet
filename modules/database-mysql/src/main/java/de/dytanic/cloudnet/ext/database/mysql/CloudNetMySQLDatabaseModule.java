@@ -22,14 +22,14 @@ import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.database.AbstractDatabaseProvider;
 import de.dytanic.cloudnet.driver.module.ModuleLifeCycle;
 import de.dytanic.cloudnet.driver.module.ModuleTask;
+import de.dytanic.cloudnet.driver.module.driver.DriverModule;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.ext.database.mysql.util.MySQLConnectionEndpoint;
-import de.dytanic.cloudnet.module.NodeCloudNetModule;
 import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.List;
 
-public final class CloudNetMySQLDatabaseModule extends NodeCloudNetModule {
+public final class CloudNetMySQLDatabaseModule extends DriverModule {
 
   public static final Type TYPE = TypeToken.getParameterized(List.class, MySQLConnectionEndpoint.class).getType();
 

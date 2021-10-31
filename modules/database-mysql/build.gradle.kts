@@ -23,11 +23,8 @@ dependencies {
     exclude("com.google.protobuf")
   }
   "moduleLibrary"("com.zaxxer", "HikariCP", Versions.hikariCp)
-  "moduleLibrary"("org.javassist", "javasisst", Versions.javassist)
   "moduleLibrary"("org.slf4j", "slf4j-nop", Versions.slf4j)
 }
-
-/*
 
 moduleJson {
   main = "de.dytanic.cloudnet.ext.database.mysql.CloudNetMySQLDatabaseModule"
@@ -36,4 +33,4 @@ moduleJson {
   minJavaVersionId = JavaVersion.VERSION_11
   runtimeModule = true
   storesSensitiveData = true
-}*/
+}
