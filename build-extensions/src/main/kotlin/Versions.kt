@@ -21,7 +21,7 @@ object Versions {
   const val cloudNetCodeName = "Blizzard"
 
   // google libs
-  const val gson = "2.8.8"
+  const val gson = "2.8.9"
   const val guava = "31.0.1-jre"
 
   // testing
@@ -42,7 +42,7 @@ object Versions {
   const val h2 = "1.4.197" // do not update, leads to database incompatibility
   const val xodus = "1.3.232"
   const val mongodb = "4.3.3"
-  const val mysqlConnector = "8.0.26"
+  const val mysqlConnector = "8.0.27"
   const val hikariCp = "5.0.0"
 
   const val asm = "9.2"

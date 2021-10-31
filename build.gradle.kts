@@ -18,6 +18,7 @@ import org.cadixdev.gradle.licenser.LicenseExtension
 
 plugins {
   id("cloudnet.parent-build-logic")
+  id("com.github.ben-manes.versions") version "0.39.0"
   id("org.cadixdev.licenser") version "0.6.1" apply false
 }
 
