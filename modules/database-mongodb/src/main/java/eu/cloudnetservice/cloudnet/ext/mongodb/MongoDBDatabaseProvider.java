@@ -21,7 +21,7 @@ import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import de.dytanic.cloudnet.database.AbstractDatabaseProvider;
-import de.dytanic.cloudnet.driver.database.Database;
+import de.dytanic.cloudnet.database.LocalDatabase;
 import eu.cloudnetservice.cloudnet.ext.mongodb.config.MongoDBConnectionConfig;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -37,7 +37,7 @@ public class MongoDBDatabaseProvider extends AbstractDatabaseProvider {
   protected final MongoDBConnectionConfig config;
   protected final ExecutorService executorService;
   protected final boolean autoShutdownExecutorService;
-  protected final Map<String, Database> cachedDatabaseInstances;
+  protected final Map<String, LocalDatabase> cachedDatabaseInstances;
 
   protected MongoClient mongoClient;
   protected MongoDatabase mongoDatabase;
@@ -62,7 +62,7 @@ public class MongoDBDatabaseProvider extends AbstractDatabaseProvider {
   }
 
   @Override
-  public Database getDatabase(String name) {
+  public @NotNull LocalDatabase getDatabase(@NotNull String name) {
     return this.cachedDatabaseInstances.computeIfAbsent(name, $ -> {
       MongoCollection<Document> collection = this.mongoDatabase.getCollection(name);
       return new MongoDBDatabase(name, collection, this.executorService, this);
@@ -70,12 +70,12 @@ public class MongoDBDatabaseProvider extends AbstractDatabaseProvider {
   }
 
   @Override
-  public boolean containsDatabase(String name) {
+  public boolean containsDatabase(@NotNull String name) {
     return this.getDatabaseNames().contains(name);
   }
 
   @Override
-  public boolean deleteDatabase(String name) {
+  public boolean deleteDatabase(@NotNull String name) {
     this.cachedDatabaseInstances.remove(name);
     this.mongoDatabase.getCollection(name).drop();
 
@@ -83,13 +83,8 @@ public class MongoDBDatabaseProvider extends AbstractDatabaseProvider {
   }
 
   @Override
-  public Collection<String> getDatabaseNames() {
+  public @NotNull Collection<String> getDatabaseNames() {
     return this.mongoDatabase.listCollectionNames().into(new ArrayList<>());
-  }
-
-  @Override
-  public boolean needsClusterSync() {
-    return false;
   }
 
   @Override

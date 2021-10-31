@@ -23,12 +23,10 @@ dependencies {
   "moduleLibrary"("org.slf4j", "slf4j-nop", Versions.slf4j)
 }
 
-/*
-
 moduleJson {
   main = "eu.cloudnetservice.cloudnet.ext.mongodb.CloudNetMongoDatabaseModule"
   author = "CloudNetService"
   description = "CloudNet extension, which includes the database support for MongoDB"
   runtimeModule = true
   storesSensitiveData = true
-}*/
+}

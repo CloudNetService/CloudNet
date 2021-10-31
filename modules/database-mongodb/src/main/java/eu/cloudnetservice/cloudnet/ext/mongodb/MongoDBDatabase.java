@@ -59,12 +59,12 @@ public class MongoDBDatabase extends AbstractDatabase {
   }
 
   @Override
-  public boolean insert(String key, JsonDocument document) {
+  public boolean insert(@NotNull String key, @NotNull JsonDocument document) {
     return this.insertOrUpdate(key, document);
   }
 
   @Override
-  public boolean update(String key, JsonDocument document) {
+  public boolean update(@NotNull String key, @NotNull JsonDocument document) {
     return this.insertOrUpdate(key, document);
   }
 
@@ -73,19 +73,19 @@ public class MongoDBDatabase extends AbstractDatabase {
       Filters.eq(KEY_NAME, key),
       Updates.combine(
         Updates.setOnInsert(new Document(KEY_NAME, key)),
-        Updates.set(VALUE_NAME, Document.parse(document.toJson()))
+        Updates.set(VALUE_NAME, Document.parse(document.toString()))
       ),
       INSERT_OR_REPLACE_OPTIONS);
     return result.getUpsertedId() != null || result.getMatchedCount() > 0;
   }
 
   @Override
-  public boolean contains(String key) {
+  public boolean contains(@NotNull String key) {
     return this.collection.find(Filters.eq(KEY_NAME, key)).first() != null;
   }
 
   @Override
-  public boolean delete(String key) {
+  public boolean delete(@NotNull String key) {
     return this.delete0(key);
   }
 
@@ -100,7 +100,7 @@ public class MongoDBDatabase extends AbstractDatabase {
   }
 
   @Override
-  public List<JsonDocument> get(String fieldName, Object fieldValue) {
+  public @NotNull List<JsonDocument> get(@NotNull String fieldName, Object fieldValue) {
     List<JsonDocument> documents = new ArrayList<>();
     try (MongoCursor<Document> cursor = this.collection.find(this.valueEq(fieldName, fieldValue)).iterator()) {
       while (cursor.hasNext()) {
@@ -111,10 +111,10 @@ public class MongoDBDatabase extends AbstractDatabase {
   }
 
   @Override
-  public List<JsonDocument> get(JsonDocument filters) {
+  public @NotNull List<JsonDocument> get(JsonDocument filters) {
     Collection<Bson> bsonFilters = new ArrayList<>();
     for (String filter : filters) {
-      Object value = filters.getElement(filter).toString();
+      Object value = filters.get(filter);
       bsonFilters.add(this.valueEq(filter, value));
     }
 
@@ -128,7 +128,7 @@ public class MongoDBDatabase extends AbstractDatabase {
   }
 
   @Override
-  public Collection<String> keys() {
+  public @NotNull Collection<String> keys() {
     Collection<String> keys = new ArrayList<>();
     try (MongoCursor<Document> cursor = this.collection.find().iterator()) {
       while (cursor.hasNext()) {
@@ -139,7 +139,7 @@ public class MongoDBDatabase extends AbstractDatabase {
   }
 
   @Override
-  public Collection<JsonDocument> documents() {
+  public @NotNull Collection<JsonDocument> documents() {
     Collection<JsonDocument> documents = new ArrayList<>();
     try (MongoCursor<Document> cursor = this.collection.find().iterator()) {
       while (cursor.hasNext()) {
@@ -150,12 +150,12 @@ public class MongoDBDatabase extends AbstractDatabase {
   }
 
   @Override
-  public Map<String, JsonDocument> entries() {
+  public @NotNull Map<String, JsonDocument> entries() {
     return this.filter((key, value) -> true);
   }
 
   @Override
-  public Map<String, JsonDocument> filter(BiPredicate<String, JsonDocument> predicate) {
+  public @NotNull Map<String, JsonDocument> filter(@NotNull BiPredicate<String, JsonDocument> predicate) {
     Map<String, JsonDocument> entries = new HashMap<>();
     try (MongoCursor<Document> cursor = this.collection.find().iterator()) {
       while (cursor.hasNext()) {
@@ -172,13 +172,13 @@ public class MongoDBDatabase extends AbstractDatabase {
   }
 
   @Override
-  public void iterate(BiConsumer<String, JsonDocument> consumer) {
+  public void iterate(@NotNull BiConsumer<String, JsonDocument> consumer) {
     this.entries().forEach(consumer);
   }
 
   @Override
   public void clear() {
-    this.clearWithoutHandlerCall();
+    this.collection.deleteMany(new Document());
   }
 
   @Override
@@ -189,26 +189,6 @@ public class MongoDBDatabase extends AbstractDatabase {
   @Override
   public boolean isSynced() {
     return true;
-  }
-
-  @Override
-  public void insertWithoutHandlerCall(@NotNull String key, @NotNull JsonDocument document) {
-    this.insertOrUpdate(key, document);
-  }
-
-  @Override
-  public void updateWithoutHandlerCall(@NotNull String key, @NotNull JsonDocument document) {
-    this.insertOrUpdate(key, document);
-  }
-
-  @Override
-  public void deleteWithoutHandlerCall(@NotNull String key) {
-    this.delete0(key);
-  }
-
-  @Override
-  public void clearWithoutHandlerCall() {
-    this.collection.deleteMany(new Document());
   }
 
   @Override

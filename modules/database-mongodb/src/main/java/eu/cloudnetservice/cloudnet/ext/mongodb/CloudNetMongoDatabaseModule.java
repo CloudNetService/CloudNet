@@ -21,10 +21,10 @@ import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.database.AbstractDatabaseProvider;
 import de.dytanic.cloudnet.driver.module.ModuleLifeCycle;
 import de.dytanic.cloudnet.driver.module.ModuleTask;
-import de.dytanic.cloudnet.module.NodeCloudNetModule;
+import de.dytanic.cloudnet.driver.module.driver.DriverModule;
 import eu.cloudnetservice.cloudnet.ext.mongodb.config.MongoDBConnectionConfig;
 
-public class CloudNetMongoDatabaseModule extends NodeCloudNetModule {
+public class CloudNetMongoDatabaseModule extends DriverModule {
 
   private MongoDBConnectionConfig config;
 
