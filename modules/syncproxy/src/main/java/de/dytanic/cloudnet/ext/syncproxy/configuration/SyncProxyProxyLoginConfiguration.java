@@ -16,6 +16,8 @@
 
 package de.dytanic.cloudnet.ext.syncproxy.configuration;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -46,7 +48,34 @@ public class SyncProxyProxyLoginConfiguration {
     this.maintenanceMotds = maintenanceMotds;
   }
 
-  public SyncProxyProxyLoginConfiguration() {
+  public static SyncProxyProxyLoginConfiguration createDefaultLoginConfiguration(String targetGroup) {
+    return new SyncProxyProxyLoginConfiguration(
+      targetGroup,
+      false,
+      100,
+      new ArrayList<>(),
+      Collections.singletonList(new SyncProxyMotd(
+        "         &b&o■ &8┃ &3&lCloudNet &8● &cBlizzard &8&l» &7&ov3.5 &8┃ &b&o■",
+        "              &7&onext &3&l&ogeneration &7&onetwork",
+        false,
+        1,
+        new String[]{},
+        null
+      )),
+      Collections.singletonList(new SyncProxyMotd(
+        "         &b&o■ &8┃ &3&lCloudNet &8● &cBlizzard &8&l» &7&ov3.5 &8┃ &b&o■",
+        "     &3&lMaintenance &8&l» &7We are still in &3&lmaintenance",
+        false,
+        1,
+        new String[]{
+          " ",
+          "&b&o■ &8┃ &3&lCloudNet &8● &cBlizzard &8&l» &7&ov3.5 &8┃ &b&o■",
+          "&7Discord &8&l» &bdiscord.cloudnetservice.eu",
+          " "
+        },
+        "&8➜ &c&lMaintenance &8┃ &c✘"
+      ))
+    );
   }
 
   public String getTargetGroup() {

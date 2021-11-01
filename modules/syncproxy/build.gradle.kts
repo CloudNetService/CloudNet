@@ -35,17 +35,16 @@ tasks.withType<Jar> {
 }
 
 dependencies {
-  "moduleDependency"(project(":modules:bridge"))
+  //"moduleDependency"(project(":modules:bridge"))
   "compileOnly"(project(":cloudnet-wrapper-jvm"))
   "compileOnly"("net.md-5", "bungeecord-api", Versions.bungeecord)
   "compileOnly"("com.velocitypowered", "velocity-api", Versions.velocity)
   "compileOnly"("dev.waterdog.waterdogpe", "waterdog", Versions.waterdogpe)
 }
-/*
 
 moduleJson {
   author = "CloudNetService"
   main = "de.dytanic.cloudnet.ext.syncproxy.node.CloudNetSyncProxyModule"
   description = "CloudNet extension which serves proxy utils with CloudNet support"
   name = "CloudNet-SyncProxy"
-}*/
+}

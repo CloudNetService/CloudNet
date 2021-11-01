@@ -17,9 +17,9 @@
 package de.dytanic.cloudnet.ext.syncproxy.configuration;
 
 import de.dytanic.cloudnet.driver.CloudNetDriver;
-import de.dytanic.cloudnet.driver.permission.IPermissionGroup;
 import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
-import de.dytanic.cloudnet.driver.permission.IPermissionUser;
+import de.dytanic.cloudnet.driver.permission.PermissionGroup;
+import de.dytanic.cloudnet.driver.permission.PermissionUser;
 import de.dytanic.cloudnet.ext.syncproxy.SyncProxyConstants;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import java.text.DateFormat;
@@ -43,9 +43,6 @@ public class SyncProxyTabList {
     this.footer = footer;
   }
 
-  public SyncProxyTabList() {
-  }
-
   public static String replaceTabListItem(String input, UUID playerUniqueId) {
     input = input
       .replace("%proxy%", Wrapper.getInstance().getServiceId().getName())
@@ -56,10 +53,10 @@ public class SyncProxyTabList {
     if (SyncProxyConstants.CLOUD_PERMS_ENABLED && playerUniqueId != null) {
       IPermissionManagement permissionManagement = CloudNetDriver.getInstance().getPermissionManagement();
 
-      IPermissionUser permissionUser = permissionManagement.getUser(playerUniqueId);
+      PermissionUser permissionUser = permissionManagement.getUser(playerUniqueId);
 
       if (permissionUser != null) {
-        IPermissionGroup group = permissionManagement.getHighestPermissionGroup(permissionUser);
+        PermissionGroup group = permissionManagement.getHighestPermissionGroup(permissionUser);
 
         if (group != null) {
           input = input.replace("%prefix%", group.getPrefix())

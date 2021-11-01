@@ -16,13 +16,12 @@
 
 package de.dytanic.cloudnet.ext.syncproxy.configuration;
 
-import de.dytanic.cloudnet.common.document.gson.JsonDocument;
-import de.dytanic.cloudnet.driver.CloudNetDriver;
+import com.google.common.collect.ImmutableMap;
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.ext.syncproxy.SyncProxyConstants;
 import de.dytanic.cloudnet.wrapper.Wrapper;
-import java.lang.reflect.Type;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -32,13 +31,16 @@ import org.jetbrains.annotations.NotNull;
 @EqualsAndHashCode
 public class SyncProxyConfiguration {
 
-  @Deprecated
-  public static final Type TYPE = SyncProxyConfiguration.class;
+  public static final Map<String, String> DEFAULT_MESSAGES = ImmutableMap.of(
+    "player-login-not-whitelisted", "&cThe network is currently in maintenance!",
+    "player-login-full-server", "&cThe network is currently full. You need extra permissions to enter the network",
+    "service-start", "&7The service &e%service% &7is &astarting &7on node &e%node%&7...",
+    "service-stop", "&7The service &e%service% &7is &cstopping &7on node &e%node%&7...");
 
   protected Collection<SyncProxyProxyLoginConfiguration> loginConfigurations;
   protected Collection<SyncProxyTabListConfiguration> tabListConfigurations;
   protected Map<String, String> messages;
-  private boolean ingameServiceStartStopMessages = true;
+  protected boolean ingameServiceStartStopMessages;
 
   public SyncProxyConfiguration(Collection<SyncProxyProxyLoginConfiguration> loginConfigurations,
     Collection<SyncProxyTabListConfiguration> tabListConfigurations, Map<String, String> messages,
@@ -49,7 +51,12 @@ public class SyncProxyConfiguration {
     this.ingameServiceStartStopMessages = ingameServiceStartStopMessages;
   }
 
-  public SyncProxyConfiguration() {
+  public static SyncProxyConfiguration createDefault(@NotNull String targetGroup) {
+    return new SyncProxyConfiguration(
+      Collections.singletonList(SyncProxyProxyLoginConfiguration.createDefaultLoginConfiguration(targetGroup)),
+      Collections.singletonList(SyncProxyTabListConfiguration.createDefaultTabListConfiguration(targetGroup)),
+      DEFAULT_MESSAGES,
+      true);
   }
 
   public static SyncProxyConfiguration getConfigurationFromNode() {
@@ -61,21 +68,10 @@ public class SyncProxyConfiguration {
       .sendSingleQuery();
 
     if (response != null) {
-      return response.getJson().get("syncProxyConfiguration", SyncProxyConfiguration.class);
+      return response.getContent().readObject(SyncProxyConfiguration.class);
     }
 
     return null;
-  }
-
-  public static void updateSyncProxyConfigurationInNetwork(@NotNull SyncProxyConfiguration syncProxyConfiguration) {
-    CloudNetDriver.getInstance().getMessenger().sendChannelMessage(
-      SyncProxyConstants.SYNC_PROXY_CHANNEL_NAME,
-      SyncProxyConstants.SYNC_PROXY_UPDATE_CONFIGURATION,
-      new JsonDocument(
-        "syncProxyConfiguration",
-        syncProxyConfiguration
-      )
-    );
   }
 
   public Collection<SyncProxyProxyLoginConfiguration> getLoginConfigurations() {

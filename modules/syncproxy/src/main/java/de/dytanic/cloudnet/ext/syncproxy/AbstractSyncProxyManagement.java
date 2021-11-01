@@ -19,14 +19,12 @@ package de.dytanic.cloudnet.ext.syncproxy;
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
-import de.dytanic.cloudnet.ext.bridge.BridgeServiceProperty;
 import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyConfiguration;
 import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyMotd;
 import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyProxyLoginConfiguration;
 import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyTabList;
 import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyTabListConfiguration;
 import de.dytanic.cloudnet.wrapper.Wrapper;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -109,7 +107,7 @@ public abstract class AbstractSyncProxyManagement {
 
     Preconditions.checkNotNull(targetGroup, "There is no configuration for this proxy group!");
 
-    return Arrays.asList(serviceInfoSnapshot.getConfiguration().getGroups()).contains(targetGroup);
+    return serviceInfoSnapshot.getConfiguration().getGroups().contains(targetGroup);
   }
 
   protected void scheduleTabList() {
@@ -152,13 +150,13 @@ public abstract class AbstractSyncProxyManagement {
 
     this.loginConfiguration = syncProxyConfiguration.getLoginConfigurations().stream()
       .filter(loginConfiguration -> loginConfiguration.getTargetGroup() != null &&
-        Arrays.asList(Wrapper.getInstance().getServiceConfiguration().getGroups())
+        Wrapper.getInstance().getServiceConfiguration().getGroups()
           .contains(loginConfiguration.getTargetGroup()))
       .findFirst().orElse(null);
 
     this.tabListConfiguration = syncProxyConfiguration.getTabListConfigurations().stream()
       .filter(tabListConfiguration -> tabListConfiguration.getTargetGroup() != null &&
-        Arrays.asList(Wrapper.getInstance().getServiceConfiguration().getGroups())
+        Wrapper.getInstance().getServiceConfiguration().getGroups()
           .contains(tabListConfiguration.getTargetGroup()))
       .findFirst().orElse(null);
 

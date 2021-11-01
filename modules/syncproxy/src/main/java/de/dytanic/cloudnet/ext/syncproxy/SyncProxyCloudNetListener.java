@@ -17,12 +17,10 @@
 package de.dytanic.cloudnet.ext.syncproxy;
 
 import de.dytanic.cloudnet.driver.event.EventListener;
-import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
-import de.dytanic.cloudnet.driver.event.events.service.CloudServiceInfoUpdateEvent;
-import de.dytanic.cloudnet.driver.event.events.service.CloudServiceStartEvent;
-import de.dytanic.cloudnet.driver.event.events.service.CloudServiceStopEvent;
+import de.dytanic.cloudnet.driver.event.events.service.CloudServiceUpdateEvent;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
-import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyConfiguration;
+import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
+import de.dytanic.cloudnet.event.service.CloudServicePostLifecycleEvent;
 
 public class SyncProxyCloudNetListener {
 
@@ -33,24 +31,22 @@ public class SyncProxyCloudNetListener {
   }
 
   @EventListener
-  public void handle(CloudServiceStartEvent event) {
-    this.syncProxyManagement.broadcastServiceStateChange("service-start", event.getServiceInfo());
-  }
+  public void handle(CloudServicePostLifecycleEvent event) {
+    if (event.getNewLifeCycle() == ServiceLifeCycle.RUNNING) {
+      this.syncProxyManagement.broadcastServiceStateChange("service-start", event.getServiceInfo());
+    } else if (event.getNewLifeCycle() == ServiceLifeCycle.STOPPED) {
+      ServiceInfoSnapshot serviceInfoSnapshot = event.getServiceInfo();
+      if (serviceInfoSnapshot.getServiceId().getEnvironment().isMinecraftProxy() && this.syncProxyManagement
+        .inGroup(serviceInfoSnapshot)) {
+        this.syncProxyManagement.removeServiceOnlineCount(serviceInfoSnapshot);
+      }
 
-  @EventListener
-  public void handle(CloudServiceStopEvent event) {
-    ServiceInfoSnapshot serviceInfoSnapshot = event.getServiceInfo();
-
-    if (serviceInfoSnapshot.getServiceId().getEnvironment().isMinecraftProxy() && this.syncProxyManagement
-      .inGroup(serviceInfoSnapshot)) {
-      this.syncProxyManagement.removeServiceOnlineCount(serviceInfoSnapshot);
+      this.syncProxyManagement.broadcastServiceStateChange("service-stop", serviceInfoSnapshot);
     }
-
-    this.syncProxyManagement.broadcastServiceStateChange("service-stop", serviceInfoSnapshot);
   }
 
   @EventListener
-  public void handleUpdate(CloudServiceInfoUpdateEvent event) {
+  public void handleUpdate(CloudServiceUpdateEvent event) {
     ServiceInfoSnapshot serviceInfoSnapshot = event.getServiceInfo();
 
     if (serviceInfoSnapshot.getServiceId().getEnvironment().isMinecraftProxy() && this.syncProxyManagement
@@ -58,19 +54,4 @@ public class SyncProxyCloudNetListener {
       this.syncProxyManagement.updateServiceOnlineCount(serviceInfoSnapshot);
     }
   }
-
-  @EventListener
-  public void handleChannelMessage(ChannelMessageReceiveEvent event) {
-    if (!event.getChannel().equals(SyncProxyConstants.SYNC_PROXY_CHANNEL_NAME) || event.getMessage() == null) {
-      return;
-    }
-
-    if (SyncProxyConstants.SYNC_PROXY_UPDATE_CONFIGURATION.equalsIgnoreCase(event.getMessage())) {
-      SyncProxyConfiguration syncProxyConfiguration = event.getData()
-        .get("syncProxyConfiguration", SyncProxyConfiguration.class);
-
-      this.syncProxyManagement.setSyncProxyConfiguration(syncProxyConfiguration);
-    }
-  }
-
 }

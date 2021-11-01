@@ -44,9 +44,6 @@ public class SyncProxyMotd {
     this.protocolText = protocolText;
   }
 
-  public SyncProxyMotd() {
-  }
-
   public String getFirstLine() {
     return this.firstLine;
   }

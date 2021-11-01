@@ -17,13 +17,36 @@
 package de.dytanic.cloudnet.ext.syncproxy.node.listener;
 
 import de.dytanic.cloudnet.driver.event.EventListener;
+import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
+import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import de.dytanic.cloudnet.driver.service.ServiceTask;
 import de.dytanic.cloudnet.event.task.LocalServiceTaskAddEvent;
+import de.dytanic.cloudnet.ext.syncproxy.SyncProxyConstants;
 import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyConfiguration;
-import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyConfigurationWriterAndReader;
+import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyConfigurationHelper;
+import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyProxyLoginConfiguration;
+import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyTabListConfiguration;
 import de.dytanic.cloudnet.ext.syncproxy.node.CloudNetSyncProxyModule;
 
 public class SyncProxyDefaultConfigurationListener {
+
+  private final CloudNetSyncProxyModule syncProxyModule;
+
+  public SyncProxyDefaultConfigurationListener(CloudNetSyncProxyModule syncProxyModule) {
+    this.syncProxyModule = syncProxyModule;
+  }
+
+  @EventListener
+  public void handleQuery(ChannelMessageReceiveEvent event) {
+    if (!event.getChannel().equalsIgnoreCase(SyncProxyConstants.SYNC_PROXY_CHANNEL_NAME) || !event.isQuery()) {
+      return;
+    }
+
+    if (SyncProxyConstants.SYNC_PROXY_CHANNEL_GET_CONFIGURATION.equals(event.getMessage())) {
+      event.setBinaryResponse(
+        DataBuf.empty().writeObject(this.syncProxyModule.getSyncProxyConfiguration()));
+    }
+  }
 
   @EventListener
   public void handleTaskAdd(LocalServiceTaskAddEvent event) {
@@ -40,19 +63,19 @@ public class SyncProxyDefaultConfigurationListener {
     if (configuration.getLoginConfigurations().stream()
       .noneMatch(loginConfiguration -> loginConfiguration.getTargetGroup().equals(task.getName()))) {
       configuration.getLoginConfigurations()
-        .add(SyncProxyConfigurationWriterAndReader.createDefaultLoginConfiguration(task.getName()));
+        .add(SyncProxyProxyLoginConfiguration.createDefaultLoginConfiguration(task.getName()));
       modified = true;
     }
 
     if (configuration.getTabListConfigurations().stream()
       .noneMatch(tabListConfiguration -> tabListConfiguration.getTargetGroup().equals(task.getName()))) {
       configuration.getTabListConfigurations()
-        .add(SyncProxyConfigurationWriterAndReader.createDefaultTabListConfiguration(task.getName()));
+        .add(SyncProxyTabListConfiguration.createDefaultTabListConfiguration(task.getName()));
       modified = true;
     }
 
     if (modified) {
-      SyncProxyConfigurationWriterAndReader
+      SyncProxyConfigurationHelper
         .write(configuration, CloudNetSyncProxyModule.getInstance().getConfigurationFilePath());
     }
   }

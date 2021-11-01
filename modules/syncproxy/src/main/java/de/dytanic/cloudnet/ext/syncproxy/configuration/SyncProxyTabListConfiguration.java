@@ -16,6 +16,7 @@
 
 package de.dytanic.cloudnet.ext.syncproxy.configuration;
 
+import java.util.Collections;
 import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -36,7 +37,18 @@ public class SyncProxyTabListConfiguration {
     this.animationsPerSecond = animationsPerSecond;
   }
 
-  public SyncProxyTabListConfiguration() {
+  public static SyncProxyTabListConfiguration createDefaultTabListConfiguration(String targetGroup) {
+    return new SyncProxyTabListConfiguration(
+      targetGroup,
+      Collections.singletonList(
+        new SyncProxyTabList(
+          " \n &b&o■ &8┃ &3&lCloudNet &8● &cBlizzard &8&l» &7&o%online_players%&8/&7&o%max_players% &8┃ &b&o■ "
+            + "\n &8► &7Current server &8● &b%server% &8◄ \n ",
+          " \n &7Discord &8&l» &bdiscord.cloudnetservice.eu \n &7&onext &3&l&ogeneration &7&onetwork \n "
+        )
+      ),
+      1
+    );
   }
 
   public String getTargetGroup() {
@@ -57,14 +69,6 @@ public class SyncProxyTabListConfiguration {
 
   public double getAnimationsPerSecond() {
     return this.animationsPerSecond;
-  }
-
-  /**
-   * Use {@link #setAnimationsPerSecond(double)} instead.
-   */
-  @Deprecated
-  public void setAnimationsPerSecond(int animationsPerSecond) {
-    this.animationsPerSecond = animationsPerSecond;
   }
 
   public void setAnimationsPerSecond(double animationsPerSecond) {
