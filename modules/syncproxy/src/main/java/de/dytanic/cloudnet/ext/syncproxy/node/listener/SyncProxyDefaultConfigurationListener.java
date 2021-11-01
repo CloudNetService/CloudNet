@@ -24,7 +24,7 @@ import de.dytanic.cloudnet.event.task.LocalServiceTaskAddEvent;
 import de.dytanic.cloudnet.ext.syncproxy.SyncProxyConstants;
 import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyConfiguration;
 import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyConfigurationHelper;
-import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyProxyLoginConfiguration;
+import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyLoginConfiguration;
 import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyTabListConfiguration;
 import de.dytanic.cloudnet.ext.syncproxy.node.CloudNetSyncProxyModule;
 
@@ -42,9 +42,17 @@ public class SyncProxyDefaultConfigurationListener {
       return;
     }
 
-    if (SyncProxyConstants.SYNC_PROXY_CHANNEL_GET_CONFIGURATION.equals(event.getMessage())) {
+    if (SyncProxyConstants.SYNC_PROXY_GET_CONFIGURATION.equals(event.getMessage())) {
       event.setBinaryResponse(
         DataBuf.empty().writeObject(this.syncProxyModule.getSyncProxyConfiguration()));
+    } else if (SyncProxyConstants.SYNC_PROXY_UPDATE_CONFIGURATION.equals(event.getMessage())) {
+      SyncProxyConfiguration configuration = event.getContent().readObject(SyncProxyConfiguration.class);
+      if (configuration == null) {
+        return;
+      }
+
+      this.syncProxyModule.setSyncProxyConfiguration(configuration);
+      SyncProxyConfigurationHelper.write(configuration, this.syncProxyModule.getConfigurationFilePath());
     }
   }
 
@@ -57,13 +65,13 @@ public class SyncProxyDefaultConfigurationListener {
       return;
     }
 
-    SyncProxyConfiguration configuration = CloudNetSyncProxyModule.getInstance().getSyncProxyConfiguration();
+    SyncProxyConfiguration configuration = this.syncProxyModule.getSyncProxyConfiguration();
     boolean modified = false;
 
     if (configuration.getLoginConfigurations().stream()
       .noneMatch(loginConfiguration -> loginConfiguration.getTargetGroup().equals(task.getName()))) {
       configuration.getLoginConfigurations()
-        .add(SyncProxyProxyLoginConfiguration.createDefaultLoginConfiguration(task.getName()));
+        .add(SyncProxyLoginConfiguration.createDefaultLoginConfiguration(task.getName()));
       modified = true;
     }
 
@@ -76,7 +84,7 @@ public class SyncProxyDefaultConfigurationListener {
 
     if (modified) {
       SyncProxyConfigurationHelper
-        .write(configuration, CloudNetSyncProxyModule.getInstance().getConfigurationFilePath());
+        .write(configuration, this.syncProxyModule.getConfigurationFilePath());
     }
   }
 }

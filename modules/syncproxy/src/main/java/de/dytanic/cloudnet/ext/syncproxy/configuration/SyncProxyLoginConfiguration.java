@@ -24,7 +24,7 @@ import lombok.ToString;
 
 @ToString
 @EqualsAndHashCode
-public class SyncProxyProxyLoginConfiguration {
+public class SyncProxyLoginConfiguration {
 
   protected String targetGroup;
 
@@ -38,7 +38,7 @@ public class SyncProxyProxyLoginConfiguration {
 
   protected List<SyncProxyMotd> maintenanceMotds;
 
-  public SyncProxyProxyLoginConfiguration(String targetGroup, boolean maintenance, int maxPlayers,
+  public SyncProxyLoginConfiguration(String targetGroup, boolean maintenance, int maxPlayers,
     List<String> whitelist, List<SyncProxyMotd> motds, List<SyncProxyMotd> maintenanceMotds) {
     this.targetGroup = targetGroup;
     this.maintenance = maintenance;
@@ -48,8 +48,8 @@ public class SyncProxyProxyLoginConfiguration {
     this.maintenanceMotds = maintenanceMotds;
   }
 
-  public static SyncProxyProxyLoginConfiguration createDefaultLoginConfiguration(String targetGroup) {
-    return new SyncProxyProxyLoginConfiguration(
+  public static SyncProxyLoginConfiguration createDefaultLoginConfiguration(String targetGroup) {
+    return new SyncProxyLoginConfiguration(
       targetGroup,
       false,
       100,

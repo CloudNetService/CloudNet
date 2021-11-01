@@ -18,8 +18,8 @@ package de.dytanic.cloudnet.ext.syncproxy.bungee.listener;
 
 import de.dytanic.cloudnet.ext.syncproxy.bungee.BungeeSyncProxyManagement;
 import de.dytanic.cloudnet.ext.syncproxy.bungee.util.LoginProxiedPlayer;
+import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyLoginConfiguration;
 import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyMotd;
-import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyProxyLoginConfiguration;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import java.util.UUID;
 import net.md_5.bungee.api.ChatColor;
@@ -42,10 +42,10 @@ public final class BungeeSyncProxyPlayerListener implements Listener {
 
   @EventHandler
   public void handle(ProxyPingEvent event) {
-    SyncProxyProxyLoginConfiguration syncProxyProxyLoginConfiguration = this.syncProxyManagement
+    SyncProxyLoginConfiguration syncProxyLoginConfiguration = this.syncProxyManagement
       .getLoginConfiguration();
 
-    if (syncProxyProxyLoginConfiguration != null) {
+    if (syncProxyLoginConfiguration != null) {
       SyncProxyMotd syncProxyMotd = this.syncProxyManagement.getRandomMotd();
 
       if (syncProxyMotd != null) {
@@ -54,9 +54,9 @@ public final class BungeeSyncProxyPlayerListener implements Listener {
         int onlinePlayers = this.syncProxyManagement.getSyncProxyOnlineCount();
 
         int maxPlayers = syncProxyMotd.isAutoSlot() ? Math.min(
-          syncProxyProxyLoginConfiguration.getMaxPlayers(),
+          syncProxyLoginConfiguration.getMaxPlayers(),
           onlinePlayers + syncProxyMotd.getAutoSlotMaxPlayersDistance()
-        ) : syncProxyProxyLoginConfiguration.getMaxPlayers();
+        ) : syncProxyLoginConfiguration.getMaxPlayers();
 
         // explicitly checking for the second line, because Bedrock does only support one MOTD line
         String motd = ChatColor.translateAlternateColorCodes('&',
@@ -100,20 +100,20 @@ public final class BungeeSyncProxyPlayerListener implements Listener {
 
   @EventHandler
   public void handle(LoginEvent event) {
-    SyncProxyProxyLoginConfiguration syncProxyProxyLoginConfiguration = this.syncProxyManagement
+    SyncProxyLoginConfiguration syncProxyLoginConfiguration = this.syncProxyManagement
       .getLoginConfiguration();
 
-    if (syncProxyProxyLoginConfiguration != null) {
+    if (syncProxyLoginConfiguration != null) {
       ProxiedPlayer loginProxiedPlayer = new LoginProxiedPlayer(event.getConnection());
 
-      if (syncProxyProxyLoginConfiguration.isMaintenance() && syncProxyProxyLoginConfiguration.getWhitelist() != null) {
-        if (syncProxyProxyLoginConfiguration.getWhitelist().contains(event.getConnection().getName())) {
+      if (syncProxyLoginConfiguration.isMaintenance() && syncProxyLoginConfiguration.getWhitelist() != null) {
+        if (syncProxyLoginConfiguration.getWhitelist().contains(event.getConnection().getName())) {
           return;
         }
 
         UUID uniqueId = loginProxiedPlayer.getUniqueId();
 
-        if ((uniqueId != null && syncProxyProxyLoginConfiguration.getWhitelist().contains(uniqueId.toString())) ||
+        if ((uniqueId != null && syncProxyLoginConfiguration.getWhitelist().contains(uniqueId.toString())) ||
           loginProxiedPlayer.hasPermission("cloudnet.syncproxy.maintenance")) {
           return;
         }
@@ -125,7 +125,7 @@ public final class BungeeSyncProxyPlayerListener implements Listener {
         return;
       }
 
-      if (this.syncProxyManagement.getSyncProxyOnlineCount() >= syncProxyProxyLoginConfiguration.getMaxPlayers() &&
+      if (this.syncProxyManagement.getSyncProxyOnlineCount() >= syncProxyLoginConfiguration.getMaxPlayers() &&
         !loginProxiedPlayer.hasPermission("cloudnet.syncproxy.fulljoin")) {
         event.setCancelled(true);
         event.setCancelReason(TextComponent.fromLegacyText(

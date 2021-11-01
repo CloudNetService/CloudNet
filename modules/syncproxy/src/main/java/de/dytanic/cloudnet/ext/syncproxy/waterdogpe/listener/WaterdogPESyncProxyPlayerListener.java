@@ -16,8 +16,8 @@
 
 package de.dytanic.cloudnet.ext.syncproxy.waterdogpe.listener;
 
+import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyLoginConfiguration;
 import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyMotd;
-import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyProxyLoginConfiguration;
 import de.dytanic.cloudnet.ext.syncproxy.waterdogpe.WaterdogPESyncProxyManagement;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import dev.waterdog.waterdogpe.ProxyServer;
@@ -31,7 +31,7 @@ public class WaterdogPESyncProxyPlayerListener {
     EventManager eventManager = ProxyServer.getInstance().getEventManager();
 
     eventManager.subscribe(PlayerLoginEvent.class, event -> {
-      SyncProxyProxyLoginConfiguration configuration = management.getLoginConfiguration();
+      SyncProxyLoginConfiguration configuration = management.getLoginConfiguration();
       if (configuration != null) {
         if (configuration.isMaintenance()
           && !management.isWhitelisted(event.getPlayer(), configuration.getWhitelist())) {
@@ -50,7 +50,7 @@ public class WaterdogPESyncProxyPlayerListener {
     });
 
     eventManager.subscribe(ProxyPingEvent.class, event -> {
-      SyncProxyProxyLoginConfiguration configuration = management.getLoginConfiguration();
+      SyncProxyLoginConfiguration configuration = management.getLoginConfiguration();
       if (configuration != null) {
         SyncProxyMotd proxyMotd = management.getRandomMotd();
         if (proxyMotd != null) {

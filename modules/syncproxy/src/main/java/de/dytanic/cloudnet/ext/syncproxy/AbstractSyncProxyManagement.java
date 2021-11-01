@@ -20,8 +20,8 @@ import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyConfiguration;
+import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyLoginConfiguration;
 import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyMotd;
-import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyProxyLoginConfiguration;
 import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyTabList;
 import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyTabListConfiguration;
 import de.dytanic.cloudnet.wrapper.Wrapper;
@@ -41,7 +41,7 @@ public abstract class AbstractSyncProxyManagement {
   protected final AtomicInteger tabListEntryIndex = new AtomicInteger(-1);
 
   protected SyncProxyConfiguration syncProxyConfiguration;
-  protected SyncProxyProxyLoginConfiguration loginConfiguration;
+  protected SyncProxyLoginConfiguration loginConfiguration;
   protected SyncProxyTabListConfiguration tabListConfiguration;
 
   protected String tabListHeader;
@@ -179,7 +179,7 @@ public abstract class AbstractSyncProxyManagement {
   }
 
   @Nullable
-  public SyncProxyProxyLoginConfiguration getLoginConfiguration() {
+  public SyncProxyLoginConfiguration getLoginConfiguration() {
     return this.loginConfiguration;
   }
 

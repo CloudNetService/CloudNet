@@ -37,12 +37,12 @@ public class SyncProxyConfiguration {
     "service-start", "&7The service &e%service% &7is &astarting &7on node &e%node%&7...",
     "service-stop", "&7The service &e%service% &7is &cstopping &7on node &e%node%&7...");
 
-  protected Collection<SyncProxyProxyLoginConfiguration> loginConfigurations;
+  protected Collection<SyncProxyLoginConfiguration> loginConfigurations;
   protected Collection<SyncProxyTabListConfiguration> tabListConfigurations;
   protected Map<String, String> messages;
   protected boolean ingameServiceStartStopMessages;
 
-  public SyncProxyConfiguration(Collection<SyncProxyProxyLoginConfiguration> loginConfigurations,
+  public SyncProxyConfiguration(Collection<SyncProxyLoginConfiguration> loginConfigurations,
     Collection<SyncProxyTabListConfiguration> tabListConfigurations, Map<String, String> messages,
     boolean ingameServiceStartStopMessages) {
     this.loginConfigurations = loginConfigurations;
@@ -53,7 +53,7 @@ public class SyncProxyConfiguration {
 
   public static SyncProxyConfiguration createDefault(@NotNull String targetGroup) {
     return new SyncProxyConfiguration(
-      Collections.singletonList(SyncProxyProxyLoginConfiguration.createDefaultLoginConfiguration(targetGroup)),
+      Collections.singletonList(SyncProxyLoginConfiguration.createDefaultLoginConfiguration(targetGroup)),
       Collections.singletonList(SyncProxyTabListConfiguration.createDefaultTabListConfiguration(targetGroup)),
       DEFAULT_MESSAGES,
       true);
@@ -62,7 +62,7 @@ public class SyncProxyConfiguration {
   public static SyncProxyConfiguration getConfigurationFromNode() {
     ChannelMessage response = ChannelMessage.builder()
       .channel(SyncProxyConstants.SYNC_PROXY_CHANNEL_NAME)
-      .message(SyncProxyConstants.SYNC_PROXY_CHANNEL_GET_CONFIGURATION)
+      .message(SyncProxyConstants.SYNC_PROXY_GET_CONFIGURATION)
       .targetNode(Wrapper.getInstance().getServiceId().getNodeUniqueId())
       .build()
       .sendSingleQuery();
@@ -74,11 +74,11 @@ public class SyncProxyConfiguration {
     return null;
   }
 
-  public Collection<SyncProxyProxyLoginConfiguration> getLoginConfigurations() {
+  public Collection<SyncProxyLoginConfiguration> getLoginConfigurations() {
     return this.loginConfigurations;
   }
 
-  public void setLoginConfigurations(Collection<SyncProxyProxyLoginConfiguration> loginConfigurations) {
+  public void setLoginConfigurations(Collection<SyncProxyLoginConfiguration> loginConfigurations) {
     this.loginConfigurations = loginConfigurations;
   }
 

@@ -17,10 +17,12 @@
 package de.dytanic.cloudnet.ext.syncproxy;
 
 import de.dytanic.cloudnet.driver.event.EventListener;
+import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
 import de.dytanic.cloudnet.driver.event.events.service.CloudServiceUpdateEvent;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
 import de.dytanic.cloudnet.event.service.CloudServicePostLifecycleEvent;
+import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyConfiguration;
 
 public class SyncProxyCloudNetListener {
 
@@ -53,5 +55,17 @@ public class SyncProxyCloudNetListener {
       .inGroup(serviceInfoSnapshot)) {
       this.syncProxyManagement.updateServiceOnlineCount(serviceInfoSnapshot);
     }
+  }
+
+  @EventListener
+  public void handleConfigUpdate(ChannelMessageReceiveEvent event) {
+    if (!event.getChannel().equals(SyncProxyConstants.SYNC_PROXY_CHANNEL_NAME)) {
+      return;
+    }
+    if (!SyncProxyConstants.SYNC_PROXY_UPDATE_CONFIGURATION.equals(event.getMessage())) {
+      return;
+    }
+
+    this.syncProxyManagement.setSyncProxyConfiguration(event.getContent().readObject(SyncProxyConfiguration.class));
   }
 }

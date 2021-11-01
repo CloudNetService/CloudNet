@@ -16,212 +16,99 @@
 
 package de.dytanic.cloudnet.ext.syncproxy.node.command;
 
-/*public final class CommandSyncProxy extends SubCommandHandler {
+import cloud.commandframework.annotations.Argument;
+import cloud.commandframework.annotations.CommandMethod;
+import cloud.commandframework.annotations.parsers.Parser;
+import cloud.commandframework.annotations.suggestions.Suggestions;
+import cloud.commandframework.context.CommandContext;
+import de.dytanic.cloudnet.command.exception.ArgumentNotAvailableException;
+import de.dytanic.cloudnet.command.source.CommandSource;
+import de.dytanic.cloudnet.common.language.I18n;
+import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyConfiguration;
+import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyLoginConfiguration;
+import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyMotd;
+import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyTabList;
+import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyTabListConfiguration;
+import de.dytanic.cloudnet.ext.syncproxy.node.CloudNetSyncProxyModule;
+import java.util.Collection;
+import java.util.List;
+import java.util.Queue;
+import java.util.stream.Collectors;
+
+public final class CommandSyncProxy {
+
+  private final CloudNetSyncProxyModule syncProxyModule;
 
   public CommandSyncProxy(CloudNetSyncProxyModule syncProxyModule) {
-    super(
-      SubCommandBuilder.create()
-        .generateCommand(
-          (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
-            CloudNetSyncProxyModule.getInstance().setSyncProxyConfiguration(SyncProxyConfigurationWriterAndReader.read(
-              CloudNetSyncProxyModule.getInstance().getConfigurationFilePath()
-            ));
-
-            CloudNetDriver.getInstance().getMessenger().sendChannelMessage(
-              SyncProxyConstants.SYNC_PROXY_CHANNEL_NAME,
-              SyncProxyConstants.SYNC_PROXY_UPDATE_CONFIGURATION,
-              new JsonDocument("syncProxyConfiguration",
-                CloudNetSyncProxyModule.getInstance().getSyncProxyConfiguration())
-            );
-
-            sender.sendMessage(LanguageManager.getMessage("module-syncproxy-command-reload-success"));
-          },
-          anyStringIgnoreCase("reload", "rl")
-        )
-        .generateCommand(
-          (subCommand, sender, command, args, commandLine, properties, internalProperties) -> displayListConfiguration(
-            sender, CloudNetSyncProxyModule.getInstance().getSyncProxyConfiguration()),
-          exactStringIgnoreCase("list")
-        )
-        .generateCommand(
-          (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
-            String targetGroup = (String) args.argument("targetGroup").get();
-
-            SyncProxyConfiguration syncProxyConfiguration = syncProxyModule.getSyncProxyConfiguration();
-
-            syncProxyConfiguration.getLoginConfigurations()
-              .add(SyncProxyConfigurationWriterAndReader.createDefaultLoginConfiguration(targetGroup));
-            syncProxyConfiguration.getTabListConfigurations()
-              .add(SyncProxyConfigurationWriterAndReader.createDefaultTabListConfiguration(targetGroup));
-            SyncProxyConfigurationWriterAndReader
-              .write(syncProxyConfiguration, syncProxyModule.getConfigurationFilePath());
-
-            sender.sendMessage(LanguageManager.getMessage("module-syncproxy-command-create-entry-success"));
-          },
-          anyStringIgnoreCase("create", "new"),
-          exactStringIgnoreCase("entry"),
-          dynamicString(
-            "targetGroup",
-            LanguageManager.getMessage("module-syncproxy-command-create-entry-group-not-found"),
-            name -> CloudNet.getInstance().getGroupConfigurationProvider().isGroupConfigurationPresent(name),
-            () -> CloudNet.getInstance().getGroupConfigurationProvider().getGroupConfigurations().stream()
-              .map(GroupConfiguration::getName)
-              .collect(Collectors.toList())
-          )
-        )
-
-        .prefix(exactStringIgnoreCase("target"))
-        .prefix(dynamicString(
-          "targetGroup",
-          LanguageManager.getMessage("module-syncproxy-command-create-entry-group-not-found"),
-          name -> getSyncProxyLoginConfiguration(name) != null,
-          () -> CloudNetSyncProxyModule.getInstance().getSyncProxyConfiguration().getLoginConfigurations().stream()
-            .map(SyncProxyProxyLoginConfiguration::getTargetGroup).collect(Collectors.toList())
-        ))
-
-        .generateCommand(
-          (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
-            String targetGroup = (String) args.argument("targetGroup").get();
-            int value = (int) args.argument("value").get();
-            SyncProxyProxyLoginConfiguration configuration = getSyncProxyLoginConfiguration(targetGroup);
-
-            configuration.setMaxPlayers(value);
-
-            saveAndUpdate(CloudNetSyncProxyModule.getInstance().getSyncProxyConfiguration());
-
-            sender.sendMessage(
-              LanguageManager.getMessage("module-syncproxy-command-set-maxplayers")
-                .replace("%group%", configuration.getTargetGroup())
-                .replace("%count%", String.valueOf(value))
-            );
-          },
-          exactStringIgnoreCase("maxPlayers"),
-          positiveInteger("value")
-        )
-        .generateCommand(
-          (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
-            String targetGroup = (String) args.argument("targetGroup").get();
-            boolean enabled = (boolean) args.argument("enabled").get();
-            SyncProxyProxyLoginConfiguration configuration = getSyncProxyLoginConfiguration(targetGroup);
-
-            configuration.setMaintenance(enabled);
-
-            saveAndUpdate(CloudNetSyncProxyModule.getInstance().getSyncProxyConfiguration());
-
-            sender.sendMessage(
-              LanguageManager.getMessage("module-syncproxy-command-set-maintenance")
-                .replace("%group%", configuration.getTargetGroup())
-                .replace("%maintenance%", String.valueOf(enabled))
-            );
-          },
-          exactStringIgnoreCase("maxPlayers"),
-          bool("enabled")
-        )
-
-        .prefix(exactStringIgnoreCase("whitelist"))
-
-        .generateCommand((subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
-          String targetGroup = (String) args.argument("targetGroup").get();
-          SyncProxyProxyLoginConfiguration configuration = getSyncProxyLoginConfiguration(targetGroup);
-          displayWhitelist(sender, configuration.getWhitelist());
-        })
-
-        .generateCommand(
-          (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
-            String targetGroup = (String) args.argument("targetGroup").get();
-            String name = (String) args.argument("name").get();
-
-            SyncProxyProxyLoginConfiguration configuration = getSyncProxyLoginConfiguration(targetGroup);
-            configuration.getWhitelist().add(name);
-            saveAndUpdate(CloudNetSyncProxyModule.getInstance().getSyncProxyConfiguration());
-
-            sender.sendMessage(
-              LanguageManager.getMessage("module-syncproxy-command-add-whitelist-entry")
-                .replace("%group%", configuration.getTargetGroup())
-                .replace("%name%", name)
-            );
-          },
-          exactStringIgnoreCase("add"),
-          dynamicString("name")
-        )
-        .generateCommand(
-          (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
-            String targetGroup = (String) args.argument("targetGroup").get();
-            String name = (String) args.argument("name").get();
-
-            SyncProxyProxyLoginConfiguration configuration = getSyncProxyLoginConfiguration(targetGroup);
-            configuration.getWhitelist().remove(name);
-            saveAndUpdate(CloudNetSyncProxyModule.getInstance().getSyncProxyConfiguration());
-
-            sender.sendMessage(
-              LanguageManager.getMessage("module-syncproxy-command-remove-whitelist-entry")
-                .replace("%group%", configuration.getTargetGroup())
-                .replace("%name%", name)
-            );
-          },
-          exactStringIgnoreCase("remove"),
-          dynamicString("name")
-        )
-
-        .removeLastPrefix()
-
-        .generateCommand(
-          (subCommand, sender, command, args, commandLine, properties, internalProperties) -> {
-            String targetGroup = (String) args.argument("targetGroup").get();
-            boolean maintenance = (boolean) args.argument("enabled").get();
-
-            SyncProxyProxyLoginConfiguration configuration = getSyncProxyLoginConfiguration(targetGroup);
-            configuration.setMaintenance(maintenance);
-            saveAndUpdate(CloudNetSyncProxyModule.getInstance().getSyncProxyConfiguration());
-
-            sender.sendMessage(
-              LanguageManager.getMessage("module-syncproxy-command-set-maintenance")
-                .replace("%group%", configuration.getTargetGroup())
-                .replace("%maintenance%", String.valueOf(maintenance))
-            );
-          },
-          exactStringIgnoreCase("maintenance"),
-          bool("enabled")
-        )
-
-        .getSubCommands(),
-      "syncproxy", "sp"
-    );
-
-    this.permission = "cloudnet.command.syncproxy";
-    this.prefix = "cloudnet-syncproxy";
-    this.description = LanguageManager.getMessage("module-syncproxy-command-syncproxy-description");
+    this.syncProxyModule = syncProxyModule;
   }
 
-  private static void saveAndUpdate(SyncProxyConfiguration syncProxyConfiguration) {
-    SyncProxyConfigurationWriterAndReader
-      .write(syncProxyConfiguration, CloudNetSyncProxyModule.getInstance().getConfigurationFilePath());
+  @Parser(suggestions = "loginConfiguration")
+  public SyncProxyLoginConfiguration loginConfigurationParser(CommandContext<CommandSource> $, Queue<String> input) {
+    String name = input.remove();
 
-    CloudNetSyncProxyModule.getInstance().setSyncProxyConfiguration(syncProxyConfiguration);
-    CloudNetDriver.getInstance().getMessenger().sendChannelMessage(
-      SyncProxyConstants.SYNC_PROXY_CHANNEL_NAME,
-      SyncProxyConstants.SYNC_PROXY_UPDATE_CONFIGURATION,
-      new JsonDocument("syncProxyConfiguration", CloudNetSyncProxyModule.getInstance().getSyncProxyConfiguration())
-    );
+    return this.syncProxyModule.getSyncProxyConfiguration().getLoginConfigurations().stream()
+      .filter(login -> login.getTargetGroup().equals(name)).findFirst()
+      .orElseThrow(
+        () -> new ArgumentNotAvailableException(I18n.trans("module-syncproxy-command-create-entry-group-not-found")));
   }
 
-  private static SyncProxyProxyLoginConfiguration getSyncProxyLoginConfiguration(String group) {
-    return CloudNetSyncProxyModule.getInstance().getSyncProxyConfiguration().getLoginConfigurations().stream()
-      .filter(
-        syncProxyProxyLoginConfiguration -> syncProxyProxyLoginConfiguration.getTargetGroup().equalsIgnoreCase(group))
-      .findFirst()
-      .orElse(null);
+  @Parser(name = "noLoginConfiguration")
+  public String noLoginConfigurationParser(CommandContext<CommandSource> $, Queue<String> input) {
+    String name = input.remove();
+    if (this.syncProxyModule.getSyncProxyConfiguration().getLoginConfigurations()
+      .stream()
+      .anyMatch(login -> login.getTargetGroup().equalsIgnoreCase(name))) {
+      throw new ArgumentNotAvailableException(I18n.trans("module-syncproxy-command-create-entry-group-already-exists"));
+    }
+
+    return name;
   }
 
-  private static void displayListConfiguration(ICommandSender sender, SyncProxyConfiguration syncProxyConfiguration) {
-    for (SyncProxyProxyLoginConfiguration syncProxyProxyLoginConfiguration : syncProxyConfiguration
+  @Suggestions("loginConfiguration")
+  public List<String> suggestLoginConfigurations(CommandContext<CommandSource> $, String input) {
+    return this.syncProxyModule.getSyncProxyConfiguration().getLoginConfigurations()
+      .stream()
+      .map(SyncProxyLoginConfiguration::getTargetGroup)
+      .collect(Collectors.toList());
+  }
+
+  @CommandMethod("syncproxy|sp reload")
+  public void reloadSyncProxy(CommandSource source) {
+
+  }
+
+  @CommandMethod("syncproxy|sp list")
+  public void listConfigurations(CommandSource source) {
+
+  }
+
+  @CommandMethod("syncproxy|sp create entry <targetGroup>")
+  public void createEntry(
+    CommandSource source,
+    @Argument(value = "targetGroup", parserName = "noLoginConfiguration") String name
+  ) {
+
+  }
+
+  @CommandMethod("syncproxy|sp target <targetGroup> maxPlayers <amount>")
+  public void setMaxPlayers(
+    CommandSource source,
+    @Argument("targetGroup") SyncProxyLoginConfiguration loginConfiguration,
+    @Argument("amount") int amount
+  ) {
+
+  }
+
+  private void displayListConfiguration(CommandSource source, SyncProxyConfiguration syncProxyConfiguration) {
+    for (SyncProxyLoginConfiguration syncProxyLoginConfiguration : syncProxyConfiguration
       .getLoginConfigurations()) {
-      displayConfiguration(sender, syncProxyProxyLoginConfiguration);
+      displayConfiguration(source, syncProxyLoginConfiguration);
     }
 
     for (SyncProxyTabListConfiguration syncProxyTabListConfiguration : syncProxyConfiguration
       .getTabListConfigurations()) {
-      sender.sendMessage(
+      source.sendMessage(
         "* " + syncProxyTabListConfiguration.getTargetGroup(),
         "AnimationsPerSecond: " + syncProxyTabListConfiguration.getAnimationsPerSecond(),
         " ",
@@ -230,7 +117,7 @@ package de.dytanic.cloudnet.ext.syncproxy.node.command;
 
       int index = 1;
       for (SyncProxyTabList tabList : syncProxyTabListConfiguration.getEntries()) {
-        sender.sendMessage(
+        source.sendMessage(
           "- " + index++,
           "Header: " + tabList.getHeader(),
           "Footer: " + tabList.getFooter()
@@ -239,28 +126,28 @@ package de.dytanic.cloudnet.ext.syncproxy.node.command;
     }
   }
 
-  private static void displayConfiguration(ICommandSender sender,
-    SyncProxyProxyLoginConfiguration syncProxyProxyLoginConfiguration) {
-    sender.sendMessage(
-      "* " + syncProxyProxyLoginConfiguration.getTargetGroup(),
-      "Maintenance: " + (syncProxyProxyLoginConfiguration.isMaintenance() ? "enabled" : "disabled"),
-      "Max-Players: " + syncProxyProxyLoginConfiguration.getMaxPlayers()
+  private void displayConfiguration(CommandSource source,
+    SyncProxyLoginConfiguration syncProxyLoginConfiguration) {
+    source.sendMessage(
+      "* " + syncProxyLoginConfiguration.getTargetGroup(),
+      "Maintenance: " + (syncProxyLoginConfiguration.isMaintenance() ? "enabled" : "disabled"),
+      "Max-Players: " + syncProxyLoginConfiguration.getMaxPlayers()
     );
 
-    displayWhitelist(sender, syncProxyProxyLoginConfiguration.getWhitelist());
+    displayWhitelist(source, syncProxyLoginConfiguration.getWhitelist());
 
-    sender.sendMessage("Motds:");
-    for (SyncProxyMotd syncProxyMotd : syncProxyProxyLoginConfiguration.getMotds()) {
-      displayMotd(sender, syncProxyMotd);
+    source.sendMessage("Motds:");
+    for (SyncProxyMotd syncProxyMotd : syncProxyLoginConfiguration.getMotds()) {
+      displayMotd(source, syncProxyMotd);
     }
 
-    for (SyncProxyMotd syncProxyMotd : syncProxyProxyLoginConfiguration.getMaintenanceMotds()) {
-      displayMotd(sender, syncProxyMotd);
+    for (SyncProxyMotd syncProxyMotd : syncProxyLoginConfiguration.getMaintenanceMotds()) {
+      displayMotd(source, syncProxyMotd);
     }
   }
 
-  private static void displayMotd(ICommandSender sender, SyncProxyMotd syncProxyMotd) {
-    sender.sendMessage(
+  private void displayMotd(CommandSource source, SyncProxyMotd syncProxyMotd) {
+    source.sendMessage(
       "- Motd",
       "AutoSlot: " + syncProxyMotd.isAutoSlot(),
       "AutoSlot-MaxPlayerDistance: " + syncProxyMotd.getAutoSlotMaxPlayersDistance(),
@@ -272,16 +159,16 @@ package de.dytanic.cloudnet.ext.syncproxy.node.command;
 
     if (syncProxyMotd.getPlayerInfo() != null) {
       for (String playerInfoItem : syncProxyMotd.getPlayerInfo()) {
-        sender.sendMessage("- " + playerInfoItem);
+        source.sendMessage("- " + playerInfoItem);
       }
     }
   }
 
-  private static void displayWhitelist(ICommandSender sender, Collection<String> whitelistEntries) {
-    sender.sendMessage("Whitelist:");
+  private void displayWhitelist(CommandSource source, Collection<String> whitelistEntries) {
+    source.sendMessage("Whitelist:");
 
     for (String whitelistEntry : whitelistEntries) {
-      sender.sendMessage("- " + whitelistEntry);
+      source.sendMessage("- " + whitelistEntry);
     }
   }
-}*/
+}

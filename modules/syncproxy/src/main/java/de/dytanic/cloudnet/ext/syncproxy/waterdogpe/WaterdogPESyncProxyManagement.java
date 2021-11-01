@@ -18,7 +18,7 @@ package de.dytanic.cloudnet.ext.syncproxy.waterdogpe;
 
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.ext.syncproxy.AbstractSyncProxyManagement;
-import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyProxyLoginConfiguration;
+import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyLoginConfiguration;
 import dev.waterdog.waterdogpe.ProxyServer;
 import dev.waterdog.waterdogpe.player.ProxiedPlayer;
 import java.util.List;
@@ -40,7 +40,7 @@ public class WaterdogPESyncProxyManagement extends AbstractSyncProxyManagement {
 
   @Override
   protected void checkWhitelist() {
-    SyncProxyProxyLoginConfiguration configuration = super.getLoginConfiguration();
+    SyncProxyLoginConfiguration configuration = super.getLoginConfiguration();
     if (configuration != null && configuration.isMaintenance()) {
       List<String> whitelist = configuration.getWhitelist();
       for (ProxiedPlayer player : ProxyServer.getInstance().getPlayers().values()) {

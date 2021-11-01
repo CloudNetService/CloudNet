@@ -18,7 +18,7 @@ package de.dytanic.cloudnet.ext.syncproxy.bungee;
 
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.ext.syncproxy.AbstractSyncProxyManagement;
-import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyProxyLoginConfiguration;
+import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyLoginConfiguration;
 import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyTabList;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -93,16 +93,16 @@ public class BungeeSyncProxyManagement extends AbstractSyncProxyManagement {
 
   @Override
   protected void checkWhitelist() {
-    SyncProxyProxyLoginConfiguration syncProxyProxyLoginConfiguration = super.getLoginConfiguration();
+    SyncProxyLoginConfiguration syncProxyLoginConfiguration = super.getLoginConfiguration();
 
-    if (syncProxyProxyLoginConfiguration != null) {
+    if (syncProxyLoginConfiguration != null) {
       for (ProxiedPlayer proxiedPlayer : ProxyServer.getInstance().getPlayers()) {
-        if (syncProxyProxyLoginConfiguration.isMaintenance()
-          && syncProxyProxyLoginConfiguration.getWhitelist() != null
-          && !syncProxyProxyLoginConfiguration.getWhitelist().contains(proxiedPlayer.getName())) {
+        if (syncProxyLoginConfiguration.isMaintenance()
+          && syncProxyLoginConfiguration.getWhitelist() != null
+          && !syncProxyLoginConfiguration.getWhitelist().contains(proxiedPlayer.getName())) {
           UUID uniqueId = proxiedPlayer.getUniqueId();
 
-          if (syncProxyProxyLoginConfiguration.getWhitelist().contains(uniqueId.toString())) {
+          if (syncProxyLoginConfiguration.getWhitelist().contains(uniqueId.toString())) {
             continue;
           }
 

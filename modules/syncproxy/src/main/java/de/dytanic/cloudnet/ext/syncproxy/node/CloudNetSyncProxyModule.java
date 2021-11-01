@@ -18,9 +18,12 @@ package de.dytanic.cloudnet.ext.syncproxy.node;
 
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.cluster.sync.DataSyncHandler;
+import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.driver.module.ModuleLifeCycle;
 import de.dytanic.cloudnet.driver.module.ModuleTask;
 import de.dytanic.cloudnet.driver.module.driver.DriverModule;
+import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
+import de.dytanic.cloudnet.ext.syncproxy.SyncProxyConstants;
 import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyConfiguration;
 import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyConfigurationHelper;
 import de.dytanic.cloudnet.ext.syncproxy.node.command.CommandSyncProxy;
@@ -28,6 +31,7 @@ import de.dytanic.cloudnet.ext.syncproxy.node.listener.IncludePluginListener;
 import de.dytanic.cloudnet.ext.syncproxy.node.listener.SyncProxyDefaultConfigurationListener;
 import java.nio.file.Path;
 import java.util.Collections;
+import org.jetbrains.annotations.NotNull;
 
 public final class CloudNetSyncProxyModule extends DriverModule {
 
@@ -71,17 +75,32 @@ public final class CloudNetSyncProxyModule extends DriverModule {
 
   @ModuleTask(order = 60, event = ModuleLifeCycle.STARTED)
   public void registerCommands() {
-    this.registerCommand(new CommandSyncProxy(this));
+    CloudNet.getInstance().getCommandProvider().register(new CommandSyncProxy(this));
   }
 
+  @NotNull
   public SyncProxyConfiguration getSyncProxyConfiguration() {
     return this.syncProxyConfiguration;
   }
 
-  public void setSyncProxyConfiguration(SyncProxyConfiguration syncProxyConfiguration) {
-    this.syncProxyConfiguration = syncProxyConfiguration;
+  public void setSyncProxyConfiguration(@NotNull SyncProxyConfiguration syncProxyConfiguration) {
+    this.setSyncProxyConfiguration(syncProxyConfiguration, false);
   }
 
+  public void setSyncProxyConfiguration(@NotNull SyncProxyConfiguration syncProxyConfiguration, boolean clusterUpdate) {
+    this.syncProxyConfiguration = syncProxyConfiguration;
+    if (clusterUpdate) {
+      ChannelMessage.builder()
+        .channel(SyncProxyConstants.SYNC_PROXY_CHANNEL_NAME)
+        .message(SyncProxyConstants.SYNC_PROXY_UPDATE_CONFIGURATION)
+        .targetAll()
+        .buffer(DataBuf.empty().writeObject(syncProxyConfiguration))
+        .build()
+        .send();
+    }
+  }
+
+  @NotNull
   public Path getConfigurationFilePath() {
     return this.configurationFilePath;
   }
