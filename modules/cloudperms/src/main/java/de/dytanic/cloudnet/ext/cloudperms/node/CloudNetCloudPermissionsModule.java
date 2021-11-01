@@ -16,23 +16,26 @@
 
 package de.dytanic.cloudnet.ext.cloudperms.node;
 
-import com.google.gson.JsonParseException;
 import com.google.gson.reflect.TypeToken;
-import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import de.dytanic.cloudnet.CloudNet;
+import de.dytanic.cloudnet.cluster.sync.DataSyncHandler;
 import de.dytanic.cloudnet.driver.module.ModuleLifeCycle;
 import de.dytanic.cloudnet.driver.module.ModuleTask;
-import de.dytanic.cloudnet.ext.cloudperms.node.listener.ConfigurationUpdateListener;
+import de.dytanic.cloudnet.driver.module.driver.DriverModule;
+import de.dytanic.cloudnet.ext.cloudperms.node.config.CloudPermissionConfig;
+import de.dytanic.cloudnet.ext.cloudperms.node.config.CloudPermissionConfigHelper;
 import de.dytanic.cloudnet.ext.cloudperms.node.listener.IncludePluginListener;
-import de.dytanic.cloudnet.module.NodeCloudNetModule;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-public final class CloudNetCloudPermissionsModule extends NodeCloudNetModule {
+public final class CloudNetCloudPermissionsModule extends DriverModule {
 
   private static final Type LIST_STRING = TypeToken.getParameterized(List.class, String.class).getType();
 
   private static CloudNetCloudPermissionsModule instance;
+
+  private CloudPermissionConfig permissionsConfig;
 
   public static CloudNetCloudPermissionsModule getInstance() {
     return CloudNetCloudPermissionsModule.instance;
@@ -41,27 +44,33 @@ public final class CloudNetCloudPermissionsModule extends NodeCloudNetModule {
   @ModuleTask(order = 127, event = ModuleLifeCycle.LOADED)
   public void init() {
     instance = this;
+
+    CloudNet.getInstance().getDataSyncRegistry().registerHandler(
+      DataSyncHandler.<CloudPermissionConfig>builder()
+        .key("cloudperms-config")
+        .nameExtractor(cloudPermissionsConfig -> "Permission Config")
+        .convertObject(CloudPermissionConfig.class)
+        .writer(cloudPermissionConfig -> CloudPermissionConfigHelper.write(cloudPermissionConfig,
+          this.moduleWrapper.getDataDirectory().resolve("config.json")))
+        .dataCollector(() -> Collections.singleton(this.permissionsConfig))
+        .currentGetter($ -> this.permissionsConfig)
+        .build());
   }
 
   @ModuleTask(order = 126, event = ModuleLifeCycle.STARTED)
   public void initConfig() {
-    JsonDocument configuration;
+    this.permissionsConfig = CloudPermissionConfigHelper.read(
+      this.moduleWrapper.getDataDirectory().resolve("config.json"));
+  }
 
-    try {
-      configuration = super.getConfigExceptionally();
-    } catch (Exception exception) {
-      throw new JsonParseException(
-        "Exception while parsing cloudperms-module configuration. Your configuration is invalid.");
-    }
-
-    configuration.getBoolean("enabled", true);
-    configuration.get("excludedGroups", LIST_STRING, new ArrayList<>());
-    super.saveConfig();
+  @ModuleTask(event = ModuleLifeCycle.RELOADING)
+  public void reload() {
+    this.initConfig();
   }
 
   @ModuleTask(order = 124, event = ModuleLifeCycle.STARTED)
   public void registerListeners() {
-    this.registerListeners(new IncludePluginListener(), new ConfigurationUpdateListener());
+    this.registerListeners(new IncludePluginListener());
   }
 
   public List<String> getExcludedGroups() {

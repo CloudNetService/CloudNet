@@ -188,7 +188,7 @@ public final class CommandService {
   @CommandMethod("service|ser <name> <copy|cp> [template]")
   public void copyService(
     CommandSource source,
-    @Argument(value = "service", parserName = "single") ServiceInfoSnapshot service,
+    @Argument(value = "name", parserName = "single") ServiceInfoSnapshot service,
     @Argument("template") ServiceTemplate template,
     @Flag("excludes") @Quoted String excludes
   ) {

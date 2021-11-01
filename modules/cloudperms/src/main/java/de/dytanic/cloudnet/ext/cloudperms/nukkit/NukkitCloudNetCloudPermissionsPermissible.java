@@ -21,7 +21,7 @@ import cn.nukkit.permission.PermissibleBase;
 import cn.nukkit.permission.Permission;
 import cn.nukkit.permission.PermissionAttachmentInfo;
 import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
-import de.dytanic.cloudnet.driver.permission.IPermissionUser;
+import de.dytanic.cloudnet.driver.permission.PermissionUser;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import java.util.HashMap;
 import java.util.Map;
@@ -42,14 +42,14 @@ public final class NukkitCloudNetCloudPermissionsPermissible extends Permissible
   @Override
   public Map<String, PermissionAttachmentInfo> getEffectivePermissions() {
     Map<String, PermissionAttachmentInfo> infos = new HashMap<>();
-    IPermissionUser permissionUser = this.permissionsManagement.getUser(this.player.getUniqueId());
+    PermissionUser permissionUser = this.permissionsManagement.getUser(this.player.getUniqueId());
     if (permissionUser == null) {
       return infos;
     }
 
     for (String group : Wrapper.getInstance().getServiceConfiguration().getGroups()) {
       infos.putAll(
-        this.permissionsManagement.getAllPermissions(permissionUser, group)
+        this.permissionsManagement.getAllGroupPermissions(permissionUser, group)
           .stream()
           .map(
             permission -> new PermissionAttachmentInfo(this, permission.getName(), null, permission.getPotency() >= 0))
@@ -81,8 +81,9 @@ public final class NukkitCloudNetCloudPermissionsPermissible extends Permissible
       return false;
     }
 
-    IPermissionUser permissionUser = this.permissionsManagement.getUser(this.player.getUniqueId());
-    return permissionUser != null && this.permissionsManagement.hasPermission(permissionUser, inName);
+    PermissionUser permissionUser = this.permissionsManagement.getUser(this.player.getUniqueId());
+    return permissionUser != null && this.permissionsManagement.hasPermission(permissionUser,
+      de.dytanic.cloudnet.driver.permission.Permission.of(inName));
   }
 
   public Player getPlayer() {

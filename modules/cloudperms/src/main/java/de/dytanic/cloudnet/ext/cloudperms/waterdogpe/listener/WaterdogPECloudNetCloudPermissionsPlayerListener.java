@@ -17,7 +17,8 @@
 package de.dytanic.cloudnet.ext.cloudperms.waterdogpe.listener;
 
 import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
-import de.dytanic.cloudnet.driver.permission.IPermissionUser;
+import de.dytanic.cloudnet.driver.permission.Permission;
+import de.dytanic.cloudnet.driver.permission.PermissionUser;
 import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsHelper;
 import dev.waterdog.waterdogpe.ProxyServer;
 import dev.waterdog.waterdogpe.event.EventManager;
@@ -46,9 +47,10 @@ public class WaterdogPECloudNetCloudPermissionsPlayerListener {
     }, EventPriority.LOW);
 
     eventManager.subscribe(PlayerPermissionCheckEvent.class, event -> {
-      IPermissionUser permissionUser = permissionManagement.getUser(event.getPlayer().getUniqueId());
+      PermissionUser permissionUser = permissionManagement.getUser(event.getPlayer().getUniqueId());
       if (permissionUser != null) {
-        event.setHasPermission(permissionManagement.hasPermission(permissionUser, event.getPermission()));
+        event.setHasPermission(
+          permissionManagement.hasPermission(permissionUser, Permission.of(event.getPermission())));
       }
     });
 

@@ -51,6 +51,10 @@ public final class Permission implements Comparable<Permission> {
     this.timeOutMillis = timeOutMillis;
   }
 
+  public static Permission of(@NotNull String name) {
+    return new Permission(name);
+  }
+
   public @NotNull String getName() {
     return this.name;
   }

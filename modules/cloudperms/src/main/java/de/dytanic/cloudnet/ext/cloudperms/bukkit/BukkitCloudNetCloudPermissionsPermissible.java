@@ -18,8 +18,8 @@ package de.dytanic.cloudnet.ext.cloudperms.bukkit;
 
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
-import de.dytanic.cloudnet.driver.permission.IPermissionUser;
 import de.dytanic.cloudnet.driver.permission.PermissionCheckResult;
+import de.dytanic.cloudnet.driver.permission.PermissionUser;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import java.util.HashSet;
 import java.util.Map;
@@ -53,13 +53,13 @@ public final class BukkitCloudNetCloudPermissionsPermissible extends Permissible
   public Set<PermissionAttachmentInfo> getEffectivePermissions() {
     Set<PermissionAttachmentInfo> infos = new HashSet<>();
 
-    IPermissionUser permissionUser = CloudNetDriver.getInstance().getPermissionManagement()
+    PermissionUser permissionUser = CloudNetDriver.getInstance().getPermissionManagement()
       .getUser(this.player.getUniqueId());
     if (permissionUser != null) {
       for (String group : Wrapper.getInstance().getServiceConfiguration().getGroups()) {
         CloudNetDriver.getInstance()
           .getPermissionManagement()
-          .getAllPermissions(permissionUser, group)
+          .getAllGroupPermissions(permissionUser, group)
           .forEach(permission -> {
             Permission bukkitPermission = this.player.getServer().getPluginManager()
               .getPermission(permission.getName());
@@ -99,7 +99,7 @@ public final class BukkitCloudNetCloudPermissionsPermissible extends Permissible
   @Override
   public boolean hasPermission(@NotNull String inName) {
     try {
-      IPermissionUser permissionUser = CloudNetDriver.getInstance().getPermissionManagement()
+      PermissionUser permissionUser = CloudNetDriver.getInstance().getPermissionManagement()
         .getUser(this.player.getUniqueId());
       if (permissionUser == null) {
         return false;
@@ -108,18 +108,21 @@ public final class BukkitCloudNetCloudPermissionsPermissible extends Permissible
       for (Permission permission : this.getDefaultPermissions()) {
         if (permission.getName().equalsIgnoreCase(inName)) {
           // default permissions are always active if not explicitly forbidden
-          PermissionCheckResult result = this.permissionsManagement.getPermissionResult(permissionUser, inName);
+          PermissionCheckResult result = this.permissionsManagement.getPermissionResult(permissionUser,
+            de.dytanic.cloudnet.driver.permission.Permission.of(inName));
           return result == PermissionCheckResult.DENIED || result.asBoolean();
         }
       }
 
-      PermissionCheckResult result = this.permissionsManagement.getPermissionResult(permissionUser, inName);
+      PermissionCheckResult result = this.permissionsManagement.getPermissionResult(permissionUser,
+        de.dytanic.cloudnet.driver.permission.Permission.of(inName));
       if (result != PermissionCheckResult.DENIED) {
         return result.asBoolean();
       }
 
       return this
-        .testParents(inName, perm -> this.permissionsManagement.getPermissionResult(permissionUser, perm.getName()));
+        .testParents(inName, perm -> this.permissionsManagement.getPermissionResult(permissionUser,
+          de.dytanic.cloudnet.driver.permission.Permission.of(perm.getName())));
     } catch (Exception ex) {
       this.player.getServer().getLogger().log(Level.SEVERE, "Exception while checking permissions", ex);
       return false;

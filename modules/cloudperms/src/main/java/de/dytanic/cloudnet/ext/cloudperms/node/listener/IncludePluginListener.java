@@ -18,34 +18,37 @@ package de.dytanic.cloudnet.ext.cloudperms.node.listener;
 
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.driver.event.EventListener;
+import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
 import de.dytanic.cloudnet.driver.util.DefaultModuleHelper;
-import de.dytanic.cloudnet.event.service.CloudServicePreStartEvent;
+import de.dytanic.cloudnet.event.service.CloudServicePreLifecycleEvent;
 import de.dytanic.cloudnet.ext.cloudperms.node.CloudNetCloudPermissionsModule;
 import java.nio.file.Path;
-import java.util.Arrays;
 
 public final class IncludePluginListener {
 
   @EventListener
-  public void handle(CloudServicePreStartEvent event) {
+  public void handle(CloudServicePreLifecycleEvent event) {
+    if (event.getTargetLifecycle() != ServiceLifeCycle.RUNNING) {
+      return;
+    }
+
     boolean installPlugin =
       CloudNetCloudPermissionsModule.getInstance().getConfig().getBoolean("enabled") && CloudNetCloudPermissionsModule
         .getInstance().getExcludedGroups()
         .stream()
-        .noneMatch(excludedGroup -> Arrays.asList(event.getCloudService().getServiceConfiguration().getGroups())
-          .contains(excludedGroup));
+        .noneMatch(excludedGroup -> event.getService().getServiceConfiguration().getGroups().contains(excludedGroup));
 
-    Path pluginsFolder = event.getCloudService().getDirectory().resolve("plugins");
-    FileUtils.createDirectoryReported(pluginsFolder);
+    Path pluginsFolder = event.getService().getDirectory().resolve("plugins");
+    FileUtils.createDirectory(pluginsFolder);
 
     Path targetFile = pluginsFolder.resolve("cloudnet-cloudperms.jar");
-    FileUtils.deleteFileReported(targetFile);
+    FileUtils.delete(targetFile);
 
     if (installPlugin && DefaultModuleHelper
       .copyCurrentModuleInstanceFromClass(IncludePluginListener.class, targetFile)) {
       DefaultModuleHelper.copyPluginConfigurationFileForEnvironment(
         IncludePluginListener.class,
-        event.getCloudService().getServiceConfiguration().getProcessConfig().getEnvironment(),
+        event.getService().getServiceConfiguration().getProcessConfig().getEnvironment(),
         targetFile
       );
     }

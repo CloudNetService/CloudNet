@@ -21,7 +21,7 @@ import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.permission.CachedPermissionManagement;
 import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
-import de.dytanic.cloudnet.driver.permission.IPermissionUser;
+import de.dytanic.cloudnet.driver.permission.PermissionUser;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -43,7 +43,7 @@ public final class CloudPermissionsHelper {
 
   public static void initPermissionUser(IPermissionManagement permissionsManagement, UUID uniqueId, String name,
     Consumer<String> disconnectHandler, boolean shouldUpdateName) {
-    IPermissionUser permissionUser = null;
+    PermissionUser permissionUser = null;
     try {
       permissionUser = permissionsManagement.getOrCreateUserAsync(uniqueId, name).get(5, TimeUnit.SECONDS);
     } catch (InterruptedException | ExecutionException | TimeoutException exception) {
@@ -68,7 +68,7 @@ public final class CloudPermissionsHelper {
   public static void handlePlayerQuit(IPermissionManagement permissionsManagement, UUID uniqueId) {
     CachedPermissionManagement management = asCachedPermissionManagement(permissionsManagement);
     if (management != null) {
-      IPermissionUser cachedUser = management.getCachedUser(uniqueId);
+      PermissionUser cachedUser = management.getCachedUser(uniqueId);
       if (cachedUser != null) {
         management.unlock(cachedUser);
       }

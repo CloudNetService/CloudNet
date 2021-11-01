@@ -56,14 +56,14 @@ object Versions {
   const val spigotApi = "1.17-R0.1-SNAPSHOT"
   const val sponge = "7.3.0"
   const val nukkitX = "1.0-SNAPSHOT"
-  const val bungeecord = "1.17-RO.1-SNAPSHOT"
+  const val bungeecord = "1.17-R0.1-SNAPSHOT"
   const val velocity = "3.0.0"
   const val waterdogpe = "1.1.2-SNAPSHOT"
 
+  const val vault = "1.7.1"
   const val annotations = "22.0.0"
   /*
   //Dependencies
-    dependencyVaultVersion = '1.7.1'
     dependencyProtocolLibVersion = 'master-SNAPSHOT'
     dependencyNpcLibVersion = 'development-SNAPSHOT'
     dependencyCommonsNetVersion = '3.8.0'

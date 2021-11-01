@@ -17,7 +17,8 @@
 package de.dytanic.cloudnet.ext.cloudperms.bungee.listener;
 
 import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
-import de.dytanic.cloudnet.driver.permission.IPermissionUser;
+import de.dytanic.cloudnet.driver.permission.Permission;
+import de.dytanic.cloudnet.driver.permission.PermissionUser;
 import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsHelper;
 import java.util.UUID;
 import net.md_5.bungee.api.ChatColor;
@@ -56,9 +57,10 @@ public final class BungeeCloudNetCloudPermissionsPlayerListener implements Liste
     if (sender instanceof ProxiedPlayer) {
       UUID uniqueId = ((ProxiedPlayer) sender).getUniqueId(); // must not be set ¯\_(ツ)_/¯
       if (uniqueId != null) {
-        IPermissionUser permissionUser = this.permissionsManagement.getUser(uniqueId);
+        PermissionUser permissionUser = this.permissionsManagement.getUser(uniqueId);
         if (permissionUser != null) {
-          event.setHasPermission(this.permissionsManagement.hasPermission(permissionUser, event.getPermission()));
+          event.setHasPermission(
+            this.permissionsManagement.hasPermission(permissionUser, Permission.of(event.getPermission())));
         }
       }
     }

@@ -18,9 +18,9 @@ package de.dytanic.cloudnet.ext.cloudperms.bukkit;
 
 import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
-import de.dytanic.cloudnet.driver.permission.IPermissionGroup;
 import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
-import de.dytanic.cloudnet.driver.permission.IPermissionUser;
+import de.dytanic.cloudnet.driver.permission.PermissionGroup;
+import de.dytanic.cloudnet.driver.permission.PermissionUser;
 import de.dytanic.cloudnet.ext.cloudperms.bukkit.listener.BukkitCloudNetCloudPermissionsPlayerListener;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import java.lang.reflect.InvocationTargetException;
@@ -69,19 +69,19 @@ public final class BukkitCloudNetCloudPermissionsPlugin extends JavaPlugin {
   }
 
   @Deprecated
-  public void updateNameTags(Player player, Function<Player, IPermissionGroup> playerIPermissionGroupFunction) {
-    this.updateNameTags(player, playerIPermissionGroupFunction, null);
+  public void updateNameTags(Player player, Function<Player, PermissionGroup> playerPermissionGroupFunction) {
+    this.updateNameTags(player, playerPermissionGroupFunction, null);
   }
 
   @Deprecated
-  public void updateNameTags(Player player, Function<Player, IPermissionGroup> playerIPermissionGroupFunction,
-    Function<Player, IPermissionGroup> allOtherPlayerPermissionGroupFunction) {
+  public void updateNameTags(Player player, Function<Player, PermissionGroup> playerPermissionGroupFunction,
+    Function<Player, PermissionGroup> allOtherPlayerPermissionGroupFunction) {
     Preconditions.checkNotNull(player);
 
-    IPermissionUser playerPermissionUser = CloudNetDriver.getInstance().getPermissionManagement()
+    PermissionUser playerPermissionUser = CloudNetDriver.getInstance().getPermissionManagement()
       .getUser(player.getUniqueId());
-    AtomicReference<IPermissionGroup> playerPermissionGroup = new AtomicReference<>(
-      playerIPermissionGroupFunction != null ? playerIPermissionGroupFunction.apply(player) : null);
+    AtomicReference<PermissionGroup> playerPermissionGroup = new AtomicReference<>(
+      playerPermissionGroupFunction != null ? playerPermissionGroupFunction.apply(player) : null);
 
     if (playerPermissionUser != null && playerPermissionGroup.get() == null) {
       playerPermissionGroup
@@ -93,7 +93,7 @@ public final class BukkitCloudNetCloudPermissionsPlugin extends JavaPlugin {
     }
 
     int sortIdLength = CloudNetDriver.getInstance().getPermissionManagement().getGroups().stream()
-      .map(IPermissionGroup::getSortId)
+      .map(PermissionGroup::getSortId)
       .map(String::valueOf)
       .mapToInt(String::length)
       .max()
@@ -108,9 +108,9 @@ public final class BukkitCloudNetCloudPermissionsPlugin extends JavaPlugin {
         this.addTeamEntry(player, all, playerPermissionGroup.get(), sortIdLength);
       }
 
-      IPermissionUser targetPermissionUser = CloudNetDriver.getInstance().getPermissionManagement()
+      PermissionUser targetPermissionUser = CloudNetDriver.getInstance().getPermissionManagement()
         .getUser(all.getUniqueId());
-      IPermissionGroup targetPermissionGroup =
+      PermissionGroup targetPermissionGroup =
         allOtherPlayerPermissionGroupFunction != null ? allOtherPlayerPermissionGroupFunction.apply(all) : null;
 
       if (targetPermissionUser != null && targetPermissionGroup == null) {
@@ -128,7 +128,7 @@ public final class BukkitCloudNetCloudPermissionsPlugin extends JavaPlugin {
     });
   }
 
-  private void addTeamEntry(Player target, Player all, IPermissionGroup permissionGroup, int highestSortIdLength) {
+  private void addTeamEntry(Player target, Player all, PermissionGroup permissionGroup, int highestSortIdLength) {
     int sortIdLength = String.valueOf(permissionGroup.getSortId()).length();
     String teamName = (
       highestSortIdLength == sortIdLength ?

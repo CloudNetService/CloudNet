@@ -19,7 +19,8 @@ package de.dytanic.cloudnet.ext.cloudperms.velocity;
 import com.velocitypowered.api.permission.PermissionFunction;
 import com.velocitypowered.api.permission.Tristate;
 import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
-import de.dytanic.cloudnet.driver.permission.IPermissionUser;
+import de.dytanic.cloudnet.driver.permission.Permission;
+import de.dytanic.cloudnet.driver.permission.PermissionUser;
 import java.util.UUID;
 
 public final class VelocityCloudNetCloudPermissionsPermissionFunction implements PermissionFunction {
@@ -39,9 +40,10 @@ public final class VelocityCloudNetCloudPermissionsPermissionFunction implements
       return Tristate.FALSE;
     }
 
-    IPermissionUser permissionUser = this.permissionsManagement.getUser(this.uniqueId);
-    return (permissionUser != null && this.permissionsManagement.hasPermission(permissionUser, permission)) ?
-      Tristate.TRUE : Tristate.FALSE;
+    PermissionUser permissionUser = this.permissionsManagement.getUser(this.uniqueId);
+    return
+      (permissionUser != null && this.permissionsManagement.hasPermission(permissionUser, Permission.of(permission))) ?
+        Tristate.TRUE : Tristate.FALSE;
   }
 
   public UUID getUniqueId() {

@@ -17,9 +17,9 @@
 package de.dytanic.cloudnet.ext.cloudperms.bukkit.vault;
 
 import de.dytanic.cloudnet.common.INameable;
-import de.dytanic.cloudnet.driver.permission.IPermissionGroup;
 import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
-import de.dytanic.cloudnet.driver.permission.IPermissionUser;
+import de.dytanic.cloudnet.driver.permission.PermissionGroup;
+import de.dytanic.cloudnet.driver.permission.PermissionUser;
 import de.dytanic.cloudnet.driver.permission.PermissionUserGroupInfo;
 import java.util.Optional;
 import net.milkbowl.vault.permission.Permission;
@@ -32,11 +32,11 @@ public class VaultPermissionImplementation extends Permission {
     this.permissionManagement = permissionManagement;
   }
 
-  private Optional<IPermissionUser> permissionUserByName(String name) {
-    return this.permissionManagement.getUsers(name).stream().findFirst();
+  private Optional<PermissionUser> permissionUserByName(String name) {
+    return this.permissionManagement.getUsersByName(name).stream().findFirst();
   }
 
-  private Optional<IPermissionGroup> permissionGroupByName(String name) {
+  private Optional<PermissionGroup> permissionGroupByName(String name) {
     return Optional.ofNullable(this.permissionManagement.getGroup(name));
   }
 
@@ -57,14 +57,14 @@ public class VaultPermissionImplementation extends Permission {
 
   @Override
   public boolean playerHas(String world, String player, String permission) {
-    Optional<IPermissionUser> optionalPermissionUser = this.permissionUserByName(player);
+    Optional<PermissionUser> optionalPermissionUser = this.permissionUserByName(player);
 
     return optionalPermissionUser.isPresent() && optionalPermissionUser.get().hasPermission(permission).asBoolean();
   }
 
   @Override
   public boolean playerAdd(String world, String player, String permission) {
-    Optional<IPermissionUser> optionalPermissionUser = this.permissionUserByName(player);
+    Optional<PermissionUser> optionalPermissionUser = this.permissionUserByName(player);
 
     return optionalPermissionUser.map(permissionUser -> {
       boolean success = permissionUser.addPermission(permission);
@@ -76,7 +76,7 @@ public class VaultPermissionImplementation extends Permission {
 
   @Override
   public boolean playerRemove(String world, String player, String permission) {
-    Optional<IPermissionUser> optionalPermissionUser = this.permissionUserByName(player);
+    Optional<PermissionUser> optionalPermissionUser = this.permissionUserByName(player);
 
     return optionalPermissionUser.map(permissionUser -> {
       boolean success = permissionUser.removePermission(permission);
@@ -88,14 +88,14 @@ public class VaultPermissionImplementation extends Permission {
 
   @Override
   public boolean groupHas(String world, String group, String permission) {
-    Optional<IPermissionGroup> optionalPermissionGroup = this.permissionGroupByName(group);
+    Optional<PermissionGroup> optionalPermissionGroup = this.permissionGroupByName(group);
 
     return optionalPermissionGroup.isPresent() && optionalPermissionGroup.get().hasPermission(permission).asBoolean();
   }
 
   @Override
   public boolean groupAdd(String world, String group, String permission) {
-    Optional<IPermissionGroup> optionalPermissionGroup = this.permissionGroupByName(group);
+    Optional<PermissionGroup> optionalPermissionGroup = this.permissionGroupByName(group);
 
     return optionalPermissionGroup.map(permissionGroup -> {
       boolean success = permissionGroup.addPermission(permission);
@@ -107,7 +107,7 @@ public class VaultPermissionImplementation extends Permission {
 
   @Override
   public boolean groupRemove(String world, String group, String permission) {
-    Optional<IPermissionGroup> optionalPermissionGroup = this.permissionGroupByName(group);
+    Optional<PermissionGroup> optionalPermissionGroup = this.permissionGroupByName(group);
 
     return optionalPermissionGroup.map(permissionGroup -> {
       boolean success = permissionGroup.removePermission(permission);
@@ -119,17 +119,17 @@ public class VaultPermissionImplementation extends Permission {
 
   @Override
   public boolean playerInGroup(String world, String player, String group) {
-    Optional<IPermissionUser> optionalPermissionUser = this.permissionUserByName(player);
+    Optional<PermissionUser> optionalPermissionUser = this.permissionUserByName(player);
 
     return optionalPermissionUser.isPresent() && optionalPermissionUser.get().inGroup(group);
   }
 
   @Override
   public boolean playerAddGroup(String world, String player, String group) {
-    Optional<IPermissionUser> optionalPermissionUser = this.permissionUserByName(player);
+    Optional<PermissionUser> optionalPermissionUser = this.permissionUserByName(player);
 
     if (optionalPermissionUser.isPresent()) {
-      IPermissionUser permissionUser = optionalPermissionUser.get();
+      PermissionUser permissionUser = optionalPermissionUser.get();
 
       permissionUser.addGroup(group);
       this.permissionManagement.updateUser(permissionUser);
@@ -142,10 +142,10 @@ public class VaultPermissionImplementation extends Permission {
 
   @Override
   public boolean playerRemoveGroup(String world, String player, String group) {
-    Optional<IPermissionUser> optionalPermissionUser = this.permissionUserByName(player);
+    Optional<PermissionUser> optionalPermissionUser = this.permissionUserByName(player);
 
     if (optionalPermissionUser.isPresent()) {
-      IPermissionUser permissionUser = optionalPermissionUser.get();
+      PermissionUser permissionUser = optionalPermissionUser.get();
 
       permissionUser.removeGroup(group);
       this.permissionManagement.updateUser(permissionUser);
@@ -158,7 +158,7 @@ public class VaultPermissionImplementation extends Permission {
 
   @Override
   public String[] getPlayerGroups(String world, String player) {
-    Optional<IPermissionUser> optionalPermissionUser = this.permissionUserByName(player);
+    Optional<PermissionUser> optionalPermissionUser = this.permissionUserByName(player);
 
     return optionalPermissionUser.map(permissionUser ->
       permissionUser.getGroups().stream().map(PermissionUserGroupInfo::getGroup).toArray(String[]::new))
@@ -167,7 +167,7 @@ public class VaultPermissionImplementation extends Permission {
 
   @Override
   public String getPrimaryGroup(String world, String player) {
-    Optional<IPermissionUser> optionalPermissionUser = this.permissionUserByName(player);
+    Optional<PermissionUser> optionalPermissionUser = this.permissionUserByName(player);
 
     return optionalPermissionUser.map(permissionUser ->
       this.permissionManagement.getHighestPermissionGroup(permissionUser).getName()).orElse(null);

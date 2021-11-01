@@ -42,12 +42,12 @@ dependencies {
   "compileOnly"("net.md-5", "bungeecord-api", Versions.bungeecord)
   "compileOnly"("com.velocitypowered", "velocity-api", Versions.velocity)
   "compileOnly"("dev.waterdog.waterdogpe", "waterdog", Versions.waterdogpe)
+  "compileOnly"("com.github.MilkBowl", "VaultAPI", Versions.vault)
 }
-
-/*
 
 moduleJson {
   main = "de.dytanic.cloudnet.ext.cloudperms.node.CloudNetCloudPermissionsModule"
+  name = "CloudNet-CloudPerms"
   author = "CloudNetService"
   description = "Node extension for the CloudNet node runtime, which include a player permission system"
-}*/
+}
