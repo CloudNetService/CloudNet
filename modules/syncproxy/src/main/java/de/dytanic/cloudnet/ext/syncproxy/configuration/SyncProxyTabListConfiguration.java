@@ -37,7 +37,7 @@ public class SyncProxyTabListConfiguration {
     this.animationsPerSecond = animationsPerSecond;
   }
 
-  public static SyncProxyTabListConfiguration createDefaultTabListConfiguration(String targetGroup) {
+  public static SyncProxyTabListConfiguration createDefault(String targetGroup) {
     return new SyncProxyTabListConfiguration(
       targetGroup,
       Collections.singletonList(

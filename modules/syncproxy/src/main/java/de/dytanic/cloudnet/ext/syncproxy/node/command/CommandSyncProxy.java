@@ -21,9 +21,12 @@ import cloud.commandframework.annotations.CommandMethod;
 import cloud.commandframework.annotations.parsers.Parser;
 import cloud.commandframework.annotations.suggestions.Suggestions;
 import cloud.commandframework.context.CommandContext;
+import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.command.exception.ArgumentNotAvailableException;
 import de.dytanic.cloudnet.command.source.CommandSource;
+import de.dytanic.cloudnet.common.INameable;
 import de.dytanic.cloudnet.common.language.I18n;
+import de.dytanic.cloudnet.driver.service.GroupConfiguration;
 import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyConfiguration;
 import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyLoginConfiguration;
 import de.dytanic.cloudnet.ext.syncproxy.configuration.SyncProxyMotd;
@@ -53,18 +56,6 @@ public final class CommandSyncProxy {
         () -> new ArgumentNotAvailableException(I18n.trans("module-syncproxy-command-create-entry-group-not-found")));
   }
 
-  @Parser(name = "noLoginConfiguration")
-  public String noLoginConfigurationParser(CommandContext<CommandSource> $, Queue<String> input) {
-    String name = input.remove();
-    if (this.syncProxyModule.getSyncProxyConfiguration().getLoginConfigurations()
-      .stream()
-      .anyMatch(login -> login.getTargetGroup().equalsIgnoreCase(name))) {
-      throw new ArgumentNotAvailableException(I18n.trans("module-syncproxy-command-create-entry-group-already-exists"));
-    }
-
-    return name;
-  }
-
   @Suggestions("loginConfiguration")
   public List<String> suggestLoginConfigurations(CommandContext<CommandSource> $, String input) {
     return this.syncProxyModule.getSyncProxyConfiguration().getLoginConfigurations()
@@ -73,22 +64,59 @@ public final class CommandSyncProxy {
       .collect(Collectors.toList());
   }
 
-  @CommandMethod("syncproxy|sp reload")
-  public void reloadSyncProxy(CommandSource source) {
+  @Parser(name = "newConfiguration", suggestions = "newConfiguration")
+  public String newConfigurationParser(CommandContext<CommandSource> $, Queue<String> input) {
+    String name = input.remove();
+    if (this.syncProxyModule.getSyncProxyConfiguration().getLoginConfigurations()
+      .stream()
+      .anyMatch(login -> login.getTargetGroup().equalsIgnoreCase(name))) {
+      throw new ArgumentNotAvailableException(I18n.trans("module-syncproxy-command-create-entry-group-already-exists"));
+    }
 
+    if (this.syncProxyModule.getSyncProxyConfiguration().getTabListConfigurations()
+      .stream()
+      .anyMatch(tabList -> tabList.getTargetGroup().equalsIgnoreCase(name))) {
+      throw new ArgumentNotAvailableException(I18n.trans("module-syncproxy-command-create-entry-group-already-exists"));
+    }
+
+    GroupConfiguration configuration = CloudNet.getInstance().getGroupConfigurationProvider()
+      .getGroupConfiguration(name);
+    if (configuration == null) {
+      throw new ArgumentNotAvailableException(I18n.trans("command-service-base-group-not-found"));
+    }
+
+    return name;
+  }
+
+  @Suggestions("newConfiguration")
+  public List<String> suggestNewLoginConfigurations(CommandContext<CommandSource> $, String input) {
+    return CloudNet.getInstance().getGroupConfigurationProvider().getGroupConfigurations()
+      .stream()
+      .map(INameable::getName)
+      .collect(Collectors.toList());
   }
 
   @CommandMethod("syncproxy|sp list")
   public void listConfigurations(CommandSource source) {
-
+    for (SyncProxyLoginConfiguration loginConfiguration : this.syncProxyModule.getSyncProxyConfiguration()
+      .getLoginConfigurations()) {
+      this.displayConfiguration(source, loginConfiguration);
+    }
   }
 
   @CommandMethod("syncproxy|sp create entry <targetGroup>")
   public void createEntry(
     CommandSource source,
-    @Argument(value = "targetGroup", parserName = "noLoginConfiguration") String name
+    @Argument(value = "targetGroup", parserName = "newConfiguration") String name
   ) {
+    SyncProxyLoginConfiguration loginConfiguration = SyncProxyLoginConfiguration.createDefault(name);
+    SyncProxyTabListConfiguration tabListConfiguration = SyncProxyTabListConfiguration.createDefault(name);
 
+    this.syncProxyModule.getSyncProxyConfiguration().getLoginConfigurations().add(loginConfiguration);
+    this.syncProxyModule.getSyncProxyConfiguration().getTabListConfigurations().add(tabListConfiguration);
+    this.updateSyncProxyConfiguration();
+
+    source.sendMessage(I18n.trans("module-syncproxy-command-create-entry-success"));
   }
 
   @CommandMethod("syncproxy|sp target <targetGroup> maxPlayers <amount>")
@@ -97,7 +125,13 @@ public final class CommandSyncProxy {
     @Argument("targetGroup") SyncProxyLoginConfiguration loginConfiguration,
     @Argument("amount") int amount
   ) {
+    loginConfiguration.setMaxPlayers(amount);
+    this.updateSyncProxyConfiguration();
 
+    source.sendMessage(
+      I18n.trans("module-syncproxy-command-set-maxplayers")
+        .replace("%group%", loginConfiguration.getTargetGroup())
+        .replace("%amount%", Integer.toString(amount)));
   }
 
   @CommandMethod("syncproxy|sp target <targetGroup> whitelist add <name>")
@@ -106,12 +140,51 @@ public final class CommandSyncProxy {
     @Argument("targetGroup") SyncProxyLoginConfiguration loginConfiguration,
     @Argument("name") String name
   ) {
+    loginConfiguration.getWhitelist().add(name);
+    this.updateSyncProxyConfiguration();
+
+    source.sendMessage(I18n.trans("module-syncproxy-command-add-whitelist-entry")
+      .replace("%name%", name)
+      .replace("%group%", loginConfiguration.getTargetGroup()));
+  }
+
+  @CommandMethod("syncproxy|sp target <targetGroup> whitelist remove <name>")
+  public void removeWhiteList(
+    CommandSource source,
+    @Argument("targetGroup") SyncProxyLoginConfiguration loginConfiguration,
+    @Argument("name") String name
+  ) {
+    if (loginConfiguration.getWhitelist().remove(name)) {
+      this.updateSyncProxyConfiguration();
+    }
+
+    source.sendMessage(I18n.trans("module-syncproxy-command-remove-whitelist-entry")
+      .replace("%name%", name)
+      .replace("%group%", loginConfiguration.getTargetGroup()));
+  }
+
+  @CommandMethod("syncproxy|sp target <targetGroup> maintenance <enabled>")
+  public void maintenance(
+    CommandSource source,
+    @Argument("targetGroup") SyncProxyLoginConfiguration loginConfiguration,
+    @Argument("enabled") boolean enabled
+  ) {
+    loginConfiguration.setMaintenance(enabled);
+    this.updateSyncProxyConfiguration();
+
+    source.sendMessage(I18n.trans("module-syncproxy-command-set-maintenance")
+      .replace("%group%", loginConfiguration.getTargetGroup())
+      .replace("%maintenance%", Boolean.toString(enabled)));
+  }
+
+  private void updateSyncProxyConfiguration() {
+    this.syncProxyModule.setSyncProxyConfiguration(this.syncProxyModule.getSyncProxyConfiguration(), true);
   }
 
   private void displayListConfiguration(CommandSource source, SyncProxyConfiguration syncProxyConfiguration) {
     for (SyncProxyLoginConfiguration syncProxyLoginConfiguration : syncProxyConfiguration
       .getLoginConfigurations()) {
-      displayConfiguration(source, syncProxyLoginConfiguration);
+      this.displayConfiguration(source, syncProxyLoginConfiguration);
     }
 
     for (SyncProxyTabListConfiguration syncProxyTabListConfiguration : syncProxyConfiguration
@@ -142,15 +215,15 @@ public final class CommandSyncProxy {
       "Max-Players: " + syncProxyLoginConfiguration.getMaxPlayers()
     );
 
-    displayWhitelist(source, syncProxyLoginConfiguration.getWhitelist());
+    this.displayWhitelist(source, syncProxyLoginConfiguration.getWhitelist());
 
     source.sendMessage("Motds:");
     for (SyncProxyMotd syncProxyMotd : syncProxyLoginConfiguration.getMotds()) {
-      displayMotd(source, syncProxyMotd);
+      this.displayMotd(source, syncProxyMotd);
     }
 
     for (SyncProxyMotd syncProxyMotd : syncProxyLoginConfiguration.getMaintenanceMotds()) {
-      displayMotd(source, syncProxyMotd);
+      this.displayMotd(source, syncProxyMotd);
     }
   }
 

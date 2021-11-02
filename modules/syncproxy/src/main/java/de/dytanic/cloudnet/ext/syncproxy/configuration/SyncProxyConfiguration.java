@@ -54,8 +54,8 @@ public class SyncProxyConfiguration {
 
   public static SyncProxyConfiguration createDefault(@NotNull String targetGroup) {
     return new SyncProxyConfiguration(
-      Collections.singleton(SyncProxyLoginConfiguration.createDefaultLoginConfiguration(targetGroup)),
-      Collections.singleton(SyncProxyTabListConfiguration.createDefaultTabListConfiguration(targetGroup)),
+      Collections.singleton(SyncProxyLoginConfiguration.createDefault(targetGroup)),
+      Collections.singleton(SyncProxyTabListConfiguration.createDefault(targetGroup)),
       DEFAULT_MESSAGES,
       true);
   }

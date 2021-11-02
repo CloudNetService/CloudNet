@@ -51,7 +51,7 @@ public class SyncProxyLoginConfiguration {
     this.maintenanceMotds = maintenanceMotds;
   }
 
-  public static SyncProxyLoginConfiguration createDefaultLoginConfiguration(String targetGroup) {
+  public static SyncProxyLoginConfiguration createDefault(String targetGroup) {
     return new SyncProxyLoginConfiguration(
       targetGroup,
       false,

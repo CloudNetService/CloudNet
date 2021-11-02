@@ -71,14 +71,14 @@ public class SyncProxyDefaultConfigurationListener {
     if (configuration.getLoginConfigurations().stream()
       .noneMatch(loginConfiguration -> loginConfiguration.getTargetGroup().equals(task.getName()))) {
       configuration.getLoginConfigurations()
-        .add(SyncProxyLoginConfiguration.createDefaultLoginConfiguration(task.getName()));
+        .add(SyncProxyLoginConfiguration.createDefault(task.getName()));
       modified = true;
     }
 
     if (configuration.getTabListConfigurations().stream()
       .noneMatch(tabListConfiguration -> tabListConfiguration.getTargetGroup().equals(task.getName()))) {
       configuration.getTabListConfigurations()
-        .add(SyncProxyTabListConfiguration.createDefaultTabListConfiguration(task.getName()));
+        .add(SyncProxyTabListConfiguration.createDefault(task.getName()));
       modified = true;
     }
 

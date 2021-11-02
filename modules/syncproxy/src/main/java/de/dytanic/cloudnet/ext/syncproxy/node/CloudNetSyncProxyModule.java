@@ -98,6 +98,8 @@ public final class CloudNetSyncProxyModule extends DriverModule {
         .build()
         .send();
     }
+
+    SyncProxyConfigurationHelper.write(syncProxyConfiguration, this.configurationFilePath);
   }
 
   @NotNull
