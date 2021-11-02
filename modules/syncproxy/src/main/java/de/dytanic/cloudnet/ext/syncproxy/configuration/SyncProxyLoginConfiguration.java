@@ -16,30 +16,33 @@
 
 package de.dytanic.cloudnet.ext.syncproxy.configuration;
 
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import lombok.EqualsAndHashCode;
+import lombok.EqualsAndHashCode.Include;
 import lombok.ToString;
 
 @ToString
-@EqualsAndHashCode
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class SyncProxyLoginConfiguration {
 
+  @Include
   protected String targetGroup;
 
   protected boolean maintenance;
 
   protected int maxPlayers;
 
-  protected List<String> whitelist;
+  protected Set<String> whitelist;
 
   protected List<SyncProxyMotd> motds;
 
   protected List<SyncProxyMotd> maintenanceMotds;
 
   public SyncProxyLoginConfiguration(String targetGroup, boolean maintenance, int maxPlayers,
-    List<String> whitelist, List<SyncProxyMotd> motds, List<SyncProxyMotd> maintenanceMotds) {
+    Set<String> whitelist, List<SyncProxyMotd> motds, List<SyncProxyMotd> maintenanceMotds) {
     this.targetGroup = targetGroup;
     this.maintenance = maintenance;
     this.maxPlayers = maxPlayers;
@@ -53,7 +56,7 @@ public class SyncProxyLoginConfiguration {
       targetGroup,
       false,
       100,
-      new ArrayList<>(),
+      new HashSet<>(),
       Collections.singletonList(new SyncProxyMotd(
         "         &b&o■ &8┃ &3&lCloudNet &8● &cBlizzard &8&l» &7&ov3.5 &8┃ &b&o■",
         "              &7&onext &3&l&ogeneration &7&onetwork",
@@ -102,11 +105,11 @@ public class SyncProxyLoginConfiguration {
     this.maxPlayers = maxPlayers;
   }
 
-  public List<String> getWhitelist() {
+  public Set<String> getWhitelist() {
     return this.whitelist;
   }
 
-  public void setWhitelist(List<String> whitelist) {
+  public void setWhitelist(Set<String> whitelist) {
     this.whitelist = whitelist;
   }
 

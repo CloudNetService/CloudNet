@@ -100,6 +100,14 @@ public final class CommandSyncProxy {
 
   }
 
+  @CommandMethod("syncproxy|sp target <targetGroup> whitelist add <name>")
+  public void addWhiteList(
+    CommandSource source,
+    @Argument("targetGroup") SyncProxyLoginConfiguration loginConfiguration,
+    @Argument("name") String name
+  ) {
+  }
+
   private void displayListConfiguration(CommandSource source, SyncProxyConfiguration syncProxyConfiguration) {
     for (SyncProxyLoginConfiguration syncProxyLoginConfiguration : syncProxyConfiguration
       .getLoginConfigurations()) {

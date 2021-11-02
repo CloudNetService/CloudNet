@@ -23,6 +23,7 @@ import de.dytanic.cloudnet.wrapper.Wrapper;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Set;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.jetbrains.annotations.NotNull;
@@ -37,13 +38,13 @@ public class SyncProxyConfiguration {
     "service-start", "&7The service &e%service% &7is &astarting &7on node &e%node%&7...",
     "service-stop", "&7The service &e%service% &7is &cstopping &7on node &e%node%&7...");
 
-  protected Collection<SyncProxyLoginConfiguration> loginConfigurations;
-  protected Collection<SyncProxyTabListConfiguration> tabListConfigurations;
+  protected Set<SyncProxyLoginConfiguration> loginConfigurations;
+  protected Set<SyncProxyTabListConfiguration> tabListConfigurations;
   protected Map<String, String> messages;
   protected boolean ingameServiceStartStopMessages;
 
-  public SyncProxyConfiguration(Collection<SyncProxyLoginConfiguration> loginConfigurations,
-    Collection<SyncProxyTabListConfiguration> tabListConfigurations, Map<String, String> messages,
+  public SyncProxyConfiguration(Set<SyncProxyLoginConfiguration> loginConfigurations,
+    Set<SyncProxyTabListConfiguration> tabListConfigurations, Map<String, String> messages,
     boolean ingameServiceStartStopMessages) {
     this.loginConfigurations = loginConfigurations;
     this.tabListConfigurations = tabListConfigurations;
@@ -53,8 +54,8 @@ public class SyncProxyConfiguration {
 
   public static SyncProxyConfiguration createDefault(@NotNull String targetGroup) {
     return new SyncProxyConfiguration(
-      Collections.singletonList(SyncProxyLoginConfiguration.createDefaultLoginConfiguration(targetGroup)),
-      Collections.singletonList(SyncProxyTabListConfiguration.createDefaultTabListConfiguration(targetGroup)),
+      Collections.singleton(SyncProxyLoginConfiguration.createDefaultLoginConfiguration(targetGroup)),
+      Collections.singleton(SyncProxyTabListConfiguration.createDefaultTabListConfiguration(targetGroup)),
       DEFAULT_MESSAGES,
       true);
   }
@@ -74,11 +75,11 @@ public class SyncProxyConfiguration {
     return null;
   }
 
-  public Collection<SyncProxyLoginConfiguration> getLoginConfigurations() {
+  public Set<SyncProxyLoginConfiguration> getLoginConfigurations() {
     return this.loginConfigurations;
   }
 
-  public void setLoginConfigurations(Collection<SyncProxyLoginConfiguration> loginConfigurations) {
+  public void setLoginConfigurations(Set<SyncProxyLoginConfiguration> loginConfigurations) {
     this.loginConfigurations = loginConfigurations;
   }
 
@@ -86,7 +87,7 @@ public class SyncProxyConfiguration {
     return this.tabListConfigurations;
   }
 
-  public void setTabListConfigurations(Collection<SyncProxyTabListConfiguration> tabListConfigurations) {
+  public void setTabListConfigurations(Set<SyncProxyTabListConfiguration> tabListConfigurations) {
     this.tabListConfigurations = tabListConfigurations;
   }
 
