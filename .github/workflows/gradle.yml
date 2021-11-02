@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        java: [ '8', '11', '17' ]
+        java: [ '11', '17' ]
     name: Java ${{ matrix.java }}
 
     steps:
@@ -29,23 +29,3 @@ jobs:
 
       - name: Run build lifecycle
         run: ./gradlew build checkLicenses test jar --stacktrace
-
-      - name: Release ZIP
-        run: |
-          mkdir -p temp/;
-
-          cp -r .template/* temp/;
-          cp LICENSE temp/license.txt;
-
-          mkdir temp/dev;
-          mkdir temp/dev/examples;
-          cp -r cloudnet-examples/src/main/java/de/dytanic/cloudnet/examples/* temp/dev/examples;
-
-          mkdir temp/plugins;
-          cp cloudnet-plugins/**/build/libs/*.jar temp/plugins/;
-          cp cloudnet-launcher/build/libs/launcher.jar temp/launcher.jar;
-
-      - uses: actions/upload-artifact@v2
-        with:
-          name: CloudNet-v3
-          path: temp/
