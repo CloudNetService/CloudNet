@@ -225,44 +225,23 @@ public abstract class CloudNetDriver {
   @Nullable
   public abstract TemplateStorage getTemplateStorage(@NotNull String storage);
 
-  /**
-   * This method retrieves all {@link TemplateStorage} from the Nodes {@link IServicesRegistry}
-   *
-   * @return a Collection with all available TemplatesStorages
-   */
   @NotNull
   public abstract Collection<TemplateStorage> getAvailableTemplateStorages();
 
-  /**
-   * This method retrieves all {@link TemplateStorage} from the Nodes {@link IServicesRegistry} async
-   *
-   * @return a Collection with all available TemplatesStorages
-   */
   @NotNull
   public ITask<Collection<TemplateStorage>> getAvailableTemplateStoragesAsync() {
     return CompletableTask.supply(this::getAvailableTemplateStorages);
   }
 
-  /**
-   * @return the active DatabaseProvider specified by the local/registry
-   */
   public @NotNull DatabaseProvider getDatabaseProvider() {
     return this.databaseProvider;
   }
 
-  /**
-   * Returns the general CloudServiceProvider
-   *
-   * @return the instance of the {@link GeneralCloudServiceProvider}
-   */
   @NotNull
   public GeneralCloudServiceProvider getCloudServiceProvider() {
     return this.generalCloudServiceProvider;
   }
 
-  /**
-   * @return the network client used for communication
-   */
   public @NotNull INetworkClient getNetworkClient() {
     return this.networkClient;
   }
@@ -286,35 +265,21 @@ public abstract class CloudNetDriver {
     return ProcessSnapshot.getOwnPID();
   }
 
-  /**
-   * @return the {@link IServicesRegistry} for the management of implementations
-   */
   @NotNull
   public IServicesRegistry getServicesRegistry() {
     return this.servicesRegistry;
   }
 
-  /**
-   * @return the {@link IEventManager} for event management
-   */
   @NotNull
   public IEventManager getEventManager() {
     return this.eventManager;
   }
 
-  /**
-   * @return the {@link IModuleProvider} for module management
-   */
   @NotNull
   public IModuleProvider getModuleProvider() {
     return this.moduleProvider;
   }
 
-  /**
-   * Use this {@link ScheduledExecutorService} to schedule actions
-   *
-   * @return the set {@link ScheduledExecutorService}
-   */
   @NotNull
   public ScheduledExecutorService getTaskExecutor() {
     return this.scheduler;
@@ -329,9 +294,6 @@ public abstract class CloudNetDriver {
     return this.rpcHandlerRegistry;
   }
 
-  /**
-   * @return the {@link DriverEnvironment} this driver is running on.
-   */
   @NotNull
   public DriverEnvironment getDriverEnvironment() {
     return this.driverEnvironment;

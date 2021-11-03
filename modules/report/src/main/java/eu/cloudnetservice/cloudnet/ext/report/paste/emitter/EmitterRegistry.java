@@ -25,6 +25,11 @@ import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.UnmodifiableView;
 
+/**
+ * The EmitterRegistry keeps track of all {@link ReportDataEmitter} that are used to collect data for reports.
+ *
+ * @author Aldin s. (0utplay@cloudnetservice.eu)
+ */
 public class EmitterRegistry {
 
   private final Multimap<Class<?>, ReportDataEmitter<?>> emitters = ArrayListMultimap.create();
@@ -62,5 +67,22 @@ public class EmitterRegistry {
    */
   public <T> void registerDataEmitter(@NotNull Class<T> clazz, @NotNull ReportDataEmitter<T>... emitter) {
     this.emitters.putAll(clazz, Arrays.asList(emitter));
+  }
+
+  /**
+   * Unregisters all emitters that are registered in this registry using the given class.
+   *
+   * @param clazz the class that was used to register the emitters
+   * @param <T>   the type of the registered emitters
+   */
+  public <T> void unregisterByClass(@NotNull Class<T> clazz) {
+    this.emitters.removeAll(clazz);
+  }
+
+  /**
+   * Unregisters all known emitters by clearing the backing map.
+   */
+  public void unregisterAll() {
+    this.emitters.clear();
   }
 }

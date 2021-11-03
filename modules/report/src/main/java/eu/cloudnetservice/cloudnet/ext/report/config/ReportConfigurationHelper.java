@@ -29,6 +29,14 @@ public final class ReportConfigurationHelper {
 
   private static final Logger LOGGER = LogManager.getLogger(ReportConfigurationHelper.class);
 
+  /**
+   * Reads a {@link ReportConfiguration} from the file at the given location. If an old version of the config is
+   * detected a conversion is done and the file is rewritten. In the case, that the file is empty, the default {@link
+   * ReportConfiguration#DEFAULT} configuration is written to the file.
+   *
+   * @param location the location of the file to read from.
+   * @return the read {@link ReportConfiguration} configuration.
+   */
   public static @NotNull ReportConfiguration read(@NotNull Path location) {
     JsonDocument document = JsonDocument.newDocument(location);
 
@@ -52,10 +60,23 @@ public final class ReportConfigurationHelper {
     return document.toInstanceOf(ReportConfiguration.class);
   }
 
+  /**
+   * Wraps the {@link ReportConfiguration} configuration into a {@link JsonDocument} and writes it to the file at the
+   * given path.
+   *
+   * @param configuration the configuration to write.
+   * @param location      the location to save the configuration to.
+   */
   public static void write(@NotNull ReportConfiguration configuration, @NotNull Path location) {
     JsonDocument.newDocument(configuration).write(location);
   }
 
+  /**
+   * Converts the old configuration (<= 3.4.0) to the new format.
+   *
+   * @param document the document containing the old configuration.
+   * @return the new converted configuration.
+   */
   private static ReportConfiguration convertConfiguration(@NotNull JsonDocument document) {
     boolean saveRecords = document.getBoolean("savingRecords", true);
     Path recordDestination = document.get("recordDestinationDirectory", Path.class, Paths.get("records"));

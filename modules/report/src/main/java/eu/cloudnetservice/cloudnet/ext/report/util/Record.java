@@ -43,11 +43,11 @@ public final class Record {
 
   /**
    * Constructs a new Record with the given baseDirectory, the resulting directory is resolved with the name and the
-   * uniqueId of the given service
+   * uniqueId of the given service e.g. Lobby-1-857679dc-a12e-459e-95a7-5577dd98313e.
    *
    * @param baseDirectory the baseDirectory to create the sub folder of the service in
    * @param service       the service that this record is used for
-   * @return the new Record for the service
+   * @return the new Record for the service, null if the directory for the services already exists
    */
   public static @Nullable Record forService(@NotNull Path baseDirectory, @NotNull ICloudService service) {
     Path directory = baseDirectory.resolve(
@@ -94,7 +94,7 @@ public final class Record {
   }
 
   /**
-   * Creates a new file ("cachedConsoleLog.txt") with the last cached log lines of the service
+   * Creates a new file ("cachedConsoleLog.txt") with the last cached log lines of the service.
    */
   public void writeCachedConsoleLog() {
     try {
@@ -106,7 +106,7 @@ public final class Record {
 
   /**
    * Creates a new file ("ServiceInfoSnapshots.json") with the previous and current {@link
-   * de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot} ServiceInfoSnapshot of the service
+   * de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot} ServiceInfoSnapshot of the service.
    */
   public void writeServiceInfoSnapshot() {
     JsonDocument.newDocument("serviceInfoSnapshot", this.service.getServiceInfoSnapshot())
@@ -115,7 +115,7 @@ public final class Record {
   }
 
   /**
-   * Sends a message to the node, that the record was created
+   * Sends a message to the node, that the record was created successfully.
    */
   public void notifySuccess() {
     LOGGER.info(I18n.trans("module-report-create-record-success")

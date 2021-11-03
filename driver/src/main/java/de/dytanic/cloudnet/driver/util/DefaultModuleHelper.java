@@ -22,14 +22,12 @@ import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.common.unsafe.ResourceResolver;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 
 /**
@@ -48,15 +46,6 @@ public final class DefaultModuleHelper {
 
   private DefaultModuleHelper() {
     throw new UnsupportedOperationException();
-  }
-
-  /**
-   * @deprecated use {@link #copyCurrentModuleInstanceFromClass(Class, Path)} instead.
-   */
-  @Deprecated
-  @ApiStatus.ScheduledForRemoval(inVersion = "3.6")
-  public static boolean copyCurrentModuleInstanceFromClass(Class<?> clazz, File target) {
-    return copyCurrentModuleInstanceFromClass(clazz, target.toPath());
   }
 
   /**

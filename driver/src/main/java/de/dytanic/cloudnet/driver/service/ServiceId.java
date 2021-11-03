@@ -20,7 +20,7 @@ import de.dytanic.cloudnet.common.INameable;
 import java.util.Collection;
 import java.util.UUID;
 import lombok.EqualsAndHashCode;
-import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.NotNull;
 
 @EqualsAndHashCode
@@ -55,6 +55,7 @@ public class ServiceId implements INameable {
   ServiceId() {
   }
 
+  @Override
   public @NotNull String getName() {
     return this.taskName + "-" + this.taskServiceId;
   }
@@ -67,7 +68,7 @@ public class ServiceId implements INameable {
     return this.nodeUniqueId;
   }
 
-  @ApiStatus.Internal
+  @Internal
   public void setNodeUniqueId(String nodeUniqueId) {
     this.nodeUniqueId = nodeUniqueId;
   }
@@ -84,7 +85,7 @@ public class ServiceId implements INameable {
     return this.taskServiceId;
   }
 
-  @ApiStatus.Internal
+  @Internal
   public void setTaskServiceId(int taskServiceId) {
     this.taskServiceId = taskServiceId;
   }

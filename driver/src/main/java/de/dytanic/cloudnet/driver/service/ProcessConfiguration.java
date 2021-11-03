@@ -20,7 +20,6 @@ import java.util.HashSet;
 import java.util.Set;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 
 @ToString
 @EqualsAndHashCode
@@ -98,14 +97,5 @@ public class ProcessConfiguration implements Cloneable {
     } catch (CloneNotSupportedException exception) {
       throw new IllegalStateException(); // cannot happen, just explode
     }
-  }
-
-  /**
-   * @deprecated Use {@link #clone()} instead.
-   */
-  @Deprecated
-  @ScheduledForRemoval
-  public ProcessConfiguration makeClone() {
-    return this.clone();
   }
 }

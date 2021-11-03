@@ -36,9 +36,6 @@ public class CloudflareGroupConfiguration {
     this.weight = weight;
   }
 
-  public CloudflareGroupConfiguration() {
-  }
-
   public String getName() {
     return this.name;
   }

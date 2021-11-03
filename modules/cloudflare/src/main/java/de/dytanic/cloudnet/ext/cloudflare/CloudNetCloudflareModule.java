@@ -16,7 +16,6 @@
 
 package de.dytanic.cloudnet.ext.cloudflare;
 
-import com.google.gson.JsonParseException;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.language.I18n;
@@ -56,13 +55,7 @@ public final class CloudNetCloudflareModule extends DriverModule {
   @ModuleTask(order = 127, event = ModuleLifeCycle.STARTED)
   public void loadConfiguration() {
 
-    JsonDocument configuration;
-    try {
-      configuration = super.getConfigExceptionally();
-    } catch (Exception exception) {
-      throw new JsonParseException(
-        "Exception while parsing cloudflare-module configuration. Your configuration is invalid.");
-    }
+    JsonDocument configuration = this.getConfig();
 
     this.cloudflareConfiguration = configuration
       .get("config", CloudflareConfiguration.class, new CloudflareConfiguration(

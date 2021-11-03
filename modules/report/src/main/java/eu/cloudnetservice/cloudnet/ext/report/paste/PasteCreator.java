@@ -39,7 +39,7 @@ public final class PasteCreator {
    * Creates a new paste by emitting all ICloudService emitters and collecting their data.
    *
    * @param service the service to collect the data for
-   * @return the resulting url after uploading the content
+   * @return the resulting url after uploading collected the content
    */
   public @Nullable String createServicePaste(@NotNull ICloudService service) {
     return this.pasteContent(this.collectData(ICloudService.class, service));
@@ -49,7 +49,7 @@ public final class PasteCreator {
    * Creates a new paste by emitting all NetworkClusterNodeInfoSnapshot emitters and collecting their data.
    *
    * @param nodeInfoSnapshot the nodeInfoSnapshot to collect the data for
-   * @return the resulting url after uploading the content
+   * @return the resulting url after uploading the collected content
    */
   public @Nullable String createNodePaste(@NotNull NetworkClusterNodeInfoSnapshot nodeInfoSnapshot) {
     return this.pasteContent(this.collectData(NetworkClusterNodeInfoSnapshot.class, nodeInfoSnapshot));

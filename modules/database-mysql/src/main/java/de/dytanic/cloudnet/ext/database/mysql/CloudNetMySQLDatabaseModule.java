@@ -16,7 +16,6 @@
 
 package de.dytanic.cloudnet.ext.database.mysql;
 
-import com.google.gson.JsonParseException;
 import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.database.AbstractDatabaseProvider;
@@ -47,13 +46,7 @@ public final class CloudNetMySQLDatabaseModule extends DriverModule {
   @ModuleTask(order = 126, event = ModuleLifeCycle.LOADED)
   public void initConfig() {
 
-    JsonDocument configuration;
-    try {
-      configuration = super.getConfigExceptionally();
-    } catch (Exception exception) {
-      throw new JsonParseException(
-        "Exception while parsing mysql-module configuration. Your configuration is invalid.");
-    }
+    JsonDocument configuration = this.getConfig();
 
     configuration.getString("database", "mysql");
     configuration.get("addresses", TYPE, Collections.singletonList(

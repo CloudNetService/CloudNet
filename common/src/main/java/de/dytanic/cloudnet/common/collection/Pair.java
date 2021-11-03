@@ -25,8 +25,8 @@ import org.jetbrains.annotations.UnknownNullability;
  * setSecond() / getSecond(). It can be used to return multiple objects of a method, or to easily capture multiple
  * objects without creating their own class.
  *
- * @param <F> the first type, which you want to defined
- * @param <S> the second type which you want to defined
+ * @param <F> the first type, which you want to define
+ * @param <S> the second type which you want to define
  */
 @ToString
 @EqualsAndHashCode

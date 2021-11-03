@@ -45,9 +45,6 @@ public class CloudflareConfigurationEntry {
     this.groups = groups;
   }
 
-  public CloudflareConfigurationEntry() {
-  }
-
   public boolean isEnabled() {
     return this.enabled;
   }
