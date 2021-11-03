@@ -98,10 +98,7 @@ public final class CommandSyncProxy {
 
   @CommandMethod("syncproxy|sp list")
   public void listConfigurations(CommandSource source) {
-    for (SyncProxyLoginConfiguration loginConfiguration : this.syncProxyModule.getSyncProxyConfiguration()
-      .getLoginConfigurations()) {
-      this.displayConfiguration(source, loginConfiguration);
-    }
+    this.displayListConfiguration(source, this.syncProxyModule.getSyncProxyConfiguration());
   }
 
   @CommandMethod("syncproxy|sp create entry <targetGroup>")
@@ -117,6 +114,14 @@ public final class CommandSyncProxy {
     this.updateSyncProxyConfiguration();
 
     source.sendMessage(I18n.trans("module-syncproxy-command-create-entry-success"));
+  }
+
+  @CommandMethod("syncproxy|sp target <targetGroup>")
+  public void listConfiguration(
+    CommandSource source,
+    @Argument("targetGroup") SyncProxyLoginConfiguration loginConfiguration
+  ) {
+    this.displayConfiguration(source, loginConfiguration);
   }
 
   @CommandMethod("syncproxy|sp target <targetGroup> maxPlayers <amount>")
