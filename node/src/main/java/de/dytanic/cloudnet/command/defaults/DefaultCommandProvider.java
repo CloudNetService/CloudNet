@@ -114,7 +114,7 @@ public class DefaultCommandProvider implements CommandProvider {
   @Override
   public void execute(@NotNull CommandSource source, @NotNull String input) {
     try {
-      //join the future to handle the occurring exceptions
+      // join the future to handle the occurring exceptions
       this.commandManager.executeCommand(source, input).join();
     } catch (CompletionException exception) {
       this.exceptionHandler.handleCompletionException(source, exception);

@@ -185,7 +185,7 @@ public final class CommandService {
     }
   }
 
-  @CommandMethod("service|ser <name> <copy|cp> [template]")
+  @CommandMethod("service|ser <name> copy|cp [template]")
   public void copyService(
     CommandSource source,
     @Argument(value = "name", parserName = "single") ServiceInfoSnapshot service,

@@ -14,3 +14,11 @@
  * limitations under the License.
  */
 
+subprojects {
+
+  repositories {
+    maven("https://repo.spongepowered.org/maven/")
+    maven("https://repo.nukkitx.com/maven-snapshots/")
+    maven("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
+  }
+}

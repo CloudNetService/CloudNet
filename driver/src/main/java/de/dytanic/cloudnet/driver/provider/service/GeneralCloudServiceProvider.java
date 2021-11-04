@@ -177,7 +177,7 @@ public interface GeneralCloudServiceProvider {
    */
   @NotNull
   default ITask<Collection<ServiceInfoSnapshot>> getCloudServicesAsync() {
-    return CompletableTask.supply(() -> this.getCloudServices());
+    return CompletableTask.supply(this::getCloudServices);
   }
 
   /**

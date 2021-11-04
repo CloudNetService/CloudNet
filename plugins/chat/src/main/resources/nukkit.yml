@@ -1,0 +1,6 @@
+name: CloudNet-Chat
+version: "1.0"
+api: [ "1.0.5" ]
+author: CloudNetService
+website: https://cloudnetservice.eu
+main: de.dytanic.cloudnet.ext.chat.NukkitChatPlugin

@@ -21,11 +21,12 @@ pluginManagement {
 rootProject.name = "cloudnet-root"
 
 // top level projects
-initializeProjects("common", "driver", "node", "wrapper-jvm", "launcher", "modules")
+initializeProjects("common", "driver", "node", "wrapper-jvm", "launcher", "modules", "plugins")
 
 // sub projects
 initializeSubProjects("wrapper-jvm", "minecraft-launchwrapper-api")
-initializeSubProjects("modules", "report", "cloudflare", "rest", "database-mongodb", "database-mysql", "cloudperms", "syncproxy")
+initializeSubProjects("plugins", "chat")
+initializeSubProjects("modules", "report", "cloudflare", "rest", "database-mongodb", "database-mysql", "cloudperms" /*"syncproxy"*/)
 
 fun initializeProjects(vararg names: String) {
   names.forEach {

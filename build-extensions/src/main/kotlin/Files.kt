@@ -21,6 +21,8 @@ object Files {
   const val wrapper = "wrapper.jar"
   const val launcher = "launcher.jar"
 
+  const val chat_plugin = "cloudnet-chat.jar"
+
   const val bridge = "cloudnet-bridge.jar"
   const val cloudflare = "cloudnet-cloudflare.jar"
   const val cloudperms = "cloudnet-cloudperms.jar"

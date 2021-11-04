@@ -17,6 +17,8 @@
 package de.dytanic.cloudnet.command.exception;
 
 import cloud.commandframework.arguments.CommandArgument;
+import cloud.commandframework.arguments.compound.FlagArgument;
+import cloud.commandframework.arguments.compound.FlagArgument.FlagParseException;
 import cloud.commandframework.exceptions.ArgumentParseException;
 import cloud.commandframework.exceptions.InvalidCommandSenderException;
 import cloud.commandframework.exceptions.InvalidSyntaxException;
@@ -74,6 +76,8 @@ public class CommandExceptionHandler {
       Throwable deepCause = cause.getCause();
       if (deepCause instanceof ArgumentNotAvailableException) {
         this.handleArgumentNotAvailableException(source, (ArgumentNotAvailableException) deepCause);
+      } else if (deepCause instanceof FlagArgument.FlagParseException) {
+        this.handleFlagParseException(source, (FlagParseException) deepCause);
       } else {
         this.handleArgumentParseException(source, (ArgumentParseException) cause);
       }
@@ -84,6 +88,10 @@ public class CommandExceptionHandler {
 
   protected void handleArgumentParseException(CommandSource source, ArgumentParseException exception) {
     source.sendMessage(exception.getMessage());
+  }
+
+  protected void handleFlagParseException(CommandSource source, FlagParseException flagParseException) {
+    // we just ignore this as we can't really handle this due to cloud
   }
 
   protected void handleArgumentNotAvailableException(CommandSource source, ArgumentNotAvailableException exception) {

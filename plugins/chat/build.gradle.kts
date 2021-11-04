@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-jar {
-  archiveFileName.set('cloudnet-chat.jar')
+tasks.withType<Jar> {
+  archiveFileName.set(Files.chat_plugin)
 }
 
 dependencies {
-  compileOnly project(':cloudnet-driver')
-  compileOnly project(':cloudnet-wrapper-jvm')
-  compileOnly project(':cloudnet-modules').project('cloudnet-cloudperms')
-  compileOnly group: 'org.spigotmc', name: 'spigot-api', version: dependencySpigotApiVersion
+  "compileOnly"(project(":cloudnet-wrapper-jvm"))
+  "compileOnly"("cn.nukkit", "nukkit", Versions.nukkitX)
+  "compileOnly"("org.spongepowered", "spongeapi", Versions.sponge)
+  "compileOnly"("org.spigotmc", "spigot-api", Versions.spigotApi)
 }
