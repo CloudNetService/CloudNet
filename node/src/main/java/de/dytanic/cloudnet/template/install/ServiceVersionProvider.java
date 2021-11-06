@@ -185,10 +185,11 @@ public class ServiceVersionProvider {
       }
 
       for (Map.Entry<String, String> entry : information.getServiceVersion().getAdditionalDownloads().entrySet()) {
-        try (InputStream in = ConsoleProgressWrappers.wrapDownload(entry.getValue());
-          OutputStream out = information.getTemplateStorage().newOutputStream(entry.getKey())) {
-          FileUtils.copy(in, out);
-        }
+        ConsoleProgressWrappers.wrapDownload(entry.getKey(), stream -> {
+          try (OutputStream out = information.getTemplateStorage().newOutputStream(entry.getKey())) {
+            FileUtils.copy(stream, out);
+          }
+        });
       }
 
       return true;

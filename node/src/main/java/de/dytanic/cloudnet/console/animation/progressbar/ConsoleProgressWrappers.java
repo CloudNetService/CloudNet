@@ -18,6 +18,9 @@ package de.dytanic.cloudnet.console.animation.progressbar;
 
 import com.google.common.primitives.Longs;
 import de.dytanic.cloudnet.CloudNet;
+import de.dytanic.cloudnet.common.function.ThrowableConsumer;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.console.IConsole;
 import de.dytanic.cloudnet.console.animation.progressbar.wrapper.WrappedInputStream;
 import de.dytanic.cloudnet.console.animation.progressbar.wrapper.WrappedIterator;
@@ -26,12 +29,12 @@ import java.io.InputStream;
 import java.text.DecimalFormat;
 import java.util.Collection;
 import java.util.Iterator;
-import kong.unirest.HttpResponse;
-import kong.unirest.RawResponse;
 import kong.unirest.Unirest;
 import org.jetbrains.annotations.NotNull;
 
 public final class ConsoleProgressWrappers {
+
+  private static final Logger LOGGER = LogManager.getLogger(ConsoleProgressWrappers.class);
 
   private ConsoleProgressWrappers() {
     throw new UnsupportedOperationException();
@@ -68,29 +71,36 @@ public final class ConsoleProgressWrappers {
         collection.size()));
   }
 
-  public static @NotNull InputStream wrapDownload(@NotNull String url) throws IOException {
-    return wrapDownload(url, CloudNet.getInstance().getConsole());
+  public static void wrapDownload(@NotNull String url,
+    @NotNull ThrowableConsumer<InputStream, IOException> streamHandler) {
+    wrapDownload(url, CloudNet.getInstance().getConsole(), streamHandler);
   }
 
-  public static @NotNull InputStream wrapDownload(@NotNull String url, @NotNull IConsole console) throws IOException {
-    HttpResponse<InputStream> response = Unirest
+  public static void wrapDownload(@NotNull String url, @NotNull IConsole console,
+    @NotNull ThrowableConsumer<InputStream, IOException> streamHandler) {
+    Unirest
       .get(url)
-      .asObject(RawResponse::getContent);
+      .thenConsume(rawResponse -> {
+        InputStream stream = rawResponse.getContent();
+        Long contentLength = Longs.tryParse(rawResponse.getHeaders().getFirst("Content-Length"));
 
-    InputStream stream = response.getBody();
-    Long contentLength = Longs.tryParse(response.getHeaders().getFirst("Content-Length"));
-
-    return console.isAnimationRunning() ? stream : new WrappedInputStream(stream, console, new ConsoleProgressAnimation(
-      '█',
-      ' ',
-      " ▏▎▍▌▋▊▉",
-      '[',
-      ']',
-      "Downloading (%ratio%): %percent%  ",
-      " %speed% (%elapsed%/%eta%)",
-      1024 * 1024,
-      "MB",
-      new DecimalFormat("#.0"),
-      contentLength == null ? stream.available() : contentLength));
+        try {
+          streamHandler.accept(console.isAnimationRunning() ? stream
+            : new WrappedInputStream(stream, console, new ConsoleProgressAnimation(
+              '█',
+              ' ',
+              " ▏▎▍▌▋▊▉",
+              '[',
+              ']',
+              "Downloading (%ratio%): %percent%  ",
+              " %speed% (%elapsed%/%eta%)",
+              1024 * 1024,
+              "MB",
+              new DecimalFormat("#.0"),
+              contentLength == null ? stream.available() : contentLength)));
+        } catch (IOException exception) {
+          LOGGER.severe("Exception downloading file from %s", exception, url);
+        }
+      });
   }
 }

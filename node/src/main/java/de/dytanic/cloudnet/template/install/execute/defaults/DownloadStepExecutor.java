@@ -20,7 +20,6 @@ import de.dytanic.cloudnet.console.animation.progressbar.ConsoleProgressWrappers
 import de.dytanic.cloudnet.template.install.InstallInformation;
 import de.dytanic.cloudnet.template.install.execute.InstallStepExecutor;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -41,9 +40,9 @@ public class DownloadStepExecutor implements InstallStepExecutor {
     Path targetPath = workingDirectory.resolve(
       Paths.get(installInformation.getServiceVersionType().getTargetEnvironment().getName() + ".jar"));
 
-    try (InputStream in = ConsoleProgressWrappers.wrapDownload(installInformation.getServiceVersion().getUrl())) {
-      Files.copy(in, targetPath, StandardCopyOption.REPLACE_EXISTING);
-      return new HashSet<>(Collections.singleton(targetPath));
-    }
+    ConsoleProgressWrappers.wrapDownload(
+      installInformation.getServiceVersion().getUrl(),
+      stream -> Files.copy(stream, targetPath, StandardCopyOption.REPLACE_EXISTING));
+    return new HashSet<>(Collections.singleton(targetPath));
   }
 }

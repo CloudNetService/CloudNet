@@ -23,15 +23,12 @@ import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.template.install.InstallInformation;
 import de.dytanic.cloudnet.template.install.ServiceVersionType;
 import de.dytanic.cloudnet.template.install.execute.InstallStepExecutor;
-import java.io.IOException;
-import java.io.InputStream;
 import java.lang.reflect.Type;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
 import kong.unirest.HttpResponse;
-import kong.unirest.RawResponse;
 import kong.unirest.Unirest;
 import org.jetbrains.annotations.NotNull;
 
@@ -81,18 +78,12 @@ public class PaperApiVersionFetchStepExecutor implements InstallStepExecutor {
   }
 
   private JsonDocument makeRequest(@NotNull String apiUrl) {
-    try {
-      HttpResponse<InputStream> response = Unirest.get(apiUrl)
-        .accept("application/json")
-        .asObject(RawResponse::getContent);
+    HttpResponse<String> response = Unirest.get(apiUrl)
+      .accept("application/json")
+      .asString();
 
-      if (response.isSuccess()) {
-        try (InputStream stream = response.getBody()) {
-          return JsonDocument.newDocument(stream);
-        }
-      }
-    } catch (IOException exception) {
-      LOGGER.severe("Exception while executing request", exception);
+    if (response.isSuccess()) {
+      return JsonDocument.fromJsonString(response.getBody());
     }
     return JsonDocument.empty();
   }
