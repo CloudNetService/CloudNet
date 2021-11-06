@@ -43,7 +43,6 @@ import de.dytanic.cloudnet.template.install.ServiceVersionType;
 import de.dytanic.cloudnet.util.JavaVersionResolver;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Queue;
 import java.util.stream.Collectors;
@@ -100,16 +99,6 @@ public final class CommandTemplate {
   @Suggestions("serviceVersionType")
   public List<String> suggestServiceVersionType(CommandContext<CommandSource> $, String input) {
     return new ArrayList<>(CloudNet.getInstance().getServiceVersionProvider().getServiceVersionTypes().keySet());
-  }
-
-  @Parser(suggestions = "environmentType")
-  public ServiceEnvironmentType defaultEnvironmentTypeParser(CommandContext<CommandSource> $, Queue<String> input) {
-    return ServiceEnvironmentType.valueOf(input.remove());
-  }
-
-  @Suggestions("environmentType")
-  public List<String> suggestEnvironmentType(CommandContext<CommandSource> $, String input) {
-    return Arrays.stream(ServiceEnvironmentType.VALUES).map(Enum::name).collect(Collectors.toList());
   }
 
   @Parser(suggestions = "version")
