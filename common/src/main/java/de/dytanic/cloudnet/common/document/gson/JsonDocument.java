@@ -33,6 +33,7 @@ import java.io.Writer;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map.Entry;
@@ -53,6 +54,7 @@ public class JsonDocument implements IDocument<JsonDocument> {
     .setPrettyPrinting()
     .disableHtmlEscaping()
     .registerTypeHierarchyAdapter(Path.class, new PathTypeAdapter())
+    .registerTypeHierarchyAdapter(SimpleDateFormat.class, new SimpleDateFormatTypeAdapter())
     .registerTypeHierarchyAdapter(JsonDocument.class, new JsonDocumentTypeAdapter())
     .create();
   private static final JsonDocument EMPTY = JsonDocument.newDocument();

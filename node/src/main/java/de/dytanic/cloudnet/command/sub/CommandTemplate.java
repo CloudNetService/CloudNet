@@ -51,7 +51,7 @@ import java.util.zip.ZipInputStream;
 
 @CommandAlias("t")
 @CommandPermission("cloudnet.command.templates")
-@Description("Manages the templates and allows installation of .jar files")
+@Description("Manages the templates and allows installation of application files")
 public final class CommandTemplate {
 
   @Parser(suggestions = "serviceTemplate")

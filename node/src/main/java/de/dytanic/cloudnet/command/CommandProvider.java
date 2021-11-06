@@ -52,26 +52,26 @@ public interface CommandProvider {
   void register(@NotNull Object command);
 
   /**
-   * Unregister a command by the class loader
+   * Unregister all commands that were registered by the given classloader.
    *
    * @param classLoader the class loader that
    */
   void unregister(@NotNull ClassLoader classLoader);
 
   /**
-   * Registers the console input and tab complete handler at the given console
+   * Registers the console input and tab complete handler at the given console.
    *
    * @param console the console to register the handler
    */
   void registerConsoleHandler(IConsole console);
 
   /**
-   * Registers the default commands of the cloudnet node
+   * Registers the default commands of the cloudnet node.
    */
   void registerDefaultCommands();
 
   /**
-   * Looks for a registered command with the given root name or alias
+   * Looks for a registered command with the given root name or alias.
    *
    * @param name the command root name or an alias of the root
    * @return the command with the given name - null if no command was found with the given name / alias

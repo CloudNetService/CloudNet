@@ -21,6 +21,7 @@ import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.List;
 import org.jetbrains.annotations.NotNull;
@@ -87,7 +88,12 @@ public final class ReportConfigurationHelper {
     // since early 3.5 a custom date format is supported, migrate this too
     String dateFormat = document.getString("dateFormat", "yyyy-MM-dd");
 
-    return new ReportConfiguration(saveRecords, false, recordDestination, serviceLifetime, dateFormat, pasteServices);
+    return new ReportConfiguration(saveRecords,
+      false,
+      recordDestination,
+      serviceLifetime,
+      new SimpleDateFormat(dateFormat),
+      pasteServices);
   }
 
 }

@@ -18,7 +18,6 @@ package eu.cloudnetservice.cloudnet.ext.report.config;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.List;
@@ -31,7 +30,7 @@ public class ReportConfiguration {
     false,
     Paths.get("records"),
     5000L,
-    "yyyy-MM-dd",
+    new SimpleDateFormat("yyyy-MM-dd"),
     Collections.singletonList(new PasteService("default", "https://just-paste.it"))
   );
 
@@ -39,15 +38,15 @@ public class ReportConfiguration {
   private final boolean saveOnCrashOnly;
   private final Path recordDestination;
   private final long serviceLifetime;
-  private final String dateFormat;
-  private transient SimpleDateFormat parsedFormat;
+  private final SimpleDateFormat dateFormat;
   private final List<PasteService> pasteServers;
 
   public ReportConfiguration(
     boolean saveRecords,
-    boolean saveOnCrashOnly, @NotNull Path recordDestination,
+    boolean saveOnCrashOnly,
+    @NotNull Path recordDestination,
     long serviceLifetime,
-    @NotNull String dateFormat,
+    @NotNull SimpleDateFormat dateFormat,
     @NotNull List<PasteService> pasteServers
   ) {
     this.saveRecords = saveRecords;
@@ -74,11 +73,8 @@ public class ReportConfiguration {
     return this.serviceLifetime;
   }
 
-  public @NotNull DateFormat getDateFormat() {
-    if (this.parsedFormat == null) {
-      this.parsedFormat = new SimpleDateFormat(this.dateFormat);
-    }
-    return this.parsedFormat;
+  public @NotNull SimpleDateFormat getDateFormat() {
+    return this.dateFormat;
   }
 
   public @NotNull List<PasteService> getPasteServers() {

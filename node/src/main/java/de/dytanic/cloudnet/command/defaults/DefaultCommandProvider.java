@@ -23,6 +23,7 @@ import cloud.commandframework.arguments.CommandArgument;
 import cloud.commandframework.extra.confirmation.CommandConfirmationManager;
 import cloud.commandframework.meta.CommandMeta.Key;
 import cloud.commandframework.meta.SimpleCommandMeta;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.SetMultimap;
 import de.dytanic.cloudnet.command.CommandProvider;
@@ -55,7 +56,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletionException;
@@ -126,23 +126,22 @@ public class DefaultCommandProvider implements CommandProvider {
    */
   @Override
   public void register(@NotNull Object command) {
-    Iterator<Command<CommandSource>> cloudCommands = this.annotationParser.parse(command).iterator();
+    Command<CommandSource> cloudCommand = Iterables.getFirst(this.annotationParser.parse(command), null);
     // just get the first command of the object as we don't want to register each method
-    if (cloudCommands.hasNext()) {
-      Command<CommandSource> parsedCommand = cloudCommands.next();
+    if (cloudCommand != null) {
       // check if there are any arguments, we don't want to register an empty command
-      if (parsedCommand.getArguments().isEmpty()) {
+      if (cloudCommand.getArguments().isEmpty()) {
         return;
       }
 
-      String permission = parsedCommand.getCommandPermission().toString();
-      String description = parsedCommand.getCommandMeta().getOrDefault(DESCRIPTION_KEY, "No description provided");
+      String permission = cloudCommand.getCommandPermission().toString();
+      String description = cloudCommand.getCommandMeta().getOrDefault(DESCRIPTION_KEY, "No description provided");
       // retrieve the aliases processed by the @CommandAlias annotation
-      Collection<String> aliases = parsedCommand.getCommandMeta().getOrDefault(ALIAS_KEY, Collections.emptySet());
+      Collection<String> aliases = cloudCommand.getCommandMeta().getOrDefault(ALIAS_KEY, Collections.emptySet());
       // get the name by using the first argument of the command
-      String name = parsedCommand.getArguments().get(0).getName();
+      String name = cloudCommand.getArguments().get(0).getName();
       // there is no other command registered with the given name, parse usage and register the command now
-      this.registeredCommands.put(command.getClass().getClassLoader(),
+      this.registeredCommands.put(cloudCommand.getClass().getClassLoader(),
         new CommandInfo(name, aliases, permission, description, this.getCommandUsageByRoot(name)));
     }
   }

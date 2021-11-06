@@ -164,7 +164,6 @@ public final class CommandCluster {
 
   @CommandMethod("cluster|clu sync")
   public void sync() {
-
     CloudNet.getInstance().getDataSyncRegistry().registerHandler(
       DataSyncHandler.<ServiceTask>builder()
         .key("service_task")

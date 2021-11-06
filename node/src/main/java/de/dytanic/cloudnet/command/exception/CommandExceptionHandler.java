@@ -82,7 +82,7 @@ public class CommandExceptionHandler {
         this.handleArgumentParseException(source, (ArgumentParseException) cause);
       }
     } else {
-      LOGGER.severe("Exception during command execution", exception.getCause());
+      LOGGER.severe("Exception during command execution", cause);
     }
   }
 
