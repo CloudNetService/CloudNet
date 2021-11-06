@@ -22,9 +22,16 @@ import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
 import de.dytanic.cloudnet.driver.util.DefaultModuleHelper;
 import de.dytanic.cloudnet.event.service.CloudServicePreLifecycleEvent;
 import de.dytanic.cloudnet.ext.cloudperms.node.CloudNetCloudPermissionsModule;
+import de.dytanic.cloudnet.ext.cloudperms.node.config.CloudPermissionConfig;
 import java.nio.file.Path;
 
 public final class IncludePluginListener {
+
+  private final CloudNetCloudPermissionsModule permissionsModule;
+
+  public IncludePluginListener(CloudNetCloudPermissionsModule permissionsModule) {
+    this.permissionsModule = permissionsModule;
+  }
 
   @EventListener
   public void handle(CloudServicePreLifecycleEvent event) {
@@ -32,9 +39,9 @@ public final class IncludePluginListener {
       return;
     }
 
+    CloudPermissionConfig config = this.permissionsModule.getPermissionsConfig();
     boolean installPlugin =
-      CloudNetCloudPermissionsModule.getInstance().getConfig().getBoolean("enabled") && CloudNetCloudPermissionsModule
-        .getInstance().getExcludedGroups()
+      config.isEnabled() && config.getExcludedGroups()
         .stream()
         .noneMatch(excludedGroup -> event.getService().getServiceConfiguration().getGroups().contains(excludedGroup));
 

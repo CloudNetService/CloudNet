@@ -28,6 +28,7 @@ import de.dytanic.cloudnet.ext.cloudperms.node.listener.IncludePluginListener;
 import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.List;
+import org.jetbrains.annotations.NotNull;
 
 public final class CloudNetCloudPermissionsModule extends DriverModule {
 
@@ -70,10 +71,10 @@ public final class CloudNetCloudPermissionsModule extends DriverModule {
 
   @ModuleTask(order = 124, event = ModuleLifeCycle.STARTED)
   public void registerListeners() {
-    this.registerListeners(new IncludePluginListener());
+    this.registerListeners(new IncludePluginListener(this));
   }
 
-  public List<String> getExcludedGroups() {
-    return this.getConfig().get("excludedGroups", LIST_STRING);
+  public @NotNull CloudPermissionConfig getPermissionsConfig() {
+    return this.permissionsConfig;
   }
 }

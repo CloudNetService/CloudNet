@@ -16,8 +16,10 @@
 
 package eu.cloudnetservice.cloudnet.ext.report.paste.emitter.defaults.node;
 
+import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
-import de.dytanic.cloudnet.driver.module.ModuleConfiguration;
+import de.dytanic.cloudnet.driver.module.IModuleWrapper;
+import de.dytanic.cloudnet.driver.module.driver.DriverModule;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
 import eu.cloudnetservice.cloudnet.ext.report.paste.emitter.ReportDataEmitter;
 
@@ -30,16 +32,18 @@ public class ModuleEmitter implements ReportDataEmitter<NetworkClusterNodeInfoSn
       .append(context.getModules().size())
       .append(" - \n\n");
 
-    for (ModuleConfiguration module : context.getModules()) {
+    for (IModuleWrapper module : CloudNet.getInstance().getModuleProvider().getModules()) {
       builder
         .append(" - Module ")
-        .append(module.getName())
+        .append(module.getModule().getName())
         .append(" loaded.\n\n")
-        .append(JsonDocument.newDocument(module).toPrettyJson())
+        .append(JsonDocument.newDocument(module.getModuleConfiguration()).toPrettyJson())
         .append("\n");
-      if (!module.storesSensitiveData()) {
+      if (!module.getModuleConfiguration().storesSensitiveData()) {
         //TODO: add configs, waiting for a way to access them using the api
-        builder.append("Configuration: \n");
+        builder.append("Configuration: \n")
+          .append(((DriverModule) module.getModule()).getConfig().toPrettyJson())
+          .append("\n\n");
       }
     }
   }

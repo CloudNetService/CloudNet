@@ -22,6 +22,13 @@ import org.jetbrains.annotations.NotNull;
 
 public final class CloudPermissionConfigHelper {
 
+  /**
+   * Reads a {@link CloudPermissionConfig} from the file at the given location. If the file is empty, the default {@link
+   * CloudPermissionConfig#DEFAULT} configuration is written to the file.
+   *
+   * @param location the location of the file to read from
+   * @return the read {@link CloudPermissionConfig} configuration
+   */
   public static CloudPermissionConfig read(@NotNull Path location) {
     JsonDocument document = JsonDocument.newDocument(location);
     if (document.isEmpty()) {
@@ -32,8 +39,13 @@ public final class CloudPermissionConfigHelper {
     return document.toInstanceOf(CloudPermissionConfig.class);
   }
 
+  /**
+   * Wraps the given config into a {@link JsonDocument} and writes it to the given location.
+   *
+   * @param config   the config to write
+   * @param location the location to save the config to
+   */
   public static void write(@NotNull CloudPermissionConfig config, @NotNull Path location) {
     JsonDocument.newDocument(config).write(location);
   }
-
 }
