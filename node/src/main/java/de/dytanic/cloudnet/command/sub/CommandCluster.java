@@ -122,7 +122,7 @@ public final class CommandCluster {
 
   @CommandMethod("cluster|clu add <nodeId> <host>")
   public void addNodeToCluster(
-    CommandSource commandSource,
+    CommandSource source,
     @Argument(value = "nodeId", parserName = "nodeId") String nodeId,
     @Argument("host") HostAndPort hostAndPort
   ) {
@@ -133,6 +133,7 @@ public final class CommandCluster {
     nodeConfig.setClusterConfig(networkCluster);
     // write the changes to the file
     nodeConfig.save();
+    source.sendMessage(I18n.trans("command-cluster-create-node-success"));
   }
 
   @CommandMethod("cluster|clu remove <nodeId>")

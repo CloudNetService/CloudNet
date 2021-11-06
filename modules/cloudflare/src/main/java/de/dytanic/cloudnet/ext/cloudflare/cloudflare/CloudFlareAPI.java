@@ -176,7 +176,7 @@ public class CloudFlareAPI implements AutoCloseable {
     }
 
     HttpResponse<String> response = bodyRequest.asString();
-    return JsonDocument.newDocument(response.getBody());
+    return JsonDocument.fromJsonString(response.getBody());
   }
 
   @Override

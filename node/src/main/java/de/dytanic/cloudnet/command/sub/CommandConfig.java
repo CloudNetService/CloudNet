@@ -16,23 +16,28 @@
 
 package de.dytanic.cloudnet.command.sub;
 
+import cloud.commandframework.annotations.Argument;
 import cloud.commandframework.annotations.CommandMethod;
 import cloud.commandframework.annotations.CommandPermission;
+import cloud.commandframework.annotations.specifier.Range;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.command.annotation.Description;
 import de.dytanic.cloudnet.command.source.CommandSource;
+import de.dytanic.cloudnet.common.JavaVersion;
+import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.language.I18n;
+import de.dytanic.cloudnet.config.IConfiguration;
+import de.dytanic.cloudnet.config.IConfiguration.DefaultJVMFlags;
 import de.dytanic.cloudnet.config.JsonConfiguration;
+import java.util.Collection;
 
 @Description("")
 @CommandPermission("cloudnet.command.config")
 public final class CommandConfig {
 
-  //TODO: reload command and other node config stuff
-
   @CommandMethod("config reload")
   public void reloadConfigs(CommandSource source) {
-    CloudNet.getInstance().setConfig(JsonConfiguration.loadFromFile(CloudNet.getInstance()));
+    this.updateNodeConfig(JsonConfiguration.loadFromFile(CloudNet.getInstance()));
     CloudNet.getInstance().getServiceTaskProvider().reload();
     CloudNet.getInstance().getGroupConfigurationProvider().reload();
     CloudNet.getInstance().getPermissionManagement().reload();
@@ -41,7 +46,73 @@ public final class CommandConfig {
 
   @CommandMethod("config node reload")
   public void reloadNodeConfig(CommandSource source) {
-    CloudNet.getInstance().setConfig(JsonConfiguration.loadFromFile(CloudNet.getInstance()));
+    this.updateNodeConfig(JsonConfiguration.loadFromFile(CloudNet.getInstance()));
     source.sendMessage(I18n.trans("command-reload-node-config"));
+  }
+
+  @CommandMethod("config node add ip <ip>")
+  public void addIpWhitelist(CommandSource source, @Argument(value = "ip", parserName = "") String ip) {
+    Collection<String> ipWhitelist = this.nodeConfig().getIpWhitelist();
+    // check if the collection changes after we add the ip
+    if (ipWhitelist.add(ip)) {
+      // update the config as we have a change
+      this.updateNodeConfig();
+      source.sendMessage(I18n.trans("command-node-add-ip-whitelist").replace("%ip%", ip));
+    } else {
+      source.sendMessage(I18n.trans("command-node-ip-already-whitelisted"));
+    }
+  }
+
+  @CommandMethod("config node remove ip <ip>")
+  public void removeIpWhitelist(CommandSource source, @Argument(value = "ip") String ip) {
+    Collection<String> ipWhitelist = this.nodeConfig().getIpWhitelist();
+    // check if the collection changes after we remove the given ip
+    if (ipWhitelist.remove(ip)) {
+      // update the config as we have a change
+      this.updateNodeConfig();
+      source.sendMessage(I18n.trans("command-node-remove-ip-whitelist").replace("%ip%", ip));
+    } else {
+      source.sendMessage(I18n.trans("command-node-ip-not-whitelisted"));
+    }
+  }
+
+  @CommandMethod("config node set maxMemory <maxMemory>")
+  public void setMaxMemory(CommandSource source, @Argument("maxMemory") @Range(min = "0") int maxMemory) {
+    this.nodeConfig().setMaxMemory(maxMemory);
+    this.updateNodeConfig();
+    source.sendMessage(I18n.trans("command-node-max-memory-set")
+      .replace("%memory%", Integer.toString(maxMemory)));
+  }
+
+  @CommandMethod("config node set javaCommand <executable>")
+  public void setJavaCommand(
+    CommandSource source,
+    @Argument(value = "executable", parserName = "javaCommand") Pair<String, JavaVersion> executable
+  ) {
+    this.nodeConfig().setJVMCommand(executable.getFirst());
+    this.updateNodeConfig();
+    source.sendMessage(I18n.trans("command-node-set-java-command")
+      .replace("%executable%", executable.getFirst())
+      .replace("%ver%", executable.getSecond().getName()));
+  }
+
+  @CommandMethod("config node set defaultJVMFlags <flag>")
+  public void setDefaultJVMFlags(CommandSource source, @Argument("flag") DefaultJVMFlags flags) {
+    this.nodeConfig().setDefaultJVMFlags(flags);
+    this.updateNodeConfig();
+    source.sendMessage(I18n.trans("command-node-set-default-flags").replace("%flags%", flags.name()));
+  }
+
+  private IConfiguration nodeConfig() {
+    return CloudNet.getInstance().getConfig();
+  }
+
+  private void updateNodeConfig() {
+    this.updateNodeConfig(CloudNet.getInstance().getConfig());
+  }
+
+  private void updateNodeConfig(IConfiguration configuration) {
+    CloudNet.getInstance().setConfig(configuration);
+    configuration.save();
   }
 }
