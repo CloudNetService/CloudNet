@@ -21,7 +21,6 @@ import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.StringUtil;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.io.FileUtils;
-import de.dytanic.cloudnet.common.io.HttpConnectionProvider;
 import de.dytanic.cloudnet.common.language.I18n;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
@@ -55,7 +54,6 @@ import de.dytanic.cloudnet.service.IServiceConsoleLogCache;
 import de.dytanic.cloudnet.service.ServiceConfigurationPreparer;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.HttpURLConnection;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -69,6 +67,9 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import kong.unirest.GetRequest;
+import kong.unirest.RawResponse;
+import kong.unirest.Unirest;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
@@ -266,28 +267,28 @@ public abstract class AbstractService implements ICloudService {
     ServiceRemoteInclusion inclusion;
     while ((inclusion = this.waitingRemoteInclusions.poll()) != null) {
       // prepare the connection from which we load the inclusion
-      HttpURLConnection con = HttpConnectionProvider.provideConnection(inclusion.getUrl());
-      con.setUseCaches(false);
+      GetRequest getRequest = Unirest.get(inclusion.getUrl());
       // put the given http headers
       if (inclusion.getProperties().contains("httpHeaders")) {
         JsonDocument headers = inclusion.getProperties().getDocument("httpHeaders");
         for (String key : headers.keys()) {
-          con.setRequestProperty(key, headers.get(key).toString());
+          getRequest.header(key, headers.get(key).toString());
         }
       }
       // check if we should load the inclusion
-      if (!this.eventManager.callEvent(new CloudServicePreLoadInclusionEvent(this, inclusion, con)).isCancelled()) {
+      if (!this.eventManager.callEvent(new CloudServicePreLoadInclusionEvent(this, inclusion, getRequest))
+        .isCancelled()) {
         // get a target path based on the download url
         Path destination = INCLUSION_TEMP_DIR.resolve(
           Base64.getEncoder().encodeToString(inclusion.getUrl().getBytes(StandardCharsets.UTF_8)).replace('/', '_'));
         // download the file from the given url to the temp path if it does not exist
         if (Files.notExists(destination)) {
           try {
-            con.connect();
             // we only support success codes for downloading the file
-            try (InputStream in = con.getInputStream()) {
+            try (InputStream in = getRequest.asObject(RawResponse::getContent).getBody()) {
               Files.copy(in, destination, StandardCopyOption.REPLACE_EXISTING);
             }
+            getRequest.asFile(destination.toString());
           } catch (IOException exception) {
             LOGGER.severe("Unable to download inclusion from %s to %s", exception, inclusion.getUrl(), destination);
             continue;

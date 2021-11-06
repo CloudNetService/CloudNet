@@ -16,15 +16,12 @@
 
 package eu.cloudnetservice.cloudnet.ext.report.config;
 
-import com.github.derklaro.requestbuilder.RequestBuilder;
-import com.github.derklaro.requestbuilder.method.RequestMethod;
-import com.github.derklaro.requestbuilder.result.RequestResult;
-import com.github.derklaro.requestbuilder.types.MimeTypes;
 import de.dytanic.cloudnet.common.INameable;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
-import java.nio.charset.StandardCharsets;
-import java.util.concurrent.TimeUnit;
+import kong.unirest.HttpResponse;
+import kong.unirest.Unirest;
+import kong.unirest.UnirestException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -67,20 +64,16 @@ public class PasteService implements INameable {
       return null;
     }
 
-    RequestBuilder requestBuilder = RequestBuilder.newBuilder(String.format("%s/documents", this.serviceUrl))
-      .requestMethod(RequestMethod.POST)
-      .mimeType(MimeTypes.getMimeType("json"))
-      .connectTimeout(5, TimeUnit.SECONDS)
-      .readTimeout(5, TimeUnit.SECONDS)
-      .enableOutput()
-      .addHeader("content-length", String.valueOf(content.getBytes(StandardCharsets.UTF_8).length))
-      .addBody(content);
-
-    try (RequestResult result = requestBuilder.fire()) {
-      if (result.getStatusCode() >= 200 && result.getStatusCode() < 300) {
-        return result.getSuccessResultAsString();
+    try {
+      HttpResponse<String> response = Unirest.post(String.format("%s/documents", this.serviceUrl))
+        .contentType("application/json")
+        .connectTimeout(5_000)
+        .body(content)
+        .asString();
+      if (response.isSuccess()) {
+        return response.getBody();
       }
-    } catch (Exception exception) {
+    } catch (UnirestException exception) {
       LOGGER.severe("Unable to paste content to %s", exception, this.serviceUrl);
     }
 

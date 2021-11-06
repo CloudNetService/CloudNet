@@ -47,7 +47,7 @@ import java.util.function.Predicate;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
-import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -59,7 +59,7 @@ import org.jetbrains.annotations.Nullable;
  * <li>Zip IO</li>
  * </ol>
  */
-@ApiStatus.Internal
+@Internal
 public final class FileUtils {
 
   public static final Path TEMP_DIR = Paths.get(System.getProperty("cloudnet.tempDir", "temp"));

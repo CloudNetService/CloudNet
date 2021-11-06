@@ -50,7 +50,7 @@ object Versions {
   const val jjwt = "0.11.2"
   const val javers = "6.4.2"
   const val netty = "4.1.69.Final"
-  const val requestBuilder = "2.0.0"
+  const val unirest = "3.11.09"
 
   // server apis
   const val spigotApi = "1.17-R0.1-SNAPSHOT"

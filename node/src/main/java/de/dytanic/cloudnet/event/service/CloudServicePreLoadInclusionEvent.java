@@ -19,12 +19,12 @@ package de.dytanic.cloudnet.event.service;
 import de.dytanic.cloudnet.driver.event.ICancelable;
 import de.dytanic.cloudnet.driver.service.ServiceRemoteInclusion;
 import de.dytanic.cloudnet.service.ICloudService;
-import java.net.URLConnection;
+import kong.unirest.GetRequest;
 import org.jetbrains.annotations.NotNull;
 
 public final class CloudServicePreLoadInclusionEvent extends CloudServiceEvent implements ICancelable {
 
-  private final URLConnection connection;
+  private final GetRequest request;
   private final ServiceRemoteInclusion serviceRemoteInclusion;
 
   private volatile boolean cancelled;
@@ -32,20 +32,20 @@ public final class CloudServicePreLoadInclusionEvent extends CloudServiceEvent i
   public CloudServicePreLoadInclusionEvent(
     @NotNull ICloudService cloudService,
     @NotNull ServiceRemoteInclusion serviceRemoteInclusion,
-    @NotNull URLConnection connection
+    @NotNull GetRequest request
   ) {
     super(cloudService);
 
     this.serviceRemoteInclusion = serviceRemoteInclusion;
-    this.connection = connection;
+    this.request = request;
   }
 
   public @NotNull ServiceRemoteInclusion getInclusion() {
     return this.serviceRemoteInclusion;
   }
 
-  public @NotNull URLConnection getConnection() {
-    return this.connection;
+  public @NotNull GetRequest getRequest() {
+    return this.request;
   }
 
   public boolean isCancelled() {

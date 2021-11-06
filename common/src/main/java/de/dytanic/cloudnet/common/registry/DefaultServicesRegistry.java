@@ -26,18 +26,14 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * This is the default implementation of the IServicesRegistry class.
- *
- * @see IServicesRegistry
+ * {@inheritDoc}
  */
 public class DefaultServicesRegistry implements IServicesRegistry {
 
   protected final Map<Class<?>, List<RegistryEntry<?>>> providedServices = new ConcurrentHashMap<>();
 
   /**
-   * Default implementation of IServiceRegistry class
-   *
-   * @see IServicesRegistry
+   * {@inheritDoc}
    */
   @Override
   public <T, E extends T> @NotNull IServicesRegistry registerService(
@@ -51,9 +47,7 @@ public class DefaultServicesRegistry implements IServicesRegistry {
   }
 
   /**
-   * Default implementation of IServiceRegistry class
-   *
-   * @see IServicesRegistry
+   * {@inheritDoc}
    */
   @Override
   public <T, E extends T> @NotNull IServicesRegistry unregisterService(
@@ -76,9 +70,7 @@ public class DefaultServicesRegistry implements IServicesRegistry {
   }
 
   /**
-   * Default implementation of IServiceRegistry class
-   *
-   * @see IServicesRegistry
+   * {@inheritDoc}
    */
   @Override
   public <T, E extends T> @NotNull IServicesRegistry unregisterService(@NotNull Class<T> clazz, @NotNull E service) {
@@ -100,9 +92,7 @@ public class DefaultServicesRegistry implements IServicesRegistry {
   }
 
   /**
-   * Default implementation of IServiceRegistry class
-   *
-   * @see IServicesRegistry
+   * {@inheritDoc}
    */
   @Override
   public <T> boolean containsService(@NotNull Class<T> clazz, @NotNull String name) {
@@ -118,9 +108,7 @@ public class DefaultServicesRegistry implements IServicesRegistry {
   }
 
   /**
-   * Default implementation of IServiceRegistry class
-   *
-   * @see IServicesRegistry
+   * {@inheritDoc}
    */
   @Override
   public <T> @NotNull IServicesRegistry unregisterService(@NotNull Class<T> clazz, @NotNull String name) {
@@ -143,9 +131,7 @@ public class DefaultServicesRegistry implements IServicesRegistry {
   }
 
   /**
-   * Default implementation of IServiceRegistry class
-   *
-   * @see IServicesRegistry
+   * {@inheritDoc}
    */
   @Override
   public <T> @NotNull IServicesRegistry unregisterServices(@NotNull Class<T> clazz) {
@@ -158,9 +144,7 @@ public class DefaultServicesRegistry implements IServicesRegistry {
   }
 
   /**
-   * Default implementation of IServiceRegistry class
-   *
-   * @see IServicesRegistry
+   * {@inheritDoc}
    */
   @Override
   public @NotNull IServicesRegistry unregisterAll() {
@@ -169,9 +153,7 @@ public class DefaultServicesRegistry implements IServicesRegistry {
   }
 
   /**
-   * Default implementation of IServiceRegistry class
-   *
-   * @see IServicesRegistry
+   * {@inheritDoc}
    */
   @Override
   public @NotNull IServicesRegistry unregisterAll(@NotNull ClassLoader classLoader) {
@@ -183,9 +165,7 @@ public class DefaultServicesRegistry implements IServicesRegistry {
   }
 
   /**
-   * Default implementation of IServiceRegistry class
-   *
-   * @see IServicesRegistry
+   * {@inheritDoc}
    */
   @Override
   public @NotNull Collection<Class<?>> getProvidedServices() {
@@ -193,9 +173,7 @@ public class DefaultServicesRegistry implements IServicesRegistry {
   }
 
   /**
-   * Default implementation of IServiceRegistry class
-   *
-   * @see IServicesRegistry
+   * {@inheritDoc}
    */
   @Override
   @SuppressWarnings("unchecked")
@@ -215,9 +193,7 @@ public class DefaultServicesRegistry implements IServicesRegistry {
   }
 
   /**
-   * Default implementation of IServiceRegistry class
-   *
-   * @see IServicesRegistry
+   * {@inheritDoc}
    */
   @Override
   @SuppressWarnings("unchecked")

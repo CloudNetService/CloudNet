@@ -16,10 +16,8 @@
 
 package de.dytanic.cloudnet.template.install.execute.defaults;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
-import de.dytanic.cloudnet.common.io.HttpConnectionProvider;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.template.install.InstallInformation;
@@ -28,11 +26,13 @@ import de.dytanic.cloudnet.template.install.execute.InstallStepExecutor;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Type;
-import java.net.HttpURLConnection;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
+import kong.unirest.HttpResponse;
+import kong.unirest.RawResponse;
+import kong.unirest.Unirest;
 import org.jetbrains.annotations.NotNull;
 
 public class PaperApiVersionFetchStepExecutor implements InstallStepExecutor {
@@ -82,17 +82,12 @@ public class PaperApiVersionFetchStepExecutor implements InstallStepExecutor {
 
   private JsonDocument makeRequest(@NotNull String apiUrl) {
     try {
-      HttpURLConnection connection = HttpConnectionProvider.provideConnection(
-        apiUrl,
-        ImmutableMap.<String, String>builder()
-          .putAll(HttpConnectionProvider.DEFAULT_REQUEST_PROPERTIES)
-          .put("accepts", "application/json")
-          .build());
-      connection.setUseCaches(false);
-      connection.connect();
+      HttpResponse<InputStream> response = Unirest.get(apiUrl)
+        .accept("application/json")
+        .asObject(RawResponse::getContent);
 
-      if (connection.getResponseCode() == 200) {
-        try (InputStream stream = connection.getInputStream()) {
+      if (response.isSuccess()) {
+        try (InputStream stream = response.getBody()) {
           return JsonDocument.newDocument(stream);
         }
       }

@@ -16,17 +16,19 @@
 
 package de.dytanic.cloudnet.console.animation.progressbar;
 
+import com.google.common.primitives.Longs;
 import de.dytanic.cloudnet.CloudNet;
-import de.dytanic.cloudnet.common.io.HttpConnectionProvider;
 import de.dytanic.cloudnet.console.IConsole;
 import de.dytanic.cloudnet.console.animation.progressbar.wrapper.WrappedInputStream;
 import de.dytanic.cloudnet.console.animation.progressbar.wrapper.WrappedIterator;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.HttpURLConnection;
 import java.text.DecimalFormat;
 import java.util.Collection;
 import java.util.Iterator;
+import kong.unirest.HttpResponse;
+import kong.unirest.RawResponse;
+import kong.unirest.Unirest;
 import org.jetbrains.annotations.NotNull;
 
 public final class ConsoleProgressWrappers {
@@ -71,12 +73,12 @@ public final class ConsoleProgressWrappers {
   }
 
   public static @NotNull InputStream wrapDownload(@NotNull String url, @NotNull IConsole console) throws IOException {
-    HttpURLConnection connection = HttpConnectionProvider.provideConnection(url);
-    connection.setUseCaches(false);
-    connection.connect();
+    HttpResponse<InputStream> response = Unirest
+      .get(url)
+      .asObject(RawResponse::getContent);
 
-    InputStream stream = connection.getInputStream();
-    long contentLength = connection.getHeaderFieldLong("Content-Length", stream.available());
+    InputStream stream = response.getBody();
+    Long contentLength = Longs.tryParse(response.getHeaders().getFirst("Content-Length"));
 
     return console.isAnimationRunning() ? stream : new WrappedInputStream(stream, console, new ConsoleProgressAnimation(
       '█',
@@ -89,6 +91,6 @@ public final class ConsoleProgressWrappers {
       1024 * 1024,
       "MB",
       new DecimalFormat("#.0"),
-      contentLength));
+      contentLength == null ? stream.available() : contentLength));
   }
 }

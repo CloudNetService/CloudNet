@@ -17,12 +17,10 @@
 package de.dytanic.cloudnet.driver.module;
 
 import de.dytanic.cloudnet.common.io.FileUtils;
-import de.dytanic.cloudnet.common.io.HttpConnectionProvider;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import kong.unirest.Unirest;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -92,13 +90,7 @@ public class DefaultPersistableModuleDependencyLoader extends DefaultMemoryModul
     if (Files.notExists(destFile)) {
       Files.createDirectories(destFile.getParent());
 
-      HttpURLConnection urlConnection = HttpConnectionProvider.provideConnection(url);
-      urlConnection.setUseCaches(false);
-      urlConnection.connect();
-
-      try (InputStream inputStream = urlConnection.getInputStream()) {
-        Files.copy(inputStream, destFile);
-      }
+      Unirest.get(url.toExternalForm()).asFile(destFile.toString());
     }
 
     return destFile.toUri().toURL();

@@ -20,22 +20,21 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
-import de.dytanic.cloudnet.common.io.HttpConnectionProvider;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.ext.cloudflare.CloudflareConfigurationEntry;
 import de.dytanic.cloudnet.ext.cloudflare.dns.DNSRecord;
 import de.dytanic.cloudnet.service.ICloudService;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.stream.Collectors;
+import kong.unirest.HttpRequestWithBody;
+import kong.unirest.HttpResponse;
+import kong.unirest.Unirest;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -58,8 +57,8 @@ public class CloudFlareAPI implements AutoCloseable {
     Preconditions.checkNotNull(record, "record");
 
     try {
-      HttpURLConnection connection = this
-        .prepareConnection(String.format(ZONE_RECORDS_ENDPOINT, configuration.getZoneId()), "POST", configuration);
+      HttpRequestWithBody connection = this
+        .prepareRequest(String.format(ZONE_RECORDS_ENDPOINT, configuration.getZoneId()), "POST", configuration);
       JsonDocument result = this.sendRequestAndReadResponse(connection, record);
 
       JsonDocument content = result.getDocument("result");
@@ -112,8 +111,8 @@ public class CloudFlareAPI implements AutoCloseable {
     Preconditions.checkNotNull(id, "id");
 
     try {
-      HttpURLConnection connection = this
-        .prepareConnection(String.format(ZONE_RECORDS_MANAGEMENT_ENDPOINT, configuration.getZoneId(), id), "DELETE",
+      HttpRequestWithBody connection = this
+        .prepareRequest(String.format(ZONE_RECORDS_MANAGEMENT_ENDPOINT, configuration.getZoneId(), id), "DELETE",
           configuration);
       JsonDocument result = this.sendRequestAndReadResponse(connection);
 
@@ -132,64 +131,52 @@ public class CloudFlareAPI implements AutoCloseable {
   }
 
   @NotNull
-  protected HttpURLConnection prepareConnection(@NotNull String endpoint, @NotNull String method,
+  protected HttpRequestWithBody prepareRequest(@NotNull String endpoint, @NotNull String method,
     @NotNull CloudflareConfigurationEntry entry) throws IOException {
     Preconditions.checkNotNull(endpoint, "endpoint");
     Preconditions.checkNotNull(method, "method");
     Preconditions.checkNotNull(entry, "entry");
 
-    HttpURLConnection connection = HttpConnectionProvider.provideConnection(endpoint);
-    connection.setUseCaches(false);
-    connection.setDoOutput(true);
-    connection.setRequestMethod(method);
-
-    connection.setRequestProperty("Accept", "application/json");
-    connection.setRequestProperty("Content-Type", "application/json");
+    HttpRequestWithBody bodyRequest = Unirest
+      .request(method, endpoint)
+      .contentType("application/json")
+      .accept("application/json");
 
     if (entry.getAuthenticationMethod() == CloudflareConfigurationEntry.AuthenticationMethod.GLOBAL_KEY) {
-      connection.setRequestProperty("X-Auth-Email", entry.getEmail());
-      connection.setRequestProperty("X-Auth-Key", entry.getApiToken());
+      bodyRequest.header("X-Auth-Email", entry.getEmail());
+      bodyRequest.header("X-Auth-Key", entry.getApiToken());
     } else {
-      connection.setRequestProperty("Authorization", "Bearer " + entry.getApiToken());
+      bodyRequest.header("Authorization", "Bearer " + entry.getApiToken());
     }
 
-    return connection;
+    return bodyRequest;
   }
 
   @NotNull
-  protected JsonDocument sendRequestAndReadResponse(@NotNull HttpURLConnection connection) throws IOException {
-    Preconditions.checkNotNull(connection, "connection");
-    return this.sendRequestAndReadResponse(connection, (String) null);
+  protected JsonDocument sendRequestAndReadResponse(@NotNull HttpRequestWithBody bodyRequest) throws IOException {
+    Preconditions.checkNotNull(bodyRequest, "bodyRequest");
+    return this.sendRequestAndReadResponse(bodyRequest, (String) null);
   }
 
   @NotNull
-  protected JsonDocument sendRequestAndReadResponse(@NotNull HttpURLConnection connection, @NotNull DNSRecord record)
+  protected JsonDocument sendRequestAndReadResponse(@NotNull HttpRequestWithBody bodyRequest, @NotNull DNSRecord record)
     throws IOException {
-    Preconditions.checkNotNull(connection, "connection");
+    Preconditions.checkNotNull(bodyRequest, "bodyRequest");
     Preconditions.checkNotNull(record, "record");
 
-    return this.sendRequestAndReadResponse(connection, JsonDocument.newDocument(record).toString());
+    return this.sendRequestAndReadResponse(bodyRequest, JsonDocument.newDocument(record).toString());
   }
 
   @NotNull
-  protected JsonDocument sendRequestAndReadResponse(@NotNull HttpURLConnection connection, @Nullable String data)
-    throws IOException {
-    Preconditions.checkNotNull(connection, "connection");
-
-    connection.connect();
+  protected JsonDocument sendRequestAndReadResponse(@NotNull HttpRequestWithBody bodyRequest, @Nullable String data) {
+    Preconditions.checkNotNull(bodyRequest, "bodyRequest");
 
     if (data != null) {
-      try (OutputStream outputStream = connection.getOutputStream()) {
-        outputStream.write(data.getBytes(StandardCharsets.UTF_8));
-        outputStream.flush();
-      }
+      bodyRequest.body(data);
     }
 
-    if (connection.getResponseCode() >= 200 && connection.getResponseCode() < 300) {
-      return JsonDocument.newDocument(connection.getInputStream());
-    } else {
-      return JsonDocument.newDocument(connection.getErrorStream());
-    }
+    HttpResponse<String> response = bodyRequest.asString();
+    return JsonDocument.newDocument(response.getBody());
   }
 
   @Override

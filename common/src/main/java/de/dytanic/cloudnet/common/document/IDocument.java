@@ -46,7 +46,6 @@ public interface IDocument<R extends IDocument<R>>
 
   @UnknownNullability <T> T toInstanceOf(@NotNull Type clazz);
 
-
   @NotNull R append(@NotNull String key, @Nullable Object value);
 
   @NotNull R append(@NotNull String key, @Nullable Number value);

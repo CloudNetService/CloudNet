@@ -21,5 +21,7 @@ tasks.withType<Jar> {
 dependencies {
   "api"("com.google.guava", "guava", Versions.guava)
   "api"("com.google.code.gson", "gson", Versions.gson)
-  "api"("com.github.derklaro", "requestbuilder", Versions.requestBuilder)
+  "api"("com.konghq", "unirest-java", Versions.unirest)
+  "api"("com.konghq", "unirest-java", Versions.unirest)
+  "api"("com.konghq", "unirest-object-mappers-gson", Versions.unirest)
 }

@@ -20,7 +20,6 @@ import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.common.JavaVersion;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.io.FileUtils;
-import de.dytanic.cloudnet.common.io.HttpConnectionProvider;
 import de.dytanic.cloudnet.common.language.I18n;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
@@ -32,7 +31,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Type;
-import java.net.HttpURLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -47,6 +45,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
+import kong.unirest.Unirest;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.UnmodifiableView;
 
@@ -78,13 +77,10 @@ public class ServiceVersionProvider {
   public boolean loadServiceVersionTypes(@NotNull String url) throws IOException {
     this.serviceVersionTypes.clear();
 
-    HttpURLConnection connection = HttpConnectionProvider.provideConnection(url);
-    connection.setUseCaches(false);
-    connection.connect();
-
-    try (InputStream inputStream = connection.getInputStream()) {
-      return this.loadVersionsFromInputStream(inputStream);
-    }
+    return Unirest
+      .get(url)
+      .asObject(rawResponse -> this.loadVersionsFromInputStream(rawResponse.getContent()))
+      .getBody();
   }
 
   public void loadDefaultVersionTypes() {

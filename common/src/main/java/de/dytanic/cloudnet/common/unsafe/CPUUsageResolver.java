@@ -41,7 +41,7 @@ public final class CPUUsageResolver {
   }
 
   /**
-   * For encapsulation and easy operation of the operating systemMXBean its getCpuLoad() method.
+   * For encapsulation and easy operation of the operating systemMXBean its getSystemCpuLoad() method.
    *
    * @return the current system cpu usage as double value
    * @see com.sun.management.OperatingSystemMXBean
@@ -51,7 +51,7 @@ public final class CPUUsageResolver {
   }
 
   /**
-   * For encapsulation and easy operation of the operating systemMXBean its getCpuLoad() method.
+   * For encapsulation and easy operation of the operating systemMXBean its getProcessCpuLoad() method.
    *
    * @return the cpu usage of this JVM process as double value in range from 0 to 100 % in percent
    * @see com.sun.management.OperatingSystemMXBean
@@ -61,7 +61,7 @@ public final class CPUUsageResolver {
   }
 
   /**
-   * For encapsulation and easy operation of the operating systemMXBean its getCpuLoad() method.
+   * For encapsulation and easy operation of the operating systemMXBean its getTotalPhysicalMemorySize() method.
    *
    * @return the system configured memory in bytes
    * @see com.sun.management.OperatingSystemMXBean
