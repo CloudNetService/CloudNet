@@ -58,7 +58,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.CompletionException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import org.jetbrains.annotations.NotNull;
@@ -113,12 +112,8 @@ public class DefaultCommandProvider implements CommandProvider {
    */
   @Override
   public void execute(@NotNull CommandSource source, @NotNull String input) {
-    try {
-      // join the future to handle the occurring exceptions
-      this.commandManager.executeCommand(source, input).join();
-    } catch (CompletionException exception) {
-      this.exceptionHandler.handleCompletionException(source, exception);
-    }
+    this.commandManager.executeCommand(source, input)
+      .whenComplete((result, throwable) -> this.exceptionHandler.handleCommandExceptions(source, throwable));
   }
 
   /**

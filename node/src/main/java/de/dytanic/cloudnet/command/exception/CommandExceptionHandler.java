@@ -36,7 +36,6 @@ import de.dytanic.cloudnet.event.command.CommandInvalidSyntaxEvent;
 import de.dytanic.cloudnet.event.command.CommandNotFoundEvent;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CompletionException;
 import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
 
@@ -51,19 +50,18 @@ public class CommandExceptionHandler {
   }
 
   /**
-   * Handles occurring exceptions when executing a command and joining the result of the future. All relevant exceptions
-   * are handled, other exceptions are printed into the console.
+   * Handles occurring exceptions when executing a command and waiting for the result of the future. All relevant
+   * exceptions are handled, other exceptions are printed into the console.
    *
-   * @param source    the source of the command.
-   * @param exception the exception that occurred during the execution.
+   * @param source the source of the command.
+   * @param cause  the exception that occurred during the execution.
    */
-  public void handleCompletionException(CommandSource source, CompletionException exception) {
-    Throwable cause = exception.getCause();
-    // the completable future wraps exceptions, so this shouldn't be null
+  public void handleCommandExceptions(CommandSource source, Throwable cause) {
+    // there is no cause if no exception occurred
     if (cause == null) {
       return;
     }
-    // determine the exception type and apply the specific handler
+    // determine the cause type and apply the specific handler
     if (cause instanceof InvalidSyntaxException) {
       this.handleInvalidSyntaxException(source, (InvalidSyntaxException) cause);
     } else if (cause instanceof NoPermissionException) {

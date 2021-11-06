@@ -18,7 +18,6 @@ package de.dytanic.cloudnet.ext.cloudperms;
 
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
-import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.permission.CachedPermissionManagement;
 import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
 import de.dytanic.cloudnet.driver.permission.PermissionUser;
@@ -75,11 +74,7 @@ public final class CloudPermissionsHelper {
     }
   }
 
-  public static CachedPermissionManagement getCachedPermissionManagement() {
-    return asCachedPermissionManagement(CloudNetDriver.getInstance().getPermissionManagement());
-  }
-
-  public static CachedPermissionManagement asCachedPermissionManagement(IPermissionManagement management) {
+  private static CachedPermissionManagement asCachedPermissionManagement(IPermissionManagement management) {
     return management instanceof CachedPermissionManagement ? (CachedPermissionManagement) management : null;
   }
 }

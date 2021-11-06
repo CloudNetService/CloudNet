@@ -67,7 +67,7 @@ public final class CommandConfig {
   }
 
   @CommandMethod("config node add ip <ip>")
-  public void addIpWhitelist(CommandSource source, @Argument(value = "ip", parserName = "") String ip) {
+  public void addIpWhitelist(CommandSource source, @Argument(value = "ip", parserName = "ip") String ip) {
     Collection<String> ipWhitelist = this.nodeConfig().getIpWhitelist();
     // check if the collection changes after we add the ip
     if (ipWhitelist.add(ip)) {
@@ -80,7 +80,7 @@ public final class CommandConfig {
   }
 
   @CommandMethod("config node remove ip <ip>")
-  public void removeIpWhitelist(CommandSource source, @Argument(value = "ip", parserName = "ip") String ip) {
+  public void removeIpWhitelist(CommandSource source, @Argument(value = "ip") String ip) {
     Collection<String> ipWhitelist = this.nodeConfig().getIpWhitelist();
     // check if the collection changes after we remove the given ip
     if (ipWhitelist.remove(ip)) {

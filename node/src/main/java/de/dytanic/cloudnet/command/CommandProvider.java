@@ -37,7 +37,7 @@ public interface CommandProvider {
   @NotNull List<String> suggest(@NotNull CommandSource source, @NotNull String input);
 
   /**
-   * Executes a command with the given command source and responds to the input.
+   * Executes a command with the given command source and responds to the input. The command is executed asynchronous.
    *
    * @param source the command source that is used to execute the command
    * @param input  the commandline that is executed

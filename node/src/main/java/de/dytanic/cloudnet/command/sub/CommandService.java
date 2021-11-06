@@ -87,7 +87,7 @@ public final class CommandService {
     String name = input.remove();
     Collection<ServiceInfoSnapshot> knownServices = CloudNet.getInstance().getCloudServiceProvider().getCloudServices();
     Collection<ServiceInfoSnapshot> matchedServices = WildcardUtil.filterWildcard(knownServices, name);
-    if (matchedServices.isEmpty() && (input.isEmpty() && !input.remove().equalsIgnoreCase("start"))) {
+    if (matchedServices.isEmpty() && (input.isEmpty() || !input.remove().equalsIgnoreCase("start"))) {
       throw new ArgumentNotAvailableException(I18n.trans("command-service-service-not-found"));
     }
 
