@@ -40,7 +40,6 @@ public class ModuleEmitter implements ReportDataEmitter<NetworkClusterNodeInfoSn
         .append(JsonDocument.newDocument(module.getModuleConfiguration()).toPrettyJson())
         .append("\n");
       if (!module.getModuleConfiguration().storesSensitiveData()) {
-        //TODO: add configs, waiting for a way to access them using the api
         builder.append("Configuration: \n")
           .append(((DriverModule) module.getModule()).getConfig().toPrettyJson())
           .append("\n\n");
