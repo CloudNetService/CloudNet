@@ -89,7 +89,12 @@ public class DefaultCommandProvider implements CommandProvider {
       (alias, builder) -> builder.meta(ALIAS_KEY, new HashSet<>(Arrays.asList(alias.value()))));
     // handle our @Description annotation and apply the found description for the help command
     this.annotationParser.registerBuilderModifier(Description.class,
-      (description, builder) -> builder.meta(DESCRIPTION_KEY, description.value()));
+      (description, builder) -> {
+        if (!description.value().trim().isEmpty()) {
+          return builder.meta(DESCRIPTION_KEY, description.value());
+        }
+        return builder;
+      });
     // register pre- and post-processor to call our events
     this.commandManager.registerCommandPreProcessor(new DefaultCommandPreProcessor());
     this.commandManager.registerCommandPostProcessor(new DefaultCommandPostProcessor());
@@ -130,6 +135,7 @@ public class DefaultCommandProvider implements CommandProvider {
       }
 
       String permission = cloudCommand.getCommandPermission().toString();
+      // retrieve our own description processed by the @Description annotation
       String description = cloudCommand.getCommandMeta().getOrDefault(DESCRIPTION_KEY, "No description provided");
       // retrieve the aliases processed by the @CommandAlias annotation
       Collection<String> aliases = cloudCommand.getCommandMeta().getOrDefault(ALIAS_KEY, Collections.emptySet());

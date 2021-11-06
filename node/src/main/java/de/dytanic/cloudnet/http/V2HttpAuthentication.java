@@ -248,11 +248,11 @@ public class V2HttpAuthentication {
       return this.errorMessage != null;
     }
 
-    public String getErrorMessage() {
+    public @Nullable String getErrorMessage() {
       return this.errorMessage;
     }
 
-    public T getResult() {
+    public @Nullable T getResult() {
       return this.result;
     }
   }

@@ -98,28 +98,33 @@ public final class CommandPermissions {
   @Parser(name = "timeUnit")
   public long timeUnitParser(CommandContext<CommandSource> $, Queue<String> input) {
     String time = input.remove();
-
+    // lifetime is represented as -1
     if (time.equalsIgnoreCase("lifetime")) {
       return -1;
     }
-
+    // try to parse the raw input since the user may not have specified a unit
     Long nonUnitTime = Longs.tryParse(time);
     if (nonUnitTime != null) {
+      // no unit found, use days as fallback
       return System.currentTimeMillis() + TimeUnit.DAYS.toMillis(nonUnitTime);
     }
     int length = time.length();
+    // check if there even is something to parse e.g. "1h"
     if (length < 2) {
+      // unable to parse anything from that, use lifetime
       return -1;
     }
-
+    // remove the last char from the input as it is the unit char
     String actualTime = time.substring(0, length - 2);
     Long unitTime = Longs.tryParse(actualTime);
+    // check if we successfully parsed the time from the input
     if (unitTime == null) {
+      // unable to parse anything from that, use lifetime
       return -1;
     }
-
+    // get the unit the user used
     char unit = time.charAt(length - 1);
-
+    // select the timeunit based on the entered unit of the user
     switch (unit) {
       case 'm': {
         return TimeUnit.MINUTES.toMillis(unitTime) + System.currentTimeMillis();

@@ -32,7 +32,7 @@ public interface HttpSession {
 
   @NotNull UUID getUserId();
 
-  PermissionUser getUser();
+  @Nullable PermissionUser getUser();
 
   <T> T getProperty(@NotNull String key);
 
