@@ -19,9 +19,13 @@ package de.dytanic.cloudnet.command.sub;
 import cloud.commandframework.annotations.Argument;
 import cloud.commandframework.annotations.CommandMethod;
 import cloud.commandframework.annotations.CommandPermission;
+import cloud.commandframework.annotations.parsers.Parser;
 import cloud.commandframework.annotations.specifier.Range;
+import cloud.commandframework.context.CommandContext;
+import com.google.common.net.InetAddresses;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.command.annotation.Description;
+import de.dytanic.cloudnet.command.exception.ArgumentNotAvailableException;
 import de.dytanic.cloudnet.command.source.CommandSource;
 import de.dytanic.cloudnet.common.JavaVersion;
 import de.dytanic.cloudnet.common.collection.Pair;
@@ -30,10 +34,22 @@ import de.dytanic.cloudnet.config.IConfiguration;
 import de.dytanic.cloudnet.config.IConfiguration.DefaultJVMFlags;
 import de.dytanic.cloudnet.config.JsonConfiguration;
 import java.util.Collection;
+import java.util.Queue;
 
 @Description("")
 @CommandPermission("cloudnet.command.config")
 public final class CommandConfig {
+
+  @Parser(name = "ip")
+  public String ipParser(CommandContext<CommandSource> $, Queue<String> input) {
+    String address = input.remove();
+
+    if (!InetAddresses.isInetAddress(address)) {
+      throw new ArgumentNotAvailableException(I18n.trans("command-node-ip-invalid"));
+    }
+
+    return address;
+  }
 
   @CommandMethod("config reload")
   public void reloadConfigs(CommandSource source) {
@@ -64,7 +80,7 @@ public final class CommandConfig {
   }
 
   @CommandMethod("config node remove ip <ip>")
-  public void removeIpWhitelist(CommandSource source, @Argument(value = "ip") String ip) {
+  public void removeIpWhitelist(CommandSource source, @Argument(value = "ip", parserName = "ip") String ip) {
     Collection<String> ipWhitelist = this.nodeConfig().getIpWhitelist();
     // check if the collection changes after we remove the given ip
     if (ipWhitelist.remove(ip)) {
