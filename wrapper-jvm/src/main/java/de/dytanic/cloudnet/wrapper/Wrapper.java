@@ -56,8 +56,6 @@ import de.dytanic.cloudnet.wrapper.provider.WrapperMessenger;
 import de.dytanic.cloudnet.wrapper.provider.WrapperNodeInfoProvider;
 import de.dytanic.cloudnet.wrapper.provider.WrapperServiceTaskProvider;
 import java.lang.reflect.Method;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -70,6 +68,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.jar.JarFile;
 import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.UnmodifiableView;
@@ -352,14 +351,14 @@ public class Wrapper extends CloudNetDriver {
     String mainClass = this.commandLineArguments.remove(0);
     String premainClass = this.commandLineArguments.remove(0);
     Path appFile = Paths.get(this.commandLineArguments.remove(0));
-    // init the class loader which holds the
-    ClassLoader loader = new URLClassLoader(new URL[]{appFile.toUri().toURL()}, ClassLoader.getSystemClassLoader());
+    // append the application file to the system class path
+    Premain.instrumentation.appendToSystemClassLoaderSearch(new JarFile(appFile.toFile()));
 
     // invoke the premain method if given
-    Premain.invokePremain(premainClass, loader);
+    Premain.invokePremain(premainClass, ClassLoader.getSystemClassLoader());
 
     // get the main method
-    Class<?> main = Class.forName(mainClass, true, loader);
+    Class<?> main = Class.forName(mainClass, true, ClassLoader.getSystemClassLoader());
     Method method = main.getMethod("main", String[].class);
 
     // inform the user about the pre-start
@@ -368,7 +367,7 @@ public class Wrapper extends CloudNetDriver {
 
     try {
       // checking if the application will be launched via the Minecraft LaunchWrapper
-      Class.forName("net.minecraft.launchwrapper.Launch", false, loader);
+      Class.forName("net.minecraft.launchwrapper.Launch", false, ClassLoader.getSystemClassLoader());
 
       // adds a tweak class to the LaunchWrapper which will prevent doubled loading of the CloudNet classes
       arguments.add("--tweakClass");
@@ -387,11 +386,15 @@ public class Wrapper extends CloudNetDriver {
         LOGGER.severe("Exception while starting application", exception);
       }
     }, "Application-Thread");
-    applicationThread.setContextClassLoader(loader);
+    applicationThread.setContextClassLoader(ClassLoader.getSystemClassLoader());
     applicationThread.start();
 
     // inform the user about the post-start
-    this.eventManager.callEvent(new ApplicationPostStartEvent(this, main, applicationThread, loader));
+    this.eventManager.callEvent(new ApplicationPostStartEvent(
+      this,
+      main,
+      applicationThread,
+      ClassLoader.getSystemClassLoader()));
     return true;
   }
 
