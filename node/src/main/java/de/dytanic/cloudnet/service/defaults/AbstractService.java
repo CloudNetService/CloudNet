@@ -411,6 +411,7 @@ public abstract class AbstractService implements ICloudService {
 
   @Override
   public void updateServiceInfoSnapshot(@NotNull ServiceInfoSnapshot serviceInfoSnapshot) {
+    this.lastServiceInfo = this.currentServiceInfo;
     this.currentServiceInfo = Preconditions.checkNotNull(serviceInfoSnapshot, "serviceInfoSnapshot");
   }
 

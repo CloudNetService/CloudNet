@@ -31,7 +31,7 @@ object Versions {
 
   // compile time processing
   const val lombok = "1.18.22"
-  const val checkstyle = "9.0.1"
+  const val checkstyle = "9.1"
 
   // console
   const val jansi = "2.4.0"
@@ -52,18 +52,20 @@ object Versions {
   const val netty = "4.1.69.Final"
   const val unirest = "3.11.09"
 
-  // server apis
-  const val spigotApi = "1.17-R0.1-SNAPSHOT"
-  const val sponge = "7.3.0"
+  // platform api versions
+  const val velocity = "3.0.1"
   const val nukkitX = "1.0-SNAPSHOT"
+  const val sponge = "8.0.0-SNAPSHOT"
+  const val waterdogpe = "1.1.4-SNAPSHOT"
+  const val spigot = "1.17.1-R0.1-SNAPSHOT"
   const val bungeecord = "1.17-R0.1-SNAPSHOT"
-  const val velocity = "3.0.0"
-  const val waterdogpe = "1.1.2-SNAPSHOT"
 
   const val vault = "1.7.1"
+  const val adventure = "4.9.3"
   const val annotations = "22.0.0"
   /*
   //Dependencies
+    dependencyVaultVersion = '1.7.1'
     dependencyProtocolLibVersion = 'master-SNAPSHOT'
     dependencyNpcLibVersion = 'development-SNAPSHOT'
     dependencyCommonsNetVersion = '3.8.0'

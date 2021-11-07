@@ -16,149 +16,103 @@
 
 package de.dytanic.cloudnet.ext.bridge.node;
 
-import com.google.gson.JsonParseException;
+import com.google.gson.reflect.TypeToken;
+import de.dytanic.cloudnet.CloudNet;
+import de.dytanic.cloudnet.cluster.sync.DataSyncHandler;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.driver.module.ModuleLifeCycle;
 import de.dytanic.cloudnet.driver.module.ModuleTask;
-import de.dytanic.cloudnet.driver.network.http.IHttpHandler;
-import de.dytanic.cloudnet.ext.bridge.BridgeConfiguration;
-import de.dytanic.cloudnet.ext.bridge.ProxyFallback;
-import de.dytanic.cloudnet.ext.bridge.ProxyFallbackConfiguration;
-import de.dytanic.cloudnet.ext.bridge.listener.TaskConfigListener;
-import de.dytanic.cloudnet.ext.bridge.node.command.CommandBridge;
-import de.dytanic.cloudnet.ext.bridge.node.command.CommandPlayers;
-import de.dytanic.cloudnet.ext.bridge.node.http.V1BridgeConfigurationHttpHandler;
-import de.dytanic.cloudnet.ext.bridge.node.http.v2.V2HttpHandlerBridge;
-import de.dytanic.cloudnet.ext.bridge.node.listener.BridgeDefaultConfigurationListener;
-import de.dytanic.cloudnet.ext.bridge.node.listener.BridgeLocalProxyPlayerDisconnectListener;
-import de.dytanic.cloudnet.ext.bridge.node.listener.BridgeServiceListCommandListener;
-import de.dytanic.cloudnet.ext.bridge.node.listener.BridgeTaskSetupListener;
-import de.dytanic.cloudnet.ext.bridge.node.listener.IncludePluginListener;
-import de.dytanic.cloudnet.ext.bridge.node.listener.NetworkListenerRegisterListener;
-import de.dytanic.cloudnet.ext.bridge.node.listener.NodeCustomChannelMessageListener;
-import de.dytanic.cloudnet.ext.bridge.node.listener.PlayerManagerListener;
-import de.dytanic.cloudnet.ext.bridge.node.player.NodePlayerManager;
-import de.dytanic.cloudnet.ext.bridge.player.IPlayerManager;
-import de.dytanic.cloudnet.module.NodeCloudNetModule;
+import de.dytanic.cloudnet.driver.module.driver.DriverModule;
+import de.dytanic.cloudnet.driver.network.rpc.defaults.object.DefaultObjectMapper;
+import de.dytanic.cloudnet.ext.bridge.BridgeManagement;
+import de.dytanic.cloudnet.ext.bridge.config.BridgeConfiguration;
+import de.dytanic.cloudnet.ext.bridge.config.ProxyFallbackConfiguration;
+import de.dytanic.cloudnet.ext.bridge.rpc.TextComponentObjectSerializer;
+import de.dytanic.cloudnet.ext.bridge.rpc.TitleObjectSerializer;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collections;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.title.Title;
 
-public final class CloudNetBridgeModule extends NodeCloudNetModule {
+public final class CloudNetBridgeModule extends DriverModule {
 
-  private static CloudNetBridgeModule instance;
-  private final NodePlayerManager nodePlayerManager = new NodePlayerManager("cloudnet_cloud_players");
-  private BridgeConfiguration bridgeConfiguration;
-
-  public CloudNetBridgeModule() {
-    instance = this;
+  @ModuleTask(order = 50, event = ModuleLifeCycle.LOADED)
+  public void initNetworkHelpers() {
+    DefaultObjectMapper.DEFAULT_MAPPER.registerBinding(Title.class, new TitleObjectSerializer(), false);
+    DefaultObjectMapper.DEFAULT_MAPPER.registerBinding(TextComponent.class, new TextComponentObjectSerializer(), false);
   }
 
-  public static CloudNetBridgeModule getInstance() {
-    return CloudNetBridgeModule.instance;
-  }
-
-  @ModuleTask(order = 64, event = ModuleLifeCycle.STARTED)
-  public void createConfiguration() {
-    FileUtils.createDirectoryReported(this.getModuleWrapper().getDataDirectory());
-
-    JsonDocument configuration;
-    try {
-      configuration = super.getConfigExceptionally();
-    } catch (Exception exception) {
-      throw new JsonParseException(
-        "Exception while parsing bridge-module configuration. Your configuration is invalid.");
+  @ModuleTask(order = 40, event = ModuleLifeCycle.LOADED)
+  public void convertOldConfiguration() {
+    Path oldConfigurationPath = this.getModuleWrapper()
+      .getModuleProvider()
+      .getModuleDirectoryPath()
+      .resolve("CloudNet-Bridge")
+      .resolve("config.json");
+    // check if the old file exists
+    if (Files.exists(oldConfigurationPath)) {
+      // read the file
+      JsonDocument config = JsonDocument.newDocument(oldConfigurationPath).getDocument("config");
+      // extract the messages and re-map them
+      Map<String, Map<String, String>> messages = new HashMap<>(BridgeConfiguration.DEFAULT_MESSAGES);
+      messages.get("defaults").putAll(config.get("messages", new TypeToken<Map<String, Map<String, String>>>() {
+      }.getType()));
+      // extract all hub commands
+      Collection<String> hubCommands = config.get("hubCommandNames", new TypeToken<Collection<String>>() {
+      }.getType());
+      // extract the excluded groups
+      Collection<String> excludedGroups = config.get("excludedGroups", new TypeToken<Collection<String>>() {
+      }.getType());
+      // extract the fallback configurations
+      Collection<ProxyFallbackConfiguration> fallbacks = config.get(
+        "bungeeFallbackConfigurations",
+        new TypeToken<Collection<ProxyFallbackConfiguration>>() {
+        }.getType());
+      // convert to a new config file
+      JsonDocument.newDocument(new BridgeConfiguration(
+        config.getString("prefix"),
+        messages,
+        config.getBoolean("logPlayerConnections"),
+        excludedGroups,
+        hubCommands,
+        fallbacks,
+        config.getDocument("properties")
+      )).write(this.getConfigPath());
+      // delete the old config
+      FileUtils.delete(oldConfigurationPath.getParent());
     }
+  }
 
-    this.bridgeConfiguration = configuration.get("config", BridgeConfiguration.class, new BridgeConfiguration());
-    for (Map.Entry<String, String> entry : BridgeConfiguration.DEFAULT_MESSAGES.entrySet()) {
-      if (!this.bridgeConfiguration.getMessages().containsKey(entry.getKey())) {
-        this.bridgeConfiguration.getMessages().put(entry.getKey(), entry.getValue());
-      }
+  @ModuleTask(event = ModuleLifeCycle.LOADED)
+  public void initModule() {
+    // load the configuration file
+    BridgeConfiguration configuration = this.readConfig().toInstanceOf(BridgeConfiguration.class);
+    if (Files.notExists(this.getConfigPath())) {
+      // create a new configuration
+      configuration = new BridgeConfiguration();
+      this.writeConfig(JsonDocument.newDocument(configuration));
     }
-
-    configuration.append("config", this.bridgeConfiguration);
-    super.saveConfig();
+    // init the bridge management
+    BridgeManagement management = new NodeBridgeManagement(
+      this,
+      configuration,
+      this.getEventManager(),
+      CloudNet.getInstance().getDataSyncRegistry(),
+      this.getRPCFactory());
+    management.registerServices(this.getServiceRegistry());
+    management.postInit();
+    // register the cluster sync handler
+    CloudNet.getInstance().getDataSyncRegistry().registerHandler(DataSyncHandler.<BridgeConfiguration>builder()
+      .key("bridge-config")
+      .nameExtractor($ -> "Bridge Config")
+      .convertObject(BridgeConfiguration.class)
+      .writer(management::setConfiguration)
+      .singletonCollector(management::getConfiguration)
+      .currentGetter($ -> management.getConfiguration())
+      .build());
   }
-
-  public ProxyFallbackConfiguration createDefaultFallbackConfiguration(String targetGroup) {
-    return new ProxyFallbackConfiguration(
-      targetGroup,
-      "Lobby",
-      Collections.singletonList(new ProxyFallback("Lobby", null, 1))
-    );
-  }
-
-  public void writeConfiguration(BridgeConfiguration bridgeConfiguration) {
-    this.getConfig().append("config", bridgeConfiguration);
-    this.saveConfig();
-  }
-
-  @ModuleTask(order = 36, event = ModuleLifeCycle.STARTED)
-  public void initNodePlayerManager() {
-    super.getCloudNet().getServicesRegistry()
-      .registerService(IPlayerManager.class, "NodePlayerManager", this.nodePlayerManager);
-
-    this.registerListener(new PlayerManagerListener(this.nodePlayerManager));
-  }
-
-  @ModuleTask(order = 35, event = ModuleLifeCycle.STARTED)
-  public void registerHandlers() {
-    this.getHttpServer().registerHandler("/api/v1/modules/bridge/config",
-      new V1BridgeConfigurationHttpHandler("cloudnet.http.v1.modules.bridge.config"));
-
-    this.getHttpServer().registerHandler("/api/v2/player", IHttpHandler.PRIORITY_NORMAL,
-      new V2HttpHandlerBridge("http.v2.player"));
-    this.getHttpServer().registerHandler("/api/v2/player/{player}", IHttpHandler.PRIORITY_NORMAL,
-      new V2HttpHandlerBridge("http.v2.player"));
-    this.getHttpServer().registerHandler("/api/v2/player/{player}/*", IHttpHandler.PRIORITY_LOW,
-      new V2HttpHandlerBridge("http.v2.player"));
-  }
-
-  @ModuleTask(order = 17, event = ModuleLifeCycle.STARTED)
-  public void checkTaskConfigurations() {
-    // adding a required join permission option to all minecraft-server-based tasks, if not existing
-    this.getCloudNet().getServiceTaskProvider().getPermanentServiceTasks().forEach(serviceTask -> {
-      if (serviceTask.getProcessConfiguration().getEnvironment().isMinecraftServer() && !serviceTask.getProperties()
-        .contains("requiredPermission")) {
-        serviceTask.getProperties().appendNull("requiredPermission");
-        this.getCloudNet().getServiceTaskProvider().addPermanentServiceTask(serviceTask);
-      }
-    });
-  }
-
-  @ModuleTask(order = 16, event = ModuleLifeCycle.STARTED)
-  public void registerCommands() {
-    this.registerCommand(new CommandBridge(this));
-    this.registerCommand(new CommandPlayers(this.nodePlayerManager));
-  }
-
-  @ModuleTask(order = 8, event = ModuleLifeCycle.STARTED)
-  public void initListeners() {
-    this.registerListeners(new NetworkListenerRegisterListener(), new BridgeTaskSetupListener(),
-      new IncludePluginListener(), new BridgeLocalProxyPlayerDisconnectListener(this.nodePlayerManager),
-      new NodeCustomChannelMessageListener(this.nodePlayerManager), new BridgeDefaultConfigurationListener(),
-      new BridgeServiceListCommandListener(), new TaskConfigListener());
-  }
-
-  @Override
-  public JsonDocument reloadConfig() {
-    Path configFile = this.getModuleWrapper().getDataDirectory().resolve("config.json");
-    if (Files.notExists(configFile)) {
-      this.createConfiguration();
-    }
-
-    return super.config = JsonDocument.newDocument(configFile);
-  }
-
-  public BridgeConfiguration getBridgeConfiguration() {
-    return this.bridgeConfiguration;
-  }
-
-  public void setBridgeConfiguration(BridgeConfiguration bridgeConfiguration) {
-    this.bridgeConfiguration = bridgeConfiguration;
-  }
-
 }

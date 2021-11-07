@@ -23,7 +23,7 @@ import org.jetbrains.annotations.Nullable;
 
 final class Premain {
 
-  private static Instrumentation instrumentation;
+  static Instrumentation instrumentation;
 
   public static void premain(@NotNull String agentArgs, @NotNull Instrumentation inst) {
     Premain.instrumentation = inst;

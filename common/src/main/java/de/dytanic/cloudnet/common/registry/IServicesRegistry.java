@@ -20,6 +20,7 @@ import com.google.common.collect.Iterables;
 import java.util.Collection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnknownNullability;
 import org.jetbrains.annotations.UnmodifiableView;
 
 /**
@@ -131,7 +132,7 @@ public interface IServicesRegistry {
    * @param <T>   the interface or abstract type which you want the implementation providing for
    * @return the first service implementation found registered for the provided class
    */
-  default @Nullable <T> T getFirstService(@NotNull Class<T> clazz) {
+  default @UnknownNullability <T> T getFirstService(@NotNull Class<T> clazz) {
     return Iterables.getFirst(this.getServices(clazz), null);
   }
 

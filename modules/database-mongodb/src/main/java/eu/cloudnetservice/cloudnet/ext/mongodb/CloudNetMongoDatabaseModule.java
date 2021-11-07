@@ -29,19 +29,19 @@ public class CloudNetMongoDatabaseModule extends DriverModule {
 
   @ModuleTask(order = 126, event = ModuleLifeCycle.LOADED)
   public void loadConfig() {
-    JsonDocument configuration = this.getConfig();
+    JsonDocument configuration = this.readConfig();
     this.config = configuration.get("config", MongoDBConnectionConfig.class, new MongoDBConnectionConfig());
-    super.saveConfig();
+    super.writeConfig(JsonDocument.newDocument("config", this.config));
   }
 
   @ModuleTask(order = 125, event = ModuleLifeCycle.LOADED)
   public void registerDatabaseProvider() {
-    this.getRegistry().registerService(AbstractDatabaseProvider.class, this.config.getDatabaseServiceName(),
+    this.getServiceRegistry().registerService(AbstractDatabaseProvider.class, this.config.getDatabaseServiceName(),
       new MongoDBDatabaseProvider(this.config));
   }
 
   @ModuleTask(order = 127, event = ModuleLifeCycle.STOPPED)
   public void unregisterDatabaseProvider() {
-    this.getRegistry().unregisterService(AbstractDatabaseProvider.class, this.config.getDatabaseServiceName());
+    this.getServiceRegistry().unregisterService(AbstractDatabaseProvider.class, this.config.getDatabaseServiceName());
   }
 }

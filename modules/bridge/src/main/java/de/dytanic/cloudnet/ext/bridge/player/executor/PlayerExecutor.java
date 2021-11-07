@@ -16,11 +16,17 @@
 
 package de.dytanic.cloudnet.ext.bridge.player.executor;
 
+import de.dytanic.cloudnet.driver.network.rpc.annotation.RPCValidation;
 import java.util.UUID;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.title.Title;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+@RPCValidation
 public interface PlayerExecutor {
+
+  UUID GLOBAL_UNIQUE_ID = new UUID(0, 0);
 
   /**
    * Gets the uniqueId of the player this player executor handles.
@@ -42,7 +48,7 @@ public interface PlayerExecutor {
    *
    * @param selectorType the type for sorting
    */
-  void connect(@NotNull ServerSelectorType selectorType);
+  void connectSelecting(@NotNull ServerSelectorType selectorType);
 
   /**
    * Connects an online player to a fallback exactly like it is done in the hub command or on login.
@@ -70,14 +76,16 @@ public interface PlayerExecutor {
    *
    * @param message the reason for the kick which will be displayed in the players client
    */
-  void kick(@NotNull String message);
+  void kick(@NotNull TextComponent message);
+
+  void sendTitle(@NotNull Title title);
 
   /**
    * Sends a plugin message to a specific online player.
    *
    * @param message the message to be sent to the player
    */
-  void sendChatMessage(@NotNull String message);
+  void sendMessage(@NotNull TextComponent message);
 
   /**
    * Sends a plugin message to a specific online player only if the player has the given permission. If the permission
@@ -86,7 +94,7 @@ public interface PlayerExecutor {
    * @param message    the message to be sent to the player
    * @param permission the permission which will be checked before the message is sent to the player
    */
-  void sendChatMessage(@NotNull String message, @Nullable String permission);
+  void sendChatMessage(@NotNull TextComponent message, @Nullable String permission);
 
   /**
    * Sends a message to a specific online player. The tag has to be registered in the proxy.

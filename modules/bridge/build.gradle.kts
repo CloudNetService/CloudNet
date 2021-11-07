@@ -14,23 +14,47 @@
  * limitations under the License.
  */
 
+plugins {
+  id("com.github.johnrengelman.shadow") version "7.1.0"
+}
+
+version = "2.0.0"
+
 tasks.withType<Jar> {
   archiveFileName.set(Files.bridge)
+}
+
+repositories {
+  mavenLocal()
 }
 
 dependencies {
   "compileOnly"(project(":cloudnet-wrapper-jvm"))
   "compileOnly"("cn.nukkit", "nukkit", Versions.nukkitX)
+  "compileOnly"("org.spigotmc", "spigot-api", Versions.spigot)
   "compileOnly"("org.spongepowered", "spongeapi", Versions.sponge)
-  "compileOnly"("org.spigotmc", "spigot-api", Versions.spigotApi)
   "compileOnly"("net.md-5", "bungeecord-api", Versions.bungeecord)
   "compileOnly"("com.velocitypowered", "velocity-api", Versions.velocity)
   "compileOnly"("dev.waterdog.waterdogpe", "waterdog", Versions.waterdogpe)
+
+  "annotationProcessor"("com.velocitypowered", "velocity-api", "3.1.11-SNAPSHOT")
+
+  "implementation"("net.kyori", "adventure-api", Versions.adventure)
+  "implementation"("net.kyori", "adventure-text-serializer-plain", Versions.adventure)
 }
 
-/*moduleJson {
+moduleJson {
   main = "de.dytanic.cloudnet.ext.bridge.node.CloudNetBridgeModule"
   author = "CloudNetService"
-  description = "Node extension for the CloudNet runtime, which includes platform player support"
+  description = "Bridges service software support between all supported versions for easy CloudNet plugin development"
   runtimeModule = true
-}*/
+}
+
+tasks.withType<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar> {
+  // drop unused classes which are making the jar bigger
+  minimize()
+}
+
+configure<net.kyori.blossom.BlossomExtension> {
+  replaceToken("{project.build.version}", project.version)
+}

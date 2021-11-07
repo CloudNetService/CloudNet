@@ -17,17 +17,18 @@
 package de.dytanic.cloudnet.ext.bridge.event;
 
 import de.dytanic.cloudnet.driver.event.events.DriverEvent;
-import de.dytanic.cloudnet.ext.bridge.player.ICloudOfflinePlayer;
+import de.dytanic.cloudnet.ext.bridge.player.CloudOfflinePlayer;
+import org.jetbrains.annotations.NotNull;
 
 public final class BridgeDeleteCloudOfflinePlayerEvent extends DriverEvent {
 
-  private final ICloudOfflinePlayer cloudPlayer;
+  private final CloudOfflinePlayer cloudPlayer;
 
-  public BridgeDeleteCloudOfflinePlayerEvent(ICloudOfflinePlayer cloudPlayer) {
+  public BridgeDeleteCloudOfflinePlayerEvent(@NotNull CloudOfflinePlayer cloudPlayer) {
     this.cloudPlayer = cloudPlayer;
   }
 
-  public ICloudOfflinePlayer getCloudOfflinePlayer() {
+  public @NotNull CloudOfflinePlayer getCloudOfflinePlayer() {
     return this.cloudPlayer;
   }
 }

@@ -41,7 +41,7 @@ public class ModuleEmitter implements ReportDataEmitter<NetworkClusterNodeInfoSn
         .append("\n");
       if (!module.getModuleConfiguration().storesSensitiveData()) {
         builder.append("Configuration: \n")
-          .append(((DriverModule) module.getModule()).getConfig().toPrettyJson())
+          .append(((DriverModule) module.getModule()).readConfig().toPrettyJson())
           .append("\n\n");
       }
     }

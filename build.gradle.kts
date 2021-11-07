@@ -72,7 +72,6 @@ subprojects {
     // options
     options.encoding = "UTF-8"
     options.isIncremental = true
-    options.compilerArgs = listOf("-Xlint:deprecation", "-Xlint:unchecked")
   }
 /*
   tasks.withType<Javadoc>() {

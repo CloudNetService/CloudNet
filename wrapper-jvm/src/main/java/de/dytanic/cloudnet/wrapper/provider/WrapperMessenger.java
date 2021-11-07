@@ -16,29 +16,39 @@
 
 package de.dytanic.cloudnet.wrapper.provider;
 
+import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;
-import de.dytanic.cloudnet.driver.network.rpc.RPCSender;
+import de.dytanic.cloudnet.driver.network.INetworkComponent;
+import de.dytanic.cloudnet.driver.network.def.PacketServerChannelMessage;
 import de.dytanic.cloudnet.driver.provider.CloudMessenger;
 import de.dytanic.cloudnet.driver.provider.DefaultMessenger;
 import de.dytanic.cloudnet.wrapper.Wrapper;
+import java.lang.reflect.Type;
 import java.util.Collection;
 import org.jetbrains.annotations.NotNull;
 
 public class WrapperMessenger extends DefaultMessenger implements CloudMessenger {
 
-  private final RPCSender rpcSender;
+  private static final Type MESSAGES = TypeToken.getParameterized(Collection.class, ChannelMessage.class).getType();
+
+  private final INetworkComponent component;
 
   public WrapperMessenger(@NotNull Wrapper wrapper) {
-    this.rpcSender = wrapper.getRPCProviderFactory().providerForClass(wrapper.getNetworkClient(), CloudMessenger.class);
+    this.component = wrapper.getNetworkClient();
   }
 
   @Override
   public void sendChannelMessage(@NotNull ChannelMessage channelMessage) {
-    this.rpcSender.invokeMethod("sendChannelMessage", channelMessage).fireSync();
+    this.component.sendPacket(new PacketServerChannelMessage(channelMessage));
   }
 
   @Override
   public @NotNull Collection<ChannelMessage> sendChannelMessageQuery(@NotNull ChannelMessage channelMessage) {
-    return this.rpcSender.invokeMethod("sendChannelMessageQuery", channelMessage).fireSync();
+    return this.component.getFirstChannel()
+      .getQueryPacketManager()
+      .sendQueryPacket(new PacketServerChannelMessage(channelMessage))
+      .join()
+      .getContent()
+      .readObject(MESSAGES);
   }
 }

@@ -17,26 +17,25 @@
 package de.dytanic.cloudnet.ext.bridge.event;
 
 import de.dytanic.cloudnet.driver.event.events.DriverEvent;
-import de.dytanic.cloudnet.ext.bridge.player.NetworkConnectionInfo;
-import de.dytanic.cloudnet.ext.bridge.player.NetworkPlayerServerInfo;
+import de.dytanic.cloudnet.ext.bridge.player.CloudPlayer;
+import de.dytanic.cloudnet.ext.bridge.player.NetworkServiceInfo;
+import org.jetbrains.annotations.NotNull;
 
 public final class BridgeServerPlayerDisconnectEvent extends DriverEvent {
 
-  private final NetworkConnectionInfo networkConnectionInfo;
+  private final CloudPlayer cloudPlayer;
+  private final NetworkServiceInfo serviceInfo;
 
-  private final NetworkPlayerServerInfo networkPlayerServerInfo;
-
-  public BridgeServerPlayerDisconnectEvent(NetworkConnectionInfo networkConnectionInfo,
-    NetworkPlayerServerInfo networkPlayerServerInfo) {
-    this.networkConnectionInfo = networkConnectionInfo;
-    this.networkPlayerServerInfo = networkPlayerServerInfo;
+  public BridgeServerPlayerDisconnectEvent(@NotNull CloudPlayer cloudPlayer, @NotNull NetworkServiceInfo serviceInfo) {
+    this.cloudPlayer = cloudPlayer;
+    this.serviceInfo = serviceInfo;
   }
 
-  public NetworkConnectionInfo getNetworkConnectionInfo() {
-    return this.networkConnectionInfo;
+  public @NotNull CloudPlayer getCloudPlayer() {
+    return this.cloudPlayer;
   }
 
-  public NetworkPlayerServerInfo getNetworkPlayerServerInfo() {
-    return this.networkPlayerServerInfo;
+  public @NotNull NetworkServiceInfo getService() {
+    return this.serviceInfo;
   }
 }

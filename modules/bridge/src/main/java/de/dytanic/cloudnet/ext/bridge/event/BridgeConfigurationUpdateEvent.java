@@ -17,17 +17,18 @@
 package de.dytanic.cloudnet.ext.bridge.event;
 
 import de.dytanic.cloudnet.driver.event.events.DriverEvent;
-import de.dytanic.cloudnet.ext.bridge.BridgeConfiguration;
+import de.dytanic.cloudnet.ext.bridge.config.BridgeConfiguration;
+import org.jetbrains.annotations.NotNull;
 
 public final class BridgeConfigurationUpdateEvent extends DriverEvent {
 
   private final BridgeConfiguration bridgeConfiguration;
 
-  public BridgeConfigurationUpdateEvent(BridgeConfiguration bridgeConfiguration) {
+  public BridgeConfigurationUpdateEvent(@NotNull BridgeConfiguration bridgeConfiguration) {
     this.bridgeConfiguration = bridgeConfiguration;
   }
 
-  public BridgeConfiguration getBridgeConfiguration() {
+  public @NotNull BridgeConfiguration getBridgeConfiguration() {
     return this.bridgeConfiguration;
   }
 }

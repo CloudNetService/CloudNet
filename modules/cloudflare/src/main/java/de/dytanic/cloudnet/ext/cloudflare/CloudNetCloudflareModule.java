@@ -55,7 +55,7 @@ public final class CloudNetCloudflareModule extends DriverModule {
   @ModuleTask(order = 127, event = ModuleLifeCycle.STARTED)
   public void loadConfiguration() {
 
-    JsonDocument configuration = this.getConfig();
+    JsonDocument configuration = this.readConfig();
 
     this.cloudflareConfiguration = configuration
       .get("config", CloudflareConfiguration.class, new CloudflareConfiguration(
@@ -126,8 +126,7 @@ public final class CloudNetCloudflareModule extends DriverModule {
   public void updateConfiguration(CloudflareConfiguration cloudflareConfiguration) {
     this.cloudflareConfiguration = cloudflareConfiguration;
 
-    this.getConfig().append("config", cloudflareConfiguration);
-    this.saveConfig();
+    this.writeConfig(JsonDocument.newDocument("config", cloudflareConfiguration));
   }
 
   @ModuleTask(order = 64, event = ModuleLifeCycle.STOPPED)

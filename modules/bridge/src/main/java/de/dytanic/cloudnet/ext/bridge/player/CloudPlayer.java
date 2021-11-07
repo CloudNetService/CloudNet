@@ -18,86 +18,47 @@ package de.dytanic.cloudnet.ext.bridge.player;
 
 import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
-import de.dytanic.cloudnet.ext.bridge.player.executor.DefaultPlayerExecutor;
+import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.ext.bridge.player.executor.PlayerExecutor;
 import java.lang.reflect.Type;
 import java.util.Collection;
-import java.util.UUID;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 @ToString
 @EqualsAndHashCode(callSuper = false)
-public class CloudPlayer extends CloudOfflinePlayer implements ICloudPlayer {
+public class CloudPlayer extends CloudOfflinePlayer {
 
   public static final Type COLLECTION_TYPE = TypeToken.getParameterized(Collection.class, CloudPlayer.class).getType();
-
-  @Deprecated
-  public static final Type TYPE = CloudPlayer.class;
 
   protected NetworkServiceInfo loginService;
   protected NetworkServiceInfo connectedService;
 
-  protected NetworkConnectionInfo networkConnectionInfo;
+  protected NetworkPlayerProxyInfo networkPlayerProxyInfo;
   protected NetworkPlayerServerInfo networkPlayerServerInfo;
 
   protected JsonDocument onlineProperties;
 
-  public CloudPlayer(ICloudOfflinePlayer cloudOfflinePlayer,
-    NetworkServiceInfo loginService,
-    NetworkServiceInfo connectedService,
-    NetworkConnectionInfo networkConnectionInfo,
-    NetworkPlayerServerInfo networkPlayerServerInfo) {
-    super(
-      cloudOfflinePlayer.getUniqueId(),
-      cloudOfflinePlayer.getName(),
-      cloudOfflinePlayer.getXBoxId(),
-      cloudOfflinePlayer.getFirstLoginTimeMillis(),
-      cloudOfflinePlayer.getLastLoginTimeMillis(),
-      cloudOfflinePlayer.getLastNetworkConnectionInfo()
-    );
-
-    //
-    this.properties = cloudOfflinePlayer.getProperties();
-    this.onlineProperties = new JsonDocument();
-    //
-
-    this.loginService = loginService;
-    this.connectedService = connectedService;
-    this.networkConnectionInfo = networkConnectionInfo;
-    this.networkPlayerServerInfo = networkPlayerServerInfo;
-  }
-
   public CloudPlayer(
-    UUID uniqueId,
-    String name,
-    String xBoxId,
+    @NotNull NetworkServiceInfo loginService,
+    @NotNull NetworkServiceInfo connectedService,
+    @NotNull NetworkPlayerProxyInfo networkPlayerProxyInfo,
+    @Nullable NetworkPlayerServerInfo networkPlayerServerInfo,
+    @NotNull JsonDocument onlineProperties,
     long firstLoginTimeMillis,
     long lastLoginTimeMillis,
-    NetworkConnectionInfo lastNetworkConnectionInfo,
-    NetworkServiceInfo loginService,
-    NetworkServiceInfo connectedService,
-    NetworkConnectionInfo networkConnectionInfo,
-    NetworkPlayerServerInfo networkPlayerServerInfo,
-    JsonDocument properties
+    @NotNull NetworkPlayerProxyInfo lastNetworkPlayerProxyInfo,
+    @NotNull JsonDocument properties
   ) {
-    super(uniqueId, name, xBoxId, firstLoginTimeMillis, lastLoginTimeMillis, lastNetworkConnectionInfo);
+    super(firstLoginTimeMillis, lastLoginTimeMillis, lastNetworkPlayerProxyInfo);
     this.loginService = loginService;
     this.connectedService = connectedService;
-    this.networkConnectionInfo = networkConnectionInfo;
+    this.networkPlayerProxyInfo = networkPlayerProxyInfo;
     this.networkPlayerServerInfo = networkPlayerServerInfo;
+    this.onlineProperties = onlineProperties;
     this.properties = properties;
-  }
-
-  public CloudPlayer(NetworkServiceInfo loginService, NetworkServiceInfo connectedService,
-    NetworkConnectionInfo networkConnectionInfo, NetworkPlayerServerInfo networkPlayerServerInfo) {
-    this.loginService = loginService;
-    this.connectedService = connectedService;
-    this.networkConnectionInfo = networkConnectionInfo;
-    this.networkPlayerServerInfo = networkPlayerServerInfo;
-  }
-
-  public CloudPlayer() {
   }
 
   public NetworkServiceInfo getLoginService() {
@@ -116,12 +77,12 @@ public class CloudPlayer extends CloudOfflinePlayer implements ICloudPlayer {
     this.connectedService = connectedService;
   }
 
-  public NetworkConnectionInfo getNetworkConnectionInfo() {
-    return this.networkConnectionInfo;
+  public NetworkPlayerProxyInfo getNetworkPlayerProxyInfo() {
+    return this.networkPlayerProxyInfo;
   }
 
-  public void setNetworkConnectionInfo(NetworkConnectionInfo networkConnectionInfo) {
-    this.networkConnectionInfo = networkConnectionInfo;
+  public void setNetworkPlayerProxyInfo(NetworkPlayerProxyInfo networkPlayerProxyInfo) {
+    this.networkPlayerProxyInfo = networkPlayerProxyInfo;
   }
 
   public NetworkPlayerServerInfo getNetworkPlayerServerInfo() {
@@ -132,13 +93,13 @@ public class CloudPlayer extends CloudOfflinePlayer implements ICloudPlayer {
     this.networkPlayerServerInfo = networkPlayerServerInfo;
   }
 
-  @Override
   public JsonDocument getOnlineProperties() {
     return this.onlineProperties;
   }
 
-  @Override
   public PlayerExecutor getPlayerExecutor() {
-    return new DefaultPlayerExecutor(this.getUniqueId());
+    return CloudNetDriver.getInstance().getServicesRegistry()
+      .getFirstService(IPlayerManager.class)
+      .getPlayerExecutor(this.getUniqueId());
   }
 }

@@ -385,7 +385,7 @@ public final class CommandService {
 
     list.addAll(Arrays.asList(
       "PID: " + service.getProcessSnapshot().getPid(),
-      "CPU usage: " + CPUUsageResolver.CPU_USAGE_OUTPUT_FORMAT
+      "CPU usage: " + CPUUsageResolver.FORMAT
         .format(service.getProcessSnapshot().getCpuUsage()) + "%",
       "Threads: " + service.getProcessSnapshot().getThreads().size(),
       "Heap usage: " + (service.getProcessSnapshot().getHeapUsageMemory() / 1048576) + "/" +

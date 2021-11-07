@@ -71,7 +71,7 @@ public final class CloudNetCloudPermissionsModule extends DriverModule {
 
   @ModuleTask(order = 124, event = ModuleLifeCycle.STARTED)
   public void registerListeners() {
-    this.registerListeners(new IncludePluginListener(this));
+    this.registerListener(new IncludePluginListener(this));
   }
 
   public @NotNull CloudPermissionConfig getPermissionsConfig() {

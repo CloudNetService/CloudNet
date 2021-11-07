@@ -1,8 +1,7 @@
 name: CloudNet-Bridge
-version: "1.2"
+version: "{project.build.version}"
 api: [ "1.0.5" ]
 author: CloudNetService
 website: https://cloudnetservice.eu
-description: Nukkit extension for the CloudNet runtime, which optimize some features
-
-main: de.dytanic.cloudnet.ext.bridge.nukkit.NukkitCloudNetBridgePlugin
+description: Bridges service software support between all supported versions for easy CloudNet plugin development
+main: de.dytanic.cloudnet.ext.bridge.platform.nukkit.NukkitBridgePlugin

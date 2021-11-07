@@ -19,8 +19,12 @@ package de.dytanic.cloudnet.driver.event;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.event.invoker.ListenerInvoker;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import org.jetbrains.annotations.NotNull;
 
+@ToString
+@EqualsAndHashCode
 final class DefaultRegisteredEventListener implements IRegisteredEventListener {
 
   private static final Logger LOGGER = LogManager.getLogger(DefaultRegisteredEventListener.class);

@@ -43,6 +43,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.SortedMap;
@@ -140,6 +141,17 @@ public class DefaultObjectMapper implements ObjectMapper {
       // we don't need to unregister the sub-types of the type, skip the lookup
       this.registeredSerializers.remove(type);
     }
+    return this;
+  }
+
+  @Override
+  public @NotNull ObjectMapper unregisterBindings(@NotNull ClassLoader classLoader) {
+    for (Entry<Type, ObjectSerializer<?>> entry : this.registeredSerializers.entrySet()) {
+      if (entry.getValue().getClass().getClassLoader().equals(classLoader)) {
+        this.registeredSerializers.remove(entry.getKey(), entry.getValue());
+      }
+    }
+    // for chaining
     return this;
   }
 

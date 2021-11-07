@@ -16,99 +16,49 @@
 
 package de.dytanic.cloudnet.ext.bridge.player;
 
-import com.google.common.base.Preconditions;
-import de.dytanic.cloudnet.common.document.gson.BasicJsonDocPropertyable;
-import de.dytanic.cloudnet.common.document.gson.JsonDocument;
-import java.lang.reflect.Type;
+import de.dytanic.cloudnet.common.document.property.JsonDocPropertyHolder;
 import java.util.UUID;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.UnknownNullability;
 
 @ToString
 @EqualsAndHashCode(callSuper = false)
-public class CloudOfflinePlayer extends BasicJsonDocPropertyable implements ICloudOfflinePlayer {
-
-  @Deprecated
-  public static final Type TYPE = CloudOfflinePlayer.class;
-
-  protected UUID uniqueId;
-
-  protected String name;
-  protected String xBoxId;
+public class CloudOfflinePlayer extends JsonDocPropertyHolder implements Cloneable {
 
   protected long firstLoginTimeMillis;
   protected long lastLoginTimeMillis;
 
-  protected NetworkConnectionInfo lastNetworkConnectionInfo;
+  protected NetworkPlayerProxyInfo lastNetworkPlayerProxyInfo;
 
-  public CloudOfflinePlayer(UUID uniqueId, String name, String xBoxId, long firstLoginTimeMillis,
-    long lastLoginTimeMillis, NetworkConnectionInfo lastNetworkConnectionInfo) {
-    this.uniqueId = uniqueId;
-    this.name = name;
-    this.xBoxId = xBoxId;
+  public CloudOfflinePlayer(long firstLoginTimeMillis, long lastLoginTimeMillis, NetworkPlayerProxyInfo proxyInfo) {
     this.firstLoginTimeMillis = firstLoginTimeMillis;
     this.lastLoginTimeMillis = lastLoginTimeMillis;
-    this.lastNetworkConnectionInfo = lastNetworkConnectionInfo;
+    this.lastNetworkPlayerProxyInfo = proxyInfo;
   }
 
-  public CloudOfflinePlayer() {
+  public static @NotNull CloudOfflinePlayer offlineCopy(@NotNull CloudPlayer onlineVariant) {
+    return new CloudOfflinePlayer(
+      onlineVariant.getFirstLoginTimeMillis(),
+      onlineVariant.getLastLoginTimeMillis(),
+      onlineVariant.getNetworkPlayerProxyInfo().clone());
   }
 
-
-  public static CloudOfflinePlayer of(ICloudPlayer cloudPlayer) {
-    Preconditions.checkNotNull(cloudPlayer);
-
-    CloudOfflinePlayer cloudOfflinePlayer = new CloudOfflinePlayer(
-      cloudPlayer.getUniqueId(),
-      cloudPlayer.getName(),
-      cloudPlayer.getXBoxId(),
-      cloudPlayer.getFirstLoginTimeMillis(),
-      cloudPlayer.getLastLoginTimeMillis(),
-      cloudPlayer.getLastNetworkConnectionInfo()
-    );
-
-    cloudOfflinePlayer.setProperties(cloudPlayer.getProperties());
-
-    return cloudOfflinePlayer;
-  }
-
-  @Override
-  public void setProperties(@NotNull JsonDocument properties) {
-    this.properties = properties;
-  }
-
-  @NotNull
-  public UUID getUniqueId() {
-    return this.uniqueId;
-  }
-
-  public void setUniqueId(UUID uniqueId) {
-    this.uniqueId = uniqueId;
+  public @NotNull UUID getUniqueId() {
+    return this.lastNetworkPlayerProxyInfo.getUniqueId();
   }
 
   public @NotNull String getName() {
-    return this.name;
+    return this.lastNetworkPlayerProxyInfo.getName();
   }
 
-  public void setName(@NotNull String name) {
-    this.name = name;
-  }
-
-  public String getXBoxId() {
-    return this.xBoxId;
-  }
-
-  public void setXBoxId(String xBoxId) {
-    this.xBoxId = xBoxId;
+  public @UnknownNullability String getXBoxId() {
+    return this.lastNetworkPlayerProxyInfo.getXBoxId();
   }
 
   public long getFirstLoginTimeMillis() {
     return this.firstLoginTimeMillis;
-  }
-
-  public void setFirstLoginTimeMillis(long firstLoginTimeMillis) {
-    this.firstLoginTimeMillis = firstLoginTimeMillis;
   }
 
   public long getLastLoginTimeMillis() {
@@ -119,11 +69,23 @@ public class CloudOfflinePlayer extends BasicJsonDocPropertyable implements IClo
     this.lastLoginTimeMillis = lastLoginTimeMillis;
   }
 
-  public NetworkConnectionInfo getLastNetworkConnectionInfo() {
-    return this.lastNetworkConnectionInfo;
+  public @NotNull NetworkPlayerProxyInfo getLastNetworkPlayerProxyInfo() {
+    return this.lastNetworkPlayerProxyInfo;
   }
 
-  public void setLastNetworkConnectionInfo(@NotNull NetworkConnectionInfo lastNetworkConnectionInfo) {
-    this.lastNetworkConnectionInfo = lastNetworkConnectionInfo;
+  public void setLastNetworkPlayerProxyInfo(@NotNull NetworkPlayerProxyInfo lastNetworkPlayerProxyInfo) {
+    this.lastNetworkPlayerProxyInfo = lastNetworkPlayerProxyInfo;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public @NotNull CloudOfflinePlayer clone() {
+    try {
+      return (CloudOfflinePlayer) super.clone();
+    } catch (CloneNotSupportedException exception) {
+      throw new RuntimeException();
+    }
   }
 }

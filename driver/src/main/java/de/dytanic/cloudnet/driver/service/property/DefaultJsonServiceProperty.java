@@ -50,9 +50,7 @@ public class DefaultJsonServiceProperty<T> implements ServiceProperty<T> {
   public static <T> DefaultJsonServiceProperty<T> createFromType(@NotNull String key, @NotNull Type type,
     boolean forbidModifications) {
     DefaultJsonServiceProperty<T> property = new DefaultJsonServiceProperty<>(key, type, null);
-    if (forbidModifications) {
-      property.forbidModification();
-    }
+    property.allowModifications = !forbidModifications;
     return property;
   }
 

@@ -53,9 +53,9 @@ public final class CommandMe {
       "ClusterId: " + cloudNet.getConfig().getClusterConfig().getClusterId(),
       "NodeId: " + cloudNet.getConfig().getIdentity().getUniqueId(),
       "Head-NodeId: " + cloudNet.getClusterNodeServerProvider().getHeadNode().getNodeInfo().getUniqueId(),
-      "CPU usage: (P/S) " + CPUUsageResolver.CPU_USAGE_OUTPUT_FORMAT.format(CPUUsageResolver.getProcessCPUUsage()) + "/"
+      "CPU usage: (P/S) " + CPUUsageResolver.FORMAT.format(CPUUsageResolver.getProcessCPUUsage()) + "/"
         +
-        CPUUsageResolver.CPU_USAGE_OUTPUT_FORMAT.format(CPUUsageResolver.getSystemCPUUsage()) + "/100%",
+        CPUUsageResolver.FORMAT.format(CPUUsageResolver.getSystemCPUUsage()) + "/100%",
       "Node services memory allocation (U/R/M): " + nodeInfoSnapshot.getUsedMemory() + "/" +
         nodeInfoSnapshot.getReservedMemory() + "/" + nodeInfoSnapshot.getMaxMemory() + " MB",
       "Threads: " + Thread.getAllStackTraces().keySet().size(),

@@ -371,6 +371,9 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
         // the snapshot directly "in" them
         ((RemoteNodeCloudServiceProvider) provider).setSnapshot(snapshot);
         LOGGER.fine("Updated service snapshot of %s to %s", null, snapshot.getServiceId(), snapshot);
+      } else if (provider instanceof ICloudService) {
+        // just set the service information locally - no further processing
+        ((ICloudService) provider).updateServiceInfoSnapshot(snapshot);
       }
     }
   }

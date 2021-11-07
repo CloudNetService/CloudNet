@@ -46,7 +46,7 @@ public final class CloudNetMySQLDatabaseModule extends DriverModule {
   @ModuleTask(order = 126, event = ModuleLifeCycle.LOADED)
   public void initConfig() {
 
-    JsonDocument configuration = this.getConfig();
+    JsonDocument configuration = this.readConfig();
 
     configuration.getString("database", "mysql");
     configuration.get("addresses", TYPE, Collections.singletonList(
@@ -59,7 +59,7 @@ public final class CloudNetMySQLDatabaseModule extends DriverModule {
     int connectionMaxPoolSize = 20;
 
     if (configuration.contains("connectionPoolSize")) {
-      connectionMaxPoolSize = this.getConfig().getInt("connectionPoolSize");
+      connectionMaxPoolSize = configuration.getInt("connectionPoolSize");
       configuration.remove("connectionPoolSize");
     }
 
@@ -68,17 +68,17 @@ public final class CloudNetMySQLDatabaseModule extends DriverModule {
     configuration.getInt("connectionTimeout", 5000);
     configuration.getInt("validationTimeout", 5000);
 
-    this.saveConfig();
+    this.writeConfig(configuration);
   }
 
   @ModuleTask(order = 125, event = ModuleLifeCycle.LOADED)
   public void registerDatabaseProvider() {
-    this.getRegistry().registerService(AbstractDatabaseProvider.class, this.getConfig().getString("database"),
-      new MySQLDatabaseProvider(this.getConfig(), null));
+    this.getServiceRegistry().registerService(AbstractDatabaseProvider.class, this.readConfig().getString("database"),
+      new MySQLDatabaseProvider(this.readConfig(), null));
   }
 
   @ModuleTask(order = 127, event = ModuleLifeCycle.STOPPED)
   public void unregisterDatabaseProvider() {
-    this.getRegistry().unregisterService(AbstractDatabaseProvider.class, this.getConfig().getString("database"));
+    this.getServiceRegistry().unregisterService(AbstractDatabaseProvider.class, this.readConfig().getString("database"));
   }
 }

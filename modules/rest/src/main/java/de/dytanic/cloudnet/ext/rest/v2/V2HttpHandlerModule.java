@@ -145,7 +145,7 @@ public class V2HttpHandlerModule extends V2HttpHandler {
   protected void handleModuleConfigRequest(IHttpContext context) {
     this.handleWithModuleContext(context, module -> {
       if (module.getModule() instanceof DriverModule) {
-        JsonDocument config = ((DriverModule) module.getModule()).getConfig();
+        JsonDocument config = ((DriverModule) module.getModule()).readConfig();
         this.ok(context)
           .body(this.success().append("config", config).toString())
           .context()
@@ -173,8 +173,7 @@ public class V2HttpHandlerModule extends V2HttpHandler {
             .cancelNext();
         } else {
           DriverModule driverModule = (DriverModule) module.getModule();
-          driverModule.setConfig(JsonDocument.newDocument(stream));
-          driverModule.saveConfig();
+          driverModule.writeConfig(JsonDocument.newDocument(stream));
 
           this.ok(context).body(this.success().toString()).context().closeAfter(true).cancelNext();
         }

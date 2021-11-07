@@ -22,5 +22,5 @@ dependencies {
   "compileOnly"(project(":cloudnet-wrapper-jvm"))
   "compileOnly"("cn.nukkit", "nukkit", Versions.nukkitX)
   "compileOnly"("org.spongepowered", "spongeapi", Versions.sponge)
-  "compileOnly"("org.spigotmc", "spigot-api", Versions.spigotApi)
+  "compileOnly"("org.spigotmc", "spigot-api", Versions.spigot)
 }

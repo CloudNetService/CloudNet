@@ -26,11 +26,11 @@ import de.dytanic.cloudnet.common.concurrent.ITask;
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.driver.channel.ChannelMessageTarget;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
+import de.dytanic.cloudnet.driver.network.def.PacketServerChannelMessage;
 import de.dytanic.cloudnet.driver.network.protocol.Packet;
 import de.dytanic.cloudnet.driver.provider.CloudMessenger;
 import de.dytanic.cloudnet.driver.provider.DefaultMessenger;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
-import de.dytanic.cloudnet.network.packet.PacketServerChannelMessage;
 import de.dytanic.cloudnet.service.ICloudService;
 import de.dytanic.cloudnet.service.ICloudServiceManager;
 import java.lang.reflect.Type;
@@ -53,8 +53,6 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
   public NodeMessenger(@NotNull CloudNet nodeInstance) {
     this.cloudServiceManager = nodeInstance.getCloudServiceProvider();
     this.nodeServerProvider = nodeInstance.getClusterNodeServerProvider();
-
-    nodeInstance.getRPCProviderFactory().newHandler(CloudMessenger.class, this).registerToDefaultRegistry();
   }
 
   @Override

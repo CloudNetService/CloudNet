@@ -17,81 +17,108 @@
 package de.dytanic.cloudnet.ext.bridge.node.player;
 
 import com.google.common.base.Preconditions;
-import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.google.common.util.concurrent.Striped;
 import de.dytanic.cloudnet.CloudNet;
-import de.dytanic.cloudnet.common.concurrent.CompletedTask;
-import de.dytanic.cloudnet.common.concurrent.ITask;
-import de.dytanic.cloudnet.common.concurrent.ListenableTask;
+import de.dytanic.cloudnet.cluster.sync.DataSyncHandler;
+import de.dytanic.cloudnet.cluster.sync.DataSyncRegistry;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
-import de.dytanic.cloudnet.driver.CloudNetDriver;
+import de.dytanic.cloudnet.database.LocalDatabase;
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;
-import de.dytanic.cloudnet.driver.database.Database;
+import de.dytanic.cloudnet.driver.event.IEventManager;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
+import de.dytanic.cloudnet.driver.network.rpc.RPCProviderFactory;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
-import de.dytanic.cloudnet.driver.service.ServiceId;
-import de.dytanic.cloudnet.ext.bridge.node.NodePlayerProvider;
+import de.dytanic.cloudnet.ext.bridge.BridgeManagement;
+import de.dytanic.cloudnet.ext.bridge.event.BridgeDeleteCloudOfflinePlayerEvent;
+import de.dytanic.cloudnet.ext.bridge.event.BridgeProxyPlayerDisconnectEvent;
+import de.dytanic.cloudnet.ext.bridge.event.BridgeProxyPlayerLoginEvent;
+import de.dytanic.cloudnet.ext.bridge.event.BridgeUpdateCloudOfflinePlayerEvent;
+import de.dytanic.cloudnet.ext.bridge.event.BridgeUpdateCloudPlayerEvent;
+import de.dytanic.cloudnet.ext.bridge.node.listener.BridgeLocalProxyPlayerDisconnectListener;
+import de.dytanic.cloudnet.ext.bridge.node.listener.BridgePluginIncludeListener;
+import de.dytanic.cloudnet.ext.bridge.node.network.NodePlayerChannelMessageListener;
 import de.dytanic.cloudnet.ext.bridge.player.CloudOfflinePlayer;
 import de.dytanic.cloudnet.ext.bridge.player.CloudPlayer;
-import de.dytanic.cloudnet.ext.bridge.player.DefaultPlayerManager;
-import de.dytanic.cloudnet.ext.bridge.player.ICloudOfflinePlayer;
-import de.dytanic.cloudnet.ext.bridge.player.ICloudPlayer;
 import de.dytanic.cloudnet.ext.bridge.player.IPlayerManager;
-import de.dytanic.cloudnet.ext.bridge.player.NetworkConnectionInfo;
+import de.dytanic.cloudnet.ext.bridge.player.NetworkPlayerProxyInfo;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkPlayerServerInfo;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkServiceInfo;
 import de.dytanic.cloudnet.ext.bridge.player.PlayerProvider;
-import java.util.ArrayList;
-import java.util.Arrays;
+import de.dytanic.cloudnet.ext.bridge.player.executor.PlayerExecutor;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import org.jetbrains.annotations.ApiStatus.Internal;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-@Internal
-public final class NodePlayerManager extends DefaultPlayerManager implements IPlayerManager {
+public class NodePlayerManager implements IPlayerManager {
 
-  private final String databaseName;
+  protected final String databaseName;
+  protected final IEventManager eventManager;
 
-  private final Cache<UUID, ICloudOfflinePlayer> offlinePlayerCache = CacheBuilder.newBuilder()
+  protected final Map<UUID, CloudPlayer> onlinePlayers = new ConcurrentHashMap<>();
+  protected final PlayerProvider allPlayersProvider = new NodePlayerProvider(
+    () -> this.onlinePlayers.values().stream());
+
+  protected final Striped<Lock> playerReadWriteLocks = Striped.lazyWeakLock(1);
+  protected final LoadingCache<UUID, Optional<CloudOfflinePlayer>> offlinePlayerCache = CacheBuilder.newBuilder()
     .concurrencyLevel(4)
     .expireAfterAccess(5, TimeUnit.MINUTES)
-    .build();
-  private final Map<UUID, CloudPlayer> onlineCloudPlayers = new ConcurrentHashMap<>();
+    .build(new CacheLoader<UUID, Optional<CloudOfflinePlayer>>() {
+      @Override
+      public Optional<CloudOfflinePlayer> load(@NotNull UUID uniqueId) {
+        JsonDocument document = NodePlayerManager.this.getDatabase().get(uniqueId.toString());
+        if (document == null) {
+          return Optional.empty();
+        } else {
+          return Optional.of(document.toInstanceOf(CloudOfflinePlayer.class));
+        }
+      }
+    });
 
-  private final Striped<Lock> managementLocks = Striped.lazyWeakLock(1);
-  private final PlayerProvider allPlayersProvider = new NodePlayerProvider(this,
-    () -> this.onlineCloudPlayers.values().stream());
-
-  public NodePlayerManager(String databaseName) {
+  public NodePlayerManager(
+    @NotNull String databaseName,
+    @NotNull IEventManager eventManager,
+    @NotNull DataSyncRegistry dataSyncRegistry,
+    @NotNull RPCProviderFactory providerFactory,
+    @NotNull BridgeManagement bridgeManagement
+  ) {
     this.databaseName = databaseName;
-  }
-
-  /**
-   * @deprecated IPlayerManager should be accessed through the {@link de.dytanic.cloudnet.common.registry.IServicesRegistry}
-   */
-  @Deprecated
-  public static NodePlayerManager getInstance() {
-    return (NodePlayerManager) CloudNetDriver.getInstance().getServicesRegistry().getFirstService(IPlayerManager.class);
-  }
-
-  public Database getDatabase() {
-    return CloudNet.getInstance().getDatabaseProvider().getDatabase(this.databaseName);
+    this.eventManager = eventManager;
+    // register the listeners which are required to run
+    eventManager.registerListener(new BridgePluginIncludeListener(bridgeManagement));
+    eventManager.registerListener(new BridgeLocalProxyPlayerDisconnectListener(this));
+    eventManager.registerListener(new NodePlayerChannelMessageListener(eventManager, this, bridgeManagement));
+    // register the rpc listeners
+    providerFactory.newHandler(IPlayerManager.class, this).registerToDefaultRegistry();
+    providerFactory.newHandler(PlayerExecutor.class, null).registerToDefaultRegistry();
+    providerFactory.newHandler(PlayerProvider.class, null).registerToDefaultRegistry();
+    // register the data sync handler
+    dataSyncRegistry.registerHandler(DataSyncHandler.<CloudPlayer>builder()
+      .alwaysForce()
+      .key("cloud_player")
+      .convertObject(CloudPlayer.class)
+      .nameExtractor(CloudPlayer::getName)
+      .dataCollector(this.onlinePlayers::values)
+      .currentGetter(player -> this.onlinePlayers.get(player.getUniqueId()))
+      .writer(player -> this.onlinePlayers.put(player.getUniqueId(), player))
+      .build());
   }
 
   @Override
   public int getOnlineCount() {
-    return this.onlineCloudPlayers.size();
+    return this.onlinePlayers.size();
   }
 
   @Override
@@ -99,15 +126,14 @@ public final class NodePlayerManager extends DefaultPlayerManager implements IPl
     return this.getDatabase().getDocumentsCount();
   }
 
-  @Nullable
   @Override
-  public CloudPlayer getOnlinePlayer(@NotNull UUID uniqueId) {
-    return this.onlineCloudPlayers.get(uniqueId);
+  public @Nullable CloudPlayer getOnlinePlayer(@NotNull UUID uniqueId) {
+    return this.onlinePlayers.get(uniqueId);
   }
 
   @Override
   public @Nullable CloudPlayer getFirstOnlinePlayer(@NotNull String name) {
-    for (CloudPlayer player : this.onlineCloudPlayers.values()) {
+    for (CloudPlayer player : this.onlinePlayers.values()) {
       if (player.getName().equalsIgnoreCase(name)) {
         return player;
       }
@@ -116,18 +142,15 @@ public final class NodePlayerManager extends DefaultPlayerManager implements IPl
   }
 
   @Override
-  public @NotNull List<? extends ICloudPlayer> getOnlinePlayers(@NotNull String name) {
-    Preconditions.checkNotNull(name);
-
-    return this.onlineCloudPlayers.values().stream().filter(cloudPlayer -> cloudPlayer.getName().equalsIgnoreCase(name))
+  public @NotNull List<? extends CloudPlayer> getOnlinePlayers(@NotNull String name) {
+    return this.onlinePlayers.values().stream()
+      .filter(cloudPlayer -> cloudPlayer.getName().equalsIgnoreCase(name))
       .collect(Collectors.toList());
   }
 
   @Override
-  public @NotNull List<? extends ICloudPlayer> getOnlinePlayers(@NotNull ServiceEnvironmentType environment) {
-    Preconditions.checkNotNull(environment);
-
-    return this.onlineCloudPlayers.values()
+  public @NotNull List<? extends CloudPlayer> getEnvironmentOnlinePlayers(@NotNull ServiceEnvironmentType environment) {
+    return this.onlinePlayers.values()
       .stream()
       .filter(cloudPlayer ->
         (cloudPlayer.getLoginService() != null && cloudPlayer.getLoginService().getEnvironment() == environment)
@@ -137,318 +160,184 @@ public final class NodePlayerManager extends DefaultPlayerManager implements IPl
   }
 
   @Override
-  public @NotNull List<CloudPlayer> getOnlinePlayers() {
-    return new ArrayList<>(this.onlineCloudPlayers.values());
-  }
-
-  @Override
   public @NotNull PlayerProvider onlinePlayers() {
     return this.allPlayersProvider;
   }
 
   @Override
   public @NotNull PlayerProvider taskOnlinePlayers(@NotNull String task) {
-    return new NodePlayerProvider(
-      this,
-      () -> this.onlineCloudPlayers.values().stream()
-        .filter(cloudPlayer -> cloudPlayer.getConnectedService().getTaskName().equalsIgnoreCase(task)
-          || cloudPlayer.getLoginService().getTaskName().equalsIgnoreCase(task))
-    );
+    return new NodePlayerProvider(() -> this.onlinePlayers.values()
+      .stream()
+      .filter(cloudPlayer -> cloudPlayer.getConnectedService().getTaskName().equalsIgnoreCase(task)
+        || cloudPlayer.getLoginService().getTaskName().equalsIgnoreCase(task)));
   }
 
   @Override
   public @NotNull PlayerProvider groupOnlinePlayers(@NotNull String group) {
-    return new NodePlayerProvider(
-      this,
-      () -> this.onlineCloudPlayers.values().stream()
-        .filter(cloudPlayer ->
-          Arrays.binarySearch(cloudPlayer.getConnectedService().getGroups(), group) >= 0
-            || Arrays.binarySearch(cloudPlayer.getLoginService().getGroups(), group) >= 0
-        )
-    );
+    return new NodePlayerProvider(() -> this.onlinePlayers.values()
+      .stream()
+      .filter(cloudPlayer -> cloudPlayer.getConnectedService().getGroups().contains(group)
+        || cloudPlayer.getLoginService().getGroups().contains(group)));
   }
 
   @Override
-  public ICloudOfflinePlayer getOfflinePlayer(@NotNull UUID uniqueId) {
-    Preconditions.checkNotNull(uniqueId);
-
-    ICloudOfflinePlayer offlinePlayer = this.offlinePlayerCache.getIfPresent(uniqueId);
-    if (offlinePlayer == null) {
-      JsonDocument jsonDocument = this.getDatabase().get(uniqueId.toString());
-      if (jsonDocument != null) {
-        offlinePlayer = this.parseOfflinePlayer(jsonDocument);
-        this.offlinePlayerCache.put(uniqueId, offlinePlayer);
-      }
-    }
-    return offlinePlayer;
+  public CloudOfflinePlayer getOfflinePlayer(@NotNull UUID uniqueId) {
+    return this.offlinePlayerCache.getUnchecked(uniqueId).orElse(null);
   }
 
   @Override
-  public @Nullable ICloudOfflinePlayer getFirstOfflinePlayer(@NotNull String name) {
-    for (ICloudOfflinePlayer offlinePlayer : this.offlinePlayerCache.asMap().values()) {
-      if (offlinePlayer.getName().equalsIgnoreCase(name)) {
-        return offlinePlayer;
-      }
-    }
-    return super.getFirstOfflinePlayer(name);
+  public @Nullable CloudOfflinePlayer getFirstOfflinePlayer(@NotNull String name) {
+    return this.offlinePlayerCache.asMap().values().stream()
+      .filter(Optional::isPresent)
+      .map(Optional::get)
+      .filter(player -> player.getName().equalsIgnoreCase(name))
+      .findFirst()
+      .orElseGet(() -> IPlayerManager.super.getFirstOfflinePlayer(name));
   }
 
   @Override
-  public @NotNull List<? extends ICloudOfflinePlayer> getOfflinePlayers(@NotNull String name) {
-    Preconditions.checkNotNull(name);
-
-    return this.getDatabase().get(new JsonDocument("name", name)).stream()
-      .map(this::parseOfflinePlayer)
+  public @NotNull List<? extends CloudOfflinePlayer> getOfflinePlayers(@NotNull String name) {
+    return this.getDatabase().get(JsonDocument.newDocument("name", name)).stream()
+      .map(document -> document.toInstanceOf(CloudOfflinePlayer.class))
       .collect(Collectors.toList());
   }
 
   @Override
-  public List<? extends ICloudOfflinePlayer> getRegisteredPlayers() {
-    List<CloudOfflinePlayer> cloudOfflinePlayers = new ArrayList<>();
-
-    this.getDatabase().iterate((s, jsonDocument) -> cloudOfflinePlayers.add(this.parseOfflinePlayer(jsonDocument)));
-
-    return cloudOfflinePlayers;
-  }
-
-  private CloudOfflinePlayer parseOfflinePlayer(JsonDocument jsonDocument) {
-    CloudOfflinePlayer cloudOfflinePlayer = jsonDocument.toInstanceOf(CloudOfflinePlayer.class);
-
-    NetworkServiceInfo networkServiceInfo = cloudOfflinePlayer.getLastNetworkConnectionInfo().getNetworkService();
-
-    if (networkServiceInfo.getServiceId() == null || networkServiceInfo.getGroups() == null) {
-      // CloudNet 3.3 and lower CloudOfflinePlayer database entries don't have a serviceId and groups, migrating them
-      JsonDocument lastNetworkConnectionInfoDocument = jsonDocument
-        .getDocument("lastNetworkConnectionInfo", new JsonDocument());
-      JsonDocument networkServiceDocument = lastNetworkConnectionInfoDocument
-        .getDocument("networkService", new JsonDocument());
-
-      String[] serverNameSplit = networkServiceDocument.getString("serverName", "").split("-");
-
-      ServiceId serviceId = new ServiceId(
-        networkServiceDocument.get("uniqueId", UUID.class, UUID.randomUUID()),
-        CloudNetDriver.getInstance().getComponentName(),
-        serverNameSplit.length > 0 ? serverNameSplit[0] : "",
-        serverNameSplit.length > 1 ? Integer.parseInt(serverNameSplit[1]) : -1,
-        networkServiceDocument.get("environment", ServiceEnvironmentType.class, ServiceEnvironmentType.MINECRAFT_SERVER)
-      );
-
-      networkServiceInfo.setServiceId(serviceId);
-      networkServiceInfo.setGroups(new String[0]);
-      this.updateOfflinePlayer(cloudOfflinePlayer);
-    }
-
-    return cloudOfflinePlayer;
+  public @NotNull List<? extends CloudOfflinePlayer> getRegisteredPlayers() {
+    return this.getDatabase().entries().values().stream()
+      .map(doc -> doc.toInstanceOf(CloudOfflinePlayer.class))
+      .filter(Objects::nonNull)
+      .collect(Collectors.toList());
   }
 
   @Override
-  @NotNull
-  public ITask<Integer> getOnlineCountAsync() {
-    return CompletedTask.create(this.onlineCloudPlayers.size());
-  }
-
-  @Override
-  @NotNull
-  public ITask<Long> getRegisteredCountAsync() {
-    return this.getDatabase().getDocumentsCountAsync();
-  }
-
-  @Override
-  @NotNull
-  public ITask<ICloudPlayer> getOnlinePlayerAsync(@NotNull UUID uniqueId) {
-    return this.schedule(() -> this.getOnlinePlayer(uniqueId));
-  }
-
-  @Override
-  @NotNull
-  public ITask<List<? extends ICloudPlayer>> getOnlinePlayersAsync(@NotNull String name) {
-    return this.schedule(() -> this.getOnlinePlayers(name));
-  }
-
-  @Override
-  @NotNull
-  public ITask<List<? extends ICloudPlayer>> getOnlinePlayersAsync(@NotNull ServiceEnvironmentType environment) {
-    return this.schedule(() -> this.getOnlinePlayers(environment));
-  }
-
-  @Override
-  @NotNull
-  public ITask<List<? extends ICloudPlayer>> getOnlinePlayersAsync() {
-    return this.schedule(this::getOnlinePlayers);
-  }
-
-  @Override
-  @NotNull
-  public ITask<ICloudOfflinePlayer> getOfflinePlayerAsync(@NotNull UUID uniqueId) {
-    return this.schedule(() -> this.getOfflinePlayer(uniqueId));
-  }
-
-  @Override
-  @NotNull
-  public ITask<List<? extends ICloudOfflinePlayer>> getOfflinePlayersAsync(@NotNull String name) {
-    return this.schedule(() -> this.getOfflinePlayers(name));
-  }
-
-  @Override
-  @NotNull
-  public ITask<List<? extends ICloudOfflinePlayer>> getRegisteredPlayersAsync() {
-    return this.schedule(this::getRegisteredPlayers);
-  }
-
-  @Override
-  public void updateOfflinePlayer(@NotNull ICloudOfflinePlayer cloudOfflinePlayer) {
-    Preconditions.checkNotNull(cloudOfflinePlayer);
-
-    this.updateOfflinePlayer0(cloudOfflinePlayer);
-    this.messageBuilder()
+  public void updateOfflinePlayer(@NotNull CloudOfflinePlayer player) {
+    // push the change to the cache
+    this.pushOfflinePlayerCache(player.getUniqueId(), player);
+    // update the database
+    this.getDatabase().update(player.getUniqueId().toString(), JsonDocument.newDocument(player));
+    // notify the cluster
+    ChannelMessage.builder()
+      .targetAll()
       .message("update_offline_cloud_player")
-      .buffer(DataBuf.empty().writeObject(cloudOfflinePlayer))
-      .targetAll()
+      .channel(BridgeManagement.BRIDGE_PLAYER_CHANNEL_NAME)
+      .buffer(DataBuf.empty().writeObject(player))
       .build()
       .send();
-  }
-
-  public void updateOfflinePlayer0(ICloudOfflinePlayer cloudOfflinePlayer) {
-    this.offlinePlayerCache.put(cloudOfflinePlayer.getUniqueId(), cloudOfflinePlayer);
-    this.getDatabase()
-      .update(cloudOfflinePlayer.getUniqueId().toString(), JsonDocument.newDocument(cloudOfflinePlayer));
-  }
-
-  public void handleOfflinePlayerUpdate(ICloudOfflinePlayer player) {
-    this.offlinePlayerCache.put(player.getUniqueId(), player);
-
-    Database database = this.getDatabase();
-    if (!database.isSynced()) {
-      database.updateAsync(player.getUniqueId().toString(), JsonDocument.newDocument(player));
-    }
+    // call the update event locally
+    this.eventManager.callEvent(new BridgeUpdateCloudOfflinePlayerEvent(player));
   }
 
   @Override
-  public void updateOnlinePlayer(@NotNull ICloudPlayer cloudPlayer) {
-    Preconditions.checkNotNull(cloudPlayer);
-
-    this.updateOnlinePlayer0(cloudPlayer);
-    this.messageBuilder()
+  public void updateOnlinePlayer(@NotNull CloudPlayer cloudPlayer) {
+    // push the change to the cache
+    this.pushOnlinePlayerCache(cloudPlayer);
+    // notify the cluster
+    ChannelMessage.builder()
+      .targetAll()
       .message("update_online_cloud_player")
+      .channel(BridgeManagement.BRIDGE_PLAYER_CHANNEL_NAME)
       .buffer(DataBuf.empty().writeObject(cloudPlayer))
-      .targetAll()
       .build()
       .send();
+    // call the update event locally
+    this.eventManager.callEvent(new BridgeUpdateCloudPlayerEvent(cloudPlayer));
   }
 
   @Override
-  public void deleteCloudOfflinePlayer(@NotNull ICloudOfflinePlayer cloudOfflinePlayer) {
-    Preconditions.checkNotNull(cloudOfflinePlayer);
-
-    this.deleteCloudOfflinePlayer0(cloudOfflinePlayer);
-    this.messageBuilder()
-      .message("delete_offline_player")
+  public void deleteCloudOfflinePlayer(@NotNull CloudOfflinePlayer cloudOfflinePlayer) {
+    // push the change to the cache
+    this.pushOfflinePlayerCache(cloudOfflinePlayer.getUniqueId(), null);
+    // delete from the database
+    this.getDatabase().delete(cloudOfflinePlayer.getUniqueId().toString());
+    // notify the cluster
+    ChannelMessage.builder()
       .targetAll()
+      .message("delete_offline_cloud_player")
+      .channel(BridgeManagement.BRIDGE_PLAYER_CHANNEL_NAME)
       .buffer(DataBuf.empty().writeObject(cloudOfflinePlayer))
       .build()
       .send();
-  }
-
-  public void deleteCloudOfflinePlayer0(@NotNull ICloudOfflinePlayer cloudOfflinePlayer) {
-    this.getDatabase().delete(cloudOfflinePlayer.getUniqueId().toString());
-    this.offlinePlayerCache.invalidate(cloudOfflinePlayer.getUniqueId());
+    // call the update event locally
+    this.eventManager.callEvent(new BridgeDeleteCloudOfflinePlayerEvent(cloudOfflinePlayer));
   }
 
   @Override
-  public ITask<Void> deleteCloudOfflinePlayerAsync(@NotNull ICloudOfflinePlayer cloudOfflinePlayer) {
-    return this.schedule(() -> {
-      this.deleteCloudOfflinePlayer(cloudOfflinePlayer);
-      return null;
-    });
+  public @NotNull PlayerExecutor getGlobalPlayerExecutor() {
+    return NodePlayerExecutor.GLOBAL;
   }
 
-  public void updateOnlinePlayer0(ICloudPlayer cloudPlayer) {
-    this.updateOnlinePlayerInCache(cloudPlayer);
-    this.updateOfflinePlayer0(CloudOfflinePlayer.of(cloudPlayer));
+  @Override
+  public @NotNull PlayerExecutor getPlayerExecutor(@NotNull UUID uniqueId) {
+    return new NodePlayerExecutor(uniqueId, this);
   }
 
-  public void handleOnlinePlayerUpdate(ICloudPlayer cloudPlayer) {
-    this.updateOnlinePlayerInCache(cloudPlayer);
-    this.handleOfflinePlayerUpdate(CloudOfflinePlayer.of(cloudPlayer));
+  public void pushOfflinePlayerCache(@NotNull UUID uniqueId, @Nullable CloudOfflinePlayer cloudOfflinePlayer) {
+    this.offlinePlayerCache.put(uniqueId, Optional.ofNullable(cloudOfflinePlayer));
   }
 
-  private void updateOnlinePlayerInCache(ICloudPlayer cloudPlayer) {
-    Lock handlingLock = this.managementLocks.get(cloudPlayer.getUniqueId());
-    try {
-      // lock the management lock of the player to ensure only one update at a time
-      handlingLock.lock();
-      // actually update the player if needed
-      this.onlineCloudPlayers.replace(cloudPlayer.getUniqueId(), (CloudPlayer) cloudPlayer);
-    } finally {
-      handlingLock.unlock();
-    }
+  public void pushOnlinePlayerCache(@NotNull CloudPlayer cloudPlayer) {
+    this.onlinePlayers.replace(cloudPlayer.getUniqueId(), cloudPlayer);
+    this.pushOfflinePlayerCache(cloudPlayer.getUniqueId(), CloudOfflinePlayer.offlineCopy(cloudPlayer));
   }
 
-  @NotNull
-  public <T> ITask<T> schedule(Callable<T> callable) {
-    ITask<T> task = new ListenableTask<>(callable);
-    CloudNetDriver.getInstance().getTaskExecutor().submit(task);
-    return task;
+  protected @NotNull LocalDatabase getDatabase() {
+    return CloudNet.getInstance().getDatabaseProvider().getDatabase(this.databaseName);
   }
 
-  public Map<UUID, CloudPlayer> getOnlineCloudPlayers() {
-    return this.onlineCloudPlayers;
+  public @NotNull Map<UUID, CloudPlayer> getOnlinePlayers() {
+    return this.onlinePlayers;
   }
 
-  public String getDatabaseName() {
-    return this.databaseName;
-  }
-
-  public void loginPlayer(NetworkConnectionInfo networkConnectionInfo,
-    NetworkPlayerServerInfo networkPlayerServerInfo) {
-    Lock loginLock = this.managementLocks.get(networkConnectionInfo.getUniqueId());
+  public void loginPlayer(
+    @NotNull NetworkPlayerProxyInfo networkPlayerProxyInfo,
+    @Nullable NetworkPlayerServerInfo networkPlayerServerInfo
+  ) {
+    Lock loginLock = this.playerReadWriteLocks.get(networkPlayerProxyInfo.getUniqueId());
     try {
       // ensure that we handle only one login message at a time
       loginLock.lock();
-      this.loginPlayer0(networkConnectionInfo, networkPlayerServerInfo);
+      this.loginPlayer0(networkPlayerProxyInfo, networkPlayerServerInfo);
     } finally {
       loginLock.unlock();
     }
   }
 
-  private void loginPlayer0(NetworkConnectionInfo networkConnectionInfo,
-    NetworkPlayerServerInfo networkPlayerServerInfo) {
-    NetworkServiceInfo networkService = networkConnectionInfo.getNetworkService();
-    CloudPlayer cloudPlayer = this.selectPlayerForLogin(networkConnectionInfo, networkPlayerServerInfo);
-    // we can always update the name to keep it synced
-    cloudPlayer.setName(networkConnectionInfo.getName());
+  protected void loginPlayer0(
+    @NotNull NetworkPlayerProxyInfo networkPlayerProxyInfo,
+    @Nullable NetworkPlayerServerInfo networkPlayerServerInfo
+  ) {
+    NetworkServiceInfo networkService = networkPlayerProxyInfo.getNetworkService();
+    CloudPlayer cloudPlayer = this.selectPlayerForLogin(networkPlayerProxyInfo, networkPlayerServerInfo);
     // check if the login service is a proxy and set the proxy as the login service if so
     if (networkService.getServiceId().getEnvironment().isMinecraftProxy()) {
       // a proxy should be able to change the login service
       cloudPlayer.setLoginService(networkService);
-      // set the unique id of the player to the (most likely) online unique id
-      // as a server might give us a offline mode unique id
-      cloudPlayer.setUniqueId(networkConnectionInfo.getUniqueId());
     }
     // Set more information according to the server information which the proxy can't provide
     if (networkPlayerServerInfo != null) {
       cloudPlayer.setNetworkPlayerServerInfo(networkPlayerServerInfo);
       cloudPlayer.setConnectedService(networkPlayerServerInfo.getNetworkService());
 
-      if (networkPlayerServerInfo.getXBoxId() != null) {
-        cloudPlayer.setXBoxId(networkPlayerServerInfo.getXBoxId());
-      }
-
       if (cloudPlayer.getLoginService() == null) {
         cloudPlayer.setLoginService(networkPlayerServerInfo.getNetworkService());
       }
     }
     // update the player into the database and notify the other nodes
-    this.processLogin(cloudPlayer);
+    if (networkPlayerServerInfo == null) {
+      this.processLogin(cloudPlayer);
+    }
   }
 
-  private CloudPlayer selectPlayerForLogin(NetworkConnectionInfo connectionInfo,
-    NetworkPlayerServerInfo networkPlayerServerInfo) {
+  protected @NotNull CloudPlayer selectPlayerForLogin(
+    @NotNull NetworkPlayerProxyInfo connectionInfo,
+    @Nullable NetworkPlayerServerInfo serverInfo
+  ) {
     // check if the player is already loaded
     CloudPlayer cloudPlayer = this.getOnlinePlayer(connectionInfo.getUniqueId());
     if (cloudPlayer == null) {
       // try to load the player using the name and the login service
-      for (CloudPlayer player : this.getOnlineCloudPlayers().values()) {
+      for (CloudPlayer player : this.getOnlinePlayers().values()) {
         if (player.getName().equals(connectionInfo.getName())
           && player.getLoginService() != null
           && player.getLoginService().getUniqueId().equals(connectionInfo.getNetworkService().getUniqueId())) {
@@ -458,45 +347,56 @@ public final class NodePlayerManager extends DefaultPlayerManager implements IPl
       }
       // there is no loaded player, so try to load it using the offline association
       if (cloudPlayer == null) {
-        ICloudOfflinePlayer cloudOfflinePlayer = this.getOrRegisterOfflinePlayer(connectionInfo);
-
+        // get the offline player or create a new one
+        CloudOfflinePlayer cloudOfflinePlayer = this.getOrRegisterOfflinePlayer(connectionInfo);
+        // convert the offline player to an online version using all provided information
         cloudPlayer = new CloudPlayer(
-          cloudOfflinePlayer,
           connectionInfo.getNetworkService(),
-          connectionInfo.getNetworkService(),
+          serverInfo == null ? connectionInfo.getNetworkService() : serverInfo.getNetworkService(),
           connectionInfo,
-          networkPlayerServerInfo
-        );
-        cloudPlayer.setLastLoginTimeMillis(System.currentTimeMillis());
-
-        this.getOnlineCloudPlayers().put(cloudPlayer.getUniqueId(), cloudPlayer);
+          serverInfo,
+          JsonDocument.newDocument(),
+          cloudOfflinePlayer.getFirstLoginTimeMillis(),
+          System.currentTimeMillis(),
+          cloudOfflinePlayer.getLastNetworkPlayerProxyInfo(),
+          cloudOfflinePlayer.getProperties());
+        // cache the online player for later use
+        this.onlinePlayers.put(cloudPlayer.getUniqueId(), cloudPlayer);
       }
     }
+    // cannot never be null at this point
     return cloudPlayer;
   }
 
-  private void processLogin(@NotNull CloudPlayer cloudPlayer) {
-    // update the player into the database
-    this.updateOnlinePlayer0(cloudPlayer);
+  protected void processLogin(@NotNull CloudPlayer cloudPlayer) {
+    // push the player into the cache
+    this.pushOnlinePlayerCache(cloudPlayer);
+    // update the database
+    this.getDatabase().insert(
+      cloudPlayer.getUniqueId().toString(),
+      JsonDocument.newDocument(CloudOfflinePlayer.offlineCopy(cloudPlayer)));
     // notify the other nodes that we received the login
     ChannelMessage.builder()
-      .channel("process_cloud_player_login")
+      .targetAll()
+      .message("process_cloud_player_login")
+      .channel(BridgeManagement.BRIDGE_PLAYER_CHANNEL_NAME)
       .buffer(DataBuf.empty().writeObject(cloudPlayer))
-      .targetNodes()
       .build()
       .send();
+    // call the update event locally
+    this.eventManager.callEvent(new BridgeProxyPlayerLoginEvent(cloudPlayer));
   }
 
   public void processLoginMessage(@NotNull CloudPlayer cloudPlayer) {
-    Lock loginLock = this.managementLocks.get(cloudPlayer.getUniqueId());
+    Lock loginLock = this.playerReadWriteLocks.get(cloudPlayer.getUniqueId());
     try {
       // ensure we only handle one login at a time
       loginLock.lock();
       // check if the player is already loaded
-      CloudPlayer registeredPlayer = this.onlineCloudPlayers.get(cloudPlayer.getUniqueId());
+      CloudPlayer registeredPlayer = this.onlinePlayers.get(cloudPlayer.getUniqueId());
       if (registeredPlayer == null) {
-        this.onlineCloudPlayers.put(cloudPlayer.getUniqueId(), cloudPlayer);
-        this.offlinePlayerCache.put(cloudPlayer.getUniqueId(), cloudPlayer);
+        this.onlinePlayers.put(cloudPlayer.getUniqueId(), cloudPlayer);
+        this.offlinePlayerCache.put(cloudPlayer.getUniqueId(), Optional.of(cloudPlayer));
       } else {
         boolean needsUpdate = false;
         // check if the player has a known login service
@@ -522,7 +422,7 @@ public final class NodePlayerManager extends DefaultPlayerManager implements IPl
         }
         // check if we need to update the player
         if (needsUpdate) {
-          this.updateOnlinePlayer0(cloudPlayer);
+          this.onlinePlayers.replace(cloudPlayer.getUniqueId(), cloudPlayer);
         }
       }
     } finally {
@@ -530,27 +430,23 @@ public final class NodePlayerManager extends DefaultPlayerManager implements IPl
     }
   }
 
-  public ICloudOfflinePlayer getOrRegisterOfflinePlayer(NetworkConnectionInfo networkConnectionInfo) {
-    ICloudOfflinePlayer cloudOfflinePlayer = this.getOfflinePlayer(networkConnectionInfo.getUniqueId());
-
+  public @NotNull CloudOfflinePlayer getOrRegisterOfflinePlayer(@NotNull NetworkPlayerProxyInfo proxyInfo) {
+    CloudOfflinePlayer cloudOfflinePlayer = this.getOfflinePlayer(proxyInfo.getUniqueId());
+    // check if the player is already present
     if (cloudOfflinePlayer == null) {
       // create a new player and cache it, the insert into the database will be done later during the login
       cloudOfflinePlayer = new CloudOfflinePlayer(
-        networkConnectionInfo.getUniqueId(),
-        networkConnectionInfo.getName(),
-        null,
         System.currentTimeMillis(),
         System.currentTimeMillis(),
-        networkConnectionInfo
-      );
-      this.offlinePlayerCache.put(networkConnectionInfo.getUniqueId(), cloudOfflinePlayer);
+        proxyInfo);
+      this.offlinePlayerCache.put(proxyInfo.getUniqueId(), Optional.of(cloudOfflinePlayer));
     }
-
+    // the selected player
     return cloudOfflinePlayer;
   }
 
-  public void logoutPlayer(CloudPlayer cloudPlayer) {
-    Lock managementLock = this.managementLocks.get(cloudPlayer.getUniqueId());
+  public void logoutPlayer(@NotNull CloudPlayer cloudPlayer) {
+    Lock managementLock = this.playerReadWriteLocks.get(cloudPlayer.getUniqueId());
     try {
       // ensure only one update operation at a time
       managementLock.lock();
@@ -561,19 +457,37 @@ public final class NodePlayerManager extends DefaultPlayerManager implements IPl
     }
   }
 
-  private void logoutPlayer0(CloudPlayer cloudPlayer) {
+  private void logoutPlayer0(@NotNull CloudPlayer cloudPlayer) {
     // remove the player from the cache
-    this.onlineCloudPlayers.remove(cloudPlayer.getUniqueId());
-    cloudPlayer.setLastNetworkConnectionInfo(cloudPlayer.getNetworkConnectionInfo());
-    // update the offline version of the player into the database
-    this.updateOfflinePlayer0(CloudOfflinePlayer.of(cloudPlayer));
+    this.onlinePlayers.remove(cloudPlayer.getUniqueId());
+    cloudPlayer.setLastNetworkPlayerProxyInfo(cloudPlayer.getNetworkPlayerProxyInfo());
+    // copy to an offline version
+    CloudOfflinePlayer offlinePlayer = CloudOfflinePlayer.offlineCopy(cloudPlayer);
+    // update the offline version of the player into the cache
+    this.pushOfflinePlayerCache(cloudPlayer.getUniqueId(), offlinePlayer);
+    // push the change to the database
+    this.getDatabase().insert(offlinePlayer.getUniqueId().toString(), JsonDocument.newDocument(offlinePlayer));
+    // notify the cluster
+    ChannelMessage.builder()
+      .targetAll()
+      .channel(BridgeManagement.BRIDGE_PLAYER_CHANNEL_NAME)
+      .message("process_cloud_player_logout")
+      .buffer(DataBuf.empty().writeObject(cloudPlayer))
+      .build()
+      .send();
+    // call the update event locally
+    this.eventManager.callEvent(new BridgeProxyPlayerDisconnectEvent(cloudPlayer));
   }
 
-  private void logoutPlayer(UUID uniqueId, String name, Predicate<CloudPlayer> predicate) {
+  @Contract("!null, !null, _ -> _; !null, null, _ -> _; null, !null, _ -> _; null, null, _ -> fail")
+  public void logoutPlayer(@Nullable UUID uniqueId, @Nullable String name, @Nullable Predicate<CloudPlayer> tester) {
+    // either the name or unique id must be given
+    Preconditions.checkArgument(uniqueId != null || name != null);
+    // get the cloud player matching the arguments
     CloudPlayer cloudPlayer;
     if (uniqueId != null) {
-      // if we can logout by unique id we need to lock the processing lock
-      Lock managementLock = this.managementLocks.get(uniqueId);
+      // if we can log out by unique id we need to lock the processing lock
+      Lock managementLock = this.playerReadWriteLocks.get(uniqueId);
       try {
         // lock the management lock to prevent duplicate handling at the same time
         managementLock.lock();
@@ -586,25 +500,9 @@ public final class NodePlayerManager extends DefaultPlayerManager implements IPl
     } else {
       cloudPlayer = this.getFirstOnlinePlayer(name);
     }
-
-    if (cloudPlayer != null && (predicate == null || predicate.test(cloudPlayer))) {
+    // check if we should log out the player
+    if (cloudPlayer != null && (tester == null || tester.test(cloudPlayer))) {
       this.logoutPlayer(cloudPlayer);
     }
-  }
-
-  public void logoutPlayer(NetworkConnectionInfo networkConnectionInfo) {
-    this.logoutPlayer(
-      networkConnectionInfo.getUniqueId(),
-      networkConnectionInfo.getName(),
-      networkConnectionInfo.getNetworkService()
-    );
-  }
-
-  public void logoutPlayer(UUID uniqueId, String name, NetworkServiceInfo proxy) {
-    this.logoutPlayer(
-      uniqueId,
-      name,
-      player -> player.getLoginService().getUniqueId().equals(proxy.getUniqueId())
-    );
   }
 }

@@ -16,6 +16,7 @@
 
 package de.dytanic.cloudnet.network.listener;
 
+import de.dytanic.cloudnet.driver.DriverEnvironment;
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.driver.event.IEventManager;
 import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
@@ -56,12 +57,12 @@ public final class PacketServerChannelMessageListener implements IPacketListener
       // do not redirect the channel message to the cluster to prevent infinite loops
       if (packet.getUniqueId() != null) {
         Collection<ChannelMessage> responses = this.messenger
-          .sendChannelMessageQueryAsync(message, false)
+          .sendChannelMessageQueryAsync(message, message.getSender().getType() == DriverEnvironment.WRAPPER)
           .get(20, TimeUnit.SECONDS, Collections.emptyList());
         // respond with the available responses
         channel.sendPacket(packet.constructResponse(DataBuf.empty().writeObject(responses)));
       } else {
-        this.messenger.sendChannelMessage(message, false);
+        this.messenger.sendChannelMessage(message, message.getSender().getType() == DriverEnvironment.WRAPPER);
       }
     }
     // force release the message

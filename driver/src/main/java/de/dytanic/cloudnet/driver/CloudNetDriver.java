@@ -85,7 +85,7 @@ public abstract class CloudNetDriver {
 
   protected DriverEnvironment driverEnvironment = DriverEnvironment.EMBEDDED;
 
-  public CloudNetDriver(@NotNull List<String> args) {
+  protected CloudNetDriver(@NotNull List<String> args) {
     this.commandLineArguments = args;
   }
 

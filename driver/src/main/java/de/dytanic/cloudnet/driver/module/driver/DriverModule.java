@@ -17,70 +17,47 @@
 package de.dytanic.cloudnet.driver.module.driver;
 
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
-import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.common.registry.IServicesRegistry;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.event.IEventManager;
 import de.dytanic.cloudnet.driver.module.DefaultModule;
-import java.nio.file.Files;
+import de.dytanic.cloudnet.driver.network.rpc.RPCProviderFactory;
 import java.nio.file.Path;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 
 public class DriverModule extends DefaultModule {
 
-  protected JsonDocument config;
-
-  public final JsonDocument getConfig() {
-    if (this.config == null) {
-      this.config = this.reloadConfig0();
-    }
-
-    return this.config;
+  public @NotNull JsonDocument readConfig() {
+    return JsonDocument.newDocument(this.getConfigPath());
   }
 
-  public void setConfig(JsonDocument config) {
-    this.config = config;
+  public void writeConfig(@NotNull JsonDocument config) {
+    config.write(this.getConfigPath());
   }
 
-  public JsonDocument reloadConfig() {
-    return this.config = this.reloadConfig0();
+  protected @NotNull Path getConfigPath() {
+    return this.getModuleWrapper().getDataDirectory().resolve("config.json");
   }
 
-  public final DriverModule saveConfig() {
-    if (this.config != null) {
-      this.config.write(this.getModuleWrapper().getDataDirectory().resolve("config.json"));
-    }
-
-    return this;
-  }
-
-  private JsonDocument reloadConfig0() {
-    FileUtils.createDirectory(this.getModuleWrapper().getDataDirectory());
-
-    Path configuration = this.getModuleWrapper().getDataDirectory().resolve("config.json");
-    if (Files.notExists(configuration)) {
-      JsonDocument.empty().write(configuration);
-    }
-
-    return JsonDocument.newDocument(configuration);
-  }
-
-  public final IEventManager registerListener(Object listener) {
+  public final @NotNull IEventManager registerListener(Object @NotNull ... listener) {
     return this.getEventManager().registerListener(listener);
   }
 
-  public final IEventManager registerListeners(Object... listeners) {
-    return this.getEventManager().registerListeners(listeners);
-  }
-
-  public final IServicesRegistry getRegistry() {
+  public final @NotNull IServicesRegistry getServiceRegistry() {
     return this.getDriver().getServicesRegistry();
   }
 
-  public final IEventManager getEventManager() {
+  public final @NotNull IEventManager getEventManager() {
     return this.getDriver().getEventManager();
   }
 
-  public final CloudNetDriver getDriver() {
+  public final @NotNull RPCProviderFactory getRPCFactory() {
+    return this.getDriver().getRPCProviderFactory();
+  }
+
+  @Contract(pure = true)
+  public final @NotNull CloudNetDriver getDriver() {
     return CloudNetDriver.getInstance();
   }
 }

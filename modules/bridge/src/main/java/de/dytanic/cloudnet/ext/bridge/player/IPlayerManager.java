@@ -16,18 +16,22 @@
 
 package de.dytanic.cloudnet.ext.bridge.player;
 
+import de.dytanic.cloudnet.common.concurrent.CompletableTask;
 import de.dytanic.cloudnet.common.concurrent.ITask;
+import de.dytanic.cloudnet.driver.network.rpc.annotation.RPCValidation;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.ext.bridge.player.executor.PlayerExecutor;
 import java.util.List;
 import java.util.UUID;
-import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.ApiStatus.Experimental;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Range;
 
 /**
  * This interfaces provides access to cloud players
  */
+@RPCValidation
 public interface IPlayerManager {
 
   /**
@@ -35,6 +39,7 @@ public interface IPlayerManager {
    *
    * @return the online count as an int
    */
+  @Range(from = 0, to = Integer.MAX_VALUE)
   int getOnlineCount();
 
   /**
@@ -42,6 +47,7 @@ public interface IPlayerManager {
    *
    * @return the registered player count as an int
    */
+  @Range(from = 0, to = Long.MAX_VALUE)
   long getRegisteredCount();
 
   /**
@@ -50,8 +56,7 @@ public interface IPlayerManager {
    * @param uniqueId the UUID of the player
    * @return the player if he is online or null if not
    */
-  @Nullable
-  ICloudPlayer getOnlinePlayer(@NotNull UUID uniqueId);
+  @Nullable CloudPlayer getOnlinePlayer(@NotNull UUID uniqueId);
 
   /**
    * Gets the first online player found by its name.
@@ -60,23 +65,9 @@ public interface IPlayerManager {
    * @return the online player if there is at least one player with the given name online or null if there is no player
    * with that name online
    */
-  @Nullable
-  default ICloudPlayer getFirstOnlinePlayer(@NotNull String name) {
-    List<? extends ICloudPlayer> players = this.getOnlinePlayers(name);
+  default @Nullable CloudPlayer getFirstOnlinePlayer(@NotNull String name) {
+    List<? extends CloudPlayer> players = this.getOnlinePlayers(name);
     return players.isEmpty() ? null : players.get(0);
-  }
-
-  /**
-   * Gets a list of all online players with the given name (case-insensitive).
-   *
-   * @param name the name of the player(s)
-   * @return a list containing all online players in the cloud with the given name
-   * @deprecated Moved to {@link #getOnlinePlayers(String)}
-   */
-  @Deprecated
-  @ApiStatus.ScheduledForRemoval(inVersion = "3.6")
-  default List<? extends ICloudPlayer> getOnlinePlayer(@NotNull String name) {
-    return this.getOnlinePlayers(name);
   }
 
   /**
@@ -85,8 +76,7 @@ public interface IPlayerManager {
    * @param name the name of the player(s)
    * @return a list containing all online players in the cloud with the given name
    */
-  @NotNull
-  List<? extends ICloudPlayer> getOnlinePlayers(@NotNull String name);
+  @NotNull List<? extends CloudPlayer> getOnlinePlayers(@NotNull String name);
 
   /**
    * Gets a list of all online players on a specific environment.
@@ -94,38 +84,24 @@ public interface IPlayerManager {
    * @param environment the environment to get all players from
    * @return a list containing all players that are online on the given environment
    */
-  @NotNull
-  List<? extends ICloudPlayer> getOnlinePlayers(@NotNull ServiceEnvironmentType environment);
-
-  /**
-   * Gets a list of all online players on the whole network.
-   *
-   * @return a list containing all players that are online on the network
-   * @deprecated Replace with {@link #onlinePlayers()}
-   */
-  @NotNull
-  @Deprecated
-  List<? extends ICloudPlayer> getOnlinePlayers();
+  @NotNull List<? extends CloudPlayer> getEnvironmentOnlinePlayers(@NotNull ServiceEnvironmentType environment);
 
   /**
    * Gets a PlayerProvider which returns a list of all online players on the whole network.
    */
-  @NotNull
-  PlayerProvider onlinePlayers();
+  @NotNull PlayerProvider onlinePlayers();
 
   /**
    * Gets a PlayerProvider which returns a list of all online players on a specific task.
    *
    * @return a list containing all players that are online on that task
    */
-  @NotNull
-  PlayerProvider taskOnlinePlayers(@NotNull String task);
+  @NotNull PlayerProvider taskOnlinePlayers(@NotNull String task);
 
   /**
    * Gets a PlayerProvider which returns a list of all online players on a specific group.
    */
-  @NotNull
-  PlayerProvider groupOnlinePlayers(@NotNull String group);
+  @NotNull PlayerProvider groupOnlinePlayers(@NotNull String group);
 
   /**
    * Gets a registered player by its UUID out of the cloud
@@ -133,8 +109,7 @@ public interface IPlayerManager {
    * @param uniqueId the UUID of the player
    * @return the player if he is registered in the cloud or null if not
    */
-  @Nullable
-  ICloudOfflinePlayer getOfflinePlayer(@NotNull UUID uniqueId);
+  @Nullable CloudOfflinePlayer getOfflinePlayer(@NotNull UUID uniqueId);
 
   /**
    * Gets the first registered player found by its name.
@@ -144,22 +119,9 @@ public interface IPlayerManager {
    * player with that name registered
    */
   @Nullable
-  default ICloudOfflinePlayer getFirstOfflinePlayer(@NotNull String name) {
-    List<? extends ICloudOfflinePlayer> players = this.getOfflinePlayers(name);
+  default CloudOfflinePlayer getFirstOfflinePlayer(@NotNull String name) {
+    List<? extends CloudOfflinePlayer> players = this.getOfflinePlayers(name);
     return players.isEmpty() ? null : players.get(0);
-  }
-
-  /**
-   * Gets a list of all registered players with the given name. (case-sensitive)
-   *
-   * @param name the name of the player(s)
-   * @return a list containing all players registered in the cloud with the given name
-   * @deprecated Moved to {@link #getOfflinePlayers(String)}
-   */
-  @Deprecated
-  @ApiStatus.ScheduledForRemoval(inVersion = "3.6")
-  default List<? extends ICloudOfflinePlayer> getOfflinePlayer(@NotNull String name) {
-    return this.getOfflinePlayers(name);
   }
 
   /**
@@ -169,7 +131,7 @@ public interface IPlayerManager {
    * @return a list containing all players registered in the cloud with the given name
    */
   @NotNull
-  List<? extends ICloudOfflinePlayer> getOfflinePlayers(@NotNull String name);
+  List<? extends CloudOfflinePlayer> getOfflinePlayers(@NotNull String name);
 
   /**
    * Gets a list of all registered players in the network.
@@ -182,24 +144,47 @@ public interface IPlayerManager {
    *
    * @return the list with every registered player in the cloud
    */
-  @ApiStatus.Experimental
-  List<? extends ICloudOfflinePlayer> getRegisteredPlayers();
+  @Experimental
+  @NotNull List<? extends CloudOfflinePlayer> getRegisteredPlayers();
+
+  /**
+   * Updates the given player to the database of the cloud and calls an update event on the whole network.
+   *
+   * @param cloudOfflinePlayer the player to be updated
+   */
+  void updateOfflinePlayer(@NotNull CloudOfflinePlayer cloudOfflinePlayer);
+
+  /**
+   * Updates the given player to the database of the cloud and calls the player update event.
+   *
+   * @param cloudPlayer the player to be updated
+   */
+  void updateOnlinePlayer(@NotNull CloudPlayer cloudPlayer);
+
+  /**
+   * Deletes the given player from the database and notifies all connected components.
+   *
+   * @param cloudOfflinePlayer the player to be deleted
+   */
+  void deleteCloudOfflinePlayer(@NotNull CloudOfflinePlayer cloudOfflinePlayer);
 
   /**
    * Gets the amount of online players on the network
    *
    * @return the online count as an int
    */
-  @NotNull
-  ITask<Integer> getOnlineCountAsync();
+  default @NotNull ITask<Integer> getOnlineCountAsync() {
+    return CompletableTask.supply(this::getOnlineCount);
+  }
 
   /**
    * Gets the amount of registered players in the database.
    *
    * @return the registered player count as an int
    */
-  @NotNull
-  ITask<Long> getRegisteredCountAsync();
+  default @NotNull ITask<Long> getRegisteredCountAsync() {
+    return CompletableTask.supply(this::getRegisteredCount);
+  }
 
   /**
    * Gets an online player by its UUID.
@@ -207,8 +192,9 @@ public interface IPlayerManager {
    * @param uniqueId the UUID of the player
    * @return the player if he is online or null if not
    */
-  @NotNull
-  ITask<? extends ICloudPlayer> getOnlinePlayerAsync(@NotNull UUID uniqueId);
+  default @NotNull ITask<? extends CloudPlayer> getOnlinePlayerAsync(@NotNull UUID uniqueId) {
+    return CompletableTask.supply(() -> this.getOnlinePlayer(uniqueId));
+  }
 
   /**
    * Gets the first online player found by its name.
@@ -218,22 +204,8 @@ public interface IPlayerManager {
    * with that name online
    */
   @NotNull
-  default ITask<ICloudPlayer> getFirstOnlinePlayerAsync(@NotNull String name) {
-    return this.getOnlinePlayersAsync(name).map(players -> players.isEmpty() ? null : players.get(0));
-  }
-
-  /**
-   * Gets a list of all online players with the given name (case-insensitive).
-   *
-   * @param name the name of the player(s)
-   * @return a list containing all online players in the cloud with the given name
-   * @deprecated Moved to {@link #getOnlinePlayersAsync(String)}
-   */
-  @Deprecated
-  @ApiStatus.ScheduledForRemoval(inVersion = "3.6")
-  @NotNull
-  default ITask<List<? extends ICloudPlayer>> getOnlinePlayerAsync(@NotNull String name) {
-    return this.getOnlinePlayersAsync(name);
+  default ITask<CloudPlayer> getFirstOnlinePlayerAsync(@NotNull String name) {
+    return CompletableTask.supply(() -> this.getFirstOnlinePlayer(name));
   }
 
   /**
@@ -242,48 +214,27 @@ public interface IPlayerManager {
    * @param name the name of the player(s)
    * @return a list containing all online players in the cloud with the given name
    */
-  @NotNull
-  ITask<List<? extends ICloudPlayer>> getOnlinePlayersAsync(@NotNull String name);
+  default @NotNull ITask<List<? extends CloudPlayer>> getOnlinePlayersAsync(@NotNull String name) {
+    return CompletableTask.supply(() -> this.getOnlinePlayers(name));
+  }
 
   /**
    * Gets a list of all online players on a specific environment.
    *
-   * @param environment the environment to get all players from
+   * @param env the environment to get all players from
    * @return a list containing all players that are online on the given environment
    */
-  @NotNull
-  ITask<List<? extends ICloudPlayer>> getOnlinePlayersAsync(@NotNull ServiceEnvironmentType environment);
-
-  /**
-   * Gets a list of all online players on the whole network.
-   *
-   * @return a list containing all players that are online on the network
-   * @deprecated Replace with {@link #onlinePlayers()}
-   */
-  @NotNull
-  @Deprecated
-  ITask<List<? extends ICloudPlayer>> getOnlinePlayersAsync();
+  default @NotNull ITask<List<? extends CloudPlayer>> getOnlinePlayersAsync(@NotNull ServiceEnvironmentType env) {
+    return CompletableTask.supply(() -> this.getEnvironmentOnlinePlayers(env));
+  }
 
   /**
    * Gets a list of all online players on the whole network.
    *
    * @return a list containing all players that are online on the network
    */
-  @NotNull
-  ITask<ICloudOfflinePlayer> getOfflinePlayerAsync(@NotNull UUID uniqueId);
-
-  /**
-   * Gets a list of all registered players with the given name. (case-insensitive)
-   *
-   * @param name the name of the player(s)
-   * @return a list containing all players registered in the cloud with the given name
-   * @deprecated Moved to {@link #getOfflinePlayersAsync(String)}
-   */
-  @Deprecated
-  @ApiStatus.ScheduledForRemoval(inVersion = "3.6")
-  @NotNull
-  default ITask<List<? extends ICloudOfflinePlayer>> getOfflinePlayerAsync(@NotNull String name) {
-    return this.getOfflinePlayersAsync(name);
+  default @NotNull ITask<CloudOfflinePlayer> getOfflinePlayerAsync(@NotNull UUID uniqueId) {
+    return CompletableTask.supply(() -> this.getOfflinePlayer(uniqueId));
   }
 
   /**
@@ -293,9 +244,8 @@ public interface IPlayerManager {
    * @return the registered player if there is at least one player with the given name registered or null if there is no
    * player with that name registered
    */
-  @NotNull
-  default ITask<ICloudOfflinePlayer> getFirstOfflinePlayerAsync(@NotNull String name) {
-    return this.getOfflinePlayersAsync(name).map(players -> players.isEmpty() ? null : players.get(0));
+  default @NotNull ITask<CloudOfflinePlayer> getFirstOfflinePlayerAsync(@NotNull String name) {
+    return CompletableTask.supply(() -> this.getFirstOnlinePlayer(name));
   }
 
   /**
@@ -304,69 +254,43 @@ public interface IPlayerManager {
    * @param name the name of the player(s)
    * @return a list containing all players registered in the cloud with the given name
    */
-  @NotNull
-  ITask<List<? extends ICloudOfflinePlayer>> getOfflinePlayersAsync(@NotNull String name);
-
-  /**
-   * Gets a list of all registered players in the network.
-   * <p>
-   * Depending on the amount of registered players, this method might take a bit longer or won't even work, because it
-   * takes too much memory to keep the whole list loaded.
-   *
-   * @return the list with every registered player in the cloud
-   * @deprecated This shouldn't be used when you have many players in your database, because it can cause major problems
-   * in the cloud
-   */
-  @Deprecated
-  @ApiStatus.ScheduledForRemoval(inVersion = "3.6")
-  @NotNull
-  ITask<List<? extends ICloudOfflinePlayer>> getRegisteredPlayersAsync();
-
-  /**
-   * Updates the given player to the database of the cloud and calls an update event on the whole network.
-   *
-   * @param cloudOfflinePlayer the player to be updated
-   */
-  void updateOfflinePlayer(@NotNull ICloudOfflinePlayer cloudOfflinePlayer);
-
-  /**
-   * Updates the given player to the database of the cloud and calls the player update event.
-   *
-   * @param cloudPlayer the player to be updated
-   */
-  void updateOnlinePlayer(@NotNull ICloudPlayer cloudPlayer);
-
-  /**
-   * Deletes the given player from the database and notifies all connected components.
-   *
-   * @param cloudOfflinePlayer the player to be deleted
-   */
-  void deleteCloudOfflinePlayer(@NotNull ICloudOfflinePlayer cloudOfflinePlayer);
+  default @NotNull ITask<List<? extends CloudOfflinePlayer>> getOfflinePlayersAsync(@NotNull String name) {
+    return CompletableTask.supply(() -> this.getOfflinePlayers(name));
+  }
 
   /**
    * Deletes the given player from the database async and notifies all connected components.
    *
    * @param cloudOfflinePlayer the player to be deleted
    */
-  ITask<Void> deleteCloudOfflinePlayerAsync(@NotNull ICloudOfflinePlayer cloudOfflinePlayer);
+  default @NotNull ITask<Void> deleteCloudOfflinePlayerAsync(@NotNull CloudOfflinePlayer cloudOfflinePlayer) {
+    return CompletableTask.supply(() -> this.deleteCloudOfflinePlayer(cloudOfflinePlayer));
+  }
+
+  /**
+   * Updates the given player to the database of the cloud and calls an update event on the whole network.
+   *
+   * @param cloudOfflinePlayer the player to be updated
+   */
+  default @NotNull ITask<Void> updateOfflinePlayerAsync(@NotNull CloudOfflinePlayer cloudOfflinePlayer) {
+    return CompletableTask.supply(() -> this.updateOfflinePlayer(cloudOfflinePlayer));
+  }
+
+  /**
+   * Updates the given player to the database of the cloud and calls the player update event.
+   *
+   * @param cloudPlayer the player to be updated
+   */
+  default @NotNull ITask<Void> updateOnlinePlayerAsync(@NotNull CloudPlayer cloudPlayer) {
+    return CompletableTask.supply(() -> this.updateOnlinePlayer(cloudPlayer));
+  }
 
   /**
    * Gets the player executor which will execute the methods as every player that is online on the proxies.
    *
    * @return the constant {@link PlayerExecutor}
    */
-  PlayerExecutor getGlobalPlayerExecutor();
-
-  /**
-   * Creates a new player executor to interact with the given player.
-   *
-   * @param cloudPlayer the player to interact with
-   * @return a new {@link PlayerExecutor}
-   */
-  @NotNull
-  default PlayerExecutor getPlayerExecutor(@NotNull ICloudPlayer cloudPlayer) {
-    return this.getPlayerExecutor(cloudPlayer.getUniqueId());
-  }
+  @NotNull PlayerExecutor getGlobalPlayerExecutor();
 
   /**
    * Creates a new player executor to interact with the given player.
@@ -374,133 +298,5 @@ public interface IPlayerManager {
    * @param uniqueId the uniqueId of the player to interact with
    * @return a new {@link PlayerExecutor}
    */
-  @NotNull
-  PlayerExecutor getPlayerExecutor(@NotNull UUID uniqueId);
-
-  /**
-   * Connects an online player to a specific service.
-   *
-   * @param cloudPlayer the player to be connected
-   * @param serviceName the name of the service the player should be sent to
-   * @deprecated use {@link #getPlayerExecutor(ICloudPlayer)}
-   */
-  @Deprecated
-  @ApiStatus.ScheduledForRemoval(inVersion = "3.6")
-  default void proxySendPlayer(@NotNull ICloudPlayer cloudPlayer, @NotNull String serviceName) {
-    this.getPlayerExecutor(cloudPlayer).connect(serviceName);
-  }
-
-  /**
-   * Connects an online player to a specific service.
-   *
-   * @param uniqueId    the uuid of the player to be connected
-   * @param serviceName the name of the service the player should be sent to
-   * @deprecated use {@link #getPlayerExecutor(UUID)}
-   */
-  @Deprecated
-  @ApiStatus.ScheduledForRemoval(inVersion = "3.6")
-  default void proxySendPlayer(@NotNull UUID uniqueId, @NotNull String serviceName) {
-    this.getPlayerExecutor(uniqueId).connect(serviceName);
-  }
-
-  /**
-   * Kicks an online player from the network with a specific reason.
-   *
-   * @param cloudPlayer the player to be kicked
-   * @param message     the reason for the kick which will be displayed in the players client
-   * @deprecated use {@link #getPlayerExecutor(ICloudPlayer)}
-   */
-  @Deprecated
-  @ApiStatus.ScheduledForRemoval(inVersion = "3.6")
-  default void proxyKickPlayer(@NotNull ICloudPlayer cloudPlayer, @NotNull String message) {
-    this.getPlayerExecutor(cloudPlayer).kick(message);
-  }
-
-  /**
-   * Kicks an online player from the network with a specific reason.
-   *
-   * @param uniqueId the uuid of the player to be kicked
-   * @param message  the reason for the kick which will be displayed in the players client
-   * @deprecated use {@link #getPlayerExecutor(UUID)}
-   */
-  @Deprecated
-  @ApiStatus.ScheduledForRemoval(inVersion = "3.6")
-  default void proxyKickPlayer(@NotNull UUID uniqueId, @NotNull String message) {
-    this.getPlayerExecutor(uniqueId).kick(message);
-  }
-
-  /**
-   * Sends a message to a specific online player.
-   *
-   * @param cloudPlayer the player to send the message to
-   * @param message     the message to be sent to the player
-   * @deprecated use {@link #getPlayerExecutor(ICloudPlayer)}
-   */
-  @Deprecated
-  @ApiStatus.ScheduledForRemoval(inVersion = "3.6")
-  default void proxySendPlayerMessage(@NotNull ICloudPlayer cloudPlayer, @NotNull String message) {
-    this.getPlayerExecutor(cloudPlayer).sendChatMessage(message);
-  }
-
-  /**
-   * Sends a plugin message to a specific online player.
-   *
-   * @param uniqueId the uuid of the player to send the message to
-   * @param message  the message to be sent to the player
-   * @deprecated use {@link #getPlayerExecutor(UUID)}
-   */
-  @Deprecated
-  @ApiStatus.ScheduledForRemoval(inVersion = "3.6")
-  default void proxySendPlayerMessage(@NotNull UUID uniqueId, @NotNull String message) {
-    this.getPlayerExecutor(uniqueId).sendChatMessage(message);
-  }
-
-  /**
-   * Sends a plugin message to a specific online player.
-   *
-   * @param cloudPlayer the player to send the message to
-   * @param tag         the tag of the plugin message
-   * @param data        the data of the plugin message
-   * @deprecated use {@link #getPlayerExecutor(ICloudPlayer)}
-   */
-  @Deprecated
-  @ApiStatus.ScheduledForRemoval(inVersion = "3.6")
-  default void proxySendPluginMessage(ICloudPlayer cloudPlayer, String tag, byte[] data) {
-    this.getPlayerExecutor(cloudPlayer).sendPluginMessage(tag, data);
-  }
-
-  /**
-   * Sends a message to a specific online player.
-   *
-   * @param uniqueId the uuid of the player to send the message to
-   * @param tag      the tag of the plugin message
-   * @param data     the data of the plugin message
-   * @deprecated use {@link #getPlayerExecutor(UUID)}
-   */
-  @Deprecated
-  @ApiStatus.ScheduledForRemoval(inVersion = "3.6")
-  default void proxySendPluginMessage(UUID uniqueId, String tag, byte[] data) {
-    this.getPlayerExecutor(uniqueId).sendPluginMessage(tag, data);
-  }
-
-  /**
-   * Broadcasts a specific message over the whole network.
-   *
-   * @param message the message to be sent to all online players
-   * @deprecated replace with {@link #getGlobalPlayerExecutor()}
-   */
-  @Deprecated
-  void broadcastMessage(@NotNull String message);
-
-  /**
-   * Broadcasts a specific message to all online players that have the given permission. If the given permission is
-   * null, no permission is checked and the message is sent to all online players.
-   *
-   * @param message    the message to be sent to all online players with the given permission
-   * @param permission the permission to check for
-   * @deprecated replace with {@link #getGlobalPlayerExecutor()}
-   */
-  @Deprecated
-  void broadcastMessage(@NotNull String message, @Nullable String permission);
-
+  @NotNull PlayerExecutor getPlayerExecutor(@NotNull UUID uniqueId);
 }

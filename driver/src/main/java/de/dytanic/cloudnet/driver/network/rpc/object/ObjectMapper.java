@@ -26,6 +26,8 @@ public interface ObjectMapper {
 
   @NotNull ObjectMapper unregisterBinding(@NotNull Type type, boolean superTypes);
 
+  @NotNull ObjectMapper unregisterBindings(@NotNull ClassLoader classLoader);
+
   @NotNull <T> ObjectMapper registerBinding(@NotNull Type type, @NotNull ObjectSerializer<T> serializer,
     boolean superTypes);
 

@@ -16,15 +16,15 @@
 
 package de.dytanic.cloudnet.driver.event;
 
+import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimaps;
-import com.google.common.collect.SetMultimap;
 import de.dytanic.cloudnet.driver.event.invoker.ListenerInvokerGenerator;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map.Entry;
-import java.util.Set;
-import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import org.jetbrains.annotations.NotNull;
 
 public class DefaultEventManager implements IEventManager {
@@ -32,9 +32,9 @@ public class DefaultEventManager implements IEventManager {
   /**
    * Holds all registered events mapped to all registered events listeners
    */
-  protected final SetMultimap<Class<?>, IRegisteredEventListener> listeners = Multimaps.newSortedSetMultimap(
+  protected final ListMultimap<Class<?>, IRegisteredEventListener> listeners = Multimaps.newListMultimap(
     new ConcurrentHashMap<>(),
-    TreeSet::new);
+    CopyOnWriteArrayList::new);
 
   @Override
   public @NotNull IEventManager unregisterListeners(@NotNull ClassLoader classLoader) {
@@ -61,13 +61,25 @@ public class DefaultEventManager implements IEventManager {
   @Override
   public <T extends Event> @NotNull T callEvent(@NotNull String channel, @NotNull T event) {
     // get all registered listeners of the event
-    Set<IRegisteredEventListener> listeners = this.listeners.get(event.getClass());
+    List<IRegisteredEventListener> listeners = this.listeners.get(event.getClass());
     if (!listeners.isEmpty()) {
-      // post the event to the listeners
-      for (IRegisteredEventListener listener : listeners) {
+      // check if there is only one listener
+      if (listeners.size() == 1) {
+        IRegisteredEventListener listener = listeners.get(0);
         // check if the event gets called on the same channel as the listener is listening to
         if (listener.getChannel().equals(channel)) {
           listener.fireEvent(event);
+        }
+      } else {
+        // workaround to sort the list to keep concurrency (Collections.sort isn't working here)
+        IRegisteredEventListener[] targets = listeners.toArray(new IRegisteredEventListener[0]);
+        Arrays.sort(targets);
+        // post the event to the listeners
+        for (IRegisteredEventListener listener : targets) {
+          // check if the event gets called on the same channel as the listener is listening to
+          if (listener.getChannel().equals(channel)) {
+            listener.fireEvent(event);
+          }
         }
       }
     }

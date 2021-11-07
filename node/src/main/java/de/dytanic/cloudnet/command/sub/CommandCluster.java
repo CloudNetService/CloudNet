@@ -207,9 +207,9 @@ public final class CommandCluster {
           + node.getNodeInfoSnapshot().getUsedMemory() + "/" + node.getNodeInfoSnapshot().getReservedMemory()
           + "/" + node.getNodeInfoSnapshot().getMaxMemory() + " MB",
         " ",
-        "CPU usage process: " + CPUUsageResolver.CPU_USAGE_OUTPUT_FORMAT
+        "CPU usage process: " + CPUUsageResolver.FORMAT
           .format(node.getNodeInfoSnapshot().getProcessSnapshot().getCpuUsage()) + "%",
-        "CPU usage system: " + CPUUsageResolver.CPU_USAGE_OUTPUT_FORMAT
+        "CPU usage system: " + CPUUsageResolver.FORMAT
           .format(node.getNodeInfoSnapshot().getProcessSnapshot().getSystemCpuUsage()) + "%",
         "Threads: " + node.getNodeInfoSnapshot().getProcessSnapshot().getThreads().size(),
         "Heap usage: " + (node.getNodeInfoSnapshot().getProcessSnapshot().getHeapUsageMemory() / (1024 * 1024)) + "/" +

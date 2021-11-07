@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.concurrent.Executor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnknownNullability;
 import org.jetbrains.annotations.Unmodifiable;
 
 /**
@@ -50,7 +51,7 @@ public interface INetworkComponent extends IPacketSender {
    *
    * @return the first channel which is known to this component or {@code null} if no channel is known.
    */
-  default @Nullable INetworkChannel getFirstChannel() {
+  default @UnknownNullability INetworkChannel getFirstChannel() {
     return Iterables.getFirst(this.getChannels(), null);
   }
 

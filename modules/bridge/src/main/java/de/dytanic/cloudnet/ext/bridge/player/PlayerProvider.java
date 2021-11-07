@@ -16,7 +16,9 @@
 
 package de.dytanic.cloudnet.ext.bridge.player;
 
+import de.dytanic.cloudnet.common.concurrent.CompletableTask;
 import de.dytanic.cloudnet.common.concurrent.ITask;
+import de.dytanic.cloudnet.driver.network.rpc.annotation.RPCValidation;
 import java.util.Collection;
 import java.util.UUID;
 import org.jetbrains.annotations.NotNull;
@@ -25,25 +27,23 @@ import org.jetbrains.annotations.NotNull;
  * This interface extends the player access of the {@link IPlayerManager} This {@link PlayerProvider} can be global, but
  * for certain tasks and groups too
  */
+@RPCValidation
 public interface PlayerProvider {
 
   /**
    * @return all players as {@link ICloudPlayer}
    */
-  @NotNull
-  Collection<? extends ICloudPlayer> asPlayers();
+  @NotNull Collection<? extends CloudPlayer> players();
 
   /**
    * @return the uniqueIds of all players
    */
-  @NotNull
-  Collection<UUID> asUUIDs();
+  @NotNull Collection<UUID> uniqueIds();
 
   /**
    * @return the names of all players
    */
-  @NotNull
-  Collection<String> asNames();
+  @NotNull Collection<String> names();
 
   /**
    * @return the player count
@@ -53,25 +53,28 @@ public interface PlayerProvider {
   /**
    * @return all players as {@link ICloudPlayer}
    */
-  @NotNull
-  ITask<Collection<? extends ICloudPlayer>> asPlayersAsync();
+  default @NotNull ITask<Collection<? extends CloudPlayer>> playersAsync() {
+    return CompletableTask.supply(this::players);
+  }
 
   /**
    * @return the uniqueIds of all players
    */
-  @NotNull
-  ITask<Collection<UUID>> asUUIDsAsync();
+  default @NotNull ITask<Collection<UUID>> uniqueIdsAsync() {
+    return CompletableTask.supply(this::uniqueIds);
+  }
 
   /**
    * @return the names of all players
    */
-  @NotNull
-  ITask<Collection<String>> asNamesAsync();
+  default @NotNull ITask<Collection<String>> namesAsync() {
+    return CompletableTask.supply(this::names);
+  }
 
   /**
    * @return the player count
    */
-  @NotNull
-  ITask<Integer> countAsync();
-
+  default @NotNull ITask<Integer> countAsync() {
+    return CompletableTask.supply(this::count);
+  }
 }

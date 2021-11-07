@@ -113,6 +113,8 @@ public final class DefaultModuleHelper {
         case NUKKIT:
           in = clazz.getClassLoader().getResourceAsStream("plugin.nukkit.yml");
           break;
+        case VELOCITY:
+          return;
         default:
           in = clazz.getClassLoader().getResourceAsStream("plugin.bukkit.yml");
           break;

@@ -33,7 +33,7 @@ public final class CPUUsageResolver {
   /**
    * A simple decimal format to easy display the CPU usage value.
    */
-  public static final DecimalFormat CPU_USAGE_OUTPUT_FORMAT = new DecimalFormat("##.##");
+  public static final DecimalFormat FORMAT = new DecimalFormat("##.##");
   public static final OperatingSystemMXBean OS_BEAN = ManagementFactory.getPlatformMXBean(OperatingSystemMXBean.class);
 
   private CPUUsageResolver() {

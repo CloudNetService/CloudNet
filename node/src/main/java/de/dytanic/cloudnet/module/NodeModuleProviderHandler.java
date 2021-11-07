@@ -21,6 +21,7 @@ import de.dytanic.cloudnet.driver.module.DefaultModuleProviderHandler;
 import de.dytanic.cloudnet.driver.module.IModuleProviderHandler;
 import de.dytanic.cloudnet.driver.module.IModuleWrapper;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
+import de.dytanic.cloudnet.driver.network.rpc.defaults.object.DefaultObjectMapper;
 import java.util.Collection;
 import org.jetbrains.annotations.NotNull;
 
@@ -50,6 +51,8 @@ public final class NodeModuleProviderHandler extends DefaultModuleProviderHandle
     this.nodeInstance.getCommandProvider().unregister(moduleWrapper.getClassLoader());
     // unregister everything the module syncs to the cluster
     this.nodeInstance.getDataSyncRegistry().unregisterHandler(moduleWrapper.getClassLoader());
+    // unregister all object mappers which are registered
+    DefaultObjectMapper.DEFAULT_MAPPER.unregisterBindings(moduleWrapper.getClassLoader());
   }
 
   private void removeListeners(@NotNull Collection<INetworkChannel> channels, @NotNull ClassLoader loader) {

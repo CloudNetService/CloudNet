@@ -43,10 +43,9 @@ public final class CloudNetRestModule extends DriverModule {
 
   @ModuleTask(order = 127, event = ModuleLifeCycle.STARTED)
   public void loadConfiguration() {
-    String corsPolicy = this.getConfig().getString("corsPolicy", "strict-origin-when-cross-origin");
-    int accessControlMaxAge = this.getConfig().getInt("accessControlMaxAge", 3600);
+    String corsPolicy = this.readConfig().getString("corsPolicy", "strict-origin-when-cross-origin");
+    int accessControlMaxAge = this.readConfig().getInt("accessControlMaxAge", 3600);
 
-    this.saveConfig();
     AccessControlConfiguration.setDefaultConfiguration(new AccessControlConfiguration(corsPolicy, accessControlMaxAge));
   }
 

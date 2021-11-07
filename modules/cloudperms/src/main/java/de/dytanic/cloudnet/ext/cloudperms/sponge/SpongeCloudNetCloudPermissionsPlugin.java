@@ -16,12 +16,9 @@
 
 package de.dytanic.cloudnet.ext.cloudperms.sponge;
 
-import de.dytanic.cloudnet.driver.CloudNetDriver;
-import de.dytanic.cloudnet.wrapper.Wrapper;
+import com.velocitypowered.api.plugin.Plugin;
 import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.game.state.GameStartedServerEvent;
-import org.spongepowered.api.event.game.state.GameStoppingServerEvent;
-import org.spongepowered.api.plugin.Plugin;
+import org.spongepowered.api.event.lifecycle.ConstructPluginEvent;
 
 @Plugin(
   id = "cloudnet_cloudperms",
@@ -33,13 +30,7 @@ import org.spongepowered.api.plugin.Plugin;
 public final class SpongeCloudNetCloudPermissionsPlugin {
 
   @Listener
-  public void onEnable(GameStartedServerEvent event) {
+  public void onEnable(ConstructPluginEvent event) {
 
-  }
-
-  @Listener
-  public void onDisable(GameStoppingServerEvent event) {
-    CloudNetDriver.getInstance().getEventManager().unregisterListeners(this.getClass().getClassLoader());
-    Wrapper.getInstance().unregisterPacketListenersByClassLoader(this.getClass().getClassLoader());
   }
 }

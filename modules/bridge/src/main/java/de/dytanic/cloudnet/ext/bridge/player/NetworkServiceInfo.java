@@ -18,54 +18,45 @@ package de.dytanic.cloudnet.ext.bridge.player;
 
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceId;
+import java.util.Set;
 import java.util.UUID;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.jetbrains.annotations.NotNull;
 
 @ToString
 @EqualsAndHashCode
-public class NetworkServiceInfo {
+public final class NetworkServiceInfo {
 
-  protected ServiceId serviceId;
-  protected String[] groups;
+  private final Set<String> groups;
+  private final ServiceId serviceId;
 
-  public NetworkServiceInfo(ServiceId serviceId, String[] groups) {
-    this.serviceId = serviceId;
+  public NetworkServiceInfo(@NotNull Set<String> groups, @NotNull ServiceId serviceId) {
     this.groups = groups;
+    this.serviceId = serviceId;
   }
 
-  public NetworkServiceInfo() {
-  }
-
-  public ServiceEnvironmentType getEnvironment() {
+  public @NotNull ServiceEnvironmentType getEnvironment() {
     return this.serviceId.getEnvironment();
   }
 
-  public UUID getUniqueId() {
+  public @NotNull UUID getUniqueId() {
     return this.serviceId.getUniqueId();
   }
 
-  public String getServerName() {
+  public @NotNull String getServerName() {
     return this.serviceId.getName();
   }
 
-  public String[] getGroups() {
-    return this.groups;
-  }
-
-  public void setGroups(String[] groups) {
-    this.groups = groups;
-  }
-
-  public String getTaskName() {
+  public @NotNull String getTaskName() {
     return this.serviceId.getTaskName();
   }
 
-  public ServiceId getServiceId() {
+  public @NotNull ServiceId getServiceId() {
     return this.serviceId;
   }
 
-  public void setServiceId(ServiceId serviceId) {
-    this.serviceId = serviceId;
+  public @NotNull Set<String> getGroups() {
+    return this.groups;
   }
 }
