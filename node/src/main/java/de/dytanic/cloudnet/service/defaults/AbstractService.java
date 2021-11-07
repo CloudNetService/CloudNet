@@ -52,13 +52,10 @@ import de.dytanic.cloudnet.service.ICloudService;
 import de.dytanic.cloudnet.service.ICloudServiceManager;
 import de.dytanic.cloudnet.service.IServiceConsoleLogCache;
 import de.dytanic.cloudnet.service.ServiceConfigurationPreparer;
-import java.io.IOException;
-import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collection;
@@ -68,8 +65,8 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import kong.unirest.GetRequest;
-import kong.unirest.RawResponse;
 import kong.unirest.Unirest;
+import kong.unirest.UnirestException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
@@ -285,12 +282,10 @@ public abstract class AbstractService implements ICloudService {
         if (Files.notExists(destination)) {
           try {
             // we only support success codes for downloading the file
-            try (InputStream in = getRequest.asObject(RawResponse::getContent).getBody()) {
-              Files.copy(in, destination, StandardCopyOption.REPLACE_EXISTING);
-            }
             getRequest.asFile(destination.toString());
-          } catch (IOException exception) {
-            LOGGER.severe("Unable to download inclusion from %s to %s", exception, inclusion.getUrl(), destination);
+          } catch (UnirestException exception) {
+            LOGGER.severe("Unable to download inclusion from %s to %s", exception.getCause(), inclusion.getUrl(),
+              destination);
             continue;
           }
         }
