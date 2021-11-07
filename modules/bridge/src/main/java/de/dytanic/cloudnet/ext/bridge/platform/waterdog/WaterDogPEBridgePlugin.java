@@ -31,7 +31,7 @@ public final class WaterDogPEBridgePlugin extends Plugin {
   @Override
   public void onEnable() {
     // init the management
-    PlatformBridgeManagement<ProxiedPlayer, NetworkPlayerProxyInfo> management = new WaterDogBridgeManagement();
+    PlatformBridgeManagement<ProxiedPlayer, NetworkPlayerProxyInfo> management = new WaterDogPEBridgeManagement();
     management.registerServices(Wrapper.getInstance().getServicesRegistry());
     management.postInit();
     // register the listeners (registered during the instance creation due to the weird event system)

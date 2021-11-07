@@ -34,13 +34,13 @@ import net.kyori.adventure.text.TextComponent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-final class WaterDogDirectPlayerExecutor extends PlatformPlayerExecutorAdapter {
+final class WaterDogPEDirectPlayerExecutor extends PlatformPlayerExecutorAdapter {
 
   private final UUID uniqueId;
   private final PlatformBridgeManagement<ProxiedPlayer, ?> management;
   private final Supplier<Collection<? extends ProxiedPlayer>> playerSupplier;
 
-  public WaterDogDirectPlayerExecutor(
+  public WaterDogPEDirectPlayerExecutor(
     @NotNull UUID uniqueId,
     @NotNull PlatformBridgeManagement<ProxiedPlayer, ?> management,
     @NotNull Supplier<Collection<? extends ProxiedPlayer>> playerSupplier
