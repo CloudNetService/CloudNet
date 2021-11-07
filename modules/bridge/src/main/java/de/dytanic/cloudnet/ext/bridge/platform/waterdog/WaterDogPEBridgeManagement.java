@@ -39,16 +39,16 @@ import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
 
-final class WaterDogBridgeManagement extends PlatformBridgeManagement<ProxiedPlayer, NetworkPlayerProxyInfo> {
+final class WaterDogPEBridgeManagement extends PlatformBridgeManagement<ProxiedPlayer, NetworkPlayerProxyInfo> {
 
   private static final BiFunction<ProxiedPlayer, String, Boolean> PERM_FUNCTION = CommandSender::hasPermission;
 
   private final PlayerExecutor globalDirectPlayerExecutor;
 
-  public WaterDogBridgeManagement() {
+  public WaterDogPEBridgeManagement() {
     super(Wrapper.getInstance());
     // init fields
-    this.globalDirectPlayerExecutor = new WaterDogDirectPlayerExecutor(
+    this.globalDirectPlayerExecutor = new WaterDogPEDirectPlayerExecutor(
       PlayerExecutor.GLOBAL_UNIQUE_ID,
       this,
       ProxyServer.getInstance().getPlayers()::values);
@@ -57,7 +57,7 @@ final class WaterDogBridgeManagement extends PlatformBridgeManagement<ProxiedPla
     BridgeServiceHelper.MAX_PLAYERS.set(ProxyServer.getInstance().getConfiguration().getMaxPlayerCount());
     // init the default cache listeners
     this.cacheTester = CONNECTED_SERVICE_TESTER
-      .and(service -> service.getServiceId().getEnvironment().isMinecraftJavaServer());
+      .and(service -> service.getServiceId().getEnvironment().isMinecraftBedrockServer());
     // register each service matching the service cache tester
     this.cacheRegisterListener = service -> ProxyServer.getInstance().getServerInfoMap().put(
       service.getName(),
@@ -124,7 +124,7 @@ final class WaterDogBridgeManagement extends PlatformBridgeManagement<ProxiedPla
   public @NotNull PlayerExecutor getDirectPlayerExecutor(@NotNull UUID uniqueId) {
     return uniqueId.equals(PlayerExecutor.GLOBAL_UNIQUE_ID)
       ? this.globalDirectPlayerExecutor
-      : new WaterDogDirectPlayerExecutor(
+      : new WaterDogPEDirectPlayerExecutor(
         uniqueId,
         this,
         () -> Collections.singleton(ProxyServer.getInstance().getPlayer(uniqueId)));
