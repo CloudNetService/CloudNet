@@ -24,10 +24,6 @@ tasks.withType<Jar> {
   archiveFileName.set(Files.bridge)
 }
 
-repositories {
-  mavenLocal()
-}
-
 dependencies {
   "compileOnly"(project(":cloudnet-wrapper-jvm"))
   "compileOnly"("cn.nukkit", "nukkit", Versions.nukkitX)
@@ -37,7 +33,7 @@ dependencies {
   "compileOnly"("com.velocitypowered", "velocity-api", Versions.velocity)
   "compileOnly"("dev.waterdog.waterdogpe", "waterdog", Versions.waterdogpe)
 
-  "annotationProcessor"("com.velocitypowered", "velocity-api", "3.1.11-SNAPSHOT")
+  "annotationProcessor"("com.velocitypowered", "velocity-api", Versions.velocity)
 
   "implementation"("net.kyori", "adventure-api", Versions.adventure)
   "implementation"("net.kyori", "adventure-text-serializer-plain", Versions.adventure)
