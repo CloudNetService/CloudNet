@@ -49,14 +49,14 @@ object Versions {
   const val slf4j = "1.7.32"
   const val jjwt = "0.11.2"
   const val javers = "6.4.2"
-  const val netty = "4.1.69.Final"
-  const val unirest = "3.11.09"
+  const val netty = "4.1.70.Final"
+  const val unirest = "4.0.0-RC1"
 
   // platform api versions
   const val velocity = "3.0.1"
   const val nukkitX = "1.0-SNAPSHOT"
   const val sponge = "8.0.0-SNAPSHOT"
-  const val waterdogpe = "1.1.4-SNAPSHOT"
+  const val waterdogpe = "1.1.4"
   const val spigot = "1.17.1-R0.1-SNAPSHOT"
   const val bungeecord = "1.17-R0.1-SNAPSHOT"
 
