@@ -23,7 +23,13 @@ import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.common.language.I18n;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
+import de.dytanic.cloudnet.driver.channel.ChannelMessage;
+import de.dytanic.cloudnet.driver.channel.ChannelMessageSender;
+import de.dytanic.cloudnet.driver.channel.ChannelMessageTarget;
 import de.dytanic.cloudnet.driver.event.IEventManager;
+import de.dytanic.cloudnet.driver.event.events.service.CloudServiceLogEntryEvent;
+import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
+import de.dytanic.cloudnet.driver.network.def.NetworkConstants;
 import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironment;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
@@ -41,6 +47,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 import java.util.jar.Attributes;
 import java.util.jar.JarInputStream;
@@ -71,6 +78,8 @@ public class JVMService extends AbstractService {
   ) {
     super(configuration, manager, eventManager, nodeInstance, serviceConfigurationPreparer);
     super.logCache = new ProcessServiceLogCache(() -> this.process, nodeInstance, this);
+
+    this.initLogHandler();
   }
 
   @Override
@@ -183,6 +192,28 @@ public class JVMService extends AbstractService {
     return this.process != null && this.process.isAlive();
   }
 
+  protected void initLogHandler() {
+    super.logCache.addHandler((source, line) -> {
+      for (Entry<ChannelMessageTarget, String> logTarget : super.logTargets.entrySet()) {
+        if (logTarget.getKey().equals(ChannelMessageSender.self().toTarget())) {
+          this.nodeInstance.getEventManager()
+            .callEvent(logTarget.getValue(), new CloudServiceLogEntryEvent(this.lastServiceInfo, line));
+        } else {
+          ChannelMessage.builder()
+            .target(logTarget.getKey())
+            .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
+            .message("screen_new_line")
+            .buffer(DataBuf.empty()
+              .writeObject(this.lastServiceInfo)
+              .writeString(logTarget.getValue())
+              .writeString(line))
+            .build()
+            .send();
+        }
+      }
+    });
+  }
+
   protected @Nullable Pair<Path, Attributes> prepareWrapperFile() {
     // check if the wrapper file is there - unpack it if not
     if (Files.notExists(WRAPPER_TEMP_FILE)) {
@@ -195,7 +226,7 @@ public class JVMService extends AbstractService {
         // copy the wrapper file to the output directory
         Files.copy(stream, WRAPPER_TEMP_FILE, StandardCopyOption.REPLACE_EXISTING);
       } catch (IOException exception) {
-        LOGGER.severe("Unable to \"wrapper.jar\" to %s", exception, WRAPPER_TEMP_FILE);
+        LOGGER.severe("Unable to copy \"wrapper.jar\" to %s", exception, WRAPPER_TEMP_FILE);
       }
     }
     // read the main class

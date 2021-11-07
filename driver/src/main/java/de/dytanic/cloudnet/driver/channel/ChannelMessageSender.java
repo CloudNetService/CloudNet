@@ -18,6 +18,7 @@ package de.dytanic.cloudnet.driver.channel;
 
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.DriverEnvironment;
+import de.dytanic.cloudnet.driver.channel.ChannelMessageTarget.Type;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import lombok.EqualsAndHashCode;
@@ -58,5 +59,10 @@ public class ChannelMessageSender {
 
   public boolean is(@NotNull NetworkClusterNode node) {
     return this.type == DriverEnvironment.CLOUDNET && this.name.equals(node.getUniqueId());
+  }
+
+  public @NotNull ChannelMessageTarget toTarget() {
+    Type type = this.type == DriverEnvironment.CLOUDNET ? Type.NODE : Type.SERVICE;
+    return new ChannelMessageTarget(type, this.name);
   }
 }

@@ -16,6 +16,7 @@
 
 package de.dytanic.cloudnet.driver.provider.service;
 
+import de.dytanic.cloudnet.driver.channel.ChannelMessageSender;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.rpc.RPC;
 import de.dytanic.cloudnet.driver.network.rpc.RPCSender;
@@ -124,6 +125,13 @@ public class RemoteSpecificCloudServiceProvider implements SpecificCloudServiceP
   public Queue<String> getCachedLogMessages() {
     return this.getBaseRPC()
       .join(this.thisProviderSender.invokeMethod("getCachedLogMessages"))
+      .fireSync(this.channelSupplier.get());
+  }
+
+  @Override
+  public boolean toggleScreenEvents(@NotNull ChannelMessageSender channelMessageSender, @NotNull String channel) {
+    return this.getBaseRPC()
+      .join(this.thisProviderSender.invokeMethod("toggleScreenEvents", channelMessageSender, channel))
       .fireSync(this.channelSupplier.get());
   }
 

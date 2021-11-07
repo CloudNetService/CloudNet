@@ -20,6 +20,7 @@ import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.event.IEventManager;
 import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
 import de.dytanic.cloudnet.driver.event.events.service.CloudServiceLifecycleChangeEvent;
+import de.dytanic.cloudnet.driver.event.events.service.CloudServiceLogEntryEvent;
 import de.dytanic.cloudnet.driver.event.events.service.CloudServiceUpdateEvent;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import de.dytanic.cloudnet.driver.network.def.NetworkConstants;
@@ -58,6 +59,15 @@ public final class ServiceChannelMessageListener {
         // force update request of the service info
         case "request_update_service_information": {
           event.setBinaryResponse(DataBuf.empty().writeObject(Wrapper.getInstance().configureServiceInfoSnapshot()));
+        }
+        break;
+        // call the event for a new line in the log of the service
+        case "screen_new_line": {
+          ServiceInfoSnapshot snapshot = event.getContent().readObject(ServiceInfoSnapshot.class);
+          String eventChannel = event.getContent().readString();
+          String line = event.getContent().readString();
+
+          this.eventManager.callEvent(eventChannel, new CloudServiceLogEntryEvent(snapshot, line));
         }
         break;
         // none of our business

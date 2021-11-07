@@ -65,6 +65,18 @@ public final class StringUtil {
     return s.regionMatches(true, s.length() - suffixLength, suffix, 0, suffixLength);
   }
 
+  /**
+   * Checks if the given string starts with the given prefix ignoring the string casing.
+   *
+   * @param s      the string to check.
+   * @param prefix the prefix to validate the string starts with.
+   * @return {@code true} if the given string starts with the given prefix.
+   */
+  public static boolean startsWithIgnoreCase(@NotNull String s, @NotNull String prefix) {
+    int suffixLength = prefix.length();
+    return s.regionMatches(true, 0, prefix, 0, suffixLength);
+  }
+
   public static @NotNull String repeat(char c, int times) {
     char[] s = new char[times];
     for (int i = 0; i < times; i++) {

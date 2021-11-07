@@ -40,6 +40,14 @@ class StringUtilTest {
   }
 
   @RepeatedTest(100)
+  void testStartsWithIgnoreCase() {
+    String randomString = StringUtil.generateRandomString(20);
+    String randomStringPrefix = randomString.substring(0, 15);
+
+    Assertions.assertTrue(StringUtil.startsWithIgnoreCase(randomString, randomStringPrefix));
+  }
+
+  @RepeatedTest(100)
   void testCharRepeat() {
     int length = Math.abs(new SecureRandom().nextInt(100) + 1);
     String repeated = StringUtil.repeat(' ', length);

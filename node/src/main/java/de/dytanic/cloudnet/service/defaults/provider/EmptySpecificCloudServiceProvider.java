@@ -16,6 +16,7 @@
 
 package de.dytanic.cloudnet.service.defaults.provider;
 
+import de.dytanic.cloudnet.driver.channel.ChannelMessageSender;
 import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
 import de.dytanic.cloudnet.driver.service.ServiceDeployment;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
@@ -64,6 +65,11 @@ public final class EmptySpecificCloudServiceProvider implements SpecificCloudSer
   @Override
   public Queue<String> getCachedLogMessages() {
     return new LinkedBlockingDeque<>();
+  }
+
+  @Override
+  public boolean toggleScreenEvents(@NotNull ChannelMessageSender channelMessageSender, @NotNull String channel) {
+    return false;
   }
 
   @Override
