@@ -21,6 +21,7 @@ import cloud.commandframework.execution.preprocessor.CommandPreprocessingContext
 import de.dytanic.cloudnet.command.CommandProvider;
 import de.dytanic.cloudnet.command.source.CommandSource;
 import de.dytanic.cloudnet.common.INameable;
+import de.dytanic.cloudnet.common.StringUtil;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -54,7 +55,7 @@ final class DefaultSuggestionProcessor implements CommandSuggestionProcessor<Com
     List<String> suggestions = new LinkedList<>();
     for (String suggestion : strings) {
       // check if clouds suggestion matches the input and the command is registered
-      if (suggestion.startsWith(input)
+      if (StringUtil.startsWithIgnoreCase(suggestion, input)
         && (context.getCommandContext().getRawInput().size() > 1 || this.provider.getCommand(suggestion) != null)) {
         suggestions.add(suggestion);
       }

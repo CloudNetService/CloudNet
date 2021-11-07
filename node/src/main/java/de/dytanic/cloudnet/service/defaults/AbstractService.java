@@ -27,6 +27,8 @@ import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.common.unsafe.CPUUsageResolver;
 import de.dytanic.cloudnet.config.IConfiguration;
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;
+import de.dytanic.cloudnet.driver.channel.ChannelMessageSender;
+import de.dytanic.cloudnet.driver.channel.ChannelMessageTarget;
 import de.dytanic.cloudnet.driver.event.IEventManager;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
@@ -59,7 +61,9 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collection;
+import java.util.Map;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.locks.Lock;
@@ -95,6 +99,7 @@ public abstract class AbstractService implements ICloudService {
   protected final Queue<ServiceRemoteInclusion> waitingRemoteInclusions = new ConcurrentLinkedQueue<>();
 
   protected IServiceConsoleLogCache logCache;
+  protected Map<ChannelMessageTarget, String> logTargets = new ConcurrentHashMap<>();
   protected volatile INetworkChannel networkChannel;
 
   protected volatile ServiceInfoSnapshot lastServiceInfo;
@@ -418,6 +423,15 @@ public abstract class AbstractService implements ICloudService {
   @Override
   public Queue<String> getCachedLogMessages() {
     return this.getServiceConsoleLogCache().getCachedLogMessages();
+  }
+
+  @Override
+  public boolean toggleScreenEvents(@NotNull ChannelMessageSender channelMessageSender, @NotNull String channel) {
+    ChannelMessageTarget target = channelMessageSender.toTarget();
+    if (this.logTargets.remove(target) != null) {
+      return false;
+    }
+    return this.logTargets.put(target, channel) == null;
   }
 
   protected @NotNull IConfiguration getNodeConfiguration() {

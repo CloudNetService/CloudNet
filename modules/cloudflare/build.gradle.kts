@@ -20,6 +20,7 @@ tasks.withType<Jar> {
 
 moduleJson {
   main = "de.dytanic.cloudnet.ext.cloudflare.CloudNetCloudflareModule"
+  name = "CloudNet-CloudFlare"
   author = "CloudNetService"
   description = "Node extension for the https://cloudflare.com REST-API"
   storesSensitiveData = true

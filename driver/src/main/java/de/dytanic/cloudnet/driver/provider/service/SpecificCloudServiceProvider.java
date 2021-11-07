@@ -18,6 +18,7 @@ package de.dytanic.cloudnet.driver.provider.service;
 
 import de.dytanic.cloudnet.common.concurrent.CompletableTask;
 import de.dytanic.cloudnet.common.concurrent.ITask;
+import de.dytanic.cloudnet.driver.channel.ChannelMessageSender;
 import de.dytanic.cloudnet.driver.network.rpc.annotation.RPCValidation;
 import de.dytanic.cloudnet.driver.service.ServiceDeployment;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
@@ -91,6 +92,8 @@ public interface SpecificCloudServiceProvider {
    * @return a queue with the cached messages of this services console
    */
   Queue<String> getCachedLogMessages();
+
+  boolean toggleScreenEvents(@NotNull ChannelMessageSender channelMessageSender, @NotNull String channel);
 
   /**
    * Stops this service by executing the "stop" and "end" commands in its console if it is running.

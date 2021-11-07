@@ -25,7 +25,6 @@ import cloud.commandframework.annotations.specifier.Greedy;
 import cloud.commandframework.annotations.specifier.Quoted;
 import cloud.commandframework.annotations.suggestions.Suggestions;
 import cloud.commandframework.context.CommandContext;
-import com.google.common.primitives.Ints;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.command.annotation.CommandAlias;
 import de.dytanic.cloudnet.command.annotation.Description;
@@ -34,13 +33,16 @@ import de.dytanic.cloudnet.command.source.CommandSource;
 import de.dytanic.cloudnet.common.INameable;
 import de.dytanic.cloudnet.common.WildcardUtil;
 import de.dytanic.cloudnet.common.language.I18n;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.common.unsafe.CPUUsageResolver;
+import de.dytanic.cloudnet.driver.channel.ChannelMessageSender;
+import de.dytanic.cloudnet.driver.event.EventListener;
+import de.dytanic.cloudnet.driver.event.events.service.CloudServiceLogEntryEvent;
 import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
-import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
 import de.dytanic.cloudnet.driver.service.ServiceDeployment;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceRemoteInclusion;
-import de.dytanic.cloudnet.driver.service.ServiceTask;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -50,8 +52,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Queue;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.jetbrains.annotations.Nullable;
 
@@ -60,8 +60,12 @@ import org.jetbrains.annotations.Nullable;
 @Description("Manages all services in the cluster")
 public final class CommandService {
 
-  public static final Pattern SERVICE_NAME_PATTERN = Pattern.compile("([\\w+-]+)-(\\d+)");
+  private static final Logger LOGGER = LogManager.getLogger(CommandService.class);
   private static final DateFormat DATE_FORMAT = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
+
+  public CommandService() {
+    CloudNet.getInstance().getEventManager().registerListener(this);
+  }
 
   @Parser(name = "single", suggestions = "service")
   public ServiceInfoSnapshot singleServiceParser(CommandContext<CommandSource> $, Queue<String> input) {
@@ -87,7 +91,7 @@ public final class CommandService {
     String name = input.remove();
     Collection<ServiceInfoSnapshot> knownServices = CloudNet.getInstance().getCloudServiceProvider().getCloudServices();
     Collection<ServiceInfoSnapshot> matchedServices = WildcardUtil.filterWildcard(knownServices, name);
-    if (matchedServices.isEmpty() && (input.isEmpty() || !input.remove().equalsIgnoreCase("start"))) {
+    if (matchedServices.isEmpty()) {
       throw new ArgumentNotAvailableException(I18n.trans("command-service-service-not-found"));
     }
 
@@ -144,28 +148,6 @@ public final class CommandService {
     CommandSource source,
     @Argument("name") Collection<ServiceInfoSnapshot> matchedServices
   ) {
-    String serviceName = context.getRawInput().get(1);
-    // there may be a static service with that name, but as it can be started even if it's not prepared we need to check
-    Matcher nameMatcher = SERVICE_NAME_PATTERN.matcher(serviceName);
-    String taskName = nameMatcher.group(1);
-    Integer id = Ints.tryParse(nameMatcher.group(2));
-
-    if (id != null) {
-      ServiceTask serviceTask = CloudNet.getInstance().getServiceTaskProvider().getServiceTask(taskName);
-      if (serviceTask != null) {
-        ServiceInfoSnapshot service = ServiceConfiguration.builder(serviceTask)
-          .taskId(id)
-          .build().createNewService();
-
-        if (service != null) {
-          matchedServices.add(service);
-        }
-      }
-    }
-    if (matchedServices.isEmpty()) {
-      source.sendMessage("No services found");
-    }
-
     for (ServiceInfoSnapshot matchedService : matchedServices) {
       matchedService.provider().start();
     }
@@ -241,7 +223,13 @@ public final class CommandService {
   @CommandMethod("service|ser <name> toggle")
   public void toggleScreens(CommandSource source, @Argument("name") Collection<ServiceInfoSnapshot> matchedServices) {
     for (ServiceInfoSnapshot matchedService : matchedServices) {
-
+      if (matchedService.provider().toggleScreenEvents(ChannelMessageSender.self(), "service:screen")) {
+        source.sendMessage(
+          I18n.trans("command-service-toggle-enabled").replace("%name%", matchedService.getName()));
+      } else {
+        source.sendMessage(
+          I18n.trans("command-service-toggle-disabled").replace("%name%", matchedService.getName()));
+      }
     }
   }
 
@@ -272,7 +260,7 @@ public final class CommandService {
     }
   }
 
-  @CommandMethod("service|ser <name> command <command>")
+  @CommandMethod("service|ser <name> command|cmd <command>")
   public void sendCommand(
     CommandSource source,
     @Argument("name") Collection<ServiceInfoSnapshot> matchedServices,
@@ -317,6 +305,11 @@ public final class CommandService {
     for (ServiceInfoSnapshot matchedService : matchedServices) {
       matchedService.provider().addServiceRemoteInclusion(remoteInclusion);
     }
+  }
+
+  @EventListener(channel = "service:screen")
+  public void handleLogEntry(CloudServiceLogEntryEvent event) {
+    LOGGER.info(String.format("&b[%s] %s", event.getServiceInfo().getName(), event.getLine()));
   }
 
   private void displayServiceInfo(CommandSource source, @Nullable ServiceInfoSnapshot service,

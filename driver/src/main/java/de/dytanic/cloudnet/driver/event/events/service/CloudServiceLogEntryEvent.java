@@ -14,36 +14,22 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.event.service;
+package de.dytanic.cloudnet.driver.event.events.service;
 
-import de.dytanic.cloudnet.service.ICloudService;
+import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import org.jetbrains.annotations.NotNull;
 
-/**
- * This event is called whenever a new console line is read from a service on this node, it won't be called in the
- * cluster.
- */
 public final class CloudServiceLogEntryEvent extends CloudServiceEvent {
 
-  private final String message;
-  private final boolean errorMessage;
+  private final String line;
 
-  public CloudServiceLogEntryEvent(
-    @NotNull ICloudService service,
-    @NotNull String message,
-    boolean errorMessage
-  ) {
+  public CloudServiceLogEntryEvent(@NotNull ServiceInfoSnapshot service, @NotNull String line) {
     super(service);
 
-    this.message = message;
-    this.errorMessage = errorMessage;
+    this.line = line;
   }
 
-  public @NotNull String getMessage() {
-    return this.message;
-  }
-
-  public boolean isErrorMessage() {
-    return this.errorMessage;
+  public @NotNull String getLine() {
+    return this.line;
   }
 }

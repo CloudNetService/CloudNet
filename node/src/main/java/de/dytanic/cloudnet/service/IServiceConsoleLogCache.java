@@ -29,6 +29,9 @@ public interface IServiceConsoleLogCache {
   @NotNull
   IServiceConsoleLogCache update();
 
+  @NotNull
+  ICloudService getService();
+
   int getLogCacheSize();
 
   void setLogCacheSize(int cacheSize);
