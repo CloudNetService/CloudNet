@@ -112,6 +112,11 @@ public class ListenableTask<V> extends FutureTask<V> implements ITask<V> {
     return CompletableTask.supply(() -> mapper.apply(this.get()));
   }
 
+  @Override
+  public boolean runAndReset() {
+    return super.runAndReset();
+  }
+
   protected @NotNull Collection<ITaskListener<V>> initListeners() {
     if (this.listeners == null) {
       // ConcurrentLinkedQueue gives us O(1) insertion using CAS - results under moderate
