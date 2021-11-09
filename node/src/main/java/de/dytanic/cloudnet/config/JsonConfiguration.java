@@ -73,6 +73,7 @@ public final class JsonConfiguration implements IConfiguration {
   private int maxServiceConsoleLogCacheSize;
   private int processTerminationTimeoutSeconds;
 
+  private Boolean forceInitialClusterDataSync;
   private Boolean printErrorStreamLinesFromServices;
   private Boolean runBlockedServiceStartTryLaterAutomatic;
 
@@ -186,6 +187,13 @@ public final class JsonConfiguration implements IConfiguration {
         "cloudnet.config.processTerminationTimeoutSeconds",
         5,
         Integer::parseInt);
+    }
+
+    if (this.forceInitialClusterDataSync == null) {
+      this.forceInitialClusterDataSync = ConfigurationUtils.get(
+        "cloudnet.config.forceInitialClusterDataSync",
+        false,
+        Boolean::parseBoolean);
     }
 
     if (this.printErrorStreamLinesFromServices == null) {
@@ -452,6 +460,16 @@ public final class JsonConfiguration implements IConfiguration {
   @Override
   public void setProcessTerminationTimeoutSeconds(int processTerminationTimeoutSeconds) {
     this.processTerminationTimeoutSeconds = processTerminationTimeoutSeconds;
+  }
+
+  @Override
+  public boolean getForceInitialClusterDataSync() {
+    return this.forceInitialClusterDataSync;
+  }
+
+  @Override
+  public void setForceInitialClusterDataSync(boolean forceInitialClusterDataSync) {
+    this.forceInitialClusterDataSync = forceInitialClusterDataSync;
   }
 
   @Override

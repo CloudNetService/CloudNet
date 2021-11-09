@@ -108,6 +108,10 @@ public interface IConfiguration {
 
   void setProcessTerminationTimeoutSeconds(int processTerminationTimeoutSeconds);
 
+  boolean getForceInitialClusterDataSync();
+
+  void setForceInitialClusterDataSync(boolean forceInitialClusterDataSync);
+
   @NotNull JsonDocument getProperties();
 
   void setProperties(@NotNull JsonDocument properties);
