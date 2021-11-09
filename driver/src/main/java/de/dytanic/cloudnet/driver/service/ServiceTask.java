@@ -34,6 +34,7 @@ public class ServiceTask extends ServiceConfigurationBase implements INameable {
   private String name;
   private String runtime;
   private String javaCommand;
+  private String nameSplitter;
 
   private boolean disableIpRewrite;
   private boolean maintenance;
@@ -62,6 +63,7 @@ public class ServiceTask extends ServiceConfigurationBase implements INameable {
     @NotNull String name,
     @NotNull String runtime,
     @Nullable String javaCommand,
+    @Nullable String nameSplitter,
     boolean disableIpRewrite,
     boolean maintenance,
     boolean autoDeleteOnStop,
@@ -81,6 +83,7 @@ public class ServiceTask extends ServiceConfigurationBase implements INameable {
     this.name = name;
     this.runtime = runtime;
     this.javaCommand = javaCommand;
+    this.nameSplitter = nameSplitter;
     this.disableIpRewrite = disableIpRewrite;
     this.maintenance = maintenance;
     this.autoDeleteOnStop = autoDeleteOnStop;
@@ -150,6 +153,14 @@ public class ServiceTask extends ServiceConfigurationBase implements INameable {
 
   public void setJavaCommand(String javaCommand) {
     this.javaCommand = javaCommand;
+  }
+
+  public @NotNull String getNameSplitter() {
+    return this.nameSplitter == null ? "-" : this.nameSplitter;
+  }
+
+  public void setNameSplitter(@Nullable String nameSplitter) {
+    this.nameSplitter = nameSplitter;
   }
 
   public String getRuntime() {

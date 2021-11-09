@@ -29,6 +29,7 @@ public class ServiceId implements INameable {
   protected UUID uniqueId;
 
   protected String taskName;
+  protected String nameSplitter;
   protected int taskServiceId = -1;
 
   protected String nodeUniqueId;
@@ -39,6 +40,7 @@ public class ServiceId implements INameable {
   public ServiceId(
     @NotNull UUID uniqueId,
     @NotNull String taskName,
+    @NotNull String nameSplitter,
     int taskServiceId,
     String nodeUniqueId,
     Collection<String> allowedNodes,
@@ -46,6 +48,7 @@ public class ServiceId implements INameable {
   ) {
     this.uniqueId = uniqueId;
     this.taskName = taskName;
+    this.nameSplitter = nameSplitter;
     this.taskServiceId = taskServiceId;
     this.nodeUniqueId = nodeUniqueId;
     this.allowedNodes = allowedNodes;
@@ -57,7 +60,7 @@ public class ServiceId implements INameable {
 
   @Override
   public @NotNull String getName() {
-    return this.taskName + "-" + this.taskServiceId;
+    return this.taskName + this.nameSplitter + this.taskServiceId;
   }
 
   public UUID getUniqueId() {

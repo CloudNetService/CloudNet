@@ -117,6 +117,7 @@ public class DefaultObjectMapperTest {
       Arguments.of(new ServiceId(
         UUID.randomUUID(),
         "Lobby",
+        "hello",
         1,
         "Node-1",
         Collections.emptyList(),

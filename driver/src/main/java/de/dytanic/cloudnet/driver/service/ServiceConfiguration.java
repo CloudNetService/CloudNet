@@ -233,6 +233,7 @@ public class ServiceConfiguration extends JsonDocPropertyHolder {
     private Builder() {
       this.config = new ServiceConfiguration();
       this.config.serviceId = new ServiceId();
+      this.config.serviceId.nameSplitter = "-";
       this.config.processConfig = new ProcessConfiguration();
       this.config.port = 44955;
     }
@@ -245,7 +246,10 @@ public class ServiceConfiguration extends JsonDocPropertyHolder {
     public Builder task(@NotNull ServiceTask task) {
       return this
         .task(task.getName())
+
         .runtime(task.getRuntime())
+        .javaCommand(task.getJavaCommand())
+        .nameSplitter(task.getNameSplitter())
 
         .autoDeleteOnStop(task.isAutoDeleteOnStop())
         .staticService(task.isStaticServices())
@@ -262,8 +266,7 @@ public class ServiceConfiguration extends JsonDocPropertyHolder {
         .maxHeapMemory(task.getProcessConfiguration().getMaxHeapMemorySize())
         .jvmOptions(task.getProcessConfiguration().getJvmOptions())
         .processParameters(task.getProcessConfiguration().getProcessParameters())
-        .startPort(task.getStartPort())
-        .javaCommand(task.getJavaCommand());
+        .startPort(task.getStartPort());
     }
 
     /**
@@ -328,6 +331,12 @@ public class ServiceConfiguration extends JsonDocPropertyHolder {
     @NotNull
     public Builder javaCommand(@Nullable String javaCommand) {
       this.config.javaCommand = javaCommand;
+      return this;
+    }
+
+    @NotNull
+    public Builder nameSplitter(@Nullable String nameSplitter) {
+      this.config.serviceId.nameSplitter = nameSplitter == null ? "-" : nameSplitter;
       return this;
     }
 
