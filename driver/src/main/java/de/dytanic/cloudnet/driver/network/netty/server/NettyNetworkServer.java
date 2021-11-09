@@ -96,28 +96,37 @@ public class NettyNetworkServer extends NettySSLServer implements DefaultNetwork
     Preconditions.checkNotNull(hostAndPort);
     Preconditions.checkNotNull(hostAndPort.getHost());
 
-    try {
-      return this.channelFutures.putIfAbsent(hostAndPort.getPort(), new Pair<>(hostAndPort, new ServerBootstrap()
-        .channelFactory(NettyUtils.getServerChannelFactory())
-        .group(this.bossEventLoopGroup, this.workerEventLoopGroup)
-        .childHandler(new NettyNetworkServerInitializer(this, hostAndPort))
+    // check if a server is already bound to the port
+    if (!this.channelFutures.containsKey(hostAndPort.getPort())) {
+      try {
+        // create the server
+        ServerBootstrap bootstrap = new ServerBootstrap()
+          .channelFactory(NettyUtils.getServerChannelFactory())
+          .group(this.bossEventLoopGroup, this.workerEventLoopGroup)
+          .childHandler(new NettyNetworkServerInitializer(this, hostAndPort))
 
-        .childOption(ChannelOption.IP_TOS, 24)
-        .childOption(ChannelOption.AUTO_READ, true)
-        .childOption(ChannelOption.TCP_NODELAY, true)
-        .childOption(ChannelOption.SO_KEEPALIVE, true)
-        .childOption(ChannelOption.SO_REUSEADDR, true)
-        .childOption(ChannelOption.WRITE_BUFFER_WATER_MARK, WATER_MARK)
+          .childOption(ChannelOption.IP_TOS, 0x18)
+          .childOption(ChannelOption.AUTO_READ, true)
+          .childOption(ChannelOption.TCP_NODELAY, true)
+          .childOption(ChannelOption.SO_KEEPALIVE, true)
+          .childOption(ChannelOption.SO_REUSEADDR, true)
+          .childOption(ChannelOption.WRITE_BUFFER_WATER_MARK, WATER_MARK);
+        // check if tcp fast open is supported
+        if (NettyUtils.NATIVE_TRANSPORT) {
+          bootstrap.option(ChannelOption.TCP_FASTOPEN, 0x3);
+        }
+        // register the server and bind it
+        return this.channelFutures.putIfAbsent(hostAndPort.getPort(), new Pair<>(hostAndPort, bootstrap
+          .bind(hostAndPort.getHost(), hostAndPort.getPort())
+          .addListener(ChannelFutureListener.CLOSE_ON_FAILURE)
+          .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE)
 
-        .bind(hostAndPort.getHost(), hostAndPort.getPort())
-        .addListener(ChannelFutureListener.CLOSE_ON_FAILURE)
-        .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE)
-
-        .sync()
-        .channel()
-        .closeFuture())) == null;
-    } catch (InterruptedException exception) {
-      LOGGER.severe("Exception binding network server instance to %s", exception, hostAndPort);
+          .sync()
+          .channel()
+          .closeFuture())) == null;
+      } catch (InterruptedException exception) {
+        LOGGER.severe("Exception binding network server instance to %s", exception, hostAndPort);
+      }
     }
 
     return false;

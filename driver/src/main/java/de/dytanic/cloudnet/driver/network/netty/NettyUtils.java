@@ -52,6 +52,7 @@ import org.jetbrains.annotations.Range;
 @ApiStatus.Internal
 public final class NettyUtils {
 
+  public static final boolean NATIVE_TRANSPORT = Epoll.isAvailable();
   public static final ThreadFactory THREAD_FACTORY = FastThreadLocalThread::new;
   public static final SilentDecoderException INVALID_VAR_INT = new SilentDecoderException("Invalid var int");
   public static final RejectedExecutionHandler DEFAULT_REJECT_HANDLER = new ThreadPoolExecutor.CallerRunsPolicy();

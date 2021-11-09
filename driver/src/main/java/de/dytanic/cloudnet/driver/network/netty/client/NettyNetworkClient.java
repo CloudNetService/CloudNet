@@ -27,9 +27,11 @@ import de.dytanic.cloudnet.driver.network.protocol.IPacketListenerRegistry;
 import de.dytanic.cloudnet.driver.network.protocol.defaults.DefaultPacketListenerRegistry;
 import de.dytanic.cloudnet.driver.network.ssl.SSLConfiguration;
 import io.netty.bootstrap.Bootstrap;
+import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
+import io.netty.channel.WriteBufferWaterMark;
 import io.netty.handler.ssl.ClientAuth;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
@@ -47,6 +49,7 @@ import org.jetbrains.annotations.NotNull;
 public class NettyNetworkClient implements DefaultNetworkComponent, INetworkClient {
 
   private static final int CONNECTION_TIMEOUT_MILLIS = 5_000;
+  private static final WriteBufferWaterMark WATER_MARK = new WriteBufferWaterMark(1 << 20, 1 << 21);
 
   protected final Executor packetDispatcher = NettyUtils.newPacketDispatcher();
   protected final EventLoopGroup eventLoopGroup = NettyUtils.newEventLoopGroup();
@@ -85,18 +88,23 @@ public class NettyNetworkClient implements DefaultNetworkComponent, INetworkClie
     Preconditions.checkNotNull(hostAndPort.getHost());
 
     try {
-      new Bootstrap()
+      Bootstrap bootstrap = new Bootstrap()
         .group(this.eventLoopGroup)
         .channelFactory(NettyUtils.getClientChannelFactory())
         .handler(new NettyNetworkClientInitializer(hostAndPort, this))
 
+        .option(ChannelOption.IP_TOS, 0x18)
         .option(ChannelOption.AUTO_READ, true)
-        .option(ChannelOption.IP_TOS, 24)
         .option(ChannelOption.TCP_NODELAY, true)
-        .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, CONNECTION_TIMEOUT_MILLIS)
-
-        .connect(hostAndPort.getHost(), hostAndPort.getPort())
-
+        .option(ChannelOption.WRITE_BUFFER_WATER_MARK, WATER_MARK)
+        .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
+        .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, CONNECTION_TIMEOUT_MILLIS);
+      // enable tcp fast open if supported
+      if (NettyUtils.NATIVE_TRANSPORT) {
+        bootstrap.option(ChannelOption.TCP_FASTOPEN_CONNECT, true);
+      }
+      // connect to the server
+      bootstrap.connect(hostAndPort.getHost(), hostAndPort.getPort())
         .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE)
         .addListener(ChannelFutureListener.CLOSE_ON_FAILURE)
         .syncUninterruptibly();
