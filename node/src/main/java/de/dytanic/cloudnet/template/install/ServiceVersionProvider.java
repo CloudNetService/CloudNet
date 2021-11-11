@@ -79,7 +79,14 @@ public class ServiceVersionProvider {
 
     return Unirest
       .get(url)
-      .asObject(rawResponse -> this.loadVersionsFromInputStream(rawResponse.getContent()))
+      .asObject(rawResponse -> {
+        if (rawResponse.getStatus() == 200) {
+          return this.loadVersionsFromInputStream(rawResponse.getContent());
+        } else {
+          this.loadDefaultVersionTypes();
+          return true;
+        }
+      })
       .getBody();
   }
 

@@ -27,7 +27,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.PrintStream;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -39,6 +38,7 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
 
@@ -79,7 +79,7 @@ public class BuildStepExecutor implements InstallStepExecutor {
       int expectedExitCode = version.getProperties().getInt("exitCode", 0);
       int exitCode = this.buildProcessAndWait(arguments, workDir);
 
-      if (exitCode != expectedExitCode) {
+      if (!version.getProperties().getBoolean("disableExitCodeChecking") && exitCode != expectedExitCode) {
         throw new IllegalStateException(String.format(
           "Process returned unexpected exit code! Got %d, expected %d",
           exitCode,
@@ -97,7 +97,20 @@ public class BuildStepExecutor implements InstallStepExecutor {
     }
   }
 
-  private int buildProcessAndWait(List<String> arguments, Path workingDir) {
+  protected int buildProcessAndWait(@NotNull List<String> arguments, @NotNull Path workingDir) {
+    return this.buildProcessAndWait(
+      arguments,
+      workingDir,
+      (line, $) -> LOGGER.info(String.format("[Template Installer]: %s", line)),
+      (line, $) -> LOGGER.warning(String.format("[Template Installer]: %s", line)));
+  }
+
+  protected int buildProcessAndWait(
+    @NotNull List<String> arguments,
+    @NotNull Path workingDir,
+    @NotNull BiConsumer<String, Process> systemOutRedirector,
+    @NotNull BiConsumer<String, Process> systemErrRedirector
+  ) {
     try {
       Process process = new ProcessBuilder()
         .command(arguments)
@@ -106,8 +119,8 @@ public class BuildStepExecutor implements InstallStepExecutor {
 
       this.runningBuildProcesses.add(process);
 
-      OUTPUT_READER_EXECUTOR.execute(new BuildOutputRedirector(process.getInputStream(), System.out));
-      OUTPUT_READER_EXECUTOR.execute(new BuildOutputRedirector(process.getErrorStream(), System.err));
+      OUTPUT_READER_EXECUTOR.execute(new BuildOutputRedirector(process, process.getInputStream(), systemOutRedirector));
+      OUTPUT_READER_EXECUTOR.execute(new BuildOutputRedirector(process, process.getErrorStream(), systemErrRedirector));
 
       int exitCode = process.waitFor();
       this.runningBuildProcesses.remove(process);
@@ -121,20 +134,22 @@ public class BuildStepExecutor implements InstallStepExecutor {
 
   private static class BuildOutputRedirector implements Runnable {
 
-    private final InputStream inputStream;
-    private final PrintStream outputStream;
+    private final Process process;
+    private final InputStream source;
+    private final BiConsumer<String, Process> handler;
 
-    public BuildOutputRedirector(InputStream inputStream, PrintStream outputStream) {
-      this.inputStream = inputStream;
-      this.outputStream = outputStream;
+    public BuildOutputRedirector(Process process, InputStream source, BiConsumer<String, Process> handler) {
+      this.process = process;
+      this.source = source;
+      this.handler = handler;
     }
 
     @Override
     public void run() {
-      try (BufferedReader in = new BufferedReader(new InputStreamReader(this.inputStream, StandardCharsets.UTF_8))) {
+      try (BufferedReader in = new BufferedReader(new InputStreamReader(this.source, StandardCharsets.UTF_8))) {
         String line;
         while ((line = in.readLine()) != null) {
-          this.outputStream.println(line);
+          this.handler.accept(line, this.process);
         }
       } catch (IOException exception) {
         LOGGER.severe("Exception while reading output", exception);

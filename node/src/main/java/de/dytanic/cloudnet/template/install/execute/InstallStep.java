@@ -21,6 +21,7 @@ import de.dytanic.cloudnet.template.install.execute.defaults.BuildStepExecutor;
 import de.dytanic.cloudnet.template.install.execute.defaults.CopyFilterStepExecutor;
 import de.dytanic.cloudnet.template.install.execute.defaults.DeployStepExecutor;
 import de.dytanic.cloudnet.template.install.execute.defaults.DownloadStepExecutor;
+import de.dytanic.cloudnet.template.install.execute.defaults.MagmaInstallerExecutor;
 import de.dytanic.cloudnet.template.install.execute.defaults.PaperApiVersionFetchStepExecutor;
 import de.dytanic.cloudnet.template.install.execute.defaults.UnzipStepExecutor;
 import java.io.IOException;
@@ -35,7 +36,8 @@ public enum InstallStep {
   UNZIP(new UnzipStepExecutor()),
   COPY_FILTER(new CopyFilterStepExecutor()),
   DEPLOY(new DeployStepExecutor()),
-  PAPER_API(new PaperApiVersionFetchStepExecutor());
+  PAPER_API(new PaperApiVersionFetchStepExecutor()),
+  MAGMA_BUILD(new MagmaInstallerExecutor());
 
   private final InstallStepExecutor executor;
 

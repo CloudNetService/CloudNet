@@ -50,7 +50,7 @@ object Versions {
   const val jjwt = "0.11.2"
   const val javers = "6.4.2"
   const val netty = "4.1.70.Final"
-  const val unirest = "4.0.0-RC1"
+  const val unirest = "3.13.3"
 
   // platform api versions
   const val velocity = "3.0.1"

@@ -20,27 +20,25 @@ import java.util.Arrays;
 
 public enum ServiceEnvironment {
 
-  //Minecraft Server
-  MINECRAFT_SERVER_DEFAULT("minecraft"),
+  // Vanilla minecraft server forks
   MINECRAFT_SERVER_SPIGOT("spigot"),
   MINECRAFT_SERVER_PAPER_SPIGOT("paper"),
-  MINECRAFT_SERVER_TUINITY_SPIGOT("tuinity"),
-  MINECRAFT_SERVER_FORGE("forge"),
+  MINECRAFT_SERVER_PURPUR_SPIGOT("purpur"),
   MINECRAFT_SERVER_SPONGE_VANILLA("spongevanilla"),
-  MINECRAFT_SERVER_AKARIN("akarin"),
-  MINECRAFT_SERVER_TACO("taco"),
-  //GlowStone
+  // Forge based minecraft servers
+  MINECRAFT_SERVER_FORGE("forge"),
+  MINECRAFT_SERVER_MAGMA("magma"),
+  // GlowStone
   GLOWSTONE_DEFAULT("glowstone"),
-  //BungeeCord
+  // BungeeCord and forks
   BUNGEECORD_DEFAULT("bungee"),
   BUNGEECORD_WATERFALL("waterfall"),
-  BUNGEECORD_TRAVERTINE("travertine"),
   BUNGEECORD_HEXACORD("hexacord"),
-  //Waterdog
+  // Waterdog
   WATERDOG_PE("waterdog-pe"),
-  //Nukkit
+  // Nukkit
   NUKKIT_DEFAULT("nukkit"),
-  //Velocity
+  // Velocity
   VELOCITY_DEFAULT("velocity");
 
   public static final ServiceEnvironment[] VALUES = ServiceEnvironment.values();

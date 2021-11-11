@@ -39,12 +39,10 @@ public enum ServiceEnvironmentType {
     new ServiceEnvironment[]{
       ServiceEnvironment.MINECRAFT_SERVER_FORGE,
       ServiceEnvironment.MINECRAFT_SERVER_SPONGE_VANILLA,
-      ServiceEnvironment.MINECRAFT_SERVER_TACO,
       ServiceEnvironment.MINECRAFT_SERVER_PAPER_SPIGOT,
-      ServiceEnvironment.MINECRAFT_SERVER_TUINITY_SPIGOT,
+      ServiceEnvironment.MINECRAFT_SERVER_PURPUR_SPIGOT,
       ServiceEnvironment.MINECRAFT_SERVER_SPIGOT,
-      ServiceEnvironment.MINECRAFT_SERVER_AKARIN,
-      ServiceEnvironment.MINECRAFT_SERVER_DEFAULT,
+      ServiceEnvironment.MINECRAFT_SERVER_MAGMA,
     },
     MinecraftServiceType.JAVA_SERVER,
     44955
@@ -71,7 +69,6 @@ public enum ServiceEnvironmentType {
   BUNGEECORD(
     new ServiceEnvironment[]{
       ServiceEnvironment.BUNGEECORD_HEXACORD,
-      ServiceEnvironment.BUNGEECORD_TRAVERTINE,
       ServiceEnvironment.BUNGEECORD_WATERFALL,
       ServiceEnvironment.BUNGEECORD_DEFAULT
     },
