@@ -33,6 +33,9 @@ tasks.withType<ShadowJar> {
   relocate("com.google.gson", "eu.cloudnetservice.relocate.gson")
   relocate("com.google.common", "eu.cloudnetservice.relocate.guava")
 
+  // asm relocation
+  relocate("org.objectweb.asm", "eu.cloudnetservice.relocate.asm")
+
   // drop unused classes which are making the jar bigger
   minimize()
 
