@@ -30,24 +30,21 @@ tasks.withType<Jar> {
 }
 
 dependencies {
-  "api"(project(":cloudnet-driver"))
+  "api"(projects.cloudnetDriver)
   // console
-  "api"("org.jline", "jline", Versions.jline)
-  "api"("org.fusesource.jansi", "jansi", Versions.jansi)
+  "api"(libs.jline)
+  "api"(libs.jansi)
   // javers - diff finder for java objects (used for cluster data sync)
-  "api"("org.javers", "javers-core", Versions.javers)
+  "api"(libs.javers)
   // default database implementations
-  "api"("com.h2database", "h2", Versions.h2)
-  "api"("org.jetbrains.xodus", "xodus-environment", Versions.xodus)
-  // jwt for rest api
-  "api"("io.jsonwebtoken", "jjwt-api", Versions.jjwt)
-  "api"("io.jsonwebtoken", "jjwt-impl", Versions.jjwt)
-  "api"("io.jsonwebtoken", "jjwt-gson", Versions.jjwt)
-  // commands
-  "api"("cloud.commandframework", "cloud-core", Versions.cloud)
-  "api"("cloud.commandframework", "cloud-annotations", Versions.cloud)
+  "api"(libs.h2)
+  "api"(libs.xodus)
   // just for slf4j to disable the warning message
-  "api"("org.slf4j", "slf4j-nop", Versions.slf4j)
+  "api"(libs.slf4jNop)
+  // jwt for rest api
+  "api"(libs.bundles.jjwt)
+  // commands
+  "api"(libs.bundles.cloud)
 }
 
 applyJarMetadata("de.dytanic.cloudnet.BootLogic", "eu.cloudnetservice.cloudnet")

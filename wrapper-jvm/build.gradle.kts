@@ -45,8 +45,8 @@ tasks.withType<ShadowJar> {
 }
 
 dependencies {
-  "api"(project(":cloudnet-driver"))
-  "compileOnly"(project(":cloudnet-wrapper-jvm:minecraft-launchwrapper-api"))
+  "api"(projects.cloudnetDriver)
+  "compileOnly"(projects.cloudnetWrapperJvm.minecraftLaunchwrapperApi)
 }
 
 applyJarMetadata(

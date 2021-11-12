@@ -19,8 +19,8 @@ tasks.withType<Jar> {
 }
 
 dependencies {
-  "moduleLibrary"("org.mongodb", "mongodb-driver-sync", Versions.mongodb)
-  "moduleLibrary"("org.slf4j", "slf4j-nop", Versions.slf4j)
+  "moduleLibrary"(libs.mongodb)
+  "moduleLibrary"(libs.slf4jNop)
 }
 
 moduleJson {

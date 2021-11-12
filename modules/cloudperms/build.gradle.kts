@@ -19,14 +19,11 @@ tasks.withType<Jar> {
 }
 
 dependencies {
-  "compileOnly"(project(":cloudnet-wrapper-jvm"))
-  "compileOnly"("cn.nukkit", "nukkit", Versions.nukkitX)
-  "compileOnly"("org.spongepowered", "spongeapi", Versions.sponge)
-  "compileOnly"("org.spigotmc", "spigot-api", Versions.spigot)
-  "compileOnly"("net.md-5", "bungeecord-api", Versions.bungeecord)
-  "compileOnly"("com.velocitypowered", "velocity-api", Versions.velocity)
-  "compileOnly"("dev.waterdog.waterdogpe", "waterdog", Versions.waterdogpe)
-  "compileOnly"("com.github.MilkBowl", "VaultAPI", Versions.vault)
+  "compileOnly"(projects.cloudnetWrapperJvm)
+
+  "compileOnly"(libs.vault)
+  "compileOnly"(libs.bundles.proxyPlatform)
+  "compileOnly"(libs.bundles.serverPlatform)
 }
 
 moduleJson {

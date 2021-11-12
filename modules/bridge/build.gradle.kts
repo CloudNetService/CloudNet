@@ -25,18 +25,12 @@ tasks.withType<Jar> {
 }
 
 dependencies {
-  "compileOnly"(project(":cloudnet-wrapper-jvm"))
-  "compileOnly"("cn.nukkit", "nukkit", Versions.nukkitX)
-  "compileOnly"("org.spigotmc", "spigot-api", Versions.spigot)
-  "compileOnly"("org.spongepowered", "spongeapi", Versions.sponge)
-  "compileOnly"("net.md-5", "bungeecord-api", Versions.bungeecord)
-  "compileOnly"("com.velocitypowered", "velocity-api", Versions.velocity)
-  "compileOnly"("dev.waterdog.waterdogpe", "waterdog", Versions.waterdogpe)
+  "compileOnly"(projects.cloudnetWrapperJvm)
+  "compileOnly"(libs.bundles.proxyPlatform)
+  "compileOnly"(libs.bundles.serverPlatform)
 
-  "annotationProcessor"("com.velocitypowered", "velocity-api", Versions.velocity)
-
-  "implementation"("net.kyori", "adventure-api", Versions.adventure)
-  "implementation"("net.kyori", "adventure-text-serializer-plain", Versions.adventure)
+  "implementation"(libs.bundles.adventure)
+  "annotationProcessor"(libs.velocity)
 }
 
 moduleJson {

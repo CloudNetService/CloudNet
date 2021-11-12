@@ -1,0 +1,131 @@
+metadata.format.version = "1.1"
+
+[versions]
+
+# google libs
+gson = "2.8.9"
+guava = "31.0.1-jre"
+
+# testing
+junit = "5.8.1"
+mockito = "4.0.0"
+tyrusClient = "2.0.1"
+
+# compile time processing
+lombok = "1.18.22"
+
+# console
+jansi = "2.4.0"
+jline = "3.21.0"
+cloud = "1.6.0-SNAPSHOT"
+
+# databases
+h2 = "1.4.197" # do not update, leads to database incompatibility
+xodus = "1.3.232"
+mongodb = "4.4.0"
+mysqlConnector = "8.0.27"
+hikariCp = "5.0.0"
+
+# general
+asm = "9.2"
+jjwt = "0.11.2"
+slf4j = "1.7.32"
+javers = "6.4.2"
+unirest = "3.13.3"
+netty = "4.1.70.Final"
+annotations = "23.0.0"
+
+# platform api versions
+velocity = "3.0.1"
+nukkitX = "1.0-SNAPSHOT"
+sponge = "8.0.0-SNAPSHOT"
+waterdogpe = "1.1.4"
+spigot = "1.17.1-R0.1-SNAPSHOT"
+bungeecord = "1.17-R0.1-SNAPSHOT"
+
+# platform extensions
+vault = "1.7.1"
+adventure = "4.9.3"
+
+
+[libraries]
+
+# compile time processing
+lombok = { group = "org.projectlombok", name = "lombok", version.ref = "lombok" }
+
+# google libs
+guava = { group = "com.google.guava", name = "guava", version.ref = "guava" }
+gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }
+
+# console
+jline = { group = "org.jline", name = "jline", version.ref = "jline" }
+jansi = { group = "org.fusesource.jansi", name = "jansi", version.ref = "jansi" }
+
+# cloud commands
+cloudCore = { group = "cloud.commandframework", name = "cloud-core", version.ref = "cloud" }
+cloudAnnotations = { group = "cloud.commandframework", name = "cloud-annotations", version.ref = "cloud" }
+
+# jjwt
+jjwtApi = { group = "io.jsonwebtoken", name = "jjwt-api", version.ref = "jjwt" }
+jjwtImpl = { group = "io.jsonwebtoken", name = "jjwt-impl", version.ref = "jjwt" }
+jjwtGson = { group = "io.jsonwebtoken", name = "jjwt-gson", version.ref = "jjwt" }
+
+# junit
+junitApi = { group = "org.junit.jupiter", name = "junit-jupiter-api", version.ref = "junit" }
+junitParams = { group = "org.junit.jupiter", name = "junit-jupiter-params", version.ref = "junit" }
+junitEngine = { group = "org.junit.jupiter", name = "junit-jupiter-engine", version.ref = "junit" }
+
+# general testing
+mockito = { group = "org.mockito", name = "mockito-junit-jupiter", version.ref = "mockito" }
+tyrus = { group = "org.glassfish.tyrus.bundles", name = "tyrus-standalone-client", version.ref = "tyrusClient" }
+
+# unirest
+unirest = { group = "com.konghq", name = "unirest-java", version.ref = "unirest" }
+unirestGson = { group = "com.konghq", name = "unirest-object-mappers-gson", version.ref = "unirest" }
+
+# netty
+nettyHandler = { group = "io.netty", name = "netty-handler", version.ref = "netty" }
+nettyCodecHttp = { group = "io.netty", name = "netty-codec-http", version.ref = "netty" }
+nettyNativeEpoll = { group = "io.netty", name = "netty-transport-native-epoll", version.ref = "netty" }
+
+# general
+asm = { group = "org.ow2.asm", name = "asm", version.ref = "asm" }
+slf4jNop = { group = "org.slf4j", name = "slf4j-nop", version.ref = "slf4j" }
+javers = { group = "org.javers", name = "javers-core", version.ref = "javers" }
+annotations = { group = "org.jetbrains", name = "annotations", version.ref = "annotations" }
+
+# databases
+h2 = { group = "com.h2database", name = "h2", version.ref = "h2" }
+hikariCp = { group = "com.zaxxer", name = "HikariCP", version.ref = "hikariCp" }
+mongodb = { group = "org.mongodb", name = "mongodb-driver-sync", version.ref = "mongodb" }
+xodus = { group = "org.jetbrains.xodus", name = "xodus-environment", version.ref = "xodus" }
+mysqlConnector = { group = "mysql", name = "mysql-connector-java", version.ref = "mysqlConnector" }
+
+# platform api
+nukkitX = { group = "cn.nukkit", name = "nukkit", version.ref = "nukkitX" }
+spigot = { group = "org.spigotmc", name = "spigot-api", version.ref = "spigot" }
+sponge = { group = "org.spongepowered", name = "spongeapi", version.ref = "sponge" }
+bungeecord = { group = "net.md-5", name = "bungeecord-api", version.ref = "bungeecord" }
+velocity = { group = "com.velocitypowered", name = "velocity-api", version.ref = "velocity" }
+waterdogpe = { group = "dev.waterdog.waterdogpe", name = "waterdog", version.ref = "waterdogpe" }
+
+# adventure
+adventureApi = { group = "net.kyori", name = "adventure-api", version.ref = "adventure" }
+adventureSerializerPlain = { group = "net.kyori", name = "adventure-text-serializer-plain", version.ref = "adventure" }
+
+# platform extensions
+vault = { group = "com.github.MilkBowl", name = "VaultAPI", version.ref = "vault" }
+
+
+[bundles]
+
+unirest = ["unirest", "unirestGson"]
+mysql = ["mysqlConnector", "hikariCp"]
+cloud = ["cloudCore", "cloudAnnotations"]
+netty = ["nettyHandler", "nettyCodecHttp"]
+jjwt = ["jjwtApi", "jjwtImpl", "jjwtGson"]
+junit = ["junitApi", "junitParams", "junitEngine"]
+adventure = ["adventureApi", "adventureSerializerPlain"]
+
+serverPlatform = ["spigot", "sponge", "nukkitX"]
+proxyPlatform = ["bungeecord", "velocity", "waterdogpe"]

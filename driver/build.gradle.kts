@@ -42,15 +42,15 @@ extensions.configure<JavaPluginExtension> {
 }
 
 dependencies {
-  "api"(project(":cloudnet-common"))
-  "testImplementation"(project(":cloudnet-common").sourceSets().main.get().output)
+  "api"(projects.cloudnetCommon)
 
+  "implementation"(libs.asm)
+  "implementation"(libs.bundles.netty)
+  "implementation"(variantOf(libs.nettyNativeEpoll) { classifier("linux-x86_64") })
+
+  // hack - depend on the output of the ap output to apply the annotation process to this project too
   "annotationProcessor"(project.sourceSets()["ap"].output)
 
-  "implementation"("org.ow2.asm", "asm", Versions.asm)
-  "implementation"("io.netty", "netty-handler", Versions.netty)
-  "implementation"("io.netty", "netty-codec-http", Versions.netty)
-  "implementation"("io.netty", "netty-transport-native-epoll", Versions.netty, classifier = "linux-x86_64")
-
-  "testImplementation"("org.glassfish.tyrus.bundles", "tyrus-standalone-client", Versions.tyrusClient)
+  "testImplementation"(libs.tyrus)
+  "testImplementation"(projects.cloudnetCommon.dependencyProject.sourceSets()["main"].output)
 }

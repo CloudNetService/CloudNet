@@ -19,11 +19,10 @@ tasks.withType<Jar> {
 }
 
 dependencies {
-  "moduleLibrary"("mysql", "mysql-connector-java", Versions.mysqlConnector) {
+  "moduleLibrary"(libs.slf4jNop)
+  "moduleLibrary"(libs.bundles.mysql) {
     exclude("com.google.protobuf")
   }
-  "moduleLibrary"("com.zaxxer", "HikariCP", Versions.hikariCp)
-  "moduleLibrary"("org.slf4j", "slf4j-nop", Versions.slf4j)
 }
 
 moduleJson {

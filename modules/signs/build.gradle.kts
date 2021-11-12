@@ -20,12 +20,10 @@ tasks.withType<Jar> {
 }
 
 dependencies {
-  "moduleDependency"(project(":cloudnet-modules:bridge"))
+  "compileOnly"(projects.cloudnetWrapperJvm)
+  "moduleDependency"(projects.cloudnetModules.bridge)
 
-  "compileOnly"(project(":cloudnet-wrapper-jvm"))
-  "compileOnly"("cn.nukkit", "nukkit", Versions.nukkitX)
-  "compileOnly"("org.spigotmc", "spigot-api", Versions.spigot)
-  "compileOnly"("org.spongepowered", "spongeapi", Versions.sponge)
+  "compileOnly"(libs.bundles.serverPlatform)
 }
 
 moduleJson {

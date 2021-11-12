@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+enableFeaturePreview("VERSION_CATALOGS")
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+
 pluginManagement {
   includeBuild("build-extensions")
 }

@@ -45,16 +45,15 @@ subprojects {
   apply(plugin = "org.cadixdev.licenser")
 
   dependencies {
+    // the 'rootProject.libs.' prefix is needed here - see https://github.com/gradle/gradle/issues/16634
     // lombok
-    "compileOnly"("org.projectlombok", "lombok", Versions.lombok)
-    "annotationProcessor"("org.projectlombok", "lombok", Versions.lombok)
+    "compileOnly"(rootProject.libs.lombok)
+    "annotationProcessor"(rootProject.libs.lombok)
     // annotations
-    "compileOnly"("org.jetbrains", "annotations", Versions.annotations)
+    "compileOnly"(rootProject.libs.annotations)
     // testing
-    "testRuntimeOnly"("org.junit.jupiter", "junit-jupiter-engine", Versions.junit)
-    "testImplementation"("org.junit.jupiter", "junit-jupiter-api", Versions.junit)
-    "testImplementation"("org.junit.jupiter", "junit-jupiter-params", Versions.junit)
-    "testImplementation"("org.mockito", "mockito-junit-jupiter", Versions.mockito)
+    "testImplementation"(rootProject.libs.mockito)
+    "testImplementation"(rootProject.libs.bundles.junit)
   }
 
   tasks.withType<Jar> {
