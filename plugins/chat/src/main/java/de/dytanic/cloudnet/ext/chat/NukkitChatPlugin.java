@@ -23,6 +23,7 @@ import cn.nukkit.event.Listener;
 import cn.nukkit.event.player.PlayerChatEvent;
 import cn.nukkit.plugin.PluginBase;
 import cn.nukkit.utils.TextFormat;
+import org.jetbrains.annotations.NotNull;
 
 public class NukkitChatPlugin extends PluginBase implements Listener {
 
@@ -35,7 +36,7 @@ public class NukkitChatPlugin extends PluginBase implements Listener {
   }
 
   @EventHandler(priority = EventPriority.HIGH)
-  public void handle(PlayerChatEvent event) {
+  public void handle(@NotNull PlayerChatEvent event) {
     Player player = event.getPlayer();
     String format = ChatFormatter.buildFormat(
       player.getUniqueId(),
@@ -52,5 +53,4 @@ public class NukkitChatPlugin extends PluginBase implements Listener {
       event.setFormat(format);
     }
   }
-
 }

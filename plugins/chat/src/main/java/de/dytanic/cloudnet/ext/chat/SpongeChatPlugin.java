@@ -20,55 +20,49 @@ import com.google.inject.Inject;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import ninja.leaping.configurate.commented.CommentedConfigurationNode;
-import ninja.leaping.configurate.hocon.HoconConfigurationLoader;
-import ninja.leaping.configurate.loader.ConfigurationLoader;
-import org.spongepowered.api.config.DefaultConfig;
-import org.spongepowered.api.entity.living.player.Player;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
+import org.jetbrains.annotations.NotNull;
+import org.spongepowered.api.config.ConfigDir;
+import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.game.state.GameInitializationEvent;
-import org.spongepowered.api.event.message.MessageChannelEvent;
-import org.spongepowered.api.plugin.Plugin;
-import org.spongepowered.api.text.Text;
-import org.spongepowered.api.text.serializer.TextSerializers;
+import org.spongepowered.api.event.filter.cause.First;
+import org.spongepowered.api.event.lifecycle.ConstructPluginEvent;
+import org.spongepowered.api.event.message.PlayerChatEvent;
+import org.spongepowered.configurate.CommentedConfigurationNode;
+import org.spongepowered.configurate.ConfigurationNode;
+import org.spongepowered.configurate.hocon.HoconConfigurationLoader;
+import org.spongepowered.configurate.loader.ConfigurationLoader;
+import org.spongepowered.plugin.builtin.jvm.Plugin;
 
-@Plugin(
-  id = "cloudnet_chat",
-  name = "CloudNet-Chat",
-  version = "1.0",
-  url = "https://cloudnetservice.eu"
-)
+@Plugin("cloudnet_chat")
 public class SpongeChatPlugin {
 
   private static final Logger LOGGER = LogManager.getLogger(SpongeChatPlugin.class);
 
-  @Inject
-  @DefaultConfig(sharedRoot = false)
-  public Path defaultConfigPath;
+  private final Path configFilePath;
+  private volatile String chatFormat;
 
-  private String chatFormat;
+  @Inject
+  public SpongeChatPlugin(@ConfigDir(sharedRoot = false) @NotNull Path configDirectory) {
+    this.configFilePath = configDirectory.resolve("config.conf");
+  }
 
   @Listener
-  public void handle(GameInitializationEvent event) {
+  public void handle(@NotNull ConstructPluginEvent event) {
     ConfigurationLoader<CommentedConfigurationNode> loader = HoconConfigurationLoader.builder()
-      .setPath(this.defaultConfigPath)
+      .path(this.configFilePath)
       .build();
     try {
-      CommentedConfigurationNode configurationNode = loader.load();
-      if (Files.notExists(this.defaultConfigPath)) {
-        Files.createFile(this.defaultConfigPath);
+      // load the root node
+      ConfigurationNode root = loader.load();
+      ConfigurationNode format = root.node("format");
+      // check if the format is set
+      if (format.virtual()) {
         // set defaults in config
-        configurationNode.getNode("format").setValue("%display%%name% &8:&f %message%");
-        loader.save(configurationNode);
-      }
-
-      CommentedConfigurationNode format = configurationNode.getNode("format");
-      if (format.isVirtual()) {
-        // the node is not set in the config/was removed
-        format.setValue("%display%%name% &8:&f %message%");
-        loader.save(configurationNode);
+        format.set("%display%%name% &8:&f %message%");
+        loader.save(root);
       }
 
       this.chatFormat = format.getString();
@@ -78,23 +72,19 @@ public class SpongeChatPlugin {
   }
 
   @Listener
-  public void handle(MessageChannelEvent.Chat event) {
-    event.getCause().first(Player.class).ifPresent(player -> {
-      String format = ChatFormatter.buildFormat(
-        player.getUniqueId(),
-        player.getName(),
-        player.getDisplayNameData().displayName().get().toPlain(),
-        this.chatFormat,
-        event.getRawMessage().toPlain(),
-        player::hasPermission,
-        (colorChar, message) -> TextSerializers.FORMATTING_CODE.replaceCodes(message, colorChar)
-      );
-      if (format == null) {
-        event.setCancelled(true);
-      } else {
-        event.setMessage(Text.of(format));
-      }
-    });
+  public void handle(@NotNull PlayerChatEvent event, @First @NotNull ServerPlayer player) {
+    String format = ChatFormatter.buildFormat(
+      player.uniqueId(),
+      player.name(),
+      PlainTextComponentSerializer.plainText().serialize(player.displayName().get()),
+      this.chatFormat,
+      PlainTextComponentSerializer.plainText().serialize(event.message()),
+      player::hasPermission,
+      (colorChar, message) -> message.replace(colorChar, '§'));
+    if (format == null) {
+      event.setCancelled(true);
+    } else {
+      event.setMessage(LegacyComponentSerializer.legacySection().deserialize(format));
+    }
   }
-
 }

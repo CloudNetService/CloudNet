@@ -15,12 +15,10 @@
  */
 
 tasks.withType<Jar> {
-  archiveFileName.set(Files.chat_plugin)
+  archiveFileName.set(Files.chatPlugin)
 }
 
 dependencies {
-  "compileOnly"(project(":cloudnet-wrapper-jvm"))
-  "compileOnly"("cn.nukkit", "nukkit", Versions.nukkitX)
-  "compileOnly"("org.spongepowered", "spongeapi", Versions.sponge)
-  "compileOnly"("org.spigotmc", "spigot-api", Versions.spigot)
+  "compileOnly"(projects.cloudnetWrapperJvm)
+  "compileOnly"(libs.bundles.serverPlatform)
 }

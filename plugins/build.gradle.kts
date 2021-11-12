@@ -15,10 +15,15 @@
  */
 
 subprojects {
-
   repositories {
     maven("https://repo.spongepowered.org/maven/")
-    maven("https://repo.nukkitx.com/maven-snapshots/")
+    maven("https://repo.opencollab.dev/maven-snapshots/")
     maven("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
+  }
+
+  tasks.named<Copy>("processResources") {
+    filter {
+      it.replace("{project.build.version}", project.version.toString())
+    }
   }
 }

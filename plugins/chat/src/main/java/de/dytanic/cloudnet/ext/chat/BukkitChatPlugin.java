@@ -23,6 +23,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.NotNull;
 
 public class BukkitChatPlugin extends JavaPlugin implements Listener {
 
@@ -38,7 +39,7 @@ public class BukkitChatPlugin extends JavaPlugin implements Listener {
   }
 
   @EventHandler(priority = EventPriority.HIGH)
-  public void handleChat(AsyncPlayerChatEvent event) {
+  public void handleChat(@NotNull AsyncPlayerChatEvent event) {
     Player player = event.getPlayer();
     String formattedMessage = ChatFormatter.buildFormat(
       player.getUniqueId(),

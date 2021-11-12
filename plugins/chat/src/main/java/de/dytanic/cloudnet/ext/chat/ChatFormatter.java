@@ -23,10 +23,15 @@ import java.util.UUID;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public final class ChatFormatter {
 
-  public static String buildFormat(
+  private ChatFormatter() {
+    throw new UnsupportedOperationException();
+  }
+
+  public static @Nullable String buildFormat(
     @NotNull UUID playerId,
     @NotNull String playerName,
     @NotNull String displayName,
@@ -63,5 +68,4 @@ public final class ChatFormatter {
       .replace("%color%", group == null ? "" : group.getColor());
     return colorReplacer.apply('&', format).replace("%message%", coloredMessage);
   }
-
 }

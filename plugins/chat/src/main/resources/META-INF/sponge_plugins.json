@@ -1,0 +1,31 @@
+{
+  "loader": {
+    "name": "java_plain",
+    "version": "1.0"
+  },
+  "license": "Apache-2.0",
+  "plugins": [
+    {
+      "id": "cloudnet_chat",
+      "name": "CloudNet-Chat",
+      "version": "{project.build.version}",
+      "entrypoint": "de.dytanic.cloudnet.ext.chat.SpongeChatPlugin",
+      "description": "Brings chat prefixes and colored message support to all server platforms",
+      "links": {
+        "homepage": "https://cloudnetservice.eu"
+      },
+      "contributors": [
+        {
+          "name": "CloudNetService",
+          "description": "Organization"
+        }
+      ],
+      "dependencies": [
+        {
+          "id": "spongeapi",
+          "version": "8.0.0"
+        }
+      ]
+    }
+  ]
+}
