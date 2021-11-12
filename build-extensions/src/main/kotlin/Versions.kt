@@ -41,7 +41,7 @@ object Versions {
   // databases
   const val h2 = "1.4.197" // do not update, leads to database incompatibility
   const val xodus = "1.3.232"
-  const val mongodb = "4.3.3"
+  const val mongodb = "4.4.0"
   const val mysqlConnector = "8.0.27"
   const val hikariCp = "5.0.0"
 
@@ -62,7 +62,7 @@ object Versions {
 
   const val vault = "1.7.1"
   const val adventure = "4.9.3"
-  const val annotations = "22.0.0"
+  const val annotations = "23.0.0"
   /*
   //Dependencies
     dependencyVaultVersion = '1.7.1'
