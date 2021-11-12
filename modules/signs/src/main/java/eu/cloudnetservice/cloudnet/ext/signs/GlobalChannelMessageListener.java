@@ -18,10 +18,10 @@ package eu.cloudnetservice.cloudnet.ext.signs;
 
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
-import de.dytanic.cloudnet.driver.network.rpc.defaults.object.DefaultObjectMapper;
 import de.dytanic.cloudnet.ext.bridge.WorldPosition;
 import eu.cloudnetservice.cloudnet.ext.signs.configuration.SignsConfiguration;
 import java.util.Collection;
+import org.jetbrains.annotations.NotNull;
 
 public class GlobalChannelMessageListener {
 
@@ -32,7 +32,7 @@ public class GlobalChannelMessageListener {
   }
 
   @EventListener
-  public void handleChannelMessage(ChannelMessageReceiveEvent event) {
+  public void handleChannelMessage(@NotNull ChannelMessageReceiveEvent event) {
     if (event.getChannel().equals(AbstractSignManagement.SIGN_CHANNEL_NAME) && event.getMessage() != null) {
       switch (event.getMessage()) {
         case AbstractSignManagement.SIGN_CREATED:
@@ -42,8 +42,7 @@ public class GlobalChannelMessageListener {
           this.signManagement.handleInternalSignRemove(event.getContent().readObject(WorldPosition.class));
           break;
         case AbstractSignManagement.SIGN_BULK_DELETE:
-          Collection<WorldPosition> positions = DefaultObjectMapper.DEFAULT_MAPPER.readObject(event.getContent(),
-            WorldPosition.COLLECTION_TYPE);
+          Collection<WorldPosition> positions = event.getContent().readObject(WorldPosition.COL_TYPE);
           for (WorldPosition position : positions) {
             this.signManagement.handleInternalSignRemove(position);
           }

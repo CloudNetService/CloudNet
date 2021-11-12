@@ -17,13 +17,9 @@
 package eu.cloudnetservice.cloudnet.ext.signs.service;
 
 import de.dytanic.cloudnet.driver.event.EventListener;
-import de.dytanic.cloudnet.driver.event.events.service.CloudServiceConnectNetworkEvent;
-import de.dytanic.cloudnet.driver.event.events.service.CloudServiceDisconnectNetworkEvent;
-import de.dytanic.cloudnet.driver.event.events.service.CloudServiceInfoUpdateEvent;
-import de.dytanic.cloudnet.driver.event.events.service.CloudServiceRegisterEvent;
-import de.dytanic.cloudnet.driver.event.events.service.CloudServiceStartEvent;
-import de.dytanic.cloudnet.driver.event.events.service.CloudServiceStopEvent;
-import de.dytanic.cloudnet.driver.event.events.service.CloudServiceUnregisterEvent;
+import de.dytanic.cloudnet.driver.event.events.service.CloudServiceLifecycleChangeEvent;
+import de.dytanic.cloudnet.driver.event.events.service.CloudServiceUpdateEvent;
+import org.jetbrains.annotations.NotNull;
 
 public class SignsServiceListener {
 
@@ -34,37 +30,23 @@ public class SignsServiceListener {
   }
 
   @EventListener
-  public void handle(CloudServiceRegisterEvent event) {
-    this.signManagement.handleServiceAdd(event.getServiceInfo());
-  }
-
-  @EventListener
-  public void handle(CloudServiceStartEvent event) {
+  public void handle(@NotNull CloudServiceUpdateEvent event) {
     this.signManagement.handleServiceUpdate(event.getServiceInfo());
   }
 
   @EventListener
-  public void handle(CloudServiceConnectNetworkEvent event) {
-    this.signManagement.handleServiceUpdate(event.getServiceInfo());
-  }
-
-  @EventListener
-  public void handle(CloudServiceDisconnectNetworkEvent event) {
-    this.signManagement.handleServiceUpdate(event.getServiceInfo());
-  }
-
-  @EventListener
-  public void handle(CloudServiceInfoUpdateEvent event) {
-    this.signManagement.handleServiceUpdate(event.getServiceInfo());
-  }
-
-  @EventListener
-  public void handle(CloudServiceStopEvent event) {
-    this.signManagement.handleServiceUpdate(event.getServiceInfo());
-  }
-
-  @EventListener
-  public void handle(CloudServiceUnregisterEvent event) {
-    this.signManagement.handleServiceRemove(event.getServiceInfo());
+  public void handle(@NotNull CloudServiceLifecycleChangeEvent event) {
+    switch (event.getNewLifeCycle()) {
+      case STOPPED:
+      case DELETED:
+        this.signManagement.handleServiceRemove(event.getServiceInfo());
+        break;
+      case RUNNING:
+        this.signManagement.handleServiceAdd(event.getServiceInfo());
+        break;
+      default:
+        this.signManagement.handleServiceUpdate(event.getServiceInfo());
+        break;
+    }
   }
 }

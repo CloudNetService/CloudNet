@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 
+/**
+ * Placeholder to bridge the old objects to the new mappings for auto conversation. Will be removed in the next
+ * release.
+ */
 @Deprecated
 @ApiStatus.ScheduledForRemoval
 package de.dytanic.cloudnet.ext.signs;

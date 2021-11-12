@@ -82,6 +82,7 @@ public class BukkitSignManagement extends AbstractServiceSignManagement<org.bukk
       int chunkX = (int) Math.floor(location.getX()) >> 4;
       int chunkZ = (int) Math.floor(location.getZ()) >> 4;
 
+      //noinspection ConstantConditions
       if (location.getWorld().isChunkLoaded(chunkX, chunkZ)) {
         Block block = location.getBlock();
         if (block.getState() instanceof org.bukkit.block.Sign) {
@@ -179,6 +180,7 @@ public class BukkitSignManagement extends AbstractServiceSignManagement<org.bukk
               int chunkX = (int) Math.floor(location.getX()) >> 4;
               int chunkZ = (int) Math.floor(location.getZ()) >> 4;
 
+              //noinspection ConstantConditions
               if (location.getWorld().isChunkLoaded(chunkX, chunkZ)
                 && location.getBlock().getState() instanceof org.bukkit.block.Sign) {
                 location.getWorld()
@@ -199,11 +201,26 @@ public class BukkitSignManagement extends AbstractServiceSignManagement<org.bukk
   }
 
   protected @NotNull WorldPosition locationToWorldPosition(@NotNull Location location) {
-    return new WorldPosition(location.getX(), location.getY(), location.getZ(), 0, 0, location.getWorld().getName());
+    //noinspection ConstantConditions
+    return new WorldPosition(
+      location.getX(),
+      location.getY(),
+      location.getZ(),
+      0,
+      0,
+      location.getWorld().getName(),
+      null);
   }
 
   protected @NotNull WorldPosition locationToWorldPosition(@NotNull Location location, @NotNull String group) {
-    return new WorldPosition(location.getX(), location.getY(), location.getZ(), 0, 0, location.getWorld().getName(),
+    //noinspection ConstantConditions
+    return new WorldPosition(
+      location.getX(),
+      location.getY(),
+      location.getZ(),
+      0,
+      0,
+      location.getWorld().getName(),
       group);
   }
 

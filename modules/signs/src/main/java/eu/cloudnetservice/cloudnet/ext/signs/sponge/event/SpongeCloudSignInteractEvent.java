@@ -20,23 +20,23 @@ import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.cloudnet.ext.signs.Sign;
 import java.util.Optional;
 import org.jetbrains.annotations.NotNull;
-import org.spongepowered.api.entity.living.player.Player;
+import org.jetbrains.annotations.Nullable;
+import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.event.Cancellable;
-import org.spongepowered.api.event.cause.Cause;
-import org.spongepowered.api.event.entity.living.humanoid.player.TargetPlayerEvent;
-import org.spongepowered.api.event.impl.AbstractEvent;
+import org.spongepowered.api.event.Cause;
+import org.spongepowered.api.event.Event;
 
-public class SpongeCloudSignInteractEvent extends AbstractEvent implements TargetPlayerEvent, Cancellable {
+public class SpongeCloudSignInteractEvent implements Event, Cancellable {
 
   protected final Cause cause;
-  protected final Player player;
+  protected final ServerPlayer player;
 
   protected final Sign sign;
 
   protected boolean cancelled;
   protected ServiceInfoSnapshot target;
 
-  public SpongeCloudSignInteractEvent(Cause cause, Player player, Sign sign, boolean cancelled) {
+  public SpongeCloudSignInteractEvent(Cause cause, ServerPlayer player, Sign sign, boolean cancelled) {
     this.cause = cause;
     this.player = player;
     this.sign = sign;
@@ -44,15 +44,19 @@ public class SpongeCloudSignInteractEvent extends AbstractEvent implements Targe
     this.cancelled = cancelled;
   }
 
-  public Sign getSign() {
+  public @NotNull ServerPlayer getPlayer() {
+    return this.player;
+  }
+
+  public @NotNull Sign getSign() {
     return this.sign;
   }
 
-  public Optional<ServiceInfoSnapshot> getTarget() {
+  public @NotNull Optional<ServiceInfoSnapshot> getTarget() {
     return Optional.ofNullable(this.target);
   }
 
-  public void setTarget(ServiceInfoSnapshot target) {
+  public void setTarget(@Nullable ServiceInfoSnapshot target) {
     this.target = target;
   }
 
@@ -67,12 +71,7 @@ public class SpongeCloudSignInteractEvent extends AbstractEvent implements Targe
   }
 
   @Override
-  public @NotNull Player getTargetEntity() {
-    return this.player;
-  }
-
-  @Override
-  public @NotNull Cause getCause() {
+  public Cause cause() {
     return this.cause;
   }
 }

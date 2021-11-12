@@ -99,6 +99,10 @@ public class ConsoleSetupAnimation extends AbstractConsoleAnimation {
     }
   }
 
+  public @NotNull Deque<QuestionListEntry<?>> getEntries() {
+    return this.entries;
+  }
+
   public boolean isCancelled() {
     return this.cancelled;
   }

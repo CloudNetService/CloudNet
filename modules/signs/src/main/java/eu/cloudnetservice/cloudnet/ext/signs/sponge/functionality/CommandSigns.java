@@ -19,117 +19,129 @@ package eu.cloudnetservice.cloudnet.ext.signs.sponge.functionality;
 import eu.cloudnetservice.cloudnet.ext.signs.Sign;
 import eu.cloudnetservice.cloudnet.ext.signs.service.ServiceSignManagement;
 import java.util.Optional;
+import net.kyori.adventure.identity.Identity;
+import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
-import org.spongepowered.api.block.BlockType;
-import org.spongepowered.api.block.BlockTypes;
+import org.spongepowered.api.command.CommandExecutor;
 import org.spongepowered.api.command.CommandResult;
-import org.spongepowered.api.command.CommandSource;
-import org.spongepowered.api.command.args.CommandContext;
-import org.spongepowered.api.command.spec.CommandExecutor;
-import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.text.Text;
-import org.spongepowered.api.util.blockray.BlockRay;
-import org.spongepowered.api.util.blockray.BlockRayHit;
-import org.spongepowered.api.world.World;
+import org.spongepowered.api.command.parameter.CommandContext;
+import org.spongepowered.api.command.parameter.Parameter;
+import org.spongepowered.api.command.parameter.Parameter.Key;
+import org.spongepowered.api.entity.living.player.server.ServerPlayer;
+import org.spongepowered.api.registry.RegistryTypes;
+import org.spongepowered.api.util.blockray.RayTrace;
+import org.spongepowered.api.util.blockray.RayTraceResult;
+import org.spongepowered.api.world.LocatableBlock;
 
 public class CommandSigns implements CommandExecutor {
 
-  protected final ServiceSignManagement<org.spongepowered.api.block.tileentity.Sign> signManagement;
+  public static final Key<String> ACTION = Parameter.key("action", String.class);
+  public static final Key<String> TARGET_GROUP = Parameter.key("target_group", String.class);
+  public static final Key<String> TARGET_TEMPLATE = Parameter.key("target_template_path", String.class);
 
-  public CommandSigns(ServiceSignManagement<org.spongepowered.api.block.tileentity.Sign> signManagement) {
+  protected final ServiceSignManagement<org.spongepowered.api.block.entity.Sign> signManagement;
+
+  public CommandSigns(@NotNull ServiceSignManagement<org.spongepowered.api.block.entity.Sign> signManagement) {
     this.signManagement = signManagement;
   }
 
   @Override
-  public @NotNull CommandResult execute(@NotNull CommandSource src, @NotNull CommandContext args) {
-    if (!(src instanceof Player)) {
-      src.sendMessage(Text.of("Only players may execute this command"));
+  public CommandResult execute(@NotNull CommandContext context) {
+    if (!(context.subject() instanceof ServerPlayer)) {
+      context.sendMessage(Identity.nil(), Component.text("Only players may execute this command"));
       return CommandResult.success();
     }
 
-    Player player = (Player) src;
-    String type = args.<String>getOne("Type").orElse(null);
-    String targetGroup = args.<String>getOne("Target Group").orElse(null);
-    String targetTemplatePath = args.<String>getOne("Template Path").orElse(null);
+    ServerPlayer player = (ServerPlayer) context.subject();
+    String type = context.one(ACTION).orElse(null);
+    String targetGroup = context.one(TARGET_GROUP).orElse(null);
+    String targetTemplatePath = context.one(TARGET_TEMPLATE).orElse(null);
 
     if (type != null) {
       if (type.equalsIgnoreCase("create") && targetGroup != null) {
-        Optional<BlockRayHit<World>> hit = this.getTargetBlock(player);
+        Optional<RayTraceResult<LocatableBlock>> hit = this.getTargetBlock(player);
         if (!hit.isPresent()) {
           return CommandResult.success();
         }
 
-        Sign sign = this.signManagement
-          .getSignAt((org.spongepowered.api.block.tileentity.Sign) hit.get().getLocation().getTileEntity().get());
+        Sign sign = this.signManagement.getSignAt((org.spongepowered.api.block.entity.Sign) hit.get().selectedObject());
         if (sign != null) {
-          this.signManagement.getSignsConfiguration().sendMessage("command-cloudsign-sign-already-exist",
-            message -> player.sendMessage(Text.of(message)));
+          this.signManagement.getSignsConfiguration().sendMessage(
+            "command-cloudsign-sign-already-exist",
+            message -> player.sendMessage(Component.text(message)));
         } else {
-          Sign createdSign = this.signManagement
-            .createSign((org.spongepowered.api.block.tileentity.Sign) hit.get().getLocation().getTileEntity().get(),
-              targetGroup, targetTemplatePath);
+          Sign createdSign = this.signManagement.createSign(
+            (org.spongepowered.api.block.entity.Sign) hit.get().selectedObject(),
+            targetGroup,
+            targetTemplatePath);
           if (createdSign != null) {
-            this.signManagement.getSignsConfiguration().sendMessage("command-cloudsign-create-success",
-              m -> player.sendMessage(Text.of(m)), m -> m.replace("%group%", createdSign.getTargetGroup()));
+            this.signManagement.getSignsConfiguration().sendMessage(
+              "command-cloudsign-create-success",
+              m -> player.sendMessage(Component.text(m)),
+              m -> m.replace("%group%", createdSign.getTargetGroup()));
           }
         }
 
         return CommandResult.success();
       } else if (type.equalsIgnoreCase("cleanup")) {
         int removed = this.signManagement.removeMissingSigns();
-        this.signManagement.getSignsConfiguration().sendMessage("command-cloudsign-cleanup-success",
-          m -> player.sendMessage(Text.of(m)), m -> m.replace("%amount%", Integer.toString(removed)));
+        this.signManagement.getSignsConfiguration().sendMessage(
+          "command-cloudsign-cleanup-success",
+          m -> player.sendMessage(Component.text(m)),
+          m -> m.replace("%amount%", Integer.toString(removed)));
         return CommandResult.success();
       } else if (type.equalsIgnoreCase("removeall")) {
         int removed = this.signManagement.deleteAllSigns();
-        this.signManagement.getSignsConfiguration().sendMessage("command-cloudsign-bulk-remove-success",
-          m -> player.sendMessage(Text.of(m)), m -> m.replace("%amount%", Integer.toString(removed)));
+        this.signManagement.getSignsConfiguration().sendMessage(
+          "command-cloudsign-bulk-remove-success",
+          m -> player.sendMessage(Component.text(m)),
+          m -> m.replace("%amount%", Integer.toString(removed)));
         return CommandResult.success();
       } else if (type.equalsIgnoreCase("remove")) {
-        Optional<BlockRayHit<World>> hit = this.getTargetBlock(player);
+        Optional<RayTraceResult<LocatableBlock>> hit = this.getTargetBlock(player);
         if (!hit.isPresent()) {
           return CommandResult.success();
         }
 
-        Sign sign = this.signManagement
-          .getSignAt((org.spongepowered.api.block.tileentity.Sign) hit.get().getLocation().getTileEntity().get());
+        Sign sign = this.signManagement.getSignAt((org.spongepowered.api.block.entity.Sign) hit.get().selectedObject());
         if (sign != null) {
           this.signManagement.deleteSign(sign);
-          this.signManagement.getSignsConfiguration().sendMessage("command-cloudsign-remove-success",
-            m -> player.sendMessage(Text.of(m)));
+          this.signManagement.getSignsConfiguration().sendMessage(
+            "command-cloudsign-remove-success",
+            m -> player.sendMessage(Component.text(m)));
         } else {
-          this.signManagement.getSignsConfiguration().sendMessage("command-cloudsign-remove-not-existing",
-            m -> player.sendMessage(Text.of(m)));
+          this.signManagement.getSignsConfiguration().sendMessage(
+            "command-cloudsign-remove-not-existing",
+            m -> player.sendMessage(Component.text(m)));
         }
 
         return CommandResult.success();
       }
     }
 
-    src.sendMessage(Text.of("§7/cloudsigns create <targetGroup> [templatePath]"));
-    src.sendMessage(Text.of("§7/cloudsigns remove"));
-    src.sendMessage(Text.of("§7/cloudsigns removeAll"));
-    src.sendMessage(Text.of("§7/cloudsigns cleanup"));
+    context.sendMessage(Identity.nil(), Component.text("§7/cloudsigns create <targetGroup> [templatePath]"));
+    context.sendMessage(Identity.nil(), Component.text("§7/cloudsigns remove"));
+    context.sendMessage(Identity.nil(), Component.text("§7/cloudsigns removeAll"));
+    context.sendMessage(Identity.nil(), Component.text("§7/cloudsigns cleanup"));
 
     return CommandResult.success();
   }
 
-  protected @NotNull Optional<BlockRayHit<World>> getTargetBlock(@NotNull Player player) {
-    Optional<BlockRayHit<World>> hit = BlockRay.from(player)
-      .distanceLimit(15)
-      .narrowPhase(true)
-      .select(lastHit -> {
-        BlockType blockType = lastHit.getExtent()
-          .getBlockType(lastHit.getBlockX(), lastHit.getBlockY(), lastHit.getBlockZ());
-        return blockType.equals(BlockTypes.STANDING_SIGN) || blockType.equals(BlockTypes.WALL_SIGN);
-      })
-      .end();
-    if (!hit.isPresent() || !(hit.get().getLocation().getTileEntity()
-      .orElse(null) instanceof org.spongepowered.api.block.tileentity.Sign)) {
-      this.signManagement.getSignsConfiguration().sendMessage("command-cloudsign-not-looking-at-sign",
-        message -> player.sendMessage(Text.of(message)));
+  protected @NotNull Optional<RayTraceResult<LocatableBlock>> getTargetBlock(@NotNull ServerPlayer player) {
+    Optional<RayTraceResult<LocatableBlock>> result = RayTrace.block()
+      .limit(15)
+      .world(player.world())
+      .sourceEyePosition(player)
+      .direction(player.direction())
+      .select(block -> block.blockState().type().key(RegistryTypes.BLOCK_TYPE).formatted().endsWith("_sign"))
+      .execute();
+    // check if the player is facing a sign
+    if (!result.isPresent() || !(result.get().selectedObject() instanceof org.spongepowered.api.block.entity.Sign)) {
+      this.signManagement.getSignsConfiguration().sendMessage(
+        "command-cloudsign-not-looking-at-sign",
+        message -> player.sendMessage(Component.text(message)));
       return Optional.empty();
     }
-    return hit;
+    return result;
   }
 }

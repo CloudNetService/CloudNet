@@ -189,11 +189,24 @@ public class NukkitSignManagement extends AbstractServiceSignManagement<BlockEnt
   }
 
   protected @NotNull WorldPosition locationToWorldPosition(@NotNull Location location) {
-    return new WorldPosition(location.getX(), location.getY(), location.getZ(), 0, 0, location.getLevel().getName());
+    return new WorldPosition(
+      location.getX(),
+      location.getY(),
+      location.getZ(),
+      0,
+      0,
+      location.getLevel().getName(),
+      null);
   }
 
   protected @NotNull WorldPosition locationToWorldPosition(@NotNull Location location, @NotNull String group) {
-    return new WorldPosition(location.getX(), location.getY(), location.getZ(), 0, 0, location.getLevel().getName(),
+    return new WorldPosition(
+      location.getX(),
+      location.getY(),
+      location.getZ(),
+      0,
+      0,
+      location.getLevel().getName(),
       group);
   }
 

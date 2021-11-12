@@ -29,7 +29,6 @@ import eu.cloudnetservice.cloudnet.ext.signs.SignManagement;
 import eu.cloudnetservice.cloudnet.ext.signs.configuration.SignConfigurationEntry;
 import eu.cloudnetservice.cloudnet.ext.signs.configuration.SignLayoutsHolder;
 import eu.cloudnetservice.cloudnet.ext.signs.configuration.SignsConfiguration;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
@@ -54,7 +53,8 @@ public abstract class ServiceSignManagement<T> extends AbstractSignManagement im
   protected ServiceSignManagement(SignsConfiguration signsConfiguration) {
     super(signsConfiguration);
     // get the signs for the current group
-    for (Sign sign : this.getSigns(Wrapper.getInstance().getServiceConfiguration().getGroups())) {
+    String[] groups = Wrapper.getInstance().getServiceConfiguration().getGroups().toArray(new String[0]);
+    for (Sign sign : this.getSigns(groups)) {
       this.signs.put(sign.getWorldPosition(), sign);
     }
   }
@@ -159,14 +159,15 @@ public abstract class ServiceSignManagement<T> extends AbstractSignManagement im
   public @NotNull Collection<Sign> getSigns(@NotNull String[] groups) {
     ChannelMessage response = this.channelMessage(SIGN_GET_SIGNS_BY_GROUPS)
       .buffer(DataBuf.empty().writeObject(groups))
-      .build().sendSingleQuery();
+      .build()
+      .sendSingleQuery();
     return response == null ? Collections.emptySet()
       : DefaultObjectMapper.DEFAULT_MAPPER.readObject(response.getContent(), Sign.COLLECTION_TYPE);
   }
 
   @Override
   public void handleInternalSignCreate(@NotNull Sign sign) {
-    if (Arrays.asList(Wrapper.getInstance().getServiceConfiguration().getGroups()).contains(sign.getCreatedGroup())) {
+    if (Wrapper.getInstance().getServiceConfiguration().getGroups().contains(sign.getCreatedGroup())) {
       super.handleInternalSignCreate(sign);
     }
   }
@@ -190,7 +191,7 @@ public abstract class ServiceSignManagement<T> extends AbstractSignManagement im
    */
   public @Nullable SignConfigurationEntry getApplicableSignConfigurationEntry() {
     for (SignConfigurationEntry entry : this.signsConfiguration.getConfigurationEntries()) {
-      if (Arrays.asList(Wrapper.getInstance().getServiceConfiguration().getGroups()).contains(entry.getTargetGroup())) {
+      if (Wrapper.getInstance().getServiceConfiguration().getGroups().contains(entry.getTargetGroup())) {
         return entry;
       }
     }

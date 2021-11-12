@@ -16,26 +16,26 @@
 
 package eu.cloudnetservice.cloudnet.ext.signs.node;
 
+import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.database.Database;
 import de.dytanic.cloudnet.driver.module.ModuleLifeCycle;
 import de.dytanic.cloudnet.driver.module.ModuleTask;
+import de.dytanic.cloudnet.driver.module.driver.DriverModule;
 import de.dytanic.cloudnet.driver.util.DefaultModuleHelper;
 import de.dytanic.cloudnet.ext.bridge.WorldPosition;
 import de.dytanic.cloudnet.ext.signs.SignConstants;
-import de.dytanic.cloudnet.module.NodeCloudNetModule;
 import eu.cloudnetservice.cloudnet.ext.signs.GlobalChannelMessageListener;
 import eu.cloudnetservice.cloudnet.ext.signs.Sign;
 import eu.cloudnetservice.cloudnet.ext.signs.SignManagement;
 import eu.cloudnetservice.cloudnet.ext.signs.configuration.SignsConfiguration;
-import eu.cloudnetservice.cloudnet.ext.signs.node.commands.CommandSign;
 import eu.cloudnetservice.cloudnet.ext.signs.node.configuration.NodeSignsConfigurationHelper;
 import java.nio.file.Path;
 import java.util.Collection;
 
-public class CloudNetSignsModule extends NodeCloudNetModule {
+public class CloudNetSignsModule extends DriverModule {
 
   protected static final String DATABASE_NAME = "cloudnet_signs";
 
@@ -47,7 +47,7 @@ public class CloudNetSignsModule extends NodeCloudNetModule {
 
   @ModuleTask(order = 50)
   public void initialize() {
-    this.database = this.getCloudNet().getDatabaseProvider().getDatabase(DATABASE_NAME);
+    this.database = CloudNet.getInstance().getDatabaseProvider().getDatabase(DATABASE_NAME);
     this.configurationPath = this.getModuleWrapper().getDataDirectory().resolve("config.json");
   }
 
@@ -61,9 +61,7 @@ public class CloudNetSignsModule extends NodeCloudNetModule {
     SignManagement management = new NodeSignManagement(this.configuration, this.configurationPath, this.database);
     management.registerToServiceRegistry();
 
-    this.registerCommand(new CommandSign(management, this.configurationPath));
-    this.getCloudNet().getEventManager().registerListeners(new GlobalChannelMessageListener(management),
-      new NodeSignsListener(management));
+    this.registerListener(new GlobalChannelMessageListener(management), new NodeSignsListener(management));
   }
 
   @Deprecated
@@ -75,13 +73,14 @@ public class CloudNetSignsModule extends NodeCloudNetModule {
   @ModuleTask(order = 40, event = ModuleLifeCycle.STOPPED)
   public void handleStopping() throws Exception {
     this.database.close();
-    this.getCloudNet().getEventManager().unregisterListeners(this.getClass().getClassLoader());
+    CloudNet.getInstance().getEventManager().unregisterListeners(this.getClass().getClassLoader());
   }
 
   @Deprecated
   private void convertDatabaseIfNecessary() {
     // load old database document
-    Database database = this.getDatabaseProvider().getDatabase(DefaultModuleHelper.DEFAULT_CONFIGURATION_DATABASE_NAME);
+    Database database = CloudNet.getInstance().getDatabaseProvider()
+      .getDatabase(DefaultModuleHelper.DEFAULT_CONFIGURATION_DATABASE_NAME);
     JsonDocument document = database.get("signs_store");
     // when the document is null the conversation already happened
     if (document != null) {
@@ -93,7 +92,7 @@ public class CloudNetSignsModule extends NodeCloudNetModule {
       Collection<de.dytanic.cloudnet.ext.signs.Sign> oldSigns = document.get("signs", SignConstants.COLLECTION_SIGNS);
       if (oldSigns != null) {
         // convert the old sign entries
-        SignManagement management = this.getCloudNet().getServicesRegistry().getFirstService(SignManagement.class);
+        SignManagement management = CloudNet.getInstance().getServicesRegistry().getFirstService(SignManagement.class);
         for (de.dytanic.cloudnet.ext.signs.Sign oldSign : oldSigns) {
           management.createSign(new Sign(
             oldSign.getTargetGroup(),

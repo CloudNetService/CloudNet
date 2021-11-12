@@ -27,7 +27,8 @@ import de.dytanic.cloudnet.driver.network.buffer.DataBuf.Mutable;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
-import de.dytanic.cloudnet.ext.bridge.ServiceInfoStateWatcher;
+import de.dytanic.cloudnet.ext.bridge.BridgeServiceHelper;
+import de.dytanic.cloudnet.ext.bridge.BridgeServiceHelper.ServiceInfoState;
 import de.dytanic.cloudnet.ext.bridge.WorldPosition;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import eu.cloudnetservice.cloudnet.ext.signs.Sign;
@@ -38,7 +39,6 @@ import eu.cloudnetservice.cloudnet.ext.signs.configuration.SignLayoutsHolder;
 import eu.cloudnetservice.cloudnet.ext.signs.configuration.SignsConfiguration;
 import eu.cloudnetservice.cloudnet.ext.signs.util.LayoutUtil;
 import eu.cloudnetservice.cloudnet.ext.signs.util.PriorityUtil;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Queue;
@@ -59,11 +59,8 @@ public abstract class AbstractServiceSignManagement<T> extends ServiceSignManage
   public static final String SIGN_DELETE = "signs_sign_delete";
   public static final String SIGN_ALL_DELETE = "signs_sign_delete_all";
   public static final String SIGN_BULK_DELETE = "signs_sign_bulk_delete";
-
-  private static final Logger LOGGER = LogManager.getLogger(AbstractServiceSignManagement.class);
-
   protected static final int TPS = 20;
-
+  private static final Logger LOGGER = LogManager.getLogger(AbstractServiceSignManagement.class);
   protected final AtomicInteger currentTick = new AtomicInteger();
   protected final Queue<ServiceInfoSnapshot> waitingAssignments = new ConcurrentLinkedQueue<>();
 
@@ -155,11 +152,10 @@ public abstract class AbstractServiceSignManagement<T> extends ServiceSignManage
     if (sign.getCurrentTarget() == null) {
       return false;
     } else {
-      ServiceInfoStateWatcher.ServiceInfoState state = ServiceInfoStateWatcher
-        .stateFromServiceInfoSnapshot(sign.getCurrentTarget());
-      return state == ServiceInfoStateWatcher.ServiceInfoState.EMPTY_ONLINE
-        || state == ServiceInfoStateWatcher.ServiceInfoState.ONLINE
-        || state == ServiceInfoStateWatcher.ServiceInfoState.FULL_ONLINE;
+      ServiceInfoState state = BridgeServiceHelper.guessStateFromServiceInfoSnapshot(sign.getCurrentTarget());
+      return state == ServiceInfoState.EMPTY_ONLINE
+        || state == ServiceInfoState.ONLINE
+        || state == ServiceInfoState.FULL_ONLINE;
     }
   }
 
@@ -197,7 +193,7 @@ public abstract class AbstractServiceSignManagement<T> extends ServiceSignManage
 
   @Override
   public void handleInternalSignRemove(@NotNull WorldPosition position) {
-    if (Arrays.asList(Wrapper.getInstance().getServiceConfiguration().getGroups()).contains(position.getGroup())) {
+    if (Wrapper.getInstance().getServiceConfiguration().getGroups().contains(position.getGroup())) {
       Sign sign = this.getSignAt(position);
       if (sign != null && sign.getCurrentTarget() != null) {
         this.waitingAssignments.add(sign.getCurrentTarget());
@@ -212,8 +208,10 @@ public abstract class AbstractServiceSignManagement<T> extends ServiceSignManage
     if (lines != null && lines.length == 4) {
       String[] replacedLines = new String[4];
       for (int i = 0; i < 4; i++) {
-        replacedLines[i] = ServiceInfoStateWatcher
-          .replaceServiceInfo(lines[i], sign.getTargetGroup(), sign.getCurrentTarget());
+        replacedLines[i] = BridgeServiceHelper.fillCommonPlaceholders(
+          lines[i],
+          sign.getTargetGroup(),
+          sign.getCurrentTarget());
       }
       return replacedLines;
     }
@@ -247,7 +245,7 @@ public abstract class AbstractServiceSignManagement<T> extends ServiceSignManage
 
   protected boolean checkTemplatePath(@NotNull ServiceInfoSnapshot snapshot, @NotNull Sign sign) {
     for (ServiceTemplate template : snapshot.getConfiguration().getTemplates()) {
-      if (template.getTemplatePath().equals(sign.getTemplatePath())) {
+      if (template.toString().equals(sign.getTemplatePath())) {
         return true;
       }
     }
@@ -305,7 +303,7 @@ public abstract class AbstractServiceSignManagement<T> extends ServiceSignManage
     synchronized (this) {
       Sign bestChoice = null;
       for (Sign sign : this.signs.values()) {
-        if (Arrays.asList(snapshot.getConfiguration().getGroups()).contains(sign.getTargetGroup())
+        if (snapshot.getConfiguration().getGroups().contains(sign.getTargetGroup())
           && (sign.getTemplatePath() == null || this.checkTemplatePath(snapshot, sign))) {
           // the service could be assigned to the sign
           if (sign.getCurrentTarget() == null) {

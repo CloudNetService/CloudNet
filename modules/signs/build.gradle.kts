@@ -20,17 +20,16 @@ tasks.withType<Jar> {
 }
 
 dependencies {
-  "moduleDependency"(project(":modules:bridge"))
+  "moduleDependency"(project(":cloudnet-modules:bridge"))
+
   "compileOnly"(project(":cloudnet-wrapper-jvm"))
   "compileOnly"("cn.nukkit", "nukkit", Versions.nukkitX)
-  "compileOnly"("org.spigotmc", "spigot-api", Versions.spigotApi)
+  "compileOnly"("org.spigotmc", "spigot-api", Versions.spigot)
   "compileOnly"("org.spongepowered", "spongeapi", Versions.sponge)
 }
-
-/*
 
 moduleJson {
   main = "eu.cloudnetservice.cloudnet.ext.signs.node.CloudNetSignsModule"
   author = "CloudNetService"
   description = "CloudNet extension which adds sign connector support for Bukkit, Nukkit and Sponge"
-}*/
+}

@@ -16,16 +16,16 @@
 
 package eu.cloudnetservice.cloudnet.ext.signs.node;
 
-import de.dytanic.cloudnet.driver.channel.ChannelMessage;
+import static eu.cloudnetservice.cloudnet.ext.signs.node.util.SignEntryTaskSetup.addSetupQuestionIfNecessary;
+
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
-import de.dytanic.cloudnet.driver.network.rpc.defaults.object.DefaultObjectMapper;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
-import de.dytanic.cloudnet.event.cluster.NetworkChannelAuthClusterNodeSuccessEvent;
-import de.dytanic.cloudnet.event.service.CloudServicePreStartEvent;
+import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
+import de.dytanic.cloudnet.event.service.CloudServicePreLifecycleEvent;
 import de.dytanic.cloudnet.event.setup.SetupCompleteEvent;
-import de.dytanic.cloudnet.event.setup.SetupResponseEvent;
+import de.dytanic.cloudnet.event.setup.SetupInitiateEvent;
 import de.dytanic.cloudnet.ext.bridge.WorldPosition;
 import eu.cloudnetservice.cloudnet.ext.signs.AbstractSignManagement;
 import eu.cloudnetservice.cloudnet.ext.signs.Sign;
@@ -36,75 +36,80 @@ import eu.cloudnetservice.cloudnet.ext.signs.node.util.SignPluginInclusion;
 import eu.cloudnetservice.cloudnet.ext.signs.service.AbstractServiceSignManagement;
 import eu.cloudnetservice.cloudnet.ext.signs.service.ServiceSignManagement;
 import java.util.Collection;
+import org.jetbrains.annotations.NotNull;
 
 public class NodeSignsListener {
 
   protected final SignManagement signManagement;
 
-  public NodeSignsListener(SignManagement signManagement) {
+  public NodeSignsListener(@NotNull SignManagement signManagement) {
     this.signManagement = signManagement;
   }
 
   @EventListener
-  public void handleNodeAuthSuccess(NetworkChannelAuthClusterNodeSuccessEvent event) {
-    event.getNode().sendCustomChannelMessage(ChannelMessage.builder()
-      .channel(AbstractSignManagement.SIGN_CHANNEL_NAME)
-      .message(NodeSignManagement.NODE_TO_NODE_SET_SIGN_CONFIGURATION)
-      .buffer(DataBuf.empty().writeObject(this.signManagement.getSignsConfiguration()))
-      .build());
+  public void handleSetupInitialize(@NotNull SetupInitiateEvent event) {
+    event.getSetup().getEntries().stream()
+      .filter(entry -> entry.getKey().equals("taskEnvironment"))
+      .findFirst()
+      .ifPresent(entry -> entry.getAnswerType().thenAccept(($, environment) -> addSetupQuestionIfNecessary(
+        event.getSetup(),
+        (ServiceEnvironmentType) environment)));
   }
 
   @EventListener
-  public void includePluginIfNecessary(CloudServicePreStartEvent event) {
-    SignPluginInclusion.includePluginTo(event.getCloudService(), this.signManagement.getSignsConfiguration());
+  public void handleSetupComplete(@NotNull SetupCompleteEvent event) {
+    SignEntryTaskSetup.handleSetupComplete(
+      event.getSetup(),
+      this.signManagement.getSignsConfiguration(),
+      this.signManagement);
   }
 
   @EventListener
-  public void handleTaskSetupResponse(SetupResponseEvent event) {
-    if (event.getSetup().getName().equals("TaskSetup") && event.getResponse() instanceof ServiceEnvironmentType) {
-      SignEntryTaskSetup.addSetupQuestionIfNecessary(event.getSetup(), (ServiceEnvironmentType) event.getResponse());
+  public void includePluginIfNecessary(@NotNull CloudServicePreLifecycleEvent event) {
+    if (event.getTargetLifecycle() == ServiceLifeCycle.RUNNING) {
+      SignPluginInclusion.includePluginTo(event.getService(), this.signManagement.getSignsConfiguration());
     }
-  }
-
-  @EventListener
-  public void handleSetupComplete(SetupCompleteEvent event) {
-    SignEntryTaskSetup
-      .handleSetupComplete(event.getSetup(), this.signManagement.getSignsConfiguration(), this.signManagement);
   }
 
   @EventListener
   public void handleChannelMessage(ChannelMessageReceiveEvent event) {
     if (event.getChannel().equals(AbstractSignManagement.SIGN_CHANNEL_NAME) && event.getMessage() != null) {
       switch (event.getMessage()) {
+        // config request
         case AbstractServiceSignManagement.REQUEST_CONFIG:
           event.setBinaryResponse(DataBuf.empty().writeObject(this.signManagement.getSignsConfiguration()));
           break;
+        // delete all signs
         case AbstractServiceSignManagement.SIGN_ALL_DELETE:
-          Collection<WorldPosition> positions = DefaultObjectMapper.DEFAULT_MAPPER.readObject(event.getContent(),
-            WorldPosition.COLLECTION_TYPE);
+          Collection<WorldPosition> positions = event.getContent().readObject(WorldPosition.COL_TYPE);
           for (WorldPosition position : positions) {
             this.signManagement.deleteSign(position);
           }
           break;
+        // create a new sign
         case AbstractServiceSignManagement.SIGN_CREATE:
           this.signManagement.createSign(event.getContent().readObject(Sign.class));
           break;
+        // delete an existing sign
         case AbstractServiceSignManagement.SIGN_DELETE:
           this.signManagement.deleteSign(event.getContent().readObject(WorldPosition.class));
           break;
+        // delete all signs
         case AbstractServiceSignManagement.SIGN_BULK_DELETE:
           int deleted = this.signManagement
-            .deleteAllSigns(event.getContent().readString(),
-              event.getContent().readNullable(DataBuf::readString));
+            .deleteAllSigns(event.getContent().readString(), event.getContent().readNullable(DataBuf::readString));
           event.setBinaryResponse(DataBuf.empty().writeInt(deleted));
           break;
+        // set the sign config
         case AbstractServiceSignManagement.SET_SIGN_CONFIG:
           this.signManagement.setSignsConfiguration(event.getContent().readObject(SignsConfiguration.class));
           break;
+        // get all signs of a group
         case ServiceSignManagement.SIGN_GET_SIGNS_BY_GROUPS:
           Collection<Sign> signs = this.signManagement.getSigns(event.getContent().readObject(String[].class));
           event.setBinaryResponse(DataBuf.empty().writeObject(signs));
           break;
+        // set the sign configuration without a re-publish to the cluster
         case NodeSignManagement.NODE_TO_NODE_SET_SIGN_CONFIGURATION:
           this.signManagement.handleInternalSignConfigUpdate(event.getContent().readObject(SignsConfiguration.class));
           break;

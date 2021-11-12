@@ -26,7 +26,7 @@ initializeProjects("common", "driver", "node", "wrapper-jvm", "launcher", "modul
 // sub projects
 initializeSubProjects("wrapper-jvm", "minecraft-launchwrapper-api")
 // initializeSubProjects("plugins", "chat")
-initializeSubProjects("modules", "bridge", "report", "cloudflare", "rest", "database-mongodb", "database-mysql", "cloudperms" /*"syncproxy"*/)
+initializeSubProjects("modules", "bridge", "report", "cloudflare", "rest", "database-mongodb", "database-mysql", "cloudperms", "signs" /*"syncproxy"*/)
 
 fun initializeProjects(vararg names: String) {
   names.forEach {

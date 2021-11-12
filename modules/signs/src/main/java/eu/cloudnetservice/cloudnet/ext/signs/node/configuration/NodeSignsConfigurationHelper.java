@@ -34,6 +34,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 public final class NodeSignsConfigurationHelper {
@@ -51,7 +52,7 @@ public final class NodeSignsConfigurationHelper {
   public static SignsConfiguration read(@NotNull Path path) {
     JsonDocument configurationDocument;
     try {
-      configurationDocument = JsonDocument.newDocumentExceptionally(path);
+      configurationDocument = JsonDocument.newDocument(path);
     } catch (Exception exception) {
       throw new JsonParseException("Exception while parsing signs configuration. Your configuration is invalid.");
     }
@@ -110,21 +111,26 @@ public final class NodeSignsConfigurationHelper {
     );
   }
 
-  protected static SignLayout convertSignLayout(de.dytanic.cloudnet.ext.signs.SignLayout oldLayout) {
+  @Contract("_ -> new")
+  private static @NotNull SignLayout convertSignLayout(@NotNull de.dytanic.cloudnet.ext.signs.SignLayout oldLayout) {
     return new SignLayout(oldLayout.getLines(), oldLayout.getBlockType(), oldLayout.getSubId());
   }
 
-  protected static SignLayoutsHolder convertOldAnimation(SignLayoutConfiguration configuration) {
+  @Contract("_ -> new")
+  private static @NotNull SignLayoutsHolder convertOldAnimation(@NotNull SignLayoutConfiguration configuration) {
     return new SignLayoutsHolder(configuration.getAnimationsPerSecond(), configuration.getSignLayouts().stream()
       .map(NodeSignsConfigurationHelper::convertSignLayout)
       .collect(Collectors.toList()));
   }
 
-  protected static SignLayoutsHolder convertSingleToMany(de.dytanic.cloudnet.ext.signs.SignLayout oldLayout) {
+  @Contract("_ -> new")
+  private static @NotNull SignLayoutsHolder convertSingleToMany(
+    @NotNull de.dytanic.cloudnet.ext.signs.SignLayout oldLayout
+  ) {
     return new SignLayoutsHolder(1, new ArrayList<>(Collections.singleton(convertSignLayout(oldLayout))));
   }
 
-  protected static Map<String, String> convertMessages(Map<String, String> oldMessages) {
+  private static @NotNull Map<String, String> convertMessages(@NotNull Map<String, String> oldMessages) {
     Map<String, String> messages = new HashMap<>(SignsConfiguration.DEFAULT_MESSAGES);
     for (Map.Entry<String, String> entry : oldMessages.entrySet()) {
       messages.put(entry.getKey(), entry.getValue().replace('&', '§'));

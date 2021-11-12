@@ -21,52 +21,57 @@ import de.dytanic.cloudnet.ext.bridge.player.IPlayerManager;
 import eu.cloudnetservice.cloudnet.ext.signs.Sign;
 import eu.cloudnetservice.cloudnet.ext.signs.service.ServiceSignManagement;
 import eu.cloudnetservice.cloudnet.ext.signs.sponge.event.SpongeCloudSignInteractEvent;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
+import org.jetbrains.annotations.NotNull;
+import org.spongepowered.api.ResourceKey;
 import org.spongepowered.api.Sponge;
-import org.spongepowered.api.block.BlockType;
-import org.spongepowered.api.block.BlockTypes;
-import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.entity.living.player.server.ServerPlayer;
+import org.spongepowered.api.event.Cause;
+import org.spongepowered.api.event.EventContext;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.block.InteractBlockEvent;
-import org.spongepowered.api.event.cause.Cause;
-import org.spongepowered.api.event.cause.EventContext;
 import org.spongepowered.api.event.filter.cause.First;
-import org.spongepowered.api.text.Text;
+import org.spongepowered.api.registry.RegistryTypes;
+import org.spongepowered.plugin.PluginContainer;
 
 public class SignInteractListener {
 
-  protected final Object plugin;
-  protected final ServiceSignManagement<org.spongepowered.api.block.tileentity.Sign> signManagement;
+  protected final PluginContainer plugin;
+  protected final ServiceSignManagement<org.spongepowered.api.block.entity.Sign> signManagement;
 
-  public SignInteractListener(Object plugin,
-    ServiceSignManagement<org.spongepowered.api.block.tileentity.Sign> signManagement) {
+  public SignInteractListener(
+    @NotNull PluginContainer plugin,
+    @NotNull ServiceSignManagement<org.spongepowered.api.block.entity.Sign> signManagement
+  ) {
     this.plugin = plugin;
     this.signManagement = signManagement;
   }
 
   @Listener
-  public void handle(InteractBlockEvent event, @First Player player) {
-    BlockType blockType = event.getTargetBlock().getState().getType();
-    if (blockType.equals(BlockTypes.WALL_SIGN) || blockType.equals(BlockTypes.STANDING_SIGN)) {
-      if (event.getTargetBlock().getLocation().isPresent()
-        && event.getTargetBlock().getLocation().get().getTileEntity().isPresent()
-        && event.getTargetBlock().getLocation().get().getTileEntity()
-        .orElse(null) instanceof org.spongepowered.api.block.tileentity.Sign) {
+  public void handle(@NotNull InteractBlockEvent.Secondary event, @First ServerPlayer player) {
+    // easy hack to allow all sign types like acacia_sign, birch_wall_sign etc.
+    ResourceKey key = event.block().state().type().findKey(RegistryTypes.BLOCK_TYPE).orElse(null);
+    if (key != null && key.formatted().endsWith("_sign")) {
+      if (event.block().location().isPresent()
+        && event.block().location().get().blockEntity().isPresent()
+        && event.block().location().get().blockEntity().get() instanceof org.spongepowered.api.block.entity.Sign) {
+        // get the cloud sign at the position
         Sign sign = this.signManagement.getSignAt(
-          (org.spongepowered.api.block.tileentity.Sign) event.getTargetBlock().getLocation().get().getTileEntity()
-            .get());
+          (org.spongepowered.api.block.entity.Sign) event.block().location().get().blockEntity().get());
         if (sign != null) {
           boolean canConnect = this.signManagement.canConnect(sign, player::hasPermission);
 
           SpongeCloudSignInteractEvent interactEvent = new SpongeCloudSignInteractEvent(
-            Cause.of(EventContext.empty(), this.plugin),
+            Cause.of(EventContext.builder().from(event.context()).build(), this.plugin),
             player, sign, !canConnect);
-          Sponge.getEventManager().post(interactEvent);
+          Sponge.eventManager().post(interactEvent);
 
           if (!interactEvent.isCancelled() && interactEvent.getTarget().isPresent()) {
-            this.signManagement.getSignsConfiguration().sendMessage("server-connecting-message",
-              m -> player.sendMessage(Text.of(m)),
+            this.signManagement.getSignsConfiguration().sendMessage(
+              "server-connecting-message",
+              m -> player.sendMessage(PlainTextComponentSerializer.plainText().deserialize(m)),
               m -> m.replace("%server%", interactEvent.getTarget().get().getName()));
-            this.getPlayerManager().getPlayerExecutor(player.getUniqueId())
+            this.getPlayerManager().getPlayerExecutor(player.uniqueId())
               .connect(interactEvent.getTarget().get().getName());
           }
         }
@@ -74,7 +79,7 @@ public class SignInteractListener {
     }
   }
 
-  protected IPlayerManager getPlayerManager() {
+  protected @NotNull IPlayerManager getPlayerManager() {
     return CloudNetDriver.getInstance().getServicesRegistry().getFirstService(IPlayerManager.class);
   }
 }

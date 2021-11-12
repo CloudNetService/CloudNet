@@ -17,7 +17,8 @@
 package eu.cloudnetservice.cloudnet.ext.signs.util;
 
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
-import de.dytanic.cloudnet.ext.bridge.ServiceInfoStateWatcher;
+import de.dytanic.cloudnet.ext.bridge.BridgeServiceHelper;
+import de.dytanic.cloudnet.ext.bridge.BridgeServiceHelper.ServiceInfoState;
 import eu.cloudnetservice.cloudnet.ext.signs.configuration.SignConfigurationEntry;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
@@ -45,13 +46,13 @@ public final class PriorityUtil {
 
   public static int getPriority(@NotNull ServiceInfoSnapshot snapshot, boolean lowerFullToSearching) {
     // Get the state of the service
-    ServiceInfoStateWatcher.ServiceInfoState state = ServiceInfoStateWatcher.stateFromServiceInfoSnapshot(snapshot);
+    ServiceInfoState state = BridgeServiceHelper.guessStateFromServiceInfoSnapshot(snapshot);
     switch (state) {
       case FULL_ONLINE:
         // full (premium) service are preferred
         return lowerFullToSearching ? 1 : 4;
       case ONLINE:
-        // online has the second highest priority as full is preferred
+        // online has the second-highest priority as full is preferred
         return 3;
       case EMPTY_ONLINE:
         // empty services are not the first choice for a sign wall

@@ -16,61 +16,72 @@
 
 package eu.cloudnetservice.cloudnet.ext.signs.sponge;
 
+import com.google.inject.Inject;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import eu.cloudnetservice.cloudnet.ext.signs.GlobalChannelMessageListener;
 import eu.cloudnetservice.cloudnet.ext.signs.service.AbstractServiceSignManagement;
 import eu.cloudnetservice.cloudnet.ext.signs.service.SignsServiceListener;
 import eu.cloudnetservice.cloudnet.ext.signs.sponge.functionality.CommandSigns;
 import eu.cloudnetservice.cloudnet.ext.signs.sponge.functionality.SignInteractListener;
+import net.kyori.adventure.text.Component;
+import org.jetbrains.annotations.NotNull;
+import org.spongepowered.api.Server;
 import org.spongepowered.api.Sponge;
-import org.spongepowered.api.block.tileentity.Sign;
-import org.spongepowered.api.command.args.GenericArguments;
-import org.spongepowered.api.command.spec.CommandSpec;
+import org.spongepowered.api.block.entity.Sign;
+import org.spongepowered.api.command.Command;
+import org.spongepowered.api.command.parameter.Parameter;
 import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.game.state.GameStartedServerEvent;
-import org.spongepowered.api.event.game.state.GameStoppingServerEvent;
-import org.spongepowered.api.plugin.Dependency;
-import org.spongepowered.api.plugin.Plugin;
-import org.spongepowered.api.text.Text;
+import org.spongepowered.api.event.lifecycle.ConstructPluginEvent;
+import org.spongepowered.api.event.lifecycle.RegisterCommandEvent;
+import org.spongepowered.api.event.lifecycle.StoppingEngineEvent;
+import org.spongepowered.plugin.PluginContainer;
+import org.spongepowered.plugin.builtin.jvm.Plugin;
 
-@Plugin(
-  id = "cloudnet_signs",
-  name = "CloudNetSigns",
-  version = "2.0",
-  authors = "CloudNetService",
-  url = "https://cloudnetservice.eu",
-  description = "Sponge extension for the CloudNet runtime which adds sign connector support",
-  dependencies = @Dependency(id = "cloudnet_bridge")
-)
+@Plugin("cloudnet_signs")
 public class SpongeSignsPlugin {
 
-  @Listener
-  public void handleStart(GameStartedServerEvent event) {
-    AbstractServiceSignManagement<Sign> signManagement = new SpongeSignManagement(this);
-    signManagement.initialize();
-    signManagement.registerToServiceRegistry();
-    // command
-    CommandSpec signsCommand = CommandSpec.builder()
-      .description(Text.of("Management of the signs"))
-      .permission("cloudnet.command.cloudsign")
-      .arguments(
-        GenericArguments.string(Text.of("Type")),
-        GenericArguments.optional(GenericArguments.string(Text.of("Target Group"))),
-        GenericArguments.optional(GenericArguments.string(Text.of("Template Path")))
-      )
-      .executor(new CommandSigns(signManagement))
-      .build();
-    Sponge.getCommandManager().register(this, signsCommand, "cloudsigns", "cs", "signs", "cloudsign");
-    // sponge events
-    Sponge.getEventManager().registerListeners(this, new SignInteractListener(this, signManagement));
-    // cloudnet events
-    CloudNetDriver.getInstance().getEventManager().registerListeners(
-      new GlobalChannelMessageListener(signManagement), new SignsServiceListener(signManagement));
+  private final PluginContainer plugin;
+  private AbstractServiceSignManagement<Sign> signManagement;
+
+  @Inject
+  public SpongeSignsPlugin(@NotNull PluginContainer plugin) {
+    this.plugin = plugin;
   }
 
   @Listener
-  public void handleShutdown(GameStoppingServerEvent event) {
+  public void handleStart(@NotNull ConstructPluginEvent event) {
+    this.signManagement = new SpongeSignManagement(this.plugin);
+    this.signManagement.initialize();
+    this.signManagement.registerToServiceRegistry();
+    // sponge events
+    Sponge.eventManager().registerListeners(this.plugin, new SignInteractListener(this.plugin, this.signManagement));
+    // cloudnet events
+    CloudNetDriver.getInstance().getEventManager().registerListeners(
+      new GlobalChannelMessageListener(this.signManagement),
+      new SignsServiceListener(this.signManagement));
+  }
+
+  @Listener
+  public void handleShutdown(@NotNull StoppingEngineEvent<Server> event) {
     SpongeSignManagement.getDefaultInstance().unregisterFromServiceRegistry();
     CloudNetDriver.getInstance().getEventManager().unregisterListeners(this.getClass().getClassLoader());
+  }
+
+  @Listener
+  public void handleCommandRegister(@NotNull RegisterCommandEvent<Command.Parameterized> event) {
+    event.register(
+      this.plugin,
+      Command.builder()
+        .shortDescription(Component.text("Management of the signs"))
+        .permission("cloudnet.command.cloudsign")
+        .addParameters(
+          Parameter.string().key(CommandSigns.ACTION).build(),
+          Parameter.string().key(CommandSigns.TARGET_GROUP).optional().build(),
+          Parameter.string().key(CommandSigns.TARGET_TEMPLATE).optional().build()
+        )
+        .executor(new CommandSigns(this.signManagement))
+        .build(),
+      "cloudsigns",
+      "cs", "signs", "cloudsign");
   }
 }

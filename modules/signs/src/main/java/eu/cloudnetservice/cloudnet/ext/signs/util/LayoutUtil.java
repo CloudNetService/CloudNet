@@ -17,7 +17,8 @@
 package eu.cloudnetservice.cloudnet.ext.signs.util;
 
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
-import de.dytanic.cloudnet.ext.bridge.ServiceInfoStateWatcher;
+import de.dytanic.cloudnet.ext.bridge.BridgeServiceHelper;
+import de.dytanic.cloudnet.ext.bridge.BridgeServiceHelper.ServiceInfoState;
 import eu.cloudnetservice.cloudnet.ext.signs.Sign;
 import eu.cloudnetservice.cloudnet.ext.signs.configuration.SignConfigurationEntry;
 import eu.cloudnetservice.cloudnet.ext.signs.configuration.SignGroupConfiguration;
@@ -40,38 +41,52 @@ public final class LayoutUtil {
     return getLayoutHolder(entry, sign, snapshot).getCurrentLayout();
   }
 
-  public static SignLayout getLayoutAndTick(@NotNull SignConfigurationEntry entry, @NotNull Sign sign,
-    @Nullable ServiceInfoSnapshot snapshot) {
+  public static SignLayout getLayoutAndTick(
+    @NotNull SignConfigurationEntry entry,
+    @NotNull Sign sign,
+    @Nullable ServiceInfoSnapshot snapshot
+  ) {
     return getLayoutHolder(entry, sign, snapshot).tick().getCurrentLayout();
   }
 
-  public static SignLayoutsHolder getLayoutHolder(@NotNull SignConfigurationEntry entry, @NotNull Sign sign,
-    @Nullable ServiceInfoSnapshot snapshot) {
-    ServiceInfoStateWatcher.ServiceInfoState state = snapshot == null
-      ? ServiceInfoStateWatcher.ServiceInfoState.STOPPED
-      : ServiceInfoStateWatcher.stateFromServiceInfoSnapshot(snapshot);
-    if (state == ServiceInfoStateWatcher.ServiceInfoState.STOPPED) {
+  public static SignLayoutsHolder getLayoutHolder(
+    @NotNull SignConfigurationEntry entry,
+    @NotNull Sign sign,
+    @Nullable ServiceInfoSnapshot snapshot
+  ) {
+    // check if no snapshot is used for the check process - return the searchig layout in that case
+    if (snapshot == null) {
       return entry.getSearchingLayout();
-    } else if (state == ServiceInfoStateWatcher.ServiceInfoState.STARTING) {
+    }
+    // return the correct layout based on the state
+    ServiceInfoState state = BridgeServiceHelper.guessStateFromServiceInfoSnapshot(snapshot);
+    if (state == ServiceInfoState.STOPPED) {
+      return entry.getSearchingLayout();
+    } else if (state == ServiceInfoState.STARTING) {
       return entry.getStartingLayout();
     } else {
+      // check for an overriding group configuration
       SignGroupConfiguration groupConfiguration = null;
       for (SignGroupConfiguration configuration : entry.getGroupConfigurations()) {
-        if (configuration.getTargetGroup() != null && configuration.getTargetGroup().equals(sign.getTargetGroup())
-          && configuration.getEmptyLayout() != null && configuration.getOnlineLayout() != null
-          && configuration.getFullLayout() != null) {
+        if (configuration.getTargetGroup() != null
+          && configuration.getTargetGroup().equals(sign.getTargetGroup())
+          && configuration.getEmptyLayout() != null
+          && configuration.getOnlineLayout() != null
+          && configuration.getFullLayout() != null
+        ) {
           groupConfiguration = configuration;
           break;
         }
       }
-
+      // get the correct layout based on the entry, group layout and state
       switch (state) {
         case EMPTY_ONLINE:
           return groupConfiguration == null ? entry.getEmptyLayout() : groupConfiguration.getEmptyLayout();
         case ONLINE:
           return groupConfiguration == null ? entry.getOnlineLayout() : groupConfiguration.getOnlineLayout();
         case FULL_ONLINE:
-          return entry.isSwitchToSearchingWhenServiceIsFull() ? entry.getSearchingLayout()
+          return entry.isSwitchToSearchingWhenServiceIsFull()
+            ? entry.getSearchingLayout()
             : groupConfiguration == null ? entry.getFullLayout() : groupConfiguration.getFullLayout();
         default:
           throw new IllegalStateException("Unexpected service state: " + state);

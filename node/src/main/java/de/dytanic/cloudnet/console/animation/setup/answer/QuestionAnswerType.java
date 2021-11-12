@@ -89,6 +89,10 @@ public final class QuestionAnswerType<T> {
     }
   }
 
+  public void thenAccept(@NotNull BiConsumer<QuestionAnswerType<T>, T> listener) {
+    this.resultListener.add(listener);
+  }
+
   @FunctionalInterface
   public interface Parser<T> {
 
