@@ -15,8 +15,8 @@
  */
 
 plugins {
-  id("net.kyori.blossom") version "1.3.0" apply false
-  id("eu.cloudnetservice.juppiter") version "0.1.2" apply false
+  id("net.kyori.blossom") version Versions.blossom apply false
+  id("eu.cloudnetservice.juppiter") version Versions.juppiter apply false
 }
 
 subprojects {

@@ -21,5 +21,5 @@ tasks.withType<Jar> {
 dependencies {
   api(libs.gson)
   api(libs.guava)
-  api(libs.unirest)
+  api(libs.bundles.unirest)
 }

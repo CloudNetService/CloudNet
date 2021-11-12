@@ -89,7 +89,7 @@ subprojects {
   }
 
   extensions.configure<CheckstyleExtension> {
-    toolVersion = Versions.checkstyle
+    toolVersion = Versions.checkstyleTools
   }
 
   extensions.configure<LicenseExtension> {
