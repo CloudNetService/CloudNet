@@ -25,7 +25,7 @@ import com.velocitypowered.api.event.connection.DisconnectEvent.LoginStatus;
 import com.velocitypowered.api.event.connection.LoginEvent;
 import com.velocitypowered.api.event.player.KickedFromServerEvent;
 import com.velocitypowered.api.event.player.PlayerChooseInitialServerEvent;
-import com.velocitypowered.api.event.player.ServerConnectedEvent;
+import com.velocitypowered.api.event.player.ServerPostConnectEvent;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import de.dytanic.cloudnet.driver.service.ServiceTask;
@@ -103,17 +103,18 @@ final class VelocityPlayerManagementListener {
   }
 
   @Subscribe
-  public void handleServiceConnected(@NotNull ServerConnectedEvent event) {
-    if (!event.getPreviousServer().isPresent()) {
+  public void handleServiceConnected(@NotNull ServerPostConnectEvent event) {
+    if (event.getPreviousServer() == null) {
       // the player logged in successfully if he is now connected to a service for the first time
       ProxyPlatformHelper.sendChannelMessageLoginSuccess(this.management.createPlayerInformation(event.getPlayer()));
       // update the service info
       Wrapper.getInstance().publishServiceInfoUpdate();
     } else {
       // the player switched the service
-      this.management
-        .getCachedService(service -> service.getName().equals(event.getServer().getServerInfo().getName()))
-        .map(BridgeServiceHelper::createServiceInfo)
+      event.getPlayer().getCurrentServer()
+        .flatMap(server -> this.management
+          .getCachedService(service -> server.getServerInfo().getName().equals(service.getName()))
+          .map(BridgeServiceHelper::createServiceInfo))
         .ifPresent(info -> ProxyPlatformHelper.sendChannelMessageServiceSwitch(event.getPlayer().getUniqueId(), info));
     }
     // notify the management that the player successfully connected to a service
