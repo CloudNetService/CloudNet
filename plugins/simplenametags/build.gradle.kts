@@ -14,13 +14,11 @@
  * limitations under the License.
  */
 
-jar {
-  archiveFileName.set('cloudnet-simplenametags.jar')
+tasks.withType<Jar> {
+  archiveFileName.set(Files.simpleNameTagsPlugin)
 }
 
 dependencies {
-  compileOnly project(':cloudnet-driver')
-  compileOnly project(':cloudnet-wrapper-jvm')
-  compileOnly project(':cloudnet-modules').project('cloudnet-cloudperms')
-  compileOnly group: 'org.spigotmc', name: 'spigot-api', version: dependencySpigotApiVersion
+  "compileOnly"(projects.cloudnetWrapperJvm)
+  "compileOnly"(libs.bundles.serverPlatform)
 }

@@ -1,0 +1,35 @@
+{
+  "loader": {
+    "name": "java_plain",
+    "version": "1.0"
+  },
+  "license": "Apache-2.0",
+  "plugins": [
+    {
+      "id": "simple_name_tags",
+      "name": "CloudNet-SimpleNameTags",
+      "version": "{project.build.version}",
+      "entrypoint": "de.dytanic.cloudnet.ext.simplenametags.sponge.SpongeSimpleNameTagsPlugin",
+      "description": "Adds prefix, suffix and display name support to all server platforms",
+      "links": {
+        "homepage": "https://cloudnetservice.eu"
+      },
+      "contributors": [
+        {
+          "name": "CloudNetService",
+          "description": "Organization"
+        }
+      ],
+      "dependencies": [
+        {
+          "id": "spongeapi",
+          "version": "8.0.0"
+        },
+        {
+          "id": "cloudperms",
+          "version": "{project.build.version}"
+        }
+      ]
+    }
+  ]
+}

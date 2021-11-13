@@ -29,7 +29,7 @@ initializeProjects("common", "driver", "node", "wrapper-jvm", "launcher", "modul
 // sub projects
 initializeSubProjects("wrapper-jvm", "minecraft-launchwrapper-api")
 // plugins
-initializeSubProjects("plugins", "chat")
+initializeSubProjects("plugins", "chat", "simplenametags")
 // modules
 initializeSubProjects("modules",
   "bridge",
