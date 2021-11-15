@@ -59,7 +59,7 @@ public final class CloudNetBridgeModule extends DriverModule {
       JsonDocument config = JsonDocument.newDocument(oldConfigurationPath).getDocument("config");
       // extract the messages and re-map them
       Map<String, Map<String, String>> messages = new HashMap<>(BridgeConfiguration.DEFAULT_MESSAGES);
-      messages.get("defaults").putAll(config.get("messages", new TypeToken<Map<String, Map<String, String>>>() {
+      messages.get("default").putAll(config.get("messages", new TypeToken<Map<String, String>>() {
       }.getType()));
       // extract all hub commands
       Collection<String> hubCommands = config.get("hubCommandNames", new TypeToken<Collection<String>>() {
