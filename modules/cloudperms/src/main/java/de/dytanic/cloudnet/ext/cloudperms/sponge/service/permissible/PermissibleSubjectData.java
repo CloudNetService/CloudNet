@@ -1,0 +1,223 @@
+/*
+ * Copyright 2019-2021 CloudNetService team & contributors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package de.dytanic.cloudnet.ext.cloudperms.sponge.service.permissible;
+
+import com.google.common.collect.ImmutableMap;
+import de.dytanic.cloudnet.driver.permission.IPermissible;
+import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
+import de.dytanic.cloudnet.driver.permission.Permission;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.spongepowered.api.service.context.Context;
+import org.spongepowered.api.service.permission.Subject;
+import org.spongepowered.api.service.permission.SubjectData;
+import org.spongepowered.api.service.permission.SubjectReference;
+import org.spongepowered.api.service.permission.TransferMethod;
+import org.spongepowered.api.util.Tristate;
+
+public abstract class PermissibleSubjectData<T extends IPermissible> implements SubjectData {
+
+  private static final Map<Set<Context>, Tristate> UNDEFINED = ImmutableMap.of(
+    Collections.emptySet(),
+    Tristate.UNDEFINED);
+
+  protected final boolean allowModify;
+
+  protected final T permissible;
+  protected final Subject subject;
+  protected final IPermissionManagement management;
+
+  public PermissibleSubjectData(
+    boolean allowModify,
+    T permissible,
+    Subject subject,
+    IPermissionManagement management
+  ) {
+    this.allowModify = allowModify;
+    this.permissible = permissible;
+    this.subject = subject;
+    this.management = management;
+  }
+
+  @Override
+  public Subject subject() {
+    return this.subject;
+  }
+
+  @Override
+  public boolean isTransient() {
+    return !this.allowModify;
+  }
+
+  @Override
+  public Map<Set<Context>, Map<String, Boolean>> allPermissions() {
+    return this.management.getAllPermissions(this.permissible).stream().collect(
+      Collectors.collectingAndThen(
+        Collectors.toMap(Permission::getName, perm -> perm.getPotency() >= 0),
+        result -> ImmutableMap.of(Collections.emptySet(), result)));
+  }
+
+  @Override
+  public Map<String, Boolean> permissions(Set<Context> contexts) {
+    return this.management.getAllPermissions(this.permissible).stream().collect(Collectors.toMap(
+      Permission::getName,
+      perm -> perm.getPotency() >= 0));
+  }
+
+  @Override
+  public CompletableFuture<Boolean> setPermission(Set<Context> contexts, String permission, Tristate value) {
+    return CompletableFuture.supplyAsync(() -> {
+      // unset the permission if the Tristate is undefined as described in the java docs
+      if (value == Tristate.UNDEFINED) {
+        this.permissible.removePermission(permission);
+      } else {
+        this.permissible.addPermission(permission, value.asBoolean());
+      }
+      // update
+      this.updateIfEnabled(this.permissible);
+      return true;
+    });
+  }
+
+  @Override
+  public CompletableFuture<Boolean> setPermissions(Set<Context> $, Map<String, Boolean> perms, TransferMethod $1) {
+    return CompletableFuture.supplyAsync(() -> {
+      // set each permission
+      perms.forEach(this.permissible::addPermission);
+      this.updateIfEnabled(this.permissible);
+      return true;
+    });
+  }
+
+  @Override
+  public Tristate fallbackPermissionValue(Set<Context> contexts) {
+    return Tristate.UNDEFINED;
+  }
+
+  @Override
+  public Map<Set<Context>, Tristate> allFallbackPermissionValues() {
+    return UNDEFINED;
+  }
+
+  @Override
+  public CompletableFuture<Boolean> setFallbackPermissionValue(Set<Context> contexts, Tristate fallback) {
+    return CompletableFuture.completedFuture(true); // not supported
+  }
+
+  @Override
+  public CompletableFuture<Boolean> clearFallbackPermissionValues() {
+    return CompletableFuture.completedFuture(true); // not supported
+  }
+
+  @Override
+  public CompletableFuture<Boolean> clearPermissions() {
+    return CompletableFuture.supplyAsync(() -> {
+      this.permissible.getPermissions().forEach(perm -> this.permissible.removePermission(perm.getName()));
+      this.updateIfEnabled(this.permissible);
+      return true;
+    });
+  }
+
+  @Override
+  public CompletableFuture<Boolean> clearPermissions(Set<Context> contexts) {
+    return this.clearPermissions();
+  }
+
+  @Override
+  public Map<Set<Context>, ? extends List<? extends SubjectReference>> allParents() {
+    return null;
+  }
+
+  @Override
+  public List<? extends SubjectReference> parents(Set<Context> contexts) {
+    return this.allParents().get(Collections.emptySet());
+  }
+
+  @Override
+  public CompletableFuture<Boolean> clearParents(Set<Context> contexts) {
+    return this.clearParents();
+  }
+
+  @Override
+  public Map<Set<Context>, Map<String, String>> allOptions() {
+    return ImmutableMap.of(Collections.emptySet(), this.permissible.getProperties().stream()
+      .filter(key -> this.permissible.getProperties().getString(key) != null)
+      .collect(Collectors.toMap(Function.identity(), this.permissible.getProperties()::getString)));
+  }
+
+  @Override
+  public Map<String, String> options(Set<Context> contexts) {
+    return this.allOptions().get(Collections.emptySet());
+  }
+
+  @Override
+  public CompletableFuture<Boolean> setOption(Set<Context> contexts, String key, @Nullable String value) {
+    return CompletableFuture.supplyAsync(() -> {
+      this.permissible.getProperties().append(key, value);
+      this.updateIfEnabled(this.permissible);
+      return true;
+    });
+  }
+
+  @Override
+  public CompletableFuture<Boolean> setOptions(Set<Context> $, Map<String, String> options, TransferMethod $1) {
+    return CompletableFuture.supplyAsync(() -> {
+      options.forEach(this.permissible.getProperties()::append);
+      this.updateIfEnabled(this.permissible);
+      return true;
+    });
+  }
+
+  @Override
+  public CompletableFuture<Boolean> clearOptions() {
+    return CompletableFuture.supplyAsync(() -> {
+      this.permissible.getProperties().clear();
+      this.updateIfEnabled(this.permissible);
+      return true;
+    });
+  }
+
+  @Override
+  public CompletableFuture<Boolean> clearOptions(Set<Context> contexts) {
+    return this.clearOptions();
+  }
+
+  @Override
+  public CompletableFuture<Boolean> copyFrom(SubjectData other, TransferMethod method) {
+    return CompletableFuture.completedFuture(true); // not supported
+  }
+
+  @Override
+  public CompletableFuture<Boolean> moveFrom(SubjectData other, TransferMethod method) {
+    return CompletableFuture.completedFuture(true); // not supported
+  }
+
+  protected void updateIfEnabled(@NotNull T data) {
+    if (this.allowModify) {
+      this.update(data);
+    }
+  }
+
+  protected abstract void update(@NotNull T data);
+}

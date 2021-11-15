@@ -121,6 +121,11 @@ final class WaterDogPEBridgeManagement extends PlatformBridgeManagement<ProxiedP
   }
 
   @Override
+  public void removeFallbackProfile(@NotNull ProxiedPlayer player) {
+    this.removeFallbackProfile(player.getUniqueId());
+  }
+
+  @Override
   public @NotNull PlayerExecutor getDirectPlayerExecutor(@NotNull UUID uniqueId) {
     return uniqueId.equals(PlayerExecutor.GLOBAL_UNIQUE_ID)
       ? this.globalDirectPlayerExecutor

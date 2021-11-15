@@ -16,7 +16,6 @@
 
 package de.dytanic.cloudnet.ext.cloudperms.node;
 
-import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.cluster.sync.DataSyncHandler;
 import de.dytanic.cloudnet.driver.module.ModuleLifeCycle;
@@ -25,43 +24,27 @@ import de.dytanic.cloudnet.driver.module.driver.DriverModule;
 import de.dytanic.cloudnet.ext.cloudperms.node.config.CloudPermissionConfig;
 import de.dytanic.cloudnet.ext.cloudperms.node.config.CloudPermissionConfigHelper;
 import de.dytanic.cloudnet.ext.cloudperms.node.listener.IncludePluginListener;
-import java.lang.reflect.Type;
-import java.util.Collections;
-import java.util.List;
 import org.jetbrains.annotations.NotNull;
 
 public final class CloudNetCloudPermissionsModule extends DriverModule {
 
-  private static final Type LIST_STRING = TypeToken.getParameterized(List.class, String.class).getType();
-
-  private static CloudNetCloudPermissionsModule instance;
-
-  private CloudPermissionConfig permissionsConfig;
-
-  public static CloudNetCloudPermissionsModule getInstance() {
-    return CloudNetCloudPermissionsModule.instance;
-  }
+  private volatile CloudPermissionConfig permissionsConfig;
 
   @ModuleTask(order = 127, event = ModuleLifeCycle.LOADED)
   public void init() {
-    instance = this;
-
-    CloudNet.getInstance().getDataSyncRegistry().registerHandler(
-      DataSyncHandler.<CloudPermissionConfig>builder()
-        .key("cloudperms-config")
-        .nameExtractor(cloudPermissionsConfig -> "Permission Config")
-        .convertObject(CloudPermissionConfig.class)
-        .writer(cloudPermissionConfig -> CloudPermissionConfigHelper.write(cloudPermissionConfig,
-          this.moduleWrapper.getDataDirectory().resolve("config.json")))
-        .dataCollector(() -> Collections.singleton(this.permissionsConfig))
-        .currentGetter($ -> this.permissionsConfig)
-        .build());
+    CloudNet.getInstance().getDataSyncRegistry().registerHandler(DataSyncHandler.<CloudPermissionConfig>builder()
+      .key("cloudperms-config")
+      .convertObject(CloudPermissionConfig.class)
+      .currentGetter($ -> this.permissionsConfig)
+      .singletonCollector(() -> this.permissionsConfig)
+      .nameExtractor(cloudPermissionsConfig -> "Permission Config")
+      .writer(config -> CloudPermissionConfigHelper.write(config, this.getConfigPath()))
+      .build());
   }
 
   @ModuleTask(order = 126, event = ModuleLifeCycle.STARTED)
   public void initConfig() {
-    this.permissionsConfig = CloudPermissionConfigHelper.read(
-      this.moduleWrapper.getDataDirectory().resolve("config.json"));
+    this.permissionsConfig = CloudPermissionConfigHelper.read(this.getConfigPath());
   }
 
   @ModuleTask(event = ModuleLifeCycle.RELOADING)

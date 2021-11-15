@@ -102,5 +102,7 @@ final class WaterDogPEPlayerManagementListener {
       // update the service info
       ProxyServer.getInstance().getScheduler().scheduleDelayed(Wrapper.getInstance()::publishServiceInfoUpdate, 1);
     }
+    // always remove the player fallback profile
+    this.management.removeFallbackProfile(event.getPlayer());
   }
 }

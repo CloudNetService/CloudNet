@@ -19,11 +19,9 @@ package de.dytanic.cloudnet.ext.cloudperms.nukkit;
 import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.plugin.PluginBase;
-import com.google.common.base.Preconditions;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.ext.cloudperms.nukkit.listener.NukkitCloudNetCloudPermissionsPlayerListener;
 import de.dytanic.cloudnet.wrapper.Wrapper;
-import java.lang.reflect.Field;
 
 public final class NukkitCloudNetCloudPermissionsPlugin extends PluginBase {
 
@@ -32,9 +30,8 @@ public final class NukkitCloudNetCloudPermissionsPlugin extends PluginBase {
     this.injectPlayersCloudPermissible();
 
     super.getServer().getPluginManager().registerEvents(
-      new NukkitCloudNetCloudPermissionsPlayerListener(this, CloudNetDriver.getInstance().getPermissionManagement()),
-      this
-    );
+      new NukkitCloudNetCloudPermissionsPlayerListener(CloudNetDriver.getInstance().getPermissionManagement()),
+      this);
   }
 
   @Override
@@ -44,21 +41,8 @@ public final class NukkitCloudNetCloudPermissionsPlugin extends PluginBase {
   }
 
   private void injectPlayersCloudPermissible() {
-    Server.getInstance().getOnlinePlayers().values().forEach(this::injectCloudPermissible);
-  }
-
-  public void injectCloudPermissible(Player player) {
-    Preconditions.checkNotNull(player);
-
-    try {
-      Field field = Player.class.getDeclaredField("perm");
-      field.setAccessible(true);
-      field.set(player,
-        new NukkitCloudNetCloudPermissionsPermissible(player, CloudNetDriver.getInstance().getPermissionManagement()));
-
-    } catch (Exception exception) {
-      this.getLogger().error("Exception while injection permissions", exception);
+    for (Player player : Server.getInstance().getOnlinePlayers().values()) {
+      NukkitPermissionInjectionHelper.injectPermissible(player, CloudNetDriver.getInstance().getPermissionManagement());
     }
   }
-
 }

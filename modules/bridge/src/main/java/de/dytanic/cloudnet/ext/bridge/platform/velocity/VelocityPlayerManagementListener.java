@@ -129,5 +129,7 @@ final class VelocityPlayerManagementListener {
       // update the service info
       Wrapper.getInstance().publishServiceInfoUpdate();
     }
+    // always remove the player fallback profile
+    this.management.removeFallbackProfile(event.getPlayer());
   }
 }

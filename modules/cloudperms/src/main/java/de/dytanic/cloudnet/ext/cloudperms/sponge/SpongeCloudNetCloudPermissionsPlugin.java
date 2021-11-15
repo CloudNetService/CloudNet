@@ -16,21 +16,39 @@
 
 package de.dytanic.cloudnet.ext.cloudperms.sponge;
 
-import com.velocitypowered.api.plugin.Plugin;
+import com.google.inject.Inject;
+import de.dytanic.cloudnet.driver.CloudNetDriver;
+import de.dytanic.cloudnet.ext.cloudperms.sponge.service.CloudPermsPermissionService;
+import org.jetbrains.annotations.NotNull;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.lifecycle.ConstructPluginEvent;
+import org.spongepowered.api.event.lifecycle.ProvideServiceEvent;
+import org.spongepowered.api.service.permission.PermissionService;
+import org.spongepowered.plugin.PluginContainer;
+import org.spongepowered.plugin.builtin.jvm.Plugin;
 
-@Plugin(
-  id = "cloudnet_cloudperms",
-  name = "CloudNet-CloudPerms",
-  version = "1.0",
-  description = "Sponge extension which implement the permission management system from CloudNet into Sponge for players",
-  url = "https://cloudnetservice.eu"
-)
+@Plugin("cloudnet_cloudperms")
 public final class SpongeCloudNetCloudPermissionsPlugin {
 
-  @Listener
-  public void onEnable(ConstructPluginEvent event) {
+  private final PluginContainer plugin;
+  private final PermissionService service;
 
+  @Inject
+  public SpongeCloudNetCloudPermissionsPlugin(@NotNull PluginContainer pluginContainer) {
+    this.plugin = pluginContainer;
+    this.service = new CloudPermsPermissionService(CloudNetDriver.getInstance().getPermissionManagement());
+  }
+
+  @Listener
+  public void onEnable(@NotNull ConstructPluginEvent event) {
+    Sponge.eventManager().registerListeners(
+      this.plugin,
+      new SpongeCloudNetPermissionsListener(CloudNetDriver.getInstance().getPermissionManagement()));
+  }
+
+  @Listener
+  public void handlePermissionServiceProvide(@NotNull ProvideServiceEvent.EngineScoped<PermissionService> event) {
+    event.suggest(() -> this.service);
   }
 }

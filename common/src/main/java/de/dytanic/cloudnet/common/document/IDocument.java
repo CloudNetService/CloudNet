@@ -21,6 +21,8 @@ import de.dytanic.cloudnet.common.document.property.DocPropertyHolder;
 import java.io.Serializable;
 import java.lang.reflect.Type;
 import java.util.Collection;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
@@ -140,6 +142,10 @@ public interface IDocument<R extends IDocument<R>>
 
   default boolean isEmpty() {
     return this.size() == 0;
+  }
+
+  default @NotNull Stream<String> stream() {
+    return StreamSupport.stream(this.spliterator(), false);
   }
 
   @Override

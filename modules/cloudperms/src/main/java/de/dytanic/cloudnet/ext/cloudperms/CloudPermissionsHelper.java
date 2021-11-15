@@ -26,6 +26,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
+import org.jetbrains.annotations.NotNull;
 
 public final class CloudPermissionsHelper {
 
@@ -35,32 +36,40 @@ public final class CloudPermissionsHelper {
     throw new UnsupportedOperationException();
   }
 
-  public static void initPermissionUser(IPermissionManagement permissionsManagement, UUID uniqueId, String name,
-    Consumer<String> disconnectHandler) {
+  public static void initPermissionUser(
+    @NotNull IPermissionManagement permissionsManagement,
+    @NotNull UUID uniqueId,
+    @NotNull String name,
+    @NotNull Consumer<String> disconnectHandler
+  ) {
     initPermissionUser(permissionsManagement, uniqueId, name, disconnectHandler, true);
   }
 
-  public static void initPermissionUser(IPermissionManagement permissionsManagement, UUID uniqueId, String name,
-    Consumer<String> disconnectHandler, boolean shouldUpdateName) {
-    PermissionUser permissionUser = null;
+  public static void initPermissionUser(
+    @NotNull IPermissionManagement permissionsManagement,
+    @NotNull UUID uniqueId,
+    @NotNull String name,
+    @NotNull Consumer<String> disconnectHandler,
+    boolean shouldUpdateName
+  ) {
+    PermissionUser permissionUser;
     try {
       permissionUser = permissionsManagement.getOrCreateUserAsync(uniqueId, name).get(5, TimeUnit.SECONDS);
     } catch (InterruptedException | ExecutionException | TimeoutException exception) {
       LOGGER.severe("Error while loading permission user: " + uniqueId + "/" + name, exception);
+      // disconnect the player now
+      disconnectHandler.accept("§cAn internal error while loading your permission profile");
+      return;
     }
 
-    if (permissionUser != null) {
-      CachedPermissionManagement management = asCachedPermissionManagement(permissionsManagement);
-      if (management != null) {
-        management.acquireLock(permissionUser);
-      }
+    CachedPermissionManagement management = asCachedPermissionManagement(permissionsManagement);
+    if (management != null) {
+      management.acquireLock(permissionUser);
+    }
 
-      if (shouldUpdateName && !name.equals(permissionUser.getName())) {
-        permissionUser.setName(name);
-        permissionsManagement.updateUserAsync(permissionUser);
-      }
-    } else {
-      disconnectHandler.accept("§cAn internal error occurred while loading the permissions"); // TODO configurable
+    if (shouldUpdateName && !name.equals(permissionUser.getName())) {
+      permissionUser.setName(name);
+      permissionsManagement.updateUserAsync(permissionUser);
     }
   }
 
@@ -74,7 +83,7 @@ public final class CloudPermissionsHelper {
     }
   }
 
-  private static CachedPermissionManagement asCachedPermissionManagement(IPermissionManagement management) {
+  public static CachedPermissionManagement asCachedPermissionManagement(IPermissionManagement management) {
     return management instanceof CachedPermissionManagement ? (CachedPermissionManagement) management : null;
   }
 }

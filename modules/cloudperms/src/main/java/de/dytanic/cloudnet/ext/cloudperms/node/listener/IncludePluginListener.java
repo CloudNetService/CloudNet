@@ -22,8 +22,8 @@ import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
 import de.dytanic.cloudnet.driver.util.DefaultModuleHelper;
 import de.dytanic.cloudnet.event.service.CloudServicePreLifecycleEvent;
 import de.dytanic.cloudnet.ext.cloudperms.node.CloudNetCloudPermissionsModule;
-import de.dytanic.cloudnet.ext.cloudperms.node.config.CloudPermissionConfig;
 import java.nio.file.Path;
+import org.jetbrains.annotations.NotNull;
 
 public final class IncludePluginListener {
 
@@ -34,30 +34,26 @@ public final class IncludePluginListener {
   }
 
   @EventListener
-  public void handle(CloudServicePreLifecycleEvent event) {
-    if (event.getTargetLifecycle() != ServiceLifeCycle.RUNNING) {
-      return;
-    }
-
-    CloudPermissionConfig config = this.permissionsModule.getPermissionsConfig();
-    boolean installPlugin =
-      config.isEnabled() && config.getExcludedGroups()
-        .stream()
-        .noneMatch(excludedGroup -> event.getService().getServiceConfiguration().getGroups().contains(excludedGroup));
-
-    Path pluginsFolder = event.getService().getDirectory().resolve("plugins");
-    FileUtils.createDirectory(pluginsFolder);
-
-    Path targetFile = pluginsFolder.resolve("cloudnet-cloudperms.jar");
-    FileUtils.delete(targetFile);
-
-    if (installPlugin && DefaultModuleHelper
-      .copyCurrentModuleInstanceFromClass(IncludePluginListener.class, targetFile)) {
-      DefaultModuleHelper.copyPluginConfigurationFileForEnvironment(
-        IncludePluginListener.class,
-        event.getService().getServiceConfiguration().getProcessConfig().getEnvironment(),
-        targetFile
-      );
+  public void handle(@NotNull CloudServicePreLifecycleEvent event) {
+    // check if we should copy the module
+    if (event.getTargetLifecycle() == ServiceLifeCycle.RUNNING
+      && this.permissionsModule.getPermissionsConfig().isEnabled()
+      && this.permissionsModule.getPermissionsConfig().getExcludedGroups().stream()
+      .noneMatch(group -> event.getService().getServiceConfiguration().getGroups().contains(group))) {
+      // get the target of the copy
+      Path plugins = event.getService().getDirectory().resolve("plugins");
+      FileUtils.createDirectory(plugins);
+      // remove the old perms plugin
+      Path permsPluginFile = plugins.resolve("cloudnet-cloudperms.jar");
+      FileUtils.delete(permsPluginFile);
+      // try to copy the current perms file
+      if (DefaultModuleHelper.copyCurrentModuleInstanceFromClass(IncludePluginListener.class, permsPluginFile)) {
+        // copy the plugin.yml file for the environment
+        DefaultModuleHelper.copyPluginConfigurationFileForEnvironment(
+          IncludePluginListener.class,
+          event.getService().getServiceConfiguration().getProcessConfig().getEnvironment(),
+          permsPluginFile);
+      }
     }
   }
 }

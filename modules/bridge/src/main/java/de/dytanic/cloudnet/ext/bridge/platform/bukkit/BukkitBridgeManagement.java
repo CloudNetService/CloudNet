@@ -103,6 +103,11 @@ final class BukkitBridgeManagement extends PlatformBridgeManagement<Player, Netw
   }
 
   @Override
+  public void removeFallbackProfile(@NotNull Player player) {
+    this.removeFallbackProfile(player.getUniqueId());
+  }
+
+  @Override
   public @NotNull PlayerExecutor getDirectPlayerExecutor(@NotNull UUID uniqueId) {
     return uniqueId.equals(PlayerExecutor.GLOBAL_UNIQUE_ID)
       ? this.directGlobalExecutor

@@ -273,6 +273,10 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
     }
   }
 
+  public void removeFallbackProfile(@NotNull UUID uniqueId) {
+    this.fallbackProfiles.remove(uniqueId);
+  }
+
   @Override
   public void postInit() {
     // publish a service update to append all property information
@@ -303,6 +307,8 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
   public abstract @NotNull Optional<ServiceInfoSnapshot> getFallback(@NotNull P player);
 
   public abstract void handleFallbackConnectionSuccess(@NotNull P player);
+
+  public abstract void removeFallbackProfile(@NotNull P player);
 
   public abstract @NotNull PlayerExecutor getDirectPlayerExecutor(@NotNull UUID uniqueId);
 }

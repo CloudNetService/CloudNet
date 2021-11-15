@@ -33,7 +33,7 @@ import org.spongepowered.api.event.network.ServerSideConnectionEvent;
 import org.spongepowered.api.scheduler.TaskExecutorService;
 import org.spongepowered.plugin.PluginContainer;
 
-final class SpongePlayerManagementListener {
+public final class SpongePlayerManagementListener {
 
   private final TaskExecutorService executorService;
   private final PlatformBridgeManagement<?, ?> management;

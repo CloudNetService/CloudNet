@@ -43,8 +43,8 @@ final class SpongeBridgeManagement extends PlatformBridgeManagement<ServerPlayer
 
   private final PlayerExecutor directGlobalExecutor;
 
-  public SpongeBridgeManagement(@NotNull Wrapper wrapper) {
-    super(wrapper);
+  public SpongeBridgeManagement() {
+    super(Wrapper.getInstance());
     // init fields
     this.directGlobalExecutor = new SpongeDirectPlayerExecutor(
       PlayerExecutor.GLOBAL_UNIQUE_ID,
@@ -97,6 +97,11 @@ final class SpongeBridgeManagement extends PlatformBridgeManagement<ServerPlayer
   @Override
   public void handleFallbackConnectionSuccess(@NotNull ServerPlayer player) {
     this.handleFallbackConnectionSuccess(player.uniqueId());
+  }
+
+  @Override
+  public void removeFallbackProfile(@NotNull ServerPlayer player) {
+    this.removeFallbackProfile(player.uniqueId());
   }
 
   @Override

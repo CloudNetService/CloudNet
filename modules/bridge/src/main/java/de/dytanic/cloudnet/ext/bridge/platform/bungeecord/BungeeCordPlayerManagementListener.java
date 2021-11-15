@@ -164,5 +164,7 @@ final class BungeeCordPlayerManagementListener implements Listener {
         50,
         TimeUnit.MILLISECONDS);
     }
+    // always remove the player fallback profile
+    this.management.removeFallbackProfile(event.getPlayer());
   }
 }

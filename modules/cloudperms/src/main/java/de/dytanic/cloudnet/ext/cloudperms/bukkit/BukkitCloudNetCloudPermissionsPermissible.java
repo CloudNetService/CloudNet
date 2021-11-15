@@ -45,26 +45,25 @@ public final class BukkitCloudNetCloudPermissionsPermissible extends Permissible
     this.permissionsManagement = permissionsManagement;
   }
 
-  private Set<Permission> getDefaultPermissions() {
+  private @NotNull Set<Permission> getDefaultPermissions() {
     return this.player.getServer().getPluginManager().getDefaultPermissions(false);
   }
 
   @Override
-  public Set<PermissionAttachmentInfo> getEffectivePermissions() {
+  public @NotNull Set<PermissionAttachmentInfo> getEffectivePermissions() {
     Set<PermissionAttachmentInfo> infos = new HashSet<>();
 
-    PermissionUser permissionUser = CloudNetDriver.getInstance().getPermissionManagement()
-      .getUser(this.player.getUniqueId());
-    if (permissionUser != null) {
+    PermissionUser user = CloudNetDriver.getInstance().getPermissionManagement().getUser(this.player.getUniqueId());
+    if (user != null) {
       for (String group : Wrapper.getInstance().getServiceConfiguration().getGroups()) {
         CloudNetDriver.getInstance()
           .getPermissionManagement()
-          .getAllGroupPermissions(permissionUser, group)
+          .getAllGroupPermissions(user, group)
           .forEach(permission -> {
-            Permission bukkitPermission = this.player.getServer().getPluginManager()
-              .getPermission(permission.getName());
-            if (bukkitPermission != null) {
-              this.forEachChildren(bukkitPermission,
+            Permission bukkit = this.player.getServer().getPluginManager().getPermission(permission.getName());
+            if (bukkit != null) {
+              this.forEachChildren(
+                bukkit,
                 (name, value) -> infos.add(new PermissionAttachmentInfo(this, name, null, value)));
             } else {
               infos.add(new PermissionAttachmentInfo(this, permission.getName(), null, permission.getPotency() >= 0));
@@ -73,7 +72,8 @@ public final class BukkitCloudNetCloudPermissionsPermissible extends Permissible
       }
 
       for (Permission defaultPermission : this.getDefaultPermissions()) {
-        this.forEachChildren(defaultPermission,
+        this.forEachChildren(
+          defaultPermission,
           (name, value) -> infos.add(new PermissionAttachmentInfo(this, name, null, value)));
       }
     }
@@ -99,29 +99,32 @@ public final class BukkitCloudNetCloudPermissionsPermissible extends Permissible
   @Override
   public boolean hasPermission(@NotNull String inName) {
     try {
-      PermissionUser permissionUser = CloudNetDriver.getInstance().getPermissionManagement()
-        .getUser(this.player.getUniqueId());
-      if (permissionUser == null) {
+      PermissionUser user = CloudNetDriver.getInstance().getPermissionManagement().getUser(this.player.getUniqueId());
+      if (user == null) {
         return false;
       }
 
       for (Permission permission : this.getDefaultPermissions()) {
         if (permission.getName().equalsIgnoreCase(inName)) {
           // default permissions are always active if not explicitly forbidden
-          PermissionCheckResult result = this.permissionsManagement.getPermissionResult(permissionUser,
+          PermissionCheckResult result = this.permissionsManagement.getPermissionResult(
+            user,
             de.dytanic.cloudnet.driver.permission.Permission.of(inName));
           return result == PermissionCheckResult.DENIED || result.asBoolean();
         }
       }
 
-      PermissionCheckResult result = this.permissionsManagement.getPermissionResult(permissionUser,
+      PermissionCheckResult result = this.permissionsManagement.getPermissionResult(
+        user,
         de.dytanic.cloudnet.driver.permission.Permission.of(inName));
       if (result != PermissionCheckResult.DENIED) {
         return result.asBoolean();
       }
 
-      return this
-        .testParents(inName, perm -> this.permissionsManagement.getPermissionResult(permissionUser,
+      return this.testParents(
+        inName,
+        perm -> this.permissionsManagement.getPermissionResult(
+          user,
           de.dytanic.cloudnet.driver.permission.Permission.of(perm.getName())));
     } catch (Exception ex) {
       this.player.getServer().getLogger().log(Level.SEVERE, "Exception while checking permissions", ex);

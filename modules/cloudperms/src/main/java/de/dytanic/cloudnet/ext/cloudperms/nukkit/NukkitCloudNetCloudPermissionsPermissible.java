@@ -26,6 +26,8 @@ import de.dytanic.cloudnet.wrapper.Wrapper;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public final class NukkitCloudNetCloudPermissionsPermissible extends PermissibleBase {
 
@@ -61,28 +63,29 @@ public final class NukkitCloudNetCloudPermissionsPermissible extends Permissible
   }
 
   @Override
-  public boolean isPermissionSet(String name) {
+  public boolean isPermissionSet(@Nullable String name) {
     return this.hasPermission(name);
   }
 
   @Override
-  public boolean isPermissionSet(Permission perm) {
+  public boolean isPermissionSet(@NotNull Permission perm) {
     return this.isPermissionSet(perm.getName());
   }
 
   @Override
-  public boolean hasPermission(Permission perm) {
+  public boolean hasPermission(@NotNull Permission perm) {
     return this.hasPermission(perm.getName());
   }
 
   @Override
-  public boolean hasPermission(String inName) {
+  public boolean hasPermission(@Nullable String inName) {
     if (inName == null) {
       return false;
     }
 
     PermissionUser permissionUser = this.permissionsManagement.getUser(this.player.getUniqueId());
-    return permissionUser != null && this.permissionsManagement.hasPermission(permissionUser,
+    return permissionUser != null && this.permissionsManagement.hasPermission(
+      permissionUser,
       de.dytanic.cloudnet.driver.permission.Permission.of(inName));
   }
 

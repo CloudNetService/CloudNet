@@ -94,8 +94,8 @@ public final class TemplateStorageUtil {
             FileUtils.copy(in, out);
           }
 
-          try (OutputStream out = storage.newOutputStream("config/sponge/global.conf");
-            InputStream in = CloudNet.class.getClassLoader().getResourceAsStream("files/nms/global.conf")) {
+          try (OutputStream out = storage.newOutputStream("config/sponge/sponge.conf");
+            InputStream in = CloudNet.class.getClassLoader().getResourceAsStream("files/nms/sponge.conf")) {
             FileUtils.copy(in, out);
           }
         }

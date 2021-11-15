@@ -17,23 +17,31 @@
 package de.dytanic.cloudnet.ext.cloudperms.bukkit.vault;
 
 import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
+import java.util.logging.Level;
 import net.milkbowl.vault.chat.Chat;
 import net.milkbowl.vault.permission.Permission;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.ServicesManager;
-import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.NotNull;
 
-public class VaultSupport {
+public final class VaultSupport {
 
-  public static void enable(JavaPlugin plugin, IPermissionManagement permissionManagement) {
-    ServicesManager servicesManager = plugin.getServer().getServicesManager();
-
-    Permission vaultPermissionImplementation = new VaultPermissionImplementation(permissionManagement);
-
-    servicesManager.register(Permission.class, vaultPermissionImplementation, plugin, ServicePriority.Highest);
-    servicesManager
-      .register(Chat.class, new VaultChatImplementation(vaultPermissionImplementation, permissionManagement), plugin,
-        ServicePriority.Highest);
+  private VaultSupport() {
+    throw new UnsupportedOperationException();
   }
 
+  public static void hook(@NotNull Plugin plugin, @NotNull IPermissionManagement management) {
+    try {
+      ServicesManager services = plugin.getServer().getServicesManager();
+
+      Permission vaultPermissions = new VaultPermissionImplementation(management);
+      Chat vaultChat = new VaultChatImplementation(vaultPermissions, management);
+
+      services.register(Permission.class, vaultPermissions, plugin, ServicePriority.High);
+      services.register(Chat.class, vaultChat, plugin, ServicePriority.High);
+    } catch (Exception exception) {
+      plugin.getLogger().log(Level.SEVERE, "Exception occurred while hooking into vault", exception);
+    }
+  }
 }

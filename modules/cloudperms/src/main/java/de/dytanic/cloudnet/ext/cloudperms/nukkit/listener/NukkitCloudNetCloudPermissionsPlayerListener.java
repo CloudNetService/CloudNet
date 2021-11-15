@@ -25,37 +25,38 @@ import cn.nukkit.event.player.PlayerLoginEvent;
 import cn.nukkit.event.player.PlayerQuitEvent;
 import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
 import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsHelper;
-import de.dytanic.cloudnet.ext.cloudperms.nukkit.NukkitCloudNetCloudPermissionsPlugin;
+import de.dytanic.cloudnet.ext.cloudperms.nukkit.NukkitPermissionInjectionHelper;
+import org.jetbrains.annotations.NotNull;
 
 public final class NukkitCloudNetCloudPermissionsPlayerListener implements Listener {
 
-  private final NukkitCloudNetCloudPermissionsPlugin plugin;
   private final IPermissionManagement permissionsManagement;
 
-  public NukkitCloudNetCloudPermissionsPlayerListener(NukkitCloudNetCloudPermissionsPlugin plugin,
-    IPermissionManagement permissionsManagement) {
-    this.plugin = plugin;
+  public NukkitCloudNetCloudPermissionsPlayerListener(@NotNull IPermissionManagement permissionsManagement) {
     this.permissionsManagement = permissionsManagement;
   }
 
   @EventHandler(priority = EventPriority.LOW)
-  public void handle(PlayerAsyncPreLoginEvent event) {
+  public void handle(@NotNull PlayerAsyncPreLoginEvent event) {
     if (event.getLoginResult() == PlayerAsyncPreLoginEvent.LoginResult.SUCCESS) {
-      CloudPermissionsHelper.initPermissionUser(this.permissionsManagement, event.getUuid(), event.getName(),
+      CloudPermissionsHelper.initPermissionUser(
+        this.permissionsManagement,
+        event.getUuid(),
+        event.getName(),
         message -> event.disAllow(message.replace("&", "§")),
         Server.getInstance().getPropertyBoolean("xbox-auth", true));
     }
   }
 
   @EventHandler(priority = EventPriority.LOWEST)
-  public void handle(PlayerLoginEvent event) {
+  public void handle(@NotNull PlayerLoginEvent event) {
     if (!event.isCancelled()) {
-      this.plugin.injectCloudPermissible(event.getPlayer());
+      NukkitPermissionInjectionHelper.injectPermissible(event.getPlayer(), this.permissionsManagement);
     }
   }
 
   @EventHandler
-  public void handle(PlayerQuitEvent event) {
+  public void handle(@NotNull PlayerQuitEvent event) {
     CloudPermissionsHelper.handlePlayerQuit(this.permissionsManagement, event.getPlayer().getUniqueId());
   }
 }

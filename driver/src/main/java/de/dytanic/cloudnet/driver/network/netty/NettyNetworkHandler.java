@@ -80,10 +80,10 @@ public abstract class NettyNetworkHandler extends SimpleChannelInboundHandler<Pa
         if (this.channel.getHandler() == null || this.channel.getHandler().handlePacketReceive(this.channel, msg)) {
           this.channel.getPacketRegistry().handlePacket(this.channel, msg);
         }
+        // free the packet message
+        NettyUtils.safeRelease(((NettyImmutableDataBuf) msg.getContent()).getByteBuf());
       } catch (Exception exception) {
         LOGGER.severe("Exception whilst handling packet " + msg, exception);
-      } finally {
-        NettyUtils.safeRelease(((NettyImmutableDataBuf) msg.getContent()).getByteBuf());
       }
     });
   }

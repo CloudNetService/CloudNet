@@ -29,6 +29,7 @@ import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.Plugin;
+import org.jetbrains.annotations.NotNull;
 
 public final class BukkitCloudNetCloudPermissionsPlayerListener implements Listener {
 
@@ -40,21 +41,23 @@ public final class BukkitCloudNetCloudPermissionsPlayerListener implements Liste
     this.permissionsManagement = permissionsManagement;
   }
 
-  @EventHandler(priority = EventPriority.MONITOR)
-  public void handlePreLogin(AsyncPlayerPreLoginEvent event) {
-    if (event.getLoginResult() != AsyncPlayerPreLoginEvent.Result.ALLOWED) {
-      return;
+  @EventHandler(priority = EventPriority.HIGHEST)
+  public void handlePreLogin(@NotNull AsyncPlayerPreLoginEvent event) {
+    if (event.getLoginResult() == AsyncPlayerPreLoginEvent.Result.ALLOWED) {
+      CloudPermissionsHelper.initPermissionUser(
+        this.permissionsManagement,
+        event.getUniqueId(),
+        event.getName(),
+        message -> {
+          event.setLoginResult(AsyncPlayerPreLoginEvent.Result.KICK_OTHER);
+          event.setKickMessage(ChatColor.translateAlternateColorCodes('&', message));
+        },
+        Bukkit.getOnlineMode());
     }
-
-    CloudPermissionsHelper
-      .initPermissionUser(this.permissionsManagement, event.getUniqueId(), event.getName(), message -> {
-        event.setLoginResult(AsyncPlayerPreLoginEvent.Result.KICK_OTHER);
-        event.setKickMessage(ChatColor.translateAlternateColorCodes('&', message));
-      }, Bukkit.getOnlineMode());
   }
 
   @EventHandler(priority = EventPriority.LOWEST)
-  public void handle(PlayerLoginEvent event) {
+  public void handle(@NotNull PlayerLoginEvent event) {
     if (event.getResult() != PlayerLoginEvent.Result.ALLOWED) {
       return;
     }
@@ -62,14 +65,13 @@ public final class BukkitCloudNetCloudPermissionsPlayerListener implements Liste
     try {
       BukkitPermissionInjectionHelper.injectPlayer(event.getPlayer());
     } catch (Throwable exception) {
-      this.plugin.getLogger()
-        .log(Level.SEVERE, "Error while injecting permissible for player " + event.getPlayer(), exception);
+      this.plugin.getLogger().log(Level.SEVERE, "Error while injecting permissible", exception);
       event.setResult(PlayerLoginEvent.Result.KICK_OTHER);
     }
   }
 
   @EventHandler
-  public void handleQuit(PlayerQuitEvent event) {
+  public void handleQuit(@NotNull PlayerQuitEvent event) {
     CloudPermissionsHelper.handlePlayerQuit(this.permissionsManagement, event.getPlayer().getUniqueId());
   }
 }
