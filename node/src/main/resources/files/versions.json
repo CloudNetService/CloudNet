@@ -439,25 +439,44 @@
       "targetEnvironment": "MINECRAFT_SERVER_SPONGE_VANILLA",
       "website": "https://spongepowered.org",
       "installSteps": [
-        "DOWNLOAD"
+        "DOWNLOAD",
+        "BUILD",
+        "COPY_FILTER"
       ],
       "versions": [
         {
           "name": "latest",
-          "url": "https://repo.spongepowered.org/maven/org/spongepowered/spongevanilla/1.12.2-7.3.0/spongevanilla-1.12.2-7.3.0.jar",
-          "cacheFiles": false
+          "url": "https://repo.spongepowered.org/repository/maven-public/org/spongepowered/spongevanilla/1.17-9.0.0-RC668/spongevanilla-1.17-9.0.0-RC668-universal.jar",
+          "cacheFiles": false,
+          "properties": {
+            "copy": {
+              "libraries/.*": "/",
+              "launcher\\.conf": "/",
+              "spongevanilla\\.jar": "/"
+            }
+          }
         },
         {
-          "name": "1.12.2",
-          "url": "https://repo.spongepowered.org/maven/org/spongepowered/spongevanilla/1.12.2-7.3.0/spongevanilla-1.12.2-7.3.0.jar"
+          "name": "1.17.1",
+          "url": "https://repo.spongepowered.org/repository/maven-public/org/spongepowered/spongevanilla/1.17-9.0.0-RC668/spongevanilla-1.17-9.0.0-RC668-universal.jar",
+          "properties": {
+            "copy": {
+              "libraries/.*": "/",
+              "launcher\\.conf": "/",
+              "spongevanilla\\.jar": "/"
+            }
+          }
         },
         {
-          "name": "1.11.2",
-          "url": "https://repo.spongepowered.org/maven/org/spongepowered/spongevanilla/1.11.2-6.1.0-BETA-27/spongevanilla-1.11.2-6.1.0-BETA-27.jar"
-        },
-        {
-          "name": "1.10.2",
-          "url": "https://repo.spongepowered.org/maven/org/spongepowered/spongevanilla/1.10.2-5.2.0-BETA-403/spongevanilla-1.10.2-5.2.0-BETA-403.jar"
+          "name": "1.16.5",
+          "url": "https://repo.spongepowered.org/repository/maven-public/org/spongepowered/spongevanilla/1.16.5-8.0.0-RC941/spongevanilla-1.16.5-8.0.0-RC941-universal.jar",
+          "properties": {
+            "copy": {
+              "libraries/.*": "/",
+              "launcher\\.conf": "/",
+              "spongevanilla\\.jar": "/"
+            }
+          }
         }
       ]
     },
@@ -721,13 +740,12 @@
       "versions": [
         {
           "name": "latest",
-          "url": "https://maven.minecraftforge.net/net/minecraftforge/forge/1.12.2-14.23.5.2855/forge-1.12.2-14.23.5.2855-installer.jar",
+          "url": "https://maven.minecraftforge.net/net/minecraftforge/forge/1.16.5-36.2.9/forge-1.16.5-36.2.9-installer.jar",
           "maxJavaVersion": 8,
           "cacheFiles": false,
           "properties": {
             "copy": {
               "libraries/.*": "/",
-              ".*\\.json": "/",
               "forge-.*\\.jar": "/",
               "minecraft_server.*\\.jar": "/"
             },
@@ -736,17 +754,16 @@
             ]
           },
           "additionalDownloads": {
-            "mods/spongeforge.jar": "https://repo.spongepowered.org/maven/org/spongepowered/spongeforge/1.12.2-2838-7.3.0/spongeforge-1.12.2-2838-7.3.0.jar"
+            "mods/spongeforge.jar": "https://repo.spongepowered.org/repository/maven-public/org/spongepowered/spongeforge/1.16.5-36.2.5-8.0.0-RC941/spongeforge-1.16.5-36.2.5-8.0.0-RC941.jar"
           }
         },
         {
-          "name": "1.12.2",
-          "url": "https://maven.minecraftforge.net/net/minecraftforge/forge/1.12.2-14.23.5.2855/forge-1.12.2-14.23.5.2855-installer.jar",
+          "name": "1.16.5",
+          "url": "https://maven.minecraftforge.net/net/minecraftforge/forge/1.16.5-36.2.9/forge-1.16.5-36.2.9-installer.jar",
           "maxJavaVersion": 8,
           "properties": {
             "copy": {
               "libraries/.*": "/",
-              ".*\\.json": "/",
               "forge-.*\\.jar": "/",
               "minecraft_server.*\\.jar": "/"
             },
@@ -755,45 +772,7 @@
             ]
           },
           "additionalDownloads": {
-            "mods/spongeforge.jar": "https://repo.spongepowered.org/maven/org/spongepowered/spongeforge/1.12.2-2838-7.3.0/spongeforge-1.12.2-2838-7.3.0.jar"
-          }
-        },
-        {
-          "name": "1.11.2",
-          "url": "https://files.minecraftforge.net/maven/net/minecraftforge/forge/1.11.2-13.20.1.2476/forge-1.11.2-13.20.1.2476-installer.jar",
-          "maxJavaVersion": 8,
-          "properties": {
-            "copy": {
-              "libraries/.*": "/",
-              ".*\\.json": "/",
-              "forge-.*\\.jar": "/",
-              "minecraft_server.*\\.jar": "/"
-            },
-            "parameters": [
-              "--installServer"
-            ]
-          },
-          "additionalDownloads": {
-            "mods/spongeforge.jar": "https://repo.spongepowered.org/maven/org/spongepowered/spongeforge/1.11.2-2476-6.1.0-BETA-2792/spongeforge-1.11.2-2476-6.1.0-BETA-2792.jar"
-          }
-        },
-        {
-          "name": "1.10.2",
-          "url": "https://files.minecraftforge.net/maven/net/minecraftforge/forge/1.10.2-12.18.3.2477/forge-1.10.2-12.18.3.2477-installer.jar",
-          "maxJavaVersion": 8,
-          "properties": {
-            "copy": {
-              "libraries/.*": "/",
-              ".*\\.json": "/",
-              "forge-.*\\.jar": "/",
-              "minecraft_server.*\\.jar": "/"
-            },
-            "parameters": [
-              "--installServer"
-            ]
-          },
-          "additionalDownloads": {
-            "mods/spongeforge.jar": "https://repo.spongepowered.org/maven/org/spongepowered/spongeforge/1.10.2-2477-5.2.0-BETA-2793/spongeforge-1.10.2-2477-5.2.0-BETA-2793.jar"
+            "mods/spongeforge.jar": "https://repo.spongepowered.org/repository/maven-public/org/spongepowered/spongeforge/1.16.5-36.2.5-8.0.0-RC941/spongeforge-1.16.5-36.2.5-8.0.0-RC941.jar"
           }
         }
       ]

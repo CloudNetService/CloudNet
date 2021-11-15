@@ -27,7 +27,7 @@ rootProject.name = "cloudnet-root"
 initializeProjects("common", "driver", "node", "wrapper-jvm", "launcher", "modules", "plugins")
 
 // sub projects
-initializeSubProjects("wrapper-jvm", "minecraft-launchwrapper-api")
+initializeSubProjects("wrapper-jvm", "modlauncher")
 // plugins
 initializeSubProjects("plugins", "chat", "simplenametags")
 // modules

@@ -46,6 +46,7 @@ bungeecord = "1.17-R0.1-SNAPSHOT"
 # platform extensions
 vault = "1.7.1"
 adventure = "4.9.3"
+modlauncher = "8.0.9"
 
 
 [libraries]
@@ -115,7 +116,7 @@ adventureSerializerPlain = { group = "net.kyori", name = "adventure-text-seriali
 
 # platform extensions
 vault = { group = "com.github.MilkBowl", name = "VaultAPI", version.ref = "vault" }
-
+modLauncher = { group = "cpw.mods", name = "modlauncher", version.ref = "modlauncher" }
 
 [bundles]
 

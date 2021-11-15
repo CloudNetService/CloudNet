@@ -33,8 +33,9 @@ tasks.withType<ShadowJar> {
   relocate("com.google.gson", "eu.cloudnetservice.relocate.gson")
   relocate("com.google.common", "eu.cloudnetservice.relocate.guava")
 
-  // asm relocation
-  relocate("org.objectweb.asm", "eu.cloudnetservice.relocate.asm")
+  // asm relocation to fix forge discovery:
+  // https://github.com/MinecraftForge/MinecraftForge/blob/1.16.x/src/fmllauncher/java/net/minecraftforge/fml/loading/LibraryFinder.java#L39
+  relocate("org.objectweb.asm.Opcodes", "eu.cloudnetservice.relocate.asm.Opcodes")
 
   // drop unused classes which are making the jar bigger
   minimize()
@@ -46,7 +47,7 @@ tasks.withType<ShadowJar> {
 
 dependencies {
   "api"(projects.cloudnetDriver)
-  "compileOnly"(projects.cloudnetWrapperJvm.minecraftLaunchwrapperApi)
+  "api"(projects.cloudnetWrapperJvm.modlauncher)
 }
 
 applyJarMetadata(
