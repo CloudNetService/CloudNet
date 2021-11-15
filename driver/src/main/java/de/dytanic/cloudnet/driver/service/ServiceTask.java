@@ -22,6 +22,7 @@ import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.regex.Pattern;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.jetbrains.annotations.NotNull;
@@ -30,6 +31,8 @@ import org.jetbrains.annotations.Nullable;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = false)
 public class ServiceTask extends ServiceConfigurationBase implements INameable {
+
+  public static final Pattern NAMING_PATTERN = Pattern.compile("^[a-zA-Z0-9._\\-*]*$");
 
   private String name;
   private String runtime;

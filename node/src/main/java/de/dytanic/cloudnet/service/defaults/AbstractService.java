@@ -42,6 +42,7 @@ import de.dytanic.cloudnet.driver.service.ServiceId;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
 import de.dytanic.cloudnet.driver.service.ServiceRemoteInclusion;
+import de.dytanic.cloudnet.driver.service.ServiceTask;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import de.dytanic.cloudnet.driver.template.TemplateStorage;
 import de.dytanic.cloudnet.event.service.CloudServiceCreateEvent;
@@ -141,6 +142,12 @@ public abstract class AbstractService implements ICloudService {
     @NotNull ICloudServiceManager manager,
     boolean staticService
   ) {
+    // validate the service name
+    if (!ServiceTask.NAMING_PATTERN.matcher(serviceId.getName()).matches()) {
+      throw new IllegalArgumentException(
+        "Service name \"" + serviceId.getName() + "\" must match pattern \"" + ServiceTask.NAMING_PATTERN + "\"");
+    }
+    // resolve the path of the service in the logical directory
     return staticService
       ? manager.getPersistentServicesDirectoryPath().resolve(serviceId.getName())
       : manager.getTempDirectoryPath().resolve(String.format("%s_%s", serviceId.getName(), serviceId.getUniqueId()));
