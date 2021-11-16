@@ -28,7 +28,7 @@ pipeline {
     stage('Clean-Build') {
       steps {
         configFileProvider([configFile(fileId: "e94f788c-1d9c-48d4-b9a9-8286ff68275e", targetLocation: 'gradle.properties')]) {
-          sh './gradlew build jar -x test -x allJavaDoc --full-stacktrace'
+          sh './gradlew --full-stacktrace'
         }
       }
     }
@@ -82,16 +82,16 @@ pipeline {
 
         sh 'mkdir temp/dev'
         sh 'mkdir temp/dev/examples'
-        sh 'cp -r cloudnet-examples/src/main/java/de/dytanic/cloudnet/examples/* temp/dev/examples'
+        sh 'cp -r examples/src/main/java/de/dytanic/cloudnet/examples/* temp/dev/examples'
 
         sh 'mkdir temp/extras/plugins'
-        sh 'cp cloudnet-plugins/**/build/libs/*.jar temp/extras/plugins/'
+        sh 'cp plugins/**/build/libs/*.jar temp/extras/plugins/'
 
         sh 'mkdir temp/extras/modules'
-        sh 'cp cloudnet-modules/cloudnet-labymod/build/libs/*.jar temp/extras/modules/'
-        sh 'cp cloudnet-modules/cloudnet-npcs/build/libs/*.jar temp/extras/modules/'
+        sh 'cp modules/cloudnet-labymod/build/libs/*.jar temp/extras/modules/'
+        sh 'cp modules/cloudnet-npcs/build/libs/*.jar temp/extras/modules/'
 
-        sh 'cp cloudnet-launcher/build/libs/launcher.jar temp/launcher.jar'
+        sh 'cp launcher/build/libs/launcher.jar temp/launcher.jar'
         zip archive: true, dir: 'temp', glob: '', zipFile: 'CloudNet.zip'
 
         sh 'rm -r temp/'
@@ -103,9 +103,9 @@ pipeline {
         echo 'Creating AutoUpdater.zip file...'
         sh 'mkdir -p temp'
 
-        sh 'cp -r cloudnet/build/libs/*.jar temp/'
-        sh 'cp -r cloudnet-driver/build/libs/*.jar temp/'
-        sh 'cp -r cloudnet-modules/**/build/libs/*.jar temp/'
+        sh 'cp -r node/build/libs/*.jar temp/'
+        sh 'cp -r driver/build/libs/*.jar temp/'
+        sh 'cp -r modules/**/build/libs/*.jar temp/'
         sh 'cp -r **/build/libs/*.cnl temp/'
         zip archive: true, dir: 'temp', glob: '', zipFile: 'AutoUpdater.zip'
 
