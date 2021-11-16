@@ -17,7 +17,8 @@
 package de.dytanic.cloudnet.ext.cloudperms.bukkit;
 
 import de.dytanic.cloudnet.driver.CloudNetDriver;
-import de.dytanic.cloudnet.ext.cloudperms.bukkit.listener.BukkitCloudNetCloudPermissionsPlayerListener;
+import de.dytanic.cloudnet.ext.cloudperms.PermissionsUpdateListener;
+import de.dytanic.cloudnet.ext.cloudperms.bukkit.listener.BukkitCloudPermissionsPlayerListener;
 import de.dytanic.cloudnet.ext.cloudperms.bukkit.vault.VaultSupport;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import java.util.logging.Level;
@@ -27,17 +28,27 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.NotNull;
 
-public final class BukkitCloudNetCloudPermissionsPlugin extends JavaPlugin {
+public final class BukkitCloudPermissionsPlugin extends JavaPlugin {
 
   @Override
   public void onEnable() {
     this.checkForVault();
     Bukkit.getOnlinePlayers().forEach(this::injectCloudPermissible);
 
-    this.getServer().getPluginManager().registerEvents(new BukkitCloudNetCloudPermissionsPlayerListener(
+    this.getServer().getPluginManager().registerEvents(new BukkitCloudPermissionsPlayerListener(
       this,
       CloudNetDriver.getInstance().getPermissionManagement()
     ), this);
+
+    // register the update listener if the server can update the command tree to the player
+    if (BukkitPermissionHelper.canUpdateCommandTree()) {
+      CloudNetDriver.getInstance().getEventManager().registerListener(new PermissionsUpdateListener<>(
+        runnable -> Bukkit.getScheduler().runTask(this, runnable),
+        BukkitPermissionHelper::resendCommandTree,
+        Player::getUniqueId,
+        Bukkit::getPlayer,
+        Bukkit::getOnlinePlayers));
+    }
   }
 
   @Override
@@ -49,7 +60,7 @@ public final class BukkitCloudNetCloudPermissionsPlugin extends JavaPlugin {
   @Internal
   public void injectCloudPermissible(@NotNull Player player) {
     try {
-      BukkitPermissionInjectionHelper.injectPlayer(player);
+      BukkitPermissionHelper.injectPlayer(player);
     } catch (Throwable exception) {
       this.getLogger().log(Level.SEVERE, "Exception while injecting cloud permissible", exception);
     }

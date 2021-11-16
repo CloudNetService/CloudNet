@@ -29,12 +29,12 @@ import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public final class NukkitCloudNetCloudPermissionsPermissible extends PermissibleBase {
+public final class NukkitCloudPermissionsPermissible extends PermissibleBase {
 
   private final Player player;
   private final IPermissionManagement permissionsManagement;
 
-  public NukkitCloudNetCloudPermissionsPermissible(Player player, IPermissionManagement permissionsManagement) {
+  public NukkitCloudPermissionsPermissible(Player player, IPermissionManagement permissionsManagement) {
     super(player);
 
     this.player = player;

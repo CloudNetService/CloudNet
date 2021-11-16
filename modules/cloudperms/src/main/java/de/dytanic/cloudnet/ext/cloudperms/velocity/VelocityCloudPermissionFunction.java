@@ -23,13 +23,12 @@ import de.dytanic.cloudnet.driver.permission.Permission;
 import de.dytanic.cloudnet.driver.permission.PermissionUser;
 import java.util.UUID;
 
-public final class VelocityCloudNetCloudPermissionsPermissionFunction implements PermissionFunction {
+final class VelocityCloudPermissionFunction implements PermissionFunction {
 
   private final UUID uniqueId;
   private final IPermissionManagement permissionsManagement;
 
-  public VelocityCloudNetCloudPermissionsPermissionFunction(UUID uniqueId,
-    IPermissionManagement permissionsManagement) {
+  public VelocityCloudPermissionFunction(UUID uniqueId, IPermissionManagement permissionsManagement) {
     this.uniqueId = uniqueId;
     this.permissionsManagement = permissionsManagement;
   }

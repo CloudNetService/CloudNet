@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.ext.cloudperms.bungee.listener;
+package de.dytanic.cloudnet.ext.cloudperms.bungee;
 
 import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
 import de.dytanic.cloudnet.driver.permission.Permission;
@@ -34,11 +34,11 @@ import net.md_5.bungee.event.EventHandler;
 import net.md_5.bungee.event.EventPriority;
 import org.jetbrains.annotations.NotNull;
 
-public final class BungeeCloudNetCloudPermissionsPlayerListener implements Listener {
+public final class BungeeCloudPermissionsPlayerListener implements Listener {
 
   private final IPermissionManagement permissionsManagement;
 
-  public BungeeCloudNetCloudPermissionsPlayerListener(IPermissionManagement permissionsManagement) {
+  public BungeeCloudPermissionsPlayerListener(IPermissionManagement permissionsManagement) {
     this.permissionsManagement = permissionsManagement;
   }
 

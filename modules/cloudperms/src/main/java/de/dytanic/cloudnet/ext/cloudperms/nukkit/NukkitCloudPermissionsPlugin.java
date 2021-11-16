@@ -20,18 +20,25 @@ import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.plugin.PluginBase;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
-import de.dytanic.cloudnet.ext.cloudperms.nukkit.listener.NukkitCloudNetCloudPermissionsPlayerListener;
+import de.dytanic.cloudnet.ext.cloudperms.PermissionsUpdateListener;
+import de.dytanic.cloudnet.ext.cloudperms.nukkit.listener.NukkitCloudPermissionsPlayerListener;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 
-public final class NukkitCloudNetCloudPermissionsPlugin extends PluginBase {
+public final class NukkitCloudPermissionsPlugin extends PluginBase {
 
   @Override
   public void onEnable() {
     this.injectPlayersCloudPermissible();
 
     super.getServer().getPluginManager().registerEvents(
-      new NukkitCloudNetCloudPermissionsPlayerListener(CloudNetDriver.getInstance().getPermissionManagement()),
+      new NukkitCloudPermissionsPlayerListener(CloudNetDriver.getInstance().getPermissionManagement()),
       this);
+    CloudNetDriver.getInstance().getEventManager().registerListener(new PermissionsUpdateListener<>(
+      runnable -> Server.getInstance().getScheduler().scheduleTask(this, runnable),
+      Player::sendCommandData,
+      Player::getUniqueId,
+      uuid -> Server.getInstance().getPlayer(uuid).orElse(null),
+      () -> Server.getInstance().getOnlinePlayers().values()));
   }
 
   @Override

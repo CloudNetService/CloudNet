@@ -14,18 +14,20 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.ext.cloudperms.waterdogpe;
+package de.dytanic.cloudnet.ext.cloudperms.bungee;
 
 import de.dytanic.cloudnet.driver.CloudNetDriver;
-import de.dytanic.cloudnet.ext.cloudperms.waterdogpe.listener.WaterdogPECloudNetCloudPermissionsPlayerListener;
 import de.dytanic.cloudnet.wrapper.Wrapper;
-import dev.waterdog.waterdogpe.plugin.Plugin;
+import net.md_5.bungee.api.plugin.Plugin;
 
-public class WaterdogPECloudNetCloudPermissionsPlugin extends Plugin {
+public final class BungeeCloudPermissionsPlugin extends Plugin {
 
   @Override
   public void onEnable() {
-    new WaterdogPECloudNetCloudPermissionsPlayerListener(CloudNetDriver.getInstance().getPermissionManagement());
+    this.getProxy().getPluginManager().registerListener(
+      this,
+      new BungeeCloudPermissionsPlayerListener(CloudNetDriver.getInstance().getPermissionManagement())
+    );
   }
 
   @Override

@@ -16,28 +16,32 @@
 
 package de.dytanic.cloudnet.ext.cloudperms.velocity;
 
-import com.google.common.base.Preconditions;
 import com.google.inject.Inject;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
 import com.velocitypowered.api.event.proxy.ProxyShutdownEvent;
-import com.velocitypowered.api.permission.PermissionProvider;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
-import de.dytanic.cloudnet.ext.cloudperms.velocity.listener.VelocityCloudNetCloudPermissionsPlayerListener;
+import de.dytanic.cloudnet.ext.cloudperms.velocity.listener.VelocityCloudPermissionsPlayerListener;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import java.lang.reflect.Field;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-@Plugin(id = "cloudnet_cloudperms_velocity")
+@Plugin(
+  id = "cloudnet_cloudperms",
+  name = "CloudNet-CloudPerms",
+  version = "{project.build.version}",
+  description = "Velocity extension which implement the permission management system from CloudNet into Velocity",
+  url = "https://cloudnetservice.eu",
+  authors = "CloudNetService"
+)
 public final class VelocityCloudNetCloudPermissionsPlugin {
 
   private final ProxyServer proxyServer;
   private final Logger logger;
-  private PermissionProvider permissionProvider;
 
   @Inject
   public VelocityCloudNetCloudPermissionsPlugin(ProxyServer proxyServer, Logger logger) {
@@ -47,14 +51,11 @@ public final class VelocityCloudNetCloudPermissionsPlugin {
 
   @Subscribe
   public void handleProxyInit(ProxyInitializeEvent event) {
-    this.permissionProvider = new VelocityCloudNetCloudPermissionsPermissionProvider(
-      CloudNetDriver.getInstance().getPermissionManagement());
-
     this.initPlayersPermissionFunction();
-    this.proxyServer.getEventManager().register(this, new VelocityCloudNetCloudPermissionsPlayerListener(
-      CloudNetDriver.getInstance().getPermissionManagement(),
-      this.permissionProvider
-    ));
+    this.proxyServer.getEventManager().register(this, new VelocityCloudPermissionsPlayerListener(
+      this.proxyServer,
+      new VelocityCloudPermissionProvider(CloudNetDriver.getInstance().getPermissionManagement()),
+      CloudNetDriver.getInstance().getPermissionManagement()));
   }
 
   @Subscribe
@@ -63,26 +64,21 @@ public final class VelocityCloudNetCloudPermissionsPlugin {
     Wrapper.getInstance().unregisterPacketListenersByClassLoader(this.getClass().getClassLoader());
   }
 
-
   private void initPlayersPermissionFunction() {
     this.proxyServer.getAllPlayers().forEach(this::injectPermissionFunction);
   }
 
-  public void injectPermissionFunction(Player player) {
-    Preconditions.checkNotNull(player);
-
+  private void injectPermissionFunction(Player player) {
     try {
       Field field = player.getClass().getDeclaredField("permissionFunction");
       field.setAccessible(true);
-      field.set(player, new VelocityCloudNetCloudPermissionsPermissionFunction(player.getUniqueId(),
-        CloudNetDriver.getInstance().getPermissionManagement()));
+      field.set(
+        player,
+        new VelocityCloudPermissionFunction(
+          player.getUniqueId(),
+          CloudNetDriver.getInstance().getPermissionManagement()));
     } catch (Exception exception) {
       this.logger.log(Level.SEVERE, "Exception while injecting permissions", exception);
     }
   }
-
-  public PermissionProvider getPermissionProvider() {
-    return this.permissionProvider;
-  }
-
 }

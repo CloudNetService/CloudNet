@@ -30,11 +30,11 @@ import org.spongepowered.api.event.filter.cause.Root;
 import org.spongepowered.api.event.network.ServerSideConnectionEvent;
 import org.spongepowered.api.util.Tristate;
 
-public final class SpongeCloudNetPermissionsListener {
+public final class SpongeCloudPermissionsListener {
 
   private final IPermissionManagement permissionManagement;
 
-  public SpongeCloudNetPermissionsListener(@NotNull IPermissionManagement permissionManagement) {
+  public SpongeCloudPermissionsListener(@NotNull IPermissionManagement permissionManagement) {
     this.permissionManagement = permissionManagement;
   }
 

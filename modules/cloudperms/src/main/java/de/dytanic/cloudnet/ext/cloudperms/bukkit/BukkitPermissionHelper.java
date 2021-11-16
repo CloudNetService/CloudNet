@@ -16,10 +16,12 @@
 
 package de.dytanic.cloudnet.ext.cloudperms.bukkit;
 
-import com.google.common.base.Preconditions;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.lang.reflect.Field;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -27,13 +29,15 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-public final class BukkitPermissionInjectionHelper {
+public final class BukkitPermissionHelper {
 
   private static final Pattern PACKAGE_VERSION_PATTERN = Pattern
     .compile("^org\\.bukkit\\.craftbukkit\\.(\\w+)\\.CraftServer$");
+  private static final Logger LOGGER = LogManager.getLogger(BukkitPermissionHelper.class);
 
   private static final String SERVER_PACKAGE_VERSION;
-  private static final MethodHandle PERMISSIBLE_FIELD;
+  private static final MethodHandle PERMISSIBLE_SETTER;
+  private static final MethodHandle UPDATE_COMMAND_TREE;
 
   static {
     // load server version
@@ -46,6 +50,7 @@ public final class BukkitPermissionInjectionHelper {
       SERVER_PACKAGE_VERSION = ".";
     }
 
+    // find the permissible field
     try {
       Field permissibleField;
       try {
@@ -59,26 +64,46 @@ public final class BukkitPermissionInjectionHelper {
         permissibleField.setAccessible(true);
       }
 
-      PERMISSIBLE_FIELD = MethodHandles.lookup().unreflectSetter(permissibleField);
+      PERMISSIBLE_SETTER = MethodHandles.lookup().unreflectSetter(permissibleField);
     } catch (final ClassNotFoundException | NoSuchFieldException | IllegalAccessException exception) {
       throw new ExceptionInInitializerError(exception);
     }
+
+    // find the updateCommands method
+    MethodHandle updateCommands;
+    try {
+      updateCommands = MethodHandles.publicLookup().findVirtual(
+        Player.class,
+        "updateCommands",
+        MethodType.methodType(void.class));
+    } catch (NoSuchMethodException | IllegalAccessException exception) {
+      updateCommands = null;
+    }
+    // assign the static field
+    UPDATE_COMMAND_TREE = updateCommands;
   }
 
-  private BukkitPermissionInjectionHelper() {
+  private BukkitPermissionHelper() {
     throw new UnsupportedOperationException();
   }
 
   public static void injectPlayer(@NotNull Player player) throws Throwable {
-    Preconditions.checkNotNull(player, "player");
-    injectPlayer(player, PERMISSIBLE_FIELD);
+    PERMISSIBLE_SETTER.invoke(
+      player,
+      new BukkitCloudPermissionsPermissible(player, CloudNetDriver.getInstance().getPermissionManagement()));
   }
 
-  public static void injectPlayer(@NotNull Player player, @NotNull MethodHandle handle) throws Throwable {
-    Preconditions.checkNotNull(player, "player");
-    Preconditions.checkNotNull(handle, "handle");
+  public static void resendCommandTree(@NotNull Player player) {
+    if (UPDATE_COMMAND_TREE != null) {
+      try {
+        UPDATE_COMMAND_TREE.invoke(player);
+      } catch (Throwable throwable) {
+        LOGGER.severe("Exception resending player command tree", throwable);
+      }
+    }
+  }
 
-    handle.invoke(player, new BukkitCloudNetCloudPermissionsPermissible(player,
-      CloudNetDriver.getInstance().getPermissionManagement()));
+  public static boolean canUpdateCommandTree() {
+    return UPDATE_COMMAND_TREE != null;
   }
 }

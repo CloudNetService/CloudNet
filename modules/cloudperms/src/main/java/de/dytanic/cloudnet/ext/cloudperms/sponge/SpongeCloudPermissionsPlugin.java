@@ -18,33 +18,47 @@ package de.dytanic.cloudnet.ext.cloudperms.sponge;
 
 import com.google.inject.Inject;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
+import de.dytanic.cloudnet.ext.cloudperms.PermissionsUpdateListener;
 import de.dytanic.cloudnet.ext.cloudperms.sponge.service.CloudPermsPermissionService;
 import org.jetbrains.annotations.NotNull;
+import org.spongepowered.api.Server;
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.lifecycle.ConstructPluginEvent;
 import org.spongepowered.api.event.lifecycle.ProvideServiceEvent;
+import org.spongepowered.api.event.lifecycle.StartingEngineEvent;
 import org.spongepowered.api.service.permission.PermissionService;
 import org.spongepowered.plugin.PluginContainer;
 import org.spongepowered.plugin.builtin.jvm.Plugin;
 
 @Plugin("cloudnet_cloudperms")
-public final class SpongeCloudNetCloudPermissionsPlugin {
+public final class SpongeCloudPermissionsPlugin {
 
   private final PluginContainer plugin;
   private final PermissionService service;
 
   @Inject
-  public SpongeCloudNetCloudPermissionsPlugin(@NotNull PluginContainer pluginContainer) {
+  public SpongeCloudPermissionsPlugin(@NotNull PluginContainer pluginContainer) {
     this.plugin = pluginContainer;
     this.service = new CloudPermsPermissionService(CloudNetDriver.getInstance().getPermissionManagement());
   }
 
   @Listener
-  public void onEnable(@NotNull ConstructPluginEvent event) {
+  public void handle(@NotNull ConstructPluginEvent event) {
     Sponge.eventManager().registerListeners(
       this.plugin,
-      new SpongeCloudNetPermissionsListener(CloudNetDriver.getInstance().getPermissionManagement()));
+      new SpongeCloudPermissionsListener(CloudNetDriver.getInstance().getPermissionManagement()));
+  }
+
+  @Listener
+  public void handle(@NotNull StartingEngineEvent<Server> event) {
+    CloudNetDriver.getInstance().getEventManager().registerListener(new PermissionsUpdateListener<>(
+      event.engine().scheduler().executor(this.plugin),
+      player -> Sponge.server().commandManager().updateCommandTreeForPlayer(player),
+      ServerPlayer::uniqueId,
+      uuid -> Sponge.server().player(uuid).orElse(null),
+      Sponge.server()::onlinePlayers));
   }
 
   @Listener

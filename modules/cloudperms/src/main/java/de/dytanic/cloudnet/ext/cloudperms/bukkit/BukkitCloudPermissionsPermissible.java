@@ -33,12 +33,12 @@ import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionAttachmentInfo;
 import org.jetbrains.annotations.NotNull;
 
-public final class BukkitCloudNetCloudPermissionsPermissible extends PermissibleBase {
+public final class BukkitCloudPermissionsPermissible extends PermissibleBase {
 
   private final Player player;
   private final IPermissionManagement permissionsManagement;
 
-  public BukkitCloudNetCloudPermissionsPermissible(Player player, IPermissionManagement permissionsManagement) {
+  public BukkitCloudPermissionsPermissible(Player player, IPermissionManagement permissionsManagement) {
     super(player);
 
     this.player = player;

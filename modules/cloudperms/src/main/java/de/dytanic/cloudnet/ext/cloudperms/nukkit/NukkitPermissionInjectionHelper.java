@@ -41,7 +41,7 @@ public final class NukkitPermissionInjectionHelper {
 
   public static void injectPermissible(@NotNull Player player, IPermissionManagement management) {
     try {
-      SET_PERM_FIELD.invoke(player, new NukkitCloudNetCloudPermissionsPermissible(player, management));
+      SET_PERM_FIELD.invoke(player, new NukkitCloudPermissionsPermissible(player, management));
     } catch (Throwable throwable) {
       throw new RuntimeException("Unable to inject permissible", throwable);
     }

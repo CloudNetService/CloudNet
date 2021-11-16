@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.ext.cloudperms.waterdogpe.listener;
+package de.dytanic.cloudnet.ext.cloudperms.waterdogpe;
 
 import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
 import de.dytanic.cloudnet.driver.permission.Permission;
@@ -27,9 +27,9 @@ import dev.waterdog.waterdogpe.event.defaults.PlayerDisconnectEvent;
 import dev.waterdog.waterdogpe.event.defaults.PlayerLoginEvent;
 import dev.waterdog.waterdogpe.event.defaults.PlayerPermissionCheckEvent;
 
-public class WaterdogPECloudNetCloudPermissionsPlayerListener {
+final class WaterdogPECloudPermissionsPlayerListener {
 
-  public WaterdogPECloudNetCloudPermissionsPlayerListener(IPermissionManagement permissionManagement) {
+  public WaterdogPECloudPermissionsPlayerListener(IPermissionManagement permissionManagement) {
     EventManager eventManager = ProxyServer.getInstance().getEventManager();
 
     eventManager.subscribe(PlayerLoginEvent.class, event -> {

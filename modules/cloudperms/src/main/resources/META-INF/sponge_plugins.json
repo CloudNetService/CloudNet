@@ -9,7 +9,7 @@
       "id": "cloudnet_cloudperms",
       "name": "CloudNet-CloudPerms",
       "version": "{project.build.version}",
-      "entrypoint": "de.dytanic.cloudnet.ext.cloudperms.sponge.SpongeCloudNetCloudPermissionsPlugin",
+      "entrypoint": "de.dytanic.cloudnet.ext.cloudperms.sponge.SpongeCloudPermissionsPlugin",
       "description": "Sponge extension which implement the permission management system from CloudNet into Sponge for players",
       "links": {
         "homepage": "https://cloudnetservice.eu"

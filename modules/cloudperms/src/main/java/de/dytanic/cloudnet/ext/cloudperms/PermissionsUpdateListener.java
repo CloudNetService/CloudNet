@@ -1,0 +1,81 @@
+/*
+ * Copyright 2019-2021 CloudNetService team & contributors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package de.dytanic.cloudnet.ext.cloudperms;
+
+import de.dytanic.cloudnet.driver.CloudNetDriver;
+import de.dytanic.cloudnet.driver.event.EventListener;
+import de.dytanic.cloudnet.driver.event.events.permission.PermissionUpdateGroupEvent;
+import de.dytanic.cloudnet.driver.event.events.permission.PermissionUpdateUserEvent;
+import de.dytanic.cloudnet.driver.permission.PermissionUser;
+import java.util.Collection;
+import java.util.UUID;
+import java.util.concurrent.Executor;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Supplier;
+import org.jetbrains.annotations.NotNull;
+
+public final class PermissionsUpdateListener<P> {
+
+  private final Executor syncTaskExecutor;
+  private final Consumer<P> commandTreeUpdater;
+  private final Function<P, UUID> uniqueIdLookup;
+  private final Function<UUID, P> onlinePlayerLookup;
+  private final Supplier<Collection<? extends P>> onlinePlayerSupplier;
+
+  public PermissionsUpdateListener(
+    @NotNull Executor syncTaskExecutor,
+    @NotNull Consumer<P> commandTreeUpdater,
+    @NotNull Function<P, UUID> uniqueIdLookup,
+    @NotNull Function<UUID, P> onlinePlayerLookup,
+    @NotNull Supplier<Collection<? extends P>> onlinePlayerSupplier
+  ) {
+    this.syncTaskExecutor = syncTaskExecutor;
+    this.commandTreeUpdater = commandTreeUpdater;
+    this.uniqueIdLookup = uniqueIdLookup;
+    this.onlinePlayerLookup = onlinePlayerLookup;
+    this.onlinePlayerSupplier = onlinePlayerSupplier;
+  }
+
+  @EventListener
+  public void handle(PermissionUpdateUserEvent event) {
+    this.syncTaskExecutor.execute(() -> {
+      // get the player if online
+      P player = this.onlinePlayerLookup.apply(event.getPermissionUser().getUniqueId());
+      if (player != null) {
+        // update the command tree of the player
+        this.commandTreeUpdater.accept(player);
+      }
+    });
+  }
+
+  @EventListener
+  public void handle(PermissionUpdateGroupEvent event) {
+    this.syncTaskExecutor.execute(() -> {
+      // find all matching players
+      for (P player : this.onlinePlayerSupplier.get()) {
+        UUID playerUniqueId = this.uniqueIdLookup.apply(player);
+        // get the associated user
+        PermissionUser user = CloudNetDriver.getInstance().getPermissionManagement().getUser(playerUniqueId);
+        if (user != null && user.inGroup(event.getPermissionGroup().getName())) {
+          // update the command tree of the player
+          this.commandTreeUpdater.accept(player);
+        }
+      }
+    });
+  }
+}

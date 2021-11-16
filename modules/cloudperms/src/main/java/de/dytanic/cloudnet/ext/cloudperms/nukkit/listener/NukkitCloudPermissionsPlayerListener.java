@@ -28,11 +28,11 @@ import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsHelper;
 import de.dytanic.cloudnet.ext.cloudperms.nukkit.NukkitPermissionInjectionHelper;
 import org.jetbrains.annotations.NotNull;
 
-public final class NukkitCloudNetCloudPermissionsPlayerListener implements Listener {
+public final class NukkitCloudPermissionsPlayerListener implements Listener {
 
   private final IPermissionManagement permissionsManagement;
 
-  public NukkitCloudNetCloudPermissionsPlayerListener(@NotNull IPermissionManagement permissionsManagement) {
+  public NukkitCloudPermissionsPlayerListener(@NotNull IPermissionManagement permissionsManagement) {
     this.permissionsManagement = permissionsManagement;
   }
 

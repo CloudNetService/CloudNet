@@ -18,7 +18,7 @@ package de.dytanic.cloudnet.ext.cloudperms.bukkit.listener;
 
 import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
 import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsHelper;
-import de.dytanic.cloudnet.ext.cloudperms.bukkit.BukkitPermissionInjectionHelper;
+import de.dytanic.cloudnet.ext.cloudperms.bukkit.BukkitPermissionHelper;
 import java.util.logging.Level;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -31,12 +31,12 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 
-public final class BukkitCloudNetCloudPermissionsPlayerListener implements Listener {
+public final class BukkitCloudPermissionsPlayerListener implements Listener {
 
   private final Plugin plugin;
   private final IPermissionManagement permissionsManagement;
 
-  public BukkitCloudNetCloudPermissionsPlayerListener(Plugin plugin, IPermissionManagement permissionsManagement) {
+  public BukkitCloudPermissionsPlayerListener(Plugin plugin, IPermissionManagement permissionsManagement) {
     this.plugin = plugin;
     this.permissionsManagement = permissionsManagement;
   }
@@ -63,7 +63,7 @@ public final class BukkitCloudNetCloudPermissionsPlayerListener implements Liste
     }
 
     try {
-      BukkitPermissionInjectionHelper.injectPlayer(event.getPlayer());
+      BukkitPermissionHelper.injectPlayer(event.getPlayer());
     } catch (Throwable exception) {
       this.plugin.getLogger().log(Level.SEVERE, "Error while injecting permissible", exception);
       event.setResult(PlayerLoginEvent.Result.KICK_OTHER);

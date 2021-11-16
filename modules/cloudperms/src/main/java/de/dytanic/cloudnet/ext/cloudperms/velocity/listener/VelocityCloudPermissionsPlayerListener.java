@@ -24,43 +24,53 @@ import com.velocitypowered.api.event.connection.LoginEvent;
 import com.velocitypowered.api.event.permission.PermissionsSetupEvent;
 import com.velocitypowered.api.permission.PermissionProvider;
 import com.velocitypowered.api.proxy.Player;
+import com.velocitypowered.api.proxy.ProxyServer;
 import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
 import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsHelper;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import org.jetbrains.annotations.NotNull;
 
-public final class VelocityCloudNetCloudPermissionsPlayerListener {
+public final class VelocityCloudPermissionsPlayerListener {
 
-  private final IPermissionManagement permissionsManagement;
+  private final ProxyServer proxyServer;
   private final PermissionProvider permissionProvider;
+  private final IPermissionManagement permissionsManagement;
 
-  public VelocityCloudNetCloudPermissionsPlayerListener(IPermissionManagement permissionsManagement,
-    PermissionProvider permissionProvider) {
-    this.permissionsManagement = permissionsManagement;
+  public VelocityCloudPermissionsPlayerListener(
+    @NotNull ProxyServer proxyServer,
+    @NotNull PermissionProvider permissionProvider,
+    @NotNull IPermissionManagement permissionsManagement
+  ) {
+    this.proxyServer = proxyServer;
     this.permissionProvider = permissionProvider;
+    this.permissionsManagement = permissionsManagement;
   }
 
   @Subscribe(order = PostOrder.LAST)
-  public void handle(LoginEvent event) {
+  public void handle(@NotNull LoginEvent event) {
     if (event.getResult().isAllowed()) {
-      Player player = event.getPlayer();
-      CloudPermissionsHelper
-        .initPermissionUser(this.permissionsManagement, player.getUniqueId(), player.getUsername(), message -> {
+      CloudPermissionsHelper.initPermissionUser(
+        this.permissionsManagement,
+        event.getPlayer().getUniqueId(),
+        event.getPlayer().getUsername(),
+        message -> {
           Component reasonComponent = LegacyComponentSerializer.legacySection().deserialize(message.replace("&", "§"));
           event.setResult(ResultedEvent.ComponentResult.denied(reasonComponent));
-        });
+        },
+        this.proxyServer.getConfiguration().isOnlineMode());
     }
   }
 
   @Subscribe
-  public void handle(PermissionsSetupEvent event) {
+  public void handle(@NotNull PermissionsSetupEvent event) {
     if (event.getSubject() instanceof Player) {
       event.setProvider(this.permissionProvider);
     }
   }
 
   @Subscribe
-  public void handle(DisconnectEvent event) {
+  public void handle(@NotNull DisconnectEvent event) {
     CloudPermissionsHelper.handlePlayerQuit(this.permissionsManagement, event.getPlayer().getUniqueId());
   }
 }

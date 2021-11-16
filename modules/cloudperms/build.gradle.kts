@@ -24,6 +24,8 @@ dependencies {
   "compileOnly"(libs.vault)
   "compileOnly"(libs.bundles.proxyPlatform)
   "compileOnly"(libs.bundles.serverPlatform)
+
+  "annotationProcessor"(libs.velocity)
 }
 
 moduleJson {
