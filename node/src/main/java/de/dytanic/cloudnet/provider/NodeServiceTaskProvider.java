@@ -37,7 +37,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Set;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -48,7 +48,7 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
     System.getProperty("cloudnet.config.tasks.directory.path", "local/tasks"));
 
   private final IEventManager eventManager;
-  private final Set<ServiceTask> serviceTasks = ConcurrentHashMap.newKeySet();
+  private final Map<String, ServiceTask> serviceTasks = new ConcurrentHashMap<>();
 
   public NodeServiceTaskProvider(@NotNull CloudNet nodeInstance) {
     this.eventManager = nodeInstance.getEventManager();
@@ -85,7 +85,7 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
 
   @Override
   public @NotNull Collection<ServiceTask> getPermanentServiceTasks() {
-    return Collections.unmodifiableCollection(this.serviceTasks);
+    return Collections.unmodifiableCollection(this.serviceTasks.values());
   }
 
   @Override
@@ -103,15 +103,12 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
 
   @Override
   public @Nullable ServiceTask getServiceTask(@NotNull String name) {
-    return this.serviceTasks.stream()
-      .filter(task -> task.getName().equals(name))
-      .findFirst()
-      .orElse(null);
+    return this.serviceTasks.get(name);
   }
 
   @Override
   public boolean isServiceTaskPresent(@NotNull String name) {
-    return this.serviceTasks.stream().anyMatch(task -> task.getName().equals(name));
+    return this.serviceTasks.containsKey(name);
   }
 
   @Override
@@ -156,13 +153,13 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
 
   public void addPermanentServiceTaskSilently(@NotNull ServiceTask serviceTask) {
     // cache locally
-    this.serviceTasks.add(serviceTask);
+    this.serviceTasks.put(serviceTask.getName(), serviceTask);
     this.writeServiceTask(serviceTask);
   }
 
   public void removePermanentServiceTaskSilently(@NotNull ServiceTask serviceTask) {
     // remove from cache
-    this.serviceTasks.remove(serviceTask);
+    this.serviceTasks.remove(serviceTask.getName());
     // remove the local file if it exists
     FileUtils.delete(this.getTaskFile(serviceTask));
   }
@@ -170,7 +167,7 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
   public void setPermanentServiceTasksSilently(@NotNull Collection<ServiceTask> serviceTasks) {
     // update the cache
     this.serviceTasks.clear();
-    this.serviceTasks.addAll(serviceTasks);
+    serviceTasks.forEach(task -> this.serviceTasks.put(task.getName(), task));
     // store all tasks
     this.writeAllServiceTasks();
   }
@@ -185,14 +182,14 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
 
   protected void writeAllServiceTasks() {
     // write all service tasks
-    for (ServiceTask serviceTask : this.serviceTasks) {
+    for (ServiceTask serviceTask : this.serviceTasks.values()) {
       this.writeServiceTask(serviceTask);
     }
     // delete all service task files which do not exist anymore
     FileUtils.walkFileTree(TASKS_DIRECTORY, ($, file) -> {
       // check if we know the file name
       String taskName = file.getFileName().toString().replace(".json", "");
-      if (this.serviceTasks.stream().noneMatch(task -> taskName.equals(task.getName()))) {
+      if (!this.serviceTasks.containsKey(taskName)) {
         FileUtils.delete(file);
       }
     }, false, "*.json");

@@ -38,7 +38,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Set;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.NotNull;
@@ -55,7 +55,7 @@ public class NodeGroupConfigurationProvider implements GroupConfigurationProvide
   private static final Type TYPE = TypeToken.getParameterized(Collection.class, GroupConfiguration.class).getType();
 
   private final IEventManager eventManager;
-  private final Set<GroupConfiguration> groupConfigurations = ConcurrentHashMap.newKeySet();
+  private final Map<String, GroupConfiguration> groupConfigurations = new ConcurrentHashMap<>();
 
   public NodeGroupConfigurationProvider(@NotNull CloudNet nodeInstance) {
     this.eventManager = nodeInstance.getEventManager();
@@ -93,7 +93,7 @@ public class NodeGroupConfigurationProvider implements GroupConfigurationProvide
 
   @Override
   public @NotNull @UnmodifiableView Collection<GroupConfiguration> getGroupConfigurations() {
-    return Collections.unmodifiableCollection(this.groupConfigurations);
+    return Collections.unmodifiableCollection(this.groupConfigurations.values());
   }
 
   @Override
@@ -111,15 +111,12 @@ public class NodeGroupConfigurationProvider implements GroupConfigurationProvide
 
   @Override
   public @Nullable GroupConfiguration getGroupConfiguration(@NotNull String name) {
-    return this.groupConfigurations.stream()
-      .filter(group -> group.getName().equals(name))
-      .findFirst()
-      .orElse(null);
+    return this.groupConfigurations.get(name);
   }
 
   @Override
   public boolean isGroupConfigurationPresent(@NotNull String name) {
-    return this.groupConfigurations.stream().anyMatch(group -> group.getName().equals(name));
+    return this.groupConfigurations.containsKey(name);
   }
 
   @Override
@@ -162,14 +159,14 @@ public class NodeGroupConfigurationProvider implements GroupConfigurationProvide
 
   public void addGroupConfigurationSilently(@NotNull GroupConfiguration groupConfiguration) {
     // add the group to the local cache
-    this.groupConfigurations.add(groupConfiguration);
+    this.groupConfigurations.put(groupConfiguration.getName(), groupConfiguration);
     // store the configuration files
     this.writeAllGroupConfigurations();
   }
 
   public void removeGroupConfigurationSilently(@NotNull GroupConfiguration groupConfiguration) {
     // remove the group from the cache
-    this.groupConfigurations.remove(groupConfiguration);
+    this.groupConfigurations.remove(groupConfiguration.getName());
     // remove the local file
     FileUtils.delete(this.getGroupFile(groupConfiguration));
   }
@@ -177,7 +174,7 @@ public class NodeGroupConfigurationProvider implements GroupConfigurationProvide
   public void setGroupConfigurationsSilently(@NotNull Collection<GroupConfiguration> groupConfigurations) {
     // update the local cache
     this.groupConfigurations.clear();
-    this.groupConfigurations.addAll(groupConfigurations);
+    groupConfigurations.forEach(config -> this.groupConfigurations.put(config.getName(), config));
     // save the group files
     this.writeAllGroupConfigurations();
   }
@@ -188,7 +185,7 @@ public class NodeGroupConfigurationProvider implements GroupConfigurationProvide
       // read all groups from the old file
       Collection<GroupConfiguration> oldConfigurations = JsonDocument.newDocument(OLD_GROUPS_FILE).get("groups", TYPE);
       // add all configurations to the current configurations
-      this.groupConfigurations.addAll(oldConfigurations);
+      oldConfigurations.forEach(config -> this.groupConfigurations.put(config.getName(), config));
       // save the new configurations
       this.writeAllGroupConfigurations();
       // delete the old file
@@ -206,14 +203,14 @@ public class NodeGroupConfigurationProvider implements GroupConfigurationProvide
 
   protected void writeAllGroupConfigurations() {
     // write all configurations
-    for (GroupConfiguration configuration : this.groupConfigurations) {
+    for (GroupConfiguration configuration : this.groupConfigurations.values()) {
       this.writeGroupConfiguration(configuration);
     }
     // delete all group files which do not exist anymore
     FileUtils.walkFileTree(GROUP_DIRECTORY_PATH, ($, file) -> {
       // check if we know the file name
       String groupName = file.getFileName().toString().replace(".json", "");
-      if (this.groupConfigurations.stream().noneMatch(group -> groupName.equals(group.getName()))) {
+      if (!this.groupConfigurations.containsKey(groupName)) {
         FileUtils.delete(file);
       }
     }, false, "*.json");
