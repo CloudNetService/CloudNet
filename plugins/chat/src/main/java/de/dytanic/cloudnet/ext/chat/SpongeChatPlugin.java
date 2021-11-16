@@ -21,6 +21,7 @@ import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Optional;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.jetbrains.annotations.NotNull;
@@ -84,7 +85,8 @@ public class SpongeChatPlugin {
     if (format == null) {
       event.setCancelled(true);
     } else {
-      event.setMessage(LegacyComponentSerializer.legacySection().deserialize(format));
+      event.setChatFormatter(
+        ($, $1, $2, $3) -> Optional.of(LegacyComponentSerializer.legacySection().deserialize(format)));
     }
   }
 }

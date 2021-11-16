@@ -19,10 +19,11 @@ package de.dytanic.cloudnet.ext.simplenametags.sponge;
 import com.google.inject.Inject;
 import de.dytanic.cloudnet.ext.simplenametags.SimpleNameTagsManager;
 import org.jetbrains.annotations.NotNull;
-import org.spongepowered.api.Sponge;
+import org.spongepowered.api.Server;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.filter.cause.Root;
+import org.spongepowered.api.event.filter.cause.First;
+import org.spongepowered.api.event.lifecycle.StartingEngineEvent;
 import org.spongepowered.api.event.network.ServerSideConnectionEvent;
 import org.spongepowered.plugin.PluginContainer;
 import org.spongepowered.plugin.builtin.jvm.Plugin;
@@ -30,15 +31,21 @@ import org.spongepowered.plugin.builtin.jvm.Plugin;
 @Plugin("simple_name_tags")
 public final class SpongeSimpleNameTagsPlugin {
 
-  private final SimpleNameTagsManager<ServerPlayer> nameTagsManager;
+  private final PluginContainer pluginContainer;
+  private SimpleNameTagsManager<ServerPlayer> nameTagsManager;
 
   @Inject
   public SpongeSimpleNameTagsPlugin(@NotNull PluginContainer pluginContainer) {
-    this.nameTagsManager = new SpongeSimpleNameTagsManager(Sponge.server().scheduler().executor(pluginContainer));
+    this.pluginContainer = pluginContainer;
   }
 
   @Listener
-  public void handle(@NotNull ServerSideConnectionEvent.Join event, @Root @NotNull ServerPlayer player) {
+  public void handle(@NotNull StartingEngineEvent<Server> event) {
+    this.nameTagsManager = new SpongeSimpleNameTagsManager(event.engine().scheduler().executor(pluginContainer));
+  }
+
+  @Listener
+  public void handle(@NotNull ServerSideConnectionEvent.Join event, @First @NotNull ServerPlayer player) {
     this.nameTagsManager.updateNameTagsFor(player);
   }
 }
