@@ -43,7 +43,7 @@ final class DefaultCommandPreProcessor implements CommandPreprocessor<CommandSou
       .getCommand(firstArgument);
     // if there is no command, the command was unregistered, ignore confirm as the command is not registered.
     if (commandInfo == null && !firstArgument.equalsIgnoreCase("confirm")) {
-      ConsumerService.interrupt();
+      return;
     }
 
     CommandPreProcessEvent preProcessEvent = CloudNet.getInstance().getEventManager()

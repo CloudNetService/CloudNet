@@ -17,7 +17,7 @@
 package de.dytanic.cloudnet.command.defaults;
 
 import cloud.commandframework.CommandManager;
-import cloud.commandframework.execution.CommandExecutionCoordinator;
+import cloud.commandframework.execution.AsynchronousCommandExecutionCoordinator;
 import cloud.commandframework.internal.CommandRegistrationHandler;
 import cloud.commandframework.meta.CommandMeta;
 import cloud.commandframework.meta.SimpleCommandMeta;
@@ -27,7 +27,8 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 final class DefaultCommandManager extends CommandManager<CommandSource> {
 
   public DefaultCommandManager() {
-    super(CommandExecutionCoordinator.simpleCoordinator(), CommandRegistrationHandler.nullCommandRegistrationHandler());
+    super(AsynchronousCommandExecutionCoordinator.simpleCoordinator(),
+      CommandRegistrationHandler.nullCommandRegistrationHandler());
   }
 
   @Override
