@@ -25,7 +25,12 @@ jobs:
           distribution: 'temurin'
           java-version: ${{ matrix.java }}
           check-latest: true
-          cache: 'gradle'
+
+      - name: Initialize gradle caching
+        uses: burrunan/gradle-cache-action@v1
+        with:
+          job-id: jdk${{ matrix.java }}
+          concurrent: true
 
       - name: Run build lifecycle
         run: ./gradlew build checkLicenses test jar --stacktrace
