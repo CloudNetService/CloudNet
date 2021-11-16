@@ -21,6 +21,7 @@ import cloud.commandframework.annotations.CommandMethod;
 import cloud.commandframework.annotations.CommandPermission;
 import cloud.commandframework.annotations.parsers.Parser;
 import cloud.commandframework.annotations.specifier.Greedy;
+import cloud.commandframework.annotations.specifier.Quoted;
 import cloud.commandframework.annotations.suggestions.Suggestions;
 import cloud.commandframework.context.CommandContext;
 import com.google.common.primitives.Longs;
@@ -320,19 +321,19 @@ public final class CommandPermissions {
 
   @CommandMethod("permissions|perms group <group> set display <display>")
   public void setDisplay(CommandSource source, @Argument("group") PermissionGroup permissionGroup,
-    @Greedy @Argument("display") String display) {
+    @Quoted @Argument("display") String display) {
     this.updateGroup(permissionGroup, group -> group.setDisplay(display));
   }
 
   @CommandMethod("permissions|perms group <group> set prefix <prefix>")
   public void setPrefix(CommandSource source, @Argument("group") PermissionGroup permissionGroup,
-    @Greedy @Argument("prefix") String prefix) {
+    @Quoted @Argument("prefix") String prefix) {
     this.updateGroup(permissionGroup, group -> group.setPrefix(prefix));
   }
 
   @CommandMethod("permissions|perms group <group> set suffix <suffix>")
   public void setSuffix(CommandSource source, @Argument("group") PermissionGroup permissionGroup,
-    @Greedy @Argument("suffix") String suffix) {
+    @Quoted @Argument("suffix") String suffix) {
     this.updateGroup(permissionGroup, group -> group.setSuffix(suffix));
   }
 
