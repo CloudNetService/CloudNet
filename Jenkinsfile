@@ -33,19 +33,6 @@ pipeline {
       }
     }
 
-    stage('Validate license headers') {
-      steps {
-        sh './gradlew checkLicenses'
-      }
-    }
-
-    stage('Run unit tests') {
-      steps {
-        sh './gradlew test --full-stacktrace'
-        junit '**/build/test-results/test/*.xml'
-      }
-    }
-
     stage('Build Javadocs') {
       when {
         anyOf {
@@ -82,14 +69,14 @@ pipeline {
 
         sh 'mkdir temp/dev'
         sh 'mkdir temp/dev/examples'
-        sh 'cp -r cloudnet-examples/src/main/java/de/dytanic/cloudnet/examples/* temp/dev/examples'
+        sh 'cp -r examples/src/main/java/de/dytanic/cloudnet/examples/* temp/dev/examples'
 
         sh 'mkdir temp/extras/plugins'
         sh 'cp plugins/**/build/libs/*.jar temp/extras/plugins/'
 
         sh 'mkdir temp/extras/modules'
-        sh 'cp modules/cloudnet-labymod/build/libs/*.jar temp/extras/modules/'
-        sh 'cp modules/cloudnet-npcs/build/libs/*.jar temp/extras/modules/'
+        // sh 'cp modules/labymod/build/libs/*.jar temp/extras/modules/'
+        // sh 'cp modules/npcs/build/libs/*.jar temp/extras/modules/'
 
         sh 'cp launcher/build/libs/launcher.jar temp/launcher.jar'
         zip archive: true, dir: 'temp', glob: '', zipFile: 'CloudNet.zip'
