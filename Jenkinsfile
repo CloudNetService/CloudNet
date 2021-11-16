@@ -82,7 +82,7 @@ pipeline {
 
         sh 'mkdir temp/dev'
         sh 'mkdir temp/dev/examples'
-        sh 'cp -r examples/src/main/java/de/dytanic/cloudnet/examples/* temp/dev/examples'
+        sh 'cp -r cloudnet-examples/src/main/java/de/dytanic/cloudnet/examples/* temp/dev/examples'
 
         sh 'mkdir temp/extras/plugins'
         sh 'cp plugins/**/build/libs/*.jar temp/extras/plugins/'
