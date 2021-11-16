@@ -23,8 +23,9 @@ subprojects {
 
   tasks.named<Copy>("processResources") {
     filter {
-      it.replace("{project.build.version}", project.version.toString())
-      it.replace("{project.perms.build.version}", projects.cloudnetModules.cloudperms.version.toString())
+      it
+        .replace("{project.build.version}", project.version.toString())
+        .replace("{project.perms.build.version}", projects.cloudnetModules.cloudperms.version.toString())
     }
   }
 }
