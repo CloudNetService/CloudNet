@@ -138,12 +138,13 @@ public class CloudNet extends CloudNetDriver {
     this.nodeServerProvider = new DefaultClusterNodeServerProvider(this);
 
     this.nodeInfoProvider = new NodeNodeInfoProvider(this);
-    this.serviceTaskProvider = new NodeServiceTaskProvider(this);
     this.generalCloudServiceProvider = new DefaultCloudServiceManager(this);
-    this.groupConfigurationProvider = new NodeGroupConfigurationProvider(this);
 
     this.messenger = new NodeMessenger(this);
     this.cloudServiceFactory = new NodeCloudServiceFactory(this);
+
+    this.serviceTaskProvider = new NodeServiceTaskProvider(this);
+    this.groupConfigurationProvider = new NodeGroupConfigurationProvider(this);
 
     // permission management init
     this.setPermissionManagement(new DefaultDatabasePermissionManagement(this));
