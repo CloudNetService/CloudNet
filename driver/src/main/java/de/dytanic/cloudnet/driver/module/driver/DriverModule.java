@@ -41,7 +41,7 @@ public class DriverModule extends DefaultModule {
   }
 
   public final @NotNull IEventManager registerListener(Object @NotNull ... listener) {
-    return this.getEventManager().registerListener(listener);
+    return this.getEventManager().registerListeners(listener);
   }
 
   public final @NotNull IServicesRegistry getServiceRegistry() {
