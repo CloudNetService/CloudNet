@@ -124,7 +124,9 @@ final class VelocityPlayerManagementListener {
   @Subscribe
   public void handleDisconnect(@NotNull DisconnectEvent event) {
     // check if the player successfully connected to a server before
-    if (event.getLoginStatus() == LoginStatus.SUCCESSFUL_LOGIN) {
+    // PRE_SERVER_JOIN will be used when the upstream server closes the connection to the player, we need to handle this
+    LoginStatus status = event.getLoginStatus();
+    if (status == LoginStatus.SUCCESSFUL_LOGIN || status == LoginStatus.PRE_SERVER_JOIN) {
       ProxyPlatformHelper.sendChannelMessageDisconnected(event.getPlayer().getUniqueId());
       // update the service info
       Wrapper.getInstance().publishServiceInfoUpdate();
