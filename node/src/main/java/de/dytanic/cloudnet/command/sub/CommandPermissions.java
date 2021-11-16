@@ -178,18 +178,18 @@ public final class CommandPermissions {
   }
 
   @CommandMethod("permissions|perms delete user <name>")
-  public void deleteUser(CommandSource source, @Argument("name") PermissionUser permissionUser) {
-    if (this.permissionManagement().deletePermissionUser(permissionUser)) {
-      source.sendMessage(I18n.trans("command-permissions-delete-user-successful"));
+  public void deleteUser(CommandSource source, @Argument("name") PermissionUser user) {
+    if (this.permissionManagement().deletePermissionUser(user)) {
+      source.sendMessage(I18n.trans("command-permissions-delete-user-successful").replace("%name%", user.getName()));
     } else {
       source.sendMessage(I18n.trans("command-permissions-user-not-found"));
     }
   }
 
   @CommandMethod("permissions|perms delete group <name>")
-  public void deleteGroup(CommandSource source, @Argument("name") PermissionGroup permissionGroup) {
-    if (this.permissionManagement().deletePermissionGroup(permissionGroup)) {
-      source.sendMessage(I18n.trans("command-permissions-delete-group-successful"));
+  public void deleteGroup(CommandSource source, @Argument("name") PermissionGroup group) {
+    if (this.permissionManagement().deletePermissionGroup(group)) {
+      source.sendMessage(I18n.trans("command-permissions-delete-group-successful").replace("%name%", group.getName()));
     } else {
       source.sendMessage(I18n.trans("command-permissions-group-not-found"));
     }
