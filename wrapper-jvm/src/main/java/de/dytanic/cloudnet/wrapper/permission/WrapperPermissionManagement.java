@@ -52,7 +52,7 @@ public class WrapperPermissionManagement extends DefaultCachedPermissionManageme
 
   @Override
   public void init() {
-    Collection<PermissionGroup> groups = this.getGroups();
+    Collection<PermissionGroup> groups = this.loadGroups();
     if (!groups.isEmpty()) {
       for (PermissionGroup group : groups) {
         this.permissionGroupCache.put(group.getName(), group);
@@ -72,7 +72,7 @@ public class WrapperPermissionManagement extends DefaultCachedPermissionManageme
     boolean success = this.rpcSender.invokeMethod("reload").fireSync();
 
     if (success) {
-      Collection<PermissionGroup> permissionGroups = this.getGroups();
+      Collection<PermissionGroup> permissionGroups = this.loadGroups();
 
       this.permissionGroupLocks.clear();
       this.permissionGroupCache.invalidateAll();
@@ -255,5 +255,9 @@ public class WrapperPermissionManagement extends DefaultCachedPermissionManageme
     }
 
     return this.rpcSender.invokeMethod("getFirstUser", name).fireSync();
+  }
+
+  protected @NotNull Collection<PermissionGroup> loadGroups() {
+    return this.rpcSender.invokeMethod("getGroups").fireSync();
   }
 }
