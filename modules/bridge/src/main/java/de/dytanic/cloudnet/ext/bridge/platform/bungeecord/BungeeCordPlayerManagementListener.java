@@ -129,6 +129,9 @@ final class BungeeCordPlayerManagementListener implements Listener {
         // no lobby server - the player will disconnect
         event.setCancelled(false);
         event.setCancelServer(null);
+        event.setKickReasonComponent(TextComponent.fromLegacyText(this.management.getConfiguration().getMessage(
+          event.getPlayer().getLocale(),
+          "proxy-join-disconnect-because-no-hub")));
       }
     }
   }

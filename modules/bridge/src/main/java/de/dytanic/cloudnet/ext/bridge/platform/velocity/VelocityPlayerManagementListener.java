@@ -36,12 +36,9 @@ import de.dytanic.cloudnet.ext.bridge.platform.helper.ProxyPlatformHelper;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkPlayerProxyInfo;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import java.util.Locale;
-import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
 
 final class VelocityPlayerManagementListener {
-
-  private static final Component NO_FALLBACK = Component.translatable("velocity.error.no-available-servers");
 
   private final ProxyServer proxyServer;
   private final PlatformBridgeManagement<Player, NetworkPlayerProxyInfo> management;
@@ -98,7 +95,9 @@ final class VelocityPlayerManagementListener {
       event.setResult(this.management.getFallback(event.getPlayer())
         .flatMap(service -> this.proxyServer.getServer(service.getName()))
         .map(KickedFromServerEvent.RedirectPlayer::create)
-        .orElse(KickedFromServerEvent.DisconnectPlayer.create(NO_FALLBACK)));
+        .orElse(KickedFromServerEvent.DisconnectPlayer.create(serialize(this.management.getConfiguration().getMessage(
+          event.getPlayer().getEffectiveLocale(),
+          "proxy-join-disconnect-because-no-hub")))));
     }
   }
 

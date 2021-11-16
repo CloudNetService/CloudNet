@@ -39,14 +39,15 @@ public final class BridgeConfiguration extends JsonDocPropertyHolder {
   public static final Map<String, Map<String, String>> DEFAULT_MESSAGES = ImmutableMap.of(
     "default",
     new HashMap<>(ImmutableMap.<String, String>builder()
-      .put("command-hub-success-connect", "§7You did successfully connect to %server%")
-      .put("command-hub-already-in-hub", "§cYou are already connected")
-      .put("command-hub-no-server-found", "§7Hub server cannot be found")
-      .put("server-join-cancel-because-maintenance", "§7This server is currently in maintenance mode")
+      .put("command-hub-success-connect", "§7You did successfully connect to %server%.")
+      .put("command-hub-already-in-hub", "§cYou are already connected.")
+      .put("command-hub-no-server-found", "§7Hub server cannot be found.")
+      .put("server-join-cancel-because-maintenance", "§7This server is currently in maintenance mode.")
       .put("server-join-cancel-because-permission", "§7You do not have the required permissions to join this server.")
       .put("proxy-join-cancel-because-permission", "§7You do not have the required permissions to join this proxy.")
-      .put("proxy-join-cancel-because-maintenance", "§7This proxy is currently in maintenance mode")
-      .put("command-cloud-sub-command-no-permission", "§7You are not allowed to use §b%command%")
+      .put("proxy-join-cancel-because-maintenance", "§7This proxy is currently in maintenance mode.")
+      .put("proxy-join-disconnect-because-no-hub", "§cThere is currently no hub server you can connect to.")
+      .put("command-cloud-sub-command-no-permission", "§7You are not allowed to use §b%command%.")
       .put("already-connected", "§cYou are already connected to this network!")
       .build()));
 
