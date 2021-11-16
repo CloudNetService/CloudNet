@@ -23,11 +23,12 @@ import org.jetbrains.annotations.NotNull;
 public final class AdventureSerializerUtil {
 
   public static final char HEX_CHAR = '#';
+  public static final char COLOR_CHAR = '§';
   public static final char LEGACY_CHAR = '&';
   public static final char BUNGEE_HEX_CHAR = 'x';
 
   private static final LegacyComponentSerializer SERIALIZER = LegacyComponentSerializer.builder()
-    .character('§')
+    .character(COLOR_CHAR)
     .extractUrls()
     .hexColors()
     .build();
@@ -41,27 +42,29 @@ public final class AdventureSerializerUtil {
     // find all legacy chars
     char[] chars = textToSerialize.toCharArray();
     for (int i = 0; i < chars.length; i++) {
-      // check if the current char is a legacy text char
+      // check if there is at least one char following the current index
       if (i < chars.length - 1) {
         // check if the next char is a legacy color char
         char next = chars[i + 1];
+        // check if the current char is a legacy text char
         if (chars[i] == LEGACY_CHAR) {
+          // check if the next char is a legacy color char
           if ((next >= '0' && next <= '9') || (next >= 'a' && next <= 'f') || next == 'r') {
-            result.append('§');
+            result.append(COLOR_CHAR);
             continue;
           }
           // check if the next char is a hex begin char
           // 7 because of current hex_char 6_digit_hex (for example &#000fff)
           if (next == HEX_CHAR && i + 7 < chars.length) {
-            result.append('§');
+            result.append(COLOR_CHAR);
             continue;
           }
         }
-        // check for the stupid bungee cord chat hex format
+        // check for the stupid bungee cord chat hex format - do this check for both formats, '&' and '§'
         // 13 because of current hex_char 12_digit_hex (for example &x&0&0&0&f&f&f)
-        if (next == BUNGEE_HEX_CHAR && i + 13 < chars.length) {
+        if ((chars[i] == COLOR_CHAR || chars[i] == LEGACY_CHAR) && next == BUNGEE_HEX_CHAR && i + 13 < chars.length) {
           // open the modern hex format
-          result.append('§').append(HEX_CHAR);
+          result.append(COLOR_CHAR).append(HEX_CHAR);
           // replace the terrible format
           // begin at i+3 to skip the initial &x
           // end at i+14 because the hex format is 14 chars long
