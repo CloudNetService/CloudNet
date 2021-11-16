@@ -38,7 +38,7 @@ public final class BridgeConfiguration extends JsonDocPropertyHolder {
 
   public static final Map<String, Map<String, String>> DEFAULT_MESSAGES = ImmutableMap.of(
     "default",
-    ImmutableMap.<String, String>builder()
+    new HashMap<>(ImmutableMap.<String, String>builder()
       .put("command-hub-success-connect", "§7You did successfully connect to %server%")
       .put("command-hub-already-in-hub", "§cYou are already connected")
       .put("command-hub-no-server-found", "§7Hub server cannot be found")
@@ -48,7 +48,7 @@ public final class BridgeConfiguration extends JsonDocPropertyHolder {
       .put("proxy-join-cancel-because-maintenance", "§7This proxy is currently in maintenance mode")
       .put("command-cloud-sub-command-no-permission", "§7You are not allowed to use §b%command%")
       .put("already-connected", "§cYou are already connected to this network!")
-      .build());
+      .build()));
 
   private final String prefix;
   private final Map<String, Map<String, String>> localizedMessages;
