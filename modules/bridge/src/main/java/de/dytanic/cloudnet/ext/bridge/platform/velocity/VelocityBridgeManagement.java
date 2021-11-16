@@ -16,7 +16,7 @@
 
 package de.dytanic.cloudnet.ext.bridge.platform.velocity;
 
-import static net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer.plainText;
+import static net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacySection;
 
 import com.velocitypowered.api.permission.PermissionSubject;
 import com.velocitypowered.api.proxy.Player;
@@ -58,7 +58,7 @@ final class VelocityBridgeManagement extends PlatformBridgeManagement<Player, Ne
       this,
       proxyServer::getAllPlayers);
     // init the bridge properties
-    BridgeServiceHelper.MOTD.set(plainText().serialize(proxyServer.getConfiguration().getMotd()));
+    BridgeServiceHelper.MOTD.set(legacySection().serialize(proxyServer.getConfiguration().getMotd()));
     BridgeServiceHelper.MAX_PLAYERS.set(proxyServer.getConfiguration().getShowMaxPlayers());
     // init the default cache listeners
     this.cacheTester = CONNECTED_SERVICE_TESTER

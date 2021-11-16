@@ -16,7 +16,7 @@
 
 package de.dytanic.cloudnet.ext.bridge.platform.bungeecord;
 
-import static net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer.plainText;
+import static net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacySection;
 
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.service.ServiceTask;
@@ -94,7 +94,7 @@ final class BungeeCordPlayerManagementListener implements Listener {
       this.management.getOwnNetworkServiceInfo()));
     if (!loginResult.isAllowed()) {
       event.setCancelled(true);
-      event.setCancelReason(TextComponent.fromLegacyText(plainText().serialize(loginResult.getResult())));
+      event.setCancelReason(TextComponent.fromLegacyText(legacySection().serialize(loginResult.getResult())));
     }
   }
 

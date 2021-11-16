@@ -16,7 +16,7 @@
 
 package de.dytanic.cloudnet.ext.bridge.platform.waterdog;
 
-import static net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer.plainText;
+import static net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacySection;
 
 import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.ext.bridge.platform.PlatformBridgeManagement;
@@ -105,19 +105,21 @@ final class WaterDogPEDirectPlayerExecutor extends PlatformPlayerExecutorAdapter
 
   @Override
   public void kick(@NotNull TextComponent message) {
-    this.playerSupplier.get().forEach(player -> player.disconnect(new TextContainer(plainText().serialize(message))));
+    this.playerSupplier.get()
+      .forEach(player -> player.disconnect(new TextContainer(legacySection().serialize(message))));
   }
 
   @Override
   public void sendMessage(@NotNull TextComponent message) {
-    this.playerSupplier.get().forEach(player -> player.sendMessage(new TextContainer(plainText().serialize(message))));
+    this.playerSupplier.get()
+      .forEach(player -> player.sendMessage(new TextContainer(legacySection().serialize(message))));
   }
 
   @Override
   public void sendChatMessage(@NotNull TextComponent message, @Nullable String permission) {
     this.playerSupplier.get().forEach(player -> {
       if (permission == null || player.hasPermission(permission)) {
-        player.sendMessage(new TextContainer(plainText().serialize(message)));
+        player.sendMessage(new TextContainer(legacySection().serialize(message)));
       }
     });
   }

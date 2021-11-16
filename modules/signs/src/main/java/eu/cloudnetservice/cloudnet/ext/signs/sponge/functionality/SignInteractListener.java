@@ -21,7 +21,7 @@ import de.dytanic.cloudnet.ext.bridge.player.IPlayerManager;
 import eu.cloudnetservice.cloudnet.ext.signs.Sign;
 import eu.cloudnetservice.cloudnet.ext.signs.service.ServiceSignManagement;
 import eu.cloudnetservice.cloudnet.ext.signs.sponge.event.SpongeCloudSignInteractEvent;
-import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
+import eu.cloudnetservice.ext.adventure.AdventureSerializerUtil;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.api.ResourceKey;
 import org.spongepowered.api.Sponge;
@@ -69,7 +69,7 @@ public class SignInteractListener {
           if (!interactEvent.isCancelled() && interactEvent.getTarget().isPresent()) {
             this.signManagement.getSignsConfiguration().sendMessage(
               "server-connecting-message",
-              m -> player.sendMessage(PlainTextComponentSerializer.plainText().deserialize(m)),
+              m -> player.sendMessage(AdventureSerializerUtil.serialize(m)),
               m -> m.replace("%server%", interactEvent.getTarget().get().getName()));
             this.getPlayerManager().getPlayerExecutor(player.uniqueId())
               .connect(interactEvent.getTarget().get().getName());

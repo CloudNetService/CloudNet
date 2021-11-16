@@ -21,6 +21,7 @@ tasks.withType<Jar> {
 
 dependencies {
   "compileOnly"(projects.cloudnetWrapperJvm)
+  "compileOnly"(projects.cloudnetExt.adventureHelper)
   "moduleDependency"(projects.cloudnetModules.bridge)
 
   "compileOnly"(libs.bundles.serverPlatform)

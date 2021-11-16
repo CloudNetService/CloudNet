@@ -16,7 +16,7 @@
 
 package de.dytanic.cloudnet.ext.bridge.platform.nukkit;
 
-import static net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer.plainText;
+import static net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacySection;
 
 import cn.nukkit.Player;
 import de.dytanic.cloudnet.ext.bridge.platform.PlatformPlayerExecutorAdapter;
@@ -74,14 +74,14 @@ final class NukkitDirectPlayerExecutor extends PlatformPlayerExecutorAdapter {
 
   @Override
   public void kick(@NotNull TextComponent message) {
-    this.playerSupplier.get().forEach(player -> player.kick(plainText().serialize(message)));
+    this.playerSupplier.get().forEach(player -> player.kick(legacySection().serialize(message)));
   }
 
   @Override
   protected void sendTitle(@NotNull Component title, @NotNull Component subtitle, int fadeIn, int stay, int fadeOut) {
     this.playerSupplier.get().forEach(player -> player.sendTitle(
-      plainText().serialize(title),
-      plainText().serialize(subtitle),
+      legacySection().serialize(title),
+      legacySection().serialize(subtitle),
       fadeIn,
       stay,
       fadeOut));
@@ -89,14 +89,14 @@ final class NukkitDirectPlayerExecutor extends PlatformPlayerExecutorAdapter {
 
   @Override
   public void sendMessage(@NotNull TextComponent message) {
-    this.playerSupplier.get().forEach(player -> player.sendMessage(plainText().serialize(message)));
+    this.playerSupplier.get().forEach(player -> player.sendMessage(legacySection().serialize(message)));
   }
 
   @Override
   public void sendChatMessage(@NotNull TextComponent message, @Nullable String permission) {
     this.playerSupplier.get().forEach(player -> {
       if (permission == null || player.hasPermission(permission)) {
-        player.sendMessage(plainText().serialize(message));
+        player.sendMessage(legacySection().serialize(message));
       }
     });
   }

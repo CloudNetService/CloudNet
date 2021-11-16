@@ -37,7 +37,7 @@ public final class AdventureSerializerUtil {
     throw new UnsupportedOperationException();
   }
 
-  public static @NotNull Component serialize(@NotNull String textToSerialize) {
+  public static @NotNull String serializeToString(@NotNull String textToSerialize) {
     StringBuilder result = new StringBuilder();
     // find all legacy chars
     char[] chars = textToSerialize.toCharArray();
@@ -80,7 +80,11 @@ public final class AdventureSerializerUtil {
       // append just the char at the position
       result.append(chars[i]);
     }
+    return result.toString();
+  }
+
+  public static @NotNull Component serialize(@NotNull String input) {
     // serialize the text now
-    return SERIALIZER.deserialize(result.toString());
+    return SERIALIZER.deserialize(serializeToString(input));
   }
 }

@@ -16,7 +16,7 @@
 
 package de.dytanic.cloudnet.ext.bridge.platform.bungeecord;
 
-import static net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer.plainText;
+import static net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacySection;
 import static net.md_5.bungee.api.chat.TextComponent.fromLegacyText;
 
 import de.dytanic.cloudnet.common.collection.Pair;
@@ -107,14 +107,14 @@ final class BungeeCordDirectPlayerExecutor extends PlatformPlayerExecutorAdapter
 
   @Override
   public void kick(@NotNull TextComponent message) {
-    this.playerSupplier.get().forEach(player -> player.disconnect(fromLegacyText(plainText().serialize(message))));
+    this.playerSupplier.get().forEach(player -> player.disconnect(fromLegacyText(legacySection().serialize(message))));
   }
 
   @Override
   protected void sendTitle(@NotNull Component title, @NotNull Component subtitle, int fadeIn, int stay, int fadeOut) {
     this.playerSupplier.get().forEach(player -> ProxyServer.getInstance().createTitle()
-      .title(fromLegacyText(plainText().serialize(title)))
-      .subTitle(fromLegacyText(plainText().serialize(subtitle)))
+      .title(fromLegacyText(legacySection().serialize(title)))
+      .subTitle(fromLegacyText(legacySection().serialize(subtitle)))
       .fadeIn(fadeIn)
       .stay(stay)
       .fadeOut(fadeOut)
@@ -123,14 +123,14 @@ final class BungeeCordDirectPlayerExecutor extends PlatformPlayerExecutorAdapter
 
   @Override
   public void sendMessage(@NotNull TextComponent message) {
-    this.playerSupplier.get().forEach(player -> player.sendMessage(fromLegacyText(plainText().serialize(message))));
+    this.playerSupplier.get().forEach(player -> player.sendMessage(fromLegacyText(legacySection().serialize(message))));
   }
 
   @Override
   public void sendChatMessage(@NotNull TextComponent message, @Nullable String permission) {
     this.playerSupplier.get().forEach(player -> {
       if (permission == null || player.hasPermission(permission)) {
-        player.sendMessage(fromLegacyText(plainText().serialize(message)));
+        player.sendMessage(fromLegacyText(legacySection().serialize(message)));
       }
     });
   }

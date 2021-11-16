@@ -21,7 +21,7 @@ import de.dytanic.cloudnet.driver.network.rpc.object.ObjectMapper;
 import de.dytanic.cloudnet.driver.network.rpc.object.ObjectSerializer;
 import java.lang.reflect.Type;
 import net.kyori.adventure.text.TextComponent;
-import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
+import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import org.jetbrains.annotations.NotNull;
 
 public final class TextComponentObjectSerializer implements ObjectSerializer<TextComponent> {
@@ -33,7 +33,7 @@ public final class TextComponentObjectSerializer implements ObjectSerializer<Tex
     @NotNull Type type,
     @NotNull ObjectMapper caller
   ) {
-    dataBuf.writeString(PlainTextComponentSerializer.plainText().serialize(object));
+    dataBuf.writeString(GsonComponentSerializer.gson().serialize(object));
   }
 
   @Override
@@ -42,6 +42,6 @@ public final class TextComponentObjectSerializer implements ObjectSerializer<Tex
     @NotNull Type type,
     @NotNull ObjectMapper caller
   ) {
-    return PlainTextComponentSerializer.plainText().deserialize(source.readString());
+    return GsonComponentSerializer.gson().deserialize(source.readString());
   }
 }

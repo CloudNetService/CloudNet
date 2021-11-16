@@ -31,7 +31,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
-import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
@@ -51,7 +51,7 @@ final class SpongeBridgeManagement extends PlatformBridgeManagement<ServerPlayer
       () -> Sponge.server().onlinePlayers());
     // init the bridge properties
     BridgeServiceHelper.MAX_PLAYERS.set(Sponge.server().maxPlayers());
-    BridgeServiceHelper.MOTD.set(PlainTextComponentSerializer.plainText().serialize(Sponge.server().motd()));
+    BridgeServiceHelper.MOTD.set(LegacyComponentSerializer.legacySection().serialize(Sponge.server().motd()));
   }
 
   @Override

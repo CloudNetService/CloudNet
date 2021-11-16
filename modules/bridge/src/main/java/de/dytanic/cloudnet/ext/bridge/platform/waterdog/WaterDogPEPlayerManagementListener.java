@@ -16,8 +16,6 @@
 
 package de.dytanic.cloudnet.ext.bridge.platform.waterdog;
 
-import static net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer.plainText;
-
 import de.dytanic.cloudnet.driver.service.ServiceTask;
 import de.dytanic.cloudnet.ext.bridge.BridgeServiceHelper;
 import de.dytanic.cloudnet.ext.bridge.node.event.LocalPlayerPreLoginEvent.Result;
@@ -31,6 +29,7 @@ import dev.waterdog.waterdogpe.event.defaults.PlayerLoginEvent;
 import dev.waterdog.waterdogpe.event.defaults.TransferCompleteEvent;
 import dev.waterdog.waterdogpe.player.ProxiedPlayer;
 import java.util.Locale;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.jetbrains.annotations.NotNull;
 
 final class WaterDogPEPlayerManagementListener {
@@ -74,7 +73,7 @@ final class WaterDogPEPlayerManagementListener {
       this.management.createPlayerInformation(event.getPlayer()));
     if (!loginResult.isAllowed()) {
       event.setCancelled(true);
-      event.setCancelReason(plainText().serialize(loginResult.getResult()));
+      event.setCancelReason(LegacyComponentSerializer.legacySection().serialize(loginResult.getResult()));
     }
   }
 

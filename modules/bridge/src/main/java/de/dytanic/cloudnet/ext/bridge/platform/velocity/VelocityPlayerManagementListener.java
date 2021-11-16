@@ -16,7 +16,7 @@
 
 package de.dytanic.cloudnet.ext.bridge.platform.velocity;
 
-import static net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer.plainText;
+import static eu.cloudnetservice.ext.adventure.AdventureSerializerUtil.serialize;
 
 import com.velocitypowered.api.event.ResultedEvent.ComponentResult;
 import com.velocitypowered.api.event.Subscribe;
@@ -61,7 +61,7 @@ final class VelocityPlayerManagementListener {
     if (task != null) {
       // check if maintenance is activated
       if (task.isMaintenance() && !event.getPlayer().hasPermission("cloudnet.bridge.maintenance")) {
-        event.setResult(ComponentResult.denied(plainText().deserialize(this.management.getConfiguration().getMessage(
+        event.setResult(ComponentResult.denied(serialize(this.management.getConfiguration().getMessage(
           Locale.ENGLISH,
           "proxy-join-cancel-because-maintenance"))));
         return;
@@ -69,7 +69,7 @@ final class VelocityPlayerManagementListener {
       // check if a custom permission is required to join
       String permission = task.getProperties().getString("requiredPermission");
       if (permission != null && !event.getPlayer().hasPermission(permission)) {
-        event.setResult(ComponentResult.denied(plainText().deserialize(this.management.getConfiguration().getMessage(
+        event.setResult(ComponentResult.denied(serialize(this.management.getConfiguration().getMessage(
           Locale.ENGLISH,
           "proxy-join-cancel-because-permission"))));
         return;

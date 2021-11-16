@@ -17,13 +17,13 @@
 package de.dytanic.cloudnet.ext.bridge.platform.velocity.commands;
 
 import static com.google.common.collect.ImmutableList.copyOf;
-import static net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer.plainText;
 
 import com.velocitypowered.api.command.SimpleCommand;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
 import de.dytanic.cloudnet.ext.bridge.platform.PlatformBridgeManagement;
+import eu.cloudnetservice.ext.adventure.AdventureSerializerUtil;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import org.jetbrains.annotations.NotNull;
@@ -44,7 +44,7 @@ public final class VelocityHubCommand implements SimpleCommand {
       Player player = (Player) invocation.source();
       // check if the player is on a fallback already
       if (this.management.isOnAnyFallbackInstance(player)) {
-        player.sendMessage(plainText().deserialize(this.management.getConfiguration().getMessage(
+        player.sendMessage(AdventureSerializerUtil.serialize(this.management.getConfiguration().getMessage(
           player.getEffectiveLocale(),
           "command-hub-already-in-hub")));
       } else {
@@ -57,13 +57,13 @@ public final class VelocityHubCommand implements SimpleCommand {
           player.createConnectionRequest(hub).connectWithIndication().whenComplete((result, ex) -> {
             // check if the connection was successful
             if (result && ex == null) {
-              player.sendMessage(plainText().deserialize(this.management.getConfiguration().getMessage(
+              player.sendMessage(AdventureSerializerUtil.serialize(this.management.getConfiguration().getMessage(
                 player.getEffectiveLocale(),
                 "command-hub-success-connect"
               ).replace("%server%", hub.getServerInfo().getName())));
             } else {
               // the connection was not successful
-              player.sendMessage(plainText().deserialize(this.management.getConfiguration().getMessage(
+              player.sendMessage(AdventureSerializerUtil.serialize(this.management.getConfiguration().getMessage(
                 player.getEffectiveLocale(),
                 "command-hub-no-server-found")));
             }

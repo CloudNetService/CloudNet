@@ -29,8 +29,9 @@ dependencies {
   "compileOnly"(libs.bundles.proxyPlatform)
   "compileOnly"(libs.bundles.serverPlatform)
 
-  "implementation"(libs.bundles.adventure)
   "annotationProcessor"(libs.velocity)
+  "implementation"(libs.bundles.adventure)
+  "implementation"(projects.cloudnetExt.adventureHelper)
 }
 
 moduleJson {

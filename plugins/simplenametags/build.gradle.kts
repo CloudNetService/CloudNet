@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 
+plugins {
+  id("com.github.johnrengelman.shadow") version Versions.shadow
+}
+
 tasks.withType<Jar> {
   archiveFileName.set(Files.simpleNameTagsPlugin)
 }
@@ -21,4 +25,6 @@ tasks.withType<Jar> {
 dependencies {
   "compileOnly"(projects.cloudnetWrapperJvm)
   "compileOnly"(libs.bundles.serverPlatform)
+
+  "implementation"(projects.cloudnetExt.adventureHelper)
 }

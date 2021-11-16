@@ -16,7 +16,7 @@
 
 package de.dytanic.cloudnet.ext.bridge.platform.velocity.commands;
 
-import static net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer.plainText;
+import static eu.cloudnetservice.ext.adventure.AdventureSerializerUtil.serialize;
 
 import com.google.common.collect.ImmutableList;
 import com.velocitypowered.api.command.SimpleCommand;
@@ -43,8 +43,8 @@ public final class VelocityCloudCommand implements SimpleCommand {
     // check if any arguments are provided
     if (invocation.arguments().length == 0) {
       // <prefix> /cloudnet <command>
-      invocation.source().sendMessage(plainText().deserialize(
-        this.management.getConfiguration().getPrefix() + "/cloudnet <command>"));
+      invocation.source()
+        .sendMessage(serialize(this.management.getConfiguration().getPrefix() + "/cloudnet <command>"));
       return;
     }
     // get the full command line
@@ -56,7 +56,7 @@ public final class VelocityCloudCommand implements SimpleCommand {
       // check if the sender has the required permission to execute the command
       if (command != null && command.getPermission() != null) {
         if (!invocation.source().hasPermission(command.getPermission())) {
-          invocation.source().sendMessage(plainText().deserialize(this.management.getConfiguration().getMessage(
+          invocation.source().sendMessage(serialize(this.management.getConfiguration().getMessage(
             invocation.source() instanceof Player
               ? ((Player) invocation.source()).getEffectiveLocale()
               : Locale.ENGLISH,
@@ -69,7 +69,7 @@ public final class VelocityCloudCommand implements SimpleCommand {
     // execute the command
     CloudNetDriver.getInstance().getNodeInfoProvider().sendCommandLineAsync(commandLine).onComplete(messages -> {
       for (String line : messages) {
-        invocation.source().sendMessage(plainText().deserialize(this.management.getConfiguration().getPrefix() + line));
+        invocation.source().sendMessage(serialize(this.management.getConfiguration().getPrefix() + line));
       }
     });
   }

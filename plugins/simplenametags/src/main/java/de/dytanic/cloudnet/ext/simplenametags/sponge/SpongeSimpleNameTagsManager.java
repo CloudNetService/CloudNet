@@ -18,12 +18,11 @@ package de.dytanic.cloudnet.ext.simplenametags.sponge;
 
 import de.dytanic.cloudnet.driver.permission.PermissionGroup;
 import de.dytanic.cloudnet.ext.simplenametags.SimpleNameTagsManager;
+import eu.cloudnetservice.ext.adventure.AdventureSerializerUtil;
 import java.util.Collection;
 import java.util.UUID;
 import java.util.concurrent.Executor;
 import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.api.Sponge;
@@ -51,7 +50,7 @@ final class SpongeSimpleNameTagsManager extends SimpleNameTagsManager<ServerPlay
 
   @Override
   public void setDisplayName(@NotNull ServerPlayer player, @NotNull String displayName) {
-    player.displayName().set(PlainTextComponentSerializer.plainText().deserialize(displayName));
+    player.displayName().set(AdventureSerializerUtil.serialize(displayName));
   }
 
   @Override
@@ -75,8 +74,8 @@ final class SpongeSimpleNameTagsManager extends SimpleNameTagsManager<ServerPlay
       return newTeam;
     });
     // set the default team attributes
-    team.setPrefix(LegacyComponentSerializer.legacySection().deserialize(group.getPrefix()));
-    team.setSuffix(LegacyComponentSerializer.legacySection().deserialize(group.getSuffix()));
+    team.setPrefix(AdventureSerializerUtil.serialize(group.getPrefix()));
+    team.setSuffix(AdventureSerializerUtil.serialize(group.getSuffix()));
     // set the team color if possible
     NamedTextColor teamColor = NamedTextColor.ofExact(this.getColorChar(group));
     if (teamColor != null) {

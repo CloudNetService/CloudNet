@@ -19,11 +19,11 @@ package de.dytanic.cloudnet.ext.chat;
 import com.google.inject.Inject;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
+import eu.cloudnetservice.ext.adventure.AdventureSerializerUtil;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Optional;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.api.config.ConfigDir;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
@@ -77,16 +77,15 @@ public class SpongeChatPlugin {
     String format = ChatFormatter.buildFormat(
       player.uniqueId(),
       player.name(),
-      PlainTextComponentSerializer.plainText().serialize(player.displayName().get()),
+      LegacyComponentSerializer.legacySection().serialize(player.displayName().get()),
       this.chatFormat,
-      PlainTextComponentSerializer.plainText().serialize(event.message()),
+      LegacyComponentSerializer.legacySection().serialize(event.message()),
       player::hasPermission,
       (colorChar, message) -> message.replace(colorChar, '§'));
     if (format == null) {
       event.setCancelled(true);
     } else {
-      event.setChatFormatter(
-        ($, $1, $2, $3) -> Optional.of(LegacyComponentSerializer.legacySection().deserialize(format)));
+      event.setChatFormatter(($, $1, $2, $3) -> Optional.of(AdventureSerializerUtil.serialize(format)));
     }
   }
 }

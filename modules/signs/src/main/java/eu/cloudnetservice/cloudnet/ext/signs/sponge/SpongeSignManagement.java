@@ -23,9 +23,9 @@ import eu.cloudnetservice.cloudnet.ext.signs.SignManagement;
 import eu.cloudnetservice.cloudnet.ext.signs.configuration.SignConfigurationEntry;
 import eu.cloudnetservice.cloudnet.ext.signs.configuration.SignLayout;
 import eu.cloudnetservice.cloudnet.ext.signs.service.AbstractServiceSignManagement;
+import eu.cloudnetservice.ext.adventure.AdventureSerializerUtil;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.api.ResourceKey;
@@ -94,7 +94,7 @@ public class SpongeSignManagement extends AbstractServiceSignManagement<org.spon
         String[] lines = this.replaceLines(sign, layout);
         if (lines != null) {
           for (int i = 0; i < 4; i++) {
-            tileSign.lines().set(i, PlainTextComponentSerializer.plainText().deserialize(lines[i]));
+            tileSign.lines().set(i, AdventureSerializerUtil.serialize(lines[i]));
           }
 
           this.changeBlock(entity, layout);

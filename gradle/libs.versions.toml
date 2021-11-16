@@ -112,7 +112,7 @@ waterdogpe = { group = "dev.waterdog.waterdogpe", name = "waterdog", version.ref
 
 # adventure
 adventureApi = { group = "net.kyori", name = "adventure-api", version.ref = "adventure" }
-adventureSerializerPlain = { group = "net.kyori", name = "adventure-text-serializer-plain", version.ref = "adventure" }
+adventureSerializerGson = { group = "net.kyori", name = "adventure-text-serializer-gson", version.ref = "adventure" }
 adventureSerializerLegacy = { group = "net.kyori", name = "adventure-text-serializer-legacy", version.ref = "adventure" }
 
 # platform extensions
@@ -127,7 +127,7 @@ cloud = ["cloudCore", "cloudAnnotations"]
 netty = ["nettyHandler", "nettyCodecHttp"]
 jjwt = ["jjwtApi", "jjwtImpl", "jjwtGson"]
 junit = ["junitApi", "junitParams", "junitEngine"]
-adventure = ["adventureApi", "adventureSerializerPlain"]
+adventure = ["adventureApi", "adventureSerializerGson", "adventureSerializerLegacy"]
 
 serverPlatform = ["spigot", "sponge", "nukkitX"]
 proxyPlatform = ["bungeecord", "velocity", "waterdogpe"]
