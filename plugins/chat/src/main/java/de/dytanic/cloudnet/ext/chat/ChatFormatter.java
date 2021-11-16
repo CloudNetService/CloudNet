@@ -59,7 +59,7 @@ public final class ChatFormatter {
       .getHighestPermissionGroup(permissionUser);
     format = format
       .replace("%name%", playerName)
-      .replace("%display%", displayName)
+      .replace("%display_name%", displayName)
       .replace("%uniqueId%", playerId.toString())
       .replace("%group%", group == null ? "" : group.getName())
       .replace("%display%", group == null ? "" : group.getDisplay())
