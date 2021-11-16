@@ -209,7 +209,7 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
         FileUtils.move(file, this.getTaskFile(task), StandardCopyOption.REPLACE_EXISTING);
       }
       // cache the task
-      this.serviceTasks.add(task);
+      this.addPermanentServiceTask(task);
     }, false, "*.json");
   }
 }

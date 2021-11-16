@@ -230,7 +230,7 @@ public class NodeGroupConfigurationProvider implements GroupConfigurationProvide
         FileUtils.move(file, this.getGroupFile(group), StandardCopyOption.REPLACE_EXISTING);
       }
       // cache the task
-      this.groupConfigurations.add(group);
+      this.addGroupConfiguration(group);
     }, false, "*.json");
   }
 }
