@@ -42,18 +42,20 @@ public final class AdventureSerializerUtil {
     char[] chars = textToSerialize.toCharArray();
     for (int i = 0; i < chars.length; i++) {
       // check if the current char is a legacy text char
-      if (i < chars.length - 1 && chars[i] == LEGACY_CHAR) {
+      if (i < chars.length - 1) {
         // check if the next char is a legacy color char
         char next = chars[i + 1];
-        if ((next >= '0' && next <= '9') || (next >= 'a' && next <= 'f') || next == 'r') {
-          result.append('§');
-          continue;
-        }
-        // check if the next char is a hex begin char
-        // 7 because of current hex_char 6_digit_hex (for example &#000fff)
-        if (next == HEX_CHAR && i + 7 < chars.length) {
-          result.append('§');
-          continue;
+        if (chars[i] == LEGACY_CHAR) {
+          if ((next >= '0' && next <= '9') || (next >= 'a' && next <= 'f') || next == 'r') {
+            result.append('§');
+            continue;
+          }
+          // check if the next char is a hex begin char
+          // 7 because of current hex_char 6_digit_hex (for example &#000fff)
+          if (next == HEX_CHAR && i + 7 < chars.length) {
+            result.append('§');
+            continue;
+          }
         }
         // check for the stupid bungee cord chat hex format
         // 13 because of current hex_char 12_digit_hex (for example &x&0&0&0&f&f&f)

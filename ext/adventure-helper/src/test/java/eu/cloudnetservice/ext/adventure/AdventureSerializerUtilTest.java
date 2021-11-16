@@ -46,7 +46,7 @@ public class AdventureSerializerUtilTest {
   @Test
   void testLegacyAndHexWithBungeeCordMix() {
     List<Component> serialized = AdventureSerializerUtil
-      .serialize("&x&0&0&0&f&f&fHello &1W&x&0&0&0&b&b&bo&6rld§rBye")
+      .serialize("&x&0&0&0&f&f&fHello &1W§x§0§0§0§b§b§bo&6rld§rBye")
       .children();
 
     Assertions.assertEquals(serialized.get(0).color(), TextColor.color(0xfff));
