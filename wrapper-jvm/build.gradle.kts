@@ -47,7 +47,7 @@ tasks.withType<ShadowJar> {
 
 dependencies {
   "api"(projects.cloudnetDriver)
-  "api"(projects.cloudnetWrapperJvm.modlauncher)
+  "api"(projects.cloudnetExt.modlauncher)
 }
 
 applyJarMetadata(

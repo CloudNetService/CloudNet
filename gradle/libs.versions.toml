@@ -113,6 +113,7 @@ waterdogpe = { group = "dev.waterdog.waterdogpe", name = "waterdog", version.ref
 # adventure
 adventureApi = { group = "net.kyori", name = "adventure-api", version.ref = "adventure" }
 adventureSerializerPlain = { group = "net.kyori", name = "adventure-text-serializer-plain", version.ref = "adventure" }
+adventureSerializerLegacy = { group = "net.kyori", name = "adventure-text-serializer-legacy", version.ref = "adventure" }
 
 # platform extensions
 vault = { group = "com.github.MilkBowl", name = "VaultAPI", version.ref = "vault" }

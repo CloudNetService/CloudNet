@@ -36,7 +36,7 @@ allprojects {
 }
 
 subprojects {
-  if (name == "cloudnet-modules" || name == "cloudnet-plugins") return@subprojects
+  if (name == "cloudnet-modules" || name == "cloudnet-plugins" || name == "cloudnet-ext") return@subprojects
 
   apply(plugin = "java")
   apply(plugin = "checkstyle")

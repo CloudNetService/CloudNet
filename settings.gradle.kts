@@ -24,10 +24,10 @@ pluginManagement {
 rootProject.name = "cloudnet-root"
 
 // top level projects
-initializeProjects("common", "driver", "node", "wrapper-jvm", "launcher", "modules", "plugins")
+initializeProjects("ext", "common", "driver", "node", "wrapper-jvm", "launcher", "modules", "plugins")
 
-// sub projects
-initializeSubProjects("wrapper-jvm", "modlauncher")
+// external lib helpers
+initializeSubProjects("ext", "modlauncher", "adventure-helper")
 // plugins
 initializeSubProjects("plugins", "chat", "simplenametags")
 // modules
