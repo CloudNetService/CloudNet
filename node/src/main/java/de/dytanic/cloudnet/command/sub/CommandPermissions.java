@@ -340,30 +340,12 @@ public final class CommandPermissions {
     this.updateGroup(permissionGroup, group -> permissionGroup.getGroups().add(targetGroup.getName()));
   }
 
-  @CommandMethod("permissions|perms group <group> add permission <permission>")
-  public void addGroupPermission(CommandSource source,
-    @Argument("group") PermissionGroup permissionGroup,
-    @Argument("permission") String permission
-  ) {
-    this.addPermission(permissionGroup, permission, null, null, null);
-  }
-
-  @CommandMethod("permissions|perms group <group> add permission <permission> [potency] [targetGroup]")
-  public void addGroupPermission(CommandSource source,
-    @Argument("group") PermissionGroup permissionGroup,
-    @Argument("permission") String permission,
-    @Argument("potency") int potency,
-    @Argument("targetGroup") GroupConfiguration targetGroup
-  ) {
-    this.addPermission(permissionGroup, permission, potency, null, targetGroup);
-  }
-
   @CommandMethod("permissions|perms group <group> add permission <permission> [potency] [targetGroup] [duration]")
   public void addGroupPermission(
     CommandSource source,
     @Argument("group") PermissionGroup permissionGroup,
     @Argument("permission") String rawPermission,
-    @Argument("potency") int potency,
+    @Argument("potency") Integer potency,
     @Argument(value = "duration", parserName = "timeUnit") Long timeOut,
     @Argument("targetGroup") GroupConfiguration targetGroup
   ) {
