@@ -78,7 +78,7 @@ public final class VelocityCloudCommand implements SimpleCommand {
   public @NotNull CompletableFuture<List<String>> suggestAsync(@NotNull Invocation invocation) {
     return CompletableFuture.supplyAsync(() -> ImmutableList.copyOf(CloudNetDriver.getInstance()
       .getNodeInfoProvider()
-      .getConsoleTabCompleteResults(String.join("", invocation.arguments()))));
+      .getConsoleTabCompleteResults(String.join(" ", invocation.arguments()))));
   }
 
   @Override
