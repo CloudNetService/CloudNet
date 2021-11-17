@@ -20,11 +20,11 @@ import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import de.dytanic.cloudnet.common.registry.IServicesRegistry;
 import eu.cloudnetservice.cloudnet.ext.syncproxy.platform.PlatformSyncProxyManagement;
+import eu.cloudnetservice.ext.adventure.AdventureSerializerUtil;
 import java.util.Collection;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
-import net.kyori.adventure.text.TextComponent;
-import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
+import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -104,12 +104,12 @@ public final class VelocitySyncProxyManagement extends PlatformSyncProxyManageme
   }
 
   @Contract("null -> null; !null -> !null")
-  private @Nullable TextComponent asComponent(@Nullable String message) {
+  private @Nullable Component asComponent(@Nullable String message) {
     if (message == null) {
       return null;
     }
 
-    return PlainTextComponentSerializer.plainText().deserialize(message);
+    return AdventureSerializerUtil.serialize(message);
   }
 
   private String replaceTabPlaceholder(@NotNull String input, @NotNull Player player) {
