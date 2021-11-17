@@ -252,30 +252,12 @@ public final class CommandPermissions {
       user -> user.addGroup(permissionGroup.getName(), time == null ? 0 : time), source);
   }
 
-  @CommandMethod("permissions|perms user <user> add permission <permission>")
-  public void addUserPermission(CommandSource source,
-    @Argument("user") PermissionUser permissionUser,
-    @Argument("permission") String permission
-  ) {
-    this.addPermission(permissionUser, permission, null, null, null);
-  }
-
-  @CommandMethod("permissions|perms user <user> add permission <permission> [potency] [targetGroup]")
-  public void addUserPermission(CommandSource source,
-    @Argument("user") PermissionUser permissionUser,
-    @Argument("permission") String permission,
-    @Argument("potency") int potency,
-    @Argument("targetGroup") GroupConfiguration targetGroup
-  ) {
-    this.addPermission(permissionUser, permission, potency, null, targetGroup);
-  }
-
   @CommandMethod("permissions|perms user <user> add permission <permission> [potency] [targetGroup] [duration]")
   public void addUserPermission(
     CommandSource source,
     @Argument("user") PermissionUser permissionUser,
     @Argument("permission") String rawPermission,
-    @Argument("potency") int potency,
+    @Argument("potency") Integer potency,
     @Argument(value = "duration", parserName = "timeUnit") Long timeOut,
     @Argument("targetGroup") GroupConfiguration targetGroup
   ) {
