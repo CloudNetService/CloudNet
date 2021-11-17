@@ -106,7 +106,6 @@ public abstract class CloudNetDriver {
 
   public abstract void stop();
 
-
   /**
    * Returns the name of this component. (e.g. Node-1, Lobby-1)
    */

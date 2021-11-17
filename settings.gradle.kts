@@ -39,7 +39,8 @@ initializeSubProjects("modules",
   "database-mongodb",
   "database-mysql",
   "cloudperms",
-  "signs" /*"syncproxy"*/)
+  "signs",
+  "syncproxy")
 
 fun initializeProjects(vararg names: String) {
   names.forEach {

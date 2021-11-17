@@ -30,21 +30,25 @@
  * limitations under the License.
  */
 
+plugins {
+  id("com.github.johnrengelman.shadow") version Versions.shadow
+}
+
 tasks.withType<Jar> {
   archiveFileName.set(Files.syncproxy)
 }
 
 dependencies {
-  //"moduleDependency"(project(":modules:bridge"))
-  "compileOnly"(project(":cloudnet-wrapper-jvm"))
-  "compileOnly"("net.md-5", "bungeecord-api", Versions.bungeecord)
-  "compileOnly"("com.velocitypowered", "velocity-api", Versions.velocity)
-  "compileOnly"("dev.waterdog.waterdogpe", "waterdog", Versions.waterdogpe)
+  "moduleDependency"(projects.cloudnetModules.bridge)
+  "compileOnly"(projects.cloudnetWrapperJvm)
+  "compileOnly"(libs.bundles.proxyPlatform)
+
+  "implementation"(projects.cloudnetExt.adventureHelper)
 }
 
 moduleJson {
   author = "CloudNetService"
-  main = "de.dytanic.cloudnet.ext.syncproxy.node.CloudNetSyncProxyModule"
+  main = "eu.cloudnetservice.cloudnet.ext.syncproxy.node.CloudNetSyncProxyModule"
   description = "CloudNet extension which serves proxy utils with CloudNet support"
   name = "CloudNet-SyncProxy"
 }

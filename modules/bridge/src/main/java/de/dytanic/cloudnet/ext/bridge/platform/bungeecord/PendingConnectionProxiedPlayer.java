@@ -39,7 +39,7 @@ import net.md_5.bungee.api.event.ServerConnectEvent.Reason;
 import net.md_5.bungee.api.score.Scoreboard;
 import org.jetbrains.annotations.NotNull;
 
-final class PendingConnectionProxiedPlayer implements ProxiedPlayer {
+public final class PendingConnectionProxiedPlayer implements ProxiedPlayer {
 
   private final PendingConnection connection;
 

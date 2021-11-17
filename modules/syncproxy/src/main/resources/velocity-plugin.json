@@ -1,5 +1,5 @@
 {
-  "id": "cloudnet_syncproxy_velocity",
+  "id": "cloudnet_syncproxy",
   "name": "CloudNet-SyncProxy",
   "version": "2.0",
   "description": "CloudNet extension which serves proxy utils with CloudNet support",
@@ -7,14 +7,14 @@
   "authors": [
     "CloudNetService"
   ],
-  "main": "de.dytanic.cloudnet.ext.syncproxy.velocity.VelocityCloudNetSyncProxyPlugin",
+  "main": "eu.cloudnetservice.cloudnet.ext.syncproxy.platform.velocity.VelocitySyncProxyPlugin",
   "dependencies": [
     {
-      "id": "cloudnet_bridge_velocity",
+      "id": "cloudnet_bridge",
       "optional": false
     },
     {
-      "id": "cloudnet_cloudperms_velocity",
+      "id": "cloudnet_cloudperms",
       "optional": true
     }
   ]

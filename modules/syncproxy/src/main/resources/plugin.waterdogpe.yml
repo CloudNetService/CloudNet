@@ -2,4 +2,4 @@ name: CloudNet-SyncProxy
 version: "1.2"
 author: CloudNetService
 
-main: de.dytanic.cloudnet.ext.syncproxy.waterdogpe.WaterdogPECloudNetSyncProxyPlugin
+main: eu.cloudnetservice.cloudnet.ext.syncproxy.platform.velocity.VelocitySyncProxyPlugin
