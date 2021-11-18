@@ -51,6 +51,10 @@ public final class NodeSyncProxyChannelMessageListener {
       this.management.setConfigurationSilently(configuration);
       // call the local event for the update
       this.eventManager.callEvent(new SyncProxyConfigurationUpdateEvent(configuration));
+    } else if (SyncProxyConstants.SYNC_PROXY_CONFIG_REQUEST.equals(event.getMessage())) {
+      SyncProxyConfiguration configuration = this.management.getConfiguration();
+      // respond with the currently loaded configuration
+      event.response().writeObject(configuration);
     }
   }
 }

@@ -50,9 +50,10 @@ public final class VelocitySyncProxyPlugin {
 
   @Subscribe
   public void handleProxyShutdown(@NotNull ProxyShutdownEvent event) {
+    // unregister all listeners for cloudnet events
     Wrapper.getInstance().getEventManager().unregisterListeners(this.getClass().getClassLoader());
     Wrapper.getInstance().unregisterPacketListenersByClassLoader(this.getClass().getClassLoader());
-
+    // remove the service from the registry
     this.management.unregisterService(Wrapper.getInstance().getServicesRegistry());
   }
 

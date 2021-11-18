@@ -58,6 +58,7 @@ public abstract class PlatformSyncProxyManagement<P> implements SyncProxyManagem
     this.rpcSender = wrapper.getRPCProviderFactory()
       .providerForClass(wrapper.getNetworkClient(), SyncProxyManagement.class);
     this.eventManager = wrapper.getEventManager();
+    // cache all services that are already started
     wrapper.getCloudServiceProvider().getCloudServicesAsync().onComplete(services -> {
       for (ServiceInfoSnapshot service : services) {
         this.cacheServiceInfoSnapshot(service);
@@ -129,13 +130,8 @@ public abstract class PlatformSyncProxyManagement<P> implements SyncProxyManagem
     }
 
     for (P onlinePlayer : this.getOnlinePlayers()) {
-      // check if the player is whitelisted using its uuid or name, skip if so
-      if (this.currentLoginConfiguration.getWhitelist().contains(this.getPlayerName(onlinePlayer))
-        || this.currentLoginConfiguration.getWhitelist().contains(this.getPlayerUniqueId(onlinePlayer).toString())) {
-        continue;
-      }
-      // check if the player has the permission to stay online during maintenance, disconnect if not
-      if (!this.checkPlayerPermission(onlinePlayer, "cloudnet.syncproxy.maintenance")) {
+      // check if the player is allowed to join
+      if (!this.checkPlayerMaintenance(onlinePlayer)) {
         this.disconnectPlayer(onlinePlayer, this.configuration.getMessage("player-login-not-whitelisted", null));
       }
     }
@@ -163,8 +159,8 @@ public abstract class PlatformSyncProxyManagement<P> implements SyncProxyManagem
 
   public void cacheServiceInfoSnapshot(@NotNull ServiceInfoSnapshot snapshot) {
     if (snapshot.getServiceId().getEnvironment().isMinecraftProxy() && this.checkServiceGroup(snapshot)) {
-      this.proxyOnlineCountCache.put(snapshot.getServiceId().getUniqueId(), snapshot.getProperty(
-        BridgeServiceProperties.MAX_PLAYERS).orElse(0));
+      this.proxyOnlineCountCache.put(snapshot.getServiceId().getUniqueId(),
+        BridgeServiceProperties.MAX_PLAYERS.get(snapshot).orElse(0));
       this.updateTabList();
     }
   }

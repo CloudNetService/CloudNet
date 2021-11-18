@@ -45,35 +45,42 @@ public final class BungeeCordSyncProxyListener implements Listener {
   public void handleProxyPing(@NotNull ProxyPingEvent event) {
     SyncProxyLoginConfiguration loginConfiguration = this.syncProxyManagement.getCurrentLoginConfiguration();
 
-    SyncProxyMotd motd;
-    if (loginConfiguration == null || (motd = this.syncProxyManagement.getRandomMotd()) == null) {
+    // check if we need to handle the proxy ping on this proxy instance
+    if (loginConfiguration == null) {
       return;
     }
 
-    int onlinePlayers = this.syncProxyManagement.getOnlinePlayerCount();
-    int maxPlayers;
+    SyncProxyMotd motd = this.syncProxyManagement.getRandomMotd();
+    // only display a motd if there is one in the config
+    if (motd != null) {
+      int onlinePlayers = this.syncProxyManagement.getOnlinePlayerCount();
+      int maxPlayers;
 
-    if (motd.isAutoSlot()) {
-      maxPlayers = Math.min(loginConfiguration.getMaxPlayers(), onlinePlayers + motd.getAutoSlotMaxPlayersDistance());
-    } else {
-      maxPlayers = loginConfiguration.getMaxPlayers();
+      if (motd.isAutoSlot()) {
+        maxPlayers = Math.min(loginConfiguration.getMaxPlayers(), onlinePlayers + motd.getAutoSlotMaxPlayersDistance());
+      } else {
+        maxPlayers = loginConfiguration.getMaxPlayers();
+      }
+
+      ServerPing response = event.getResponse();
+
+      String protocolText = motd.format(motd.getProtocolText(), onlinePlayers, maxPlayers);
+      // check if there is a protocol text in the config
+      if (protocolText != null) {
+        response.setVersion(new Protocol(protocolText, 1));
+      }
+
+      // map the playerInfo from the config to ServerPing.Players to display other information
+      ServerPing.Players players = new Players(maxPlayers, onlinePlayers,
+        Arrays.stream(motd.getPlayerInfo()).map(s -> new PlayerInfo(s.replace("&", "§"),
+          UUID.randomUUID())).toArray(PlayerInfo[]::new));
+
+      response.setPlayers(players);
+      response.setDescriptionComponent(new TextComponent(TextComponent.fromLegacyText(
+        motd.format(motd.getFirstLine() + "\n" + motd.getSecondLine(), onlinePlayers, maxPlayers))));
+
+      event.setResponse(response);
     }
-
-    ServerPing response = event.getResponse();
-
-    String protocolText = motd.format(motd.getProtocolText(), onlinePlayers, maxPlayers);
-    if (protocolText != null) {
-      response.setVersion(new Protocol(protocolText, 1));
-    }
-
-    ServerPing.Players players = new Players(maxPlayers, onlinePlayers,
-      Arrays.stream(motd.getPlayerInfo()).map(s -> new PlayerInfo(s.replace("&", "§"),
-        UUID.randomUUID())).toArray(PlayerInfo[]::new));
-    response.setPlayers(players);
-    response.setDescriptionComponent(new TextComponent(TextComponent.fromLegacyText(
-      motd.format(motd.getFirstLine() + "\n" + motd.getSecondLine(), onlinePlayers, maxPlayers))));
-
-    event.setResponse(response);
   }
 
   @EventHandler
@@ -96,7 +103,7 @@ public final class BungeeCordSyncProxyListener implements Listener {
 
       return;
     }
-
+    // check if the proxy is full and if the player is allowed to join or not
     if (this.syncProxyManagement.getOnlinePlayerCount() >= loginConfiguration.getMaxPlayers()
       && !player.hasPermission("cloudnet.syncproxy.fulljoin")) {
       event.setCancelReason(TextComponent.fromLegacyText(

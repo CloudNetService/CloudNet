@@ -34,7 +34,11 @@ public class SyncProxyTabListConfiguration {
 
   protected transient AtomicInteger currentEntry;
 
-  public SyncProxyTabListConfiguration(String targetGroup, List<SyncProxyTabList> entries, double animationsPerSecond) {
+  public SyncProxyTabListConfiguration(
+    @NotNull String targetGroup,
+    @NotNull List<SyncProxyTabList> entries,
+    double animationsPerSecond
+  ) {
     this.targetGroup = targetGroup;
     this.entries = entries;
     this.animationsPerSecond = animationsPerSecond;
@@ -42,7 +46,7 @@ public class SyncProxyTabListConfiguration {
     this.currentEntry = new AtomicInteger(-1);
   }
 
-  public static SyncProxyTabListConfiguration createDefault(String targetGroup) {
+  public static @NotNull SyncProxyTabListConfiguration createDefault(String targetGroup) {
     return new SyncProxyTabListConfiguration(
       targetGroup,
       Collections.singletonList(
@@ -56,19 +60,19 @@ public class SyncProxyTabListConfiguration {
     );
   }
 
-  public String getTargetGroup() {
+  public @NotNull String getTargetGroup() {
     return this.targetGroup;
   }
 
-  public void setTargetGroup(String targetGroup) {
+  public void setTargetGroup(@NotNull String targetGroup) {
     this.targetGroup = targetGroup;
   }
 
-  public List<SyncProxyTabList> getEntries() {
+  public @NotNull List<SyncProxyTabList> getEntries() {
     return this.entries;
   }
 
-  public void setEntries(List<SyncProxyTabList> entries) {
+  public void setEntries(@NotNull List<SyncProxyTabList> entries) {
     this.entries = entries;
   }
 

@@ -43,48 +43,51 @@ public final class VelocitySyncProxyListener {
   }
 
   @Subscribe
-  public void handleProxyPing(ProxyPingEvent event) {
+  public void handleProxyPing(@NotNull ProxyPingEvent event) {
     SyncProxyLoginConfiguration loginConfiguration = this.syncProxyManagement.getCurrentLoginConfiguration();
-
-    SyncProxyMotd motd;
-    if (loginConfiguration == null || (motd = this.syncProxyManagement.getRandomMotd()) == null) {
+    // check if we need to handle the proxy ping on this proxy instance
+    if (loginConfiguration == null) {
       return;
     }
 
-    int onlinePlayers = this.syncProxyManagement.getOnlinePlayerCount();
-    int maxPlayers;
+    SyncProxyMotd motd = this.syncProxyManagement.getRandomMotd();
+    // only display a motd if there is one in the config
+    if (motd != null) {
+      int onlinePlayers = this.syncProxyManagement.getOnlinePlayerCount();
+      int maxPlayers;
 
-    if (motd.isAutoSlot()) {
-      maxPlayers = Math.min(loginConfiguration.getMaxPlayers(), onlinePlayers + motd.getAutoSlotMaxPlayersDistance());
-    } else {
-      maxPlayers = loginConfiguration.getMaxPlayers();
+      if (motd.isAutoSlot()) {
+        maxPlayers = Math.min(loginConfiguration.getMaxPlayers(), onlinePlayers + motd.getAutoSlotMaxPlayersDistance());
+      } else {
+        maxPlayers = loginConfiguration.getMaxPlayers();
+      }
+
+      String protocolText = motd.format(motd.getProtocolText(), onlinePlayers, maxPlayers);
+      Version version = event.getPing().getVersion();
+      // check if a protocol text is specified in the config
+      if (protocolText != null) {
+        version = new Version(1, protocolText);
+      }
+
+      ServerPing.Builder builder = ServerPing.builder()
+        .version(version)
+        .onlinePlayers(onlinePlayers)
+        .maximumPlayers(maxPlayers)
+        // map the playerInfo from the config to ServerPing.SamplePlayer to display other information
+        .samplePlayers(motd.getPlayerInfo() != null ?
+          Arrays.stream(motd.getPlayerInfo())
+            .map(s -> new SamplePlayer(
+              s.replace("&", "§"),
+              UUID.randomUUID()
+            )).toArray(SamplePlayer[]::new) : new SamplePlayer[0])
+        .description(PlainTextComponentSerializer.plainText()
+          .deserialize(motd.format(motd.getFirstLine() + "\n" + motd.getSecondLine(), onlinePlayers, maxPlayers)));
+
+      event.getPing().getFavicon().ifPresent(builder::favicon);
+      event.getPing().getModinfo().ifPresent(builder::mods);
+
+      event.setPing(builder.build());
     }
-
-    String protocolText = motd.format(motd.getProtocolText(), onlinePlayers, maxPlayers);
-    Version version = event.getPing().getVersion();
-
-    if (protocolText != null) {
-      version = new Version(1, protocolText);
-    }
-
-    ServerPing.Builder builder = ServerPing.builder()
-      .version(version)
-      .onlinePlayers(onlinePlayers)
-      .maximumPlayers(maxPlayers)
-      .samplePlayers(motd.getPlayerInfo() != null ?
-        Arrays.stream(motd.getPlayerInfo())
-          .map(s -> new SamplePlayer(
-            s.replace("&", "§"),
-            UUID.randomUUID()
-          )).toArray(SamplePlayer[]::new) : new SamplePlayer[0])
-      .description(PlainTextComponentSerializer.plainText()
-        .deserialize(motd.format(motd.getFirstLine() + "\n" + motd.getSecondLine(), onlinePlayers, maxPlayers)));
-
-    event.getPing().getFavicon().ifPresent(builder::favicon);
-    event.getPing().getModinfo().ifPresent(builder::mods);
-
-    event.setPing(builder.build());
-
   }
 
   @Subscribe
@@ -106,6 +109,7 @@ public final class VelocitySyncProxyListener {
       event.setResult(ComponentResult.denied(reason));
       return;
     }
+    // check if the proxy is full and if the player is allowed to join or not
     if (this.syncProxyManagement.getOnlinePlayerCount() >= loginConfiguration.getMaxPlayers()
       && !player.hasPermission("cloudnet.syncproxy.fulljoin")) {
       Component reason = serialize(

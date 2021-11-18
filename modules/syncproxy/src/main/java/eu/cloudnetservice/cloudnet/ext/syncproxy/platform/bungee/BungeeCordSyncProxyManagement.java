@@ -40,12 +40,12 @@ public final class BungeeCordSyncProxyManagement extends PlatformSyncProxyManage
 
   @Override
   public void registerService(@NotNull IServicesRegistry registry) {
-    registry.registerService(PlatformSyncProxyManagement.class, "BungeeCord", this);
+    registry.registerService(PlatformSyncProxyManagement.class, "BungeeCordSyncProxyManagement", this);
   }
 
   @Override
   public void unregisterService(@NotNull IServicesRegistry registry) {
-    registry.unregisterService(PlatformSyncProxyManagement.class, "BungeeCord");
+    registry.unregisterService(PlatformSyncProxyManagement.class, "BungeeCordSyncProxyManagement");
   }
 
   @Override

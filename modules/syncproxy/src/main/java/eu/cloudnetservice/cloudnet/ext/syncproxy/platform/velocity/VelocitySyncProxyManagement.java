@@ -42,12 +42,12 @@ public final class VelocitySyncProxyManagement extends PlatformSyncProxyManageme
 
   @Override
   public void registerService(@NotNull IServicesRegistry registry) {
-    registry.registerService(PlatformSyncProxyManagement.class, "Velocity", this);
+    registry.registerService(PlatformSyncProxyManagement.class, "VelocitySyncProxyManagement", this);
   }
 
   @Override
   public void unregisterService(@NotNull IServicesRegistry registry) {
-    registry.unregisterService(PlatformSyncProxyManagement.class, "Velocity");
+    registry.unregisterService(PlatformSyncProxyManagement.class, "VelocitySyncProxyManagement");
   }
 
   @Override

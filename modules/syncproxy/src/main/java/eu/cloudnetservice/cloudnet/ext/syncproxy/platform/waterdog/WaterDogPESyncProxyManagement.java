@@ -30,19 +30,19 @@ public final class WaterDogPESyncProxyManagement extends PlatformSyncProxyManage
 
   private final ProxyServer proxyServer;
 
-  public WaterDogPESyncProxyManagement(ProxyServer proxyServer) {
+  public WaterDogPESyncProxyManagement(@NotNull ProxyServer proxyServer) {
     this.proxyServer = proxyServer;
     this.init();
   }
 
   @Override
   public void registerService(@NotNull IServicesRegistry registry) {
-    registry.registerService(PlatformSyncProxyManagement.class, "WaterDogPE", this);
+    registry.registerService(PlatformSyncProxyManagement.class, "WaterDogPESyncProxyManagement", this);
   }
 
   @Override
   public void unregisterService(@NotNull IServicesRegistry registry) {
-    registry.unregisterService(PlatformSyncProxyManagement.class, "WaterDogPE");
+    registry.unregisterService(PlatformSyncProxyManagement.class, "WaterDogPESyncProxyManagement");
   }
 
   @Override

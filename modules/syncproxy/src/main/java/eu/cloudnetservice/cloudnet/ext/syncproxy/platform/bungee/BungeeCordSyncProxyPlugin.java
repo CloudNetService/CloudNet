@@ -31,16 +31,17 @@ public final class BungeeCordSyncProxyPlugin extends Plugin {
     this.syncProxyManagement.registerService(Wrapper.getInstance().getServicesRegistry());
     // register the event listener to handle service updates
     Wrapper.getInstance().getEventManager().registerListener(new SyncProxyCloudListener<>(this.syncProxyManagement));
-    // register the bungeecord ping & join listener
+    // register the bungeecord ping and join listener
     this.getProxy().getPluginManager()
       .registerListener(this, new BungeeCordSyncProxyListener(this.syncProxyManagement));
   }
 
   @Override
   public void onDisable() {
+    // unregister all listeners for cloudnet events
     Wrapper.getInstance().getEventManager().unregisterListeners(this.getClass().getClassLoader());
     Wrapper.getInstance().unregisterPacketListenersByClassLoader(this.getClass().getClassLoader());
-
+    // remove the service from the registry
     this.syncProxyManagement.unregisterService(Wrapper.getInstance().getServicesRegistry());
   }
 }

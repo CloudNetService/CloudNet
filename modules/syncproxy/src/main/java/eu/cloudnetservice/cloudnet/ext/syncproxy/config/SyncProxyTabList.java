@@ -27,6 +27,7 @@ import java.text.SimpleDateFormat;
 import java.util.UUID;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.jetbrains.annotations.NotNull;
 
 @ToString
 @EqualsAndHashCode
@@ -35,15 +36,19 @@ public class SyncProxyTabList {
   private static final DateFormat DATE_FORMAT = new SimpleDateFormat("HH:mm:ss");
 
   protected String header;
-
   protected String footer;
 
-  public SyncProxyTabList(String header, String footer) {
+  public SyncProxyTabList(@NotNull String header, @NotNull String footer) {
     this.header = header;
     this.footer = footer;
   }
 
-  public static String replaceTabListItem(String input, UUID playerUniqueId, int onlinePlayers, int maxPlayers) {
+  public static String replaceTabListItem(
+    @NotNull String input,
+    @NotNull UUID playerUniqueId,
+    int onlinePlayers,
+    int maxPlayers
+  ) {
     input = input
       .replace("%proxy%", Wrapper.getInstance().getServiceId().getName())
       .replace("%proxy_uniqueId%", Wrapper.getInstance().getServiceId().getUniqueId().toString())
@@ -52,7 +57,7 @@ public class SyncProxyTabList {
       .replace("%online_players%", String.valueOf(onlinePlayers))
       .replace("%max_players%", String.valueOf(maxPlayers));
 
-    if (SyncProxyConstants.CLOUD_PERMS_ENABLED && playerUniqueId != null) {
+    if (SyncProxyConstants.CLOUD_PERMS_ENABLED) {
       IPermissionManagement permissionManagement = CloudNetDriver.getInstance().getPermissionManagement();
 
       PermissionUser permissionUser = permissionManagement.getUser(playerUniqueId);
@@ -73,19 +78,19 @@ public class SyncProxyTabList {
     return input.replace("&", "§");
   }
 
-  public String getHeader() {
+  public @NotNull String getHeader() {
     return this.header;
   }
 
-  public void setHeader(String header) {
+  public void setHeader(@NotNull String header) {
     this.header = header;
   }
 
-  public String getFooter() {
+  public @NotNull String getFooter() {
     return this.footer;
   }
 
-  public void setFooter(String footer) {
+  public void setFooter(@NotNull String footer) {
     this.footer = footer;
   }
 }

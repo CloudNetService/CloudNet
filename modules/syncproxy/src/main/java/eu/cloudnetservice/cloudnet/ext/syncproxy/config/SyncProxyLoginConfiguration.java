@@ -23,6 +23,7 @@ import java.util.Set;
 import lombok.EqualsAndHashCode;
 import lombok.EqualsAndHashCode.Include;
 import lombok.ToString;
+import org.jetbrains.annotations.NotNull;
 
 @ToString
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
@@ -39,8 +40,14 @@ public class SyncProxyLoginConfiguration {
   protected List<SyncProxyMotd> motds;
   protected List<SyncProxyMotd> maintenanceMotds;
 
-  public SyncProxyLoginConfiguration(String targetGroup, boolean maintenance, int maxPlayers,
-    Set<String> whitelist, List<SyncProxyMotd> motds, List<SyncProxyMotd> maintenanceMotds) {
+  public SyncProxyLoginConfiguration(
+    @NotNull String targetGroup,
+    boolean maintenance,
+    int maxPlayers,
+    @NotNull Set<String> whitelist,
+    @NotNull List<SyncProxyMotd> motds,
+    @NotNull List<SyncProxyMotd> maintenanceMotds
+  ) {
     this.targetGroup = targetGroup;
     this.maintenance = maintenance;
     this.maxPlayers = maxPlayers;
@@ -49,7 +56,7 @@ public class SyncProxyLoginConfiguration {
     this.maintenanceMotds = maintenanceMotds;
   }
 
-  public static SyncProxyLoginConfiguration createDefault(String targetGroup) {
+  public static @NotNull SyncProxyLoginConfiguration createDefault(String targetGroup) {
     return new SyncProxyLoginConfiguration(
       targetGroup,
       false,
@@ -79,11 +86,11 @@ public class SyncProxyLoginConfiguration {
     );
   }
 
-  public String getTargetGroup() {
+  public @NotNull String getTargetGroup() {
     return this.targetGroup;
   }
 
-  public void setTargetGroup(String targetGroup) {
+  public void setTargetGroup(@NotNull String targetGroup) {
     this.targetGroup = targetGroup;
   }
 
@@ -103,27 +110,27 @@ public class SyncProxyLoginConfiguration {
     this.maxPlayers = maxPlayers;
   }
 
-  public Set<String> getWhitelist() {
+  public @NotNull Set<String> getWhitelist() {
     return this.whitelist;
   }
 
-  public void setWhitelist(Set<String> whitelist) {
+  public void setWhitelist(@NotNull Set<String> whitelist) {
     this.whitelist = whitelist;
   }
 
-  public List<SyncProxyMotd> getMotds() {
+  public @NotNull List<SyncProxyMotd> getMotds() {
     return this.motds;
   }
 
-  public void setMotds(List<SyncProxyMotd> motds) {
+  public void setMotds(@NotNull List<SyncProxyMotd> motds) {
     this.motds = motds;
   }
 
-  public List<SyncProxyMotd> getMaintenanceMotds() {
+  public @NotNull List<SyncProxyMotd> getMaintenanceMotds() {
     return this.maintenanceMotds;
   }
 
-  public void setMaintenanceMotds(List<SyncProxyMotd> maintenanceMotds) {
+  public void setMaintenanceMotds(@NotNull List<SyncProxyMotd> maintenanceMotds) {
     this.maintenanceMotds = maintenanceMotds;
   }
 

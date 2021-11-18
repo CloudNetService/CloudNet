@@ -37,9 +37,10 @@ public final class WaterDogPESyncProxyPlugin extends Plugin {
 
   @Override
   public void onDisable() {
+    // unregister all listeners for cloudnet events
     Wrapper.getInstance().getEventManager().unregisterListeners(this.getClass().getClassLoader());
     Wrapper.getInstance().unregisterPacketListenersByClassLoader(this.getClass().getClassLoader());
-
+    // remove the service from the registry
     this.syncProxyManagement.unregisterService(Wrapper.getInstance().getServicesRegistry());
   }
 }

@@ -34,44 +34,49 @@ public final class WaterDogPESyncProxyListener {
   ) {
     this.syncProxyManagement = syncProxyManagement;
 
+    // subscribe to the events and redirect them to the methods to handle them
     proxyServer.getEventManager().subscribe(ProxyPingEvent.class, this::handleProxyPing);
+    proxyServer.getEventManager().subscribe(PlayerLoginEvent.class, this::handleProxyLogin);
   }
 
-  public void handleProxyPing(@NotNull ProxyPingEvent event) {
+  private void handleProxyPing(@NotNull ProxyPingEvent event) {
     SyncProxyLoginConfiguration loginConfiguration = this.syncProxyManagement.getCurrentLoginConfiguration();
-
-    SyncProxyMotd motd;
-    if (loginConfiguration == null || (motd = this.syncProxyManagement.getRandomMotd()) == null) {
+    // check if we need to handle the proxy ping on this proxy instance
+    if (loginConfiguration == null) {
       return;
     }
 
-    int onlinePlayers = this.syncProxyManagement.getOnlinePlayerCount();
-    int maxPlayers;
+    SyncProxyMotd motd = this.syncProxyManagement.getRandomMotd();
+    // only display a motd if there is one in the config
+    if (motd != null) {
+      int onlinePlayers = this.syncProxyManagement.getOnlinePlayerCount();
+      int maxPlayers;
 
-    event.setPlayerCount(onlinePlayers);
+      event.setPlayerCount(onlinePlayers);
 
-    if (motd.isAutoSlot()) {
-      maxPlayers = Math.min(loginConfiguration.getMaxPlayers(), onlinePlayers + motd.getAutoSlotMaxPlayersDistance());
-    } else {
-      maxPlayers = loginConfiguration.getMaxPlayers();
+      if (motd.isAutoSlot()) {
+        maxPlayers = Math.min(loginConfiguration.getMaxPlayers(), onlinePlayers + motd.getAutoSlotMaxPlayersDistance());
+      } else {
+        maxPlayers = loginConfiguration.getMaxPlayers();
+      }
+      event.setMaximumPlayerCount(maxPlayers);
+
+      // bedrock has just to lines that are separated  from each other
+      String mainMotd = motd.format(motd.getFirstLine(), onlinePlayers, maxPlayers);
+      String subMotd = motd.format(motd.getSecondLine(), onlinePlayers, maxPlayers);
+
+      event.setMotd(mainMotd);
+      event.setSubMotd(subMotd);
     }
-    event.setMaximumPlayerCount(maxPlayers);
-
-    String mainMotd = motd.format(motd.getFirstLine(), onlinePlayers, maxPlayers);
-    String subMotd = motd.format(motd.getSecondLine(), onlinePlayers, maxPlayers);
-
-    event.setMotd(mainMotd);
-    event.setSubMotd(subMotd);
   }
 
-  public void handleProxyLogin(@NotNull PlayerLoginEvent event) {
+  private void handleProxyLogin(@NotNull PlayerLoginEvent event) {
     SyncProxyLoginConfiguration loginConfiguration = this.syncProxyManagement.getCurrentLoginConfiguration();
     if (loginConfiguration == null) {
       return;
     }
 
     ProxiedPlayer proxiedPlayer = event.getPlayer();
-
     if (loginConfiguration.isMaintenance()) {
       // the player is either whitelisted or has the permission to join during maintenance, ignore him
       if (this.syncProxyManagement.checkPlayerMaintenance(proxiedPlayer)) {
@@ -83,7 +88,7 @@ public final class WaterDogPESyncProxyListener {
 
       return;
     }
-
+    // check if the proxy is full and if the player is allowed to join or not
     if (this.syncProxyManagement.getOnlinePlayerCount() >= loginConfiguration.getMaxPlayers()
       && !proxiedPlayer.hasPermission("cloudnet.syncproxy.fulljoin")) {
       event.setCancelReason(this.syncProxyManagement.getConfiguration().getMessage("player-login-full-server", null));

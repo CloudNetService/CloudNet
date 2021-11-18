@@ -51,7 +51,8 @@ public final class CommandSyncProxy {
   public SyncProxyLoginConfiguration loginConfigurationParser(CommandContext<CommandSource> $, Queue<String> input) {
     String name = input.remove();
 
-    return this.syncProxyManagement.getConfiguration().getLoginConfigurations().stream()
+    return this.syncProxyManagement.getConfiguration().getLoginConfigurations()
+      .stream()
       .filter(login -> login.getTargetGroup().equals(name)).findFirst()
       .orElseThrow(
         () -> new ArgumentNotAvailableException(I18n.trans("module-syncproxy-command-create-entry-group-not-found")));

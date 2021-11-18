@@ -36,7 +36,7 @@ public final class IncludePluginListener {
   }
 
   @EventListener
-  public void handle(CloudServicePreLifecycleEvent event) {
+  public void handleLifecycleUpdate(@NotNull CloudServicePreLifecycleEvent event) {
     if (event.getTargetLifecycle() != ServiceLifeCycle.RUNNING) {
       return;
     }

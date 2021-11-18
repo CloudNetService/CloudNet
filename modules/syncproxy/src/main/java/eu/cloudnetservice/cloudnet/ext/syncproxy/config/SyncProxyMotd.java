@@ -20,6 +20,7 @@ import de.dytanic.cloudnet.wrapper.Wrapper;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @ToString
@@ -30,15 +31,19 @@ public class SyncProxyMotd {
   protected String secondLine;
 
   protected boolean autoSlot;
-
   protected int autoSlotMaxPlayersDistance;
 
   protected String[] playerInfo;
-
   protected String protocolText;
 
-  public SyncProxyMotd(String firstLine, String secondLine, boolean autoSlot, int autoSlotMaxPlayersDistance,
-    String[] playerInfo, String protocolText) {
+  public SyncProxyMotd(
+    @NotNull String firstLine,
+    @NotNull String secondLine,
+    boolean autoSlot,
+    int autoSlotMaxPlayersDistance,
+    @NotNull String[] playerInfo,
+    @Nullable String protocolText
+  ) {
     this.firstLine = firstLine;
     this.secondLine = secondLine;
     this.autoSlot = autoSlot;
@@ -47,19 +52,19 @@ public class SyncProxyMotd {
     this.protocolText = protocolText;
   }
 
-  public String getFirstLine() {
+  public @NotNull String getFirstLine() {
     return this.firstLine;
   }
 
-  public void setFirstLine(String firstLine) {
+  public void setFirstLine(@NotNull String firstLine) {
     this.firstLine = firstLine;
   }
 
-  public String getSecondLine() {
+  public @NotNull String getSecondLine() {
     return this.secondLine;
   }
 
-  public void setSecondLine(String secondLine) {
+  public void setSecondLine(@NotNull String secondLine) {
     this.secondLine = secondLine;
   }
 
@@ -79,19 +84,19 @@ public class SyncProxyMotd {
     this.autoSlotMaxPlayersDistance = autoSlotMaxPlayersDistance;
   }
 
-  public String[] getPlayerInfo() {
+  public @NotNull String[] getPlayerInfo() {
     return this.playerInfo;
   }
 
-  public void setPlayerInfo(String[] playerInfo) {
+  public void setPlayerInfo(@NotNull String[] playerInfo) {
     this.playerInfo = playerInfo;
   }
 
-  public String getProtocolText() {
+  public @Nullable String getProtocolText() {
     return this.protocolText;
   }
 
-  public void setProtocolText(String protocolText) {
+  public void setProtocolText(@Nullable String protocolText) {
     this.protocolText = protocolText;
   }
 

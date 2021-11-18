@@ -47,16 +47,19 @@ public class SyncProxyConfiguration {
   protected Map<String, String> messages;
   protected boolean ingameServiceStartStopMessages;
 
-  public SyncProxyConfiguration(Set<SyncProxyLoginConfiguration> loginConfigurations,
-    Set<SyncProxyTabListConfiguration> tabListConfigurations, Map<String, String> messages,
-    boolean ingameServiceStartStopMessages) {
+  public SyncProxyConfiguration(
+    @NotNull Set<SyncProxyLoginConfiguration> loginConfigurations,
+    @NotNull Set<SyncProxyTabListConfiguration> tabListConfigurations,
+    @NotNull Map<String, String> messages,
+    boolean ingameServiceStartStopMessages
+  ) {
     this.loginConfigurations = loginConfigurations;
     this.tabListConfigurations = tabListConfigurations;
     this.messages = messages;
     this.ingameServiceStartStopMessages = ingameServiceStartStopMessages;
   }
 
-  public static SyncProxyConfiguration createDefault(@NotNull String targetGroup) {
+  public static @NotNull SyncProxyConfiguration createDefault(@NotNull String targetGroup) {
     return new SyncProxyConfiguration(
       Collections.singleton(SyncProxyLoginConfiguration.createDefault(targetGroup)),
       Collections.singleton(SyncProxyTabListConfiguration.createDefault(targetGroup)),
@@ -64,7 +67,7 @@ public class SyncProxyConfiguration {
       true);
   }
 
-  public static SyncProxyConfiguration getConfigurationFromNode() {
+  public static @Nullable SyncProxyConfiguration getConfigurationFromNode() {
     ChannelMessage response = ChannelMessage.builder()
       .channel(SyncProxyConstants.SYNC_PROXY_CHANNEL)
       .message(SyncProxyConstants.SYNC_PROXY_CONFIG_REQUEST)
@@ -79,27 +82,27 @@ public class SyncProxyConfiguration {
     return null;
   }
 
-  public Set<SyncProxyLoginConfiguration> getLoginConfigurations() {
+  public @NotNull Set<SyncProxyLoginConfiguration> getLoginConfigurations() {
     return this.loginConfigurations;
   }
 
-  public void setLoginConfigurations(Set<SyncProxyLoginConfiguration> loginConfigurations) {
+  public void setLoginConfigurations(@NotNull Set<SyncProxyLoginConfiguration> loginConfigurations) {
     this.loginConfigurations = loginConfigurations;
   }
 
-  public Collection<SyncProxyTabListConfiguration> getTabListConfigurations() {
+  public @NotNull Collection<SyncProxyTabListConfiguration> getTabListConfigurations() {
     return this.tabListConfigurations;
   }
 
-  public void setTabListConfigurations(Set<SyncProxyTabListConfiguration> tabListConfigurations) {
+  public void setTabListConfigurations(@NotNull Set<SyncProxyTabListConfiguration> tabListConfigurations) {
     this.tabListConfigurations = tabListConfigurations;
   }
 
-  public Map<String, String> getMessages() {
+  public @NotNull Map<String, String> getMessages() {
     return this.messages;
   }
 
-  public void setMessages(Map<String, String> messages) {
+  public void setMessages(@NotNull Map<String, String> messages) {
     this.messages = messages;
   }
 
