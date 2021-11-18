@@ -32,6 +32,7 @@ import de.dytanic.cloudnet.command.exception.ArgumentNotAvailableException;
 import de.dytanic.cloudnet.command.source.CommandSource;
 import de.dytanic.cloudnet.common.INameable;
 import de.dytanic.cloudnet.common.WildcardUtil;
+import de.dytanic.cloudnet.common.collection.Pair;
 import de.dytanic.cloudnet.common.language.I18n;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
@@ -170,47 +171,41 @@ public final class CommandService {
   @CommandMethod("service|ser <name> copy|cp [template]")
   public void copyService(
     CommandSource source,
-    @Argument(value = "name", parserName = "single") ServiceInfoSnapshot service,
+    @Argument(value = "name") Collection<ServiceInfoSnapshot> services,
     @Argument("template") ServiceTemplate template,
     @Flag("excludes") @Quoted String excludes
   ) {
-    ServiceTemplate targetTemplate = template;
-    if (template == null) {
-      for (ServiceTemplate serviceTemplate : service.getConfiguration().getTemplates()) {
-        if (!serviceTemplate.getPrefix().equalsIgnoreCase(service.getServiceId().getTaskName())) {
-          continue;
+    // associate all services with a template
+    Collection<Pair<SpecificCloudServiceProvider, ServiceTemplate>> targets = services.stream()
+      .map(service -> {
+        if (template != null) {
+          return new Pair<>(service.provider(), template);
+        } else {
+          // find a matching template
+          return service.getConfiguration().getTemplates().stream()
+            .filter(st -> st.getPrefix().equalsIgnoreCase(service.getServiceId().getTaskName()))
+            .filter(st -> !st.getName().equalsIgnoreCase("default"))
+            .map(st -> new Pair<>(service.provider(), st))
+            .findFirst()
+            .orElse(null);
         }
-
-        if (!serviceTemplate.getName().equalsIgnoreCase("default")) {
-          continue;
-        }
-
-        targetTemplate = serviceTemplate;
-        break;
-      }
-    }
-
-    if (template == null) {
+      })
+      .collect(Collectors.toSet());
+    // check if we found a result
+    if (targets.isEmpty()) {
       source.sendMessage(I18n.trans("command-copy-service-no-default-template"));
       return;
     }
 
-    SpecificCloudServiceProvider serviceProvider = service.provider();
-
-    List<ServiceDeployment> oldDeployments = new ArrayList<>(service.getConfiguration().getDeployments());
-
-    serviceProvider.addServiceDeployment(new ServiceDeployment(targetTemplate, this.parseExcludes(excludes)));
-    serviceProvider.deployResources(true);
-
-    for (ServiceDeployment deployment : oldDeployments) {
-      serviceProvider.addServiceDeployment(deployment);
+    for (Pair<SpecificCloudServiceProvider, ServiceTemplate> target : targets) {
+      target.getFirst().addServiceDeployment(new ServiceDeployment(target.getSecond(), this.parseExcludes(excludes)));
+      target.getFirst().removeAndExecuteDeployments();
+      // send a message for each service we did copy the template of
+      //noinspection ConstantConditions
+      source.sendMessage(I18n.trans("command-copy-success")
+        .replace("%name%", target.getFirst().getServiceInfoSnapshot().getName())
+        .replace("%template%", target.getSecond().toString()));
     }
-
-    source.sendMessage(
-      I18n.trans("command-copy-success")
-        .replace("%name%", service.getServiceId().getName())
-        .replace("%template%",
-          targetTemplate.getStorage() + ":" + targetTemplate.getPrefix() + "/" + targetTemplate.getName()));
   }
 
   @CommandMethod("service|ser <name> delete|del")
