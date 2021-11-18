@@ -23,13 +23,13 @@ import cloud.commandframework.annotations.CommandPermission;
 import cloud.commandframework.annotations.parsers.Parser;
 import cloud.commandframework.annotations.suggestions.Suggestions;
 import cloud.commandframework.context.CommandContext;
+import cloud.commandframework.exceptions.NoSuchCommandException;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.command.annotation.CommandAlias;
 import de.dytanic.cloudnet.command.annotation.Description;
 import de.dytanic.cloudnet.command.defaults.DefaultCommandProvider;
 import de.dytanic.cloudnet.command.source.CommandSource;
 import de.dytanic.cloudnet.command.source.DriverCommandSource;
-import de.dytanic.cloudnet.common.language.I18n;
 import de.dytanic.cloudnet.console.IConsole;
 import de.dytanic.cloudnet.driver.NodeTestUtility;
 import de.dytanic.cloudnet.driver.command.CommandInfo;
@@ -37,6 +37,7 @@ import de.dytanic.cloudnet.driver.event.DefaultEventManager;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Queue;
+import java.util.concurrent.CompletionException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -94,9 +95,11 @@ public final class CommandProviderTest {
   public void testCommandNotFound() {
     DriverCommandSource source = new DriverCommandSource();
 
-    commandProvider.execute(source, "non existing command");
-    Assertions.assertEquals(1, source.getMessages().size());
-    Assertions.assertEquals(I18n.trans("command-not-found"), Iterables.firstOf(source.getMessages()));
+    try {
+      commandProvider.execute(source, "non existing command").join();
+    } catch (CompletionException exception) {
+      Assertions.assertEquals(NoSuchCommandException.class, exception.getCause().getClass());
+    }
   }
 
   @Test

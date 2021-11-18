@@ -58,6 +58,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import org.jetbrains.annotations.NotNull;
@@ -116,8 +117,8 @@ public class DefaultCommandProvider implements CommandProvider {
    * {@inheritDoc}
    */
   @Override
-  public void execute(@NotNull CommandSource source, @NotNull String input) {
-    this.commandManager.executeCommand(source, input)
+  public CompletableFuture<?> execute(@NotNull CommandSource source, @NotNull String input) {
+    return this.commandManager.executeCommand(source, input)
       .whenComplete((result, throwable) -> this.exceptionHandler.handleCommandExceptions(source, throwable));
   }
 

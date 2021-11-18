@@ -21,6 +21,7 @@ import de.dytanic.cloudnet.console.IConsole;
 import de.dytanic.cloudnet.driver.command.CommandInfo;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
@@ -43,7 +44,7 @@ public interface CommandProvider {
    * @param source the command source that is used to execute the command
    * @param input  the commandline that is executed
    */
-  void execute(@NotNull CommandSource source, @NotNull String input);
+  CompletableFuture<?> execute(@NotNull CommandSource source, @NotNull String input);
 
   /**
    * Register a command for the node

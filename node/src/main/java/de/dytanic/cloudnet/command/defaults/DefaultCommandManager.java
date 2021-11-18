@@ -22,12 +22,14 @@ import cloud.commandframework.internal.CommandRegistrationHandler;
 import cloud.commandframework.meta.CommandMeta;
 import cloud.commandframework.meta.SimpleCommandMeta;
 import de.dytanic.cloudnet.command.source.CommandSource;
+import java.util.concurrent.Executors;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
 final class DefaultCommandManager extends CommandManager<CommandSource> {
 
   public DefaultCommandManager() {
-    super(AsynchronousCommandExecutionCoordinator.simpleCoordinator(),
+    super(AsynchronousCommandExecutionCoordinator.<CommandSource>newBuilder()
+        .withExecutor(Executors.newSingleThreadExecutor()).build(),
       CommandRegistrationHandler.nullCommandRegistrationHandler());
   }
 
