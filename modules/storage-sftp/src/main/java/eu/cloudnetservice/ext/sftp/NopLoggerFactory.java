@@ -14,21 +14,26 @@
  * limitations under the License.
  */
 
-jar {
-  archiveFileName.set(cloudnetModuleStorageFTPFileName)
-}
+package eu.cloudnetservice.ext.sftp;
 
-dependencies {
-  compileOnly project(':cloudnet')
-  moduleLibrary group: 'commons-net', name: 'commons-net', version: dependencyCommonsNetVersion
-  moduleLibrary group: 'com.jcraft', name: 'jsch', version: dependencyJschVersion
-}
+import net.schmizz.sshj.common.LoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.helpers.NOPLogger;
 
-moduleJson {
-  main = 'de.dytanic.cloudnet.ext.storage.ftp.CloudNetStorageFTPModule'
-  author = 'CloudNetService'
-  description = 'CloudNet extension, which includes the ftp storage system'
-  name = 'CloudNet-Storage-FTP'
-  storesSensitiveData = true
-  runtimeModule = true
+final class NopLoggerFactory implements LoggerFactory {
+
+  public static final LoggerFactory INSTANCE = new NopLoggerFactory();
+
+  private NopLoggerFactory() {
+  }
+
+  @Override
+  public Logger getLogger(String name) {
+    return NOPLogger.NOP_LOGGER;
+  }
+
+  @Override
+  public Logger getLogger(Class<?> clazz) {
+    return NOPLogger.NOP_LOGGER;
+  }
 }

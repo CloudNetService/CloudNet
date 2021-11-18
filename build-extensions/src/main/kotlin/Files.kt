@@ -36,6 +36,7 @@ object Files {
   const val smart = "cloudnet-smart.jar"
   const val syncproxy = "cloudnet-syncproxy.jar"
   const val report = "cloudnet-report.jar"
+  const val storageSftp = "cloudnet-sftp.jar"
   const val node = "cloudnet.jar"
   const val nodeCnl = "cloudnet.cnl"
 }

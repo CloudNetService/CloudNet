@@ -28,6 +28,7 @@ hikariCp = "5.0.0"
 
 # general
 asm = "9.2"
+sshj = "0.32.0"
 jjwt = "0.11.2"
 slf4j = "1.7.32"
 javers = "6.5.1"
@@ -91,6 +92,7 @@ nettyNativeEpoll = { group = "io.netty", name = "netty-transport-native-epoll", 
 
 # general
 asm = { group = "org.ow2.asm", name = "asm", version.ref = "asm" }
+sshj = { group = "com.hierynomus", name = "sshj", version.ref = "sshj" }
 slf4jNop = { group = "org.slf4j", name = "slf4j-nop", version.ref = "slf4j" }
 javers = { group = "org.javers", name = "javers-core", version.ref = "javers" }
 annotations = { group = "org.jetbrains", name = "annotations", version.ref = "annotations" }

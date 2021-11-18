@@ -217,7 +217,9 @@ public final class FileUtils {
   }
 
   public static @Nullable Path extract(@NotNull InputStream in, @NotNull Path targetDirectory) {
-    return extractZipStream(new ZipInputStream(in, StandardCharsets.UTF_8), targetDirectory);
+    return extractZipStream(
+      in instanceof ZipInputStream ? (ZipInputStream) in : new ZipInputStream(in, StandardCharsets.UTF_8),
+      targetDirectory);
   }
 
   public static @Nullable Path extractZipStream(@NotNull ZipInputStream zipInputStream, @NotNull Path targetDirectory) {

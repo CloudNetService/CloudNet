@@ -40,6 +40,7 @@ initializeSubProjects("modules",
   "database-mysql",
   "cloudperms",
   "signs",
+  "storage-sftp",
   "syncproxy")
 
 fun initializeProjects(vararg names: String) {
