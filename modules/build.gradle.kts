@@ -36,6 +36,7 @@ subprojects {
 
   dependencies {
     "compileOnly"(rootProject.projects.cloudnetNode)
+    "testImplementation"(rootProject.projects.cloudnetNode)
   }
 
   tasks.named<Copy>("processResources") {

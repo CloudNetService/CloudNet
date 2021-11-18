@@ -310,7 +310,7 @@ public class SFTPTemplateStorage implements TemplateStorage {
       result.add(this.createFileInfo(info.getAttributes(), info.getPath()));
       // if the file is a directory, and we should check recursive do that
       if (info.isDirectory() && deep) {
-        this.ls(client, result, template, dir + '/' + info.getName(), true);
+        this.ls(client, result, template, dir.endsWith("/") ? dir : (dir + '/') + info.getName(), true);
       }
     }
   }
@@ -349,7 +349,7 @@ public class SFTPTemplateStorage implements TemplateStorage {
     // create the file info
     return new FileInfo(
       path,
-      parts.length == 0 ? path : parts[0],
+      parts.length == 0 ? path : parts[parts.length - 1],
       attributes.getType() == Type.DIRECTORY,
       false,
       attributes.getMtime(),

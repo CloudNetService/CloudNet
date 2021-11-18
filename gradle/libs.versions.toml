@@ -10,6 +10,7 @@ guava = "31.0.1-jre"
 junit = "5.8.1"
 mockito = "4.0.0"
 tyrusClient = "2.0.1"
+minaSshdServer = "2.7.0"
 
 # compile time processing
 lombok = "1.18.22"
@@ -79,6 +80,7 @@ junitEngine = { group = "org.junit.jupiter", name = "junit-jupiter-engine", vers
 
 # general testing
 mockito = { group = "org.mockito", name = "mockito-junit-jupiter", version.ref = "mockito" }
+minaSshdServer = { group = "org.apache.sshd", name = "sshd-sftp", version.ref = "minaSshdServer" }
 tyrus = { group = "org.glassfish.tyrus.bundles", name = "tyrus-standalone-client", version.ref = "tyrusClient" }
 
 # unirest
