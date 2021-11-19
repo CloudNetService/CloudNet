@@ -16,20 +16,18 @@
 
 package de.dytanic.cloudnet.driver.service;
 
+import com.google.common.base.Verify;
 import de.dytanic.cloudnet.common.INameable;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.HashSet;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = false)
-public class GroupConfiguration extends ServiceConfigurationBase implements INameable {
+public class GroupConfiguration extends ServiceConfigurationBase implements Cloneable, INameable {
 
   protected String name;
 
@@ -37,43 +35,15 @@ public class GroupConfiguration extends ServiceConfigurationBase implements INam
   protected Collection<String> processParameters;
   protected Collection<ServiceEnvironmentType> targetEnvironments;
 
-  public GroupConfiguration(
-    Collection<ServiceRemoteInclusion> includes,
-    Collection<ServiceTemplate> templates,
-    Collection<ServiceDeployment> deployments,
-    String name,
-    Collection<String> jvmOptions,
-    Collection<ServiceEnvironmentType> targetEnvironments
-  ) {
-    this(includes, templates, deployments, name, jvmOptions, new ArrayList<>(), targetEnvironments);
-  }
-
-  public GroupConfiguration(
-    Collection<ServiceRemoteInclusion> includes,
-    Collection<ServiceTemplate> templates,
-    Collection<ServiceDeployment> deployments,
-    String name,
-    Collection<String> jvmOptions,
-    Collection<String> processParameters,
-    Collection<ServiceEnvironmentType> targetEnvironments
-  ) {
-    super(includes, templates, deployments);
-
-    this.name = name;
-    this.jvmOptions = jvmOptions;
-    this.processParameters = processParameters;
-    this.targetEnvironments = targetEnvironments;
-  }
-
-  public GroupConfiguration(
-    String name,
-    Collection<String> jvmOptions,
-    Collection<String> processParameters,
-    Collection<ServiceEnvironmentType> targetEnvironments,
-    Collection<ServiceTemplate> templates,
-    Collection<ServiceDeployment> deployments,
-    Collection<ServiceRemoteInclusion> includes,
-    JsonDocument properties
+  protected GroupConfiguration(
+    @NotNull String name,
+    @NotNull Collection<String> jvmOptions,
+    @NotNull Collection<String> processParameters,
+    @NotNull Collection<ServiceEnvironmentType> targetEnvironments,
+    @NotNull Collection<ServiceTemplate> templates,
+    @NotNull Collection<ServiceDeployment> deployments,
+    @NotNull Collection<ServiceRemoteInclusion> includes,
+    @NotNull JsonDocument properties
   ) {
     super(templates, deployments, includes, properties);
 
@@ -83,33 +53,75 @@ public class GroupConfiguration extends ServiceConfigurationBase implements INam
     this.targetEnvironments = targetEnvironments;
   }
 
-  @Contract("_, _ -> new")
-  public static @NotNull GroupConfiguration empty(@NotNull String name, @Nullable ServiceEnvironmentType type) {
-    return new GroupConfiguration(
-      new ArrayList<>(),
-      new ArrayList<>(),
-      new ArrayList<>(),
-      name,
-      new ArrayList<>(),
-      new ArrayList<>(type == null ? Collections.emptySet() : Collections.singleton(type)));
+  public static @NotNull Builder builder() {
+    return new Builder();
   }
 
   @Override
-  public Collection<String> getJvmOptions() {
+  public @NotNull Collection<String> getJvmOptions() {
     return this.jvmOptions;
   }
 
   @Override
-  public Collection<String> getProcessParameters() {
+  public @NotNull Collection<String> getProcessParameters() {
     return this.processParameters;
   }
 
-  public Collection<ServiceEnvironmentType> getTargetEnvironments() {
+  public @NotNull Collection<ServiceEnvironmentType> getTargetEnvironments() {
     return this.targetEnvironments;
   }
 
   @Override
   public @NotNull String getName() {
     return this.name;
+  }
+
+  @Override
+  public @NotNull GroupConfiguration clone() {
+    try {
+      return (GroupConfiguration) super.clone();
+    } catch (CloneNotSupportedException exception) {
+      throw new IllegalStateException(); // cannot happen, just explode
+    }
+  }
+
+  public static class Builder extends ServiceConfigurationBase.Builder<GroupConfiguration, Builder> {
+
+    protected String name;
+    protected Collection<ServiceEnvironmentType> targetEnvironments = new HashSet<>();
+
+    public @NotNull Builder name(@NotNull String name) {
+      this.name = name;
+      return this;
+    }
+
+    public @NotNull Builder targetEnvironments(@NotNull Collection<ServiceEnvironmentType> targetEnvironments) {
+      this.targetEnvironments = new HashSet<>(targetEnvironments);
+      return this;
+    }
+
+    public @NotNull Builder addTargetEnvironment(@NotNull ServiceEnvironmentType environmentType) {
+      this.targetEnvironments.add(environmentType);
+      return this;
+    }
+
+    @Override
+    protected @NotNull Builder self() {
+      return this;
+    }
+
+    @Override
+    public @NotNull GroupConfiguration build() {
+      Verify.verifyNotNull(this.name, "no name given");
+      return new GroupConfiguration(
+        this.name,
+        this.jvmOptions,
+        this.processParameters,
+        this.targetEnvironments,
+        this.templates,
+        this.deployments,
+        this.includes,
+        this.properties);
+    }
   }
 }

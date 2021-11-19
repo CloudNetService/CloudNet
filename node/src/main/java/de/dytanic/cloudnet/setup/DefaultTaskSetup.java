@@ -181,7 +181,7 @@ public class DefaultTaskSetup implements DefaultSetup {
       .serviceEnvironmentType(environment)
       .groups(Collections.singletonList(groupName))
       .startPort(environment.getDefaultStartPort())
-      .templates(Collections.singletonList(new ServiceTemplate(taskName, "default", "local")))
+      .templates(Collections.singletonList(ServiceTemplate.builder().prefix(taskName).name("default").build()))
       .build();
     CloudNet.getInstance().getServiceTaskProvider().addPermanentServiceTask(serviceTask);
 
@@ -189,7 +189,7 @@ public class DefaultTaskSetup implements DefaultSetup {
     serviceTask.getTemplates().forEach(template -> this.initializeTemplate(template, environment));
 
     // create the group template
-    ServiceTemplate template = ServiceTemplate.local(GLOBAL_TEMPLATE_PREFIX, groupName);
+    ServiceTemplate template = ServiceTemplate.builder().prefix(GLOBAL_TEMPLATE_PREFIX).name(groupName).build();
     this.initializeTemplate(template, environment);
 
     // install the template
@@ -200,7 +200,10 @@ public class DefaultTaskSetup implements DefaultSetup {
       .build(), false);
 
     // add the group configuration
-    GroupConfiguration configuration = GroupConfiguration.empty(groupName, environment);
+    GroupConfiguration configuration = GroupConfiguration.builder()
+      .name(groupName)
+      .addTargetEnvironment(environment)
+      .build();
     configuration.getTemplates().add(template);
     // register the group
     CloudNet.getInstance().getGroupConfigurationProvider().addGroupConfiguration(configuration);

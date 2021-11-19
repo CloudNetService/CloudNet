@@ -245,12 +245,12 @@ public class Wrapper extends CloudNetDriver {
   public ServiceInfoSnapshot createServiceInfoSnapshot() {
     return new ServiceInfoSnapshot(
       System.currentTimeMillis(),
-      this.currentServiceInfoSnapshot.getConnectedTime(),
       this.currentServiceInfoSnapshot.getAddress(),
       this.currentServiceInfoSnapshot.getConnectAddress(),
-      ServiceLifeCycle.RUNNING,
       ProcessSnapshot.self(),
       this.getServiceConfiguration(),
+      this.currentServiceInfoSnapshot.getConnectedTime(),
+      ServiceLifeCycle.RUNNING,
       this.currentServiceInfoSnapshot.getProperties());
   }
 

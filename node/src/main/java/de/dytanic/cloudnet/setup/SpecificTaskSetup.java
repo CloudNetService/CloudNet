@@ -131,7 +131,7 @@ public class SpecificTaskSetup extends DefaultTaskSetup implements DefaultSetup 
     ServiceEnvironmentType environment = animation.getResult("taskEnvironment");
     Pair<ServiceVersionType, ServiceVersion> version = animation.getResult("taskServiceVersion");
     Pair<String, ?> javaVersion = animation.getResult("taskJavaCommand");
-    ServiceTemplate defaultTemplate = new ServiceTemplate(name, "default", "local");
+    ServiceTemplate defaultTemplate = ServiceTemplate.builder().prefix(name).name("default").build();
 
     ServiceTask task = ServiceTask.builder()
       .name(name)
@@ -147,7 +147,7 @@ public class SpecificTaskSetup extends DefaultTaskSetup implements DefaultSetup 
       .build();
     CloudNet.getInstance().getServiceTaskProvider().addPermanentServiceTask(task);
     // create a group with the same name
-    GroupConfiguration groupConfiguration = GroupConfiguration.empty(name, null);
+    GroupConfiguration groupConfiguration = GroupConfiguration.builder().name(name).build();
     CloudNet.getInstance().getGroupConfigurationProvider().addGroupConfiguration(groupConfiguration);
 
     // create the default template for the task

@@ -187,7 +187,10 @@ public final class CommandService {
     }
 
     for (Pair<SpecificCloudServiceProvider, ServiceTemplate> target : targets) {
-      target.getFirst().addServiceDeployment(new ServiceDeployment(target.getSecond(), this.parseExcludes(excludes)));
+      target.getFirst().addServiceDeployment(ServiceDeployment.builder()
+        .template(target.getSecond())
+        .excludes(this.parseExcludes(excludes))
+        .build());
       target.getFirst().removeAndExecuteDeployments();
       // send a message for each service we did copy the template of
       //noinspection ConstantConditions
@@ -261,7 +264,7 @@ public final class CommandService {
     @Argument("name") Collection<ServiceInfoSnapshot> matchedServices,
     @Argument("deployment") ServiceTemplate template
   ) {
-    ServiceDeployment deployment = new ServiceDeployment(template, new ArrayList<>());
+    ServiceDeployment deployment = ServiceDeployment.builder().template(template).build();
     for (ServiceInfoSnapshot matchedService : matchedServices) {
       matchedService.provider().addServiceDeployment(deployment);
     }
@@ -285,7 +288,7 @@ public final class CommandService {
     @Argument("url") String url,
     @Argument("path") String path
   ) {
-    ServiceRemoteInclusion remoteInclusion = new ServiceRemoteInclusion(url, path);
+    ServiceRemoteInclusion remoteInclusion = ServiceRemoteInclusion.builder().url(url).destination(path).build();
     for (ServiceInfoSnapshot matchedService : matchedServices) {
       matchedService.provider().addServiceRemoteInclusion(remoteInclusion);
     }

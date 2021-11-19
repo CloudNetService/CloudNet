@@ -29,16 +29,20 @@ import org.jetbrains.annotations.NotNull;
 @EqualsAndHashCode
 public class ChannelMessageSender {
 
-  private static final ChannelMessageSender SELF = new ChannelMessageSender(
+  private static final ChannelMessageSender SELF = of(
     CloudNetDriver.getInstance().getComponentName(),
     CloudNetDriver.getInstance().getDriverEnvironment());
 
   private final String name;
   private final DriverEnvironment type;
 
-  public ChannelMessageSender(@NotNull String name, @NotNull DriverEnvironment type) {
+  protected ChannelMessageSender(@NotNull String name, @NotNull DriverEnvironment type) {
     this.name = name;
     this.type = type;
+  }
+
+  public static @NotNull ChannelMessageSender of(@NotNull String name, @NotNull DriverEnvironment environment) {
+    return new ChannelMessageSender(name, environment);
   }
 
   public static @NotNull ChannelMessageSender self() {

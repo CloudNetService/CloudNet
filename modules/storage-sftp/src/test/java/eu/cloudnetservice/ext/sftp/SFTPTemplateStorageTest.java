@@ -50,7 +50,11 @@ public final class SFTPTemplateStorageTest {
 
   private static final int PORT;
   private static final Path BASE_PATH = Paths.get("").resolve("build").toAbsolutePath();
-  private static final ServiceTemplate TEMPLATE = new ServiceTemplate("global", "proxy", "sftp");
+  private static final ServiceTemplate TEMPLATE = ServiceTemplate.builder()
+    .prefix("global")
+    .name("proxy")
+    .storage("sftp")
+    .build();
 
   private static final Path TEMPLATE_PATH = FileUtils.resolve(BASE_PATH, "home", "CloudNet", "global", "proxy");
 
@@ -117,7 +121,11 @@ public final class SFTPTemplateStorageTest {
   @Order(10)
   void testHasTemplate() {
     Assertions.assertTrue(storage.has(TEMPLATE));
-    Assertions.assertFalse(storage.has(new ServiceTemplate("hello", "world", "sftp")));
+    Assertions.assertFalse(storage.has(ServiceTemplate.builder()
+      .prefix("hello")
+      .name("world")
+      .storage("sftp")
+      .build()));
   }
 
   @Test

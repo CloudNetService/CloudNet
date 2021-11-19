@@ -250,10 +250,10 @@ public class LocalTemplateStorage implements TemplateStorage {
         .filter(Files::isDirectory)
         .map(path -> {
           Path relative = this.storageDirectory.relativize(path);
-          return new ServiceTemplate(
-            relative.getName(0).toString(),
-            relative.getName(1).toString(),
-            LOCAL_TEMPLATE_STORAGE);
+          return ServiceTemplate.builder()
+            .prefix(relative.getName(0).toString())
+            .name(relative.getName(1).toString())
+            .build();
         })
         .collect(Collectors.toSet());
     } catch (IOException exception) {

@@ -124,12 +124,12 @@ public abstract class AbstractService implements ICloudService {
 
     this.currentServiceInfo = new ServiceInfoSnapshot(
       System.currentTimeMillis(),
-      -1,
       new HostAndPort(this.getNodeConfiguration().getHostAddress(), configuration.getPort()),
       new HostAndPort(this.getNodeConfiguration().getConnectHostAddress(), configuration.getPort()),
-      ServiceLifeCycle.PREPARED,
       ProcessSnapshot.empty(),
       configuration,
+      -1,
+      ServiceLifeCycle.PREPARED,
       configuration.getProperties());
     this.pushServiceInfoSnapshotUpdate(ServiceLifeCycle.PREPARED);
 
@@ -501,12 +501,12 @@ public abstract class AbstractService implements ICloudService {
     // update the current info
     this.currentServiceInfo = new ServiceInfoSnapshot(
       this.lastServiceInfo.getCreationTime(),
-      this.networkChannel == null ? -1 : this.lastServiceInfo.getConnectedTime(),
       this.lastServiceInfo.getAddress(),
       this.lastServiceInfo.getConnectAddress(),
-      Preconditions.checkNotNull(lifeCycle, "lifecycle"),
       this.isAlive() ? this.lastServiceInfo.getProcessSnapshot() : ProcessSnapshot.empty(),
       this.lastServiceInfo.getConfiguration(),
+      this.networkChannel == null ? -1 : this.lastServiceInfo.getConnectedTime(),
+      Preconditions.checkNotNull(lifeCycle, "lifecycle"),
       this.lastServiceInfo.getProperties());
     // remove the service in the local manager if the service was deleted
     if (lifeCycle == ServiceLifeCycle.DELETED) {

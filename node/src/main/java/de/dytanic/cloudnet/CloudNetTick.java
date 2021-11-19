@@ -39,9 +39,9 @@ public final class CloudNetTick {
   private static final Logger LOGGER = LogManager.getLogger(CloudNetTick.class);
 
   private final CloudNet cloudNet;
-  private final AtomicLong currentTick = new AtomicLong();
   private final AtomicInteger tickPauseRequests = new AtomicInteger();
 
+  private final AtomicLong currentTick = new AtomicLong();
   private final Queue<ScheduledTask<?>> processQueue = new ConcurrentLinkedQueue<>();
 
   public CloudNetTick(CloudNet cloudNet) {
@@ -147,7 +147,7 @@ public final class CloudNetTick {
 
   private void startService() {
     for (ServiceTask task : this.cloudNet.getServiceTaskProvider().getPermanentServiceTasks()) {
-      if (task.canStartServices()) {
+      if (!task.isMaintenance()) {
         // get the count of running services
         long runningServiceCount = this.cloudNet.getCloudServiceProvider().getCloudServicesByTask(task.getName())
           .stream()

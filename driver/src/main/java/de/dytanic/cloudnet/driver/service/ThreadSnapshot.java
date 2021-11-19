@@ -19,7 +19,6 @@ package de.dytanic.cloudnet.driver.service;
 import java.lang.Thread.State;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -27,31 +26,30 @@ import org.jetbrains.annotations.NotNull;
  */
 @ToString
 @EqualsAndHashCode
-public class ThreadSnapshot {
+public class ThreadSnapshot implements Cloneable {
 
   private final long id;
   private final int priority;
   private final boolean daemon;
 
   private final String name;
-  private final Thread.State threadState;
+  private final State threadState;
 
-  @Deprecated
-  @ScheduledForRemoval
-  public ThreadSnapshot(long id, String name, Thread.State threadState, boolean daemon, int priority) {
-    this(id, priority, daemon, name, threadState);
-  }
-
-  public ThreadSnapshot(@NotNull Thread thread) {
-    this(thread.getId(), thread.getPriority(), thread.isDaemon(), thread.getName(), thread.getState());
-  }
-
-  public ThreadSnapshot(long id, int priority, boolean daemon, String name, State threadState) {
+  protected ThreadSnapshot(long id, int priority, boolean daemon, @NotNull String name, @NotNull State threadState) {
     this.id = id;
     this.priority = priority;
     this.daemon = daemon;
     this.name = name;
     this.threadState = threadState;
+  }
+
+  public static @NotNull ThreadSnapshot from(@NotNull Thread thread) {
+    return new ThreadSnapshot(
+      thread.getId(),
+      thread.getPriority(),
+      thread.isDaemon(),
+      thread.getName(),
+      thread.getState());
   }
 
   public long getId() {
@@ -72,5 +70,14 @@ public class ThreadSnapshot {
 
   public int getPriority() {
     return this.priority;
+  }
+
+  @Override
+  public @NotNull ThreadSnapshot clone() {
+    try {
+      return (ThreadSnapshot) super.clone();
+    } catch (CloneNotSupportedException exception) {
+      throw new IllegalStateException();
+    }
   }
 }

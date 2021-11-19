@@ -56,7 +56,7 @@ public final class CommandTemplate {
   @Parser(suggestions = "serviceTemplate")
   public ServiceTemplate defaultServiceTemplateParser(CommandContext<CommandSource> $, Queue<String> input) {
     ServiceTemplate template = ServiceTemplate.parse(input.remove());
-    if (template == null || template.nullableStorage() == null) {
+    if (template == null || template.knownStorage() == null) {
       throw new ArgumentNotAvailableException(I18n.trans("ca-question-list-invalid-template"));
     }
     return template;

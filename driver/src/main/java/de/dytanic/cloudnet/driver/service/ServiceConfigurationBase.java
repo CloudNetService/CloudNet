@@ -19,30 +19,24 @@ package de.dytanic.cloudnet.driver.service;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.document.property.JsonDocPropertyHolder;
 import java.util.Collection;
+import java.util.HashSet;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.jetbrains.annotations.NotNull;
 
 @ToString
 @EqualsAndHashCode(callSuper = false)
 public abstract class ServiceConfigurationBase extends JsonDocPropertyHolder {
 
-  protected Collection<ServiceTemplate> templates;
-  protected Collection<ServiceDeployment> deployments;
-  protected Collection<ServiceRemoteInclusion> includes;
+  protected final Collection<ServiceTemplate> templates;
+  protected final Collection<ServiceDeployment> deployments;
+  protected final Collection<ServiceRemoteInclusion> includes;
 
-  public ServiceConfigurationBase(
-    Collection<ServiceRemoteInclusion> includes,
-    Collection<ServiceTemplate> templates,
-    Collection<ServiceDeployment> deployments
-  ) {
-    this(templates, deployments, includes, JsonDocument.newDocument());
-  }
-
-  public ServiceConfigurationBase(
-    Collection<ServiceTemplate> templates,
-    Collection<ServiceDeployment> deployments,
-    Collection<ServiceRemoteInclusion> includes,
-    JsonDocument properties
+  protected ServiceConfigurationBase(
+    @NotNull Collection<ServiceTemplate> templates,
+    @NotNull Collection<ServiceDeployment> deployments,
+    @NotNull Collection<ServiceRemoteInclusion> includes,
+    @NotNull JsonDocument properties
   ) {
     this.templates = templates;
     this.deployments = deployments;
@@ -50,31 +44,88 @@ public abstract class ServiceConfigurationBase extends JsonDocPropertyHolder {
     this.properties = properties;
   }
 
-  public abstract Collection<String> getJvmOptions();
+  public abstract @NotNull Collection<String> getJvmOptions();
 
-  public abstract Collection<String> getProcessParameters();
+  public abstract @NotNull Collection<String> getProcessParameters();
 
-  public Collection<ServiceRemoteInclusion> getIncludes() {
+  public @NotNull Collection<ServiceRemoteInclusion> getIncludes() {
     return this.includes;
   }
 
-  public void setIncludes(Collection<ServiceRemoteInclusion> includes) {
-    this.includes = includes;
-  }
-
-  public Collection<ServiceTemplate> getTemplates() {
+  public @NotNull Collection<ServiceTemplate> getTemplates() {
     return this.templates;
   }
 
-  public void setTemplates(Collection<ServiceTemplate> templates) {
-    this.templates = templates;
-  }
-
-  public Collection<ServiceDeployment> getDeployments() {
+  public @NotNull Collection<ServiceDeployment> getDeployments() {
     return this.deployments;
   }
 
-  public void setDeployments(Collection<ServiceDeployment> deployments) {
-    this.deployments = deployments;
+  public abstract static class Builder<T extends ServiceConfigurationBase, B extends Builder<T, B>> {
+
+    protected JsonDocument properties = JsonDocument.newDocument();
+    protected Collection<String> jvmOptions = new HashSet<>();
+    protected Collection<String> processParameters = new HashSet<>();
+    protected Collection<ServiceTemplate> templates = new HashSet<>();
+    protected Collection<ServiceDeployment> deployments = new HashSet<>();
+    protected Collection<ServiceRemoteInclusion> includes = new HashSet<>();
+
+    public @NotNull B properties(@NotNull JsonDocument properties) {
+      this.properties = properties;
+      return this.self();
+    }
+
+    public @NotNull B jvmOptions(@NotNull Collection<String> jvmOptions) {
+      this.jvmOptions = new HashSet<>(jvmOptions);
+      return this.self();
+    }
+
+    public @NotNull B addJvmOption(@NotNull String jvmOption) {
+      this.jvmOptions.add(jvmOption);
+      return this.self();
+    }
+
+    public @NotNull B processParameters(@NotNull Collection<String> processParameters) {
+      this.processParameters = new HashSet<>(processParameters);
+      return this.self();
+    }
+
+    public @NotNull B addProcessParameter(@NotNull String processParameter) {
+      this.processParameters.add(processParameter);
+      return this.self();
+    }
+
+    public @NotNull B templates(@NotNull Collection<ServiceTemplate> templates) {
+      this.templates = new HashSet<>(templates);
+      return this.self();
+    }
+
+    public @NotNull B addTemplate(@NotNull ServiceTemplate template) {
+      this.templates.add(template);
+      return this.self();
+    }
+
+    public @NotNull B deployments(@NotNull Collection<ServiceDeployment> deployments) {
+      this.deployments = new HashSet<>(deployments);
+      return this.self();
+    }
+
+    public @NotNull B addDeployment(@NotNull ServiceDeployment deployment) {
+      this.deployments.add(deployment);
+      return this.self();
+    }
+
+    public @NotNull B includes(@NotNull Collection<ServiceRemoteInclusion> includes) {
+      this.includes = new HashSet<>(includes);
+      return this.self();
+    }
+
+    public @NotNull B addInclude(@NotNull ServiceRemoteInclusion inclusion) {
+      this.includes.add(inclusion);
+      return this.self();
+    }
+
+    protected abstract @NotNull B self();
+
+    public abstract @NotNull T build();
   }
 }

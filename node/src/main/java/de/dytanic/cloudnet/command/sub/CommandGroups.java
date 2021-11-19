@@ -76,7 +76,7 @@ public final class CommandGroups {
   @CommandMethod("groups create <name>")
   public void createGroup(CommandSource source, @Argument("name") String groupName) {
     if (!this.groupProvider().isGroupConfigurationPresent(groupName)) {
-      this.groupProvider().addGroupConfiguration(GroupConfiguration.empty(groupName, null));
+      this.groupProvider().addGroupConfiguration(GroupConfiguration.builder().name(groupName).build());
     }
   }
 
@@ -142,7 +142,10 @@ public final class CommandGroups {
     @Argument("deployment") ServiceTemplate template,
     @Flag("excludes") @Quoted String excludes
   ) {
-    ServiceDeployment deployment = new ServiceDeployment(template, this.parseExcludes(excludes));
+    ServiceDeployment deployment = ServiceDeployment.builder()
+      .template(template)
+      .excludes(this.parseExcludes(excludes))
+      .build();
 
     group.getDeployments().add(deployment);
     this.updateGroup(group);
@@ -165,7 +168,7 @@ public final class CommandGroups {
     @Argument("url") String url,
     @Argument("path") String path
   ) {
-    ServiceRemoteInclusion inclusion = new ServiceRemoteInclusion(url, path);
+    ServiceRemoteInclusion inclusion = ServiceRemoteInclusion.builder().url(url).destination(path).build();
 
     group.getIncludes().add(inclusion);
     this.updateGroup(group);
@@ -202,7 +205,10 @@ public final class CommandGroups {
     @Argument("deployment") ServiceTemplate template,
     @Flag("excludes") @Quoted String excludes
   ) {
-    ServiceDeployment deployment = new ServiceDeployment(template, this.parseExcludes(excludes));
+    ServiceDeployment deployment = ServiceDeployment.builder()
+      .template(template)
+      .excludes(this.parseExcludes(excludes))
+      .build();
 
     group.getDeployments().remove(deployment);
     this.updateGroup(group);
@@ -225,7 +231,7 @@ public final class CommandGroups {
     @Argument("url") String url,
     @Argument("path") String path
   ) {
-    ServiceRemoteInclusion inclusion = new ServiceRemoteInclusion(url, path);
+    ServiceRemoteInclusion inclusion = ServiceRemoteInclusion.builder().url(url).destination(path).build();
 
     group.getIncludes().remove(inclusion);
     this.updateGroup(group);

@@ -75,7 +75,7 @@ public class ProcessSnapshot implements Cloneable {
 
   private final Collection<ThreadSnapshot> threads;
 
-  public ProcessSnapshot(
+  protected ProcessSnapshot(
     int pid,
     double cpuUsage,
     double systemCpuUsage,
@@ -85,7 +85,7 @@ public class ProcessSnapshot implements Cloneable {
     long unloadedClassCount,
     long totalLoadedClassCount,
     int currentLoadedClassCount,
-    Collection<ThreadSnapshot> threads
+    @NotNull Collection<ThreadSnapshot> threads
   ) {
     this.pid = pid;
     this.cpuUsage = cpuUsage;
@@ -124,7 +124,7 @@ public class ProcessSnapshot implements Cloneable {
       CLASS_LOADING_MX_BEAN.getUnloadedClassCount(),
       CLASS_LOADING_MX_BEAN.getTotalLoadedClassCount(),
       CLASS_LOADING_MX_BEAN.getLoadedClassCount(),
-      Thread.getAllStackTraces().keySet().stream().map(ThreadSnapshot::new).collect(Collectors.toList()));
+      Thread.getAllStackTraces().keySet().stream().map(ThreadSnapshot::from).collect(Collectors.toList()));
   }
 
   /**

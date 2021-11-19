@@ -37,7 +37,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Assertions;
@@ -113,28 +112,28 @@ public class DefaultObjectMapperTest {
   static Stream<Arguments> dataClassProvider() {
     return Stream.of(
       Arguments.of(new AllPrimitiveTypesDataClass()),
-      Arguments.of(new ThreadSnapshot(Thread.currentThread())),
-      Arguments.of(new ServiceId(
-        UUID.randomUUID(),
-        "Lobby",
-        "hello",
-        1,
-        "Node-1",
-        Collections.emptyList(),
-        ServiceEnvironmentType.GLOWSTONE)),
+      Arguments.of(ThreadSnapshot.from(Thread.currentThread())),
+      Arguments.of(ServiceId.builder()
+        .taskName("Lobby")
+        .nameSplitter("hello")
+        .taskServiceId(156)
+        .addAllowedNode("Node-245")
+        .environment(ServiceEnvironmentType.WATERDOG_PE)
+        .build()),
       Arguments.of(new ServiceInfoSnapshot(
         System.currentTimeMillis(),
         new HostAndPort("127.0.1.1", 99),
-        0,
-        ServiceLifeCycle.PREPARED,
+        new HostAndPort("127.0.1.1", 45678),
         ProcessSnapshot.self(),
-        JsonDocument.newDocument("test", 1234),
         ServiceConfiguration.builder()
           .task("Lobby")
           .environment(ServiceEnvironmentType.BUNGEECORD)
           .maxHeapMemory(512)
           .startPort(1234)
-          .build()))
+          .build(),
+        System.nanoTime(),
+        ServiceLifeCycle.STOPPED,
+        JsonDocument.newDocument("test", 1234)))
     );
   }
 

@@ -27,7 +27,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -44,8 +43,7 @@ public class ChannelMessage {
 
   private final Collection<ChannelMessageTarget> targets;
 
-  @Internal
-  public ChannelMessage(
+  protected ChannelMessage(
     @NotNull String channel,
     @Nullable String message,
     @NotNull DataBuf content,

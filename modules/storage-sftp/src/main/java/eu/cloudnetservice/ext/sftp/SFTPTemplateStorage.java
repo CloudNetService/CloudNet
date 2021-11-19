@@ -322,7 +322,11 @@ public class SFTPTemplateStorage implements TemplateStorage {
       for (RemoteResourceInfo info : client.ls(this.storageConfig.getBaseDirectory())) {
         if (info.isDirectory()) {
           for (RemoteResourceInfo template : client.ls(this.storageConfig.getBaseDirectory() + '/' + info.getName())) {
-            templates.add(new ServiceTemplate(info.getName(), template.getName(), this.storageConfig.getStorage()));
+            templates.add(ServiceTemplate.builder()
+              .prefix(info.getName())
+              .name(template.getName())
+              .storage(this.storageConfig.getStorage())
+              .build());
           }
         }
       }

@@ -24,85 +24,39 @@ import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
 import de.dytanic.cloudnet.driver.service.property.ServiceProperty;
-import java.lang.reflect.Type;
 import java.util.Optional;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @ToString
 @EqualsAndHashCode(callSuper = false)
-public class ServiceInfoSnapshot extends JsonDocPropertyHolder implements INameable,
-  Comparable<ServiceInfoSnapshot> {
+public class ServiceInfoSnapshot extends JsonDocPropertyHolder
+  implements INameable, Cloneable, Comparable<ServiceInfoSnapshot> {
 
-  @Deprecated
-  public static final Type TYPE = ServiceInfoSnapshot.class;
+  protected final long creationTime;
 
-  protected long creationTime;
-  protected long connectedTime;
+  protected final HostAndPort address;
+  protected final HostAndPort connectAddress;
 
-  protected HostAndPort address;
-  protected HostAndPort connectAddress;
+  protected final ProcessSnapshot processSnapshot;
+  protected final ServiceConfiguration configuration;
 
-  protected ServiceLifeCycle lifeCycle;
-  protected ProcessSnapshot processSnapshot;
+  protected volatile long connectedTime;
+  protected volatile ServiceLifeCycle lifeCycle;
 
-  protected ServiceConfiguration configuration;
-
+  @Internal
   public ServiceInfoSnapshot(
     long creationTime,
-    HostAndPort address,
+    @NotNull HostAndPort address,
+    @NotNull HostAndPort connectAddress,
+    @NotNull ProcessSnapshot processSnapshot,
+    @NotNull ServiceConfiguration configuration,
     long connectedTime,
-    ServiceLifeCycle lifeCycle,
-    ProcessSnapshot processSnapshot,
-    ServiceConfiguration configuration
-  ) {
-    this(creationTime, address, connectedTime, lifeCycle, processSnapshot, JsonDocument.newDocument(), configuration);
-  }
-
-  public ServiceInfoSnapshot(
-    long creationTime,
-    HostAndPort address,
-    long connectedTime,
-    ServiceLifeCycle lifeCycle,
-    ProcessSnapshot processSnapshot,
-    JsonDocument properties,
-    ServiceConfiguration configuration
-  ) {
-    this(creationTime, connectedTime, address, address, lifeCycle, processSnapshot, configuration, properties);
-  }
-
-  @Deprecated
-  public ServiceInfoSnapshot(
-    long creationTime,
-    HostAndPort address,
-    HostAndPort connectAddress,
-    long connectedTime,
-    ServiceLifeCycle lifeCycle,
-    ProcessSnapshot processSnapshot,
-    ServiceConfiguration configuration,
-    JsonDocument properties
-  ) {
-    this.creationTime = creationTime;
-    this.address = address;
-    this.connectAddress = connectAddress;
-    this.connectedTime = connectedTime;
-    this.lifeCycle = lifeCycle;
-    this.processSnapshot = processSnapshot;
-    this.properties = properties;
-    this.configuration = configuration;
-  }
-
-  public ServiceInfoSnapshot(
-    long creationTime,
-    long connectedTime,
-    HostAndPort address,
-    HostAndPort connectAddress,
-    ServiceLifeCycle lifeCycle,
-    ProcessSnapshot processSnapshot,
-    ServiceConfiguration configuration,
-    JsonDocument properties
+    @NotNull ServiceLifeCycle lifeCycle,
+    @NotNull JsonDocument properties
   ) {
     this.creationTime = creationTime;
     this.connectedTime = connectedTime;
@@ -118,15 +72,15 @@ public class ServiceInfoSnapshot extends JsonDocPropertyHolder implements INamea
     return this.creationTime;
   }
 
-  public ServiceId getServiceId() {
+  public @NotNull ServiceId getServiceId() {
     return this.configuration.getServiceId();
   }
 
-  public HostAndPort getAddress() {
+  public @NotNull HostAndPort getAddress() {
     return this.address;
   }
 
-  public HostAndPort getConnectAddress() {
+  public @NotNull HostAndPort getConnectAddress() {
     return this.connectAddress;
   }
 
@@ -138,6 +92,7 @@ public class ServiceInfoSnapshot extends JsonDocPropertyHolder implements INamea
     return this.connectedTime;
   }
 
+  @Internal
   public void setConnectedTime(long connectedTime) {
     this.connectedTime = connectedTime;
   }
@@ -146,31 +101,26 @@ public class ServiceInfoSnapshot extends JsonDocPropertyHolder implements INamea
     return this.lifeCycle;
   }
 
+  @Internal
   public void setLifeCycle(ServiceLifeCycle lifeCycle) {
     this.lifeCycle = lifeCycle;
   }
 
-  public ProcessSnapshot getProcessSnapshot() {
+  public @NotNull ProcessSnapshot getProcessSnapshot() {
     return this.processSnapshot;
   }
 
-  public void setProcessSnapshot(ProcessSnapshot processSnapshot) {
-    this.processSnapshot = processSnapshot;
-  }
-
-  public ServiceConfiguration getConfiguration() {
+  public @NotNull ServiceConfiguration getConfiguration() {
     return this.configuration;
   }
 
-  @NotNull
-  public SpecificCloudServiceProvider provider() {
+  public @NotNull SpecificCloudServiceProvider provider() {
     return CloudNetDriver.getInstance()
       .getCloudServiceProvider()
       .getSpecificProvider(this.getServiceId().getUniqueId());
   }
 
-  @NotNull
-  public <T> Optional<T> getProperty(@NotNull ServiceProperty<T> property) {
+  public <T> @NotNull Optional<T> getProperty(@NotNull ServiceProperty<T> property) {
     return property.get(this);
   }
 
@@ -189,5 +139,14 @@ public class ServiceInfoSnapshot extends JsonDocPropertyHolder implements INamea
       .compare(this.getServiceId().getTaskName(), serviceInfoSnapshot.getServiceId().getTaskName())
       .compare(this.getServiceId().getTaskServiceId(), serviceInfoSnapshot.getServiceId().getTaskServiceId())
       .result();
+  }
+
+  @Override
+  public @NotNull ServiceInfoSnapshot clone() {
+    try {
+      return (ServiceInfoSnapshot) super.clone();
+    } catch (CloneNotSupportedException exception) {
+      throw new IllegalStateException(); // cannot happen - just explode
+    }
   }
 }

@@ -16,7 +16,7 @@
 
 package de.dytanic.cloudnet.driver.service;
 
-import com.google.common.base.Preconditions;
+import com.google.common.base.Verify;
 import de.dytanic.cloudnet.common.INameable;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import java.util.ArrayList;
@@ -27,52 +27,44 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Range;
 
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = false)
-public class ServiceTask extends ServiceConfigurationBase implements INameable {
+public class ServiceTask extends ServiceConfigurationBase implements Cloneable, INameable {
 
   public static final Pattern NAMING_PATTERN = Pattern.compile("^[a-zA-Z0-9._\\-*]*$");
 
-  private String name;
-  private String runtime;
-  private String javaCommand;
-  private String nameSplitter;
+  private final String name;
+  private final String runtime;
+  private final String javaCommand;
+  private final String nameSplitter;
 
-  private boolean disableIpRewrite;
-  private boolean maintenance;
-  private boolean autoDeleteOnStop;
-  private boolean staticServices;
+  private final boolean disableIpRewrite;
+  private final boolean maintenance;
+  private final boolean autoDeleteOnStop;
+  private final boolean staticServices;
 
-  private Collection<String> associatedNodes = new ArrayList<>();
-  private Collection<String> groups = new ArrayList<>();
-  private Collection<String> deletedFilesAfterStop = new ArrayList<>();
+  private final Collection<String> groups;
+  private final Collection<String> associatedNodes;
+  private final Collection<String> deletedFilesAfterStop;
 
-  private ProcessConfiguration processConfiguration;
+  private final ProcessConfiguration processConfiguration;
 
-  private int startPort;
-  private int minServiceCount = 0;
+  private final int startPort;
+  private final int minServiceCount;
 
-  /**
-   * Represents the time in millis where this task is able to start new services again
-   */
-  private transient long serviceStartAbilityTime = -1;
-
-  protected ServiceTask() {
-    super(new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
-  }
-
-  public ServiceTask(
+  protected ServiceTask(
     @NotNull String name,
     @NotNull String runtime,
     @Nullable String javaCommand,
-    @Nullable String nameSplitter,
+    @NotNull String nameSplitter,
     boolean disableIpRewrite,
     boolean maintenance,
     boolean autoDeleteOnStop,
     boolean staticServices,
-    @NotNull Collection<String> associatedNodes,
     @NotNull Collection<String> groups,
+    @NotNull Collection<String> associatedNodes,
     @NotNull Collection<String> deletedFilesAfterStop,
     @NotNull ProcessConfiguration processConfiguration,
     int startPort,
@@ -99,370 +91,262 @@ public class ServiceTask extends ServiceConfigurationBase implements INameable {
     this.minServiceCount = minServiceCount;
   }
 
-  @NotNull
-  public static ServiceTask.Builder builder() {
+  public static @NotNull ServiceTask.Builder builder() {
     return new Builder();
   }
 
-  @NotNull
-  public static ServiceTask.Builder builder(@NotNull ServiceTask serviceTask) {
-    return new Builder(serviceTask);
+  public static @NotNull ServiceTask.Builder builder(@NotNull ServiceTask serviceTask) {
+    return builder()
+      .name(serviceTask.getName())
+      .javaCommand(serviceTask.getJavaCommand())
+      .runtime(serviceTask.getRuntime())
+      .nameSplitter(serviceTask.getNameSplitter())
+
+      .maintenance(serviceTask.isMaintenance())
+      .staticServices(serviceTask.isStaticServices())
+      .disableIpRewrite(serviceTask.isDisableIpRewrite())
+      .autoDeleteOnStop(serviceTask.isAutoDeleteOnStop())
+
+      .groups(serviceTask.getGroups())
+      .associatedNodes(serviceTask.getAssociatedNodes())
+      .deletedFilesAfterStop(serviceTask.getDeletedFilesAfterStop())
+
+      .jvmOptions(serviceTask.getJvmOptions())
+      .processParameters(serviceTask.getProcessParameters())
+      .templates(serviceTask.getTemplates())
+      .deployments(serviceTask.getDeployments())
+      .includes(serviceTask.getIncludes())
+
+      .startPort(serviceTask.getStartPort())
+      .minServiceCount(serviceTask.getMinServiceCount())
+
+      .properties(serviceTask.getProperties().clone())
+      .processConfiguration(ProcessConfiguration.builder(serviceTask.getProcessConfiguration()));
   }
 
   @Override
-  public Collection<String> getJvmOptions() {
-    return this.processConfiguration.getJvmOptions();
+  public @NotNull String getName() {
+    return this.name;
   }
 
-  @Override
-  public Collection<String> getProcessParameters() {
-    return this.processConfiguration.getProcessParameters();
+  public @NotNull String getRuntime() {
+    return this.runtime;
   }
 
-  /**
-   * Forbids this task to auto start new services for a specific time on the current node. This method has no effect
-   * when executed on a wrapper instances.
-   *
-   * @param time the time in millis
-   */
-  public void forbidServiceStarting(long time) {
-    this.serviceStartAbilityTime = System.currentTimeMillis() + time;
+  public @Nullable String getJavaCommand() {
+    return this.javaCommand;
   }
 
-  public boolean canStartServices() {
-    return !this.maintenance && System.currentTimeMillis() > this.serviceStartAbilityTime;
+  public @NotNull String getNameSplitter() {
+    return this.nameSplitter;
   }
 
   public boolean isDisableIpRewrite() {
     return this.disableIpRewrite;
   }
 
-  public void setDisableIpRewrite(boolean disableIpRewrite) {
-    this.disableIpRewrite = disableIpRewrite;
-  }
-
-  public @NotNull String getName() {
-    return this.name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  @Nullable
-  public String getJavaCommand() {
-    return this.javaCommand;
-  }
-
-  public void setJavaCommand(String javaCommand) {
-    this.javaCommand = javaCommand;
-  }
-
-  public @NotNull String getNameSplitter() {
-    return this.nameSplitter == null ? "-" : this.nameSplitter;
-  }
-
-  public void setNameSplitter(@Nullable String nameSplitter) {
-    this.nameSplitter = nameSplitter;
-  }
-
-  public String getRuntime() {
-    return this.runtime;
-  }
-
-  public void setRuntime(String runtime) {
-    this.runtime = runtime;
-  }
-
   public boolean isMaintenance() {
     return this.maintenance;
-  }
-
-  public void setMaintenance(boolean maintenance) {
-    this.maintenance = maintenance;
   }
 
   public boolean isAutoDeleteOnStop() {
     return this.autoDeleteOnStop;
   }
 
-  public void setAutoDeleteOnStop(boolean autoDeleteOnStop) {
-    this.autoDeleteOnStop = autoDeleteOnStop;
-  }
-
   public boolean isStaticServices() {
     return this.staticServices;
   }
 
-  public void setStaticServices(boolean staticServices) {
-    this.staticServices = staticServices;
+  @Override
+  public @NotNull Collection<String> getJvmOptions() {
+    return this.processConfiguration.getJvmOptions();
   }
 
-  public Collection<String> getAssociatedNodes() {
-    return this.associatedNodes;
+  @Override
+  public @NotNull Collection<String> getProcessParameters() {
+    return this.processConfiguration.getProcessParameters();
   }
 
-  public void setAssociatedNodes(Collection<String> associatedNodes) {
-    this.associatedNodes = associatedNodes;
-  }
-
-  public Collection<String> getGroups() {
+  public @NotNull Collection<String> getGroups() {
     return this.groups;
   }
 
-  public void setGroups(Collection<String> groups) {
-    this.groups = groups;
+  public @NotNull Collection<String> getAssociatedNodes() {
+    return this.associatedNodes;
   }
 
-  public Collection<String> getDeletedFilesAfterStop() {
+  public @NotNull Collection<String> getDeletedFilesAfterStop() {
     return this.deletedFilesAfterStop;
   }
 
-  public void setDeletedFilesAfterStop(Collection<String> deletedFilesAfterStop) {
-    this.deletedFilesAfterStop = deletedFilesAfterStop;
-  }
-
-  public ProcessConfiguration getProcessConfiguration() {
+  public @NotNull ProcessConfiguration getProcessConfiguration() {
     return this.processConfiguration;
   }
 
-  public void setProcessConfiguration(ProcessConfiguration processConfiguration) {
-    this.processConfiguration = processConfiguration;
-  }
-
-  public int getStartPort() {
+  public @Range(from = 1, to = 65535) int getStartPort() {
     return this.startPort;
   }
 
-  public void setStartPort(int startPort) {
-    this.startPort = startPort;
-  }
-
-  public int getMinServiceCount() {
+  public @Range(from = 0, to = Integer.MAX_VALUE) int getMinServiceCount() {
     return this.minServiceCount;
   }
 
-  public void setMinServiceCount(int minServiceCount) {
-    this.minServiceCount = minServiceCount;
+  @Override
+  public @NotNull ServiceTask clone() {
+    try {
+      return (ServiceTask) super.clone();
+    } catch (CloneNotSupportedException exception) {
+      throw new IllegalStateException(); // cannot happen - just explode
+    }
   }
 
-  public ServiceTask makeClone() {
-    return ServiceTask.builder()
-      .includes(new ArrayList<>(this.includes))
-      .templates(new ArrayList<>(this.templates))
-      .deployments(new ArrayList<>(this.deployments))
-      .name(this.name)
-      .runtime(this.runtime)
-      .maintenance(this.maintenance)
-      .autoDeleteOnStop(this.autoDeleteOnStop)
-      .staticServices(this.staticServices)
-      .associatedNodes(new ArrayList<>(this.associatedNodes))
-      .groups(new ArrayList<>(this.groups))
-      .deletedFilesAfterStop(new ArrayList<>(this.deletedFilesAfterStop))
-      .serviceEnvironmentType(this.processConfiguration.environment)
-      .maxHeapMemory(this.processConfiguration.maxHeapMemorySize)
-      .jvmOptions(new ArrayList<>(this.processConfiguration.jvmOptions))
-      .processParameters(new ArrayList<>(this.processConfiguration.processParameters))
-      .startPort(this.startPort)
-      .minServiceCount(this.minServiceCount)
-      .javaCommand(this.javaCommand)
-      .build();
-  }
+  public static class Builder extends ServiceConfigurationBase.Builder<ServiceTask, Builder> {
 
-  public static class Builder {
+    private String name;
+    private String javaCommand;
+    private String runtime = "jvm";
+    private String nameSplitter = "-";
 
-    private final ServiceTask serviceTask;
+    private boolean maintenance;
+    private boolean staticServices;
+    private boolean disableIpRewrite;
+    private boolean autoDeleteOnStop = true;
 
-    protected Builder() {
-      this.serviceTask = new ServiceTask();
-      this.serviceTask.processConfiguration = new ProcessConfiguration();
-    }
+    private Collection<String> groups = new ArrayList<>();
+    private Collection<String> associatedNodes = new ArrayList<>();
+    private Collection<String> deletedFilesAfterStop = new ArrayList<>();
 
-    protected Builder(@NotNull ServiceTask serviceTask) {
-      Preconditions.checkNotNull(serviceTask, "serviceTask");
+    private ProcessConfiguration.Builder processConfiguration;
 
-      this.serviceTask = serviceTask;
-    }
+    private int startPort = -1;
+    private int minServiceCount = 0;
 
-    @NotNull
-    public Builder name(@NotNull String name) {
-      Preconditions.checkNotNull(name, "name");
-
-      this.serviceTask.setName(name);
+    public @NotNull Builder name(@NotNull String name) {
+      this.name = name;
       return this;
     }
 
-    @NotNull
-    public Builder runtime(@Nullable String runtime) {
-      this.serviceTask.setRuntime(runtime);
+    public @NotNull Builder runtime(@Nullable String runtime) {
+      this.runtime = runtime;
       return this;
     }
 
-    @NotNull
-    public Builder javaCommand(@Nullable String javaCommand) {
-      this.serviceTask.setJavaCommand(javaCommand);
+    public @NotNull Builder javaCommand(@Nullable String javaCommand) {
+      this.javaCommand = javaCommand;
       return this;
     }
 
-    @NotNull
-    public Builder disableIpRewrite(boolean disableIpRewrite) {
-      this.serviceTask.setDisableIpRewrite(disableIpRewrite);
+    public @NotNull Builder nameSplitter(@NotNull String nameSplitter) {
+      this.nameSplitter = nameSplitter;
       return this;
     }
 
-    @NotNull
-    public Builder maintenance(boolean maintenance) {
-      this.serviceTask.setMaintenance(maintenance);
+    public @NotNull Builder disableIpRewrite(boolean disableIpRewrite) {
+      this.disableIpRewrite = disableIpRewrite;
       return this;
     }
 
-    @NotNull
-    public Builder autoDeleteOnStop(boolean autoDeleteOnStop) {
-      this.serviceTask.setAutoDeleteOnStop(autoDeleteOnStop);
+    public @NotNull Builder maintenance(boolean maintenance) {
+      this.maintenance = maintenance;
       return this;
     }
 
-    @NotNull
-    public Builder staticServices(boolean staticServices) {
-      this.serviceTask.setStaticServices(staticServices);
+    public @NotNull Builder autoDeleteOnStop(boolean autoDeleteOnStop) {
+      this.autoDeleteOnStop = autoDeleteOnStop;
       return this;
     }
 
-    @NotNull
-    public Builder associatedNodes(@NotNull Collection<String> associatedNodes) {
-      Preconditions.checkNotNull(associatedNodes, "associatedNodes");
-
-      this.serviceTask.setAssociatedNodes(new ArrayList<>(associatedNodes));
+    public @NotNull Builder staticServices(boolean staticServices) {
+      this.staticServices = staticServices;
       return this;
     }
 
-    @NotNull
-    public Builder groups(@NotNull Collection<String> groups) {
-      Preconditions.checkNotNull(groups, "groups");
-
-      this.serviceTask.setGroups(new ArrayList<>(groups));
+    public @NotNull Builder associatedNodes(@NotNull Collection<String> associatedNodes) {
+      this.associatedNodes = new HashSet<>(associatedNodes);
       return this;
     }
 
-    @NotNull
-    public Builder deletedFilesAfterStop(@NotNull Collection<String> deletedFilesAfterStop) {
-      Preconditions.checkNotNull(deletedFilesAfterStop, "deletedFilesAfterStop");
-
-      this.serviceTask.setDeletedFilesAfterStop(new ArrayList<>(deletedFilesAfterStop));
+    public @NotNull Builder addAssociatedNode(@NotNull String associatedNode) {
+      this.associatedNodes.add(associatedNode);
       return this;
     }
 
-    @NotNull
-    public Builder processConfiguration(@NotNull ProcessConfiguration processConfiguration) {
-      Preconditions.checkNotNull(processConfiguration, "processConfiguration");
-
-      this.serviceTask.setProcessConfiguration(processConfiguration.clone());
+    public @NotNull Builder groups(@NotNull Collection<String> groups) {
+      this.groups = new HashSet<>(groups);
       return this;
     }
 
-    @NotNull
-    public Builder startPort(int startPort) {
-      this.serviceTask.setStartPort(startPort);
+    public @NotNull Builder addGroup(@NotNull String group) {
+      this.groups.add(group);
       return this;
     }
 
-    @NotNull
-    public Builder minServiceCount(int minServiceCount) {
-      this.serviceTask.setMinServiceCount(minServiceCount);
+    public @NotNull Builder deletedFilesAfterStop(@NotNull Collection<String> deletedFilesAfterStop) {
+      this.deletedFilesAfterStop = new HashSet<>(deletedFilesAfterStop);
       return this;
     }
 
-    @NotNull
-    public Builder jvmOptions(@NotNull Collection<String> jvmOptions) {
-      Preconditions.checkNotNull(jvmOptions, "jvmOptions");
-
-      this.serviceTask.processConfiguration.setJvmOptions(new HashSet<>(jvmOptions));
+    public @NotNull Builder addDeletedFileAfterStop(@NotNull String deletedFileAfterStop) {
+      this.deletedFilesAfterStop.add(deletedFileAfterStop);
       return this;
     }
 
-    @NotNull
-    public Builder processParameters(@NotNull Collection<String> processParameters) {
-      Preconditions.checkNotNull(processParameters, "processParameters");
-
-      this.serviceTask.processConfiguration.setProcessParameters(new HashSet<>(processParameters));
+    public @NotNull Builder processConfiguration(@NotNull ProcessConfiguration.Builder processConfiguration) {
+      this.processConfiguration = processConfiguration;
       return this;
     }
 
-    @NotNull
-    public Builder includes(@NotNull Collection<ServiceRemoteInclusion> includes) {
-      Preconditions.checkNotNull(includes, "includes");
-
-      this.serviceTask.setIncludes(new ArrayList<>(includes));
+    public @NotNull Builder startPort(int startPort) {
+      this.startPort = startPort;
       return this;
     }
 
-    @NotNull
-    public Builder templates(@NotNull Collection<ServiceTemplate> templates) {
-      Preconditions.checkNotNull(templates, "templates");
-
-      this.serviceTask.setTemplates(new ArrayList<>(templates));
+    public @NotNull Builder minServiceCount(int minServiceCount) {
+      this.minServiceCount = minServiceCount;
       return this;
     }
 
-    @NotNull
-    public Builder deployments(@NotNull Collection<ServiceDeployment> deployments) {
-      Preconditions.checkNotNull(deployments, "deployments");
-
-      this.serviceTask.setDeployments(new ArrayList<>(deployments));
+    public @NotNull Builder maxHeapMemory(int maxHeapMemory) {
+      this.processConfiguration.maxHeapMemorySize(maxHeapMemory);
       return this;
     }
 
-    @NotNull
-    public Builder maxHeapMemory(int maxHeapMemory) {
-      this.serviceTask.processConfiguration.setMaxHeapMemorySize(maxHeapMemory);
+    public @NotNull Builder serviceEnvironmentType(@NotNull ServiceEnvironmentType serviceEnvironmentType) {
+      this.processConfiguration.environment(serviceEnvironmentType);
+      this.startPort = this.startPort == -1 ? serviceEnvironmentType.getDefaultStartPort() : this.startPort;
+
       return this;
     }
 
-    @NotNull
-    public Builder serviceEnvironmentType(@NotNull ServiceEnvironmentType serviceEnvironmentType) {
-      Preconditions.checkNotNull(serviceEnvironmentType, "serviceEnvironmentType");
-
-      this.serviceTask.processConfiguration.setEnvironment(serviceEnvironmentType);
+    @Override
+    protected @NotNull Builder self() {
       return this;
     }
 
-    @NotNull
-    public ServiceTask build() {
-      Preconditions.checkNotNull(this.serviceTask.name, "name");
-      Preconditions.checkNotNull(this.serviceTask.processConfiguration, "processConfiguration");
-      Preconditions.checkNotNull(this.serviceTask.processConfiguration.environment, "environment");
-      Preconditions.checkArgument(this.serviceTask.processConfiguration.maxHeapMemorySize > 0, "maxHeapMemory < 0");
-      Preconditions.checkArgument(this.serviceTask.startPort > 0, "startPort < 0");
+    @Override
+    public @NotNull ServiceTask build() {
+      Verify.verifyNotNull(this.name, "no name given");
+      Verify.verify(this.startPort > 0 && this.startPort <= 65535, "Invalid start port given");
 
-      if (this.serviceTask.runtime == null) {
-        this.serviceTask.runtime = "jvm";
-      }
-      if (this.serviceTask.associatedNodes == null) {
-        this.serviceTask.associatedNodes = new ArrayList<>();
-      }
-      if (this.serviceTask.groups == null) {
-        this.serviceTask.groups = new ArrayList<>();
-      }
-      if (this.serviceTask.deletedFilesAfterStop == null) {
-        this.serviceTask.deletedFilesAfterStop = new ArrayList<>();
-      }
-      if (this.serviceTask.includes == null) {
-        this.serviceTask.includes = new ArrayList<>();
-      }
-      if (this.serviceTask.templates == null) {
-        this.serviceTask.templates = new ArrayList<>();
-      }
-      if (this.serviceTask.deployments == null) {
-        this.serviceTask.deployments = new ArrayList<>();
-      }
-      if (this.serviceTask.processConfiguration.processParameters == null) {
-        this.serviceTask.processConfiguration.processParameters = new HashSet<>();
-      }
-      if (this.serviceTask.processConfiguration.jvmOptions == null) {
-        this.serviceTask.processConfiguration.jvmOptions = new HashSet<>();
-      }
-
-      return this.serviceTask;
+      return new ServiceTask(
+        this.name,
+        this.runtime,
+        this.javaCommand,
+        this.nameSplitter,
+        this.disableIpRewrite,
+        this.maintenance,
+        this.autoDeleteOnStop,
+        this.staticServices,
+        this.groups,
+        this.associatedNodes,
+        this.deletedFilesAfterStop,
+        this.processConfiguration.build(),
+        this.startPort,
+        this.minServiceCount,
+        this.templates,
+        this.deployments,
+        this.includes,
+        this.properties);
     }
   }
 }

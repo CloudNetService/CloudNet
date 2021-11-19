@@ -16,23 +16,24 @@
 
 package de.dytanic.cloudnet.driver.service;
 
+import com.google.common.base.Verify;
 import de.dytanic.cloudnet.common.INameable;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.template.SpecificTemplateStorage;
 import de.dytanic.cloudnet.driver.template.TemplateStorage;
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Arrays;
+import java.util.Objects;
 import lombok.EqualsAndHashCode;
-import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Range;
 
 /**
  * Defines the location of a template for services that can either be copied into a service or filled from a service by
  * using a {@link ServiceDeployment}. CloudNet's default storage is "local".
  */
 @EqualsAndHashCode
-public class ServiceTemplate implements INameable, Comparable<ServiceTemplate> {
+public class ServiceTemplate implements INameable, Comparable<ServiceTemplate>, Cloneable {
 
   public static final String LOCAL_STORAGE = "local";
 
@@ -43,20 +44,13 @@ public class ServiceTemplate implements INameable, Comparable<ServiceTemplate> {
   private final int priority;
   private final boolean alwaysCopyToStaticServices;
 
-  public ServiceTemplate(String prefix, String name, String storage) {
-    this(prefix, name, storage, 0, false);
-  }
-
-  public ServiceTemplate(String prefix, String name, String storage, boolean alwaysCopyToStaticServices) {
-    this(prefix, name, storage, 0, alwaysCopyToStaticServices);
-  }
-
-  @Deprecated
-  public ServiceTemplate(String prefix, String name, String storage, boolean alwaysCopyToStaticServices, int priority) {
-    this(prefix, name, storage, priority, alwaysCopyToStaticServices);
-  }
-
-  public ServiceTemplate(String prefix, String name, String storage, int priority, boolean alwaysCopyToStaticServices) {
+  protected ServiceTemplate(
+    @NotNull String prefix,
+    @NotNull String name,
+    @NotNull String storage,
+    int priority,
+    boolean alwaysCopyToStaticServices
+  ) {
     this.prefix = prefix;
     this.name = name;
     this.storage = storage;
@@ -64,9 +58,17 @@ public class ServiceTemplate implements INameable, Comparable<ServiceTemplate> {
     this.alwaysCopyToStaticServices = alwaysCopyToStaticServices;
   }
 
-  @Contract(value = "_, _ -> new", pure = true)
-  public static @NotNull ServiceTemplate local(String prefix, String name) {
-    return new ServiceTemplate(prefix, name, LOCAL_STORAGE);
+  public static @NotNull Builder builder() {
+    return new Builder();
+  }
+
+  public static @NotNull Builder builder(@NotNull ServiceTemplate template) {
+    return builder()
+      .name(template.getName())
+      .prefix(template.getPrefix())
+      .storage(template.getStorage())
+      .priority(template.getPriority())
+      .alwaysCopyToStaticServices(template.shouldAlwaysCopyToStaticServices());
   }
 
   /**
@@ -78,22 +80,26 @@ public class ServiceTemplate implements INameable, Comparable<ServiceTemplate> {
    * @param template the template in the specified format
    * @return the parsed {@link ServiceTemplate} or null if the format was invalid
    */
-  public static ServiceTemplate parse(String template) {
-    String[] base = template.split(":");
-
-    if (base.length > 2) {
+  public static @Nullable ServiceTemplate parse(@NotNull String template) {
+    // check if the template contains a storage-name splitter
+    String[] parts = template.split(":");
+    if (parts.length == 0 || parts.length > 2) {
       return null;
     }
-
-    String path = base.length == 2 ? base[1] : base[0];
-    String storage = base.length == 2 ? base[0] : "local";
+    // read the storage and name path
+    String path = parts.length == 2 ? parts[1] : parts[0];
+    String storage = parts.length == 2 ? parts[0] : "local";
+    // validate the name path
     String[] splitPath = path.split("/");
-
     if (splitPath.length != 2) {
       return null;
     }
-
-    return new ServiceTemplate(splitPath[0], splitPath[1], storage);
+    // creates the new template
+    return builder()
+      .prefix(splitPath[0])
+      .name(splitPath[1])
+      .storage(storage)
+      .build();
   }
 
   /**
@@ -102,41 +108,23 @@ public class ServiceTemplate implements INameable, Comparable<ServiceTemplate> {
    * @param templates the templates in the specified format
    * @return an array of the parsed templates, this will not contain any null elements if any format is wrong
    */
-  @NotNull
-  public static ServiceTemplate[] parseArray(String templates) {
-    Collection<ServiceTemplate> result = new ArrayList<>();
-    for (String template : templates.split(";")) {
-      ServiceTemplate serviceTemplate = parse(template);
-      if (serviceTemplate != null) {
-        result.add(serviceTemplate);
-      }
-    }
-    return result.toArray(new ServiceTemplate[0]);
-  }
-
-  public boolean shouldAlwaysCopyToStaticServices() {
-    return this.alwaysCopyToStaticServices;
+  public static ServiceTemplate @NotNull [] parseArray(@NotNull String templates) {
+    return Arrays.stream(templates.split(";"))
+      .map(ServiceTemplate::parse)
+      .filter(Objects::nonNull)
+      .toArray(ServiceTemplate[]::new);
   }
 
   @Override
-  public String toString() {
-    return this.storage + ':' + this.prefix + '/' + this.name;
-  }
-
-  @NotNull
-  public String getFullName() {
-    return this.prefix + '/' + this.name;
-  }
-
-  public String getPrefix() {
-    return this.prefix;
-  }
-
   public @NotNull String getName() {
     return this.name;
   }
 
-  public String getStorage() {
+  public @NotNull String getPrefix() {
+    return this.prefix;
+  }
+
+  public @NotNull String getStorage() {
     return this.storage;
   }
 
@@ -151,14 +139,26 @@ public class ServiceTemplate implements INameable, Comparable<ServiceTemplate> {
     return this.priority;
   }
 
+  public boolean shouldAlwaysCopyToStaticServices() {
+    return this.alwaysCopyToStaticServices;
+  }
+
+  public @NotNull String getFullName() {
+    return this.prefix + '/' + this.name;
+  }
+
+  @Override
+  public @NotNull String toString() {
+    return this.storage + ':' + this.prefix + '/' + this.name;
+  }
+
   /**
    * Creates a new {@link SpecificTemplateStorage} for this template.
    *
    * @return a new instance of the {@link SpecificTemplateStorage}
    * @throws IllegalArgumentException if the storage in this template doesn't exist
    */
-  @NotNull
-  public SpecificTemplateStorage storage() {
+  public @NotNull SpecificTemplateStorage storage() {
     return SpecificTemplateStorage.of(this);
   }
 
@@ -167,14 +167,64 @@ public class ServiceTemplate implements INameable, Comparable<ServiceTemplate> {
    *
    * @return a new instance of the {@link SpecificTemplateStorage} or null if the storage doesn't exist
    */
-  @Nullable
-  public SpecificTemplateStorage nullableStorage() {
+  public @Nullable SpecificTemplateStorage knownStorage() {
     TemplateStorage storage = CloudNetDriver.getInstance().getTemplateStorage(this.storage);
     return storage != null ? SpecificTemplateStorage.of(this, storage) : null;
   }
 
   @Override
-  public int compareTo(@NotNull ServiceTemplate serviceTemplate) {
+  public @Range(from = -1, to = 1) int compareTo(@NotNull ServiceTemplate serviceTemplate) {
     return Integer.compare(this.priority, serviceTemplate.priority);
+  }
+
+  @Override
+  public ServiceTemplate clone() {
+    try {
+      return (ServiceTemplate) super.clone();
+    } catch (CloneNotSupportedException exception) {
+      throw new IllegalStateException(); // cannot happen - just explode
+    }
+  }
+
+  public static class Builder {
+
+    private String name;
+    private String prefix;
+    private String storage = ServiceTemplate.LOCAL_STORAGE;
+
+    private int priority;
+    private boolean alwaysCopyToStaticServices;
+
+    public @NotNull Builder name(@NotNull String name) {
+      this.name = name;
+      return this;
+    }
+
+    public @NotNull Builder prefix(@NotNull String prefix) {
+      this.prefix = prefix;
+      return this;
+    }
+
+    public @NotNull Builder storage(@NotNull String storage) {
+      this.storage = storage;
+      return this;
+    }
+
+    public @NotNull Builder priority(int priority) {
+      this.priority = priority;
+      return this;
+    }
+
+    public @NotNull Builder alwaysCopyToStaticServices(boolean alwaysCopyToStaticServices) {
+      this.alwaysCopyToStaticServices = alwaysCopyToStaticServices;
+      return this;
+    }
+
+    public @NotNull ServiceTemplate build() {
+      Verify.verifyNotNull(this.name, "no name given");
+      Verify.verifyNotNull(this.prefix, "no prefix given");
+
+      return new ServiceTemplate(this.prefix, this.name, this.storage, this.priority, this.alwaysCopyToStaticServices);
+    }
   }
 }

@@ -331,8 +331,8 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
       return;
     }
 
-    ServiceTemplate template = new ServiceTemplate(prefix, name, storage);
-    SpecificTemplateStorage templateStorage = template.nullableStorage();
+    ServiceTemplate template = ServiceTemplate.builder().prefix(prefix).name(name).storage(storage).build();
+    SpecificTemplateStorage templateStorage = template.knownStorage();
 
     if (templateStorage == null) {
       this.ok(context)

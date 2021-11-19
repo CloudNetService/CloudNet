@@ -40,6 +40,7 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
+import org.jetbrains.annotations.NotNull;
 
 public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
 
@@ -225,7 +226,7 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
     });
   }
 
-  protected void handleCreateRequest(IHttpContext context) {
+  protected void handleCreateRequest(@NotNull IHttpContext context) {
     JsonDocument body = this.body(context.request());
     // check for a provided service configuration
     ServiceConfiguration configuration = body.get("serviceConfiguration", ServiceConfiguration.class);
@@ -233,26 +234,14 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
       // check for a provided service task
       ServiceTask serviceTask = body.get("task", ServiceTask.class);
       if (serviceTask != null) {
-        ServiceConfiguration.Builder builder = ServiceConfiguration.builder(serviceTask);
-        if (!builder.isValid()) {
-          this.sendInvalidServiceConfigurationResponse(context);
-          return;
-        } else {
-          configuration = builder.build();
-        }
+        configuration = ServiceConfiguration.builder(serviceTask).build();
       } else {
         // fallback to a service task name which has to exist
         String serviceTaskName = body.getString("serviceTaskName");
         if (serviceTaskName != null) {
           ServiceTask task = this.getCloudNet().getServiceTaskProvider().getServiceTask(serviceTaskName);
           if (task != null) {
-            ServiceConfiguration.Builder builder = ServiceConfiguration.builder(task);
-            if (!builder.isValid()) {
-              this.sendInvalidServiceConfigurationResponse(context);
-              return;
-            } else {
-              configuration = builder.build();
-            }
+            configuration = ServiceConfiguration.builder(task).build();
           } else {
             // we got a task but it does not exist
             this.badRequest(context)
@@ -267,12 +256,6 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
           return;
         }
       }
-    }
-
-    configuration.replaceNulls();
-    if (!configuration.isValid()) {
-      this.sendInvalidServiceConfigurationResponse(context);
-      return;
     }
 
     ServiceInfoSnapshot snapshot = this.getServiceFactory().createCloudService(configuration);
