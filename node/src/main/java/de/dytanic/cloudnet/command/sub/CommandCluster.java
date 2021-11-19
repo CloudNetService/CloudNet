@@ -25,12 +25,10 @@ import cloud.commandframework.context.CommandContext;
 import com.google.common.net.InetAddresses;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.cluster.IClusterNodeServer;
-import de.dytanic.cloudnet.cluster.sync.DataSyncHandler;
 import de.dytanic.cloudnet.command.annotation.CommandAlias;
 import de.dytanic.cloudnet.command.annotation.Description;
 import de.dytanic.cloudnet.command.exception.ArgumentNotAvailableException;
 import de.dytanic.cloudnet.command.source.CommandSource;
-import de.dytanic.cloudnet.common.INameable;
 import de.dytanic.cloudnet.common.language.I18n;
 import de.dytanic.cloudnet.common.unsafe.CPUUsageResolver;
 import de.dytanic.cloudnet.config.IConfiguration;
@@ -39,7 +37,6 @@ import de.dytanic.cloudnet.driver.network.HostAndPort;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkCluster;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
 import de.dytanic.cloudnet.driver.network.def.NetworkConstants;
-import de.dytanic.cloudnet.driver.service.ServiceTask;
 import java.net.InetAddress;
 import java.net.URI;
 import java.text.DateFormat;
@@ -165,16 +162,6 @@ public final class CommandCluster {
 
   @CommandMethod("cluster|clu sync")
   public void sync() {
-    CloudNet.getInstance().getDataSyncRegistry().registerHandler(
-      DataSyncHandler.<ServiceTask>builder()
-        .key("service_task")
-        .convertObject(ServiceTask.class)
-        .nameExtractor(INameable::getName)
-        .writer(task -> CloudNet.getInstance().getServiceTaskProvider().addPermanentServiceTask(task))
-        .currentGetter(task -> CloudNet.getInstance().getServiceTaskProvider().getServiceTask(task.getName()))
-        .dataCollector(() -> CloudNet.getInstance().getServiceTaskProvider().getPermanentServiceTasks())
-        .build());
-
     ChannelMessage.builder()
       .message("sync_cluster_data")
       .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)

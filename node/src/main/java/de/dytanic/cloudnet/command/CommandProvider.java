@@ -44,7 +44,7 @@ public interface CommandProvider {
    * @param source the command source that is used to execute the command
    * @param input  the commandline that is executed
    */
-  CompletableFuture<?> execute(@NotNull CommandSource source, @NotNull String input);
+  @NotNull CompletableFuture<?> execute(@NotNull CommandSource source, @NotNull String input);
 
   /**
    * Register a command for the node

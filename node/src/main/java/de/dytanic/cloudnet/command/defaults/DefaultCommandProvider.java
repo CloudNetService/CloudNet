@@ -117,7 +117,7 @@ public class DefaultCommandProvider implements CommandProvider {
    * {@inheritDoc}
    */
   @Override
-  public CompletableFuture<?> execute(@NotNull CommandSource source, @NotNull String input) {
+  public @NotNull CompletableFuture<?> execute(@NotNull CommandSource source, @NotNull String input) {
     return this.commandManager.executeCommand(source, input)
       .whenComplete((result, throwable) -> this.exceptionHandler.handleCommandExceptions(source, throwable));
   }
