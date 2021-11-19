@@ -68,17 +68,6 @@ public final class CommandService {
     CloudNet.getInstance().getEventManager().registerListener(this);
   }
 
-  @Parser(name = "single", suggestions = "service")
-  public ServiceInfoSnapshot singleServiceParser(CommandContext<CommandSource> $, Queue<String> input) {
-    String name = input.remove();
-    ServiceInfoSnapshot serviceInfoSnapshot = CloudNet.getInstance().getCloudServiceProvider()
-      .getCloudServiceByName(name);
-    if (serviceInfoSnapshot == null) {
-      throw new ArgumentNotAvailableException(I18n.trans("command-service-service-not-found"));
-    }
-    return serviceInfoSnapshot;
-  }
-
   @Suggestions("service")
   public List<String> suggestService(CommandContext<CommandSource> $, String input) {
     return CloudNet.getInstance().getCloudServiceProvider().getCloudServices()
