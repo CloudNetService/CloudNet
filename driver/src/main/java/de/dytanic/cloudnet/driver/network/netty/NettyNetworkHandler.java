@@ -20,7 +20,6 @@ import de.dytanic.cloudnet.common.concurrent.CompletableTask;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
-import de.dytanic.cloudnet.driver.network.netty.buffer.NettyImmutableDataBuf;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.network.protocol.Packet;
 import io.netty.channel.ChannelHandlerContext;
@@ -80,8 +79,6 @@ public abstract class NettyNetworkHandler extends SimpleChannelInboundHandler<Pa
         if (this.channel.getHandler() == null || this.channel.getHandler().handlePacketReceive(this.channel, msg)) {
           this.channel.getPacketRegistry().handlePacket(this.channel, msg);
         }
-        // free the packet message
-        NettyUtils.safeRelease(((NettyImmutableDataBuf) msg.getContent()).getByteBuf());
       } catch (Exception exception) {
         LOGGER.severe("Exception whilst handling packet " + msg, exception);
       }
