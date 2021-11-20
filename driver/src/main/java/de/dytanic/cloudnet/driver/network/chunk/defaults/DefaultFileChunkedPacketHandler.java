@@ -40,7 +40,7 @@ public class DefaultFileChunkedPacketHandler extends DefaultChunkedPacketProvide
   protected final RandomAccessFile targetFile;
   protected final Callback writeCompleteHandler;
   protected final Lock lock = new ReentrantLock(true);
-  protected final AtomicInteger writtenFileParts = new AtomicInteger();
+  protected final AtomicInteger writtenFileParts = new AtomicInteger(-1);
 
   protected Integer expectedFileParts;
 
