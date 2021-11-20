@@ -359,7 +359,7 @@ public final class CommandTasks {
   public void setJavaCommand(
     CommandSource source,
     @Argument("name") Collection<ServiceTask> serviceTasks,
-    @Argument(value = "executable", parserName = "javaCommand") Pair<String, JavaVersion> executable
+    @Argument(value = "executable", parserName = "javaCommand") @Quoted Pair<String, JavaVersion> executable
   ) {
     for (ServiceTask task : serviceTasks) {
       this.updateTask(task, builder -> builder.javaCommand(executable.getFirst()));
