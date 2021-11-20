@@ -578,7 +578,7 @@ public abstract class AbstractService implements ICloudService {
     // load the inclusions
     this.includeWaitingServiceInclusions();
     // check if we should load the templates of the service
-    this.includeWaitingServiceTemplates(!firstStartup);
+    this.includeWaitingServiceTemplates(firstStartup);
     // update the service configuration
     this.serviceConfigurationPreparer.configure(this.nodeInstance, this);
   }
