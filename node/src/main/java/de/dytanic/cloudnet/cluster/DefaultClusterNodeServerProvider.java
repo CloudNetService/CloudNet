@@ -39,6 +39,7 @@ import java.io.InputStream;
 import java.text.DecimalFormat;
 import java.text.Format;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -134,29 +135,45 @@ public final class DefaultClusterNodeServerProvider extends DefaultNodeServerPro
   @Override
   public @NotNull ITask<TransferStatus> deployTemplateToCluster(
     @NotNull ServiceTemplate template,
-    @NotNull InputStream stream
+    @NotNull InputStream stream,
+    boolean overwrite
   ) {
-    if (!this.nodeServers.isEmpty()) {
-      // collect the network channels of the connected nodes
-      Collection<INetworkChannel> channels = this.nodeServers
-        .stream()
-        .filter(IClusterNodeServer::isAvailable)
-        .map(IClusterNodeServer::getChannel)
-        .filter(Objects::nonNull)
-        .collect(Collectors.toList());
-      // check if there is at least one channel to deploy to
-      if (!channels.isEmpty()) {
-        // send the template chunked to the cluster
-        return ChunkedPacketSender.forFileTransfer()
-          .transferChannel("deploy_service_template")
-          .withExtraData(DataBuf.empty().writeString(template.getStorage()).writeObject(template).writeBoolean(true))
-          .toChannels(channels)
-          .source(stream)
-          .build()
-          .transferChunkedData();
-      }
+    // collect all known & available channels in the cluster
+    Collection<INetworkChannel> channels = this.collectClusterChannel();
+    // check if there is a channel to deploy to
+    if (!channels.isEmpty()) {
+      // send the template chunked to the cluster
+      return ChunkedPacketSender.forFileTransfer()
+        .transferChannel("deploy_service_template")
+        .withExtraData(DataBuf.empty().writeString(template.getStorage()).writeObject(template).writeBoolean(overwrite))
+        .toChannels(channels)
+        .source(stream)
+        .build()
+        .transferChunkedData();
     }
     // always successful if there is no node to deploy to
+    return CompletedTask.done(TransferStatus.SUCCESS);
+  }
+
+  @Override
+  public @NotNull ITask<TransferStatus> deployStaticServiceToCluster(
+    @NotNull String name,
+    @NotNull InputStream stream,
+    boolean overwrite
+  ) {
+    // collect all known & available channels in the cluster
+    Collection<INetworkChannel> channels = this.collectClusterChannel();
+    // check if there is a channel to deploy to
+    if (!channels.isEmpty()) {
+      // send the template chunked to the cluster
+      return ChunkedPacketSender.forFileTransfer()
+        .transferChannel("deploy_static_service")
+        .withExtraData(DataBuf.empty().writeString(name).writeBoolean(overwrite))
+        .toChannels(channels)
+        .source(stream)
+        .build()
+        .transferChunkedData();
+    }
     return CompletedTask.done(TransferStatus.SUCCESS);
   }
 
@@ -200,7 +217,7 @@ public final class DefaultClusterNodeServerProvider extends DefaultNodeServerPro
       .targetNodes()
       .message("sync_cluster_data")
       .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
-      .buffer(cloudNet.getDataSyncRegistry().prepareClusterData(true))
+      .buffer(this.cloudNet.getDataSyncRegistry().prepareClusterData(true))
       .build()
       .send();
   }
@@ -213,5 +230,19 @@ public final class DefaultClusterNodeServerProvider extends DefaultNodeServerPro
 
     this.nodeServers.clear();
     this.refreshHeadNode();
+  }
+
+  private @NotNull Collection<INetworkChannel> collectClusterChannel() {
+    if (!this.nodeServers.isEmpty()) {
+      // collect the network channels of the connected nodes
+      return this.nodeServers
+        .stream()
+        .filter(IClusterNodeServer::isAvailable)
+        .map(IClusterNodeServer::getChannel)
+        .filter(Objects::nonNull)
+        .collect(Collectors.toList());
+    } else {
+      return Collections.emptyList();
+    }
   }
 }

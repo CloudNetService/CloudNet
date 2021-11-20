@@ -52,7 +52,12 @@ public interface IClusterNodeServerProvider extends NodeServerProvider<IClusterN
   void setClusterServers(@NotNull NetworkCluster networkCluster);
 
   @NotNull
-  ITask<TransferStatus> deployTemplateToCluster(@NotNull ServiceTemplate template, @NotNull InputStream stream);
+  ITask<TransferStatus> deployTemplateToCluster(@NotNull ServiceTemplate template, @NotNull InputStream stream,
+    boolean overwrite);
+
+  @NotNull
+  ITask<TransferStatus> deployStaticServiceToCluster(@NotNull String name, @NotNull InputStream stream,
+    boolean overwrite);
 
   /**
    * Get all node server network channels which are currently connected and recognized by this provider.

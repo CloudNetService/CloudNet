@@ -34,7 +34,7 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import org.jetbrains.annotations.NotNull;
 
-public final class TemplateDeployCallbackListener {
+public final class FileDeployCallbackListener {
 
   @EventListener
   public void handle(@NotNull ChunkedPacketSessionOpenEvent event) {
@@ -44,6 +44,9 @@ public final class TemplateDeployCallbackListener {
         break;
       case "deploy_single_file":
         event.setHandler(new DefaultFileChunkedPacketHandler(event.getSession(), TemplateFileDeployCallback.INSTANCE));
+        break;
+      case "deploy_static_service":
+        event.setHandler(new DefaultFileChunkedPacketHandler(event.getSession(), StaticServiceDeployCallback.INSTANCE));
         break;
       default:
         break;

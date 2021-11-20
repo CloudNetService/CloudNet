@@ -59,7 +59,7 @@ import de.dytanic.cloudnet.log.QueuedConsoleLogHandler;
 import de.dytanic.cloudnet.module.NodeModuleProviderHandler;
 import de.dytanic.cloudnet.network.DefaultNetworkClientChannelHandler;
 import de.dytanic.cloudnet.network.DefaultNetworkServerChannelHandler;
-import de.dytanic.cloudnet.network.chunk.TemplateDeployCallbackListener;
+import de.dytanic.cloudnet.network.chunk.FileDeployCallbackListener;
 import de.dytanic.cloudnet.permission.DefaultDatabasePermissionManagement;
 import de.dytanic.cloudnet.permission.DefaultPermissionManagementHandler;
 import de.dytanic.cloudnet.permission.NodePermissionManagement;
@@ -286,7 +286,7 @@ public class CloudNet extends CloudNetDriver {
     this.commandProvider.registerConsoleHandler(this.console);
 
     // register listeners & post node startup finish
-    this.eventManager.registerListener(new TemplateDeployCallbackListener());
+    this.eventManager.registerListener(new FileDeployCallbackListener());
     this.eventManager.callEvent(new CloudNetNodePostInitializationEvent(this));
 
     Runtime.getRuntime().addShutdownHook(new Thread(this::stop, "Shutdown Thread"));

@@ -173,7 +173,7 @@ public final class CommandService {
           // find a matching template
           return service.getConfiguration().getTemplates().stream()
             .filter(st -> st.getPrefix().equalsIgnoreCase(service.getServiceId().getTaskName()))
-            .filter(st -> !st.getName().equalsIgnoreCase("default"))
+            .filter(st -> st.getName().equalsIgnoreCase("default"))
             .map(st -> new Pair<>(service.provider(), st))
             .findFirst()
             .orElse(null);
