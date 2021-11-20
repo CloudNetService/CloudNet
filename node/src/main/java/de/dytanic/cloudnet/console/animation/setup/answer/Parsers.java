@@ -32,6 +32,7 @@ import java.net.InetAddress;
 import java.net.URI;
 import java.util.UUID;
 import java.util.function.Function;
+import java.util.regex.Pattern;
 import org.jetbrains.annotations.NotNull;
 
 public final class Parsers {
@@ -51,6 +52,15 @@ public final class Parsers {
 
   public static @NotNull <T extends Enum<T>> Parser<T> enumConstant(@NotNull Class<T> enumClass) {
     return input -> Verify.verifyNotNull(Enums.getIfPresent(enumClass, input.toUpperCase()).orNull());
+  }
+
+  public static @NotNull Parser<String> regex(@NotNull Pattern pattern) {
+    return input -> {
+      if (pattern.matcher(input).matches()) {
+        return input;
+      }
+      throw ParserException.INSTANCE;
+    };
   }
 
   public static @NotNull Parser<Pair<String, JavaVersion>> javaVersion() {

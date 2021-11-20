@@ -21,6 +21,7 @@ import static de.dytanic.cloudnet.console.animation.setup.answer.Parsers.enumCon
 import static de.dytanic.cloudnet.console.animation.setup.answer.Parsers.javaVersion;
 import static de.dytanic.cloudnet.console.animation.setup.answer.Parsers.nonExistingTask;
 import static de.dytanic.cloudnet.console.animation.setup.answer.Parsers.ranged;
+import static de.dytanic.cloudnet.console.animation.setup.answer.Parsers.regex;
 import static de.dytanic.cloudnet.console.animation.setup.answer.Parsers.serviceVersion;
 
 import de.dytanic.cloudnet.CloudNet;
@@ -121,6 +122,13 @@ public class SpecificTaskSetup extends DefaultTaskSetup implements DefaultSetup 
             animation.getResult("taskEnvironment"),
             animation.getResult("taskJavaCommand")))
           .parser(serviceVersion()))
+        .build(),
+      QuestionListEntry.<String>builder()
+        .key("taskNameSplitter")
+        .translatedQuestion("command-tasks-setup-question-name-splitter")
+        .answerType(QuestionAnswerType.<String>builder()
+          .recommendation("-")
+          .parser(regex(ServiceTask.NAMING_PATTERN)))
         .build()
     );
   }
@@ -144,6 +152,7 @@ public class SpecificTaskSetup extends DefaultTaskSetup implements DefaultSetup 
       .startPort(animation.getResult("taskStartPort"))
       .javaCommand(javaVersion.getFirst())
       .templates(Collections.singleton(defaultTemplate))
+      .nameSplitter(animation.getResult("taskNameSplitter"))
       .build();
     CloudNet.getInstance().getServiceTaskProvider().addPermanentServiceTask(task);
     // create a group with the same name
