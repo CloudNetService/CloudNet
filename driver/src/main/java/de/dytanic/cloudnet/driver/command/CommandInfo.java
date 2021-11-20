@@ -30,34 +30,34 @@ import org.jetbrains.annotations.NotNull;
 @ToString
 public class CommandInfo implements INameable {
 
-  protected String name;
+  protected final String name;
 
   /**
    * The configured names by the command
    */
-  protected Collection<String> aliases;
+  protected final Collection<String> aliases;
 
   /**
    * The permission, that is configured by this command, that the command sender should has
    */
-  protected String permission;
+  protected final String permission;
 
   /**
    * The command description with a basic description
    */
-  protected String description;
+  protected final String description;
 
   /**
    * The easiest and important usage for the command
    */
-  protected List<String> usage;
+  protected final List<String> usage;
 
   public CommandInfo(
-    String name,
-    Collection<String> aliases,
-    String permission,
-    String description,
-    List<String> usage
+    @NotNull String name,
+    @NotNull Collection<String> aliases,
+    @NotNull String permission,
+    @NotNull String description,
+    @NotNull List<String> usage
   ) {
     this.name = name.toLowerCase();
     this.aliases = aliases;
@@ -75,23 +75,23 @@ public class CommandInfo implements INameable {
     return this.name;
   }
 
-  public Collection<String> getAliases() {
+  public @NotNull Collection<String> getAliases() {
     return this.aliases;
   }
 
-  public String getPermission() {
+  public @NotNull String getPermission() {
     return this.permission;
   }
 
-  public String getDescription() {
+  public @NotNull String getDescription() {
     return this.description;
   }
 
-  public List<String> getUsage() {
+  public @NotNull List<String> getUsage() {
     return this.usage;
   }
 
-  public String joinNameToAliases(@NotNull String separator) {
+  public @NotNull String joinNameToAliases(@NotNull String separator) {
     String result = this.name;
     if (!this.aliases.isEmpty()) {
       result += separator + String.join(separator, this.aliases);
