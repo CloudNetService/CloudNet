@@ -29,7 +29,7 @@ final class DefaultCommandManager extends CommandManager<CommandSource> {
 
   public DefaultCommandManager() {
     super(AsynchronousCommandExecutionCoordinator.<CommandSource>newBuilder()
-        .withExecutor(Executors.newSingleThreadExecutor()).build(),
+        .withExecutor(Executors.newFixedThreadPool(4)).build(),
       CommandRegistrationHandler.nullCommandRegistrationHandler());
   }
 
