@@ -261,8 +261,13 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
       .filter(service -> service.isConnected() && BridgeServiceProperties.IS_ONLINE.get(service).orElse(false))
       // check if the player is not currently connected to that service
       .filter(service -> currentServerName == null || !service.getName().equals(currentServerName))
-      // find any service that matches the requirements
-      .findAny();
+      // find the service with the lowest player count known to use
+      .min((optionA, optionB) -> {
+        int playersOnOptionA = BridgeServiceProperties.ONLINE_COUNT.get(optionA).orElse(0);
+        int playersOnOptionB = BridgeServiceProperties.ONLINE_COUNT.get(optionB).orElse(0);
+        // compare the player count
+        return Integer.compare(playersOnOptionA, playersOnOptionB);
+      });
   }
 
   public void handleFallbackConnectionSuccess(@NotNull UUID uniqueId) {
