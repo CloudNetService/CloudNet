@@ -216,7 +216,7 @@ public class ServiceTask extends ServiceConfigurationBase implements Cloneable, 
     private Collection<String> associatedNodes = new ArrayList<>();
     private Collection<String> deletedFilesAfterStop = new ArrayList<>();
 
-    private ProcessConfiguration.Builder processConfiguration;
+    private ProcessConfiguration.Builder processConfiguration = ProcessConfiguration.builder();
 
     private int startPort = -1;
     private int minServiceCount = 0;
