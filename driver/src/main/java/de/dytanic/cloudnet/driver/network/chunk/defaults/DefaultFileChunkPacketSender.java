@@ -73,6 +73,8 @@ public class DefaultFileChunkPacketSender extends DefaultChunkedPacketProvider i
             readCalls,
             bytesRead == -1 ? 0 : bytesRead,
             bytesRead == -1 ? EMPTY_BYTE_ARRAY : backingArray));
+          // close the stream after reading the final chunk
+          this.source.close();
           // release the extra content now
           this.chunkSessionInformation.getTransferInformation().enableReleasing().release();
           // successful transfer
