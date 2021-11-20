@@ -18,6 +18,7 @@ package de.dytanic.cloudnet.network.chunk;
 
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.io.FileUtils;
+import de.dytanic.cloudnet.common.language.I18n;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.network.chunk.ChunkedPacketHandler.Callback;
@@ -50,20 +51,20 @@ final class StaticServiceDeployCallback implements Callback {
     // only copy the static service running with the same name
     if (serviceManager.getLocalCloudService(service) == null) {
       Path servicePath = serviceManager.getPersistentServicesDirectoryPath().resolve(service);
-
+      // check if the service path exists, and we can overwrite it
       if (Files.exists(servicePath) && !overwriteService) {
-        LOGGER.severe("Folder exists");
+        LOGGER.severe(I18n.trans("command-cluster-push-static-services-existing"));
         return;
       }
-
+      // delete the old contents
       FileUtils.delete(servicePath);
+      // recreate the directory
       FileUtils.createDirectory(servicePath);
+      // extract the received data to the given path of the service
       FileUtils.extract(dataInput, servicePath);
-
-      LOGGER.info("Extracting");
-
+      LOGGER.info(I18n.trans("command-cluster-push-static-services-received-success"));
     } else {
-      LOGGER.severe("Service exists"); //TODO
+      LOGGER.severe(I18n.trans("command-cluster-push-static-services-running"));
     }
   }
 }
