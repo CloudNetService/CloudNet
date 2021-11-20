@@ -31,22 +31,21 @@ import org.jetbrains.annotations.UnknownNullability;
 @EqualsAndHashCode
 public class ServiceId implements INameable {
 
-  protected final UUID uniqueId;
-
   protected final String taskName;
   protected final String nameSplitter;
   protected final Set<String> allowedNodes;
   protected final ServiceEnvironmentType environment;
 
+  protected volatile UUID uniqueId;
   protected volatile int taskServiceId;
   protected volatile String nodeUniqueId;
 
   protected ServiceId(
-    @NotNull UUID uniqueId,
     @NotNull String taskName,
     @NotNull String nameSplitter,
     @NotNull Set<String> allowedNodes,
     @NotNull ServiceEnvironmentType environment,
+    @NotNull UUID uniqueId,
     int taskServiceId,
     @Nullable String nodeUniqueId
   ) {
@@ -70,6 +69,11 @@ public class ServiceId implements INameable {
 
   public @NotNull UUID getUniqueId() {
     return this.uniqueId;
+  }
+
+  @Internal
+  public void setUniqueId(@NotNull UUID uniqueId) {
+    this.uniqueId = uniqueId;
   }
 
   public @UnknownNullability String getNodeUniqueId() {
@@ -165,11 +169,11 @@ public class ServiceId implements INameable {
       Preconditions.checkArgument(this.taskServiceId == -1 || this.taskServiceId > 0, "taskServiceId <= 0");
 
       return new ServiceId(
-        this.uniqueId,
         this.taskName,
         this.nameSplitter,
         this.allowedNodes,
         this.environment,
+        this.uniqueId,
         this.taskServiceId,
         this.nodeUniqueId);
     }

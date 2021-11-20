@@ -64,10 +64,9 @@ public final class CommandCreate {
       configurationBuilder.maxHeapMemory(memory);
     }
 
-    ServiceConfiguration configuration = configurationBuilder.build();
     List<ServiceInfoSnapshot> createdServices = new ArrayList<>();
     for (int i = 0; i < amount; i++) {
-      ServiceInfoSnapshot service = configuration.createNewService();
+      ServiceInfoSnapshot service = configurationBuilder.build().createNewService();
       if (service != null) {
         createdServices.add(service);
       }

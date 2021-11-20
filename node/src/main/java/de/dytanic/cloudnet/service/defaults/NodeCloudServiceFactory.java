@@ -31,6 +31,7 @@ import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.network.listener.message.ServiceChannelMessageListener;
 import de.dytanic.cloudnet.service.ICloudServiceManager;
 import java.util.Collection;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
@@ -58,6 +59,7 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
     if (this.nodeServerProvider.getHeadNode().equals(this.nodeServerProvider.getSelfNode())) {
       // prepare the service configuration
       this.replaceServiceId(serviceConfiguration);
+      this.replaceServiceUniqueId(serviceConfiguration);
       this.includeGroupComponents(serviceConfiguration);
       // get the logic node server to start the service on
       IClusterNodeServer nodeServer = this.peekLogicNodeServer(serviceConfiguration);
@@ -167,5 +169,15 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
     }
     // update the service id
     config.getServiceId().setTaskServiceId(serviceId);
+  }
+
+  protected void replaceServiceUniqueId(@NotNull ServiceConfiguration config) {
+    UUID uniqueId = config.getServiceId().getUniqueId();
+    // check if the unique id is already taken
+    while (this.serviceManager.getCloudService(uniqueId) != null) {
+      uniqueId = UUID.randomUUID();
+    }
+    // set the new unique id
+    config.getServiceId().setUniqueId(uniqueId);
   }
 }
