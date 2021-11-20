@@ -16,7 +16,6 @@
 
 package de.dytanic.cloudnet.driver.module;
 
-import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -99,30 +98,12 @@ public interface IModuleProviderHandler {
   void handlePostModuleUnload(@NotNull IModuleWrapper moduleWrapper);
 
   /**
-   * @deprecated This method will not get called anymore. Use {@link #handlePreInstallDependency(ModuleConfiguration,
-   * ModuleDependency)} instead.
-   */
-  @Deprecated
-  @ScheduledForRemoval
-  default void handlePreInstallDependency(IModuleWrapper moduleWrapper, ModuleDependency dependency) {
-  }
-
-  /**
    * Called when a dependency for a module is about to get loaded.
    *
    * @param configuration the configuration of the module in which the dependency is declared.
    * @param dependency    the dependency which will be loaded.
    */
   void handlePreInstallDependency(@NotNull ModuleConfiguration configuration, @NotNull ModuleDependency dependency);
-
-  /**
-   * @deprecated This method will not get called anymore. Use {@link #handlePostInstallDependency(ModuleConfiguration,
-   * ModuleDependency)} instead.
-   */
-  @Deprecated
-  @ScheduledForRemoval
-  default void handlePostInstallDependency(IModuleWrapper moduleWrapper, ModuleDependency dependency) {
-  }
 
   /**
    * Called when a dependency for a module was loaded.

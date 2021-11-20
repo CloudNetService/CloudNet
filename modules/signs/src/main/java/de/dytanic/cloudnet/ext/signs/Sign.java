@@ -18,16 +18,12 @@ package de.dytanic.cloudnet.ext.signs;
 
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.ext.bridge.WorldPosition;
-import java.lang.reflect.Type;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 @ToString
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Sign implements Comparable<Sign> {
-
-  @Deprecated
-  public static final Type TYPE = Sign.class;
 
   protected long signId;
 

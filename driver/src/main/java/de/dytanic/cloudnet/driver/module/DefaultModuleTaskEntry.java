@@ -28,7 +28,6 @@ public class DefaultModuleTaskEntry implements IModuleTaskEntry {
    */
   protected static final String METHOD_SIGNATURE_FORMAT = "%s@%s()";
 
-  protected final Method jlrMethod;
   protected final MethodHandle method;
   protected final ModuleTask moduleTask;
   protected final IModuleWrapper moduleWrapper;
@@ -43,7 +42,6 @@ public class DefaultModuleTaskEntry implements IModuleTaskEntry {
    * @throws IllegalAccessException if access checking for the provided method fails.
    */
   public DefaultModuleTaskEntry(IModuleWrapper wrapper, ModuleTask task, Method method) throws IllegalAccessException {
-    this.jlrMethod = method;
     this.moduleTask = task;
     this.moduleWrapper = wrapper;
     this.method = MethodHandles.lookup().unreflect(method);
@@ -82,15 +80,6 @@ public class DefaultModuleTaskEntry implements IModuleTaskEntry {
   @Override
   public @NotNull MethodHandle getMethod() {
     return this.method;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  @Deprecated
-  public Method getHandler() {
-    return this.jlrMethod;
   }
 
   /**

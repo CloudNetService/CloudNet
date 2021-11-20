@@ -17,10 +17,8 @@
 package de.dytanic.cloudnet.driver.event.events.module;
 
 import de.dytanic.cloudnet.driver.module.IModuleProvider;
-import de.dytanic.cloudnet.driver.module.IModuleWrapper;
 import de.dytanic.cloudnet.driver.module.ModuleConfiguration;
 import de.dytanic.cloudnet.driver.module.ModuleDependency;
-import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -29,20 +27,6 @@ import org.jetbrains.annotations.NotNull;
 public final class ModulePostInstallDependencyEvent extends UnloadedModuleEvent {
 
   private final ModuleDependency moduleDependency;
-
-  /**
-   * @deprecated use {@link #ModulePostInstallDependencyEvent(IModuleProvider, ModuleConfiguration, ModuleDependency)}
-   * instead.
-   */
-  @Deprecated
-  @ScheduledForRemoval
-  public ModulePostInstallDependencyEvent(
-    IModuleProvider moduleProvider,
-    IModuleWrapper module,
-    ModuleDependency moduleDependency
-  ) {
-    this(moduleProvider, module.getModuleConfiguration(), moduleDependency);
-  }
 
   /**
    * {@inheritDoc}
@@ -65,14 +49,5 @@ public final class ModulePostInstallDependencyEvent extends UnloadedModuleEvent 
    */
   public @NotNull ModuleDependency getModuleDependency() {
     return this.moduleDependency;
-  }
-
-  /**
-   * @deprecated The module instance is created after this event call. Use {@link #getModuleConfiguration()} instead.
-   */
-  @Deprecated
-  @ScheduledForRemoval
-  public IModuleWrapper getModule() {
-    throw new UnsupportedOperationException("Unable to retrieve module wrapper in ModulePostInstallDependencyEvent.");
   }
 }

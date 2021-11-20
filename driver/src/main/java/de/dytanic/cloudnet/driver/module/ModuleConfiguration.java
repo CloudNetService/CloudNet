@@ -25,7 +25,6 @@ import java.nio.file.Paths;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.jetbrains.annotations.ApiStatus.Internal;
-import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -157,15 +156,6 @@ public class ModuleConfiguration {
    * @return the main class of this module.
    */
   public @NotNull String getMainClass() {
-    return this.main;
-  }
-
-  /**
-   * @deprecated use {@link #getMainClass()} instead.
-   */
-  @Deprecated
-  @ScheduledForRemoval
-  public String getMain() {
     return this.main;
   }
 

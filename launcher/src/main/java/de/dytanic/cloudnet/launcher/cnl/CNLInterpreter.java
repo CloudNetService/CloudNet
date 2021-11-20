@@ -17,7 +17,6 @@
 package de.dytanic.cloudnet.launcher.cnl;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -50,17 +49,6 @@ public class CNLInterpreter {
     try (InputStream stream = Files.newInputStream(path)) {
       runInterpreter(stream, variables);
     }
-  }
-
-  @Deprecated
-  public static void runInterpreter(File file) throws IOException, CNLCommandExecuteException {
-    runInterpreter(file.toPath());
-  }
-
-  @Deprecated
-  public static void runInterpreter(File file, Map<String, String> variables)
-    throws IOException, CNLCommandExecuteException {
-    runInterpreter(file.toPath(), variables);
   }
 
   public static void runInterpreter(InputStream inputStream) throws IOException, CNLCommandExecuteException {

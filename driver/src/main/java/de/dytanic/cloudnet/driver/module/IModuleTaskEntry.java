@@ -17,8 +17,6 @@
 package de.dytanic.cloudnet.driver.module;
 
 import java.lang.invoke.MethodHandle;
-import java.lang.reflect.Method;
-import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -55,13 +53,6 @@ public interface IModuleTaskEntry {
    * @return the annotated detected method.
    */
   @NotNull MethodHandle getMethod();
-
-  /**
-   * @deprecated use {@link #getMethod()} or to invoke the method use {@link #fire()} instead.
-   */
-  @Deprecated
-  @ScheduledForRemoval
-  Method getHandler();
 
   /**
    * Get the full method signature of the detected method. This must not be in the standard java signature declaration

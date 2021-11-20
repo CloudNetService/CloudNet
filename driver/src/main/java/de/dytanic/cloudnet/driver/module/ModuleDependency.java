@@ -18,8 +18,6 @@ package de.dytanic.cloudnet.driver.module;
 
 import com.google.common.base.Verify;
 import lombok.EqualsAndHashCode;
-import org.jetbrains.annotations.ApiStatus.Internal;
-import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -29,11 +27,11 @@ import org.jetbrains.annotations.Nullable;
 @EqualsAndHashCode
 public class ModuleDependency {
 
-  private String repo;
-  private String url;
-  private String group;
-  private String name;
-  private String version;
+  private final String repo;
+  private final String url;
+  private final String group;
+  private final String name;
+  private final String version;
 
   /**
    * Creates a new module dependency instance. This dependency will require another module to be loaded before.
@@ -43,9 +41,7 @@ public class ModuleDependency {
    * @param version the version of the dependency.
    */
   public ModuleDependency(@NotNull String group, @NotNull String name, @NotNull String version) {
-    this.group = group;
-    this.name = name;
-    this.version = version;
+    this(null, group, name, version);
   }
 
   /**
@@ -59,10 +55,7 @@ public class ModuleDependency {
    * @param version the version of the dependency.
    */
   public ModuleDependency(@Nullable String repo, @NotNull String group, @NotNull String name, @NotNull String version) {
-    this.repo = repo;
-    this.group = group;
-    this.name = name;
-    this.version = version;
+    this(repo, null, group, name, version);
   }
 
   /**
@@ -78,31 +71,18 @@ public class ModuleDependency {
    * @param name    the name of the dependency.
    * @param version the version of the dependency.
    */
-  public ModuleDependency(String repo, String url, String group, String name, String version) {
+  public ModuleDependency(
+    @Nullable String repo,
+    @Nullable String url,
+    @NotNull String group,
+    @NotNull String name,
+    @NotNull String version
+  ) {
     this.repo = repo;
     this.url = url;
     this.group = group;
     this.name = name;
     this.version = version;
-  }
-
-  /**
-   * @deprecated the name, group and version of this dependency is required. Creating a dependency using this
-   * constructor will cause an exception when loading the module. See {@link #assertDefaultPropertiesSet()}.
-   */
-  @Deprecated
-  @ScheduledForRemoval
-  public ModuleDependency(String url) {
-    this.url = url;
-  }
-
-  /**
-   * This constructor is for internal use only. The name, group and version of this dependency is required. Creating a
-   * dependency using this constructor will cause an exception when loading the module. See {@link
-   * #assertDefaultPropertiesSet()}.
-   */
-  @Internal
-  public ModuleDependency() {
   }
 
   /**

@@ -61,11 +61,6 @@ public class HttpCookie {
     this.maxAge = maxAge;
   }
 
-  @Deprecated
-  @ApiStatus.ScheduledForRemoval
-  public HttpCookie() {
-  }
-
   public String getName() {
     return this.name;
   }

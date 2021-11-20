@@ -39,12 +39,9 @@ import java.io.InputStream;
 import java.text.DecimalFormat;
 import java.text.Format;
 import java.util.Collection;
-import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
 import java.util.stream.Collectors;
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
@@ -216,18 +213,5 @@ public final class DefaultClusterNodeServerProvider extends DefaultNodeServerPro
 
     this.nodeServers.clear();
     this.refreshHeadNode();
-  }
-
-  /**
-   * Gets all nodes servers as unique-id - server map.
-   *
-   * @return all nodes servers as unique-id - server map.
-   * @deprecated currently mapped, use {@link #getNodeServers()} instead.
-   */
-  @Deprecated
-  @ApiStatus.ScheduledForRemoval(inVersion = "3.6")
-  public Map<String, IClusterNodeServer> getServers() {
-    return this.nodeServers.stream()
-      .collect(Collectors.toMap(server -> server.getNodeInfo().getUniqueId(), Function.identity()));
   }
 }

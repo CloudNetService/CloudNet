@@ -20,7 +20,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.ext.signs.configuration.entry.SignConfigurationEntryType;
-import java.io.File;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -32,21 +31,11 @@ public final class SignConfigurationReaderAndWriter {
     throw new UnsupportedOperationException();
   }
 
-  @Deprecated
-  public static void write(SignConfiguration signConfiguration, File file) {
-    write(signConfiguration, file.toPath());
-  }
-
   public static void write(SignConfiguration signConfiguration, Path path) {
     Preconditions.checkNotNull(signConfiguration);
     Preconditions.checkNotNull(path);
 
     JsonDocument.newDocument("config", signConfiguration).write(path);
-  }
-
-  @Deprecated
-  public static SignConfiguration read(File file) {
-    return read(file.toPath());
   }
 
   public static SignConfiguration read(Path path) {
