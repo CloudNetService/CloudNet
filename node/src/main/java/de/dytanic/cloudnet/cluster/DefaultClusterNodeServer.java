@@ -109,11 +109,12 @@ public class DefaultClusterNodeServer extends DefaultNodeServer implements IClus
 
   @Override
   public void shutdown() {
-    ChannelMessage channelMessage = ChannelMessage.builder()
+    ChannelMessage.builder()
       .message("cluster_node_shutdown")
       .targetNode(this.nodeInfo.getUniqueId())
       .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
-      .build();
+      .build()
+      .send();
   }
 
   @Override
