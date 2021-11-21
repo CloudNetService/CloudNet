@@ -112,7 +112,8 @@ public final class CommandService {
         source.sendMessage(
           "Name: " + serviceInfoSnapshot.getServiceId().getName() +
             " | Lifecycle: " + serviceInfoSnapshot.getLifeCycle() +
-            " | " + (serviceInfoSnapshot.isConnected() ? "Connected" : "Not Connected") //+ extension
+            " | Node: " + serviceInfoSnapshot.getServiceId().getNodeUniqueId() +
+            " | " + (serviceInfoSnapshot.isConnected() ? "Connected" : "Not Connected")
         );
       }
     }
