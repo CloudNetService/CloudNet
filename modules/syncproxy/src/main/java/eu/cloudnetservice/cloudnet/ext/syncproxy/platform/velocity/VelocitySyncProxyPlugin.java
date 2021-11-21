@@ -20,13 +20,25 @@ import com.google.inject.Inject;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
 import com.velocitypowered.api.event.proxy.ProxyShutdownEvent;
+import com.velocitypowered.api.plugin.Dependency;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.proxy.ProxyServer;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import eu.cloudnetservice.cloudnet.ext.syncproxy.platform.listener.SyncProxyCloudListener;
 import org.jetbrains.annotations.NotNull;
 
-@Plugin(id = "cloudnet_syncproxy")
+@Plugin(
+  id = "cloudnet_syncproxy",
+  name = "CloudNet-SyncProxy",
+  version = "{project.build.version}",
+  description = "CloudNet extension which serves proxy utils with CloudNet support",
+  url = "https://cloudnetservice.eu",
+  authors = "CloudNetService",
+  dependencies = {
+    @Dependency(id = "cloudnet_bridge"),
+    @Dependency(id = "cloudnet_cloudperms", optional = true)
+  }
+)
 public final class VelocitySyncProxyPlugin {
 
   private final ProxyServer proxyServer;
