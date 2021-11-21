@@ -33,25 +33,28 @@ public class ServiceId implements INameable {
 
   protected final String taskName;
   protected final String nameSplitter;
+  protected final String environmentName;
   protected final Set<String> allowedNodes;
-  protected final ServiceEnvironmentType environment;
 
   protected volatile UUID uniqueId;
   protected volatile int taskServiceId;
   protected volatile String nodeUniqueId;
+  protected volatile ServiceEnvironmentType environment;
 
   protected ServiceId(
     @NotNull String taskName,
     @NotNull String nameSplitter,
+    @NotNull String environmentName,
     @NotNull Set<String> allowedNodes,
-    @NotNull ServiceEnvironmentType environment,
     @NotNull UUID uniqueId,
     int taskServiceId,
-    @Nullable String nodeUniqueId
+    @Nullable String nodeUniqueId,
+    @Nullable ServiceEnvironmentType environment
   ) {
     this.uniqueId = uniqueId;
     this.taskName = taskName;
     this.nameSplitter = nameSplitter;
+    this.environmentName = environmentName;
     this.taskServiceId = taskServiceId;
     this.nodeUniqueId = nodeUniqueId;
     this.allowedNodes = allowedNodes;
@@ -93,6 +96,14 @@ public class ServiceId implements INameable {
     return this.taskName;
   }
 
+  public @NotNull String getNameSplitter() {
+    return this.nameSplitter;
+  }
+
+  public @NotNull String getEnvironmentName() {
+    return this.environmentName;
+  }
+
   public int getTaskServiceId() {
     return this.taskServiceId;
   }
@@ -102,8 +113,13 @@ public class ServiceId implements INameable {
     this.taskServiceId = taskServiceId;
   }
 
-  public @NotNull ServiceEnvironmentType getEnvironment() {
+  public @UnknownNullability ServiceEnvironmentType getEnvironment() {
     return this.environment;
+  }
+
+  @Internal
+  public void setEnvironment(@NotNull ServiceEnvironmentType environment) {
+    this.environment = environment;
   }
 
   @Override
@@ -118,6 +134,7 @@ public class ServiceId implements INameable {
     protected String taskName;
     protected int taskServiceId = -1;
     protected String nodeUniqueId;
+    protected String environmentName;
     protected String nameSplitter = "-";
 
     protected ServiceEnvironmentType environment;
@@ -148,8 +165,14 @@ public class ServiceId implements INameable {
       return this;
     }
 
+    public @NotNull Builder environment(@NotNull String environmentName) {
+      this.environmentName = environmentName;
+      return this;
+    }
+
     public @NotNull Builder environment(@NotNull ServiceEnvironmentType environment) {
       this.environment = environment;
+      this.environmentName = environment.getName();
       return this;
     }
 
@@ -165,17 +188,18 @@ public class ServiceId implements INameable {
 
     public @NotNull ServiceId build() {
       Preconditions.checkNotNull(this.taskName, "no task name given");
-      Preconditions.checkNotNull(this.environment, "no environment given");
+      Preconditions.checkNotNull(this.environmentName, "no environment given");
       Preconditions.checkArgument(this.taskServiceId == -1 || this.taskServiceId > 0, "taskServiceId <= 0");
 
       return new ServiceId(
         this.taskName,
         this.nameSplitter,
+        this.environmentName,
         this.allowedNodes,
-        this.environment,
         this.uniqueId,
         this.taskServiceId,
-        this.nodeUniqueId);
+        this.nodeUniqueId,
+        this.environment);
     }
   }
 }

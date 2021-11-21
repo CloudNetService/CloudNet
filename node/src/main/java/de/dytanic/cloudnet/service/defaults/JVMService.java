@@ -84,7 +84,7 @@ public class JVMService extends AbstractService {
 
   @Override
   protected void startProcess() {
-    ServiceEnvironmentType environmentType = this.getServiceConfiguration().getProcessConfig().getEnvironment();
+    ServiceEnvironmentType environmentType = this.getServiceConfiguration().getServiceId().getEnvironment();
     // load the wrapper information if possible
     Pair<Path, Attributes> wrapperInformation = this.prepareWrapperFile();
     if (wrapperInformation == null) {
@@ -123,7 +123,7 @@ public class JVMService extends AbstractService {
 
     // add the class path and the main class of the wrapper
     arguments.add("-cp");
-    arguments.add(environmentType.getClasspath(wrapperInformation.getFirst(), applicationInformation.getFirst()));
+    arguments.add(wrapperInformation.getFirst().toAbsolutePath().toString());
     arguments.add(wrapperInformation.getSecond().getValue("Main-Class")); // the main class we want to invoke first
 
     // add all internal process parameters (they will be removed by the wrapper before starting the application)
@@ -132,7 +132,7 @@ public class JVMService extends AbstractService {
     arguments.add(applicationInformation.getFirst().toAbsolutePath().toString());
 
     // add all process parameters
-    arguments.addAll(environmentType.getProcessArguments());
+    arguments.addAll(environmentType.getDefaultProcessArguments());
     arguments.addAll(this.getServiceConfiguration().getProcessConfig().getProcessParameters());
 
     // try to start the process like that
@@ -235,7 +235,8 @@ public class JVMService extends AbstractService {
 
   protected @Nullable Pair<Path, Attributes> prepareApplicationFile(@NotNull ServiceEnvironmentType environmentType) {
     // collect all names of environment names
-    String[] environments = Arrays.stream(environmentType.getEnvironments())
+    String[] environments = this.nodeInstance.getServiceVersionProvider().getServiceVersionTypes().values().stream()
+      .filter(environment -> environment.getEnvironmentType().equals(environmentType.getName()))
       .map(ServiceEnvironment::getName)
       .toArray(String[]::new);
 

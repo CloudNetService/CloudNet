@@ -50,7 +50,7 @@ public final class BridgePluginIncludeListener {
         // copy the plugin.yml file for the environment
         DefaultModuleHelper.copyPluginConfigurationFileForEnvironment(
           BridgePluginIncludeListener.class,
-          event.getService().getServiceConfiguration().getProcessConfig().getEnvironment(),
+          event.getService().getServiceId().getEnvironment(),
           bridgePluginFile);
       }
     }

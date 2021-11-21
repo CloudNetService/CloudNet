@@ -188,8 +188,8 @@ public final class CommandTasks {
       .autoDeleteOnStop(true)
       .groups(Collections.singletonList(taskName))
       .serviceEnvironmentType(environmentType)
-      .maxHeapMemory(environmentType.isMinecraftProxy() ? 256 : 512)
-      .startPort(environmentType.getDefaultStartPort())
+      .maxHeapMemory(512)
+      .startPort(environmentType.getDefaultServiceStartPort())
       .build();
     this.taskProvider().addPermanentServiceTask(serviceTask);
     source.sendMessage(I18n.trans("command-tasks-create-task"));

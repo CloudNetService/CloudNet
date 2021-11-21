@@ -16,15 +16,22 @@
 
 package de.dytanic.cloudnet.ext.bridge.node;
 
+import static de.dytanic.cloudnet.ext.bridge.BridgeManagement.BRIDGE_PLAYER_DB_NAME;
+
+import com.google.common.collect.Iterables;
 import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.cluster.sync.DataSyncHandler;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.io.FileUtils;
+import de.dytanic.cloudnet.common.log.LogManager;
+import de.dytanic.cloudnet.common.log.Logger;
+import de.dytanic.cloudnet.database.LocalDatabase;
 import de.dytanic.cloudnet.driver.module.ModuleLifeCycle;
 import de.dytanic.cloudnet.driver.module.ModuleTask;
 import de.dytanic.cloudnet.driver.module.driver.DriverModule;
 import de.dytanic.cloudnet.driver.network.rpc.defaults.object.DefaultObjectMapper;
+import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.ext.bridge.BridgeManagement;
 import de.dytanic.cloudnet.ext.bridge.config.BridgeConfiguration;
 import de.dytanic.cloudnet.ext.bridge.config.ProxyFallbackConfiguration;
@@ -35,10 +42,13 @@ import java.nio.file.Path;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.title.Title;
 
 public final class CloudNetBridgeModule extends DriverModule {
+
+  private static final Logger LOGGER = LogManager.getLogger(CloudNetBridgeModule.class);
 
   @ModuleTask(order = 50, event = ModuleLifeCycle.LOADED)
   public void initNetworkHelpers() {
@@ -84,6 +94,60 @@ public final class CloudNetBridgeModule extends DriverModule {
       )).write(this.getConfigPath());
       // delete the old config
       FileUtils.delete(oldConfigurationPath.getParent());
+    }
+  }
+
+  @ModuleTask(event = ModuleLifeCycle.STARTED)
+  public void convertOldDatabaseEntries() {
+    LocalDatabase playerDb = CloudNet.getInstance().getDatabaseProvider().getDatabase(BRIDGE_PLAYER_DB_NAME);
+    // read the first player from the database - if the first player is valid we don't need to take a look at the other
+    // players in the database as they were already converted
+    Map<String, JsonDocument> first = playerDb.readChunk(101, 1);
+    if (first != null && !first.isEmpty()) {
+      JsonDocument document = Iterables.getOnlyElement(first.values());
+      // validate the offline player
+      JsonDocument serviceId = document
+        .getDocument("lastNetworkPlayerProxyInfo")
+        .getDocument("networkService")
+        .getDocument("serviceId");
+      // check if the environment name is set
+      if (serviceId.getString("environmentName") == null) {
+        LOGGER.warning("Converting the offline player database, this may take a few seconds...");
+
+        int convertedPlayers = 0;
+        // invalid player data - convert the database
+        Map<String, JsonDocument> chunkData;
+        while ((chunkData = playerDb.readChunk(convertedPlayers, 100)) != null) {
+          for (Entry<String, JsonDocument> entry : chunkData.entrySet()) {
+            // get all the required path
+            JsonDocument lastProxyInfo = entry.getValue().getDocument("lastNetworkPlayerProxyInfo");
+            JsonDocument networkService = lastProxyInfo.getDocument("networkService");
+            serviceId = networkService.getDocument("serviceId");
+            // rewrite the name of the environment
+            String environment = serviceId.getString("environment", "");
+            serviceId.append("environmentName", environment);
+            // try to set the new environment
+            ServiceEnvironmentType env = CloudNet.getInstance().getServiceVersionProvider()
+              .getEnvironmentType(environment)
+              .orElse(null);
+            serviceId.append("environment", env);
+            // rewrite all paths of the document
+            networkService.append("serviceId", serviceId);
+            lastProxyInfo.append("networkService", networkService);
+            entry.getValue().append("lastNetworkPlayerProxyInfo", lastProxyInfo);
+            // update the entry
+            playerDb.insert(entry.getKey(), entry.getValue());
+          }
+          // count the converted players up
+          convertedPlayers += chunkData.size();
+          // check if the chunk size was exactly 100 players - if not we just completed the last chunk
+          if (chunkData.size() != 100) {
+            break;
+          }
+        }
+        // notify about the completion
+        LOGGER.info("Successfully converted %d entries", null, convertedPlayers);
+      }
     }
   }
 

@@ -18,6 +18,7 @@ package eu.cloudnetservice.cloudnet.ext.syncproxy.node.listener;
 
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.driver.event.EventListener;
+import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
 import de.dytanic.cloudnet.driver.util.DefaultModuleHelper;
 import de.dytanic.cloudnet.event.service.CloudServicePreLifecycleEvent;
@@ -42,7 +43,7 @@ public final class IncludePluginListener {
     }
 
     ICloudService service = event.getService();
-    if (!service.getServiceId().getEnvironment().isMinecraftProxy()) {
+    if (!ServiceEnvironmentType.isMinecraftProxy(service.getServiceId().getEnvironment())) {
       return;
     }
 
@@ -64,7 +65,7 @@ public final class IncludePluginListener {
       if (DefaultModuleHelper.copyCurrentModuleInstanceFromClass(IncludePluginListener.class, targetFile)) {
         DefaultModuleHelper.copyPluginConfigurationFileForEnvironment(
           IncludePluginListener.class,
-          event.getService().getServiceConfiguration().getProcessConfig().getEnvironment(),
+          event.getService().getServiceId().getEnvironment(),
           targetFile
         );
       }

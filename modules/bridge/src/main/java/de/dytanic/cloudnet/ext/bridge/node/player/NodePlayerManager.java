@@ -310,7 +310,7 @@ public class NodePlayerManager implements IPlayerManager {
     NetworkServiceInfo networkService = networkPlayerProxyInfo.getNetworkService();
     CloudPlayer cloudPlayer = this.selectPlayerForLogin(networkPlayerProxyInfo, networkPlayerServerInfo);
     // check if the login service is a proxy and set the proxy as the login service if so
-    if (networkService.getServiceId().getEnvironment().isMinecraftProxy()) {
+    if (ServiceEnvironmentType.isMinecraftProxy(networkService.getServiceId().getEnvironment())) {
       // a proxy should be able to change the login service
       cloudPlayer.setLoginService(networkService);
     }
@@ -402,21 +402,21 @@ public class NodePlayerManager implements IPlayerManager {
         // check if the player has a known login service
         if (cloudPlayer.getLoginService() != null) {
           NetworkServiceInfo newLoginService = cloudPlayer.getLoginService();
-          NetworkServiceInfo knownLoginService = registeredPlayer.getLoginService();
+          NetworkServiceInfo loginService = registeredPlayer.getLoginService();
           // check if we already know the same service
-          if (!Objects.equals(newLoginService, knownLoginService)
-            && newLoginService.getEnvironment().isMinecraftProxy()
-            && (knownLoginService == null || !knownLoginService.getEnvironment().isMinecraftProxy())) {
+          if (!Objects.equals(newLoginService, loginService)
+            && ServiceEnvironmentType.isMinecraftProxy(newLoginService.getEnvironment())
+            && (loginService == null || !ServiceEnvironmentType.isMinecraftProxy(loginService.getEnvironment()))) {
             cloudPlayer.setLoginService(newLoginService);
             needsUpdate = true;
           }
         }
         // check if the player has a known connected service which is not a proxy
-        if (cloudPlayer.getConnectedService() != null && cloudPlayer.getConnectedService().getEnvironment()
-          .isMinecraftProxy()) {
-          NetworkServiceInfo knownConnectedService = registeredPlayer.getConnectedService();
-          if (knownConnectedService != null && knownConnectedService.getEnvironment().isMinecraftServer()) {
-            cloudPlayer.setConnectedService(knownConnectedService);
+        if (cloudPlayer.getConnectedService() != null
+          && ServiceEnvironmentType.isMinecraftProxy(cloudPlayer.getConnectedService().getEnvironment())) {
+          NetworkServiceInfo connectedService = registeredPlayer.getConnectedService();
+          if (connectedService != null && ServiceEnvironmentType.isMinecraftServer(connectedService.getEnvironment())) {
+            cloudPlayer.setConnectedService(connectedService);
             needsUpdate = true;
           }
         }

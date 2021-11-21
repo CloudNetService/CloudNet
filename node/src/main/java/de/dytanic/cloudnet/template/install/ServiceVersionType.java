@@ -19,54 +19,40 @@ package de.dytanic.cloudnet.template.install;
 import de.dytanic.cloudnet.common.JavaVersion;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironment;
 import de.dytanic.cloudnet.template.install.execute.InstallStep;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import org.jetbrains.annotations.NotNull;
 
-public class ServiceVersionType {
+public class ServiceVersionType extends ServiceEnvironment {
 
-  private String name;
-  private Collection<ServiceVersion> versions;
-  private ServiceEnvironment targetEnvironment;
-  private List<InstallStep> installSteps = new ArrayList<>();
-
-  public ServiceVersionType() {
-  }
+  private final List<InstallStep> installSteps;
+  private final Collection<ServiceVersion> versions;
 
   public ServiceVersionType(
     @NotNull String name,
-    @NotNull ServiceEnvironment targetEnvironment,
+    @NotNull String environmentType,
     @NotNull List<InstallStep> installSteps,
     @NotNull Collection<ServiceVersion> versions
   ) {
-    this.name = name;
-    this.targetEnvironment = targetEnvironment;
+    super(name, environmentType);
+
     this.installSteps = installSteps;
     this.versions = versions;
   }
 
-  public Optional<ServiceVersion> getVersion(String name) {
+  public @NotNull Optional<ServiceVersion> getVersion(@NotNull String name) {
     return this.versions.stream()
       .filter(serviceVersion -> serviceVersion.getName().equalsIgnoreCase(name))
       .findFirst();
   }
 
-  public boolean canInstall(ServiceVersion serviceVersion) {
+  public boolean canInstall(@NotNull ServiceVersion serviceVersion) {
     return !this.installSteps.contains(InstallStep.BUILD) || serviceVersion.canRun();
   }
 
-  public boolean canInstall(ServiceVersion serviceVersion, JavaVersion javaVersion) {
+  public boolean canInstall(@NotNull ServiceVersion serviceVersion, JavaVersion javaVersion) {
     return !this.installSteps.contains(InstallStep.BUILD) || serviceVersion.canRun(javaVersion);
-  }
-
-  public @NotNull String getName() {
-    return this.name;
-  }
-
-  public @NotNull ServiceEnvironment getTargetEnvironment() {
-    return this.targetEnvironment;
   }
 
   public @NotNull List<InstallStep> getInstallSteps() {

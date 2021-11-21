@@ -43,6 +43,7 @@ dependencies {
   "compileOnly"(projects.cloudnetWrapperJvm)
   "compileOnly"(libs.bundles.proxyPlatform)
 
+  "annotationProcessor"(libs.velocity)
   "implementation"(projects.cloudnetExt.adventureHelper)
 }
 

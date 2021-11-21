@@ -16,162 +16,173 @@
 
 package de.dytanic.cloudnet.driver.service;
 
-import de.dytanic.cloudnet.common.log.LogManager;
-import de.dytanic.cloudnet.common.log.Logger;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Arrays;
+import com.google.common.base.Verify;
+import de.dytanic.cloudnet.common.INameable;
+import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import de.dytanic.cloudnet.common.document.property.DocProperty;
+import de.dytanic.cloudnet.common.document.property.FunctionalDocProperty;
+import de.dytanic.cloudnet.common.document.property.JsonDocPropertyHolder;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.jar.JarFile;
-import java.util.jar.Manifest;
+import java.util.HashSet;
+import java.util.Set;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * The ServiceEnvironmentType groups the single {@link ServiceEnvironment} and provides methods to retrieve the main
  * class needed for the start of the ServiceEnvironment
  */
-public enum ServiceEnvironmentType {
+@ToString
+@EqualsAndHashCode(callSuper = false)
+public class ServiceEnvironmentType extends JsonDocPropertyHolder implements INameable, Cloneable {
 
-  MINECRAFT_SERVER(
-    new ServiceEnvironment[]{
-      ServiceEnvironment.MINECRAFT_SERVER_FORGE,
-      ServiceEnvironment.MINECRAFT_SERVER_SPONGE_VANILLA,
-      ServiceEnvironment.MINECRAFT_SERVER_PAPER_SPIGOT,
-      ServiceEnvironment.MINECRAFT_SERVER_PURPUR_SPIGOT,
-      ServiceEnvironment.MINECRAFT_SERVER_SPIGOT,
-      ServiceEnvironment.MINECRAFT_SERVER_MAGMA,
-    },
-    MinecraftServiceType.JAVA_SERVER,
-    44955
+  public static final DocProperty<Boolean> JAVA_PROXY = FunctionalDocProperty.<Boolean>forNamedProperty("isJavaProxy")
+    .reader(document -> document.getBoolean("isJavaProxy"))
+    .writer((bool, document) -> document.append("isJavaProxy", bool))
+    .build();
+  public static final DocProperty<Boolean> PE_PROXY = FunctionalDocProperty.<Boolean>forNamedProperty("isPeProxy")
+    .reader(document -> document.getBoolean("isPeProxy"))
+    .writer((bool, document) -> document.append("isPeProxy", bool))
+    .build();
+  public static final DocProperty<Boolean> JAVA_SERVER = FunctionalDocProperty.<Boolean>forNamedProperty("isJavaServer")
+    .reader(document -> document.getBoolean("isJavaServer"))
+    .writer((bool, document) -> document.append("isJavaServer", bool))
+    .build();
+  public static final DocProperty<Boolean> PE_SERVER = FunctionalDocProperty.<Boolean>forNamedProperty("isPeServer")
+    .reader(document -> document.getBoolean("isPeServer"))
+    .writer((bool, document) -> document.append("isPeServer", bool))
+    .build();
+
+  public static final ServiceEnvironmentType NUKKIT = ServiceEnvironmentType.builder()
+    .name("NUKKIT")
+    .addDefaultProcessArgument("disable-ansi")
+    .properties(JsonDocument.newDocument().setProperty(PE_SERVER, true))
+    .build();
+  public static final ServiceEnvironmentType MINECRAFT_SERVER = ServiceEnvironmentType.builder()
+    .name("MINECRAFT_SERVER")
+    .addDefaultProcessArgument("nogui")
+    .properties(JsonDocument.newDocument().setProperty(JAVA_SERVER, true))
+    .build();
+  public static final ServiceEnvironmentType GLOWSTONE = ServiceEnvironmentType.builder()
+    .name("GLOWSTONE")
+    .properties(JsonDocument.newDocument().setProperty(JAVA_SERVER, true))
+    .build();
+  public static final ServiceEnvironmentType BUNGEECORD = ServiceEnvironmentType.builder()
+    .name("BUNGEECORD")
+    .defaultServiceStartPort(25565)
+    .properties(JsonDocument.newDocument().setProperty(JAVA_PROXY, true))
+    .build();
+  public static final ServiceEnvironmentType VELOCITY = ServiceEnvironmentType.builder()
+    .name("VELOCITY")
+    .defaultServiceStartPort(25565)
+    .properties(JsonDocument.newDocument().setProperty(JAVA_PROXY, true))
+    .build();
+  public static final ServiceEnvironmentType WATERDOG_PE = ServiceEnvironmentType.builder()
+    .name("WATERDOG_PE")
+    .defaultServiceStartPort(19132)
+    .properties(JsonDocument.newDocument().setProperty(PE_PROXY, true))
+    .build();
+
+  private final String name;
+  private final int defaultServiceStartPort;
+  private final Set<String> defaultProcessArguments;
+
+  protected ServiceEnvironmentType(
+    @NotNull String name,
+    int defaultServiceStartPort,
+    @NotNull Set<String> defaultProcessArguments,
+    @NotNull JsonDocument properties
   ) {
-    @Override
-    public @NotNull Collection<String> getProcessArguments() {
-      return Collections.singleton("nogui");
+    this.name = name;
+    this.defaultServiceStartPort = defaultServiceStartPort;
+    this.defaultProcessArguments = defaultProcessArguments;
+    this.properties = properties;
+  }
+
+  public static @NotNull Builder builder() {
+    return new Builder();
+  }
+
+  public static @NotNull Builder builder(@NotNull ServiceEnvironmentType type) {
+    return builder()
+      .name(type.getName())
+      .properties(type.getProperties().clone())
+      .defaultServiceStartPort(type.getDefaultServiceStartPort())
+      .defaultProcessArguments(type.getDefaultProcessArguments());
+  }
+
+  public static boolean isMinecraftProxy(@NotNull ServiceEnvironmentType type) {
+    return JAVA_PROXY.get(type.getProperties()) || PE_PROXY.get(type.getProperties());
+  }
+
+  public static boolean isMinecraftServer(@NotNull ServiceEnvironmentType type) {
+    return JAVA_SERVER.get(type.getProperties()) || PE_SERVER.get(type.getProperties());
+  }
+
+  @Override
+  public @NotNull String getName() {
+    return this.name;
+  }
+
+  public int getDefaultServiceStartPort() {
+    return this.defaultServiceStartPort;
+  }
+
+  public @NotNull Collection<String> getDefaultProcessArguments() {
+    return this.defaultProcessArguments;
+  }
+
+  @Override
+  public ServiceEnvironmentType clone() {
+    try {
+      return (ServiceEnvironmentType) super.clone();
+    } catch (CloneNotSupportedException exception) {
+      throw new IllegalStateException(); // cannot happen - just explode
     }
-  },
-  GLOWSTONE(new ServiceEnvironment[]{ServiceEnvironment.GLOWSTONE_DEFAULT},
-    MinecraftServiceType.JAVA_SERVER,
-    44955
-  ),
-  NUKKIT(
-    new ServiceEnvironment[]{ServiceEnvironment.NUKKIT_DEFAULT},
-    MinecraftServiceType.BEDROCK_SERVER,
-    44955
-  ) {
-    @Override
-    public @NotNull Collection<String> getProcessArguments() {
-      return Collections.singleton("disable-ansi");
+  }
+
+  public static class Builder {
+
+    private String name;
+    private int defaultServiceStartPort = 44955;
+    private JsonDocument properties = JsonDocument.newDocument();
+    private Set<String> defaultProcessArguments = new HashSet<>();
+
+    public @NotNull Builder name(@NotNull String name) {
+      this.name = name;
+      return this;
     }
-  },
-  BUNGEECORD(
-    new ServiceEnvironment[]{
-      ServiceEnvironment.BUNGEECORD_HEXACORD,
-      ServiceEnvironment.BUNGEECORD_WATERFALL,
-      ServiceEnvironment.BUNGEECORD_DEFAULT
-    },
-    MinecraftServiceType.JAVA_PROXY,
-    25565,
-    new String[]{">"}
-  ),
-  VELOCITY(
-    new ServiceEnvironment[]{ServiceEnvironment.VELOCITY_DEFAULT},
-    MinecraftServiceType.JAVA_PROXY,
-    25565
-  ),
-  WATERDOG_PE(
-    new ServiceEnvironment[]{ServiceEnvironment.WATERDOG_PE},
-    MinecraftServiceType.BEDROCK_PROXY,
-    19132
-  );
 
-  public static final ServiceEnvironmentType[] VALUES = ServiceEnvironmentType.values();
-  private static final Logger LOGGER = LogManager.getLogger(ServiceEnvironmentType.class);
-  private final ServiceEnvironment[] environments;
-  private final MinecraftServiceType type;
-
-  private final int defaultStartPort;
-  private final Collection<String> ignoredConsoleLines;
-
-  ServiceEnvironmentType(ServiceEnvironment[] environments, MinecraftServiceType type, int defaultStartPort) {
-    this(environments, type, defaultStartPort, new String[0]);
-  }
-
-  ServiceEnvironmentType(ServiceEnvironment[] environments, MinecraftServiceType type, int defaultStartPort,
-    String[] ignoredConsoleLines) {
-    this.environments = environments;
-    this.type = type;
-    this.defaultStartPort = defaultStartPort;
-    this.ignoredConsoleLines = Arrays.asList(ignoredConsoleLines);
-  }
-
-  public @Nullable String getMainClass(@Nullable Path applicationFile) {
-    if (applicationFile != null && Files.exists(applicationFile)) {
-      try (JarFile jarFile = new JarFile(applicationFile.toFile())) {
-        Manifest manifest = jarFile.getManifest();
-        return manifest == null ? null : manifest.getMainAttributes().getValue("Main-Class");
-      } catch (IOException exception) {
-        LOGGER.severe("Exception while resolving main class", exception);
-      }
+    public @NotNull Builder defaultServiceStartPort(int defaultServiceStartPort) {
+      this.defaultServiceStartPort = defaultServiceStartPort;
+      return this;
     }
-    return null;
-  }
 
-  public @NotNull String getClasspath(@NotNull Path wrapperFile, @Nullable Path applicationFile) {
-    return wrapperFile.toAbsolutePath().toString();
-  }
+    public @NotNull Builder properties(@NotNull JsonDocument properties) {
+      this.properties = properties;
+      return this;
+    }
 
-  public @NotNull Collection<String> getProcessArguments() {
-    return Collections.emptyList();
-  }
+    public @NotNull Builder defaultProcessArguments(@NotNull Collection<String> defaultProcessArguments) {
+      this.defaultProcessArguments = new HashSet<>(defaultProcessArguments);
+      return this;
+    }
 
-  public ServiceEnvironment[] getEnvironments() {
-    return this.environments;
-  }
+    public @NotNull Builder addDefaultProcessArgument(@NotNull String defaultProcessArgument) {
+      this.defaultProcessArguments.add(defaultProcessArgument);
+      return this;
+    }
 
-  public MinecraftServiceType getMinecraftType() {
-    return this.type;
-  }
+    public @NotNull ServiceEnvironmentType build() {
+      Verify.verifyNotNull(this.name, "no name given");
+      Verify.verify(this.defaultServiceStartPort > 0 && this.defaultServiceStartPort <= 65535, "invalid default port");
 
-  public boolean isMinecraftJavaProxy() {
-    return this.type == MinecraftServiceType.JAVA_PROXY;
-  }
-
-  public boolean isMinecraftBedrockProxy() {
-    return this.type == MinecraftServiceType.BEDROCK_PROXY;
-  }
-
-  public boolean isMinecraftJavaServer() {
-    return this.type == MinecraftServiceType.JAVA_SERVER;
-  }
-
-  public boolean isMinecraftBedrockServer() {
-    return this.type == MinecraftServiceType.BEDROCK_SERVER;
-  }
-
-  public boolean isMinecraftProxy() {
-    return this.isMinecraftJavaProxy() || this.isMinecraftBedrockProxy();
-  }
-
-  public boolean isMinecraftServer() {
-    return this.isMinecraftJavaServer() || this.isMinecraftBedrockServer();
-  }
-
-  public boolean isMinecraftJava() {
-    return this.isMinecraftJavaServer() || this.isMinecraftJavaProxy();
-  }
-
-  public boolean isMinecraftBedrock() {
-    return this.isMinecraftBedrockServer() || this.isMinecraftBedrockProxy();
-  }
-
-  public int getDefaultStartPort() {
-    return this.defaultStartPort;
-  }
-
-  public Collection<String> getIgnoredConsoleLines() {
-    return this.ignoredConsoleLines;
+      return new ServiceEnvironmentType(
+        this.name,
+        this.defaultServiceStartPort,
+        this.defaultProcessArguments,
+        this.properties);
+    }
   }
 }

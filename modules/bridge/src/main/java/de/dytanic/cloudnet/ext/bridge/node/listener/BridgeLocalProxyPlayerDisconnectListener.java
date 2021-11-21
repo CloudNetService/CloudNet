@@ -20,6 +20,7 @@ import com.google.common.collect.Iterables;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.event.events.service.CloudServiceUpdateEvent;
+import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
 import de.dytanic.cloudnet.event.service.CloudServicePostLifecycleEvent;
@@ -42,7 +43,7 @@ public final class BridgeLocalProxyPlayerDisconnectListener {
   public void handleServiceUpdate(@NotNull CloudServiceUpdateEvent event) {
     ServiceInfoSnapshot info = event.getServiceInfo();
     if (info.getServiceId().getNodeUniqueId().equals(CloudNetDriver.getInstance().getComponentName())
-      && info.getServiceId().getEnvironment().isMinecraftProxy()) {
+      && ServiceEnvironmentType.isMinecraftProxy(info.getServiceId().getEnvironment())) {
       // get all the players which are connected to the proxy
       Collection<ServicePlayer> players = info.getProperty(BridgeServiceProperties.PLAYERS).orElse(null);
       if (players == null) {
@@ -75,7 +76,7 @@ public final class BridgeLocalProxyPlayerDisconnectListener {
   }
 
   private void handleCloudServiceRemove(@NotNull ServiceInfoSnapshot snapshot) {
-    if (snapshot.getServiceId().getEnvironment().isMinecraftProxy()) {
+    if (ServiceEnvironmentType.isMinecraftProxy(snapshot.getServiceId().getEnvironment())) {
       // test if any player has the stopped service as the login service
       for (CloudPlayer value : this.playerManager.getOnlinePlayers().values()) {
         if (value.getLoginService().getServiceId().getUniqueId().equals(snapshot.getServiceId().getUniqueId())) {

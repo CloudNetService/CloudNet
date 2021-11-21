@@ -97,7 +97,7 @@ public final class BridgeServiceHelper {
     value = value.replace("%task%", service.getServiceId().getTaskName());
     value = value.replace("%node%", service.getServiceId().getNodeUniqueId());
     value = value.replace("%unique_id%", service.getServiceId().getUniqueId().toString());
-    value = value.replace("%environment%", service.getServiceId().getEnvironment().name());
+    value = value.replace("%environment%", service.getServiceId().getEnvironment().getName());
     value = value.replace("%task_id%", Integer.toString(service.getServiceId().getTaskServiceId()));
     value = value.replace("%uid%", service.getServiceId().getUniqueId().toString().split("-")[0]);
     // general service information

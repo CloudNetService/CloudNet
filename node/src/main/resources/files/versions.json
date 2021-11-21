@@ -1,9 +1,63 @@
 {
-  "fileVersion": 2,
+  "fileVersion": 3,
+  "environments": [
+    {
+      "name": "MINECRAFT_SERVER",
+      "defaultServiceStartPort": 44955,
+      "defaultProcessArguments": [
+        "nogui"
+      ],
+      "properties": {
+        "isJavaServer": true
+      }
+    },
+    {
+      "name": "GLOWSTONE",
+      "defaultServiceStartPort": 44955,
+      "defaultProcessArguments": [],
+      "properties": {
+        "isJavaServer": true
+      }
+    },
+    {
+      "name": "NUKKIT",
+      "defaultServiceStartPort": 44955,
+      "defaultProcessArguments": [
+        "disable-ansi"
+      ],
+      "properties": {
+        "isPeServer": true
+      }
+    },
+    {
+      "name": "BUNGEECORD",
+      "defaultServiceStartPort": 25565,
+      "defaultProcessArguments": [],
+      "properties": {
+        "isJavaProxy": true
+      }
+    },
+    {
+      "name": "VELOCITY",
+      "defaultServiceStartPort": 25565,
+      "defaultProcessArguments": [],
+      "properties": {
+        "isJavaProxy": true
+      }
+    },
+    {
+      "name": "WATERDOG_PE",
+      "defaultServiceStartPort": 19132,
+      "defaultProcessArguments": [],
+      "properties": {
+        "isPeProxy": true
+      }
+    }
+  ],
   "versions": [
     {
-      "name": "paperspigot",
-      "targetEnvironment": "MINECRAFT_SERVER_PAPER_SPIGOT",
+      "name": "paper",
+      "environmentType": "MINECRAFT_SERVER",
       "installSteps": [
         "PAPER_API",
         "DOWNLOAD",
@@ -152,7 +206,7 @@
     },
     {
       "name": "purpur",
-      "targetEnvironment": "MINECRAFT_SERVER_PURPUR_SPIGOT",
+      "environmentType": "MINECRAFT_SERVER",
       "website": "https://purpur.pl3x.net/",
       "installSteps": [
         "DOWNLOAD",
@@ -218,7 +272,7 @@
     },
     {
       "name": "spigot",
-      "targetEnvironment": "MINECRAFT_SERVER_SPIGOT",
+      "environmentType": "MINECRAFT_SERVER",
       "website": "https://getbukkit.org",
       "installSteps": [
         "DOWNLOAD"
@@ -278,165 +332,8 @@
       ]
     },
     {
-      "name": "buildtools",
-      "targetEnvironment": "MINECRAFT_SERVER_SPIGOT",
-      "installSteps": [
-        "DOWNLOAD",
-        "BUILD",
-        "COPY_FILTER"
-      ],
-      "website": "https://spigotmc.org",
-      "versions": [
-        {
-          "name": "latest",
-          "url": "https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar",
-          "minJavaVersion": 16,
-          "cacheFiles": false,
-          "properties": {
-            "copy": {
-              "spigot-.*\\.jar": "spigot.jar"
-            },
-            "parameters": [
-              "--rev",
-              "%version%"
-            ]
-          }
-        },
-        {
-          "name": "1.17.1",
-          "url": "https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar",
-          "minJavaVersion": 16,
-          "properties": {
-            "copy": {
-              "spigot-.*\\.jar": "spigot.jar"
-            },
-            "parameters": [
-              "--rev",
-              "%version%"
-            ]
-          }
-        },
-        {
-          "name": "1.16.5",
-          "url": "https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar",
-          "maxJavaVersion": 13,
-          "properties": {
-            "copy": {
-              "spigot-.*\\.jar": "spigot.jar"
-            },
-            "parameters": [
-              "--rev",
-              "%version%"
-            ]
-          }
-        },
-        {
-          "name": "1.15.2",
-          "url": "https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar",
-          "maxJavaVersion": 13,
-          "properties": {
-            "copy": {
-              "spigot-.*\\.jar": "spigot.jar"
-            },
-            "parameters": [
-              "--rev",
-              "%version%"
-            ]
-          }
-        },
-        {
-          "name": "1.13.2",
-          "url": "https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar",
-          "maxJavaVersion": 13,
-          "properties": {
-            "copy": {
-              "spigot-.*\\.jar": "spigot.jar"
-            },
-            "parameters": [
-              "--rev",
-              "%version%"
-            ]
-          }
-        },
-        {
-          "name": "1.12.2",
-          "url": "https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar",
-          "maxJavaVersion": 10,
-          "properties": {
-            "copy": {
-              "spigot-.*\\.jar": "spigot.jar"
-            },
-            "parameters": [
-              "--rev",
-              "%version%"
-            ]
-          }
-        },
-        {
-          "name": "1.11.2",
-          "url": "https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar",
-          "deprecated": true,
-          "maxJavaVersion": 8,
-          "properties": {
-            "copy": {
-              "spigot-.*\\.jar": "spigot.jar"
-            },
-            "parameters": [
-              "--rev",
-              "%version%"
-            ]
-          }
-        },
-        {
-          "name": "1.10.2",
-          "url": "https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar",
-          "deprecated": true,
-          "maxJavaVersion": 8,
-          "properties": {
-            "copy": {
-              "spigot-.*\\.jar": "spigot.jar"
-            },
-            "parameters": [
-              "--rev",
-              "%version%"
-            ]
-          }
-        },
-        {
-          "name": "1.9.4",
-          "url": "https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar",
-          "deprecated": true,
-          "maxJavaVersion": 8,
-          "properties": {
-            "copy": {
-              "spigot-.*\\.jar": "spigot.jar"
-            },
-            "parameters": [
-              "--rev",
-              "%version%"
-            ]
-          }
-        },
-        {
-          "name": "1.8.8",
-          "url": "https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar",
-          "deprecated": true,
-          "maxJavaVersion": 8,
-          "properties": {
-            "copy": {
-              "spigot-.*\\.jar": "spigot.jar"
-            },
-            "parameters": [
-              "--rev",
-              "%version%"
-            ]
-          }
-        }
-      ]
-    },
-    {
       "name": "spongevanilla",
-      "targetEnvironment": "MINECRAFT_SERVER_SPONGE_VANILLA",
+      "environmentType": "MINECRAFT_SERVER",
       "website": "https://spongepowered.org",
       "installSteps": [
         "DOWNLOAD",
@@ -482,7 +379,7 @@
     },
     {
       "name": "magma",
-      "targetEnvironment": "MINECRAFT_SERVER_MAGMA",
+      "environmentType": "MINECRAFT_SERVER",
       "installSteps": [
         "DOWNLOAD",
         "MAGMA_BUILD",
@@ -541,7 +438,7 @@
     },
     {
       "name": "forge",
-      "targetEnvironment": "MINECRAFT_SERVER_FORGE",
+      "environmentType": "MINECRAFT_SERVER",
       "installSteps": [
         "DOWNLOAD",
         "BUILD",
@@ -730,7 +627,7 @@
     },
     {
       "name": "spongeforge",
-      "targetEnvironment": "MINECRAFT_SERVER_FORGE",
+      "environmentType": "MINECRAFT_SERVER",
       "installSteps": [
         "DOWNLOAD",
         "BUILD",
@@ -779,7 +676,7 @@
     },
     {
       "name": "glowstone",
-      "targetEnvironment": "GLOWSTONE_DEFAULT",
+      "environmentType": "GLOWSTONE",
       "website": "https://github.com/GlowstoneMC",
       "installSteps": [
         "DOWNLOAD"
@@ -802,7 +699,7 @@
     },
     {
       "name": "waterdogpe",
-      "targetEnvironment": "WATERDOG_PE",
+      "environmentType": "WATERDOG_PE",
       "website": "https://waterdog.dev",
       "installSteps": [
         "DOWNLOAD"
@@ -818,7 +715,7 @@
     },
     {
       "name": "bungeecord",
-      "targetEnvironment": "BUNGEECORD_DEFAULT",
+      "environmentType": "BUNGEECORD",
       "website": "https://ci.md-5.net/job/BungeeCord",
       "installSteps": [
         "DOWNLOAD"
@@ -833,7 +730,7 @@
     },
     {
       "name": "hexacord",
-      "targetEnvironment": "BUNGEECORD_HEXACORD",
+      "environmentType": "BUNGEECORD",
       "website": "https://github.com/HexagonMC/BungeeCord",
       "installSteps": [
         "DOWNLOAD"
@@ -848,7 +745,7 @@
     },
     {
       "name": "waterfall",
-      "targetEnvironment": "BUNGEECORD_WATERFALL",
+      "environmentType": "BUNGEECORD",
       "website": "https://papermc.io",
       "installSteps": [
         "PAPER_API",
@@ -867,7 +764,7 @@
     },
     {
       "name": "velocity",
-      "targetEnvironment": "VELOCITY_DEFAULT",
+      "environmentType": "VELOCITY",
       "website": "https://velocitypowered.com",
       "installSteps": [
         "DOWNLOAD"
@@ -889,7 +786,7 @@
     },
     {
       "name": "nukkit",
-      "targetEnvironment": "NUKKIT_DEFAULT",
+      "environmentType": "NUKKIT",
       "website": "https://nukkitx.com",
       "installSteps": [
         "DOWNLOAD"

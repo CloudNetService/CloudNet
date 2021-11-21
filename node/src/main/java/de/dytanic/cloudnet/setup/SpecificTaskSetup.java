@@ -17,11 +17,11 @@
 package de.dytanic.cloudnet.setup;
 
 import static de.dytanic.cloudnet.console.animation.setup.answer.Parsers.bool;
-import static de.dytanic.cloudnet.console.animation.setup.answer.Parsers.enumConstant;
 import static de.dytanic.cloudnet.console.animation.setup.answer.Parsers.javaVersion;
 import static de.dytanic.cloudnet.console.animation.setup.answer.Parsers.nonExistingTask;
 import static de.dytanic.cloudnet.console.animation.setup.answer.Parsers.ranged;
 import static de.dytanic.cloudnet.console.animation.setup.answer.Parsers.regex;
+import static de.dytanic.cloudnet.console.animation.setup.answer.Parsers.serviceEnvironmentType;
 import static de.dytanic.cloudnet.console.animation.setup.answer.Parsers.serviceVersion;
 
 import de.dytanic.cloudnet.CloudNet;
@@ -37,9 +37,7 @@ import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import de.dytanic.cloudnet.template.install.InstallInformation;
 import de.dytanic.cloudnet.template.install.ServiceVersion;
 import de.dytanic.cloudnet.template.install.ServiceVersionType;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
 
 public class SpecificTaskSetup extends DefaultTaskSetup implements DefaultSetup {
@@ -93,10 +91,8 @@ public class SpecificTaskSetup extends DefaultTaskSetup implements DefaultSetup 
         .key("taskEnvironment")
         .translatedQuestion("command-tasks-setup-question-environment")
         .answerType(QuestionAnswerType.<ServiceEnvironmentType>builder()
-          .parser(enumConstant(ServiceEnvironmentType.class))
-          .possibleResults(Arrays.stream(ServiceEnvironmentType.VALUES)
-            .map(Enum::name)
-            .collect(Collectors.toList())))
+          .parser(serviceEnvironmentType())
+          .possibleResults(CloudNet.getInstance().getServiceVersionProvider().getServiceVersionTypes().keySet()))
         .build(),
       QuestionListEntry.<Integer>builder()
         .key("taskStartPort")

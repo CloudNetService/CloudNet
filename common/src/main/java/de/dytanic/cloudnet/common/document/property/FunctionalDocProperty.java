@@ -16,6 +16,7 @@
 
 package de.dytanic.cloudnet.common.document.property;
 
+import com.google.common.base.Verify;
 import de.dytanic.cloudnet.common.document.IDocument;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -45,6 +46,16 @@ public final class FunctionalDocProperty<E> implements DocProperty<E> {
     this.containsTester = containsTester;
   }
 
+  public static @NotNull <E> Builder<E> builder() {
+    return new Builder<>();
+  }
+
+  public static @NotNull <E> Builder<E> forNamedProperty(@NotNull String propertyName) {
+    return FunctionalDocProperty.<E>builder()
+      .remover(document -> document.remove(propertyName))
+      .containsTester(document -> document.contains(propertyName));
+  }
+
   @Override
   public void remove(@NotNull IDocument<?> from) {
     this.remover.accept(from);
@@ -63,5 +74,47 @@ public final class FunctionalDocProperty<E> implements DocProperty<E> {
   @Override
   public boolean isAppendedTo(@NotNull IDocument<?> document) {
     return this.containsTester.test(document);
+  }
+
+  public static class Builder<E> {
+
+    private Function<IDocument<?>, E> reader;
+    private BiConsumer<E, IDocument<?>> writer;
+
+    private Consumer<IDocument<?>> remover;
+    private Predicate<IDocument<?>> containsTester;
+
+    public @NotNull Builder<E> reader(@NotNull Function<IDocument<?>, E> reader) {
+      this.reader = reader;
+      return this;
+    }
+
+    public @NotNull Builder<E> writer(@NotNull BiConsumer<E, IDocument<?>> writer) {
+      this.writer = writer;
+      return this;
+    }
+
+    public @NotNull Builder<E> remover(@NotNull Consumer<IDocument<?>> remover) {
+      this.remover = remover;
+      return this;
+    }
+
+    public @NotNull Builder<E> containsTester(@NotNull Predicate<IDocument<?>> containsTester) {
+      this.containsTester = containsTester;
+      return this;
+    }
+
+    public @NotNull DocProperty<E> build() {
+      Verify.verifyNotNull(this.reader, "no reader given");
+      Verify.verifyNotNull(this.writer, "no writer given");
+      Verify.verifyNotNull(this.reader, "no remover given");
+      Verify.verifyNotNull(this.containsTester, "no contains tester given");
+
+      return new FunctionalDocProperty<>(
+        this.reader,
+        this.writer,
+        this.remover,
+        this.containsTester);
+    }
   }
 }

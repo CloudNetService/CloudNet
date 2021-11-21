@@ -18,6 +18,7 @@ package de.dytanic.cloudnet.ext.bridge.platform.waterdog;
 
 import de.dytanic.cloudnet.common.registry.IServicesRegistry;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
+import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.ext.bridge.BridgeServiceHelper;
 import de.dytanic.cloudnet.ext.bridge.platform.PlatformBridgeManagement;
@@ -57,7 +58,7 @@ final class WaterDogPEBridgeManagement extends PlatformBridgeManagement<ProxiedP
     BridgeServiceHelper.MAX_PLAYERS.set(ProxyServer.getInstance().getConfiguration().getMaxPlayerCount());
     // init the default cache listeners
     this.cacheTester = CONNECTED_SERVICE_TESTER
-      .and(service -> service.getServiceId().getEnvironment().isMinecraftBedrockServer());
+      .and(service -> ServiceEnvironmentType.PE_SERVER.get(service.getServiceId().getEnvironment().getProperties()));
     // register each service matching the service cache tester
     this.cacheRegisterListener = service -> ProxyServer.getInstance().getServerInfoMap().put(
       service.getName(),

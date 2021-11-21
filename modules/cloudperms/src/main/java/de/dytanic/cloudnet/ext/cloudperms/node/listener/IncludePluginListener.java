@@ -51,7 +51,7 @@ public final class IncludePluginListener {
         // copy the plugin.yml file for the environment
         DefaultModuleHelper.copyPluginConfigurationFileForEnvironment(
           IncludePluginListener.class,
-          event.getService().getServiceConfiguration().getProcessConfig().getEnvironment(),
+          event.getService().getServiceId().getEnvironment(),
           permsPluginFile);
       }
     }

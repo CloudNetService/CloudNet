@@ -51,7 +51,7 @@ public final class SignEntryTaskSetup {
     @NotNull ServiceEnvironmentType type
   ) {
     if (!animation.hasResult("generateDefaultSignConfigurationEntry")
-      && (type.isMinecraftJavaServer() || type.isMinecraftBedrockServer())) {
+      && ServiceEnvironmentType.isMinecraftServer(type)) {
       animation.addEntries(CREATE_ENTRY_QUESTION_LIST);
     }
   }
@@ -72,7 +72,7 @@ public final class SignEntryTaskSetup {
         && generateSignsConfig
         && !SignPluginInclusion.hasConfigurationEntry(Collections.singleton(taskName), configuration)
       ) {
-        SignConfigurationEntry entry = environment.isMinecraftJavaServer()
+        SignConfigurationEntry entry = ServiceEnvironmentType.JAVA_SERVER.get(environment.getProperties())
           ? SignConfigurationType.JAVA.createEntry(taskName)
           : SignConfigurationType.BEDROCK.createEntry(taskName);
         configuration.getConfigurationEntries().add(entry);

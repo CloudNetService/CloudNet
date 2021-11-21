@@ -19,6 +19,7 @@ package de.dytanic.cloudnet.ext.bridge.platform.bungeecord;
 import com.google.common.collect.Iterables;
 import de.dytanic.cloudnet.common.registry.IServicesRegistry;
 import de.dytanic.cloudnet.driver.network.HostAndPort;
+import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.ext.bridge.BridgeServiceHelper;
 import de.dytanic.cloudnet.ext.bridge.platform.PlatformBridgeManagement;
@@ -58,7 +59,7 @@ final class BungeeCordBridgeManagement extends PlatformBridgeManagement<ProxiedP
     BridgeServiceHelper.MAX_PLAYERS.set(ProxyServer.getInstance().getConfig().getPlayerLimit());
     // init the default cache listeners
     this.cacheTester = CONNECTED_SERVICE_TESTER
-      .and(service -> service.getServiceId().getEnvironment().isMinecraftJavaServer());
+      .and(service -> ServiceEnvironmentType.JAVA_SERVER.get(service.getServiceId().getEnvironment().getProperties()));
     // register each service matching the service cache tester
     this.cacheRegisterListener = BungeeCordServerHelper.SERVER_REGISTER_HANDLER;
     // unregister each service matching the service cache tester

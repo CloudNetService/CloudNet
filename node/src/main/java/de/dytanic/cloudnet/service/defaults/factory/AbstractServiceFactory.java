@@ -18,6 +18,7 @@ package de.dytanic.cloudnet.service.defaults.factory;
 
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
+import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.service.ICloudService;
 import de.dytanic.cloudnet.service.ICloudServiceFactory;
 import de.dytanic.cloudnet.service.ICloudServiceManager;
@@ -32,6 +33,16 @@ public abstract class AbstractServiceFactory implements ICloudServiceFactory {
   ) {
     // set the node unique id
     configuration.getServiceId().setNodeUniqueId(CloudNet.getInstance().getNodeUniqueId());
+
+    // set the environment type
+    if (configuration.getServiceId().getEnvironment() == null) {
+      ServiceEnvironmentType env = CloudNet.getInstance().getServiceVersionProvider()
+        .getEnvironmentType(configuration.getServiceId().getEnvironmentName())
+        .orElseThrow(() -> new IllegalArgumentException(
+          "Unknown environment type " + configuration.getServiceId().getEnvironmentName()));
+      // set the environment type
+      configuration.getServiceId().setEnvironment(env);
+    }
 
     // find a free port for the service
     int port = configuration.getPort();

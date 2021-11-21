@@ -29,15 +29,15 @@ import org.jetbrains.annotations.Range;
 @EqualsAndHashCode
 public class ProcessConfiguration implements Cloneable {
 
+  protected final String environment;
   protected final int maxHeapMemorySize;
-  protected final ServiceEnvironmentType environment;
 
   protected final Set<String> jvmOptions;
   protected final Set<String> processParameters;
 
   protected ProcessConfiguration(
+    @NotNull String environment,
     int maxHeapMemorySize,
-    @NotNull ServiceEnvironmentType environment,
     @NotNull Set<String> jvmOptions,
     @NotNull Set<String> processParameters
   ) {
@@ -59,7 +59,7 @@ public class ProcessConfiguration implements Cloneable {
       .processParameters(configuration.getProcessParameters());
   }
 
-  public @NotNull ServiceEnvironmentType getEnvironment() {
+  public @NotNull String getEnvironment() {
     return this.environment;
   }
 
@@ -86,8 +86,8 @@ public class ProcessConfiguration implements Cloneable {
 
   public static class Builder {
 
+    protected String environment;
     protected int maxHeapMemorySize = 512;
-    protected ServiceEnvironmentType environment;
 
     protected Set<String> jvmOptions = new HashSet<>();
     protected Set<String> processParameters = new HashSet<>();
@@ -97,8 +97,13 @@ public class ProcessConfiguration implements Cloneable {
       return this;
     }
 
-    public @NotNull Builder environment(@NotNull ServiceEnvironmentType environment) {
+    public @NotNull Builder environment(@NotNull String environment) {
       this.environment = environment;
+      return this;
+    }
+
+    public @NotNull Builder environment(@NotNull ServiceEnvironmentType environment) {
+      this.environment = environment.getName();
       return this;
     }
 
@@ -127,8 +132,8 @@ public class ProcessConfiguration implements Cloneable {
       Verify.verify(this.maxHeapMemorySize >= 50, "heap memory must be at least 50 MB");
 
       return new ProcessConfiguration(
-        this.maxHeapMemorySize,
         this.environment,
+        this.maxHeapMemorySize,
         this.jvmOptions,
         this.processParameters);
     }

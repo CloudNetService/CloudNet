@@ -44,7 +44,7 @@ public class JVMServiceFactory extends AbstractServiceFactory {
     this.validateConfiguration(manager, configuration);
     // select the configuration preparer for the environment
     ServiceConfigurationPreparer preparer = manager
-      .getServicePreparer(configuration.getProcessConfig().getEnvironment())
+      .getServicePreparer(configuration.getServiceId().getEnvironment())
       .orElseThrow(() -> new IllegalArgumentException("Unable to prepare config for " + configuration.getServiceId()));
     // create the service
     return new JVMService(configuration, manager, this.eventManager, this.nodeInstance, preparer);

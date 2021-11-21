@@ -33,13 +33,13 @@ public class GroupConfiguration extends ServiceConfigurationBase implements Clon
 
   protected Collection<String> jvmOptions;
   protected Collection<String> processParameters;
-  protected Collection<ServiceEnvironmentType> targetEnvironments;
+  protected Collection<String> targetEnvironments;
 
   protected GroupConfiguration(
     @NotNull String name,
     @NotNull Collection<String> jvmOptions,
     @NotNull Collection<String> processParameters,
-    @NotNull Collection<ServiceEnvironmentType> targetEnvironments,
+    @NotNull Collection<String> targetEnvironments,
     @NotNull Collection<ServiceTemplate> templates,
     @NotNull Collection<ServiceDeployment> deployments,
     @NotNull Collection<ServiceRemoteInclusion> includes,
@@ -67,7 +67,7 @@ public class GroupConfiguration extends ServiceConfigurationBase implements Clon
     return this.processParameters;
   }
 
-  public @NotNull Collection<ServiceEnvironmentType> getTargetEnvironments() {
+  public @NotNull Collection<String> getTargetEnvironments() {
     return this.targetEnvironments;
   }
 
@@ -88,19 +88,19 @@ public class GroupConfiguration extends ServiceConfigurationBase implements Clon
   public static class Builder extends ServiceConfigurationBase.Builder<GroupConfiguration, Builder> {
 
     protected String name;
-    protected Collection<ServiceEnvironmentType> targetEnvironments = new HashSet<>();
+    protected Collection<String> targetEnvironments = new HashSet<>();
 
     public @NotNull Builder name(@NotNull String name) {
       this.name = name;
       return this;
     }
 
-    public @NotNull Builder targetEnvironments(@NotNull Collection<ServiceEnvironmentType> targetEnvironments) {
+    public @NotNull Builder targetEnvironments(@NotNull Collection<String> targetEnvironments) {
       this.targetEnvironments = new HashSet<>(targetEnvironments);
       return this;
     }
 
-    public @NotNull Builder addTargetEnvironment(@NotNull ServiceEnvironmentType environmentType) {
+    public @NotNull Builder addTargetEnvironment(@NotNull String environmentType) {
       this.targetEnvironments.add(environmentType);
       return this;
     }

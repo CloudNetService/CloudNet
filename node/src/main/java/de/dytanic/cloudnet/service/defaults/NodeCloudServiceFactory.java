@@ -134,7 +134,7 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
   protected void includeGroupComponents(@NotNull ServiceConfiguration configuration) {
     // include all groups which are matching the service configuration
     CloudNet.getInstance().getGroupConfigurationProvider().getGroupConfigurations().stream()
-      .filter(group -> group.getTargetEnvironments().contains(configuration.getServiceId().getEnvironment()))
+      .filter(group -> group.getTargetEnvironments().contains(configuration.getServiceId().getEnvironmentName()))
       .forEach(group -> configuration.getGroups().add(group.getName()));
     // include each group component in the service configuration
     for (String group : configuration.getGroups()) {

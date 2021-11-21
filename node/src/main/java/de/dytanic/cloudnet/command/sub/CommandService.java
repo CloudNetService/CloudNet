@@ -314,11 +314,9 @@ public final class CommandService {
       "* Address: " + service.getAddress().getHost() + ":" + service.getAddress().getPort()
     ));
 
-    if (service.getServiceId().getEnvironment().isMinecraftServer()
-      && !service.getAddress().getHost().equals(service.getConnectAddress().getHost())) {
-      list.add(
-        "* Address for connections: " + service.getConnectAddress().getHost() + ":" + service
-          .getConnectAddress().getPort());
+    if (!service.getAddress().getHost().equals(service.getConnectAddress().getHost())) {
+      list.add("* Address for connections: " + service.getConnectAddress().getHost() + ":" + service
+        .getConnectAddress().getPort());
     }
 
     if (service.isConnected()) {

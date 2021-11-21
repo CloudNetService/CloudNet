@@ -18,6 +18,7 @@ package eu.cloudnetservice.cloudnet.ext.syncproxy.platform;
 
 import de.dytanic.cloudnet.driver.event.IEventManager;
 import de.dytanic.cloudnet.driver.network.rpc.RPCSender;
+import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.ext.bridge.BridgeServiceProperties;
 import de.dytanic.cloudnet.wrapper.Wrapper;
@@ -158,7 +159,8 @@ public abstract class PlatformSyncProxyManagement<P> implements SyncProxyManagem
   }
 
   public void cacheServiceInfoSnapshot(@NotNull ServiceInfoSnapshot snapshot) {
-    if (snapshot.getServiceId().getEnvironment().isMinecraftProxy() && this.checkServiceGroup(snapshot)) {
+    if (ServiceEnvironmentType.isMinecraftProxy(snapshot.getServiceId().getEnvironment())
+      && this.checkServiceGroup(snapshot)) {
       this.proxyOnlineCountCache.put(snapshot.getServiceId().getUniqueId(),
         BridgeServiceProperties.MAX_PLAYERS.get(snapshot).orElse(0));
       this.updateTabList();

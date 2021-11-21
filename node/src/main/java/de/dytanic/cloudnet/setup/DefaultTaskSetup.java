@@ -17,13 +17,18 @@
 package de.dytanic.cloudnet.setup;
 
 import static de.dytanic.cloudnet.console.animation.setup.answer.Parsers.bool;
-import static de.dytanic.cloudnet.console.animation.setup.answer.Parsers.enumConstant;
 import static de.dytanic.cloudnet.console.animation.setup.answer.Parsers.javaVersion;
+import static de.dytanic.cloudnet.console.animation.setup.answer.Parsers.serviceEnvironmentType;
 import static de.dytanic.cloudnet.console.animation.setup.answer.Parsers.serviceVersion;
+import static de.dytanic.cloudnet.driver.service.ServiceEnvironmentType.JAVA_PROXY;
+import static de.dytanic.cloudnet.driver.service.ServiceEnvironmentType.JAVA_SERVER;
+import static de.dytanic.cloudnet.driver.service.ServiceEnvironmentType.PE_PROXY;
+import static de.dytanic.cloudnet.driver.service.ServiceEnvironmentType.PE_SERVER;
 
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.JavaVersion;
 import de.dytanic.cloudnet.common.collection.Pair;
+import de.dytanic.cloudnet.common.document.IDocument;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.console.animation.setup.ConsoleSetupAnimation;
@@ -36,9 +41,9 @@ import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import de.dytanic.cloudnet.template.TemplateStorageUtil;
 import de.dytanic.cloudnet.template.install.InstallInformation;
 import de.dytanic.cloudnet.template.install.ServiceVersion;
+import de.dytanic.cloudnet.template.install.ServiceVersionProvider;
 import de.dytanic.cloudnet.template.install.ServiceVersionType;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.stream.Collectors;
@@ -74,10 +79,13 @@ public class DefaultTaskSetup implements DefaultSetup {
                   .key("proxyEnvironment")
                   .translatedQuestion("cloudnet-init-setup-tasks-proxy-environment")
                   .answerType(QuestionAnswerType.<ServiceEnvironmentType>builder()
-                    .parser(enumConstant(ServiceEnvironmentType.class))
-                    .possibleResults(Arrays.stream(ServiceEnvironmentType.VALUES)
-                      .filter(ServiceEnvironmentType::isMinecraftProxy)
-                      .map(ServiceEnvironmentType::name)
+                    .parser(serviceEnvironmentType())
+                    .possibleResults(this.getVersionProvider().getKnownEnvironments().values().stream()
+                      .filter(type -> {
+                        IDocument<?> properties = type.getProperties();
+                        return JAVA_PROXY.get(properties) || PE_PROXY.get(properties);
+                      })
+                      .map(ServiceEnvironmentType::getName)
                       .collect(Collectors.toList())))
                   .build(),
                 // Java command
@@ -118,10 +126,13 @@ public class DefaultTaskSetup implements DefaultSetup {
                   .key("serverEnvironment")
                   .translatedQuestion("cloudnet-init-setup-tasks-server-environment")
                   .answerType(QuestionAnswerType.<ServiceEnvironmentType>builder()
-                    .parser(enumConstant(ServiceEnvironmentType.class))
-                    .possibleResults(Arrays.stream(ServiceEnvironmentType.values())
-                      .filter(ServiceEnvironmentType::isMinecraftServer)
-                      .map(ServiceEnvironmentType::name)
+                    .parser(serviceEnvironmentType())
+                    .possibleResults(this.getVersionProvider().getKnownEnvironments().values().stream()
+                      .filter(type -> {
+                        IDocument<?> properties = type.getProperties();
+                        return JAVA_SERVER.get(properties) || PE_SERVER.get(properties);
+                      })
+                      .map(ServiceEnvironmentType::getName)
                       .collect(Collectors.toList())))
                   .build(),
                 // Java command
@@ -180,7 +191,7 @@ public class DefaultTaskSetup implements DefaultSetup {
       .javaCommand(javaCommand.getFirst())
       .serviceEnvironmentType(environment)
       .groups(Collections.singletonList(groupName))
-      .startPort(environment.getDefaultStartPort())
+      .startPort(environment.getDefaultServiceStartPort())
       .templates(Collections.singletonList(ServiceTemplate.builder().prefix(taskName).name("default").build()))
       .build();
     CloudNet.getInstance().getServiceTaskProvider().addPermanentServiceTask(serviceTask);
@@ -202,7 +213,7 @@ public class DefaultTaskSetup implements DefaultSetup {
     // add the group configuration
     GroupConfiguration configuration = GroupConfiguration.builder()
       .name(groupName)
-      .addTargetEnvironment(environment)
+      .addTargetEnvironment(environment.getName())
       .build();
     configuration.getTemplates().add(template);
     // register the group
@@ -212,7 +223,7 @@ public class DefaultTaskSetup implements DefaultSetup {
   protected void initializeTemplate(@NotNull ServiceTemplate template, @NotNull ServiceEnvironmentType environment) {
     // install the template
     try {
-      TemplateStorageUtil.createAndPrepareTemplate(template.storage(), environment);
+      TemplateStorageUtil.createAndPrepareTemplate(template, template.storage(), environment);
     } catch (IOException exception) {
       LOGGER.severe("Exception while initializing local template %s with environment %s",
         exception,
@@ -225,8 +236,8 @@ public class DefaultTaskSetup implements DefaultSetup {
     @NotNull ServiceEnvironmentType type,
     @NotNull Pair<String, JavaVersion> javaVersion
   ) {
-    return CloudNet.getInstance().getServiceVersionProvider().getServiceVersionTypes().values().stream()
-      .filter(serviceVersionType -> serviceVersionType.getTargetEnvironment().getEnvironmentType() == type)
+    return this.getVersionProvider().getServiceVersionTypes().values().stream()
+      .filter(versionType -> versionType.getEnvironmentType().equals(type.getName()))
       .flatMap(serviceVersionType -> serviceVersionType.getVersions()
         .stream()
         .filter(version -> version.canRun(javaVersion.getSecond()))
@@ -235,5 +246,9 @@ public class DefaultTaskSetup implements DefaultSetup {
         result.add("none");
         return result;
       }));
+  }
+
+  protected @NotNull ServiceVersionProvider getVersionProvider() {
+    return CloudNet.getInstance().getServiceVersionProvider();
   }
 }

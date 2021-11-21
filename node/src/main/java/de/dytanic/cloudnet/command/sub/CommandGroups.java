@@ -116,7 +116,7 @@ public final class CommandGroups {
     @Argument("name") GroupConfiguration group,
     @Argument("environment") ServiceEnvironmentType environmentType
   ) {
-    group.getTargetEnvironments().add(environmentType);
+    group.getTargetEnvironments().add(environmentType.getName());
     this.groupProvider().addGroupConfiguration(group);
     source.sendMessage(I18n.trans("command-groups-add-environment-success"));
   }
@@ -127,7 +127,7 @@ public final class CommandGroups {
     @Argument("name") GroupConfiguration group,
     @Argument("environment") ServiceEnvironmentType environmentType
   ) {
-    if (group.getTargetEnvironments().remove(environmentType)) {
+    if (group.getTargetEnvironments().remove(environmentType.getName())) {
       this.groupProvider().addGroupConfiguration(group);
       source.sendMessage(I18n.trans("command-groups-remove-environment-success"));
     } else {

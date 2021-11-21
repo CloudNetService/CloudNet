@@ -192,7 +192,7 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
     return this.knownServices.values().stream()
       .map(SpecificCloudServiceProvider::getServiceInfoSnapshot)
       .filter(Objects::nonNull)
-      .filter(snapshot -> snapshot.getServiceId().getEnvironment() == environment)
+      .filter(snapshot -> snapshot.getServiceId().getEnvironment().equals(environment))
       .collect(Collectors.toList());
   }
 

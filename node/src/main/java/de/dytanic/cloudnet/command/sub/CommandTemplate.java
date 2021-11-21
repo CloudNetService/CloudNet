@@ -62,6 +62,12 @@ public final class CommandTemplate {
     return template;
   }
 
+  @Parser
+  public ServiceEnvironmentType defaultServiceEnvironmentTypeParser(CommandContext<?> $, Queue<String> input) {
+    return CloudNet.getInstance().getServiceVersionProvider().getEnvironmentType(input.remove())
+      .orElseThrow(() -> new ArgumentNotAvailableException("No such version type"));
+  }
+
   @Suggestions("serviceTemplate")
   public List<String> suggestServiceTemplate(CommandContext<CommandSource> $, String input) {
     return CloudNet.getInstance().getLocalTemplateStorage().getTemplates()
@@ -238,7 +244,7 @@ public final class CommandTemplate {
     }
 
     try {
-      if (TemplateStorageUtil.createAndPrepareTemplate(template.storage(), environmentType)) {
+      if (TemplateStorageUtil.createAndPrepareTemplate(template, template.storage(), environmentType)) {
         source.sendMessage(I18n.trans("command-template-create-success")
           .replace("%template%", template.getFullName())
           .replace("%storage%", template.getStorage())

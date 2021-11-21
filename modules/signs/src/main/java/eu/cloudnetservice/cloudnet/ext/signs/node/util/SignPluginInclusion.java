@@ -36,7 +36,7 @@ public final class SignPluginInclusion {
 
   public static void includePluginTo(@NotNull ICloudService cloudService, @NotNull SignsConfiguration configuration) {
     ServiceEnvironmentType type = cloudService.getServiceConfiguration().getServiceId().getEnvironment();
-    if ((type.isMinecraftJavaServer() || type.isMinecraftBedrockServer())
+    if (ServiceEnvironmentType.isMinecraftServer(type)
       && hasConfigurationEntry(cloudService.getServiceConfiguration().getGroups(), configuration)) {
       Path pluginDirectory = cloudService.getDirectory().resolve("plugins");
       FileUtils.createDirectory(pluginDirectory);

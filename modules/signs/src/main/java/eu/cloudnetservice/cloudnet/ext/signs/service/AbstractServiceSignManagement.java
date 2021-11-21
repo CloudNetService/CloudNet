@@ -16,6 +16,9 @@
 
 package eu.cloudnetservice.cloudnet.ext.signs.service;
 
+import static de.dytanic.cloudnet.driver.service.ServiceEnvironmentType.JAVA_SERVER;
+import static de.dytanic.cloudnet.driver.service.ServiceEnvironmentType.PE_SERVER;
+
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.MapMaker;
 import de.dytanic.cloudnet.common.log.LogManager;
@@ -219,11 +222,11 @@ public abstract class AbstractServiceSignManagement<T> extends ServiceSignManage
   }
 
   protected boolean shouldAssign(@NotNull ServiceInfoSnapshot snapshot) {
-    ServiceEnvironmentType currentEnvironment = Wrapper.getInstance().getServiceId().getEnvironment();
-    ServiceEnvironmentType serviceEnvironment = snapshot.getServiceId().getEnvironment();
+    ServiceEnvironmentType currentEnv = Wrapper.getInstance().getServiceId().getEnvironment();
+    ServiceEnvironmentType serviceEnv = snapshot.getServiceId().getEnvironment();
 
-    return (serviceEnvironment.isMinecraftJavaServer() && currentEnvironment.isMinecraftJavaServer())
-      || (serviceEnvironment.isMinecraftBedrockServer() && currentEnvironment.isMinecraftBedrockServer());
+    return (JAVA_SERVER.get(currentEnv.getProperties()) && JAVA_SERVER.get(serviceEnv.getProperties()))
+      || PE_SERVER.get(currentEnv.getProperties()) && PE_SERVER.get(serviceEnv.getProperties());
   }
 
   protected void tryAssign(@NotNull ServiceInfoSnapshot snapshot) {

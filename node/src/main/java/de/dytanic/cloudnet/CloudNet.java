@@ -130,7 +130,7 @@ public class CloudNet extends CloudNetDriver {
     this.console = console;
     this.commandProvider = new DefaultCommandProvider(console);
 
-    this.serviceVersionProvider = new ServiceVersionProvider();
+    this.serviceVersionProvider = new ServiceVersionProvider(this.eventManager);
     this.cloudNetVersion = CloudNetVersion.fromClassInformation(CloudNet.class.getPackage());
 
     this.configuration = JsonConfiguration.loadFromFile(this);

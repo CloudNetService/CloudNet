@@ -262,6 +262,12 @@ public class ServiceConfiguration extends JsonDocPropertyHolder implements Clone
       return this;
     }
 
+    public @NotNull Builder environment(@NotNull String environment) {
+      this.serviceId.environment(environment);
+      this.processConfig.environment(environment);
+      return this;
+    }
+
     /**
      * The environment for the new service.
      */

@@ -313,7 +313,7 @@ public class ServiceTask extends ServiceConfigurationBase implements Cloneable, 
 
     public @NotNull Builder serviceEnvironmentType(@NotNull ServiceEnvironmentType serviceEnvironmentType) {
       this.processConfiguration.environment(serviceEnvironmentType);
-      this.startPort = this.startPort == -1 ? serviceEnvironmentType.getDefaultStartPort() : this.startPort;
+      this.startPort = this.startPort == -1 ? serviceEnvironmentType.getDefaultServiceStartPort() : this.startPort;
 
       return this;
     }

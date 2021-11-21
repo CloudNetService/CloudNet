@@ -16,47 +16,71 @@
 
 package de.dytanic.cloudnet.driver.service;
 
-import java.util.Arrays;
+import com.google.common.base.Verify;
+import de.dytanic.cloudnet.common.INameable;
+import org.jetbrains.annotations.NotNull;
 
-public enum ServiceEnvironment {
-
-  // Vanilla minecraft server forks
-  MINECRAFT_SERVER_SPIGOT("spigot"),
-  MINECRAFT_SERVER_PAPER_SPIGOT("paper"),
-  MINECRAFT_SERVER_PURPUR_SPIGOT("purpur"),
-  MINECRAFT_SERVER_SPONGE_VANILLA("spongevanilla"),
-  // Forge based minecraft servers
-  MINECRAFT_SERVER_FORGE("forge"),
-  MINECRAFT_SERVER_MAGMA("magma"),
-  // GlowStone
-  GLOWSTONE_DEFAULT("glowstone"),
-  // BungeeCord and forks
-  BUNGEECORD_DEFAULT("bungee"),
-  BUNGEECORD_WATERFALL("waterfall"),
-  BUNGEECORD_HEXACORD("hexacord"),
-  // Waterdog
-  WATERDOG_PE("waterdog-pe"),
-  // Nukkit
-  NUKKIT_DEFAULT("nukkit"),
-  // Velocity
-  VELOCITY_DEFAULT("velocity");
-
-  public static final ServiceEnvironment[] VALUES = ServiceEnvironment.values();
+public class ServiceEnvironment implements INameable, Cloneable {
 
   private final String name;
+  private final String environmentType;
 
-  ServiceEnvironment(String name) {
+  protected ServiceEnvironment(@NotNull String name, @NotNull String environmentType) {
     this.name = name;
+    this.environmentType = environmentType;
   }
 
-  public String getName() {
+  public static @NotNull Builder builder() {
+    return new Builder();
+  }
+
+  public static @NotNull Builder builder(@NotNull ServiceEnvironment environment) {
+    return builder().name(environment.getName()).environmentType(environment.getEnvironmentType());
+  }
+
+  @Override
+  public @NotNull String getName() {
     return this.name;
   }
 
-  public ServiceEnvironmentType getEnvironmentType() {
-    return Arrays.stream(ServiceEnvironmentType.VALUES)
-      .filter(serviceEnvironmentType -> Arrays.asList(serviceEnvironmentType.getEnvironments()).contains(this))
-      .findFirst()
-      .orElse(null);
+  public @NotNull String getEnvironmentType() {
+    return this.environmentType;
+  }
+
+  @Override
+  public ServiceEnvironment clone() {
+    try {
+      return (ServiceEnvironment) super.clone();
+    } catch (CloneNotSupportedException exception) {
+      throw new IllegalStateException(); // cannot happen - just explode
+    }
+  }
+
+  public static class Builder {
+
+    private String name;
+    private String environmentType;
+
+    public @NotNull Builder name(@NotNull String name) {
+      this.name = name;
+      return this;
+    }
+
+    public @NotNull Builder environmentType(@NotNull String environmentType) {
+      this.environmentType = environmentType;
+      return this;
+    }
+
+    public @NotNull Builder environmentType(@NotNull ServiceEnvironmentType type) {
+      this.environmentType = type.getName();
+      return this;
+    }
+
+    public @NotNull ServiceEnvironment build() {
+      Verify.verifyNotNull(this.name, "no name given");
+      Verify.verifyNotNull(this.environmentType, "no environment type given");
+
+      return new ServiceEnvironment(this.name, this.environmentType);
+    }
   }
 }

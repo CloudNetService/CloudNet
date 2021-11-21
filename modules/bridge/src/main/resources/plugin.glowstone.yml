@@ -1,0 +1,5 @@
+name: CloudNet-Bridge
+version: "{project.build.version}"
+author: CloudNetService
+description: Bridges service software support between all supported versions for easy CloudNet plugin development
+main: de.dytanic.cloudnet.ext.bridge.platform.bukkit.BukkitBridgePlugin

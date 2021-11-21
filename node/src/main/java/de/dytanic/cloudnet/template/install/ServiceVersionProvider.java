@@ -16,7 +16,9 @@
 
 package de.dytanic.cloudnet.template.install;
 
-import com.google.gson.reflect.TypeToken;
+import static com.google.gson.reflect.TypeToken.getParameterized;
+
+import com.google.common.base.Verify;
 import de.dytanic.cloudnet.common.JavaVersion;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.io.FileUtils;
@@ -24,9 +26,12 @@ import de.dytanic.cloudnet.common.language.I18n;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.console.animation.progressbar.ConsoleProgressWrappers;
+import de.dytanic.cloudnet.driver.event.IEventManager;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironment;
+import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.template.FileInfo;
 import de.dytanic.cloudnet.template.install.execute.InstallStep;
+import de.dytanic.cloudnet.template.listener.TemplatePrepareListener;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -59,10 +64,17 @@ public class ServiceVersionProvider {
   private static final Path VERSION_CACHE_PATH = Paths.get(
     System.getProperty("cloudnet.versioncache.path", "local/versioncache"));
 
-  private static final int VERSIONS_FILE_VERSION = 2;
-  private static final Type COL_SV = TypeToken.getParameterized(Collection.class, ServiceVersionType.class).getType();
+  private static final int VERSIONS_FILE_VERSION = 3;
+
+  private static final Type COL_SER_VERSION = getParameterized(Collection.class, ServiceVersionType.class).getType();
+  private static final Type COL_ENV_TYPE = getParameterized(Collection.class, ServiceEnvironmentType.class).getType();
 
   private final Map<String, ServiceVersionType> serviceVersionTypes = new ConcurrentHashMap<>();
+  private final Map<String, ServiceEnvironmentType> serviceEnvironmentTypes = new ConcurrentHashMap<>();
+
+  public ServiceVersionProvider(@NotNull IEventManager eventManager) {
+    eventManager.registerListener(new TemplatePrepareListener());
+  }
 
   public void loadServiceVersionTypesOrDefaults(@NotNull String url) {
     try {
@@ -104,11 +116,13 @@ public class ServiceVersionProvider {
     int fileVersion = document.getInt("fileVersion", -1);
 
     if (VERSIONS_FILE_VERSION == fileVersion && document.contains("versions")) {
-      Collection<ServiceVersionType> versions = document.get("versions", COL_SV);
-      for (ServiceVersionType serviceVersionType : versions) {
-        this.registerServiceVersionType(serviceVersionType);
-      }
-
+      // load all service environments
+      Collection<ServiceEnvironmentType> environments = document.get("environments", COL_ENV_TYPE);
+      environments.forEach(this::registerServiceEnvironmentType);
+      // load all service versions after the environment types as they need to be present
+      Collection<ServiceVersionType> versions = document.get("versions", COL_SER_VERSION);
+      versions.forEach(this::registerServiceVersionType);
+      // successful load
       return true;
     }
 
@@ -121,12 +135,27 @@ public class ServiceVersionProvider {
     }
   }
 
-  public void registerServiceVersionType(@NotNull ServiceVersionType serviceVersionType) {
-    this.serviceVersionTypes.put(serviceVersionType.getName().toLowerCase(), serviceVersionType);
+  public void registerServiceVersionType(@NotNull ServiceVersionType versionType) {
+    // ensure that we know the target environment for the service version
+    Verify.verify(
+      this.getEnvironmentType(versionType.getEnvironmentType()).isPresent(),
+      "Missing environment %s for service version %s",
+      versionType.getEnvironmentType(),
+      versionType.getName());
+    // register the service version
+    this.serviceVersionTypes.put(versionType.getName().toLowerCase(), versionType);
   }
 
   public @NotNull Optional<ServiceVersionType> getServiceVersionType(@NotNull String name) {
     return Optional.ofNullable(this.serviceVersionTypes.get(name.toLowerCase()));
+  }
+
+  public void registerServiceEnvironmentType(@NotNull ServiceEnvironmentType environmentType) {
+    this.serviceEnvironmentTypes.put(environmentType.getName().toUpperCase(), environmentType);
+  }
+
+  public @NotNull Optional<ServiceEnvironmentType> getEnvironmentType(@NotNull String name) {
+    return Optional.ofNullable(this.serviceEnvironmentTypes.get(name.toUpperCase()));
   }
 
   public boolean installServiceVersion(@NotNull InstallInformation information, boolean force) {
@@ -153,7 +182,7 @@ public class ServiceVersionProvider {
       // delete all old application files to prevent that they are used to start the service
       for (FileInfo file : information.getTemplateStorage().listFiles("", false)) {
         if (file != null) {
-          for (ServiceEnvironment environment : ServiceEnvironment.VALUES) {
+          for (ServiceEnvironment environment : this.serviceVersionTypes.values()) {
             if (file.getName().toLowerCase().contains(environment.getName()) && file.getName().endsWith(".jar")) {
               information.getTemplateStorage().deleteFile(file.getPath());
             }
@@ -212,5 +241,10 @@ public class ServiceVersionProvider {
   @UnmodifiableView
   public @NotNull Map<String, ServiceVersionType> getServiceVersionTypes() {
     return Collections.unmodifiableMap(this.serviceVersionTypes);
+  }
+
+  @UnmodifiableView
+  public @NotNull Map<String, ServiceEnvironmentType> getKnownEnvironments() {
+    return Collections.unmodifiableMap(this.serviceEnvironmentTypes);
   }
 }

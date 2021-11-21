@@ -106,7 +106,7 @@ public class V2HttpHandlerServiceVersionProvider extends V2HttpHandler {
 
   protected void handleVersionAddRequest(IHttpContext context) {
     ServiceVersionType type = this.body(context.request()).toInstanceOf(ServiceVersionType.class);
-    if (type == null || type.getName() == null || type.getVersions() == null || type.getTargetEnvironment() == null) {
+    if (type == null) {
       this.badRequest(context)
         .body(this.failure().append("reason", "Missing specific data").toString())
         .context()

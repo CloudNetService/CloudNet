@@ -102,23 +102,9 @@ public final class DefaultModuleHelper {
         Files.delete(pluginPath);
       }
       // select the input stream to copy the file from
-      InputStream in;
-      switch (type) {
-        case BUNGEECORD:
-          in = clazz.getClassLoader().getResourceAsStream("plugin.bungee.yml");
-          break;
-        case WATERDOG_PE:
-          in = clazz.getClassLoader().getResourceAsStream("plugin.waterdogpe.yml");
-          break;
-        case NUKKIT:
-          in = clazz.getClassLoader().getResourceAsStream("plugin.nukkit.yml");
-          break;
-        case VELOCITY:
-          return;
-        default:
-          in = clazz.getClassLoader().getResourceAsStream("plugin.bukkit.yml");
-          break;
-      }
+      InputStream in = clazz.getClassLoader().getResourceAsStream(String.format(
+        "plugin.%s.yml",
+        type.getName().toLowerCase()));
       // copy the file if the file exists
       if (in != null) {
         Files.copy(in, pluginPath);
