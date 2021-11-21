@@ -59,7 +59,7 @@ public final class NodeNetworkUtils {
       new PacketServerChannelMessageListener(node.getMessenger(), node.getEventManager()));
     registry.addListener(
       NetworkConstants.INTERNAL_RPC_COM_CHANNEL,
-      new RPCPacketListener(node.getRpcHandlerRegistry()));
+      new RPCPacketListener(node.getRPCHandlerRegistry()));
     registry.addListener(
       NetworkConstants.CHUNKED_PACKET_COM_CHANNEL,
       new ChunkedPacketListener(EventChunkHandlerFactory.withDefaultEventManager()));

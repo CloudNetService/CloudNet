@@ -26,6 +26,8 @@ import cloud.commandframework.context.CommandContext;
 import com.google.common.net.InetAddresses;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.cluster.IClusterNodeServer;
+import de.dytanic.cloudnet.cluster.IClusterNodeServerProvider;
+import de.dytanic.cloudnet.cluster.NodeServer;
 import de.dytanic.cloudnet.command.annotation.CommandAlias;
 import de.dytanic.cloudnet.command.annotation.Description;
 import de.dytanic.cloudnet.command.exception.ArgumentNotAvailableException;
@@ -84,6 +86,35 @@ public final class CommandCluster {
       .stream()
       .map(clusterNodeServer -> clusterNodeServer.getNodeInfo().getUniqueId())
       .collect(Collectors.toList());
+  }
+
+  @Parser(suggestions = "selfNodeServer")
+  public NodeServer selfNodeServerParser(CommandContext<CommandSource> $, Queue<String> input) {
+    String nodeId = input.remove();
+    IClusterNodeServerProvider provider = CloudNet.getInstance().getClusterNodeServerProvider();
+    NodeServer selfNode = provider.getSelfNode();
+    // check if the user requested the one node
+    if (selfNode.getNodeInfo().getUniqueId().equals(nodeId)) {
+      return selfNode;
+    }
+    NodeServer nodeServer = provider.getNodeServer(nodeId);
+    // check if the nodeServer exists
+    if (nodeServer == null) {
+      throw new ArgumentNotAvailableException(I18n.trans("command-cluster-node-not-found"));
+    }
+    return nodeServer;
+  }
+
+  @Suggestions("selfNodeServer")
+  public List<String> suggestNodeServer(CommandContext<CommandSource> $, String input) {
+    IClusterNodeServerProvider provider = CloudNet.getInstance().getClusterNodeServerProvider();
+    List<String> nodes = provider.getNodeServers()
+      .stream()
+      .map(clusterNodeServer -> clusterNodeServer.getNodeInfo().getUniqueId())
+      .collect(Collectors.toList());
+    // add the own node to the suggestions
+    nodes.add(provider.getSelfNode().getNodeInfo().getUniqueId());
+    return nodes;
   }
 
   @Parser(suggestions = "networkClusterNode")
@@ -201,8 +232,19 @@ public final class CommandCluster {
   }
 
   @CommandMethod("cluster|clu node <nodeId>")
-  public void listNode(CommandSource source, @Argument(value = "nodeId") IClusterNodeServer nodeServer) {
+  public void listNode(CommandSource source, @Argument("nodeId") IClusterNodeServer nodeServer) {
     this.displayNode(source, nodeServer);
+  }
+
+  @CommandMethod("cluster|clu node <nodeId> set drain <enabled>")
+  public void drainNode(
+    CommandSource source,
+    @Argument(value = "nodeId") NodeServer nodeServer,
+    @Argument("enabled") boolean enabled
+  ) {
+    nodeServer.setDrain(enabled);
+    source.sendMessage(I18n.trans("command-cluster-node-set-drain")
+      .replace("%value%", String.valueOf(enabled).replace("%node%", nodeServer.getNodeInfo().getUniqueId())));
   }
 
   @CommandMethod("cluster|clu sync")

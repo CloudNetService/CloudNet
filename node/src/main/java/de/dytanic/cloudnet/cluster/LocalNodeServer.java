@@ -42,6 +42,8 @@ public class LocalNodeServer extends DefaultNodeServer implements NodeServer {
   private final long startupMillis;
   private final NodeServerProvider<? extends NodeServer> provider;
 
+  private boolean drain;
+
   protected LocalNodeServer(
     @NotNull CloudNet cloudNet,
     @NotNull NodeServerProvider<? extends NodeServer> provider
@@ -49,6 +51,8 @@ public class LocalNodeServer extends DefaultNodeServer implements NodeServer {
     this.cloudNet = cloudNet;
     this.provider = provider;
     this.startupMillis = System.currentTimeMillis();
+    this.cloudNet.getRPCProviderFactory().newHandler(NodeServer.class, this).registerToDefaultRegistry();
+    this.drain = false;
   }
 
   @Override
@@ -59,6 +63,16 @@ public class LocalNodeServer extends DefaultNodeServer implements NodeServer {
   @Override
   public boolean isAvailable() {
     return this.cloudNet.isRunning() && this.nodeInfo != null;
+  }
+
+  @Override
+  public boolean isDrain() {
+    return this.drain;
+  }
+
+  @Override
+  public void setDrain(boolean drain) {
+    this.drain = drain;
   }
 
   @Override
@@ -94,6 +108,7 @@ public class LocalNodeServer extends DefaultNodeServer implements NodeServer {
       this.cloudNet.getCloudServiceProvider().getCurrentUsedHeapMemory(),
       this.cloudNet.getCloudServiceProvider().getCurrentReservedMemory(),
       this.cloudNet.getCloudServiceProvider().getLocalCloudServices().size(),
+      this.drain,
       this.nodeInfo,
       this.cloudNet.getVersion(),
       ProcessSnapshot.self(),

@@ -38,6 +38,8 @@ public class NetworkClusterNodeInfoSnapshot extends JsonDocPropertyHolder {
   protected final int reservedMemory;
   protected final int currentServicesCount;
 
+  protected final boolean drain;
+
   protected final NetworkClusterNode node;
   protected final CloudNetVersion version;
 
@@ -53,6 +55,7 @@ public class NetworkClusterNodeInfoSnapshot extends JsonDocPropertyHolder {
     int usedMemory,
     int reservedMemory,
     int currentServicesCount,
+    boolean drain,
     @NotNull NetworkClusterNode node,
     @NotNull CloudNetVersion version,
     @NotNull ProcessSnapshot processSnapshot,
@@ -66,6 +69,7 @@ public class NetworkClusterNodeInfoSnapshot extends JsonDocPropertyHolder {
     this.usedMemory = usedMemory;
     this.reservedMemory = reservedMemory;
     this.currentServicesCount = currentServicesCount;
+    this.drain = drain;
     this.node = node;
     this.version = version;
     this.processSnapshot = processSnapshot;
@@ -96,6 +100,10 @@ public class NetworkClusterNodeInfoSnapshot extends JsonDocPropertyHolder {
 
   public int getCurrentServicesCount() {
     return this.currentServicesCount;
+  }
+
+  public boolean isDrain() {
+    return this.drain;
   }
 
   public @NotNull NetworkClusterNode getNode() {

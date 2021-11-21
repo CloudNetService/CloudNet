@@ -110,6 +110,8 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
     // find the best node server
     return this.nodeServerProvider.getNodeServers().stream()
       .filter(IClusterNodeServer::isAvailable)
+      // only allow service start on nodes that are not marked for draining
+      .filter(nodeServer -> !nodeServer.getNodeInfoSnapshot().isDrain())
       .filter(server -> {
         Collection<String> allowedNodes = configuration.getServiceId().getAllowedNodes();
         return allowedNodes.isEmpty() || allowedNodes.contains(server.getNodeInfo().getUniqueId());

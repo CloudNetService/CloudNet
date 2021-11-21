@@ -18,6 +18,7 @@ package de.dytanic.cloudnet.cluster;
 
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
+import de.dytanic.cloudnet.driver.network.rpc.annotation.RPCValidation;
 import de.dytanic.cloudnet.driver.provider.service.CloudServiceFactory;
 import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
@@ -28,6 +29,7 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 import org.jetbrains.annotations.UnmodifiableView;
 
+@RPCValidation
 public interface NodeServer extends AutoCloseable {
 
   @NotNull NodeServerProvider<? extends NodeServer> getProvider();
@@ -35,6 +37,10 @@ public interface NodeServer extends AutoCloseable {
   boolean isHeadNode();
 
   boolean isAvailable();
+
+  boolean isDrain();
+
+  void setDrain(boolean drain);
 
   @NotNull NetworkClusterNode getNodeInfo();
 

@@ -38,6 +38,7 @@ public class DefaultClusterNodeServer extends DefaultNodeServer implements IClus
 
   private final CloudNet cloudNet;
   private final RPCSender rpcSender;
+  private final RPCSender nodeServerRPCSender;
   private final CloudServiceFactory cloudServiceFactory;
   private final DefaultClusterNodeServerProvider provider;
 
@@ -54,6 +55,9 @@ public class DefaultClusterNodeServer extends DefaultNodeServer implements IClus
     this.rpcSender = cloudNet.getRPCProviderFactory().providerForClass(
       cloudNet.getNetworkClient(),
       NodeInfoProvider.class);
+    this.nodeServerRPCSender = cloudNet.getRPCProviderFactory().providerForClass(
+      cloudNet.getNetworkClient(),
+      NodeServer.class);
     this.cloudServiceFactory = new RemoteCloudServiceFactory(
       this::getChannel,
       cloudNet.getNetworkClient(),
@@ -152,6 +156,18 @@ public class DefaultClusterNodeServer extends DefaultNodeServer implements IClus
   @Override
   public @NotNull DefaultClusterNodeServerProvider getProvider() {
     return this.provider;
+  }
+
+  @Override
+  public boolean isDrain() {
+    return this.currentSnapshot.isDrain();
+  }
+
+  @Override
+  public void setDrain(boolean drain) {
+    if (this.channel != null) {
+      this.nodeServerRPCSender.invokeMethod("setDrain", drain).fireSync(this.channel);
+    }
   }
 
   @Override
