@@ -114,6 +114,7 @@ public class DefaultInstallation {
       adminPermissionGroup.setColor("&7");
       adminPermissionGroup.setSuffix("&f");
       adminPermissionGroup.setDisplay("&4");
+      adminPermissionGroup.setChat("&4");
       adminPermissionGroup.setSortId(10);
 
       CloudNet.getInstance().getPermissionManagement().addGroup(adminPermissionGroup);
@@ -125,6 +126,7 @@ public class DefaultInstallation {
       defaultPermissionGroup.setColor("&7");
       defaultPermissionGroup.setSuffix("&f");
       defaultPermissionGroup.setDisplay("&7");
+      defaultPermissionGroup.setChat("&7");
       defaultPermissionGroup.setSortId(10);
 
       CloudNet.getInstance().getPermissionManagement().addGroup(defaultPermissionGroup);

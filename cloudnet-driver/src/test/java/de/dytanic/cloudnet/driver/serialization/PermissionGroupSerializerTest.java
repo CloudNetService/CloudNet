@@ -34,6 +34,7 @@ public class PermissionGroupSerializerTest {
       " \\ Admin \\ ",
       "§c",
       " / Team /",
+      " \\ Admin \\ ",
       "Administrator | ",
       1,
       false

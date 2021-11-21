@@ -389,6 +389,13 @@ public class CommandPermissions extends SubCommandHandler {
       )
       .generateCommand(
         (subCommand, sender, command, args, commandLine, properties, internalProperties) -> ((IPermissionGroup) internalProperties
+          .get("group")).setChat((String) args.argument(4)),
+        subCommand -> subCommand.setMinArgs(5).setMaxArgs(Integer.MAX_VALUE),
+        exactStringIgnoreCase("chat"),
+        dynamicString("chat")
+      )
+      .generateCommand(
+        (subCommand, sender, command, args, commandLine, properties, internalProperties) -> ((IPermissionGroup) internalProperties
           .get("group")).setPrefix((String) args.argument(4)),
         subCommand -> subCommand.setMinArgs(5).setMaxArgs(Integer.MAX_VALUE),
         exactStringIgnoreCase("prefix"),
@@ -620,7 +627,9 @@ public class CommandPermissions extends SubCommandHandler {
       "Suffix: " + (sender instanceof ConsoleCommandSender ? permissionGroup.getSuffix()
         : permissionGroup.getSuffix().replace("&", "§")),
       "Display: " + (sender instanceof ConsoleCommandSender ? permissionGroup.getDisplay()
-        : permissionGroup.getDisplay().replace("&", "§"))
+        : permissionGroup.getDisplay().replace("&", "§")),
+      "Chat: " + (sender instanceof ConsoleCommandSender ? permissionGroup.getChat()
+        : permissionGroup.getChat().replace("&", "§"))
     );
 
     displayPermissions(sender, permissionGroup);

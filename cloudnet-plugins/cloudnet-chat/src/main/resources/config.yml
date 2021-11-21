@@ -10,4 +10,4 @@
 
 # permission to use "&" in messages for color: cloudnet.chat.color
 
-format: "%display%%name% &8:&f %message%"
+format: "%chat%%name% &8:&f %message%"

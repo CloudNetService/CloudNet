@@ -47,4 +47,8 @@ public interface IPermissionGroup extends IPermissible {
 
   void setDisplay(@NotNull String display);
 
+  String getChat();
+
+  void setChat(@NotNull String chat);
+
 }

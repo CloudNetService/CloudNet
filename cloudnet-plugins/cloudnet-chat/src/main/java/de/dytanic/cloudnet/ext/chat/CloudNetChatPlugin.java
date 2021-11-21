@@ -75,6 +75,7 @@ public class CloudNetChatPlugin extends JavaPlugin implements Listener {
           .replace("%prefix%", group.getPrefix())
           .replace("%suffix%", group.getSuffix())
           .replace("%color%", group.getColor())
+          .replace("%chat%", group.getChat())
       );
     } else {
       format = ChatColor.translateAlternateColorCodes('&',
@@ -84,6 +85,7 @@ public class CloudNetChatPlugin extends JavaPlugin implements Listener {
           .replace("%prefix%", "")
           .replace("%suffix%", "")
           .replace("%color%", "")
+          .replace("%chat%", "")
       );
     }
 

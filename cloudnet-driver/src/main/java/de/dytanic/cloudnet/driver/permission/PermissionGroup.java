@@ -45,6 +45,7 @@ public class PermissionGroup extends AbstractPermissible implements IPermissionG
   private String color = "&7";
   private String suffix = "&f";
   private String display = "&7";
+  private String chat = "&7";
 
   private int sortId = 0;
 
@@ -61,7 +62,7 @@ public class PermissionGroup extends AbstractPermissible implements IPermissionG
   }
 
   public PermissionGroup(String name, int potency, Collection<String> groups, String prefix, String color,
-    String suffix, String display, int sortId, boolean defaultGroup) {
+    String suffix, String display, String chat, int sortId, boolean defaultGroup) {
     super();
 
     this.name = name;
@@ -71,6 +72,7 @@ public class PermissionGroup extends AbstractPermissible implements IPermissionG
     this.color = color;
     this.suffix = suffix;
     this.display = display;
+    this.chat = chat;
     this.sortId = sortId;
     this.defaultGroup = defaultGroup;
   }
@@ -115,6 +117,14 @@ public class PermissionGroup extends AbstractPermissible implements IPermissionG
     this.display = display;
   }
 
+  public String getChat() {
+    return chat;
+  }
+
+  public void setChat(@NotNull String chat) {
+    this.chat = chat;
+  }
+
   public int getSortId() {
     return this.sortId;
   }
@@ -141,6 +151,7 @@ public class PermissionGroup extends AbstractPermissible implements IPermissionG
     buffer.writeString(this.color);
     buffer.writeString(this.suffix);
     buffer.writeString(this.display);
+    buffer.writeString(this.chat);
 
     buffer.writeInt(this.sortId);
     buffer.writeBoolean(this.defaultGroup);
@@ -156,6 +167,7 @@ public class PermissionGroup extends AbstractPermissible implements IPermissionG
     this.color = buffer.readString();
     this.suffix = buffer.readString();
     this.display = buffer.readString();
+    this.chat = buffer.readString();
 
     this.sortId = buffer.readInt();
     this.defaultGroup = buffer.readBoolean();
