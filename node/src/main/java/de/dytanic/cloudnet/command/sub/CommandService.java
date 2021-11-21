@@ -212,6 +212,9 @@ public final class CommandService {
   public void toggleScreens(CommandSource source, @Argument("name") Collection<ServiceInfoSnapshot> matchedServices) {
     for (ServiceInfoSnapshot matchedService : matchedServices) {
       if (matchedService.provider().toggleScreenEvents(ChannelMessageSender.self(), "service:screen")) {
+        for (String cachedLogMessage : matchedService.provider().getCachedLogMessages()) {
+          LOGGER.info(String.format("&b[%s] %s", matchedService.getName(), cachedLogMessage));
+        }
         source.sendMessage(
           I18n.trans("command-service-toggle-enabled").replace("%name%", matchedService.getName()));
       } else {
