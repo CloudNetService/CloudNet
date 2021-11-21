@@ -191,6 +191,7 @@ public final class CommandCluster {
     for (IClusterNodeServer nodeServer : CloudNet.getInstance().getClusterNodeServerProvider().getNodeServers()) {
       nodeServer.shutdown();
     }
+    CloudNet.getInstance().stop();
   }
 
   @CommandMethod("cluster|clu add <nodeId> <host>")
