@@ -325,7 +325,7 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
 
   @Override
   public int getCurrentUsedHeapMemory() {
-    return this.knownServices.values().stream()
+    return this.getLocalCloudServices().stream()
       .map(SpecificCloudServiceProvider::getServiceInfoSnapshot)
       .filter(Objects::nonNull)
       .filter(snapshot -> snapshot.getLifeCycle() == ServiceLifeCycle.RUNNING)
@@ -335,7 +335,7 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
 
   @Override
   public int getCurrentReservedMemory() {
-    return this.knownServices.values().stream()
+    return this.getLocalCloudServices().stream()
       .map(SpecificCloudServiceProvider::getServiceInfoSnapshot)
       .filter(Objects::nonNull)
       .mapToInt(snapshot -> snapshot.getConfiguration().getProcessConfig().getMaxHeapMemorySize())
