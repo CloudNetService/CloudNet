@@ -289,7 +289,7 @@ public abstract class CloudNetDriver {
     return this.rpcProviderFactory;
   }
 
-  public @NotNull RPCHandlerRegistry getRpcHandlerRegistry() {
+  public @NotNull RPCHandlerRegistry getRPCHandlerRegistry() {
     return this.rpcHandlerRegistry;
   }
 

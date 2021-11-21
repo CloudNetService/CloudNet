@@ -54,7 +54,7 @@ public class DefaultRPCHandler extends DefaultRPCProvider implements RPCHandler 
 
   @Override
   public void registerToDefaultRegistry() {
-    this.registerTo(CloudNetDriver.getInstance().getRpcHandlerRegistry());
+    this.registerTo(CloudNetDriver.getInstance().getRPCHandlerRegistry());
   }
 
   @Override
