@@ -65,6 +65,7 @@ public class SyncProxyTabList {
           input = input.replace("%prefix%", group.getPrefix())
             .replace("%suffix%", group.getSuffix())
             .replace("%display%", group.getDisplay())
+            .replace("%chat%", group.getChat())
             .replace("%color%", group.getColor())
             .replace("%group%", group.getName());
         }
