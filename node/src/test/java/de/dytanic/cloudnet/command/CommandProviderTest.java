@@ -65,6 +65,7 @@ public final class CommandProviderTest {
     Assertions.assertEquals("tests test <user>", Iterables.firstOf(testCommand.getUsage()));
 
     CommandInfo testCommandByAlias = commandProvider.getCommand("test1");
+    Assertions.assertNotNull(testCommandByAlias);
     Assertions.assertNotEquals("test1", testCommand.getName());
     Assertions.assertEquals(testCommandByAlias, testCommandByAlias);
   }
