@@ -19,6 +19,7 @@ package eu.cloudnetservice.cloudnet.ext.syncproxy.node.listener;
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.event.IEventManager;
 import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
+import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.cloudnet.ext.syncproxy.SyncProxyConfigurationUpdateEvent;
 import eu.cloudnetservice.cloudnet.ext.syncproxy.SyncProxyConstants;
 import eu.cloudnetservice.cloudnet.ext.syncproxy.config.SyncProxyConfiguration;
@@ -54,7 +55,7 @@ public final class NodeSyncProxyChannelMessageListener {
     } else if (SyncProxyConstants.SYNC_PROXY_CONFIG_REQUEST.equals(event.getMessage())) {
       SyncProxyConfiguration configuration = this.management.getConfiguration();
       // respond with the currently loaded configuration
-      event.response().writeObject(configuration);
+      event.setBinaryResponse(DataBuf.empty().writeObject(configuration));
     }
   }
 }

@@ -21,7 +21,6 @@ import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.driver.channel.ChannelMessageSender;
 import de.dytanic.cloudnet.driver.channel.ChannelMessageTarget;
-import de.dytanic.cloudnet.driver.event.Event;
 import de.dytanic.cloudnet.driver.event.events.network.NetworkEvent;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
@@ -87,12 +86,6 @@ public final class ChannelMessageReceiveEvent extends NetworkEvent {
 
   public void setBinaryResponse(@NotNull DataBuf dataBuf) {
     this.setQueryResponse(ChannelMessage.buildResponseFor(this.channelMessage).buffer(dataBuf).build());
-  }
-
-  public @NotNull DataBuf.Mutable response() {
-    DataBuf.Mutable dataBuf = DataBuf.empty();
-    this.setBinaryResponse(dataBuf);
-    return dataBuf;
   }
 
   @Nullable
