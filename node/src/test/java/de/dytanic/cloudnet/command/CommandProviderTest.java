@@ -19,14 +19,11 @@ package de.dytanic.cloudnet.command;
 
 import cloud.commandframework.annotations.Argument;
 import cloud.commandframework.annotations.CommandMethod;
-import cloud.commandframework.annotations.CommandPermission;
-import cloud.commandframework.annotations.parsers.Parser;
 import cloud.commandframework.annotations.suggestions.Suggestions;
 import cloud.commandframework.context.CommandContext;
 import cloud.commandframework.exceptions.NoSuchCommandException;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.command.annotation.CommandAlias;
-import de.dytanic.cloudnet.command.annotation.Description;
 import de.dytanic.cloudnet.command.defaults.DefaultCommandProvider;
 import de.dytanic.cloudnet.command.source.CommandSource;
 import de.dytanic.cloudnet.command.source.DriverCommandSource;
@@ -36,7 +33,6 @@ import de.dytanic.cloudnet.driver.command.CommandInfo;
 import de.dytanic.cloudnet.driver.event.DefaultEventManager;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Queue;
 import java.util.concurrent.CompletionException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -118,15 +114,8 @@ public final class CommandProviderTest {
     }
   }
 
-  @CommandAlias({"test1", "test2"})
-  @Description("CommandTest description")
-  @CommandPermission("command.test.permission")
+  @CommandAlias("test1")
   public static final class CommandTest {
-
-    @Parser(name = "UserParser", suggestions = "UserSuggestions")
-    public String parseUser(CommandContext<CommandSource> $, Queue<String> input) {
-      return input.remove();
-    }
 
     @Suggestions("UserSuggestions")
     public List<String> suggestUsers(CommandContext<CommandSource> $, String input) {
@@ -134,9 +123,11 @@ public final class CommandProviderTest {
     }
 
     @CommandMethod("tests test <user>")
-    public void testUserCommand(CommandSource source,
-      @Argument(value = "user", parserName = "UserParser") String user) {
-      source.sendMessage(user);
+    public void testUserCommand(
+      CommandSource source,
+      @Argument(value = "user", suggestions = "UserSuggestions") String user
+    ) {
+      // no response
     }
   }
 }
