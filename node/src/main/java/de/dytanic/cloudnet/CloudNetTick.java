@@ -40,6 +40,7 @@ public final class CloudNetTick {
 
   private final CloudNet cloudNet;
   private final AtomicInteger tickPauseRequests = new AtomicInteger();
+  private final CloudNetTickEvent tickEvent = new CloudNetTickEvent(this);
 
   private final AtomicLong currentTick = new AtomicLong();
   private final Queue<ScheduledTask<?>> processQueue = new ConcurrentLinkedQueue<>();
@@ -100,6 +101,10 @@ public final class CloudNetTick {
     this.tickPauseRequests.decrementAndGet();
   }
 
+  public long getCurrentTick() {
+    return this.currentTick.get();
+  }
+
   public void start() {
     long tick;
     long lastTickLength;
@@ -146,7 +151,7 @@ public final class CloudNetTick {
             this.startService();
           }
 
-          this.cloudNet.getEventManager().callEvent(new CloudNetTickEvent());
+          this.cloudNet.getEventManager().callEvent(this.tickEvent);
         }
       } catch (Exception exception) {
         LOGGER.severe("Exception while ticking", exception);

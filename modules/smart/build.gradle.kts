@@ -19,14 +19,12 @@ tasks.withType<Jar> {
 }
 
 dependencies {
-  "moduleDependency"(project(":modules:bridge"))
+  "moduleDependency"(project(":cloudnet-modules:bridge"))
 }
 
-/*
-
 moduleJson {
-  main = "de.dytanic.cloudnet.ext.smart.CloudNetSmartModule"
+  main = "eu.cloudnetservice.modules.smart.CloudNetSmartModule"
   author = "CloudNetService"
   description = "CloudNet extension, which implement smart network handling and automatic services providing"
   runtimeModule = true
-}*/
+}

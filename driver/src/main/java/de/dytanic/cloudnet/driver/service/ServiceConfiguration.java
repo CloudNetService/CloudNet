@@ -310,7 +310,7 @@ public class ServiceConfiguration extends JsonDocPropertyHolder implements Clone
      * The node where the new service will start. If the service cannot be created on this node or the node doesn't
      * exist, it will NOT be created and {@link ServiceConfiguration#createNewService()} will return {@code null}.
      */
-    public @NotNull Builder node(@NotNull String nodeUniqueId) {
+    public @NotNull Builder node(@Nullable String nodeUniqueId) {
       this.serviceId.nodeUniqueId(nodeUniqueId);
       return this;
     }

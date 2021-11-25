@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-package de.dytanic.cloudnet.ext.smart.listener;
+package eu.cloudnetservice.modules.smart.listener;
 
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.event.task.LocalServiceTaskAddEvent;
-import de.dytanic.cloudnet.ext.smart.CloudNetSmartModule;
-import de.dytanic.cloudnet.ext.smart.util.SmartServiceTaskConfig;
+import eu.cloudnetservice.modules.smart.SmartServiceTaskConfig;
+import org.jetbrains.annotations.NotNull;
 
-public class TaskDefaultSmartConfigListener {
+public final class CloudNetLocalServiceTaskListener {
 
   @EventListener
-  public void handleTaskAdd(LocalServiceTaskAddEvent event) {
-    if (!event.getTask().getProperties().contains(CloudNetSmartModule.SMART_CONFIG_ENTRY)) {
-      event.getTask().getProperties().append(CloudNetSmartModule.SMART_CONFIG_ENTRY, new SmartServiceTaskConfig());
+  public void handle(@NotNull LocalServiceTaskAddEvent event) {
+    if (!event.getTask().getProperties().contains("smartConfig")) {
+      event.getTask().getProperties().append("smartConfig", SmartServiceTaskConfig.builder().build());
     }
   }
 }

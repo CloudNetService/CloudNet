@@ -16,13 +16,24 @@
 
 package de.dytanic.cloudnet.event.instance;
 
+import de.dytanic.cloudnet.CloudNetTick;
 import de.dytanic.cloudnet.driver.event.events.DriverEvent;
+import org.jetbrains.annotations.NotNull;
 
 public final class CloudNetTickEvent extends DriverEvent {
+
+  private final CloudNetTick ticker;
+
+  public CloudNetTickEvent(CloudNetTick ticker) {
+    this.ticker = ticker;
+  }
+
+  public @NotNull CloudNetTick getTicker() {
+    return this.ticker;
+  }
 
   @Override
   public boolean isShowDebug() {
     return false;
   }
-
 }

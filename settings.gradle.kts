@@ -41,7 +41,8 @@ initializeSubProjects("modules",
   "cloudperms",
   "signs",
   "storage-sftp",
-  "syncproxy")
+  "syncproxy",
+  "smart")
 
 fun initializeProjects(vararg names: String) {
   names.forEach {
