@@ -74,7 +74,6 @@ import kong.unirest.Unirest;
 import kong.unirest.UnirestException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.UnmodifiableView;
 
 public abstract class AbstractService implements ICloudService {
 
@@ -342,17 +341,17 @@ public abstract class AbstractService implements ICloudService {
   }
 
   @Override
-  public @UnmodifiableView @NotNull Queue<ServiceRemoteInclusion> getWaitingIncludes() {
+  public @NotNull Queue<ServiceRemoteInclusion> getWaitingIncludes() {
     return this.waitingRemoteInclusions;
   }
 
   @Override
-  public @UnmodifiableView @NotNull Queue<ServiceTemplate> getWaitingTemplates() {
+  public @NotNull Queue<ServiceTemplate> getWaitingTemplates() {
     return this.waitingTemplates;
   }
 
   @Override
-  public @UnmodifiableView @NotNull Queue<ServiceDeployment> getWaitingDeployments() {
+  public @NotNull Queue<ServiceDeployment> getWaitingDeployments() {
     return this.waitingDeployments;
   }
 

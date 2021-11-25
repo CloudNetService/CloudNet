@@ -30,7 +30,6 @@ import java.util.Queue;
 import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.UnmodifiableView;
 
 public interface ICloudService extends SpecificCloudServiceProvider {
 
@@ -40,13 +39,10 @@ public interface ICloudService extends SpecificCloudServiceProvider {
   @NotNull
   String getRuntime();
 
-  @UnmodifiableView
   @NotNull Queue<ServiceRemoteInclusion> getWaitingIncludes();
 
-  @UnmodifiableView
   @NotNull Queue<ServiceTemplate> getWaitingTemplates();
 
-  @UnmodifiableView
   @NotNull Queue<ServiceDeployment> getWaitingDeployments();
 
   @NotNull
