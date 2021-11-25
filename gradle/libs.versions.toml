@@ -8,7 +8,7 @@ guava = "31.0.1-jre"
 
 # testing
 junit = "5.8.1"
-mockito = "4.0.0"
+mockito = "4.1.0"
 tyrusClient = "2.0.1"
 minaSshdServer = "2.7.0"
 
@@ -32,7 +32,7 @@ asm = "9.2"
 sshj = "0.32.0"
 jjwt = "0.11.2"
 slf4j = "1.7.32"
-javers = "6.5.1"
+javers = "6.5.2"
 unirest = "3.13.3"
 netty = "4.1.70.Final"
 annotations = "23.0.0"
@@ -42,8 +42,8 @@ velocity = "3.0.1"
 nukkitX = "1.0-SNAPSHOT"
 sponge = "8.0.0-SNAPSHOT"
 waterdogpe = "1.1.4"
-spigot = "1.17.1-R0.1-SNAPSHOT"
-bungeecord = "1.17-R0.1-SNAPSHOT"
+spigot = "1.18-pre8-R0.1-SNAPSHOT"
+bungeecord = "1.18-R0.1-SNAPSHOT"
 
 # platform extensions
 vault = "1.7.1"
