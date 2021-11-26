@@ -48,11 +48,13 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.jar.Attributes;
 import java.util.jar.JarInputStream;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -235,10 +237,14 @@ public class JVMService extends AbstractService {
 
   protected @Nullable Pair<Path, Attributes> prepareApplicationFile(@NotNull ServiceEnvironmentType environmentType) {
     // collect all names of environment names
-    String[] environments = this.nodeInstance.getServiceVersionProvider().getServiceVersionTypes().values().stream()
+    Set<String> environments = this.nodeInstance.getServiceVersionProvider().getServiceVersionTypes().values().stream()
       .filter(environment -> environment.getEnvironmentType().equals(environmentType.getName()))
       .map(ServiceEnvironment::getName)
-      .toArray(String[]::new);
+      .collect(Collectors.collectingAndThen(Collectors.toSet(), result -> {
+        // add a default fallback value which applied to all environments
+        result.add("application");
+        return result;
+      }));
 
     try {
       // walk the file tree and filter the best application file
