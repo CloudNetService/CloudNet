@@ -1,6 +1,6 @@
 # Cloud Network Environment Technology 3 for Minecraft
 
-![CloudNet V3 Logo](./docs/images/header.png)
+![CloudNet V3 Logo](.img/header.png)
 
 ## What is CloudNet?
 

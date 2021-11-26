@@ -1,3 +1,0 @@
-# CloudNet Launcher
-
-The launcher
