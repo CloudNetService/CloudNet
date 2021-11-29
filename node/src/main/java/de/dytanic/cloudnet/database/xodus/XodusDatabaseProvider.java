@@ -16,6 +16,7 @@
 
 package de.dytanic.cloudnet.database.xodus;
 
+import de.dytanic.cloudnet.common.language.I18n;
 import de.dytanic.cloudnet.database.AbstractDatabaseProvider;
 import de.dytanic.cloudnet.database.LocalDatabase;
 import de.dytanic.cloudnet.database.util.LocalDatabaseUtils;
@@ -65,7 +66,9 @@ public class XodusDatabaseProvider extends AbstractDatabaseProvider {
 
   @Override
   public boolean init() {
-    LocalDatabaseUtils.bigWarningThatEveryoneCanSeeWhenRunningInCluster(this.runsInCluster);
+    if (this.runsInCluster) {
+      LocalDatabaseUtils.bigWarningThatEveryoneCanSee(I18n.trans("cloudnet-cluster-local-db-warning"));
+    }
 
     this.environment = Environments.newInstance(this.databaseDirectory, this.environmentConfig);
     return true;

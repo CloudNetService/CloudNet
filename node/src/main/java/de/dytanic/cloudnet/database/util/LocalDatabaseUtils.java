@@ -16,9 +16,9 @@
 
 package de.dytanic.cloudnet.database.util;
 
-import de.dytanic.cloudnet.common.language.I18n;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
+import org.jetbrains.annotations.NotNull;
 
 public final class LocalDatabaseUtils {
 
@@ -28,15 +28,13 @@ public final class LocalDatabaseUtils {
     throw new UnsupportedOperationException();
   }
 
-  public static void bigWarningThatEveryoneCanSeeWhenRunningInCluster(boolean runsInCluster) {
-    if (runsInCluster) {
-      LOGGER.warning("╔══════════════════════════════════════════════════════════════════╗");
-      LOGGER.warning("║                               WARNING                             ");
-      LOGGER.warning("║   " + I18n.trans("cloudnet-cluster-local-db-warning"));
-      LOGGER.warning("║                                                                   ");
-      LOGGER.warning("║                                                                   ");
-      LOGGER.warning("║        https://cloudnetservice.eu/docs/3.4/setup/cluster          ");
-      LOGGER.warning("╚══════════════════════════════════════════════════════════════════╝");
-    }
+  public static void bigWarningThatEveryoneCanSee(@NotNull String warning) {
+    LOGGER.warning("╔══════════════════════════════════════════════════════════════════╗");
+    LOGGER.warning("║                               WARNING                             ");
+    LOGGER.warning("║   " + warning);
+    LOGGER.warning("║                                                                   ");
+    LOGGER.warning("║                                                                   ");
+    LOGGER.warning("║        https://cloudnetservice.eu/docs/3.4/setup/cluster          ");
+    LOGGER.warning("╚══════════════════════════════════════════════════════════════════╝");
   }
 }

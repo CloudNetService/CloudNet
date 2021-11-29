@@ -59,7 +59,8 @@ public final class H2DatabaseProvider extends SQLDatabaseProvider {
 
   @Override
   public boolean init() throws Exception {
-    LocalDatabaseUtils.bigWarningThatEveryoneCanSeeWhenRunningInCluster(this.runsInCluster);
+    LocalDatabaseUtils.bigWarningThatEveryoneCanSee(
+      "! Using H2 is deprecated ! Consider migrating to xodus. H2 support will be dropped in a future release.");
 
     FileUtils.createDirectory(this.h2dbFile.getParent());
     this.connection = DriverManager.getConnection("jdbc:h2:" + this.h2dbFile.toAbsolutePath());
