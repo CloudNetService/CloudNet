@@ -15,30 +15,31 @@
         {
           "name": "latest",
           "cacheFiles": false,
-          "minJavaVersion": 16,
+          "minJavaVersion": 17,
           "properties": {
             "copy": {
-              "cache/patched.*\\.jar": "paper.jar"
+              "cache/.*": "/",
+              "versions/.*": "/",
+              "paper-.*\\.jar": "paper.jar"
             },
             "jvmOptions": [
               "-Dpaperclip.patchonly=true"
             ],
             "fetchOverPaperApi": true,
-            "versionGroup": "1.17.1"
+            "versionGroup": "1.18"
           }
         },
         {
           "name": "1.17.1",
           "minJavaVersion": 16,
+          "url": "https://papermc.io/api/v2/projects/paper/versions/1.17.1/builds/388/downloads/paper-1.17.1-388.jar",
           "properties": {
             "copy": {
               "cache/patched.*\\.jar": "paper.jar"
             },
             "jvmOptions": [
               "-Dpaperclip.patchonly=true"
-            ],
-            "fetchOverPaperApi": true,
-            "versionGroup": "1.17.1"
+            ]
           }
         },
         {
@@ -287,8 +288,22 @@
         {
           "name": "latest",
           "url": "https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar",
-          "minJavaVersion": 16,
+          "minJavaVersion": 17,
           "cacheFiles": false,
+          "properties": {
+            "copy": {
+              "spigot-.*\\.jar": "spigot.jar"
+            },
+            "parameters": [
+              "--rev",
+              "1.18"
+            ]
+          }
+        },
+        {
+          "name": "1.18",
+          "url": "https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar",
+          "minJavaVersion": 17,
           "properties": {
             "copy": {
               "spigot-.*\\.jar": "spigot.jar"
