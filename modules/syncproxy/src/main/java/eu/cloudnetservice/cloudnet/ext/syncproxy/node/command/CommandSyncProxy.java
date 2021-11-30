@@ -69,6 +69,12 @@ public final class CommandSyncProxy {
   @Parser(name = "newConfiguration", suggestions = "newConfiguration")
   public String newConfigurationParser(CommandContext<CommandSource> $, Queue<String> input) {
     String name = input.remove();
+    GroupConfiguration configuration = CloudNet.getInstance().getGroupConfigurationProvider()
+      .getGroupConfiguration(name);
+    if (configuration == null) {
+      throw new ArgumentNotAvailableException(I18n.trans("command-service-base-group-not-found"));
+    }
+
     if (this.syncProxyManagement.getConfiguration().getLoginConfigurations()
       .stream()
       .anyMatch(login -> login.getTargetGroup().equalsIgnoreCase(name))) {
@@ -80,13 +86,6 @@ public final class CommandSyncProxy {
       .anyMatch(tabList -> tabList.getTargetGroup().equalsIgnoreCase(name))) {
       throw new ArgumentNotAvailableException(I18n.trans("module-syncproxy-command-create-entry-group-already-exists"));
     }
-
-    GroupConfiguration configuration = CloudNet.getInstance().getGroupConfigurationProvider()
-      .getGroupConfiguration(name);
-    if (configuration == null) {
-      throw new ArgumentNotAvailableException(I18n.trans("command-service-base-group-not-found"));
-    }
-
     return name;
   }
 

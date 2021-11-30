@@ -68,10 +68,10 @@ public abstract class PlatformSyncProxyManagement<P> implements SyncProxyManagem
   }
 
   protected void init() {
-    this.setConfigurationLocally(this.rpcSender.invokeMethod("getConfiguration").fireSync());
+    this.setConfigurationSilently(this.rpcSender.invokeMethod("getConfiguration").fireSync());
   }
 
-  public void setConfigurationLocally(@NotNull SyncProxyConfiguration configuration) {
+  public void setConfigurationSilently(@NotNull SyncProxyConfiguration configuration) {
     this.configuration = configuration;
     this.eventManager.callEvent(new SyncProxyConfigurationUpdateEvent(configuration));
 

@@ -63,7 +63,7 @@ public final class SyncProxyCloudListener<P> {
     if (event.getChannel().equals(SyncProxyConstants.SYNC_PROXY_CHANNEL)
       && SyncProxyConstants.SYNC_PROXY_UPDATE_CONFIG.equals(event.getMessage())) {
       // update the configuration locally
-      this.management.setConfigurationLocally(event.getContent().readObject(SyncProxyConfiguration.class));
+      this.management.setConfigurationSilently(event.getContent().readObject(SyncProxyConfiguration.class));
     }
   }
 

@@ -40,7 +40,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
@@ -179,7 +178,6 @@ public class NodeGroupConfigurationProvider implements GroupConfigurationProvide
     this.writeAllGroupConfigurations();
   }
 
-  @Internal
   private void upgrade() {
     if (Files.exists(OLD_GROUPS_FILE)) {
       // read all groups from the old file
