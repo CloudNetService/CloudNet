@@ -30,6 +30,22 @@
           }
         },
         {
+          "name": "1.18",
+          "minJavaVersion": 17,
+          "properties": {
+            "copy": {
+              "cache/.*": "/",
+              "versions/.*": "/",
+              "paper-.*\\.jar": "paper.jar"
+            },
+            "jvmOptions": [
+              "-Dpaperclip.patchonly=true"
+            ],
+            "fetchOverPaperApi": true,
+            "versionGroup": "1.18"
+          }
+        },
+        {
           "name": "1.17.1",
           "minJavaVersion": 16,
           "url": "https://papermc.io/api/v2/projects/paper/versions/1.17.1/builds/388/downloads/paper-1.17.1-388.jar",
