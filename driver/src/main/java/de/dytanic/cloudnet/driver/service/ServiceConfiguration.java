@@ -507,7 +507,7 @@ public class ServiceConfiguration extends JsonDocPropertyHolder implements Clone
     }
 
     public @NotNull ServiceConfiguration build() {
-      Verify.verifyNotNull(this.port > 0 && this.port <= 65535, "invalid port provided");
+      Verify.verify(this.port > 0 && this.port <= 65535, "invalid port provided");
       return new ServiceConfiguration(
         this.serviceId.build(),
         this.processConfig.build(),
