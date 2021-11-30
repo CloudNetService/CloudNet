@@ -20,7 +20,7 @@
             "copy": {
               "cache/.*": "/",
               "versions/.*": "/",
-              "paper-.*\\.jar": "paper.jar"
+              "paper\\.jar": "paper.jar"
             },
             "jvmOptions": [
               "-Dpaperclip.patchonly=true"
@@ -36,7 +36,7 @@
             "copy": {
               "cache/.*": "/",
               "versions/.*": "/",
-              "paper-.*\\.jar": "paper.jar"
+              "paper\\.jar": "paper.jar"
             },
             "jvmOptions": [
               "-Dpaperclip.patchonly=true"
