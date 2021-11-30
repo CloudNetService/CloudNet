@@ -40,6 +40,11 @@ public class NettyDataBufFactory implements DataBufFactory {
   }
 
   @Override
+  public @NotNull DataBuf createOf(byte @NotNull [] bytes) {
+    return new NettyImmutableDataBuf(Unpooled.wrappedBuffer(bytes));
+  }
+
+  @Override
   public @NotNull DataBuf copyOf(@NotNull DataBuf dataBuf) {
     Verify.verify(dataBuf instanceof NettyImmutableDataBuf, "Factory only supports netty data buf copy");
     return new NettyImmutableDataBuf(Unpooled.copiedBuffer(((NettyImmutableDataBuf) dataBuf).byteBuf));

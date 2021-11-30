@@ -29,6 +29,8 @@ public interface DataBufFactory {
 
   @NotNull DataBuf createReadOnly();
 
+  @NotNull DataBuf createOf(byte @NotNull [] bytes);
+
   @NotNull DataBuf copyOf(@NotNull DataBuf dataBuf);
 
   @NotNull DataBuf.Mutable mutableCopyOf(@NotNull DataBuf dataBuf);
