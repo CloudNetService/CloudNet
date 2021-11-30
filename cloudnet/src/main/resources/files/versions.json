@@ -240,9 +240,14 @@
       "versions": [
         {
           "name": "latest",
-          "url": "https://download.getbukkit.org/spigot/spigot-1.17.1.jar",
+          "url": "https://download.getbukkit.org/spigot/spigot-1.18.jar",
           "cacheFiles": false,
-          "minJavaVersion": 16
+          "minJavaVersion": 17
+        },
+        {
+          "name": "1.18",
+          "url": "https://download.getbukkit.org/spigot/spigot-1.18.jar",
+          "minJavaVersion": 17
         },
         {
           "name": "1.17.1",
