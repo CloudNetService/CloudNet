@@ -31,6 +31,7 @@ import de.dytanic.cloudnet.common.log.defaults.DefaultLogFormatter;
 import de.dytanic.cloudnet.config.IConfiguration;
 import de.dytanic.cloudnet.config.JsonConfiguration;
 import de.dytanic.cloudnet.console.IConsole;
+import de.dytanic.cloudnet.console.log.ColouredLogFormatter;
 import de.dytanic.cloudnet.console.util.HeaderReader;
 import de.dytanic.cloudnet.database.AbstractDatabaseProvider;
 import de.dytanic.cloudnet.database.h2.H2DatabaseProvider;
@@ -124,7 +125,9 @@ public class CloudNet extends CloudNetDriver {
     setInstance(this);
 
     // add the log handler here to capture all log lines of the startup
-    this.logHandler.setFormatter(DefaultLogFormatter.END_LINE_SEPARATOR);
+    this.logHandler.setFormatter(console.hasColorSupport()
+      ? new ColouredLogFormatter()
+      : DefaultLogFormatter.END_LINE_SEPARATOR);
     rootLogger.addHandler(this.logHandler);
 
     this.console = console;
