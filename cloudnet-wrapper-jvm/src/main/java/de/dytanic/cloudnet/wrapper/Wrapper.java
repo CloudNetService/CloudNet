@@ -68,6 +68,8 @@ import de.dytanic.cloudnet.wrapper.provider.WrapperServiceTaskProvider;
 import de.dytanic.cloudnet.wrapper.provider.service.WrapperGeneralCloudServiceProvider;
 import java.io.File;
 import java.lang.reflect.Method;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -78,6 +80,7 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.jar.JarFile;
 import java.util.stream.Collectors;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
@@ -423,21 +426,51 @@ public final class Wrapper extends CloudNetDriver implements DriverAPIUser {
 
   private boolean startApplication() throws Exception {
     String mainClass = this.commandLineArguments.remove(0);
+    String applicationPath = this.commandLineArguments.remove(0);
+    boolean doPreloadClasses = Boolean.parseBoolean(this.commandLineArguments.remove(0));
 
-    return this.startApplication(mainClass);
+    return this.startApplication(mainClass, applicationPath, doPreloadClasses);
   }
 
-  private boolean startApplication(@NotNull String mainClass) throws Exception {
-    Class<?> main = Class.forName(mainClass);
+  private boolean startApplication(
+    @NotNull String mainClass,
+    @NotNull String applicationPath,
+    boolean preloadClasses
+  ) throws Exception {
+    Path applicationFile = Paths.get(applicationPath);
+    ClassLoader loader = ClassLoader.getSystemClassLoader();
+
+    // check if we need to preload all classes in the jar - this is required for the new bundling system introduced
+    // in 1.18 as it uses the parent class load of the loader loading the main class. This was fixed by adding the
+    // custom class loader - but preloading all classes breaks other stuff like the BungeeCord "Plugin" class which
+    // will fail initializing with: "Plugin requires net.md_5.bungee.api.plugin.PluginClassloader"
+    if (preloadClasses) {
+      // create a custom class loader for loading the application resources
+      loader = new URLClassLoader(
+        new URL[]{applicationFile.toUri().toURL()},
+        ClassLoader.getSystemClassLoader());
+      // force our loader to load all classes in the jar
+      Premain.loadAllClasses(applicationFile, loader);
+    }
+
+    // append the application file to the system class loader search as well
+    // the custom class loader will fix an issue with newer versions of spigot which have bundler support
+    // they are trying to load all classes from the parent of the class loader the class was loaded by - aka the
+    // AppClassLoader which doesn't know the driver classes (only the SystemClassLoader does). Bungee will use the
+    // SystemClassLoader to find classes for e.g. plugins
+    // long story short - here we go
+    Premain.instrumentation.appendToSystemClassLoaderSearch(new JarFile(applicationFile.toFile()));
+
+    // load the main class of the downstream application file
+    Class<?> main = Class.forName(mainClass, true, loader);
     Method method = main.getMethod("main", String[].class);
 
     Collection<String> arguments = new ArrayList<>(this.commandLineArguments);
-
     this.eventManager.callEvent(new ApplicationPreStartEvent(this, main, arguments));
 
     try {
       // checking if the application will be launched via the Minecraft LaunchWrapper
-      Class.forName("net.minecraft.launchwrapper.Launch");
+      Class.forName("net.minecraft.launchwrapper.Launch", false, loader);
 
       // adds a tweak class to the LaunchWrapper which will prevent doubled loading of the CloudNet classes
       arguments.add("--tweakClass");
@@ -456,11 +489,10 @@ public final class Wrapper extends CloudNetDriver implements DriverAPIUser {
         exception.printStackTrace();
       }
     }, "Application-Thread");
-    applicationThread.setContextClassLoader(ClassLoader.getSystemClassLoader());
+    applicationThread.setContextClassLoader(loader);
     applicationThread.start();
 
-    this.eventManager
-      .callEvent(new ApplicationPostStartEvent(this, main, applicationThread, ClassLoader.getSystemClassLoader()));
+    this.eventManager.callEvent(new ApplicationPostStartEvent(this, main, applicationThread, loader));
     return true;
   }
 
