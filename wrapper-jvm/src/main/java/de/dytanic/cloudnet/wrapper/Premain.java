@@ -16,8 +16,13 @@
 
 package de.dytanic.cloudnet.wrapper;
 
+import java.io.IOException;
 import java.lang.instrument.Instrumentation;
 import java.lang.reflect.Method;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.jar.JarEntry;
+import java.util.jar.JarInputStream;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -27,6 +32,27 @@ final class Premain {
 
   public static void premain(@NotNull String agentArgs, @NotNull Instrumentation inst) {
     Premain.instrumentation = inst;
+  }
+
+  public static void preloadClasses(@NotNull Path file, @NotNull ClassLoader loader) {
+    try (JarInputStream stream = new JarInputStream(Files.newInputStream(file))) {
+      JarEntry entry;
+      while ((entry = stream.getNextJarEntry()) != null) {
+        // only resolve class files
+        if (!entry.isDirectory() && entry.getName().endsWith(".class")) {
+          // canonicalize the class name
+          String className = entry.getName().replace('/', '.').replace(".class", "");
+          // load the class
+          try {
+            Class.forName(className, false, loader);
+          } catch (ClassNotFoundException ignored) {
+            // ignore
+          }
+        }
+      }
+    } catch (IOException exception) {
+      throw new IllegalStateException("Unable to preload classes in app file", exception);
+    }
   }
 
   public static void invokePremain(@NotNull String premainClass, @NotNull ClassLoader loader) throws Exception {

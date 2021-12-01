@@ -56,6 +56,8 @@ import de.dytanic.cloudnet.wrapper.provider.WrapperMessenger;
 import de.dytanic.cloudnet.wrapper.provider.WrapperNodeInfoProvider;
 import de.dytanic.cloudnet.wrapper.provider.WrapperServiceTaskProvider;
 import java.lang.reflect.Method;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -351,14 +353,27 @@ public class Wrapper extends CloudNetDriver {
     String mainClass = this.commandLineArguments.remove(0);
     String premainClass = this.commandLineArguments.remove(0);
     Path appFile = Paths.get(this.commandLineArguments.remove(0));
+    boolean preLoadAppJar = Boolean.parseBoolean(this.commandLineArguments.remove(0));
+
+    ClassLoader loader = ClassLoader.getSystemClassLoader();
+    // preload all jars in the application if requested
+    if (preLoadAppJar) {
+      // create a custom class loader for loading the application resources
+      loader = new URLClassLoader(
+        new URL[]{appFile.toUri().toURL()},
+        ClassLoader.getSystemClassLoader());
+      // force our loader to load all classes in the jar
+      Premain.preloadClasses(appFile, loader);
+    }
+
     // append the application file to the system class path
     Premain.instrumentation.appendToSystemClassLoaderSearch(new JarFile(appFile.toFile()));
 
     // invoke the premain method if given
-    Premain.invokePremain(premainClass, ClassLoader.getSystemClassLoader());
+    Premain.invokePremain(premainClass, loader);
 
     // get the main method
-    Class<?> main = Class.forName(mainClass, true, ClassLoader.getSystemClassLoader());
+    Class<?> main = Class.forName(mainClass, true, loader);
     Method method = main.getMethod("main", String[].class);
 
     // inform the user about the pre-start
@@ -375,15 +390,11 @@ public class Wrapper extends CloudNetDriver {
         LOGGER.severe("Exception while starting application", exception);
       }
     }, "Application-Thread");
-    applicationThread.setContextClassLoader(ClassLoader.getSystemClassLoader());
+    applicationThread.setContextClassLoader(loader);
     applicationThread.start();
 
     // inform the user about the post-start
-    this.eventManager.callEvent(new ApplicationPostStartEvent(
-      this,
-      main,
-      applicationThread,
-      ClassLoader.getSystemClassLoader()));
+    this.eventManager.callEvent(new ApplicationPostStartEvent(this, main, applicationThread, loader));
     return true;
   }
 
