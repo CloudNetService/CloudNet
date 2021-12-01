@@ -45,8 +45,7 @@ public enum ServiceEnvironmentType {
   ) {
     @Override
     public boolean shouldPreloadClassesBeforeStartup(@NotNull Path applicationFile) {
-      try {
-        JarFile file = new JarFile(applicationFile.toFile());
+      try (JarFile file = new JarFile(applicationFile.toFile())) {
         return file.getEntry("META-INF/versions.list") != null;
       } catch (IOException exception) {
         // wtf?
