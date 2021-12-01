@@ -92,7 +92,7 @@ public class SpecificTaskSetup extends DefaultTaskSetup implements DefaultSetup 
         .translatedQuestion("command-tasks-setup-question-environment")
         .answerType(QuestionAnswerType.<ServiceEnvironmentType>builder()
           .parser(serviceEnvironmentType())
-          .possibleResults(CloudNet.getInstance().getServiceVersionProvider().getServiceVersionTypes().keySet()))
+          .possibleResults(CloudNet.getInstance().getServiceVersionProvider().getKnownEnvironments().keySet()))
         .build(),
       QuestionListEntry.<Integer>builder()
         .key("taskStartPort")
