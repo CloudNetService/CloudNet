@@ -166,8 +166,7 @@ public class ConsoleSetupAnimation extends AbstractConsoleAnimation {
     // check if there are more entries to go
     QuestionListEntry<?> entry = this.entries.poll();
     if (entry == null) {
-      // no more questions - reset the console
-      this.resetConsole();
+      // no more questions - stop the animation
       return true;
     }
 
@@ -234,6 +233,13 @@ public class ConsoleSetupAnimation extends AbstractConsoleAnimation {
     return false;
   }
 
+  @Override
+  public void handleDone() {
+    if (!this.cancelled) {
+      super.handleDone();
+    }
+  }
+
   protected boolean handleInput(
     @NotNull QuestionAnswerType<?> answerType,
     @NotNull QuestionListEntry<?> entry,
@@ -283,10 +289,13 @@ public class ConsoleSetupAnimation extends AbstractConsoleAnimation {
     }
   }
 
-  private void resetConsole() {
+  @Override
+  public void resetConsole() {
     if (this.cancelled) {
       super.getConsole().forceWriteLine("&c" + I18n.trans("ca-question-list-cancelled"));
       CloudNet.getInstance().getEventManager().callEvent(new SetupCancelledEvent(this));
+      // reset the cancelled state
+      this.cancelled = false;
     } else {
       // print the footer if supplied
       if (this.footer != null) {
@@ -321,6 +330,8 @@ public class ConsoleSetupAnimation extends AbstractConsoleAnimation {
     this.getConsole().setCommandHistory(this.previousHistory);
     this.getConsole().togglePrinting(this.previousPrintingEnabled);
     this.getConsole().setUsingMatchingHistoryComplete(this.previousUseMatchingHistorySearch);
+
+    super.resetConsole();
   }
 
   private String @NotNull [] updateCursor(String @NotNull ... texts) {

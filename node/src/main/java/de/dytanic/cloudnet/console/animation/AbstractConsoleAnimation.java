@@ -111,4 +111,9 @@ public abstract class AbstractConsoleAnimation implements Runnable {
     Verify.verify(this.console == null, "Cannot set console of animation twice");
     this.console = console;
   }
+
+  public void resetConsole() {
+    Verify.verify(this.console != null, "Console is not set");
+    this.console = null;
+  }
 }
