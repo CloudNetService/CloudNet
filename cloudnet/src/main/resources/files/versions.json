@@ -878,7 +878,7 @@
           "cacheFiles": false,
           "properties": {
             "fetchOverPaperApi": true,
-            "versionGroup": "1.17"
+            "versionGroup": "1.18"
           }
         }
       ]
