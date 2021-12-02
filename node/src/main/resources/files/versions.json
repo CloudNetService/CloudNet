@@ -69,30 +69,47 @@
         {
           "name": "latest",
           "cacheFiles": false,
-          "minJavaVersion": 16,
+          "minJavaVersion": 17,
           "properties": {
             "copy": {
-              "cache/patched.*\\.jar": "paper.jar"
+              "cache/.*": "/",
+              "versions/.*": "/",
+              "paper\\.jar": "paper.jar"
             },
             "jvmOptions": [
               "-Dpaperclip.patchonly=true"
             ],
             "fetchOverPaperApi": true,
-            "versionGroup": "1.17.1"
+            "versionGroup": "1.18"
+          }
+        },
+        {
+          "name": "1.18",
+          "minJavaVersion": 17,
+          "properties": {
+            "copy": {
+              "cache/.*": "/",
+              "versions/.*": "/",
+              "paper\\.jar": "paper.jar"
+            },
+            "jvmOptions": [
+              "-Dpaperclip.patchonly=true"
+            ],
+            "fetchOverPaperApi": true,
+            "versionGroup": "1.18"
           }
         },
         {
           "name": "1.17.1",
           "minJavaVersion": 16,
+          "url": "https://papermc.io/api/v2/projects/paper/versions/1.17.1/builds/391/downloads/paper-1.17.1-391.jar",
           "properties": {
             "copy": {
               "cache/patched.*\\.jar": "paper.jar"
             },
             "jvmOptions": [
               "-Dpaperclip.patchonly=true"
-            ],
-            "fetchOverPaperApi": true,
-            "versionGroup": "1.17.1"
+            ]
           }
         },
         {
@@ -280,9 +297,14 @@
       "versions": [
         {
           "name": "latest",
-          "url": "https://download.getbukkit.org/spigot/spigot-1.17.1.jar",
+          "url": "https://download.getbukkit.org/spigot/spigot-1.18.jar",
           "cacheFiles": false,
-          "minJavaVersion": 16
+          "minJavaVersion": 17
+        },
+        {
+          "name": "1.18",
+          "url": "https://download.getbukkit.org/spigot/spigot-1.18.jar",
+          "minJavaVersion": 17
         },
         {
           "name": "1.17.1",
@@ -757,7 +779,7 @@
           "cacheFiles": false,
           "properties": {
             "fetchOverPaperApi": true,
-            "versionGroup": "1.17"
+            "versionGroup": "1.18"
           }
         }
       ]
@@ -772,9 +794,12 @@
       "versions": [
         {
           "name": "latest",
-          "url": "https://versions.velocitypowered.com/download/latest.jar",
           "cacheFiles": false,
-          "minJavaVersion": 11
+          "minJavaVersion": 11,
+          "properties": {
+            "fetchOverPaperApi": true,
+            "versionGroup": "3.0.0"
+          }
         },
         {
           "name": "development",
