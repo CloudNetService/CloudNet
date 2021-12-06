@@ -42,13 +42,15 @@ velocity = "3.0.1"
 nukkitX = "1.0-SNAPSHOT"
 sponge = "8.0.0-SNAPSHOT"
 waterdogpe = "1.1.4"
-spigot = "1.18-pre8-R0.1-SNAPSHOT"
+spigot = "1.8.8-R0.1-SNAPSHOT"
 bungeecord = "1.18-R0.1-SNAPSHOT"
 
 # platform extensions
 vault = "1.7.1"
 adventure = "4.9.3"
 modlauncher = "8.0.9"
+protocolLib = "master-SNAPSHOT"
+npcLib = "development-SNAPSHOT"
 
 
 [libraries]
@@ -121,7 +123,9 @@ adventureSerializerLegacy = { group = "net.kyori", name = "adventure-text-serial
 
 # platform extensions
 vault = { group = "com.github.MilkBowl", name = "VaultAPI", version.ref = "vault" }
+npcLib = { group = "com.github.juliarn", name = "npc-lib", version.ref = "npcLib" }
 modLauncher = { group = "cpw.mods", name = "modlauncher", version.ref = "modlauncher" }
+protocolLib = { group = "com.github.dmulloy2", name = "ProtocolLib", version.ref = "protocolLib" }
 
 [bundles]
 

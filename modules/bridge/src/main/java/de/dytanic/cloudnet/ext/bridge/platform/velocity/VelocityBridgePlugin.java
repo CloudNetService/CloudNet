@@ -56,7 +56,7 @@ public final class VelocityBridgePlugin {
     // register the player listeners
     this.proxy.getEventManager().register(this, new VelocityPlayerManagementListener(this.proxy, management));
     // register the cloud command
-    this.proxy.getCommandManager().register("cloudnet", new VelocityCloudCommand(management), "cloud", "cn");
+    this.proxy.getCommandManager().register("cloudnet", new VelocityCloudCommand(management), "cloud");
     // register the hub command if requested
     if (!management.getConfiguration().getHubCommandNames().isEmpty()) {
       // convert to an array for easier access

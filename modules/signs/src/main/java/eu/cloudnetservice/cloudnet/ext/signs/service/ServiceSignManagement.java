@@ -19,7 +19,6 @@ package eu.cloudnetservice.cloudnet.ext.signs.service;
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.driver.channel.ChannelMessageTarget;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
-import de.dytanic.cloudnet.driver.network.rpc.defaults.object.DefaultObjectMapper;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.ext.bridge.WorldPosition;
 import de.dytanic.cloudnet.wrapper.Wrapper;
@@ -161,8 +160,7 @@ public abstract class ServiceSignManagement<T> extends AbstractSignManagement im
       .buffer(DataBuf.empty().writeObject(groups))
       .build()
       .sendSingleQuery();
-    return response == null ? Collections.emptySet()
-      : DefaultObjectMapper.DEFAULT_MAPPER.readObject(response.getContent(), Sign.COLLECTION_TYPE);
+    return response == null ? Collections.emptySet() : response.getContent().readObject(Sign.COLLECTION_TYPE);
   }
 
   @Override

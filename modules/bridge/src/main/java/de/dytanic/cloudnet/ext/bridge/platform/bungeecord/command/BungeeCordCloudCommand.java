@@ -31,7 +31,7 @@ public final class BungeeCordCloudCommand extends Command {
   private final PlatformBridgeManagement<?, ?> management;
 
   public BungeeCordCloudCommand(@NotNull PlatformBridgeManagement<?, ?> management) {
-    super("cloudnet", "cloudnet.command.cloudnet", "cloud", "cn");
+    super("cloudnet", "cloudnet.command.cloudnet", "cloud");
     this.management = management;
   }
 

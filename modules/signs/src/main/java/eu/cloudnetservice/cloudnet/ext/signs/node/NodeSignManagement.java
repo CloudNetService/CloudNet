@@ -28,6 +28,7 @@ import eu.cloudnetservice.cloudnet.ext.signs.node.configuration.NodeSignsConfigu
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -100,7 +101,7 @@ public class NodeSignManagement extends AbstractSignManagement implements SignMa
 
   @Override
   public int deleteAllSigns() {
-    Set<WorldPosition> positions = this.signs.keySet();
+    Set<WorldPosition> positions = new HashSet<>(this.signs.keySet());
     for (WorldPosition position : positions) {
       this.database.delete(this.getDocumentKey(position));
       this.signs.remove(position);
@@ -130,18 +131,6 @@ public class NodeSignManagement extends AbstractSignManagement implements SignMa
       .targetAll()
       .build().send();
     NodeSignsConfigurationHelper.write(signsConfiguration, this.configurationFilePath);
-  }
-
-  @Override
-  public void handleInternalSignCreate(@NotNull Sign sign) {
-    super.handleInternalSignCreate(sign);
-    this.database.insert(this.getDocumentKey(sign.getWorldPosition()), JsonDocument.newDocument(sign));
-  }
-
-  @Override
-  public void handleInternalSignRemove(@NotNull WorldPosition position) {
-    super.handleInternalSignRemove(position);
-    this.database.delete(this.getDocumentKey(position));
   }
 
   @Override
