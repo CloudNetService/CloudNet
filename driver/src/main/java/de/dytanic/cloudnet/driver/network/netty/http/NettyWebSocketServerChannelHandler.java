@@ -29,9 +29,9 @@ import io.netty.handler.codec.http.websocketx.PongWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import java.io.IOException;
-import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.ApiStatus.Internal;
 
-@ApiStatus.Internal
+@Internal
 final class NettyWebSocketServerChannelHandler extends SimpleChannelInboundHandler<WebSocketFrame> {
 
   private static final Logger LOGGER = LogManager.getLogger(NettyWebSocketServerChannelHandler.class);

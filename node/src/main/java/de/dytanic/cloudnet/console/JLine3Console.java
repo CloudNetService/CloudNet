@@ -37,7 +37,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.AnsiConsole;
-import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jline.reader.Completer;
@@ -380,19 +380,19 @@ public final class JLine3Console implements IConsole {
   }
 
   @NotNull
-  @ApiStatus.Internal
+  @Internal
   LineReader getLineReader() {
     return this.lineReader;
   }
 
   @NotNull
-  @ApiStatus.Internal
+  @Internal
   Map<UUID, ConsoleInputHandler> getConsoleInputHandler() {
     return this.consoleInputHandler;
   }
 
   @NotNull
-  @ApiStatus.Internal
+  @Internal
   Map<UUID, ConsoleTabCompleteHandler> getTabCompleteHandlers() {
     return this.tabCompleteHandler;
   }

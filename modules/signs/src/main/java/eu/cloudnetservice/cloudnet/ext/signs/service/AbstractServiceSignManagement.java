@@ -50,7 +50,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
-import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -264,7 +264,7 @@ public abstract class AbstractServiceSignManagement<T> extends ServiceSignManage
     }
   }
 
-  @ApiStatus.Internal
+  @Internal
   protected void tick(@NotNull Map<SignLayoutsHolder, Set<Sign>> signsNeedingTicking) {
     this.currentTick.incrementAndGet();
 

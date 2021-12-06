@@ -20,14 +20,14 @@ import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.ext.bridge.BridgeServiceHelper;
 import de.dytanic.cloudnet.ext.bridge.BridgeServiceHelper.ServiceInfoState;
 import eu.cloudnetservice.cloudnet.ext.signs.configuration.SignConfigurationEntry;
-import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
  * Util for priorities of signs on a sign wall
  */
-@ApiStatus.Internal
+@Internal
 public final class PriorityUtil {
 
   private PriorityUtil() {

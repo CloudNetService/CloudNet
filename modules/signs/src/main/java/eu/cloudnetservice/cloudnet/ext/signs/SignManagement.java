@@ -19,7 +19,7 @@ package eu.cloudnetservice.cloudnet.ext.signs;
 import de.dytanic.cloudnet.ext.bridge.WorldPosition;
 import eu.cloudnetservice.cloudnet.ext.signs.configuration.SignsConfiguration;
 import java.util.Collection;
-import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -112,18 +112,18 @@ public interface SignManagement {
 
   // Internal methods
 
-  @ApiStatus.Internal
+  @Internal
   void registerToServiceRegistry();
 
-  @ApiStatus.Internal
+  @Internal
   void unregisterFromServiceRegistry();
 
-  @ApiStatus.Internal
+  @Internal
   void handleInternalSignCreate(@NotNull Sign sign);
 
-  @ApiStatus.Internal
+  @Internal
   void handleInternalSignRemove(@NotNull WorldPosition position);
 
-  @ApiStatus.Internal
+  @Internal
   void handleInternalSignConfigUpdate(@NotNull SignsConfiguration configuration);
 }

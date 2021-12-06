@@ -38,9 +38,9 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
-import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.ApiStatus.Internal;
 
-@ApiStatus.Internal
+@Internal
 final class NettyWebSocketServerChannel implements IWebSocketChannel {
 
   private final List<IWebSocketListener> webSocketListeners = new CopyOnWriteArrayList<>();

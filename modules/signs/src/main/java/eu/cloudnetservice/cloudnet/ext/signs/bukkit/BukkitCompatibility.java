@@ -29,11 +29,11 @@ import org.bukkit.block.BlockState;
 import org.bukkit.material.Colorable;
 import org.bukkit.material.MaterialData;
 import org.bukkit.material.Sign;
-import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-@ApiStatus.Internal
+@Internal
 public final class BukkitCompatibility {
 
   private static final Logger LOGGER = LogManager.getLogger(BukkitCompatibility.class);

@@ -34,7 +34,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
-import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -133,13 +133,13 @@ public abstract class ServiceSignManagement<T> extends AbstractSignManagement im
    */
   public abstract boolean canConnect(@NotNull Sign sign, @NotNull Function<String, Boolean> permissionChecker);
 
-  @ApiStatus.Internal
+  @Internal
   public abstract void initialize();
 
-  @ApiStatus.Internal
+  @Internal
   public abstract void initialize(@NotNull Map<SignLayoutsHolder, Set<Sign>> signsNeedingTicking);
 
-  @ApiStatus.Internal
+  @Internal
   protected abstract void startKnockbackTask();
 
   /**

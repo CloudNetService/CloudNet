@@ -26,10 +26,10 @@ import eu.cloudnetservice.cloudnet.ext.signs.configuration.SignConfigurationEntr
 import eu.cloudnetservice.cloudnet.ext.signs.configuration.SignsConfiguration;
 import eu.cloudnetservice.cloudnet.ext.signs.node.configuration.SignConfigurationType;
 import java.util.Collections;
-import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.NotNull;
 
-@ApiStatus.Internal
+@Internal
 public final class SignEntryTaskSetup {
 
   private static final QuestionListEntry<Boolean> CREATE_ENTRY_QUESTION_LIST = QuestionListEntry.<Boolean>builder()

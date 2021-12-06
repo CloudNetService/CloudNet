@@ -20,9 +20,9 @@ import de.dytanic.cloudnet.driver.network.netty.NettyUtils;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
-import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.ApiStatus.Internal;
 
-@ApiStatus.Internal
+@Internal
 public final class NettyPacketLengthSerializer extends MessageToByteEncoder<ByteBuf> {
 
   @Override

@@ -23,10 +23,10 @@ import de.dytanic.cloudnet.driver.network.netty.NettyNetworkHandler;
 import io.netty.channel.ChannelHandlerContext;
 import java.util.Collection;
 import java.util.concurrent.Executor;
-import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.NotNull;
 
-@ApiStatus.Internal
+@Internal
 public class NettyNetworkServerHandler extends NettyNetworkHandler {
 
   private final HostAndPort serverLocalAddress;

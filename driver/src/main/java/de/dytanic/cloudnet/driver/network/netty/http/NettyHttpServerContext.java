@@ -45,9 +45,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 import java.util.stream.Collectors;
-import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.ApiStatus.Internal;
 
-@ApiStatus.Internal
+@Internal
 final class NettyHttpServerContext implements IHttpContext {
 
   private static final Logger LOGGER = LogManager.getLogger(NettyHttpServerContext.class);

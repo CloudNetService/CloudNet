@@ -29,11 +29,11 @@ import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.network.protocol.IPacketListenerRegistry;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
-import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-@ApiStatus.Internal
+@Internal
 public final class NettyNetworkChannel extends DefaultNetworkChannel implements INetworkChannel {
 
   private static final Logger LOGGER = LogManager.getLogger(NettyNetworkChannel.class);

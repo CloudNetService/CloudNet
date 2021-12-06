@@ -22,9 +22,9 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
 import io.netty.util.ByteProcessor;
 import java.util.List;
-import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.ApiStatus.Internal;
 
-@ApiStatus.Internal
+@Internal
 public final class NettyPacketLengthDeserializer extends ByteToMessageDecoder {
 
   private static final SilentDecoderException BAD_LENGTH = new SilentDecoderException("Bad packet length");

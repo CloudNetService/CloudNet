@@ -27,9 +27,9 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
 import java.util.List;
 import java.util.UUID;
-import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.ApiStatus.Internal;
 
-@ApiStatus.Internal
+@Internal
 public final class NettyPacketDecoder extends ByteToMessageDecoder {
 
   private static final Logger LOGGER = LogManager.getLogger(NettyPacketDecoder.class);

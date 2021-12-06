@@ -30,21 +30,21 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.Nullable;
 
-@ApiStatus.Internal
+@Internal
 final class NettyHttpServerRequest extends NettyHttpMessage implements IHttpRequest {
 
-  protected final NettyHttpServerContext context;
+  private final NettyHttpServerContext context;
 
-  protected final URI uri;
-  protected final HttpRequest httpRequest;
+  private final URI uri;
+  private final HttpRequest httpRequest;
 
-  protected final Map<String, String> pathParameters;
-  protected final Map<String, List<String>> queryParameters;
+  private final Map<String, String> pathParameters;
+  private final Map<String, List<String>> queryParameters;
 
-  protected byte[] body;
+  private byte[] body;
 
   public NettyHttpServerRequest(NettyHttpServerContext context, HttpRequest httpRequest,
     Map<String, String> pathParameters, URI uri) {

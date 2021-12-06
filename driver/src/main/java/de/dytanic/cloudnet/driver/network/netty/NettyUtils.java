@@ -42,14 +42,14 @@ import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Range;
 
 /**
  * Internal util for Netty and its ByteBuf
  */
-@ApiStatus.Internal
+@Internal
 public final class NettyUtils {
 
   public static final boolean NATIVE_TRANSPORT = Epoll.isAvailable();

@@ -38,9 +38,9 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
-import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.ApiStatus.Internal;
 
-@ApiStatus.Internal
+@Internal
 final class NettyHttpServerHandler extends SimpleChannelInboundHandler<HttpRequest> {
 
   private static final Logger LOGGER = LogManager.getLogger(NettyHttpServerHandler.class);

@@ -28,10 +28,10 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.UUID;
 import java.util.concurrent.Executor;
-import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.NotNull;
 
-@ApiStatus.Internal
+@Internal
 public abstract class NettyNetworkHandler extends SimpleChannelInboundHandler<Packet> {
 
   private static final Logger LOGGER = LogManager.getLogger(NettyNetworkHandler.class);

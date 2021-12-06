@@ -23,10 +23,10 @@ import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpRequestDecoder;
 import io.netty.handler.codec.http.HttpResponseEncoder;
 import io.netty.handler.stream.ChunkedWriteHandler;
-import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.NotNull;
 
-@ApiStatus.Internal
+@Internal
 final class NettyHttpServerInitializer extends ChannelInitializer<Channel> {
 
   private final NettyHttpServer nettyHttpServer;

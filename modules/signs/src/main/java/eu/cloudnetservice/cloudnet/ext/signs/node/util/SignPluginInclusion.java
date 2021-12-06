@@ -24,10 +24,10 @@ import eu.cloudnetservice.cloudnet.ext.signs.configuration.SignConfigurationEntr
 import eu.cloudnetservice.cloudnet.ext.signs.configuration.SignsConfiguration;
 import java.nio.file.Path;
 import java.util.Collection;
-import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.NotNull;
 
-@ApiStatus.Internal
+@Internal
 public final class SignPluginInclusion {
 
   private SignPluginInclusion() {
