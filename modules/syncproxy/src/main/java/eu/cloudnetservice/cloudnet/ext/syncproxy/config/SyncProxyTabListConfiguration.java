@@ -16,25 +16,28 @@
 
 package eu.cloudnetservice.cloudnet.ext.syncproxy.config;
 
-import java.util.Collections;
+import com.google.common.base.Verify;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import lombok.EqualsAndHashCode;
+import lombok.EqualsAndHashCode.Include;
 import lombok.ToString;
 import org.jetbrains.annotations.NotNull;
 
 @ToString
-@EqualsAndHashCode
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class SyncProxyTabListConfiguration {
 
-  protected String targetGroup;
+  @Include
+  protected final String targetGroup;
 
-  protected List<SyncProxyTabList> entries;
-  protected double animationsPerSecond;
+  protected final List<SyncProxyTabList> entries;
+  protected final double animationsPerSecond;
 
-  protected transient AtomicInteger currentEntry;
+  protected final transient AtomicInteger currentEntry;
 
-  public SyncProxyTabListConfiguration(
+  protected SyncProxyTabListConfiguration(
     @NotNull String targetGroup,
     @NotNull List<SyncProxyTabList> entries,
     double animationsPerSecond
@@ -46,42 +49,39 @@ public class SyncProxyTabListConfiguration {
     this.currentEntry = new AtomicInteger(-1);
   }
 
+  public static @NotNull Builder builder() {
+    return new Builder();
+  }
+
+  public static @NotNull Builder builder(@NotNull SyncProxyTabListConfiguration configuration) {
+    return builder()
+      .targetGroup(configuration.getTargetGroup())
+      .tabListEntries(configuration.getEntries())
+      .animationsPerSecond(configuration.getAnimationsPerSecond());
+  }
+
   public static @NotNull SyncProxyTabListConfiguration createDefault(String targetGroup) {
-    return new SyncProxyTabListConfiguration(
-      targetGroup,
-      Collections.singletonList(
-        new SyncProxyTabList(
-          " \n &b&o■ &8┃ &3&lCloudNet &8● &cBlizzard &8&l» &7&o%online_players%&8/&7&o%max_players% &8┃ &b&o■ "
-            + "\n &8► &7Current server &8● &b%server% &8◄ \n ",
-          " \n &7Discord &8&l» &bdiscord.cloudnetservice.eu \n &7&onext &3&l&ogeneration &7&onetwork \n "
-        )
-      ),
-      1
-    );
+    return builder()
+      .targetGroup(targetGroup)
+      .addTabListEntry(SyncProxyTabList.builder()
+        .header(" \n &b&o■ &8┃ &3&lCloudNet &8● &cBlizzard &8&l» &7&o%online_players%&8/&7&o%max_players% &8┃ &b&o■ "
+          + "\n &8► &7Current server &8● &b%server% &8◄ \n ")
+        .footer(" \n &7Discord &8&l» &bdiscord.cloudnetservice.eu \n &7&onext &3&l&ogeneration &7&onetwork \n ")
+        .build())
+      .animationsPerSecond(1.0)
+      .build();
   }
 
   public @NotNull String getTargetGroup() {
     return this.targetGroup;
   }
 
-  public void setTargetGroup(@NotNull String targetGroup) {
-    this.targetGroup = targetGroup;
-  }
-
   public @NotNull List<SyncProxyTabList> getEntries() {
     return this.entries;
   }
 
-  public void setEntries(@NotNull List<SyncProxyTabList> entries) {
-    this.entries = entries;
-  }
-
   public double getAnimationsPerSecond() {
     return this.animationsPerSecond;
-  }
-
-  public void setAnimationsPerSecond(double animationsPerSecond) {
-    this.animationsPerSecond = animationsPerSecond;
   }
 
   public @NotNull SyncProxyTabList tick() {
@@ -100,4 +100,36 @@ public class SyncProxyTabListConfiguration {
     return this.currentEntry.get();
   }
 
+  public static class Builder {
+
+    private String targetGroup;
+    private List<SyncProxyTabList> entries = new ArrayList<>();
+    private double animationsPerSecond;
+
+    public @NotNull Builder targetGroup(@NotNull String targetGroup) {
+      this.targetGroup = targetGroup;
+      return this;
+    }
+
+    public @NotNull Builder tabListEntries(@NotNull List<SyncProxyTabList> entries) {
+      this.entries = new ArrayList<>(entries);
+      return this;
+    }
+
+    public @NotNull Builder addTabListEntry(@NotNull SyncProxyTabList tabList) {
+      this.entries.add(tabList);
+      return this;
+    }
+
+    public @NotNull Builder animationsPerSecond(double animationsPerSecond) {
+      this.animationsPerSecond = animationsPerSecond;
+      return this;
+    }
+
+    public @NotNull SyncProxyTabListConfiguration build() {
+      Verify.verifyNotNull(this.targetGroup, "Missing targetGroup");
+
+      return new SyncProxyTabListConfiguration(this.targetGroup, this.entries, this.animationsPerSecond);
+    }
+  }
 }

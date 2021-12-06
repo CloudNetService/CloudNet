@@ -131,8 +131,14 @@ public final class CommandSyncProxy {
     @Argument("targetGroup") SyncProxyLoginConfiguration loginConfiguration,
     @Argument("amount") int amount
   ) {
-    loginConfiguration.setMaxPlayers(amount);
-    this.updateSyncProxyConfiguration();
+    SyncProxyLoginConfiguration updatedLoginConfiguration = SyncProxyLoginConfiguration.builder(loginConfiguration)
+      .maxPlayers(amount)
+      .build();
+
+    this.syncProxyManagement.setConfigurationSilently(
+      SyncProxyConfiguration.builder(this.syncProxyManagement.getConfiguration())
+        .addLoginConfiguration(updatedLoginConfiguration)
+        .build());
 
     source.sendMessage(
       I18n.trans("module-syncproxy-command-set-maxplayers")
@@ -175,8 +181,14 @@ public final class CommandSyncProxy {
     @Argument("targetGroup") SyncProxyLoginConfiguration loginConfiguration,
     @Argument("enabled") boolean enabled
   ) {
-    loginConfiguration.setMaintenance(enabled);
-    this.updateSyncProxyConfiguration();
+    SyncProxyLoginConfiguration updatedLoginConfiguration = SyncProxyLoginConfiguration.builder(loginConfiguration)
+      .maintenance(enabled)
+      .build();
+
+    this.syncProxyManagement.setConfigurationSilently(
+      SyncProxyConfiguration.builder(this.syncProxyManagement.getConfiguration())
+        .addLoginConfiguration(updatedLoginConfiguration)
+        .build());
 
     source.sendMessage(I18n.trans("module-syncproxy-command-set-maintenance")
       .replace("%group%", loginConfiguration.getTargetGroup())

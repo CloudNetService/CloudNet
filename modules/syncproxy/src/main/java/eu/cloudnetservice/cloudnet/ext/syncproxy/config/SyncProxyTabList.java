@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.cloudnet.ext.syncproxy.config;
 
+import com.google.common.base.Verify;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
 import de.dytanic.cloudnet.driver.permission.PermissionGroup;
@@ -35,15 +36,25 @@ public class SyncProxyTabList {
 
   private static final DateFormat DATE_FORMAT = new SimpleDateFormat("HH:mm:ss");
 
-  protected String header;
-  protected String footer;
+  protected final String header;
+  protected final String footer;
 
-  public SyncProxyTabList(@NotNull String header, @NotNull String footer) {
+  protected SyncProxyTabList(@NotNull String header, @NotNull String footer) {
     this.header = header;
     this.footer = footer;
   }
 
-  public static String replaceTabListItem(
+  public static @NotNull Builder builder() {
+    return new Builder();
+  }
+
+  public static @NotNull Builder builder(@NotNull SyncProxyTabList tabList) {
+    return builder()
+      .header(tabList.getHeader())
+      .footer(tabList.getFooter());
+  }
+
+  public static @NotNull String replaceTabListItem(
     @NotNull String input,
     @NotNull UUID playerUniqueId,
     int onlinePlayers,
@@ -82,15 +93,30 @@ public class SyncProxyTabList {
     return this.header;
   }
 
-  public void setHeader(@NotNull String header) {
-    this.header = header;
-  }
-
   public @NotNull String getFooter() {
     return this.footer;
   }
 
-  public void setFooter(@NotNull String footer) {
-    this.footer = footer;
+  public static class Builder {
+
+    private String header;
+    private String footer;
+
+    public @NotNull Builder header(@NotNull String header) {
+      this.header = header;
+      return this;
+    }
+
+    public @NotNull Builder footer(@NotNull String footer) {
+      this.footer = footer;
+      return this;
+    }
+
+    public @NotNull SyncProxyTabList build() {
+      Verify.verifyNotNull(this.header, "Missing header");
+      Verify.verifyNotNull(this.footer, "Missing footer");
+
+      return new SyncProxyTabList(this.header, this.footer);
+    }
   }
 }

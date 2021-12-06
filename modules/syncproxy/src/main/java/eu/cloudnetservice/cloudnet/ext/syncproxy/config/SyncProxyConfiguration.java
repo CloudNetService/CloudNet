@@ -21,8 +21,8 @@ import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import eu.cloudnetservice.cloudnet.ext.syncproxy.SyncProxyConstants;
-import java.util.Collection;
-import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
@@ -42,12 +42,12 @@ public class SyncProxyConfiguration {
     "service-start", "&7The service &e%service% &7is &astarting &7on node &e%node%&7...",
     "service-stop", "&7The service &e%service% &7is &cstopping &7on node &e%node%&7...");
 
-  protected Set<SyncProxyLoginConfiguration> loginConfigurations;
-  protected Set<SyncProxyTabListConfiguration> tabListConfigurations;
-  protected Map<String, String> messages;
-  protected boolean ingameServiceStartStopMessages;
+  protected final Set<SyncProxyLoginConfiguration> loginConfigurations;
+  protected final Set<SyncProxyTabListConfiguration> tabListConfigurations;
+  protected final Map<String, String> messages;
+  protected final boolean ingameServiceStartStopMessages;
 
-  public SyncProxyConfiguration(
+  protected SyncProxyConfiguration(
     @NotNull Set<SyncProxyLoginConfiguration> loginConfigurations,
     @NotNull Set<SyncProxyTabListConfiguration> tabListConfigurations,
     @NotNull Map<String, String> messages,
@@ -59,12 +59,25 @@ public class SyncProxyConfiguration {
     this.ingameServiceStartStopMessages = ingameServiceStartStopMessages;
   }
 
+  public static @NotNull Builder builder() {
+    return new Builder();
+  }
+
+  public static @NotNull Builder builder(@NotNull SyncProxyConfiguration configuration) {
+    return builder()
+      .loginConfigurations(configuration.getLoginConfigurations())
+      .tabListConfigurations(configuration.getTabListConfigurations())
+      .messages(configuration.getMessages())
+      .ingameStartStopMessages(configuration.showIngameServicesStartStopMessages());
+  }
+
   public static @NotNull SyncProxyConfiguration createDefault(@NotNull String targetGroup) {
-    return new SyncProxyConfiguration(
-      Collections.singleton(SyncProxyLoginConfiguration.createDefault(targetGroup)),
-      Collections.singleton(SyncProxyTabListConfiguration.createDefault(targetGroup)),
-      DEFAULT_MESSAGES,
-      true);
+    return builder()
+      .addLoginConfiguration(SyncProxyLoginConfiguration.createDefault(targetGroup))
+      .addTabListConfiguration(SyncProxyTabListConfiguration.createDefault(targetGroup))
+      .messages(DEFAULT_MESSAGES)
+      .ingameStartStopMessages(true)
+      .build();
   }
 
   public static @Nullable SyncProxyConfiguration getConfigurationFromNode() {
@@ -86,24 +99,12 @@ public class SyncProxyConfiguration {
     return this.loginConfigurations;
   }
 
-  public void setLoginConfigurations(@NotNull Set<SyncProxyLoginConfiguration> loginConfigurations) {
-    this.loginConfigurations = loginConfigurations;
-  }
-
-  public @NotNull Collection<SyncProxyTabListConfiguration> getTabListConfigurations() {
+  public @NotNull Set<SyncProxyTabListConfiguration> getTabListConfigurations() {
     return this.tabListConfigurations;
-  }
-
-  public void setTabListConfigurations(@NotNull Set<SyncProxyTabListConfiguration> tabListConfigurations) {
-    this.tabListConfigurations = tabListConfigurations;
   }
 
   public @NotNull Map<String, String> getMessages() {
     return this.messages;
-  }
-
-  public void setMessages(@NotNull Map<String, String> messages) {
-    this.messages = messages;
   }
 
   public @UnknownNullability String getMessage(@NotNull String key, @Nullable Function<String, String> modifier) {
@@ -127,5 +128,55 @@ public class SyncProxyConfiguration {
       .buffer(DataBuf.empty().writeObject(this))
       .build()
       .send();
+  }
+
+  public static class Builder {
+
+    private Set<SyncProxyLoginConfiguration> loginConfigurations = new HashSet<>();
+    private Set<SyncProxyTabListConfiguration> tabListConfigurations = new HashSet<>();
+    private Map<String, String> messages = new HashMap<>();
+    private boolean ingameServiceStartStopMessages;
+
+    public @NotNull Builder loginConfigurations(@NotNull Set<SyncProxyLoginConfiguration> configurations) {
+      this.loginConfigurations = new HashSet<>(configurations);
+      return this;
+    }
+
+    public @NotNull Builder addLoginConfiguration(@NotNull SyncProxyLoginConfiguration configuration) {
+      this.loginConfigurations.add(configuration);
+      return this;
+    }
+
+    public @NotNull Builder tabListConfigurations(@NotNull Set<SyncProxyTabListConfiguration> configurations) {
+      this.tabListConfigurations = new HashSet<>(configurations);
+      return this;
+    }
+
+    public @NotNull Builder addTabListConfiguration(@NotNull SyncProxyTabListConfiguration configuration) {
+      this.tabListConfigurations.add(configuration);
+      return this;
+    }
+
+    public @NotNull Builder messages(@NotNull Map<String, String> messages) {
+      this.messages = new HashMap<>(messages);
+      return this;
+    }
+
+    public @NotNull Builder addMessage(@NotNull String key, @NotNull String message) {
+      this.messages.put(key, message);
+      return this;
+    }
+
+    public @NotNull Builder ingameStartStopMessages(boolean ingameMessages) {
+      this.ingameServiceStartStopMessages = ingameMessages;
+      return this;
+    }
+
+    public @NotNull SyncProxyConfiguration build() {
+      return new SyncProxyConfiguration(this.loginConfigurations,
+        this.tabListConfigurations,
+        this.messages,
+        this.ingameServiceStartStopMessages);
+    }
   }
 }

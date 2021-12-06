@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.cloudnet.ext.syncproxy.config;
 
+import com.google.common.base.Verify;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -27,16 +28,16 @@ import org.jetbrains.annotations.Nullable;
 @EqualsAndHashCode
 public class SyncProxyMotd {
 
-  protected String firstLine;
-  protected String secondLine;
+  protected final String firstLine;
+  protected final String secondLine;
 
-  protected boolean autoSlot;
-  protected int autoSlotMaxPlayersDistance;
+  protected final boolean autoSlot;
+  protected final int autoSlotMaxPlayersDistance;
 
-  protected String[] playerInfo;
-  protected String protocolText;
+  protected final String[] playerInfo;
+  protected final String protocolText;
 
-  public SyncProxyMotd(
+  protected SyncProxyMotd(
     @NotNull String firstLine,
     @NotNull String secondLine,
     boolean autoSlot,
@@ -52,52 +53,42 @@ public class SyncProxyMotd {
     this.protocolText = protocolText;
   }
 
-  public @NotNull String getFirstLine() {
-    return this.firstLine;
+  public static @NotNull Builder builder() {
+    return new Builder();
   }
 
-  public void setFirstLine(@NotNull String firstLine) {
-    this.firstLine = firstLine;
+  public static @NotNull Builder builder(@NotNull SyncProxyMotd motd) {
+    return builder()
+      .firstLine(motd.getFirstLine())
+      .secondLine(motd.getSecondLine())
+      .autoSlot(motd.isAutoSlot())
+      .autoSlotDistance(motd.getAutoSlotMaxPlayersDistance())
+      .playerInfo(motd.getPlayerInfo())
+      .protocolText(motd.getProtocolText());
+  }
+
+  public @NotNull String getFirstLine() {
+    return this.firstLine;
   }
 
   public @NotNull String getSecondLine() {
     return this.secondLine;
   }
 
-  public void setSecondLine(@NotNull String secondLine) {
-    this.secondLine = secondLine;
-  }
-
   public boolean isAutoSlot() {
     return this.autoSlot;
-  }
-
-  public void setAutoSlot(boolean autoSlot) {
-    this.autoSlot = autoSlot;
   }
 
   public int getAutoSlotMaxPlayersDistance() {
     return this.autoSlotMaxPlayersDistance;
   }
 
-  public void setAutoSlotMaxPlayersDistance(int autoSlotMaxPlayersDistance) {
-    this.autoSlotMaxPlayersDistance = autoSlotMaxPlayersDistance;
-  }
-
   public @NotNull String[] getPlayerInfo() {
     return this.playerInfo;
   }
 
-  public void setPlayerInfo(@NotNull String[] playerInfo) {
-    this.playerInfo = playerInfo;
-  }
-
   public @Nullable String getProtocolText() {
     return this.protocolText;
-  }
-
-  public void setProtocolText(@Nullable String protocolText) {
-    this.protocolText = protocolText;
   }
 
   @Contract("null, _, _ -> null; !null, _, _ -> !null")
@@ -116,4 +107,57 @@ public class SyncProxyMotd {
       .replace("&", "§");
   }
 
+  public static class Builder {
+
+    private String firstLine;
+    private String secondLine;
+
+    private boolean autoSlot;
+    private int autoSlotMaxPlayersDistance;
+
+    private String[] playerInfo = new String[0];
+    private String protocolText;
+
+    public @NotNull Builder firstLine(@NotNull String firstLine) {
+      this.firstLine = firstLine;
+      return this;
+    }
+
+    public @NotNull Builder secondLine(@NotNull String secondLine) {
+      this.secondLine = secondLine;
+      return this;
+    }
+
+    public @NotNull Builder autoSlot(boolean autoSlot) {
+      this.autoSlot = autoSlot;
+      return this;
+    }
+
+    public @NotNull Builder autoSlotDistance(int autoSlotDistance) {
+      this.autoSlotMaxPlayersDistance = autoSlotDistance;
+      return this;
+    }
+
+    public @NotNull Builder playerInfo(String @NotNull [] playerInfo) {
+      this.playerInfo = playerInfo;
+      return this;
+    }
+
+    public @NotNull Builder protocolText(@Nullable String protocolText) {
+      this.protocolText = protocolText;
+      return this;
+    }
+
+    public @NotNull SyncProxyMotd build() {
+      Verify.verifyNotNull(this.firstLine, "Missing first line");
+      Verify.verifyNotNull(this.secondLine, "Missing second line");
+
+      return new SyncProxyMotd(this.firstLine,
+        this.secondLine,
+        this.autoSlot,
+        this.autoSlotMaxPlayersDistance,
+        this.playerInfo,
+        this.protocolText);
+    }
+  }
 }
