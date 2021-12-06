@@ -168,7 +168,7 @@ public final class QuestionAnswerType<T> {
         this.parser,
         this.recommendation,
         this.possibleResults == null ? Collections::emptyList : this.possibleResults,
-        this.resultListener == null ? Collections.emptyList() : this.resultListener,
+        this.resultListener == null ? new ArrayList<>() : this.resultListener,
         this.invalidInputSupplier == null ? DEFAULT_INVALID_SUPPLIER : this.invalidInputSupplier);
     }
   }
