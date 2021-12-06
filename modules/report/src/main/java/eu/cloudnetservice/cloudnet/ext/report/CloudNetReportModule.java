@@ -18,8 +18,6 @@ package eu.cloudnetservice.cloudnet.ext.report;
 
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.io.FileUtils;
-import de.dytanic.cloudnet.common.log.LogManager;
-import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.module.ModuleLifeCycle;
 import de.dytanic.cloudnet.driver.module.ModuleTask;
 import de.dytanic.cloudnet.driver.module.driver.DriverModule;
@@ -43,8 +41,6 @@ import java.nio.file.Path;
 import org.jetbrains.annotations.NotNull;
 
 public final class CloudNetReportModule extends DriverModule {
-
-  private static final Logger LOGGER = LogManager.getLogger(CloudNetReportModule.class);
 
   private static CloudNetReportModule instance;
   private ReportConfiguration reportConfiguration;
