@@ -50,7 +50,7 @@ final class BukkitPlayerManagementListener implements Listener {
       if (task.isMaintenance() && !event.getPlayer().hasPermission("cloudnet.bridge.maintenance")) {
         event.setResult(Result.KICK_WHITELIST);
         event.setKickMessage(this.management.getConfiguration().getMessage(
-          Locale.forLanguageTag(event.getPlayer().getLocale().replaceAll("_", "-")),
+          Locale.forLanguageTag(BukkitUtil.getPlayerLocale(event.getPlayer())),
           "server-join-cancel-because-maintenance"));
         return;
       }
@@ -59,7 +59,7 @@ final class BukkitPlayerManagementListener implements Listener {
       if (permission != null && !event.getPlayer().hasPermission(permission)) {
         event.setResult(Result.KICK_WHITELIST);
         event.setKickMessage(this.management.getConfiguration().getMessage(
-          Locale.forLanguageTag(event.getPlayer().getLocale().replaceAll("_", "-")),
+          Locale.forLanguageTag(BukkitUtil.getPlayerLocale(event.getPlayer())),
           "server-join-cancel-because-permission"));
       }
     }
