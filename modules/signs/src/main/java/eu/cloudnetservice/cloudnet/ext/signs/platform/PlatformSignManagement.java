@@ -54,7 +54,7 @@ public abstract class PlatformSignManagement<T> extends AbstractSignManagement i
     // get the signs for the current group
     String[] groups = Wrapper.getInstance().getServiceConfiguration().getGroups().toArray(new String[0]);
     for (Sign sign : this.getSigns(groups)) {
-      this.signs.put(sign.getWorldPosition(), sign);
+      this.signs.put(sign.getLocation(), sign);
     }
   }
 
@@ -165,7 +165,7 @@ public abstract class PlatformSignManagement<T> extends AbstractSignManagement i
 
   @Override
   public void handleInternalSignCreate(@NotNull Sign sign) {
-    if (Wrapper.getInstance().getServiceConfiguration().getGroups().contains(sign.getWorldPosition().getGroup())) {
+    if (Wrapper.getInstance().getServiceConfiguration().getGroups().contains(sign.getLocation().getGroup())) {
       super.handleInternalSignCreate(sign);
     }
   }

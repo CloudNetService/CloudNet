@@ -76,7 +76,7 @@ public class BukkitSignManagement extends AbstractPlatformSignManagement<org.buk
   }
 
   protected void pushUpdate0(@NotNull Sign sign, @NotNull SignLayout layout) {
-    Location location = this.worldPositionToLocation(sign.getWorldPosition());
+    Location location = this.worldPositionToLocation(sign.getLocation());
     if (location != null) {
       int chunkX = (int) Math.floor(location.getX()) >> 4;
       int chunkZ = (int) Math.floor(location.getZ()) >> 4;
@@ -179,7 +179,7 @@ public class BukkitSignManagement extends AbstractPlatformSignManagement<org.buk
           double distance = configuration.getDistance();
 
           for (Sign value : this.signs.values()) {
-            Location location = this.worldPositionToLocation(value.getWorldPosition());
+            Location location = this.worldPositionToLocation(value.getLocation());
             if (location != null) {
               int chunkX = (int) Math.floor(location.getX()) >> 4;
               int chunkZ = (int) Math.floor(location.getZ()) >> 4;

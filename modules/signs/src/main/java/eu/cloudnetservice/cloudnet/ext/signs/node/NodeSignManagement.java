@@ -52,15 +52,15 @@ public class NodeSignManagement extends AbstractSignManagement implements SignMa
     this.database.documentsAsync().onComplete(jsonDocuments -> {
       for (JsonDocument document : jsonDocuments) {
         Sign sign = document.toInstanceOf(Sign.class);
-        this.signs.put(sign.getWorldPosition(), sign);
+        this.signs.put(sign.getLocation(), sign);
       }
     });
   }
 
   @Override
   public void createSign(@NotNull Sign sign) {
-    this.database.insert(this.getDocumentKey(sign.getWorldPosition()), JsonDocument.newDocument(sign));
-    this.signs.put(sign.getWorldPosition(), sign);
+    this.database.insert(this.getDocumentKey(sign.getLocation()), JsonDocument.newDocument(sign));
+    this.signs.put(sign.getLocation(), sign);
 
     this.channelMessage(SIGN_CREATED)
       .buffer(DataBuf.empty().writeObject(sign))
@@ -118,7 +118,7 @@ public class NodeSignManagement extends AbstractSignManagement implements SignMa
   public @NotNull Collection<Sign> getSigns(@NotNull String[] groups) {
     List<String> allGroups = Arrays.asList(groups);
     return this.signs.values().stream()
-      .filter(sign -> allGroups.contains(sign.getWorldPosition().getGroup()))
+      .filter(sign -> allGroups.contains(sign.getLocation().getGroup()))
       .collect(Collectors.toList());
   }
 

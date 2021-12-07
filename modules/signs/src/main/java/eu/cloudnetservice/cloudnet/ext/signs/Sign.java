@@ -85,7 +85,7 @@ public class Sign implements Comparable<Sign> {
     this.templatePath = templatePath;
   }
 
-  public WorldPosition getWorldPosition() {
+  public WorldPosition getLocation() {
     return this.worldPosition;
   }
 

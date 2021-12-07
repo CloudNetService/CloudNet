@@ -84,7 +84,7 @@ public class SpongeSignManagement extends AbstractPlatformSignManagement<org.spo
   }
 
   protected void pushUpdate0(@NotNull Sign sign, @NotNull SignLayout layout) {
-    Location<ServerWorld, ?> location = this.locationFromWorldPosition(sign.getWorldPosition());
+    Location<ServerWorld, ?> location = this.locationFromWorldPosition(sign.getLocation());
     if (location != null) {
       // no need if the chunk is loaded - the tile entity is not available if the chunk is unloaded
       BlockEntity entity = location.blockEntity().orElse(null);

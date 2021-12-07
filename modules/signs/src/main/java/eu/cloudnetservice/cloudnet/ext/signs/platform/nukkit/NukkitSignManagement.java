@@ -82,7 +82,7 @@ public class NukkitSignManagement extends AbstractPlatformSignManagement<BlockEn
   }
 
   protected void pushUpdate0(@NotNull Sign sign, @NotNull SignLayout layout) {
-    Location location = this.locationFromWorldPosition(sign.getWorldPosition());
+    Location location = this.locationFromWorldPosition(sign.getLocation());
     if (location != null && location.getLevel().isChunkLoaded(location.getChunkX(), location.getChunkZ())) {
       BlockEntity blockEntity = location.getLevel().getBlockEntity(location);
       if (blockEntity instanceof BlockEntitySign) {
@@ -169,7 +169,7 @@ public class NukkitSignManagement extends AbstractPlatformSignManagement<BlockEn
           double distance = configuration.getDistance();
 
           for (Sign value : this.signs.values()) {
-            Location location = this.locationFromWorldPosition(value.getWorldPosition());
+            Location location = this.locationFromWorldPosition(value.getLocation());
             if (location != null && location.getLevel().isChunkLoaded(location.getChunkX(), location.getChunkZ())
               && location.getLevel().getBlockEntity(location) instanceof BlockEntitySign) {
               AxisAlignedBB axisAlignedBB = new SimpleAxisAlignedBB(location, location)
