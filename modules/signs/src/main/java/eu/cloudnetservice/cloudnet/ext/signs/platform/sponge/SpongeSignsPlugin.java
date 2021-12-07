@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.cloudnet.ext.signs.sponge;
+package eu.cloudnetservice.cloudnet.ext.signs.platform.sponge;
 
 import com.google.inject.Inject;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import eu.cloudnetservice.cloudnet.ext.signs.GlobalChannelMessageListener;
-import eu.cloudnetservice.cloudnet.ext.signs.service.AbstractServiceSignManagement;
-import eu.cloudnetservice.cloudnet.ext.signs.service.SignsServiceListener;
-import eu.cloudnetservice.cloudnet.ext.signs.sponge.functionality.CommandSigns;
-import eu.cloudnetservice.cloudnet.ext.signs.sponge.functionality.SignInteractListener;
+import eu.cloudnetservice.cloudnet.ext.signs.platform.AbstractPlatformSignManagement;
+import eu.cloudnetservice.cloudnet.ext.signs.platform.SignsPlatformListener;
+import eu.cloudnetservice.cloudnet.ext.signs.platform.sponge.functionality.CommandSigns;
+import eu.cloudnetservice.cloudnet.ext.signs.platform.sponge.functionality.SignInteractListener;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.api.Server;
@@ -41,7 +41,7 @@ import org.spongepowered.plugin.builtin.jvm.Plugin;
 public class SpongeSignsPlugin {
 
   private final PluginContainer plugin;
-  private AbstractServiceSignManagement<Sign> signManagement;
+  private AbstractPlatformSignManagement<Sign> signManagement;
 
   @Inject
   public SpongeSignsPlugin(@NotNull PluginContainer plugin) {
@@ -58,7 +58,7 @@ public class SpongeSignsPlugin {
     // cloudnet events
     CloudNetDriver.getInstance().getEventManager().registerListeners(
       new GlobalChannelMessageListener(this.signManagement),
-      new SignsServiceListener(this.signManagement));
+      new SignsPlatformListener(this.signManagement));
   }
 
   @Listener

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.cloudnet.ext.signs.nukkit.functionality;
+package eu.cloudnetservice.cloudnet.ext.signs.platform.nukkit.functionality;
 
 import cn.nukkit.Server;
 import cn.nukkit.blockentity.BlockEntity;
@@ -26,14 +26,14 @@ import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.ext.bridge.player.IPlayerManager;
 import eu.cloudnetservice.cloudnet.ext.signs.Sign;
 import eu.cloudnetservice.cloudnet.ext.signs.configuration.SignConfigurationEntry;
-import eu.cloudnetservice.cloudnet.ext.signs.nukkit.event.NukkitCloudSignInteractEvent;
-import eu.cloudnetservice.cloudnet.ext.signs.service.ServiceSignManagement;
+import eu.cloudnetservice.cloudnet.ext.signs.platform.PlatformSignManagement;
+import eu.cloudnetservice.cloudnet.ext.signs.platform.nukkit.event.NukkitCloudSignInteractEvent;
 
 public class SignInteractListener implements Listener {
 
-  protected final ServiceSignManagement<BlockEntitySign> signManagement;
+  protected final PlatformSignManagement<BlockEntitySign> signManagement;
 
-  public SignInteractListener(ServiceSignManagement<BlockEntitySign> signManagement) {
+  public SignInteractListener(PlatformSignManagement<BlockEntitySign> signManagement) {
     this.signManagement = signManagement;
   }
 

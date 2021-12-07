@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.cloudnet.ext.signs.nukkit;
+package eu.cloudnetservice.cloudnet.ext.signs.platform.nukkit;
 
 import cn.nukkit.Player;
 import cn.nukkit.Server;
@@ -39,12 +39,12 @@ import eu.cloudnetservice.cloudnet.ext.signs.Sign;
 import eu.cloudnetservice.cloudnet.ext.signs.SignManagement;
 import eu.cloudnetservice.cloudnet.ext.signs.configuration.SignConfigurationEntry;
 import eu.cloudnetservice.cloudnet.ext.signs.configuration.SignLayout;
-import eu.cloudnetservice.cloudnet.ext.signs.service.AbstractServiceSignManagement;
+import eu.cloudnetservice.cloudnet.ext.signs.platform.AbstractPlatformSignManagement;
 import java.util.Set;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class NukkitSignManagement extends AbstractServiceSignManagement<BlockEntitySign> implements SignManagement {
+public class NukkitSignManagement extends AbstractPlatformSignManagement<BlockEntitySign> {
 
   protected final Plugin plugin;
 

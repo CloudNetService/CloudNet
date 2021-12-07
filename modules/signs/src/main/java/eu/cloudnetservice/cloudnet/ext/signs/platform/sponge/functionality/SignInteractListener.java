@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.cloudnet.ext.signs.sponge.functionality;
+package eu.cloudnetservice.cloudnet.ext.signs.platform.sponge.functionality;
 
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.ext.bridge.player.IPlayerManager;
 import eu.cloudnetservice.cloudnet.ext.signs.Sign;
-import eu.cloudnetservice.cloudnet.ext.signs.service.ServiceSignManagement;
-import eu.cloudnetservice.cloudnet.ext.signs.sponge.event.SpongeCloudSignInteractEvent;
+import eu.cloudnetservice.cloudnet.ext.signs.platform.PlatformSignManagement;
+import eu.cloudnetservice.cloudnet.ext.signs.platform.sponge.event.SpongeCloudSignInteractEvent;
 import eu.cloudnetservice.ext.adventure.AdventureSerializerUtil;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.api.ResourceKey;
@@ -37,11 +37,11 @@ import org.spongepowered.plugin.PluginContainer;
 public class SignInteractListener {
 
   protected final PluginContainer plugin;
-  protected final ServiceSignManagement<org.spongepowered.api.block.entity.Sign> signManagement;
+  protected final PlatformSignManagement<org.spongepowered.api.block.entity.Sign> signManagement;
 
   public SignInteractListener(
     @NotNull PluginContainer plugin,
-    @NotNull ServiceSignManagement<org.spongepowered.api.block.entity.Sign> signManagement
+    @NotNull PlatformSignManagement<org.spongepowered.api.block.entity.Sign> signManagement
   ) {
     this.plugin = plugin;
     this.signManagement = signManagement;

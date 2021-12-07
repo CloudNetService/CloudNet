@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.cloudnet.ext.signs.sponge;
+package eu.cloudnetservice.cloudnet.ext.signs.platform.sponge;
 
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.ext.bridge.WorldPosition;
@@ -22,7 +22,7 @@ import eu.cloudnetservice.cloudnet.ext.signs.Sign;
 import eu.cloudnetservice.cloudnet.ext.signs.SignManagement;
 import eu.cloudnetservice.cloudnet.ext.signs.configuration.SignConfigurationEntry;
 import eu.cloudnetservice.cloudnet.ext.signs.configuration.SignLayout;
-import eu.cloudnetservice.cloudnet.ext.signs.service.AbstractServiceSignManagement;
+import eu.cloudnetservice.cloudnet.ext.signs.platform.AbstractPlatformSignManagement;
 import eu.cloudnetservice.ext.adventure.AdventureSerializerUtil;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -44,7 +44,7 @@ import org.spongepowered.api.world.server.ServerWorld;
 import org.spongepowered.math.vector.Vector3d;
 import org.spongepowered.plugin.PluginContainer;
 
-public class SpongeSignManagement extends AbstractServiceSignManagement<org.spongepowered.api.block.entity.Sign> {
+public class SpongeSignManagement extends AbstractPlatformSignManagement<org.spongepowered.api.block.entity.Sign> {
 
   protected final PluginContainer plugin;
   protected final TaskExecutorService syncExecutor;

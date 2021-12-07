@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.cloudnet.ext.signs.service;
+package eu.cloudnetservice.cloudnet.ext.signs.platform;
 
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;
 import de.dytanic.cloudnet.driver.channel.ChannelMessageTarget;
@@ -42,14 +42,14 @@ import org.jetbrains.annotations.Nullable;
  *
  * @param <T> the type of the platform dependant sign extend.
  */
-public abstract class ServiceSignManagement<T> extends AbstractSignManagement implements SignManagement {
+public abstract class PlatformSignManagement<T> extends AbstractSignManagement implements SignManagement {
 
   public static final String SIGN_GET_SIGNS_BY_GROUPS = "signs_get_signs_by_groups";
 
   /**
    * {@inheritDoc}
    */
-  protected ServiceSignManagement(SignsConfiguration signsConfiguration) {
+  protected PlatformSignManagement(SignsConfiguration signsConfiguration) {
     super(signsConfiguration);
     // get the signs for the current group
     String[] groups = Wrapper.getInstance().getServiceConfiguration().getGroups().toArray(new String[0]);

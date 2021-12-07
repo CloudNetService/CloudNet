@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.cloudnet.ext.signs.bukkit.functionality;
+package eu.cloudnetservice.cloudnet.ext.signs.platform.bukkit.functionality;
 
 import com.google.common.collect.ImmutableList;
 import eu.cloudnetservice.cloudnet.ext.signs.Sign;
 import eu.cloudnetservice.cloudnet.ext.signs.configuration.SignConfigurationEntry;
-import eu.cloudnetservice.cloudnet.ext.signs.service.ServiceSignManagement;
+import eu.cloudnetservice.cloudnet.ext.signs.platform.PlatformSignManagement;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -44,9 +44,9 @@ public class CommandSigns implements TabExecutor {
   // all subcommands of the signs command
   protected static final List<String> COMMANDS = Arrays.asList("create", "remove", "removeall", "cleanup");
 
-  protected final ServiceSignManagement<org.bukkit.block.Sign> signManagement;
+  protected final PlatformSignManagement<org.bukkit.block.Sign> signManagement;
 
-  public CommandSigns(ServiceSignManagement<org.bukkit.block.Sign> signManagement) {
+  public CommandSigns(PlatformSignManagement<org.bukkit.block.Sign> signManagement) {
     this.signManagement = signManagement;
   }
 

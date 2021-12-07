@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.cloudnet.ext.signs.bukkit;
+package eu.cloudnetservice.cloudnet.ext.signs.platform.bukkit;
 
 import com.google.common.base.Enums;
 import de.dytanic.cloudnet.common.log.LogManager;

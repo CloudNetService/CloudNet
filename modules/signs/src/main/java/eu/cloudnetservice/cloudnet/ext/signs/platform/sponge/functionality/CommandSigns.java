@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.cloudnet.ext.signs.sponge.functionality;
+package eu.cloudnetservice.cloudnet.ext.signs.platform.sponge.functionality;
 
 import eu.cloudnetservice.cloudnet.ext.signs.Sign;
-import eu.cloudnetservice.cloudnet.ext.signs.service.ServiceSignManagement;
+import eu.cloudnetservice.cloudnet.ext.signs.platform.PlatformSignManagement;
 import java.util.Optional;
 import net.kyori.adventure.identity.Identity;
 import net.kyori.adventure.text.Component;
@@ -39,9 +39,9 @@ public class CommandSigns implements CommandExecutor {
   public static final Key<String> TARGET_GROUP = Parameter.key("target_group", String.class);
   public static final Key<String> TARGET_TEMPLATE = Parameter.key("target_template_path", String.class);
 
-  protected final ServiceSignManagement<org.spongepowered.api.block.entity.Sign> signManagement;
+  protected final PlatformSignManagement<org.spongepowered.api.block.entity.Sign> signManagement;
 
-  public CommandSigns(@NotNull ServiceSignManagement<org.spongepowered.api.block.entity.Sign> signManagement) {
+  public CommandSigns(@NotNull PlatformSignManagement<org.spongepowered.api.block.entity.Sign> signManagement) {
     this.signManagement = signManagement;
   }
 

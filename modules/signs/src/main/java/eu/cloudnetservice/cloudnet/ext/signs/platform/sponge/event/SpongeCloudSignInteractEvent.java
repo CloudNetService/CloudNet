@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.cloudnet.ext.signs.sponge.event;
+package eu.cloudnetservice.cloudnet.ext.signs.platform.sponge.event;
 
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.cloudnet.ext.signs.Sign;

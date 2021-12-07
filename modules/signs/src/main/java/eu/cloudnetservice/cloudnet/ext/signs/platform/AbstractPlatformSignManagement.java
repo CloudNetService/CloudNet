@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.cloudnet.ext.signs.service;
+package eu.cloudnetservice.cloudnet.ext.signs.platform;
 
 import static de.dytanic.cloudnet.driver.service.ServiceEnvironmentType.JAVA_SERVER;
 import static de.dytanic.cloudnet.driver.service.ServiceEnvironmentType.PE_SERVER;
@@ -54,7 +54,7 @@ import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public abstract class AbstractServiceSignManagement<T> extends ServiceSignManagement<T> implements SignManagement {
+public abstract class AbstractPlatformSignManagement<T> extends PlatformSignManagement<T> implements SignManagement {
 
   public static final String REQUEST_CONFIG = "signs_request_config";
   public static final String SET_SIGN_CONFIG = "signs_update_sign_config";
@@ -63,11 +63,11 @@ public abstract class AbstractServiceSignManagement<T> extends ServiceSignManage
   public static final String SIGN_ALL_DELETE = "signs_sign_delete_all";
   public static final String SIGN_BULK_DELETE = "signs_sign_bulk_delete";
   protected static final int TPS = 20;
-  private static final Logger LOGGER = LogManager.getLogger(AbstractServiceSignManagement.class);
+  private static final Logger LOGGER = LogManager.getLogger(AbstractPlatformSignManagement.class);
   protected final AtomicInteger currentTick = new AtomicInteger();
   protected final Queue<ServiceInfoSnapshot> waitingAssignments = new ConcurrentLinkedQueue<>();
 
-  protected AbstractServiceSignManagement() {
+  protected AbstractPlatformSignManagement() {
     super(loadSignsConfiguration());
   }
 

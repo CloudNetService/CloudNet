@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.cloudnet.ext.signs.bukkit;
+package eu.cloudnetservice.cloudnet.ext.signs.platform.bukkit;
 
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.ext.bridge.WorldPosition;
@@ -22,7 +22,7 @@ import eu.cloudnetservice.cloudnet.ext.signs.Sign;
 import eu.cloudnetservice.cloudnet.ext.signs.SignManagement;
 import eu.cloudnetservice.cloudnet.ext.signs.configuration.SignConfigurationEntry;
 import eu.cloudnetservice.cloudnet.ext.signs.configuration.SignLayout;
-import eu.cloudnetservice.cloudnet.ext.signs.service.AbstractServiceSignManagement;
+import eu.cloudnetservice.cloudnet.ext.signs.platform.AbstractPlatformSignManagement;
 import java.util.Set;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -38,8 +38,7 @@ import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class BukkitSignManagement extends AbstractServiceSignManagement<org.bukkit.block.Sign> implements
-  SignManagement {
+public class BukkitSignManagement extends AbstractPlatformSignManagement<org.bukkit.block.Sign> {
 
   protected final Plugin plugin;
 

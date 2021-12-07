@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.cloudnet.ext.signs.nukkit.event;
+package eu.cloudnetservice.cloudnet.ext.signs.platform.nukkit.event;
 
 import cn.nukkit.Player;
 import cn.nukkit.event.Cancellable;

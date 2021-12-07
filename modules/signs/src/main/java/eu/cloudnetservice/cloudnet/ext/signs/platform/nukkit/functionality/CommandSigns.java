@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.cloudnet.ext.signs.nukkit.functionality;
+package eu.cloudnetservice.cloudnet.ext.signs.platform.nukkit.functionality;
 
 import cn.nukkit.Player;
 import cn.nukkit.block.Block;
@@ -25,13 +25,13 @@ import cn.nukkit.command.CommandExecutor;
 import cn.nukkit.command.CommandSender;
 import eu.cloudnetservice.cloudnet.ext.signs.Sign;
 import eu.cloudnetservice.cloudnet.ext.signs.configuration.SignConfigurationEntry;
-import eu.cloudnetservice.cloudnet.ext.signs.service.ServiceSignManagement;
+import eu.cloudnetservice.cloudnet.ext.signs.platform.PlatformSignManagement;
 
 public class CommandSigns implements CommandExecutor {
 
-  private final ServiceSignManagement<BlockEntitySign> signManagement;
+  private final PlatformSignManagement<BlockEntitySign> signManagement;
 
-  public CommandSigns(ServiceSignManagement<BlockEntitySign> signManagement) {
+  public CommandSigns(PlatformSignManagement<BlockEntitySign> signManagement) {
     this.signManagement = signManagement;
   }
 

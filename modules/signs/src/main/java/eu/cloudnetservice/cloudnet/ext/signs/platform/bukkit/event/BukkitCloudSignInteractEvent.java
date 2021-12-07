@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.cloudnet.ext.signs.bukkit.event;
+package eu.cloudnetservice.cloudnet.ext.signs.platform.bukkit.event;
 
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.cloudnet.ext.signs.Sign;

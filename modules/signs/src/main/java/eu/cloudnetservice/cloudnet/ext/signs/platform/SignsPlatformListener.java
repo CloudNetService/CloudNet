@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.cloudnet.ext.signs.service;
+package eu.cloudnetservice.cloudnet.ext.signs.platform;
 
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.event.events.service.CloudServiceLifecycleChangeEvent;
 import de.dytanic.cloudnet.driver.event.events.service.CloudServiceUpdateEvent;
 import org.jetbrains.annotations.NotNull;
 
-public class SignsServiceListener {
+public class SignsPlatformListener {
 
-  protected final ServiceSignManagement<?> signManagement;
+  protected final PlatformSignManagement<?> signManagement;
 
-  public SignsServiceListener(ServiceSignManagement<?> signManagement) {
+  public SignsPlatformListener(PlatformSignManagement<?> signManagement) {
     this.signManagement = signManagement;
   }
 

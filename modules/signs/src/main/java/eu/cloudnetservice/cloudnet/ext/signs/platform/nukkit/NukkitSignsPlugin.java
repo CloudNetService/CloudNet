@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.cloudnet.ext.signs.nukkit;
+package eu.cloudnetservice.cloudnet.ext.signs.platform.nukkit;
 
 import cn.nukkit.Server;
 import cn.nukkit.blockentity.BlockEntitySign;
@@ -22,16 +22,16 @@ import cn.nukkit.command.PluginCommand;
 import cn.nukkit.plugin.PluginBase;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import eu.cloudnetservice.cloudnet.ext.signs.GlobalChannelMessageListener;
-import eu.cloudnetservice.cloudnet.ext.signs.nukkit.functionality.CommandSigns;
-import eu.cloudnetservice.cloudnet.ext.signs.nukkit.functionality.SignInteractListener;
-import eu.cloudnetservice.cloudnet.ext.signs.service.ServiceSignManagement;
-import eu.cloudnetservice.cloudnet.ext.signs.service.SignsServiceListener;
+import eu.cloudnetservice.cloudnet.ext.signs.platform.PlatformSignManagement;
+import eu.cloudnetservice.cloudnet.ext.signs.platform.SignsPlatformListener;
+import eu.cloudnetservice.cloudnet.ext.signs.platform.nukkit.functionality.CommandSigns;
+import eu.cloudnetservice.cloudnet.ext.signs.platform.nukkit.functionality.SignInteractListener;
 
 public class NukkitSignsPlugin extends PluginBase {
 
   @Override
   public void onEnable() {
-    ServiceSignManagement<BlockEntitySign> signManagement = new NukkitSignManagement(this);
+    PlatformSignManagement<BlockEntitySign> signManagement = new NukkitSignManagement(this);
     signManagement.initialize();
     signManagement.registerToServiceRegistry();
     // command
@@ -43,7 +43,7 @@ public class NukkitSignsPlugin extends PluginBase {
     Server.getInstance().getPluginManager().registerEvents(new SignInteractListener(signManagement), this);
     // cloudnet listener
     CloudNetDriver.getInstance().getEventManager().registerListeners(
-      new GlobalChannelMessageListener(signManagement), new SignsServiceListener(signManagement));
+      new GlobalChannelMessageListener(signManagement), new SignsPlatformListener(signManagement));
   }
 
   @Override
