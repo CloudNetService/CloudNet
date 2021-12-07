@@ -27,7 +27,7 @@ rootProject.name = "cloudnet-root"
 initializeProjects("ext", "common", "driver", "node", "wrapper-jvm", "launcher", "modules", "plugins")
 
 // external lib helpers
-initializeSubProjects("ext", "modlauncher", "adventure-helper")
+initializeSubProjects("ext", "modlauncher", "adventure-helper", "bukkit-command")
 // plugins
 initializeSubProjects("plugins", "chat", "simplenametags")
 // modules
@@ -42,7 +42,8 @@ initializeSubProjects("modules",
   "signs",
   "storage-sftp",
   "syncproxy",
-  "smart")
+  "smart",
+  "npcs")
 
 fun initializeProjects(vararg names: String) {
   names.forEach {

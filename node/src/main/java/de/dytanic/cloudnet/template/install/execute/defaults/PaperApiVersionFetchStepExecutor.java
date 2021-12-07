@@ -18,8 +18,6 @@ package de.dytanic.cloudnet.template.install.execute.defaults;
 
 import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
-import de.dytanic.cloudnet.common.log.LogManager;
-import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.template.install.InstallInformation;
 import de.dytanic.cloudnet.template.install.ServiceVersionType;
 import de.dytanic.cloudnet.template.install.execute.InstallStepExecutor;
@@ -34,7 +32,6 @@ import org.jetbrains.annotations.NotNull;
 
 public class PaperApiVersionFetchStepExecutor implements InstallStepExecutor {
 
-  private static final Logger LOGGER = LogManager.getLogger(PaperApiVersionFetchStepExecutor.class);
   private static final String VERSION_LIST_URL = "https://papermc.io/api/v2/projects/%s/versions/%s";
   private static final String DOWNLOAD_URL = "https://papermc.io/api/v2/projects/%s/versions/%s/builds/%d/downloads/%s-%s-%d.jar";
   private static final Type INT_SET_TYPE = TypeToken.getParameterized(Set.class, Integer.class).getType();
@@ -90,15 +87,6 @@ public class PaperApiVersionFetchStepExecutor implements InstallStepExecutor {
 
   @NotNull
   private String decideApiProjectName(@NotNull ServiceVersionType type) {
-    switch (type.getName().toLowerCase()) {
-      case "paperspigot":
-        return "paper";
-      case "waterfall":
-        return "waterfall";
-      case "travertine":
-        return "travertine";
-      default:
-        throw new IllegalStateException("Unsupported paper api project type " + type.getName());
-    }
+    return type.getName().toLowerCase();
   }
 }

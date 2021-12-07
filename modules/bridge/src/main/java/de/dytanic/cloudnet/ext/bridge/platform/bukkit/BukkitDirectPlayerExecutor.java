@@ -85,10 +85,7 @@ final class BukkitDirectPlayerExecutor extends PlatformPlayerExecutorAdapter {
   protected void sendTitle(@NotNull Component title, @NotNull Component subtitle, int fadeIn, int stay, int fadeOut) {
     this.playerSupplier.get().forEach(player -> player.sendTitle(
       legacySection().serialize(title),
-      legacySection().serialize(subtitle),
-      fadeIn,
-      stay,
-      fadeOut));
+      legacySection().serialize(subtitle)));
   }
 
   @Override

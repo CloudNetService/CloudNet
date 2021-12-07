@@ -38,81 +38,54 @@ public class Sign implements Comparable<Sign> {
 
   public static final Type COLLECTION_TYPE = TypeToken.getParameterized(Collection.class, Sign.class).getType();
 
-  protected String targetGroup;
-  protected String createdGroup;
-  protected String templatePath;
+  protected final String targetGroup;
+  protected final String templatePath;
 
   @EqualsAndHashCode.Include
-  protected WorldPosition worldPosition;
+  protected final WorldPosition worldPosition;
 
   protected transient AtomicReference<ServiceInfoSnapshot> currentTarget;
 
-  public Sign() {
-  }
-
   /**
    * Creates a new sign object
    *
    * @param targetGroup   the group the sign is targeting
-   * @param createdGroup  the group the sign was created on
    * @param worldPosition the position of the sign in the world
    */
-  public Sign(String targetGroup, String createdGroup, WorldPosition worldPosition) {
-    this(targetGroup, createdGroup, null, worldPosition);
+  public Sign(@NotNull String targetGroup, @NotNull WorldPosition worldPosition) {
+    this(targetGroup, null, worldPosition);
   }
 
   /**
    * Creates a new sign object
    *
    * @param targetGroup   the group the sign is targeting
-   * @param createdGroup  the group the sign was created on
    * @param templatePath  the template of this
    * @param worldPosition the position of the sign in the world
    */
-  public Sign(String targetGroup, String createdGroup, String templatePath, WorldPosition worldPosition) {
+  public Sign(@NotNull String targetGroup, @Nullable String templatePath, @NotNull WorldPosition worldPosition) {
     this.targetGroup = targetGroup;
-    this.createdGroup = createdGroup;
     this.templatePath = templatePath;
     this.worldPosition = worldPosition;
   }
 
-  public String getTargetGroup() {
+  public @NotNull String getTargetGroup() {
     return this.targetGroup;
   }
 
-  public void setTargetGroup(String targetGroup) {
-    this.targetGroup = targetGroup;
-  }
-
-  public String getCreatedGroup() {
-    return this.createdGroup;
-  }
-
-  public void setCreatedGroup(String createdGroup) {
-    this.createdGroup = createdGroup;
-  }
-
-  public String getTemplatePath() {
+  public @Nullable String getTemplatePath() {
     return this.templatePath;
   }
 
-  public void setTemplatePath(String templatePath) {
-    this.templatePath = templatePath;
-  }
-
-  public WorldPosition getWorldPosition() {
+  public @NotNull WorldPosition getLocation() {
     return this.worldPosition;
   }
 
-  public void setWorldPosition(WorldPosition worldPosition) {
-    this.worldPosition = worldPosition;
-  }
-
-  public ServiceInfoSnapshot getCurrentTarget() {
+  public @Nullable ServiceInfoSnapshot getCurrentTarget() {
     return this.currentTarget == null ? null : this.currentTarget.get();
   }
 
-  public void setCurrentTarget(ServiceInfoSnapshot currentTarget) {
+  public void setCurrentTarget(@Nullable ServiceInfoSnapshot currentTarget) {
     if (this.currentTarget == null) {
       this.currentTarget = new AtomicReference<>(currentTarget);
     } else {
@@ -149,7 +122,7 @@ public class Sign implements Comparable<Sign> {
     // check if the service has a snapshot
     ServiceInfoSnapshot target = this.getCurrentTarget();
     // no target has the lowest priority
-    return target == null ? 0 : PriorityUtil.getPriority(target);
+    return target == null ? 0 : PriorityUtil.getPriority(target, lowerFullToSearching);
   }
 
   @Override

@@ -789,6 +789,7 @@
       "environmentType": "VELOCITY",
       "website": "https://velocitypowered.com",
       "installSteps": [
+        "PAPER_API",
         "DOWNLOAD"
       ],
       "versions": [
@@ -798,7 +799,7 @@
           "minJavaVersion": 11,
           "properties": {
             "fetchOverPaperApi": true,
-            "versionGroup": "3.0.0"
+            "versionGroup": "3.1.0"
           }
         },
         {

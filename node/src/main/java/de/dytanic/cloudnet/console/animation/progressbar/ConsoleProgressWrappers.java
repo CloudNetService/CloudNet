@@ -76,30 +76,36 @@ public final class ConsoleProgressWrappers {
     wrapDownload(url, CloudNet.getInstance().getConsole(), streamHandler);
   }
 
-  public static void wrapDownload(@NotNull String url, @NotNull IConsole console,
-    @NotNull ThrowableConsumer<InputStream, IOException> streamHandler) {
+  public static void wrapDownload(
+    @NotNull String url,
+    @NotNull IConsole console,
+    @NotNull ThrowableConsumer<InputStream, IOException> streamHandler
+  ) {
     Unirest
       .get(url)
+      .connectTimeout(5000)
       .thenConsume(rawResponse -> {
-        InputStream stream = rawResponse.getContent();
-        Long contentLength = Longs.tryParse(rawResponse.getHeaders().getFirst("Content-Length"));
+        if (rawResponse.getStatus() == 200) {
+          InputStream stream = rawResponse.getContent();
+          Long contentLength = Longs.tryParse(rawResponse.getHeaders().getFirst("Content-Length"));
 
-        try {
-          streamHandler.accept(console.isAnimationRunning() ? stream
-            : new WrappedInputStream(stream, console, new ConsoleProgressAnimation(
-              '█',
-              ' ',
-              " ▏▎▍▌▋▊▉",
-              '[',
-              ']',
-              "Downloading (%ratio%): %percent%  ",
-              " %speed% (%elapsed%/%eta%)",
-              1024 * 1024,
-              "MB",
-              new DecimalFormat("#.0"),
-              contentLength == null ? stream.available() : contentLength)));
-        } catch (IOException exception) {
-          LOGGER.severe("Exception downloading file from %s", exception, url);
+          try {
+            streamHandler.accept(console.isAnimationRunning() ? stream
+              : new WrappedInputStream(stream, console, new ConsoleProgressAnimation(
+                '█',
+                ' ',
+                " ▏▎▍▌▋▊▉",
+                '[',
+                ']',
+                "Downloading (%ratio%): %percent%  ",
+                " %speed% (%elapsed%/%eta%)",
+                1024 * 1024,
+                "MB",
+                new DecimalFormat("#.0"),
+                contentLength == null ? stream.available() : contentLength)));
+          } catch (IOException exception) {
+            LOGGER.severe("Exception downloading file from %s", exception, url);
+          }
         }
       });
   }

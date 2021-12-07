@@ -33,8 +33,8 @@ import eu.cloudnetservice.cloudnet.ext.signs.SignManagement;
 import eu.cloudnetservice.cloudnet.ext.signs.configuration.SignsConfiguration;
 import eu.cloudnetservice.cloudnet.ext.signs.node.util.SignEntryTaskSetup;
 import eu.cloudnetservice.cloudnet.ext.signs.node.util.SignPluginInclusion;
-import eu.cloudnetservice.cloudnet.ext.signs.service.AbstractServiceSignManagement;
-import eu.cloudnetservice.cloudnet.ext.signs.service.ServiceSignManagement;
+import eu.cloudnetservice.cloudnet.ext.signs.platform.AbstractPlatformSignManagement;
+import eu.cloudnetservice.cloudnet.ext.signs.platform.PlatformSignManagement;
 import java.util.Collection;
 import org.jetbrains.annotations.NotNull;
 
@@ -76,36 +76,36 @@ public class NodeSignsListener {
     if (event.getChannel().equals(AbstractSignManagement.SIGN_CHANNEL_NAME) && event.getMessage() != null) {
       switch (event.getMessage()) {
         // config request
-        case AbstractServiceSignManagement.REQUEST_CONFIG:
+        case AbstractPlatformSignManagement.REQUEST_CONFIG:
           event.setBinaryResponse(DataBuf.empty().writeObject(this.signManagement.getSignsConfiguration()));
           break;
         // delete all signs
-        case AbstractServiceSignManagement.SIGN_ALL_DELETE:
+        case AbstractPlatformSignManagement.SIGN_ALL_DELETE:
           Collection<WorldPosition> positions = event.getContent().readObject(WorldPosition.COL_TYPE);
           for (WorldPosition position : positions) {
             this.signManagement.deleteSign(position);
           }
           break;
         // create a new sign
-        case AbstractServiceSignManagement.SIGN_CREATE:
+        case AbstractPlatformSignManagement.SIGN_CREATE:
           this.signManagement.createSign(event.getContent().readObject(Sign.class));
           break;
         // delete an existing sign
-        case AbstractServiceSignManagement.SIGN_DELETE:
+        case AbstractPlatformSignManagement.SIGN_DELETE:
           this.signManagement.deleteSign(event.getContent().readObject(WorldPosition.class));
           break;
         // delete all signs
-        case AbstractServiceSignManagement.SIGN_BULK_DELETE:
+        case AbstractPlatformSignManagement.SIGN_BULK_DELETE:
           int deleted = this.signManagement
             .deleteAllSigns(event.getContent().readString(), event.getContent().readNullable(DataBuf::readString));
           event.setBinaryResponse(DataBuf.empty().writeInt(deleted));
           break;
         // set the sign config
-        case AbstractServiceSignManagement.SET_SIGN_CONFIG:
+        case AbstractPlatformSignManagement.SET_SIGN_CONFIG:
           this.signManagement.setSignsConfiguration(event.getContent().readObject(SignsConfiguration.class));
           break;
         // get all signs of a group
-        case ServiceSignManagement.SIGN_GET_SIGNS_BY_GROUPS:
+        case PlatformSignManagement.SIGN_GET_SIGNS_BY_GROUPS:
           Collection<Sign> signs = this.signManagement.getSigns(event.getContent().readObject(String[].class));
           event.setBinaryResponse(DataBuf.empty().writeObject(signs));
           break;

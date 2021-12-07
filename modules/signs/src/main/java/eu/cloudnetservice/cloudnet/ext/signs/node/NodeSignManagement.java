@@ -28,6 +28,7 @@ import eu.cloudnetservice.cloudnet.ext.signs.node.configuration.NodeSignsConfigu
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -51,15 +52,15 @@ public class NodeSignManagement extends AbstractSignManagement implements SignMa
     this.database.documentsAsync().onComplete(jsonDocuments -> {
       for (JsonDocument document : jsonDocuments) {
         Sign sign = document.toInstanceOf(Sign.class);
-        this.signs.put(sign.getWorldPosition(), sign);
+        this.signs.put(sign.getLocation(), sign);
       }
     });
   }
 
   @Override
   public void createSign(@NotNull Sign sign) {
-    this.database.insert(this.getDocumentKey(sign.getWorldPosition()), JsonDocument.newDocument(sign));
-    this.signs.put(sign.getWorldPosition(), sign);
+    this.database.insert(this.getDocumentKey(sign.getLocation()), JsonDocument.newDocument(sign));
+    this.signs.put(sign.getLocation(), sign);
 
     this.channelMessage(SIGN_CREATED)
       .buffer(DataBuf.empty().writeObject(sign))
@@ -100,7 +101,7 @@ public class NodeSignManagement extends AbstractSignManagement implements SignMa
 
   @Override
   public int deleteAllSigns() {
-    Set<WorldPosition> positions = this.signs.keySet();
+    Set<WorldPosition> positions = new HashSet<>(this.signs.keySet());
     for (WorldPosition position : positions) {
       this.database.delete(this.getDocumentKey(position));
       this.signs.remove(position);
@@ -117,7 +118,7 @@ public class NodeSignManagement extends AbstractSignManagement implements SignMa
   public @NotNull Collection<Sign> getSigns(@NotNull String[] groups) {
     List<String> allGroups = Arrays.asList(groups);
     return this.signs.values().stream()
-      .filter(sign -> allGroups.contains(sign.getCreatedGroup()))
+      .filter(sign -> allGroups.contains(sign.getLocation().getGroup()))
       .collect(Collectors.toList());
   }
 
@@ -130,18 +131,6 @@ public class NodeSignManagement extends AbstractSignManagement implements SignMa
       .targetAll()
       .build().send();
     NodeSignsConfigurationHelper.write(signsConfiguration, this.configurationFilePath);
-  }
-
-  @Override
-  public void handleInternalSignCreate(@NotNull Sign sign) {
-    super.handleInternalSignCreate(sign);
-    this.database.insert(this.getDocumentKey(sign.getWorldPosition()), JsonDocument.newDocument(sign));
-  }
-
-  @Override
-  public void handleInternalSignRemove(@NotNull WorldPosition position) {
-    super.handleInternalSignRemove(position);
-    this.database.delete(this.getDocumentKey(position));
   }
 
   @Override

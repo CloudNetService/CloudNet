@@ -16,11 +16,13 @@
 
 package de.dytanic.cloudnet.common.log;
 
+import java.util.Iterator;
+import java.util.ServiceLoader;
 import org.jetbrains.annotations.NotNull;
 
 public final class LogManager {
 
-  private static LoggerFactory loggerFactory;
+  private static final LoggerFactory LOGGER_FACTORY = loadLoggerFactory();
 
   private LogManager() {
     throw new UnsupportedOperationException();
@@ -28,14 +30,6 @@ public final class LogManager {
 
   public static @NotNull Logger getRootLogger() {
     return LogManager.getLogger(LoggerFactory.ROOT_LOGGER_NAME);
-  }
-
-  public static @NotNull Logger getLoggerFromContext() {
-    Class<?> caller = LoggingSupport.getCallingClass();
-    if (caller == null) {
-      throw new IllegalStateException("Unable to retrieve caller class");
-    }
-    return LogManager.getLogger(caller);
   }
 
   public static @NotNull Logger getLogger(@NotNull Class<?> caller) {
@@ -46,21 +40,17 @@ public final class LogManager {
     return LogManager.getLoggerFactory().getLogger(name);
   }
 
-  private static @NotNull LoggerFactory getLoggerFactory() {
-    if (loggerFactory == null) {
-      String loggerFactoryClass = System.getProperty("cloudnet.loggerFactoryClass");
-      if (loggerFactoryClass != null) {
-        try {
-          loggerFactory = (LoggerFactory) Class.forName(loggerFactoryClass).getConstructor().newInstance();
-        } catch (Exception exception) {
-          LoggingSupport.reportError("Unable to initialize custom logger factory " + loggerFactoryClass, exception);
-        }
-      }
-      // check if a logger factory was initialized
-      if (loggerFactory == null) {
-        loggerFactory = new FallbackLoggingFactory();
-      }
+  public static @NotNull LoggerFactory getLoggerFactory() {
+    return LOGGER_FACTORY;
+  }
+
+  private static @NotNull LoggerFactory loadLoggerFactory() {
+    Iterator<LoggerFactory> factories = ServiceLoader.load(LoggerFactory.class).iterator();
+    // check if a logger service is registered
+    if (factories.hasNext()) {
+      return factories.next();
+    } else {
+      return new FallbackLoggingFactory();
     }
-    return loggerFactory;
   }
 }

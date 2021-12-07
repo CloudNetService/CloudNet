@@ -63,7 +63,7 @@ public abstract class AbstractSignManagement implements SignManagement {
    */
   @Override
   public void deleteSign(@NotNull Sign sign) {
-    this.deleteSign(sign.getWorldPosition());
+    this.deleteSign(sign.getLocation());
   }
 
   /**
@@ -110,7 +110,7 @@ public abstract class AbstractSignManagement implements SignManagement {
 
   @Override
   public void handleInternalSignCreate(@NotNull Sign sign) {
-    this.signs.put(sign.getWorldPosition(), sign);
+    this.signs.put(sign.getLocation(), sign);
   }
 
   @Override

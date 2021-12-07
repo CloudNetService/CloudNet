@@ -108,7 +108,6 @@ public class NodeMessenger extends DefaultMessenger implements CloudMessenger {
     // check if there is only one channel
     if (targets.size() == 1) {
       // get the target - we can suppress the nullable warning because we expect the collection to not contain null values
-      //noinspection ConstantConditions
       return this.findTargetChannels(Iterables.getOnlyElement(targets), allowClusterRedirect);
     } else {
       // filter all the channels for the targets
