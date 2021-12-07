@@ -35,6 +35,7 @@ import org.bukkit.block.BlockState;
 import org.bukkit.entity.Player;
 import org.bukkit.material.MaterialData;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.util.NumberConversions;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -78,8 +79,8 @@ public class BukkitSignManagement extends AbstractPlatformSignManagement<org.buk
   protected void pushUpdate0(@NotNull Sign sign, @NotNull SignLayout layout) {
     Location location = this.worldPositionToLocation(sign.getLocation());
     if (location != null) {
-      int chunkX = (int) Math.floor(location.getX()) >> 4;
-      int chunkZ = (int) Math.floor(location.getZ()) >> 4;
+      int chunkX = NumberConversions.floor(location.getX()) >> 4;
+      int chunkZ = NumberConversions.floor(location.getZ()) >> 4;
 
       if (location.getWorld().isChunkLoaded(chunkX, chunkZ)) {
         Block block = location.getBlock();
