@@ -7,10 +7,10 @@ gson = "2.8.9"
 guava = "31.0.1-jre"
 
 # testing
-junit = "5.8.1"
+junit = "5.8.2"
 mockito = "4.1.0"
 tyrusClient = "2.0.1"
-minaSshdServer = "2.7.0"
+minaSshdServer = "2.8.0"
 
 # compile time processing
 lombok = "1.18.22"
@@ -18,7 +18,7 @@ lombok = "1.18.22"
 # console
 jansi = "2.4.0"
 jline = "3.21.0"
-cloud = "1.6.0-SNAPSHOT"
+cloud = "1.6.0"
 
 # databases
 h2 = "1.4.197" # do not update, leads to database incompatibility
@@ -32,16 +32,16 @@ asm = "9.2"
 sshj = "0.32.0"
 jjwt = "0.11.2"
 slf4j = "1.7.32"
-javers = "6.5.2"
-unirest = "3.13.3"
+javers = "6.5.3"
+unirest = "3.13.4"
 netty = "4.1.70.Final"
 annotations = "23.0.0"
 
 # platform api versions
-velocity = "3.0.1"
+velocity = "3.1.0"
 nukkitX = "1.0-SNAPSHOT"
 sponge = "8.0.0-SNAPSHOT"
-waterdogpe = "1.1.4"
+waterdogpe = "1.1.5"
 spigot = "1.8.8-R0.1-SNAPSHOT"
 bungeecord = "1.18-R0.1-SNAPSHOT"
 
