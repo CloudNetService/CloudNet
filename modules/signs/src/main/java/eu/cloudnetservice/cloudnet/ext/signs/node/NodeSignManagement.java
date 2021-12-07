@@ -118,7 +118,7 @@ public class NodeSignManagement extends AbstractSignManagement implements SignMa
   public @NotNull Collection<Sign> getSigns(@NotNull String[] groups) {
     List<String> allGroups = Arrays.asList(groups);
     return this.signs.values().stream()
-      .filter(sign -> allGroups.contains(sign.getCreatedGroup()))
+      .filter(sign -> allGroups.contains(sign.getWorldPosition().getGroup()))
       .collect(Collectors.toList());
   }
 

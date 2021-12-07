@@ -39,7 +39,6 @@ public class Sign implements Comparable<Sign> {
   public static final Type COLLECTION_TYPE = TypeToken.getParameterized(Collection.class, Sign.class).getType();
 
   protected String targetGroup;
-  protected String createdGroup;
   protected String templatePath;
 
   @EqualsAndHashCode.Include
@@ -47,31 +46,25 @@ public class Sign implements Comparable<Sign> {
 
   protected transient AtomicReference<ServiceInfoSnapshot> currentTarget;
 
-  public Sign() {
-  }
-
   /**
    * Creates a new sign object
    *
    * @param targetGroup   the group the sign is targeting
-   * @param createdGroup  the group the sign was created on
    * @param worldPosition the position of the sign in the world
    */
-  public Sign(String targetGroup, String createdGroup, WorldPosition worldPosition) {
-    this(targetGroup, createdGroup, null, worldPosition);
+  public Sign(String targetGroup, WorldPosition worldPosition) {
+    this(targetGroup, null, worldPosition);
   }
 
   /**
    * Creates a new sign object
    *
    * @param targetGroup   the group the sign is targeting
-   * @param createdGroup  the group the sign was created on
    * @param templatePath  the template of this
    * @param worldPosition the position of the sign in the world
    */
-  public Sign(String targetGroup, String createdGroup, String templatePath, WorldPosition worldPosition) {
+  public Sign(String targetGroup, String templatePath, WorldPosition worldPosition) {
     this.targetGroup = targetGroup;
-    this.createdGroup = createdGroup;
     this.templatePath = templatePath;
     this.worldPosition = worldPosition;
   }
@@ -82,14 +75,6 @@ public class Sign implements Comparable<Sign> {
 
   public void setTargetGroup(String targetGroup) {
     this.targetGroup = targetGroup;
-  }
-
-  public String getCreatedGroup() {
-    return this.createdGroup;
-  }
-
-  public void setCreatedGroup(String createdGroup) {
-    this.createdGroup = createdGroup;
   }
 
   public String getTemplatePath() {

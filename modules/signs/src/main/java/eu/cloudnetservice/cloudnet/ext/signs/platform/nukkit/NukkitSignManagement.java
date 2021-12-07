@@ -124,11 +124,16 @@ public class NukkitSignManagement extends AbstractPlatformSignManagement<BlockEn
   }
 
   @Override
-  public @Nullable Sign createSign(@NotNull BlockEntitySign blockEntitySign, @NotNull String group,
-    @Nullable String templatePath) {
+  public @Nullable Sign createSign(
+    @NotNull BlockEntitySign blockEntitySign,
+    @NotNull String group,
+    @Nullable String templatePath
+  ) {
     SignConfigurationEntry entry = this.getApplicableSignConfigurationEntry();
     if (entry != null) {
-      Sign sign = new Sign(group, entry.getTargetGroup(), templatePath,
+      Sign sign = new Sign(
+        group,
+        templatePath,
         this.locationToWorldPosition(blockEntitySign.getLocation(), entry.getTargetGroup()));
       this.createSign(sign);
       return sign;

@@ -134,7 +134,6 @@ public class SpongeSignManagement extends AbstractPlatformSignManagement<org.spo
     if (entry != null) {
       Sign created = new Sign(
         group,
-        entry.getTargetGroup(),
         templatePath,
         this.locationToWorldPosition(sign.serverLocation(), entry.getTargetGroup()));
       this.createSign(created);

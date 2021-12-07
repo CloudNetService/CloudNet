@@ -96,7 +96,6 @@ public class CloudNetSignsModule extends DriverModule {
         for (de.dytanic.cloudnet.ext.signs.Sign oldSign : oldSigns) {
           management.createSign(new Sign(
             oldSign.getTargetGroup(),
-            oldSign.getProvidedGroup(),
             oldSign.getTemplatePath(),
             new WorldPosition(
               oldSign.getWorldPosition().getX(),
@@ -106,8 +105,7 @@ public class CloudNetSignsModule extends DriverModule {
               0,
               oldSign.getWorldPosition().getWorld(),
               oldSign.getProvidedGroup()
-            )
-          ));
+            )));
         }
       }
     }

@@ -133,11 +133,16 @@ public class BukkitSignManagement extends AbstractPlatformSignManagement<org.buk
   }
 
   @Override
-  public @Nullable Sign createSign(@NotNull org.bukkit.block.Sign sign, @NotNull String group,
-    @Nullable String templatePath) {
+  public @Nullable Sign createSign(
+    @NotNull org.bukkit.block.Sign sign,
+    @NotNull String group,
+    @Nullable String templatePath
+  ) {
     SignConfigurationEntry entry = this.getApplicableSignConfigurationEntry();
     if (entry != null) {
-      Sign created = new Sign(group, entry.getTargetGroup(), templatePath,
+      Sign created = new Sign(
+        group,
+        templatePath,
         this.locationToWorldPosition(sign.getLocation(), entry.getTargetGroup()));
       this.createSign(created);
       return created;
