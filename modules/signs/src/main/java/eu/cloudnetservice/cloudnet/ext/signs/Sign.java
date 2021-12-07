@@ -38,11 +38,11 @@ public class Sign implements Comparable<Sign> {
 
   public static final Type COLLECTION_TYPE = TypeToken.getParameterized(Collection.class, Sign.class).getType();
 
-  protected String targetGroup;
-  protected String templatePath;
+  protected final String targetGroup;
+  protected final String templatePath;
 
   @EqualsAndHashCode.Include
-  protected WorldPosition worldPosition;
+  protected final WorldPosition worldPosition;
 
   protected transient AtomicReference<ServiceInfoSnapshot> currentTarget;
 
@@ -52,7 +52,7 @@ public class Sign implements Comparable<Sign> {
    * @param targetGroup   the group the sign is targeting
    * @param worldPosition the position of the sign in the world
    */
-  public Sign(String targetGroup, WorldPosition worldPosition) {
+  public Sign(@NotNull String targetGroup, @NotNull WorldPosition worldPosition) {
     this(targetGroup, null, worldPosition);
   }
 
@@ -63,41 +63,29 @@ public class Sign implements Comparable<Sign> {
    * @param templatePath  the template of this
    * @param worldPosition the position of the sign in the world
    */
-  public Sign(String targetGroup, String templatePath, WorldPosition worldPosition) {
+  public Sign(@NotNull String targetGroup, @Nullable String templatePath, @NotNull WorldPosition worldPosition) {
     this.targetGroup = targetGroup;
     this.templatePath = templatePath;
     this.worldPosition = worldPosition;
   }
 
-  public String getTargetGroup() {
+  public @NotNull String getTargetGroup() {
     return this.targetGroup;
   }
 
-  public void setTargetGroup(String targetGroup) {
-    this.targetGroup = targetGroup;
-  }
-
-  public String getTemplatePath() {
+  public @Nullable String getTemplatePath() {
     return this.templatePath;
   }
 
-  public void setTemplatePath(String templatePath) {
-    this.templatePath = templatePath;
-  }
-
-  public WorldPosition getLocation() {
+  public @NotNull WorldPosition getLocation() {
     return this.worldPosition;
   }
 
-  public void setWorldPosition(WorldPosition worldPosition) {
-    this.worldPosition = worldPosition;
-  }
-
-  public ServiceInfoSnapshot getCurrentTarget() {
+  public @Nullable ServiceInfoSnapshot getCurrentTarget() {
     return this.currentTarget == null ? null : this.currentTarget.get();
   }
 
-  public void setCurrentTarget(ServiceInfoSnapshot currentTarget) {
+  public void setCurrentTarget(@Nullable ServiceInfoSnapshot currentTarget) {
     if (this.currentTarget == null) {
       this.currentTarget = new AtomicReference<>(currentTarget);
     } else {
