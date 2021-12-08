@@ -71,8 +71,8 @@ public final class SFTPTemplateStorageModule extends DriverModule {
       this.getServiceRegistry().registerService(TemplateStorage.class, this.storage.getName(), this.storage);
       // register the cluster sync handler
       CloudNet.getInstance().getDataSyncRegistry().registerHandler(DataSyncHandler.<SFTPTemplateStorageConfig>builder()
-        .key("bridge-config")
-        .nameExtractor($ -> "Bridge Config")
+        .key("sftp-storage-config")
+        .nameExtractor($ -> "SFTP Template Storage Config")
         .convertObject(SFTPTemplateStorageConfig.class)
         .writer(this::writeConfig)
         .singletonCollector(() -> this.config)
