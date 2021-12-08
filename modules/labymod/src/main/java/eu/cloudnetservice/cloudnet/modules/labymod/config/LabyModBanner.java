@@ -14,23 +14,25 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.cloudnet.ext.labymod.config;
+package eu.cloudnetservice.cloudnet.modules.labymod.config;
 
-public class LabyModMod {
+import org.jetbrains.annotations.NotNull;
 
-  private final String hash;
-  private final String name;
+public class LabyModBanner {
 
-  public LabyModMod(String hash, String name) {
-    this.hash = hash;
-    this.name = name;
+  private final boolean enabled;
+  private final String bannerUrl;
+
+  public LabyModBanner(boolean enabled, @NotNull String bannerUrl) {
+    this.enabled = enabled;
+    this.bannerUrl = bannerUrl;
   }
 
-  public String getHash() {
-    return this.hash;
+  public boolean isEnabled() {
+    return this.enabled;
   }
 
-  public String getName() {
-    return this.name;
+  public @NotNull String getBannerUrl() {
+    return this.bannerUrl;
   }
 }

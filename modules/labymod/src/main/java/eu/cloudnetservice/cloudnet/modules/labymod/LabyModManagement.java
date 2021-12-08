@@ -14,25 +14,20 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.cloudnet.ext.labymod.config;
+package eu.cloudnetservice.cloudnet.modules.labymod;
 
-import java.util.UUID;
+import de.dytanic.cloudnet.driver.network.rpc.annotation.RPCValidation;
+import eu.cloudnetservice.cloudnet.modules.labymod.config.LabyModConfiguration;
+import org.jetbrains.annotations.NotNull;
 
-public class LabyModAddon {
+@RPCValidation
+public interface LabyModManagement {
 
-  private final UUID uuid;
-  private final String name;
+  String LABYMOD_CLIENT_CHANNEL = "labymod3:main";
+  String LABYMOD_MODULE_CHANNEL = "labymod_internal";
+  String LABYMOD_UPDATE_CONFIG = "update_labymod_config";
 
-  public LabyModAddon(UUID uuid, String name) {
-    this.uuid = uuid;
-    this.name = name;
-  }
+  @NotNull LabyModConfiguration getConfiguration();
 
-  public UUID getUuid() {
-    return this.uuid;
-  }
-
-  public String getName() {
-    return this.name;
-  }
+  void setConfiguration(@NotNull LabyModConfiguration configuration);
 }

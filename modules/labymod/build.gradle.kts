@@ -19,15 +19,19 @@ tasks.withType<Jar> {
 }
 
 dependencies {
-  "moduleDependency"(project(":modules:bridge"))
-  "compileOnly"(project(":cloudnet-wrapper-jvm"))
-  "compileOnly"("net.md-5", "bungeecord-api", Versions.bungeecord)
-  "compileOnly"("com.velocitypowered", "velocity-api", Versions.velocity)
+  "moduleDependency"(projects.cloudnetModules.bridge)
+  "compileOnly"(projects.cloudnetWrapperJvm)
+  "compileOnly"(libs.bundles.proxyPlatform)
+
+  "annotationProcessor"(libs.velocity)
 }
 
-/*
 moduleJson {
-  main = "eu.cloudnetservice.cloudnet.ext.labymod.node.CloudNetLabyModModule"
+  main = "eu.cloudnetservice.cloudnet.modules.labymod.node.CloudNetLabyModModule"
   author = "CloudNetService"
   description = "This module adds support for the LabyMod Discord RPC Protocol and the ingame messages when a player plays a gamemode"
-}*/
+}
+
+configure<net.kyori.blossom.BlossomExtension> {
+  replaceToken("{project.build.version}", project.version)
+}

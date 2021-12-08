@@ -43,6 +43,7 @@ initializeSubProjects("modules",
   "storage-sftp",
   "syncproxy",
   "smart",
+  "labymod",
   "npcs",
   "storage-s3")
 
