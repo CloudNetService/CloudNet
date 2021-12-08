@@ -43,7 +43,8 @@ initializeSubProjects("modules",
   "storage-sftp",
   "syncproxy",
   "smart",
-  "npcs")
+  "npcs",
+  "storage-s3")
 
 fun initializeProjects(vararg names: String) {
   names.forEach {

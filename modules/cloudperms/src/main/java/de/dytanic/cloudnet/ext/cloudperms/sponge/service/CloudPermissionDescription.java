@@ -16,6 +16,7 @@
 
 package de.dytanic.cloudnet.ext.cloudperms.sponge.service;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -44,32 +45,32 @@ final class CloudPermissionDescription implements PermissionDescription {
 
   @Override
   public String id() {
-    return null;
+    return this.id;
   }
 
   @Override
   public Optional<Component> description() {
-    return Optional.empty();
+    return Optional.ofNullable(this.desc);
   }
 
   @Override
   public Optional<PluginContainer> owner() {
-    return Optional.empty();
+    return Optional.ofNullable(this.owner);
   }
 
   @Override
   public Tristate defaultValue() {
-    return Tristate.UNDEFINED;
+    return this.defaultValue;
   }
 
   @Override
   public CompletableFuture<? extends Map<? extends SubjectReference, Boolean>> findAssignedSubjects(String id) {
-    return null;
+    return CompletableFuture.completedFuture(Collections.emptyMap());
   }
 
   @Override
   public Map<? extends Subject, Boolean> assignedSubjects(String collectionIdentifier) {
-    return null;
+    return Collections.emptyMap();
   }
 
   @Override

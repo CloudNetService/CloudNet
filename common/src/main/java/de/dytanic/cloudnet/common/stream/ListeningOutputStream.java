@@ -21,12 +21,12 @@ import java.io.IOException;
 import java.io.OutputStream;
 import org.jetbrains.annotations.NotNull;
 
-public final class ListeningOutputStream extends OutputStream {
+public final class ListeningOutputStream<O extends OutputStream> extends OutputStream {
 
-  private final OutputStream wrapped;
-  private final ThrowableConsumer<OutputStream, IOException> closeListener;
+  private final O wrapped;
+  private final ThrowableConsumer<O, IOException> closeListener;
 
-  public ListeningOutputStream(OutputStream wrapped, ThrowableConsumer<OutputStream, IOException> closeListener) {
+  public ListeningOutputStream(O wrapped, ThrowableConsumer<O, IOException> closeListener) {
     this.wrapped = wrapped;
     this.closeListener = closeListener;
   }
@@ -53,7 +53,7 @@ public final class ListeningOutputStream extends OutputStream {
 
   @Override
   public void close() throws IOException {
-    this.closeListener.accept(this);
+    this.closeListener.accept(this.wrapped);
     this.wrapped.close();
   }
 }

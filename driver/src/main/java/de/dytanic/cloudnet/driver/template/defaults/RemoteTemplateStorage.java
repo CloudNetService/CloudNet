@@ -147,7 +147,7 @@ public class RemoteTemplateStorage implements TemplateStorage {
     @NotNull Path localPath,
     boolean append
   ) throws IOException {
-    return new ListeningOutputStream(
+    return new ListeningOutputStream<>(
       Files.newOutputStream(localPath),
       $ -> ChunkedPacketSender.forFileTransfer()
         .forFile(localPath)
