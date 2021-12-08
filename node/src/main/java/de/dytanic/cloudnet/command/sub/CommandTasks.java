@@ -655,6 +655,19 @@ public final class CommandTasks {
     }
   }
 
+  @CommandMethod("tasks task <name> clear processParameter")
+  public void clearProcessParameter(CommandSource source, @Argument("name") Collection<ServiceTask> serviceTasks) {
+    for (ServiceTask serviceTask : serviceTasks) {
+      this.updateTaskDirect(serviceTask, task -> task.getProcessParameters().clear());
+      source.sendMessage(
+        I18n.trans("command-tasks-set-property-success")
+          .replace("%property%", "processParameters")
+          .replace("%name%", serviceTask.getName())
+          .replace("%value%", "empty")
+      );
+    }
+  }
+
   private void updateTask(ServiceTask task) {
     this.taskProvider().addPermanentServiceTask(task);
   }
