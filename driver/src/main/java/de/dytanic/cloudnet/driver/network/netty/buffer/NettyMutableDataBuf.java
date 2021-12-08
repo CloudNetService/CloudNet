@@ -17,6 +17,7 @@
 package de.dytanic.cloudnet.driver.network.netty.buffer;
 
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
+import de.dytanic.cloudnet.driver.network.netty.NettyUtils;
 import de.dytanic.cloudnet.driver.network.rpc.defaults.object.DefaultObjectMapper;
 import io.netty.buffer.ByteBuf;
 import java.nio.charset.StandardCharsets;
@@ -86,9 +87,8 @@ public class NettyMutableDataBuf extends NettyImmutableDataBuf implements DataBu
 
   @Override
   public @NotNull DataBuf.Mutable writeByteArray(byte[] b, int amount) {
-    this.byteBuf
-      .writeInt(amount)
-      .writeBytes(b, 0, amount);
+    NettyUtils.writeVarInt(this.byteBuf, amount);
+    this.byteBuf.writeBytes(b, 0, amount);
     return this;
   }
 

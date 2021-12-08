@@ -57,6 +57,8 @@ public interface DataBuf extends AutoCloseable {
 
   @NotNull DataBuf readDataBuf();
 
+  byte[] toByteArray();
+
   <T> T readObject(@NotNull Class<T> type);
 
   <T> T readObject(@NotNull Type type);

@@ -81,7 +81,7 @@ public class NettyImmutableDataBuf implements DataBuf {
   @Override
   public byte[] readByteArray() {
     return this.hotRead(buf -> {
-      byte[] bytes = new byte[buf.readInt()];
+      byte[] bytes = new byte[NettyUtils.readVarInt(buf)];
       buf.readBytes(bytes);
       return bytes;
     });
@@ -100,6 +100,15 @@ public class NettyImmutableDataBuf implements DataBuf {
   @Override
   public @NotNull DataBuf readDataBuf() {
     return this.hotRead(buf -> new NettyImmutableDataBuf(buf.readBytes(buf.readInt())));
+  }
+
+  @Override
+  public byte[] toByteArray() {
+    byte[] bytes = new byte[this.getReadableBytes()];
+    return this.hotRead(buf -> {
+      buf.readBytes(bytes);
+      return bytes;
+    });
   }
 
   @Override
