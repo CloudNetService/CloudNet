@@ -402,7 +402,7 @@ public class CloudNet extends CloudNetDriver {
       return Collections.emptyList();
     } else {
       PermissionUserCommandSource source = new PermissionUserCommandSource(user, this.permissionManagement);
-      this.commandProvider.execute(source, commandLine);
+      this.commandProvider.execute(source, commandLine).join();
 
       return source.getMessages();
     }

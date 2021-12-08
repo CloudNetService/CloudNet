@@ -182,7 +182,7 @@ public class V2HttpHandlerNode extends WebSocketAbleV2HttpHandler {
 
         PermissionUserCommandSource commandSource = new PermissionUserCommandSource(user,
           V2HttpHandlerNode.this.getCloudNet().getPermissionManagement());
-        V2HttpHandlerNode.this.getCloudNet().getCommandProvider().execute(commandSource, commandLine);
+        V2HttpHandlerNode.this.getCloudNet().getCommandProvider().execute(commandSource, commandLine).join();
 
         for (String message : commandSource.getMessages()) {
           this.channel.sendWebSocketFrame(WebSocketFrameType.TEXT, message);
