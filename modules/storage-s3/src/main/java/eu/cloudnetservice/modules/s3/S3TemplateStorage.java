@@ -157,7 +157,9 @@ public class S3TemplateStorage implements TemplateStorage {
         Path target = directory.resolve(content.key().substring(templatePath.length() + 1));
         FileUtils.createDirectory(target.getParent());
         // get the file
-        GetObjectRequest req = GetObjectRequest.builder().key(content.key()).bucket(this.getConfig().getBucket())
+        GetObjectRequest req = GetObjectRequest.builder()
+          .key(content.key())
+          .bucket(this.getConfig().getBucket())
           .build();
         try (InputStream stream = this.client.getObject(req); OutputStream out = Files.newOutputStream(target)) {
           FileUtils.copy(stream, out);
