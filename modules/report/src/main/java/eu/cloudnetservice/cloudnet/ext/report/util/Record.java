@@ -81,7 +81,7 @@ public final class Record {
       Path targetDirectory = this.directory.resolve("logs");
       FileUtils.createDirectory(targetDirectory);
 
-      if (this.service.getServiceId().getEnvironment() == ServiceEnvironmentType.BUNGEECORD) {
+      if (this.service.getServiceId().getEnvironment().equals(ServiceEnvironmentType.BUNGEECORD)) {
         FileUtils.walkFileTree(this.service.getDirectory(),
           (root, current) -> FileUtils.copy(current, targetDirectory.resolve(root.relativize(current))), false,
           "proxy.log*");
