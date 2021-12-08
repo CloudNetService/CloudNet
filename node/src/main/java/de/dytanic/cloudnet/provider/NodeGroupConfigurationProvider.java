@@ -159,8 +159,8 @@ public class NodeGroupConfigurationProvider implements GroupConfigurationProvide
   public void addGroupConfigurationSilently(@NotNull GroupConfiguration groupConfiguration) {
     // add the group to the local cache
     this.groupConfigurations.put(groupConfiguration.getName(), groupConfiguration);
-    // store the configuration files
-    this.writeAllGroupConfigurations();
+    // store the group file
+    this.writeGroupConfiguration(groupConfiguration);
   }
 
   public void removeGroupConfigurationSilently(@NotNull GroupConfiguration groupConfiguration) {
