@@ -34,3 +34,7 @@ moduleJson {
   author = "CloudNetService"
   description = "Node extension for the CloudNet node runtime, which include a player permission system"
 }
+
+configure<net.kyori.blossom.BlossomExtension> {
+  replaceToken("{project.build.version}", project.version)
+}
