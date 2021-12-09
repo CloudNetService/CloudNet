@@ -154,10 +154,6 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
     return this.cachedServices.values().stream().filter(filter).findFirst();
   }
 
-  public @NotNull Optional<ServiceInfoSnapshot> getCachedService(@NotNull UUID uniqueId) {
-    return Optional.ofNullable(this.cachedServices.get(uniqueId));
-  }
-
   public void handleServiceUpdate(@NotNull ServiceInfoSnapshot snapshot) {
     // if the service is not yet cached check if we need to cache it
     if (!this.cachedServices.containsKey(snapshot.getServiceId().getUniqueId())) {
@@ -190,7 +186,7 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
     // search for the best fallback
     return this.getPossibleFallbacks(currentServerName, virtualHost, permissionTester)
       // get all services we have cached of the task
-      .map(fallback -> new Pair<>(fallback, this.getAnyTaskService(fallback.getTask(), profile)))
+      .map(fallback -> new Pair<>(fallback, this.getAnyTaskService(fallback.getTask(), profile, currentServerName)))
       // filter out all fallbacks that have no services
       .filter(possibility -> !possibility.getSecond().isPresent())
       // get the first possibility with the highest priority
@@ -208,7 +204,7 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
           return Optional.empty();
         }
         // get any service associated with the task
-        return this.getAnyTaskService(config.getDefaultFallbackTask(), profile)
+        return this.getAnyTaskService(config.getDefaultFallbackTask(), profile, currentServerName)
           .map(service -> {
             // select as the service we are connecting to
             profile.selectService(service.getName());
@@ -253,7 +249,8 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
 
   protected @NotNull Optional<ServiceInfoSnapshot> getAnyTaskService(
     @NotNull String task,
-    @NotNull FallbackProfile profile
+    @NotNull FallbackProfile profile,
+    @Nullable String currentServerName
   ) {
     return this.cachedServices.values().stream()
       // check if the service is associated with the task of the fallback
@@ -262,6 +259,8 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
       .filter(service -> !profile.hasTried(service.getName()))
       // check if the service is marked as joinable
       .filter(service -> service.isConnected() && BridgeServiceProperties.IS_ONLINE.get(service).orElse(false))
+      // check if the player is not currently connected to that service
+      .filter(service -> currentServerName == null || !service.getName().equals(currentServerName))
       // find the service with the lowest player count known to use
       .min((optionA, optionB) -> {
         int playersOnOptionA = BridgeServiceProperties.ONLINE_COUNT.get(optionA).orElse(0);
