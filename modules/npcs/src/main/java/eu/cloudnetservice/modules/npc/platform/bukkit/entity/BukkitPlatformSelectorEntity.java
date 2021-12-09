@@ -33,13 +33,15 @@ import eu.cloudnetservice.modules.npc.platform.bukkit.BukkitPlatformNPCManagemen
 import eu.cloudnetservice.modules.npc.platform.bukkit.util.ReflectionUtil;
 import java.lang.invoke.MethodHandle;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 import org.bukkit.Bukkit;
@@ -75,7 +77,7 @@ public abstract class BukkitPlatformSelectorEntity
   protected final BukkitPlatformNPCManagement npcManagement;
   protected final Set<Integer> infoLineEntityIds = new HashSet<>();
   protected final Set<InfoLineWrapper> infoLines = new HashSet<>();
-  protected final Map<ServiceInfoSnapshot, ItemStack> serviceItems = new ConcurrentHashMap<>();
+  protected final Map<UUID, ServiceItemWrapper> serviceItems = new LinkedHashMap<>();
 
   protected volatile Inventory inventory;
 
@@ -176,7 +178,7 @@ public abstract class BukkitPlatformSelectorEntity
   @Override
   public void update() {
     // rebuild all items - we can do that async
-    this.serviceItems.keySet().forEach(this::trackService);
+    this.serviceItems.values().forEach(wrapper -> this.trackService(wrapper.getService()));
     // rebuild everything else sync
     Bukkit.getScheduler().runTask(this.plugin, () -> {
       this.rebuildInventory(this.npcManagement.getInventoryConfiguration());
@@ -186,13 +188,8 @@ public abstract class BukkitPlatformSelectorEntity
 
   @Override
   public void trackService(@NotNull ServiceInfoSnapshot service) {
-    // remove the current item
-    for (ServiceInfoSnapshot snapshot : this.serviceItems.keySet()) {
-      if (snapshot.getServiceId().getUniqueId().equals(service.getServiceId().getUniqueId())) {
-        this.serviceItems.remove(snapshot);
-        break;
-      }
-    }
+    // get the current item
+    ServiceItemWrapper wrapper = this.serviceItems.get(service.getServiceId().getUniqueId());
     // build the item for the service
     InventoryConfiguration configuration = this.npcManagement.getInventoryConfiguration();
     ItemLayoutHolder layouts = configuration.getHolder(service.getConfiguration().getGroups().toArray(new String[0]));
@@ -219,27 +216,32 @@ public abstract class BukkitPlatformSelectorEntity
     // build the item stack from the layout
     ItemStack item = this.buildItemStack(layout, service);
     if (item != null) {
-      this.serviceItems.put(service, item);
+      if (wrapper == null) {
+        // store a new wrapper
+        this.serviceItems.put(service.getServiceId().getUniqueId(), new ServiceItemWrapper(item, service));
+      } else {
+        // update the item wrapper
+        wrapper.setItemStack(item);
+        wrapper.setService(service);
+      }
       // push the service update
       this.rebuildInfoLines();
       this.rebuildInventory(configuration);
+    } else if (wrapper != null) {
+      // unable to build a new item - remove the current one
+      this.serviceItems.remove(service.getServiceId().getUniqueId());
     }
   }
 
   @Override
   public void stopTrackingService(@NotNull ServiceInfoSnapshot service) {
     Bukkit.getScheduler().runTask(this.plugin, () -> {
-      // try to find the old service
-      for (ServiceInfoSnapshot snapshot : this.serviceItems.keySet()) {
-        if (snapshot.getServiceId().getUniqueId().equals(service.getServiceId().getUniqueId())) {
-          // remove the service
-          this.serviceItems.remove(snapshot);
-          // rebuild the inventory and info lines
-          this.rebuildInfoLines();
-          this.rebuildInventory(this.npcManagement.getInventoryConfiguration());
-          // no need to dig further
-          break;
-        }
+      // get the old item wrapper
+      ServiceItemWrapper wrapper = this.serviceItems.remove(service.getServiceId().getUniqueId());
+      if (wrapper != null) {
+        // the service got tracked before - rebuild the inventory and info lines
+        this.rebuildInfoLines();
+        this.rebuildInventory(this.npcManagement.getInventoryConfiguration());
       }
     });
   }
@@ -257,12 +259,12 @@ public abstract class BukkitPlatformSelectorEntity
   @Override
   public void handleInventoryInteract(@NotNull Inventory inv, @NotNull Player player, @NotNull ItemStack clickedItem) {
     // find the server associated with the clicked item
-    for (Entry<ServiceInfoSnapshot, ItemStack> entry : this.serviceItems.entrySet()) {
-      if (entry.getValue().equals(clickedItem)) {
+    for (ServiceItemWrapper wrapper : this.serviceItems.values()) {
+      if (wrapper.getItemStack().equals(clickedItem)) {
         // close the inventory
         player.closeInventory();
         // connect the player
-        this.getPlayerManager().getPlayerExecutor(player.getUniqueId()).connect(entry.getKey().getName());
+        this.getPlayerManager().getPlayerExecutor(player.getUniqueId()).connect(wrapper.getService().getName());
         break;
       }
     }
@@ -302,22 +304,24 @@ public abstract class BukkitPlatformSelectorEntity
         player.openInventory(this.inventory);
         break;
       case DIRECT_CONNECT_RANDOM: {
-        List<ServiceInfoSnapshot> services = new ArrayList<>(this.serviceItems.keySet());
+        List<ServiceItemWrapper> wrappers = new ArrayList<>(this.serviceItems.values());
         // connect the player to the first element if present
-        if (!services.isEmpty()) {
-          ServiceInfoSnapshot service = services.get(ThreadLocalRandom.current().nextInt(0, services.size()));
-          this.getPlayerManager().getPlayerExecutor(player.getUniqueId()).connect(service.getName());
+        if (!wrappers.isEmpty()) {
+          ServiceItemWrapper wrapper = wrappers.get(ThreadLocalRandom.current().nextInt(0, wrappers.size()));
+          this.getPlayerManager().getPlayerExecutor(player.getUniqueId()).connect(wrapper.getService().getName());
         }
       }
       break;
       case DIRECT_CONNECT_LOWEST_PLAYERS: {
-        this.serviceItems.keySet().stream()
+        this.serviceItems.values().stream()
+          .map(ServiceItemWrapper::getService)
           .min(Comparator.comparingInt(service -> BridgeServiceProperties.ONLINE_COUNT.get(service).orElse(0)))
           .ifPresent(ser -> this.getPlayerManager().getPlayerExecutor(player.getUniqueId()).connect(ser.getName()));
       }
       break;
       case DIRECT_CONNECT_HIGHEST_PLAYERS: {
-        this.serviceItems.keySet().stream()
+        this.serviceItems.values().stream()
+          .map(ServiceItemWrapper::getService)
           .max(Comparator.comparingInt(service -> BridgeServiceProperties.ONLINE_COUNT.get(service).orElse(0)))
           .ifPresent(ser -> this.getPlayerManager().getPlayerExecutor(player.getUniqueId()).connect(ser.getName()));
       }
@@ -387,8 +391,8 @@ public abstract class BukkitPlatformSelectorEntity
       }
     }
     // add the service items
-    for (ItemStack value : this.serviceItems.values()) {
-      if (!inventory.addItem(value).isEmpty()) {
+    for (ServiceItemWrapper wrapper : this.serviceItems.values()) {
+      if (!inventory.addItem(wrapper.getItemStack()).isEmpty()) {
         // the inventory is full
         break;
       }
@@ -410,6 +414,33 @@ public abstract class BukkitPlatformSelectorEntity
 
   protected abstract void addGlowingEffect();
 
+  protected static final class ServiceItemWrapper {
+
+    private volatile ItemStack itemStack;
+    private volatile ServiceInfoSnapshot serviceInfoSnapshot;
+
+    public ServiceItemWrapper(@NotNull ItemStack itemStack, @NotNull ServiceInfoSnapshot serviceInfoSnapshot) {
+      this.itemStack = itemStack;
+      this.serviceInfoSnapshot = serviceInfoSnapshot;
+    }
+
+    public @NotNull ItemStack getItemStack() {
+      return this.itemStack;
+    }
+
+    public void setItemStack(@NotNull ItemStack itemStack) {
+      this.itemStack = itemStack;
+    }
+
+    public @NotNull ServiceInfoSnapshot getService() {
+      return this.serviceInfoSnapshot;
+    }
+
+    public void setService(@NotNull ServiceInfoSnapshot serviceInfoSnapshot) {
+      this.serviceInfoSnapshot = serviceInfoSnapshot;
+    }
+  }
+
   protected final class InfoLineWrapper {
 
     private final String basedInfoLine;
@@ -423,12 +454,14 @@ public abstract class BukkitPlatformSelectorEntity
     private void rebuildInfoLine() {
       NPC npc = BukkitPlatformSelectorEntity.this.npc;
       // update based on the tracked services
-      Set<ServiceInfoSnapshot> tracked = BukkitPlatformSelectorEntity.this.serviceItems.keySet();
+      Collection<ServiceItemWrapper> tracked = BukkitPlatformSelectorEntity.this.serviceItems.values();
       // general info
       String onlinePlayers = Integer.toString(tracked.stream()
+        .map(ServiceItemWrapper::getService)
         .mapToInt(snapshot -> BridgeServiceProperties.ONLINE_COUNT.get(snapshot).orElse(0))
         .sum());
       String maxPlayers = Integer.toString(tracked.stream()
+        .map(ServiceItemWrapper::getService)
         .mapToInt(snapshot -> BridgeServiceProperties.MAX_PLAYERS.get(snapshot).orElse(0))
         .sum());
       String onlineServers = Integer.toString(tracked.size());
