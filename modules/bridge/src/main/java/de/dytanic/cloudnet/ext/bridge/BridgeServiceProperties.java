@@ -19,7 +19,7 @@ package de.dytanic.cloudnet.ext.bridge;
 import static de.dytanic.cloudnet.driver.service.property.DefaultJsonServiceProperty.createFromClass;
 import static de.dytanic.cloudnet.driver.service.property.DefaultJsonServiceProperty.createFromType;
 
-import com.google.common.reflect.TypeToken;
+import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;

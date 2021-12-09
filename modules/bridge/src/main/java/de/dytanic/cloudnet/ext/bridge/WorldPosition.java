@@ -16,7 +16,7 @@
 
 package de.dytanic.cloudnet.ext.bridge;
 
-import com.google.common.reflect.TypeToken;
+import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.Objects;

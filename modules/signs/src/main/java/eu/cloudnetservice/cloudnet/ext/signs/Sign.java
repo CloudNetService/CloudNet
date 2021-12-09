@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.cloudnet.ext.signs;
 
-import com.google.common.reflect.TypeToken;
+import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.ext.bridge.WorldPosition;
 import eu.cloudnetservice.cloudnet.ext.signs.configuration.SignConfigurationEntry;
