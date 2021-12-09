@@ -28,7 +28,6 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Supplier;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextComponent;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -106,7 +105,7 @@ final class BungeeCordDirectPlayerExecutor extends PlatformPlayerExecutorAdapter
   }
 
   @Override
-  public void kick(@NotNull TextComponent message) {
+  public void kick(@NotNull Component message) {
     this.playerSupplier.get().forEach(player -> player.disconnect(fromLegacyText(legacySection().serialize(message))));
   }
 
@@ -122,12 +121,12 @@ final class BungeeCordDirectPlayerExecutor extends PlatformPlayerExecutorAdapter
   }
 
   @Override
-  public void sendMessage(@NotNull TextComponent message) {
+  public void sendMessage(@NotNull Component message) {
     this.playerSupplier.get().forEach(player -> player.sendMessage(fromLegacyText(legacySection().serialize(message))));
   }
 
   @Override
-  public void sendChatMessage(@NotNull TextComponent message, @Nullable String permission) {
+  public void sendChatMessage(@NotNull Component message, @Nullable String permission) {
     this.playerSupplier.get().forEach(player -> {
       if (permission == null || player.hasPermission(permission)) {
         player.sendMessage(fromLegacyText(legacySection().serialize(message)));

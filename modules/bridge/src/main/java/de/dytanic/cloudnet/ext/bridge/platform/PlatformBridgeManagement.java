@@ -39,7 +39,7 @@ import de.dytanic.cloudnet.ext.bridge.player.IPlayerManager;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkServiceInfo;
 import de.dytanic.cloudnet.ext.bridge.player.ServicePlayer;
 import de.dytanic.cloudnet.ext.bridge.player.executor.PlayerExecutor;
-import de.dytanic.cloudnet.ext.bridge.rpc.TextComponentObjectSerializer;
+import de.dytanic.cloudnet.ext.bridge.rpc.ComponentObjectSerializer;
 import de.dytanic.cloudnet.ext.bridge.rpc.TitleObjectSerializer;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import java.util.Collection;
@@ -55,7 +55,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
-import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -91,7 +91,7 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
     };
     // init the rpc handler
     DefaultObjectMapper.DEFAULT_MAPPER.registerBinding(Title.class, new TitleObjectSerializer(), false);
-    DefaultObjectMapper.DEFAULT_MAPPER.registerBinding(TextComponent.class, new TextComponentObjectSerializer(), false);
+    DefaultObjectMapper.DEFAULT_MAPPER.registerBinding(Component.class, new ComponentObjectSerializer(), false);
     // init the player manager once
     this.playerManager = new PlatformPlayerManager(wrapper);
     this.sender = wrapper.getRPCProviderFactory().providerForClass(wrapper.getNetworkClient(), BridgeManagement.class);

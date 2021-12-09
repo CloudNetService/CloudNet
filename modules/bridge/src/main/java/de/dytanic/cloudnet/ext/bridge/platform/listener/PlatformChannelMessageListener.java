@@ -36,7 +36,7 @@ import de.dytanic.cloudnet.ext.bridge.player.CloudPlayer;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkServiceInfo;
 import de.dytanic.cloudnet.ext.bridge.player.executor.PlayerExecutor;
 import de.dytanic.cloudnet.ext.bridge.player.executor.ServerSelectorType;
-import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
 import org.jetbrains.annotations.NotNull;
 
@@ -176,7 +176,7 @@ public final class PlatformChannelMessageListener {
           break;
         // kick a player from the current service
         case "kick_player":
-          executor.kick(event.getContent().readObject(TextComponent.class));
+          executor.kick(event.getContent().readObject(Component.class));
           break;
         // send a title to the player
         case "send_title":
@@ -185,7 +185,7 @@ public final class PlatformChannelMessageListener {
         // send a chat message to the player
         case "send_chat_message":
           executor.sendChatMessage(
-            event.getContent().readObject(TextComponent.class),
+            event.getContent().readObject(Component.class),
             event.getContent().readNullable(DataBuf::readString));
           break;
         // send a plugin message to the player

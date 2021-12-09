@@ -21,7 +21,7 @@ import de.dytanic.cloudnet.driver.network.rpc.RPCSender;
 import de.dytanic.cloudnet.ext.bridge.player.executor.PlayerExecutor;
 import de.dytanic.cloudnet.ext.bridge.player.executor.ServerSelectorType;
 import java.util.UUID;
-import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -69,7 +69,7 @@ final class PlatformPlayerExecutor implements PlayerExecutor {
   }
 
   @Override
-  public void kick(@NotNull TextComponent message) {
+  public void kick(@NotNull Component message) {
     this.baseRPC.join(this.sender.invokeMethod("kick", message)).fireSync();
   }
 
@@ -79,12 +79,12 @@ final class PlatformPlayerExecutor implements PlayerExecutor {
   }
 
   @Override
-  public void sendMessage(@NotNull TextComponent message) {
+  public void sendMessage(@NotNull Component message) {
     this.baseRPC.join(this.sender.invokeMethod("sendChatMessage", message)).fireSync();
   }
 
   @Override
-  public void sendChatMessage(@NotNull TextComponent message, @Nullable String permission) {
+  public void sendChatMessage(@NotNull Component message, @Nullable String permission) {
     this.baseRPC.join(this.sender.invokeMethod("sendChatMessage", message, permission)).fireSync();
   }
 

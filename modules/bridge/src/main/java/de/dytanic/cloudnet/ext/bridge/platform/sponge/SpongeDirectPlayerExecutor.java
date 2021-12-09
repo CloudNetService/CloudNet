@@ -21,7 +21,7 @@ import de.dytanic.cloudnet.ext.bridge.player.executor.ServerSelectorType;
 import java.util.Collection;
 import java.util.UUID;
 import java.util.function.Supplier;
-import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -71,7 +71,7 @@ final class SpongeDirectPlayerExecutor extends PlatformPlayerExecutorAdapter {
   }
 
   @Override
-  public void kick(@NotNull TextComponent message) {
+  public void kick(@NotNull Component message) {
     // no-op
   }
 
@@ -81,12 +81,12 @@ final class SpongeDirectPlayerExecutor extends PlatformPlayerExecutorAdapter {
   }
 
   @Override
-  public void sendMessage(@NotNull TextComponent message) {
+  public void sendMessage(@NotNull Component message) {
     this.playerSupplier.get().forEach(player -> player.sendMessage(message));
   }
 
   @Override
-  public void sendChatMessage(@NotNull TextComponent message, @Nullable String permission) {
+  public void sendChatMessage(@NotNull Component message, @Nullable String permission) {
     this.playerSupplier.get().forEach(player -> {
       if (permission == null || player.hasPermission(permission)) {
         player.sendMessage(message);

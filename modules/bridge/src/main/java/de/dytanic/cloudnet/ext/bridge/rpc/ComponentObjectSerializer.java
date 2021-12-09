@@ -20,16 +20,16 @@ import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import de.dytanic.cloudnet.driver.network.rpc.object.ObjectMapper;
 import de.dytanic.cloudnet.driver.network.rpc.object.ObjectSerializer;
 import java.lang.reflect.Type;
-import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import org.jetbrains.annotations.NotNull;
 
-public final class TextComponentObjectSerializer implements ObjectSerializer<TextComponent> {
+public final class ComponentObjectSerializer implements ObjectSerializer<Component> {
 
   @Override
   public void write(
     @NotNull DataBuf.Mutable dataBuf,
-    @NotNull TextComponent object,
+    @NotNull Component object,
     @NotNull Type type,
     @NotNull ObjectMapper caller
   ) {

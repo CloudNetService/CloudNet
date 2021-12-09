@@ -30,7 +30,7 @@ import java.util.Collection;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Supplier;
-import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -104,19 +104,19 @@ final class WaterDogPEDirectPlayerExecutor extends PlatformPlayerExecutorAdapter
   }
 
   @Override
-  public void kick(@NotNull TextComponent message) {
+  public void kick(@NotNull Component message) {
     this.playerSupplier.get()
       .forEach(player -> player.disconnect(new TextContainer(legacySection().serialize(message))));
   }
 
   @Override
-  public void sendMessage(@NotNull TextComponent message) {
+  public void sendMessage(@NotNull Component message) {
     this.playerSupplier.get()
       .forEach(player -> player.sendMessage(new TextContainer(legacySection().serialize(message))));
   }
 
   @Override
-  public void sendChatMessage(@NotNull TextComponent message, @Nullable String permission) {
+  public void sendChatMessage(@NotNull Component message, @Nullable String permission) {
     this.playerSupplier.get().forEach(player -> {
       if (permission == null || player.hasPermission(permission)) {
         player.sendMessage(new TextContainer(legacySection().serialize(message)));

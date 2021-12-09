@@ -26,7 +26,7 @@ import de.dytanic.cloudnet.ext.bridge.player.IPlayerManager;
 import de.dytanic.cloudnet.ext.bridge.player.executor.PlayerExecutor;
 import de.dytanic.cloudnet.ext.bridge.player.executor.ServerSelectorType;
 import java.util.UUID;
-import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
 import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.NotNull;
@@ -101,7 +101,7 @@ public class NodePlayerExecutor implements PlayerExecutor {
   }
 
   @Override
-  public void kick(@NotNull TextComponent message) {
+  public void kick(@NotNull Component message) {
     this.toProxy()
       .message("kick_player")
       .buffer(DataBuf.empty().writeUniqueId(this.targetUniqueId).writeObject(message))
@@ -119,12 +119,12 @@ public class NodePlayerExecutor implements PlayerExecutor {
   }
 
   @Override
-  public void sendMessage(@NotNull TextComponent message) {
+  public void sendMessage(@NotNull Component message) {
     this.sendChatMessage(message, null);
   }
 
   @Override
-  public void sendChatMessage(@NotNull TextComponent message, @Nullable String permission) {
+  public void sendChatMessage(@NotNull Component message, @Nullable String permission) {
     this.toProxy()
       .message("send_chat_message")
       .buffer(DataBuf.empty()

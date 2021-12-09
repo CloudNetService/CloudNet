@@ -18,7 +18,7 @@ package de.dytanic.cloudnet.ext.bridge.player.executor;
 
 import de.dytanic.cloudnet.driver.network.rpc.annotation.RPCValidation;
 import java.util.UUID;
-import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -76,7 +76,7 @@ public interface PlayerExecutor {
    *
    * @param message the reason for the kick which will be displayed in the players client
    */
-  void kick(@NotNull TextComponent message);
+  void kick(@NotNull Component message);
 
   void sendTitle(@NotNull Title title);
 
@@ -85,7 +85,7 @@ public interface PlayerExecutor {
    *
    * @param message the message to be sent to the player
    */
-  void sendMessage(@NotNull TextComponent message);
+  void sendMessage(@NotNull Component message);
 
   /**
    * Sends a plugin message to a specific online player only if the player has the given permission. If the permission
@@ -94,7 +94,7 @@ public interface PlayerExecutor {
    * @param message    the message to be sent to the player
    * @param permission the permission which will be checked before the message is sent to the player
    */
-  void sendChatMessage(@NotNull TextComponent message, @Nullable String permission);
+  void sendChatMessage(@NotNull Component message, @Nullable String permission);
 
   /**
    * Sends a message to a specific online player. The tag has to be registered in the proxy.

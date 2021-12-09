@@ -24,7 +24,6 @@ import java.util.Collection;
 import java.util.UUID;
 import java.util.function.Supplier;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextComponent;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
@@ -77,7 +76,7 @@ final class BukkitDirectPlayerExecutor extends PlatformPlayerExecutorAdapter {
   }
 
   @Override
-  public void kick(@NotNull TextComponent message) {
+  public void kick(@NotNull Component message) {
     this.playerSupplier.get().forEach(player -> player.kickPlayer(legacySection().serialize(message)));
   }
 
@@ -89,12 +88,12 @@ final class BukkitDirectPlayerExecutor extends PlatformPlayerExecutorAdapter {
   }
 
   @Override
-  public void sendMessage(@NotNull TextComponent message) {
+  public void sendMessage(@NotNull Component message) {
     this.playerSupplier.get().forEach(player -> player.sendMessage(legacySection().serialize(message)));
   }
 
   @Override
-  public void sendChatMessage(@NotNull TextComponent message, @Nullable String permission) {
+  public void sendChatMessage(@NotNull Component message, @Nullable String permission) {
     this.playerSupplier.get().forEach(player -> {
       if (permission == null || player.hasPermission(permission)) {
         player.sendMessage(legacySection().serialize(message));

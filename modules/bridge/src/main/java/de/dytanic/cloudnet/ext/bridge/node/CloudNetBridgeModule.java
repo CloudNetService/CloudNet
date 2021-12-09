@@ -35,7 +35,7 @@ import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.ext.bridge.BridgeManagement;
 import de.dytanic.cloudnet.ext.bridge.config.BridgeConfiguration;
 import de.dytanic.cloudnet.ext.bridge.config.ProxyFallbackConfiguration;
-import de.dytanic.cloudnet.ext.bridge.rpc.TextComponentObjectSerializer;
+import de.dytanic.cloudnet.ext.bridge.rpc.ComponentObjectSerializer;
 import de.dytanic.cloudnet.ext.bridge.rpc.TitleObjectSerializer;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -43,7 +43,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
 
 public final class CloudNetBridgeModule extends DriverModule {
@@ -53,7 +53,7 @@ public final class CloudNetBridgeModule extends DriverModule {
   @ModuleTask(order = 50, event = ModuleLifeCycle.LOADED)
   public void initNetworkHelpers() {
     DefaultObjectMapper.DEFAULT_MAPPER.registerBinding(Title.class, new TitleObjectSerializer(), false);
-    DefaultObjectMapper.DEFAULT_MAPPER.registerBinding(TextComponent.class, new TextComponentObjectSerializer(), false);
+    DefaultObjectMapper.DEFAULT_MAPPER.registerBinding(Component.class, new ComponentObjectSerializer(), false);
   }
 
   @ModuleTask(order = 40, event = ModuleLifeCycle.LOADED)
