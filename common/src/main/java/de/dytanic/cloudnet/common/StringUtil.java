@@ -73,8 +73,7 @@ public final class StringUtil {
    * @return {@code true} if the given string starts with the given prefix.
    */
   public static boolean startsWithIgnoreCase(@NotNull String s, @NotNull String prefix) {
-    int suffixLength = prefix.length();
-    return s.regionMatches(true, 0, prefix, 0, suffixLength);
+    return s.regionMatches(true, 0, prefix, 0, prefix.length());
   }
 
   public static @NotNull String repeat(char c, int times) {
