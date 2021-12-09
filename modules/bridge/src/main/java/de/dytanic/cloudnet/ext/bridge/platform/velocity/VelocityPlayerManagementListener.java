@@ -24,10 +24,15 @@ import com.velocitypowered.api.event.connection.DisconnectEvent;
 import com.velocitypowered.api.event.connection.DisconnectEvent.LoginStatus;
 import com.velocitypowered.api.event.connection.LoginEvent;
 import com.velocitypowered.api.event.player.KickedFromServerEvent;
+import com.velocitypowered.api.event.player.KickedFromServerEvent.DisconnectPlayer;
+import com.velocitypowered.api.event.player.KickedFromServerEvent.Notify;
+import com.velocitypowered.api.event.player.KickedFromServerEvent.RedirectPlayer;
 import com.velocitypowered.api.event.player.PlayerChooseInitialServerEvent;
 import com.velocitypowered.api.event.player.ServerPostConnectEvent;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
+import com.velocitypowered.api.proxy.ServerConnection;
+import com.velocitypowered.api.proxy.server.ServerInfo;
 import de.dytanic.cloudnet.driver.service.ServiceTask;
 import de.dytanic.cloudnet.ext.bridge.BridgeServiceHelper;
 import de.dytanic.cloudnet.ext.bridge.node.event.LocalPlayerPreLoginEvent.Result;
@@ -36,6 +41,12 @@ import de.dytanic.cloudnet.ext.bridge.platform.helper.ProxyPlatformHelper;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkPlayerProxyInfo;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import java.util.Locale;
+import net.kyori.adventure.identity.Identity;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.TranslatableComponent;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import net.kyori.adventure.translation.GlobalTranslator;
 import org.jetbrains.annotations.NotNull;
 
 final class VelocityPlayerManagementListener {
@@ -92,10 +103,22 @@ final class VelocityPlayerManagementListener {
   public void handleServerKick(@NotNull KickedFromServerEvent event) {
     // check if the player is still active
     if (event.getPlayer().isActive()) {
-      event.setResult(this.management.getFallback(event.getPlayer())
+      event.setResult(this.management.getFallback(event.getPlayer(), event.getServer().getServerInfo().getName())
         .flatMap(service -> this.proxyServer.getServer(service.getName()))
-        .map(KickedFromServerEvent.RedirectPlayer::create)
-        .orElse(KickedFromServerEvent.DisconnectPlayer.create(serialize(this.management.getConfiguration().getMessage(
+        .map(server -> {
+          // only notify the player if the fallback is the server the player is connected to
+          ServerInfo curServer = event.getPlayer().getCurrentServer().map(ServerConnection::getServerInfo).orElse(null);
+          if (event.kickedDuringServerConnect() && curServer != null && curServer.equals(server.getServerInfo())) {
+            // send the player a nice message - velocity will keep the connection to the current server
+            return Notify.create(this.getReasonComponent(event));
+          } else {
+            // send the player a reason message
+            event.getPlayer().sendMessage(Identity.nil(), this.getReasonComponent(event));
+            // redirect the player to the next available hub server
+            return RedirectPlayer.create(server);
+          }
+        })
+        .orElse(DisconnectPlayer.create(serialize(this.management.getConfiguration().getMessage(
           event.getPlayer().getEffectiveLocale(),
           "proxy-join-disconnect-because-no-hub")))));
     }
@@ -132,5 +155,36 @@ final class VelocityPlayerManagementListener {
     }
     // always remove the player fallback profile
     this.management.removeFallbackProfile(event.getPlayer());
+  }
+
+  private @NotNull Component getReasonComponent(@NotNull KickedFromServerEvent event) {
+    Locale playerLocale = event.getPlayer().getEffectiveLocale();
+    Component message = event.getServerKickReason().orElse(null);
+    // use the current result if it is Notify - velocity already created a friendly reason for us
+    if (message == null && event.getResult() instanceof Notify) {
+      message = ((Notify) event.getResult()).getMessageComponent();
+    }
+    // check if we have a reason component
+    if (message != null) {
+      // check if we should try to translate the message
+      if (message instanceof TranslatableComponent) {
+        message = GlobalTranslator.render(message, playerLocale == null ? Locale.getDefault() : playerLocale);
+      }
+      // if the message is still not a TextComponent use the default message instead
+      if (message instanceof TextComponent) {
+        // wrap the message
+        String baseMessage = this.management.getConfiguration().getMessage(playerLocale, "error-connecting-to-server")
+          .replace("%server%", event.getServer().getServerInfo().getName())
+          .replace("%reason%", LegacyComponentSerializer.legacySection().serialize(message));
+        // format the message
+        return serialize(baseMessage);
+      }
+    }
+    // render the base message without a reason
+    String baseMessage = this.management.getConfiguration().getMessage(playerLocale, "error-connecting-to-server")
+      .replace("%server%", event.getServer().getServerInfo().getName())
+      .replace("%reason%", "§cUnknown");
+    // format the message
+    return serialize(baseMessage);
   }
 }

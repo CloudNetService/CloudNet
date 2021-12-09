@@ -22,6 +22,7 @@ import dev.waterdog.waterdogpe.network.serverinfo.ServerInfo;
 import dev.waterdog.waterdogpe.player.ProxiedPlayer;
 import dev.waterdog.waterdogpe.utils.types.IForcedHostHandler;
 import dev.waterdog.waterdogpe.utils.types.IReconnectHandler;
+import java.util.Locale;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -46,7 +47,12 @@ final class WaterDogPEHandlers implements IForcedHostHandler, IReconnectHandler 
     @NotNull ServerInfo oldServer,
     @NotNull String kickMessage
   ) {
-    return this.management.getFallback(player)
+    // send the player the reason for the disconnect
+    player.sendMessage(this.management.getConfiguration().getMessage(Locale.ENGLISH, "error-connecting-to-server")
+      .replace("%server%", oldServer.getServerName())
+      .replace("%reason%", kickMessage));
+    // filter the next fallback for the player
+    return this.management.getFallback(player, oldServer.getServerName())
       .map(server -> ProxyServer.getInstance().getServerInfo(server.getName()))
       .orElse(null);
   }

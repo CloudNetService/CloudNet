@@ -41,6 +41,7 @@ import net.md_5.bungee.api.event.ServerConnectedEvent;
 import net.md_5.bungee.api.event.ServerKickEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.api.plugin.Plugin;
+import net.md_5.bungee.chat.ComponentSerializer;
 import net.md_5.bungee.event.EventHandler;
 import org.jetbrains.annotations.NotNull;
 
@@ -118,13 +119,20 @@ final class BungeeCordPlayerManagementListener implements Listener {
   @EventHandler
   public void handle(@NotNull ServerKickEvent event) {
     if (event.getPlayer().isConnected()) {
-      ServerInfo target = this.management.getFallback(event.getPlayer())
+      ServerInfo target = this.management.getFallback(event.getPlayer(), event.getKickedFrom().getName())
         .map(service -> ProxyServer.getInstance().getServerInfo(service.getName()))
         .orElse(null);
       // check if the server is present
       if (target != null) {
         event.setCancelled(true);
         event.setCancelServer(target);
+        // extract the reason for the disconnect and wrap it
+        Locale playerLocale = event.getPlayer().getLocale();
+        String baseMessage = this.management.getConfiguration().getMessage(playerLocale, "error-connecting-to-server")
+          .replace("%server%", event.getKickedFrom().getName())
+          .replace("%reason%", ComponentSerializer.toString(event.getKickReasonComponent()));
+        // send the player the reason for the disconnect
+        event.getPlayer().sendMessage(TextComponent.fromLegacyText(baseMessage));
       } else {
         // no lobby server - the player will disconnect
         event.setCancelled(false);

@@ -41,6 +41,7 @@ import java.util.UUID;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 final class VelocityBridgeManagement extends PlatformBridgeManagement<Player, NetworkPlayerProxyInfo> {
 
@@ -114,8 +115,15 @@ final class VelocityBridgeManagement extends PlatformBridgeManagement<Player, Ne
   @Override
   public @NotNull Optional<ServiceInfoSnapshot> getFallback(@NotNull Player player) {
     return this.getFallback(
+      player,
+      player.getCurrentServer().map(connection -> connection.getServerInfo().getName()).orElse(null));
+  }
+
+  @Override
+  public @NotNull Optional<ServiceInfoSnapshot> getFallback(@NotNull Player player, @Nullable String currServer) {
+    return this.getFallback(
       player.getUniqueId(),
-      player.getCurrentServer().map(connection -> connection.getServerInfo().getName()).orElse(null),
+      currServer,
       player.getVirtualHost().map(InetSocketAddress::getHostString).orElse(null),
       player::hasPermission);
   }

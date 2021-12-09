@@ -33,6 +33,7 @@ import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.service.permission.Subject;
@@ -87,11 +88,12 @@ final class SpongeBridgeManagement extends PlatformBridgeManagement<ServerPlayer
 
   @Override
   public @NotNull Optional<ServiceInfoSnapshot> getFallback(@NotNull ServerPlayer player) {
-    return this.getFallback(
-      player.uniqueId(),
-      this.ownNetworkServiceInfo.getServerName(),
-      null,
-      player::hasPermission);
+    return this.getFallback(player, this.ownNetworkServiceInfo.getServerName());
+  }
+
+  @Override
+  public @NotNull Optional<ServiceInfoSnapshot> getFallback(@NotNull ServerPlayer player, @Nullable String currServer) {
+    return this.getFallback(player.uniqueId(), currServer, null, player::hasPermission);
   }
 
   @Override

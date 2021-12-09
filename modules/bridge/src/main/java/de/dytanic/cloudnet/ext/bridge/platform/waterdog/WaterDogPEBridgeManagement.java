@@ -39,6 +39,7 @@ import java.util.UUID;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 final class WaterDogPEBridgeManagement extends PlatformBridgeManagement<ProxiedPlayer, NetworkPlayerProxyInfo> {
 
@@ -109,9 +110,17 @@ final class WaterDogPEBridgeManagement extends PlatformBridgeManagement<ProxiedP
 
   @Override
   public @NotNull Optional<ServiceInfoSnapshot> getFallback(@NotNull ProxiedPlayer player) {
+    return this.getFallback(player, player.getServerInfo() == null ? null : player.getServerInfo().getServerName());
+  }
+
+  @Override
+  public @NotNull Optional<ServiceInfoSnapshot> getFallback(
+    @NotNull ProxiedPlayer player,
+    @Nullable String currServer
+  ) {
     return this.getFallback(
       player.getUniqueId(),
-      player.getServerInfo() == null ? null : player.getServerInfo().getServerName(),
+      currServer,
       player.getLoginData().getJoinHostname(),
       player::hasPermission);
   }

@@ -36,6 +36,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.permissions.Permissible;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 final class BukkitBridgeManagement extends PlatformBridgeManagement<Player, NetworkPlayerServerInfo> {
 
@@ -90,11 +91,12 @@ final class BukkitBridgeManagement extends PlatformBridgeManagement<Player, Netw
 
   @Override
   public @NotNull Optional<ServiceInfoSnapshot> getFallback(@NotNull Player player) {
-    return this.getFallback(
-      player.getUniqueId(),
-      this.ownNetworkServiceInfo.getServerName(),
-      null,
-      player::hasPermission);
+    return this.getFallback(player, this.ownNetworkServiceInfo.getServerName());
+  }
+
+  @Override
+  public @NotNull Optional<ServiceInfoSnapshot> getFallback(@NotNull Player player, @Nullable String currServer) {
+    return this.getFallback(player.getUniqueId(), currServer, null, player::hasPermission);
   }
 
   @Override

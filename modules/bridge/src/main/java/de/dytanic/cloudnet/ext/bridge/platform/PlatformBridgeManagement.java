@@ -154,6 +154,10 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
     return this.cachedServices.values().stream().filter(filter).findFirst();
   }
 
+  public @NotNull Optional<ServiceInfoSnapshot> getCachedService(@NotNull UUID uniqueId) {
+    return Optional.ofNullable(this.cachedServices.get(uniqueId));
+  }
+
   public void handleServiceUpdate(@NotNull ServiceInfoSnapshot snapshot) {
     // if the service is not yet cached check if we need to cache it
     if (!this.cachedServices.containsKey(snapshot.getServiceId().getUniqueId())) {
@@ -310,6 +314,8 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
   public abstract boolean isOnAnyFallbackInstance(@NotNull P player);
 
   public abstract @NotNull Optional<ServiceInfoSnapshot> getFallback(@NotNull P player);
+
+  public abstract @NotNull Optional<ServiceInfoSnapshot> getFallback(@NotNull P player, @Nullable String currServer);
 
   public abstract void handleFallbackConnectionSuccess(@NotNull P player);
 

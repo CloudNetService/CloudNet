@@ -49,6 +49,7 @@ public final class BridgeConfiguration extends JsonDocPropertyHolder {
       .put("proxy-join-disconnect-because-no-hub", "§cThere is currently no hub server you can connect to.")
       .put("command-cloud-sub-command-no-permission", "§7You are not allowed to use §b%command%.")
       .put("already-connected", "§cYou are already connected to this network!")
+      .put("error-connecting-to-server", "§cUnable to connect to %server%: %reason%")
       .build()));
 
   private final String prefix;

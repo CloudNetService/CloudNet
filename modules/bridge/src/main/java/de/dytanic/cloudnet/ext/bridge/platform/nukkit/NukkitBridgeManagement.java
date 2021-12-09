@@ -35,6 +35,7 @@ import java.util.UUID;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 final class NukkitBridgeManagement extends PlatformBridgeManagement<Player, NetworkPlayerServerInfo> {
 
@@ -86,11 +87,12 @@ final class NukkitBridgeManagement extends PlatformBridgeManagement<Player, Netw
 
   @Override
   public @NotNull Optional<ServiceInfoSnapshot> getFallback(@NotNull Player player) {
-    return this.getFallback(
-      player.getUniqueId(),
-      this.ownNetworkServiceInfo.getServerName(),
-      null,
-      player::hasPermission);
+    return this.getFallback(player, this.ownNetworkServiceInfo.getServerName());
+  }
+
+  @Override
+  public @NotNull Optional<ServiceInfoSnapshot> getFallback(@NotNull Player player, @Nullable String currServer) {
+    return this.getFallback(player.getUniqueId(), currServer, null, player::hasPermission);
   }
 
   @Override

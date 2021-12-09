@@ -105,9 +105,17 @@ final class BungeeCordBridgeManagement extends PlatformBridgeManagement<ProxiedP
 
   @Override
   public @NotNull Optional<ServiceInfoSnapshot> getFallback(@NotNull ProxiedPlayer player) {
+    return this.getFallback(player, player.getServer() == null ? null : player.getServer().getInfo().getName());
+  }
+
+  @Override
+  public @NotNull Optional<ServiceInfoSnapshot> getFallback(
+    @NotNull ProxiedPlayer player,
+    @Nullable String currServer
+  ) {
     return this.getFallback(
       player.getUniqueId(),
-      player.getServer() == null ? null : player.getServer().getInfo().getName(),
+      currServer,
       this.getVirtualHostString(player.getPendingConnection()),
       player::hasPermission);
   }
