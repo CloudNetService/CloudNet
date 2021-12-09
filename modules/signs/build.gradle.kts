@@ -15,6 +15,10 @@
  *
  */
 
+plugins {
+  id("com.github.johnrengelman.shadow") version Versions.shadow
+}
+
 tasks.withType<Jar> {
   archiveFileName.set(Files.signs)
 }
@@ -23,6 +27,7 @@ dependencies {
   "compileOnly"(projects.cloudnetWrapperJvm)
   "compileOnly"(projects.cloudnetExt.adventureHelper)
   "moduleDependency"(projects.cloudnetModules.bridge)
+  "implementation"(projects.cloudnetExt.bukkitCommand)
 
   "compileOnly"(libs.bundles.serverPlatform)
 }

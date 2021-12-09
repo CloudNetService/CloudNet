@@ -17,32 +17,24 @@
 package eu.cloudnetservice.cloudnet.ext.signs.platform.bukkit.functionality;
 
 import com.google.common.collect.ImmutableList;
+import de.dytanic.cloudnet.driver.CloudNetDriver;
+import de.dytanic.cloudnet.driver.service.GroupConfiguration;
+import eu.cloudnetservice.cloudnet.bukkitcommands.BaseTabExecutor;
 import eu.cloudnetservice.cloudnet.ext.signs.Sign;
 import eu.cloudnetservice.cloudnet.ext.signs.configuration.SignConfigurationEntry;
 import eu.cloudnetservice.cloudnet.ext.signs.platform.PlatformSignManagement;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
+import java.util.Collection;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
-import org.bukkit.util.StringUtil;
+import org.jetbrains.annotations.NotNull;
 
-public class CommandSigns implements TabExecutor {
-
-  protected static final String[] HELP = new String[]{
-    "§7/cloudsigns create <targetGroup> [templatePath]",
-    "§7/cloudsigns remove",
-    "§7/cloudsigns removeAll",
-    "§7/cloudsigns cleanup"
-  };
-
-  // all subcommands of the signs command
-  protected static final List<String> COMMANDS = Arrays.asList("create", "remove", "removeall", "cleanup");
+public class CommandSigns extends BaseTabExecutor {
 
   protected final PlatformSignManagement<org.bukkit.block.Sign> signManagement;
 
@@ -66,20 +58,26 @@ public class CommandSigns implements TabExecutor {
 
     if ((args.length == 2 || args.length == 3) && args[0].equalsIgnoreCase("create")) {
       Block targetBlock = player.getTargetBlock((Set<Material>) null, 15);
+      // check if the block the player is facing is a sign
       if (targetBlock.getState() instanceof org.bukkit.block.Sign) {
+        // validate that the sign isn't existing already
         Sign sign = this.signManagement.getSignAt((org.bukkit.block.Sign) targetBlock.getState());
         if (sign != null) {
-          this.signManagement.getSignsConfiguration().sendMessage("command-cloudsign-sign-already-exist",
+          this.signManagement.getSignsConfiguration().sendMessage(
+            "command-cloudsign-sign-already-exist",
             player::sendMessage, m -> m.replace("%group%", sign.getTargetGroup()));
           return true;
         }
 
+        // create the sign
         Sign createdSign = this.signManagement.createSign(
           (org.bukkit.block.Sign) targetBlock.getState(),
-          args[1], args.length == 3 ? args[2] : null
-        );
+          args[1],
+          args.length == 3 ? args[2] : null);
         if (createdSign != null) {
-          this.signManagement.getSignsConfiguration().sendMessage("command-cloudsign-create-success",
+          // success
+          this.signManagement.getSignsConfiguration().sendMessage(
+            "command-cloudsign-create-success",
             player::sendMessage, m -> m.replace("%group%", createdSign.getTargetGroup()));
         }
       } else {
@@ -89,27 +87,37 @@ public class CommandSigns implements TabExecutor {
 
       return true;
     } else if (args.length == 1 && args[0].equalsIgnoreCase("cleanup")) {
+      // removes all signs on which location is not a sign anymore
       int removed = this.signManagement.removeMissingSigns();
-      this.signManagement.getSignsConfiguration().sendMessage("command-cloudsign-cleanup-success", player::sendMessage,
+      this.signManagement.getSignsConfiguration().sendMessage(
+        "command-cloudsign-cleanup-success",
+        player::sendMessage,
         m -> m.replace("%amount%", Integer.toString(removed)));
       return true;
     } else if (args.length == 1 && args[0].equalsIgnoreCase("removeall")) {
+      // deletes all signs
       int removed = this.signManagement.deleteAllSigns();
-      this.signManagement.getSignsConfiguration()
-        .sendMessage("command-cloudsign-bulk-remove-success", player::sendMessage,
-          m -> m.replace("%amount%", Integer.toString(removed)));
+      this.signManagement.getSignsConfiguration().sendMessage(
+        "command-cloudsign-bulk-remove-success",
+        player::sendMessage,
+        m -> m.replace("%amount%", Integer.toString(removed)));
       return true;
     } else if (args.length == 1 && args[0].equalsIgnoreCase("remove")) {
+      // check if the player is facing a sign
       Block targetBlock = player.getTargetBlock((Set<Material>) null, 15);
       if (targetBlock.getState() instanceof org.bukkit.block.Sign) {
+        // check if the sign exists
         Sign sign = this.signManagement.getSignAt((org.bukkit.block.Sign) targetBlock.getState());
         if (sign == null) {
-          this.signManagement.getSignsConfiguration()
-            .sendMessage("command-cloudsign-remove-not-existing", player::sendMessage);
+          this.signManagement.getSignsConfiguration().sendMessage(
+            "command-cloudsign-remove-not-existing",
+            player::sendMessage);
         } else {
+          // remove the sign
           this.signManagement.deleteSign(sign);
-          this.signManagement.getSignsConfiguration()
-            .sendMessage("command-cloudsign-remove-success", player::sendMessage);
+          this.signManagement.getSignsConfiguration().sendMessage(
+            "command-cloudsign-remove-success",
+            player::sendMessage);
         }
       } else {
         this.signManagement.getSignsConfiguration()
@@ -118,17 +126,26 @@ public class CommandSigns implements TabExecutor {
 
       return true;
     }
-
-    sender.sendMessage(HELP);
+    // unknown command
+    sender.sendMessage("§7/cloudsigns create <targetGroup> [templatePath]");
+    sender.sendMessage("§7/cloudsigns remove");
+    sender.sendMessage("§7/cloudsigns removeAll");
+    sender.sendMessage("§7/cloudsigns cleanup");
     return true;
   }
 
   @Override
-  public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+  public @NotNull Collection<String> tabComplete(@NotNull CommandSender sender, String @NotNull [] args) {
     if (args.length == 1) {
       // filter for all strings that partially match the input of the player
-      return StringUtil.copyPartialMatches(args[0], COMMANDS, new ArrayList<>());
+      return Arrays.asList("create", "remove", "removeall", "cleanup");
     }
+    if (args.length == 2 && args[0].equalsIgnoreCase("create")) {
+      return CloudNetDriver.getInstance().getGroupConfigurationProvider().getGroupConfigurations().stream()
+        .map(GroupConfiguration::getName)
+        .collect(Collectors.toList());
+    }
+    // unable to tab complete
     return ImmutableList.of();
   }
 }
