@@ -37,6 +37,7 @@ final class CloudNetServiceListener {
         this.management.handleServiceUpdate(event.getServiceInfo());
         break;
       case STOPPED:
+      case DELETED:
         this.management.handleServiceRemove(event.getServiceInfo());
         break;
       default:
