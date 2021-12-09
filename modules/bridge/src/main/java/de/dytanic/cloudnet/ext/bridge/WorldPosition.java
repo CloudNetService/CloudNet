@@ -16,7 +16,7 @@
 
 package de.dytanic.cloudnet.ext.bridge;
 
-import com.google.gson.reflect.TypeToken;
+import com.google.common.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.Objects;
@@ -27,7 +27,8 @@ import org.jetbrains.annotations.Nullable;
 @ToString
 public class WorldPosition {
 
-  public static final Type COL_TYPE = TypeToken.getParameterized(Collection.class, WorldPosition.class).getType();
+  public static final Type COL_TYPE = new TypeToken<Collection<WorldPosition>>() {
+  }.getType();
 
   protected final double x;
   protected final double y;

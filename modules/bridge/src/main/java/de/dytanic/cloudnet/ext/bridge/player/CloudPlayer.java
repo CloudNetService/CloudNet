@@ -16,12 +16,9 @@
 
 package de.dytanic.cloudnet.ext.bridge.player;
 
-import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.ext.bridge.player.executor.PlayerExecutor;
-import java.lang.reflect.Type;
-import java.util.Collection;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.jetbrains.annotations.NotNull;
@@ -30,8 +27,6 @@ import org.jetbrains.annotations.Nullable;
 @ToString
 @EqualsAndHashCode(callSuper = false)
 public class CloudPlayer extends CloudOfflinePlayer {
-
-  public static final Type COLLECTION_TYPE = TypeToken.getParameterized(Collection.class, CloudPlayer.class).getType();
 
   protected NetworkServiceInfo loginService;
   protected NetworkServiceInfo connectedService;

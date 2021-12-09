@@ -19,7 +19,7 @@ package de.dytanic.cloudnet.ext.bridge;
 import static de.dytanic.cloudnet.driver.service.property.DefaultJsonServiceProperty.createFromClass;
 import static de.dytanic.cloudnet.driver.service.property.DefaultJsonServiceProperty.createFromType;
 
-import com.google.gson.reflect.TypeToken;
+import com.google.common.reflect.TypeToken;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
@@ -92,7 +92,8 @@ public final class BridgeServiceProperties {
    */
   public static final ServiceProperty<Collection<ServicePlayer>> PLAYERS = DefaultModifiableServiceProperty
     .<Collection<JsonDocument>, Collection<ServicePlayer>>wrap(
-      createFromType("Players", TypeToken.getParameterized(Collection.class, JsonDocument.class).getType()))
+      createFromType("Players", new TypeToken<Collection<JsonDocument>>() {
+      }.getType()))
     .modifyGet(($, documents) -> documents.stream().map(ServicePlayer::new).collect(Collectors.toList()));
 
   private BridgeServiceProperties() {
