@@ -43,9 +43,9 @@ public class EntityBukkitPlatformSelectorEntity extends BukkitPlatformSelectorEn
   protected static final Class<?> CRAFT_ENTITY = ReflectionUtil.findCraftBukkitClass("entity.CraftEntity");
 
   protected static final MethodHandle GET_HANDLE = findMethod(CRAFT_ENTITY, "getHandle");
-  protected static final MethodHandle LOAD = findMethod(ENTITY, new Class[]{NBT}, "g", "f");
+  protected static final MethodHandle LOAD = findMethod(ENTITY, new Class[]{NBT}, "g", "f", "load");
   protected static final MethodHandle SAVE = findMethod(ENTITY, new Class[]{NBT}, "e", "save");
-  protected static final MethodHandle SET = findMethod(NBT, new Class[]{String.class, int.class}, "a", "setInt");
+  protected static final MethodHandle SET = findMethod(NBT, new Class[]{String.class, int.class}, "setInt", "a");
 
   protected static final MethodHandle NEW_NBT = ReflectionUtil.findConstructor(NBT);
 
