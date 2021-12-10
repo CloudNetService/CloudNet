@@ -35,6 +35,7 @@ import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.ext.bridge.BridgeManagement;
 import de.dytanic.cloudnet.ext.bridge.config.BridgeConfiguration;
 import de.dytanic.cloudnet.ext.bridge.config.ProxyFallbackConfiguration;
+import de.dytanic.cloudnet.ext.bridge.node.command.CommandBridge;
 import de.dytanic.cloudnet.ext.bridge.rpc.ComponentObjectSerializer;
 import de.dytanic.cloudnet.ext.bridge.rpc.TitleObjectSerializer;
 import java.nio.file.Files;
@@ -178,5 +179,7 @@ public final class CloudNetBridgeModule extends DriverModule {
       .singletonCollector(management::getConfiguration)
       .currentGetter($ -> management.getConfiguration())
       .build());
+    // register the bridge command
+    CloudNet.getInstance().getCommandProvider().register(new CommandBridge(management));
   }
 }

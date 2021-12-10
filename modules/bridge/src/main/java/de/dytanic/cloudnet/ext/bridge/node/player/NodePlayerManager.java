@@ -37,6 +37,7 @@ import de.dytanic.cloudnet.ext.bridge.event.BridgeProxyPlayerDisconnectEvent;
 import de.dytanic.cloudnet.ext.bridge.event.BridgeProxyPlayerLoginEvent;
 import de.dytanic.cloudnet.ext.bridge.event.BridgeUpdateCloudOfflinePlayerEvent;
 import de.dytanic.cloudnet.ext.bridge.event.BridgeUpdateCloudPlayerEvent;
+import de.dytanic.cloudnet.ext.bridge.node.command.CommandPlayers;
 import de.dytanic.cloudnet.ext.bridge.node.listener.BridgeLocalProxyPlayerDisconnectListener;
 import de.dytanic.cloudnet.ext.bridge.node.listener.BridgePluginIncludeListener;
 import de.dytanic.cloudnet.ext.bridge.node.network.NodePlayerChannelMessageListener;
@@ -100,6 +101,8 @@ public class NodePlayerManager implements IPlayerManager {
     eventManager.registerListener(new BridgePluginIncludeListener(bridgeManagement));
     eventManager.registerListener(new BridgeLocalProxyPlayerDisconnectListener(this));
     eventManager.registerListener(new NodePlayerChannelMessageListener(eventManager, this, bridgeManagement));
+    // register the players command
+    CloudNet.getInstance().getCommandProvider().register(new CommandPlayers(this));
     // register the rpc listeners
     providerFactory.newHandler(IPlayerManager.class, this).registerToDefaultRegistry();
     providerFactory.newHandler(PlayerExecutor.class, null).registerToDefaultRegistry();
