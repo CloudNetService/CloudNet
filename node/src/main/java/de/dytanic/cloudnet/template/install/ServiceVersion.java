@@ -97,6 +97,14 @@ public class ServiceVersion implements INameable {
     this.url = url;
   }
 
+  public @NotNull Optional<JavaVersion> getMinJavaVersion() {
+    return JavaVersion.fromVersion(this.minJavaVersion);
+  }
+
+  public @NotNull Optional<JavaVersion> getMaxJavaVersion() {
+    return JavaVersion.fromVersion(this.maxJavaVersion);
+  }
+
   public @NotNull JsonDocument getProperties() {
     return this.properties;
   }

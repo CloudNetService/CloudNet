@@ -35,6 +35,8 @@ import de.dytanic.cloudnet.common.INameable;
 import de.dytanic.cloudnet.common.JavaVersion;
 import de.dytanic.cloudnet.common.WildcardUtil;
 import de.dytanic.cloudnet.common.collection.Pair;
+import de.dytanic.cloudnet.common.column.ColumnFormatter;
+import de.dytanic.cloudnet.common.column.RowBasedFormatter;
 import de.dytanic.cloudnet.common.language.I18n;
 import de.dytanic.cloudnet.console.IConsole;
 import de.dytanic.cloudnet.console.animation.setup.ConsoleSetupAnimation;
@@ -63,8 +65,8 @@ import org.jetbrains.annotations.Nullable;
 @Description("Administers the configurations of all persistent tasks")
 public final class CommandTasks {
 
+  // Task Setup ASCII
   private static final ConsoleSetupAnimation TASK_SETUP = new ConsoleSetupAnimation(
-    // Task Setup ASCII
     "&f _____              _       &b           _                 \n" +
       "&f/__   \\  __ _  ___ | | __  &b ___   ___ | |_  _   _  _ __  \n" +
       "&f  / /\\/ / _` |/ __|| |/ /  &b/ __| / _ \\| __|| | | || '_ \\ \n" +
@@ -73,6 +75,17 @@ public final class CommandTasks {
       "&f                             &b                     |_|    ",
     "Task creation complete!",
     "&r> &e");
+  // Formatter for the table based looking
+  private static final RowBasedFormatter<ServiceTask> TASK_LIST_FORMATTER = RowBasedFormatter.<ServiceTask>builder()
+    .defaultFormatter(ColumnFormatter.builder()
+      .columnTitles("Name", "MinServiceCount", "Maintenance", "Nodes", "StartPort")
+      .build())
+    .column(ServiceTask::getName)
+    .column(ServiceTask::getMinServiceCount)
+    .column(ServiceTask::isMaintenance)
+    .column(task -> task.getAssociatedNodes().isEmpty() ? "All" : String.join(", ", task.getAssociatedNodes()))
+    .column(ServiceTask::getStartPort)
+    .build();
 
   private final IConsole console;
 
@@ -167,9 +180,7 @@ public final class CommandTasks {
 
   @CommandMethod("tasks list")
   public void listTasks(CommandSource source) {
-    for (ServiceTask task : this.taskProvider().getPermanentServiceTasks()) {
-      this.singleTaskInfo(source, task);
-    }
+    source.sendMessage(TASK_LIST_FORMATTER.format(this.taskProvider().getPermanentServiceTasks()));
   }
 
   @CommandMethod("tasks create <name> <environment>")
@@ -680,16 +691,6 @@ public final class CommandTasks {
 
   private void updateTaskDirect(ServiceTask task, @NotNull Consumer<ServiceTask> consumer) {
     consumer.andThen(this::updateTask).accept(task);
-  }
-
-  private void singleTaskInfo(CommandSource source, ServiceTask task) {
-    source.sendMessage(task.getName() +
-      " | MinServiceCount: " + task.getMinServiceCount() +
-      " | Maintenance: " + task.isMaintenance() +
-      " | Nodes: " + (task.getAssociatedNodes().isEmpty() ? "All"
-      : Arrays.toString(task.getAssociatedNodes().toArray())) +
-      " | StartPort: " + task.getStartPort()
-    );
   }
 
   private Collection<String> parseExcludes(@Nullable String excludes) {

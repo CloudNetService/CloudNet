@@ -26,15 +26,23 @@ import de.dytanic.cloudnet.command.annotation.CommandAlias;
 import de.dytanic.cloudnet.command.annotation.Description;
 import de.dytanic.cloudnet.command.exception.ArgumentNotAvailableException;
 import de.dytanic.cloudnet.command.source.CommandSource;
+import de.dytanic.cloudnet.common.column.ColumnFormatter;
+import de.dytanic.cloudnet.common.column.RowBasedFormatter;
 import de.dytanic.cloudnet.common.language.I18n;
 import de.dytanic.cloudnet.driver.command.CommandInfo;
-import java.util.Collection;
 import java.util.Queue;
 
 @CommandAlias({"ask", "?"})
 @CommandPermission("cloudnet.command.help")
 @Description("Shows all commands and their description")
 public final class CommandHelp {
+
+  private static final RowBasedFormatter<CommandInfo> HELP_LIST_FORMATTER = RowBasedFormatter.<CommandInfo>builder()
+    .defaultFormatter(ColumnFormatter.builder().columnTitles("Name(s)", "Description", "Permission").build())
+    .column(info -> info.joinNameToAliases(", "))
+    .column(CommandInfo::getDescription)
+    .column(CommandInfo::getPermission)
+    .build();
 
   private final CommandProvider commandProvider;
 
@@ -55,13 +63,7 @@ public final class CommandHelp {
 
   @CommandMethod("help|ask|?")
   public void displayHelp(CommandSource source) {
-    Collection<CommandInfo> registeredCommands = this.commandProvider.getCommands();
-    for (CommandInfo command : registeredCommands) {
-      //TODO: format
-      source.sendMessage(
-        "Name: " + command.joinNameToAliases(", ") + " | Permission: " + command.getPermission() + " - "
-          + command.getDescription());
-    }
+    source.sendMessage(HELP_LIST_FORMATTER.format(this.commandProvider.getCommands()));
   }
 
   @CommandMethod("help|ask|? <command>")
