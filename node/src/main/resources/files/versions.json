@@ -80,11 +80,11 @@
               "-Dpaperclip.patchonly=true"
             ],
             "fetchOverPaperApi": true,
-            "versionGroup": "1.18"
+            "versionGroup": "1.18.1"
           }
         },
         {
-          "name": "1.18",
+          "name": "1.18.1",
           "minJavaVersion": 17,
           "properties": {
             "copy": {
@@ -96,25 +96,26 @@
               "-Dpaperclip.patchonly=true"
             ],
             "fetchOverPaperApi": true,
-            "versionGroup": "1.18"
+            "versionGroup": "1.18.1"
           }
         },
         {
           "name": "1.17.1",
           "minJavaVersion": 16,
-          "url": "https://papermc.io/api/v2/projects/paper/versions/1.17.1/builds/391/downloads/paper-1.17.1-391.jar",
           "properties": {
             "copy": {
               "cache/patched.*\\.jar": "paper.jar"
             },
             "jvmOptions": [
               "-Dpaperclip.patchonly=true"
-            ]
+            ],
+            "fetchOverPaperApi": true,
+            "versionGroup": "1.17.1"
           }
         },
         {
           "name": "1.16.5",
-          "url": "https://papermc.io/api/v2/projects/paper/versions/1.16.5/builds/790/downloads/paper-1.16.5-790.jar",
+          "url": "https://papermc.io/api/v2/projects/paper/versions/1.16.5/builds/790/downloads/paper-1.16.5-792.jar",
           "properties": {
             "copy": {
               "cache/patched.*\\.jar": "paper.jar"
@@ -297,13 +298,13 @@
       "versions": [
         {
           "name": "latest",
-          "url": "https://download.getbukkit.org/spigot/spigot-1.18.jar",
+          "url": "https://download.getbukkit.org/spigot/spigot-1.18.1.jar",
           "cacheFiles": false,
           "minJavaVersion": 17
         },
         {
-          "name": "1.18",
-          "url": "https://download.getbukkit.org/spigot/spigot-1.18.jar",
+          "name": "1.18.1",
+          "url": "https://download.getbukkit.org/spigot/spigot-1.18.1.jar",
           "minJavaVersion": 17
         },
         {
