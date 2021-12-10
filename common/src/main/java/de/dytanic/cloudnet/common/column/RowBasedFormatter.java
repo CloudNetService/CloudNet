@@ -53,7 +53,14 @@ public class RowBasedFormatter<T> {
         formatted[y] = Objects.toString(this.columns.get(i).apply(contents.get(y)));
       }
       // wrap the formatted string to a column entry
-      result[i] = ColumnEntry.wrap(formatted);
+      ColumnEntry entry = ColumnEntry.wrap(formatted);
+      // validate that the entry is valid
+      if (entry.getFormattedEntries().length == 0
+        || (i != 0 && result[i - 1].getFormattedEntries().length != entry.getFormattedEntries().length)) {
+        return new ColumnEntry[0];
+      }
+      // all valid - append
+      result[i] = entry;
     }
     // success!
     return result;

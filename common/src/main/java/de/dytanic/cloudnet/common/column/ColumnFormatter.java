@@ -20,6 +20,7 @@ import com.google.common.base.Verify;
 import de.dytanic.cloudnet.common.StringUtil;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import org.jetbrains.annotations.NotNull;
@@ -64,9 +65,9 @@ public class ColumnFormatter {
     if (entries.length == 0) {
       if (this.formattedColumnTitles == null) {
         // initial formatting of the titles
-        Collection<String> result = new LinkedList<>();
+        StringBuilder builder = new StringBuilder();
         for (String columnTitle : this.columnTitles) {
-          result.add(String.format(
+          builder.append(String.format(
             ENTRY_FORMAT,
             this.columnLeftBracket,
             this.leftSpacer,
@@ -75,7 +76,7 @@ public class ColumnFormatter {
             this.columnRightBracket));
         }
         // cache the result
-        this.formattedColumnTitles = result;
+        this.formattedColumnTitles = Collections.singleton(builder.toString());
       }
       // use the cached formatted title
       return this.formattedColumnTitles;

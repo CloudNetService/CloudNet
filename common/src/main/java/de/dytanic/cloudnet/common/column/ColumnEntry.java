@@ -16,10 +16,7 @@
 
 package de.dytanic.cloudnet.common.column;
 
-import com.google.common.base.Verify;
 import de.dytanic.cloudnet.common.StringUtil;
-import java.util.Arrays;
-import java.util.Comparator;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Range;
 
@@ -34,21 +31,19 @@ public final class ColumnEntry {
   }
 
   public static @NotNull ColumnEntry wrap(@NotNull String @NotNull ... entries) {
-    Verify.verify(entries.length > 0, "At least one entry must be given");
-    // sort the entries - the shortest entry will be the first one, the longest the last one
-    Arrays.sort(entries, Comparator.comparingInt(String::length));
     // get the longest entry and fill all other entries with spaces
-    int longestLength = entries[entries.length - 1].length();
+    int longestLength = 0;
+    for (String entry : entries) {
+      longestLength = Math.max(longestLength, entry.length());
+    }
+    // bring all entries to one length by appending spaces
     for (int i = 0; i < entries.length; i++) {
       String entry = entries[i];
       int entryLength = entry.length();
       // check if spaces are required
       if (entryLength < longestLength) {
         entries[i] = entry + StringUtil.repeat(' ', longestLength - entryLength);
-        continue;
       }
-      // no spaces required - we can safely stop now as all following entries will have the same size as the longest one
-      break;
     }
     // parsing successful!
     return new ColumnEntry(longestLength, entries);
