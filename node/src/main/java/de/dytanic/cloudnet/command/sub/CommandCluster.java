@@ -32,6 +32,8 @@ import de.dytanic.cloudnet.command.annotation.CommandAlias;
 import de.dytanic.cloudnet.command.annotation.Description;
 import de.dytanic.cloudnet.command.exception.ArgumentNotAvailableException;
 import de.dytanic.cloudnet.command.source.CommandSource;
+import de.dytanic.cloudnet.common.column.ColumnFormatter;
+import de.dytanic.cloudnet.common.column.RowBasedFormatter;
 import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.common.language.I18n;
 import de.dytanic.cloudnet.common.log.LogManager;
@@ -66,8 +68,31 @@ import org.jetbrains.annotations.NotNull;
 @Description("Manages the cluster and provides information about it")
 public final class CommandCluster {
 
-  private static final DateFormat DEFAULT_FORMAT = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
   private static final Logger LOGGER = LogManager.getLogger(CommandCluster.class);
+  private static final DateFormat DEFAULT_FORMAT = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
+  private static final RowBasedFormatter<IClusterNodeServer> FORMATTER = RowBasedFormatter.<IClusterNodeServer>builder()
+    .defaultFormatter(ColumnFormatter.builder().columnTitles("Name", "State", "Listeners").build())
+    .column(server -> server.getNodeInfo().getUniqueId())
+    .column(server -> {
+      // we can display much more information if the node is connected
+      if (server.isConnected()) {
+        if (server.isHeadNode() && server.isDrain()) {
+          return "Connected (Head, Draining)";
+        } else if (server.isHeadNode()) {
+          return "Connected (Head)";
+        } else if (server.isDrain()) {
+          return "Connected (Draining)";
+        } else {
+          return "Connected";
+        }
+      } else {
+        return "Not connected";
+      }
+    })
+    .column(server -> Arrays.stream(server.getNodeInfo().getListeners())
+      .map(HostAndPort::toString)
+      .collect(Collectors.joining(", ")))
+    .build();
 
   @Parser(suggestions = "clusterNodeServer")
   public IClusterNodeServer defaultClusterNodeServerParser(CommandContext<CommandSource> $, Queue<String> input) {
@@ -227,9 +252,7 @@ public final class CommandCluster {
 
   @CommandMethod("cluster|clu nodes")
   public void listNodes(CommandSource source) {
-    for (IClusterNodeServer nodeServer : CloudNet.getInstance().getClusterNodeServerProvider().getNodeServers()) {
-      this.displayNode(source, nodeServer);
-    }
+    source.sendMessage(FORMATTER.format(CloudNet.getInstance().getClusterNodeServerProvider().getNodeServers()));
   }
 
   @CommandMethod("cluster|clu node <nodeId>")

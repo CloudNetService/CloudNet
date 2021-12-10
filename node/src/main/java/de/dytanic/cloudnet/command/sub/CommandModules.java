@@ -28,6 +28,8 @@ import de.dytanic.cloudnet.command.annotation.CommandAlias;
 import de.dytanic.cloudnet.command.annotation.Description;
 import de.dytanic.cloudnet.command.exception.ArgumentNotAvailableException;
 import de.dytanic.cloudnet.command.source.CommandSource;
+import de.dytanic.cloudnet.common.column.ColumnFormatter;
+import de.dytanic.cloudnet.common.column.RowBasedFormatter;
 import de.dytanic.cloudnet.common.language.I18n;
 import de.dytanic.cloudnet.driver.module.IModuleProvider;
 import de.dytanic.cloudnet.driver.module.IModuleWrapper;
@@ -47,6 +49,17 @@ import org.jetbrains.annotations.NotNull;
 @CommandPermission("cloudnet.commands.modules")
 @Description("Manages all available modules and loading new modules after the start")
 public final class CommandModules {
+
+  private static final RowBasedFormatter<IModuleWrapper> MODULES_FORMATTER = RowBasedFormatter.<IModuleWrapper>builder()
+    .defaultFormatter(ColumnFormatter.builder()
+      .columnTitles("Name", "Version", "Author", "Lifecycle", "Description")
+      .build())
+    .column(wrapper -> wrapper.getModule().getName())
+    .column(wrapper -> wrapper.getModule().getVersion())
+    .column(wrapper -> wrapper.getModuleConfiguration().getAuthor())
+    .column(IModuleWrapper::getModuleLifeCycle)
+    .column(wrapper -> wrapper.getModuleConfiguration().getDescription())
+    .build();
 
   private final IModuleProvider provider = CloudNet.getInstance().getModuleProvider();
 
@@ -188,10 +201,7 @@ public final class CommandModules {
 
   @CommandMethod("modules|module list")
   public void listModules(CommandSource source) {
-    source.sendMessage("Loaded " + this.provider.getModules().size() + " modules");
-    for (IModuleWrapper module : this.provider.getModules()) {
-      this.printBasicModuleInfos(source, module);
-    }
+    source.sendMessage(MODULES_FORMATTER.format(this.provider.getModules()));
   }
 
   @CommandMethod("modules|module load <module>")

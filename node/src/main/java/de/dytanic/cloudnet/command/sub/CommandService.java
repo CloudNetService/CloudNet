@@ -33,6 +33,8 @@ import de.dytanic.cloudnet.command.source.CommandSource;
 import de.dytanic.cloudnet.common.INameable;
 import de.dytanic.cloudnet.common.WildcardUtil;
 import de.dytanic.cloudnet.common.collection.Pair;
+import de.dytanic.cloudnet.common.column.ColumnFormatter;
+import de.dytanic.cloudnet.common.column.RowBasedFormatter;
 import de.dytanic.cloudnet.common.language.I18n;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
@@ -63,6 +65,20 @@ public final class CommandService {
 
   private static final Logger LOGGER = LogManager.getLogger(CommandService.class);
   private static final DateFormat DATE_FORMAT = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
+
+  // there are different ways to display the services
+  private static final RowBasedFormatter<ServiceInfoSnapshot> NAMES_ONLY = RowBasedFormatter.<ServiceInfoSnapshot>builder()
+    .defaultFormatter(ColumnFormatter.builder().columnTitles("Name", "UID").build())
+    .column(ServiceInfoSnapshot::getName)
+    .column(service -> service.getServiceId().getUniqueId())
+    .build();
+  private static final RowBasedFormatter<ServiceInfoSnapshot> SERVICES = RowBasedFormatter.<ServiceInfoSnapshot>builder()
+    .defaultFormatter(ColumnFormatter.builder().columnTitles("Name", "Lifecycle", "Node", "State").build())
+    .column(ServiceInfoSnapshot::getName)
+    .column(ServiceInfoSnapshot::getLifeCycle)
+    .column(service -> service.getServiceId().getNodeUniqueId())
+    .column(service -> service.isConnected() ? "Connected" : "Not connected")
+    .build();
 
   public CommandService() {
     CloudNet.getInstance().getEventManager().registerListener(this);
@@ -104,18 +120,11 @@ public final class CommandService {
       .sorted()
       .collect(Collectors.toList());
 
-    for (ServiceInfoSnapshot serviceInfoSnapshot : services) {
-      if (useNamesOnly) {
-        source.sendMessage(
-          serviceInfoSnapshot.getServiceId().getName() + " | " + serviceInfoSnapshot.getServiceId().getUniqueId());
-      } else {
-        source.sendMessage(
-          "Name: " + serviceInfoSnapshot.getServiceId().getName() +
-            " | Lifecycle: " + serviceInfoSnapshot.getLifeCycle() +
-            " | Node: " + serviceInfoSnapshot.getServiceId().getNodeUniqueId() +
-            " | " + (serviceInfoSnapshot.isConnected() ? "Connected" : "Not Connected")
-        );
-      }
+    // there are different ways to list services
+    if (useNamesOnly) {
+      source.sendMessage(NAMES_ONLY.format(services));
+    } else {
+      source.sendMessage(SERVICES.format(services));
     }
 
     source.sendMessage(String.format("=> Showing %d service(s)", services.size()));

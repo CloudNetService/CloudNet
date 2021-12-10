@@ -31,6 +31,9 @@ import de.dytanic.cloudnet.command.exception.ArgumentNotAvailableException;
 import de.dytanic.cloudnet.command.source.CommandSource;
 import de.dytanic.cloudnet.common.INameable;
 import de.dytanic.cloudnet.common.JavaVersion;
+import de.dytanic.cloudnet.common.collection.Pair;
+import de.dytanic.cloudnet.common.column.ColumnFormatter;
+import de.dytanic.cloudnet.common.column.RowBasedFormatter;
 import de.dytanic.cloudnet.common.language.I18n;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
@@ -43,6 +46,8 @@ import de.dytanic.cloudnet.template.install.ServiceVersionType;
 import de.dytanic.cloudnet.util.JavaVersionResolver;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Queue;
 import java.util.stream.Collectors;
@@ -52,6 +57,24 @@ import java.util.zip.ZipInputStream;
 @CommandPermission("cloudnet.command.templates")
 @Description("Manages the templates and allows installation of application files")
 public final class CommandTemplate {
+
+  private static final RowBasedFormatter<ServiceTemplate> LIST_FORMATTER = RowBasedFormatter.<ServiceTemplate>builder()
+    .defaultFormatter(ColumnFormatter.builder().columnTitles("Storage", "Prefix", "Name").build())
+    .column(ServiceTemplate::getStorage)
+    .column(ServiceTemplate::getPrefix)
+    .column(ServiceTemplate::getName)
+    .build();
+  private static final RowBasedFormatter<Pair<ServiceVersionType, ServiceVersion>> VERSIONS =
+    RowBasedFormatter.<Pair<ServiceVersionType, ServiceVersion>>builder()
+      .defaultFormatter(ColumnFormatter.builder()
+        .columnTitles("Target", "Name", "Deprecated", "Min Java", "Max Java")
+        .build())
+      .column(pair -> pair.getFirst().getName())
+      .column(pair -> pair.getSecond().getName())
+      .column(pair -> pair.getSecond().isDeprecated())
+      .column(pair -> pair.getSecond().getMinJavaVersion().orElse(JavaVersion.JAVA_8).getName())
+      .column(pair -> pair.getSecond().getMaxJavaVersion().map(JavaVersion::getName).orElse("No maximum"))
+      .build();
 
   @Parser(suggestions = "serviceTemplate")
   public ServiceTemplate defaultServiceTemplateParser(CommandContext<CommandSource> $, Queue<String> input) {
@@ -128,40 +151,41 @@ public final class CommandTemplate {
 
   @CommandMethod("template|t list [storage]")
   public void displayTemplates(CommandSource source, @Argument("storage") TemplateStorage templateStorage) {
-    TemplateStorage resultingStorage =
-      templateStorage == null ? CloudNet.getInstance().getLocalTemplateStorage() : templateStorage;
-
-    List<String> messages = new ArrayList<>();
-    messages.add(I18n.trans("command-template-list-templates")
-      .replace("%storage%", resultingStorage.getName()));
-
-    for (ServiceTemplate template : resultingStorage.getTemplates()) {
-      messages.add("  " + template.toString());
+    Collection<ServiceTemplate> templates;
+    // get all templates if no specific template is given
+    if (templateStorage == null) {
+      templates = CloudNet.getInstance().getServicesRegistry().getServices(TemplateStorage.class).stream()
+        .flatMap(storage -> storage.getTemplates().stream())
+        .collect(Collectors.toList());
+    } else {
+      templates = templateStorage.getTemplates();
     }
 
-    source.sendMessage(messages);
+    source.sendMessage(LIST_FORMATTER.format(templates));
   }
 
-  @CommandMethod("template|t versions|v")
-  public void displayTemplateVersions(CommandSource source) {
-    List<String> versions = new ArrayList<>();
-
-    for (ServiceVersionType versionType : CloudNet.getInstance().getServiceVersionProvider()
-      .getServiceVersionTypes().values()) {
-      List<String> messages = new ArrayList<>();
-
-      messages.add("  " + versionType.getName() + ":");
-
-      for (ServiceVersion version : versionType.getVersions()) {
-        messages.add("    " + version.getName());
-      }
-
-      versions.add(String.join("\n", messages));
+  @CommandMethod("template|t versions|v [versionType]")
+  public void displayTemplateVersions(CommandSource source, @Argument("versionType") ServiceVersionType versionType) {
+    Collection<Pair<ServiceVersionType, ServiceVersion>> versions;
+    if (versionType == null) {
+      versions = CloudNet.getInstance().getServiceVersionProvider()
+        .getServiceVersionTypes()
+        .values().stream()
+        .flatMap(type -> type.getVersions().stream()
+          .sorted(Comparator.comparing(ServiceVersion::getName))
+          .map(version -> new Pair<>(type, version)))
+        .collect(Collectors.toList());
+    } else {
+      versions = CloudNet.getInstance().getServiceVersionProvider().getServiceVersionTypes()
+        .get(versionType.getName().toLowerCase())
+        .getVersions()
+        .stream()
+        .sorted(Comparator.comparing(ServiceVersion::getName))
+        .map(version -> new Pair<>(versionType, version))
+        .collect(Collectors.toList());
     }
 
-    source.sendMessage(I18n.trans("command-template-list-versions"));
-
-    //todo source.sendMessage(ColumnTextFormatter.formatInColumns(versions, "\n", 4).split("\n"));
+    source.sendMessage(VERSIONS.format(versions));
   }
 
   @CommandMethod("template|t install <template> <versionType> <version>")
