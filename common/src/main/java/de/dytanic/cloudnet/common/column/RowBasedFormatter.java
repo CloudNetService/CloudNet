@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Function;
 import org.jetbrains.annotations.NotNull;
 
@@ -49,7 +50,7 @@ public class RowBasedFormatter<T> {
       String[] formatted = new String[input.size()];
       // format each input
       for (int y = 0; y < input.size(); y++) {
-        formatted[y] = this.columns.get(i).apply(contents.get(y)).toString();
+        formatted[y] = Objects.toString(this.columns.get(i).apply(contents.get(y)));
       }
       // wrap the formatted string to a column entry
       result[i] = ColumnEntry.wrap(formatted);
