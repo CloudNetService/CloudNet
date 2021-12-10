@@ -160,7 +160,7 @@ public class ColumnFormatter {
 
     private char columnLeftBracket = '|';
     private char columnRightBracket = ' ';
-    private char headerValuesSpacerChar = '_';
+    private char headerValuesSpacerChar = '—';
 
     private List<String> columnTitles = new LinkedList<>();
 
