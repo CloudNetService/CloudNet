@@ -183,7 +183,8 @@ public class DefaultTaskSetup implements DefaultSetup {
     Pair<String, ?> javaCommand = animation.getResult(resultPrefix + "JavaCommand");
     Pair<ServiceVersionType, ServiceVersion> version = animation.getResult(resultPrefix + "Version");
     // create the task
-    ServiceTask serviceTask = ServiceTask.builder()
+    ServiceTemplate template = ServiceTemplate.builder().prefix(taskName).name("default").build();
+    CloudNet.getInstance().getServiceTaskProvider().addPermanentServiceTask(ServiceTask.builder()
       .name(taskName)
       .minServiceCount(1)
       .autoDeleteOnStop(true)
@@ -192,38 +193,43 @@ public class DefaultTaskSetup implements DefaultSetup {
       .serviceEnvironmentType(environment)
       .groups(Collections.singletonList(groupName))
       .startPort(environment.getDefaultServiceStartPort())
-      .templates(Collections.singletonList(ServiceTemplate.builder().prefix(taskName).name("default").build()))
-      .build();
-    CloudNet.getInstance().getServiceTaskProvider().addPermanentServiceTask(serviceTask);
+      .templates(Collections.singletonList(template))
+      .build());
 
-    // initialize all templates of the new task
-    serviceTask.getTemplates().forEach(template -> this.initializeTemplate(template, environment));
+    // create the global group template
+    ServiceTemplate groupTemplate = ServiceTemplate.builder().prefix(GLOBAL_TEMPLATE_PREFIX).name(groupName).build();
+    this.initializeTemplate(groupTemplate, environment, false);
+    // register the group
+    CloudNet.getInstance().getGroupConfigurationProvider().addGroupConfiguration(GroupConfiguration.builder()
+      .name(groupName)
+      .addTargetEnvironment(environment.getName())
+      .addTemplate(groupTemplate)
+      .build());
 
-    // create the group template
-    ServiceTemplate template = ServiceTemplate.builder().prefix(GLOBAL_TEMPLATE_PREFIX).name(groupName).build();
-    this.initializeTemplate(template, environment);
+    // create a group specifically for the task
+    CloudNet.getInstance().getGroupConfigurationProvider().addGroupConfiguration(GroupConfiguration.builder()
+      .name(taskName)
+      .addTemplate(template)
+      .build());
 
-    // install the template
-    CloudNet.getInstance().getServiceVersionProvider().installServiceVersion(InstallInformation
-      .builder(version.getFirst(), version.getSecond())
+    // install the service template
+    this.initializeTemplate(template, environment, true);
+    CloudNet.getInstance().getServiceVersionProvider().installServiceVersion(InstallInformation.builder()
+      .serviceVersion(version.getSecond())
+      .serviceVersionType(version.getFirst())
       .toTemplate(template)
       .executable(javaCommand.getFirst())
       .build(), false);
-
-    // add the group configuration
-    GroupConfiguration configuration = GroupConfiguration.builder()
-      .name(groupName)
-      .addTargetEnvironment(environment.getName())
-      .build();
-    configuration.getTemplates().add(template);
-    // register the group
-    CloudNet.getInstance().getGroupConfigurationProvider().addGroupConfiguration(configuration);
   }
 
-  protected void initializeTemplate(@NotNull ServiceTemplate template, @NotNull ServiceEnvironmentType environment) {
+  protected void initializeTemplate(
+    @NotNull ServiceTemplate template,
+    @NotNull ServiceEnvironmentType environment,
+    boolean installDefaultFiles
+  ) {
     // install the template
     try {
-      TemplateStorageUtil.createAndPrepareTemplate(template, template.storage(), environment);
+      TemplateStorageUtil.createAndPrepareTemplate(template, template.storage(), environment, installDefaultFiles);
     } catch (IOException exception) {
       LOGGER.severe("Exception while initializing local template %s with environment %s",
         exception,

@@ -47,11 +47,24 @@ public final class TemplateStorageUtil {
     @NotNull SpecificTemplateStorage storage,
     @NotNull ServiceEnvironmentType env
   ) throws IOException {
+    return createAndPrepareTemplate(template, storage, env, true);
+  }
+
+  public static boolean createAndPrepareTemplate(
+    @NotNull ServiceTemplate template,
+    @NotNull SpecificTemplateStorage storage,
+    @NotNull ServiceEnvironmentType env,
+    boolean installDefaultFiles
+  ) throws IOException {
     if (!storage.exists()) {
       storage.create();
       storage.createDirectory("plugins");
 
-      CloudNet.getInstance().getEventManager().callEvent(new ServiceTemplateInstallEvent(template, storage, env));
+      // call the installation event if the default installation process should be executed
+      if (installDefaultFiles) {
+        CloudNet.getInstance().getEventManager().callEvent(new ServiceTemplateInstallEvent(template, storage, env));
+      }
+
       return true;
     } else {
       return false;

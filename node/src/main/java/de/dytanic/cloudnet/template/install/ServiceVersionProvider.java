@@ -197,7 +197,7 @@ public class ServiceVersionProvider {
     Path cachedFilePath = VERSION_CACHE_PATH.resolve(fullVersionIdentifier);
 
     try {
-      if (information.getServiceVersion().isCacheFiles() && Files.exists(cachedFilePath)) {
+      if (information.isCacheFiles() && Files.exists(cachedFilePath)) {
         InstallStep.DEPLOY.execute(information, cachedFilePath, Files.walk(cachedFilePath).collect(Collectors.toSet()));
       } else {
         Files.createDirectories(workingDirectory);

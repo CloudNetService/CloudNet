@@ -261,7 +261,12 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
       }
 
       boolean forceInstall = body.getBoolean("force", false);
-      InstallInformation installInformation = InstallInformation.builder(versionType, version)
+      boolean cacheFiles = body.getBoolean("caches", version.isCacheFiles());
+
+      InstallInformation installInformation = InstallInformation.builder()
+        .serviceVersion(version)
+        .serviceVersionType(versionType)
+        .cacheFiles(cacheFiles)
         .toTemplate(template)
         .build();
 

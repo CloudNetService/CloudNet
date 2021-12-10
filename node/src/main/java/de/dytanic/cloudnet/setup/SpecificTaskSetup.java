@@ -37,7 +37,6 @@ import de.dytanic.cloudnet.driver.service.ServiceTemplate;
 import de.dytanic.cloudnet.template.install.InstallInformation;
 import de.dytanic.cloudnet.template.install.ServiceVersion;
 import de.dytanic.cloudnet.template.install.ServiceVersionType;
-import java.util.Collections;
 import org.jetbrains.annotations.NotNull;
 
 public class SpecificTaskSetup extends DefaultTaskSetup implements DefaultSetup {
@@ -147,7 +146,7 @@ public class SpecificTaskSetup extends DefaultTaskSetup implements DefaultSetup 
       .serviceEnvironmentType(environment)
       .startPort(animation.getResult("taskStartPort"))
       .javaCommand(javaVersion.getFirst())
-      .templates(Collections.singleton(defaultTemplate))
+      .addTemplate(defaultTemplate)
       .nameSplitter(animation.getResult("taskNameSplitter"))
       .build();
     CloudNet.getInstance().getServiceTaskProvider().addPermanentServiceTask(task);
@@ -156,13 +155,13 @@ public class SpecificTaskSetup extends DefaultTaskSetup implements DefaultSetup 
     CloudNet.getInstance().getGroupConfigurationProvider().addGroupConfiguration(groupConfiguration);
 
     // create the default template for the task
-    this.initializeTemplate(defaultTemplate, environment);
+    this.initializeTemplate(defaultTemplate, environment, true);
     // install the chosen version
-    CloudNet.getInstance().getServiceVersionProvider().installServiceVersion(InstallInformation
-        .builder(version.getFirst(), version.getSecond())
-        .toTemplate(defaultTemplate)
-        .executable(javaVersion.getFirst())
-        .build(),
-      false);
+    CloudNet.getInstance().getServiceVersionProvider().installServiceVersion(InstallInformation.builder()
+      .serviceVersionType(version.getFirst())
+      .serviceVersion(version.getSecond())
+      .toTemplate(defaultTemplate)
+      .executable(javaVersion.getFirst())
+      .build(), false);
   }
 }

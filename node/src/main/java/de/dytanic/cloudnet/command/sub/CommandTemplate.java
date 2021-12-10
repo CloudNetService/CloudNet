@@ -195,9 +195,9 @@ public final class CommandTemplate {
     @Argument("versionType") ServiceVersionType versionType,
     @Argument("version") ServiceVersion serviceVersion,
     @Flag("force") boolean forceInstall,
+    @Flag("caches") boolean caches,
     @Flag("executable") @Quoted String executable
   ) {
-
     String resolvedExecutable = executable == null ? "java" : executable;
     JavaVersion javaVersion = JavaVersionResolver.resolveFromJavaExecutable(resolvedExecutable);
     if (javaVersion == null) {
@@ -208,8 +208,7 @@ public final class CommandTemplate {
     if (!versionType.canInstall(serviceVersion, javaVersion)) {
       source.sendMessage(I18n.trans("command-template-install-wrong-java")
         .replace("%version%", versionType.getName() + "-" + serviceVersion.getName())
-        .replace("%java%", javaVersion.getName())
-      );
+        .replace("%java%", javaVersion.getName()));
       if (!forceInstall) {
         return;
       }
@@ -218,10 +217,12 @@ public final class CommandTemplate {
     CloudNet.getInstance().getMainThread().runTask(() -> {
       source.sendMessage(I18n.trans("command-template-install-try")
         .replace("%version%", versionType.getName() + "-" + serviceVersion.getName())
-        .replace("%template%", serviceTemplate.toString())
-      );
+        .replace("%template%", serviceTemplate.toString()));
 
-      InstallInformation installInformation = InstallInformation.builder(versionType, serviceVersion)
+      InstallInformation installInformation = InstallInformation.builder()
+        .serviceVersionType(versionType)
+        .serviceVersion(serviceVersion)
+        .cacheFiles(caches)
         .toTemplate(serviceTemplate)
         .executable(resolvedExecutable.equals("java") ? null : resolvedExecutable)
         .build();
