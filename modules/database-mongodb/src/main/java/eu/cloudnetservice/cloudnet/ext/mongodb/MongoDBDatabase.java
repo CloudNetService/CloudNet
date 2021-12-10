@@ -111,7 +111,7 @@ public class MongoDBDatabase extends AbstractDatabase {
   }
 
   @Override
-  public @NotNull List<JsonDocument> get(JsonDocument filters) {
+  public @NotNull List<JsonDocument> get(@NotNull JsonDocument filters) {
     Collection<Bson> bsonFilters = new ArrayList<>();
     for (String filter : filters) {
       Object value = filters.get(filter);
