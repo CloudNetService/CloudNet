@@ -26,11 +26,11 @@
               "-Dpaperclip.patchonly=true"
             ],
             "fetchOverPaperApi": true,
-            "versionGroup": "1.18"
+            "versionGroup": "1.18.1"
           }
         },
         {
-          "name": "1.18",
+          "name": "1.18.1",
           "minJavaVersion": 17,
           "properties": {
             "copy": {
@@ -42,7 +42,7 @@
               "-Dpaperclip.patchonly=true"
             ],
             "fetchOverPaperApi": true,
-            "versionGroup": "1.18"
+            "versionGroup": "1.18.1"
           }
         },
         {
@@ -317,12 +317,12 @@
             },
             "parameters": [
               "--rev",
-              "1.18"
+              "1.18.1"
             ]
           }
         },
         {
-          "name": "1.18",
+          "name": "1.18.1",
           "url": "https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar",
           "minJavaVersion": 17,
           "properties": {
