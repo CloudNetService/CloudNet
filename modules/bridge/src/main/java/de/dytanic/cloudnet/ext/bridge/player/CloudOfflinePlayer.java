@@ -31,11 +31,18 @@ public class CloudOfflinePlayer extends JsonDocPropertyHolder implements Cloneab
   protected long firstLoginTimeMillis;
   protected long lastLoginTimeMillis;
 
+  protected final String name;
+
   protected NetworkPlayerProxyInfo lastNetworkPlayerProxyInfo;
 
-  public CloudOfflinePlayer(long firstLoginTimeMillis, long lastLoginTimeMillis, NetworkPlayerProxyInfo proxyInfo) {
+  public CloudOfflinePlayer(
+    long firstLoginTimeMillis,
+    long lastLoginTimeMillis,
+    @NotNull String name,
+    @NotNull NetworkPlayerProxyInfo proxyInfo) {
     this.firstLoginTimeMillis = firstLoginTimeMillis;
     this.lastLoginTimeMillis = lastLoginTimeMillis;
+    this.name = name;
     this.lastNetworkPlayerProxyInfo = proxyInfo;
   }
 
@@ -43,6 +50,7 @@ public class CloudOfflinePlayer extends JsonDocPropertyHolder implements Cloneab
     return new CloudOfflinePlayer(
       onlineVariant.getFirstLoginTimeMillis(),
       onlineVariant.getLastLoginTimeMillis(),
+      onlineVariant.getName(),
       onlineVariant.getNetworkPlayerProxyInfo().clone());
   }
 
@@ -52,7 +60,7 @@ public class CloudOfflinePlayer extends JsonDocPropertyHolder implements Cloneab
 
   @Override
   public @NotNull String getName() {
-    return this.lastNetworkPlayerProxyInfo.getName();
+    return this.name;
   }
 
   public @UnknownNullability String getXBoxId() {

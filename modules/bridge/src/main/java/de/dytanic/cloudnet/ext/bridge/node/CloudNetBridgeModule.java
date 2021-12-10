@@ -135,6 +135,7 @@ public final class CloudNetBridgeModule extends DriverModule {
             // rewrite all paths of the document
             networkService.append("serviceId", serviceId);
             lastProxyInfo.append("networkService", networkService);
+            entry.getValue().append("name", lastProxyInfo.get("name"));
             entry.getValue().append("lastNetworkPlayerProxyInfo", lastProxyInfo);
             // update the entry
             playerDb.insert(entry.getKey(), entry.getValue());
