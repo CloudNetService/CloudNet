@@ -20,6 +20,7 @@ plugins {
 
 jar {
   manifest {
+    attributes 'Premain-Class': 'de.dytanic.cloudnet.wrapper.Premain'
     attributes 'Main-Class': 'de.dytanic.cloudnet.wrapper.Main'
     attributes 'Implementation-Version': archiveVersion.get() + "-" + getCurrentCommitHash()
     attributes 'Implementation-Title': cloudNetCodeName

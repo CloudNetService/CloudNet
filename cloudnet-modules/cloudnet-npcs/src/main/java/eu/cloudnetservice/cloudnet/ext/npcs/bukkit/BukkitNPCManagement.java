@@ -120,6 +120,10 @@ public class BukkitNPCManagement extends AbstractNPCManagement {
   }
 
   public Optional<ArmorStand> getInfoLineStand(@NotNull CloudNPC cloudNPC) {
+    return this.getInfoLineStand(cloudNPC, true);
+  }
+
+  public Optional<ArmorStand> getInfoLineStand(@NotNull CloudNPC cloudNPC, boolean doSpawnIfMissing) {
     Location location = this.toLocation(cloudNPC.getPosition());
 
     if (location.getWorld() == null || !location.getChunk().isLoaded()) {
@@ -135,7 +139,7 @@ public class BukkitNPCManagement extends AbstractNPCManagement {
       .findFirst()
       .orElse(null);
 
-    if (armorStand == null) {
+    if (armorStand == null && doSpawnIfMissing) {
       armorStand = (ArmorStand) location.getWorld().spawnEntity(
         location.add(0, infoLineDistance, 0),
         EntityType.ARMOR_STAND
@@ -148,7 +152,7 @@ public class BukkitNPCManagement extends AbstractNPCManagement {
       armorStand.setCustomNameVisible(true);
     }
 
-    return Optional.of(armorStand);
+    return Optional.ofNullable(armorStand);
   }
 
   @Override

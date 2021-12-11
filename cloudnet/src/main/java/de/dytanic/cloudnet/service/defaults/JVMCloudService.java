@@ -157,7 +157,7 @@ final class JVMCloudService extends DefaultMinecraftCloudService implements IClo
     Path applicationFile = this.selectApplicationFile(type);
     String applicationMainClass = type.getMainClass(applicationFile);
 
-    if (applicationMainClass == null) {
+    if (applicationFile == null || applicationMainClass == null) {
       CloudNetDriver.getInstance().getLogger()
         .error(LanguageManager.getMessage("cloud-service-jar-file-not-found-error")
           .replace("%task%", this.getServiceId().getTaskName())
@@ -179,13 +179,18 @@ final class JVMCloudService extends DefaultMinecraftCloudService implements IClo
     commandArguments.addAll(this.getServiceConfiguration().getProcessConfig().getJvmOptions());
     commandArguments.addAll(Arrays.asList(
       "-Xmx" + this.getServiceConfiguration().getProcessConfig().getMaxHeapMemorySize() + "M",
-      "-cp", type.getClasspath(wrapperFile, applicationFile)
+      "-cp", type.getClasspath(wrapperFile, applicationFile),
+      "-javaagent:" + wrapperFile.toAbsolutePath()
     ));
 
     try (JarInputStream stream = new JarInputStream(Files.newInputStream(wrapperFile))) {
       commandArguments.add(stream.getManifest().getMainAttributes().getValue("Main-Class"));
     }
+
+    // internal process arguments
     commandArguments.add(applicationMainClass);
+    commandArguments.add(applicationFile.toAbsolutePath().toString());
+    commandArguments.add(Boolean.toString(type.shouldPreloadClassesBeforeStartup(applicationFile)));
 
     this.postConfigureServiceEnvironmentStartParameters(commandArguments);
 

@@ -42,7 +42,17 @@ public enum ServiceEnvironmentType {
     },
     MinecraftServiceType.JAVA_SERVER,
     44955
-  ),
+  ) {
+    @Override
+    public boolean shouldPreloadClassesBeforeStartup(@NotNull Path applicationFile) {
+      try (JarFile file = new JarFile(applicationFile.toFile())) {
+        return file.getEntry("META-INF/versions.list") != null;
+      } catch (IOException exception) {
+        // wtf?
+        return false;
+      }
+    }
+  },
   GLOWSTONE(new ServiceEnvironment[]{ServiceEnvironment.GLOWSTONE_DEFAULT},
     MinecraftServiceType.JAVA_SERVER,
     44955
@@ -124,14 +134,17 @@ public enum ServiceEnvironmentType {
     return null;
   }
 
+  public boolean shouldPreloadClassesBeforeStartup(@NotNull Path applicationFile) {
+    return false;
+  }
+
   @Deprecated
   public @NotNull String getClasspath(@NotNull File wrapperFile, @Nullable File applicationFile) {
     return this.getClasspath(wrapperFile.toPath(), applicationFile == null ? null : applicationFile.toPath());
   }
 
   public @NotNull String getClasspath(@NotNull Path wrapperFile, @Nullable Path applicationFile) {
-    return wrapperFile.toAbsolutePath() + File.pathSeparator + (applicationFile == null ? ""
-      : applicationFile.toAbsolutePath());
+    return wrapperFile.toAbsolutePath().toString();
   }
 
   public ServiceEnvironment[] getEnvironments() {
