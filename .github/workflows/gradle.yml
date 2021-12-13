@@ -7,10 +7,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        java: [ '17' ]
-    name: Java ${{ matrix.java }}
+    name: Build lifecycle
 
     steps:
       - name: Checkout repository
@@ -23,13 +20,13 @@ jobs:
         uses: actions/setup-java@v2
         with:
           distribution: 'temurin'
-          java-version: ${{ matrix.java }}
+          java-version: 17
           check-latest: true
 
       - name: Initialize gradle caching
         uses: burrunan/gradle-cache-action@v1
         with:
-          job-id: jdk${{ matrix.java }}
+          job-id: jdk17
           concurrent: true
 
       - name: Run build lifecycle
