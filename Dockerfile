@@ -6,7 +6,7 @@ WORKDIR /usr/src/cloudnet-sources
 
 RUN gradle
 
-FROM adoptopenjdk:17-jre-hotspot
+FROM openjdk:17.0.1-slim
 USER root
 
 RUN mkdir -p /home/cloudnet
