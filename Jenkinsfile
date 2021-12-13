@@ -17,7 +17,7 @@
 pipeline {
   agent any
   tools {
-    jdk 'Java11'
+    jdk 'Java17'
   }
 
   options {

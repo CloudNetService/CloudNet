@@ -1,4 +1,4 @@
-FROM gradle:7.1.1-jdk16 AS build
+FROM gradle:7.3.1-jdk17 AS build
 USER root
 
 COPY . /usr/src/cloudnet-sources
@@ -6,7 +6,7 @@ WORKDIR /usr/src/cloudnet-sources
 
 RUN gradle
 
-FROM adoptopenjdk:16-jre-hotspot
+FROM adoptopenjdk:17-jre-hotspot
 USER root
 
 RUN mkdir -p /home/cloudnet
