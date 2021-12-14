@@ -86,7 +86,7 @@ public final class S3TemplateStorageConfig {
   public @Nullable URI getEndpointOverride() {
     if (this.endpointOverride != null) {
       try {
-        URI uri = URI.create(this.endpointOverride);
+        var uri = URI.create(this.endpointOverride);
         // validate the given uri
         if (uri.getScheme() != null) {
           return uri;

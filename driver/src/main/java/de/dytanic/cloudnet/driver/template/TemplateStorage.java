@@ -84,7 +84,7 @@ public interface TemplateStorage extends AutoCloseable, INameable {
    */
   @Nullable
   default ZipInputStream asZipInputStream(@NotNull ServiceTemplate template) throws IOException {
-    InputStream inputStream = this.zipTemplate(template);
+    var inputStream = this.zipTemplate(template);
     return inputStream == null ? null : new ZipInputStream(inputStream);
   }
 

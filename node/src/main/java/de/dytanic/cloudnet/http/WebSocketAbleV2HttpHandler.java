@@ -48,14 +48,14 @@ public abstract class WebSocketAbleV2HttpHandler extends V2HttpHandler {
       return;
     }
 
-    List<String> ticketIds = context.request().queryParameters().get("ticket");
-    String ticketId = ticketIds == null ? null : Iterables.getFirst(ticketIds, null);
+    var ticketIds = context.request().queryParameters().get("ticket");
+    var ticketId = ticketIds == null ? null : Iterables.getFirst(ticketIds, null);
     if (ticketId == null) {
       this.send403(context, "Missing authorization or ticket information");
       return;
     }
 
-    WebSocketTicket ticket = this.authentication.getWebSocketTicketManager().findAndRemoveTicket(ticketId);
+    var ticket = this.authentication.getWebSocketTicketManager().findAndRemoveTicket(ticketId);
     if (ticket == null || !ticket.getRequestingIp().equals(context.channel().clientAddress().getHost())) {
       this.send403(context, "Invalid ticket id or ticket not issued for client");
       return;

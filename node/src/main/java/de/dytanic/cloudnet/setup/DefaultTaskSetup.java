@@ -183,7 +183,7 @@ public class DefaultTaskSetup implements DefaultSetup {
     Pair<String, ?> javaCommand = animation.getResult(resultPrefix + "JavaCommand");
     Pair<ServiceVersionType, ServiceVersion> version = animation.getResult(resultPrefix + "Version");
     // create the task
-    ServiceTemplate template = ServiceTemplate.builder().prefix(taskName).name("default").build();
+    var template = ServiceTemplate.builder().prefix(taskName).name("default").build();
     CloudNet.getInstance().getServiceTaskProvider().addPermanentServiceTask(ServiceTask.builder()
       .name(taskName)
       .minServiceCount(1)
@@ -197,7 +197,7 @@ public class DefaultTaskSetup implements DefaultSetup {
       .build());
 
     // create the global group template
-    ServiceTemplate groupTemplate = ServiceTemplate.builder().prefix(GLOBAL_TEMPLATE_PREFIX).name(groupName).build();
+    var groupTemplate = ServiceTemplate.builder().prefix(GLOBAL_TEMPLATE_PREFIX).name(groupName).build();
     this.initializeTemplate(groupTemplate, environment, false);
     // register the group
     CloudNet.getInstance().getGroupConfigurationProvider().addGroupConfiguration(GroupConfiguration.builder()

@@ -65,8 +65,8 @@ public class ColumnFormatter {
     if (entries.length == 0) {
       if (this.formattedColumnTitles == null) {
         // initial formatting of the titles
-        StringBuilder builder = new StringBuilder();
-        for (String columnTitle : this.columnTitles) {
+        var builder = new StringBuilder();
+        for (var columnTitle : this.columnTitles) {
           builder.append(String.format(
             ENTRY_FORMAT,
             this.columnLeftBracket,
@@ -82,12 +82,12 @@ public class ColumnFormatter {
       return this.formattedColumnTitles;
     } else {
       // for each header find the longest entry (or use the header length if the header is longer)
-      String[] spaceCache = new String[entries.length];
+      var spaceCache = new String[entries.length];
       // format the header
-      StringBuilder builder = new StringBuilder();
-      for (int i = 0; i < this.columnTitles.length; i++) {
-        String title = this.columnTitles[i];
-        int titleLength = title.length();
+      var builder = new StringBuilder();
+      for (var i = 0; i < this.columnTitles.length; i++) {
+        var title = this.columnTitles[i];
+        var titleLength = title.length();
         // get the spaces we need to append
         String ourSpaces;
         // compute the cache - if the title is too short append to the title, otherwise append to the column value
@@ -115,10 +115,10 @@ public class ColumnFormatter {
       // reset the string builder
       builder.setLength(0);
       // get the amount of times we need to loop to fill everything
-      int repeatCount = this.columnTitles.length * entries[0].getFormattedEntries().length;
+      var repeatCount = this.columnTitles.length * entries[0].getFormattedEntries().length;
       // format each row
-      int currentDepth = 0;
-      for (int i = 0; i <= repeatCount; i++) {
+      var currentDepth = 0;
+      for (var i = 0; i <= repeatCount; i++) {
         // step the depth if required
         if (i != 0 && i % this.columnTitles.length == 0) {
           // append the build line to the result
@@ -133,13 +133,13 @@ public class ColumnFormatter {
           }
         }
         // get the index of the entry we want to print
-        int index = i - (this.columnTitles.length * currentDepth);
+        var index = i - (this.columnTitles.length * currentDepth);
         if (index < 0) {
           // we are still in the first row
           index = i;
         }
         // get the amount of spaces needed to print so that the column looks nice
-        String spaces = spaceCache[index];
+        var spaces = spaceCache[index];
         // append the current entry
         builder
           .append(this.columnLeftBracket)

@@ -26,7 +26,7 @@ public abstract class NetworkTestCase {
   protected int getRandomFreePort(int... disabledPorts) {
     Arrays.sort(disabledPorts); // needed to make the binary search later
 
-    int port = 1024; // first non restricted (to root user) port
+    var port = 1024; // first non restricted (to root user) port
     while (true) {
       // check for out of range port
       if (port > 65535) {
@@ -49,7 +49,7 @@ public abstract class NetworkTestCase {
   }
 
   protected boolean isPortInUse(int port) {
-    try (ServerSocket ignored = new ServerSocket(port, 1, InetAddress.getLoopbackAddress())) {
+    try (var ignored = new ServerSocket(port, 1, InetAddress.getLoopbackAddress())) {
       return false;
     } catch (Exception ignored) {
       return true;

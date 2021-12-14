@@ -37,15 +37,15 @@ public abstract class SimpleNameTagsManager<P> {
 
   public void updateNameTagsFor(@NotNull P player, @NotNull UUID playerUniqueId, @NotNull String playerName) {
     // get the permission group of the player
-    PermissionGroup group = this.getPermissionGroup(playerUniqueId, player);
+    var group = this.getPermissionGroup(playerUniqueId, player);
     if (group != null) {
       // find the highest sort id length of any known group on this instance
-      int maxSortIdLength = CloudNetDriver.getInstance().getPermissionManagement().getGroups().stream()
+      var maxSortIdLength = CloudNetDriver.getInstance().getPermissionManagement().getGroups().stream()
         .map(PermissionGroup::getSortId)
         .mapToInt(i -> (int) Math.log10(i) + 1)
         .max()
         .orElse(0);
-      String groupTeamName = this.selectTeamName(group, maxSortIdLength);
+      var groupTeamName = this.selectTeamName(group, maxSortIdLength);
       // reset the scoreboard of the current player
       this.resetScoreboard(player);
       // set the team entries for each player connected to the server
@@ -56,10 +56,10 @@ public abstract class SimpleNameTagsManager<P> {
         this.registerPlayerToTeam(player, onlinePlayer, groupTeamName, group);
 
         // get the permission group for the player
-        PermissionGroup onlinePlayerGroup = this.getPermissionGroup(this.getPlayerUniqueId(onlinePlayer), onlinePlayer);
+        var onlinePlayerGroup = this.getPermissionGroup(this.getPlayerUniqueId(onlinePlayer), onlinePlayer);
         if (onlinePlayerGroup != null) {
           // get the team name of the group
-          String onlinePlayerGroupTeamName = this.selectTeamName(onlinePlayerGroup, maxSortIdLength);
+          var onlinePlayerGroupTeamName = this.selectTeamName(onlinePlayerGroup, maxSortIdLength);
           // register the team to the target updated player score board
           this.registerPlayerToTeam(onlinePlayer, player, onlinePlayerGroupTeamName, onlinePlayerGroup);
         }
@@ -91,17 +91,17 @@ public abstract class SimpleNameTagsManager<P> {
     // check if the color of the group is given and valid
     if (group.getColor().length() == 2) {
       // check if the first char is a color indicator
-      char indicatorChar = group.getColor().charAt(0);
+      var indicatorChar = group.getColor().charAt(0);
       if (indicatorChar == '&' || indicatorChar == '§') {
         // the next char should be the color char then
         return group.getColor().charAt(1);
       }
     }
     // search for the last color char in the prefix of the group
-    int length = group.getPrefix().length();
-    for (int index = length - 2; index >= 0; index--) {
+    var length = group.getPrefix().length();
+    for (var index = length - 2; index >= 0; index--) {
       // check if the current char is a color indicator char
-      char atPosition = group.getPrefix().charAt(index);
+      var atPosition = group.getPrefix().charAt(index);
       if (atPosition == '&' || atPosition == '§') {
         return group.getPrefix().charAt(index + 1);
       }
@@ -112,13 +112,13 @@ public abstract class SimpleNameTagsManager<P> {
 
   protected @Nullable PermissionGroup getPermissionGroup(@NotNull UUID playerUniqueId, @NotNull P platformPlayer) {
     // select the best permission group for the player
-    PermissionUser user = CloudNetDriver.getInstance().getPermissionManagement().getUser(playerUniqueId);
+    var user = CloudNetDriver.getInstance().getPermissionManagement().getUser(playerUniqueId);
     // no user -> no group
     if (user == null) {
       return null;
     }
     // get the highest group of the player
-    PermissionGroup group = CloudNetDriver.getInstance().getPermissionManagement().getHighestPermissionGroup(user);
+    var group = CloudNetDriver.getInstance().getPermissionManagement().getHighestPermissionGroup(user);
     // no group -> try the default group
     if (group == null) {
       group = CloudNetDriver.getInstance().getPermissionManagement().getDefaultPermissionGroup();
@@ -135,8 +135,8 @@ public abstract class SimpleNameTagsManager<P> {
 
   protected @NotNull String selectTeamName(@NotNull PermissionGroup group, int highestSortIdLength) {
     // get the length of the group's sort id
-    int sortIdLength = (int) Math.log10(group.getSortId()) + 1;
-    String teamName = String.format(
+    var sortIdLength = (int) Math.log10(group.getSortId()) + 1;
+    var teamName = String.format(
       TEAM_NAME_FORMAT,
       highestSortIdLength == sortIdLength
         ? sortIdLength

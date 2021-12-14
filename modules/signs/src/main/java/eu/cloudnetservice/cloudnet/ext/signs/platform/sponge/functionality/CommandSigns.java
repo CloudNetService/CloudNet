@@ -52,25 +52,25 @@ public class CommandSigns implements CommandExecutor {
       return CommandResult.success();
     }
 
-    ServerPlayer player = (ServerPlayer) context.subject();
-    String type = context.one(ACTION).orElse(null);
-    String targetGroup = context.one(TARGET_GROUP).orElse(null);
-    String targetTemplatePath = context.one(TARGET_TEMPLATE).orElse(null);
+    var player = (ServerPlayer) context.subject();
+    var type = context.one(ACTION).orElse(null);
+    var targetGroup = context.one(TARGET_GROUP).orElse(null);
+    var targetTemplatePath = context.one(TARGET_TEMPLATE).orElse(null);
 
     if (type != null) {
       if (type.equalsIgnoreCase("create") && targetGroup != null) {
-        Optional<RayTraceResult<LocatableBlock>> hit = this.getTargetBlock(player);
+        var hit = this.getTargetBlock(player);
         if (!hit.isPresent()) {
           return CommandResult.success();
         }
 
-        Sign sign = this.signManagement.getSignAt((org.spongepowered.api.block.entity.Sign) hit.get().selectedObject());
+        var sign = this.signManagement.getSignAt((org.spongepowered.api.block.entity.Sign) hit.get().selectedObject());
         if (sign != null) {
           this.signManagement.getSignsConfiguration().sendMessage(
             "command-cloudsign-sign-already-exist",
             message -> player.sendMessage(Component.text(message)));
         } else {
-          Sign createdSign = this.signManagement.createSign(
+          var createdSign = this.signManagement.createSign(
             (org.spongepowered.api.block.entity.Sign) hit.get().selectedObject(),
             targetGroup,
             targetTemplatePath);
@@ -84,26 +84,26 @@ public class CommandSigns implements CommandExecutor {
 
         return CommandResult.success();
       } else if (type.equalsIgnoreCase("cleanup")) {
-        int removed = this.signManagement.removeMissingSigns();
+        var removed = this.signManagement.removeMissingSigns();
         this.signManagement.getSignsConfiguration().sendMessage(
           "command-cloudsign-cleanup-success",
           m -> player.sendMessage(Component.text(m)),
           m -> m.replace("%amount%", Integer.toString(removed)));
         return CommandResult.success();
       } else if (type.equalsIgnoreCase("removeall")) {
-        int removed = this.signManagement.deleteAllSigns();
+        var removed = this.signManagement.deleteAllSigns();
         this.signManagement.getSignsConfiguration().sendMessage(
           "command-cloudsign-bulk-remove-success",
           m -> player.sendMessage(Component.text(m)),
           m -> m.replace("%amount%", Integer.toString(removed)));
         return CommandResult.success();
       } else if (type.equalsIgnoreCase("remove")) {
-        Optional<RayTraceResult<LocatableBlock>> hit = this.getTargetBlock(player);
+        var hit = this.getTargetBlock(player);
         if (!hit.isPresent()) {
           return CommandResult.success();
         }
 
-        Sign sign = this.signManagement.getSignAt((org.spongepowered.api.block.entity.Sign) hit.get().selectedObject());
+        var sign = this.signManagement.getSignAt((org.spongepowered.api.block.entity.Sign) hit.get().selectedObject());
         if (sign != null) {
           this.signManagement.deleteSign(sign);
           this.signManagement.getSignsConfiguration().sendMessage(
@@ -128,7 +128,7 @@ public class CommandSigns implements CommandExecutor {
   }
 
   protected @NotNull Optional<RayTraceResult<LocatableBlock>> getTargetBlock(@NotNull ServerPlayer player) {
-    Optional<RayTraceResult<LocatableBlock>> result = RayTrace.block()
+    var result = RayTrace.block()
       .limit(15)
       .world(player.world())
       .sourceEyePosition(player)

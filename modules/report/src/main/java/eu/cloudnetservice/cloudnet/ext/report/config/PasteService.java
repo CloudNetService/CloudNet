@@ -65,7 +65,7 @@ public class PasteService implements INameable {
     }
 
     try {
-      HttpResponse<String> response = Unirest.post(String.format("%s/documents", this.serviceUrl))
+      var response = Unirest.post(String.format("%s/documents", this.serviceUrl))
         .contentType("application/json")
         .connectTimeout(5_000)
         .body(content)

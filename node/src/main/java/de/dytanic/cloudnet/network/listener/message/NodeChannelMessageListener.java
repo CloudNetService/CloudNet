@@ -51,9 +51,9 @@ public final class NodeChannelMessageListener {
       switch (event.getMessage()) {
         // update a single node info snapshot
         case "update_node_info_snapshot": {
-          NetworkClusterNodeInfoSnapshot snapshot = event.getContent().readObject(NetworkClusterNodeInfoSnapshot.class);
+          var snapshot = event.getContent().readObject(NetworkClusterNodeInfoSnapshot.class);
           // get the associated node server
-          IClusterNodeServer server = this.nodeServerProvider.getNodeServer(snapshot.getNode().getUniqueId());
+          var server = this.nodeServerProvider.getNodeServer(snapshot.getNode().getUniqueId());
           if (server != null) {
             server.setNodeInfoSnapshot(snapshot);
             this.eventManager.callEvent(new NetworkClusterNodeInfoUpdateEvent(event.getNetworkChannel(), snapshot));
@@ -63,7 +63,7 @@ public final class NodeChannelMessageListener {
         // handles the sync requests of cluster data
         case "sync_cluster_data": {
           // handle the sync and send back the data to override on the caller
-          DataBuf result = this.dataSyncRegistry.handle(event.getContent(), event.getContent().readBoolean());
+          var result = this.dataSyncRegistry.handle(event.getContent(), event.getContent().readBoolean());
           if (result != null && event.isQuery()) {
             event.setBinaryResponse(result);
           }
@@ -76,7 +76,7 @@ public final class NodeChannelMessageListener {
         break;
         // request of the full cluster data set
         case "request_initial_cluster_data": {
-          IClusterNodeServer server = this.nodeServerProvider.getNodeServer(event.getNetworkChannel());
+          var server = this.nodeServerProvider.getNodeServer(event.getNetworkChannel());
           if (server != null) {
             // do not force the sync - the user can decide which changes should be used
             server.syncClusterData(CloudNet.getInstance().getConfig().getForceInitialClusterDataSync());

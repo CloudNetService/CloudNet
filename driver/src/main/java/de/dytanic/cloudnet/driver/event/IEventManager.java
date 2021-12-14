@@ -33,7 +33,7 @@ public interface IEventManager {
   @NotNull IEventManager registerListener(@NotNull Object listener);
 
   default @NotNull IEventManager registerListeners(Object @NotNull ... listeners) {
-    for (Object listener : listeners) {
+    for (var listener : listeners) {
       this.registerListener(listener);
     }
 

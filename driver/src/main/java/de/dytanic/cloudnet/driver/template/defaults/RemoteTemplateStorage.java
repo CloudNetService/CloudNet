@@ -67,7 +67,7 @@ public class RemoteTemplateStorage implements TemplateStorage {
     @NotNull ServiceTemplate target,
     @Nullable Predicate<Path> fileFilter
   ) {
-    try (InputStream inputStream = FileUtils.zipToStream(directory, fileFilter)) {
+    try (var inputStream = FileUtils.zipToStream(directory, fileFilter)) {
       return this.deploy(inputStream, target);
     } catch (IOException exception) {
       return false;
@@ -94,8 +94,8 @@ public class RemoteTemplateStorage implements TemplateStorage {
   @Override
   public @Nullable InputStream zipTemplate(@NotNull ServiceTemplate template) throws IOException {
     // send a request for the template to the node
-    UUID responseId = UUID.randomUUID();
-    ChannelMessage response = ChannelMessage.builder()
+    var responseId = UUID.randomUUID();
+    var response = ChannelMessage.builder()
       .message("remote_templates_zip_template")
       .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
       .targetNode(CloudNetDriver.getInstance().getNodeUniqueId())
@@ -186,8 +186,8 @@ public class RemoteTemplateStorage implements TemplateStorage {
     @NotNull String path
   ) throws IOException {
     // send a request for the file to the node
-    UUID responseId = UUID.randomUUID();
-    ChannelMessage response = ChannelMessage.builder()
+    var responseId = UUID.randomUUID();
+    var response = ChannelMessage.builder()
       .message("remote_templates_template_file")
       .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
       .targetNode(CloudNetDriver.getInstance().getNodeUniqueId())

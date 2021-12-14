@@ -43,7 +43,7 @@ public final class BungeeCordBridgePlugin extends Plugin {
     // register the hub command if requested
     if (!management.getConfiguration().getHubCommandNames().isEmpty()) {
       // convert to an array for easier access
-      String[] names = management.getConfiguration().getHubCommandNames().toArray(new String[0]);
+      var names = management.getConfiguration().getHubCommandNames().toArray(new String[0]);
       // register the command
       ProxyServer.getInstance().getPluginManager().registerCommand(this, new BungeeCordHubCommand(
         management,

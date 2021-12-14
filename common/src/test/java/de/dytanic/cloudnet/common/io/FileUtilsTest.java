@@ -47,31 +47,31 @@ public final class FileUtilsTest {
 
   @Test
   void testZipUtils() throws Exception {
-    Path zipFilePath = TEST_DIR.resolve("test.zip");
+    var zipFilePath = TEST_DIR.resolve("test.zip");
 
     try (
-      OutputStream out = Files.newOutputStream(zipFilePath);
-      InputStream is = FileUtilsTest.class.getClassLoader().getResourceAsStream("empty_zip_file.zip")
+      var out = Files.newOutputStream(zipFilePath);
+      var is = FileUtilsTest.class.getClassLoader().getResourceAsStream("empty_zip_file.zip")
     ) {
       FileUtils.copy(is, out);
     }
 
     FileUtils.openZipFileSystem(zipFilePath, fileSystem -> {
-      Path zipEntryInfoFile = fileSystem.getPath("info.txt");
+      var zipEntryInfoFile = fileSystem.getPath("info.txt");
 
       try (
-        OutputStream out = Files.newOutputStream(zipEntryInfoFile);
-        ByteArrayInputStream is = new ByteArrayInputStream("Info message :3".getBytes())
+        var out = Files.newOutputStream(zipEntryInfoFile);
+        var is = new ByteArrayInputStream("Info message :3".getBytes())
       ) {
         FileUtils.copy(is, out);
       }
     });
 
-    try (ByteArrayOutputStream out = new ByteArrayOutputStream(); ZipFile zipFile = new ZipFile(zipFilePath.toFile())) {
-      ZipEntry zipEntry = zipFile.getEntry("info.txt");
+    try (var out = new ByteArrayOutputStream(); var zipFile = new ZipFile(zipFilePath.toFile())) {
+      var zipEntry = zipFile.getEntry("info.txt");
       Assertions.assertNotNull(zipEntry);
 
-      try (InputStream inputStream = zipFile.getInputStream(zipEntry)) {
+      try (var inputStream = zipFile.getInputStream(zipEntry)) {
         FileUtils.copy(inputStream, out);
       }
 
@@ -84,11 +84,11 @@ public final class FileUtilsTest {
 
   @Test
   void testExtractZip() throws Exception {
-    Path zipFilePath = TEST_DIR.resolve("test.zip");
+    var zipFilePath = TEST_DIR.resolve("test.zip");
 
     try (
-      OutputStream outputStream = Files.newOutputStream(zipFilePath);
-      InputStream is = FileUtilsTest.class.getClassLoader().getResourceAsStream("file_utils_resources.zip")
+      var outputStream = Files.newOutputStream(zipFilePath);
+      var is = FileUtilsTest.class.getClassLoader().getResourceAsStream("file_utils_resources.zip")
     ) {
       FileUtils.copy(is, outputStream);
     }

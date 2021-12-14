@@ -44,14 +44,14 @@ public final class CloudNetLocalServiceListener {
   @EventListener
   public void handle(@NotNull CloudServicePostLifecycleEvent event) {
     if (event.getNewLifeCycle() == ServiceLifeCycle.PREPARED) {
-      ServiceTask task = CloudNet.getInstance().getServiceTaskProvider()
+      var task = CloudNet.getInstance().getServiceTaskProvider()
         .getServiceTask(event.getService().getServiceId().getTaskName());
       // check if the service is associated with a task
       if (task == null) {
         return;
       }
       // get the smart entry for the service
-      SmartServiceTaskConfig config = this.module.getSmartConfig(task);
+      var config = this.module.getSmartConfig(task);
       if (config != null && config.isEnabled()) {
         Set<ServiceTemplate> templates = new HashSet<>(event.getService().getWaitingTemplates());
         templates.removeAll(task.getTemplates());
@@ -66,7 +66,7 @@ public final class CloudNetLocalServiceListener {
           case INSTALL_RANDOM: {
             if (!task.getTemplates().isEmpty()) {
               // get the amount of templates to install
-              int amount = ThreadLocalRandom.current().nextInt(1, task.getTemplates().size());
+              var amount = ThreadLocalRandom.current().nextInt(1, task.getTemplates().size());
               // install randomly picked templates
               ThreadLocalRandom.current().ints(amount, 0, task.getTemplates().size())
                 .forEach(i -> templates.add(Iterables.get(task.getTemplates(), i)));
@@ -77,14 +77,14 @@ public final class CloudNetLocalServiceListener {
           case INSTALL_RANDOM_ONCE: {
             if (!task.getTemplates().isEmpty()) {
               // get the template to install
-              int index = ThreadLocalRandom.current().nextInt(0, task.getTemplates().size());
+              var index = ThreadLocalRandom.current().nextInt(0, task.getTemplates().size());
               templates.add(Iterables.get(task.getTemplates(), index));
             }
           }
           break;
           // installs the templates balanced
           case INSTALL_BALANCED: {
-            Collection<ServiceInfoSnapshot> services = CloudNet.getInstance()
+            var services = CloudNet.getInstance()
               .getCloudServiceProvider()
               .getCloudServicesByTask(task.getName());
             // find the least used template add register it as a service template

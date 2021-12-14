@@ -28,7 +28,7 @@ public class GlowstoneConfigurationPreparer extends AbstractServiceConfiguration
     // check if we should run now
     if (this.shouldRewriteIp(nodeInstance, cloudService)) {
       // copy the default file
-      Path configFile = cloudService.getDirectory().resolve("config/glowstone.yml");
+      var configFile = cloudService.getDirectory().resolve("config/glowstone.yml");
       this.copyCompiledFile("files/glowstone/glowstone.yml", configFile);
       // rewrite the configuration file
       this.rewriteFile(configFile, line -> {

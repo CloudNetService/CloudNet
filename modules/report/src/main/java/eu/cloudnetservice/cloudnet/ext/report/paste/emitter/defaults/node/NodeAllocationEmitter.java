@@ -26,7 +26,7 @@ public class NodeAllocationEmitter implements ReportDataEmitter<NetworkClusterNo
 
   @Override
   public void emitData(StringBuilder builder, NetworkClusterNodeInfoSnapshot context) {
-    MemoryMXBean memoryMXBean = ManagementFactory.getMemoryMXBean();
+    var memoryMXBean = ManagementFactory.getMemoryMXBean();
 
     builder.append("CPU usage: (P/S) ")
       .append(CPUUsageResolver.FORMAT.format(CPUUsageResolver.getProcessCPUUsage()))

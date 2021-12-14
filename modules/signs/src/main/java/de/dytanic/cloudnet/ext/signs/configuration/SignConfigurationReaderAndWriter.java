@@ -41,13 +41,13 @@ public final class SignConfigurationReaderAndWriter {
   public static SignConfiguration read(Path path) {
     Preconditions.checkNotNull(path);
 
-    JsonDocument document = JsonDocument.newDocument(path);
+    var document = JsonDocument.newDocument(path);
     return read(document, path);
   }
 
   public static SignConfiguration read(JsonDocument document, Path path) {
     if (!document.contains("config")) {
-      SignConfiguration signConfiguration = new SignConfiguration(
+      var signConfiguration = new SignConfiguration(
         new ArrayList<>(Collections.singletonList(SignConfigurationEntryType.BUKKIT.createEntry("Lobby"))),
         new HashMap<>(ImmutableMap.of(
           "server-connecting-message", "&7You will be moved to &c%server%&7...",
@@ -64,7 +64,7 @@ public final class SignConfigurationReaderAndWriter {
       return signConfiguration;
     }
 
-    SignConfiguration signConfiguration = document.get("config", SignConfiguration.class);
+    var signConfiguration = document.get("config", SignConfiguration.class);
     if (!signConfiguration.getMessages().containsKey("command-cloudsign-cleanup-success")) {
       signConfiguration.getMessages()
         .put("command-cloudsign-cleanup-success", "&7Non-existing signs were removed successfully");

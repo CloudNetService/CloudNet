@@ -43,17 +43,17 @@ public final class BungeeCordSyncProxyListener implements Listener {
 
   @EventHandler
   public void handleProxyPing(@NotNull ProxyPingEvent event) {
-    SyncProxyLoginConfiguration loginConfiguration = this.syncProxyManagement.getCurrentLoginConfiguration();
+    var loginConfiguration = this.syncProxyManagement.getCurrentLoginConfiguration();
 
     // check if we need to handle the proxy ping on this proxy instance
     if (loginConfiguration == null) {
       return;
     }
 
-    SyncProxyMotd motd = this.syncProxyManagement.getRandomMotd();
+    var motd = this.syncProxyManagement.getRandomMotd();
     // only display a motd if there is one in the config
     if (motd != null) {
-      int onlinePlayers = this.syncProxyManagement.getOnlinePlayerCount();
+      var onlinePlayers = this.syncProxyManagement.getOnlinePlayerCount();
       int maxPlayers;
 
       if (motd.isAutoSlot()) {
@@ -64,14 +64,14 @@ public final class BungeeCordSyncProxyListener implements Listener {
 
       ServerPing response = event.getResponse();
 
-      String protocolText = motd.format(motd.getProtocolText(), onlinePlayers, maxPlayers);
+      var protocolText = motd.format(motd.getProtocolText(), onlinePlayers, maxPlayers);
       // check if there is a protocol text in the config
       if (protocolText != null) {
         response.setVersion(new Protocol(protocolText, 1));
       }
 
       // map the playerInfo from the config to ServerPing.Players to display other information
-      ServerPing.Players players = new Players(maxPlayers, onlinePlayers,
+      var players = new Players(maxPlayers, onlinePlayers,
         Arrays.stream(motd.getPlayerInfo()).map(s -> new PlayerInfo(s.replace("&", "§"),
           UUID.randomUUID())).toArray(PlayerInfo[]::new));
 
@@ -85,7 +85,7 @@ public final class BungeeCordSyncProxyListener implements Listener {
 
   @EventHandler
   public void handleProxyLogin(@NotNull LoginEvent event) {
-    SyncProxyLoginConfiguration loginConfiguration = this.syncProxyManagement.getCurrentLoginConfiguration();
+    var loginConfiguration = this.syncProxyManagement.getCurrentLoginConfiguration();
     if (loginConfiguration == null) {
       return;
     }

@@ -36,7 +36,7 @@ final class JsonDocumentTypeAdapter extends TypeAdapter<JsonDocument> {
 
   @Override
   public @Nullable JsonDocument read(JsonReader jsonReader) throws IOException {
-    JsonElement jsonElement = TypeAdapters.JSON_ELEMENT.read(jsonReader);
+    var jsonElement = TypeAdapters.JSON_ELEMENT.read(jsonReader);
     if (jsonElement != null && jsonElement.isJsonObject()) {
       return new JsonDocument(jsonElement.getAsJsonObject());
     } else {

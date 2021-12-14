@@ -48,7 +48,7 @@ public final class SpongePlayerManagementListener {
 
   @Listener
   public void handle(@NotNull ServerSideConnectionEvent.Login event, @First @NotNull User user) {
-    ServiceTask task = this.management.getSelfTask();
+    var task = this.management.getSelfTask();
     // check if the current task is present
     if (task != null) {
       // check if maintenance is activated
@@ -60,7 +60,7 @@ public final class SpongePlayerManagementListener {
         return;
       }
       // check if a custom permission is required to join
-      String permission = task.getProperties().getString("requiredPermission");
+      var permission = task.getProperties().getString("requiredPermission");
       if (permission != null && !user.hasPermission(permission)) {
         event.setCancelled(true);
         event.setMessage(Component.text(this.management.getConfiguration().getMessage(

@@ -92,7 +92,7 @@ public class DefaultClusterNodeServer extends DefaultNodeServer implements IClus
 
   @Override
   public void syncClusterData(boolean force) {
-    ChannelMessage channelMessage = ChannelMessage.builder()
+    var channelMessage = ChannelMessage.builder()
       .message("sync_cluster_data")
       .targetNode(this.nodeInfo.getUniqueId())
       .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
@@ -103,7 +103,7 @@ public class DefaultClusterNodeServer extends DefaultNodeServer implements IClus
       channelMessage.send();
     } else {
       // send and await a response
-      ChannelMessage response = channelMessage.sendSingleQuery();
+      var response = channelMessage.sendSingleQuery();
       if (response != null && response.getContent().readBoolean()) {
         // there was overridden data we need to handle
         this.cloudNet.getDataSyncRegistry().handle(response.getContent(), true);

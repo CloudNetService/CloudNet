@@ -33,17 +33,17 @@ public class NukkitConfigurationPreparer extends AbstractServiceConfigurationPre
     // check if we should run now
     if (this.shouldRewriteIp(nodeInstance, cloudService)) {
       // copy the default file
-      Path configFile = cloudService.getDirectory().resolve("server.properties");
+      var configFile = cloudService.getDirectory().resolve("server.properties");
       this.copyCompiledFile("files/nukkit/server.properties", configFile);
       // load the configuration
-      Properties properties = new Properties();
-      try (InputStream stream = Files.newInputStream(configFile)) {
+      var properties = new Properties();
+      try (var stream = Files.newInputStream(configFile)) {
         properties.load(stream);
         // update the configuration
         properties.setProperty("server-ip", nodeInstance.getConfig().getHostAddress());
         properties.setProperty("server-port", String.valueOf(cloudService.getServiceConfiguration().getPort()));
         // store the properties
-        try (OutputStream out = Files.newOutputStream(configFile)) {
+        try (var out = Files.newOutputStream(configFile)) {
           properties.store(out, "Properties Config file - edited by CloudNet");
         }
       } catch (IOException exception) {

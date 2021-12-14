@@ -70,7 +70,7 @@ public final class VelocityCloudNetCloudPermissionsPlugin {
 
   private void injectPermissionFunction(Player player) {
     try {
-      Field field = player.getClass().getDeclaredField("permissionFunction");
+      var field = player.getClass().getDeclaredField("permissionFunction");
       field.setAccessible(true);
       field.set(
         player,

@@ -47,7 +47,7 @@ final class WaterDogPEPlayerManagementListener {
   }
 
   private void handleLogin(@NotNull PlayerLoginEvent event) {
-    ServiceTask task = this.management.getSelfTask();
+    var task = this.management.getSelfTask();
     // check if the current task is present
     if (task != null) {
       // check if maintenance is activated
@@ -59,7 +59,7 @@ final class WaterDogPEPlayerManagementListener {
         return;
       }
       // check if a custom permission is required to join
-      String permission = task.getProperties().getString("requiredPermission");
+      var permission = task.getProperties().getString("requiredPermission");
       if (permission != null && !event.getPlayer().hasPermission(permission)) {
         event.setCancelled(true);
         event.setCancelReason(this.management.getConfiguration().getMessage(
@@ -69,7 +69,7 @@ final class WaterDogPEPlayerManagementListener {
       }
     }
     // check if the player is allowed to log in
-    Result loginResult = ProxyPlatformHelper.sendChannelMessagePreLogin(
+    var loginResult = ProxyPlatformHelper.sendChannelMessagePreLogin(
       this.management.createPlayerInformation(event.getPlayer()));
     if (!loginResult.isAllowed()) {
       event.setCancelled(true);

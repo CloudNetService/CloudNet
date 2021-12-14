@@ -37,8 +37,8 @@ public class NukkitChatPlugin extends PluginBase implements Listener {
 
   @EventHandler(priority = EventPriority.HIGH)
   public void handle(@NotNull PlayerChatEvent event) {
-    Player player = event.getPlayer();
-    String format = ChatFormatter.buildFormat(
+    var player = event.getPlayer();
+    var format = ChatFormatter.buildFormat(
       player.getUniqueId(),
       player.getName(),
       player.getDisplayName(),

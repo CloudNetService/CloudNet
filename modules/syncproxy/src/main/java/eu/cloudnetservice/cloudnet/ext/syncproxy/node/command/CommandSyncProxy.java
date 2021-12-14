@@ -49,7 +49,7 @@ public final class CommandSyncProxy {
 
   @Parser(suggestions = "loginConfiguration")
   public SyncProxyLoginConfiguration loginConfigurationParser(CommandContext<CommandSource> $, Queue<String> input) {
-    String name = input.remove();
+    var name = input.remove();
 
     return this.syncProxyManagement.getConfiguration().getLoginConfigurations()
       .stream()
@@ -68,8 +68,8 @@ public final class CommandSyncProxy {
 
   @Parser(name = "newConfiguration", suggestions = "newConfiguration")
   public String newConfigurationParser(CommandContext<CommandSource> $, Queue<String> input) {
-    String name = input.remove();
-    GroupConfiguration configuration = CloudNet.getInstance().getGroupConfigurationProvider()
+    var name = input.remove();
+    var configuration = CloudNet.getInstance().getGroupConfigurationProvider()
       .getGroupConfiguration(name);
     if (configuration == null) {
       throw new ArgumentNotAvailableException(I18n.trans("command-service-base-group-not-found"));
@@ -107,8 +107,8 @@ public final class CommandSyncProxy {
     CommandSource source,
     @Argument(value = "targetGroup", parserName = "newConfiguration") String name
   ) {
-    SyncProxyLoginConfiguration loginConfiguration = SyncProxyLoginConfiguration.createDefault(name);
-    SyncProxyTabListConfiguration tabListConfiguration = SyncProxyTabListConfiguration.createDefault(name);
+    var loginConfiguration = SyncProxyLoginConfiguration.createDefault(name);
+    var tabListConfiguration = SyncProxyTabListConfiguration.createDefault(name);
 
     this.syncProxyManagement.getConfiguration().getLoginConfigurations().add(loginConfiguration);
     this.syncProxyManagement.getConfiguration().getTabListConfigurations().add(tabListConfiguration);
@@ -131,7 +131,7 @@ public final class CommandSyncProxy {
     @Argument("targetGroup") SyncProxyLoginConfiguration loginConfiguration,
     @Argument("amount") int amount
   ) {
-    SyncProxyLoginConfiguration updatedLoginConfiguration = SyncProxyLoginConfiguration.builder(loginConfiguration)
+    var updatedLoginConfiguration = SyncProxyLoginConfiguration.builder(loginConfiguration)
       .maxPlayers(amount)
       .build();
 
@@ -181,7 +181,7 @@ public final class CommandSyncProxy {
     @Argument("targetGroup") SyncProxyLoginConfiguration loginConfiguration,
     @Argument("enabled") boolean enabled
   ) {
-    SyncProxyLoginConfiguration updatedLoginConfiguration = SyncProxyLoginConfiguration.builder(loginConfiguration)
+    var updatedLoginConfiguration = SyncProxyLoginConfiguration.builder(loginConfiguration)
       .maintenance(enabled)
       .build();
 
@@ -200,12 +200,12 @@ public final class CommandSyncProxy {
   }
 
   private void displayListConfiguration(CommandSource source, SyncProxyConfiguration syncProxyConfiguration) {
-    for (SyncProxyLoginConfiguration syncProxyLoginConfiguration : syncProxyConfiguration
+    for (var syncProxyLoginConfiguration : syncProxyConfiguration
       .getLoginConfigurations()) {
       this.displayConfiguration(source, syncProxyLoginConfiguration);
     }
 
-    for (SyncProxyTabListConfiguration syncProxyTabListConfiguration : syncProxyConfiguration
+    for (var syncProxyTabListConfiguration : syncProxyConfiguration
       .getTabListConfigurations()) {
       source.sendMessage(
         "* " + syncProxyTabListConfiguration.getTargetGroup(),
@@ -214,8 +214,8 @@ public final class CommandSyncProxy {
         "Entries: "
       );
 
-      int index = 1;
-      for (SyncProxyTabList tabList : syncProxyTabListConfiguration.getEntries()) {
+      var index = 1;
+      for (var tabList : syncProxyTabListConfiguration.getEntries()) {
         source.sendMessage(
           "- " + index++,
           "Header: " + tabList.getHeader(),
@@ -236,11 +236,11 @@ public final class CommandSyncProxy {
     this.displayWhitelist(source, syncProxyLoginConfiguration.getWhitelist());
 
     source.sendMessage("Motds:");
-    for (SyncProxyMotd syncProxyMotd : syncProxyLoginConfiguration.getMotds()) {
+    for (var syncProxyMotd : syncProxyLoginConfiguration.getMotds()) {
       this.displayMotd(source, syncProxyMotd);
     }
 
-    for (SyncProxyMotd syncProxyMotd : syncProxyLoginConfiguration.getMaintenanceMotds()) {
+    for (var syncProxyMotd : syncProxyLoginConfiguration.getMaintenanceMotds()) {
       this.displayMotd(source, syncProxyMotd);
     }
   }
@@ -257,7 +257,7 @@ public final class CommandSyncProxy {
     );
 
     if (syncProxyMotd.getPlayerInfo() != null) {
-      for (String playerInfoItem : syncProxyMotd.getPlayerInfo()) {
+      for (var playerInfoItem : syncProxyMotd.getPlayerInfo()) {
         source.sendMessage("- " + playerInfoItem);
       }
     }
@@ -266,7 +266,7 @@ public final class CommandSyncProxy {
   private void displayWhitelist(CommandSource source, Collection<String> whitelistEntries) {
     source.sendMessage("Whitelist:");
 
-    for (String whitelistEntry : whitelistEntries) {
+    for (var whitelistEntry : whitelistEntries) {
       source.sendMessage("- " + whitelistEntry);
     }
   }

@@ -47,7 +47,7 @@ public class ConsoleCommandSource implements CommandSource {
    */
   @Override
   public void sendMessage(@NotNull String... messages) {
-    for (String message : messages) {
+    for (var message : messages) {
       LOGGER.info(message);
     }
   }
@@ -57,7 +57,7 @@ public class ConsoleCommandSource implements CommandSource {
    */
   @Override
   public void sendMessage(@NotNull Collection<String> messages) {
-    for (String message : messages) {
+    for (var message : messages) {
       LOGGER.info(message);
     }
   }

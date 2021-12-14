@@ -47,19 +47,19 @@ public class ListenableTask<V> extends FutureTask<V> implements ITask<V> {
     }
     // check if the task was cancelled
     if (this.isCancelled()) {
-      for (ITaskListener<V> listener : this.listeners) {
+      for (var listener : this.listeners) {
         listener.onCancelled(this);
       }
     } else {
       // populate the result that get() gives us
       try {
-        V result = this.get();
-        for (ITaskListener<V> listener : this.listeners) {
+        var result = this.get();
+        for (var listener : this.listeners) {
           listener.onComplete(this, result);
         }
       } catch (InterruptedException | ExecutionException exception) {
         // we know that the task is done - it can only be a ExecutionException wrapping the original exception
-        for (ITaskListener<V> listener : this.listeners) {
+        for (var listener : this.listeners) {
           listener.onFailure(this, exception.getCause());
         }
       }

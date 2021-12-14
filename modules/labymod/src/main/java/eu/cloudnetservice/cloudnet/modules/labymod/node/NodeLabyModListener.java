@@ -45,7 +45,7 @@ public class NodeLabyModListener {
 
     if (LabyModManagement.LABYMOD_UPDATE_CONFIG.equals(event.getMessage())) {
       // read the configuration from the databuf
-      LabyModConfiguration configuration = event.getContent().readObject(LabyModConfiguration.class);
+      var configuration = event.getContent().readObject(LabyModConfiguration.class);
       // write the configuration silently to the file
       this.labyModManagement.setConfigurationSilently(configuration);
     }
@@ -57,15 +57,15 @@ public class NodeLabyModListener {
       return;
     }
 
-    ICloudService service = event.getService();
+    var service = event.getService();
     if (!ServiceEnvironmentType.isMinecraftProxy(service.getServiceId().getEnvironment())) {
       return;
     }
 
-    Path pluginsFolder = event.getService().getDirectory().resolve("plugins");
+    var pluginsFolder = event.getService().getDirectory().resolve("plugins");
     FileUtils.createDirectory(pluginsFolder);
 
-    Path targetFile = pluginsFolder.resolve("cloudnet-labymod.jar");
+    var targetFile = pluginsFolder.resolve("cloudnet-labymod.jar");
     FileUtils.delete(targetFile);
 
     if (DefaultModuleHelper.copyCurrentModuleInstanceFromClass(NodeLabyModListener.class, targetFile)) {

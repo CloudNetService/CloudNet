@@ -26,12 +26,12 @@ public class EventPriorityTest {
 
   @RepeatedTest(15)
   public void testEventPriorityComparator() {
-    List<EventPriority> eventPriorities = Arrays.asList(EventPriority.values());
+    var eventPriorities = Arrays.asList(EventPriority.values());
 
     Collections.shuffle(eventPriorities);
     Collections.sort(eventPriorities);
 
-    for (int i = 0; i < EventPriority.values().length; i++) {
+    for (var i = 0; i < EventPriority.values().length; i++) {
       Assertions.assertSame(EventPriority.values()[i], eventPriorities.get(i));
     }
   }

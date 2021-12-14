@@ -46,7 +46,7 @@ public final class CommandProviderTest {
 
   @BeforeAll
   public static void initNode() {
-    CloudNet node = NodeTestUtility.mockAndSetDriverInstance();
+    var node = NodeTestUtility.mockAndSetDriverInstance();
     Mockito.when(node.getCommandProvider()).thenReturn(commandProvider);
     Mockito.when(node.getEventManager()).thenReturn(new DefaultEventManager());
     commandProvider.register(new CommandTest());
@@ -55,12 +55,12 @@ public final class CommandProviderTest {
 
   @Test
   public void testCommandRegistration() {
-    CommandInfo testCommand = commandProvider.getCommand("tests");
+    var testCommand = commandProvider.getCommand("tests");
     Assertions.assertNotNull(testCommand);
     Assertions.assertEquals(1, testCommand.getUsage().size());
     Assertions.assertEquals("tests test <user>", Iterables.firstOf(testCommand.getUsage()));
 
-    CommandInfo testCommandByAlias = commandProvider.getCommand("test1");
+    var testCommandByAlias = commandProvider.getCommand("test1");
     Assertions.assertNotNull(testCommandByAlias);
     Assertions.assertNotEquals("test1", testCommand.getName());
     Assertions.assertEquals(testCommandByAlias, testCommandByAlias);
@@ -68,29 +68,29 @@ public final class CommandProviderTest {
 
   @Test
   public void testStaticCommandSuggestions() {
-    DriverCommandSource source = new DriverCommandSource();
+    var source = new DriverCommandSource();
 
-    List<String> rootSuggestions = commandProvider.suggest(source, "tests");
+    var rootSuggestions = commandProvider.suggest(source, "tests");
     Assertions.assertEquals(2, rootSuggestions.size());
     Assertions.assertEquals(Arrays.asList("help", "tests"), rootSuggestions);
 
-    List<String> subSuggestions = commandProvider.suggest(source, "tests ");
+    var subSuggestions = commandProvider.suggest(source, "tests ");
     Assertions.assertEquals(1, subSuggestions.size());
     Assertions.assertEquals("test", Iterables.firstOf(subSuggestions));
   }
 
   @Test
   public void testDynamicCommandSuggestions() {
-    DriverCommandSource source = new DriverCommandSource();
+    var source = new DriverCommandSource();
 
-    List<String> suggestions = commandProvider.suggest(source, "tests test ");
+    var suggestions = commandProvider.suggest(source, "tests test ");
     Assertions.assertEquals(3, suggestions.size());
     Assertions.assertEquals(Arrays.asList("alice", "bob", "clyde"), suggestions);
   }
 
   @Test
   public void testCommandNotFound() {
-    DriverCommandSource source = new DriverCommandSource();
+    var source = new DriverCommandSource();
 
     try {
       commandProvider.execute(source, "non existing command").join();

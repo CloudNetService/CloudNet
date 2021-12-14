@@ -44,11 +44,11 @@ public final class BungeeCordCloudCommand extends Command {
       return;
     }
     // get the full command line
-    String commandLine = String.join(" ", args);
+    var commandLine = String.join(" ", args);
     // skip the permission check if the source is the console
     if (sender instanceof ProxiedPlayer) {
       // get the command info
-      CommandInfo command = CloudNetDriver.getInstance().getNodeInfoProvider().getConsoleCommand(commandLine);
+      var command = CloudNetDriver.getInstance().getNodeInfoProvider().getConsoleCommand(commandLine);
       // check if the sender has the required permission to execute the command
       if (command != null && command.getPermission() != null) {
         if (!sender.hasPermission(command.getPermission())) {
@@ -62,7 +62,7 @@ public final class BungeeCordCloudCommand extends Command {
     }
     // execute the command
     CloudNetDriver.getInstance().getNodeInfoProvider().sendCommandLineAsync(commandLine).onComplete(messages -> {
-      for (String line : messages) {
+      for (var line : messages) {
         sender.sendMessage(fromLegacyText(this.management.getConfiguration().getPrefix() + line));
       }
     });

@@ -82,7 +82,7 @@ public class NodeSignsListener {
         // delete all signs
         case AbstractPlatformSignManagement.SIGN_ALL_DELETE:
           Collection<WorldPosition> positions = event.getContent().readObject(WorldPosition.COL_TYPE);
-          for (WorldPosition position : positions) {
+          for (var position : positions) {
             this.signManagement.deleteSign(position);
           }
           break;
@@ -96,7 +96,7 @@ public class NodeSignsListener {
           break;
         // delete all signs
         case AbstractPlatformSignManagement.SIGN_BULK_DELETE:
-          int deleted = this.signManagement
+          var deleted = this.signManagement
             .deleteAllSigns(event.getContent().readString(), event.getContent().readNullable(DataBuf::readString));
           event.setBinaryResponse(DataBuf.empty().writeInt(deleted));
           break;
@@ -106,7 +106,7 @@ public class NodeSignsListener {
           break;
         // get all signs of a group
         case PlatformSignManagement.SIGN_GET_SIGNS_BY_GROUPS:
-          Collection<Sign> signs = this.signManagement.getSigns(event.getContent().readObject(String[].class));
+          var signs = this.signManagement.getSigns(event.getContent().readObject(String[].class));
           event.setBinaryResponse(DataBuf.empty().writeObject(signs));
           break;
         // set the sign configuration without a re-publish to the cluster

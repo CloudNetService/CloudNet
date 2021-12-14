@@ -66,7 +66,7 @@ public interface IPlayerManager {
    * with that name online
    */
   default @Nullable CloudPlayer getFirstOnlinePlayer(@NotNull String name) {
-    List<? extends CloudPlayer> players = this.getOnlinePlayers(name);
+    var players = this.getOnlinePlayers(name);
     return players.isEmpty() ? null : players.get(0);
   }
 
@@ -120,7 +120,7 @@ public interface IPlayerManager {
    */
   @Nullable
   default CloudOfflinePlayer getFirstOfflinePlayer(@NotNull String name) {
-    List<? extends CloudOfflinePlayer> players = this.getOfflinePlayers(name);
+    var players = this.getOfflinePlayers(name);
     return players.isEmpty() ? null : players.get(0);
   }
 

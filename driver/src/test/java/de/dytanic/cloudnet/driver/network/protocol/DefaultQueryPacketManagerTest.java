@@ -31,7 +31,7 @@ public class DefaultQueryPacketManagerTest {
 
   @Test
   void testSendQueryPacket() {
-    Pair<IPacket, AtomicReference<UUID>> mockedPacket = this.mockUniqueIdAblePacket();
+    var mockedPacket = this.mockUniqueIdAblePacket();
     QueryPacketManager manager = new DefaultQueryPacketManager(Mockito.mock(INetworkChannel.class));
 
     manager.sendQueryPacket(mockedPacket.getFirst());
@@ -45,8 +45,8 @@ public class DefaultQueryPacketManagerTest {
 
   @Test
   void testSendQueryPacketWithFixedId() {
-    UUID uniqueId = UUID.randomUUID();
-    Pair<IPacket, AtomicReference<UUID>> mockedPacket = this.mockUniqueIdAblePacket();
+    var uniqueId = UUID.randomUUID();
+    var mockedPacket = this.mockUniqueIdAblePacket();
     QueryPacketManager manager = new DefaultQueryPacketManager(Mockito.mock(INetworkChannel.class));
 
     manager.sendQueryPacket(mockedPacket.getFirst(), uniqueId);
@@ -61,10 +61,10 @@ public class DefaultQueryPacketManagerTest {
 
   @Test
   void testGetAndRemoveHandler() {
-    Pair<IPacket, AtomicReference<UUID>> mockedPacket = this.mockUniqueIdAblePacket();
+    var mockedPacket = this.mockUniqueIdAblePacket();
     QueryPacketManager manager = new DefaultQueryPacketManager(Mockito.mock(INetworkChannel.class));
 
-    CompletableTask<IPacket> task = manager.sendQueryPacket(mockedPacket.getFirst());
+    var task = manager.sendQueryPacket(mockedPacket.getFirst());
 
     Assertions.assertEquals(task, manager.getWaitingHandler(mockedPacket.getSecond().get()));
     Assertions.assertFalse(manager.hasWaitingHandler(mockedPacket.getSecond().get()));
@@ -73,10 +73,10 @@ public class DefaultQueryPacketManagerTest {
   @Test
   @Timeout(10)
   void testHandlerTimeout() throws InterruptedException {
-    Pair<IPacket, AtomicReference<UUID>> mockedPacket = this.mockUniqueIdAblePacket();
+    var mockedPacket = this.mockUniqueIdAblePacket();
     QueryPacketManager manager = new DefaultQueryPacketManager(Mockito.mock(INetworkChannel.class), 2000);
 
-    CompletableTask<IPacket> task = manager.sendQueryPacket(mockedPacket.getFirst());
+    var task = manager.sendQueryPacket(mockedPacket.getFirst());
     Assertions.assertTrue(manager.hasWaitingHandler(mockedPacket.getSecond().get()));
 
     Thread.sleep(2500);
@@ -88,9 +88,9 @@ public class DefaultQueryPacketManagerTest {
   }
 
   private Pair<IPacket, AtomicReference<UUID>> mockUniqueIdAblePacket() {
-    AtomicReference<UUID> reference = new AtomicReference<>();
+    var reference = new AtomicReference<UUID>();
 
-    IPacket packet = Mockito.mock(IPacket.class);
+    var packet = Mockito.mock(IPacket.class);
     Mockito
       .doAnswer(invocation -> {
         reference.set(invocation.getArgument(0));

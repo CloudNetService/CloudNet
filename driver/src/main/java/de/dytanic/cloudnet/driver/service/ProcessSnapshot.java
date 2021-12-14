@@ -46,10 +46,10 @@ public class ProcessSnapshot implements Cloneable {
     -1, -1, -1, -1, -1, -1, -1, -1, -1, Collections.emptyList());
 
   static {
-    String runtimeName = ManagementFactory.getRuntimeMXBean().getName();
-    int index = runtimeName.indexOf('@');
+    var runtimeName = ManagementFactory.getRuntimeMXBean().getName();
+    var index = runtimeName.indexOf('@');
 
-    int parsed = -1;
+    var parsed = -1;
     if (index > 0) {
       try {
         parsed = Integer.parseInt(runtimeName.substring(0, index));

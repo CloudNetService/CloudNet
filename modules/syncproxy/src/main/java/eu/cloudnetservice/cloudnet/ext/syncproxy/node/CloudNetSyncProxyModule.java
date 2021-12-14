@@ -46,7 +46,7 @@ public final class CloudNetSyncProxyModule extends DriverModule {
   public void convertConfig() {
     if (Files.exists(this.getConfigPath())) {
       // the old config is located in a document with the key "config", extract the actual config
-      JsonDocument document = this.readConfig().getDocument("config", null);
+      var document = this.readConfig().getDocument("config", null);
       // check if there is an old config
       if (document != null) {
         // write the extracted part to the file
@@ -63,7 +63,7 @@ public final class CloudNetSyncProxyModule extends DriverModule {
       this.writeConfig(JsonDocument.newDocument(SyncProxyConfiguration.createDefault("Proxy")));
     }
     // read the config from the file
-    SyncProxyConfiguration configuration = this.readConfig().toInstanceOf(SyncProxyConfiguration.class);
+    var configuration = this.readConfig().toInstanceOf(SyncProxyConfiguration.class);
     this.nodeSyncProxyManagement = new NodeSyncProxyManagement(this, configuration, this.getRPCFactory());
     // register the SyncProxyManagement to the ServiceRegistry
     this.nodeSyncProxyManagement.registerService(this.getServiceRegistry());

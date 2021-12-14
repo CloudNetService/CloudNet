@@ -47,8 +47,8 @@ public final class BukkitWorldListener implements Listener {
       .stream()
       .filter(npc -> !npc.isSpawned())
       .filter(npc -> {
-        int chunkX = NumberConversions.floor(npc.getLocation().getX()) >> 4;
-        int chunkZ = NumberConversions.floor(npc.getLocation().getZ()) >> 4;
+        var chunkX = NumberConversions.floor(npc.getLocation().getX()) >> 4;
+        var chunkZ = NumberConversions.floor(npc.getLocation().getZ()) >> 4;
         // validate that the entity is in the chunk being loaded - Location#getChunk causes a load of the chunk
         return event.getChunk().getX() == chunkX && event.getChunk().getZ() == chunkZ;
       })
@@ -61,8 +61,8 @@ public final class BukkitWorldListener implements Listener {
       .stream()
       .filter(PlatformSelectorEntity::isSpawned)
       .filter(npc -> {
-        int chunkX = NumberConversions.floor(npc.getLocation().getX()) >> 4;
-        int chunkZ = NumberConversions.floor(npc.getLocation().getZ()) >> 4;
+        var chunkX = NumberConversions.floor(npc.getLocation().getX()) >> 4;
+        var chunkZ = NumberConversions.floor(npc.getLocation().getZ()) >> 4;
         // validate that the entity is in the chunk being unloaded - Location#getChunk causes a load of the chunk
         return event.getChunk().getX() == chunkX && event.getChunk().getZ() == chunkZ;
       })

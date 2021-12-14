@@ -53,7 +53,7 @@ final class DefaultSuggestionProcessor implements CommandSuggestionProcessor<Com
     }
 
     List<String> suggestions = new LinkedList<>();
-    for (String suggestion : strings) {
+    for (var suggestion : strings) {
       // check if clouds suggestion matches the input and the command is registered
       if (StringUtil.startsWithIgnoreCase(suggestion, input)
         && (context.getCommandContext().getRawInput().size() > 1 || this.provider.getCommand(suggestion) != null)) {

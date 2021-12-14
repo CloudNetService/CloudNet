@@ -172,7 +172,7 @@ public class DefaultModuleWrapper implements IModuleWrapper {
     if (this.getModuleLifeCycle().canChangeTo(ModuleLifeCycle.STARTED)
       && this.provider.notifyPreModuleLifecycleChange(this, ModuleLifeCycle.STARTED)) {
       // Resolve all dependencies of this module to start them before this module
-      for (IModuleWrapper wrapper : ModuleDependencyUtils.collectDependencies(this, this.provider)) {
+      for (var wrapper : ModuleDependencyUtils.collectDependencies(this, this.provider)) {
         wrapper.startModule();
       }
       // now we can start this module
@@ -191,7 +191,7 @@ public class DefaultModuleWrapper implements IModuleWrapper {
     if (this.getModuleLifeCycle().canChangeTo(ModuleLifeCycle.RELOADING)
       && this.provider.notifyPreModuleLifecycleChange(this, ModuleLifeCycle.RELOADING)) {
       // Resolve all dependencies of this module to reload them before this module
-      for (IModuleWrapper wrapper : ModuleDependencyUtils.collectDependencies(this, this.provider)) {
+      for (var wrapper : ModuleDependencyUtils.collectDependencies(this, this.provider)) {
         wrapper.reloadModule();
       }
       //now we can reload this module
@@ -274,9 +274,9 @@ public class DefaultModuleWrapper implements IModuleWrapper {
   protected @NotNull Map<ModuleLifeCycle, List<IModuleTaskEntry>> resolveModuleTasks(@NotNull IModule module) {
     Map<ModuleLifeCycle, List<IModuleTaskEntry>> result = new EnumMap<>(ModuleLifeCycle.class);
     // check all declared methods to get all methods of this and super classes
-    for (Method method : module.getClass().getDeclaredMethods()) {
+    for (var method : module.getClass().getDeclaredMethods()) {
       // check if this method is a method we need to register
-      ModuleTask moduleTask = method.getAnnotation(ModuleTask.class);
+      var moduleTask = method.getAnnotation(ModuleTask.class);
       if (moduleTask != null && method.getParameterCount() == 0) {
         try {
           // ensure that we can access the method before we register it, this will never fail on public methods as
@@ -292,7 +292,7 @@ public class DefaultModuleWrapper implements IModuleWrapper {
         }
         // now try to register the method
         try {
-          List<IModuleTaskEntry> entries = result.computeIfAbsent(moduleTask.event(), $ -> new ArrayList<>());
+          var entries = result.computeIfAbsent(moduleTask.event(), $ -> new ArrayList<>());
           entries.add(new DefaultModuleTaskEntry(this, moduleTask, method));
           // re-sort the list now as we don't want to re-iterate later
           entries.sort(TASK_COMPARATOR);
@@ -312,7 +312,7 @@ public class DefaultModuleWrapper implements IModuleWrapper {
    * @param notifyProvider if the module provider should be notified about the change or not.
    */
   protected void pushLifecycleChange(@NotNull ModuleLifeCycle lifeCycle, boolean notifyProvider) {
-    List<IModuleTaskEntry> tasks = this.tasks.get(lifeCycle);
+    var tasks = this.tasks.get(lifeCycle);
     if (this.getModuleLifeCycle().canChangeTo(lifeCycle)) {
       this.moduleLifecycleUpdateLock.lock();
       try {
@@ -321,7 +321,7 @@ public class DefaultModuleWrapper implements IModuleWrapper {
         if (!notifyProvider || this.getModuleProvider().notifyPreModuleLifecycleChange(this, lifeCycle)) {
           // The tasks are always in the logical order in the backing map, so there is no need to sort here
           if (tasks != null && !tasks.isEmpty()) {
-            for (IModuleTaskEntry task : tasks) {
+            for (var task : tasks) {
               if (this.fireModuleTaskEntry(task)) {
                 // we couldn't complete firing all tasks as one failed, so we break here and warn the user about that.
                 LOGGER.warning(String.format(

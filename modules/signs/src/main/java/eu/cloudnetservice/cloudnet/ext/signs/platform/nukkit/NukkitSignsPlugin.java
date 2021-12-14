@@ -35,7 +35,7 @@ public class NukkitSignsPlugin extends PluginBase {
     signManagement.initialize();
     signManagement.registerToServiceRegistry();
     // command
-    PluginCommand<?> pluginCommand = (PluginCommand<?>) this.getCommand("cloudsign");
+    var pluginCommand = (PluginCommand<?>) this.getCommand("cloudsign");
     if (pluginCommand != null) {
       pluginCommand.setExecutor(new CommandSigns(signManagement));
     }

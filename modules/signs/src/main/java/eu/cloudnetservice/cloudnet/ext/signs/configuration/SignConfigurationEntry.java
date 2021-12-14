@@ -221,7 +221,7 @@ public class SignConfigurationEntry implements Cloneable {
   @Override
   public SignConfigurationEntry clone() {
     try {
-      SignConfigurationEntry clone = (SignConfigurationEntry) super.clone();
+      var clone = (SignConfigurationEntry) super.clone();
       return clone;
     } catch (CloneNotSupportedException e) {
       return new SignConfigurationEntry(

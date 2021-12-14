@@ -31,7 +31,7 @@ public interface Updater extends VersionInfo {
   boolean installFile(String name, Path path);
 
   default boolean installUpdate(String moduleDestinationBaseDirectory) {
-    boolean successful = false;
+    var successful = false;
 
     if (this.getCurrentVersion() != null) {
 
@@ -40,23 +40,23 @@ public interface Updater extends VersionInfo {
 
         successful = true;
 
-        for (String versionFile : LauncherUtils.VERSION_FILE_NAMES) {
+        for (var versionFile : LauncherUtils.VERSION_FILE_NAMES) {
           if (!this.installFile(versionFile, this.getTargetDirectory().resolve(versionFile))) {
             successful = false;
           }
         }
 
         if (moduleDestinationBaseDirectory != null) {
-          Path moduleDirectoryPath = Paths.get(moduleDestinationBaseDirectory);
+          var moduleDirectoryPath = Paths.get(moduleDestinationBaseDirectory);
 
-          boolean modulesExist = Files.exists(moduleDirectoryPath);
+          var modulesExist = Files.exists(moduleDirectoryPath);
 
           if (!modulesExist) {
             Files.createDirectories(moduleDirectoryPath);
           }
 
-          for (CloudNetModule module : LauncherUtils.DEFAULT_MODULES) {
-            Path modulePath = moduleDirectoryPath.resolve(module.getFileName());
+          for (var module : LauncherUtils.DEFAULT_MODULES) {
+            var modulePath = moduleDirectoryPath.resolve(module.getFileName());
 
             // avoiding the installation of manual removed modules
             if (!modulesExist || Files.exists(modulePath)) {

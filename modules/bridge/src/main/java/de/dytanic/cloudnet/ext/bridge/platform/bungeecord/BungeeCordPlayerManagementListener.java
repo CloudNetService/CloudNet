@@ -60,7 +60,7 @@ final class BungeeCordPlayerManagementListener implements Listener {
 
   @EventHandler
   public void handle(@NotNull LoginEvent event) {
-    ServiceTask task = this.management.getSelfTask();
+    var task = this.management.getSelfTask();
     // check if the current task is present
     if (task != null) {
       // we need to wrap the proxied player to allow permission checks
@@ -74,7 +74,7 @@ final class BungeeCordPlayerManagementListener implements Listener {
         return;
       }
       // check if a custom permission is required to join
-      String permission = task.getProperties().getString("requiredPermission");
+      var permission = task.getProperties().getString("requiredPermission");
       if (permission != null && !player.hasPermission(permission)) {
         event.setCancelled(true);
         event.setCancelReason(TextComponent.fromLegacyText(this.management.getConfiguration().getMessage(
@@ -84,7 +84,7 @@ final class BungeeCordPlayerManagementListener implements Listener {
       }
     }
     // check if the player is allowed to log in
-    Result loginResult = ProxyPlatformHelper.sendChannelMessagePreLogin(new NetworkPlayerProxyInfo(
+    var loginResult = ProxyPlatformHelper.sendChannelMessagePreLogin(new NetworkPlayerProxyInfo(
       event.getConnection().getUniqueId(),
       event.getConnection().getName(),
       null,
@@ -128,7 +128,7 @@ final class BungeeCordPlayerManagementListener implements Listener {
         event.setCancelServer(target);
         // extract the reason for the disconnect and wrap it
         Locale playerLocale = event.getPlayer().getLocale();
-        String baseMessage = this.management.getConfiguration().getMessage(playerLocale, "error-connecting-to-server")
+        var baseMessage = this.management.getConfiguration().getMessage(playerLocale, "error-connecting-to-server")
           .replace("%server%", event.getKickedFrom().getName())
           .replace("%reason%", ComponentSerializer.toString(event.getKickReasonComponent()));
         // send the player the reason for the disconnect

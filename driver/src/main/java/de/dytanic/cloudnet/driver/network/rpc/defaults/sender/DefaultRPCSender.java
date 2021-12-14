@@ -76,7 +76,7 @@ public class DefaultRPCSender extends DefaultRPCProvider implements RPCSender {
   @Override
   public @NotNull RPC invokeMethod(@NotNull String methodName, Object... args) {
     // find the method information of the method we want to invoke
-    MethodInformation information = this.cachedMethodInformation.computeIfAbsent(
+    var information = this.cachedMethodInformation.computeIfAbsent(
       methodName,
       $ -> MethodInformation.find(null, this.targetClass, methodName, null));
     // generate the rpc from this information

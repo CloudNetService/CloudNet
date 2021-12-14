@@ -184,9 +184,9 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
     @NotNull Function<String, Boolean> permissionTester
   ) {
     // get the currently applying fallback config
-    ProxyFallbackConfiguration config = Preconditions.checkNotNull(this.currentFallbackConfiguration);
+    var config = Preconditions.checkNotNull(this.currentFallbackConfiguration);
     // get the fallback profile for the player
-    FallbackProfile profile = this.fallbackProfiles.computeIfAbsent(playerId, $ -> new FallbackProfile());
+    var profile = this.fallbackProfiles.computeIfAbsent(playerId, $ -> new FallbackProfile());
     // search for the best fallback
     return this.getPossibleFallbacks(currentServerName, virtualHost, permissionTester)
       // get all services we have cached of the task
@@ -223,9 +223,9 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
     @NotNull Function<String, Boolean> permissionTester
   ) {
     // get the currently applying fallback config
-    ProxyFallbackConfiguration config = Preconditions.checkNotNull(this.currentFallbackConfiguration);
+    var config = Preconditions.checkNotNull(this.currentFallbackConfiguration);
     // get all groups of the service the player is currently on
-    Set<String> currentGroups = this.getCachedService(service -> service.getName().equals(currentServerName))
+    var currentGroups = this.getCachedService(service -> service.getName().equals(currentServerName))
       .map(service -> service.getConfiguration().getGroups())
       .orElse(Collections.emptySet());
     // find all matching fallback configurations
@@ -276,7 +276,7 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
 
   public void handleFallbackConnectionSuccess(@NotNull UUID uniqueId) {
     // if present clear the profile
-    FallbackProfile profile = this.fallbackProfiles.get(uniqueId);
+    var profile = this.fallbackProfiles.get(uniqueId);
     if (profile != null) {
       profile.reset();
     }
@@ -292,7 +292,7 @@ public abstract class PlatformBridgeManagement<P, I> implements BridgeManagement
     Wrapper.getInstance().publishServiceInfoUpdate();
     // load all services and cache the ones which are matching the cache policy
     CloudNetDriver.getInstance().getCloudServiceProvider().getCloudServicesAsync().onComplete(services -> {
-      for (ServiceInfoSnapshot service : services) {
+      for (var service : services) {
         this.handleServiceUpdate(service);
       }
     });

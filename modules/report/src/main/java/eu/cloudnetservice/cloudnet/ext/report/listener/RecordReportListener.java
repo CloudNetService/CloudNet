@@ -44,18 +44,18 @@ public final class RecordReportListener {
       return;
     }
 
-    ReportConfiguration configuration = this.reportModule.getReportConfiguration();
-    long serviceLifetimeSetting = configuration.getServiceLifetime();
+    var configuration = this.reportModule.getReportConfiguration();
+    var serviceLifetimeSetting = configuration.getServiceLifetime();
     // -1 is used to disable the log printing.
     if (serviceLifetimeSetting == -1L) {
       return;
     }
 
-    long connectedTime = System.currentTimeMillis() - event.getServiceInfo().getConnectedTime();
+    var connectedTime = System.currentTimeMillis() - event.getServiceInfo().getConnectedTime();
     // check if we should print the log lines based on the online time.
     if (connectedTime <= serviceLifetimeSetting) {
-      IServiceConsoleLogCache consoleLogCache = event.getService().getServiceConsoleLogCache().update();
-      for (String logMessage : consoleLogCache.getCachedLogMessages()) {
+      var consoleLogCache = event.getService().getServiceConsoleLogCache().update();
+      for (var logMessage : consoleLogCache.getCachedLogMessages()) {
         LOGGER.severe(String.format("[%s] %s", event.getServiceInfo().getName(), logMessage));
       }
     }
@@ -92,7 +92,7 @@ public final class RecordReportListener {
 
   private void createRecord(ICloudService cloudService) {
     // we need to check and create the record directory as it's time based.
-    Record recordCreator = Record.forService(this.reportModule.getCurrentRecordDirectory(), cloudService);
+    var recordCreator = Record.forService(this.reportModule.getCurrentRecordDirectory(), cloudService);
     // unable to create records as the directory already exists
     if (recordCreator == null) {
       return;

@@ -89,10 +89,10 @@ public final class NPCCommand extends BaseTabExecutor {
       return true;
     }
 
-    Player player = (Player) sender;
+    var player = (Player) sender;
 
     // get the npc configuration entry for the current group
-    NPCConfigurationEntry entry = this.management.getApplicableNPCConfigurationEntry();
+    var entry = this.management.getApplicableNPCConfigurationEntry();
     if (entry == null) {
       sender.sendMessage("§cThere is no applicable npc configuration entry for this service (yet)!");
       return true;
@@ -101,15 +101,15 @@ public final class NPCCommand extends BaseTabExecutor {
     // npc create
     if (args.length >= 5 && args[0].equalsIgnoreCase("create")) {
       // 0: target group
-      String targetGroup = args[1];
+      var targetGroup = args[1];
       // 1: mob type
-      NPCType npcType = Enums.getIfPresent(NPCType.class, args[2].toUpperCase()).orNull();
+      var npcType = Enums.getIfPresent(NPCType.class, args[2].toUpperCase()).orNull();
       if (npcType == null) {
         sender.sendMessage("§cNo such NPC type, use one of: " + String.join(", ", NPC_TYPES));
         return true;
       }
       // 3...: display name parts
-      String displayName = String.join(" ", Arrays.copyOfRange(args, 4, args.length)).trim();
+      var displayName = String.join(" ", Arrays.copyOfRange(args, 4, args.length)).trim();
       if (displayName.length() > 16) {
         sender.sendMessage("§cThe display name can only contain up to 16 chars.");
         return true;
@@ -117,13 +117,13 @@ public final class NPCCommand extends BaseTabExecutor {
       // 2: skin owner or entity type, depends on 1
       if (npcType == NPCType.PLAYER) {
         // load the profile
-        Profile profile = new Profile(args[3]);
+        var profile = new Profile(args[3]);
         if (!profile.complete()) {
           sender.sendMessage(String.format("§cUnable to complete profile of §6%s§c!", args[3]));
           return true;
         }
         // create the npc
-        NPC npc = NPC.builder()
+        var npc = NPC.builder()
           .profileProperties(profile.getProperties().stream()
             .map(property -> new ProfileProperty(property.getName(), property.getValue(), property.getSignature()))
             .collect(Collectors.toSet()))
@@ -134,7 +134,7 @@ public final class NPCCommand extends BaseTabExecutor {
         this.management.createNPC(npc);
       } else {
         // get the entity type
-        EntityType entityType = Enums.getIfPresent(EntityType.class, args[3].toUpperCase()).orNull();
+        var entityType = Enums.getIfPresent(EntityType.class, args[3].toUpperCase()).orNull();
         if (entityType == null
           || !entityType.isSpawnable()
           || !entityType.isAlive()
@@ -144,7 +144,7 @@ public final class NPCCommand extends BaseTabExecutor {
           return true;
         }
         // create the npc
-        NPC npc = NPC.builder()
+        var npc = NPC.builder()
           .entityType(entityType.name())
           .displayName(displayName)
           .targetGroup(targetGroup)
@@ -164,7 +164,7 @@ public final class NPCCommand extends BaseTabExecutor {
         // remove the nearest npc
         case "rm":
         case "remove": {
-          NPC npc = this.getNearestNPC(player.getLocation());
+          var npc = this.getNearestNPC(player.getLocation());
           if (npc == null) {
             sender.sendMessage("§cNo npc in range found! Make sure the npc you want to edit is in a 5 block radius.");
             return true;
@@ -191,7 +191,7 @@ public final class NPCCommand extends BaseTabExecutor {
         // copies the current npc
         case "cp":
         case "copy": {
-          NPC npc = this.getNearestNPC(player.getLocation());
+          var npc = this.getNearestNPC(player.getLocation());
           if (npc == null) {
             sender.sendMessage("§cNo npc in range found! Make sure the npc you want to edit is in a 5 block radius.");
             return true;
@@ -215,7 +215,7 @@ public final class NPCCommand extends BaseTabExecutor {
         }
         // cuts the npc
         case "cut": {
-          NPC npc = this.getNearestNPC(player.getLocation());
+          var npc = this.getNearestNPC(player.getLocation());
           if (npc == null) {
             sender.sendMessage("§cNo npc in range found! Make sure the npc you want to edit is in a 5 block radius.");
             return true;
@@ -234,13 +234,13 @@ public final class NPCCommand extends BaseTabExecutor {
         }
         // pastes the npc
         case "paste": {
-          List<MetadataValue> values = player.getMetadata(COPIED_NPC_KEY);
+          var values = player.getMetadata(COPIED_NPC_KEY);
           if (values.isEmpty()) {
             sender.sendMessage("§cThere is no npc in your clipboard!");
             return true;
           }
           // paste the npc
-          NPC npc = ((NPC.Builder) values.get(0).value())
+          var npc = ((NPC.Builder) values.get(0).value())
             .location(this.management.toWorldPosition(player.getLocation(), entry.getTargetGroup()))
             .build();
           this.management.createNPC(npc);
@@ -252,7 +252,7 @@ public final class NPCCommand extends BaseTabExecutor {
         // lists all npcs
         case "list": {
           sender.sendMessage(String.format("§7There are §6%s §7selector mobs:", this.management.getNPCs().size()));
-          for (NPC npc : this.management.getNPCs()) {
+          for (var npc : this.management.getNPCs()) {
             sender.sendMessage(String.format(
               "§8> §6\"%s\" §8@ §7%s§8/§7%s §8- §7%d, %d, %d in \"%s\"",
               npc.getDisplayName(),
@@ -274,7 +274,7 @@ public final class NPCCommand extends BaseTabExecutor {
 
     // npc edit
     if (args.length >= 3 && args[0].equalsIgnoreCase("edit")) {
-      final NPC npc = this.getNearestNPC(player.getLocation());
+      final var npc = this.getNearestNPC(player.getLocation());
       if (npc == null) {
         sender.sendMessage("§cNo npc in range found! Make sure the npc you want to edit is in a 5 block radius.");
         return true;
@@ -284,7 +284,7 @@ public final class NPCCommand extends BaseTabExecutor {
       switch (args[1].toLowerCase()) {
         // edit of the display name
         case "display": {
-          String displayName = String.join(" ", Arrays.copyOfRange(args, 2, args.length)).trim();
+          var displayName = String.join(" ", Arrays.copyOfRange(args, 2, args.length)).trim();
           if (displayName.length() > 16) {
             sender.sendMessage("§cThe display name can only contain up to 16 chars.");
             return true;
@@ -329,7 +329,7 @@ public final class NPCCommand extends BaseTabExecutor {
         case "gc":
         case "glowingcolor": {
           // try to parse the color
-          ChatColor chatColor = ChatColor.getByChar(args[2]);
+          var chatColor = ChatColor.getByChar(args[2]);
           if (chatColor == null) {
             sender.sendMessage(String.format(
               "§cNo such chat color char §6%s§c! Use one of §8[§60-9§8, §6a-f§8, §6r§8]§c.",
@@ -353,7 +353,7 @@ public final class NPCCommand extends BaseTabExecutor {
         case "fwe":
         case "flyingwithelytra": {
           if (this.canChangeSetting(sender, npc)) {
-            boolean enabled = this.parseBoolean(args[2]);
+            var enabled = this.parseBoolean(args[2]);
             updatedNpc = NPC.builder(npc).flyingWithElytra(enabled).build();
             // warn about weird behaviour in combination with other settings
             if (enabled) {
@@ -374,7 +374,7 @@ public final class NPCCommand extends BaseTabExecutor {
             break;
           }
           // get the material of the item
-          Material material = Material.matchMaterial(args[2]);
+          var material = Material.matchMaterial(args[2]);
           if (material == null) {
             sender.sendMessage(String.format("§cNo material found by query: §6%s§c.", args[2]));
             return true;
@@ -386,7 +386,7 @@ public final class NPCCommand extends BaseTabExecutor {
         // the left click action
         case "lca":
         case "leftclickaction": {
-          ClickAction action = Enums.getIfPresent(ClickAction.class, args[2].toUpperCase()).orNull();
+          var action = Enums.getIfPresent(ClickAction.class, args[2].toUpperCase()).orNull();
           if (action == null) {
             sender.sendMessage(String.format(
               "§cNo such click action. Use one of: §6%s§c.",
@@ -400,7 +400,7 @@ public final class NPCCommand extends BaseTabExecutor {
         // the right click action
         case "rca":
         case "rightclickaction": {
-          ClickAction action = Enums.getIfPresent(ClickAction.class, args[2].toUpperCase()).orNull();
+          var action = Enums.getIfPresent(ClickAction.class, args[2].toUpperCase()).orNull();
           if (action == null) {
             sender.sendMessage(String.format(
               "§cNo such click action. Use one of: §6%s§c.",
@@ -418,7 +418,7 @@ public final class NPCCommand extends BaseTabExecutor {
             return true;
           }
           // parse the slot
-          Integer slot = VALID_ITEM_SLOTS.get(args[2].toUpperCase());
+          var slot = VALID_ITEM_SLOTS.get(args[2].toUpperCase());
           if (slot == null) {
             sender.sendMessage(String.format(
               "§cNo such item slot! Use one of §6%s§7.",
@@ -426,7 +426,7 @@ public final class NPCCommand extends BaseTabExecutor {
             return true;
           }
           // parse the item
-          Material item = Material.matchMaterial(args[3]);
+          var item = Material.matchMaterial(args[3]);
           if (item == null) {
             sender.sendMessage("§cNo such material!");
             return true;
@@ -444,13 +444,13 @@ public final class NPCCommand extends BaseTabExecutor {
             return true;
           }
           // parse the index
-          Integer index = Ints.tryParse(args[2]);
+          var index = Ints.tryParse(args[2]);
           if (index == null) {
             sender.sendMessage(String.format("§cUnable to parse index from string §6%s§c.", args[2]));
             return true;
           }
           // get the new line content
-          String content = String.join(" ", Arrays.copyOfRange(args, 3, args.length)).trim();
+          var content = String.join(" ", Arrays.copyOfRange(args, 3, args.length)).trim();
           if (content.equals("null")) {
             // remove the info line if there
             if (npc.getInfoLines().size() > index) {
@@ -475,7 +475,7 @@ public final class NPCCommand extends BaseTabExecutor {
         }
         // change the profile (will force-set the entity type to npc)
         case "profile": {
-          Profile profile = new Profile(args[2]);
+          var profile = new Profile(args[2]);
           if (!profile.complete()) {
             sender.sendMessage(String.format("§cUnable to complete profile of §6%s§c!", args[2]));
             return true;
@@ -490,7 +490,7 @@ public final class NPCCommand extends BaseTabExecutor {
         // change the entity type (will force-set the entity type to entity)
         case "et":
         case "entitytype": {
-          EntityType entityType = Enums.getIfPresent(EntityType.class, args[2].toUpperCase()).orNull();
+          var entityType = Enums.getIfPresent(EntityType.class, args[2].toUpperCase()).orNull();
           if (entityType == null) {
             sender.sendMessage(String.format("§cNo such entity type: §6%s§c.", args[2].toUpperCase()));
             return true;
@@ -544,7 +544,7 @@ public final class NPCCommand extends BaseTabExecutor {
           return NPC_TYPES;
         case 4: {
           // try to give a suggestion based on the previous input
-          NPCType type = Enums.getIfPresent(NPCType.class, args[2].toUpperCase()).orNull();
+          var type = Enums.getIfPresent(NPCType.class, args[2].toUpperCase()).orNull();
           if (type != null) {
             if (type == NPCType.ENTITY) {
               return Arrays.stream(EntityType.values())

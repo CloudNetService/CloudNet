@@ -83,7 +83,7 @@ public class SignsConfiguration {
 
   public void sendMessage(@NotNull String key, @NotNull Consumer<String> messageSender,
     @Nullable Function<String, String> modifier) {
-    String message = this.getMessages().getOrDefault(key, DEFAULT_MESSAGES.get(key));
+    var message = this.getMessages().getOrDefault(key, DEFAULT_MESSAGES.get(key));
     if (message != null) {
       if (modifier != null) {
         message = modifier.apply(message);

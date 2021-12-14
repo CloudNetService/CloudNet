@@ -36,7 +36,7 @@ public class NetworkChannelsPacketSplitter implements Consumer<IPacket> {
     // disable releasing of the content as we need to content multiple times
     packet.getContent().disableReleasing();
     // write to all channels
-    for (INetworkChannel channel : this.channels) {
+    for (var channel : this.channels) {
       // mark the current indexes of the packet
       packet.getContent().startTransaction();
       // write the packet to the channel

@@ -64,7 +64,7 @@ public class MongoDBDatabaseProvider extends AbstractDatabaseProvider {
   @Override
   public @NotNull LocalDatabase getDatabase(@NotNull String name) {
     return this.cachedDatabaseInstances.computeIfAbsent(name, $ -> {
-      MongoCollection<Document> collection = this.mongoDatabase.getCollection(name);
+      var collection = this.mongoDatabase.getCollection(name);
       return new MongoDBDatabase(name, collection, this.executorService, this);
     });
   }

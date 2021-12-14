@@ -73,17 +73,17 @@ public class PlatformLabyModManagement implements LabyModManagement {
 
   public void handleServerUpdate(@NotNull CloudPlayer cloudPlayer, @NotNull ServiceInfoSnapshot snapshot) {
     // construct the new discord rpc as the player switched the server
-    DataBuf discordRPC = this.constructRPCInfo(cloudPlayer, snapshot);
+    var discordRPC = this.constructRPCInfo(cloudPlayer, snapshot);
     if (discordRPC != null) {
       // send the updated discord rpc to the player
       this.sendPluginMessage(cloudPlayer, discordRPC);
     }
 
-    LabyModServiceDisplay serviceDisplay = this.configuration.getGameModeSwitchMessages();
-    String playingServer = serviceDisplay.getDisplay(snapshot);
+    var serviceDisplay = this.configuration.getGameModeSwitchMessages();
+    var playingServer = serviceDisplay.getDisplay(snapshot);
     // if the display is null we can't send anything
     if (playingServer != null) {
-      JsonDocument labyModResponse = JsonDocument.newDocument("show_gamemode", true)
+      var labyModResponse = JsonDocument.newDocument("show_gamemode", true)
         .append("gamemode_name", playingServer);
       // create a databuf with all information for the gamemode message
       DataBuf gameMode = DataBuf.empty().writeString("server_gamemode").writeString(labyModResponse.toString());
@@ -93,11 +93,11 @@ public class PlatformLabyModManagement implements LabyModManagement {
   }
 
   public void handleIncomingClientMessage(@NotNull UUID playerId, @Nullable String server, byte @NotNull [] bytes) {
-    DataBuf dataBuf = DataBufFactory.defaultFactory().createOf(bytes);
-    String dataKey = dataBuf.readString();
-    JsonDocument jsonData = JsonDocument.fromJsonString(dataBuf.readString());
+    var dataBuf = DataBufFactory.defaultFactory().createOf(bytes);
+    var dataKey = dataBuf.readString();
+    var jsonData = JsonDocument.fromJsonString(dataBuf.readString());
 
-    CloudPlayer cloudPlayer = this.playerManager.getOnlinePlayer(playerId);
+    var cloudPlayer = this.playerManager.getOnlinePlayer(playerId);
 
     if (cloudPlayer == null) {
       return;
@@ -121,10 +121,10 @@ public class PlatformLabyModManagement implements LabyModManagement {
     @NotNull JsonDocument jsonData
   ) {
     // check if we need to send the labymod permissions to the player
-    LabyModPermissions permissions = this.configuration.getPermissions();
+    var permissions = this.configuration.getPermissions();
     if (permissions.isEnabled()) {
       // convert the map into a json document because of the stupidus api
-      JsonDocument jsonWrappedPermissions = JsonDocument.newDocument(permissions.getPermissions());
+      var jsonWrappedPermissions = JsonDocument.newDocument(permissions.getPermissions());
       DataBuf permissionData = DataBuf.empty()
         .writeString("PERMISSIONS")
         .writeString(jsonWrappedPermissions.toString());
@@ -132,9 +132,9 @@ public class PlatformLabyModManagement implements LabyModManagement {
       this.sendPluginMessage(cloudPlayer, permissionData);
     }
     // check if we need to send a banner to the player
-    LabyModBanner banner = this.configuration.getBanner();
+    var banner = this.configuration.getBanner();
     if (banner.isEnabled()) {
-      JsonDocument jsonWrappedBanner = JsonDocument.newDocument("url", banner.getBannerUrl());
+      var jsonWrappedBanner = JsonDocument.newDocument("url", banner.getBannerUrl());
       DataBuf bannerData = DataBuf.empty().writeString("server_banner").writeString(jsonWrappedBanner.toString());
       // send the banner data to the player using plugin messages
       this.sendPluginMessage(cloudPlayer, bannerData);
@@ -144,7 +144,7 @@ public class PlatformLabyModManagement implements LabyModManagement {
       return;
     }
     // update the creation time of the player options
-    LabyModPlayerOptions playerOptions = LabyModPlayerOptions.builder(jsonData.toInstanceOf(LabyModPlayerOptions.class))
+    var playerOptions = LabyModPlayerOptions.builder(jsonData.toInstanceOf(LabyModPlayerOptions.class))
       .creationTime(System.currentTimeMillis())
       .build();
     this.updatePlayerOptions(cloudPlayer, playerOptions);
@@ -153,7 +153,7 @@ public class PlatformLabyModManagement implements LabyModManagement {
       // retrieve the service the player is connected to
       this.bridgeManagement.getCachedService(snapshot -> snapshot.getName().equals(server)).ifPresent(service -> {
         // construct the new discord rpc for the login server
-        DataBuf discordRPC = this.constructRPCInfo(cloudPlayer, service);
+        var discordRPC = this.constructRPCInfo(cloudPlayer, service);
         if (discordRPC != null) {
           // send the updated discord rpc to the player
           this.sendPluginMessage(cloudPlayer, discordRPC);
@@ -163,16 +163,16 @@ public class PlatformLabyModManagement implements LabyModManagement {
   }
 
   protected void handleDiscordRPC(@NotNull CloudPlayer cloudPlayer, @NotNull JsonDocument jsonData) {
-    UUID joinSecret = jsonData.get("joinSecret", UUID.class);
+    var joinSecret = jsonData.get("joinSecret", UUID.class);
     if (joinSecret != null) {
       this.getPlayerByJoinSecret(joinSecret).onComplete(player -> {
         if (player != null && player.getConnectedService() != null) {
-          LabyModPlayerOptions playerOptions = this.parsePlayerOptions(player);
+          var playerOptions = this.parsePlayerOptions(player);
           // check if the player is using labymod and has its options
           if (playerOptions == null) {
             return;
           }
-          long lastRedeem = playerOptions.getLastJoinSecretRedeem();
+          var lastRedeem = playerOptions.getLastJoinSecretRedeem();
           // only allow one request per second
           if (lastRedeem != -1 && lastRedeem + 1000 > System.currentTimeMillis()) {
             return;
@@ -186,15 +186,15 @@ public class PlatformLabyModManagement implements LabyModManagement {
         }
       });
     } else {
-      UUID spectateSecret = jsonData.get("spectateSecret", UUID.class);
+      var spectateSecret = jsonData.get("spectateSecret", UUID.class);
       this.getPlayerBySpectateSecret(spectateSecret).onComplete(player -> {
         if (player != null && player.getConnectedService() != null) {
-          LabyModPlayerOptions playerOptions = this.parsePlayerOptions(player);
+          var playerOptions = this.parsePlayerOptions(player);
           // check if the player is using labymod and has its options
           if (playerOptions == null) {
             return;
           }
-          long lastRedeem = playerOptions.getLastSpectateSecretRedeem();
+          var lastRedeem = playerOptions.getLastSpectateSecretRedeem();
           // only allow one request per second
           if (lastRedeem != -1 && lastRedeem + 1000 > System.currentTimeMillis()) {
             return;
@@ -214,21 +214,21 @@ public class PlatformLabyModManagement implements LabyModManagement {
     @NotNull CloudPlayer cloudPlayer,
     @NotNull ServiceInfoSnapshot snapshot
   ) {
-    String playingService = this.configuration.getDiscordRPC().getDisplay(snapshot);
+    var playingService = this.configuration.getDiscordRPC().getDisplay(snapshot);
     // only create a rpc information if it's enabled and configured in the config
     if (playingService == null) {
       return null;
     }
-    LabyModPlayerOptions playerOptions = this.parsePlayerOptions(cloudPlayer);
+    var playerOptions = this.parsePlayerOptions(cloudPlayer);
     // the player has no labymod options, ignore
     if (playerOptions == null) {
       return null;
     }
-    LabyModPlayerOptions.Builder playerOptionsBuilder = LabyModPlayerOptions.builder(playerOptions);
+    var playerOptionsBuilder = LabyModPlayerOptions.builder(playerOptions);
 
-    LabyModDiscordRPC joinMatch = this.configuration.getDiscordJoinMatch();
+    var joinMatch = this.configuration.getDiscordJoinMatch();
     // used to determine if we need to send the join secret
-    boolean sendJoinSecret = false;
+    var sendJoinSecret = false;
     // check if joining the match is enabled
     if (joinMatch.isEnabled() && !joinMatch.isExcluded(snapshot) && !IS_IN_GAME.get(snapshot).orElse(false)) {
       // create a new join secret
@@ -239,9 +239,9 @@ public class PlatformLabyModManagement implements LabyModManagement {
       playerOptionsBuilder.joinSecret(null);
     }
 
-    LabyModDiscordRPC spectateMatch = this.configuration.getDiscordSpectateMatch();
+    var spectateMatch = this.configuration.getDiscordSpectateMatch();
     // used to determine if we need to send the spectate secret
-    boolean sendSpectateSecret = false;
+    var sendSpectateSecret = false;
     // check if spectating a match is allowed
     if (spectateMatch.isEnabled() && !spectateMatch.isExcluded(snapshot) && IS_IN_GAME.get(snapshot).orElse(false)) {
       // create a new spectate secret
@@ -251,13 +251,13 @@ public class PlatformLabyModManagement implements LabyModManagement {
       // invalidate the existing spectate secret
       playerOptionsBuilder.spectateSecret(null);
     }
-    LabyModPlayerOptions updatedPlayerOptions = playerOptionsBuilder.build();
+    var updatedPlayerOptions = playerOptionsBuilder.build();
     // append the updated version of the labymod player options to the cloud player
     this.updatePlayerOptions(cloudPlayer, updatedPlayerOptions);
     // the domain that is used to connect and is displayed in the rpc
-    String serverDomain = this.configuration.getLoginDomain();
+    var serverDomain = this.configuration.getLoginDomain();
 
-    JsonDocument labyModProtocolResponse = JsonDocument.newDocument()
+    var labyModProtocolResponse = JsonDocument.newDocument()
       .append("hasGame", true)
       .append("game_mode", playingService)
       .append("game_startTime", System.currentTimeMillis())
@@ -281,7 +281,7 @@ public class PlatformLabyModManagement implements LabyModManagement {
   protected @NotNull ITask<@Nullable CloudPlayer> getPlayerByJoinSecret(@NotNull UUID joinSecret) {
     return CompletableTask.supply(() -> {
       for (CloudPlayer player : this.playerManager.onlinePlayers().players()) {
-        LabyModPlayerOptions playerOptions = this.parsePlayerOptions(player);
+        var playerOptions = this.parsePlayerOptions(player);
         if (playerOptions != null && joinSecret.equals(playerOptions.getJoinSecret())) {
           return player;
         }
@@ -294,7 +294,7 @@ public class PlatformLabyModManagement implements LabyModManagement {
   protected @NotNull ITask<CloudPlayer> getPlayerBySpectateSecret(@NotNull UUID spectateSecret) {
     return CompletableTask.supply(() -> {
       for (CloudPlayer player : this.playerManager.onlinePlayers().players()) {
-        LabyModPlayerOptions playerOptions = this.parsePlayerOptions(player);
+        var playerOptions = this.parsePlayerOptions(player);
         if (playerOptions != null && spectateSecret.equals(playerOptions.getSpectateSecret())) {
           return player;
         }
@@ -305,12 +305,12 @@ public class PlatformLabyModManagement implements LabyModManagement {
   }
 
   protected void connectPlayer(@NotNull CloudPlayer player, @NotNull CloudPlayer target) {
-    ServiceInfoSnapshot serviceInfoSnapshot = CloudNetDriver.getInstance().getCloudServiceProvider()
+    var serviceInfoSnapshot = CloudNetDriver.getInstance().getCloudServiceProvider()
       .getCloudService(target.getConnectedService().getUniqueId());
     // check if there is a service to connect to
     if (serviceInfoSnapshot != null) {
       // construct the updated discord rpc
-      DataBuf discordRPCData = this.constructRPCInfo(player, serviceInfoSnapshot);
+      var discordRPCData = this.constructRPCInfo(player, serviceInfoSnapshot);
       if (discordRPCData != null) {
         this.sendPluginMessage(player, discordRPCData);
       }

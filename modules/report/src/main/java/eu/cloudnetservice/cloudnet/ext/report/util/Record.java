@@ -50,7 +50,7 @@ public final class Record {
    * @return the new Record for the service, null if the directory for the services already exists
    */
   public static @Nullable Record forService(@NotNull Path baseDirectory, @NotNull ICloudService service) {
-    Path directory = baseDirectory.resolve(
+    var directory = baseDirectory.resolve(
       service.getServiceId().getName() + "-" + service.getServiceId().getUniqueId()).normalize().toAbsolutePath();
 
     if (Files.exists(directory)) {
@@ -78,7 +78,7 @@ public final class Record {
    */
   public void copyLogFiles() {
     try {
-      Path targetDirectory = this.directory.resolve("logs");
+      var targetDirectory = this.directory.resolve("logs");
       FileUtils.createDirectory(targetDirectory);
 
       if (this.service.getServiceId().getEnvironment().equals(ServiceEnvironmentType.BUNGEECORD)) {

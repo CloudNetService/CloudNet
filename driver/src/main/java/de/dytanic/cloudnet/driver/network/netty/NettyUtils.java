@@ -138,7 +138,7 @@ public final class NettyUtils {
     if ((value & -128) == 0) {
       byteBuf.writeByte(value);
     } else if ((value & -16384) == 0) {
-      int shortValue = (value & 0x7F | 0x80) << 8 | (value >>> 7);
+      var shortValue = (value & 0x7F | 0x80) << 8 | (value >>> 7);
       byteBuf.writeShort(shortValue);
     } else {
       while (true) {
@@ -163,9 +163,9 @@ public final class NettyUtils {
    * @throws SilentDecoderException if the buf current position has no var int.
    */
   public static int readVarInt(@NotNull ByteBuf byteBuf) {
-    int i = 0;
-    int maxRead = Math.min(5, byteBuf.readableBytes());
-    for (int j = 0; j < maxRead; j++) {
+    var i = 0;
+    var maxRead = Math.min(5, byteBuf.readableBytes());
+    for (var j = 0; j < maxRead; j++) {
       int nextByte = byteBuf.readByte();
       i |= (nextByte & 0x7F) << j * 7;
       if ((nextByte & 0x80) != 128) {
@@ -195,7 +195,7 @@ public final class NettyUtils {
    * @return the thread amount used by the packet dispatcher to dispatch incoming packets.
    */
   public static @Range(from = 2, to = Integer.MAX_VALUE) int getThreadAmount() {
-    DriverEnvironment environment = CloudNetDriver.getInstance().getDriverEnvironment();
+    var environment = CloudNetDriver.getInstance().getDriverEnvironment();
     return environment == DriverEnvironment.CLOUDNET ? Runtime.getRuntime().availableProcessors() * 2 : 4;
   }
 }

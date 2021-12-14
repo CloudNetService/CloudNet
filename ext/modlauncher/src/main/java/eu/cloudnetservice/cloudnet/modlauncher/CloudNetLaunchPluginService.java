@@ -63,7 +63,7 @@ public final class CloudNetLaunchPluginService implements ILaunchPluginService {
 
   private @NotNull TransformingClassLoader getTransformingLoader() {
     try {
-      Field field = Launcher.class.getDeclaredField("classLoader");
+      var field = Launcher.class.getDeclaredField("classLoader");
       field.setAccessible(true);
       return (TransformingClassLoader) field.get(Launcher.INSTANCE);
     } catch (NoSuchFieldException | IllegalAccessException exception) {

@@ -84,7 +84,7 @@ public final class QuestionAnswerType<T> {
 
   @SuppressWarnings("unchecked")
   public void postResult(@Nullable Object result) {
-    for (BiConsumer<QuestionAnswerType<T>, T> listener : this.resultListener) {
+    for (var listener : this.resultListener) {
       listener.accept(this, (T) result);
     }
   }

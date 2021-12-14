@@ -50,7 +50,7 @@ public class SFTPClientPool {
     try {
       this.lock.lock();
       // try to get a client from the pool
-      SFTPClientWrapper client = this.pooledClients.poll();
+      var client = this.pooledClients.poll();
       if (client != null) {
         // validate the client
         if (client.getSFTPEngine().getSubsystem().isOpen()) {
@@ -71,7 +71,7 @@ public class SFTPClientPool {
         }
       }
       // wait for a new client to become available
-      Promise<SFTPClientWrapper, RuntimeException> promise = new Promise<>(
+      var promise = new Promise<SFTPClientWrapper, RuntimeException>(
         "",
         RuntimeException::new,
         NopLoggerFactory.INSTANCE);
@@ -121,7 +121,7 @@ public class SFTPClientPool {
 
   private @NotNull SFTPClientWrapper createAndRegisterClient() throws Exception {
     // try to create the client first
-    SFTPClientWrapper client = new SFTPClientWrapper(new SFTPEngine(this.clientFactory.call()).init());
+    var client = new SFTPClientWrapper(new SFTPEngine(this.clientFactory.call()).init());
     // the client was created successfully - increase the created count
     this.createdClients.incrementAndGet();
     // use that client now

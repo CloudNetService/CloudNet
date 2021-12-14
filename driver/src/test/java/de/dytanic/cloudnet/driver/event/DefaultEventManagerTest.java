@@ -37,7 +37,7 @@ public class DefaultEventManagerTest {
 
   @BeforeAll
   public static void initDriver() {
-    CloudNetDriver driver = DriverTestUtility.mockAndSetDriverInstance();
+    var driver = DriverTestUtility.mockAndSetDriverInstance();
     Mockito.when(driver.getComponentName()).thenReturn("Node-1");
     Mockito.when(driver.getDriverEnvironment()).thenReturn(DriverEnvironment.CLOUDNET);
   }
@@ -51,7 +51,7 @@ public class DefaultEventManagerTest {
   @Test
   @Order(0)
   void testListenerRegistration() {
-    DefaultEventManager eventManager = new DefaultEventManager();
+    var eventManager = new DefaultEventManager();
     eventManager.registerListeners(new TestListener());
 
     Assertions.assertEquals(2, eventManager.listeners.size());
@@ -78,10 +78,10 @@ public class DefaultEventManagerTest {
     IEventManager eventManager = new DefaultEventManager();
     eventManager.registerListener(new TestListener());
 
-    ChannelMessage channelMessage = Mockito.mock(ChannelMessage.class);
+    var channelMessage = Mockito.mock(ChannelMessage.class);
     Mockito.when(channelMessage.getChannel()).thenReturn("passed");
 
-    ChannelMessageReceiveEvent event = new ChannelMessageReceiveEvent(
+    var event = new ChannelMessageReceiveEvent(
       channelMessage,
       Mockito.mock(INetworkChannel.class),
       true);
@@ -98,7 +98,7 @@ public class DefaultEventManagerTest {
   @Test
   @Order(20)
   void testUnregisterListenerByInstance() {
-    DefaultEventManager eventManager = this.newEventManagerWithListener();
+    var eventManager = this.newEventManagerWithListener();
     eventManager.unregisterListener(new TestListener());
 
     Assertions.assertEquals(0, eventManager.listeners.size());
@@ -107,14 +107,14 @@ public class DefaultEventManagerTest {
   @Test
   @Order(30)
   void testUnregisterListenerByClassLoader() {
-    DefaultEventManager eventManager = this.newEventManagerWithListener();
+    var eventManager = this.newEventManagerWithListener();
     eventManager.unregisterListeners(TestListener.class.getClassLoader());
 
     Assertions.assertEquals(0, eventManager.listeners.size());
   }
 
   private DefaultEventManager newEventManagerWithListener() {
-    DefaultEventManager eventManager = new DefaultEventManager();
+    var eventManager = new DefaultEventManager();
 
     eventManager.registerListener(new TestListener());
     Assertions.assertEquals(2, eventManager.listeners.size());

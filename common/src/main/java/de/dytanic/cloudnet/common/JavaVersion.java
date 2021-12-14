@@ -49,7 +49,7 @@ public enum JavaVersion implements INameable {
   }
 
   public static @NotNull JavaVersion getRuntimeVersion() {
-    double versionId = Double.parseDouble(System.getProperty("java.class.version"));
+    var versionId = Double.parseDouble(System.getProperty("java.class.version"));
     return fromVersionId(versionId).orElse(UNKNOWN);
   }
 

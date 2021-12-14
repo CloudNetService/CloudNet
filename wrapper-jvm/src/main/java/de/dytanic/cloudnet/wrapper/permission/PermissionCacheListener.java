@@ -39,7 +39,7 @@ public final class PermissionCacheListener {
 
   @EventListener
   public void handle(@NotNull PermissionUpdateUserEvent event) {
-    PermissionUser user = event.getPermissionUser();
+    var user = event.getPermissionUser();
     if (this.permissionManagement.getCachedPermissionUsers().containsKey(user.getUniqueId())) {
       this.permissionManagement.getCachedPermissionUsers().put(user.getUniqueId(), user);
     }

@@ -58,18 +58,18 @@ public class RPCValidationProcessor extends AbstractProcessor {
   @Override
   public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
     // get the annotation type element
-    TypeElement annotationType = annotations.stream().findFirst().orElse(null);
+    var annotationType = annotations.stream().findFirst().orElse(null);
     if (annotationType != null) {
       // get all types which are annotated as @RPCValidation
       for (Element element : roundEnv.getElementsAnnotatedWith(annotationType)) {
         // find the annotation
-        AnnotationMirror annotation = this.findAnnotation(element, annotationType);
+        var annotation = this.findAnnotation(element, annotationType);
         // read the values from the annotation
-        Iterator<? extends AnnotationValue> values = this.eu.getElementValuesWithDefaults(annotation).values()
+        var values = this.eu.getElementValuesWithDefaults(annotation).values()
           .iterator();
         // excludePattern (1), includeStaticMethods (2)
-        String excludePattern = (String) values.next().getValue();
-        boolean includeStaticMethods = (boolean) values.next().getValue();
+        var excludePattern = (String) values.next().getValue();
+        var includeStaticMethods = (boolean) values.next().getValue();
         // read all elements from the class
         for (Element enclosedElement : element.getEnclosedElements()) {
           // skip all elements which are not a method
@@ -97,9 +97,9 @@ public class RPCValidationProcessor extends AbstractProcessor {
     // check if the processing run is over
     if (roundEnv.processingOver() && this.elements != null) {
       // process the result
-      for (Entry<Element, List<String>> entry : this.elements.entrySet()) {
+      for (var entry : this.elements.entrySet()) {
         // filter out all duplicates of a type
-        Set<String> duplicates = entry.getValue().stream()
+        var duplicates = entry.getValue().stream()
           .filter(e -> Collections.frequency(entry.getValue(), e) > 1)
           .collect(Collectors.toSet());
         // check if there are any duplicates

@@ -155,7 +155,7 @@ public class DefaultModuleProvider implements IModuleProvider {
         return null;
       }
       // check if we can load the module configuration from the file
-      ModuleConfiguration moduleConfiguration = this.findModuleConfiguration(url).orElse(null);
+      var moduleConfiguration = this.findModuleConfiguration(url).orElse(null);
       if (moduleConfiguration == null) {
         throw new ModuleConfigurationNotFoundException(url);
       }
@@ -168,22 +168,22 @@ public class DefaultModuleProvider implements IModuleProvider {
         return null;
       }
       // initialize all dependencies of the module
-      Map<String, String> repositories = this.collectModuleProvidedRepositories(moduleConfiguration);
-      Pair<Set<URL>, Set<ModuleDependency>> dependencies = this.loadDependencies(repositories, moduleConfiguration);
+      var repositories = this.collectModuleProvidedRepositories(moduleConfiguration);
+      var dependencies = this.loadDependencies(repositories, moduleConfiguration);
       // create the class loader for the module
-      FinalizeURLClassLoader loader = new FinalizeURLClassLoader(url, dependencies.getFirst());
+      var loader = new FinalizeURLClassLoader(url, dependencies.getFirst());
       loader.registerGlobally();
       // try to load and create the main class instance
-      Class<?> mainModuleClass = loader.loadClass(moduleConfiguration.getMainClass());
+      var mainModuleClass = loader.loadClass(moduleConfiguration.getMainClass());
       // check if the main class is an instance of the IModule class
       if (!IModule.class.isAssignableFrom(mainModuleClass)) {
         throw new AssertionError(String.format("Module main class %s is not assignable from %s",
           mainModuleClass.getCanonicalName(), IModule.class.getCanonicalName()));
       }
       // get the data directory of the module
-      Path dataDirectory = moduleConfiguration.getDataFolder(this.moduleDirectory);
+      var dataDirectory = moduleConfiguration.getDataFolder(this.moduleDirectory);
       // create an instance of the class and the main module wrapper
-      IModule moduleInstance = (IModule) mainModuleClass.getConstructor().newInstance();
+      var moduleInstance = (IModule) mainModuleClass.getConstructor().newInstance();
       IModuleWrapper moduleWrapper = new DefaultModuleWrapper(url, moduleInstance, dataDirectory,
         this, loader, dependencies.getSecond(), moduleConfiguration);
       // initialize the module instance now
@@ -226,7 +226,7 @@ public class DefaultModuleProvider implements IModuleProvider {
    */
   @Override
   public @NotNull IModuleProvider startAll() {
-    for (IModuleWrapper module : this.modules) {
+    for (var module : this.modules) {
       module.startModule();
     }
     return this;
@@ -237,7 +237,7 @@ public class DefaultModuleProvider implements IModuleProvider {
    */
   @Override
   public @NotNull IModuleProvider reloadAll() {
-    for (IModuleWrapper module : this.modules) {
+    for (var module : this.modules) {
       module.reloadModule();
     }
     return this;
@@ -248,7 +248,7 @@ public class DefaultModuleProvider implements IModuleProvider {
    */
   @Override
   public @NotNull IModuleProvider stopAll() {
-    for (IModuleWrapper module : this.modules) {
+    for (var module : this.modules) {
       module.stopModule();
     }
     return this;
@@ -259,7 +259,7 @@ public class DefaultModuleProvider implements IModuleProvider {
    */
   @Override
   public @NotNull IModuleProvider unloadAll() {
-    for (IModuleWrapper module : this.modules) {
+    for (var module : this.modules) {
       module.unloadModule();
     }
     return this;
@@ -275,7 +275,7 @@ public class DefaultModuleProvider implements IModuleProvider {
       this.modules.remove(wrapper);
     }
     // post the change to the handler (if one is set)
-    IModuleProviderHandler handler = this.moduleProviderHandler;
+    var handler = this.moduleProviderHandler;
     if (handler != null) {
       switch (lifeCycle) {
         case LOADED:
@@ -303,7 +303,7 @@ public class DefaultModuleProvider implements IModuleProvider {
   @Override
   public void notifyPostModuleLifecycleChange(@NotNull IModuleWrapper wrapper, @NotNull ModuleLifeCycle lifeCycle) {
     // post the change to the handler (if one is set)
-    IModuleProviderHandler handler = this.moduleProviderHandler;
+    var handler = this.moduleProviderHandler;
     if (handler != null) {
       switch (lifeCycle) {
         case LOADED:
@@ -337,12 +337,12 @@ public class DefaultModuleProvider implements IModuleProvider {
   protected @NotNull Optional<ModuleConfiguration> findModuleConfiguration(@NotNull URL moduleFile) throws IOException {
     try (
       InputStream buffered = new BufferedInputStream(moduleFile.openStream());
-      JarInputStream inputStream = new JarInputStream(buffered)
+      var inputStream = new JarInputStream(buffered)
     ) {
       JarEntry entry;
       while ((entry = inputStream.getNextJarEntry()) != null) {
         if (entry.getName().equals("module.json")) {
-          JsonDocument serializedModuleConfiguration = JsonDocument.newDocument(inputStream);
+          var serializedModuleConfiguration = JsonDocument.newDocument(inputStream);
           return Optional.of(serializedModuleConfiguration.toInstanceOf(ModuleConfiguration.class));
         }
       }
@@ -366,8 +366,8 @@ public class DefaultModuleProvider implements IModuleProvider {
     // For two hierarchical URIs to be considered equal, their paths must be equal and their queries must
     // either both be undefined or else be equal.
     // So file URLs MUST not equal but their URI will, so use this here.
-    URI fileSourceUri = fileSource.toURI();
-    for (IModuleWrapper module : this.modules) {
+    var fileSourceUri = fileSource.toURI();
+    for (var module : this.modules) {
       if (module.getUri().equals(fileSourceUri)) {
         return Optional.of(module);
       }
@@ -385,7 +385,7 @@ public class DefaultModuleProvider implements IModuleProvider {
     Map<String, String> repositories = new HashMap<>();
     if (configuration.getRepositories() != null) {
       // iterate over all repositories and ensure that the repository url is in a readable format.
-      for (ModuleRepository repo : configuration.getRepositories()) {
+      for (var repo : configuration.getRepositories()) {
         if (repo == null) {
           continue;
         }
@@ -413,9 +413,9 @@ public class DefaultModuleProvider implements IModuleProvider {
     Set<ModuleDependency> pendingModuleDependencies = new HashSet<>();
     if (configuration.getDependencies() != null) {
       // yep for later posting of events to this thing
-      IModuleProviderHandler handler = this.moduleProviderHandler;
+      var handler = this.moduleProviderHandler;
       // iterate over all dependencies - these may be a module or a remote dependency (visible by the given properties)
-      for (ModuleDependency dependency : configuration.getDependencies()) {
+      for (var dependency : configuration.getDependencies()) {
         if (dependency == null) {
           continue;
         }
@@ -423,7 +423,7 @@ public class DefaultModuleProvider implements IModuleProvider {
         dependency.assertDefaultPropertiesSet();
         // decide which way to go (by url or repository). In this case we start with the more common repository way
         if (dependency.getRepo() != null) {
-          String repoUrl = Preconditions.checkNotNull(
+          var repoUrl = Preconditions.checkNotNull(
             repos.get(dependency.getRepo()),
             "Dependency %s declared unknown repository %s as it's source",
             dependency.toString(), dependency.getRepo());
@@ -467,7 +467,7 @@ public class DefaultModuleProvider implements IModuleProvider {
     }
     // try to actually load the dependency
     try {
-      URL loadResult = loader.call();
+      var loadResult = loader.call();
       // handle the post load if necessary
       if (handler != null) {
         handler.handlePostInstallDependency(configuration, dependency);

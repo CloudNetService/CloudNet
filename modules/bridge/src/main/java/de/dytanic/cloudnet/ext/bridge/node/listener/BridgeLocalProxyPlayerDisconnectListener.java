@@ -41,20 +41,20 @@ public final class BridgeLocalProxyPlayerDisconnectListener {
 
   @EventListener
   public void handleServiceUpdate(@NotNull CloudServiceUpdateEvent event) {
-    ServiceInfoSnapshot info = event.getServiceInfo();
+    var info = event.getServiceInfo();
     if (info.getServiceId().getNodeUniqueId().equals(CloudNetDriver.getInstance().getComponentName())
       && ServiceEnvironmentType.isMinecraftProxy(info.getServiceId().getEnvironment())) {
       // get all the players which are connected to the proxy
-      Collection<ServicePlayer> players = info.getProperty(BridgeServiceProperties.PLAYERS).orElse(null);
+      var players = info.getProperty(BridgeServiceProperties.PLAYERS).orElse(null);
       if (players == null) {
         // no player property there yet, skip the check
         return;
       }
       // test if any player has the login service but is not connected to it
-      for (CloudPlayer value : this.playerManager.getOnlinePlayers().values()) {
+      for (var value : this.playerManager.getOnlinePlayers().values()) {
         if (value.getLoginService().getServiceId().getUniqueId().equals(info.getServiceId().getUniqueId())) {
           // the player is on the service
-          ServicePlayer match = Iterables.tryFind(
+          var match = Iterables.tryFind(
             players,
             player -> player.getUniqueId().equals(value.getUniqueId())
           ).orNull();
@@ -78,7 +78,7 @@ public final class BridgeLocalProxyPlayerDisconnectListener {
   private void handleCloudServiceRemove(@NotNull ServiceInfoSnapshot snapshot) {
     if (ServiceEnvironmentType.isMinecraftProxy(snapshot.getServiceId().getEnvironment())) {
       // test if any player has the stopped service as the login service
-      for (CloudPlayer value : this.playerManager.getOnlinePlayers().values()) {
+      for (var value : this.playerManager.getOnlinePlayers().values()) {
         if (value.getLoginService().getServiceId().getUniqueId().equals(snapshot.getServiceId().getUniqueId())) {
           // the player was connected to that proxy, log him out now
           this.playerManager.logoutPlayer(value);

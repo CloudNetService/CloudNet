@@ -29,7 +29,7 @@ public class CloudNetMongoDatabaseModule extends DriverModule {
 
   @ModuleTask(order = 126, event = ModuleLifeCycle.LOADED)
   public void loadConfig() {
-    JsonDocument configuration = this.readConfig();
+    var configuration = this.readConfig();
     this.config = configuration.get("config", MongoDBConnectionConfig.class, new MongoDBConnectionConfig());
     super.writeConfig(JsonDocument.newDocument("config", this.config));
   }

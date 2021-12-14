@@ -41,7 +41,7 @@ public final class WrappedInputStream extends FilterInputStream {
 
   @Override
   public int read() throws IOException {
-    int read = this.in.read();
+    var read = this.in.read();
     if (read != -1) {
       this.animation.step();
     }
@@ -50,7 +50,7 @@ public final class WrappedInputStream extends FilterInputStream {
 
   @Override
   public int read(byte[] b) throws IOException {
-    int read = this.in.read(b);
+    var read = this.in.read(b);
     if (read != -1) {
       this.animation.stepBy(read);
     }
@@ -59,7 +59,7 @@ public final class WrappedInputStream extends FilterInputStream {
 
   @Override
   public int read(byte[] b, int off, int len) throws IOException {
-    int read = this.in.read(b, off, len);
+    var read = this.in.read(b, off, len);
     if (read != -1) {
       this.animation.stepBy(read);
     }
@@ -68,7 +68,7 @@ public final class WrappedInputStream extends FilterInputStream {
 
   @Override
   public long skip(long n) throws IOException {
-    long length = this.in.skip(n);
+    var length = this.in.skip(n);
     this.animation.stepBy(n);
     return length;
   }

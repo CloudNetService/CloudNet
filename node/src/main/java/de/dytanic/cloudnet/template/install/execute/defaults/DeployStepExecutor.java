@@ -34,13 +34,13 @@ public class DeployStepExecutor implements InstallStepExecutor {
     @NotNull Path workingDirectory,
     @NotNull Set<Path> inputPaths
   ) throws IOException {
-    for (Path path : inputPaths) {
+    for (var path : inputPaths) {
       if (Files.isDirectory(path)) {
         continue;
       }
 
-      String relativePath = workingDirectory.relativize(path).toString().replace("\\", "/");
-      try (OutputStream outputStream = info.getTemplateStorage().newOutputStream(relativePath)) {
+      var relativePath = workingDirectory.relativize(path).toString().replace("\\", "/");
+      try (var outputStream = info.getTemplateStorage().newOutputStream(relativePath)) {
         Files.copy(path, Objects.requireNonNull(outputStream));
       }
     }

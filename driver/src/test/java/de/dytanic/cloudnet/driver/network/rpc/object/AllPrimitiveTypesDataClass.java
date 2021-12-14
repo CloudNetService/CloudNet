@@ -100,7 +100,7 @@ public final class AllPrimitiveTypesDataClass {
     if (!(o instanceof AllPrimitiveTypesDataClass)) {
       return false;
     }
-    AllPrimitiveTypesDataClass that = (AllPrimitiveTypesDataClass) o;
+    var that = (AllPrimitiveTypesDataClass) o;
     return this.getB() == that.getB()
       && this.getS() == that.getS()
       && this.getI() == that.getI()

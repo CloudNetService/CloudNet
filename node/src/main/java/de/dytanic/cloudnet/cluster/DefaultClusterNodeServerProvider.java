@@ -80,7 +80,7 @@ public final class DefaultClusterNodeServerProvider extends DefaultNodeServerPro
   public @Nullable IClusterNodeServer getNodeServer(@NotNull INetworkChannel channel) {
     Preconditions.checkNotNull(channel);
 
-    for (IClusterNodeServer clusterNodeServer : this.getNodeServers()) {
+    for (var clusterNodeServer : this.getNodeServers()) {
       if (clusterNodeServer.getChannel() != null
         && clusterNodeServer.getChannel().getChannelId() == channel.getChannelId()) {
         return clusterNodeServer;
@@ -92,7 +92,7 @@ public final class DefaultClusterNodeServerProvider extends DefaultNodeServerPro
 
   @Override
   public void setClusterServers(@NotNull NetworkCluster networkCluster) {
-    for (NetworkClusterNode clusterNode : networkCluster.getNodes()) {
+    for (var clusterNode : networkCluster.getNodes()) {
       NodeServer nodeServer = this.getNodeServer(clusterNode.getUniqueId());
       if (nodeServer != null) {
         nodeServer.setNodeInfo(clusterNode);
@@ -101,8 +101,8 @@ public final class DefaultClusterNodeServerProvider extends DefaultNodeServerPro
       }
     }
 
-    for (IClusterNodeServer clusterNodeServer : this.nodeServers) {
-      NetworkClusterNode node = networkCluster.getNodes()
+    for (var clusterNodeServer : this.nodeServers) {
+      var node = networkCluster.getNodes()
         .stream()
         .filter(cluNode -> cluNode.getUniqueId().equalsIgnoreCase(clusterNodeServer.getNodeInfo().getUniqueId()))
         .findFirst()
@@ -118,7 +118,7 @@ public final class DefaultClusterNodeServerProvider extends DefaultNodeServerPro
   public void sendPacket(@NotNull IPacket packet) {
     Preconditions.checkNotNull(packet);
 
-    for (IClusterNodeServer nodeServer : this.nodeServers) {
+    for (var nodeServer : this.nodeServers) {
       nodeServer.saveSendPacket(packet);
     }
   }
@@ -127,7 +127,7 @@ public final class DefaultClusterNodeServerProvider extends DefaultNodeServerPro
   public void sendPacketSync(@NotNull IPacket packet) {
     Preconditions.checkNotNull(packet);
 
-    for (IClusterNodeServer nodeServer : this.nodeServers) {
+    for (var nodeServer : this.nodeServers) {
       nodeServer.saveSendPacketSync(packet);
     }
   }
@@ -139,7 +139,7 @@ public final class DefaultClusterNodeServerProvider extends DefaultNodeServerPro
     boolean overwrite
   ) {
     // collect all known & available channels in the cluster
-    Collection<INetworkChannel> channels = this.collectClusterChannel();
+    var channels = this.collectClusterChannel();
     // check if there is a channel to deploy to
     if (!channels.isEmpty()) {
       // send the template chunked to the cluster
@@ -162,7 +162,7 @@ public final class DefaultClusterNodeServerProvider extends DefaultNodeServerPro
     boolean overwrite
   ) {
     // collect all known & available channels in the cluster
-    Collection<INetworkChannel> channels = this.collectClusterChannel();
+    var channels = this.collectClusterChannel();
     // check if there is a channel to deploy to
     if (!channels.isEmpty()) {
       // send the template chunked to the cluster
@@ -188,15 +188,15 @@ public final class DefaultClusterNodeServerProvider extends DefaultNodeServerPro
 
   @Override
   public boolean hasAnyConnection() {
-    Collection<IClusterNodeServer> servers = this.getNodeServers();
+    var servers = this.getNodeServers();
     return !servers.isEmpty() && servers.stream().anyMatch(IClusterNodeServer::isConnected);
   }
 
   @Override
   public void checkForDeadNodes() {
-    for (IClusterNodeServer nodeServer : this.nodeServers) {
+    for (var nodeServer : this.nodeServers) {
       if (nodeServer.isAvailable()) {
-        NetworkClusterNodeInfoSnapshot snapshot = nodeServer.getNodeInfoSnapshot();
+        var snapshot = nodeServer.getNodeInfoSnapshot();
         if (snapshot != null && snapshot.getCreationTime() + MAX_NO_UPDATE_MILLIS < System.currentTimeMillis()) {
           try {
             LOGGER.info(I18n.trans("cluster-server-idling-too-long")
@@ -224,7 +224,7 @@ public final class DefaultClusterNodeServerProvider extends DefaultNodeServerPro
 
   @Override
   public void close() throws Exception {
-    for (IClusterNodeServer clusterNodeServer : this.nodeServers) {
+    for (var clusterNodeServer : this.nodeServers) {
       clusterNodeServer.close();
     }
 

@@ -61,12 +61,12 @@ final class LookupClassDefiner implements ClassDefiner {
     if (UnsafeAccess.isAvailable()) {
       try {
         // get the trusted lookup field
-        Field implLookup = Lookup.class.getDeclaredField("IMPL_LOOKUP");
+        var implLookup = Lookup.class.getDeclaredField("IMPL_LOOKUP");
         // get the lookup base and offset
-        Object base = UnsafeAccess.UNSAFE_CLASS
+        var base = UnsafeAccess.UNSAFE_CLASS
           .getMethod("staticFieldBase", Field.class)
           .invoke(UnsafeAccess.THE_UNSAFE_INSTANCE, implLookup);
-        long offset = (long) UnsafeAccess.UNSAFE_CLASS
+        var offset = (long) UnsafeAccess.UNSAFE_CLASS
           .getMethod("staticFieldOffset", Field.class)
           .invoke(UnsafeAccess.THE_UNSAFE_INSTANCE, implLookup);
         // get the trusted lookup from the field
@@ -76,7 +76,7 @@ final class LookupClassDefiner implements ClassDefiner {
         // get the options for defining hidden clases
         hiddenClassOptions = classOptionArray();
         // get the method to define a hidden class
-        Method defineHiddenClassMethod = Lookup.class.getMethod("defineHiddenClass",
+        var defineHiddenClassMethod = Lookup.class.getMethod("defineHiddenClass",
           byte[].class,
           boolean.class,
           hiddenClassOptions.getClass());
@@ -103,7 +103,7 @@ final class LookupClassDefiner implements ClassDefiner {
     // the ClassOption enum is a subclass of the Lookup class
     Class optionClass = Class.forName(Lookup.class.getName() + "$ClassOption");
     // create an array of these options (for now always one option)
-    Object resultingOptionArray = Array.newInstance(optionClass, 1);
+    var resultingOptionArray = Array.newInstance(optionClass, 1);
     // set the first option to NESTMATE
     Array.set(resultingOptionArray, 0, Enum.valueOf(optionClass, "NESTMATE"));
     // that's it
@@ -126,7 +126,7 @@ final class LookupClassDefiner implements ClassDefiner {
   public @NotNull Class<?> defineClass(@NotNull String name, @NotNull Class<?> parent, byte[] bytecode) {
     try {
       // define the method using the method handle
-      Lookup lookup = (Lookup) DEFINE_HIDDEN_METHOD.invoke(
+      var lookup = (Lookup) DEFINE_HIDDEN_METHOD.invoke(
         TRUSTED_LOOKUP.in(parent),
         bytecode,
         false,

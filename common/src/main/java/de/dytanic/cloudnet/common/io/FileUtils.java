@@ -75,7 +75,7 @@ public final class FileUtils {
   }
 
   public static void openZipFileSystem(@NotNull Path zip, @NotNull ThrowableConsumer<FileSystem, Exception> consumer) {
-    try (FileSystem fs = FileSystems.newFileSystem(URI.create("jar:" + zip.toUri()), ZIP_FILE_SYSTEM_PROPERTIES)) {
+    try (var fs = FileSystems.newFileSystem(URI.create("jar:" + zip.toUri()), ZIP_FILE_SYSTEM_PROPERTIES)) {
       consumer.accept(fs);
     } catch (Exception throwable) {
       LOGGER.severe("Exception while opening file", throwable);
@@ -150,7 +150,7 @@ public final class FileUtils {
   }
 
   public static @NotNull InputStream zipToStream(@NotNull Path directory, @Nullable Predicate<Path> fileFilter) {
-    Path target = createTempFile();
+    var target = createTempFile();
     zipToFile(
       directory,
       target,
@@ -169,7 +169,7 @@ public final class FileUtils {
 
   public static @Nullable Path zipToFile(@NotNull Path dir, @NotNull Path target, @Nullable Predicate<Path> filter) {
     if (Files.exists(dir)) {
-      try (ZipOutputStream out = new ZipOutputStream(Files.newOutputStream(target), StandardCharsets.UTF_8)) {
+      try (var out = new ZipOutputStream(Files.newOutputStream(target), StandardCharsets.UTF_8)) {
         zipDir(out, dir, filter);
         return target;
       } catch (IOException exception) {
@@ -207,7 +207,7 @@ public final class FileUtils {
 
   public static @Nullable Path extract(@NotNull Path zipPath, @NotNull Path targetDirectory) {
     if (Files.exists(zipPath)) {
-      try (InputStream inputStream = Files.newInputStream(zipPath)) {
+      try (var inputStream = Files.newInputStream(zipPath)) {
         return extract(inputStream, targetDirectory);
       } catch (IOException exception) {
         LOGGER.severe("Unable to extract zip from " + zipPath + " to " + targetDirectory, exception);
@@ -243,14 +243,14 @@ public final class FileUtils {
     @NotNull Path targetDirectory
   ) throws IOException {
     // get the target path and ensure that there is no path traversal
-    Path file = targetDirectory.resolve(zipEntry.getName());
+    var file = targetDirectory.resolve(zipEntry.getName());
     ensureChild(targetDirectory, file);
 
     if (zipEntry.isDirectory()) {
       FileUtils.createDirectory(file);
     } else {
       FileUtils.createDirectory(file.getParent());
-      try (OutputStream outputStream = Files.newOutputStream(file)) {
+      try (var outputStream = Files.newOutputStream(file)) {
         copy(in, outputStream);
       }
     }
@@ -272,7 +272,7 @@ public final class FileUtils {
   ) {
     if (Files.exists(root)) {
       // create a glob path matcher and redirect the request
-      PathMatcher matcher = root.getFileSystem().getPathMatcher("glob:" + glob);
+      var matcher = root.getFileSystem().getPathMatcher("glob:" + glob);
       walkFileTree(root, consumer, visitDirectories, path -> matcher.matches(path.getFileName()));
     }
   }
@@ -284,8 +284,8 @@ public final class FileUtils {
     @NotNull DirectoryStream.Filter<Path> filter
   ) {
     if (Files.exists(root)) {
-      try (DirectoryStream<Path> stream = Files.newDirectoryStream(root, filter)) {
-        for (Path path : stream) {
+      try (var stream = Files.newDirectoryStream(root, filter)) {
+        for (var path : stream) {
           // visit directories recursively if requested
           if (Files.isDirectory(path)) {
             // prevent posting of directories if not requested
@@ -315,8 +315,8 @@ public final class FileUtils {
   }
 
   public static void ensureChild(@NotNull Path root, @NotNull Path child) {
-    Path rootNormal = root.normalize().toAbsolutePath();
-    Path childNormal = child.normalize().toAbsolutePath();
+    var rootNormal = root.normalize().toAbsolutePath();
+    var childNormal = child.normalize().toAbsolutePath();
 
     if (childNormal.getNameCount() <= rootNormal.getNameCount() || !childNormal.startsWith(rootNormal)) {
       throw new IllegalStateException("Child " + childNormal + " is not in root path " + rootNormal);
@@ -324,7 +324,7 @@ public final class FileUtils {
   }
 
   public static @NotNull Path resolve(@NotNull Path base, String @NotNull ... more) {
-    for (String child : more) {
+    for (var child : more) {
       base = base.resolve(child);
     }
     return base;

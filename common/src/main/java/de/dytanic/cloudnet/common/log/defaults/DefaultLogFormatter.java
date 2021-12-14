@@ -37,7 +37,7 @@ public final class DefaultLogFormatter extends Formatter {
 
   @Override
   public String format(LogRecord record) {
-    StringBuilder builder = new StringBuilder()
+    var builder = new StringBuilder()
       .append('[')
       .append(DATE_FORMAT.format(record.getMillis()))
       .append("] ")

@@ -62,7 +62,7 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
       this.replaceServiceUniqueId(serviceConfiguration);
       this.includeGroupComponents(serviceConfiguration);
       // get the logic node server to start the service on
-      IClusterNodeServer nodeServer = this.peekLogicNodeServer(serviceConfiguration);
+      var nodeServer = this.peekLogicNodeServer(serviceConfiguration);
       // if there is a node server send a request to start a service
       if (nodeServer != null) {
         return this.sendNodeServerStartRequest(
@@ -87,7 +87,7 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
     @NotNull ServiceConfiguration configuration
   ) {
     // send a request to the node to start a service
-    ChannelMessage result = ChannelMessage.builder()
+    var result = ChannelMessage.builder()
       .target(Type.NODE, targetNode)
       .message(message)
       .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
@@ -102,23 +102,23 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
   protected @Nullable IClusterNodeServer peekLogicNodeServer(@NotNull ServiceConfiguration configuration) {
     // check if the node is already specified
     if (configuration.getServiceId().getNodeUniqueId() != null) {
-      IClusterNodeServer server = this.nodeServerProvider.getNodeServer(configuration.getServiceId().getNodeUniqueId());
+      var server = this.nodeServerProvider.getNodeServer(configuration.getServiceId().getNodeUniqueId());
       return server == null || !server.isAvailable() ? null : server;
     }
     // extract the max heap memory from the snapshot which will be used for later memory usage comparison
-    int mh = configuration.getProcessConfig().getMaxHeapMemorySize();
+    var mh = configuration.getProcessConfig().getMaxHeapMemorySize();
     // find the best node server
     return this.nodeServerProvider.getNodeServers().stream()
       .filter(IClusterNodeServer::isAvailable)
       // only allow service start on nodes that are not marked for draining
       .filter(nodeServer -> !nodeServer.getNodeInfoSnapshot().isDrain())
       .filter(server -> {
-        Collection<String> allowedNodes = configuration.getServiceId().getAllowedNodes();
+        var allowedNodes = configuration.getServiceId().getAllowedNodes();
         return allowedNodes.isEmpty() || allowedNodes.contains(server.getNodeInfo().getUniqueId());
       })
       .min((left, right) -> {
         // begin by comparing the heap memory usage
-        ComparisonChain chain = ComparisonChain.start()
+        var chain = ComparisonChain.start()
           .compare(left.getNodeInfoSnapshot().getUsedMemory() + mh, right.getNodeInfoSnapshot().getUsedMemory() + mh);
         // only include the cpu usage if both nodes can provide a value
         if (left.getNodeInfoSnapshot().getProcessSnapshot().getSystemCpuUsage() >= 0
@@ -139,9 +139,9 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
       .filter(group -> group.getTargetEnvironments().contains(configuration.getServiceId().getEnvironmentName()))
       .forEach(group -> configuration.getGroups().add(group.getName()));
     // include each group component in the service configuration
-    for (String group : configuration.getGroups()) {
+    for (var group : configuration.getGroups()) {
       // get the group
-      GroupConfiguration config = CloudNet.getInstance().getGroupConfigurationProvider().getGroupConfiguration(group);
+      var config = CloudNet.getInstance().getGroupConfigurationProvider().getGroupConfiguration(group);
       // check if the config is available - add all components if so
       if (config != null) {
         configuration.getIncludes().addAll(config.getIncludes());
@@ -156,7 +156,7 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
 
   protected void replaceServiceId(@NotNull ServiceConfiguration config) {
     // check if the service id
-    int serviceId = config.getServiceId().getTaskServiceId();
+    var serviceId = config.getServiceId().getTaskServiceId();
     // check if the service id is invalid
     if (serviceId <= 0) {
       serviceId = 1;
@@ -174,7 +174,7 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
   }
 
   protected void replaceServiceUniqueId(@NotNull ServiceConfiguration config) {
-    UUID uniqueId = config.getServiceId().getUniqueId();
+    var uniqueId = config.getServiceId().getUniqueId();
     // check if the unique id is already taken
     while (this.serviceManager.getCloudService(uniqueId) != null) {
       uniqueId = UUID.randomUUID();

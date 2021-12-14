@@ -65,9 +65,9 @@ public final class CommandModules {
 
   @Parser(name = "modulePath", suggestions = "modulePath")
   public Path modulePathParser(CommandContext<?> $, Queue<String> input) {
-    String fileName = input.remove();
+    var fileName = input.remove();
     // resolve the path to the module
-    Path path = this.provider.getModuleDirectoryPath().resolve(fileName);
+    var path = this.provider.getModuleDirectoryPath().resolve(fileName);
     // check if the file exists
     if (Files.notExists(path)) {
       throw new ArgumentNotAvailableException(
@@ -78,7 +78,7 @@ public final class CommandModules {
 
   @Suggestions("modulePath")
   public List<String> suggestModulePath(CommandContext<?> $, String input) {
-    Path moduleDirectory = this.provider.getModuleDirectoryPath();
+    var moduleDirectory = this.provider.getModuleDirectoryPath();
     try {
       return Files.walk(moduleDirectory, 1)
         .filter(path -> !moduleDirectory.equals(path))
@@ -93,8 +93,8 @@ public final class CommandModules {
 
   @Parser(name = "existingModule", suggestions = "existingModule")
   public IModuleWrapper existingModuleParser(CommandContext<?> $, Queue<String> input) {
-    String moduleName = input.remove();
-    IModuleWrapper wrapper = this.provider.getModule(moduleName);
+    var moduleName = input.remove();
+    var wrapper = this.provider.getModule(moduleName);
     if (wrapper == null) {
       throw new ArgumentNotAvailableException(
         I18n.trans("command-modules-module-not-loaded").replace("%name%", moduleName));
@@ -112,8 +112,8 @@ public final class CommandModules {
 
   @Parser(name = "toStartModule", suggestions = "toStartModule")
   public IModuleWrapper loadedModuleParser(CommandContext<?> $, Queue<String> input) {
-    String moduleName = input.remove();
-    IModuleWrapper wrapper = this.provider.getModule(moduleName);
+    var moduleName = input.remove();
+    var wrapper = this.provider.getModule(moduleName);
     if (wrapper == null || !wrapper.getModuleLifeCycle().canChangeTo(ModuleLifeCycle.STARTED)) {
       throw new ArgumentNotAvailableException(
         I18n.trans("command-modules-module-not-loaded").replace("%name%", moduleName));
@@ -131,8 +131,8 @@ public final class CommandModules {
 
   @Parser(name = "toReloadModule", suggestions = "toReloadModule")
   public IModuleWrapper reloadedModuleParser(CommandContext<?> $, Queue<String> input) {
-    String moduleName = input.remove();
-    IModuleWrapper wrapper = this.provider.getModule(moduleName);
+    var moduleName = input.remove();
+    var wrapper = this.provider.getModule(moduleName);
     if (wrapper == null || !wrapper.getModuleLifeCycle().canChangeTo(ModuleLifeCycle.RELOADING)) {
       throw new ArgumentNotAvailableException(
         I18n.trans("command-modules-module-not-started").replace("%name%", moduleName));
@@ -150,8 +150,8 @@ public final class CommandModules {
 
   @Parser(name = "toStopModule", suggestions = "toStopModule")
   public IModuleWrapper stoppedModuleParser(CommandContext<?> $, Queue<String> input) {
-    String moduleName = input.remove();
-    IModuleWrapper wrapper = this.provider.getModule(moduleName);
+    var moduleName = input.remove();
+    var wrapper = this.provider.getModule(moduleName);
     if (wrapper == null || !wrapper.getModuleLifeCycle().canChangeTo(ModuleLifeCycle.STOPPED)) {
       throw new ArgumentNotAvailableException(
         I18n.trans("command-modules-module-not-started").replace("%name%", moduleName));
@@ -169,8 +169,8 @@ public final class CommandModules {
 
   @Parser(name = "toUnloadModule", suggestions = "toUnloadModule")
   public IModuleWrapper unloadedModuleParser(CommandContext<?> $, Queue<String> input) {
-    String moduleName = input.remove();
-    IModuleWrapper wrapper = this.provider.getModule(moduleName);
+    var moduleName = input.remove();
+    var wrapper = this.provider.getModule(moduleName);
     if (wrapper == null || !wrapper.getModuleLifeCycle().canChangeTo(ModuleLifeCycle.UNLOADED)) {
       throw new ArgumentNotAvailableException(
         I18n.trans("command-modules-module-not-stopped").replace("%name%", moduleName));
@@ -193,7 +193,7 @@ public final class CommandModules {
   ) {
     this.printBasicModuleInfos(source, module);
     source.sendMessage(" - Dependencies: ");
-    for (ModuleDependency dependingModule : module.getDependingModules()) {
+    for (var dependingModule : module.getDependingModules()) {
       source.sendMessage("  - Name: " + dependingModule.getName());
       source.sendMessage("  - Version: " + dependingModule.getVersion());
     }
@@ -210,7 +210,7 @@ public final class CommandModules {
     @Argument(value = "module", parserName = "modulePath") @Quoted Path path
   ) {
     // try to load the module
-    IModuleWrapper wrapper = this.provider.loadModule(path);
+    var wrapper = this.provider.loadModule(path);
     // if the wrapper is null, the module is already loaded
     if (wrapper == null) {
       source.sendMessage(I18n.trans("command-modules-module-already-loaded"));

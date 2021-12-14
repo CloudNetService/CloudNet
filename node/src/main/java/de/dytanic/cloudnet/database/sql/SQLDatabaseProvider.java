@@ -48,7 +48,7 @@ public abstract class SQLDatabaseProvider extends AbstractDatabaseProvider {
   @Override
   public boolean containsDatabase(@NotNull String name) {
     this.removedOutdatedEntries();
-    for (String database : this.getDatabaseNames()) {
+    for (var database : this.getDatabaseNames()) {
       if (database.equalsIgnoreCase(name)) {
         return true;
       }
@@ -58,7 +58,7 @@ public abstract class SQLDatabaseProvider extends AbstractDatabaseProvider {
   }
 
   protected void removedOutdatedEntries() {
-    for (Entry<String, SQLDatabase> entry : this.cachedDatabaseInstances.entrySet()) {
+    for (var entry : this.cachedDatabaseInstances.entrySet()) {
       if (entry.getValue().cacheTimeoutTime < System.currentTimeMillis()) {
         this.cachedDatabaseInstances.remove(entry.getKey());
       }

@@ -92,7 +92,7 @@ public class CommandInfo implements INameable {
   }
 
   public @NotNull String joinNameToAliases(@NotNull String separator) {
-    String result = this.name;
+    var result = this.name;
     if (!this.aliases.isEmpty()) {
       result += separator + String.join(separator, this.aliases);
     }
@@ -108,7 +108,7 @@ public class CommandInfo implements INameable {
     if (!(o instanceof CommandInfo)) {
       return false;
     }
-    CommandInfo that = (CommandInfo) o;
+    var that = (CommandInfo) o;
     return this.name.equals(that.name);
   }
 

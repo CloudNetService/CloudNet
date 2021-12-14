@@ -102,10 +102,10 @@ public class MongoDBConnectionConfig {
       return this.overridingConnectionUri;
     }
 
-    String authParams = Strings.isNullOrEmpty(this.username) && Strings.isNullOrEmpty(this.password)
+    var authParams = Strings.isNullOrEmpty(this.username) && Strings.isNullOrEmpty(this.password)
       ? ""
       : String.format("%s:%s@", this.encodeUrl(this.username), this.encodeUrl(this.password));
-    String authSource = Strings.isNullOrEmpty(this.authSource) ? "" : String.format("/?authSource=%s", this.authSource);
+    var authSource = Strings.isNullOrEmpty(this.authSource) ? "" : String.format("/?authSource=%s", this.authSource);
     // auth @ host:port / auth source
     return String.format("mongodb://%s%s:%d%s", authParams, this.host, this.port, authSource);
   }

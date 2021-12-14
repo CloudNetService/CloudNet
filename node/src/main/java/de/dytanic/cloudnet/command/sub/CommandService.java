@@ -94,9 +94,9 @@ public final class CommandService {
 
   @Parser(suggestions = "service")
   public Collection<ServiceInfoSnapshot> wildcardServiceParser(CommandContext<CommandSource> $, Queue<String> input) {
-    String name = input.remove();
-    Collection<ServiceInfoSnapshot> knownServices = CloudNet.getInstance().getCloudServiceProvider().getCloudServices();
-    Collection<ServiceInfoSnapshot> matchedServices = WildcardUtil.filterWildcard(knownServices, name);
+    var name = input.remove();
+    var knownServices = CloudNet.getInstance().getCloudServiceProvider().getCloudServices();
+    var matchedServices = WildcardUtil.filterWildcard(knownServices, name);
     if (matchedServices.isEmpty()) {
       throw new ArgumentNotAvailableException(I18n.trans("command-service-service-not-found"));
     }
@@ -136,8 +136,8 @@ public final class CommandService {
     @Argument("name") Collection<ServiceInfoSnapshot> matchedServices,
     @Flag("full") boolean customProperties
   ) {
-    for (ServiceInfoSnapshot matchedService : matchedServices) {
-      ServiceInfoSnapshot updatedService = matchedService.provider().forceUpdateServiceInfo();
+    for (var matchedService : matchedServices) {
+      var updatedService = matchedService.provider().forceUpdateServiceInfo();
       this.displayServiceInfo(source, updatedService, customProperties);
     }
   }
@@ -148,21 +148,21 @@ public final class CommandService {
     CommandSource source,
     @Argument("name") Collection<ServiceInfoSnapshot> matchedServices
   ) {
-    for (ServiceInfoSnapshot matchedService : matchedServices) {
+    for (var matchedService : matchedServices) {
       matchedService.provider().start();
     }
   }
 
   @CommandMethod("service|ser <name> restart")
   public void restartServices(CommandSource source, @Argument("name") Collection<ServiceInfoSnapshot> matchedServices) {
-    for (ServiceInfoSnapshot matchedService : matchedServices) {
+    for (var matchedService : matchedServices) {
       matchedService.provider().restart();
     }
   }
 
   @CommandMethod("service|ser <name> stop")
   public void stopServices(CommandSource source, @Argument("name") Collection<ServiceInfoSnapshot> matchedServices) {
-    for (ServiceInfoSnapshot matchedService : matchedServices) {
+    for (var matchedService : matchedServices) {
       matchedService.provider().stop();
     }
   }
@@ -196,7 +196,7 @@ public final class CommandService {
       return;
     }
 
-    for (Pair<SpecificCloudServiceProvider, ServiceTemplate> target : targets) {
+    for (var target : targets) {
       target.getFirst().addServiceDeployment(ServiceDeployment.builder()
         .template(target.getSecond())
         .excludes(this.parseExcludes(excludes))
@@ -212,16 +212,16 @@ public final class CommandService {
 
   @CommandMethod("service|ser <name> delete|del")
   public void deleteServices(CommandSource source, @Argument("name") Collection<ServiceInfoSnapshot> matchedServices) {
-    for (ServiceInfoSnapshot matchedService : matchedServices) {
+    for (var matchedService : matchedServices) {
       matchedService.provider().delete();
     }
   }
 
   @CommandMethod("service|ser <name> toggle")
   public void toggleScreens(CommandSource source, @Argument("name") Collection<ServiceInfoSnapshot> matchedServices) {
-    for (ServiceInfoSnapshot matchedService : matchedServices) {
+    for (var matchedService : matchedServices) {
       if (matchedService.provider().toggleScreenEvents(ChannelMessageSender.self(), "service:screen")) {
-        for (String cachedLogMessage : matchedService.provider().getCachedLogMessages()) {
+        for (var cachedLogMessage : matchedService.provider().getCachedLogMessages()) {
           LOGGER.info(String.format("&b[%s] %s", matchedService.getName(), cachedLogMessage));
         }
         source.sendMessage(
@@ -238,7 +238,7 @@ public final class CommandService {
     CommandSource source,
     @Argument("name") Collection<ServiceInfoSnapshot> matchedServices
   ) {
-    for (ServiceInfoSnapshot matchedService : matchedServices) {
+    for (var matchedService : matchedServices) {
       matchedService.provider().includeWaitingServiceInclusions();
     }
   }
@@ -248,14 +248,14 @@ public final class CommandService {
     CommandSource source,
     @Argument("name") Collection<ServiceInfoSnapshot> matchedServices
   ) {
-    for (ServiceInfoSnapshot matchedService : matchedServices) {
+    for (var matchedService : matchedServices) {
       matchedService.provider().includeWaitingServiceTemplates();
     }
   }
 
   @CommandMethod("service|ser <name> deployResources")
   public void deployResources(CommandSource source, @Argument("name") Collection<ServiceInfoSnapshot> matchedServices) {
-    for (ServiceInfoSnapshot matchedService : matchedServices) {
+    for (var matchedService : matchedServices) {
       matchedService.provider().removeAndExecuteDeployments();
     }
   }
@@ -266,7 +266,7 @@ public final class CommandService {
     @Argument("name") Collection<ServiceInfoSnapshot> matchedServices,
     @Greedy @Argument("command") String command
   ) {
-    for (ServiceInfoSnapshot matchedService : matchedServices) {
+    for (var matchedService : matchedServices) {
       matchedService.provider().runCommand(command);
     }
   }
@@ -277,8 +277,8 @@ public final class CommandService {
     @Argument("name") Collection<ServiceInfoSnapshot> matchedServices,
     @Argument("deployment") ServiceTemplate template
   ) {
-    ServiceDeployment deployment = ServiceDeployment.builder().template(template).build();
-    for (ServiceInfoSnapshot matchedService : matchedServices) {
+    var deployment = ServiceDeployment.builder().template(template).build();
+    for (var matchedService : matchedServices) {
       matchedService.provider().addServiceDeployment(deployment);
     }
   }
@@ -289,7 +289,7 @@ public final class CommandService {
     @Argument("name") Collection<ServiceInfoSnapshot> matchedServices,
     @Argument("template") ServiceTemplate template
   ) {
-    for (ServiceInfoSnapshot matchedService : matchedServices) {
+    for (var matchedService : matchedServices) {
       matchedService.provider().addServiceTemplate(template);
     }
   }
@@ -301,8 +301,8 @@ public final class CommandService {
     @Argument("url") String url,
     @Argument("path") String path
   ) {
-    ServiceRemoteInclusion remoteInclusion = ServiceRemoteInclusion.builder().url(url).destination(path).build();
-    for (ServiceInfoSnapshot matchedService : matchedServices) {
+    var remoteInclusion = ServiceRemoteInclusion.builder().url(url).destination(path).build();
+    for (var matchedService : matchedServices) {
       matchedService.provider().addServiceRemoteInclusion(remoteInclusion);
     }
   }
@@ -344,7 +344,7 @@ public final class CommandService {
       list.add(" ");
       list.add("* Includes:");
 
-      for (ServiceRemoteInclusion inclusion : service.getConfiguration().getIncludes()) {
+      for (var inclusion : service.getConfiguration().getIncludes()) {
         list.add("- " + inclusion.getUrl() + " => " + inclusion.getDestination());
       }
     }
@@ -353,7 +353,7 @@ public final class CommandService {
       list.add(" ");
       list.add("* Templates:");
 
-      for (ServiceTemplate template : service.getConfiguration().getTemplates()) {
+      for (var template : service.getConfiguration().getTemplates()) {
         list.add("- " + template);
       }
     }
@@ -362,7 +362,7 @@ public final class CommandService {
       list.add(" ");
       list.add("* Deployments:");
 
-      for (ServiceDeployment deployment : service.getConfiguration().getDeployments()) {
+      for (var deployment : service.getConfiguration().getDeployments()) {
         list.add("- ");
         list
           .add(

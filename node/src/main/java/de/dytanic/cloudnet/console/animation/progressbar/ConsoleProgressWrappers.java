@@ -86,8 +86,8 @@ public final class ConsoleProgressWrappers {
       .connectTimeout(5000)
       .thenConsume(rawResponse -> {
         if (rawResponse.getStatus() == 200) {
-          InputStream stream = rawResponse.getContent();
-          Long contentLength = Longs.tryParse(rawResponse.getHeaders().getFirst("Content-Length"));
+          var stream = rawResponse.getContent();
+          var contentLength = Longs.tryParse(rawResponse.getHeaders().getFirst("Content-Length"));
 
           try {
             streamHandler.accept(console.isAnimationRunning() ? stream

@@ -44,7 +44,7 @@ public final class NodeBridgeChannelMessageListener {
       && event.getMessage() != null
       && event.getMessage().equals("update_bridge_configuration")) {
       // read the config
-      BridgeConfiguration configuration = event.getContent().readObject(BridgeConfiguration.class);
+      var configuration = event.getContent().readObject(BridgeConfiguration.class);
       // set the configuration
       this.management.setConfigurationSilently(configuration);
       // call the update event

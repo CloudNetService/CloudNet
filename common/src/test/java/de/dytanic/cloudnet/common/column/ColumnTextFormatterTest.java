@@ -30,7 +30,7 @@ public class ColumnTextFormatterTest {
 
   @Test
   void testDataFormatting() {
-    ColumnFormatter formatter = ColumnFormatter.builder()
+    var formatter = ColumnFormatter.builder()
       .leftSpacer(" ")
       .rightSpacer("")
       .columnLeftBracket('|')
@@ -39,18 +39,18 @@ public class ColumnTextFormatterTest {
       .columnTitles("Name", "Rank", "World", "HP")
       .build();
 
-    ColumnEntry[] entries = new ColumnEntry[]{
+    var entries = new ColumnEntry[]{
       ColumnEntry.wrap("derpeepo", "derklaro", "0utplayyyy"),
       ColumnEntry.wrap("Muted", "Profi", "Player"),
       ColumnEntry.wrap("world", "world_nether", "world_the_end"),
       ColumnEntry.wrap("3", "0", "15")
     };
 
-    try (BufferedReader reader = new BufferedReader(new InputStreamReader(
+    try (var reader = new BufferedReader(new InputStreamReader(
       Objects.requireNonNull(this.getClass().getClassLoader().getResourceAsStream("column_test_data.txt")),
       StandardCharsets.UTF_8
     ))) {
-      Collection<String> output = formatter.formatLines(entries);
+      var output = formatter.formatLines(entries);
       Collection<String> expected = reader.lines().collect(Collectors.toList());
 
       Assertions.assertLinesMatch(expected.stream(), output.stream());

@@ -39,9 +39,9 @@ public class EnumObjectSerializer implements ObjectSerializer<Enum<?>> {
     // ensure that the method was called using a class as the type
     Verify.verify(type instanceof Class<?>, "Called enum read method without proving a class as type");
     // get the cached enum constants of the class
-    Object[] enumConstants = this.enumConstantCache.computeIfAbsent(type, $ -> ((Class<?>) type).getEnumConstants());
+    var enumConstants = this.enumConstantCache.computeIfAbsent(type, $ -> ((Class<?>) type).getEnumConstants());
     // get the constant associated with the ordinal index
-    int ordinal = source.readInt();
+    var ordinal = source.readInt();
     return ordinal >= enumConstants.length ? null : (Enum<?>) enumConstants[ordinal];
   }
 

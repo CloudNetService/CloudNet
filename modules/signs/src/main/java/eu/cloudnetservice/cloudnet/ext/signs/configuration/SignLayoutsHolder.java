@@ -82,7 +82,7 @@ public class SignLayoutsHolder {
 
   public SignLayoutsHolder tick() {
     if (!this.isTickedBlocked()) {
-      AtomicInteger currentIndex = this.getCurrentAnimationIndexOrInit();
+      var currentIndex = this.getCurrentAnimationIndexOrInit();
       if (currentIndex.incrementAndGet() >= this.signLayouts.size()) {
         currentIndex.set(0);
       }

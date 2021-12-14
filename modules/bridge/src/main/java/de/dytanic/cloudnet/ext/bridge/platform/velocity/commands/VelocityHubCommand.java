@@ -41,7 +41,7 @@ public final class VelocityHubCommand implements SimpleCommand {
   @Override
   public void execute(@NotNull Invocation invocation) {
     if (invocation.source() instanceof Player) {
-      Player player = (Player) invocation.source();
+      var player = (Player) invocation.source();
       // check if the player is on a fallback already
       if (this.management.isOnAnyFallbackInstance(player)) {
         player.sendMessage(AdventureSerializerUtil.serialize(this.management.getConfiguration().getMessage(
@@ -49,7 +49,7 @@ public final class VelocityHubCommand implements SimpleCommand {
           "command-hub-already-in-hub")));
       } else {
         // try to get a fallback for the player
-        RegisteredServer hub = this.management.getFallback(player)
+        var hub = this.management.getFallback(player)
           .flatMap(service -> this.proxyServer.getServer(service.getName()))
           .orElse(null);
         // check if a fallback was found

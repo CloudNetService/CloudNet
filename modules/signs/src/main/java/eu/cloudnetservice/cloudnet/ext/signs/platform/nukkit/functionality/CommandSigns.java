@@ -42,25 +42,25 @@ public class CommandSigns implements CommandExecutor {
       return true;
     }
 
-    Player player = (Player) sender;
-    SignConfigurationEntry entry = this.signManagement.getApplicableSignConfigurationEntry();
+    var player = (Player) sender;
+    var entry = this.signManagement.getApplicableSignConfigurationEntry();
     if (entry == null) {
       this.signManagement.getSignsConfiguration().sendMessage("command-cloudsign-no-entry", sender::sendMessage);
       return true;
     }
 
     if ((args.length == 2 || args.length == 3) && args[0].equalsIgnoreCase("create")) {
-      Block targetBlock = player.getTargetBlock(15);
-      BlockEntity blockEntity = targetBlock.getLevel().getBlockEntity(targetBlock.getLocation());
+      var targetBlock = player.getTargetBlock(15);
+      var blockEntity = targetBlock.getLevel().getBlockEntity(targetBlock.getLocation());
       if (blockEntity instanceof BlockEntitySign) {
-        Sign sign = this.signManagement.getSignAt((BlockEntitySign) blockEntity);
+        var sign = this.signManagement.getSignAt((BlockEntitySign) blockEntity);
         if (sign != null) {
           this.signManagement.getSignsConfiguration().sendMessage("command-cloudsign-sign-already-exist",
             player::sendMessage, m -> m.replace("%group%", sign.getTargetGroup()));
           return true;
         }
 
-        Sign createdSign = this.signManagement.createSign(
+        var createdSign = this.signManagement.createSign(
           (BlockEntitySign) blockEntity,
           args[1], args.length == 3 ? args[2] : null
         );
@@ -75,21 +75,21 @@ public class CommandSigns implements CommandExecutor {
 
       return true;
     } else if (args.length == 1 && args[0].equalsIgnoreCase("cleanup")) {
-      int removed = this.signManagement.removeMissingSigns();
+      var removed = this.signManagement.removeMissingSigns();
       this.signManagement.getSignsConfiguration().sendMessage("command-cloudsign-cleanup-success", player::sendMessage,
         m -> m.replace("%amount%", Integer.toString(removed)));
       return true;
     } else if (args.length == 1 && args[0].equalsIgnoreCase("removeall")) {
-      int removed = this.signManagement.deleteAllSigns();
+      var removed = this.signManagement.deleteAllSigns();
       this.signManagement.getSignsConfiguration()
         .sendMessage("command-cloudsign-bulk-remove-success", player::sendMessage,
           m -> m.replace("%amount%", Integer.toString(removed)));
       return true;
     } else if (args.length == 1 && args[0].equalsIgnoreCase("remove")) {
-      Block targetBlock = player.getTargetBlock(15);
-      BlockEntity blockEntity = targetBlock.getLevel().getBlockEntity(targetBlock.getLocation());
+      var targetBlock = player.getTargetBlock(15);
+      var blockEntity = targetBlock.getLevel().getBlockEntity(targetBlock.getLocation());
       if (blockEntity instanceof BlockEntitySign) {
-        Sign sign = this.signManagement.getSignAt((BlockEntitySign) blockEntity);
+        var sign = this.signManagement.getSignAt((BlockEntitySign) blockEntity);
         if (sign == null) {
           this.signManagement.getSignsConfiguration()
             .sendMessage("command-cloudsign-remove-not-existing", player::sendMessage);

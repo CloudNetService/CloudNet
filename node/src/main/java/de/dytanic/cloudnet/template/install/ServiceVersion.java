@@ -74,8 +74,8 @@ public class ServiceVersion implements INameable {
   }
 
   public boolean canRun(@NotNull JavaVersion javaVersion) {
-    Optional<JavaVersion> minJavaVersion = JavaVersion.fromVersion(this.minJavaVersion);
-    Optional<JavaVersion> maxJavaVersion = JavaVersion.fromVersion(this.maxJavaVersion);
+    var minJavaVersion = JavaVersion.fromVersion(this.minJavaVersion);
+    var maxJavaVersion = JavaVersion.fromVersion(this.maxJavaVersion);
 
     if (minJavaVersion.isPresent() && maxJavaVersion.isPresent()) {
       return javaVersion.isSupported(minJavaVersion.get(), maxJavaVersion.get());

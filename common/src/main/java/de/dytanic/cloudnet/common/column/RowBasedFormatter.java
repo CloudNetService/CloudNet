@@ -43,17 +43,17 @@ public class RowBasedFormatter<T> {
   }
 
   public @NotNull ColumnEntry[] convertToColumns(@NotNull Collection<T> input) {
-    ColumnEntry[] result = new ColumnEntry[this.columns.size()];
+    var result = new ColumnEntry[this.columns.size()];
     // convert each
-    List<T> contents = input instanceof List ? (List<T>) input : new LinkedList<>(input);
-    for (int i = 0; i < this.columns.size(); i++) {
-      String[] formatted = new String[input.size()];
+    var contents = input instanceof List ? (List<T>) input : new LinkedList<>(input);
+    for (var i = 0; i < this.columns.size(); i++) {
+      var formatted = new String[input.size()];
       // format each input
-      for (int y = 0; y < input.size(); y++) {
+      for (var y = 0; y < input.size(); y++) {
         formatted[y] = Objects.toString(this.columns.get(i).apply(contents.get(y)));
       }
       // wrap the formatted string to a column entry
-      ColumnEntry entry = ColumnEntry.wrap(formatted);
+      var entry = ColumnEntry.wrap(formatted);
       // validate that the entry is valid
       if (entry.getFormattedEntries().length == 0
         || (i != 0 && result[i - 1].getFormattedEntries().length != entry.getFormattedEntries().length)) {

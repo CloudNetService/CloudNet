@@ -58,11 +58,11 @@ public class DefaultFileChunkPacketSender extends DefaultChunkedPacketProvider i
   @Override
   public @NotNull ITask<TransferStatus> transferChunkedData() {
     return CompletableTask.supply(() -> {
-      int readCalls = 0;
-      byte[] backingArray = new byte[this.chunkSessionInformation.getChunkSize()];
+      var readCalls = 0;
+      var backingArray = new byte[this.chunkSessionInformation.getChunkSize()];
 
       while (true) {
-        int bytesRead = this.source.read(backingArray);
+        var bytesRead = this.source.read(backingArray);
         if (bytesRead != -1 && bytesRead == backingArray.length) {
           this.packetSplitter.accept(
             ChunkedPacket.createChunk(this.chunkSessionInformation, readCalls++, backingArray));

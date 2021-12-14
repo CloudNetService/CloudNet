@@ -30,8 +30,8 @@ public class CompletableTaskTest {
   @Test
   @Timeout(10)
   void testFutureCompletedNormally() {
-    AtomicInteger result = new AtomicInteger();
-    ITask<Float> then = CompletableTask.supply(() -> {
+    var result = new AtomicInteger();
+    var then = CompletableTask.supply(() -> {
       if (result.getAndIncrement() != 0) {
         throw new RuntimeException("Bing");
       }
@@ -57,7 +57,7 @@ public class CompletableTaskTest {
   @Test
   @Timeout(10)
   void testFutureCompletion() {
-    CompletableTask<String> future = new CompletableTask<>();
+    var future = new CompletableTask<String>();
     Assertions.assertFalse(future.isDone());
     Assertions.assertNull(future.getNow(null));
 
@@ -69,9 +69,9 @@ public class CompletableTaskTest {
   @Test
   @Timeout(10)
   void testFutureCancellation() {
-    AtomicBoolean listenerCalled = new AtomicBoolean();
+    var listenerCalled = new AtomicBoolean();
 
-    CompletableTask<String> future = new CompletableTask<>();
+    var future = new CompletableTask<String>();
     future.onCancelled($ -> listenerCalled.set(true));
 
     Assertions.assertFalse(future.isDone());
@@ -87,9 +87,9 @@ public class CompletableTaskTest {
   @Test
   @Timeout(10)
   void testFutureExceptionalCompletion() {
-    AtomicReference<Throwable> listenerResult = new AtomicReference<>();
+    var listenerResult = new AtomicReference<Throwable>();
 
-    CompletableTask<String> future = new CompletableTask<>();
+    var future = new CompletableTask<String>();
     future.onFailure(listenerResult::set);
 
     Assertions.assertFalse(future.isDone());

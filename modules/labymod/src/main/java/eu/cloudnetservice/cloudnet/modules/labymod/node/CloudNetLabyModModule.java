@@ -40,7 +40,7 @@ public class CloudNetLabyModModule extends DriverModule {
   @ModuleTask(order = 127, event = ModuleLifeCycle.LOADED)
   public void convertConfig() {
     if (Files.exists(this.getConfigPath())) {
-      JsonDocument config = this.readConfig().getDocument("config");
+      var config = this.readConfig().getDocument("config");
       // there is a config, run the conversion
       if (!config.isEmpty()) {
         // rewrite the config with all settings from the old config, but in the new format
@@ -75,7 +75,7 @@ public class CloudNetLabyModModule extends DriverModule {
       this.writeConfig(JsonDocument.newDocument(LabyModConfiguration.builder().build()));
     }
     // read the config from the file
-    LabyModConfiguration configuration = this.readConfig().toInstanceOf(LabyModConfiguration.class);
+    var configuration = this.readConfig().toInstanceOf(LabyModConfiguration.class);
     this.labyModManagement = new NodeLabyModManagement(this, configuration, this.getRPCFactory());
     // sync the config of the module into the cluster
     CloudNet.getInstance().getDataSyncRegistry().registerHandler(
@@ -96,9 +96,9 @@ public class CloudNetLabyModModule extends DriverModule {
   }
 
   private @NotNull LabyModServiceDisplay convertDisplayEntry(@NotNull JsonDocument entry) {
-    boolean enabled = entry.getBoolean("enabled");
-    String format = entry.getString("format");
-    String displayType = entry.getString("displayType");
+    var enabled = entry.getBoolean("enabled");
+    var format = entry.getString("format");
+    var displayType = entry.getString("displayType");
     // convert the old display type
     if (displayType.equals("TASK")) {
       return new LabyModServiceDisplay(enabled, format.replace("%display%", "%task%"));

@@ -43,10 +43,10 @@ public final class StringUtil {
   public static @NotNull String generateRandomString(int length) {
     Preconditions.checkArgument(length > 0, "Can only generate string which is longer to 0 chars");
     // init the backing api
-    StringBuilder buffer = new StringBuilder(length);
-    ThreadLocalRandom random = ThreadLocalRandom.current();
+    var buffer = new StringBuilder(length);
+    var random = ThreadLocalRandom.current();
     // loop over the string and put a new random char from the DEFAULT_ALPHABET_UPPERCASE constant
-    for (int i = 0; i < length; i++) {
+    for (var i = 0; i < length; i++) {
       buffer.append(DEFAULT_ALPHABET_UPPERCASE[random.nextInt(DEFAULT_ALPHABET_UPPERCASE.length)]);
     }
     // convert to string
@@ -61,7 +61,7 @@ public final class StringUtil {
    * @return {@code true} if the given string ends with the given suffix.
    */
   public static boolean endsWithIgnoreCase(@NotNull String s, @NotNull String suffix) {
-    int suffixLength = suffix.length();
+    var suffixLength = suffix.length();
     return s.regionMatches(true, s.length() - suffixLength, suffix, 0, suffixLength);
   }
 
@@ -77,8 +77,8 @@ public final class StringUtil {
   }
 
   public static @NotNull String repeat(char c, int times) {
-    char[] s = new char[times];
-    for (int i = 0; i < times; i++) {
+    var s = new char[times];
+    for (var i = 0; i < times; i++) {
       s[i] = c;
     }
     return new String(s);

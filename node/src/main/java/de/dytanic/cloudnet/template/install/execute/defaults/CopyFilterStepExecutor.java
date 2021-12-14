@@ -56,18 +56,18 @@ public class CopyFilterStepExecutor implements InstallStepExecutor {
       .collect(Collectors.toList());
 
     Set<Path> resultPaths = new HashSet<>();
-    for (Path path : inputPaths) {
+    for (var path : inputPaths) {
       if (Files.isDirectory(path)) {
         continue;
       }
 
-      String relativePath = workingDirectory.relativize(path).toString().replace("\\", "/").toLowerCase();
-      for (Map.Entry<Pattern, String> patternEntry : patterns) {
-        Pattern pattern = patternEntry.getKey();
-        String target = patternEntry.getValue();
+      var relativePath = workingDirectory.relativize(path).toString().replace("\\", "/").toLowerCase();
+      for (var patternEntry : patterns) {
+        var pattern = patternEntry.getKey();
+        var target = patternEntry.getValue();
 
         if (pattern.matcher(relativePath).matches()) {
-          Path targetPath = workingDirectory.resolve(target
+          var targetPath = workingDirectory.resolve(target
             .replace("%path%", relativePath)
             .replace("%fileName%", path.getFileName().toString()));
 

@@ -46,7 +46,7 @@ public class CNLInterpreter {
 
   public static void runInterpreter(Path path, Map<String, String> variables)
     throws IOException, CNLCommandExecuteException {
-    try (InputStream stream = Files.newInputStream(path)) {
+    try (var stream = Files.newInputStream(path)) {
       runInterpreter(stream, variables);
     }
   }
@@ -57,7 +57,7 @@ public class CNLInterpreter {
 
   public static void runInterpreter(InputStream inputStream, Map<String, String> variables)
     throws IOException, CNLCommandExecuteException {
-    try (InputStreamReader inputStreamReader = new InputStreamReader(inputStream, StandardCharsets.UTF_8)) {
+    try (var inputStreamReader = new InputStreamReader(inputStream, StandardCharsets.UTF_8)) {
       runInterpreter(inputStreamReader, variables);
     }
   }
@@ -69,7 +69,7 @@ public class CNLInterpreter {
 
   public static void runInterpreter(InputStreamReader inputStreamReader, Map<String, String> variables)
     throws IOException, CNLCommandExecuteException {
-    try (BufferedReader bufferedReader = new BufferedReader(inputStreamReader)) {
+    try (var bufferedReader = new BufferedReader(inputStreamReader)) {
       String commandLine;
       while ((commandLine = bufferedReader.readLine()) != null) {
         runCommand(variables, commandLine);
@@ -82,19 +82,19 @@ public class CNLInterpreter {
       return;
     }
 
-    String[] args = commandLine.split(" ");
-    String name = args[0];
+    var args = commandLine.split(" ");
+    var name = args[0];
 
     if (COMMANDS.containsKey(name.toLowerCase())) {
-      CNLCommand command = COMMANDS.get(name.toLowerCase());
+      var command = COMMANDS.get(name.toLowerCase());
 
       if (args.length == 1) {
         args = new String[0];
       } else {
-        List<String> list = Arrays.asList(commandLine.replaceFirst(name + " ", "").split(" "));
+        var list = Arrays.asList(commandLine.replaceFirst(name + " ", "").split(" "));
         list.replaceAll(text -> {
 
-          for (Map.Entry<String, String> entry : variables.entrySet()) {
+          for (var entry : variables.entrySet()) {
             if (text.contains("$" + entry.getKey())) {
               text = text.replace("$" + entry.getKey(), entry.getValue());
             }

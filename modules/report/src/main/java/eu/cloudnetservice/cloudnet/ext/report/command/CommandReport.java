@@ -66,7 +66,7 @@ public final class CommandReport {
 
   @Parser(suggestions = "pasteService")
   public PasteService defaultPasteServiceParser(CommandContext<CommandSource> $, Queue<String> input) {
-    String name = input.remove();
+    var name = input.remove();
     return this.reportModule.getReportConfiguration().getPasteServers()
       .stream()
       .filter(service -> service.getName().equalsIgnoreCase(name))
@@ -85,8 +85,8 @@ public final class CommandReport {
 
   @Parser(suggestions = "cloudService")
   public ICloudService singleServiceParser(CommandContext<CommandSource> $, Queue<String> input) {
-    String name = input.remove();
-    ICloudService cloudService = CloudNet.getInstance().getCloudServiceProvider().getLocalCloudService(name);
+    var name = input.remove();
+    var cloudService = CloudNet.getInstance().getCloudServiceProvider().getLocalCloudService(name);
     if (cloudService == null) {
       throw new ArgumentNotAvailableException(I18n.trans("command-service-service-not-found"));
     }
@@ -103,12 +103,12 @@ public final class CommandReport {
 
   @CommandMethod("report|paste node [pasteService]")
   public void pasteNode(CommandSource source, @Argument("pasteService") PasteService pasteService) {
-    PasteCreator pasteCreator = new PasteCreator(this.fallbackPasteService(pasteService),
+    var pasteCreator = new PasteCreator(this.fallbackPasteService(pasteService),
       this.reportModule.getEmitterRegistry());
-    NetworkClusterNodeInfoSnapshot selfNode = CloudNet.getInstance().getClusterNodeServerProvider().getSelfNode()
+    var selfNode = CloudNet.getInstance().getClusterNodeServerProvider().getSelfNode()
       .getNodeInfoSnapshot();
 
-    String response = pasteCreator.createNodePaste(selfNode);
+    var response = pasteCreator.createNodePaste(selfNode);
     if (response == null) {
       source.sendMessage(I18n.trans("module-report-command-paste-failed")
         .replace("%url%", pasteService.getServiceUrl()));
@@ -124,10 +124,10 @@ public final class CommandReport {
     @Argument("pasteService") PasteService pasteService,
     @Argument("service") ICloudService service
   ) {
-    PasteCreator pasteCreator = new PasteCreator(this.fallbackPasteService(pasteService),
+    var pasteCreator = new PasteCreator(this.fallbackPasteService(pasteService),
       this.reportModule.getEmitterRegistry());
 
-    String response = pasteCreator.createServicePaste(service);
+    var response = pasteCreator.createServicePaste(service);
     if (response == null) {
       source.sendMessage(I18n.trans("module-report-command-paste-failed")
         .replace("%url%", pasteService.getServiceUrl()));
@@ -139,7 +139,7 @@ public final class CommandReport {
 
   @CommandMethod("report|paste thread-dump")
   public void reportThreadDump(CommandSource source) {
-    Path file = this.reportModule.getCurrentRecordDirectory().resolve(System.currentTimeMillis() + "-threaddump.txt");
+    var file = this.reportModule.getCurrentRecordDirectory().resolve(System.currentTimeMillis() + "-threaddump.txt");
 
     if (this.createThreadDump(file)) {
       source.sendMessage(
@@ -151,7 +151,7 @@ public final class CommandReport {
 
   @CommandMethod("report|paste heap-dump")
   public void reportHeapDump(CommandSource source, @Flag("live") boolean live) {
-    Path file = this.reportModule.getCurrentRecordDirectory().resolve(System.currentTimeMillis() + "-heapdump.hprof");
+    var file = this.reportModule.getCurrentRecordDirectory().resolve(System.currentTimeMillis() + "-heapdump.hprof");
 
     if (this.createHeapDump(file, live)) {
       source.sendMessage(
@@ -162,9 +162,9 @@ public final class CommandReport {
   }
 
   private boolean createThreadDump(Path path) {
-    StringBuilder builder = new StringBuilder();
-    ThreadMXBean threadBean = ManagementFactory.getThreadMXBean();
-    for (ThreadInfo threadInfo : threadBean.dumpAllThreads(threadBean.isObjectMonitorUsageSupported(),
+    var builder = new StringBuilder();
+    var threadBean = ManagementFactory.getThreadMXBean();
+    for (var threadInfo : threadBean.dumpAllThreads(threadBean.isObjectMonitorUsageSupported(),
       threadBean.isSynchronizerUsageSupported())) {
       builder.append(threadInfo.toString());
     }
@@ -180,8 +180,8 @@ public final class CommandReport {
 
   private boolean createHeapDump(Path path, boolean live) {
     try {
-      MBeanServer server = ManagementFactory.getPlatformMBeanServer();
-      HotSpotDiagnosticMXBean mxBean = ManagementFactory.newPlatformMXBeanProxy(
+      var server = ManagementFactory.getPlatformMBeanServer();
+      var mxBean = ManagementFactory.newPlatformMXBeanProxy(
         server, "com.sun.management:type=HotSpotDiagnostic", HotSpotDiagnosticMXBean.class);
       mxBean.dumpHeap(path.toString(), live);
       return true;
@@ -197,7 +197,7 @@ public final class CommandReport {
       return service;
     }
 
-    List<PasteService> pasteServices = this.reportModule.getReportConfiguration().getPasteServers();
+    var pasteServices = this.reportModule.getReportConfiguration().getPasteServers();
     // there are no paste services, use fallback
     if (pasteServices.isEmpty()) {
       return PasteService.FALLBACK;

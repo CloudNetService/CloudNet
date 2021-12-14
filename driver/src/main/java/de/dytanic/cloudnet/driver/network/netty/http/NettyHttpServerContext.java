@@ -103,7 +103,7 @@ final class NettyHttpServerContext implements IHttpContext {
   @Override
   public IWebSocketChannel upgrade() {
     if (this.webSocketServerChannel == null) {
-      WebSocketServerHandshaker handshaker = new WebSocketServerHandshakerFactory(
+      var handshaker = new WebSocketServerHandshakerFactory(
         this.httpRequest.uri(),
         null,
         true,
@@ -227,7 +227,7 @@ final class NettyHttpServerContext implements IHttpContext {
   public IHttpContext addCookie(HttpCookie httpCookie) {
     Preconditions.checkNotNull(httpCookie);
 
-    HttpCookie cookie = this.cookie(httpCookie.getName());
+    var cookie = this.cookie(httpCookie.getName());
 
     if (cookie != null) {
       this.removeCookie(cookie.getName());
@@ -242,7 +242,7 @@ final class NettyHttpServerContext implements IHttpContext {
   public IHttpContext removeCookie(String name) {
     Preconditions.checkNotNull(name);
 
-    HttpCookie cookie = this.cookie(name);
+    var cookie = this.cookie(name);
     if (cookie != null) {
       cookie.setMaxAge(-1);
     }

@@ -62,11 +62,11 @@ public final class CommandPermissions {
 
   @Parser
   public PermissionUser defaultPermissionUserParser(CommandContext<CommandSource> $, Queue<String> input) {
-    String user = input.remove();
+    var user = input.remove();
 
     PermissionUser permissionUser;
     try {
-      UUID uniqueId = UUID.fromString(user);
+      var uniqueId = UUID.fromString(user);
       permissionUser = this.permissionManagement().getUser(uniqueId);
     } catch (IllegalArgumentException exception) {
       permissionUser = this.permissionManagement().getFirstUser(user);
@@ -81,9 +81,9 @@ public final class CommandPermissions {
 
   @Parser
   public PermissionGroup defaultPermissionGroupParser(CommandContext<CommandSource> $, Queue<String> input) {
-    String name = input.remove();
+    var name = input.remove();
 
-    PermissionGroup group = CloudNet.getInstance().getPermissionManagement().getGroup(name);
+    var group = CloudNet.getInstance().getPermissionManagement().getGroup(name);
     if (group == null) {
       throw new ArgumentNotAvailableException(I18n.trans("command-permissions-group-not-found"));
     }
@@ -98,33 +98,33 @@ public final class CommandPermissions {
 
   @Parser(name = "timeUnit")
   public long timeUnitParser(CommandContext<CommandSource> $, Queue<String> input) {
-    String time = input.remove();
+    var time = input.remove();
     // lifetime is represented as -1
     if (time.equalsIgnoreCase("lifetime")) {
       return -1;
     }
     // try to parse the raw input since the user may not have specified a unit
-    Long nonUnitTime = Longs.tryParse(time);
+    var nonUnitTime = Longs.tryParse(time);
     if (nonUnitTime != null) {
       // no unit found, use days as fallback
       return System.currentTimeMillis() + TimeUnit.DAYS.toMillis(nonUnitTime);
     }
-    int length = time.length();
+    var length = time.length();
     // check if there even is something to parse e.g. "1h"
     if (length < 2) {
       // unable to parse anything from that, use lifetime
       return -1;
     }
     // remove the last char from the input as it is the unit char
-    String actualTime = time.substring(0, length - 2);
-    Long unitTime = Longs.tryParse(actualTime);
+    var actualTime = time.substring(0, length - 2);
+    var unitTime = Longs.tryParse(actualTime);
     // check if we successfully parsed the time from the input
     if (unitTime == null) {
       // unable to parse anything from that, use lifetime
       return -1;
     }
     // get the unit the user used
-    char unit = time.charAt(length - 1);
+    var unit = time.charAt(length - 1);
     // select the timeunit based on the entered unit of the user
     switch (unit) {
       case 'm': {
@@ -201,8 +201,8 @@ public final class CommandPermissions {
     source.sendMessage("Potency: " + permissionUser.getPotency());
     source.sendMessage("Groups:");
 
-    for (PermissionUserGroupInfo group : permissionUser.getGroups()) {
-      String timeout = "LIFETIME";
+    for (var group : permissionUser.getGroups()) {
+      var timeout = "LIFETIME";
       if (group.getTimeOutMillis() > 0) {
         timeout = DATE_FORMAT.format(group.getTimeOutMillis());
       }
@@ -210,7 +210,7 @@ public final class CommandPermissions {
     }
 
     if (permissionUser.getGroups().isEmpty()) {
-      PermissionGroup defaultGroup = this.permissionManagement().getDefaultPermissionGroup();
+      var defaultGroup = this.permissionManagement().getDefaultPermissionGroup();
       if (defaultGroup != null) {
         source.sendMessage(defaultGroup.getName() + ": LIFETIME");
       }
@@ -285,7 +285,7 @@ public final class CommandPermissions {
 
   @CommandMethod("permissions|perms group")
   public void displayGroupInformation(CommandSource source) {
-    for (PermissionGroup group : this.permissionManagement().getGroups()) {
+    for (var group : this.permissionManagement().getGroups()) {
       this.displayGroup(source, group);
     }
   }
@@ -385,21 +385,21 @@ public final class CommandPermissions {
 
   private void displayPermission(CommandSource source, IPermissible permissible) {
     source.sendMessage("- Permissions:");
-    for (Permission permission : permissible.getPermissions()) {
+    for (var permission : permissible.getPermissions()) {
       source.sendMessage(this.formatPermission(permission));
     }
 
-    for (Entry<String, Collection<Permission>> groupPermission : permissible.getGroupPermissions().entrySet()) {
+    for (var groupPermission : permissible.getGroupPermissions().entrySet()) {
       source.sendMessage("* " + groupPermission.getKey());
 
-      for (Permission permission : groupPermission.getValue()) {
+      for (var permission : groupPermission.getValue()) {
         source.sendMessage(this.formatPermission(permission));
       }
     }
   }
 
   private String formatPermission(Permission permission) {
-    String timeout = "LIFETIME";
+    var timeout = "LIFETIME";
     if (permission.getTimeOutMillis() > 0) {
       timeout = DATE_FORMAT.format(permission.getTimeOutMillis());
     }
@@ -413,7 +413,7 @@ public final class CommandPermissions {
     @Nullable Long timeOut,
     @Nullable GroupConfiguration targetGroup
   ) {
-    Permission permission = new Permission(rawPermission);
+    var permission = new Permission(rawPermission);
     if (potency != null) {
       permission.setPotency(potency);
     }

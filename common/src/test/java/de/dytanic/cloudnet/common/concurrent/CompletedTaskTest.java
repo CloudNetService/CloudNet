@@ -32,7 +32,7 @@ public class CompletedTaskTest {
     Assertions.assertEquals(12345, task.getDef(null));
     Assertions.assertDoesNotThrow((ThrowingSupplier<Integer>) task::get);
 
-    ITask<String> then = task.map(i -> i == 12345 ? "Hello World" : "No world");
+    var then = task.map(i -> i == 12345 ? "Hello World" : "No world");
     Assertions.assertTrue(then.isDone());
     Assertions.assertEquals("Hello World", then.getDef(null));
     Assertions.assertDoesNotThrow((ThrowingSupplier<String>) then::get);
@@ -55,7 +55,7 @@ public class CompletedTaskTest {
     Assertions.assertEquals(123, task.getDef(123));
     Assertions.assertThrows(CancellationException.class, task::get);
 
-    ITask<String> then = task.map(i -> i == 12345 ? "Hello World" : "No world");
+    var then = task.map(i -> i == 12345 ? "Hello World" : "No world");
     Assertions.assertTrue(then.isDone());
     Assertions.assertTrue(then.isCancelled());
     Assertions.assertEquals("Hello World 1234", then.getDef("Hello World 1234"));

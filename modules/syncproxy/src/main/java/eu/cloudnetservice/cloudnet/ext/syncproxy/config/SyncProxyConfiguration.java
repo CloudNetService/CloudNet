@@ -81,7 +81,7 @@ public class SyncProxyConfiguration {
   }
 
   public static @Nullable SyncProxyConfiguration getConfigurationFromNode() {
-    ChannelMessage response = ChannelMessage.builder()
+    var response = ChannelMessage.builder()
       .channel(SyncProxyConstants.SYNC_PROXY_CHANNEL)
       .message(SyncProxyConstants.SYNC_PROXY_CONFIG_REQUEST)
       .targetNode(Wrapper.getInstance().getServiceId().getNodeUniqueId())
@@ -108,7 +108,7 @@ public class SyncProxyConfiguration {
   }
 
   public @UnknownNullability String getMessage(@NotNull String key, @Nullable Function<String, String> modifier) {
-    String message = this.messages.getOrDefault(key, DEFAULT_MESSAGES.get(key));
+    var message = this.messages.getOrDefault(key, DEFAULT_MESSAGES.get(key));
     if (message != null && modifier != null) {
       message = modifier.apply(message);
     }

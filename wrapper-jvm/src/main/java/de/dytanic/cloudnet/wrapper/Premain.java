@@ -35,13 +35,13 @@ final class Premain {
   }
 
   public static void preloadClasses(@NotNull Path file, @NotNull ClassLoader loader) {
-    try (JarInputStream stream = new JarInputStream(Files.newInputStream(file))) {
+    try (var stream = new JarInputStream(Files.newInputStream(file))) {
       JarEntry entry;
       while ((entry = stream.getNextJarEntry()) != null) {
         // only resolve class files
         if (!entry.isDirectory() && entry.getName().endsWith(".class")) {
           // canonicalize the class name
-          String className = entry.getName().replace('/', '.').replace(".class", "");
+          var className = entry.getName().replace('/', '.').replace(".class", "");
           // load the class
           try {
             Class.forName(className, false, loader);
@@ -58,11 +58,11 @@ final class Premain {
   public static void invokePremain(@NotNull String premainClass, @NotNull ClassLoader loader) throws Exception {
     if (!premainClass.equals("null")) {
       try {
-        Class<?> agentClass = Class.forName(premainClass, true, loader);
+        var agentClass = Class.forName(premainClass, true, loader);
         // find any possible premain method as defined in:
         // ~ https://docs.oracle.com/en/java/javase/11/docs/api/java.instrument/java/lang/instrument/package-summary.html
         // agentmain(String, Instrumentation)
-        Method method = methodOrNull(agentClass, "agentmain", String.class, Instrumentation.class);
+        var method = methodOrNull(agentClass, "agentmain", String.class, Instrumentation.class);
         if (method != null) {
           invokeAgentMainMethod(method, "", Premain.instrumentation);
           return;

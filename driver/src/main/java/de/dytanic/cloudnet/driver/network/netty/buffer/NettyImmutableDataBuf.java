@@ -81,7 +81,7 @@ public class NettyImmutableDataBuf implements DataBuf {
   @Override
   public byte[] readByteArray() {
     return this.hotRead(buf -> {
-      byte[] bytes = new byte[NettyUtils.readVarInt(buf)];
+      var bytes = new byte[NettyUtils.readVarInt(buf)];
       buf.readBytes(bytes);
       return bytes;
     });
@@ -104,7 +104,7 @@ public class NettyImmutableDataBuf implements DataBuf {
 
   @Override
   public byte[] toByteArray() {
-    byte[] bytes = new byte[this.getReadableBytes()];
+    var bytes = new byte[this.getReadableBytes()];
     return this.hotRead(buf -> {
       buf.readBytes(bytes);
       return bytes;
@@ -129,7 +129,7 @@ public class NettyImmutableDataBuf implements DataBuf {
   @Override
   public <T> T readNullable(@NotNull Function<DataBuf, T> readerWhenNonNull, T valueWhenNull) {
     return this.hotRead(buf -> {
-      boolean isNonNull = buf.readBoolean();
+      var isNonNull = buf.readBoolean();
       return isNonNull ? readerWhenNonNull.apply(this) : valueWhenNull;
     });
   }
@@ -191,7 +191,7 @@ public class NettyImmutableDataBuf implements DataBuf {
 
   protected @NotNull <T> T hotRead(@NotNull Function<ByteBuf, T> reader) {
     // get the result
-    T result = reader.apply(this.byteBuf);
+    var result = reader.apply(this.byteBuf);
     // check if the reader index reached the end and try to release the message then
     if (!this.byteBuf.isReadable()) {
       this.release();

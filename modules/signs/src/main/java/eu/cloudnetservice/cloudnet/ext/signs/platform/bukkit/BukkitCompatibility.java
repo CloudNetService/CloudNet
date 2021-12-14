@@ -55,7 +55,7 @@ public final class BukkitCompatibility {
 
     try {
       wallSignClass = Class.forName("org.bukkit.block.data.type.WallSign");
-      Class<?> blockDataClass = Class.forName("org.bukkit.block.data.BlockData");
+      var blockDataClass = Class.forName("org.bukkit.block.data.BlockData");
 
       getBlockData = MethodHandles.publicLookup().findVirtual(BlockState.class, "getBlockData",
         MethodType.methodType(blockDataClass));
@@ -98,7 +98,7 @@ public final class BukkitCompatibility {
     if (WALL_SIGN_CLASS != null && GET_BLOCK_DATA != null && WALL_SIGN_GET_FACING != null) {
       // modern bukkit lookup is possible
       try {
-        Object blockData = GET_BLOCK_DATA.invoke(blockState);
+        var blockData = GET_BLOCK_DATA.invoke(blockState);
         if (WALL_SIGN_CLASS.isInstance(blockData)) {
           return (BlockFace) WALL_SIGN_GET_FACING.invoke(blockData);
         }
@@ -108,9 +108,9 @@ public final class BukkitCompatibility {
       return BlockFace.UP;
     }
     // use legacy lookup
-    MaterialData materialData = blockState.getData();
+    var materialData = blockState.getData();
     if (materialData instanceof Sign) {
-      Sign sign = (Sign) materialData;
+      var sign = (Sign) materialData;
       return sign.isWallSign() ? sign.getFacing() : BlockFace.UP;
     }
     // unable to retrieve facing information
@@ -120,7 +120,7 @@ public final class BukkitCompatibility {
   public static void setSignGlowing(@NotNull org.bukkit.block.Sign sign, @NotNull SignLayout layout) {
     if (SET_GLOWING != null && SET_DYE_COLOR != null && layout.getGlowingColor() != null) {
       // try to find the defined dye color
-      DyeColor color = Enums.getIfPresent(DyeColor.class, layout.getGlowingColor().toUpperCase()).orNull();
+      var color = Enums.getIfPresent(DyeColor.class, layout.getGlowingColor().toUpperCase()).orNull();
       if (color != null) {
         try {
           // enable the glowing of the sign

@@ -70,7 +70,7 @@ public class NettyHttpServerTest extends NetworkTestCase {
   @Test
   @Order(10)
   void testDuplicateServerBind() throws Exception {
-    int port = this.getRandomFreePort();
+    var port = this.getRandomFreePort();
     IHttpServer server = new NettyHttpServer();
 
     Assertions.assertFalse(server.isSslEnabled());
@@ -83,10 +83,10 @@ public class NettyHttpServerTest extends NetworkTestCase {
   @Test
   @Order(20)
   void testHttpRequestMethods() throws Exception {
-    int port = this.getRandomFreePort();
+    var port = this.getRandomFreePort();
     IHttpServer server = new NettyHttpServer();
 
-    AtomicInteger handledTypes = new AtomicInteger();
+    var handledTypes = new AtomicInteger();
     server.registerHandler(
       "/test",
       ($, context) -> {
@@ -97,8 +97,8 @@ public class NettyHttpServerTest extends NetworkTestCase {
     Assertions.assertEquals(1, server.getHttpHandlers().size());
     Assertions.assertTrue(server.addListener(port));
 
-    for (String supportedMethod : SUPPORTED_METHODS) {
-      HttpURLConnection connection = this.connectTo(port, "test", con -> con.setRequestMethod(supportedMethod));
+    for (var supportedMethod : SUPPORTED_METHODS) {
+      var connection = this.connectTo(port, "test", con -> con.setRequestMethod(supportedMethod));
 
       connection.setRequestMethod(supportedMethod);
 
@@ -110,7 +110,7 @@ public class NettyHttpServerTest extends NetworkTestCase {
   @Test
   @Order(30)
   void testRequestPathParameters() throws Exception {
-    int port = this.getRandomFreePort();
+    var port = this.getRandomFreePort();
     IHttpServer server = new NettyHttpServer();
 
     server.registerHandler(
@@ -130,7 +130,7 @@ public class NettyHttpServerTest extends NetworkTestCase {
   @Test
   @Order(40)
   void testRequestQueryParameters() throws Exception {
-    int port = this.getRandomFreePort();
+    var port = this.getRandomFreePort();
     IHttpServer server = new NettyHttpServer();
 
     server.registerHandler(
@@ -151,14 +151,14 @@ public class NettyHttpServerTest extends NetworkTestCase {
   @Test
   @Order(50)
   void testHandlerPriority() throws Exception {
-    int port = this.getRandomFreePort();
+    var port = this.getRandomFreePort();
     IHttpServer server = new NettyHttpServer();
 
     server.registerHandler(
       "/test1",
       IHttpHandler.PRIORITY_LOW,
       ($, context) -> {
-        boolean cancelNext = Boolean.parseBoolean(
+        var cancelNext = Boolean.parseBoolean(
           Iterables.getFirst(context.request().queryParameters().get("cancelNext"), null));
         context.response().statusCode(200).context().cancelNext(cancelNext);
       }
@@ -179,7 +179,7 @@ public class NettyHttpServerTest extends NetworkTestCase {
   @Test
   @Order(60)
   void testRequestResponseHeadersBody() throws Exception {
-    int port = this.getRandomFreePort();
+    var port = this.getRandomFreePort();
     IHttpServer server = new NettyHttpServer();
 
     server.registerHandler(
@@ -203,12 +203,12 @@ public class NettyHttpServerTest extends NetworkTestCase {
     Assertions.assertEquals(1, server.getHttpHandlers().size());
     Assertions.assertTrue(server.addListener(port));
 
-    HttpURLConnection connection = this.connectTo(port, "test", urlConnection -> {
+    var connection = this.connectTo(port, "test", urlConnection -> {
       urlConnection.setRequestProperty("derklaro_status", "derklaro_was_here");
       urlConnection.setDoOutput(true);
     });
 
-    try (OutputStream stream = connection.getOutputStream()) {
+    try (var stream = connection.getOutputStream()) {
       JsonDocument.newDocument("test", true).write(stream);
     }
 
@@ -223,13 +223,13 @@ public class NettyHttpServerTest extends NetworkTestCase {
   @Test
   @Order(70)
   void testRequestResponseCookies() throws Exception {
-    int port = this.getRandomFreePort();
+    var port = this.getRandomFreePort();
     IHttpServer server = new NettyHttpServer();
 
     server.registerHandler(
       "/test",
       ($, context) -> {
-        HttpCookie cookie = context.cookie("request_cookie");
+        var cookie = context.cookie("request_cookie");
         Assertions.assertNotNull(cookie);
 
         Assertions.assertEquals("request_cookie", cookie.getName());
@@ -257,13 +257,13 @@ public class NettyHttpServerTest extends NetworkTestCase {
     Assertions.assertEquals(1, server.getHttpHandlers().size());
     Assertions.assertTrue(server.addListener(port));
 
-    HttpURLConnection connection = this.connectTo(port, "test", urlConnection -> {
+    var connection = this.connectTo(port, "test", urlConnection -> {
       Cookie cookie = new DefaultCookie("request_cookie", "request_value");
       urlConnection.setRequestProperty("Cookie", ClientCookieEncoder.LAX.encode(cookie));
     });
     Assertions.assertEquals(200, connection.getResponseCode());
 
-    Cookie cookie = ClientCookieDecoder.LAX.decode(connection.getHeaderField("Set-Cookie"));
+    var cookie = ClientCookieDecoder.LAX.decode(connection.getHeaderField("Set-Cookie"));
 
     Assertions.assertEquals("response_cookie", cookie.name());
     Assertions.assertEquals("response_value", cookie.value());
@@ -280,8 +280,8 @@ public class NettyHttpServerTest extends NetworkTestCase {
   @Test
   @Order(80)
   void testHandlersForDifferentPorts() throws Exception {
-    int port = this.getRandomFreePort();
-    int secondPort = this.getRandomFreePort(port);
+    var port = this.getRandomFreePort();
+    var secondPort = this.getRandomFreePort(port);
     IHttpServer server = new NettyHttpServer();
 
     // global handler
@@ -321,7 +321,7 @@ public class NettyHttpServerTest extends NetworkTestCase {
   @Order(90)
   @Timeout(20)
   void testWebSocketHandling() throws Exception {
-    int port = this.getRandomFreePort();
+    var port = this.getRandomFreePort();
     IHttpServer server = new NettyHttpServer();
 
     server.registerHandler(
@@ -347,7 +347,7 @@ public class NettyHttpServerTest extends NetworkTestCase {
     );
     Assertions.assertTrue(server.addListener(port));
 
-    Session session = ClientManager.createClient().connectToServer(
+    var session = ClientManager.createClient().connectToServer(
       WebSocketClientEndpoint.class,
       URI.create(String.format("ws://127.0.0.1:%d/test", port)));
 
@@ -366,7 +366,7 @@ public class NettyHttpServerTest extends NetworkTestCase {
     String path,
     ThrowableConsumer<HttpURLConnection, Exception> modifier
   ) throws Exception {
-    HttpURLConnection connection = (HttpURLConnection) this.getHttpUrl(port, path).openConnection();
+    var connection = (HttpURLConnection) this.getHttpUrl(port, path).openConnection();
     connection.setReadTimeout(5000);
     connection.setConnectTimeout(5000);
 

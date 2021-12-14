@@ -49,19 +49,19 @@ public class CommandSigns extends BaseTabExecutor {
       return true;
     }
 
-    Player player = (Player) sender;
-    SignConfigurationEntry entry = this.signManagement.getApplicableSignConfigurationEntry();
+    var player = (Player) sender;
+    var entry = this.signManagement.getApplicableSignConfigurationEntry();
     if (entry == null) {
       this.signManagement.getSignsConfiguration().sendMessage("command-cloudsign-no-entry", sender::sendMessage);
       return true;
     }
 
     if ((args.length == 2 || args.length == 3) && args[0].equalsIgnoreCase("create")) {
-      Block targetBlock = player.getTargetBlock((Set<Material>) null, 15);
+      var targetBlock = player.getTargetBlock((Set<Material>) null, 15);
       // check if the block the player is facing is a sign
       if (targetBlock.getState() instanceof org.bukkit.block.Sign) {
         // validate that the sign isn't existing already
-        Sign sign = this.signManagement.getSignAt((org.bukkit.block.Sign) targetBlock.getState());
+        var sign = this.signManagement.getSignAt((org.bukkit.block.Sign) targetBlock.getState());
         if (sign != null) {
           this.signManagement.getSignsConfiguration().sendMessage(
             "command-cloudsign-sign-already-exist",
@@ -70,7 +70,7 @@ public class CommandSigns extends BaseTabExecutor {
         }
 
         // create the sign
-        Sign createdSign = this.signManagement.createSign(
+        var createdSign = this.signManagement.createSign(
           (org.bukkit.block.Sign) targetBlock.getState(),
           args[1],
           args.length == 3 ? args[2] : null);
@@ -88,7 +88,7 @@ public class CommandSigns extends BaseTabExecutor {
       return true;
     } else if (args.length == 1 && args[0].equalsIgnoreCase("cleanup")) {
       // removes all signs on which location is not a sign anymore
-      int removed = this.signManagement.removeMissingSigns();
+      var removed = this.signManagement.removeMissingSigns();
       this.signManagement.getSignsConfiguration().sendMessage(
         "command-cloudsign-cleanup-success",
         player::sendMessage,
@@ -96,7 +96,7 @@ public class CommandSigns extends BaseTabExecutor {
       return true;
     } else if (args.length == 1 && args[0].equalsIgnoreCase("removeall")) {
       // deletes all signs
-      int removed = this.signManagement.deleteAllSigns();
+      var removed = this.signManagement.deleteAllSigns();
       this.signManagement.getSignsConfiguration().sendMessage(
         "command-cloudsign-bulk-remove-success",
         player::sendMessage,
@@ -104,10 +104,10 @@ public class CommandSigns extends BaseTabExecutor {
       return true;
     } else if (args.length == 1 && args[0].equalsIgnoreCase("remove")) {
       // check if the player is facing a sign
-      Block targetBlock = player.getTargetBlock((Set<Material>) null, 15);
+      var targetBlock = player.getTargetBlock((Set<Material>) null, 15);
       if (targetBlock.getState() instanceof org.bukkit.block.Sign) {
         // check if the sign exists
-        Sign sign = this.signManagement.getSignAt((org.bukkit.block.Sign) targetBlock.getState());
+        var sign = this.signManagement.getSignAt((org.bukkit.block.Sign) targetBlock.getState());
         if (sign == null) {
           this.signManagement.getSignsConfiguration().sendMessage(
             "command-cloudsign-remove-not-existing",

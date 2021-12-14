@@ -49,7 +49,7 @@ public final class CommandMigrate {
 
   @Parser(suggestions = "databaseProvider")
   public AbstractDatabaseProvider defaultDatabaseProviderParser(CommandContext<CommandSource> $, Queue<String> input) {
-    AbstractDatabaseProvider abstractDatabaseProvider = CloudNet.getInstance().getServicesRegistry()
+    var abstractDatabaseProvider = CloudNet.getInstance().getServicesRegistry()
       .getService(AbstractDatabaseProvider.class, input.remove());
 
     if (abstractDatabaseProvider == null) {
@@ -88,12 +88,12 @@ public final class CommandMigrate {
     }
 
     try {
-      for (String databaseName : sourceDatabaseProvider.getDatabaseNames()) {
+      for (var databaseName : sourceDatabaseProvider.getDatabaseNames()) {
         source.sendMessage(
           I18n.trans("command-migrate-current-database").replace("%db%", databaseName));
 
-        LocalDatabase sourceDatabase = sourceDatabaseProvider.getDatabase(databaseName);
-        LocalDatabase targetDatabase = targetDatabaseProvider.getDatabase(databaseName);
+        var sourceDatabase = sourceDatabaseProvider.getDatabase(databaseName);
+        var targetDatabase = targetDatabaseProvider.getDatabase(databaseName);
 
         sourceDatabase.iterate(targetDatabase::insert, chunkSize);
       }

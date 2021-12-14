@@ -39,7 +39,7 @@ public interface IPersistable {
   @NotNull IPersistable write(@NotNull Writer writer);
 
   default @NotNull IPersistable write(@NotNull OutputStream outputStream) {
-    try (OutputStreamWriter writer = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8)) {
+    try (var writer = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8)) {
       return this.write(writer);
     } catch (IOException exception) {
       LOGGER.severe("Exception while writing output stream", exception);
@@ -52,7 +52,7 @@ public interface IPersistable {
       // ensure that the parent directory exists
       FileUtils.createDirectory(path.getParent());
       // write to the file
-      try (OutputStream stream = Files.newOutputStream(path)) {
+      try (var stream = Files.newOutputStream(path)) {
         return this.write(stream);
       } catch (IOException exception) {
         LOGGER.severe("Exception while writing document to " + path, exception);

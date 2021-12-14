@@ -54,7 +54,7 @@ public class V2HttpHandlerServiceVersionProvider extends V2HttpHandler {
   }
 
   protected void handleVersionRequest(IHttpContext context) {
-    String version = context.request().pathParameters().get("version");
+    var version = context.request().pathParameters().get("version");
     if (version == null) {
       this.badRequest(context)
         .body(this.failure().append("reason", "Missing version identifier").toString())
@@ -64,7 +64,7 @@ public class V2HttpHandlerServiceVersionProvider extends V2HttpHandler {
       return;
     }
 
-    ServiceVersionType serviceVersion = this.getVersionProvider().getServiceVersionType(version).orElse(null);
+    var serviceVersion = this.getVersionProvider().getServiceVersionType(version).orElse(null);
     if (serviceVersion == null) {
       this.badRequest(context)
         .body(this.failure().append("reason", "Unknown service version").toString())
@@ -82,7 +82,7 @@ public class V2HttpHandlerServiceVersionProvider extends V2HttpHandler {
   }
 
   protected void handleVersionLoadRequest(IHttpContext context) {
-    String url = RestUtils.getFirst(context.request().queryParameters().get("url"), null);
+    var url = RestUtils.getFirst(context.request().queryParameters().get("url"), null);
     if (url == null) {
       this.getVersionProvider().loadDefaultVersionTypes();
     } else {
@@ -105,7 +105,7 @@ public class V2HttpHandlerServiceVersionProvider extends V2HttpHandler {
   }
 
   protected void handleVersionAddRequest(IHttpContext context) {
-    ServiceVersionType type = this.body(context.request()).toInstanceOf(ServiceVersionType.class);
+    var type = this.body(context.request()).toInstanceOf(ServiceVersionType.class);
     if (type == null) {
       this.badRequest(context)
         .body(this.failure().append("reason", "Missing specific data").toString())

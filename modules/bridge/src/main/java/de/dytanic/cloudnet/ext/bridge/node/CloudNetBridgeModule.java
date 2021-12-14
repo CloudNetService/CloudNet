@@ -59,7 +59,7 @@ public final class CloudNetBridgeModule extends DriverModule {
 
   @ModuleTask(order = 40, event = ModuleLifeCycle.LOADED)
   public void convertOldConfiguration() {
-    Path oldConfigurationPath = this.getModuleWrapper()
+    var oldConfigurationPath = this.getModuleWrapper()
       .getModuleProvider()
       .getModuleDirectoryPath()
       .resolve("CloudNet-Bridge")
@@ -67,7 +67,7 @@ public final class CloudNetBridgeModule extends DriverModule {
     // check if the old file exists
     if (Files.exists(oldConfigurationPath)) {
       // read the file
-      JsonDocument config = JsonDocument.newDocument(oldConfigurationPath).getDocument("config");
+      var config = JsonDocument.newDocument(oldConfigurationPath).getDocument("config");
       // extract the messages and re-map them
       Map<String, Map<String, String>> messages = new HashMap<>(BridgeConfiguration.DEFAULT_MESSAGES);
       messages.get("default").putAll(config.get("messages", new TypeToken<Map<String, String>>() {
@@ -100,14 +100,14 @@ public final class CloudNetBridgeModule extends DriverModule {
 
   @ModuleTask(event = ModuleLifeCycle.STARTED)
   public void convertOldDatabaseEntries() {
-    LocalDatabase playerDb = CloudNet.getInstance().getDatabaseProvider().getDatabase(BRIDGE_PLAYER_DB_NAME);
+    var playerDb = CloudNet.getInstance().getDatabaseProvider().getDatabase(BRIDGE_PLAYER_DB_NAME);
     // read the first player from the database - if the first player is valid we don't need to take a look at the other
     // players in the database as they were already converted
-    Map<String, JsonDocument> first = playerDb.readChunk(101, 1);
+    var first = playerDb.readChunk(101, 1);
     if (first != null && !first.isEmpty()) {
-      JsonDocument document = Iterables.getOnlyElement(first.values());
+      var document = Iterables.getOnlyElement(first.values());
       // validate the offline player
-      JsonDocument serviceId = document
+      var serviceId = document
         .getDocument("lastNetworkPlayerProxyInfo")
         .getDocument("networkService")
         .getDocument("serviceId");
@@ -115,20 +115,20 @@ public final class CloudNetBridgeModule extends DriverModule {
       if (serviceId.getString("environmentName") == null) {
         LOGGER.warning("Converting the offline player database, this may take a few seconds...");
 
-        int convertedPlayers = 0;
+        var convertedPlayers = 0;
         // invalid player data - convert the database
         Map<String, JsonDocument> chunkData;
         while ((chunkData = playerDb.readChunk(convertedPlayers, 100)) != null) {
-          for (Entry<String, JsonDocument> entry : chunkData.entrySet()) {
+          for (var entry : chunkData.entrySet()) {
             // get all the required path
-            JsonDocument lastProxyInfo = entry.getValue().getDocument("lastNetworkPlayerProxyInfo");
-            JsonDocument networkService = lastProxyInfo.getDocument("networkService");
+            var lastProxyInfo = entry.getValue().getDocument("lastNetworkPlayerProxyInfo");
+            var networkService = lastProxyInfo.getDocument("networkService");
             serviceId = networkService.getDocument("serviceId");
             // rewrite the name of the environment
-            String environment = serviceId.getString("environment", "");
+            var environment = serviceId.getString("environment", "");
             serviceId.append("environmentName", environment);
             // try to set the new environment
-            ServiceEnvironmentType env = CloudNet.getInstance().getServiceVersionProvider()
+            var env = CloudNet.getInstance().getServiceVersionProvider()
               .getEnvironmentType(environment)
               .orElse(null);
             serviceId.append("environment", env);
@@ -156,7 +156,7 @@ public final class CloudNetBridgeModule extends DriverModule {
   @ModuleTask(event = ModuleLifeCycle.LOADED)
   public void initModule() {
     // load the configuration file
-    BridgeConfiguration configuration = this.readConfig().toInstanceOf(BridgeConfiguration.class);
+    var configuration = this.readConfig().toInstanceOf(BridgeConfiguration.class);
     if (Files.notExists(this.getConfigPath())) {
       // create a new configuration
       configuration = new BridgeConfiguration();

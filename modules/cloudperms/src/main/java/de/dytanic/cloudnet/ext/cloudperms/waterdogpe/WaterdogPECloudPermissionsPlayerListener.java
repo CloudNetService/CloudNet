@@ -30,7 +30,7 @@ import dev.waterdog.waterdogpe.event.defaults.PlayerPermissionCheckEvent;
 final class WaterdogPECloudPermissionsPlayerListener {
 
   public WaterdogPECloudPermissionsPlayerListener(IPermissionManagement permissionManagement) {
-    EventManager eventManager = ProxyServer.getInstance().getEventManager();
+    var eventManager = ProxyServer.getInstance().getEventManager();
 
     eventManager.subscribe(PlayerLoginEvent.class, event -> {
       if (!event.isCancelled()) {
@@ -47,7 +47,7 @@ final class WaterdogPECloudPermissionsPlayerListener {
     }, EventPriority.LOW);
 
     eventManager.subscribe(PlayerPermissionCheckEvent.class, event -> {
-      PermissionUser permissionUser = permissionManagement.getUser(event.getPlayer().getUniqueId());
+      var permissionUser = permissionManagement.getUser(event.getPlayer().getUniqueId());
       if (permissionUser != null) {
         event.setHasPermission(
           permissionManagement.hasPermission(permissionUser, Permission.of(event.getPermission())));

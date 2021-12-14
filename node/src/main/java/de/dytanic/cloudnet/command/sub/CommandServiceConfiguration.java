@@ -31,21 +31,21 @@ public final class CommandServiceConfiguration {
 
     messages.add("Includes:");
 
-    for (ServiceRemoteInclusion inclusion : configurationBase.getIncludes()) {
+    for (var inclusion : configurationBase.getIncludes()) {
       messages.add("- " + inclusion.getUrl() + " => " + inclusion.getDestination());
     }
 
     messages.add(" ");
     messages.add("Templates:");
 
-    for (ServiceTemplate template : configurationBase.getTemplates()) {
+    for (var template : configurationBase.getTemplates()) {
       messages.add("- " + template);
     }
 
     messages.add(" ");
     messages.add("Deployments:");
 
-    for (ServiceDeployment deployment : configurationBase.getDeployments()) {
+    for (var deployment : configurationBase.getDeployments()) {
       messages.add("- ");
       messages.add(
         "Template:  " + deployment.getTemplate());
@@ -55,14 +55,14 @@ public final class CommandServiceConfiguration {
     messages.add(" ");
     messages.add("JVM Options:");
 
-    for (String jvmOption : configurationBase.getJvmOptions()) {
+    for (var jvmOption : configurationBase.getJvmOptions()) {
       messages.add("- " + jvmOption);
     }
 
     messages.add(" ");
     messages.add("Process Parameters:");
 
-    for (String processParameters : configurationBase.getProcessParameters()) {
+    for (var processParameters : configurationBase.getProcessParameters()) {
       messages.add("- " + processParameters);
     }
 

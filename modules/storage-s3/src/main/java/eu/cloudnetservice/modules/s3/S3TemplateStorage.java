@@ -106,12 +106,12 @@ public class S3TemplateStorage implements TemplateStorage {
     @NotNull ServiceTemplate target,
     @Nullable Predicate<Path> fileFilter
   ) {
-    AtomicBoolean result = new AtomicBoolean(true);
+    var result = new AtomicBoolean(true);
     // walk down the file tree
     FileUtils.walkFileTree(directory, ($, file) -> {
       if (!Files.isDirectory(file)) {
         try {
-          PutObjectRequest request = PutObjectRequest.builder()
+          var request = PutObjectRequest.builder()
             .bucket(this.getConfig().getBucket())
             .key(this.getBucketPath(target, directory, file))
             .contentType(this.getContentType(file))
@@ -135,7 +135,7 @@ public class S3TemplateStorage implements TemplateStorage {
     @NotNull InputStream inputStream,
     @NotNull ServiceTemplate target
   ) {
-    Path temp = FileUtils.extract(inputStream, FileUtils.createTempFile());
+    var temp = FileUtils.extract(inputStream, FileUtils.createTempFile());
     if (temp != null) {
       try {
         return this.deployDirectory(temp, target, null);
@@ -150,18 +150,18 @@ public class S3TemplateStorage implements TemplateStorage {
   public boolean copy(@NotNull ServiceTemplate template, @NotNull Path directory) {
     try {
       // get the repo path
-      String templatePath = this.getBucketPath(template);
+      var templatePath = this.getBucketPath(template);
       // list all files
       return this.listAllObjects(templatePath, null, content -> {
         // filter the content key
-        Path target = directory.resolve(content.key().substring(templatePath.length() + 1));
+        var target = directory.resolve(content.key().substring(templatePath.length() + 1));
         FileUtils.createDirectory(target.getParent());
         // get the file
-        GetObjectRequest req = GetObjectRequest.builder()
+        var req = GetObjectRequest.builder()
           .key(content.key())
           .bucket(this.getConfig().getBucket())
           .build();
-        try (InputStream stream = this.client.getObject(req); OutputStream out = Files.newOutputStream(target)) {
+        try (InputStream stream = this.client.getObject(req); var out = Files.newOutputStream(target)) {
           FileUtils.copy(stream, out);
         }
       });
@@ -173,7 +173,7 @@ public class S3TemplateStorage implements TemplateStorage {
 
   @Override
   public @Nullable InputStream zipTemplate(@NotNull ServiceTemplate template) {
-    Path localTarget = FileUtils.createTempFile();
+    var localTarget = FileUtils.createTempFile();
     if (this.copy(template, localTarget)) {
       return FileUtils.zipToStream(localTarget);
     } else {
@@ -192,7 +192,7 @@ public class S3TemplateStorage implements TemplateStorage {
 
     try {
       // build the delete request
-      DeleteObjectsRequest deleteRequest = DeleteObjectsRequest.builder()
+      var deleteRequest = DeleteObjectsRequest.builder()
         .bucket(this.getConfig().getBucket())
         .delete(Delete.builder().quiet(true).objects(toDelete).build())
         .build();
@@ -214,7 +214,7 @@ public class S3TemplateStorage implements TemplateStorage {
   public boolean has(@NotNull ServiceTemplate template) {
     try {
       // check if we can get at least one object
-      ListObjectsV2Request request = ListObjectsV2Request.builder()
+      var request = ListObjectsV2Request.builder()
         .maxKeys(1)
         .fetchOwner(false)
         .bucket(this.getConfig().getBucket())
@@ -234,7 +234,7 @@ public class S3TemplateStorage implements TemplateStorage {
     ByteArrayOutputStream original;
     // try to get the old data
     try {
-      GetObjectRequest request = GetObjectRequest.builder()
+      var request = GetObjectRequest.builder()
         .bucket(this.getConfig().getBucket())
         .key(this.getBucketPath(template, path))
         .build();
@@ -260,9 +260,9 @@ public class S3TemplateStorage implements TemplateStorage {
     @NotNull ByteArrayOutputStream original
   ) {
     return new ListeningOutputStream<>(original, stream -> {
-      byte[] content = stream.toByteArray();
+      var content = stream.toByteArray();
       try (InputStream inputStream = new ByteArrayInputStream(content)) {
-        PutObjectRequest request = PutObjectRequest.builder()
+        var request = PutObjectRequest.builder()
           .bucket(this.getConfig().getBucket())
           .key(this.getBucketPath(template, filePath))
           .contentLength((long) content.length)
@@ -276,7 +276,7 @@ public class S3TemplateStorage implements TemplateStorage {
   @Override
   public boolean createFile(@NotNull ServiceTemplate template, @NotNull String path) {
     try {
-      PutObjectRequest request = PutObjectRequest.builder()
+      var request = PutObjectRequest.builder()
         .bucket(this.getBucketPath(template, path))
         .key(this.getBucketPath(template, path))
         .contentLength(0L)
@@ -298,7 +298,7 @@ public class S3TemplateStorage implements TemplateStorage {
   @Override
   public boolean hasFile(@NotNull ServiceTemplate template, @NotNull String path) throws IOException {
     try {
-      GetObjectRequest request = GetObjectRequest.builder()
+      var request = GetObjectRequest.builder()
         .bucket(this.getConfig().getBucket())
         .key(this.getBucketPath(template, path))
         .build();
@@ -313,7 +313,7 @@ public class S3TemplateStorage implements TemplateStorage {
   @Override
   public boolean deleteFile(@NotNull ServiceTemplate template, @NotNull String path) {
     try {
-      DeleteObjectRequest request = DeleteObjectRequest.builder()
+      var request = DeleteObjectRequest.builder()
         .bucket(this.getConfig().getBucket())
         .key(this.getBucketPath(template, path))
         .build();
@@ -328,7 +328,7 @@ public class S3TemplateStorage implements TemplateStorage {
   @Override
   public @Nullable InputStream newInputStream(@NotNull ServiceTemplate template, @NotNull String path) {
     try {
-      GetObjectRequest request = GetObjectRequest.builder()
+      var request = GetObjectRequest.builder()
         .bucket(this.getConfig().getBucket())
         .key(this.getBucketPath(template, path))
         .build();
@@ -341,15 +341,15 @@ public class S3TemplateStorage implements TemplateStorage {
   @Override
   public @Nullable FileInfo getFileInfo(@NotNull ServiceTemplate template, @NotNull String path) {
     try {
-      String bucketPath = this.getBucketPath(template, path);
+      var bucketPath = this.getBucketPath(template, path);
       // get the object info
-      HeadObjectRequest request = HeadObjectRequest.builder()
+      var request = HeadObjectRequest.builder()
         .bucket(this.getConfig().getBucket())
         .key(bucketPath)
         .build();
-      HeadObjectResponse response = this.client.headObject(request);
+      var response = this.client.headObject(request);
       // convert to a file info
-      String[] parts = bucketPath.split("/");
+      var parts = bucketPath.split("/");
       return new FileInfo(
         path,
         parts[parts.length - 1],
@@ -368,11 +368,11 @@ public class S3TemplateStorage implements TemplateStorage {
   @Override
   public @Nullable FileInfo[] listFiles(@NotNull ServiceTemplate template, @NotNull String dir, boolean deep) {
     // get the initial data we need to strip off
-    int initialStrip = this.getBucketPath(template).length();
+    var initialStrip = this.getBucketPath(template).length();
     // collect all files
     Collection<FileInfo> files = new ArrayList<>();
     this.listAllObjects(this.getBucketPath(template, dir), null, object -> {
-      String[] parts = object.key().split("/");
+      var parts = object.key().split("/");
       files.add(new FileInfo(
         object.key().substring(initialStrip),
         parts[parts.length - 1],
@@ -392,7 +392,7 @@ public class S3TemplateStorage implements TemplateStorage {
     Set<ServiceTemplate> result = new HashSet<>();
     // list all files - filter out the possible template prefixes
     this.listAllObjects("", null, object -> {
-      String[] parts = object.key().split("/");
+      var parts = object.key().split("/");
       if (parts.length >= 2) {
         result.add(ServiceTemplate.builder()
           .storage(this.getConfig().getName())
@@ -415,14 +415,14 @@ public class S3TemplateStorage implements TemplateStorage {
     @NotNull ThrowableConsumer<S3Object, Exception> handler
   ) {
     try {
-      ListObjectsV2Response response = this.client.listObjectsV2(ListObjectsV2Request.builder()
+      var response = this.client.listObjectsV2(ListObjectsV2Request.builder()
         .prefix(prefix)
         .fetchOwner(false)
         .continuationToken(marker)
         .bucket(this.getConfig().getBucket())
         .build());
       // handle all results
-      for (S3Object content : response.contents()) {
+      for (var content : response.contents()) {
         handler.accept(content);
       }
       // check if there is a need to continue

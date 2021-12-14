@@ -49,7 +49,7 @@ public final class JsonConfiguration implements IConfiguration {
     System.getProperty("cloudnet.config.json.path", "config.json"));
 
   private static final Function<String, SSLConfiguration> SSL_CONFIG_PARSER = value -> {
-    String[] values = value.split(";");
+    var values = value.split(";");
     if (values.length == 4 || values.length == 5) {
       return new SSLConfiguration(
         Boolean.parseBoolean(values[0]),
@@ -93,9 +93,9 @@ public final class JsonConfiguration implements IConfiguration {
 
   public JsonConfiguration() {
     // TODO: remove in 4.1
-    Path oldRegistry = Paths.get("local", "registry");
+    var oldRegistry = Paths.get("local", "registry");
     if (Files.exists(oldRegistry)) {
-      JsonDocument entries = JsonDocument.newDocument(oldRegistry).getDocument("entries");
+      var entries = JsonDocument.newDocument(oldRegistry).getDocument("entries");
       if (!entries.isEmpty()) {
         this.properties = JsonDocument.newDocument();
         this.properties.append(entries);
@@ -142,10 +142,10 @@ public final class JsonConfiguration implements IConfiguration {
           value -> {
             Collection<NetworkClusterNode> nodes = new HashSet<>();
             // collection entries are seperated by ','
-            String[] entries = value.split(",");
-            for (String entry : entries) {
+            var entries = value.split(",");
+            for (var entry : entries) {
               // split at '-': <name>-<listeners>
-              String[] info = entry.split("-");
+              var info = entry.split("-");
               if (info.length == 2) {
                 nodes.add(new NetworkClusterNode(info[0], ConfigurationUtils.HOST_AND_PORT_PARSER.apply(info[1])));
               }

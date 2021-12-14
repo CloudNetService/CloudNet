@@ -67,7 +67,7 @@ public final class LogOutputStream extends ByteArrayOutputStream {
   public void flush() throws IOException {
     synchronized (this) {
       super.flush();
-      String content = this.toString(StandardCharsets.UTF_8.name());
+      var content = this.toString(StandardCharsets.UTF_8.name());
       super.reset();
 
       if (!content.isEmpty() && !content.equals(System.lineSeparator())) {

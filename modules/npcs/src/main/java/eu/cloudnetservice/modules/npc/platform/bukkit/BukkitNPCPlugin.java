@@ -29,7 +29,7 @@ public final class BukkitNPCPlugin extends JavaPlugin {
   @Override
   public void onEnable() {
     // init the npc management
-    BukkitPlatformNPCManagement management = new BukkitPlatformNPCManagement(this);
+    var management = new BukkitPlatformNPCManagement(this);
     management.registerToServiceRegistry();
     management.initialize();
     // register all listeners
@@ -37,9 +37,9 @@ public final class BukkitNPCPlugin extends JavaPlugin {
     Bukkit.getPluginManager().registerEvents(new BukkitEntityProtectionListener(management), this);
     Bukkit.getPluginManager().registerEvents(new BukkitWorldListener(this, management), this);
     // register the commands
-    PluginCommand command = this.getCommand("cn");
+    var command = this.getCommand("cn");
     if (command != null) {
-      NPCCommand executor = new NPCCommand(this, management);
+      var executor = new NPCCommand(this, management);
       // set the executor
       command.setExecutor(executor);
       command.setTabCompleter(executor);

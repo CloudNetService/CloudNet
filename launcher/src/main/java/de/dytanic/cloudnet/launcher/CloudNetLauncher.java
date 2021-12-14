@@ -72,7 +72,7 @@ public final class CloudNetLauncher {
     System.setProperty("file.encoding", "UTF-8");
     System.setProperty("client.encoding.override", "UTF-8");
 
-    String user = System.getProperty("user.name");
+    var user = System.getProperty("user.name");
 
     if (user.equalsIgnoreCase("root") || user.equalsIgnoreCase("administrator")) {
       PRINT.accept("===================================================================");
@@ -127,7 +127,7 @@ public final class CloudNetLauncher {
     CNLInterpreter.registerCommand(new CNLCommandInclude(this.dependencies));
     CNLInterpreter.registerCommand(new CNLCommandRepo(this.repositories));
 
-    try (InputStream inputStream = CloudNetLauncher.class.getClassLoader().getResourceAsStream("launcher.cnl")) {
+    try (var inputStream = CloudNetLauncher.class.getClassLoader().getResourceAsStream("launcher.cnl")) {
       Objects.requireNonNull(inputStream, "Unable to find the default launcher config, is the launcher corrupted?");
 
       if (Files.exists(CONFIG_PATH)) {
@@ -148,7 +148,7 @@ public final class CloudNetLauncher {
     this.selectedVersion = this.selectVersion();
 
     if (this.selectedVersion instanceof Updater) {
-      Updater updater = (Updater) this.selectedVersion;
+      var updater = (Updater) this.selectedVersion;
 
       PRINT.accept(String.format("Installing version %s from updater %s...", updater.getCurrentVersion(),
         updater.getClass().getSimpleName()));
@@ -168,16 +168,16 @@ public final class CloudNetLauncher {
   }
 
   private VersionInfo selectVersion() {
-    Map<String, VersionInfo> loadedVersionInfo = this.loadVersions();
+    var loadedVersionInfo = this.loadVersions();
 
-    String selectedVersion = this.variables.get(LauncherUtils.CLOUDNET_SELECTED_VERSION);
+    var selectedVersion = this.variables.get(LauncherUtils.CLOUDNET_SELECTED_VERSION);
     if (selectedVersion != null && loadedVersionInfo.containsKey(selectedVersion)) {
       return loadedVersionInfo.get(selectedVersion);
     }
 
-    Collection<VersionInfo> versionInfoCollection = loadedVersionInfo.values();
+    var versionInfoCollection = loadedVersionInfo.values();
 
-    VersionInfo newestVersion = versionInfoCollection.stream()
+    var newestVersion = versionInfoCollection.stream()
       .max(Comparator.comparingLong(VersionInfo::getReleaseTimestamp))
       .orElse(loadedVersionInfo.get(LauncherUtils.FALLBACK_VERSION));
 
@@ -204,7 +204,7 @@ public final class CloudNetLauncher {
 
   private Map<String, VersionInfo> loadVersions() {
     Map<String, VersionInfo> versionInfo = new HashMap<>();
-    String gitHubRepository = this.variables.get(LauncherUtils.CLOUDNET_REPOSITORY_GITHUB);
+    var gitHubRepository = this.variables.get(LauncherUtils.CLOUDNET_REPOSITORY_GITHUB);
 
     // handles the installing of the artifacts contained in the launcher itself
     versionInfo.put(LauncherUtils.FALLBACK_VERSION,
@@ -254,9 +254,9 @@ public final class CloudNetLauncher {
 
     Collection<URL> dependencyResources = new ArrayList<>();
 
-    for (Dependency dependency : this.dependencies) {
+    for (var dependency : this.dependencies) {
       if (this.repositories.containsKey(dependency.getRepository())) {
-        Path path = LAUNCHER_LIBS.resolve(dependency.toPath());
+        var path = LAUNCHER_LIBS.resolve(dependency.toPath());
 
         this.installLibrary(this.repositories.get(dependency.getRepository()), dependency, path);
 
@@ -272,14 +272,14 @@ public final class CloudNetLauncher {
 
       Files.createDirectories(path.getParent());
 
-      String dependencyName = dependency.getGroup() + ":" + dependency.getName() + ":"
+      var dependencyName = dependency.getGroup() + ":" + dependency.getName() + ":"
         + dependency.getVersion() + (dependency.getClassifier() != null ? "-" + dependency.getClassifier() : "")
         + ".jar";
 
       PRINT.accept(
         String.format("Installing dependency %s from repository %s...", dependencyName, dependency.getRepository()));
 
-      try (InputStream inputStream = LauncherUtils.readFromURL(
+      try (var inputStream = LauncherUtils.readFromURL(
         repositoryURL + "/" + dependency.toPath().toString().replace(File.separatorChar, '/'))) {
         Files.copy(inputStream, path);
       }
@@ -295,7 +295,7 @@ public final class CloudNetLauncher {
     System.setProperty("io.netty.recycler.maxCapacity", "0");
     System.setProperty("io.netty.recycler.maxCapacity.default", "0");
 
-    for (Map.Entry<String, String> entry : this.variables.entrySet()) {
+    for (var entry : this.variables.entrySet()) {
       if (System.getProperty(entry.getKey()) == null) {
         System.setProperty(entry.getKey(), entry.getValue());
       }
@@ -304,11 +304,11 @@ public final class CloudNetLauncher {
 
   private void startApplication(String[] args, Collection<URL> dependencyResources)
     throws IOException, ClassNotFoundException, NoSuchMethodException {
-    Path targetPath = this.selectedVersion.getTargetDirectory().resolve("cloudnet.jar");
-    Path driverTargetPath = this.selectedVersion.getTargetDirectory().resolve("driver.jar");
+    var targetPath = this.selectedVersion.getTargetDirectory().resolve("cloudnet.jar");
+    var driverTargetPath = this.selectedVersion.getTargetDirectory().resolve("driver.jar");
 
     String mainClass;
-    try (JarFile jarFile = new JarFile(targetPath.toFile())) {
+    try (var jarFile = new JarFile(targetPath.toFile())) {
       mainClass = jarFile.getManifest().getMainAttributes().getValue("Main-Class");
     }
 
@@ -320,9 +320,9 @@ public final class CloudNetLauncher {
     dependencyResources.add(driverTargetPath.toUri().toURL());
 
     ClassLoader classLoader = new URLClassLoader(dependencyResources.toArray(new URL[0]));
-    Method method = classLoader.loadClass(mainClass).getMethod("main", String[].class);
+    var method = classLoader.loadClass(mainClass).getMethod("main", String[].class);
 
-    Thread thread = new Thread(() -> {
+    var thread = new Thread(() -> {
       try {
         method.invoke(null, (Object) args);
       } catch (IllegalAccessException | InvocationTargetException exception) {

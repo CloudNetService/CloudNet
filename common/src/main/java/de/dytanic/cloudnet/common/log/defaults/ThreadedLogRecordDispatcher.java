@@ -65,14 +65,14 @@ public final class ThreadedLogRecordDispatcher extends Thread implements LogReco
   public void run() {
     while (!super.isInterrupted()) {
       try {
-        LogRecord logRecord = this.queue.take();
+        var logRecord = this.queue.take();
         this.logger.forceLog(logRecord);
       } catch (InterruptedException exception) {
         break;
       }
     }
     // log all waiting records now
-    for (LogRecord logRecord : this.queue) {
+    for (var logRecord : this.queue) {
       this.logger.forceLog(logRecord);
     }
   }

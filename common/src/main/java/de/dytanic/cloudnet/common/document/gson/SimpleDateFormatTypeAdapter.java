@@ -34,7 +34,7 @@ final class SimpleDateFormatTypeAdapter extends TypeAdapter<SimpleDateFormat> {
 
   @Override
   public SimpleDateFormat read(JsonReader jsonReader) throws IOException {
-    String dateFormat = TypeAdapters.STRING.read(jsonReader);
+    var dateFormat = TypeAdapters.STRING.read(jsonReader);
     return dateFormat == null ? null : new SimpleDateFormat(dateFormat);
   }
 }

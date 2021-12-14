@@ -48,11 +48,11 @@ public final class VelocityCloudCommand implements SimpleCommand {
       return;
     }
     // get the full command line
-    String commandLine = String.join(" ", invocation.arguments());
+    var commandLine = String.join(" ", invocation.arguments());
     // skip the permission check if the source is the console
     if (!(invocation.source() instanceof ConsoleCommandSource)) {
       // get the command info
-      CommandInfo command = CloudNetDriver.getInstance().getNodeInfoProvider().getConsoleCommand(commandLine);
+      var command = CloudNetDriver.getInstance().getNodeInfoProvider().getConsoleCommand(commandLine);
       // check if the sender has the required permission to execute the command
       if (command != null && command.getPermission() != null) {
         if (!invocation.source().hasPermission(command.getPermission())) {
@@ -68,7 +68,7 @@ public final class VelocityCloudCommand implements SimpleCommand {
     }
     // execute the command
     CloudNetDriver.getInstance().getNodeInfoProvider().sendCommandLineAsync(commandLine).onComplete(messages -> {
-      for (String line : messages) {
+      for (var line : messages) {
         invocation.source().sendMessage(serialize(this.management.getConfiguration().getPrefix() + line));
       }
     });

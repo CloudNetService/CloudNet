@@ -35,7 +35,7 @@ final class FileContentStreamProvider implements ContentStreamProvider {
 
   @Override
   public @Nullable StreamableContent provideContent(@NotNull String path) {
-    Path targetPath = this.workingDirectory.resolve(path);
+    var targetPath = this.workingDirectory.resolve(path);
     if (Files.notExists(targetPath) || Files.isDirectory(targetPath)) {
       return null;
     } else {

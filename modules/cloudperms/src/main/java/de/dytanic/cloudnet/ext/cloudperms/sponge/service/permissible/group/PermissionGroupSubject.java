@@ -40,7 +40,7 @@ final class PermissionGroupSubject extends AbstractSubject<PermissionGroup> {
 
   @Override
   protected boolean isChild(@NotNull String parent) {
-    PermissionGroup other = this.permissionManagement.getGroup(parent);
+    var other = this.permissionManagement.getGroup(parent);
     return other != null && other.getGroupNames().stream().anyMatch(parent::equals);
   }
 

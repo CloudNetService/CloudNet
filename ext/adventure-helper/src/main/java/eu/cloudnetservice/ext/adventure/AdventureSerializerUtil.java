@@ -38,14 +38,14 @@ public final class AdventureSerializerUtil {
   }
 
   public static @NotNull String serializeToString(@NotNull String textToSerialize) {
-    StringBuilder result = new StringBuilder();
+    var result = new StringBuilder();
     // find all legacy chars
-    char[] chars = textToSerialize.toCharArray();
-    for (int i = 0; i < chars.length; i++) {
+    var chars = textToSerialize.toCharArray();
+    for (var i = 0; i < chars.length; i++) {
       // check if there is at least one char following the current index
       if (i < chars.length - 1) {
         // check if the next char is a legacy color char
-        char next = chars[i + 1];
+        var next = chars[i + 1];
         // check if the current char is a legacy text char
         if (chars[i] == LEGACY_CHAR) {
           // check if the next char is a legacy color char
@@ -69,7 +69,7 @@ public final class AdventureSerializerUtil {
           // begin at i+3 to skip the initial &x
           // end at i+14 because the hex format is 14 chars long
           // pos+=2 to skip each &
-          for (int pos = i + 3; pos < i + 14; pos += 2) {
+          for (var pos = i + 3; pos < i + 14; pos += 2) {
             result.append(chars[pos]);
           }
           // skip over the hex thing and continue there

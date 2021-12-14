@@ -52,7 +52,7 @@ public class DefaultSpecificTemplateStorage implements SpecificTemplateStorage {
   }
 
   public static DefaultSpecificTemplateStorage of(@NotNull ServiceTemplate template) {
-    TemplateStorage storage = CloudNetDriver.getInstance().getTemplateStorage(template.getStorage());
+    var storage = CloudNetDriver.getInstance().getTemplateStorage(template.getStorage());
     if (storage == null) {
       throw new IllegalArgumentException(String.format("Storage '%s' not found", template.getStorage()));
     }

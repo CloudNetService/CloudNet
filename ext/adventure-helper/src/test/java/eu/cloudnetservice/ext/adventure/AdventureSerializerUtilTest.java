@@ -27,7 +27,7 @@ public class AdventureSerializerUtilTest {
 
   @Test
   void testOnlyLegacyColors() {
-    List<Component> serialized = AdventureSerializerUtil.serialize("&7Hello &1W&5orld").children();
+    var serialized = AdventureSerializerUtil.serialize("&7Hello &1W&5orld").children();
 
     Assertions.assertEquals(serialized.get(0).color(), NamedTextColor.GRAY);
     Assertions.assertEquals(serialized.get(1).color(), NamedTextColor.DARK_BLUE);
@@ -36,7 +36,7 @@ public class AdventureSerializerUtilTest {
 
   @Test
   void testLegacyAndHexMix() {
-    List<Component> serialized = AdventureSerializerUtil.serialize("&#000fffHello &1W&5orld").children();
+    var serialized = AdventureSerializerUtil.serialize("&#000fffHello &1W&5orld").children();
 
     Assertions.assertEquals(serialized.get(0).color(), TextColor.color(0xfff));
     Assertions.assertEquals(serialized.get(1).color(), NamedTextColor.DARK_BLUE);
@@ -45,7 +45,7 @@ public class AdventureSerializerUtilTest {
 
   @Test
   void testLegacyAndHexWithBungeeCordMix() {
-    List<Component> serialized = AdventureSerializerUtil
+    var serialized = AdventureSerializerUtil
       .serialize("&x&0&0&0&f&f&fHello &1W§x§0§0§0§b§b§bo&6rld§rBye")
       .children();
 

@@ -57,7 +57,7 @@ final class WaterDogPEDirectPlayerExecutor extends PlatformPlayerExecutorAdapter
 
   @Override
   public void connect(@NotNull String serviceName) {
-    ServerInfo serverInfo = ProxyServer.getInstance().getServerInfo(serviceName);
+    var serverInfo = ProxyServer.getInstance().getServerInfo(serviceName);
     if (serverInfo != null) {
       this.playerSupplier.get().forEach(player -> player.connect(serverInfo));
     }

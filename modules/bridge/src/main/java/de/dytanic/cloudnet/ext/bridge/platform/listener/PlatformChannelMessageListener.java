@@ -59,7 +59,7 @@ public final class PlatformChannelMessageListener {
       && event.getMessage() != null
       && event.getMessage().equals("update_bridge_configuration")) {
       // read the config
-      BridgeConfiguration configuration = event.getContent().readObject(BridgeConfiguration.class);
+      var configuration = event.getContent().readObject(BridgeConfiguration.class);
       // set the configuration
       this.management.setConfigurationLocally(configuration);
     }
@@ -73,7 +73,7 @@ public final class PlatformChannelMessageListener {
         // offline player update
         case "update_offline_cloud_player": {
           // read the player
-          CloudOfflinePlayer player = event.getContent().readObject(CloudOfflinePlayer.class);
+          var player = event.getContent().readObject(CloudOfflinePlayer.class);
           // push the change
           this.eventManager.callEvent(new BridgeUpdateCloudOfflinePlayerEvent(player));
         }
@@ -81,7 +81,7 @@ public final class PlatformChannelMessageListener {
         // online player update
         case "update_online_cloud_player": {
           // read the player
-          CloudPlayer player = event.getContent().readObject(CloudPlayer.class);
+          var player = event.getContent().readObject(CloudPlayer.class);
           // push the change
           this.eventManager.callEvent(new BridgeUpdateCloudPlayerEvent(player));
         }
@@ -89,7 +89,7 @@ public final class PlatformChannelMessageListener {
         // offline player delete
         case "delete_offline_cloud_player": {
           // read the player
-          CloudOfflinePlayer player = event.getContent().readObject(CloudOfflinePlayer.class);
+          var player = event.getContent().readObject(CloudOfflinePlayer.class);
           // push the change
           this.eventManager.callEvent(new BridgeDeleteCloudOfflinePlayerEvent(player));
         }
@@ -97,7 +97,7 @@ public final class PlatformChannelMessageListener {
         // player login request
         case "process_cloud_player_login": {
           // read the player
-          CloudPlayer player = event.getContent().readObject(CloudPlayer.class);
+          var player = event.getContent().readObject(CloudPlayer.class);
           // push the change
           this.eventManager.callEvent(new BridgeProxyPlayerLoginEvent(player));
         }
@@ -105,7 +105,7 @@ public final class PlatformChannelMessageListener {
         // player disconnection
         case "process_cloud_player_logout": {
           // read the player
-          CloudPlayer player = event.getContent().readObject(CloudPlayer.class);
+          var player = event.getContent().readObject(CloudPlayer.class);
           // call the event locally
           this.eventManager.callEvent(new BridgeProxyPlayerDisconnectEvent(player));
         }
@@ -113,8 +113,8 @@ public final class PlatformChannelMessageListener {
         // player service switch
         case "cloud_player_service_switch": {
           // read the information
-          CloudPlayer player = event.getContent().readObject(CloudPlayer.class);
-          NetworkServiceInfo previous = event.getContent().readObject(NetworkServiceInfo.class);
+          var player = event.getContent().readObject(CloudPlayer.class);
+          var previous = event.getContent().readObject(NetworkServiceInfo.class);
           // fire the event
           this.eventManager.callEvent(new BridgeProxyPlayerServerSwitchEvent(player, previous));
         }
@@ -122,8 +122,8 @@ public final class PlatformChannelMessageListener {
         // player server login
         case "cloud_player_server_login": {
           // read the information
-          CloudPlayer player = event.getContent().readObject(CloudPlayer.class);
-          NetworkServiceInfo serviceInfo = event.getContent().readObject(NetworkServiceInfo.class);
+          var player = event.getContent().readObject(CloudPlayer.class);
+          var serviceInfo = event.getContent().readObject(NetworkServiceInfo.class);
           // fire the event
           this.eventManager.callEvent(new BridgeServerPlayerLoginEvent(player, serviceInfo));
         }
@@ -131,8 +131,8 @@ public final class PlatformChannelMessageListener {
         // player server disconnect
         case "cloud_player_server_disconnect": {
           // read the information
-          CloudPlayer player = event.getContent().readObject(CloudPlayer.class);
-          NetworkServiceInfo serviceInfo = event.getContent().readObject(NetworkServiceInfo.class);
+          var player = event.getContent().readObject(CloudPlayer.class);
+          var serviceInfo = event.getContent().readObject(NetworkServiceInfo.class);
           // fire the event
           this.eventManager.callEvent(new BridgeServerPlayerDisconnectEvent(player, serviceInfo));
         }
@@ -147,7 +147,7 @@ public final class PlatformChannelMessageListener {
   public void handlePlayerExecutorChannelMessage(@NotNull ChannelMessageReceiveEvent event) {
     if (event.getChannel().equals(BridgeManagement.BRIDGE_PLAYER_EXECUTOR_CHANNEL_NAME) && event.getMessage() != null) {
       // the target unique id is always the first argument
-      PlayerExecutor executor = this.management.getDirectPlayerExecutor(event.getContent().readUniqueId());
+      var executor = this.management.getDirectPlayerExecutor(event.getContent().readUniqueId());
       // a message regarding a player executor request
       switch (event.getMessage()) {
         // connect to a service

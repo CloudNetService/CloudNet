@@ -30,7 +30,7 @@ public final class NukkitPermissionInjectionHelper {
   static {
     try {
       // get the perm field
-      Field permField = Player.class.getDeclaredField("perm");
+      var permField = Player.class.getDeclaredField("perm");
       permField.setAccessible(true);
       // un reflect the permissible field
       SET_PERM_FIELD = MethodHandles.lookup().unreflectSetter(permField);

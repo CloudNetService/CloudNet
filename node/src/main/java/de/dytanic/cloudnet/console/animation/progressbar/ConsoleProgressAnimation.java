@@ -114,15 +114,15 @@ public class ConsoleProgressAnimation extends AbstractConsoleAnimation {
   }
 
   protected @NotNull String render() {
-    Duration elapsed = Duration.between(this.startInstant, Instant.now());
+    var elapsed = Duration.between(this.startInstant, Instant.now());
 
-    String prefix = this.replacePlaceholders(this.prefix, elapsed);
-    String suffix = this.replacePlaceholders(this.suffix, elapsed);
+    var prefix = this.replacePlaceholders(this.prefix, elapsed);
+    var suffix = this.replacePlaceholders(this.suffix, elapsed);
 
-    int length =
+    var length =
       this.console.getWidth() - 5 - this.console.getDisplayLength(prefix) - this.console.getDisplayLength(suffix);
 
-    StringBuilder builder = new StringBuilder(prefix).append(this.leftBracket);
+    var builder = new StringBuilder(prefix).append(this.leftBracket);
     // append the full blocks
     builder.append(StringUtil.repeat(this.blockChar, (int) (length * this.normalizeProgress())));
     // check if we have reached the end yet
@@ -153,14 +153,14 @@ public class ConsoleProgressAnimation extends AbstractConsoleAnimation {
       return "?" + this.unitName + "/s";
     }
     // format to minutes
-    double speed = (double) (this.current / elapsed.getSeconds()) / this.unitSize;
+    var speed = (double) (this.current / elapsed.getSeconds()) / this.unitSize;
     return this.unitFormat.format(speed) + this.unitName + "/s";
   }
 
   protected @NotNull String formatRatio() {
     // convert current and max to united values
-    String unitedCurrent = String.valueOf(this.current / this.unitSize);
-    String unitedMaximum = String.valueOf(this.maximum / this.unitSize);
+    var unitedCurrent = String.valueOf(this.current / this.unitSize);
+    var unitedMaximum = String.valueOf(this.maximum / this.unitSize);
     // format the ratio
     return String.format("%s%s/%s%s",
       StringUtil.repeat(' ', unitedMaximum.length() - unitedCurrent.length()),
@@ -170,7 +170,7 @@ public class ConsoleProgressAnimation extends AbstractConsoleAnimation {
   }
 
   protected @NotNull String formatElapsedTime(@NotNull Duration duration) {
-    long seconds = duration.getSeconds();
+    var seconds = duration.getSeconds();
     return String.format("%d:%02d:%02d", seconds / 3600, (seconds % 3600) / 60, seconds % 60);
   }
 
@@ -181,7 +181,7 @@ public class ConsoleProgressAnimation extends AbstractConsoleAnimation {
   }
 
   protected int fraction(int length) {
-    double full = this.normalizeProgress() * length;
+    var full = this.normalizeProgress() * length;
     return (int) Math.floor((full - Math.floor(full)) * this.fractions.length());
   }
 

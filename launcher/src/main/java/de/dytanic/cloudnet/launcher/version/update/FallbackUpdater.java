@@ -44,7 +44,7 @@ public class FallbackUpdater extends InstalledVersionInfo implements Updater {
 
       Files.createDirectories(path.getParent());
 
-      try (InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream(name)) {
+      try (var inputStream = this.getClass().getClassLoader().getResourceAsStream(name)) {
         Files.copy(
           Objects
             .requireNonNull(inputStream, String.format("Fallback file %s not found, is the launcher corrupted?", name)),

@@ -30,7 +30,7 @@ public class RowBasedFormatterTest {
 
   @Test
   void testRowBasedFormatting() {
-    ColumnFormatter formatter = ColumnFormatter.builder()
+    var formatter = ColumnFormatter.builder()
       .leftSpacer(" ")
       .rightSpacer("")
       .columnLeftBracket('|')
@@ -39,7 +39,7 @@ public class RowBasedFormatterTest {
       .columnTitles("Name", "Rank", "World", "HP")
       .build();
 
-    RowBasedFormatter<Player> rowBasedFormatter = RowBasedFormatter.<Player>builder()
+    var rowBasedFormatter = RowBasedFormatter.<Player>builder()
       .defaultFormatter(formatter)
       .column(player -> player.name)
       .column(player -> player.rank)
@@ -47,17 +47,17 @@ public class RowBasedFormatterTest {
       .column(player -> player.hp)
       .build();
 
-    Player[] entries = new Player[]{
+    var entries = new Player[]{
       new Player("derpeepo", "Muted", "world", 3),
       new Player("derklaro", "Profi", "world_nether", 0),
       new Player("0utplayyyy", "Player", "world_the_end", 15)
     };
 
-    try (BufferedReader reader = new BufferedReader(new InputStreamReader(
+    try (var reader = new BufferedReader(new InputStreamReader(
       Objects.requireNonNull(this.getClass().getClassLoader().getResourceAsStream("column_test_data.txt")),
       StandardCharsets.UTF_8
     ))) {
-      Collection<String> output = rowBasedFormatter.format(entries);
+      var output = rowBasedFormatter.format(entries);
       Collection<String> expected = reader.lines().collect(Collectors.toList());
 
       Assertions.assertLinesMatch(expected.stream(), output.stream());

@@ -37,7 +37,7 @@ public final class WaterDogPEBridgePlugin extends Plugin {
     // register the listeners (registered during the instance creation due to the weird event system)
     new WaterDogPEPlayerManagementListener(management);
     // register the WaterDog handlers
-    WaterDogPEHandlers handlers = new WaterDogPEHandlers(management);
+    var handlers = new WaterDogPEHandlers(management);
     ProxyServer.getInstance().setReconnectHandler(handlers);
     ProxyServer.getInstance().setForcedHostHandler(handlers);
     // register the commands
@@ -45,7 +45,7 @@ public final class WaterDogPEBridgePlugin extends Plugin {
     // register the hub command if requested
     if (!management.getConfiguration().getHubCommandNames().isEmpty()) {
       // convert to an array for easier access
-      String[] names = management.getConfiguration().getHubCommandNames().toArray(new String[0]);
+      var names = management.getConfiguration().getHubCommandNames().toArray(new String[0]);
       // register the command
       ProxyServer.getInstance().getCommandMap().registerCommand(new WaterDogPEHubCommand(
         management,

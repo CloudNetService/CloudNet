@@ -53,14 +53,14 @@ public final class BukkitCloudPermissionsPermissible extends PermissibleBase {
   public @NotNull Set<PermissionAttachmentInfo> getEffectivePermissions() {
     Set<PermissionAttachmentInfo> infos = new HashSet<>();
 
-    PermissionUser user = CloudNetDriver.getInstance().getPermissionManagement().getUser(this.player.getUniqueId());
+    var user = CloudNetDriver.getInstance().getPermissionManagement().getUser(this.player.getUniqueId());
     if (user != null) {
-      for (String group : Wrapper.getInstance().getServiceConfiguration().getGroups()) {
+      for (var group : Wrapper.getInstance().getServiceConfiguration().getGroups()) {
         CloudNetDriver.getInstance()
           .getPermissionManagement()
           .getAllGroupPermissions(user, group)
           .forEach(permission -> {
-            Permission bukkit = this.player.getServer().getPluginManager().getPermission(permission.getName());
+            var bukkit = this.player.getServer().getPluginManager().getPermission(permission.getName());
             if (bukkit != null) {
               this.forEachChildren(
                 bukkit,
@@ -71,7 +71,7 @@ public final class BukkitCloudPermissionsPermissible extends PermissibleBase {
           });
       }
 
-      for (Permission defaultPermission : this.getDefaultPermissions()) {
+      for (var defaultPermission : this.getDefaultPermissions()) {
         this.forEachChildren(
           defaultPermission,
           (name, value) -> infos.add(new PermissionAttachmentInfo(this, name, null, value)));
@@ -99,22 +99,22 @@ public final class BukkitCloudPermissionsPermissible extends PermissibleBase {
   @Override
   public boolean hasPermission(@NotNull String inName) {
     try {
-      PermissionUser user = CloudNetDriver.getInstance().getPermissionManagement().getUser(this.player.getUniqueId());
+      var user = CloudNetDriver.getInstance().getPermissionManagement().getUser(this.player.getUniqueId());
       if (user == null) {
         return false;
       }
 
-      for (Permission permission : this.getDefaultPermissions()) {
+      for (var permission : this.getDefaultPermissions()) {
         if (permission.getName().equalsIgnoreCase(inName)) {
           // default permissions are always active if not explicitly forbidden
-          PermissionCheckResult result = this.permissionsManagement.getPermissionResult(
+          var result = this.permissionsManagement.getPermissionResult(
             user,
             de.dytanic.cloudnet.driver.permission.Permission.of(inName));
           return result == PermissionCheckResult.DENIED || result.asBoolean();
         }
       }
 
-      PermissionCheckResult result = this.permissionsManagement.getPermissionResult(
+      var result = this.permissionsManagement.getPermissionResult(
         user,
         de.dytanic.cloudnet.driver.permission.Permission.of(inName));
       if (result != PermissionCheckResult.DENIED) {
@@ -133,8 +133,8 @@ public final class BukkitCloudPermissionsPermissible extends PermissibleBase {
   }
 
   private boolean testParents(String inName, Function<Permission, PermissionCheckResult> parentAcceptor) {
-    for (Permission parent : this.player.getServer().getPluginManager().getPermissions()) {
-      PermissionCheckResult result = this.testParents(inName, parent, null, parentAcceptor);
+    for (var parent : this.player.getServer().getPluginManager().getPermissions()) {
+      var result = this.testParents(inName, parent, null, parentAcceptor);
       if (result != PermissionCheckResult.DENIED) {
         return result.asBoolean();
       }
@@ -144,7 +144,7 @@ public final class BukkitCloudPermissionsPermissible extends PermissibleBase {
 
   private PermissionCheckResult testParents(String inName, Permission parent, Permission lastParent,
     Function<Permission, PermissionCheckResult> parentAcceptor) {
-    for (Map.Entry<String, Boolean> entry : parent.getChildren().entrySet()) {
+    for (var entry : parent.getChildren().entrySet()) {
       if (entry.getKey().equalsIgnoreCase(inName)) {
         PermissionCheckResult result;
         if (lastParent != null) {
@@ -159,9 +159,9 @@ public final class BukkitCloudPermissionsPermissible extends PermissibleBase {
         continue;
       }
 
-      Permission child = this.player.getServer().getPluginManager().getPermission(entry.getKey());
+      var child = this.player.getServer().getPluginManager().getPermission(entry.getKey());
       if (child != null) {
-        PermissionCheckResult result = this.testParents(inName, child, parent, parentAcceptor);
+        var result = this.testParents(inName, child, parent, parentAcceptor);
         if (result != PermissionCheckResult.DENIED) {
           return result;
         }
@@ -173,7 +173,7 @@ public final class BukkitCloudPermissionsPermissible extends PermissibleBase {
 
   private void forEachChildren(Permission permission, BiConsumer<String, Boolean> permissionAcceptor) {
     permissionAcceptor.accept(permission.getName(), true);
-    for (Map.Entry<String, Boolean> entry : permission.getChildren().entrySet()) {
+    for (var entry : permission.getChildren().entrySet()) {
       permissionAcceptor.accept(entry.getKey(), entry.getValue());
     }
   }

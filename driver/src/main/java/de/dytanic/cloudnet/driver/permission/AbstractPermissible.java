@@ -84,7 +84,7 @@ public abstract class AbstractPermissible extends JsonDocPropertyHolder implemen
 
   @Override
   public boolean removePermission(@NotNull String permission) {
-    Permission exist = this.getPermission(permission);
+    var exist = this.getPermission(permission);
 
     if (exist != null) {
       return this.permissions.remove(exist);
@@ -96,7 +96,7 @@ public abstract class AbstractPermissible extends JsonDocPropertyHolder implemen
   @Override
   public boolean removePermission(@NotNull String group, @NotNull String permission) {
     if (this.groupPermissions.containsKey(group)) {
-      boolean removed = this.groupPermissions.get(group).removeIf(perm -> perm.getName().equalsIgnoreCase(permission));
+      var removed = this.groupPermissions.get(group).removeIf(perm -> perm.getName().equalsIgnoreCase(permission));
       if (removed && this.groupPermissions.get(group).isEmpty()) {
         this.groupPermissions.remove(group);
       }

@@ -43,15 +43,15 @@ public final class ServiceChannelMessageListener {
       switch (event.getMessage()) {
         // update of a service in the network
         case "update_service_info": {
-          ServiceInfoSnapshot snapshot = event.getContent().readObject(ServiceInfoSnapshot.class);
+          var snapshot = event.getContent().readObject(ServiceInfoSnapshot.class);
           // update locally and call the event
           this.eventManager.callEvent(new CloudServiceUpdateEvent(snapshot));
         }
         break;
         // update of a service lifecycle in the network
         case "update_service_lifecycle": {
-          ServiceLifeCycle lifeCycle = event.getContent().readObject(ServiceLifeCycle.class);
-          ServiceInfoSnapshot snapshot = event.getContent().readObject(ServiceInfoSnapshot.class);
+          var lifeCycle = event.getContent().readObject(ServiceLifeCycle.class);
+          var snapshot = event.getContent().readObject(ServiceInfoSnapshot.class);
           // update locally and call the event
           this.eventManager.callEvent(new CloudServiceLifecycleChangeEvent(lifeCycle, snapshot));
         }
@@ -63,9 +63,9 @@ public final class ServiceChannelMessageListener {
         break;
         // call the event for a new line in the log of the service
         case "screen_new_line": {
-          ServiceInfoSnapshot snapshot = event.getContent().readObject(ServiceInfoSnapshot.class);
-          String eventChannel = event.getContent().readString();
-          String line = event.getContent().readString();
+          var snapshot = event.getContent().readObject(ServiceInfoSnapshot.class);
+          var eventChannel = event.getContent().readString();
+          var line = event.getContent().readString();
 
           this.eventManager.callEvent(eventChannel, new CloudServiceLogEntryEvent(snapshot, line));
         }

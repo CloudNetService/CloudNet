@@ -47,7 +47,7 @@ public abstract class DefaultNodeServerProvider<T extends NodeServer> implements
 
   @Override
   public @Nullable T getNodeServer(@NotNull String uniqueId) {
-    for (T nodeServer : this.nodeServers) {
+    for (var nodeServer : this.nodeServers) {
       if (nodeServer.getNodeInfo().getUniqueId().equals(uniqueId)) {
         return nodeServer;
       }
@@ -68,10 +68,10 @@ public abstract class DefaultNodeServerProvider<T extends NodeServer> implements
   @Override
   public void refreshHeadNode() {
     NodeServer choice = this.localNode;
-    for (T nodeServer : this.nodeServers) {
+    for (var nodeServer : this.nodeServers) {
       if (nodeServer.isAvailable()) {
         // the head node is always the node which runs the longest
-        NetworkClusterNodeInfoSnapshot snapshot = nodeServer.getNodeInfoSnapshot();
+        var snapshot = nodeServer.getNodeInfoSnapshot();
         if (snapshot != null && snapshot.getStartupMillis() < choice.getNodeInfoSnapshot().getStartupMillis()) {
           choice = nodeServer;
         }

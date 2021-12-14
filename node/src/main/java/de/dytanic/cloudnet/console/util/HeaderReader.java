@@ -36,14 +36,14 @@ public final class HeaderReader {
   }
 
   public static void readAndPrintHeader(@NotNull IConsole console) {
-    String version = HeaderReader.class.getPackage().getImplementationVersion();
-    String codename = HeaderReader.class.getPackage().getImplementationTitle();
+    var version = HeaderReader.class.getPackage().getImplementationVersion();
+    var codename = HeaderReader.class.getPackage().getImplementationTitle();
 
     try (Reader reader = new InputStreamReader(
       Objects.requireNonNull(HeaderReader.class.getClassLoader().getResourceAsStream("header.txt")),
       StandardCharsets.UTF_8
     )) {
-      for (String line : CharStreams.toString(reader).split(System.lineSeparator())) {
+      for (var line : CharStreams.toString(reader).split(System.lineSeparator())) {
         console.forceWriteLine(line.replace("%codename%", codename).replace("%version%", version));
       }
     } catch (IOException exception) {

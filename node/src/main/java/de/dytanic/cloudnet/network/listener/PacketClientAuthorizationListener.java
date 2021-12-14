@@ -39,21 +39,21 @@ public final class PacketClientAuthorizationListener implements IPacketListener 
   @Override
   public void handle(@NotNull INetworkChannel channel, @NotNull IPacket packet) {
     // read the core data
-    PacketAuthorizationType type = packet.getContent().readObject(PacketAuthorizationType.class);
-    try (DataBuf content = packet.getContent().readDataBuf()) {
+    var type = packet.getContent().readObject(PacketAuthorizationType.class);
+    try (var content = packet.getContent().readDataBuf()) {
       // handle the authorization
       switch (type) {
         // NODE -> NODE
         case NODE_TO_NODE: {
           // read the required data for the node auth
-          UUID clusterId = content.readUniqueId();
-          NetworkClusterNode node = content.readObject(NetworkClusterNode.class);
+          var clusterId = content.readUniqueId();
+          var node = content.readObject(NetworkClusterNode.class);
           // check if the cluster id matches
           if (!CloudNet.getInstance().getConfig().getClusterConfig().getClusterId().equals(clusterId)) {
             break;
           }
           // search for the node server which represents the connected node and initialize it
-          for (IClusterNodeServer nodeServer : CloudNet.getInstance().getClusterNodeServerProvider().getNodeServers()) {
+          for (var nodeServer : CloudNet.getInstance().getClusterNodeServerProvider().getNodeServers()) {
             if (nodeServer.isAcceptableConnection(channel, node.getUniqueId())) {
               // set up the node
               nodeServer.setChannel(channel);
@@ -74,10 +74,10 @@ public final class PacketClientAuthorizationListener implements IPacketListener 
         // WRAPPER -> NODE
         case WRAPPER_TO_NODE: {
           // read the required data for the wrapper auth
-          String connectionKey = content.readString();
-          ServiceId id = content.readObject(ServiceId.class);
+          var connectionKey = content.readString();
+          var id = content.readObject(ServiceId.class);
           // get the cloud service associated with the service id
-          ICloudService service = CloudNet.getInstance().getCloudServiceProvider()
+          var service = CloudNet.getInstance().getCloudServiceProvider()
             .getLocalCloudService(id.getUniqueId());
           // we can only accept the connection if the service is present, and the connection key is correct
           if (service != null && service.getConnectionKey().equals(connectionKey)) {

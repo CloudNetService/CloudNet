@@ -52,9 +52,9 @@ public final class CommandGroups {
 
   @Parser(suggestions = "groupConfiguration")
   public GroupConfiguration defaultGroupParser(CommandContext<CommandSource> $, Queue<String> input) {
-    String name = input.remove();
+    var name = input.remove();
 
-    GroupConfiguration configuration = this.groupProvider().getGroupConfiguration(name);
+    var configuration = this.groupProvider().getGroupConfiguration(name);
     if (configuration == null) {
       throw new ArgumentNotAvailableException(I18n.trans("command-service-base-group-not-found"));
     }
@@ -87,7 +87,7 @@ public final class CommandGroups {
 
   @CommandMethod("groups list")
   public void listGroups(CommandSource source) {
-    Collection<GroupConfiguration> groups = CloudNet.getInstance().getGroupConfigurationProvider()
+    var groups = CloudNet.getInstance().getGroupConfigurationProvider()
       .getGroupConfigurations();
     if (groups.isEmpty()) {
       return;
@@ -95,7 +95,7 @@ public final class CommandGroups {
 
     source.sendMessage("- Groups");
     source.sendMessage(" ");
-    for (GroupConfiguration group : groups) {
+    for (var group : groups) {
       source.sendMessage("- " + group.getName());
     }
   }
@@ -142,7 +142,7 @@ public final class CommandGroups {
     @Argument("deployment") ServiceTemplate template,
     @Flag("excludes") @Quoted String excludes
   ) {
-    ServiceDeployment deployment = ServiceDeployment.builder()
+    var deployment = ServiceDeployment.builder()
       .template(template)
       .excludes(this.parseExcludes(excludes))
       .build();
@@ -168,7 +168,7 @@ public final class CommandGroups {
     @Argument("url") String url,
     @Argument("path") String path
   ) {
-    ServiceRemoteInclusion inclusion = ServiceRemoteInclusion.builder().url(url).destination(path).build();
+    var inclusion = ServiceRemoteInclusion.builder().url(url).destination(path).build();
 
     group.getIncludes().add(inclusion);
     this.updateGroup(group);
@@ -180,7 +180,7 @@ public final class CommandGroups {
     @Argument("name") GroupConfiguration group,
     @Greedy @Argument("options") String jvmOptions
   ) {
-    for (String jvmOption : jvmOptions.split(" ")) {
+    for (var jvmOption : jvmOptions.split(" ")) {
       group.getJvmOptions().add(jvmOption);
     }
     this.updateGroup(group);
@@ -192,7 +192,7 @@ public final class CommandGroups {
     @Argument("name") GroupConfiguration group,
     @Greedy @Argument("options") String processParameters
   ) {
-    for (String processParameter : processParameters.split(" ")) {
+    for (var processParameter : processParameters.split(" ")) {
       group.getProcessParameters().add(processParameter);
     }
     this.updateGroup(group);
@@ -205,7 +205,7 @@ public final class CommandGroups {
     @Argument("deployment") ServiceTemplate template,
     @Flag("excludes") @Quoted String excludes
   ) {
-    ServiceDeployment deployment = ServiceDeployment.builder()
+    var deployment = ServiceDeployment.builder()
       .template(template)
       .excludes(this.parseExcludes(excludes))
       .build();
@@ -231,7 +231,7 @@ public final class CommandGroups {
     @Argument("url") String url,
     @Argument("path") String path
   ) {
-    ServiceRemoteInclusion inclusion = ServiceRemoteInclusion.builder().url(url).destination(path).build();
+    var inclusion = ServiceRemoteInclusion.builder().url(url).destination(path).build();
 
     group.getIncludes().remove(inclusion);
     this.updateGroup(group);
@@ -243,7 +243,7 @@ public final class CommandGroups {
     @Argument("name") GroupConfiguration group,
     @Greedy @Argument(value = "options") String jvmOptions
   ) {
-    for (String jvmOption : jvmOptions.split(" ")) {
+    for (var jvmOption : jvmOptions.split(" ")) {
       group.getJvmOptions().remove(jvmOption);
     }
     this.updateGroup(group);
@@ -255,7 +255,7 @@ public final class CommandGroups {
     @Argument("name") GroupConfiguration group,
     @Greedy @Argument("options") String processParameters
   ) {
-    for (String processParameter : processParameters.split(" ")) {
+    for (var processParameter : processParameters.split(" ")) {
       group.getProcessParameters().remove(processParameter);
     }
     this.updateGroup(group);

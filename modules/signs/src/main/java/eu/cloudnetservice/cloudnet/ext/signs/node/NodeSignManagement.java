@@ -50,8 +50,8 @@ public class NodeSignManagement extends AbstractSignManagement implements SignMa
     this.database = database;
 
     this.database.documentsAsync().onComplete(jsonDocuments -> {
-      for (JsonDocument document : jsonDocuments) {
-        Sign sign = document.toInstanceOf(Sign.class);
+      for (var document : jsonDocuments) {
+        var sign = document.toInstanceOf(Sign.class);
         this.signs.put(sign.getLocation(), sign);
       }
     });
@@ -81,13 +81,13 @@ public class NodeSignManagement extends AbstractSignManagement implements SignMa
 
   @Override
   public int deleteAllSigns(@NotNull String group, @Nullable String templatePath) {
-    Set<WorldPosition> positions = this.signs.entrySet().stream()
+    var positions = this.signs.entrySet().stream()
       .filter(entry -> entry.getValue().getTargetGroup().equals(group)
         && (templatePath == null || templatePath.equals(entry.getValue().getTemplatePath())))
       .map(Map.Entry::getKey)
       .collect(Collectors.toSet());
 
-    for (WorldPosition position : positions) {
+    for (var position : positions) {
       this.database.delete(this.getDocumentKey(position));
       this.signs.remove(position);
     }
@@ -102,7 +102,7 @@ public class NodeSignManagement extends AbstractSignManagement implements SignMa
   @Override
   public int deleteAllSigns() {
     Set<WorldPosition> positions = new HashSet<>(this.signs.keySet());
-    for (WorldPosition position : positions) {
+    for (var position : positions) {
       this.database.delete(this.getDocumentKey(position));
       this.signs.remove(position);
     }
@@ -116,7 +116,7 @@ public class NodeSignManagement extends AbstractSignManagement implements SignMa
 
   @Override
   public @NotNull Collection<Sign> getSigns(@NotNull String[] groups) {
-    List<String> allGroups = Arrays.asList(groups);
+    var allGroups = Arrays.asList(groups);
     return this.signs.values().stream()
       .filter(sign -> allGroups.contains(sign.getLocation().getGroup()))
       .collect(Collectors.toList());

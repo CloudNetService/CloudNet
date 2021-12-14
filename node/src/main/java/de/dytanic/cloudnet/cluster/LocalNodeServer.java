@@ -77,7 +77,7 @@ public class LocalNodeServer extends DefaultNodeServer implements NodeServer {
 
   @Override
   public @NotNull Collection<String> sendCommandLine(@NotNull String commandLine) {
-    DriverCommandSource commandSource = new DriverCommandSource();
+    var commandSource = new DriverCommandSource();
     this.cloudNet.getCommandProvider().execute(new DriverCommandSource(), commandLine);
 
     return commandSource.getMessages();
@@ -90,7 +90,7 @@ public class LocalNodeServer extends DefaultNodeServer implements NodeServer {
 
   @Override
   public @Nullable SpecificCloudServiceProvider getCloudServiceProvider(@NotNull ServiceInfoSnapshot snapshot) {
-    ICloudService service = this.cloudNet.getCloudServiceProvider().getLocalCloudService(snapshot);
+    var service = this.cloudNet.getCloudServiceProvider().getLocalCloudService(snapshot);
     return service == null ? EmptySpecificCloudServiceProvider.INSTANCE : service;
   }
 
@@ -101,7 +101,7 @@ public class LocalNodeServer extends DefaultNodeServer implements NodeServer {
 
   public void publishNodeInfoSnapshotUpdate() {
     // create a new node info snapshot
-    NetworkClusterNodeInfoSnapshot snapshot = new NetworkClusterNodeInfoSnapshot(
+    var snapshot = new NetworkClusterNodeInfoSnapshot(
       System.currentTimeMillis(),
       this.startupMillis,
       this.cloudNet.getConfig().getMaxMemory(),

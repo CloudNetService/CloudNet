@@ -113,7 +113,7 @@ public final class BridgeConfiguration extends JsonDocPropertyHolder {
 
   public @NotNull String getMessage(@Nullable Locale locale, @NotNull String key, boolean withPrefix) {
     // try to get the messages of in the specified locale
-    Map<String, String> messages = this.localizedMessages.get(locale == null ? "default" : locale.getLanguage());
+    var messages = this.localizedMessages.get(locale == null ? "default" : locale.getLanguage());
     if (messages == null) {
       // get the default locale (they have to be present)
       messages = Verify.verifyNotNull(this.localizedMessages.get("default"));

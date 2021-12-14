@@ -42,25 +42,25 @@ public class CloudNetVersion {
 
   public static @NotNull CloudNetVersion fromClassInformation(@NotNull Package source) {
     // read the version title
-    String title = source.getImplementationTitle();
+    var title = source.getImplementationTitle();
     // read the version
-    Matcher matcher = VERSION_PATTERN.matcher(source.getImplementationVersion());
+    var matcher = VERSION_PATTERN.matcher(source.getImplementationVersion());
     if (matcher.matches()) {
       // extract the semver information
-      int major = Integer.parseInt(matcher.group(1));
-      int minor = Integer.parseInt(matcher.group(2));
-      int patch = Integer.parseInt(matcher.group(3));
+      var major = Integer.parseInt(matcher.group(1));
+      var minor = Integer.parseInt(matcher.group(2));
+      var patch = Integer.parseInt(matcher.group(3));
       // check if we have additional information
       if (matcher.groupCount() > 3) {
         // fetch additional information from the version
-        String extraInformation = matcher.group(4);
+        var extraInformation = matcher.group(4);
         // we always assume that we have at least on '-' in the rest of the capturing
         // which equals for a full version string: 3.4.6-alpha-dev-556hfz4
         // this should result in versionType: 'alpha-dev', revision: '556hfz4'
-        int lastSplit = extraInformation.lastIndexOf('-');
+        var lastSplit = extraInformation.lastIndexOf('-');
         if (lastSplit != -1 && lastSplit < extraInformation.length()) {
           // extract extra information
-          String revision = extraInformation.substring(lastSplit + 1);
+          var revision = extraInformation.substring(lastSplit + 1);
           // extract the version type
           String versionType;
           if (lastSplit == 0) {
@@ -109,7 +109,7 @@ public class CloudNetVersion {
   @Override
   public String toString() {
     // CloudNet Blizzard 3.5.0-SNAPSHOT
-    String toString =
+    var toString =
       "CloudNet " + this.versionTitle + ' ' + this.major + '.' + this.minor + '.' + this.patch + '-' + this.versionType;
     if (!this.revision.isEmpty()) {
       // CloudNet Blizzard 3.5.0-SNAPSHOT 5dd7f63

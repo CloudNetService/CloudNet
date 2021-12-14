@@ -258,7 +258,7 @@ public class Wrapper extends CloudNetDriver {
 
   @Internal
   public ServiceInfoSnapshot configureServiceInfoSnapshot() {
-    ServiceInfoSnapshot serviceInfoSnapshot = this.createServiceInfoSnapshot();
+    var serviceInfoSnapshot = this.createServiceInfoSnapshot();
     this.configureServiceInfoSnapshot(serviceInfoSnapshot);
     return serviceInfoSnapshot;
   }
@@ -305,7 +305,7 @@ public class Wrapper extends CloudNetDriver {
   public void unregisterPacketListenersByClassLoader(@NotNull ClassLoader classLoader) {
     this.networkClient.getPacketRegistry().removeListeners(classLoader);
 
-    for (INetworkChannel channel : this.networkClient.getChannels()) {
+    for (var channel : this.networkClient.getChannels()) {
       channel.getPacketRegistry().removeListeners(classLoader);
     }
   }
@@ -317,14 +317,14 @@ public class Wrapper extends CloudNetDriver {
       // acquire the lock on the current thread
       lock.lock();
       // create a new condition and the auth listener
-      Condition condition = lock.newCondition();
-      PacketAuthorizationResponseListener listener = new PacketAuthorizationResponseListener(lock, condition);
+      var condition = lock.newCondition();
+      var listener = new PacketAuthorizationResponseListener(lock, condition);
       // register the listener to the packet registry and connect to the target listener
       this.networkClient.getPacketRegistry().addListener(NetworkConstants.INTERNAL_AUTHORIZATION_CHANNEL, listener);
       this.networkClient.connect(this.config.getTargetListener());
 
       // wait for the authentication response
-      boolean wasDone = condition.await(30, TimeUnit.SECONDS);
+      var wasDone = condition.await(30, TimeUnit.SECONDS);
       // check if the auth was successful - explode if not
       if (!wasDone || !listener.wasAuthSuccessful()) {
         throw new IllegalStateException("Unable to authorize wrapper with node");
@@ -350,12 +350,12 @@ public class Wrapper extends CloudNetDriver {
 
   private boolean startApplication() throws Exception {
     // get all the information provided through the command line
-    String mainClass = this.commandLineArguments.remove(0);
-    String premainClass = this.commandLineArguments.remove(0);
-    Path appFile = Paths.get(this.commandLineArguments.remove(0));
-    boolean preLoadAppJar = Boolean.parseBoolean(this.commandLineArguments.remove(0));
+    var mainClass = this.commandLineArguments.remove(0);
+    var premainClass = this.commandLineArguments.remove(0);
+    var appFile = Paths.get(this.commandLineArguments.remove(0));
+    var preLoadAppJar = Boolean.parseBoolean(this.commandLineArguments.remove(0));
 
-    ClassLoader loader = ClassLoader.getSystemClassLoader();
+    var loader = ClassLoader.getSystemClassLoader();
     // preload all jars in the application if requested
     if (preLoadAppJar) {
       // create a custom class loader for loading the application resources
@@ -373,15 +373,15 @@ public class Wrapper extends CloudNetDriver {
     Premain.invokePremain(premainClass, loader);
 
     // get the main method
-    Class<?> main = Class.forName(mainClass, true, loader);
-    Method method = main.getMethod("main", String[].class);
+    var main = Class.forName(mainClass, true, loader);
+    var method = main.getMethod("main", String[].class);
 
     // inform the user about the pre-start
     Collection<String> arguments = new ArrayList<>(this.commandLineArguments);
     this.eventManager.callEvent(new ApplicationPreStartEvent(this, main, arguments));
 
     // start the application
-    Thread applicationThread = new Thread(() -> {
+    var applicationThread = new Thread(() -> {
       try {
         LOGGER.info(String.format("Starting application using class %s (pre-main: %s)", mainClass, premainClass));
         // start the application

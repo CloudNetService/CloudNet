@@ -137,11 +137,11 @@ public class NettyHttpServer extends NettySSLServer implements IHttpServer {
       path = path.substring(0, path.length() - 1);
     }
 
-    for (IHttpHandler httpHandler : handlers) {
+    for (var httpHandler : handlers) {
       if (httpHandler != null) {
-        boolean value = true;
+        var value = true;
 
-        for (HttpHandlerEntry registeredHandler : this.registeredHandlers) {
+        for (var registeredHandler : this.registeredHandlers) {
           if (registeredHandler.path.equals(path) && registeredHandler.httpHandler.getClass()
             .equals(httpHandler.getClass())) {
             value = false;
@@ -200,7 +200,7 @@ public class NettyHttpServer extends NettySSLServer implements IHttpServer {
 
   @Override
   public void close() {
-    for (Pair<HostAndPort, ChannelFuture> entry : this.channelFutures.values()) {
+    for (var entry : this.channelFutures.values()) {
       entry.getSecond().cancel(true);
     }
 

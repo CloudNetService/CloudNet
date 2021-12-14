@@ -33,7 +33,7 @@ public final class LoggingUtils {
   }
 
   public static @NotNull Level getDefaultLogLevel() {
-    String defaultLogLevel = System.getProperty("cloudnet.logging.defaultlevel");
+    var defaultLogLevel = System.getProperty("cloudnet.logging.defaultlevel");
     if (defaultLogLevel == null) {
       return Level.INFO;
     } else {
@@ -47,14 +47,14 @@ public final class LoggingUtils {
   }
 
   public static void removeHandlers(@NotNull Logger logger) {
-    for (Handler handler : logger.getHandlers()) {
+    for (var handler : logger.getHandlers()) {
       logger.removeHandler(handler);
     }
   }
 
   public static void printStackTraceInto(@NotNull StringBuilder stringBuilder, @NotNull LogRecord record) {
     if (record.getThrown() != null) {
-      StringWriter writer = new StringWriter();
+      var writer = new StringWriter();
       record.getThrown().printStackTrace(new PrintWriter(writer));
       stringBuilder.append('\n').append(writer);
     }

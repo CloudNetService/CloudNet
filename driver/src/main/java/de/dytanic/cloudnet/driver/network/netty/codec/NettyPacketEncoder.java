@@ -33,7 +33,7 @@ public final class NettyPacketEncoder extends MessageToByteEncoder<IPacket> {
     // channel
     NettyUtils.writeVarInt(byteBuf, packet.getChannel());
     // query id (if present)
-    UUID queryUniqueId = packet.getUniqueId();
+    var queryUniqueId = packet.getUniqueId();
     byteBuf.writeBoolean(queryUniqueId != null);
     if (queryUniqueId != null) {
       byteBuf
@@ -42,9 +42,9 @@ public final class NettyPacketEncoder extends MessageToByteEncoder<IPacket> {
     }
     // body
     // we only support netty buf
-    ByteBuf buf = ((NettyImmutableDataBuf) packet.getContent()).getByteBuf();
+    var buf = ((NettyImmutableDataBuf) packet.getContent()).getByteBuf();
     // write information to buffer
-    int length = buf.readableBytes();
+    var length = buf.readableBytes();
     NettyUtils.writeVarInt(byteBuf, length);
     byteBuf.writeBytes(buf, 0, length);
     // release the content of the packet now

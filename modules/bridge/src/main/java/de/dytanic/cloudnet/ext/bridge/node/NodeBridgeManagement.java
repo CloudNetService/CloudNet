@@ -92,7 +92,7 @@ public class NodeBridgeManagement implements BridgeManagement {
 
   @Override
   public void postInit() {
-    for (ServiceTask task : CloudNet.getInstance().getServiceTaskProvider().getPermanentServiceTasks()) {
+    for (var task : CloudNet.getInstance().getServiceTaskProvider().getPermanentServiceTasks()) {
       // check if the required permission is set
       if (!task.getProperties().contains("requiredPermission")) {
         task.getProperties().appendNull("requiredPermission");

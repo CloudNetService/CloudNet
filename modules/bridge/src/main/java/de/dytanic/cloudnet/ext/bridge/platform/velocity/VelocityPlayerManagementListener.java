@@ -64,7 +64,7 @@ final class VelocityPlayerManagementListener {
 
   @Subscribe
   public void handleLogin(@NotNull LoginEvent event) {
-    ServiceTask task = this.management.getSelfTask();
+    var task = this.management.getSelfTask();
     // check if the current task is present
     if (task != null) {
       // check if maintenance is activated
@@ -75,7 +75,7 @@ final class VelocityPlayerManagementListener {
         return;
       }
       // check if a custom permission is required to join
-      String permission = task.getProperties().getString("requiredPermission");
+      var permission = task.getProperties().getString("requiredPermission");
       if (permission != null && !event.getPlayer().hasPermission(permission)) {
         event.setResult(ComponentResult.denied(serialize(this.management.getConfiguration().getMessage(
           Locale.ENGLISH,
@@ -84,7 +84,7 @@ final class VelocityPlayerManagementListener {
       }
     }
     // check if the player is allowed to log in
-    Result loginResult = ProxyPlatformHelper.sendChannelMessagePreLogin(
+    var loginResult = ProxyPlatformHelper.sendChannelMessagePreLogin(
       this.management.createPlayerInformation(event.getPlayer()));
     if (!loginResult.isAllowed()) {
       event.setResult(ComponentResult.denied(loginResult.getResult()));
@@ -107,7 +107,7 @@ final class VelocityPlayerManagementListener {
         .flatMap(service -> this.proxyServer.getServer(service.getName()))
         .map(server -> {
           // only notify the player if the fallback is the server the player is connected to
-          ServerInfo curServer = event.getPlayer().getCurrentServer().map(ServerConnection::getServerInfo).orElse(null);
+          var curServer = event.getPlayer().getCurrentServer().map(ServerConnection::getServerInfo).orElse(null);
           if (event.kickedDuringServerConnect() && curServer != null && curServer.equals(server.getServerInfo())) {
             // send the player a nice message - velocity will keep the connection to the current server
             return Notify.create(this.getReasonComponent(event));
@@ -147,7 +147,7 @@ final class VelocityPlayerManagementListener {
   public void handleDisconnect(@NotNull DisconnectEvent event) {
     // check if the player successfully connected to a server before
     // PRE_SERVER_JOIN will be used when the upstream server closes the connection to the player, we need to handle this
-    LoginStatus status = event.getLoginStatus();
+    var status = event.getLoginStatus();
     if (status == LoginStatus.SUCCESSFUL_LOGIN || status == LoginStatus.PRE_SERVER_JOIN) {
       ProxyPlatformHelper.sendChannelMessageDisconnected(event.getPlayer().getUniqueId());
       // update the service info
@@ -158,8 +158,8 @@ final class VelocityPlayerManagementListener {
   }
 
   private @NotNull Component getReasonComponent(@NotNull KickedFromServerEvent event) {
-    Locale playerLocale = event.getPlayer().getEffectiveLocale();
-    Component message = event.getServerKickReason().orElse(null);
+    var playerLocale = event.getPlayer().getEffectiveLocale();
+    var message = event.getServerKickReason().orElse(null);
     // use the current result if it is Notify - velocity already created a friendly reason for us
     if (message == null && event.getResult() instanceof Notify) {
       message = ((Notify) event.getResult()).getMessageComponent();
@@ -173,7 +173,7 @@ final class VelocityPlayerManagementListener {
       // if the message is still not a TextComponent use the default message instead
       if (message instanceof TextComponent) {
         // wrap the message
-        String baseMessage = this.management.getConfiguration().getMessage(playerLocale, "error-connecting-to-server")
+        var baseMessage = this.management.getConfiguration().getMessage(playerLocale, "error-connecting-to-server")
           .replace("%server%", event.getServer().getServerInfo().getName())
           .replace("%reason%", LegacyComponentSerializer.legacySection().serialize(message));
         // format the message
@@ -181,7 +181,7 @@ final class VelocityPlayerManagementListener {
       }
     }
     // render the base message without a reason
-    String baseMessage = this.management.getConfiguration().getMessage(playerLocale, "error-connecting-to-server")
+    var baseMessage = this.management.getConfiguration().getMessage(playerLocale, "error-connecting-to-server")
       .replace("%server%", event.getServer().getServerInfo().getName())
       .replace("%reason%", "§cUnknown");
     // format the message

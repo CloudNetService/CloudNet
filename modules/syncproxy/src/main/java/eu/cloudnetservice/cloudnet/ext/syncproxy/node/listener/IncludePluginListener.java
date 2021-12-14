@@ -42,13 +42,13 @@ public final class IncludePluginListener {
       return;
     }
 
-    ICloudService service = event.getService();
+    var service = event.getService();
     if (!ServiceEnvironmentType.isMinecraftProxy(service.getServiceId().getEnvironment())) {
       return;
     }
 
-    SyncProxyConfiguration syncProxyConfiguration = this.management.getConfiguration();
-    boolean groupEntryExists = syncProxyConfiguration.getLoginConfigurations().stream()
+    var syncProxyConfiguration = this.management.getConfiguration();
+    var groupEntryExists = syncProxyConfiguration.getLoginConfigurations().stream()
       .anyMatch(loginConfiguration -> service.getServiceConfiguration().getGroups()
         .contains(loginConfiguration.getTargetGroup()))
       || syncProxyConfiguration.getTabListConfigurations().stream()
@@ -56,10 +56,10 @@ public final class IncludePluginListener {
         .contains(tabListConfiguration.getTargetGroup()));
 
     if (groupEntryExists) {
-      Path pluginsFolder = event.getService().getDirectory().resolve("plugins");
+      var pluginsFolder = event.getService().getDirectory().resolve("plugins");
       FileUtils.createDirectory(pluginsFolder);
 
-      Path targetFile = pluginsFolder.resolve("cloudnet-syncproxy.jar");
+      var targetFile = pluginsFolder.resolve("cloudnet-syncproxy.jar");
       FileUtils.delete(targetFile);
 
       if (DefaultModuleHelper.copyCurrentModuleInstanceFromClass(IncludePluginListener.class, targetFile)) {

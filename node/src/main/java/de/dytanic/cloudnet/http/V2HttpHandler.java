@@ -77,7 +77,7 @@ public abstract class V2HttpHandler implements IHttpHandler {
           .closeAfter();
       } else if (context.request().hasHeader("Authorization")) {
         // try the more often used bearer auth first
-        V2HttpAuthentication.LoginResult<HttpSession> session = this.authentication
+        var session = this.authentication
           .handleBearerLoginRequest(context.request());
         if (session.isSuccess()) {
           if (this.testPermission(session.getResult().getUser(), context.request())) {
@@ -91,7 +91,7 @@ public abstract class V2HttpHandler implements IHttpHandler {
           return;
         }
         // try the basic auth method
-        V2HttpAuthentication.LoginResult<PermissionUser> user = this.authentication
+        var user = this.authentication
           .handleBasicLoginRequest(context.request());
         if (user.isSuccess()) {
           if (this.testPermission(user.getResult(), context.request())) {

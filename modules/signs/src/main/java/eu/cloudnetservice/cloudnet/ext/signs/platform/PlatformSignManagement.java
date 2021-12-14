@@ -52,8 +52,8 @@ public abstract class PlatformSignManagement<T> extends AbstractSignManagement i
   protected PlatformSignManagement(SignsConfiguration signsConfiguration) {
     super(signsConfiguration);
     // get the signs for the current group
-    String[] groups = Wrapper.getInstance().getServiceConfiguration().getGroups().toArray(new String[0]);
-    for (Sign sign : this.getSigns(groups)) {
+    var groups = Wrapper.getInstance().getServiceConfiguration().getGroups().toArray(new String[0]);
+    for (var sign : this.getSigns(groups)) {
       this.signs.put(sign.getLocation(), sign);
     }
   }
@@ -156,7 +156,7 @@ public abstract class PlatformSignManagement<T> extends AbstractSignManagement i
    */
   @Override
   public @NotNull Collection<Sign> getSigns(@NotNull String[] groups) {
-    ChannelMessage response = this.channelMessage(SIGN_GET_SIGNS_BY_GROUPS)
+    var response = this.channelMessage(SIGN_GET_SIGNS_BY_GROUPS)
       .buffer(DataBuf.empty().writeObject(groups))
       .build()
       .sendSingleQuery();
@@ -188,7 +188,7 @@ public abstract class PlatformSignManagement<T> extends AbstractSignManagement i
    * @return a sign configuration entry from the sign configuration which targets a group the wrapper belongs to.
    */
   public @Nullable SignConfigurationEntry getApplicableSignConfigurationEntry() {
-    for (SignConfigurationEntry entry : this.signsConfiguration.getConfigurationEntries()) {
+    for (var entry : this.signsConfiguration.getConfigurationEntries()) {
       if (Wrapper.getInstance().getServiceConfiguration().getGroups().contains(entry.getTargetGroup())) {
         return entry;
       }

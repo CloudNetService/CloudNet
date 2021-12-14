@@ -33,7 +33,7 @@ public final class VaultSupport {
 
   public static void hook(@NotNull Plugin plugin, @NotNull IPermissionManagement management) {
     try {
-      ServicesManager services = plugin.getServer().getServicesManager();
+      var services = plugin.getServer().getServicesManager();
 
       Permission vaultPermissions = new VaultPermissionImplementation(management);
       Chat vaultChat = new VaultChatImplementation(vaultPermissions, management);

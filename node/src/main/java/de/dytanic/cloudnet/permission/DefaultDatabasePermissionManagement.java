@@ -133,8 +133,8 @@ public class DefaultDatabasePermissionManagement extends DefaultPermissionManage
     Collection<PermissionUser> users = this.getUsersByName(name);
     // delete all the users if there are any
     if (!users.isEmpty()) {
-      boolean success = false;
-      for (PermissionUser user : users) {
+      var success = false;
+      for (var user : users) {
         success |= this.deletePermissionUser(user);
       }
       // all users deleted
@@ -167,13 +167,13 @@ public class DefaultDatabasePermissionManagement extends DefaultPermissionManage
   @Override
   public @Nullable PermissionUser getUser(@NotNull UUID uniqueId) {
     // try to find the user in the database
-    JsonDocument user = this.getUserDatabaseTable().get(uniqueId.toString());
+    var user = this.getUserDatabaseTable().get(uniqueId.toString());
     // check if the user is in the database
     if (user == null) {
       return null;
     } else {
       // Deserialize the user from the document
-      PermissionUser permissionUser = user.toInstanceOf(PermissionUser.class);
+      var permissionUser = user.toInstanceOf(PermissionUser.class);
       // update the user info if necessary
       if (this.testPermissible(permissionUser)) {
         this.updateUserAsync(permissionUser);
@@ -186,7 +186,7 @@ public class DefaultDatabasePermissionManagement extends DefaultPermissionManage
   @Override
   public @NotNull PermissionUser getOrCreateUser(@NotNull UUID uniqueId, @NotNull String name) {
     // try to get the permission user
-    PermissionUser user = this.getUser(uniqueId);
+    var user = this.getUser(uniqueId);
     // create a new user if the current one is not present
     if (user == null) {
       user = new PermissionUser(uniqueId, name, null, 0);
@@ -201,7 +201,7 @@ public class DefaultDatabasePermissionManagement extends DefaultPermissionManage
     return this.getUserDatabaseTable().get("name", name).stream()
       .map(userData -> {
         // deserialize the permission user
-        PermissionUser user = userData.toInstanceOf(PermissionUser.class);
+        var user = userData.toInstanceOf(PermissionUser.class);
         // check if we need to update the user
         if (this.testPermissible(user)) {
           this.updateUserAsync(user);
@@ -217,7 +217,7 @@ public class DefaultDatabasePermissionManagement extends DefaultPermissionManage
     // select all users from the database
     this.getUserDatabaseTable().iterate(($, data) -> {
       // deserialize the permission user
-      PermissionUser user = data.toInstanceOf(PermissionUser.class);
+      var user = data.toInstanceOf(PermissionUser.class);
       // check if we need to update the user
       if (this.testPermissible(user)) {
         this.updateUserAsync(user);
@@ -235,7 +235,7 @@ public class DefaultDatabasePermissionManagement extends DefaultPermissionManage
     // select all users from the database
     this.getUserDatabaseTable().iterate(($, data) -> {
       // deserialize the permission user
-      PermissionUser user = data.toInstanceOf(PermissionUser.class);
+      var user = data.toInstanceOf(PermissionUser.class);
       // check if we need to update the user
       if (this.testPermissible(user)) {
         this.updateUserAsync(user);
@@ -266,7 +266,7 @@ public class DefaultDatabasePermissionManagement extends DefaultPermissionManage
 
   @Override
   public boolean deleteGroup(@NotNull String name) {
-    PermissionGroup group = this.groups.get(name);
+    var group = this.groups.get(name);
     if (group != null) {
       return this.deletePermissionGroup(group);
     }
@@ -367,7 +367,7 @@ public class DefaultDatabasePermissionManagement extends DefaultPermissionManage
       PermissionGroup.COL_GROUPS);
     if (groups != null) {
       // add all groups
-      for (PermissionGroup group : groups) {
+      for (var group : groups) {
         this.groups.put(group.getName(), group);
       }
       // save the file again to update the fields in the permission group

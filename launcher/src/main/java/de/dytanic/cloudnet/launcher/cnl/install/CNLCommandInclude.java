@@ -33,7 +33,7 @@ public final class CNLCommandInclude extends CNLCommand {
   @Override
   public void execute(Map<String, String> variables, String commandLine, String... args) {
     if (args.length >= 5) {
-      Dependency dependency = new Dependency(args[0], args[1], args[2], args[3], args[4], args.length == 6 ? args[5] : null);
+      var dependency = new Dependency(args[0], args[1], args[2], args[3], args[4], args.length == 6 ? args[5] : null);
 
       if (!this.includes.contains(dependency)) {
         this.includes.add(dependency);

@@ -145,13 +145,13 @@ public class DefaultRPC extends DefaultRPCProvider implements RPC {
   @Override
   public @NotNull <T> ITask<T> fire(@NotNull INetworkChannel component) {
     // write the default needed information we need
-    DataBuf.Mutable dataBuf = this.dataBufFactory.createEmpty()
+    var dataBuf = this.dataBufFactory.createEmpty()
       .writeBoolean(false) // not a method chain
       .writeString(this.className)
       .writeString(this.methodName)
       .writeBoolean(this.resultExpectation);
     // write the arguments provided
-    for (Object argument : this.arguments) {
+    for (var argument : this.arguments) {
       this.objectMapper.writeObject(dataBuf, argument);
     }
     // send query if result is needed

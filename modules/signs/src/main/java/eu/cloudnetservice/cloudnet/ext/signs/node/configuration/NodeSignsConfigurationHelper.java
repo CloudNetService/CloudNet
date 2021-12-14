@@ -63,7 +63,7 @@ public final class NodeSignsConfigurationHelper {
       // save old configuration as a backup before backup
       configurationDocument.write(path.getParent().resolve("config.json.old"));
       // write the new configuration file
-      SignsConfiguration configuration = convertOldConfiguration(configurationDocument, path);
+      var configuration = convertOldConfiguration(configurationDocument, path);
       write(configuration, path);
       // notify that the convert was successful
       LOGGER.info("Successfully converted the old signs configuration file");
@@ -73,7 +73,7 @@ public final class NodeSignsConfigurationHelper {
     // check if the configuration file already exists
     if (configurationDocument.isEmpty()) {
       // create a new configuration entry
-      SignsConfiguration configuration = SignsConfiguration.createDefaultJava("Lobby");
+      var configuration = SignsConfiguration.createDefaultJava("Lobby");
       write(configuration, path);
       return configuration;
     }
@@ -84,7 +84,7 @@ public final class NodeSignsConfigurationHelper {
   // convert of old configuration file
   private static SignsConfiguration convertOldConfiguration(@NotNull JsonDocument document, @NotNull Path path) {
     // read as old configuration file
-    SignConfiguration oldConfiguration = SignConfigurationReaderAndWriter.read(document, path);
+    var oldConfiguration = SignConfigurationReaderAndWriter.read(document, path);
     // create new configuration from it
     return new SignsConfiguration(
       convertMessages(oldConfiguration.getMessages()),
@@ -132,7 +132,7 @@ public final class NodeSignsConfigurationHelper {
 
   private static @NotNull Map<String, String> convertMessages(@NotNull Map<String, String> oldMessages) {
     Map<String, String> messages = new HashMap<>(SignsConfiguration.DEFAULT_MESSAGES);
-    for (Map.Entry<String, String> entry : oldMessages.entrySet()) {
+    for (var entry : oldMessages.entrySet()) {
       messages.put(entry.getKey(), entry.getValue().replace('&', '§'));
     }
     return messages;

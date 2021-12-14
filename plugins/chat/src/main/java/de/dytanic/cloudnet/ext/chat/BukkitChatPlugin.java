@@ -40,8 +40,8 @@ public class BukkitChatPlugin extends JavaPlugin implements Listener {
 
   @EventHandler(priority = EventPriority.HIGH)
   public void handleChat(@NotNull AsyncPlayerChatEvent event) {
-    Player player = event.getPlayer();
-    String formattedMessage = ChatFormatter.buildFormat(
+    var player = event.getPlayer();
+    var formattedMessage = ChatFormatter.buildFormat(
       player.getUniqueId(),
       player.getName(),
       player.getDisplayName(),

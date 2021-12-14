@@ -131,7 +131,7 @@ public class DefaultObjectMapper implements ObjectMapper {
   @Override
   public @NotNull ObjectMapper unregisterBinding(@NotNull Type type, boolean superTypes) {
     if (superTypes) {
-      TypeToken<?> typeToken = this.typeTokenCache.computeIfAbsent(type, TypeToken::of);
+      var typeToken = this.typeTokenCache.computeIfAbsent(type, TypeToken::of);
       // unregister all sub-types of the type
       for (TypeToken<?> subType : typeToken.getTypes()) {
         this.registeredSerializers.remove(subType.getType());
@@ -146,7 +146,7 @@ public class DefaultObjectMapper implements ObjectMapper {
 
   @Override
   public @NotNull ObjectMapper unregisterBindings(@NotNull ClassLoader classLoader) {
-    for (Entry<Type, ObjectSerializer<?>> entry : this.registeredSerializers.entrySet()) {
+    for (var entry : this.registeredSerializers.entrySet()) {
       if (entry.getValue().getClass().getClassLoader().equals(classLoader)) {
         this.registeredSerializers.remove(entry.getKey(), entry.getValue());
       }
@@ -162,7 +162,7 @@ public class DefaultObjectMapper implements ObjectMapper {
     boolean superTypes
   ) {
     if (superTypes) {
-      TypeToken<?> typeToken = this.typeTokenCache.computeIfAbsent(type, TypeToken::of);
+      var typeToken = this.typeTokenCache.computeIfAbsent(type, TypeToken::of);
       // register all sub-types of the type
       for (TypeToken<?> token : typeToken.getTypes()) {
         this.registeredSerializers.putIfAbsent(token.getType(), serializer);
@@ -179,7 +179,7 @@ public class DefaultObjectMapper implements ObjectMapper {
   public @NotNull DataBuf.Mutable writeObject(@NotNull DataBuf.Mutable dataBuf, @Nullable Object object) {
     return dataBuf.writeNullable(object, (buffer, obj) -> {
       // Get the type token of the type
-      TypeToken<?> typeToken = this.typeTokenCache.computeIfAbsent(obj.getClass(), TypeToken::of);
+      var typeToken = this.typeTokenCache.computeIfAbsent(obj.getClass(), TypeToken::of);
       // get the registered serializer for the type
       ObjectSerializer<?> serializer = null;
       for (TypeToken<?> type : typeToken.getTypes()) {
@@ -202,7 +202,7 @@ public class DefaultObjectMapper implements ObjectMapper {
   public <T> @Nullable T readObject(@NotNull DataBuf dataBuf, @NotNull Type type) {
     return dataBuf.readNullable(buffer -> {
       // Get the type token of the type
-      TypeToken<?> typeToken = this.typeTokenCache.computeIfAbsent(type, TypeToken::of);
+      var typeToken = this.typeTokenCache.computeIfAbsent(type, TypeToken::of);
       // get the registered serializer for the type
       ObjectSerializer<?> serializer = null;
       for (TypeToken<?> subType : typeToken.getTypes()) {
@@ -221,7 +221,7 @@ public class DefaultObjectMapper implements ObjectMapper {
   }
 
   protected @Nullable ObjectSerializer<?> getSerializerForType(@NotNull TypeToken<?> typeToken) {
-    ObjectSerializer<?> byType = this.registeredSerializers.get(typeToken.getType());
+    var byType = this.registeredSerializers.get(typeToken.getType());
     return byType == null ? this.registeredSerializers.get(typeToken.getRawType()) : byType;
   }
 }

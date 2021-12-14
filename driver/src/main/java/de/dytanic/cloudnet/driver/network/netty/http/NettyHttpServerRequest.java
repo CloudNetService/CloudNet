@@ -135,7 +135,7 @@ final class NettyHttpServerRequest extends NettyHttpMessage implements IHttpRequ
   public Map<String, String> headers() {
     Map<String, String> maps = new HashMap<>(this.httpRequest.headers().size());
 
-    for (String key : this.httpRequest.headers().names()) {
+    for (var key : this.httpRequest.headers().names()) {
       maps.put(key, this.httpRequest.headers().get(key));
     }
 
@@ -159,9 +159,9 @@ final class NettyHttpServerRequest extends NettyHttpMessage implements IHttpRequ
   public byte[] body() {
     if (this.httpRequest instanceof FullHttpRequest) {
       if (this.body == null) {
-        FullHttpRequest httpRequest = (FullHttpRequest) this.httpRequest;
+        var httpRequest = (FullHttpRequest) this.httpRequest;
 
-        int length = httpRequest.content().readableBytes();
+        var length = httpRequest.content().readableBytes();
 
         if (httpRequest.content().hasArray()) {
           this.body = httpRequest.content().array();

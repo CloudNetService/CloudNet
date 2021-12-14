@@ -37,17 +37,17 @@ public final class ExceptionalResultUtils {
 
   public static void rethrowException(@NotNull DataBuf source) {
     // read the information about the exception name
-    String exceptionClassName = source.readString();
+    var exceptionClassName = source.readString();
     // read the information about the exception message (which may be null)
-    String exceptionMessage = source.readNullable(DataBuf::readString, "<no message provided>");
+    var exceptionMessage = source.readNullable(DataBuf::readString, "<no message provided>");
     // read & format the stack trace element
-    String formattedElement = source.readNullable(dataBuf -> {
+    var formattedElement = source.readNullable(dataBuf -> {
       // Argument order (in the buffer & constructor):
       //   - class name
       //   - method name
       //   - file name (maybe null)
       //   - line number (-2 indicates a native method)
-      StackTraceElement element = new StackTraceElement(
+      var element = new StackTraceElement(
         source.readString(),
         source.readString(),
         source.readNullable(DataBuf::readString),
@@ -67,7 +67,7 @@ public final class ExceptionalResultUtils {
       return target.writeBoolean(false);
     } else {
       // read the first element from the stack
-      StackTraceElement element = elements[0];
+      var element = elements[0];
       // serialize useful information for a possible re-throw on the other end
       // the order makes it easier to create a StackTraceElement from the information
       return target

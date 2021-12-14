@@ -55,7 +55,7 @@ public final class CloudNetCloudflareModule extends DriverModule {
   @ModuleTask(order = 127, event = ModuleLifeCycle.STARTED)
   public void loadConfiguration() {
 
-    JsonDocument configuration = this.readConfig();
+    var configuration = this.readConfig();
 
     this.cloudflareConfiguration = configuration
       .get("config", CloudflareConfiguration.class, new CloudflareConfiguration(
@@ -84,9 +84,9 @@ public final class CloudNetCloudflareModule extends DriverModule {
 
   @ModuleTask(order = 125, event = ModuleLifeCycle.STARTED)
   public void addedDefaultCloudflareDNSServices() {
-    IConfiguration cloudConfig = CloudNet.getInstance().getConfig();
+    var cloudConfig = CloudNet.getInstance().getConfig();
 
-    for (CloudflareConfigurationEntry entry : this.getCloudflareConfiguration().getEntries()) {
+    for (var entry : this.getCloudflareConfiguration().getEntries()) {
       if (entry.isEnabled()) {
         boolean ipv6Address;
         try {
@@ -96,7 +96,7 @@ public final class CloudNetCloudflareModule extends DriverModule {
           continue;
         }
 
-        DnsRecordDetail recordDetail = this.cloudFlareAPI.createRecord(
+        var recordDetail = this.cloudFlareAPI.createRecord(
           UUID.randomUUID(),
           entry,
           new DefaultDNSRecord(

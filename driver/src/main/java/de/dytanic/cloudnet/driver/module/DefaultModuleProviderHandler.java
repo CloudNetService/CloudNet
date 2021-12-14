@@ -42,7 +42,7 @@ public class DefaultModuleProviderHandler implements IModuleProviderHandler {
 
   @Override
   public boolean handlePreModuleLoad(@NotNull IModuleWrapper moduleWrapper) {
-    boolean cancelled = this.callEvent(new ModulePreLoadEvent(this.getModuleProvider(), moduleWrapper)).isCancelled();
+    var cancelled = this.callEvent(new ModulePreLoadEvent(this.getModuleProvider(), moduleWrapper)).isCancelled();
     if (!cancelled) {
       LOGGER.info(this.replaceAll(
         I18n.trans("cloudnet-pre-load-module"),
@@ -64,7 +64,7 @@ public class DefaultModuleProviderHandler implements IModuleProviderHandler {
 
   @Override
   public boolean handlePreModuleStart(@NotNull IModuleWrapper moduleWrapper) {
-    boolean cancelled = this.callEvent(new ModulePreStartEvent(this.getModuleProvider(), moduleWrapper)).isCancelled();
+    var cancelled = this.callEvent(new ModulePreStartEvent(this.getModuleProvider(), moduleWrapper)).isCancelled();
     if (!cancelled) {
       LOGGER.info(this.replaceAll(
         I18n.trans("cloudnet-pre-start-module"),
@@ -87,7 +87,7 @@ public class DefaultModuleProviderHandler implements IModuleProviderHandler {
 
   @Override
   public boolean handlePreModuleReload(@NotNull IModuleWrapper moduleWrapper) {
-    boolean cancelled = this.callEvent(new ModulePreReloadEvent(this.getModuleProvider(), moduleWrapper)).isCancelled();
+    var cancelled = this.callEvent(new ModulePreReloadEvent(this.getModuleProvider(), moduleWrapper)).isCancelled();
     if (!cancelled) {
       LOGGER.info(this.replaceAll(
         I18n.trans("cloudnet-pre-reload-module"),
@@ -110,7 +110,7 @@ public class DefaultModuleProviderHandler implements IModuleProviderHandler {
 
   @Override
   public boolean handlePreModuleStop(@NotNull IModuleWrapper moduleWrapper) {
-    boolean cancelled = this.callEvent(new ModulePreStopEvent(this.getModuleProvider(), moduleWrapper)).isCancelled();
+    var cancelled = this.callEvent(new ModulePreStopEvent(this.getModuleProvider(), moduleWrapper)).isCancelled();
     if (!cancelled) {
       LOGGER.info(this.replaceAll(
         I18n.trans("cloudnet-pre-stop-module"),

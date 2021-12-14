@@ -69,12 +69,12 @@ public class SyncProxyTabList {
       .replace("%max_players%", String.valueOf(maxPlayers));
 
     if (SyncProxyConstants.CLOUD_PERMS_ENABLED) {
-      IPermissionManagement permissionManagement = CloudNetDriver.getInstance().getPermissionManagement();
+      var permissionManagement = CloudNetDriver.getInstance().getPermissionManagement();
 
-      PermissionUser permissionUser = permissionManagement.getUser(playerUniqueId);
+      var permissionUser = permissionManagement.getUser(playerUniqueId);
 
       if (permissionUser != null) {
-        PermissionGroup group = permissionManagement.getHighestPermissionGroup(permissionUser);
+        var group = permissionManagement.getHighestPermissionGroup(permissionUser);
 
         if (group != null) {
           input = input.replace("%prefix%", group.getPrefix())

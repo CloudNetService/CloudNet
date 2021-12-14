@@ -80,9 +80,9 @@ public final class BukkitFunctionalityListener implements Listener {
 
   @EventHandler
   public void handle(@NotNull InventoryClickEvent event) {
-    ItemStack item = event.getCurrentItem();
-    Inventory inv = event.getClickedInventory();
-    HumanEntity clicker = event.getWhoClicked();
+    var item = event.getCurrentItem();
+    var inv = event.getClickedInventory();
+    var clicker = event.getWhoClicked();
     // check if we can handle the event
     if (item != null && item.hasItemMeta() && inv != null && inv.getHolder() == null && clicker instanceof Player) {
       this.management.getTrackedEntities().values().stream()
@@ -102,21 +102,21 @@ public final class BukkitFunctionalityListener implements Listener {
 
   @EventHandler(priority = EventPriority.HIGHEST)
   public void playOnJoinEmoteIds(@NotNull PlayerJoinEvent event) {
-    NPCConfigurationEntry entry = this.management.getApplicableNPCConfigurationEntry();
+    var entry = this.management.getApplicableNPCConfigurationEntry();
     if (entry != null) {
-      int[] onJoinEmoteIds = entry.getEmoteConfiguration().getOnJoinEmoteIds();
-      int selectedNpcId = this.management.getRandomEmoteId(entry.getEmoteConfiguration(), onJoinEmoteIds);
+      var onJoinEmoteIds = entry.getEmoteConfiguration().getOnJoinEmoteIds();
+      var selectedNpcId = this.management.getRandomEmoteId(entry.getEmoteConfiguration(), onJoinEmoteIds);
       // check if an emote id could be selected
       if (selectedNpcId >= -1) {
         // play the emote to all npcs
-        for (NPC npc : this.management.getNpcPool().getNPCs()) {
+        for (var npc : this.management.getNpcPool().getNPCs()) {
           // verify that the player *could* see the emote
           if (npc.getLocation().getWorld().getUID().equals(event.getPlayer().getWorld().getUID())) {
             // check if the emote id is fixed
             if (selectedNpcId != -1) {
               npc.labymod().queue(LabyModAction.EMOTE, selectedNpcId).send(event.getPlayer());
             } else {
-              int randomEmote = onJoinEmoteIds[ThreadLocalRandom.current().nextInt(0, onJoinEmoteIds.length)];
+              var randomEmote = onJoinEmoteIds[ThreadLocalRandom.current().nextInt(0, onJoinEmoteIds.length)];
               npc.labymod().queue(LabyModAction.EMOTE, randomEmote).send(event.getPlayer());
             }
           }

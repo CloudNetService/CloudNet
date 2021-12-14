@@ -48,7 +48,7 @@ final class UnsafeClassDefiner implements ClassDefiner {
     if (UnsafeAccess.isAvailable()) {
       try {
         // find the define method
-        Method defineAnonymousClassMethod = UnsafeAccess.UNSAFE_CLASS.getDeclaredMethod("defineAnonymousClass",
+        var defineAnonymousClassMethod = UnsafeAccess.UNSAFE_CLASS.getDeclaredMethod("defineAnonymousClass",
           Class.class,
           byte[].class,
           Object[].class);

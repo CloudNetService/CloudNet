@@ -43,7 +43,7 @@ final class BukkitPlayerManagementListener implements Listener {
 
   @EventHandler
   public void handle(@NotNull PlayerLoginEvent event) {
-    ServiceTask task = this.management.getSelfTask();
+    var task = this.management.getSelfTask();
     // check if the current task is present
     if (task != null) {
       // check if maintenance is activated
@@ -55,7 +55,7 @@ final class BukkitPlayerManagementListener implements Listener {
         return;
       }
       // check if a custom permission is required to join
-      String permission = task.getProperties().getString("requiredPermission");
+      var permission = task.getProperties().getString("requiredPermission");
       if (permission != null && !event.getPlayer().hasPermission(permission)) {
         event.setResult(Result.KICK_WHITELIST);
         event.setKickMessage(this.management.getConfiguration().getMessage(

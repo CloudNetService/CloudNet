@@ -112,7 +112,7 @@ final class NettyHttpServerResponse extends NettyHttpMessage implements IHttpRes
   public Map<String, String> headers() {
     Map<String, String> maps = new HashMap<>(this.httpResponse.headers().size());
 
-    for (String key : this.httpResponse.headers().names()) {
+    for (var key : this.httpResponse.headers().names()) {
       maps.put(key, this.httpResponse.headers().get(key));
     }
 

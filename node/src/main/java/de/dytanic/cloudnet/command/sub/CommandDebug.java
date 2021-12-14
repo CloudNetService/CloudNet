@@ -30,7 +30,7 @@ public final class CommandDebug {
 
   @CommandMethod("debug")
   public void debug() {
-    Logger rootLogger = LogManager.getRootLogger();
+    var rootLogger = LogManager.getRootLogger();
     if (rootLogger.isLoggable(Level.FINEST)) {
       rootLogger.setLevel(LoggingUtils.getDefaultLogLevel());
     } else {

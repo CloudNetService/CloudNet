@@ -37,7 +37,7 @@ public final class TitleObjectSerializer implements ObjectSerializer<Title> {
     @NotNull ObjectMapper caller
   ) {
     // extract the times
-    Times times = object.times();
+    var times = object.times();
     if (times == null) {
       times = Title.DEFAULT_TIMES;
     }
@@ -57,13 +57,13 @@ public final class TitleObjectSerializer implements ObjectSerializer<Title> {
     @NotNull ObjectMapper caller
   ) {
     // read the times
-    Times times = Times.of(
+    var times = Times.of(
       Duration.ofMillis(source.readLong()),
       Duration.ofMillis(source.readLong()),
       Duration.ofMillis(source.readLong()));
     // read the title and subtitle
-    TextComponent title = source.readObject(TextComponent.class);
-    TextComponent subtitle = source.readObject(TextComponent.class);
+    var title = source.readObject(TextComponent.class);
+    var subtitle = source.readObject(TextComponent.class);
     // create the title
     return Title.title(title, subtitle, times);
   }

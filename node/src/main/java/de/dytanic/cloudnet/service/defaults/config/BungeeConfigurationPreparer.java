@@ -28,7 +28,7 @@ public class BungeeConfigurationPreparer extends AbstractServiceConfigurationPre
     // check if we should run now
     if (this.shouldRewriteIp(nodeInstance, cloudService)) {
       // copy the default file
-      Path configFile = cloudService.getDirectory().resolve("config.yml");
+      var configFile = cloudService.getDirectory().resolve("config.yml");
       this.copyCompiledFile("files/bungee/config.yml", configFile);
       // rewrite the configuration file
       this.rewriteFile(configFile, line -> {

@@ -42,7 +42,7 @@ public class ZipFileFilterStepExecutor implements InstallStepExecutor {
     if (filesToRemove != null && !filesToRemove.isEmpty()) {
       // remove these files
       jarFiles.forEach(path -> FileUtils.openZipFileSystem(path, fs -> filesToRemove.forEach(file -> {
-        Path filePath = fs.getPath(file);
+        var filePath = fs.getPath(file);
         FileUtils.delete(filePath);
       })));
     }

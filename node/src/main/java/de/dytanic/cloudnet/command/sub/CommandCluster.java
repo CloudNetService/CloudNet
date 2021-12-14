@@ -96,8 +96,8 @@ public final class CommandCluster {
 
   @Parser(suggestions = "clusterNodeServer")
   public IClusterNodeServer defaultClusterNodeServerParser(CommandContext<CommandSource> $, Queue<String> input) {
-    String nodeId = input.remove();
-    IClusterNodeServer nodeServer = CloudNet.getInstance().getClusterNodeServerProvider().getNodeServer(nodeId);
+    var nodeId = input.remove();
+    var nodeServer = CloudNet.getInstance().getClusterNodeServerProvider().getNodeServer(nodeId);
     if (nodeServer == null) {
       throw new ArgumentNotAvailableException(I18n.trans("command-cluster-node-not-found"));
     }
@@ -115,9 +115,9 @@ public final class CommandCluster {
 
   @Parser(suggestions = "selfNodeServer")
   public NodeServer selfNodeServerParser(CommandContext<CommandSource> $, Queue<String> input) {
-    String nodeId = input.remove();
-    IClusterNodeServerProvider provider = CloudNet.getInstance().getClusterNodeServerProvider();
-    NodeServer selfNode = provider.getSelfNode();
+    var nodeId = input.remove();
+    var provider = CloudNet.getInstance().getClusterNodeServerProvider();
+    var selfNode = provider.getSelfNode();
     // check if the user requested the one node
     if (selfNode.getNodeInfo().getUniqueId().equals(nodeId)) {
       return selfNode;
@@ -132,8 +132,8 @@ public final class CommandCluster {
 
   @Suggestions("selfNodeServer")
   public List<String> suggestNodeServer(CommandContext<CommandSource> $, String input) {
-    IClusterNodeServerProvider provider = CloudNet.getInstance().getClusterNodeServerProvider();
-    List<String> nodes = provider.getNodeServers()
+    var provider = CloudNet.getInstance().getClusterNodeServerProvider();
+    var nodes = provider.getNodeServers()
       .stream()
       .map(clusterNodeServer -> clusterNodeServer.getNodeInfo().getUniqueId())
       .collect(Collectors.toList());
@@ -144,8 +144,8 @@ public final class CommandCluster {
 
   @Parser(suggestions = "networkClusterNode")
   public NetworkClusterNode defaultNetworkClusterNodeParser(CommandContext<CommandSource> $, Queue<String> input) {
-    String nodeId = input.remove();
-    NetworkClusterNode clusterNode = CloudNet.getInstance().getNodeInfoProvider().getNode(nodeId);
+    var nodeId = input.remove();
+    var clusterNode = CloudNet.getInstance().getNodeInfoProvider().getNode(nodeId);
     if (clusterNode == null) {
       throw new ArgumentNotAvailableException(I18n.trans("command-cluster-node-not-found"));
     }
@@ -163,18 +163,18 @@ public final class CommandCluster {
 
   @Parser
   public HostAndPort defaultHostAndPortParser(CommandContext<CommandSource> $, Queue<String> input) {
-    String address = input.remove();
+    var address = input.remove();
     try {
       // create an uri with the tpc protocol
-      URI uri = URI.create("tcp://" + address);
+      var uri = URI.create("tcp://" + address);
 
-      String host = uri.getHost();
+      var host = uri.getHost();
       // check if the host and port are valid
       if (host == null || uri.getPort() == -1) {
         throw new ArgumentNotAvailableException(I18n.trans("command-cluster-invalid-host"));
       }
 
-      InetAddress inetAddress = InetAddresses.forUriString(host);
+      var inetAddress = InetAddresses.forUriString(host);
       return new HostAndPort(inetAddress.getHostAddress(), uri.getPort());
     } catch (IllegalArgumentException exception) {
       throw new ArgumentNotAvailableException(I18n.trans("command-cluster-invalid-host"));
@@ -183,8 +183,8 @@ public final class CommandCluster {
 
   @Parser(name = "noNodeId", suggestions = "clusterNode")
   public String noClusterNodeParser(CommandContext<CommandSource> $, Queue<String> input) {
-    String nodeId = input.remove();
-    for (NetworkClusterNode node : CloudNet.getInstance().getConfig().getClusterConfig().getNodes()) {
+    var nodeId = input.remove();
+    for (var node : CloudNet.getInstance().getConfig().getClusterConfig().getNodes()) {
       if (node.getUniqueId().equals(nodeId)) {
         throw new ArgumentNotAvailableException(I18n.trans("command-tasks-node-not-found"));
       }
@@ -195,8 +195,8 @@ public final class CommandCluster {
 
   @Parser(name = "staticService", suggestions = "staticService")
   public String staticServiceParser(CommandContext<CommandSource> $, Queue<String> input) {
-    String name = input.remove();
-    ICloudServiceManager manager = CloudNet.getInstance().getCloudServiceProvider();
+    var name = input.remove();
+    var manager = CloudNet.getInstance().getCloudServiceProvider();
     if (manager.getCloudServiceByName(name) != null) {
       throw new ArgumentNotAvailableException(I18n.trans("command-cluster-push-static-service-running"));
     }
@@ -213,7 +213,7 @@ public final class CommandCluster {
 
   @CommandMethod("cluster|clu shutdown")
   public void shutdownCluster(CommandSource source) {
-    for (IClusterNodeServer nodeServer : CloudNet.getInstance().getClusterNodeServerProvider().getNodeServers()) {
+    for (var nodeServer : CloudNet.getInstance().getClusterNodeServerProvider().getNodeServers()) {
       nodeServer.shutdown();
     }
     CloudNet.getInstance().stop();
@@ -225,8 +225,8 @@ public final class CommandCluster {
     @Argument(value = "nodeId", parserName = "noNodeId") String nodeId,
     @Argument("host") HostAndPort hostAndPort
   ) {
-    IConfiguration nodeConfig = CloudNet.getInstance().getConfig();
-    NetworkCluster networkCluster = nodeConfig.getClusterConfig();
+    var nodeConfig = CloudNet.getInstance().getConfig();
+    var networkCluster = nodeConfig.getClusterConfig();
     // add the new node to the cluster config
     networkCluster.getNodes().add(new NetworkClusterNode(nodeId, new HostAndPort[]{hostAndPort}));
     nodeConfig.setClusterConfig(networkCluster);
@@ -237,8 +237,8 @@ public final class CommandCluster {
 
   @CommandMethod("cluster|clu remove <nodeId>")
   public void removeNodeFromCluster(CommandSource source, @Argument("nodeId") NetworkClusterNode node) {
-    IConfiguration nodeConfig = CloudNet.getInstance().getConfig();
-    NetworkCluster cluster = nodeConfig.getClusterConfig();
+    var nodeConfig = CloudNet.getInstance().getConfig();
+    var cluster = nodeConfig.getClusterConfig();
     // try to remove the node from the cluster config
     if (cluster.getNodes().remove(node)) {
       // update the cluster config in the node config
@@ -282,9 +282,9 @@ public final class CommandCluster {
   public void pushTemplates(CommandSource source, @Argument("template") ServiceTemplate template) {
     // check if we need to push all templates or just a specific one
     if (template == null) {
-      TemplateStorage localStorage = CloudNet.getInstance().getLocalTemplateStorage();
+      var localStorage = CloudNet.getInstance().getLocalTemplateStorage();
       // resolve and push all local templates
-      for (ServiceTemplate localTemplate : localStorage.getTemplates()) {
+      for (var localTemplate : localStorage.getTemplates()) {
         this.pushTemplate(source, localTemplate);
       }
     } else {
@@ -299,11 +299,11 @@ public final class CommandCluster {
     @Argument(value = "service", parserName = "staticService") String service,
     @Flag("overwrite") boolean overwrite
   ) {
-    Path staticServicePath = CloudNet.getInstance().getCloudServiceProvider().getPersistentServicesDirectoryPath();
+    var staticServicePath = CloudNet.getInstance().getCloudServiceProvider().getPersistentServicesDirectoryPath();
     // check if we need to push all static services or just a specific one
     if (service == null) {
       // resolve all existing static services, that are not running and push them
-      for (String serviceName : this.resolveAllStaticServices()) {
+      for (var serviceName : this.resolveAllStaticServices()) {
         this.pushStaticService(source, staticServicePath.resolve(serviceName), serviceName);
       }
     } else {
@@ -318,7 +318,7 @@ public final class CommandCluster {
     @NotNull String serviceName
   ) {
     // zip the whole directory into a stream
-    InputStream stream = FileUtils.zipToStream(servicePath);
+    var stream = FileUtils.zipToStream(servicePath);
     // notify the source about the deployment
     source.sendMessage(I18n.trans("command-cluster-push-static-service-starting"));
     // deploy the static service into the cluster
@@ -335,12 +335,12 @@ public final class CommandCluster {
   }
 
   private void pushTemplate(@NotNull CommandSource source, @NotNull ServiceTemplate template) {
-    String templateName = template.toString();
+    var templateName = template.toString();
     try {
       source.sendMessage(
         I18n.trans("command-cluster-push-template-compress").replace("%template%", templateName));
       // compress the template and create an InputStream
-      InputStream inputStream = template.storage().zipTemplate();
+      var inputStream = template.storage().zipTemplate();
       // check if the template really exists in the given storage
       if (inputStream != null) {
         // deploy the template into the cluster
@@ -365,7 +365,7 @@ public final class CommandCluster {
   }
 
   private @NotNull List<String> resolveAllStaticServices() {
-    ICloudServiceManager manager = CloudNet.getInstance().getCloudServiceProvider();
+    var manager = CloudNet.getInstance().getCloudServiceProvider();
     try {
       // walk through the static service directory
       return Files.walk(manager.getPersistentServicesDirectoryPath(), 1)
@@ -391,7 +391,7 @@ public final class CommandCluster {
       "Address: "
     ));
 
-    for (HostAndPort hostAndPort : node.getNodeInfo().getListeners()) {
+    for (var hostAndPort : node.getNodeInfo().getListeners()) {
       list.add("- " + hostAndPort.getHost() + ":" + hostAndPort.getPort());
     }
 

@@ -93,7 +93,7 @@ public class WorldPosition {
     if (o == null || this.getClass() != o.getClass()) {
       return false;
     }
-    WorldPosition position = (WorldPosition) o;
+    var position = (WorldPosition) o;
     return Double.compare(position.x, this.x) == 0
       && Double.compare(position.y, this.y) == 0
       && Double.compare(position.z, this.z) == 0

@@ -90,7 +90,7 @@ public final class WildcardUtil {
     if (inputValues.isEmpty()) {
       return inputValues;
     } else {
-      Pattern pattern = prepare(regex, caseSensitive);
+      var pattern = prepare(regex, caseSensitive);
       return pattern == null ? new ArrayList<>() : inputValues.stream()
         .filter(t -> pattern.matcher(t.getName()).matches())
         .collect(Collectors.toList());
@@ -113,7 +113,7 @@ public final class WildcardUtil {
     if (values.isEmpty()) {
       return false;
     } else {
-      Pattern pattern = prepare(regex, caseSensitive);
+      var pattern = prepare(regex, caseSensitive);
       return pattern != null && values.stream()
         .anyMatch(t -> pattern.matcher(t.getName()).matches());
     }
@@ -161,11 +161,11 @@ public final class WildcardUtil {
    */
   private static Pattern tryFixPattern(@NotNull PatternSyntaxException exception, boolean caseSensitive) {
     if (exception.getPattern() != null && exception.getIndex() != -1) {
-      String pattern = exception.getPattern();
+      var pattern = exception.getPattern();
       if (pattern.length() > exception.getIndex()) {
         // index represents the char before the failed to parsed char index
-        String firstPart = pattern.substring(0, exception.getIndex() + 1);
-        String secondPart = pattern.substring(exception.getIndex() + 1);
+        var firstPart = pattern.substring(0, exception.getIndex() + 1);
+        var secondPart = pattern.substring(exception.getIndex() + 1);
         // escape the specific character which caused the failure using a \ and retry
         return tryCompile(firstPart + '\\' + secondPart, caseSensitive);
       } else if (exception.getDescription() != null
@@ -191,14 +191,14 @@ public final class WildcardUtil {
   @NotNull
   @VisibleForTesting
   static String fixUnclosedGroups(@NotNull String patternInput) {
-    StringBuilder result = new StringBuilder();
-    char[] content = patternInput.toCharArray();
+    var result = new StringBuilder();
+    var content = patternInput.toCharArray();
     // we need to record the group closings to actually find the group opening which is not escaped
-    int metGroupClosings = 0;
+    var metGroupClosings = 0;
     // we loop reversed over it as we know that the group start must be before the group end and we
     // are searching for it
-    for (int index = content.length - 1; index >= 0; index--) {
-      char c = content[index];
+    for (var index = content.length - 1; index >= 0; index--) {
+      var c = content[index];
       if (c == ')' && isPartOfPattern(content, index)) {
         metGroupClosings++;
       } else if (c == '(' && isPartOfPattern(content, index) && --metGroupClosings < 0) {

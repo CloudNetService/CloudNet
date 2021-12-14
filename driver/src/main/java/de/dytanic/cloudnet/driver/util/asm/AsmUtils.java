@@ -49,7 +49,7 @@ public final class AsmUtils {
   }
 
   public static void wrapperToPrimitive(@NotNull MethodVisitor mv, @NotNull Class<?> primitiveType) {
-    Class<?> wrapper = Primitives.wrap(primitiveType);
+    var wrapper = Primitives.wrap(primitiveType);
     // cast to the wrapper type
     mv.visitTypeInsn(CHECKCAST, org.objectweb.asm.Type.getInternalName(wrapper));
     // convert to the primitive type
@@ -62,7 +62,7 @@ public final class AsmUtils {
   }
 
   public static void primitiveToWrapper(@NotNull MethodVisitor mv, @NotNull Class<?> primitiveType) {
-    Class<?> wrapper = Primitives.wrap(primitiveType);
+    var wrapper = Primitives.wrap(primitiveType);
     // invoke the valueOf method in the wrapper to class to convert the primitive type to an object
     mv.visitMethodInsn(
       INVOKESTATIC,

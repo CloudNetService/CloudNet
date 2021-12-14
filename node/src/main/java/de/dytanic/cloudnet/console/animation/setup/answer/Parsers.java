@@ -66,7 +66,7 @@ public final class Parsers {
 
   public static @NotNull Parser<Pair<String, JavaVersion>> javaVersion() {
     return input -> {
-      JavaVersion version = JavaVersionResolver.resolveFromJavaExecutable(input);
+      var version = JavaVersionResolver.resolveFromJavaExecutable(input);
       if (version == null) {
         throw ParserException.INSTANCE;
       }
@@ -81,15 +81,15 @@ public final class Parsers {
         return null;
       }
       // try to split the name of the version
-      String[] result = input.split("-", 2);
+      var result = input.split("-", 2);
       if (result.length != 2) {
         throw ParserException.INSTANCE;
       }
       // get the type and version
-      ServiceVersionType type = CloudNet.getInstance().getServiceVersionProvider()
+      var type = CloudNet.getInstance().getServiceVersionProvider()
         .getServiceVersionType(result[0])
         .orElseThrow(() -> ParserException.INSTANCE);
-      ServiceVersion version = type.getVersion(result[1]).orElseThrow(() -> ParserException.INSTANCE);
+      var version = type.getVersion(result[1]).orElseThrow(() -> ParserException.INSTANCE);
       // combine the result
       return new Pair<>(type, version);
     };
@@ -103,7 +103,7 @@ public final class Parsers {
 
   public static @NotNull Parser<String> nonExistingTask() {
     return input -> {
-      ServiceTask task = CloudNet.getInstance().getServiceTaskProvider().getServiceTask(input);
+      var task = CloudNet.getInstance().getServiceTaskProvider().getServiceTask(input);
       if (task != null) {
         throw ParserException.INSTANCE;
       }
@@ -121,7 +121,7 @@ public final class Parsers {
 
   public static @NotNull Parser<Integer> ranged(int from, int to) {
     return input -> {
-      int value = Integer.parseInt(input);
+      var value = Integer.parseInt(input);
       if (value < from || value > to) {
         throw ParserException.INSTANCE;
       }
@@ -142,12 +142,12 @@ public final class Parsers {
   public static @NotNull Parser<HostAndPort> validatedHostAndPort(boolean withPort) {
     return input -> {
       // fetch the uri
-      URI uri = URI.create("tcp://" + input);
+      var uri = URI.create("tcp://" + input);
       if (uri.getHost() == null || (withPort && uri.getPort() == -1)) {
         throw ParserException.INSTANCE;
       }
       // check if we can access the address from the uri
-      InetAddress address = InetAddresses.forUriString(uri.getHost());
+      var address = InetAddresses.forUriString(uri.getHost());
       return new HostAndPort(address.getHostAddress(), uri.getPort());
     };
   }

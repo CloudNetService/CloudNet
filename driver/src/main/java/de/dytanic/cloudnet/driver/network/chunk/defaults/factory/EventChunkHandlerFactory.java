@@ -45,7 +45,7 @@ public final class EventChunkHandlerFactory implements Function<ChunkSessionInfo
   @Contract(pure = true)
   public @NotNull ChunkedPacketHandler apply(@NotNull ChunkSessionInformation info) {
     // get the chunked packet handler for the session
-    ChunkedPacketHandler handler = this.eventManager.callEvent(new ChunkedPacketSessionOpenEvent(info)).getHandler();
+    var handler = this.eventManager.callEvent(new ChunkedPacketSessionOpenEvent(info)).getHandler();
     // check if there was a handler supplied
     if (handler == null) {
       throw new IllegalStateException("No chunked handler for " + info);

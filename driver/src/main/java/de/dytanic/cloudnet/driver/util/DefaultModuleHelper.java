@@ -62,9 +62,9 @@ public final class DefaultModuleHelper {
 
     try {
       // get the location of the class path entry associated with the given class
-      URI uri = ResourceResolver.resolveURIFromResourceByClass(clazz);
+      var uri = ResourceResolver.resolveURIFromResourceByClass(clazz);
       // copy the file
-      try (OutputStream out = Files.newOutputStream(target)) {
+      try (var out = Files.newOutputStream(target)) {
         FileUtils.copy(uri.toURL().openStream(), out);
         return true;
       }
@@ -97,12 +97,12 @@ public final class DefaultModuleHelper {
 
     FileUtils.openZipFileSystem(file, fileSystem -> {
       // check if there is a plugin.yml file already - delete if it exists
-      Path pluginPath = fileSystem.getPath("plugin.yml");
+      var pluginPath = fileSystem.getPath("plugin.yml");
       if (Files.exists(pluginPath)) {
         Files.delete(pluginPath);
       }
       // select the input stream to copy the file from
-      InputStream in = clazz.getClassLoader().getResourceAsStream(String.format(
+      var in = clazz.getClassLoader().getResourceAsStream(String.format(
         "plugin.%s.yml",
         type.getName().toLowerCase()));
       // copy the file if the file exists

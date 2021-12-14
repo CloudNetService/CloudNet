@@ -43,7 +43,7 @@ public class NettyNetworkServerClientTest extends NetworkTestCase {
 
   @Test
   void testNetworkServerClientCommunication() throws Exception {
-    int networkPort = this.getRandomFreePort();
+    var networkPort = this.getRandomFreePort();
 
     INetworkServer server = new NettyNetworkServer(this::newDummyHandler);
     INetworkClient client = new NettyNetworkClient(this::newDummyHandler);

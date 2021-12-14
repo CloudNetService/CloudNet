@@ -50,7 +50,7 @@ public final class CloudUserCollection extends AbstractSubjectCollection {
   @Override
   public CompletableFuture<? extends Subject> loadSubject(String identifier) {
     return CompletableFuture.supplyAsync(() -> {
-      PermissionUser user = this.management.getUser(parseFromString(identifier));
+      var user = this.management.getUser(parseFromString(identifier));
       Verify.verifyNotNull(user, "No user with identifier " + identifier);
       return new PermissionUserSubject(identifier, this, user, this.management);
     });
@@ -58,10 +58,10 @@ public final class CloudUserCollection extends AbstractSubjectCollection {
 
   @Override
   public Optional<? extends Subject> subject(String identifier) {
-    CachedPermissionManagement management = CloudPermissionsHelper.asCachedPermissionManagement(this.management);
+    var management = CloudPermissionsHelper.asCachedPermissionManagement(this.management);
     // if the permission management support caches try to load the user from the cache
     if (management != null) {
-      PermissionUser user = management.getCachedUser(parseFromString(identifier));
+      var user = management.getCachedUser(parseFromString(identifier));
       if (user != null) {
         return Optional.of(new PermissionUserSubject(identifier, this, user, this.management));
       }

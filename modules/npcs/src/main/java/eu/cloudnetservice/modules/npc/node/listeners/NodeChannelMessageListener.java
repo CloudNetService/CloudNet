@@ -49,7 +49,7 @@ public final class NodeChannelMessageListener {
           break;
         // bulk deletes all npcs of a given group
         case PlatformNPCManagement.NPC_BULK_DELETE:
-          int deleted = this.management.deleteAllNPCs(event.getContent().readString());
+          var deleted = this.management.deleteAllNPCs(event.getContent().readString());
           event.setBinaryResponse(DataBuf.empty().writeInt(deleted));
           break;
         // deletes all npcs
@@ -58,7 +58,7 @@ public final class NodeChannelMessageListener {
           break;
         // get all npcs of a specific group
         case PlatformNPCManagement.NPC_GET_NPCS_BY_GROUP:
-          Collection<NPC> npcs = this.management.getNPCs(event.getContent().readObject(String[].class));
+          var npcs = this.management.getNPCs(event.getContent().readObject(String[].class));
           event.setBinaryResponse(DataBuf.empty().writeObject(npcs));
           break;
         // request of a service for the npc config

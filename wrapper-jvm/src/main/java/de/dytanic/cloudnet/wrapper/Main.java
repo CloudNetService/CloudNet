@@ -41,13 +41,13 @@ public final class Main {
     // logger init
     initLogger(LogManager.getRootLogger());
     // boot the wrapper
-    Wrapper wrapper = new Wrapper(args);
+    var wrapper = new Wrapper(args);
     wrapper.start();
   }
 
   private static void initLogger(@NotNull Logger logger) {
     LoggingUtils.removeHandlers(logger);
-    Path logFilePattern = Paths.get(".wrapper", "logs", "wrapper.%g.log");
+    var logFilePattern = Paths.get(".wrapper", "logs", "wrapper.%g.log");
 
     logger.setLevel(LoggingUtils.getDefaultLogLevel());
     logger.setLogRecordDispatcher(ThreadedLogRecordDispatcher.forLogger(logger));

@@ -46,7 +46,7 @@ public final class PriorityUtil {
 
   public static int getPriority(@NotNull ServiceInfoSnapshot snapshot, boolean lowerFullToSearching) {
     // Get the state of the service
-    ServiceInfoState state = BridgeServiceHelper.guessStateFromServiceInfoSnapshot(snapshot);
+    var state = BridgeServiceHelper.guessStateFromServiceInfoSnapshot(snapshot);
     switch (state) {
       case FULL_ONLINE:
         // full (premium) service are preferred

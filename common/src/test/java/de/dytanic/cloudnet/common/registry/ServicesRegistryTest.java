@@ -43,7 +43,7 @@ public final class ServicesRegistryTest {
 
     Assertions.assertEquals(0, registry.getProvidedServices().size());
 
-    B b = new B();
+    var b = new B();
     registry.registerService(A.class, "b", b);
 
     Assertions.assertEquals(1, registry.getServices(A.class).size());

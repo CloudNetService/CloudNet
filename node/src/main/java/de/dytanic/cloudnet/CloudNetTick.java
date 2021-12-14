@@ -57,7 +57,7 @@ public final class CloudNetTick {
   }
 
   public @NotNull <T> ITask<T> runTask(@NotNull Callable<T> callable) {
-    ScheduledTask<T> task = new ScheduledTask<>(callable, 0, 1, this.currentTick.get() + 1);
+    var task = new ScheduledTask<T>(callable, 0, 1, this.currentTick.get() + 1);
     this.processQueue.offer(task);
     return task;
   }
@@ -70,7 +70,7 @@ public final class CloudNetTick {
   }
 
   public @NotNull <T> ITask<T> runDelayedTask(@NotNull Callable<T> callable, long delay, @NotNull TimeUnit timeUnit) {
-    ScheduledTask<T> task = new ScheduledTask<>(
+    var task = new ScheduledTask<T>(
       callable,
       0,
       1,
@@ -84,7 +84,7 @@ public final class CloudNetTick {
   }
 
   public @NotNull <T> ITask<T> scheduleTask(@NotNull Callable<T> callable, long delay, long maxExecutions) {
-    ScheduledTask<T> task = new ScheduledTask<>(
+    var task = new ScheduledTask<T>(
       callable,
       delay,
       maxExecutions,
@@ -108,7 +108,7 @@ public final class CloudNetTick {
   public void start() {
     long tick;
     long lastTickLength;
-    long lastTick = System.currentTimeMillis();
+    var lastTick = System.currentTimeMillis();
 
     while (this.cloudNet.isRunning()) {
       try {
@@ -131,7 +131,7 @@ public final class CloudNetTick {
         // check if ticking is currently disabled
         if (this.tickPauseRequests.get() <= 0) {
           // execute all scheduled tasks for this tick
-          for (ScheduledTask<?> task : this.processQueue) {
+          for (var task : this.processQueue) {
             if (task.execute(tick)) {
               this.processQueue.remove(task);
             }
@@ -160,10 +160,10 @@ public final class CloudNetTick {
   }
 
   private void startService() {
-    for (ServiceTask task : this.cloudNet.getServiceTaskProvider().getPermanentServiceTasks()) {
+    for (var task : this.cloudNet.getServiceTaskProvider().getPermanentServiceTasks()) {
       if (!task.isMaintenance()) {
         // get the count of running services
-        long runningServiceCount = this.cloudNet.getCloudServiceProvider().getCloudServicesByTask(task.getName())
+        var runningServiceCount = this.cloudNet.getCloudServiceProvider().getCloudServicesByTask(task.getName())
           .stream()
           .filter(taskService -> taskService.getLifeCycle() == ServiceLifeCycle.RUNNING)
           .count();

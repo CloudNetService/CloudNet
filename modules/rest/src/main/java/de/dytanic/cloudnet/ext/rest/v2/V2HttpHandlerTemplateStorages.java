@@ -59,7 +59,7 @@ public class V2HttpHandlerTemplateStorages extends V2HttpHandler {
   }
 
   protected void handleWithStorageContext(IHttpContext context, Consumer<TemplateStorage> handler) {
-    String storage = context.request().pathParameters().get("storage");
+    var storage = context.request().pathParameters().get("storage");
     if (storage == null) {
       this.badRequest(context)
         .body(this.failure().append("reason", "Missing template storage in path params").toString())
@@ -69,7 +69,7 @@ public class V2HttpHandlerTemplateStorages extends V2HttpHandler {
       return;
     }
 
-    TemplateStorage templateStorage = this.getCloudNet().getTemplateStorage(storage);
+    var templateStorage = this.getCloudNet().getTemplateStorage(storage);
     if (templateStorage == null) {
       this.badRequest(context)
         .body(this.failure().append("reason", "Unknown template storage").toString())

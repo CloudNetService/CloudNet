@@ -43,7 +43,7 @@ public class GlobalChannelMessageListener {
           break;
         case AbstractSignManagement.SIGN_BULK_DELETE:
           Collection<WorldPosition> positions = event.getContent().readObject(WorldPosition.COL_TYPE);
-          for (WorldPosition position : positions) {
+          for (var position : positions) {
             this.signManagement.handleInternalSignRemove(position);
           }
           break;

@@ -90,8 +90,8 @@ public class LocalTemplateStorage implements TemplateStorage {
   public @Nullable InputStream zipTemplate(@NotNull ServiceTemplate template) throws IOException {
     if (this.has(template)) {
       // create a new temp file
-      Path temp = FileUtils.createTempFile();
-      Path zippedFile = FileUtils.zipToFile(this.getTemplatePath(template), temp);
+      var temp = FileUtils.createTempFile();
+      var zippedFile = FileUtils.zipToFile(this.getTemplatePath(template), temp);
       // open a stream to the file if possible
       if (zippedFile != null) {
         return Files.newInputStream(zippedFile, StandardOpenOption.DELETE_ON_CLOSE, LinkOption.NOFOLLOW_LINKS);
@@ -102,7 +102,7 @@ public class LocalTemplateStorage implements TemplateStorage {
 
   @Override
   public boolean delete(@NotNull ServiceTemplate template) {
-    Path templateDir = this.getTemplatePath(template);
+    var templateDir = this.getTemplatePath(template);
     if (Files.notExists(templateDir)) {
       return false;
     } else {
@@ -113,7 +113,7 @@ public class LocalTemplateStorage implements TemplateStorage {
 
   @Override
   public boolean create(@NotNull ServiceTemplate template) {
-    Path templateDir = this.getTemplatePath(template);
+    var templateDir = this.getTemplatePath(template);
     if (Files.notExists(templateDir)) {
       FileUtils.createDirectory(templateDir);
       return true;
@@ -132,7 +132,7 @@ public class LocalTemplateStorage implements TemplateStorage {
     @NotNull ServiceTemplate template,
     @NotNull String path
   ) throws IOException {
-    Path filePath = this.getTemplatePath(template).resolve(path);
+    var filePath = this.getTemplatePath(template).resolve(path);
     if (Files.notExists(filePath)) {
       Files.createDirectories(filePath.getParent());
     }
@@ -145,7 +145,7 @@ public class LocalTemplateStorage implements TemplateStorage {
     @NotNull ServiceTemplate template,
     @NotNull String path
   ) throws IOException {
-    Path filePath = this.getTemplatePath(template).resolve(path);
+    var filePath = this.getTemplatePath(template).resolve(path);
     if (Files.notExists(filePath)) {
       Files.createDirectories(filePath.getParent());
     }
@@ -158,7 +158,7 @@ public class LocalTemplateStorage implements TemplateStorage {
     @NotNull ServiceTemplate template,
     @NotNull String path
   ) throws IOException {
-    Path filePath = this.getTemplatePath(template).resolve(path);
+    var filePath = this.getTemplatePath(template).resolve(path);
     if (Files.exists(filePath)) {
       return false;
     } else {
@@ -173,7 +173,7 @@ public class LocalTemplateStorage implements TemplateStorage {
     @NotNull ServiceTemplate template,
     @NotNull String path
   ) throws IOException {
-    Path dirPath = this.getTemplatePath(template).resolve(path);
+    var dirPath = this.getTemplatePath(template).resolve(path);
     if (Files.exists(dirPath)) {
       return false;
     } else {
@@ -189,7 +189,7 @@ public class LocalTemplateStorage implements TemplateStorage {
 
   @Override
   public boolean deleteFile(@NotNull ServiceTemplate template, @NotNull String path) throws IOException {
-    Path filePath = this.getTemplatePath(template).resolve(path);
+    var filePath = this.getTemplatePath(template).resolve(path);
     if (Files.exists(filePath)) {
       Files.delete(filePath);
       return true;
@@ -202,7 +202,7 @@ public class LocalTemplateStorage implements TemplateStorage {
     @NotNull ServiceTemplate template,
     @NotNull String path
   ) throws IOException {
-    Path filePath = this.getTemplatePath(template).resolve(path);
+    var filePath = this.getTemplatePath(template).resolve(path);
     return Files.notExists(filePath) || Files.isDirectory(filePath) ? null : Files.newInputStream(filePath);
   }
 
@@ -211,7 +211,7 @@ public class LocalTemplateStorage implements TemplateStorage {
     @NotNull ServiceTemplate template,
     @NotNull String path
   ) throws IOException {
-    Path filePath = this.getTemplatePath(template).resolve(path);
+    var filePath = this.getTemplatePath(template).resolve(path);
     return Files.exists(filePath) ? FileInfo.of(filePath, Paths.get(path)) : null;
   }
 
@@ -222,7 +222,7 @@ public class LocalTemplateStorage implements TemplateStorage {
     boolean deep
   ) {
     List<FileInfo> out = new ArrayList<>();
-    Path root = this.getTemplatePath(template).resolve(dir);
+    var root = this.getTemplatePath(template).resolve(dir);
     // walk over all files
     FileUtils.walkFileTree(root, (parent, file) -> {
       try {
@@ -249,7 +249,7 @@ public class LocalTemplateStorage implements TemplateStorage {
         .filter(Objects::nonNull)
         .filter(Files::isDirectory)
         .map(path -> {
-          Path relative = this.storageDirectory.relativize(path);
+          var relative = this.storageDirectory.relativize(path);
           return ServiceTemplate.builder()
             .prefix(relative.getName(0).toString())
             .name(relative.getName(1).toString())

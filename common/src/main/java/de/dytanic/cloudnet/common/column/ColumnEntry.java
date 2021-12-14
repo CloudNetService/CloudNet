@@ -32,14 +32,14 @@ public final class ColumnEntry {
 
   public static @NotNull ColumnEntry wrap(@NotNull String @NotNull ... entries) {
     // get the longest entry and fill all other entries with spaces
-    int longestLength = 0;
-    for (String entry : entries) {
+    var longestLength = 0;
+    for (var entry : entries) {
       longestLength = Math.max(longestLength, entry.length());
     }
     // bring all entries to one length by appending spaces
-    for (int i = 0; i < entries.length; i++) {
-      String entry = entries[i];
-      int entryLength = entry.length();
+    for (var i = 0; i < entries.length; i++) {
+      var entry = entries[i];
+      var entryLength = entry.length();
       // check if spaces are required
       if (entryLength < longestLength) {
         entries[i] = entry + StringUtil.repeat(' ', longestLength - entryLength);

@@ -36,8 +36,8 @@ public final class RepositoryUpdater extends DefaultVersionInfo implements Updat
   public boolean init(Path versionDirectory, String githubRepository) {
     this.gitHubRepository = githubRepository;
 
-    try (InputStream inputStream = LauncherUtils.readFromURL(this.url + "repository")) {
-      Properties properties = new Properties();
+    try (var inputStream = LauncherUtils.readFromURL(this.url + "repository")) {
+      var properties = new Properties();
       properties.load(inputStream);
 
       if (properties.containsKey("app-version")) {
@@ -68,7 +68,7 @@ public final class RepositoryUpdater extends DefaultVersionInfo implements Updat
 
       Files.createDirectories(path.getParent());
 
-      try (InputStream inputStream = LauncherUtils.readFromURL(this.url + "versions/" + this.appVersion + "/" + name)) {
+      try (var inputStream = LauncherUtils.readFromURL(this.url + "versions/" + this.appVersion + "/" + name)) {
         Files.copy(inputStream, path, StandardCopyOption.REPLACE_EXISTING);
       }
 

@@ -33,7 +33,7 @@ public class VaultChatImplementation extends Chat {
   }
 
   private Optional<String> userPermissionGroupName(String username) {
-    Optional<PermissionUser> optionalPermissionUser = this.permissionManagement.getUsersByName(username).stream()
+    var optionalPermissionUser = this.permissionManagement.getUsersByName(username).stream()
       .findFirst();
 
     return optionalPermissionUser
@@ -60,42 +60,42 @@ public class VaultChatImplementation extends Chat {
 
   @Override
   public String getPlayerPrefix(String world, String player) {
-    Optional<String> optionalGroupName = this.userPermissionGroupName(player);
+    var optionalGroupName = this.userPermissionGroupName(player);
 
     return optionalGroupName.map(groupName -> this.getGroupPrefix(world, groupName)).orElse(null);
   }
 
   @Override
   public void setPlayerPrefix(String world, String player, String prefix) {
-    Optional<String> optionalGroupName = this.userPermissionGroupName(player);
+    var optionalGroupName = this.userPermissionGroupName(player);
 
     optionalGroupName.ifPresent(groupName -> this.setGroupPrefix(world, groupName, prefix));
   }
 
   @Override
   public String getPlayerSuffix(String world, String player) {
-    Optional<String> optionalGroupName = this.userPermissionGroupName(player);
+    var optionalGroupName = this.userPermissionGroupName(player);
 
     return optionalGroupName.map(groupName -> this.getGroupSuffix(world, groupName)).orElse(null);
   }
 
   @Override
   public void setPlayerSuffix(String world, String player, String suffix) {
-    Optional<String> optionalGroupName = this.userPermissionGroupName(player);
+    var optionalGroupName = this.userPermissionGroupName(player);
 
     optionalGroupName.ifPresent(groupName -> this.setGroupSuffix(world, groupName, suffix));
   }
 
   @Override
   public String getGroupPrefix(String world, String group) {
-    Optional<PermissionGroup> optionalPermissionGroup = this.permissionGroupByName(group);
+    var optionalPermissionGroup = this.permissionGroupByName(group);
 
     return optionalPermissionGroup.map(PermissionGroup::getDisplay).orElse(null);
   }
 
   @Override
   public void setGroupPrefix(String world, String group, String prefix) {
-    Optional<PermissionGroup> optionalPermissionGroup = this.permissionGroupByName(group);
+    var optionalPermissionGroup = this.permissionGroupByName(group);
 
     optionalPermissionGroup.ifPresent(permissionGroup -> {
       permissionGroup.setDisplay(prefix);
@@ -105,14 +105,14 @@ public class VaultChatImplementation extends Chat {
 
   @Override
   public String getGroupSuffix(String world, String group) {
-    Optional<PermissionGroup> optionalPermissionGroup = this.permissionGroupByName(group);
+    var optionalPermissionGroup = this.permissionGroupByName(group);
 
     return optionalPermissionGroup.map(PermissionGroup::getSuffix).orElse(null);
   }
 
   @Override
   public void setGroupSuffix(String world, String group, String suffix) {
-    Optional<PermissionGroup> optionalPermissionGroup = this.permissionGroupByName(group);
+    var optionalPermissionGroup = this.permissionGroupByName(group);
 
     optionalPermissionGroup.ifPresent(permissionGroup -> {
       permissionGroup.setSuffix(suffix);
@@ -122,7 +122,7 @@ public class VaultChatImplementation extends Chat {
 
   @Override
   public int getPlayerInfoInteger(String world, String player, String node, int defaultValue) {
-    Optional<PermissionUser> optionalPermissionUser = this.permissionUserByName(player);
+    var optionalPermissionUser = this.permissionUserByName(player);
 
     return optionalPermissionUser.map(permissionUser -> permissionUser.getProperties().getInt(node, defaultValue))
       .orElse(defaultValue);
@@ -130,7 +130,7 @@ public class VaultChatImplementation extends Chat {
 
   @Override
   public void setPlayerInfoInteger(String world, String player, String node, int value) {
-    Optional<PermissionUser> optionalPermissionUser = this.permissionUserByName(player);
+    var optionalPermissionUser = this.permissionUserByName(player);
 
     optionalPermissionUser.ifPresent(permissionUser -> {
       permissionUser.getProperties().append(node, value);
@@ -140,7 +140,7 @@ public class VaultChatImplementation extends Chat {
 
   @Override
   public int getGroupInfoInteger(String world, String group, String node, int defaultValue) {
-    Optional<PermissionGroup> optionalPermissionGroup = this.permissionGroupByName(group);
+    var optionalPermissionGroup = this.permissionGroupByName(group);
 
     return optionalPermissionGroup.map(permissionGroup -> permissionGroup.getProperties().getInt(node, defaultValue))
       .orElse(defaultValue);
@@ -148,7 +148,7 @@ public class VaultChatImplementation extends Chat {
 
   @Override
   public void setGroupInfoInteger(String world, String group, String node, int value) {
-    Optional<PermissionGroup> optionalPermissionGroup = this.permissionGroupByName(group);
+    var optionalPermissionGroup = this.permissionGroupByName(group);
 
     optionalPermissionGroup.ifPresent(permissionGroup -> {
       permissionGroup.getProperties().append(node, value);
@@ -158,7 +158,7 @@ public class VaultChatImplementation extends Chat {
 
   @Override
   public double getPlayerInfoDouble(String world, String player, String node, double defaultValue) {
-    Optional<PermissionUser> optionalPermissionUser = this.permissionUserByName(player);
+    var optionalPermissionUser = this.permissionUserByName(player);
 
     return optionalPermissionUser.map(permissionUser -> permissionUser.getProperties().getDouble(node, defaultValue))
       .orElse(defaultValue);
@@ -166,7 +166,7 @@ public class VaultChatImplementation extends Chat {
 
   @Override
   public void setPlayerInfoDouble(String world, String player, String node, double value) {
-    Optional<PermissionUser> optionalPermissionUser = this.permissionUserByName(player);
+    var optionalPermissionUser = this.permissionUserByName(player);
 
     optionalPermissionUser.ifPresent(permissionUser -> {
       permissionUser.getProperties().append(node, value);
@@ -176,7 +176,7 @@ public class VaultChatImplementation extends Chat {
 
   @Override
   public double getGroupInfoDouble(String world, String group, String node, double defaultValue) {
-    Optional<PermissionGroup> optionalPermissionGroup = this.permissionGroupByName(group);
+    var optionalPermissionGroup = this.permissionGroupByName(group);
 
     return optionalPermissionGroup.map(permissionGroup -> permissionGroup.getProperties().getDouble(node, defaultValue))
       .orElse(defaultValue);
@@ -184,7 +184,7 @@ public class VaultChatImplementation extends Chat {
 
   @Override
   public void setGroupInfoDouble(String world, String group, String node, double value) {
-    Optional<PermissionGroup> optionalPermissionGroup = this.permissionGroupByName(group);
+    var optionalPermissionGroup = this.permissionGroupByName(group);
 
     optionalPermissionGroup.ifPresent(permissionGroup -> {
       permissionGroup.getProperties().append(node, value);
@@ -194,7 +194,7 @@ public class VaultChatImplementation extends Chat {
 
   @Override
   public boolean getPlayerInfoBoolean(String world, String player, String node, boolean defaultValue) {
-    Optional<PermissionUser> optionalPermissionUser = this.permissionUserByName(player);
+    var optionalPermissionUser = this.permissionUserByName(player);
 
     return optionalPermissionUser.map(permissionUser -> permissionUser.getProperties().getBoolean(node, defaultValue))
       .orElse(defaultValue);
@@ -202,7 +202,7 @@ public class VaultChatImplementation extends Chat {
 
   @Override
   public void setPlayerInfoBoolean(String world, String player, String node, boolean value) {
-    Optional<PermissionUser> optionalPermissionUser = this.permissionUserByName(player);
+    var optionalPermissionUser = this.permissionUserByName(player);
 
     optionalPermissionUser.ifPresent(permissionUser -> {
       permissionUser.getProperties().append(node, value);
@@ -212,7 +212,7 @@ public class VaultChatImplementation extends Chat {
 
   @Override
   public boolean getGroupInfoBoolean(String world, String group, String node, boolean defaultValue) {
-    Optional<PermissionGroup> optionalPermissionGroup = this.permissionGroupByName(group);
+    var optionalPermissionGroup = this.permissionGroupByName(group);
 
     return optionalPermissionGroup
       .map(permissionGroup -> permissionGroup.getProperties().getBoolean(node, defaultValue)).orElse(defaultValue);
@@ -220,7 +220,7 @@ public class VaultChatImplementation extends Chat {
 
   @Override
   public void setGroupInfoBoolean(String world, String group, String node, boolean value) {
-    Optional<PermissionGroup> optionalPermissionGroup = this.permissionGroupByName(group);
+    var optionalPermissionGroup = this.permissionGroupByName(group);
 
     optionalPermissionGroup.ifPresent(permissionGroup -> {
       permissionGroup.getProperties().append(node, value);
@@ -230,7 +230,7 @@ public class VaultChatImplementation extends Chat {
 
   @Override
   public String getPlayerInfoString(String world, String player, String node, String defaultValue) {
-    Optional<PermissionUser> optionalPermissionUser = this.permissionUserByName(player);
+    var optionalPermissionUser = this.permissionUserByName(player);
 
     return optionalPermissionUser.map(permissionUser -> permissionUser.getProperties().getString(node, defaultValue))
       .orElse(defaultValue);
@@ -238,7 +238,7 @@ public class VaultChatImplementation extends Chat {
 
   @Override
   public void setPlayerInfoString(String world, String player, String node, String value) {
-    Optional<PermissionUser> optionalPermissionUser = this.permissionUserByName(player);
+    var optionalPermissionUser = this.permissionUserByName(player);
 
     optionalPermissionUser.ifPresent(permissionUser -> {
       permissionUser.getProperties().append(node, value);
@@ -248,7 +248,7 @@ public class VaultChatImplementation extends Chat {
 
   @Override
   public String getGroupInfoString(String world, String group, String node, String defaultValue) {
-    Optional<PermissionGroup> optionalPermissionGroup = this.permissionGroupByName(group);
+    var optionalPermissionGroup = this.permissionGroupByName(group);
 
     return optionalPermissionGroup.map(permissionGroup -> permissionGroup.getProperties().getString(node, defaultValue))
       .orElse(defaultValue);
@@ -256,7 +256,7 @@ public class VaultChatImplementation extends Chat {
 
   @Override
   public void setGroupInfoString(String world, String group, String node, String value) {
-    Optional<PermissionGroup> optionalPermissionGroup = this.permissionGroupByName(group);
+    var optionalPermissionGroup = this.permissionGroupByName(group);
 
     optionalPermissionGroup.ifPresent(permissionGroup -> {
       permissionGroup.getProperties().append(node, value);

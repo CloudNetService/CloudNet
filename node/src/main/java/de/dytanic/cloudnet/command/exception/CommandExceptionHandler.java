@@ -71,7 +71,7 @@ public class CommandExceptionHandler {
     } else if (cause instanceof InvalidCommandSenderException) {
       this.handleInvalidCommandSourceException(source, (InvalidCommandSenderException) cause);
     } else if (cause instanceof ArgumentParseException) {
-      Throwable deepCause = cause.getCause();
+      var deepCause = cause.getCause();
       if (deepCause instanceof ArgumentNotAvailableException) {
         this.handleArgumentNotAvailableException(source, (ArgumentNotAvailableException) deepCause);
       } else if (deepCause instanceof FlagArgument.FlagParseException) {
@@ -101,7 +101,7 @@ public class CommandExceptionHandler {
       return;
     }
 
-    CommandInvalidSyntaxEvent invalidSyntaxEvent = CloudNet.getInstance().getEventManager().callEvent(
+    var invalidSyntaxEvent = CloudNet.getInstance().getEventManager().callEvent(
       new CommandInvalidSyntaxEvent(
         source,
         exception.getCorrectSyntax(),
@@ -113,7 +113,7 @@ public class CommandExceptionHandler {
   }
 
   protected void handleNoSuchCommandException(CommandSource source, NoSuchCommandException exception) {
-    CommandNotFoundEvent notFoundEvent = CloudNet.getInstance().getEventManager().callEvent(
+    var notFoundEvent = CloudNet.getInstance().getEventManager().callEvent(
       new CommandNotFoundEvent(
         source,
         exception.getSuppliedCommand(),
@@ -150,8 +150,8 @@ public class CommandExceptionHandler {
       // the command chain is empty, let the user handle the response
       return false;
     }
-    String root = currentChain.get(0).getName();
-    CommandInfo commandInfo = this.commandProvider.getCommand(root);
+    var root = currentChain.get(0).getName();
+    var commandInfo = this.commandProvider.getCommand(root);
     if (commandInfo == null) {
       // we can't find a matching command, let the user handle the response
       return false;
@@ -162,9 +162,9 @@ public class CommandExceptionHandler {
     } else {
       List<String> results = new ArrayList<>();
       // rebuild the input of the user
-      String commandChain = currentChain.stream().map(CommandArgument::getName).collect(Collectors.joining(" "));
+      var commandChain = currentChain.stream().map(CommandArgument::getName).collect(Collectors.joining(" "));
       // check if we can find any chain specific usages
-      for (String usage : commandInfo.getUsage()) {
+      for (var usage : commandInfo.getUsage()) {
         if (usage.startsWith(commandChain)) {
           results.add("- " + usage);
         }
@@ -189,7 +189,7 @@ public class CommandExceptionHandler {
    * @param commandInfo the command to print the usage for
    */
   protected void printDefaultUsage(@NotNull CommandSource source, @NotNull CommandInfo commandInfo) {
-    for (String usage : commandInfo.getUsage()) {
+    for (var usage : commandInfo.getUsage()) {
       source.sendMessage("- " + usage);
     }
   }

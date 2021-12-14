@@ -36,10 +36,10 @@ final class ClassLoaderContentStreamProvider implements ContentStreamProvider {
 
   @Override
   public @Nullable StreamableContent provideContent(@NotNull String path) {
-    String resourceLocation = this.pathPrefix + path;
+    var resourceLocation = this.pathPrefix + path;
     Preconditions.checkArgument(!resourceLocation.contains(".."), "File traversal for path " + path);
 
-    URL contentLocationUrl = this.contentSource.getResource(resourceLocation);
+    var contentLocationUrl = this.contentSource.getResource(resourceLocation);
     return contentLocationUrl == null
       ? null
       : new URLStreamableContent(FileMimeTypeHelper.getFileType(resourceLocation), contentLocationUrl);

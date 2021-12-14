@@ -24,9 +24,9 @@ public class CountingTaskTest {
 
   @Test
   void testCountingTask() {
-    AtomicInteger listenerResult = new AtomicInteger();
+    var listenerResult = new AtomicInteger();
 
-    CountingTask<Integer> task = new CountingTask<>(12345, 3);
+    var task = new CountingTask<Integer>(12345, 3);
     task.onComplete(listenerResult::set);
 
     assertiveCountDown(task);

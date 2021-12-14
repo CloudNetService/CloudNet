@@ -78,7 +78,7 @@ public final class DefaultNetworkClientChannelHandler implements INetworkChannel
       .replace("%serverAddress%", channel.getServerAddress().getHost() + ":" + channel.getServerAddress().getPort())
       .replace("%clientAddress%", channel.getClientAddress().getHost() + ":" + channel.getClientAddress().getPort()));
 
-    IClusterNodeServer clusterNodeServer = CloudNet.getInstance().getClusterNodeServerProvider().getNodeServer(channel);
+    var clusterNodeServer = CloudNet.getInstance().getClusterNodeServerProvider().getNodeServer(channel);
     if (clusterNodeServer != null) {
       NodeNetworkUtils.closeNodeServer(clusterNodeServer);
     }

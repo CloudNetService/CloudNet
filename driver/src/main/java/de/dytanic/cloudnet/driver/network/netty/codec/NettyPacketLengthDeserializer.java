@@ -37,14 +37,14 @@ public final class NettyPacketLengthDeserializer extends ByteToMessageDecoder {
       return;
     }
 
-    VarIntByteProcessor processor = new VarIntByteProcessor();
-    int varIntByteEnding = in.forEachByte(processor);
+    var processor = new VarIntByteProcessor();
+    var varIntByteEnding = in.forEachByte(processor);
 
     if (processor.result != VarIntByteProcessor.ProcessingResult.OK) {
       throw INVALID_VAR_INT;
     } else {
-      int varInt = processor.varInt;
-      int bytesRead = processor.bytesRead;
+      var varInt = processor.varInt;
+      var bytesRead = processor.bytesRead;
 
       if (varInt < 0) {
         in.clear();
@@ -53,7 +53,7 @@ public final class NettyPacketLengthDeserializer extends ByteToMessageDecoder {
         // empty packet, ignore it
         in.readerIndex(varIntByteEnding + 1);
       } else {
-        int minimumReadableBytes = varInt + bytesRead;
+        var minimumReadableBytes = varInt + bytesRead;
         if (in.isReadable(minimumReadableBytes)) {
           out.add(in.retainedSlice(varIntByteEnding + 1, varInt));
           in.skipBytes(minimumReadableBytes);

@@ -130,7 +130,7 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
 
   @Override
   public void removePermanentServiceTaskByName(@NotNull String name) {
-    ServiceTask task = this.getServiceTask(name);
+    var task = this.getServiceTask(name);
     if (task != null) {
       this.removePermanentServiceTask(task);
     }
@@ -182,13 +182,13 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
 
   protected void writeAllServiceTasks() {
     // write all service tasks
-    for (ServiceTask serviceTask : this.serviceTasks.values()) {
+    for (var serviceTask : this.serviceTasks.values()) {
       this.writeServiceTask(serviceTask);
     }
     // delete all service task files which do not exist anymore
     FileUtils.walkFileTree(TASKS_DIRECTORY, ($, file) -> {
       // check if we know the file name
-      String taskName = file.getFileName().toString().replace(".json", "");
+      var taskName = file.getFileName().toString().replace(".json", "");
       if (!this.serviceTasks.containsKey(taskName)) {
         FileUtils.delete(file);
       }
@@ -198,9 +198,9 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
   protected void loadServiceTasks() {
     FileUtils.walkFileTree(TASKS_DIRECTORY, ($, file) -> {
       // load the service task
-      ServiceTask task = JsonDocument.newDocument(file).toInstanceOf(ServiceTask.class);
+      var task = JsonDocument.newDocument(file).toInstanceOf(ServiceTask.class);
       // check if the file name is still up-to-date
-      String taskName = file.getFileName().toString().replace(".json", "");
+      var taskName = file.getFileName().toString().replace(".json", "");
       if (!taskName.equals(task.getName())) {
         // rename the file
         FileUtils.move(file, this.getTaskFile(task), StandardCopyOption.REPLACE_EXISTING);

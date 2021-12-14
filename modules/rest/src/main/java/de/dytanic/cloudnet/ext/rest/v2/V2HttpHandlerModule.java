@@ -104,7 +104,7 @@ public class V2HttpHandlerModule extends V2HttpHandler {
   }
 
   protected void handleModuleLoadRequest(IHttpContext context) {
-    InputStream moduleStream = context.request().bodyStream();
+    var moduleStream = context.request().bodyStream();
     if (moduleStream == null) {
       this.badRequest(context)
         .body(this.failure().append("reason", "Missing module data in body").toString())
@@ -114,7 +114,7 @@ public class V2HttpHandlerModule extends V2HttpHandler {
       return;
     }
 
-    String name = context.request().pathParameters().get("name");
+    var name = context.request().pathParameters().get("name");
     if (name == null) {
       this.badRequest(context)
         .body(this.failure().append("reason", "Missing module name in path").toString())
@@ -124,10 +124,10 @@ public class V2HttpHandlerModule extends V2HttpHandler {
       return;
     }
 
-    Path moduleTarget = this.getModuleProvider().getModuleDirectoryPath().resolve(name);
+    var moduleTarget = this.getModuleProvider().getModuleDirectoryPath().resolve(name);
     FileUtils.ensureChild(this.getModuleProvider().getModuleDirectoryPath(), moduleTarget);
 
-    try (OutputStream outputStream = Files.newOutputStream(moduleTarget)) {
+    try (var outputStream = Files.newOutputStream(moduleTarget)) {
       FileUtils.copy(moduleStream, outputStream);
     } catch (IOException exception) {
       this.response(context, HttpResponseCode.HTTP_INTERNAL_ERROR)
@@ -145,7 +145,7 @@ public class V2HttpHandlerModule extends V2HttpHandler {
   protected void handleModuleConfigRequest(IHttpContext context) {
     this.handleWithModuleContext(context, module -> {
       if (module.getModule() instanceof DriverModule) {
-        JsonDocument config = ((DriverModule) module.getModule()).readConfig();
+        var config = ((DriverModule) module.getModule()).readConfig();
         this.ok(context)
           .body(this.success().append("config", config).toString())
           .context()
@@ -164,7 +164,7 @@ public class V2HttpHandlerModule extends V2HttpHandler {
   protected void handleConfigUpdateRequest(IHttpContext context) {
     this.handleWithModuleContext(context, module -> {
       if (module.getModule() instanceof DriverModule) {
-        InputStream stream = context.request().bodyStream();
+        var stream = context.request().bodyStream();
         if (stream == null) {
           this.badRequest(context)
             .body(this.failure().append("reason", "Missing data in body").toString())
@@ -172,7 +172,7 @@ public class V2HttpHandlerModule extends V2HttpHandler {
             .closeAfter(true)
             .cancelNext();
         } else {
-          DriverModule driverModule = (DriverModule) module.getModule();
+          var driverModule = (DriverModule) module.getModule();
           driverModule.writeConfig(JsonDocument.newDocument(stream));
 
           this.ok(context).body(this.success().toString()).context().closeAfter(true).cancelNext();
@@ -200,7 +200,7 @@ public class V2HttpHandlerModule extends V2HttpHandler {
   }
 
   protected void handleWithModuleContext(IHttpContext context, Consumer<IModuleWrapper> handler) {
-    String name = context.request().pathParameters().get("name");
+    var name = context.request().pathParameters().get("name");
     if (name == null) {
       this.badRequest(context)
         .body(this.failure().append("reason", "Missing module name in path").toString())
@@ -210,7 +210,7 @@ public class V2HttpHandlerModule extends V2HttpHandler {
       return;
     }
 
-    IModuleWrapper wrapper = this.getModuleProvider().getModule(name);
+    var wrapper = this.getModuleProvider().getModule(name);
     if (wrapper == null) {
       this.notFound(context)
         .body(this.failure().append("reason", "No such module").toString())

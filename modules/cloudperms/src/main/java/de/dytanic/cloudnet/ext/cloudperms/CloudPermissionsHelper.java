@@ -62,7 +62,7 @@ public final class CloudPermissionsHelper {
       return;
     }
 
-    CachedPermissionManagement management = asCachedPermissionManagement(permissionsManagement);
+    var management = asCachedPermissionManagement(permissionsManagement);
     if (management != null) {
       management.acquireLock(permissionUser);
     }
@@ -74,9 +74,9 @@ public final class CloudPermissionsHelper {
   }
 
   public static void handlePlayerQuit(IPermissionManagement permissionsManagement, UUID uniqueId) {
-    CachedPermissionManagement management = asCachedPermissionManagement(permissionsManagement);
+    var management = asCachedPermissionManagement(permissionsManagement);
     if (management != null) {
-      PermissionUser cachedUser = management.getCachedUser(uniqueId);
+      var cachedUser = management.getCachedUser(uniqueId);
       if (cachedUser != null) {
         management.unlock(cachedUser);
       }

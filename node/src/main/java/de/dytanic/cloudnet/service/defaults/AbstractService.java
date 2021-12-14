@@ -166,7 +166,7 @@ public abstract class AbstractService implements ICloudService {
   public @Nullable ServiceInfoSnapshot forceUpdateServiceInfo() {
     // check if the service is able to serve the request
     if (this.networkChannel != null) {
-      ChannelMessage response = ChannelMessage.builder()
+      var response = ChannelMessage.builder()
         .targetService(this.getServiceId().getName())
         .message("request_update_service_information")
         .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
@@ -275,11 +275,11 @@ public abstract class AbstractService implements ICloudService {
     ServiceRemoteInclusion inclusion;
     while ((inclusion = this.waitingRemoteInclusions.poll()) != null) {
       // prepare the connection from which we load the inclusion
-      GetRequest getRequest = Unirest.get(inclusion.getUrl());
+      var getRequest = Unirest.get(inclusion.getUrl());
       // put the given http headers
       if (inclusion.getProperties().contains("httpHeaders")) {
-        JsonDocument headers = inclusion.getProperties().getDocument("httpHeaders");
-        for (String key : headers.keys()) {
+        var headers = inclusion.getProperties().getDocument("httpHeaders");
+        for (var key : headers.keys()) {
           getRequest.header(key, headers.get(key).toString());
         }
       }
@@ -287,7 +287,7 @@ public abstract class AbstractService implements ICloudService {
       if (!this.eventManager.callEvent(new CloudServicePreLoadInclusionEvent(this, inclusion, getRequest))
         .isCancelled()) {
         // get a target path based on the download url
-        Path destination = INCLUSION_TEMP_DIR.resolve(
+        var destination = INCLUSION_TEMP_DIR.resolve(
           Base64.getEncoder().encodeToString(inclusion.getUrl().getBytes(StandardCharsets.UTF_8)).replace('/', '_'));
         // download the file from the given url to the temp path if it does not exist
         if (Files.notExists(destination)) {
@@ -301,7 +301,7 @@ public abstract class AbstractService implements ICloudService {
           }
         }
         // resolve the desired output path
-        Path target = this.serviceDirectory.resolve(inclusion.getDestination());
+        var target = this.serviceDirectory.resolve(inclusion.getDestination());
         FileUtils.ensureChild(this.serviceDirectory, target);
         // copy the file to the desired output path
         FileUtils.copy(destination, target);
@@ -319,7 +319,7 @@ public abstract class AbstractService implements ICloudService {
       }
     } else {
       // just execute all deployments
-      for (ServiceDeployment deployment : this.waitingDeployments) {
+      for (var deployment : this.waitingDeployments) {
         this.executeDeployment(deployment);
       }
     }
@@ -433,7 +433,7 @@ public abstract class AbstractService implements ICloudService {
 
   @Override
   public boolean toggleScreenEvents(@NotNull ChannelMessageSender channelMessageSender, @NotNull String channel) {
-    ChannelMessageTarget target = channelMessageSender.toTarget();
+    var target = channelMessageSender.toTarget();
     if (this.logTargets.remove(target) != null) {
       return false;
     }
@@ -459,7 +459,7 @@ public abstract class AbstractService implements ICloudService {
         // remove the entry
         this.waitingTemplates.remove(template);
         // check if we should load the template
-        TemplateStorage storage = template.storage().getWrappedStorage();
+        var storage = template.storage().getWrappedStorage();
         if (!this.eventManager.callEvent(new CloudServiceTemplateLoadEvent(this, storage, template)).isCancelled()) {
           // the event is not cancelled - copy the template
           storage.copy(template, this.serviceDirectory);
@@ -469,12 +469,12 @@ public abstract class AbstractService implements ICloudService {
 
   protected void executeDeployment(@NotNull ServiceDeployment deployment) {
     // check if we should execute the deployment
-    TemplateStorage storage = deployment.getTemplate().storage().getWrappedStorage();
+    var storage = deployment.getTemplate().storage().getWrappedStorage();
     if (!this.eventManager.callEvent(new CloudServiceDeploymentEvent(this, storage, deployment)).isCancelled()) {
       // execute the deployment
       storage.deployDirectory(this.serviceDirectory, deployment.getTemplate(), path -> {
         // normalize the name of the path
-        String fileName = Files.isDirectory(path)
+        var fileName = Files.isDirectory(path)
           ? path.getFileName().toString() + '/'
           : path.getFileName().toString();
         // check if the file is ignored
@@ -485,7 +485,7 @@ public abstract class AbstractService implements ICloudService {
   }
 
   protected void doRemoveFilesAfterStop() {
-    for (String file : this.serviceConfiguration.getDeletedFilesAfterStop()) {
+    for (var file : this.serviceConfiguration.getDeletedFilesAfterStop()) {
       FileUtils.delete(this.serviceDirectory.resolve(file));
     }
   }
@@ -554,10 +554,10 @@ public abstract class AbstractService implements ICloudService {
 
   protected void prepareService() {
     // initialize the service directory
-    boolean firstStartup = Files.notExists(this.serviceDirectory);
+    var firstStartup = Files.notExists(this.serviceDirectory);
     FileUtils.createDirectory(this.serviceDirectory);
     // write the configuration file for the service
-    HostAndPort[] listeners = this.getNodeConfiguration().getIdentity().getListeners();
+    var listeners = this.getNodeConfiguration().getIdentity().getListeners();
     JsonDocument.newDocument()
       .append("connectionKey", this.getConnectionKey())
       .append("serviceInfoSnapshot", this.currentServiceInfo)
@@ -566,7 +566,7 @@ public abstract class AbstractService implements ICloudService {
       .append("targetListener", listeners[ThreadLocalRandom.current().nextInt(listeners.length)])
       .write(this.serviceDirectory.resolve(WRAPPER_CONFIG_PATH));
     // load the ssl configuration if enabled
-    SSLConfiguration sslConfiguration = this.getNodeConfiguration().getServerSslConfig();
+    var sslConfiguration = this.getNodeConfiguration().getServerSslConfig();
     if (sslConfiguration.isEnabled()) {
       this.copySslConfiguration(sslConfiguration);
     }
@@ -583,7 +583,7 @@ public abstract class AbstractService implements ICloudService {
   }
 
   protected void copySslConfiguration(@NotNull SSLConfiguration configuration) {
-    Path wrapperDir = this.serviceDirectory.resolve(".wrapper");
+    var wrapperDir = this.serviceDirectory.resolve(".wrapper");
     // copy the certificate if available
     if (configuration.getCertificatePath() != null && Files.exists(configuration.getCertificatePath())) {
       FileUtils.copy(configuration.getCertificatePath(), wrapperDir.resolve("certificate"));

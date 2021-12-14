@@ -63,7 +63,7 @@ public class DefaultDataSyncRegistry implements DataSyncRegistry {
 
   @Override
   public void unregisterHandler(@NotNull ClassLoader loader) {
-    for (Entry<String, DataSyncHandler<?>> entry : this.handlers.entrySet()) {
+    for (var entry : this.handlers.entrySet()) {
       if (entry.getValue().getClass().getClassLoader().equals(loader)) {
         this.handlers.remove(entry.getKey());
         break;
@@ -82,15 +82,15 @@ public class DefaultDataSyncRegistry implements DataSyncRegistry {
     // sort the handlers for later binary searches
     Arrays.sort(selectedHandlers);
     // the result data
-    DataBuf.Mutable result = DataBuf.empty().writeBoolean(force);
+    var result = DataBuf.empty().writeBoolean(force);
     // append all handler content to the buf
-    for (DataSyncHandler<?> handler : this.handlers.values()) {
+    for (var handler : this.handlers.values()) {
       // check if we should include the handler
       if (selectedHandlers.length > 0 && Arrays.binarySearch(selectedHandlers, handler.getKey()) < 0) {
         continue;
       }
       // extract the whole content from the handler
-      Collection<Object> data = (Collection<Object>) handler.getData();
+      var data = (Collection<Object>) handler.getData();
       // check if there is data
       if (!data.isEmpty()) {
         // check if there is only one argument to write
@@ -98,7 +98,7 @@ public class DefaultDataSyncRegistry implements DataSyncRegistry {
           this.serializeData(data.iterator().next(), handler, result);
         } else {
           // serialize the whole result
-          for (Object obj : data) {
+          for (var obj : data) {
             this.serializeData(obj, handler, result);
           }
         }
@@ -115,14 +115,14 @@ public class DefaultDataSyncRegistry implements DataSyncRegistry {
     // handle the incoming data as long as there is data
     while (input.getReadableBytes() > 0) {
       // The data information
-      String key = input.readString();
-      try (DataBuf syncData = input.readDataBuf()) {
+      var key = input.readString();
+      try (var syncData = input.readDataBuf()) {
         // get the associated handler with the buf
-        DataSyncHandler<?> handler = this.handlers.get(key);
+        var handler = this.handlers.get(key);
         if (handler != null) {
           // read the synced data
-          Object data = handler.getConverter().parse(syncData);
-          Object current = handler.getCurrent(data);
+          var data = handler.getConverter().parse(syncData);
+          var current = handler.getCurrent(data);
           // check if we need to ask for user input to continue the sync
           if (force || handler.isAlwaysForceApply() || current == null || current.equals(data)) {
             // write the data and continue
@@ -131,14 +131,14 @@ public class DefaultDataSyncRegistry implements DataSyncRegistry {
           }
           // get the diff between the current object and the data
           try {
-            Changes diff = JAVERS.compare(current, data).getChanges();
+            var diff = JAVERS.compare(current, data).getChanges();
             if (diff.isEmpty()) {
               // no diff detected... just write
               handler.write(data);
               continue;
             }
             // pretty format the changes
-            for (String line : JaversPrettyPrint.prettyPrint(handler.getName(current), diff)) {
+            for (var line : JaversPrettyPrint.prettyPrint(handler.getName(current), diff)) {
               LOGGER.warning(line);
             }
             // print out the possibilities the user has now
@@ -193,7 +193,7 @@ public class DefaultDataSyncRegistry implements DataSyncRegistry {
     // append the information
     target.writeString(handler.getKey());
     // write the data
-    DataBuf.Mutable buf = DataBuf.empty();
+    var buf = DataBuf.empty();
     handler.serialize(buf, data);
     // append the data
     target.writeDataBuf(buf);
@@ -214,13 +214,13 @@ public class DefaultDataSyncRegistry implements DataSyncRegistry {
   protected int readMergeInput(@NotNull IConsole console) {
     while (true) {
       // wait for an input
-      String input = console.readLine().getDef(null);
+      var input = console.readLine().getDef(null);
       // check if an input was supplied
       if (input == null) {
         continue;
       }
       // get the int from the input & validate
-      Integer mergeDecision = Ints.tryParse(input);
+      var mergeDecision = Ints.tryParse(input);
       if (mergeDecision != null && mergeDecision >= 1 && mergeDecision <= 3) {
         return mergeDecision;
       }

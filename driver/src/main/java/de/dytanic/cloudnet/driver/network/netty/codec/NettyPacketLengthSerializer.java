@@ -33,7 +33,7 @@ public final class NettyPacketLengthSerializer extends MessageToByteEncoder<Byte
 
   @Override
   protected ByteBuf allocateBuffer(ChannelHandlerContext ctx, ByteBuf msg, boolean preferDirect) {
-    int initialSize = 5 + msg.readableBytes();
+    var initialSize = 5 + msg.readableBytes();
     return preferDirect
       ? ctx.alloc().ioBuffer(initialSize)
       : ctx.alloc().heapBuffer(initialSize);

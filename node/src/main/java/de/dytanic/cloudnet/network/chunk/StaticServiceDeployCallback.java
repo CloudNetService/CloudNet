@@ -44,13 +44,13 @@ final class StaticServiceDeployCallback implements Callback {
     @NotNull InputStream dataInput
   ) {
     // read the information for the deployment of the static service
-    String service = information.getTransferInformation().readString();
-    boolean overwriteService = information.getTransferInformation().readBoolean();
+    var service = information.getTransferInformation().readString();
+    var overwriteService = information.getTransferInformation().readBoolean();
 
-    ICloudServiceManager serviceManager = CloudNet.getInstance().getCloudServiceProvider();
+    var serviceManager = CloudNet.getInstance().getCloudServiceProvider();
     // only copy the static service running with the same name
     if (serviceManager.getLocalCloudService(service) == null) {
-      Path servicePath = serviceManager.getPersistentServicesDirectoryPath().resolve(service);
+      var servicePath = serviceManager.getPersistentServicesDirectoryPath().resolve(service);
       // check if the service path exists, and we can overwrite it
       if (Files.exists(servicePath) && !overwriteService) {
         LOGGER.severe(I18n.trans("command-cluster-push-static-services-existing"));

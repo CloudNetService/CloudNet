@@ -91,8 +91,8 @@ final class NettyHttpServerHandler extends SimpleChannelInboundHandler<HttpReque
   }
 
   private void handleMessage(Channel channel, HttpRequest httpRequest) {
-    URI uri = URI.create(httpRequest.uri());
-    String fullPath = uri.getPath();
+    var uri = URI.create(httpRequest.uri());
+    var fullPath = uri.getPath();
 
     if (fullPath.isEmpty()) {
       fullPath = "/";
@@ -103,12 +103,12 @@ final class NettyHttpServerHandler extends SimpleChannelInboundHandler<HttpReque
     List<NettyHttpServer.HttpHandlerEntry> entries = new ArrayList<>(this.nettyHttpServer.registeredHandlers);
     entries.sort(Comparator.comparingInt(entry -> entry.priority));
 
-    String[] pathEntries = fullPath.split("/");
-    NettyHttpServerContext context = new NettyHttpServerContext(this.nettyHttpServer, this.channel,
+    var pathEntries = fullPath.split("/");
+    var context = new NettyHttpServerContext(this.nettyHttpServer, this.channel,
       uri, new HashMap<>(), httpRequest);
 
-    for (NettyHttpServer.HttpHandlerEntry httpHandlerEntry : entries) {
-      String[] handlerPathEntries = httpHandlerEntry.path.split("/");
+    for (var httpHandlerEntry : entries) {
+      var handlerPathEntries = httpHandlerEntry.path.split("/");
       context.setPathPrefix(httpHandlerEntry.path);
 
       if (this.handleMessage0(httpHandlerEntry, context, fullPath, pathEntries, handlerPathEntries)) {
@@ -120,7 +120,7 @@ final class NettyHttpServerHandler extends SimpleChannelInboundHandler<HttpReque
     }
 
     if (!context.cancelSendResponse) {
-      NettyHttpServerResponse response = context.httpServerResponse;
+      var response = context.httpServerResponse;
       if (response.statusCode() == 404 && !response.hasBody()) {
         response.body("Resource not found!");
       }
@@ -164,15 +164,15 @@ final class NettyHttpServerHandler extends SimpleChannelInboundHandler<HttpReque
       return false;
     }
 
-    boolean wildCard = false;
+    var wildCard = false;
     if (pathEntries.length != 1 || handlerPathEntries.length != 1) {
-      for (int index = 1; index < pathEntries.length; ++index) {
+      for (var index = 1; index < pathEntries.length; ++index) {
         if (wildCard) {
           continue;
         }
 
         // check if a wildcard is provided
-        String entry = handlerPathEntries[index];
+        var entry = handlerPathEntries[index];
         if (entry.equals("*")) {
           if (handlerPathEntries.length - 1 == index) {
             wildCard = true;
@@ -181,7 +181,7 @@ final class NettyHttpServerHandler extends SimpleChannelInboundHandler<HttpReque
         }
         // check for a path parameter in form {name}
         if (entry.startsWith("{") && entry.endsWith("}") && entry.length() > 2) {
-          String replacedString = entry.replaceFirst("\\{", "");
+          var replacedString = entry.replaceFirst("\\{", "");
           context.request().pathParameters().put(
             replacedString.substring(0, replacedString.length() - 1), pathEntries[index]);
           continue;

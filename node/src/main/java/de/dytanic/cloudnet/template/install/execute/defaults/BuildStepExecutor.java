@@ -56,12 +56,12 @@ public class BuildStepExecutor implements InstallStepExecutor {
     @NotNull Path workDir,
     @NotNull Set<Path> paths
   ) throws IOException {
-    ServiceVersion version = information.getServiceVersion();
+    var version = information.getServiceVersion();
 
     Collection<String> jvmOptions = version.getProperties().get("jvmOptions", STRING_LIST_TYPE);
     List<String> parameters = version.getProperties().get("parameters", STRING_LIST_TYPE, new ArrayList<>());
 
-    for (Path path : paths) {
+    for (var path : paths) {
       List<String> arguments = new ArrayList<>();
 
       arguments.add(information.getInstallerExecutable().orElse(CloudNet.getInstance().getConfig().getJVMCommand()));
@@ -76,8 +76,8 @@ public class BuildStepExecutor implements InstallStepExecutor {
           .map(parameter -> parameter.replace("%version%", version.getName()))
           .collect(Collectors.toList()));
 
-      int expectedExitCode = version.getProperties().getInt("exitCode", 0);
-      int exitCode = this.buildProcessAndWait(arguments, workDir);
+      var expectedExitCode = version.getProperties().getInt("exitCode", 0);
+      var exitCode = this.buildProcessAndWait(arguments, workDir);
 
       if (!version.getProperties().getBoolean("disableExitCodeChecking") && exitCode != expectedExitCode) {
         throw new IllegalStateException(String.format(
@@ -92,7 +92,7 @@ public class BuildStepExecutor implements InstallStepExecutor {
 
   @Override
   public void interrupt() {
-    for (Process runningBuildProcess : this.runningBuildProcesses) {
+    for (var runningBuildProcess : this.runningBuildProcesses) {
       runningBuildProcess.destroyForcibly();
     }
   }
@@ -112,7 +112,7 @@ public class BuildStepExecutor implements InstallStepExecutor {
     @NotNull BiConsumer<String, Process> systemErrRedirector
   ) {
     try {
-      Process process = new ProcessBuilder()
+      var process = new ProcessBuilder()
         .command(arguments)
         .directory(workingDir.toFile())
         .start();
@@ -122,7 +122,7 @@ public class BuildStepExecutor implements InstallStepExecutor {
       OUTPUT_READER_EXECUTOR.execute(new BuildOutputRedirector(process, process.getInputStream(), systemOutRedirector));
       OUTPUT_READER_EXECUTOR.execute(new BuildOutputRedirector(process, process.getErrorStream(), systemErrRedirector));
 
-      int exitCode = process.waitFor();
+      var exitCode = process.waitFor();
       this.runningBuildProcesses.remove(process);
 
       return exitCode;
@@ -146,7 +146,7 @@ public class BuildStepExecutor implements InstallStepExecutor {
 
     @Override
     public void run() {
-      try (BufferedReader in = new BufferedReader(new InputStreamReader(this.source, StandardCharsets.UTF_8))) {
+      try (var in = new BufferedReader(new InputStreamReader(this.source, StandardCharsets.UTF_8))) {
         String line;
         while ((line = in.readLine()) != null) {
           this.handler.accept(line, this.process);

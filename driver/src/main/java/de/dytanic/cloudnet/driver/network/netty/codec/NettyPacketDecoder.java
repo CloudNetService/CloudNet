@@ -42,11 +42,11 @@ public final class NettyPacketDecoder extends ByteToMessageDecoder {
     }
 
     try {
-      int channel = NettyUtils.readVarInt(byteBuf);
-      UUID queryUniqueId = byteBuf.readBoolean() ? new UUID(byteBuf.readLong(), byteBuf.readLong()) : null;
+      var channel = NettyUtils.readVarInt(byteBuf);
+      var queryUniqueId = byteBuf.readBoolean() ? new UUID(byteBuf.readLong(), byteBuf.readLong()) : null;
       DataBuf body = new NettyImmutableDataBuf(byteBuf.readBytes(NettyUtils.readVarInt(byteBuf)));
 
-      Packet packet = new Packet(channel, body);
+      var packet = new Packet(channel, body);
       packet.setUniqueId(queryUniqueId);
 
       out.add(packet);

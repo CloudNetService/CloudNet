@@ -101,13 +101,13 @@ public abstract class BukkitPlatformSelectorEntity
       this.spawn0();
       // check if the entity should have a glowing color
       if (SET_COLOR != null && this.npc.isGlowing()) {
-        Scoreboard scoreboard = this.npcManagement.getScoreboard();
+        var scoreboard = this.npcManagement.getScoreboard();
         // check if a team for the glowing color is already registered
-        Team team = scoreboard.getTeam("nc" + this.npc.getGlowingColor());
+        var team = scoreboard.getTeam("nc" + this.npc.getGlowingColor());
         if (team == null) {
           team = scoreboard.registerNewTeam("nc" + this.npc.getGlowingColor());
           // try to set the team color
-          ChatColor color = ChatColor.getByChar(this.npc.getGlowingColor());
+          var color = ChatColor.getByChar(this.npc.getGlowingColor());
           if (color != null) {
             try {
               SET_COLOR.invoke(team, color);
@@ -122,8 +122,8 @@ public abstract class BukkitPlatformSelectorEntity
         this.addGlowingEffect();
       }
       // spawn the info lines
-      for (int i = npc.getInfoLines().size() - 1; i >= 0; i--) {
-        ArmorStand armorStand = (ArmorStand) this.npcLocation.getWorld().spawnEntity(
+      for (var i = npc.getInfoLines().size() - 1; i >= 0; i--) {
+        var armorStand = (ArmorStand) this.npcLocation.getWorld().spawnEntity(
           this.npcLocation.clone().add(0, this.getHeightAddition(i), 0),
           EntityType.ARMOR_STAND);
         armorStand.setSmall(true);
@@ -134,11 +134,11 @@ public abstract class BukkitPlatformSelectorEntity
         armorStand.setCustomNameVisible(true);
         // if it is the top info line try to spawn the item above it
         if (i == npc.getInfoLines().size() - 1) {
-          String materialName = this.npc.getFloatingItem();
+          var materialName = this.npc.getFloatingItem();
           if (materialName != null) {
-            Material material = Material.matchMaterial(materialName);
+            var material = Material.matchMaterial(materialName);
             if (material != null) {
-              Item item = this.npcLocation.getWorld().dropItem(armorStand.getLocation(), new ItemStack(material));
+              var item = this.npcLocation.getWorld().dropItem(armorStand.getLocation(), new ItemStack(material));
               item.setTicksLived(Integer.MAX_VALUE);
               item.setPickupDelay(Integer.MAX_VALUE);
               // set the passenger
@@ -147,7 +147,7 @@ public abstract class BukkitPlatformSelectorEntity
           }
         }
         // register the info line
-        InfoLineWrapper wrapper = new InfoLineWrapper(this.npc.getInfoLines().get(i), armorStand);
+        var wrapper = new InfoLineWrapper(this.npc.getInfoLines().get(i), armorStand);
         wrapper.rebuildInfoLine();
         // register the line
         this.infoLines.add(wrapper);
@@ -159,9 +159,9 @@ public abstract class BukkitPlatformSelectorEntity
   @Override
   public void remove() {
     Bukkit.getScheduler().runTask(this.plugin, () -> {
-      for (InfoLineWrapper infoLine : this.infoLines) {
+      for (var infoLine : this.infoLines) {
         // remove the armor stand passenger (if any)
-        Entity passenger = infoLine.armorStand.getPassenger();
+        var passenger = infoLine.armorStand.getPassenger();
         if (passenger != null) {
           passenger.remove();
         }
@@ -189,12 +189,12 @@ public abstract class BukkitPlatformSelectorEntity
   @Override
   public void trackService(@NotNull ServiceInfoSnapshot service) {
     // get the current item
-    ServiceItemWrapper wrapper = this.serviceItems.get(service.getServiceId().getUniqueId());
+    var wrapper = this.serviceItems.get(service.getServiceId().getUniqueId());
     // build the item for the service
-    InventoryConfiguration configuration = this.npcManagement.getInventoryConfiguration();
-    ItemLayoutHolder layouts = configuration.getHolder(service.getConfiguration().getGroups().toArray(new String[0]));
+    var configuration = this.npcManagement.getInventoryConfiguration();
+    var layouts = configuration.getHolder(service.getConfiguration().getGroups().toArray(new String[0]));
     // get the service state
-    ServiceInfoState state = BridgeServiceHelper.guessStateFromServiceInfoSnapshot(service);
+    var state = BridgeServiceHelper.guessStateFromServiceInfoSnapshot(service);
     ItemLayout layout;
     switch (state) {
       case EMPTY_ONLINE:
@@ -214,7 +214,7 @@ public abstract class BukkitPlatformSelectorEntity
         return;
     }
     // build the item stack from the layout
-    ItemStack item = this.buildItemStack(layout, service);
+    var item = this.buildItemStack(layout, service);
     if (item != null) {
       if (wrapper == null) {
         // store a new wrapper
@@ -237,7 +237,7 @@ public abstract class BukkitPlatformSelectorEntity
   public void stopTrackingService(@NotNull ServiceInfoSnapshot service) {
     Bukkit.getScheduler().runTask(this.plugin, () -> {
       // get the old item wrapper
-      ServiceItemWrapper wrapper = this.serviceItems.remove(service.getServiceId().getUniqueId());
+      var wrapper = this.serviceItems.remove(service.getServiceId().getUniqueId());
       if (wrapper != null) {
         // the service got tracked before - rebuild the inventory and info lines
         this.rebuildInfoLines();
@@ -259,7 +259,7 @@ public abstract class BukkitPlatformSelectorEntity
   @Override
   public void handleInventoryInteract(@NotNull Inventory inv, @NotNull Player player, @NotNull ItemStack clickedItem) {
     // find the server associated with the clicked item
-    for (ServiceItemWrapper wrapper : this.serviceItems.values()) {
+    for (var wrapper : this.serviceItems.values()) {
       if (wrapper.getItemStack().equals(clickedItem)) {
         // close the inventory
         player.closeInventory();
@@ -292,8 +292,8 @@ public abstract class BukkitPlatformSelectorEntity
 
   @Override
   public boolean canSpawn() {
-    int chunkX = NumberConversions.floor(this.npcLocation.getX()) >> 4;
-    int chunkZ = NumberConversions.floor(this.npcLocation.getZ()) >> 4;
+    var chunkX = NumberConversions.floor(this.npcLocation.getX()) >> 4;
+    var chunkZ = NumberConversions.floor(this.npcLocation.getZ()) >> 4;
 
     return this.npcLocation.getWorld() != null && this.npcLocation.getWorld().isChunkLoaded(chunkX, chunkZ);
   }
@@ -307,7 +307,7 @@ public abstract class BukkitPlatformSelectorEntity
         List<ServiceItemWrapper> wrappers = new ArrayList<>(this.serviceItems.values());
         // connect the player to the first element if present
         if (!wrappers.isEmpty()) {
-          ServiceItemWrapper wrapper = wrappers.get(ThreadLocalRandom.current().nextInt(0, wrappers.size()));
+          var wrapper = wrappers.get(ThreadLocalRandom.current().nextInt(0, wrappers.size()));
           this.getPlayerManager().getPlayerExecutor(player.getUniqueId()).connect(wrapper.getService().getName());
         }
       }
@@ -333,13 +333,13 @@ public abstract class BukkitPlatformSelectorEntity
   }
 
   protected @Nullable ItemStack buildItemStack(@NotNull ItemLayout layout, @Nullable ServiceInfoSnapshot service) {
-    Material material = Material.matchMaterial(layout.getMaterial());
+    var material = Material.matchMaterial(layout.getMaterial());
     if (material != null) {
-      ItemStack item = layout.getSubId() == -1
+      var item = layout.getSubId() == -1
         ? new ItemStack(material)
         : new ItemStack(material, 1, (byte) layout.getSubId());
       // apply the meta
-      ItemMeta meta = item.getItemMeta();
+      var meta = item.getItemMeta();
       if (meta != null) {
         meta.setDisplayName(BridgeServiceHelper.fillCommonPlaceholders(
           layout.getDisplayName(),
@@ -364,7 +364,7 @@ public abstract class BukkitPlatformSelectorEntity
 
   protected void rebuildInventory(@NotNull InventoryConfiguration configuration) {
     // calculate the inventory size
-    int inventorySize = configuration.getInventorySize();
+    var inventorySize = configuration.getInventorySize();
     if (configuration.isDynamicSize()) {
       inventorySize = this.serviceItems.size();
       // try to make it to the next higher possible inventory size
@@ -373,25 +373,25 @@ public abstract class BukkitPlatformSelectorEntity
       }
     }
     // create the inventory
-    Inventory inventory = this.inventory;
+    var inventory = this.inventory;
     if (inventory == null || inventory.getSize() != inventorySize) {
       this.inventory = inventory = Bukkit.createInventory(null, inventorySize, this.npc.getDisplayName());
     }
     // remove all current contents
     inventory.clear();
     // add the fixed items
-    for (Entry<Integer, ItemLayout> entry : configuration.getFixedItems().entrySet()) {
+    for (var entry : configuration.getFixedItems().entrySet()) {
       // check if the item would exceed the inventory size
       if (entry.getKey() < inventorySize) {
         // build and set the item
-        ItemStack item = this.buildItemStack(entry.getValue(), null);
+        var item = this.buildItemStack(entry.getValue(), null);
         if (item != null) {
           inventory.setItem(entry.getKey(), item);
         }
       }
     }
     // add the service items
-    for (ServiceItemWrapper wrapper : this.serviceItems.values()) {
+    for (var wrapper : this.serviceItems.values()) {
       if (!inventory.addItem(wrapper.getItemStack()).isEmpty()) {
         // the inventory is full
         break;
@@ -404,7 +404,7 @@ public abstract class BukkitPlatformSelectorEntity
   }
 
   protected double getHeightAddition(int lineNumber) {
-    NPCConfigurationEntry entry = this.npcManagement.getApplicableNPCConfigurationEntry();
+    var entry = this.npcManagement.getApplicableNPCConfigurationEntry();
     return entry == null ? lineNumber : entry.getInfoLineDistance() * lineNumber;
   }
 
@@ -452,21 +452,21 @@ public abstract class BukkitPlatformSelectorEntity
     }
 
     private void rebuildInfoLine() {
-      NPC npc = BukkitPlatformSelectorEntity.this.npc;
+      var npc = BukkitPlatformSelectorEntity.this.npc;
       // update based on the tracked services
-      Collection<ServiceItemWrapper> tracked = BukkitPlatformSelectorEntity.this.serviceItems.values();
+      var tracked = BukkitPlatformSelectorEntity.this.serviceItems.values();
       // general info
-      String onlinePlayers = Integer.toString(tracked.stream()
+      var onlinePlayers = Integer.toString(tracked.stream()
         .map(ServiceItemWrapper::getService)
         .mapToInt(snapshot -> BridgeServiceProperties.ONLINE_COUNT.get(snapshot).orElse(0))
         .sum());
-      String maxPlayers = Integer.toString(tracked.stream()
+      var maxPlayers = Integer.toString(tracked.stream()
         .map(ServiceItemWrapper::getService)
         .mapToInt(snapshot -> BridgeServiceProperties.MAX_PLAYERS.get(snapshot).orElse(0))
         .sum());
-      String onlineServers = Integer.toString(tracked.size());
+      var onlineServers = Integer.toString(tracked.size());
       // rebuild the info line
-      String newInfoLine = this.basedInfoLine
+      var newInfoLine = this.basedInfoLine
         .replace("%group%", npc.getTargetGroup()).replace("%g%", npc.getTargetGroup())
         .replace("%online_players%", onlinePlayers).replace("%o_p%", onlinePlayers)
         .replace("%max_players%", maxPlayers).replace("%m_p%", maxPlayers)

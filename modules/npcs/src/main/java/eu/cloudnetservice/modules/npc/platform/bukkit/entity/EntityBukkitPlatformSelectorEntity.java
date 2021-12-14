@@ -84,7 +84,7 @@ public class EntityBukkitPlatformSelectorEntity extends BukkitPlatformSelectorEn
 
   @Override
   protected void spawn0() {
-    EntityType type = EntityType.valueOf(this.npc.getEntityType());
+    var type = EntityType.valueOf(this.npc.getEntityType());
     if (!type.isAlive()) {
       return;
     }
@@ -100,9 +100,9 @@ public class EntityBukkitPlatformSelectorEntity extends BukkitPlatformSelectorEn
     // uhhh nms reflection :(
     try {
       // create a new nbt tag compound
-      Object compound = NEW_NBT.invoke();
+      var compound = NEW_NBT.invoke();
       // get the nms entity
-      Object nmsEntity = GET_HANDLE.invoke(this.entity);
+      var nmsEntity = GET_HANDLE.invoke(this.entity);
       // save the entity data to the compound
       SAVE.invoke(nmsEntity, compound);
       // rewrite NoAi and Silent values
@@ -135,7 +135,7 @@ public class EntityBukkitPlatformSelectorEntity extends BukkitPlatformSelectorEn
 
   @Override
   protected double getHeightAddition(int lineNumber) {
-    double initialAddition = super.getHeightAddition(lineNumber);
+    var initialAddition = super.getHeightAddition(lineNumber);
     return (this.entity.getEyeHeight() - (this.entity instanceof Wither ? 0.4 : 0.55)) + initialAddition;
   }
 }

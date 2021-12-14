@@ -53,8 +53,8 @@ public final class NodeNPCManagement extends AbstractNPCManagement {
 
     // load all existing npcs
     this.database.documentsAsync().onComplete(jsonDocuments -> {
-      for (JsonDocument document : jsonDocuments) {
-        NPC npc = document.toInstanceOf(NPC.class);
+      for (var document : jsonDocuments) {
+        var npc = document.toInstanceOf(NPC.class);
         this.npcs.put(npc.getLocation(), npc);
       }
     });
@@ -117,7 +117,7 @@ public final class NodeNPCManagement extends AbstractNPCManagement {
   @Override
   public int deleteAllNPCs() {
     Set<WorldPosition> positions = new HashSet<>(this.npcs.keySet());
-    for (WorldPosition position : positions) {
+    for (var position : positions) {
       this.npcs.remove(position);
       this.database.delete(getDocumentKey(position));
     }

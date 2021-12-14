@@ -113,7 +113,7 @@ public final class VelocitySyncProxyManagement extends PlatformSyncProxyManageme
   }
 
   private String replaceTabPlaceholder(@NotNull String input, @NotNull Player player) {
-    String server = player.getCurrentServer()
+    var server = player.getCurrentServer()
       .map(serverConnection -> serverConnection.getServerInfo().getName())
       .orElse("");
 

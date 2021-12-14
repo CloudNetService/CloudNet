@@ -58,7 +58,7 @@ public class SpongeChatPlugin {
     try {
       // load the root node
       ConfigurationNode root = loader.load();
-      ConfigurationNode format = root.node("format");
+      var format = root.node("format");
       // check if the format is set
       if (format.virtual()) {
         // set defaults in config
@@ -74,7 +74,7 @@ public class SpongeChatPlugin {
 
   @Listener
   public void handle(@NotNull PlayerChatEvent event, @First @NotNull ServerPlayer player) {
-    String format = ChatFormatter.buildFormat(
+    var format = ChatFormatter.buildFormat(
       player.uniqueId(),
       player.name(),
       LegacyComponentSerializer.legacySection().serialize(player.displayName().get()),

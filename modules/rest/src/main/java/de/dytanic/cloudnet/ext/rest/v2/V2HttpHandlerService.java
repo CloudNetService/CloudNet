@@ -107,7 +107,7 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
 
   protected void handleServiceStateUpdateRequest(IHttpContext context) {
     this.handleWithServiceContext(context, service -> {
-      String targetState = RestUtils.getFirst(context.request().queryParameters().get("target"));
+      var targetState = RestUtils.getFirst(context.request().queryParameters().get("target"));
       if (targetState == null) {
         this.badRequest(context)
           .body(this.failure().append("reason", "Missing target state in query").toString())
@@ -138,7 +138,7 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
 
   protected void handleServiceCommandRequest(IHttpContext context) {
     this.handleWithServiceContext(context, service -> {
-      String commandLine = this.body(context.request()).getString("command");
+      var commandLine = this.body(context.request()).getString("command");
       if (commandLine == null) {
         this.badRequest(context)
           .body(this.failure().append("reason", "Missing command line").toString())
@@ -154,7 +154,7 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
 
   protected void handleIncludeRequest(IHttpContext context) {
     this.handleWithServiceContext(context, service -> {
-      String type = RestUtils.getFirst(context.request().queryParameters().get("type"));
+      var type = RestUtils.getFirst(context.request().queryParameters().get("type"));
       if (type != null) {
         if (type.equalsIgnoreCase("templates")) {
           service.provider().includeWaitingServiceTemplates();
@@ -182,7 +182,7 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
 
   protected void handleDeployResourcesRequest(IHttpContext context) {
     this.handleWithServiceContext(context, service -> {
-      boolean removeDeployments = Boolean
+      var removeDeployments = Boolean
         .getBoolean(RestUtils.getFirst(context.request().queryParameters().get("remove"), "true"));
       service.provider().deployResources(removeDeployments);
 
@@ -201,15 +201,15 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
 
   protected void handleLiveLogRequest(IHttpContext context) {
     this.handleWithServiceContext(context, service -> {
-      ICloudService cloudService = this.getCloudNet().getCloudServiceProvider()
+      var cloudService = this.getCloudNet().getCloudServiceProvider()
         .getLocalCloudService(service.getServiceId().getUniqueId());
       if (cloudService != null) {
-        IWebSocketChannel webSocketChannel = context.upgrade();
+        var webSocketChannel = context.upgrade();
         if (webSocketChannel == null) {
           return;
         }
 
-        ServiceConsoleLineHandler handler = (console, line) -> webSocketChannel
+        var handler = (ServiceConsoleLineHandler) (console, line) -> webSocketChannel
           .sendWebSocketFrame(WebSocketFrameType.TEXT, line);
         cloudService.getServiceConsoleLogCache().addHandler(handler);
 
@@ -227,19 +227,19 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
   }
 
   protected void handleCreateRequest(@NotNull IHttpContext context) {
-    JsonDocument body = this.body(context.request());
+    var body = this.body(context.request());
     // check for a provided service configuration
-    ServiceConfiguration configuration = body.get("serviceConfiguration", ServiceConfiguration.class);
+    var configuration = body.get("serviceConfiguration", ServiceConfiguration.class);
     if (configuration == null) {
       // check for a provided service task
-      ServiceTask serviceTask = body.get("task", ServiceTask.class);
+      var serviceTask = body.get("task", ServiceTask.class);
       if (serviceTask != null) {
         configuration = ServiceConfiguration.builder(serviceTask).build();
       } else {
         // fallback to a service task name which has to exist
-        String serviceTaskName = body.getString("serviceTaskName");
+        var serviceTaskName = body.getString("serviceTaskName");
         if (serviceTaskName != null) {
-          ServiceTask task = this.getCloudNet().getServiceTaskProvider().getServiceTask(serviceTaskName);
+          var task = this.getCloudNet().getServiceTaskProvider().getServiceTask(serviceTaskName);
           if (task != null) {
             configuration = ServiceConfiguration.builder(task).build();
           } else {
@@ -258,9 +258,9 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
       }
     }
 
-    ServiceInfoSnapshot snapshot = this.getServiceFactory().createCloudService(configuration);
+    var snapshot = this.getServiceFactory().createCloudService(configuration);
     if (snapshot != null) {
-      boolean start = body.getBoolean("start", false);
+      var start = body.getBoolean("start", false);
       if (start) {
         snapshot.provider().start();
       }
@@ -281,7 +281,7 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
 
   protected void handleAddRequest(IHttpContext context) {
     this.handleWithServiceContext(context, service -> {
-      String type = RestUtils.getFirst(context.request().queryParameters().get("type"), null);
+      var type = RestUtils.getFirst(context.request().queryParameters().get("type"), null);
       if (type == null) {
         this.badRequest(context)
           .body(this.failure().append("reason", "Missing type in query params").toString())
@@ -289,12 +289,12 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
           .closeAfter(true)
           .cancelNext();
       } else {
-        JsonDocument body = this.body(context.request());
-        boolean flushAfter = Boolean
+        var body = this.body(context.request());
+        var flushAfter = Boolean
           .getBoolean(RestUtils.getFirst(context.request().queryParameters().get("flush"), "false"));
 
         if (type.equalsIgnoreCase("template")) {
-          ServiceTemplate template = body.get("template", ServiceTemplate.class);
+          var template = body.get("template", ServiceTemplate.class);
           if (template == null) {
             this.badRequest(context)
               .body(this.failure().append("reason", "Missing template in body").toString())
@@ -309,7 +309,7 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
             }
           }
         } else if (type.equalsIgnoreCase("deployment")) {
-          ServiceDeployment deployment = body.get("deployment", ServiceDeployment.class);
+          var deployment = body.get("deployment", ServiceDeployment.class);
           if (deployment == null) {
             this.badRequest(context)
               .body(this.failure().append("reason", "Missing deployment in body").toString())
@@ -324,7 +324,7 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
             }
           }
         } else if (type.equalsIgnoreCase("inclusion")) {
-          ServiceRemoteInclusion inclusion = body.get("inclusion", ServiceRemoteInclusion.class);
+          var inclusion = body.get("inclusion", ServiceRemoteInclusion.class);
           if (inclusion == null) {
             this.badRequest(context)
               .body(this.failure().append("reason", "Missing inclusion in body").toString())
@@ -360,7 +360,7 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
   }
 
   protected void handleWithServiceContext(IHttpContext context, Consumer<ServiceInfoSnapshot> handler) {
-    String identifier = context.request().pathParameters().get("identifier");
+    var identifier = context.request().pathParameters().get("identifier");
     if (identifier == null) {
       this.badRequest(context)
         .body(this.failure().append("reason", "Missing service identifier").toString())
@@ -373,7 +373,7 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
     ServiceInfoSnapshot serviceInfoSnapshot;
     try {
       // try to parse a unique id from that
-      UUID serviceId = UUID.fromString(identifier);
+      var serviceId = UUID.fromString(identifier);
       serviceInfoSnapshot = this.getServiceById(serviceId);
     } catch (Exception exception) {
       serviceInfoSnapshot = this.getServiceByName(identifier);
@@ -431,7 +431,7 @@ public class V2HttpHandlerService extends WebSocketAbleV2HttpHandler {
     @Override
     public void handle(IWebSocketChannel channel, WebSocketFrameType type, byte[] bytes) throws Exception {
       if (type == WebSocketFrameType.TEXT) {
-        String commandLine = new String(bytes, StandardCharsets.UTF_8);
+        var commandLine = new String(bytes, StandardCharsets.UTF_8);
         this.service.runCommand(commandLine);
       }
     }

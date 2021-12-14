@@ -27,7 +27,7 @@ final class FallbackLoggingFactory implements LoggerFactory {
 
   @Override
   public @NotNull Logger getLogger(@NotNull String name) {
-    java.util.logging.Logger registered = LogManager.getLogManager().getLogger(name);
+    var registered = LogManager.getLogManager().getLogger(name);
     // check if this logger is already a wrapped logger
     if (registered instanceof Logger) {
       return (Logger) registered;
@@ -36,7 +36,7 @@ final class FallbackLoggingFactory implements LoggerFactory {
     return this.createdLoggers.computeIfAbsent(name, $ -> {
       if (registered == null) {
         // no logger is yet registered to the java log manager - do so
-        java.util.logging.Logger julComputedLoggerInstance = Logger.getLogger(name);
+        var julComputedLoggerInstance = Logger.getLogger(name);
         return new FallbackPassthroughLogger(julComputedLoggerInstance);
       } else {
         // the logger is already there but not in a wrapped form - just wrap it

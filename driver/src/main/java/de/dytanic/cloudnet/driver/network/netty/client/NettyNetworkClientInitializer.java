@@ -39,7 +39,7 @@ public class NettyNetworkClientInitializer extends ChannelInitializer<Channel> {
   @Override
   protected void initChannel(@NotNull Channel channel) {
     if (this.nettyNetworkClient.sslContext != null) {
-      SslHandler handler = this.nettyNetworkClient.sslContext.newHandler(
+      var handler = this.nettyNetworkClient.sslContext.newHandler(
         channel.alloc(),
         this.hostAndPort.getHost(),
         this.hostAndPort.getPort());

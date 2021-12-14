@@ -30,23 +30,23 @@ final class DefaultCommandPreProcessor implements CommandPreprocessor<CommandSou
 
   @Override
   public void accept(@NonNull CommandPreprocessingContext<CommandSource> context) {
-    CommandContext<CommandSource> commandContext = context.getCommandContext();
-    CommandSource source = context.getCommandContext().getSender();
+    var commandContext = context.getCommandContext();
+    var source = context.getCommandContext().getSender();
     // we only process command executions and not the tab complete handling
     if (commandContext.isSuggestions()) {
       return;
     }
 
-    String firstArgument = commandContext.getRawInput().getFirst();
+    var firstArgument = commandContext.getRawInput().getFirst();
 
-    CommandInfo commandInfo = CloudNet.getInstance().getCommandProvider()
+    var commandInfo = CloudNet.getInstance().getCommandProvider()
       .getCommand(firstArgument);
     // if there is no command, the command was unregistered, ignore confirm as the command is not registered.
     if (commandInfo == null && !firstArgument.equalsIgnoreCase("confirm")) {
       return;
     }
 
-    CommandPreProcessEvent preProcessEvent = CloudNet.getInstance().getEventManager()
+    var preProcessEvent = CloudNet.getInstance().getEventManager()
       .callEvent(new CommandPreProcessEvent(commandContext.getRawInputJoined(), source));
     if (preProcessEvent.isCancelled()) {
       ConsumerService.interrupt();

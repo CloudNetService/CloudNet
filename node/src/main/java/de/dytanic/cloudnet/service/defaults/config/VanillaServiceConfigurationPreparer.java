@@ -31,14 +31,14 @@ public class VanillaServiceConfigurationPreparer extends AbstractServiceConfigur
   @Override
   public void configure(@NotNull CloudNet nodeInstance, @NotNull ICloudService cloudService) {
     // copy the default file
-    Path configFile = cloudService.getDirectory().resolve("server.properties");
+    var configFile = cloudService.getDirectory().resolve("server.properties");
     this.copyCompiledFile("files/nms/server.properties", configFile);
     // load the configuration
-    Properties properties = new Properties();
+    var properties = new Properties();
     try {
       // check if we need to update the server.properties
       if (this.shouldRewriteIp(nodeInstance, cloudService)) {
-        try (InputStream stream = Files.newInputStream(configFile)) {
+        try (var stream = Files.newInputStream(configFile)) {
           properties.load(stream);
           // update the configuration
           if (this.shouldRewriteIp(nodeInstance, cloudService)) {
@@ -46,7 +46,7 @@ public class VanillaServiceConfigurationPreparer extends AbstractServiceConfigur
             properties.setProperty("server-port", String.valueOf(cloudService.getServiceConfiguration().getPort()));
           }
           // store the properties
-          try (OutputStream out = Files.newOutputStream(configFile)) {
+          try (var out = Files.newOutputStream(configFile)) {
             properties.store(out, "Minecraft server properties - edited by CloudNet");
           }
         }
@@ -55,7 +55,7 @@ public class VanillaServiceConfigurationPreparer extends AbstractServiceConfigur
       properties.clear();
       properties.setProperty("eula", "true");
       // store the eula.txt
-      try (OutputStream outputStream = Files.newOutputStream(cloudService.getDirectory().resolve("eula.txt"))) {
+      try (var outputStream = Files.newOutputStream(cloudService.getDirectory().resolve("eula.txt"))) {
         properties.store(outputStream, "CloudNet auto eula (https://account.mojang.com/documents/minecraft_eula)");
       }
     } catch (IOException exception) {

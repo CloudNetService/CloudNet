@@ -265,7 +265,7 @@ public class ModuleConfiguration {
    * @return if this module can run on the specified java version.
    */
   public boolean canRunOn(@NotNull JavaVersion javaVersion) {
-    JavaVersion minJavaVersion = this.getMinJavaVersion();
+    var minJavaVersion = this.getMinJavaVersion();
     return minJavaVersion == null || minJavaVersion.isSupportedByMax(javaVersion);
   }
 

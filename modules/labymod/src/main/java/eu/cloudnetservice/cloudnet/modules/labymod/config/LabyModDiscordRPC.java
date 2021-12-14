@@ -50,7 +50,7 @@ public class LabyModDiscordRPC {
   }
 
   public boolean isExcluded(@NotNull ServiceInfoSnapshot serviceInfoSnapshot) {
-    for (String excludedGroup : this.excludedGroups) {
+    for (var excludedGroup : this.excludedGroups) {
       if (serviceInfoSnapshot.getConfiguration().getGroups().contains(excludedGroup)) {
         return true;
       }

@@ -34,7 +34,7 @@ public interface IRegisteredEventListener extends Comparable<IRegisteredEventLis
 
   @Override
   default int compareTo(@NotNull IRegisteredEventListener other) {
-    int compareResult = this.getPriority().compareTo(other.getPriority());
+    var compareResult = this.getPriority().compareTo(other.getPriority());
     return compareResult == 0 ? 1 : compareResult;
   }
 }

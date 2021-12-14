@@ -29,8 +29,8 @@ final class MultipleContentStreamProvider implements ContentStreamProvider {
 
   @Override
   public @Nullable StreamableContent provideContent(@NotNull String path) {
-    for (ContentStreamProvider provider : this.streamProviders) {
-      StreamableContent content = provider.provideContent(path);
+    for (var provider : this.streamProviders) {
+      var content = provider.provideContent(path);
       if (content != null) {
         return content;
       }

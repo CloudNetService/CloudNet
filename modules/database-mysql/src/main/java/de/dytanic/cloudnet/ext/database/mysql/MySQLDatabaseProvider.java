@@ -53,9 +53,9 @@ public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
   @Override
   public boolean init() {
     this.addresses = this.config.get("addresses", CloudNetMySQLDatabaseModule.TYPE);
-    MySQLConnectionEndpoint endpoint = this.addresses.get(new Random().nextInt(this.addresses.size()));
+    var endpoint = this.addresses.get(new Random().nextInt(this.addresses.size()));
 
-    HikariConfig hikariConfig = new HikariConfig();
+    var hikariConfig = new HikariConfig();
 
     hikariConfig.setJdbcUrl(String.format(
       CONNECT_URL_FORMAT,
@@ -77,7 +77,7 @@ public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
     hikariConfig.addDataSourceProperty("elideSetAutoCommits", "true");
     hikariConfig.addDataSourceProperty("maintainTimeStats", "false");
 
-    int maxPoolSize = this.config.getInt("connectionMaxPoolSize");
+    var maxPoolSize = this.config.getInt("connectionMaxPoolSize");
 
     hikariConfig.setMaximumPoolSize(maxPoolSize);
     hikariConfig.setMinimumIdle(Math.min(maxPoolSize, this.config.getInt("connectionMinPoolSize")));
@@ -160,10 +160,10 @@ public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
     Preconditions.checkNotNull(query);
     Preconditions.checkNotNull(objects);
 
-    try (Connection connection = this.getConnection();
-      PreparedStatement preparedStatement = connection.prepareStatement(query)) {
-      int i = 1;
-      for (Object object : objects) {
+    try (var connection = this.getConnection();
+      var preparedStatement = connection.prepareStatement(query)) {
+      var i = 1;
+      for (var object : objects) {
         preparedStatement.setString(i++, object.toString());
       }
 
@@ -183,14 +183,14 @@ public final class MySQLDatabaseProvider extends SQLDatabaseProvider {
     Preconditions.checkNotNull(callback);
     Preconditions.checkNotNull(objects);
 
-    try (Connection connection = this.getConnection();
-      PreparedStatement preparedStatement = connection.prepareStatement(query)) {
-      int i = 1;
-      for (Object object : objects) {
+    try (var connection = this.getConnection();
+      var preparedStatement = connection.prepareStatement(query)) {
+      var i = 1;
+      for (var object : objects) {
         preparedStatement.setString(i++, object.toString());
       }
 
-      try (ResultSet resultSet = preparedStatement.executeQuery()) {
+      try (var resultSet = preparedStatement.executeQuery()) {
         return callback.apply(resultSet);
       }
     } catch (Throwable throwable) {

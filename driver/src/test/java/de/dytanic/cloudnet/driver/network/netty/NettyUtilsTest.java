@@ -48,8 +48,8 @@ public class NettyUtilsTest {
 
   @RepeatedTest(30)
   public void testVarIntCoding() {
-    ByteBuf byteBuf = Unpooled.buffer();
-    int i = ThreadLocalRandom.current().nextInt();
+    var byteBuf = Unpooled.buffer();
+    var i = ThreadLocalRandom.current().nextInt();
 
     try {
       Assertions.assertNotNull(NettyUtils.writeVarInt(byteBuf, i));

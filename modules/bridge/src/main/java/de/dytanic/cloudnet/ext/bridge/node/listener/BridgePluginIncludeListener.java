@@ -40,10 +40,10 @@ public final class BridgePluginIncludeListener {
       && this.management.getConfiguration().getExcludedGroups().stream()
       .noneMatch(group -> event.getService().getServiceConfiguration().getGroups().contains(group))) {
       // get the target of the copy
-      Path plugins = event.getService().getDirectory().resolve("plugins");
+      var plugins = event.getService().getDirectory().resolve("plugins");
       FileUtils.createDirectory(plugins);
       // remove the old bridge plugin
-      Path bridgePluginFile = plugins.resolve("cloudnet-bridge.jar");
+      var bridgePluginFile = plugins.resolve("cloudnet-bridge.jar");
       FileUtils.delete(bridgePluginFile);
       // try to copy the current bridge file
       if (DefaultModuleHelper.copyCurrentModuleInstanceFromClass(BridgePluginIncludeListener.class, bridgePluginFile)) {

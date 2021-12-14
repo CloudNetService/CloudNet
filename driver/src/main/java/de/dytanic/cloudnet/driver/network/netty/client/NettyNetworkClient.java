@@ -88,7 +88,7 @@ public class NettyNetworkClient implements DefaultNetworkComponent, INetworkClie
     Preconditions.checkNotNull(hostAndPort.getHost());
 
     try {
-      Bootstrap bootstrap = new Bootstrap()
+      var bootstrap = new Bootstrap()
         .group(this.eventLoopGroup)
         .channelFactory(NettyUtils.getClientChannelFactory())
         .handler(new NettyNetworkClientInitializer(hostAndPort, this))
@@ -146,25 +146,25 @@ public class NettyNetworkClient implements DefaultNetworkComponent, INetworkClie
   private void init() throws Exception {
     if (this.sslConfiguration != null && this.sslConfiguration.isEnabled()) {
       if (this.sslConfiguration.getCertificatePath() != null && this.sslConfiguration.getPrivateKeyPath() != null) {
-        SslContextBuilder builder = SslContextBuilder.forClient();
+        var builder = SslContextBuilder.forClient();
 
         if (this.sslConfiguration.getTrustCertificatePath() != null) {
-          try (InputStream stream = Files.newInputStream(this.sslConfiguration.getTrustCertificatePath())) {
+          try (var stream = Files.newInputStream(this.sslConfiguration.getTrustCertificatePath())) {
             builder.trustManager(stream);
           }
         } else {
           builder.trustManager(InsecureTrustManagerFactory.INSTANCE);
         }
 
-        try (InputStream cert = Files.newInputStream(this.sslConfiguration.getCertificatePath());
-          InputStream privateKey = Files.newInputStream(this.sslConfiguration.getPrivateKeyPath())) {
+        try (var cert = Files.newInputStream(this.sslConfiguration.getCertificatePath());
+          var privateKey = Files.newInputStream(this.sslConfiguration.getPrivateKeyPath())) {
           this.sslContext = builder
             .keyManager(cert, privateKey)
             .clientAuth(this.sslConfiguration.isClientAuth() ? ClientAuth.REQUIRE : ClientAuth.OPTIONAL)
             .build();
         }
       } else {
-        SelfSignedCertificate selfSignedCertificate = new SelfSignedCertificate();
+        var selfSignedCertificate = new SelfSignedCertificate();
         this.sslContext = SslContextBuilder.forClient()
           .trustManager(InsecureTrustManagerFactory.INSTANCE)
           .keyManager(selfSignedCertificate.certificate(), selfSignedCertificate.privateKey())

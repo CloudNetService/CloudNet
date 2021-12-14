@@ -67,10 +67,10 @@ public final class CloudNetTickListener {
 
   private void handleSmartEntries() {
     CloudNet.getInstance().getServiceTaskProvider().getPermanentServiceTasks().forEach(task -> {
-      SmartServiceTaskConfig config = this.module.getSmartConfig(task);
+      var config = this.module.getSmartConfig(task);
       if (config != null && config.isEnabled()) {
         // get all services of the task
-        Collection<ServiceInfoSnapshot> services = this.getServiceManager().getCloudServicesByTask(task.getName());
+        var services = this.getServiceManager().getCloudServicesByTask(task.getName());
         // get all prepared services
         Collection<ServiceInfoSnapshot> preparedServices = services.stream()
           .filter(service -> service.getLifeCycle() == ServiceLifeCycle.PREPARED)
@@ -80,7 +80,7 @@ public final class CloudNetTickListener {
           .filter(service -> service.getLifeCycle() == ServiceLifeCycle.RUNNING)
           .collect(Collectors.toSet());
         // get all services which are marked as online by the bridge
-        Set<ServiceInfoSnapshot> onlineServices = runningServices.stream()
+        var onlineServices = runningServices.stream()
           .filter(service -> BridgeServiceProperties.IS_ONLINE.get(service).orElse(false))
           .collect(Collectors.toSet());
         // handle all smart entries
@@ -101,12 +101,12 @@ public final class CloudNetTickListener {
       return;
     }
     // go over all online services
-    for (ServiceInfoSnapshot service : onlineServices) {
+    for (var service : onlineServices) {
       // check if the service should be stopped
-      double playerLoad = SmartUtil.getPlayerPercentage(service);
+      var playerLoad = SmartUtil.getPlayerPercentage(service);
       if (playerLoad <= config.getPercentOfPlayersToCheckShouldStopTheService()) {
         // get the auto stop ticker for the service
-        AtomicLong stopTicker = this.autoStopTicks.computeIfAbsent(
+        var stopTicker = this.autoStopTicks.computeIfAbsent(
           service.getServiceId().getUniqueId(), $ -> new AtomicLong(config.getAutoStopTimeByUnusedServiceInSeconds()));
         if (stopTicker.decrementAndGet() <= 0) {
           // stop the service now
@@ -129,7 +129,7 @@ public final class CloudNetTickListener {
     allServices.addAll(runningServices);
     // check the prepared service count now as they don't count to the maximum services
     if (config.getPreparedServices() > preparedServices.size()) {
-      ServiceInfoSnapshot service = this.createService(task, config, allServices);
+      var service = this.createService(task, config, allServices);
       // create only one service per heartbeat
       if (service != null) {
         return;
@@ -142,7 +142,7 @@ public final class CloudNetTickListener {
     // only start services by the smart module if the smart min service count overrides the task min service count
     if (config.getSmartMinServiceCount() > task.getMinServiceCount()
       && config.getSmartMinServiceCount() > runningServices.size()) {
-      ServiceInfoSnapshot service = this.createService(task, config, runningServices);
+      var service = this.createService(task, config, runningServices);
       // check if the service was created successfully and start it
       if (service != null) {
         service.provider().start();
@@ -155,15 +155,15 @@ public final class CloudNetTickListener {
       return;
     }
     // validate that we can start a service now
-    Long nextAutoStartTime = this.autoStartBlocks.get(task.getName());
+    var nextAutoStartTime = this.autoStartBlocks.get(task.getName());
     if (nextAutoStartTime != null && nextAutoStartTime >= System.currentTimeMillis()) {
       return;
     }
     // get the overall player counts
-    double onlinePlayers = onlineServices.stream()
+    var onlinePlayers = onlineServices.stream()
       .mapToDouble(service -> BridgeServiceProperties.ONLINE_COUNT.get(service).orElse(0))
       .sum();
-    double maximumPlayers = onlineServices.stream()
+    var maximumPlayers = onlineServices.stream()
       .mapToDouble(service -> BridgeServiceProperties.MAX_PLAYERS.get(service).orElse(0))
       .sum();
     // check if we can create a percentage count
@@ -171,12 +171,12 @@ public final class CloudNetTickListener {
       return;
     }
     // make the values absolute
-    double absoluteOnline = onlinePlayers / runningServices.size();
-    double absoluteMaximum = maximumPlayers / runningServices.size();
+    var absoluteOnline = onlinePlayers / runningServices.size();
+    var absoluteMaximum = maximumPlayers / runningServices.size();
     // create the percentage
-    double percentage = SmartUtil.getPercentage(absoluteOnline, absoluteMaximum);
+    var percentage = SmartUtil.getPercentage(absoluteOnline, absoluteMaximum);
     if (percentage >= config.getPercentOfPlayersForANewServiceByInstance()) {
-      ServiceInfoSnapshot service = this.createService(task, config, runningServices);
+      var service = this.createService(task, config, runningServices);
       // check if the service was created successfully and start it
       if (service != null) {
         service.provider().start();
@@ -211,7 +211,7 @@ public final class CloudNetTickListener {
       .map(nodeServer -> (NodeServer) nodeServer) // looks stupid but transforms the stream type (we love generics)
       .collect(Collectors.collectingAndThen(Collectors.toSet(), set -> {
         // add the local node to the list if the node is not draining
-        NodeServer local = this.getNodeServerProvider().getSelfNode();
+        var local = this.getNodeServerProvider().getSelfNode();
         if (!local.isDrain()) {
           set.add(local);
         }

@@ -64,8 +64,8 @@ public final class ModuleDependencyUtils {
     Set<IModuleWrapper> rootDependencyNodes = new HashSet<>();
     visitedNodes.add(caller);
     // we iterate over the root layer here to collect the first layer of dependencies of the module
-    for (ModuleDependency dependingModule : caller.getDependingModules()) {
-      IModuleWrapper wrapper = getAssociatedModuleWrapper(dependingModule, moduleProvider, caller);
+    for (var dependingModule : caller.getDependingModules()) {
+      var wrapper = getAssociatedModuleWrapper(dependingModule, moduleProvider, caller);
       // register the module as a root dependency of the calling module
       rootDependencyNodes.add(wrapper);
       // now we visit every dependency of the module giving in a new tree to build
@@ -94,8 +94,8 @@ public final class ModuleDependencyUtils {
     @NotNull IModuleWrapper dependencyHolder,
     @NotNull IModuleProvider moduleProvider
   ) {
-    for (ModuleDependency dependency : dependencies) {
-      IModuleWrapper wrapper = getAssociatedModuleWrapper(dependency, moduleProvider, dependencyHolder);
+    for (var dependency : dependencies) {
+      var wrapper = getAssociatedModuleWrapper(dependency, moduleProvider, dependencyHolder);
       // now verify that there is no circular dependency to the original caller
       Preconditions.checkArgument(
         !wrapper.getModule().getName().equals(originalSource.getModule().getName()),
@@ -124,14 +124,14 @@ public final class ModuleDependencyUtils {
     @NotNull IModuleProvider provider,
     @NotNull IModuleWrapper dependencyHolder
   ) {
-    IModuleWrapper wrapper = provider.getModule(dependency.getName());
+    var wrapper = provider.getModule(dependency.getName());
     // ensure that the wrapper is present
     if (wrapper == null) {
       throw new ModuleDependencyNotFoundException(dependency.getName(), dependencyHolder.getModule().getName());
     }
     // try to make a semver check
-    Matcher dependencyVersion = SEMVER_PATTERN.matcher(dependency.getVersion());
-    Matcher moduleVersion = SEMVER_PATTERN.matcher(wrapper.getModule().getVersion());
+    var dependencyVersion = SEMVER_PATTERN.matcher(dependency.getVersion());
+    var moduleVersion = SEMVER_PATTERN.matcher(wrapper.getModule().getVersion());
     // check if both of the matchers had at least one match
     if (dependencyVersion.matches() && moduleVersion.matches()) {
       // assert that the versions are compatible
@@ -158,8 +158,8 @@ public final class ModuleDependencyUtils {
     @NotNull Matcher moduleVersion
   ) {
     // extract both major versions
-    int moduleMajor = Integer.parseInt(moduleVersion.group(1));
-    int dependencyMajor = Integer.parseInt(dependencyVersion.group(1));
+    var moduleMajor = Integer.parseInt(moduleVersion.group(1));
+    var dependencyMajor = Integer.parseInt(dependencyVersion.group(1));
     // fail if the dependency major is not the actual major as breaking changes may be introduced
     if (dependencyMajor != moduleMajor) {
       throw new ModuleDependencyOutdatedException(requiringModule, dependency, "major", dependencyMajor, moduleMajor);
@@ -167,8 +167,8 @@ public final class ModuleDependencyUtils {
     // check if a minor version is required
     if (dependencyVersion.groupCount() > 1) {
       // extract both minor versions
-      int dependencyMinor = Integer.parseInt(dependencyVersion.group(2));
-      int moduleMinor = moduleVersion.groupCount() == 1 ? 0 : Integer.parseInt(moduleVersion.group(2));
+      var dependencyMinor = Integer.parseInt(dependencyVersion.group(2));
+      var moduleMinor = moduleVersion.groupCount() == 1 ? 0 : Integer.parseInt(moduleVersion.group(2));
       // fail if the dependency minor is higher than the actual major
       if (dependencyMinor > moduleMinor) {
         throw new ModuleDependencyOutdatedException(requiringModule, dependency, "minor", dependencyMinor, moduleMinor);

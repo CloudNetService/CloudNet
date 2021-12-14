@@ -69,7 +69,7 @@ public class MongoDBDatabase extends AbstractDatabase {
   }
 
   protected boolean insertOrUpdate(String key, JsonDocument document) {
-    UpdateResult result = this.collection.updateOne(
+    var result = this.collection.updateOne(
       Filters.eq(KEY_NAME, key),
       Updates.combine(
         Updates.setOnInsert(new Document(KEY_NAME, key)),
@@ -95,14 +95,14 @@ public class MongoDBDatabase extends AbstractDatabase {
 
   @Override
   public JsonDocument get(String key) {
-    Document document = this.collection.find(Filters.eq(KEY_NAME, key)).first();
+    var document = this.collection.find(Filters.eq(KEY_NAME, key)).first();
     return document == null ? null : JsonDocument.newDocument(document.get(VALUE_NAME, Document.class).toJson());
   }
 
   @Override
   public @NotNull List<JsonDocument> get(@NotNull String fieldName, Object fieldValue) {
     List<JsonDocument> documents = new ArrayList<>();
-    try (MongoCursor<Document> cursor = this.collection.find(this.valueEq(fieldName, fieldValue)).iterator()) {
+    try (var cursor = this.collection.find(this.valueEq(fieldName, fieldValue)).iterator()) {
       while (cursor.hasNext()) {
         documents.add(JsonDocument.newDocument(cursor.next().get(VALUE_NAME, Document.class).toJson()));
       }
@@ -113,13 +113,13 @@ public class MongoDBDatabase extends AbstractDatabase {
   @Override
   public @NotNull List<JsonDocument> get(@NotNull JsonDocument filters) {
     Collection<Bson> bsonFilters = new ArrayList<>();
-    for (String filter : filters) {
-      Object value = filters.get(filter);
+    for (var filter : filters) {
+      var value = filters.get(filter);
       bsonFilters.add(this.valueEq(filter, value));
     }
 
     List<JsonDocument> documents = new ArrayList<>();
-    try (MongoCursor<Document> cursor = this.collection.find(Filters.and(bsonFilters)).iterator()) {
+    try (var cursor = this.collection.find(Filters.and(bsonFilters)).iterator()) {
       while (cursor.hasNext()) {
         documents.add(JsonDocument.newDocument(cursor.next().get(VALUE_NAME, Document.class).toJson()));
       }
@@ -130,7 +130,7 @@ public class MongoDBDatabase extends AbstractDatabase {
   @Override
   public @NotNull Collection<String> keys() {
     Collection<String> keys = new ArrayList<>();
-    try (MongoCursor<Document> cursor = this.collection.find().iterator()) {
+    try (var cursor = this.collection.find().iterator()) {
       while (cursor.hasNext()) {
         keys.add(cursor.next().getString(KEY_NAME));
       }
@@ -141,7 +141,7 @@ public class MongoDBDatabase extends AbstractDatabase {
   @Override
   public @NotNull Collection<JsonDocument> documents() {
     Collection<JsonDocument> documents = new ArrayList<>();
-    try (MongoCursor<Document> cursor = this.collection.find().iterator()) {
+    try (var cursor = this.collection.find().iterator()) {
       while (cursor.hasNext()) {
         documents.add(JsonDocument.newDocument(cursor.next().get(VALUE_NAME, Document.class).toJson()));
       }
@@ -157,11 +157,11 @@ public class MongoDBDatabase extends AbstractDatabase {
   @Override
   public @NotNull Map<String, JsonDocument> filter(@NotNull BiPredicate<String, JsonDocument> predicate) {
     Map<String, JsonDocument> entries = new HashMap<>();
-    try (MongoCursor<Document> cursor = this.collection.find().iterator()) {
+    try (var cursor = this.collection.find().iterator()) {
       while (cursor.hasNext()) {
-        Document document = cursor.next();
-        String key = document.getString(KEY_NAME);
-        JsonDocument value = JsonDocument.newDocument(document.get(VALUE_NAME, Document.class).toJson());
+        var document = cursor.next();
+        var key = document.getString(KEY_NAME);
+        var value = JsonDocument.newDocument(document.get(VALUE_NAME, Document.class).toJson());
 
         if (predicate.test(key, value)) {
           entries.put(key, value);
@@ -194,11 +194,11 @@ public class MongoDBDatabase extends AbstractDatabase {
   @Override
   public @Nullable Map<String, JsonDocument> readChunk(long beginIndex, int chunkSize) {
     Map<String, JsonDocument> result = new HashMap<>();
-    try (MongoCursor<Document> cursor = this.collection.find().skip((int) beginIndex).limit(chunkSize).iterator()) {
+    try (var cursor = this.collection.find().skip((int) beginIndex).limit(chunkSize).iterator()) {
       while (cursor.hasNext()) {
-        Document document = cursor.next();
-        String key = document.getString(KEY_NAME);
-        JsonDocument value = JsonDocument.newDocument(document.get(VALUE_NAME, Document.class).toJson());
+        var document = cursor.next();
+        var key = document.getString(KEY_NAME);
+        var value = JsonDocument.newDocument(document.get(VALUE_NAME, Document.class).toJson());
 
         result.put(key, value);
       }

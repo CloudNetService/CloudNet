@@ -28,7 +28,7 @@ final class UUIDUtil {
   }
 
   public static @NotNull UUID parseFromString(@NotNull String id) {
-    UUID result = parseFromStringOrNull(id);
+    var result = parseFromStringOrNull(id);
     Objects.requireNonNull(result, "Identifier \"" + id + "\" is not a valid unique id");
     return result;
   }

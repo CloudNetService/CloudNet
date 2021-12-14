@@ -40,15 +40,15 @@ final class TemplateFileDeployCallback implements Callback {
     @NotNull InputStream dataInput
   ) throws IOException {
     // read the information
-    String storageName = information.getTransferInformation().readString();
-    ServiceTemplate template = information.getTransferInformation().readObject(ServiceTemplate.class);
-    String path = information.getTransferInformation().readString();
-    boolean append = information.getTransferInformation().readBoolean();
+    var storageName = information.getTransferInformation().readString();
+    var template = information.getTransferInformation().readObject(ServiceTemplate.class);
+    var path = information.getTransferInformation().readString();
+    var append = information.getTransferInformation().readBoolean();
     // get the storage for the template
-    TemplateStorage storage = CloudNet.getInstance().getTemplateStorage(storageName);
+    var storage = CloudNet.getInstance().getTemplateStorage(storageName);
     if (storage != null) {
       // open the stream and write the data to it
-      try (OutputStream out = append
+      try (var out = append
         ? storage.appendOutputStream(template, path)
         : storage.newOutputStream(template, path)
       ) {

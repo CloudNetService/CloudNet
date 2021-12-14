@@ -52,9 +52,9 @@ public class WrapperPermissionManagement extends DefaultCachedPermissionManageme
 
   @Override
   public void init() {
-    Collection<PermissionGroup> groups = this.loadGroups();
+    var groups = this.loadGroups();
     if (!groups.isEmpty()) {
-      for (PermissionGroup group : groups) {
+      for (var group : groups) {
         this.permissionGroupCache.put(group.getName(), group);
       }
     }
@@ -72,12 +72,12 @@ public class WrapperPermissionManagement extends DefaultCachedPermissionManageme
     boolean success = this.rpcSender.invokeMethod("reload").fireSync();
 
     if (success) {
-      Collection<PermissionGroup> permissionGroups = this.loadGroups();
+      var permissionGroups = this.loadGroups();
 
       this.permissionGroupLocks.clear();
       this.permissionGroupCache.invalidateAll();
 
-      for (PermissionGroup group : permissionGroups) {
+      for (var group : permissionGroups) {
         this.permissionGroupCache.put(group.getName(), group);
       }
     }
@@ -146,7 +146,7 @@ public class WrapperPermissionManagement extends DefaultCachedPermissionManageme
 
   @Override
   public boolean containsUser(@NotNull UUID uniqueId) {
-    PermissionUser permissionUser = this.permissionUserCache.getIfPresent(uniqueId);
+    var permissionUser = this.permissionUserCache.getIfPresent(uniqueId);
     if (permissionUser != null) {
       return true;
     }
@@ -156,7 +156,7 @@ public class WrapperPermissionManagement extends DefaultCachedPermissionManageme
 
   @Override
   public boolean containsOneUser(@NotNull String name) {
-    for (PermissionUser permissionUser : this.permissionUserCache.asMap().values()) {
+    for (var permissionUser : this.permissionUserCache.asMap().values()) {
       if (permissionUser.getName().equals(name)) {
         return true;
       }
@@ -167,7 +167,7 @@ public class WrapperPermissionManagement extends DefaultCachedPermissionManageme
 
   @Override
   public @Nullable PermissionUser getUser(@NotNull UUID uniqueId) {
-    PermissionUser permissionUser = this.permissionUserCache.getIfPresent(uniqueId);
+    var permissionUser = this.permissionUserCache.getIfPresent(uniqueId);
     if (permissionUser != null) {
       return permissionUser;
     }
@@ -180,7 +180,7 @@ public class WrapperPermissionManagement extends DefaultCachedPermissionManageme
 
   @Override
   public @NotNull PermissionUser getOrCreateUser(@NotNull UUID uniqueId, @NotNull String name) {
-    PermissionUser permissionUser = this.permissionUserCache.getIfPresent(uniqueId);
+    var permissionUser = this.permissionUserCache.getIfPresent(uniqueId);
     if (permissionUser != null) {
       return permissionUser;
     }
@@ -248,7 +248,7 @@ public class WrapperPermissionManagement extends DefaultCachedPermissionManageme
 
   @Override
   public PermissionUser getFirstUser(String name) {
-    for (PermissionUser permissionUser : this.permissionUserCache.asMap().values()) {
+    for (var permissionUser : this.permissionUserCache.asMap().values()) {
       if (permissionUser.getName().equals(name)) {
         return permissionUser;
       }

@@ -53,8 +53,8 @@ public abstract class AbstractSubjectCollection implements SubjectCollection {
     return CompletableFuture.supplyAsync(() -> {
       Map<String, Subject> result = new HashMap<>();
       // load only one subject at a time
-      for (String s : identifiers) {
-        Subject subject = this.loadSubject(s).join();
+      for (var s : identifiers) {
+        var subject = this.loadSubject(s).join();
         if (subject != null) {
           result.put(s, subject);
         }

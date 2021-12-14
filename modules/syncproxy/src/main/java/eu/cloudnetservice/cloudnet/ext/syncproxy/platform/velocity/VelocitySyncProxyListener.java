@@ -44,16 +44,16 @@ public final class VelocitySyncProxyListener {
 
   @Subscribe
   public void handleProxyPing(@NotNull ProxyPingEvent event) {
-    SyncProxyLoginConfiguration loginConfiguration = this.syncProxyManagement.getCurrentLoginConfiguration();
+    var loginConfiguration = this.syncProxyManagement.getCurrentLoginConfiguration();
     // check if we need to handle the proxy ping on this proxy instance
     if (loginConfiguration == null) {
       return;
     }
 
-    SyncProxyMotd motd = this.syncProxyManagement.getRandomMotd();
+    var motd = this.syncProxyManagement.getRandomMotd();
     // only display a motd if there is one in the config
     if (motd != null) {
-      int onlinePlayers = this.syncProxyManagement.getOnlinePlayerCount();
+      var onlinePlayers = this.syncProxyManagement.getOnlinePlayerCount();
       int maxPlayers;
 
       if (motd.isAutoSlot()) {
@@ -62,14 +62,14 @@ public final class VelocitySyncProxyListener {
         maxPlayers = loginConfiguration.getMaxPlayers();
       }
 
-      String protocolText = motd.format(motd.getProtocolText(), onlinePlayers, maxPlayers);
-      Version version = event.getPing().getVersion();
+      var protocolText = motd.format(motd.getProtocolText(), onlinePlayers, maxPlayers);
+      var version = event.getPing().getVersion();
       // check if a protocol text is specified in the config
       if (protocolText != null) {
         version = new Version(1, protocolText);
       }
 
-      ServerPing.Builder builder = ServerPing.builder()
+      var builder = ServerPing.builder()
         .version(version)
         .onlinePlayers(onlinePlayers)
         .maximumPlayers(maxPlayers)
@@ -92,19 +92,19 @@ public final class VelocitySyncProxyListener {
 
   @Subscribe
   public void handlePlayerLogin(@NotNull LoginEvent event) {
-    SyncProxyLoginConfiguration loginConfiguration = this.syncProxyManagement.getCurrentLoginConfiguration();
+    var loginConfiguration = this.syncProxyManagement.getCurrentLoginConfiguration();
     if (loginConfiguration == null) {
       return;
     }
 
-    Player player = event.getPlayer();
+    var player = event.getPlayer();
 
     if (loginConfiguration.isMaintenance()) {
       // the player is either whitelisted or has the permission to join during maintenance, ignore him
       if (this.syncProxyManagement.checkPlayerMaintenance(player)) {
         return;
       }
-      Component reason = serialize(
+      var reason = serialize(
         this.syncProxyManagement.getConfiguration().getMessage("player-login-not-whitelisted", null));
       event.setResult(ComponentResult.denied(reason));
       return;
@@ -112,7 +112,7 @@ public final class VelocitySyncProxyListener {
     // check if the proxy is full and if the player is allowed to join or not
     if (this.syncProxyManagement.getOnlinePlayerCount() >= loginConfiguration.getMaxPlayers()
       && !player.hasPermission("cloudnet.syncproxy.fulljoin")) {
-      Component reason = serialize(
+      var reason = serialize(
         this.syncProxyManagement.getConfiguration().getMessage("player-login-full-server", null));
       event.setResult(ComponentResult.denied(reason));
     }

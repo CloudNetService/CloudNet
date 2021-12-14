@@ -99,7 +99,7 @@ public final class JLine3Console implements IConsole {
   public void startAnimation(@NotNull AbstractConsoleAnimation animation) {
     animation.setConsole(this);
 
-    UUID uniqueId = UUID.randomUUID();
+    var uniqueId = UUID.randomUUID();
     this.runningAnimations.put(uniqueId, animation);
 
     this.animationThreadPool.execute(() -> {
@@ -130,7 +130,7 @@ public final class JLine3Console implements IConsole {
   @Override
   public @NotNull Collection<String> getCommandHistory() {
     List<String> result = new ArrayList<>();
-    for (History.Entry entry : this.lineReader.getHistory()) {
+    for (var entry : this.lineReader.getHistory()) {
       result.add(entry.line());
     }
 
@@ -146,7 +146,7 @@ public final class JLine3Console implements IConsole {
     }
 
     if (history != null) {
-      for (String s : history) {
+      for (var s : history) {
         this.lineReader.getHistory().add(s);
       }
     }
@@ -253,7 +253,7 @@ public final class JLine3Console implements IConsole {
 
     this.print(Ansi.ansi().eraseLine(Ansi.Erase.ALL).toString() + '\r' + text + Ansi.ansi().reset().toString());
     if (!this.runningAnimations.isEmpty()) {
-      for (AbstractConsoleAnimation animation : this.runningAnimations.values()) {
+      for (var animation : this.runningAnimations.values()) {
         animation.addToCursor(1);
       }
     }
@@ -339,9 +339,9 @@ public final class JLine3Console implements IConsole {
 
   @Override
   public int getDisplayLength(@NotNull String string) {
-    int result = 0;
+    var result = 0;
     // count for the length of each char in the string
-    for (int i = 0; i < string.length(); i++) {
+    for (var i = 0; i < string.length(); i++) {
       result += Math.max(WCWidth.wcwidth(string.charAt(i)), 0);
     }
     return result;
@@ -469,12 +469,12 @@ public final class JLine3Console implements IConsole {
     }
 
     public @NotNull InternalLineReader build() {
-      InternalLineReader reader = new InternalLineReader(this.terminal, "CloudNet-Console", this.variables);
+      var reader = new InternalLineReader(this.terminal, "CloudNet-Console", this.variables);
       if (this.completer != null) {
         reader.setCompleter(this.completer);
       }
 
-      for (Map.Entry<LineReader.Option, Boolean> e : this.options.entrySet()) {
+      for (var e : this.options.entrySet()) {
         reader.option(e.getKey(), e.getValue());
       }
 

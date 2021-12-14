@@ -79,7 +79,7 @@ public class DefaultQueryPacketManager implements QueryPacketManager {
 
   @Override
   public @Nullable CompletableTask<IPacket> getWaitingHandler(@NotNull UUID queryUniqueId) {
-    CompletableTask<IPacket> task = this.waitingHandlers.getIfPresent(queryUniqueId);
+    var task = this.waitingHandlers.getIfPresent(queryUniqueId);
     if (task != null) {
       this.waitingHandlers.invalidate(queryUniqueId);
     }
@@ -94,7 +94,7 @@ public class DefaultQueryPacketManager implements QueryPacketManager {
   @Override
   public @NotNull CompletableTask<IPacket> sendQueryPacket(@NotNull IPacket packet, @NotNull UUID queryUniqueId) {
     // create & register the result handler
-    CompletableTask<IPacket> task = new CompletableTask<>();
+    var task = new CompletableTask<IPacket>();
     this.waitingHandlers.put(queryUniqueId, task);
     // set the unique id of the packet and send
     packet.setUniqueId(queryUniqueId);

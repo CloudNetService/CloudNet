@@ -38,7 +38,7 @@ public class DefaultEventManager implements IEventManager {
 
   @Override
   public @NotNull IEventManager unregisterListeners(@NotNull ClassLoader classLoader) {
-    for (Entry<Class<?>, IRegisteredEventListener> entry : this.listeners.entries()) {
+    for (var entry : this.listeners.entries()) {
       if (entry.getValue().getInstance().getClass().getClassLoader().equals(classLoader)) {
         this.listeners.remove(entry.getKey(), entry.getValue());
       }
@@ -49,7 +49,7 @@ public class DefaultEventManager implements IEventManager {
 
   @Override
   public @NotNull IEventManager unregisterListener(Object @NotNull ... listeners) {
-    for (Entry<Class<?>, IRegisteredEventListener> entry : this.listeners.entries()) {
+    for (var entry : this.listeners.entries()) {
       if (Arrays.stream(listeners).anyMatch(instance -> instance.equals(entry.getValue().getInstance()))) {
         this.listeners.remove(entry.getKey(), entry.getValue());
       }
@@ -61,21 +61,21 @@ public class DefaultEventManager implements IEventManager {
   @Override
   public <T extends Event> @NotNull T callEvent(@NotNull String channel, @NotNull T event) {
     // get all registered listeners of the event
-    List<IRegisteredEventListener> listeners = this.listeners.get(event.getClass());
+    var listeners = this.listeners.get(event.getClass());
     if (!listeners.isEmpty()) {
       // check if there is only one listener
       if (listeners.size() == 1) {
-        IRegisteredEventListener listener = listeners.get(0);
+        var listener = listeners.get(0);
         // check if the event gets called on the same channel as the listener is listening to
         if (listener.getChannel().equals(channel)) {
           listener.fireEvent(event);
         }
       } else {
         // workaround to sort the list to keep concurrency (Collections.sort isn't working here)
-        IRegisteredEventListener[] targets = listeners.toArray(new IRegisteredEventListener[0]);
+        var targets = listeners.toArray(new IRegisteredEventListener[0]);
         Arrays.sort(targets);
         // post the event to the listeners
-        for (IRegisteredEventListener listener : targets) {
+        for (var listener : targets) {
           // check if the event gets called on the same channel as the listener is listening to
           if (listener.getChannel().equals(channel)) {
             listener.fireEvent(event);
@@ -90,12 +90,12 @@ public class DefaultEventManager implements IEventManager {
   @Override
   public @NotNull IEventManager registerListener(@NotNull Object listener) {
     // get all methods of the listener
-    for (Method method : listener.getClass().getDeclaredMethods()) {
+    for (var method : listener.getClass().getDeclaredMethods()) {
       // check if the method can be used
-      EventListener annotation = method.getAnnotation(EventListener.class);
+      var annotation = method.getAnnotation(EventListener.class);
       if (annotation != null && method.getParameterCount() == 1) {
         // check the parameter type
-        Class<?> eventClass = method.getParameterTypes()[0];
+        var eventClass = method.getParameterTypes()[0];
         if (!Event.class.isAssignableFrom(eventClass)) {
           throw new IllegalStateException(String.format(
             "Parameter type %s (index 0) of listener method %s in %s is not a subclass of Event",

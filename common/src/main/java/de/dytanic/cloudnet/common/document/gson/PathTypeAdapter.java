@@ -38,7 +38,7 @@ final class PathTypeAdapter extends TypeAdapter<Path> {
 
   @Override
   public @Nullable Path read(JsonReader in) throws IOException {
-    String path = TypeAdapters.STRING.read(in);
+    var path = TypeAdapters.STRING.read(in);
     return path == null ? null : Paths.get(path);
   }
 }

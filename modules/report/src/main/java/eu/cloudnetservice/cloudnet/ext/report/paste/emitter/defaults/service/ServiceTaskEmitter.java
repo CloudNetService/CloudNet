@@ -27,8 +27,8 @@ public class ServiceTaskEmitter implements ReportDataEmitter<ICloudService> {
 
   @Override
   public void emitData(StringBuilder builder, ICloudService service) {
-    ServiceTaskProvider taskProvider = CloudNet.getInstance().getServiceTaskProvider();
-    ServiceTask serviceTask = taskProvider.getServiceTask(service.getServiceId().getTaskName());
+    var taskProvider = CloudNet.getInstance().getServiceTaskProvider();
+    var serviceTask = taskProvider.getServiceTask(service.getServiceId().getTaskName());
     if (serviceTask == null) {
       return;
     }

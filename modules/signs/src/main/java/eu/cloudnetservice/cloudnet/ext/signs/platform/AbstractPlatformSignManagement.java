@@ -72,7 +72,7 @@ public abstract class AbstractPlatformSignManagement<T> extends PlatformSignMana
   }
 
   protected static @Nullable SignsConfiguration loadSignsConfiguration() {
-    ChannelMessage response = ChannelMessage.builder()
+    var response = ChannelMessage.builder()
       .channel(SIGN_CHANNEL_NAME)
       .message(REQUEST_CONFIG)
       .targetNode(Wrapper.getInstance().getNodeUniqueId())
@@ -97,7 +97,7 @@ public abstract class AbstractPlatformSignManagement<T> extends PlatformSignMana
 
   @Override
   public int deleteAllSigns(@NotNull String group, @Nullable String templatePath) {
-    ChannelMessage response = this.channelMessage(SIGN_BULK_DELETE)
+    var response = this.channelMessage(SIGN_BULK_DELETE)
       .buffer(DataBuf.empty().writeString(group).writeNullable(templatePath, Mutable::writeString))
       .build().sendSingleQuery();
     return response == null ? 0 : response.getContent().readInt();
@@ -121,7 +121,7 @@ public abstract class AbstractPlatformSignManagement<T> extends PlatformSignMana
   @Override
   public void handleServiceUpdate(@NotNull ServiceInfoSnapshot snapshot) {
     if (this.shouldAssign(snapshot)) {
-      Sign handlingSign = this.getSignOf(snapshot);
+      var handlingSign = this.getSignOf(snapshot);
       if (handlingSign == null) {
         handlingSign = this.getNextFreeSign(snapshot);
         // in all cases we need to remove the old waiting assignment
@@ -140,7 +140,7 @@ public abstract class AbstractPlatformSignManagement<T> extends PlatformSignMana
   @Override
   public void handleServiceRemove(@NotNull ServiceInfoSnapshot snapshot) {
     if (this.shouldAssign(snapshot)) {
-      Sign handlingSign = this.getSignOf(snapshot);
+      var handlingSign = this.getSignOf(snapshot);
       if (handlingSign != null) {
         handlingSign.setCurrentTarget(null);
         this.updateSign(handlingSign);
@@ -155,7 +155,7 @@ public abstract class AbstractPlatformSignManagement<T> extends PlatformSignMana
     if (sign.getCurrentTarget() == null) {
       return false;
     } else {
-      ServiceInfoState state = BridgeServiceHelper.guessStateFromServiceInfoSnapshot(sign.getCurrentTarget());
+      var state = BridgeServiceHelper.guessStateFromServiceInfoSnapshot(sign.getCurrentTarget());
       return state == ServiceInfoState.EMPTY_ONLINE
         || state == ServiceInfoState.ONLINE
         || state == ServiceInfoState.FULL_ONLINE;
@@ -187,7 +187,7 @@ public abstract class AbstractPlatformSignManagement<T> extends PlatformSignMana
       this.startKnockbackTask();
 
       CloudNetDriver.getInstance().getCloudServiceProvider().getCloudServicesAsync().onComplete(services -> {
-        for (ServiceInfoSnapshot service : services) {
+        for (var service : services) {
           this.handleServiceAdd(service);
         }
       });
@@ -197,7 +197,7 @@ public abstract class AbstractPlatformSignManagement<T> extends PlatformSignMana
   @Override
   public void handleInternalSignRemove(@NotNull WorldPosition position) {
     if (Wrapper.getInstance().getServiceConfiguration().getGroups().contains(position.getGroup())) {
-      Sign sign = this.getSignAt(position);
+      var sign = this.getSignAt(position);
       if (sign != null && sign.getCurrentTarget() != null) {
         this.waitingAssignments.add(sign.getCurrentTarget());
       }
@@ -207,10 +207,10 @@ public abstract class AbstractPlatformSignManagement<T> extends PlatformSignMana
   }
 
   protected @NotNull String[] replaceLines(@NotNull Sign sign, @NotNull SignLayout layout) {
-    String[] lines = layout.getLines();
+    var lines = layout.getLines();
     if (lines != null && lines.length == 4) {
-      String[] replacedLines = new String[4];
-      for (int i = 0; i < 4; i++) {
+      var replacedLines = new String[4];
+      for (var i = 0; i < 4; i++) {
         replacedLines[i] = BridgeServiceHelper.fillCommonPlaceholders(
           lines[i],
           sign.getTargetGroup(),
@@ -222,8 +222,8 @@ public abstract class AbstractPlatformSignManagement<T> extends PlatformSignMana
   }
 
   protected boolean shouldAssign(@NotNull ServiceInfoSnapshot snapshot) {
-    ServiceEnvironmentType currentEnv = Wrapper.getInstance().getServiceId().getEnvironment();
-    ServiceEnvironmentType serviceEnv = snapshot.getServiceId().getEnvironment();
+    var currentEnv = Wrapper.getInstance().getServiceId().getEnvironment();
+    var serviceEnv = snapshot.getServiceId().getEnvironment();
 
     return (JAVA_SERVER.get(currentEnv.getProperties()) && JAVA_SERVER.get(serviceEnv.getProperties()))
       || PE_SERVER.get(currentEnv.getProperties()) && PE_SERVER.get(serviceEnv.getProperties());
@@ -231,7 +231,7 @@ public abstract class AbstractPlatformSignManagement<T> extends PlatformSignMana
 
   protected void tryAssign(@NotNull ServiceInfoSnapshot snapshot) {
     // check if the service is already assigned to a sign
-    Sign sign = this.getSignOf(snapshot);
+    var sign = this.getSignOf(snapshot);
     if (sign == null) {
       // check if there is a free sign to handle the service
       sign = this.getNextFreeSign(snapshot);
@@ -247,7 +247,7 @@ public abstract class AbstractPlatformSignManagement<T> extends PlatformSignMana
   }
 
   protected boolean checkTemplatePath(@NotNull ServiceInfoSnapshot snapshot, @NotNull Sign sign) {
-    for (ServiceTemplate template : snapshot.getConfiguration().getTemplates()) {
+    for (var template : snapshot.getConfiguration().getTemplates()) {
       if (template.toString().equals(sign.getTemplatePath())) {
         return true;
       }
@@ -256,7 +256,7 @@ public abstract class AbstractPlatformSignManagement<T> extends PlatformSignMana
   }
 
   protected void updateSign(@NotNull Sign sign) {
-    SignConfigurationEntry ownEntry = this.getApplicableSignConfigurationEntry();
+    var ownEntry = this.getApplicableSignConfigurationEntry();
     if (ownEntry != null) {
       this.pushUpdate(sign, LayoutUtil.getLayout(ownEntry, sign, sign.getCurrentTarget()));
     } else {
@@ -268,10 +268,10 @@ public abstract class AbstractPlatformSignManagement<T> extends PlatformSignMana
   protected void tick(@NotNull Map<SignLayoutsHolder, Set<Sign>> signsNeedingTicking) {
     this.currentTick.incrementAndGet();
 
-    SignConfigurationEntry ownEntry = this.getApplicableSignConfigurationEntry();
+    var ownEntry = this.getApplicableSignConfigurationEntry();
     if (ownEntry != null) {
-      for (Sign value : this.signs.values()) {
-        SignLayoutsHolder holder = LayoutUtil.getLayoutHolder(ownEntry, value, value.getCurrentTarget());
+      for (var value : this.signs.values()) {
+        var holder = LayoutUtil.getLayoutHolder(ownEntry, value, value.getCurrentTarget());
         if (holder.hasLayouts() && holder.getAnimationsPerSecond() > 0
           && (this.currentTick.get() % 20) % Math.round(20D / holder.getAnimationsPerSecond()) == 0) {
           holder.tick().enableTickBlock();
@@ -279,15 +279,15 @@ public abstract class AbstractPlatformSignManagement<T> extends PlatformSignMana
         }
       }
 
-      for (Map.Entry<SignLayoutsHolder, Set<Sign>> entry : signsNeedingTicking.entrySet()) {
+      for (var entry : signsNeedingTicking.entrySet()) {
         this.pushUpdates(ImmutableSet.copyOf(entry.getValue()), entry.getKey().releaseTickBlock().getCurrentLayout());
         // remove updated sign from the map
         entry.getValue().clear();
       }
 
       if (!this.waitingAssignments.isEmpty()) {
-        for (ServiceInfoSnapshot waitingAssignment : this.waitingAssignments) {
-          Sign freeSign = this.getNextFreeSign(waitingAssignment);
+        for (var waitingAssignment : this.waitingAssignments) {
+          var freeSign = this.getNextFreeSign(waitingAssignment);
           if (freeSign != null) {
             this.waitingAssignments.remove(waitingAssignment);
 
@@ -300,12 +300,12 @@ public abstract class AbstractPlatformSignManagement<T> extends PlatformSignMana
   }
 
   protected @Nullable Sign getNextFreeSign(@NotNull ServiceInfoSnapshot snapshot) {
-    SignConfigurationEntry entry = this.getApplicableSignConfigurationEntry();
-    int servicePriority = PriorityUtil.getPriority(snapshot, entry);
+    var entry = this.getApplicableSignConfigurationEntry();
+    var servicePriority = PriorityUtil.getPriority(snapshot, entry);
 
     synchronized (this) {
       Sign bestChoice = null;
-      for (Sign sign : this.signs.values()) {
+      for (var sign : this.signs.values()) {
         if (snapshot.getConfiguration().getGroups().contains(sign.getTargetGroup())
           && (sign.getTemplatePath() == null || this.checkTemplatePath(snapshot, sign))) {
           // the service could be assigned to the sign
@@ -315,8 +315,8 @@ public abstract class AbstractPlatformSignManagement<T> extends PlatformSignMana
             break;
           } else {
             // get the priority depending if we found a sign yet
-            int signPriority = sign.getPriority(entry);
-            int priority = bestChoice == null ? servicePriority : bestChoice.getPriority(entry);
+            var signPriority = sign.getPriority(entry);
+            var priority = bestChoice == null ? servicePriority : bestChoice.getPriority(entry);
             // check if the service/sign we found has a higher priority than the sign
             if (priority > signPriority) {
               // yes it has, use the sign with the lower priority
@@ -345,7 +345,7 @@ public abstract class AbstractPlatformSignManagement<T> extends PlatformSignMana
   }
 
   protected @Nullable Sign getSignOf(@NotNull ServiceInfoSnapshot snapshot) {
-    for (Sign value : this.signs.values()) {
+    for (var value : this.signs.values()) {
       if (value.getCurrentTarget() != null && value.getCurrentTarget().getName().equals(snapshot.getName())) {
         return value;
       }

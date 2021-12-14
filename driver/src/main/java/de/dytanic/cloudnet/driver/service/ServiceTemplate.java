@@ -82,15 +82,15 @@ public class ServiceTemplate implements INameable, Comparable<ServiceTemplate>, 
    */
   public static @Nullable ServiceTemplate parse(@NotNull String template) {
     // check if the template contains a storage-name splitter
-    String[] parts = template.split(":");
+    var parts = template.split(":");
     if (parts.length == 0 || parts.length > 2) {
       return null;
     }
     // read the storage and name path
-    String path = parts.length == 2 ? parts[1] : parts[0];
-    String storage = parts.length == 2 ? parts[0] : "local";
+    var path = parts.length == 2 ? parts[1] : parts[0];
+    var storage = parts.length == 2 ? parts[0] : "local";
     // validate the name path
-    String[] splitPath = path.split("/");
+    var splitPath = path.split("/");
     if (splitPath.length != 2) {
       return null;
     }
@@ -168,7 +168,7 @@ public class ServiceTemplate implements INameable, Comparable<ServiceTemplate>, 
    * @return a new instance of the {@link SpecificTemplateStorage} or null if the storage doesn't exist
    */
   public @Nullable SpecificTemplateStorage knownStorage() {
-    TemplateStorage storage = CloudNetDriver.getInstance().getTemplateStorage(this.storage);
+    var storage = CloudNetDriver.getInstance().getTemplateStorage(this.storage);
     return storage != null ? SpecificTemplateStorage.of(this, storage) : null;
   }
 

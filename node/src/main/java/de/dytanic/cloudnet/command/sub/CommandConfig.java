@@ -42,7 +42,7 @@ public final class CommandConfig {
 
   @Parser(name = "ip")
   public String ipParser(CommandContext<CommandSource> $, Queue<String> input) {
-    String address = input.remove();
+    var address = input.remove();
 
     if (!InetAddresses.isInetAddress(address)) {
       throw new ArgumentNotAvailableException(I18n.trans("command-node-ip-invalid"));
@@ -68,7 +68,7 @@ public final class CommandConfig {
 
   @CommandMethod("config node add ip <ip>")
   public void addIpWhitelist(CommandSource source, @Argument(value = "ip", parserName = "ip") String ip) {
-    Collection<String> ipWhitelist = this.nodeConfig().getIpWhitelist();
+    var ipWhitelist = this.nodeConfig().getIpWhitelist();
     // check if the collection changes after we add the ip
     if (ipWhitelist.add(ip)) {
       // update the config as we have a change
@@ -81,7 +81,7 @@ public final class CommandConfig {
 
   @CommandMethod("config node remove ip <ip>")
   public void removeIpWhitelist(CommandSource source, @Argument(value = "ip") String ip) {
-    Collection<String> ipWhitelist = this.nodeConfig().getIpWhitelist();
+    var ipWhitelist = this.nodeConfig().getIpWhitelist();
     // check if the collection changes after we remove the given ip
     if (ipWhitelist.remove(ip)) {
       // update the config as we have a change

@@ -109,7 +109,7 @@ public abstract class AbstractServiceLogCache implements IServiceConsoleLogCache
     this.cachedLogMessages.add(entry);
     // call all handlers
     if (!this.handlers.isEmpty()) {
-      for (ServiceConsoleLineHandler handler : this.handlers) {
+      for (var handler : this.handlers) {
         handler.handleLine(this, entry);
       }
     }

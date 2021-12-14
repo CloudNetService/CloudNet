@@ -128,7 +128,7 @@ public class DefaultCommandProvider implements CommandProvider {
    */
   @Override
   public void register(@NotNull Object command) {
-    Command<CommandSource> cloudCommand = Iterables.getFirst(this.annotationParser.parse(command), null);
+    var cloudCommand = Iterables.getFirst(this.annotationParser.parse(command), null);
     // just get the first command of the object as we don't want to register each method
     if (cloudCommand != null) {
       // check if there are any arguments, we don't want to register an empty command
@@ -136,13 +136,13 @@ public class DefaultCommandProvider implements CommandProvider {
         return;
       }
 
-      String permission = cloudCommand.getCommandPermission().toString();
+      var permission = cloudCommand.getCommandPermission().toString();
       // retrieve our own description processed by the @Description annotation
-      String description = cloudCommand.getCommandMeta().getOrDefault(DESCRIPTION_KEY, "No description provided");
+      var description = cloudCommand.getCommandMeta().getOrDefault(DESCRIPTION_KEY, "No description provided");
       // retrieve the aliases processed by the @CommandAlias annotation
-      Collection<String> aliases = cloudCommand.getCommandMeta().getOrDefault(ALIAS_KEY, Collections.emptySet());
+      var aliases = cloudCommand.getCommandMeta().getOrDefault(ALIAS_KEY, Collections.emptySet());
       // get the name by using the first argument of the command
-      String name = cloudCommand.getArguments().get(0).getName();
+      var name = cloudCommand.getArguments().get(0).getName();
       // there is no other command registered with the given name, parse usage and register the command now
       this.registeredCommands.put(cloudCommand.getClass().getClassLoader(),
         new CommandInfo(name, aliases, permission, description, this.getCommandUsageByRoot(name)));
@@ -167,7 +167,7 @@ public class DefaultCommandProvider implements CommandProvider {
       @Override
       public void handleInput(@NotNull String line) {
         // check if the input line is empty
-        String trimmedInput = line.trim();
+        var trimmedInput = line.trim();
         if (!trimmedInput.isEmpty()) {
           // execute the command
           DefaultCommandProvider.this.execute(CommandSource.console(), trimmedInput);
@@ -210,7 +210,7 @@ public class DefaultCommandProvider implements CommandProvider {
    */
   @Override
   public @Nullable CommandInfo getCommand(@NotNull String name) {
-    String lowerCaseInput = name.toLowerCase();
+    var lowerCaseInput = name.toLowerCase();
     return this.registeredCommands.values().stream()
       .filter(commandInfo ->
         commandInfo.getAliases().contains(lowerCaseInput) || commandInfo.getName().equals(lowerCaseInput))
@@ -231,7 +231,7 @@ public class DefaultCommandProvider implements CommandProvider {
    */
   protected void registerCommandConfirmation() {
     // create a new confirmation manager
-    CommandConfirmationManager<CommandSource> confirmationManager = new CommandConfirmationManager<>(
+    var confirmationManager = new CommandConfirmationManager<CommandSource>(
       30L,
       TimeUnit.SECONDS,
       context -> context.getCommandContext().getSender()
@@ -253,8 +253,8 @@ public class DefaultCommandProvider implements CommandProvider {
    */
   protected @NotNull List<String> getCommandUsageByRoot(@NotNull String root) {
     List<String> commandUsage = new ArrayList<>();
-    for (Command<CommandSource> command : this.commandManager.getCommands()) {
-      List<CommandArgument<CommandSource, ?>> arguments = command.getArguments();
+    for (var command : this.commandManager.getCommands()) {
+      var arguments = command.getArguments();
       // the first argument is the root, check if it matches
       if (arguments.isEmpty() || !arguments.get(0).getName().equalsIgnoreCase(root)) {
         continue;

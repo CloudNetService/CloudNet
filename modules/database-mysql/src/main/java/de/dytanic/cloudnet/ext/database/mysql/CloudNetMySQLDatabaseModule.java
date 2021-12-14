@@ -46,7 +46,7 @@ public final class CloudNetMySQLDatabaseModule extends DriverModule {
   @ModuleTask(order = 126, event = ModuleLifeCycle.LOADED)
   public void initConfig() {
 
-    JsonDocument configuration = this.readConfig();
+    var configuration = this.readConfig();
 
     configuration.getString("database", "mysql");
     configuration.get("addresses", TYPE, Collections.singletonList(
@@ -56,7 +56,7 @@ public final class CloudNetMySQLDatabaseModule extends DriverModule {
     configuration.getString("username", "root");
     configuration.getString("password", "root");
 
-    int connectionMaxPoolSize = 20;
+    var connectionMaxPoolSize = 20;
 
     if (configuration.contains("connectionPoolSize")) {
       connectionMaxPoolSize = configuration.getInt("connectionPoolSize");

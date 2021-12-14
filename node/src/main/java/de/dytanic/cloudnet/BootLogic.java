@@ -49,13 +49,13 @@ public final class BootLogic {
     initLoggerAndConsole(console, LogManager.getRootLogger());
 
     // boot CloudNet
-    CloudNet nodeInstance = new CloudNet(args, console, LogManager.getRootLogger());
+    var nodeInstance = new CloudNet(args, console, LogManager.getRootLogger());
     nodeInstance.start();
   }
 
   private static void initLoggerAndConsole(@NotNull IConsole console, @NotNull Logger logger) {
-    Path logFilePattern = Paths.get("local", "logs", "cloudnet.%g.log");
-    Formatter consoleFormatter = console.hasColorSupport() ? new ColouredLogFormatter() : DefaultLogFormatter.END_CLEAN;
+    var logFilePattern = Paths.get("local", "logs", "cloudnet.%g.log");
+    var consoleFormatter = console.hasColorSupport() ? new ColouredLogFormatter() : DefaultLogFormatter.END_CLEAN;
 
     LoggingUtils.removeHandlers(logger);
 

@@ -33,14 +33,14 @@ public class CloudNetSmartModule extends DriverModule {
 
   @ModuleTask(event = ModuleLifeCycle.STARTED, order = Byte.MAX_VALUE)
   public void rewriteOldSmartTaskEntries() {
-    for (ServiceTask task : this.getDriver().getServiceTaskProvider().getPermanentServiceTasks()) {
+    for (var task : this.getDriver().getServiceTaskProvider().getPermanentServiceTasks()) {
       // check if the task had a smart config entry previously
       if (task.getProperties().contains("smartConfig")) {
-        JsonDocument smartEntry = task.getProperties().getDocument("smartConfig");
+        var smartEntry = task.getProperties().getDocument("smartConfig");
         // check if the task still uses the old format
         if (smartEntry.contains("dynamicMemoryAllocationRange")) {
           // rewrite the old config
-          SmartServiceTaskConfig config = SmartServiceTaskConfig.builder()
+          var config = SmartServiceTaskConfig.builder()
             .enabled(smartEntry.getBoolean("enabled"))
             .priority(smartEntry.getInt("priority"))
 
@@ -68,7 +68,7 @@ public class CloudNetSmartModule extends DriverModule {
 
   @ModuleTask(event = ModuleLifeCycle.STARTED, order = 64)
   public void addMissingSmartConfigurationEntries() {
-    for (ServiceTask task : this.getDriver().getServiceTaskProvider().getPermanentServiceTasks()) {
+    for (var task : this.getDriver().getServiceTaskProvider().getPermanentServiceTasks()) {
       // check if the service task needs a smart entry
       if (!task.getProperties().contains("smartConfig")) {
         task.getProperties().append("smartConfig", SmartServiceTaskConfig.builder().build());

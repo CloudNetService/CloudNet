@@ -76,7 +76,7 @@ public final class CloudPermsPermissionService implements PermissionService {
   @Override
   public CompletableFuture<? extends SubjectCollection> loadCollection(String identifier) {
     // get if loaded
-    SubjectCollection collection = this.collections.get(identifier);
+    var collection = this.collections.get(identifier);
     if (collection != null) {
       return CompletableFuture.completedFuture(collection);
     }

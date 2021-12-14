@@ -48,7 +48,7 @@ public final class NettyNetworkChannel extends DefaultNetworkChannel implements 
 
   @Override
   public void sendPacket(@NotNull IPacket... packets) {
-    for (IPacket packet : packets) {
+    for (var packet : packets) {
       this.writePacket(packet, false);
     }
     this.channel.flush(); // reduces i/o load
@@ -56,8 +56,8 @@ public final class NettyNetworkChannel extends DefaultNetworkChannel implements 
 
   @Override
   public void sendPacketSync(@NotNull IPacket... packets) {
-    for (IPacket packet : packets) {
-      ChannelFuture future = this.writePacket(packet, false);
+    for (var packet : packets) {
+      var future = this.writePacket(packet, false);
       if (future != null) {
         future.syncUninterruptibly();
       }
@@ -80,7 +80,7 @@ public final class NettyNetworkChannel extends DefaultNetworkChannel implements 
   public void sendPacketSync(@NotNull IPacket packet) {
     Preconditions.checkNotNull(packet);
 
-    ChannelFuture future = this.writePacket(packet, true);
+    var future = this.writePacket(packet, true);
     if (future != null) {
       future.syncUninterruptibly();
     }

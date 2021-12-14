@@ -54,7 +54,7 @@ public class DefaultPersistableModuleDependencyLoader extends DefaultMemoryModul
     @NotNull ModuleConfiguration configuration,
     @NotNull ModuleDependency dependency
   ) throws Exception {
-    URL memoryBasedUrl = super.loadModuleDependencyByUrl(configuration, dependency);
+    var memoryBasedUrl = super.loadModuleDependencyByUrl(configuration, dependency);
     return this.loadDependency(dependency, memoryBasedUrl);
   }
 
@@ -67,7 +67,7 @@ public class DefaultPersistableModuleDependencyLoader extends DefaultMemoryModul
     @NotNull ModuleDependency dependency,
     @NotNull String repositoryUrl
   ) throws Exception {
-    URL memoryBasedUrl = super.loadModuleDependencyByRepository(configuration, dependency, repositoryUrl);
+    var memoryBasedUrl = super.loadModuleDependencyByRepository(configuration, dependency, repositoryUrl);
     return this.loadDependency(dependency, memoryBasedUrl);
   }
 
@@ -81,7 +81,7 @@ public class DefaultPersistableModuleDependencyLoader extends DefaultMemoryModul
    * @throws Exception if any exception occurs during the load of the dependency.
    */
   protected @NotNull URL loadDependency(@NotNull ModuleDependency dependency, @NotNull URL url) throws Exception {
-    Path destFile = FileUtils.resolve(this.baseDirectory, dependency.getGroup().split("\\."))
+    var destFile = FileUtils.resolve(this.baseDirectory, dependency.getGroup().split("\\."))
       .resolve(dependency.getName())
       .resolve(dependency.getVersion())
       .resolve(String.format(FILE_NAME_FORMAT, dependency.getName(), dependency.getVersion()));

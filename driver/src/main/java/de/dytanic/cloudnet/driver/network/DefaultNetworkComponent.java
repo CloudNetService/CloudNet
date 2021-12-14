@@ -31,7 +31,7 @@ public interface DefaultNetworkComponent extends INetworkComponent {
 
   @Override
   default void closeChannels() {
-    for (INetworkChannel channel : this.getModifiableChannels()) {
+    for (var channel : this.getModifiableChannels()) {
       try {
         channel.close();
       } catch (Exception exception) {
@@ -46,7 +46,7 @@ public interface DefaultNetworkComponent extends INetworkComponent {
   default void sendPacket(@NotNull IPacket packet) {
     Preconditions.checkNotNull(packet);
 
-    for (INetworkChannel channel : this.getModifiableChannels()) {
+    for (var channel : this.getModifiableChannels()) {
       channel.sendPacket(packet);
     }
   }
@@ -55,7 +55,7 @@ public interface DefaultNetworkComponent extends INetworkComponent {
   default void sendPacketSync(@NotNull IPacket packet) {
     Preconditions.checkNotNull(packet);
 
-    for (INetworkChannel channel : this.getModifiableChannels()) {
+    for (var channel : this.getModifiableChannels()) {
       channel.sendPacketSync(packet);
     }
   }
@@ -64,7 +64,7 @@ public interface DefaultNetworkComponent extends INetworkComponent {
   default void sendPacket(@NotNull IPacket... packets) {
     Preconditions.checkNotNull(packets);
 
-    for (INetworkChannel channel : this.getModifiableChannels()) {
+    for (var channel : this.getModifiableChannels()) {
       channel.sendPacket(packets);
     }
   }

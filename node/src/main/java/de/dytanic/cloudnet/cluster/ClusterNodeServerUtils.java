@@ -40,10 +40,10 @@ final class ClusterNodeServerUtils {
   }
 
   public static void handleNodeServerClose(@NotNull INetworkChannel channel, @NotNull IClusterNodeServer server) {
-    for (ServiceInfoSnapshot snapshot : CloudNet.getInstance().getCloudServiceProvider().getCloudServices()) {
+    for (var snapshot : CloudNet.getInstance().getCloudServiceProvider().getCloudServices()) {
       if (snapshot.getServiceId().getNodeUniqueId().equalsIgnoreCase(server.getNodeInfo().getUniqueId())) {
         // store the last lifecycle for the update event
-        ServiceLifeCycle lifeCycle = snapshot.getLifeCycle();
+        var lifeCycle = snapshot.getLifeCycle();
         // mark the service as deleted
         snapshot.setLifeCycle(ServiceLifeCycle.DELETED);
         // publish the update to the local service manager
@@ -69,9 +69,9 @@ final class ClusterNodeServerUtils {
   }
 
   private static @NotNull ChannelMessage.Builder targetLocalServices() {
-    ChannelMessage.Builder builder = ChannelMessage.builder();
+    var builder = ChannelMessage.builder();
     // iterate over all local services - if the service is connected append it as target
-    for (ICloudService service : CloudNet.getInstance().getCloudServiceProvider().getLocalCloudServices()) {
+    for (var service : CloudNet.getInstance().getCloudServiceProvider().getLocalCloudServices()) {
       if (service.getNetworkChannel() != null) {
         builder.target(Type.SERVICE, service.getServiceId().getName());
       }

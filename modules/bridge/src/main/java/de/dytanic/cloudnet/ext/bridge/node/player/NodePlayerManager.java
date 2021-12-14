@@ -79,7 +79,7 @@ public class NodePlayerManager implements IPlayerManager {
     .build(new CacheLoader<UUID, Optional<CloudOfflinePlayer>>() {
       @Override
       public Optional<CloudOfflinePlayer> load(@NotNull UUID uniqueId) {
-        JsonDocument document = NodePlayerManager.this.getDatabase().get(uniqueId.toString());
+        var document = NodePlayerManager.this.getDatabase().get(uniqueId.toString());
         if (document == null) {
           return Optional.empty();
         } else {
@@ -136,7 +136,7 @@ public class NodePlayerManager implements IPlayerManager {
 
   @Override
   public @Nullable CloudPlayer getFirstOnlinePlayer(@NotNull String name) {
-    for (CloudPlayer player : this.onlinePlayers.values()) {
+    for (var player : this.onlinePlayers.values()) {
       if (player.getName().equalsIgnoreCase(name)) {
         return player;
       }
@@ -296,7 +296,7 @@ public class NodePlayerManager implements IPlayerManager {
     @NotNull NetworkPlayerProxyInfo networkPlayerProxyInfo,
     @Nullable NetworkPlayerServerInfo networkPlayerServerInfo
   ) {
-    Lock loginLock = this.playerReadWriteLocks.get(networkPlayerProxyInfo.getUniqueId());
+    var loginLock = this.playerReadWriteLocks.get(networkPlayerProxyInfo.getUniqueId());
     try {
       // ensure that we handle only one login message at a time
       loginLock.lock();
@@ -310,8 +310,8 @@ public class NodePlayerManager implements IPlayerManager {
     @NotNull NetworkPlayerProxyInfo networkPlayerProxyInfo,
     @Nullable NetworkPlayerServerInfo networkPlayerServerInfo
   ) {
-    NetworkServiceInfo networkService = networkPlayerProxyInfo.getNetworkService();
-    CloudPlayer cloudPlayer = this.selectPlayerForLogin(networkPlayerProxyInfo, networkPlayerServerInfo);
+    var networkService = networkPlayerProxyInfo.getNetworkService();
+    var cloudPlayer = this.selectPlayerForLogin(networkPlayerProxyInfo, networkPlayerServerInfo);
     // check if the login service is a proxy and set the proxy as the login service if so
     if (ServiceEnvironmentType.isMinecraftProxy(networkService.getServiceId().getEnvironment())) {
       // a proxy should be able to change the login service
@@ -337,10 +337,10 @@ public class NodePlayerManager implements IPlayerManager {
     @Nullable NetworkPlayerServerInfo serverInfo
   ) {
     // check if the player is already loaded
-    CloudPlayer cloudPlayer = this.getOnlinePlayer(connectionInfo.getUniqueId());
+    var cloudPlayer = this.getOnlinePlayer(connectionInfo.getUniqueId());
     if (cloudPlayer == null) {
       // try to load the player using the name and the login service
-      for (CloudPlayer player : this.getOnlinePlayers().values()) {
+      for (var player : this.getOnlinePlayers().values()) {
         if (player.getName().equals(connectionInfo.getName())
           && player.getLoginService() != null
           && player.getLoginService().getUniqueId().equals(connectionInfo.getNetworkService().getUniqueId())) {
@@ -351,7 +351,7 @@ public class NodePlayerManager implements IPlayerManager {
       // there is no loaded player, so try to load it using the offline association
       if (cloudPlayer == null) {
         // get the offline player or create a new one
-        CloudOfflinePlayer cloudOfflinePlayer = this.getOrRegisterOfflinePlayer(connectionInfo);
+        var cloudOfflinePlayer = this.getOrRegisterOfflinePlayer(connectionInfo);
         // convert the offline player to an online version using all provided information
         cloudPlayer = new CloudPlayer(
           connectionInfo.getNetworkService(),
@@ -391,21 +391,21 @@ public class NodePlayerManager implements IPlayerManager {
   }
 
   public void processLoginMessage(@NotNull CloudPlayer cloudPlayer) {
-    Lock loginLock = this.playerReadWriteLocks.get(cloudPlayer.getUniqueId());
+    var loginLock = this.playerReadWriteLocks.get(cloudPlayer.getUniqueId());
     try {
       // ensure we only handle one login at a time
       loginLock.lock();
       // check if the player is already loaded
-      CloudPlayer registeredPlayer = this.onlinePlayers.get(cloudPlayer.getUniqueId());
+      var registeredPlayer = this.onlinePlayers.get(cloudPlayer.getUniqueId());
       if (registeredPlayer == null) {
         this.onlinePlayers.put(cloudPlayer.getUniqueId(), cloudPlayer);
         this.offlinePlayerCache.put(cloudPlayer.getUniqueId(), Optional.of(cloudPlayer));
       } else {
-        boolean needsUpdate = false;
+        var needsUpdate = false;
         // check if the player has a known login service
         if (cloudPlayer.getLoginService() != null) {
-          NetworkServiceInfo newLoginService = cloudPlayer.getLoginService();
-          NetworkServiceInfo loginService = registeredPlayer.getLoginService();
+          var newLoginService = cloudPlayer.getLoginService();
+          var loginService = registeredPlayer.getLoginService();
           // check if we already know the same service
           if (!Objects.equals(newLoginService, loginService)
             && ServiceEnvironmentType.isMinecraftProxy(newLoginService.getEnvironment())
@@ -417,7 +417,7 @@ public class NodePlayerManager implements IPlayerManager {
         // check if the player has a known connected service which is not a proxy
         if (cloudPlayer.getConnectedService() != null
           && ServiceEnvironmentType.isMinecraftProxy(cloudPlayer.getConnectedService().getEnvironment())) {
-          NetworkServiceInfo connectedService = registeredPlayer.getConnectedService();
+          var connectedService = registeredPlayer.getConnectedService();
           if (connectedService != null && ServiceEnvironmentType.isMinecraftServer(connectedService.getEnvironment())) {
             cloudPlayer.setConnectedService(connectedService);
             needsUpdate = true;
@@ -434,7 +434,7 @@ public class NodePlayerManager implements IPlayerManager {
   }
 
   public @NotNull CloudOfflinePlayer getOrRegisterOfflinePlayer(@NotNull NetworkPlayerProxyInfo proxyInfo) {
-    CloudOfflinePlayer cloudOfflinePlayer = this.getOfflinePlayer(proxyInfo.getUniqueId());
+    var cloudOfflinePlayer = this.getOfflinePlayer(proxyInfo.getUniqueId());
     // check if the player is already present
     if (cloudOfflinePlayer == null) {
       // create a new player and cache it, the insert into the database will be done later during the login
@@ -450,7 +450,7 @@ public class NodePlayerManager implements IPlayerManager {
   }
 
   public void logoutPlayer(@NotNull CloudPlayer cloudPlayer) {
-    Lock managementLock = this.playerReadWriteLocks.get(cloudPlayer.getUniqueId());
+    var managementLock = this.playerReadWriteLocks.get(cloudPlayer.getUniqueId());
     try {
       // ensure only one update operation at a time
       managementLock.lock();
@@ -466,7 +466,7 @@ public class NodePlayerManager implements IPlayerManager {
     this.onlinePlayers.remove(cloudPlayer.getUniqueId());
     cloudPlayer.setLastNetworkPlayerProxyInfo(cloudPlayer.getNetworkPlayerProxyInfo());
     // copy to an offline version
-    CloudOfflinePlayer offlinePlayer = CloudOfflinePlayer.offlineCopy(cloudPlayer);
+    var offlinePlayer = CloudOfflinePlayer.offlineCopy(cloudPlayer);
     // update the offline version of the player into the cache
     this.pushOfflinePlayerCache(cloudPlayer.getUniqueId(), offlinePlayer);
     // push the change to the database
@@ -491,7 +491,7 @@ public class NodePlayerManager implements IPlayerManager {
     CloudPlayer cloudPlayer;
     if (uniqueId != null) {
       // if we can log out by unique id we need to lock the processing lock
-      Lock managementLock = this.playerReadWriteLocks.get(uniqueId);
+      var managementLock = this.playerReadWriteLocks.get(uniqueId);
       try {
         // lock the management lock to prevent duplicate handling at the same time
         managementLock.lock();

@@ -35,13 +35,13 @@ public final class SignPluginInclusion {
   }
 
   public static void includePluginTo(@NotNull ICloudService cloudService, @NotNull SignsConfiguration configuration) {
-    ServiceEnvironmentType type = cloudService.getServiceConfiguration().getServiceId().getEnvironment();
+    var type = cloudService.getServiceConfiguration().getServiceId().getEnvironment();
     if (ServiceEnvironmentType.isMinecraftServer(type)
       && hasConfigurationEntry(cloudService.getServiceConfiguration().getGroups(), configuration)) {
-      Path pluginDirectory = cloudService.getDirectory().resolve("plugins");
+      var pluginDirectory = cloudService.getDirectory().resolve("plugins");
       FileUtils.createDirectory(pluginDirectory);
 
-      Path pluginFile = pluginDirectory.resolve("cloudnet-signs.jar");
+      var pluginFile = pluginDirectory.resolve("cloudnet-signs.jar");
       FileUtils.delete(pluginFile);
 
       if (DefaultModuleHelper.copyCurrentModuleInstanceFromClass(SignPluginInclusion.class, pluginFile)) {
@@ -51,7 +51,7 @@ public final class SignPluginInclusion {
   }
 
   public static boolean hasConfigurationEntry(@NotNull Collection<String> groups, @NotNull SignsConfiguration config) {
-    for (SignConfigurationEntry entry : config.getConfigurationEntries()) {
+    for (var entry : config.getConfigurationEntries()) {
       if (groups.contains(entry.getTargetGroup())) {
         return true;
       }

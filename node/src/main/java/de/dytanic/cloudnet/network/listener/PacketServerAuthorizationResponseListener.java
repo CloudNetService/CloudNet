@@ -39,7 +39,7 @@ public final class PacketServerAuthorizationResponseListener implements IPacketL
     // check if the auth was successful
     if (packet.getContent().readBoolean()) {
       // search for the node to which the auth succeeded
-      IClusterNodeServer server = CloudNet.getInstance().getConfig().getClusterConfig().getNodes().stream()
+      var server = CloudNet.getInstance().getConfig().getClusterConfig().getNodes().stream()
         .filter(node -> Arrays.stream(node.getListeners()).anyMatch(host -> channel.getServerAddress().equals(host)))
         .map(node -> CloudNet.getInstance().getClusterNodeServerProvider().getNodeServer(node.getUniqueId()))
         .filter(Objects::nonNull)

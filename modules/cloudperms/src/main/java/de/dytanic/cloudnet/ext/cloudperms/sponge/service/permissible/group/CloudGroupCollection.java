@@ -41,7 +41,7 @@ public final class CloudGroupCollection extends AbstractSubjectCollection {
   @Override
   public CompletableFuture<? extends Subject> loadSubject(String identifier) {
     return CompletableFuture.supplyAsync(() -> {
-      PermissionGroup group = this.management.getGroup(identifier);
+      var group = this.management.getGroup(identifier);
       Verify.verifyNotNull(group, "No group identified by " + identifier);
       return new PermissionGroupSubject(identifier, this, group, this.management);
     });
@@ -49,7 +49,7 @@ public final class CloudGroupCollection extends AbstractSubjectCollection {
 
   @Override
   public Optional<? extends Subject> subject(String identifier) {
-    PermissionGroup group = this.management.getGroup(identifier);
+    var group = this.management.getGroup(identifier);
     return group == null
       ? Optional.empty()
       : Optional.of(new PermissionGroupSubject(identifier, this, group, this.management));

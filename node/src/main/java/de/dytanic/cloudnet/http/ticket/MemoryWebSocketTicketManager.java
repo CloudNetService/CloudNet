@@ -71,7 +71,7 @@ public class MemoryWebSocketTicketManager implements WebSocketTicketManager {
     @NotNull HttpSession session,
     long timeout
   ) {
-    WebSocketTicket ticket = new WebSocketTicket(
+    var ticket = new WebSocketTicket(
       StringUtil.generateRandomString(32),
       request.context().channel().clientAddress().getHost(),
       System.currentTimeMillis() + timeout,
@@ -86,7 +86,7 @@ public class MemoryWebSocketTicketManager implements WebSocketTicketManager {
   }
 
   private void removeOutdatedEntries() {
-    for (Entry<String, WebSocketTicket> entry : this.tickets.entrySet()) {
+    for (var entry : this.tickets.entrySet()) {
       if (entry.getValue().isExpired()) {
         this.tickets.remove(entry.getKey());
       }

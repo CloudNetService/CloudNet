@@ -42,14 +42,14 @@ final class JaversPrettyPrint {
 
   public static String @NotNull [] prettyPrint(@NotNull String entryName, @NotNull Changes changes) {
     // initial information
-    StringBuilder builder = new StringBuilder("&rThere were &6")
+    var builder = new StringBuilder("&rThere were &6")
       .append(changes.size())
       .append("&r changes to synced element &c")
       .append(entryName)
       .append("&r:")
       .append(System.lineSeparator());
     // append all changes
-    for (Change change : changes) {
+    for (var change : changes) {
       // supported changes: values, container (collection & array), maps
       if (change instanceof ValueChange) {
         printValueChange(builder, (ValueChange) change);
@@ -103,7 +103,7 @@ final class JaversPrettyPrint {
       .append(" &r(").append(change.getChanges().size()).append(" elements)") // amount of changed elements
       .append(System.lineSeparator());
     // print all changes of the container
-    for (ContainerElementChange containerElementChange : change.getChanges()) {
+    for (var containerElementChange : change.getChanges()) {
       // 3 possibilities - element at the index changes, was removed or replaced
       if (containerElementChange instanceof ElementValueChange) {
         printElementValueChange(builder, (ElementValueChange) containerElementChange);
@@ -148,7 +148,7 @@ final class JaversPrettyPrint {
       .append(" &r(").append(change.getEntryChanges().size()).append(" elements)") // amount of changed elements
       .append(System.lineSeparator());
     // print all changes of the map
-    for (EntryChange entryChange : change.getEntryChanges()) {
+    for (var entryChange : change.getEntryChanges()) {
       // 3 possibilities - element changed, was removed or replaced
       if (entryChange instanceof EntryValueChange) {
         printEntryValueChange(builder, (EntryValueChange) entryChange);

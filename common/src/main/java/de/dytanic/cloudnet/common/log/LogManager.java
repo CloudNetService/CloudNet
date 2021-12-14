@@ -45,7 +45,7 @@ public final class LogManager {
   }
 
   private static @NotNull LoggerFactory loadLoggerFactory() {
-    Iterator<LoggerFactory> factories = ServiceLoader.load(LoggerFactory.class).iterator();
+    var factories = ServiceLoader.load(LoggerFactory.class).iterator();
     // check if a logger service is registered
     if (factories.hasNext()) {
       return factories.next();

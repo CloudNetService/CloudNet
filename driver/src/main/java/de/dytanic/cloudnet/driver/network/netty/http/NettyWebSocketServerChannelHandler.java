@@ -85,9 +85,9 @@ final class NettyWebSocketServerChannelHandler extends SimpleChannelInboundHandl
   }
 
   private void invoke0(WebSocketFrameType type, WebSocketFrame webSocketFrame) {
-    byte[] bytes = this.readContentFromWebSocketFrame(webSocketFrame);
+    var bytes = this.readContentFromWebSocketFrame(webSocketFrame);
 
-    for (IWebSocketListener listener : this.webSocketServerChannel.getListeners()) {
+    for (var listener : this.webSocketServerChannel.getListeners()) {
       try {
         listener.handle(this.webSocketServerChannel, type, bytes);
       } catch (Exception exception) {
@@ -97,7 +97,7 @@ final class NettyWebSocketServerChannelHandler extends SimpleChannelInboundHandl
   }
 
   private byte[] readContentFromWebSocketFrame(WebSocketFrame frame) {
-    byte[] bytes = new byte[frame.content().readableBytes()];
+    var bytes = new byte[frame.content().readableBytes()];
     frame.content().getBytes(frame.content().readerIndex(), bytes);
     return bytes;
   }

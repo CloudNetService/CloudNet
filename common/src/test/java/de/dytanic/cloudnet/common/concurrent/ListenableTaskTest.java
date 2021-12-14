@@ -25,9 +25,9 @@ public class ListenableTaskTest {
 
   @Test
   void testTaskRunAndReset() {
-    AtomicBoolean handlerCalled = new AtomicBoolean();
+    var handlerCalled = new AtomicBoolean();
 
-    ListenableTask<String> task = new ListenableTask<>(() -> "Hello World");
+    var task = new ListenableTask<String>(() -> "Hello World");
     task.onComplete($ -> handlerCalled.set(true));
 
     task.runAndReset();
@@ -42,9 +42,9 @@ public class ListenableTaskTest {
 
   @Test
   void testTaskRunAndResetExceptionTerminatesInstantly() {
-    AtomicReference<Throwable> handlerResult = new AtomicReference<>();
+    var handlerResult = new AtomicReference<Throwable>();
 
-    ListenableTask<String> task = new ListenableTask<>(() -> {
+    var task = new ListenableTask<String>(() -> {
       throw new RuntimeException("Hello World");
     });
     task.onFailure(handlerResult::set);

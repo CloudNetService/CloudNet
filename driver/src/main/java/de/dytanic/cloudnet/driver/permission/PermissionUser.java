@@ -109,7 +109,7 @@ public class PermissionUser extends AbstractPermissible {
   }
 
   public @NotNull PermissionUser addGroup(@NotNull String group, long timeOutMillis) {
-    PermissionUserGroupInfo groupInfo = this.getGroups().stream()
+    var groupInfo = this.getGroups().stream()
       .filter(info -> info.getGroup().equalsIgnoreCase(group))
       .findFirst()
       .orElse(null);

@@ -65,11 +65,11 @@ public class DefaultRPCHandler extends DefaultRPCProvider implements RPCHandler 
   @Override
   public @NotNull HandlingResult handle(@NotNull RPCInvocationContext context) {
     // get the working instance
-    Object instance = context
+    var instance = context
       .getWorkingInstance()
       .orElse(context.strictInstanceUsage() ? null : this.bindingInstance);
     // now we try to find the associated method information to the given method name or try to read it
-    MethodInformation information = this.methodCache.computeIfAbsent(
+    var information = this.methodCache.computeIfAbsent(
       String.format("%d@%s", instance == null ? -1 : instance.hashCode(), context.getMethodName()),
       $ -> MethodInformation.find(
         instance,
@@ -77,8 +77,8 @@ public class DefaultRPCHandler extends DefaultRPCProvider implements RPCHandler 
         context.getMethodName(),
         instance == null ? null : this.generator));
     // now as we have the method info, try to read all arguments needed
-    Object[] arguments = new Object[information.getArguments().length];
-    for (int i = 0; i < arguments.length; i++) {
+    var arguments = new Object[information.getArguments().length];
+    for (var i = 0; i < arguments.length; i++) {
       arguments[i] = this.objectMapper.readObject(context.getArgumentInformation(), information.getArguments()[i]);
     }
     // get the method invocation result
@@ -99,7 +99,7 @@ public class DefaultRPCHandler extends DefaultRPCProvider implements RPCHandler 
       // there is an instance we can work on, do it!
       try {
         // spare the result allocation if the method invocation fails
-        Object methodResult = information.getMethodInvoker().callMethod(arguments);
+        var methodResult = information.getMethodInvoker().callMethod(arguments);
         // now we can create the result as the method invocation succeeded
         result = DefaultHandlingResult.success(information, this, methodResult);
       } catch (Throwable throwable) {

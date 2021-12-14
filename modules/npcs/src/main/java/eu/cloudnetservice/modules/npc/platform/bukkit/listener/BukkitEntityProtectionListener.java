@@ -37,7 +37,7 @@ public final class BukkitEntityProtectionListener implements Listener {
     this.management.getTrackedEntities().values().stream()
       .filter(PlatformSelectorEntity::isSpawned)
       .filter(npc -> {
-        int eid = event.getEntity().getEntityId();
+        var eid = event.getEntity().getEntityId();
         return npc.getEntityId() == eid || npc.getInfoLineEntityIds().contains(eid);
       })
       .findFirst()

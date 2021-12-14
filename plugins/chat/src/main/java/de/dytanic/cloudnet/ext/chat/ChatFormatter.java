@@ -40,14 +40,14 @@ public final class ChatFormatter {
     @NotNull Function<String, Boolean> permissionTester,
     @NotNull BiFunction<Character, String, String> colorReplacer
   ) {
-    PermissionUser permissionUser = CloudNetDriver.getInstance().getPermissionManagement().getUser(playerId);
+    var permissionUser = CloudNetDriver.getInstance().getPermissionManagement().getUser(playerId);
     // check if the cloud knows a permission player
     if (permissionUser == null) {
       return null;
     }
 
     // check if the player is allowed to use colors and replace them
-    String coloredMessage = permissionTester.apply("cloudnet.chat.color")
+    var coloredMessage = permissionTester.apply("cloudnet.chat.color")
       ? colorReplacer.apply('&', message.replace("%", "%%"))
       : message.replace("%", "%%");
     // check if there even is a message left to prevent empty messages
@@ -55,7 +55,7 @@ public final class ChatFormatter {
       return null;
     }
 
-    PermissionGroup group = CloudNetDriver.getInstance().getPermissionManagement()
+    var group = CloudNetDriver.getInstance().getPermissionManagement()
       .getHighestPermissionGroup(permissionUser);
     format = format
       .replace("%name%", playerName)

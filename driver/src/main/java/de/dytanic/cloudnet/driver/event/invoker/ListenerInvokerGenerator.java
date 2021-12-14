@@ -64,14 +64,14 @@ public final class ListenerInvokerGenerator {
   public static ListenerInvoker generate(@NotNull Object listener, @NotNull Method method, @NotNull Class<?> event) {
     try {
       // make a class name which is definitely unique for the method
-      String className = String.format(
+      var className = String.format(
         "%s$%s_%d",
         Type.getInternalName(listener.getClass()),
         method.getName(),
         ID.incrementAndGet());
 
       // init the class writer for a public final class implementing the ListenerInvoker
-      ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
+      var cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
       cw.visit(V1_8, ACC_PUBLIC | ACC_FINAL, className, null, SUPER, INVOKER);
       // generate a constructor and the invoke method
       MethodVisitor mv;
@@ -104,7 +104,7 @@ public final class ListenerInvokerGenerator {
       // finish construction
       cw.visitEnd();
       // define and make the constructor accessible
-      Constructor<?> constructor = ClassDefiners.current()
+      var constructor = ClassDefiners.current()
         .defineClass(className, listener.getClass(), cw.toByteArray())
         .getDeclaredConstructor();
       constructor.setAccessible(true);

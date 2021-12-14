@@ -62,7 +62,7 @@ public final class FileDeployCallbackListener {
           break;
         case "remote_templates_template_file":
           // read the path info first
-          String path = event.getContent().readString();
+          var path = event.getContent().readString();
           this.handleInputRequest(event, (storage, template) -> storage.newInputStream(template, path));
           break;
         default:
@@ -76,25 +76,25 @@ public final class FileDeployCallbackListener {
     @NotNull ThrowableBiFunction<TemplateStorage, ServiceTemplate, InputStream, IOException> streamOpener
   ) {
     // read the information
-    String storageName = event.getContent().readString();
-    ServiceTemplate template = event.getContent().readObject(ServiceTemplate.class);
-    UUID responseId = event.getContent().readUniqueId();
+    var storageName = event.getContent().readString();
+    var template = event.getContent().readObject(ServiceTemplate.class);
+    var responseId = event.getContent().readUniqueId();
     // get the storage
-    TemplateStorage storage = CloudNet.getInstance().getTemplateStorage(storageName);
+    var storage = CloudNet.getInstance().getTemplateStorage(storageName);
     if (storage == null) {
       // missing storage - no result
       event.setBinaryResponse(DataBuf.empty().writeBoolean(false));
       return;
     }
     // zip the template and return to the sender
-    try (InputStream zip = streamOpener.apply(storage, template)) {
+    try (var zip = streamOpener.apply(storage, template)) {
       // check if the template exists
       if (zip == null) {
         event.setBinaryResponse(DataBuf.empty().writeBoolean(false));
         return;
       }
       // send the zip to the requesting component
-      TransferStatus status = ChunkedPacketSender.forFileTransfer()
+      var status = ChunkedPacketSender.forFileTransfer()
         .source(zip)
         .sessionUniqueId(responseId)
         .toChannels(event.getNetworkChannel())

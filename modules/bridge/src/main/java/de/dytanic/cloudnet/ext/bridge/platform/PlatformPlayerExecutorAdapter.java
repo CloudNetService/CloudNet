@@ -27,7 +27,7 @@ public abstract class PlatformPlayerExecutorAdapter implements PlayerExecutor {
   @Override
   public void sendTitle(@NotNull Title title) {
     // get the title times
-    Times times = title.times();
+    var times = title.times();
     if (times == null) {
       times = Title.DEFAULT_TIMES;
     }

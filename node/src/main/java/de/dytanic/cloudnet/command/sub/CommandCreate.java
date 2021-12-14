@@ -47,7 +47,7 @@ public final class CommandCreate {
     @Flag("node") String nodeId,
     @Flag("memory") Integer memory
   ) {
-    ServiceConfiguration.Builder configurationBuilder = ServiceConfiguration.builder(task);
+    var configurationBuilder = ServiceConfiguration.builder(task);
     if (id != null) {
       configurationBuilder.taskId(id);
     }
@@ -65,8 +65,8 @@ public final class CommandCreate {
     }
 
     List<ServiceInfoSnapshot> createdServices = new ArrayList<>();
-    for (int i = 0; i < amount; i++) {
-      ServiceInfoSnapshot service = configurationBuilder.build().createNewService();
+    for (var i = 0; i < amount; i++) {
+      var service = configurationBuilder.build().createNewService();
       if (service != null) {
         createdServices.add(service);
       }
@@ -79,7 +79,7 @@ public final class CommandCreate {
 
     source.sendMessage(I18n.trans("command-create-by-task-success"));
     if (startService) {
-      for (ServiceInfoSnapshot createdService : createdServices) {
+      for (var createdService : createdServices) {
         createdService.provider().start();
       }
     }

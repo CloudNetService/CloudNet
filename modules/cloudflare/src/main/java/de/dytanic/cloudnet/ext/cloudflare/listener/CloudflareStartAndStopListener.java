@@ -48,7 +48,7 @@ public final class CloudflareStartAndStopListener {
     }
 
     this.handle0(event.getService(), (entry, configuration) -> {
-      DnsRecordDetail recordDetail = this.cloudFlareAPI.createRecord(
+      var recordDetail = this.cloudFlareAPI.createRecord(
         event.getService().getServiceId().getUniqueId(),
         entry,
         SRVRecord.forConfiguration(entry, configuration, event.getService().getServiceConfiguration().getPort())
@@ -69,7 +69,7 @@ public final class CloudflareStartAndStopListener {
   public void handlePostStop(CloudServicePostLifecycleEvent event) {
     if (event.getNewLifeCycle() != ServiceLifeCycle.STOPPED) {
       this.handle0(event.getService(), (entry, configuration) -> {
-        for (DnsRecordDetail detail : this.cloudFlareAPI.deleteAllRecords(event.getService())) {
+        for (var detail : this.cloudFlareAPI.deleteAllRecords(event.getService())) {
           LOGGER
             .info(I18n.trans("module-cloudflare-delete-dns-record-for-service")
               .replace("%service%", event.getService().getServiceId().getName())
@@ -83,10 +83,10 @@ public final class CloudflareStartAndStopListener {
 
   private void handle0(ICloudService cloudService,
     BiConsumer<CloudflareConfigurationEntry, CloudflareGroupConfiguration> handler) {
-    for (CloudflareConfigurationEntry entry : CloudNetCloudflareModule.getInstance().getCloudflareConfiguration()
+    for (var entry : CloudNetCloudflareModule.getInstance().getCloudflareConfiguration()
       .getEntries()) {
       if (entry != null && entry.isEnabled() && entry.getGroups() != null && !entry.getGroups().isEmpty()) {
-        for (CloudflareGroupConfiguration groupConfiguration : entry.getGroups()) {
+        for (var groupConfiguration : entry.getGroups()) {
           if (groupConfiguration != null
             && cloudService.getServiceConfiguration().getGroups().contains(groupConfiguration.getName())) {
             handler.accept(entry, groupConfiguration);

@@ -93,7 +93,7 @@ public class NPCBukkitPlatformSelector extends BukkitPlatformSelectorEntity {
         // just because the client is stupid sometimes
         spawnedNpc.rotation().queueRotate(this.npcLocation.getYaw(), this.npcLocation.getPitch()).send(player);
         spawnedNpc.animation().queue(EntityAnimation.SWING_MAIN_ARM).send(player);
-        MetadataModifier metadataModifier = spawnedNpc.metadata()
+        var metadataModifier = spawnedNpc.metadata()
           .queue(EntityMetadata.SKIN_LAYERS, true)
           .queue(EntityMetadata.SNEAKING, false);
         // apply glowing effect if possible
@@ -108,10 +108,10 @@ public class NPCBukkitPlatformSelector extends BukkitPlatformSelectorEntity {
         }
         metadataModifier.send(player);
         // set the items
-        EquipmentModifier modifier = spawnedNpc.equipment();
-        for (Entry<Integer, String> entry : this.npc.getItems().entrySet()) {
+        var modifier = spawnedNpc.equipment();
+        for (var entry : this.npc.getItems().entrySet()) {
           if (entry.getKey() >= 0 && entry.getKey() <= 5) {
-            Material material = Material.matchMaterial(entry.getValue());
+            var material = Material.matchMaterial(entry.getValue());
             if (material != null) {
               modifier.queue(entry.getKey(), new ItemStack(material));
             }

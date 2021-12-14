@@ -68,7 +68,7 @@ public final class LauncherUtils {
   }
 
   public static InputStream readFromURL(String url) throws IOException {
-    URLConnection urlConnection = new URL(url).openConnection();
+    var urlConnection = new URL(url).openConnection();
 
     urlConnection.setUseCaches(false);
     urlConnection.setDoOutput(false);

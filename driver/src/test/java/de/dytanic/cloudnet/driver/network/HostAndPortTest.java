@@ -24,8 +24,8 @@ public class HostAndPortTest {
 
   @Test
   void testIpv4Address() {
-    InetSocketAddress socketAddress = new InetSocketAddress("127.0.0.1", 41000);
-    HostAndPort hostAndPort = HostAndPort.fromSocketAddress(socketAddress);
+    var socketAddress = new InetSocketAddress("127.0.0.1", 41000);
+    var hostAndPort = HostAndPort.fromSocketAddress(socketAddress);
 
     Assertions.assertEquals("127.0.0.1", hostAndPort.getHost());
     Assertions.assertEquals(41000, hostAndPort.getPort());
@@ -33,8 +33,8 @@ public class HostAndPortTest {
 
   @Test
   void testIpv6Address() {
-    InetSocketAddress socketAddress = new InetSocketAddress("::1", 41000);
-    HostAndPort hostAndPort = HostAndPort.fromSocketAddress(socketAddress);
+    var socketAddress = new InetSocketAddress("::1", 41000);
+    var hostAndPort = HostAndPort.fromSocketAddress(socketAddress);
 
     Assertions.assertEquals("0:0:0:0:0:0:0:1", hostAndPort.getHost());
     Assertions.assertEquals(41000, hostAndPort.getPort());

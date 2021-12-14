@@ -44,9 +44,9 @@ public class DataClassInformation {
     @NotNull DataClassInvokerGenerator generator
   ) {
     // get all types of the fields we want to include into the constructor lookup
-    List<Field> includedFields = collectFields(clazz);
+    var includedFields = collectFields(clazz);
     // transform the included fields to the required type arrays
-    Type[] types = transformToArray(Type.class, includedFields, Field::getGenericType);
+    var types = transformToArray(Type.class, includedFields, Field::getGenericType);
     Class<?>[] arguments = transformToArray(Class.class, includedFields, Field::getType);
     // try to find a constructor with all arguments
     try {
@@ -55,8 +55,8 @@ public class DataClassInformation {
       throw new MissingAllArgsConstructorException(clazz, arguments);
     }
     // generate the constructor invoker for the argument types
-    DataClassInstanceCreator instanceCreator = generator.createInstanceCreator(clazz, types);
-    DataClassInformationWriter informationWriter = generator.createWriter(clazz, includedFields);
+    var instanceCreator = generator.createInstanceCreator(clazz, types);
+    var informationWriter = generator.createWriter(clazz, includedFields);
     // done
     return new DataClassInformation(instanceCreator, informationWriter);
   }
@@ -64,9 +64,9 @@ public class DataClassInformation {
   protected static @NotNull List<Field> collectFields(@NotNull Class<?> clazz) {
     List<Field> result = new ArrayList<>();
 
-    Class<?> processing = clazz;
+    var processing = clazz;
     do {
-      for (Field field : processing.getDeclaredFields()) {
+      for (var field : processing.getDeclaredFields()) {
         if (!Modifier.isTransient(field.getModifiers())
           && !Modifier.isStatic(field.getModifiers())
           && !field.isAnnotationPresent(RPCIgnore.class)
@@ -85,8 +85,8 @@ public class DataClassInformation {
     @NotNull List<T> in,
     @NotNull Function<T, O> transformer
   ) {
-    O[] resultArray = (O[]) Array.newInstance(outType, in.size());
-    for (int i = 0; i < in.size(); i++) {
+    var resultArray = (O[]) Array.newInstance(outType, in.size());
+    for (var i = 0; i < in.size(); i++) {
       resultArray[i] = transformer.apply(in.get(i));
     }
     return resultArray;

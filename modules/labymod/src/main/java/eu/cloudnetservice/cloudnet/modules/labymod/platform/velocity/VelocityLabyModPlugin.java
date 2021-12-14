@@ -53,7 +53,7 @@ public class VelocityLabyModPlugin {
   @Subscribe
   public void handleProxyInit(@NotNull ProxyInitializeEvent event) {
     // init the labymod management
-    PlatformLabyModManagement labyModManagement = new PlatformLabyModManagement();
+    var labyModManagement = new PlatformLabyModManagement();
     // register the plugin channel message listener
     this.proxy.getChannelRegistrar().register(new LegacyChannelIdentifier(LabyModManagement.LABYMOD_CLIENT_CHANNEL));
     this.proxy.getEventManager().register(this, new VelocityLabyModListener(labyModManagement));

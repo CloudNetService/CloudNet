@@ -57,19 +57,19 @@ public class CloudFlareAPI implements AutoCloseable {
     Preconditions.checkNotNull(record, "record");
 
     try {
-      HttpRequestWithBody connection = this
+      var connection = this
         .prepareRequest(String.format(ZONE_RECORDS_ENDPOINT, configuration.getZoneId()), "POST", configuration);
-      JsonDocument result = this.sendRequestAndReadResponse(connection, record);
+      var result = this.sendRequestAndReadResponse(connection, record);
 
-      JsonDocument content = result.getDocument("result");
+      var content = result.getDocument("result");
       if (result.getBoolean("success") && content != null) {
-        String id = content.getString("id");
+        var id = content.getString("id");
         if (id != null) {
           LOGGER.fine(
             "Successfully created record with id " + id + " based on " + record + " (configuration: " + configuration
               + ")");
 
-          DnsRecordDetail detail = new DnsRecordDetail(id, record, configuration);
+          var detail = new DnsRecordDetail(id, record, configuration);
           this.createdRecords.put(serviceUniqueId, detail);
           return detail;
         }
@@ -111,12 +111,12 @@ public class CloudFlareAPI implements AutoCloseable {
     Preconditions.checkNotNull(id, "id");
 
     try {
-      HttpRequestWithBody connection = this
+      var connection = this
         .prepareRequest(String.format(ZONE_RECORDS_MANAGEMENT_ENDPOINT, configuration.getZoneId(), id), "DELETE",
           configuration);
-      JsonDocument result = this.sendRequestAndReadResponse(connection);
+      var result = this.sendRequestAndReadResponse(connection);
 
-      JsonDocument content = result.getDocument("result");
+      var content = result.getDocument("result");
       if (content != null && content.contains("id")) {
         LOGGER.fine("Successfully deleted record " + id + " for configuration " + configuration);
         return true;
@@ -137,7 +137,7 @@ public class CloudFlareAPI implements AutoCloseable {
     Preconditions.checkNotNull(method, "method");
     Preconditions.checkNotNull(entry, "entry");
 
-    HttpRequestWithBody bodyRequest = Unirest
+    var bodyRequest = Unirest
       .request(method, endpoint)
       .contentType("application/json")
       .accept("application/json");
@@ -175,13 +175,13 @@ public class CloudFlareAPI implements AutoCloseable {
       bodyRequest.body(data);
     }
 
-    HttpResponse<String> response = bodyRequest.asString();
+    var response = bodyRequest.asString();
     return JsonDocument.fromJsonString(response.getBody());
   }
 
   @Override
   public void close() {
-    for (Map.Entry<UUID, DnsRecordDetail> entry : this.createdRecords.entries()) {
+    for (var entry : this.createdRecords.entries()) {
       this.deleteRecord(entry.getValue());
     }
   }

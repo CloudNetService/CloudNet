@@ -100,14 +100,14 @@ public class XodusDatabase extends AbstractDatabase {
   @Override
   public JsonDocument get(String key) {
     return this.environment.computeInReadonlyTransaction(txn -> {
-      ByteIterable entry = this.getStore().get(txn, StringBinding.stringToEntry(key));
+      var entry = this.getStore().get(txn, StringBinding.stringToEntry(key));
       return entry == null ? null : JsonDocument.fromJsonBytes(entry.getBytesUnsafe());
     });
   }
 
   @Override
   public @NotNull List<JsonDocument> get(@NotNull String fieldName, Object fieldValue) {
-    JsonElement like = JsonDocument.GSON.toJsonTree(fieldValue);
+    var like = JsonDocument.GSON.toJsonTree(fieldValue);
     return this.handleWithCursor(($, document) -> {
       if (document.contains(fieldName) && document.get(fieldName).equals(like)) {
         return document;
@@ -120,14 +120,14 @@ public class XodusDatabase extends AbstractDatabase {
   public @NotNull List<JsonDocument> get(@NotNull JsonDocument filters) {
     Map<String, Object> filterObjects = new HashMap<>();
     if (!filters.isEmpty()) {
-      for (String key : filters) {
+      for (var key : filters) {
         filterObjects.put(key, filters.get(key));
       }
     }
 
-    Set<Entry<String, Object>> entries = filterObjects.entrySet();
+    var entries = filterObjects.entrySet();
     return this.handleWithCursor(($, document) -> {
-      for (Entry<String, Object> entry : entries) {
+      for (var entry : entries) {
         if (document.contains(entry.getKey()) && document.get(entry.getKey()).equals(entry.getValue())) {
           return document;
         }
@@ -195,7 +195,7 @@ public class XodusDatabase extends AbstractDatabase {
   protected @NotNull <T> List<T> handleWithCursor(@NotNull BiFunction<String, JsonDocument, T> mapper) {
     List<T> result = new ArrayList<>();
     this.acceptWithCursor((key, document) -> {
-      T computed = mapper.apply(key, document);
+      var computed = mapper.apply(key, document);
       if (computed != null) {
         result.add(computed);
       }
@@ -205,7 +205,7 @@ public class XodusDatabase extends AbstractDatabase {
 
   protected void acceptWithCursor(@NotNull BiConsumer<String, JsonDocument> handler) {
     this.environment.executeInReadonlyTransaction(txn -> {
-      try (Cursor cursor = this.getStore().openCursor(txn)) {
+      try (var cursor = this.getStore().openCursor(txn)) {
         while (cursor.getNext()) {
           handler.accept(
             StringBinding.entryToString(cursor.getKey()),
@@ -218,7 +218,7 @@ public class XodusDatabase extends AbstractDatabase {
   @Override
   public @Nullable Map<String, JsonDocument> readChunk(long beginIndex, int chunkSize) {
     return this.environment.computeInReadonlyTransaction(txn -> {
-      try (Cursor cursor = this.getStore().openCursor(txn)) {
+      try (var cursor = this.getStore().openCursor(txn)) {
         // skip to the begin index
         for (long i = 1; i < beginIndex; i++) {
           if (!cursor.getNext()) {

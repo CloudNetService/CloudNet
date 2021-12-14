@@ -66,7 +66,7 @@ public class V2HttpHandlerTasks extends V2HttpHandler {
 
   protected void handleTaskRequest(IHttpContext context) {
     this.handleWithTaskContext(context, task -> {
-      ServiceTask serviceTask = this.getTaskProvider().getServiceTask(task);
+      var serviceTask = this.getTaskProvider().getServiceTask(task);
       if (serviceTask == null) {
         this.ok(context)
           .body(this.failure().append("reason", "Unknown service task").toString())
@@ -84,7 +84,7 @@ public class V2HttpHandlerTasks extends V2HttpHandler {
   }
 
   protected void handleTaskCreateRequest(IHttpContext context) {
-    ServiceTask serviceTask = this.body(context.request()).toInstanceOf(ServiceTask.class);
+    var serviceTask = this.body(context.request()).toInstanceOf(ServiceTask.class);
     if (serviceTask == null) {
       this.badRequest(context)
         .body(this.failure().append("reason", "Missing service task").toString())
@@ -104,7 +104,7 @@ public class V2HttpHandlerTasks extends V2HttpHandler {
 
   protected void handleTaskDeleteRequest(IHttpContext context) {
     this.handleWithTaskContext(context, task -> {
-      ServiceTask serviceTask = this.getTaskProvider().getServiceTask(task);
+      var serviceTask = this.getTaskProvider().getServiceTask(task);
       if (serviceTask != null) {
         this.getTaskProvider().removePermanentServiceTask(serviceTask);
         this.ok(context)
@@ -123,7 +123,7 @@ public class V2HttpHandlerTasks extends V2HttpHandler {
   }
 
   protected void handleWithTaskContext(IHttpContext context, Consumer<String> handler) {
-    String taskName = context.request().pathParameters().get("task");
+    var taskName = context.request().pathParameters().get("task");
     if (taskName == null) {
       this.badRequest(context)
         .body(this.failure().append("reason", "Missing task paramter").toString())

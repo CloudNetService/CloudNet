@@ -97,7 +97,7 @@ public class NodeNodeInfoProvider implements NodeInfoProvider {
   public @NotNull Collection<String> sendCommandLine(@NotNull String commandLine) {
     Preconditions.checkNotNull(commandLine);
 
-    DriverCommandSource driverCommandSource = new DriverCommandSource();
+    var driverCommandSource = new DriverCommandSource();
     CloudNet.getInstance().getCommandProvider().execute(driverCommandSource, commandLine);
     return driverCommandSource.getMessages();
   }
@@ -110,7 +110,7 @@ public class NodeNodeInfoProvider implements NodeInfoProvider {
       return this.sendCommandLine(commandLine);
     }
     // find the node server and execute the command on there
-    IClusterNodeServer clusterNodeServer = this.clusterNodeServerProvider.getNodeServer(nodeUniqueId);
+    var clusterNodeServer = this.clusterNodeServerProvider.getNodeServer(nodeUniqueId);
     if (clusterNodeServer != null && clusterNodeServer.isConnected()) {
       return clusterNodeServer.sendCommandLine(commandLine);
     }

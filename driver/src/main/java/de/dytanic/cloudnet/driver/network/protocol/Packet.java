@@ -56,7 +56,7 @@ public class Packet implements IPacket {
 
   @Override
   public IPacket constructResponse(DataBuf content) {
-    Packet packet = new Packet(-1, content);
+    var packet = new Packet(-1, content);
     packet.setUniqueId(this.getUniqueId());
     return packet;
   }

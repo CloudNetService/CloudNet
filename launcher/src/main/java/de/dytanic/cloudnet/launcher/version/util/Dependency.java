@@ -51,7 +51,7 @@ public class Dependency {
   }
 
   public Path toPath() {
-    String fileName = String
+    var fileName = String
       .format("%s-%s%s.jar", this.name, this.fileVersion, (this.classifier != null ? "-" + this.classifier : ""));
 
     return Paths.get(this.group.replace(".", "/"), this.name, this.version, fileName);

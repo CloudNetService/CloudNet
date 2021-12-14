@@ -40,11 +40,11 @@ public final class SFTPTemplateStorageModule extends DriverModule {
   @ModuleTask(order = Byte.MAX_VALUE, event = ModuleLifeCycle.LOADED)
   public void convertConfig() {
     // the old config was located in a directory called '-ftp' rather than '-sftp'
-    Path oldConfigPath = this.getModuleWrapper().getModuleProvider().getModuleDirectoryPath()
+    var oldConfigPath = this.getModuleWrapper().getModuleProvider().getModuleDirectoryPath()
       .resolve("CloudNet-Storage-FTP")
       .resolve("config.json");
     if (Files.exists(oldConfigPath)) {
-      JsonDocument config = JsonDocument.newDocument(oldConfigPath);
+      var config = JsonDocument.newDocument(oldConfigPath);
       // convert to the new config format
       this.writeConfig(new SFTPTemplateStorageConfig(
         config.get("address", HostAndPort.class),

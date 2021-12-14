@@ -31,26 +31,26 @@ public class NettyPacketLengthCodecTest {
   @RepeatedTest(30)
   void testPacketLengthCodec() {
     // dummy write
-    ByteBuf input = Unpooled.buffer()
+    var input = Unpooled.buffer()
       .writeBoolean(true)
       .writeInt(1234)
       .writeDouble(5D);
-    ByteBuf output = Unpooled.buffer();
+    var output = Unpooled.buffer();
 
-    NettyPacketLengthSerializer serializer = new NettyPacketLengthSerializer();
+    var serializer = new NettyPacketLengthSerializer();
     serializer.encode(Mockito.mock(ChannelHandlerContext.class), input, output);
 
     Assertions.assertTrue(output.readableBytes() > 0);
 
     // test read
-    Channel channel = Mockito.mock(Channel.class);
+    var channel = Mockito.mock(Channel.class);
     Mockito.when(channel.isActive()).thenReturn(true);
 
-    ChannelHandlerContext ctx = Mockito.mock(ChannelHandlerContext.class);
+    var ctx = Mockito.mock(ChannelHandlerContext.class);
     Mockito.when(ctx.channel()).thenReturn(channel);
 
     List<Object> results = new ArrayList<>();
-    NettyPacketLengthDeserializer deserializer = new NettyPacketLengthDeserializer();
+    var deserializer = new NettyPacketLengthDeserializer();
     deserializer.decode(ctx, output, results);
 
     Assertions.assertEquals(1, results.size());

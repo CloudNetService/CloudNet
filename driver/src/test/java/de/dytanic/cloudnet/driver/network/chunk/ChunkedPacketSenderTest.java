@@ -44,10 +44,10 @@ public class ChunkedPacketSenderTest {
   @Order(0)
   @Timeout(20)
   void testChunkPacketSender() throws Exception {
-    AtomicInteger packetSplits = new AtomicInteger();
-    byte[] chunkData = this.generateRandomChunkData();
+    var packetSplits = new AtomicInteger();
+    var chunkData = this.generateRandomChunkData();
 
-    UUID sessionId = UUID.randomUUID();
+    var sessionId = UUID.randomUUID();
     DataBuf dataBuf = DataBuf.empty().writeString("hello").writeInt(10).writeString("world");
 
     Assertions.assertEquals(TransferStatus.SUCCESS, ChunkedPacketSender.forFileTransfer()
@@ -69,13 +69,13 @@ public class ChunkedPacketSenderTest {
   @Order(10)
   @Timeout(20)
   void testNetworkChannelSplitter() throws Exception {
-    AtomicInteger packetSplits = new AtomicInteger();
-    byte[] chunkData = this.generateRandomChunkData();
+    var packetSplits = new AtomicInteger();
+    var chunkData = this.generateRandomChunkData();
 
-    UUID sessionId = UUID.randomUUID();
+    var sessionId = UUID.randomUUID();
     DataBuf dataBuf = DataBuf.empty().writeString("hello").writeInt(10).writeString("world");
 
-    NetworkChannelsPacketSplitter splitter = new NetworkChannelsPacketSplitter(IntStream.range(0, 10)
+    var splitter = new NetworkChannelsPacketSplitter(IntStream.range(0, 10)
       .mapToObj($ -> this.mockNetworkChannel(packet ->
         this.validatePacket(packet, sessionId, packetSplits, chunkData)))
       .collect(Collectors.toList()));
@@ -96,13 +96,13 @@ public class ChunkedPacketSenderTest {
   }
 
   private byte[] generateRandomChunkData() {
-    byte[] data = new byte[4096];
+    var data = new byte[4096];
     ThreadLocalRandom.current().nextBytes(data);
     return data;
   }
 
   private void validatePacket(IPacket packet, UUID sessionId, AtomicInteger splits, byte[] data) {
-    ChunkSessionInformation info = packet.getContent().readObject(ChunkSessionInformation.class);
+    var info = packet.getContent().readObject(ChunkSessionInformation.class);
 
     Assertions.assertEquals(256, info.getChunkSize());
     Assertions.assertEquals(sessionId, info.getSessionUniqueId());
@@ -113,7 +113,7 @@ public class ChunkedPacketSenderTest {
     Assertions.assertEquals(10, info.getTransferInformation().readInt());
     Assertions.assertEquals("world", info.getTransferInformation().readString());
 
-    boolean isFinalPacket = packet.getContent().readBoolean();
+    var isFinalPacket = packet.getContent().readBoolean();
     Assertions.assertEquals(splits.get() == data.length / 256, isFinalPacket);
 
     if (isFinalPacket) {
@@ -123,8 +123,8 @@ public class ChunkedPacketSenderTest {
     // this prevents a weird bug happening. When copying an array beginning at the length of the array (in this case
     // 4096) it will not throw an exception as expected but give you back an array with the expected 256 size full
     // of zeros which will cause this test to fail.
-    int sourcePosition = splits.get() * 256;
-    byte[] contentAtPosition = sourcePosition == data.length
+    var sourcePosition = splits.get() * 256;
+    var contentAtPosition = sourcePosition == data.length
       ? new byte[0]
       : Arrays.copyOfRange(data, sourcePosition, (splits.get() + 1) * 256);
 
@@ -134,7 +134,7 @@ public class ChunkedPacketSenderTest {
   }
 
   private INetworkChannel mockNetworkChannel(Consumer<IPacket> packetSyncSendHandler) {
-    INetworkChannel channel = Mockito.mock(INetworkChannel.class);
+    var channel = Mockito.mock(INetworkChannel.class);
     Mockito
       .doAnswer(invocation -> {
         packetSyncSendHandler.accept(invocation.getArgument(0));

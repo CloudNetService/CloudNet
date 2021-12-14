@@ -62,7 +62,7 @@ final class NettyWebSocketServerChannel implements IWebSocketChannel {
   public IWebSocketChannel addListener(IWebSocketListener... listeners) {
     Preconditions.checkNotNull(listeners);
 
-    for (IWebSocketListener listener : listeners) {
+    for (var listener : listeners) {
       if (listener != null) {
         this.webSocketListeners.add(listener);
       }
@@ -149,10 +149,10 @@ final class NettyWebSocketServerChannel implements IWebSocketChannel {
 
   @Override
   public void close(int statusCode, String reasonText) {
-    AtomicInteger statusCodeReference = new AtomicInteger(statusCode);
-    AtomicReference<String> reasonTextReference = new AtomicReference<>(reasonText);
+    var statusCodeReference = new AtomicInteger(statusCode);
+    var reasonTextReference = new AtomicReference<String>(reasonText);
 
-    for (IWebSocketListener listener : this.webSocketListeners) {
+    for (var listener : this.webSocketListeners) {
       listener.handleClose(this, statusCodeReference, reasonTextReference);
     }
 

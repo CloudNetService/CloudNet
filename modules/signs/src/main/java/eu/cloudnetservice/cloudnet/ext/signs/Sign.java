@@ -121,7 +121,7 @@ public class Sign implements Comparable<Sign> {
    */
   public int getPriority(boolean lowerFullToSearching) {
     // check if the service has a snapshot
-    ServiceInfoSnapshot target = this.getCurrentTarget();
+    var target = this.getCurrentTarget();
     // no target has the lowest priority
     return target == null ? 0 : PriorityUtil.getPriority(target, lowerFullToSearching);
   }

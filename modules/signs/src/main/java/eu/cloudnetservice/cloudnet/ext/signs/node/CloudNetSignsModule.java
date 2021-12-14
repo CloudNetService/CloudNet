@@ -81,7 +81,7 @@ public class CloudNetSignsModule extends DriverModule {
     // load old database document
     Database database = CloudNet.getInstance().getDatabaseProvider()
       .getDatabase(DefaultModuleHelper.DEFAULT_CONFIGURATION_DATABASE_NAME);
-    JsonDocument document = database.get("signs_store");
+    var document = database.get("signs_store");
     // when the document is null the conversation already happened
     if (document != null) {
       // notify the user about the change
@@ -92,8 +92,8 @@ public class CloudNetSignsModule extends DriverModule {
       Collection<de.dytanic.cloudnet.ext.signs.Sign> oldSigns = document.get("signs", SignConstants.COLLECTION_SIGNS);
       if (oldSigns != null) {
         // convert the old sign entries
-        SignManagement management = CloudNet.getInstance().getServicesRegistry().getFirstService(SignManagement.class);
-        for (de.dytanic.cloudnet.ext.signs.Sign oldSign : oldSigns) {
+        var management = CloudNet.getInstance().getServicesRegistry().getFirstService(SignManagement.class);
+        for (var oldSign : oldSigns) {
           management.createSign(new Sign(
             oldSign.getTargetGroup(),
             oldSign.getTemplatePath(),

@@ -43,7 +43,7 @@ public final class BungeeCordHubCommand extends Command {
   @Override
   public void execute(CommandSender sender, String[] args) {
     if (sender instanceof ProxiedPlayer) {
-      ProxiedPlayer player = (ProxiedPlayer) sender;
+      var player = (ProxiedPlayer) sender;
       // check if the player is on a fallback already
       if (this.management.isOnAnyFallbackInstance(player)) {
         player.sendMessage(fromLegacyText(this.management.getConfiguration().getMessage(

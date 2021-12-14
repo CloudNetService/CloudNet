@@ -35,9 +35,9 @@ public class BukkitSignsPlugin extends JavaPlugin {
     signManagement.initialize();
     signManagement.registerToServiceRegistry();
     // bukkit command
-    PluginCommand pluginCommand = this.getCommand("cloudsign");
+    var pluginCommand = this.getCommand("cloudsign");
     if (pluginCommand != null) {
-      CommandSigns commandSigns = new CommandSigns(signManagement);
+      var commandSigns = new CommandSigns(signManagement);
       pluginCommand.setExecutor(commandSigns);
       pluginCommand.setTabCompleter(commandSigns);
     }

@@ -26,11 +26,11 @@ public class ServiceOverviewEmitter implements ReportDataEmitter<ICloudService> 
 
   @Override
   public void emitData(StringBuilder builder, ICloudService service) {
-    Collection<ServiceInfoSnapshot> services = CloudNet.getInstance().getCloudServiceProvider().getCloudServices();
+    var services = CloudNet.getInstance().getCloudServiceProvider().getCloudServices();
     builder.append(" - Other Services - \n");
     builder.append("Total services: ").append(services.size()).append("\n");
 
-    for (ServiceInfoSnapshot snapshot : services) {
+    for (var snapshot : services) {
       builder
         .append("Name: ")
         .append(snapshot.getName())

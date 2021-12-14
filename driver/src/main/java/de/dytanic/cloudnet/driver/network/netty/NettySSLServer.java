@@ -40,12 +40,12 @@ public abstract class NettySSLServer {
   protected void init() throws Exception {
     if (this.sslConfiguration != null && this.sslConfiguration.isEnabled()) {
       if (this.sslConfiguration.getCertificatePath() != null && this.sslConfiguration.getPrivateKeyPath() != null) {
-        try (InputStream cert = Files.newInputStream(this.sslConfiguration.getCertificatePath());
-          InputStream privateKey = Files.newInputStream(this.sslConfiguration.getPrivateKeyPath())) {
-          SslContextBuilder builder = SslContextBuilder.forServer(cert, privateKey);
+        try (var cert = Files.newInputStream(this.sslConfiguration.getCertificatePath());
+          var privateKey = Files.newInputStream(this.sslConfiguration.getPrivateKeyPath())) {
+          var builder = SslContextBuilder.forServer(cert, privateKey);
 
           if (this.sslConfiguration.getTrustCertificatePath() != null) {
-            try (InputStream stream = Files.newInputStream(this.sslConfiguration.getTrustCertificatePath())) {
+            try (var stream = Files.newInputStream(this.sslConfiguration.getTrustCertificatePath())) {
               builder.trustManager(stream);
             }
           } else {
@@ -57,7 +57,7 @@ public abstract class NettySSLServer {
             .build();
         }
       } else {
-        SelfSignedCertificate selfSignedCertificate = new SelfSignedCertificate();
+        var selfSignedCertificate = new SelfSignedCertificate();
         this.sslContext = SslContextBuilder
           .forServer(selfSignedCertificate.certificate(), selfSignedCertificate.privateKey())
           .trustManager(InsecureTrustManagerFactory.INSTANCE)

@@ -77,7 +77,7 @@ public class JenkinsUpdater implements Updater {
   }
 
   private String readImplementationVersion(JenkinsBuild.BuildArtifact artifact) throws Exception {
-    try (JarInputStream jarInputStream = new JarInputStream(
+    try (var jarInputStream = new JarInputStream(
       LauncherUtils.readFromURL(this.getArtifactDownloadURL(artifact)))) {
       return jarInputStream.getManifest().getMainAttributes().getValue("Implementation-Version");
     }
@@ -96,12 +96,12 @@ public class JenkinsUpdater implements Updater {
 
       Files.createDirectories(path.getParent());
 
-      JenkinsBuild.BuildArtifact buildArtifact = this.jenkinsBuild.getArtifacts().stream()
+      var buildArtifact = this.jenkinsBuild.getArtifacts().stream()
         .filter(artifact -> artifact.getFileName().equalsIgnoreCase(name))
         .findFirst()
         .orElseThrow(() -> new NullPointerException(String.format("Unable to find file %s on the jenkins!", name)));
 
-      try (InputStream inputStream = LauncherUtils.readFromURL(this.getArtifactDownloadURL(buildArtifact))) {
+      try (var inputStream = LauncherUtils.readFromURL(this.getArtifactDownloadURL(buildArtifact))) {
         Files.copy(inputStream, path, StandardCopyOption.REPLACE_EXISTING);
       }
 

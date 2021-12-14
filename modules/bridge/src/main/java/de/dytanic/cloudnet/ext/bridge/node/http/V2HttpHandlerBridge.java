@@ -64,7 +64,7 @@ public class V2HttpHandlerBridge extends V2HttpHandler {
   }
 
   protected void handleCreateCloudPlayerRequest(IHttpContext context) {
-    CloudOfflinePlayer cloudOfflinePlayer = this.body(context.request()).toInstanceOf(CloudOfflinePlayer.class);
+    var cloudOfflinePlayer = this.body(context.request()).toInstanceOf(CloudOfflinePlayer.class);
     if (cloudOfflinePlayer == null) {
       this.badRequest(context)
         .body(this.failure().append("reason", "Missing player configuration").toString())
@@ -98,7 +98,7 @@ public class V2HttpHandlerBridge extends V2HttpHandler {
     boolean mayBeNull,
     Consumer<CloudOfflinePlayer> handler
   ) {
-    String identifier = context.request().pathParameters().get("player");
+    var identifier = context.request().pathParameters().get("player");
     if (identifier == null) {
       this.badRequest(context)
         .body(this.failure().append("reason", "Missing player identifier").toString())
@@ -111,7 +111,7 @@ public class V2HttpHandlerBridge extends V2HttpHandler {
     CloudOfflinePlayer player;
     try {
       // try to parse a player unique id from the string
-      UUID uniqueId = UUID.fromString(identifier);
+      var uniqueId = UUID.fromString(identifier);
       player = this.getPlayerManager().getOfflinePlayer(uniqueId);
     } catch (Exception exception) {
       player = this.getPlayerManager().getFirstOfflinePlayer(identifier);

@@ -91,7 +91,7 @@ public class V2HttpHandlerPermission extends V2HttpHandler {
   }
 
   protected void handleCreatePermissionGroupRequest(IHttpContext context) {
-    PermissionGroup permissionGroup = this.body(context.request()).toInstanceOf(PermissionGroup.class);
+    var permissionGroup = this.body(context.request()).toInstanceOf(PermissionGroup.class);
     if (permissionGroup == null) {
       this.badRequest(context)
         .body(this.failure().append("reason", "Missing permission group in body").toString())
@@ -138,7 +138,7 @@ public class V2HttpHandlerPermission extends V2HttpHandler {
   }
 
   protected void handleCreatePermissionUserRequest(IHttpContext context) {
-    PermissionUser permissionUser = this.body(context.request()).toInstanceOf(PermissionUser.class);
+    var permissionUser = this.body(context.request()).toInstanceOf(PermissionUser.class);
     if (permissionUser == null) {
       this.badRequest(context)
         .body(this.failure().append("reason", "Missing permission user").toString())
@@ -172,7 +172,7 @@ public class V2HttpHandlerPermission extends V2HttpHandler {
     boolean mayBeNull,
     Consumer<PermissionGroup> handler
   ) {
-    String groupName = context.request().pathParameters().get("group");
+    var groupName = context.request().pathParameters().get("group");
     if (groupName == null) {
       this.badRequest(context)
         .body(this.failure().append("reason", "Missing permission group name parameter").toString())
@@ -182,7 +182,7 @@ public class V2HttpHandlerPermission extends V2HttpHandler {
       return;
     }
     // try to get the group
-    PermissionGroup group = this.getPermissionManagement().getGroup(groupName);
+    var group = this.getPermissionManagement().getGroup(groupName);
     if (group == null && !mayBeNull) {
       this.ok(context)
         .body(this.failure().append("reason", "Unknown permission group").toString())
@@ -200,7 +200,7 @@ public class V2HttpHandlerPermission extends V2HttpHandler {
     boolean mayBeNull,
     Consumer<PermissionUser> handler
   ) {
-    String identifier = context.request().pathParameters().get("user");
+    var identifier = context.request().pathParameters().get("user");
     if (identifier == null) {
       this.badRequest(context)
         .body(this.failure().append("reason", "Missing identifier parameter").toString())
@@ -213,7 +213,7 @@ public class V2HttpHandlerPermission extends V2HttpHandler {
     PermissionUser user;
     try {
       // try to parse a player unique id from the string
-      UUID uniqueId = UUID.fromString(identifier);
+      var uniqueId = UUID.fromString(identifier);
       user = this.getPermissionManagement().getUser(uniqueId);
     } catch (Exception exception) {
       user = this.getPermissionManagement().getFirstUser(identifier);

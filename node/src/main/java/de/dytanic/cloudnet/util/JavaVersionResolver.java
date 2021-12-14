@@ -53,11 +53,11 @@ public final class JavaVersionResolver {
     }
 
     try {
-      Process process = Runtime.getRuntime().exec(input + " -version");
+      var process = Runtime.getRuntime().exec(input + " -version");
       try (Reader reader = new InputStreamReader(process.getErrorStream(), StandardCharsets.UTF_8)) {
-        Matcher matcher = JAVA_REGEX.matcher(CharStreams.toString(reader));
+        var matcher = JAVA_REGEX.matcher(CharStreams.toString(reader));
         if (matcher.matches()) {
-          String majorVersion = matcher.group(1);
+          var majorVersion = matcher.group(1);
           if (majorVersion.equals("1")) {
             // java 8 has the major version defined after an initial 1.
             // fail below if the java version is '1'

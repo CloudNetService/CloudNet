@@ -44,12 +44,12 @@ public final class NukkitCloudPermissionsPermissible extends PermissibleBase {
   @Override
   public Map<String, PermissionAttachmentInfo> getEffectivePermissions() {
     Map<String, PermissionAttachmentInfo> infos = new HashMap<>();
-    PermissionUser permissionUser = this.permissionsManagement.getUser(this.player.getUniqueId());
+    var permissionUser = this.permissionsManagement.getUser(this.player.getUniqueId());
     if (permissionUser == null) {
       return infos;
     }
 
-    for (String group : Wrapper.getInstance().getServiceConfiguration().getGroups()) {
+    for (var group : Wrapper.getInstance().getServiceConfiguration().getGroups()) {
       infos.putAll(
         this.permissionsManagement.getAllGroupPermissions(permissionUser, group)
           .stream()
@@ -83,7 +83,7 @@ public final class NukkitCloudPermissionsPermissible extends PermissibleBase {
       return false;
     }
 
-    PermissionUser permissionUser = this.permissionsManagement.getUser(this.player.getUniqueId());
+    var permissionUser = this.permissionsManagement.getUser(this.player.getUniqueId());
     return permissionUser != null && this.permissionsManagement.hasPermission(
       permissionUser,
       de.dytanic.cloudnet.driver.permission.Permission.of(inName));

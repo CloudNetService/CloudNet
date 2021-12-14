@@ -44,14 +44,14 @@ public class RPCPacketListener implements IPacketListener {
     // the result of the invocation, encoded
     DataBuf result = null;
     // the input information we get
-    DataBuf buf = packet.getContent();
+    var buf = packet.getContent();
     // check if the invocation is chained
     if (buf.readBoolean()) {
       // get the chain size
-      int chainSize = buf.readInt();
+      var chainSize = buf.readInt();
       // invoke the method on the current result
       HandlingResult lastResult = null;
-      for (int i = 1; i < chainSize; i++) {
+      for (var i = 1; i < chainSize; i++) {
         if (i == 1) {
           // always invoke the first method
           lastResult = this.handleRaw(buf.readString(), this.buildContext(channel, buf, null, false));
@@ -95,11 +95,11 @@ public class RPCPacketListener implements IPacketListener {
 
   protected @Nullable DataBuf handle(@NotNull String clazz, @NotNull RPCInvocationContext context) {
     // get the handler associated with the class of the rpc
-    RPCHandler handler = this.rpcHandlerRegistry.getHandler(clazz);
+    var handler = this.rpcHandlerRegistry.getHandler(clazz);
     // check if the method gets called on a specific instance
     if (handler != null) {
       // invoke the method
-      HandlingResult handlingResult = handler.handle(context);
+      var handlingResult = handler.handle(context);
       // serialize the result
       return this.serializeResult(handlingResult, handler.getDataBufFactory(), handler.getObjectMapper(), context);
     }
@@ -125,7 +125,7 @@ public class RPCPacketListener implements IPacketListener {
         return objectMapper.writeObject(dataBufFactory.createEmpty().writeBoolean(true), result.getInvocationResult());
       } else {
         // not successful - send some basic information about the result
-        Throwable throwable = (Throwable) result.getInvocationResult();
+        var throwable = (Throwable) result.getInvocationResult();
         return ExceptionalResultUtils.serializeThrowable(dataBufFactory.createEmpty().writeBoolean(false), throwable);
       }
     }
@@ -135,7 +135,7 @@ public class RPCPacketListener implements IPacketListener {
 
   protected @Nullable HandlingResult handleRaw(@NotNull String clazz, @NotNull RPCInvocationContext context) {
     // get the handler associated with the class of the rpc
-    RPCHandler handler = this.rpcHandlerRegistry.getHandler(clazz);
+    var handler = this.rpcHandlerRegistry.getHandler(clazz);
     // invoke the handler with the information
     return handler == null ? null : handler.handle(context);
   }

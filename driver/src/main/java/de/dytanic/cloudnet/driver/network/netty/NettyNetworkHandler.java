@@ -66,9 +66,9 @@ public abstract class NettyNetworkHandler extends SimpleChannelInboundHandler<Pa
   protected void channelRead0(@NotNull ChannelHandlerContext ctx, @NotNull Packet msg) {
     this.getPacketDispatcher().execute(() -> {
       try {
-        UUID uuid = msg.getUniqueId();
+        var uuid = msg.getUniqueId();
         if (uuid != null) {
-          CompletableTask<IPacket> task = this.channel.getQueryPacketManager().getWaitingHandler(uuid);
+          var task = this.channel.getQueryPacketManager().getWaitingHandler(uuid);
           if (task != null) {
             task.complete(msg);
             // don't post a query response packet to another handler at all

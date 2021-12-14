@@ -167,7 +167,7 @@ public abstract class SQLDatabase extends AbstractDatabase {
   public @NotNull List<JsonDocument> get(@NotNull JsonDocument filters) {
     Preconditions.checkNotNull(filters);
 
-    StringBuilder stringBuilder = new StringBuilder("SELECT ").append(TABLE_COLUMN_VALUE).append(" FROM `")
+    var stringBuilder = new StringBuilder("SELECT ").append(TABLE_COLUMN_VALUE).append(" FROM `")
       .append(this.name).append('`');
 
     Collection<String> collection = new ArrayList<>();
@@ -175,7 +175,7 @@ public abstract class SQLDatabase extends AbstractDatabase {
     if (filters.size() > 0) {
       stringBuilder.append(" WHERE ");
 
-      Iterator<String> iterator = filters.iterator();
+      var iterator = filters.iterator();
       String item;
 
       while (iterator.hasNext()) {
@@ -259,8 +259,8 @@ public abstract class SQLDatabase extends AbstractDatabase {
       resultSet -> {
         Map<String, JsonDocument> map = new HashMap<>();
         while (resultSet.next()) {
-          String key = resultSet.getString(TABLE_COLUMN_KEY);
-          JsonDocument document = JsonDocument.fromJsonString(resultSet.getString(TABLE_COLUMN_VALUE));
+          var key = resultSet.getString(TABLE_COLUMN_KEY);
+          var document = JsonDocument.fromJsonString(resultSet.getString(TABLE_COLUMN_VALUE));
 
           if (predicate.test(key, document)) {
             map.put(key, document);
@@ -280,8 +280,8 @@ public abstract class SQLDatabase extends AbstractDatabase {
       String.format("SELECT * FROM `%s`;", this.name),
       resultSet -> {
         while (resultSet.next()) {
-          String key = resultSet.getString(TABLE_COLUMN_KEY);
-          JsonDocument document = JsonDocument.fromJsonString(resultSet.getString(TABLE_COLUMN_VALUE));
+          var key = resultSet.getString(TABLE_COLUMN_KEY);
+          var document = JsonDocument.fromJsonString(resultSet.getString(TABLE_COLUMN_VALUE));
           consumer.accept(key, document);
         }
 

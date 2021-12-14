@@ -56,7 +56,7 @@ public final class NodeModuleProviderHandler extends DefaultModuleProviderHandle
   }
 
   private void removeListeners(@NotNull Collection<INetworkChannel> channels, @NotNull ClassLoader loader) {
-    for (INetworkChannel channel : channels) {
+    for (var channel : channels) {
       channel.getPacketRegistry().removeListeners(loader);
     }
   }

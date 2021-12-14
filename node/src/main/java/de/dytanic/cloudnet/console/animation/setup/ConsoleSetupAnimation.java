@@ -85,7 +85,7 @@ public class ConsoleSetupAnimation extends AbstractConsoleAnimation {
 
   public void addEntries(QuestionListEntry<?> @NotNull ... entries) {
     if (entries.length != 0) {
-      for (QuestionListEntry<?> entry : entries) {
+      for (var entry : entries) {
         this.entries.offerLast(entry);
       }
     }
@@ -93,7 +93,7 @@ public class ConsoleSetupAnimation extends AbstractConsoleAnimation {
 
   public void addEntriesFirst(QuestionListEntry<?> @NotNull ... entries) {
     if (entries.length != 0) {
-      for (int i = entries.length - 1; i >= 0; i--) {
+      for (var i = entries.length - 1; i >= 0; i--) {
         this.entries.offerFirst(entries[i]);
       }
     }
@@ -164,13 +164,13 @@ public class ConsoleSetupAnimation extends AbstractConsoleAnimation {
   @Override
   protected boolean handleTick() {
     // check if there are more entries to go
-    QuestionListEntry<?> entry = this.entries.poll();
+    var entry = this.entries.poll();
     if (entry == null) {
       // no more questions - stop the animation
       return true;
     }
 
-    QuestionAnswerType<?> answerType = entry.getAnswerType();
+    var answerType = entry.getAnswerType();
     // write the recommendation if given
     if (answerType.getRecommendation() != null) {
       this.console.setCommandInputValue(answerType.getRecommendation());
@@ -185,17 +185,17 @@ public class ConsoleSetupAnimation extends AbstractConsoleAnimation {
       this.console.setCommandHistory(answerType.getPossibleAnswers());
 
       // collect the possible answers to one string
-      String answers = I18n.trans("ca-question-list-possible-answers-list")
+      var answers = I18n.trans("ca-question-list-possible-answers-list")
         .replace("%values%", String.join(", ", answerType.getPossibleAnswers()));
       // write the answers to the console
-      for (String line : this.updateCursor("&r" + entry.getQuestion() + " &r> &e" + answers)) {
+      for (var line : this.updateCursor("&r" + entry.getQuestion() + " &r> &e" + answers)) {
         super.getConsole().forceWriteLine(line);
       }
     } else {
       // clear the history
       this.console.setCommandHistory(null);
       // just write the question into the console
-      for (String line : this.updateCursor("&r" + entry.getQuestion())) {
+      for (var line : this.updateCursor("&r" + entry.getQuestion())) {
         super.getConsole().forceWriteLine(line);
       }
     }
@@ -254,7 +254,7 @@ public class ConsoleSetupAnimation extends AbstractConsoleAnimation {
 
     // try to parse the input from the type
     try {
-      Object result = answerType.tryParse(input.trim());
+      var result = answerType.tryParse(input.trim());
       // store the result and post it to the handlers
       answerType.postResult(result);
       this.results.put(entry.getKey(), result);
@@ -274,8 +274,8 @@ public class ConsoleSetupAnimation extends AbstractConsoleAnimation {
       // invalid input
       this.eraseLastLine(); // remove prompt
       // print the invalid input message to the console
-      String[] messageLines = answerType.getInvalidInputMessage(input).split(System.lineSeparator());
-      for (String line : messageLines) {
+      var messageLines = answerType.getInvalidInputMessage(input).split(System.lineSeparator());
+      for (var line : messageLines) {
         this.console.forceWriteLine(line);
       }
       // wait a short period of time for the user to read
@@ -319,7 +319,7 @@ public class ConsoleSetupAnimation extends AbstractConsoleAnimation {
       // send an empty line to prevent bugs
       this.getConsole().forceWriteLine("");
     } else {
-      for (String line : this.previousConsoleLines) {
+      for (var line : this.previousConsoleLines) {
         this.getConsole().forceWriteLine(line);
       }
     }
@@ -336,9 +336,9 @@ public class ConsoleSetupAnimation extends AbstractConsoleAnimation {
 
   private String @NotNull [] updateCursor(String @NotNull ... texts) {
     Collection<String> result = new ArrayList<>(texts.length);
-    int length = 0;
-    for (String text : texts) {
-      for (String line : text.split(System.lineSeparator())) {
+    var length = 0;
+    for (var text : texts) {
+      for (var line : text.split(System.lineSeparator())) {
         ++length;
         result.add(line);
       }
@@ -349,7 +349,7 @@ public class ConsoleSetupAnimation extends AbstractConsoleAnimation {
   }
 
   private @NotNull Ansi eraseLines(@NotNull Ansi ansi, int count) {
-    for (int i = 0; i < count; i++) {
+    for (var i = 0; i < count; i++) {
       ansi.cursorUp(1).eraseLine();
     }
 

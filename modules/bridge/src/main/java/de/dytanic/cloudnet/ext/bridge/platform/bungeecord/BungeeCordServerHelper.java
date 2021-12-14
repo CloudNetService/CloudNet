@@ -42,7 +42,7 @@ final class BungeeCordServerHelper {
     // find the best method to add a server to the proxy
     try {
       //noinspection deprecation
-      MethodHandle addServer = MethodHandles.publicLookup()
+      var addServer = MethodHandles.publicLookup()
         .findVirtual(ProxyConfig.class, "addServer", MethodType.methodType(ServerInfo.class, ServerInfo.class));
       // the waterfall method is available
       serverRegisterHandler = service -> {
@@ -61,7 +61,7 @@ final class BungeeCordServerHelper {
     // find the best method to remove a server from the proxy
     try {
       //noinspection deprecation
-      MethodHandle removeServerNamed = MethodHandles.publicLookup()
+      var removeServerNamed = MethodHandles.publicLookup()
         .findVirtual(ProxyConfig.class, "removeServerNamed", MethodType.methodType(ServerInfo.class, String.class));
       // the waterfall method is available
       serverUnregisterHandler = service -> {

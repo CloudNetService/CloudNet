@@ -79,24 +79,24 @@ public class V2HttpAuthentication {
   }
 
   public @NotNull String createJwt(@NotNull PermissionUser subject, long sessionTimeMillis) {
-    HttpSession session = this.getSessions().computeIfAbsent(subject.getUniqueId().toString(),
+    var session = this.getSessions().computeIfAbsent(subject.getUniqueId().toString(),
       userUniqueId -> new DefaultHttpSession(System.currentTimeMillis() + sessionTimeMillis, subject.getUniqueId()));
     return this.generateJwt(subject, session);
   }
 
   public @NotNull LoginResult<PermissionUser> handleBasicLoginRequest(@NotNull IHttpRequest request) {
-    String authenticationHeader = request.header("Authorization");
+    var authenticationHeader = request.header("Authorization");
     if (authenticationHeader == null) {
       return LoginResult.undefinedFailure();
     }
 
-    Matcher matcher = BASIC_LOGIN_PATTERN.matcher(authenticationHeader);
+    var matcher = BASIC_LOGIN_PATTERN.matcher(authenticationHeader);
     if (matcher.matches()) {
-      String[] credentials = new String(Base64.getDecoder().decode(matcher.group(1)), StandardCharsets.UTF_8)
+      var credentials = new String(Base64.getDecoder().decode(matcher.group(1)), StandardCharsets.UTF_8)
         .split(":");
       if (credentials.length == 2) {
-        List<PermissionUser> users = CloudNetDriver.getInstance().getPermissionManagement().getUsersByName(credentials[0]);
-        for (PermissionUser user : users) {
+        var users = CloudNetDriver.getInstance().getPermissionManagement().getUsersByName(credentials[0]);
+        for (var user : users) {
           if (user.checkPassword(credentials[1])) {
             return LoginResult.success(user);
           }
@@ -109,25 +109,25 @@ public class V2HttpAuthentication {
   }
 
   public @NotNull LoginResult<HttpSession> handleBearerLoginRequest(@NotNull IHttpRequest request) {
-    String authenticationHeader = request.header("Authorization");
+    var authenticationHeader = request.header("Authorization");
     if (authenticationHeader == null) {
       return LoginResult.undefinedFailure();
     }
 
-    Matcher matcher = BEARER_LOGIN_PATTERN.matcher(authenticationHeader);
+    var matcher = BEARER_LOGIN_PATTERN.matcher(authenticationHeader);
     if (matcher.matches()) {
       try {
-        Jws<Claims> jws = PARSER.parseClaimsJws(matcher.group(1));
-        HttpSession session = this.getSessionById(jws.getBody().getId());
+        var jws = PARSER.parseClaimsJws(matcher.group(1));
+        var session = this.getSessionById(jws.getBody().getId());
         if (session != null) {
-          PermissionUser user = session.getUser();
+          var user = session.getUser();
           if (user == null) {
             // the user associated with the session no longer exists
             this.sessions.remove(session.getUserId().toString());
             return ERROR_HANDLING_BEARER_LOGIN_USER_GONE;
           }
           // ensure that the user is the owner of the session
-          UUID userUniqueId = UUID.fromString(jws.getBody().get("uniqueId", String.class));
+          var userUniqueId = UUID.fromString(jws.getBody().get("uniqueId", String.class));
           if (user.getUniqueId().equals(userUniqueId)) {
             return LoginResult.success(session);
           }
@@ -146,7 +146,7 @@ public class V2HttpAuthentication {
   }
 
   public boolean expireSession(@NotNull IHttpRequest request) {
-    LoginResult<HttpSession> session = this.handleBearerLoginRequest(request);
+    var session = this.handleBearerLoginRequest(request);
     if (session.isSuccess()) {
       return this.expireSession(session.getResult());
     } else {
@@ -159,9 +159,9 @@ public class V2HttpAuthentication {
   }
 
   public @NotNull LoginResult<Pair<HttpSession, String>> refreshJwt(@NotNull IHttpRequest request, long lifetime) {
-    LoginResult<HttpSession> session = this.handleBearerLoginRequest(request);
+    var session = this.handleBearerLoginRequest(request);
     if (session.isSuccess()) {
-      HttpSession httpSession = session.getResult();
+      var httpSession = session.getResult();
       return LoginResult.success(new Pair<>(httpSession, this.refreshJwt(httpSession, lifetime)));
     } else {
       return LoginResult.undefinedFailure();
@@ -174,7 +174,7 @@ public class V2HttpAuthentication {
   }
 
   protected @Nullable HttpSession getSessionById(@NotNull String id) {
-    for (HttpSession session : this.getSessions().values()) {
+    for (var session : this.getSessions().values()) {
       if (session.getUniqueId().equals(id)) {
         return session;
       }
@@ -195,7 +195,7 @@ public class V2HttpAuthentication {
   }
 
   protected void cleanup() {
-    for (Map.Entry<String, HttpSession> entry : this.sessions.entrySet()) {
+    for (var entry : this.sessions.entrySet()) {
       if (entry.getValue().getExpireTime() <= System.currentTimeMillis()) {
         this.sessions.remove(entry.getKey());
       }

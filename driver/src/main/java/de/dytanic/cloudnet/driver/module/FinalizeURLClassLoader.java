@@ -89,7 +89,7 @@ public class FinalizeURLClassLoader extends URLClassLoader {
     }
 
     if (global) {
-      for (FinalizeURLClassLoader loader : LOADERS) {
+      for (var loader : LOADERS) {
         if (loader != this) {
           try {
             return loader.loadClass(name, resolve, false);

@@ -55,7 +55,7 @@ public class DefaultServicesRegistry implements IServicesRegistry {
     @NotNull Class<E> serviceClazz
   ) {
     if (this.providedServices.containsKey(clazz)) {
-      for (RegistryEntry<?> registryEntry : this.providedServices.get(clazz)) {
+      for (var registryEntry : this.providedServices.get(clazz)) {
         if (registryEntry.service.getClass().equals(serviceClazz)) {
           this.providedServices.get(clazz).remove(registryEntry);
 
@@ -75,7 +75,7 @@ public class DefaultServicesRegistry implements IServicesRegistry {
   @Override
   public <T, E extends T> @NotNull IServicesRegistry unregisterService(@NotNull Class<T> clazz, @NotNull E service) {
     if (this.providedServices.containsKey(clazz)) {
-      for (RegistryEntry<?> registryEntry : this.providedServices.get(clazz)) {
+      for (var registryEntry : this.providedServices.get(clazz)) {
         if (registryEntry.service.equals(service)) {
           this.providedServices.get(clazz).remove(registryEntry);
 
@@ -97,7 +97,7 @@ public class DefaultServicesRegistry implements IServicesRegistry {
   @Override
   public <T> boolean containsService(@NotNull Class<T> clazz, @NotNull String name) {
     if (this.providedServices.containsKey(clazz)) {
-      for (RegistryEntry<?> registryEntry : this.providedServices.get(clazz)) {
+      for (var registryEntry : this.providedServices.get(clazz)) {
         if (registryEntry.name.equals(name)) {
           return true;
         }
@@ -114,7 +114,7 @@ public class DefaultServicesRegistry implements IServicesRegistry {
   public <T> @NotNull IServicesRegistry unregisterService(@NotNull Class<T> clazz, @NotNull String name) {
 
     if (this.providedServices.containsKey(clazz)) {
-      for (RegistryEntry<?> registryEntry : this.providedServices.get(clazz)) {
+      for (var registryEntry : this.providedServices.get(clazz)) {
         if (registryEntry.name.equals(name)) {
           this.providedServices.get(clazz).remove(registryEntry);
 
@@ -157,7 +157,7 @@ public class DefaultServicesRegistry implements IServicesRegistry {
    */
   @Override
   public @NotNull IServicesRegistry unregisterAll(@NotNull ClassLoader classLoader) {
-    for (List<RegistryEntry<?>> item : this.providedServices.values()) {
+    for (var item : this.providedServices.values()) {
       item.removeIf(entry -> entry.service.getClass().getClassLoader().equals(classLoader));
     }
 
@@ -181,7 +181,7 @@ public class DefaultServicesRegistry implements IServicesRegistry {
     T value = null;
 
     if (this.containsService(clazz, name)) {
-      for (RegistryEntry<?> registryEntry : this.providedServices.get(clazz)) {
+      for (var registryEntry : this.providedServices.get(clazz)) {
         if (registryEntry.name.equals(name)) {
           value = (T) registryEntry.service;
           break;
@@ -200,7 +200,7 @@ public class DefaultServicesRegistry implements IServicesRegistry {
   public <T> @NotNull Collection<T> getServices(@NotNull Class<T> clazz) {
     Collection<T> collection = new ArrayList<>();
     if (this.providedServices.containsKey(clazz)) {
-      for (RegistryEntry<?> entry : this.providedServices.get(clazz)) {
+      for (var entry : this.providedServices.get(clazz)) {
         collection.add((T) entry.service);
       }
     }

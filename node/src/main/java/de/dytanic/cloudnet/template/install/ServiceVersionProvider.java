@@ -112,8 +112,8 @@ public class ServiceVersionProvider {
       return false;
     }
 
-    JsonDocument document = JsonDocument.newDocument(inputStream);
-    int fileVersion = document.getInt("fileVersion", -1);
+    var document = JsonDocument.newDocument(inputStream);
+    var fileVersion = document.getInt("fileVersion", -1);
 
     if (VERSIONS_FILE_VERSION == fileVersion && document.contains("versions")) {
       // load all service environments
@@ -130,7 +130,7 @@ public class ServiceVersionProvider {
   }
 
   public void interruptInstallSteps() {
-    for (InstallStep installStep : InstallStep.values()) {
+    for (var installStep : InstallStep.values()) {
       installStep.interrupt();
     }
   }
@@ -159,7 +159,7 @@ public class ServiceVersionProvider {
   }
 
   public boolean installServiceVersion(@NotNull InstallInformation information, boolean force) {
-    String fullVersionIdentifier = String.format("%s-%s",
+    var fullVersionIdentifier = String.format("%s-%s",
       information.getServiceVersionType().getName(),
       information.getServiceVersion().getName());
 
@@ -179,7 +179,7 @@ public class ServiceVersionProvider {
 
     try {
       // delete all old application files to prevent that they are used to start the service
-      for (FileInfo file : information.getTemplateStorage().listFiles("", false)) {
+      for (var file : information.getTemplateStorage().listFiles("", false)) {
         if (file != null) {
           for (ServiceEnvironment environment : this.serviceVersionTypes.values()) {
             if (file.getName().toLowerCase().contains(environment.getName()) && file.getName().endsWith(".jar")) {
@@ -192,8 +192,8 @@ public class ServiceVersionProvider {
       LOGGER.severe("Exception while deleting old application files", exception);
     }
 
-    Path workingDirectory = FileUtils.createTempFile();
-    Path cachedFilePath = VERSION_CACHE_PATH.resolve(fullVersionIdentifier);
+    var workingDirectory = FileUtils.createTempFile();
+    var cachedFilePath = VERSION_CACHE_PATH.resolve(fullVersionIdentifier);
 
     try {
       if (information.isCacheFiles() && Files.exists(cachedFilePath)) {
@@ -205,13 +205,13 @@ public class ServiceVersionProvider {
         installSteps.add(InstallStep.DEPLOY);
 
         Set<Path> lastStepResult = new HashSet<>();
-        for (InstallStep installStep : installSteps) {
+        for (var installStep : installSteps) {
           lastStepResult = installStep.execute(information, workingDirectory, lastStepResult);
         }
 
         if (information.getServiceVersion().isCacheFiles()) {
-          for (Path path : lastStepResult) {
-            Path targetPath = cachedFilePath.resolve(workingDirectory.relativize(path));
+          for (var path : lastStepResult) {
+            var targetPath = cachedFilePath.resolve(workingDirectory.relativize(path));
             Files.createDirectories(targetPath.getParent());
 
             Files.copy(path, targetPath, StandardCopyOption.REPLACE_EXISTING);
@@ -219,9 +219,9 @@ public class ServiceVersionProvider {
         }
       }
 
-      for (Map.Entry<String, String> entry : information.getServiceVersion().getAdditionalDownloads().entrySet()) {
+      for (var entry : information.getServiceVersion().getAdditionalDownloads().entrySet()) {
         ConsoleProgressWrappers.wrapDownload(entry.getKey(), stream -> {
-          try (OutputStream out = information.getTemplateStorage().newOutputStream(entry.getKey())) {
+          try (var out = information.getTemplateStorage().newOutputStream(entry.getKey())) {
             FileUtils.copy(stream, out);
           }
         });

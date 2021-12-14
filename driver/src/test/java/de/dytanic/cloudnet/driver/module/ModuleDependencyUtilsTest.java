@@ -37,9 +37,9 @@ public class ModuleDependencyUtilsTest {
   void testDependencyResolving() {
     Collection<IModuleWrapper> moduleWrappers = new ArrayList<>();
 
-    IModuleProvider provider = this.mockModuleProvider(moduleWrappers);
+    var provider = this.mockModuleProvider(moduleWrappers);
 
-    IModuleWrapper rootModule = this.mockRootModule(provider);
+    var rootModule = this.mockRootModule(provider);
     moduleWrappers.add(rootModule);
 
     moduleWrappers.add(this.mockModule(provider, "sub", "1.5.0"));
@@ -56,7 +56,7 @@ public class ModuleDependencyUtilsTest {
   @Order(10)
   void testMissingDependency() {
     Collection<IModuleWrapper> moduleWrappers = new ArrayList<>();
-    IModuleProvider provider = this.mockModuleProvider(moduleWrappers);
+    var provider = this.mockModuleProvider(moduleWrappers);
 
     Assertions.assertThrows(
       ModuleDependencyNotFoundException.class,
@@ -67,7 +67,7 @@ public class ModuleDependencyUtilsTest {
   @Order(20)
   void testDependencyOutdatedDependency() {
     Collection<IModuleWrapper> moduleWrappers = new ArrayList<>();
-    IModuleProvider provider = this.mockModuleProvider(moduleWrappers);
+    var provider = this.mockModuleProvider(moduleWrappers);
 
     moduleWrappers.add(this.mockModule(provider, "sub", "1.4.7"));
 
@@ -77,7 +77,7 @@ public class ModuleDependencyUtilsTest {
   }
 
   private IModuleProvider mockModuleProvider(Collection<IModuleWrapper> wrappers) {
-    IModuleProvider provider = Mockito.mock(IModuleProvider.class);
+    var provider = Mockito.mock(IModuleProvider.class);
     Mockito.when(provider.getModules()).thenReturn(wrappers);
     Mockito.when(provider.getModule(Mockito.anyString())).then(invocation -> wrappers.stream()
       .filter(wrapper -> wrapper.getModule().getName().equals(invocation.getArgument(0)))
@@ -103,11 +103,11 @@ public class ModuleDependencyUtilsTest {
   }
 
   private IModuleWrapper mockModule(IModuleProvider pro, String name, String version, Consumer<IModuleWrapper> mod) {
-    IModule mockedModule = Mockito.mock(IModule.class);
+    var mockedModule = Mockito.mock(IModule.class);
     Mockito.when(mockedModule.getName()).thenReturn(name);
     Mockito.when(mockedModule.getVersion()).thenReturn(version);
 
-    IModuleWrapper moduleWrapper = Mockito.mock(IModuleWrapper.class);
+    var moduleWrapper = Mockito.mock(IModuleWrapper.class);
     Mockito.when(moduleWrapper.getModuleProvider()).thenReturn(pro);
     Mockito.when(moduleWrapper.getModule()).thenReturn(mockedModule);
 

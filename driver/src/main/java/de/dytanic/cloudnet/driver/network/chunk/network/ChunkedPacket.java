@@ -44,7 +44,7 @@ public class ChunkedPacket extends Packet {
     int dataLength,
     byte[] data
   ) {
-    DataBuf.Mutable dataBuf = DataBuf.empty()
+    var dataBuf = DataBuf.empty()
       // transfer information
       .writeObject(information)
       // the index of the chunk we are sending

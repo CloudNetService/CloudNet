@@ -53,7 +53,7 @@ final class BukkitSimpleNameTagsManager extends SimpleNameTagsManager<Player> {
   @Override
   public void resetScoreboard(@NotNull Player player) {
     // just to make IntelliJ happy - the manager should not be null when a player connected successfully
-    ScoreboardManager manager = player.getServer().getScoreboardManager();
+    var manager = player.getServer().getScoreboardManager();
     if (manager != null && player.getScoreboard().equals(manager.getMainScoreboard())) {
       player.setScoreboard(manager.getNewScoreboard());
     }
@@ -67,7 +67,7 @@ final class BukkitSimpleNameTagsManager extends SimpleNameTagsManager<Player> {
     @NotNull PermissionGroup group
   ) {
     // check if the team is already registered
-    Team team = scoreboardHolder.getScoreboard().getTeam(name);
+    var team = scoreboardHolder.getScoreboard().getTeam(name);
     if (team == null) {
       team = scoreboardHolder.getScoreboard().registerNewTeam(name);
     }
@@ -75,7 +75,7 @@ final class BukkitSimpleNameTagsManager extends SimpleNameTagsManager<Player> {
     team.setPrefix(ChatColor.translateAlternateColorCodes('&', group.getPrefix()));
     team.setSuffix(ChatColor.translateAlternateColorCodes('&', group.getSuffix()));
     // set the team color if possible
-    ChatColor teamColor = ChatColor.getByChar(this.getColorChar(group));
+    var teamColor = ChatColor.getByChar(this.getColorChar(group));
     if (teamColor != null) {
       BukkitCompatibility.setTeamColor(team, teamColor);
     }

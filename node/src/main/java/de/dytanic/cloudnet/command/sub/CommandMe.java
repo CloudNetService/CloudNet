@@ -39,13 +39,13 @@ public final class CommandMe {
 
   @CommandMethod("me|info")
   public void me(CommandSource commandSource) {
-    CloudNet cloudNet = CloudNet.getInstance();
-    MemoryMXBean memoryMXBean = ManagementFactory.getMemoryMXBean();
+    var cloudNet = CloudNet.getInstance();
+    var memoryMXBean = ManagementFactory.getMemoryMXBean();
 
-    NetworkClusterNodeInfoSnapshot nodeInfoSnapshot = cloudNet.getClusterNodeServerProvider().getSelfNode()
+    var nodeInfoSnapshot = cloudNet.getClusterNodeServerProvider().getSelfNode()
       .getNodeInfoSnapshot();
 
-    List<String> messages = Arrays.asList(
+    var messages = Arrays.asList(
       " ",
       CloudNet.getInstance().getVersion() + " by Dytanic & the CloudNet Community",
       "Discord: https://discord.cloudnetservice.eu/",

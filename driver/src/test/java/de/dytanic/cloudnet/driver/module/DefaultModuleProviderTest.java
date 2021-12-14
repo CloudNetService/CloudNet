@@ -25,11 +25,11 @@ public final class DefaultModuleProviderTest {
   @Test
   void testModuleLifecycles() {
     IModuleProvider moduleProvider = new DefaultModuleProvider();
-    URL testModuleResource = DefaultModuleProviderTest.class.getClassLoader().getResource("module.jar");
+    var testModuleResource = DefaultModuleProviderTest.class.getClassLoader().getResource("module.jar");
 
     Assertions.assertNotNull(testModuleResource);
 
-    IModuleWrapper moduleWrapper = moduleProvider.loadModule(testModuleResource);
+    var moduleWrapper = moduleProvider.loadModule(testModuleResource);
     Assertions.assertNull(moduleProvider.loadModule(testModuleResource));
 
     Assertions.assertNotNull(moduleWrapper);

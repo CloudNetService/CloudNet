@@ -103,7 +103,7 @@ public class NPC extends JsonDocPropertyHolder {
   }
 
   public static @NotNull Builder builder(@NotNull NPC npc) {
-    Builder builder = builder()
+    var builder = builder()
       .targetGroup(npc.getTargetGroup())
       .displayName(npc.getDisplayName())
       .infoLines(npc.getInfoLines())

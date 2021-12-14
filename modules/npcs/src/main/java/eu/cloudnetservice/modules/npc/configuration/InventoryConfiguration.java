@@ -88,8 +88,8 @@ public class InventoryConfiguration {
     } else if (groups.length == 1) {
       return this.perGroupLayouts.getOrDefault(groups[0], this.defaultItems);
     } else {
-      for (String group : groups) {
-        ItemLayoutHolder holder = this.perGroupLayouts.get(group);
+      for (var group : groups) {
+        var holder = this.perGroupLayouts.get(group);
         if (holder != null) {
           return holder;
         }

@@ -29,7 +29,7 @@ public class V2HttpHandlerWebSocketTicket extends V2HttpHandler {
 
   @Override
   protected void handleBearerAuthorized(String path, IHttpContext context, HttpSession session) {
-    WebSocketTicket ticket = this.authentication.getWebSocketTicketManager().issueTicket(context.request(), session);
+    var ticket = this.authentication.getWebSocketTicketManager().issueTicket(context.request(), session);
     this.ok(context)
       .body(
         this.success().append("id", ticket.getFullId()).append("expire", ticket.getExpirationTimestamp()).toString())

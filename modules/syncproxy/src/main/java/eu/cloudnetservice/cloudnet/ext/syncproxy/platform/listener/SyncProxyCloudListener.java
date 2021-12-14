@@ -72,7 +72,7 @@ public final class SyncProxyCloudListener<P> {
     if (!this.management.getConfiguration().showIngameServicesStartStopMessages()) {
       return;
     }
-    for (P onlinePlayer : this.management.getOnlinePlayers()) {
+    for (var onlinePlayer : this.management.getOnlinePlayers()) {
       if (this.management.checkPlayerPermission(onlinePlayer, "cloudnet.syncproxy.notify")) {
         this.management.messagePlayer(onlinePlayer, this.management.getServiceUpdateMessage(key, serviceInfoSnapshot));
       }

@@ -56,7 +56,7 @@ public final class TaskChannelMessageListener {
         break;
         // add task
         case "add_service_task": {
-          ServiceTask task = event.getContent().readObject(ServiceTask.class);
+          var task = event.getContent().readObject(ServiceTask.class);
 
           this.taskProvider.addPermanentServiceTaskSilently(task);
           this.eventManager.callEvent(new ServiceTaskAddEvent(task));
@@ -64,7 +64,7 @@ public final class TaskChannelMessageListener {
         break;
         // remove task
         case "remove_service_task": {
-          ServiceTask task = event.getContent().readObject(ServiceTask.class);
+          var task = event.getContent().readObject(ServiceTask.class);
 
           this.taskProvider.removePermanentServiceTaskSilently(task);
           this.eventManager.callEvent(new ServiceTaskRemoveEvent(task));

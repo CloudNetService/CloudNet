@@ -30,12 +30,12 @@ final class ConfigurationUtils {
     // the result
     Collection<HostAndPort> listeners = new HashSet<>();
     // read from the value
-    String[] hostAndPorts = value.split(",");
-    for (String hostAndPort : hostAndPorts) {
-      String[] splitHostAndPort = hostAndPort.split("%");
+    var hostAndPorts = value.split(",");
+    for (var hostAndPort : hostAndPorts) {
+      var splitHostAndPort = hostAndPort.split("%");
       if (splitHostAndPort.length == 2) {
         // try to parse the host and port info
-        Integer port = Ints.tryParse(splitHostAndPort[1]);
+        var port = Ints.tryParse(splitHostAndPort[1]);
         if (port != null) {
           listeners.add(new HostAndPort(splitHostAndPort[0], port));
         }
@@ -51,7 +51,7 @@ final class ConfigurationUtils {
 
   public static @NotNull String get(@NotNull String propertyName, @NotNull String def) {
     // try to read the value from the system properties
-    String val = getProperty(propertyName);
+    var val = getProperty(propertyName);
     return val == null ? def : val;
   }
 
@@ -61,13 +61,13 @@ final class ConfigurationUtils {
     @NotNull Function<String, T> mapper
   ) {
     // try to read the value from the system properties
-    String val = getProperty(propertyName);
+    var val = getProperty(propertyName);
     if (val == null) {
       return def;
     }
     // try to map the input
     try {
-      T mapped = mapper.apply(val);
+      var mapped = mapper.apply(val);
       return mapped == null ? def : mapped;
     } catch (Exception exception) {
       return def;
@@ -75,7 +75,7 @@ final class ConfigurationUtils {
   }
 
   private static @Nullable String getProperty(@NotNull String propertyName) {
-    String val = System.getProperty(propertyName);
+    var val = System.getProperty(propertyName);
     return val == null ? System.getenv(propertyName.replace('.', '_').toUpperCase()) : val;
   }
 }

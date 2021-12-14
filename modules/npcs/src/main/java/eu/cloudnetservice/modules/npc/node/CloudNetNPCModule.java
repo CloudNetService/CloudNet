@@ -49,9 +49,9 @@ public class CloudNetNPCModule extends DriverModule {
   @ModuleTask(order = Byte.MAX_VALUE)
   public void convertConfiguration() {
     if (Files.exists(this.getConfigPath())) {
-      NPCConfiguration old = JsonDocument.newDocument(this.getConfigPath()).get("config", NPCConfiguration.class);
+      var old = JsonDocument.newDocument(this.getConfigPath()).get("config", NPCConfiguration.class);
       if (old != null) {
-        Set<NPCConfigurationEntry> newEntries = old.getConfigurations().stream()
+        var newEntries = old.getConfigurations().stream()
           .map(entry -> eu.cloudnetservice.modules.npc.configuration.NPCConfigurationEntry.builder()
             .targetGroup(entry.getTargetGroup())
             .infoLineDistance(entry.getInfoLineDistance())
@@ -91,7 +91,7 @@ public class CloudNetNPCModule extends DriverModule {
 
     // convert the old database
     Database db = CloudNet.getInstance().getDatabaseProvider().getDatabase("cloudNet_module_configuration");
-    JsonDocument npcStore = db.get("npc_store");
+    var npcStore = db.get("npc_store");
     if (npcStore != null) {
       Collection<CloudNPC> theOldOnes = npcStore.get("npcs", NPCConstants.NPC_COLLECTION_TYPE);
       // remove the old entries
@@ -124,10 +124,10 @@ public class CloudNetNPCModule extends DriverModule {
 
   @ModuleTask
   public void initModule() {
-    eu.cloudnetservice.modules.npc.configuration.NPCConfiguration config = this.loadConfig();
+    var config = this.loadConfig();
     Database database = CloudNet.getInstance().getDatabaseProvider().getDatabase(DATABASE_NAME);
     // management init
-    NodeNPCManagement management = new NodeNPCManagement(
+    var management = new NodeNPCManagement(
       config,
       database,
       this.getConfigPath(),

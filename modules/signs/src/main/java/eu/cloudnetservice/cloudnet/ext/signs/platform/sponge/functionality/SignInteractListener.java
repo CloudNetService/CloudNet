@@ -50,18 +50,18 @@ public class SignInteractListener {
   @Listener
   public void handle(@NotNull InteractBlockEvent.Secondary event, @First ServerPlayer player) {
     // easy hack to allow all sign types like acacia_sign, birch_wall_sign etc.
-    ResourceKey key = event.block().state().type().findKey(RegistryTypes.BLOCK_TYPE).orElse(null);
+    var key = event.block().state().type().findKey(RegistryTypes.BLOCK_TYPE).orElse(null);
     if (key != null && key.formatted().endsWith("_sign")) {
       if (event.block().location().isPresent()
         && event.block().location().get().blockEntity().isPresent()
         && event.block().location().get().blockEntity().get() instanceof org.spongepowered.api.block.entity.Sign) {
         // get the cloud sign at the position
-        Sign sign = this.signManagement.getSignAt(
+        var sign = this.signManagement.getSignAt(
           (org.spongepowered.api.block.entity.Sign) event.block().location().get().blockEntity().get());
         if (sign != null) {
-          boolean canConnect = this.signManagement.canConnect(sign, player::hasPermission);
+          var canConnect = this.signManagement.canConnect(sign, player::hasPermission);
 
-          SpongeCloudSignInteractEvent interactEvent = new SpongeCloudSignInteractEvent(
+          var interactEvent = new SpongeCloudSignInteractEvent(
             Cause.of(EventContext.builder().from(event.context()).build(), this.plugin),
             player, sign, !canConnect);
           Sponge.eventManager().post(interactEvent);

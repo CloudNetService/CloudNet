@@ -232,21 +232,21 @@ public class CloudNet extends CloudNetDriver {
     this.nodeServerProvider.getSelfNode().publishNodeInfoSnapshotUpdate();
 
     // network server init
-    for (HostAndPort listener : this.configuration.getIdentity().getListeners()) {
+    for (var listener : this.configuration.getIdentity().getListeners()) {
       this.networkServer.addListener(listener);
     }
     // http server init
-    for (HostAndPort httpListener : this.configuration.getHttpListeners()) {
+    for (var httpListener : this.configuration.getHttpListeners()) {
       this.httpServer.addListener(httpListener);
     }
     // network client init
     Set<CompletableFuture<Void>> futures = new HashSet<>(); // all futures of connections
-    for (IClusterNodeServer node : this.nodeServerProvider.getNodeServers()) {
-      HostAndPort[] listeners = node.getNodeInfo().getListeners();
+    for (var node : this.nodeServerProvider.getNodeServers()) {
+      var listeners = node.getNodeInfo().getListeners();
       // check if there are any listeners
       if (listeners.length > 0) {
         // get a random listener of the node
-        HostAndPort listener = listeners[ThreadLocalRandom.current().nextInt(0, listeners.length)];
+        var listener = listeners[ThreadLocalRandom.current().nextInt(0, listeners.length)];
         if (this.networkClient.connect(listener)) {
           // register a future that waits for the node to become available
           futures.add(CompletableFuture.runAsync(() -> {
@@ -349,7 +349,7 @@ public class CloudNet extends CloudNetDriver {
 
   @Override
   public @NotNull TemplateStorage getLocalTemplateStorage() {
-    TemplateStorage localStorage = this.getTemplateStorage(ServiceTemplate.LOCAL_STORAGE);
+    var localStorage = this.getTemplateStorage(ServiceTemplate.LOCAL_STORAGE);
     if (localStorage == null) {
       // this should never happen
       throw new UnsupportedOperationException("Local template storage is not present");
@@ -397,11 +397,11 @@ public class CloudNet extends CloudNetDriver {
   public @NotNull Collection<String> sendCommandLineAsPermissionUser(@NotNull UUID uniqueId,
     @NotNull String commandLine) {
     // get the permission user
-    PermissionUser user = this.permissionManagement.getUser(uniqueId);
+    var user = this.permissionManagement.getUser(uniqueId);
     if (user == null) {
       return Collections.emptyList();
     } else {
-      PermissionUserCommandSource source = new PermissionUserCommandSource(user, this.permissionManagement);
+      var source = new PermissionUserCommandSource(user, this.permissionManagement);
       this.commandProvider.execute(source, commandLine).join();
 
       return source.getMessages();

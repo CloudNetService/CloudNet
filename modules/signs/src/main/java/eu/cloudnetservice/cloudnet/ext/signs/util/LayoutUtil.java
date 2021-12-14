@@ -59,7 +59,7 @@ public final class LayoutUtil {
       return entry.getSearchingLayout();
     }
     // return the correct layout based on the state
-    ServiceInfoState state = BridgeServiceHelper.guessStateFromServiceInfoSnapshot(snapshot);
+    var state = BridgeServiceHelper.guessStateFromServiceInfoSnapshot(snapshot);
     if (state == ServiceInfoState.STOPPED) {
       return entry.getSearchingLayout();
     } else if (state == ServiceInfoState.STARTING) {
@@ -67,7 +67,7 @@ public final class LayoutUtil {
     } else {
       // check for an overriding group configuration
       SignGroupConfiguration groupConfiguration = null;
-      for (SignGroupConfiguration configuration : entry.getGroupConfigurations()) {
+      for (var configuration : entry.getGroupConfigurations()) {
         if (configuration.getTargetGroup() != null
           && configuration.getTargetGroup().equals(sign.getTargetGroup())
           && configuration.getEmptyLayout() != null

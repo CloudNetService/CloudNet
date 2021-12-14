@@ -59,7 +59,7 @@ public class NPCConfigurationEntry {
   private long npcTabListRemoveTicks = 40L;
 
   public NPCConfigurationEntry() {
-    for (int i = 1; i < 10; i++) {
+    for (var i = 1; i < 10; i++) {
       this.inventoryLayout.put(i, new ItemLayout("BLACK_STAINED_GLASS_PANE", " ", new ArrayList<>()));
     }
   }

@@ -47,7 +47,7 @@ public final class BridgeServiceHelper {
   public static void changeToIngame(boolean autoStartService) {
     if (!STATE.getAndSet("INGAME").equalsIgnoreCase("ingame") && autoStartService) {
       // start a new service based on the task name
-      String taskName = Wrapper.getInstance().getServiceId().getTaskName();
+      var taskName = Wrapper.getInstance().getServiceId().getTaskName();
       CloudNetDriver.getInstance().getServiceTaskProvider()
         .getServiceTaskAsync(taskName)
         .map(task -> ServiceConfiguration.builder(task).build())

@@ -24,9 +24,9 @@ public class InstalledVersionInfo extends DefaultVersionInfo implements VersionI
     this.targetDirectory = targetDirectory;
     this.gitHubRepository = gitHubRepository;
 
-    String versionSpecification = targetDirectory.getFileName().toString();
+    var versionSpecification = targetDirectory.getFileName().toString();
 
-    String[] versionParts = versionSpecification.split("-");
+    var versionParts = versionSpecification.split("-");
 
     if (versionParts.length > 1) {
       this.appVersion = versionParts[0] + "-" + versionParts[1];

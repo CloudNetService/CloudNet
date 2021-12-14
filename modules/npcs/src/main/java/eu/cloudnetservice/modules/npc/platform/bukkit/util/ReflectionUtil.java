@@ -38,7 +38,7 @@ public final class ReflectionUtil {
   static {
     String nmsPackage = null;
     // get the craft bukkit package
-    Matcher matcher = PACKAGE_VERSION_PATTERN.matcher(Bukkit.getServer().getClass().getName());
+    var matcher = PACKAGE_VERSION_PATTERN.matcher(Bukkit.getServer().getClass().getName());
     if (!matcher.matches()) {
       throw new ExceptionInInitializerError("Unable to resolve craft bukkit package");
     }
@@ -65,7 +65,7 @@ public final class ReflectionUtil {
   }
 
   public static @NotNull Class<?> findNmsClass(String @NotNull ... names) {
-    for (String name : names) {
+    for (var name : names) {
       try {
         return Class.forName(NMS_PACKAGE + name);
       } catch (ClassNotFoundException ignored) {
@@ -76,7 +76,7 @@ public final class ReflectionUtil {
   }
 
   public static @NotNull Class<?> findCraftBukkitClass(String @NotNull ... names) {
-    for (String name : names) {
+    for (var name : names) {
       try {
         return Class.forName(CRAFT_BUKKIT_PACKAGE + name);
       } catch (ClassNotFoundException ignored) {
@@ -92,8 +92,8 @@ public final class ReflectionUtil {
     @NotNull Class<?>[] pts,
     String @NotNull ... names
   ) {
-    for (String name : names) {
-      MethodHandle handle = findMethod(clazz, name, pts);
+    for (var name : names) {
+      var handle = findMethod(clazz, name, pts);
       if (handle != null) {
         return handle;
       }
@@ -115,7 +115,7 @@ public final class ReflectionUtil {
     Class<?> @NotNull ... pts
   ) {
     try {
-      Method method = clazz.getDeclaredMethod(name, pts);
+      var method = clazz.getDeclaredMethod(name, pts);
       return MethodHandles.publicLookup().unreflect(method);
     } catch (NoSuchMethodException | IllegalAccessException exception) {
       return null;
@@ -125,7 +125,7 @@ public final class ReflectionUtil {
   @SuppressWarnings("unchecked")
   public static @Nullable <T> T getStaticFieldValue(@NotNull Class<?> origin, @NotNull String name) {
     try {
-      Field field = origin.getDeclaredField(name);
+      var field = origin.getDeclaredField(name);
       return (T) field.get(null);
     } catch (ReflectiveOperationException exception) {
       return null;

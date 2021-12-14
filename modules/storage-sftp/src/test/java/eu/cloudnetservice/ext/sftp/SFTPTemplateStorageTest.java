@@ -62,7 +62,7 @@ public final class SFTPTemplateStorageTest {
   private static SFTPTemplateStorage storage;
 
   static {
-    try (ServerSocket socket = new ServerSocket(0)) {
+    try (var socket = new ServerSocket(0)) {
       PORT = socket.getLocalPort();
     } catch (IOException exception) {
       throw new ExceptionInInitializerError(exception);
@@ -72,7 +72,7 @@ public final class SFTPTemplateStorageTest {
   @BeforeAll
   static void setupServer() throws IOException {
     // init sftp
-    VirtualFileSystemFactory fsFactory = new VirtualFileSystemFactory();
+    var fsFactory = new VirtualFileSystemFactory();
     fsFactory.setDefaultHomeDir(BASE_PATH);
 
     // init the ssh server
@@ -131,7 +131,7 @@ public final class SFTPTemplateStorageTest {
   @Test
   @Order(20)
   void testNewOutputStream() throws IOException {
-    try (OutputStream stream = storage.newOutputStream(TEMPLATE, "test.txt")) {
+    try (var stream = storage.newOutputStream(TEMPLATE, "test.txt")) {
       Assertions.assertNotNull(stream);
       stream.write("Hello".getBytes(StandardCharsets.UTF_8));
     }
@@ -143,7 +143,7 @@ public final class SFTPTemplateStorageTest {
   @Test
   @Order(30)
   void testAppendOutputStream() throws IOException {
-    try (OutputStream stream = storage.appendOutputStream(TEMPLATE, "test.txt")) {
+    try (var stream = storage.appendOutputStream(TEMPLATE, "test.txt")) {
       Assertions.assertNotNull(stream);
       stream.write("World".getBytes(StandardCharsets.UTF_8));
     }
@@ -155,7 +155,7 @@ public final class SFTPTemplateStorageTest {
   @Test
   @Order(40)
   void testNewInputStream() throws IOException {
-    try (InputStream stream = storage.newInputStream(TEMPLATE, "test.txt")) {
+    try (var stream = storage.newInputStream(TEMPLATE, "test.txt")) {
       Assertions.assertNotNull(stream);
       Assertions.assertArrayEquals(ByteStreams.toByteArray(stream), "HelloWorld".getBytes(StandardCharsets.UTF_8));
     }
@@ -179,7 +179,7 @@ public final class SFTPTemplateStorageTest {
   @Test
   @Order(70)
   void testFileGetFileInfo() {
-    FileInfo info = storage.getFileInfo(TEMPLATE, "hello.txt");
+    var info = storage.getFileInfo(TEMPLATE, "hello.txt");
     Assertions.assertNotNull(info);
     Assertions.assertEquals(0, info.getSize());
     Assertions.assertEquals("hello.txt", info.getPath());
@@ -213,7 +213,7 @@ public final class SFTPTemplateStorageTest {
   @Test
   @Order(110)
   void testFileListingNonDeep() {
-    FileInfo[] files = storage.listFiles(TEMPLATE, "hello", false);
+    var files = storage.listFiles(TEMPLATE, "hello", false);
     Assertions.assertNotNull(files);
     Assertions.assertEquals(1, files.length);
     Assertions.assertEquals(0, files[0].getSize());
@@ -224,12 +224,12 @@ public final class SFTPTemplateStorageTest {
   @Test
   @Order(120)
   void testFileListingDeep() {
-    FileInfo[] files = storage.listFiles(TEMPLATE, "", true);
+    var files = storage.listFiles(TEMPLATE, "", true);
     Assertions.assertNotNull(files);
     Assertions.assertEquals(3, files.length);
 
     // there must be one directory
-    FileInfo dir = Arrays.stream(files).filter(FileInfo::isDirectory).findFirst().orElse(null);
+    var dir = Arrays.stream(files).filter(FileInfo::isDirectory).findFirst().orElse(null);
     Assertions.assertNotNull(dir);
     Assertions.assertEquals("hello", dir.getName());
   }
@@ -237,7 +237,7 @@ public final class SFTPTemplateStorageTest {
   @Test
   @Order(130)
   void testTemplateListing() {
-    Collection<ServiceTemplate> templates = storage.getTemplates();
+    var templates = storage.getTemplates();
     Assertions.assertEquals(1, templates.size());
     Assertions.assertEquals(TEMPLATE, templates.iterator().next());
   }

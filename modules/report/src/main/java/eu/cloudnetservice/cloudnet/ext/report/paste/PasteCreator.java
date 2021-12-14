@@ -64,8 +64,8 @@ public final class PasteCreator {
    * @return the emitted data
    */
   public <T> @NotNull String collectData(Class<T> clazz, T context) {
-    StringBuilder content = new StringBuilder();
-    for (ReportDataEmitter<T> emitter : this.registry.getEmitters(clazz)) {
+    var content = new StringBuilder();
+    for (var emitter : this.registry.getEmitters(clazz)) {
       emitter.emitData(content, context);
     }
 
@@ -93,7 +93,7 @@ public final class PasteCreator {
       return null;
     }
 
-    JsonDocument document = JsonDocument.fromJsonString(response);
+    var document = JsonDocument.fromJsonString(response);
     return String.format("%s/%s", this.pasteService.getServiceUrl(), document.getString("key"));
   }
 }

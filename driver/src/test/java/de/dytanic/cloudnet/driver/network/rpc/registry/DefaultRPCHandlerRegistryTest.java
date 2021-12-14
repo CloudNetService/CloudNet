@@ -36,7 +36,7 @@ public class DefaultRPCHandlerRegistryTest {
   @Test
   @Order(0)
   void testRegisterHandler() {
-    RPCProviderFactory factory = this.provideFactory();
+    var factory = this.provideFactory();
     RPCHandlerRegistry registry = new DefaultRPCHandlerRegistry();
 
     registry.registerHandler(factory.newHandler(TestApiClass.class, new TestApiClass(new AtomicLong())));
@@ -54,7 +54,7 @@ public class DefaultRPCHandlerRegistryTest {
   @Test
   @Order(10)
   void testUnregisterHandler() {
-    RPCProviderFactory factory = this.provideFactory();
+    var factory = this.provideFactory();
     RPCHandlerRegistry registry = new DefaultRPCHandlerRegistry();
 
     registry.registerHandler(factory.newHandler(TestApiClass.class, new TestApiClass(new AtomicLong())));

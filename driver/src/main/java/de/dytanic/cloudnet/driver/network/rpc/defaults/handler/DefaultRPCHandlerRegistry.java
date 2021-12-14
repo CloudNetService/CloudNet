@@ -77,7 +77,7 @@ public class DefaultRPCHandlerRegistry implements RPCHandlerRegistry {
 
   @Override
   public void unregisterHandlers(@NotNull ClassLoader classLoader) {
-    for (Entry<String, RPCHandler> entry : this.handlers.entrySet()) {
+    for (var entry : this.handlers.entrySet()) {
       if (entry.getValue().getClass().getClassLoader().equals(classLoader)) {
         this.handlers.remove(entry.getKey(), entry.getValue());
       }

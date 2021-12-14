@@ -48,7 +48,7 @@ public final class NodePluginIncludeListener {
       stream -> {
         FileUtils.createDirectory(PROTOCOLLIB_CACHE_PATH.getParent());
         // copy the input to the file
-        try (OutputStream out = Files.newOutputStream(PROTOCOLLIB_CACHE_PATH)) {
+        try (var out = Files.newOutputStream(PROTOCOLLIB_CACHE_PATH)) {
           FileUtils.copy(stream, out);
         }
         // success!
@@ -59,18 +59,18 @@ public final class NodePluginIncludeListener {
   @EventListener
   public void includePluginIfNecessary(@NotNull CloudServicePreLifecycleEvent event) {
     if (event.getTargetLifecycle() == ServiceLifeCycle.RUNNING && this.didDownloadProtocolLib.get()) {
-      ServiceEnvironmentType type = event.getService().getServiceConfiguration().getServiceId().getEnvironment();
+      var type = event.getService().getServiceConfiguration().getServiceId().getEnvironment();
       if (ServiceEnvironmentType.isMinecraftServer(type)) {
         // check if we have an entry for the current group
-        boolean hasEntry = this.management.getNPCConfiguration().getEntries().stream()
+        var hasEntry = this.management.getNPCConfiguration().getEntries().stream()
           .anyMatch(entry -> event.getConfiguration().getGroups().contains(entry.getTargetGroup()));
         if (hasEntry) {
-          Path pluginsDirectory = event.getService().getDirectory().resolve("plugins");
+          var pluginsDirectory = event.getService().getDirectory().resolve("plugins");
           // copy protocol lib
-          Path protocolLibPath = pluginsDirectory.resolve("ProtocolLib.jar");
+          var protocolLibPath = pluginsDirectory.resolve("ProtocolLib.jar");
           FileUtils.copy(PROTOCOLLIB_CACHE_PATH, protocolLibPath);
           // copy the plugin
-          Path pluginPath = pluginsDirectory.resolve("cloudnet-npcs.jar");
+          var pluginPath = pluginsDirectory.resolve("cloudnet-npcs.jar");
           FileUtils.delete(pluginPath);
           if (DefaultModuleHelper.copyCurrentModuleInstanceFromClass(NodePluginIncludeListener.class, pluginPath)) {
             DefaultModuleHelper.copyPluginConfigurationFileForEnvironment(

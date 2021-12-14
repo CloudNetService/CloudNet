@@ -119,13 +119,13 @@ public class DefaultRPCChain extends DefaultRPCProvider implements RPCChain {
   @Override
   public @NotNull <T> ITask<T> fire(@NotNull INetworkChannel component) {
     // information about the root invocation
-    DataBuf.Mutable dataBuf = this.dataBufFactory.createEmpty()
+    var dataBuf = this.dataBufFactory.createEmpty()
       .writeBoolean(true) // method chain
       .writeInt(this.rpcChain.size() + 1); // chain length (+1 because the root chain is not included)
     // write the root rpc first
     this.writeRPCInformation(dataBuf, this.rootRPC, false); // the root rpc can never the last
     // write the full chain
-    for (int i = 0; i < this.rpcChain.size(); i++) {
+    for (var i = 0; i < this.rpcChain.size(); i++) {
       this.writeRPCInformation(dataBuf, this.rpcChain.get(i), i < (this.rpcChain.size() - 1));
     }
     // send query if result is needed
@@ -157,7 +157,7 @@ public class DefaultRPCChain extends DefaultRPCProvider implements RPCChain {
       .writeString(rpc.getMethodName())
       .writeBoolean(!last || rpc.expectsResult());
     // write the arguments provided
-    for (Object argument : rpc.getArguments()) {
+    for (var argument : rpc.getArguments()) {
       this.objectMapper.writeObject(dataBuf, argument);
     }
   }

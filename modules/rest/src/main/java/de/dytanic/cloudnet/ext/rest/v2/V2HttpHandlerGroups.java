@@ -66,7 +66,7 @@ public class V2HttpHandlerGroups extends V2HttpHandler {
 
   protected void handleGroupRequest(IHttpContext context) {
     this.handleWithGroupContext(context, name -> {
-      GroupConfiguration configuration = this.getGroupProvider().getGroupConfiguration(name);
+      var configuration = this.getGroupProvider().getGroupConfiguration(name);
       if (configuration == null) {
         this.ok(context)
           .body(this.failure().append("reason", "Unknown configuration").toString())
@@ -84,7 +84,7 @@ public class V2HttpHandlerGroups extends V2HttpHandler {
   }
 
   protected void handleCreateGroupRequest(IHttpContext context) {
-    GroupConfiguration configuration = this.body(context.request()).toInstanceOf(GroupConfiguration.class);
+    var configuration = this.body(context.request()).toInstanceOf(GroupConfiguration.class);
     if (configuration == null) {
       this.badRequest(context)
         .body(this.failure().append("reason", "Missing configuration").toString())
@@ -122,7 +122,7 @@ public class V2HttpHandlerGroups extends V2HttpHandler {
   }
 
   protected void handleWithGroupContext(IHttpContext context, Consumer<String> handler) {
-    String groupName = context.request().pathParameters().get("group");
+    var groupName = context.request().pathParameters().get("group");
     if (groupName == null) {
       this.badRequest(context)
         .body(this.failure().append("reason", "Missing group parameter").toString())

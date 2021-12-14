@@ -29,13 +29,13 @@ public final class FileMimeTypeHelper {
   }
 
   public static @NotNull String getFileType(@NotNull String filePath) {
-    String mimeType = URLConnection.guessContentTypeFromName(filePath);
+    var mimeType = URLConnection.guessContentTypeFromName(filePath);
     return mimeType == null ? "application/octet-stream" : mimeType;
   }
 
   public static @NotNull String getFileType(@NotNull Path path) {
     try {
-      String mimeType = Files.probeContentType(path);
+      var mimeType = Files.probeContentType(path);
       return mimeType == null ? "application/octet-stream" : mimeType;
     } catch (IOException exception) {
       return "application/octet-stream";

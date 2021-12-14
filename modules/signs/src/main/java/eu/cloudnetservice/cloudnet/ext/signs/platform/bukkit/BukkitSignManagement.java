@@ -62,7 +62,7 @@ public class BukkitSignManagement extends AbstractPlatformSignManagement<org.buk
   }
 
   protected void pushUpdates0(@NotNull Set<Sign> signs, @NotNull SignLayout layout) {
-    for (Sign sign : signs) {
+    for (var sign : signs) {
       this.pushUpdate(sign, layout);
     }
   }
@@ -77,20 +77,20 @@ public class BukkitSignManagement extends AbstractPlatformSignManagement<org.buk
   }
 
   protected void pushUpdate0(@NotNull Sign sign, @NotNull SignLayout layout) {
-    Location location = this.worldPositionToLocation(sign.getLocation());
+    var location = this.worldPositionToLocation(sign.getLocation());
     if (location != null) {
-      int chunkX = NumberConversions.floor(location.getX()) >> 4;
-      int chunkZ = NumberConversions.floor(location.getZ()) >> 4;
+      var chunkX = NumberConversions.floor(location.getX()) >> 4;
+      var chunkZ = NumberConversions.floor(location.getZ()) >> 4;
 
       if (location.getWorld().isChunkLoaded(chunkX, chunkZ)) {
-        Block block = location.getBlock();
+        var block = location.getBlock();
         if (block.getState() instanceof org.bukkit.block.Sign) {
-          org.bukkit.block.Sign bukkitSign = (org.bukkit.block.Sign) block.getState();
+          var bukkitSign = (org.bukkit.block.Sign) block.getState();
           BukkitCompatibility.setSignGlowing(bukkitSign, layout);
 
-          String[] replaced = this.replaceLines(sign, layout);
+          var replaced = this.replaceLines(sign, layout);
           if (replaced != null) {
-            for (int i = 0; i < 4; i++) {
+            for (var i = 0; i < 4; i++) {
               bukkitSign.setLine(i, ChatColor.translateAlternateColorCodes('&', replaced[i]));
             }
 
@@ -105,12 +105,12 @@ public class BukkitSignManagement extends AbstractPlatformSignManagement<org.buk
 
   @SuppressWarnings("deprecation") // legacy 1.8 support...
   protected void changeBlock(@NotNull Block block, @NotNull SignLayout layout) {
-    Material material =
+    var material =
       layout.getBlockMaterial() == null ? null : Material.getMaterial(layout.getBlockMaterial().toUpperCase());
     if (material != null && material.isBlock()) {
-      BlockFace face = BukkitCompatibility.getFacing(block.getState());
+      var face = BukkitCompatibility.getFacing(block.getState());
       if (face != null) {
-        BlockState behind = block.getRelative(face.getOppositeFace()).getState();
+        var behind = block.getRelative(face.getOppositeFace()).getState();
         if (layout.getBlockSubId() >= 0) {
           behind.setData(new MaterialData(material, (byte) layout.getBlockSubId()));
         } else {
@@ -138,9 +138,9 @@ public class BukkitSignManagement extends AbstractPlatformSignManagement<org.buk
     @NotNull String group,
     @Nullable String templatePath
   ) {
-    SignConfigurationEntry entry = this.getApplicableSignConfigurationEntry();
+    var entry = this.getApplicableSignConfigurationEntry();
     if (entry != null) {
-      Sign created = new Sign(
+      var created = new Sign(
         group,
         templatePath,
         this.locationToWorldPosition(sign.getLocation(), entry.getTargetGroup()));
@@ -157,9 +157,9 @@ public class BukkitSignManagement extends AbstractPlatformSignManagement<org.buk
 
   @Override
   public int removeMissingSigns() {
-    int removed = 0;
-    for (WorldPosition position : this.signs.keySet()) {
-      Location location = this.worldPositionToLocation(position);
+    var removed = 0;
+    for (var position : this.signs.keySet()) {
+      var location = this.worldPositionToLocation(position);
       if (location == null || !(location.getBlock().getState() instanceof org.bukkit.block.Sign)) {
         this.deleteSign(position);
         removed++;
@@ -172,17 +172,17 @@ public class BukkitSignManagement extends AbstractPlatformSignManagement<org.buk
   @Override
   protected void startKnockbackTask() {
     Bukkit.getScheduler().runTaskTimer(this.plugin, () -> {
-      SignConfigurationEntry entry = this.getApplicableSignConfigurationEntry();
+      var entry = this.getApplicableSignConfigurationEntry();
       if (entry != null) {
-        SignConfigurationEntry.KnockbackConfiguration configuration = entry.getKnockbackConfiguration();
+        var configuration = entry.getKnockbackConfiguration();
         if (configuration.isValidAndEnabled()) {
-          double distance = configuration.getDistance();
+          var distance = configuration.getDistance();
 
-          for (Sign value : this.signs.values()) {
-            Location location = this.worldPositionToLocation(value.getLocation());
+          for (var value : this.signs.values()) {
+            var location = this.worldPositionToLocation(value.getLocation());
             if (location != null) {
-              int chunkX = (int) Math.floor(location.getX()) >> 4;
-              int chunkZ = (int) Math.floor(location.getZ()) >> 4;
+              var chunkX = (int) Math.floor(location.getX()) >> 4;
+              var chunkZ = (int) Math.floor(location.getZ()) >> 4;
 
               if (location.getWorld().isChunkLoaded(chunkX, chunkZ)
                 && location.getBlock().getState() instanceof org.bukkit.block.Sign) {
@@ -226,7 +226,7 @@ public class BukkitSignManagement extends AbstractPlatformSignManagement<org.buk
   }
 
   protected @Nullable Location worldPositionToLocation(@NotNull WorldPosition position) {
-    World world = Bukkit.getWorld(position.getWorld());
+    var world = Bukkit.getWorld(position.getWorld());
     return world == null ? null : new Location(world, position.getX(), position.getY(), position.getZ());
   }
 }

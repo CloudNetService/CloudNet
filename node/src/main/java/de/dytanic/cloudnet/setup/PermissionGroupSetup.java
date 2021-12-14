@@ -43,7 +43,7 @@ public class PermissionGroupSetup implements DefaultSetup {
   @Override
   public void handleResults(@NotNull ConsoleSetupAnimation animation) {
     if (animation.getResult("addDefaultGroups")) {
-      PermissionGroup adminPermissionGroup = new PermissionGroup("Admin", 100);
+      var adminPermissionGroup = new PermissionGroup("Admin", 100);
       adminPermissionGroup.addPermission("*");
       adminPermissionGroup.addPermission("Proxy", "*");
       adminPermissionGroup.setPrefix("&4Admin &8| &7");
@@ -52,7 +52,7 @@ public class PermissionGroupSetup implements DefaultSetup {
       adminPermissionGroup.setDisplay("&4");
       adminPermissionGroup.setSortId(10);
 
-      PermissionGroup defaultPermissionGroup = new PermissionGroup("default", 100);
+      var defaultPermissionGroup = new PermissionGroup("default", 100);
       defaultPermissionGroup.addPermission("bukkit.broadcast.user", true);
       defaultPermissionGroup.setDefaultGroup(true);
       defaultPermissionGroup.setPrefix("&7");

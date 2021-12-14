@@ -87,7 +87,7 @@ public final class H2DatabaseProvider extends SQLDatabaseProvider {
 
   @Override
   public @NotNull Collection<String> getDatabaseNames() {
-    Collection<String> tableNames = this.executeQuery(
+    var tableNames = this.executeQuery(
       "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA='PUBLIC'",
       resultSet -> {
         Collection<String> collection = new ArrayList<>();
@@ -120,8 +120,8 @@ public final class H2DatabaseProvider extends SQLDatabaseProvider {
   }
 
   public int executeUpdate(@NotNull String query, @NotNull Object... objects) {
-    try (PreparedStatement preparedStatement = this.getConnection().prepareStatement(query)) {
-      for (int i = 0; i < objects.length; i++) {
+    try (var preparedStatement = this.getConnection().prepareStatement(query)) {
+      for (var i = 0; i < objects.length; i++) {
         preparedStatement.setString(i + 1, objects[i].toString());
       }
 
@@ -137,12 +137,12 @@ public final class H2DatabaseProvider extends SQLDatabaseProvider {
     @NotNull ThrowableFunction<ResultSet, T, SQLException> callback,
     @NotNull Object... objects
   ) {
-    try (PreparedStatement preparedStatement = this.getConnection().prepareStatement(query)) {
-      for (int i = 0; i < objects.length; i++) {
+    try (var preparedStatement = this.getConnection().prepareStatement(query)) {
+      for (var i = 0; i < objects.length; i++) {
         preparedStatement.setString(i + 1, objects[i].toString());
       }
 
-      try (ResultSet resultSet = preparedStatement.executeQuery()) {
+      try (var resultSet = preparedStatement.executeQuery()) {
         return callback.apply(resultSet);
       }
     } catch (Throwable throwable) {

@@ -135,7 +135,7 @@ public class NodeGroupConfigurationProvider implements GroupConfigurationProvide
 
   @Override
   public void removeGroupConfigurationByName(@NotNull String name) {
-    GroupConfiguration configuration = this.getGroupConfiguration(name);
+    var configuration = this.getGroupConfiguration(name);
     if (configuration != null) {
       this.removeGroupConfiguration(configuration);
     }
@@ -201,13 +201,13 @@ public class NodeGroupConfigurationProvider implements GroupConfigurationProvide
 
   protected void writeAllGroupConfigurations() {
     // write all configurations
-    for (GroupConfiguration configuration : this.groupConfigurations.values()) {
+    for (var configuration : this.groupConfigurations.values()) {
       this.writeGroupConfiguration(configuration);
     }
     // delete all group files which do not exist anymore
     FileUtils.walkFileTree(GROUP_DIRECTORY_PATH, ($, file) -> {
       // check if we know the file name
-      String groupName = file.getFileName().toString().replace(".json", "");
+      var groupName = file.getFileName().toString().replace(".json", "");
       if (!this.groupConfigurations.containsKey(groupName)) {
         FileUtils.delete(file);
       }
@@ -217,9 +217,9 @@ public class NodeGroupConfigurationProvider implements GroupConfigurationProvide
   protected void loadGroupConfigurations() {
     FileUtils.walkFileTree(GROUP_DIRECTORY_PATH, ($, file) -> {
       // load the group
-      GroupConfiguration group = JsonDocument.newDocument(file).toInstanceOf(GroupConfiguration.class);
+      var group = JsonDocument.newDocument(file).toInstanceOf(GroupConfiguration.class);
       // check if the file name is still up-to-date
-      String groupName = file.getFileName().toString().replace(".json", "");
+      var groupName = file.getFileName().toString().replace(".json", "");
       if (!groupName.equals(group.getName())) {
         // rename the file
         FileUtils.move(file, this.getGroupFile(group), StandardCopyOption.REPLACE_EXISTING);

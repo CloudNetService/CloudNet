@@ -31,7 +31,7 @@ public final class ColouredLogFormatter extends Formatter {
 
   @Override
   public String format(LogRecord record) {
-    StringBuilder builder = new StringBuilder()
+    var builder = new StringBuilder()
       .append(ConsoleColor.DARK_GRAY)
       .append('[')
       .append(ConsoleColor.WHITE)
@@ -49,7 +49,7 @@ public final class ColouredLogFormatter extends Formatter {
   }
 
   private @NotNull String getColor(@NotNull Level level) {
-    ConsoleColor color = ConsoleColor.DARK_GRAY;
+    var color = ConsoleColor.DARK_GRAY;
     if (level == Level.INFO) {
       color = ConsoleColor.GREEN;
     } else if (level == Level.WARNING) {

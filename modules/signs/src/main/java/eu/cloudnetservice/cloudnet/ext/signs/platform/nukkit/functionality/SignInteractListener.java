@@ -39,16 +39,16 @@ public class SignInteractListener implements Listener {
 
   @EventHandler
   public void handle(PlayerInteractEvent event) {
-    SignConfigurationEntry entry = this.signManagement.getApplicableSignConfigurationEntry();
+    var entry = this.signManagement.getApplicableSignConfigurationEntry();
     if (entry != null && event.getAction() == PlayerInteractEvent.Action.RIGHT_CLICK_BLOCK
       && event.getBlock() != null) {
-      BlockEntity blockEntity = event.getBlock().getLevel().getBlockEntity(event.getBlock().getLocation());
+      var blockEntity = event.getBlock().getLevel().getBlockEntity(event.getBlock().getLocation());
       if (blockEntity instanceof BlockEntitySign) {
-        Sign sign = this.signManagement.getSignAt((BlockEntitySign) blockEntity);
+        var sign = this.signManagement.getSignAt((BlockEntitySign) blockEntity);
         if (sign != null) {
-          boolean canConnect = this.signManagement.canConnect(sign, event.getPlayer()::hasPermission);
+          var canConnect = this.signManagement.canConnect(sign, event.getPlayer()::hasPermission);
 
-          NukkitCloudSignInteractEvent interactEvent = new NukkitCloudSignInteractEvent(event.getPlayer(), sign,
+          var interactEvent = new NukkitCloudSignInteractEvent(event.getPlayer(), sign,
             !canConnect);
           Server.getInstance().getPluginManager().callEvent(interactEvent);
 

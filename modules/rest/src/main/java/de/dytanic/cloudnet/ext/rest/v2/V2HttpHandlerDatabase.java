@@ -78,7 +78,7 @@ public class V2HttpHandlerDatabase extends V2HttpHandler {
   }
 
   protected void handleClearRequest(IHttpContext context) {
-    Database database = this.getDatabase(context);
+    var database = this.getDatabase(context);
     if (database == null) {
       this.sendInvalidDatabaseName(context);
       return;
@@ -92,13 +92,13 @@ public class V2HttpHandlerDatabase extends V2HttpHandler {
   }
 
   protected void handleContainsRequest(IHttpContext context) {
-    Database database = this.getDatabase(context);
+    var database = this.getDatabase(context);
     if (database == null) {
       this.sendInvalidDatabaseName(context);
       return;
     }
 
-    String key = RestUtils.getFirst(context.request().queryParameters().get("key"));
+    var key = RestUtils.getFirst(context.request().queryParameters().get("key"));
     if (key == null) {
       this.badRequest(context)
         .body(this.failure().append("reason", "Missing key in request").toString())
@@ -115,15 +115,15 @@ public class V2HttpHandlerDatabase extends V2HttpHandler {
   }
 
   protected void handleGetRequest(IHttpContext context) {
-    Database database = this.getDatabase(context);
+    var database = this.getDatabase(context);
     if (database == null) {
       this.sendInvalidDatabaseName(context);
       return;
     }
 
-    JsonDocument body = this.body(context.request());
-    String key = body.getString("key");
-    JsonDocument filter = body.getDocument("filter");
+    var body = this.body(context.request());
+    var key = body.getString("key");
+    var filter = body.getDocument("filter");
 
     if (key == null && filter == null) {
       this.badRequest(context)
@@ -134,7 +134,7 @@ public class V2HttpHandlerDatabase extends V2HttpHandler {
       return;
     }
 
-    Collection<JsonDocument> result = filter == null ? Collections.singleton(database.get(key)) : database.get(filter);
+    var result = filter == null ? Collections.singleton(database.get(key)) : database.get(filter);
     this.ok(context)
       .body(this.success().append("result", result).toString())
       .context()
@@ -143,7 +143,7 @@ public class V2HttpHandlerDatabase extends V2HttpHandler {
   }
 
   protected void handleKeysRequest(IHttpContext context) {
-    Database database = this.getDatabase(context);
+    var database = this.getDatabase(context);
     if (database == null) {
       this.sendInvalidDatabaseName(context);
       return;
@@ -158,7 +158,7 @@ public class V2HttpHandlerDatabase extends V2HttpHandler {
   }
 
   protected void handleCountRequest(IHttpContext context) {
-    Database database = this.getDatabase(context);
+    var database = this.getDatabase(context);
     if (database == null) {
       this.sendInvalidDatabaseName(context);
       return;
@@ -172,7 +172,7 @@ public class V2HttpHandlerDatabase extends V2HttpHandler {
   }
 
   protected void handleInsertRequest(IHttpContext context) {
-    Database database = this.getDatabase(context);
+    var database = this.getDatabase(context);
     if (database == null) {
       this.sendInvalidDatabaseName(context);
       return;
@@ -188,7 +188,7 @@ public class V2HttpHandlerDatabase extends V2HttpHandler {
   }
 
   protected void handleUpdateRequest(IHttpContext context) {
-    Database database = this.getDatabase(context);
+    var database = this.getDatabase(context);
     if (database == null) {
       this.sendInvalidDatabaseName(context);
       return;
@@ -204,13 +204,13 @@ public class V2HttpHandlerDatabase extends V2HttpHandler {
   }
 
   protected void handleDeleteRequest(IHttpContext context) {
-    Database database = this.getDatabase(context);
+    var database = this.getDatabase(context);
     if (database == null) {
       this.sendInvalidDatabaseName(context);
       return;
     }
 
-    String key = RestUtils.getFirst(context.request().queryParameters().get("key"));
+    var key = RestUtils.getFirst(context.request().queryParameters().get("key"));
     if (database.delete(key)) {
       this.ok(context).body(this.success().toString()).context().closeAfter(true).cancelNext();
     } else {
@@ -219,9 +219,9 @@ public class V2HttpHandlerDatabase extends V2HttpHandler {
   }
 
   protected void withContextData(IHttpContext context, BiConsumer<String, JsonDocument> handler) {
-    JsonDocument body = this.body(context.request());
-    String key = body.getString("key");
-    JsonDocument data = body.getDocument("document");
+    var body = this.body(context.request());
+    var key = body.getString("key");
+    var data = body.getDocument("document");
 
     if (key == null || data == null) {
       this.badRequest(context)
@@ -248,7 +248,7 @@ public class V2HttpHandlerDatabase extends V2HttpHandler {
   }
 
   protected Database getDatabase(IHttpContext context) {
-    String name = context.request().pathParameters().get("name");
+    var name = context.request().pathParameters().get("name");
     return name == null ? null : this.getDatabase(name);
   }
 

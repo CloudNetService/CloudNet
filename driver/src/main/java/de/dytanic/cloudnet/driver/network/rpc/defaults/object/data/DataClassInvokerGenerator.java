@@ -98,9 +98,9 @@ public class DataClassInvokerGenerator {
     @NotNull java.lang.reflect.Type[] types
   ) {
     try {
-      String className = String.format(INSTANCE_CREATOR_NAME_FORMAT, Type.getInternalName(clazz));
+      var className = String.format(INSTANCE_CREATOR_NAME_FORMAT, Type.getInternalName(clazz));
       // init the class writer for a public final class implementing the InstanceCreator
-      ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
+      var cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
       cw.visit(V1_8, ACC_PUBLIC | ACC_FINAL, className, null, SUPER, INSTANCE_CREATOR);
       // add the Type[] field which holds the information about the target constructor
       cw
@@ -130,10 +130,10 @@ public class DataClassInvokerGenerator {
         mv.visitTypeInsn(NEW, Type.getInternalName(clazz));
         mv.visitInsn(DUP);
         // visit all types - store each parameter type for later use
-        Type[] parameters = new Type[types.length];
-        for (int i = 0; i < types.length; i++) {
+        var parameters = new Type[types.length];
+        for (var i = 0; i < types.length; i++) {
           // extract the raw type of the given type
-          Class<?> rawType = TypeToken.of(types[i]).getRawType();
+          var rawType = TypeToken.of(types[i]).getRawType();
           // load the mapper, the data buf and the current class to the stack
           mv.visitVarInsn(ALOAD, 2);
           mv.visitVarInsn(ALOAD, 1);
@@ -171,7 +171,7 @@ public class DataClassInvokerGenerator {
       // finish the class
       cw.visitEnd();
       // define & select the correct constructor for the class
-      Constructor<?> constructor = ClassDefiners.current()
+      var constructor = ClassDefiners.current()
         .defineClass(className, clazz, cw.toByteArray())
         .getDeclaredConstructor(java.lang.reflect.Type[].class);
       constructor.setAccessible(true);
@@ -186,9 +186,9 @@ public class DataClassInvokerGenerator {
 
   public @NotNull DataClassInformationWriter createWriter(@NotNull Class<?> clazz, @NotNull Collection<Field> fields) {
     try {
-      String className = String.format(INFORMATION_WRITE_NAME_FORMAT, Type.getInternalName(clazz));
+      var className = String.format(INFORMATION_WRITE_NAME_FORMAT, Type.getInternalName(clazz));
       // init the class writer for a public final class implementing the InstanceCreator
-      ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
+      var cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
       cw.visit(V1_8, ACC_PUBLIC | ACC_FINAL, className, null, SUPER, INFO_WRITER);
       // visit an empty constructor
       MethodVisitor mv;
@@ -208,10 +208,10 @@ public class DataClassInvokerGenerator {
       if (fields.size() > 0) {
         // get the methods of the class
         Set<Method> includedMethods = new HashSet<>();
-        Class<?> processing = clazz;
+        var processing = clazz;
         do {
           // only use the methods of the current class, not of the subclasses to prevent deep methods.
-          for (Method method : processing.getDeclaredMethods()) {
+          for (var method : processing.getDeclaredMethods()) {
             // we search for getter methods which
             //  - have no parameters
             //  - are not annotated with @RPCIgnore
@@ -227,8 +227,8 @@ public class DataClassInvokerGenerator {
         } while ((processing = processing.getSuperclass()) != Object.class);
         // associate each field to a method getter
         Map<Field, Method> fieldGetters = new HashMap<>();
-        for (Field field : fields) {
-          RPCFieldGetter overriddenGetter = field.getAnnotation(RPCFieldGetter.class);
+        for (var field : fields) {
+          var overriddenGetter = field.getAnnotation(RPCFieldGetter.class);
           if (overriddenGetter != null) {
             // in this case the associated getter method is given, try to find it in the methods list
             fieldGetters.put(field, this.findGetterForField(
@@ -248,7 +248,7 @@ public class DataClassInvokerGenerator {
           }
         }
         // create the method body
-        for (Field field : fields) {
+        for (var field : fields) {
           // initial work for the method instantiation
           // load the arguments of the method to the stack
           mv.visitVarInsn(ALOAD, 3);
@@ -257,11 +257,11 @@ public class DataClassInvokerGenerator {
           // get the raw type of the field
           Class<?> rawType;
           // get the associated getter method of the field
-          Method getter = fieldGetters.get(field);
+          var getter = fieldGetters.get(field);
           if (getter != null) {
             // extract all needed information from the method
             rawType = TypeToken.of(getter.getGenericReturnType()).getRawType();
-            String declaring = Type.getInternalName(getter.getDeclaringClass());
+            var declaring = Type.getInternalName(getter.getDeclaringClass());
             // cast the object argument to the declaring class of the method
             mv.visitTypeInsn(CHECKCAST, declaring);
             // get the value of the method
@@ -274,7 +274,7 @@ public class DataClassInvokerGenerator {
           } else {
             // extract all needed information from the field
             rawType = TypeToken.of(field.getGenericType()).getRawType();
-            String declaring = Type.getInternalName(field.getDeclaringClass());
+            var declaring = Type.getInternalName(field.getDeclaringClass());
             // cast the object argument to the declaring class of the field
             mv.visitTypeInsn(CHECKCAST, declaring);
             // get the value of the field
@@ -296,7 +296,7 @@ public class DataClassInvokerGenerator {
       cw.visitEnd();
 
       // declare the class and get the constructor
-      Constructor<?> constructor = ClassDefiners.current()
+      var constructor = ClassDefiners.current()
         .defineClass(className, clazz, cw.toByteArray())
         .getDeclaredConstructor();
       constructor.setAccessible(true);
@@ -315,9 +315,9 @@ public class DataClassInvokerGenerator {
     @NotNull Predicate<Method> extraFilter
   ) {
     Method choice = null;
-    Predicate<Method> fullFilter = this.commonFilter(field).and(extraFilter);
+    var fullFilter = this.commonFilter(field).and(extraFilter);
     // search for the best choice
-    for (Method method : methods) {
+    for (var method : methods) {
       if (fullFilter.test(method)) {
         if (choice == null) {
           // if there is no choice yet the method is the choice

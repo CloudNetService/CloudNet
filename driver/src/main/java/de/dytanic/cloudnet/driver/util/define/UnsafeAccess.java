@@ -51,7 +51,7 @@ final class UnsafeAccess {
       // get the unsafe class
       unsafeClass = Class.forName("sun.misc.Unsafe");
       // get the unsafe instance
-      Field theUnsafeField = unsafeClass.getDeclaredField("theUnsafe");
+      var theUnsafeField = unsafeClass.getDeclaredField("theUnsafe");
       theUnsafeField.setAccessible(true);
       theUnsafeInstance = theUnsafeField.get(null);
     } catch (Exception ignored) {

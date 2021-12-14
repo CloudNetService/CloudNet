@@ -55,8 +55,8 @@ public abstract class PlatformNPCManagement<L, P, M, I> extends AbstractNPCManag
   public PlatformNPCManagement() {
     super(loadNPCConfiguration());
     // get the npcs for the current group
-    String[] groups = Wrapper.getInstance().getServiceConfiguration().getGroups().toArray(new String[0]);
-    for (NPC npc : this.getNPCs(groups)) {
+    var groups = Wrapper.getInstance().getServiceConfiguration().getGroups().toArray(new String[0]);
+    for (var npc : this.getNPCs(groups)) {
       this.npcs.put(npc.getLocation(), npc);
     }
     // register the listeners
@@ -64,7 +64,7 @@ public abstract class PlatformNPCManagement<L, P, M, I> extends AbstractNPCManag
   }
 
   protected static @Nullable NPCConfiguration loadNPCConfiguration() {
-    ChannelMessage response = ChannelMessage.builder()
+    var response = ChannelMessage.builder()
       .channel(NPC_CHANNEL_NAME)
       .message(NPC_REQUEST_CONFIG)
       .targetNode(Wrapper.getInstance().getNodeUniqueId())
@@ -89,7 +89,7 @@ public abstract class PlatformNPCManagement<L, P, M, I> extends AbstractNPCManag
 
   @Override
   public int deleteAllNPCs(@NotNull String group) {
-    ChannelMessage response = this.channelMessage(NPC_BULK_DELETE)
+    var response = this.channelMessage(NPC_BULK_DELETE)
       .buffer(DataBuf.empty().writeString(group))
       .build().sendSingleQuery();
     return response == null ? 0 : response.getContent().readInt();
@@ -97,7 +97,7 @@ public abstract class PlatformNPCManagement<L, P, M, I> extends AbstractNPCManag
 
   @Override
   public int deleteAllNPCs() {
-    ChannelMessage response = this.channelMessage(NPC_ALL_DELETE)
+    var response = this.channelMessage(NPC_ALL_DELETE)
       .buffer(DataBuf.empty().writeObject(this.npcs.keySet()))
       .build().sendSingleQuery();
     return response == null ? 0 : response.getContent().readInt();
@@ -105,7 +105,7 @@ public abstract class PlatformNPCManagement<L, P, M, I> extends AbstractNPCManag
 
   @Override
   public @NotNull Collection<NPC> getNPCs(@NotNull String[] groups) {
-    ChannelMessage response = this.channelMessage(NPC_GET_NPCS_BY_GROUP)
+    var response = this.channelMessage(NPC_GET_NPCS_BY_GROUP)
       .buffer(DataBuf.empty().writeObject(groups))
       .build().sendSingleQuery();
     return response == null ? Collections.emptySet() : response.getContent().readObject(NPC.COLLECTION_NPC);
@@ -124,7 +124,7 @@ public abstract class PlatformNPCManagement<L, P, M, I> extends AbstractNPCManag
     if (Wrapper.getInstance().getServiceConfiguration().getGroups().contains(npc.getLocation().getGroup())) {
       super.handleInternalNPCCreate(npc);
       // remove the old selector npc
-      PlatformSelectorEntity<L, P, M, I> entity = this.trackedEntities.remove(npc.getLocation());
+      var entity = this.trackedEntities.remove(npc.getLocation());
       if (entity != null && entity.isSpawned()) {
         entity.remove();
       }
@@ -137,7 +137,7 @@ public abstract class PlatformNPCManagement<L, P, M, I> extends AbstractNPCManag
       // start tracking the npc
       this.trackedEntities.put(npc.getLocation(), entity);
       // apply the tracked services
-      for (ServiceInfoSnapshot service : this.trackedServices.values()) {
+      for (var service : this.trackedServices.values()) {
         if (service.getConfiguration().getGroups().contains(entity.getNPC().getTargetGroup())) {
           entity.trackService(service);
         }
@@ -149,7 +149,7 @@ public abstract class PlatformNPCManagement<L, P, M, I> extends AbstractNPCManag
   public void handleInternalNPCRemove(@NotNull WorldPosition position) {
     super.handleInternalNPCRemove(position);
     // remove the platform npc if spawned
-    PlatformSelectorEntity<L, P, M, I> entity = this.trackedEntities.remove(position);
+    var entity = this.trackedEntities.remove(position);
     if (entity != null && entity.isSpawned()) {
       entity.remove();
     }
@@ -172,12 +172,12 @@ public abstract class PlatformNPCManagement<L, P, M, I> extends AbstractNPCManag
 
   public void initialize() {
     // start tracking all entities
-    for (NPC value : this.npcs.values()) {
+    for (var value : this.npcs.values()) {
       this.trackedEntities.put(value.getLocation(), this.createSelectorEntity(value));
     }
     // initialize the services now
     CloudNetDriver.getInstance().getCloudServiceProvider().getCloudServicesAsync().onComplete(services -> {
-      for (ServiceInfoSnapshot service : services) {
+      for (var service : services) {
         if (this.shouldTrack(service)) {
           this.handleServiceUpdate(service);
         }
@@ -186,7 +186,7 @@ public abstract class PlatformNPCManagement<L, P, M, I> extends AbstractNPCManag
   }
 
   public @Nullable NPCConfigurationEntry getApplicableNPCConfigurationEntry() {
-    for (NPCConfigurationEntry entry : this.npcConfiguration.getEntries()) {
+    for (var entry : this.npcConfiguration.getEntries()) {
       if (Wrapper.getInstance().getServiceConfiguration().getGroups().contains(entry.getTargetGroup())) {
         return entry;
       }
@@ -196,7 +196,7 @@ public abstract class PlatformNPCManagement<L, P, M, I> extends AbstractNPCManag
 
   public @NotNull InventoryConfiguration getInventoryConfiguration() {
     // get the npc configuration entry
-    NPCConfigurationEntry entry = this.getApplicableNPCConfigurationEntry();
+    var entry = this.getApplicableNPCConfigurationEntry();
     if (entry == null) {
       throw new IllegalStateException("no npc config entry for the current service groups found");
     }
@@ -205,7 +205,7 @@ public abstract class PlatformNPCManagement<L, P, M, I> extends AbstractNPCManag
   }
 
   public void handleServiceUpdate(@NotNull ServiceInfoSnapshot service) {
-    for (PlatformSelectorEntity<L, P, M, I> entity : this.trackedEntities.values()) {
+    for (var entity : this.trackedEntities.values()) {
       if (service.getConfiguration().getGroups().contains(entity.getNPC().getTargetGroup())) {
         entity.trackService(service);
       }
@@ -215,7 +215,7 @@ public abstract class PlatformNPCManagement<L, P, M, I> extends AbstractNPCManag
   }
 
   public void handleServiceRemove(@NotNull ServiceInfoSnapshot service) {
-    for (PlatformSelectorEntity<L, P, M, I> entity : this.trackedEntities.values()) {
+    for (var entity : this.trackedEntities.values()) {
       if (service.getConfiguration().getGroups().contains(entity.getNPC().getTargetGroup())) {
         entity.stopTrackingService(service);
       }

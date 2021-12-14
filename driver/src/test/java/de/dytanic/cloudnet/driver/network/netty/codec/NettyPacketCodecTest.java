@@ -35,28 +35,28 @@ public class NettyPacketCodecTest {
   @Test
   void testNettyPacketCodec() {
     // dummy write
-    int packetChannel = ThreadLocalRandom.current().nextInt();
+    var packetChannel = ThreadLocalRandom.current().nextInt();
     DataBuf dataBuf = DataBufFactory.defaultFactory().createEmpty()
       .writeBoolean(true)
       .writeInt(1234)
       .writeDouble(5D);
 
-    ByteBuf output = Unpooled.buffer();
+    var output = Unpooled.buffer();
 
-    NettyPacketEncoder encoder = new NettyPacketEncoder();
+    var encoder = new NettyPacketEncoder();
     encoder.encode(Mockito.mock(ChannelHandlerContext.class), new Packet(packetChannel, dataBuf), output);
 
     Assertions.assertTrue(output.readableBytes() > 0);
 
     // test read
-    Channel channel = Mockito.mock(Channel.class);
+    var channel = Mockito.mock(Channel.class);
     Mockito.when(channel.isActive()).thenReturn(true);
 
-    ChannelHandlerContext ctx = Mockito.mock(ChannelHandlerContext.class);
+    var ctx = Mockito.mock(ChannelHandlerContext.class);
     Mockito.when(ctx.channel()).thenReturn(channel);
 
     List<Object> results = new ArrayList<>();
-    NettyPacketDecoder decoder = new NettyPacketDecoder();
+    var decoder = new NettyPacketDecoder();
     decoder.decode(ctx, output, results);
 
     Assertions.assertEquals(1, results.size());

@@ -54,7 +54,7 @@ public class WebSocketClientEndpoint {
   public void onPongMessage(Session session, PongMessage message) {
     Assertions.assertEquals(2, WebSocketClientEndpoint.this.eventCounter.getAndIncrement());
 
-    String content = new String(Utils.getRemainingArray(message.getApplicationData()), StandardCharsets.UTF_8);
+    var content = new String(Utils.getRemainingArray(message.getApplicationData()), StandardCharsets.UTF_8);
     Assertions.assertEquals("response2", content);
 
     session.getAsyncRemote().sendBinary(ByteBuffer.wrap(new byte[]{0, 5, 6}));

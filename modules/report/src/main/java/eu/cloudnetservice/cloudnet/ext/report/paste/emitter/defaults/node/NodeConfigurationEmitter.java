@@ -30,7 +30,7 @@ public class NodeConfigurationEmitter implements ReportDataEmitter<NetworkCluste
       .append(" - Node Configuration ")
       .append(context.getNode().getUniqueId())
       .append(" - \n");
-    IConfiguration configuration = CloudNet.getInstance().getConfig();
+    var configuration = CloudNet.getInstance().getConfig();
 
     builder
       .append(JsonDocument.newDocument(configuration).toPrettyJson()).append("\n")

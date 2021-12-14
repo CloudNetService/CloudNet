@@ -110,7 +110,7 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
         .convertObject(ServiceInfoSnapshot.class)
         .writer(ser -> {
           // ugly hack to get the channel of the service's associated node
-          IClusterNodeServer node = this.clusterNodeServerProvider.getNodeServer(ser.getServiceId().getNodeUniqueId());
+          var node = this.clusterNodeServerProvider.getNodeServer(ser.getServiceId().getNodeUniqueId());
           if (node != null && node.isAvailable()) {
             this.handleServiceUpdate(ser, node.getChannel());
           }
@@ -119,7 +119,7 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
         .build());
     // schedule the updating of the local service log cache
     nodeInstance.getMainThread().scheduleTask(() -> {
-      for (ICloudService service : this.getLocalCloudServices()) {
+      for (var service : this.getLocalCloudServices()) {
         // we only need to look at running services
         if (service.getLifeCycle() == ServiceLifeCycle.RUNNING) {
           // detect dead services and stop them
@@ -308,13 +308,13 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
 
   @Override
   public @Nullable ICloudService getLocalCloudService(@NotNull String name) {
-    SpecificCloudServiceProvider provider = this.getSpecificProviderByName(name);
+    var provider = this.getSpecificProviderByName(name);
     return provider instanceof ICloudService ? (ICloudService) provider : null;
   }
 
   @Override
   public @Nullable ICloudService getLocalCloudService(@NotNull UUID uniqueId) {
-    SpecificCloudServiceProvider provider = this.knownServices.get(uniqueId);
+    var provider = this.knownServices.get(uniqueId);
     return provider instanceof ICloudService ? (ICloudService) provider : null;
   }
 
@@ -360,7 +360,7 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
       LOGGER.fine("Deleted cloud service %s after lifecycle change to deleted", null, snapshot.getServiceId());
     } else {
       // register the service if the provider is available
-      SpecificCloudServiceProvider provider = this.knownServices.get(snapshot.getServiceId().getUniqueId());
+      var provider = this.knownServices.get(snapshot.getServiceId().getUniqueId());
       if (provider == null) {
         this.knownServices.putIfAbsent(
           snapshot.getServiceId().getUniqueId(),
@@ -381,7 +381,7 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
   @Override
   public @NotNull ICloudService createLocalCloudService(@NotNull ServiceConfiguration configuration) {
     // get the cloud service factory for the configuration
-    ICloudServiceFactory factory = this.cloudServiceFactories.get(configuration.getRuntime());
+    var factory = this.cloudServiceFactories.get(configuration.getRuntime());
     if (factory == null) {
       throw new IllegalArgumentException("No service factory for runtime " + configuration.getRuntime());
     }
@@ -392,12 +392,12 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
   @Override
   public @NotNull SpecificCloudServiceProvider selectOrCreateService(@NotNull ServiceTask task) {
     // get all services of the given task, map it to its node unique id
-    Pair<ServiceInfoSnapshot, IClusterNodeServer> prepared = this.getCloudServicesByTask(task.getName())
+    var prepared = this.getCloudServicesByTask(task.getName())
       .stream()
       .filter(taskService -> taskService.getLifeCycle() == ServiceLifeCycle.PREPARED)
       .map(service -> {
         // get the node server associated with the node
-        IClusterNodeServer nodeServer = this.clusterNodeServerProvider.getNodeServer(
+        var nodeServer = this.clusterNodeServerProvider.getNodeServer(
           service.getServiceId().getNodeUniqueId());
         // the server should never be null - just to be sure
         return nodeServer == null ? null : new Pair<>(service, nodeServer);
@@ -406,14 +406,14 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
       .filter(pair -> pair.getSecond().isAvailable())
       .filter(pair -> {
         // filter out all nodes which are not able to start the service
-        NetworkClusterNodeInfoSnapshot nodeInfoSnapshot = pair.getSecond().getNodeInfoSnapshot();
-        int maxHeapMemory = pair.getFirst().getConfiguration().getProcessConfig().getMaxHeapMemorySize();
+        var nodeInfoSnapshot = pair.getSecond().getNodeInfoSnapshot();
+        var maxHeapMemory = pair.getFirst().getConfiguration().getProcessConfig().getMaxHeapMemorySize();
         // used + heap_of_service <= max
         return nodeInfoSnapshot.getUsedMemory() + maxHeapMemory <= nodeInfoSnapshot.getMaxMemory();
       })
       .min((left, right) -> {
         // begin by comparing the heap memory usage
-        ComparisonChain chain = ComparisonChain.start().compare(
+        var chain = ComparisonChain.start().compare(
           left.getSecond().getNodeInfoSnapshot().getUsedMemory()
             + left.getFirst().getConfiguration().getProcessConfig().getMaxHeapMemorySize(),
           right.getSecond().getNodeInfoSnapshot().getUsedMemory()
@@ -434,7 +434,7 @@ public class DefaultCloudServiceManager implements ICloudServiceManager {
       return prepared.getFirst().provider();
     } else {
       // create a new service
-      ServiceInfoSnapshot service = CloudNet.getInstance()
+      var service = CloudNet.getInstance()
         .getCloudServiceFactory()
         .createCloudService(ServiceConfiguration.builder(task).build());
       return service == null ? EmptySpecificCloudServiceProvider.INSTANCE : service.provider();

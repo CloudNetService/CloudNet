@@ -35,7 +35,7 @@ public final class ProxyPlatformHelper {
   }
 
   public static @NotNull Result sendChannelMessagePreLogin(@NotNull NetworkPlayerProxyInfo playerInfo) {
-    ChannelMessage result = toCurrentNode()
+    var result = toCurrentNode()
       .message("proxy_player_pre_login")
       .channel(BridgeManagement.BRIDGE_PLAYER_CHANNEL_NAME)
       .buffer(DataBuf.empty().writeObject(playerInfo))

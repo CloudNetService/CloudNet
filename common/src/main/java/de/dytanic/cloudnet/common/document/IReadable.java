@@ -48,7 +48,7 @@ public interface IReadable {
 
   default @NotNull IReadable read(@Nullable Path path) {
     if (path != null && Files.exists(path)) {
-      try (InputStream inputStream = Files.newInputStream(path)) {
+      try (var inputStream = Files.newInputStream(path)) {
         return this.read(inputStream);
       } catch (IOException exception) {
         LOGGER.severe("Exception while reading document from " + path, exception);

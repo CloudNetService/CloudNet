@@ -90,7 +90,7 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
 
   protected void handleDownloadRequest(IHttpContext context) {
     this.handleWithTemplateContext(context, (template, storage) -> {
-      InputStream stream = storage.zipTemplateAsync().get();
+      var stream = storage.zipTemplateAsync().get();
       if (stream == null) {
         this.notFound(context)
           .body(this.failure().append("reason", "Unable to zip template").toString())
@@ -111,7 +111,7 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
 
   protected void handleFileDownloadRequest(IHttpContext context) {
     this.handleWithFileTemplateContext(context, (template, storage, path) -> {
-      InputStream stream = storage.newInputStreamAsync(path).get();
+      var stream = storage.newInputStreamAsync(path).get();
       if (stream == null) {
         this.notFound(context)
           .body(this.failure().append("reason", "Missing file or path is directory").toString())
@@ -119,7 +119,7 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
           .closeAfter(true)
           .cancelNext();
       } else {
-        String fileName = this.guessFileName(path);
+        var fileName = this.guessFileName(path);
         this.ok(context, "application/octet-stream")
           .header("Content-Disposition",
             String.format("attachment%s", fileName == null ? "" : "; filename=" + fileName))
@@ -133,7 +133,7 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
 
   protected void handleFileInfoRequest(IHttpContext context) {
     this.handleWithFileTemplateContext(context, (template, storage, path) -> {
-      FileInfo info = storage.getFileInfoAsync(path).get();
+      var info = storage.getFileInfoAsync(path).get();
       if (info == null) {
         this.notFound(context)
           .body(this.failure().append("reason", "Unknown file or directory").toString())
@@ -163,10 +163,10 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
 
   protected void handleFileListRequest(IHttpContext context) {
     this.handleWithTemplateContext(context, (template, storage) -> {
-      String dir = RestUtils.getFirst(context.request().queryParameters().get("directory"), "");
-      boolean deep = Boolean.parseBoolean(RestUtils.getFirst(context.request().queryParameters().get("deep"), "false"));
+      var dir = RestUtils.getFirst(context.request().queryParameters().get("directory"), "");
+      var deep = Boolean.parseBoolean(RestUtils.getFirst(context.request().queryParameters().get("deep"), "false"));
 
-      FileInfo[] files = storage.listFilesAsync(dir, deep).get();
+      var files = storage.listFilesAsync(dir, deep).get();
       this.ok(context)
         .body(this.success().append("files", files).toString())
         .context()
@@ -187,7 +187,7 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
   }
 
   protected void handleDeployRequest(IHttpContext context) {
-    InputStream stream = context.request().bodyStream();
+    var stream = context.request().bodyStream();
     if (stream == null) {
       this.badRequest(context)
         .body(this.failure().append("reason", "Missing data in body").toString())
@@ -231,9 +231,9 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
 
   protected void handleInstallationRequest(IHttpContext context) {
     this.handleWithTemplateContext(context, (template, storage) -> {
-      JsonDocument body = this.body(context.request());
+      var body = this.body(context.request());
 
-      ServiceVersionType versionType = body.get("type", ServiceVersionType.class);
+      var versionType = body.get("type", ServiceVersionType.class);
       if (versionType == null) {
         versionType = this.getCloudNet().getServiceVersionProvider()
           .getServiceVersionType(body.getString("typeName", "")).orElse(null);
@@ -247,7 +247,7 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
         }
       }
 
-      ServiceVersion version = body.get("version", ServiceVersion.class);
+      var version = body.get("version", ServiceVersion.class);
       if (version == null) {
         version = versionType.getVersion(body.getString("versionName", "")).orElse(null);
         if (version == null) {
@@ -260,10 +260,10 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
         }
       }
 
-      boolean forceInstall = body.getBoolean("force", false);
-      boolean cacheFiles = body.getBoolean("caches", version.isCacheFiles());
+      var forceInstall = body.getBoolean("force", false);
+      var cacheFiles = body.getBoolean("caches", version.isCacheFiles());
 
-      InstallInformation installInformation = InstallInformation.builder()
+      var installInformation = InstallInformation.builder()
         .serviceVersion(version)
         .serviceVersionType(versionType)
         .cacheFiles(cacheFiles)
@@ -280,7 +280,7 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
   }
 
   protected void handleFileWriteRequest(IHttpContext context, boolean append) {
-    InputStream content = context.request().bodyStream();
+    var content = context.request().bodyStream();
     if (content == null) {
       this.badRequest(context)
         .body(this.failure().append("reason", "Missing input from body").toString())
@@ -291,8 +291,8 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
     }
 
     this.handleWithFileTemplateContext(context, (template, storage, path) -> {
-      ITask<OutputStream> task = append ? storage.appendOutputStreamAsync(path) : storage.newOutputStreamAsync(path);
-      OutputStream stream = task.get();
+      var task = append ? storage.appendOutputStreamAsync(path) : storage.newOutputStreamAsync(path);
+      var stream = task.get();
       if (stream == null) {
         this.notFound(context)
           .body(this.failure().append("reason", "Unable to open file stream").toString())
@@ -323,9 +323,9 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
 
   protected void handleWithTemplateContext(IHttpContext context,
     ThrowableBiConsumer<ServiceTemplate, SpecificTemplateStorage, Exception> handler) {
-    String storage = context.request().pathParameters().get("storage");
-    String prefix = context.request().pathParameters().get("prefix");
-    String name = context.request().pathParameters().get("name");
+    var storage = context.request().pathParameters().get("storage");
+    var prefix = context.request().pathParameters().get("prefix");
+    var name = context.request().pathParameters().get("name");
 
     if (storage == null || prefix == null || name == null) {
       this.badRequest(context)
@@ -336,8 +336,8 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
       return;
     }
 
-    ServiceTemplate template = ServiceTemplate.builder().prefix(prefix).name(name).storage(storage).build();
-    SpecificTemplateStorage templateStorage = template.knownStorage();
+    var template = ServiceTemplate.builder().prefix(prefix).name(name).storage(storage).build();
+    var templateStorage = template.knownStorage();
 
     if (templateStorage == null) {
       this.ok(context)
@@ -358,7 +358,7 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
   protected void handleWithFileTemplateContext(IHttpContext context,
     ThrowableTriConsumer<ServiceTemplate, SpecificTemplateStorage, String, Exception> handler) {
     this.handleWithTemplateContext(context, (template, storage) -> {
-      String fileName = RestUtils.getFirst(context.request().queryParameters().get("path"), null);
+      var fileName = RestUtils.getFirst(context.request().queryParameters().get("path"), null);
       if (fileName == null) {
         this.badRequest(context)
           .body(this.failure().append("reason", "Missing file name in path").toString())
@@ -389,7 +389,7 @@ public class V2HttpHandlerTemplate extends V2HttpHandler {
   }
 
   protected @Nullable String guessFileName(String path) {
-    int index = path.lastIndexOf('/');
+    var index = path.lastIndexOf('/');
     if (index == -1 || index + 1 == path.length()) {
       return null;
     } else {

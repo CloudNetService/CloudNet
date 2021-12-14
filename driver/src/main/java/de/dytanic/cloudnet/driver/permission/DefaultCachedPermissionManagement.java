@@ -82,19 +82,19 @@ public abstract class DefaultCachedPermissionManagement extends DefaultPermissio
 
   @Override
   public boolean isLocked(@NotNull PermissionUser user) {
-    AtomicInteger lockCount = this.permissionUserLocks.get(user.getUniqueId());
+    var lockCount = this.permissionUserLocks.get(user.getUniqueId());
     return lockCount != null && lockCount.get() > 0;
   }
 
   @Override
   public boolean isLocked(@NotNull PermissionGroup group) {
-    AtomicInteger lockCount = this.permissionGroupLocks.get(group.getName());
+    var lockCount = this.permissionGroupLocks.get(group.getName());
     return lockCount != null && lockCount.get() > 0;
   }
 
   @Override
   public void unlock(@NotNull PermissionUser user) {
-    AtomicInteger lockCount = this.permissionUserLocks.get(user.getUniqueId());
+    var lockCount = this.permissionUserLocks.get(user.getUniqueId());
     if (lockCount != null) {
       lockCount.decrementAndGet();
     }
@@ -102,7 +102,7 @@ public abstract class DefaultCachedPermissionManagement extends DefaultPermissio
 
   @Override
   public void unlock(@NotNull PermissionGroup group) {
-    AtomicInteger lockCount = this.permissionGroupLocks.get(group.getName());
+    var lockCount = this.permissionGroupLocks.get(group.getName());
     if (lockCount != null) {
       lockCount.decrementAndGet();
     }

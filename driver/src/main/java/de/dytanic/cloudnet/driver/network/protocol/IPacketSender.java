@@ -44,7 +44,7 @@ public interface IPacketSender {
    * @see #sendPacket(IPacket)
    */
   default void sendPacket(@NotNull IPacket... packets) {
-    for (IPacket packet : packets) {
+    for (var packet : packets) {
       this.sendPacket(packet);
     }
   }
@@ -56,7 +56,7 @@ public interface IPacketSender {
    * @see #sendPacketSync(IPacket)
    */
   default void sendPacketSync(@NotNull IPacket... packets) {
-    for (IPacket packet : packets) {
+    for (var packet : packets) {
       this.sendPacketSync(packet);
     }
   }

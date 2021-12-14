@@ -45,7 +45,7 @@ public class CompletableTask<V> extends CompletableFuture<V> implements ITask<V>
     this.thenAccept(result -> {
       // check if there are registered listeners
       if (this.listeners != null) {
-        for (ITaskListener<V> listener : this.listeners) {
+        for (var listener : this.listeners) {
           listener.onComplete(this, result);
         }
         // depopulate the listeners - no more completions are possible
@@ -59,12 +59,12 @@ public class CompletableTask<V> extends CompletableFuture<V> implements ITask<V>
         // check if the future was cancelled
         if (throwable instanceof CancellationException) {
           // post the cancel result
-          for (ITaskListener<V> listener : this.listeners) {
+          for (var listener : this.listeners) {
             listener.onCancelled(this);
           }
         } else {
           // exception completion - post that
-          for (ITaskListener<V> listener : this.listeners) {
+          for (var listener : this.listeners) {
             listener.onFailure(this, throwable);
           }
         }
@@ -84,7 +84,7 @@ public class CompletableTask<V> extends CompletableFuture<V> implements ITask<V>
   }
 
   public static <V> @NotNull CompletableTask<V> supply(@NotNull ThrowableSupplier<V, Throwable> supplier) {
-    CompletableTask<V> task = new CompletableTask<>();
+    var task = new CompletableTask<V>();
     SERVICE.execute(() -> {
       try {
         task.complete(supplier.get());
@@ -142,7 +142,7 @@ public class CompletableTask<V> extends CompletableFuture<V> implements ITask<V>
       return CompletedTask.create(() -> mapper.apply(this.getNow(null)));
     }
     // create a new task mapping the current task
-    CompletableTask<T> task = new CompletableTask<>();
+    var task = new CompletableTask<T>();
     // handle the result of this task and post the result to the downstream task
     this.addListener(new ITaskListener<V>() {
       @Override

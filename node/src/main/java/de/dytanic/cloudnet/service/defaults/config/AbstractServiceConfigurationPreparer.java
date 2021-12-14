@@ -39,13 +39,13 @@ public abstract class AbstractServiceConfigurationPreparer implements ServiceCon
   protected static final Logger LOGGER = LogManager.getLogger(ServiceConfigurationPreparer.class);
 
   protected boolean shouldRewriteIp(@NotNull CloudNet nodeInstance, @NotNull ICloudService service) {
-    ServiceTask task = nodeInstance.getServiceTaskProvider().getServiceTask(service.getServiceId().getTaskName());
+    var task = nodeInstance.getServiceTaskProvider().getServiceTask(service.getServiceId().getTaskName());
     return task == null || !task.isDisableIpRewrite();
   }
 
   protected void copyCompiledFile(@NotNull String fileName, @NotNull Path targetLocation) {
     if (Files.notExists(targetLocation)) {
-      try (InputStream stream = ServiceConfigurationPreparer.class.getClassLoader().getResourceAsStream(fileName)) {
+      try (var stream = ServiceConfigurationPreparer.class.getClassLoader().getResourceAsStream(fileName)) {
         if (stream != null) {
           FileUtils.createDirectory(targetLocation.getParent());
           Files.copy(stream, targetLocation);

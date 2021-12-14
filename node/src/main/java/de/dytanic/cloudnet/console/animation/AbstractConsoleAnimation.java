@@ -55,8 +55,8 @@ public abstract class AbstractConsoleAnimation implements Runnable {
 
   protected void print(String @NotNull ... input) {
     if (input.length != 0) {
-      Ansi ansi = Ansi.ansi().saveCursorPosition().cursorUp(this.cursorUp).eraseLine(Ansi.Erase.ALL);
-      for (String a : input) {
+      var ansi = Ansi.ansi().saveCursorPosition().cursorUp(this.cursorUp).eraseLine(Ansi.Erase.ALL);
+      for (var a : input) {
         ansi.a(a);
       }
 
@@ -90,7 +90,7 @@ public abstract class AbstractConsoleAnimation implements Runnable {
 
   public void handleDone() {
     // post the result to the finish handlers
-    for (Runnable runnable : this.finishHandler) {
+    for (var runnable : this.finishHandler) {
       runnable.run();
     }
   }

@@ -69,7 +69,7 @@ public class SpongeSignManagement extends AbstractPlatformSignManagement<org.spo
   }
 
   protected void pushUpdates0(@NotNull Set<Sign> signs, @NotNull SignLayout layout) {
-    for (Sign sign : signs) {
+    for (var sign : signs) {
       this.pushUpdate(sign, layout);
     }
   }
@@ -84,16 +84,16 @@ public class SpongeSignManagement extends AbstractPlatformSignManagement<org.spo
   }
 
   protected void pushUpdate0(@NotNull Sign sign, @NotNull SignLayout layout) {
-    Location<ServerWorld, ?> location = this.locationFromWorldPosition(sign.getLocation());
+    var location = this.locationFromWorldPosition(sign.getLocation());
     if (location != null) {
       // no need if the chunk is loaded - the tile entity is not available if the chunk is unloaded
-      BlockEntity entity = location.blockEntity().orElse(null);
+      var entity = location.blockEntity().orElse(null);
       if (entity instanceof org.spongepowered.api.block.entity.Sign) {
-        org.spongepowered.api.block.entity.Sign tileSign = (org.spongepowered.api.block.entity.Sign) entity;
+        var tileSign = (org.spongepowered.api.block.entity.Sign) entity;
 
-        String[] lines = this.replaceLines(sign, layout);
+        var lines = this.replaceLines(sign, layout);
         if (lines != null) {
-          for (int i = 0; i < 4; i++) {
+          for (var i = 0; i < 4; i++) {
             tileSign.lines().set(i, AdventureSerializerUtil.serialize(lines[i]));
           }
 
@@ -104,11 +104,11 @@ public class SpongeSignManagement extends AbstractPlatformSignManagement<org.spo
   }
 
   protected void changeBlock(@NotNull BlockEntity entity, @NotNull SignLayout layout) {
-    BlockType type = layout.getBlockMaterial() == null ? null : Sponge.game()
+    var type = layout.getBlockMaterial() == null ? null : Sponge.game()
       .registry(RegistryTypes.BLOCK_TYPE)
       .findValue(ResourceKey.resolve(layout.getBlockMaterial()))
       .orElse(null);
-    Direction direction = entity.get(Keys.DIRECTION).orElse(null);
+    var direction = entity.get(Keys.DIRECTION).orElse(null);
     if (type != null && direction != null) {
       entity.serverLocation().relativeToBlock(direction).setBlockType(type);
     }
@@ -130,9 +130,9 @@ public class SpongeSignManagement extends AbstractPlatformSignManagement<org.spo
     @NotNull String group,
     @Nullable String templatePath
   ) {
-    SignConfigurationEntry entry = this.getApplicableSignConfigurationEntry();
+    var entry = this.getApplicableSignConfigurationEntry();
     if (entry != null) {
-      Sign created = new Sign(
+      var created = new Sign(
         group,
         templatePath,
         this.locationToWorldPosition(sign.serverLocation(), entry.getTargetGroup()));
@@ -149,11 +149,11 @@ public class SpongeSignManagement extends AbstractPlatformSignManagement<org.spo
 
   @Override
   public int removeMissingSigns() {
-    int removed = 0;
-    for (WorldPosition position : this.signs.keySet()) {
-      Location<ServerWorld, ?> location = this.locationFromWorldPosition(position);
+    var removed = 0;
+    for (var position : this.signs.keySet()) {
+      var location = this.locationFromWorldPosition(position);
       if (location != null) {
-        BlockEntity entity = location.blockEntity().orElse(null);
+        var entity = location.blockEntity().orElse(null);
         if (!(entity instanceof org.spongepowered.api.block.entity.Sign)) {
           this.deleteSign(position);
           removed++;
@@ -166,19 +166,19 @@ public class SpongeSignManagement extends AbstractPlatformSignManagement<org.spo
   @Override
   protected void startKnockbackTask() {
     this.syncExecutor.scheduleAtFixedRate(() -> {
-      SignConfigurationEntry entry = this.getApplicableSignConfigurationEntry();
+      var entry = this.getApplicableSignConfigurationEntry();
       if (entry != null) {
-        SignConfigurationEntry.KnockbackConfiguration configuration = entry.getKnockbackConfiguration();
+        var configuration = entry.getKnockbackConfiguration();
         if (configuration.isValidAndEnabled()) {
-          double distance = configuration.getDistance();
+          var distance = configuration.getDistance();
 
-          for (WorldPosition position : this.signs.keySet()) {
-            Location<ServerWorld, ?> location = this.locationFromWorldPosition(position);
+          for (var position : this.signs.keySet()) {
+            var location = this.locationFromWorldPosition(position);
             if (location != null) {
               for (Entity entity : location.world().nearbyEntities(location.position(), distance)) {
                 if (entity instanceof ServerPlayer && (configuration.getBypassPermission() == null
                   || !((ServerPlayer) entity).hasPermission(configuration.getBypassPermission()))) {
-                  Vector3d vector = entity.location()
+                  var vector = entity.location()
                     .position()
                     .sub(location.position())
                     .normalize()

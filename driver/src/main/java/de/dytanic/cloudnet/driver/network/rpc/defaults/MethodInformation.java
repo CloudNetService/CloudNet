@@ -63,7 +63,7 @@ public class MethodInformation {
   ) {
     // filter all technically possible methods
     Method method = null;
-    for (Method declaredMethod : sourceClass.getDeclaredMethods()) {
+    for (var declaredMethod : sourceClass.getDeclaredMethods()) {
       // check if the method might be a candidate
       if (declaredMethod.getName().equals(name) && !declaredMethod.isAnnotationPresent(RPCIgnore.class)) {
         if (method != null) {

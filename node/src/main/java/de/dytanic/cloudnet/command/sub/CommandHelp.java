@@ -52,8 +52,8 @@ public final class CommandHelp {
 
   @Parser
   public CommandInfo defaultCommandInfoParser(CommandContext<CommandSource> $, Queue<String> input) {
-    String command = input.remove();
-    CommandInfo commandInfo = this.commandProvider.getCommand(command);
+    var command = input.remove();
+    var commandInfo = this.commandProvider.getCommand(command);
     if (commandInfo == null) {
       throw new ArgumentNotAvailableException(I18n.trans("command-not-found"));
     }
@@ -73,7 +73,7 @@ public final class CommandHelp {
     source.sendMessage("Names: " + command.joinNameToAliases(", "));
     source.sendMessage("Description: " + command.getDescription());
     source.sendMessage("Usage: ");
-    for (String usage : command.getUsage()) {
+    for (var usage : command.getUsage()) {
       source.sendMessage(" - " + usage);
     }
   }

@@ -64,14 +64,14 @@ public enum ConsoleColor {
   }
 
   public static @NotNull String toColouredString(char triggerChar, @NotNull String text) {
-    StringBuffer content = convertRGBColors(triggerChar, text);
+    var content = convertRGBColors(triggerChar, text);
 
-    int breakIndex = content.length() - 1;
-    for (int i = 0; i < breakIndex; i++) {
+    var breakIndex = content.length() - 1;
+    for (var i = 0; i < breakIndex; i++) {
       if (content.charAt(i) == triggerChar) {
-        int format = LOOKUP.indexOf(content.charAt(i + 1));
+        var format = LOOKUP.indexOf(content.charAt(i + 1));
         if (format != -1) {
-          String ansiCode = VALUES[format].getAnsiCode();
+          var ansiCode = VALUES[format].getAnsiCode();
 
           content.delete(i, i + 2).insert(i, ansiCode);
           breakIndex += ansiCode.length() - 2;
@@ -83,12 +83,12 @@ public enum ConsoleColor {
   }
 
   private static @NotNull StringBuffer convertRGBColors(char triggerChar, @NotNull String input) {
-    Matcher matcher = Pattern.compile(triggerChar + "#([0-9a-fA-F]){6}").matcher(input);
-    StringBuffer stringBuffer = new StringBuffer();
+    var matcher = Pattern.compile(triggerChar + "#([0-9a-fA-F]){6}").matcher(input);
+    var stringBuffer = new StringBuffer();
 
     while (matcher.find()) {
-      String temp = matcher.group().replace(String.valueOf(triggerChar), "");
-      java.awt.Color color = java.awt.Color.decode(temp);
+      var temp = matcher.group().replace(String.valueOf(triggerChar), "");
+      var color = java.awt.Color.decode(temp);
 
       matcher.appendReplacement(stringBuffer,
         String.format(RGB_ANSI, color.getRed(), color.getGreen(), color.getBlue()));
@@ -99,10 +99,10 @@ public enum ConsoleColor {
   }
 
   public static @NotNull String stripColor(char triggerChar, @NotNull String input) {
-    StringBuffer content = stripRGBColors(triggerChar, input);
+    var content = stripRGBColors(triggerChar, input);
 
-    int breakIndex = content.length() - 1;
-    for (int i = 0; i < breakIndex; i++) {
+    var breakIndex = content.length() - 1;
+    for (var i = 0; i < breakIndex; i++) {
       if (content.charAt(i) == triggerChar && LOOKUP.indexOf(content.charAt(i + 1)) != -1) {
         content.delete(i, i + 2);
         breakIndex -= 2;
@@ -113,8 +113,8 @@ public enum ConsoleColor {
   }
 
   private static @NotNull StringBuffer stripRGBColors(char triggerChar, @NotNull String input) {
-    Matcher matcher = Pattern.compile(triggerChar + "#([0-9a-fA-F]){6}").matcher(input);
-    StringBuffer stringBuffer = new StringBuffer();
+    var matcher = Pattern.compile(triggerChar + "#([0-9a-fA-F]){6}").matcher(input);
+    var stringBuffer = new StringBuffer();
 
     while (matcher.find()) {
       matcher.appendReplacement(stringBuffer, "");
@@ -125,7 +125,7 @@ public enum ConsoleColor {
   }
 
   public static @Nullable ConsoleColor getByChar(char index) {
-    for (ConsoleColor color : VALUES) {
+    for (var color : VALUES) {
       if (color.index == index) {
         return color;
       }

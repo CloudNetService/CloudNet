@@ -24,8 +24,8 @@ class StringUtilTest {
 
   @RepeatedTest(100)
   void testGenerateRandomString() {
-    int stringLength = Math.abs(new SecureRandom().nextInt(100) + 1);
-    String randomString = StringUtil.generateRandomString(stringLength);
+    var stringLength = Math.abs(new SecureRandom().nextInt(100) + 1);
+    var randomString = StringUtil.generateRandomString(stringLength);
 
     Assertions.assertNotNull(randomString);
     Assertions.assertEquals(stringLength, randomString.length());
@@ -33,24 +33,24 @@ class StringUtilTest {
 
   @RepeatedTest(100)
   void testEndsWithIgnoreCase() {
-    String randomString = StringUtil.generateRandomString(20);
-    String randomStringSuffix = randomString.substring(15);
+    var randomString = StringUtil.generateRandomString(20);
+    var randomStringSuffix = randomString.substring(15);
 
     Assertions.assertTrue(StringUtil.endsWithIgnoreCase(randomString, randomStringSuffix));
   }
 
   @RepeatedTest(100)
   void testStartsWithIgnoreCase() {
-    String randomString = StringUtil.generateRandomString(20);
-    String randomStringPrefix = randomString.substring(0, 15);
+    var randomString = StringUtil.generateRandomString(20);
+    var randomStringPrefix = randomString.substring(0, 15);
 
     Assertions.assertTrue(StringUtil.startsWithIgnoreCase(randomString, randomStringPrefix));
   }
 
   @RepeatedTest(100)
   void testCharRepeat() {
-    int length = Math.abs(new SecureRandom().nextInt(100) + 1);
-    String repeated = StringUtil.repeat(' ', length);
+    var length = Math.abs(new SecureRandom().nextInt(100) + 1);
+    var repeated = StringUtil.repeat(' ', length);
 
     Assertions.assertEquals(repeated.length(), length);
   }

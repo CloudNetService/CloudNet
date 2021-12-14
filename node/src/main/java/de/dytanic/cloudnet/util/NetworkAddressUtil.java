@@ -39,10 +39,10 @@ public final class NetworkAddressUtil {
     try {
       Set<String> addresses = new HashSet<>();
       // try to resolve all ip addresses available on the system
-      Enumeration<NetworkInterface> networkInterfaces = NetworkInterface.getNetworkInterfaces();
+      var networkInterfaces = NetworkInterface.getNetworkInterfaces();
       while (networkInterfaces.hasMoreElements()) {
         // get all addresses of the interface
-        Enumeration<InetAddress> inetAddresses = networkInterfaces.nextElement().getInetAddresses();
+        var inetAddresses = networkInterfaces.nextElement().getInetAddresses();
         while (inetAddresses.hasMoreElements()) {
           addresses.add(getHostAddress(inetAddresses.nextElement()));
         }
@@ -69,9 +69,9 @@ public final class NetworkAddressUtil {
   private static @NotNull String getHostAddress(@NotNull InetAddress address) {
     if (address instanceof Inet6Address) {
       // get the host address of the inet address
-      String hostAddress = address.getHostAddress();
+      var hostAddress = address.getHostAddress();
       // check if the host address contains '%' which separates the address from the source adapter name
-      int percentile = hostAddress.indexOf('%');
+      var percentile = hostAddress.indexOf('%');
       if (percentile != -1) {
         // strip the host address from the "full" address
         hostAddress = hostAddress.substring(0, percentile);

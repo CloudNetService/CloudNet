@@ -83,7 +83,7 @@ public class DefaultFileChunkedPacketHandler extends DefaultChunkedPacketProvide
     // validate that this is still in the running state when receiving the packet
     Verify.verify(this.transferStatus == TransferStatus.RUNNING, "Received transfer part after success");
     // extract some information from the body
-    boolean isFinalPacket = dataBuf.readBoolean();
+    var isFinalPacket = dataBuf.readBoolean();
     if (isFinalPacket) {
       this.expectedFileParts = dataBuf.readInt();
     }
@@ -105,7 +105,7 @@ public class DefaultFileChunkedPacketHandler extends DefaultChunkedPacketProvide
           return true;
         }
         // delete the file after posting
-        try (InputStream inputStream = Files.newInputStream(this.tempFilePath, StandardOpenOption.DELETE_ON_CLOSE)) {
+        try (var inputStream = Files.newInputStream(this.tempFilePath, StandardOpenOption.DELETE_ON_CLOSE)) {
           this.writeCompleteHandler.handleSessionComplete(this.chunkSessionInformation, inputStream);
           return true;
         }
@@ -127,7 +127,7 @@ public class DefaultFileChunkedPacketHandler extends DefaultChunkedPacketProvide
 
   protected void writePacketContent(int chunkPosition, @NotNull DataBuf dataBuf) throws IOException {
     // calculate the index of to which we need to sink in order to write
-    int targetIndex = chunkPosition * this.chunkSessionInformation.getChunkSize();
+    var targetIndex = chunkPosition * this.chunkSessionInformation.getChunkSize();
     // sink to the index of the chunk position we need to write to
     this.targetFile.seek(targetIndex);
     // write the content into the file at the current offset we sunk to

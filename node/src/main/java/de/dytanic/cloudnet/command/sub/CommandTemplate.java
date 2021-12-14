@@ -78,7 +78,7 @@ public final class CommandTemplate {
 
   @Parser(suggestions = "serviceTemplate")
   public ServiceTemplate defaultServiceTemplateParser(CommandContext<CommandSource> $, Queue<String> input) {
-    ServiceTemplate template = ServiceTemplate.parse(input.remove());
+    var template = ServiceTemplate.parse(input.remove());
     if (template == null || template.knownStorage() == null) {
       throw new ArgumentNotAvailableException(I18n.trans("ca-question-list-invalid-template"));
     }
@@ -101,7 +101,7 @@ public final class CommandTemplate {
 
   @Parser
   public TemplateStorage defaultTemplateStorageParser(CommandContext<CommandSource> $, Queue<String> input) {
-    TemplateStorage templateStorage = CloudNet.getInstance().getTemplateStorage(input.remove());
+    var templateStorage = CloudNet.getInstance().getTemplateStorage(input.remove());
     if (templateStorage == null) {
       throw new ArgumentNotAvailableException(I18n.trans("ca-question-list-template-invalid-storage"));
     }
@@ -119,7 +119,7 @@ public final class CommandTemplate {
 
   @Parser(suggestions = "serviceVersionType")
   public ServiceVersionType defaultVersionTypeParser(CommandContext<CommandSource> $, Queue<String> input) {
-    String versionTypeName = input.remove().toLowerCase();
+    var versionTypeName = input.remove().toLowerCase();
     return CloudNet.getInstance().getServiceVersionProvider().getServiceVersionType(versionTypeName)
       .orElseThrow(() -> new ArgumentNotAvailableException(
         I18n.trans("ca-question-list-invalid-service-version")));
@@ -132,7 +132,7 @@ public final class CommandTemplate {
 
   @Parser(suggestions = "version")
   public ServiceVersion defaultVersionParser(CommandContext<CommandSource> context, Queue<String> input) {
-    String version = input.remove();
+    var version = input.remove();
     ServiceVersionType type = context.get("versionType");
 
     return type.getVersion(version).orElseThrow(
@@ -198,8 +198,8 @@ public final class CommandTemplate {
     @Flag("caches") boolean caches,
     @Flag("executable") @Quoted String executable
   ) {
-    String resolvedExecutable = executable == null ? "java" : executable;
-    JavaVersion javaVersion = JavaVersionResolver.resolveFromJavaExecutable(resolvedExecutable);
+    var resolvedExecutable = executable == null ? "java" : executable;
+    var javaVersion = JavaVersionResolver.resolveFromJavaExecutable(resolvedExecutable);
     if (javaVersion == null) {
       source.sendMessage(I18n.trans("ca-question-list-invalid-java-executable"));
       return;
@@ -219,7 +219,7 @@ public final class CommandTemplate {
         .replace("%version%", versionType.getName() + "-" + serviceVersion.getName())
         .replace("%template%", serviceTemplate.toString()));
 
-      InstallInformation installInformation = InstallInformation.builder()
+      var installInformation = InstallInformation.builder()
         .serviceVersionType(versionType)
         .serviceVersion(serviceVersion)
         .cacheFiles(caches)
@@ -244,7 +244,7 @@ public final class CommandTemplate {
 
   @CommandMethod("template|t delete|rm|del <template>")
   public void deleteTemplate(CommandSource source, @Argument("template") ServiceTemplate template) {
-    SpecificTemplateStorage templateStorage = template.storage();
+    var templateStorage = template.storage();
     if (!templateStorage.exists()) {
       source.sendMessage(I18n.trans("command-template-delete-template-not-found")
         .replace("%template%", template.getFullName())
@@ -262,7 +262,7 @@ public final class CommandTemplate {
     @Argument("template") ServiceTemplate template,
     @Argument("environment") ServiceEnvironmentType environmentType
   ) {
-    SpecificTemplateStorage templateStorage = template.storage();
+    var templateStorage = template.storage();
     if (templateStorage.exists()) {
       source.sendMessage(I18n.trans("command-template-create-template-already-exists"));
       return;
@@ -294,8 +294,8 @@ public final class CommandTemplate {
       return;
     }
 
-    SpecificTemplateStorage sourceStorage = sourceTemplate.storage();
-    SpecificTemplateStorage targetStorage = targetTemplate.storage();
+    var sourceStorage = sourceTemplate.storage();
+    var targetStorage = targetTemplate.storage();
 
     CloudNet.getInstance().getMainThread().runTask(() -> {
       source.sendMessage(I18n.trans("command-template-copy")
@@ -305,7 +305,7 @@ public final class CommandTemplate {
 
       targetStorage.delete();
       targetStorage.create();
-      try (ZipInputStream stream = sourceStorage.asZipInputStream()) {
+      try (var stream = sourceStorage.asZipInputStream()) {
         if (stream == null) {
           source.sendMessage(I18n.trans("command-template-copy-failed"));
           return;

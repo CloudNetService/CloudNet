@@ -61,28 +61,28 @@ public class DefaultRPCHandlerTest {
       new DefaultObjectMapper(),
       DataBufFactory.defaultFactory());
     // handler initialize
-    AtomicLong backingHandler = new AtomicLong();
-    RPCHandler handlerNested = factory.newHandler(TestApiClassNested.class, null);
-    RPCHandler handler = factory.newHandler(TestApiClass.class, new TestApiClass(backingHandler));
-    RPCHandler veryHandlerNested = factory.newHandler(TestApiClassVeryNested.class, new TestApiClassVeryNestedImpl());
+    var backingHandler = new AtomicLong();
+    var handlerNested = factory.newHandler(TestApiClassNested.class, null);
+    var handler = factory.newHandler(TestApiClass.class, new TestApiClass(backingHandler));
+    var veryHandlerNested = factory.newHandler(TestApiClassVeryNested.class, new TestApiClassVeryNestedImpl());
     // register the handler
     registry.registerHandler(handler);
     registry.registerHandler(handlerNested);
     registry.registerHandler(veryHandlerNested);
     // networking mocks
-    AtomicReference<CompletableTask<IPacket>> resultListener = new AtomicReference<>(new CompletableTask<>());
+    var resultListener = new AtomicReference<CompletableTask<IPacket>>(new CompletableTask<>());
     // receiver
     // we need a query manager for the listener
-    QueryPacketManager manager = Mockito.mock(QueryPacketManager.class);
+    var manager = Mockito.mock(QueryPacketManager.class);
     Mockito.when(manager.sendQueryPacket(Mockito.any(), Mockito.any())).then(invocation -> {
       resultListener.get().complete(invocation.getArgument(0));
       return null;
     });
     // the channel to which the result should be sent
-    INetworkChannel resultChannel = Mockito.mock(INetworkChannel.class);
+    var resultChannel = Mockito.mock(INetworkChannel.class);
     Mockito.when(resultChannel.getQueryPacketManager()).thenReturn(manager);
     // sender
-    INetworkChannel channel = Mockito.mock(INetworkChannel.class);
+    var channel = Mockito.mock(INetworkChannel.class);
     Mockito
       .doAnswer(invocation -> {
         // the packet has no unique id yet, set one
@@ -95,21 +95,21 @@ public class DefaultRPCHandlerTest {
       .when(channel)
       .sendQueryAsync(Mockito.any(IPacket.class));
     // network component
-    INetworkComponent component = Mockito.mock(INetworkComponent.class);
+    var component = Mockito.mock(INetworkComponent.class);
     Mockito.when(component.getFirstChannel()).thenReturn(channel);
     // RPC sender
-    RPCSender sender = factory.providerForClass(component, TestApiClass.class);
-    RPCSender nestedSender = factory.providerForClass(component, TestApiClassNested.class);
-    RPCSender veryNestedSender = factory.providerForClass(component, TestApiClassVeryNested.class);
+    var sender = factory.providerForClass(component, TestApiClass.class);
+    var nestedSender = factory.providerForClass(component, TestApiClassNested.class);
+    var veryNestedSender = factory.providerForClass(component, TestApiClassVeryNested.class);
     // pre-save the arguments we are using
-    ProcessSnapshot snapshot = ProcessSnapshot.self();
-    List<Integer> integers = Arrays.asList(185, 186, 188);
+    var snapshot = ProcessSnapshot.self();
+    var integers = Arrays.asList(185, 186, 188);
     // send an invoke request of the method to the handler
     Map<Long, Map<String, String>> result = sender
       .invokeMethod("handleProcessSnapshot", snapshot, integers, 187)
       .fireSync();
     // ensure that the handler received the request
-    long key = TestApiClass.calculateResult(snapshot, integers, 187);
+    var key = TestApiClass.calculateResult(snapshot, integers, 187);
     Assertions.assertEquals(key, backingHandler.get());
     // ensure that the result is there
     Assertions.assertNotNull(result);

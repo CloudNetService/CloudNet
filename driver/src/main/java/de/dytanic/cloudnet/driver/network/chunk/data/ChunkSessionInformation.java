@@ -62,7 +62,7 @@ public class ChunkSessionInformation {
     } else if (!(o instanceof ChunkSessionInformation)) {
       return false;
     } else {
-      ChunkSessionInformation that = (ChunkSessionInformation) o;
+      var that = (ChunkSessionInformation) o;
       return this.getSessionUniqueId().equals(that.getSessionUniqueId());
     }
   }

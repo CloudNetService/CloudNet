@@ -59,8 +59,8 @@ public class DefaultPacketListenerRegistryTest {
   void testListenerUnregister() {
     IPacketListenerRegistry registry = new DefaultPacketListenerRegistry();
 
-    IPacketListener firstListener = Mockito.mock(IPacketListener.class);
-    IPacketListener secondListener = Mockito.mock(IPacketListener.class);
+    var firstListener = Mockito.mock(IPacketListener.class);
+    var secondListener = Mockito.mock(IPacketListener.class);
 
     registry.addListener(123, firstListener, secondListener);
     Assertions.assertEquals(2, registry.getPacketListeners().get(123).size());
@@ -79,8 +79,8 @@ public class DefaultPacketListenerRegistryTest {
   void testListenerUnregisterByChannel() {
     IPacketListenerRegistry registry = new DefaultPacketListenerRegistry();
 
-    IPacketListener firstListener = Mockito.mock(IPacketListener.class);
-    IPacketListener secondListener = Mockito.mock(IPacketListener.class);
+    var firstListener = Mockito.mock(IPacketListener.class);
+    var secondListener = Mockito.mock(IPacketListener.class);
 
     registry.addListener(123, firstListener, secondListener);
     Assertions.assertEquals(2, registry.getPacketListeners().get(123).size());
@@ -94,8 +94,8 @@ public class DefaultPacketListenerRegistryTest {
   void testListenerUnregisterByClassLoader() {
     IPacketListenerRegistry registry = new DefaultPacketListenerRegistry();
 
-    IPacketListener firstListener = Mockito.mock(IPacketListener.class);
-    IPacketListener secondListener = Mockito.mock(IPacketListener.class);
+    var firstListener = Mockito.mock(IPacketListener.class);
+    var secondListener = Mockito.mock(IPacketListener.class);
 
     registry.addListener(123, firstListener, secondListener);
     Assertions.assertEquals(2, registry.getPacketListeners().get(123).size());
@@ -109,8 +109,8 @@ public class DefaultPacketListenerRegistryTest {
   void testListenerUnregisterAll() {
     IPacketListenerRegistry registry = new DefaultPacketListenerRegistry();
 
-    IPacketListener firstListener = Mockito.mock(IPacketListener.class);
-    IPacketListener secondListener = Mockito.mock(IPacketListener.class);
+    var firstListener = Mockito.mock(IPacketListener.class);
+    var secondListener = Mockito.mock(IPacketListener.class);
 
     registry.addListener(123, firstListener, secondListener);
     Assertions.assertEquals(2, registry.getPacketListeners().get(123).size());
@@ -122,7 +122,7 @@ public class DefaultPacketListenerRegistryTest {
   @Test
   @Order(50)
   void testListenerPost() {
-    AtomicInteger eventCounter = new AtomicInteger();
+    var eventCounter = new AtomicInteger();
     IPacketListenerRegistry registry = new DefaultPacketListenerRegistry();
 
     registry.addListener(123, (channel, packet) -> eventCounter.incrementAndGet());
@@ -161,7 +161,7 @@ public class DefaultPacketListenerRegistryTest {
   }
 
   private IPacket mockPacketForChannel(int channel) {
-    IPacket packet = Mockito.mock(IPacket.class);
+    var packet = Mockito.mock(IPacket.class);
     Mockito.when(packet.getChannel()).thenReturn(channel);
 
     return packet;

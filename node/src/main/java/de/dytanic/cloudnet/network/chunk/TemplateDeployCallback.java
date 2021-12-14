@@ -37,11 +37,11 @@ final class TemplateDeployCallback implements Callback {
     @NotNull InputStream dataInput
   ) {
     // get the information for the deployment
-    String storageName = information.getTransferInformation().readString();
-    ServiceTemplate template = information.getTransferInformation().readObject(ServiceTemplate.class);
-    boolean overrideTemplate = information.getTransferInformation().readBoolean();
+    var storageName = information.getTransferInformation().readString();
+    var template = information.getTransferInformation().readObject(ServiceTemplate.class);
+    var overrideTemplate = information.getTransferInformation().readBoolean();
     // get the storage of the template if present
-    TemplateStorage storage = CloudNet.getInstance().getTemplateStorage(storageName);
+    var storage = CloudNet.getInstance().getTemplateStorage(storageName);
     if (storage != null) {
       // pause the ticking of CloudNet before writing the file into the template
       CloudNet.getInstance().getMainThread().pause();

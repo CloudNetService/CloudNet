@@ -48,7 +48,7 @@ public final class NukkitCloudPermissionsPlugin extends PluginBase {
   }
 
   private void injectPlayersCloudPermissible() {
-    for (Player player : Server.getInstance().getOnlinePlayers().values()) {
+    for (var player : Server.getInstance().getOnlinePlayers().values()) {
       NukkitPermissionInjectionHelper.injectPermissible(player, CloudNetDriver.getInstance().getPermissionManagement());
     }
   }

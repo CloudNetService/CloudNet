@@ -26,7 +26,7 @@ public class BungeeCordLabyModPlugin extends Plugin {
   @Override
   public void onEnable() {
     // init the labymod management
-    PlatformLabyModManagement labyModManagement = new PlatformLabyModManagement();
+    var labyModManagement = new PlatformLabyModManagement();
     // register the plugin channel message listener
     this.getProxy().getPluginManager().registerListener(this, new BungeeCordLabyModListener(labyModManagement));
     // register the common cloudnet listener for channel messages

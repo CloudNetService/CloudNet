@@ -30,7 +30,7 @@ public final class CloudPermissionConfigHelper {
    * @return the read {@link CloudPermissionConfig} configuration
    */
   public static CloudPermissionConfig read(@NotNull Path location) {
-    JsonDocument document = JsonDocument.newDocument(location);
+    var document = JsonDocument.newDocument(location);
     if (document.isEmpty()) {
       write(CloudPermissionConfig.DEFAULT, location);
       return CloudPermissionConfig.DEFAULT;

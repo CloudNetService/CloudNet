@@ -100,7 +100,7 @@ public class NettyNetworkServer extends NettySSLServer implements DefaultNetwork
     if (!this.channelFutures.containsKey(hostAndPort.getPort())) {
       try {
         // create the server
-        ServerBootstrap bootstrap = new ServerBootstrap()
+        var bootstrap = new ServerBootstrap()
           .channelFactory(NettyUtils.getServerChannelFactory())
           .group(this.bossEventLoopGroup, this.workerEventLoopGroup)
           .childHandler(new NettyNetworkServerInitializer(this, hostAndPort))
@@ -136,7 +136,7 @@ public class NettyNetworkServer extends NettySSLServer implements DefaultNetwork
   public void close() {
     this.closeChannels();
 
-    for (Pair<HostAndPort, ChannelFuture> entry : this.channelFutures.values()) {
+    for (var entry : this.channelFutures.values()) {
       entry.getSecond().cancel(true);
     }
 
@@ -163,7 +163,7 @@ public class NettyNetworkServer extends NettySSLServer implements DefaultNetwork
   public void sendPacketSync(@NotNull IPacket... packets) {
     Preconditions.checkNotNull(packets);
 
-    for (INetworkChannel channel : this.channels) {
+    for (var channel : this.channels) {
       channel.sendPacketSync(packets);
     }
   }

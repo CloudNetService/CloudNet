@@ -26,7 +26,7 @@ public class I18nTest {
 
   @Test
   public void test() {
-    Properties properties = new Properties();
+    var properties = new Properties();
     properties.put("test_message", "Test_Message");
 
     I18n.selectLanguage("en");
@@ -36,12 +36,12 @@ public class I18nTest {
     Assertions.assertEquals("Test_Message", I18n.trans("test_message"));
 
     properties = new Properties();
-    for (int i = 0; i < 100; i++) {
+    for (var i = 0; i < 100; i++) {
       properties.put(StringUtil.generateRandomString(5), StringUtil.generateRandomString(5));
     }
 
     I18n.addLanguageFile("en", properties);
-    for (Entry<Object, Object> entry : properties.entrySet()) {
+    for (var entry : properties.entrySet()) {
       Assertions.assertEquals(entry.getValue(), I18n.trans(entry.getKey().toString()));
     }
   }

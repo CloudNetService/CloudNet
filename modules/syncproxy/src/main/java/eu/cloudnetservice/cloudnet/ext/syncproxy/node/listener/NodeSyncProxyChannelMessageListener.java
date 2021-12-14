@@ -47,13 +47,13 @@ public final class NodeSyncProxyChannelMessageListener {
 
     if (SyncProxyConstants.SYNC_PROXY_UPDATE_CONFIG.equals(event.getMessage())) {
       // read the configuration from the databuf
-      SyncProxyConfiguration configuration = event.getContent().readObject(SyncProxyConfiguration.class);
+      var configuration = event.getContent().readObject(SyncProxyConfiguration.class);
       // write the configuration silently to the file
       this.management.setConfigurationSilently(configuration);
       // call the local event for the update
       this.eventManager.callEvent(new SyncProxyConfigurationUpdateEvent(configuration));
     } else if (SyncProxyConstants.SYNC_PROXY_CONFIG_REQUEST.equals(event.getMessage())) {
-      SyncProxyConfiguration configuration = this.management.getConfiguration();
+      var configuration = this.management.getConfiguration();
       // respond with the currently loaded configuration
       event.setBinaryResponse(DataBuf.empty().writeObject(configuration));
     }

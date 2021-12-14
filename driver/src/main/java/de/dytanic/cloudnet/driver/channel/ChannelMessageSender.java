@@ -66,7 +66,7 @@ public class ChannelMessageSender {
   }
 
   public @NotNull ChannelMessageTarget toTarget() {
-    Type type = this.type == DriverEnvironment.CLOUDNET ? Type.NODE : Type.SERVICE;
+    var type = this.type == DriverEnvironment.CLOUDNET ? Type.NODE : Type.SERVICE;
     return new ChannelMessageTarget(type, this.name);
   }
 }

@@ -41,7 +41,7 @@ public final class BukkitPermissionHelper {
 
   static {
     // load server version
-    Matcher matcher = PACKAGE_VERSION_PATTERN.matcher(Bukkit.getServer().getClass().getName());
+    var matcher = PACKAGE_VERSION_PATTERN.matcher(Bukkit.getServer().getClass().getName());
     if (matcher.matches()) {
       // the server package name is versioned
       SERVER_PACKAGE_VERSION = '.' + matcher.group(1) + '.';

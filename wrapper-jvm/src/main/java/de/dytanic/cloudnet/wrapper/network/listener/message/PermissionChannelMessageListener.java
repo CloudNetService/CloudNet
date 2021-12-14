@@ -74,21 +74,21 @@ public final class PermissionChannelMessageListener {
         // group add
         case "add_group": {
           // read the group
-          PermissionGroup group = event.getContent().readObject(PermissionGroup.class);
+          var group = event.getContent().readObject(PermissionGroup.class);
           this.eventManager.callEvent(new PermissionAddGroupEvent(this.permissionManagement, group));
         }
         break;
         // group update
         case "update_group": {
           // read the group
-          PermissionGroup group = event.getContent().readObject(PermissionGroup.class);
+          var group = event.getContent().readObject(PermissionGroup.class);
           this.eventManager.callEvent(new PermissionUpdateGroupEvent(this.permissionManagement, group));
         }
         break;
         // group delete
         case "delete_group": {
           // read the group
-          PermissionGroup group = event.getContent().readObject(PermissionGroup.class);
+          var group = event.getContent().readObject(PermissionGroup.class);
           this.eventManager.callEvent(new PermissionDeleteGroupEvent(this.permissionManagement, group));
         }
         break;

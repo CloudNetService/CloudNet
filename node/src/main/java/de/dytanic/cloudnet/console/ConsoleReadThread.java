@@ -43,13 +43,13 @@ public class ConsoleReadThread extends Thread {
         this.currentTask = null;
       }
 
-      for (ConsoleInputHandler value : this.console.getConsoleInputHandler().values()) {
+      for (var value : this.console.getConsoleInputHandler().values()) {
         if (value.isEnabled()) {
           value.handleInput(line);
         }
       }
 
-      for (AbstractConsoleAnimation animation : this.console.getRunningAnimations()) {
+      for (var animation : this.console.getRunningAnimations()) {
         animation.addToCursor(1);
       }
     }

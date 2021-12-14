@@ -39,7 +39,7 @@ public final class WrappedIterator<T> implements Iterator<T> {
 
   @Override
   public boolean hasNext() {
-    boolean hasNext = this.wrapped.hasNext();
+    var hasNext = this.wrapped.hasNext();
     // close the animation if there are no more elements
     if (!hasNext) {
       this.animation.stepToEnd();
@@ -49,7 +49,7 @@ public final class WrappedIterator<T> implements Iterator<T> {
 
   @Override
   public T next() {
-    T next = this.wrapped.next();
+    var next = this.wrapped.next();
     this.animation.step();
     return next;
   }

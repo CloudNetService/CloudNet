@@ -46,11 +46,11 @@ public abstract class AbstractDatabase implements LocalDatabase, Database {
 
   @Override
   public void iterate(@NotNull BiConsumer<String, JsonDocument> consumer, int chunkSize) {
-    long documentCount = this.getDocumentsCount();
+    var documentCount = this.getDocumentsCount();
     if (documentCount != 0) {
       long currentIndex = 0;
       while (currentIndex < documentCount) {
-        Map<String, JsonDocument> result = this.readChunk(currentIndex, chunkSize);
+        var result = this.readChunk(currentIndex, chunkSize);
         if (result != null) {
           result.forEach(consumer);
           currentIndex += chunkSize;

@@ -32,7 +32,7 @@ public class StaticContentHttpHandler implements IHttpHandler {
   public void handle(String path, IHttpContext context) throws Exception {
     path = path.replaceFirst(context.pathPrefix(), "");
     if (path.endsWith("/") || path.isEmpty()) {
-      String pathPrefix = context.pathPrefix().endsWith("/")
+      var pathPrefix = context.pathPrefix().endsWith("/")
         ? context.pathPrefix()
         : context.pathPrefix() + "/";
 
@@ -45,7 +45,7 @@ public class StaticContentHttpHandler implements IHttpHandler {
       return;
     }
 
-    ContentStreamProvider.StreamableContent content = this.provider.provideContent(path);
+    var content = this.provider.provideContent(path);
     if (content != null) {
       context
         .closeAfter(true)

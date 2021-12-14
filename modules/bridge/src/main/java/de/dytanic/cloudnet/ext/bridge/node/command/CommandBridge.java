@@ -54,12 +54,12 @@ public class CommandBridge {
 
   @Parser(name = "bridgeGroups", suggestions = "bridgeGroups")
   public GroupConfiguration bridgeGroupParser(@NotNull CommandContext<?> $, @NotNull Queue<String> input) {
-    String name = input.remove();
-    GroupConfiguration group = this.groupConfigurationProvider.getGroupConfiguration(name);
+    var name = input.remove();
+    var group = this.groupConfigurationProvider.getGroupConfiguration(name);
     if (group == null) {
       throw new ArgumentNotAvailableException(I18n.trans("module-bridge-command-create-entry-group-not-found"));
     }
-    Stream<ProxyFallbackConfiguration> fallbacks = this.bridgeManagement.getConfiguration().getFallbackConfigurations()
+    var fallbacks = this.bridgeManagement.getConfiguration().getFallbackConfigurations()
       .stream();
     // don't allow duplicated entries
     if (fallbacks.anyMatch(fallback -> fallback.getTargetGroup().equals(group.getName()))) {
@@ -83,11 +83,11 @@ public class CommandBridge {
     @NotNull @Argument(value = "targetGroup", parserName = "bridgeGroups") GroupConfiguration group
   ) {
     // create a new configuration for the given target group
-    ProxyFallbackConfiguration fallbackConfiguration = new ProxyFallbackConfiguration(
+    var fallbackConfiguration = new ProxyFallbackConfiguration(
       group.getName(),
       "Lobby",
       Collections.emptyList());
-    BridgeConfiguration configuration = this.bridgeManagement.getConfiguration();
+    var configuration = this.bridgeManagement.getConfiguration();
     // add the new fallback entry to the configuration
     configuration.getFallbackConfigurations().add(fallbackConfiguration);
     // save and update the configuration

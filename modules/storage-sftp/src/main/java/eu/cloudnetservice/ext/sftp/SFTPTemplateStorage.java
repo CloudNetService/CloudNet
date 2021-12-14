@@ -71,7 +71,7 @@ public class SFTPTemplateStorage implements TemplateStorage {
     this.config.setKeepAliveProvider(KeepAliveProvider.HEARTBEAT);
     // init the pool
     this.pool = new SFTPClientPool(config.getClientPoolSize(), () -> {
-      SSHClient client = this.client;
+      var client = this.client;
       // check if the client was ever initialized
       if (client != null) {
         // check if the client is still connected
@@ -133,7 +133,7 @@ public class SFTPTemplateStorage implements TemplateStorage {
     @NotNull InputStream inputStream,
     @NotNull ServiceTemplate target
   ) {
-    Path temp = FileUtils.extract(inputStream, FileUtils.createTempFile());
+    var temp = FileUtils.extract(inputStream, FileUtils.createTempFile());
     if (temp != null) {
       try {
         return this.deployDirectory(temp, target, null);
@@ -155,7 +155,7 @@ public class SFTPTemplateStorage implements TemplateStorage {
   @Override
   public @Nullable InputStream zipTemplate(@NotNull ServiceTemplate template) {
     return this.executeWithClient(client -> {
-      Path localTarget = FileUtils.createTempFile();
+      var localTarget = FileUtils.createTempFile();
       if (this.copy(template, localTarget)) {
         return FileUtils.zipToStream(localTarget);
       } else {
@@ -177,7 +177,7 @@ public class SFTPTemplateStorage implements TemplateStorage {
   }
 
   protected void deleteDir(@NotNull SFTPClient client, @NotNull String dir) throws IOException {
-    for (RemoteResourceInfo info : client.ls(dir)) {
+    for (var info : client.ls(dir)) {
       // delete the directory if recursive
       if (info.isDirectory()) {
         this.deleteDir(client, info.getPath());
@@ -199,7 +199,7 @@ public class SFTPTemplateStorage implements TemplateStorage {
   @Override
   public boolean has(@NotNull ServiceTemplate template) {
     return this.executeWithClient(client -> {
-      FileAttributes attr = client.statExistence(this.constructRemotePath(template));
+      var attr = client.statExistence(this.constructRemotePath(template));
       return attr != null && attr.getType() == Type.DIRECTORY;
     }, false);
   }
@@ -222,9 +222,9 @@ public class SFTPTemplateStorage implements TemplateStorage {
     @NotNull String path,
     OpenMode @NotNull ... modes
   ) throws IOException {
-    SFTPClientWrapper client = this.pool.takeClient();
+    var client = this.pool.takeClient();
     // open the file
-    RemoteFile file = client.open(this.constructRemotePath(st, path), EnumSet.of(modes[0], modes));
+    var file = client.open(this.constructRemotePath(st, path), EnumSet.of(modes[0], modes));
     // create a new output stream which returns the client to the pool when closing
     return file.new RemoteFileOutputStream() {
       @Override
@@ -268,9 +268,9 @@ public class SFTPTemplateStorage implements TemplateStorage {
 
   @Override
   public @Nullable InputStream newInputStream(@NotNull ServiceTemplate st, @NotNull String path) throws IOException {
-    SFTPClientWrapper client = this.pool.takeClient();
+    var client = this.pool.takeClient();
     // open the file
-    RemoteFile file = client.open(this.constructRemotePath(st, path), EnumSet.of(OpenMode.CREAT, OpenMode.READ));
+    var file = client.open(this.constructRemotePath(st, path), EnumSet.of(OpenMode.CREAT, OpenMode.READ));
     // create a new input stream which returns the client to the pool when closing
     return file.new RemoteFileInputStream() {
       @Override
@@ -284,7 +284,7 @@ public class SFTPTemplateStorage implements TemplateStorage {
   @Override
   public @Nullable FileInfo getFileInfo(@NotNull ServiceTemplate template, @NotNull String path) {
     return this.executeWithClient(client -> {
-      FileAttributes attr = client.statExistence(this.constructRemotePath(template, path));
+      var attr = client.statExistence(this.constructRemotePath(template, path));
       return attr == null ? null : this.createFileInfo(attr, path);
     }, null);
   }
@@ -305,7 +305,7 @@ public class SFTPTemplateStorage implements TemplateStorage {
     @NotNull String dir,
     boolean deep
   ) throws Exception {
-    for (RemoteResourceInfo info : client.ls(this.constructRemotePath(template, dir))) {
+    for (var info : client.ls(this.constructRemotePath(template, dir))) {
       // add the file as a result
       result.add(this.createFileInfo(info.getAttributes(), info.getPath()));
       // if the file is a directory, and we should check recursive do that
@@ -319,9 +319,9 @@ public class SFTPTemplateStorage implements TemplateStorage {
   public @NotNull Collection<ServiceTemplate> getTemplates() {
     return this.executeWithClient(client -> {
       Set<ServiceTemplate> templates = new HashSet<>();
-      for (RemoteResourceInfo info : client.ls(this.storageConfig.getBaseDirectory())) {
+      for (var info : client.ls(this.storageConfig.getBaseDirectory())) {
         if (info.isDirectory()) {
-          for (RemoteResourceInfo template : client.ls(this.storageConfig.getBaseDirectory() + '/' + info.getName())) {
+          for (var template : client.ls(this.storageConfig.getBaseDirectory() + '/' + info.getName())) {
             templates.add(ServiceTemplate.builder()
               .prefix(info.getName())
               .name(template.getName())
@@ -349,7 +349,7 @@ public class SFTPTemplateStorage implements TemplateStorage {
 
   protected @NotNull FileInfo createFileInfo(@NotNull FileAttributes attributes, @NotNull String path) {
     // get the file name - bit hacky but ok
-    String[] parts = path.split("/");
+    var parts = path.split("/");
     // create the file info
     return new FileInfo(
       path,

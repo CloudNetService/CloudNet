@@ -85,9 +85,9 @@ public class V2HttpHandlerNode extends WebSocketAbleV2HttpHandler {
   }
 
   protected void sendNodeInformation(IHttpContext context) {
-    NodeServer nodeServer = this.getCloudNet().getClusterNodeServerProvider().getSelfNode();
+    var nodeServer = this.getCloudNet().getClusterNodeServerProvider().getSelfNode();
 
-    JsonDocument information = this.success()
+    var information = this.success()
       .append("title", CloudNet.class.getPackage().getImplementationTitle())
       .append("version", CloudNet.class.getPackage().getImplementationVersion())
       .append("nodeInfoSnapshot", nodeServer.getNodeInfoSnapshot())
@@ -108,7 +108,7 @@ public class V2HttpHandlerNode extends WebSocketAbleV2HttpHandler {
   }
 
   protected void handleNodeConfigUpdateRequest(IHttpContext context) {
-    JsonConfiguration configuration = this.body(context.request()).toInstanceOf(JsonConfiguration.class);
+    var configuration = this.body(context.request()).toInstanceOf(JsonConfiguration.class);
     if (configuration == null) {
       this.badRequest(context)
         .body(this.failure().append("reason", "Missing configuration in body").toString())
@@ -130,7 +130,7 @@ public class V2HttpHandlerNode extends WebSocketAbleV2HttpHandler {
   }
 
   protected void handleReloadRequest(IHttpContext context) {
-    String type = RestUtils.getFirst(context.request().queryParameters().get("type"), "all").toLowerCase();
+    var type = RestUtils.getFirst(context.request().queryParameters().get("type"), "all").toLowerCase();
     switch (type) {
       case "all":
         //TODO what to reload
@@ -154,9 +154,9 @@ public class V2HttpHandlerNode extends WebSocketAbleV2HttpHandler {
   }
 
   protected void handleLiveConsoleRequest(IHttpContext context, HttpSession session) {
-    IWebSocketChannel channel = context.upgrade();
+    var channel = context.upgrade();
     if (channel != null) {
-      WebSocketLogHandler handler = new WebSocketLogHandler(session, channel, DefaultLogFormatter.END_LINE_SEPARATOR);
+      var handler = new WebSocketLogHandler(session, channel, DefaultLogFormatter.END_LINE_SEPARATOR);
 
       channel.addListener(handler);
       LogManager.getRootLogger().addHandler(handler);
@@ -176,15 +176,15 @@ public class V2HttpHandlerNode extends WebSocketAbleV2HttpHandler {
 
     @Override
     public void handle(IWebSocketChannel channel, WebSocketFrameType type, byte[] bytes) throws Exception {
-      PermissionUser user = this.httpSession.getUser();
+      var user = this.httpSession.getUser();
       if (type == WebSocketFrameType.TEXT && user != null) {
-        String commandLine = new String(bytes, StandardCharsets.UTF_8);
+        var commandLine = new String(bytes, StandardCharsets.UTF_8);
 
-        PermissionUserCommandSource commandSource = new PermissionUserCommandSource(user,
+        var commandSource = new PermissionUserCommandSource(user,
           V2HttpHandlerNode.this.getCloudNet().getPermissionManagement());
         V2HttpHandlerNode.this.getCloudNet().getCommandProvider().execute(commandSource, commandLine).join();
 
-        for (String message : commandSource.getMessages()) {
+        for (var message : commandSource.getMessages()) {
           this.channel.sendWebSocketFrame(WebSocketFrameType.TEXT, message);
         }
       }

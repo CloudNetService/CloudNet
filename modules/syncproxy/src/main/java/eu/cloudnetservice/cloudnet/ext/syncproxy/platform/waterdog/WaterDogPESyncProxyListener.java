@@ -40,16 +40,16 @@ public final class WaterDogPESyncProxyListener {
   }
 
   private void handleProxyPing(@NotNull ProxyPingEvent event) {
-    SyncProxyLoginConfiguration loginConfiguration = this.syncProxyManagement.getCurrentLoginConfiguration();
+    var loginConfiguration = this.syncProxyManagement.getCurrentLoginConfiguration();
     // check if we need to handle the proxy ping on this proxy instance
     if (loginConfiguration == null) {
       return;
     }
 
-    SyncProxyMotd motd = this.syncProxyManagement.getRandomMotd();
+    var motd = this.syncProxyManagement.getRandomMotd();
     // only display a motd if there is one in the config
     if (motd != null) {
-      int onlinePlayers = this.syncProxyManagement.getOnlinePlayerCount();
+      var onlinePlayers = this.syncProxyManagement.getOnlinePlayerCount();
       int maxPlayers;
 
       event.setPlayerCount(onlinePlayers);
@@ -62,8 +62,8 @@ public final class WaterDogPESyncProxyListener {
       event.setMaximumPlayerCount(maxPlayers);
 
       // bedrock has just to lines that are separated  from each other
-      String mainMotd = motd.format(motd.getFirstLine(), onlinePlayers, maxPlayers);
-      String subMotd = motd.format(motd.getSecondLine(), onlinePlayers, maxPlayers);
+      var mainMotd = motd.format(motd.getFirstLine(), onlinePlayers, maxPlayers);
+      var subMotd = motd.format(motd.getSecondLine(), onlinePlayers, maxPlayers);
 
       event.setMotd(mainMotd);
       event.setSubMotd(subMotd);
@@ -71,12 +71,12 @@ public final class WaterDogPESyncProxyListener {
   }
 
   private void handleProxyLogin(@NotNull PlayerLoginEvent event) {
-    SyncProxyLoginConfiguration loginConfiguration = this.syncProxyManagement.getCurrentLoginConfiguration();
+    var loginConfiguration = this.syncProxyManagement.getCurrentLoginConfiguration();
     if (loginConfiguration == null) {
       return;
     }
 
-    ProxiedPlayer proxiedPlayer = event.getPlayer();
+    var proxiedPlayer = event.getPlayer();
     if (loginConfiguration.isMaintenance()) {
       // the player is either whitelisted or has the permission to join during maintenance, ignore him
       if (this.syncProxyManagement.checkPlayerMaintenance(proxiedPlayer)) {

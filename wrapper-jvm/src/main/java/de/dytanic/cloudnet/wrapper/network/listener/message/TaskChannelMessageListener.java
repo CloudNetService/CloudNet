@@ -39,13 +39,13 @@ public final class TaskChannelMessageListener {
       switch (event.getMessage()) {
         // add task
         case "add_service_task": {
-          ServiceTask task = event.getContent().readObject(ServiceTask.class);
+          var task = event.getContent().readObject(ServiceTask.class);
           this.eventManager.callEvent(new ServiceTaskAddEvent(task));
         }
         break;
         // remove task
         case "remove_service_task": {
-          ServiceTask task = event.getContent().readObject(ServiceTask.class);
+          var task = event.getContent().readObject(ServiceTask.class);
           this.eventManager.callEvent(new ServiceTaskRemoveEvent(task));
         }
         break;

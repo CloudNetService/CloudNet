@@ -47,9 +47,9 @@ public class DataBufableObjectSerializer implements ObjectSerializer<DataBufable
     // ensure that the type is a class
     Verify.verify(type instanceof Class<?>, "Call to data buf reader as non-class");
     // try to read the data from into class
-    Class<?> clazz = (Class<?>) type;
+    var clazz = (Class<?>) type;
     // find a no-args constructor method invoker of the class
-    MethodInvoker invoker = this.cachedConstructors.computeIfAbsent(
+    var invoker = this.cachedConstructors.computeIfAbsent(
       type,
       $ -> {
         try {
@@ -63,7 +63,7 @@ public class DataBufableObjectSerializer implements ObjectSerializer<DataBufable
       });
     // create an instance of the class and read the data of the buffer into it
     // (just to suppress the warning the invoke method is wrapped into requireNonNull, it will never return null)
-    DataBufable object = Objects.requireNonNull((DataBufable) invoker.callMethod(NO_ARGS));
+    var object = Objects.requireNonNull((DataBufable) invoker.callMethod(NO_ARGS));
     object.readData(source);
     return object;
   }

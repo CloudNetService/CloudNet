@@ -63,7 +63,7 @@ public class V2HttpHandlerCluster extends V2HttpHandler {
   }
 
   protected void handleNodeRequest(IHttpContext context) {
-    NodeServer server = this.getNodeServer(context, true);
+    var server = this.getNodeServer(context, true);
     if (server != null) {
       this.ok(context)
         .body(this.success().append("node", this.createNodeInfoDocument(server)).toString())
@@ -94,8 +94,8 @@ public class V2HttpHandlerCluster extends V2HttpHandler {
   }
 
   protected void handleNodeCommandRequest(IHttpContext context) {
-    NodeServer nodeServer = this.getNodeServer(context, true);
-    String commandLine = this.body(context.request()).getString("command");
+    var nodeServer = this.getNodeServer(context, true);
+    var commandLine = this.body(context.request()).getString("command");
     if (commandLine == null || nodeServer == null) {
       this.badRequest(context)
         .body(this.failure().append("reason", nodeServer == null ? "Unknown node server" : "Missing command line")
@@ -106,7 +106,7 @@ public class V2HttpHandlerCluster extends V2HttpHandler {
       return;
     }
 
-    Collection<String> result = nodeServer.sendCommandLine(commandLine);
+    var result = nodeServer.sendCommandLine(commandLine);
     this.ok(context)
       .body(this.success().append("result", result).toString())
       .context()
@@ -115,7 +115,7 @@ public class V2HttpHandlerCluster extends V2HttpHandler {
   }
 
   protected void handleNodeCreateRequest(IHttpContext context) {
-    NetworkClusterNode server = this.body(context.request()).toInstanceOf(NetworkClusterNode.class);
+    var server = this.body(context.request()).toInstanceOf(NetworkClusterNode.class);
     if (server == null || server.getUniqueId() == null || server.getListeners() == null) {
       this.badRequest(context)
         .body(this.failure().append("reason", "Missing node server information").toString())
@@ -134,7 +134,7 @@ public class V2HttpHandlerCluster extends V2HttpHandler {
       return;
     }
 
-    IConfiguration configuration = this.getConfiguration();
+    var configuration = this.getConfiguration();
     configuration.getClusterConfig().getNodes().add(server);
     configuration.save();
 
@@ -148,7 +148,7 @@ public class V2HttpHandlerCluster extends V2HttpHandler {
   }
 
   protected void handleNodeDeleteRequest(IHttpContext context) {
-    String uniqueId = context.request().pathParameters().get("node");
+    var uniqueId = context.request().pathParameters().get("node");
     if (uniqueId == null) {
       this.badRequest(context)
         .body(this.failure().append("reason", "No node unique id provided").toString())
@@ -158,7 +158,7 @@ public class V2HttpHandlerCluster extends V2HttpHandler {
       return;
     }
 
-    boolean removed = this.getConfiguration().getClusterConfig().getNodes().removeIf(
+    var removed = this.getConfiguration().getClusterConfig().getNodes().removeIf(
       node -> node.getUniqueId().equals(uniqueId));
     if (removed) {
       this.getConfiguration().save();
@@ -179,7 +179,7 @@ public class V2HttpHandlerCluster extends V2HttpHandler {
   }
 
   protected void handleNodeUpdateRequest(IHttpContext context) {
-    NetworkClusterNode server = this.body(context.request()).toInstanceOf(NetworkClusterNode.class);
+    var server = this.body(context.request()).toInstanceOf(NetworkClusterNode.class);
     if (server == null) {
       this.badRequest(context)
         .body(this.failure().append("reason", "Missing node server information").toString())
@@ -189,7 +189,7 @@ public class V2HttpHandlerCluster extends V2HttpHandler {
       return;
     }
 
-    NetworkClusterNode registered = this.getConfiguration().getClusterConfig().getNodes()
+    var registered = this.getConfiguration().getClusterConfig().getNodes()
       .stream()
       .filter(node -> node.getUniqueId().equals(server.getUniqueId()))
       .findFirst()
@@ -222,7 +222,7 @@ public class V2HttpHandlerCluster extends V2HttpHandler {
   }
 
   protected NodeServer getNodeServer(IHttpContext context, boolean includeLocal) {
-    String nodeName = context.request().pathParameters().get("node");
+    var nodeName = context.request().pathParameters().get("node");
     return nodeName == null ? null : this.getNodeServer(nodeName, includeLocal);
   }
 

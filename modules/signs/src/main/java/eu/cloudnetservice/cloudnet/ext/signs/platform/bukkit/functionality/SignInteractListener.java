@@ -38,15 +38,15 @@ public class SignInteractListener implements Listener {
 
   @EventHandler
   public void handle(PlayerInteractEvent event) {
-    SignConfigurationEntry entry = this.signManagement.getApplicableSignConfigurationEntry();
+    var entry = this.signManagement.getApplicableSignConfigurationEntry();
     if (entry != null && event.getAction() == Action.RIGHT_CLICK_BLOCK && event.getClickedBlock() != null
       && event.getClickedBlock().getState() instanceof org.bukkit.block.Sign) {
 
-      Sign sign = this.signManagement.getSignAt((org.bukkit.block.Sign) event.getClickedBlock().getState());
+      var sign = this.signManagement.getSignAt((org.bukkit.block.Sign) event.getClickedBlock().getState());
       if (sign != null) {
-        boolean canConnect = this.signManagement.canConnect(sign, event.getPlayer()::hasPermission);
+        var canConnect = this.signManagement.canConnect(sign, event.getPlayer()::hasPermission);
 
-        BukkitCloudSignInteractEvent interactEvent = new BukkitCloudSignInteractEvent(event.getPlayer(), sign,
+        var interactEvent = new BukkitCloudSignInteractEvent(event.getPlayer(), sign,
           !canConnect);
         Bukkit.getPluginManager().callEvent(interactEvent);
 

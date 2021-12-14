@@ -46,9 +46,9 @@ public class MapObjectSerializer implements ObjectSerializer<Map<?, ?>> {
     @NotNull ObjectMapper caller
   ) {
     // create a new instance of the map
-    Map<?, ?> map = this.mapFactory.get();
+    var map = this.mapFactory.get();
     // read the size of the map
-    int mapSize = source.readInt();
+    var mapSize = source.readInt();
     // if the map is empty, break
     if (mapSize == 0) {
       return map;
@@ -56,10 +56,10 @@ public class MapObjectSerializer implements ObjectSerializer<Map<?, ?>> {
     // ensure that the type is parameterized
     Verify.verify(type instanceof ParameterizedType, "Map rpc read called without parameterized type");
     // read the parameter type of the collection
-    Type keyType = ((ParameterizedType) type).getActualTypeArguments()[0];
-    Type valueType = ((ParameterizedType) type).getActualTypeArguments()[1];
+    var keyType = ((ParameterizedType) type).getActualTypeArguments()[0];
+    var valueType = ((ParameterizedType) type).getActualTypeArguments()[1];
     // read the map content
-    for (int i = 0; i < mapSize; i++) {
+    for (var i = 0; i < mapSize; i++) {
       map.put(caller.readObject(source, keyType), caller.readObject(source, valueType));
     }
     // read done

@@ -51,13 +51,13 @@ public final class I18n {
   }
 
   public static void loadFromLanguageRegistryFile(@NotNull ClassLoader source) {
-    try (BufferedReader reader = new BufferedReader(new InputStreamReader(
+    try (var reader = new BufferedReader(new InputStreamReader(
       Objects.requireNonNull(source.getResourceAsStream("languages.txt")),
       StandardCharsets.UTF_8))
     ) {
       String lang;
       while ((lang = reader.readLine()) != null) {
-        InputStream stream = source.getResourceAsStream("lang/" + lang);
+        var stream = source.getResourceAsStream("lang/" + lang);
         if (stream != null) {
           addLanguageFile(lang.replace(".properties", ""), stream);
         } else {
@@ -103,7 +103,7 @@ public final class I18n {
    * @param file     the properties which will add in the language as parameter
    */
   public static void addLanguageFile(@NotNull String language, @NotNull Path file) {
-    try (InputStream inputStream = Files.newInputStream(file)) {
+    try (var inputStream = Files.newInputStream(file)) {
       addLanguageFile(language, inputStream);
     } catch (IOException exception) {
       LOGGER.severe("Exception while reading language file", exception);
@@ -131,7 +131,7 @@ public final class I18n {
    * @param reader   the properties which will be added in the language as parameter
    */
   public static void addLanguageFile(@NotNull String language, @NotNull Reader reader) {
-    Properties properties = new Properties();
+    var properties = new Properties();
 
     try {
       properties.load(reader);

@@ -46,9 +46,9 @@ public class CollectionObjectSerializer implements ObjectSerializer<Collection<?
     @NotNull ObjectMapper caller
   ) {
     // create a new instance of the collection
-    Collection<?> collection = this.collectionFactory.get();
+    var collection = this.collectionFactory.get();
     // read the size of the collection
-    int collectionSize = source.readInt();
+    var collectionSize = source.readInt();
     // if the collection is empty, break
     if (collectionSize == 0) {
       return collection;
@@ -56,9 +56,9 @@ public class CollectionObjectSerializer implements ObjectSerializer<Collection<?
     // ensure that the type is parameterized
     Verify.verify(type instanceof ParameterizedType, "Collection rpc read called without parameterized type");
     // read the parameter type of the collection
-    Type parameterType = ((ParameterizedType) type).getActualTypeArguments()[0];
+    var parameterType = ((ParameterizedType) type).getActualTypeArguments()[0];
     // read the collection content
-    for (int i = 0; i < collectionSize; i++) {
+    for (var i = 0; i < collectionSize; i++) {
       collection.add(caller.readObject(source, parameterType));
     }
     // read done

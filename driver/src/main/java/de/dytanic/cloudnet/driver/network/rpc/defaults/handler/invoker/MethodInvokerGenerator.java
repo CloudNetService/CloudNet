@@ -67,13 +67,13 @@ public class MethodInvokerGenerator {
 
   public @NotNull MethodInvoker makeMethodInvoker(@NotNull MethodInformation methodInfo) {
     try {
-      String className = String.format(
+      var className = String.format(
         CLASS_NAME_FORMAT,
         Type.getInternalName(methodInfo.getDefiningClass()),
         methodInfo.getName(),
         StringUtil.generateRandomString(25));
       // init the class writer for a public final class implementing the MethodInvoker
-      ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
+      var cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
       cw.visit(V1_8, ACC_PUBLIC | ACC_FINAL, className, null, SUPER, METHOD_INVOKER);
       // visit the instance field
       cw.visitField(ACC_PRIVATE | ACC_FINAL, "instance", OBJ_DESCRIPTOR, null, null).visitEnd();
@@ -102,9 +102,9 @@ public class MethodInvokerGenerator {
         mv.visitFieldInsn(GETFIELD, className, "instance", OBJ_DESCRIPTOR);
         mv.visitTypeInsn(CHECKCAST, Type.getInternalName(methodInfo.getDefiningClass()));
         // visit each argument of the method
-        Type[] arguments = new Type[methodInfo.getArguments().length];
-        for (int i = 0; i < methodInfo.getArguments().length; i++) {
-          Class<?> rawType = TypeToken.of(methodInfo.getArguments()[i]).getRawType();
+        var arguments = new Type[methodInfo.getArguments().length];
+        for (var i = 0; i < methodInfo.getArguments().length; i++) {
+          var rawType = TypeToken.of(methodInfo.getArguments()[i]).getRawType();
           // load the argument supplied for the index
           mv.visitVarInsn(ALOAD, 1);
           pushInt(mv, i);
@@ -140,7 +140,7 @@ public class MethodInvokerGenerator {
       // finish the class
       cw.visitEnd();
       // define and make the constructor accessible
-      Constructor<?> constructor = ClassDefiners.current()
+      var constructor = ClassDefiners.current()
         .defineClass(className, methodInfo.getDefiningClass(), cw.toByteArray())
         .getDeclaredConstructor(Object.class);
       constructor.setAccessible(true);
@@ -158,13 +158,13 @@ public class MethodInvokerGenerator {
   public @NotNull MethodInvoker makeNoArgsConstructorInvoker(@NotNull Class<?> clazz) {
     try {
       // make a class name which is definitely unique for the class
-      String className = String.format(
+      var className = String.format(
         NO_ARGS_CONSTRUCTOR_CLASS_NAME_FORMAT,
         Type.getInternalName(clazz),
         StringUtil.generateRandomString(25));
 
       // init the class writer for a public final class implementing the MethodInvoker
-      ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
+      var cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
       cw.visit(V1_8, ACC_PUBLIC | ACC_FINAL, className, null, SUPER, METHOD_INVOKER);
       // generate a constructor and the invoke method
       MethodVisitor mv;
@@ -193,7 +193,7 @@ public class MethodInvokerGenerator {
       cw.visitEnd();
 
       // declare the class and get the constructor
-      Constructor<?> constructor = ClassDefiners.current()
+      var constructor = ClassDefiners.current()
         .defineClass(className, clazz, cw.toByteArray())
         .getDeclaredConstructor();
       constructor.setAccessible(true);

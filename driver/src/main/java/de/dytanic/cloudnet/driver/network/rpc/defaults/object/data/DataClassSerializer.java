@@ -44,7 +44,7 @@ public class DataClassSerializer implements ObjectSerializer<Object> {
   ) {
     // ensure that the given type is a class & unwrap
     Verify.verify(type instanceof Class<?>, "Cannot call data class serializer on non-class");
-    Class<?> clazz = (Class<?>) type;
+    var clazz = (Class<?>) type;
     // check if the type is an array
     if (clazz.isArray()) {
       return this.readArray(source, clazz, caller);
@@ -53,7 +53,7 @@ public class DataClassSerializer implements ObjectSerializer<Object> {
     this.readLock.lock();
     try {
       // get the class information
-      DataClassInformation information = this.cachedClassInformation.computeIfAbsent(
+      var information = this.cachedClassInformation.computeIfAbsent(
         type,
         $ -> DataClassInformation.createClassInformation((Class<?>) type, this.generator));
       // let the instance creator do the stuff
@@ -72,14 +72,14 @@ public class DataClassSerializer implements ObjectSerializer<Object> {
   ) {
     // ensure that the given type is a class & unwrap
     Verify.verify(type instanceof Class<?>, "Cannot call data class serializer on non-class");
-    Class<?> clazz = (Class<?>) type;
+    var clazz = (Class<?>) type;
     // check if the type is an array
     if (clazz.isArray()) {
       this.writeArray(dataBuf, object, caller);
       return;
     }
     // get the class information
-    DataClassInformation information = this.cachedClassInformation.computeIfAbsent(
+    var information = this.cachedClassInformation.computeIfAbsent(
       type,
       $ -> DataClassInformation.createClassInformation((Class<?>) type, this.generator));
     // let the information writer do the stuff
@@ -88,12 +88,12 @@ public class DataClassSerializer implements ObjectSerializer<Object> {
 
   protected @Nullable Object readArray(@NotNull DataBuf source, @NotNull Class<?> clazz, @NotNull ObjectMapper caller) {
     // read the array component type information
-    Class<?> arrayType = clazz.getComponentType();
+    var arrayType = clazz.getComponentType();
     // read the serialized array information
-    int size = source.readInt();
-    Object array = Array.newInstance(arrayType, size);
+    var size = source.readInt();
+    var array = Array.newInstance(arrayType, size);
     // read the objects of the component type from the buffer
-    for (int i = 0; i < size; i++) {
+    for (var i = 0; i < size; i++) {
       Array.set(array, i, caller.readObject(source, arrayType));
     }
     // read done, return
@@ -102,10 +102,10 @@ public class DataClassSerializer implements ObjectSerializer<Object> {
 
   protected void writeArray(@NotNull DataBuf.Mutable dataBuf, @NotNull Object object, @NotNull ObjectMapper caller) {
     // read the array information
-    int arraySize = Array.getLength(object);
+    var arraySize = Array.getLength(object);
     // write the information about the array into the buffer
     dataBuf.writeInt(arraySize);
-    for (int i = 0; i < arraySize; i++) {
+    for (var i = 0; i < arraySize; i++) {
       caller.writeObject(dataBuf, Array.get(object, i));
     }
   }

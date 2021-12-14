@@ -24,7 +24,7 @@ public class ConsoleLogEmitter implements ReportDataEmitter<NetworkClusterNodeIn
 
   @Override
   public void emitData(StringBuilder builder, NetworkClusterNodeInfoSnapshot context) {
-    for (String logLine : CloudNet.getInstance().getLogHandler().getFormattedCachedLogLines()) {
+    for (var logLine : CloudNet.getInstance().getLogHandler().getFormattedCachedLogLines()) {
       builder.append(logLine).append("\n");
     }
     builder.append("\n");

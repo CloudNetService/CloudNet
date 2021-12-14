@@ -67,9 +67,9 @@ final class SpongeSimpleNameTagsManager extends SimpleNameTagsManager<ServerPlay
     @NotNull String name,
     @NotNull PermissionGroup group
   ) {
-    Team team = scoreboardHolder.scoreboard().team(name).orElseGet(() -> {
+    var team = scoreboardHolder.scoreboard().team(name).orElseGet(() -> {
       // create and register a new team
-      Team newTeam = Team.builder().name(name).build();
+      var newTeam = Team.builder().name(name).build();
       scoreboardHolder.scoreboard().registerTeam(newTeam);
       return newTeam;
     });
@@ -77,7 +77,7 @@ final class SpongeSimpleNameTagsManager extends SimpleNameTagsManager<ServerPlay
     team.setPrefix(AdventureSerializerUtil.serialize(group.getPrefix()));
     team.setSuffix(AdventureSerializerUtil.serialize(group.getSuffix()));
     // set the team color if possible
-    NamedTextColor teamColor = NamedTextColor.ofExact(this.getColorChar(group));
+    var teamColor = NamedTextColor.ofExact(this.getColorChar(group));
     if (teamColor != null) {
       team.setColor(teamColor);
     }

@@ -43,18 +43,18 @@ public class PaperApiVersionFetchStepExecutor implements InstallStepExecutor {
     @NotNull Set<Path> inputPaths
   ) {
     // check if we need to fetch using the paper api
-    boolean enabled = installInformation.getServiceVersion().getProperties().getBoolean("fetchOverPaperApi");
-    String versionGroup = installInformation.getServiceVersion().getProperties().getString("versionGroup");
+    var enabled = installInformation.getServiceVersion().getProperties().getBoolean("fetchOverPaperApi");
+    var versionGroup = installInformation.getServiceVersion().getProperties().getString("versionGroup");
     if (enabled && versionGroup != null) {
       // resolve the project name we should use for the api request
-      String project = this.decideApiProjectName(installInformation.getServiceVersionType());
-      JsonDocument versionInformation = this.makeRequest(String.format(VERSION_LIST_URL, project, versionGroup));
+      var project = this.decideApiProjectName(installInformation.getServiceVersionType());
+      var versionInformation = this.makeRequest(String.format(VERSION_LIST_URL, project, versionGroup));
       // check if there are any builds for the version
       if (versionInformation.contains("builds")) {
         // extract the build numbers from the response
         Set<Integer> builds = versionInformation.get("builds", INT_SET_TYPE);
         // find the highest build number (the newest build)
-        Optional<Integer> newestBuild = builds.stream().reduce(Math::max);
+        var newestBuild = builds.stream().reduce(Math::max);
         // check if there is a build
         if (newestBuild.isPresent()) {
           // set the download url of the service version required in the download step
@@ -75,7 +75,7 @@ public class PaperApiVersionFetchStepExecutor implements InstallStepExecutor {
   }
 
   private JsonDocument makeRequest(@NotNull String apiUrl) {
-    HttpResponse<String> response = Unirest.get(apiUrl)
+    var response = Unirest.get(apiUrl)
       .accept("application/json")
       .asString();
 

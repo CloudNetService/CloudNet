@@ -29,7 +29,7 @@ public class JsonDocumentTest {
 
   @Test
   void testDocumentRead() {
-    JsonDocument document = this.getDummyDocument();
+    var document = this.getDummyDocument();
 
     Assertions.assertEquals("bar", document.getString("foo"));
     Assertions.assertEquals(4, document.getInt("number"));
@@ -38,7 +38,7 @@ public class JsonDocumentTest {
 
   @Test
   void testDocumentRemove() {
-    JsonDocument document = this.getDummyDocument();
+    var document = this.getDummyDocument();
 
     Assertions.assertNull(document.remove("foo").getString("foo"));
     Assertions.assertNull(document.remove("test").get("test", TestClass.class));
@@ -57,13 +57,13 @@ public class JsonDocumentTest {
 
   @Test
   void testJsonDocPropertyRead() {
-    JsonDocument document = this.getDummyDocument().setProperty(this.getJsonDocProperty(), "test124");
+    var document = this.getDummyDocument().setProperty(this.getJsonDocProperty(), "test124");
     Assertions.assertEquals("test124", document.getProperty(this.getJsonDocProperty()));
   }
 
   @Test
   void testJsonDocPropertyRemove() {
-    JsonDocument document = this.getDummyDocument().setProperty(this.getJsonDocProperty(), "test124");
+    var document = this.getDummyDocument().setProperty(this.getJsonDocProperty(), "test124");
     Assertions.assertNull(document.removeProperty(this.getJsonDocProperty()).getProperty(this.getJsonDocProperty()));
   }
 

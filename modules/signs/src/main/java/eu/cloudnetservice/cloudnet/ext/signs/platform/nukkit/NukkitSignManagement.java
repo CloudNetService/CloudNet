@@ -67,7 +67,7 @@ public class NukkitSignManagement extends AbstractPlatformSignManagement<BlockEn
   }
 
   protected void pushUpdates0(@NotNull Set<Sign> signs, @NotNull SignLayout layout) {
-    for (Sign sign : signs) {
+    for (var sign : signs) {
       this.pushUpdate(sign, layout);
     }
   }
@@ -82,15 +82,15 @@ public class NukkitSignManagement extends AbstractPlatformSignManagement<BlockEn
   }
 
   protected void pushUpdate0(@NotNull Sign sign, @NotNull SignLayout layout) {
-    Location location = this.locationFromWorldPosition(sign.getLocation());
+    var location = this.locationFromWorldPosition(sign.getLocation());
     if (location != null && location.getLevel().isChunkLoaded(location.getChunkX(), location.getChunkZ())) {
-      BlockEntity blockEntity = location.getLevel().getBlockEntity(location);
+      var blockEntity = location.getLevel().getBlockEntity(location);
       if (blockEntity instanceof BlockEntitySign) {
-        BlockEntitySign entitySign = (BlockEntitySign) blockEntity;
+        var entitySign = (BlockEntitySign) blockEntity;
 
-        String[] lines = this.replaceLines(sign, layout);
+        var lines = this.replaceLines(sign, layout);
         if (lines != null) {
-          for (int i = 0; i < 4; i++) {
+          for (var i = 0; i < 4; i++) {
             lines[i] = TextFormat.colorize('&', lines[i]);
           }
 
@@ -102,12 +102,12 @@ public class NukkitSignManagement extends AbstractPlatformSignManagement<BlockEn
   }
 
   protected void changeBlock(@NotNull Block block, @NotNull SignLayout layout) {
-    Integer itemId = layout.getBlockMaterial() == null ? null : Ints.tryParse(layout.getBlockMaterial());
+    var itemId = layout.getBlockMaterial() == null ? null : Ints.tryParse(layout.getBlockMaterial());
     if (itemId != null && block instanceof Faceable) {
-      BlockFace face =
+      var face =
         block instanceof BlockWallSign ? ((Faceable) block).getBlockFace().getOpposite() : BlockFace.DOWN;
 
-      Location backLocation = block.getSide(face).getLocation();
+      var backLocation = block.getSide(face).getLocation();
       backLocation.getLevel()
         .setBlock(backLocation, Block.get((int) itemId, Math.max(0, layout.getBlockSubId())), true, true);
     }
@@ -129,9 +129,9 @@ public class NukkitSignManagement extends AbstractPlatformSignManagement<BlockEn
     @NotNull String group,
     @Nullable String templatePath
   ) {
-    SignConfigurationEntry entry = this.getApplicableSignConfigurationEntry();
+    var entry = this.getApplicableSignConfigurationEntry();
     if (entry != null) {
-      Sign sign = new Sign(
+      var sign = new Sign(
         group,
         templatePath,
         this.locationToWorldPosition(blockEntitySign.getLocation(), entry.getTargetGroup()));
@@ -148,9 +148,9 @@ public class NukkitSignManagement extends AbstractPlatformSignManagement<BlockEn
 
   @Override
   public int removeMissingSigns() {
-    int removed = 0;
-    for (WorldPosition position : this.signs.keySet()) {
-      Location location = this.locationFromWorldPosition(position);
+    var removed = 0;
+    for (var position : this.signs.keySet()) {
+      var location = this.locationFromWorldPosition(position);
       if (location == null || !(location.getLevel().getBlockEntity(location) instanceof BlockEntitySign)) {
         this.deleteSign(position);
         removed++;
@@ -162,23 +162,23 @@ public class NukkitSignManagement extends AbstractPlatformSignManagement<BlockEn
   @Override
   protected void startKnockbackTask() {
     Server.getInstance().getScheduler().scheduleDelayedRepeatingTask(this.plugin, () -> {
-      SignConfigurationEntry entry = this.getApplicableSignConfigurationEntry();
+      var entry = this.getApplicableSignConfigurationEntry();
       if (entry != null) {
-        SignConfigurationEntry.KnockbackConfiguration configuration = entry.getKnockbackConfiguration();
+        var configuration = entry.getKnockbackConfiguration();
         if (configuration.isValidAndEnabled()) {
-          double distance = configuration.getDistance();
+          var distance = configuration.getDistance();
 
-          for (Sign value : this.signs.values()) {
-            Location location = this.locationFromWorldPosition(value.getLocation());
+          for (var value : this.signs.values()) {
+            var location = this.locationFromWorldPosition(value.getLocation());
             if (location != null && location.getLevel().isChunkLoaded(location.getChunkX(), location.getChunkZ())
               && location.getLevel().getBlockEntity(location) instanceof BlockEntitySign) {
-              AxisAlignedBB axisAlignedBB = new SimpleAxisAlignedBB(location, location)
+              var axisAlignedBB = new SimpleAxisAlignedBB(location, location)
                 .expand(distance, distance, distance);
 
-              for (Entity entity : location.getLevel().getNearbyEntities(axisAlignedBB)) {
+              for (var entity : location.getLevel().getNearbyEntities(axisAlignedBB)) {
                 if (entity instanceof Player && (configuration.getBypassPermission() == null
                   || !((Player) entity).hasPermission(configuration.getBypassPermission()))) {
-                  Vector3 vector = entity.getPosition()
+                  var vector = entity.getPosition()
                     .subtract(location)
                     .normalize()
                     .multiply(configuration.getStrength());
@@ -216,7 +216,7 @@ public class NukkitSignManagement extends AbstractPlatformSignManagement<BlockEn
   }
 
   protected @Nullable Location locationFromWorldPosition(@NotNull WorldPosition position) {
-    Level level = Server.getInstance().getLevelByName(position.getWorld());
+    var level = Server.getInstance().getLevelByName(position.getWorld());
     return level == null ? null : new Location(position.getX(), position.getY(), position.getZ(), level);
   }
 }

@@ -29,7 +29,7 @@ public final class DriverTestUtility {
    * @return the mocked driver instance.
    */
   public static CloudNetDriver mockAndSetDriverInstance() {
-    CloudNetDriver driver = Mockito.mock(CloudNetDriver.class);
+    var driver = Mockito.mock(CloudNetDriver.class);
     CloudNetDriver.setInstance(driver);
 
     return driver;

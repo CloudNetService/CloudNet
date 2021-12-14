@@ -56,7 +56,7 @@ public final class GroupChannelMessageListener {
         break;
         // add group
         case "add_group_configuration": {
-          GroupConfiguration configuration = event.getContent().readObject(GroupConfiguration.class);
+          var configuration = event.getContent().readObject(GroupConfiguration.class);
 
           this.groupProvider.addGroupConfigurationSilently(configuration);
           this.eventManager.callEvent(new GroupConfigurationAddEvent(configuration));
@@ -64,7 +64,7 @@ public final class GroupChannelMessageListener {
         break;
         // remove group
         case "remove_group_configuration": {
-          GroupConfiguration configuration = event.getContent().readObject(GroupConfiguration.class);
+          var configuration = event.getContent().readObject(GroupConfiguration.class);
 
           this.groupProvider.removeGroupConfigurationSilently(configuration);
           this.eventManager.callEvent(new GroupConfigurationRemoveEvent(configuration));

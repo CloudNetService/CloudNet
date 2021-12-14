@@ -36,7 +36,7 @@ final class BukkitUtil {
     } catch (NoSuchMethodException exception) {
       try {
         // modern bukkit
-        MethodHandle getLocale = MethodHandles.publicLookup().findVirtual(
+        var getLocale = MethodHandles.publicLookup().findVirtual(
           Player.class,
           "getLocale",
           MethodType.methodType(String.class));

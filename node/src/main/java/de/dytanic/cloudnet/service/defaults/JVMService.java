@@ -88,22 +88,22 @@ public class JVMService extends AbstractService {
 
   @Override
   protected void startProcess() {
-    ServiceEnvironmentType environmentType = this.getServiceConfiguration().getServiceId().getEnvironment();
+    var environmentType = this.getServiceConfiguration().getServiceId().getEnvironment();
     // load the wrapper information if possible
-    Pair<Path, Attributes> wrapperInformation = this.prepareWrapperFile();
+    var wrapperInformation = this.prepareWrapperFile();
     if (wrapperInformation == null) {
       LOGGER.severe("Unable to load wrapper information for service startup");
       return;
     }
     // load the application file information if possible
-    Pair<Path, ApplicationStartupInformation> applicationInformation = this.prepareApplicationFile(environmentType);
+    var applicationInformation = this.prepareApplicationFile(environmentType);
     if (applicationInformation == null) {
       LOGGER.severe("Unable to load application information for service startup");
       return;
     }
 
     // get the agent class of the application (if any)
-    String agentClass = applicationInformation.getSecond().getMainAttributes().getValue("Premain-Class");
+    var agentClass = applicationInformation.getSecond().getMainAttributes().getValue("Premain-Class");
     if (agentClass == null) {
       // some old versions named the agent class 'Launcher-Agent-Class' - try that
       agentClass = applicationInformation.getSecond().getMainAttributes().getValue("Launcher-Agent-Class");
@@ -113,7 +113,7 @@ public class JVMService extends AbstractService {
     List<String> arguments = new ArrayList<>();
 
     // add the java command to start the service
-    String overriddenJavaCommand = this.getServiceConfiguration().getJavaCommand();
+    var overriddenJavaCommand = this.getServiceConfiguration().getJavaCommand();
     arguments.add(overriddenJavaCommand == null ? this.getNodeConfiguration().getJVMCommand() : overriddenJavaCommand);
 
     // add all jvm flags
@@ -177,7 +177,7 @@ public class JVMService extends AbstractService {
   public void runCommand(@NotNull String command) {
     if (this.process != null) {
       try {
-        OutputStream out = this.process.getOutputStream();
+        var out = this.process.getOutputStream();
         // write & flush
         out.write((command + "\n").getBytes(StandardCharsets.UTF_8));
         out.flush();
@@ -199,7 +199,7 @@ public class JVMService extends AbstractService {
 
   protected void initLogHandler() {
     super.logCache.addHandler((source, line) -> {
-      for (Entry<ChannelMessageTarget, String> logTarget : super.logTargets.entrySet()) {
+      for (var logTarget : super.logTargets.entrySet()) {
         if (logTarget.getKey().equals(ChannelMessageSender.self().toTarget())) {
           this.nodeInstance.getEventManager()
             .callEvent(logTarget.getValue(), new CloudServiceLogEntryEvent(this.lastServiceInfo, line));
@@ -223,7 +223,7 @@ public class JVMService extends AbstractService {
     // check if the wrapper file is there - unpack it if not
     if (Files.notExists(WRAPPER_TEMP_FILE)) {
       FileUtils.createDirectory(WRAPPER_TEMP_FILE.getParent());
-      try (InputStream stream = JVMService.class.getClassLoader().getResourceAsStream("wrapper.jar")) {
+      try (var stream = JVMService.class.getClassLoader().getResourceAsStream("wrapper.jar")) {
         // ensure that the wrapper file is there
         if (stream == null) {
           throw new IllegalStateException("Build-in \"wrapper.jar\" missing, unable to start jvm based services");
@@ -244,7 +244,7 @@ public class JVMService extends AbstractService {
     @NotNull ServiceEnvironmentType environmentType
   ) {
     // collect all names of environment names
-    Set<String> environments = this.nodeInstance.getServiceVersionProvider().getServiceVersionTypes().values().stream()
+    var environments = this.nodeInstance.getServiceVersionProvider().getServiceVersionTypes().values().stream()
       .filter(environment -> environment.getEnvironmentType().equals(environmentType.getName()))
       .map(ServiceEnvironment::getName)
       .collect(Collectors.collectingAndThen(Collectors.toSet(), result -> {
@@ -257,13 +257,13 @@ public class JVMService extends AbstractService {
       // walk the file tree and filter the best application file
       return Files.walk(this.serviceDirectory, 1)
         .filter(path -> {
-          String filename = path.getFileName().toString();
+          var filename = path.getFileName().toString();
           // check if the file is a jar file - it must end with '.jar' for that
           if (!filename.endsWith(".jar")) {
             return false;
           }
           // search if any environment is in the name of the file
-          for (String environment : environments) {
+          for (var environment : environments) {
             if (filename.contains(environment)) {
               return true;
             }
@@ -272,22 +272,22 @@ public class JVMService extends AbstractService {
           return false;
         }).min((left, right) -> {
           // get the first number from the left path
-          Matcher leftMatcher = FILE_NUMBER_PATTERN.matcher(left.getFileName().toString());
+          var leftMatcher = FILE_NUMBER_PATTERN.matcher(left.getFileName().toString());
           // no match -> neutral
           if (!leftMatcher.matches()) {
             return 0;
           }
 
           // get the first number from the right patch
-          Matcher rightMatcher = FILE_NUMBER_PATTERN.matcher(right.getFileName().toString());
+          var rightMatcher = FILE_NUMBER_PATTERN.matcher(right.getFileName().toString());
           // no match -> neutral
           if (!rightMatcher.matches()) {
             return 0;
           }
 
           // extract the numbers
-          Integer leftNumber = Ints.tryParse(leftMatcher.group(1));
-          Integer rightNumber = Ints.tryParse(rightMatcher.group(1));
+          var leftNumber = Ints.tryParse(leftMatcher.group(1));
+          var rightNumber = Ints.tryParse(rightMatcher.group(1));
           // compare both of the numbers
           return leftNumber == null || rightNumber == null ? 0 : Integer.compare(leftNumber, rightNumber);
         })
@@ -311,7 +311,7 @@ public class JVMService extends AbstractService {
     @NotNull ThrowableFunction<JarFile, T, IOException> mapper
   ) {
     // open the file and lookup the main class
-    try (JarFile jarFile = new JarFile(jarFilePath.toFile())) {
+    try (var jarFile = new JarFile(jarFilePath.toFile())) {
       return new Pair<>(jarFilePath, mapper.apply(jarFile));
     } catch (IOException exception) {
       LOGGER.severe("Unable to open wrapper file at %s for reading: ", exception, jarFilePath);

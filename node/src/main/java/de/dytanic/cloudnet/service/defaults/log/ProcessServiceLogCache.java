@@ -44,7 +44,7 @@ public class ProcessServiceLogCache extends AbstractServiceLogCache {
   @Override
   public @NotNull IServiceConsoleLogCache update() {
     // check if we can currently update
-    Process process = this.processSupplier.get();
+    var process = this.processSupplier.get();
     if (process != null) {
       try {
         this.readStream(process.getInputStream(), false);
@@ -68,10 +68,10 @@ public class ProcessServiceLogCache extends AbstractServiceLogCache {
     }
 
     // check if we got a result we can work with
-    String content = this.stringBuffer.toString();
+    var content = this.stringBuffer.toString();
     if (content.contains("\n") || content.contains("\r")) {
-      for (String input : content.split("\r")) {
-        for (String text : input.split("\n")) {
+      for (var input : content.split("\r")) {
+        for (var text : input.split("\n")) {
           if (!text.trim().isEmpty()) {
             this.handleItem(text, isErrorStream);
           }

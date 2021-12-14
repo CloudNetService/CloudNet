@@ -165,7 +165,7 @@ public class NodePlayerExecutor implements PlayerExecutor {
     } else {
       // get the player associated with this provider
       //noinspection ConstantConditions - This can never be null here (only for the global unique id which is handeled already)
-      CloudPlayer player = this.playerManager.getOnlinePlayer(this.targetUniqueId);
+      var player = this.playerManager.getOnlinePlayer(this.targetUniqueId);
       // the player must be connected to proceed
       Preconditions.checkNotNull(player, "Target player %s is not connected (anymore)", this.targetUniqueId);
       // target the login service of the player

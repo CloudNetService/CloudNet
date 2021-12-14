@@ -111,13 +111,13 @@ public class JsonDocument implements IDocument<JsonDocument> {
   }
 
   public static @NotNull JsonDocument newDocument(@NotNull InputStream stream) {
-    JsonDocument document = JsonDocument.newDocument();
+    var document = JsonDocument.newDocument();
     document.read(stream);
     return document;
   }
 
   public static @NotNull JsonDocument newDocument(@NotNull Path path) {
-    JsonDocument document = JsonDocument.newDocument();
+    var document = JsonDocument.newDocument();
     document.read(path);
     return document;
   }
@@ -134,7 +134,7 @@ public class JsonDocument implements IDocument<JsonDocument> {
 
   @Override
   public @NotNull JsonDocument clear() {
-    for (String key : ImmutableSet.copyOf(this.object.keySet())) {
+    for (var key : ImmutableSet.copyOf(this.object.keySet())) {
       this.object.remove(key);
     }
 
@@ -201,7 +201,7 @@ public class JsonDocument implements IDocument<JsonDocument> {
   @Override
   public @NotNull JsonDocument append(@Nullable JsonDocument document) {
     if (document != null) {
-      for (Entry<String, JsonElement> entry : document.object.entrySet()) {
+      for (var entry : document.object.entrySet()) {
         this.object.add(entry.getKey(), entry.getValue());
       }
     }
@@ -222,79 +222,79 @@ public class JsonDocument implements IDocument<JsonDocument> {
 
   @Override
   public int getInt(@NotNull String key, int def) {
-    JsonElement element = this.object.get(key);
+    var element = this.object.get(key);
     return element == null || !element.isJsonPrimitive() ? def : element.getAsInt();
   }
 
   @Override
   public double getDouble(@NotNull String key, double def) {
-    JsonElement element = this.object.get(key);
+    var element = this.object.get(key);
     return element == null || !element.isJsonPrimitive() ? def : element.getAsDouble();
   }
 
   @Override
   public float getFloat(@NotNull String key, float def) {
-    JsonElement element = this.object.get(key);
+    var element = this.object.get(key);
     return element == null || !element.isJsonPrimitive() ? def : element.getAsFloat();
   }
 
   @Override
   public byte getByte(@NotNull String key, byte def) {
-    JsonElement element = this.object.get(key);
+    var element = this.object.get(key);
     return element == null || !element.isJsonPrimitive() ? def : element.getAsByte();
   }
 
   @Override
   public short getShort(@NotNull String key, short def) {
-    JsonElement element = this.object.get(key);
+    var element = this.object.get(key);
     return element == null || !element.isJsonPrimitive() ? def : element.getAsShort();
   }
 
   @Override
   public long getLong(@NotNull String key, long def) {
-    JsonElement element = this.object.get(key);
+    var element = this.object.get(key);
     return element == null || !element.isJsonPrimitive() ? def : element.getAsLong();
   }
 
   @Override
   public boolean getBoolean(@NotNull String key, boolean def) {
-    JsonElement element = this.object.get(key);
+    var element = this.object.get(key);
     return element == null || !element.isJsonPrimitive() ? def : element.getAsBoolean();
   }
 
   @Override
   public @UnknownNullability String getString(@NotNull String key, @Nullable String def) {
-    JsonElement element = this.object.get(key);
+    var element = this.object.get(key);
     return element == null || !element.isJsonPrimitive() ? def : element.getAsString();
   }
 
   @Override
   public char getChar(@NotNull String key, char def) {
-    String fullString = this.getString(key);
+    var fullString = this.getString(key);
     return fullString != null && fullString.length() > 0 ? fullString.charAt(0) : def;
   }
 
   @Override
   public @UnknownNullability Object get(@NotNull String key, @Nullable Object def) {
-    JsonElement element = this.object.get(key);
+    var element = this.object.get(key);
     return element != null ? element : def;
   }
 
   @Override
   public <T> @UnknownNullability T get(@NotNull String key, @NotNull Class<T> clazz, @Nullable T def) {
-    JsonElement element = this.object.get(key);
+    var element = this.object.get(key);
     return element == null || element.isJsonNull() ? def : GSON.fromJson(element, clazz);
   }
 
   @Override
   public <T> @UnknownNullability T get(@NotNull String key, @NotNull Type type, @Nullable T def) {
-    JsonElement element = this.object.get(key);
+    var element = this.object.get(key);
     return element == null || element.isJsonNull() ? def : GSON.fromJson(element, type);
   }
 
   @Override
   public @UnknownNullability JsonDocument getDocument(@NotNull String key, @Nullable JsonDocument def) {
-    JsonElement element = this.object.get(key);
+    var element = this.object.get(key);
     if (element != null && element.isJsonObject()) {
       return new JsonDocument(element.getAsJsonObject());
     } else {
@@ -312,9 +312,9 @@ public class JsonDocument implements IDocument<JsonDocument> {
   public @NotNull IReadable read(@NotNull Reader reader) {
     try {
       // parse the object
-      JsonElement element = JsonParser.parseReader(reader);
+      var element = JsonParser.parseReader(reader);
       if (element.isJsonObject()) {
-        for (Entry<String, JsonElement> entry : element.getAsJsonObject().entrySet()) {
+        for (var entry : element.getAsJsonObject().entrySet()) {
           this.object.add(entry.getKey(), entry.getValue());
         }
         return this;
@@ -360,7 +360,7 @@ public class JsonDocument implements IDocument<JsonDocument> {
       return false;
     }
 
-    JsonDocument document = (JsonDocument) o;
+    var document = (JsonDocument) o;
     return document.object.equals(this.object);
   }
 
