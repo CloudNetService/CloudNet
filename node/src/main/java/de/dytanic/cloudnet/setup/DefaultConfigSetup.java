@@ -99,7 +99,7 @@ public class DefaultConfigSetup extends DefaultClusterSetup {
         .answerType(QuestionAnswerType.<Integer>builder()
           .parser(ranged(128, Integer.MAX_VALUE))
           .possibleResults("128", "512", "1024", "2048", "4096", "8192", "16384", "32768", "65536")
-          .recommendation((int) ((ProcessSnapshot.OS_BEAN.getTotalPhysicalMemorySize() / (1024 * 1024)) - 512)))
+          .recommendation((int) ((ProcessSnapshot.OS_BEAN.getTotalMemorySize() / (1024 * 1024)) - 512)))
         .build()
     );
     // apply the cluster setup questions

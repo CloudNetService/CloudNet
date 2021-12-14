@@ -47,7 +47,7 @@ public final class CPUUsageResolver {
    * @see com.sun.management.OperatingSystemMXBean
    */
   public static double getSystemCPUUsage() {
-    return toPercentage(OS_BEAN.getSystemCpuLoad());
+    return toPercentage(OS_BEAN.getCpuLoad());
   }
 
   /**
@@ -67,7 +67,7 @@ public final class CPUUsageResolver {
    * @see com.sun.management.OperatingSystemMXBean
    */
   public static long getSystemMemory() {
-    return OS_BEAN.getTotalPhysicalMemorySize();
+    return OS_BEAN.getTotalMemorySize();
   }
 
   private static double toPercentage(double input) {

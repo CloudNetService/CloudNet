@@ -171,7 +171,7 @@ public final class JsonConfiguration implements IConfiguration {
     if (this.maxMemory <= 0) {
       this.maxMemory = ConfigurationUtils.get(
         "cloudnet.config.maxMemory",
-        (int) ((ProcessSnapshot.OS_BEAN.getTotalPhysicalMemorySize() / (1024 * 1024)) - 512),
+        (int) ((ProcessSnapshot.OS_BEAN.getTotalMemorySize() / (1024 * 1024)) - 512),
         Integer::parseInt);
     }
 
