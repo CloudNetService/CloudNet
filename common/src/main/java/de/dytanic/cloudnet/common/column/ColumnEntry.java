@@ -16,7 +16,6 @@
 
 package de.dytanic.cloudnet.common.column;
 
-import de.dytanic.cloudnet.common.StringUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Range;
 
@@ -42,7 +41,7 @@ public final class ColumnEntry {
       var entryLength = entry.length();
       // check if spaces are required
       if (entryLength < longestLength) {
-        entries[i] = entry + StringUtil.repeat(' ', longestLength - entryLength);
+        entries[i] = entry + " ".repeat(longestLength - entryLength);
       }
     }
     // parsing successful!

@@ -93,9 +93,9 @@ public class ColumnFormatter {
         // compute the cache - if the title is too short append to the title, otherwise append to the column value
         if (titleLength > entries[i].getColumnMinLength()) {
           ourSpaces = "";
-          spaceCache[i] = StringUtil.repeat(' ', titleLength - entries[i].getColumnMinLength()).intern();
+          spaceCache[i] = " ".repeat(titleLength - entries[i].getColumnMinLength()).intern();
         } else {
-          ourSpaces = StringUtil.repeat(' ', entries[i].getColumnMinLength() - titleLength).intern();
+          ourSpaces = " ".repeat(entries[i].getColumnMinLength() - titleLength).intern();
           spaceCache[i] = "";
         }
         // print the header entry

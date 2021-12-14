@@ -144,7 +144,7 @@ public class ConsoleProgressAnimation extends AbstractConsoleAnimation {
       percent = "?%";
     }
 
-    return StringUtil.repeat(' ', 4 - percent.length()) + percent;
+    return " ".repeat(4 - percent.length()) + percent;
   }
 
   protected @NotNull String formatSpeed(@NotNull Duration elapsed) {
@@ -163,7 +163,7 @@ public class ConsoleProgressAnimation extends AbstractConsoleAnimation {
     var unitedMaximum = String.valueOf(this.maximum / this.unitSize);
     // format the ratio
     return String.format("%s%s/%s%s",
-      StringUtil.repeat(' ', unitedMaximum.length() - unitedCurrent.length()),
+      " ".repeat(unitedMaximum.length() - unitedCurrent.length()),
       unitedCurrent,
       unitedMaximum,
       this.unitName);
