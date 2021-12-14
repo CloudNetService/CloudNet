@@ -147,8 +147,7 @@ public final class CloudNetLauncher {
 
     this.selectedVersion = this.selectVersion();
 
-    if (this.selectedVersion instanceof Updater) {
-      var updater = (Updater) this.selectedVersion;
+    if (this.selectedVersion instanceof Updater updater) {
 
       PRINT.accept(String.format("Installing version %s from updater %s...", updater.getCurrentVersion(),
         updater.getClass().getSimpleName()));

@@ -85,8 +85,7 @@ public class NukkitSignManagement extends AbstractPlatformSignManagement<BlockEn
     var location = this.locationFromWorldPosition(sign.getLocation());
     if (location != null && location.getLevel().isChunkLoaded(location.getChunkX(), location.getChunkZ())) {
       var blockEntity = location.getLevel().getBlockEntity(location);
-      if (blockEntity instanceof BlockEntitySign) {
-        var entitySign = (BlockEntitySign) blockEntity;
+      if (blockEntity instanceof BlockEntitySign entitySign) {
 
         var lines = this.replaceLines(sign, layout);
         if (lines != null) {

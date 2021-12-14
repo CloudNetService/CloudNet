@@ -88,8 +88,7 @@ public class SpongeSignManagement extends AbstractPlatformSignManagement<org.spo
     if (location != null) {
       // no need if the chunk is loaded - the tile entity is not available if the chunk is unloaded
       var entity = location.blockEntity().orElse(null);
-      if (entity instanceof org.spongepowered.api.block.entity.Sign) {
-        var tileSign = (org.spongepowered.api.block.entity.Sign) entity;
+      if (entity instanceof org.spongepowered.api.block.entity.Sign tileSign) {
 
         var lines = this.replaceLines(sign, layout);
         if (lines != null) {

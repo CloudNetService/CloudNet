@@ -84,12 +84,10 @@ public final class NPCCommand extends BaseTabExecutor {
   @Override
   public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
     // validate that the sender is a player
-    if (!(sender instanceof Player)) {
+    if (!(sender instanceof Player player)) {
       sender.sendMessage("§cOnly players can execute the /cn command!");
       return true;
     }
-
-    var player = (Player) sender;
 
     // get the npc configuration entry for the current group
     var entry = this.management.getApplicableNPCConfigurationEntry();

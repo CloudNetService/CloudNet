@@ -356,11 +356,10 @@ public class JsonDocument implements IDocument<JsonDocument> {
     if (this == o) {
       return true;
     }
-    if (!(o instanceof JsonDocument)) {
+    if (!(o instanceof JsonDocument document)) {
       return false;
     }
 
-    var document = (JsonDocument) o;
     return document.object.equals(this.object);
   }
 

@@ -98,8 +98,7 @@ public class BukkitPlatformNPCManagement extends PlatformNPCManagement<Location,
               if (!nearbyEntities.isEmpty()) {
                 for (var entity : nearbyEntities) {
                   // check if the entity is a player
-                  if (entity instanceof Player && !entity.hasPermission("cloudnet.npcs.knockback.bypass")) {
-                    var player = (Player) entity;
+                  if (entity instanceof Player player && !entity.hasPermission("cloudnet.npcs.knockback.bypass")) {
                     // apply the strength to the curren vector
                     var vector = player.getLocation().toVector().subtract(value.getLocation().toVector())
                       .normalize()

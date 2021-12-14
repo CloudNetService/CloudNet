@@ -59,10 +59,9 @@ public class ChunkSessionInformation {
   public boolean equals(Object o) {
     if (this == o) {
       return true;
-    } else if (!(o instanceof ChunkSessionInformation)) {
+    } else if (!(o instanceof ChunkSessionInformation that)) {
       return false;
     } else {
-      var that = (ChunkSessionInformation) o;
       return this.getSessionUniqueId().equals(that.getSessionUniqueId());
     }
   }

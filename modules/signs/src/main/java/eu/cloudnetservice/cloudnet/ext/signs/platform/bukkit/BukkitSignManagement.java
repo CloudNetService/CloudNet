@@ -84,8 +84,7 @@ public class BukkitSignManagement extends AbstractPlatformSignManagement<org.buk
 
       if (location.getWorld().isChunkLoaded(chunkX, chunkZ)) {
         var block = location.getBlock();
-        if (block.getState() instanceof org.bukkit.block.Sign) {
-          var bukkitSign = (org.bukkit.block.Sign) block.getState();
+        if (block.getState() instanceof org.bukkit.block.Sign bukkitSign) {
           BukkitCompatibility.setSignGlowing(bukkitSign, layout);
 
           var replaced = this.replaceLines(sign, layout);

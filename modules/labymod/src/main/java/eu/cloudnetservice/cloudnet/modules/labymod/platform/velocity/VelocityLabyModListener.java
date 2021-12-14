@@ -36,8 +36,7 @@ public class VelocityLabyModListener {
   public void handlePluginMessage(@NotNull PluginMessageEvent event) {
     var configuration = this.labyModManagement.getConfiguration();
     if (configuration.isEnabled() && event.getIdentifier().getId().equals(LabyModManagement.LABYMOD_CLIENT_CHANNEL)) {
-      if (event.getSource() instanceof Player) {
-        var player = (Player) event.getSource();
+      if (event.getSource() instanceof Player player) {
         this.labyModManagement.handleIncomingClientMessage(
           player.getUniqueId(),
           player.getCurrentServer().map(server -> server.getServerInfo().getName()).orElse(null),

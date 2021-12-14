@@ -109,8 +109,7 @@ public final class BukkitCompatibility {
     }
     // use legacy lookup
     var materialData = blockState.getData();
-    if (materialData instanceof Sign) {
-      var sign = (Sign) materialData;
+    if (materialData instanceof Sign sign) {
       return sign.isWallSign() ? sign.getFacing() : BlockFace.UP;
     }
     // unable to retrieve facing information

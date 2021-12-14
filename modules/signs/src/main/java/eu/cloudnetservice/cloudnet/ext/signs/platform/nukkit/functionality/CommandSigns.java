@@ -37,12 +37,11 @@ public class CommandSigns implements CommandExecutor {
 
   @Override
   public boolean onCommand(CommandSender sender, Command command, String commandLabel, String[] args) {
-    if (!(sender instanceof Player)) {
+    if (!(sender instanceof Player player)) {
       sender.sendMessage("Only players may execute this command");
       return true;
     }
 
-    var player = (Player) sender;
     var entry = this.signManagement.getApplicableSignConfigurationEntry();
     if (entry == null) {
       this.signManagement.getSignsConfiguration().sendMessage("command-cloudsign-no-entry", sender::sendMessage);

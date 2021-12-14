@@ -105,10 +105,9 @@ public class CommandInfo implements INameable {
     if (this == o) {
       return true;
     }
-    if (!(o instanceof CommandInfo)) {
+    if (!(o instanceof CommandInfo that)) {
       return false;
     }
-    var that = (CommandInfo) o;
     return this.name.equals(that.name);
   }
 

@@ -166,8 +166,7 @@ public class CommandPlayers {
     source.sendMessage("First login: " + DATE_FORMAT.format(offlinePlayer.getFirstLoginTimeMillis()));
     source.sendMessage("Last login: " + DATE_FORMAT.format(offlinePlayer.getLastLoginTimeMillis()));
     // check if we have more information about the player
-    if (offlinePlayer instanceof CloudPlayer) {
-      var onlinePlayer = (CloudPlayer) offlinePlayer;
+    if (offlinePlayer instanceof CloudPlayer onlinePlayer) {
       source.sendMessage("Proxy: " + onlinePlayer.getLoginService().getServerName());
       source.sendMessage("Service: " + onlinePlayer.getConnectedService().getServerName());
       source.sendMessage("Online Properties: ");

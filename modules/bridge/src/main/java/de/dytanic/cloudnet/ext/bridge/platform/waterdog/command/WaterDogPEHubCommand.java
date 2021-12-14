@@ -42,8 +42,7 @@ public final class WaterDogPEHubCommand extends Command {
 
   @Override
   public boolean onExecute(CommandSender sender, String alias, String[] args) {
-    if (sender instanceof ProxiedPlayer) {
-      var player = (ProxiedPlayer) sender;
+    if (sender instanceof ProxiedPlayer player) {
       // check if the player is on a fallback already
       if (this.management.isOnAnyFallbackInstance(player)) {
         player.sendMessage(new TextContainer(this.management.getConfiguration().getMessage(

@@ -47,12 +47,11 @@ public class CommandSigns implements CommandExecutor {
 
   @Override
   public CommandResult execute(@NotNull CommandContext context) {
-    if (!(context.subject() instanceof ServerPlayer)) {
+    if (!(context.subject() instanceof ServerPlayer player)) {
       context.sendMessage(Identity.nil(), Component.text("Only players may execute this command"));
       return CommandResult.success();
     }
 
-    var player = (ServerPlayer) context.subject();
     var type = context.one(ACTION).orElse(null);
     var targetGroup = context.one(TARGET_GROUP).orElse(null);
     var targetTemplatePath = context.one(TARGET_TEMPLATE).orElse(null);

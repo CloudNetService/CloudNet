@@ -40,8 +40,7 @@ public final class VelocityHubCommand implements SimpleCommand {
 
   @Override
   public void execute(@NotNull Invocation invocation) {
-    if (invocation.source() instanceof Player) {
-      var player = (Player) invocation.source();
+    if (invocation.source() instanceof Player player) {
       // check if the player is on a fallback already
       if (this.management.isOnAnyFallbackInstance(player)) {
         player.sendMessage(AdventureSerializerUtil.serialize(this.management.getConfiguration().getMessage(
