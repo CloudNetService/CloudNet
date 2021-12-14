@@ -64,8 +64,11 @@ public class SyncProxyTabListConfiguration {
     return builder()
       .targetGroup(targetGroup)
       .addTabListEntry(SyncProxyTabList.builder()
-        .header(" \n &b&o■ &8┃ &3&lCloudNet &8● &cBlizzard &8&l» &7&o%online_players%&8/&7&o%max_players% &8┃ &b&o■ "
-          + "\n &8► &7Current server &8● &b%server% &8◄ \n ")
+        .header("""
+          \s
+           &b&o■ &8┃ &3&lCloudNet &8● &cBlizzard &8&l» &7&o%online_players%&8/&7&o%max_players% &8┃ &b&o■\s
+           &8► &7Current server &8● &b%server% &8◄\s
+          \s""")
         .footer(" \n &7Discord &8&l» &bdiscord.cloudnetservice.eu \n &7&onext &3&l&ogeneration &7&onetwork \n ")
         .build())
       .animationsPerSecond(1.0)

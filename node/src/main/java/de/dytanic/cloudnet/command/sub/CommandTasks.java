@@ -67,12 +67,13 @@ public final class CommandTasks {
 
   // Task Setup ASCII
   private static final ConsoleSetupAnimation TASK_SETUP = new ConsoleSetupAnimation(
-    "&f _____              _       &b           _                 \n" +
-      "&f/__   \\  __ _  ___ | | __  &b ___   ___ | |_  _   _  _ __  \n" +
-      "&f  / /\\/ / _` |/ __|| |/ /  &b/ __| / _ \\| __|| | | || '_ \\ \n" +
-      "&f / /   | (_| |\\__ \\|   <  &b \\__ \\|  __/| |_ | |_| || |_) |\n" +
-      "&f \\/     \\__,_||___/|_|\\_\\&b  |___/ \\___| \\__| \\__,_|| .__/ \n" +
-      "&f                             &b                     |_|    ",
+    """
+      &f _____              _       &b           _                \s
+      &f/__   \\  __ _  ___ | | __  &b ___   ___ | |_  _   _  _ __ \s
+      &f  / /\\/ / _` |/ __|| |/ /  &b/ __| / _ \\| __|| | | || '_ \\\s
+      &f / /   | (_| |\\__ \\|   <  &b \\__ \\|  __/| |_ | |_| || |_) |
+      &f \\/     \\__,_||___/|_|\\_\\&b  |___/ \\___| \\__| \\__,_|| .__/\s
+      &f                             &b                     |_|   \s""",
     "Task creation complete!",
     "&r> &e");
   // Formatter for the table based looking
