@@ -45,7 +45,6 @@ import java.lang.management.ThreadMXBean;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
 import java.util.List;
 import java.util.Queue;
 import java.util.stream.Collectors;
@@ -171,8 +170,7 @@ public final class CommandReport {
     }
 
     try {
-      Files.write(path, builder.toString().getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE_NEW,
-        StandardOpenOption.WRITE);
+      Files.writeString(path, builder.toString(), StandardCharsets.UTF_8);
       return true;
     } catch (IOException exception) {
       LOGGER.severe("Unable to create thread dump", exception);
