@@ -29,12 +29,10 @@ import de.dytanic.cloudnet.console.animation.progressbar.ConsoleProgressWrappers
 import de.dytanic.cloudnet.driver.event.IEventManager;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironment;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
-import de.dytanic.cloudnet.driver.template.FileInfo;
 import de.dytanic.cloudnet.template.install.execute.InstallStep;
 import de.dytanic.cloudnet.template.listener.TemplatePrepareListener;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Path;

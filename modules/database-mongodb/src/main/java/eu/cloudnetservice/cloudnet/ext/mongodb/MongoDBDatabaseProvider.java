@@ -18,7 +18,6 @@ package eu.cloudnetservice.cloudnet.ext.mongodb;
 
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
-import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import de.dytanic.cloudnet.database.AbstractDatabaseProvider;
 import de.dytanic.cloudnet.database.LocalDatabase;
@@ -29,7 +28,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import org.bson.Document;
 import org.jetbrains.annotations.NotNull;
 
 public class MongoDBDatabaseProvider extends AbstractDatabaseProvider {

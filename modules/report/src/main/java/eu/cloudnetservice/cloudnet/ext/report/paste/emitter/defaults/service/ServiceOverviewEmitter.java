@@ -17,10 +17,8 @@
 package eu.cloudnetservice.cloudnet.ext.report.paste.emitter.defaults.service;
 
 import de.dytanic.cloudnet.CloudNet;
-import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.service.ICloudService;
 import eu.cloudnetservice.cloudnet.ext.report.paste.emitter.ReportDataEmitter;
-import java.util.Collection;
 
 public class ServiceOverviewEmitter implements ReportDataEmitter<ICloudService> {
 

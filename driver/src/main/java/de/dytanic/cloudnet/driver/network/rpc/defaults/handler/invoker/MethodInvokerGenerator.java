@@ -42,7 +42,6 @@ import de.dytanic.cloudnet.common.StringUtil;
 import de.dytanic.cloudnet.driver.network.rpc.defaults.MethodInformation;
 import de.dytanic.cloudnet.driver.network.rpc.exception.ClassCreationException;
 import de.dytanic.cloudnet.driver.util.define.ClassDefiners;
-import java.lang.reflect.Constructor;
 import org.jetbrains.annotations.NotNull;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;

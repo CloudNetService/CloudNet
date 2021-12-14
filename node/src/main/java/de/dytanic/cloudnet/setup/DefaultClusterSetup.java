@@ -24,7 +24,6 @@ import static de.dytanic.cloudnet.console.animation.setup.answer.Parsers.uuid;
 import static de.dytanic.cloudnet.console.animation.setup.answer.Parsers.validatedHostAndPort;
 
 import de.dytanic.cloudnet.CloudNet;
-import de.dytanic.cloudnet.config.IConfiguration;
 import de.dytanic.cloudnet.console.animation.setup.ConsoleSetupAnimation;
 import de.dytanic.cloudnet.console.animation.setup.answer.QuestionAnswerType;
 import de.dytanic.cloudnet.console.animation.setup.answer.QuestionListEntry;

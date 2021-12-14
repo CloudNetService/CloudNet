@@ -16,7 +16,6 @@
 
 package de.dytanic.cloudnet.console;
 
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.Ansi.Attribute;

@@ -28,7 +28,6 @@ import static org.objectweb.asm.Opcodes.V1_8;
 import de.dytanic.cloudnet.driver.event.Event;
 import de.dytanic.cloudnet.driver.event.EventListenerException;
 import de.dytanic.cloudnet.driver.util.define.ClassDefiners;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.jetbrains.annotations.NotNull;

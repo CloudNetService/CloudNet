@@ -21,7 +21,6 @@ import static com.google.common.collect.ImmutableList.copyOf;
 import com.velocitypowered.api.command.SimpleCommand;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
-import com.velocitypowered.api.proxy.server.RegisteredServer;
 import de.dytanic.cloudnet.ext.bridge.platform.PlatformBridgeManagement;
 import eu.cloudnetservice.ext.adventure.AdventureSerializerUtil;
 import java.util.List;

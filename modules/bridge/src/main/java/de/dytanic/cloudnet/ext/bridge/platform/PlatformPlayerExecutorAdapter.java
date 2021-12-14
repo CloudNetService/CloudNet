@@ -19,7 +19,6 @@ package de.dytanic.cloudnet.ext.bridge.platform;
 import de.dytanic.cloudnet.ext.bridge.player.executor.PlayerExecutor;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
-import net.kyori.adventure.title.Title.Times;
 import org.jetbrains.annotations.NotNull;
 
 public abstract class PlatformPlayerExecutorAdapter implements PlayerExecutor {

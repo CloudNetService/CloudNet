@@ -17,7 +17,6 @@
 package de.dytanic.cloudnet.ext.database.mysql;
 
 import com.google.gson.reflect.TypeToken;
-import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.database.AbstractDatabaseProvider;
 import de.dytanic.cloudnet.driver.module.ModuleLifeCycle;
 import de.dytanic.cloudnet.driver.module.ModuleTask;

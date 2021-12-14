@@ -17,7 +17,6 @@
 package de.dytanic.cloudnet.common.language;
 
 import de.dytanic.cloudnet.common.StringUtil;
-import java.util.Map.Entry;
 import java.util.Properties;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

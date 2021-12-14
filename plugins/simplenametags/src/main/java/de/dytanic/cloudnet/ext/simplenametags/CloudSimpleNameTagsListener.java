@@ -20,8 +20,6 @@ import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.event.events.permission.PermissionUpdateGroupEvent;
 import de.dytanic.cloudnet.driver.event.events.permission.PermissionUpdateUserEvent;
-import de.dytanic.cloudnet.driver.permission.PermissionUser;
-import java.util.UUID;
 import java.util.concurrent.Executor;
 import org.jetbrains.annotations.NotNull;
 

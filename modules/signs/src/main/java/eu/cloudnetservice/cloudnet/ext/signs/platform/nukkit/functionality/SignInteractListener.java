@@ -17,15 +17,12 @@
 package eu.cloudnetservice.cloudnet.ext.signs.platform.nukkit.functionality;
 
 import cn.nukkit.Server;
-import cn.nukkit.blockentity.BlockEntity;
 import cn.nukkit.blockentity.BlockEntitySign;
 import cn.nukkit.event.EventHandler;
 import cn.nukkit.event.Listener;
 import cn.nukkit.event.player.PlayerInteractEvent;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.ext.bridge.player.IPlayerManager;
-import eu.cloudnetservice.cloudnet.ext.signs.Sign;
-import eu.cloudnetservice.cloudnet.ext.signs.configuration.SignConfigurationEntry;
 import eu.cloudnetservice.cloudnet.ext.signs.platform.PlatformSignManagement;
 import eu.cloudnetservice.cloudnet.ext.signs.platform.nukkit.event.NukkitCloudSignInteractEvent;
 

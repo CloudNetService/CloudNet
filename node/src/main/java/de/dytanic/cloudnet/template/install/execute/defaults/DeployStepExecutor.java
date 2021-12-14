@@ -19,7 +19,6 @@ package de.dytanic.cloudnet.template.install.execute.defaults;
 import de.dytanic.cloudnet.template.install.InstallInformation;
 import de.dytanic.cloudnet.template.install.execute.InstallStepExecutor;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;

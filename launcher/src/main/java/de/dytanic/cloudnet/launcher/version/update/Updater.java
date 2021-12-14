@@ -17,7 +17,6 @@
 package de.dytanic.cloudnet.launcher.version.update;
 
 import de.dytanic.cloudnet.launcher.LauncherUtils;
-import de.dytanic.cloudnet.launcher.module.CloudNetModule;
 import de.dytanic.cloudnet.launcher.version.VersionInfo;
 import java.io.IOException;
 import java.nio.file.Files;

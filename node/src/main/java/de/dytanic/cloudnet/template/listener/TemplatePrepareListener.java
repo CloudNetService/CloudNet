@@ -25,7 +25,6 @@ import de.dytanic.cloudnet.event.template.ServiceTemplateInstallEvent;
 import de.dytanic.cloudnet.template.TemplateStorageUtil;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

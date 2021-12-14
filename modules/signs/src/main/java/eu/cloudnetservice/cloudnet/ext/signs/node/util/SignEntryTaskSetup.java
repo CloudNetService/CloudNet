@@ -22,7 +22,6 @@ import de.dytanic.cloudnet.console.animation.setup.answer.QuestionAnswerType;
 import de.dytanic.cloudnet.console.animation.setup.answer.QuestionListEntry;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.cloudnet.ext.signs.SignManagement;
-import eu.cloudnetservice.cloudnet.ext.signs.configuration.SignConfigurationEntry;
 import eu.cloudnetservice.cloudnet.ext.signs.configuration.SignsConfiguration;
 import eu.cloudnetservice.cloudnet.ext.signs.node.configuration.SignConfigurationType;
 import java.util.Collections;

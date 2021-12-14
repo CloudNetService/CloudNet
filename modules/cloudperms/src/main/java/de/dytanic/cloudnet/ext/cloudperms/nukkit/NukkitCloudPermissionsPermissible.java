@@ -21,7 +21,6 @@ import cn.nukkit.permission.PermissibleBase;
 import cn.nukkit.permission.Permission;
 import cn.nukkit.permission.PermissionAttachmentInfo;
 import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
-import de.dytanic.cloudnet.driver.permission.PermissionUser;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import java.util.HashMap;
 import java.util.Map;

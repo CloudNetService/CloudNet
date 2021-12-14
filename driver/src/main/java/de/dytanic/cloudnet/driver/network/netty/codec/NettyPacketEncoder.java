@@ -22,7 +22,6 @@ import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
-import java.util.UUID;
 import org.jetbrains.annotations.ApiStatus.Internal;
 
 @Internal

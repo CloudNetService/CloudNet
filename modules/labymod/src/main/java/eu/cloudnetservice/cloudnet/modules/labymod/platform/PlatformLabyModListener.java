@@ -19,7 +19,6 @@ package eu.cloudnetservice.cloudnet.modules.labymod.platform;
 import de.dytanic.cloudnet.driver.event.EventListener;
 import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
 import de.dytanic.cloudnet.ext.bridge.event.BridgeProxyPlayerServerSwitchEvent;
-import de.dytanic.cloudnet.ext.bridge.event.BridgeServerPlayerLoginEvent;
 import de.dytanic.cloudnet.ext.bridge.platform.PlatformBridgeManagement;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import eu.cloudnetservice.cloudnet.modules.labymod.LabyModManagement;

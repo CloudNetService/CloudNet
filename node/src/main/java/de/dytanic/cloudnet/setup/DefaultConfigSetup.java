@@ -21,7 +21,6 @@ import static de.dytanic.cloudnet.console.animation.setup.answer.Parsers.validat
 
 import com.google.common.collect.ImmutableSet;
 import de.dytanic.cloudnet.CloudNet;
-import de.dytanic.cloudnet.config.IConfiguration;
 import de.dytanic.cloudnet.console.animation.setup.ConsoleSetupAnimation;
 import de.dytanic.cloudnet.console.animation.setup.answer.Parsers.ParserException;
 import de.dytanic.cloudnet.console.animation.setup.answer.QuestionAnswerType;

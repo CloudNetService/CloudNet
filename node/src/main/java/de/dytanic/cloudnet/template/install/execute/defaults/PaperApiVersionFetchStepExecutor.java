@@ -24,9 +24,7 @@ import de.dytanic.cloudnet.template.install.execute.InstallStepExecutor;
 import java.lang.reflect.Type;
 import java.nio.file.Path;
 import java.util.Collections;
-import java.util.Optional;
 import java.util.Set;
-import kong.unirest.HttpResponse;
 import kong.unirest.Unirest;
 import org.jetbrains.annotations.NotNull;
 

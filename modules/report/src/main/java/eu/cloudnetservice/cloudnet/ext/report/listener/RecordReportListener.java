@@ -23,9 +23,7 @@ import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
 import de.dytanic.cloudnet.event.service.CloudServiceCrashEvent;
 import de.dytanic.cloudnet.event.service.CloudServicePreLifecycleEvent;
 import de.dytanic.cloudnet.service.ICloudService;
-import de.dytanic.cloudnet.service.IServiceConsoleLogCache;
 import eu.cloudnetservice.cloudnet.ext.report.CloudNetReportModule;
-import eu.cloudnetservice.cloudnet.ext.report.config.ReportConfiguration;
 import eu.cloudnetservice.cloudnet.ext.report.util.Record;
 
 public final class RecordReportListener {

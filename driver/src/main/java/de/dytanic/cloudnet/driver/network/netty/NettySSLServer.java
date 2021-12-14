@@ -22,7 +22,6 @@ import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
-import java.io.InputStream;
 import java.nio.file.Files;
 import org.jetbrains.annotations.ApiStatus.Internal;
 

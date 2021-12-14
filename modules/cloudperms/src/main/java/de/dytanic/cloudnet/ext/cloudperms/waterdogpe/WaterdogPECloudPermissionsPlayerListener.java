@@ -18,10 +18,8 @@ package de.dytanic.cloudnet.ext.cloudperms.waterdogpe;
 
 import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
 import de.dytanic.cloudnet.driver.permission.Permission;
-import de.dytanic.cloudnet.driver.permission.PermissionUser;
 import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsHelper;
 import dev.waterdog.waterdogpe.ProxyServer;
-import dev.waterdog.waterdogpe.event.EventManager;
 import dev.waterdog.waterdogpe.event.EventPriority;
 import dev.waterdog.waterdogpe.event.defaults.PlayerDisconnectEvent;
 import dev.waterdog.waterdogpe.event.defaults.PlayerLoginEvent;

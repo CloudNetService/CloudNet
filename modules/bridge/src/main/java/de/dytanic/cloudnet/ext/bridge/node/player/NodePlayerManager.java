@@ -46,7 +46,6 @@ import de.dytanic.cloudnet.ext.bridge.player.CloudPlayer;
 import de.dytanic.cloudnet.ext.bridge.player.IPlayerManager;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkPlayerProxyInfo;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkPlayerServerInfo;
-import de.dytanic.cloudnet.ext.bridge.player.NetworkServiceInfo;
 import de.dytanic.cloudnet.ext.bridge.player.PlayerProvider;
 import de.dytanic.cloudnet.ext.bridge.player.executor.PlayerExecutor;
 import java.util.List;

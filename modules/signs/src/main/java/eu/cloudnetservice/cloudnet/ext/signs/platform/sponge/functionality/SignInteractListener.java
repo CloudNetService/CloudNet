@@ -18,12 +18,10 @@ package eu.cloudnetservice.cloudnet.ext.signs.platform.sponge.functionality;
 
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.ext.bridge.player.IPlayerManager;
-import eu.cloudnetservice.cloudnet.ext.signs.Sign;
 import eu.cloudnetservice.cloudnet.ext.signs.platform.PlatformSignManagement;
 import eu.cloudnetservice.cloudnet.ext.signs.platform.sponge.event.SpongeCloudSignInteractEvent;
 import eu.cloudnetservice.ext.adventure.AdventureSerializerUtil;
 import org.jetbrains.annotations.NotNull;
-import org.spongepowered.api.ResourceKey;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.event.Cause;

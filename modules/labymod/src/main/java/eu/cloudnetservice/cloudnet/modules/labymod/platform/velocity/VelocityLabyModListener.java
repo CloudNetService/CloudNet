@@ -20,7 +20,6 @@ import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.connection.PluginMessageEvent;
 import com.velocitypowered.api.proxy.Player;
 import eu.cloudnetservice.cloudnet.modules.labymod.LabyModManagement;
-import eu.cloudnetservice.cloudnet.modules.labymod.config.LabyModConfiguration;
 import eu.cloudnetservice.cloudnet.modules.labymod.platform.PlatformLabyModManagement;
 import org.jetbrains.annotations.NotNull;
 

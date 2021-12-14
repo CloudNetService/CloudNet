@@ -23,7 +23,6 @@ import de.dytanic.cloudnet.driver.network.netty.codec.NettyPacketLengthDeseriali
 import de.dytanic.cloudnet.driver.network.netty.codec.NettyPacketLengthSerializer;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
-import io.netty.handler.ssl.SslHandler;
 import org.jetbrains.annotations.NotNull;
 
 public class NettyNetworkClientInitializer extends ChannelInitializer<Channel> {

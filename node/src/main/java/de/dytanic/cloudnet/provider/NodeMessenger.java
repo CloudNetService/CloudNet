@@ -19,7 +19,6 @@ package de.dytanic.cloudnet.provider;
 import com.google.common.collect.Iterables;
 import com.google.gson.reflect.TypeToken;
 import de.dytanic.cloudnet.CloudNet;
-import de.dytanic.cloudnet.cluster.IClusterNodeServer;
 import de.dytanic.cloudnet.cluster.IClusterNodeServerProvider;
 import de.dytanic.cloudnet.common.concurrent.CountingTask;
 import de.dytanic.cloudnet.common.concurrent.ITask;

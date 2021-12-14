@@ -21,7 +21,6 @@ import eu.cloudnetservice.modules.npc.platform.bukkit.listener.BukkitEntityProte
 import eu.cloudnetservice.modules.npc.platform.bukkit.listener.BukkitFunctionalityListener;
 import eu.cloudnetservice.modules.npc.platform.bukkit.listener.BukkitWorldListener;
 import org.bukkit.Bukkit;
-import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class BukkitNPCPlugin extends JavaPlugin {

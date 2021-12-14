@@ -20,7 +20,6 @@ import com.google.common.base.Verify;
 import de.dytanic.cloudnet.common.INameable;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.template.SpecificTemplateStorage;
-import de.dytanic.cloudnet.driver.template.TemplateStorage;
 import java.util.Arrays;
 import java.util.Objects;
 import lombok.EqualsAndHashCode;

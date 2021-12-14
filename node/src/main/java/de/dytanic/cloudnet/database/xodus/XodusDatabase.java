@@ -16,7 +16,6 @@
 
 package de.dytanic.cloudnet.database.xodus;
 
-import com.google.gson.JsonElement;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.database.AbstractDatabase;
 import java.nio.charset.StandardCharsets;
@@ -25,17 +24,13 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.BiPredicate;
 import jetbrains.exodus.ArrayByteIterable;
-import jetbrains.exodus.ByteIterable;
 import jetbrains.exodus.bindings.StringBinding;
-import jetbrains.exodus.env.Cursor;
 import jetbrains.exodus.env.Environment;
 import jetbrains.exodus.env.Store;
 import org.jetbrains.annotations.NotNull;

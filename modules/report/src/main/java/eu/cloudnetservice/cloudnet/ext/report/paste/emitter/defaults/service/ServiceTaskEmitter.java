@@ -18,8 +18,6 @@ package eu.cloudnetservice.cloudnet.ext.report.paste.emitter.defaults.service;
 
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
-import de.dytanic.cloudnet.driver.provider.ServiceTaskProvider;
-import de.dytanic.cloudnet.driver.service.ServiceTask;
 import de.dytanic.cloudnet.service.ICloudService;
 import eu.cloudnetservice.cloudnet.ext.report.paste.emitter.ReportDataEmitter;
 

@@ -18,7 +18,6 @@ package de.dytanic.cloudnet.service.defaults.config;
 
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.service.ICloudService;
-import java.nio.file.Path;
 import org.jetbrains.annotations.NotNull;
 
 public class GlowstoneConfigurationPreparer extends AbstractServiceConfigurationPreparer {

@@ -26,7 +26,6 @@ import de.dytanic.cloudnet.ext.cloudflare.CloudNetCloudflareModule;
 import de.dytanic.cloudnet.ext.cloudflare.CloudflareConfigurationEntry;
 import de.dytanic.cloudnet.ext.cloudflare.CloudflareGroupConfiguration;
 import de.dytanic.cloudnet.ext.cloudflare.cloudflare.CloudFlareAPI;
-import de.dytanic.cloudnet.ext.cloudflare.cloudflare.DnsRecordDetail;
 import de.dytanic.cloudnet.ext.cloudflare.dns.SRVRecord;
 import de.dytanic.cloudnet.service.ICloudService;
 import java.util.function.BiConsumer;

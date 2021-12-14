@@ -18,8 +18,6 @@ package de.dytanic.cloudnet.service.defaults.factory;
 
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.driver.service.ServiceConfiguration;
-import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
-import de.dytanic.cloudnet.service.ICloudService;
 import de.dytanic.cloudnet.service.ICloudServiceFactory;
 import de.dytanic.cloudnet.service.ICloudServiceManager;
 import de.dytanic.cloudnet.util.PortValidator;

@@ -24,8 +24,6 @@
 
 package de.dytanic.cloudnet.driver.util.define;
 
-import java.lang.reflect.Field;
-
 /**
  * Gives access to the {@code Unsafe} class of the jvm which allows access to previously inaccessible magic.
  *

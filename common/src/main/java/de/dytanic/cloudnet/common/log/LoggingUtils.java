@@ -18,7 +18,6 @@ package de.dytanic.cloudnet.common.log;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import org.jetbrains.annotations.NotNull;

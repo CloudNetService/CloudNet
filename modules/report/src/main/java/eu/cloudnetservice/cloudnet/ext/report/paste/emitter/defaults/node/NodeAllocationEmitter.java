@@ -20,7 +20,6 @@ import de.dytanic.cloudnet.common.unsafe.CPUUsageResolver;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
 import eu.cloudnetservice.cloudnet.ext.report.paste.emitter.ReportDataEmitter;
 import java.lang.management.ManagementFactory;
-import java.lang.management.MemoryMXBean;
 
 public class NodeAllocationEmitter implements ReportDataEmitter<NetworkClusterNodeInfoSnapshot> {
 

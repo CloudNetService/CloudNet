@@ -24,7 +24,6 @@ import eu.cloudnetservice.modules.npc.AbstractNPCManagement;
 import eu.cloudnetservice.modules.npc.NPC;
 import eu.cloudnetservice.modules.npc.configuration.NPCConfiguration;
 import eu.cloudnetservice.modules.npc.platform.PlatformNPCManagement;
-import java.util.Collection;
 import org.jetbrains.annotations.NotNull;
 
 public final class NodeChannelMessageListener {

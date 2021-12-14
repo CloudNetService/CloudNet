@@ -21,7 +21,6 @@ import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot
 import de.dytanic.cloudnet.service.ICloudService;
 import eu.cloudnetservice.cloudnet.ext.report.config.PasteService;
 import eu.cloudnetservice.cloudnet.ext.report.paste.emitter.EmitterRegistry;
-import eu.cloudnetservice.cloudnet.ext.report.paste.emitter.ReportDataEmitter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

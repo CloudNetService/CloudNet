@@ -23,7 +23,6 @@ import de.dytanic.cloudnet.driver.network.chunk.ChunkedPacketHandler;
 import de.dytanic.cloudnet.driver.network.chunk.TransferStatus;
 import de.dytanic.cloudnet.driver.network.chunk.data.ChunkSessionInformation;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.nio.file.Files;
 import java.nio.file.Path;

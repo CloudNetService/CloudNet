@@ -17,8 +17,6 @@
 package de.dytanic.cloudnet.ext.chat;
 
 import de.dytanic.cloudnet.driver.CloudNetDriver;
-import de.dytanic.cloudnet.driver.permission.PermissionGroup;
-import de.dytanic.cloudnet.driver.permission.PermissionUser;
 import java.util.UUID;
 import java.util.function.BiFunction;
 import java.util.function.Function;

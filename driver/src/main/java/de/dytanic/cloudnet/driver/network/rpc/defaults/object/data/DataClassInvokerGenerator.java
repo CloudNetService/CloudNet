@@ -44,7 +44,6 @@ import de.dytanic.cloudnet.driver.network.rpc.annotation.RPCIgnore;
 import de.dytanic.cloudnet.driver.network.rpc.exception.ClassCreationException;
 import de.dytanic.cloudnet.driver.network.rpc.object.ObjectMapper;
 import de.dytanic.cloudnet.driver.util.define.ClassDefiners;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;

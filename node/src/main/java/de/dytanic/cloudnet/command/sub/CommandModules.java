@@ -33,7 +33,6 @@ import de.dytanic.cloudnet.common.column.RowBasedFormatter;
 import de.dytanic.cloudnet.common.language.I18n;
 import de.dytanic.cloudnet.driver.module.IModuleProvider;
 import de.dytanic.cloudnet.driver.module.IModuleWrapper;
-import de.dytanic.cloudnet.driver.module.ModuleDependency;
 import de.dytanic.cloudnet.driver.module.ModuleLifeCycle;
 import java.io.IOException;
 import java.net.MalformedURLException;

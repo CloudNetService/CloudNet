@@ -20,7 +20,6 @@ import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.driver.network.chunk.ChunkedPacketHandler.Callback;
 import de.dytanic.cloudnet.driver.network.chunk.data.ChunkSessionInformation;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
-import de.dytanic.cloudnet.driver.template.TemplateStorage;
 import java.io.InputStream;
 import org.jetbrains.annotations.NotNull;
 

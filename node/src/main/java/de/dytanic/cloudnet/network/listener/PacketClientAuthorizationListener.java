@@ -17,9 +17,7 @@
 package de.dytanic.cloudnet.network.listener;
 
 import de.dytanic.cloudnet.CloudNet;
-import de.dytanic.cloudnet.cluster.IClusterNodeServer;
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
-import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
 import de.dytanic.cloudnet.driver.network.def.NetworkConstants;
 import de.dytanic.cloudnet.driver.network.def.PacketClientAuthorization.PacketAuthorizationType;
@@ -30,8 +28,6 @@ import de.dytanic.cloudnet.event.network.NetworkClusterNodeAuthSuccessEvent;
 import de.dytanic.cloudnet.event.network.NetworkServiceAuthSuccessEvent;
 import de.dytanic.cloudnet.network.NodeNetworkUtils;
 import de.dytanic.cloudnet.network.packet.PacketServerAuthorizationResponse;
-import de.dytanic.cloudnet.service.ICloudService;
-import java.util.UUID;
 import org.jetbrains.annotations.NotNull;
 
 public final class PacketClientAuthorizationListener implements IPacketListener {

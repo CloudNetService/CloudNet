@@ -34,7 +34,6 @@ import de.dytanic.cloudnet.common.language.I18n;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.database.AbstractDatabaseProvider;
-import de.dytanic.cloudnet.database.LocalDatabase;
 import java.util.List;
 import java.util.Queue;
 import java.util.stream.Collectors;

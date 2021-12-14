@@ -21,10 +21,8 @@ import de.dytanic.cloudnet.common.io.FileUtils;
 import de.dytanic.cloudnet.driver.network.chunk.ChunkedPacketHandler.Callback;
 import de.dytanic.cloudnet.driver.network.chunk.data.ChunkSessionInformation;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
-import de.dytanic.cloudnet.driver.template.TemplateStorage;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import org.jetbrains.annotations.NotNull;
 
 final class TemplateFileDeployCallback implements Callback {

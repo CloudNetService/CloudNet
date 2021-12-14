@@ -17,15 +17,12 @@
 package de.dytanic.cloudnet.cluster.sync;
 
 import org.javers.core.Changes;
-import org.javers.core.diff.Change;
 import org.javers.core.diff.changetype.ValueChange;
 import org.javers.core.diff.changetype.container.ContainerChange;
-import org.javers.core.diff.changetype.container.ContainerElementChange;
 import org.javers.core.diff.changetype.container.ElementValueChange;
 import org.javers.core.diff.changetype.container.ValueAddOrRemove;
 import org.javers.core.diff.changetype.container.ValueRemoved;
 import org.javers.core.diff.changetype.map.EntryAddOrRemove;
-import org.javers.core.diff.changetype.map.EntryChange;
 import org.javers.core.diff.changetype.map.EntryRemoved;
 import org.javers.core.diff.changetype.map.EntryValueChange;
 import org.javers.core.diff.changetype.map.MapChange;

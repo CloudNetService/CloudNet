@@ -19,7 +19,6 @@ package de.dytanic.cloudnet.ext.bridge.platform.bungeecord.command;
 import static net.md_5.bungee.api.chat.TextComponent.fromLegacyText;
 
 import de.dytanic.cloudnet.driver.CloudNetDriver;
-import de.dytanic.cloudnet.driver.command.CommandInfo;
 import de.dytanic.cloudnet.ext.bridge.platform.PlatformBridgeManagement;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.connection.ProxiedPlayer;

@@ -18,8 +18,6 @@ package eu.cloudnetservice.cloudnet.modules.labymod.config;
 
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.ext.bridge.BridgeServiceHelper;
-import java.util.function.Function;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class LabyModServiceDisplay {

@@ -16,7 +16,6 @@
 
 package de.dytanic.cloudnet.driver.module;
 
-import java.net.URL;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

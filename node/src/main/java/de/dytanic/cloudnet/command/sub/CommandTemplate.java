@@ -37,7 +37,6 @@ import de.dytanic.cloudnet.common.column.RowBasedFormatter;
 import de.dytanic.cloudnet.common.language.I18n;
 import de.dytanic.cloudnet.driver.service.ServiceEnvironmentType;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;
-import de.dytanic.cloudnet.driver.template.SpecificTemplateStorage;
 import de.dytanic.cloudnet.driver.template.TemplateStorage;
 import de.dytanic.cloudnet.template.TemplateStorageUtil;
 import de.dytanic.cloudnet.template.install.InstallInformation;
@@ -51,7 +50,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Queue;
 import java.util.stream.Collectors;
-import java.util.zip.ZipInputStream;
 
 @CommandAlias("t")
 @CommandPermission("cloudnet.command.templates")

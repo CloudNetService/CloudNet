@@ -17,7 +17,6 @@
 package de.dytanic.cloudnet.cluster;
 
 import de.dytanic.cloudnet.CloudNet;
-import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;

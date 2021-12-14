@@ -23,7 +23,6 @@ import de.dytanic.cloudnet.driver.network.http.IHttpContext;
 import de.dytanic.cloudnet.ext.rest.RestUtils;
 import de.dytanic.cloudnet.http.HttpSession;
 import de.dytanic.cloudnet.http.V2HttpHandler;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.function.BiConsumer;
 

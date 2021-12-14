@@ -26,7 +26,6 @@ import com.velocitypowered.api.proxy.ProxyServer;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.ext.cloudperms.velocity.listener.VelocityCloudPermissionsPlayerListener;
 import de.dytanic.cloudnet.wrapper.Wrapper;
-import java.lang.reflect.Field;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 

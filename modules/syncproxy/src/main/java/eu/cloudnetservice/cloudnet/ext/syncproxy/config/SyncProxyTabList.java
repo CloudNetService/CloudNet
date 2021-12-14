@@ -18,9 +18,6 @@ package eu.cloudnetservice.cloudnet.ext.syncproxy.config;
 
 import com.google.common.base.Verify;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
-import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
-import de.dytanic.cloudnet.driver.permission.PermissionGroup;
-import de.dytanic.cloudnet.driver.permission.PermissionUser;
 import de.dytanic.cloudnet.wrapper.Wrapper;
 import eu.cloudnetservice.cloudnet.ext.syncproxy.SyncProxyConstants;
 import java.text.DateFormat;

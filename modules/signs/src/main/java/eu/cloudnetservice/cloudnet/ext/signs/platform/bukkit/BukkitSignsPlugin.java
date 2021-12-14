@@ -24,7 +24,6 @@ import eu.cloudnetservice.cloudnet.ext.signs.platform.bukkit.functionality.Comma
 import eu.cloudnetservice.cloudnet.ext.signs.platform.bukkit.functionality.SignInteractListener;
 import org.bukkit.Bukkit;
 import org.bukkit.block.Sign;
-import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class BukkitSignsPlugin extends JavaPlugin {

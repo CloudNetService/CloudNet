@@ -16,7 +16,6 @@
 
 package de.dytanic.cloudnet.common.log;
 
-import java.util.Iterator;
 import java.util.ServiceLoader;
 import org.jetbrains.annotations.NotNull;
 

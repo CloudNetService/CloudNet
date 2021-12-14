@@ -20,7 +20,6 @@ import com.google.gson.JsonParseException;
 import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
-import de.dytanic.cloudnet.ext.signs.configuration.SignConfiguration;
 import de.dytanic.cloudnet.ext.signs.configuration.SignConfigurationReaderAndWriter;
 import de.dytanic.cloudnet.ext.signs.configuration.entry.SignLayoutConfiguration;
 import eu.cloudnetservice.cloudnet.ext.signs.configuration.SignConfigurationEntry;

@@ -22,7 +22,6 @@ import de.dytanic.cloudnet.driver.network.protocol.IPacketSender;
 import java.util.Collection;
 import java.util.concurrent.Executor;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 import org.jetbrains.annotations.Unmodifiable;
 

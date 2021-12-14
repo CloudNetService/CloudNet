@@ -25,7 +25,6 @@ import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.network.protocol.IPacketListener;
 import de.dytanic.cloudnet.provider.NodeMessenger;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 import org.jetbrains.annotations.NotNull;

@@ -29,8 +29,6 @@ import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import de.dytanic.cloudnet.driver.network.chunk.ChunkedPacketSender;
 import de.dytanic.cloudnet.driver.network.chunk.TransferStatus;
 import de.dytanic.cloudnet.driver.network.cluster.NetworkCluster;
-import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNode;
-import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
 import de.dytanic.cloudnet.driver.network.def.NetworkConstants;
 import de.dytanic.cloudnet.driver.network.protocol.IPacket;
 import de.dytanic.cloudnet.driver.service.ServiceTemplate;

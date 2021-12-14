@@ -20,7 +20,6 @@ import cn.nukkit.Player;
 import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
-import java.lang.reflect.Field;
 import org.jetbrains.annotations.NotNull;
 
 public final class NukkitPermissionInjectionHelper {

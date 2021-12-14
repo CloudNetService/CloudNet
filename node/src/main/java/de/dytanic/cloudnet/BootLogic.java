@@ -28,9 +28,7 @@ import de.dytanic.cloudnet.common.log.io.LogOutputStream;
 import de.dytanic.cloudnet.console.IConsole;
 import de.dytanic.cloudnet.console.JLine3Console;
 import de.dytanic.cloudnet.console.log.ColouredLogFormatter;
-import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.logging.Formatter;
 import org.jetbrains.annotations.NotNull;
 
 public final class BootLogic {

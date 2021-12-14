@@ -18,7 +18,6 @@ package eu.cloudnetservice.cloudnet.ext.signs.util;
 
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.ext.bridge.BridgeServiceHelper;
-import de.dytanic.cloudnet.ext.bridge.BridgeServiceHelper.ServiceInfoState;
 import eu.cloudnetservice.cloudnet.ext.signs.configuration.SignConfigurationEntry;
 import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.NotNull;

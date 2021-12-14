@@ -16,13 +16,11 @@
 
 package de.dytanic.cloudnet.command.defaults;
 
-import cloud.commandframework.context.CommandContext;
 import cloud.commandframework.execution.preprocessor.CommandPreprocessingContext;
 import cloud.commandframework.execution.preprocessor.CommandPreprocessor;
 import cloud.commandframework.services.types.ConsumerService;
 import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.command.source.CommandSource;
-import de.dytanic.cloudnet.driver.command.CommandInfo;
 import de.dytanic.cloudnet.event.command.CommandPreProcessEvent;
 import org.checkerframework.checker.nullness.qual.NonNull;
 

@@ -17,14 +17,10 @@
 package eu.cloudnetservice.cloudnet.ext.signs.platform.nukkit.functionality;
 
 import cn.nukkit.Player;
-import cn.nukkit.block.Block;
-import cn.nukkit.blockentity.BlockEntity;
 import cn.nukkit.blockentity.BlockEntitySign;
 import cn.nukkit.command.Command;
 import cn.nukkit.command.CommandExecutor;
 import cn.nukkit.command.CommandSender;
-import eu.cloudnetservice.cloudnet.ext.signs.Sign;
-import eu.cloudnetservice.cloudnet.ext.signs.configuration.SignConfigurationEntry;
 import eu.cloudnetservice.cloudnet.ext.signs.platform.PlatformSignManagement;
 
 public class CommandSigns implements CommandExecutor {

@@ -17,7 +17,6 @@
 package eu.cloudnetservice.cloudnet.ext.signs.node;
 
 import de.dytanic.cloudnet.CloudNet;
-import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.database.Database;

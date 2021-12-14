@@ -23,7 +23,6 @@ import de.dytanic.cloudnet.ext.bridge.platform.PlatformBridgeManagement;
 import de.dytanic.cloudnet.ext.bridge.platform.PlatformPlayerExecutorAdapter;
 import de.dytanic.cloudnet.ext.bridge.player.executor.ServerSelectorType;
 import dev.waterdog.waterdogpe.ProxyServer;
-import dev.waterdog.waterdogpe.network.serverinfo.ServerInfo;
 import dev.waterdog.waterdogpe.player.ProxiedPlayer;
 import dev.waterdog.waterdogpe.utils.types.TextContainer;
 import java.util.Collection;

@@ -18,7 +18,6 @@ package de.dytanic.cloudnet.ext.simplenametags;
 
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.permission.PermissionGroup;
-import de.dytanic.cloudnet.driver.permission.PermissionUser;
 import de.dytanic.cloudnet.ext.simplenametags.event.PrePlayerPrefixSetEvent;
 import java.util.Collection;
 import java.util.UUID;

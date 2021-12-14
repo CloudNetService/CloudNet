@@ -26,7 +26,6 @@ import de.dytanic.cloudnet.event.setup.SetupInitiateEvent;
 import eu.cloudnetservice.modules.npc.configuration.NPCConfiguration;
 import eu.cloudnetservice.modules.npc.configuration.NPCConfigurationEntry;
 import eu.cloudnetservice.modules.npc.node.NodeNPCManagement;
-import java.util.List;
 import org.jetbrains.annotations.NotNull;
 
 public final class NodeSetupListener {

@@ -18,8 +18,6 @@ package de.dytanic.cloudnet.console;
 
 import de.dytanic.cloudnet.common.concurrent.CompletableTask;
 import de.dytanic.cloudnet.common.concurrent.ITask;
-import de.dytanic.cloudnet.console.animation.AbstractConsoleAnimation;
-import de.dytanic.cloudnet.console.handler.ConsoleInputHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jline.reader.EndOfFileException;

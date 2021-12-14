@@ -18,7 +18,6 @@ package de.dytanic.cloudnet.ext.cloudperms.bungee;
 
 import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
 import de.dytanic.cloudnet.driver.permission.Permission;
-import de.dytanic.cloudnet.driver.permission.PermissionUser;
 import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsHelper;
 import java.util.UUID;
 import net.md_5.bungee.api.ChatColor;

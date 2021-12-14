@@ -18,15 +18,12 @@ package eu.cloudnetservice.modules.npc.platform.bukkit.entity;
 
 import com.github.juliarn.npc.NPCPool;
 import com.github.juliarn.npc.modifier.AnimationModifier.EntityAnimation;
-import com.github.juliarn.npc.modifier.EquipmentModifier;
-import com.github.juliarn.npc.modifier.MetadataModifier;
 import com.github.juliarn.npc.modifier.MetadataModifier.EntityMetadata;
 import com.github.juliarn.npc.modifier.NPCModifier;
 import com.github.juliarn.npc.profile.Profile;
 import com.github.juliarn.npc.profile.Profile.Property;
 import eu.cloudnetservice.modules.npc.NPC;
 import eu.cloudnetservice.modules.npc.platform.bukkit.BukkitPlatformNPCManagement;
-import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;

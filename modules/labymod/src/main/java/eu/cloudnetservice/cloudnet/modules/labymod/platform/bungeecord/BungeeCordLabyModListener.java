@@ -17,7 +17,6 @@
 package eu.cloudnetservice.cloudnet.modules.labymod.platform.bungeecord;
 
 import eu.cloudnetservice.cloudnet.modules.labymod.LabyModManagement;
-import eu.cloudnetservice.cloudnet.modules.labymod.config.LabyModConfiguration;
 import eu.cloudnetservice.cloudnet.modules.labymod.platform.PlatformLabyModManagement;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.PluginMessageEvent;

@@ -16,7 +16,6 @@
 
 package de.dytanic.cloudnet.ext.chat;
 
-import cn.nukkit.Player;
 import cn.nukkit.event.EventHandler;
 import cn.nukkit.event.EventPriority;
 import cn.nukkit.event.Listener;

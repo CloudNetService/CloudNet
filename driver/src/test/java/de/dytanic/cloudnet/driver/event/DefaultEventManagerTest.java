@@ -16,7 +16,6 @@
 
 package de.dytanic.cloudnet.driver.event;
 
-import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.driver.DriverEnvironment;
 import de.dytanic.cloudnet.driver.DriverTestUtility;
 import de.dytanic.cloudnet.driver.channel.ChannelMessage;

@@ -27,7 +27,6 @@ import org.bukkit.DyeColor;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.material.Colorable;
-import org.bukkit.material.MaterialData;
 import org.bukkit.material.Sign;
 import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.NotNull;

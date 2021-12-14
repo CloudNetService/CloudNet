@@ -19,7 +19,6 @@ package de.dytanic.cloudnet.ext.cloudperms.sponge.service.permissible;
 import de.dytanic.cloudnet.driver.permission.IPermissible;
 import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
 import de.dytanic.cloudnet.driver.permission.Permission;
-import de.dytanic.cloudnet.driver.permission.PermissionCheckResult;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;

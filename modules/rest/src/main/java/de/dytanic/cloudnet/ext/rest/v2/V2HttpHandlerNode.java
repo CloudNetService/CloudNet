@@ -17,8 +17,6 @@
 package de.dytanic.cloudnet.ext.rest.v2;
 
 import de.dytanic.cloudnet.CloudNet;
-import de.dytanic.cloudnet.cluster.NodeServer;
-import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.common.log.AbstractHandler;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.defaults.DefaultLogFormatter;

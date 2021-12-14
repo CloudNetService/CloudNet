@@ -26,9 +26,6 @@ import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
 import de.dytanic.cloudnet.event.service.CloudServicePostLifecycleEvent;
 import de.dytanic.cloudnet.ext.bridge.BridgeServiceProperties;
 import de.dytanic.cloudnet.ext.bridge.node.player.NodePlayerManager;
-import de.dytanic.cloudnet.ext.bridge.player.CloudPlayer;
-import de.dytanic.cloudnet.ext.bridge.player.ServicePlayer;
-import java.util.Collection;
 import org.jetbrains.annotations.NotNull;
 
 public final class BridgeLocalProxyPlayerDisconnectListener {

@@ -33,22 +33,18 @@ import de.dytanic.cloudnet.common.INameable;
 import de.dytanic.cloudnet.common.language.I18n;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
-import de.dytanic.cloudnet.driver.network.cluster.NetworkClusterNodeInfoSnapshot;
 import de.dytanic.cloudnet.service.ICloudService;
 import eu.cloudnetservice.cloudnet.ext.report.CloudNetReportModule;
 import eu.cloudnetservice.cloudnet.ext.report.config.PasteService;
 import eu.cloudnetservice.cloudnet.ext.report.paste.PasteCreator;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
-import java.lang.management.ThreadInfo;
-import java.lang.management.ThreadMXBean;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Queue;
 import java.util.stream.Collectors;
-import javax.management.MBeanServer;
 import org.jetbrains.annotations.Nullable;
 
 @CommandAlias("paste")

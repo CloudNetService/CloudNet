@@ -17,8 +17,6 @@
 package eu.cloudnetservice.cloudnet.ext.syncproxy.platform.bungee;
 
 import de.dytanic.cloudnet.ext.bridge.platform.bungeecord.PendingConnectionProxiedPlayer;
-import eu.cloudnetservice.cloudnet.ext.syncproxy.config.SyncProxyLoginConfiguration;
-import eu.cloudnetservice.cloudnet.ext.syncproxy.config.SyncProxyMotd;
 import java.util.Arrays;
 import java.util.UUID;
 import net.md_5.bungee.api.ServerPing;

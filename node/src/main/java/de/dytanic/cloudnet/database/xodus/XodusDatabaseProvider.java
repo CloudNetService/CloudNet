@@ -29,7 +29,6 @@ import java.util.concurrent.Executors;
 import jetbrains.exodus.env.Environment;
 import jetbrains.exodus.env.EnvironmentConfig;
 import jetbrains.exodus.env.Environments;
-import jetbrains.exodus.env.Store;
 import jetbrains.exodus.env.StoreConfig;
 import org.jetbrains.annotations.NotNull;
 

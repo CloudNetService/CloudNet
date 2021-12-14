@@ -19,9 +19,6 @@ package eu.cloudnetservice.cloudnet.ext.syncproxy.platform.waterdog;
 import dev.waterdog.waterdogpe.ProxyServer;
 import dev.waterdog.waterdogpe.event.defaults.PlayerLoginEvent;
 import dev.waterdog.waterdogpe.event.defaults.ProxyPingEvent;
-import dev.waterdog.waterdogpe.player.ProxiedPlayer;
-import eu.cloudnetservice.cloudnet.ext.syncproxy.config.SyncProxyLoginConfiguration;
-import eu.cloudnetservice.cloudnet.ext.syncproxy.config.SyncProxyMotd;
 import org.jetbrains.annotations.NotNull;
 
 public final class WaterDogPESyncProxyListener {

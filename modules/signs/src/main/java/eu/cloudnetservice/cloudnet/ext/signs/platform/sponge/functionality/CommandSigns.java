@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.cloudnet.ext.signs.platform.sponge.functionality;
 
-import eu.cloudnetservice.cloudnet.ext.signs.Sign;
 import eu.cloudnetservice.cloudnet.ext.signs.platform.PlatformSignManagement;
 import java.util.Optional;
 import net.kyori.adventure.identity.Identity;

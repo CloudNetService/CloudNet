@@ -19,7 +19,6 @@ package de.dytanic.cloudnet.ext.cloudperms.sponge.service.permissible.user;
 import static de.dytanic.cloudnet.ext.cloudperms.sponge.service.permissible.user.UUIDUtil.parseFromString;
 
 import com.google.common.base.Verify;
-import de.dytanic.cloudnet.driver.permission.CachedPermissionManagement;
 import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
 import de.dytanic.cloudnet.driver.permission.PermissionUser;
 import de.dytanic.cloudnet.ext.cloudperms.CloudPermissionsHelper;

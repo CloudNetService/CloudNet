@@ -22,7 +22,6 @@ import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
 import de.dytanic.cloudnet.driver.util.DefaultModuleHelper;
 import de.dytanic.cloudnet.event.service.CloudServicePreLifecycleEvent;
 import de.dytanic.cloudnet.ext.bridge.BridgeManagement;
-import java.nio.file.Path;
 import org.jetbrains.annotations.NotNull;
 
 public final class BridgePluginIncludeListener {

@@ -17,7 +17,6 @@
 package de.dytanic.cloudnet.launcher.version.update;
 
 import de.dytanic.cloudnet.launcher.version.InstalledVersionInfo;
-import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;

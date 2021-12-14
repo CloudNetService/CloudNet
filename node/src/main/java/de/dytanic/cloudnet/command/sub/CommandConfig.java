@@ -33,7 +33,6 @@ import de.dytanic.cloudnet.common.language.I18n;
 import de.dytanic.cloudnet.config.IConfiguration;
 import de.dytanic.cloudnet.config.IConfiguration.DefaultJVMFlags;
 import de.dytanic.cloudnet.config.JsonConfiguration;
-import java.util.Collection;
 import java.util.Queue;
 
 @Description("")

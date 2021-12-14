@@ -16,7 +16,6 @@
 
 package de.dytanic.cloudnet.common.document.gson;
 
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.TypeAdapter;
 import com.google.gson.internal.bind.TypeAdapters;

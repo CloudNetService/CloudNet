@@ -23,7 +23,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
-import java.util.List;
 import org.jetbrains.annotations.NotNull;
 
 public final class ReportConfigurationHelper {

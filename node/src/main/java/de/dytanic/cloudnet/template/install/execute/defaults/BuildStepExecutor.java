@@ -21,7 +21,6 @@ import de.dytanic.cloudnet.CloudNet;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.template.install.InstallInformation;
-import de.dytanic.cloudnet.template.install.ServiceVersion;
 import de.dytanic.cloudnet.template.install.execute.InstallStepExecutor;
 import java.io.BufferedReader;
 import java.io.IOException;

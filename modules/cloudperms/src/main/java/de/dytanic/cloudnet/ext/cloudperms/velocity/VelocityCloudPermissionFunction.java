@@ -20,7 +20,6 @@ import com.velocitypowered.api.permission.PermissionFunction;
 import com.velocitypowered.api.permission.Tristate;
 import de.dytanic.cloudnet.driver.permission.IPermissionManagement;
 import de.dytanic.cloudnet.driver.permission.Permission;
-import de.dytanic.cloudnet.driver.permission.PermissionUser;
 import java.util.UUID;
 
 final class VelocityCloudPermissionFunction implements PermissionFunction {

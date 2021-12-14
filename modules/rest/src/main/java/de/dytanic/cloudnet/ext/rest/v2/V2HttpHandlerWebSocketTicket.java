@@ -19,7 +19,6 @@ package de.dytanic.cloudnet.ext.rest.v2;
 import de.dytanic.cloudnet.driver.network.http.IHttpContext;
 import de.dytanic.cloudnet.http.HttpSession;
 import de.dytanic.cloudnet.http.V2HttpHandler;
-import de.dytanic.cloudnet.http.ticket.WebSocketTicket;
 
 public class V2HttpHandlerWebSocketTicket extends V2HttpHandler {
 

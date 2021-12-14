@@ -18,8 +18,6 @@ package eu.cloudnetservice.cloudnet.ext.signs.platform.bukkit.functionality;
 
 import de.dytanic.cloudnet.driver.CloudNetDriver;
 import de.dytanic.cloudnet.ext.bridge.player.IPlayerManager;
-import eu.cloudnetservice.cloudnet.ext.signs.Sign;
-import eu.cloudnetservice.cloudnet.ext.signs.configuration.SignConfigurationEntry;
 import eu.cloudnetservice.cloudnet.ext.signs.platform.PlatformSignManagement;
 import eu.cloudnetservice.cloudnet.ext.signs.platform.bukkit.event.BukkitCloudSignInteractEvent;
 import org.bukkit.Bukkit;

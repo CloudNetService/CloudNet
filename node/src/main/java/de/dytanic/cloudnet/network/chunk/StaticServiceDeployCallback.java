@@ -23,10 +23,8 @@ import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
 import de.dytanic.cloudnet.driver.network.chunk.ChunkedPacketHandler.Callback;
 import de.dytanic.cloudnet.driver.network.chunk.data.ChunkSessionInformation;
-import de.dytanic.cloudnet.service.ICloudServiceManager;
 import java.io.InputStream;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import org.jetbrains.annotations.NotNull;
 
 final class StaticServiceDeployCallback implements Callback {

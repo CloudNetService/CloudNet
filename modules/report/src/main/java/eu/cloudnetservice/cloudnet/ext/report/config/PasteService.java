@@ -19,7 +19,6 @@ package eu.cloudnetservice.cloudnet.ext.report.config;
 import de.dytanic.cloudnet.common.INameable;
 import de.dytanic.cloudnet.common.log.LogManager;
 import de.dytanic.cloudnet.common.log.Logger;
-import kong.unirest.HttpResponse;
 import kong.unirest.Unirest;
 import kong.unirest.UnirestException;
 import org.jetbrains.annotations.NotNull;

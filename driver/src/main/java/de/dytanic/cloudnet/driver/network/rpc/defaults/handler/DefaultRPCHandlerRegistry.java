@@ -20,7 +20,6 @@ import de.dytanic.cloudnet.driver.network.rpc.RPCHandler;
 import de.dytanic.cloudnet.driver.network.rpc.RPCHandlerRegistry;
 import java.util.Collections;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

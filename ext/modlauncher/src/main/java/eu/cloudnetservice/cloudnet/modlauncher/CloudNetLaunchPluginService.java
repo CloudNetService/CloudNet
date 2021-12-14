@@ -19,7 +19,6 @@ package eu.cloudnetservice.cloudnet.modlauncher;
 import cpw.mods.modlauncher.Launcher;
 import cpw.mods.modlauncher.TransformingClassLoader;
 import cpw.mods.modlauncher.serviceapi.ILaunchPluginService;
-import java.lang.reflect.Field;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collection;

@@ -38,7 +38,6 @@ import de.dytanic.cloudnet.ext.bridge.player.CloudPlayer;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkPlayerProxyInfo;
 import de.dytanic.cloudnet.ext.bridge.player.NetworkServiceInfo;
 import java.util.Locale;
-import java.util.UUID;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
 

@@ -18,7 +18,6 @@ package de.dytanic.cloudnet.driver.network.http;
 
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import org.jetbrains.annotations.ApiStatus;
 
 @ToString
 @EqualsAndHashCode

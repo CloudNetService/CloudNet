@@ -26,9 +26,7 @@ import de.dytanic.cloudnet.driver.event.events.service.CloudServiceLifecycleChan
 import de.dytanic.cloudnet.driver.network.INetworkChannel;
 import de.dytanic.cloudnet.driver.network.buffer.DataBuf;
 import de.dytanic.cloudnet.driver.network.def.NetworkConstants;
-import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceLifeCycle;
-import de.dytanic.cloudnet.service.ICloudService;
 import org.jetbrains.annotations.NotNull;
 
 final class ClusterNodeServerUtils {

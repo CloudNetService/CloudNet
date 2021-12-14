@@ -21,7 +21,6 @@ import de.dytanic.cloudnet.console.animation.AbstractConsoleAnimation;
 import de.dytanic.cloudnet.console.handler.ConsoleInputHandler;
 import de.dytanic.cloudnet.console.handler.ConsoleTabCompleteHandler;
 import java.util.Collection;
-import java.util.List;
 import java.util.UUID;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

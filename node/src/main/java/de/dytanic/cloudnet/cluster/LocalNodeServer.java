@@ -29,7 +29,6 @@ import de.dytanic.cloudnet.driver.provider.service.SpecificCloudServiceProvider;
 import de.dytanic.cloudnet.driver.service.ProcessSnapshot;
 import de.dytanic.cloudnet.driver.service.ServiceInfoSnapshot;
 import de.dytanic.cloudnet.event.cluster.LocalNodeSnapshotConfigureEvent;
-import de.dytanic.cloudnet.service.ICloudService;
 import de.dytanic.cloudnet.service.defaults.provider.EmptySpecificCloudServiceProvider;
 import java.util.Collection;
 import java.util.stream.Collectors;

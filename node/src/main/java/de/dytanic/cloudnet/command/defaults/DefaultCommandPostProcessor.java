@@ -16,7 +16,6 @@
 
 package de.dytanic.cloudnet.command.defaults;
 
-import cloud.commandframework.context.CommandContext;
 import cloud.commandframework.execution.postprocessor.CommandPostprocessingContext;
 import cloud.commandframework.execution.postprocessor.CommandPostprocessor;
 import de.dytanic.cloudnet.CloudNet;

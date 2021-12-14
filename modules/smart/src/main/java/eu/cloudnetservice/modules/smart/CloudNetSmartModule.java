@@ -17,7 +17,6 @@
 package eu.cloudnetservice.modules.smart;
 
 import de.dytanic.cloudnet.CloudNet;
-import de.dytanic.cloudnet.common.document.gson.JsonDocument;
 import de.dytanic.cloudnet.driver.module.ModuleLifeCycle;
 import de.dytanic.cloudnet.driver.module.ModuleTask;
 import de.dytanic.cloudnet.driver.module.driver.DriverModule;

@@ -25,7 +25,6 @@ import de.dytanic.cloudnet.database.LocalDatabase;
 import de.dytanic.cloudnet.database.sql.SQLDatabaseProvider;
 import de.dytanic.cloudnet.ext.database.mysql.util.MySQLConnectionEndpoint;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;

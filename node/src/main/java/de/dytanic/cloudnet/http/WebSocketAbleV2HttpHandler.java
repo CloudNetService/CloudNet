@@ -18,8 +18,6 @@ package de.dytanic.cloudnet.http;
 
 import com.google.common.collect.Iterables;
 import de.dytanic.cloudnet.driver.network.http.IHttpContext;
-import de.dytanic.cloudnet.http.ticket.WebSocketTicket;
-import java.util.List;
 import java.util.function.BiPredicate;
 
 public abstract class WebSocketAbleV2HttpHandler extends V2HttpHandler {
