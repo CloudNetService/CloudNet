@@ -174,8 +174,7 @@ public class ServiceVersionProvider {
     }
 
     if (information.getServiceVersion().isDeprecated()) {
-      LOGGER.warning(I18n.trans("versions-installer-deprecated-version")
-        .replace("%version%", fullVersionIdentifier));
+      LOGGER.warning(I18n.trans("versions-installer-deprecated-version"));
     }
 
     try {
